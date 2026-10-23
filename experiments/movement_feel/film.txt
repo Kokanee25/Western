@@ -1,0 +1,77 @@
+time 10
+goto 24 0 -9 270
+weapon revolver
+wait 1.5
+hold move_forward
+wait 3
+release move_forward
+wait 1.5
+hold move_forward
+hold run
+wait 4
+release run
+release move_forward
+wait 2
+hold move_left
+wait 1.2
+release move_left
+hold move_right
+wait 1.2
+release move_right
+wait 1
+hold move_forward
+turn 12
+wait 0.1
+turn 12
+wait 0.1
+turn 12
+wait 0.1
+turn -12
+wait 0.1
+turn -12
+wait 0.1
+turn -12
+wait 1
+release move_forward
+press jump 0.1
+wait 2
+hold crouch
+wait 1.5
+release crouch
+wait 1.5
+hold aim
+hold move_forward
+wait 2.5
+release move_forward
+release aim
+wait 1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+wait 2
+hold move_forward
+wait 2.5
+release move_forward
+wait 1
+turn 20
+wait 0.15
+turn 20
+wait 0.15
+turn 20
+wait 0.5
+hold move_forward
+hold run
+wait 1.5
+release run
+release move_forward
+wait 1.5
+hold crouch
+hold move_forward
+wait 2
+release move_forward
+release crouch
+wait 1.5
