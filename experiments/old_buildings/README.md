@@ -30,7 +30,8 @@ porch roof boards gone; treads worn hollow, one step cracked in two, planks rock
 `sh experiments/old_buildings/shoot.sh OUT` renders `views.txt` (each building's front at noon, the
 doctor's side, the livery broadside and from the east, under the store's porch, the street west)
 twice: as new (`--game-args=--young-town`) and as old. `python3 experiments/old_buildings/sheet.py
-OUT sheet.jpg` puts them side by side. About 2 minutes a shot under lavapipe.
+OUT sheet.jpg` puts them side by side. About 2 minutes a shot under lavapipe. The sheet and the
+blind critic's report are in `results/` (`sheet.jpg`, `critic.md`; Godot doesn't import it).
 
 ## Cost
 
