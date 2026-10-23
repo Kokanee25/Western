@@ -474,8 +474,12 @@ frozen until Sean names one.
   street saloon's stair).
 - **The street's shape** (2026-10-23, street 1 of 4, issue #325, branch `claude/gameplay-street-shape`,
   PR waiting on light pass round 2's goldens): the street's middle a curve with a jog at Market Street
-  (`TownLayout.street_z`), fronts off the ruler, an empty lot, the ground climbing west (`ground.rise`);
+  (`TownLayout.street_z`), fronts off the ruler, an empty lot, the ground graded (`ground`: flat from the store east, a metre up to Market Street, then 3 m out of town; buildings on footings);
   LAYOUT.md "The street's shape"; `experiments/street_shape/`. Next: its `next session` issue.
+- **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
+  its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
+  `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
+  #331, after light pass round 2 (#329).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

@@ -315,7 +315,11 @@ func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2]
 	var col := 0
 	var x := x_from
 	while x < x_to - 0.02:
-		var x1 := minf(x + VERTICAL_BOARD_W, x_to)
+		var bw := VERTICAL_BOARD_W
+		if age_years > 0.0 and BuildingAge.enabled:
+			# An old building's boards came from whatever the mill had (BuildingAge).
+			bw *= 1.0 + rand_range(-1.0, 1.0) * BuildingAge.tuning().board_width_spread
+		var x1 := minf(x + bw, x_to)
 		var top := minf(top_at.call(x), top_at.call(x1))
 		var cuts: Array[Vector2] = []
 		for o in openings:
