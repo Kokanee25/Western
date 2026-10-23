@@ -36,6 +36,9 @@ func _ready() -> void:
 	panel.name = "LookPanel"
 	add_child(panel)
 	LookPreset.apply_from_args.call_deferred(get_tree())  # --look=FILE
+	var looks := LightLooks.new()  # 8: the light pass's looks, today / A / B / C
+	looks.name = "LightLooks"
+	add_child(looks)
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -103,6 +106,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_surface_blocks(not Settings.surface_blocks)
 	elif event.is_action_pressed(&"debug_probe_mosaic"):
 		Settings.set_probe_mosaic(not Settings.probe_mosaic)
+	elif event.is_action_pressed(&"reset_game"):
+		GameReset.reset(get_tree())
 
 
 func _exit_tree() -> void:

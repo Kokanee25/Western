@@ -7,7 +7,7 @@ Guns (you start holstered; H draws): cock Q / wheel down / RB, fire LMB / RT, ai
 Dynamite: Q lights the fuse, hold LMB and let go to throw (longer = harder), RMB sets it down; don't hold it lit too long
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
-Jump: Space / A     Time speed: T     Debug readout: F3 / View     Movement light / middle / heavy: F
+Jump: Space / A     Time held / running / faster: T     Noon / afternoon / golden hour / night: 7     Light look (today, A, B, C): 8     Start again: Backspace     Debug readout: F3 / View     Movement light / middle / heavy: F
 Pixel size: F2 (last = native)     Pixel shading: F6     Texel size: F7     Tiles off/square/ragged: P     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
 Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Three gunmen in the saloon (A/B/C playtest): Y next run, X this run again, Z free play     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L     Save a bug report: F12 / Back + Y     Tear a wound open: J     Reduced gore: F4     Look panel (sliders for the light and squares): N / Back + Start
@@ -56,6 +56,10 @@ func _ready() -> void:
 	_toast.visible = false
 	_toast.add_theme_font_size_override(&"font_size", 22)
 	Settings.changed.connect(_show_look)
+	Events.time_scale_changed.connect(_show_time)
+	if GameReset.just_reset:
+		GameReset.just_reset = false
+		toast.call_deferred("Started again (Backspace)")
 	if DisplayServer.is_touchscreen_available():
 		_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + "Left thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time, gun (swap)"
 
@@ -76,6 +80,21 @@ func _show_look() -> void:
 	_toast.text = Settings.look_description()
 	_toast.visible = true
 	_toast_timer = 3.0
+
+
+## T and 7: the clock held or running, and the hour.
+func _show_time(_scale: float) -> void:
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	if clock == null:
+		return
+	toast(clock.describe_speed())
+
+
+## A line at the bottom of the screen for a few seconds.
+func toast(text: String, seconds := 3.0) -> void:
+	_toast.text = text
+	_toast.visible = true
+	_toast_timer = seconds
 
 
 ## F: which way of moving you've switched to (Player.next_movement).

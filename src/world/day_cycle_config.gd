@@ -5,9 +5,16 @@ extends Resource
 
 ## Real seconds per in-game day (45 minutes).
 @export var day_length_seconds := 2700.0
-@export var start_hour := 17.0
-## T (or Y on a controller) cycles through these multipliers.
+@export var start_hour := 12.0
+## The clock stands still from the start (Sean, 2026-10-23: "daytime stays daytime"); T lets it
+## run. A dial so a mission can start with the clock running. Held, the clock doesn't move but
+## time_scale stays as it was: bleeding and the body's clocks run on time_scale, not the hour.
+@export var hold_clock := true
+## T cycles through these multipliers, then back to held (when hold_clock), then round again.
 @export var debug_time_scales: Array[float] = [1.0, 30.0, 180.0]
+## The hour key's stops (DayCycle.next_hour_stop): noon, afternoon, golden hour, night, to
+## compare the light looks at each.
+@export var hour_stops: Array[float] = [12.0, 15.5, 17.6, 21.5]
 
 @export_group("Sun path")
 ## Tilt of the sun's arc away from straight overhead (roughly the latitude).
@@ -58,6 +65,26 @@ extends Resource
 ## bright lamps: median L* 12).
 @export var exposure_low_sun := 0.85
 @export var exposure_night := 0.8
+
+@export_group("High sun")
+## The light pass (issue #318, Sean: "the day time outside looks the worst"): what changes as the
+## sun climbs, by `high` (0 with the sun under ~18 degrees, 1 from ~48 up: noon is ~55). Each is
+## as it was at its default; the light looks (config/looks/light_*.json) set them.
+## Exposure with the sun high (the ground was white at 1).
+@export var exposure_day := 1.0
+## The ambient's share from the sky at noon (the rest the horizon's warm colour, ambient_warm_level).
+@export var ambient_sky_day := 1.0
+## The sky overhead with the sun high: its colour's saturation (a hot desert sky is paler than the
+## cartoon blue), and how far it goes toward the horizon's colour.
+@export var sky_high_saturation := 1.0
+@export var sky_high_pale := 0.0
+## The horizon with the sun high goes toward `sky_high_haze` (near white-hot) by this much.
+@export var sky_high_white := 0.0
+@export var sky_high_haze := Color(0.96, 0.93, 0.86)
+## The haze down the street and the volumetric haze with the sun high, as shares of fog_density
+## and volumetric_fog_density (distance haze at noon).
+@export var fog_high_sun := 1.0
+@export var volumetric_high_sun := 1.0
 ## Ambient light inside buildings (their interior probes), which the open sky doesn't reach.
 @export var interior_ambient_day := 0.45
 @export var interior_ambient_night := 0.04

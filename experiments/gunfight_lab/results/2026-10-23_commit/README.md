@@ -82,9 +82,48 @@ when they start it), the Kid 80% -> 72%**, first to go in half the fights. Quits
 halve (28 -> 15); most quits now come on two or more hits. The quitters' fear: hits 46%, a friend
 down 19%, near misses 13% (as fright, capped), a friend quitting 7%: earned.
 
+## The night's round (Sean, 2026-10-23: "work all night and figure this out"; branch `claude/gameplay-gunfight-longer`)
+
+From the blind playtest's list (#310) and the length of the fights, each against the evening's D
+on the cover style (25 fights a row; `d10.md`..`d15.md`):
+
+| step | fix | they: shooting s / 20 s+ / 45-90 s | you: shooting s / 20 s+ / 45-90 s | kept |
+|---|---|---|---|---|
+| D (evening) | | 10.2 / 36% / 20% | 15.1 / 40% / 4% | |
+| d10 | `rescue_way`: goes for a friend down only if the town's ways get him there, and by them; gives it up after 8 s getting there | 13.6 / 40% / 20% | 12.1 / 36% / 8% | yes: the longest rescue 15.5 -> 12 s, dragging not running in place |
+| d11 | `stay_in`: doesn't stand down while a friend in earshot's on you; takes his word for where you are | same | same | yes: the playtest's case, twice in 50 |
+| d12 | `go_low`: in the open, you shooting at him within 3 s, he fights from a knee | 19.9 / 48% / 12% | 16.9 / 44% / 12% | yes; a kneeling man shoots steadier: hits on you 1.1 -> 1.7 |
+| d13 | `far_cover`: nothing within 11 m, a second look to 18 m | 19.9 / 48% / 12% | 16.9 / 44% / 12% | no: found somewhere 18 times in 62, the same fights |
+| d14 | `press`, first try: on your reload or seen hit, all of them at once | 13.7 / 36% / 4% | 11.3 / 24% / 8% | no: three at once are shot or finish you |
+| d15 | `press`: one man, on your reload (they hear the gate), the rest cover him ("He's empty! Get him!") | 21.6 / 52% / 16% | 12.9 / 40% / 20% | yes |
+| - | `tip_table`: no cover, a card table near: heave it over and get down behind it | | | no: the kit table, wide on its feet with chairs round it, slides or leans (up 0.8) and a harder kick breaks it; wants a flip from the prop lab |
+| d18 | `rattled`: near misses' fright fades in a second, so under D being shot at no longer spoiled a man's aim (C's lingering fear had); now they leave his hand rattled, fading as slowly as fear | 17.8 / 44% / 12% | 12.9 / 40% / 16% | yes: the rule as it should be; hits on you unchanged (1.6 / 0.9) |
+
+**The night's blind playtest** (`docs/playtests/2026-10-23-gunfight-night.md`, ten fights): "the gang
+fought and never folded, but the fights didn't last: their shooting settles it in seconds". It went
+down in 9 of 10, 5-17 s after the shooting started; one fight ran ~100 s. Its bridge lets 1-5 s of
+game time pass a command, so it fights far slower than a man at the keys, and the lab's scripted
+player (a quick shot) takes 0.9-1.6 hits a fight, the evening's numbers: they're as deadly as they
+were, the playtester slower. Its other points, for Sean (#257): hits through thin walls and doors
+(covering fire at where you were, the .45 going through pine boards, as it does: a rule to keep or
+soften); one arm hit blacking the player out and an arm hit putting the gun away for good (the
+player's wounds, the body lab's); and the Kid giving up after a leg hit with his gun still in hand.
+
+**The night's D (13 fixes), 100 fights as the baseline** (`night_final.md`; the evening's `final_vs_A_C.md`):
+
+| | opening | shooting s (med) | 20 s+ | 45-90 s | anyone quits | quits a fight | first to quit B / L / K | men who fired | hits on you | you down |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A | they | 3.6 | 4% | 0% | 78% | 1.70 | 24 / 11 / 4 | 75% | 1.7 | 42% |
+| D evening | they | 10.8 | 38% | 12% | 88% | 1.60 | 16 / 9 / 19 | 55% | 1.1 | 16% |
+| **D night** | they | **17.8** | **44%** | **16%** | 82% | 1.58 | 16 / 9 / 16 | 59% | 1.5 | 30% |
+| A | you | 3.5 | 12% | 2% | 98% | 2.34 | 20 / 20 / 9 | 33% | 0.9 | 10% |
+| D evening | you | 15.3 | 38% | 4% | 88% | 1.42 | 13 / 9 / 22 | 28% | 0.5 | 2% |
+| **D night** | you | 13.2 | 36% | **14%** | 84% | 1.36 | 13 / 7 / 22 | 32% | 0.7 | 12% |
+
 ## What it doesn't do yet
 
-- **45-90 s is still rare** (4-12% of fights): the fights are decided by hits. At 3-10 m indoors
+- **45-90 s is still the minority** (4-12% of fights in the evening's D; 14-16% after the night's
+  round, above): the fights are decided by hits. At 3-10 m indoors
   the scripted player hits three shots in four, and a man hit twice is down. More shooting needs
   more time hidden and less time hit: men peeking less long, staying low, moving between cover
   under covering fire, and **pressing** (going at you when you're reloading or hurt), none of which

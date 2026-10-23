@@ -1,0 +1,47 @@
+{
+ "name": "light A (subtle)",
+ "about": "The light pass (issue #318, Sean 2026-10-23: 'looks too cheap', 'the day time outside looks the worst'): harsh noon with deep shade, the ground exposed down, a paler hazy sky with rounder clouds, distance haze; the street a dusty grey-tan; a grade (cool shade, warm light, the oranges pulled back); contact shadows in the sun; grain, vignette, heat shimmer; the saloon at night in pools of lamplight with dark between and the moon in the door. Switched on 8 (LightLooks).",
+ "values": {
+  "day.exposure_day": 0.86,
+  "day.ambient_energy_day": 0.75,
+  "day.ambient_sky_day": 1.0,
+  "day.sky_high_saturation": 0.75,
+  "day.sky_high_pale": 0.1,
+  "day.sky_high_white": 0.3,
+  "day.fog_high_sun": 1.3,
+  "sky.cloud_band": [
+   1.2,
+   0.65
+  ],
+  "sky.cloud_ragged": 0.26,
+  "sky.cloud_scale": 2.2,
+  "ground.ground_tint": [
+   0.9,
+   0.9,
+   0.92,
+   1
+  ],
+  "ground.ground_saturation": 0.9,
+  "ground.churn_dark": 0.12,
+  "ground.patches": 0.06,
+  "env.ssao_light_affect": 0.1,
+  "env.ssao_intensity": 1.8,
+  "grade.strength": 0.6,
+  "grade.saturation": 0.96,
+  "grade.orange_pull": 0.15,
+  "grade.shadow_amount": 0.4,
+  "grade.highlight_amount": 0.25,
+  "grade.contrast": 0.15,
+  "finish.vignette": 0.15,
+  "finish.grain": 0.02,
+  "finish.shimmer": 0.8,
+  "lamps.saloon_wall.energy": 1.0,
+  "lamps.saloon_wall.light_range": 0.8,
+  "lamps.saloon_wall.haze": 0.8,
+  "lamps.saloon_hanging.energy": 1.6,
+  "lamps.saloon_hanging.light_range": 0.9,
+  "building.saloon.night_ambient": 0.03,
+  "building.saloon.room_haze": 0.022,
+  "day.moon_max_energy": 0.55
+ }
+}
