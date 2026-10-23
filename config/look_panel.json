@@ -1,6 +1,32 @@
 {
   "_about": "The live look panel's sliders (LookPanel, N in game). From the art session's list, docs/briefs/look_settings.md: address (LookPreset), label, range, and what it does. kind: float (default), color, bool, or choice with options. Lamps are multipliers over each lamp's own value.",
   "groups": [
+    {"name": "Light pass (8: A/B/C)", "items": [
+      {"key": "day.exposure_day", "label": "Noon exposure", "min": 0.4, "max": 1.2, "what": "Exposure with the sun high (the ground went white at 1)."},
+      {"key": "day.ambient_energy_day", "label": "Shade fill (day)", "min": 0, "max": 1.2, "what": "The sky's fill in the shade by day: lower = blacker shade under the porches."},
+      {"key": "day.ambient_sky_day", "label": "Fill from the sky (noon)", "min": 0, "max": 1, "what": "The fill's share from the blue sky at noon; the rest is the warm ground's."},
+      {"key": "day.sky_high_saturation", "label": "Noon sky colour", "min": 0, "max": 1.2, "what": "The noon sky's saturation: lower = a paler, hotter sky."},
+      {"key": "day.sky_high_pale", "label": "Noon sky pale", "min": 0, "max": 1, "what": "The sky overhead toward the horizon's colour at noon."},
+      {"key": "day.sky_high_white", "label": "White-hot horizon", "min": 0, "max": 1, "what": "The horizon toward near white at noon."},
+      {"key": "day.fog_high_sun", "label": "Noon haze", "min": 0.5, "max": 5, "what": "Distance haze at noon, times the day's."},
+      {"key": "ground.ground_saturation", "label": "Street colour", "min": 0.3, "max": 1.2, "what": "The ground's saturation: lower = a dusty grey-tan."},
+      {"key": "ground.ground_tint", "label": "Street tint", "kind": "color", "what": "The ground's colour multiplied (also its brightness)."},
+      {"key": "ground.churn_dark", "label": "Churned earth darker", "min": 0, "max": 0.6, "what": "Loose churned earth and rut troughs darker."},
+      {"key": "ground.patches", "label": "Trampled patches", "min": 0, "max": 0.4, "what": "Broad lighter and darker patches a few metres across."},
+      {"key": "env.ssao_light_affect", "label": "Contact shadow in sun", "min": 0, "max": 1, "what": "How much the ambient occlusion darkens sunlit surfaces too (posts and props sit down)."},
+      {"key": "grade.strength", "label": "Grade", "min": 0, "max": 1, "what": "The colour grade on (1) or off (0)."},
+      {"key": "grade.saturation", "label": "Grade saturation", "min": 0.5, "max": 1.3, "what": "Every colour toward grey."},
+      {"key": "grade.orange_pull", "label": "Oranges pulled back", "min": 0, "max": 1, "what": "Oranges toward grey, more than other colours."},
+      {"key": "grade.shadow_amount", "label": "Cool shadows", "min": 0, "max": 1, "what": "The shadows toward the grade's cool tint."},
+      {"key": "grade.highlight_amount", "label": "Warm light", "min": 0, "max": 1, "what": "The highlights toward the grade's warm tint."},
+      {"key": "grade.contrast", "label": "Grade contrast", "min": 0, "max": 1, "what": "An S curve round mid grey."},
+      {"key": "finish.vignette", "label": "Vignette", "min": 0, "max": 0.6, "what": "The corners darker."},
+      {"key": "finish.grain", "label": "Film grain", "min": 0, "max": 0.12, "what": "Fine grain, strongest in the mid tones."},
+      {"key": "finish.shimmer", "label": "Heat shimmer", "min": 0, "max": 4, "what": "Far ground and hills wobble in the noon heat (pixels)."},
+      {"key": "lamps.saloon_hanging.light_range", "label": "Saloon hanging lamps' reach", "min": 0.3, "max": 1.5, "what": "Short = pools of light under the hanging lamps."},
+      {"key": "lamps.saloon_wall.energy", "label": "Saloon wall lamps", "min": 0.2, "max": 1.5, "what": "The sconces' brightness."},
+      {"key": "day.moon_max_energy", "label": "Moonlight", "min": 0, "max": 1.5, "what": "The moon's light (blue through the windows and door)."}
+    ]},
     {"name": "Sun & sky", "items": [
       {"key": "day.sun_max_energy", "label": "Sun strength", "min": 0.5, "max": 3, "what": "The sun's light at full height; scaled down near the horizon."},
       {"key": "day.sun_tilt_degrees", "label": "Sun arc tilt", "min": 10, "max": 70, "what": "How far the sun's arc leans from overhead (lower = a lower sun all day)."},
