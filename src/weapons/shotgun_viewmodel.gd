@@ -31,23 +31,21 @@ const HAMMER_BACK := 40.0
 
 ## The hands (the gun lab's `views.gd --fit`: each finger closed as one until it touches the wood
 ## or the barrels, the index's pad on the front trigger, the thumbs clear of the steel).
-## The right holds the wrist of the stock as a straight-hand stock is held: the palm on its right
-## side, the back of the hand out and a little down, the knuckles' line diagonal across the wrist
-## (the wrist bent forward) so the fingers wrap under and up its far side and the index runs
-## forward to the trigger; the heel beside the stock, clear of the rib when aimed; the forearm
-## back, down and out to the right.
-const R_HAND_POS := Vector3(0.024, -0.036, 0.02)
-const R_HAND_TILT := -50.0
-const R_HAND_ROLL := -30.0
-const R_FOREARM := Vector3(0.8, -0.58, 0.15)
-const R_GRIP := {"middle": 71.0, "ring": 71.0, "little": 66.0}
-## The index on the front trigger, at rest and squeezed: its knuckle spread forward and the finger
-## nearly straight, as on a straight-hand stock (HeldHand.grasp; `views.gd --fit`).
+## The right holds the pistol grip as the revolver's is held (HandModel), in the grip's own space:
+## the palm on its right side, three fingers round its front, the index forward to the front
+## trigger, the thumb over the top of the wrist (to the hammers to cock); the wrist straight
+## behind it, the forearm back, down and out to the right.
+const R_HAND_POS := Vector3(0.027, -0.016, -0.013)
+const R_HAND_TILT := 0.0
+const R_HAND_ROLL := 0.0
+const R_FOREARM := Vector3(0.45, -0.35, 0.82)
+const R_GRIP := {"middle": 69.0, "ring": 62.0, "little": 50.0}
+## The index on the front trigger, at rest and squeezed (HeldHand.grasp; `views.gd --fit`).
 const R_INDEX_SPREAD := 30.0
-const R_INDEX_REST := 2.0
-const R_INDEX_PULL := 12.0
-const R_THUMB_REST := [Vector3(24.0, 60.0, 48.0), 20.0, 15.0]
-const R_THUMB_COCK := [Vector3(24.0, 60.0, 48.0), 45.0, 40.0]
+const R_INDEX_REST := 8.0
+const R_INDEX_PULL := 20.0
+const R_THUMB_REST := [Vector3(-24.0, -36.0, 24.0), 45.0, 40.0]
+const R_THUMB_COCK := [Vector3(48.0, 36.0, 60.0), 45.0, 40.0]
 ## The left, in the barrels' space: the forend cradled in its palm, the four fingers together
 ## curling up its right side to the barrels and the thumb up the left, kept low off the sight line
 ## (a blind judge's pick over the fingers fanned diagonally), the forearm back, down and out to the
@@ -104,7 +102,7 @@ func _ready() -> void:
 
 
 func _build_hands() -> void:
-	hand = _held(true, model, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
+	hand = _held(true, model.grip, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, R_GRIP[f])
 	left_hand = _held(false, model.barrels, L_HAND_POS, L_HAND_TILT, L_HAND_ROLL, L_FOREARM)
@@ -123,7 +121,7 @@ func _held(is_right: bool, parent: Node3D, pos: Vector3, tilt: float, roll: floa
 	h.basis = Basis(Vector3.BACK, deg_to_rad(roll)) * Basis(Vector3.RIGHT, deg_to_rad(tilt))
 	parent.add_child(h)
 	h.build()
-	h.aim_forearm(forearm)
+	h.aim_forearm(parent.transform.basis.inverse() * forearm)
 	return h
 
 

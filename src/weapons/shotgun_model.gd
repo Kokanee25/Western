@@ -1,8 +1,10 @@
 class_name ShotgunModel
 extends Node3D
 ## A 12-bore side-by-side hammer gun with 20" barrels (a coach gun), built from parts in code:
-## blued barrels with a rib and a brass bead, case-hardened action and lockplates, walnut stock and
-## splinter forend. The barrels hinge open on the pin at the front of the action; the two hammers,
+## blued barrels with a rib and a brass bead, case-hardened action and lockplates, walnut stock with
+## a pistol grip (as the Colt 1878 and Remington 1882 hammer doubles had: the hand holds it as it
+## holds a revolver, the wrist straight; Sean, 2026-10-23, after the straight hand bent the wrist)
+## and splinter forend. The barrels hinge open on the pin at the front of the action; the two hammers,
 ## two triggers and the top lever are separate moving parts; brass shell heads show in the
 ## chambers when it's open.
 ## Local space: barrels along -Z, top up +Y, origin at the wrist of the stock (where the right hand
@@ -24,6 +26,8 @@ var lever: Node3D
 ## The comb and butt: under your cheek and against your shoulder when it's shouldered, so the
 ## viewmodel hides them then (you can't see them; drawn, they'd fill the bottom of the view).
 var butt: Node3D
+## The pistol grip: the right hand's (it holds it as RevolverModel's Grip is held).
+var grip: Node3D
 var muzzles: Array[Marker3D] = []
 ## Where each chamber's mouth is (a shell comes out and goes in here).
 var chamber_points: Array[Marker3D] = []
@@ -102,6 +106,12 @@ func _build() -> void:
 	# they fall towards the heel (+X here lowers the +Z end; they rose to it before 2026-10-23).
 	var stock := GunParts.pivot(self, "Stock", Vector3(0, 0.0, 0.0))
 	GunParts.box(stock, "Wrist", Vector3(0.03, 0.034, 0.13), Vector3(0, -0.014, 0.058), wood, Vector3(9, 0, 0))
+	# The pistol grip under the wrist, just behind the guard, raked back (as the revolver's Grip: a
+	# negative turn about X takes its butt towards +Z), with a steel cap.
+	grip = GunParts.pivot(stock, "PistolGrip", Vector3(0, -0.026, 0.022))
+	grip.rotation_degrees = Vector3(-30, 0, 0)
+	GunParts.box(grip, "Grip", Vector3(0.03, 0.08, 0.036), Vector3(0, -0.04, 0.004), wood)
+	GunParts.box(grip, "Cap", Vector3(0.031, 0.005, 0.038), Vector3(0, -0.081, 0.004), steel)
 	butt = GunParts.pivot(stock, "ButtStock", Vector3.ZERO)
 	GunParts.box(butt, "Butt", Vector3(0.04, 0.1, 0.24), Vector3(0, -0.078, 0.23), wood, Vector3(6, 0, 0))
 	GunParts.box(butt, "Comb", Vector3(0.034, 0.02, 0.2), Vector3(0, -0.032, 0.21), wood, Vector3(6, 0, 0))
