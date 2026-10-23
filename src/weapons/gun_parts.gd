@@ -356,6 +356,13 @@ static func blender_meshes(root: Node3D, gun: String) -> bool:
 	var scene := load(path) as PackedScene
 	if scene == null:
 		return false
+	var key := "baked:" + gun
+	if not _mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = load("res://assets/weapons/%s_paint.png" % gun)
+		m.roughness = 0.6
+		m.metallic = 0.1
+		_mats[key] = m
 	var inst := scene.instantiate()
 	var n := 0
 	for src: MeshInstance3D in inst.find_children("*", "MeshInstance3D", true, false):
@@ -363,7 +370,7 @@ static func blender_meshes(root: Node3D, gun: String) -> bool:
 		if target == null or src.mesh == null:
 			continue
 		target.mesh = src.mesh
-		target.material_override = null
+		target.material_override = _mats[key]
 		n += 1
 	inst.free()
 	return n > 0

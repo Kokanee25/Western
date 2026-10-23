@@ -2,8 +2,8 @@
 game builds it with in code (views.gd --side writes <gun>_parts.json: its outline or turned profile,
 its place in the gun at rest, what it's made of), but made properly: real n-gon faces, bevelled and
 rounded edges, smooth turned barrels and cylinder. The gun is unwrapped into one texture and its
-paintings (the side's and the top's, the texture factory's in the men's hand) are baked onto it by
-which way each face looks: the sides and ends take the side painting, the top the top's. Out comes
+side painting (the texture factory's in the men's hand) is baked onto it, each point sampled a few
+millimetres inside its part so the tops and ends take their part's paint, not a smeared edge. Out comes
 assets/weapons/<gun>.glb, a mesh a part named by its path in the gun ("Hammer__Spur"), which
 GunParts.blender_meshes lays on the game's parts (their pivots and moving parts stay the code's).
 
@@ -150,6 +150,50 @@ def build_tube(name, shape):
 BUILD = {"profile": build_profile, "turned": build_turned, "box": build_box, "tube": build_tube}
 
 
+INSET = 0.002
+INSET_MAX = 0.012
+ALONG = 40
+## The painting's walnut came back a bright orange beside the men's browns: its oranges are taken
+## down this much in saturation and value before the bake (no other colour is touched).
+WOOD_SAT = 0.62
+WOOD_VAL = 0.8
+
+
+def graded(png):
+    """The painting with its oranges (the walnut) browned, saved beside the bake's scratch."""
+    import numpy as np
+    from PIL import Image
+    im = Image.open(png).convert("RGB").convert("HSV")
+    a = np.asarray(im).astype(np.float32)
+    hue = a[..., 0] * 360.0 / 255.0
+    w = np.clip(1.0 - np.abs(hue - 22.0) / 18.0, 0.0, 1.0) * np.clip((a[..., 1] - 90.0) / 60.0, 0.0, 1.0)
+    a[..., 1] *= 1.0 - w * (1.0 - WOOD_SAT)
+    a[..., 2] *= 1.0 - w * (1.0 - WOOD_VAL)
+    out = os.path.join(ROOT, "build", "gun_%s_graded.png" % GUN)
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    rgb = Image.fromarray(a.clip(0, 255).astype(np.uint8), "HSV").convert("RGB")
+    rgb.save(out)
+    # The same smeared along the gun (its width shrunk ALONG times and stretched back), for the tops.
+    rgb.resize((rgb.width // ALONG, rgb.height), Image.BOX).resize(rgb.size, Image.BILINEAR).save(
+        out.replace(".png", "_along.png"))
+    return out
+
+
+def inset_of(shape):
+    """How far inside a part its paint is taken: most of its half thickness (a top face samples its
+    part's middle, clear of the painted edge line), within INSET and INSET_MAX."""
+    t = shape["type"]
+    if t == "profile":
+        half = shape["half_width"]
+    elif t == "turned":
+        half = max(r for r, _z in shape["profile"])
+    elif t == "box":
+        half = min(shape["size"]) * 0.5
+    else:
+        half = shape["radius"]
+    return min(max(half * 0.7, INSET), INSET_MAX)
+
+
 def paint_material(canvas, side_png, top_png, target):
     """Emission = the side painting or the top's, chosen by the face's normal, for the bake."""
     mat = bpy.data.materials.new("paint")
@@ -178,9 +222,16 @@ def paint_material(canvas, side_png, top_png, target):
                 nt.links.new(v, m.inputs[i])
         return m.outputs[0]
 
-    # Godot's z is Blender's -y, its y Blender's z, its x Blender's x.
-    gz = math_node("MULTIPLY", pos.outputs["Y"], -1.0)
-    gy = pos.outputs["Z"]
+    # Godot's z is Blender's -y, its y Blender's z, its x Blender's x. Each point taken its part's inset
+    # inside the surface along its normal: a face that looks up, down or along the gun samples the
+    # side painting inside its part, not the edge line it would smear (a side face is unchanged).
+    attr = nt.nodes.new("ShaderNodeAttribute")
+    attr.attribute_type = "OBJECT"
+    attr.attribute_name = "inset"
+    inset = attr.outputs["Fac"]
+    gz = math_node("SUBTRACT", math_node("MULTIPLY", pos.outputs["Y"], -1.0),
+                   math_node("MULTIPLY", math_node("MULTIPLY", nrm.outputs["Y"], -1.0), inset))
+    gy = math_node("SUBTRACT", pos.outputs["Z"], math_node("MULTIPLY", nrm.outputs["Z"], inset))
     gx = pos.outputs["X"]
     r = canvas["rect"]           # side: z_min, y_min, w, h
     t = canvas["top_rect"]       # top: z_min, x_min, w, h
@@ -199,7 +250,17 @@ def paint_material(canvas, side_png, top_png, target):
         nt.links.new(uv.outputs[0], tex.inputs["Vector"])
         return tex.outputs["Color"]
 
-    side_col = image(side_png, u_side, v_side)
+    # Faces looking up or down cut the painting along a line, so its grain shows as stripes across
+    # the part (a top's grain should run along it): they take the painting smeared along the gun.
+    sharp = image(side_png, u_side, v_side)
+    smooth = image(side_png.replace(".png", "_along.png"), u_side, v_side)
+    w = math_node("POWER", math_node("ABSOLUTE", nrm.outputs["Z"]), 2.0)
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    nt.links.new(w, mix.inputs["Factor"])
+    nt.links.new(sharp, mix.inputs[6])
+    nt.links.new(smooth, mix.inputs[7])
+    side_col = mix.outputs[2]
     if top_png:
         top_col = image(top_png, u_top, v_top)
         # The top painting on faces looking up (Godot's +y: Blender's +z), the side's elsewhere.
@@ -224,10 +285,9 @@ def main():
     clear()
     parts = json.load(open(os.path.join(HERE, "%s_parts.json" % GUN)))["parts"]
     canvas = json.load(open(os.path.join(ROOT, "assets", "textures", "guns", "%s.json" % GUN)))
-    side_png = os.path.join(ROOT, "assets", "textures", "guns", "gun_%s_painted.jpg" % GUN)
-    top_png = os.path.join(ROOT, "assets", "textures", "guns", "gun_%s_top_painted.jpg" % GUN)
-    if not os.path.exists(top_png):
-        top_png = ""
+    side_png = graded(os.path.join(ROOT, "assets", "textures", "guns", "gun_%s_painted.jpg" % GUN))
+    # A painting from above was tried (2026-10-23) and came back as the side again: the side's, inset.
+    top_png = ""
     obs = []
     for p in parts:
         if p["kind"] == "" or p["own_paint"]:
@@ -240,6 +300,7 @@ def main():
         g = Matrix(((b[0][0], b[1][0], b[2][0], o[0]), (b[0][1], b[1][1], b[2][1], o[1]),
                     (b[0][2], b[1][2], b[2][2], o[2]), (0, 0, 0, 1)))
         ob.matrix_world = C @ g @ C.inverted()
+        ob["inset"] = inset_of(p["shape"])
         obs.append(ob)
     bpy.context.view_layer.update()
     for ob in obs:
@@ -277,7 +338,7 @@ def main():
     target.filepath_raw = out_png
     target.file_format = "PNG"
     target.save()
-    # The game's material: the baked painting, lit softly.
+    # The glb's material (the game lays <gun>_paint.png on it itself: GunParts.blender_meshes).
     nt = mat.node_tree
     for nd in list(nt.nodes):
         nt.nodes.remove(nd)
@@ -291,7 +352,7 @@ def main():
     nt.links.new(bsdf.outputs[0], out.inputs["Surface"])
     glb = os.path.join(ROOT, "assets", "weapons", "%s.glb" % GUN)
     bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", use_selection=True, export_yup=True,
-                              export_image_format="AUTO", export_apply=True)
+                              export_image_format="NONE", export_apply=True)
     print("WROTE", glb, len(obs), "parts")
 
 

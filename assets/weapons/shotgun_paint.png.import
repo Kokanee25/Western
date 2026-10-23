@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://o3rr25bkvbfu"
-path="res://.godot/imported/revolver_revolver_paint.png-607fc4b4372f129514247e0eb245ef08.ctex"
+uid="uid://bnvhax8v1b2n1"
+path="res://.godot/imported/shotgun_paint.png-9b637d7af171e90eceefe9bef6dea9fd.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "a39365e42d0adcf65b512a81487c94c4"
 }
 
 [deps]
 
-source_file="res://assets/weapons/revolver_revolver_paint.png"
-dest_files=["res://.godot/imported/revolver_revolver_paint.png-607fc4b4372f129514247e0eb245ef08.ctex"]
+source_file="res://assets/weapons/shotgun_paint.png"
+dest_files=["res://.godot/imported/shotgun_paint.png-9b637d7af171e90eceefe9bef6dea9fd.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
