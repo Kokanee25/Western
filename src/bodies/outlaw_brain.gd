@@ -564,7 +564,7 @@ func _on_hit(info: Dictionary) -> void:
 	# Each buckshot pellet counts for a share: a charge lands several at once.
 	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter", &"gravel"] else 1.0
 	_scare((fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
-			+ float(info.get("deposited", 0.0)) / 2000.0) * share, &"hit")
+			+ float(info.get("deposited", 0.0)) / 2000.0) * share * _thump(), &"hit")
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
 	hand.jerk(hand_tuning().hit_jerk * share)
 	_react = minf(_react, 0.15)
@@ -582,7 +582,7 @@ func _on_hit(info: Dictionary) -> void:
 		say(&"gut")
 	for h: Dictionary in info.hits:
 		if h.effect == &"broken":
-			_scare(0.1, &"hit")
+			_scare(0.1 * _thump(), &"hit")
 
 
 func _on_fell(conscious: bool) -> void:
@@ -2178,6 +2178,16 @@ func _scare(amount: float, why: StringName) -> void:
 
 
 const NOISE := [&"near miss", &"a shot nearby", &"hat shot"]
+
+
+## How much the shock of being hit frightens him (variant D's `steady`): a steady man takes the
+## thump of a ball far better than a green one (what the wound does to him, the pain, the shock,
+## the bleeding, counts in full either way: `floor_fear`).
+func _thump() -> float:
+	return lerpf(1.0, STEADY_THUMP, clampf(nerve, 0.0, 1.0)) if _has(&"steady") else 1.0
+
+
+const STEADY_THUMP := 0.45
 
 
 ## One of variant D's fixes is on for him.

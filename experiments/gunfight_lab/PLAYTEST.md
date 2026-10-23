@@ -1,68 +1,64 @@
-# The three gunmen: the A/B/C playtest
+# The three gunmen in the new saloon: the playtest
 
-The question: **is fighting the same three men more fun when they make believable tactical and
-survival decisions, and can we show why?** The lab's numbers (the scripted player) can show what
-the men do and catch faults; only people playing can say whether it's fun. This sheet is for that.
+The question (Sean's first play, issue #257: "the bad guys just kept quitting, wouldn't even really
+fight"): **do they fight now?** Do they take cover, shoot back, go round on you and come at you,
+and give up only when they've been hurt, seen friends go down or been left alone? The lab's
+numbers (the scripted player) catch the faults; only people playing can say whether it's a fight.
 
 ## The fight
 
-The saloon, golden hour, every lamp lit. Brody (cool, steady, leads) at the bar, Lyle (a
-hothead) at the card table, the Kid (green, nervous) at the back. You're just in at the door with
-your revolver away. They go for their guns when you go for yours (H), or after 3 seconds. The same
-men, room, guns and starting spots every run.
+The new saloon (the building lab's: out in the desert west of town, F5's eighth stop builds it;
+you don't need to go there, Y takes you), golden hour, every lamp lit. Brody (cool, steady, leads
+them), Lyle (a hothead) and the Kid (green, nervous), and you with your revolver away. **Drawing
+doesn't start it**: they'll warn you off, as men do in town. **Your first shot starts it**, or they
+go for their guns when the count's out (6 s). Five setups, Y plays them in turn:
 
-| | What the gang does |
-|---|---|
-| **A** | The game as it plays on main today: their shots land in a random cone round their aim; they look for cover within a step of where they stand; past their nerve they give up or run on the spot. |
-| **B** | A, but they aim by the hand on the gun (it wanders, lags onto you, jerks when rounds crack past; no dice), take a moment to react, and find the cover that's there (behind the bar, round a table, a doorway). |
-| **C** | B, and past their nerve behind cover they go to ground first; they come back up if it passes, break if it doesn't. |
+| Setup | You | Brody | Lyle | The Kid |
+|---|---|---|---|---|
+| **the hall** | just in at the batwings | at the bar | by the middle card table | by the far table |
+| **the stair** | in the hall by the door | behind the bar | at the foot of the hall stair | a third of the way up it |
+| **the galleries** | in the middle of the hall | at the bar | up on the west gallery, at its rail | on the back gallery over the tables |
+| **the back of the hall** | between the far tables | by the back room's door | behind the bar's far end, by the kitchen | at the back gallery's rail above |
+| **out front** | in the desert by the boardwalk's steps | up on the street balcony | along the boardwalk | at the batwings |
+
+The gang fights as the game's does (variant D since 2026-10-23: fights that commit). Z plays the
+same setup with the others, shown: **A** as the game was when Sean played it, **B** aims by the
+hand on the gun and finds the cover that's there, **C** is B and goes to ground before breaking,
+**D** is C and commits (noise pins them but doesn't break them, the hothead holds early, Brody
+holds the rest while he's in it, the Kid's running barely shakes them, and they'll take the long
+way round the bar to get behind it).
 
 ## The keys
 
-- **Y**: the next run of the playtest. Nine runs: each variant once on each of three seeds, in
-  an order that puts each variant first, second and third once. The variant is hidden (`?`) until
-  the fight's over.
-- **X**: this run again (same variant, same seed).
-- **Z**: free play: the next variant on this seed, shown.
+- **Y**: the next setup (the hall, the stair, the galleries, the back, out front, then round again
+  on the next seed).
+- **X**: this run again (same setup, variant and seed: the men's dice the same).
+- **Z**: this setup and seed with the next variant (A, B, C, D), shown.
 - **F3**: what each man's thinking: his tactic, fear against nerve, and his last decision and why
-  ("run for cover: in the open, 5 m", "look for you: lost sight of you 4 s ago").
+  ("run for cover: in the open, 5 m", "hold on: Brody told him to stay in it").
 
-Quitting the game starts the playtest again at run 1. Each run is saved (the path shows at the
-end of the fight): one JSON a run and a line in `runs.csv`, in
-`%APPDATA%\Godot\app_userdata\Salt Creek\gunfight_runs\` on Windows.
+Each run is saved (the path shows at the end of the fight): one JSON a run and a line in
+`runs.csv`, in `%APPDATA%\Godot\app_userdata\Salt Creek\gunfight_runs\` on Windows.
 
-## How to play it
+## What to look for
 
-1. Play the nine runs in order (Y each time). Don't look at F3 for the first three: play it as
-   a fight.
-2. Right after each run, before Y, score it below (1 bad, 5 great) and write a line or two. The
-   notes matter more than the numbers.
-3. If a friend can play: they start at run 1 too (quit and restart the game), and fill their own
-   sheet without seeing yours.
-4. Send the sheet and the `gunfight_runs` folder (or just `runs.csv`).
-
-What to write about: what changed your plan; when you were bored; what surprised you; why you
-died or won; anything that felt unfair (did a man know where you were when he couldn't have?).
+- Do they **fight back** when you shoot first, or fold? Who quits, when, and was it earned (he was
+  hit, a friend went down, he was the last one up, you had him cornered)?
+- Do they **use the room**: behind the bar, up the stair, along the galleries, through the doors?
+- Does it **last** (the brief's target: most fights a tense 45–90 seconds)?
+- **The Kid** should break first and his running shouldn't take the others with him; **Lyle**
+  shouldn't quit early; **Brody** should hold them ("Hold, damn it! Stay in it!") while he's up.
+- Anything **unfair** (a man who knew where you were when he couldn't have).
 
 ## The sheet
 
-| Run | Variant (shown at the end) | Fun | Tactical variety | Fair and readable | Believable men | Want to play it again | Notes |
+| Run | Setup | Variant | Fun | They fought | Quits earned | Used the room | Notes |
 |---|---|---|---|---|---|---|---|
-| 1 | | | | | | | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
-| 4 | | | | | | | |
-| 5 | | | | | | | |
-| 6 | | | | | | | |
-| 7 | | | | | | | |
-| 8 | | | | | | | |
-| 9 | | | | | | | |
+| 1 | the hall | D | | | | | |
+| 2 | the stair | D | | | | | |
+| 3 | the galleries | D | | | | | |
+| 4 | the back | D | | | | | |
+| 5 | out front | D | | | | | |
 
-After all nine: which three runs were best, and why? Which variant would you keep?
-
-## What we'll do with it
-
-Nine runs from one player can't prove one variant better; they can show which one changes how
-the fight goes and how it feels, and point at the next thing to fix. The report puts each score
-next to that run's record (what each man decided and why, who hit whom, when) so the notes can be
-read against what really happened.
+Then, if you like, Z on one you liked to play it as A (the game you first played) and say which
+was the fight.

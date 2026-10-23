@@ -1,16 +1,16 @@
 extends Node
-## The gunfight lab played by you (PLAYTEST.md beside this file): the three gunmen in the saloon,
-## Brody at the bar, Lyle at the card table, the Kid at the back, and you just in at the door with
-## your gun away. They go for theirs when you go for yours, or when the count's out. The same men,
-## room, guns and starting spots every run; only the gang's variant (OutlawBrain.Variant: A as the
-## game plays, B aims by his hand and finds the town's cover, C is B and shaken first) and the seed
-## change.
+## The gunfight lab played by you (PLAYTEST.md beside this file): the three gunmen in the new
+## saloon (the building lab's, out in the desert west of town: F5's eighth stop), in one of five
+## setups: the hall round the bar and tables, the stair, the galleries, the back of the hall by the
+## kitchen and back room, and out front under the street balcony. Your gun's away. Drawing doesn't
+## start it (they warn you off, as men do in town); your first shot does, or they go for theirs
+## when the count's out (6 s). The gang fights as the game's does (OutlawBrain.default_variant);
+## Z tries the others (A as it was, B aims by his hand and finds cover, C is B and shaken first, D
+## is C and fights that commit).
 ##
-##   Y  the next run of the playtest: nine runs, each variant once on each of three seeds, in an
-##      order that puts each variant first, second and third once (a Latin square). Blind: the
-##      variant shows only when the fight's over.
-##   X  this run again (same variant, same seed: the men's dice the same; what you do isn't).
-##   Z  free play: the next variant (A, B, C) on this seed, the variant shown.
+##   Y  the next setup (hall, stair, gallery, back, front, then again on the next seed).
+##   X  this run again (same setup, variant and seed: the men's dice the same; what you do isn't).
+##   Z  this setup and seed with the next variant (A, B, C, D), shown.
 ##
 ## Each run starts from a fresh town (the scene reloads, as the I and M keys do). The lab's own
 ## fight (fight.gd, style "human") watches it and writes it down: user://gunfight_runs/, one JSON
@@ -19,9 +19,13 @@ extends Node
 ## The run state lives on Engine (STATE), so it outlives the reload.
 
 const Fight := preload("res://experiments/gunfight_lab/fight.gd")
-## [variant, seed] for the playtest's nine runs.
-const SCHEDULE := [["A", 1], ["B", 1], ["C", 1], ["B", 2], ["C", 2], ["A", 2], ["C", 3], ["A", 3], ["B", 3]]
-const VARIANTS := ["A", "B", "C"]
+## The setups (scenarios.json), in the order Y plays them, and what the HUD calls them.
+const SETUPS := ["spec_hall", "spec_stair", "spec_gallery", "spec_back", "spec_front"]
+const SETUP_NAMES := {"spec_hall": "the hall", "spec_stair": "the stair", "spec_gallery": "the galleries",
+	"spec_back": "the back of the hall", "spec_front": "out front"}
+const VARIANTS := ["A", "B", "C", "D"]
+## Seconds before they go for their guns if you haven't shot.
+const COUNT := 6.0
 const OUT := "user://gunfight_runs"
 
 ## Across the reload (kept on Engine, which outlives the scene and this script): the run asked
@@ -89,15 +93,16 @@ func _input(event: InputEvent) -> void:
 		return
 	var st := _state()
 	var last: Dictionary = st.last
+	var game := String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant])
 	if event.is_action_pressed(&"gunfight_next"):
-		var i := int(st.next) % SCHEDULE.size()
-		_queue({"variant": SCHEDULE[i][0], "seed": SCHEDULE[i][1], "run": i + 1, "blind": true})
+		var i := int(st.next)
+		_queue({"setup": SETUPS[i % SETUPS.size()], "variant": game, "seed": 1 + i / SETUPS.size(), "run": i + 1})
 		st.next = i + 1
 	elif event.is_action_pressed(&"gunfight_again") and not last.is_empty():
 		_queue(last)
 	elif event.is_action_pressed(&"gunfight_free"):
-		var v: String = VARIANTS[(VARIANTS.find(String(last.get("variant", "C"))) + 1) % VARIANTS.size()] if not last.is_empty() else "A"
-		_queue({"variant": v, "seed": int(last.get("seed", 1)), "run": 0, "blind": false})
+		var v: String = VARIANTS[(VARIANTS.find(String(last.get("variant", game))) + 1) % VARIANTS.size()] if not last.is_empty() else "A"
+		_queue({"setup": String(last.get("setup", SETUPS[0])), "variant": v, "seed": int(last.get("seed", 1)), "run": int(last.get("run", 0))})
 
 
 ## Start a run from a fresh town: the scene reloads and the new GunfightPlay picks it up.
@@ -111,8 +116,8 @@ func _queue(run: Dictionary) -> void:
 func _start() -> void:
 	await get_tree().physics_frame
 	await seconds(0.5)  # the town settles (people placed, lamps made) before the men come in
-	var opts := {"scenario": "saloon", "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game",
-		"variant": _run.variant, "seed": int(_run.seed), "max": 300.0, "count": 3.0}
+	var opts := {"scenario": String(_run.get("setup", SETUPS[0])), "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game",
+		"variant": _run.variant, "seed": int(_run.seed), "max": 300.0, "count": COUNT, "draw_turns": "false"}
 	_fight = Fight.new(self, opts)
 	add_child(_fight)
 	var err: String = await _fight.setup()
@@ -128,9 +133,8 @@ func _start() -> void:
 func _update_hud() -> void:
 	if not _panel.visible:
 		return
-	var label := "Run %d of %d" % [_run.run, SCHEDULE.size()] if int(_run.run) > 0 else "Free play"
-	var v := "?" if _run.blind and _over == "" else String(_run.variant)
-	var head := "THREE GUNMEN   %s   variant %s   seed %d" % [label, v, int(_run.seed)]
+	var setup := String(_run.get("setup", SETUPS[0]))
+	var head := "THREE GUNMEN   %s   run %d   variant %s   seed %d" % [SETUP_NAMES.get(setup, setup), int(_run.run), _run.variant, int(_run.seed)]
 	var line := ""
 	if _over != "":
 		line = _over
@@ -138,20 +142,19 @@ func _update_hud() -> void:
 		line = "The men are coming in..."
 	elif is_instance_valid(_fight) and _fight.started:
 		if _fight._count >= 0.0:
-			line = "Draw when you're ready (they go for theirs in %.0f s)" % ceilf(_fight._count)
+			line = "Shoot first, or wait: they go for theirs in %.0f s" % ceilf(_fight._count)
 		else:
 			line = "%.0f s" % _fight.t
-	_hud.text = head + "\n" + line + "\nY next run   X this run again   Z free play (next variant)   F3 what they're thinking"
+	_hud.text = head + "\n" + line + "\nY next setup   X this run again   Z this one with the next variant   F3 what they're thinking"
 
 
 ## The run's record to user://gunfight_runs/, a line in runs.csv, and what happened on screen.
 func _save(rec: Dictionary) -> void:
 	rec["run"] = int(_run.run)
-	rec["blind"] = bool(_run.blind)
 	rec["saved_at"] = Time.get_datetime_string_from_system()
 	DirAccess.make_dir_recursive_absolute(OUT)
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
-	var path := "%s/%s_run%d_%s_s%d.json" % [OUT, stamp, int(_run.run), _run.variant, int(_run.seed)]
+	var path := "%s/%s_run%d_%s_%s_s%d.json" % [OUT, stamp, int(_run.run), String(_run.get("setup", "")), _run.variant, int(_run.seed)]
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(rec, " "))
@@ -162,22 +165,20 @@ func _save(rec: Dictionary) -> void:
 	if c:
 		c.seek_end()
 		if fresh:
-			c.store_line("saved_at,run,variant,seed,length_s,ending,your_shots,your_hits,hits_on_you,relocations,decisions,unfair,file")
+			c.store_line("saved_at,run,setup,variant,seed,length_s,ending,your_shots,your_hits,hits_on_you,relocations,decisions,unfair,file")
 		var you: Dictionary = rec.get("you", {})
 		var decisions := 0
 		for m: Dictionary in (rec.get("men", {}) as Dictionary).values():
 			decisions += (m.get("decisions", []) as Array).size()
-		c.store_line("%s,%d,%s,%d,%.1f,%s,%d,%d,%d,%d,%d,%d,%s" % [rec.saved_at, int(_run.run), _run.variant, int(_run.seed),
+		c.store_line("%s,%d,%s,%s,%d,%.1f,%s,%d,%d,%d,%d,%d,%d,%s" % [rec.saved_at, int(_run.run), String(_run.get("setup", "")), _run.variant, int(_run.seed),
 			float(rec.get("length_s", 0.0)), rec.get("ending", ""), int(you.get("shots", 0)), int(you.get("hits", 0)),
 			int(you.get("hits_taken", 0)), int(you.get("relocations", 0)), decisions, (rec.get("unfair", []) as Array).size(), path.get_file()])
 		c.close()
 	var outcomes := []
 	for k: String in (rec.get("outcomes", {}) as Dictionary):
 		outcomes.append("%s %d" % [k.replace("_", " "), int(rec.outcomes[k])])
-	_over = "Over in %.1f s: %s (%s). It was variant %s.%s\nScore it now (PLAYTEST.md). Saved as gunfight_runs/%s in the game's user folder" % [float(rec.get("length_s", 0.0)),
-		String(rec.get("ending", "")).replace("_", " "), ", ".join(outcomes), _run.variant,
-		"" if int(_run.run) == 0 or int(_run.run) < SCHEDULE.size() else " That's all nine.",
-		path.get_file()]
+	_over = "Over in %.1f s: %s (%s).\nScore it now (PLAYTEST.md). Saved as gunfight_runs/%s in the game's user folder" % [float(rec.get("length_s", 0.0)),
+		String(rec.get("ending", "")).replace("_", " "), ", ".join(outcomes), path.get_file()]
 
 
 # What fight.gd needs from whoever runs it (as BridgeLab gives the bridge's fights).

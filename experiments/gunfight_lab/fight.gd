@@ -30,7 +30,11 @@ var street: Node3D
 var player: Player
 var opts := {}
 var scen := {}
-var _origin := Vector3.ZERO  # the arena's own space (the spec saloon's) in the world
+var _origin := Vector3.ZERO
+## Played (style human): does your draw turn them (the lab's protocol), or only your shot and the
+## count (play.gd: as in town, they warn you; opts draw_turns=false)?
+var draw_turns := true
+var _you_shot := false  # the arena's own space (the spec saloon's) in the world
 var gang: Array = []  # HumanBody (freed once a man rides out of town: never typed in a loop)
 var gang_ids: Array[String] = []
 var brains := {}  # id -> OutlawBrain
@@ -158,6 +162,7 @@ func setup() -> String:
 	# opening=shoot: you start it, your gun away and the men going about their drink: you draw on
 	# them and fire the first shot (Sean's first play, issue #257), and they take it from there.
 	var shoot_first: bool = not human and opts.get("opening", "") == "shoot"
+	draw_turns = String(opts.get("draw_turns", "true")) != "false"
 	var draw_open: bool = human or opts.get("opening", "") == "draw" or shoot_first
 	if scen.start != "ambush" and not draw_open:
 		player.select_weapon(gun)
@@ -405,7 +410,15 @@ func _watch_you(delta: float) -> void:
 	if _count >= 0.0:
 		var gun := player.weapon
 		_count -= delta
-		if (gun != null and gun.drawn) or _count < 0.0:
+		if _you_shot and not draw_turns:
+			# You fired first (play.gd: your draw doesn't turn them; they warn you, as in town):
+			# the count's off, and the fight is theirs to take up, by the game's own rules.
+			_count = -1.0
+			_turned = true
+			_turned_at = t
+			_note("turn", "you shot first")
+			return
+		if (draw_turns and gun != null and gun.drawn) or _count < 0.0:
 			var drew := gun != null and gun.drawn
 			_count = -1.0
 			if not drew and _duel_called():
@@ -648,6 +661,7 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		_first["shot_at"] = snappedf(t, 0.01)
 	if shooter == player:
 		_you.shots = int(_you.get("shots", 0)) + 1
+		_you_shot = true
 	elif shooter in gang:
 		var m: Dictionary = _men[_mid(shooter)]
 		m.shots += 1

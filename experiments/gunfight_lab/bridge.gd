@@ -14,6 +14,8 @@ const HELP := {
 	"gf_coverwhy": "gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] -> the gang's cover search from X Y Z against that eye: how many spots, and why each was turned down",
 	"gf_ways": "gf_ways [PREFIX] -> the spec saloon built and its places added; a man walked along every link between places named PREFIX* (spec_ by default): which he gets along and which he doesn't",
 	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
+	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
+	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -369,3 +371,37 @@ func _cmd_gf_what(a: Array) -> Dictionary:
 		var c := h.collider as Node
 		out.append(String(c.get("member_id")) if c is StructureMember else String(c.get_path()))
 	return {"touches": out}
+
+
+var _played: Node
+
+
+func _cmd_gf_play(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": HELP.gf_play}
+	if is_instance_valid(_played):
+		_played.queue_free()
+	var opts := {"scenario": a[0], "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game", "seed": 1,
+		"variant": String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant]), "max": 300.0, "count": 6.0, "draw_turns": "false"}
+	for w: String in a.slice(1):
+		var kv := w.split("=", true, 1)
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	_played = Fight.new(self, opts)
+	add_child(_played)
+	var err: String = await _played.setup()
+	if err != "":
+		_played.queue_free()
+		return {"ok": false, "error": err}
+	return {"setup": a[0], "count_s": float(opts.count), "say": "your gun's away; they go for theirs when you shoot or in %d s" % int(float(opts.count))}
+
+
+func _cmd_gf_result(_a: Array) -> Dictionary:
+	if not is_instance_valid(_played):
+		return {"ok": false, "error": "no played fight (gf_play)"}
+	var men := {}
+	for id: String in _played.gang_ids:
+		var m: Dictionary = _played._men[id]
+		men[id] = m.outcome
+	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
+		"men": men}
