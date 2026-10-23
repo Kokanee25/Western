@@ -65,6 +65,8 @@ func _ready() -> void:
 	_bind(&"gunfight_next", [KEY_Y], [])
 	_bind(&"gunfight_again", [KEY_X], [])
 	_bind(&"gunfight_free", [KEY_Z], [])
+	# The player's movement presets, light / middle / heavy (Player.next_movement).
+	_bind(&"movement_preset", [KEY_F], [])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:
