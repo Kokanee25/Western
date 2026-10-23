@@ -27,6 +27,8 @@ const BEND_STEP := 0.6
 ## Bends smaller than this (m) aren't worth a mesh of their own (a few millimetres is under a
 ## pixel from the street, and every bent member costs its batch vertices).
 const BEND_MIN := 0.008
+## A porch's members bend from less: the eave, its beam and its boards sag together, no seam.
+const PORCH_BEND_MIN := 0.002
 
 static var _tuning: BuildingAgeTuning
 
@@ -264,7 +266,7 @@ static func _settle_building(b: FalseFrontBuilding, w: float, rng: RandomNumberG
 	for m in members:
 		var p := path_of(b, m)
 		if p.begins_with("porch/") or p.begins_with("facade/porch/"):
-			reshape(m, porch)
+			reshape(m, porch, PORCH_BEND_MIN)
 		elif p.begins_with("roof/"):
 			reshape(m, roof)
 		elif (p.begins_with("front/") or p.begins_with("facade/")) and m.position.z < 0.5:
@@ -352,7 +354,9 @@ static func _span_sag(x: float, xs: PackedFloat32Array, sags: PackedFloat32Array
 	for i in xs.size() - 1:
 		if x >= xs[i] and x <= xs[i + 1]:
 			var span := xs[i + 1] - xs[i]
-			return sags[i] * sin(PI * (x - xs[i]) / span) if span > 0.5 else 0.0
+			# Level where each post holds it, easing into the span (sin squared): a load's sag,
+			# not a hinge at the post.
+			return sags[i] * pow(sin(PI * (x - xs[i]) / span), 2.0) if span > 0.5 else 0.0
 	return 0.0
 
 
@@ -468,8 +472,8 @@ static func pivot(m: StructureMember, point: Vector3, axis: Vector3, angle: floa
 
 ## Move a member by a field (`field(p)`: the offset of point p, the building's space). Moved whole
 ## onto the chord between where its two ends go (its body and collision), and drawn bent where
-## the field bends it more than BEND_MIN.
-static func reshape(m: StructureMember, field: Callable) -> void:
+## the field bends it more than `min_bend`.
+static func reshape(m: StructureMember, field: Callable, min_bend := BEND_MIN) -> void:
 	var was := m.transform
 	var ai := m.axis_index()
 	var half := was.basis[ai].normalized() * (m.size[ai] * 0.5)
@@ -497,7 +501,7 @@ static func reshape(m: StructureMember, field: Callable) -> void:
 				v[others[1]] = -v[others[1]]
 			bend = maxf(bend, (warp.call(v) - v).length())
 	m.transform = moved
-	if bend > BEND_MIN:
+	if bend > min_bend:
 		var mi := m.pieces[0][0] as MeshInstance3D
 		mi.mesh = MemberMesh.warped(m.size, segments, warp)
 		m.set_meta(&"bent", bend)

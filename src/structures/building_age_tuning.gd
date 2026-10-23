@@ -19,8 +19,9 @@ extends Resource
 ## A post kicked out at the foot, hanging from the beam (degrees off plumb), and how many do.
 @export var post_lean_degrees := 4.5
 @export var post_lean_chance := 0.7
-## Porch roof boards gone (light through the roof).
-@export var porch_board_missing_chance := 0.1
+## Porch roof boards gone (light through the roof: a few, or the patches of sun under it read
+## as a lighting fault, the blind critic found).
+@export var porch_board_missing_chance := 0.04
 
 @export_group("Roof and front")
 ## The ridge's swayback at the middle of the building, to nothing at the gable ends (m).

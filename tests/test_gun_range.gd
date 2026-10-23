@@ -239,4 +239,7 @@ func test_shot_against_a_wall_hits_that_wall() -> void:
 	await wait_until(func() -> bool: return not hits.is_empty(), 30)
 	check(not hits.is_empty(), "the shot hit something")
 	if not hits.is_empty():
-		check_eq(hits[0].member_id, (wall.member as StructureMember).member_id, "first thing hit is the wall in front")
+		# A board of that wall (an old wall's boards differ in width: the ball may take the next one).
+		var wall_of := func(id: StringName) -> String: return String(id).get_base_dir()
+		check_eq(wall_of.call(hits[0].member_id), wall_of.call((wall.member as StructureMember).member_id),
+				"first thing hit is the wall in front")
