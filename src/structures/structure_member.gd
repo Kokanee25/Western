@@ -538,6 +538,9 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.collision_layer = Layers.DEBRIS
 		chip.collision_mask = Layers.DEBRIS_MASK
 		chip.mass = maxf(dims.x * dims.y * dims.z * density, 0.002)
+		# It starts inside this member's box (the hole it came out of): free of it, or the physics
+		# shoves it out of the solid it's in, now and then at hundreds of m/s, off the map.
+		chip.add_collision_exception_with(self)
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = dims
