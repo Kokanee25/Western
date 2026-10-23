@@ -128,7 +128,9 @@ static func build(segment: StringName, vis: Node3D, anatomy: Anatomy) -> Node3D:
 		var shell: float = st.get(&"shell", 0.0)
 		if kind == &"bone" and shell > 0.0:
 			if st.get(&"cage", 0.0) > 0.0:
-				_ribs(root, st, center, anatomy, segment)
+				# Ribs aren't drawn (Sean, 2026-10-22: "looks dumb and needs to go"); the ribcage still
+				# stops and deflects balls in the anatomy. `_ribs` is kept for if they come back.
+				pass
 			else:
 				# Skull: a bone shell that opens with the wound, showing what's inside.
 				_capsule(root, String(st.id), st.a, st.b, st.radius, center, _openable(&"bone", 93, false))
