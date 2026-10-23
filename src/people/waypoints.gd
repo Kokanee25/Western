@@ -194,17 +194,20 @@ static func test_street() -> Waypoints:
 	# Main Street, east to west just north of its middle (config/town.json: Freight Street at the east
 	# end, Market Street at the west where the street jogs north, the road out west beyond it).
 	var street := func(x: float) -> Vector3: return TownLayout.street_point(x, -0.6)
+	# A place out in the street before a building stands on the street's ground there, not at the
+	# building's footing (the ground slopes: config/town.json ground).
+	var ground := func(p: Vector3) -> Vector3: return Vector3(p.x, TownLayout.ground_height(p.x), p.z)
 	w.add(&"west_edge", street.call(-50.0))
 	w.add(&"street_market", street.call(-32.0), [&"west_edge"])
 	w.add(&"street_west", street.call(-20.0), [&"street_market"])
 	w.add(&"street_mid", street.call(0.0), [&"street_west"])
 	w.add(&"street_east", street.call(20.0), [&"street_mid"])
 	# The street in front of the jail, off everyone's way (the sheriff stands here).
-	w.add(&"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 0, -4.0)), [&"street_mid"])
+	w.add(&"jail_front", ground.call(TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 0, -4.0))), [&"street_mid"])
 	# The street in front of the doctor's, off everyone's way (the doctor stands here).
-	w.add(&"doctor_front", TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0)), [&"street_west"])
+	w.add(&"doctor_front", ground.call(TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0))), [&"street_west"])
 	# The street in front of the livery, off everyone's way (the fourth Colter waits here).
-	w.add(&"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0)), [&"street_east"])
+	w.add(&"livery_front", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0))), [&"street_east"])
 	var floor_top := float(TownLayout.data().get("floor", 0.38))
 	# The store (its door in the middle of its front, the front to -Z), up the steps at its west end.
 	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
@@ -212,8 +215,8 @@ static func test_street() -> Waypoints:
 	var sw := float(store_set.get("width", 6.0))
 	var store_steps: Array = (TownLayout.entry(&"Boardwalk").get("set", {}) as Dictionary).get("steps", [[sw * 0.5, 2.0]])
 	var sx := float(store_steps[0][0])
-	w.add(&"store_front", store.call(sx, 0, -7.0), [&"street_mid", &"street_west"])
-	w.add(&"store_steps", store.call(sx, 0, -3.4), [&"store_front"])
+	w.add(&"store_front", ground.call(store.call(sx, 0, -7.0)), [&"street_mid", &"street_west"])
+	w.add(&"store_steps", ground.call(store.call(sx, 0, -3.4)), [&"store_front"])
 	w.add(&"store_landing", store.call(sx, floor_top, -1.2), [&"store_steps"])
 	w.add(&"store_porch", store.call(sw * 0.5, floor_top, -1.5), [&"store_landing"])
 	w.add(&"store_door", store.call(sw * 0.5, floor_top, 0.9), [&"store_porch"])
@@ -230,8 +233,8 @@ static func test_street() -> Waypoints:
 	var saloon_top := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", floor_top))
 	var saloon_steps: Array = (TownLayout.entry(&"SouthBoardwalk").get("set", {}) as Dictionary).get("steps", [[5.0, 2.0]])
 	var lx := float(saloon_steps[0][0])
-	w.add(&"saloon_front", saloon.call(lx, 0, -7.0), [&"street_mid", &"street_east"])
-	w.add(&"saloon_steps", saloon.call(lx, 0, -3.4), [&"saloon_front"])
+	w.add(&"saloon_front", ground.call(saloon.call(lx, 0, -7.0)), [&"street_mid", &"street_east"])
+	w.add(&"saloon_steps", ground.call(saloon.call(lx, 0, -3.4)), [&"saloon_front"])
 	w.add(&"saloon_landing", saloon.call(lx, saloon_top, -1.2), [&"saloon_steps"])
 	# Along the walk from the store's door to the saloon's (they stand side by side), up the steps
 	# between the two walks.

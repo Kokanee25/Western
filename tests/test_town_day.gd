@@ -366,12 +366,20 @@ func test_a_man_down_gives_himself_up_when_you_come_and_you_can_arrest_him() -> 
 	kid.global_position = town.places.at(&"street_west")
 	await physics_frames(10)
 	b.relations.provoke(player)
+	# Down and beat: his gun gone as he falls (with it in his hand and unhurt he'd get back up:
+	# variant D's `floored`; whether it fell from his hand was the fall's luck).
+	kid.drop_gun()
 	kid.go_limp()
 	await physics_frames(60 * 10)
 	check(kid.physiology.is_conscious() and b.mood == OutlawBrain.Mood.DOWN, "down, and awake")
 	check(b.mood != OutlawBrain.Mood.SURRENDERED, "lying there with you nowhere near, he hasn't given up")
 	var at := OutlawBrain._lying_at(kid)
-	_put_player(Vector3(at.x + 2.0, kid.global_position.y, at.z), 90.0)
+	# Beside him, two paces off his middle (where he hears you from), whichever way he fell; on the
+	# ground there (the street slopes west of the store).
+	var along := Vector3(at.x - kid.global_position.x, 0.0, at.z - kid.global_position.z)
+	along = along.normalized() if along.length() > 0.05 else Vector3.RIGHT
+	var beside := kid.global_position + along * 0.6 + along.cross(Vector3.UP) * 2.0
+	_put_player(Vector3(beside.x, TownLayout.ground_height(beside.x) + 0.05, beside.z), 90.0)
 	_look_at(at)
 	var gave := await wait_until(func() -> bool: return b.mood == OutlawBrain.Mood.SURRENDERED, 60 * 3)
 	check(gave, "you come up on him and he gives himself up")
