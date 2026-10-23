@@ -152,6 +152,7 @@ static var d_fixes: Array = D_FIXES.duplicate()
 ## most this share of his nerve: noise alone can pin a man, never break him.
 const FRIGHT_FADE := 0.12
 const FRIGHT_SHARE := 0.4
+const RATTLED_FADE := 0.02
 ## A hothead (temper this high or more) holds this long into a fight (s) on this much more nerve
 ## (a share of his temper): he's too angry to quit early.
 const HOT_TEMPER := 0.7
@@ -178,6 +179,8 @@ var fear := 0.0
 var fear_from := {}
 ## Variant D: the fright of noise (near misses, shots nearby, a hat shot), apart from his fear.
 var fright := 0.0
+## ... and how rattled it's left his hand (fades at RATTLED_FADE: as slowly as fear settles).
+var rattled := 0.0
 var _fight_from := -1.0  # when this fight started (his clock), -1 not in one
 var _leader_t := 0.0
 var _leader_near := false
@@ -715,6 +718,7 @@ func _physics_step(delta: float) -> void:
 				return
 	if variant == Variant.D:
 		fright = move_toward(fright, 0.0, FRIGHT_FADE * delta)
+		rattled = move_toward(rattled, 0.0, RATTLED_FADE * delta)
 		_watch_leader(delta)
 	if dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
 		_break()
@@ -1744,7 +1748,9 @@ func _step_hand(delta: float) -> void:
 	var aimed := t != null and body.gun_ready() and body.pose in AIM_POSES
 	var p := body.physiology
 	var tune := hand_tuning()
-	var stress := 1.0 + fear * tune.fear_sway + p.felt_pain() * tune.pain_sway + p.shock() * tune.shock_sway \
+	# Rounds cracking past (variant D's noise) leave his hand rattled long after the fright has
+	# gone (`rattled`, fading as slowly as fear does): they spoil his aim, they don't break him.
+	var stress := 1.0 + (fear + (rattled if _has(&"noise") else 0.0)) * tune.fear_sway + p.felt_pain() * tune.pain_sway + p.shock() * tune.shock_sway \
 			+ (tune.rattled_sway if suppressed > 0.0 else 0.0)
 	hand.step(delta, _want_dir(gun.muzzle.global_position, t if aimed else null), aimed, body.pose in LOW_POSES, body.move_speed,
 			stress, (1.0 - p.arm_steadiness("r")) * tune.arm_tremor, tune.wrong_eye if p.blind.has(&"eye_r") \
@@ -2318,6 +2324,7 @@ func _scare(amount: float, why: StringName) -> void:
 	if _has(&"noise") and why in NOISE:
 		amount *= 1.0 - 0.7 * clampf(temper, 0.0, 1.0)
 		fright += amount
+		rattled += amount
 		why = StringName(String(why) + " (fright)")
 	else:
 		fear += amount
