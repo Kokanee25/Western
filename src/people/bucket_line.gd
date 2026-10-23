@@ -227,7 +227,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 		var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
 		var p := Vector3(fire_at.x, 0.0, fire_at.z) + dir * THROW_STAND
 		# Heights over the ground there (the town's ground slopes: TownLayout.ground_height).
-		var g := TownLayout.ground_height(p.x)
+		var g := Ground.height_in(get_tree(), p.x, p.z)
 		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, g + STAND_HIGHEST + 0.8, p.z), Vector3(p.x, g - 1.0, p.z), Layers.STAND))
 		if down.is_empty() or (down.normal as Vector3).y < 0.7:
 			continue

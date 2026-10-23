@@ -77,6 +77,13 @@ static func of(tree: SceneTree) -> Ground:
 	return tree.get_first_node_in_group(&"ground") as Ground
 
 
+## The ground's height at (x, z) in `tree`'s world: its Ground's, or 0 where there's none (a lab's
+## floor, a test's world).
+static func height_in(tree: SceneTree, x: float, z: float) -> float:
+	var g := of(tree)
+	return g.height_at(x, z) if g else 0.0
+
+
 ## Is `o` the ground (its flat slabs or a dug tile)?
 static func is_ground(o: Object) -> bool:
 	return o != null and is_instance_valid(o) and o is Node and (o as Node).has_meta(&"ground")
@@ -244,8 +251,8 @@ func _flat_mesh(rects: Array) -> ArrayMesh:
 	return mesh
 
 
-## The rise's chunks: each a height field (a point every half tile) on its own body and its part of
-## the rise's mesh; a chunk with dug tiles in it is cut round them into rectangles, a field each.
+## The slope's chunks: each its own body of solid columns, a tile wide, tilted to the ground, and its
+## part of the slope's mesh; a chunk with dug tiles in it is cut round them into rectangles.
 ## Only the chunks whose dug tiles have changed are made again.
 func _rebuild_rise(area: Rect2) -> void:
 	if area.size == Vector2.ZERO:
@@ -310,30 +317,34 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 		var along := PackedFloat32Array()
 		for i in range(-1, nx + 1):
 			along.append(TownLayout.ground_height(r.position.x + i * step))
-		var map := PackedFloat32Array()
-		map.resize(nx * nz)
 		var base := first + verts.size()
 		var inv := 1.0 / (2.0 * step)
 		for j in nz:
 			for i in nx:
 				var h := along[i + 1]
-				map[j * nx + i] = h
 				verts.append(Vector3(r.position.x + i * step, h, r.position.y + j * step))
 				normals.append(Vector3(-(along[i + 2] - along[i]) * inv, 1.0, 0.0).normalized())
 		for j in nz - 1:
 			for i in nx - 1:
 				var a := base + j * nx + i
 				idx.append_array([a, a + 1, a + nx + 1, a, a + nx + 1, a + nx])
-		var shape := HeightMapShape3D.new()
-		shape.map_width = nx
-		shape.map_depth = nz
-		shape.map_data = map
-		var cs := CollisionShape3D.new()
-		cs.name = "Field%d" % body.get_child_count()
-		cs.shape = shape
-		cs.scale = Vector3(step, 1.0, step)
-		cs.position = Vector3(r.get_center().x, 0.0, r.get_center().y)
-		body.add_child(cs)
+		# The collision: between two tile corners the ground is a plane (it goes with x alone), so
+		# each column is a solid box tilted to it, its top the surface (a height field has no
+		# thickness, and debris falling fast went through one).
+		for i in nx - 1:
+			var x0 := r.position.x + i * step
+			var h0 := along[i + 1]
+			var h1 := along[i + 2]
+			var tilt := atan2(h1 - h0, step)
+			var up := Vector3(-sin(tilt), cos(tilt), 0.0)
+			var box := BoxShape3D.new()
+			box.size = Vector3(sqrt(step * step + (h1 - h0) * (h1 - h0)), tuning.slab_depth, r.size.y)
+			var cs := CollisionShape3D.new()
+			cs.name = "Column%d" % body.get_child_count()
+			cs.shape = box
+			var top := Vector3(x0 + step * 0.5, (h0 + h1) * 0.5, r.get_center().y)
+			cs.transform = Transform3D(Basis(Vector3.BACK, tilt), top - up * tuning.slab_depth * 0.5)
+			body.add_child(cs)
 	add_child(body)
 	# Padded to the slot (unused points, under the ground at the chunk's corner).
 	var pad := CHUNK_SLOT - verts.size()
