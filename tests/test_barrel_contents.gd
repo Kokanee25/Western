@@ -244,7 +244,6 @@ func test_blown_open_its_staves_go_no_faster_than_a_blast_throws_anything() -> v
 			for rb in barrel.rubble:
 				if is_instance_valid(rb):
 					fastest = maxf(fastest, rb.linear_velocity.length())
-		print("DBG at %.1f released %s loose %s push %s fastest %.1f rubble %d" % [at, barrel.contents.released, barrel.loose, barrel.get_meta(&"blast_push", Vector3.ZERO), fastest, barrel.rubble.size()])
 		barrel.queue_free()
 		await physics_frames(2)
 	check(fastest <= Blast.t().max_throw * 1.05, "no stave faster than %.0f m/s (%.1f)" % [Blast.t().max_throw, fastest])

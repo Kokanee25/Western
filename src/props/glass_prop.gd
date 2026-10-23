@@ -371,11 +371,20 @@ func _shards_from(host: Node, rng: RandomNumberGenerator, at: Vector3, dir: Vect
 		mi.material_override = mat if mat else WoodMaterials.glass()
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		shard.add_child(mi)
-		host.add_child(shard)
 		var a := rng.randf() * TAU
 		var out := Vector3(cos(a), 0.0, sin(a))
 		var p := centre + out * r + Vector3.UP * rng.randf_range(-0.4, 0.4) * size.y
-		shard.global_transform = Transform3D(Basis(out.cross(Vector3.UP).normalized(), rng.randf() * TAU) * Basis.looking_at(out, Vector3.UP), p)
+		var b := Basis(out.cross(Vector3.UP).normalized(), rng.randf() * TAU) * Basis.looking_at(out, Vector3.UP)
+		# Not inside the wall it hung on or the shelf beside it: a 2 g shard pushed out of timber
+		# goes off at any speed (and its NaN spreads to what it meets). Inside where the glass was,
+		# else none.
+		if _in_world(Transform3D(b, p), dims):
+			p = centre + out * r * 0.3 + Vector3.UP * (p.y - centre.y) * 0.3
+			if _in_world(Transform3D(b, p), dims):
+				shard.free()
+				continue
+		host.add_child(shard)
+		shard.global_transform = Transform3D(b, p)
 		var with_it := rng.randf() < 0.55
 		var v := (dir * rng.randf_range(1.5, 5.0) if with_it else out * rng.randf_range(0.4, 2.0)) \
 				+ Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.2, 1.2), rng.randf_range(-0.5, 0.5))
@@ -390,6 +399,18 @@ func _shards_from(host: Node, rng: RandomNumberGenerator, at: Vector3, dir: Vect
 		var old: Variant = _shards.pop_front()
 		if is_instance_valid(old):
 			(old as Node).queue_free()
+
+
+## Whether a box of `size` at `xf` (world) overlaps the fixed world (members, the ground).
+func _in_world(xf: Transform3D, size: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	q.shape = box
+	q.transform = xf
+	q.collision_mask = Layers.WORLD
+	q.exclude = [body.get_rid()]
+	return not get_world_3d().direct_space_state.intersect_shape(q, 1).is_empty()
 
 
 static func _settle_shard(shard: Variant) -> void:
@@ -430,6 +451,12 @@ func _whole_pieces(host: Node, dir: Vector3) -> void:
 		var bs := BoxShape3D.new()
 		bs.size = box.size.max(Vector3.ONE * 0.01)
 		cs.shape = bs
+		# Out of the wall it hung on (a sconce's plate is flush with the boards) or what it stood on.
+		var away := global_basis.z if definition.has("hangs") else Vector3.UP
+		for k in 8:
+			if not _in_world(Transform3D(Basis.IDENTITY, piece.global_position), bs.size):
+				break
+			piece.global_position += away * 0.01
 		piece.add_child(cs)
 		piece.mass = maxf(float(definition.get("piece_mass", 0.15)), 0.02)
 		piece.linear_velocity = dir * 1.2 + Vector3.UP * 0.5 + (body.linear_velocity if loose else Vector3.ZERO)
