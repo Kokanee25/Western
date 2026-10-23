@@ -12,11 +12,11 @@ const SHIN := 0.41
 const BACK_OFFSET := 0.08
 const LOOK_DOWN_BACK_OFFSET := 0.26
 ## What you wear, and your skin: the hands and sleeves holding your guns are a Studio man's own
-## (HeldHand.MODEL, the young drifter), so your body wears his colours: the median of his painted
-## texture over his upper arm (the shirt), his chest's sides (the vest) and his hand (the skin).
-const SHIRT := Color(0.62, 0.55, 0.47)
-const VEST := Color(0.31, 0.21, 0.12)
-const SKIN := Color(0.61, 0.38, 0.28)
+## (HeldHand.MODEL, Sean's), so your body wears his colours: the median of his painted texture over
+## his upper arm (the shirt), his chest (the vest) and his hand (the skin).
+const SHIRT := Color(0.72, 0.68, 0.65)
+const VEST := Color(0.12, 0.1, 0.11)
+const SKIN := Color(0.65, 0.44, 0.36)
 
 var _hips: Node3D
 var _torso: Node3D

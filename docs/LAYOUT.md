@@ -648,7 +648,7 @@ a few views renders them as the full run does.
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
-  The hands holding them are `HeldHand`s: the young drifter's skinned, painted arm cut from his model
+  The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
   (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
   (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`). The metals are factory paintings (`GunParts._painted`).

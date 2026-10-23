@@ -13,8 +13,9 @@ extends Node3D
 ## at `wrist` and the forearm runs back (+Z) from it, turned by `wrist.rotation`. A finger's curl
 ## turns each bone towards the palm (degrees, positive = closing), about the man's own joint.
 
-## Whose arms you have: the Studio man whose shirt and vest your body wears (PlayerBody).
-const MODEL := &"young_drifter_s3_talking"
+## Whose arms you have: the Studio man whose shirt and vest your body wears (PlayerBody): Sean's,
+## the palest and least orange of the eight with hands (every one's forearm is bare to the elbow).
+const MODEL := &"sean_s3_talking"
 const FINGERS := ["index", "middle", "ring", "little"]
 ## A finger's last bone has no joint past it: its length is this share of the bone before.
 const TIP_SHARE := 0.85

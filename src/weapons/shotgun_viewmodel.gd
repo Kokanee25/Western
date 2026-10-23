@@ -32,7 +32,7 @@ const HAMMER_BACK := 40.0
 const R_HAND_POS := Vector3(0.026, -0.024, 0.016)
 const R_HAND_TILT := -45.0
 const R_HAND_ROLL := 0.0
-const R_FOREARM := Vector3(0.7, -0.45, 0.55)
+const R_FOREARM := Vector3(0.8, -0.58, 0.15)
 const R_GRIP := {"middle": [73.0, 59.0, 44.0], "ring": [107.0, 0.0, 75.0], "little": [115.0, 0.0, 0.0]}
 ## The index swung forward from its knuckle onto the front trigger (a plain curl can't reach it),
 ## and squeezed back.
