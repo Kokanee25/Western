@@ -456,6 +456,9 @@ frozen until Sean names one.
   painted (#258; factory `bar_cloth`, reduce.py `whole`). Mopping (#282, build 2165): `FloorMarks`
   (tracked mud, wet patches, stains), `MopProp`, `MopBucket`, `MopFloor` (`CivilianBrain.chores`).
   Waiting on Sean: both films (in the PRs). Next: issue #293.
+- **Movement** (2026-10-23, #303, `experiments/movement_feel/`): `PlayerMotion` (steps, lean, dips,
+  the gun with the body) and momentum; presets light/middle/heavy on F (`config/movement/`), the game
+  middle. Waiting on Sean: his pick of the three (then tune that one from his words).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

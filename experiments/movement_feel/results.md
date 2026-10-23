@@ -22,5 +22,5 @@ The old movement's column is worked out from its numbers (acceleration 30, decel
 | crouch, 90% of the way down, s | 0.13 | 0.18 | 0.22 | 0.30 |
 | ... sinking past it, cm | 0.00 | 0.00 | 0.55 | 1.55 |
 | stand up, 90% of the way, s | 0.13 | 0.18 | 0.22 | 0.30 |
-| the player's physics frame walking, ms (headless) | – | 0.32 | 0.22 | 0.23 |
-| the body's motion alone, µs | 0.00 | 9.55 | 5.83 | 5.63 |
+| the player's physics frame walking, ms (headless) | – | 0.25 | 0.29 | 0.25 |
+| the body's motion alone, µs | 0.00 | 6.45 | 7.96 | 5.59 |
