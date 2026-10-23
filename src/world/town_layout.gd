@@ -139,38 +139,40 @@ static func street_dir(x: float) -> Vector3:
 	return Vector3(1.0, 0.0, street_z(x + 0.5) - street_z(x - 0.5)).normalized()
 
 
-## The authored ground's height at (x, z): flat (0) through town; climbing westward out of it
-## (ground.rise: from 0 at x `from` to `height` at x `to`, eased at both ends), the climb full north
-## of z `full_north_of` and fading out by `none_south_of` (the flat by the creek).
-static func ground_height(x: float, z: float) -> float:
-	var r := rise()
-	if r.is_empty():
-		return 0.0
-	return float(r.height) * rise_along(x) * rise_across(z)
+## The authored ground's height at (x, z): the same at every z (config/town.json ground): flat
+## from the east through the saloon and the store, falling toward them from Market Street ('fall',
+## the town on a slope), level by the hotel and the bank, then climbing west out of town ('rise').
+static func ground_height(x: float, _z := 0.0) -> float:
+	var g: Dictionary = data().get("ground", {})
+	var h := 0.0
+	for part: String in ["fall", "rise"]:
+		var p: Dictionary = g.get(part, {})
+		if not p.is_empty():
+			var t := clampf((float(p.from) - x) / (float(p.from) - float(p.to)), 0.0, 1.0)
+			h += float(p.height) * t * t * (3.0 - 2.0 * t)
+	return h
 
 
-## How far up the rise (0..1, eased) the ground is at `x`, and how much of it there is at `z`:
-## ground_height is the rise's height times the two.
-static func rise_along(x: float) -> float:
-	var r := rise()
-	if r.is_empty():
-		return 0.0
-	var t := clampf((float(r.from) - x) / (float(r.from) - float(r.to)), 0.0, 1.0)
-	return t * t * (3.0 - 2.0 * t)
+## The x east of which the authored ground is flat (at 0); INF if it's flat everywhere.
+static func ground_flat_east_of() -> float:
+	var g: Dictionary = data().get("ground", {})
+	var east := -INF
+	for part: String in ["fall", "rise"]:
+		var p: Dictionary = g.get(part, {})
+		if not p.is_empty():
+			east = maxf(east, float(p.from))
+	return east if east > -INF else INF
 
 
-static func rise_across(z: float) -> float:
-	var r := rise()
-	if r.is_empty():
-		return 0.0
-	var s := clampf((float(r.none_south_of) - z) / (float(r.none_south_of) - float(r.full_north_of)), 0.0, 1.0)
-	return s * s * (3.0 - 2.0 * s)
-
-
-## The ground's rise (config/town.json ground.rise: from, to, height, full_north_of,
-## none_south_of), or empty where the ground's flat everywhere.
-static func rise() -> Dictionary:
-	return (data().get("ground", {}) as Dictionary).get("rise", {})
+## Where a building whose footprint (its front's width `w`, its depth `d`, and a boardwalk 2.4 m
+## out in front) is turned and placed by `t` stands on the ground: the height under its lowest
+## corner, so the uphill side is set into the slope, never the downhill side left in the air.
+static func footing(t: Transform3D, w: float, d: float) -> float:
+	var low := INF
+	for c: Vector3 in [Vector3(0, 0, -2.4), Vector3(w, 0, -2.4), Vector3(0, 0, d), Vector3(w, 0, d)]:
+		var p := t * c
+		low = minf(low, ground_height(p.x, p.z))
+	return low
 
 
 ## The move that takes what stood round an old lot to where its building stands now; a point no

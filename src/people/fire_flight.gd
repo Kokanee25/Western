@@ -27,17 +27,19 @@ static func way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear:
 			var routes := places.routes_from(space, me, exclude(body))
 			for n: StringName in routes:
 				var p: Vector3 = places.points[n]
-				if p.y < 0.2:  # out on the street, not in a building or on a porch
+				if p.y - TownLayout.ground_height(p.x) < 0.2:  # out on the street, not in a building or on a porch
 					ways.append([routes[n], p])
 		# Straight out across open ground, where nothing's in the way.
 		for i in DIRECTIONS:
 			var dir := Vector3.FORWARD.rotated(Vector3.UP, TAU * i / DIRECTIONS)
 			for d: float in OUT:
 				var c := Vector3(me.x, 0.0, me.z) + dir * d
+				c.y = TownLayout.ground_height(c.x)
 				if Waypoints._walkable(space, me, c, exclude(body)):
 					ways.append([[c] as Array[Vector3], c])
 	if ways.is_empty():
 		var away := Vector3(me.x, 0.0, me.z) + Vector3.FORWARD.rotated(Vector3.UP, body.rng_seed * 2.4) * OUT[-1]
+		away.y = TownLayout.ground_height(away.x)
 		return [away]
 	var best: Array[Vector3] = []
 	var best_len := INF

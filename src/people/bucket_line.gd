@@ -226,11 +226,13 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	for k in 8:
 		var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
 		var p := Vector3(fire_at.x, 0.0, fire_at.z) + dir * THROW_STAND
-		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, STAND_HIGHEST + 0.8, p.z), Vector3(p.x, -1.0, p.z), Layers.STAND))
+		# Heights over the ground there (the town's ground slopes: TownLayout.ground_height).
+		var g := TownLayout.ground_height(p.x)
+		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, g + STAND_HIGHEST + 0.8, p.z), Vector3(p.x, g - 1.0, p.z), Layers.STAND))
 		if down.is_empty() or (down.normal as Vector3).y < 0.7:
 			continue
 		var stand: Vector3 = down.position
-		if stand.y > STAND_HIGHEST:
+		if stand.y - g > STAND_HIGHEST:
 			continue
 		var q := PhysicsShapeQueryParameters3D.new()
 		q.shape = probe
@@ -238,7 +240,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 		q.transform = Transform3D(Basis(), stand + Vector3.UP * 0.9)
 		if not space.intersect_shape(q, 1).is_empty():
 			continue  # inside a wall
-		var d := stand.distance_to(water_spot) + (RAISED_COST if stand.y > 0.15 else 0.0)
+		var d := stand.distance_to(water_spot) + (RAISED_COST if stand.y - g > 0.15 else 0.0)
 		if d < best_d:
 			best_d = d
 			best = stand

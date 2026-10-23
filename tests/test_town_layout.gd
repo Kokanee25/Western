@@ -66,19 +66,46 @@ func test_every_front_stands_on_the_street_not_on_a_ruler() -> void:
 	check(turns.filter(func(a: float) -> bool: return absf(a) >= 0.5).size() >= 5, "and turned a little (%s)" % [turns])
 
 
-func test_the_ground_is_flat_in_town_and_climbs_west_out_of_it() -> void:
-	for p: Vector2 in [Vector2(0, -8.4), Vector2(-46, -8), Vector2(-40, -22), Vector2(25, 0), Vector2(60, -8.4)]:
-		check_eq(TownLayout.ground_height(p.x, p.y), 0.0, "flat in town at %s" % p)
-	var h80 := TownLayout.street_point(-80.0).y
-	var h120 := TownLayout.street_point(-120.0).y
-	check(h80 > 0.3 and h120 > h80 and h120 < 4.0, "the street climbs west out of town (%.2f m at x -80, %.2f at -120)" % [h80, h120])
-	# The flat by the creek, south of the far street, where the building lab's saloon stands.
-	check_eq(TownLayout.ground_height(-72.0, 26.0), 0.0, "flat where the building lab's saloon stands")
-	check_eq(TownLayout.ground_height(-60.0, 43.0), 0.0, "and at its back")
-	# Never steep: a man walks it and a wagon rolls up it.
-	for x in range(-160, -40, 2):
-		for z in range(-40, 30, 2):
-			var slope := Vector2(TownLayout.ground_height(x + 0.5, z) - TownLayout.ground_height(x - 0.5, z),
-					TownLayout.ground_height(x, z + 0.5) - TownLayout.ground_height(x, z - 0.5)).length()
-			if not check(slope < 0.2, "never steeper than 1 in 5 (%.2f at %d, %d)" % [slope, x, z]):
-				return
+func test_the_ground_falls_through_town_to_the_flat_and_climbs_west_out_of_it() -> void:
+	# Flat from the east: the range, the livery, the jail, the saloon and the store (their places and
+	# the labs' setups stand at 0).
+	for x in [-4.0, 0.0, 10.0, 25.0, 60.0, 140.0]:
+		check_eq(TownLayout.ground_height(x), 0.0, "flat at x %.0f" % x)
+	# Falling toward the store from Market Street, level by the hotel and the bank, then on up.
+	var market := TownLayout.street_point(-32.0).y
+	var hotel := TownLayout.street_point(-48.0).y
+	var out := TownLayout.street_point(-120.0).y
+	check(market > 0.5 and market < 1.0, "at Market Street the street is %.2f m up" % market)
+	check(hotel > market and hotel < 1.2, "by the hotel %.2f m" % hotel)
+	check(out > hotel + 1.5 and out < 5.0, "and it climbs west out of town (%.2f m at x -120)" % out)
+	var last := -1.0
+	for x in range(40, -200, -2):
+		var h := TownLayout.ground_height(x)
+		check(h >= last, "never down going west (x %d)" % x)
+		var slope := absf(TownLayout.ground_height(x - 0.5) - TownLayout.ground_height(x + 0.5))
+		if not check(slope < 0.06, "never steeper than 6 in 100 (%.3f at x %d)" % [slope, x]):
+			return
+		last = h
+	check_eq(TownLayout.ground_height(-30.0, 40.0), TownLayout.ground_height(-30.0, -40.0), "the same at every z")
+
+
+func test_every_building_stands_on_the_ground() -> void:
+	# On the ground under its low corner, its uphill side set into the slope by less than its floor
+	# stands above the street, so no floor is under the ground and no sill is left in the air.
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	add_child(street)
+	await process_frames(2)
+	var buildings := street.find_children("*", "FalseFrontBuilding", true, false)
+	check(buildings.size() >= 10, "the street's buildings (%d)" % buildings.size())
+	for b: FalseFrontBuilding in buildings:
+		var t := b.global_transform
+		var low := INF
+		var high := -INF
+		for c: Vector3 in [Vector3(0, 0, -2.4), Vector3(b.width, 0, -2.4), Vector3(0, 0, b.depth), Vector3(b.width, 0, b.depth)]:
+			var p := t * c
+			low = minf(low, TownLayout.ground_height(p.x))
+			high = maxf(high, TownLayout.ground_height(p.x))
+		check(absf(t.origin.y - low) < 0.01, "%s stands on the ground under its low corner (%.3f, the ground %.3f)" % [b.name, t.origin.y, low])
+		check(high - t.origin.y < b.floor_top - 0.05, "%s's floor above the ground under its high corner (%.2f m set in, its floor %.2f)" % [b.name, high - t.origin.y, b.floor_top])
+	street.queue_free()
+	await process_frames(2)

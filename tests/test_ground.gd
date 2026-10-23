@@ -25,7 +25,7 @@ func _down(x: float, z: float) -> Dictionary:
 
 
 func test_the_flat_ground_is_at_zero_out_past_its_drawn_edge() -> void:
-	for p: Vector2 in [Vector2(0, 0), Vector2(-50.3, -8.4), Vector2(299, -299), Vector2(-1200, 900)]:
+	for p: Vector2 in [Vector2(0, 0), Vector2(30.3, -8.4), Vector2(299, -299), Vector2(1200, 900)]:
 		var hit := _down(p.x, p.y)
 		check(not hit.is_empty() and absf((hit.position as Vector3).y) < 1e-3, "ground at y 0 at %s" % p)
 		check(not hit.is_empty() and Ground.is_ground(hit.collider), "and it's the ground")
@@ -407,21 +407,21 @@ func test_a_small_fast_thing_doesn_t_go_through_a_dug_tile() -> void:
 	check(worst < 0.12, "none ends deeper than a crater's own depth under the surface (worst %.3f m)" % worst)
 
 
-func test_west_of_town_it_climbs_as_the_layout_says_with_no_seam() -> void:
-	# The town's ground.rise (config/town.json): height fields, the flat slabs round them.
+func test_west_of_the_store_it_slopes_as_the_layout_says_with_no_seam() -> void:
+	# The town's ground (config/town.json): height fields by the chunk, the flat slabs east of them.
 	var worst := 0.0
 	var missed := 0
-	for p: Vector2 in [Vector2(-52, -8), Vector2(-60, -18), Vector2(-80.3, -20.6), Vector2(-120, -30), Vector2(-152, -4),
-			Vector2(-140, 10), Vector2(-100, 21.9), Vector2(-160, -40), Vector2(-299, -299), Vector2(-51.0, 0.0)]:
+	for p: Vector2 in [Vector2(-6, -8), Vector2(-20.3, -9), Vector2(-35, 4), Vector2(-60, -18), Vector2(-80.3, -20.6),
+			Vector2(-120, -30), Vector2(-152, 40), Vector2(-140, 210), Vector2(-299, -299), Vector2(-1.0, 0.0)]:
 		var hit := _down(p.x, p.y)
 		if hit.is_empty() or not Ground.is_ground(hit.collider):
 			missed += 1
 			continue
-		worst = maxf(worst, absf((hit.position as Vector3).y - TownLayout.ground_height(p.x, p.y)))
-		check_near(ground.height_at(p.x, p.y), TownLayout.ground_height(p.x, p.y), 0.001, "height_at says so at %s" % p)
-	check_eq(missed, 0, "a ray finds the ground everywhere on the rise")
+		worst = maxf(worst, absf((hit.position as Vector3).y - TownLayout.ground_height(p.x)))
+		check_near(ground.height_at(p.x, p.y), TownLayout.ground_height(p.x), 0.001, "height_at says so at %s" % p)
+	check_eq(missed, 0, "a ray finds the ground everywhere on the slope")
 	check(worst < 0.02, "at the layout's height (worst %.3f m off)" % worst)
-	check(TownLayout.ground_height(-120, -30) > 1.0, "and it's risen there")
+	check(TownLayout.ground_height(-120) > 1.0, "and it's up there")
 
 
 func test_a_tile_dug_on_the_rise_starts_as_the_ground_was() -> void:

@@ -371,8 +371,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
-  (`flat_rects`); west of town it climbs (the town's `ground.rise`, `TownLayout.ground_height`: height
-  fields by the chunk, the town layout's section). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (`flat_rects`); west of the store it slopes (the town's `ground`, `TownLayout.ground_height`: height
+  fields by the chunk, the town layout's section "The street's shape"). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
   (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
   `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
   &"ground" (`Ballistics.surface_of`).
@@ -443,11 +443,17 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `StreetDressing/VacantLot` is the empty lot's junk and its board. What follows the street: the
   waypoints' spine (`street_market` new), the outlaw's `_street_spot`, the ground shader's road
   (`road_line`, set by `Ground`), stones, grass, sagebrush, prints, the poles and the far wagon, and
-  a point `carry()` finds no lot for (moved across with the street). `ground.rise`: the authored
-  ground climbs 3 m west out of town (x -51.2 to -153.6), none south of z 22 (the building lab's
-  saloon stands on the flat): `TownLayout.ground_height(x, z)`; `Ground` makes it height fields a
-  chunk of 8 tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`), a dug tile's `base` holds it
-  (its `heights` stay above the authored ground). `tools/tour.gd`'s store and saloon stops move
+  a point `carry()` finds no lot for (moved across with the street). **The grade** (Sean, 2026-10-23):
+  `ground` in town.json, the same at every z (`TownLayout.ground_height(x)`): flat from the east
+  through the saloon and the store (x -5 on), `fall` 1 m up westward to x -45 (Market Street ~0.75),
+  level by the hotel and bank, `rise` 3 m more out of town (x -51.2 to -153.6). Each building's `at`
+  y is `TownLayout.footing` (the ground under its low corner, its walk included; the uphill side set
+  in by less than its floor: `test_every_building_stands_on_the_ground`); street-level dressing,
+  the lot's junk, the waypoints, the outlaw's spot, the screenshot views, fire flight and the bucket
+  line go by the ground; the building lab's saloon (`Play.ORIGIN`) on its footing. `Ground` makes
+  everything west of x 0 height fields a chunk of 8 tiles, a point every tile corner, each chunk its
+  own body cut round dug tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`); a dug tile's `base`
+  holds the authored height (its `heights` stay above it). `tools/tour.gd`'s store and saloon stops move
   with them (`laid_out`).
 
 ## src/structures

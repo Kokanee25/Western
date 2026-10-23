@@ -5,7 +5,9 @@ a curve or something". What changed is in `config/town.json` (its note) and `doc
 ("The street's shape"): Main Street's middle a curve (straight past the saloon and store, a jog north
 across Market Street, bending on west), the fronts set back, forward and turned off it, an alley by
 the store, an empty lot of junk across from the doctor's, fronts of different heights, and the ground
-climbing 3 m west out of town.
+graded: flat through the saloon and store, rising about a metre westward to Market Street (each
+building on its footing, its uphill side set into the slope), then climbing 3 m more out of town
+(Sean: "do the grade on top of this branch").
 
 - `results/sheet.jpg`: before (main) and after, from the same free cameras (the dev bridge's
   `camera`), noon, 16:00 and golden hour.

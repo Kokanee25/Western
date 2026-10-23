@@ -46,19 +46,15 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 		t.set_meta(m, ground.get_meta(m))
 	var size := tn.tile_size()
 	t.position = Vector3((at.x + 0.5) * size, 0.0, (at.y + 0.5) * size)
-	# The authored ground under it, where it climbs (highest at its north-west corner): its height
-	# times a factor along and one across (TownLayout.ground_height).
-	if TownLayout.ground_height(at.x * size, at.y * size) != 0.0:
+	# The authored ground under it, where it slopes (it goes with x alone: TownLayout.ground_height).
+	if at.x * size < TownLayout.ground_flat_east_of():
 		var along := PackedFloat32Array()
-		var across := PackedFloat32Array()
 		for i in t._n:
-			along.append(TownLayout.rise_along(at.x * size + i * tn.cell))
-			across.append(TownLayout.rise_across(at.y * size + i * tn.cell))
-		var height := float(TownLayout.rise().height)
+			along.append(TownLayout.ground_height(at.x * size + i * tn.cell))
 		t.base.resize(t._n * t._n)
 		for j in t._n:
 			for i in t._n:
-				t.base[j * t._n + i] = height * along[i] * across[j]
+				t.base[j * t._n + i] = along[i]
 	# The height field: Godot centres it on its shape's origin with points 1 apart, so scaled to the
 	# cell (Jolt takes a scaled height field on a static body).
 	t._shape = HeightMapShape3D.new()

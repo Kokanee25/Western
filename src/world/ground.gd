@@ -1,10 +1,12 @@
 class_name Ground
 extends StaticBody3D
 ## The street's ground, made ready to be dug (docs/briefs/dig-ground.md). Where it's never been
-## dug it's the authored ground (TownLayout.ground_height): through town flat at y 0, a few big
-## flat slabs to stand on and one mesh, the ground less its dug tiles cut into rectangles, so
-## standing ground costs what the endless plane did; where it climbs west out of town (the town's
-## ground.rise), height fields a chunk of CHUNK_TILES tiles a side, drawn as one more mesh. Where it has been dug it's a GroundTile: a height field of `tile_cells` cells a side, its own
+## dug it's the authored ground (TownLayout.ground_height): where that's flat at y 0 (from the
+## saloon and store east), a few big flat slabs to stand on and one mesh, the ground less its dug
+## tiles cut into rectangles, so standing ground costs what the endless plane did; west of that,
+## where it slopes (the town's ground: the street's fall, the rise out of town), height fields a
+## chunk of CHUNK_TILES tiles a side, drawn as one more mesh. Where it has been dug it's a
+## GroundTile: a height field of `tile_cells` cells a side, its own
 ## body (an edit rebuilds only that tile) and mesh. Every collider of it carries the `ground` meta
 ## (Ground.is_ground) and `surface` &"ground", so a ball glances off a crater's wall as dirt
 ## (Ballistics.surface_of), not as a board.
@@ -17,17 +19,18 @@ var tiles := {}
 
 var _mesh: MeshInstance3D
 var _rise_mesh: MeshInstance3D
-## Vector2i (a chunk of the rise, in chunks) -> {dug: its dug tiles' keys, sorted; body: its own
-## StaticBody3D (an edit rebuilds only its shapes); verts, normals, index: its part of the rise's
+## Vector2i (a chunk of the slope, in chunks) -> {dug: its dug tiles' keys, sorted; body: its own
+## StaticBody3D (an edit rebuilds only its shapes); verts, normals, index: its part of the slope's
 ## mesh}.
 var _chunks := {}
 var _rise_tangents := PackedFloat32Array()
 
-## Tiles a side of a chunk of the rise; its height field has a point every half tile.
+## Tiles a side of a chunk of the slope; its height field has a point every tile corner (the
+## slope is gentle: between them it's within millimetres of the curve).
 const CHUNK_TILES := 8
-## Each chunk's room in the rise's mesh (points): a chunk cut round dug tiles into rectangles,
-## at most the chunk's points and a row and column more for each cut.
-const CHUNK_SLOT := 1024
+## Each chunk's room in the slope's mesh (points): a chunk cut round dug tiles into rectangles has
+## at most four points a tile.
+const CHUNK_SLOT := CHUNK_TILES * CHUNK_TILES * 4
 
 
 func _ready() -> void:
@@ -179,45 +182,32 @@ func _rebuild_flat() -> void:
 	_rebuild_rise(area)
 
 
-## Where the authored ground climbs (the rise, chunk-aligned: out to the drawn edge westward and
-## northward, to where it's gone southward and eastward), or an empty Rect2 if it's flat.
+## Where the authored ground slopes (chunk-aligned: from where it stops being flat west to the drawn
+## edge, and across the drawn ground), or an empty Rect2 if it's flat.
 func _rise_area() -> Rect2:
-	var r := TownLayout.rise()
-	if r.is_empty():
+	var east := TownLayout.ground_flat_east_of()
+	if east == INF:
 		return Rect2()
 	var c := tuning.tile_size() * CHUNK_TILES
 	var x0 := floorf(-tuning.drawn_half / c) * c
 	var z0 := floorf(-tuning.drawn_half / c) * c
-	var x1 := ceilf(float(r.from) / c) * c
-	var z1 := ceilf(float(r.none_south_of) / c) * c
-	return Rect2(x0, z0, x1 - x0, z1 - z0)
+	var x1 := maxf(ceilf(east / c) * c, x0 + c)
+	return Rect2(x0, z0, x1 - x0, -2.0 * z0)
 
 
-## `rects` less the rise's area, each with the level its slab or quad stands at: 0, or past the
-## rise's drawn edge the height there (taken flat over a band, so far out it never shows).
+## `rects` less the slope's area, each with the level its slab or quad stands at: 0 east of it, or
+## past its drawn edge the height there (taken flat over the piece, so far out it never shows).
 func _levelled(rects: Array[Rect2], area: Rect2) -> Array:
 	var out := []
-	var rise := TownLayout.rise()
 	for r in rects:
 		if area.size == Vector2.ZERO:
 			out.append([r, 0.0])
 			continue
 		for p in _minus(r, area):
-			# East of the rise or south of it, the flat.
-			if p.position.x >= area.end.x - 0.01 or p.position.y >= area.end.y - 0.01:
+			if p.position.x >= area.end.x - 0.01:
 				out.append([p, 0.0])
-				continue
-			# West or north of it: in bands across (all risen, half, none), each at its middle's height.
-			var north := float(rise.full_north_of)
-			var south := float(rise.none_south_of)
-			var cuts := [p.position.y, clampf(north, p.position.y, p.end.y), clampf(south, p.position.y, p.end.y), p.end.y]
-			for k in 3:
-				if cuts[k + 1] - cuts[k] <= 0.0:
-					continue
-				var band := Rect2(p.position.x, cuts[k], p.size.x, cuts[k + 1] - cuts[k])
-				var along := clampf(band.get_center().x, area.position.x, area.end.x)
-				var across := (north + south) * 0.5 if k == 1 else band.get_center().y
-				out.append([band, TownLayout.ground_height(along, across)])
+			else:
+				out.append([p, TownLayout.ground_height(clampf(p.get_center().x, area.position.x, area.end.x))])
 	return out
 
 
@@ -297,7 +287,10 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	for key: Vector2i in dug:
 		var next: Array[Rect2] = []
 		for r in pieces:
-			next.append_array(_minus(r, Rect2(key.x * size, key.y * size, size, size)))
+			for q in _minus(r, Rect2(key.x * size, key.y * size, size, size)):
+				# Cut on the tile grid, so anything under half a tile across is a float's sliver.
+				if q.size.x > size * 0.5 and q.size.y > size * 0.5:
+					next.append(q)
 		pieces = next
 	var body := StaticBody3D.new()
 	body.name = "Rise_%d_%d" % [ck.x, ck.y]
@@ -308,31 +301,25 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var idx := PackedInt32Array()
-	var step := size * 0.5
-	var height := float(TownLayout.rise().height)
+	var step := size
 	for r in pieces:
 		var nx := roundi(r.size.x / step) + 1
 		var nz := roundi(r.size.y / step) + 1
-		# The rise is its height times a factor along and one across: sampled once a row and column
-		# (one more each side, for the slopes).
+		# The ground's height goes with x alone: sampled once a column (one more each side, for the
+		# slope).
 		var along := PackedFloat32Array()
-		var across := PackedFloat32Array()
 		for i in range(-1, nx + 1):
-			along.append(TownLayout.rise_along(r.position.x + i * step))
-		for j in range(-1, nz + 1):
-			across.append(TownLayout.rise_across(r.position.y + j * step))
+			along.append(TownLayout.ground_height(r.position.x + i * step))
 		var map := PackedFloat32Array()
 		map.resize(nx * nz)
 		var base := first + verts.size()
-		var inv := height / (2.0 * step)
+		var inv := 1.0 / (2.0 * step)
 		for j in nz:
 			for i in nx:
-				var h := height * along[i + 1] * across[j + 1]
+				var h := along[i + 1]
 				map[j * nx + i] = h
 				verts.append(Vector3(r.position.x + i * step, h, r.position.y + j * step))
-				var dx := (along[i + 2] - along[i]) * across[j + 1] * inv
-				var dz := (across[j + 2] - across[j]) * along[i + 1] * inv
-				normals.append(Vector3(-dx, 1.0, -dz).normalized())
+				normals.append(Vector3(-(along[i + 2] - along[i]) * inv, 1.0, 0.0).normalized())
 		for j in nz - 1:
 			for i in nx - 1:
 				var a := base + j * nx + i

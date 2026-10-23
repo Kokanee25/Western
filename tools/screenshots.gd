@@ -353,6 +353,8 @@ func _run() -> void:
 		clock.set_time(v[1])
 		var move := _view_move(v[0])
 		player.global_position = move * (v[2] as Vector3)
+		# On the town's ground where it slopes (config/town.json ground; 0 where the views were laid out).
+		player.global_position.y += TownLayout.ground_height(player.global_position.x)
 		player.velocity = Vector3.ZERO
 		player.rotation = Vector3(0.0, deg_to_rad(v[3]) + move.basis.get_euler().y, 0.0)
 		player.input_enabled = true

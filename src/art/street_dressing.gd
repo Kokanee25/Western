@@ -145,11 +145,14 @@ func _buildings() -> void:
 
 
 ## Where whatever stood at `at` on the old street stands now, turned `yaw` degrees: carried with
-## the building it stood by (TownLayout.carry), or left where it was out in the street.
+## the building it stood by (TownLayout.carry), or with the street out in it; up on a walk with
+## the walk, down in the street on the ground where it ends up (the ground slopes).
 static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
 	var t := TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 	if at.y > 0.3:
 		t.origin.y += walk_lift(t.origin)
+	else:
+		t.origin.y = TownLayout.ground_height(t.origin.x) + at.y
 	return t
 
 
@@ -448,6 +451,11 @@ func _far() -> void:
 	_vacant_lot()
 
 
+## `at` down on the ground (the town's slopes: TownLayout.ground_height).
+static func _grounded(at: Vector3) -> Vector3:
+	return Vector3(at.x, TownLayout.ground_height(at.x), at.z)
+
+
 ## Which way the street runs at `x`, as a yaw in degrees (0 along it east, as the old straight
 ## street ran).
 static func _street_yaw(x: float) -> float:
@@ -471,7 +479,7 @@ func _vacant_lot() -> void:
 	root.name = "VacantLot"
 	add_child(root)
 	root.transform = t
-	var wagon := _model("DeadWagon", PropModels.wagon, t * Vector3(w * 0.6, 0.0, 6.5), yaw + 71.0, Vector3(3.4, 2.2, 1.8), false)
+	var wagon := _model("DeadWagon", PropModels.wagon, _grounded(t * Vector3(w * 0.6, 0.0, 6.5)), yaw + 71.0, Vector3(3.4, 2.2, 1.8), false)
 	if wagon:
 		wagon.reparent(root)
 		# Down at one corner on its broken wheel.
@@ -483,6 +491,7 @@ func _vacant_lot() -> void:
 	heap.name = "BoardHeap"
 	root.add_child(heap)
 	heap.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(8.0)), Vector3(w * 0.22, 0.0, 3.2))
+	heap.global_position = _grounded(heap.global_position)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1877
 	for i in 9:
@@ -493,14 +502,17 @@ func _vacant_lot() -> void:
 		var p := PropLibrary.spawn(b[1])
 		root.add_child(p)
 		p.transform = Transform3D(Basis(), b[0])
+		p.global_position = _grounded(p.global_position)
 	var crate := PropLibrary.spawn(&"crate")
 	root.add_child(crate)
 	crate.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(23.0)), Vector3(w * 0.35, 0.0, 5.0))
+	crate.global_position = _grounded(crate.global_position)
 	# The board at the lot's front, by the street.
 	var post := Node3D.new()
 	post.name = "LotSign"
 	root.add_child(post)
 	post.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(-6.0)), Vector3(w * 0.5, 0.0, -0.6))
+	post.global_position = _grounded(post.global_position)
 	var wood := PropModels.dark_wood()
 	PropModels._box(post, "Post", Vector3(0.1, 1.6, 0.1), Vector3(0.0, 0.8, 0.0), wood)
 	PropModels._box(post, "Board", Vector3(1.3, 0.55, 0.03), Vector3(0.0, 1.35, -0.07), PropModels.weathered())
@@ -608,6 +620,8 @@ static func post_of(f: Array) -> Vector3:
 	var at := TownLayout.carry(f[1]) * (f[1] as Vector3)
 	if (f[1] as Vector3).y > 0.3:
 		at.y += walk_lift(at)
+	else:
+		at.y = TownLayout.ground_height(at.x) + (f[1] as Vector3).y
 	return out_of_doorway(at, 0.3)
 
 
