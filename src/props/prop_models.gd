@@ -37,6 +37,7 @@ static func build(id: StringName, variant := 0) -> Node3D:
 		&"bar_stool": _bar_stool(root)
 		&"upright_piano": _piano(root)
 		&"barrel": _barrel(root)
+		&"crate": crate(root)
 		&"spittoon": _spittoon(root)
 		&"oil_lamp": lamp(root)
 		&"whiskey_bottle": bottle(root, variant)
@@ -51,7 +52,7 @@ static func build(id: StringName, variant := 0) -> Node3D:
 
 
 static func has_model(id: StringName) -> bool:
-	return id in [&"card_table", &"chair", &"bar_stool", &"upright_piano", &"barrel", &"spittoon",
+	return id in [&"card_table", &"chair", &"bar_stool", &"upright_piano", &"barrel", &"crate", &"spittoon",
 			&"oil_lamp", &"whiskey_bottle", &"tin_cup", &"deer_head", &"framed_painting", &"wall_sconce"]
 
 
@@ -80,6 +81,11 @@ static func mid_wood() -> ShaderMaterial:
 
 static func staves() -> ShaderMaterial:
 	return _mat("staves", PixelArt.wood("prop_staves", Color(0.42, 0.28, 0.16), 213, 1, 3, 1.1))
+
+
+## A barrel's head: its boards' end grain darker than the staves.
+static func barrel_head() -> ShaderMaterial:
+	return _mat("barrel_head", PixelArt.wood("prop_barrel_head", Color(0.38, 0.25, 0.14), 229, 1, 2))
 
 
 static func brass() -> ShaderMaterial:
@@ -392,10 +398,10 @@ static func _piano(root: Node3D) -> void:
 	_box(root, "Top", Vector3(1.54, 0.04, 0.44), Vector3(0, 1.24, -0.1), w)
 	_box(root, "KeyBed", Vector3(1.4, 0.08, 0.22), Vector3(0, 0.72, 0.2), w)
 	_box(root, "Fallboard", Vector3(1.4, 0.16, 0.04), Vector3(0, 0.84, 0.13), w)
-	_box(root, "Panel", Vector3(1.2, 0.36, 0.02), Vector3(0, 1.0, 0.105), _mat("piano_panel", PixelArt.wood("prop_burl", Color(0.33, 0.18, 0.1), 223, 3, 1, 0.6)))
+	_box(root, "Panel", Vector3(1.2, 0.36, 0.02), Vector3(0, 1.0, 0.105), burl())
 	# Keys: an ivory strip with black keys in twos and threes.
-	_box(root, "Keys", Vector3(1.3, 0.025, 0.15), Vector3(0, 0.77, 0.23), _mat("ivory", PixelArt.painted("prop_ivory", Color(0.86, 0.82, 0.7), Color(0.5, 0.45, 0.4), 225, 0.0), Color.WHITE, 0.5))
-	var black := _mat("ebony", PixelArt.metal("prop_ebony", Color(0.07, 0.06, 0.05), 227), Color.WHITE, 0.4)
+	_box(root, "Keys", Vector3(1.3, 0.025, 0.15), Vector3(0, 0.77, 0.23), ivory())
+	var black := ebony()
 	var x := -0.62
 	var pattern := [1, 1, 0, 1, 1, 1, 0]
 	var i := 0
@@ -412,6 +418,19 @@ static func _piano(root: Node3D) -> void:
 				Transform3D(Basis.IDENTITY, Vector3(side * 0.55, 1.05, 0.14)))
 
 
+## A piano's burl walnut panel, its keys' ivory and ebony.
+static func burl() -> ShaderMaterial:
+	return _mat("piano_panel", PixelArt.wood("prop_burl", Color(0.33, 0.18, 0.1), 223, 3, 1, 0.6))
+
+
+static func ivory() -> ShaderMaterial:
+	return _mat("ivory", PixelArt.painted("prop_ivory", Color(0.86, 0.82, 0.7), Color(0.5, 0.45, 0.4), 225, 0.0), Color.WHITE, 0.5)
+
+
+static func ebony() -> ShaderMaterial:
+	return _mat("ebony", PixelArt.metal("prop_ebony", Color(0.07, 0.06, 0.05), 227), Color.WHITE, 0.4)
+
+
 ## An oak barrel: bulged staves, the grain running up, four iron hoops.
 static func _barrel(root: Node3D) -> void:
 	var pts := []
@@ -419,7 +438,7 @@ static func _barrel(root: Node3D) -> void:
 		var t := float(k) / 8.0
 		pts.append([0.25 + 0.05 * sin(t * PI), 0.9 * t])
 	_add(root, "Staves", lathe(_profile(pts), 14, true), staves())
-	_add(root, "Head", disc(0.25, 14, 0.885), _mat("barrel_head", PixelArt.wood("prop_barrel_head", Color(0.38, 0.25, 0.14), 229, 1, 2)))
+	_add(root, "Head", disc(0.25, 14, 0.885), barrel_head())
 	for y in [0.06, 0.24, 0.66, 0.84]:
 		var t: float = y / 0.9
 		var r := 0.25 + 0.05 * sin(t * PI) + 0.004
@@ -470,8 +489,8 @@ static func cup(root: Node3D) -> void:
 static func _deer_head(root: Node3D) -> void:
 	var plaque := dark_wood()
 	_box(root, "Plaque", Vector3(0.34, 0.44, 0.03), Vector3(0, 0, 0.015), plaque)
-	var hide := _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
-	var dark := _mat("hide_dark", PixelArt.dirt("prop_hide_dark", Color(0.18, 0.12, 0.08), 239))
+	var hide := hide()
+	var dark := hide_dark()
 	_box(root, "Neck", Vector3(0.2, 0.26, 0.2), Vector3(0, -0.04, 0.12), hide, Basis(Vector3.RIGHT, -0.35))
 	_box(root, "Head", Vector3(0.15, 0.15, 0.2), Vector3(0, 0.07, 0.28), hide, Basis(Vector3.RIGHT, 0.25))
 	_box(root, "Muzzle", Vector3(0.09, 0.08, 0.14), Vector3(0, 0.01, 0.41), hide, Basis(Vector3.RIGHT, 0.45))
@@ -483,7 +502,7 @@ static func _deer_head(root: Node3D) -> void:
 
 
 static func _antler(root: Node3D, base: Vector3, side: float) -> void:
-	var bone := _mat("antler", PixelArt.painted("prop_antler", Color(0.78, 0.7, 0.55), Color(0.45, 0.36, 0.25), 241, 0.3))
+	var bone := antler()
 	# Main beam: up, out and back, curving forward at the top, with tines off its front.
 	var pts := [base, base + Vector3(side * 0.1, 0.12, -0.04), base + Vector3(side * 0.2, 0.24, -0.05),
 			base + Vector3(side * 0.26, 0.36, 0.0), base + Vector3(side * 0.25, 0.46, 0.06)]
@@ -502,7 +521,7 @@ static func _stick(root: Node3D, a: Vector3, b: Vector3, thick: float, mat: Mate
 
 ## An oil landscape in a gilded frame (variant picks the picture).
 static func _painting(root: Node3D, variant := 0) -> void:
-	var gilt := _mat("gilt", PixelArt.metal("prop_gilt", Color(0.66, 0.5, 0.24), 243, 0.3), Color.WHITE, 0.5, 0.4, 0.5)
+	var gilt := gilt()
 	var w := 1.0
 	var h := 0.7
 	var f := 0.08
@@ -512,15 +531,40 @@ static func _painting(root: Node3D, variant := 0) -> void:
 	_box(root, "FrameRight", Vector3(f, h - 2 * f, 0.05), Vector3(w * 0.5 - f * 0.5, 0, 0.025), gilt)
 	# The canvas: a thin board with UVs in metres (u across, v up), the picture laid on it once.
 	var canvas_size := Vector2(w - 2 * f, h - 2 * f)
-	var m := ShaderMaterial.new()
-	m.shader = PixelArt.GRID_SHADER
-	m.set_shader_parameter(&"albedo_tex", landscape_texture(posmod(variant, 2)))
-	m.set_shader_parameter(&"tint", Color.WHITE)
-	m.set_shader_parameter(&"roughness", 0.8)
-	# The picture covers the canvas once (not tiled), one texel a tile all the same.
-	m.set_shader_parameter(&"texels_per_meter", float(landscape_texture(0).get_width()) / canvas_size.x)
-	m.set_shader_parameter(&"use_mipmaps", false)
-	_box(root, "Canvas", Vector3(canvas_size.x, canvas_size.y, 0.01), Vector3(0, 0, 0.02), m)
+	_box(root, "Canvas", Vector3(canvas_size.x, canvas_size.y, 0.01), Vector3(0, 0, 0.02), picture(variant, canvas_size.x))
+
+
+## A landscape on canvas `width` wide: the picture covers it once (not tiled), one texel a tile all
+## the same; `variant` picks the picture.
+static func picture(variant: int, width := 0.84) -> ShaderMaterial:
+	var key := "picture_%d_%.3f" % [posmod(variant, 2), width]
+	if not _materials.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = PixelArt.GRID_SHADER
+		m.set_shader_parameter(&"albedo_tex", landscape_texture(posmod(variant, 2)))
+		m.set_shader_parameter(&"tint", Color.WHITE)
+		m.set_shader_parameter(&"roughness", 0.8)
+		m.set_shader_parameter(&"texels_per_meter", float(landscape_texture(0).get_width()) / width)
+		m.set_shader_parameter(&"use_mipmaps", false)
+		_materials[key] = m
+	return _materials[key]
+
+
+## A mount's hide, its dark (nose, eyes), its antlers' bone; a frame's gilt.
+static func hide() -> ShaderMaterial:
+	return _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
+
+
+static func hide_dark() -> ShaderMaterial:
+	return _mat("hide_dark", PixelArt.dirt("prop_hide_dark", Color(0.18, 0.12, 0.08), 239))
+
+
+static func antler() -> ShaderMaterial:
+	return _mat("antler", PixelArt.painted("prop_antler", Color(0.78, 0.7, 0.55), Color(0.45, 0.36, 0.25), 241, 0.3))
+
+
+static func gilt() -> ShaderMaterial:
+	return _mat("gilt", PixelArt.metal("prop_gilt", Color(0.66, 0.5, 0.24), 243, 0.3), Color.WHITE, 0.5, 0.4, 0.5)
 
 
 ## An oil lamp in a wall bracket: a brass back plate and arm holding a lamp with its chimney.

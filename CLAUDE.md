@@ -524,6 +524,9 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): the chair and the card table in the game (build 1919); the
-  bottle and the oil lamp (`GlassProp`, "shatters") on the branch, in_game, waiting to merge; the
-  ragdoll lab tests men in the kit chair (how he falls is theirs). Next: stools, barrels, crates.
+  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
+  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
+  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
+  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
+  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
+  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).

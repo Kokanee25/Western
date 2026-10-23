@@ -1,0 +1,90 @@
+{
+  "_doc": "A plain table (FalseFrontBuilding._table's, as a fixture: a desk, the doctor's operating table, a cot, the telegraph's battery bench): a 35 mm top on four 50 mm legs set 3 cm in from its corners. Fitted to its place (as long, deep and high as the building wants).",
+  "id": "table",
+  "kind": "members",
+  "fixture": true,
+  "wood": "dark_trim",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        1.4,
+        0.035,
+        0.8
+      ],
+      "at": [
+        0,
+        0.7425,
+        0
+      ]
+    },
+    {
+      "id": "leg0",
+      "kind": "post",
+      "wood": "framing",
+      "size": [
+        0.05,
+        0.725,
+        0.05
+      ],
+      "at": [
+        -0.645,
+        0.3625,
+        -0.345
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "wood": "framing",
+      "size": [
+        0.05,
+        0.725,
+        0.05
+      ],
+      "at": [
+        0.645,
+        0.3625,
+        -0.345
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "wood": "framing",
+      "size": [
+        0.05,
+        0.725,
+        0.05
+      ],
+      "at": [
+        -0.645,
+        0.3625,
+        0.345
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "wood": "framing",
+      "size": [
+        0.05,
+        0.725,
+        0.05
+      ],
+      "at": [
+        0.645,
+        0.3625,
+        0.345
+      ],
+      "look": "wood:framing"
+    }
+  ],
+  "look": "wood:dark_trim"
+}

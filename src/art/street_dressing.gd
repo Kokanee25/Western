@@ -374,13 +374,13 @@ func _loose() -> void:
 	for p in [Vector3(-1.9, 0.38, -0.75), Vector3(-6.9, 0.38, -0.7)]:
 		_prop(&"barrel", p, 0.0)
 	for c in [[Vector3(-2.7, 0.38, -0.8), 10.0], [Vector3(-2.75, 0.98, -0.8), 35.0], [Vector3(-7.8, 0.38, -0.8), -15.0]]:
-		_model("Crate", PropModels.crate, c[0], c[1], Vector3(0.6, 0.6, 0.6))
+		_prop(&"crate", c[0], c[1])
 	for p in [Vector3(-7.8, 0.0, -15.9), Vector3(-9.0, 0.0, -16.0), Vector3(-8.4, 0.45, -15.95), Vector3(-16.6, 0.0, -15.9)]:
 		_model("Hay", PropModels.hay_bale, p, 0.0, Vector3(0.9, 0.45, 0.5))
 	_prop(&"barrel", Vector3(-15.4, 0.0, -16.1), 0.0)
 	# On the jail's boardwalk.
 	_prop(&"barrel", Vector3(-19.4, 0.38, -15.9), 0.0)
-	_model("Crate", PropModels.crate, Vector3(-24.3, 0.38, -15.8), 20.0, Vector3(0.6, 0.6, 0.6))
+	_prop(&"crate", Vector3(-24.3, 0.38, -15.8), 20.0)
 	# The rail before the livery, and a bay horse tied to it.
 	_rail("LiveryRail", -14.6, -11.8, -14.2)
 	_model("Horse", PropModels.horse, Vector3(-13.0, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
@@ -400,7 +400,7 @@ func _loose() -> void:
 	for c in [[Vector3(-11.0, 0.38, -0.8), 5.0], [Vector3(-11.1, 0.98, -0.8), -20.0], [Vector3(-20.7, 0.38, -0.85), 12.0],
 			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
 			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
-		_model("Crate", PropModels.crate, c[0], c[1], Vector3(0.6, 0.6, 0.6))
+		_prop(&"crate", c[0], c[1])
 	_model("Buckboard", PropModels.wagon, Vector3(-27.5, 0.0, -13.0), 0.0, Vector3(3.4, 2.2, 1.8), false)
 	# Boards hung under the porches, end on to the street so you read them looking down it.
 	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],

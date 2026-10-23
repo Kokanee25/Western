@@ -1,0 +1,117 @@
+{
+  "_doc": "A bar stool (PropModels._bar_stool's shape and look, built of members): a round seat on four splayed legs, a brass foot ring between them in four pieces. Oak, dark. A leg's blow_span is its length below the ring's height (what bends when it's kicked).",
+  "id": "bar_stool",
+  "kind": "members",
+  "replaces": "bar_stool",
+  "in_game": true,
+  "wood": "oak",
+  "look": "prop:dark_wood",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "seat",
+    "at": [
+      0.0,
+      0.78,
+      0.0
+    ],
+    "share": 0.8,
+    "hold": 0.05,
+    "sway": 0.03
+  },
+  "members": [
+    {
+      "id": "leg%d",
+      "kind": "post",
+      "size": [
+        0.032,
+        0.7275,
+        0.032
+      ],
+      "at": [
+        0.0,
+        0.3625,
+        0.0
+      ],
+      "rot": [
+        -4.7309,
+        0,
+        0
+      ],
+      "repeat": {
+        "count": 4,
+        "radius": 0.14,
+        "start": 45
+      },
+      "blow_span": 0.5
+    },
+    {
+      "id": "seat",
+      "kind": "furniture_top",
+      "size": [
+        0.38,
+        0.035,
+        0.38
+      ],
+      "at": [
+        0.0,
+        0.7425,
+        0.0
+      ],
+      "draw": {
+        "shape": "disc",
+        "radius": 0.19,
+        "segments": 28
+      }
+    },
+    {
+      "id": "ring%d",
+      "kind": "trim",
+      "wood": "iron",
+      "look": "prop:brass",
+      "size": [
+        0.22,
+        0.012,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.26,
+        0.0
+      ],
+      "repeat": {
+        "count": 4,
+        "radius": 0.15,
+        "start": 0
+      },
+      "draw": {
+        "shape": "sweep",
+        "profile": [
+          [
+            0.152,
+            0.26
+          ],
+          [
+            0.16,
+            0.252
+          ],
+          [
+            0.168,
+            0.26
+          ],
+          [
+            0.16,
+            0.268
+          ],
+          [
+            0.152,
+            0.26
+          ]
+        ],
+        "from": 45,
+        "to": 135,
+        "segments": 6
+      }
+    }
+  ]
+}

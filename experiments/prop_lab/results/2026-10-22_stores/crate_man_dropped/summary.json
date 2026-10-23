@@ -1,0 +1,39 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 3856995701,
+  "frame": {
+    "added_ms_first_1s": 0.27,
+    "before_ms": 0.39,
+    "event_ms": 4.0,
+    "settle_ms": 0.57
+  },
+  "loose": false,
+  "loose_t": null,
+  "man": {
+    "limp": true,
+    "limp_t": 0.0,
+    "on_floor": true,
+    "pelvis_end": [
+      -0.09,
+      0.22,
+      -0.56
+    ],
+    "seat_h": 1.6
+  },
+  "max_piece_speed": 0.0,
+  "members": 30,
+  "pieces": 0,
+  "prop": "crate",
+  "scenario": "crate_man_dropped",
+  "snapped": [],
+  "upright": true
+}

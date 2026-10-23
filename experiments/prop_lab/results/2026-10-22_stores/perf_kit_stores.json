@@ -1,0 +1,9 @@
+{
+  "draws": [],
+  "frame_ms": 0.091,
+  "static_bodies": 703,
+  "which": "kit",
+  "worst_ms": 1.76,
+  "draws_rendered": 238,
+  "note": "frame_ms: physics frame headless, this 2.1 GHz core (x0.65 for Sean); draws_rendered: a rendered run (lavapipe), shadows included"
+}

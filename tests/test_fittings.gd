@@ -107,6 +107,8 @@ func test_the_street_has_its_fittings() -> void:
 	check(f.items.size() > 30, "lamps, lanterns and props found (%d)" % f.items.size())
 	var counter_lamp := world.get_node(^"Store/CounterLamp")
 	check(f.items.any(func(it: Dictionary) -> bool: return it.node == counter_lamp), "the store's counter lamp among them")
-	var sconces := f.items.filter(func(it: Dictionary) -> bool: return (it.node as Node).get_meta(&"prop_id", &"") == &"wall_sconce")
-	check(sconces.size() >= 4, "the saloon's sconces among them (%d)" % sconces.size())
+	# The saloon's sconces hang themselves (the prop kit's: glass props on a nail into the wall).
+	var sconces := world.find_children("*", "GlassProp", true, false).filter(func(g: GlassProp) -> bool:
+			return g.kit_id == &"wall_sconce" and not g._under.is_empty())
+	check(sconces.size() >= 4, "the saloon's sconces hung on the wall (%d)" % sconces.size())
 	# (The painted signs are the sign member's own: they go with it.)
