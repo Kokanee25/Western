@@ -372,6 +372,9 @@ const LEVELS := 1.0
 ## A way round by the town's ways may be this many times as long as the straight line, plus this.
 const WAY_LONGER := 1.6
 const WAY_EXTRA := 6.0
+## ... or this much more for a man who'll run the long way round to it (OutlawBrain's variant D:
+## round the end of a long bar to get behind it; Search's `ctx.way_extra`).
+const WAY_EXTRA_FAR := 12.0
 ## The places nearest a spot he'll try reaching it from.
 const TOWN_NEAREST := 4
 
@@ -401,7 +404,7 @@ static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vecto
 	for w in way:
 		length += Vector2(w.x - at.x, w.z - at.z).length()
 		at = w
-	if length > r * WAY_LONGER + WAY_EXTRA:
+	if length > r * WAY_LONGER + float(ctx.get("way_extra", WAY_EXTRA)):
 		return []
 	return way
 

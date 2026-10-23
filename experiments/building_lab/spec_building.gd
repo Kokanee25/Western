@@ -682,6 +682,12 @@ func _outer_walls() -> void:
 				door_rect = o[0]
 				_build_door()
 				_build_batwings()
+				# They swing: a man (you, or anyone) walks through them; a ball still hits them (as
+				# debris is: on everything a bullet can hit, not on what a walker stands or slides on).
+				for i in 2:
+					var leaf := get_member(StringName("%s/front/batwing%d" % [structure_id, i]))
+					if leaf:
+						leaf.collision_layer = Layers.DEBRIS
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a

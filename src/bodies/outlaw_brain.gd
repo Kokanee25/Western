@@ -70,6 +70,8 @@ const LINES := {
 	&"call_dead": ["{name}'s dead!", "Oh God, {name}..."],
 	&"call_quit": ["{name}'s quit on us!", "{name}'s giving up!"],
 	&"call_fall_back": ["Get out! Fall back!", "That's it, we're done here! Run!"],
+	&"call_shaken": ["He's got me pinned!", "I can't get my head up!"],
+	&"call_hold": ["Hold, damn it! Stay in it!", "{name}! Stay in it, you hear?", "Nobody runs! Hold!"],
 	&"call_give_up": ["That's it, boys. Throw 'em down.", "Enough! We're done. Drop 'em."],
 	&"scorn": ["Get up, you yellow dog!", "{name}! Pick up that gun!"],
 	&"rage": ["You'll pay for that!", "You son of a bitch! Come on!"],
@@ -121,10 +123,35 @@ const LINES := {
 ## A as before the lab (shots in a random cone round his aim, cover found within a step of his
 ## own height); B aims by his hand (`GunHand`), takes a moment to react and finds the town's cover
 ## (doorways, round the bar, up or down a step); C is B and shaken before he breaks. The game
-## plays `default_variant` (A) until Sean picks one.
-enum Variant { A, B, C }
+## plays `default_variant` (A) until Sean picks one. D is C and fights that commit (Sean's first play,
+## issue #257: "the bad guys just kept quitting"): noise and near misses pin a man but don't break
+## him (`fright`, fading in seconds, counts for at most a share of his nerve); a gun held on him in a
+## fight is just the fight; a hothead never quits early; the man who leads them holds the rest while
+## he's in it; and a green man's quitting barely shakes the others. `D_FIXES` names each, so the lab
+## can try one at a time.
+enum Variant { A, B, C, D }
 static var default_variant := Variant.A
 var variant: Variant = default_variant
+## D's fixes, each on unless the lab leaves it out (`experiments/gunfight_lab/`, `fixes=`):
+## aim_fight (aimed at frightens before a fight, not in one), noise (near misses, a shot nearby and a
+## hat shot are fright, not dread), hothead (a man of temper holds his first half minute), leader
+## (the man who leads holds the rest, and calls a shaken one back), green (a man of little nerve
+## quitting barely shakes the rest), cover_way (a longer way round to real cover: the bar's end).
+const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way"]
+static var d_fixes: Array = D_FIXES.duplicate()
+## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
+## most this share of his nerve: noise alone can pin a man, never break him.
+const FRIGHT_FADE := 0.12
+const FRIGHT_SHARE := 0.4
+## A hothead (temper this high or more) holds this long into a fight (s) on this much more nerve
+## (a share of his temper): he's too angry to quit early.
+const HOT_TEMPER := 0.7
+const HOT_EARLY := 30.0
+const HOT_NERVE := 0.5
+## The man who leads them, up and in it within earshot: this much more nerve for each of the rest;
+## and his "Hold!" takes this much off a shaken man's fear.
+const LEADER_NERVE := 0.25
+const LEADER_HOLD := 0.15
 
 ## Where he can go in this town (set by whoever brought him in: TownLife), and his place at the bar.
 var places: Waypoints
@@ -137,6 +164,13 @@ var agenda: Array[Dictionary] = []
 var body: HumanBody
 var mood := Mood.CALM
 var fear := 0.0
+## Where his fear came from (`_scare`): why -> how much, all told.
+var fear_from := {}
+## Variant D: the fright of noise (near misses, shots nearby, a hat shot), apart from his fear.
+var fright := 0.0
+var _fight_from := -1.0  # when this fight started (his clock), -1 not in one
+var _leader_t := 0.0
+var _leader_near := false
 var rounds := 5
 var target: Node3D
 
@@ -298,7 +332,7 @@ func _ready() -> void:
 	Events.shouted.connect(_on_shouted)
 	Events.exploded.connect(_on_exploded)
 	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, who: Node) -> void: if who == _find_target(): _quiet = 0.0)
-	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: fear += amount * 0.6)
+	Events.scorched.connect(func(who: Node, amount: float) -> void: if who == body: _scare(amount * 0.6, &"fire"))
 	Events.hours_passed.connect(_on_hours_passed)
 	_gun_sound = AudioStreamPlayer3D.new()
 	_gun_sound.stream = SynthSounds.get_sound(&"gunshot")
@@ -383,7 +417,7 @@ func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:
 		senses.note(t, at, 0.0)
 		return
 	if kind == &"gunshot" and mood == Mood.CALM:
-		fear += STARTLE_FEAR
+		_scare(STARTLE_FEAR, &"a shot nearby")
 		_startled_at = at
 		_startled = STARTLE_LOOK
 
@@ -427,8 +461,8 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 			and (actor as Node3D).global_position.distance_to(body.global_position) < NEAR:
 		deed_target = body  # a gun drawn a few yards off is about him
 	relations.perceive(actor, kind, deed_target, dt)
-	if to_me and kind == &"aim_at" and not relations.entry(actor).cowed:
-		fear += 0.045 * dt * (1.5 if _facing_shotgun else 1.0)
+	if to_me and kind == &"aim_at" and not relations.entry(actor).cowed and not (_has(&"aim_fight") and mood != Mood.CALM):
+		_scare(0.045 * dt * (1.5 if _facing_shotgun else 1.0), &"aimed at")
 	if to_me and kind == &"call_out":
 		_answer_call_out(actor)
 
@@ -454,6 +488,7 @@ func _start_fight(with_who: Node, his_idea := false) -> void:
 	if mood == Mood.CALM:
 		say(&"provoked")
 		_set_mood(Mood.FIGHTING)
+		_fight_from = _now
 		_next_shot = _rng.randf_range(0.6, 1.1)
 		tactic = Tactic.OPEN
 		_cover_search = 0.0
@@ -485,7 +520,7 @@ static func hand_tuning() -> GunHandTuning:
 func _on_hat_shot(person: Node, shooter: Node, _at: Vector3) -> void:
 	if person != body:
 		return
-	fear += fear_hat_shot
+	_scare(fear_hat_shot, &"hat shot")
 	suppressed = maxf(suppressed, 3.0)
 	if tactic == Tactic.PEEKING:
 		_duck_back()
@@ -497,7 +532,7 @@ func _on_hat_shot(person: Node, shooter: Node, _at: Vector3) -> void:
 func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _speed: float, _tumbling: bool) -> void:
 	if person != body:
 		return
-	fear += 0.06 * clampf(2.5 - distance, 0.5, 2.5)
+	_scare(0.06 * clampf(2.5 - distance, 0.5, 2.5), &"near miss")
 	hand.jerk(hand_tuning().near_miss_jerk * clampf(2.5 - distance, 0.3, 2.5) / 2.5)
 	_react = minf(_react, 0.15)  # rounds cracking past get a man moving
 	if shooter is Node3D and senses and not senses.sees(shooter):
@@ -507,7 +542,7 @@ func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _
 	if tactic == Tactic.PEEKING:
 		_duck_back()
 	if mood == Mood.SURRENDERED:
-		fear += 0.05
+		_scare(0.05, &"near miss")
 		return
 	_provoked(shooter)
 
@@ -515,21 +550,21 @@ func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _
 func _on_hit(info: Dictionary) -> void:
 	match info.get("kind", &"bullet"):
 		&"cut":
-			fear += 0.04
+			_scare(0.04, &"hit")
 			return
 		&"blow":
-			fear += clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5)
+			_scare(clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5), &"hit")
 			return
 		&"graze":
-			fear += fear_per_hit * 0.5
+			_scare(fear_per_hit * 0.5, &"hit")
 			if info.get("shooter") != null:
 				_provoked(info.shooter)
 			return
 	# Bad wounds frighten more than grazes; so does the thump of a ball stopping inside him.
 	# Each buckshot pellet counts for a share: a charge lands several at once.
 	var share := fear_pellet_share if info.get("kind", &"bullet") in [&"pellet", &"splinter", &"gravel"] else 1.0
-	fear += (fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
-			+ float(info.get("deposited", 0.0)) / 2000.0) * share
+	_scare((fear_per_hit + (fear_per_severe_hit if info.get("severe", false) else 0.0) \
+			+ float(info.get("deposited", 0.0)) / 2000.0) * share, &"hit")
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
 	hand.jerk(hand_tuning().hit_jerk * share)
 	_react = minf(_react, 0.15)
@@ -547,7 +582,7 @@ func _on_hit(info: Dictionary) -> void:
 		say(&"gut")
 	for h: Dictionary in info.hits:
 		if h.effect == &"broken":
-			fear += 0.1
+			_scare(0.1, &"hit")
 
 
 func _on_fell(conscious: bool) -> void:
@@ -565,7 +600,7 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if d > 60.0:
 		return
 	var kpa := Blast.overpressure_kpa(kg, d)
-	fear += clampf(kpa / 25.0, 0.05, 1.5)
+	_scare(clampf(kpa / 25.0, 0.05, 1.5), &"blast")
 
 
 ## "Drop it!" from someone aiming at him: frightening in proportion to how things are going.
@@ -576,11 +611,11 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 	if d > 30.0:
 		return
 	_drop_it_heard = 0.0
-	fear += 0.08 + (0.22 if _aimed_at > 0.3 else 0.0) + body.physiology.wounds * 0.08
+	_scare(0.08 + (0.22 if _aimed_at > 0.3 else 0.0) + body.physiology.wounds * 0.08, &"told to drop it")
 	if _facing_shotgun and _aimed_at > 0.3:
-		fear += 0.12
+		_scare(0.12, &"told to drop it")
 	if mood == Mood.CALM:
-		fear += 0.1  # caught cold with a gun on him
+		_scare(0.1, &"told to drop it")  # caught cold with a gun on him
 
 
 # --- Living ------------------------------------------------------------------------------------
@@ -628,8 +663,11 @@ func _physics_step(delta: float) -> void:
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if body.held_gun == null else 0.0) \
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
-	var settle := fear_settle_in_cover if variant == Variant.C and tactic == Tactic.HIDDEN and suppressed <= 0.0 else 0.01
+	var settle := fear_settle_in_cover if variant >= Variant.C and tactic == Tactic.HIDDEN and suppressed <= 0.0 else 0.01
+	var was_fear := fear
 	fear = maxf(move_toward(fear, floor_fear, settle * delta), floor_fear * 0.9)
+	if fear > was_fear:
+		fear_from[&"pain, shock, bleeding"] = float(fear_from.get(&"pain, shock, bleeding", 0.0)) + fear - was_fear
 	if mood == Mood.SURRENDERED:
 		if arrested_by != null:
 			_go_along(delta)
@@ -641,10 +679,10 @@ func _physics_step(delta: float) -> void:
 		_tend(delta)
 		return
 	if body.held_gun == null and mood != Mood.CALM:
-		fear += 0.3 * delta
+		_scare(0.3 * delta, &"no gun")
 	if _pending_break != &"":
 		_pending_in -= delta
-		if _pending_in <= 0.0 or fear > nerve:
+		if _pending_in <= 0.0 or dread() > nerve_now():
 			var how := _pending_break
 			_pending_break = &""
 			_decide("give up" if how == &"surrender" else "run", "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back"))
@@ -654,14 +692,17 @@ func _physics_step(delta: float) -> void:
 			if body.physiology.can_run() and not body.prone:
 				_start_fleeing()
 				return
-	if fear > nerve and not (variant == Variant.C and _shaken_holds(delta)):
+	if variant == Variant.D:
+		fright = move_toward(fright, 0.0, FRIGHT_FADE * delta)
+		_watch_leader(delta)
+	if dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
 		_break()
 		return
-	if _shaken >= 0.0 and fear <= nerve:
+	if _shaken >= 0.0 and dread() <= nerve_now():
 		_shaken = -1.0
 		if mood in [Mood.FIGHTING, Mood.RELOADING]:
 			say(&"rally")
-			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [fear, nerve])
+			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [dread(), nerve_now()])
 	relations.tick(delta)
 	_pick_fight(delta)
 	match mood:
@@ -1323,6 +1364,8 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 	_search_why = why
 	_search = Cover.search(body.get_parent() as Node3D, body.global_position, eye, _exclude(_find_target()), _think, bias_from,
 			max_travel, new_angle, _town())
+	if _has(&"cover_way"):
+		_search._ctx["way_extra"] = Cover.WAY_EXTRA_FAR
 	_search_bias = bias_from
 
 
@@ -1470,7 +1513,7 @@ func _fight(delta: float) -> void:
 	_stagger -= delta
 	if body.physiology.felt_pain() > body.physiology.tuning.pain_disabling:
 		body.set_pose(&"clutch")  # doubled over, holding it
-		fear += 0.05 * delta
+		_scare(0.05 * delta, &"pain")
 		return
 	if _stagger > 0.0:
 		body.set_pose(&"stand")
@@ -1716,7 +1759,7 @@ const GIVE_UP_HEARD := 4.0
 ## Walking backwards with a man by the collar (m/s).
 const DRAG_SPEED := 1.1
 ## The least time between two shouts of one kind (s); the rest every time.
-const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0}
+const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0, &"shaken": 6.0, &"hold": 5.0}
 ## Fear at seeing a friend go down, killed, give up, run (more if it's the man who leads them).
 const FEAR_MATE_OUT := {&"down": 0.12, &"dead": 0.15, &"quit": 0.1, &"fled": 0.08}
 
@@ -1780,6 +1823,15 @@ func _on_callout(speaker: Node, kind: StringName, about: Node, at: Vector3) -> v
 			_heard_fall_back(speaker)
 		&"give_up":
 			_heard_give_up(speaker)
+		&"shaken":
+			# One of them's gone to ground: the man who leads them calls him back into it.
+			if leads and _has(&"leader") and mood in [Mood.FIGHTING, Mood.RELOADING] and _shaken < 0.0:
+				callout(&"hold", speaker)
+		&"hold":
+			if about == body and _shaken >= 0.0:
+				fear = maxf(fear - LEADER_HOLD, 0.0)
+				fright = 0.0
+				_decide("hold on", "%s told him to stay in it" % Crew.name_of(speaker))
 
 
 ## A friend's in a fight with that man and shouting about it: so is he.
@@ -2026,13 +2078,16 @@ func _mate_out(m: Node, how: StringName, saw: bool) -> void:
 	crew.mates(_now)
 	if not crew.mark_out(m, how):
 		return
-	fear += float(FEAR_MATE_OUT.get(how, 0.1)) * (1.6 if Crew.leads(m) else 1.0)
+	var weight := 1.6 if Crew.leads(m) else 1.0
+	if _has(&"green") and how in [&"quit", &"fled"] and Crew.brain_of(m) != null:
+		weight *= clampf(Crew.brain_of(m).nerve, 0.25, 1.0)  # the Kid running surprises nobody
+	_scare(float(FEAR_MATE_OUT.get(how, 0.1)) * weight, StringName("a friend " + String(how)))
 	if how in [&"down", &"dead"] and m.has_meta(&"last_hit_by"):
 		_join(m.get_meta(&"last_hit_by"), m)  # whoever shot him down
 	var fighting := mood in [Mood.FIGHTING, Mood.RELOADING]
 	if saw and how != &"fled" and crew.any_in_earshot(_now):
 		callout(how, m, (m as Node3D).global_position)
-	if how in [&"down", &"dead"] and temper >= 0.7 and fighting and fear <= nerve:
+	if how in [&"down", &"dead"] and temper >= 0.7 and fighting and dread() <= nerve_now():
 		rage = 8.0
 		fear = maxf(fear - 0.2, 0.0)
 		say(&"rage")
@@ -2041,7 +2096,7 @@ func _mate_out(m: Node, how: StringName, saw: bool) -> void:
 		say(&"scorn", Crew.name_of(m))
 	if not crew.thinned and crew.out_share() >= 0.5:
 		crew.thinned = true
-		fear += 0.15
+		_scare(0.15, &"half of them out")
 
 
 ## Fury: out from behind whatever he was behind, at the man, shooting.
@@ -2066,7 +2121,10 @@ func _heard_fall_back(mate: Node) -> void:
 	_mate_out(mate, &"fled", false)
 	if not mood in [Mood.FIGHTING, Mood.RELOADING] or body.prone or _pending_break != &"":
 		return
-	if fear > nerve * (0.3 if Crew.leads(mate) else 0.6) and body.physiology.can_run():
+	var share := 0.3 if Crew.leads(mate) else 0.6
+	if _has(&"green") and not Crew.leads(mate) and Crew.brain_of(mate) != null and Crew.brain_of(mate).nerve < nerve:
+		share = 0.9  # a greener man's "fall back!" takes a man near breaking anyway
+	if dread() > nerve_now() * share and body.physiology.can_run():
 		_pending_break = &"flee"
 		_pending_in = _think.randf_range(0.3, 1.0)
 
@@ -2076,7 +2134,7 @@ func _heard_give_up(mate: Node) -> void:
 	_mate_out(mate, &"quit", false)
 	if not mood in [Mood.FIGHTING, Mood.RELOADING, Mood.TENDING] or _pending_break != &"":
 		return
-	if fear > nerve * 0.3:
+	if dread() > nerve_now() * 0.3:
 		_pending_break = &"surrender"
 		_pending_in = _think.randf_range(0.6, 1.6)
 
@@ -2092,17 +2150,70 @@ func _shaken_holds(delta: float) -> bool:
 	var behind := tactic in [Tactic.HIDDEN, Tactic.PEEKING, Tactic.MOVING] \
 			or (tactic == Tactic.OPEN and (_search != null or _cover_search <= 0.0) and not _stand_and_fight)
 	if not mood in [Mood.FIGHTING, Mood.RELOADING] or body.prone or body.held_gun == null or cover.is_empty() \
-			or not behind or fear > nerve + shaken_margin:
+			or not behind or dread() > nerve_now() + shaken_margin:
 		return false
 	if _shaken < 0.0:
 		_shaken = 0.0
 		say(&"shaken")
-		_decide("go to ground", "past his nerve (fear %.2f / %.2f), behind cover" % [fear, nerve])
+		_decide("go to ground", "past his nerve (fear %.2f / %.2f), behind cover" % [dread(), nerve_now()])
+		if _has(&"leader") and crew.any_in_earshot(_now):
+			callout(&"shaken", _find_target())
 	_shaken += delta
 	_flanking = false
 	if tactic == Tactic.PEEKING:
 		_duck_back()
 	return _shaken < shaken_seconds
+
+
+## Something frightening, and what (`fear_from`: the gunfight lab's ledger of a fight's fear).
+## Variant D: noise is fright (fades; a hothead takes little of it), the rest fear.
+func _scare(amount: float, why: StringName) -> void:
+	if _has(&"noise") and why in NOISE:
+		amount *= 1.0 - 0.7 * clampf(temper, 0.0, 1.0)
+		fright += amount
+		why = StringName(String(why) + " (fright)")
+	else:
+		fear += amount
+	fear_from[why] = float(fear_from.get(why, 0.0)) + amount
+
+
+const NOISE := [&"near miss", &"a shot nearby", &"hat shot"]
+
+
+## One of variant D's fixes is on for him.
+func _has(fix: StringName) -> bool:
+	return variant == Variant.D and fix in d_fixes
+
+
+## How frightened he is, as far as breaking goes: his fear, and his fright up to a share of his nerve.
+func dread() -> float:
+	return fear + (minf(fright, FRIGHT_SHARE * nerve) if variant == Variant.D else 0.0)
+
+
+## How much he can take now: his nerve, and in D more while he's a hothead early in it, or the man
+## who leads them is in it beside him.
+func nerve_now() -> float:
+	var n := nerve
+	if variant != Variant.D or _fight_from < 0.0:
+		return n
+	if _has(&"hothead") and temper >= HOT_TEMPER and _now - _fight_from < HOT_EARLY:
+		n += HOT_NERVE * temper
+	if _has(&"leader") and not leads and _leader_near:
+		n += LEADER_NERVE
+	return n
+
+
+## Is the man who leads them up, in it and in earshot (looked at twice a second)?
+func _watch_leader(delta: float) -> void:
+	_leader_t -= delta
+	if _leader_t > 0.0:
+		return
+	_leader_t = 0.5
+	_leader_near = false
+	for m in crew.standing(_now):
+		var b := Crew.brain_of(m)
+		if b != null and b.leads and b.mood in [Mood.FIGHTING, Mood.RELOADING] and _hears(m):
+			_leader_near = true
 
 
 ## What he's decided and why (F3, the gunfight lab's log).
@@ -2129,8 +2240,8 @@ func _break() -> void:
 		# Not a fight yet: he backs down (told to drop it with a gun on him, he gives up instead).
 		_back_down(t)
 		return
-	var why := ("past his nerve (fear %.2f / %.2f)" % [fear, nerve]) if shaken_for < 0.0 \
-			else ("still shaken after %.0f s" % shaken_for if fear <= nerve + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [fear, nerve])
+	var why := ("past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()]) if shaken_for < 0.0 \
+			else ("still shaken after %.0f s" % shaken_for if dread() <= nerve_now() + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()])
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
 		_decide("run", why)
 		_start_fleeing()
@@ -2237,7 +2348,7 @@ func _tend(delta: float) -> void:
 		_tend_time = 0.0
 		if _tend_bleed.is_empty():
 			# Nothing more he can do for it.
-			if _after_tend == Mood.FIGHTING and fear <= nerve:
+			if _after_tend == Mood.FIGHTING and dread() <= nerve_now():
 				_set_mood(Mood.FIGHTING)
 			return
 	_tend_time += delta
