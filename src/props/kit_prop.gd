@@ -53,6 +53,8 @@ var loose := false
 signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
+## What it holds (its kit file's "holds" and "contents": a barrel's whiskey), or null.
+var contents: PropContents
 
 var _feet := {}  # grounded StructureMember -> [[floor member or null for solid ground, its position]]
 var _footed := false
@@ -68,6 +70,10 @@ func _ready() -> void:
 	if definition.is_empty() and kit_id != &"":
 		definition = PropKit.definition(kit_id)
 	super._ready()
+	if contents == null:
+		contents = PropContents.make(self)
+		if contents:
+			add_child(contents)
 	if not Events.member_broken.is_connected(_on_member_broken):
 		Events.member_broken.connect(_on_member_broken)
 		Events.exploded.connect(_on_exploded)
@@ -399,9 +405,9 @@ func _on_member_broken(id: StringName) -> void:
 		_check_balance.call_deferred()
 
 
-## Mass of what's left standing (kg).
+## Mass of what's left standing and what's in it (kg).
 func mass() -> float:
-	var kg := 0.0
+	var kg := contents.kg() if contents else 0.0
 	for m in get_members():
 		if not m.broken:
 			kg += m.weight(tuning) / 9.81
@@ -421,6 +427,9 @@ func centre_of_weight() -> Vector4:
 	if seated and _seat_member and not _seat_member.broken:
 		sum += _seat_point * _seat_member.extra_load
 		w += _seat_member.extra_load
+	if contents and not contents.released:
+		sum += contents.centre() * contents.kg() * 9.81
+		w += contents.kg() * 9.81
 	return Vector4(sum.x / maxf(w, 1e-6), sum.y / maxf(w, 1e-6), sum.z / maxf(w, 1e-6), w)
 
 
@@ -443,6 +452,8 @@ func _check_balance() -> void:
 	if left.is_empty():
 		loose = true
 		_unseat()
+		if contents:
+			contents.release()
 		return
 	if hung():
 		return  # it hangs from its nails (whatever's left on them: _physics_step)
@@ -473,14 +484,16 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	if not ids.is_empty():
 		_drop(ids)
 	for i in range(before, rubble.size()):
-		var rb := rubble[i]
-		if not is_instance_valid(rb):
-			continue
+		if is_instance_valid(rubble[i]):
+			made.append(rubble[i])
+	# What it holds goes into its body first (its weight with it), so a blow moves the two of them.
+	if contents:
+		contents.on_loose(made)
+	for rb in made:
 		rb.linear_velocity = velocity
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
-		made.append(rb)
 	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()

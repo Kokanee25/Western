@@ -921,6 +921,23 @@ a few views renders them as the full run does.
   (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
   GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
   the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+- **What a prop holds** (`PropContents`, `src/props/prop_contents.gd`; a KitProp whose file has `holds`
+  and `contents`, made in `KitProp._ready`): litres, the level from the inside's shape (a table of
+  litres by height), `kg()` in `KitProp.mass`; `leaks` from members' `damaged` (a through-hole's outer
+  end: an orifice, `flow` by Torricelli) and `Events.member_broken` (a side gone: a slot); each tick
+  while one runs, the level falls, the jets (`Jets`, an ImmediateMesh of crossed strips along each
+  parabola) are redrawn every 3 frames, and every 0.5 s each leak's litres go on the bus where it
+  lands (`landing`); `on_loose` (from `KitProp.go_loose`): one body, sides whole, it rides in it (its
+  mass added; `_burst` when that body breaks up), else `release` (the lot, round where it stood).
+  Idle (no physics process) till it leaks. Kit files `like` another (`PropKit.definition` lays theirs
+  over it): `whiskey_barrel`, `water_barrel`, `oil_barrel` are the barrel full.
+- **Loose rigid props** (`LooseProp`, `src/props/loose_prop.gd`, extends GlassProp; kit `"kind": "loose"`:
+  the spittoon, the tin cup): GlassProp's standing, footing, waking and blast throw; `shatter` means
+  struck hard (a dent), `_on_bullet_hit` holes (`Mark` quads, both sides via `_far_side`) and knocks
+  it by the momentum the ball lost (`bullet_hit`'s `mass`, energy before and after), `take_blow(at,
+  impulse, blow_mass)`, `dent` (copies the model's meshes, vertices pushed in a smooth dish),
+  `_spill` (tipped past `spills_below`, or holed under its contents' `level`); no `_heat`. A
+  `"shape": "cylinder"` fit body (GlassProp) so it rolls; `roll_damp` its angular damping.
 - **Props that are cloth** (`ClothProp`, `src/props/cloth_prop.gd`; kit `"kind": "cloth"`, made by
   `PropKit.make`; the bar rag `bar_cloth.json`): a `SoftBody3D` grid (`points`, UVs in metres, layer
   0, mask WORLD | BODY_PARTS | DEBRIS); `hold(man, side)` pins the points within `grip_radius` of
