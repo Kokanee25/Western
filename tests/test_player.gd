@@ -199,3 +199,38 @@ func test_body_is_visible_looking_down() -> void:
 		var local := cam.global_transform.affine_inverse() * p
 		var angle := rad_to_deg(atan(Vector2(local.x, local.y).length() / -local.z))
 		check(angle < cam.fov * 0.5, "boot inside the field of view (%.0f°)" % angle)
+
+
+## A stair of boxes, the saloon's rise and going (0.19 m, 0.22 m), and a crate past it.
+func _box_at(size: Vector3, at: Vector3) -> void:
+	var b := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	b.add_child(shape)
+	b.position = at
+	arena.add_child(b)
+
+
+func test_walks_up_and_down_a_stair() -> void:
+	for i in 12:
+		_box_at(Vector3(1.0, 0.19 * (i + 1), 0.22), Vector3(0.0, 0.19 * (i + 1) * 0.5, -1.0 - 0.22 * i))
+	_box_at(Vector3(1.0, 2.28, 2.0), Vector3(0.0, 1.14, -1.0 - 0.22 * 12 - 0.89))  # the landing
+	await physics_frames(2)
+	Input.action_press(&"move_forward")
+	var up := await wait_until(func() -> bool: return player.global_position.y > 2.2, 360)
+	Input.action_release(&"move_forward")
+	check(up, "up the stair to the landing (got to %.2f m)" % player.global_position.y)
+	await physics_frames(30)
+	Input.action_press(&"move_back")
+	var down := await wait_until(func() -> bool: return player.global_position.y < 0.05 and player.global_position.z > -0.6, 480)
+	Input.action_release(&"move_back")
+	check(down, "and back down (at %s)" % player.global_position)
+
+
+func test_doesnt_step_onto_a_crate() -> void:
+	_box_at(Vector3(1.0, 0.5, 1.0), Vector3(0.0, 0.25, -1.5))
+	await physics_frames(2)
+	await _hold(&"move_forward", 90)
+	check(player.global_position.y < 0.05, "a half-metre crate stops you (y %.2f)" % player.global_position.y)

@@ -289,9 +289,42 @@ func _physics_step(delta: float) -> void:
 	else:
 		velocity.y -= tuning.gravity * delta
 	var falling := -velocity.y
+	if on_floor:
+		_step_up(delta)
 	move_and_slide()
 	_update_head(delta, falling)
 	_footsteps()
+
+
+## Steps and stairs: blocked low down (a riser, a tread's nosing, a porch step), try the same move
+## lifted by up to `step_height`; if it lands on floor you can stand on, go up onto it. The eyes
+## ease over the lift (PlayerMotion.stepped) so a stair is a climb, not a jolt.
+func _step_up(delta: float) -> void:
+	var motion := Vector3(velocity.x, 0.0, velocity.z) * delta
+	if motion.length() < 0.0005:
+		return
+	var hit := KinematicCollision3D.new()
+	if not test_move(global_transform, motion, hit) or hit.get_normal().y > 0.7:
+		return
+	# Feel for the step half a body's width on (only lifted there, not moved: the slide does that),
+	# so a rounded heel doesn't come down on the very edge of the tread.
+	var reach := motion.normalized() * maxf(motion.length(), tuning.radius * 0.5)
+	var lifted := global_transform
+	var rise := Vector3.UP * tuning.step_height
+	if test_move(lifted, rise):
+		return  # no headroom
+	lifted.origin += rise
+	if test_move(lifted, reach):
+		return  # still blocked up there: a wall, not a step
+	lifted.origin += reach
+	var down := KinematicCollision3D.new()
+	if not test_move(lifted, -rise, down) or down.get_normal().y < cos(floor_max_angle):
+		return
+	var gained := lifted.origin.y + down.get_travel().y - global_position.y
+	if gained < 0.01 or gained > tuning.step_height:
+		return
+	global_position.y += gained
+	motion.stepped(gained)
 
 
 ## Speed on the ground with weight: along the way you want to go it builds (quick to a walk,
