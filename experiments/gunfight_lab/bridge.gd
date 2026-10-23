@@ -379,8 +379,10 @@ var _played: Node
 func _cmd_gf_play(a: Array) -> Dictionary:
 	if a.is_empty():
 		return {"ok": false, "error": HELP.gf_play}
-	if is_instance_valid(_played):
-		_played.queue_free()
+	if _played != null:
+		# Your wounds, blood and rounds are this game's: a fresh fight needs a fresh game (as the Y key
+		# reloads the scene, which the bridge can't follow).
+		return {"ok": false, "error": "one fight a game: your wounds and rounds carry over. Restart the game (bridge.py stop, then start) for the next"}
 	var opts := {"scenario": a[0], "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game", "seed": 1,
 		"variant": String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant]), "max": 300.0, "count": 6.0, "draw_turns": "false"}
 	for w: String in a.slice(1):

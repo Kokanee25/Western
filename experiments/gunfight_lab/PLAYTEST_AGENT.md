@@ -22,8 +22,10 @@ python3 tools/bridge.py stop
 
 ## A fight
 
-`gf_play SETUP seed=N` sets one up and answers once they're in (it can take ~20 s the first time:
-the saloon is being built). Setups: `spec_hall`, `spec_stair`, `spec_gallery`, `spec_back`,
+`gf_play SETUP seed=N` sets one up and answers once they're in (it can take ~20 s: the saloon is
+being built). **One fight a game**: your wounds and rounds carry over, so stop and start the game
+before each fight (`gf_play` says so if you forget). The seed changes the men's dice, not where
+anyone starts. Setups: `spec_hall`, `spec_stair`, `spec_gallery`, `spec_back`,
 `spec_front`. `gf_result` says whether it's over, how long it's run and each man's state. Play it
 with the ordinary commands:
 
