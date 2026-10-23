@@ -67,7 +67,7 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 		"day":
 			var clock := _clock(tree)
 			clock.config.set(key, v)
-			clock.set_time(clock.time_of_day)  # applied now
+			clock.apply_visuals()  # applied now (not set_time: that announces the hour again)
 		"sun", "moon":
 			_light(tree, group).set(key, v)
 		"sky", "ground", "backdrop":
@@ -88,7 +88,7 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 					c.set_meta(&"night_ambient", v)
 				elif prop == "room_haze" and c is FogVolume and (c as FogVolume).material is FogMaterial:
 					((c as FogVolume).material as FogMaterial).density = v
-			_clock(tree).set_time(_clock(tree).time_of_day)
+			_clock(tree).apply_visuals()
 		"mosaic":
 			DepthMosaic.tuning[key] = v
 			for m in tree.root.find_children("DepthMosaic", "", true, false):
@@ -203,9 +203,12 @@ static func uniform_default(shader: Shader, name: String) -> Variant:
 static func apply(tree: SceneTree, preset: Dictionary) -> PackedStringArray:
 	var missed := PackedStringArray()
 	var values: Dictionary = preset.get("values", {})
+	LightGrade.batching = true  # the grade's dials together, one lookup
 	for address: String in values:
 		if not set_value(tree, address, values[address]):
 			missed.append(address)
+	LightGrade.batching = false
+	LightGrade.apply(tree)
 	if preset.has("hour"):
 		set_value(tree, "hour", preset.hour)
 	return missed

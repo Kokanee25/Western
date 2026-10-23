@@ -1,0 +1,10 @@
+{
+ "name": "the game's light",
+ "about": "Sean's pick (2026-10-23, issue #321): B by day, C at night. LightLooks blends every dial the two set from day's to night's as the sun goes down: all day's with the sun over night_from_sun (its height, the sun direction's y; ~0.26 is 15 degrees up), all night's under night_full_sun. The sky's own dials stay day's (each change re-lights the sky); the grade steps in grade_steps (each step its own lookup, built once).",
+ "day": "res://config/looks/light_b.json",
+ "night": "res://config/looks/light_c.json",
+ "night_from_sun": 0.26,
+ "night_full_sun": -0.05,
+ "grade_steps": 4,
+ "day_only": ["sky."]
+}

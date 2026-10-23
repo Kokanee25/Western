@@ -315,7 +315,7 @@ a few views renders them as the full run does.
 (`light_looks.gd`, a node `main.gd` adds; **8** cycles today / A / B / C, `--light-look=a|b|c` for a
 run) applies `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
 the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
-(street colour), SSAO, `grade.*` (`LightGrade`: a 32-cube lookup on the environment's colour
+(street colour), SSAO, `grade.*` (`LightGrade`: a 16-cube lookup on the environment's colour
 correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
 environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
 carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
