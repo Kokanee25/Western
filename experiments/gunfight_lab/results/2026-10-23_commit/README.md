@@ -97,6 +97,17 @@ on the cover style (25 fights a row; `d10.md`..`d15.md`):
 | d14 | `press`, first try: on your reload or seen hit, all of them at once | 13.7 / 36% / 4% | 11.3 / 24% / 8% | no: three at once are shot or finish you |
 | d15 | `press`: one man, on your reload (they hear the gate), the rest cover him ("He's empty! Get him!") | 21.6 / 52% / 16% | 12.9 / 40% / 20% | yes |
 | - | `tip_table`: no cover, a card table near: heave it over and get down behind it | | | no: the kit table, wide on its feet with chairs round it, slides or leans (up 0.8) and a harder kick breaks it; wants a flip from the prop lab |
+| d18 | `rattled`: near misses' fright fades in a second, so under D being shot at no longer spoiled a man's aim (C's lingering fear had); now they leave his hand rattled, fading as slowly as fear | 17.8 / 44% / 12% | 12.9 / 40% / 16% | yes: the rule as it should be; hits on you unchanged (1.6 / 0.9) |
+
+**The night's blind playtest** (`docs/playtests/2026-10-23-gunfight-night.md`, ten fights): "the gang
+fought and never folded, but the fights didn't last: their shooting settles it in seconds". It went
+down in 9 of 10, 5-17 s after the shooting started; one fight ran ~100 s. Its bridge lets 1-5 s of
+game time pass a command, so it fights far slower than a man at the keys, and the lab's scripted
+player (a quick shot) takes 0.9-1.6 hits a fight, the evening's numbers: they're as deadly as they
+were, the playtester slower. Its other points, for Sean (#257): hits through thin walls and doors
+(covering fire at where you were, the .45 going through pine boards, as it does: a rule to keep or
+soften); one arm hit blacking the player out and an arm hit putting the gun away for good (the
+player's wounds, the body lab's); and the Kid giving up after a leg hit with his gun still in hand.
 
 **The night's D (13 fixes), 100 fights as the baseline** (`night_final.md`; the evening's `final_vs_A_C.md`):
 

@@ -482,15 +482,17 @@ frozen until Sean names one.
 - The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): since 2026-10-23 **in the new saloon**
   (the building lab's; `spec_*` setups: hall, stair, galleries, back, front; `spec_saloon.gd` joins
   its 48 places to the town's; the batwings walkable). **Fights that commit** (#257, Sean: "kept
-  quitting"): variant D, the game's default now (`OutlawBrain.D_FIXES`, nine, each measured:
-  `results/2026-10-23_commit/`): you shooting first, A -> D, the first quit 1.4 -> 3.8 s, the
-  shooting 3.5 -> 15.3 s, Brody quits 76% -> 38%, Lyle 78% -> 32%, the Kid first to go. Play: Y the
-  next setup, X again, Z the next variant (`PLAYTEST.md`); `gf_play` for the blind playtest
-  (`docs/playtests/2026-10-23-gunfight.md`). Next: the `next session` issue (45-90 s of shooting is
-  still rare: hits decide it; pressing, staying low). Traps: wounds bleed on the day clock's time
-  scale; `pkill -f`/`ps|grep` kill loops match their own command line; a `.gd` copy under `build/`
-  with a `class_name` shadows the real class; merging main mid-run needs `godot --headless --import`
-  before the next game, or new kit-prop classes are missing.
+  quitting"): variant D, the game's default since build 2230 (#309): you shooting first, A -> D, the
+  first quit 1.4 -> 3.8 s, Brody quits 76% -> 38%, Lyle 78% -> 32%, the Kid first to go. The
+  night's round (`claude/gameplay-gunfight-longer`, 14 fixes in `OutlawBrain.D_FIXES`, each measured
+  in `results/2026-10-23_commit/`): rescue and pressing by the town's ways, one man pressing on your
+  reload, a knee under fire, staying in while a friend's on you, a rattled hand: 45-90 s of
+  shooting 4% -> 14-16%; blind playtests round 2 and night (`docs/playtests/2026-10-23-gunfight*.md`):
+  they fight, never fold, and finish a slow player in seconds. Play: Y the next setup, X again, Z the
+  next variant. Next: the `next session` issue. Traps: `pkill -f`/`ps|grep` kill loops match their
+  own command line; merging main mid-run needs `godot --headless --import` before the next game;
+  never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
+  is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).
 - The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
   bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
   against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
