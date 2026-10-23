@@ -525,9 +525,11 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
-  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
-  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
-  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
-  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
-  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).
+  `PropKit`/`KitProp`/`GlassProp`/`LooseProp`): every one of the 12 drawn props in the game as the
+  kit's (#232, #280); the wall props hung on nails; the fixtures fitted to their place; the piano.
+  **What the props hold** (2026-10-23, branch `claude/prop-lab-contents`, issue #281): `PropContents`
+  (full barrels: their weight, leaks by Torricelli, slots, jets, spills on the bus, oil catching;
+  kit files `like` another: `whiskey_barrel`, `water_barrel`, `oil_barrel`), the saloon's two whiskey
+  barrels and the street's water ones; the spittoon and tin cup as `LooseProp` (holed, knocked,
+  dented, rolling, spilling). Results `experiments/prop_lab/results/2026-10-23_contents/`. Next: the
+  `next session` issue.
