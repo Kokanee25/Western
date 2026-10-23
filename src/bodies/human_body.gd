@@ -1201,7 +1201,7 @@ func _physics_step(delta: float) -> void:
 		_apply_pose(delta)
 		if stumbling > 0.0:
 			pass  # he's going down already
-		elif not physiology.can_stand() and not prone:
+		elif not physiology.can_stand() and not prone and not rising:
 			if _can_crawl():
 				go_prone()
 			else:
@@ -1322,8 +1322,15 @@ const RISE_BACK := [[&"lie_back", Vector3(90, 0, 0), 0.5, 0.0], [&"sit_ground", 
 const RISE_FRONT := [[&"prone", Vector3(-90, 0, 0), 0.3, 0.0], [&"all_fours", Vector3(-90, 0, 0), 0.8, 0.0],
 		[&"kneel", Vector3.ZERO, 1.0, -0.35], [&"kneel_up", Vector3.ZERO, 0.8, -0.35], [&"hands_knees", Vector3.ZERO, 0.7, -0.3],
 		[&"stand", Vector3.ZERO, 0.9, -0.3]]
+## Shot down and still with it, he comes to on his belly to fight from the floor (`come_to_ground`,
+## OutlawBrain's `floor_fight`): face down he gathers himself where he lies; on his back he sits up
+## and turns over onto his front.
+const COME_TO_FRONT := [[&"prone", Vector3(-90, 0, 0), 0.6, 0.0]]
+const COME_TO_BACK := [[&"lie_back", Vector3(90, 0, 0), 0.5, 0.0], [&"sit_ground", Vector3.ZERO, 1.1, 0.0],
+		[&"prone", Vector3(-90, 0, 0), 0.9, 0.0]]
 ## He may get up (set by `brace`: an unhurt fall); cleared as he goes limp.
 var rise_ok := false
+var _rise_to_prone := false  ## the stages end on his belly (come_to_ground), not on his feet
 ## Getting up now: the rig is the stages', not _place_rig's.
 var rising := false
 var _down_t := 0.0
@@ -1339,7 +1346,7 @@ var _pose_after := &"stand"  ## what he was told to do while rising
 
 ## Lying limp: is it time to get up?
 func _rise_watch(delta: float) -> void:
-	if not rise_ok or not physiology.alive:
+	if not physiology.alive:
 		return
 	_down_t += delta
 	var still := true
@@ -1348,7 +1355,7 @@ func _rise_watch(delta: float) -> void:
 			still = false
 			break
 	_still_t = _still_t + delta if still else 0.0
-	if _down_t >= RISE_AFTER and _still_t >= RISE_STILL and physiology.can_stand() and physiology.shock() < 0.3 \
+	if rise_ok and _down_t >= RISE_AFTER and _still_t >= RISE_STILL and physiology.can_stand() and physiology.shock() < 0.3 \
 			and physiology.severed_segments.is_empty():
 		get_up()
 
@@ -1357,6 +1364,21 @@ func _rise_watch(delta: float) -> void:
 func get_up() -> void:
 	if not limp or rising or not physiology.can_stand() or not physiology.severed_segments.is_empty():
 		return
+	_rise(RISE_BACK, RISE_FRONT, false)
+
+
+## Lying limp, shot, he's come to: he can (conscious, a hand to crawl and shoot with) and he's lain
+## still long enough (RISE_AFTER, RISE_STILL). He comes to on his belly, down where he is (prone),
+## where his brain fights from (OutlawBrain's `floor_fight`). False if he can't yet.
+func come_to_ground() -> bool:
+	if not limp or rising or not physiology.alive or not _can_crawl() or not physiology.severed_segments.is_empty() \
+			or _down_t < RISE_AFTER or _still_t < RISE_STILL:
+		return false
+	_rise(COME_TO_BACK, COME_TO_FRONT, true)
+	return true
+
+
+func _rise(back: Array, front: Array, to_prone: bool) -> void:
 	var pelvis := parts.get(&"pelvis") as RigidBody3D
 	var chest := parts.get(&"chest") as RigidBody3D
 	if pelvis == null or chest == null:
@@ -1386,7 +1408,8 @@ func get_up() -> void:
 	# The rig set so his pelvis is where the ragdoll's lay (its part sits at the segment's centre).
 	_rig.global_transform = lie * Transform3D(Basis(), -anatomy.segment_center(&"pelvis"))
 	rising = true
-	_rise_stages = RISE_BACK if on_back else RISE_FRONT
+	_rise_to_prone = to_prone
+	_rise_stages = back if on_back else front
 	_rise_i = -1
 	_next_stage()
 
@@ -1402,6 +1425,12 @@ func _next_stage() -> void:
 		# Where he's got to is where he stands: the rig's offset handed to him.
 		var off := Vector3(_rig.position.x, 0.0, _rig.position.z)
 		global_position += global_basis * off
+		if _rise_to_prone:
+			# On his belly: the rig stays laid face down (as _place_rig keeps it for prone).
+			_rig.transform = Transform3D(Basis.from_euler(Vector3(-PI / 2.0, 0.0, 0.0)), Vector3(0.0, _rig.position.y, 0.0))
+			prone = true
+			pose = &"prone"
+			return
 		_rig.transform = Transform3D(Basis(), Vector3(0.0, _rig.position.y, 0.0))
 		pose = _pose_after
 		got_up.emit()

@@ -19,6 +19,7 @@ const HELP := {
 	"gf_aim": "gf_aim NAME SEGMENT -> turn to face that part of him (upper_arm_l, thigh_r, chest...): a shot there, for a film",
 	"gf_hit": "gf_hit NAME SEGMENT -> a revolver ball from your eye straight at that part of him (the lab's sure shot, for a film: no sway, no spread)",
 	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
+	"gf_trace": "gf_trace NAME [SECONDS] -> every 0.1 s of game time: where he is, his speed, gait, pose, stumbling, tactic, mood, reaction and stagger left, whether he's looking for cover, his decision",
 	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
@@ -503,3 +504,23 @@ func _cmd_gf_minds(_a: Array) -> Dictionary:
 			out[id] = {"decision": b.decision, "fear": snappedf(b.fear, 0.01), "nerve": snappedf(b.nerve_now(), 0.01),
 					"pain": snappedf(m.physiology.felt_pain(), 0.01), "bleed": snappedf(m.physiology.total_bleed_rate(), 0.01)}
 	return {"men": out}
+
+
+func _cmd_gf_trace(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_trace}
+	var b := m.get_node_or_null(^"Brain") as OutlawBrain
+	var secs := float(a[1]) if a.size() > 1 else 5.0
+	var out: Array = []
+	var t := 0.0
+	while t < secs:
+		var row := [snappedf(t, 0.01), snappedf(m.global_position.x, 0.01), snappedf(m.global_position.z, 0.01),
+				snappedf(m.move_speed, 0.01), String(m.gait), String(m.pose), m.stumbling > 0.0, m.limp]
+		if b:
+			row.append_array([String(OutlawBrain.Tactic.keys()[b.tactic]), String(OutlawBrain.Mood.keys()[b.mood]),
+					snappedf(b._react, 0.01), snappedf(b._stagger, 0.01), b._search != null, b.decision])
+		out.append(row)
+		await seconds(0.1)
+		t += 0.1
+	return {"trace": out, "cols": "t x z speed gait pose stumbling limp tactic mood react stagger searching decision"}

@@ -242,3 +242,69 @@ func test_without_wince_he_fights_on_through_it() -> void:
 	var brody := _brain(&"brody")
 	brody._on_hit(_arm_hit(&"brody"))
 	check_eq(brody._wince, 0.0, "no wince without the fix")
+
+
+## Variant D's `pain_fight` (on trial, Experiment A): past disabling, the pain takes him in bouts, and
+## in between he fights hurt; as it was, it's a wall.
+func _in_pain(id: StringName, felt: float) -> void:
+	var p := (men[id] as HumanBody).physiology
+	p.adrenaline = 0.0
+	p.pain = felt
+
+
+func test_past_disabling_pain_he_fights_between_bouts() -> void:
+	OutlawBrain.d_fixes.append(&"pain_fight")
+	await _gang()
+	await physics_frames(30)
+	var lyle := _brain(&"lyle")
+	lyle.tactic = OutlawBrain.Tactic.OPEN
+	lyle._stand_and_fight = true
+	_in_pain(&"lyle", 1.3)
+	await physics_frames(2)
+	check(lyle._pain_locked(), "it takes him first (a bout of %.1f s)" % lyle._pain_bout)
+	var rounds := lyle.rounds
+	var fired := await wait_until(func() -> bool:
+		_in_pain(&"lyle", 1.3)
+		return lyle.rounds < rounds, 60 * 8)
+	check(fired, "then he fights through it (%s)" % lyle.decision)
+
+
+func test_without_pain_fight_the_pain_is_a_wall() -> void:
+	await _gang()
+	await physics_frames(30)
+	var lyle := _brain(&"lyle")
+	lyle.tactic = OutlawBrain.Tactic.OPEN
+	lyle._stand_and_fight = true
+	var rounds := lyle.rounds
+	for i in 60 * 4:
+		_in_pain(&"lyle", 1.3)
+		await physics_frames(1)
+	check(lyle._pain_locked(), "past disabling he can only hold it")
+	check_eq(lyle.rounds, rounds, "and doesn't shoot")
+
+
+## Variant D's `floor_fight` (on trial): down and still with it, gun in hand, he comes to on his
+## belly and fights from the floor.
+func test_shot_down_he_comes_to_and_fights_from_the_floor() -> void:
+	OutlawBrain.d_fixes.append(&"floor_fight")
+	await _gang()
+	await physics_frames(30)
+	for id: StringName in [&"brody", &"kid"]:  # (nobody to drag him off to cover)
+		(men[id] as HumanBody).queue_free()
+		men.erase(id)
+	var m := men[&"lyle"] as HumanBody
+	m.go_limp()
+	var up := await wait_until(func() -> bool: return m.prone and not m.limp and not m.rising, 60 * 8)
+	check(up, "on his belly (limp %s, prone %s, rising %s; %s)" % [m.limp, m.prone, m.rising, _brain(&"lyle").decision])
+	await physics_frames(10)
+	check(_in_it(&"lyle"), "and back in it (%s)" % _brain(&"lyle").describe().substr(0, 60))
+	check(m.pose in HumanBody.PRONE_POSES, "fighting from where he lies (%s)" % m.pose)
+
+
+func test_without_floor_fight_he_lies_there() -> void:
+	await _gang()
+	await physics_frames(30)
+	var m := men[&"lyle"] as HumanBody
+	m.go_limp()
+	await physics_frames(60 * 4)
+	check(m.limp, "he lies where he fell")

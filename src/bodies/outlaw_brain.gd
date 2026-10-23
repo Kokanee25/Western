@@ -148,7 +148,9 @@ var variant: Variant = default_variant
 ## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
 ## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
 ## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
-## (hit and still up, he winces and gets out of sight a moment to see how bad it is).
+## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
+## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
+## fights from the floor).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press"]
 static var d_fixes: Array = D_FIXES.duplicate()
@@ -199,6 +201,9 @@ var _wince_seg := &""
 var _wince_at := Vector3.ZERO
 var _wince_severe := false
 var _wince_fear := 0.0
+## Variant D's pain_fight: seconds left of a bout of pain, and whether it was past disabling last tick.
+var _pain_bout := 0.0
+var _pain_over := false
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
 var target: Node3D
@@ -785,6 +790,7 @@ func _physics_step(delta: float) -> void:
 	_drop_it_heard += delta
 	_startled = maxf(_startled - delta, 0.0)
 	suppressed = maxf(suppressed - delta, 0.0)
+	_pain_step(delta)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if not _armed_still() else 0.0) \
 			+ clampf(p.total_bleed_rate() / 15.0, 0.0, 0.3)  # the sight of his own blood
@@ -1616,7 +1622,7 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 	var aim_point := _aim_point(t)
 	body.face(aim_point)
 	_stagger -= delta
-	if body.physiology.felt_pain() > body.physiology.tuning.pain_disabling or _stagger > 0.0:
+	if _pain_locked() or _stagger > 0.0:
 		_duck_back()
 		return
 	body.set_pose(_peek_pose)
@@ -1662,7 +1668,7 @@ func _fight(delta: float) -> void:
 	var aim_point := _aim_point(t)
 	body.face(aim_point)
 	_stagger -= delta
-	if body.physiology.felt_pain() > body.physiology.tuning.pain_disabling:
+	if _pain_locked():
 		body.set_pose(&"clutch")  # doubled over, holding it
 		_scare(0.05 * delta, &"pain")
 		return
@@ -1931,6 +1937,19 @@ const WINCE_SEVERE := 1.5
 const WINCE_GRAZE := 0.5
 const WINCE_TRAVEL := 6.0
 const WINCE_RELIEF := 0.5
+## Variant D's `pain_fight` (Experiment A, 2026-10-23): pain past disabling is no longer a wall he
+## can't fight through. It comes in bouts: when it first passes disabling he's taken by it for
+## PAIN_BOUT_FIRST s (times PAIN_BOUT_GREEN for a green man, 1 for a steady one), and while it stays
+## past, a bout of PAIN_BOUT s comes on at PAIN_BOUT_RATE a second for each disabling's worth he's
+## past it. Between bouts he fights hurt (his pain already spoils his aim and slows his shots).
+const PAIN_BOUT_FIRST := Vector2(1.0, 2.0)
+const PAIN_BOUT_GREEN := 1.6
+const PAIN_BOUT := Vector2(0.6, 1.2)
+const PAIN_BOUT_RATE := 0.6
+## Variant D's `floor_fight` (Experiment A): shot off his feet and still with it, his gun in a hand
+## that holds it and his fear under this share of his nerve, he comes to on his belly and fights
+## from the floor (HumanBody.come_to_ground) rather than lie there till you come and take him.
+const FLOOR_FIGHTS := 1.0
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
@@ -2456,6 +2475,27 @@ func _armed_still() -> bool:
 	return body.held_gun != null and (not _has(&"steady") or body.physiology.can_hold("r"))
 
 
+## Pain he can't do anything but hold the wound through: past disabling (as it was), or with variant
+## D's `pain_fight` only in a bout of it.
+func _pain_locked() -> bool:
+	if _has(&"pain_fight"):
+		return _pain_bout > 0.0
+	return body.physiology.felt_pain() > body.physiology.tuning.pain_disabling
+
+
+func _pain_step(delta: float) -> void:
+	_pain_bout = maxf(_pain_bout - delta, 0.0)
+	if not _has(&"pain_fight"):
+		return
+	var p := body.physiology
+	var over := p.felt_pain() - p.tuning.pain_disabling
+	if over > 0.0 and not _pain_over:
+		_pain_bout = maxf(_pain_bout, _rng.randf_range(PAIN_BOUT_FIRST.x, PAIN_BOUT_FIRST.y) * lerpf(PAIN_BOUT_GREEN, 1.0, clampf(nerve, 0.0, 1.0)))
+	elif over > 0.0 and _pain_bout <= 0.0 and _rng.randf() < PAIN_BOUT_RATE * over / p.tuning.pain_disabling * delta:
+		_pain_bout = _rng.randf_range(PAIN_BOUT.x, PAIN_BOUT.y)
+	_pain_over = over > 0.0
+
+
 ## How much the shock of being hit frightens him (variant D's `steady`): a steady man takes the
 ## thump of a ball far better than a green one (what the wound does to him, the pain, the shock,
 ## the bleeding, counts in full either way: `floor_fear`).
@@ -2705,6 +2745,10 @@ func _down_but_awake(delta: float) -> void:
 	if _give_up_look > 0.0 or not body.physiology.is_conscious():
 		return
 	_give_up_look = 0.5
+	if _has(&"floor_fight") and not body.rise_ok and dread() < nerve_now() * FLOOR_FIGHTS and body.held_gun != null \
+			and body.physiology.can_hold("r") and body.come_to_ground():
+		_decide("fight from the floor", "shot down, not beat (fear %.2f / %.2f)" % [dread(), nerve_now()])
+		return
 	if _has(&"floored") and dread() < nerve_now() * FLOORED_HOLDS and body.held_gun != null and body.physiology.can_hold("r"):
 		_decide("get back up", "knocked down, not beat (fear %.2f / %.2f)" % [dread(), nerve_now()])
 		return  # knocked off his feet, not beaten: he's getting up (or fighting from the floor)
