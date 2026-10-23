@@ -12,9 +12,13 @@ extends WeaponViewmodel
 
 enum Pose { HIP, AIM, LOADING }
 
+## From the hip, the usual first-person carry: the stock under your arm, the gun at the lower right
+## with the barrels running in towards the middle, both hands on it. Aimed, down the sights (Sean,
+## 2026-10-23): your eye over the comb, looking between the hammers along the rib to the bead on
+## the middle of the view.
 const POSES := {
-	Pose.HIP: [Vector3(0.1, -0.17, -0.33), Vector3(5.0, 6.0, 0.0)],
-	Pose.AIM: [Vector3(0.0, -0.056, -0.32), Vector3(0.6, 0.0, 0.0)],
+	Pose.HIP: [Vector3(0.18, -0.14, -0.34), Vector3(1.0, -1.5, -4.0)],
+	Pose.AIM: [Vector3(0.0, -0.053, -0.3), Vector3(2.5, 0.0, 0.0)],
 	Pose.LOADING: [Vector3(0.04, -0.12, -0.3), Vector3(-8.0, 14.0, 6.0)],
 }
 const PUT_AWAY_POS := Vector3(0.25, -0.8, 0.05)
@@ -28,18 +32,19 @@ const HAMMER_BACK := 40.0
 ## The hands (the gun lab's `views.gd --fit`: the fingers closed on the wood, every bone 0-3 mm
 ## off it, the index's pad on the front trigger, the thumbs clear of the steel).
 ## The right: its index knuckle on the right of the stock's wrist by the guard, the knuckles'
-## line run back along the wrist, the forearm back, down and out to the right.
+## line run back along the wrist, rolled so the heel of the hand is beside the stock (clear of the
+## rib when aimed), the forearm back, down and out to the right.
 const R_HAND_POS := Vector3(0.026, -0.024, 0.016)
 const R_HAND_TILT := -45.0
-const R_HAND_ROLL := 0.0
+const R_HAND_ROLL := -40.0
 const R_FOREARM := Vector3(0.8, -0.58, 0.15)
-const R_GRIP := {"middle": [73.0, 59.0, 44.0], "ring": [107.0, 0.0, 75.0], "little": [115.0, 0.0, 0.0]}
+const R_GRIP := {"middle": [49.0, 73.0, 24.0], "ring": [70.0, 52.0, 27.0], "little": [77.0, 28.0, 37.0]}
 ## The index swung forward from its knuckle onto the front trigger (a plain curl can't reach it),
 ## and squeezed back.
-const R_INDEX_REST := [Vector3(24.0, 60.0, 36.0), 15.0, 10.0]
-const R_INDEX_PULL := [Vector3(24.0, 48.0, 24.0), 15.0, 10.0]
-const R_THUMB_REST := [Vector3(12.0, 24.0, 12.0), 45.0, 40.0]
-const R_THUMB_COCK := [Vector3(48.0, 12.0, 60.0), 45.0, 40.0]
+const R_INDEX_REST := [Vector3(24.0, 24.0, 12.0), 0.0, 0.0]
+const R_INDEX_PULL := [Vector3(12.0, 24.0, 12.0), 0.0, 0.0]
+const R_THUMB_REST := [Vector3(-48.0, -60.0, 36.0), 0.0, 0.0]
+const R_THUMB_COCK := [Vector3(12.0, 60.0, 36.0), 45.0, 40.0]
 ## The left, in the barrels' space: the forend across its palm, its fingers up the right side and
 ## its thumb up the left, the forearm back, down and out to the left.
 const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
@@ -261,7 +266,7 @@ func _animate(delta: float) -> void:
 	hand.thumb_pose((R_THUMB_REST[0] as Vector3).lerp(R_THUMB_COCK[0], _thumb), lerpf(R_THUMB_REST[1], R_THUMB_COCK[1], _thumb),
 			lerpf(R_THUMB_REST[2], R_THUMB_COCK[2], _thumb))
 	model.show_barrels(state.barrels)
-	model.butt.visible = not (selected and _pose_pos.distance_to(POSES[Pose.AIM][0]) < 0.06 and tuck < 0.3)
+	model.butt.visible = true
 	_animate_camera(delta, tuning.aim_fov)
 
 

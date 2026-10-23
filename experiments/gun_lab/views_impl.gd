@@ -77,6 +77,7 @@ func run() -> void:
 			if not only.is_empty() and not only.has(st):
 				continue
 			await _state(w, st)
+			print("POSE %s %s pos %s rot %s tuck %.2f" % [g, st, (w.position * 100).snappedf(0.1), w.rotation_degrees.snappedf(0.1), w.tuck])
 			if st.begins_with("detail"):
 				_detail_cam(w, st)
 				_print_hand(w)
