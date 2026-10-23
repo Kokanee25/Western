@@ -216,6 +216,12 @@ func _print_hand(w: WeaponViewmodel) -> void:
 				line += str((inv * b.global_position * 100).snappedf(0.1)) + " "
 			print("HAND %s %s: %s" % [hand.name, f, line])
 		print("HAND %s wrist %s" % [hand.name, (inv * (hand.get(&"wrist") as Node3D).global_position * 100).snappedf(0.1)])
+		var sk := hand.get_node_or_null("Skeleton") as Skeleton3D
+		if sk:
+			for bn in ["forearm_r", "forearm_l", "upper_arm_r", "upper_arm_l"]:
+				var i := sk.find_bone(bn)
+				if i >= 0:
+					print("HAND %s %s at %s" % [hand.name, bn, (inv * (sk.global_transform * sk.get_bone_pose(i).origin) * 100).snappedf(0.1)])
 		if hand.has_method(&"surface_points"):
 			_print_gaps(gun, hand)
 
@@ -266,7 +272,7 @@ func _fit(w: WeaponViewmodel) -> void:
 			continue
 		var hand := h as Node3D
 		var grip: Array[MeshInstance3D] = []
-		for n in ["Grip/Panels", "Grip/Backstrap", "Grip/Butt", "Stock/Wrist", "Barrels/Forend"]:
+		for n in ["Grip/Panels", "Grip/Backstrap", "Grip/Butt", "Stock/Wrist", "Barrels/Forend", "Barrels/Barrel0", "Barrels/Barrel1"]:
 			var mi := gun.get_node_or_null(n) as MeshInstance3D
 			if mi:
 				grip.append(mi)
@@ -280,36 +286,22 @@ func _fit(w: WeaponViewmodel) -> void:
 			if not fingers.has(f):
 				continue
 			if f == "index" and bool(hand.get(&"right")) and gun.get_node_or_null("Trigger0/Blade"):
-				var guard: Array[MeshInstance3D] = []
-				for n in ["Trigger0/Blade", "Trigger1/Blade", "GuardBottom", "GuardBack", "Stock/Wrist"]:
-					guard.append(gun.get_node(n) as MeshInstance3D)
-				_fit_thumb(hand, gun, guard, "rest", SHOTGUN_INDEX_TIP, "index")
-				_fit_thumb(hand, gun, guard, "pull", SHOTGUN_INDEX_TIP + Vector3(0, 0, 0.007), "index")
+				_fit_reach(hand, gun)
 				continue
-			var bones: Array = fingers[f]
+			# Each finger closes as one (HeldHand.grasp: its joints coupled) until it touches the
+			# wood; the right index on its trigger.
 			var on := trig if f == "index" and not trig.is_empty() and bool(hand.get(&"right")) else grip
-			var angles := [0.0, 0.0, 0.0]
-			# The revolver's index lies along the frame as its hand has it; the coach gun's reaches
-			# forward from the wrist to the front trigger, its knuckle closed by the fit too.
-			var keep_root := on == trig and gun.get_node_or_null("Hammer/Spur") != null
-			if keep_root:
-				angles[0] = absf(rad_to_deg((bones[0] as Node3D).rotation.z))
-			for k in range(1 if keep_root else 0, 3):
-				var lo := 0.0
-				var hi := 120.0
-				for it in 14:
-					var mid := (lo + hi) * 0.5
-					angles[k] = mid
-					for j in range(k + 1, 3):
-						angles[j] = 0.0
-					hand.call(&"curl", f, angles)
-					if _min_gap(hand, f, k, on) <= FIT_MM * 0.001:
-						hi = mid
-					else:
-						lo = mid
-				angles[k] = hi
-			hand.call(&"curl", f, angles)
-			print("FIT %s %s: [%.0f, %.0f, %.0f]" % [hand.name, f, angles[0], angles[1], angles[2]])
+			var lo := 0.0
+			var hi := 140.0
+			for it in 14:
+				var mid := (lo + hi) * 0.5
+				hand.call(&"grasp", f, mid)
+				if _min_gap(hand, f, 0, on) <= FIT_MM * 0.001:
+					hi = mid
+				else:
+					lo = mid
+			hand.call(&"grasp", f, hi)
+			print("FIT %s %s: grasp %.0f (gap %+.1f mm)" % [hand.name, f, hi, _min_gap(hand, f, 0, on) * 1000.0])
 		if fingers.has("thumb") and bool(hand.get(&"right")):
 			var revolver := gun.get_node_or_null("Hammer/Spur") != null
 			var solid: Array[MeshInstance3D] = []
@@ -331,12 +323,21 @@ func _min_gap(hand: Node3D, f: String, from_bone: int, boxes: Array[MeshInstance
 	for k in range(from_bone, 3):
 		var pts: PackedVector3Array = hand.call(&"surface_points", "finger_%s_%s_%d" % [f, side, k], FIT_FROM if k == from_bone else 0.0)
 		for mi in boxes:
-			var half := (mi.mesh as BoxMesh).size * 0.5
 			var to_box := mi.global_transform.affine_inverse()
 			for i in range(0, pts.size(), 4):
-				var q := (to_box * pts[i]).abs() - half
-				best = minf(best, q.max(Vector3.ZERO).length() + minf(maxf(q.x, maxf(q.y, q.z)), 0.0))
+				best = minf(best, _solid_distance(mi, to_box * pts[i]))
 	return best
+
+
+## A point's signed distance to a box's or a tube's surface (in the part's own space; a tube's
+## axis is its mesh's Y), negative inside.
+func _solid_distance(mi: MeshInstance3D, p: Vector3) -> float:
+	if mi.mesh is CylinderMesh:
+		var c := mi.mesh as CylinderMesh
+		var d := Vector2(Vector2(p.x, p.z).length() - c.top_radius, absf(p.y) - c.height * 0.5)
+		return d.max(Vector2.ZERO).length() + minf(maxf(d.x, d.y), 0.0)
+	var q := p.abs() - (mi.mesh as BoxMesh).size * 0.5
+	return q.max(Vector3.ZERO).length() + minf(maxf(q.x, maxf(q.y, q.z)), 0.0)
 
 
 ## Where the thumb's tip goes on the revolver (its model's space, m): resting high on the left of
@@ -344,10 +345,8 @@ func _min_gap(hand: Node3D, f: String, from_bone: int, boxes: Array[MeshInstance
 const THUMB_REST_TIP := Vector3(-0.026, 0.02, 0.004)
 const THUMB_COCK_TIP := Vector3(0.0, 0.068, 0.018)
 ## The coach gun's: over the top of the stock's wrist by the tang, and on the right hammer's spur.
-const SHOTGUN_THUMB_REST_TIP := Vector3(-0.012, 0.012, 0.03)
+const SHOTGUN_THUMB_REST_TIP := Vector3(-0.026, 0.008, 0.03)
 const SHOTGUN_THUMB_COCK_TIP := Vector3(0.018, 0.038, 0.002)
-## The index's pad on the front trigger's blade.
-const SHOTGUN_INDEX_TIP := Vector3(0.0, -0.036, -0.058)
 ## The left thumb up the left of the forend (the gun closed: the barrels at rest).
 const SHOTGUN_LEFT_THUMB_TIP := Vector3(-0.03, -0.014, -0.19)
 
@@ -383,3 +382,29 @@ func _fit_thumb(hand: Node3D, gun: Node3D, solid: Array[MeshInstance3D], what: S
 			print("FIT %s %s %s: %s, %d, %d (tip %.0f mm off, skin %+.0f mm)" % [hand.name, finger, what, t[1], t[2], t[3], t[0] * 1000.0, gap * 1000.0])
 			return
 	print("FIT %s %s %s: nothing clear of the gun in the nearest 250" % [hand.name, finger, what])
+
+
+## The coach gun's index: its knuckle spread forward (HeldHand.grasp's `spread`) and the finger
+## closed together until its pad is nearest the front trigger's blade without going into the guard
+## or the stock; at rest, the same spread a little less closed.
+func _fit_reach(hand: Node3D, gun: Node3D) -> void:
+	var blade := gun.get_node("Trigger0/Blade") as MeshInstance3D
+	var solid: Array[MeshInstance3D] = []
+	for n in ["GuardBottom", "GuardBack", "GuardFront", "Stock/Wrist", "Trigger1/Blade"]:
+		solid.append(gun.get_node(n) as MeshInstance3D)
+	var side := "r" if bool(hand.get(&"right")) else "l"
+	var best := [INF, 0.0, 0.0]
+	for spread in range(-30, 31, 5):
+		for amount in range(0, 121, 5):
+			hand.call(&"grasp", "index", float(amount), float(spread))
+			var tip: PackedVector3Array = hand.call(&"surface_points", "finger_index_%s_2" % side, 0.5)
+			var near := INF
+			for p in tip:
+				near = minf(near, _solid_distance(blade, blade.global_transform.affine_inverse() * p))
+			if near >= best[0]:
+				continue
+			if _min_gap(hand, "index", 0, solid) < -0.0015:
+				continue
+			best = [near, float(spread), float(amount)]
+	hand.call(&"grasp", "index", best[2], best[1])
+	print("FIT %s index: spread %.0f, grasp %.0f (pad %.0f mm off the trigger)" % [hand.name, best[1], best[2], best[0] * 1000.0])

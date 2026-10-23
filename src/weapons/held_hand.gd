@@ -121,6 +121,21 @@ func aim_forearm(dir: Vector3) -> void:
 	wrist.basis = Basis.looking_at(-local, up)
 
 
+## A finger closing as fingers do: its three joints bend together, the middle joint most and the
+## last about half as much (the tendons couple them; a hand round a 3-4 cm grip has its knuckle at
+## ~55, middle ~75, last ~40 degrees). `amount` is the middle joint's bend.
+const GRASP := [0.75, 1.0, 0.55]
+
+
+func grasp(finger: String, amount: float, spread := 0.0) -> void:
+	curl(finger, [amount * GRASP[0], amount * GRASP[1], amount * GRASP[2]])
+	# `spread`: the knuckle turned sideways (degrees, towards the thumb positive), as a trigger
+	# finger reaches forward.
+	var bones: Array = fingers.get(finger, [])
+	if not bones.is_empty() and spread != 0.0:
+		(bones[0] as Node3D).rotation.x = deg_to_rad(spread)
+
+
 ## Curl a finger: degrees a bone, root first, positive towards the palm.
 func curl(finger: String, angles: Array) -> void:
 	var bones: Array = fingers.get(finger, [])

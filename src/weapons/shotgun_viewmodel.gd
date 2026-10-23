@@ -29,30 +29,34 @@ const TUCK_ROT := Vector3(62.0, 12.0, -8.0)
 const OPEN_ANGLE := -32.0
 const HAMMER_BACK := 40.0
 
-## The hands (the gun lab's `views.gd --fit`: the fingers closed on the wood, every bone 0-3 mm
-## off it, the index's pad on the front trigger, the thumbs clear of the steel).
-## The right: its index knuckle on the right of the stock's wrist by the guard, the knuckles'
-## line run back along the wrist, rolled so the heel of the hand is beside the stock (clear of the
-## rib when aimed), the forearm back, down and out to the right.
-const R_HAND_POS := Vector3(0.026, -0.024, 0.016)
-const R_HAND_TILT := -45.0
-const R_HAND_ROLL := -40.0
+## The hands (the gun lab's `views.gd --fit`: each finger closed as one until it touches the wood
+## or the barrels, the index's pad on the front trigger, the thumbs clear of the steel).
+## The right holds the wrist of the stock as a straight-hand stock is held: the palm on its right
+## side, the back of the hand out and a little down, the knuckles' line diagonal across the wrist
+## (the wrist bent forward) so the fingers wrap under and up its far side and the index runs
+## forward to the trigger; the heel beside the stock, clear of the rib when aimed; the forearm
+## back, down and out to the right.
+const R_HAND_POS := Vector3(0.024, -0.036, 0.008)
+const R_HAND_TILT := -50.0
+const R_HAND_ROLL := -30.0
 const R_FOREARM := Vector3(0.8, -0.58, 0.15)
-const R_GRIP := {"middle": [49.0, 73.0, 24.0], "ring": [70.0, 52.0, 27.0], "little": [77.0, 28.0, 37.0]}
-## The index swung forward from its knuckle onto the front trigger (a plain curl can't reach it),
-## and squeezed back.
-const R_INDEX_REST := [Vector3(24.0, 24.0, 12.0), 0.0, 0.0]
-const R_INDEX_PULL := [Vector3(12.0, 24.0, 12.0), 0.0, 0.0]
-const R_THUMB_REST := [Vector3(-48.0, -60.0, 36.0), 0.0, 0.0]
-const R_THUMB_COCK := [Vector3(12.0, 60.0, 36.0), 45.0, 40.0]
-## The left, in the barrels' space: the forend across its palm, its fingers up the right side and
-## its thumb up the left, the forearm back, down and out to the left.
+const R_GRIP := {"middle": 71.0, "ring": 71.0, "little": 69.0}
+## The index on the front trigger, at rest and squeezed: its knuckle spread forward and the finger
+## nearly straight, as on a straight-hand stock (HeldHand.grasp; `views.gd --fit`).
+const R_INDEX_SPREAD := 20.0
+const R_INDEX_REST := 2.0
+const R_INDEX_PULL := 12.0
+const R_THUMB_REST := [Vector3(36.0, 24.0, 24.0), 20.0, 15.0]
+const R_THUMB_COCK := [Vector3(36.0, 24.0, 24.0), 45.0, 40.0]
+## The left, in the barrels' space: the forend cradled in its palm, the fingers curling up the right
+## side to the barrels and the index along the wood, kept low off the sight line, the forearm back,
+## down and out to the left.
 const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
-const L_HAND_TILT := -90.0
+const L_HAND_TILT := -65.0
 const L_HAND_ROLL := 90.0
 const L_FOREARM := Vector3(-0.3, -0.55, 0.78)
-const L_GRIP := {"index": [13.0, 79.0, 4.0], "middle": [50.0, 77.0, 52.0], "ring": [29.0, 79.0, 32.0], "little": [2.0, 80.0, 0.0]}
-const L_THUMB := [Vector3(60.0, 60.0, -60.0), 45.0, 40.0]
+const L_GRIP := {"index": 13.0, "middle": 59.0, "ring": 59.0, "little": 59.0}
+const L_THUMB := [Vector3(-60.0, 24.0, 48.0), 45.0, 40.0]
 
 @export var tuning: ShotgunTuning
 
@@ -101,10 +105,10 @@ func _ready() -> void:
 func _build_hands() -> void:
 	hand = _held(true, model, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
 	for f: String in R_GRIP:
-		hand.curl(f, R_GRIP[f])
+		hand.grasp(f, R_GRIP[f])
 	left_hand = _held(false, model.barrels, L_HAND_POS, L_HAND_TILT, L_HAND_ROLL, L_FOREARM)
 	for f: String in L_GRIP:
-		left_hand.curl(f, L_GRIP[f])
+		left_hand.grasp(f, L_GRIP[f])
 	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
 
 
@@ -260,8 +264,7 @@ func _animate(delta: float) -> void:
 		_triggers[i] = move_toward(_triggers[i], 0.0, delta * 5.0)
 		model.triggers[i].rotation_degrees.x = -18.0 * _triggers[i]
 	var pull := maxf(_triggers[0], _triggers[1])
-	hand.pose_finger("index", (R_INDEX_REST[0] as Vector3).lerp(R_INDEX_PULL[0], pull), lerpf(R_INDEX_REST[1], R_INDEX_PULL[1], pull),
-			lerpf(R_INDEX_REST[2], R_INDEX_PULL[2], pull))
+	hand.grasp("index", lerpf(R_INDEX_REST, R_INDEX_PULL, pull), R_INDEX_SPREAD)
 	_thumb = move_toward(_thumb, 0.0, delta * 3.0)
 	hand.thumb_pose((R_THUMB_REST[0] as Vector3).lerp(R_THUMB_COCK[0], _thumb), lerpf(R_THUMB_REST[1], R_THUMB_COCK[1], _thumb),
 			lerpf(R_THUMB_REST[2], R_THUMB_COCK[2], _thumb))
