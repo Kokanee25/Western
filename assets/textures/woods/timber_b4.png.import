@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://jrmo6ri60b84"
-path="res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.ctex"
+path.bptc="res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.bptc.ctex"
+path.astc="res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/timber_b4.png"
-dest_files=["res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.ctex"]
+dest_files=["res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.bptc.ctex", "res://.godot/imported/timber_b4.png-180f45be694db6305605375b42e92115.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

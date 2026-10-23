@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kk74imxyor1d"
-path="res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.ctex"
+path.bptc="res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.bptc.ctex"
+path.astc="res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/saloon_red_b8.png"
-dest_files=["res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.ctex"]
+dest_files=["res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.bptc.ctex", "res://.godot/imported/saloon_red_b8.png-21e6f9c005bc66286529c9a2f72d5e8a.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

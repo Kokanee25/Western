@@ -264,8 +264,10 @@ check `critic_memory.md`): **384 BC7 can't be told from lossless** in any wood (
 most 4/255) at a quarter the memory (the town's exterior woods 25.7 -> 6.4 MB; the stand 10.76 ->
 3.62 MB measured); 256 BC7 (2.9 MB) first softens fine streaks and knots; 192 BC7 (1.6 MB) merges
 the grain into fewer patches and leaves small dark blocks in two stains. No colour shift or
-banding in any. Waiting on Sean's pick; the game's woods unchanged until then (his pick becomes
-`promote_woods.py`'s import with `compress/mode=2`, high quality, and the goldens re-approved).
+banding in any. **Sean picked 384 BC7** (2026-10-23, issue #286): the game's ten exterior woods
+import VRAM-compressed at high quality since (`promote_woods.py --vram=...`: each png's `.import`
+edited in place, its uid kept; a later promotion keeps the wood's compression); 25.7 -> 6.4 MB.
+The interior woods stay lossless.
 
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a

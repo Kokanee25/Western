@@ -788,7 +788,9 @@ a few views renders them as the full run does.
   along its +Z from its origin, open side at x 0, landing at 2.47 m, a 3 m walkway off it toward -X
   railed at 1 m: `_walk_z()`), drawn in the game's
   `dark_oak` (woods set) and `stair_runner` (factory) since 2026-10-21;
-  `PixelArt` lays an `mlab_` set as it lays the game's woods. The men's style sheet
+  `PixelArt` lays an `mlab_` set as it lays the game's woods. A set's `"vram": true` imports it
+  VRAM-compressed (BC7, high quality); `promote_woods.py --vram=WOODS` (or `--lossless=`) sets the
+  game's woods' compression, the exterior ten BC7 since 2026-10-23 (Sean, #286). The men's style sheet
   `docs/concept/targets/9_studio_men.png` (`men_reference.py`) is what `paint_woods.py` and
   `paint_textures.py --style=man` send since 2026-10-21 (target 8 before).
   **Round 3, the weathering layer** (2026-10-21): texel_grid's `weathered` lays a stain sheet
