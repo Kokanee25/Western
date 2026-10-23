@@ -474,15 +474,18 @@ frozen until Sean names one.
   Next: fix 3, windows (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
-  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
-  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
-  in the saloon (`play.gd`, `PLAYTEST.md`; issue #257 for Sean), each man's decision and why on F3.
-  The bot's A/B/C (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant. With the
-  perception lab's fix 1 (`results/2026-10-22_perception/`): no leak, but cover dropped on arrival
-  doubles. Next: cover against the same guess he chose it by, and cover in the saloon. Traps: wounds
-  bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match their own command line; a
-  `.gd` copy under `build/` with a `class_name` shadows the real class.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): since 2026-10-23 **in the new saloon**
+  (the building lab's; `spec_*` setups: hall, stair, galleries, back, front; `spec_saloon.gd` joins
+  its 48 places to the town's; the batwings walkable). **Fights that commit** (#257, Sean: "kept
+  quitting"): variant D, the game's default now (`OutlawBrain.D_FIXES`, nine, each measured:
+  `results/2026-10-23_commit/`): you shooting first, A -> D, the first quit 1.4 -> 3.8 s, the
+  shooting 3.5 -> 15.3 s, Brody quits 76% -> 38%, Lyle 78% -> 32%, the Kid first to go. Play: Y the
+  next setup, X again, Z the next variant (`PLAYTEST.md`); `gf_play` for the blind playtest
+  (`docs/playtests/2026-10-23-gunfight.md`). Next: the `next session` issue (45-90 s of shooting is
+  still rare: hits decide it; pressing, staying low). Traps: wounds bleed on the day clock's time
+  scale; `pkill -f`/`ps|grep` kill loops match their own command line; a `.gd` copy under `build/`
+  with a `class_name` shadows the real class; merging main mid-run needs `godot --headless --import`
+  before the next game, or new kit-prop classes are missing.
 - The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
   bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
   against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
