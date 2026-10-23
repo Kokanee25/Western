@@ -17,12 +17,17 @@ var tiles := {}
 
 var _mesh: MeshInstance3D
 var _rise_mesh: MeshInstance3D
-## Vector2i (a chunk of the rise, in chunks) -> {dug: its dug tiles' keys, sorted; shapes: its
-## CollisionShape3Ds; verts, normals, index: its part of the rise's mesh}.
+## Vector2i (a chunk of the rise, in chunks) -> {dug: its dug tiles' keys, sorted; body: its own
+## StaticBody3D (an edit rebuilds only its shapes); verts, normals, index: its part of the rise's
+## mesh}.
 var _chunks := {}
+var _rise_tangents := PackedFloat32Array()
 
 ## Tiles a side of a chunk of the rise; its height field has a point every half tile.
 const CHUNK_TILES := 8
+## Each chunk's room in the rise's mesh (points): a chunk cut round dug tiles into rectangles,
+## at most the chunk's points and a row and column more for each cut.
+const CHUNK_SLOT := 1024
 
 
 func _ready() -> void:
@@ -155,7 +160,7 @@ static func _minus(r: Rect2, hole: Rect2) -> Array[Rect2]:
 ## dug tiles; and the rise's chunks that have gained or lost a dug tile.
 func _rebuild_flat() -> void:
 	for c in get_children():
-		if c is CollisionShape3D and not c.has_meta(&"rise"):
+		if c is CollisionShape3D:
 			remove_child(c)
 			c.free()
 	var area := _rise_area()
@@ -249,9 +254,9 @@ func _flat_mesh(rects: Array) -> ArrayMesh:
 	return mesh
 
 
-## The rise's chunks: each a height field (a point every half tile) and its part of the rise's
-## mesh; a chunk with dug tiles in it is one small field a tile it hasn't, round them. Only the
-## chunks whose dug tiles have changed are made again.
+## The rise's chunks: each a height field (a point every half tile) on its own body and its part of
+## the rise's mesh; a chunk with dug tiles in it is cut round them into rectangles, a field each.
+## Only the chunks whose dug tiles have changed are made again.
 func _rebuild_rise(area: Rect2) -> void:
 	if area.size == Vector2.ZERO:
 		return
@@ -266,77 +271,94 @@ func _rebuild_rise(area: Rect2) -> void:
 	var changed := false
 	var c0 := Vector2i(roundi(area.position.x / c), roundi(area.position.y / c))
 	var c1 := Vector2i(roundi(area.end.x / c), roundi(area.end.y / c))
+	var slot := 0
 	for cz in range(c0.y, c1.y):
 		for cx in range(c0.x, c1.x):
 			var ck := Vector2i(cx, cz)
+			slot += 1
 			var keys: Array = dug.get(ck, [])
 			keys.sort()
 			var known: Dictionary = _chunks.get(ck, {})
 			if not known.is_empty() and known.dug == keys:
 				continue
-			for cs: CollisionShape3D in known.get("shapes", []):
-				remove_child(cs)
-				cs.free()
-			_chunks[ck] = _make_chunk(ck, keys)
+			if known.has("body"):
+				(known.body as Node).free()
+			_chunks[ck] = _make_chunk(ck, keys, (slot - 1) * CHUNK_SLOT)
 			changed = true
 	if changed or _rise_mesh == null:
 		_rise_mesh_rebuild()
 
 
-func _make_chunk(ck: Vector2i, dug: Array) -> Dictionary:
+## A chunk's height fields and its part of the mesh: its points from `first` in the rise's mesh
+## (its slot, CHUNK_SLOT long, padded), its triangles' indices already counted from there.
+func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	var size := tuning.tile_size()
-	var pieces: Array[Rect2] = []
-	if dug.is_empty():
-		pieces.append(Rect2(ck.x * size * CHUNK_TILES, ck.y * size * CHUNK_TILES, size * CHUNK_TILES, size * CHUNK_TILES))
-	else:
-		for tz in CHUNK_TILES:
-			for tx in CHUNK_TILES:
-				var key := ck * CHUNK_TILES + Vector2i(tx, tz)
-				if not dug.has(key):
-					pieces.append(Rect2(key.x * size, key.y * size, size, size))
-	var shapes: Array[CollisionShape3D] = []
+	var pieces: Array[Rect2] = [Rect2(ck.x * size * CHUNK_TILES, ck.y * size * CHUNK_TILES, size * CHUNK_TILES, size * CHUNK_TILES)]
+	for key: Vector2i in dug:
+		var next: Array[Rect2] = []
+		for r in pieces:
+			next.append_array(_minus(r, Rect2(key.x * size, key.y * size, size, size)))
+		pieces = next
+	var body := StaticBody3D.new()
+	body.name = "Rise_%d_%d" % [ck.x, ck.y]
+	body.collision_layer = collision_layer
+	body.collision_mask = collision_mask
+	for m in [&"ground", &"surface"]:
+		body.set_meta(m, get_meta(m))
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var idx := PackedInt32Array()
 	var step := size * 0.5
+	var height := float(TownLayout.rise().height)
 	for r in pieces:
-		var n := roundi(r.size.x / step) + 1
+		var nx := roundi(r.size.x / step) + 1
+		var nz := roundi(r.size.y / step) + 1
+		# The rise is its height times a factor along and one across: sampled once a row and column
+		# (one more each side, for the slopes).
 		var along := PackedFloat32Array()
 		var across := PackedFloat32Array()
-		for i in n:
+		for i in range(-1, nx + 1):
 			along.append(TownLayout.rise_along(r.position.x + i * step))
-			across.append(TownLayout.rise_across(r.position.y + i * step))
-		var height := float(TownLayout.rise().height)
+		for j in range(-1, nz + 1):
+			across.append(TownLayout.rise_across(r.position.y + j * step))
 		var map := PackedFloat32Array()
-		map.resize(n * n)
-		var base := verts.size()
-		for j in n:
-			for i in n:
-				var h := height * along[i] * across[j]
-				map[j * n + i] = h
-				var x := r.position.x + i * step
-				var z := r.position.y + j * step
-				verts.append(Vector3(x, h, z))
-				var dx := TownLayout.ground_height(x + 0.1, z) - TownLayout.ground_height(x - 0.1, z)
-				var dz := TownLayout.ground_height(x, z + 0.1) - TownLayout.ground_height(x, z - 0.1)
-				normals.append(Vector3(-dx / 0.2, 1.0, -dz / 0.2).normalized())
-		for j in n - 1:
-			for i in n - 1:
-				var a := base + j * n + i
-				idx.append_array([a, a + 1, a + n + 1, a, a + n + 1, a + n])
+		map.resize(nx * nz)
+		var base := first + verts.size()
+		var inv := height / (2.0 * step)
+		for j in nz:
+			for i in nx:
+				var h := height * along[i + 1] * across[j + 1]
+				map[j * nx + i] = h
+				verts.append(Vector3(r.position.x + i * step, h, r.position.y + j * step))
+				var dx := (along[i + 2] - along[i]) * across[j + 1] * inv
+				var dz := (across[j + 2] - across[j]) * along[i + 1] * inv
+				normals.append(Vector3(-dx, 1.0, -dz).normalized())
+		for j in nz - 1:
+			for i in nx - 1:
+				var a := base + j * nx + i
+				idx.append_array([a, a + 1, a + nx + 1, a, a + nx + 1, a + nx])
 		var shape := HeightMapShape3D.new()
-		shape.map_width = n
-		shape.map_depth = n
+		shape.map_width = nx
+		shape.map_depth = nz
 		shape.map_data = map
 		var cs := CollisionShape3D.new()
-		cs.name = "Rise_%d_%d" % [roundi(r.position.x / step), roundi(r.position.y / step)]
-		cs.set_meta(&"rise", true)
+		cs.name = "Field%d" % body.get_child_count()
 		cs.shape = shape
 		cs.scale = Vector3(step, 1.0, step)
 		cs.position = Vector3(r.get_center().x, 0.0, r.get_center().y)
-		add_child(cs)
-		shapes.append(cs)
-	return {"dug": dug, "shapes": shapes, "verts": verts, "normals": normals, "index": idx}
+		body.add_child(cs)
+	add_child(body)
+	# Padded to the slot (unused points, under the ground at the chunk's corner).
+	var pad := CHUNK_SLOT - verts.size()
+	if pad > 0:
+		var corner := Vector3(ck.x * size * CHUNK_TILES, -1.0, ck.y * size * CHUNK_TILES)
+		var fill := PackedVector3Array()
+		fill.resize(pad)
+		fill.fill(corner)
+		verts.append_array(fill)
+		fill.fill(Vector3.UP)
+		normals.append_array(fill)
+	return {"dug": dug, "body": body, "verts": verts, "normals": normals, "index": idx}
 
 
 ## The rise's one mesh, from its chunks' parts.
@@ -348,23 +370,23 @@ func _rise_mesh_rebuild() -> void:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var idx := PackedInt32Array()
+	# In the order the chunks were given their slots (the index arrays count from them).
 	var keys := _chunks.keys()
-	keys.sort()
+	keys.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
 	for ck: Vector2i in keys:
 		var part: Dictionary = _chunks[ck]
-		var base := verts.size()
 		verts.append_array(part.verts)
 		normals.append_array(part.normals)
-		for k: int in part.index:
-			idx.append(base + k)
+		idx.append_array(part.index)
 	if verts.is_empty():
 		_rise_mesh.mesh = null
 		return
-	var tangents := PackedFloat32Array()
-	tangents.resize(verts.size() * 4)
-	for k in verts.size():
-		tangents[k * 4] = 1.0
-		tangents[k * 4 + 3] = 1.0
+	if _rise_tangents.size() != verts.size() * 4:
+		_rise_tangents.resize(verts.size() * 4)
+		for k in verts.size():
+			_rise_tangents[k * 4] = 1.0
+			_rise_tangents[k * 4 + 3] = 1.0
+	var tangents := _rise_tangents
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts

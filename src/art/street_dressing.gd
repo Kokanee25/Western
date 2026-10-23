@@ -466,8 +466,14 @@ func _vacant_lot() -> void:
 	var t := TownLayout.transform_of(&"StreetDressing/VacantLot")
 	var w := float(lot.get("width", 7.0))
 	var yaw := rad_to_deg(t.basis.get_euler().y)
+	# Everything on it in the lot's own node, where the layout puts it.
+	var root := Node3D.new()
+	root.name = "VacantLot"
+	add_child(root)
+	root.transform = t
 	var wagon := _model("DeadWagon", PropModels.wagon, t * Vector3(w * 0.6, 0.0, 6.5), yaw + 71.0, Vector3(3.4, 2.2, 1.8), false)
 	if wagon:
+		wagon.reparent(root)
 		# Down at one corner on its broken wheel.
 		var m := wagon.get_node(^"Model") as Node3D
 		m.rotation = Vector3(deg_to_rad(4.0), 0.0, deg_to_rad(-7.0))
@@ -475,8 +481,8 @@ func _vacant_lot() -> void:
 	# Boards stacked crooked, as they came off a wagon and were left.
 	var heap := Node3D.new()
 	heap.name = "BoardHeap"
-	add_child(heap)
-	heap.global_transform = t * Transform3D(Basis(Vector3.UP, deg_to_rad(8.0)), Vector3(w * 0.22, 0.0, 3.2))
+	root.add_child(heap)
+	heap.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(8.0)), Vector3(w * 0.22, 0.0, 3.2))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1877
 	for i in 9:
@@ -485,16 +491,16 @@ func _vacant_lot() -> void:
 		PropModels._box(heap, "Board", Vector3(3.6 - rng.randf_range(0.0, 0.9), 0.05, 0.2), Vector3(rng.randf_range(-0.2, 0.2), y, -0.5 + (i % 4) * 0.24), PropModels.weathered(), b)
 	for b in [[Vector3(w * 0.85, 0.0, 2.2), &"barrel"], [Vector3(w * 0.93, 0.0, 2.9), &"barrel"]]:
 		var p := PropLibrary.spawn(b[1])
-		add_child(p)
-		p.global_transform = t * Transform3D(Basis(), b[0])
+		root.add_child(p)
+		p.transform = Transform3D(Basis(), b[0])
 	var crate := PropLibrary.spawn(&"crate")
-	add_child(crate)
-	crate.global_transform = t * Transform3D(Basis(Vector3.UP, deg_to_rad(23.0)), Vector3(w * 0.35, 0.0, 5.0))
+	root.add_child(crate)
+	crate.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(23.0)), Vector3(w * 0.35, 0.0, 5.0))
 	# The board at the lot's front, by the street.
 	var post := Node3D.new()
 	post.name = "LotSign"
-	add_child(post)
-	post.global_transform = t * Transform3D(Basis(Vector3.UP, deg_to_rad(-6.0)), Vector3(w * 0.5, 0.0, -0.6))
+	root.add_child(post)
+	post.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(-6.0)), Vector3(w * 0.5, 0.0, -0.6))
 	var wood := PropModels.dark_wood()
 	PropModels._box(post, "Post", Vector3(0.1, 1.6, 0.1), Vector3(0.0, 0.8, 0.0), wood)
 	PropModels._box(post, "Board", Vector3(1.3, 0.55, 0.03), Vector3(0.0, 1.35, -0.07), PropModels.weathered())

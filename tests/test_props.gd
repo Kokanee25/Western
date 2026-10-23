@@ -167,5 +167,9 @@ func test_dry_grass_keeps_off_the_wheel_tracks_and_out_from_under_floors() -> vo
 			break
 		if dz < DryGrass.ROAD_HALF + 1.4:
 			edge += 1
-	check(edge > g.tufts.size() / 4, "thickest along the edges (%d of %d)" % [edge, g.tufts.size()])
+	# Per square metre: the edges' band (both sides) against the rest of the ground they're scattered on.
+	var band := 2.0 * 3.0 * DryGrass.AREA.size.x
+	var per_edge := edge / band
+	var per_open := (g.tufts.size() - edge) / (DryGrass.AREA.get_area() - band)
+	check(per_edge > 2.0 * per_open, "thickest along the edges (%.3f a m2 there, %.3f elsewhere)" % [per_edge, per_open])
 	w.queue_free()
