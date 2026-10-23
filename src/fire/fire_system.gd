@@ -647,9 +647,19 @@ static func _gap(a: AABB, b: AABB) -> float:
 
 # --- Drawing it -----------------------------------------------------------------------------------
 
+## Metres nearer a member over an opening or in a roof counts, choosing which show flames.
+const FLAME_FIRST := 6.0
+const ROOF_KINDS := [&"rafter", &"roof_board", &"ridge"]
+
+
+static func _flames_first(m: StructureMember) -> bool:
+	var id := String(m.member_id)
+	return m.kind in ROOF_KINDS or id.ends_with("/head") or id.ends_with("/header")
+
+
 ## Every half second: which burning members show flames (those that had them keep them while
 ## they burn, so flames don't hop about a burning town; free ones go to the burning members nearest
-## you), and where the fire's lights go. The members' looks are then brought up to date a slice a
+## you, the roof's and the openings' first), and where the fire's lights go. The members' looks are then brought up to date a slice a
 ## frame over the half second (`_refresh_fx`), not all on one frame.
 func _update_fx() -> void:
 	var burning := _longest_burning()
@@ -665,6 +675,9 @@ func _update_fx() -> void:
 		for i in burning.size():
 			if not _flaming.has(burning[i]):
 				var d := burning[i].global_position.distance_to(eye) if cam else float(i)
+				# The roof and what's over a door or window first: fire through the roof and out of
+				# the openings, not one more board up a wall (the art session, with Sean's OK).
+				d -= FLAME_FIRST if _flames_first(burning[i]) else 0.0
 				by_distance.append(Vector2(d, i))
 		by_distance.sort()
 		for v in by_distance:
@@ -824,10 +837,20 @@ func _place_lights(burning: Array[StructureMember]) -> void:
 		l.shadow_enabled = _lights.is_empty()
 		add_child(l)
 		var crackle := AudioStreamPlayer3D.new()
-		crackle.stream = SynthSounds.get_sound(&"fire")
+		crackle.stream = SynthSounds.get_sound(&"fire_crackle" if GameAudio.enabled() else &"fire")
 		crackle.unit_size = 6.0
 		crackle.autoplay = true
 		l.add_child(crackle)
+		if GameAudio.enabled():
+			# The sound lab: no two fires in step (pitch and where in the loop they start), and a big
+			# one roars under its crackle.
+			crackle.pitch_scale = 0.9 + 0.2 * fmod(_lights.size() * 0.618, 1.0)
+			var roar := AudioStreamPlayer3D.new()
+			roar.name = "Roar"
+			roar.stream = SynthSounds.get_sound(&"fire_roar")
+			roar.unit_size = 10.0
+			roar.pitch_scale = 0.95 + 0.1 * fmod(_lights.size() * 0.382, 1.0)
+			l.add_child(roar)
 		_lights.append(l)
 	for i in _lights.size():
 		var l := _lights[i]
@@ -838,11 +861,26 @@ func _place_lights(burning: Array[StructureMember]) -> void:
 			l.omni_range = clampf(4.0 + sizes[i] * 0.6, 4.0, 14.0)
 			l.set_meta(&"energy", clampf(1.0 + sizes[i] * 0.25, 1.0, 5.0))
 			if crackle and not crackle.playing:
-				crackle.play()
+				crackle.play(fmod(i * 2.3, 7.0) if GameAudio.enabled() else 0.0)
 			if crackle:
 				crackle.volume_db = linear_to_db(clampf(0.3 + sizes[i] * 0.08, 0.3, 1.6))
+				GameAudio.replace_loop(crackle)
+			var roar := l.get_node_or_null(^"Roar") as AudioStreamPlayer3D
+			if roar:
+				# Past a few members alight it roars, louder the more.
+				var loud := clampf((sizes[i] - 3.0) * 0.08, 0.0, 1.4)
+				if loud > 0.0:
+					roar.volume_db = linear_to_db(loud)
+					if not roar.playing:
+						roar.play(fmod(i * 1.7, 5.0))
+					GameAudio.replace_loop(roar)
+				elif roar.playing:
+					roar.stop()
 		elif crackle:
 			crackle.stop()
+			var roar := l.get_node_or_null(^"Roar") as AudioStreamPlayer3D
+			if roar:
+				roar.stop()
 
 
 func _flicker(delta: float) -> void:

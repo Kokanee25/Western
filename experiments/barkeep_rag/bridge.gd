@@ -18,7 +18,10 @@ func _cmd_rag(_a: Array) -> Dictionary:
 		return {"ok": false, "error": "no barkeep"}
 	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
 	var out := {"ok": true, "mood": String(CivilianBrain.Mood.keys()[brain.mood]).to_lower() if brain else ""}
-	var chore: WipeBar = brain.chore if brain else null
+	var chore: WipeBar = null
+	for c: RefCounted in (brain.chores if brain else []):
+		if c is WipeBar:
+			chore = c
 	if chore == null:
 		out.chore = "none"
 		return out
@@ -34,9 +37,13 @@ func _cmd_rag(_a: Array) -> Dictionary:
 func _cmd_rag_do(a: Array) -> Dictionary:
 	var man := _barkeep()
 	var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
-	if brain == null or brain.chore == null or a.is_empty():
+	var wipe: WipeBar = null
+	for ch: RefCounted in (brain.chores if brain else []):
+		if ch is WipeBar:
+			wipe = ch
+	if wipe == null or a.is_empty():
 		return {"ok": false, "error": "rag_do knock|drop|ignite|wipe (and a barkeep with a cloth)"}
-	var c := brain.chore.cloth
+	var c := wipe.cloth
 	match String(a[0]):
 		"knock":
 			c.knock((Vector3.UP - man.global_basis.z) * c.soft.total_mass * 2.0)
@@ -45,8 +52,8 @@ func _cmd_rag_do(a: Array) -> Dictionary:
 		"ignite":
 			c.ignite()
 		"wipe":
-			brain.chore.set(&"_rest", 0.0)
-			brain.chore.set(&"_idle", brain.chore.tuning.idle_before)
+			wipe.set(&"_rest", 0.0)
+			wipe.set(&"_idle", wipe.tuning.idle_before)
 		_:
 			return {"ok": false, "error": "rag_do knock|drop|ignite|wipe"}
 	log_event("rag", String(a[0]))

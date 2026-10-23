@@ -1,0 +1,52 @@
+{
+ "Q_rail_charge_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_001.png"
+ },
+ "Q_rail_charge_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_002.png"
+ },
+ "Q_rail_shove_back": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_003.png"
+ },
+ "Q_rail_shove_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_004.png"
+ },
+ "U_chair_back_leg_removed": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_005.png"
+ },
+ "U_chair_back_legs_kicked": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_006.png"
+ },
+ "U_chair_front_legs_removed": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_007.png"
+ },
+ "U_sitback_back_leg_kicked": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_008.png"
+ },
+ "U_sitback_back_legs_kicked": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_009.png"
+ },
+ "U_sitback_back_legs_swept": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_010.png"
+ }
+}

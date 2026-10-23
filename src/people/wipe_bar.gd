@@ -95,6 +95,10 @@ func _init(who: HumanBody, rag: ClothProp, at_post: Vector3, facing: Vector3) ->
 	_rest = _rng.randf_range(0.0, tuning.idle_before)
 
 
+func busy() -> bool:
+	return step != Step.IDLE
+
+
 ## Each tick from his brain. `free`: calm, nothing over him, nothing he'd sooner be doing. True
 ## while the chore has his body this tick (the brain leaves him be).
 func step_chore(delta: float, free: bool) -> bool:

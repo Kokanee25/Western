@@ -578,9 +578,15 @@ func _face_along(i: int, way: int) -> void:
 
 ## A wooden bucket: staves, two iron hoops, a bail, and water in it when it's full.
 func _bucket_node() -> Node3D:
+	var root := bucket_model()
+	add_child(root)
+	return root
+
+
+## The wooden bucket's model (the bucket line's, the barkeep's mop bucket): its "Water" disc hidden.
+static func bucket_model() -> Node3D:
 	var root := Node3D.new()
 	root.name = "Bucket"
-	add_child(root)
 	var staves := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 0.15

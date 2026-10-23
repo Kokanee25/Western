@@ -1,0 +1,168 @@
+{
+  "frames": [
+    {
+      "file": "00_rest.png",
+      "name": "rest",
+      "note": "standing still, from the hip",
+      "weapon": "revolver in hand, 5 loaded, hammer down"
+    },
+    {
+      "file": "01_aim.png",
+      "name": "aim",
+      "note": "aiming, settled a second",
+      "weapon": "revolver in hand, 5 loaded, hammer down"
+    },
+    {
+      "file": "02_walk.png",
+      "name": "walk",
+      "note": "walking a second",
+      "weapon": "revolver in hand, 5 loaded, hammer down"
+    },
+    {
+      "file": "03_run.png",
+      "name": "run",
+      "note": "running",
+      "weapon": "revolver in hand, 5 loaded, hammer down"
+    },
+    {
+      "file": "04_cocking.png",
+      "name": "cocking",
+      "note": "a tenth of a second into cocking",
+      "weapon": "revolver in hand, 5 loaded, hammer cocked"
+    },
+    {
+      "file": "05_cocked.png",
+      "name": "cocked",
+      "note": "cocked, ready",
+      "weapon": "revolver in hand, 5 loaded, hammer cocked"
+    },
+    {
+      "file": "06_reload_00.png",
+      "name": "reload_00",
+      "note": "half-cock, open gate",
+      "weapon": "revolver in hand, 0 loaded, hammer half cock"
+    },
+    {
+      "file": "07_reload_01.png",
+      "name": "reload_01",
+      "note": "eject case 1",
+      "weapon": "revolver in hand, 0 loaded, hammer half cock"
+    },
+    {
+      "file": "08_reload_02.png",
+      "name": "reload_02",
+      "note": "load round 1",
+      "weapon": "revolver in hand, 1 loaded, hammer half cock"
+    },
+    {
+      "file": "09_reload_03.png",
+      "name": "reload_03",
+      "note": "turn cylinder to 2",
+      "weapon": "revolver in hand, 1 loaded, hammer half cock"
+    },
+    {
+      "file": "10_reload_04.png",
+      "name": "reload_04",
+      "note": "eject case 2",
+      "weapon": "revolver in hand, 1 loaded, hammer half cock"
+    },
+    {
+      "file": "11_reload_05.png",
+      "name": "reload_05",
+      "note": "load round 2",
+      "weapon": "revolver in hand, 2 loaded, hammer half cock"
+    },
+    {
+      "file": "12_reload_06.png",
+      "name": "reload_06",
+      "note": "turn cylinder to 3",
+      "weapon": "revolver in hand, 2 loaded, hammer half cock"
+    },
+    {
+      "file": "13_reload_07.png",
+      "name": "reload_07",
+      "note": "eject case 3",
+      "weapon": "revolver in hand, 2 loaded, hammer half cock"
+    },
+    {
+      "file": "14_reload_08.png",
+      "name": "reload_08",
+      "note": "load round 3",
+      "weapon": "revolver in hand, 3 loaded, hammer half cock"
+    },
+    {
+      "file": "15_reload_09.png",
+      "name": "reload_09",
+      "note": "turn cylinder to 4",
+      "weapon": "revolver in hand, 3 loaded, hammer half cock"
+    },
+    {
+      "file": "16_reload_10.png",
+      "name": "reload_10",
+      "note": "eject case 4",
+      "weapon": "revolver in hand, 3 loaded, hammer half cock"
+    },
+    {
+      "file": "17_reload_11.png",
+      "name": "reload_11",
+      "note": "load round 4",
+      "weapon": "revolver in hand, 4 loaded, hammer half cock"
+    },
+    {
+      "file": "18_reload_12.png",
+      "name": "reload_12",
+      "note": "turn cylinder to 5",
+      "weapon": "revolver in hand, 4 loaded, hammer half cock"
+    },
+    {
+      "file": "19_reload_13.png",
+      "name": "reload_13",
+      "note": "eject case 5",
+      "weapon": "revolver in hand, 4 loaded, hammer half cock"
+    },
+    {
+      "file": "20_reload_14.png",
+      "name": "reload_14",
+      "note": "load round 5",
+      "weapon": "revolver in hand, 5 loaded, hammer half cock"
+    },
+    {
+      "file": "21_reload_15.png",
+      "name": "reload_15",
+      "note": "turn cylinder to 0",
+      "weapon": "revolver in hand, 5 loaded, hammer half cock"
+    },
+    {
+      "file": "22_reload_16.png",
+      "name": "reload_16",
+      "note": "eject case 0",
+      "weapon": "revolver in hand, 5 loaded, hammer half cock"
+    },
+    {
+      "file": "23_reload_17.png",
+      "name": "reload_17",
+      "note": "load round 0",
+      "weapon": "revolver in hand, 6 loaded, hammer half cock"
+    },
+    {
+      "file": "24_reload_18.png",
+      "name": "reload_18",
+      "note": "close gate",
+      "weapon": "revolver in hand, 6 loaded, hammer down"
+    },
+    {
+      "file": "25_shot.png",
+      "name": "shot",
+      "note": "aimed shot, 80 ms after (the kick's top)",
+      "weapon": "revolver in hand, 5 loaded, hammer down"
+    },
+    {
+      "file": "26_put_away.png",
+      "name": "put_away",
+      "note": "put away, looking down at the hip",
+      "weapon": "revolver put away, 5 loaded, hammer down"
+    }
+  ],
+  "gun": "revolver",
+  "hour": 16.0
+}

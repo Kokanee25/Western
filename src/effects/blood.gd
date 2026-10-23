@@ -206,6 +206,72 @@ static func dry(hours: float) -> void:
 		d.modulate = c
 
 
+## Blood marks on the ground or a floor within `radius` of `at` (splats, pools, prints, smears: not
+## the stains on men), each a Decal on the world's layer near that height.
+static func marks_near(at: Vector3, radius: float) -> Array[Decal]:
+	var out: Array[Decal] = []
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return out
+	for n: Node in tree.get_nodes_in_group(&"blood_drying"):
+		var d := n as Decal
+		if d == null or not d.is_inside_tree() or (d.cull_mask & Layers.WORLD) == 0:
+			continue
+		var p := d.global_position
+		if absf(p.y - at.y) > 0.35:
+			continue
+		var reach := radius + maxf(d.size.x, d.size.z) * 0.5
+		if Vector2(p.x - at.x, p.z - at.z).length() <= reach:
+			out.append(d)
+	return out
+
+
+## Blood near `at` (ml, roughly: a mark without its own measure counts by its area).
+static func amount_near(at: Vector3, radius: float) -> float:
+	var ml := 0.0
+	for d in marks_near(at, radius):
+		ml += _ml_of(d)
+	return ml
+
+
+static func _ml_of(d: Decal) -> float:
+	if d.has_meta(&"ml"):
+		return float(d.get_meta(&"ml"))
+	# A film ~2 mm deep over its area (as splats grow).
+	return d.size.x * d.size.z * PI * 0.25 * 0.002 * 1e6
+
+
+## A mop or a rag over blood: each mark within `radius` of `at` gives up `share` of itself (less as
+## it dries: dried brown it comes up a quarter as well) and shrinks; a mark nearly gone goes. A pool
+## under a man is taken from his pool (HumanBody.mop_pool). Returns the ml taken up.
+static func take(_world: Node, at: Vector3, radius: float, share: float) -> float:
+	var got := 0.0
+	for d in marks_near(at, radius):
+		var age: float = d.get_meta(&"age_h", 0.0)
+		var s := share * lerpf(1.0, 0.25, 1.0 - exp(-age / DRY_HOURS))
+		var ml := _ml_of(d)
+		var taken := ml * s
+		got += taken
+		var owner := d.get_parent()
+		if owner is HumanBody and d.name == "BloodPool":
+			(owner as HumanBody).mop_pool(s)
+			continue
+		if d.has_meta(&"ml"):
+			d.set_meta(&"ml", ml - taken)
+			if ml - taken < 0.15:
+				_splats.erase(d)
+				d.queue_free()
+				continue
+			var keep := sqrt(clampf(1.0 - s, 0.0, 1.0))
+			d.size = Vector3(d.size.x * keep, d.size.y, d.size.z * keep)
+		else:
+			var keep := sqrt(clampf(1.0 - s, 0.0, 1.0))
+			d.size = Vector3(d.size.x * keep, d.size.y, d.size.z * keep)
+			if maxf(d.size.x, d.size.z) < 0.02:
+				d.queue_free()
+	return got
+
+
 static func clear() -> void:
 	for d in _splats:
 		if is_instance_valid(d):

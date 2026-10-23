@@ -267,6 +267,10 @@ transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 14, 0, -7.5)
 [node name="Outlaw" type="Marker3D" parent="DebugSpawns"]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 15, 0, -12.5)
 
+[node name="SpecSaloon" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -64.38, 0.8, 22.5)
+metadata/builds = "res://experiments/building_lab/play.gd"
+
 [node name="Scenery" type="Node3D" parent="."]
 script = ExtResource("9_scenery")
 
