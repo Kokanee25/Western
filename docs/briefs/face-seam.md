@@ -78,6 +78,31 @@ the jaw-crack counter was) makes it a number.
 The hole counter at 0 on every man; Sean's eye on the storekeeper's sheet (rest, `aa`, smile,
 blink, brows up, turned), close and at game distance.
 
+## The check across the men (2026-10-23)
+
+Each man's face edge measured by the face tool as it was when his face was made (before the pin;
+nothing rebuilt in the game; his Studio build remade from an empty store, all nine identical):
+edge points more than 2 mm off his skin, and the worst, by region.
+
+| Man | Forehead | Sides | Jaw and neck |
+|---|---|---|---|
+| bold_cowboy_s3 | 4 of 19, 8.2 mm | 1, 2.0 | **12 of 27, 27.2 mm** |
+| widow_s2 | **10 of 17, 7.5** | 2, 5.7 | **13 of 26, 21.7** |
+| young_drifter_s3 | **7 of 18, 8.7** | 1, 8.3 | **16 of 27, 17.8** |
+| old_rancher_s3 | 0 | 5, 3.8 | 12 of 40, 10.6 |
+| hothead_lyle_s2 | 4 of 18, 10.5 | 0 | 7 of 40, 3.3 |
+| doctor_s2 | 0 | 2, 5.0 | 5 of 26, 8.5 |
+| barkeep_s2 | 1, 3.7 | 0 | 8 of 28, 5.5 |
+| colter_rider_s2 | 3, 4.7 | 0 | 6 of 26, 3.5 |
+| miner_s4 | 0 | 0 | 6 of 27, 3.2 |
+| sean_s3 | 0 | 1, 2.1 | 9 of 40, 3.2 |
+| (storekeeper_s1) | 6 of 18, 4.1 | 1, 2.2 | 17 of 28, 26.6 |
+
+Every man has some; under hats, hair and beards most of it is hidden. Not yet looked at: whether
+the worst (the cowboy, the widow, the drifter) show it under the chin or when he looks up. The
+talking session's note that on the widow, bold_cowboy_s3, young_drifter and the doctor "the jaw
+goes back more than down" names three of these four: the floating jaw edge may be the same fault.
+
 ## Also noticed
 
 `miner_s4_talking.json` reports `facerig.stitch.stitch_points: 0` (the others 109-212): either his
