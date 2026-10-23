@@ -286,7 +286,20 @@ func _update_sway(delta: float) -> void:
 	var breath := t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
 	var shake := (t.tremor + extra_spread * 0.12) * scale
 	var s := sway_model.step(delta, amp, breath, t.breath_rate, 1.0 + winded * 1.5, shake)
-	sway = Vector2.ZERO if steady_hands else s
+	# The body carries the gun too: it lags your turns and rides your steps (PlayerMotion).
+	var body := _player.motion.hand_turn if _player else Vector2.ZERO
+	sway = Vector2.ZERO if steady_hands else s + body
+
+
+## Where the body has pushed the gun off its pose this frame (m: the steps, a landing, a push off).
+func _body_pos() -> Vector3:
+	return _player.motion.hand_pos if _player and not steady_hands else Vector3.ZERO
+
+
+## The body's turn of what's in your hands, for a held thing that doesn't sway (degrees).
+func _body_rotation() -> Vector3:
+	var turn := _player.motion.hand_turn if _player and not steady_hands else Vector2.ZERO
+	return Vector3(turn.y, -turn.x, 0.0)
 
 
 ## A flinch: the gun jerks off line (degrees), then comes back.
@@ -365,5 +378,5 @@ func _animate_camera(delta: float, aim_fov: float) -> void:
 		if _climb_left < 0.01:
 			give = _climb_left
 		_climb_left -= give
-		_player.add_look(Vector2(0.0, give))
+		_player.add_look(Vector2(0.0, give), false)
 	cam.fov = lerpf(cam.fov, aim_fov if aiming else _base_fov, 1.0 - exp(-delta * 10.0))

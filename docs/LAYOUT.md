@@ -335,6 +335,15 @@ a few views renders them as the full run does.
 
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`),
   `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
+- `PlayerMotion` (`player_motion.gd`): how the body carries the eyes and the gun, stepped by the
+  Player each physics frame: steps (a footfall each: the footstep sound and noise, the head's low
+  and thud, the legs), lean into strafes, turns and pushes off, a landing's dip, the crouch's
+  spring, a winded heave; the gun's lag and step ride (`hand_turn` joins the sway, `hand_pos` the
+  pose: `WeaponViewmodel._body_pos()`). Momentum is `Player._momentum` (along the way: accel,
+  `run_build`, decel, `reverse_decel`; across it `turn_grip`). Presets `config/movement/light|middle|
+  heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
+  (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
+  `experiments/movement_feel/` (measure, films).
 
 ## src/world
 

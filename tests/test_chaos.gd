@@ -85,11 +85,12 @@ func _check_world(t: float) -> void:
 			continue
 		var p := node.global_position
 		if not (is_finite(p.x) and is_finite(p.y) and is_finite(p.z)):
-			_problem("%.1f s: %s isn't anywhere (%s)" % [t, node.name, p])
+			_problem("%.1f s: %s isn't anywhere (%s; %s, groups %s)" % [t, node.name, p, String(node.get_parent().name) if node.get_parent() else "-", str(node.get_groups())])
 		elif p.y < FLOOR_Y and not (node is StaticBody3D):
 			_problem("%.1f s: %s under the ground (y %.1f)" % [t, node.get_path(), p.y])
 		elif Vector2(p.x, p.z).length() > MAP_RADIUS:
-			_problem("%.1f s: %s flung off the map (%s)" % [t, node.name, p])
+			_problem("%.1f s: %s flung off the map (%s; %s, groups %s, %.0f kg)" % [t, node.name, p, String(node.get_parent().name) if node.get_parent() else "-",
+					str(node.get_groups()), (node as RigidBody3D).mass if node is RigidBody3D else 0.0])
 	for n in get_tree().get_nodes_in_group(&"people"):
 		var man := n as HumanBody
 		if man == null or man.physiology == null:

@@ -48,6 +48,10 @@ func _ready() -> void:
 		definition = PropKit.definition(kit_id)
 	add_to_group(&"mops")
 	_build()
+	# Its strands are pinned to the handle and moved there every tick: to Jolt, points of no give.
+	# A body falling into them (rubble, shards) takes an impulse it can't settle: NaN, or flung off
+	# the map (test_chaos, seed 97). What falls passes through the head; it lies on the world.
+	PinnedSoft.keep_clear(head, self)
 
 
 func length() -> float:
