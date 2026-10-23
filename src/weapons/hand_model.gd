@@ -45,6 +45,9 @@ func _build() -> void:
 	add_child(held)
 	held.build()
 	held.aim_forearm(FOREARM)
+	# The arm bends at the elbow from your right shoulder (HeldHand.shoulder).
+	held.shoulder = ShotgunViewmodel.SHOULDER_R
+	held.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R
 	for f: String in GRIP:
 		held.grasp(f, GRIP[f])
 	for f: String in held.fingers:

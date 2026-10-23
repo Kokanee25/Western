@@ -57,6 +57,13 @@ const L_FOREARM := Vector3(-0.7, -0.5, 0.6)
 const L_GRIP := {"index": 10.0, "middle": 51.0, "ring": 55.0, "little": 65.0}
 const L_THUMB := [Vector3(-36.0, 60.0, 48.0), 45.0, 40.0]
 
+## Your shoulders, in the camera's space (a hand's width below and behind your eyes, a shoulder's
+## half-width out), and which way each elbow drops (down and out).
+const SHOULDER_R := Vector3(0.19, -0.2, 0.07)
+const SHOULDER_L := Vector3(-0.19, -0.2, 0.07)
+const ELBOW_POLE_R := Vector3(0.5, -1.0, 0.2)
+const ELBOW_POLE_L := Vector3(-0.5, -1.0, 0.2)
+
 @export var tuning: ShotgunTuning
 
 var state: ShotgunState
@@ -106,6 +113,11 @@ func _build_hands() -> void:
 	for f: String in R_GRIP:
 		hand.grasp(f, R_GRIP[f])
 	left_hand = _held_along(false, model.barrels, L_HAND_POS, L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
+	# Both arms bend at the elbow from your shoulders (HeldHand.shoulder: the camera's space).
+	hand.shoulder = SHOULDER_R
+	hand.elbow_pole = ELBOW_POLE_R
+	left_hand.shoulder = SHOULDER_L
+	left_hand.elbow_pole = ELBOW_POLE_L
 	for f: String in L_GRIP:
 		left_hand.grasp(f, L_GRIP[f])
 	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])

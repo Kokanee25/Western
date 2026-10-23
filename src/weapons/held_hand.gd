@@ -29,6 +29,12 @@ var lengths := {}
 var wrist: Node3D
 ## The skinned arm (null where the man's model can't be loaded: the pivots still pose).
 var mesh: MeshInstance3D
+## Where this arm's shoulder is, in the space of the camera the hand hangs under (the player's):
+## when set, the arm is two bones from the shoulder to the wrist with the elbow between, solved
+## each frame (the elbow towards `elbow_pole`, a direction in the same space), not a straight rod
+## from the wrist. Unset (or with no camera above it) the forearm follows `wrist`'s aim.
+var shoulder := Vector3.ZERO
+var elbow_pole := Vector3(0.0, -1.0, 0.0)
 
 var _skeleton: Skeleton3D
 var _src: Dictionary
@@ -227,12 +233,53 @@ func _pose() -> void:
 	var side := "r" if right else "l"
 	var rests: Dictionary = _src.rests
 	var w: Vector3 = wrist.position
+	if shoulder != Vector3.ZERO and _arm_to_shoulder(inv, side, rests, w):
+		return
 	var turn := Basis(Quaternion(_src.forearm_dir as Vector3, wrist.basis.z.normalized()))
 	var about := Transform3D(Basis.IDENTITY, w) * Transform3D(turn, Vector3.ZERO) * Transform3D(Basis.IDENTITY, -w)
 	for bn: String in ["upper_arm_" + side, "forearm_" + side]:
 		var i := _skeleton.find_bone(bn)
 		if i >= 0:
 			_skeleton.set_bone_pose(i, about * (rests[bn] as Transform3D))
+
+
+## The arm as two bones from the shoulder (in the camera above's space) to the wrist: the elbow
+## where the forearm's and upper arm's lengths meet, bent towards `elbow_pole`; each bone swung from
+## its rest to its new line (the twist left as the man's own). Out of reach, the arm points
+## straight at the shoulder. False where there's no camera above.
+func _arm_to_shoulder(inv: Transform3D, side: String, rests: Dictionary, w: Vector3) -> bool:
+	var cam: Node = get_parent()
+	while cam != null and not cam is Camera3D:
+		cam = cam.get_parent()
+	if cam == null:
+		return false
+	var cxf := (cam as Camera3D).global_transform
+	var s := inv * (cxf * shoulder)
+	var pole := (inv.basis * (cxf.basis * elbow_pole)).normalized()
+	var r_up: Transform3D = rests["upper_arm_" + side]
+	var r_fo: Transform3D = rests["forearm_" + side]
+	var r_ha: Transform3D = rests["hand_" + side]
+	var l1 := r_fo.origin.distance_to(r_ha.origin)   # elbow to wrist
+	var l2 := r_up.origin.distance_to(r_fo.origin)   # shoulder to elbow
+	var to_s := s - w
+	var reach := to_s.length()
+	var n := to_s / maxf(reach, 0.0001)
+	var d := clampf(reach, absf(l1 - l2) + 0.001, l1 + l2 - 0.001)
+	var a := (l1 * l1 - l2 * l2 + d * d) / (2.0 * d)
+	var h := sqrt(maxf(l1 * l1 - a * a, 0.0))
+	var perp := pole - n * pole.dot(n)
+	perp = perp.normalized() if perp.length() > 0.0001 else Vector3.DOWN
+	var e := w + n * a + perp * h
+	var s_used := w + n * d
+	var q_fo := Quaternion((r_ha.origin - r_fo.origin).normalized(), (w - e).normalized())
+	var q_up := Quaternion((r_fo.origin - r_up.origin).normalized(), (e - s_used).normalized())
+	var i_fo := _skeleton.find_bone("forearm_" + side)
+	var i_up := _skeleton.find_bone("upper_arm_" + side)
+	if i_fo >= 0:
+		_skeleton.set_bone_pose(i_fo, Transform3D(Basis(q_fo) * r_fo.basis, e))
+	if i_up >= 0:
+		_skeleton.set_bone_pose(i_up, Transform3D(Basis(q_up) * r_up.basis, s_used))
+	return true
 
 
 ## The man's arm cut out of his model at the shoulder, in hand space (see the class notes): its
