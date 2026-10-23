@@ -150,6 +150,9 @@ func _material() -> StandardMaterial3D:
 	if _image.is_compressed():
 		_image.decompress()
 	_image.convert(Image.FORMAT_RGBA8)
+	if factory:
+		hem(_image, rng_seed)  # the painted cloth is its weave and stains; its edges are drawn here
+	stripes(_image, definition)
 	_tex = ImageTexture.create_from_image(_image)
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = _tex
@@ -191,13 +194,10 @@ static func paint(def: Dictionary, seed_value: int) -> Image:
 			var s := blot.get_noise_2d(x, y)
 			if s > 0.18:
 				col = col.lerp(stain, clampf((s - 0.18) * 3.0, 0.0, 0.55))
-			var edge := mini(mini(x, w - 1 - x), mini(y, h - 1 - y))
-			if edge < 2:
-				col = col.darkened(0.12 if edge == 0 else 0.06)  # the hem
-				if edge == 0 and rng.randf() < 0.25:
-					col = col.darkened(0.2)  # frayed
 			img.set_pixel(x, y, col)
+	hem(img, seed_value)
 	# A few grease spots.
+	rng.seed = seed_value + 2
 	for i in 5:
 		var px := rng.randi_range(4, w - 5)
 		var py := rng.randi_range(4, h - 5)
@@ -207,6 +207,48 @@ static func paint(def: Dictionary, seed_value: int) -> Image:
 				if dx * dx + dy * dy <= r * r:
 					img.set_pixel(px + dx, py + dy, img.get_pixel(px + dx, py + dy).lerp(stain.darkened(0.3), 0.45))
 	return img
+
+
+## Its hemmed edge a shade darker, frayed here and there (on the code's cloth and the factory's).
+static func hem(img: Image, seed_value: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var w := img.get_width()
+	var h := img.get_height()
+	for y in h:
+		for x in w:
+			var edge := mini(mini(x, w - 1 - x), mini(y, h - 1 - y))
+			if edge >= 2:
+				continue
+			var col := img.get_pixel(x, y).darkened(0.12 if edge == 0 else 0.06)
+			if edge == 0 and rng.randf() < 0.25:
+				col = col.darkened(0.2)  # frayed
+			img.set_pixel(x, y, col)
+
+
+## A bar towel's woven stripes (Sean, 2026-10-23: so it isn't his shirt's white): a band of `stripe`
+## colour `stripe_width` metres wide at each of `stripe_at` (shares of its breadth from an edge),
+## along its length, the cloth's own light and stains kept under it.
+static func stripes(img: Image, def: Dictionary) -> void:
+	var sc: Array = def.get("stripe", [])
+	if sc.size() < 3:
+		return
+	var stripe := Color(sc[0], sc[1], sc[2])
+	var sz: Array = def.get("size", [0.4, 0.3])
+	var h := img.get_height()
+	var half := maxf(float(def.get("stripe_width", 0.012)) / float(sz[1]) * h * 0.5, 0.5)
+	var base := Color(1, 1, 1)
+	var c: Array = def.get("colour", [0.86, 0.83, 0.75])
+	base = Color(c[0], c[1], c[2])
+	for at: float in def.get("stripe_at", [0.15, 0.85]):
+		var mid := at * (h - 1)
+		for y in range(maxi(int(floor(mid - half)), 0), mini(int(ceil(mid + half)), h - 1) + 1):
+			var cover := clampf(half + 0.5 - absf(y - mid), 0.0, 1.0)
+			for x in img.get_width():
+				var col := img.get_pixel(x, y)
+				# The thread dyed: its own shade carried over (a stain darkens the stripe too).
+				var shade := clampf(col.get_luminance() / maxf(base.get_luminance(), 0.05), 0.0, 1.3)
+				img.set_pixel(x, y, col.lerp(Color(stripe.r * shade, stripe.g * shade, stripe.b * shade), cover * 0.9))
 
 
 # --- Where it is ---------------------------------------------------------------------------------

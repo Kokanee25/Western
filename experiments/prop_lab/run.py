@@ -41,8 +41,8 @@ def run_one(name, out, render):
 
 
 def table(root):
-    rows = ["| scenario | broke | loose | pieces (farthest) | fire | man | lamp | faults | frame ms (event / settle) |",
-            "|---|---|---|---|---|---|---|---|---|"]
+    rows = ["| scenario | broke | loose | pieces (farthest) | fire | man | lamp | held / loose props | faults | frame ms (event / settle) |",
+            "|---|---|---|---|---|---|---|---|---|---|"]
     for name in scenarios():
         p = os.path.join(root, name, "summary.json")
         if not os.path.exists(p):
@@ -63,10 +63,20 @@ def table(root):
         lamp = "-"
         if "lamp" in s:
             lamp = "smashed, %d spill" % s["lamp"]["spills"] if s["lamp"]["smashed"] else "whole"
+        held = []
+        if "contents" in s:
+            c = s["contents"]
+            held.append("%s: %.1f of %.0f l out%s%s" % (c["liquid"], c["out_l"], c["capacity_l"],
+                        ", all at once" if c["released"] else "", ", %d leak(s) (%d slot)" % (c["leaks"], c["slots"]) if c["leaks"] else ""))
+        for g in s.get("glass", []):
+            if "dents" in g and (g["loose"] or g["holes"] or g["dents"]):
+                held.append("%s: %d holes, %d dents, %.2f m%s%s" % (g["id"], g["holes"], g["dents"], g["moved_m"],
+                            ", over" if not g["upright"] else "", ", spilt" if g["spilt"] else ""))
+        held = "; ".join(held) or "-"
         faults = ", ".join("%s %d" % (k, v) for k, v in s["faults"].items() if v) or "none"
         fr = s["frame"]
-        rows.append("| %s | %s | %s | %d (%.1f m) | %s | %s | %s | %s | %.1f / %.1f |" % (
-            name, broke, over, s["pieces"], s["farthest_m"], fire, man, lamp, faults, fr["event_ms"], fr["settle_ms"]))
+        rows.append("| %s | %s | %s | %d (%.1f m) | %s | %s | %s | %s | %s | %.1f / %.1f |" % (
+            name, broke, over, s["pieces"], s["farthest_m"], fire, man, lamp, held, faults, fr["event_ms"], fr["settle_ms"]))
     out = "\n".join(rows) + "\n"
     with open(os.path.join(root, "table.md"), "w") as f:
         f.write(out)

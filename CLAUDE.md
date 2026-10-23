@@ -451,11 +451,11 @@ frozen until Sean names one.
   (bands and a broadphase in Structure, the Stair, wall and floor parts, a ground with a hole), then 4.3.
 - **The barkeep's rag and mopping** (2026-10-22, with the prop lab's leave; briefs
   `docs/briefs/barkeep-rag.md`, `mopping.md`; labs `experiments/barkeep_rag/`, `mopping/`): the rag
-  merged (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
-  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`. Mopping
-  (`claude/gameplay-mopping`): `FloorMarks` (tracked mud, wet patches, stains), `MopProp`,
-  `MopBucket`, `MopFloor` (chores: `CivilianBrain.chores`). Waiting on Sean: both films (in the
-  PRs), the rag's paint cost (#258). Next: the water lab's spills on FloorMarks' grid.
+  (#260, build 2128): `ClothProp` (a Jolt soft body; Jolt doesn't hold pinned points, the prop moves
+  them), `WipeBar`, `HumanBody.reach_to`, `FireSystem.small_fire`, `FaceLife.attend_to`; its cloth
+  painted (#258; factory `bar_cloth`, reduce.py `whole`). Mopping (#282, build 2165): `FloorMarks`
+  (tracked mud, wet patches, stains), `MopProp`, `MopBucket`, `MopFloor` (`CivilianBrain.chores`).
+  Waiting on Sean: both films (in the PRs). Next: issue #293.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -525,9 +525,11 @@ frozen until Sean names one.
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
-  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
-  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
-  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
-  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
-  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).
+  `PropKit`/`KitProp`/`GlassProp`/`LooseProp`): every one of the 12 drawn props in the game as the
+  kit's (#232, #280); the wall props hung on nails; the fixtures fitted to their place; the piano.
+  **What the props hold** (2026-10-23, branch `claude/prop-lab-contents`, issue #281): `PropContents`
+  (full barrels: their weight, leaks by Torricelli, slots, jets, spills on the bus, oil catching;
+  kit files `like` another: `whiskey_barrel`, `water_barrel`, `oil_barrel`), the saloon's two whiskey
+  barrels and the street's water ones; the spittoon and tin cup as `LooseProp` (holed, knocked,
+  dented, rolling, spilling). Results `experiments/prop_lab/results/2026-10-23_contents/`. Next: the
+  `next session` issue.
