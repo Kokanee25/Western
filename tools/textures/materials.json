@@ -665,6 +665,46 @@
    "about": "The barkeep's bar rag (ClothProp, assets/props/kit/bar_cloth.json; gameplay with the prop lab's leave, Sean's OK on #258, up to $0.30): its cloth painted in the Studio men's hand; ClothProp lays it over the whole rag and draws its hem, fraying, blood and burns on it in code.",
    "lightness": 0.72,
    "chroma": 0.8
+  },
+  "gun_blued": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "ref": [
+    "street",
+    1180,
+    590,
+    1370,
+    750
+   ],
+   "smooth": true,
+   "texels_per_metre": 512,
+   "about": "The gun lab's guns, painted in the men's hand (issue #274, Sean 2026-10-22 #249: 'spend the cash to draw'): smooth, its own colours, 512 a metre like the walnut; GunParts asks for it by this key.",
+   "what": "the worn blued steel of an old revolver's barrel and cylinder seen close: deep blue-black steel with a soft blue-grey sheen, the bluing worn through to bright silver-grey steel in streaks and patches where hands and a holster rub it, fine scratches running lengthwise, a little brown freckling of rust"
+  },
+  "gun_case": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "ref": [
+    "street",
+    1180,
+    590,
+    1370,
+    750
+   ],
+   "smooth": true,
+   "texels_per_metre": 512,
+   "about": "The gun lab's guns, painted in the men's hand (issue #274, Sean 2026-10-22 #249: 'spend the cash to draw'): smooth, its own colours, 512 a metre like the walnut; GunParts asks for it by this key.",
+   "what": "the case-hardened steel frame of an old revolver seen close: mottled case colours in soft swirling patches, deep blue, purple-plum and pale straw-gold over silver-grey steel, the colours faded and worn to grey where it is handled, fine scratches, a soft sheen"
   }
  }
 }
