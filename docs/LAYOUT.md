@@ -542,7 +542,10 @@ a few views renders them as the full run does.
   B the hand, the reaction and the town's cover, C shaken too, D fights that commit (`D_FIXES`:
   noise is `fright`, fading, at most a share of his nerve; aimed at frightens only before a fight;
   a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
-  a green man's quitting barely counts; the long way round to cover; `_thump`); `fear_from`, his
+  a green man's quitting barely counts; the long way round to cover; `_thump`; knocked down he
+  gets up; hunting, rescuing and pressing by the town's ways; no standing down while a friend's
+  on you; a knee in the open under fire; one man `press`es on your reload, the rest cover him);
+  `fear_from`, his
   fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto

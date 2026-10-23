@@ -344,7 +344,9 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   you shooting first, A → D, someone quits in 98% → 88% of fights, the first at 1.4 → 3.8 s,
   2.3 → 1.4 quits a fight, the shooting 3.5 → 15.3 s (20 s+: 12% → 38%); Brody quits 76% → 38%,
   Lyle 78% → 32%, the Kid 80% → 72% and first to go. 45–90 s of shooting is still rare (4–12%):
-  hits decide it now.
+  hits decide it now. The night's round (four more fixes: rescue and pressing by the town's ways,
+  staying in while a friend's on you, a knee under fire, one man pressing on your reload; two tried
+  and dropped): 45–90 s of shooting 4% → 14% when you shoot first, 12% → 16% when they do.
 
 ## Limitations
 

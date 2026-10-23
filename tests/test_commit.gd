@@ -163,3 +163,43 @@ func test_a_steady_man_takes_a_ball_better_than_a_green_one() -> void:
 	await _gang()
 	check(_brain(&"brody")._thump() < 0.55, "Brody feels half the thump (%.2f)" % _brain(&"brody")._thump())
 	check(_brain(&"kid")._thump() > 0.8, "the Kid nearly all of it (%.2f)" % _brain(&"kid")._thump())
+
+
+func test_one_comes_at_you_when_you_reload_and_the_rest_cover_him() -> void:
+	await _gang()
+	(player.revolver() as RevolverViewmodel).state.gate_open = true  # the gate open: reloading
+	var went := await wait_until(func() -> bool:
+		return men.keys().any(func(id: StringName) -> bool: return _brain(id)._press > 0.0), 60 * 3)
+	check(went, "one of them comes at you (%s)" % " | ".join(men.keys().map(func(id: StringName) -> String: return _brain(id).decision)))
+	await physics_frames(10)
+	var pressing: Array = men.keys().filter(func(id: StringName) -> bool: return _brain(id)._press > 0.0)
+	check_eq(pressing.size(), 1, "just the one (%s)" % str(pressing))
+	check(calls.any(func(c: Dictionary) -> bool: return c.kind == &"press"), "and he calls it: %s" % str(calls.slice(-4)))
+	(player.revolver() as RevolverViewmodel).state.gate_open = false
+
+
+func test_in_the_open_under_fire_he_fights_from_a_knee() -> void:
+	await _gang()
+	await physics_frames(30)  # each man's taken it in and drawn
+	var lyle := _brain(&"lyle")
+	lyle.tactic = OutlawBrain.Tactic.OPEN
+	lyle._stand_and_fight = true  # no running for cover in this one
+	lyle._quiet = 0.0
+	await physics_frames(2)
+	check_eq((men[&"lyle"] as HumanBody).pose, &"crouch_aim", "down on a knee, fighting")
+	lyle._quiet = OutlawBrain.GO_LOW_QUIET + 1.0
+	await physics_frames(2)
+	lyle._quiet = OutlawBrain.GO_LOW_QUIET + 1.0
+	await physics_frames(1)
+	check_eq((men[&"lyle"] as HumanBody).pose, &"aim", "up again once you've stopped shooting")
+
+
+func test_a_friend_still_on_you_keeps_him_in_it() -> void:
+	await _gang()
+	await physics_frames(30)
+	var on := _brain(&"kid")._mate_on(player)
+	check(on != null, "the Kid knows a friend's still on you (%s)" % (on.body.name if on else "nobody"))
+	for id: StringName in [&"brody", &"lyle"]:
+		(men[id] as HumanBody).go_limp()
+	await physics_frames(5)
+	check(_brain(&"kid")._mate_on(player) == null, "with them down, nobody is")
