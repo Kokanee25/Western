@@ -90,6 +90,8 @@ func _check_world(t: float) -> void:
 			_problem("%.1f s: %s under the ground (y %.1f)" % [t, node.get_path(), p.y])
 		elif Vector2(p.x, p.z).length() > MAP_RADIUS:
 			_problem("%.1f s: %s flung off the map (%s)" % [t, node.name, p])
+			if node is RigidBody3D:
+				print("DBGFLUNG ", node.get_path(), " mass ", (node as RigidBody3D).mass, " v ", (node as RigidBody3D).linear_velocity, " members ", node.get_meta(&"members", []), " children ", node.get_children().map(func(c): return c.name))
 	for n in get_tree().get_nodes_in_group(&"people"):
 		var man := n as HumanBody
 		if man == null or man.physiology == null:
@@ -132,7 +134,7 @@ func _digest(happened: Array[String]) -> Dictionary:
 
 
 func test_the_world_survives_chaos() -> void:
-	var d := await _chaos(1873)
+	var d := await _chaos(int(OS.get_environment("CHAOS_SEED")) if OS.get_environment("CHAOS_SEED") != "" else 1873)
 	check(_problems.is_empty(), "no broken invariants: %s" % "; ".join(_problems))
 	check(d.log.size() >= 6, "plenty happened (%s)" % ", ".join(d.log))
 	check(not d.broken.is_empty(), "timber broke (%d members)" % d.broken.size())
