@@ -458,7 +458,7 @@ func _follow() -> void:
 	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - 1.1)
 	var space := m.get_world_3d().direct_space_state
 	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
-	q.exclude = [m.get_rid()] + m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
 	var hit := space.intersect_ray(q)
 	var at := chest + to
 	if not hit.is_empty():
