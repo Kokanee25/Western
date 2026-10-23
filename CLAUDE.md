@@ -496,12 +496,9 @@ frozen until Sean names one.
   `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
   (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
-  ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
-  painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
-  fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
-  skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
-  Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
-  `results/2026-10-21_gore_lab/`.
+  ear, the nose or the jaw shot off (#215, build 1980); painted face wounds, the sling, singed hair,
+  and bullet holes as real ones are (#241, build 2169). Ten wounded men are 2.9 ms at Sean's (was
+  1.65; worst frames over). Paint $4.40 left of Sean's $7. Next: issue #298. Sean's calls: #220.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
