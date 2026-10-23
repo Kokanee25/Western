@@ -1,0 +1,4 @@
+Initialize godot-rust (API v4.7.stable.official, runtime v4.7.2.stable.official, safeguards balanced)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{"caught":[],"consumed":[],"consumed_t":[],"contents":{"capacity_l":168.7,"fire_spills":0,"first_l_per_s":0.0,"leaks":0,"left_l":168.73,"liquid":"whiskey","on_bus_l":0.0,"out_l":0.0,"released":false,"slots":0},"farthest_m":0.0,"faults":{"below_ground":0,"flung":0,"part_fast":0,"sunk":0},"fingerprint":5863005,"frame":{"added_ms_first_1s":0.0,"before_ms":0.02,"event_ms":0.13,"settle_ms":0.04},"kick":"held","loose":false,"loose_t":null,"max_piece_speed":0.0,"members":20,"pieces":0,"prop":"whiskey_barrel","scenario":"whiskey_kick","snapped":[],"upright":true}

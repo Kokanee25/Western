@@ -1,0 +1,63 @@
+{
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 0.0,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 5863005,
+  "fire_spills": 0,
+  "frame": {
+    "added_ms_first_1s": 9.09,
+    "before_ms": 0.02,
+    "event_ms": 515.51,
+    "settle_ms": 0.82
+  },
+  "glass": [
+    {
+      "broken": false,
+      "dents": 0,
+      "holes": 0,
+      "id": "spittoon",
+      "loose": false,
+      "moved_m": 0.0,
+      "spilt": false,
+      "upright": true
+    },
+    {
+      "broken": false,
+      "dents": 0,
+      "holes": 0,
+      "id": "tin_cup",
+      "loose": false,
+      "moved_m": 0.0,
+      "spilt": false,
+      "upright": true
+    },
+    {
+      "broken": false,
+      "dents": 0,
+      "holes": 0,
+      "id": "tin_cup",
+      "loose": false,
+      "moved_m": 0.0,
+      "spilt": false,
+      "upright": true
+    }
+  ],
+  "loose": false,
+  "loose_t": null,
+  "max_piece_speed": 0.0,
+  "members": 20,
+  "pieces": 0,
+  "prop": "card_table",
+  "scenario": "cups_dynamite_6m",
+  "shards": 0,
+  "snapped": [],
+  "spilled": [],
+  "upright": true
+}

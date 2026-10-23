@@ -1,0 +1,6 @@
+Initialize godot-rust (API v4.7.stable.official, runtime v4.7.2.stable.official, safeguards balanced)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{"caught":[],"consumed":[],"consumed_t":[],"contents":{"capacity_l":168.7,"fire_spills":0,"first_l_per_s":88.93,"leaks":1,"left_l":3.73,"liquid":"whiskey","on_bus_l":164.91,"out_l":165.0,"released":false,"slots":1},"farthest_m":0.51,"faults":{"below_ground":0,"flung":0,"part_fast":0,"sunk":0},"fingerprint":3965814312,"frame":{"added_ms_first_1s":0.88,"before_ms":0.03,"event_ms":20.97,"settle_ms":2.76},"hits":[{"j_in":234.0,"through":false,"what":"stave10"},{"j_in":246.0,"through":false,"what":"stave9"},{"j_in":240.0,"through":false,"what":"stave10"},{"j_in":235.0,"through":false,"what":"stave10"},{"j_in":241.0,"through":false,"what":"stave10"},{"j_in":224.0,"through":false,"what":"stave10"},{"j_in":237.0,"through":false,"what":"stave10"},{"j_in":247.0,"through":false,"what":"stave10"},{"j_in":239.0,"through":false,"what":"stave10"}],"loose":false,"loose_t":null,"max_piece_speed":2.6,"members":20,"pieces":2,"prop":"whiskey_barrel","scenario":"whiskey_shotgun_5m","snapped":["stave10"],"upright":false}
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
