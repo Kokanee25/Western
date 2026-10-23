@@ -19,7 +19,7 @@ const HELP := {
 	"gf_aim": "gf_aim NAME SEGMENT -> turn to face that part of him (upper_arm_l, thigh_r, chest...): a shot there, for a film",
 	"gf_hit": "gf_hit NAME SEGMENT -> a revolver ball from your eye straight at that part of him (the lab's sure shot, for a film: no sway, no spread)",
 	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
-	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera DIST m (3) from him, DEG (40) round from his front, HEIGHT m (1.5) up, on his chest; `camera player` to come back",
+	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -426,16 +426,48 @@ func _cmd_gf_watch(a: Array) -> Dictionary:
 	var m := person(a[0]) if a.size() >= 1 else null
 	if m == null:
 		return {"ok": false, "error": HELP.gf_watch}
-	var dist := float(a[1]) if a.size() > 1 else 3.0
-	var deg := float(a[2]) if a.size() > 2 else 40.0
-	var h := float(a[3]) if a.size() > 3 else 1.5
-	var front := (-m.global_basis.z).rotated(Vector3.UP, deg_to_rad(deg))
-	var chest := m.global_position + Vector3.UP * 1.2
-	var at := m.global_position + front * dist + Vector3.UP * h
+	_watch = {"man": m, "dist": float(a[1]) if a.size() > 1 else 3.0, "deg": float(a[2]) if a.size() > 2 else 40.0,
+			"h": float(a[3]) if a.size() > 3 else 1.5, "fov": a[4] if a.size() > 4 else ""}
+	_follow()
+	await physics_frames(1)
+	return {"watching": a[0]}
+
+
+## The film camera (gf_watch): each frame from the side of him away from you, DEG round from there,
+## pulled in short of whatever's between, on his chest. `camera player` (the bridge's) ends it.
+var _watch := {}
+
+
+func _physics_process(_delta: float) -> void:
+	if not _watch.is_empty():
+		if bridge._free_camera == null and _watch.get("placed", false):
+			_watch = {}
+			return
+		_follow()
+
+
+func _follow() -> void:
+	var m := _watch.man as HumanBody
+	if not is_instance_valid(m):
+		_watch = {}
+		return
+	var chest := m.global_position + Vector3.UP * 1.1
+	var away := m.global_position - player.global_position
+	away.y = 0.0
+	away = away.normalized() if away.length() > 0.1 else -m.global_basis.z
+	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - 1.1)
+	var space := m.get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
+	q.exclude = [m.get_rid()] + m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	var hit := space.intersect_ray(q)
+	var at := chest + to
+	if not hit.is_empty():
+		at = chest + to.normalized() * maxf(chest.distance_to(hit.position) - 0.2, 0.5)
 	var args := [at.x, at.y, at.z, chest.x, chest.y, chest.z]
-	if a.size() > 4:
-		args.append(a[4])
-	return await bridge._cmd_camera(args.map(func(v: Variant) -> String: return str(v)))
+	if str(_watch.fov) != "":
+		args.append(_watch.fov)
+	bridge._cmd_camera(args.map(func(v: Variant) -> String: return str(v)))
+	_watch.placed = true
 
 
 func _cmd_gf_hit(a: Array) -> Dictionary:
