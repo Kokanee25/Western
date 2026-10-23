@@ -27,7 +27,7 @@ func test_the_grade() -> void:
 
 
 func test_each_look_sets_known_addresses() -> void:
-	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building"]
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global"]
 	for f: String in LightLooks.FILES:
 		var preset := LookPreset.load_file(f)
 		check(not preset.is_empty(), "%s reads" % f)
@@ -44,6 +44,9 @@ func test_each_look_sets_known_addresses() -> void:
 
 func test_the_key_cycles_and_today_puts_back() -> void:
 	check(InputMap.has_action(&"light_look"), "8 is bound")
+	# A test that ran the main scene leaves the game's light in the statics: start from none.
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
 	LookPreset.defaults.clear()
 	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
 	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)

@@ -33,6 +33,8 @@ func _ready() -> void:
 			if a.begins_with("--light-look="):
 				current = maxi(0, ARG_NAMES.find(a.substr(13).to_lower()))
 	pick.call_deferred(get_tree(), current)
+	# A jump of the clock (7, the bridge's `time`, the screenshots' views) re-blends on the next frame.
+	Events.hour_changed.connect(func(_h: int) -> void: _since = CHECK_SECONDS)
 
 
 func _process(delta: float) -> void:
@@ -110,7 +112,7 @@ static func blend(tree: SceneTree, t: float) -> void:
 				k = 0.0
 		if a.begins_with("grade."):
 			k = roundf(k * steps) / steps  # each step a lookup of its own, built once
-		var base: Variant = LookPreset.defaults.get(a, LookPreset.get_value(tree, a))
+		var base: Variant = LookPreset.defaults[a] if LookPreset.defaults.has(a) else LookPreset.get_value(tree, a)
 		var from: Variant = day.get(a, base)
 		var to: Variant = night.get(a, base)
 		if from == null or to == null:

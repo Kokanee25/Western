@@ -30,7 +30,7 @@ const BUILDINGS := [
 			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"store_boards",
 			"facade": "store"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
-			"front_wood": &"painted_rust", "facade": "store"}],
+			"front_wood": &"painted_red", "facade": "store"}],
 	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL", "facade": "store"}],
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
@@ -102,6 +102,9 @@ func _ready() -> void:
 	var prints := RoadPrints.new()
 	prints.name = "RoadPrints"
 	add_child(prints)
+	var wear := StreetWear.new()  # damp by the troughs and rails, straw, droppings (the light pass)
+	wear.name = "StreetWear"
+	add_child(wear)
 
 
 func _buildings() -> void:

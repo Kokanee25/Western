@@ -35,6 +35,8 @@ const LAMP_PROPS := ["energy", "light_range", "haze", "attenuation"]
 static var defaults := {}
 ## The lamp multipliers in force (they aren't a property anywhere to read back).
 static var _lamp_scale := {}
+## Shader globals set this run (read back from here: the renderer's own read is slow).
+static var _globals := {}
 
 
 ## Set one value by its address. False if the address names nothing in this scene.
@@ -62,6 +64,7 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 				settings.emit_signal(&"changed")
 		"global":
 			RenderingServer.global_shader_parameter_set(StringName(key), v)
+			_globals[key] = v
 		"env":
 			environment(tree).set(key, v)
 		"day":
@@ -125,7 +128,11 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 		"global":
 			if not ProjectSettings.has_setting("shader_globals/" + key):
 				return null
-			var g: Variant = RenderingServer.global_shader_parameter_get(StringName(key))
+			if _globals.has(key):
+				return _globals[key]
+			# Not global_shader_parameter_get: it waits on the render thread ("should never be used
+			# outside the editor") and the light looks read these while blending.
+			var g: Variant = null
 			# The headless renderer keeps no globals: project.godot's value then.
 			return g if g != null else (ProjectSettings.get_setting("shader_globals/" + key) as Dictionary).get("value")
 		"env":
@@ -382,6 +389,9 @@ static func _typed(value: Variant, like: Variant) -> Variant:
 		return Color(a[0], a[1], a[2], a[3] if a.size() > 3 else 1.0)
 	if like is Color and value is String:
 		return Color(value)
+	if like is Vector4 and value is Array:
+		var a4: Array = value
+		return Vector4(a4[0], a4[1], a4[2], a4[3] if a4.size() > 3 else 1.0)
 	if like is Vector3 and value is Array:
 		return Vector3(value[0], value[1], value[2])
 	if like is Vector2 and value is Array:
@@ -410,6 +420,8 @@ static func plain(v: Variant) -> Variant:
 		return (v as Array).map(plain)
 	if v is Color:
 		return [snappedf(v.r, 0.0001), snappedf(v.g, 0.0001), snappedf(v.b, 0.0001), snappedf(v.a, 0.0001)]
+	if v is Vector4:
+		return [v.x, v.y, v.z, v.w]
 	if v is Vector3:
 		return [v.x, v.y, v.z]
 	if v is Vector2:

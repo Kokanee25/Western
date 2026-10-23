@@ -65,6 +65,30 @@ seam_px={
 "type": "float",
 "value": 0.0
 }
+grime_amount={
+"type": "float",
+"value": 0.0
+}
+grime_height={
+"type": "float",
+"value": 1.1
+}
+grime_tint={
+"type": "vec4",
+"value": Vector4(0.62, 0.55, 0.47, 1)
+}
+bleach_amount={
+"type": "float",
+"value": 0.0
+}
+bleach_from={
+"type": "float",
+"value": 3.2
+}
+bleach_to={
+"type": "float",
+"value": 6.5
+}
 
 [rendering]
 
