@@ -311,6 +311,17 @@ a few views renders them as the full run does.
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
 
+**The light pass's looks** (issue #318, `docs/screenshots/light_pass/2026-10-23/`): `LightLooks`
+(`light_looks.gd`, a node `main.gd` adds; **8** cycles today / A / B / C, `--light-look=a|b|c` for a
+run) applies `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
+the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
+(street colour), SSAO, `grade.*` (`LightGrade`: a 32-cube lookup on the environment's colour
+correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
+environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
+carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
+by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
+back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
+
 ## The look panel
 
 - **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
@@ -319,8 +330,8 @@ a few views renders them as the full run does.
   a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
   Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
   (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
-  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
-  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  saloon>[_hanging|_wall].<energy|light_range|haze|attenuation>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `grade.`, `finish.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
   {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
   game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
   vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
@@ -330,6 +341,9 @@ a few views renders them as the full run does.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
+  clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
+  lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
 
 ## src/player
 
@@ -348,7 +362,12 @@ a few views renders them as the full run does.
 ## src/world
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
-  placeholder scenery.
+  placeholder scenery. The day starts at noon with the clock **held** (`hold_clock`, Sean 2026-10-23:
+  "daytime stays daytime"; `DayCycle.held`: `advance` doesn't move it, `time_scale` stays, since
+  bleeding runs on it); T: held -> x1 -> x30 -> x180 -> held; `set_time_scale` (soak, labs, bridge)
+  lets it run; 7 jumps through `hour_stops` (noon, 15:30, 17:36, 21:30). The high sun's dials
+  ("High sun" in the config: `exposure_day`, `ambient_sky_day`, `sky_high_*`, `fog_high_sun`) scale
+  by `get_high_sun()`; at their defaults the light is as it was.
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles

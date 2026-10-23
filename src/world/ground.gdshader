@@ -100,6 +100,15 @@ varying float v_h0;
 // The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
 // here; the screen mosaic is the only quantisation.
 uniform bool smooth_source = false;
+// The light pass's street colour (issue #318, Sean: "less orange, a dusty grey-tan, with
+// variation"): the ground's colour multiplied by `ground_tint` and its saturation scaled by
+// `ground_saturation`; on the street, the churned (loose) earth and the rut troughs darker by
+// `churn_dark`, and broad trampled and scuffed patches, a few metres across, `patches` lighter or
+// darker. All at their defaults: the ground as it was.
+uniform vec3 ground_tint : source_color = vec3(1.0, 1.0, 1.0);
+uniform float ground_saturation = 1.0;
+uniform float churn_dark = 0.0;
+uniform float patches = 0.0;
 
 varying vec3 world_pos;
 
@@ -279,9 +288,13 @@ void fragment() {
 			v_loose = loose;
 			v_h0 = h0 * mix(compact_relief, loose_relief, loose) * relief_depth + rut;
 			v_on *= near;
+			earth *= 1.0 - churn_dark * (0.6 * loose + 0.4 * smoothstep(0.004, 0.05, -rut));
+			earth *= 1.0 + patches * (fbm(q * 0.11 + 31.0) - 0.5) * 2.0;
 			col = mix(col, earth, on);
 		}
 	}
+	float grey = dot(col, vec3(0.2126, 0.7152, 0.0722));
+	col = mix(vec3(grey), col, ground_saturation) * ground_tint;
 	ALBEDO = col;
 	ROUGHNESS = 0.95;
 	if (!smooth_road) {

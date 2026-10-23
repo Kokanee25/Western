@@ -360,6 +360,17 @@ frozen until Sean names one.
   panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
   fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
   (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+- **The light pass** (2026-10-23, issue #318, branch `claude/art-light-pass`; Sean: "looks too cheap",
+  "the day time outside looks the worst"): three looks on **8** (today / A / B / C;
+  `config/looks/light_*.json`, LookPresets of dials: noon exposure and shade fill, a paler sky with
+  rounder clouds, noon haze, the street grey-tan (`ground_tint`...), `LightGrade` (a colour-grade
+  lookup), `LightFinish` (vignette, grain, heat shimmer), the saloon's lamps in pools). Blind judge
+  round 2: A first in every view. Waiting on Sean's pick; goldens are today's until then. With it
+  (gameplay's files, Sean's OK): the day starts at noon, held (T runs it), 7 jumps the hour,
+  Backspace starts the game again (`GameReset`). Next: the shade cool, not warm grey (the judges'
+  shared fault), the saloon's night blue; the false fronts' paint (ask Sean before paid paint).
+  Trap: after a clock jump under lavapipe wait ~5 s before a screenshot (the sky's ambient rebuilds
+  over frames; a second after, shade renders black).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
