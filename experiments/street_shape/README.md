@@ -16,6 +16,10 @@ building on its footing, its uphill side set into the slope), then climbing 3 m 
   boxes alike, straight ruts and hedged grass, nothing behind the buildings, the town's clean edge)
   are for the street series' next sessions.
 
+- `results/grade_sheet.jpg`, `results/grade_critic.md`: the grade, flat beside graded, and a blind
+  critic on it: graded "reads more like a real frontier town's street" once what stands on it
+  follows it (it found a sunk buckboard and a man ankle-deep, both fixed).
+
 Where to stand: `goto street_east` and look west (the jog closes the far end; the hotel turned on
 it), then walk to `street_market` (Market Street, where it jogs) and on to `west_edge` (the street
 climbing out of town).
