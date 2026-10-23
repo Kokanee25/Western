@@ -1,0 +1,91 @@
+{
+  "blast_push": [
+    46.6,
+    4.8,
+    0.0
+  ],
+  "blast_v": 3.06,
+  "caught": [],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 1.79,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 1328955381,
+  "frame": {
+    "added_ms_first_1s": 5.15,
+    "before_ms": 0.02,
+    "event_ms": 175.44,
+    "settle_ms": 7.91
+  },
+  "hits": [
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "side_r2"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "side_r2"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "side_r1"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bottom1"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "bench_floor/board8"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "side_r0"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bottom1"
+    },
+    {
+      "j_in": 41.0,
+      "through": false,
+      "what": "side_l0"
+    },
+    {
+      "j_in": 42.0,
+      "through": false,
+      "what": "side_l1"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.017,
+  "max_piece_speed": 7.92,
+  "members": 30,
+  "pieces": 33,
+  "prop": "crate",
+  "scenario": "crate_dynamite_3m",
+  "snapped": [],
+  "upright": false
+}

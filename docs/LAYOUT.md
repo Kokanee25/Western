@@ -869,14 +869,20 @@ a few views renders them as the full run does.
 
 - The prop lab's (`docs/briefs/prop-lab.md`; parts in `docs/PARTS.md` "Props"). Every prop defined
   once as data, `assets/props/kit/<id>.json` (members: kind, size, at, rot, wood, look, `draw`:
-  lathe, sweep or disc-cut shapes in the prop's space laid into the member's, `dress` layers glued
-  on, `repeat` along a line or round Y; a `seat`; `splits_below`; `blow_wood_share`), read by
+  lathe, sweep (`grain_up`, `caps`: a stave) or disc-cut shapes in the prop's space laid into the
+  member's, `dress` layers glued on (a barrel's hoops: each named `Dress<k>`), `repeat` along a line
+  or round Y (a sweep, its dress's too, turned with it); a `seat`; `splits_below`; `blow_wood_share`), read by
   `PropKit` and built by `KitProp` (a `Structure`: its members break, burn and are carved by the
   shared code; untouched, one batch per material plus its dress layers). `PropLibrary.spawn(id)`
   hands out a kit prop for any id whose kit file says `in_game` (`use_kit`), with the drawn prop's
   metas. Each member's joints (what touches it at either end, `_ends`): one that's lost its joint at
   one end hangs from the other and, as the prop goes over, tears out if the weight on its free end
-  over its length passes `BodyImpacts.nailed_moment`.
+  over its length passes `BodyImpacts.nailed_moment`. A prop put down settles onto what's under it
+  (up to 0.2 m, a stack bottom up); a foot over nothing drops out of its footprint. Hung props
+  (`"hangs": {"nails"}`: the deer head, the painting; a GlassProp sconce) hold on what's behind
+  their nails (`WALL_REACH`). Fixtures (`"fixture": true`: counter, shelves, table, trough, the bar)
+  are fitted to their place by `PropKit.fit`/`spawn_fitted` (nine-slice);
+  `FalseFrontBuilding._fixture` puts them in a building's Props, and `WaterTrough` is a KitProp.
   KitProp's own rules: each grounded member's floor (what's under it 4 frames after load; checked
   every 0.25 s: gone, it falls); its balance (the hull of its feet against its weight and a seated
   man's, less his `sway`: off it, everything left goes loose as one rubble body); `splits_below`

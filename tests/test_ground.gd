@@ -334,15 +334,14 @@ func test_a_barrel_in_the_street_falls_into_a_hole_dug_under_it() -> void:
 	var other := PropLibrary.spawn(&"barrel")
 	dressing.add_child(other)
 	other.global_position = Vector3(14.0, 0.0, 3.0)
-	var f := Fittings.new()
-	world.add_child(f)
-	await physics_frames(8)
-	f.collect()
-	check(f.on_ground.size() == 2, "both barrels stand on the ground (%d)" % f.on_ground.size())
+	# The barrels are the prop kit's (KitProp): they find their own feet, and look again when the
+	# ground near them is dug.
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(barrel is KitProp and not barrel.loose and not other.loose, "both barrels stand on the ground")
 	ground.take(Vector3(12.0, 0, 3.0), 0.6, 0.5)
-	await physics_frames(2)
-	check(f.on_ground[0].down, "the one over the hole falls in")
-	check(not f.on_ground[1].down, "the other stands")
+	await physics_frames(int(KitProp.CHECK_EVERY * 60.0) + 6)
+	check(barrel.loose, "the one over the hole falls in")
+	check(not other.loose, "the other stands")
 
 
 func test_a_man_walking_into_a_deep_hole_goes_in_but_steps_through_a_crater() -> void:

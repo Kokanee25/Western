@@ -1,0 +1,168 @@
+{
+  "blast_push": [
+    153.2,
+    71.4,
+    0.0
+  ],
+  "blast_v": 4.17,
+  "caught": [
+    "bench_prop/stave9"
+  ],
+  "consumed": [],
+  "consumed_t": [],
+  "farthest_m": 4.29,
+  "faults": {
+    "below_ground": 0,
+    "flung": 0,
+    "part_fast": 0,
+    "sunk": 0
+  },
+  "fingerprint": 1977218805,
+  "frame": {
+    "added_ms_first_1s": 5.28,
+    "before_ms": 0.02,
+    "event_ms": 203.14,
+    "settle_ms": 6.95
+  },
+  "hits": [
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board12"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "bench_floor/board11"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board10"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 17.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 20.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 15.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 16.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 7.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 19.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 3.0,
+      "through": false,
+      "what": "bench_floor/board5"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "bench_floor/board4"
+    },
+    {
+      "j_in": 0.0,
+      "through": false,
+      "what": "bench_floor/board3"
+    },
+    {
+      "j_in": 1.0,
+      "through": false,
+      "what": "bench_floor/board3"
+    },
+    {
+      "j_in": 53.0,
+      "through": false,
+      "what": "stave12"
+    },
+    {
+      "j_in": 44.0,
+      "through": false,
+      "what": "stave10"
+    },
+    {
+      "j_in": 13.0,
+      "through": false,
+      "what": "stave11"
+    },
+    {
+      "j_in": 69.0,
+      "through": false,
+      "what": "stave11"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "stave12"
+    },
+    {
+      "j_in": 37.0,
+      "through": false,
+      "what": "stave11"
+    },
+    {
+      "j_in": 58.0,
+      "through": false,
+      "what": "stave9"
+    },
+    {
+      "j_in": 14.0,
+      "through": false,
+      "what": "stave12"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "Ground"
+    },
+    {
+      "j_in": 2.0,
+      "through": false,
+      "what": "Ground"
+    }
+  ],
+  "loose": true,
+  "loose_t": 0.017,
+  "max_piece_speed": 6.28,
+  "members": 20,
+  "pieces": 20,
+  "prop": "barrel",
+  "scenario": "barrel_dynamite_1m",
+  "snapped": [],
+  "upright": false
+}
