@@ -16,7 +16,7 @@ const FOREARM := Vector3(0.25, -0.2, 0.95)
 ## The grip fingers closed round the walnut and the trigger finger on the trigger, at rest and
 ## squeezed (HeldHand.grasp: each finger's joints bend together; the gun lab's `views.gd --fit`
 ## closes each until it touches).
-const GRIP := {"middle": 70.0, "ring": 62.0, "little": 58.0}
+const GRIP := {"middle": 64.0, "ring": 62.0, "little": 58.0}
 const TRIGGER_REST := 25.0
 const TRIGGER_PULL := 38.0
 ## The thumb (its root's turn, then its two bends): resting high on the left of the frame behind

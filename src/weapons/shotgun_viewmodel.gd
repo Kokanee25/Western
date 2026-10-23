@@ -36,27 +36,28 @@ const HAMMER_BACK := 40.0
 ## (the wrist bent forward) so the fingers wrap under and up its far side and the index runs
 ## forward to the trigger; the heel beside the stock, clear of the rib when aimed; the forearm
 ## back, down and out to the right.
-const R_HAND_POS := Vector3(0.024, -0.036, 0.008)
+const R_HAND_POS := Vector3(0.024, -0.036, 0.02)
 const R_HAND_TILT := -50.0
 const R_HAND_ROLL := -30.0
 const R_FOREARM := Vector3(0.8, -0.58, 0.15)
-const R_GRIP := {"middle": 71.0, "ring": 71.0, "little": 69.0}
+const R_GRIP := {"middle": 71.0, "ring": 71.0, "little": 66.0}
 ## The index on the front trigger, at rest and squeezed: its knuckle spread forward and the finger
 ## nearly straight, as on a straight-hand stock (HeldHand.grasp; `views.gd --fit`).
-const R_INDEX_SPREAD := 20.0
+const R_INDEX_SPREAD := 30.0
 const R_INDEX_REST := 2.0
 const R_INDEX_PULL := 12.0
-const R_THUMB_REST := [Vector3(36.0, 24.0, 24.0), 20.0, 15.0]
-const R_THUMB_COCK := [Vector3(36.0, 24.0, 24.0), 45.0, 40.0]
-## The left, in the barrels' space: the forend cradled in its palm, the fingers curling up the right
-## side to the barrels and the index along the wood, kept low off the sight line, the forearm back,
-## down and out to the left.
+const R_THUMB_REST := [Vector3(24.0, 60.0, 48.0), 20.0, 15.0]
+const R_THUMB_COCK := [Vector3(24.0, 60.0, 48.0), 45.0, 40.0]
+## The left, in the barrels' space: the forend cradled in its palm, the four fingers together
+## curling up its right side to the barrels and the thumb up the left, kept low off the sight line
+## (a blind judge's pick over the fingers fanned diagonally), the forearm back, down and out to the
+## left.
 const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
-const L_HAND_TILT := -65.0
+const L_HAND_TILT := -90.0
 const L_HAND_ROLL := 90.0
 const L_FOREARM := Vector3(-0.3, -0.55, 0.78)
-const L_GRIP := {"index": 13.0, "middle": 59.0, "ring": 59.0, "little": 59.0}
-const L_THUMB := [Vector3(-60.0, 24.0, 48.0), 45.0, 40.0]
+const L_GRIP := {"index": 45.0, "middle": 45.0, "ring": 45.0, "little": 45.0}
+const L_THUMB := [Vector3(60.0, 60.0, -60.0), 20.0, 10.0]
 
 @export var tuning: ShotgunTuning
 
