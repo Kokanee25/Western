@@ -165,6 +165,42 @@
    "aspect": "1:1",
    "out": "assets/textures/guns/%s_painted.jpg",
    "about": "Your arms in first person (Sean, 2026-10-24: \"paint the arms\"): Sean's Studio man's right arm from four sides (experiments/gun_lab/blender/arm_blender.py --base; canvas assets/textures/guns/arm.json), baked back onto both arms by its --bake (assets/weapons/held_arm_skin.png)."
+  },
+  "hold_coach_hip": {
+   "scene": "The first image shows the game's painted men: paint in exactly their hand. The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he holds the side-by-side hammer coach gun at the hip, ready, pointing ahead just left of centre. The gun is big in the lower right of the frame, angled in from the bottom-right corner towards the centre, the twin barrels reaching to just below the middle of the picture. His right hand grips the walnut pistol grip low at the bottom right, the thumb by the hammers, the index finger along the trigger guard; his right forearm comes in from the bottom-right edge. His left hand is far forward, cradling the wooden fore-end under the barrels from below with the fingers wrapped up its far side; his left forearm, bare to the rolled sleeve, comes in from the lower left. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. ",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_shotgun_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "A first-person hold drawn as reference for docs/briefs/viewmodel-rig.md (Sean, 2026-10-24: \"do a ChatGPT call ... get it to draw what you're looking for\"); paint_model openai/gpt-5-image."
+  },
+  "hold_coach_aim": {
+   "scene": "The first image shows the game's painted men: paint in exactly their hand. The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he has the side-by-side hammer coach gun shouldered and aimed, looking straight down the rib between the two hammers to the brass bead at the muzzles, which sits at the centre of the picture. The barrels run straight up the middle of the frame from the bottom edge to the centre, the action and hammers close to the eye at the bottom. His right hand grips the pistol grip at the bottom right with the index finger on the front trigger; his left hand holds the fore-end from below at the lower left, the forearm coming in from the bottom-left corner. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. ",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_shotgun_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "As hold_coach_hip: the coach gun aimed."
+  },
+  "hold_revolver": {
+   "scene": "The first image shows the game's painted men: paint in exactly their hand. The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he holds the single-action revolver out in his right hand at the ready, the arm half extended, the gun in the lower right of the frame pointing ahead and a little left, seen from behind and slightly above and to the right so its cylinder, hammer and walnut grip show. His hand wraps the grip high, the wrist straight, the thumb resting along the hammer, the index finger on the trigger; his right forearm comes in from the bottom-right edge with the rolled sleeve at the edge of the frame. His left hand is not in view. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. ",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_revolver_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "As hold_coach_hip: the revolver."
   }
  }
 }
