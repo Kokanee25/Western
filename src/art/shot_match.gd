@@ -19,7 +19,7 @@ const ROOM_YAW := -72.8
 const TABLE_IN_SALOON := Vector3(6.64, 0.0, 6.81)
 const ROOM_YAW_IN_SALOON := 107.2
 const TABLE_HEIGHT := 0.76
-const TABLE_RADIUS := 0.86  # was 0.7: the Studio man sits in a chair (2026-10-24) and his knees showed past the edge
+const TABLE_RADIUS := 0.7
 ## Degrees the table top is turned about its axis (the grain across the eye's view).
 const TOP_TURN := 53.0
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
@@ -58,7 +58,7 @@ const FITS := {
 			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
 	# The Studio's bold cowboy (2026-10-24, Sean: the new men in the pictures), tools/fit_shot.gd
 	# --model= from sit_back: outline overlap 0.40, his eyes ~11 px off the painting's.
-	&"bold_cowboy_s3_talking": {"pose": &"sit_back", "seat": Vector3(0.678, 0.0, -0.408), "pose_offsets": {
+	&"bold_cowboy_s3_talking": {"pose": &"sit_back", "seat": Vector3(0.84, 0.0, -0.54), "pose_offsets": {
 			&"head": Vector3(2.25, -13.25, 26.0), &"chest": Vector3(0.0, 6.0, 0.0),
 			&"upper_arm_r": Vector3(0.0, 8.0, 0.0), &"forearm_r": Vector3(0.0, 8.0, 0.0),
 			&"neck": Vector3(-32.5, 0.0, -3.5), &"abdomen": Vector3(0.0, 0.0, 0.0), &"hand_r": Vector3(-30.625, -20.0, -20.0)}},
