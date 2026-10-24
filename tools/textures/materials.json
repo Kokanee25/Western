@@ -725,8 +725,9 @@
     128
    ],
    "smooth": true,
-   "texels_per_metre": 256,
-   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide)."
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide).",
+   "cut": "Cut at 128 a metre (the world's): at 256 and 512 the painted hair read as cork on the mount; the painting's deer is broad soft strokes."
   },
   "prop_hide_dark": {
    "for": "saloon",
@@ -746,7 +747,10 @@
    ],
    "smooth": true,
    "texels_per_metre": 256,
-   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_dark)."
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_dark).",
+   "cut": "Darkened and its contrast cut right down: the model painted a whole nose (nostrils, lips) where a flat patch was asked; muted, it reads as the dark leather.",
+   "lightness": 0.6,
+   "contrast": 0.35
   },
   "prop_hide_pale": {
    "for": "saloon",
@@ -765,8 +769,9 @@
     124
    ],
    "smooth": true,
-   "texels_per_metre": 256,
-   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_pale)."
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_pale).",
+   "cut": "As prop_hide's."
   },
   "prop_antler": {
    "for": "saloon",
@@ -785,8 +790,11 @@
     80
    ],
    "smooth": true,
-   "texels_per_metre": 256,
-   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:antler)."
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:antler).",
+   "cut": "Cut at 128 a metre, its furrows' contrast cut (run 124's read as birch bark on the rack).",
+   "contrast": 0.5,
+   "chroma": 0.85
   }
  }
 }
