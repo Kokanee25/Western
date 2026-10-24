@@ -3,20 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdlx0api2uwxa"
-path="res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.ctex"
+path.bptc="res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.bptc.ctex"
+path.astc="res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/dark_trim_end.png"
-dest_files=["res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.ctex"]
+dest_files=["res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.bptc.ctex", "res://.godot/imported/dark_trim_end.png-84957b2e174ea549079c94862ccf928c.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

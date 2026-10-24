@@ -11,6 +11,14 @@ A wood promoted under a name the game already has replaces that wood's strips (r
 woods: Sean's pick, 2026-10-22; `--extra=saloon_red:edge_aa=1,...` carries the lab's finish).
 A new name leaves the game's woods of the old name untouched (the interior stain: Sean picked C,
 2026-10-21, for the saloon's interior; the outside keeps its woods). No paid calls.
+
+    python3 tools/textures/promote_woods.py --vram=saloon_red,floor,...   # [--lossless=...]
+
+Sets how the game's woods named import (strips, end grain, bare wood; the stub's [params]):
+`--vram` VRAM-compressed at high quality (BC7 on desktop, a quarter of RGBA8's memory: the memory
+test, Sean's pick 2026-10-23, docs/briefs/material-lab.md), `--lossless` back to RGBA8. A promotion
+keeps the compression the wood it replaces had (a new wood: lossless unless named in `--vram`).
+Re-import (`godot --headless --import`) after either.
 """
 import json
 import os
@@ -22,13 +30,65 @@ TEX = os.path.join(ROOT, "assets", "textures")
 WOODS = os.path.join(TEX, "woods")
 
 
-def promote(set_name, mapping, extra):
+def _params(vram):
+    """The woods' import [params] (floor_b0's), lossless or VRAM-compressed at high quality."""
+    params = open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1]
+    if vram:
+        return params.replace("compress/mode=0", "compress/mode=2").replace(
+            "compress/high_quality=false", "compress/high_quality=true")
+    return params.replace("compress/mode=2", "compress/mode=0").replace(
+        "compress/high_quality=true", "compress/high_quality=false")
+
+
+def _files_of(wood, folder):
+    """A wood's pngs in `folder`: its strips (_b<k>), end grain and bare wood, and its preview."""
+    return [f for f in sorted(os.listdir(folder)) if f.endswith(".png") and
+            (f[:-4] == wood or f[:-4].startswith(wood + "_") and
+             (f[:-4][len(wood) + 1:] in ("end", "bare") or f[:-4][len(wood) + 1:].lstrip("b").isdigit()))]
+
+
+def _is_vram(wood):
+    stub = os.path.join(WOODS, wood + "_b0.png.import")
+    return os.path.exists(stub) and "compress/mode=2" in open(stub).read()
+
+
+def _write_stub(path, vram):
+    """A png's .import set lossless or VRAM-compressed: an existing one edited in place (its uid
+    and the rest kept), else a stub with the woods' [params] (`godot --headless --import` fills in
+    the rest)."""
+    if os.path.exists(path + ".import"):
+        text = open(path + ".import").read()
+        if vram:
+            text = text.replace("compress/mode=0", "compress/mode=2").replace(
+                "compress/high_quality=false", "compress/high_quality=true")
+        else:
+            text = text.replace("compress/mode=2", "compress/mode=0").replace(
+                "compress/high_quality=true", "compress/high_quality=false")
+        open(path + ".import", "w").write(text)
+        return
+    params = _params(vram)
+    with open(path + ".import", "w") as fh:
+        fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]' + params)
+
+
+def set_compression(woods, vram):
+    for wood in woods:
+        files = _files_of(wood, WOODS)
+        if not files:
+            print("compress: no wood %s" % wood)
+            sys.exit(1)
+        for f in files:
+            _write_stub(os.path.join(WOODS, f), vram)
+        print("compress: woods/%s %s (%d files)" % (wood, "VRAM (BC7)" if vram else "lossless", len(files)))
+
+
+def promote(set_name, mapping, extra, vram_woods=()):
     src = os.path.join(TEX, "mlab_" + set_name)
     src_index = json.load(open(os.path.join(src, "lab.json")))["woods"]
     index_path = os.path.join(WOODS, "lab.json")
     index = json.load(open(index_path))
-    params = open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1]
     for old, new in mapping:
+        vram = new in vram_woods or _is_vram(new)
         if old not in src_index:
             print("promote: %s has no wood %s" % (set_name, old))
             sys.exit(1)
@@ -53,9 +113,8 @@ def promote(set_name, mapping, extra):
                                                              stem[len(old) + 1:].lstrip("b").isdigit()):
                 dst = os.path.join(WOODS, new + stem[len(old):] + ".png")
                 shutil.copyfile(os.path.join(src, f), dst)
-                if not os.path.exists(dst + ".import"):
-                    with open(dst + ".import", "w") as fh:
-                        fh.write('[remap]\n\nimporter="texture"\ntype="CompressedTexture2D"\n\n[params]' + params)
+                if vram or not os.path.exists(dst + ".import"):
+                    _write_stub(dst, vram)
                 n += 1
         entry = dict(src_index[old])
         entry["end"] = "%s_end.png" % new
@@ -69,6 +128,11 @@ def promote(set_name, mapping, extra):
 
 def main():
     args = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--") and "=" in a)
+    vram_woods = [w for w in args.get("vram", "").split(",") if w]
+    if "set" not in args and ("vram" in args or "lossless" in args):
+        set_compression(vram_woods, True)
+        set_compression([w for w in args.get("lossless", "").split(",") if w], False)
+        return
     if "set" not in args or "as" not in args:
         print(__doc__)
         sys.exit(1)
@@ -78,7 +142,7 @@ def main():
         wood, kv = item.split(":", 1)
         k, v = kv.split("=", 1)
         extra.setdefault(wood, {})[k] = float(v)
-    promote(args["set"], mapping, extra)
+    promote(args["set"], mapping, extra, vram_woods)
 
 
 if __name__ == "__main__":
