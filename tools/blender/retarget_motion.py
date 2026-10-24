@@ -307,7 +307,7 @@ def retarget(names, rest, frames, rig, source_name=""):
     notes["scale"] = round(scale, 3)
 
     out_frames, root, yaw, hips = [], [], [], []
-    feet_l, feet_r, hips_path = [], [], []
+    feet_l, feet_r, hips_path, hands_path = [], [], [], []
     hip0 = None
     for pose in frames:
         g = globals_at(pose)
@@ -330,6 +330,9 @@ def retarget(names, rest, frames, rig, source_name=""):
             hj.append(H @ to_godot_m(pose[bones[s]])[1])
         hips.append(float((hj[0][1] + hj[1][1]) / 2))
         hips_path.append([round(float(c), 4) for c in hp])
+        if "hand_l" in bones and "hand_r" in bones:
+            hm = (H @ to_godot_m(pose[bones["hand_l"]])[1] + H @ to_godot_m(pose[bones["hand_r"]])[1]) * 0.5
+            hands_path.append([round(float(c), 4) for c in hm])
         for seg, lst in (("foot_l", feet_l), ("foot_r", feet_r)):
             lst.append(H @ to_godot_m(pose[bones[seg]])[1] if seg in bones else hp)
     # The ground: the lowest the feet get over the clip; hips over it in leg lengths.
@@ -338,7 +341,7 @@ def retarget(names, rest, frames, rig, source_name=""):
     hip_height = [round((h - ground) / leg_src, 4) if leg_src > 1e-3 else -1.0 for h in hips]
     clip = {"name": source_name, "fps": FPS, "frames": out_frames, "root": root, "yaw": yaw, "hip_height": hip_height,
             "feet": {"l": [[round(float(c), 4) for c in p] for p in feet_l], "r": [[round(float(c), 4) for c in p] for p in feet_r]},
-            "hips_path": hips_path, "ground": round(ground, 4), "scale": round(scale, 4)}
+            "hips_path": hips_path, "hands_path": hands_path, "ground": round(ground, 4), "scale": round(scale, 4)}
     return clip, notes
 
 
@@ -377,8 +380,9 @@ def trim(clip, threshold=0.03, keep_s=0.1):
 
 
 def _cut(clip, a, b):
-    for k in ("frames", "root", "yaw", "hip_height", "hips_path"):
-        clip[k] = clip[k][a:b + 1]
+    for k in ("frames", "root", "yaw", "hip_height", "hips_path", "hands_path"):
+        if clip.get(k):
+            clip[k] = clip[k][a:b + 1]
     for side in clip["feet"]:
         clip["feet"][side] = clip["feet"][side][a:b + 1]
     r0 = clip["root"][0]
@@ -432,6 +436,14 @@ def hold_feet(clip, stand_height=0.08, stand_speed=0.6):
     clip["root"] = [[round(float(c), 4) for c in p] for p in out]
     clip["stand"] = {s: [bool(v) for v in standing[s]] for s in standing}
     return round(before, 3), round(after, 3)
+
+
+def hands_high(clip):
+    """When his hands are highest (s): water scooped reaches his face about then."""
+    hp = np.array(clip["hands_path"]) if clip.get("hands_path") else None
+    if hp is None or len(hp) < 3:
+        return round(clip["frames"].__len__() / clip["fps"] * 0.5, 3)
+    return round(int(np.argmax(hp[:, 1])) / clip["fps"], 3)
 
 
 def find_strike(clip, part="foot_r"):
@@ -568,6 +580,14 @@ def judge(clip, move, notes):
         score = 1.0 - travel * 2.0 - j["jitter"] * 10.0            # stands still, a clean motion
     elif move == "stand_over":
         score = (1.0 - j["hip_min_legs"]) * 2.0 - travel * 2.0       # leans down, stays put
+    elif move.startswith("walk_"):
+        # A walk that goes (travel), steady (low jitter), no slide left; an old man's or a drunk's
+        # may be slow: travel over a metre is enough.
+        score = min(travel, 3.0) * 1.0 - j["jitter"] * 20.0 + (1.0 if travel > 1.0 else -2.0)
+    elif move in ("wipe_bar", "mop_floor"):
+        score = 1.0 - travel * 1.5 - j["jitter"] * 10.0 + (0.5 if j["seconds"] > 3.0 else 0.0)  # stays at his work
+    elif move.startswith("scoop"):
+        score = (1.0 - j["hip_min_legs"]) * 2.0 - travel * 1.5 + (0.5 if j["seconds"] > 3.5 else 0.0)  # bends down, stays
     score -= 0.5 * len(j["missing"]) + 2.0 * (j["slide_m"] or 0.0)
     j["score"] = round(score, 3)
     return j
@@ -593,6 +613,8 @@ def process(path, name, out_dir, rig, trim_th=0.03, strikes=(), events_spec=None
             events[k] = marks["strike"]
             if k == "strike":
                 events.update({kk: vv for kk, vv in marks.items() if kk != "strike"})
+        elif v == "hands_high":
+            events[k] = hands_high(clip)
         else:
             events[k] = float(v)
     notes["events"] = events
@@ -629,7 +651,7 @@ def main(argv):
             m = re.match(r"(.+)_(\d+)\.\w+$", f)
             move, take_i = (m.group(1), int(m.group(2))) if m else (os.path.splitext(f)[0], 1)
             st = ["foot_r"] if move.startswith("kick") else strikes
-            ev = ["strike:auto"] if move.startswith("kick") else events_spec
+            ev = ["strike:auto"] if move.startswith("kick") else (["splash:hands_high"] if move.startswith("scoop") else events_spec)
             clip, notes = process(os.path.join(set_dir, f), "%s_%02d" % (move, take_i), work, rig, trim_th, st, ev, feet, credit, rest_path)
             j = judge(clip, move, notes)
             j["notes"] = {k: v for k, v in notes.items() if k != "bones"}
