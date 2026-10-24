@@ -29,6 +29,14 @@ way a good shooter's hands look, judged against Sean's photos and the men's shee
    the left hand far forward on the fore-end with the forearm showing to the elbow; the right hand
    low at the grip, often only its cuff in frame; aimed, the gun runs straight up the middle from
    the bottom edge with the hands at the two lower corners.
+   **The targets in the game's own framing** (2026-10-24, Nano Banana Pro, $0.42): three game frames
+   (`docs/concept/guns/hold_game_{hip,aim,rev}_base.png`) with only the arms and hands repainted
+   holding the guns right: `assets/textures/guns/hold_game_{hip,aim,rev}.jpg`. Pose the rig until
+   its render from the game camera matches these (the hip: the right hand round the pistol grip
+   with the thumb over, the left forearm in from the lower left, its hand cradling the fore-end
+   from under and beside; the revolver: the hand high under the hammer, the wrist in line). Drawn
+   without a base, the same model's holds (`hold_coach_hip`, `_aim`, `hold_revolver`) have good
+   hands and the guns in the wrong places: hands only.
 2. **One Blender scene a gun** (`experiments/gun_lab/blender/viewmodel_rig.py`, headless): the
    camera matched to the game's (its FOV, near plane, where the viewmodel hangs in camera space);
    the two arms from Sean's man (his armature's arm and finger bones, the painted `held_arm_skin`,
