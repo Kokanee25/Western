@@ -34,6 +34,8 @@ const CHUNK_TILES := 8
 ## Each chunk's room in the slope's mesh (points): a chunk cut round dug tiles into rectangles has
 ## at most four points a tile.
 const CHUNK_SLOT := CHUNK_TILES * CHUNK_TILES * 4
+## How far a slope's box reaches onto the next (m): past Jolt's rounding of its edges (5 cm).
+const LAP := 0.1
 
 
 func _ready() -> void:
@@ -265,10 +267,16 @@ func _rebuild_rise(area: Rect2) -> void:
 	var c := size * CHUNK_TILES
 	var dug := {}
 	for key: Vector2i in tiles:
-		var ck := Vector2i(floori(float(key.x) / CHUNK_TILES), floori(float(key.y) / CHUNK_TILES))
-		if not dug.has(ck):
-			dug[ck] = []
-		(dug[ck] as Array).append(key)
+		# Its own chunk's, and a chunk's beside it when it's on the edge: the boxes there reach over
+		# their edge (`_make_chunk`), but not into a dug tile.
+		var near := {}
+		for d in [Vector2i.ZERO, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var k: Vector2i = key + d
+			near[Vector2i(floori(float(k.x) / CHUNK_TILES), floori(float(k.y) / CHUNK_TILES))] = true
+		for ck: Vector2i in near:
+			if not dug.has(ck):
+				dug[ck] = []
+			(dug[ck] as Array).append(key)
 	var changed := false
 	var c0 := Vector2i(roundi(area.position.x / c), roundi(area.position.y / c))
 	var c1 := Vector2i(roundi(area.end.x / c), roundi(area.end.y / c))
@@ -315,6 +323,9 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	var normals := PackedVector3Array()
 	var idx := PackedInt32Array()
 	var step := size
+	var holed := {}
+	for key: Vector2i in dug:
+		holed[key] = true
 	for r in pieces:
 		var nx := roundi(r.size.x / step) + 1
 		var nz := roundi(r.size.y / step) + 1
@@ -336,16 +347,37 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 				idx.append_array([a, a + 1, a + nx + 1, a, a + nx + 1, a + nx])
 		# The collision: between two tile corners the ground is a plane (it goes with x alone), so
 		# each column is a solid box tilted to it, its top the surface (a height field has no
-		# thickness, and debris falling fast went through one).
+		# thickness, and debris falling fast went through one). Each box reaches LAP past its edges
+		# onto the next (but not over a dug tile): Jolt rounds a box's edges, and where two only met
+		# a splinter slid into the groove between them and on down the seam, pushed only sideways.
+		var t0 := Vector2i(roundi(r.position.x / size), roundi(r.position.y / size))
+		var t1 := Vector2i(roundi(r.end.x / size), roundi(r.end.y / size))
+		var back := LAP
+		var front := LAP
+		for tx in range(t0.x, t1.x):
+			if holed.has(Vector2i(tx, t0.y - 1)):
+				back = 0.0
+			if holed.has(Vector2i(tx, t1.y)):
+				front = 0.0
+		var left := LAP
+		var right := LAP
+		for tz in range(t0.y, t1.y):
+			if holed.has(Vector2i(t0.x - 1, tz)):
+				left = 0.0
+			if holed.has(Vector2i(t1.x, tz)):
+				right = 0.0
 		for i in nx - 1:
 			var x0 := r.position.x + i * step
 			var h0 := along[i + 1]
 			var h1 := along[i + 2]
 			var tilt := atan2(h1 - h0, step)
 			var up := Vector3(-sin(tilt), cos(tilt), 0.0)
+			var dir := Vector3(cos(tilt), sin(tilt), 0.0)
+			var lo := left if i == 0 else LAP
+			var hi := right if i == nx - 2 else LAP
 			var box := BoxShape3D.new()
-			box.size = Vector3(sqrt(step * step + (h1 - h0) * (h1 - h0)), tuning.slab_depth, r.size.y)
-			var top := Vector3(x0 + step * 0.5, (h0 + h1) * 0.5, r.get_center().y)
+			box.size = Vector3(sqrt(step * step + (h1 - h0) * (h1 - h0)) + lo + hi, tuning.slab_depth, r.size.y + back + front)
+			var top := Vector3(x0 + step * 0.5, (h0 + h1) * 0.5, r.get_center().y + (front - back) * 0.5) + dir * (hi - lo) * 0.5
 			# Straight onto the body as a shape owner: a node each was ~2,300 more in the street.
 			var owner := body.create_shape_owner(body)
 			body.shape_owner_add_shape(owner, box)

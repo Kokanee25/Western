@@ -424,6 +424,51 @@ func test_west_of_the_store_it_slopes_as_the_layout_says_with_no_seam() -> void:
 	check(TownLayout.ground_height(-120) > 1.0, "and it's up there")
 
 
+func test_a_splinter_doesn_t_slide_down_a_seam_in_the_slope() -> void:
+	# 2026-10-24, test_chaos: a 6 mm chip off the barber's front came down on the seam between two
+	# chunks (z 0) and slid on down it, Jolt's rounded box edges pushing it only sideways. Chips on
+	# the chunks' seam, on a column's seam (x -19.2) and where both meet, edge-on and flat.
+	var size := ground.tuning.tile_size()
+	var bits: Array[RigidBody3D] = []
+	for at: Vector2 in [Vector2(-17.1, 0.0), Vector2(-19.2, 3.0), Vector2(-19.2, 0.0), Vector2(-6.0 * size, 0.0)]:
+		for k in 2:
+			var rb := RigidBody3D.new()
+			var cs := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(0.08, 0.036, 0.006)
+			cs.shape = box
+			rb.add_child(cs)
+			rb.mass = 0.01
+			rb.continuous_cd = true
+			if k == 1:
+				rb.rotation = Vector3(0.0, PI * 0.5, 0.0)  # its thin side along x, over the column's seam
+			rb.position = Vector3(at.x, TownLayout.ground_height(at.x) + 0.3, at.y)
+			rb.linear_velocity = Vector3(-0.2, -2.5, 0.0)
+			world.add_child(rb)
+			bits.append(rb)
+	await physics_frames(120)
+	var worst := 0.0
+	for rb in bits:
+		worst = maxf(worst, TownLayout.ground_height(rb.global_position.x) - rb.global_position.y)
+	check(worst < 0.03, "none goes under the slope (worst %.3f m)" % worst)
+
+
+func test_the_slope_s_boxes_don_t_reach_over_a_dug_tile() -> void:
+	# A tile dug just over a chunk's edge (z 0, x -19.2): the next chunk's boxes stop at it.
+	var size := ground.tuning.tile_size()
+	var at := Vector3(-6.5 * size, 0.0, 0.5 * size)
+	ground.take(Vector3(at.x, ground.height_at(at.x, at.z), at.z), 0.6, 0.3)
+	await physics_frames(2)
+	var key := ground.key_at(at.x, at.z)
+	var wrong := 0
+	for p: Vector2 in [Vector2(key.x * size + 0.03, at.z), Vector2((key.x + 1) * size - 0.03, at.z),
+			Vector2(at.x, key.y * size + 0.03), Vector2(at.x, (key.y + 1) * size - 0.03)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not hit.collider is GroundTile:
+			wrong += 1
+	check_eq(wrong, 0, "3 cm inside each of its edges a ray meets the tile, not a box reaching over")
+
+
 func test_a_tile_dug_on_the_rise_starts_as_the_ground_was() -> void:
 	var at := Vector3(-100.0, 0.0, -24.0)
 	var before := ground.height_at(at.x, at.z)
