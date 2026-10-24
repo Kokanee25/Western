@@ -285,6 +285,8 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
+  motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
@@ -360,6 +362,17 @@ frozen until Sean names one.
   panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
   fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
   (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+- **The light pass** (2026-10-23, issue #318, branch `claude/art-light-pass`; Sean: "looks too cheap",
+  "the day time outside looks the worst"): three looks on **8** (today / A / B / C;
+  `config/looks/light_*.json`, LookPresets of dials: noon exposure and shade fill, a paler sky with
+  rounder clouds, noon haze, the street grey-tan (`ground_tint`...), `LightGrade` (a colour-grade
+  lookup), `LightFinish` (vignette, grain, heat shimmer), the saloon's lamps in pools). Blind judge
+  round 2: A first in every view. Waiting on Sean's pick; goldens are today's until then. With it
+  (gameplay's files, Sean's OK): the day starts at noon, held (T runs it), 7 jumps the hour,
+  Backspace starts the game again (`GameReset`). Next: the shade cool, not warm grey (the judges'
+  shared fault), the saloon's night blue; the false fronts' paint (ask Sean before paid paint).
+  Trap: after a clock jump under lavapipe wait ~5 s before a screenshot (the sky's ambient rebuilds
+  over frames; a second after, shade renders black).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -461,6 +474,10 @@ frozen until Sean names one.
   (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
   `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
   street saloon's stair).
+- **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
+  its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
+  `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
+  #331, after light pass round 2 (#329).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -501,10 +518,13 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
-- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
-  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
-  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
-  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
+- The gun lab (`experiments/gun_lab/`; bench and baseline #248). **The hands** (2026-10-23, #322,
+  `results/2026-10-23_hands/`): `HeldHand` is Sean's Studio man's skinned, painted arm (cut from his
+  model, 15 finger bones), on the revolver and as the coach gun's two hands, fitted by `views.gd
+  --fit` (each bone's gap to the wood, mm); the coach gun from the hip with both hands in view; the
+  metals painted (`gun_blued`, `gun_case`, $0.88, #249 closed); your body in his colours; 47 goldens
+  re-approved (7 left failing for their owners, in the status entry). Blind judge: hands and metals
+  CLOSE (old DIFFERENT). Next: the `next session` issue (the period reload with a left hand).
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
@@ -531,6 +551,15 @@ frozen until Sean names one.
   and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
+
+- **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
+  `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
+  targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,
+  `-- --moment=NAME`), the Uthana clips in `assets/animations/` by
+  `tools/blender/retarget_motion.py` (#342, build 2338); 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
+  pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
+  generated one is high and forward). Next: the player's ways out and the room (the `next session`
+  issue).
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):

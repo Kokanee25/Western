@@ -1,0 +1,47 @@
+# Old buildings (issue #326): each building at noon. camera X Y Z TX TY TZ, then a shot.
+wait 2
+camera 16.50 1.70 -9.00 9.50 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/saloon.png
+camera 7.00 1.70 -9.00 0.00 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/store.png
+camera -1.50 1.70 -9.00 -8.50 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/telegraph.png
+camera -8.00 1.70 -9.00 -15.00 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/barber.png
+camera -15.50 1.70 -9.00 -22.50 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/doctor.png
+camera -34.10 1.70 -9.00 -41.10 3.00 0.00 60
+wait 1.5
+screenshot SHOTS/hotel.png
+camera 4.50 1.70 -7.80 11.50 3.00 -16.80 60
+wait 1.5
+screenshot SHOTS/livery.png
+camera -4.70 1.70 -7.80 2.30 3.00 -16.80 60
+wait 1.5
+screenshot SHOTS/jail.png
+camera -20.80 1.70 -7.80 -13.80 3.00 -16.80 60
+wait 1.5
+screenshot SHOTS/assay.png
+camera -47.50 1.70 -7.80 -40.50 3.00 -16.80 60
+wait 1.5
+screenshot SHOTS/bank.png
+camera 24.00 2.60 -11.00 12.00 4.50 -24.00 60
+wait 1.5
+screenshot SHOTS/livery_side.png
+camera -15.00 1.70 -6.00 -18.60 2.20 5.00 60
+wait 1.5
+screenshot SHOTS/doctor_side.png
+camera 1.00 1.60 -3.40 -3.00 3.10 -1.20 60
+wait 1.5
+screenshot SHOTS/store_porch.png
+camera 30.00 2.50 -23.80 11.00 6.00 -23.80 60
+wait 1.5
+screenshot SHOTS/livery_roof.png
+camera 20.00 2.00 -8.40 -20.00 3.00 -8.40 60
+wait 1.5
+screenshot SHOTS/street_west.png

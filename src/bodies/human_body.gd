@@ -317,6 +317,24 @@ static var _mocap_clips := {}  ## gait -> {stride (m), frames: [{segment: Quater
 var _mocap_w := 0.0  ## how far the clip has him: eases in as he sets off, out as he stops
 var _mocap_last := {}  ## the clip he was last on (to ease out of)
 var _mocap_hips := -1.0  ## his hip joints' height above the ground in the clip now, in leg lengths (-1: none)
+## A clip of motion he's playing (MotionClip; play_clip): its targets lead his pose while it
+## plays, on top of whatever physics and his wounds do to him.
+signal clip_done(clip_name: StringName)
+signal clip_event(clip_name: StringName, event: String)
+signal clip_struck(member: Node, result: StringName, speed: float)  ## a swung part met a kit prop's member at speed (m/s): broke, moved or held
+var _clip: MotionClip
+var _clip_t := 0.0
+var _clip_w := 0.0  ## how far the clip has him (eases in and out, as the gait clip does)
+var _clip_speed := 1.0
+var _clip_loop := false
+var _clip_last := {}  ## its last frame (to ease out of)
+var _clip_hips := -1.0
+var _clip_hold := 0.0  ## s the clip stands where it is: his boot stopped on something that held
+var _clip_opts := {}  ## "travel": false (he stays put; whoever plays it moves him)
+var _clip_struck := {}  ## StructureMember -> true: struck once this clip
+var _clip_part_was := {}  ## striking part -> its global transform last tick
+const CLIP_BLOW_MASS := 8.0  ## kg behind a kicking boot (the chair lab's: a leg's share of him)
+const CLIP_STRIKE_SPEED := 1.5  ## m/s: slower than this a boot strikes nothing
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
 var _pool: Decal
@@ -1782,7 +1800,8 @@ func _apply_pose(delta: float, snap := false) -> void:
 		_rise_t += delta
 		_rise_k = smoothstep(0.0, 1.0, clampf(_rise_t / float(_rise_stages[_rise_i][2]), 0.0, 1.0))
 	var clip := _mocap_now(delta)
-	var overlay := _gait_overlay(delta) if clip.is_empty() and _mocap_w <= 0.0 else {}
+	var played := _clip_now(delta)
+	var overlay := _gait_overlay(delta) if clip.is_empty() and _mocap_w <= 0.0 and _clip_w <= 0.0 else {}
 	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
 	# up or bound, clutching a wound, the pose has his arms and back).
 	var all_of_him := pose == &"stand"
@@ -1821,7 +1840,15 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
+		if _clip_w > 0.0 and played.has(sid):
+			# The played clip leads every joint it has; a flinch, a staged touch, his fold as he
+			# stumbles and the lean his wounds give him stay on top of it.
+			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
+					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
+			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
 	_place_rig(delta, snap)
+	if _clip_w > 0.0:
+		_clip_strikes(delta)
 	_reach_step()
 	_grab_step(delta)
 	_sling_step(delta)
@@ -1878,6 +1905,151 @@ static func _mocap_clip(g: StringName) -> Dictionary:
 			clip = {"stride": float(d.stride_m), "frames": frames, "hip_height": d.get("hip_height", [])}
 		_mocap_clips[g] = clip
 	return _mocap_clips[g]
+
+
+## Play a clip of motion (assets/animations/<name>.json, MotionClip) as the targets his pose
+## follows: its turns lead every joint it has, its travel moves him through the same sliding and
+## grounding as walking, and physics wins where they fight (a wall stops the travel, a chair leg
+## his boot meets takes the blow, a ball that drops him ends the clip). Returns its length in
+## seconds (0: no such clip). `clip_done` when it ends (not looping); `clip_event` at its marks.
+func play_clip(clip_name: StringName, speed := 1.0, loop := false, opts := {}) -> float:
+	var c := MotionClip.load_clip(clip_name)
+	if c == null or limp:
+		return 0.0
+	_clip = c
+	_clip_opts = opts
+	_clip_t = 0.0
+	_clip_speed = maxf(speed, 0.01)
+	_clip_loop = loop
+	_clip_hold = 0.0
+	_clip_struck.clear()
+	_clip_part_was.clear()
+	_clip_hips = -1.0
+	return c.length()
+
+
+## Let the clip go (he eases back to his pose over a fifth of a second).
+func stop_clip() -> void:
+	_clip = null
+	_clip_hold = 0.0
+
+
+func clip_playing() -> bool:
+	return _clip != null
+
+
+func clip_name() -> StringName:
+	return _clip.name if _clip != null else &""
+
+
+## How far into the clip he is (s).
+func clip_time() -> float:
+	return _clip_t if _clip != null else 0.0
+
+
+## This tick's frame of the played clip (segment -> Quaternion), its time advanced and its travel
+## walked, or {} when there's none and he's eased off the last one.
+func _clip_now(delta: float) -> Dictionary:
+	if _clip == null:
+		_clip_w = move_toward(_clip_w, 0.0, delta * 5.0)
+		return _clip_last if _clip_w > 0.0 else {}
+	var c := _clip
+	var t0 := _clip_t
+	if _clip_hold > 0.0:
+		_clip_hold -= delta
+	else:
+		_clip_t += delta * _clip_speed
+	var len := c.length()
+	var ended := _clip_t >= len
+	if ended and _clip_loop and len > 0.0:
+		_clip_t = fmod(_clip_t, len)
+		ended = false
+	var t1 := minf(_clip_t, len)
+	_clip_w = move_toward(_clip_w, 1.0, delta * 5.0)
+	# His travel this tick, in the clip's frame (the way he faced as it began: the clip plays in
+	# that frame, his turning in it carried by his pelvis's turn, so the node never turns with
+	# the clip), walked as a step is (stopped by walls and people; then his feet on whatever's
+	# under him).
+	var d := c.root_at(t1) - c.root_at(t0) if t1 >= t0 else c.root_at(t1) + (c.root_at(len) - c.root_at(t0))
+	d.y = 0.0
+	if not rising and not prone and not (stumbling > 0.0):
+		if d.length() > 1e-5 and _clip_opts.get("travel", true):
+			var moved := _slide(global_basis * d * _clip_w)
+			_snap_to_ground()
+			move_speed = moved.length() / maxf(delta, 1e-4)
+			gait = &"walk" if move_speed >= 0.05 else gait
+			_moved_this_tick = true
+	_clip_hips = c.hips_at(t1)
+	_clip_last = c.sample(t1)
+	for ev: String in c.events_between(t0, t1):
+		clip_event.emit(c.name, ev)
+	if ended:
+		var n := c.name
+		_clip = null
+		clip_done.emit(n)
+	return _clip_last
+
+
+## A part the clip swings (a kicking boot) meets what's in its way: a kit prop's member takes the
+## blow of its speed and the leg's share of him (KitProp.take_blow: it breaks, moves or holds), once
+## each. Held, the boot stops on it a moment (the clip stands) rather than passing through.
+func _clip_strikes(delta: float) -> void:
+	var c := _clip if _clip != null else null
+	if c == null or c.strikes.is_empty() or delta <= 0.0:
+		return
+	var space := get_world_3d().direct_space_state
+	for sid: StringName in c.strikes:
+		var part := parts.get(sid) as CollisionObject3D
+		if part == null:
+			continue
+		var now := part.global_transform
+		var was: Variant = _clip_part_was.get(sid)
+		_clip_part_was[sid] = now
+		if was == null:
+			continue
+		var v := (now.origin - (was as Transform3D).origin) / delta
+		if v.length() < CLIP_STRIKE_SPEED:
+			continue
+		var shape := part.get_child(0) as CollisionShape3D
+		if shape == null or shape.shape == null:
+			continue
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape.shape
+		q.collision_mask = Layers.WORLD
+		q.exclude = _own_rids()
+		# A boot at 7 m/s moves 12 cm a tick, more than a chair leg is thick: its sweep is tested at
+		# a few points between where it was and where it is.
+		var hits: Array[Dictionary] = []
+		var local := part.global_transform.affine_inverse() * shape.global_transform
+		for k in range(1, 5):
+			q.transform = (was as Transform3D).interpolate_with(now, k / 4.0) * local
+			for hit: Dictionary in space.intersect_shape(q, 4):
+				hits.append(hit)
+			if not hits.is_empty():
+				break
+		for hit: Dictionary in hits:
+			var m := hit.get("collider") as StructureMember
+			if m == null or m.broken or _clip_struck.has(m):
+				continue
+			var s := m.get_parent()
+			if s == null or not s.has_method(&"take_blow"):
+				continue
+			_clip_struck[m] = true
+			var at := m.global_transform.origin
+			var pairs := space.collide_shape(q, 1)
+			if pairs.size() >= 2:
+				at = pairs[1]
+			var result: StringName = s.call(&"take_blow", m, at, v * CLIP_BLOW_MASS, CLIP_BLOW_MASS)
+			clip_struck.emit(m, result, v.length())
+			# The boot's energy went into what it met, and the clip's follow-through is off: a part
+			# moved by script would plough on through the chair and the man in it, throwing him as
+			# a wall would. Held, the boot stands on the wood a moment; broke or moved, he eases
+			# back off the kick (the chair and the man are physics' from here).
+			if result == &"held":
+				_clip_hold = maxf(_clip_hold, 0.15)
+			else:
+				stop_clip()
+				return
 
 
 ## Swinging legs and arms while he moves: a walk, a run, a limp favouring the bad leg, a crawl.
@@ -1945,6 +2117,10 @@ func _place_rig(delta: float, snap: bool) -> void:
 		var hip_rest := _pivot_rest(&"thigh_l").y
 		var ankle_rest := _pivot_rest(&"foot_l").y
 		drop = lerpf(drop, _mocap_hips * _leg_length() + ankle_rest - hip_rest, _mocap_w)
+	if _clip_w > 0.0 and _clip_hips >= 0.0:
+		var hip_rest := _pivot_rest(&"thigh_l").y
+		var ankle_rest := _pivot_rest(&"foot_l").y
+		drop = lerpf(drop, _clip_hips * _leg_length() + ankle_rest - hip_rest, _clip_w)
 	_rig.position.y = lerpf(_rig.position.y, drop, k)
 	_set_blocker(false)
 
@@ -3653,6 +3829,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	limp = true
 	rising = false
 	rise_ok = false
+	_clip = null  # the ragdoll has him now: whatever he was playing, physics won
+	_clip_w = 0.0
 	_down_t = 0.0
 	_still_t = 0.0
 	if not _grab.is_empty():

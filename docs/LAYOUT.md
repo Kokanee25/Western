@@ -27,6 +27,7 @@ means a section of this file.
 - [src/fire](#srcfire)
 - [src/bodies](#srcbodies)
 - [src/people](#srcpeople)
+- [src/moments](#srcmoments)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -311,6 +312,17 @@ a few views renders them as the full run does.
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
 
+**The light pass's looks** (issue #318, `docs/screenshots/light_pass/2026-10-23/`): `LightLooks`
+(`light_looks.gd`, a node `main.gd` adds; **8** cycles today / A / B / C, `--light-look=a|b|c` for a
+run) applies `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
+the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
+(street colour), SSAO, `grade.*` (`LightGrade`: a 32-cube lookup on the environment's colour
+correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
+environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
+carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
+by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
+back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
+
 ## The look panel
 
 - **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
@@ -319,8 +331,8 @@ a few views renders them as the full run does.
   a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
   Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
   (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
-  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
-  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  saloon>[_hanging|_wall].<energy|light_range|haze|attenuation>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `grade.`, `finish.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
   {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
   game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
   vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
@@ -330,6 +342,9 @@ a few views renders them as the full run does.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
+  clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
+  lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
 
 ## src/player
 
@@ -348,7 +363,12 @@ a few views renders them as the full run does.
 ## src/world
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
-  placeholder scenery.
+  placeholder scenery. The day starts at noon with the clock **held** (`hold_clock`, Sean 2026-10-23:
+  "daytime stays daytime"; `DayCycle.held`: `advance` doesn't move it, `time_scale` stays, since
+  bleeding runs on it); T: held -> x1 -> x30 -> x180 -> held; `set_time_scale` (soak, labs, bridge)
+  lets it run; 7 jumps through `hour_stops` (noon, 15:30, 17:36, 21:30). The high sun's dials
+  ("High sun" in the config: `exposure_day`, `ambient_sky_day`, `sky_high_*`, `fog_high_sun`) scale
+  by `get_high_sun()`; at their defaults the light is as it was.
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
@@ -461,6 +481,18 @@ a few views renders them as the full run does.
   balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
   treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
   and stair rails and the lab's 1 m railing (group Q) are built of it.
+  **Old buildings** (`BuildingAge`, dials `config/building_age.tres`; issue #326): `age_years` on a
+  `FalseFrontBuilding` or `Boardwalk` (town.json's `set`, or `age` on a StreetDressing entry) wears it,
+  seeded by its id and build seed (nothing saved). `alter` (before `infer_supports`): rough boards
+  gone or rotted short (never one a trim hangs on, never left on nothing: `remove_built`), a stretch
+  of one wall in newer boards (`WoodMaterials.newer`), shutters on side and back windows (members
+  resting on the siding), porch boards gone, a plank replaced, a step cracked in two (`.../a`,
+  `/b`). `settle_in` (after): fields move members (`reshape`: whole onto the chord of where its
+  ends go, body and collision with it, drawn bent by `MemberMesh.warped` where it bends): the porch
+  sags span by span and racks, the ridge sways, the false front leans out above the roofline; then
+  `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
+  framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
+  untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
 
 ## src/fire
 
@@ -566,6 +598,39 @@ a few views renders them as the full run does.
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
 
+**Clips of motion** (`src/bodies/motion_clip.gd`, `MotionClip`; `assets/animations/<name>.json`,
+its README): each segment's turn a sample (quaternions), the root's travel and the hips' height in
+the clip's start frame (he faces -z; his turning in the clip is in his pelvis's turn), marks
+(`events`: `strike`, `draw`, the strike's `reach_m`, `kick_height_m`, `kick_dir`, where his hips
+are then), and `strikes` (parts that hit what they meet). `HumanBody.play_clip(name, speed, loop,
+{travel: false})` plays one as the targets his pose follows: every joint the clip has leads
+(a flinch, a wound's lean, a stumble stay on top), its travel goes through `_slide` and
+`_snap_to_ground` like a step, a swung part's sweep (between ticks too) meets a kit prop's member
+through `KitProp.take_blow` (`clip_struck`), `go_limp` ends it; `clip_done`, `clip_event` at the
+marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
+`tools/blender/retarget_motion.py` (docs/MOCAP.md): any humanoid glTF (Uthana's, Mixamo-named;
+FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
+(`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
+the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
+name; glTF of our rig beside each for the record.
+
+## src/moments
+
+**Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
+situation from data, `config/moments/<name>.json` (who, where, the hour, the clips, the lines, the
+timings; `script` names the moment's own class), played out by the systems. Started by the dev
+bridge (`moment NAME [key=value]`, `moment_result [wait [S]]`) or at launch with `-- --moment=NAME`
+(`Moment.maybe_start`, from `main.gd`); `result()` says what happened, `reset()` takes its people
+and props back out and puts a whole chair back. **The card cheat** (`card_cheat.gd`, `CardCheat`):
+Earl sat back at the saloon's front card table in the chair whose back faces the door (posed first,
+his weight on the seat half a second on), Cody in from `saloon_door` on `walk_angry` (steered;
+`walk_to` if a wall stops the clip's travel), onto a mark and a line worked out from the kick clip's
+strike marks so the boot's mid-swing is the right back post (`reach_k` 0.65 of its reach; pose to
+pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the clip's mark or
+45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
+nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
+(N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
+
 ## src/people
 
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
@@ -651,6 +716,10 @@ a few views renders them as the full run does.
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
+  The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
+  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
+  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`). The metals are factory paintings (`GunParts._painted`).
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`

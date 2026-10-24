@@ -19,14 +19,17 @@ class_name LookPreset
 ## - `sky.<uniform>`: the sky's shader (sky.gdshader)
 ## - `ground.<uniform>`: the ground's shader (ground.gdshader)
 ## - `backdrop.<uniform>`: every ring of the painted backdrop (backdrop.gdshader)
-## - `lamps.<group>.<energy|light_range|haze>`: a multiplier over every OilLamp in the group (all,
-##   street, saloon) on the value it was built with
+## - `lamps.<group>.<energy|light_range|haze|attenuation>`: a multiplier over every OilLamp in the group (all,
+##   street, saloon; each with _hanging or _wall for those of them that hang or not:
+##   saloon_wall, all_hanging) on the value it was built with
 ## - `building.<structure_id>.<night_ambient|room_haze>`: a building's night fill and room haze
 ## - `mosaic.<knob>`: the screen mosaic's knobs (DepthMosaic.KNOB_DEFAULTS, block_in, block_out)
 ## - `paint.<key>`: HumanBody.paint_look on every painted person
+## - `grade.<dial>`: the colour grade (LightGrade: split tone, orange pull, saturation, contrast)
+## - `finish.<dial>`: vignette, grain, heat shimmer (LightFinish)
 
 const DIR := "user://looks"
-const LAMP_PROPS := ["energy", "light_range", "haze"]
+const LAMP_PROPS := ["energy", "light_range", "haze", "attenuation"]
 
 ## What every address read before anything set it this run (the panel's Reset goes back to it).
 static var defaults := {}
@@ -99,6 +102,10 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 			HumanBody.paint_look[StringName(key)] = v
 			for m in _paint_materials(tree):
 				m.set_shader_parameter(StringName(key), v)
+		"grade":
+			return LightGrade.set_dial(tree, key, v)
+		"finish":
+			return LightFinish.set_dial(tree, key, v)
 		_:
 			return false
 	return true
@@ -153,6 +160,10 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 			return DepthMosaic.KNOB_DEFAULTS.get(key)
 		"paint":
 			return HumanBody.paint_look.get(StringName(key))
+		"grade":
+			return LightGrade.dials.get(key)
+		"finish":
+			return LightFinish.dials.get(key)
 	return null
 
 
@@ -176,6 +187,8 @@ static func uniform_default(shader: Shader, name: String) -> Variant:
 		var f: Array[float] = []
 		for n in nums:
 			f.append(float(n))
+		if type == "vec2":
+			return Vector2(f[0], f[1] if f.size() > 1 else f[0])
 		while f.size() < 3:
 			f.append(f[0] if not f.is_empty() else 0.0)
 		return Color(f[0], f[1], f[2], f[3] if f.size() > 3 else 1.0)
@@ -317,7 +330,12 @@ static func _lamps(tree: SceneTree, group: String) -> Array[OilLamp]:
 				in_saloon = true
 				break
 			p = p.get_parent()
-		if group == "all" or (group == "saloon") == in_saloon:
+		# saloon_hanging, saloon_wall, street_hanging...: the place, then hanging lamps or the rest.
+		var place := group.get_slice("_", 0)
+		var kind := group.get_slice("_", 1) if group.contains("_") else ""
+		if kind != "" and (kind == "hanging") != lamp.hanging:
+			continue
+		if place == "all" or (place == "saloon") == in_saloon:
 			out.append(lamp)
 	return out
 

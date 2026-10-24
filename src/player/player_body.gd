@@ -11,6 +11,12 @@ const SHIN := 0.41
 ## The body sits a little behind the eyes; looking down pushes it further back so you see your boots.
 const BACK_OFFSET := 0.08
 const LOOK_DOWN_BACK_OFFSET := 0.26
+## What you wear, and your skin: the hands and sleeves holding your guns are a Studio man's own
+## (HeldHand.MODEL, Sean's), so your body wears his colours: the median of his painted texture over
+## his upper arm (the shirt), his chest (the vest) and his hand (the skin).
+const SHIRT := Color(0.72, 0.68, 0.65)
+const VEST := Color(0.12, 0.1, 0.11)
+const SKIN := Color(0.65, 0.44, 0.36)
 
 var _hips: Node3D
 var _torso: Node3D
@@ -35,8 +41,8 @@ func _build() -> void:
 	_torso = Node3D.new()
 	_torso.name = "Torso"
 	_hips.add_child(_torso)
-	_box(_torso, "Shirt", Vector3(0.36, 0.56, 0.2), Vector3(0.0, 0.31, 0.0), _mat(&"shirt", Color(0.74, 0.67, 0.54)))
-	_box(_torso, "Vest", Vector3(0.37, 0.4, 0.21), Vector3(0.0, 0.3, 0.0), _mat(&"vest", Color(0.24, 0.17, 0.12)))
+	_box(_torso, "Shirt", Vector3(0.36, 0.56, 0.2), Vector3(0.0, 0.31, 0.0), _mat(&"shirt", SHIRT))
+	_box(_torso, "Vest", Vector3(0.37, 0.4, 0.21), Vector3(0.0, 0.3, 0.0), _mat(&"vest", VEST))
 	_box(_torso, "Belt", Vector3(0.38, 0.06, 0.215), Vector3(0.0, 0.04, 0.0), _mat(&"leather", Color(0.36, 0.2, 0.1)))
 	_box(_torso, "Buckle", Vector3(0.05, 0.04, 0.01), Vector3(0.0, 0.04, -0.11), _mat(&"brass", Color(0.7, 0.55, 0.25), 0.6))
 	_box(_torso, "Holster", Vector3(0.05, 0.22, 0.1), Vector3(0.215, -0.08, 0.0), _mat(&"leather", Color(0.36, 0.2, 0.1)))
@@ -46,11 +52,11 @@ func _build() -> void:
 
 	# Shadow-only parts: you never see them, the sun does.
 	var shadow := GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-	_sphere(_torso, "Head", 0.11, Vector3(0.0, 0.72, -0.02), _mat(&"skin", Color(0.72, 0.53, 0.4))).cast_shadow = shadow
+	_sphere(_torso, "Head", 0.11, Vector3(0.0, 0.72, -0.02), _mat(&"skin", SKIN)).cast_shadow = shadow
 	_cylinder(_torso, "HatBrim", 0.23, 0.02, Vector3(0.0, 0.8, -0.02), _mat(&"hat", Color(0.3, 0.22, 0.15))).cast_shadow = shadow
 	_cylinder(_torso, "HatCrown", 0.11, 0.13, Vector3(0.0, 0.87, -0.02), _mat(&"hat", Color(0.3, 0.22, 0.15))).cast_shadow = shadow
 	for side in [-1.0, 1.0]:
-		var arm := _capsule(_torso, "Arm", 0.05, 0.62, Vector3(side * 0.23, 0.26, 0.0), _mat(&"shirt", Color(0.74, 0.67, 0.54)))
+		var arm := _capsule(_torso, "Arm", 0.05, 0.62, Vector3(side * 0.23, 0.26, 0.0), _mat(&"shirt", SHIRT))
 		arm.cast_shadow = shadow
 
 	for side in [-1.0, 1.0]:
