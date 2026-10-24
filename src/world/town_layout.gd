@@ -8,6 +8,8 @@ extends Node
 ## `transform_of()` and `point()` give the same places to code that has no scene (the waypoints,
 ## tests). `carry()` moves a point laid out round where a building stood before the map (its
 ## `was`) to where it stands now: the dressing's old coordinates, till they're laid out again.
+## The street isn't ruled straight: `street_z()` is its middle at an x (streets.main.line), and
+## `ground_height()` the authored ground (flat in town, climbing west out of it: ground.rise).
 
 const PATH := "res://config/town.json"
 ## How far round an old lot a point still counts as its: along the street past either end, and
@@ -15,7 +17,11 @@ const PATH := "res://config/town.json"
 const LOT_REACH := 1.5
 const LOT_OUT := 5.0
 
+## Where the old straight street's middle ran (z), before it had a line.
+const OLD_MIDDLE := -8.4
+
 static var _data: Dictionary = {}
+static var _line := PackedVector2Array()
 
 
 func _ready() -> void:
@@ -38,6 +44,10 @@ static func data() -> Dictionary:
 		var text := FileAccess.get_file_as_string(PATH)
 		var parsed: Variant = JSON.parse_string(text)
 		_data = parsed if parsed is Dictionary else {"nodes": {}}
+		_line = PackedVector2Array()
+		var main: Dictionary = (_data.get("streets", {}) as Dictionary).get("main", {})
+		for p: Array in main.get("line", []):
+			_line.append(Vector2(p[0], p[1]))
 	return _data
 
 
@@ -87,11 +97,91 @@ static func facing_toward(building: StringName, local_dir: Vector3) -> Vector3:
 	return transform_of(building).basis * local_dir
 
 
-## The move that takes what stood round an old lot to where its building stands now (identity for
-## a point no lot claims: out in the street, away from any front).
+## Main Street's middle (z) at `x`: a smooth curve through streets.main.line's points (cubic
+## Hermite in x, each point's slope from its neighbours'), straight on past its ends; the old
+## straight line if the file has none. draw_street.py draws the street's ruts along the same curve.
+static func street_z(x: float) -> float:
+	data()
+	var l := _line
+	var n := l.size()
+	if n < 2:
+		return OLD_MIDDLE
+	if x <= l[0].x:
+		return l[0].y + (x - l[0].x) * (l[1].y - l[0].y) / (l[1].x - l[0].x)
+	if x >= l[n - 1].x:
+		return l[n - 1].y + (x - l[n - 1].x) * (l[n - 1].y - l[n - 2].y) / (l[n - 1].x - l[n - 2].x)
+	var i := 0
+	while i < n - 2 and x > l[i + 1].x:
+		i += 1
+	var h := l[i + 1].x - l[i].x
+	var t := (x - l[i].x) / h
+	var t2 := t * t
+	var t3 := t2 * t
+	return (2.0 * t3 - 3.0 * t2 + 1.0) * l[i].y + (t3 - 2.0 * t2 + t) * h * _slope(i) \
+			+ (-2.0 * t3 + 3.0 * t2) * l[i + 1].y + (t3 - t2) * h * _slope(i + 1)
+
+
+static func _slope(i: int) -> float:
+	var a := _line[maxi(i - 1, 0)]
+	var b := _line[mini(i + 1, _line.size() - 1)]
+	return (b.y - a.y) / (b.x - a.x)
+
+
+## A point on Main Street at `x`, `across` metres from its middle (+ toward the south side), on the
+## ground.
+static func street_point(x: float, across := 0.0) -> Vector3:
+	var z := street_z(x) + across
+	return Vector3(x, ground_height(x, z), z)
+
+
+## The way the street runs at `x`, east (unit, flat).
+static func street_dir(x: float) -> Vector3:
+	return Vector3(1.0, 0.0, street_z(x + 0.5) - street_z(x - 0.5)).normalized()
+
+
+## The authored ground's height at (x, z): the same at every z (config/town.json ground): flat
+## from the east through the saloon and the store, falling toward them from Market Street ('fall',
+## the town on a slope), level by the hotel and the bank, then climbing west out of town ('rise').
+static func ground_height(x: float, _z := 0.0) -> float:
+	var g: Dictionary = data().get("ground", {})
+	var h := 0.0
+	for part: String in ["fall", "rise"]:
+		var p: Dictionary = g.get(part, {})
+		if not p.is_empty():
+			var t := clampf((float(p.from) - x) / (float(p.from) - float(p.to)), 0.0, 1.0)
+			h += float(p.height) * t * t * (3.0 - 2.0 * t)
+	return h
+
+
+## The x east of which the authored ground is flat (at 0); INF if it's flat everywhere.
+static func ground_flat_east_of() -> float:
+	var g: Dictionary = data().get("ground", {})
+	var east := -INF
+	for part: String in ["fall", "rise"]:
+		var p: Dictionary = g.get(part, {})
+		if not p.is_empty():
+			east = maxf(east, float(p.from))
+	return east if east > -INF else INF
+
+
+## Where a building whose footprint (its front's width `w`, its depth `d`, and a boardwalk 2.4 m
+## out in front) is turned and placed by `t` stands on the ground: the height under its lowest
+## corner, so the uphill side is set into the slope, never the downhill side left in the air.
+static func footing(t: Transform3D, w: float, d: float) -> float:
+	var low := INF
+	for c: Vector3 in [Vector3(0, 0, -2.4), Vector3(w, 0, -2.4), Vector3(0, 0, d), Vector3(w, 0, d)]:
+		var p := t * c
+		low = minf(low, ground_height(p.x, p.z))
+	return low
+
+
+## The move that takes what stood round an old lot to where its building stands now; a point no
+## lot claims (out in the street, away from any front) goes with the street: across as far as its
+## middle has moved from the old straight line, and onto the ground.
 static func carry(old: Vector3) -> Transform3D:
 	var best := INF
-	var move := Transform3D()
+	var z := street_z(old.x) - OLD_MIDDLE
+	var move := Transform3D(Basis(), Vector3(0.0, ground_height(old.x, old.z + z), z))
 	for path: String in nodes():
 		var e: Dictionary = nodes()[path]
 		for was: Dictionary in e.get("was", []):

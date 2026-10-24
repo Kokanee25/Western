@@ -7,8 +7,7 @@ extends Node3D
 ## per stone, all of them one MultiMesh (one draw call, and its shadow). Deterministic from the
 ## seed. None under a floor, a boardwalk or a step; no collision (they're too small to stop a boot).
 
-## The road (StreetScenery's): centre line z and half width.
-const ROAD_Z := -8.4
+## The road's half width (its middle: TownLayout.street_z).
 const ROAD_HALF := 6.0
 ## How many stones to try placing, and the stretch of street (x0, x1).
 const TRIES := 22000
@@ -59,8 +58,9 @@ func _scatter() -> void:
 	var transforms: Array[Transform3D] = []
 	var colours: Array[Color] = []
 	for i in TRIES:
-		var p := Vector3(rng.randf_range(STREET_X.x, STREET_X.y), 0.0,
-				ROAD_Z + rng.randf_range(-ROAD_HALF - 0.5, ROAD_HALF + 0.5))
+		var p := Vector3(rng.randf_range(STREET_X.x, STREET_X.y), 0.0, 0.0)
+		p.z = TownLayout.street_z(p.x) + rng.randf_range(-ROAD_HALF - 0.5, ROAD_HALF + 0.5)
+		p.y = TownLayout.ground_height(p.x, p.z)
 		if rng.randf() > _density(p, noise):
 			continue
 		ray.from = p + Vector3.UP * 6.0
@@ -76,7 +76,7 @@ func _scatter() -> void:
 		basis = basis.scaled(Vector3(size * rng.randf_range(0.9, 1.3), tall, size))
 		# The rock is a unit across: its centre a sixth of its height above the dirt (the ruts'
 		# height there, on the map).
-		p.y = tall / 6.0 + _rut_height(p)
+		p.y += tall / 6.0 + _rut_height(p)
 		transforms.append(Transform3D(basis, p))
 		# Tan-grey, rust, pale and dark stones, as the target's, near the dirt's own value (paler,
 		# they read as white blobs in the noon sun).
@@ -122,7 +122,7 @@ func _density(p: Vector3, noise: FastNoiseLite) -> float:
 	if c != null:
 		var clump_m := clampf(noise.get_noise_2d(p.x, p.z) * 0.9 + 0.5, 0.0, 1.0)
 		return (c as Color).a * smoothstep(0.15, 0.7, clump_m)
-	var dz := absf(p.z - ROAD_Z)
+	var dz := absf(p.z - TownLayout.street_z(p.x))
 	var clump := clampf(noise.get_noise_2d(p.x, p.z) * 0.9 + 0.5, 0.0, 1.0)
 	var edge := lerpf(0.6, 1.0, smoothstep(1.0, ROAD_HALF - 0.5, dz)) * (1.0 - smoothstep(ROAD_HALF - 0.3, ROAD_HALF + 0.5, dz))
 	return edge * smoothstep(0.2, 0.75, clump)

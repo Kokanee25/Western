@@ -127,6 +127,10 @@ func _buildings() -> void:
 		var settings: Dictionary = b[4]
 		for k in settings:
 			building.set(k, settings[k])
+		# The layout's own (each front its own height: config/town.json).
+		var sets: Dictionary = placed.get("set", {})
+		for k: String in sets:
+			building.set(k, TownLayout.value(k, sets[k]))
 		building.transform = TownLayout.transform_of(path)
 		add_child(building)
 		# Its boardwalk, up on steps, when the layout gives it steps.
@@ -146,11 +150,14 @@ func _buildings() -> void:
 
 
 ## Where whatever stood at `at` on the old street stands now, turned `yaw` degrees: carried with
-## the building it stood by (TownLayout.carry), or left where it was out in the street.
+## the building it stood by (TownLayout.carry), or with the street out in it; up on a walk with
+## the walk, down in the street on the ground where it ends up (the ground slopes).
 static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
 	var t := TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 	if at.y > 0.3:
 		t.origin.y += walk_lift(t.origin)
+	else:
+		t.origin.y = TownLayout.ground_height(t.origin.x) + at.y
 	return t
 
 
@@ -265,7 +272,8 @@ func _lanterns() -> void:
 		if placed.is_empty():
 			continue
 		var t := TownLayout.transform_of(path)
-		var faces := -1.0 if float(placed.get("facing", 0.0)) == 0.0 else 1.0
+		# A lantern faces out from its front, which faces the building's -Z.
+		var faces := t.basis.get_euler().y + PI
 		var settings: Dictionary = b[4]
 		if settings.get("gable_front", false):
 			# The livery's, either side of its big door. The west one is lit only after dark: it's
@@ -289,9 +297,10 @@ func _lanterns() -> void:
 			continue
 		for side in [-1.0, 1.0]:
 			var local := Vector3(b.door_rect.get_center().x + side * (b.door_rect.size.x * 0.5 + 0.55), b.floor_top + 1.87, -0.05)
-			_lantern(b.transform * local, -1.0 if absf(b.rotation.y) < 0.1 else 1.0)
+			_lantern(b.transform * local, b.rotation.y + PI)
 
 
+## A carriage lantern at `at`, its face turned `faces` (radians about the vertical: 0 faces +Z).
 func _lantern(at: Vector3, faces: float, lit_from := 17) -> void:
 	var root := Node3D.new()
 	root.name = "Lantern"
@@ -299,7 +308,7 @@ func _lantern(at: Vector3, faces: float, lit_from := 17) -> void:
 	# The painting's lanterns are big: half a metre of glass and tin by every door.
 	root.scale = Vector3.ONE * LANTERN_SCALE
 	add_child(root)
-	root.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if faces > 0.0 else PI), at)
+	root.global_transform = Transform3D(Basis(Vector3.UP, faces), at)
 	var lamp := OilLamp.new()
 	lamp.set_meta(&"lamp_group", &"lantern")
 	lamp.show_mesh = false
@@ -409,7 +418,7 @@ func _loose() -> void:
 			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
 			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
 		_prop(&"crate", c[0], c[1])
-	_kit(&"buckboard", Vector3(-27.5, 0.0, -13.0), 0.0)
+	_kit_on_ground(&"buckboard", Vector3(-27.5, 0.0, -13.0), 0.0)
 	# Boards hung under the porches, end on to the street so you read them looking down it.
 	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],
 			["GUNSMITH", Vector3(-34.2, 2.45, -1.95)], ["SHERIFF", Vector3(-19.0, 2.45, -14.85)], ["ASSAYS", Vector3(-26.0, 2.45, -14.85)]]:
@@ -417,14 +426,18 @@ func _loose() -> void:
 
 
 ## Down the street and over the roofs: a covered wagon, telegraph poles with their wire, the water
-## tower.
+## tower, the empty lot. The wagon and the poles keep their places across the street as it bends.
 func _far() -> void:
-	_kit(&"covered_wagon", Vector3(-36.0, 0.0, -12.6), 0.0)
-	# Half a metre into the street from the south boardwalks' edge (at -13.9 the jail's pole stood
-	# through the boardwalk: tools/visual_checks.py's floating/sunk check).
-	var poles := [Vector3(-2.0, 0.0, -13.4), Vector3(-27.0, 0.0, -13.4), Vector3(-52.0, 0.0, -13.4), Vector3(-77.0, 0.0, -13.4)]
+	var wagon := TownLayout.street_point(-36.0, -4.2)
+	_kit_on_ground(&"covered_wagon", wagon, _street_yaw(wagon.x))
+	# 5 m north of the street's middle: half a metre into the street from the north boardwalks'
+	# edge (at -13.9 the jail's pole stood through the boardwalk: tools/visual_checks.py's
+	# floating/sunk check).
+	var poles := []
+	for x in [-2.0, -27.0, -52.0, -77.0]:
+		poles.append(TownLayout.street_point(x, -5.0))
 	for p in poles:
-		_model("Pole", PropModels.telegraph_pole, p, 0.0, Vector3(0.25, 7.0, 0.25), false)
+		_model("Pole", PropModels.telegraph_pole, p, _street_yaw(p.x), Vector3(0.25, 7.0, 0.25), false)
 	var wire := PropModels.iron()
 	for i in poles.size() - 1:
 		for x in [-0.55, 0.55]:
@@ -440,6 +453,83 @@ func _far() -> void:
 	var tower := TownLayout.entry(&"StreetDressing/WaterTower")
 	var at: Array = tower.get("at", [-34.0, 0.0, -24.0])
 	_model("WaterTower", PropModels.water_tower, Vector3(at[0], at[1], at[2]), float(tower.get("facing", 20.0)), Vector3(3.8, 11.5, 3.8), false)
+	_vacant_lot()
+
+
+## `at` down on the ground (the town's slopes: TownLayout.ground_height).
+static func _grounded(at: Vector3) -> Vector3:
+	return Vector3(at.x, TownLayout.ground_height(at.x), at.z)
+
+
+## Which way the street runs at `x`, as a yaw in degrees (0 along it east, as the old straight
+## street ran).
+static func _street_yaw(x: float) -> float:
+	var d := TownLayout.street_dir(x)
+	return rad_to_deg(atan2(-d.z, d.x))
+
+
+## The empty lot between the assay office and Market Street (config/town.json VacantLot, in its own
+## space: its front on the street toward -Z, x along it): what's left on a lot nobody's built on
+## yet. A wagon's broken wheel, a heap of boards from somebody's building, empty barrels,
+## a crate, and a board on a post offering the lot.
+func _vacant_lot() -> void:
+	var lot := TownLayout.entry(&"StreetDressing/VacantLot")
+	if lot.is_empty():
+		return
+	var t := TownLayout.transform_of(&"StreetDressing/VacantLot")
+	var w := float(lot.get("width", 7.0))
+	var yaw := rad_to_deg(t.basis.get_euler().y)
+	# Everything on it in the lot's own node, where the layout puts it.
+	var root := Node3D.new()
+	root.name = "VacantLot"
+	add_child(root)
+	root.transform = t
+	# A wagon's broken wheel, left where it came off (a whole wagon of the kit's members is some
+	# three hundred nodes: the calm street's node budget).
+	var wheel := _kit_on_ground(&"broken_wagon_wheel", t * Vector3(w * 0.6, 0.0, 6.0), yaw + 20.0)
+	wheel.reparent(root)
+	# Boards stacked crooked, as they came off a wagon and were left.
+	var heap := Node3D.new()
+	heap.name = "BoardHeap"
+	root.add_child(heap)
+	heap.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(8.0)), Vector3(w * 0.22, 0.0, 3.2))
+	heap.global_position = _grounded(heap.global_position)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1877
+	for i in 9:
+		var y := 0.03 + 0.05 * i
+		var b := Basis(Vector3.UP, deg_to_rad(rng.randf_range(-9.0, 9.0))) * Basis(Vector3.FORWARD, deg_to_rad(rng.randf_range(-2.0, 2.0)))
+		PropModels._box(heap, "Board", Vector3(3.6 - rng.randf_range(0.0, 0.9), 0.05, 0.2), Vector3(rng.randf_range(-0.2, 0.2), y, -0.5 + (i % 4) * 0.24), PropModels.weathered(), b)
+	for b in [[Vector3(w * 0.85, 0.0, 2.2), &"barrel"], [Vector3(w * 0.93, 0.0, 2.9), &"barrel"]]:
+		var p := PropLibrary.spawn(b[1])
+		root.add_child(p)
+		p.transform = Transform3D(Basis(), b[0])
+		p.global_position = _grounded(p.global_position)
+	var crate := PropLibrary.spawn(&"crate")
+	root.add_child(crate)
+	crate.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(23.0)), Vector3(w * 0.35, 0.0, 5.0))
+	crate.global_position = _grounded(crate.global_position)
+	# The board at the lot's front, by the street.
+	var post := Node3D.new()
+	post.name = "LotSign"
+	root.add_child(post)
+	post.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(-6.0)), Vector3(w * 0.5, 0.0, -0.6))
+	post.global_position = _grounded(post.global_position)
+	var wood := PropModels.dark_wood()
+	PropModels._box(post, "Post", Vector3(0.1, 1.6, 0.1), Vector3(0.0, 0.8, 0.0), wood)
+	PropModels._box(post, "Board", Vector3(1.3, 0.55, 0.03), Vector3(0.0, 1.35, -0.07), PropModels.weathered())
+	var label := Label3D.new()
+	label.text = "LOT FOR SALE\nSEE THE BANK"
+	label.font_size = 18
+	label.pixel_size = 0.012
+	label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	label.outline_size = 0
+	label.modulate = Color(0.16, 0.1, 0.07)
+	label.shaded = true
+	label.double_sided = false
+	label.position = Vector3(0.0, 1.35, -0.09)
+	label.rotation.y = PI
+	post.add_child(label)
 
 
 ## A hitching rail: two posts and a bar from x0 to x1 at z (on the old street; carried).
@@ -532,6 +622,8 @@ static func post_of(f: Array) -> Vector3:
 	var at := TownLayout.carry(f[1]) * (f[1] as Vector3)
 	if (f[1] as Vector3).y > 0.3:
 		at.y += walk_lift(at)
+	else:
+		at.y = TownLayout.ground_height(at.x) + (f[1] as Vector3).y
 	return out_of_doorway(at, 0.3)
 
 
@@ -559,6 +651,18 @@ func _kit(id: StringName, at: Vector3, yaw: float) -> Node3D:
 	var p := PropLibrary.spawn(id)
 	add_child(p)
 	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	return p
+
+
+## A kit prop standing in the street, on the ground there and tilted to its slope (the ground
+## goes with x alone: TownLayout.ground_height), so every wheel or foot meets the dirt: set level
+## on the slope, a wagon's downhill wheels hung clear of it and it fell to pieces.
+func _kit_on_ground(id: StringName, at: Vector3, yaw: float) -> Node3D:
+	var p := PropLibrary.spawn(id)
+	add_child(p)
+	var slope := TownLayout.ground_height(at.x + 0.5) - TownLayout.ground_height(at.x - 0.5)
+	p.global_transform = Transform3D(Basis(Vector3.BACK, atan(slope)) * Basis(Vector3.UP, deg_to_rad(yaw)),
+			Vector3(at.x, TownLayout.ground_height(at.x), at.z))
 	return p
 
 
