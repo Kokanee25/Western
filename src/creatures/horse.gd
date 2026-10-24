@@ -30,6 +30,11 @@ const REIN_LENGTH := 1.0
 const REIN_COLOUR := Color(0.2, 0.11, 0.06)
 ## How often the collision follows the bones (s); the idle is slow.
 const SHAPE_STEP := 0.1
+## How often the idle is posed (s): its keys are 15 a second, so posing him every frame bought
+## nothing (four horses so cost ~3.5 ms a frame headless on this workspace's core). Far off,
+## less often.
+const POSE_STEP := 1.0 / 15.0
+const POSE_STEP_FAR := 0.2
 var skeleton: Skeleton3D
 var animation: AnimationPlayer
 ## His collision: on the world's layer, as the box horse's was (bullets stop in him, people walk
@@ -46,6 +51,7 @@ var _shape_bones: Array[int] = []
 var _shape_rest: Array[Transform3D] = []
 var _sk_xf := Transform3D.IDENTITY  # the skeleton's place in the horse's space
 var _shape_clock := 0.0
+var _pose_clock := 0.0
 var _reins: MeshInstance3D
 var _rein_mesh: ImmediateMesh
 var _bits: Array[Vector3] = []  # the bit's rings at rest, model space
@@ -164,9 +170,13 @@ func _start_idle() -> void:
 	var idle := animation.get_animation(&"idle")
 	idle.loop_mode = Animation.LOOP_LINEAR
 	var h := absi(hash(Vector2i(roundi(global_position.x * 10.0), roundi(global_position.z * 10.0))))
+	# Posed by hand at the idle's own rate (_process), not every frame.
+	animation.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	animation.play(&"idle")
 	animation.seek(float(h % 1000) / 1000.0 * idle.length, true)
 	animation.speed_scale = 0.9 + 0.2 * float((h / 1000) % 100) / 100.0
+	# Each horse posed on its own frames (not all four on one).
+	_pose_clock = float(h % 97) / 97.0 * POSE_STEP
 	follow_bones()
 
 
@@ -186,13 +196,30 @@ func follow_bones() -> void:
 func _physics_process(delta: float) -> void:
 	_shape_clock += delta
 	if _shape_clock >= SHAPE_STEP:
+		var t := Prof.start()
 		_shape_clock = 0.0
 		follow_bones()
+		Prof.stop(&"horses", t)
 
 
-func _process(_delta: float) -> void:
+## The idle posed at its keys' rate (less often far off), and the tied reins redrawn when he's
+## moved.
+func _process(delta: float) -> void:
+	if animation == null:
+		return
+	_pose_clock += delta
+	var step := POSE_STEP
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam != null and cam.global_position.distance_squared_to(global_position) > FAR * FAR:
+		step = POSE_STEP_FAR
+	if _pose_clock < step:
+		return
+	var t := Prof.start()
+	animation.advance(_pose_clock)
+	_pose_clock = 0.0
 	if tied and _reins != null:
 		_draw_reins()
+	Prof.stop(&"horses", t)
 
 
 ## Tie him to a rail: his reins from the bit to `point` (global).
