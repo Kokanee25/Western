@@ -91,6 +91,18 @@ func _build() -> void:
 			PropModels.bottle(model, variant)
 		"lamp":
 			PropModels.lamp(model)
+		var other when String(other).begins_with("glb:"):
+			# A model made in Blender (docs/briefs/prop-factory.md), each part in the look its kit
+			# file's "looks" gives it by name ("" for the rest).
+			var looks: Dictionary = definition.get("looks", {})
+			for part: String in looks:
+				var mesh := PropKit.model_part(String(other).substr(4), part)
+				if mesh:
+					var mi := MeshInstance3D.new()
+					mi.name = part if part != "" else "Mesh"
+					mi.mesh = mesh
+					mi.material_override = PropKit.material(String(looks[part]), variant)
+					model.add_child(mi)
 		var other:
 			var built := PropModels.build(StringName(other), variant)
 			if built:

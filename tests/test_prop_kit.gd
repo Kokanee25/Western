@@ -73,8 +73,10 @@ func test_every_kit_file_builds_and_stands() -> void:
 	check(PropKit.ids().size() >= 2, "the chair and the card table are in the kit")
 	for id in PropKit.ids():
 		var def := PropKit.definition(id)
-		if String(def.get("kind", "members")) != "members" or def.has("hangs"):
-			continue  # props that shatter: tests/test_glass_props.gd; hung ones: test_wall_props.gd
+		if String(def.get("kind", "members")) != "members" or def.has("hangs") or def.has("factory"):
+			# Props that shatter: tests/test_glass_props.gd; hung ones: test_wall_props.gd; the
+			# factory's (wagons longer than this floor, one-member sacks): test_prop_factory.gd.
+			continue
 		# Its box's middle over the floor's (a trough's origin is at its end).
 		var mid := PropKit.bounds(def).get_center()
 		var p := await _place(id, Vector3(-mid.x, 0.3, -mid.z))
