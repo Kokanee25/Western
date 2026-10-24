@@ -8,11 +8,15 @@ improvement:** the men are the game's (`TownLife.GANG`'s tempers, nerve and prid
 `Senses`, `Cover`, untouched), the guns are yours as the keys work them. Only where everyone
 stands, which bodies the three wear, the hour and the lamps are the lab's.
 
-Since 2026-10-22 its three fixes are **variants of the gang** (`OutlawBrain.Variant`): A as the
-game plays (the default everywhere), B (fixes 1 and 2: aim by the hand, a moment to react, the
-town's cover), C (B and fix 3, shaken first). The lab runs C unless told (`variant=`,
-`run.py --variant=`). **You can play them** in the game: Y, X, Z (`play.gd`, the sheet and the
-protocol in `PLAYTEST.md`).
+Since 2026-10-22 its fixes are **variants of the gang** (`OutlawBrain.Variant`): A as the game
+played until 2026-10-23, B (fixes 1 and 2: aim by the hand, a moment to react, the town's cover),
+C (B and fix 3, shaken first), and since 2026-10-23 **D, the game's default**: C and fights that
+commit (nine fixes, `OutlawBrain.D_FIXES`, `fixes=` picks them; `results/2026-10-23_commit/`).
+The lab runs C unless told (`variant=`, `run.py --variant=`).
+
+**Since 2026-10-23 the lab fights in the new saloon** (the building lab's: `spec_*` arenas, below)
+and **you can play it there**: Y, X, Z (`play.gd`, `PLAYTEST.md`). The street arenas stay as they
+were.
 
 Everything is in this folder. Outputs go under `build/gunfight_lab/` (git-ignored). The baseline's
 numbers and its contact sheet are in `baseline/`.
@@ -36,7 +40,7 @@ python3 experiments/gunfight_lab/sheet.py /abs/f.json /abs/shots --out=sheet.png
 The bridge commands (`bridge.gd`, `python3 tools/bridge.py help` lists them with the game running):
 
 - `gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push|human]
-  [variant=A|B|C] [bodies=studio|outlaw|game] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`:
+  [variant=A|B|C|D] [fixes=...] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`:
   one fight to its end; answers the headline, writes the whole record to `out`. `style=human`
   has no bot: you (or nobody) play it, your gun starts away, and they turn when you draw or after
   `count=S` (3).
@@ -61,6 +65,39 @@ one again, Z is free play (the next variant, shown). Each run reloads the scene,
 whole again; `fight.gd` (style `human`) records it to `user://gunfight_runs/` (a JSON a run and
 `runs.csv`). F3 shows each man's last decision and why (`OutlawBrain.decision`). The sheet and the
 protocol for Sean (and anyone else who plays) are in `PLAYTEST.md`.
+
+## In the new saloon (2026-10-23)
+
+The building lab's saloon (`experiments/building_lab/`, F5's eighth stop) is built out in the
+desert west of town by `spec_saloon.gd` when a `spec_*` arena needs it, and its ways (48 places:
+in at the batwings, along the bar, round its open end to behind it, the tables, the kitchen round
+its open cellar trap, the back room, the yard, the hall stair, the galleries, the rooms, the street
+balcony) joined to the town's (`Waypoints`). Every link walked by a man (`gf_ways`: 52 of 52).
+What it took: the batwings were solid members (on `Layers.DEBRIS` now in the builder: a ball still
+hits them, anyone walks through), and the places. Positions are in the saloon's own space.
+
+| Setup | You | Brody | Lyle | The Kid |
+|---|---|---|---|---|
+| `spec_hall` | just in at the batwings | at the bar | by the middle card table | by the far table |
+| `spec_stair` | in the hall by the door | behind the bar | at the foot of the hall stair | a third of the way up it |
+| `spec_gallery` | in the middle of the hall | at the bar | on the west gallery, at its rail | on the back gallery over the tables |
+| `spec_back` | between the far tables | by the back room's door | behind the bar's far end, by the kitchen | at the back gallery's rail |
+| `spec_front` | in the desert by the boardwalk's steps | on the street balcony | along the boardwalk | at the batwings |
+
+**Openings:** as each arena starts (a standoff: they turn on you at once), or `opening=shoot`
+(`run.py --opening=,shoot`): your gun away and the men at their drink, the bot draws and fires
+first (as Sean did), and the men take it up by the game's own rules. Played (`play.gd`,
+`gf_play`), drawing doesn't start it (they warn you off, as in town): your shot does, or they go
+for theirs when the count's out (6 s).
+
+**How they quit:** `quits.py ROOT...` (by variant and opening): how often and how soon anyone
+quits, on how many hits, who first, from what fear (the brain's own ledger,
+`OutlawBrain.fear_from`), whether they fired at all, and the shooting's length (to the last shot:
+the lab ends a fight on 45 s of quiet, which isn't fighting). The baseline, the nine steps and
+the final table are in `results/2026-10-23_commit/README.md`.
+
+**The blind playtest** plays it through the bridge: `gf_play SETUP [seed=N]` and `gf_result`
+(`PLAYTEST_AGENT.md`; its report `docs/playtests/2026-10-23-gunfight.md`).
 
 ## The arenas (`scenarios.json`)
 
@@ -303,6 +340,13 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   every variant); `2026-10-22_perception/`: the perception lab's fix 1 merged in locally, and the
   fairness check widened to what a man knows. No leak before or after; the street's fights run
   longer, but cover dropped on arrival doubles (47 → 95).
+- `2026-10-23_commit/`: in the new saloon, fights that commit (variant D, the game's default):
+  you shooting first, A → D, someone quits in 98% → 88% of fights, the first at 1.4 → 3.8 s,
+  2.3 → 1.4 quits a fight, the shooting 3.5 → 15.3 s (20 s+: 12% → 38%); Brody quits 76% → 38%,
+  Lyle 78% → 32%, the Kid 80% → 72% and first to go. 45–90 s of shooting is still rare (4–12%):
+  hits decide it now. The night's round (four more fixes: rescue and pressing by the town's ways,
+  staying in while a friend's on you, a knee under fire, one man pressing on your reload; two tried
+  and dropped): 45–90 s of shooting 4% → 14% when you shoot first, 12% → 16% when they do.
 
 ## Limitations
 

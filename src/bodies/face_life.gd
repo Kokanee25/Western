@@ -49,6 +49,7 @@ var _rng := RandomNumberGenerator.new()
 ## tick it's wanted (`attend_to`); a start and a fight still take his eyes off it.
 var _attend := Vector3.INF
 var _attend_frame := -10
+var _attend_over := false  ## ... even in a fight or a start (a man looking at his own wound)
 
 
 func _ready() -> void:
@@ -134,7 +135,7 @@ func step(delta: float) -> void:
 		_pick(fear)
 	if not is_instance_valid(_who):
 		_who = null   # (gone: he looks at the point he had till his next pick)
-	if attending() and _startled <= 0.0 and not _fighting():
+	if attending() and (_attend_over or _startled <= 0.0 and not _fighting()):
 		_who = null   # at his work: his eyes on it
 		_point = _attend
 	gaze.target = _who
@@ -168,10 +169,12 @@ func expression() -> Dictionary:
 
 
 ## His eyes on `point` this tick, for whatever he's doing (WipeBar: the cloth under his hand). Call
-## it every tick he's to keep watching it; stop, and his eyes are his own again.
-func attend_to(point: Vector3) -> void:
+## it every tick he's to keep watching it; stop, and his eyes are his own again. `over_all`: even in
+## a fight and just started (OutlawBrain's wince: his eyes on his wound).
+func attend_to(point: Vector3, over_all := false) -> void:
 	_attend = point
 	_attend_frame = Engine.get_physics_frames()
+	_attend_over = over_all
 
 
 func attending() -> bool:

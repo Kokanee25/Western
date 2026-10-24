@@ -682,6 +682,12 @@ func _outer_walls() -> void:
 				door_rect = o[0]
 				_build_door()
 				_build_batwings()
+				# They swing: a man (you, or anyone) walks through them; a ball still hits them (as
+				# debris is: on everything a bullet can hit, not on what a walker stands or slides on).
+				for i in 2:
+					var leaf := get_member(StringName("%s/front/batwing%d" % [structure_id, i]))
+					if leaf:
+						leaf.collision_layer = Layers.DEBRIS
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a
@@ -963,7 +969,9 @@ func _partitions(level: String, b: int) -> void:
 			var face := _face(wall, STUD_D * 0.5 * (1.0 if plus else -1.0), 1.0 if plus else -1.0)
 			_finish(face, "%s/%s" % [w.id, "p" if plus else "m"], 0.0, wall.length, foot, top + PLATE_H, String(fin.finish), rects, 1)
 		for o in ops:
-			_leaf(wall, o[0], false, -STUD_D * 0.5)
+			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
+			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
+			_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------

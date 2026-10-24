@@ -27,6 +27,7 @@ means a section of this file.
 - [src/fire](#srcfire)
 - [src/bodies](#srcbodies)
 - [src/people](#srcpeople)
+- [src/moments](#srcmoments)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -82,10 +83,14 @@ already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
-scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
-`run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
-sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
-A/B/C, runs to `user://gunfight_runs/` (`PLAYTEST.md`).
+scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
+`gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
+sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
+its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
+play it: Y the next setup in the new saloon, X again, Z the next variant, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -307,6 +312,17 @@ a few views renders them as the full run does.
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
 
+**The light pass's looks** (issue #318, `docs/screenshots/light_pass/2026-10-23/`): `LightLooks`
+(`light_looks.gd`, a node `main.gd` adds; **8** cycles today / A / B / C, `--light-look=a|b|c` for a
+run) applies `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
+the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
+(street colour), SSAO, `grade.*` (`LightGrade`: a 32-cube lookup on the environment's colour
+correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
+environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
+carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
+by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
+back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
+
 ## The look panel
 
 - **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
@@ -315,8 +331,8 @@ a few views renders them as the full run does.
   a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
   Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
   (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
-  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
-  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  saloon>[_hanging|_wall].<energy|light_range|haze|attenuation>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `grade.`, `finish.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
   {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
   game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
   vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
@@ -326,16 +342,33 @@ a few views renders them as the full run does.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
+  clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
+  lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
 
 ## src/player
 
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`),
   `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
+- `PlayerMotion` (`player_motion.gd`): how the body carries the eyes and the gun, stepped by the
+  Player each physics frame: steps (a footfall each: the footstep sound and noise, the head's low
+  and thud, the legs), lean into strafes, turns and pushes off, a landing's dip, the crouch's
+  spring, a winded heave; the gun's lag and step ride (`hand_turn` joins the sway, `hand_pos` the
+  pose: `WeaponViewmodel._body_pos()`). Momentum is `Player._momentum` (along the way: accel,
+  `run_build`, decel, `reverse_decel`; across it `turn_grip`). Presets `config/movement/light|middle|
+  heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
+  (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
+  `experiments/movement_feel/` (measure, films).
 
 ## src/world
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
-  placeholder scenery.
+  placeholder scenery. The day starts at noon with the clock **held** (`hold_clock`, Sean 2026-10-23:
+  "daytime stays daytime"; `DayCycle.held`: `advance` doesn't move it, `time_scale` stays, since
+  bleeding runs on it); T: held -> x1 -> x30 -> x180 -> held; `set_time_scale` (soak, labs, bridge)
+  lets it run; 7 jumps through `hour_stops` (noon, 15:30, 17:36, 21:30). The high sun's dials
+  ("High sun" in the config: `exposure_day`, `ambient_sky_day`, `sky_high_*`, `fog_high_sun`) scale
+  by `get_high_sun()`; at their defaults the light is as it was.
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
@@ -448,6 +481,18 @@ a few views renders them as the full run does.
   balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
   treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
   and stair rails and the lab's 1 m railing (group Q) are built of it.
+  **Old buildings** (`BuildingAge`, dials `config/building_age.tres`; issue #326): `age_years` on a
+  `FalseFrontBuilding` or `Boardwalk` (town.json's `set`, or `age` on a StreetDressing entry) wears it,
+  seeded by its id and build seed (nothing saved). `alter` (before `infer_supports`): rough boards
+  gone or rotted short (never one a trim hangs on, never left on nothing: `remove_built`), a stretch
+  of one wall in newer boards (`WoodMaterials.newer`), shutters on side and back windows (members
+  resting on the siding), porch boards gone, a plank replaced, a step cracked in two (`.../a`,
+  `/b`). `settle_in` (after): fields move members (`reshape`: whole onto the chord of where its
+  ends go, body and collision with it, drawn bent by `MemberMesh.warped` where it bends): the porch
+  sags span by span and racks, the ridge sways, the false front leans out above the roofline; then
+  `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
+  framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
+  untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
 
 ## src/fire
 
@@ -525,8 +570,15 @@ a few views renders them as the full run does.
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
   it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
-  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
-  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  `variant`, the gunfight lab's A/B/C/D: A the old default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too, D fights that commit (`D_FIXES`:
+  noise is `fright`, fading, at most a share of his nerve; aimed at frightens only before a fight;
+  a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
+  a green man's quitting barely counts; the long way round to cover; `_thump`; knocked down he
+  gets up; hunting, rescuing and pressing by the town's ways; no standing down while a friend's
+  on you; a knee in the open under fire; one man `press`es on your reload, the rest cover him);
+  `fear_from`, his
+  fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
@@ -545,6 +597,39 @@ a few views renders them as the full run does.
   of a person's lights under `light_cap` × his own colour (top channel; `light_knee` where it
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
+
+**Clips of motion** (`src/bodies/motion_clip.gd`, `MotionClip`; `assets/animations/<name>.json`,
+its README): each segment's turn a sample (quaternions), the root's travel and the hips' height in
+the clip's start frame (he faces -z; his turning in the clip is in his pelvis's turn), marks
+(`events`: `strike`, `draw`, the strike's `reach_m`, `kick_height_m`, `kick_dir`, where his hips
+are then), and `strikes` (parts that hit what they meet). `HumanBody.play_clip(name, speed, loop,
+{travel: false})` plays one as the targets his pose follows: every joint the clip has leads
+(a flinch, a wound's lean, a stumble stay on top), its travel goes through `_slide` and
+`_snap_to_ground` like a step, a swung part's sweep (between ticks too) meets a kit prop's member
+through `KitProp.take_blow` (`clip_struck`), `go_limp` ends it; `clip_done`, `clip_event` at the
+marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
+`tools/blender/retarget_motion.py` (docs/MOCAP.md): any humanoid glTF (Uthana's, Mixamo-named;
+FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
+(`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
+the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
+name; glTF of our rig beside each for the record.
+
+## src/moments
+
+**Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
+situation from data, `config/moments/<name>.json` (who, where, the hour, the clips, the lines, the
+timings; `script` names the moment's own class), played out by the systems. Started by the dev
+bridge (`moment NAME [key=value]`, `moment_result [wait [S]]`) or at launch with `-- --moment=NAME`
+(`Moment.maybe_start`, from `main.gd`); `result()` says what happened, `reset()` takes its people
+and props back out and puts a whole chair back. **The card cheat** (`card_cheat.gd`, `CardCheat`):
+Earl sat back at the saloon's front card table in the chair whose back faces the door (posed first,
+his weight on the seat half a second on), Cody in from `saloon_door` on `walk_angry` (steered;
+`walk_to` if a wall stops the clip's travel), onto a mark and a line worked out from the kick clip's
+strike marks so the boot's mid-swing is the right back post (`reach_k` 0.65 of its reach; pose to
+pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the clip's mark or
+45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
+nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
+(N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
 
 ## src/people
 
@@ -631,6 +716,10 @@ a few views renders them as the full run does.
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
+  The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
+  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
+  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`). The metals are factory paintings (`GunParts._painted`).
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
@@ -904,6 +993,17 @@ a few views renders them as the full run does.
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
 
+- **The prop factory** (`docs/briefs/prop-factory.md`): props in batches. Families written as kit
+  files by generators (`tools/props/wagons.py`: the wheels and wagons, every wheel built down the
+  tier ladder so it stands on its rim); organic shapes made in Blender (`~/bpyenv/bin/python
+  tools/blender/props/build.py [--only=]`; bpy 5.0.1 on Python 3.11 via `uv venv -p 3.11` and `uv pip
+  install bpy==5.0.1 numpy`; `common.py`: geometry in game space, UVs in metres, a part an object)
+  into `assets/props/models/<id>.glb` (then `godot --headless --import`, commit the `.import`), drawn
+  on members by `"draw": {"shape": "mesh", "model", "part", "at", "rot"}` (`PropKit.model_part`) or a
+  loose prop's `"model": "glb:<id>"` + `looks`. Lathes and sweeps take `"at"`/`"rot"` (onto any axis).
+  Contact sheets: `python3 experiments/prop_lab/factory_sheet.py --ids=a,b --out=DIR` (the lab's
+  bridge `prop ID X Y Z [YAW]`: before the saloon, a townsman beside, noon and 21:30).
+
 - **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
   `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over
   a frozen `Body` (DEBRIS, `ballistic_thickness` = two walls: a ball passes and `Events.bullet_hit`
@@ -912,6 +1012,23 @@ a few views renders them as the full run does.
   (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
   GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
   the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+- **What a prop holds** (`PropContents`, `src/props/prop_contents.gd`; a KitProp whose file has `holds`
+  and `contents`, made in `KitProp._ready`): litres, the level from the inside's shape (a table of
+  litres by height), `kg()` in `KitProp.mass`; `leaks` from members' `damaged` (a through-hole's outer
+  end: an orifice, `flow` by Torricelli) and `Events.member_broken` (a side gone: a slot); each tick
+  while one runs, the level falls, the jets (`Jets`, an ImmediateMesh of crossed strips along each
+  parabola) are redrawn every 3 frames, and every 0.5 s each leak's litres go on the bus where it
+  lands (`landing`); `on_loose` (from `KitProp.go_loose`): one body, sides whole, it rides in it (its
+  mass added; `_burst` when that body breaks up), else `release` (the lot, round where it stood).
+  Idle (no physics process) till it leaks. Kit files `like` another (`PropKit.definition` lays theirs
+  over it): `whiskey_barrel`, `water_barrel`, `oil_barrel` are the barrel full.
+- **Loose rigid props** (`LooseProp`, `src/props/loose_prop.gd`, extends GlassProp; kit `"kind": "loose"`:
+  the spittoon, the tin cup): GlassProp's standing, footing, waking and blast throw; `shatter` means
+  struck hard (a dent), `_on_bullet_hit` holes (`Mark` quads, both sides via `_far_side`) and knocks
+  it by the momentum the ball lost (`bullet_hit`'s `mass`, energy before and after), `take_blow(at,
+  impulse, blow_mass)`, `dent` (copies the model's meshes, vertices pushed in a smooth dish),
+  `_spill` (tipped past `spills_below`, or holed under its contents' `level`); no `_heat`. A
+  `"shape": "cylinder"` fit body (GlassProp) so it rolls; `roll_damp` its angular damping.
 - **Props that are cloth** (`ClothProp`, `src/props/cloth_prop.gd`; kit `"kind": "cloth"`, made by
   `PropKit.make`; the bar rag `bar_cloth.json`): a `SoftBody3D` grid (`points`, UVs in metres, layer
   0, mask WORLD | BODY_PARTS | DEBRIS); `hold(man, side)` pins the points within `grip_radius` of

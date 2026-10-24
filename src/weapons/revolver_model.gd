@@ -84,9 +84,10 @@ func _build() -> void:
 	GunParts.box(self, "GuardBottom", Vector3(0.006, 0.004, 0.038), Vector3(0, -0.027, -0.018), guard)
 	GunParts.box(self, "GuardBack", Vector3(0.006, 0.02, 0.004), Vector3(0, -0.018, 0.002), guard, Vector3(12, 0, 0))
 
-	# Walnut grip, raked back, with the brass backstrap.
+	# Walnut grip, raked back (its butt behind the frame: a turn about X takes -Y towards +Z when
+	# negative), with the brass backstrap.
 	var grip := GunParts.pivot(self, "Grip", Vector3(0, -0.004, 0.012))
-	grip.rotation_degrees = Vector3(22, 0, 0)
+	grip.rotation_degrees = Vector3(-22, 0, 0)
 	GunParts.box(grip, "Panels", Vector3(0.03, 0.085, 0.032), Vector3(0, -0.042, 0.004), GunParts.walnut())
 	GunParts.box(grip, "Backstrap", Vector3(0.012, 0.085, 0.004), Vector3(0, -0.042, 0.022), guard)
 	GunParts.box(grip, "Butt", Vector3(0.03, 0.006, 0.036), Vector3(0, -0.086, 0.004), guard)

@@ -53,6 +53,8 @@ var loose := false
 signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
+## What it holds (its kit file's "holds" and "contents": a barrel's whiskey), or null.
+var contents: PropContents
 
 var _feet := {}  # grounded StructureMember -> [[floor member or null for solid ground, its position]]
 var _footed := false
@@ -68,6 +70,10 @@ func _ready() -> void:
 	if definition.is_empty() and kit_id != &"":
 		definition = PropKit.definition(kit_id)
 	super._ready()
+	if contents == null:
+		contents = PropContents.make(self)
+		if contents:
+			add_child(contents)
 	if not Events.member_broken.is_connected(_on_member_broken):
 		Events.member_broken.connect(_on_member_broken)
 		Events.exploded.connect(_on_exploded)
@@ -98,7 +104,8 @@ func build() -> void:
 			for mesh: Mesh in looks[look]:
 				st.append_from(mesh, 0, Transform3D.IDENTITY)
 			layer.mesh = st.commit()
-			layer.material_override = PropKit.material(look, hash(m.member_id))
+			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
+			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 	var seat: Dictionary = definition.get("seat", {})
@@ -399,9 +406,9 @@ func _on_member_broken(id: StringName) -> void:
 		_check_balance.call_deferred()
 
 
-## Mass of what's left standing (kg).
+## Mass of what's left standing and what's in it (kg).
 func mass() -> float:
-	var kg := 0.0
+	var kg := contents.kg() if contents else 0.0
 	for m in get_members():
 		if not m.broken:
 			kg += m.weight(tuning) / 9.81
@@ -421,6 +428,9 @@ func centre_of_weight() -> Vector4:
 	if seated and _seat_member and not _seat_member.broken:
 		sum += _seat_point * _seat_member.extra_load
 		w += _seat_member.extra_load
+	if contents and not contents.released:
+		sum += contents.centre() * contents.kg() * 9.81
+		w += contents.kg() * 9.81
 	return Vector4(sum.x / maxf(w, 1e-6), sum.y / maxf(w, 1e-6), sum.z / maxf(w, 1e-6), w)
 
 
@@ -443,6 +453,8 @@ func _check_balance() -> void:
 	if left.is_empty():
 		loose = true
 		_unseat()
+		if contents:
+			contents.release()
 		return
 	if hung():
 		return  # it hangs from its nails (whatever's left on them: _physics_step)
@@ -473,18 +485,32 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	if not ids.is_empty():
 		_drop(ids)
 	for i in range(before, rubble.size()):
-		var rb := rubble[i]
-		if not is_instance_valid(rb):
-			continue
+		if is_instance_valid(rubble[i]):
+			made.append(rubble[i])
+	# What it holds goes into its body first (its weight with it), so a blow moves the two of them;
+	# let go instead (a side out), the blow, reckoned with it in, moves only what's left.
+	if contents:
+		var with_it := mass()
+		contents.on_loose(made)
+		if contents.released and impulse != Vector3.ZERO:
+			impulse *= _mass_of(made) / maxf(with_it, 0.1)
+	for rb in made:
 		rb.linear_velocity = velocity
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
-		made.append(rb)
 	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()
 	return made
+
+
+static func _mass_of(bodies: Array[RigidBody3D]) -> float:
+	var kg := 0.0
+	for rb in bodies:
+		if is_instance_valid(rb):
+			kg += rb.mass
+	return kg
 
 
 static var _fittings: WeakRef
@@ -510,9 +536,11 @@ func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
 			# A lamp's hitbox stays a fixed body inside its fallen lamp (Fittings): what's left of the
 			# prop mustn't meet it as an immovable box.
 			for b: Variant in item.get("bodies", []):
-				if b is StaticBody3D and is_instance_valid(b):
+				# (Valid first: `is` on a freed body is an error, and a smashed lamp's may be gone.)
+				if is_instance_valid(b) and b is StaticBody3D:
 					for rb in bodies:
-						rb.add_collision_exception_with(b)
+						if is_instance_valid(rb):
+							rb.add_collision_exception_with(b)
 
 
 # --- Splitting -----------------------------------------------------------------------------------
@@ -645,6 +673,9 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	# What actually moves: what it held may have run out as it went (a full barrel blown open).
+	if contents and contents.released:
+		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())
 	set_meta(&"blast_push", total * scale)
 	# Pushed once the new body is in the physics world (given in the frame it's made, half of it
 	# was lost).
