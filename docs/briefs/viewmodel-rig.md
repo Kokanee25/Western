@@ -23,7 +23,12 @@ way a good shooter's hands look, judged against Sean's photos and the men's shee
 
 1. **References first:** Sean's 3–4 phone photos from his own eye, holding something long at the
    hip and shouldered (and a revolver-sized object), plus one from the side
-   (`docs/concept/guns/ref/`). Image hosts are blocked in the session.
+   (`docs/concept/guns/ref/`), and the 13 first-person holds found in public GitHub repos (links
+   and what each shows in `docs/concept/guns/ref/SOURCES.md`; looked at, never copied in). What
+   they share: the long gun big in the lower right, angled in from the corner towards the centre;
+   the left hand far forward on the fore-end with the forearm showing to the elbow; the right hand
+   low at the grip, often only its cuff in frame; aimed, the gun runs straight up the middle from
+   the bottom edge with the hands at the two lower corners.
 2. **One Blender scene a gun** (`experiments/gun_lab/blender/viewmodel_rig.py`, headless): the
    camera matched to the game's (its FOV, near plane, where the viewmodel hangs in camera space);
    the two arms from Sean's man (his armature's arm and finger bones, the painted `held_arm_skin`,
