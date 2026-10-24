@@ -1,0 +1,32 @@
+{
+  "kind": "members",
+  "in_game": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.3,
+  "_doc": "Horse droppings in the street (the prop factory's, tools/blender/props/horse_droppings.py): one small member, drawn as a scatter of lumps. Dry, it burns; a ball or a boot scatters it.",
+  "id": "horse_droppings",
+  "factory": "tools/blender/props/horse_droppings.py",
+  "wood": "dung",
+  "look": "prop:dung",
+  "members": [
+    {
+      "id": "lumps",
+      "kind": "post",
+      "size": [
+        0.28,
+        0.07,
+        0.24
+      ],
+      "at": [
+        0,
+        0.035,
+        0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "horse_droppings",
+        "part": "lumps"
+      }
+    }
+  ]
+}
