@@ -568,8 +568,12 @@ frozen until Sean names one.
   `-- --moment=NAME`), the Uthana clips in `assets/animations/` by
   `tools/blender/retarget_motion.py` (#342, build 2338); 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
   pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
-  generated one is high and forward). Next: the player's ways out and the room (the `next session`
-  issue).
+  generated one is high and forward). Then (Sean, the same day): `WalkStyles`/`HumanBody.walk_clip`
+  (`config/walks.json`), the barkeep's `wipe_bar`/`mop_floor` clips under his deeds, moments
+  `walks_lineup` and `trough_scoop`; films `experiments/motion_films/results/2026-10-24/`. **Uthana
+  bills ~$0.50 a prediction** (the ledger had read $0.0001/s off its page: ~$20 spent against
+  Sean's $10, #347); the four other walks wait on his word. Next: the player's ways out and the
+  room (the `next session` issue #344).
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):

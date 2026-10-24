@@ -334,6 +334,10 @@ var _clip_opts := {}  ## "travel": false (he stays put; whoever plays it moves h
 var _clip_struck := {}  ## StructureMember -> true: struck once this clip
 var _clip_part_was := {}  ## striking part -> its global transform last tick
 const CLIP_BLOW_MASS := 8.0  ## kg behind a kicking boot (the chair lab's: a leg's share of him)
+## His own way of walking (WalkStyles, config/walks.json): a clip played looped while he walks,
+## its rate following his speed, his walking doing the moving. Empty: the swinging gait.
+var walk_clip := &""
+var _walk_clip_on := false
 const CLIP_STRIKE_SPEED := 1.5  ## m/s: slower than this a boot strikes nothing
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
@@ -360,6 +364,8 @@ var _bone_parts: Array[StringName] = []
 
 
 func _ready() -> void:
+	if walk_clip == &"":
+		walk_clip = WalkStyles.clip_for(person_id, body_model)
 	add_to_group(&"people")
 	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
@@ -1230,6 +1236,10 @@ func _physics_step(delta: float) -> void:
 		move_speed = move_toward(move_speed, 0.0, delta * 6.0)
 		if move_speed < 0.05:
 			gait = &""
+		if _walk_clip_on and move_speed < 0.3:
+			_walk_clip_on = false  # he's stopping: off the walk, back to his pose
+			if _clip != null and _clip.name == walk_clip:
+				stop_clip()
 	_moved_this_tick = false
 	if not limp:
 		_track_carry(delta)
@@ -1591,9 +1601,35 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 	gait = how
 	move_speed = moved.length() / maxf(delta, 1e-4)
 	_moved_this_tick = true
+	_walk_clip_step(how, move_speed)
 	var left := target - global_position
 	left.y = 0.0
 	return left.length() < 0.1 or (dist < 0.4 and moved.length() < 0.001)
+
+
+## His own walk clip while he walks (not limping, crawling or on another clip): started as he
+## sets off, its rate his speed over the clip's, let go as he stops (the gait's sines take a
+## limp; a run too, until there's a run clip).
+func _walk_clip_step(how: StringName, speed_now: float) -> void:
+	if walk_clip == &"" or how != &"walk":
+		if _walk_clip_on and _clip != null and _clip.name == walk_clip:
+			stop_clip()
+		_walk_clip_on = false
+		return
+	if _clip != null and _clip.name != walk_clip:
+		return  # busy with another clip (a kick, a draw): it has him
+	var c := MotionClip.load_clip(walk_clip)
+	if c == null or c.length() <= 0.0:
+		return
+	var travel := c.root_at(c.length()) - c.root_at(0.0)
+	travel.y = 0.0
+	var clip_speed := travel.length() / c.length()
+	var rate := clampf(speed_now / maxf(clip_speed, 0.3), 0.6, 1.6)
+	if _clip == null:
+		play_clip(walk_clip, rate, true, {"travel": false})
+		_walk_clip_on = true
+	else:
+		_clip_speed = rate
 
 
 ## Pulled along by the collar towards `holder` (the hands of whoever's dragging him), this tick.
