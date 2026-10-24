@@ -570,7 +570,7 @@ frozen until Sean names one.
   pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
   generated one is high and forward). Then (Sean, the same day): `WalkStyles`/`HumanBody.walk_clip`
   (`config/walks.json`), the barkeep's `wipe_bar`/`mop_floor` clips under his deeds, moments
-  `walks_lineup` and `trough_scoop`; films `experiments/motion_films/results/2026-10-24/`. **Uthana
+  `walks_lineup` and `trough_scoop` (#358, build 2394); films `experiments/motion_films/results/2026-10-24/`. **Uthana
   bills ~$0.50 a prediction** (the ledger had read $0.0001/s off its page: ~$20 spent against
   Sean's $10, #347); the four other walks wait on his word. Next: the player's ways out and the
   room (the `next session` issue #344).
