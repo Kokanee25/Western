@@ -19,10 +19,13 @@ var tiles := {}
 
 var _mesh: MeshInstance3D
 var _rise_mesh: MeshInstance3D
-## Vector2i (a chunk of the slope, in chunks) -> {dug: its dug tiles' keys, sorted; body: its own
-## StaticBody3D (an edit rebuilds only its shapes); verts, normals, index: its part of the slope's
-## mesh}.
+## Vector2i (a chunk of the slope, in chunks) -> {dug: its dug tiles' keys, sorted; owners: its
+## shape owners on its column's body (an edit swaps only those); verts, normals, index: its part of
+## the slope's mesh}.
 var _chunks := {}
+## int (a column of chunks along x) -> the StaticBody3D its chunks' shapes are on (a body a chunk was
+## ~280 more nodes in the street).
+var _columns := {}
 var _rise_tangents := PackedFloat32Array()
 
 ## Tiles a side of a chunk of the slope; its height field has a point every tile corner (the
@@ -251,8 +254,9 @@ func _flat_mesh(rects: Array) -> ArrayMesh:
 	return mesh
 
 
-## The slope's chunks: each its own body of solid columns, a tile wide, tilted to the ground, and its
-## part of the slope's mesh; a chunk with dug tiles in it is cut round them into rectangles.
+## The slope's chunks: each solid columns, a tile wide, tilted to the ground, as shape owners on its
+## column of chunks' body, and its part of the slope's mesh; a chunk with dug tiles in it is cut
+## round them into rectangles.
 ## Only the chunks whose dug tiles have changed are made again.
 func _rebuild_rise(area: Rect2) -> void:
 	if area.size == Vector2.ZERO:
@@ -278,10 +282,16 @@ func _rebuild_rise(area: Rect2) -> void:
 			var known: Dictionary = _chunks.get(ck, {})
 			if not known.is_empty() and known.dug == keys:
 				continue
-			if known.has("body"):
-				(known.body as Node).free()
+			if known.has("owners"):
+				var col := _column(ck.x)
+				for id: int in known.owners:
+					col.remove_shape_owner(id)
 			_chunks[ck] = _make_chunk(ck, keys, (slot - 1) * CHUNK_SLOT)
 			changed = true
+	for cx: int in _columns:
+		var body: StaticBody3D = _columns[cx]
+		if body.get_parent() == null:
+			add_child(body)
 	if changed or _rise_mesh == null:
 		_rise_mesh_rebuild()
 
@@ -299,12 +309,8 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 				if q.size.x > size * 0.5 and q.size.y > size * 0.5:
 					next.append(q)
 		pieces = next
-	var body := StaticBody3D.new()
-	body.name = "Rise_%d_%d" % [ck.x, ck.y]
-	body.collision_layer = collision_layer
-	body.collision_mask = collision_mask
-	for m in [&"ground", &"surface"]:
-		body.set_meta(m, get_meta(m))
+	var body := _column(ck.x)
+	var owners: Array[int] = []
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var idx := PackedInt32Array()
@@ -344,7 +350,7 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 			var owner := body.create_shape_owner(body)
 			body.shape_owner_add_shape(owner, box)
 			body.shape_owner_set_transform(owner, Transform3D(Basis(Vector3.BACK, tilt), top - up * tuning.slab_depth * 0.5))
-	add_child(body)
+			owners.append(owner)
 	# Padded to the slot (unused points, under the ground at the chunk's corner).
 	var pad := CHUNK_SLOT - verts.size()
 	if pad > 0:
@@ -355,7 +361,23 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 		verts.append_array(fill)
 		fill.fill(Vector3.UP)
 		normals.append_array(fill)
-	return {"dug": dug, "body": body, "verts": verts, "normals": normals, "index": idx}
+	return {"dug": dug, "owners": owners, "verts": verts, "normals": normals, "index": idx}
+
+
+## The body a column of the slope's chunks (along x) puts its shapes on, made the first time.
+func _column(cx: int) -> StaticBody3D:
+	if _columns.has(cx):
+		return _columns[cx]
+	var body := StaticBody3D.new()
+	body.name = "Rise_%d" % cx
+	body.collision_layer = collision_layer
+	body.collision_mask = collision_mask
+	for m in [&"ground", &"surface"]:
+		body.set_meta(m, get_meta(m))
+	# Into the tree once its shapes are on (_rebuild_rise): each shape added to a body in the
+	# world rebuilds its whole compound.
+	_columns[cx] = body
+	return body
 
 
 ## The rise's one mesh, from its chunks' parts.
