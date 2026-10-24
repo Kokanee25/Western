@@ -9,6 +9,12 @@ extends RefCounted
 ##           from its peek.
 ##   push  - pushes hard: walks at the nearest man he knows of, shooting as he goes, and reloads
 ##           where he stands.
+##   careful - cover as a careful person plays it (Experiment, 2026-10-24: a scripted player more
+##           like a person, so a fight's length isn't one quick shot's): to cover first when it
+##           starts; up for a shot or two (CAREFUL_UP s at most) then down again for a moment;
+##           down a while when he's hit, pressing on a wound that bleeds once it's quiet; topping
+##           up his rounds while he's down; hurried (a wider aim, less settling) with balls
+##           cracking past; his aim CAREFUL_AIM times the cover style's.
 ## He sees by the gang's rules (Senses: range by daylight, sharp ahead and dim to the side,
 ## nothing behind, a clear line to head, chest or pelvis, awareness built over a moment, harder
 ## to pick out a man crouched and still) and hears their shots roughly where they came from.
@@ -76,6 +82,21 @@ var _look_out := 0.0
 var _look_out_in := 3.0
 
 ## What he did, for the record.
+# careful: down (not shooting, head down) till this fight time; up this long; to cover at the start.
+const CAREFUL_UP := 1.6
+const CAREFUL_DOWN := Vector2(1.2, 2.8)
+const CAREFUL_HIT_DOWN := 3.0
+const CAREFUL_AIM := 1.6
+var careful := false
+var _down_until := -1.0
+var _up := 0.0
+var _peek_shots := 0
+var _took_cover := false
+var _tending := 0.0
+var _tended_at := -99.0
+var _route: Array = []  # careful: the way to his next cover, by the building's ways
+var _dbg := 0.0
+
 var stats := {"shots": 0, "cover_moves": 0, "reloads": 0, "stuck": 0, "drew_at": -1.0, "first_aimed_at": -1.0, "arm_out_at": -1.0, "look_outs": 0}
 
 
@@ -84,6 +105,10 @@ func setup(p: Player, men: Array, how: String, seed_value: int, kind: String, ai
 	aim_sd = Vector2(aim_degrees, aim_degrees * 0.75)
 	gang = men
 	style = how
+	careful = how == "careful"
+	if careful:
+		style = "cover"
+		aim_sd *= CAREFUL_AIM
 	weapon_kind = kind
 	rng.seed = seed_value * 7919 + 17
 	reaction = rng.randf_range(0.25, 0.45)
@@ -158,7 +183,9 @@ func tick(delta: float, fight_t: float) -> void:
 			_cover(delta)
 		"push":
 			_push(delta)
-	if target != null and armed:
+	if careful:
+		_careful_step(delta)
+	if target != null and armed and not (careful and now < _down_until):
 		_aim(delta)
 	elif moving_to == Vector3.INF and not held.has(&"move_forward"):
 		_search_look(delta)
@@ -262,6 +289,8 @@ func _on_near_miss(person: Node, _shooter: Node, _d: float, _at: Vector3, _s: fl
 func _on_body_hit(info: Dictionary) -> void:
 	if info.get("person") == player:
 		_hit_recent = now
+		if careful:
+			_down_until = maxf(_down_until, now + CAREFUL_HIT_DOWN)
 		if walking:
 			_contact()
 
@@ -393,7 +422,8 @@ func _handle_gun(delta: float) -> void:
 		return
 	var seen_target: bool = target != null and _k(target).seen
 	var want_reload: bool = loaded() == 0 or (loaded() < _full() and not seen_target and style != "push" \
-			and (target == null or now - float(_k(target).last_time) > 2.5) and _since_shot > 1.5)
+			and (target == null or now - float(_k(target).last_time) > 2.5) and _since_shot > 1.5) \
+			or (careful and now < _down_until and loaded() <= 2 and _since_shot > 0.5)
 	if want_reload and not _cocked():
 		_reloading = true
 		_reload_t = 0.0
@@ -449,7 +479,11 @@ func _aim(delta: float) -> void:
 		_shots_here += 1
 		stats.shots += 1
 		_settle = rng.randf_range(0.2, 0.45)
-		_bias = Vector2(rng.randfn(0.0, aim_sd.x), rng.randfn(0.0, aim_sd.y))
+		var hurry := 1.5 if careful and _near_recent.any(func(t: float) -> bool: return now - t < 1.0) else 1.0
+		if hurry > 1.0:
+			_settle *= 0.6
+		_bias = Vector2(rng.randfn(0.0, aim_sd.x * hurry), rng.randfn(0.0, aim_sd.y * hurry))
+		_peek_shots += 1
 
 
 ## No man in sight: he looks where he last saw or heard one, his eyes going a little either side.
@@ -469,6 +503,45 @@ func _search_look(delta: float) -> void:
 	player.input_enabled = was
 
 
+## The building's ways, as the gang knows them (careful: his cover's found and reached by them).
+func _places() -> Waypoints:
+	for man: HumanBody in _live():
+		var b := man.get_node_or_null(^"Brain") as OutlawBrain
+		if b and b.places:
+			return b.places
+	return null
+
+
+## careful: how long he's been up shooting; down again after a shot or two; a wound pressed on.
+func _careful_step(delta: float) -> void:
+	_dbg -= delta
+	if OS.has_environment("BOT_DEBUG") and _dbg <= 0.0:
+		_dbg = 0.5
+		print("BOT t=%.1f down=%.1f up=%.1f target=%s seen=%s moving=%s spot=%s low=%s crouch=%s reload=%s tend=%.1f shots=%d onT=%.2f" % [now, _down_until - now, _up, target.name if target else "-", _k(target).seen if target else false, moving_to != Vector3.INF, spot, low_cover, held.has(&"crouch"), _reloading, _tending, stats.shots, _on_target])
+	# Up (or out to the edge) whenever he's not down: to look, and to shoot if there's a man there.
+	var up := now >= _down_until and moving_to == Vector3.INF and not _reloading and _threat() != Vector3.INF
+	_up = _up + delta if up else 0.0
+	if not up:
+		_peek_shots = 0
+	if up and (_up > CAREFUL_UP + (0.8 if target != null and _peek_shots == 0 else 0.0) or (_peek_shots >= 1 + rng.randi() % 2 and _since_shot > 0.3)):
+		_down_until = now + rng.randf_range(CAREFUL_DOWN.x, CAREFUL_DOWN.y)
+		_up = 0.0
+		_peek_shots = 0
+	# A wound that's bleeding, and nothing coming in for a moment: down, pressing on it.
+	var ph := player.wounds.physiology
+	var quiet := _near_recent.filter(func(t: float) -> bool: return now - t < 3.0).is_empty() and now - _hit_recent > 3.0
+	if _tending > 0.0:
+		_tending -= delta
+		_down_until = maxf(_down_until, now + 0.2)
+		if _tending <= 0.0 or ph.total_bleed_rate() < 0.3:
+			_tending = 0.0
+			_hold_action(&"tend_wounds", false)
+	elif ph.total_bleed_rate() > 0.8 and quiet and not _reloading and moving_to == Vector3.INF and now - _tended_at > 10.0:
+		_tending = 6.0
+		_tended_at = now
+		_hold_action(&"tend_wounds", true)
+
+
 # -- Styles ---------------------------------------------------------------------------------------
 
 ## Crouched behind it unless he must stand to see the man he's after.
@@ -481,6 +554,9 @@ func _hold(delta: float) -> void:
 
 
 func _crouch_or_stand() -> void:
+	if careful and not (opens and not _opened):
+		_hold_action(&"crouch", _reloading or now < _down_until or _threat() == Vector3.INF)
+		return
 	if opens and not _opened:
 		_hold_action(&"crouch", false)  # standing as he draws on them
 		return
@@ -496,7 +572,10 @@ func _crouch_or_stand() -> void:
 
 func _cover(delta: float) -> void:
 	if moving_to != Vector3.INF:
-		if _go(moving_to, delta, true):
+		while _route.size() > 1 and player.global_position.distance_to(_route[0]) < 0.5:
+			_route.pop_front()
+		var leg: Vector3 = _route[0] if not _route.is_empty() else moving_to
+		if _go(leg, delta, true) and (_route.size() <= 1):
 			_stop_moving()
 			spot = player.global_position
 			_shots_here = 0
@@ -519,14 +598,17 @@ func _cover(delta: float) -> void:
 	_flanked = _flanked + delta if flanked and player.is_crouching else 0.0
 	_idle_here = _idle_here + delta if target == null else 0.0
 	var go := _shots_here >= _shots_before_move or now - _hit_recent < 0.3 or _near_recent.size() >= 3 \
-			or _flanked > 1.5 or _idle_here > 12.0
+			or _flanked > 1.5 or _idle_here > 12.0 or (careful and not _took_cover and contact_at >= 0.0 and not (opens and not _opened))
+	if careful and go:
+		_took_cover = true
 	if go and not _reloading and threat != Vector3.INF and _since_shot > 0.3:
 		var exclude: Array[RID] = [player.get_rid()]
 		for man: HumanBody in _live():
 			if is_instance_valid(man):
 				for sid: StringName in man.parts:
 					exclude.append((man.parts[sid] as CollisionObject3D).get_rid())
-		var found := Cover.find(player.get_parent() as Node3D, player.global_position, threat + Vector3.UP * 1.6, exclude, rng, spot, 11.0)
+		var found := Cover.find(player.get_parent() as Node3D, player.global_position, threat + Vector3.UP * 1.6, exclude, rng, spot, 11.0,
+				_places() if careful else null)
 		_near_recent.clear()
 		_shots_here = 0
 		_idle_here = 0.0
@@ -534,13 +616,21 @@ func _cover(delta: float) -> void:
 		_shots_before_move = 2 + rng.randi() % 2
 		if not found.is_empty() and (found.at as Vector3).distance_to(player.global_position) > 1.0:
 			moving_to = found.at
+			_route = (found.get("route", []) as Array).duplicate() if careful else []
 			peek = found.peek
 			low_cover = found.low
 			_move_started = now
 			_hold_action(&"crouch", false)
 			return
 	# At his spot: down behind it; up (or out to its edge) to shoot, or to look.
-	if not low_cover and peek != Vector3.INF and (target != null or _look_out > 0.0) and not _reloading:
+	if careful and now < _down_until:
+		if not low_cover and peek != Vector3.INF and player.global_position.distance_to(spot) > 0.3:
+			_go(spot, delta, false)
+			return
+		_stop_moving()
+		_hold_action(&"crouch", true)
+		return
+	if not low_cover and peek != Vector3.INF and (target != null or _look_out > 0.0 or careful) and not _reloading:
 		if player.global_position.distance_to(peek) > 0.3:
 			_go(peek, delta, false)
 		else:

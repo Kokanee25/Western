@@ -27,6 +27,7 @@ means a section of this file.
 - [src/fire](#srcfire)
 - [src/bodies](#srcbodies)
 - [src/people](#srcpeople)
+- [src/moments](#srcmoments)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -608,6 +609,39 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
 
+**Clips of motion** (`src/bodies/motion_clip.gd`, `MotionClip`; `assets/animations/<name>.json`,
+its README): each segment's turn a sample (quaternions), the root's travel and the hips' height in
+the clip's start frame (he faces -z; his turning in the clip is in his pelvis's turn), marks
+(`events`: `strike`, `draw`, the strike's `reach_m`, `kick_height_m`, `kick_dir`, where his hips
+are then), and `strikes` (parts that hit what they meet). `HumanBody.play_clip(name, speed, loop,
+{travel: false})` plays one as the targets his pose follows: every joint the clip has leads
+(a flinch, a wound's lean, a stumble stay on top), its travel goes through `_slide` and
+`_snap_to_ground` like a step, a swung part's sweep (between ticks too) meets a kit prop's member
+through `KitProp.take_blow` (`clip_struck`), `go_limp` ends it; `clip_done`, `clip_event` at the
+marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
+`tools/blender/retarget_motion.py` (docs/MOCAP.md): any humanoid glTF (Uthana's, Mixamo-named;
+FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
+(`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
+the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
+name; glTF of our rig beside each for the record.
+
+## src/moments
+
+**Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
+situation from data, `config/moments/<name>.json` (who, where, the hour, the clips, the lines, the
+timings; `script` names the moment's own class), played out by the systems. Started by the dev
+bridge (`moment NAME [key=value]`, `moment_result [wait [S]]`) or at launch with `-- --moment=NAME`
+(`Moment.maybe_start`, from `main.gd`); `result()` says what happened, `reset()` takes its people
+and props back out and puts a whole chair back. **The card cheat** (`card_cheat.gd`, `CardCheat`):
+Earl sat back at the saloon's front card table in the chair whose back faces the door (posed first,
+his weight on the seat half a second on), Cody in from `saloon_door` on `walk_angry` (steered;
+`walk_to` if a wall stops the clip's travel), onto a mark and a line worked out from the kick clip's
+strike marks so the boot's mid-swing is the right back post (`reach_k` 0.65 of its reach; pose to
+pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the clip's mark or
+45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
+nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
+(N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
+
 ## src/people
 
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
@@ -976,6 +1010,17 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
+
+- **The prop factory** (`docs/briefs/prop-factory.md`): props in batches. Families written as kit
+  files by generators (`tools/props/wagons.py`: the wheels and wagons, every wheel built down the
+  tier ladder so it stands on its rim); organic shapes made in Blender (`~/bpyenv/bin/python
+  tools/blender/props/build.py [--only=]`; bpy 5.0.1 on Python 3.11 via `uv venv -p 3.11` and `uv pip
+  install bpy==5.0.1 numpy`; `common.py`: geometry in game space, UVs in metres, a part an object)
+  into `assets/props/models/<id>.glb` (then `godot --headless --import`, commit the `.import`), drawn
+  on members by `"draw": {"shape": "mesh", "model", "part", "at", "rot"}` (`PropKit.model_part`) or a
+  loose prop's `"model": "glb:<id>"` + `looks`. Lathes and sweeps take `"at"`/`"rot"` (onto any axis).
+  Contact sheets: `python3 experiments/prop_lab/factory_sheet.py --ids=a,b --out=DIR` (the lab's
+  bridge `prop ID X Y Z [YAW]`: before the saloon, a townsman beside, noon and 21:30).
 
 - **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
   `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over

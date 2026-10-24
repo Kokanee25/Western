@@ -30,6 +30,15 @@ extends Resource
 	# figures at 12% moisture, not cut down (furniture stock is picked clear); `toughness`, its work
 	# to maximum load in bending (J/m³), is what a blow must put into it to break it (KitProp).
 	&"oak": {"density": 750.0, "bending": 105e6, "compression": 51e6, "stiffness": 12.3e9, "toughness": 101e3},
+	# Cotton duck, a covered wagon's cover (the prop factory's): as a member a centimetre thick, the
+	# weight of heavy duck (~0.5 kg/m²); nothing it carries, so its strengths are nominal.
+	&"canvas": {"density": 50.0, "bending": 2e6, "compression": 0.5e6, "stiffness": 0.2e9, "toughness": 20e3},
+	# Pressed hay, loose straw, a sack of grain, dry horse dung (the prop factory's, as one member
+	# each): their weights in their boxes (a two-string bale ~27 kg, a 100 lb sack); soft.
+	&"hay": {"density": 140.0, "bending": 0.3e6, "compression": 0.2e6, "stiffness": 0.01e9, "toughness": 5e3},
+	&"straw": {"density": 40.0, "bending": 0.1e6, "compression": 0.05e6, "stiffness": 0.005e9, "toughness": 2e3},
+	&"grain_sack": {"density": 560.0, "bending": 0.5e6, "compression": 1.0e6, "stiffness": 0.02e9, "toughness": 10e3},
+	&"dung": {"density": 300.0, "bending": 0.1e6, "compression": 0.1e6, "stiffness": 0.005e9, "toughness": 2e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 
