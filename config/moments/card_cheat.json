@@ -1,0 +1,16 @@
+{
+  "_doc": "The card cheat (docs/briefs/showcase-moments.md): a man sat back at the saloon's card table; the man he cheated walks in angry, kicks the back legs out of his chair, draws and stands over him. Started by the dev bridge (`moment card_cheat`) or `-- --moment=card_cheat`. Positions are the game's saloon (config/town.json: the Saloon at x 5, its floor at 0.78).",
+  "script": "res://src/moments/card_cheat.gd",
+  "hour": 17.5,
+  "trigger_m": 7.0,
+  "table": [7.6, 0.78, 4.2],
+  "cheater": {"id": "earl", "name": "Earl", "model": "old_rancher_s3_talking", "seed": 701},
+  "victim": {"id": "cody", "name": "Cody", "model": "bold_cowboy_s3_talking", "seed": 702, "enters_at": "saloon_door", "enters_at_point": [10.0, 0.78, 0.9]},
+  "clips": {"walk": "walk_angry", "kick": "kick_back", "draw": "draw", "stand_over": "stand_over"},
+  "animated": true,
+  "walk_speed": 1.7,
+  "kick_reach": 0.55,
+  "lines": ["Tell me I'm wrong, Earl!", "Say it. Say you dealt from the bottom."],
+  "hold_s": 4.0,
+  "beat_timeout_s": 12.0
+}
