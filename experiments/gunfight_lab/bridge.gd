@@ -519,7 +519,8 @@ func _cmd_gf_trace(a: Array) -> Dictionary:
 				snappedf(m.move_speed, 0.01), String(m.gait), String(m.pose), m.stumbling > 0.0, m.limp]
 		if b:
 			row.append_array([String(OutlawBrain.Tactic.keys()[b.tactic]), String(OutlawBrain.Mood.keys()[b.mood]),
-					snappedf(b._react, 0.01), snappedf(b._stagger, 0.01), b._search != null, b.decision])
+					snappedf(b._react, 0.01), snappedf(b._stagger, 0.01), b._search != null, b.decision,
+					arr(b.cover.get("at", Vector3.ZERO)), (b.cover.get("route", []) as Array).map(func(w: Vector3) -> Array: return arr(w))])
 		out.append(row)
 		await seconds(0.1)
 		t += 0.1

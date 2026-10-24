@@ -502,6 +502,11 @@ func _watch_men(_delta: float) -> void:
 			var decs: Array = m.get_or_add("decisions", [])
 			decs.append([snappedf(t, 0.01), dec])
 			_note("decision", "%s: %s" % [m.id, dec])
+			if dec.begins_with("give that cover up: stuck"):
+				# Where he stuck, where he was going and by which way (Experiment B).
+				var bb := b as OutlawBrain
+				_note("stuck", "%s at %s going to %s by %s" % [m.id, bb.body.global_position.snappedf(0.01), (bb.cover.get("at", Vector3.ZERO) as Vector3).snappedf(0.01),
+						str((bb.cover.get("route", []) as Array).map(func(w: Vector3) -> Vector3: return w.snappedf(0.01)))])
 			if was_dec.begins_with("go round on you"):
 				var ok := dec.begins_with("behind cover")
 				m[("flanks_made" if ok else "flanks_failed")] = int(m.get("flanks_made" if ok else "flanks_failed", 0)) + 1
