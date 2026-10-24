@@ -154,6 +154,17 @@
    "aspect": "21:9",
    "out": "assets/textures/guns/%s_painted.jpg",
    "about": "The coach gun's side painting (the gun lab's remake, docs/briefs/gun-remake.md; Sean's $3): its base is views.gd --side's render, its canvas assets/textures/guns/shotgun.json."
+  },
+  "gun_arm": {
+   "base": "docs/concept/guns/arm_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png"
+   ],
+   "look": "paint this man's right arm, seen from four sides (from outside, from the front, from inside with the palm, from behind), in exactly the same hand as the second image (the game's painted men: their painted skin and cloth, a few close tones a surface with soft painted light and shade). Weathered sun-browned skin on the forearm and the back of the hand, paler on the inside of the forearm and the palm, the knuckles, wrist bones and tendons modelled softly in paint, short dark hairs only hinted, clean short nails; the rolled-up sleeve of a worn off-white cotton shirt above the elbow with soft painted folds. Light from the upper left, the same in all four.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no body, no gun, nothing held. Keep each of the four arms' outlines exactly where they are in the first image, at the same size, every finger where it is, nothing added or left out; each seen straight on, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no frame, no border.",
+   "aspect": "1:1",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "Your arms in first person (Sean, 2026-10-24: \"paint the arms\"): Sean's Studio man's right arm from four sides (experiments/gun_lab/blender/arm_blender.py --base; canvas assets/textures/guns/arm.json), baked back onto both arms by its --bake (assets/weapons/held_arm_skin.png)."
   }
  }
 }
