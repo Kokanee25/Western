@@ -32,7 +32,7 @@ case "$WHICH" in
   walks|all)
     # Down the street from the middle of it at the walkers coming on along the saloon's side (a
     # side view had him a speck; a camera on his line sat inside a wagon).
-    film walks "time 17.5" "camera 4.0 1.7 -7.5 -4.0 0.9 -3.0 50" "wait 3" "moment walks_lineup" "waits 11" "moment_result" ;;&
+    film walks "time 17.5" "camera 5.0 1.6 -5.8 -3.0 0.9 -3.3 50" "wait 3" "moment walks_lineup from_x=-9 to_x=7" "waits 9" "moment_result" ;;&
   barkeep|all)
     # Over the bar at the barkeep. At 11 the bar has no customers (a man at the bar stops the
     # wiping: WipeBar._customer). The cloth and the mop each in a game of its own: the mop chore

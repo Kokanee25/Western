@@ -12,6 +12,10 @@ var arrived := {}
 
 func begin() -> void:
 	set_hour()
+	# The bridge's options can shorten the walk for a camera (from_x, to_x, speed).
+	for k in ["from_x", "to_x", "speed", "z_first"]:
+		if opts.has(k):
+			data[k] = float(opts[k])
 	var z := float(data.get("z_first", -3.0))
 	for w: Dictionary in data.get("walkers", []):
 		# Only the walks that exist (the rest wait on Sean's word: issue #347): a man with no clip
