@@ -37,6 +37,8 @@ const HELP := {
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
+	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
+	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40)",
 	"quit": "quit -> close the game",
 }
 
@@ -517,6 +519,39 @@ func _cmd_spawn(a: Array) -> Dictionary:
 		(man.get_node(^"Brain") as CivilianBrain).post = man.global_position
 	await _physics_frames(3)
 	return {"person": String(man.person_id)}
+
+
+var _moment: Moment
+
+
+func _cmd_moment(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": "moment NAME [key=value...]"}
+	if _moment != null and is_instance_valid(_moment):
+		_moment.reset()
+		await _physics_frames(3)
+	var opts := {}
+	for w: String in a.slice(1):
+		if "=" in w:
+			opts[w.get_slice("=", 0)] = w.get_slice("=", 1)
+	_moment = Moment.start_named(StringName(a[0]), street, _town(), opts)
+	if _moment == null:
+		return {"ok": false, "error": "no moment %s (config/moments/)" % a[0]}
+	_moment.finished.connect(func(m: Moment) -> void: _log("moment", "%s: %s" % [m.moment_name, m.state]))
+	await _physics_frames(3)
+	return _moment.result()
+
+
+func _cmd_moment_result(a: Array) -> Dictionary:
+	if _moment == null or not is_instance_valid(_moment):
+		return {"ok": false, "error": "no moment running (moment NAME)"}
+	if a.size() > 0 and a[0] == "wait":
+		var limit := float(a[1]) if a.size() > 1 else 40.0
+		var ticks := 0
+		while not _moment.done and ticks < int(limit * Engine.physics_ticks_per_second):
+			await get_tree().physics_frame
+			ticks += 1
+	return _moment.result()
 
 
 func _cmd_gang(_a: Array) -> Dictionary:
