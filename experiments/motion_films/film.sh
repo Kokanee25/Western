@@ -30,8 +30,8 @@ film() {  # name, the command lines (a line "waits N" becomes N lines of "wait 2
 
 case "$WHICH" in
   walks|all)
-    # Three-quarters on from the street, the saloon's side and its boardwalk behind the walkers.
-    film walks "time 17.5" "camera -6.0 2.2 -8.5 -2.0 0.9 -4.0 55" "wait 3" "moment walks_lineup" "waits 11" "moment_result" ;;&
+    # Down the street at the walkers coming on (a side view had him a speck for most of the walk).
+    film walks "time 17.5" "camera 9.0 1.6 -3.2 -6.0 1.0 -3.4 50" "wait 3" "moment walks_lineup" "waits 11" "moment_result" ;;&
   barkeep|all)
     # Over the bar at the barkeep. At 11 the bar has no customers (a man at the bar stops the
     # wiping: WipeBar._customer). The cloth and the mop each in a game of its own: the mop chore
