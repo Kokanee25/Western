@@ -98,10 +98,21 @@ edge points more than 2 mm off his skin, and the worst, by region.
 | sean_s3 | 0 | 1, 2.1 | 9 of 40, 3.2 |
 | (storekeeper_s1) | 6 of 18, 4.1 | 1, 2.2 | 17 of 28, 26.6 |
 
-Every man has some; under hats, hair and beards most of it is hidden. Not yet looked at: whether
-the worst (the cowboy, the widow, the drifter) show it under the chin or when he looks up. The
+Every man has some; under hats, hair and beards most of it is hidden. **Looked at (2026-10-24):**
+the cowboy, the widow and the drifter rendered at rest and talking, front and turned, holes counted
+(`hole_count.py`): the cowboy none; the drifter's count is the gap under his hat's brim and one speck
+at his jaw; the widow's, gaps in her hair. None needs rebuilding. The miner shows a little along his
+jaw, behind his beard. What shows it is a **bald forehead, a bare or receding chin**: the storekeeper. The
 talking session's note that on the widow, bold_cowboy_s3, young_drifter and the doctor "the jaw
 goes back more than down" names three of these four: the floating jaw edge may be the same fault.
+
+## Kept so it isn't missed again
+
+- `talking_face.py` prints `face edge N points, M were over 2 mm off his skin (worst X mm), now
+  Y mm` and keeps it in `facerig.patch` (`edge_unpinned_mm`, `edge_mm_max`).
+- `tools/faces/hole_count.py DIR --map=OUT`: holes inside his silhouette on the face lab's frames,
+  with magenta maps. The Studio's `tools/to_game.sh` runs both; its `docs/PLAYBOOK.md` §5 and §6
+  have this fault.
 
 ## Also noticed
 
