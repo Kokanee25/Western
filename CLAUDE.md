@@ -285,6 +285,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
@@ -549,6 +550,10 @@ frozen until Sean names one.
   and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
+
+**The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
+- Step 1 done, not merged: the Blender-built bay (`tools/blender/horse.py`, `Horse`), tack apart, an
+  idle, capsules, tied at the rails. Waiting on Sean: #340 (the sheet). Next: #341.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):

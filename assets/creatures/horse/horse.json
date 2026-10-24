@@ -1,0 +1,95 @@
+{
+ "triangles": {
+  "blanket": 304,
+  "bridle": 644,
+  "coat": 2900,
+  "coat_lod": 477,
+  "reins": 252,
+  "saddle": 1008,
+  "saddlebags": 452,
+  "tack_lod": 225,
+  "horse (coat + tack, near)": 5560
+ },
+ "bones": [
+  "root",
+  "body",
+  "pelvis",
+  "spine",
+  "chest",
+  "neck1",
+  "neck2",
+  "neck3",
+  "head",
+  "ear.L",
+  "scapula.L",
+  "upperarm.L",
+  "forearm.L",
+  "cannon.L",
+  "pastern.L",
+  "hoof.L",
+  "thigh.L",
+  "shin.L",
+  "hcannon.L",
+  "hpastern.L",
+  "hhoof.L",
+  "ear.R",
+  "scapula.R",
+  "upperarm.R",
+  "forearm.R",
+  "cannon.R",
+  "pastern.R",
+  "hoof.R",
+  "thigh.R",
+  "shin.R",
+  "hcannon.R",
+  "hpastern.R",
+  "hhoof.R",
+  "tail1",
+  "tail2",
+  "tail3",
+  "tail4"
+ ],
+ "idle": {
+  "seconds": 12.0,
+  "fps": 15
+ },
+ "textures": {
+  "horse_coat.png": 1024,
+  "horse_coat_lod.png": 256,
+  "horse_tack.png": 512
+ },
+ "bit": {
+  "L": [
+   -1.4189,
+   1.5003,
+   0.0743
+  ],
+  "R": [
+   -1.4189,
+   1.5003,
+   -0.0743
+  ]
+ },
+ "toes": {
+  "hoof.L": [
+   -0.645,
+   0.0,
+   0.16
+  ],
+  "hhoof.L": [
+   0.645,
+   0.0,
+   0.15
+  ],
+  "hoof.R": [
+   -0.645,
+   0.0,
+   -0.16
+  ],
+  "hhoof.R": [
+   0.645,
+   0.0,
+   -0.15
+  ]
+ }
+}
