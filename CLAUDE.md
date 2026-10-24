@@ -362,17 +362,23 @@ frozen until Sean names one.
   panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
   fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
   (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
-- **The light pass** (2026-10-23, issue #318, branch `claude/art-light-pass`; Sean: "looks too cheap",
-  "the day time outside looks the worst"): three looks on **8** (today / A / B / C;
-  `config/looks/light_*.json`, LookPresets of dials: noon exposure and shade fill, a paler sky with
-  rounder clouds, noon haze, the street grey-tan (`ground_tint`...), `LightGrade` (a colour-grade
-  lookup), `LightFinish` (vignette, grain, heat shimmer), the saloon's lamps in pools). Blind judge
-  round 2: A first in every view. Waiting on Sean's pick; goldens are today's until then. With it
-  (gameplay's files, Sean's OK): the day starts at noon, held (T runs it), 7 jumps the hour,
-  Backspace starts the game again (`GameReset`). Next: the shade cool, not warm grey (the judges'
-  shared fault), the saloon's night blue; the false fronts' paint (ask Sean before paid paint).
-  Trap: after a clock jump under lavapipe wait ~5 s before a screenshot (the sky's ambient rebuilds
-  over frames; a second after, shade renders black).
+- **The light pass** (#318, #321; Sean: "looks too cheap"): the game's light is **B by day, C at
+  night** (Sean's pick; `config/looks/light_game.json` blends them by the sun; 8 cycles game /
+  today / A / B / C; `LightLooks`, `LightGrade`, `LightFinish`). Round 2 (`claude/art-light-pass-2`):
+  - cool deep shade (`ambient_day_cool`), moonlight in at the saloon's door and windows
+    (`MoonWindows`), the lamps' range edges softened;
+  - three painted fronts (`woods/painted_white|red|green`, $0.88 on Actions, Sean's OK);
+  - grime low / bleach high on every building (shader globals `grime_*`, `bleach_*`);
+  - the street's damp, straw and droppings (`StreetWear`).
+  The pictures and the street show only the Studio's men (Sean, 2026-10-24): the saloon table's
+  man `bold_cowboy_s3_talking` in a kit chair (`ShotMatch.FITS`, his hat not yet), the extras and
+  folk `ShotMatch.STUDIO_FOLK`; HumanBody's default `outlaw` remains for anything unset.
+  The day starts at noon held (T runs it), 7 the hour, Backspace restarts. The critic's next:
+  - the saloon too black at night with blown lamp blobs;
+  - the ruts read as straight rail grooves;
+  - the facades grey under the cool grade (warm the lit wood back).
+  Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
+  lavapipe wait ~5 s after a clock jump before a screenshot.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

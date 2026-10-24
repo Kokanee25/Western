@@ -483,7 +483,14 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.colter != null and town.colter.held_gun == null, "the fourth Colter is in town, unarmed for now")
 	check_eq(town.colter.body_model, &"colter_rider_s2_talking", "he is the Studio's colter_rider_s2, talking")
 	check(town.colter.global_position.distance_to(town.places.at(&"livery_front")) < 0.6, "in front of the livery")
+	check(town.miner != null and town.miner.held_gun == null, "the miner is in town, unarmed")
+	check_eq(town.miner.body_model, &"miner_s4_talking", "he is the Studio's miner_s4, talking")
+	check(town.miner.global_position.distance_to(town.places.at(&"assay_front")) < 0.6, "in front of the assay office")
+	check(town.working_girl != null and town.working_girl.held_gun == null, "the working girl is in the saloon, unarmed")
+	check_eq(town.working_girl.body_model, &"working_girl_s2_talking", "she is the Studio's working_girl_s2, talking")
+	check(town.working_girl.global_position.distance_to(town.places.at(&"saloon_window")) < 0.6, "by the saloon's front windows")
+	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
