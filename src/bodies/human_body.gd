@@ -2008,8 +2008,15 @@ func _clip_strikes(delta: float) -> void:
 				at = pairs[1]
 			var result: StringName = s.call(&"take_blow", m, at, v * CLIP_BLOW_MASS, CLIP_BLOW_MASS)
 			clip_struck.emit(m, result, v.length())
+			# The boot's energy went into what it met, and the clip's follow-through is off: a part
+			# moved by script would plough on through the chair and the man in it, throwing him as
+			# a wall would. Held, the boot stands on the wood a moment; broke or moved, he eases
+			# back off the kick (the chair and the man are physics' from here).
 			if result == &"held":
 				_clip_hold = maxf(_clip_hold, 0.15)
+			else:
+				stop_clip()
+				return
 
 
 ## Swinging legs and arms while he moves: a walk, a run, a limp favouring the bad leg, a crawl.
