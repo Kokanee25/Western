@@ -3,7 +3,14 @@
 **Goal:** the game uses the cores Sean's PC has, so a gunfight in the new saloon holds 60 fps.
 
 Sean, 2026-10-24: the trial gunfights (D+) are "kinda fun — but it really slows down", and it's
-the frame rate, not the pace. "It may be time for more cores." His PC has 32 (logical) cores.
+the frame rate, not the pace. "It may be time for more cores." His PC shows 32, most likely
+logical processors (16 cores, two threads each). **The target isn't his PC.** A PS5 is 8 cores
+and 16 threads, the Steam Deck 4 and 8, and a typical Steam PC has 6–8 cores. So:
+
+- **The main thread** still fits its own budget on one core. It does what must happen in order:
+  input, the player, the scene changes.
+- **The rest** goes to a small, fixed set of helper threads, about 3–7: drawing, physics and the
+  per-person work. It runs well on 4–8 cores, with spare on his.
 
 ## Where it stands
 
@@ -14,7 +21,12 @@ the frame rate, not the pace. "It may be time for more cores." His PC has 32 (lo
   workspace's 2.1 GHz core:
   - the game's D: people 8.8 ms (budget 4.0 at Sean's, about 5.7 ms there);
   - the trial D+, under load: about 15 ms.
-  - The clean A/B, the same 10 fights one at a time, is in `experiments/gunfight_lab/results/2026-10-24_perf/`.
+  - **The clean A/B** (`experiments/gunfight_lab/results/2026-10-24_perf/`), the same 10 fights
+    one at a time with the careful player:
+    - D: a frame 19.7 ms on average, its worst 5% at 41.5 ms, people 10.2 ms;
+    - D+: 19.9, 42.8 and 10.6 ms.
+  - **So the trial isn't what's slow.** Any gunfight in the new saloon is, and D+ fights last
+    longer. At Sean's that's roughly a 13 ms frame with spikes to about 27 ms, before drawing.
 - **The heaviest systems:** `people_body`, `outlaw_brain`, `people_skeleton`, `senses` and
   `civilian_brain` (the townsfolk's). There are also two surprises in a gunfight: `fire` at
   1.5–2.8 ms with nothing burning, and `floor_marks` at about 1 ms.
