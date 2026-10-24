@@ -168,15 +168,48 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		spot.r = r
 		scored.append(spot)
 	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
+	# By the way there (OutlawBrain's variant D `way_cost`, Experiment B): the best few spots he can
+	# get to, each scored on the way he'd run (round the end of the bar is 10 m for a spot 2 m off),
+	# not the straight line.
+	var by_way: bool = ctx.get("by_way", false)
+	var best := {}
+	var tries := 0
 	for spot in scored:
 		var way := route(space, from, spot.at, exclude)
 		if way.is_empty():
 			way = _town_way(space, from, spot.at, exclude, places, spot.r, ctx)
-		if not way.is_empty():
-			spot.route = way
+		if way.is_empty():
+			continue
+		spot.route = way
+		if not by_way:
 			spot.erase("r")
 			return spot
-	return {}
+		var run := _run_length(from, way)
+		spot.way_m = run
+		spot.score -= maxf(run - float(spot.r), 0.0) * WAY_COST
+		spot.erase("r")
+		if best.is_empty() or spot.score > best.score:
+			best = spot
+		tries += 1
+		if tries >= WAY_TRIES:
+			break
+	return best
+
+
+## With `by_way`: each metre the way there is longer than the straight line costs this much of a
+## spot's score (as each metre of the straight line does, `_score`: -0.35), over the best this many
+## spots he can reach.
+const WAY_COST := 0.35
+const WAY_TRIES := 8
+
+
+static func _run_length(from: Vector3, way: Array) -> float:
+	var length := 0.0
+	var at := from
+	for w: Vector3 in way:
+		length += Vector2(w.x - at.x, w.z - at.z).length()
+		at = w
+	return length
 
 
 static func _score(spot: Dictionary, r: float, d_threat: float, from: Vector3, threat_flat: Vector3, rng: RandomNumberGenerator,

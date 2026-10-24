@@ -16,6 +16,11 @@ const HELP := {
 	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
 	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
 	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
+	"gf_aim": "gf_aim NAME SEGMENT -> turn to face that part of him (upper_arm_l, thigh_r, chest...): a shot there, for a film",
+	"gf_hit": "gf_hit NAME SEGMENT -> a revolver ball from your eye straight at that part of him (the lab's sure shot, for a film: no sway, no spread)",
+	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
+	"gf_trace": "gf_trace NAME [SECONDS] -> every 0.1 s of game time: where he is, his speed, gait, pose, stumbling, tactic, mood, reaction and stagger left, whether he's looking for cover, his decision",
+	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -407,3 +412,116 @@ func _cmd_gf_result(_a: Array) -> Dictionary:
 		men[id] = m.outcome
 	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
 		"men": men}
+
+
+func _cmd_gf_aim(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_aim}
+	bridge._face((m.parts[StringName(a[1])] as Node3D).global_position)
+	await physics_frames(1)
+	return {"aimed": a[1]}
+
+
+func _cmd_gf_watch(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_watch}
+	_watch = {"man": m, "dist": float(a[1]) if a.size() > 1 else 3.0, "deg": float(a[2]) if a.size() > 2 else 40.0,
+			"h": float(a[3]) if a.size() > 3 else 1.5, "fov": a[4] if a.size() > 4 else ""}
+	_follow()
+	await physics_frames(1)
+	return {"watching": a[0]}
+
+
+## The film camera (gf_watch): each frame from the side of him away from you, DEG round from there,
+## pulled in short of whatever's between, on his chest. `camera player` (the bridge's) ends it.
+var _watch := {}
+
+
+func _physics_process(_delta: float) -> void:
+	if not _watch.is_empty():
+		if bridge._free_camera == null and _watch.get("placed", false):
+			_watch = {}
+			return
+		_follow()
+
+
+func _follow() -> void:
+	var m := _watch.man as HumanBody
+	if not is_instance_valid(m):
+		_watch = {}
+		return
+	var chest := (m.parts[&"chest"] as Node3D).global_position if m.parts.has(&"chest") else m.global_position + Vector3.UP * 1.1
+	var away := m.global_position - player.global_position
+	away.y = 0.0
+	away = away.normalized() if away.length() > 0.1 else -m.global_basis.z
+	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - (chest.y - m.global_position.y))
+	var space := m.get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
+	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	var hit := space.intersect_ray(q)
+	var at := chest + to
+	if not hit.is_empty():
+		at = chest + to.normalized() * maxf(chest.distance_to(hit.position) - 0.2, 0.5)
+	var args := [at.x, at.y, at.z, chest.x, chest.y, chest.z]
+	if str(_watch.fov) != "":
+		args.append(_watch.fov)
+	bridge._cmd_camera(args.map(func(v: Variant) -> String: return str(v)))
+	_watch.placed = true
+
+
+func _cmd_gf_hit(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_hit}
+	var b := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	var rev := player.revolver() as RevolverViewmodel
+	if b == null or rev == null:
+		return {"ok": false, "error": "no ballistics or revolver"}
+	var eye := player.camera.global_position
+	var dir := ((m.parts[StringName(a[1])] as Node3D).global_position - eye).normalized()
+	var t := rev.tuning
+	var exclude: Array[RID] = [player.get_rid()]
+	var ball := b.fire(eye + dir * 0.3, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+	ball.form = t.form_factor
+	ball.shooter = player
+	GunSmoke.spawn(b.get_parent(), eye + dir * 0.6, dir)
+	if GameAudio.enabled():
+		GameAudio.gunshot(rev, eye)
+	Events.shot_fired.emit(eye, dir, player)
+	var wounds := m.wounds.size()
+	await physics_frames(3)
+	return {"hit": m.wounds.size() > wounds, "wounds": m.wounds.size()}
+
+
+func _cmd_gf_minds(_a: Array) -> Dictionary:
+	var out := {}
+	for id: String in ["brody", "lyle", "kid"]:
+		var m := person(id)
+		var b := m.get_node_or_null(^"Brain") as OutlawBrain if m else null
+		if b:
+			out[id] = {"decision": b.decision, "fear": snappedf(b.fear, 0.01), "nerve": snappedf(b.nerve_now(), 0.01),
+					"pain": snappedf(m.physiology.felt_pain(), 0.01), "bleed": snappedf(m.physiology.total_bleed_rate(), 0.01)}
+	return {"men": out}
+
+
+func _cmd_gf_trace(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_trace}
+	var b := m.get_node_or_null(^"Brain") as OutlawBrain
+	var secs := float(a[1]) if a.size() > 1 else 5.0
+	var out: Array = []
+	var t := 0.0
+	while t < secs:
+		var row := [snappedf(t, 0.01), snappedf(m.global_position.x, 0.01), snappedf(m.global_position.z, 0.01),
+				snappedf(m.move_speed, 0.01), String(m.gait), String(m.pose), m.stumbling > 0.0, m.limp]
+		if b:
+			row.append_array([String(OutlawBrain.Tactic.keys()[b.tactic]), String(OutlawBrain.Mood.keys()[b.mood]),
+					snappedf(b._react, 0.01), snappedf(b._stagger, 0.01), b._search != null, b.decision,
+					arr(b.cover.get("at", Vector3.ZERO)), (b.cover.get("route", []) as Array).map(func(w: Vector3) -> Array: return arr(w))])
+		out.append(row)
+		await seconds(0.1)
+		t += 0.1
+	return {"trace": out, "cols": "t x z speed gait pose stumbling limp tactic mood react stagger searching decision"}
