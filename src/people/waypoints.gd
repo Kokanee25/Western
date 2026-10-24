@@ -208,6 +208,8 @@ static func test_street() -> Waypoints:
 	w.add(&"doctor_front", ground.call(TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0))), [&"street_west"])
 	# The street in front of the livery, off everyone's way (the fourth Colter waits here).
 	w.add(&"livery_front", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0))), [&"street_east"])
+	# The street in front of the assay office, off everyone's way (the miner stands here).
+	w.add(&"assay_front", ground.call(TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 0, -4.0))), [&"street_mid"])
 	var floor_top := float(TownLayout.data().get("floor", 0.38))
 	# The store (its door in the middle of its front, the front to -Z), up the steps at its west end.
 	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
@@ -243,6 +245,8 @@ static func test_street() -> Waypoints:
 	w.add(&"saloon_porch", saloon.call(5, saloon_top, -1.5), [&"saloon_landing", &"saloon_walk_west"])
 	w.add(&"saloon_door", saloon.call(5, saloon_top, 0.9), [&"saloon_porch"])
 	w.add(&"saloon_floor", saloon.call(6.0, saloon_top, 3.5), [&"saloon_door"])
+	# By the front windows, west of the door, off everyone's way (the working girl stands here).
+	w.add(&"saloon_window", saloon.call(2.5, saloon_top, 2.0), [&"saloon_floor"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
 		var z := 4.45 + i * 1.3

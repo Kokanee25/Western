@@ -20,6 +20,8 @@ var widow: HumanBody
 var sheriff: HumanBody
 var doctor: HumanBody
 var colter: HumanBody
+var miner: HumanBody
+var working_girl: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -58,7 +60,7 @@ func _process_step(delta: float) -> void:
 
 func _spawn_townsfolk() -> void:
 	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + TownLayout.facing_toward(&"Store", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 101,
-			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
+			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"storekeeper_s1_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
 	_give_cloth.call_deferred(barkeep)
@@ -79,6 +81,14 @@ func _spawn_townsfolk() -> void:
 	# in front of the livery. A civilian's mind for now, unarmed: riding with the gang is to come.
 	colter = _civilian(&"colter", &"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 1.4, -9.0)), 106,
 			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s2_talking")
+	# A miner (the Studio's miner_s4, a background one-off; Sean, 2026-10-23) in front of the assay
+	# office, where the mine's ore is weighed. A civilian's mind, unarmed.
+	miner = _civilian(&"miner", &"assay_front", TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 1.4, -9.0)), 107,
+			Color(0.3, 0.42, 0.6), Color(0, 0, 0, 0), &"miner_s4_talking")
+	# The working girl upstairs at the saloon (the Studio's working_girl_s2; DESIGN.md §5), downstairs
+	# for now by its front windows, looking into the room (Sean, 2026-10-24). A civilian's mind.
+	working_girl = _civilian(&"working_girl", &"saloon_window", TownLayout.point(&"Saloon", Vector3(5.0, 1.4, 4.5)), 108,
+			Color(0.9, 0.86, 0.78), Color(0.62, 0.42, 0.4), &"working_girl_s2_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
