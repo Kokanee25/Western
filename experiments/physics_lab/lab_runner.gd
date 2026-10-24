@@ -328,6 +328,13 @@ func _build_fixture(kind: String) -> void:
 			# which the sit pose puts over his own origin.
 			var sp := _kit_chair.seat_position()
 			_kit_chair.global_position -= Vector3(sp.x, 0.0, sp.z)
+			# "table": a card table in front of him ([x, z], his frame: its middle), as at the
+			# saloon's tables (his knees under its edge); he reaches for it as he goes.
+			if scenario.has("table"):
+				var tp: Array = scenario.table
+				var table := PropLibrary.spawn(&"card_table") as KitProp
+				_world.add_child(table)
+				table.global_position = Vector3(float(tp[0]), 0.0, float(tp[1]))
 		"saloon_game":
 			# The game's own saloon (SaloonBuilding: its stair of members up the front wall and its
 			# balcony's rail of trim, which a body thrown into it breaks), its floor at floor_top.

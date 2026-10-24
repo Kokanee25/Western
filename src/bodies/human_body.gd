@@ -1254,6 +1254,7 @@ func _physics_step(delta: float) -> void:
 		if hat_body != null:
 			_hat_meets_ground()
 		_step_brace(delta)
+		_step_table_reach(delta)
 		_step_ride(delta)
 		_rise_watch(delta)
 		_step_tone(delta)
@@ -1847,6 +1848,7 @@ func _rebuild_rig() -> void:
 		(old[sid] as Node).queue_free()
 	_impacts = null
 	_end_ride()
+	_table_reach.clear()
 	_tone.clear()
 	_tone_bridges.clear()
 	_apart.clear()
@@ -4755,6 +4757,91 @@ func _step_brace(delta: float) -> void:
 		j[3] = float(j[3]) * BRACE_TONE
 		if j.size() < 6:
 			j.append(BRACE_FADE)
+	if back:
+		_reach_for_table(front)
+
+
+## Going over backwards with a table in front of him (the card table he sat at), his hands go for
+## its edge rather than out to the sides (Sean, 2026-10-24: "make him reach out to try and grab
+## the table"): each arm aimed from its shoulder at the nearest point of a table top's edge within
+## TABLE_REACH, and kept on it as he goes, TABLE_FOR. A reach, not a hold: the fall takes him away
+## from it (a hand that closed on the edge would hold him up, or pull the table over on him).
+const TABLE_REACH := 1.0
+const TABLE_FOR := 0.7
+## His elbow as he reaches (degrees: the forearm's bend, the poses' sign): near straight.
+const TABLE_ELBOW := 12.0
+var _table_reach := {}  ## side -> [world point on the edge, upper arm's tone entry, forearm's]
+var _table_reach_t := 0.0
+
+
+func _reach_for_table(front: Vector3) -> void:
+	_table_reach.clear()
+	_table_reach_t = 0.0
+	var arms := {}
+	for j: Array in _tone:
+		var sid := String((j[0] as Node).get_meta(&"segment", &""))
+		if sid.begins_with("upper_arm_") or sid.begins_with("forearm_"):
+			arms[sid] = j
+	for side: String in ["r", "l"]:
+		var up: Variant = arms.get("upper_arm_" + side)
+		if up == null:
+			continue
+		var shoulder: Vector3 = ((up as Array)[0] as Node3D).global_transform * ((up as Array)[4] as Vector3)
+		var at := _table_edge(shoulder, front)
+		if at != Vector3.INF:
+			_table_reach[side] = [at, up, arms.get("forearm_" + side)]
+	_aim_at_table()
+
+
+## The nearest point of a standing table top's edge to `from` (world), ahead of him (`front`), within
+## TABLE_REACH; INF if there's none.
+func _table_edge(from: Vector3, front: Vector3) -> Vector3:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = TABLE_REACH
+	q.shape = ball
+	q.transform = Transform3D(Basis(), from)
+	q.collision_mask = Layers.WORLD
+	q.exclude = _own_rids()
+	var best := Vector3.INF
+	var best_d := TABLE_REACH
+	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(q, 32):
+		var m := hit.collider as StructureMember
+		if m == null or m.broken or m.kind != &"furniture_top":
+			continue
+		var h := m.size * 0.5
+		var local := m.global_transform.affine_inverse() * from
+		var p := m.global_transform * Vector3(clampf(local.x, -h.x, h.x), h.y, clampf(local.z, -h.z, h.z))
+		var d := p.distance_to(from)
+		if d < best_d and (p - from).dot(front) > 0.0:
+			best = p
+			best_d = d
+	return best
+
+
+func _aim_at_table() -> void:
+	for side: String in _table_reach:
+		var e: Array = _table_reach[side]
+		var up: Array = e[1]
+		var arm := up[0] as RigidBody3D
+		var chest := up[1] as RigidBody3D
+		if not is_instance_valid(arm) or not is_instance_valid(chest):
+			continue
+		var shoulder := arm.global_transform * (up[4] as Vector3)
+		var dir := chest.global_basis.orthonormalized().inverse() * ((e[0] as Vector3) - shoulder).normalized()
+		up[2] = Quaternion(Vector3.DOWN, dir)
+		if e[2] != null:
+			(e[2] as Array)[2] = Basis(Vector3.RIGHT, deg_to_rad(TABLE_ELBOW)).get_rotation_quaternion()
+
+
+func _step_table_reach(delta: float) -> void:
+	if _table_reach.is_empty():
+		return
+	_table_reach_t += delta
+	if _table_reach_t > TABLE_FOR or _tone.is_empty():
+		_table_reach.clear()
+		return
+	_aim_at_table()
 
 
 ## His chair goes from under him with him on it: his seat goes over with the seat (KitProp._unseat).

@@ -476,12 +476,34 @@ func _check_balance() -> void:
 		# SWAY_LURCH. Without it, a chair whose balance the rule gave him a sway's width from the
 		# edge stood on as the physics had it, three-legged, and he sat on it limp for 3.6 s
 		# (experiments/physics_lab, 2026-10-24_chair_tip: one back leg kicked out).
-		var out := _over_edge(hull, Vector2(c.x, c.z))
-		go_loose(global_basis * Vector3(out.x, 0.0, out.y) * SWAY_LURCH)
+		go_loose(_tip_velocity())
 
 
-## How fast a seated man's sway carries him and the chair out over the edge it tips on (m/s).
-const SWAY_LURCH := 0.25
+## How fast a chair going from under a seated man starts out over the edge it tips on, him with it
+## (m/s). Tipping from rest, a man and chair take ~0.8 s to put his head on the floor, about what
+## gravity gives from a seat (a rigid body 0.7 m up, 8 deg past its feet: 0.8-0.9 s), and the start
+## is the slow part. Sean (2026-10-24): "make the fall faster". It's the feel of it: the legs going,
+## the seat's back drops from under him and he's already moving; 0.8 puts his head down at ~0.6 s.
+## (0.25 was only his sway: a three-legged chair he sat on limp for 3.6 s.)
+const SWAY_LURCH := 0.8
+
+
+## Seated, the way it starts to go (world, m/s): out over the edge of what's left of its feet that
+## his weight is nearest (or past), at SWAY_LURCH.
+func _tip_velocity() -> Vector3:
+	var hull := footprint()
+	var c := centre_of_weight()
+	var out := Vector2.ZERO
+	if hull.size() >= 3:
+		out = _over_edge(hull, Vector2(c.x, c.z))
+	else:
+		# Down to one or two feet: away from them.
+		var mid := Vector2.ZERO
+		for p in hull:
+			mid += p
+		mid /= maxf(hull.size(), 1)
+		out = (Vector2(c.x, c.z) - mid).normalized() if hull.size() > 0 else Vector2.ZERO
+	return global_basis * Vector3(out.x, 0.0, out.y) * SWAY_LURCH
 
 
 ## The way out over the edge of `hull` (anticlockwise) nearest `p` (unit, x and z).
@@ -660,7 +682,7 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 			return result if result == &"broke" else &"held"
 	elif v.length() < LOOSE_FROM:
 		return result if result == &"broke" else &"held"
-	go_loose(Vector3.ZERO, v * mass(), at)
+	go_loose(_tip_velocity() if seated else Vector3.ZERO, v * mass(), at)
 	return result
 
 
