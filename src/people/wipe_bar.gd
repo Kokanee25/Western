@@ -241,9 +241,18 @@ func _lay_step() -> void:
 			_go(Step.WIPE)
 
 
+## The clip of a man wiping a bar (assets/animations/wipe_bar.json, from the Studio's Uthana
+## takes, 2026-10-24) plays looped under the wiping for his body: his lean, his weight going
+## stroke to stroke, his free hand on the counter. His working arm stays the deed's: reach_to runs
+## after the clip and keeps his palm and the cloth on the real bar top. None: the pose as before.
+const CLIP := &"wipe_bar"
+
+
 ## Circles drifting across the stretch, then long strokes along it, the hand on the bar top.
 func _wipe_step(_delta: float) -> void:
 	_stand()
+	if not body.clip_playing() and MotionClip.load_clip(CLIP) != null:
+		body.play_clip(CLIP, 1.0, true, {"travel": false})
 	var centre := _centre()
 	var side: Vector3 = _bar.side
 	var fwd: Vector3 = _bar.fwd
@@ -524,6 +533,8 @@ func _holding() -> bool:
 
 
 func _go(s: Step) -> void:
+	if body.clip_playing() and body.clip_name() == CLIP:
+		body.stop_clip()
 	step = s
 	_t = 0.0
 	_phase = 0
