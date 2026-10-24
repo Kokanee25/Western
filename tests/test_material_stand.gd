@@ -303,7 +303,7 @@ func test_a_buildings_members_are_drawn_as_woodwork() -> void:
 	add_child(s)
 	await physics_frames(2)
 	var m: StructureMember = s.get_members()[0]
-	var mi := m.get_child(0) as MeshInstance3D
+	var mi := m.drawn_node()
 	check(mi.mesh.get_faces().size() > 36, "the post drawn chamfered, not a box (%d)" % mi.mesh.get_faces().size())
 	check(mi.mesh.get_aabb().size.distance_to(m.size) < 0.01, "its drawn shape fills its box")
 	check(s.batch_count() == 1, "three posts in one wood draw in one batch (%d)" % s.batch_count())

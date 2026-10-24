@@ -88,7 +88,7 @@ func test_untouched_members_are_drawn_together_until_something_happens_to_one() 
 	check(store.batch_count() > 0 and store.batch_count() < 32,
 			"%d members in %d meshes" % [store.member_count(), store.batch_count()])
 	var post := store.get_member(&"store/porch/post0")
-	var own := post.get_child(0) as MeshInstance3D
+	var own := post.drawn_node()
 	check(not own.visible, "a post in the batch isn't drawn on its own")
 	post.add_hole(post.global_position + Vector3(0, 0, -0.07), null, 0.006)
 	check(own.visible, "holed, it's drawn on its own (with the hole)")

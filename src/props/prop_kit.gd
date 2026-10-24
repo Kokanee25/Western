@@ -22,7 +22,9 @@ class_name PropKit
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
 ## weathered, hide, hide_dark, hide_pale, antler, gilt, picture (a landscape, one of two), burl, ivory,
 ## ebony, brass, iron, mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
-## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
+## "wood:<name>" (the texture factory's woods, WoodMaterials), or "model:<name>" (a model's own
+## painted texture on its UVs: assets/props/models/<name>_paint.png, PropModels.model_paint; the deer
+## head from Rodin). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at", "rot"}: turned about
 ##    the prop's Y (or an axis through "at", turned by "rot": a wheel's hub, across the wagon);
@@ -274,6 +276,8 @@ static func material(look: String, variant: int) -> Material:
 	var parts := look.split(":")
 	if parts.size() == 2 and parts[0] == "wood":
 		return WoodMaterials.get_material(StringName(parts[1]), variant)
+	if parts.size() == 2 and parts[0] == "model":
+		return PropModels.model_paint(parts[1])
 	match parts[parts.size() - 1]:
 		"dark_wood":
 			return PropModels.dark_wood()
