@@ -455,6 +455,11 @@ frozen until Sean names one.
   chairs (#270: Seating, Brody at a card table), merging; the collapse's tone
   experiments (branch `claude/gameplay-collapse`, `results/2026-10-22_collapse/`: trunk-first
   helps the oak stair, nothing gets him down the saloon's). Next: the `next session` issue.
+- **The chair falls, what was left** (2026-10-24, `claude/chair-fall-ragdoll-fixes-271tpn`, not
+  merged; `results/2026-10-24_chair_tip/`): the chair keeps its back (`KitProp.knock_out`), he rides
+  it over (`HumanBody.ride`), `TONE_BRIDGE` (no head loll), the sweep twists him, getting up clear
+  of the wreck with his hat (`wear_hat`), a real kick (`HumanBody.kick`, `PlayerKick` on E). Blind
+  judges 4–0–2, 5–0–1. Waiting on Sean: #354 (the patch, merge?). Next: #355.
 - **The building spec** (2026-10-22, `claude/gameplay-building-spec`, `experiments/building_lab/`): the
   format, the saloon's spec from the sheet (Sean's calls in its README), built and checked in an
   experiment (#262). Lived in (`docs/briefs/lived-in.md`): the spec's `use` and
