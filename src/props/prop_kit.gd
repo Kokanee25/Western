@@ -20,7 +20,7 @@ class_name PropKit
 ## "repeat": {"count", "step": [x, y, z]} lays copies along a line; {"count", "radius", "start"}
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
-## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), burl, ivory,
+## weathered, hide, hide_dark, hide_pale, antler, gilt, picture (a landscape, one of two), burl, ivory,
 ## ebony, brass, iron, mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
@@ -289,6 +289,8 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.hide()
 		"hide_dark":
 			return PropModels.hide_dark()
+		"hide_pale":
+			return PropModels.hide_pale()
 		"antler":
 			return PropModels.antler()
 		"gilt":

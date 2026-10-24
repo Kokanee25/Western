@@ -100,7 +100,7 @@ static func _extra(street: Node3D, e: Array, seed: int) -> HumanBody:
 	man.person_id = StringName(String(e[0]).to_snake_case())
 	man.rng_seed = seed
 	man.has_gun = false
-	man.use_paint = false
+	man.body_model = ShotMatch.STUDIO_FOLK[seed % ShotMatch.STUDIO_FOLK.size()]  # a Studio man (Sean, 2026-10-24)
 	man.shirt_color = e[4]
 	man.vest_color = e[5]
 	man.coat_color = e[6]

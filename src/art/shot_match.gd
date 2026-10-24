@@ -56,7 +56,18 @@ const FITS := {
 			&"head": Vector3(6.0, 0.0, 3.0), &"neck": Vector3(0.0, -0.5, 3.0),
 			&"chest": Vector3(0.0, -2.25, 0.0), &"upper_arm_r": Vector3(1.5, 10.5, 0.0),
 			&"forearm_r": Vector3(4.0, -10.5, 0.0), &"hand_r": Vector3(22.5, 8.125, -15.0)}},
+	# The Studio's bold cowboy (2026-10-24, Sean: the new men in the pictures), tools/fit_shot.gd
+	# --model= from sit_back: outline overlap 0.40, his eyes ~11 px off the painting's.
+	&"bold_cowboy_s3_talking": {"pose": &"sit_back", "seat": Vector3(0.84, 0.0, -0.54), "pose_offsets": {
+			&"head": Vector3(2.25, -13.25, 26.0), &"chest": Vector3(0.0, 6.0, 0.0),
+			&"upper_arm_r": Vector3(0.0, 8.0, 0.0), &"forearm_r": Vector3(0.0, 8.0, 0.0),
+			&"neck": Vector3(-32.5, 0.0, -3.5), &"abdomen": Vector3(0.0, 0.0, 0.0), &"hand_r": Vector3(-30.625, -20.0, -20.0)}},
 }
+## The background people in the pictures and on the street (the shot-match extras, the street's
+## folk): the Studio's men, in turn (Sean, 2026-10-24: no more of the old MakeHuman body). Not the
+## gang's or the town cast's own (TownLife), so a man isn't there twice.
+const STUDIO_FOLK: Array[StringName] = [&"barkeep_s1", &"doctor_s1", &"colter_rider_s1", &"old_rancher_s1",
+		&"young_drifter_s1", &"hothead_lyle_s1", &"bold_cowboy_s0", &"widow_s1"]
 ## Where the cup sits in his right hand (the hand's own space: its palm faces -X, the fingers run
 ## down -Y and curl towards the palm, the thumb is -Z).
 const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
@@ -64,7 +75,9 @@ const CUP_IN_HAND := Vector3(-0.05, -0.045, 0.02)
 ## (`stranger2s`, the characters session's, the default since 2026-10-06), the Tripo man
 ## (`stranger`), or the MakeHuman `outlaw`; tools/screenshots.gd --model=. Each has his own seat
 ## and pose in FITS (else SEAT, TURN, POSE_OFFSETS, fitted to `stranger`).
-static var model: StringName = &"stranger2s"
+## Since 2026-10-24 (Sean: "we need the new character for the pictures") the Studio's bold cowboy,
+## with the talking face; his own fit in FITS (tools/fit_shot.gd).
+static var model: StringName = &"bold_cowboy_s3_talking"
 
 
 ## The seated man's fit for the model he wears: "seat", "turn" or "pose_offsets" (FITS, else the
@@ -134,8 +147,9 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	# Nearly square to you, as the painting's man sits.
 	man.face(set * Vector3(EYE.x, 1.0, EYE.z))
 	man.global_rotation.y += deg_to_rad(fit(&"turn"))
-	man.set_pose(&"sit_lean")
+	man.set_pose(fit(&"pose") if FITS.get(model, {}).has("pose") else &"sit_lean")
 	man.pose_offsets = (fit(&"pose_offsets") as Dictionary).duplicate()
+	_chair_under(root, man)
 	_cup_in_hand(man)
 	for key: String in man.skin_meshes:
 		if key.begins_with("head/"):
@@ -151,6 +165,27 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	if VoxelTrial.eyes:
 		VoxelTrial.add_eyes(man, root.to_global(EYE))
 	return man
+
+
+## A kit chair under the seated man (Sean, 2026-10-24: "he should be sitting on a chair"), turned
+## as he is, its seat point where he sits, his weight on it (KitProp.sit), as a man sits in town.
+static func _chair_under(root: Node3D, man: HumanBody) -> void:
+	var old := root.get_node_or_null(^"HisChair")
+	if old:
+		old.free()
+	# Untyped and loaded by path: tools/screenshots.gd compiles this before the autoloads exist,
+	# and the prop kit's classes name them.
+	var chair: Node3D = load("res://src/props/prop_library.gd").spawn(&"chair")
+	if chair == null:
+		return
+	chair.name = "HisChair"
+	root.add_child(chair)
+	chair.global_transform = Transform3D(Basis(Vector3.UP, man.global_rotation.y), man.global_position)
+	if chair.has_method(&"seat_position"):
+		var miss: Vector3 = man.global_position - chair.call(&"seat_position")
+		miss.y = 0.0
+		chair.global_position += miss
+		chair.call(&"sit", man)
 
 
 ## The painting lights its man softly from your side as well as from the lamp: both cheeks warm
@@ -273,7 +308,7 @@ static func _extras(street: Node3D) -> void:
 		man.person_id = StringName(String(e[0]).to_snake_case())
 		man.rng_seed = 31 + i
 		man.has_gun = false
-		man.use_paint = false
+		man.body_model = STUDIO_FOLK[i % STUDIO_FOLK.size()]  # a Studio man in his own clothes
 		man.shirt_color = e[4]
 		man.vest_color = e[5]
 		man.coat_color = e[6]

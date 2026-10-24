@@ -47,6 +47,7 @@ static func build(s: FalseFrontBuilding) -> void:
 		_lamps(s, props, _fresh(s, "Lamps"), f)
 	_reflections(s, f)
 	_brighten_lamps(s)
+	MoonWindows.add(s)  # moonlight in at the door and windows at night (the light pass, round 2)
 
 
 ## Every lamp in the room (the dressing's and the building's own) brighter and reaching further

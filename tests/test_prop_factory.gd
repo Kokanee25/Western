@@ -126,7 +126,7 @@ func test_batch_two_stands_weighs_and_is_drawn_from_its_blender_model() -> void:
 
 
 func test_the_deer_head_is_drawn_from_its_mount() -> void:
-	for part in ["plaque", "neck", "head", "nose", "eyes", "ears", "antlers"]:
+	for part in ["plaque", "neck", "head", "pale", "nose", "eyes", "antlers"]:
 		check(PropKit.model_part("deer_head", part) != null, "the mount has its %s" % part)
 
 
