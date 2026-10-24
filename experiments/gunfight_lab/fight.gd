@@ -954,6 +954,12 @@ func _who(n: Variant) -> String:
 
 # -- The end --------------------------------------------------------------------------------------
 
+## Gone (a played run's scene reloaded, the lab done): the town's gang fights as the game's does again,
+## not with the fixes this fight was given (play.gd's trial "D+").
+func _exit_tree() -> void:
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
 func _finish(why: String) -> void:
 	done = true
 	if bot:
