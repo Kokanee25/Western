@@ -121,6 +121,8 @@ func _physics_step(delta: float) -> void:
 		_frames += 1
 		if _frames >= SETTLE_FRAMES:
 			_find_footing()
+			if _footed and not loose:
+				_join_batch()
 		return
 	_check_t -= delta
 	if _check_t > 0.0:
@@ -223,9 +225,9 @@ func _rebuild_dirty_batches() -> void:
 func _batch_dress() -> void:
 	var groups := {}
 	for m: StructureMember in _batched:
-		if not is_instance_valid(m) or m.get_child_count() == 0:
+		if not is_instance_valid(m) or (m.get_child_count() == 0 and not m.resting()):
 			continue
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		for c in mi.get_children():
 			if c is MeshInstance3D and c.name.begins_with("Dress"):
 				var layer := c as MeshInstance3D
@@ -251,6 +253,52 @@ func _batch_dress() -> void:
 ## How many draw calls its untouched members and their dress take.
 func batch_count() -> int:
 	return super.batch_count() + _dress.size()
+
+
+## Its own batch meshes (members, dress, the far-lamps' shadow): what PropBatch joins.
+func batch_nodes() -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for d: Dictionary in [_batches, _dress]:
+		for mi: Variant in d.values():
+			if is_instance_valid(mi):
+				out.append(mi)
+	if _shadow and is_instance_valid(_shadow):
+		out.append(_shadow)
+	return out
+
+
+# --- Drawn with its neighbours at rest (PropBatch) -----------------------------------------------
+
+var _prop_batch: PropBatch
+
+
+func _join_batch() -> void:
+	if _prop_batch == null or not is_instance_valid(_prop_batch):
+		_prop_batch = PropBatch.for_prop(self)
+	if _prop_batch:
+		_prop_batch.join(self)
+		set_notify_transform(true)
+
+
+func _leave_batch() -> void:
+	if _prop_batch and is_instance_valid(_prop_batch) and _prop_batch.has(self):
+		_prop_batch.leave(self)
+
+
+## In a PropBatch: anything happening to a member, or to it (moved, hidden), and it draws itself.
+func unbatch(m: StructureMember, soon := false) -> void:
+	_leave_batch()
+	super.unbatch(m, soon)
+
+
+func rebuild() -> void:
+	_leave_batch()
+	super.rebuild()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED or what == NOTIFICATION_VISIBILITY_CHANGED:
+		_leave_batch()
 
 
 # --- What it stands on ---------------------------------------------------------------------------

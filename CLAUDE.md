@@ -484,6 +484,12 @@ frozen until Sean names one.
   its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
   `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
   #331, after light pass round 2 (#329).
+- **Props that scale** (2026-10-24, #357, brief `docs/briefs/props-scale.md`): a batched member is
+  its body alone at rest (`StructureMember.rest`/`realise`, every structure; read its mesh with
+  `drawn_node()`), the street ~31,700 -> ~16,000 nodes; kit props at rest drawn per 20 m cell
+  (`PropBatch`); `perf_bench --clutter=4` (four times the kit props, `tools/prop_clutter.gd`): draws
+  3,501 -> 2,653, lavapipe render 6.3 -> 4.75 ms, inside the guards (nodes now 24,000). Next: the
+  freight wagon in #332's lot once it merges; a resting prop's tick (~0.25 ms at 4x) if it grows.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

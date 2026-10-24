@@ -13,6 +13,9 @@ extends SceneTree
 ## --scene=calm|fire: just one; --scene=blaze: the fire left 45 s first, till the whole town
 ## burns; --scene=wall: a shotgun charge into the store's front from 3 m every half second while it
 ## measures (voxel damage, docs/DESTRUCTION_BRIEF.md step 2); --no-voxels: drawn holes instead.
+## --clutter=N: the street with N times its kit props (tools/prop_clutter.gd: the copies in rows
+## along the street; docs/briefs/props-scale.md). --no-prop-batch: kit props drawn each its own;
+## --no-member-rest: members keep their mesh and shape nodes at rest (both the before).
 ## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
@@ -35,6 +38,8 @@ var budget_report := true
 ## Leave out the render time read (viewport_get_measured_render_time_cpu makes a separate render
 ## thread wait for the main one every frame, so it hides what the thread gains): --no-render-time.
 var render_time := true
+## Times the street's kit props (1: as it is).
+var clutter := 1
 
 
 func _initialize() -> void:
@@ -56,6 +61,10 @@ func _initialize() -> void:
 			budget_report = false
 		elif a == "--no-render-time":
 			render_time = false
+		elif a.begins_with("--clutter="):
+			clutter = int(a.substr(10))
+		elif a == "--no-prop-batch":
+			pass  # PropBatch reads it itself
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a.begins_with("--hour="):
@@ -246,6 +255,10 @@ func _run() -> void:
 	player.global_position = Vector3(11.0, 0.0, -9.0)
 	player.rotation = Vector3(0, deg_to_rad(121.0), 0)
 	await _frames(120)
+	if clutter > 1:
+		var made: Array = load("res://tools/prop_clutter.gd").lay(street, clutter)
+		print("clutter: %d more kit props" % made.size())
+		await _frames(120)
 	var scenes := []
 	if only == "" or only == "calm":
 		scenes.append("calm")
