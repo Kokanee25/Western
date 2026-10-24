@@ -556,7 +556,7 @@ frozen until Sean names one.
   `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
   targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,
   `-- --moment=NAME`), the Uthana clips in `assets/animations/` by
-  `tools/blender/retarget_motion.py`; 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
+  `tools/blender/retarget_motion.py` (#342, build 2338); 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
   pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
   generated one is high and forward). Next: the player's ways out and the room (the `next session`
   issue).
