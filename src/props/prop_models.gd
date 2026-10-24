@@ -555,6 +555,11 @@ static func hide() -> ShaderMaterial:
 	return _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
 
 
+## A whitetail's white: the throat patch and the band round the muzzle.
+static func hide_pale() -> ShaderMaterial:
+	return _mat("hide_pale", PixelArt.dirt("prop_hide_pale", Color(0.78, 0.74, 0.66), 269))
+
+
 static func hide_dark() -> ShaderMaterial:
 	return _mat("hide_dark", PixelArt.dirt("prop_hide_dark", Color(0.18, 0.12, 0.08), 239))
 

@@ -707,6 +707,86 @@
    "about": "The gun lab's guns, painted in the men's hand (issue #274, Sean 2026-10-22 #249: 'spend the cash to draw'): smooth, its own colours, 512 a metre like the walnut; GunParts asks for it by this key.",
    "what": "the case-hardened steel frame of an old revolver seen close: mottled case colours in soft swirling patches, deep blue, purple-plum and pale straw-gold over silver-grey steel, the colours faded and worn to grey where it is handled, fine scratches, a soft sheen. It is hard, rigid machined steel lying perfectly flat: no folds, no wrinkles, no creases, no cloth (painted in the men's hand only in its brushwork and few close tones).",
    "flatten": 1.0
+  },
+  "prop_hide": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the short coarse coat of a mounted whitetail deer's neck seen close: grey-brown and warm tawny hair lying all one way in soft overlapping strokes, darker brown along the lie of the hair, lighter tips, a little dust in it. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    728,
+    92,
+    752,
+    128
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide)."
+  },
+  "prop_hide_dark": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the dark leathery nose pad and lips of a deer seen close: near-black brown, a soft damp sheen, fine wrinkles and pores. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    752,
+    96,
+    762,
+    106
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_dark)."
+  },
+  "prop_hide_pale": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the white throat patch of a whitetail deer's coat seen close: off-white and cream short hair lying all one way, greyed with old dust, faint tan where it meets the brown. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    738,
+    108,
+    752,
+    124
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_pale)."
+  },
+  "prop_antler": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "a deer's antler seen close, laid flat: pale ivory and tan bone, darker brown furrows running lengthwise along it, rough pearled bumps near the base, smoother and paler toward the tips, a little grime in the grooves. It is a flat even surface filling the frame: no eyes, no face, no antler shape, no points, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    723,
+    40,
+    780,
+    80
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:antler)."
   }
  }
 }

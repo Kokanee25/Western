@@ -94,11 +94,11 @@
       },
       "dress": [
         {
-          "look": "prop:hide",
+          "look": "prop:hide_pale",
           "draw": {
             "shape": "mesh",
             "model": "deer_head",
-            "part": "ears"
+            "part": "pale"
           }
         },
         {

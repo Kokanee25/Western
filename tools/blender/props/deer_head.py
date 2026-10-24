@@ -3,8 +3,8 @@ wooden plaque, glass eyes"): a mule deer's shoulder mount, the head turned a lit
 taxidermists set them, a four-point rack. In the kit's space for `deer_head` (the plaque's back on
 the wall at z 0.02, its top at y 0.02), so the kit file's members and nails stay where they were.
 
-Parts: plaque (dark wood), neck and head and ears (hide), nose (the dark of the muzzle), eyes
-(glass), antlers. ~1,500 triangles.
+Parts: plaque (dark wood), neck and head (hide, its ears with it), pale (the throat patch and muzzle band),
+nose (the dark of the muzzle), eyes (glass), antlers. ~1,500 triangles.
 """
 import math
 
@@ -40,6 +40,18 @@ def head():
     path = [(0.02 + _x(t), -0.135 - 0.085 * t ** 1.3, 0.275 + 0.235 * t) for t in ts]
     radii = [(0.072 - 0.038 * t, 0.078 - 0.042 * t + 0.01 * math.sin(math.pi * t)) for t in ts]
     return C.tube("head", path, radii, sides=16, caps=(True, True), seed=5)
+
+
+def pale():
+    """The white of a whitetail (the saloon painting's mount): the throat patch under the chin and
+    the band round the muzzle behind the nose, drawn in the pale hide."""
+    part = C.Part("pale")
+    part.merge(C.blob("throat", (0.022, -0.238, 0.27), (0.052, 0.046, 0.034), rings=6, sides=12, noise=0.04, seed=13))
+    ts = np.linspace(0.76, 0.88, 3)
+    path = [(0.02 + _x(t), -0.135 - 0.085 * t ** 1.3, 0.275 + 0.235 * t) for t in ts]
+    radii = [((0.072 - 0.038 * t) * 1.05, (0.078 - 0.042 * t + 0.01 * math.sin(math.pi * t)) * 1.05) for t in ts]
+    part.merge(C.tube("band", path, radii, sides=16, caps=(False, False), seed=17))
+    return part
 
 
 def nose():
@@ -88,4 +100,5 @@ def antlers():
 
 
 def build():
-    return C.export("deer_head", [plaque(), neck(), head(), nose(), eyes(), ears(), antlers()])
+    # The ears are the head's hide: one part with it (one batch fewer on the wall).
+    return C.export("deer_head", [plaque(), neck(), head().merge(ears()), pale(), nose(), eyes(), antlers()])
