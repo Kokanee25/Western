@@ -27,7 +27,7 @@ func test_the_grade() -> void:
 
 
 func test_each_look_sets_known_addresses() -> void:
-	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building"]
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global"]
 	for f: String in LightLooks.FILES:
 		var preset := LookPreset.load_file(f)
 		check(not preset.is_empty(), "%s reads" % f)
@@ -44,21 +44,42 @@ func test_each_look_sets_known_addresses() -> void:
 
 func test_the_key_cycles_and_today_puts_back() -> void:
 	check(InputMap.has_action(&"light_look"), "8 is bound")
+	# A test that ran the main scene leaves the game's light in the statics: start from none.
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
 	LookPreset.defaults.clear()
 	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
 	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
 	add_child(street)
 	await physics_frames(3)
 	var before: float = LookPreset.get_value(get_tree(), "day.exposure_day")
-	LightLooks.pick(get_tree(), 2)
+	LightLooks.pick(get_tree(), 3)
 	var b := LookPreset.load_file(LightLooks.FILES[1])
 	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), b.values["day.exposure_day"], 0.001, "B's noon exposure")
 	check_near(LightGrade.dials.strength, b.values["grade.strength"], 0.001, "B's grade")
 	check(LookPreset.environment(get_tree()).adjustment_enabled, "the grade on the environment")
-	LightLooks.pick(get_tree(), 0)
+	LightLooks.pick(get_tree(), 1)
 	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), before, 0.001, "today's exposure back")
 	check_eq(LightGrade.dials.strength, 0.0, "no grade")
 	check(not LookPreset.environment(get_tree()).adjustment_enabled, "the environment's adjustment off again")
+	# The game's light (Sean, #321): B by day, C at night, blended as the sun goes down.
+	var c := LookPreset.load_file(LightLooks.FILES[2])
+	var clock := street.get_node(^"DayCycle") as DayCycle
+	clock.set_time(12.0)
+	LightLooks.pick(get_tree(), 0)
+	check_eq(LightLooks.night_share(get_tree()), 0.0, "noon is all day")
+	check_near(LookPreset.get_value(get_tree(), "lamps.saloon_hanging.energy"), b.values["lamps.saloon_hanging.energy"], 0.001, "noon: B's dials")
+	clock.set_time(21.5)
+	check_eq(LightLooks.night_share(get_tree()), 1.0, "21:30 is all night")
+	LightLooks.blend(get_tree(), LightLooks.night_share(get_tree()))
+	check_near(LookPreset.get_value(get_tree(), "lamps.saloon_hanging.energy"), c.values["lamps.saloon_hanging.energy"], 0.001, "night: C's")
+	check_near(LookPreset.get_value(get_tree(), "grade.contrast"), c.values["grade.contrast"], 0.001, "and C's grade")
+	var mid: float = LightLooks.mix(b.values["day.exposure_day"], c.values["day.exposure_day"], 0.5)
+	LightLooks.blend(get_tree(), 0.5)
+	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), mid, 0.001, "half way down, half each")
+	check_eq(LookPreset.get_value(get_tree(), "sky.cloud_scale"), b.values["sky.cloud_scale"], "the sky's dials stay day's")
+	LightLooks.pick(get_tree(), 1)
+	LightLooks.current = 0
 	street.free()
 	LookPreset.defaults.clear()
 	await process_frames(1)

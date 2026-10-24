@@ -312,11 +312,22 @@ a few views renders them as the full run does.
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
 
-**The light pass's looks** (issue #318, `docs/screenshots/light_pass/2026-10-23/`): `LightLooks`
-(`light_looks.gd`, a node `main.gd` adds; **8** cycles today / A / B / C, `--light-look=a|b|c` for a
-run) applies `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
+**The light pass's looks** (issues #318, #321, `docs/screenshots/light_pass/`): `LightLooks`
+(`light_looks.gd`, a node `main.gd` adds). **The game's light** (Sean, #321) is B by day and C at
+night: `config/looks/light_game.json` names the two and the sun heights between which every dial
+they set is blended (`night_share`; the sky's dials stay day's; the grade steps in four lookups,
+cached). **8** cycles the game's / today's old / A / B / C (`--light-look=game|today|a|b|c` for a
+run). Moving the clock re-blends: a bridge `set` before a `time` is overwritten (set after it).
+Round 2's parts: the noon fill's colour (`DayCycleConfig.ambient_day_cool`, `ambient_day_colour`:
+cool shade); `MoonWindows` (`src/art/moon_windows.gd`: a soft cool spot inside the saloon's door
+and windows, strength by the moon's, `moon_window_*`); grime and sun on upright texel-grid faces by
+world height (shader globals `grime_amount|height|tint`, `bleach_amount|from|to`); `StreetWear`
+(`src/art/street_wear.gd`, `config/street_wear.json`: damp ground round troughs and rails via the
+ground's `damp_spots`/`damp_dark`, straw and droppings as two MultiMeshes); the saloon's lamps'
+range edges were the floor's curved shapes (soft with `attenuation`, `lamps.saloon_hanging|wall`).
+The looks' files apply `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
 the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
-(street colour), SSAO, `grade.*` (`LightGrade`: a 32-cube lookup on the environment's colour
+(street colour), SSAO, `grade.*` (`LightGrade`: a 16-cube lookup on the environment's colour
 correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
 environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
 carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
@@ -884,6 +895,13 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 ## The texture factory (tools/textures)
 
+- **Painted sidings** (the light pass round 2, Sean #321, $0.88): `material_lab.json` set
+  `studio10p` uses `paint_woods.py`'s `new_woods` (a wood painted from another's boards: whitewash,
+  barn red, pale green, ochre from `store_boards`; run on Actions, `people.yml` `textures:
+  mlab:studio10p`), cut here (`--cut`, needs scipy) and promoted (`promote_woods.py`) as
+  `woods/painted_white|red|green` (the ochre left out: a painted border). A building takes one by
+  `front_wood` (town.json's `set`, `StreetDressing.BUILDINGS`); a new wood also needs its row in
+  `ballistics_tuning`, `timber_tuning`, `voxel_damage_tuning`.
 - **The material lab** (roadmap 1.4a, brief `docs/briefs/material-lab.md`): `tools/material_lab.gd`
   puts `MaterialStand` (`src/art/material_stand.gd`: wall, post and beam, deck, steps, boards at
   their real sizes, every cut end in end grain, no neighbour repeats) out west of town with the

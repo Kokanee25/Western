@@ -814,7 +814,7 @@ func _man_setup(main, player) -> void:
 	man.name = "MatchMan"
 	man.person_id = &"stranger"
 	var chosen: StringName = load("res://src/art/shot_match.gd").model
-	man.body_model = &"bold_cowboy_layered" if chosen == &"stranger2s" else chosen
+	man.body_model = chosen  # the Studio's man (Sean, 2026-10-24: not the old layered cowboy)
 	man.rng_seed = 7
 	street.add_child(man)
 	var fwd: Vector3 = -player.camera.global_basis.z

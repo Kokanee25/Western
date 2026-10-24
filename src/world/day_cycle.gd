@@ -215,6 +215,8 @@ func apply_visuals() -> void:
 		moon.light_color = config.moon_color
 		moon.light_energy = config.moon_max_energy * smoothstep(0.0, 0.2, moon_dir.y) * (1.0 - daylight)
 		moon.visible = moon.light_energy > 0.001
+		if is_inside_tree():
+			MoonWindows.apply(get_tree(), config, moon.light_energy / maxf(config.moon_max_energy, 0.001))
 
 	if world_environment and world_environment.environment:
 		var env := world_environment.environment
@@ -231,7 +233,8 @@ func apply_visuals() -> void:
 				* lerpf(1.0, config.volumetric_high_sun, high)
 		env.ambient_light_energy = lerpf(config.ambient_energy_night, config.ambient_energy_day, daylight) \
 				* lerpf(1.0, config.ambient_low_sun, golden)
-		env.ambient_light_color = warm * config.ambient_warm_level
+		env.ambient_light_color = (warm * config.ambient_warm_level).lerp(config.ambient_day_colour * config.ambient_warm_level * 2.0,
+				config.ambient_day_cool * high)
 		env.ambient_light_sky_contribution = lerpf(config.ambient_sky_day, config.ambient_sky_low_sun, golden)
 		# The painting's golden hour is a dark picture with a bright road and sky: the eye's
 		# exposure comes down with the sun.

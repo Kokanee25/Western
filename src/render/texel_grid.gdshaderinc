@@ -24,6 +24,16 @@ uniform float edge_shade : hint_range(0.0, 1.0) = 0.7;
 // The painting's seam: within this many screen pixels of a member face's long edges, this dark
 // (global: set by the look; 0 = off, only the texel-wide line above).
 global uniform float seam_px;
+// Grime and sun (the light pass, round 2; Sean, #321: "walls darker and dirtier toward the ground
+// (splash, dust, mud), lighter and more bleached toward the roofline, on every building"): on
+// upright faces, by world height (the street is y 0), with a ragged edge so it reads as splash, not
+// a painted band. grime_amount 0 and bleach_amount 0 = as before. Set by the light looks (`global.`).
+global uniform float grime_amount;
+global uniform float grime_height;
+global uniform vec4 grime_tint;
+global uniform float bleach_amount;
+global uniform float bleach_from;
+global uniform float bleach_to;
 uniform float seam_shade : hint_range(0.0, 1.0) = 0.45;
 uniform float seam_lip : hint_range(1.0, 2.0) = 1.3;
 // A member's long edges as the exterior wood sheet draws a board's: the near one (v 0) a lit lip,
@@ -118,6 +128,8 @@ varying vec3 weather_n;
 varying vec3 tri_pos;
 varying vec3 tri_weights;
 varying vec3 local_pos;
+varying vec3 grime_world;  // world position and the face's world normal's y (grime_up)
+varying float grime_up;
 
 #ifdef HOLES
 uniform int hole_count = 0;
@@ -133,6 +145,8 @@ float seg_dist(vec3 p, vec3 a, vec3 b) {
 
 void vertex() {
 	local_pos = VERTEX;
+	grime_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	grime_up = (mat3(MODEL_MATRIX) * NORMAL).y;
 	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
 	lab_face = use_end_tex && COLOR.g < 0.5 ? 1.0 - COLOR.r : 0.0;
 	lab_u0 = lab_face > 0.5 ? COLOR.b * 2.0 : 0.0;
@@ -415,6 +429,22 @@ void fragment() {
 		}
 	}
 #endif
+	if ((grime_amount > 0.0 || bleach_amount > 0.0) && abs(grime_up) < 0.6) {
+		vec2 gp = grime_world.xz * 1.7 + vec2(grime_world.y * 0.6, 0.0);
+		vec2 gi = floor(gp);
+		vec2 gf = fract(gp);
+		gf = gf * gf * (3.0 - 2.0 * gf);
+		float g00 = fract(sin(dot(gi, vec2(127.1, 311.7))) * 43758.5);
+		float g10 = fract(sin(dot(gi + vec2(1.0, 0.0), vec2(127.1, 311.7))) * 43758.5);
+		float g01 = fract(sin(dot(gi + vec2(0.0, 1.0), vec2(127.1, 311.7))) * 43758.5);
+		float g11 = fract(sin(dot(gi + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5);
+		float gn = mix(mix(g00, g10, gf.x), mix(g01, g11, gf.x), gf.y);
+		float low = 1.0 - smoothstep(0.0, max(grime_height, 0.01) * (0.6 + 0.8 * gn), grime_world.y);
+		albedo *= mix(vec3(1.0), grime_tint.rgb, clamp(grime_amount * low, 0.0, 1.0));
+		float high = smoothstep(bleach_from, max(bleach_to, bleach_from + 0.01), grime_world.y + (gn - 0.5) * 0.8);
+		float lum = dot(albedo, vec3(0.2126, 0.7152, 0.0722));
+		albedo = mix(albedo, vec3(lum) * 1.12 + 0.04, clamp(bleach_amount * high, 0.0, 1.0));
+	}
 	ALBEDO = albedo;
 	ROUGHNESS = roughness;
 	METALLIC = metallic;
