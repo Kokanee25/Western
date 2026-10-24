@@ -183,7 +183,7 @@ func _physics_process(delta: float) -> void:
 						clips.erase("draw")
 				if not clips.has("draw"):
 					victim.draw_gun()
-			if clips.has("draw") and not victim.gun_holstered == false and victim.clip_time() > 0.45 * MotionClip.load_clip(clips.draw).length():
+			if clips.has("draw") and victim.gun_holstered and victim.clip_time() > 0.45 * MotionClip.load_clip(clips.draw).length():
 				victim.draw_gun()  # no "draw" mark in the clip: his hand's at the hip by now
 			if (clips.has("draw") and not victim.clip_playing()) or (not clips.has("draw") and state_t > 0.6):
 				if victim.gun_holstered:

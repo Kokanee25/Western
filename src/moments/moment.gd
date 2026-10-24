@@ -43,7 +43,9 @@ static func start_named(n: StringName, street_node: Node3D, town_node: TownLife,
 	return m
 
 
-## At launch with `-- --moment=NAME`: the moment starts once the town's in (a couple of seconds).
+## At launch with `-- --moment=NAME`: the moment starts once the town's in and the player has
+## come within the data's `trigger_m` of its `table` (so Sean walks into the saloon and it begins
+## as he comes in; no `trigger_m`, or no player: a couple of seconds after launch).
 static func maybe_start(main_node: Node) -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--moment="):
@@ -51,8 +53,23 @@ static func maybe_start(main_node: Node) -> void:
 			var street_node := main_node.find_child("TestStreet", true, false) as Node3D
 			if street_node == null:
 				return
-			var timer := main_node.get_tree().create_timer(2.0)
-			timer.timeout.connect(func() -> void:
+			var path := "res://config/moments/%s.json" % n
+			var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
+			var near := float(d.get("trigger_m", 0.0)) if d is Dictionary else 0.0
+			var at_a: Array = d.get("table", [0, 0, 0]) if d is Dictionary else [0, 0, 0]
+			var at := Vector3(at_a[0], at_a[1], at_a[2])
+			var watch := Timer.new()
+			watch.wait_time = 0.5
+			watch.autostart = true
+			var waited := [0.0]
+			main_node.add_child(watch)
+			watch.timeout.connect(func() -> void:
+				waited[0] += 0.5
+				var player := main_node.get_tree().get_first_node_in_group(&"player") as Node3D
+				if waited[0] < 2.0 or (near > 0.0 and player != null and player.global_position.distance_to(at) > near):
+					return
+				watch.stop()
+				watch.queue_free()
 				Moment.start_named(n, street_node, street_node.get_node_or_null(^"TownLife") as TownLife))
 
 
