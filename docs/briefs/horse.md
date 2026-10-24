@@ -57,8 +57,8 @@ build directly:
 - **Kept:** the rig (now 39 bones, a six-bone tail), the idle (the tail's swish cut to a flick,
   ~17°), the tack (moved back 0.14 m with the shorter body), collision (capsules now in
   `horse.json`, from `horse_shape.capsules`).
-- **Not yet like the pictures:** the tail is a heavier, flatter sheet than his flowing one; the
-  hindquarters a little less round. Rodin stays the next try if the shape is still wrong to Sean.
+- **Not yet like the pictures:** the tail is solid where his is loose hair (a lower arch and a
+  thinner sheet since the first remake, which read as a paddle); the hindquarters a little less round. Rodin stays the next try if the shape is still wrong to Sean.
 
 Sheet: `docs/screenshots/horse/2026-10-24b/` (his pictures against the model; the game views).
 

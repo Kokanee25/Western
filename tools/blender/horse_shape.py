@@ -269,18 +269,18 @@ def body_sdf(p):
     return np.maximum(d, -p[..., 2])
 
 
-# The tail's hair: set high, out and up off the dock, then falling to below the hocks (the
-# pictures' tail); wider seen from the side.
-TAIL = [(0.75, 1.48), (0.87, 1.6), (0.99, 1.53), (1.06, 1.3), (1.09, 1.03), (1.1, 0.8), (1.1, 0.62)]
+# The tail's hair: set high, a low arch off the dock, then falling to below the hocks (the
+# pictures' tail); wider seen from the side, thin seen from behind.
+TAIL = [(0.74, 1.47), (0.85, 1.54), (0.95, 1.47), (1.0, 1.26), (1.02, 1.01), (1.03, 0.79), (1.02, 0.62)]
 
 
 def tail_sdf(p):
     d = np.full(p.shape[:-1], 1e9)
-    radii = [0.035, 0.045, 0.055, 0.07, 0.085, 0.085, 0.045]
+    radii = [0.035, 0.045, 0.06, 0.075, 0.09, 0.09, 0.05]
     for i in range(len(TAIL) - 1):
         a = (TAIL[i][0], 0.0, TAIL[i][1])
         b = (TAIL[i + 1][0], 0.0, TAIL[i + 1][1])
-        d = smin(d, flat_cone(p, a, b, radii[i], radii[i + 1], 0.5), 0.03)
+        d = smin(d, flat_cone(p, a, b, radii[i], radii[i + 1], 0.4), 0.03)
     return d
 
 
