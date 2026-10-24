@@ -795,6 +795,106 @@
    "cut": "Cut at 128 a metre, its furrows' contrast cut (run 124's read as birch bark on the rack).",
    "contrast": 0.5,
    "chroma": 0.85
+  },
+  "prop_canvas": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.5,
+    0.5
+   ],
+   "colours": 16,
+   "what": "old cotton duck canvas of a covered wagon's cover seen close: off-white gone dusty tan and grey, faint coarse weave, water stains and brown road dust worked into it, a few darker streaks where rain ran, a patch or two of mending. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1020,
+    490,
+    1060,
+    530
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:canvas)."
+  },
+  "prop_burlap": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the side of an old burlap feed sack seen close: coarse loose jute weave in tan and dull brown, the threads uneven, grain dust and dirt worked into it, a faint faded stencil smudge, darker grime low down. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    720,
+    500,
+    800,
+    550
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:burlap)."
+  },
+  "prop_straw": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.5,
+    0.5
+   ],
+   "colours": 16,
+   "what": "pressed hay seen close, the face of a bale: dry golden and sun-greyed straw stalks lying mostly one way, crossed by stray ones, shadowy gaps between them, a little dust. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1600,
+    130,
+    1660,
+    230
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:straw)."
+  },
+  "prop_leather": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "old saddle leather seen close: brown oiled cowhide darkened with sweat and grime, rubbed lighter and scuffed where it is used, fine cracks, a faint grain. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1470,
+    480,
+    1500,
+    510
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:leather)."
+  },
+  "prop_dung": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "dried horse dung seen close: dull olive-brown and dark brown fibrous matter, coarse chewed straw fibres in it, dry crumbly crust, dust on it. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    860,
+    660,
+    940,
+    720
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:dung)."
   }
  }
 }
