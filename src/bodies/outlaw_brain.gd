@@ -152,7 +152,7 @@ var variant: Variant = default_variant
 ## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
-## fights from the floor); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
+## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press"]
@@ -209,6 +209,10 @@ var _pain_bout := 0.0
 ## Variant D's odds: seconds left he won't break (taking stock after a hit, fighting it out
 ## cornered, gone to ground to weigh it), and whether he's already gone to ground once this time.
 var _hold_break := 0.0
+## Variant D's flinch: degrees his aim is off from a ball just past him (fading), and seconds left
+## he's firing through it, hurried.
+var _flinch_spread := 0.0
+var _hurry := 0.0
 var _hid_once := false
 var _pain_over := false
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
@@ -580,7 +584,15 @@ func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _
 	if person != body:
 		return
 	_scare(0.06 * clampf(2.5 - distance, 0.5, 2.5), &"near miss")
-	hand.jerk(hand_tuning().near_miss_jerk * clampf(2.5 - distance, 0.3, 2.5) / 2.5)
+	var close := clampf(1.0 - distance / 2.5, 0.0, 1.0)
+	hand.jerk(hand_tuning().near_miss_jerk * clampf(2.5 - distance, 0.3, 2.5) / 2.5 * (1.0 + FLINCH_JERK * close if _has(&"flinch") else 1.0))
+	if _has(&"flinch") and mood in [Mood.FIGHTING, Mood.RELOADING]:
+		_flinch_spread = maxf(_flinch_spread, FLINCH_SPREAD * close) + (FLINCH_SQUEEZE * close if _squeeze >= 0.0 else 0.0)
+		if temper >= HOT_TEMPER or dread() > nerve_now() * FLINCH_SCARED:
+			_hurry = FLINCH_HURRY
+		else:
+			_next_shot = maxf(_next_shot, FLINCH_HOLD.x + FLINCH_HOLD.y * close)
+			_on_sights = 0.0
 	_react = minf(_react, 0.15)  # rounds cracking past get a man moving
 	if shooter is Node3D and senses and not senses.sees(shooter):
 		senses.note(shooter, (shooter as Node3D).global_position, 0.1 * body.global_position.distance_to((shooter as Node3D).global_position))
@@ -837,6 +849,8 @@ func _physics_step(delta: float) -> void:
 		rattled = move_toward(rattled, 0.0, RATTLED_FADE * delta)
 		_watch_leader(delta)
 	_hold_break = maxf(_hold_break - delta, 0.0)
+	_flinch_spread = move_toward(_flinch_spread, 0.0, FLINCH_FADE * delta)
+	_hurry = maxf(_hurry - delta, 0.0)
 	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * 2.0:
 		pass  # (odds) taking stock, fighting it out, or gone to ground to weigh it
 	elif dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
@@ -1812,6 +1826,7 @@ func _cone_shot(ballistics: Ballistics, origin: Vector3, point: Vector3, t: Node
 		spread += 2.0
 	if not senses.sees(t):
 		spread += 3.0  # at where he was, not at him
+	spread += _flinch_spread
 	_judge_range()
 	return _cone(_held_over(ballistics, origin, point), deg_to_rad(spread))
 
@@ -1906,6 +1921,9 @@ func _sights_on(delta: float, t: Node3D) -> bool:
 	if covering > 0.0 or not senses.sees(t):
 		patience *= 3.0
 		hold = minf(hold, 0.4)
+	if _hurry > 0.0:
+		patience *= 2.0
+		hold *= 0.4
 	if hand.error_to(want) <= window * patience or _on_sights >= hold:
 		_squeeze = tune.trigger_lag
 		hand.jerk(tune.squeeze_jerk * (1.0 + hot + fear))
@@ -1979,6 +1997,19 @@ const ODDS_CORNERED := 8.0
 const ODDS_FLEE := Vector2(0.85, 0.5)
 const ODDS_HIDE := 5.0
 const ODDS_FOLLOW := 0.6
+## Variant D's `flinch` (spec 3A, 2026-10-24): a ball cracking past spoils his shot. The jerk grows
+## with how close it came (up to 1 + FLINCH_JERK times, past his ear); his aim is off by up to
+## FLINCH_SPREAD degrees more, fading at FLINCH_FADE a second; a ball past him as he squeezes throws
+## that shot FLINCH_SQUEEZE more. A hothead or a frightened man (FLINCH_SCARED of his nerve) fires
+## through it, hurried, for FLINCH_HURRY s (patience times 2, holding times 0.4); anyone else holds
+## his next shot FLINCH_HOLD (s, + per closeness) and aims again.
+const FLINCH_JERK := 2.0
+const FLINCH_SPREAD := 4.0
+const FLINCH_FADE := 4.0
+const FLINCH_SQUEEZE := 3.0
+const FLINCH_SCARED := 0.6
+const FLINCH_HURRY := 1.0
+const FLINCH_HOLD := Vector2(0.3, 0.7)
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0

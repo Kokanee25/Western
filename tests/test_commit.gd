@@ -349,3 +349,21 @@ func test_hurt_past_running_he_backs_off_at_a_walk() -> void:
 	await physics_frames(5)
 	check(kid.decision.begins_with("back off"), "he backs off (%s)" % kid.decision)
 	check_eq(kid.mood, OutlawBrain.Mood.FLEEING, "going, not giving up")
+
+
+## Variant D's `flinch` (on trial, spec 3A): a ball close past him throws his aim off for a moment;
+## a cool man holds his next shot, a hothead fires through it hurried.
+func test_a_close_miss_spoils_his_aim_and_holds_a_cool_man() -> void:
+	OutlawBrain.d_fixes.append(&"flinch")
+	await _gang()
+	await physics_frames(30)
+	var brody := _brain(&"brody")
+	var lyle := _brain(&"lyle")
+	brody._next_shot = 0.0
+	brody._on_near_miss(men[&"brody"], player, 0.2, Vector3.ZERO, 300.0, false)
+	lyle._on_near_miss(men[&"lyle"], player, 0.2, Vector3.ZERO, 300.0, false)
+	check(brody._flinch_spread > 3.0, "his aim's off (%.1f deg)" % brody._flinch_spread)
+	check(brody._next_shot > 0.6 and brody._hurry == 0.0, "Brody holds his shot (%.2f s)" % brody._next_shot)
+	check(lyle._hurry > 0.0, "Lyle fires through it, hurried")
+	await physics_frames(60)
+	check(brody._flinch_spread < 0.5, "a second later it's passed (%.1f)" % brody._flinch_spread)
