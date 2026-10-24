@@ -26,6 +26,7 @@ func _ready() -> void:
 	recorder.name = "BugRecorder"
 	add_child(recorder)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var play := "res://experiments/gunfight_lab/play.gd"  # Y/X/Z: the three gunmen, played (if the lab's here)
 	if ResourceLoader.exists(play):
