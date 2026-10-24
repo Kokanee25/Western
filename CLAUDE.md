@@ -553,7 +553,8 @@ frozen until Sean names one.
 
 **The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
 - Step 1 done, not merged: the Blender-built bay (`tools/blender/horse.py`, `Horse`), tack apart, an
-  idle, capsules, tied at the rails. Waiting on Sean: #340 (the sheet). Next: #341.
+  idle, capsules, tied at the rails; 1b remade to Sean's pictures (`docs/concept/horse/`, $0:
+  outline loft, the pictures projected as the coat). Waiting on Sean: #340. Next: #341.
 
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
