@@ -23,7 +23,7 @@ moment card_cheat animated=$anim hour=17.5
 moment_result wait 40
 wait 1
 CMDS
-  python3 tools/bridge.py run "$OUT/$name.txt" --size=960x540 --movie="$OUT/$name.avi" > "$OUT/$name.log" 2>&1
+  python3 tools/bridge.py run "$OUT/$name.txt" --size=960x540 --movie="$OUT/$name.avi" --port="${PORT:-8737}" > "$OUT/$name.log" 2>&1
   ffmpeg -y -loglevel error -i "$OUT/$name.avi" -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 96k "$OUT/$name.mp4"
   grep -o '"state": *"[a-z_]*"' "$OUT/$name.log" | tail -1 || true
 }
