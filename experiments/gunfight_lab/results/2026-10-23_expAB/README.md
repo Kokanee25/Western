@@ -169,3 +169,43 @@ hit, 45 were "covered close" and 32 more were "his friends' word".
 **Against the first baseline (`base_now`):** the shooting runs 17.1 to 25.5 s when they draw first
 and 14.7 to 22.5 s when you shoot first. The share of fights with 45–90 s of shooting goes 12% to
 14% and 8% to 20%.
+
+## A more careful scripted player (2026-10-24, `E_careful`)
+
+**What it is.** `player_bot.gd`'s new `careful` style is the cover style played the way a cautious
+person plays it. It runs `D_odds`'s gang (the doors, `pain_fight`, `floor_fight`, `odds`) over
+100 fights: five setups, seeds 1–10, both openings.
+
+- **Cover first:** it gets to cover as the fight starts, found and reached by the building's ways
+  (the gang's own cover finder, with its places).
+- **Pop and drop:** it comes up or out for about 1.6 s, fires a shot or two if there's a man there,
+  then goes down for 1.2–2.8 s.
+- **When hit:** it gets down for 3 s, and presses on a wound that's still bleeding once it's quiet.
+- **Ammunition:** it tops up its rounds while it's down.
+- **Under fire:** its shots are hurried (a wider aim, less settling) with balls cracking past.
+- **Aim:** 1.6 times the cover style's spread.
+
+| Scripted player | Opening | Shooting s (med) | 20 s+ | 45–90 s | Anyone quits | First quit s | Men who fired | Shots a man | Hits on you | You down |
+|---|---|---|---|---|---|---|---|---|---|---|
+| cover/hold (`D_odds`) | they | 25.5 | 58% | 14% | 70% | 15.4 | 70% | 2.4 | 1.6 | 32% |
+| **careful** | they | **36.1** | **74%** | **36%** | 44% | 26.4 | 85% | 3.9 | 2.3 | 54% |
+| cover/hold (`D_odds`) | you | 22.5 | 58% | 20% | 72% | 5.2 | 52% | 1.5 | 1.0 | 28% |
+| **careful** | you | **36.5** | **78%** | **34%** | 46% | 16.8 | 69% | 3.5 | 2.2 | 52% |
+
+| Scripted player | Its shots | Hit | Gang's shots | Hit you | Hit men who fired again | Gave up or ran within 1 s of a hit |
+|---|---|---|---|---|---|---|
+| cover/hold | 718 | 67% | 592 | 22% | 19% | 43 of 105 |
+| careful | 411 | 54% | 1,101 | 20% | **42%** | 22 of 67 |
+
+**What it means.**
+
+- **Fight length:** played carefully, a third of the fights land in the 45–90 s target, and three
+  in four have 20 s or more of shooting. With the quick shooter it was one in seven to one in
+  five. So the length limit was partly the scripted player.
+- **Wounded men:** they fight on (42% fire again after a hit). The gang fires nearly twice the
+  shots, and their aim is unchanged (20%).
+- **The cost:** the careful player goes down in half the fights. It takes 2.2 hits a fight against
+  three men with nerve. Whether that's too hard is a question for a person's play.
+- **The personalities hold:** the Kid quits most (34–40%), Lyle least.
+- **How fights end:** it's no longer mostly giving up. When they draw first, the endings were 25
+  you down, 11 they lost you, 6 quiet, 2 ran, 1 gave up.
