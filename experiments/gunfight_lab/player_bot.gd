@@ -515,7 +515,7 @@ func _places() -> Waypoints:
 ## careful: how long he's been up shooting; down again after a shot or two; a wound pressed on.
 func _careful_step(delta: float) -> void:
 	_dbg -= delta
-	if _dbg <= 0.0 and OS.has_environment("BOT_DEBUG"):
+	if OS.has_environment("BOT_DEBUG") and _dbg <= 0.0:
 		_dbg = 0.5
 		print("BOT t=%.1f down=%.1f up=%.1f target=%s seen=%s moving=%s spot=%s low=%s crouch=%s reload=%s tend=%.1f shots=%d onT=%.2f" % [now, _down_until - now, _up, target.name if target else "-", _k(target).seen if target else false, moving_to != Vector3.INF, spot, low_cover, held.has(&"crouch"), _reloading, _tending, stats.shots, _on_target])
 	# Up (or out to the edge) whenever he's not down: to look, and to shoot if there's a man there.
