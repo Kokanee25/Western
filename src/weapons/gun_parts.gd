@@ -371,6 +371,9 @@ static func blender_meshes(root: Node3D, gun: String) -> bool:
 			continue
 		target.mesh = src.mesh
 		target.material_override = _mats[key]
+		# As the held hand: the sun's shadow map is far too coarse at a gun's size, and the gun
+		# shadowing itself drew in stripes across its smooth tops.
+		target.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		n += 1
 	inst.free()
 	return n > 0
