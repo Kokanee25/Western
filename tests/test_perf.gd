@@ -2,8 +2,8 @@ extends TestCase
 ## The street mustn't creep back to costing what it did (tools/perf_bench.gd measures it properly;
 ## this guards it). Counts are exact and budgeted close; times are on whatever machine runs the
 ## tests, so their budgets leave room for a slow CI runner: about 3x what this workspace's 2.1 GHz
-## core takes now. Today, here: calm 4.9 ms a frame, 1,291 visible meshes, ~43 a person, 25.5k
-## nodes (an armed man 89); burning, 8.8 ms a frame, worst 72 ms.
+## core takes now. 2026-10-24, here: 1,573 visible meshes, ~16,000 nodes; with four times the
+## kit props 1,635 and ~20,000 (docs/briefs/props-scale.md).
 
 const CALM_FRAME_MS := 16.0
 const FIRE_FRAME_MS := 30.0
