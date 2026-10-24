@@ -33,11 +33,14 @@ case "$WHICH" in
     # From the saloon's side of the street, looking across at the five walking left to right.
     film walks "time 17.5" "camera -2.0 1.9 3.5 -2.0 1.0 -5.5 60" "wait 3" "moment walks_lineup" "waits 11" "moment_result" ;;&
   barkeep|all)
-    # Over the bar at the barkeep: his cloth first (rag_do wipe starts it), the mop after (mop_do look).
-    # At 11 the bar has no customers (a man at the bar stops the wiping: WipeBar._customer).
-    film barkeep "time 11" "camera 10.6 2.0 7.2 13.2 1.1 5.4 55" "wait 3" "rag_do wipe" "waits 9" "rag" "mop_do look" "waits 10" "mop" ;;&
+    # Over the bar at the barkeep. At 11 the bar has no customers (a man at the bar stops the
+    # wiping: WipeBar._customer). The cloth and the mop each in a game of its own: the mop chore
+    # starts on the floor's spill within seconds, and a man at one chore isn't asked for the other.
+    film barkeep_cloth "time 11" "rag_do wipe" "camera 10.6 2.0 7.2 13.2 1.1 5.4 55" "waits 11" "rag"
+    film barkeep_mop "time 11" "mop_do look" "camera 10.6 2.0 7.2 13.2 1.1 5.4 55" "waits 11" "mop"
+    ffmpeg -y -loglevel error -i "$OUT/barkeep_cloth.mp4" -i "$OUT/barkeep_mop.mp4" -filter_complex "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]" -map "[v]" -map "[a]" -c:v libx264 -crf 24 -pix_fmt yuv420p "$OUT/barkeep.mp4" ;;&
   trough|all)
-    # The store's trough from the street.
-    film trough "time 17.5" "camera 0.0 1.8 -1.2 2.6 0.7 -4.2 55" "wait 3" "moment trough_scoop" "waits 6" "moment_result" ;;&
+    # The store's trough from the street, three-quarters on (a porch post hid it from the walk).
+    film trough "time 17.5" "camera 5.6 1.5 -2.0 3.4 0.7 -4.3 50" "wait 3" "moment trough_scoop" "waits 6" "moment_result" ;;&
 esac
 ls -la "$OUT"/*.mp4
