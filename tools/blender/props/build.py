@@ -13,7 +13,9 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-PROPS = ["deer_head", "hay_bale", "straw_pile", "feed_sack", "grain_sack", "horse_droppings"]
+# The deer head is Rodin's since 2026-10-24 (deer_head_rodin.py, from the Studio's paid model);
+# deer_head.py, the modelled one, is kept to compare and not built: it would write over it.
+PROPS = ["hay_bale", "straw_pile", "feed_sack", "grain_sack", "horse_droppings"]
 
 
 def main():

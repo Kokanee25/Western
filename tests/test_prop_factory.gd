@@ -126,8 +126,11 @@ func test_batch_two_stands_weighs_and_is_drawn_from_its_blender_model() -> void:
 
 
 func test_the_deer_head_is_drawn_from_its_mount() -> void:
-	for part in ["plaque", "neck", "head", "pale", "nose", "eyes", "antlers"]:
+	for part in ["plaque", "neck", "head", "nose"]:
 		check(PropKit.model_part("deer_head", part) != null, "the mount has its %s" % part)
+	# Rodin's model, in its own paint (2026-10-24).
+	var paint := PropKit.material("model:deer_head", 0) as ShaderMaterial
+	check(paint != null and paint.get_shader_parameter(&"albedo_tex") != null, "the mount wears its own paint")
 
 
 func test_the_top_sack_comes_down_when_one_under_it_goes() -> void:

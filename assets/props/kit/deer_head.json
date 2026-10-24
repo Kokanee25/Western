@@ -1,12 +1,12 @@
 {
-  "_doc": "A mule deer's shoulder mount on a shaped plaque (the prop factory's, docs/briefs/prop-factory.md: modelled in Blender by tools/blender/props/deer_head.py, Sean on #338): the plaque nailed to the wall through two nails, the neck's form (pine, in hide) on it, the head and muzzle; glass eyes, ears and a four-point rack drawn on the head (they go where it goes). Hung: it holds while a nail's still in the wall (KitProp 'hangs'), falls when its board goes, and burns.",
+  "_doc": "A whitetail's shoulder mount on a shaped plaque, made by Rodin from Sean's six pictures (2026-10-24; tools/blender/props/deer_head_rodin.py: Rodin's model turned into this space, cut to 6,000 triangles and split into the members' parts; its own painted texture, look model:deer_head). The plaque nailed to the wall through two nails, the neck's form (pine, in hide) on it, the head and muzzle; the ears, glass eyes and rack drawn with the head (they go where it goes). Hung: it holds while a nail's still in the wall (KitProp 'hangs'), falls when its board goes, and burns.",
   "id": "deer_head",
   "kind": "members",
   "replaces": "deer_head",
   "in_game": true,
   "drawn_bounds": true,
   "wood": "weathered_pine",
-  "look": "prop:hide",
+  "look": "model:deer_head",
   "splits_below": 0.4,
   "blow_wood_share": 0.5,
   "hangs": {
@@ -28,16 +28,16 @@
       "id": "plaque",
       "kind": "post",
       "wood": "dark_trim",
-      "look": "prop:dark_wood",
+      "look": "model:deer_head",
       "size": [
-        0.3628,
-        0.4695,
-        0.032
+        0.3558,
+        0.4697,
+        0.0449
       ],
       "at": [
-        0.0,
-        -0.2153,
-        0.0358
+        0.0002,
+        -0.2151,
+        0.0424
       ],
       "draw": {
         "shape": "mesh",
@@ -49,95 +49,56 @@
       "id": "neck",
       "kind": "furniture_frame",
       "size": [
-        0.2134,
-        0.2774,
-        0.2134
+        0.2348,
+        0.2822,
+        0.1603
       ],
       "at": [
-        0.0,
-        -0.2579,
-        0.1478
-      ],
-      "rot": [
-        -20.0535,
-        0,
-        0
+        0.0006,
+        -0.2248,
+        0.1357
       ],
       "draw": {
         "shape": "mesh",
         "model": "deer_head",
         "part": "neck"
-      }
+      },
+      "look": "model:deer_head"
     },
     {
       "id": "head",
       "kind": "furniture_top",
       "size": [
-        0.16,
-        0.16,
-        0.2134
+        0.2358,
+        0.1852,
+        0.2966
       ],
       "at": [
-        0.0,
-        -0.1406,
-        0.3185
-      ],
-      "rot": [
-        14.3239,
-        0,
-        0
+        -0.0029,
+        -0.0326,
+        0.203
       ],
       "draw": {
         "shape": "mesh",
         "model": "deer_head",
         "part": "head"
       },
-      "dress": [
-        {
-          "look": "prop:hide_pale",
-          "draw": {
-            "shape": "mesh",
-            "model": "deer_head",
-            "part": "pale"
-          }
-        },
-        {
-          "look": "prop:glass_eye",
-          "draw": {
-            "shape": "mesh",
-            "model": "deer_head",
-            "part": "eyes"
-          }
-        },
-        {
-          "look": "prop:antler",
-          "draw": {
-            "shape": "mesh",
-            "model": "deer_head",
-            "part": "antlers"
-          }
-        }
-      ]
+      "look": "model:deer_head"
     },
     {
       "id": "muzzle",
       "kind": "trim",
       "size": [
-        0.096,
-        0.0854,
-        0.1494
+        0.0878,
+        0.1093,
+        0.1286
       ],
       "at": [
+        0.0042,
         0.0,
-        -0.2046,
-        0.4572
+        0.3404
       ],
-      "rot": [
-        25.7831,
-        0,
-        0
-      ],
-      "look": "prop:hide_dark",
+      "look": "model:deer_head",
       "draw": {
         "shape": "mesh",
         "model": "deer_head",
@@ -145,5 +106,5 @@
       }
     }
   ],
-  "factory": "tools/blender/props/deer_head.py"
+  "factory": "tools/blender/props/deer_head_rodin.py"
 }
