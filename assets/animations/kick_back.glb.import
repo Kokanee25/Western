@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dhi0f4nosd48n"
-path="res://.godot/imported/kick_back.glb-0bf120959e8707e6dbaf7e42a92daf25.scn"
+path="res://.godot/imported/kick_back.glb-255e15b54c34d8570d085adbe12ae6b4.scn"
 
 [deps]
 
-source_file="res://build/motion/best/kick_back.glb"
-dest_files=["res://.godot/imported/kick_back.glb-0bf120959e8707e6dbaf7e42a92daf25.scn"]
+source_file="res://assets/animations/kick_back.glb"
+dest_files=["res://.godot/imported/kick_back.glb-255e15b54c34d8570d085adbe12ae6b4.scn"]
 
 [params]
 
