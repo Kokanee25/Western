@@ -24,6 +24,12 @@ const CONTACT_EPSILON := 0.012
 ## of them). A member leaves the batch for good the moment anything happens to it (a hole, heat,
 ## breaking): its own mesh shows again and the batch is rebuilt without it.
 @export var batch_meshes := true
+## Members drawn in a batch are their bodies alone till something happens to them
+## (StructureMember.rest: their mesh and shape nodes out of the tree): a building's or a kit
+## prop's hundred members are a hundred nodes, not three hundred (docs/briefs/props-scale.md).
+@export var rest_batched := true
+## Off for every structure (`-- --no-member-rest`: the bench's before).
+static var members_rest := not "--no-member-rest" in OS.get_cmdline_user_args()
 ## How long it has stood (years): 0 as built. Older, it shows it (BuildingAge: sagging, leaning,
 ## boards gone and patched, worn steps), the same way every load.
 @export var age_years := 0.0
@@ -276,7 +282,7 @@ func _batch_all() -> void:
 		return
 	var groups := {}
 	for m in _order:
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		# Glass stays its own (see-through, no shadow); so does anything already hidden (a sign
 		# member under its painted board) or drawn its own way.
 		if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
@@ -296,6 +302,9 @@ func _batch_all() -> void:
 	for mat in groups:
 		_build_batch(mat)
 	_build_shadow()
+	if rest_batched and members_rest:
+		for m: StructureMember in _batched:
+			m.rest()
 
 
 func _build_batch(mat: Material) -> void:
@@ -305,7 +314,7 @@ func _build_batch(mat: Material) -> void:
 	for m: StructureMember in _batched:
 		if _batched[m] != mat:
 			continue
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
 		any = true
 	if not any:
@@ -327,6 +336,7 @@ func _build_batch(mat: Material) -> void:
 ## heating, a member at a time all over a burning building): its batch is rebuilt without it at
 ## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
 func unbatch(m: StructureMember, soon := false) -> void:
+	m.realise()
 	if not _batched.has(m):
 		return
 	var mat: Material = _batched[m]

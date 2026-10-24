@@ -30,7 +30,7 @@ const BUILDINGS := [
 			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"store_boards",
 			"facade": "store"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
-			"front_wood": &"painted_rust", "facade": "store"}],
+			"front_wood": &"painted_red", "facade": "store"}],
 	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL", "facade": "store"}],
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
@@ -102,6 +102,9 @@ func _ready() -> void:
 	var prints := RoadPrints.new()
 	prints.name = "RoadPrints"
 	add_child(prints)
+	var wear := StreetWear.new()  # damp by the troughs and rails, straw, droppings (the light pass)
+	wear.name = "StreetWear"
+	add_child(wear)
 
 
 func _buildings() -> void:
@@ -406,7 +409,7 @@ func _loose() -> void:
 			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
 			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
 		_prop(&"crate", c[0], c[1])
-	_model("Buckboard", PropModels.wagon, Vector3(-27.5, 0.0, -13.0), 0.0, Vector3(3.4, 2.2, 1.8), false)
+	_kit(&"buckboard", Vector3(-27.5, 0.0, -13.0), 0.0)
 	# Boards hung under the porches, end on to the street so you read them looking down it.
 	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],
 			["GUNSMITH", Vector3(-34.2, 2.45, -1.95)], ["SHERIFF", Vector3(-19.0, 2.45, -14.85)], ["ASSAYS", Vector3(-26.0, 2.45, -14.85)]]:
@@ -416,7 +419,7 @@ func _loose() -> void:
 ## Down the street and over the roofs: a covered wagon, telegraph poles with their wire, the water
 ## tower.
 func _far() -> void:
-	_model("Wagon", PropModels.wagon, Vector3(-36.0, 0.0, -12.6), 0.0, Vector3(3.4, 2.2, 1.8), false)
+	_kit(&"covered_wagon", Vector3(-36.0, 0.0, -12.6), 0.0)
 	# Half a metre into the street from the south boardwalks' edge (at -13.9 the jail's pole stood
 	# through the boardwalk: tools/visual_checks.py's floating/sunk check).
 	var poles := [Vector3(-2.0, 0.0, -13.4), Vector3(-27.0, 0.0, -13.4), Vector3(-52.0, 0.0, -13.4), Vector3(-77.0, 0.0, -13.4)]
@@ -537,7 +540,7 @@ func _folk() -> void:
 		man.person_id = StringName(String(f[0]).to_snake_case())
 		man.rng_seed = 201 + i
 		man.has_gun = false
-		man.use_paint = false
+		man.body_model = ShotMatch.STUDIO_FOLK[(i + 3) % ShotMatch.STUDIO_FOLK.size()]  # a Studio man (Sean, 2026-10-24)
 		man.shirt_color = f[4]
 		man.vest_color = f[5]
 		man.coat_color = f[6]
@@ -593,6 +596,15 @@ func _prop(id: StringName, at: Vector3, yaw: float) -> void:
 	var p := PropLibrary.spawn(id)
 	add_child(p)
 	p.global_transform = t
+
+
+## A kit prop at `at` (not carried with a building), turned `yaw` degrees: the prop factory's wagons
+## (docs/briefs/prop-factory.md), built of members, so they break, burn and are cover.
+func _kit(id: StringName, at: Vector3, yaw: float) -> Node3D:
+	var p := PropLibrary.spawn(id)
+	add_child(p)
+	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	return p
 
 
 ## A PropModels model at `at`, turned `yaw` degrees, with a box of `size` (bottom at its feet)

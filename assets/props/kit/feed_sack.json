@@ -1,0 +1,42 @@
+{
+  "kind": "members",
+  "in_game": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.3,
+  "_doc": "A burlap sack of oats standing, its neck tied (~0.7 m, ~40 kg; the prop factory's, tools/blender/props/feed_sack.py): one member, its cord drawn on. A ball goes in and stops; it burns slowly; a stick throws it.",
+  "id": "feed_sack",
+  "factory": "tools/blender/props/feed_sack.py",
+  "wood": "grain_sack",
+  "look": "prop:burlap",
+  "members": [
+    {
+      "id": "sack",
+      "kind": "post",
+      "size": [
+        0.42,
+        0.62,
+        0.3
+      ],
+      "at": [
+        0,
+        0.31,
+        0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "feed_sack",
+        "part": "sack"
+      },
+      "dress": [
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "mesh",
+            "model": "feed_sack",
+            "part": "tie"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -25,7 +25,7 @@ extends Resource
 ## Energy to tear out a cubic centimetre, J, by wood: old dry weathered boards split and splinter
 ## easily, sound framing less, stone hardly. A charge at contact (1,600 J of blast) takes ~130 cm³
 ## out of a weathered siding board: a hole ~7 cm across through 2.5 cm, split along the grain.
-@export var spall_j_per_cm3 := {&"weathered_pine": 12.0, &"painted_ochre": 13.0, &"painted_rust": 13.0,
+@export var spall_j_per_cm3 := {&"weathered_pine": 12.0, &"painted_ochre": 13.0, &"painted_rust": 13.0, &"painted_white": 13.0, &"painted_red": 13.0, &"painted_green": 13.0,
 		&"sign": 13.0, &"floor": 18.0, &"framing": 20.0, &"dark_trim": 22.0, &"stone": 150.0}
 @export var default_spall_j_per_cm3 := 18.0
 ## Wood splits along its grain: the torn-out wood reaches this many times as far along the

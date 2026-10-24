@@ -1459,6 +1459,98 @@
     "mud_cover": 0.7
    },
    "light_bands": 4
+  },
+  "studio10p": {
+   "note": "The light pass round 2 (Sean, 2026-10-23, issue #321: \"paint with paid images\"): four painted sidings for the false fronts (whitewash, faded barn red, pale green, ochre; sun-bleached, peeling), painted from the store's boards in studio5's hand and cut as studio10, so they sit with the game's woods. Promoted into woods/ by promote_woods.py.",
+   "texels_per_metre": 384,
+   "woods": [],
+   "new_woods": {
+    "painted_white": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old whitewash, now a dirty chalky off-white",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_red": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old barn-red paint, faded by the sun to a dusty brick red",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_green": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old pale sage-green paint, faded and dusty",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_ochre_s": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old ochre-yellow paint, faded to a dusty mustard",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    }
+   },
+   "blur_source": 3.0,
+   "hand": "Repaint it as an illustrator's painting in the same hand as the second image, the game's characters: their cloth is painted in broad, soft shapes of a few close tones, with clean bands of light and shade and almost no small texture. Paint each board the same way: three or four close tones laid in long broad strokes along its length, the grain only suggested by a few long soft streaks, a knot or two as soft dark ovals, worn edges as broad lighter bands, a little dust and grime as soft darker patches. No fine grain lines, no nail holes, no speckle, no scratches, no cracks drawn line by line, nothing photographic: it should look painted with a brush. A little darker and warmer than the first image, the weathered wood warm brown like the men's vests and trousers, the painted boards keeping their paint colour, muted.",
+   "grade_all": {
+    "unify": 0.7,
+    "unify_L": 0.6,
+    "highs": [
+     80,
+     0.45
+    ],
+    "calm": [
+     2.0,
+     0.35
+    ],
+    "rows": 0.5,
+    "seams": 3,
+    "poster": [
+     1.5,
+     6
+    ]
+   },
+   "grade": {
+    "painted_white": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_red": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_green": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_ochre_s": {
+     "L": 0.84,
+     "C": 0.9
+    }
+   },
+   "weathering": {
+    "metres": 3.0,
+    "tones": 0,
+    "mud": "#8a7560",
+    "streak": "#a69b8e",
+    "grime": "#8a7866",
+    "bleach": "#c9c3b8",
+    "amounts": [
+     0.85,
+     0.6,
+     0.55,
+     0.45
+    ],
+    "reach": [
+     0.6,
+     1.1,
+     1.0,
+     0.16
+    ],
+    "multiply": true,
+    "bleach_walls": 0.0,
+    "specular": 0.08,
+    "mud_cover": 0.7
+   },
+   "light_bands": 4,
+   "budget": 1.6,
+   "ask": ""
   }
  }
 }

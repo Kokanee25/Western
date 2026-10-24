@@ -1,0 +1,73 @@
+extends RefCounted
+## A cluttered street for the bench (docs/briefs/props-scale.md): `times` as many of the street's
+## kit props as it has, the copies of each one alike (a fitted counter keeps its fit), laid in rows
+## along the street either side of its middle, like with like, each where nothing else stands and
+## on whatever's under it. Hung props stay on their walls (they'd need one).
+##
+##   var made: Array = PropClutter.lay(street, 4)
+## Untyped where it meets the game's classes: perf_bench (an -s script) loads it before autoloads.
+
+## The rows (z) and how far down the street they run (x), m.
+## (The middle, -7.0 to -9.4, left for riders and walkers.)
+const ROWS := [-5.2, -11.2, -6.4, -10.0]
+const FROM_X := 8.0
+const TO_X := -80.0
+const GAP := 0.35
+
+
+static func lay(street: Node3D, times := 4) -> Array:
+	var sources := []
+	for p in street.find_children("*", "KitProp", true, false):
+		if p.get(&"loose") or p.call(&"hung"):
+			continue
+		sources.append(p)
+	sources.sort_custom(func(a, b) -> bool: return String(a.get(&"kit_id")) < String(b.get(&"kit_id")))
+	var root := Node3D.new()
+	root.name = "Clutter"
+	street.add_child(root)
+	var space: PhysicsDirectSpaceState3D = street.get_world_3d().direct_space_state
+	var made := []
+	var row := 0
+	var x := FROM_X
+	var kit = load("res://src/props/prop_kit.gd")
+	for k in times - 1:
+		for src in sources:
+			var def: Dictionary = src.get(&"definition")
+			var box: AABB = kit.bounds(def)
+			var width := box.size.x
+			var placed := false
+			while not placed and row < ROWS.size():
+				var at := Vector3(x - box.end.x, 0.0, ROWS[row] - box.get_center().z)
+				if at.x + box.position.x < TO_X:
+					row += 1
+					x = FROM_X
+					continue
+				if _free(space, at, box):
+					var p = kit.spawn(src.get(&"kit_id"))
+					p.set(&"definition", def.duplicate(true))
+					root.add_child(p)
+					p.global_position = Vector3(at.x, _ground(space, at, box), at.z)
+					made.append(p)
+					placed = true
+				x -= width + GAP if placed else 0.5
+			if row >= ROWS.size():
+				return made
+	return made
+
+
+## Nothing solid in its box there (a horse, a rail, a trough, a wagon).
+static func _free(space: PhysicsDirectSpaceState3D, at: Vector3, box: AABB) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = box.size + Vector3(0.1, 0.0, 0.1)
+	q.shape = shape
+	q.transform = Transform3D(Basis(), at + box.get_center() + Vector3.UP * 0.06)
+	q.collision_mask = 1 | 8  # Layers.WORLD | Layers.PEOPLE
+	return space.intersect_shape(q, 1).is_empty()
+
+
+## The ground (or boards) under its middle.
+static func _ground(space: PhysicsDirectSpaceState3D, at: Vector3, box: AABB) -> float:
+	var c := at + Vector3(box.get_center().x, 0.0, box.get_center().z)
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3.UP * 2.0, c + Vector3.DOWN * 2.0, 1))
+	return (hit.position as Vector3).y if not hit.is_empty() else 0.0

@@ -42,10 +42,11 @@ xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan -
 ```
 
 The detail views also print `GAP`: each finger bone's skin against the wood or trigger it holds (mm,
-negative = into it). `--fit=1` closes every finger on the grip (each joint turned until the finger
-past it comes within 1.5 mm), swings the coach gun's index onto its front trigger and searches the
-thumbs' poses (resting, and on the spur to cock), and prints the angles (`FIT`) to bake into
-`HandModel` and `ShotgunViewmodel`.
+negative = into it). `--fit=1` closes every finger on what it holds as a finger closes, its three
+joints together (`HeldHand.grasp`: 0.75 : 1 : 0.55, a cylinder grasp's) until it comes within
+1.5 mm of the wood or the barrels; spreads the coach gun's index forward onto its front trigger;
+searches the thumbs' poses (resting, and on the spur to cock); and prints them (`FIT`) to bake into
+`HandModel` and `ShotgunViewmodel`. (Joint by joint, 2026-10-23's first fit, kinked the fingers.)
 
 `--hour=H` (default 16, the sun behind you), `--jobs=N` (2), `--skip-done`. Rendering needs xvfb and
 lavapipe (`apt-get install mesa-vulkan-drivers xvfb`) and the native plugin built

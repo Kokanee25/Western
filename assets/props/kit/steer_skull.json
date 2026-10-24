@@ -1,0 +1,112 @@
+{
+  "_doc": "A longhorn steer's skull and horns nailed to a rough plank, hung over a door (Sean, 2026-10-24): three pictures drawn by GPT-5.4 in the deer head pictures' look, made 3D by Rodin through the Character Studio, turned into this space by tools/blender/props/steer_skull_rodin.py (1.0 m tip to tip; its own paint, look model:steer_skull). The plank on two nails; the skull and horns are bone (TimberTuning `bone`: brittle, doesn't burn): a ball cracks a horn off, the plank burns and drops them.",
+  "id": "steer_skull",
+  "kind": "members",
+  "in_game": true,
+  "drawn_bounds": true,
+  "wood": "bone",
+  "look": "model:steer_skull",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/blender/props/steer_skull_rodin.py",
+  "hangs": {
+    "nails": [
+      [
+        -0.08,
+        -0.08,
+        0.03
+      ],
+      [
+        0.08,
+        -0.08,
+        0.03
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "plank",
+      "kind": "post",
+      "wood": "weathered_pine",
+      "look": "model:steer_skull",
+      "size": [
+        0.3393,
+        0.6449,
+        0.0522
+      ],
+      "at": [
+        -0.0017,
+        -0.3026,
+        0.0461
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "steer_skull",
+        "part": "plank"
+      }
+    },
+    {
+      "id": "skull",
+      "kind": "furniture_top",
+      "wood": "bone",
+      "look": "model:steer_skull",
+      "size": [
+        0.2712,
+        0.4892,
+        0.2047
+      ],
+      "at": [
+        -0.0001,
+        -0.3346,
+        0.1627
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "steer_skull",
+        "part": "skull"
+      }
+    },
+    {
+      "id": "horn_l",
+      "kind": "trim",
+      "wood": "bone",
+      "look": "model:steer_skull",
+      "size": [
+        0.376,
+        0.2711,
+        0.0903
+      ],
+      "at": [
+        -0.3102,
+        -0.0623,
+        0.0999
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "steer_skull",
+        "part": "horn_l"
+      }
+    },
+    {
+      "id": "horn_r",
+      "kind": "trim",
+      "wood": "bone",
+      "look": "model:steer_skull",
+      "size": [
+        0.3779,
+        0.2713,
+        0.09
+      ],
+      "at": [
+        0.3123,
+        -0.0631,
+        0.1
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "steer_skull",
+        "part": "horn_r"
+      }
+    }
+  ]
+}

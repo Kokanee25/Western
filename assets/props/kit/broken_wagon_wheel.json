@@ -1,0 +1,934 @@
+{
+ "kind": "members",
+ "in_game": true,
+ "factory": "tools/props/wagons.py",
+ "wood": "oak",
+ "look": "wood:dark_oak",
+ "splits_below": 0.4,
+ "blow_wood_share": 0.5,
+ "_doc": "A broken wagon wheel lying where it was thrown: two felloes gone with their tyre, their spokes snapped off short out of the hub and one more gone. As the wagon wheel otherwise.",
+ "id": "broken_wagon_wheel",
+ "members": [
+  {
+   "id": "wheel_felloe0",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.598,
+    0.07,
+    0.1451
+   ],
+   "at": [
+    0.4551,
+    0.035,
+    0.2627
+   ],
+   "rot": [
+    0.0,
+    -120.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.598,
+      0.0
+     ],
+     [
+      0.598,
+      0.07
+     ],
+     [
+      0.523,
+      0.07
+     ],
+     [
+      0.523,
+      0.0
+     ],
+     [
+      0.598,
+      0.0
+     ]
+    ],
+    "from": 0.0,
+    "to": 60.0,
+    "segments": 4,
+    "caps": true
+   },
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "sweep",
+      "profile": [
+       [
+        0.61,
+        0.004
+       ],
+       [
+        0.61,
+        0.066
+       ],
+       [
+        0.598,
+        0.066
+       ],
+       [
+        0.598,
+        0.004
+       ],
+       [
+        0.61,
+        0.004
+       ]
+      ],
+      "from": 0.0,
+      "to": 60.0,
+      "segments": 4
+     }
+    }
+   ],
+   "splits_below": 0.35
+  },
+  {
+   "id": "wheel_felloe1",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.598,
+    0.07,
+    0.1451
+   ],
+   "at": [
+    0.0,
+    0.035,
+    0.5255
+   ],
+   "rot": [
+    0.0,
+    -180.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.598,
+      0.0
+     ],
+     [
+      0.598,
+      0.07
+     ],
+     [
+      0.523,
+      0.07
+     ],
+     [
+      0.523,
+      0.0
+     ],
+     [
+      0.598,
+      0.0
+     ]
+    ],
+    "from": 60.0,
+    "to": 120.0,
+    "segments": 4,
+    "caps": true
+   },
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "sweep",
+      "profile": [
+       [
+        0.61,
+        0.004
+       ],
+       [
+        0.61,
+        0.066
+       ],
+       [
+        0.598,
+        0.066
+       ],
+       [
+        0.598,
+        0.004
+       ],
+       [
+        0.61,
+        0.004
+       ]
+      ],
+      "from": 60.0,
+      "to": 120.0,
+      "segments": 4
+     }
+    }
+   ],
+   "splits_below": 0.35
+  },
+  {
+   "id": "wheel_felloe4",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.598,
+    0.07,
+    0.1451
+   ],
+   "at": [
+    -0.0,
+    0.035,
+    -0.5255
+   ],
+   "rot": [
+    0.0,
+    -360.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.598,
+      0.0
+     ],
+     [
+      0.598,
+      0.07
+     ],
+     [
+      0.523,
+      0.07
+     ],
+     [
+      0.523,
+      0.0
+     ],
+     [
+      0.598,
+      0.0
+     ]
+    ],
+    "from": 240.0,
+    "to": 300.0,
+    "segments": 4,
+    "caps": true
+   },
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "sweep",
+      "profile": [
+       [
+        0.61,
+        0.004
+       ],
+       [
+        0.61,
+        0.066
+       ],
+       [
+        0.598,
+        0.066
+       ],
+       [
+        0.598,
+        0.004
+       ],
+       [
+        0.61,
+        0.004
+       ]
+      ],
+      "from": 240.0,
+      "to": 300.0,
+      "segments": 4
+     }
+    }
+   ],
+   "splits_below": 0.35
+  },
+  {
+   "id": "wheel_felloe5",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.598,
+    0.07,
+    0.1451
+   ],
+   "at": [
+    0.4551,
+    0.035,
+    -0.2627
+   ],
+   "rot": [
+    0.0,
+    -420.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.598,
+      0.0
+     ],
+     [
+      0.598,
+      0.07
+     ],
+     [
+      0.523,
+      0.07
+     ],
+     [
+      0.523,
+      0.0
+     ],
+     [
+      0.598,
+      0.0
+     ]
+    ],
+    "from": 300.0,
+    "to": 360.0,
+    "segments": 4,
+    "caps": true
+   },
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "sweep",
+      "profile": [
+       [
+        0.61,
+        0.004
+       ],
+       [
+        0.61,
+        0.066
+       ],
+       [
+        0.598,
+        0.066
+       ],
+       [
+        0.598,
+        0.004
+       ],
+       [
+        0.61,
+        0.004
+       ]
+      ],
+      "from": 300.0,
+      "to": 360.0,
+      "segments": 4
+     }
+    }
+   ],
+   "splits_below": 0.35
+  },
+  {
+   "id": "wheel_spoke0",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.3065,
+    0.035,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke1",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.2654,
+    0.035,
+    0.1532
+   ],
+   "rot": [
+    0.0,
+    -30.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke2",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.1533,
+    0.035,
+    0.2654
+   ],
+   "rot": [
+    0.0,
+    -60.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke3",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.0,
+    0.035,
+    0.3065
+   ],
+   "rot": [
+    0.0,
+    -90.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke4",
+   "kind": "cripple",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.2083,
+    0.04,
+    0.055
+   ],
+   "at": [
+    -0.0896,
+    0.035,
+    0.1552
+   ],
+   "rot": [
+    0.0,
+    -120.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.2083,
+   "draw": {
+    "shape": "boxes",
+    "boxes": [
+     {
+      "from": [
+       -0.0375,
+       0.035,
+       0.065
+      ],
+      "to": [
+       -0.1367,
+       0.035,
+       0.2367
+      ],
+      "thick": 0.04
+     },
+     {
+      "from": [
+       -0.1371,
+       0.035,
+       0.2134
+      ],
+      "to": [
+       -0.1805,
+       0.035,
+       0.2807
+      ],
+      "thick": 0.014
+     }
+    ]
+   }
+  },
+  {
+   "id": "wheel_spoke5",
+   "kind": "cripple",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.2083,
+    0.04,
+    0.055
+   ],
+   "at": [
+    -0.1552,
+    0.035,
+    0.0896
+   ],
+   "rot": [
+    0.0,
+    -150.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.2083,
+   "draw": {
+    "shape": "boxes",
+    "boxes": [
+     {
+      "from": [
+       -0.065,
+       0.035,
+       0.0375
+      ],
+      "to": [
+       -0.2367,
+       0.035,
+       0.1367
+      ],
+      "thick": 0.04
+     },
+     {
+      "from": [
+       -0.2254,
+       0.035,
+       0.1163
+      ],
+      "to": [
+       -0.314,
+       0.035,
+       0.1628
+      ],
+      "thick": 0.014
+     }
+    ]
+   }
+  },
+  {
+   "id": "wheel_spoke6",
+   "kind": "cripple",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.2083,
+    0.04,
+    0.055
+   ],
+   "at": [
+    -0.1792,
+    0.035,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    -180.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.2083,
+   "draw": {
+    "shape": "boxes",
+    "boxes": [
+     {
+      "from": [
+       -0.075,
+       0.035,
+       0.0
+      ],
+      "to": [
+       -0.2733,
+       0.035,
+       0.0
+      ],
+      "thick": 0.04
+     },
+     {
+      "from": [
+       -0.2533,
+       0.035,
+       -0.012
+      ],
+      "to": [
+       -0.3333,
+       0.035,
+       -0.016
+      ],
+      "thick": 0.014
+     }
+    ]
+   }
+  },
+  {
+   "id": "wheel_spoke7",
+   "kind": "cripple",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.2083,
+    0.04,
+    0.055
+   ],
+   "at": [
+    -0.1552,
+    0.035,
+    -0.0896
+   ],
+   "rot": [
+    0.0,
+    -210.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.2083,
+   "draw": {
+    "shape": "boxes",
+    "boxes": [
+     {
+      "from": [
+       -0.065,
+       0.035,
+       -0.0375
+      ],
+      "to": [
+       -0.2367,
+       0.035,
+       -0.1367
+      ],
+      "thick": 0.04
+     },
+     {
+      "from": [
+       -0.2134,
+       0.035,
+       -0.1371
+      ],
+      "to": [
+       -0.298,
+       0.035,
+       -0.1905
+      ],
+      "thick": 0.014
+     }
+    ]
+   }
+  },
+  {
+   "id": "wheel_spoke9",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    -0.0,
+    0.035,
+    -0.3065
+   ],
+   "rot": [
+    0.0,
+    -270.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke10",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.1533,
+    0.035,
+    -0.2654
+   ],
+   "rot": [
+    0.0,
+    -300.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_spoke11",
+   "kind": "stud",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.463,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.2654,
+    0.035,
+    -0.1533
+   ],
+   "rot": [
+    0.0,
+    -330.0,
+    0.0
+   ],
+   "splits_below": 0.7,
+   "blow_span": 0.463
+  },
+  {
+   "id": "wheel_hub",
+   "kind": "furniture_frame",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.17,
+    0.275,
+    0.17
+   ],
+   "at": [
+    0.0,
+    0.145,
+    0.0
+   ],
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0.05,
+      0.0
+     ],
+     [
+      0.0723,
+      0.02
+     ],
+     [
+      0.085,
+      0.065
+     ],
+     [
+      0.085,
+      0.115
+     ],
+     [
+      0.068,
+      0.28
+     ],
+     [
+      0.05,
+      0.28
+     ]
+    ],
+    "segments": 10
+   },
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "lathe",
+      "profile": [
+       [
+        0.0714,
+        0.0756
+       ],
+       [
+        0.0808,
+        0.0816
+       ],
+       [
+        0.0808,
+        0.1088
+       ],
+       [
+        0.0714,
+        0.1148
+       ]
+      ],
+      "segments": 10,
+      "at": [
+       0.0,
+       0.14,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "loose_felloe",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.598,
+    0.07,
+    0.1451
+   ],
+   "at": [
+    -0.8884,
+    0.035,
+    0.3234
+   ],
+   "rot": [
+    0.0,
+    -250.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.598,
+      0.0
+     ],
+     [
+      0.598,
+      0.07
+     ],
+     [
+      0.523,
+      0.07
+     ],
+     [
+      0.523,
+      0.0
+     ],
+     [
+      0.598,
+      0.0
+     ]
+    ],
+    "from": 150.0,
+    "to": 210.0,
+    "segments": 4,
+    "caps": true,
+    "rot": [
+     0,
+     20.0,
+     0
+    ],
+    "at": [
+     -0.3947,
+     0.0,
+     0.1436
+    ]
+   }
+  },
+  {
+   "id": "sprung_tyre",
+   "kind": "post",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.6594,
+    0.062,
+    0.0731
+   ],
+   "at": [
+    -0.6667,
+    0.031,
+    -0.5796
+   ],
+   "rot": [
+    0.0,
+    -311.0,
+    0.0
+   ],
+   "draw": {
+    "shape": "sweep",
+    "profile": [
+     [
+      0.92,
+      0.0
+     ],
+     [
+      0.92,
+      0.062
+     ],
+     [
+      0.908,
+      0.062
+     ],
+     [
+      0.908,
+      0.0
+     ],
+     [
+      0.92,
+      0.0
+     ]
+    ],
+    "from": 200.0,
+    "to": 242.0,
+    "segments": 5
+   }
+  },
+  {
+   "id": "loose_spoke",
+   "kind": "post",
+   "wood": "oak",
+   "look": "wood:dark_oak",
+   "size": [
+    0.44,
+    0.04,
+    0.055
+   ],
+   "at": [
+    0.22,
+    0.02,
+    -0.86
+   ],
+   "rot": [
+    0,
+    38,
+    0
+   ]
+  }
+ ]
+}

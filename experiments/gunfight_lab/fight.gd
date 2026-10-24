@@ -113,10 +113,15 @@ func setup() -> String:
 	if models.is_empty():
 		return "no bodies %s (%s)" % [opts.bodies, ", ".join((data.gang_models as Dictionary).keys())]
 	seed(int(opts.seed) * 104729 + 7)
-	# Variant D's fixes (OutlawBrain.D_FIXES): all (the default), none, or a list; "-x" all but x.
+	# Variant D's fixes (OutlawBrain.D_FIXES): all (the default), none, or a list; "-x" all but x;
+	# "all+x" all and x (one on trial, not yet in D_FIXES).
 	var fx := String(opts.get("fixes", "all"))
 	if fx == "all" or fx == "":
 		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+	elif fx.begins_with("all+"):
+		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+		for f: String in fx.substr(4).split("+"):
+			OutlawBrain.d_fixes.append(StringName(f))
 	elif fx == "none":
 		OutlawBrain.d_fixes = []
 	elif fx.begins_with("-"):
@@ -497,6 +502,11 @@ func _watch_men(_delta: float) -> void:
 			var decs: Array = m.get_or_add("decisions", [])
 			decs.append([snappedf(t, 0.01), dec])
 			_note("decision", "%s: %s" % [m.id, dec])
+			if dec.begins_with("give that cover up: stuck"):
+				# Where he stuck, where he was going and by which way (Experiment B).
+				var bb := b as OutlawBrain
+				_note("stuck", "%s at %s going to %s by %s" % [m.id, bb.body.global_position.snappedf(0.01), (bb.cover.get("at", Vector3.ZERO) as Vector3).snappedf(0.01),
+						str((bb.cover.get("route", []) as Array).map(func(w: Vector3) -> Vector3: return w.snappedf(0.01)))])
 			if was_dec.begins_with("go round on you"):
 				var ok := dec.begins_with("behind cover")
 				m[("flanks_made" if ok else "flanks_failed")] = int(m.get("flanks_made" if ok else "flanks_failed", 0)) + 1
@@ -536,10 +546,15 @@ func _watch_men(_delta: float) -> void:
 		pv["searching"] = b._search != null
 		if b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING]:
 			m["fought"] = true
+		if man.limp and not m.has("_limp_t"):
+			m["_limp_t"] = t
+		elif not man.limp:
+			m.erase("_limp_t")
 		if m.out_at < 0.0:
 			if not man.physiology.alive:
 				_out(man, "dead", "dead")
-			elif man.limp:
+			elif man.limp and (not &"floor_fight" in OutlawBrain.d_fixes or not man.physiology.is_conscious() \
+					or float(m.get("_limp_t", t)) < t - DOWN_GRACE):
 				_out(man, "down", "down")
 			elif b.mood == OutlawBrain.Mood.SURRENDERED:
 				_out(man, "surrendered", "gave up")
@@ -557,6 +572,11 @@ func _watch_men(_delta: float) -> void:
 				m.outcome = "dead"
 			elif m.outcome == "down" and b.mood == OutlawBrain.Mood.SURRENDERED:
 				m.outcome = "surrendered"
+
+
+## With variant D's `floor_fight`, a man down and still with it isn't out of it till he's lain this
+## long (s): he may come to and fight from the floor (HumanBody.come_to_ground takes ~2.5 s).
+const DOWN_GRACE := 6.0
 
 
 func _since_mood(m: Dictionary) -> float:
@@ -934,6 +954,12 @@ func _who(n: Variant) -> String:
 
 # -- The end --------------------------------------------------------------------------------------
 
+## Gone (a played run's scene reloaded, the lab done): the town's gang fights as the game's does again,
+## not with the fixes this fight was given (play.gd's trial "D+").
+func _exit_tree() -> void:
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
 func _finish(why: String) -> void:
 	done = true
 	if bot:
@@ -946,6 +972,7 @@ func _finish(why: String) -> void:
 	for id in gang_ids:
 		var m: Dictionary = _men[id]
 		m.erase("_cover")
+		m.erase("_limp_t")
 		var b = brains.get(id)
 		if is_instance_valid(b):
 			m["fear_named"] = _named((b as OutlawBrain).fear_from)
