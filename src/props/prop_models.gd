@@ -550,6 +550,26 @@ static func picture(variant: int, width := 0.84) -> ShaderMaterial:
 	return _materials[key]
 
 
+## A model's own painted texture (assets/props/models/<name>_paint.png) on its UVs (0..1, the whole
+## texture: texels_per_meter its width, as the picture's), the texel grid at the paint's own texels:
+## a model made whole by image-to-3D (the deer head, Rodin from Sean's pictures, 2026-10-24).
+static func model_paint(model: String) -> ShaderMaterial:
+	var key := "model_" + model
+	if not _materials.has(key):
+		var path := "res://assets/props/models/%s_paint.png" % model
+		var tex: Texture2D = load(path) if ResourceLoader.exists(path) else null
+		var m := ShaderMaterial.new()
+		m.shader = PixelArt.GRID_SHADER
+		m.set_shader_parameter(&"albedo_tex", tex)
+		m.set_shader_parameter(&"tint", Color.WHITE)
+		m.set_shader_parameter(&"roughness", 0.85)
+		m.set_shader_parameter(&"texels_per_meter", float(tex.get_width()) if tex else 64.0)
+		m.set_shader_parameter(&"use_mipmaps", false)
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
+
+
 ## A mount's hide, its dark (nose, eyes), its antlers' bone; a frame's gilt.
 static func hide() -> ShaderMaterial:
 	return _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))
