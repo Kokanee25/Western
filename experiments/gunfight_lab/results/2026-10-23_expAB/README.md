@@ -124,3 +124,48 @@ What the time went on, traced (`gf_trace`):
   `come_to_ground`). Lyle drags him behind the bar. With `pain_fight` he then calls "Covering!" and
   fires from the floor, and your arm is broken in the exchange. A friend's ball also catches him
   ("Hey! That was me!"). The follow camera clips through the bar in places.
+
+## 1C: weighing it, not a white flag (2026-10-24, `D_odds`)
+
+**What changed.** `odds`, on top of `C_AB` (`OutlawBrain._break_odds`, ODDS_*):
+
+- **A moment after a hit:** fear can't break him for 0.8–2 s (longer for a green man), unless he's
+  far past his nerve.
+- **"Covered close" is a gun on him within 6 m** (it was 12, which in a saloon is everyone).
+- **When he does break, he weighs it:**
+  - covered close (unless a hothead) or with no gun: gives up;
+  - a hothead who's cornered: fights it out for 8 s;
+  - able to stand: gets away, at a run or, hurt past running, backing off at a walk (more often for
+    a green man);
+  - otherwise: lies low once for 5 s more before he weighs it again.
+- **A leader's surrender** takes a man only if he's 0.6 past his nerve (it was 0.3).
+
+Why: in `C_AB`, 98 of 159 quits came within 1 s of a hit. Of the quits that came straight after a
+hit, 45 were "covered close" and 32 more were "his friends' word".
+
+| Run | Opening | Shooting s (med) | 20 s+ | 45–90 s | Anyone quits | First quit s | Quits a fight | Men who fired | Hits on you | You down |
+|---|---|---|---|---|---|---|---|---|---|---|
+| C_AB | they | 16.2 | 44% | 8% | 80% | 13.2 | 1.50 | 70% | 1.5 | 34% |
+| **D_odds** | they | **25.5** | **58%** | **14%** | 70% | 15.4 | **1.08** | 70% | 1.6 | 32% |
+| C_AB | you | 18.5 | 50% | 12% | 84% | 4.4 | 1.68 | 46% | 0.8 | 24% |
+| **D_odds** | you | **22.5** | **58%** | **20%** | 72% | 5.2 | **1.18** | 52% | 1.0 | 28% |
+
+- **Quits within 1 s of a hit:** 98 of 159 in `C_AB`, 43 of 105 here. Balls on the gang went up
+  (419 to 485): they stay in it to be hit.
+- **What they chose when they broke:**
+
+| Man | Lie low | Fight it out | Get away (run) | Back off (walk) | Give up |
+|---|---|---|---|---|---|
+| Brody | 11 | – | – | 4 | 6 |
+| Lyle | 3 | 8 | – | 6 | 6 |
+| The Kid | 4 | – | 25 | 7 | 21 |
+
+  The personalities show without being scripted: Brody lies low, Lyle fights it out when cornered,
+  and the Kid runs or gives up.
+- **Endings when they draw first:** 11 fled, 4 gave up (in `C_AB` giving up was the most common
+  ending).
+- **Quit rates:** Brody 28–30%, Lyle 18–24%, the Kid 62–64%.
+
+**Against the first baseline (`base_now`):** the shooting runs 17.1 to 25.5 s when they draw first
+and 14.7 to 22.5 s when you shoot first. The share of fights with 45–90 s of shooting goes 12% to
+14% and 8% to 20%.
