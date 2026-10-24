@@ -13,6 +13,7 @@ in the PR that brought them.
 | `kick_back` | same | 2 of 3 | the fastest boot (6.9 m/s) with the left foot stillest; see the report for height and direction |
 | `draw` | same | 3 of 3 | stands still (0.05 m of travel), the steadiest hands |
 | `stand_over` | same | 2 of 3 | leans down and stays (0.8 m of travel, the least); take 3 walks about |
+| `get_up_back` | Uthana, the Studio's `motions/get_up/` (2026-10-24, branch `claude/studio-chair-getup`) | 3 of 3 | on his back, rolls to his side, a knee and a hand, up, brushes off; take 1 walks (into the wreck and onto the table); played by `HumanBody._rise_on_clip` (no `.glb` kept: the Studio has the takes) |
 
-Credit: the four clips were generated with Uthana's text-to-motion model
+Credit: the clips were generated with Uthana's text-to-motion model
 (`uthana/text-to-motion-diffusion-v2` on Replicate) for this project (CREDITS.md).

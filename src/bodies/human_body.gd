@@ -1424,6 +1424,9 @@ func _rise(back: Array, front: Array, to_prone: bool) -> void:
 	to.y = 0.0
 	if to.length() < 0.05:
 		to = Vector3(0, 0, -1)
+	if on_back and not to_prone and MotionClip.load_clip(RISE_CLIP_BACK) != null:
+		_rise_on_clip(pelvis)
+		return
 	var stages: Array = (back if on_back else front).duplicate(true)
 	var at := pelvis.global_position
 	at.y = _ground_y(at)
@@ -1514,6 +1517,9 @@ func _next_stage() -> void:
 ## While rising, after the pose is applied: the rig turns and slides toward the stage's lie, and his
 ## lowest point is put on the ground.
 func _rise_step(delta: float) -> void:
+	if _rise_clip:
+		_rise_clip_step()
+		return
 	var st: Array = _rise_stages[_rise_i]
 	var k := _rise_k
 	var goal: Basis = st[1] if st[1] is Basis else Basis.from_euler((st[1] as Vector3) * (PI / 180.0))
@@ -1527,6 +1533,137 @@ func _rise_step(delta: float) -> void:
 		_rise_act(st[4], clampf(_rise_t / float(st[2]), 0.0, 1.0))
 	if _rise_t >= float(st[2]):
 		_next_stage()
+
+
+## Off his back by a clip of motion (Sean, 2026-10-24: "if we want real fluid animation"): a man
+## getting up from flat on his back and brushing himself off (Uthana's text-to-motion,
+## assets/animations/get_up_back.json), played as his body's targets as any clip is (play_clip),
+## from where the ragdoll lies: turned so the clip's lie lies along his, his limbs easing from how
+## they lie into its first frame, his lowest point kept on the ground. Without the clip, the stages.
+const RISE_CLIP_BACK := &"get_up_back"
+var _rise_clip := false
+
+
+func _rise_on_clip(pelvis: RigidBody3D) -> void:
+	var c := MotionClip.load_clip(RISE_CLIP_BACK)
+	var lie := pelvis.global_transform.orthonormalized()
+	# The way his head lies, in the clip's first frame (his frame) and on the ground (the world's).
+	var q0: Quaternion = c.sample(0.0).get(&"pelvis", Quaternion.IDENTITY)
+	var head_clip := q0 * Vector3.UP
+	head_clip.y = 0.0
+	var head_world := (parts[&"head"] as Node3D).global_position - pelvis.global_position
+	head_world.y = 0.0
+	var yaw := 0.0
+	if head_clip.length() > 0.05 and head_world.length() > 0.05:
+		yaw = atan2(-head_world.x, -head_world.z) - atan2(-head_clip.x, -head_clip.z)
+	var rel := {}
+	for sid: StringName in anatomy.segments:
+		var parent: StringName = anatomy.segments[sid].parent
+		if parent == &"" or not parts.has(parent):
+			continue
+		var pb := (parts[parent] as Node3D).global_basis.orthonormalized()
+		rel[sid] = (pb.inverse() * (parts[sid] as Node3D).global_basis.orthonormalized()).get_euler() * (180.0 / PI)
+	var ground := _ground_y(lie.origin)
+	global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(lie.origin.x, ground, lie.origin.z))
+	_rebuild_rig()
+	_spare_rubble(lie.origin)
+	_pose_now = rel
+	# His pelvis lies as the ragdoll's did: its turn in his frame (the rig stands level; the clip's
+	# pelvis carries the lie, as a mocap root does).
+	_pose_now[&"pelvis"] = (global_basis.orthonormalized().inverse() * lie.basis).get_euler() * (180.0 / PI)
+	_rise_pose_from = _pose_now.duplicate()
+	_rise_k = 0.0
+	_rig.transform = Transform3D.IDENTITY
+	rising = true
+	_rise_clip = true
+	_rise_to_prone = false
+	_rise_stages = []
+	_drop_held_hat()
+	# Clear of what he went down with: he lies on the chair's back with his legs over its seat, so
+	# he scoots back off it as he sits up (low, in the clip's first seconds) to where his feet will
+	# be clear; standing where his hips lay, he stood in the wreck.
+	# Clear all the way up, not only where he stands: the clip draws his knees up over where the seat
+	# hung (2.5 s of his legs in the wreck as he sat up), so every knee and foot it puts down, at
+	# each half second of it, must be clear of what he went down with where he'll be.
+	var head_dir := head_world.normalized() if head_world.length() > 0.05 else global_basis.z
+	var side := head_dir.cross(Vector3.UP)
+	var legs := _clip_leg_spots(c)
+	_rise_clip_off = Vector3.ZERO
+	for w: Vector3 in [Vector3.ZERO, head_dir * 0.45, head_dir * 0.45 + side * 0.4, head_dir * 0.45 - side * 0.4,
+			side * 0.5, -side * 0.5, head_dir * 0.7, head_dir * 0.7 + side * 0.5, head_dir * 0.7 - side * 0.5,
+			head_dir * 0.95]:
+		var off := global_basis.orthonormalized().inverse() * w
+		if _legs_clear(legs, off):
+			_rise_clip_off = off
+			break
+	# Where he lies, not where the clip went: it gets up toward its feet, and his lie over the chair
+	# with the table beyond, so it walked him into the wreck and onto the table top.
+	play_clip(RISE_CLIP_BACK, 1.0, false, {"travel": false})
+
+
+var _rise_clip_off := Vector3.ZERO
+
+
+## Where the clip puts his legs (each thigh, shin and foot shape, his frame, his lowest point on
+## the ground), every half second of it: the rig posed by each sample and put back.
+func _clip_leg_spots(c: MotionClip) -> Array:
+	var was := {}
+	for sid: StringName in pivots:
+		was[sid] = (pivots[sid] as Node3D).quaternion
+	var me := global_transform.affine_inverse()
+	var out := []
+	var t := 0.0
+	while t <= c.length():
+		var f := c.sample(t)
+		for sid: StringName in f:
+			if pivots.has(sid):
+				(pivots[sid] as Node3D).quaternion = f[sid]
+		var lift := global_position.y - _lowest_point()
+		for sid: StringName in [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]:
+			for ch in (parts[sid] as Node).get_children():
+				var cs := ch as CollisionShape3D
+				if cs and cs.shape:
+					out.append([cs.shape, Transform3D(Basis(), Vector3.UP * lift) * me * cs.global_transform])
+		t += 0.5
+	for sid: StringName in was:
+		(pivots[sid] as Node3D).quaternion = was[sid]
+	return out
+
+
+## None of `legs` (_clip_leg_spots) in what he went down with (a loose piece, a prop's member; not
+## the floor), his frame moved by `off`.
+func _legs_clear(legs: Array, off: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.collision_mask = Layers.WORLD
+	q.exclude = _own_rids()
+	var at := global_transform * Transform3D(Basis(), off)
+	for leg: Array in legs:
+		q.shape = leg[0]
+		q.transform = at * (leg[1] as Transform3D)
+		for hit: Dictionary in space.intersect_shape(q, 4):
+			var o: Object = hit.collider
+			if o is RigidBody3D or (o is StructureMember and (o as Node).get_parent() is KitProp):
+				return false
+	return true
+
+
+func _rise_clip_step() -> void:
+	var scoot := smoothstep(0.05, 1.0, clip_time()) if _clip != null else 1.0
+	_rig.transform = Transform3D(Basis(), Vector3(_rise_clip_off.x * scoot, _rig.position.y, _rise_clip_off.z * scoot))
+	_rig.position.y += global_position.y - _lowest_point()
+	_set_blocker(_clip_hips >= 0.0 and _clip_hips < 0.5)
+	if _clip != null:
+		return
+	# Up: he stands where the clip left him, as it left him, and eases to his pose from there.
+	_rise_clip = false
+	rising = false
+	for sid: StringName in pivots:
+		_pose_now[sid] = (pivots[sid] as Node3D).rotation_degrees
+	global_position += global_basis * Vector3(_rise_clip_off.x, 0.0, _rise_clip_off.z)
+	_rig.transform = Transform3D(Basis(), Vector3(0.0, _rig.position.y, 0.0))
+	pose = _pose_after
+	got_up.emit()
 
 
 ## Loose pieces lying about him (a chair's he went over with, timber) stop colliding with his rising
@@ -2096,7 +2233,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	_breath += delta * breath_rate()
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
-	if rising:
+	if rising and not _rise_clip:
 		_rise_t += delta
 		_rise_k = smoothstep(0.0, 1.0, clampf(_rise_t / float(_rise_stages[_rise_i][2]), 0.0, 1.0))
 	var clip := _mocap_now(delta)
@@ -2273,7 +2410,7 @@ func _clip_now(delta: float) -> Dictionary:
 	# under him).
 	var d := c.root_at(t1) - c.root_at(t0) if t1 >= t0 else c.root_at(t1) + (c.root_at(len) - c.root_at(t0))
 	d.y = 0.0
-	if not rising and not prone and not (stumbling > 0.0):
+	if (not rising or _rise_clip) and not prone and not (stumbling > 0.0):
 		if d.length() > 1e-5 and _clip_opts.get("travel", true):
 			var moved := _slide(global_basis * d * _clip_w)
 			_snap_to_ground()
@@ -4298,6 +4435,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		return
 	limp = true
 	rising = false
+	_rise_clip = false
 	rise_ok = false
 	_clip = null  # the ragdoll has him now: whatever he was playing, physics won
 	_clip_w = 0.0

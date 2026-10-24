@@ -41,4 +41,5 @@ adds its own lines.
   terms by the Studio, 2026-10-24): the card cheat's four clips in `assets/animations/` (a walk,
   a kick, a draw, standing over a man) were generated from text for this project and retargeted
   onto our rig by `tools/blender/retarget_motion.py`; the generated takes are kept in the Studio
-  (`motions/card_cheat/`).
+  (`motions/card_cheat/`). The get-up off his back (`get_up_back`, from `motions/get_up/`) the
+  same way.

@@ -123,6 +123,19 @@ Two fresh sub-agents, each shown six pairs (main and this branch, X and Y in ran
 - **The card cheat's no-clip path** still breaks the legs by script: Cody kicks backwards there, and
   `kick` does front kicks and sweeps.
 
+## Getting up off his back by a clip (Sean: "go ahead", the Uthana takes)
+
+Three takes of a get-up from his back made in the Studio (`motions/get_up/`, 3 Replicate runs; its
+ledger's hand-set price $1.50) and retargeted (`assets/animations/get_up_back.json`, take 3; take 1
+walks). On his back, `_rise` plays it (`_rise_on_clip`) in place of the staged poses: the rig made
+where he lies, the clip's frame turned to his lie, its travel off (it walked him into the wreck and
+onto the table). Before it plays, every thigh, shin and foot the clip puts down, at each half second,
+is tested where he lies (`_clip_leg_spots`, `_legs_clear`); if any is in the chair, he slides along
+his back toward his head (or aside) to the first spot where none is, over the clip's first second.
+`U_table_back_legs_kicked`: legs in the wreck as he rises 0.38 s (staged poses 0.6-0.9 s; the clip
+without the slide 2.5 s). On his back he no longer picks up his hat (the clip has no reach for it).
+Film: `build/video/get_up_clip_clear.mp4` (sent to Sean).
+
 ## The proposed patch to human_body.gd
 
 `human_body.patch` beside this file is the whole change to `src/bodies/human_body.gd` against main
