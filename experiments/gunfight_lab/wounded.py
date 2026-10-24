@@ -26,6 +26,7 @@ def study(root):
     gaps = []
     floor_shots = fallen = fallen_fired = 0
     after_first = []
+    quick_quits = quits = 0
     for f in sorted(glob.glob(os.path.join(root, "fights", "*.json"))):
         r = json.load(open(f))
         tl = r.get("timeline", [])
@@ -66,6 +67,11 @@ def study(root):
                 fallen_fired += 1 if fs else 0
             if d["hits"]:
                 shots_after += len([s for s in d["shots"] if s > d["hits"][0]])
+            q = r["men"].get(m, {}).get("quit")
+            if q and r["men"][m].get("outcome") in ("surrendered", "fled"):
+                quits += 1
+                if any(0.0 <= float(q["t"]) - h <= 1.0 for h in d["hits"]):
+                    quick_quits += 1
         after_first.append(shots_after)
     n = len(after_first)
     pct = lambda a, b: "%d%%" % round(100.0 * a / b) if b else "-"
@@ -76,6 +82,7 @@ def study(root):
         "dropped": dropped, "dropped_again": pct(dropped_again, dropped),
         "fallen": fallen, "fallen_fired": pct(fallen_fired, fallen), "floor_shots": floor_shots,
         "after_first": "%.1f" % (sum(after_first) / n) if n else "-",
+        "quick": "%d of %d" % (quick_quits, quits),
     }
 
 
@@ -84,13 +91,13 @@ def main(argv):
     out = next((a.split("=", 1)[1] for a in argv if a.startswith("--out=")), "")
     head = ["run", "fights", "balls on them", "fired again", "first shot after (med s)", "stayed up",
             "of those fired again", "dropped", "of those fired again", "men down", "fired from the floor",
-            "shots from the floor", "their shots after being hit, a fight"]
+            "shots from the floor", "their shots after being hit, a fight", "gave up or ran within 1 s of a hit"]
     lines = ["# Do wounded men keep fighting?", "", "| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for root in roots:
         x = study(root)
         lines.append("| " + " | ".join([os.path.basename(root.rstrip("/")), str(x["fights"]), str(x["balls"]), x["again"], x["gap"],
                                         str(x["stood"]), x["stood_again"], str(x["dropped"]), x["dropped_again"],
-                                        str(x["fallen"]), x["fallen_fired"], str(x["floor_shots"]), x["after_first"]]) + " |")
+                                        str(x["fallen"]), x["fallen_fired"], str(x["floor_shots"]), x["after_first"], x["quick"]]) + " |")
     text = "\n".join(lines) + "\n"
     if out:
         open(out, "w").write(text)

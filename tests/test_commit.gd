@@ -308,3 +308,44 @@ func test_without_floor_fight_he_lies_there() -> void:
 	m.go_limp()
 	await physics_frames(60 * 4)
 	check(m.limp, "he lies where he fell")
+
+
+## Variant D's `odds` (on trial, spec 1C): past his nerve he weighs it. A fresh hit gives him a
+## moment; a hothead cornered fights it out; a man who can't run but can stand backs off.
+func test_a_hit_gives_him_a_moment_before_fear_breaks_him() -> void:
+	OutlawBrain.d_fixes.append(&"odds")
+	await _gang()
+	await physics_frames(30)
+	var brody := _brain(&"brody")
+	brody._on_hit(_arm_hit(&"brody"))
+	brody.fear = brody.nerve_now() + 0.1
+	await physics_frames(20)
+	check(_in_it(&"brody"), "just hit and past his nerve, he takes stock (%s)" % brody.decision)
+
+
+func test_a_cornered_hothead_fights_it_out() -> void:
+	OutlawBrain.d_fixes.append(&"odds")
+	await _gang()
+	await physics_frames(30)
+	var lyle := _brain(&"lyle")
+	lyle._fight_from = lyle._now - OutlawBrain.HOT_EARLY - 1.0
+	lyle._aimed_at = 1.0
+	(men[&"lyle"] as HumanBody).global_position = Vector3(0, 0, -4)  # your gun on him, close
+	lyle.fear = lyle.nerve_now() + 0.2
+	await physics_frames(5)
+	check(lyle.decision.begins_with("fight it out"), "covered close, Lyle fights it out (%s)" % lyle.decision)
+	check(lyle.rage > 0.0 and _in_it(&"lyle"), "in a rage, still in it")
+
+
+func test_hurt_past_running_he_backs_off_at_a_walk() -> void:
+	OutlawBrain.d_fixes.append(&"odds")
+	await _gang()
+	await physics_frames(30)
+	var kid := _brain(&"kid")
+	(men[&"kid"] as HumanBody).physiology.adrenaline = 0.0
+	(men[&"kid"] as HumanBody).physiology.pain = 1.2  # past disabling: can't run
+	kid._hid_once = true  # (he's lain low already)
+	kid.fear = kid.nerve_now() + 0.1
+	await physics_frames(5)
+	check(kid.decision.begins_with("back off"), "he backs off (%s)" % kid.decision)
+	check_eq(kid.mood, OutlawBrain.Mood.FLEEING, "going, not giving up")

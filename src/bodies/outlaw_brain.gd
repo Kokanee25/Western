@@ -30,6 +30,8 @@ const LINES := {
 	&"hat": ["My hat!", "That was a good hat, you son of a—", "Close. Real damn close."],
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"gut": ["Oh God, not the belly..."],
+	&"cornered": ["Come on, then! Come on!", "You'll have to kill me!", "Not like this. Not to you."],
+	&"back_off": ["I'm getting out of here...", "Easy... easy... I'm going.", "Not worth dying for."],
 	&"hit_light": ["Just a scratch.", "Ain't nothing. Ain't nothing.", "Hell. That all you got?"],
 	&"hit_bad": ["Oh God, it's bad...", "I'm bleeding bad!", "Lord, look at that..."],
 	&"hit_arm": ["My arm! Can't hold the damn thing!", "Can't hold it... can't hold it..."],
@@ -150,7 +152,7 @@ var variant: Variant = default_variant
 ## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
-## fights from the floor); way_cost (Experiment B: cover scored by the way he'd run to it, not the
+## fights from the floor); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press"]
@@ -204,6 +206,10 @@ var _wince_severe := false
 var _wince_fear := 0.0
 ## Variant D's pain_fight: seconds left of a bout of pain, and whether it was past disabling last tick.
 var _pain_bout := 0.0
+## Variant D's odds: seconds left he won't break (taking stock after a hit, fighting it out
+## cornered, gone to ground to weigh it), and whether he's already gone to ground once this time.
+var _hold_break := 0.0
+var _hid_once := false
 var _pain_over := false
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
@@ -628,6 +634,8 @@ func _on_hit(info: Dictionary) -> void:
 		if h.effect == &"broken":
 			_scare(0.1 * _thump(), &"hit")
 	_start_wince(info, fear - fear_before)
+	if _has(&"odds") and mood in [Mood.FIGHTING, Mood.RELOADING]:
+		_hold_break = maxf(_hold_break, lerpf(ODDS_STOCK.x, ODDS_STOCK.y, clampf(nerve, 0.0, 1.0)))
 
 
 ## Variant D's `wince`: hit and still on his feet and in it, he winces and gets out of sight to see
@@ -828,11 +836,15 @@ func _physics_step(delta: float) -> void:
 		fright = move_toward(fright, 0.0, FRIGHT_FADE * delta)
 		rattled = move_toward(rattled, 0.0, RATTLED_FADE * delta)
 		_watch_leader(delta)
-	if dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
+	_hold_break = maxf(_hold_break - delta, 0.0)
+	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * 2.0:
+		pass  # (odds) taking stock, fighting it out, or gone to ground to weigh it
+	elif dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
 		_break()
 		return
 	if _shaken >= 0.0 and dread() <= nerve_now():
 		_shaken = -1.0
+		_hid_once = false
 		if mood in [Mood.FIGHTING, Mood.RELOADING]:
 			say(&"rally")
 			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [dread(), nerve_now()])
@@ -1953,6 +1965,20 @@ const PAIN_BOUT_RATE := 0.6
 ## that holds it and his fear under this share of his nerve, he comes to on his belly and fights
 ## from the floor (HumanBody.come_to_ground) rather than lie there till you come and take him.
 const FLOOR_FIGHTS := 1.0
+## Variant D's `odds` (spec 1C, 2026-10-24): past his nerve isn't a white flag. A fresh hit gives him
+## ODDS_STOCK s (green to steady) before fear can break him, unless he's far past it. "Covered
+## close" is a gun on him within ODDS_CAUGHT m (it was 12: everyone, in a saloon). When it does
+## break him, he weighs it: covered close or no gun, he gives up; a hothead cornered (covered, or
+## can't get away) fights it out for ODDS_CORNERED s; a man who can stand gets away, at a run or
+## (hurt past running) backing off at a walk, ODDS_FLEE of the time (the Kid's nerve makes it
+## more); one who stays, or is down with his gun and not covered, goes to ground for ODDS_HIDE s
+## more before he looks at it again. A leader's surrender takes a man ODDS_FOLLOW past his nerve.
+const ODDS_STOCK := Vector2(2.0, 0.8)
+const ODDS_CAUGHT := 6.0
+const ODDS_CORNERED := 8.0
+const ODDS_FLEE := Vector2(0.85, 0.5)
+const ODDS_HIDE := 5.0
+const ODDS_FOLLOW := 0.6
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
@@ -2425,7 +2451,7 @@ func _heard_give_up(mate: Node) -> void:
 	_mate_out(mate, &"quit", false)
 	if not mood in [Mood.FIGHTING, Mood.RELOADING, Mood.TENDING] or _pending_break != &"":
 		return
-	if dread() > nerve_now() * 0.3:
+	if dread() > nerve_now() * (ODDS_FOLLOW if _has(&"odds") else 0.3):
 		_pending_break = &"surrender"
 		_pending_in = _think.randf_range(0.6, 1.6)
 
@@ -2586,7 +2612,7 @@ func _break() -> void:
 	if t == null:
 		t = _player()
 	var d := t.global_position.distance_to(body.global_position) if t else 99.0
-	var caught := _aimed_at > 0.8 and d < 12.0
+	var caught := _aimed_at > 0.8 and d < (ODDS_CAUGHT if _has(&"odds") else 12.0)
 	if mood == Mood.CALM and t != null and relations.stance(t) >= Relations.Stance.WARY \
 			and not (caught and _drop_it_heard < 4.0):
 		# Not a fight yet: he backs down (told to drop it with a gun on him, he gives up instead).
@@ -2594,12 +2620,48 @@ func _break() -> void:
 		return
 	var why := ("past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()]) if shaken_for < 0.0 \
 			else ("still shaken after %.0f s" % shaken_for if dread() <= nerve_now() + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()])
+	if _has(&"odds") and _break_odds(t, d, caught, why):
+		return
 	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
 		_decide("run", why)
 		_start_fleeing()
 	else:
 		_decide("give up", why + (", covered close" if caught else ", can't run" if not body.physiology.can_run() or body.prone else ""))
 		_surrender()
+
+
+## Variant D's odds: what a man past his nerve does, weighed (true if he's done something other than
+## give up; false: he gives up, as before). See ODDS_*.
+func _break_odds(t: Node3D, d: float, caught: bool, why: String) -> bool:
+	var p := body.physiology
+	var armed := _armed_still()
+	var can_go := p.can_stand() and not body.prone
+	if not armed or (caught and not (temper >= HOT_TEMPER)):
+		return false
+	if temper >= HOT_TEMPER and (caught or not can_go):
+		rage = ODDS_CORNERED
+		_hold_break = ODDS_CORNERED
+		say(&"cornered")
+		_decide("fight it out", why + (", covered close" if caught else ", can't get away"))
+		return true
+	var far_past := dread() > nerve_now() + shaken_margin
+	if can_go and (far_past or _hid_once or _think.randf() < lerpf(ODDS_FLEE.x, ODDS_FLEE.y, clampf(nerve, 0.0, 1.0))):
+		_decide("get away" if p.can_run() else "back off", why + ("" if p.can_run() else ", hurt past running"))
+		if not p.can_run():
+			say(&"back_off")
+		_start_fleeing()
+		return true
+	if not _hid_once and not far_past:
+		# He stays: down where he is (behind what he's got, or on the floor), weighing it.
+		_hid_once = true
+		_hold_break = ODDS_HIDE
+		_shaken = 0.0
+		say(&"shaken")
+		_decide("lie low", why + ", weighing it")
+		if tactic == Tactic.PEEKING:
+			_duck_back()
+		return true
+	return false
 
 
 func _start_fleeing() -> void:
@@ -2639,12 +2701,13 @@ func _flee(delta: float) -> void:
 	var t: Node3D = _find_target()
 	if t == null:
 		t = _player()
-	if not body.physiology.can_run():
+	var walking := _has(&"odds") and not body.physiology.can_run() and body.physiology.can_stand() and not body.prone
+	if not body.physiology.can_run() and not walking:
 		# Can't run any more: done.
 		_surrender()
 		return
 	body.set_pose(&"stand")
-	var arrived := body.walk_to(_flee_to, run_speed * 1.1, delta)
+	var arrived := body.walk_to(_flee_to, walk_speed if walking else run_speed * 1.1, delta)
 	_watch_stuck(delta)
 	if _stuck > 0.8:
 		_pick_flight()
