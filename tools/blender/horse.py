@@ -572,9 +572,15 @@ class Builder:
 DX = 0.14
 
 
+# How far behind that the saddle sits (Sean, 2026-10-24: "too close to his head"): the tree's front
+# a hand behind the withers, the cinch a hand behind the elbow.
+SADDLE_BACK = 0.12
+
+
 def _dx():
-    """The saddle's place along him: laid out on a horse with his withers at x = -0.45."""
-    return hs.WITHERS[0] + 0.45
+    """The saddle's place along him: laid out on a horse with his withers at x = -0.45, then slid
+    SADDLE_BACK towards his tail."""
+    return hs.WITHERS[0] + 0.45 + SADDLE_BACK
 
 TACK_PIECES = ["saddle", "blanket", "bridle", "reins", "saddlebags"]
 P_SADDLE, P_BLANKET, P_BRIDLE, P_REINS, P_BAGS = range(5)

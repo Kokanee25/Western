@@ -79,6 +79,8 @@ his pictures' legs overlapped and his two sides stood differently. So (Sean: "A"
   `set_tail`, `set_trunk`), so the rig, weights (the tail's bones kept to the tail's points),
   idle, tack and capsules fit him. The coat is Rodin's own paint baked into the coat's layout.
   The sculpt route stays (no `--shape`).
+- **The tack slid back** (Sean: "too close to his head"): `SADDLE_BACK` 0.12 m in `horse.py`, the
+  blanket's front now behind the withers; sheet `docs/screenshots/horse/2026-10-24d/`.
 
 ## Next steps (not started)
 
