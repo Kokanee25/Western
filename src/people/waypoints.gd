@@ -241,7 +241,7 @@ static func test_street() -> Waypoints:
 	w.add(&"saloon_door", saloon.call(5, saloon_top, 0.9), [&"saloon_porch"])
 	w.add(&"saloon_floor", saloon.call(6.0, saloon_top, 3.5), [&"saloon_door"])
 	# By the front windows, west of the door, off everyone's way (the working girl stands here).
-	w.add(&"saloon_window", saloon.call(2.5, saloon_top, 2.0), [&"saloon_door"])
+	w.add(&"saloon_window", saloon.call(2.5, saloon_top, 2.0), [&"saloon_floor"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
 		var z := 4.45 + i * 1.3
