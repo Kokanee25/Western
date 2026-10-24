@@ -36,3 +36,27 @@
 | lyle | 4 of 100 | 80 | 0.5 |
 | kid | 16 of 100 | 64 | 1.0 |
 
+## C_AB
+
+- runs for cover: 791; got there 421, something else first 317, hit or down on the way 23, stuck 22, fight ended first 7, too long 1
+- getting there: median 0.7 s (90th 3.3 s) for a median 2 m straight; that's 2.5 m/s straight (they run 3.8)
+- got there and you could still see him within 2 s: 101 of 421
+
+| man | first word: no cover he can reach | first word: ran for it | first run, median s to get there |
+|---|---|---|---|
+| brody | 9 of 100 | 78 | 3.2 |
+| lyle | 2 of 100 | 88 | 0.5 |
+| kid | 18 of 100 | 60 | 1.4 |
+
+## C_ABw
+
+- runs for cover: 767; got there 436, something else first 309, hit or down on the way 14, stuck 4, fight ended first 3, too long 1
+- getting there: median 0.5 s (90th 2.7 s) for a median 2 m straight; that's 3.3 m/s straight (they run 3.8)
+- got there and you could still see him within 2 s: 84 of 436
+
+| man | first word: no cover he can reach | first word: ran for it | first run, median s to get there |
+|---|---|---|---|
+| brody | 9 of 100 | 77 | 2.0 |
+| lyle | 2 of 100 | 89 | 0.5 |
+| kid | 18 of 100 | 62 | 1.0 |
+
