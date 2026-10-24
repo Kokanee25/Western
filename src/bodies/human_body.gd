@@ -4767,9 +4767,16 @@ func _step_brace(delta: float) -> void:
 ## TABLE_REACH, and kept on it as he goes, TABLE_FOR. A reach, not a hold: the fall takes him away
 ## from it (a hand that closed on the edge would hold him up, or pull the table over on him).
 const TABLE_REACH := 1.0
-const TABLE_FOR := 0.7
+const TABLE_FOR := 0.9
 ## His elbow as he reaches (degrees: the forearm's bend, the poses' sign): near straight.
-const TABLE_ELBOW := 12.0
+const TABLE_ELBOW := 8.0
+## Where his hand goes for: this far in past the edge and above the top (m). At the edge itself,
+## below his shoulders, his arms came up 50 degrees and read as a flinch (Sean: "he needs to reach
+## a bit more"); a hand going for a table goes over its edge.
+const TABLE_IN := 0.15
+const TABLE_ABOVE := 0.3
+## How much harder his reaching arms hold (on the tone they had), against the fall taking them.
+const TABLE_TONE := 4.0
 var _table_reach := {}  ## side -> [world point on the edge, upper arm's tone entry, forearm's]
 var _table_reach_t := 0.0
 
@@ -4790,6 +4797,9 @@ func _reach_for_table(front: Vector3) -> void:
 		var at := _table_edge(shoulder, front)
 		if at != Vector3.INF:
 			_table_reach[side] = [at, up, arms.get("forearm_" + side)]
+			for e: Variant in [up, arms.get("forearm_" + side)]:
+				if e != null:
+					(e as Array)[3] = float((e as Array)[3]) * TABLE_TONE / BRACE_TONE
 	_aim_at_table()
 
 
@@ -4814,7 +4824,10 @@ func _table_edge(from: Vector3, front: Vector3) -> Vector3:
 		var p := m.global_transform * Vector3(clampf(local.x, -h.x, h.x), h.y, clampf(local.z, -h.z, h.z))
 		var d := p.distance_to(from)
 		if d < best_d and (p - from).dot(front) > 0.0:
-			best = p
+			# Past the edge, over the top (toward where he faced) and above it.
+			var on := front
+			on.y = 0.0
+			best = p + on.normalized() * TABLE_IN + Vector3.UP * TABLE_ABOVE
 			best_d = d
 	return best
 

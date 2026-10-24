@@ -1,5 +1,5 @@
 diff --git a/src/bodies/human_body.gd b/src/bodies/human_body.gd
-index 7fb5931..89f3896 100644
+index 7fb5931..f29c5d5 100644
 --- a/src/bodies/human_body.gd
 +++ b/src/bodies/human_body.gd
 @@ -137,6 +137,13 @@ const POSES := {
@@ -805,7 +805,7 @@ index 7fb5931..89f3896 100644
  			d = BRACE_CURL[key]
  			j[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (j[2] as Quaternion)
  		else:
-@@ -4259,6 +4757,153 @@ func _step_brace(delta: float) -> void:
+@@ -4259,6 +4757,166 @@ func _step_brace(delta: float) -> void:
  		j[3] = float(j[3]) * BRACE_TONE
  		if j.size() < 6:
  			j.append(BRACE_FADE)
@@ -819,9 +819,16 @@ index 7fb5931..89f3896 100644
 +## TABLE_REACH, and kept on it as he goes, TABLE_FOR. A reach, not a hold: the fall takes him away
 +## from it (a hand that closed on the edge would hold him up, or pull the table over on him).
 +const TABLE_REACH := 1.0
-+const TABLE_FOR := 0.7
++const TABLE_FOR := 0.9
 +## His elbow as he reaches (degrees: the forearm's bend, the poses' sign): near straight.
-+const TABLE_ELBOW := 12.0
++const TABLE_ELBOW := 8.0
++## Where his hand goes for: this far in past the edge and above the top (m). At the edge itself,
++## below his shoulders, his arms came up 50 degrees and read as a flinch (Sean: "he needs to reach
++## a bit more"); a hand going for a table goes over its edge.
++const TABLE_IN := 0.15
++const TABLE_ABOVE := 0.3
++## How much harder his reaching arms hold (on the tone they had), against the fall taking them.
++const TABLE_TONE := 4.0
 +var _table_reach := {}  ## side -> [world point on the edge, upper arm's tone entry, forearm's]
 +var _table_reach_t := 0.0
 +
@@ -842,6 +849,9 @@ index 7fb5931..89f3896 100644
 +		var at := _table_edge(shoulder, front)
 +		if at != Vector3.INF:
 +			_table_reach[side] = [at, up, arms.get("forearm_" + side)]
++			for e: Variant in [up, arms.get("forearm_" + side)]:
++				if e != null:
++					(e as Array)[3] = float((e as Array)[3]) * TABLE_TONE / BRACE_TONE
 +	_aim_at_table()
 +
 +
@@ -866,7 +876,10 @@ index 7fb5931..89f3896 100644
 +		var p := m.global_transform * Vector3(clampf(local.x, -h.x, h.x), h.y, clampf(local.z, -h.z, h.z))
 +		var d := p.distance_to(from)
 +		if d < best_d and (p - from).dot(front) > 0.0:
-+			best = p
++			# Past the edge, over the top (toward where he faced) and above it.
++			var on := front
++			on.y = 0.0
++			best = p + on.normalized() * TABLE_IN + Vector3.UP * TABLE_ABOVE
 +			best_d = d
 +	return best
 +
@@ -959,7 +972,7 @@ index 7fb5931..89f3896 100644
  
  
  func _step_tone(delta: float) -> void:
-@@ -4267,6 +4912,7 @@ func _step_tone(delta: float) -> void:
+@@ -4267,6 +4925,7 @@ func _step_tone(delta: float) -> void:
  	_tone_t += delta
  	if _tone_t > TONE_UNTIL:
  		_tone.clear()
@@ -967,7 +980,7 @@ index 7fb5931..89f3896 100644
  		return
  	var share := _tone_start * exp(-_tone_t / _tone_fade)
  	for j: Array in _tone:
-@@ -4274,26 +4920,47 @@ func _step_tone(delta: float) -> void:
+@@ -4274,26 +4933,47 @@ func _step_tone(delta: float) -> void:
  		var held := share if j.size() < 6 else _tone_start * exp(-_tone_t / float(j[5]))
  		var child := j[0] as RigidBody3D
  		var up := j[1] as RigidBody3D
