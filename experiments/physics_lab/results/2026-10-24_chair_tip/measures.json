@@ -1,0 +1,1948 @@
+[
+ {
+  "scenario": "U_chair_back_leg_removed",
+  "drop15_s": 1.917,
+  "floor_s": 2.05,
+  "head_back_at_drop15": -1.035,
+  "head_drop_at_drop15": 1.15,
+  "pelvis_back_at_drop15": -0.771,
+  "seat_pitch_at_drop15": -73.6,
+  "feet_slide_0.6s": 0.01,
+  "feet_lift_0.6s": 0.019,
+  "seat_pitch_0.3_0.6_1.0": [
+   2.6,
+   2.1,
+   -11.5
+  ],
+  "seat_piece": "leg_front_l+seat+spindle4+crest+spindle3+spindle2+spindle1+spindle0+post_back_r+stretcher_r+leg_front_r",
+  "loll_max": 47.8,
+  "loll_s": 0.3,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   34.1,
+   37.0,
+   -24.0,
+   -25.3
+  ],
+  "shoulder_turn_1.5s": -23.1,
+  "shoulder_tip_extreme": 27.9,
+  "head_x_1.0s": 0.2,
+  "pelvis_moved_1.5s": [
+   0.02,
+   -0.07,
+   -0.69
+  ],
+  "pieces_side_speed_max": 1.98,
+  "pieces": 4,
+  "rise_start_s": 3.33,
+  "rise_s": 4.5,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.8
+   ],
+   [
+    "kneel",
+    1.0
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.102,
+  "legs_in_wreck_s": 2.03,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_back_legs_and_stretchers",
+  "drop15_s": 0.417,
+  "floor_s": 0.483,
+  "head_back_at_drop15": -0.044,
+  "head_drop_at_drop15": 0.486,
+  "pelvis_back_at_drop15": 0.259,
+  "seat_pitch_at_drop15": 45.0,
+  "feet_slide_0.6s": 0.048,
+  "feet_lift_0.6s": 0.01,
+  "seat_pitch_0.3_0.6_1.0": [
+   31.8,
+   48.2,
+   52.1
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 21.5,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   21.5,
+   -66.9,
+   -62.0,
+   -25.5
+  ],
+  "shoulder_turn_1.5s": 21.4,
+  "shoulder_tip_extreme": -57.1,
+  "head_x_1.0s": 0.45,
+  "pelvis_moved_1.5s": [
+   -0.04,
+   -0.37,
+   0.51
+  ],
+  "pieces_side_speed_max": 2.3,
+  "pieces": 13,
+  "rise_start_s": 2.83,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.207,
+  "legs_in_wreck_s": 3.45,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_back_legs_kicked",
+  "drop15_s": 0.433,
+  "floor_s": 0.5,
+  "head_back_at_drop15": -0.059,
+  "head_drop_at_drop15": 0.474,
+  "pelvis_back_at_drop15": 0.258,
+  "seat_pitch_at_drop15": 45.1,
+  "feet_slide_0.6s": 0.053,
+  "feet_lift_0.6s": 0.001,
+  "seat_pitch_0.3_0.6_1.0": [
+   29.7,
+   47.9,
+   51.7
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 25.2,
+  "loll_s": 0.017,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   25.0,
+   -64.3,
+   -61.5,
+   -31.0
+  ],
+  "shoulder_turn_1.5s": 3.2,
+  "shoulder_tip_extreme": -53.3,
+  "head_x_1.0s": 0.27,
+  "pelvis_moved_1.5s": [
+   -0.08,
+   -0.37,
+   0.46
+  ],
+  "pieces_side_speed_max": 2.24,
+  "pieces": 13,
+  "rise_start_s": 2.65,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.185,
+  "legs_in_wreck_s": 3.58,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_back_legs_removed",
+  "drop15_s": 0.417,
+  "floor_s": 0.483,
+  "head_back_at_drop15": -0.044,
+  "head_drop_at_drop15": 0.485,
+  "pelvis_back_at_drop15": 0.257,
+  "seat_pitch_at_drop15": 46.0,
+  "feet_slide_0.6s": 0.046,
+  "feet_lift_0.6s": 0.003,
+  "seat_pitch_0.3_0.6_1.0": [
+   31.8,
+   47.6,
+   51.0
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 21.5,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   21.5,
+   -66.9,
+   -61.1,
+   -24.8
+  ],
+  "shoulder_turn_1.5s": 12.9,
+  "shoulder_tip_extreme": -56.0,
+  "head_x_1.0s": 0.38,
+  "pelvis_moved_1.5s": [
+   -0.08,
+   -0.37,
+   0.47
+  ],
+  "pieces_side_speed_max": 1.98,
+  "pieces": 13,
+  "rise_start_s": 2.65,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.202,
+  "legs_in_wreck_s": 3.15,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_front_legs_removed",
+  "drop15_s": 0.5,
+  "floor_s": 1.267,
+  "head_back_at_drop15": -0.617,
+  "head_drop_at_drop15": 0.469,
+  "pelvis_back_at_drop15": -0.2,
+  "seat_pitch_at_drop15": -41.0,
+  "seat_pitch_0.3_0.6_1.0": [
+   -22.1,
+   -46.3,
+   -47.8
+  ],
+  "seat_piece": "post_back_l+crest+spindle4+spindle3+spindle2+spindle1+spindle0+post_back_r+seat",
+  "loll_max": 61.3,
+  "loll_s": 0.3,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   48.9,
+   33.0,
+   -51.3,
+   -18.4
+  ],
+  "shoulder_turn_1.5s": 43.4,
+  "shoulder_tip_extreme": -49.2,
+  "head_x_1.0s": -0.17,
+  "pelvis_moved_1.5s": [
+   0.39,
+   -0.24,
+   -1.03
+  ],
+  "pieces_side_speed_max": 1.93,
+  "pieces": 7,
+  "rise_start_s": 2.55,
+  "rise_s": 4.5,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.8
+   ],
+   [
+    "kneel",
+    1.0
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.0,
+  "legs_in_wreck_s": 0.0,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_three_legs_removed",
+  "drop15_s": 0.2,
+  "floor_s": 0.25,
+  "head_back_at_drop15": -0.029,
+  "head_drop_at_drop15": 0.187,
+  "pelvis_back_at_drop15": -0.006,
+  "seat_pitch_at_drop15": -34.2,
+  "seat_pitch_0.3_0.6_1.0": [
+   -0.7,
+   -1.8,
+   8.6
+  ],
+  "seat_piece": "seat",
+  "loll_max": 6.9,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   6.7,
+   -66.3,
+   -57.2,
+   -48.8
+  ],
+  "shoulder_turn_1.5s": 6.3,
+  "shoulder_tip_extreme": -27.9,
+  "head_x_1.0s": 0.06,
+  "pelvis_moved_1.5s": [
+   -0.06,
+   -0.34,
+   0.22
+  ],
+  "pieces_side_speed_max": 1.98,
+  "pieces": 15,
+  "rise_start_s": 2.92,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.062,
+  "legs_in_wreck_s": 0.67,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_leg_kicked",
+  "drop15_s": 2.0,
+  "floor_s": 2.067,
+  "head_back_at_drop15": -0.432,
+  "head_drop_at_drop15": 1.023,
+  "pelvis_back_at_drop15": 0.295,
+  "seat_pitch_at_drop15": 56.4,
+  "feet_slide_0.6s": 0.012,
+  "feet_lift_0.6s": 0.013,
+  "seat_pitch_0.3_0.6_1.0": [
+   1.1,
+   1.9,
+   4.0
+  ],
+  "seat_piece": "leg_front_l+seat+spindle4+crest+spindle3+spindle2+spindle1+spindle0+post_back_r+stretcher_r+leg_front_r",
+  "loll_max": 42.2,
+  "loll_s": 0.233,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   6.2,
+   24.9,
+   33.9,
+   -28.9
+  ],
+  "shoulder_turn_1.5s": -4.2,
+  "shoulder_tip_extreme": -20.2,
+  "head_x_1.0s": 0.07,
+  "pelvis_moved_1.5s": [
+   0.11,
+   0.02,
+   0.11
+  ],
+  "pieces_side_speed_max": 0.27,
+  "pieces": 4,
+  "rise_start_s": 3.48,
+  "rise_s": 4.5,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.8
+   ],
+   [
+    "kneel",
+    1.0
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.066,
+  "legs_in_wreck_s": 1.65,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_legs_and_stretchers",
+  "drop15_s": 0.317,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.108,
+  "head_drop_at_drop15": 0.154,
+  "pelvis_back_at_drop15": 0.205,
+  "seat_pitch_at_drop15": 35.6,
+  "feet_slide_0.6s": 0.039,
+  "feet_lift_0.6s": 0.032,
+  "seat_pitch_0.3_0.6_1.0": [
+   33.0,
+   51.8,
+   50.0
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 36.1,
+  "loll_s": 0.117,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   27.1,
+   -25.1,
+   -63.3,
+   -43.9
+  ],
+  "shoulder_turn_1.5s": 5.0,
+  "shoulder_tip_extreme": -13.3,
+  "head_x_1.0s": 0.05,
+  "pelvis_moved_1.5s": [
+   -0.0,
+   -0.38,
+   0.42
+  ],
+  "pieces_side_speed_max": 2.31,
+  "pieces": 13,
+  "rise_start_s": 2.43,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.202,
+  "legs_in_wreck_s": 3.28,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_legs_kicked",
+  "drop15_s": 0.35,
+  "floor_s": 0.4,
+  "head_back_at_drop15": -0.13,
+  "head_drop_at_drop15": 0.172,
+  "pelvis_back_at_drop15": 0.21,
+  "seat_pitch_at_drop15": 36.9,
+  "feet_slide_0.6s": 0.049,
+  "feet_lift_0.6s": 0.009,
+  "seat_pitch_0.3_0.6_1.0": [
+   29.6,
+   49.2,
+   49.7
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 42.1,
+  "loll_s": 0.133,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   29.7,
+   -10.6,
+   -68.5,
+   -39.2
+  ],
+  "shoulder_turn_1.5s": -5.8,
+  "shoulder_tip_extreme": 4.6,
+  "head_x_1.0s": -0.06,
+  "pelvis_moved_1.5s": [
+   -0.02,
+   -0.38,
+   0.4
+  ],
+  "pieces_side_speed_max": 0.54,
+  "pieces": 13,
+  "rise_start_s": 2.52,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.2,
+  "legs_in_wreck_s": 3.57,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_legs_kicked_side",
+  "drop15_s": 0.333,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.125,
+  "head_drop_at_drop15": 0.176,
+  "pelvis_back_at_drop15": 0.219,
+  "seat_pitch_at_drop15": 37.2,
+  "feet_slide_0.6s": 0.043,
+  "feet_lift_0.6s": 0.029,
+  "seat_pitch_0.3_0.6_1.0": [
+   32.0,
+   51.8,
+   50.2
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 36.7,
+  "loll_s": 0.117,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   27.7,
+   -23.9,
+   -66.0,
+   -40.1
+  ],
+  "shoulder_turn_1.5s": 5.8,
+  "shoulder_tip_extreme": -17.7,
+  "head_x_1.0s": 0.1,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.38,
+   0.41
+  ],
+  "pieces_side_speed_max": 4.86,
+  "pieces": 13,
+  "rise_start_s": 2.4,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.2,
+  "legs_in_wreck_s": 3.37,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_legs_removed",
+  "drop15_s": 0.317,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.108,
+  "head_drop_at_drop15": 0.154,
+  "pelvis_back_at_drop15": 0.205,
+  "seat_pitch_at_drop15": 35.7,
+  "feet_slide_0.6s": 0.039,
+  "feet_lift_0.6s": 0.02,
+  "seat_pitch_0.3_0.6_1.0": [
+   33.0,
+   50.5,
+   49.9
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 36.1,
+  "loll_s": 0.117,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   27.1,
+   -25.7,
+   -65.5,
+   -41.4
+  ],
+  "shoulder_turn_1.5s": -3.7,
+  "shoulder_tip_extreme": 4.0,
+  "head_x_1.0s": -0.04,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.38,
+   0.42
+  ],
+  "pieces_side_speed_max": 1.98,
+  "pieces": 13,
+  "rise_start_s": 3.1,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.21,
+  "legs_in_wreck_s": 3.17,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_back_legs_swept",
+  "drop15_s": 0.333,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.124,
+  "head_drop_at_drop15": 0.169,
+  "pelvis_back_at_drop15": 0.214,
+  "seat_pitch_at_drop15": 36.4,
+  "feet_slide_0.6s": 0.044,
+  "feet_lift_0.6s": 0.029,
+  "seat_pitch_0.3_0.6_1.0": [
+   31.3,
+   52.2,
+   50.6
+  ],
+  "seat_piece": "leg_front_l+seat+leg_front_r",
+  "loll_max": 36.5,
+  "loll_s": 0.117,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   27.5,
+   -22.5,
+   -63.8,
+   -43.2
+  ],
+  "shoulder_turn_1.5s": 6.9,
+  "shoulder_tip_extreme": -15.0,
+  "head_x_1.0s": 0.05,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.38,
+   0.41
+  ],
+  "pieces_side_speed_max": 6.79,
+  "pieces": 13,
+  "rise_start_s": 2.38,
+  "rise_s": 5.02,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    0.9
+   ]
+  ],
+  "legs_in_wreck_max": 0.202,
+  "legs_in_wreck_s": 3.32,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_sitback_front_leg_kicked",
+  "drop15_s": null,
+  "floor_s": null,
+  "loll_max": -0.0,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -0.0,
+   -0.0,
+   -0.0,
+   -0.0
+  ],
+  "shoulder_turn_1.5s": 0.0,
+  "shoulder_tip_extreme": 0.0,
+  "head_x_1.0s": 0.0,
+  "pelvis_moved_1.5s": [
+   0.0,
+   -0.0,
+   0.0
+  ],
+  "pieces_side_speed_max": 0.09,
+  "pieces": 2,
+  "hat_off_end": false,
+  "pose_end": "sit_back",
+  "root": "u_main10"
+ },
+ {
+  "scenario": "U_chair_back_leg_removed",
+  "drop15_s": 2.783,
+  "floor_s": 3.217,
+  "head_back_at_drop15": -0.998,
+  "head_drop_at_drop15": 1.156,
+  "pelvis_back_at_drop15": -0.649,
+  "seat_pitch_at_drop15": -60.0,
+  "feet_slide_0.6s": 0.002,
+  "feet_lift_0.6s": 0.018,
+  "seat_pitch_0.3_0.6_1.0": [
+   3.9,
+   -0.2,
+   1.0
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+spindle4+spindle3+spindle2+spindle1+spindle0+post_back_r+stretcher_r+leg_front_r",
+  "loll_max": 1.8,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -43.0,
+   -49.8,
+   -48.1,
+   -48.8
+  ],
+  "shoulder_turn_1.5s": 8.0,
+  "shoulder_tip_extreme": -9.2,
+  "head_x_1.0s": -0.01,
+  "pelvis_moved_1.5s": [
+   0.02,
+   0.08,
+   -0.33
+  ],
+  "pieces_side_speed_max": 0.76,
+  "pieces": 3,
+  "rise_start_s": 4.68,
+  "rise_s": 4.75,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.12,
+  "legs_in_wreck_s": 0.25,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_chair_back_legs_and_stretchers",
+  "drop15_s": 0.367,
+  "floor_s": 0.45,
+  "head_back_at_drop15": 0.044,
+  "head_drop_at_drop15": 0.377,
+  "pelvis_back_at_drop15": 0.21,
+  "seat_pitch_at_drop15": 34.2,
+  "feet_slide_0.6s": 0.043,
+  "feet_lift_0.6s": 0.036,
+  "seat_pitch_0.3_0.6_1.0": [
+   28.0,
+   52.6,
+   88.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": 1.4,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -43.4,
+   -54.4,
+   -50.7,
+   -37.3
+  ],
+  "shoulder_turn_1.5s": 3.4,
+  "shoulder_tip_extreme": 6.2,
+  "head_x_1.0s": 0.06,
+  "pelvis_moved_1.5s": [
+   0.02,
+   -0.36,
+   0.56
+  ],
+  "pieces_side_speed_max": 2.27,
+  "pieces": 5,
+  "rise_start_s": 2.67,
+  "rise_s": 5.57,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.218,
+  "legs_in_wreck_s": 0.03,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_chair_back_legs_kicked",
+  "drop15_s": 0.367,
+  "floor_s": 0.45,
+  "head_back_at_drop15": 0.045,
+  "head_drop_at_drop15": 0.375,
+  "pelvis_back_at_drop15": 0.21,
+  "seat_pitch_at_drop15": 34.2,
+  "feet_slide_0.6s": 0.043,
+  "feet_lift_0.6s": 0.037,
+  "seat_pitch_0.3_0.6_1.0": [
+   28.0,
+   52.7,
+   88.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": 1.4,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -43.4,
+   -54.3,
+   -50.6,
+   -37.4
+  ],
+  "shoulder_turn_1.5s": 3.3,
+  "shoulder_tip_extreme": 6.2,
+  "head_x_1.0s": 0.06,
+  "pelvis_moved_1.5s": [
+   0.02,
+   -0.36,
+   0.57
+  ],
+  "pieces_side_speed_max": 0.12,
+  "pieces": 5,
+  "rise_start_s": 2.73,
+  "rise_s": 5.57,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.251,
+  "legs_in_wreck_s": 0.43,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_chair_back_legs_removed",
+  "drop15_s": 0.367,
+  "floor_s": 0.45,
+  "head_back_at_drop15": 0.045,
+  "head_drop_at_drop15": 0.375,
+  "pelvis_back_at_drop15": 0.21,
+  "seat_pitch_at_drop15": 34.2,
+  "feet_slide_0.6s": 0.043,
+  "feet_lift_0.6s": 0.037,
+  "seat_pitch_0.3_0.6_1.0": [
+   28.0,
+   52.7,
+   88.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": 1.4,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -43.4,
+   -54.3,
+   -50.6,
+   -37.4
+  ],
+  "shoulder_turn_1.5s": 3.1,
+  "shoulder_tip_extreme": 6.2,
+  "head_x_1.0s": 0.06,
+  "pelvis_moved_1.5s": [
+   0.02,
+   -0.36,
+   0.57
+  ],
+  "pieces_side_speed_max": 0.76,
+  "pieces": 5,
+  "rise_start_s": 2.77,
+  "rise_s": 5.57,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.208,
+  "legs_in_wreck_s": 0.03,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_chair_front_legs_removed",
+  "drop15_s": 1.05,
+  "floor_s": 2.3,
+  "head_back_at_drop15": -1.012,
+  "head_drop_at_drop15": 0.781,
+  "pelvis_back_at_drop15": -0.614,
+  "seat_pitch_at_drop15": -20.8,
+  "seat_pitch_0.3_0.6_1.0": [
+   -22.7,
+   -38.3,
+   -22.3
+  ],
+  "seat_piece": "post_back_l+crest+spindle4+spindle3+spindle2+spindle1+spindle0+post_back_r+seat",
+  "loll_max": 25.6,
+  "loll_s": 0.117,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   25.5,
+   20.5,
+   -2.1,
+   7.2
+  ],
+  "shoulder_turn_1.5s": 37.6,
+  "shoulder_tip_extreme": -15.1,
+  "head_x_1.0s": -0.34,
+  "pelvis_moved_1.5s": [
+   -0.03,
+   -0.05,
+   -0.91
+  ],
+  "pieces_side_speed_max": 1.93,
+  "pieces": 7,
+  "rise_start_s": 3.33,
+  "rise_s": 4.75,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.03,
+  "legs_in_wreck_s": 0.02,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_chair_three_legs_removed",
+  "drop15_s": 0.317,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.025,
+  "head_drop_at_drop15": 0.385,
+  "pelvis_back_at_drop15": 0.176,
+  "seat_pitch_at_drop15": 25.4,
+  "feet_slide_0.6s": 0.163,
+  "feet_lift_0.6s": 0.103,
+  "seat_pitch_0.3_0.6_1.0": [
+   24.0,
+   23.9,
+   62.1
+  ],
+  "seat_piece": "leg_front_r+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0",
+  "loll_max": 1.2,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -43.5,
+   -51.4,
+   -43.4,
+   -44.7
+  ],
+  "shoulder_turn_1.5s": -113.6,
+  "shoulder_tip_extreme": -65.9,
+  "head_x_1.0s": 1.13,
+  "pelvis_moved_1.5s": [
+   0.42,
+   -0.32,
+   0.18
+  ],
+  "pieces_side_speed_max": 2.08,
+  "pieces": 7,
+  "rise_start_s": 2.38,
+  "rise_s": 6.05,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    2.0
+   ]
+  ],
+  "legs_in_wreck_max": 0.239,
+  "legs_in_wreck_s": 1.98,
+  "hat_off_end": false,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_kicker_front_behind",
+  "drop15_s": 0.383,
+  "floor_s": 0.467,
+  "head_back_at_drop15": -0.219,
+  "head_drop_at_drop15": 0.205,
+  "pelvis_back_at_drop15": -0.09,
+  "seat_pitch_at_drop15": -11.6,
+  "feet_slide_0.6s": 0.079,
+  "feet_lift_0.6s": 0.015,
+  "seat_pitch_0.3_0.6_1.0": [
+   -8.7,
+   -13.5,
+   -8.7
+  ],
+  "seat_piece": "leg_front_l+stretcher_l+post_back_l+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+seat",
+  "loll_max": 44.3,
+  "loll_s": 1.133,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   42.3,
+   36.7,
+   38.9,
+   33.3
+  ],
+  "shoulder_turn_1.5s": 80.9,
+  "shoulder_tip_extreme": 82.8,
+  "head_x_1.0s": -1.22,
+  "pelvis_moved_1.5s": [
+   -0.49,
+   -0.32,
+   -0.12
+  ],
+  "pieces_side_speed_max": 1.42,
+  "pieces": 5,
+  "rise_start_s": 2.18,
+  "rise_s": 4.75,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.175,
+  "legs_in_wreck_s": 0.45,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_kicker_front_side",
+  "drop15_s": 0.317,
+  "floor_s": 0.383,
+  "head_back_at_drop15": -0.04,
+  "head_drop_at_drop15": 0.201,
+  "pelvis_back_at_drop15": 0.174,
+  "seat_pitch_at_drop15": 34.3,
+  "feet_slide_0.6s": 0.085,
+  "feet_lift_0.6s": 0.044,
+  "seat_pitch_0.3_0.6_1.0": [
+   32.4,
+   51.5,
+   88.2
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": 0.9,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -24.6,
+   -33.8,
+   -26.8,
+   -14.8
+  ],
+  "shoulder_turn_1.5s": -24.1,
+  "shoulder_tip_extreme": 8.1,
+  "head_x_1.0s": -0.5,
+  "pelvis_moved_1.5s": [
+   -0.2,
+   -0.35,
+   0.47
+  ],
+  "pieces_side_speed_max": 2.05,
+  "pieces": 5,
+  "rise_start_s": 2.92,
+  "rise_s": 6.82,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.95
+   ]
+  ],
+  "legs_in_wreck_max": 0.242,
+  "legs_in_wreck_s": 0.25,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_kicker_sweep_behind",
+  "drop15_s": 1.1,
+  "floor_s": 1.15,
+  "head_back_at_drop15": -0.145,
+  "head_drop_at_drop15": 0.211,
+  "pelvis_back_at_drop15": 0.203,
+  "seat_pitch_at_drop15": 33.9,
+  "feet_slide_0.6s": 0.035,
+  "feet_lift_0.6s": 0.004,
+  "seat_pitch_0.3_0.6_1.0": [
+   2.2,
+   2.3,
+   20.5
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": 6.6,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   3.5,
+   6.6,
+   -23.3,
+   -34.4
+  ],
+  "shoulder_turn_1.5s": -10.2,
+  "shoulder_tip_extreme": -10.2,
+  "head_x_1.0s": 0.08,
+  "pelvis_moved_1.5s": [
+   0.01,
+   -0.3,
+   0.33
+  ],
+  "pieces_side_speed_max": 3.15,
+  "pieces": 5,
+  "rise_start_s": 3.15,
+  "rise_s": 4.75,
+  "stages": [
+   [
+    "prone",
+    0.3
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.117,
+  "legs_in_wreck_s": 3.5,
+  "hat_off_end": false,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_leg_kicked",
+  "drop15_s": 1.55,
+  "floor_s": 1.633,
+  "head_back_at_drop15": -0.108,
+  "head_drop_at_drop15": 0.463,
+  "pelvis_back_at_drop15": 0.288,
+  "seat_pitch_at_drop15": 39.9,
+  "feet_slide_0.6s": 0.003,
+  "feet_lift_0.6s": 0.021,
+  "seat_pitch_0.3_0.6_1.0": [
+   2.3,
+   3.1,
+   7.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+spindle4+spindle3+spindle2+spindle1+spindle0+post_back_r+stretcher_r+leg_front_r",
+  "loll_max": -0.4,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -23.3,
+   -31.0,
+   -26.4,
+   -27.7
+  ],
+  "shoulder_turn_1.5s": -13.7,
+  "shoulder_tip_extreme": -39.2,
+  "head_x_1.0s": 0.29,
+  "pelvis_moved_1.5s": [
+   0.25,
+   -0.1,
+   0.25
+  ],
+  "pieces_side_speed_max": 0.15,
+  "pieces": 3,
+  "rise_start_s": 3.55,
+  "rise_s": 6.45,
+  "stages": [
+   [
+    "lie_back",
+    0.52
+   ],
+   [
+    "sit_ground",
+    1.1
+   ],
+   [
+    "sit_tuck",
+    0.8
+   ],
+   [
+    "kneel_up",
+    1.0
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.33
+   ]
+  ],
+  "legs_in_wreck_max": 0.144,
+  "legs_in_wreck_s": 1.2,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_legs_and_stretchers",
+  "drop15_s": 0.35,
+  "floor_s": 0.417,
+  "head_back_at_drop15": 0.071,
+  "head_drop_at_drop15": 0.193,
+  "pelvis_back_at_drop15": 0.217,
+  "seat_pitch_at_drop15": 35.4,
+  "feet_slide_0.6s": 0.044,
+  "feet_lift_0.6s": 0.052,
+  "seat_pitch_0.3_0.6_1.0": [
+   29.4,
+   54.1,
+   88.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": -0.2,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -24.5,
+   -31.1,
+   -28.5,
+   -15.2
+  ],
+  "shoulder_turn_1.5s": 2.6,
+  "shoulder_tip_extreme": 4.2,
+  "head_x_1.0s": 0.0,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.36,
+   0.53
+  ],
+  "pieces_side_speed_max": 2.27,
+  "pieces": 5,
+  "rise_start_s": 3.22,
+  "rise_s": 6.78,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.92
+   ]
+  ],
+  "legs_in_wreck_max": 0.228,
+  "legs_in_wreck_s": 0.72,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_legs_kicked",
+  "drop15_s": 0.35,
+  "floor_s": 0.417,
+  "head_back_at_drop15": 0.071,
+  "head_drop_at_drop15": 0.193,
+  "pelvis_back_at_drop15": 0.217,
+  "seat_pitch_at_drop15": 35.4,
+  "feet_slide_0.6s": 0.046,
+  "feet_lift_0.6s": 0.056,
+  "seat_pitch_0.3_0.6_1.0": [
+   29.5,
+   54.6,
+   88.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": -0.2,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -24.5,
+   -31.1,
+   -29.6,
+   -15.7
+  ],
+  "shoulder_turn_1.5s": 2.2,
+  "shoulder_tip_extreme": 5.0,
+  "head_x_1.0s": 0.01,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.36,
+   0.54
+  ],
+  "pieces_side_speed_max": 0.11,
+  "pieces": 5,
+  "rise_start_s": 3.1,
+  "rise_s": 6.87,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    2.0
+   ]
+  ],
+  "legs_in_wreck_max": 0.237,
+  "legs_in_wreck_s": 0.63,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_legs_kicked_side",
+  "drop15_s": 0.433,
+  "floor_s": 0.517,
+  "head_back_at_drop15": 0.019,
+  "head_drop_at_drop15": 0.186,
+  "pelvis_back_at_drop15": 0.2,
+  "seat_pitch_at_drop15": 27.6,
+  "feet_slide_0.6s": 0.065,
+  "feet_lift_0.6s": 0.038,
+  "seat_pitch_0.3_0.6_1.0": [
+   15.2,
+   47.9,
+   86.4
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": -0.1,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -26.4,
+   -32.6,
+   -38.8,
+   -24.2
+  ],
+  "shoulder_turn_1.5s": -21.7,
+  "shoulder_tip_extreme": -8.9,
+  "head_x_1.0s": -0.56,
+  "pelvis_moved_1.5s": [
+   -0.28,
+   -0.36,
+   0.5
+  ],
+  "pieces_side_speed_max": 2.4,
+  "pieces": 5,
+  "rise_start_s": 2.83,
+  "rise_s": 6.87,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    2.0
+   ]
+  ],
+  "legs_in_wreck_max": 0.261,
+  "legs_in_wreck_s": 0.92,
+  "hat_off_end": false,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_legs_removed",
+  "drop15_s": 0.35,
+  "floor_s": 0.417,
+  "head_back_at_drop15": 0.071,
+  "head_drop_at_drop15": 0.193,
+  "pelvis_back_at_drop15": 0.217,
+  "seat_pitch_at_drop15": 35.4,
+  "feet_slide_0.6s": 0.046,
+  "feet_lift_0.6s": 0.055,
+  "seat_pitch_0.3_0.6_1.0": [
+   29.5,
+   54.5,
+   88.3
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": -0.2,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -24.5,
+   -31.1,
+   -29.5,
+   -15.7
+  ],
+  "shoulder_turn_1.5s": 2.5,
+  "shoulder_tip_extreme": 4.5,
+  "head_x_1.0s": 0.01,
+  "pelvis_moved_1.5s": [
+   -0.01,
+   -0.36,
+   0.54
+  ],
+  "pieces_side_speed_max": 0.76,
+  "pieces": 5,
+  "rise_start_s": 3.12,
+  "rise_s": 5.57,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    1.7
+   ]
+  ],
+  "legs_in_wreck_max": 0.243,
+  "legs_in_wreck_s": 0.57,
+  "hat_off_end": true,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_back_legs_swept",
+  "drop15_s": 0.45,
+  "floor_s": 0.533,
+  "head_back_at_drop15": 0.025,
+  "head_drop_at_drop15": 0.184,
+  "pelvis_back_at_drop15": 0.204,
+  "seat_pitch_at_drop15": 28.3,
+  "feet_slide_0.6s": 0.036,
+  "feet_lift_0.6s": 0.034,
+  "seat_pitch_0.3_0.6_1.0": [
+   14.4,
+   47.4,
+   84.2
+  ],
+  "seat_piece": "leg_front_l+seat+b+crest+b+spindle4+spindle3+spindle2+spindle1+spindle0+leg_front_r",
+  "loll_max": -0.3,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -25.8,
+   -32.5,
+   -39.8,
+   -26.1
+  ],
+  "shoulder_turn_1.5s": -12.4,
+  "shoulder_tip_extreme": -5.5,
+  "head_x_1.0s": -0.34,
+  "pelvis_moved_1.5s": [
+   -0.17,
+   -0.36,
+   0.52
+  ],
+  "pieces_side_speed_max": 3.19,
+  "pieces": 5,
+  "rise_start_s": 2.88,
+  "rise_s": 6.87,
+  "stages": [
+   [
+    "lie_back",
+    0.42
+   ],
+   [
+    "prone",
+    0.7
+   ],
+   [
+    "all_fours",
+    0.55
+   ],
+   [
+    "kneel",
+    0.7
+   ],
+   [
+    "kneel_up",
+    0.8
+   ],
+   [
+    "kneel_reach",
+    1.0
+   ],
+   [
+    "hands_knees",
+    0.7
+   ],
+   [
+    "stand",
+    2.0
+   ]
+  ],
+  "legs_in_wreck_max": 0.226,
+  "legs_in_wreck_s": 0.7,
+  "hat_off_end": false,
+  "pose_end": "stand",
+  "root": "u_r3"
+ },
+ {
+  "scenario": "U_sitback_front_leg_kicked",
+  "drop15_s": null,
+  "floor_s": null,
+  "loll_max": -0.0,
+  "loll_s": 0.0,
+  "loll_at_0.2_0.4_0.6_0.8": [
+   -0.0,
+   -0.0,
+   -0.0,
+   -0.0
+  ],
+  "shoulder_turn_1.5s": 0.0,
+  "shoulder_tip_extreme": 0.0,
+  "head_x_1.0s": 0.0,
+  "pelvis_moved_1.5s": [
+   0.0,
+   -0.0,
+   0.0
+  ],
+  "pieces_side_speed_max": 0.19,
+  "pieces": 2,
+  "hat_off_end": false,
+  "pose_end": "sit_back",
+  "root": "u_r3"
+ }
+]

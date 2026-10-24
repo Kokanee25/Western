@@ -1,0 +1,17 @@
+{
+ "U_chair_front_legs_removed": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_001.png"
+ },
+ "U_sitback_back_legs_kicked": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_002.png"
+ },
+ "U_sitback_back_legs_swept": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_003.png"
+ }
+}

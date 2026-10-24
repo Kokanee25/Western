@@ -78,6 +78,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
+`physics_lab` (`seat PERSON`, `chair_kick_spot`, `kick_chair`; `film_saloon.py` films a seated man's
+chair kicked out in the saloon, frames to PNG, since a forced stop leaves an AVI with none);
 `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
@@ -565,7 +567,12 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
   still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`;
   a deed puts a hand anywhere by the same IK, `reach_to(side, at, normal, weight)` renewed each tick,
-  clamped to his reach, before the wound's grab, `can_reach`, `palm`, `wound_under_hand`),
+  clamped to his reach, before the wound's grab, `can_reach`, `palm`, `wound_under_hand`;
+  the tone also across the light links, head on chest and chest on pelvis, `TONE_BRIDGE`; his chair
+  going from under him he rides it over, `ride`; getting up he comes up clear of what lies round
+  him, `_rise_heading`, rolls off a chair his legs lie over, picks his hat up and `wear_hat`s it;
+  a kick of his own, `kick(at, front|sweep)`, `kick_spot`, struck by `_strike` as a clip's boot;
+  the player's is `PlayerKick`, E; 2026-10-24, `experiments/physics_lab/results/2026-10-24_chair_tip/`),
   `OutlawBrain` (fear/nerve; tactics OPEN/MOVING/HIDDEN/PEEKING; flees, tends himself,
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if

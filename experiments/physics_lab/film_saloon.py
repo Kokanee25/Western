@@ -42,7 +42,11 @@ def main():
     for f in glob.glob(os.path.join(frames, "*.png")):
         os.remove(f)
     dry = "--dry" in sys.argv  # headless, no frames: the commands only
-    if bridge.start(["--headless"] if dry else ["--size=" + arg("size", "960x540"), "--movie=" + os.path.join(frames, "f.png")]) != 0:
+    peek = "--peek" in sys.argv  # drawn, no movie: two screenshots of the framing (OUT/peek_*.png)
+    opts = ["--headless"] if dry else ["--size=" + arg("size", "960x540")]
+    if not dry and not peek:
+        opts.append("--movie=" + os.path.join(frames, "f.png"))
+    if bridge.start(opts) != 0:
         return 1
     marks = {}
     try:
@@ -58,12 +62,23 @@ def main():
         spot = one("chair_kick_spot brody side")
         one("goto %f %f %f %f" % (spot["x"], spot["y"], spot["z"], spot["yaw"]))
         leg = spot["leg"]
-        # The free camera off his left front, the chair and you in it.
+        # The free camera on the far side of the chair from you, three-quarter on: you kick toward
+        # it and he goes over across the frame (from your side your body stood in front of him).
         c = sat["at"]
-        one("camera %f %f %f %f %f %f 55" % (c[0] - 2.6, c[1] + 1.5, c[2] - 1.9, c[0], c[1] + 0.6, c[2]))
+        dx, dz = leg[0] - spot["x"], leg[2] - spot["z"]
+        n = max((dx * dx + dz * dz) ** 0.5, 1e-3)
+        dx, dz = dx / n, dz / n
+        cam = (c[0] + dx * 2.9 - dz * 2.1, c[1] + 1.6, c[2] + dz * 2.9 + dx * 2.1)
+        one("camera %f %f %f %f %f %f 55" % (cam[0], cam[1], cam[2], c[0], c[1] + 0.55, c[2]))
         one("wait 2")
+        if peek:
+            one("screenshot " + os.path.join(out, "peek_0.png"))
         marks["kick"] = one("read frame").get("frame", {})
         one("press kick 0.1")
+        if peek:
+            one("wait 0.5")
+            one("screenshot " + os.path.join(out, "peek_1.png"))
+            return 0
         one("wait 1.2")
         one("fight brody")
         one("wait 7")
