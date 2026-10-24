@@ -36,6 +36,9 @@ VIEWS = [("out", (-1.0, 0.0, 0.0)), ("front", (0.0, 1.0, 0.0)), ("in", (1.0, 0.0
 PANEL_PX = (256, 1024)   # each view's width and height in the sheet (four across: 1024 square)
 MARGIN = 0.04            # m round the arm in each view
 FINGERS = ["index", "middle", "ring", "little", "thumb"]
+SOFT_MEDIAN = 11   # px at the sheet's 1024
+SOFT_SAT = 0.75
+SOFT_HUE = 0.5
 
 
 def arm_bones(side):
@@ -212,7 +215,7 @@ def bake_maps(arms, size):
         bpy.ops.object.bake(type="EMIT", use_clear=False)
         a = np.zeros(size * size * 4, np.float32)
         img.pixels.foreach_get(a)
-        out[what] = a.reshape(size, size, 4)
+        out[what] = a.reshape(size, size, 4)[::-1]   # Blender's rows run up the image, PIL's down
     mask = out["pos"][..., 3] > 0.5
     pos = out["pos"][..., :3] - 4.0
     nrm = out["nrm"][..., :3] * 2.0 - 1.0
@@ -220,7 +223,20 @@ def bake_maps(arms, size):
     return mask, pos, nrm
 
 
-def bake():
+def soften(img):
+    """The painting as the men are painted (run 119 came back with every hair drawn: in the game
+    they read as dark veins, and the skin raw red): the hairs taken out (a median), its colour
+    eased and half way back to his own skin's hue, its painted light kept."""
+    from PIL import ImageFilter
+    a = np.asarray(img.filter(ImageFilter.MedianFilter(SOFT_MEDIAN))).astype(np.float32)
+    grey = a.mean(-1, keepdims=True)
+    a = grey + (a - grey) * SOFT_SAT
+    his = np.asarray(Image.open(BASE).convert("RGB").filter(ImageFilter.GaussianBlur(6))).astype(np.float32)
+    lit_his = his * a.mean(-1, keepdims=True) / np.maximum(his.mean(-1, keepdims=True), 1.0)
+    return a * (1.0 - SOFT_HUE) + lit_his * SOFT_HUE
+
+
+def bake(painted=PAINTED, out_png=OUT):
     body = load()
     arms = [cut_arm(body, "r"), cut_arm(body, "l")]
     for ob in list(bpy.data.objects):
@@ -234,8 +250,7 @@ def bake():
     left = pos[..., 0] < 0.0
     pos[left, 0] *= -1.0
     nrm[left, 0] *= -1.0
-    paint = np.asarray(Image.open(PAINTED).convert("RGB").resize(
-        (PANEL_PX[0] * 4, PANEL_PX[1]), Image.LANCZOS)).astype(np.float32)
+    paint = soften(Image.open(painted).convert("RGB").resize((PANEL_PX[0] * 4, PANEL_PX[1]), Image.LANCZOS))
     ph, pw = paint.shape[:2]
     acc = np.zeros(skin.shape, np.float32)
     wsum = np.zeros(skin.shape[:2], np.float32)
@@ -263,9 +278,9 @@ def bake():
     out = skin.copy()
     got = mask & (wsum > 1e-4)
     out[got] = acc[got] / wsum[got][:, None]
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(OUT)
-    print("WROTE", OUT, int(got.sum()), "texels of", int(mask.sum()))
+    os.makedirs(os.path.dirname(out_png), exist_ok=True)
+    Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(out_png)
+    print("WROTE", out_png, int(got.sum()), "texels of", int(mask.sum()))
 
 
 if __name__ == "__main__":
@@ -273,6 +288,8 @@ if __name__ == "__main__":
     if "--base" in args:
         base()
     elif "--bake" in args:
-        bake()
+        # --from=IMAGE --to=PNG: another sheet (the base itself, to see the bake gives his skin back).
+        kw = dict(a[2:].split("=", 1) for a in args if a.startswith(("--from=", "--to=")))
+        bake(kw.get("from", PAINTED), kw.get("to", OUT))
     else:
         print(__doc__)

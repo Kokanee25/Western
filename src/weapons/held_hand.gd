@@ -16,6 +16,7 @@ extends Node3D
 ## Whose arms you have: the Studio man whose shirt and vest your body wears (PlayerBody): Sean's,
 ## the palest and least orange of the eight with hands (every one's forearm is bare to the elbow).
 const MODEL := &"sean_s3_talking"
+const ARM_SKIN := "res://assets/weapons/held_arm_skin.png"
 const FINGERS := ["index", "middle", "ring", "little"]
 ## A finger's last bone has no joint past it: its length is this share of the bone before.
 const TIP_SHARE := 0.85
@@ -395,6 +396,15 @@ static func source(side: String) -> Dictionary:
 	root.free()
 	if o_tris.is_empty():
 		return out
+	# His mesh is split at nearly every triangle (a texture seam each: 11,615 vertices on 3,036
+	# points), so each face shaded flat and the arm drew in facets: every vertex takes the mean
+	# normal of all those at its point (an arm has no hard edge to keep).
+	var at := {}
+	for i in o_verts.size():
+		var k := o_verts[i].snappedf(0.0001)
+		at[k] = (at.get(k, Vector3.ZERO) as Vector3) + o_normals[i]
+	for i in o_verts.size():
+		o_normals[i] = (at[o_verts[i].snappedf(0.0001)] as Vector3).normalized()
 	var a := []
 	a.resize(Mesh.ARRAY_MAX)
 	a[Mesh.ARRAY_VERTEX] = o_verts
@@ -418,7 +428,9 @@ static func source(side: String) -> Dictionary:
 ## His skin's painted texture in the men's own shader (HumanBody's whole men: _baked_cloth then
 ## BodyInterior.skin_material), so your hand takes light as theirs do.
 static func _material() -> ShaderMaterial:
-	var png := PeopleBodies.TEXTURE_PATH % [MODEL, "skin"]
+	# His skin's texture with your arms repainted in the men's hand (the gun lab's
+	# blender/arm_blender.py), where it's been made; his own elsewhere.
+	var png := ARM_SKIN if ResourceLoader.exists(ARM_SKIN) else PeopleBodies.TEXTURE_PATH % [MODEL, "skin"]
 	var base := StandardMaterial3D.new()
 	base.albedo_texture = load(png) as Texture2D if ResourceLoader.exists(png) else null
 	base.roughness = 0.95
