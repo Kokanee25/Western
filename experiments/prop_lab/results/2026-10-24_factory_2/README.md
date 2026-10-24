@@ -29,3 +29,7 @@ pig's snout: gone.
 cut, no repaint: the leather painted as a spotted cowhide (contrast 0.3: worn mottling; the horses'
 saddles share it), the burlap with a whole stencil stamp (contrast 0.25: the weave). A repaint of
 either is $0.22 if Sean wants them truer.
+
+Then (Sean: "yes repaint") the leather and burlap repainted, People run 126 ($0.44), with no spots or
+markings and no lettering asked for in so many words: `repaint_leather_burlap.jpg` (each painting,
+then its tile): plain worn saddle leather, dirty weave. The mutes taken off.
