@@ -119,7 +119,7 @@ func test_batch_two_stands_weighs_and_is_drawn_from_its_blender_model() -> void:
 		var kg := p.mass()
 		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
 		for m in p.get_members():
-			var mesh := (m.get_child(0) as MeshInstance3D).mesh
+			var mesh := m.drawn_node().mesh
 			check(mesh != null and mesh.get_faces().size() > 36 * 3, "%s's %s is drawn from its model, not a box" % [id, m.member_id])
 		p.queue_free()
 		await physics_frames(1)
