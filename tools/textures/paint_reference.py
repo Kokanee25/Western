@@ -71,7 +71,10 @@ def main():
         img = None
         for attempt in range(2):
             try:
-                prompt = (ASK.format(look=r["look"], finish=r.get("finish", FINISH)) if "base" in r
+                # `prompt`: the entry's own words in full (OpenAI's model refuses NEW's "the same hand
+                # as the artist", 2026-10-24, run 120, though the images are the game's own).
+                prompt = (r["prompt"] if "prompt" in r
+                          else ASK.format(look=r["look"], finish=r.get("finish", FINISH)) if "base" in r
                           else NEW.format(scene=r["scene"], finish=r.get("finish", FINISH)))
                 img = pt.ask(prompt, images,
                              {"aspect_ratio": r.get("aspect", "16:9")}, "ref_" + name, key)
