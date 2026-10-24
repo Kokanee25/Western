@@ -458,6 +458,12 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
   it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
+  batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
+  kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
+  them back as child 0 and 1 before anything reads them (`unbatch`, `add_hole`, `carve_hit`,
+  `shatter`, the voxel mesh). Read a member's mesh with `drawn_node()`, never `get_child(0)`,
+  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes.
   **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
   it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
   is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and
@@ -1007,7 +1013,14 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
   dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
-  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  chair goes loose, its seat breaks or it's knocked from under him). At rest (footed) it joins its
+  world's `PropBatch` (`src/props/prop_batch.gd`, a child of the topmost Node3D, the street): the
+  resting props in each 20 m cell drawn as one mesh a material and one far-lamp shadow, joined from
+  their own batches (`batch_nodes()`), non-indexed so a prop that `leave`s (any `unbatch`, moved,
+  hidden, freed, rebuilt) has its stretch zeroed in place (`mesh_surface_update_vertex_region`)
+  and its own batches shown; only materials that read the same in any mesh's space join
+  (`PropBatch.joins`: the texel grid's UV and world mappings, weathering only where the mesh has no
+  CUSTOM0). Off in Compatibility and with `-- --no-prop-batch`. Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
 
