@@ -6,8 +6,10 @@ how often Earl ends on his back, how long the kick takes to put him down, what t
     python3 experiments/card_cheat/run.py --runs=20 --out=build/card_cheat/runs [--animated=0] [--per-game=5]
     python3 experiments/card_cheat/run.py --tally=DIR1[,DIR2] [--animated=0]     # the tally alone, over runs made in parts
 
-A game is started fresh every --per-game runs (the moment puts a whole chair back each time, but a
-long game drifts). Writes <out>/run_NN.json and <out>/tally.md.
+A game is started fresh for every run (--per-game=1; more a game and the moment puts a whole chair
+back, but the game drifts: by the fourth run of one the chair wouldn't seat him); each run has its
+own seed (the men's randomness, a hand's width on Cody's entry), since the simulation is otherwise
+the same every time. Writes <out>/run_NN.json and <out>/tally.md.
 """
 import json
 import os
@@ -54,7 +56,7 @@ def main():
         tally(results, os.path.join(dirs[0], "tally.md"), opt("animated", "1"))
         return
     runs = int(opt("runs", "20"))
-    per_game = int(opt("per-game", "5"))
+    per_game = int(opt("per-game", "1"))
     animated = opt("animated", "1")
     out_dir = opt("out", os.path.join(ROOT, "build", "card_cheat", "runs"))
     hour = opt("hour", "17.5")
@@ -67,7 +69,7 @@ def main():
             for _ in range(per_game):
                 if i >= runs:
                     break
-                replies = bridge("time %s" % hour, "moment card_cheat animated=%s hour=%s" % (animated, hour), "moment_result wait 40")
+                replies = bridge("time %s" % hour, "moment card_cheat animated=%s hour=%s seed=%d" % (animated, hour, i + 1), "moment_result wait 40")
                 res = replies[-1] if replies else {"ok": False, "error": "no reply"}
                 res["run"] = i + 1
                 with open(os.path.join(out_dir, "run_%02d.json" % (i + 1)), "w") as f:

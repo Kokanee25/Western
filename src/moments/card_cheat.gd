@@ -49,6 +49,13 @@ func begin() -> void:
 	var table: Array = data.get("table", [7.6, 0.78, 4.2])
 	var table_at := Vector3(table[0], table[1], table[2])
 	var enter := point("enters_at", "enters_at_point", data.victim)
+	# `seed=N` (the runs): the men's own randomness and a hand's width on where Cody comes in, so
+	# twenty runs are twenty (the simulation is otherwise the same every time).
+	var seed_n := int(opts.get("seed", 0))
+	if seed_n > 0:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = seed_n
+		enter += Vector3(rng.randf_range(-0.08, 0.08), 0.0, rng.randf_range(-0.08, 0.08))
 	chair = _pick_chair(table_at, enter)
 	if chair == null:
 		_note("no free chair at the table")
@@ -83,7 +90,7 @@ func _man(d: Dictionary, at: Vector3, faces: Vector3, armed: bool) -> HumanBody:
 	m.body_model = StringName(d.get("model", "outlaw"))
 	m.person_id = StringName(d.get("id", "man"))
 	m.name = String(d.get("name", String(m.person_id)))
-	m.rng_seed = int(d.get("seed", 1))
+	m.rng_seed = int(d.get("seed", 1)) + int(opts.get("seed", 0)) * 7
 	m.has_gun = armed
 	m.start_holstered = true
 	m.enter(street, at, HumanBody.yaw_toward(at, faces))
@@ -192,7 +199,11 @@ func _physics_process(delta: float) -> void:
 				_go(&"approach")
 		&"approach":
 			_target = _over_spot()
-			if _walk(delta, _target, 1.2):
+			# Over him within a long step, or from wherever the chair's pieces and the table let
+			# him get to in three seconds: he aims down at the face from there.
+			var flat := _target - victim.global_position
+			flat.y = 0.0
+			if _walk(delta, _target, 1.2) or flat.length() < 0.6 or state_t > 3.0:
 				victim.stop_clip()
 				_go(&"stand_over")
 		&"stand_over":
@@ -381,7 +392,15 @@ func reset() -> void:
 		if rb is Node3D and (rb as Node3D).global_position.distance_to(chair_was.origin) < 3.0:
 			rb.queue_free()
 	if chair_parent != null and is_instance_valid(chair_parent):
-		var fresh := PropLibrary.spawn(&"chair") as KitProp
-		chair_parent.add_child(fresh)
-		fresh.global_transform = chair_was
+		# A whole chair where it stood, once the pieces are gone (put down the same tick, it
+		# settled onto rubble that then vanished, and went loose: runs 7-10 of the first tally).
+		var parent_ref := weakref(chair_parent)  # a lambda holding a freed node is an error when it fires
+		var where := chair_was
+		get_tree().create_timer(0.5).timeout.connect(func() -> void:
+			var parent := parent_ref.get_ref() as Node
+			if parent == null or not parent.is_inside_tree():
+				return
+			var fresh := PropLibrary.spawn(&"chair") as KitProp
+			parent.add_child(fresh)
+			fresh.global_transform = where)
 	queue_free()
