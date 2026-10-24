@@ -689,6 +689,11 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
   Model space: head at -X, his right -Z, ground y = 0.
+- `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
+  Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
+  turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail
+  by its paint) into `horse_shape`'s landmarks (`set_legs`...); its own paint baked as the coat. Without
+  `--shape`, the sculpt:
 - `tools/blender/horse.py` (pip bpy, ~40 s, ~80 s when the sculpt changes; `--blend` keeps
   `build/horse/horse.blend`): Sean's pictures (`docs/concept/horse/`) read by `horse_ref.py` (cut out
   by colour, 454 px a metre, each view's place); the sculpt (`horse_shape.py`: the body, neck and

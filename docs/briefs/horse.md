@@ -62,6 +62,24 @@ build directly:
 
 Sheet: `docs/screenshots/horse/2026-10-24b/` (his pictures against the model; the game views).
 
+## Step 1c: Rodin on a new picture set (2026-10-24, Sean's pick A on #340)
+
+Sean: "weird bumps at the tops of its legs and the back legs are all kinda messed up". Cause: the
+sculpt's legs were separate shapes on a lofted body (a ledge at the elbow, knobs at the stifle), and
+his pictures' legs overlapped and his two sides stood differently. So (Sean: "A", then "Approved"):
+
+- **Pictures** (the Character Studio, `claude/studio-horse`, `studio/steps/horse.py`, $0.42): the
+  left side standing square in a true profile, then front and back, from his pictures by Nano Banana
+  Pro; the right the left mirrored; front and back scaled to the sides' height. Sean approved them.
+- **Shape** (Rodin Gen-2.5, $1.60, no T-pose): `inputs/horse/shape.glb` in the Studio.
+- **The game's build** (`horse.py --shape=GLB`, `horse_rodin.py`): Rodin's model turned to our
+  axes, scaled to 2.05 m at the ear tips, centred on his barrel, and measured: each leg's line by
+  level cuts (fetlock, knee or hock, elbow or stifle), poll, muzzle, withers, the tail by its dark
+  paint. Those landmarks replace the sculpt's in `horse_shape` (`set_legs`, `set_head`,
+  `set_tail`, `set_trunk`), so the rig, weights (the tail's bones kept to the tail's points),
+  idle, tack and capsules fit him. The coat is Rodin's own paint baked into the coat's layout.
+  The sculpt route stays (no `--shape`).
+
 ## Next steps (not started)
 
 2. **Hit and going down:** a ball into a horse (it will happen in a fight): a flinch and a wound

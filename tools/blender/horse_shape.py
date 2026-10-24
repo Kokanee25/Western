@@ -104,6 +104,37 @@ HEAD_DIR /= HEAD_LEN
 HEAD_FACE = np.array([HEAD_DIR[2], 0.0, -HEAD_DIR[0]])
 
 
+# Overrides measured off a model (horse_rodin.py): legs by (part, side), the trunk's front and rear.
+LEGS = {}
+TRUNK = (-0.78, 0.78)
+
+
+def set_head(poll, muzzle, withers):
+    """The head and withers measured off a model (horse_rodin.measure)."""
+    global POLL, MUZZLE, WITHERS, HEAD_DIR, HEAD_LEN, HEAD_FACE
+    POLL, MUZZLE, WITHERS = tuple(poll), tuple(muzzle), tuple(withers)
+    HEAD_DIR = np.array([MUZZLE[0] - POLL[0], 0.0, MUZZLE[1] - POLL[1]])
+    HEAD_LEN = float(np.linalg.norm(HEAD_DIR))
+    HEAD_DIR = HEAD_DIR / HEAD_LEN
+    HEAD_FACE = np.array([HEAD_DIR[2], 0.0, -HEAD_DIR[0]])
+
+
+def set_legs(joints):
+    """Each leg's joints measured off a model: {("front"|"hind", side): {joint: (x, y, z)}}."""
+    LEGS.clear()
+    LEGS.update(joints)
+
+
+def set_tail(points):
+    global TAIL
+    TAIL = [tuple(p) for p in points]
+
+
+def set_trunk(front, rear):
+    global TRUNK
+    TRUNK = (front, rear)
+
+
 def _head_point(along, face=0.0, side=0.0):
     """A point on the head: `along` metres from the poll down its axis, `face` towards the forehead."""
     p = np.array([POLL[0], 0.0, POLL[1]]) + HEAD_DIR * along + HEAD_FACE * face
@@ -121,6 +152,8 @@ STAGGER_HIND = {-1.0: -0.08, 1.0: 0.17}
 
 
 def front_leg(s):
+    if ("front", s) in LEGS:
+        return dict(LEGS[("front", s)])
     d = STAGGER_FORE[s]
     return {
         "shoulder": (-0.66, s * 0.14, 1.08),  # point of shoulder
@@ -133,6 +166,8 @@ def front_leg(s):
 
 
 def hind_leg(s):
+    if ("hind", s) in LEGS:
+        return dict(LEGS[("hind", s)])
     d = STAGGER_HIND[s]
     return {
         "hip": (0.5, s * 0.15, 1.27),
@@ -319,12 +354,18 @@ def bones():
 
     add("root", (0.0, 0.0, 0.0), (0.0, 0.0, 0.25), None, False)
     add("body", (0.05, 0.0, 1.2), (0.05, 0.0, 1.4), "root", False)
-    add("pelvis", (0.1, 0.0, 1.3), (0.72, 0.0, 1.36), "body")
-    add("spine", (0.1, 0.0, 1.3), (-0.15, 0.0, 1.28), "body")
-    add("chest", (-0.15, 0.0, 1.28), (-0.45, 0.0, 1.32), "spine")
-    add("neck1", (-0.45, 0.0, 1.32), (-0.66, 0.0, 1.6), "chest")
-    add("neck2", (-0.66, 0.0, 1.6), (-0.86, 0.0, 1.8), "neck1")
-    add("neck3", (-0.86, 0.0, 1.8), (-1.02, 0.0, 1.88), "neck2")
+    add("pelvis", (0.1, 0.0, 1.3), (TRUNK[1] - 0.06, 0.0, 1.36), "body")
+    add("spine", (0.1, 0.0, 1.3), (WITHERS[0] + 0.16, 0.0, 1.28), "body")
+    # The neck from in front of the withers up to the poll (shares from Sean's pictured horse).
+    c = (WITHERS[0] - 0.14, 1.32)
+    pp = (POLL[0] + 0.05, POLL[1] - 0.05)
+
+    def along(fx, fz):
+        return (c[0] + (pp[0] - c[0]) * fx, 0.0, c[1] + (pp[1] - c[1]) * fz)
+    add("chest", (WITHERS[0] + 0.16, 0.0, 1.28), (c[0], 0.0, c[1]), "spine")
+    add("neck1", (c[0], 0.0, c[1]), along(0.34, 0.46), "chest")
+    add("neck2", along(0.34, 0.46), along(0.66, 0.79), "neck1")
+    add("neck3", along(0.66, 0.79), along(0.92, 0.92), "neck2")
     poll = (POLL[0] + 0.02, 0.0, POLL[1] - 0.06)
     add("head", poll, tuple(np.add(poll, HEAD_DIR * HEAD_LEN * 0.95)), "neck3")
     for side, s in (("L", -1.0), ("R", 1.0)):
@@ -343,7 +384,7 @@ def bones():
         add("hpastern." + side, h["fetlock"], h["coronet"], "hcannon." + side)
         add("hhoof." + side, h["coronet"], h["toe"], "hpastern." + side)
     parent = "pelvis"
-    pts = [(0.72, 1.44)] + TAIL[1:]
+    pts = [(TAIL[0][0] - 0.02, TAIL[0][1] - 0.03)] + TAIL[1:]
     for i in range(len(pts) - 1):
         name = "tail%d" % (i + 1)
         add(name, (pts[i][0], 0.0, pts[i][1]), (pts[i + 1][0], 0.0, pts[i + 1][1]), parent)
@@ -374,14 +415,14 @@ def _allowed(name, p):
         ok &= p[:, 2] > POLL[1] + 0.0
     if name.startswith("tail"):
         # The hair and the dock, not the buttock under it.
-        ok &= p[:, 0] > 0.72 + np.maximum(0.0, 1.38 - p[:, 2]) * 0.45
+        ok &= p[:, 0] > TAIL[0][0] - 0.02 + np.maximum(0.0, TAIL[0][1] - 0.09 - p[:, 2]) * 0.45
     lower = ("forearm", "cannon", "pastern", "hoof", "shin", "hcannon", "hpastern", "hhoof")
     if name.split(".")[0] in lower:
         ok &= p[:, 2] < (1.02 if name.startswith(("forearm", "shin")) else 0.62)
     return ok
 
 
-def weights(verts, neighbours, bone_defs, only=None, smooth=3, power=5.0):
+def weights(verts, neighbours, bone_defs, only=None, smooth=3, power=5.0, tail=None):
     """Skin weights by distance to each deform bone (closest bones dominate, power `power`),
     limited to the bones a part may move with, smoothed over the mesh `smooth` times, the four
     largest kept: (bone names, (n, 4) indices, (n, 4) weights)."""
@@ -392,6 +433,13 @@ def weights(verts, neighbours, bone_defs, only=None, smooth=3, power=5.0):
         h, t, _par, _def = bone_defs[n]
         d[:, i], _ = _seg_dist(p, h, t)
         d[~_allowed(n, p), i] = 1e3
+        if tail is not None:
+            # A model's tail (measured): the tail's bones move it and nothing else does but the
+            # pelvis at the dock; the tail's bones move nothing else.
+            if n.startswith("tail"):
+                d[~tail, i] = 1e3
+            elif n != "pelvis":
+                d[tail, i] = 1e3
     near = d.min(axis=1, keepdims=True)
     w = (np.maximum(near, 0.01) / np.maximum(d, 0.01)) ** power
     w[d > near * 2.0 + 0.06] = 0.0
@@ -418,9 +466,9 @@ def capsules():
     """His collision (Horse's body: cover later), a capsule per part on the bone that carries it:
     [bone, from, to, radius] in these axes."""
     out = [
-        ["spine", (-0.66, 0.0, 1.18), (0.18, 0.0, 1.18), 0.27],
-        ["pelvis", (0.28, 0.0, 1.22), (0.66, 0.0, 1.22), 0.25],
-        ["neck2", (-0.52, 0.0, 1.38), (-0.94, 0.0, 1.8), 0.13],
+        ["spine", (TRUNK[0] + 0.12, 0.0, 1.18), (0.18, 0.0, 1.18), 0.27],
+        ["pelvis", (0.28, 0.0, 1.22), (TRUNK[1] - 0.12, 0.0, 1.22), 0.25],
+        ["neck2", (WITHERS[0] - 0.21, 0.0, 1.38), (POLL[0] + 0.13, 0.0, POLL[1] - 0.13), 0.13],
         ["head", (POLL[0] - 0.03, 0.0, POLL[1] - 0.06), (MUZZLE[0] + 0.06, 0.0, MUZZLE[1] + 0.02), 0.1],
     ]
     for side, s in (("L", -1.0), ("R", 1.0)):

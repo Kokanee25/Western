@@ -1,7 +1,12 @@
 """Salt Creek's horse: a bay at the rail, built, painted, rigged and given an idle loop, by script,
 to Sean's pictures of him (docs/concept/horse/: both sides, front and back; 2026-10-24).
 
-    ~/bpyenv/bin/python tools/blender/horse.py [--out=assets/creatures/horse] [--paint=pictures|rules] [--blend]
+    ~/bpyenv/bin/python tools/blender/horse.py --shape=GLB [--out=assets/creatures/horse] [--blend]
+    ~/bpyenv/bin/python tools/blender/horse.py [--paint=pictures|rules]      (the sculpt, no Rodin)
+
+--shape: Rodin's model from Sean's approved pictures (the Character Studio's inputs/horse/shape.glb,
+2026-10-24), the game's horse since; horse_rodin.py turns, scales and measures it, its own paint is
+the coat. Without it, the sculpt below.
     blender -b --python tools/blender/horse.py -- [...]
 
 (the pip `bpy` as tools/blender/make_people.py uses it: `python3.11 -m venv ~/bpyenv &&
@@ -67,6 +72,9 @@ LOD_SIZE = 256
 # "rules" paints it by rule (horse_paint.coat). --paint=rules|pictures.
 PAINT = "pictures"
 SCULPT = {}
+# --shape=GLB: Rodin's model of him (the Character Studio's inputs/horse/shape.glb, from the
+# pictures Sean approved) instead of the sculpt; its image and tail when used.
+RODIN = {}
 
 # Where the bake's positions are packed into 0..1 (a box round the horse and his tack).
 POS_LO = np.array([-1.8, -0.5, -0.05])
@@ -301,6 +309,24 @@ def build_coat(parts):
     return coat, hi
 
 
+def build_coat_rodin(path):
+    """Rodin's model as the source (turned, scaled and measured by horse_rodin.py), the coat cut
+    down from it."""
+    import horse_rodin
+    hi, image = horse_rodin.load(bpy, path)
+    tail = horse_rodin.measure(hi, horse_rodin.vertex_colours(hi, image))
+    attr = hi.data.color_attributes.new("part", "FLOAT_COLOR", "POINT")
+    for i, d in enumerate(attr.data):
+        x = 1.0 if tail[i] else 0.0
+        d.color = (x, x, x, 1.0)
+    RODIN.update(image=image)
+    coat = copy_object(hi, "coat")
+    coat.data.materials.clear()
+    decimate(coat, COAT_TRIS + TAIL_TRIS)
+    log("coat", tris(coat), "triangles from Rodin's", tris(hi), "; tail", int(tail.sum()), "of", len(tail), "points")
+    return coat, hi
+
+
 def coat_uvs(coat, size=COAT_SIZE):
     """The coat laid out by parts (horse_uv.py), not smart-projected."""
     me = coat.data
@@ -322,6 +348,21 @@ def paint_coat(coat, hi, out_png):
     density = coat_uvs(coat)
     size = COAT_SIZE
     mask = coverage(coat, size)
+    if RODIN.get("image") is not None:
+        # Rodin's own paint (made from Sean's approved pictures), baked into the coat's layout:
+        # the men's way (their models' own texture).
+        img = RODIN["image"]
+        img.colorspace_settings.name = "Non-Color"   # its values through as they are
+
+        def texture(nodes, links):
+            t = nodes.new("ShaderNodeTexImage")
+            t.image = img
+            return t.outputs["Color"]
+        col = bake(coat, size, "EMIT", source=hi, source_emit=texture, samples=4)
+        log("coat baked from Rodin's paint")
+        col[~mask] = col[mask].mean(axis=0)
+        save_png(col, out_png)
+        return density
     pos = bake(coat, size, "EMIT", emit=_position_socket, samples=1) * (POS_HI - POS_LO) + POS_LO
     part = bake(coat, size, "EMIT", emit=_attribute_socket("part"), samples=1)[..., 0]
     nrm = bake(coat, size, "NORMAL", source=hi) * 2.0 - 1.0
@@ -530,6 +571,11 @@ class Builder:
 # forward than Sean's horse's (docs/concept/horse/).
 DX = 0.14
 
+
+def _dx():
+    """The saddle's place along him: laid out on a horse with his withers at x = -0.45."""
+    return hs.WITHERS[0] + 0.45
+
 TACK_PIECES = ["saddle", "blanket", "bridle", "reins", "saddlebags"]
 P_SADDLE, P_BLANKET, P_BRIDLE, P_REINS, P_BAGS = range(5)
 
@@ -565,6 +611,7 @@ def _wrap(surf, x, angles, off, centre_z=1.15):
 
 
 def build_tack(surf):
+    DX = _dx()  # noqa: N806 (the saddle's place along him, for this horse)
     B = Builder()
     # The blanket: felt over the back, a hand out past the saddle front and back, hanging to the
     # barrel's sides.
@@ -785,7 +832,9 @@ def _neighbours(obj):
 
 def skin(obj, arm, bone_defs, only=None, smooth=3, power=5.0):
     verts = np.array([v.co[:] for v in obj.data.vertices])
-    names, idx, w = hs.weights(verts, _neighbours(obj), bone_defs, only=only, smooth=smooth, power=power)
+    part = obj.data.color_attributes.get("part")
+    tail = np.array([d.color[0] > 0.5 for d in part.data]) if part is not None and part.domain == "POINT" else None
+    names, idx, w = hs.weights(verts, _neighbours(obj), bone_defs, only=only, smooth=smooth, power=power, tail=tail)
     groups = {n: obj.vertex_groups.new(name=n) for n in names}
     for vi in range(len(verts)):
         for k in range(idx.shape[1]):
@@ -853,12 +902,16 @@ def main():
     open(os.path.join(CACHE, ".gdignore"), "w").close()  # Godot mustn't import the .blend
     os.makedirs(out, exist_ok=True)
     clear()
-    parts = sculpt()
-    SCULPT.update(parts)
     global PAINT
     PAINT = opts.get("paint", "pictures")
-    coat, hi = build_coat(parts)
-    surf = Surface(*parts["body"])
+    if "shape" in opts:
+        coat, hi = build_coat_rodin(opts["shape"])
+        surf = Surface([v.co[:] for v in hi.data.vertices], [list(p.vertices) for p in hi.data.polygons])
+    else:
+        parts = sculpt()
+        SCULPT.update(parts)
+        coat, hi = build_coat(parts)
+        surf = Surface(*parts["body"])
     tack, bits = build_tack(surf)
 
     tack.hide_render = True
