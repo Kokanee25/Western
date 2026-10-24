@@ -23,7 +23,8 @@ adds its own lines.
   workspace, shipped on that basis with Sean's OK, 2026-10-21). The meshes and paint of
   `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`, `barkeep_s1`, `widow_s1` and
   `sean_s2`, `doctor_s1`, `colter_rider_s1` (and the earlier Rodin men); the saloon's deer head
-  (`assets/props/models/deer_head*`, 2026-10-24).
+  (`assets/props/models/deer_head*`, 2026-10-24) and the steer skull (`steer_skull*`, from pictures drawn by
+  OpenAI's GPT-5.4 image model through OpenRouter, output owned by the customer).
 - `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`: made by the Character Studio
   (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
   Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
