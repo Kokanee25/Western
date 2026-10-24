@@ -394,7 +394,7 @@ func reset() -> void:
 	if chair_parent != null and is_instance_valid(chair_parent):
 		# A whole chair where it stood, once the pieces are gone (put down the same tick, it
 		# settled onto rubble that then vanished, and went loose: runs 7-10 of the first tally).
-		var parent_ref := weakref(chair_parent)  # a lambda holding a freed node is an error when it fires
+		var parent_ref: WeakRef = weakref(chair_parent)  # a lambda holding a freed node is an error when it fires
 		var where := chair_was
 		get_tree().create_timer(0.5).timeout.connect(func() -> void:
 			var parent := parent_ref.get_ref() as Node
