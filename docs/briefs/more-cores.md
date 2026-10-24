@@ -36,7 +36,10 @@ and 16 threads, the Steam Deck 4 and 8, and a typical Steam PC has 6–8 cores. 
 1. **Drawing on its own thread.** Set `rendering/driver/threads/thread_model` to "Separate". Render
    CPU is 3–6 ms of the main thread. Godot calls this mode experimental, so it ships behind a
    setting until builds prove it.
-2. **Physics on its own thread.** Set `physics/3d/run_on_separate_thread`. Code that reads physics
+2. **Physics on its own thread.** Set `physics/3d/run_on_separate_thread`. Measured 2026-10-24 on
+   the same 10 fights (`results/2026-10-24_perf/physics_thread.txt`): the frame went from 19.7 to
+   17.0 ms and its worst 5% from 41.5 to 36.1 ms. The same seeds didn't play the same (two fights
+   ended with the player dead, not down). Code that reads physics
    state then gets it a frame behind, and we ray-cast every tick (ballistics, senses, cover), so it
    needs the gunfight and body labs re-run: no ball through a man, sight lines the same.
 3. **Our per-person work across cores.** Brains, senses and bodies are per man, which suits running
