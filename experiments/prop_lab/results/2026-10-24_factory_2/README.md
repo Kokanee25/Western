@@ -21,3 +21,11 @@ locally from the paintings (no new calls): at 256-512 a metre the painted hair r
 hide is cut at the world's 128 a metre with its contrast down; the antler's furrows quietened; the
 nose (the model painted a whole nose) darkened and muted. A full ring round the muzzle read as a
 pig's snout: gone.
+
+## The rest painted (Sean on #351: "yes keep going")
+
+`painted_sheet.jpg`: `prop_canvas`, `prop_burlap`, `prop_straw`, `prop_leather`, `prop_dung` painted
+(People run 125, $1.10), cut at the world's 128 a metre. Two came out wrong and were muted in the
+cut, no repaint: the leather painted as a spotted cowhide (contrast 0.3: worn mottling; the horses'
+saddles share it), the burlap with a whole stencil stamp (contrast 0.25: the weave). A repaint of
+either is $0.22 if Sean wants them truer.

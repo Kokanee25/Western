@@ -834,7 +834,9 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:burlap)."
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:burlap).",
+   "contrast": 0.25,
+   "cut": "Its contrast down: run 125 painted a whole stencil stamp, which tiles as a grid of ink; faded, it reads as the weave."
   },
   "prop_straw": {
    "for": "street",
@@ -874,7 +876,9 @@
    ],
    "smooth": true,
    "texels_per_metre": 128,
-   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:leather)."
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:leather).",
+   "contrast": 0.3,
+   "cut": "Its contrast cut right down: run 125 painted a spotted cowhide (the word 'cowhide'); muted, the spots read as worn, oiled mottling."
   },
   "prop_dung": {
    "for": "street",
