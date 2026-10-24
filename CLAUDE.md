@@ -576,3 +576,10 @@ frozen until Sean names one.
   barrels and the street's water ones; the spittoon and tin cup as `LooseProp` (holed, knocked,
   dented, rolling, spilling). Results `experiments/prop_lab/results/2026-10-23_contents/`. Next: the
   `next session` issue.
+- **The prop factory** (2026-10-24, #338, brief `docs/briefs/prop-factory.md`; branch
+  `claude/start-338-k3qk4h`): clutter in batches. Batch 1 the wagons and wheels as members
+  (`tools/props/wagons.py`; the street's two drawn wagons swapped); batch 2 by Blender
+  (`tools/blender/props/`, bpy in `~/bpyenv`; `"draw": {"shape": "mesh"}`): hay bale, straw heap, feed
+  and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
+  canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
+  Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.

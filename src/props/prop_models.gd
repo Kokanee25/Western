@@ -665,11 +665,36 @@ static func weathered() -> ShaderMaterial:
 
 
 static func straw() -> ShaderMaterial:
-	return _mat("straw", PixelArt.dirt("prop_straw", Color(0.74, 0.6, 0.33), 245))
+	# Old straw, sun-greyed and dusty (the factory's sheet: the bright gold read as new).
+	return _mat("straw", PixelArt.dirt("prop_straw", Color(0.6, 0.49, 0.28), 245))
 
 
 static func canvas() -> ShaderMaterial:
-	return _mat("canvas", PixelArt.painted("prop_canvas", Color(0.82, 0.76, 0.62), Color(0.6, 0.52, 0.4), 247, 0.05))
+	# Old duck gone the colour of the road's dust (the factory's critic: new canvas read clean).
+	return _mat("canvas", PixelArt.painted("prop_canvas", Color(0.66, 0.59, 0.46), Color(0.45, 0.38, 0.29), 247, 0.14))
+
+
+## The prop factory's looks (docs/briefs/prop-factory.md), code-painted under their factory keys
+## until the texture factory paints them: a sack's burlap, tack's leather, a skull's bone, horse
+## dung, a mount's glass eye.
+static func burlap() -> ShaderMaterial:
+	return _mat("burlap", PixelArt.dirt("prop_burlap", Color(0.43, 0.34, 0.22), 261))
+
+
+static func leather() -> ShaderMaterial:
+	return _mat("leather", PixelArt.dirt("prop_leather", Color(0.32, 0.18, 0.09), 259))
+
+
+static func bone() -> ShaderMaterial:
+	return _mat("bone", PixelArt.painted("prop_bone", Color(0.8, 0.74, 0.62), Color(0.55, 0.47, 0.36), 263, 0.25))
+
+
+static func dung() -> ShaderMaterial:
+	return _mat("dung", PixelArt.dirt("prop_dung", Color(0.27, 0.22, 0.13), 265))
+
+
+static func glass_eye() -> ShaderMaterial:
+	return _mat("glass_eye", PixelArt.metal("prop_glass_eye", Color(0.1, 0.07, 0.05), 267), Color.WHITE, 0.15, 0.0, 0.9)
 
 
 ## A packing crate, 0.6 m: boards with battens round its edges.
@@ -750,68 +775,6 @@ static func lantern(root: Node3D) -> void:
 	root.add_child(glass)
 	_add(root, "Cap", lathe(_profile([[0.12, 0.27], [0.0, 0.36]]), 4), tin_dark, Transform3D(Basis(Vector3.UP, PI * 0.25), c))
 	_add(root, "Ring", lathe(_profile([[0.025, 0.36], [0.03, 0.38], [0.025, 0.4]]), 6), tin_dark, Transform3D(Basis.IDENTITY, c))
-
-
-## A wagon wheel of `radius` in the XY plane (axle along Z): iron tyre, felloe, spokes, hub.
-static func wheel(root: Node3D, at: Vector3, radius: float, spokes := 12) -> void:
-	var w := Node3D.new()
-	w.name = "Wheel"
-	w.position = at
-	root.add_child(w)
-	var rot := Basis(Vector3.RIGHT, PI * 0.5)
-	_add(w, "Tyre", lathe(_profile([[radius, -0.04], [radius, 0.04]]), 16), iron(), Transform3D(rot, Vector3.ZERO))
-	_add(w, "Felloe", lathe(_profile([[radius - 0.06, 0.035], [radius - 0.06, -0.035]]), 16, false, true), dark_wood(), Transform3D(rot, Vector3.ZERO))
-	_add(w, "Hub", lathe(_profile([[0.06, -0.09], [0.08, -0.03], [0.08, 0.03], [0.06, 0.09]]), 8), dark_wood(), Transform3D(rot, Vector3.ZERO))
-	for k in spokes:
-		var a := TAU * k / spokes
-		var b := Basis(Vector3.BACK, a)
-		_box(w, "Spoke", Vector3(0.03, radius - 0.08, 0.025), b * Vector3(0, (radius - 0.02) * 0.5, 0), mid_wood(), b)
-
-
-## A covered wagon, 3.4 m long along X (its tongue toward -X), canvas on hoops.
-static func wagon(root: Node3D) -> void:
-	var w := weathered()
-	var bed_y := 0.95
-	_box(root, "Floor", Vector3(3.2, 0.06, 1.2), Vector3(0, bed_y, 0), w)
-	for z in [-0.6, 0.6]:
-		_box(root, "Side", Vector3(3.2, 0.5, 0.04), Vector3(0, bed_y + 0.25, z), w)
-	for x in [-1.6, 1.6]:
-		_box(root, "End", Vector3(0.04, 0.5, 1.2), Vector3(x, bed_y + 0.25, 0), w)
-	for x in [-1.0, 1.15]:
-		_box(root, "Axle", Vector3(0.1, 0.1, 1.7), Vector3(x, 0.55, 0), dark_wood())
-	for z in [-0.82, 0.82]:
-		wheel(root, Vector3(-1.0, 0.5, z), 0.5)
-		wheel(root, Vector3(1.15, 0.65, z), 0.65)
-	_box(root, "Tongue", Vector3(2.2, 0.08, 0.08), Vector3(-2.6, 0.55, 0), dark_wood(), Basis(Vector3.BACK, 0.08))
-	# The canvas: a half-tube over five hoops, gathered a little at the ends.
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var n := 10
-	var r := 0.72
-	var y0 := bed_y + 0.5
-	for i in n:
-		var a0 := PI * i / n
-		var a1 := PI * (i + 1) / n
-		var p := [Vector3(-1.75, y0 + sin(a0) * r * 0.95, -cos(a0) * r * 0.9), Vector3(1.75, y0 + sin(a0) * r * 0.95, -cos(a0) * r * 0.9),
-				Vector3(1.75, y0 + sin(a1) * r * 0.95, -cos(a1) * r * 0.9), Vector3(-1.75, y0 + sin(a1) * r * 0.95, -cos(a1) * r * 0.9)]
-		var mid := Vector3(0, y0, 0)
-		for tri in [[0, 1, 2], [0, 2, 3]]:
-			var v0: Vector3 = p[tri[0]]
-			var v1: Vector3 = p[tri[1]]
-			var v2: Vector3 = p[tri[2]]
-			var out := ((v0 + v1 + v2) / 3.0 - mid) * Vector3(0, 1, 1)
-			if (v1 - v0).cross(v2 - v0).dot(out) > 0.0:
-				var t := v1
-				v1 = v2
-				v2 = t
-			for v: Vector3 in [v0, v1, v2]:
-				st.set_normal(((v - mid) * Vector3(0, 1, 1)).normalized())
-				st.set_uv(Vector2(v.x + 1.75, (atan2(v.y - y0, -v.z) + 0.0) * r))
-				st.add_vertex(v)
-	_add(root, "Canvas", st.commit(), canvas())
-	for x in [-1.6, -0.8, 0.0, 0.8, 1.6]:
-		_add(root, "Hoop", lathe(_profile([[r * 0.92, -0.015], [r * 0.92, 0.015]]), 12), dark_wood(),
-				Transform3D(Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1, 1, 1)), Vector3(x, y0, 0)))
 
 
 ## A water tower: four splayed legs braced across, a platform, a staved tank with hoops and a
