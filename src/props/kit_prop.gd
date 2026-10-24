@@ -104,7 +104,8 @@ func build() -> void:
 			for mesh: Mesh in looks[look]:
 				st.append_from(mesh, 0, Transform3D.IDENTITY)
 			layer.mesh = st.commit()
-			layer.material_override = PropKit.material(look, hash(m.member_id))
+			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
+			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 	var seat: Dictionary = definition.get("seat", {})
