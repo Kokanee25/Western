@@ -106,6 +106,19 @@ jaw, behind his beard. What shows it is a **bald forehead, a bare or receding ch
 talking session's note that on the widow, bold_cowboy_s3, young_drifter and the doctor "the jaw
 goes back more than down" names three of these four: the floating jaw edge may be the same fault.
 
+## The pin's limit: hair at the patch's top edge (the widow, 2026-10-24)
+
+Sean asked what happened to the widow's face (gaunt, harsh, deep lines in the face lab). Nothing:
+her plain Studio head (`widow_s2`) in the same lab, camera and light looks the same as her talking
+face; the close, flat-lit lab shot shows the lines and dark sockets Rodin painted, which her Studio
+sheet's small heads soften. Her game files are as the talking session made them (2026-10-22).
+But **rebuilt with the edge pin (a copy, not kept), her hairline went ragged**: the patch's top
+edge reaches her hairline and was pinned onto her hair's surface, with dark patches along it. The
+pin is right for bare skin (the storekeeper's forehead and chin) and wrong where the edge meets
+hair. Before rebuilding any man with it, look at his hairline on the sheet; the fix for that (pin
+only edge points whose closest surface is skin, or only the lower edge) waits with the chin holes.
+The storekeeper's own hairline is clean with it.
+
 ## Kept so it isn't missed again
 
 - `talking_face.py` prints `face edge N points, M were over 2 mm off his skin (worst X mm), now
