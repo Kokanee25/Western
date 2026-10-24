@@ -25,6 +25,9 @@ const SPEC := "res://experiments/building_lab/saloon.json"
 
 var spec_path := SPEC
 var spec: Dictionary
+## Furniture laid in on top of the spec's for the next building built (the gunfight lab's `dress`:
+## more to hide behind in the hall, an experiment; the spec's own file is unchanged).
+static var extra_furniture: Array = []
 ## The band members added now go in (see the top).
 var band := 0
 ## [StaticBody3D ramp, [stringers]] for each stair.
@@ -135,6 +138,8 @@ static func _cells(b: AABB) -> Array[Vector3i]:
 func build() -> void:
 	if spec.is_empty():
 		spec = load_spec(spec_path)
+		if not extra_furniture.is_empty():
+			spec.furniture = (spec.furniture as Array) + extra_furniture
 	var lot: Dictionary = spec.lot
 	var lv: Dictionary = spec.levels
 	_fr = spec.frame

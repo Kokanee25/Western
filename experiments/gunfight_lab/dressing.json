@@ -1,0 +1,12 @@
+{
+	"_doc": "The spec saloon's hall dressed with more to hide behind (Sean, 2026-10-24: 'What if we added more tables and chairs and other stuff for cover?'). Laid in on top of saloon.json's furniture by the gunfight lab's dress=NAME (fight.gd; SpecBuilding.extra_furniture). Its own space: x along the front from its west corner, z back from the front. The open floor between the bar front (x 1.8) and the tables (x 8-12) was empty; the routes from the door (7.62, 0.55) to the bar's three places, the tables, the stair and the back room are kept clear (gf_ways).",
+	"cover": [
+		{"kit": "card_table", "at": [5.9, 5.0], "chairs": 4},
+		{"kit": "card_table", "at": [6.1, 8.0], "chairs": 4},
+		{"kit": "upright_piano", "at": [11.6, 0.5], "facing": 0},
+		{"kit": "whiskey_barrel", "at": [4.3, 0.6], "facing": 0},
+		{"kit": "whiskey_barrel", "at": [5.1, 0.6], "facing": 30},
+		{"kit": "spittoon", "at": [2.4, 5.4], "facing": 0},
+		{"kit": "spittoon", "at": [2.4, 8.4], "facing": 0}
+	]
+}

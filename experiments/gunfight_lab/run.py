@@ -74,8 +74,8 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} max={max} out={out}\nquit\n".format(
-            max=max_s, out=os.path.abspath(rec), **f))
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} max={max} out={out}\nquit\n".format(
+            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
     t0 = time.time()
