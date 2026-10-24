@@ -15,13 +15,15 @@ cd "$ROOT"
 
 film() {  # name, camera line, animated
   local name="$1" cam="$2" anim="$3"
+  # Short waits: under the movie writer a game second is ~30 real ones, and the bridge gives a
+  # command 600 s (the clock jump's first seconds render dark: a few before the beat begins).
   cat > "$OUT/$name.txt" <<CMDS
 time 17.5
 $cam
-wait 1.5
+wait 3
 moment card_cheat animated=$anim hour=17.5
-moment_result wait 40
-wait 1
+$(for i in $(seq 1 9); do echo "wait 2"; done)
+moment_result
 CMDS
   python3 tools/bridge.py run "$OUT/$name.txt" --size=960x540 --movie="$OUT/$name.avi" --port="${PORT:-8737}" > "$OUT/$name.log" 2>&1
   ffmpeg -y -loglevel error -i "$OUT/$name.avi" -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 96k "$OUT/$name.mp4"
