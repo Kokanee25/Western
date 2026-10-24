@@ -370,6 +370,9 @@ frozen until Sean names one.
   - three painted fronts (`woods/painted_white|red|green`, $0.88 on Actions, Sean's OK);
   - grime low / bleach high on every building (shader globals `grime_*`, `bleach_*`);
   - the street's damp, straw and droppings (`StreetWear`).
+  The pictures and the street show only the Studio's men (Sean, 2026-10-24): the saloon table's
+  man `bold_cowboy_s3_talking` in a kit chair (`ShotMatch.FITS`, his hat not yet), the extras and
+  folk `ShotMatch.STUDIO_FOLK`; HumanBody's default `outlaw` remains for anything unset.
   The day starts at noon held (T runs it), 7 the hour, Backspace restarts. The critic's next:
   - the saloon too black at night with blown lamp blobs;
   - the ruts read as straight rail grooves;
