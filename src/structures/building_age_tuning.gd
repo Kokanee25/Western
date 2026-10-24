@@ -12,8 +12,10 @@ extends Resource
 @export var wear_curve := 0.7
 
 @export_group("Porch")
-## How far a porch roof drops between two posts at the middle of the span (m).
-@export var porch_sag := 0.15
+## How far a porch roof drops between two posts at the middle of the span (m), and the share of
+## spans that have dropped (at least one does). Sean, 2026-10-24: 0.15 on every span was "too wavy".
+@export var porch_sag := 0.06
+@export var porch_span_sag_chance := 0.35
 ## The whole porch racked along the street, its tops shifted over its feet (degrees).
 @export var porch_rack_degrees := 2.2
 ## A post kicked out at the foot, hanging from the beam (degrees off plumb), and how many do.

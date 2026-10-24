@@ -245,7 +245,10 @@ static func _settle_building(b: FalseFrontBuilding, w: float, rng: RandomNumberG
 	var sags := PackedFloat32Array()
 	for m in posts:
 		xs.append(m.position.x)
-		sags.append(t.porch_sag * w * rng.randf_range(0.45, 1.0))
+		# Only some spans have given (Sean, 2026-10-24: every span dipping read as a wave).
+		sags.append(t.porch_sag * w * rng.randf_range(0.6, 1.0) if rng.randf() < t.porch_span_sag_chance else 0.0)
+	if sags.size() > 1 and Array(sags).slice(0, sags.size() - 1).all(func(v: float) -> bool: return v == 0.0):
+		sags[rng.randi() % (sags.size() - 1)] = t.porch_sag * w * rng.randf_range(0.6, 1.0)  # but one has
 	var rack := tan(deg_to_rad(t.porch_rack_degrees) * w * rng.randf_range(0.4, 1.0)) * (1.0 if rng.randf() < 0.5 else -1.0)
 	var zb := -b.porch_depth
 	var roof_from := b.porch_height - 0.05
