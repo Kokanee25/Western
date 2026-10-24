@@ -14,6 +14,10 @@ func begin() -> void:
 	set_hour()
 	var z := float(data.get("z_first", -3.0))
 	for w: Dictionary in data.get("walkers", []):
+		# Only the walks that exist (the rest wait on Sean's word: issue #347): a man with no clip
+		# would walk the swinging gait, which isn't his.
+		if w.has("walk") and MotionClip.load_clip(StringName(w.walk)) == null:
+			continue
 		var at := Vector3(float(data.get("from_x", -14.0)), 0.0, z)
 		var goal := Vector3(float(data.get("to_x", 10.0)), 0.0, z)
 		var m := HumanBody.new()
