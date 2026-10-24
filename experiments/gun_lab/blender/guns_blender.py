@@ -153,6 +153,7 @@ BUILD = {"profile": build_profile, "turned": build_turned, "box": build_box, "tu
 INSET = 0.002
 INSET_MAX = 0.012
 ALONG = 40
+TOP_DARK = 0.38
 ## The painting's walnut came back a bright orange beside the men's browns: its oranges are taken
 ## down this much in saturation and value before the bake (no other colour is touched).
 WOOD_SAT = 0.62
@@ -274,6 +275,16 @@ def paint_material(canvas, side_png, top_png, target):
         col = mix.outputs[2]
     else:
         col = side_col
+    # Tops darkened: the sun lands square on them and the painting's light is in them already,
+    # so from your eye down the gun the stock's top read salmon, the skin's colour (blind judge,
+    # 2026-10-24).
+    up = math_node("POWER", math_node("MAXIMUM", nrm.outputs["Z"], 0.0), 1.5)
+    keep = math_node("SUBTRACT", 1.0, math_node("MULTIPLY", up, TOP_DARK))
+    vm = nt.nodes.new("ShaderNodeVectorMath")
+    vm.operation = "SCALE"
+    nt.links.new(col, vm.inputs[0])
+    nt.links.new(keep, vm.inputs["Scale"])
+    col = vm.outputs[0]
     nt.links.new(col, emit.inputs["Color"])
     bake = nt.nodes.new("ShaderNodeTexImage")
     bake.image = target

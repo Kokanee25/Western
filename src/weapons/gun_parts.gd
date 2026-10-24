@@ -360,8 +360,11 @@ static func blender_meshes(root: Node3D, gun: String) -> bool:
 	if not _mats.has(key):
 		var m := StandardMaterial3D.new()
 		m.albedo_texture = load("res://assets/weapons/%s_paint.png" % gun)
-		m.roughness = 0.6
-		m.metallic = 0.1
+		# Matte: the painting carries its own highlights, and with the sun ahead a shinier top
+		# (the stock's, seen along it from your eye) mirrored it as a pale salmon band.
+		m.roughness = 0.9
+		m.metallic = 0.0
+		m.metallic_specular = 0.2
 		_mats[key] = m
 	var inst := scene.instantiate()
 	var n := 0
