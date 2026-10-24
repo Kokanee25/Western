@@ -551,6 +551,10 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
+- Step 1 done, not merged: the Blender-built bay (`tools/blender/horse.py`, `Horse`), tack apart, an
+  idle, capsules, tied at the rails. Waiting on Sean: #340 (the sheet). Next: #341.
+
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
