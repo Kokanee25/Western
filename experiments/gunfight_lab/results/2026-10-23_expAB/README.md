@@ -209,3 +209,35 @@ person plays it. It runs `D_odds`'s gang (the doors, `pain_fight`, `floor_fight`
 - **The personalities hold:** the Kid quits most (34–40%), Lyle least.
 - **How fights end:** it's no longer mostly giving up. When they draw first, the endings were 25
   you down, 11 they lost you, 6 quiet, 2 ran, 1 gave up.
+
+## 3A: a ball past him spoils his shot (2026-10-24, `F_flinch`)
+
+**What changed.** `flinch` (`OutlawBrain._on_near_miss`, FLINCH_*), on top of `E_careful`, with the
+careful player and the same 100 fights:
+
+- **Closeness matters:** the near-miss jerk grows with how close the ball came, up to 3 times.
+- **His aim is thrown:** up to 4° off, fading at 4° a second. A ball past him as he squeezes throws
+  that shot 3° more.
+- **A hothead or a frightened man** fires through it, hurried.
+- **Anyone else** holds his next shot for 0.3–1.0 s and aims again.
+
+| Run | Opening | Shooting s (med) | 45–90 s | Anyone quits | Hits on you | You down | Gang's hit rate |
+|---|---|---|---|---|---|---|---|
+| E_careful | they | 36.1 | 36% | 44% | 2.3 | 54% | 20% (222 of 1,101) |
+| F_flinch | they | 37.5 | 34% | 40% | 2.3 | 56% | 20% (220 of 1,103), both openings |
+| E_careful | you | 36.5 | 34% | 46% | 2.2 | 52% | |
+| F_flinch | you | 38.1 | 30% | 50% | 2.1 | 54% | |
+
+**No measurable effect: the gang hits 20% either way.** The careful player fires about 4.5 shots a
+fight and hits with half of them. Its misses seldom pass close to a man just as he's aiming, so
+there's little to flinch at. It stays on trial; it may matter more against a person who fires to
+keep heads down.
+
+**Why the careful player goes down.** It goes down after 3–5 balls, a median of 3 hits. Most land in
+the chest (65 of the hits), abdomen (28) and pelvis (18). It goes down with almost all its blood
+(median 4,917 of 5,000 ml), so it's fainting from pain (felt pain 1.8), not bleeding out. These are
+the same rules the gang lives by. So the player's chances turn on how often he's hit (about 2 balls a
+fight from three men at saloon range), not on how much a ball does.
+
+**Levers for the player, untried:** smoke that hides him when they look (3C), and their first shots
+(issue 5 in #317: hit 1–3 s in at 8–14 m).
