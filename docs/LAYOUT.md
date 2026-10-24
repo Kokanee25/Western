@@ -1257,6 +1257,10 @@ brows come along; not near the eyes, `EYE_FADE`), his face cut out and MakeHuman
 his paint copied texel by texel (lids from outside his painted eye), teeth set back behind his
 lips; `EXPRESSIONS` (units and amounts) → `assets/people/<out>.glb` (one head mesh, sparse
 morph targets), `<out>_head.png` (his + the face's), `<out>.json` (`facerig`, `textures_from`).
+The patch's outer edge is pinned onto his skin (2026-10-23, `docs/briefs/face-seam.md`: unpinned
+it sat up to 27 mm off and the stitch stood as a step); the run prints and `facerig.patch` keeps
+`edge_unpinned_mm` and `edge_mm_max`. `hole_count.py DIR --map=OUT`: background showing through
+inside him on the face lab's frames, with magenta maps (hat brims and hair gaps count too).
 In the game the shapes ride `PeopleBodies._load` → `BodyMesh.split_pieces` onto `Head_head`.
 `face_lab.gd` (via `lab_run.sh`): him as the game builds him; `--mode=sheet` each expression,
 `--mode=take` a take frame by frame; `face_sheet.py` the sheet. `arkit_take.py`: a Live Link
