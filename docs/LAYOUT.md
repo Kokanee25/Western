@@ -736,7 +736,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
   (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
-  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`). The metals are factory paintings (`GunParts._painted`).
+  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
+  (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
+  lab's `blender/guns_blender.py`: bevelled, the side painting baked) each part takes its Blender mesh
+  (`GunParts.blender_meshes`), else factory paintings (`GunParts._painted`). Next: a rig posed by eye
+  (`docs/briefs/viewmodel-rig.md`) in place of the fitted hold.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
