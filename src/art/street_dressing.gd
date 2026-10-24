@@ -415,7 +415,7 @@ func _loose() -> void:
 			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
 			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
 		_prop(&"crate", c[0], c[1])
-	_kit(&"buckboard", _grounded(Vector3(-27.5, 0.0, -13.0)), 0.0)
+	_kit_on_ground(&"buckboard", Vector3(-27.5, 0.0, -13.0), 0.0)
 	# Boards hung under the porches, end on to the street so you read them looking down it.
 	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],
 			["GUNSMITH", Vector3(-34.2, 2.45, -1.95)], ["SHERIFF", Vector3(-19.0, 2.45, -14.85)], ["ASSAYS", Vector3(-26.0, 2.45, -14.85)]]:
@@ -426,7 +426,7 @@ func _loose() -> void:
 ## tower, the empty lot. The wagon and the poles keep their places across the street as it bends.
 func _far() -> void:
 	var wagon := TownLayout.street_point(-36.0, -4.2)
-	_kit(&"covered_wagon", wagon, _street_yaw(wagon.x))
+	_kit_on_ground(&"covered_wagon", wagon, _street_yaw(wagon.x))
 	# 5 m north of the street's middle: half a metre into the street from the north boardwalks'
 	# edge (at -13.9 the jail's pole stood through the boardwalk: tools/visual_checks.py's
 	# floating/sunk check).
@@ -467,7 +467,7 @@ static func _street_yaw(x: float) -> float:
 
 ## The empty lot between the assay office and Market Street (config/town.json VacantLot, in its own
 ## space: its front on the street toward -Z, x along it): what's left on a lot nobody's built on
-## yet. A freight wagon left to the weather, its broken wheel beside it, a heap of boards from somebody's building, empty barrels,
+## yet. A wagon's broken wheel, a heap of boards from somebody's building, empty barrels,
 ## a crate, and a board on a post offering the lot.
 func _vacant_lot() -> void:
 	var lot := TownLayout.entry(&"StreetDressing/VacantLot")
@@ -481,11 +481,9 @@ func _vacant_lot() -> void:
 	root.name = "VacantLot"
 	add_child(root)
 	root.transform = t
-	var wagon := _kit(&"freight_wagon", _grounded(t * Vector3(w * 0.6, 0.0, 6.5)), yaw + 71.0)
-	wagon.name = "DeadWagon"
-	wagon.reparent(root)
-	# Its broken wheel left lying beside it.
-	var wheel := _kit(&"broken_wagon_wheel", _grounded(t * Vector3(w * 0.25, 0.0, 6.0)), yaw + 20.0)
+	# A wagon's broken wheel, left where it came off (a whole wagon of the kit's members is some
+	# three hundred nodes: the calm street's node budget).
+	var wheel := _kit_on_ground(&"broken_wagon_wheel", t * Vector3(w * 0.6, 0.0, 6.0), yaw + 20.0)
 	wheel.reparent(root)
 	# Boards stacked crooked, as they came off a wagon and were left.
 	var heap := Node3D.new()
@@ -650,6 +648,18 @@ func _kit(id: StringName, at: Vector3, yaw: float) -> Node3D:
 	var p := PropLibrary.spawn(id)
 	add_child(p)
 	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	return p
+
+
+## A kit prop standing in the street, on the ground there and tilted to its slope (the ground
+## goes with x alone: TownLayout.ground_height), so every wheel or foot meets the dirt: set level
+## on the slope, a wagon's downhill wheels hung clear of it and it fell to pieces.
+func _kit_on_ground(id: StringName, at: Vector3, yaw: float) -> Node3D:
+	var p := PropLibrary.spawn(id)
+	add_child(p)
+	var slope := TownLayout.ground_height(at.x + 0.5) - TownLayout.ground_height(at.x - 0.5)
+	p.global_transform = Transform3D(Basis(Vector3.BACK, atan(slope)) * Basis(Vector3.UP, deg_to_rad(yaw)),
+			Vector3(at.x, TownLayout.ground_height(at.x), at.z))
 	return p
 
 
