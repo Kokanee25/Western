@@ -1,31 +1,36 @@
-"""Salt Creek's horse: a bay at the rail, built, painted, rigged and given an idle loop, by script.
+"""Salt Creek's horse: a bay at the rail, built, painted, rigged and given an idle loop, by script,
+to Sean's pictures of him (docs/concept/horse/: both sides, front and back; 2026-10-24).
 
-    ~/bpyenv/bin/python tools/blender/horse.py [--out=assets/creatures/horse] [--preview=DIR]
+    ~/bpyenv/bin/python tools/blender/horse.py [--out=assets/creatures/horse] [--paint=pictures|rules] [--blend]
     blender -b --python tools/blender/horse.py -- [...]
 
 (the pip `bpy` as tools/blender/make_people.py uses it: `python3.11 -m venv ~/bpyenv &&
 ~/bpyenv/bin/pip install bpy==5.0.1 numpy pillow scikit-image scipy`). No paid calls, no
 downloads: every step is code, and it's repeatable (the sculpt is cached under build/horse/ by a hash
-of horse_shape.py).
+of horse_shape.py, horse_ref.py and the pictures).
 
 1. The sculpt (horse_shape.py): a signed distance field meshed at 1 cm, the horse and his tail's
-   hair (~150k triangles), the source the textures are baked from.
+   hair (~185k triangles), the source the textures are baked from. His body, neck and head are
+   lofted from Sean's side outline (horse_ref.py reads it off the picture), his legs, ears and
+   tail placed where the pictures have them.
 2. Cut down to the game's budget (Blender's collapse decimation, symmetric): the coat ~2,900
    triangles (body and tail), and a ~480-triangle LOD for far off.
-3. UVs (smart project), then baked from the sculpt with Cycles: where each texel is on him, which
-   way it faces, how tucked in it is; painted by horse_paint.py into `horse_coat.png` (1024²).
+3. UVs laid out by parts (horse_uv.py), then baked with Cycles: where each texel is on him, which
+   way it faces (the sculpt's), how tucked in it is; painted by projecting Sean's four pictures
+   onto him (horse_paint.projected; --paint=rules paints by rule instead) into `horse_coat.png`
+   (1024²); the far coat's `horse_coat_lod.png` (256²) baked from it.
 4. Tack, each its own mesh so it can come off: saddle (skirts, seat, horn, fenders, wooden
    stirrups, cinch), blanket, bridle (headstall, browband, throatlatch, noseband, bit, conchos),
    reins (over his neck, as a ridden horse's lie), saddlebags; laid on the sculpt's surface,
-   painted the same way into `horse_tack.png` (512²). A tack LOD for far off.
-5. A skeleton of 37 bones (spine, neck, head, ears, four legs to the hooves, a five-bone tail),
+   painted by rule into `horse_tack.png` (512²). A tack LOD for far off.
+5. A skeleton of 39 bones (spine, neck, head, ears, four legs to the hooves, a six-bone tail),
    skin weights by distance to each bone kept to its own part (ears, tail, each leg's side),
    smoothed over the mesh; the tack takes its weights from the bones it rides on.
 6. The idle (horse_idle.py, 12 s at 15 fps): weight shifts between resting hinds, tail swishes,
    ear flicks, a head dip; hooves planted.
 7. Written to `<out>/horse.glb` (the armature "Horse" with meshes coat, coat_lod, saddle, blanket,
-   bridle, reins, saddlebags, tack_lod; action "idle"), the two PNGs and `horse.json` (counts,
-   bones, the hooves' and bit's places, for the game and the tests).
+   bridle, reins, saddlebags, tack_lod; action "idle"), the PNGs and `horse.json` (counts, bones,
+   the bit's rings, the toes, the collision capsules, for the game and the tests).
 """
 import hashlib
 import json
@@ -58,6 +63,11 @@ COAT_SIZE = 1024
 TACK_SIZE = 512
 LOD_SIZE = 256
 
+# How the coat is painted: "pictures" projects Sean's (docs/concept/horse/, horse_paint.projected),
+# "rules" paints it by rule (horse_paint.coat). --paint=rules|pictures.
+PAINT = "pictures"
+SCULPT = {}
+
 # Where the bake's positions are packed into 0..1 (a box round the horse and his tack).
 POS_LO = np.array([-1.8, -0.5, -0.05])
 POS_HI = np.array([1.15, 0.5, 2.3])
@@ -73,7 +83,9 @@ def log(*a):
 def sculpt():
     """The sculpt's meshes, cached by the shape module's hash: {"body": (v, f), "tail": (v, f)}."""
     src = open(os.path.join(os.path.dirname(__file__), "horse_shape.py"), "rb").read()
-    key = hashlib.sha1(src).hexdigest()[:12]
+    import horse_ref
+    src += open(os.path.join(os.path.dirname(__file__), "horse_ref.py"), "rb").read()
+    key = hashlib.sha1(src).hexdigest()[:12] + horse_ref.key()
     path = os.path.join(CACHE, "sculpt_%s.npz" % key)
     if os.path.exists(path):
         z = np.load(path)
@@ -315,7 +327,10 @@ def paint_coat(coat, hi, out_png):
     nrm = bake(coat, size, "NORMAL", source=hi) * 2.0 - 1.0
     ao = bake(coat, size, "AO", source=hi, samples=48)[..., 0]
     log("coat baked")
-    img = horse_paint.coat(pos, nrm, ao, part, mask)
+    if PAINT == "pictures":
+        img = horse_paint.projected(pos, nrm, ao, part, mask, np.concatenate([v for v, _f in SCULPT.values()]))
+    else:
+        img = horse_paint.coat(pos, nrm, ao, part, mask)
     save_png(img, out_png)
     return density
 
@@ -511,6 +526,10 @@ class Builder:
         return obj
 
 
+# Where the saddle sits along him: laid out on the first horse, whose withers were 0.15 m further
+# forward than Sean's horse's (docs/concept/horse/).
+DX = 0.14
+
 TACK_PIECES = ["saddle", "blanket", "bridle", "reins", "saddlebags"]
 P_SADDLE, P_BLANKET, P_BRIDLE, P_REINS, P_BAGS = range(5)
 
@@ -549,17 +568,17 @@ def build_tack(surf):
     B = Builder()
     # The blanket: felt over the back, a hand out past the saddle front and back, hanging to the
     # barrel's sides.
-    xs = np.linspace(-0.53, 0.17, 7)
+    xs = np.linspace(-0.53 + DX, 0.17 + DX, 7)
     ang = np.radians(np.linspace(-98, 98, 11))
     rows, nrms = zip(*[_wrap(surf, x, ang, 0.012) for x in xs])
     B.grid(rows, 1, P_BLANKET, 0.01, nrms)
     # The saddle's skirts: leather over the blanket.
-    xs = np.linspace(-0.43, 0.1, 6)
+    xs = np.linspace(-0.43 + DX, 0.1 + DX, 6)
     ang = np.radians(np.linspace(-90, 90, 9))
     rows, nrms = zip(*[_wrap(surf, x, ang, 0.03) for x in xs])
     B.grid(rows, 2, P_SADDLE, 0.012, nrms)
     # The seat and tree: the swell in front with its horn, dished, the cantle behind.
-    prof_x = [-0.41, -0.37, -0.31, -0.22, -0.12, -0.03, 0.03, 0.07, 0.095]
+    prof_x = [x + DX for x in (-0.41, -0.37, -0.31, -0.22, -0.12, -0.03, 0.03, 0.07, 0.095)]
     prof_z = [1.66, 1.725, 1.715, 1.655, 1.64, 1.655, 1.705, 1.75, 1.735]
     prof_w = [0.13, 0.155, 0.16, 0.17, 0.175, 0.175, 0.17, 0.16, 0.13]
     rings = []
@@ -589,18 +608,18 @@ def build_tack(surf):
         faces.append((last, last + k + 1, last + k))
     B.add(verts, faces, 2, P_SADDLE)
     # The horn on the swell.
-    B.lathe([(0.024, 0.0), (0.022, 0.07), (0.05, 0.08), (0.05, 0.095), (0.0, 0.1)], (-0.375, 0.0, 1.69), (0.05, 0, 1), 8, 3, P_SADDLE)
+    B.lathe([(0.024, 0.0), (0.022, 0.07), (0.05, 0.08), (0.05, 0.095), (0.0, 0.1)], (-0.375 + DX, 0.0, 1.69), (0.05, 0, 1), 8, 3, P_SADDLE)
     # Fenders hanging from under the seat to the stirrups; the stirrups (wood, leather-bound).
     for s in (-1.0, 1.0):
         zs = np.linspace(1.5, 0.98, 5)
-        fx = [-0.23, -0.17, -0.11]
+        fx = [-0.23 + DX, -0.17 + DX, -0.11 + DX]
         rows, nr = [], []
         ymax = 0.0
         for z in zs:
             row, rn = [], []
             for x in fx:
                 width = 1.0 + 1.6 * (1.5 - z)  # narrow under the seat, wide at the stirrup
-                xx = -0.17 + (x + 0.17) * width
+                xx = -0.17 + DX + (x + 0.17 - DX) * width
                 q, nn = surf.cast((xx, 0.0, z), (0, s, 0), 0.05)
                 yy = abs(q[1]) if q is not None else 0.3
                 ymax = max(ymax, yy)
@@ -613,24 +632,25 @@ def build_tack(surf):
             nr = [r[::-1] for r in nr]
         B.grid(rows, 2, P_SADDLE, 0.008, nr)
         sy = s * (ymax + 0.012)
-        loop = [(-0.24, sy, 0.99), (-0.25, sy, 0.92), (-0.23, sy, 0.88), (-0.11, sy, 0.88), (-0.09, sy, 0.92), (-0.1, sy, 0.99)]
+        loop = [(x + DX, sy, z) for x, z in ((-0.24, 0.99), (-0.25, 0.92), (-0.23, 0.88), (-0.11, 0.88), (-0.09, 0.92), (-0.1, 0.99))]
         B.strap(_densify(loop, 1), [(0.0, s, 0.0)] * len(loop), 0.06, 0.02, 4, P_SADDLE)
-        B.strap([(-0.235, sy, 0.885), (-0.105, sy, 0.885)], [(0.0, 0.0, 1.0)] * 2, 0.08, 0.02, 4, P_SADDLE)
+        B.strap([(-0.235 + DX, sy, 0.885), (-0.105 + DX, sy, 0.885)], [(0.0, 0.0, 1.0)] * 2, 0.08, 0.02, 4, P_SADDLE)
     # The cinch: round the girth behind the elbows, its rings at the skirts' edge.
     ang = np.radians(np.linspace(92, 268, 11))
-    path, ups = _wrap(surf, -0.3, ang, 0.014)
+    path, ups = _wrap(surf, -0.3 + DX, ang, 0.014)
     B.strap(path, ups, 0.075, 0.01, 5, P_SADDLE)
     for s in (-1.0, 1.0):
-        q, nn = surf.cast((-0.3, 0.0, 1.15), (0.0, s * math.sin(math.radians(88)), math.cos(math.radians(88))), 0.04)
+        q, nn = surf.cast((-0.3 + DX, 0.0, 1.15), (0.0, s * math.sin(math.radians(88)), math.cos(math.radians(88))), 0.04)
         B.ring(q, (0.0, s, 0.0), 0.03, 0.006, 8, P_SADDLE, seg=8, sides=4)
 
     # Saddlebags behind the cantle: two leather bags on a strap over his loins.
-    q_top, _n = surf.cast((0.3, 0.0, 2.6), (0, 0, -1), 0.012)
-    strap = [(0.3, -0.2, 1.38), (0.3, -0.12, q_top[2] - 0.02), (0.3, 0.0, q_top[2]), (0.3, 0.12, q_top[2] - 0.02), (0.3, 0.2, 1.38)]
+    bx = 0.3 + DX
+    q_top, _n = surf.cast((bx, 0.0, 2.6), (0, 0, -1), 0.012)
+    strap = [(bx, -0.2, 1.38), (bx, -0.12, q_top[2] - 0.02), (bx, 0.0, q_top[2]), (bx, 0.12, q_top[2] - 0.02), (bx, 0.2, 1.38)]
     path, ups = _on_surface(surf, strap, 0.015, 3)
     B.strap(path, ups, 0.12, 0.008, 6, P_BAGS)
     for s in (-1.0, 1.0):
-        q, nn = surf.cast((0.3, 0.0, 1.27), (0, s, 0.15), 0.0)
+        q, nn = surf.cast((bx, 0.0, 1.27), (0, s, 0.15), 0.0)
         nn = nn / np.linalg.norm(nn)
         side = np.array([1.0, 0.0, 0.0])
         up = np.cross(nn, side) * s
@@ -646,7 +666,10 @@ def build_tack(surf):
 
     # The headstall: crown over the poll behind the ears, cheeks down to the bit, a browband,
     # a throatlatch round behind the jowl, a noseband; the bit's rings and silver conchos.
-    hp = hs._head_point
+    def hp(along, face=0.0, side=0.0):
+        # The bridle was laid on a 0.664 m head; Sean's horse's is shorter.
+        return hs._head_point(along * hs.HEAD_LEN / 0.664, face, side)
+
     bit = {s: hp(0.55, -0.05, s * 0.07) for s in (-1.0, 1.0)}
     crown = [hp(0.52, -0.03, -0.08), hp(0.4, -0.0, -0.09), hp(0.26, -0.01, -0.1), hp(0.1, -0.03, -0.1),
              hp(0.03, -0.04, -0.075), hp(-0.03, -0.035, 0.0), hp(0.03, -0.04, 0.075), hp(0.1, -0.03, 0.1),
@@ -678,7 +701,7 @@ def build_tack(surf):
     # sagging off it, joined in front of the horn.
     for s in (-1.0, 1.0):
         q_bit, _n = surf.near(bit[s], 0.012)
-        end = np.array([-0.55, s * 0.035, 1.66])
+        end = np.array([-0.55 + DX, s * 0.035, 1.66])
         n = 15
         pts = []
         for i in range(n):
@@ -692,7 +715,7 @@ def build_tack(surf):
             pts = [pts[0]] + [(pts[i - 1] + 2 * pts[i] + pts[i + 1]) / 4 for i in range(1, n - 1)] + [pts[-1]]
         pts = [pts[0]] + [surf.outside(p, 0.02) for p in pts[1:-1]] + [pts[-1]]
         B.strap(pts, [(0.0, s, 0.0)] * n, 0.018, 0.005, 10, P_REINS)
-    B.strap([(-0.5, -0.03, 1.66), (-0.5, 0.0, 1.67), (-0.5, 0.03, 1.66)], [(0, 0, 1)] * 3, 0.018, 0.005, 10, P_REINS)
+    B.strap([(-0.5 + DX, -0.03, 1.66), (-0.5 + DX, 0.0, 1.67), (-0.5 + DX, 0.03, 1.66)], [(0, 0, 1)] * 3, 0.018, 0.005, 10, P_REINS)
 
     tack = B.object("tack_all")
     log("tack", tris(tack), "triangles")
@@ -831,6 +854,9 @@ def main():
     os.makedirs(out, exist_ok=True)
     clear()
     parts = sculpt()
+    SCULPT.update(parts)
+    global PAINT
+    PAINT = opts.get("paint", "pictures")
     coat, hi = build_coat(parts)
     surf = Surface(*parts["body"])
     tack, bits = build_tack(surf)
@@ -890,6 +916,8 @@ def main():
         # Godot's axes (x, y up, z = -Blender y): the bit's rings for the tied reins, the toes.
         "bit": {("L" if s < 0 else "R"): [round(float(bits[s][0]), 4), round(float(bits[s][2]), 4), round(float(-bits[s][1]), 4)]
                 for s in bits},
+        "capsules": [[c[0], [round(c[1][0], 4), round(c[1][2], 4), round(-c[1][1], 4)],
+                      [round(c[2][0], 4), round(c[2][2], 4), round(-c[2][1], 4)], c[3]] for c in hs.capsules()],
         "toes": {n: [round(v[1][0], 4), round(v[1][2], 4), round(-v[1][1], 4)] for n, v in bone_defs.items()
                  if n.startswith(("hoof.", "hhoof."))},
     }

@@ -268,3 +268,62 @@ def tack(pos, normal, ao, curv, part, mask):
     img = np.clip(out, 0.0, 1.0).reshape(h, w, 3)
     img[~mask] = LEATHER
     return img
+
+
+# --- the coat from Sean's pictures --------------------------------------------------------------
+
+
+def projected(pos, normal, ao, part, mask, sculpt_points):
+    """The coat painted from Sean's four pictures (docs/concept/horse/, horse_ref.py): each texel
+    takes the colour each picture shows at its place, weighted by how squarely that picture faces
+    it, from the pictures that see it (a depth test against the sculpt's points, so the head in the
+    front view isn't laid on his chest, nor his near legs on the far ones). Where the model's
+    outline passes the picture's, the nearest of the horse's own pixels. A little of the sculpt's
+    occlusion over it, for the places no picture shows (under the belly, between the legs)."""
+    from scipy import ndimage
+
+    import horse_ref
+    h, w = pos.shape[:2]
+    P = pos.reshape(-1, 3)
+    N = normal.reshape(-1, 3)
+    N = N / np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-6)
+    tail = part.reshape(-1) > 0.5
+    S = np.asarray(sculpt_points, float)
+    total = np.zeros(len(P))
+    colour = np.zeros((len(P), 3))
+    best = np.full(len(P), -1.0)
+    best_col = np.zeros((len(P), 3))
+    for name, img, m, proj, facing in horse_ref.views():
+        ih, iw = m.shape
+        # The nearest horse pixel to every pixel (for samples that fall just off his outline).
+        _d, (iy, ix) = ndimage.distance_transform_edt(~m, return_indices=True)
+        u, v = proj(P)
+        ui = np.clip(np.rint(u).astype(int), 0, iw - 1)
+        vi = np.clip(np.rint(v).astype(int), 0, ih - 1)
+        sy, sx = iy[vi, ui], ix[vi, ui]
+        col = img[sy, sx] / 255.0
+        # Depth along the view: smaller is nearer the picture.
+        depth = {"side_left": P[:, 1], "side_right": -P[:, 1], "front": P[:, 0], "back": -P[:, 0]}[name]
+        sd = {"side_left": S[:, 1], "side_right": -S[:, 1], "front": S[:, 0], "back": -S[:, 0]}[name]
+        su, sv = proj(S)
+        cell = 4  # px: the sculpt's points are ~1 cm apart, ~4 px in the pictures
+        zb = np.full((ih // cell + 1, iw // cell + 1), np.inf)
+        cu = np.clip((su / cell).astype(int), 0, zb.shape[1] - 1)
+        cv = np.clip((sv / cell).astype(int), 0, zb.shape[0] - 1)
+        np.minimum.at(zb, (cv, cu), sd)
+        zb = ndimage.minimum_filter(zb, size=3)
+        seen = depth <= zb[np.clip(vi // cell, 0, zb.shape[0] - 1), np.clip(ui // cell, 0, zb.shape[1] - 1)] + 0.04
+        f = np.clip(facing(N), 0.0, 1.0)
+        if name == "front":
+            f = np.where(tail, 0.0, f)  # the front view doesn't show the tail
+        wgt = np.where(seen, f ** 4, 0.0)
+        colour += col * wgt[:, None]
+        total += wgt
+        better = f > best
+        best = np.where(better, f, best)
+        best_col[better] = col[better]
+    out = np.where(total[:, None] > 1e-4, colour / np.maximum(total, 1e-9)[:, None], best_col)
+    out *= (0.75 + 0.25 * np.clip(ao.reshape(-1), 0.0, 1.0))[:, None]
+    img = np.clip(out, 0.0, 1.0).reshape(h, w, 3)
+    img[~mask] = BAY_DARK
+    return img

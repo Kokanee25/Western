@@ -161,12 +161,12 @@ def pose(bones, t):
         e = s["ear"][side]
         fk("ear." + side, _rot(Z, sg * math.radians(8.0) * s["nod"]) @ _rot(Y, math.radians(45.0) * e))
     # The tail: a swing to the side running down it, and a little sway.
-    for i in range(1, 6):
+    for i in range(1, 7):
         name = "tail%d" % i
         if name not in bones:
             break
         lag = schedule(t - 0.07 * (i - 1))
-        amp = [14.0, 12.0, 11.0, 9.0, 7.0][i - 1]
+        amp = [1.5, 3.0, 3.5, 3.5, 3.0, 2.5][i - 1]  # ~17 degrees at the tip: a flick, not a flag
         ang = math.radians(amp) * lag["swish"] + math.radians(1.5) * lag["sway"]
         fk(name, _rot(X, ang))
 

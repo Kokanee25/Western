@@ -3,15 +3,16 @@ extends Node3D
 ## A horse: the town's only animals (DESIGN.md §11 "Horses as creatures"), in the world as
 ## creatures and never as targets (§5, "No shooting animals": nothing here is for hunting).
 ##
-## Made in Blender by script (tools/blender/horse.py, re-runnable, no paid calls): a 15-hand bay
-## sculpted from muscle masses and meshed, cut to ~2,900 triangles with a ~480-triangle far coat,
-## painted per texel from the sculpt, a 37-bone rig and a 12-second idle (weight shifts between
+## Made in Blender by script (tools/blender/horse.py, re-runnable, no paid calls) to Sean's
+## pictures of him (docs/concept/horse/): a 15-hand bay sculpted to his outline and meshed, cut to
+## ~2,900 triangles with a ~480-triangle far coat, painted by projecting the pictures onto him, a
+## 39-bone rig and a 12-second idle (weight shifts between
 ## resting hinds, tail swishes, ear flicks, a head dip; the standing hooves planted). He's drawn
 ## in the men's own painted-skin shader (HeldHand's way), so he takes light as they do.
 ##
 ## His tack is separate meshes on the same skeleton (saddle, blanket, bridle, reins, saddlebags):
 ## `take_off` drops one as a loose body, `put_on` puts it back. His collision is a capsule per part
-## following his bones (barrel, quarters, neck, head, each leg), not one box: cover later. Tied at a
+## following his bones (barrel, quarters, neck, head, each leg; horse.json's), not one box: cover later. Tied at a
 ## rail (`tie_to`) his ridden reins are hidden and two reins run from the bit to the rail instead.
 ## Model space: his head at -X, his right side -Z, the ground at y = 0 under his barrel's middle.
 
@@ -29,21 +30,6 @@ const REIN_LENGTH := 1.0
 const REIN_COLOUR := Color(0.2, 0.11, 0.06)
 ## How often the collision follows the bones (s); the idle is slow.
 const SHAPE_STEP := 0.1
-## The capsules, in Blender's rest coordinates as horse_shape.py gives them (x, y = his right,
-## z up): [bone, from, to, radius].
-const SHAPES := [
-	[&"spine", Vector3(-0.72, 0.0, 1.19), Vector3(0.22, 0.0, 1.19), 0.3],
-	[&"pelvis", Vector3(0.3, 0.0, 1.24), Vector3(0.74, 0.0, 1.24), 0.28],
-	[&"neck2", Vector3(-0.68, 0.0, 1.4), Vector3(-1.03, 0.0, 1.86), 0.14],
-	[&"head", Vector3(-1.16, 0.0, 1.88), Vector3(-1.48, 0.0, 1.48), 0.1],
-	[&"forearm.L", Vector3(-0.57, -0.165, 0.94), Vector3(-0.575, -0.16, 0.08), 0.065],
-	[&"forearm.R", Vector3(-0.57, 0.165, 0.94), Vector3(-0.575, 0.16, 0.08), 0.065],
-	[&"shin.L", Vector3(0.47, -0.17, 0.98), Vector3(0.73, -0.15, 0.56), 0.075],
-	[&"shin.R", Vector3(0.47, 0.17, 0.98), Vector3(0.73, 0.15, 0.56), 0.075],
-	[&"hcannon.L", Vector3(0.73, -0.15, 0.56), Vector3(0.68, -0.15, 0.07), 0.05],
-	[&"hcannon.R", Vector3(0.73, 0.15, 0.56), Vector3(0.68, 0.15, 0.07), 0.05],
-]
-
 var skeleton: Skeleton3D
 var animation: AnimationPlayer
 ## His collision: on the world's layer, as the box horse's was (bullets stop in him, people walk
@@ -79,11 +65,6 @@ static func info() -> Dictionary:
 	if _info.is_empty() and FileAccess.file_exists(INFO):
 		_info = JSON.parse_string(FileAccess.get_file_as_string(INFO))
 	return _info
-
-
-## Blender's axes to Godot's (glTF: x stays, z goes up, y goes to -z).
-static func from_blender(v: Vector3) -> Vector3:
-	return Vector3(v.x, v.z, -v.y)
 
 
 ## The men's painted-skin material on one of his textures (HeldHand._material's way).
@@ -153,9 +134,11 @@ func _build_body() -> void:
 	body.collision_mask = 0
 	body.set_meta(&"horse", self)
 	add_child(body)
-	for s: Array in SHAPES:
-		var a := from_blender(s[1])
-		var b := from_blender(s[2])
+	# A capsule per part, on the bone that carries it (horse.json's, from horse_shape.capsules):
+	# [bone, from, to, radius], model space.
+	for s: Array in info().get("capsules", []):
+		var a := Vector3(s[1][0], s[1][1], s[1][2])
+		var b := Vector3(s[2][0], s[2][1], s[2][2])
 		var r: float = s[3]
 		var cap := CapsuleShape3D.new()
 		cap.radius = r
@@ -169,7 +152,7 @@ func _build_body() -> void:
 		shape.transform = rest
 		body.add_child(shape)
 		_shapes.append(shape)
-		_shape_bones.append(skeleton.find_bone(s[0]))
+		_shape_bones.append(skeleton.find_bone(String(s[0])))
 		_shape_rest.append(rest)
 
 

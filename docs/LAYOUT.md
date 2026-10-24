@@ -678,26 +678,30 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 ## src/creatures (the horse)
 
 - `src/creatures/horse.gd` — `Horse`, the town's only animals (never targets: DESIGN.md §5). Loads
-  `assets/creatures/horse/horse.glb` (a Skeleton3D of 37 bones, the meshes `coat`, `coat_lod`,
+  `assets/creatures/horse/horse.glb` (a Skeleton3D of 39 bones, the meshes `coat`, `coat_lod`,
   `saddle`, `blanket`, `bridle`, `reins`, `saddlebags`, `tack_lod`, the 12 s animation `idle`) and
   draws every mesh in the men's skin shader (`Horse.material`, HeldHand's way: `use_uv`, uv_scale 1);
   near meshes to `FAR` (26 m), the far ones past it. The idle loops, each horse at his own phase and
   pace from where he stands (so a shot repeats). `body`: a StaticBody3D on `Layers.WORLD` with ten
-  capsules (barrel, quarters, neck, head, each leg's two parts) that follow their bones every
+  capsules (barrel, quarters, neck, head, each leg's parts; `horse.json`'s `capsules`, from
+  `horse_shape.capsules`) that follow their bones every
   `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
   Model space: head at -X, his right -Z, ground y = 0.
 - `tools/blender/horse.py` (pip bpy, ~40 s, ~80 s when the sculpt changes; `--blend` keeps
-  `build/horse/horse.blend`): the sculpt (`horse_shape.py`: ellipsoids and round cones in a signed
-  distance field, marching cubes at 1 cm, cached by its hash), decimated to 2,900 + a 477-triangle
-  LOD, laid out by parts (`horse_uv.py`), baked (position, the sculpt's normals, occlusion) and
-  painted per texel (`horse_paint.py`: the bay, black points, white socks, mane and tail strands,
-  soft painted light, 7 tones); the tack laid on the sculpt's surface and painted the same way; the
+  `build/horse/horse.blend`): Sean's pictures (`docs/concept/horse/`) read by `horse_ref.py` (cut out
+  by colour, 454 px a metre, each view's place); the sculpt (`horse_shape.py`: the body, neck and
+  head lofted from his side outline, legs, ears, muscles and tail as round cones and ellipsoids,
+  in a signed distance field, marching cubes at 1 cm, cached by a hash of the code and pictures),
+  decimated to 2,900 + a 477-triangle LOD, laid out by parts (`horse_uv.py`), baked (position, the
+  sculpt's normals, occlusion) and painted by projecting the four pictures onto him
+  (`horse_paint.projected`: each texel from the pictures that face it and see it, by a depth test;
+  `--paint=rules` the old rule-painted bay); the tack laid on the sculpt's surface, painted by rule; the
   skeleton and weights (`horse_shape.bones`, `weights`: by distance, kept to each part's side and
   region, crisp below the knees and hocks); the idle (`horse_idle.py`: dials over 12 s, the planted
   hooves solved two bones at a time). Writes `horse.glb`, `horse_coat.png` (1024), `horse_coat_lod.png`
-  (256), `horse_tack.png` (512), `horse.json` (counts, bones, the bit's rings, the toes).
+  (256), `horse_tack.png` (512), `horse.json` (counts, bones, the bit's rings, the toes, capsules).
 - The street (`StreetDressing._horse`) ties each horse to its named rail's bar; `_rail` keeps a
   rail clear of steps and doors point by point and cuts it to its longest clear stretch.
 - Tests `tests/test_horse.gd`; shots `docs/screenshots/horse/`.

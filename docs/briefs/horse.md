@@ -36,6 +36,32 @@ plays.
 **Judged by:** Sean's eye on the sheet; the judge and the blind critic on the street shot before
 and after (`docs/screenshots/judge/2026-10-24_r1`, `_r2`); `tests/test_horse.gd`.
 
+## Step 1b: remade to Sean's pictures (2026-10-24, same branch)
+
+Sean drew the horse (four views, `docs/concept/horse/`) and asked why Rodin and not Blender. The
+answer: Blender can't read a picture; Rodin is the AI that turns pictures into a shape (~$1.60),
+and everything after it would still be Blender. So first, for $0, the pictures drive the Blender
+build directly:
+
+- **Shape:** `horse_ref.py` cuts the horse out of each picture (the backdrop is flat grey; his
+  shadow darker grey, so it stays out) and measures him (454 px a metre, his withers at 1.52 m).
+  The body, neck and head are lofted from his side outline (per column: top to underline; widths
+  set against the front and back outlines); legs, ears and tail placed where the pictures put them. The
+  two side pictures disagree in length by 7% and are lined up by the trunk; both then give the
+  same stance (left fore and hind forward, the right hind well back). Side outline match 0.76
+  IoU before the leg stance was fitted.
+- **Paint:** the coat is Sean's pictures projected onto him (`horse_paint.projected`): each texel
+  from the pictures that face it squarely and see it (a depth test against the sculpt, so the
+  head isn't painted on the chest). The blaze, cream stockings, dark brown mane and tail and the
+  brushwork are the pictures'. `--paint=rules` keeps the old rule-painted bay.
+- **Kept:** the rig (now 39 bones, a six-bone tail), the idle (the tail's swish cut to a flick,
+  ~17°), the tack (moved back 0.14 m with the shorter body), collision (capsules now in
+  `horse.json`, from `horse_shape.capsules`).
+- **Not yet like the pictures:** the tail is a heavier, flatter sheet than his flowing one; the
+  hindquarters a little less round. Rodin stays the next try if the shape is still wrong to Sean.
+
+Sheet: `docs/screenshots/horse/2026-10-24b/` (his pictures against the model; the game views).
+
 ## Next steps (not started)
 
 2. **Hit and going down:** a ball into a horse (it will happen in a fight): a flinch and a wound

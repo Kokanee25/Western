@@ -91,12 +91,12 @@ def smax(a, b, k):
 
 # --- the horse ----------------------------------------------------------------------------------
 
-# Side profile points (x, z) the parts are hung on; y is given where a part is paired. Taken from a
-# 15-hand stock horse's proportions (body ~1.6 m point of shoulder to point of buttock, the girth
-# ~0.7 m deep, the legs about as long as the body is deep).
-WITHERS = (-0.46, 1.53)
-POLL = (-1.13, 1.97)
-MUZZLE = (-1.53, 1.44)
+# Side profile points (x, z) the parts are hung on; y is given where a part is paired. Measured off
+# Sean's pictures (docs/concept/horse/, horse_ref.py; 454 px a metre in the left side view, his
+# withers at 1.52 m): a short-backed, deep-bodied bay, the head small and carried high.
+WITHERS = (-0.31, 1.55)
+POLL = (-1.07, 1.93)
+MUZZLE = (-1.36, 1.5)
 HEAD_DIR = np.array([MUZZLE[0] - POLL[0], 0.0, MUZZLE[1] - POLL[1]])
 HEAD_LEN = float(np.linalg.norm(HEAD_DIR))
 HEAD_DIR /= HEAD_LEN
@@ -111,26 +111,36 @@ def _head_point(along, face=0.0, side=0.0):
     return p
 
 
-# Legs, each (side sign s): joints by name -> (x, y, z).
+# Legs, each (side sign s): joints by name -> (x, y, z). From the pictures: the forelegs under
+# the withers, the hinds under the quarters with the hocks behind the buttock's line.
+# He stands staggered, as both side pictures have him: his left fore and hind forward, the right
+# ones back, the right hind well back (where each picture's cannons are, the two views lined up
+# by his trunk). The shift (m along x) of each side's leg from the elbow or stifle down.
+STAGGER_FORE = {-1.0: -0.04, 1.0: 0.07}
+STAGGER_HIND = {-1.0: -0.08, 1.0: 0.17}
+
+
 def front_leg(s):
+    d = STAGGER_FORE[s]
     return {
-        "shoulder": (-0.76, s * 0.17, 1.12),  # point of shoulder
-        "elbow": (-0.57, s * 0.165, 0.96),
-        "knee": (-0.575, s * 0.16, 0.52),
-        "fetlock": (-0.575, s * 0.16, 0.19),
-        "coronet": (-0.61, s * 0.16, 0.075),
-        "toe": (-0.645, s * 0.16, 0.0),
+        "shoulder": (-0.66, s * 0.14, 1.08),  # point of shoulder
+        "elbow": (-0.49 + d * 0.3, s * 0.13, 0.9),
+        "knee": (-0.49 + d, s * 0.115, 0.5),
+        "fetlock": (-0.49 + d, s * 0.115, 0.18),
+        "coronet": (-0.52 + d, s * 0.115, 0.075),
+        "toe": (-0.555 + d, s * 0.115, 0.0),
     }
 
 
 def hind_leg(s):
+    d = STAGGER_HIND[s]
     return {
-        "hip": (0.6, s * 0.17, 1.27),
-        "stifle": (0.45, s * 0.19, 0.98),
-        "hock": (0.73, s * 0.15, 0.55),
-        "fetlock": (0.71, s * 0.15, 0.19),
-        "coronet": (0.675, s * 0.15, 0.075),
-        "toe": (0.645, s * 0.15, 0.0),
+        "hip": (0.5, s * 0.15, 1.27),
+        "stifle": (0.38 + d * 0.3, s * 0.17, 0.9),
+        "hock": (0.64 + d, s * 0.115, 0.58),
+        "fetlock": (0.66 + d, s * 0.115, 0.18),
+        "coronet": (0.635 + d, s * 0.115, 0.075),
+        "toe": (0.605 + d, s * 0.115, 0.0),
     }
 
 
@@ -168,80 +178,109 @@ def _leg_sdf(p, j, front):
     return d
 
 
+# How wide he is (half-widths, m) along his length: the head and neck, and the trunk.
+NECK_WIDTH = [(-1.4, 0.055), (-1.34, 0.085), (-1.25, 0.1), (-1.15, 0.115), (-1.07, 0.12), (-0.98, 0.1),
+              (-0.88, 0.09), (-0.78, 0.1), (-0.68, 0.12), (-0.55, 0.14), (-0.45, 0.15), (-0.3, 0.15)]
+TRUNK_WIDTH = [(-0.8, 0.08), (-0.72, 0.16), (-0.62, 0.2), (-0.5, 0.22), (-0.35, 0.24), (-0.15, 0.26),
+               (0.1, 0.265), (0.3, 0.26), (0.45, 0.25), (0.6, 0.22), (0.7, 0.18), (0.78, 0.08)]
+# Where the neck meets the trunk in the side view: a line from the withers down to the front of
+# the chest (above and before it is neck, below and behind it trunk; they overlap OVERLAP).
+SPLIT = ((-0.31, 1.55), (-0.74, 1.0))
+OVERLAP = 0.1
+# The trunk's underline where a leg runs down from it (the outline goes on down the leg there):
+# the girth behind the elbows, the belly, and the quarters' bottom rising to the buttock.
+TRUNK_FLOOR = [(-0.8, 0.95), (-0.62, 0.92), (-0.55, 0.86), (0.3, 0.86), (0.45, 0.95), (0.6, 1.02), (0.8, 1.1)]
+# The head's top under the ears: the poll, then the forehead down to the nose.
+HEAD_ROOF = [(-1.4, 1.62), (-1.34, 1.6), (-1.07, 1.93), (-0.98, 1.95)]
+
+_outline = None
+
+
+def outline():
+    """Sean's side outline (horse_ref.side_outline), loaded once: (x, top, bottom), m."""
+    global _outline
+    if _outline is None:
+        import horse_ref
+        _outline = horse_ref.side_outline(0.005)
+    return _outline
+
+
+def _interp(table, x):
+    return np.interp(x, [t[0] for t in table], [t[1] for t in table])
+
+
+def _loft(p, lo, hi, width, egg=0.0):
+    """A body lofted along x from the side outline: at each x an ellipse from `lo` to `hi` (z, per
+    x) and `width` (half, per x) across, wider towards the top by `egg`. A distance good near the
+    surface, which is all marching cubes reads."""
+    x, y, z = p[..., 0], p[..., 1], p[..., 2]
+    ok = np.isfinite(lo) & np.isfinite(hi) & (hi > lo + 0.004)
+    lo = np.where(ok, lo, 0.0)
+    hi = np.where(ok, hi, 0.0)
+    c = (lo + hi) * 0.5
+    h = np.maximum((hi - lo) * 0.5, 0.002)
+    u = (z - c) / h
+    w = np.maximum(width * (1.0 + egg * np.clip(u, -1.0, 1.0)), 0.01)
+    r = np.sqrt(u * u + (y / w) ** 2)
+    d = (r - 1.0) * np.minimum(h, w)
+    return np.where(ok, d, 1.0)
+
+
 def body_sdf(p):
-    """The horse but his tail's hair (that's its own mesh, tail_sdf)."""
-    d = ellipsoid(p, (-0.05, 0.0, 1.18), (0.62, 0.285, 0.30))  # the barrel
-    d = smin(d, ellipsoid(p, (-0.5, 0.0, 1.17), (0.32, 0.235, 0.33)), 0.08)  # the chest
-    d = smin(d, ellipsoid(p, (0.55, 0.0, 1.235), (0.36, 0.25, 0.28)), 0.08)  # the hindquarters
+    """The horse but his tail's hair (that's its own mesh, tail_sdf): his side outline lofted
+    (the head and neck, the trunk), the muscles that show from in front and behind, the ears,
+    and the legs below the trunk."""
+    ox, otop, obot = outline()
+    x = p[..., 0]
+    top = np.interp(x, ox, otop, left=np.nan, right=np.nan)
+    bot = np.interp(x, ox, obot, left=np.nan, right=np.nan)
+    (ax, az), (bx, bz) = SPLIT
+    split = az + (x - ax) * (az - bz) / (ax - bx)
+    roof = np.where(x < HEAD_ROOF[-1][0], _interp(HEAD_ROOF, x), np.inf)
+    neck_top = np.minimum(top, roof)
+    neck_bot = np.maximum(bot, split - OVERLAP)
+    neck = _loft(p, np.where(x < ax + 0.02, neck_bot, np.nan), neck_top, _interp(NECK_WIDTH, x))
+    trunk_bot = np.maximum(bot, _interp(TRUNK_FLOOR, x))
+    trunk_top = np.minimum(top, split + OVERLAP)
+    trunk = _loft(p, np.where(x > bx - 0.06, trunk_bot, np.nan), trunk_top, _interp(TRUNK_WIDTH, x), egg=0.12)
+    d = smin(neck, trunk, 0.05)
     for s in (-1.0, 1.0):
         # The quarters' round muscles either side of the spine (seen from behind, a heart shape).
-        d = smin(d, ellipsoid(p, (0.6, s * 0.12, 1.24), (0.3, 0.15, 0.27)), 0.06)
+        d = smin(d, ellipsoid(p, (0.5, s * 0.11, 1.22), (0.24, 0.14, 0.24)), 0.06)
         # The scapula's muscle, from the withers down to the point of shoulder.
-        d = smin(d, ellipsoid(p, (-0.6, s * 0.15, 1.27), (0.27, 0.085, 0.13), (-0.55, 0.0, -0.7)), 0.06)
-    d = smin(d, ellipsoid(p, (-0.46, 0.0, 1.42), (0.24, 0.085, 0.12)), 0.06)  # the withers
-    d = smin(d, ellipsoid(p, (0.08, 0.0, 1.02), (0.45, 0.25, 0.16)), 0.1)  # the belly
-    d = smin(d, ellipsoid(p, (-0.74, 0.0, 1.07), (0.12, 0.19, 0.17)), 0.06)  # the breast
-    d = smin(d, round_cone(p, (0.84, 0.0, 1.44), (0.93, 0.0, 1.31), 0.06, 0.045), 0.04)  # the dock
-
-    # The neck: deep and narrow, arched on top, rising forward to the poll.
-    for c, axis, r in (
-        ((-0.71, 0.0, 1.40), (-0.58, 0.0, 0.81), (0.24, 0.14, 0.235)),
-        ((-0.9, 0.0, 1.65), (-0.6, 0.0, 0.8), (0.21, 0.115, 0.165)),
-        ((-1.06, 0.0, 1.85), (-0.45, 0.0, 0.9), (0.13, 0.095, 0.125)),
-    ):
-        d = smin(d, ellipsoid(p, c, r, axis), 0.07)
-
-    # The head: the jowl round at the back, a long flat face to a soft muzzle.
-    d = smin(d, ellipsoid(p, _head_point(0.17, -0.02), (0.17, 0.105, 0.13), HEAD_DIR), 0.05)
-    d = smin(d, ellipsoid(p, _head_point(0.16, -0.08), (0.11, 0.1, 0.1), HEAD_DIR), 0.04)  # the cheeks
-    d = smin(d, ellipsoid(p, _head_point(0.38, 0.01), (0.22, 0.075, 0.08), HEAD_DIR), 0.06)
-    d = smin(d, ellipsoid(p, _head_point(0.58, -0.005), (0.095, 0.078, 0.085), HEAD_DIR), 0.04)  # the muzzle
-    d = smin(d, ellipsoid(p, _head_point(0.62, -0.06), (0.06, 0.055, 0.04), HEAD_DIR), 0.03)  # the lower lip
-    for s in (-1.0, 1.0):
-        d = smin(d, ellipsoid(p, _head_point(0.17, 0.045, s * 0.088), (0.03, 0.022, 0.026), HEAD_DIR), 0.012)  # the eyes
-        # The ears: cupped leaves pricked up and a little forward.
-        base = (POLL[0] + 0.01, s * 0.06, POLL[1] + 0.03)
-        tip = (POLL[0] - 0.015, s * 0.09, POLL[1] + 0.175)
-        d = smin(d, flat_cone(p, base, tip, 0.04, 0.014, 0.55), 0.015)
-        d = smin(d, ellipsoid(p, (POLL[0] - 0.0, s * 0.075, POLL[1] + 0.09), (0.03, 0.022, 0.06)), 0.02)
-
-    # The mane: a ridge along the crest falling to his right, and the forelock.
-    crest = [(-1.11, 2.02), (-0.98, 1.92), (-0.84, 1.81), (-0.7, 1.69), (-0.57, 1.6), (-0.47, 1.56)]
-    for i in range(len(crest) - 1):
-        a = (crest[i][0], 0.035, crest[i][1] - 0.01)
-        b = (crest[i + 1][0], 0.035, crest[i + 1][1] - 0.01)
-        ra = 0.035 if i else 0.025
-        d = smin(d, round_cone(p, a, b, ra, 0.03 if i < len(crest) - 2 else 0.018), 0.02)
-        hang_a = (crest[i][0] + 0.02, 0.1, crest[i][1] - 0.09)
-        hang_b = (crest[i + 1][0] + 0.02, 0.1, crest[i + 1][1] - 0.09)
-        d = smin(d, round_cone(p, hang_a, hang_b, 0.03, 0.03 if i < len(crest) - 2 else 0.015), 0.035)
-    d = smin(d, flat_cone(p, _head_point(-0.01, 0.07), _head_point(0.16, 0.085), 0.035, 0.022, 0.8), 0.02)
-
+        d = smin(d, ellipsoid(p, (-0.5, s * 0.13, 1.24), (0.24, 0.085, 0.12), (-0.5, 0.0, -0.75)), 0.06)
+        # The ears: cupped leaves pricked up, from the poll.
+        base = (POLL[0] + 0.01, s * 0.065, POLL[1] + 0.02)
+        tip = (POLL[0] - 0.03, s * 0.1, POLL[1] + 0.15)
+        d = smin(d, flat_cone(p, base, tip, 0.036, 0.012, 0.55), 0.015)
+        d = smin(d, ellipsoid(p, (POLL[0] - 0.01, s * 0.08, POLL[1] + 0.075), (0.028, 0.02, 0.05)), 0.02)
+    d = smin(d, round_cone(p, (0.7, 0.0, 1.44), (0.78, 0.0, 1.38), 0.06, 0.045), 0.04)  # the dock
     # The legs: the upper arm and the thigh hang off the body; below them, each leg.
     for s in (-1.0, 1.0):
         f = front_leg(s)
-        d = smin(d, round_cone(p, f["shoulder"], f["elbow"], 0.12, 0.09), 0.05)
+        d = smin(d, round_cone(p, f["shoulder"], f["elbow"], 0.11, 0.085), 0.05)
         d = smin(d, _leg_sdf(p, f, True), 0.035)
         h = hind_leg(s)
-        d = smin(d, round_cone(p, h["hip"], h["stifle"], 0.17, 0.1), 0.06)
+        d = smin(d, round_cone(p, h["hip"], h["stifle"], 0.16, 0.1), 0.06)
         # The hamstring's curve from the point of buttock down to the gaskin.
-        d = smin(d, round_cone(p, (0.8, s * 0.13, 1.2), (0.7, s * 0.14, 0.8), 0.12, 0.07), 0.06)
+        d = smin(d, round_cone(p, (0.7, s * 0.12, 1.2), (0.62, s * 0.13, 0.78), 0.11, 0.07), 0.06)
         d = smin(d, _leg_sdf(p, h, False), 0.04)
     # Flat under the hooves.
     return np.maximum(d, -p[..., 2])
 
 
-# The tail's hair: a sheaf from the dock to below the hocks, wider seen from the side.
-TAIL = [(0.9, 1.38), (0.97, 1.17), (1.0, 0.94), (1.0, 0.72), (0.98, 0.52)]
+# The tail's hair: set high, out and up off the dock, then falling to below the hocks (the
+# pictures' tail); wider seen from the side.
+TAIL = [(0.75, 1.48), (0.87, 1.6), (0.99, 1.53), (1.06, 1.3), (1.09, 1.03), (1.1, 0.8), (1.1, 0.62)]
 
 
 def tail_sdf(p):
     d = np.full(p.shape[:-1], 1e9)
-    radii = [0.055, 0.085, 0.095, 0.085, 0.05]
+    radii = [0.035, 0.045, 0.055, 0.07, 0.085, 0.085, 0.045]
     for i in range(len(TAIL) - 1):
         a = (TAIL[i][0], 0.0, TAIL[i][1])
         b = (TAIL[i + 1][0], 0.0, TAIL[i + 1][1])
-        d = smin(d, flat_cone(p, a, b, radii[i], radii[i + 1], 0.62), 0.04)
+        d = smin(d, flat_cone(p, a, b, radii[i], radii[i + 1], 0.5), 0.03)
     return d
 
 
@@ -263,8 +302,8 @@ def grid_mesh(sdf, lo, hi, step):
     return verts, faces
 
 
-BODY_BOX = ((-1.72, -0.4, -0.025), (1.02, 0.4, 2.26))  # z off the grid: the soles at 0 fall between samples
-TAIL_BOX = ((0.78, -0.12, 0.4), (1.12, 0.12, 1.5))
+BODY_BOX = ((-1.5, -0.4, -0.025), (0.95, 0.4, 2.15))  # z off the grid: the soles at 0 fall between samples
+TAIL_BOX = ((0.62, -0.12, 0.45), (1.25, 0.12, 1.75))
 
 
 # --- the skeleton -------------------------------------------------------------------------------
@@ -280,16 +319,16 @@ def bones():
 
     add("root", (0.0, 0.0, 0.0), (0.0, 0.0, 0.25), None, False)
     add("body", (0.05, 0.0, 1.2), (0.05, 0.0, 1.4), "root", False)
-    add("pelvis", (0.18, 0.0, 1.3), (0.82, 0.0, 1.36), "body")
-    add("spine", (0.18, 0.0, 1.3), (-0.25, 0.0, 1.28), "body")
-    add("chest", (-0.25, 0.0, 1.28), (-0.6, 0.0, 1.32), "spine")
-    add("neck1", (-0.6, 0.0, 1.32), (-0.8, 0.0, 1.58), "chest")
-    add("neck2", (-0.8, 0.0, 1.58), (-0.98, 0.0, 1.8), "neck1")
-    add("neck3", (-0.98, 0.0, 1.8), (-1.1, 0.0, 1.92), "neck2")
+    add("pelvis", (0.1, 0.0, 1.3), (0.72, 0.0, 1.36), "body")
+    add("spine", (0.1, 0.0, 1.3), (-0.15, 0.0, 1.28), "body")
+    add("chest", (-0.15, 0.0, 1.28), (-0.45, 0.0, 1.32), "spine")
+    add("neck1", (-0.45, 0.0, 1.32), (-0.66, 0.0, 1.6), "chest")
+    add("neck2", (-0.66, 0.0, 1.6), (-0.86, 0.0, 1.8), "neck1")
+    add("neck3", (-0.86, 0.0, 1.8), (-1.02, 0.0, 1.88), "neck2")
     poll = (POLL[0] + 0.02, 0.0, POLL[1] - 0.06)
-    add("head", poll, tuple(np.add(poll, HEAD_DIR * 0.62)), "neck3")
+    add("head", poll, tuple(np.add(poll, HEAD_DIR * HEAD_LEN * 0.95)), "neck3")
     for side, s in (("L", -1.0), ("R", 1.0)):
-        add("ear." + side, (POLL[0] + 0.01, s * 0.06, POLL[1] + 0.03), (POLL[0] - 0.02, s * 0.095, POLL[1] + 0.2), "head")
+        add("ear." + side, (POLL[0] + 0.01, s * 0.065, POLL[1] + 0.02), (POLL[0] - 0.03, s * 0.1, POLL[1] + 0.15), "head")
         f = front_leg(s)
         add("scapula." + side, (WITHERS[0] - 0.02, s * 0.11, WITHERS[1] - 0.08), f["shoulder"], "chest")
         add("upperarm." + side, f["shoulder"], f["elbow"], "scapula." + side)
@@ -304,7 +343,7 @@ def bones():
         add("hpastern." + side, h["fetlock"], h["coronet"], "hcannon." + side)
         add("hhoof." + side, h["coronet"], h["toe"], "hpastern." + side)
     parent = "pelvis"
-    pts = [(0.86, 1.43)] + TAIL[1:]
+    pts = [(0.72, 1.44)] + TAIL[1:]
     for i in range(len(pts) - 1):
         name = "tail%d" % (i + 1)
         add(name, (pts[i][0], 0.0, pts[i][1]), (pts[i + 1][0], 0.0, pts[i + 1][1]), parent)
@@ -334,7 +373,8 @@ def _allowed(name, p):
     if name.startswith("ear."):
         ok &= p[:, 2] > POLL[1] + 0.0
     if name.startswith("tail"):
-        ok &= p[:, 0] > 0.82
+        # The hair and the dock, not the buttock under it.
+        ok &= p[:, 0] > 0.72 + np.maximum(0.0, 1.38 - p[:, 2]) * 0.45
     lower = ("forearm", "cannon", "pastern", "hoof", "shin", "hcannon", "hpastern", "hhoof")
     if name.split(".")[0] in lower:
         ok &= p[:, 2] < (1.02 if name.startswith(("forearm", "shin")) else 0.62)
@@ -369,3 +409,24 @@ def weights(verts, neighbours, bone_defs, only=None, smooth=3, power=5.0):
     top = np.take_along_axis(w, order, axis=1)
     top /= np.maximum(top.sum(axis=1, keepdims=True), 1e-9)
     return names, order, top
+
+
+# --- collision ----------------------------------------------------------------------------------
+
+
+def capsules():
+    """His collision (Horse's body: cover later), a capsule per part on the bone that carries it:
+    [bone, from, to, radius] in these axes."""
+    out = [
+        ["spine", (-0.66, 0.0, 1.18), (0.18, 0.0, 1.18), 0.27],
+        ["pelvis", (0.28, 0.0, 1.22), (0.66, 0.0, 1.22), 0.25],
+        ["neck2", (-0.52, 0.0, 1.38), (-0.94, 0.0, 1.8), 0.13],
+        ["head", (POLL[0] - 0.03, 0.0, POLL[1] - 0.06), (MUZZLE[0] + 0.06, 0.0, MUZZLE[1] + 0.02), 0.1],
+    ]
+    for side, s in (("L", -1.0), ("R", 1.0)):
+        f = front_leg(s)
+        out.append(["forearm." + side, f["elbow"], f["coronet"], 0.065])
+        h = hind_leg(s)
+        out.append(["shin." + side, h["stifle"], h["hock"], 0.075])
+        out.append(["hcannon." + side, h["hock"], h["coronet"], 0.05])
+    return out
