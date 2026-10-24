@@ -22,8 +22,15 @@ can take it at once.
      file whose members (or loose body) carry it, by the kit's `"draw": {"shape": "mesh"}`
      (members) or `"model": "glb:<id>"` (loose and glass props). So a Blender prop breaks, burns
      and is thrown by the same code as the rest.
-   - **Paid image-to-3D** (Rodin/Tripo) only for what neither route can do, cost asked first. None
-     on the list needs it yet.
+   - **Rodin through the Character Studio** (Sean, 2026-10-24: its deer head, #361, was far better
+     than the Blender one): **every organic or "hero" prop**, anything whose shape and paint carry it
+     (animals and skulls, tack and leather, sacks and bales, cloth, cast iron with character). Pictures
+     of the thing (Sean's, or the Studio's image model) -> Rodin Gen-2.5 on the Studio's paid workflow
+     (`prop3d`, **~$1.60 a prop, cost asked first**) -> a script like
+     `tools/blender/props/deer_head_rodin.py` that puts it in the kit's space, cuts it to a few
+     thousand triangles, splits it into the kit file's parts and keeps its own paint (the kit's look
+     `model:<name>`). It is still drawn on kit members, so it hangs, breaks, burns and is thrown as
+     the rest. Code-built Blender stays only for cheap lumps where shape barely matters.
 3. **Its body** (`PropKit.make` decides by `kind`): `members` (KitProp: stands on its feet, tips,
    breaks, burns, is carved), `loose` (LooseProp: rolls, dents, is knocked, spills, never burns),
    `shatters` (GlassProp), `cloth`. Each file states its **mass** (from its real materials, the
@@ -59,32 +66,32 @@ hubs (`cripple`, unchecked), the bolsters on the axles (`furniture_top`), the be
 
 ## The list and each item's route
 
-Sean can add; made top down, in the batches shown. **K** kit, **B** Blender (drawn) on a kit body,
-**L** loose (LooseProp), **G** glass.
+Sean can add; made top down, in the batches shown. **K** kit, **R** Rodin (the Studio) drawn on a kit body, **B** code-built
+Blender on a kit body, **L** loose (LooseProp), **G** glass.
 
 | Batch | Item | Route | Notes |
 | --- | --- | --- | --- |
 | 1 | Wagon wheel (lying loose), broken wagon wheel | K | hub, 12 spokes, 6 felloes, iron tyre (dress) |
 | 1 | Buckboard, freight wagon, covered wagon | K | Sean's comment on #338: running gear, bed, sideboards, wheels with iron tyres, tongue, canvas on bows; replaces `PropModels.wagon` in the street (art's `street_dressing.gd`, said so). Wheels that turn and a hearse later |
-| 2 | The mounted deer head | B + K | Sean on #338: a taxidermy mount (head, neck, antlers, glass eyes) on a shaped plaque, still on nails; hung clear of the stair (#308 is the saloon session's call on where) |
-| 2 | Hay bale, loose straw pile, feed sack, grain sacks (stacked), horse droppings | B + K | straw and burlap stand-in looks until painted |
-| 3 | Saddle on a rail, saddlebags, horse blanket, coiled rope, lasso on a post | B + K | leather and rope looks |
-| 3 | Horseshoes, anvil | L / K | the anvil iron (doesn't burn; balls glance) |
+| 2 | The mounted deer head | R + K (done, #361) | Sean on #338: a taxidermy mount (head, neck, antlers, glass eyes) on a shaped plaque, still on nails; hung clear of the stair (#308 is the saloon session's call on where) |
+| 2 | Hay bale, loose straw pile, feed sack, grain sacks (stacked), horse droppings | B + K today; to remake **R**: bale, feed sack, grain sack (one sack laid three times), straw heap; droppings stay B | painted (run 125/126); the critics: cushions, pillows, too clean |
+| 3 | Saddle on a rail, saddlebags, horse blanket, coiled rope, lasso on a post | R + K (the rail K) | |
+| 3 | Horseshoes, anvil | L / R + K | the anvil iron (doesn't burn; balls glance) |
 | 4 | Wheelbarrow, shovel, pickaxe, pitchfork, axe in a chopping block | K (+B heads) | handles break; iron heads |
 | 4 | Split firewood stack, kindling pile, scrap lumber | K | each stick a member: burns well |
 | 5 | Wooden ladder, water pump with handle, rain barrel, broken crate, crate lid, nail keg | K | the rain barrel and nail keg `like` the barrel |
-| 5 | Rusty tin cans, broken bottles, old boot | L / G / B | the can a LooseProp, the bottles GlassProp pieces |
+| 5 | Rusty tin cans, broken bottles, old boot | L / G / R | the can a LooseProp, the bottles GlassProp pieces |
 | 6 | Bench, rocking chair, A-frame sign, wanted-poster board, broom | K | the bench extends the street's code bench |
 | 6 | Hanging lantern | G | the street's `lantern` with its `OilLamp`, as the sconce |
 | 6 | Washtub and washboard, laundry basket | L / K | |
 | 7 | Flour barrel, pickle barrel, cracker barrel | K (`like` barrel) | contents |
-| 7 | Coffee sacks, bolts of cloth | B + K | as the sacks |
+| 7 | Coffee sacks, bolts of cloth | R + K | as the sacks (one Rodin sack can serve) |
 | 8 | Whiskey bottles (variants), shot glasses, beer mugs | G | the bottle extended (shapes) |
 | 8 | Playing cards and chips, a dead man's hand, cigar box, ash tray, newspaper | K / L | small; burn |
-| 9 | A dropped hat, a potted cactus, an oil can, a coat rack with coats | B + K / L / K | the hat from the men's hats |
-| 9 | Crates of goods, canned goods on shelves, a balance scale, a coffee grinder, candy jars | K / L / G | the shelves fixture filled |
-| 10 | Pot-bellied stove with stovepipe | K (iron) | fireproof; a fire inside later |
-| 10 | Rusted barrel hoop, steer skull and bones, broken chair, tarp over something, outhouse bucket | L / B / K / cloth | the broken chair: the kit chair less members |
+| 9 | A dropped hat, a potted cactus, an oil can, a coat rack with coats | (the men's hats) / R + K / L / K + R coats | |
+| 9 | Crates of goods, canned goods on shelves, a balance scale, a coffee grinder, candy jars | K / L / R / R / G | the shelves fixture filled |
+| 10 | Pot-bellied stove with stovepipe | R + K (iron) | fireproof; a fire inside later |
+| 10 | Rusted barrel hoop, steer skull and bones, broken chair, tarp over something, outhouse bucket | L / R / K / cloth | the broken chair: the kit chair less members |
 
 The spittoon (cuspidor) and the mop exist.
 
