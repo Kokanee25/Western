@@ -4,6 +4,7 @@ in the game's saloon through the dev bridge, headless, each run's result kept, a
 how often Earl ends on his back, how long the kick takes to put him down, what the boot did.
 
     python3 experiments/card_cheat/run.py --runs=20 --out=build/card_cheat/runs [--animated=0] [--per-game=5]
+    python3 experiments/card_cheat/run.py --tally=DIR1[,DIR2] [--animated=0]     # the tally alone, over runs made in parts
 
 A game is started fresh every --per-game runs (the moment puts a whole chair back each time, but a
 long game drifts). Writes <out>/run_NN.json and <out>/tally.md.
@@ -39,6 +40,19 @@ def bridge(*cmds):
 
 
 def main():
+    if opt("tally"):
+        # Only the tally, over the run_*.json of these folders (runs made in parts).
+        import glob
+        results = []
+        dirs = opt("tally").split(",")
+        for d in dirs:
+            for f in sorted(glob.glob(os.path.join(d, "run_*.json"))):
+                with open(f) as fh:
+                    results.append(json.load(fh))
+        for i, r in enumerate(results):
+            r["run"] = i + 1
+        tally(results, os.path.join(dirs[0], "tally.md"), opt("animated", "1"))
+        return
     runs = int(opt("runs", "20"))
     per_game = int(opt("per-game", "5"))
     animated = opt("animated", "1")
