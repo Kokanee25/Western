@@ -7,7 +7,7 @@ takes of the old man's walk (issue #347), and Sean said to do the ones we have. 
 
 | Film | What | Clip (take) |
 |---|---|---|
-| `walks.mp4` | the old man's walk across the street at 17:30, Earl (old_rancher) on `walk_old`, `HumanBody.walk_clip`: the clip looped under his walking, its rate his speed | `walk_old` (2 of 2: 1.1 m in 5 s, the steadier; take 1 jittered) |
+| `walks.mp4` | the old man's walk along the saloon's side at 17:30, Earl (old_rancher) on `walk_old`, `HumanBody.walk_clip`: the clip looped under his walking, its rate his speed (a crop of `walks_full.mp4` doubled: the bridge's camera stands still, and he's far for most of it) | `walk_old` (2 of 2: 1.1 m in 5 s, the steadier; take 1 jittered) |
 | `barkeep.mp4` | the barkeep at 11:00: his cloth on the bar (`WipeBar`, the clip under it for his body, his working arm the deed's IK on the real bar top), then his mop (`MopFloor`, the same way, both hands the deed's on the real handle) | `wipe_bar` (3 of 3: stillest feet), `mop_floor` (3 of 3: least travel, least slide) |
 | `trough.mp4` | Colter at the store's trough at 17:30: `scoop_water` once, a splash of the trough's water at his hands at the clip's mark (his hands highest, 4.1 s in) | `scoop_water` (2 of 3: bends lowest without walking off; take 3 wandered a metre) |
 
