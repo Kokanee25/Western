@@ -4,9 +4,9 @@ extends Node3D
 ## kicker draws, walks over and shoots him in the head where he lies.
 ##
 ## What's real and what's scripted:
-## - **Scripted: the kick.** There's no kick yet: the kicker swings his leg (the kick pose), and as
-##   it lands the back legs are broken and knocked away (break_member with the kick's direction).
-##   A real kick's force wouldn't break those oak posts yet.
+## - **Real: the kick** (since 2026-10-24). From his right side the kicker kicks low at the chair's
+##   near back leg (HumanBody.kick): his boot meets it and KitProp.take_blow decides; it breaks it
+##   and goes on through into the far one. Till then the legs were broken by script.
 ## - **Real: the fall.** The chair's own balance and the ragdoll take him over backwards.
 ## - **Real: the shot.** A .45 ball through Ballistics into his head: the anatomy and wounds decide.
 
@@ -70,9 +70,8 @@ func _ready() -> void:
 	_chair.global_position -= Vector3(sp.x, 0.0, sp.z)
 	_sitter = _man(&"old_rancher_s1", Vector3.ZERO, 0.0, false)
 	_sitter.set_pose(&"sit_back")
-	# The kicker behind him and to his right, out of the way of his fall, facing the chair's back legs.
-	_kicker = _man(&"bold_cowboy_s0", Vector3(0.6, 0.0, 0.72), 0.0, true)
-	_kicker.face(Vector3(0.1, 0.0, 0.1))
+	# The kicker at his right, out of the way of his fall, facing the chair's near back leg.
+	_kicker = _man(&"bold_cowboy_s0", Vector3(1.5, 0.0, 0.2), 0.0, true)
 	# Two cameras, side by side in the video: from his right (the kick and the fall in profile), and
 	# a three-quarter view from his left front.
 	for at: Array in [[Vector3(3.2, 1.25, -0.2), Vector3(0.35, 0.55, 0.6)], [Vector3(-3.0, 1.55, -1.2), Vector3(0.0, 0.55, 0.45)]]:
@@ -86,6 +85,14 @@ func _ready() -> void:
 		cam.look_at_from_position(at[0], at[1], Vector3.UP)
 		cam.current = true
 		_views.append(view)
+
+
+var _kick_at := Vector3.ZERO
+
+
+func _near_leg() -> Vector3:
+	var m := _chair.get_member(StringName("%s/post_back_l" % _chair.structure_id))
+	return Vector3(m.global_position.x, 0.07, m.global_position.z)
 
 
 func _man(model: StringName, at: Vector3, yaw: float, armed: bool) -> HumanBody:
@@ -103,16 +110,13 @@ func _physics_process(delta: float) -> void:
 	var t := _tick / 60.0
 	if _tick == 30:
 		_chair.sit(_sitter)
-	# The kick: his right leg swings forward and low into the chair's back legs.
+		# Stood where his leg reaches the near back leg (the chair's left: it faces his way).
+		_kick_at = _near_leg()
+		_kicker.global_position = _kicker.kick_spot(_kick_at, _kicker.global_position)
+		_kicker.face(_kick_at)
+	# The kick: low into the near back leg, through it into the far one.
 	if _tick == 90:
-		_kicker.set_pose(&"kick")
-	if _tick == 104:
-		for id in ["post_back_l", "post_back_r"]:
-			var m := _chair.get_member(StringName("%s/%s" % [_chair.structure_id, id]))
-			if m and not m.broken:
-				_chair.break_member(m, ((m.global_position - _kicker.global_position) * Vector3(1, 0, 1)).normalized() * 2.8 + Vector3.UP * 0.3)
-	if _tick == 125:
-		_kicker.set_pose(&"stand")
+		_kicker.kick(_kick_at, &"front")
 	# He lets him lie a moment, then draws and walks over to stand beside his head.
 	if _tick == 200:
 		_kicker.draw_gun()

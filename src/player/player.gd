@@ -48,6 +48,7 @@ var _body_shape: CapsuleShape3D
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var collision: CollisionShape3D = $CollisionShape3D
 @onready var body: PlayerBody = $Body
+var kick: PlayerKick  ## your kick (E): a chair's legs out from under a man
 
 
 func _ready() -> void:
@@ -61,6 +62,10 @@ func _ready() -> void:
 	composure = PlayerComposure.new()
 	composure.name = "Composure"
 	add_child(composure)
+	kick = PlayerKick.new()
+	kick.name = "Kick"
+	kick.player = self
+	add_child(kick)
 	_body_shape = CapsuleShape3D.new()
 	_body_shape.radius = tuning.radius
 	collision.shape = _body_shape

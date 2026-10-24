@@ -503,8 +503,9 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 ## hole in a board: the stretch flies as short pieces (thrown by `push`), and what's left either
 ## side stays in the frame as a member of its own (`<id>/a`, `<id>/b`), resting on whatever held
 ## that part of it. An end shorter than CUT_MIN_PIECE goes with the stretch. The member itself is
-## broken (its record: `cut` meta, `to_dict`'s "cuts"). Returns the pieces left standing.
-func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) -> Array[StructureMember]:
+## broken (its record: `cut` meta, `to_dict`'s "cuts"). Returns the pieces left standing. `chunk`:
+## the flying pieces' length (a kicked-out chair leg goes as one stick).
+func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO, chunk := CUT_CHUNK) -> Array[StructureMember]:
 	var left: Array[StructureMember] = []
 	if m == null or not is_instance_valid(m) or m.broken or m.consumed:
 		return left
@@ -544,7 +545,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 	_relink(m, left)
 	m.set_meta(&"cut_pieces", left)
 	# The stretch, in pieces about a hand-span long, thrown.
-	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
+	var n := maxi(1, ceili((t1 - t0) / maxf(chunk, 0.01) - 0.001))
 	for k in n:
 		var ca := t0 + (t1 - t0) * k / n
 		var cb := t0 + (t1 - t0) * (k + 1) / n

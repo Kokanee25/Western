@@ -8,7 +8,7 @@
   "look": "prop:mid_wood",
   "splits_below": 0.5,
   "blow_wood_share": 0.5,
-  "seat": {"member": "seat", "at": [0.0, 0.47, -0.02], "share": 0.75, "hold": 0.05, "sway": 0.03},
+  "seat": {"member": "seat", "at": [0.0, 0.47, 0.0], "share": 0.75, "hold": 0.05, "sway": 0.03},
   "members": [
     {"id": "leg_front_l", "kind": "post", "size": [0.035, 0.45, 0.035], "at": [-0.19, 0.225, 0.2], "blow_span": 0.4325},
     {"id": "leg_front_r", "kind": "post", "size": [0.035, 0.45, 0.035], "at": [0.19, 0.225, 0.2], "blow_span": 0.4325},

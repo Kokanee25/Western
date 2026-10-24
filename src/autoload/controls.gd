@@ -61,6 +61,7 @@ func _ready() -> void:
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])
 	_bind(&"shout", [KEY_G], [JOY_BUTTON_DPAD_LEFT])
+	_bind(&"kick", [KEY_E], [])  # a low kick (PlayerKick): a chair's legs out from under a man
 	_bind(&"debug_reset_outlaw", [KEY_F9], [JOY_BUTTON_DPAD_RIGHT])
 	# Bring the gang into town now (they otherwise ride in after a while).
 	_bind(&"debug_gang", [KEY_U], [])

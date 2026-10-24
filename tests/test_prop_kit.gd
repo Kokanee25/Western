@@ -252,10 +252,11 @@ func test_a_hard_sweep_kick_takes_both_back_legs_and_a_soft_one_only_the_first()
 		chair.take_blow(near, at, Vector3(kick, 0, 0))
 		await physics_frames(2)
 		check(near.has_meta(&"snapped") or near.broken, "%d N·s: the near back leg goes" % kick)
+		# (Knocked out below the seat since 2026-10-24, KitProp.knock_out: cut, not snapped whole.)
 		if kick > 60.0:
-			check(far.has_meta(&"snapped"), "80 N·s: the boot carries on through the far one too")
+			check(far.has_meta(&"snapped") or far.has_meta(&"cut"), "80 N·s: the boot carries on through the far one too")
 		else:
-			check(not far.has_meta(&"snapped"), "48 N·s: what's left of the boot doesn't break the far one")
+			check(not far.has_meta(&"snapped") and not far.has_meta(&"cut"), "48 N·s: what's left of the boot doesn't break the far one")
 
 
 func test_a_ball_through_a_barrel_holes_its_staves_and_it_stands() -> void:

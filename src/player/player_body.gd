@@ -23,6 +23,8 @@ var _torso: Node3D
 var _thighs: Array[Node3D] = []
 var _knees: Array[Node3D] = []
 var _stride_amount := 0.0
+## Your kick (PlayerKick): 0 standing, 1 the right leg out straight at the low kick.
+var kick := 0.0
 var _holstered_grip: MeshInstance3D
 
 static var _materials := {}
@@ -95,6 +97,13 @@ func update_pose(delta: float, speed: float, crouch: float, on_floor: bool, stri
 		var knee_angle := lerpf(-maxf(0.0, -s) * 1.4 - 0.05, deg_to_rad(-120.0), crouch)
 		_thighs[i].rotation.x = thigh_angle
 		_knees[i].rotation.x = knee_angle
+	if kick > 0.0:
+		# The right leg drawn up (half way) and snapped out low and straight (all the way).
+		var r := _thighs.size() - 1
+		var drawn := clampf(kick * 2.0, 0.0, 1.0)
+		var out := clampf(kick * 2.0 - 1.0, 0.0, 1.0)
+		_thighs[r].rotation.x = lerpf(_thighs[r].rotation.x, deg_to_rad(lerpf(55.0, 40.0, out)), drawn)
+		_knees[r].rotation.x = lerpf(_knees[r].rotation.x, deg_to_rad(lerpf(-85.0, -6.0, out)), drawn)
 
 
 func _box(parent: Node3D, n: String, size: Vector3, pos: Vector3, mat: Material) -> MeshInstance3D:

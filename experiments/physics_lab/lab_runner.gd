@@ -57,6 +57,8 @@ var _last_us := 0
 var _frame_us: Array[int] = []
 var _ticks_csv: FileAccess
 var _segs_csv: FileAccess
+var _chair_csv: FileAccess  ## the kit chair's pieces each tick (what stands and its rubble)
+var _man_csv: FileAccess  ## man 0's state each tick in the kit chair: limp, rising, his pose, hat, legs in the wreck
 var _events: Array[Dictionary] = []
 var _prev := {}  ## segment -> [pos, basis] last tick (man 0)
 var _ref := {}  ## segment -> reference taken as he goes limp
@@ -146,6 +148,11 @@ func _ready() -> void:
 		_ticks_csv.store_line("tick,t,phase,com_x,com_y,com_z,com_vx,com_vy,com_vz,max_speed,max_penetration,max_self_overlap,max_joint_gap,awake,contacts,contact_impulse_sum,frame_ms")
 		_segs_csv = FileAccess.open(out_dir.path_join("segments.csv"), FileAccess.WRITE)
 		_segs_csv.store_line("tick,t,segment,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz,vel_source,sleeping,contacts,contact_impulse,penetration,self_overlap,swing,twist,swing_limit,twist_limit,bend,joint_gap,step_m,step_deg")
+		if _kit_chair:
+			_chair_csv = FileAccess.open(out_dir.path_join("chair.csv"), FileAccess.WRITE)
+			_chair_csv.store_line("tick,t,piece,members,mass,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz")
+			_man_csv = FileAccess.open(out_dir.path_join("man.csv"), FileAccess.WRITE)
+			_man_csv.store_line("tick,t,limp,rising,pose,hat_off,legs_in_wreck_m,trunk_in_chair_m")
 	if render:
 		_build_cameras()
 	_last_us = Time.get_ticks_usec()
@@ -375,6 +382,46 @@ func _table(at: Vector3) -> void:
 			_box(at + Vector3(sx, 0.36, sz), Vector3(0.06, 0.72, 0.06), Color(0.35, 0.24, 0.15))
 
 
+var _kicker: HumanBody  ## the "kicker" cause's man
+var _kicker_back := false  ## he's kicked: stepping back
+var _kicker_from := Vector3.ZERO
+
+
+## Where the kicker aims (world): the middle of the members named, at "height" over the floor.
+func _kick_target(cause: Dictionary) -> Vector3:
+	var sum := Vector3.ZERO
+	var n := 0
+	for id: String in cause.get("at", ["post_back_r"]):
+		var m := _kit_chair.get_member(StringName("%s/%s" % [_kit_chair.structure_id, id]))
+		if m:
+			sum += m.global_position
+			n += 1
+	var at := sum / maxf(n, 1)
+	at.y = _kit_chair.global_position.y + float(cause.get("height", 0.12))
+	return at
+
+
+## The kicker comes from "from" (his frame: the seated man's, -z the way he faces) and stands where
+## his leg reaches the target, square to it.
+func _place_kicker(cause: Dictionary) -> void:
+	_kicker = HumanBody.new()
+	_kicker.name = "Kicker"
+	_kicker.body_model = String(cause.get("model", "outlaw"))
+	_kicker.rng_seed = 7
+	_kicker.person_id = &"lab_kicker"
+	_world.add_child(_kicker)
+	var at := _kick_target(cause)
+	var f: Array = cause.get("from", [0, 0, 1.5])
+	var from := _start_xf * Vector3(f[0], 0.0, f[2])
+	_kicker.global_position = Vector3(from.x, _start_xf.origin.y, from.z)
+	_kicker.face(at)
+	var spot := _kicker.kick_spot(at, from, String(cause.get("leg", "r")))
+	_kicker.global_position = spot
+	_kicker.face(at)
+	_kicker_from = spot + (spot - at) * Vector3(1, 0, 1) * 2.5
+	_events.append({"tick": _tick, "kind": "kicker_placed", "at": _v(spot), "target": _v(at)})
+
+
 func _chair(at: Vector3) -> void:
 	# A loose chair (6 kg) on the world layer, as a movable thing in the room would be. Production's
 	# chairs are static props (PropLibrary boxes, StaticBatch): this is the lab's own.
@@ -531,11 +578,17 @@ func _physics_process(delta: float) -> void:
 	var pre_ticks := int(round(float(pre.get("seconds", 0.5)) * 60.0))
 	if not light:
 		_record(frame_ms)
+	if _kicker and _kicker_back and not _kicker.kicking():
+		_kicker.walk_to(_kicker_from, 1.6, delta, false)
 	if _tick < pre_ticks:
 		_before(pre, delta)
 		# In the kit chair: his weight on its seat once he's sat (KitProp.sit), before the cause.
 		if _kit_chair and _tick == pre_ticks - 10 and _kit_chair.sit(_men[0]):
 			_events.append({"tick": _tick, "kind": "sat", "source": "KitProp.sit"})
+		# "kicker": a man stood where his leg reaches the chair's legs (HumanBody.kick_spot).
+		var kc: Dictionary = scenario.get("cause", {})
+		if _kit_chair and kc.get("kind", "") == "kicker" and _tick == pre_ticks - 40:
+			_place_kicker(kc)
 	elif _limp_tick < 0:
 		# "knock": a ball that drops him, as HumanBody.take_bullet has it (HumanBody._knocked): on
 		# the move he may stumble on first. The lab's "limp" is when he actually goes limp.
@@ -590,13 +643,29 @@ func _physics_process(delta: float) -> void:
 									var at := Vector3(m.global_position.x, float(cause.get("height", 0.12)), m.global_position.z)
 									did[id] = String(_kit_chair.take_blow(m, at, _start_xf.basis * Vector3(j[0], j[1], j[2]), 8.0))
 								else:
-									# Shot out: broken and its pieces knocked clear (2.5 m/s out from the
-									# chair's middle), not left standing under the seat.
+									# Shot out: knocked out below the seat (KitProp.knock_out) and the piece
+									# knocked clear (2.5 m/s out from the chair's middle), not left standing
+									# under the seat.
 									var out := m.global_position - _kit_chair.global_position
 									out.y = 0.0
-									_kit_chair.break_member(m, out.normalized() * 2.5)
+									if _kit_chair.has_method(&"knock_out"):
+										_kit_chair.call(&"knock_out", m, out.normalized() * 2.5)
+									else:
+										_kit_chair.break_member(m, out.normalized() * 2.5)  # before 2026-10-24
 							_events.append({"tick": _tick, "kind": "chair_legs", "how": cause.get("how", "remove"), "members": cause.get("members", []),
 									"did": did, "loose": _kit_chair.loose})
+					"kicker":
+						# Another man's real kick (HumanBody.kick): his boot meets the chair's legs
+						# and KitProp.take_blow decides what it does.
+						if man == _men[0] and _kicker:
+							var ok := _kicker.kick(_kick_target(cause), StringName(cause.get("how", "front")), String(cause.get("leg", "r")))
+							_kicker.clip_struck.connect(func(m: Node, r: StringName, speed: float) -> void:
+									_events.append({"tick": _tick, "kind": "kicked", "source": "HumanBody.kick", "result": String(r),
+											"member": String((m as StructureMember).member_id), "speed_mps": snappedf(speed, 0.01),
+											"loose": _kit_chair.loose}))
+							# Kicked, he steps back out of the way of what he's kicked over (a man does).
+							_kicker.kicked.connect(func(_r: StringName) -> void: _kicker_back = true, CONNECT_ONE_SHOT)
+							_events.append({"tick": _tick, "kind": "kick", "how": cause.get("how", "front"), "started": ok})
 					"sever":
 						man.sever_limb(StringName(cause.segment))
 					"blow":
@@ -1005,6 +1074,90 @@ func _record(frame_ms: float) -> void:
 		_ticks_csv.store_line(",".join(PackedStringArray([_tick, "%.4f" % t, phase, "%.4f" % com.x, "%.4f" % com.y, "%.4f" % com.z,
 				"%.4f" % com_v.x, "%.4f" % com_v.y, "%.4f" % com_v.z, "%.4f" % max_speed, "%.4f" % max_pen,
 				"%.4f" % max_self, "%.4f" % max_gap, awake, contacts, "%.4f" % cimp, "%.3f" % frame_ms])))
+	if _chair_csv:
+		_log_chair(t)
+	if _man_csv:
+		var m0 := _men[0]
+		_man_csv.store_line(",".join(PackedStringArray([_tick, "%.4f" % t, int(m0.limp), int(m0.rising), m0.pose,
+				int(m0.hat_off), "%.4f" % _legs_in_wreck(m0), "%.4f" % _legs_in_wreck(m0, TRUNK_PARTS, true)])))
+
+
+## How deep his thighs, shins and feet are in the chair's rubble (m): the deepest pair. Rising, his
+## parts pass through it (HumanBody._spare_rubble), so the engine can't say: kneeling in the wreck.
+## (`which`: the parts; `standing`: what still stands of the chair counts too, so his trunk in its
+## back as he sits shows.)
+const LEG_PARTS: Array[StringName] = [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
+const TRUNK_PARTS: Array[StringName] = [&"pelvis", &"abdomen", &"chest", &"neck", &"head", &"upper_arm_l", &"upper_arm_r"]
+
+
+func _legs_in_wreck(man: HumanBody, which: Array[StringName] = LEG_PARTS, standing := false) -> float:
+	var pieces := {}
+	for rb in _kit_chair.rubble:
+		if is_instance_valid(rb):
+			pieces[(rb as RigidBody3D).get_rid()] = true
+	if standing:
+		for m in _kit_chair.get_members():
+			if not m.broken and m.kind != &"furniture_top":
+				pieces[m.get_rid()] = true
+	if pieces.is_empty():
+		return 0.0
+	var space := man.get_world_3d().direct_space_state
+	var deepest := 0.0
+	for sid: StringName in which:
+		var part := man.parts.get(sid) as Node3D
+		if part == null:
+			continue
+		for c in part.get_children():
+			var cs := c as CollisionShape3D
+			if cs == null or cs.shape == null:
+				continue
+			var q := PhysicsShapeQueryParameters3D.new()
+			q.shape = cs.shape
+			q.transform = cs.global_transform
+			q.collision_mask = Layers.WORLD
+			var others: Array[RID] = []
+			var any := false
+			for hit: Dictionary in space.intersect_shape(q, 8):
+				if pieces.has(hit.rid):
+					any = true
+				else:
+					others.append(hit.rid)
+			if not any:
+				continue
+			q.exclude = others
+			var pts := space.collide_shape(q, 8)
+			for i in range(0, pts.size() - 1, 2):
+				deepest = maxf(deepest, (pts[i] as Vector3).distance_to(pts[i + 1]))
+	return deepest
+
+
+## The kit chair's pieces this tick: what still stands of it (piece "standing", in the chair's own
+## place) and each body of its rubble (members joined by "+"), in the man's start frame.
+func _log_chair(t: float) -> void:
+	var inv := _start_xf.affine_inverse()
+	var rows: Array = []
+	if not _kit_chair.loose:
+		var ids: Array = []
+		for m in _kit_chair.get_members():
+			if not m.broken:
+				ids.append(String(m.member_id).get_file())
+		rows.append(["standing", "+".join(ids), _kit_chair.mass(), _kit_chair.global_transform, Vector3.ZERO, Vector3.ZERO])
+	for i in _kit_chair.rubble.size():
+		var rb := _kit_chair.rubble[i] as RigidBody3D
+		if not is_instance_valid(rb):
+			continue
+		var ids: Array = []
+		for id: StringName in rb.get_meta(&"members", []):
+			ids.append(String(id).get_file())
+		rows.append(["r%d" % i, "+".join(ids), rb.mass, rb.global_transform, rb.linear_velocity, rb.angular_velocity])
+	for r: Array in rows:
+		var xf: Transform3D = inv * (r[3] as Transform3D)
+		var q := xf.basis.orthonormalized().get_rotation_quaternion()
+		var v: Vector3 = _start_xf.basis.inverse() * (r[4] as Vector3)
+		var w: Vector3 = _start_xf.basis.inverse() * (r[5] as Vector3)
+		_chair_csv.store_line(",".join(PackedStringArray([_tick, "%.4f" % t, r[0], r[1], "%.3f" % r[2],
+				"%.4f" % xf.origin.x, "%.4f" % xf.origin.y, "%.4f" % xf.origin.z, "%.5f" % q.x, "%.5f" % q.y, "%.5f" % q.z, "%.5f" % q.w,
+				"%.4f" % v.x, "%.4f" % v.y, "%.4f" % v.z, "%.4f" % w.x, "%.4f" % w.y, "%.4f" % w.z])))
 
 
 func _check(sid: StringName, t: float, v: Vector3, _w: Vector3, pen: float, self_o: float, swing: float, twist: float,
@@ -1240,6 +1393,10 @@ func _finish() -> void:
 		_ticks_csv.close()
 	if _segs_csv:
 		_segs_csv.close()
+	if _chair_csv:
+		_chair_csv.close()
+	if _man_csv:
+		_man_csv.close()
 	var limp_t := _limp_tick / 60.0
 	var shapes := 0
 	var joints := 0

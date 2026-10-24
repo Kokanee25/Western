@@ -400,6 +400,12 @@ func _on_member_broken(id: StringName) -> void:
 		return
 	if _seat_member and id == _seat_member.member_id:
 		_unseat()
+	# What hung from it (a knocked-out leg's post above the seat: knock_out) falls with the last of
+	# what held it.
+	for m in get_members():
+		if not m.broken and m.has_meta(&"held_by") and (m.get_meta(&"held_by") as Array).has(id) \
+				and (m.get_meta(&"held_by") as Array).all(func(h: StringName) -> bool: return get_member(h) == null or get_member(h).broken):
+			break_member.call_deferred(m)
 	if not _balance_queued:
 		_balance_queued = true
 		_check_balance.call_deferred()
@@ -463,7 +469,32 @@ func _check_balance() -> void:
 	# closer to the edge than that doesn't hold him. Wood alone doesn't sway.
 	var sway := float(definition.get("seat", {}).get("sway", 0.0)) if seated else 0.0
 	if hull.size() < 3 or not PropKit.inside(hull, Vector2(c.x, c.z), sway):
-		go_loose()
+		if not seated or hull.size() < 3:
+			go_loose()
+			return
+		# His sway is what takes him over: it goes loose leaning out over the edge he's nearest, at
+		# SWAY_LURCH. Without it, a chair whose balance the rule gave him a sway's width from the
+		# edge stood on as the physics had it, three-legged, and he sat on it limp for 3.6 s
+		# (experiments/physics_lab, 2026-10-24_chair_tip: one back leg kicked out).
+		var out := _over_edge(hull, Vector2(c.x, c.z))
+		go_loose(global_basis * Vector3(out.x, 0.0, out.y) * SWAY_LURCH)
+
+
+## How fast a seated man's sway carries him and the chair out over the edge it tips on (m/s).
+const SWAY_LURCH := 0.25
+
+
+## The way out over the edge of `hull` (anticlockwise) nearest `p` (unit, x and z).
+static func _over_edge(hull: PackedVector2Array, p: Vector2) -> Vector2:
+	var best := INF
+	var out := Vector2.ZERO
+	for i in hull.size():
+		var d := (hull[(i + 1) % hull.size()] - hull[i]).normalized()
+		var inward := d.cross(p - hull[i])
+		if inward < best:
+			best = inward
+			out = Vector2(d.y, -d.x)
+	return out
 
 
 # --- Going loose ---------------------------------------------------------------------------------
@@ -493,14 +524,24 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 		contents.on_loose(made)
 		if contents.released and impulse != Vector3.ZERO:
 			impulse *= _mass_of(made) / maxf(with_it, 0.1)
+	var heaviest: RigidBody3D = null
 	for rb in made:
+		for stick in _knocked:
+			if is_instance_valid(stick):
+				stick.add_collision_exception_with(rb)
 		rb.linear_velocity = velocity
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
+		if heaviest == null or rb.mass > heaviest.mass:
+			heaviest = rb
+	if heaviest:
+		for c: Array in _blow_carry:
+			heaviest.apply_impulse(c[0], (c[1] as Vector3) - heaviest.global_position)
+	_blow_carry.clear()
 	went_loose.emit()
 	_drop_fittings(made)
-	_unseat()
+	_unseat(made, velocity)
 	return made
 
 
@@ -588,7 +629,18 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 	if to_wood > toughness_of(m):
 		# It breaks; the broken piece goes off at the boot's speed, and the rest of the blow's
 		# momentum still goes into what's left (and him on it).
-		break_member(m, impulse.normalized() * minf(v_in, 8.0))
+		# Until it snapped the leg was part of the chair, and pushed it: the momentum the knock had
+		# passed when the wood had taken all it could (its share of the energy lost so far, J*v -
+		# J^2/2mu, up to the member's toughness; 25 N*s of a 48 N*s kick to an oak leg) goes into
+		# what's left of it where the boot met it, as it goes loose. A sweep drags the chair's back
+		# sideways out from under him, so he goes over twisting toward the kicker; without it a
+		# sweep fell as a kick from behind did (experiments/physics_lab, 2026-10-24_chair_tip).
+		var share := maxf(float(definition.get("blow_wood_share", 0.5)), 0.05)
+		var through := reduced * (v_in - sqrt(maxf(v_in * v_in - 2.0 * toughness_of(m) / (share * reduced), 0.0)))
+		if _blow_carry.is_empty():
+			_blow_carry_clear.call_deferred()
+		_blow_carry.append([impulse.normalized() * through, at])
+		knock_out(m, impulse.normalized() * minf(v_in, 8.0))
 		result = &"broke"
 		if loose:
 			return result
@@ -612,28 +664,138 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 	return result
 
 
+## A leg taken out by a kick (or shot out): the stretch of it that bends under a blow (its kit
+## spec's `blow_span`: a leg's length below the seat) goes, in one piece at `push`, and what's above
+## stays joined to the seat. A chair's back legs run on up as its back posts, and broken whole they
+## took its back with them: the crest and spindles fell away, and he sank between the front legs
+## instead of the chair tipping back on them with him against its back (experiments/physics_lab,
+## results/2026-10-24_chair_tip). A member with no shorter span breaks whole (break_member).
+func knock_out(m: StructureMember, push := Vector3.ZERO) -> void:
+	if m == null or m.broken or not collapses:
+		return
+	var spec: Dictionary = m.get_meta(&"kit", {})
+	var length := m.length()
+	var span := float(spec.get("blow_span", length))
+	if span > length - CUT_MIN_PIECE:
+		break_member(m, push)
+		return
+	# Which end stands on the floor: the lower one in the prop's space.
+	var ai := m.axis_index()
+	var along := m.transform.basis * (Vector3(1, 0, 0) if ai == 0 else (Vector3(0, 1, 0) if ai == 1 else Vector3(0, 0, 1)))
+	var half := length * 0.5
+	var t := Vector2(-half, -half + span) if along.y >= 0.0 else Vector2(half - span, half)
+	var before := rubble.size()
+	var look: String = spec.get("look", definition.get("look", ""))
+	var left := cut_member(m, t.x, t.y, push, span)
+	# What's left and the stick that flew drawn as the rest of it is (cut_member draws a building's
+	# wood); the piece left is no longer a leg to kick.
+	var keep := spec.duplicate()
+	keep.erase("blow_span")
+	for p in left:
+		p.set_meta(&"kit", keep)
+		PropKit.dress_member(p, {}, look)
+		# Held by its joints to what it's fixed into (the seat, the crest), as a hung prop's nailed
+		# members are: the support graph's members only rest on what's under them, and a post
+		# running up from the seat has nothing under it. Not a foot (no `_feet`): it doesn't stand
+		# the chair up. It falls if what holds it goes (_on_member_broken).
+		p.grounded = true
+		var by: Array[StringName] = []
+		for id in p.touching:
+			if not get_member(id).broken:
+				by.append(id)
+		p.set_meta(&"held_by", by)
+	for i in range(before, rubble.size()):
+		var stick := rubble[i] as RigidBody3D
+		if look != "":
+			for c in stick.get_children():
+				if c is MeshInstance3D:
+					(c as MeshInstance3D).material_override = PropKit.material(look, hash(m.member_id))
+		# It flies clear of the rest of its chair: still under the seat, the chair and him coming
+		# down on it held it by friction for a tick as if it were a leg, and it stopped dead.
+		_clear_of_rest(stick)
+	settle()
+
+
+## What the blows that broke its legs this tick passed into it before they did ([impulse, at]):
+## given to what's left as it goes loose (take_blow, go_loose), else gone with the tick.
+var _blow_carry: Array = []
+
+
+func _blow_carry_clear() -> void:
+	_blow_carry.clear()
+
+
+## A piece knocked off it (`knock_out`) passes through what's left of it for KNOCKED_CLEAR seconds:
+## it's moving off at the boot's speed, and in that time it's clear.
+const KNOCKED_CLEAR := 0.25
+var _knocked: Array[RigidBody3D] = []
+
+
+func _clear_of_rest(stick: RigidBody3D) -> void:
+	_knocked.append(stick)
+	for o in get_members():
+		if not o.broken:
+			stick.add_collision_exception_with(o)
+	for rb in rubble:
+		if is_instance_valid(rb) and rb != stick and not _knocked.has(rb):
+			stick.add_collision_exception_with(rb)
+	get_tree().create_timer(KNOCKED_CLEAR, false, true).timeout.connect(func() -> void:
+		_knocked.erase(stick)
+		if not is_instance_valid(stick):
+			return
+		for c in stick.get_collision_exceptions():
+			stick.remove_collision_exception_with(c))
+
+
 ## The next of its standing members a blow going `dir` from `at` meets (within its size), and where:
-## [member, point], or [] (what it broke is rubble now, and left out).
+## [member, point], or [] (what it broke is rubble now, and left out). The blow's line is a boot's
+## width (BLOW_WIDTH) and level: a kick's boot rises as it snaps out, and a line that thin went over
+## or past the next leg in a chair's row (2026-10-24_chair_tip).
+const BLOW_WIDTH := 0.05
+
+
 func _next_in_line(at: Vector3, dir: Vector3, after: StructureMember) -> Array:
 	var space := get_world_3d().direct_space_state
 	var reach := PropKit.bounds(definition).size.length()
-	var q := PhysicsRayQueryParameters3D.create(at, at + dir * reach, Layers.WORLD)
+	var flat := Vector3(dir.x, 0.0, dir.z)
+	dir = flat.normalized() if flat.length() > 0.2 else dir.normalized()
+	var across := dir.cross(Vector3.UP).normalized() if flat.length() > 0.2 else Vector3.RIGHT
 	var skip: Array[RID] = [after.get_rid()]
 	for rb in rubble:
 		if is_instance_valid(rb):
 			skip.append((rb as RigidBody3D).get_rid())
-	for i in 4:
-		q.exclude = skip
-		var hit := space.intersect_ray(q)
-		if hit.is_empty():
-			return []
-		var c: Object = hit.collider
-		if c is StructureMember and members.has((c as StructureMember).member_id) and not (c as StructureMember).broken:
-			return [c, hit.position]
-		if not (c is CollisionObject3D):
-			return []
-		skip.append((c as CollisionObject3D).get_rid())
-	return []
+	var best := []
+	var best_d := INF
+	# From the middle of what it broke, at the blow's height (the boot goes on through it; from the
+	# face it met, the line started in the boot's own hold of it and found nothing).
+	var mid := Vector3(after.global_position.x, at.y, after.global_position.z)
+	if absf(after.axis().y) < 0.7:
+		mid = at
+	# (Lines half a leg's thickness apart across the boot, so none slips between: 5 cm apart, a leg
+	# 2.7 cm off the middle one went between two.)
+	var offs: Array[Vector3] = [Vector3.UP * BLOW_WIDTH]
+	for k in range(-2, 3):
+		offs.append(across * BLOW_WIDTH * k * 0.5)
+	for off: Vector3 in offs:
+		var from := mid + off
+		var q := PhysicsRayQueryParameters3D.create(from, from + dir * reach, Layers.WORLD)
+		var own := skip.duplicate()
+		for i in 4:
+			q.exclude = own
+			var hit := space.intersect_ray(q)
+			if hit.is_empty():
+				break
+			var c: Object = hit.collider
+			if c is StructureMember and members.has((c as StructureMember).member_id) and not (c as StructureMember).broken:
+				var d := from.distance_to(hit.position)
+				if d < best_d:
+					best_d = d
+					best = [c, hit.position]
+				break
+			if not (c is CollisionObject3D):
+				break
+			own.append((c as CollisionObject3D).get_rid())
+	return best
 
 
 ## A blast that didn't break it throws what's left: each member pushed by the blast on the face it
@@ -747,12 +909,19 @@ func _clear_seat() -> void:
 
 ## The chair's gone from under him: he goes down with it (limp, as any man who loses his footing;
 ## conscious, his muscles still hold him a moment).
-func _unseat() -> void:
+func _unseat(bodies: Array[RigidBody3D] = [], velocity := Vector3.ZERO) -> void:
 	var man := seated
+	var seat := _seat_member
 	_clear_seat()
 	if man and is_instance_valid(man) and not man.get(&"limp") and man.has_method(&"go_limp"):
-		man.call(&"go_limp")
+		man.call(&"go_limp", velocity)
 		# Awake, he throws out his arms as he goes (HumanBody.brace; gameplay's).
 		if man.has_method(&"brace"):
 			man.call(&"brace")
+		# The seat's gone loose with him on it: he goes over with it (HumanBody.ride; gameplay's).
+		if seat and man.has_method(&"ride"):
+			for rb in bodies:
+				if is_instance_valid(rb) and (rb.get_meta(&"members", []) as Array).has(seat.member_id):
+					man.call(&"ride", rb)
+					break
 
