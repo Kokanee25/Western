@@ -103,6 +103,9 @@ func _build_furniture() -> void:
 
 	# On the walls: the stag over the back wall, a painting, and lamps in sconces.
 	_place(props, &"deer_head", Vector3(width * 0.5, f + 2.7, depth - STUD_D), 180.0)
+	# Outside, a longhorn's skull nailed to the porch beam's face over the door (the prop lab's,
+	# Sean 2026-10-24): its plank's top at the beam's top, its back on the beam's street face.
+	_place(props, &"steer_skull", Vector3(width * 0.5, porch_height + 0.18, -porch_depth - 0.06), 180.0)
 	_place(props, &"framed_painting", Vector3(STUD_D, f + 2.2, 6.2), 90.0)
 	for z: float in [2.4, 7.2]:
 		_place(props, &"wall_sconce", Vector3(STUD_D, f + 1.9, z), 90.0)
