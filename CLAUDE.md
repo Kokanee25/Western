@@ -426,6 +426,12 @@ frozen until Sean names one.
   four men (widow, bold_cowboy_s3, young_drifter, doctor) the jaw goes back more than down
   (`talking_face.py`'s spline extrapolation: carry the units by the warp's derivative, rebuild
   them); Sean's three takes (`docs/FACE_TAKES.md`) to tune it; issue #247.
+- **New townsfolk from the Studio** (2026-10-24, #360, build 2412): the miner (assay office, a
+  one-off), the storekeeper and the working girl (the saloon's front windows), talking faces and
+  hands. Open: the storekeeper's chin holes and the edge pin at hair (`docs/briefs/face-seam.md`).
+  **Props by Rodin** (prop lab's files, Sean's ask): the deer head from Sean's pictures (#361) and
+  the steer skull on the saloon's porch beam (pictures by the Studio's `prop-pictures`), on
+  `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $50.01 of $55.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
