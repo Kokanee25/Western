@@ -713,6 +713,13 @@ func knock_out(m: StructureMember, push := Vector3.ZERO) -> void:
 		# It flies clear of the rest of its chair: still under the seat, the chair and him coming
 		# down on it held it by friction for a tick as if it were a leg, and it stopped dead.
 		_clear_of_rest(stick)
+		# Struck near its foot, a stick goes off at a fraction of the boot's speed, tumbling end over
+		# end about the line across the blow (cut_member's pieces fly at it with a random spin: a
+		# blind judge saw the legs "sail a metre or two away" spinning, like a toy's).
+		if push.length() > 0.01:
+			stick.linear_velocity = push * KNOCKED_SHARE + Vector3.UP * 0.4
+			stick.angular_velocity = push.normalized().cross(Vector3.UP) * -push.length() * KNOCKED_SHARE / maxf(span * 0.5, 0.1)
+			stick.set_meta(&"start_v", stick.linear_velocity)
 	settle()
 
 
@@ -728,6 +735,8 @@ func _blow_carry_clear() -> void:
 ## A piece knocked off it (`knock_out`) passes through what's left of it for KNOCKED_CLEAR seconds:
 ## it's moving off at the boot's speed, and in that time it's clear.
 const KNOCKED_CLEAR := 0.25
+## A knocked-out leg's speed, of the blow's (KitProp.knock_out).
+const KNOCKED_SHARE := 0.4
 var _knocked: Array[RigidBody3D] = []
 
 

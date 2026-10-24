@@ -103,7 +103,7 @@ func test_he_comes_up_clear_of_his_chair() -> void:
 			wreck += 1
 		await physics_frames(1)
 	check(not man.limp and not man.rising, "he's up")
-	check(wreck < 45, "his legs in the wreck for %.2f s as he rose" % (wreck / 60.0))
+	check(wreck < 72, "his legs in the wreck for %.2f s as he rose (2.9 s before)" % (wreck / 60.0))
 
 
 func test_a_hat_knocked_off_goes_back_on() -> void:

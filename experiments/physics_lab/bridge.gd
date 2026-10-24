@@ -25,17 +25,32 @@ func _cmd_seat(a: Array) -> Dictionary:
 	if man == null:
 		return {"ok": false, "error": "seat PERSON [X Y Z]"}
 	var near := vec(a, 1) if a.size() >= 4 else man.global_position
-	var chair := Seating.free_chair_near(man.get_tree(), near)
+	# A chair (back legs to kick out), not a stool: the free one nearest.
+	var chair: KitProp = null
+	for c: Node in man.get_tree().get_nodes_in_group(&"structures"):
+		var kp := c as KitProp
+		if kp and kp.kit_id == &"chair" and not kp.loose and kp.seated == null and kp.is_inside_tree() \
+				and (chair == null or kp.seat_position().distance_to(near) < chair.seat_position().distance_to(near)):
+			chair = kp
 	if chair == null:
 		return {"ok": false, "error": "no free kit chair near %s" % [arr(near)]}
-	# His brain sits him if it's its plan; here he's put there.
-	var spot := chair.seat_position()
-	man.global_position = Vector3(spot.x, chair.global_position.y, spot.z)
-	man.face(man.global_position + chair.global_basis.z)
-	man.set_pose(&"sit_back")
-	await physics_frames(20)
-	var ok := chair.sit(man)
-	return {"ok": ok, "chair": String(chair.structure_id), "at": arr(chair.global_position)}
+	# Put a step in front of it, then he sits as he would: his brain's drink sat down (an outlaw's),
+	# or Seating's walk and sit.
+	var out := chair.global_basis.z
+	out.y = 0.0
+	man.global_position = Seating.spot(chair) + out.normalized() * 0.7
+	var brain := man.get_node_or_null(^"Brain")
+	if brain and brain.get(&"agenda") is Array:
+		(brain.agenda as Array).insert(0, {"do": &"drink", "seconds": 900.0, "face": Seating.faces(chair), "first": false, "sit": true})
+		brain.set(&"_step_started", false)
+		brain.set(&"_chair", chair)
+	for i in 600:
+		if chair.seated == man:
+			break
+		if brain == null:
+			Seating.sit_step(man, chair, 1.0 / 60.0)
+		await physics_frames(1)
+	return {"ok": chair.seated == man, "chair": String(chair.structure_id), "at": arr(chair.global_position)}
 
 
 ## The near back leg of his chair from `from` (side: his right; behind) and where to stand to kick

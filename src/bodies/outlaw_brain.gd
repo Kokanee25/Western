@@ -39,6 +39,7 @@ const LINES := {
 	&"shaken": ["Hell. Hell, hell, hell...", "Stay down... stay down...", "Lord, get me out of this one."],
 	&"rally": ["Alright. Alright, you son of a—", "Still here, mister!", "That all you got?"],
 	&"down": ["My leg... damn you...", "Can't... get up..."],
+	&"knocked": ["Son of a—!", "Why, you—", "What the hell!"],
 	&"shot_while_surrendered": ["I give up, you bastard!", "I'm unarmed!"],
 	&"reloading": ["Hold still..."],
 	&"flee": ["To hell with this!", "I ain't dying for this!", "I'm gone!"],
@@ -740,7 +741,14 @@ func _on_fell(conscious: bool) -> void:
 	if conscious and body.prone and mood in [Mood.FIGHTING, Mood.RELOADING] and crew.any_in_earshot(_now):
 		callout(&"help", _find_target())
 	elif conscious:
-		say(&"down")
+		_say_down.call_deferred()
+
+
+## Down awake: hurt ("my leg"), or only knocked off his feet (his chair kicked out: HumanBody.brace
+## says he'll get up, a moment after he falls).
+func _say_down() -> void:
+	if is_instance_valid(body):
+		say(&"knocked" if body.rise_ok else &"down")
 
 
 ## Dynamite going off near him: frightening by how hard it hit him, and it starts the fight.

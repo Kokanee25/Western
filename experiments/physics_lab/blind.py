@@ -3,9 +3,10 @@
 import sys,os,glob,json,random,subprocess
 from PIL import Image,ImageDraw
 a,b,out,seed=sys.argv[1],sys.argv[2],sys.argv[3],int(sys.argv[4])
+# (an optional fifth: the sheet's times, s from the hit; 2026-10-24)
 os.makedirs(out,exist_ok=True); os.makedirs(out.rstrip('/')+'_unblind',exist_ok=True); rnd=random.Random(seed); key={}
 cmp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'compare.py')
-T='0,0.18,0.38,0.68,0.98,1.48,2.48,3.98,5.98'
+T=sys.argv[5] if len(sys.argv)>5 else '0,0.18,0.38,0.68,0.98,1.48,2.48,3.98,5.98'
 for d in sorted(glob.glob(a+'/*/frames')):
     n=os.path.basename(os.path.dirname(d))
     if not os.path.isdir(os.path.join(b,n,'frames')): continue
