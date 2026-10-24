@@ -46,6 +46,11 @@ extends Resource
 @export var sun_max_energy := 1.6
 @export var moon_max_energy := 0.45
 @export var moon_color := Color(0.55, 0.65, 1.0)
+## Moonlight in at a building's door and windows (MoonWindows: a cool spot inside each opening,
+## for the saloon): its strength with the moon full, colour and reach. 0 = none.
+@export var moon_window_energy := 0.0
+@export var moon_window_colour := Color(0.5, 0.62, 1.0)
+@export var moon_window_reach := 5.0
 @export var sun_color: Gradient
 @export var sky_top: Gradient
 @export var sky_horizon: Gradient
@@ -74,6 +79,11 @@ extends Resource
 @export var exposure_day := 1.0
 ## The ambient's share from the sky at noon (the rest the horizon's warm colour, ambient_warm_level).
 @export var ambient_sky_day := 1.0
+## Round 2 (Sean, #321: "shade that reads cool and deep"): with the sun high the ambient's own
+## colour (the share ambient_sky_day leaves) goes this far toward `ambient_day_colour`, the deep
+## blue of the open sky over a shaded porch. 0 = the horizon's warm colour, as before.
+@export var ambient_day_cool := 0.0
+@export var ambient_day_colour := Color(0.42, 0.56, 0.9)
 ## The sky overhead with the sun high: its colour's saturation (a hot desert sky is paler than the
 ## cartoon blue), and how far it goes toward the horizon's colour.
 @export var sky_high_saturation := 1.0

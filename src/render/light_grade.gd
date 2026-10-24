@@ -9,7 +9,7 @@ class_name LightGrade
 ## Dials (LookPreset's `grade.<dial>`): strength 0 is off (no lookup, the environment's
 ## adjustments off as before). Set by the light looks (config/looks/light_*.json, LightLooks).
 
-const SIZE := 32
+const SIZE := 16  # 16^3: ~17 ms to build here (32^3 was 133 ms, a hitch at each dusk step); the grade is smooth
 
 ## The dials and their "off" values.
 const DEFAULTS := {
@@ -27,8 +27,14 @@ const DEFAULTS := {
 }
 
 static var dials := DEFAULTS.duplicate()
+## While true, set_dial only stores (a look sets several dials; one lookup is built at its end:
+## LookPreset.apply, LightLooks.blend).
+static var batching := false
 static var _built := {}  # the dials the lookup in force was built from
 static var _lut: ImageTexture3D
+## Lookups built before, by their dials (the game's light steps through a few as the sun goes down).
+static var _cache := {}
+const CACHE_MAX := 12
 
 
 ## Set one dial (LookPreset `grade.<name>`) and re-grade the street. False if there's no such dial.
@@ -36,7 +42,8 @@ static func set_dial(tree: SceneTree, name: String, value: Variant) -> bool:
 	if not DEFAULTS.has(name):
 		return false
 	dials[name] = value
-	apply(tree)
+	if not batching:
+		apply(tree)
 	return true
 
 
@@ -52,7 +59,12 @@ static func apply(tree: SceneTree) -> void:
 			env.adjustment_enabled = false
 		return
 	if _lut == null or _built != dials:
-		_lut = build(dials)
+		var key := str(dials)
+		if not _cache.has(key):
+			if _cache.size() >= CACHE_MAX:
+				_cache.clear()
+			_cache[key] = build(dials)
+		_lut = _cache[key]
 		_built = dials.duplicate()
 	# The scene's own contrast and saturation (1.15, 1.12) were never switched on (adjustment_enabled
 	# false): the grade's dials stand in for them.
