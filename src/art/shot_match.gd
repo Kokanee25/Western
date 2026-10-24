@@ -19,7 +19,7 @@ const ROOM_YAW := -72.8
 const TABLE_IN_SALOON := Vector3(6.64, 0.0, 6.81)
 const ROOM_YAW_IN_SALOON := 107.2
 const TABLE_HEIGHT := 0.76
-const TABLE_RADIUS := 0.7
+const TABLE_RADIUS := 0.86  # was 0.7: the Studio man sits in a chair (2026-10-24) and his knees showed past the edge
 ## Degrees the table top is turned about its axis (the grain across the eye's view).
 const TOP_TURN := 53.0
 ## Where your eyes are, sat down, relative to the table's centre on the floor: a little right of
@@ -149,6 +149,7 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	man.global_rotation.y += deg_to_rad(fit(&"turn"))
 	man.set_pose(fit(&"pose") if FITS.get(model, {}).has("pose") else &"sit_lean")
 	man.pose_offsets = (fit(&"pose_offsets") as Dictionary).duplicate()
+	_chair_under(root, man)
 	_cup_in_hand(man)
 	for key: String in man.skin_meshes:
 		if key.begins_with("head/"):
@@ -164,6 +165,27 @@ static func stage(street: Node3D, man: HumanBody = null) -> HumanBody:
 	if VoxelTrial.eyes:
 		VoxelTrial.add_eyes(man, root.to_global(EYE))
 	return man
+
+
+## A kit chair under the seated man (Sean, 2026-10-24: "he should be sitting on a chair"), turned
+## as he is, its seat point where he sits, his weight on it (KitProp.sit), as a man sits in town.
+static func _chair_under(root: Node3D, man: HumanBody) -> void:
+	var old := root.get_node_or_null(^"HisChair")
+	if old:
+		old.free()
+	# Untyped and loaded by path: tools/screenshots.gd compiles this before the autoloads exist,
+	# and the prop kit's classes name them.
+	var chair: Node3D = load("res://src/props/prop_library.gd").spawn(&"chair")
+	if chair == null:
+		return
+	chair.name = "HisChair"
+	root.add_child(chair)
+	chair.global_transform = Transform3D(Basis(Vector3.UP, man.global_rotation.y), man.global_position)
+	if chair.has_method(&"seat_position"):
+		var miss: Vector3 = man.global_position - chair.call(&"seat_position")
+		miss.y = 0.0
+		chair.global_position += miss
+		chair.call(&"sit", man)
 
 
 ## The painting lights its man softly from your side as well as from the lamp: both cheeks warm
