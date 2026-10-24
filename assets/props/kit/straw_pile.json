@@ -1,0 +1,42 @@
+{
+  "kind": "members",
+  "in_game": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.3,
+  "_doc": "Loose straw in a low heap, kicked out of a stall or off a wagon (~1.1 by 0.9 m, 0.2 high; the prop factory's, tools/blender/props/straw_pile.py): one member, stalks lying about it drawn on. Burns at once.",
+  "id": "straw_pile",
+  "factory": "tools/blender/props/straw_pile.py",
+  "wood": "straw",
+  "look": "prop:straw",
+  "members": [
+    {
+      "id": "heap",
+      "kind": "post",
+      "size": [
+        1.05,
+        0.18,
+        0.85
+      ],
+      "at": [
+        0,
+        0.09,
+        0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "straw_pile",
+        "part": "heap"
+      },
+      "dress": [
+        {
+          "look": "prop:straw",
+          "draw": {
+            "shape": "mesh",
+            "model": "straw_pile",
+            "part": "stalks"
+          }
+        }
+      ]
+    }
+  ]
+}

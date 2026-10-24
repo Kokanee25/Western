@@ -285,6 +285,8 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
+  motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
@@ -472,6 +474,10 @@ frozen until Sean names one.
   (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
   `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
   street saloon's stair).
+- **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
+  its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
+  `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
+  #331, after light pass round 2 (#329).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -499,8 +505,12 @@ frozen until Sean names one.
   in `results/2026-10-23_commit/`): rescue and pressing by the town's ways, one man pressing on your
   reload, a knee under fire, staying in while a friend's on you, a rattled hand: 45-90 s of
   shooting 4% -> 14-16%; blind playtests round 2 and night (`docs/playtests/2026-10-23-gunfight*.md`):
-  they fight, never fold, and finish a slow player in seconds. Play: Y the next setup, X again, Z the
-  next variant. Next: the `next session` issue. Traps: `pkill -f`/`ps|grep` kill loops match their
+  they fight, never fold, and finish a slow player in seconds. **The trial** (2026-10-24, Sean's
+  consolidated review; `results/2026-10-23_expAB/`): `pain_fight`, `floor_fight`, `odds` (1C),
+  `flinch` (3A), `way_cost` (B), off in the game, on in the lab's Y ("D+"); the saloon's partition
+  doors fixed; a `careful` scripted player: shooting 15-17 -> 36 s median, 45-90 s in a third of
+  fights, the careful player down in half. Play: Y the next setup (D+), X again, Z the next variant.
+  Waiting on Sean: his play of D+ (difficulty). Traps: `pkill -f`/`ps|grep` kill loops match their
   own command line; merging main mid-run needs `godot --headless --import` before the next game;
   never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
   is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).
@@ -546,6 +556,15 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+- **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
+  `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
+  targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,
+  `-- --moment=NAME`), the Uthana clips in `assets/animations/` by
+  `tools/blender/retarget_motion.py` (#342, build 2338); 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
+  pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
+  generated one is high and forward). Next: the player's ways out and the room (the `next session`
+  issue).
+
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
@@ -557,3 +576,10 @@ frozen until Sean names one.
   barrels and the street's water ones; the spittoon and tin cup as `LooseProp` (holed, knocked,
   dented, rolling, spilling). Results `experiments/prop_lab/results/2026-10-23_contents/`. Next: the
   `next session` issue.
+- **The prop factory** (2026-10-24, #338, brief `docs/briefs/prop-factory.md`; branch
+  `claude/start-338-k3qk4h`): clutter in batches. Batch 1 the wagons and wheels as members
+  (`tools/props/wagons.py`; the street's two drawn wagons swapped); batch 2 by Blender
+  (`tools/blender/props/`, bpy in `~/bpyenv`; `"draw": {"shape": "mesh"}`): hay bale, straw heap, feed
+  and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
+  canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
+  Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.

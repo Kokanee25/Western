@@ -4,13 +4,14 @@ extends Node
 ## setups: the hall round the bar and tables, the stair, the galleries, the back of the hall by the
 ## kitchen and back room, and out front under the street balcony. Your gun's away. Drawing doesn't
 ## start it (they warn you off, as men do in town); your first shot does, or they go for theirs
-## when the count's out (6 s). The gang fights as the game's does (OutlawBrain.default_variant);
-## Z tries the others (A as it was, B aims by his hand and finds cover, C is B and shaken first, D
-## is C and fights that commit).
+## when the count's out (6 s). The gang fights as the trial does ("D+": the game's D and the fixes
+## on trial, TRIAL: wounded men fight on and from the floor, past his nerve a man weighs it, a ball
+## past him spoils his shot; results/2026-10-23_expAB/); Z tries the others (A as it was, B aims by
+## his hand and finds cover, C is B and shaken first, D is C and fights that commit: the game's now).
 ##
 ##   Y  the next setup (hall, stair, gallery, back, front, then again on the next seed).
 ##   X  this run again (same setup, variant and seed: the men's dice the same; what you do isn't).
-##   Z  this setup and seed with the next variant (A, B, C, D), shown.
+##   Z  this setup and seed with the next variant (A, B, C, D, D+), shown.
 ##
 ## Each run starts from a fresh town (the scene reloads, as the I and M keys do). The lab's own
 ## fight (fight.gd, style "human") watches it and writes it down: user://gunfight_runs/, one JSON
@@ -23,7 +24,9 @@ const Fight := preload("res://experiments/gunfight_lab/fight.gd")
 const SETUPS := ["spec_hall", "spec_stair", "spec_gallery", "spec_back", "spec_front"]
 const SETUP_NAMES := {"spec_hall": "the hall", "spec_stair": "the stair", "spec_gallery": "the galleries",
 	"spec_back": "the back of the hall", "spec_front": "out front"}
-const VARIANTS := ["A", "B", "C", "D"]
+const VARIANTS := ["A", "B", "C", "D", "D+"]
+## "D+": variant D with these of OutlawBrain's fixes on trial (Sean's build to play, 2026-10-24).
+const TRIAL := ["pain_fight", "floor_fight", "odds", "flinch"]
 ## Seconds before they go for their guns if you haven't shot.
 const COUNT := 6.0
 const OUT := "user://gunfight_runs"
@@ -93,7 +96,7 @@ func _input(event: InputEvent) -> void:
 		return
 	var st := _state()
 	var last: Dictionary = st.last
-	var game := String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant])
+	var game := "D+"
 	if event.is_action_pressed(&"gunfight_next"):
 		var i := int(st.next)
 		_queue({"setup": SETUPS[i % SETUPS.size()], "variant": game, "seed": 1 + i / SETUPS.size(), "run": i + 1})
@@ -117,7 +120,8 @@ func _start() -> void:
 	await get_tree().physics_frame
 	await seconds(0.5)  # the town settles (people placed, lamps made) before the men come in
 	var opts := {"scenario": String(_run.get("setup", SETUPS[0])), "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game",
-		"variant": _run.variant, "seed": int(_run.seed), "max": 300.0, "count": COUNT, "draw_turns": "false"}
+		"variant": "D" if _run.variant == "D+" else _run.variant, "seed": int(_run.seed), "max": 300.0, "count": COUNT, "draw_turns": "false",
+		"fixes": "all+" + "+".join(TRIAL) if _run.variant == "D+" else "all"}
 	_fight = Fight.new(self, opts)
 	add_child(_fight)
 	var err: String = await _fight.setup()

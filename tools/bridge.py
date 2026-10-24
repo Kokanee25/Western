@@ -4,6 +4,7 @@
 Start the game with the bridge, send it commands, stop it:
 
     python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
+        [--game-args=--young-town,...]
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
@@ -65,6 +66,10 @@ def start(args):
     if movie:
         cmd += ["--write-movie", os.path.abspath(movie)]
     cmd += ["--", "--dev-bridge", f"--bridge-port={port}"]
+    # The game's own flags, comma separated (--game-args=--young-town: every building as new).
+    game_args = _opt(args, "game-args")
+    if game_args:
+        cmd += game_args.split(",")
     script = _opt(args, "script")
     if script:
         cmd.append(f"--bridge-script={os.path.abspath(script)}")

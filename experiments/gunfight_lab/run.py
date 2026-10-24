@@ -139,7 +139,7 @@ def main(argv):
     failed = []
     ports = queue.Queue()
     for i in range(jobs):
-        ports.put(8800 + i)
+        ports.put(int(opt(sys.argv[1:], "port_base", "8800")) + i)
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = [pool.submit(run_one, f, out, ports, max_s, godot) for f in fights]
         for fu in futures:

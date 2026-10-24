@@ -21,25 +21,32 @@ class_name PropKit
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
 ## weathered, hide, hide_dark, antler, gilt, picture (a landscape, one of two), burl, ivory,
-## ebony, brass, iron, mirror), or
+## ebony, brass, iron, mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
-##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at"}: turned about the
-##    prop's Y (or a vertical axis through "at");
+##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at", "rot"}: turned about
+##    the prop's Y (or an axis through "at", turned by "rot": a wheel's hub, across the wagon);
 ##   {"shape": "sweep", "profile": [[r, y], ...], "from", "to" (degrees), "segments", "grain_up",
-##    "caps"}: part of one ("caps": its cut ends closed, the profile a closed outline: a stave);
+##    "caps", "at", "rot"}: part of one ("caps": its cut ends closed, the profile a closed outline: a
+##    stave; "at"/"rot" as the lathe's: a wheel's felloe and tyre, a wagon's canvas);
 ##   {"shape": "boxes", "boxes": [{"size", "at", "rot"} | {"from", "to", "thick"}]}: boxes and sticks;
 ##   {"shape": "disc", "radius", "segments", "above"}: the member's box cut round to the circle about
 ##   Y ("above": instead a layer that thick laid on its top: a table's baize);
-##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh).
+##   {"shape": "profile" | "panel" | "cut", ...}: interior woodwork (art's Profiles; woodwork_mesh);
+##   {"shape": "mesh", "model", "part", "at", "rot"}: a part of a model made in Blender (`model_part`),
+##    in the prop's space (moved and turned as a lathe's: one sack laid three times in a stack): a
+##    mount's head, a sack (docs/briefs/prop-factory.md).
 ## "dress": [{"look", "draw"}]: layers drawn on the member (glued, painted: not members of their
 ## own), going wherever the member goes; untouched, batched with it (KitProp).
 ## Profiles and radii are in the prop's space; the mesh is laid into the member's own.
 
 const DIR := "res://assets/props/kit/"
+## The factory's Blender models (tools/blender/props/).
+const MODELS_DIR := "res://assets/props/models/"
 
 static var _defs := {}
 static var _made := {}
+static var _model_parts := {}
 
 
 static func path_of(id: StringName) -> String:
@@ -302,6 +309,20 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.iron()
 		"mirror":
 			return PropModels.mirror()
+		"straw":
+			return PropModels.straw()
+		"canvas":
+			return PropModels.canvas()
+		"burlap":
+			return PropModels.burlap()
+		"leather":
+			return PropModels.leather()
+		"bone":
+			return PropModels.bone()
+		"dung":
+			return PropModels.dung()
+		"glass_eye":
+			return PropModels.glass_eye()
 	push_warning("PropKit: unknown look %s" % look)
 	return PropModels.mid_wood()
 
@@ -343,19 +364,19 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	var src: Mesh
 	match String(draw.get("shape", "box")):
 		"lathe":
-			src = PropModels.lathe(_profile(draw.profile), int(draw.get("segments", 12)), bool(draw.get("grain_up", false)))
-			if draw.has("at"):
-				# Turned about its own axis there (a candle holder beside a piano's music desk).
-				var moved := SurfaceTool.new()
-				moved.append_from(src, 0, Transform3D(Basis.IDENTITY, vec(draw.at)))
-				src = moved.commit()
+			src = _placed(PropModels.lathe(_profile(draw.profile), int(draw.get("segments", 12)), bool(draw.get("grain_up", false))), draw)
 		"sweep":
-			src = sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)),
-					bool(draw.get("grain_up", false)), bool(draw.get("caps", false)))
+			src = _placed(sweep(_profile(draw.profile), deg_to_rad(float(draw.from)), deg_to_rad(float(draw.to)), int(draw.get("segments", 6)),
+					bool(draw.get("grain_up", false)), bool(draw.get("caps", false))), draw)
 		"disc":
 			src = disc_cut(float(draw.radius), int(draw.get("segments", 32)), m, float(draw.get("above", 0.0)))
 		"boxes":
 			src = boxes(draw.boxes)
+		"mesh":
+			src = model_part(String(draw.model), String(draw.get("part", "")))
+			if src == null:
+				return MemberMesh.box(m.size)
+			src = _placed(src, draw)
 		"profile", "panel", "cut":
 			# The woodwork's shapes (art's Profiles), made in the member's own space.
 			return woodwork_mesh(draw, m)
@@ -367,6 +388,50 @@ static func draw_mesh(draw: Dictionary, m: StructureMember) -> Mesh:
 	st.append_from(src, 0, Transform3D.IDENTITY if draw.get("shape") == "disc" else m.transform.affine_inverse())
 	st.index()
 	return st.commit()
+
+
+## A lathe or sweep turned about its own axis somewhere else: "rot" (degrees, XYZ) turns the prop's
+## Y onto that axis (90 about X: a wheel's, across a wagon), "at" moves it there (a candle holder
+## beside a piano's music desk; a wheel's hub).
+static func _placed(src: Mesh, draw: Dictionary) -> Mesh:
+	if not draw.has("at") and not draw.has("rot"):
+		return src
+	var moved := SurfaceTool.new()
+	moved.append_from(src, 0, Transform3D(basis_of(draw), vec(draw.get("at", [0, 0, 0]))))
+	return moved.commit()
+
+
+## A part of a model made in Blender (docs/briefs/prop-factory.md: tools/blender/props/<model>.py ->
+## assets/props/models/<model>.glb), in the prop's space: the mesh of its object named `part` (every
+## mesh in it if ""), with the object's place in the model. Null if there's no such model or part.
+static func model_part(model: String, part: String) -> Mesh:
+	var key := model + "/" + part
+	if _model_parts.has(key):
+		return _model_parts[key]
+	var path := MODELS_DIR + model + ".glb"
+	var mesh: ArrayMesh = null
+	if ResourceLoader.exists(path):
+		var scene := (load(path) as PackedScene).instantiate()
+		var st := SurfaceTool.new()
+		var found := false
+		for mi: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
+			if part != "" and String(mi.name) != part:
+				continue
+			var xf := Transform3D.IDENTITY
+			var n: Node = mi
+			while n != scene and n is Node3D:
+				xf = (n as Node3D).transform * xf
+				n = n.get_parent()
+			for surface in mi.mesh.get_surface_count():
+				st.append_from(mi.mesh, surface, xf)
+			found = true
+		scene.free()
+		if found:
+			mesh = st.commit()
+	if mesh == null:
+		push_warning("PropKit: no model part %s" % key)
+	_model_parts[key] = mesh
+	return mesh
 
 
 ## The member's own axes by name ("x", "-z"...).
