@@ -109,6 +109,13 @@ uniform vec3 ground_tint : source_color = vec3(1.0, 1.0, 1.0);
 uniform float ground_saturation = 1.0;
 uniform float churn_dark = 0.0;
 uniform float patches = 0.0;
+// Damp ground (the light pass, round 2; Sean, #321): darker, a little glossy, round the troughs and
+// the hitching rails, where water's slopped and horses stand (StreetWear sends the spots: x, z,
+// radius, strength). damp_dark 0 = none.
+uniform vec4 damp_spots[16];
+uniform int damp_count = 0;
+uniform float damp_dark = 0.0;
+uniform vec3 damp_tint : source_color = vec3(0.5, 0.45, 0.42);
 
 varying vec3 world_pos;
 
@@ -295,8 +302,18 @@ void fragment() {
 	}
 	float grey = dot(col, vec3(0.2126, 0.7152, 0.0722));
 	col = mix(vec3(grey), col, ground_saturation) * ground_tint;
+	float damp = 0.0;
+	if (damp_dark > 0.0) {
+		float edge = fbm(world_pos.xz * 0.9 + 3.0) - 0.5;
+		for (int i = 0; i < damp_count && i < 16; i++) {
+			vec4 sp = damp_spots[i];
+			float d = length(world_pos.xz - sp.xy) + edge * sp.z * 0.5;
+			damp = max(damp, (1.0 - smoothstep(sp.z * 0.35, sp.z, d)) * sp.w);
+		}
+		col *= mix(vec3(1.0), damp_tint, clamp(damp * damp_dark, 0.0, 1.0));
+	}
 	ALBEDO = col;
-	ROUGHNESS = 0.95;
+	ROUGHNESS = mix(0.95, 0.55, clamp(damp * damp_dark, 0.0, 1.0));
 	if (!smooth_road) {
 		LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
 	}

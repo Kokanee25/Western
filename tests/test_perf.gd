@@ -2,8 +2,8 @@ extends TestCase
 ## The street mustn't creep back to costing what it did (tools/perf_bench.gd measures it properly;
 ## this guards it). Counts are exact and budgeted close; times are on whatever machine runs the
 ## tests, so their budgets leave room for a slow CI runner: about 3x what this workspace's 2.1 GHz
-## core takes now. Today, here: calm 4.9 ms a frame, 1,291 visible meshes, ~43 a person, 25.5k
-## nodes (an armed man 89); burning, 8.8 ms a frame, worst 72 ms.
+## core takes now. 2026-10-24, here: 1,573 visible meshes, ~16,000 nodes; with four times the
+## kit props 1,635 and ~20,000 (docs/briefs/props-scale.md).
 
 const CALM_FRAME_MS := 16.0
 const FIRE_FRAME_MS := 30.0
@@ -11,9 +11,10 @@ const FIRE_WORST_MS := 250.0
 const VISIBLE_MESHES := 1800  # was 3,686 before the performance pass
 ## Body ~11, fingers 30, and an armed man's revolver 45 parts (was ~140 with the body in pieces).
 const MESHES_A_PERSON := 95
-## The kit's barrels, crates and bar stools (2026-10-22, the prop lab) are built of members, three
-## nodes each (body, mesh, collision): ~1,500 more than the drawn ones (was 30,000).
-const NODES := 32000
+## A member at rest is its body alone (StructureMember.rest, docs/briefs/props-scale.md): the
+## street was ~31,700 with every member three nodes (body, mesh, collision), ~16,000 since; the
+## street with four times its kit props ~20,000 (was 32,000, then 30,000).
+const NODES := 24000
 
 var street: Node3D
 
@@ -69,6 +70,25 @@ func test_the_calm_street_stays_cheap() -> void:
 	check(nodes <= NODES, "nodes %d (budget %d)" % [nodes, NODES])
 	var t: PackedFloat32Array = await _frames(180)
 	check(_avg(t) <= CALM_FRAME_MS, "calm: %.1f ms a frame (budget %.0f)" % [_avg(t), CALM_FRAME_MS])
+
+
+## Four times the street's kit props (tools/prop_clutter.gd's rows down the street) inside the
+## same counts: at rest they're their members' bodies, drawn with their neighbours (PropBatch).
+func test_a_cluttered_street_stays_cheap() -> void:
+	var made: Array = load("res://tools/prop_clutter.gd").lay(street, 4)
+	check(made.size() >= 150, "four times the kit props (%d more)" % made.size())
+	await process_frames(30)
+	var standing := made.filter(func(p: KitProp) -> bool: return is_instance_valid(p) and not p.loose)
+	check(standing.size() == made.size(), "every one stands where it was put (%d of %d)" % [standing.size(), made.size()])
+	var visible := 0
+	for mi: MeshInstance3D in street.find_children("*", "MeshInstance3D", true, false):
+		if mi.is_visible_in_tree():
+			visible += 1
+	check(visible <= VISIBLE_MESHES, "visible meshes %d (budget %d)" % [visible, VISIBLE_MESHES])
+	var nodes := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
+	check(nodes <= NODES, "nodes %d (budget %d)" % [nodes, NODES])
+	var t: PackedFloat32Array = await _frames(180)
+	check(_avg(t) <= CALM_FRAME_MS, "cluttered: %.1f ms a frame (budget %.0f)" % [_avg(t), CALM_FRAME_MS])
 
 
 func test_a_burning_street_stays_playable() -> void:

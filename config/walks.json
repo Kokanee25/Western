@@ -1,0 +1,20 @@
+{
+  "_doc": "Who walks how (WalkStyles, src/bodies/walk_styles.gd): a man's walk clip by his person id, else by his body model; clips in assets/animations/ (the Studio's motions/walks, Uthana). Sean, 2026-10-24: five ways of walking, all real.",
+  "people": {
+    "barkeep": "walk_old",
+    "doctor": "walk_old",
+    "brody": "walk_swagger",
+    "lyle": "walk_drunk",
+    "kid": "walk_nervous",
+    "widow": "walk_brisk",
+    "storekeeper": "walk_brisk",
+    "sheriff": "walk_swagger"
+  },
+  "models": {
+    "old_rancher_s3_talking": "walk_old",
+    "bold_cowboy_s3_talking": "walk_swagger",
+    "young_drifter_s3_talking": "walk_nervous",
+    "hothead_lyle_s2_talking": "walk_drunk",
+    "widow_s2_talking": "walk_brisk"
+  }
+}
