@@ -452,7 +452,7 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   in by less than its floor: `test_every_building_stands_on_the_ground`); street-level dressing,
   the lot's junk, the waypoints, the outlaw's spot, the screenshot views, fire flight and the bucket
   line go by the ground; the building lab's saloon (`Play.ORIGIN`) on its footing. `Ground` makes
-  everything west of x 0 height fields a chunk of 8 tiles, a point every tile corner, each chunk's tilted
+  everything west of x 0 solid slabs a tile wide tilted to the ground, a chunk of 8 tiles at a time, each chunk's
   slabs shape owners on its column of chunks' body (`_column`), cut round dug tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`); a dug tile's `base`
   holds the authored height (its `heights` stay above it). `tools/tour.gd`'s store and saloon stops move
   with them (`laid_out`).
