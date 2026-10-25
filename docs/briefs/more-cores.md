@@ -346,8 +346,7 @@ compared with `same_fight.py`**; the tests green; a status entry; the next step'
 gains are this core's ms a frame in a D gunfight (x0.65 for Sean's), against main today's 20.0
 (`results/2026-10-25_threading/probe.md`). Steps 1–4 are the gunfight's; 4b the finished map's
 (people ticked by distance, Sean's ask); 5 the fire scene's; 6–8 the engine's threads and the
-structures; 9 the table. **The order waits on Sean: issue #378**
-(the order as written, the engine's switches first, or steps 1–2 only for now).
+structures; 9 the table. **Sean, 2026-10-25 (#378): the order as written.** Step 1 is the next-session issue #380.
 
 **Step 1. The determinism ground** (no gain in ms; a small session). *"Read docs/briefs/more-cores.md
 'The review' and 'The design' A and F. Make the query rule real: a `World.space(node)` helper
