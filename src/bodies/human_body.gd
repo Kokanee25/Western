@@ -971,26 +971,26 @@ func _update_skeleton(placed := {}) -> void:
 ## A skinned hand's finger bones (the characters session's skinned hands,
 ## docs/briefs/skinned-hands.md): after the anatomy's, each resting at his model's own finger
 ## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
-## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
+## bone takes its node's bend about its own joint (_pose_fingers). Each hangs from the bone before
+## it in the skeleton (the knuckle from the hand), so it's set only when its finger bends. None
+## for other models.
 var _finger_rig: Array[FingerBone] = []
 
 
 ## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a
 ## string test and a Dictionary walk a bone a frame were ~1 ms of the people's frame; more-cores
-## step 2), and its bend kept until the finger node's angle changes.
+## step 2); set only when the finger node's angle changes.
 class FingerBone:
 	var bone: int
 	var parent: int
-	var local: Transform3D
+	var local: Transform3D  ## its rest on its parent bone's
 	var fid: StringName
 	var k: int
 	var thumb: bool
 	var sx: float  ## the side's sign
 	var rest: float  ## the relaxed bend (radians)
 	var gain: float  ## the fist's gain on the node's angle
-	var z := NAN  ## the finger node's angle the bend was made for (INF: shot off)
-	var bend := Transform3D.IDENTITY
-	var parent_pose := Transform3D()  ## the parent bone's pose this bone was last set from
+	var z := NAN  ## the finger node's angle it was last set for (INF: shot off)
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
@@ -998,6 +998,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 	if fb.is_empty():
 		return
 	var last := {}
+	var rest_of := {}  ## bone -> its rest in the skeleton's space
 	for name: String in data.get("finger_bone_names", []):
 		if not fb.has(name):
 			return
@@ -1008,17 +1009,19 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 				Vector3(b[2][0], b[2][1], b[2][2])), Vector3(o[0], o[1], o[2]))
 		var i := skeleton.get_bone_count()
 		skeleton.add_bone(name)
-		skeleton.set_bone_rest(i, rest)
 		skin.add_bind(i, rest.affine_inverse())
 		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
 		var fid := StringName("%s_%s" % [bits[1], bits[2]])
 		var k := int(bits[3])
 		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
-		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
+		var parent_rest: Transform3D = rests[parent] if k == 0 else rest_of[parent]
+		rest_of[i] = rest
 		var e := FingerBone.new()
 		e.bone = i
 		e.parent = parent
 		e.local = parent_rest.affine_inverse() * rest
+		skeleton.set_bone_parent(i, parent)
+		skeleton.set_bone_rest(i, e.local)
 		e.fid = fid
 		e.k = k
 		e.thumb = bits[1] == "thumb"
@@ -1048,16 +1051,14 @@ func _pose_fingers() -> void:
 	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
 		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
-		var pp := skeleton.get_bone_pose(e.parent)
-		if z == e.z and pp == e.parent_pose:
-			continue  # neither its finger nor what it hangs from moved
-		e.parent_pose = pp
-		if z != e.z:
-			e.z = z
-			e.bend = Transform3D.IDENTITY if gone else Transform3D(_finger_bend(e, z), Vector3.ZERO)
-		var pose: Transform3D = pp * e.local * e.bend
+		if z == e.z:
+			continue
+		e.z = z
+		var pose: Transform3D = e.local
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
+		else:
+			pose = pose * Transform3D(_finger_bend(e, z), Vector3.ZERO)
 		skeleton.set_bone_pose(e.bone, pose)
 
 
