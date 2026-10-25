@@ -256,6 +256,7 @@ func _run() -> void:
 	player.rotation = Vector3(0, deg_to_rad(121.0), 0)
 	await _frames(120)
 	if clutter > 1:
+		await physics_frame  # (it finds each one's floor: World.space's rule)
 		var made: Array = load("res://tools/prop_clutter.gd").lay(street, clutter)
 		print("clutter: %d more kit props" % made.size())
 		await _frames(120)

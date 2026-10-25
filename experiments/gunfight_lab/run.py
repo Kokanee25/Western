@@ -76,7 +76,7 @@ def run_one(f, out, ports, max_s, godot):
     with open(script, "w") as fh:
         fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} max={max} out={out}\nquit\n".format(
             max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), **f))
-    cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
+    cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--deterministic", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
     t0 = time.time()
     port = ports.get()
@@ -103,7 +103,7 @@ def sheet(name, out, every, size, variant="C"):
                  "shots={d}/shots every={every}\nquit\n".format(d=d, every=every, **f))
     godot = os.environ.get("GODOT", "godot")
     cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--rendering-driver", "vulkan", "--resolution", size,
-           "--fixed-fps", "60", "--", "--dev-bridge", "--bridge-port=8899", f"--bridge-script={script}"]
+           "--fixed-fps", "60", "--", "--dev-bridge", "--deterministic", "--bridge-port=8899", f"--bridge-script={script}"]
     with open(os.path.join(d, "godot.log"), "w") as log:
         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=7200)
     here = os.path.dirname(os.path.abspath(__file__))

@@ -75,6 +75,7 @@ func test_the_calm_street_stays_cheap() -> void:
 ## Four times the street's kit props (tools/prop_clutter.gd's rows down the street) inside the
 ## same counts: at rest they're their members' bodies, drawn with their neighbours (PropBatch).
 func test_a_cluttered_street_stays_cheap() -> void:
+	await physics_frames(1)  # (it finds each one's floor: World.space's rule)
 	var made: Array = load("res://tools/prop_clutter.gd").lay(street, 4)
 	check(made.size() >= 150, "four times the kit props (%d more)" % made.size())
 	await process_frames(30)

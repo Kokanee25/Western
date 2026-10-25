@@ -35,7 +35,7 @@ const PACE := 0.8
 ## body. `bias_from`: a spot he's been using (flanking: prefer a new angle). {} if none.
 static func find(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
 		bias_from := Vector3.INF, max_travel := 11.0, places: Waypoints = null) -> Dictionary:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var best := {}
 	var threat_flat := Vector3(threat_eye.x, from.y, threat_eye.z)
 	var start_angle := rng.randf() * TAU
@@ -85,7 +85,7 @@ class Search:
 static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
 		bias_from := Vector3.INF, max_travel := 11.0, new_angle := 3.0, places: Waypoints = null) -> Search:
 	var s := Search.new()
-	s._space = world.get_world_3d().direct_space_state
+	s._space = World.space(world)
 	s._from = from
 	s._eye = threat_eye
 	s._flat = Vector3(threat_eye.x, from.y, threat_eye.z)
@@ -245,6 +245,7 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 			var target := from + Vector3(cos(ang), 0.0, sin(ang)) * r + Vector3.UP * 0.5
 			var q := PhysicsRayQueryParameters3D.create(threat_eye, target + (target - threat_eye).normalized() * 3.0, Layers.WORLD)
 			q.exclude = exclude
+			Prof.count(&"q_cover")
 			var hit := space.intersect_ray(q)
 			if hit.is_empty() or hit.collider is CharacterBody3D:
 				continue
@@ -257,6 +258,7 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 			# Through to its far side (a woodpile's a metre deep): a ray back from beyond it.
 			var q2 := PhysicsRayQueryParameters3D.create(at + along * 4.0, at, Layers.WORLD)
 			q2.exclude = exclude
+			Prof.count(&"q_cover")
 			var back_hit := space.intersect_ray(q2)
 			if not back_hit.is_empty():
 				at = back_hit.position
@@ -331,6 +333,7 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 	var target := at + Vector3.UP * height
 	var q := PhysicsRayQueryParameters3D.create(threat_eye, target, Layers.WORLD)
 	q.exclude = exclude
+	Prof.count(&"q_cover")
 	var hit := space.intersect_ray(q)
 	if hit.is_empty():
 		return false
@@ -352,6 +355,7 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 	for s: Vector3 in [side, -side]:
 		var q2 := PhysicsRayQueryParameters3D.create(threat_eye + s, target, Layers.WORLD)
 		q2.exclude = exclude
+		Prof.count(&"q_cover")
 		var h2 := space.intersect_ray(q2)
 		if h2.is_empty() or h2.collider is CharacterBody3D or (h2.position as Vector3).distance_to(target) >= reach:
 			return false
@@ -361,6 +365,7 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, threat_eye, Layers.WORLD)
 	q.exclude = exclude
+	Prof.count(&"q_cover")
 	var hit := space.intersect_ray(q)
 	return hit.is_empty() or hit.collider is CharacterBody3D or (hit.position as Vector3).distance_to(threat_eye) < 0.5
 
@@ -369,6 +374,7 @@ static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: V
 static func _ground(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p + Vector3.DOWN * 0.6, Layers.WORLD)
 	q.exclude = exclude
+	Prof.count(&"q_cover")
 	var hit := space.intersect_ray(q)
 	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
 		return null
@@ -385,6 +391,7 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 	q.exclude = exclude
 	for h in [0.45, 0.95]:
 		q.transform = Transform3D(Basis.IDENTITY, at + Vector3.UP * h)
+		Prof.count(&"q_cover")
 		if not space.intersect_shape(q, 1).is_empty():
 			return false
 	return true
@@ -394,6 +401,7 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 static func _floor_under(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * LEVELS, p + Vector3.DOWN * LEVELS, Layers.STAND)
 	q.exclude = exclude
+	Prof.count(&"q_cover")
 	var hit := space.intersect_ray(q)
 	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
 		return null
@@ -471,5 +479,6 @@ static func path_clear(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vect
 	q.exclude = exclude
 	q.transform = Transform3D(Basis.IDENTITY, from + Vector3.UP * 0.75)
 	q.motion = (to - from) * Vector3(1, 0, 1)
+	Prof.count(&"q_cover")
 	var frac := space.cast_motion(q)
 	return frac[0] >= 0.98

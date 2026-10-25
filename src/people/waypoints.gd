@@ -173,6 +173,7 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 	for i in range(n + 1):
 		var p := a.lerp(b, float(i) / n)
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.STAND, exclude)
+		Prof.count(&"q_walk")
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
 			continue

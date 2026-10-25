@@ -600,7 +600,7 @@ func _hat_meets_ground() -> void:
 	var head := parts.get(&"head") as RigidBody3D
 	if head == null or head.sleeping:
 		return
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for c in hat_body.get_children():
 		if not c is CollisionShape3D:
 			continue
@@ -608,6 +608,7 @@ func _hat_meets_ground() -> void:
 		q.shape = (c as CollisionShape3D).shape
 		q.transform = (c as CollisionShape3D).global_transform
 		q.collision_mask = Layers.WORLD
+		Prof.count(&"q_body")
 		if not space.intersect_shape(q, 1).is_empty():
 			var hat := knock_hat_off(head.linear_velocity)
 			if hat:
@@ -1495,7 +1496,8 @@ func _spare_rubble(at: Vector3) -> void:
 	q.shape = ball
 	q.transform = Transform3D(Basis(), at)
 	q.collision_mask = Layers.WORLD
-	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(q, 64):
+	Prof.count(&"q_body")
+	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
 		var rb := hit.collider as RigidBody3D
 		if rb == null:
 			continue
@@ -1524,7 +1526,8 @@ func _lowest_point() -> float:
 func _ground_y(at: Vector3) -> float:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 3.0, Layers.STAND)
 	q.exclude = _own_rids()
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	Prof.count(&"q_body")
+	var hit := World.space(self).intersect_ray(q)
 	return (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
 
 
@@ -1674,7 +1677,7 @@ func drag_toward(holder: Vector3, delta: float) -> void:
 
 ## Move by `motion` (flat), stopping at and sliding along whatever's in the way.
 func _slide(motion: Vector3) -> Vector3:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var shape := SphereShape3D.new()
 	shape.radius = 0.26
 	var exclude: Array[RID] = []
@@ -1691,11 +1694,13 @@ func _slide(motion: Vector3) -> Vector3:
 		q.motion = left
 		q.collision_mask = Layers.STAND | Layers.PEOPLE
 		q.exclude = exclude
+		Prof.count(&"q_walk")
 		var frac := space.cast_motion(q)
 		if frac[0] <= 0.0 and frac[1] <= 0.0:
 			# Started a hair inside something (a corner he was slid into): no motion can be cast
 			# from there at all, so he'd stand stuck for good. Step out along its normal first.
 			q.motion = Vector3.ZERO
+			Prof.count(&"q_walk")
 			var inside := space.get_rest_info(q)
 			if inside.is_empty():
 				break
@@ -1712,6 +1717,7 @@ func _slide(motion: Vector3) -> Vector3:
 		# Blocked: slide along it.
 		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75) + left.normalized() * 0.02)
 		q.motion = Vector3.ZERO
+		Prof.count(&"q_walk")
 		var rest := space.get_rest_info(q)
 		if rest.is_empty():
 			break
@@ -1734,6 +1740,7 @@ func _slide(motion: Vector3) -> Vector3:
 			q.motion = turned
 			q.collision_mask = Layers.STAND | Layers.PEOPLE
 			q.exclude = exclude
+			Prof.count(&"q_walk")
 			var got: Vector3 = turned * space.cast_motion(q)[0]
 			if got.length() > best.length():
 				best = got
@@ -1747,7 +1754,7 @@ func _slide(motion: Vector3) -> Vector3:
 ## off it each way, the highest wins (one ray fell through a crack, and off a raised walk he couldn't
 ## step back up).
 func _snap_to_ground() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var best := -INF
 	var best_up := 1.0
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
@@ -1783,6 +1790,7 @@ func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) ->
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
 	if _blocker and is_instance_valid(_blocker):
 		q.exclude = [_blocker.get_rid()]
+	Prof.count(&"q_walk")
 	return space.intersect_ray(q)
 
 
@@ -1882,6 +1890,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
+	Prof.count(&"q_writes", pivots.size())  # (each pivot set once a tick at least)
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
 		_clip_strikes(delta)
@@ -2033,7 +2042,7 @@ func _clip_strikes(delta: float) -> void:
 	var c := _clip if _clip != null else null
 	if c == null or c.strikes.is_empty() or delta <= 0.0:
 		return
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for sid: StringName in c.strikes:
 		var part := parts.get(sid) as CollisionObject3D
 		if part == null:
@@ -2059,6 +2068,7 @@ func _clip_strikes(delta: float) -> void:
 		var local := part.global_transform.affine_inverse() * shape.global_transform
 		for k in range(1, 5):
 			q.transform = (was as Transform3D).interpolate_with(now, k / 4.0) * local
+			Prof.count(&"q_body")
 			for hit: Dictionary in space.intersect_shape(q, 4):
 				hits.append(hit)
 			if not hits.is_empty():
@@ -2072,6 +2082,7 @@ func _clip_strikes(delta: float) -> void:
 				continue
 			_clip_struck[m] = true
 			var at := m.global_transform.origin
+			Prof.count(&"q_body")
 			var pairs := space.collide_shape(q, 1)
 			if pairs.size() >= 2:
 				at = pairs[1]
@@ -2212,6 +2223,7 @@ func signs_now() -> WoundSigns:
 		signs = WoundSigns.new()
 		signs.name = "WoundSigns"
 		signs.body = self
+		signs._rng.seed = hash(["signs", rng_seed])
 		add_child(signs)
 	return signs
 
@@ -3797,7 +3809,7 @@ func shoot_off(id: StringName, dir: Vector3) -> void:
 	world.add_child(rb)
 	rb.global_position = head.global_transform * at
 	rb.linear_velocity = dir.normalized() * 3.0 + Vector3.UP * 0.8
-	rb.angular_velocity = Vector3(randf_range(-9, 9), randf_range(-9, 9), randf_range(-9, 9))
+	rb.angular_velocity = Vector3(_rng.randf_range(-9, 9), _rng.randf_range(-9, 9), _rng.randf_range(-9, 9))
 	Blood.burst(world, rb.global_position, dir, 10, 2.0)
 	Blood.throw(world, rb.global_position, dir * 2.0, 0.6, _own_rids())
 
@@ -3965,7 +3977,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	# stance foot is still, and that leg turns about it. What the ground takes is the stance leg's
 	# share and the gait's swing: a runner at 3.5 m/s keeps 93% (279 -> 260 N*s), and the rest of
 	# him all of his. Real strides will come with mocap.
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var hips: Vector3 = _carry_v.get(&"pelvis", Vector3.ZERO)
 	var side := _stance_side(bodies)
 	var foot: RigidBody3D = bodies.get(StringName("foot" + side))
@@ -4515,6 +4527,7 @@ const PLANTED_WITHIN := 0.12
 
 func _on_ground(space: PhysicsDirectSpaceState3D, rb: RigidBody3D) -> bool:
 	var at := rb.global_position
+	Prof.count(&"q_body")
 	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.STAND))
 	return not hit.is_empty()
 

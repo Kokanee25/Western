@@ -559,7 +559,12 @@ frozen until Sean names one.
   loops (pivot sets, part re-reads, finger strings), not rays (~1.3 ms) nor pure maths (~1.5);
   physics on its own thread loses the player's shot (`_process`-time queries are refused) and has
   a rare race; nine ordered steps, each a next-session prompt, gated on `same_fight.py` (the lab's
-  determinism check: the same seeds twice). Sean: the order as written (#378); next, step 1 (#380). Traps: `pkill -f`/`ps|grep` kill loops match their
+  determinism check: the same seeds twice). Sean: the order as written (#378). **Step 1 done**
+  (PR #384, waiting on the Fable review; `results/2026-10-25_step1/`): `World.space` (queries only in
+  the physics frame; the player's shot leaves on the tick), `World.deterministic` (count budgets),
+  no global dice, `Prof.count` `q_*` and `PhysicsWindow`; the chaos flake was #375's clock budgets
+  and GlassProp's `randf()`; 10 of 10 the same, the fights re-baselined; 14.6 ms a frame, window 10.0
+  / step 1.1 / rest 3.4, writes 336 a frame. Next, step 2 (#385). Traps: `pkill -f`/`ps|grep` kill loops match their
   own command line; merging main mid-run needs `godot --headless --import` before the next game;
   never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
   is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).

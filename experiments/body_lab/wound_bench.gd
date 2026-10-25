@@ -128,7 +128,7 @@ static func sample(man: HumanBody, ballistics: Ballistics, eye: Vector3, spot: D
 	var dist := eye.distance_to(target)
 	var fl: Dictionary = ballistics.flight(dist, g.speed, g.mass, g.diameter, g.form)
 	var energy := 0.5 * float(g.mass) * float(fl.speed) * float(fl.speed)
-	var space := man.get_world_3d().direct_space_state
+	var space := World.space(man)
 	var trng := RandomNumberGenerator.new()
 	trng.seed = 7
 	var want: Array = spot.aims_for

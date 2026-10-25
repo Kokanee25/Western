@@ -146,6 +146,10 @@ func take_out() -> void:
 
 
 func _on_fired() -> void:
+	_in_tick(_fire)
+
+
+func _fire() -> void:
 	var line := _shot_line(model.muzzle.global_position)
 	var origin: Vector3 = line[0]
 	var dir: Vector3 = line[1]

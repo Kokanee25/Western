@@ -227,6 +227,10 @@ func take_out() -> void:
 
 
 func _on_fired(barrel: int) -> void:
+	_in_tick(_fire.bind(barrel))
+
+
+func _fire(barrel: int) -> void:
 	var line := _shot_line(model.muzzles[barrel].global_position)
 	var origin: Vector3 = line[0]
 	var dir: Vector3 = line[1]

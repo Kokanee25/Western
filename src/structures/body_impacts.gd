@@ -295,7 +295,7 @@ func _timber_near() -> bool:
 		_probe.shape = ball
 		_probe.collision_mask = Layers.WORLD
 	_probe.transform = Transform3D(Basis(), _pelvis.global_position)
-	for hit: Dictionary in _pelvis.get_world_3d().direct_space_state.intersect_shape(_probe, 24):
+	for hit: Dictionary in World.space(_pelvis).intersect_shape(_probe, 24):
 		if hit.collider is StructureMember:
 			return true
 	return false

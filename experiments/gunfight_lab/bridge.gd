@@ -66,7 +66,7 @@ func _cmd_gf_cover(a: Array) -> Dictionary:
 	var eye := vec(a, 3) if a.size() >= 6 else Vector3(3.6, 1.64, -5.2)
 	var fight := Fight.new(self, {})
 	fight.player = player
-	var space := player.get_world_3d().direct_space_state
+	var space := World.space(player)
 	var c: Dictionary = fight._cover_near(space, vec(a, 0), eye, null)
 	fight.free()
 	if c.is_empty():
@@ -213,7 +213,7 @@ func _cmd_gf_coverwhy(a: Array) -> Dictionary:
 	var eye := vec(a, 3)
 	var travel := float(a[6]) if a.size() > 6 else 11.0
 	var levels := "levels" in a  # candidates dropped to whatever ground is under them, any height
-	var space := player.get_world_3d().direct_space_state
+	var space := World.space(player)
 	var ex: Array[RID] = [player.get_rid()]
 	var rng := RandomNumberGenerator.new()
 	var cands: Array[Vector3] = []
@@ -376,7 +376,7 @@ func _cmd_gf_what(a: Array) -> Dictionary:
 	q.collision_mask = Layers.STAND | Layers.PEOPLE
 	q.transform = Transform3D(Basis.IDENTITY, SpecSaloon.at(vec(a, 0)))
 	var out := []
-	for h: Dictionary in player.get_world_3d().direct_space_state.intersect_shape(q, 16):
+	for h: Dictionary in World.space(player).intersect_shape(q, 16):
 		var c := h.collider as Node
 		out.append(String(c.get("member_id")) if c is StructureMember else String(c.get_path()))
 	return {"touches": out}
@@ -461,7 +461,7 @@ func _follow() -> void:
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.1 else -m.global_basis.z
 	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - (chest.y - m.global_position.y))
-	var space := m.get_world_3d().direct_space_state
+	var space := World.space(m)
 	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
 	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
 	var hit := space.intersect_ray(q)
