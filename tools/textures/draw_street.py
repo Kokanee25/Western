@@ -39,8 +39,9 @@ SHEET = ROOT / "docs/screenshots/textures/street_map.png"
 TOWN = ROOT / "config/town.json"
 
 MAP_PX = 24  # a metre
-# x0, z0, x1, z1: the main street between its fronts and the mouths of the cross streets.
-AREA = (-86.0, -22.0, 35.0, 5.0)
+# x0, z0, x1, z1: the main street between its fronts and the mouths of the cross streets (north
+# to -30 since it jogs north across Market Street, config/town.json streets.main.line).
+AREA = (-86.0, -30.0, 35.0, 5.0)
 # Metres from 0.5 to 0 or 1 in G and B.
 RUT_RANGE = 0.12
 # A wagon's wheels, centre to centre (a farm wagon's track, about five feet).
@@ -73,21 +74,24 @@ def to_px(x, z):
 
 def places():
     """World (x, z) of the steps, doors, rails and trough, from the layout: a node's local (lx, lz)
-    turned by its facing (0 or 180, all the street's are) and moved to its place."""
+    turned by its facing (degrees about the vertical, as Godot turns it) and moved to its place,
+    through the building it's `in`."""
     town = json.loads(TOWN.read_text())
     nodes = town["nodes"]
 
     def world(name, lx, lz):
         n = nodes[name]
         x, _, z = n["at"]
-        f = n.get("facing", 0)
+        f = np.radians(n.get("facing", 0))
+        # Godot's Basis(UP, f): local x -> (cos f, -sin f), local z -> (sin f, cos f).
+        wx = x + lx * np.cos(f) + lz * np.sin(f)
+        wz = z - lx * np.sin(f) + lz * np.cos(f)
         if "in" in n:
-            px, pz = world(n["in"], 0.0, 0.0)
-            pf = nodes[n["in"]].get("facing", 0)
-            sx = -1 if pf == 180 else 1
-            return px + sx * (x + lx), pz + sx * (z + lz)
-        s = -1 if f == 180 else 1
-        return x + s * lx, z + s * lz
+            p = nodes[n["in"]]
+            pf = np.radians(p.get("facing", 0))
+            px, _, pz = p["at"]
+            return px + wx * np.cos(pf) + wz * np.sin(pf), pz - wx * np.sin(pf) + wz * np.cos(pf)
+        return wx, wz
 
     steps, hooves = [], []
     for name, n in nodes.items():
@@ -96,11 +100,11 @@ def places():
             for along, _w in st:
                 bx, bz = world(name, along, 0.0)
                 # In front of the boardwalk: a couple of metres into the street.
-                steps.append((bx, bz - 2.2 if bz > -8.4 else bz + 2.2))
+                steps.append((bx, bz - 2.2 if bz > street_z(bx) else bz + 2.2))
     for name in ("HitchingRail", "WaterTrough"):
         if name in nodes:
             hx, hz = world(name, 0.0, 0.0)
-            hooves.append((hx, hz - 0.9 if hz > -8.4 else hz + 0.9))
+            hooves.append((hx, hz - 0.9 if hz > street_z(hx) else hz + 0.9))
     return steps, hooves
 
 
@@ -110,7 +114,7 @@ def ruts(w, h, rng):
     lip = np.zeros((h, w))
     xs = np.arange(w) / MAP_PX + AREA[0]
     zrow = np.arange(h) / MAP_PX + AREA[1]
-    zc = town_centre()
+    zc = street_z(xs)
     for k, (off, use) in enumerate(TRACKS):
         drift = noise1(w, 18 * MAP_PX, rng) * 0.25 + noise1(w, 5 * MAP_PX, rng) * 0.06
         for side in (-0.5, 0.5):
@@ -138,8 +142,28 @@ def ruts(w, h, rng):
     return hgt, np.clip(lip, 0.0, 1.0)
 
 
-def town_centre():
-    return json.loads(TOWN.read_text())["streets"]["main"]["from"][1]
+def street_z(x):
+    """Main Street's middle (z) at x (a number or an array): config/town.json streets.main.line, a
+    cubic Hermite in x through its points, each point's slope from its neighbours', straight on past
+    the ends (TownLayout.street_z, the same curve)."""
+    pts = json.loads(TOWN.read_text())["streets"]["main"].get("line")
+    xa = np.atleast_1d(np.asarray(x, dtype=float))
+    if not pts:
+        out = np.full_like(xa, json.loads(TOWN.read_text())["streets"]["main"]["from"][1])
+        return out if np.ndim(x) else float(out[0])
+    px = np.array([p[0] for p in pts], float)
+    pz = np.array([p[1] for p in pts], float)
+    n = len(px)
+    m = np.array([(pz[min(i + 1, n - 1)] - pz[max(i - 1, 0)]) / (px[min(i + 1, n - 1)] - px[max(i - 1, 0)]) for i in range(n)])
+    i = np.clip(np.searchsorted(px, xa) - 1, 0, n - 2)
+    h = px[i + 1] - px[i]
+    t = (xa - px[i]) / h
+    t2, t3 = t * t, t * t * t
+    out = (2 * t3 - 3 * t2 + 1) * pz[i] + (t3 - 2 * t2 + t) * h * m[i] + (-2 * t3 + 3 * t2) * pz[i + 1] + (t3 - t2) * h * m[i + 1]
+    lo, hi = xa < px[0], xa > px[-1]
+    out[lo] = pz[0] + (xa[lo] - px[0]) * (pz[1] - pz[0]) / (px[1] - px[0])
+    out[hi] = pz[-1] + (xa[hi] - px[-1]) * (pz[-1] - pz[-2]) / (px[-1] - px[-2])
+    return out if np.ndim(x) else float(out[0])
 
 
 def horseshoe(size_px):
@@ -186,7 +210,7 @@ def main():
     h = int(round((AREA[3] - AREA[1]) * MAP_PX))
     zrow = np.arange(h) / MAP_PX + AREA[1]
     xs = np.arange(w) / MAP_PX + AREA[0]
-    zc = town_centre()
+    zc = street_z(xs)[None, :]
 
     rut_h, lip = ruts(w, h, rng)
 
@@ -194,9 +218,9 @@ def main():
     # the edges of the street, at the steps, rails, trough and the cross streets' mouths.
     loose = 0.32 + noise((h, w), ((6 * MAP_PX, 1.0), (1.5 * MAP_PX, 0.6), (0.4 * MAP_PX, 0.3)), rng)
     for off, use in TRACKS[:2]:
-        d = np.abs(zrow - (zc + off))[:, None]
+        d = np.abs(zrow[:, None] - (zc + off))
         loose += 0.28 * use * np.exp(-(d / 0.45) ** 2)
-    edge = np.abs(zrow - zc)[:, None]
+    edge = np.abs(zrow[:, None] - zc)
     loose += 0.3 * np.clip((edge - 5.2) / 2.0, 0.0, 1.0)
     loose += 0.45 * lip
     steps, hooves = places()
@@ -205,7 +229,7 @@ def main():
         loose += 0.5 * np.exp(-(((X - sx) / 1.6) ** 2 + ((Z - sz) / 1.3) ** 2))
     for (hx, hz) in hooves:
         loose += 0.6 * np.exp(-(((X - hx) / 2.2) ** 2 + ((Z - hz) / 1.2) ** 2))
-    for cx in (-31.0, 23.0):
+    for cx in (-32.0, 23.0):
         loose += 0.35 * np.exp(-((X - cx) / 4.0) ** 2) * np.clip((edge - 3.0) / 3.0, 0.0, 1.0)
     loose = np.clip(loose, 0.0, 1.0)
 

@@ -82,7 +82,11 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
 	var fireball := fireball_radius(kg)
-	for c: Object in gather(world, at, kg):
+	var t_gather := Prof.start()
+	var found := gather(world, at, kg)
+	Prof.stop(&"blast_gather", t_gather)
+	var t_resp := Prof.start()
+	for c: Object in found:
 		if c is StructureMember:
 			var m := c as StructureMember
 			if m.broken or m.consumed:
@@ -104,7 +108,9 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 			var area := pow(maxf(rb.mass / 500.0, 1e-5), 2.0 / 3.0)
 			var dir := (rb.global_position - at).normalized()
 			pushes.append([rb, (dir + Vector3.UP * 0.3).normalized() * impulse(kg, r) * area])
+	Prof.stop(&"blast_response", t_resp)
 	# Break what breaks, one settle per building.
+	var t_break := Prof.start()
 	var splinters := 0
 	var ballistics := world.get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	var passed := {}
@@ -144,10 +150,13 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 				for m: StructureMember in catching:
 					if is_instance_valid(m) and fire.flammable(m) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
 						fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
+	Prof.stop(&"blast_break", t_break)
 	# A crater, if it went off on (or just over) the dirt.
+	var t_crater := Prof.start()
 	var under := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD))
 	if not under.is_empty() and Ground.is_ground(under.collider):
 		report["crater"] = crater(world, at, kg, at.y - (under.position as Vector3).y)
+	Prof.stop(&"blast_crater", t_crater)
 	# The clods and the gravel are thrown together, not at each other.
 	var clods: Array[RID] = []
 	for c: RID in report.get("crater", {}).get("clods", []):
@@ -188,7 +197,9 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	for st in sticks:
 		if is_instance_valid(st) and overpressure_kpa(kg, st.global_position.distance_to(at)) > tn.sympathetic_kpa:
 			st.detonate.call_deferred()
+	var t_fx := Prof.start()
 	BlastEffects.spawn(world, at, kg)
+	Prof.stop(&"blast_fx", t_fx)
 	Events.exploded.emit(at, kg)
 	return report
 
@@ -293,20 +304,28 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 		return {"break": kpa > tn.glass_kpa, "push": dir * minf(kpa * 0.2, 15.0), "distance": dist}
 	var length := m.length()
 	var cs := m.cross_section()
-	var total := face_impulse(m, at, kg)
 	var timber: TimberTuning = s.tuning if s and s.tuning else load("res://config/timber.tres")
 	var mass := maxf(m.weight(timber) / 9.81, 0.05)
-	var kick := total * total / (2.0 * mass)
 	var wood: Dictionary = timber.woods.get(m.wood, timber.default_wood)
 	var fb: float = wood.bending
 	var e: float = wood.stiffness
 	var sound := cs.x * cs.y * length
 	var capacity := fb * fb / (2.0 * e) * sound * tn.absorb_factor
+	var span := minf(tn.local_span, length)
+	var share := span / maxf(length, 1e-4)
+	# Most of what a charge reaches it can't break: the most the face could take, were every
+	# bit of it as near and as square to the charge as its nearest point, falls short of what
+	# it soaks up, so the samples aren't walked (a stick in the spec saloon reaches thousands).
+	var width := maxf(cs.x, cs.y)
+	var r0 := maxf(near.distance_to(at), 0.02)  # the samples' own floor, not dist's
+	var most := impulse(kg, r0) * reflection(overpressure_kpa(kg, r0)) * width
+	if pow(most * length, 2.0) / (2.0 * mass) < capacity and pow(most * span, 2.0) / (2.0 * mass * share) < capacity * share:
+		return {"break": false, "push": Vector3.ZERO, "distance": dist}
+	var total := face_impulse(m, at, kg)
+	var kick := total * total / (2.0 * mass)
 	# Close in, it breaks where it's hit before the whole length feels it: the same test over the
 	# hand-span of it nearest the charge.
-	var span := minf(tn.local_span, length)
 	var near_j := face_impulse(m, at, kg, span)
-	var share := span / maxf(length, 1e-4)
 	var near_kick := near_j * near_j / (2.0 * mass * share)
 	var broke := kick > capacity or near_kick > capacity * share
 	var speed := minf(maxf(total / mass, near_j / (mass * share) * 0.5), tn.max_throw)

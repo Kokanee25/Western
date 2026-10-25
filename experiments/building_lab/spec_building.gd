@@ -83,6 +83,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 			and other_box.position.y < box.position.y - CONTACT_EPSILON
 	if other_tier < tier or beneath:
 		m.supported_by.append(other.member_id)
+		other.dependents.append(m.member_id)
 		var contact := grown.intersection(other_box)
 		m.support_points[other.member_id] = contact.get_center()
 		m.support_boxes[other.member_id] = contact
@@ -91,6 +92,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 ## Structure.infer_supports with a grid: the same links in the same order, from the pairs that
 ## share a cell.
 func infer_supports() -> void:
+	invalidate_analysis()
 	_by_stack.clear()
 	var boxes := {}
 	var grid := {}
@@ -98,6 +100,7 @@ func infer_supports() -> void:
 		var m := _order[i]
 		var b := m.structure_aabb()
 		boxes[m] = b
+		m.dependents.clear()  # before any linking: the others' links fill it
 		for c in _cells(b.grow(CONTACT_EPSILON)):
 			if not grid.has(c):
 				grid[c] = []

@@ -311,7 +311,7 @@ python3 tools/bridge.py stop
 **The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
 what each lane had open when it was adopted (2026-10-14).
 
-Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
+Latest status entries: `docs/status/2026-10-25_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
@@ -487,6 +487,11 @@ frozen until Sean names one.
   (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
   `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
   street saloon's stair).
+- **The street's shape** (2026-10-23, street 1 of 4, issue #325, PR #332, merged 2026-10-25): the
+  street's middle a curve with a jog at Market Street (`TownLayout.street_z`), fronts off the ruler,
+  an empty lot, the ground graded (`ground`: flat from the store east, a metre up to Market Street,
+  then 3 m out of town; buildings on footings; the slope tilted solid boxes, `Ground.LAP`); LAYOUT.md
+  "The street's shape"; `experiments/street_shape/`. Next: street 3 of 4, #327.
 - **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
   its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
   `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
@@ -497,6 +502,17 @@ frozen until Sean names one.
   (`PropBatch`); `perf_bench --clutter=4` (four times the kit props, `tools/prop_clutter.gd`): draws
   3,501 -> 2,653, lavapipe render 6.3 -> 4.75 ms, inside the guards (nodes now 24,000). Next: the
   freight wagon in #332's lot once it merges; a resting prop's tick (~0.25 ms at 4x) if it grows.
+- **The blast freeze** (2026-10-25, issue #374, branch `claude/gameplay-blast-freeze`; lab
+  `experiments/blast_freeze/`): Sean's 20 s pause (dynamite mid-fight in the burning spec saloon)
+  was the settle: 64 rounds, each a fresh analysis of all 5,150 members, to snap one (11.6 s on one
+  frame here). Now a structure's analysis is carried over and brought up to date for what changed
+  (`StructuralAnalysis.begin_update`, `Structure.start_analysis`/`mark_dirty`), a settle runs on a
+  frame budget and hands the rest to the fire's slices, drops are capped a round, batches rebuild
+  on a budget and the shadow merge runs on a worker: the stick's frame 11,599 -> 241 ms here
+  (~160 at Sean's), the same cuts, pieces and broken set; `tests/test_settle_incremental.gd`.
+  Left for #373: `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
+  response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
+  stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

@@ -36,6 +36,11 @@ var critical_t := {}
 var falling: Array[StringName] = []
 ## Total load delivered to the ground (N): should equal the structure's weight.
 var ground_load := 0.0
+## What each member handed down last time, id -> [[support id, where (structure space), N], ...],
+## and the same the other way up, support id -> {contributor id -> [[where, N], ...]}: the loads a
+## member gets from above, kept between runs for the members `begin_update` doesn't work out again.
+var _delivered := {}
+var _received := {}
 
 
 func _init(t: TimberTuning = null) -> void:
@@ -57,8 +62,10 @@ func analyse(structure: Structure, extra_broken := {}) -> StructuralAnalysis:
 var _structure: Structure
 var _gone := {}
 var _sorted: Array[StructureMember] = []
-var _point_loads := {}  # id -> Array of [Vector3 (structure space), newtons]
 var _next := 0
+## The last begin_update's seeds and the members it works (for the labs).
+var last_seeds := 0
+var last_set := 0
 
 
 ## Set up: what's broken and what's fallen, the members top-down, nothing worked out yet.
@@ -78,26 +85,167 @@ func begin(structure: Structure, extra_broken := {}) -> void:
 	for i in range(up.size() - 1, -1, -1):
 		if not _gone.has(up[i].member_id):
 			_sorted.append(up[i])
-	_point_loads = {}
 	load.clear()
 	utilisation.clear()
 	mode.clear()
 	critical_t.clear()
+	_delivered.clear()
+	_received.clear()
 	ground_load = 0.0
 	_next = 0
+
+
+## The analysis brought up to date after a change, instead of done again from the top (`advance`
+## finishes it, as after `begin`): only the members whose loads can have changed are worked out
+## again. `dirty` (id -> true) is what changed since the last run: a member broken (snapped,
+## dropped, cut, burnt away, shattered), one whose weight or strength changed (char, a hole, a man
+## sitting on it), one that lost the ground under it, or one newly added (a cut's ends). A member's
+## load comes only from what rests on it, so a change spreads downward through the supports, and
+## what has lost its last support falls, and what rested on that with it, upward. Everything else
+## keeps last time's loads. (A blast in the spec saloon settled in 64 rounds of all 5,150 members,
+## 10 s on one frame, 2026-10-25; a round of this is the few dozen near the damage.) False when it
+## can't: no run of this structure yet, or a dirty member has been freed.
+func begin_update(structure: Structure, dirty: Dictionary) -> bool:
+	if _structure != structure or _structure == null:
+		return false
+	var t_seeds := Prof.start()
+	var seeds := {}
+	var newly_gone: Array[StringName] = []
+	# A run left unfinished (a slice a frame, then something gave way): its remainder is done again.
+	for i in range(_next, _sorted.size()):
+		var m := _sorted[i]
+		if is_instance_valid(m) and not _gone.has(m.member_id):
+			seeds[m.member_id] = true
+	for id: StringName in dirty:
+		var m := structure.get_member(id)
+		if m == null:
+			return false
+		if m.broken:
+			if _gone.has(id):
+				falling.erase(id)  # dropped since it was found falling
+			else:
+				_gone[id] = true
+				newly_gone.append(id)
+			seeds.erase(id)
+			for n in m.touching:
+				if not _gone.has(n):
+					seeds[n] = true
+		else:
+			seeds[id] = true
+	# What has lost its last support falls, and what rested on it with it, upward: the dirty
+	# members themselves (the ground dug from under one) and what rested on the newly gone.
+	var queue: Array[StringName] = newly_gone.duplicate()
+	for id: StringName in seeds.keys():
+		var m := structure.get_member(id)
+		if m != null and not m.grounded and not _held(m):
+			_fall(structure, id, seeds, queue)
+	while not queue.is_empty():
+		var g: StringName = queue.pop_back()
+		var gm := structure.get_member(g)
+		if gm == null:
+			continue
+		for d: StringName in gm.dependents:
+			if _gone.has(d):
+				continue
+			var dm := structure.get_member(d)
+			if dm == null:
+				continue
+			if dm.broken:
+				_gone[d] = true  # broken behind the structure's back: gone all the same
+				continue
+			if not dm.grounded and not _held(dm):
+				_fall(structure, d, seeds, queue)
+	Prof.stop(&"bu_seeds", t_seeds)
+	var t_closure := Prof.start()
+	# Down through the supports: everything the seeds hand their load to.
+	var set := {}
+	var stack: Array = seeds.keys()
+	while not stack.is_empty():
+		var id: StringName = stack.pop_back()
+		if set.has(id) or _gone.has(id):
+			continue
+		var m := structure.get_member(id)
+		if m == null or m.broken:
+			continue
+		set[id] = true
+		for sup in m.supported_by:
+			if not _gone.has(sup) and not set.has(sup):
+				stack.append(sup)
+	Prof.stop(&"bu_closure", t_closure)
+	var t_forget := Prof.start()
+	# Those gone take their numbers (and what they handed down) with them; those to do again start
+	# clean, their loads from above kept but for what the set itself hands down, worked out afresh.
+	for id: StringName in newly_gone:
+		_forget(id, structure.get_member(id))
+		_received.erase(id)
+	for id: StringName in falling:
+		_forget(id, structure.get_member(id))
+		_received.erase(id)
+	# Top-down, as the whole is (a member's supports always come lower in the stack).
+	_sorted.clear()
+	for id: StringName in set:
+		var m := structure.get_member(id)
+		_sorted.append(m)
+		_forget(id, m)
+	Prof.stop(&"bu_forget", t_forget)
+	_sorted.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.stack_key > b.stack_key)
+	last_set = set.size()
+	last_seeds = seeds.size()
+	_next = 0
+	return true
+
+
+## Has `m` a support still standing?
+func _held(m: StructureMember) -> bool:
+	for s in m.supported_by:
+		if not _gone.has(s):
+			return true
+	return false
+
+
+func _fall(structure: Structure, id: StringName, seeds: Dictionary, queue: Array[StringName]) -> void:
+	_gone[id] = true
+	falling.append(id)
+	queue.append(id)
+	seeds.erase(id)
+	var m := structure.get_member(id)
+	if m == null:
+		return
+	for n in m.touching:
+		if not _gone.has(n):
+			seeds[n] = true
+
+
+## A member's numbers out of the tables (gone, or about to be worked out again), and what it
+## handed down out of its supports' loads.
+## (What it handed down comes off its supports as it's worked out again, in `advance`: a gone
+## member's supports are gone with it or worked out again themselves, and a support worked out
+## again reads only the live members' loads.)
+func _forget(id: StringName, m: StructureMember) -> void:
+	if m != null and m.grounded:
+		ground_load -= float(load.get(id, 0.0))
+	load.erase(id)
+	utilisation.erase(id)
+	mode.erase(id)
+	critical_t.erase(id)
+	_delivered.erase(id)
 
 
 ## Work out the next `count` members (top-down). True when they're all done.
 func advance(count: int) -> bool:
 	var gone := _gone
-	var point_loads := _point_loads
 	var structure := _structure
 	var to := mini(_next + count, _sorted.size())
 	for i in range(_next, to):
 		var m := _sorted[i]
 		if not is_instance_valid(m):
 			continue
-		var loads: Array = point_loads.get(m.member_id, [])
+		var loads: Array = []
+		var from_above: Variant = _received.get(m.member_id)
+		if from_above != null:
+			for c: StringName in from_above:
+				if not gone.has(c):  # a gone member's last loads are still listed; they don't count
+					loads.append_array((from_above as Dictionary)[c])
 		var total := m.weight(tuning) + m.extra_load
 		for pl: Array in loads:
 			total += float(pl[1])
@@ -106,6 +254,10 @@ func advance(count: int) -> bool:
 		for s in m.supported_by:
 			if not gone.has(s):
 				supports.append(s)
+				# Last pass's loads from this member off the support, before this pass's go on.
+				var onto: Variant = _received.get(s)
+				if onto != null:
+					(onto as Dictionary).erase(m.member_id)
 		if m.grounded:
 			ground_load += total
 			if m.kind in COMPRESSION_KINDS and m.is_upright():
@@ -118,9 +270,9 @@ func advance(count: int) -> bool:
 				_check_compression(m, total)
 			var share := total / supports.size()
 			for s in supports:
-				_add_load(point_loads, s, m.support_points.get(s, m.transform.origin), share)
+				_deliver(m, s, m.support_points.get(s, m.transform.origin), share)
 		else:
-			_bend(m, loads, supports, structure, gone, point_loads)
+			_bend(m, loads, supports, structure, gone)
 	_next = to
 	return _next >= _sorted.size()
 
@@ -130,22 +282,36 @@ func left() -> int:
 	return _sorted.size() - _next
 
 
-## A load coming down onto support `s` at `at` (structure space).
-static func _add_load(point_loads: Dictionary, s: StringName, at: Vector3, newtons: float) -> void:
-	var list: Variant = point_loads.get(s)
-	if list == null:
-		point_loads[s] = [[at, newtons]]
+## `m` hands `newtons` down onto its support `s` at `at` (structure space): onto s's loads from
+## above (by contributor, so `begin_update` can take m's back), and on m's own list of what it gave.
+func _deliver(m: StructureMember, s: StringName, at: Vector3, newtons: float) -> void:
+	var onto: Variant = _received.get(s)
+	if onto == null:
+		_received[s] = {m.member_id: [[at, newtons]]}
 	else:
-		(list as Array).append([at, newtons])
+		var mine: Variant = (onto as Dictionary).get(m.member_id)
+		if mine == null:
+			(onto as Dictionary)[m.member_id] = [[at, newtons]]
+		else:
+			(mine as Array).append([at, newtons])
+	var list: Variant = _delivered.get(m.member_id)
+	if list == null:
+		_delivered[m.member_id] = [[s, at, newtons]]
+	else:
+		(list as Array).append([s, at, newtons])
 
 
-## Is anything overloaded? Returns the ids over capacity, worst first.
+## Is anything overloaded? Returns the ids over capacity, worst first (two worked as hard, to a
+## part in a billion, by their ids: the same one first whichever way the loads were summed).
 func overloaded() -> Array[StringName]:
 	var out: Array[StringName] = []
 	for id: StringName in utilisation:
 		if utilisation[id] > 1.0:
 			out.append(id)
-	out.sort_custom(func(a: StringName, b: StringName) -> bool: return utilisation[a] > utilisation[b])
+	out.sort_custom(func(a: StringName, b: StringName) -> bool:
+		var ua := roundi(float(utilisation[a]) * 1e9)
+		var ub := roundi(float(utilisation[b]) * 1e9)
+		return ua > ub if ua != ub else String(a) < String(b))
 	return out
 
 
@@ -212,7 +378,7 @@ func _geometry(m: StructureMember, structure: Structure) -> Dictionary:
 	return c
 
 
-func _bend(m: StructureMember, loads: Array, supports: Array[StringName], structure: Structure, gone: Dictionary, point_loads: Dictionary) -> void:
+func _bend(m: StructureMember, loads: Array, supports: Array[StringName], structure: Structure, gone: Dictionary) -> void:
 	var geo := _geometry(m, structure)
 	var length: float = geo.length
 	var half: float = geo.half
@@ -264,7 +430,7 @@ func _bend(m: StructureMember, loads: Array, supports: Array[StringName], struct
 		var ids: Array = groups[gi][1]
 		var each := r / ids.size()
 		for s: StringName in ids:
-			_add_load(point_loads, s, m.support_points.get(s, origin), each)
+			_deliver(m, s, m.support_points.get(s, origin), each)
 	if not m.kind in BENDING_KINDS:
 		return
 	var w := tuning.wood(m.wood)

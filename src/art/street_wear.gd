@@ -50,15 +50,21 @@ func _damp(s: Array) -> void:
 		m.set_shader_parameter(&"damp_count", packed.size())
 
 
+## A point loose over the street: along it within street_box's x, and across it as far either side
+## of its middle as the box is wide (the street bends: TownLayout.street_z), on the ground (it
+## slopes west of the store: TownLayout.ground_height).
 func _box_point(rng: RandomNumberGenerator) -> Vector3:
 	var b: Array = _cfg.get("street_box", [-80.0, -17.0, 30.0, 0.0])
-	return Vector3(rng.randf_range(b[0], b[2]), 0.0, rng.randf_range(b[1], b[3]))
+	var x := rng.randf_range(b[0], b[2])
+	var half := (float(b[3]) - float(b[1])) * 0.5
+	return Vector3(x, TownLayout.ground_height(x), TownLayout.street_z(x) + rng.randf_range(-half, half))
 
 
 func _near(sp: Array, reach: float, rng: RandomNumberGenerator) -> Vector3:
 	var a := rng.randf() * TAU
 	var r := sqrt(rng.randf()) * reach
-	return Vector3(sp[0] + cos(a) * r, 0.0, sp[1] + sin(a) * r)
+	var x: float = sp[0] + cos(a) * r
+	return Vector3(x, TownLayout.ground_height(x), sp[1] + sin(a) * r)
 
 
 func _straw(s: Array, rng: RandomNumberGenerator) -> void:
