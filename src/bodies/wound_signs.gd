@@ -31,6 +31,9 @@ const SMEAR_SPEED := 0.3
 const SMEAR_EVERY := 0.18
 
 var _drip_ml := 0.0
+## Its own dice, seeded by the man's (his `_rng` decides how he falls; the drips and spits come
+## every few ticks and would move that on by however much he bled).
+var _rng := RandomNumberGenerator.new()
 var _drip_gap := 0.0
 var _ears_done := {}
 var _eyes_done := {}
@@ -225,22 +228,22 @@ func _mouth(p: Physiology, world: Node3D, dt: float) -> void:
 		_run_down(MOUTH + Vector3(-0.012, -0.008, 0.004), 0.11, "ear_run")
 	_mouth_in -= dt
 	if (body.limp or body.prone) and _mouth_in <= 0.0:
-		_mouth_in = randf_range(2.0, 4.0)
+		_mouth_in = _rng.randf_range(2.0, 4.0)
 		var head := body.parts[&"head"] as Node3D
-		var side := head.global_basis.x * (0.03 if randf() < 0.5 else -0.03)
+		var side := head.global_basis.x * (0.03 if _rng.randf() < 0.5 else -0.03)
 		Blood.throw(world, _head_point(MOUTH) + side, Vector3(0, -0.2, 0) + side * 4.0, 0.15, body._own_rids())
 	if p.jaw_broken and not body.limp and p.is_conscious():
 		_spit_in -= dt
 		if _spit_in <= 0.0:
-			_spit_in = randf_range(5.0, 12.0)
+			_spit_in = _rng.randf_range(5.0, 12.0)
 			var head := body.parts[&"head"] as Node3D
 			var fwd := -head.global_basis.z
 			Blood.burst(world, _head_point(MOUTH), fwd + Vector3.DOWN * 0.3, 8, 1.4)
 			Blood.throw(world, _head_point(MOUTH), fwd * 1.4 + Vector3.DOWN * 0.5, 0.3, body._own_rids())
 			if not _teeth_out:
 				_teeth_out = true
-				for i in randi_range(1, 2):
-					_tooth(world, _head_point(MOUTH), fwd * 1.6 + Vector3(randf_range(-0.3, 0.3), 0.4, 0))
+				for i in _rng.randi_range(1, 2):
+					_tooth(world, _head_point(MOUTH), fwd * 1.6 + Vector3(_rng.randf_range(-0.3, 0.3), 0.4, 0))
 
 
 func _tooth(world: Node3D, at: Vector3, v: Vector3) -> void:
@@ -318,7 +321,7 @@ func _drips(p: Physiology, world: Node3D, dt: float) -> void:
 	var ml := minf(_drip_ml, 0.4)
 	_drip_ml -= ml
 	_drip_gap = DRIP_MIN_GAP
-	var v := body.velocity_now() * 0.6 + Vector3(randf_range(-0.05, 0.05), -0.2, randf_range(-0.05, 0.05))
+	var v := body.velocity_now() * 0.6 + Vector3(_rng.randf_range(-0.05, 0.05), -0.2, _rng.randf_range(-0.05, 0.05))
 	Blood.throw(world, from + Vector3.DOWN * 0.03, v, ml, body._own_rids())
 
 

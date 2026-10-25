@@ -120,7 +120,7 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 	d.add_to_group(&"blood_drying")
 	world.add_child(d)
 	d.global_position = at
-	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), randf() * TAU) if normal.length() > 0.01 else Basis()
+	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), _turn_at(at)) if normal.length() > 0.01 else Basis()
 	if velocity.length() > 0.5 and normal.length() > 0.01:
 		var n := normal.normalized()
 		var along := velocity - n * velocity.dot(n)
@@ -277,3 +277,8 @@ static func clear() -> void:
 		if is_instance_valid(d):
 			d.queue_free()
 	_splats.clear()
+
+
+## A splat's turn about its normal (radians), by where it lands: no global dice.
+static func _turn_at(at: Vector3) -> float:
+	return posmod(hash(at.snapped(Vector3.ONE * 0.001)), 10000) / 10000.0 * TAU

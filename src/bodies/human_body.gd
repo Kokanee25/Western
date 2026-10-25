@@ -2212,6 +2212,7 @@ func signs_now() -> WoundSigns:
 		signs = WoundSigns.new()
 		signs.name = "WoundSigns"
 		signs.body = self
+		signs._rng.seed = hash(["signs", rng_seed])
 		add_child(signs)
 	return signs
 
@@ -3797,7 +3798,7 @@ func shoot_off(id: StringName, dir: Vector3) -> void:
 	world.add_child(rb)
 	rb.global_position = head.global_transform * at
 	rb.linear_velocity = dir.normalized() * 3.0 + Vector3.UP * 0.8
-	rb.angular_velocity = Vector3(randf_range(-9, 9), randf_range(-9, 9), randf_range(-9, 9))
+	rb.angular_velocity = Vector3(_rng.randf_range(-9, 9), _rng.randf_range(-9, 9), _rng.randf_range(-9, 9))
 	Blood.burst(world, rb.global_position, dir, 10, 2.0)
 	Blood.throw(world, rb.global_position, dir * 2.0, 0.6, _own_rids())
 
