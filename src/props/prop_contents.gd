@@ -320,7 +320,7 @@ func landing(l: Dictionary) -> Vector3:
 
 func _floor_under(p: Vector3) -> float:
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.01, p + Vector3.DOWN * 4.0, Layers.WORLD, _own())
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	return (hit.position as Vector3).y if not hit.is_empty() else p.y - 1.0
 
 

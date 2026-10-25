@@ -22,7 +22,7 @@ static func way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear:
 	var me := body.global_position
 	var ways: Array = []  # [way, place]
 	if body.is_inside_tree():
-		var space := body.get_world_3d().direct_space_state
+		var space := World.space(body)
 		if places:
 			var routes := places.routes_from(space, me, exclude(body))
 			for n: StringName in routes:
@@ -103,7 +103,7 @@ static func distance(map: Dictionary, at: Vector3, reach: float) -> float:
 static func route(places: Waypoints, body: HumanBody, point: Vector3) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	if places and body.is_inside_tree():
-		out = places.route_to_point(body.get_world_3d().direct_space_state, body.global_position, point, exclude(body))
+		out = places.route_to_point(World.space(body), body.global_position, point, exclude(body))
 	if out.is_empty():
 		out.append(point)
 	return out

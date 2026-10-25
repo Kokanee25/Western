@@ -144,7 +144,7 @@ static func knockouts(b: Structure, ids: Array) -> Array:
 ## line, and each use point on a floor (not a step, not in a doorway) with room to stand.
 static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 	var failures := []
-	var space := b.get_world_3d().direct_space_state
+	var space := World.space(b)
 	var lv: Dictionary = spec.levels
 	var doors := []
 	for w: Dictionary in spec.walls:

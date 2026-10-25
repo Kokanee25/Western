@@ -25,7 +25,7 @@ static func lay(street: Node3D, times := 4) -> Array:
 	var root := Node3D.new()
 	root.name = "Clutter"
 	street.add_child(root)
-	var space: PhysicsDirectSpaceState3D = street.get_world_3d().direct_space_state
+	var space: PhysicsDirectSpaceState3D = World.space(street)
 	var made := []
 	var taken: Array[Rect2] = []  # what it's put down itself (a body added this frame isn't in a query yet)
 	var row := 0

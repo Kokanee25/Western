@@ -27,7 +27,7 @@ func wound_looked_at(energy := 1500.0) -> Dictionary:
 	var from := cam.global_position
 	var q := PhysicsRayQueryParameters3D.create(from, from - cam.global_transform.basis.z * 30.0, Layers.BULLETS)
 	q.exclude = [player.get_rid()]
-	var hit := cam.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(cam).intersect_ray(q)
 	if hit.is_empty() or not (hit.collider as Object).has_meta(&"human_body"):
 		return {}
 	var body: Object = (hit.collider as Object).get_meta(&"human_body")
@@ -64,7 +64,7 @@ func looked_at() -> StructureMember:
 	var dir := -cam.global_transform.basis.z
 	var q := PhysicsRayQueryParameters3D.create(from, from + dir * 40.0, Layers.WORLD)
 	q.exclude = [player.get_rid()]
-	var hit := cam.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(cam).intersect_ray(q)
 	if hit.is_empty() or not hit.collider is StructureMember:
 		return null
 	return hit.collider as StructureMember

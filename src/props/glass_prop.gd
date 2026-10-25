@@ -172,7 +172,9 @@ func _physics_process(delta: float) -> void:
 		_frames += 1
 		if _frames >= SETTLE_FRAMES:
 			_find_footing()
-			_check_t = randf() * CHECK_EVERY  # spread over the quarter second
+			# Spread over the quarter second, by its name: Godot's global dice made each run check
+			# on its own frame, so a sconce whose wall a blast took fell a frame sooner or later.
+			_check_t = posmod(hash(name), 1000) / 1000.0 * CHECK_EVERY
 		return
 	_check_t -= delta
 	if _check_t > 0.0:
@@ -208,7 +210,7 @@ func _find_footing() -> void:
 		q.transform = Transform3D(global_basis, global_transform * Vector3(p.x, p.y, -KitProp.WALL_REACH * 0.5 + 0.005))
 	q.collision_mask = Layers.WORLD
 	q.exclude = [body.get_rid()]
-	for hit in get_world_3d().direct_space_state.intersect_shape(q, 8):
+	for hit in World.space(self).intersect_shape(q, 8):
 		var c: Object = hit.collider
 		if c is StructureMember:
 			_under.append([c, (c as StructureMember).global_position])
@@ -422,7 +424,7 @@ func _in_world(xf: Transform3D, size: Vector3) -> bool:
 	q.transform = xf
 	q.collision_mask = Layers.WORLD
 	q.exclude = [body.get_rid()]
-	return not get_world_3d().direct_space_state.intersect_shape(q, 1).is_empty()
+	return not World.space(self).intersect_shape(q, 1).is_empty()
 
 
 static func _settle_shard(shard: Variant) -> void:
@@ -497,7 +499,7 @@ func _let_go(host: Node, at: Vector3) -> void:
 	var floor_at := at
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 4.0, Layers.WORLD)
 	q.exclude = [body.get_rid()]
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	if not hit.is_empty():
 		floor_at = hit.position
 	var colour := Color(0.5, 0.3, 0.1)

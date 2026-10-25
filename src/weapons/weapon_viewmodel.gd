@@ -159,8 +159,24 @@ func is_put_away() -> bool:
 
 
 func _physics_process(_delta: float) -> void:
+	for f in _due:
+		f.call()
+	_due.clear()
 	_tuck_target = _probe_wall()
 	_update_fill()
+
+
+## Shots fired outside the physics frame (the trigger read in _process, a tool's pull_trigger):
+## each leaves in the next tick, its line, sway and kick read then, so the ball flies by the
+## query rule (World.space) and in the same tick order every run.
+var _due: Array[Callable] = []
+
+
+func _in_tick(f: Callable) -> void:
+	if Engine.is_in_physics_frame():
+		f.call()
+	else:
+		_due.append(f)
 
 
 ## How far the gun must pull back so the muzzle, in the pose it's heading for, stops short of
@@ -183,7 +199,7 @@ func _probe_wall() -> float:
 	q.collision_mask = TUCK_MASK
 	if _player:
 		q.exclude = [_player.get_rid()]
-	var fractions := get_world_3d().direct_space_state.cast_motion(q)
+	var fractions := World.space(self).cast_motion(q)
 	var free := fractions[0] * (reach + TUCK_MARGIN)
 	return clampf((reach + TUCK_MARGIN - free) / TUCK_RANGE, 0.0, 1.0)
 
@@ -227,7 +243,7 @@ func _shot_line(muzzle: Vector3) -> Array:
 	if cam:
 		var q0 := PhysicsRayQueryParameters3D.create(cam.global_position, origin, Layers.BULLETS)
 		q0.exclude = exclude
-		var blocked := get_world_3d().direct_space_state.intersect_ray(q0)
+		var blocked := World.space(self).intersect_ray(q0)
 		if not blocked.is_empty():
 			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
 		# Where the barrel's pointing: your line of sight, turned by the sway and by what's left of
@@ -241,7 +257,7 @@ func _shot_line(muzzle: Vector3) -> Array:
 		aim_point = cam.global_position + aim_dir * 80.0
 		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
 		q.exclude = exclude
-		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(self).intersect_ray(q)
 		if not hit.is_empty() and cam.global_position.distance_to(hit.position) > 0.6:
 			aim_point = hit.position
 	last_shot_origin = origin

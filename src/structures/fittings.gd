@@ -117,7 +117,7 @@ func collect() -> void:
 	var dressing := street.get_node_or_null(^"StreetDressing")
 	if dressing:
 		_candidates(dressing, nodes)
-	var space := (street as Node3D).get_world_3d().direct_space_state if street is Node3D else null
+	var space := World.space(street as Node3D) if street is Node3D else null
 	if space == null:
 		return
 	for node in nodes:

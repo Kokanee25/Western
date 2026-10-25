@@ -183,7 +183,7 @@ func _set_down(b: int) -> void:
 		return
 	var at := node.global_position
 	at.y = 0.0
-	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(
+	var hit := World.space(self).intersect_ray(PhysicsRayQueryParameters3D.create(
 			node.global_position + Vector3.UP * 0.2, node.global_position + Vector3.DOWN * 3.0, Layers.STAND))
 	if not hit.is_empty():
 		at = hit.position
@@ -218,7 +218,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	var fallback := Vector3(fire_at.x, water_spot.y, fire_at.z) + away * THROW_STAND
 	if not is_inside_tree():
 		return fallback
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var best := fallback
 	var best_d := INF
 	var probe := SphereShape3D.new()
@@ -257,7 +257,7 @@ func _place_slots() -> void:
 	var town := get_tree().get_first_node_in_group(&"town_life") if is_inside_tree() else null
 	var places: Waypoints = town.get(&"places") if town else null
 	if places and is_inside_tree():
-		_path.append_array(places.route_to_point(get_world_3d().direct_space_state, water_spot, throw_spot))
+		_path.append_array(places.route_to_point(World.space(self), water_spot, throw_spot))
 	else:
 		_path.append(throw_spot)
 	slots.clear()

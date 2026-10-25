@@ -11,7 +11,7 @@ static func spray(world: Node3D, at: Vector3, direction: Vector3, pane_area: flo
 		return 0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var dir := direction.normalized() if direction.length() > 0.01 else Vector3.FORWARD
 	var count := clampi(int(pane_area * 24.0), 8, 22)
 	var cuts := 0
