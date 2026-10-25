@@ -9,6 +9,7 @@ extends Node
 const Bot := preload("res://experiments/gunfight_lab/player_bot.gd")
 const SCENARIOS := "res://experiments/gunfight_lab/scenarios.json"
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
+const SpecBuildingScript := preload("res://experiments/building_lab/spec_building.gd")
 ## Prof's timers that are people (CLAUDE.md's frame budget table, "People").
 const PEOPLE := [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain", &"player", &"town_life", &"blood"]
 ## How long with nobody firing before a fight's called a lull (both sides lost each other).
@@ -140,6 +141,10 @@ func setup() -> String:
 		# The building lab's saloon, out in the desert west of town (F5's eighth stop), its ways
 		# joined to the town's places; built the first time (a few seconds), then left to settle.
 		var built := street.get_node_or_null(^"SpecSaloon") != null
+		# The hall dressed for cover (`dress=cover`: dressing.json), an experiment; "" as the spec has it.
+		var dress := String(opts.get("dress", ""))
+		var dressing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/gunfight_lab/dressing.json")) if dress != "" else {}
+		SpecBuildingScript.extra_furniture = dressing.get(dress, [])
 		SpecSaloon.ensure(street, town.places)
 		_origin = SpecSaloon.Play.ORIGIN
 		if not built:
@@ -1022,7 +1027,7 @@ func _finish(why: String) -> void:
 	for id in gang_ids:
 		men[id] = _men[id]
 	record.merge({
-		"variant": String(opts.get("variant", "C")), "opening": String(opts.get("opening", "")), "fixes": String(opts.get("fixes", "all")), "scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
+		"variant": String(opts.get("variant", "C")), "opening": String(opts.get("opening", "")), "fixes": String(opts.get("fixes", "all")), "dress": String(opts.get("dress", "")), "scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
 		"seed": int(opts.seed), "aim_sd": float(opts.get("aim", 1.0)), "length_s": snappedf(t, 0.01), "end": why, "ending": ending, "outcomes": outcomes,
 		"first_shot_by": _first.get("shot_by", "none"), "first_shot_at": _first.get("shot_at", -1.0),
 		"first_hit_by": _first.get("hit_by", "none"), "first_hit_at": _first.get("hit_at", -1.0),

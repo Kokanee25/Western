@@ -125,6 +125,10 @@ Lyle `hothead_lyle_s1`, the Kid `young_drifter_s1`); it isn't in the baseline.
 judgement), the scripted player his own, and Godot's global `seed()`. The same build gives the
 same fight: the same seed in two processes, or headless and drawn, gave the same record event for
 event (perf aside). Across machines or Godot builds, compare within a tolerance.
+`python3 experiments/gunfight_lab/same_fight.py RUN_A RUN_B` says so for two runs: each fight
+paired by name, compared event for event (the timeline, the ending, every man's and your shots
+and hits), the first divergence printed; exit 0 when all are the same. The more-cores steps
+(docs/briefs/more-cores.md) are each gated on it: the same seeds twice on the new build.
 
 ## The scripted player (`player_bot.gd`)
 

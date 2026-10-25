@@ -12,7 +12,7 @@ const HELP := {
 	"gf_cover": "gf_cover X Y Z [FROM_X FROM_Y FROM_Z] -> is there cover within 1.5 m of X Y Z from that eye (default: the street's trough), as the gang judges it",
 	"gf_bodies": "gf_bodies [studio|outlaw|MODEL...] -> each man stood up alone: his hat's hitbox, his gun, and how much of what you see of him no hitbox covers",
 	"gf_coverwhy": "gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] -> the gang's cover search from X Y Z against that eye: how many spots, and why each was turned down",
-	"gf_ways": "gf_ways [PREFIX] -> the spec saloon built and its places added; a man walked along every link between places named PREFIX* (spec_ by default): which he gets along and which he doesn't",
+	"gf_ways": "gf_ways [PREFIX] [dress=NAME] -> the spec saloon built (its hall dressed as dressing.json's NAME) and its places added; a man walked along every link between places named PREFIX* (spec_ by default): which he gets along and which he doesn't",
 	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
 	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
 	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
@@ -306,8 +306,12 @@ func _cmd_gf_map(a: Array) -> Dictionary:
 ## Every link between the spec saloon's places walked by a man (built and joined in first): along
 ## each link from one end, at a run, until he's there, stuck (0.8 s without moving 5 cm) or 12 s.
 func _cmd_gf_ways(a: Array) -> Dictionary:
-	var prefix := String(a[0]) if a.size() > 0 else "spec_"
+	var prefix := String(a[0]) if a.size() > 0 and not String(a[0]).begins_with("dress=") else "spec_"
 	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	for w: String in a:
+		if w.begins_with("dress="):
+			var dressing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/gunfight_lab/dressing.json"))
+			Fight.SpecBuildingScript.extra_furniture = dressing.get(w.substr(6), [])
 	SpecSaloon.ensure(street, places)
 	await physics_frames(10)
 	var done := {}
