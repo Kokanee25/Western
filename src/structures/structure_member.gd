@@ -42,6 +42,9 @@ signal damaged
 @export var extra_load := 0.0
 
 var supported_by: Array[StringName] = []
+## The members resting on it (the other way up; set with supported_by by Structure._link), for
+## what a change to it reaches: StructuralAnalysis.begin_update.
+var dependents: Array[StringName] = []
 ## Where it rests on each support (structure space), for how the load comes down.
 var support_points := {}
 ## The contact region with each support (structure space AABB): a member lying along another
@@ -366,6 +369,8 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		return
 	realise()
 	broken = true
+	if get_parent() is Structure:
+		(get_parent() as Structure).mark_dirty(member_id)
 	Events.noise.emit(at, 40.0, &"glass", null)
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
