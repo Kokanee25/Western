@@ -1895,6 +1895,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
 	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
+	var writes := 0
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO)
 		if leans:
@@ -1919,20 +1920,29 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var gasp := 2.5 if shock > AGONAL_SHOCK else 1.0
 			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
-		pv.rotation_degrees = rot
-		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
+		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
+		var clip_here := _clip_w > 0.0 and played.has(sid)
+		# Set only if it moved: each set is a transform change down the joint's subtree into its
+		# parts' physics state, and a man standing easy moves little but his chest. (Read back, so a
+		# hand put to a wound or anything else that turned the joint since is set over.)
+		if mocap_here or clip_here or not _pose_near(pv.rotation_degrees, rot):
+			pv.rotation_degrees = rot
+			writes += 1
+		if mocap_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles) on top of it.
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
-		if _clip_w > 0.0 and played.has(sid):
+			writes += 1
+		if clip_here:
 			# The played clip leads every joint it has; a flinch, a staged touch, his fold as he
 			# stumbles and the lean his wounds give him stay on top of it.
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
-	Prof.count(&"q_writes", pivots.size())  # (each pivot set once a tick at least)
+			writes += 1
+	Prof.count(&"q_writes", writes)
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
 		_clip_strikes(delta)
@@ -1944,6 +1954,12 @@ func _apply_pose(delta: float, snap := false) -> void:
 
 
 const _MOCAP_ALWAYS := ["pelvis", "thigh", "shin", "foot"]
+## A joint turned less than this (degrees, on every axis) since it was set isn't set again.
+const POSE_EPS := 0.01
+
+
+static func _pose_near(a: Vector3, b: Vector3) -> bool:
+	return absf(a.x - b.x) <= POSE_EPS and absf(a.y - b.y) <= POSE_EPS and absf(a.z - b.z) <= POSE_EPS
 
 
 ## This tick's frame of the walk or run clip (segment -> Quaternion, blended between the clip's
