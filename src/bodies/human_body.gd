@@ -390,6 +390,7 @@ func _ready() -> void:
 	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
+	set_process(false)  # (his bones follow on his tick while he stands; _process only when limp)
 	Events.scorched.connect(func(who: Node, amount: float) -> void:
 		if who == self:
 			physiology.burn(amount)
@@ -950,13 +951,18 @@ func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -
 	return PeopleArt.material(key, PeopleArt.cloth(key, colour, rng_seed * 7 + what.length(), style), 0.95, cull_back)
 
 
-## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp).
-func _update_skeleton() -> void:
+## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp). `placed`: the
+## parts' global transforms already read this tick (segment -> Transform3D; _track_carry's).
+func _update_skeleton(placed := {}) -> void:
 	if skeleton == null:
 		return
 	var inv := skeleton.global_transform.affine_inverse()
 	for i in _bone_parts.size():
-		var part: Node3D = parts.get(_bone_parts[i])
+		var sid := _bone_parts[i]
+		if placed.has(sid):
+			skeleton.set_bone_pose(i, inv * (placed[sid] as Transform3D))
+			continue
+		var part: Node3D = parts.get(sid)
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
 	_pose_fingers()
@@ -1067,6 +1073,8 @@ static func _finger_bend(e: FingerBone, z: float) -> Basis:
 	return Basis(Vector3(0, 0, 1), angle)
 
 
+## Only while he's limp (go_limp turns it on): the ragdoll moves in the physics step, after the
+## ticks, so his bones follow it here. Standing, they follow the pose on his tick (_physics_process).
 func _process(delta: float) -> void:
 	var t := Prof.start()
 	_process_step(delta)
@@ -1074,7 +1082,8 @@ func _process(delta: float) -> void:
 
 
 func _process_step(_delta: float) -> void:
-	_update_skeleton()
+	if limp:
+		_update_skeleton()
 
 
 ## The hand: palm, then each finger as three bones from its knuckle, following the anatomy.
@@ -1242,6 +1251,11 @@ func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"people_body", t)
+	if not limp:
+		# His bones after his pose, from the parts' places _track_carry has just read.
+		t = Prof.start()
+		_update_skeleton(_carry_new if delta > 0.0 else {})
+		Prof.stop(&"people_skeleton", t)
 
 
 func _physics_step(delta: float) -> void:
@@ -1612,6 +1626,7 @@ func _rebuild_rig() -> void:
 	_new_blocker()
 	limp = false
 	rise_ok = false
+	set_process(false)
 
 
 ## Walk (or run, or crawl) towards a point on the ground, this tick. Stops short of walls and
@@ -3933,6 +3948,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	set_process(true)
 	rising = false
 	rise_ok = false
 	_clip = null  # the ragdoll has him now: whatever he was playing, physics won
