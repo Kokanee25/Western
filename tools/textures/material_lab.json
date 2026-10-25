@@ -2138,6 +2138,23 @@
    },
    "light_bands": 4,
    "vram": true
+  },
+  "recut384": {
+   "note": "No paint: C, the game's woods of 2026-10-16 (their kept paintings), cut again at 384 texels a metre, for Sean's pick between C and R1 (2026-10-25: 6b too painted).",
+   "texels_per_metre": 384,
+   "raw": "woods_%s.jpg",
+   "woods": [
+    "saloon_red",
+    "saloon_red_low",
+    "store_boards",
+    "store_boards_low",
+    "weathered_pine",
+    "floor",
+    "timber",
+    "fascia",
+    "framing",
+    "dark_trim"
+   ]
   }
  }
 }
