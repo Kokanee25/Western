@@ -547,8 +547,10 @@ frozen until Sean names one.
   fights, the careful player down in half. Play: Y the next setup (D+), X again, Z the next variant.
   Sean played D+ (#349): fun, but the frame rate drops; the trial costs what D does (any
   saloon gunfight is ~20 ms here; brief `docs/briefs/more-cores.md`, results `2026-10-24_perf/`).
-  Not merged: `claude/gameplay-saloon-cover` (the lab's `--dress=cover`, `tactics.py`; half measured,
-  `results/2026-10-24_dress/`). Next: the performance phase (issue #373).
+  #373 (2026-10-25, `results/2026-10-25_perf/`): the fire's grid only when something's hot, floor
+  marks' drying redrawn once a second (fire 0.34 -> 0.13 ms, floor_marks 1.21 -> 0.12; the holes'
+  settles were #375's); `claude/gameplay-saloon-cover` merged with it (the lab's `--dress=cover`,
+  `tactics.py`; the dress comparison still to run, `results/2026-10-24_dress/`).
 - **The threading design** (Fable, 2026-10-25, `claude/perf-threading`; `docs/briefs/more-cores.md`
   "The review"/"The design"/"The steps", `results/2026-10-25_threading/`): main today is a 20 ms
   frame here, p95 24, in a D saloon fight (~13 at Sean's); the people's cost is GDScript scene

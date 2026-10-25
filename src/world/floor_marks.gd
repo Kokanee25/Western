@@ -30,6 +30,11 @@ const FOOT_APART := 0.11  ## m each boot is off the line he walks
 ## Game hours a real second with no town clock (a lab): the game's default day, 24 h in 45 min.
 const HOURS_PER_SECOND := 24.0 / 2700.0
 const DRAW_PER_STEP := 4
+## s between redraws of what's drying (the clock ages it every frame; a film drying over game hours
+## doesn't change by a texel's worth in a second, and a chunk is ~1 ms to draw).
+const AGE_REDRAW := 1.0
+## Game hours at once that redraw straight away (a night's sleep, a test), not at the next AGE_REDRAW.
+const AGE_JUMP := 0.05
 const SMOOTH := 4
 
 var tuning: FloorMarksTuning
@@ -38,6 +43,8 @@ var cells := {}
 var _wet := {}  # cells holding liquid (what dries)
 var _chunks := {}  # Vector3i(cx, band, cz) -> Decal
 var _dirty_chunks := {}
+var _aged_chunks := {}  # chunks the clock has aged since their last redraw (drawn every AGE_REDRAW)
+var _aged_t := 0.0
 var _walkers := {}  # node -> {"boots": g, "mud": share, "last": Vector3, "on_floor": bool, "side": 1.0, "acc": m}
 var _t := 0.0
 var _day: Node
@@ -74,6 +81,11 @@ func _physics_process(delta: float) -> void:
 			_day = get_tree().get_first_node_in_group(&"day_cycle")
 		if _day == null:
 			age(STEP * HOURS_PER_SECOND)  # (with a town clock, DayCycle.pass_hours ages it)
+	_aged_t += delta
+	if _aged_t >= AGE_REDRAW:
+		_aged_t = 0.0
+		_dirty_chunks.merge(_aged_chunks)
+		_aged_chunks.clear()
 	_draw_some()
 	Prof.stop(&"floor_marks", t)
 
@@ -112,7 +124,11 @@ func _cell(k: Vector3i, y: float) -> Dictionary:
 
 
 func _touched(k: Vector3i) -> void:
-	_dirty_chunks[Vector3i(floori(float(k.x) / CHUNK), k.y, floori(float(k.z) / CHUNK))] = true
+	_dirty_chunks[_chunk_of(k)] = true
+
+
+static func _chunk_of(k: Vector3i) -> Vector3i:
+	return Vector3i(floori(float(k.x) / CHUNK), k.y, floori(float(k.z) / CHUNK))
 
 
 # --- Dirt --------------------------------------------------------------------------------------
@@ -259,7 +275,11 @@ func age(hours: float) -> void:
 				liq[kind] = ml
 		if liq.is_empty():
 			_wet.erase(k)
-		_touched(k)
+			_touched(k)  # dry now: seen at once
+		elif hours >= AGE_JUMP:
+			_touched(k)
+		else:
+			_aged_chunks[_chunk_of(k)] = true
 
 
 # --- Cleaning ------------------------------------------------------------------------------------
