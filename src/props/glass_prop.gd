@@ -172,7 +172,9 @@ func _physics_process(delta: float) -> void:
 		_frames += 1
 		if _frames >= SETTLE_FRAMES:
 			_find_footing()
-			_check_t = randf() * CHECK_EVERY  # spread over the quarter second
+			# Spread over the quarter second, by its name: Godot's global dice made each run check
+			# on its own frame, so a sconce whose wall a blast took fell a frame sooner or later.
+			_check_t = posmod(hash(name), 1000) / 1000.0 * CHECK_EVERY
 		return
 	_check_t -= delta
 	if _check_t > 0.0:
