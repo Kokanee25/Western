@@ -51,6 +51,8 @@ const VIEWS := {
 	"post": [Vector3(-1.4, 1.75, -4.3), Vector3(0.3, 1.6, -1.65), 45.0],
 	# The deck's plank ends and the rim, low, the drifter beside the steps.
 	"deck_ends": [Vector3(0.4, 0.62, -3.0), Vector3(1.6, 0.4, -1.9), 40.0],
+	# The deck's planks close, looking down as you stand on the boardwalk (Sean's photo, 2026-10-25).
+	"deck_close": [Vector3(0.9, 1.75, -2.3), Vector3(1.5, 0.42, -0.5), 50.0],
 	# The steps from above, as you walk up them.
 	"steps": [Vector3(1.4, 1.65, -3.9), Vector3(1.7, 0.3, -1.9), 50.0],
 	# The three men close, for their reference sheet (tools/textures/men_reference.py; --views=men).
