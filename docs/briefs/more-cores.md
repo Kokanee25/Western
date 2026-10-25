@@ -385,7 +385,14 @@ still whose pose didn't change; (c) `_apply_pose` sets 17 pivot `rotation_degree
 tick, each a transform-changed notification down the subtree into the part body's
 `body_set_state`: set only the pivots whose rotation moved more than a hundredth of a degree
 (a man standing easy moves only his chest), and measure how much of `hb_pose` was the sets
-(`q_writes` from step 1). Then `_update_skeleton` runs on the physics tick after the pose, from
+(`q_writes` from step 1). (d) **The per-shot hitch** (Sean's F3, build 2466, on #385: while shooting in the
+spec saloon the worst physics step is 190–250 ms with `batches` 3.5 ms a frame on average):
+a ball into a batched member calls `Structure.unbatch` -> `_rebuild_dirty_batches` ->
+`_build_batch`, which rebuilds that material's whole batch mesh for the building on the physics
+frame. Measure one shot into the hall's wall with per-step timers (not the average); if
+`_build_batch` is the step, split the batches into cells (as `PropBatch` does, ~20 m) so a hit
+rebuilds a few metres, and build the cell's mesh off the frame if it's still long. This is the
+hitch Sean feels on every shot, so it comes first in this step. Then `_update_skeleton` runs on the physics tick after the pose, from
 the same transforms, and `_process` does nothing. Ten fights twice, `same_fight.py` the same;
 the body lab's and physics lab's goldens the same."*
 
@@ -456,6 +463,19 @@ rate. (c) The frame after a stick (~125 ms: ~110 rubble bodies and 44 members ta
 frame): add the pieces over two or three frames, or cut fewer, larger pieces; they must still
 fly from the hole (the breakage lab's goldens). The blast-freeze lab's frames the same twice;
 the fire tests and the soak green."*
+Sean's F3 on his PC (build 2466, on #376) puts numbers on these: after a stick out front,
+`batches` 20–45 ms a frame, `civilian_brain` 42 ms (five cowering), `fire` 9–11 ms, the worst
+physics step 55–316 ms in the burning hall; 26 game minutes later and far down the street still a
+57 ms step, because the simulation isn't tied to the camera (the fire's members and the
+burning building's settle at full detail wherever the player is: (d) members far from the player
+tick coarser, with a bigger step, as step 4b does for people). **And the GPU, art's lane:** 56–75 ms
+out front and in the burning hall against 5.6 ms in the hall with no fire, at fewer triangles:
+about 3,200 extra draws, most likely shadow passes from the fire's lights (the lamp-shadow trap
+of 2026-10-13 with fire lights that flicker or move), plus the flipbook flames' and smoke's
+overdraw in a closed room, and 35 ms still far down the street (the embers' and fires' light
+ranges not culled). An art session measures `FireFX`'s lights (count, shadows, movement) on a
+real GPU or from Sean's F3 before the fight starts; the stopgap `max_physics_steps_per_frame=2`
+(#386) keeps a long step from spiralling meanwhile.
 
 **Step 6. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
 writes' share of it shrinks as step 2 lands). *"Read 'The review' 'Physics on its own thread'.
