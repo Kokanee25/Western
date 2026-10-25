@@ -16,6 +16,7 @@ extends Node3D
 ## Whose arms you have: the Studio man whose shirt and vest your body wears (PlayerBody): Sean's,
 ## the palest and least orange of the eight with hands (every one's forearm is bare to the elbow).
 const MODEL := &"sean_s3_talking"
+const ARM_SKIN := "res://assets/weapons/held_arm_skin.png"
 const FINGERS := ["index", "middle", "ring", "little"]
 ## A finger's last bone has no joint past it: its length is this share of the bone before.
 const TIP_SHARE := 0.85
@@ -29,6 +30,12 @@ var lengths := {}
 var wrist: Node3D
 ## The skinned arm (null where the man's model can't be loaded: the pivots still pose).
 var mesh: MeshInstance3D
+## Where this arm's shoulder is, in the space of the camera the hand hangs under (the player's):
+## when set, the arm is two bones from the shoulder to the wrist with the elbow between, solved
+## each frame (the elbow towards `elbow_pole`, a direction in the same space), not a straight rod
+## from the wrist. Unset (or with no camera above it) the forearm follows `wrist`'s aim.
+var shoulder := Vector3.ZERO
+var elbow_pole := Vector3(0.0, -1.0, 0.0)
 
 var _skeleton: Skeleton3D
 var _src: Dictionary
@@ -119,6 +126,21 @@ func aim_forearm(dir: Vector3) -> void:
 	var local := (basis.inverse() * dir).normalized()
 	var up := Vector3.UP if absf(local.y) < 0.95 else Vector3.RIGHT
 	wrist.basis = Basis.looking_at(-local, up)
+
+
+## A finger closing as fingers do: its three joints bend together, the middle joint most and the
+## last about half as much (the tendons couple them; a hand round a 3-4 cm grip has its knuckle at
+## ~55, middle ~75, last ~40 degrees). `amount` is the middle joint's bend.
+const GRASP := [0.75, 1.0, 0.55]
+
+
+func grasp(finger: String, amount: float, spread := 0.0) -> void:
+	curl(finger, [amount * GRASP[0], amount * GRASP[1], amount * GRASP[2]])
+	# `spread`: the knuckle turned sideways (degrees, towards the thumb positive), as a trigger
+	# finger reaches forward.
+	var bones: Array = fingers.get(finger, [])
+	if not bones.is_empty() and spread != 0.0:
+		(bones[0] as Node3D).rotation.x = deg_to_rad(spread)
 
 
 ## Curl a finger: degrees a bone, root first, positive towards the palm.
@@ -212,12 +234,53 @@ func _pose() -> void:
 	var side := "r" if right else "l"
 	var rests: Dictionary = _src.rests
 	var w: Vector3 = wrist.position
+	if shoulder != Vector3.ZERO and _arm_to_shoulder(inv, side, rests, w):
+		return
 	var turn := Basis(Quaternion(_src.forearm_dir as Vector3, wrist.basis.z.normalized()))
 	var about := Transform3D(Basis.IDENTITY, w) * Transform3D(turn, Vector3.ZERO) * Transform3D(Basis.IDENTITY, -w)
 	for bn: String in ["upper_arm_" + side, "forearm_" + side]:
 		var i := _skeleton.find_bone(bn)
 		if i >= 0:
 			_skeleton.set_bone_pose(i, about * (rests[bn] as Transform3D))
+
+
+## The arm as two bones from the shoulder (in the camera above's space) to the wrist: the elbow
+## where the forearm's and upper arm's lengths meet, bent towards `elbow_pole`; each bone swung from
+## its rest to its new line (the twist left as the man's own). Out of reach, the arm points
+## straight at the shoulder. False where there's no camera above.
+func _arm_to_shoulder(inv: Transform3D, side: String, rests: Dictionary, w: Vector3) -> bool:
+	var cam: Node = get_parent()
+	while cam != null and not cam is Camera3D:
+		cam = cam.get_parent()
+	if cam == null:
+		return false
+	var cxf := (cam as Camera3D).global_transform
+	var s := inv * (cxf * shoulder)
+	var pole := (inv.basis * (cxf.basis * elbow_pole)).normalized()
+	var r_up: Transform3D = rests["upper_arm_" + side]
+	var r_fo: Transform3D = rests["forearm_" + side]
+	var r_ha: Transform3D = rests["hand_" + side]
+	var l1 := r_fo.origin.distance_to(r_ha.origin)   # elbow to wrist
+	var l2 := r_up.origin.distance_to(r_fo.origin)   # shoulder to elbow
+	var to_s := s - w
+	var reach := to_s.length()
+	var n := to_s / maxf(reach, 0.0001)
+	var d := clampf(reach, absf(l1 - l2) + 0.001, l1 + l2 - 0.001)
+	var a := (l1 * l1 - l2 * l2 + d * d) / (2.0 * d)
+	var h := sqrt(maxf(l1 * l1 - a * a, 0.0))
+	var perp := pole - n * pole.dot(n)
+	perp = perp.normalized() if perp.length() > 0.0001 else Vector3.DOWN
+	var e := w + n * a + perp * h
+	var s_used := w + n * d
+	var q_fo := Quaternion((r_ha.origin - r_fo.origin).normalized(), (w - e).normalized())
+	var q_up := Quaternion((r_fo.origin - r_up.origin).normalized(), (e - s_used).normalized())
+	var i_fo := _skeleton.find_bone("forearm_" + side)
+	var i_up := _skeleton.find_bone("upper_arm_" + side)
+	if i_fo >= 0:
+		_skeleton.set_bone_pose(i_fo, Transform3D(Basis(q_fo) * r_fo.basis, e))
+	if i_up >= 0:
+		_skeleton.set_bone_pose(i_up, Transform3D(Basis(q_up) * r_up.basis, s_used))
+	return true
 
 
 ## The man's arm cut out of his model at the shoulder, in hand space (see the class notes): its
@@ -333,6 +396,15 @@ static func source(side: String) -> Dictionary:
 	root.free()
 	if o_tris.is_empty():
 		return out
+	# His mesh is split at nearly every triangle (a texture seam each: 11,615 vertices on 3,036
+	# points), so each face shaded flat and the arm drew in facets: every vertex takes the mean
+	# normal of all those at its point (an arm has no hard edge to keep).
+	var at := {}
+	for i in o_verts.size():
+		var k := o_verts[i].snappedf(0.0001)
+		at[k] = (at.get(k, Vector3.ZERO) as Vector3) + o_normals[i]
+	for i in o_verts.size():
+		o_normals[i] = (at[o_verts[i].snappedf(0.0001)] as Vector3).normalized()
 	var a := []
 	a.resize(Mesh.ARRAY_MAX)
 	a[Mesh.ARRAY_VERTEX] = o_verts
@@ -356,7 +428,9 @@ static func source(side: String) -> Dictionary:
 ## His skin's painted texture in the men's own shader (HumanBody's whole men: _baked_cloth then
 ## BodyInterior.skin_material), so your hand takes light as theirs do.
 static func _material() -> ShaderMaterial:
-	var png := PeopleBodies.TEXTURE_PATH % [MODEL, "skin"]
+	# His skin's texture with your arms repainted in the men's hand (the gun lab's
+	# blender/arm_blender.py), where it's been made; his own elsewhere.
+	var png := ARM_SKIN if ResourceLoader.exists(ARM_SKIN) else PeopleBodies.TEXTURE_PATH % [MODEL, "skin"]
 	var base := StandardMaterial3D.new()
 	base.albedo_texture = load(png) as Texture2D if ResourceLoader.exists(png) else null
 	base.roughness = 0.95

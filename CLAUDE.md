@@ -285,6 +285,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
   motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
@@ -426,10 +427,12 @@ frozen until Sean names one.
   four men (widow, bold_cowboy_s3, young_drifter, doctor) the jaw goes back more than down
   (`talking_face.py`'s spline extrapolation: carry the units by the warp's derivative, rebuild
   them); Sean's three takes (`docs/FACE_TAKES.md`) to tune it; issue #247.
-- **New townsfolk from the Studio** (2026-10-24, #360): the miner (assay office, a one-off), the
-  storekeeper and the working girl (the saloon's front windows), talking faces and hands. Open: the
-  storekeeper's chin holes and the edge pin at hair (`docs/briefs/face-seam.md`). **The deer head**
-  by Rodin from Sean's pictures (#361; look `model:<name>`, `deer_head_rodin.py`). Studio $47.41 of $50.
+- **New townsfolk from the Studio** (2026-10-24, #360, build 2412): the miner (assay office, a
+  one-off), the storekeeper and the working girl (the saloon's front windows), talking faces and
+  hands. Open: the storekeeper's chin holes and the edge pin at hair (`docs/briefs/face-seam.md`).
+  **Props by Rodin** (prop lab's files, Sean's ask): the deer head from Sean's pictures (#361) and
+  the steer skull on the saloon's porch beam (pictures by the Studio's `prop-pictures`), on
+  `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $50.01 of $55.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -541,13 +544,14 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
-- The gun lab (`experiments/gun_lab/`; bench and baseline #248). **The hands** (2026-10-23, #322,
-  `results/2026-10-23_hands/`): `HeldHand` is Sean's Studio man's skinned, painted arm (cut from his
-  model, 15 finger bones), on the revolver and as the coach gun's two hands, fitted by `views.gd
-  --fit` (each bone's gap to the wood, mm); the coach gun from the hip with both hands in view; the
-  metals painted (`gun_blued`, `gun_case`, $0.88, #249 closed); your body in his colours; 47 goldens
-  re-approved (7 left failing for their owners, in the status entry). Blind judge: hands and metals
-  CLOSE (old DIFFERENT). Next: the `next session` issue (the period reload with a left hand).
+- The gun lab (`experiments/gun_lab/`; bench and baseline #248). The hands (#322): `HeldHand` is
+  Sean's Studio man's skinned arm. **The guns remade** (2026-10-24, `results/2026-10-24_remake/`,
+  brief `gun-remake.md`): both rebuilt in Blender and painted (`blender/guns_blender.py`,
+  `assets/weapons/<gun>.glb`), the coach gun with a pistol grip, a standard view and sights; the
+  arms painted in the men's hand and smooth (`blender/arm_blender.py`, `held_arm_skin.png`); blind
+  judge: new CLOSE in all four pairs. Sean's $3: $2.11 spent. Sean: the hold "still looks like
+  shit": **next, the rig posed by eye** (`docs/briefs/viewmodel-rig.md`; targets
+  `assets/textures/guns/hold_game_*.jpg`); the `next session` issue.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
@@ -575,6 +579,11 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
+- Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
+  Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
+  `horse_rodin.py`, `Horse`), tack apart (slid back 12 cm, `SADDLE_BACK`), an idle, capsules, tied
+  at the street's rails. Next: #341 (hit and going down, cover, spooking).
 - **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
   `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
   targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,

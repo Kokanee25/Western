@@ -39,6 +39,11 @@ extends Resource
 	&"straw": {"density": 40.0, "bending": 0.1e6, "compression": 0.05e6, "stiffness": 0.005e9, "toughness": 2e3},
 	&"grain_sack": {"density": 560.0, "bending": 0.5e6, "compression": 1.0e6, "stiffness": 0.02e9, "toughness": 10e3},
 	&"dung": {"density": 300.0, "bending": 0.1e6, "compression": 0.1e6, "stiffness": 0.005e9, "toughness": 2e3},
+	# Dry, weathered bone (a steer's skull and horns, the prop lab's, 2026-10-24): as a member's box
+	# its weight spread through the box (a skull and horns ~5 kg, mostly air inside); brittle: a
+	# ball or a fall cracks it (fresh cortical bone ~100 MPa, weathered far less). Doesn't burn
+	# (FireTuning.fireproof).
+	&"bone": {"density": 450.0, "bending": 30e6, "compression": 60e6, "stiffness": 10e9, "toughness": 8e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 
