@@ -45,8 +45,11 @@ the design are in `experiments/gunfight_lab/results/2026-10-25_threading/`.
   `mark_dirty`, `StructuralAnalysis.begin_update`), `settle(budget_ms)` runs on a frame budget
   and hands the rest to `FireSystem._check_loads`' slices. So "fire with nothing burning" (the
   spec saloon re-settled whole after every broken board) is fixed; what's left under `fire` is
-  the fire's own periodic work (`experiments/blast_freeze/README.md` "What's left"), issue #376's
-  steps 1–3, single-core, on hold behind this review (Sean, 2026-10-25).
+  the fire's own periodic work (`experiments/blast_freeze/README.md` "What's left": the
+  townsfolk's brains in a fire at 30–90 ms a frame, the grid rebuilt every 2 s at ~40 ms, the
+  neighbour lists refreshed together at ~45 ms, the smoke field's step at 90–130 ms, the frame
+  after a stick at ~125 ms). Those are hitches, single-core, and step 4 of the plan below (Sean,
+  2026-10-25: one master plan here, not a hand-off to #376).
 - **The lab's determinism check:** `experiments/gunfight_lab/same_fight.py RUN_A RUN_B` (2026-10-25)
   pairs the fights of two runs by name and compares each event for event (the timeline, the
   ending, every man's and your shots and hits; the frame times left out), printing the first
@@ -274,7 +277,7 @@ heat, char, neighbours) is the same shape: pure over the grid and the members' t
 with ignition and consumption applied on the main thread; it's the one that goes native first
 (CLAUDE.md's performance part B). The ground tile's mesh and shape (dig-ground step 5) are
 already headed native. None of these is the gunfight's problem; they're the fire scene's and
-the blast's, after #376's single-core steps.
+the blast's, and the hitches there (step 4) are single-core work that comes first.
 
 **F. The determinism rule for every step:** the same seeds run twice on the new build are the
 same fight (`same_fight.py`, exit 0); a step that changes the fight on purpose (C) re-baselines
@@ -359,7 +362,24 @@ single-thread sum (the lab's `perf`): if the threads don't pay on this 4-core bo
 keep the phases single-threaded (the order and the batched skeleton are a gain on their own).
 The lab twice; the physics lab's falls and the body lab's wounds the same."*
 
-**Step 4. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
+**Step 4. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
+become frames under 20; no change to the gunfight's average). *"Read `experiments/blast_freeze/README.md`
+'What's left' and 'The design' E. Measure each with `bf_blast at=6.0,0.8,6.0 fire=6 burn=20
+fuse=1 seconds=8 out=…` (one game at a time) before and after. (a) `civilian_brain` while the
+saloon burns, 30–90 ms a frame with 17 townsfolk: `CivilianBrain._mind_fire`/`_look_for_fire`
+and the bucket line read the fire's burning members or route to it every tick for every man;
+cache the fire's picture once a tick in FireSystem (the burning members' boxes, the nearest to
+each place) and have the men read that, their looks staggered as Senses' are; `test_flee_fire`
+and `test_bucket_line` hold them. (b) The fire's periodic work: `_rebuild_grid` (walks all
+5,150 members every 2 s, ~40 ms) becomes incremental (standing members placed once, as `_placed`
+already means; only rubble and the changed re-placed), the neighbour lists refreshed a few
+members a frame instead of all at 30 s, the smoke field's step and upload sliced or halved in
+rate. (c) The frame after a stick (~125 ms: ~110 rubble bodies and 44 members taken in one
+frame): add the pieces over two or three frames, or cut fewer, larger pieces; they must still
+fly from the hole (the breakage lab's goldens). The blast-freeze lab's frames the same twice;
+the fire tests and the soak green."*
+
+**Step 5. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
 worst 5% −5 ms). *"Read 'The review' 'Physics on its own thread'. With steps 1–3 merged, set
 `physics/3d/run_on_separate_thread` from a `Settings` entry (default off; the look panel and
 F-keys don't touch it) via `override.cfg`-free means (`ProjectSettings.set_setting` before the
@@ -370,7 +390,7 @@ the gate, and the paired runs the same. Then re-baseline the lab's `baseline/` u
 note of what moved (every brain now sees the last step). Ask Sean to play a saloon fight with
 it on and off and read F3."*
 
-**Step 5. The render thread model, behind a setting** (expected −3 to −6 ms at Sean's, unknown
+**Step 6. The render thread model, behind a setting** (expected −3 to −6 ms at Sean's, unknown
 here). *"Set `rendering/driver/threads/thread_model` to Multi-Threaded behind a setting; keep
 the screenshot, golden, tour and lab tools on the single-threaded model (they read the viewport
 texture and await `frame_post_draw`). Check the twelve files that call `RenderingServer`
@@ -378,16 +398,16 @@ directly (`grep -rn 'RenderingServer\.' src`) for a same-frame assumption. Give 
 with it on and off (F3's frame, a gunfight in the new saloon, the burning street); it stays on
 only if his numbers say so and nothing draws wrong."*
 
-**Step 6. The structures' analysis and the fire's tick off the main thread** (the fire scene's
-and the blast's, after #376's steps 1–3; expected: the burning town's `fire` 2.4 -> ~1.0 and
-the collapse's rounds off the frame). *"Read 'The design' E. Snapshot the dirty set's members
+**Step 7. The structures' analysis and the fire's tick off the main thread** (the fire scene's
+and the blast's; expected: the burning town's `fire` 2.4 -> ~1.0 and the collapse's rounds off
+the frame). *"Read 'The design' E. Snapshot the dirty set's members
 into packed arrays and run `StructuralAnalysis.begin_update` + `advance` on a worker (GDScript
 on the pool first; native if it pays), `apply_round` on the main thread next tick; the fire's
 `_visit` native over the grid. `tests/test_settle_incremental.gd` holds the analysis exact; the
 blast-freeze lab's frames and the fire test scenes the same twice."*
 
-**Step 7. The budget table re-stated** (no gain; one short session with Sean's F3 numbers from
-steps 4 and 5): CLAUDE.md's table becomes the per-thread one above with measured columns, and
+**Step 8. The budget table re-stated** (no gain; one short session with Sean's F3 numbers from
+steps 5 and 6): CLAUDE.md's table becomes the per-thread one above with measured columns, and
 `config/frame_budget.tres` and `perf_bench` learn the main thread's share and the frame's.
 
 ## What done looks like
