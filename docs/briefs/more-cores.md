@@ -141,11 +141,25 @@ seeds, D, the careful player, `spec_hall`, each configuration run twice):
 
 - **The player's shot vanishes.** `RevolverViewmodel._process` -> `_read_controls` ->
   `pull_trigger` -> `fired` -> `_on_fired` -> `_shot_line`, which casts two rays. Under the
-  threaded server `direct_space_state` is null there, the call errors, `_shot_line` returns null,
+  threaded server `direct_space_state` is null there ("Space state is inaccessible right now",
+  then "Cannot call method 'intersect_ray' on a null value"), `_shot_line` returns null,
   `_on_fired` aborts before `ballistics.fire`: no ball, no smoke, no `shot_fired`, no noise. The
-  men fight a player who never hits anyone, so two fights ended "you dead". The same path for the
-  coach gun. The lab's bot taps the key and the gun reads it in `_process`, so the bot is the
-  player here.
+  men fight a player who never hits anyone, so two of the ten fights ended "you dead". The same
+  path for the coach gun. The lab's bot taps the key and the gun reads it in `_process`, so the
+  bot is the player here.
+  Measured (`results/2026-10-25_threading/phys_errors.txt`): in three fights the player pulled
+  the trigger nine times and fired nothing; every fight diverged at its first "you fired", the
+  careful player went down in all three (he'd fled one and won two exchanges in the baseline);
+  the frame fell 22.5 -> 18.9 ms, but the fights aren't the same fights, so that number is a
+  ceiling, not the gain.
+- **`Fittings.collect` at the town's start** asks for the space state before the first physics
+  tick (three errors, one a game): under the thread nothing is collected, so the wall props hung
+  on nails aren't known to the fittings at all. The same class of bug as the shot, found only
+  because the paired runs were looked at.
+- **Part of the thread's gain is the writes, not the step.** With the server threaded every
+  `body_set_state` is a queue push instead of Jolt's position-and-broadphase update inline, so
+  `people_body` itself fell 4.4 -> 3.7 ms (its 17 part transforms a man a tick are physics
+  writes). Which says the writes are worth measuring on their own in step 1 (`q_writes`).
 - **Every other query outside the window errors too** and silently changes what follows:
   `GameAudio.gunshot`'s room and wall rays when the player fires; `Senses._on_noise`'s wall ray
   for every listener of a `_process`-time noise (the player's footsteps are emitted from
@@ -314,12 +328,14 @@ that returns the direct space state and, in debug builds, pushes an error with t
 change; the tests show the sites that fire). Move the player's shot into the physics window:
 `_read_controls` records the trigger pull and `WeaponViewmodel._physics_process` fires it (the
 sway and kick read then); the dev bridge's commands that query (goto, moment, the labs' setups)
-run inside `await get_tree().physics_frame`. Replace the global `randf*` in `HumanBody.shoot_off`
+run inside `await get_tree().physics_frame`; `Fittings.collect` and anything else that
+queries at the town's start waits for the first physics frame. Replace the global `randf*` in `HumanBody.shoot_off`
 and `WoundSigns` with the man's `_rng`. Give `settle(budget_ms)` and `_check_loads` a
 count budget when `Engine.is_in_physics_frame()` and a `deterministic` project setting is on
 (the lab and tests set it). Put a counter on every query site under a Prof name
-(`q_senses`, `q_cover`, `q_brain`, `q_walk`, `q_balls`, `q_lamps`, `q_signs`) so the lab's
-`per_system_ms` shows rays a frame as well as ms. Name the untimed share: in a D fight the
+(`q_senses`, `q_cover`, `q_brain`, `q_walk`, `q_balls`, `q_lamps`, `q_signs`) and one on the
+people's part transforms set a tick (`q_writes`), so the lab's `per_system_ms` shows rays and
+writes a frame as well as ms. Name the untimed share: in a D fight the
 named systems sum to ~13 of the frame's ~22 ms here; a `PhysicsWindow` pair of nodes (the
 first and the last to tick, by `process_physics_priority`) times the window, so the frame
 splits into the window (ours), the step (Jolt's) and the rest (the engine's), and `perf`
