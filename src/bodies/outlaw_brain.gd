@@ -1752,6 +1752,7 @@ func _aim_point(t: Node3D) -> Vector3:
 func _clear(from: Vector3, to: Vector3, t: Node3D) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = _exclude(t)
+	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
 	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
 
@@ -1776,6 +1777,7 @@ func _friend_in_the_way(point: Vector3) -> bool:
 		return false
 	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
 	q.exclude = _exclude()
+	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
 	return not hit.is_empty() and crew.is_mate((hit.collider as Object).get_meta(&"human_body", null))
 
@@ -2047,6 +2049,7 @@ func _hears(speaker: Node3D) -> bool:
 	var at := speaker.global_position + Vector3.UP * 1.6
 	var reach := Crew.EARSHOT
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
+	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.6:
 		reach *= 0.5

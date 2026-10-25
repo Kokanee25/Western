@@ -276,6 +276,7 @@ func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceSt
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
 	q.exclude = ex
+	Prof.count(&"q_senses")
 	var hit := space.intersect_ray(q)
 	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
 
@@ -317,6 +318,7 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
 	if source is CollisionObject3D:
 		q.exclude = [(source as CollisionObject3D).get_rid()]  # his own body doesn't muffle him
+	Prof.count(&"q_senses")
 	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.3:
 		reach *= 0.5

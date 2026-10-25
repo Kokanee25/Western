@@ -131,6 +131,7 @@ func step(b: Bullet, delta: float) -> void:
 		var to := b.position + dir * remaining
 		var q := PhysicsRayQueryParameters3D.create(b.position, to, Layers.BULLETS)
 		q.exclude = b.exclude
+		Prof.count(&"q_balls")
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
 			b.position = to

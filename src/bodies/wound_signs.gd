@@ -386,6 +386,7 @@ func _touching(world: Node3D, at: Vector3, reach: float) -> Dictionary:
 	for dir: Vector3 in [Vector3.DOWN, Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT]:
 		var q := PhysicsRayQueryParameters3D.create(at, at + dir * reach, Layers.WORLD)
 		q.exclude = body._own_rids()
+		Prof.count(&"q_signs")
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
 			return hit

@@ -150,6 +150,7 @@ static func _lamp_reaches(lamp: OilLamp, from: Vector3, to: Vector3, space: Phys
 	for i in 3:
 		var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 		q.exclude = skip
+		Prof.count(&"q_lamps")
 		var hit := space.intersect_ray(q)
 		if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15:
 			return true
@@ -179,6 +180,7 @@ static func _sky_on(at: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID
 static func _open(from: Vector3, to: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID]) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = ex
+	Prof.count(&"q_lamps")
 	return space.intersect_ray(q).is_empty()
 
 

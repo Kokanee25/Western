@@ -155,6 +155,7 @@ func setup() -> String:
 			g.queue_free()
 	town.gang.clear()
 	Prof.on = true
+	PhysicsWindow.add_to(get_tree().root)  # the frame as window, step and rest (per_system_ms)
 	_prof_last = Prof._sum.duplicate()
 	# You: where the scenario puts you, your gun out (or away, walking into an ambush).
 	var p: Dictionary = scen.player

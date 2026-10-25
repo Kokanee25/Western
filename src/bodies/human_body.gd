@@ -608,6 +608,7 @@ func _hat_meets_ground() -> void:
 		q.shape = (c as CollisionShape3D).shape
 		q.transform = (c as CollisionShape3D).global_transform
 		q.collision_mask = Layers.WORLD
+		Prof.count(&"q_body")
 		if not space.intersect_shape(q, 1).is_empty():
 			var hat := knock_hat_off(head.linear_velocity)
 			if hat:
@@ -1495,6 +1496,7 @@ func _spare_rubble(at: Vector3) -> void:
 	q.shape = ball
 	q.transform = Transform3D(Basis(), at)
 	q.collision_mask = Layers.WORLD
+	Prof.count(&"q_body")
 	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
 		var rb := hit.collider as RigidBody3D
 		if rb == null:
@@ -1524,6 +1526,7 @@ func _lowest_point() -> float:
 func _ground_y(at: Vector3) -> float:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 3.0, Layers.STAND)
 	q.exclude = _own_rids()
+	Prof.count(&"q_body")
 	var hit := World.space(self).intersect_ray(q)
 	return (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
 
@@ -1691,11 +1694,13 @@ func _slide(motion: Vector3) -> Vector3:
 		q.motion = left
 		q.collision_mask = Layers.STAND | Layers.PEOPLE
 		q.exclude = exclude
+		Prof.count(&"q_walk")
 		var frac := space.cast_motion(q)
 		if frac[0] <= 0.0 and frac[1] <= 0.0:
 			# Started a hair inside something (a corner he was slid into): no motion can be cast
 			# from there at all, so he'd stand stuck for good. Step out along its normal first.
 			q.motion = Vector3.ZERO
+			Prof.count(&"q_walk")
 			var inside := space.get_rest_info(q)
 			if inside.is_empty():
 				break
@@ -1712,6 +1717,7 @@ func _slide(motion: Vector3) -> Vector3:
 		# Blocked: slide along it.
 		q.transform = Transform3D(Basis.IDENTITY, global_position + total + Vector3.UP * (0.35 if prone else 0.75) + left.normalized() * 0.02)
 		q.motion = Vector3.ZERO
+		Prof.count(&"q_walk")
 		var rest := space.get_rest_info(q)
 		if rest.is_empty():
 			break
@@ -1734,6 +1740,7 @@ func _slide(motion: Vector3) -> Vector3:
 			q.motion = turned
 			q.collision_mask = Layers.STAND | Layers.PEOPLE
 			q.exclude = exclude
+			Prof.count(&"q_walk")
 			var got: Vector3 = turned * space.cast_motion(q)[0]
 			if got.length() > best.length():
 				best = got
@@ -1783,6 +1790,7 @@ func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) ->
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
 	if _blocker and is_instance_valid(_blocker):
 		q.exclude = [_blocker.get_rid()]
+	Prof.count(&"q_walk")
 	return space.intersect_ray(q)
 
 
@@ -1882,6 +1890,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
+	Prof.count(&"q_writes", pivots.size())  # (each pivot set once a tick at least)
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
 		_clip_strikes(delta)
@@ -2059,6 +2068,7 @@ func _clip_strikes(delta: float) -> void:
 		var local := part.global_transform.affine_inverse() * shape.global_transform
 		for k in range(1, 5):
 			q.transform = (was as Transform3D).interpolate_with(now, k / 4.0) * local
+			Prof.count(&"q_body")
 			for hit: Dictionary in space.intersect_shape(q, 4):
 				hits.append(hit)
 			if not hits.is_empty():
@@ -2072,6 +2082,7 @@ func _clip_strikes(delta: float) -> void:
 				continue
 			_clip_struck[m] = true
 			var at := m.global_transform.origin
+			Prof.count(&"q_body")
 			var pairs := space.collide_shape(q, 1)
 			if pairs.size() >= 2:
 				at = pairs[1]
@@ -4516,6 +4527,7 @@ const PLANTED_WITHIN := 0.12
 
 func _on_ground(space: PhysicsDirectSpaceState3D, rb: RigidBody3D) -> bool:
 	var at := rb.global_position
+	Prof.count(&"q_body")
 	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * PLANTED_WITHIN, Layers.STAND))
 	return not hit.is_empty()
 
