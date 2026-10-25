@@ -1206,7 +1206,13 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 - `src/art/sign_art.gd` (`SignArt`): the factory's painted sign boards, laid on once at their own
   shape; `FalseFrontBuilding` hangs one for its `sign_text` (SALOON, DRY GOODS, …) where there is
-  one, else the lettered label. `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
+  one, else the lettered label. **Painted signs** (2026-10-25, Sean #402): `FacadeArt._sign` lays a
+  front's painted letters (`letters_<text>`, the factory's kind `lettering`: a sign-writer's letters
+  painted on white, `reduce.py` takes the white into alpha) on its own boards, and the saloon's
+  framed board from `SignArt.board_id` (R1's boards: `R1_BOARDS` over `BOARDS`); the porch boards
+  (`_hung_board`) are two painted faces back to back; the squares drawn in code
+  (`letter_sign.py`) only where nothing's painted. Paid painting: People workflow `textures =
+  paid:BUDGET:ids` (`paint_textures.py --budget`). `src/art/street_dressing.gd` (`StreetDressing`, a node in the test
   street): the false fronts down the street (`BUILDINGS`: saloon, general store, barber, hotel, eating house;
   livery, jail, assay office) and their boardwalks (`WALKS`), carriage lanterns, barrels,
   crates, hay, hitching rails with horses (`_rail`), a covered wagon and a buckboard, boards hung
