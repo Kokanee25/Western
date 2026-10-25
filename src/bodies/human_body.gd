@@ -753,6 +753,11 @@ func _build_skin() -> void:
 			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
 			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
+			if baked.has(shape):
+				# His own painted texture (the Studio's Rodin men) carries its own shading: the light
+				# smooth on it, not cut into the old look's four flat steps, which carved their faces
+				# into hard patches in the sun (Sean, 2026-10-25), as paint_look already does.
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"light_steps", 0.0)
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
