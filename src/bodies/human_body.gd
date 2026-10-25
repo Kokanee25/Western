@@ -288,10 +288,11 @@ var _bands: Array[Dictionary] = []  ## the dressings on him: {mi, segment}
 var _was_alive := true
 ## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
 ## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
-## pitches on along his run instead of stopping dead (experiments/physics_lab, fault 2).
-var _carry_v := {}
-var _carry_w := {}
-var _carry_last := {}  ## segment -> [position, rotation] at the end of the last tick
+## pitches on along his run instead of stopping dead (experiments/physics_lab, fault 2). Worked
+## out only then (_carry_velocities), from his parts' transforms the last two ticks he stood.
+var _carry_last := {}  ## segment -> its global transform the tick before _carry_new's
+var _carry_new := {}  ## segment -> its global transform at the end of the last tick he stood
+var _carry_dt := 0.0  ## that tick's length
 ## Faster than this in one tick is a teleport (placed, spawned, snapped), not movement.
 const CARRY_MAX_SPEED := 12.0
 const CARRY_MAX_SPIN := 25.0
@@ -1302,39 +1303,45 @@ func _physics_step(delta: float) -> void:
 	_was_conscious = conscious
 
 
-## Each part's velocity this tick from where it was the last (the standing parts are moved by
-## script, so the engine knows no velocity for them).
+## Where each part is at the end of this tick, for its velocity should he go limp (the standing
+## parts are moved by script, so the engine knows no velocity for them). Kept as transforms and
+## turned into velocities only when he falls: 17 parts' sums a man a tick were most of this.
 func _track_carry(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	var teleport := false
-	var v := {}
-	var w := {}
+	for sid: StringName in _carry_new:
+		_carry_last[sid] = _carry_new[sid]
+	var now := {}
 	for sid: StringName in parts:
 		var n := parts[sid] as Node3D
 		if n == null or not is_instance_valid(n):
 			continue
-		var pos := n.global_position
-		var q := n.global_basis.orthonormalized().get_rotation_quaternion()
-		var last: Array = _carry_last.get(sid, [])
-		_carry_last[sid] = [pos, q]
-		if last.is_empty():
+		now[sid] = n.global_transform
+	_carry_new = now
+	_carry_dt = delta
+
+
+## Each part's velocity the last tick he stood ([segment -> m/s, segment -> rad/s]), from where it
+## was the tick before: both empty if any part moved faster than a man can (a teleport).
+func _carry_velocities() -> Array[Dictionary]:
+	var v := {}
+	var w := {}
+	for sid: StringName in _carry_new:
+		if not _carry_last.has(sid):
 			continue
-		var lv: Vector3 = (pos - (last[0] as Vector3)) / delta
+		var now: Transform3D = _carry_new[sid]
+		var was: Transform3D = _carry_last[sid]
+		var lv: Vector3 = (now.origin - was.origin) / _carry_dt
 		if lv.length() > CARRY_MAX_SPEED:
-			teleport = true
-		var dq := q * (last[1] as Quaternion).inverse()
+			return [{}, {}]
+		var q := now.basis.orthonormalized().get_rotation_quaternion()
+		var dq := q * was.basis.orthonormalized().get_rotation_quaternion().inverse()
 		if dq.w < 0.0:
 			dq = -dq
 		var angle := dq.get_angle()
 		v[sid] = lv
-		w[sid] = (dq.get_axis() * angle / delta).limit_length(CARRY_MAX_SPIN) if angle > 1e-6 else Vector3.ZERO
-	if teleport:
-		_carry_v.clear()
-		_carry_w.clear()
-		return
-	_carry_v = v
-	_carry_w = w
+		w[sid] = (dq.get_axis() * angle / _carry_dt).limit_length(CARRY_MAX_SPIN) if angle > 1e-6 else Vector3.ZERO
+	return [v, w]
 
 
 func set_pose(p: StringName) -> void:
@@ -4013,7 +4020,10 @@ func go_limp(push := Vector3.ZERO) -> void:
 	# share and the gait's swing: a runner at 3.5 m/s keeps 93% (279 -> 260 N*s), and the rest of
 	# him all of his. Real strides will come with mocap.
 	var space := World.space(self)
-	var hips: Vector3 = _carry_v.get(&"pelvis", Vector3.ZERO)
+	var carry := _carry_velocities()
+	var carry_v: Dictionary = carry[0]
+	var carry_w: Dictionary = carry[1]
+	var hips: Vector3 = carry_v.get(&"pelvis", Vector3.ZERO)
 	var side := _stance_side(bodies)
 	var foot: RigidBody3D = bodies.get(StringName("foot" + side))
 	var planted := foot != null and _on_ground(space, foot)
@@ -4025,8 +4035,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	var leg_w := Vector3.UP.cross(hips_flat) / leg_h
 	for sid: StringName in bodies:
 		var rb: RigidBody3D = bodies[sid]
-		var v: Vector3 = (_carry_v.get(sid, Vector3.ZERO) as Vector3)
-		var w: Vector3 = _carry_w.get(sid, Vector3.ZERO)
+		var v: Vector3 = (carry_v.get(sid, Vector3.ZERO) as Vector3)
+		var w: Vector3 = carry_w.get(sid, Vector3.ZERO)
 		var leg := String(sid).begins_with("thigh") or String(sid).begins_with("shin") or String(sid).begins_with("foot")
 		if leg:
 			v = hips
