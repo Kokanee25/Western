@@ -1939,11 +1939,15 @@ func _apply_pose(delta: float, snap := false) -> void:
 		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
 		var clip_here := _clip_w > 0.0 and played.has(sid)
 		# Set only if it moved: each set is a transform change down the joint's subtree into its
-		# parts' physics state, and a man standing easy moves little but his chest. (Read back, so a
-		# hand put to a wound or anything else that turned the joint since is set over.)
-		if mocap_here or clip_here or not _pose_near(pv.rotation_degrees, rot):
+		# parts' physics state, and a man standing easy moves little but his chest once his pose
+		# has settled. Exactly as last set, and nothing else (a hand to a wound, a clip) has turned
+		# the joint since: setting it again would change nothing. (Within a hundredth of a degree
+		# was tried: 19 of the physics lab's 151 falls went another way.)
+		var was: Array = _pose_set.get(sid, _NOT_SET)
+		if mocap_here or clip_here or was[0] != rot or was[1] != pv.transform:
 			pv.rotation_degrees = rot
 			writes += 1
+			_pose_set[sid] = [rot, pv.transform] if not (mocap_here or clip_here) else _NOT_SET
 		if mocap_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles) on top of it.
@@ -1970,12 +1974,9 @@ func _apply_pose(delta: float, snap := false) -> void:
 
 
 const _MOCAP_ALWAYS := ["pelvis", "thigh", "shin", "foot"]
-## A joint turned less than this (degrees, on every axis) since it was set isn't set again.
-const POSE_EPS := 0.01
-
-
-static func _pose_near(a: Vector3, b: Vector3) -> bool:
-	return absf(a.x - b.x) <= POSE_EPS and absf(a.y - b.y) <= POSE_EPS and absf(a.z - b.z) <= POSE_EPS
+## Each pivot as _apply_pose last set it: [its rotation (degrees), its transform after].
+var _pose_set := {}
+const _NOT_SET := [Vector3.INF, Transform3D()]
 
 
 ## This tick's frame of the walk or run clip (segment -> Quaternion, blended between the clip's
