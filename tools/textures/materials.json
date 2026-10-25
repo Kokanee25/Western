@@ -897,6 +897,271 @@
    "smooth": true,
    "texels_per_metre": 128,
    "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:dung)."
+  },
+  "sign_saloon_r1": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    5.6,
+    1.6
+   ],
+   "colours": 10,
+   "text": "SALOON",
+   "what": "a big weathered frontier saloon sign of old grey pine boards, the word SALOON in tall dark-red slab-serif capitals with a thin red border line and small corner flourishes",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_livery_r1": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    2.0,
+    2.6
+   ],
+   "colours": 10,
+   "text": "LIVERY / FEED / HAY / STABLES",
+   "what": "a weathered frontier livery sign of old grey pine boards running up and down, LIVERY in big dark capitals across the top, then FEED, HAY, STABLES in smaller dark capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_eating_house": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "EATING HOUSE",
+   "what": "a weathered frontier sign of two old grey pine boards, the words EATING HOUSE in dark brown condensed serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_meals": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.1,
+    0.42
+   ],
+   "colours": 10,
+   "text": "MEALS",
+   "what": "a small weathered hanging signboard, one old pine plank, the word MEALS in dark red serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_baths": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.1,
+    0.42
+   ],
+   "colours": 10,
+   "text": "BATHS",
+   "what": "a small weathered hanging signboard, one old pine plank, the word BATHS in black serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_rooms": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.1,
+    0.42
+   ],
+   "colours": 10,
+   "text": "ROOMS",
+   "what": "a small weathered hanging signboard, one old pine plank, the word ROOMS in dark green serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_gunsmith": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.61,
+    0.42
+   ],
+   "colours": 10,
+   "text": "GUNSMITH",
+   "what": "a small weathered hanging signboard, one old pine plank, the word GUNSMITH in black slab-serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_sheriff": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.44,
+    0.42
+   ],
+   "colours": 10,
+   "text": "SHERIFF",
+   "what": "a small weathered hanging signboard, one old pine plank, the word SHERIFF in black slab-serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "sign_assays": {
+   "for": "street",
+   "kind": "sign",
+   "r1": true,
+   "metres": [
+    1.27,
+    0.42
+   ],
+   "colours": 10,
+   "text": "ASSAYS",
+   "what": "a small weathered hanging signboard, one old pine plank, the word ASSAYS in dark brown serif capitals",
+   "ref_image": "assets/textures/woods/store_boards_b0.png",
+   "smooth": true,
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed."
+  },
+  "letters_general_store": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "GENERAL STORE",
+   "what": "old dark brown-black sign-writer's paint, tall condensed slab-serif capitals of the 1870s, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_telegraph": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "TELEGRAPH",
+   "what": "old dark brown-black sign-writer's paint, bold slab-serif capitals with a thin shadow line, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_doctor": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "DOCTOR",
+   "what": "old dark brown-black sign-writer's paint, tall serif capitals, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_bank": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "BANK",
+   "what": "old dark brown-black sign-writer's paint, heavy wide slab-serif capitals with a faded ochre-gold shade, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_barber": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "BARBER",
+   "what": "old dark brown-black sign-writer's paint, condensed serif capitals, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_hotel": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "HOTEL",
+   "what": "old dark brown-black sign-writer's paint, tall wide-spaced serif capitals, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_jail": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "JAIL",
+   "what": "old black paint, big blunt slab-serif capitals, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_assay_office": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    3.6,
+    0.9
+   ],
+   "colours": 10,
+   "text": "ASSAY OFFICE",
+   "what": "old dark brown-black sign-writer's paint, condensed slab-serif capitals, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
   }
  }
 }

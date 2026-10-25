@@ -275,7 +275,44 @@ def bold_spec(spec):
     return s
 
 
+def reduce_lettering(mid, spec, tpm):
+    """A sign-writer's letters painted on white (paint_textures.py LETTERING): the white taken away
+    (alpha from how far a pixel is from the background, the colour unmixed from it), cropped to the
+    letters, its height `metres[1]` and its width from the letters' shape, at `tpm`. RGBA; FacadeArt
+    lays it straight on a false front's boards (alpha scissor), so the wall shows through the chips."""
+    raw = Image.open(os.path.join(RAW, raw_name(mid))).convert("RGB")
+    a = np.asarray(raw).astype(np.float64) / 255.0
+    edge = np.concatenate([a[:4].reshape(-1, 3), a[-4:].reshape(-1, 3), a[:, :4].reshape(-1, 3), a[:, -4:].reshape(-1, 3)])
+    bg = np.median(edge, axis=0)
+    d = np.sqrt(((a - bg) ** 2).sum(-1) / 3.0)
+    lo, hi = spec.get("key", [0.08, 0.3])
+    alpha = np.clip((d - lo) / (hi - lo), 0.0, 1.0)
+    ys, xs = np.nonzero(alpha > 0.5)
+    if len(xs) == 0:
+        raise RuntimeError("%s: no letters found on the white" % mid)
+    m = max(4, round(0.02 * raw.height))
+    x0, x1 = max(0, xs.min() - m), min(raw.width, xs.max() + 1 + m)
+    y0, y1 = max(0, ys.min() - m), min(raw.height, ys.max() + 1 + m)
+    a, alpha = a[y0:y1, x0:x1], alpha[y0:y1, x0:x1]
+    metres = [round(float(spec["metres"][1]) * (x1 - x0) / (y1 - y0), 3), float(spec["metres"][1])]
+    size = (max(1, round(metres[0] * tpm)), max(1, round(metres[1] * tpm)))
+    # The ink's own colour: the pixel unmixed from the white it was laid over.
+    k = np.maximum(alpha, 1e-3)[..., None]
+    ink = np.clip((a - (1.0 - k) * bg) / k, 0.0, 1.0)
+    rgb = np.asarray(Image.fromarray((ink * 255 + 0.5).astype(np.uint8)).resize(size, Image.LANCZOS))
+    al = np.asarray(Image.fromarray((alpha * 255 + 0.5).astype(np.uint8)).resize(size, Image.LANCZOS))
+    os.makedirs(out_dir(), exist_ok=True)
+    Image.fromarray(np.dstack([rgb, al])).save(os.path.join(out_dir(), mid + ".png"))
+    _import_file(os.path.join(out_dir(), mid + ".png.import"), bool(spec.get("vram")))
+    print("%-20s %3dx%-3d texels  lettering" % (mid, size[0], size[1]))
+    # For the sheet: the letters over a mid grey board.
+    shown = (rgb * (al[..., None] / 255.0) + 120 * (1 - al[..., None] / 255.0)).astype(np.uint8)
+    return {"kind": "lettering", "metres": metres, "texels": list(size), "strips": 0, "palette": []}, raw, shown
+
+
 def reduce(mid, spec, tpm):
+    if spec["kind"] == "lettering":
+        return reduce_lettering(mid, spec, tpm)
     if BOLD:
         spec = bold_spec(spec)
     raw = Image.open(os.path.join(RAW, raw_name(mid))).convert("RGB")
@@ -335,7 +372,7 @@ def reduce(mid, spec, tpm):
     rgb = lab_to_rgb(lab)
     os.makedirs(out_dir(), exist_ok=True)
     Image.fromarray(rgb).save(os.path.join(out_dir(), mid + ".png"))
-    _import_file(os.path.join(out_dir(), mid + ".png.import"))
+    _import_file(os.path.join(out_dir(), mid + ".png.import"), bool(spec.get("vram")))
     strips = 0
     if spec.get("boards", False):
         # Each board of the painting as its own strip (board_strips), snapped to the tile's palette
@@ -367,8 +404,13 @@ def reduce(mid, spec, tpm):
             "palette": ["#%02x%02x%02x" % tuple(c) for c in lab_to_rgb(pal)]}, raw, rgb
 
 
-def _import_file(path):
-    if not os.path.exists(path):
+def _import_file(path, vram=False):
+    """Its import: lossless (IMPORT), or with `vram` VRAM-compressed at high quality (a material's
+    "vram": true, the painted signs: BC7 on desktop, a quarter of the memory), rewritten each cut."""
+    if vram:
+        with open(path, "w") as f:
+            f.write(IMPORT.replace("compress/mode=0", "compress/mode=2\ncompress/high_quality=true"))
+    elif not os.path.exists(path):
         with open(path, "w") as f:
             f.write(IMPORT)
 
@@ -380,7 +422,7 @@ def sheet(rows, path):
         r = raw.copy()
         r.thumbnail((th * 3, th))
         t = Image.fromarray(rgb)
-        if kind != "sign":
+        if kind not in ("sign", "lettering"):
             big = Image.new("RGB", (t.width * 2, t.height * 2))
             for x in (0, t.width):
                 for y in (0, t.height):

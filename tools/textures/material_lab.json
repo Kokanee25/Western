@@ -2294,6 +2294,44 @@
    },
    "ask": "",
    "raw": "woods_studio10p_%s.jpg"
+  },
+  "r1paint": {
+   "note": "The painted sidings repainted in R1's hand (Sean, 2026-10-25, #402, his $10): painted from the game's store_boards (R1 since #391) as studio1 was (no hand of its own, no blur), cut at 512 as R1, graded only in lightness and colour. Three walls; ochre_s not used.",
+   "texels_per_metre": 512,
+   "woods": [],
+   "new_woods": {
+    "painted_white": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old whitewash, now a dirty chalky off-white",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_red": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old barn-red paint, faded by the sun to a dusty brick red",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_green": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old pale sage-green paint, faded and dusty",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    }
+   },
+   "grade": {
+    "painted_white": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_red": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_green": {
+     "L": 0.84,
+     "C": 0.9
+    }
+   },
+   "ask": "",
+   "budget": 0.9
   }
  }
 }
