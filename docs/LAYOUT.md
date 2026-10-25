@@ -432,7 +432,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   it on the boards; `Events.liquid_spilled` lays a film; `age(hours)` (from `DayCycle.pass_hours`, or
   real time in a lab) dries it and soaks part in. `add_dirt`, `add_liquid`, `take(at, radius, share)`
   (what a mop lifts, with Blood's marks: `Blood.take`), `mess(at, radius)`, `dirty_cells`. Drawn as a
-  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change. Prof
+  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change (what the clock
+  dries, at most once a second: `AGE_REDRAW`; a dry cell or a jump of hours at once). Prof
   `floor_marks` (Structures). The water lab's spills will move its liquid cell to cell.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)

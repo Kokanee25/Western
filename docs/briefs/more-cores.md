@@ -35,7 +35,9 @@ the design are in `experiments/gunfight_lab/results/2026-10-25_threading/`.
     longer. At Sean's that's roughly a 13 ms frame with spikes to about 27 ms, before drawing.
 - **The heaviest systems:** `people_body` 3.85, `outlaw_brain` 2.84, `people_skeleton` 1.47,
   `senses` 1.15 and `civilian_brain` 0.51 (ms a frame, this core). Two surprises: `fire` at
-  1.5–2.8 ms with nothing burning, and `floor_marks` at about 1 ms.
+  1.5–2.8 ms with nothing burning, and `floor_marks` at about 1 ms. Both gone since 2026-10-25
+  (`experiments/gunfight_lab/results/2026-10-25_perf/`): the holes' settles by #375's incremental
+  analysis, the grid's idle rebuild (0.22 ms) and the floor marks' redraws (1.2 ms) by #373.
 - **Physics on its own thread** (`physics/3d/run_on_separate_thread`), measured 2026-10-24 on the
   same 10 fights (`results/2026-10-24_perf/physics_thread.txt`): the frame 19.7 -> 17.0 ms, its
   worst 5% 41.5 -> 36.1 ms, and the same seeds didn't play the same (two fights ended with the
@@ -453,7 +455,7 @@ saloon burns, 30–90 ms a frame with 17 townsfolk: `CivilianBrain._mind_fire`/`
 and the bucket line read the fire's burning members or route to it every tick for every man;
 cache the fire's picture once a tick in FireSystem (the burning members' boxes, the nearest to
 each place) and have the men read that, their looks staggered as Senses' are; `test_flee_fire`
-and `test_bucket_line` hold them. (b) The fire's periodic work: `_rebuild_grid` (walks all
+and `test_bucket_line` hold them. (b) The fire's periodic work: `_rebuild_grid` (only while something's hot since #373; walks all
 5,150 members every 2 s, ~40 ms) becomes incremental (standing members placed once, as `_placed`
 already means; only rubble and the changed re-placed), the neighbour lists refreshed a few
 members a frame instead of all at 30 s, the smoke field's step and upload sliced or halved in
