@@ -49,6 +49,9 @@ var rubble: Array[RigidBody3D] = []
 var tuning: TimberTuning
 ## The last settle's analysis, for debugging (F3 / tests).
 var last_analysis: StructuralAnalysis
+## True while it stands as `last_analysis` worked it out (that settle found nothing to break or
+## drop, and nothing's been asked of it since): a hole then needs only its own member checked.
+var _as_analysed := false
 var _settle_pending := false
 var _sound_cooldown := 0.0
 var _rng := RandomNumberGenerator.new()
@@ -180,7 +183,8 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	add_child(m)
 	m.pieces = [[mi, cs]]
 	m.damaged.connect(unbatch.bind(m))
-	m.damaged.connect(_on_member_damaged)
+	m.damaged.connect(_on_member_damaged.bind(m))
+	_as_analysed = false
 	members[id] = m
 	_order.append(m)
 	return m
@@ -188,6 +192,7 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 
 ## Take a member out again before the support graph is worked out (BuildingAge: a board long gone).
 func remove_built(m: StructureMember) -> void:
+	_as_analysed = false
 	members.erase(m.member_id)
 	_order.erase(m)
 	_panes_of = -1
@@ -196,6 +201,7 @@ func remove_built(m: StructureMember) -> void:
 
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
 func infer_supports() -> void:
+	_as_analysed = false
 	_by_stack.clear()
 	var boxes := {}
 	for m in _order:
@@ -418,7 +424,21 @@ func batch_count() -> int:
 
 # --- Standing and falling -----------------------------------------------------------------------
 
-func _on_member_damaged() -> void:
+## A hole (a ball, a gouge) weakens only its own member's section; nothing else's load changes (but
+## for the wood it lost, which only lightens what's under it). So while the building stands as last
+## worked out, that member alone is checked against what it carried, and only if it's now over does
+## the whole building settle; one never worked out (nothing's asked it to settle: it stands as built)
+## works out that member from what rests on it. (A gunfight in the spec saloon, 5,000 members, had
+## every ball that hit a board analyse all of it: ~1.5 ms a frame with nothing burning.)
+func _on_member_damaged(m: StructureMember) -> void:
+	if is_instance_valid(m) and not m.broken and collapses:
+		var u := INF
+		if _as_analysed and last_analysis != null:
+			u = last_analysis.recheck(m)
+		elif last_analysis == null:
+			u = StructuralAnalysis.new(tuning).member_alone(self, m)  # never worked out: it stands as built
+		if u <= 1.0:
+			return
 	settle_soon()
 
 
@@ -426,6 +446,7 @@ func _on_member_damaged() -> void:
 ## through it a slice of the building a frame (a big collapse was seconds on one frame); else at
 ## the end of this frame.
 func settle_soon() -> void:
+	_as_analysed = false
 	var fire := FireSystem.find(get_tree()) if is_inside_tree() else null
 	if fire and fire.queue_settle(self):
 		return
@@ -453,6 +474,7 @@ func settle() -> Array[StringName]:
 ## runs a burning building's rounds this way, an analysis spread over frames.
 func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool:
 	last_analysis = a
+	_as_analysed = false
 	var over := a.overloaded()
 	if not over.is_empty():
 		# The worst goes first; the rest may be fine once the loads find new paths.
@@ -461,6 +483,7 @@ func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool
 		changed.append(m.member_id)
 		return true
 	if a.falling.is_empty():
+		_as_analysed = true
 		return false
 	_drop(a.falling)
 	changed.append_array(a.falling)

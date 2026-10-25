@@ -130,6 +130,74 @@ func left() -> int:
 	return _sorted.size() - _next
 
 
+## `m`'s utilisation as a whole analysis of a standing building would give it, from `m` and what
+## rests on it alone, directly or through others: loads only come down, so nothing else adds to its
+## load. For a board that's a handful of members; for a post at the foot of a wall, much of the
+## building. (A building nothing has asked to settle hasn't been worked out: its first hole was a
+## whole analysis, ~0.5 s of work for the spec saloon over 13 frames.)
+func member_alone(structure: Structure, m: StructureMember) -> float:
+	var held := {m.member_id: m}
+	var todo: Array[StructureMember] = [m]
+	_gone = {}
+	while not todo.is_empty():
+		var x: StructureMember = todo.pop_back()
+		for s in x.supported_by:
+			var below := structure.get_member(s)
+			if below == null or below.broken:
+				_gone[s] = true
+		for id in x.touching:
+			if held.has(id):
+				continue
+			var o := structure.get_member(id)
+			if o == null or o.broken or not x.member_id in o.supported_by:
+				continue
+			held[id] = o
+			todo.append(o)
+	_structure = structure
+	_sorted.clear()
+	for o: StructureMember in held.values():
+		_sorted.append(o)
+	# Top-down, as `begin` takes the stack order the other way round.
+	_sorted.sort_custom(func(a: StructureMember, b: StructureMember) -> bool: return a.stack_key > b.stack_key)
+	falling.clear()
+	_point_loads = {}
+	load.clear()
+	utilisation.clear()
+	mode.clear()
+	critical_t.clear()
+	ground_load = 0.0
+	_next = 0
+	advance(_sorted.size())
+	_structure = null  # not a whole analysis: `recheck` can't use it
+	return float(utilisation.get(m.member_id, 0.0))
+
+
+## A finished analysis's member worked out again as `advance` did it, on what came down onto it
+## then (a hole weakens only its own section): its utilisation now. What it passes down to its
+## supports isn't changed (only a lighter member, so less). INF if it wasn't worked out here (gone,
+## falling, or the analysis isn't finished): the caller settles the whole structure.
+func recheck(m: StructureMember) -> float:
+	if _structure == null or left() > 0 or _gone.has(m.member_id) or not load.has(m.member_id):
+		return INF
+	var loads: Array = _point_loads.get(m.member_id, [])
+	var total := m.weight(tuning) + m.extra_load
+	for pl: Array in loads:
+		total += float(pl[1])
+	load[m.member_id] = total
+	if m.is_upright():
+		if m.kind in COMPRESSION_KINDS:
+			_check_compression(m, total)
+	elif not m.grounded:
+		var supports: Array[StringName] = []
+		for s in m.supported_by:
+			if not _gone.has(s):
+				supports.append(s)
+		if supports.is_empty():
+			return INF
+		_bend(m, loads, supports, _structure, _gone, {})
+	return float(utilisation.get(m.member_id, 0.0))
+
+
 ## A load coming down onto support `s` at `at` (structure space).
 static func _add_load(point_loads: Dictionary, s: StringName, at: Vector3, newtons: float) -> void:
 	var list: Variant = point_loads.get(s)

@@ -191,6 +191,41 @@ func test_holes_weaken_until_it_snaps() -> void:
 	check_eq(bridge.rubble.size(), 2, "in two halves")
 
 
+## A hole in a building that stands as worked out checks its own member again, not the whole
+## building (the spec saloon is thousands of members, and a gunfight holes boards every second): the
+## same number a whole analysis gives that member, and no settle unless it's now over.
+func test_a_hole_checks_its_own_member() -> void:
+	# Never settled (as built): a member from what rests on it alone, as the whole building gives it.
+	check(store.last_analysis == null, "as built, it's not been worked out")
+	var whole0 := StructuralAnalysis.new(store.tuning).analyse(store)
+	var picked: Array[StructureMember] = []
+	for m in store.get_members():
+		if m.kind in [&"joist", &"beam", &"post", &"stud", &"rafter", &"floor_board"] and picked.size() < 12 \
+				and whole0.utilisation.has(m.member_id) and m.voxels == null:
+			picked.append(m)
+	check(picked.size() >= 6, "members to shoot (%d)" % picked.size())
+	for m in picked:
+		check_near(StructuralAnalysis.new(store.tuning).member_alone(store, m), float(whole0.utilisation[m.member_id]), 1e-6,
+				"%s alone: the same as the whole building worked out" % m.member_id)
+	var first := picked[0]
+	first.add_hole(first.global_position + first.global_basis.y * 0.03, first.global_position - first.global_basis.y * 0.03, 0.0057)
+	check(not store._settle_pending, "as built, a hole doesn't settle the whole building")
+	store.settle()
+	for m in picked:
+		var c := m.global_position
+		m.add_hole(c + m.global_basis.y * 0.03, c - m.global_basis.y * 0.03, 0.0057)
+		check(not store._settle_pending, "%s: one hole, no settle" % m.member_id)
+		var whole := StructuralAnalysis.new(store.tuning).analyse(store)
+		check_near(float(store.last_analysis.utilisation[m.member_id]), float(whole.utilisation[m.member_id]), 1e-6,
+				"%s: the same as the whole building worked out" % m.member_id)
+		check(whole.overloaded().is_empty() and whole.falling.is_empty(), "%s: and rightly: nothing's over" % m.member_id)
+	# Something that does change the building: the next hole settles it all again.
+	store.break_member(store.get_member(&"store/porch/post0"))
+	var beam := store.get_member(&"store/porch/beam")
+	if beam and not beam.broken:
+		check(store._as_analysed, "settled after the break, it stands as worked out")
+
+
 func test_changes_are_saved() -> void:
 	store.break_member(store.get_member(&"store/porch/post0"))
 	store.break_member(store.get_member(&"store/porch/post1"))

@@ -268,7 +268,10 @@ func _begin(dt: float) -> void:
 		elif smouldering[m] <= 0.0:
 			smouldering.erase(m)
 			ignite(m)
-	if _grid_age > 2.0:
+	# Only while there's something for it to find round (nothing heated or burning, no spill: a
+	# gunfight's town is ~0.2 ms a frame of placing every member every 2 s, for nothing). The first
+	# tick with something to do places them all, up to date.
+	if _grid_age > 2.0 and not (active.is_empty() and spills.is_empty()):
 		_rebuild_grid()
 	# Spilt oil heats what's round it.
 	for sp in spills.duplicate():

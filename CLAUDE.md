@@ -531,8 +531,12 @@ frozen until Sean names one.
   fights, the careful player down in half. Play: Y the next setup (D+), X again, Z the next variant.
   Sean played D+ (#349): fun, but the frame rate drops; the trial costs what D does (any
   saloon gunfight is ~20 ms here; brief `docs/briefs/more-cores.md`, results `2026-10-24_perf/`).
-  Not merged: `claude/gameplay-saloon-cover` (the lab's `--dress=cover`, `tactics.py`; half measured,
-  `results/2026-10-24_dress/`). Next: the performance phase (issue #373). Traps: `pkill -f`/`ps|grep` kill loops match their
+  The performance phase step 1 (2026-10-25, #373, `results/2026-10-25_perf/`): a hole re-checks only
+  its member, the fire's grid only when hot, floor marks' drying redrawn once a second: fire 2.02 ->
+  0.15 ms, floor_marks 1.14 -> 0.10, worst 5% of frames 57 -> 41 ms here; merged with
+  `claude/gameplay-saloon-cover` (the lab's `--dress=cover`, `tactics.py`; the dress comparison
+  still to run, `results/2026-10-24_dress/`). The lab's fights depend on the core's load (carved
+  members' shapes swap in when the worker finishes). Next: step 2, the `next session` issue. Traps: `pkill -f`/`ps|grep` kill loops match their
   own command line; merging main mid-run needs `godot --headless --import` before the next game;
   never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
   is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).

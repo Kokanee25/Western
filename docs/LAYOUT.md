@@ -419,7 +419,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   it on the boards; `Events.liquid_spilled` lays a film; `age(hours)` (from `DayCycle.pass_hours`, or
   real time in a lab) dries it and soaks part in. `add_dirt`, `add_liquid`, `take(at, radius, share)`
   (what a mop lifts, with Blood's marks: `Blood.take`), `mess(at, radius)`, `dirty_cells`. Drawn as a
-  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change. Prof
+  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change (what the clock
+  dries, at most once a second: `AGE_REDRAW`; a dry cell or a jump of hours at once). Prof
   `floor_marks` (Structures). The water lab's spills will move its liquid cell to cell.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
@@ -450,7 +451,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
-  (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
+  (loads down the graph, compression/buckling/bending/joint checks; a hole re-checks only its own
+  member: `recheck` against the last settle while the building stands as worked out, `member_alone`
+  from what rests on it when it's never been; only an overloaded result settles it all;
+  `config/timber.tres` via
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
   `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
