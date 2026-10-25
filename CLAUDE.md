@@ -285,6 +285,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
   motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
@@ -579,6 +580,11 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
+- Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
+  Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
+  `horse_rodin.py`, `Horse`), tack apart (slid back 12 cm, `SADDLE_BACK`), an idle, capsules, tied
+  at the street's rails. Next: #341 (hit and going down, cover, spooking).
 - **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
   `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
   targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,

@@ -4,7 +4,7 @@ extends Node3D
 ## member-built false fronts down the street (the SALOON with its big painted board, the GENERAL
 ## STORE with DRY GOODS on its side, a barber and a hotel on the north side; the LIVERY barn, the
 ## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
-## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
+## barrels, crates and hay along the boardwalks, a horse saddled at a rail (Horse), a covered wagon down
 ## the street, telegraph poles and a water tower over the roofs, townsfolk on the porches and in
 ## the street (FOLK), dry grass along the road's edges (DryGrass), and the red-rock country on the
 ## skyline (Backdrop: a painted backdrop on three rings). Models from PropModels on the texel grid;
@@ -399,17 +399,17 @@ func _loose() -> void:
 	_prop(&"crate", Vector3(-24.3, 0.38, -15.8), 20.0)
 	# The rail before the livery, and a bay horse tied to it.
 	_rail("LiveryRail", -14.6, -11.8, -14.2)
-	_model("Horse", PropModels.horse, Vector3(-13.0, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
+	_horse(Vector3(-13.0, 0.0, -14.75), 0.0, "LiveryRail")
 	# The street crowded as the painting's is: rails with horses nosed in before the saloon and the
 	# store, more barrels and crates along both boardwalks, a buckboard by the jail, boards hung
 	# under the porches. All kept off the road's middle and the gang's way in (z -9).
 	_rail("SaloonRail", -8.2, -4.6, -2.9)
 	for h in [[Vector3(-7.4, 0.0, -4.1), 90.0], [Vector3(-5.4, 0.0, -4.0), 84.0]]:
-		_model("Horse", PropModels.horse, h[0], h[1], Vector3(2.4, 1.8, 0.6))
+		_horse(h[0], h[1], "SaloonRail")
 	_rail("StoreRail", -18.6, -15.8, -2.9)
-	_model("Horse", PropModels.horse, Vector3(-17.2, 0.0, -4.05), 95.0, Vector3(2.4, 1.8, 0.6))
+	_horse(Vector3(-17.2, 0.0, -4.05), 95.0, "StoreRail")
 	_rail("JailRail", -23.8, -21.0, -14.0)
-	_model("Horse", PropModels.horse, Vector3(-22.6, 0.0, -12.85), -88.0, Vector3(2.4, 1.8, 0.6))
+	_horse(Vector3(-22.6, 0.0, -12.85), -88.0, "JailRail")
 	for b in [[Vector3(-9.6, 0.38, -0.7), &"water_barrel"], [Vector3(-10.25, 0.38, -0.75), &"barrel"],
 			[Vector3(-19.9, 0.38, -0.7), &"water_barrel"], [Vector3(-26.2, 0.38, -0.75), &"water_barrel"],
 			[Vector3(-26.9, 0.38, -0.7), &"barrel"], [Vector3(-25.6, 0.38, -15.95), &"water_barrel"], [Vector3(-30.9, 0.38, -16.0), &"barrel"]]:
@@ -534,18 +534,63 @@ func _vacant_lot() -> void:
 
 ## A hitching rail: two posts and a bar from x0 to x1 at z (on the old street; carried).
 func _rail(n: String, x0: float, x1: float, z: float) -> void:
-	var t := carried(Vector3((x0 + x1) * 0.5, 0.0, z))
-	if on_steps(t.origin, (x1 - x0) * 0.5):
+	# Kept clear of the steps and doors point by point along it (a post's or the bar's width round
+	# each), and cut to its longest clear stretch: tested as one circle the rail's length across,
+	# every rail near a step left the street (2026-10-24, the horse step).
+	var count := ceili((x1 - x0) / 0.4)
+	var best := Vector2i(-1, -1)
+	var run := -1
+	for i in count + 1:
+		var x := lerpf(x0, x1, i / float(count))
+		if on_steps(carried(Vector3(x, 0.0, z)).origin, 0.25):
+			run = -1
+			continue
+		if run < 0:
+			run = i
+		if i - run > best.y - best.x:
+			best = Vector2i(run, i)
+	if best.x < 0 or (best.y - best.x) * (x1 - x0) / count < RAIL_MIN:
 		return
+	var a := lerpf(x0, x1, best.x / float(count))
+	var b := lerpf(x0, x1, best.y / float(count))
+	var t := carried(Vector3((a + b) * 0.5, 0.0, z))
 	var rail := Node3D.new()
 	rail.name = n
 	add_child(rail)
 	rail.transform = t
 	var wood := PropModels.dark_wood()
-	var half := (x1 - x0) * 0.5
+	var half := (b - a) * 0.5
 	for x in [-half, half]:
 		PropModels._box(rail, "Post", Vector3(0.12, 1.1, 0.12), Vector3(x, 0.55, 0.0), wood)
-	PropModels._box(rail, "Bar", Vector3(x1 - x0 + 0.2, 0.1, 0.1), Vector3(0.0, 1.0, 0.0), wood)
+	PropModels._box(rail, "Bar", Vector3(b - a + 0.2, 0.1, 0.1), Vector3(0.0, 1.0, 0.0), wood)
+
+
+## The shortest hitching rail worth putting up (m): room for one horse's reins.
+const RAIL_MIN := 1.6
+
+
+## A saddled horse standing at `at` (head along -X turned by `yaw`), tied to the rail named `rail`
+## by his reins from the bit to the nearest point on its top bar: the Blender-built Horse
+## (tools/blender/horse.py), or PropModels' code horse where that model hasn't been built.
+func _horse(at: Vector3, yaw: float, rail: String) -> Node3D:
+	if not Horse.available():
+		return _model("Horse", PropModels.horse, at, yaw, Vector3(2.4, 1.8, 0.6))
+	var t := carried(at, yaw)
+	# Clear of the steps and doors from his nose to his tail.
+	for x in [-1.3, -0.65, 0.0, 0.65, 1.0]:
+		if on_steps(t * Vector3(x, 0.0, 0.0), 0.35):
+			return null
+	var horse := Horse.new()
+	add_child(horse)
+	horse.transform = t
+	var bar := get_node_or_null(rail + "/Bar") as Node3D
+	if bar != null:
+		var bits := horse.bits()
+		var bit := (bits[0] + bits[1]) * 0.5
+		var local := bar.global_transform.affine_inverse() * bit
+		var half := (bar as MeshInstance3D).get_aabb().size.x * 0.5 - 0.08 if bar is MeshInstance3D else 1.0
+		horse.tie_to(bar.global_transform * Vector3(clampf(local.x, -half, half), 0.05, 0.0))
+	return horse
 
 
 ## A small lettered board hung from a porch on two chains, its faces toward either end of the
