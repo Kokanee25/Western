@@ -1,0 +1,24 @@
+# Where the space state was asked for outside the physics window (physics on its own thread, phys_a, 3 fights)
+
+Each 'Space state is inaccessible' error, by the script line that asked (count across the three fights):
+      9 res://src/weapons/weapon_viewmodel.gd:230
+      9 res://src/weapons/revolver_viewmodel.gd:149
+      9 res://src/weapons/revolver_viewmodel.gd:125
+      9 res://src/weapons/revolver_state.gd:84
+      3 res://src/structures/fittings.gd:116
+
+One of them in full (the player's shot):
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/jolt_physics/jolt_physics_server_3d.cpp:234)
+   GDScript backtrace (most recent call first):
+       [0] collect (res://src/structures/fittings.gd:116)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/jolt_physics/jolt_physics_server_3d.cpp:234)
+   GDScript backtrace (most recent call first):
+       [0] _shot_line (res://src/weapons/weapon_viewmodel.gd:230)
+       [1] _on_fired (res://src/weapons/revolver_viewmodel.gd:149)
+
+Errors a fight:
+build/mc/phys_a/logs/spec_hall_golden_revolver_careful_studio_s1.log:2
+build/mc/phys_a/logs/spec_hall_golden_revolver_careful_studio_s2.log:6
+build/mc/phys_a/logs/spec_hall_golden_revolver_careful_studio_s3.log:4
