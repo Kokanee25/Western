@@ -193,10 +193,9 @@ func frame_lines() -> PackedStringArray:
 		render_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
 	var fps := maxf(Engine.get_frames_per_second(), 1.0)
 	var out: PackedStringArray = []
-	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f  (catch-up <= %d steps)" % [1000.0 / fps,
+	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f" % [1000.0 / fps,
 			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
-			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu,
-			Engine.max_physics_steps_per_frame])
+			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu])
 	out.append("draws %d  objects %d  tris %dk  nodes %d  bodies awake %d" % [
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 			Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
