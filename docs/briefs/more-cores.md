@@ -487,6 +487,34 @@ blast-freeze lab's frames and the fire test scenes the same twice."*
 steps 6 and 7): CLAUDE.md's table becomes the per-thread one above with measured columns, and
 `config/frame_budget.tres` and `perf_bench` learn the main thread's share and the frame's.
 
+## How a step is reviewed (Sean, 2026-10-25: each step's session reviewed by the Fable session)
+
+When a step's session says "Step done" with its PR, the review reads the diff and the step's
+results folder and answers these, each a finding on the PR ("fix before merge" or "the next step
+carries it"):
+
+1. **The gate held:** the lab's same seeds run twice on the new build and `same_fight.py` says
+   10 of 10 the same (the two runs' folders are in the results, not only the verdict). A step
+   that changed the fight on purpose (6) re-baselined and says why.
+2. **The numbers are the step's:** `perf` before and after with the same command, one game at
+   a time, against the expected gain in "The steps"; the worst 5% as well as the mean; the
+   counters (`q_*`, `q_writes`) and the frame's split (window, step, rest) reported. A gain
+   smaller than expected is fine when it's explained; a number without a before isn't.
+3. **Nothing the rule forbids came in:** no `Time.get_ticks_*` deciding what a tick does (count
+   budgets under `deterministic`); no global `randf`/`randi` in per-person or per-system code;
+   no `direct_space_state` outside the physics window (the guard would say); no scene or
+   physics access from a worker (`WorkerThreadPool`, `pool.rs`); worker results applied in
+   person order; every RNG a person's or a system's, seeded from the fight's seed.
+4. **The game isn't faked** (CLAUDE.md's rule, #377): what the player can see or do ticks and
+   draws as before; what's thinned is out of sight or doesn't change the outcome, and the
+   tests that hold the outcome (the lab, the physics and body labs' goldens, `test_town_day`)
+   are named in the PR as run.
+5. **It stops at its step:** no part of the next step folded in, no widening; the next step's
+   issue carries the step's own leftovers and the review's "next step carries it" items.
+6. **The handover is whole:** the status entry, the Current state lines, the next-session
+   issue with the counts or numbers the next step needs, and the brief's step marked done with
+   the measured gain in place of the expected one.
+
 ## What done looks like
 
 - A D+ gunfight in the new saloon with three men and the town in holds 60 fps on Sean's PC. His F3
