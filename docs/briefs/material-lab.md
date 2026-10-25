@@ -269,6 +269,16 @@ import VRAM-compressed at high quality since (`promote_woods.py --vram=...`: eac
 edited in place, its uid kept; a later promotion keeps the wood's compression); 25.7 -> 6.4 MB.
 The interior woods stay lossless.
 
+**6b too painted; Sean picked R1** (2026-10-25, issue #391). Up close on the boardwalk at noon
+(his photo) 6b's flat tone steps read as camouflage patches. Every round laid out on one set of
+sheets, stains off as the game draws them (`2026-10-25/review_*.jpg`; the stand's new
+`deck_close` view, `material_lab.gd --no-stains`, `material_measure.py review`), then C, C recut at
+384 (`recut384`) and R1 side by side (`pick_c_or_r1.jpg`). Sean: "it's either C or R1", then R1.
+Round 1's studio1 (the Studio repaint, 512 a metre, the critic's "photographic") is the game's ten
+exterior woods since (`promote_woods.py --set=studio1`, the lab's seams, BC7; each wood capped at
+6b's strip count: timber 12 -> 8, framing 3, dark trim 2): 10.3 MB of texture. The lab's goal of
+matching the men's paint is set aside for the exterior woods: Sean prefers the wood real.
+
 **Nothing has passed yet**, so nothing went into the texture factory and no golden view was made;
 Sean's picks on the A/B sheets decide what goes in. A passing wood's golden view will be a
 `material_<wood>` view in `tools/screenshots.gd` (the stand's part view at golden hour with a man)
