@@ -161,7 +161,10 @@ func _run() -> void:
 	var place := Node3D.new()
 	place.name = "MaterialLab"
 	street.add_child(place)
-	place.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)), ORIGIN)
+	# On the ground where it stands (the town's ground climbs west since 2026-10-25: TownLayout).
+	var tl = load("res://src/world/town_layout.gd")
+	place.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)),
+			ORIGIN + Vector3.UP * float(tl.ground_height(ORIGIN.x, ORIGIN.z)))
 	var lamps := _lamps(place)
 	var men := _men(place)
 	var cam := Camera3D.new()
@@ -462,5 +465,9 @@ func _props(stand: Node3D) -> Node3D:
 ## The men to their places for this run (the stand's or the stair's).
 func _stand_men(place: Node3D, men: Array, where: Array) -> void:
 	for i in men.size():
-		men[i].global_position = place.global_transform * (where[i][1] as Vector3)
+		var at: Vector3 = place.global_transform * (where[i][1] as Vector3)
+		if is_zero_approx((where[i][1] as Vector3).y):
+			# A man on the sand stands on the ground where he is (it slopes out here).
+			at.y = float(load("res://src/world/town_layout.gd").ground_height(at.x, at.z))
+		men[i].global_position = at
 		men[i].face(place.global_transform * (where[i][2] as Vector3))

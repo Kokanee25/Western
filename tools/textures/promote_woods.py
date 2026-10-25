@@ -30,9 +30,15 @@ TEX = os.path.join(ROOT, "assets", "textures")
 WOODS = os.path.join(TEX, "woods")
 
 
+_FLOOR_PARAMS = []
+
+
 def _params(vram):
-    """The woods' import [params] (floor_b0's), lossless or VRAM-compressed at high quality."""
-    params = open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1]
+    """The woods' import [params] (floor_b0's, read once: a promotion of the floor moves that file
+    aside), lossless or VRAM-compressed at high quality."""
+    if not _FLOOR_PARAMS:
+        _FLOOR_PARAMS.append(open(os.path.join(WOODS, "floor_b0.png.import")).read().split("[params]", 1)[1])
+    params = _FLOOR_PARAMS[0]
     if vram:
         return params.replace("compress/mode=0", "compress/mode=2").replace(
             "compress/high_quality=false", "compress/high_quality=true")
@@ -87,6 +93,7 @@ def promote(set_name, mapping, extra, vram_woods=()):
     src_index = json.load(open(os.path.join(src, "lab.json")))["woods"]
     index_path = os.path.join(WOODS, "lab.json")
     index = json.load(open(index_path))
+    _params(False)
     for old, new in mapping:
         vram = new in vram_woods or _is_vram(new)
         if old not in src_index:
