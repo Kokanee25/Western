@@ -1,9 +1,12 @@
 class_name Ground
 extends StaticBody3D
 ## The street's ground, made ready to be dug (docs/briefs/dig-ground.md). Where it's never been
-## dug it's flat at the authored height (y 0): a few big flat slabs to stand on and one mesh, the
-## ground less its dug tiles cut into rectangles, so standing ground costs what the endless plane
-## did. Where it has been dug it's a GroundTile: a height field of `tile_cells` cells a side, its own
+## dug it's the authored ground (TownLayout.ground_height): where that's flat at y 0 (from the
+## saloon and store east), a few big flat slabs to stand on and one mesh, the ground less its dug
+## tiles cut into rectangles, so standing ground costs what the endless plane did; west of that,
+## where it slopes (the town's ground: the street's fall, the rise out of town), height fields a
+## chunk of CHUNK_TILES tiles a side, drawn as one more mesh. Where it has been dug it's a
+## GroundTile: a height field of `tile_cells` cells a side, its own
 ## body (an edit rebuilds only that tile) and mesh. Every collider of it carries the `ground` meta
 ## (Ground.is_ground) and `surface` &"ground", so a ball glances off a crater's wall as dirt
 ## (Ballistics.surface_of), not as a board.
@@ -15,6 +18,24 @@ var material: Material
 var tiles := {}
 
 var _mesh: MeshInstance3D
+var _rise_mesh: MeshInstance3D
+## Vector2i (a chunk of the slope, in chunks) -> {dug: its dug tiles' keys, sorted; owners: its
+## shape owners on its column's body (an edit swaps only those); verts, normals, index: its part of
+## the slope's mesh}.
+var _chunks := {}
+## int (a column of chunks along x) -> the StaticBody3D its chunks' shapes are on (a body a chunk was
+## ~280 more nodes in the street).
+var _columns := {}
+var _rise_tangents := PackedFloat32Array()
+
+## Tiles a side of a chunk of the slope; its height field has a point every tile corner (the
+## slope is gentle: between them it's within millimetres of the curve).
+const CHUNK_TILES := 8
+## Each chunk's room in the slope's mesh (points): a chunk cut round dug tiles into rectangles has
+## at most four points a tile.
+const CHUNK_SLOT := CHUNK_TILES * CHUNK_TILES * 4
+## How far a slope's box reaches onto the next (m): past Jolt's rounding of its edges (5 cm).
+const LAP := 0.1
 
 
 func _ready() -> void:
@@ -30,6 +51,7 @@ func _ready() -> void:
 		add_child(_mesh)
 	if material == null:
 		material = _mesh.material_override if _mesh.material_override else (_mesh.mesh.surface_get_material(0) if _mesh.mesh else null)
+	_road_line()
 	# The scene's own collision (the old endless plane) gives way to the slabs.
 	for c in get_children():
 		if c is CollisionShape3D:
@@ -38,9 +60,33 @@ func _ready() -> void:
 	_rebuild_flat()
 
 
+## The ground's material told where the street's middle runs (TownLayout.street_z), sampled as
+## the shader takes it.
+func _road_line() -> void:
+	var sm := material as ShaderMaterial
+	if sm == null:
+		return
+	var x0 := -200.0
+	var step := 4.0
+	var line := PackedFloat32Array()
+	for i in 64:
+		line.append(TownLayout.street_z(x0 + i * step))
+	sm.set_shader_parameter(&"road_line", line)
+	sm.set_shader_parameter(&"road_line_x0", x0)
+	sm.set_shader_parameter(&"road_line_step", step)
+	sm.set_shader_parameter(&"use_road_line", true)
+
+
 ## The ground in `tree` (the first in group `ground`), or null.
 static func of(tree: SceneTree) -> Ground:
 	return tree.get_first_node_in_group(&"ground") as Ground
+
+
+## The ground's height at (x, z) in `tree`'s world: its Ground's, or 0 where there's none (a lab's
+## floor, a test's world).
+static func height_in(tree: SceneTree, x: float, z: float) -> float:
+	var g := of(tree)
+	return g.height_at(x, z) if g else 0.0
 
 
 ## Is `o` the ground (its flat slabs or a dug tile)?
@@ -60,7 +106,7 @@ func key_at(x: float, z: float) -> Vector2i:
 func height_at(x: float, z: float) -> float:
 	var t: GroundTile = tiles.get(key_at(x, z))
 	if t == null:
-		return global_position.y
+		return global_position.y + TownLayout.ground_height(x, z)
 	var local := t.global_transform.affine_inverse() * Vector3(x, 0.0, z)
 	var half := tuning.tile_cells * 0.5
 	var u := clampf(local.x / tuning.cell + half, 0.0, tuning.tile_cells)
@@ -69,13 +115,15 @@ func height_at(x: float, z: float) -> float:
 	var j := mini(floori(v), tuning.tile_cells - 1)
 	var fu := u - i
 	var fv := v - j
-	var h00 := t.heights[t.index(i, j)]
-	var h11 := t.heights[t.index(i + 1, j + 1)]
+	var h00 := t.surface(t.index(i, j))
+	var h11 := t.surface(t.index(i + 1, j + 1))
+	var h10 := t.surface(t.index(i + 1, j))
+	var h01 := t.surface(t.index(i, j + 1))
 	var h := 0.0
 	if fu >= fv:
-		h = h00 + (t.heights[t.index(i + 1, j)] - h00) * fu + (h11 - t.heights[t.index(i + 1, j)]) * fv
+		h = h00 + (h10 - h00) * fu + (h11 - h10) * fv
 	else:
-		h = h00 + (t.heights[t.index(i, j + 1)] - h00) * fv + (h11 - t.heights[t.index(i, j + 1)]) * fu
+		h = h00 + (h01 - h00) * fv + (h11 - h01) * fu
 	return t.global_position.y + h
 
 
@@ -123,38 +171,73 @@ static func _minus(r: Rect2, hole: Rect2) -> Array[Rect2]:
 	return out
 
 
-## The flat ground's slabs (deep boxes, their tops at the authored height) and its one mesh.
+## The ground's slabs (deep boxes, their tops at the authored height) and its mesh, outside the
+## dug tiles; and the rise's chunks that have gained or lost a dug tile.
 func _rebuild_flat() -> void:
 	for c in get_children():
 		if c is CollisionShape3D:
 			remove_child(c)
 			c.free()
+	var area := _rise_area()
 	var i := 0
-	for r in flat_rects(tuning.reach_half):
+	for piece in _levelled(flat_rects(tuning.reach_half), area):
+		var r: Rect2 = piece[0]
 		var cs := CollisionShape3D.new()
 		cs.name = "Slab%d" % i
 		var box := BoxShape3D.new()
 		box.size = Vector3(r.size.x, tuning.slab_depth, r.size.y)
 		cs.shape = box
-		cs.position = Vector3(r.get_center().x, -tuning.slab_depth * 0.5, r.get_center().y)
+		cs.position = Vector3(r.get_center().x, float(piece[1]) - tuning.slab_depth * 0.5, r.get_center().y)
 		add_child(cs)
 		i += 1
-	_mesh.mesh = _flat_mesh(flat_rects(tuning.drawn_half))
+	_mesh.mesh = _flat_mesh(_levelled(flat_rects(tuning.drawn_half), area))
+	_rebuild_rise(area)
 
 
-## Quads at the authored height, facing up, in the ground's material (the shader works from the
-## world position alone, so how the flat ground is cut into triangles doesn't show).
-func _flat_mesh(rects: Array[Rect2]) -> ArrayMesh:
+## Where the authored ground slopes (chunk-aligned: from where it stops being flat west to the drawn
+## edge, and across the drawn ground), or an empty Rect2 if it's flat.
+func _rise_area() -> Rect2:
+	var east := TownLayout.ground_flat_east_of()
+	if east == INF:
+		return Rect2()
+	var c := tuning.tile_size() * CHUNK_TILES
+	var x0 := floorf(-tuning.drawn_half / c) * c
+	var z0 := floorf(-tuning.drawn_half / c) * c
+	var x1 := maxf(ceilf(east / c) * c, x0 + c)
+	return Rect2(x0, z0, x1 - x0, -2.0 * z0)
+
+
+## `rects` less the slope's area, each with the level its slab or quad stands at: 0 east of it, or
+## past its drawn edge the height there (taken flat over the piece, so far out it never shows).
+func _levelled(rects: Array[Rect2], area: Rect2) -> Array:
+	var out := []
+	for r in rects:
+		if area.size == Vector2.ZERO:
+			out.append([r, 0.0])
+			continue
+		for p in _minus(r, area):
+			if p.position.x >= area.end.x - 0.01:
+				out.append([p, 0.0])
+			else:
+				out.append([p, TownLayout.ground_height(clampf(p.get_center().x, area.position.x, area.end.x))])
+	return out
+
+
+## Quads at their levels, facing up, in the ground's material (the shader works from the world
+## position alone, so how the flat ground is cut into triangles doesn't show).
+func _flat_mesh(rects: Array) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var tangents := PackedFloat32Array()
 	var uvs := PackedVector2Array()
 	var idx := PackedInt32Array()
 	var span := tuning.drawn_half * 2.0
-	for r in rects:
+	for piece in rects:
+		var r: Rect2 = piece[0]
+		var y := float(piece[1])
 		var base := verts.size()
 		for p: Vector2 in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
-			verts.append(Vector3(p.x, 0.0, p.y))
+			verts.append(Vector3(p.x, y, p.y))
 			normals.append(Vector3.UP)
 			tangents.append_array([1.0, 0.0, 0.0, 1.0])
 			uvs.append(p / span + Vector2(0.5, 0.5))
@@ -171,6 +254,201 @@ func _flat_mesh(rects: Array[Rect2]) -> ArrayMesh:
 	if material:
 		mesh.surface_set_material(0, material)
 	return mesh
+
+
+## The slope's chunks: each solid columns, a tile wide, tilted to the ground, as shape owners on its
+## column of chunks' body, and its part of the slope's mesh; a chunk with dug tiles in it is cut
+## round them into rectangles.
+## Only the chunks whose dug tiles have changed are made again.
+func _rebuild_rise(area: Rect2) -> void:
+	if area.size == Vector2.ZERO:
+		return
+	var size := tuning.tile_size()
+	var c := size * CHUNK_TILES
+	var dug := {}
+	for key: Vector2i in tiles:
+		# Its own chunk's, and a chunk's beside it when it's on the edge: the boxes there reach over
+		# their edge (`_make_chunk`), but not into a dug tile.
+		var near := {}
+		for d in [Vector2i.ZERO, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var k: Vector2i = key + d
+			near[Vector2i(floori(float(k.x) / CHUNK_TILES), floori(float(k.y) / CHUNK_TILES))] = true
+		for ck: Vector2i in near:
+			if not dug.has(ck):
+				dug[ck] = []
+			(dug[ck] as Array).append(key)
+	var changed := false
+	var c0 := Vector2i(roundi(area.position.x / c), roundi(area.position.y / c))
+	var c1 := Vector2i(roundi(area.end.x / c), roundi(area.end.y / c))
+	var slot := 0
+	for cz in range(c0.y, c1.y):
+		for cx in range(c0.x, c1.x):
+			var ck := Vector2i(cx, cz)
+			slot += 1
+			var keys: Array = dug.get(ck, [])
+			keys.sort()
+			var known: Dictionary = _chunks.get(ck, {})
+			if not known.is_empty() and known.dug == keys:
+				continue
+			if known.has("owners"):
+				var col := _column(ck.x)
+				for id: int in known.owners:
+					col.remove_shape_owner(id)
+			_chunks[ck] = _make_chunk(ck, keys, (slot - 1) * CHUNK_SLOT)
+			changed = true
+	for cx: int in _columns:
+		var body: StaticBody3D = _columns[cx]
+		if body.get_parent() == null:
+			add_child(body)
+	if changed or _rise_mesh == null:
+		_rise_mesh_rebuild()
+
+
+## A chunk's height fields and its part of the mesh: its points from `first` in the rise's mesh
+## (its slot, CHUNK_SLOT long, padded), its triangles' indices already counted from there.
+func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
+	var size := tuning.tile_size()
+	var pieces: Array[Rect2] = [Rect2(ck.x * size * CHUNK_TILES, ck.y * size * CHUNK_TILES, size * CHUNK_TILES, size * CHUNK_TILES)]
+	for key: Vector2i in dug:
+		var next: Array[Rect2] = []
+		for r in pieces:
+			for q in _minus(r, Rect2(key.x * size, key.y * size, size, size)):
+				# Cut on the tile grid, so anything under half a tile across is a float's sliver.
+				if q.size.x > size * 0.5 and q.size.y > size * 0.5:
+					next.append(q)
+		pieces = next
+	var body := _column(ck.x)
+	var owners: Array[int] = []
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var idx := PackedInt32Array()
+	var step := size
+	var holed := {}
+	for key: Vector2i in dug:
+		holed[key] = true
+	for r in pieces:
+		var nx := roundi(r.size.x / step) + 1
+		var nz := roundi(r.size.y / step) + 1
+		# The ground's height goes with x alone: sampled once a column (one more each side, for the
+		# slope).
+		var along := PackedFloat32Array()
+		for i in range(-1, nx + 1):
+			along.append(TownLayout.ground_height(r.position.x + i * step))
+		var base := first + verts.size()
+		var inv := 1.0 / (2.0 * step)
+		for j in nz:
+			for i in nx:
+				var h := along[i + 1]
+				verts.append(Vector3(r.position.x + i * step, h, r.position.y + j * step))
+				normals.append(Vector3(-(along[i + 2] - along[i]) * inv, 1.0, 0.0).normalized())
+		for j in nz - 1:
+			for i in nx - 1:
+				var a := base + j * nx + i
+				idx.append_array([a, a + 1, a + nx + 1, a, a + nx + 1, a + nx])
+		# The collision: between two tile corners the ground is a plane (it goes with x alone), so
+		# each column is a solid box tilted to it, its top the surface (a height field has no
+		# thickness, and debris falling fast went through one). Each box reaches LAP past its edges
+		# onto the next (but not over a dug tile): Jolt rounds a box's edges, and where two only met
+		# a splinter slid into the groove between them and on down the seam, pushed only sideways.
+		var t0 := Vector2i(roundi(r.position.x / size), roundi(r.position.y / size))
+		var t1 := Vector2i(roundi(r.end.x / size), roundi(r.end.y / size))
+		var back := LAP
+		var front := LAP
+		for tx in range(t0.x, t1.x):
+			if holed.has(Vector2i(tx, t0.y - 1)):
+				back = 0.0
+			if holed.has(Vector2i(tx, t1.y)):
+				front = 0.0
+		var left := LAP
+		var right := LAP
+		for tz in range(t0.y, t1.y):
+			if holed.has(Vector2i(t0.x - 1, tz)):
+				left = 0.0
+			if holed.has(Vector2i(t1.x, tz)):
+				right = 0.0
+		for i in nx - 1:
+			var x0 := r.position.x + i * step
+			var h0 := along[i + 1]
+			var h1 := along[i + 2]
+			var tilt := atan2(h1 - h0, step)
+			var up := Vector3(-sin(tilt), cos(tilt), 0.0)
+			var dir := Vector3(cos(tilt), sin(tilt), 0.0)
+			var lo := left if i == 0 else LAP
+			var hi := right if i == nx - 2 else LAP
+			var box := BoxShape3D.new()
+			box.size = Vector3(sqrt(step * step + (h1 - h0) * (h1 - h0)) + lo + hi, tuning.slab_depth, r.size.y + back + front)
+			var top := Vector3(x0 + step * 0.5, (h0 + h1) * 0.5, r.get_center().y + (front - back) * 0.5) + dir * (hi - lo) * 0.5
+			# Straight onto the body as a shape owner: a node each was ~2,300 more in the street.
+			var owner := body.create_shape_owner(body)
+			body.shape_owner_add_shape(owner, box)
+			body.shape_owner_set_transform(owner, Transform3D(Basis(Vector3.BACK, tilt), top - up * tuning.slab_depth * 0.5))
+			owners.append(owner)
+	# Padded to the slot (unused points, under the ground at the chunk's corner).
+	var pad := CHUNK_SLOT - verts.size()
+	if pad > 0:
+		var corner := Vector3(ck.x * size * CHUNK_TILES, -1.0, ck.y * size * CHUNK_TILES)
+		var fill := PackedVector3Array()
+		fill.resize(pad)
+		fill.fill(corner)
+		verts.append_array(fill)
+		fill.fill(Vector3.UP)
+		normals.append_array(fill)
+	return {"dug": dug, "owners": owners, "verts": verts, "normals": normals, "index": idx}
+
+
+## The body a column of the slope's chunks (along x) puts its shapes on, made the first time.
+func _column(cx: int) -> StaticBody3D:
+	if _columns.has(cx):
+		return _columns[cx]
+	var body := StaticBody3D.new()
+	body.name = "Rise_%d" % cx
+	body.collision_layer = collision_layer
+	body.collision_mask = collision_mask
+	for m in [&"ground", &"surface"]:
+		body.set_meta(m, get_meta(m))
+	# Into the tree once its shapes are on (_rebuild_rise): each shape added to a body in the
+	# world rebuilds its whole compound.
+	_columns[cx] = body
+	return body
+
+
+## The rise's one mesh, from its chunks' parts.
+func _rise_mesh_rebuild() -> void:
+	if _rise_mesh == null:
+		_rise_mesh = MeshInstance3D.new()
+		_rise_mesh.name = "RiseMesh"
+		add_child(_rise_mesh)
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var idx := PackedInt32Array()
+	# In the order the chunks were given their slots (the index arrays count from them).
+	var keys := _chunks.keys()
+	keys.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+	for ck: Vector2i in keys:
+		var part: Dictionary = _chunks[ck]
+		verts.append_array(part.verts)
+		normals.append_array(part.normals)
+		idx.append_array(part.index)
+	if verts.is_empty():
+		_rise_mesh.mesh = null
+		return
+	if _rise_tangents.size() != verts.size() * 4:
+		_rise_tangents.resize(verts.size() * 4)
+		for k in verts.size():
+			_rise_tangents[k * 4] = 1.0
+			_rise_tangents[k * 4 + 3] = 1.0
+	var tangents := _rise_tangents
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TANGENT] = tangents
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	if material:
+		mesh.surface_set_material(0, material)
+	_rise_mesh.mesh = mesh
 
 
 # --- Digging: earth out at one point, down at another ---------------------------------------------
@@ -384,7 +662,8 @@ func _wake(area: Rect2) -> void:
 	box.size = Vector3(area.size.x + 0.2, tuning.earth_depth + 4.0, area.size.y + 0.2)
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = box
-	q.transform = Transform3D(Basis.IDENTITY, Vector3(area.get_center().x, 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
+	q.transform = Transform3D(Basis.IDENTITY, Vector3(area.get_center().x,
+			TownLayout.ground_height(area.get_center().x, area.get_center().y) + 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
 	q.collision_mask = 0xFFFFFFFF
 	# Not the ground itself: a height field answers once a triangle.
 	var ex: Array[RID] = [get_rid()]

@@ -7,10 +7,10 @@
 		"weapons": ["revolver", "shotgun"],
 		"places": {
 			"street": {"shooter": [10, 0, -9], "aim": [13, 0, -9],
-				"listeners": {"0": "self", "2": [8, 1.6, -9], "7": [3, 1.6, -9], "20": [-10, 1.6, -9], "80": [-70, 1.6, -9]}},
+				"listeners": {"0": "self", "2": [8, 1.6, -9], "7": [3, 1.6, -9], "20": [-10, 1.64, -9], "80": [-70, 2.87, -9]}},
 			"saloon": {"shooter": [11, 0.78, 3.5], "aim": [11, 0.78, 9.0],
 				"listeners": {"0": "self", "2": [9, 2.38, 3.5], "door7": [10.5, 2.38, -3.5], "wall7": [18, 1.6, 3.5],
-					"20": [11, 1.6, -16.4], "80": [-67, 1.6, -9]}}
+					"20": [11, 1.6, -16.4], "80": [-67, 2.79, -9]}}
 		}
 	},
 	"scenarios": {
@@ -28,11 +28,11 @@
 		"ricochet_iron": {"kind": "ricochet", "surface": "iron", "probe_from": [1.5, 0.45, -27.0], "probe_to": [1.5, 0.45, -30.0], "along": [1, 0, 0], "graze": 10.0, "run": 3.0, "player": [-2.0, 0, -33.5], "window": 1.5},
 		"dynamite_out_5": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [35, 0, -11], "tail": 6.0},
 		"dynamite_out_30": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [10, 0, -11], "tail": 6.0},
-		"dynamite_out_100": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [-60, 0, -11], "tail": 6.0},
+		"dynamite_out_100": {"kind": "dynamite", "sticks": [[40, 0, -11]], "player": [-60, 1.06, -11], "tail": 6.0},
 		"dynamite_in_5": {"kind": "dynamite", "sticks": [[11, 0.78, 7.0]], "player": [8, 0.78, 3.0], "tail": 6.0},
-		"dynamite_in_30": {"kind": "dynamite", "sticks": [[11, 0.78, 7.0]], "player": [-14, 0, -9], "tail": 6.0},
-		"dynamite_in_100": {"kind": "dynamite", "sticks": [[11, 0.78, 7.0]], "player": [-88, 0, -9], "tail": 6.0},
-		"wall_down": {"kind": "dynamite", "sticks": [[-2.5, 0.38, -0.25], [-2.1, 0.38, -0.25], [-2.9, 0.38, -0.25]], "player": [-15, 0, -12], "tail": 8.0},
+		"dynamite_in_30": {"kind": "dynamite", "sticks": [[11, 0.78, 7.0]], "player": [-14, 0.13, -9], "tail": 6.0},
+		"dynamite_in_100": {"kind": "dynamite", "sticks": [[11, 0.78, 7.0]], "player": [-88, 1.88, -9], "tail": 6.0},
+		"wall_down": {"kind": "dynamite", "sticks": [[-2.5, 0.38, -0.25], [-2.1, 0.38, -0.25], [-2.9, 0.38, -0.25]], "player": [-15, 0.16, -12], "tail": 8.0},
 		"fire": {"kind": "fire", "ignite": [[-2.5, 1.5, 0.0], [1.5, 1.5, 0.0], [-3.9, 2.0, 4.0]], "grow": 45.0, "wait_at": [40, 0, -9],
 			"listen": [{"name": "close_5", "player": [-2.5, 0, -5], "seconds": 6.0}, {"name": "across_15", "player": [-2.5, 0, -15], "seconds": 6.0}]},
 		"steps": {"kind": "steps", "walks": [
