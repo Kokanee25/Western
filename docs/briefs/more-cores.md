@@ -48,8 +48,13 @@ the design are in `experiments/gunfight_lab/results/2026-10-25_threading/`.
   the fire's own periodic work (`experiments/blast_freeze/README.md` "What's left": the
   townsfolk's brains in a fire at 30–90 ms a frame, the grid rebuilt every 2 s at ~40 ms, the
   neighbour lists refreshed together at ~45 ms, the smoke field's step at 90–130 ms, the frame
-  after a stick at ~125 ms). Those are hitches, single-core, and step 4 of the plan below (Sean,
+  after a stick at ~125 ms). Those are hitches, single-core, and step 5 of the plan below (Sean,
   2026-10-25: one master plan here, not a hand-off to #376).
+- **Main today** (2026-10-25, with #375 merged; `results/2026-10-25_threading/probe.txt`): the
+  same D fights are a **20.0 ms frame with the worst 5% at 24.4** (the 42 ms spikes were the
+  settles), `fire` 0.3; the named systems ~13.5 ms, ~6.5 untimed (Jolt's step, the transform
+  propagation, signals, the engine). At Sean's that's ~13 ms before drawing, so the gunfight is
+  near 60 fps already and every step below is headroom and spikes.
 - **The lab's determinism check:** `experiments/gunfight_lab/same_fight.py RUN_A RUN_B` (2026-10-25)
   pairs the fights of two runs by name and compares each event for event (the timeline, the
   ending, every man's and your shots and hits; the frame times left out), printing the first
@@ -70,16 +75,21 @@ Read for this: issue #373, the brief above, `results/2026-10-24_perf/`, CLAUDE.m
 
 1. **Right: the target.** Four to eight cores, a main thread that still fits one, a few helpers.
 2. **Wrong: what the per-person cost *is*.** The plan reads the people's 10 ms as arithmetic
-   to spread (wound and bleed ticks, aim and sway, visibility scores, the pose solve). Measured
-   with sub-timers (below), most of it is **physics queries issued one at a time from GDScript**:
-   a sight line is ~10–20 µs through `PhysicsRayQueryParameters3D.create` + `intersect_ray` + a
-   Dictionary back, and a man looking for cover casts hundreds a tick (`Cover.Search.step(40)`:
-   each candidate spot costs a ground ray, a room check, three to twelve `hidden_at` rays and a
-   route). The arithmetic those rays decorate is small. So "spread the brains across cores"
-   moves the wrong thing first: Godot's space state is **main-thread only** (the wrapper's
-   `space_get_direct_state` fails off the main thread, threaded physics or not), so a brain on a
-   worker couldn't cast its rays anyway, and what it could do there is cheap. **The first win is
-   fewer and cheaper queries, batched and native; threads come for what's left.**
+   to spread (wound and bleed ticks, aim and sway, visibility scores, the pose solve), and I
+   first read it as physics queries. Measured with sub-timers (`results/2026-10-25_threading/probe.md`),
+   it is neither, mostly: of the people's ~10 ms, the pure parts a thread could take without
+   touching the scene (physiology 0.16, the gun hand 0.25, the pose maths before its writes,
+   together ~1.5 ms) are small; the rays are ~106 a frame, 1.2–1.5 ms (cover 48, senses 45,
+   walking 13); and the bulk is **GDScript doing per-joint and per-part work on the scene every
+   tick**: `_apply_pose`'s 17 pivot sets a man with the maths round them (1.7 ms), the step's
+   re-reads of every part's `global_transform` for velocities and the rest (1.7 ms), the
+   brains' own logic (1.6 ms), and `_pose_fingers`' 45 bones a man with string tests per bone
+   per frame (1.0 of the skeleton's 1.4 ms). Godot's space state is **main-thread only** (the
+   wrapper's `space_get_direct_state` fails off the main thread, threaded physics or not), so a
+   brain on a worker couldn't cast its rays anyway. **So the first win is single-core and cheap:
+   stop re-reading and re-stringing (step 2); then the rays batched and native (step 3); then
+   threads for the pose maths and the pure parts (step 4), which are worth a millisecond or so
+   at most on this box.**
 3. **Wrong: why the seeds diverged with physics on its own thread.** Not "physics read a frame
    behind" as a bug to fix, and not a race. Two definite things, both in Godot's source (next
    section): outside the physics window the space state is *null* (the player's shot, fired from
@@ -225,11 +235,13 @@ only its own data, no scene, no physics, no signals.
 
 What follows from the table:
 
-- **The pure column is small in time** (physiology, the pose maths, the gun hand, the senses'
-  cone maths: together under a millisecond a tick for twelve people here) and **the query column
-  is where the time is** (the cover search alone can be the brain's whole 2.8 ms while a man is
-  searching). Threads for the pure column save under a millisecond; a native batch for the
-  query column saves several.
+- **The pure column is small in time** (physiology 0.16, the gun hand 0.25, the senses' cone
+  maths, the pose maths: ~1.5 ms a tick for twelve people here; `probe.md`), **the query
+  column is ~1.3 ms** (106 rays a frame; the cover search bursts to ~120 a tick while a man
+  searches), and **the scene column is the biggest**: the pivot sets, the part re-reads, the
+  bone sets, each a GDScript loop over 17–45 things a man a tick. Threads for the pure column
+  save a millisecond at best; a native batch for the queries one more; thinning the scene
+  loops two or three, single-core.
 - **The writes are the main thread's and stay there:** 17 pivot sets a man a tick, each a scene
   transform change that becomes a physics write. Fewer or cheaper is possible (set the part
   bodies' transforms straight from the computed chain instead of through the pivot nodes, so one
@@ -305,7 +317,7 @@ heat, char, neighbours) is the same shape: pure over the grid and the members' t
 with ignition and consumption applied on the main thread; it's the one that goes native first
 (CLAUDE.md's performance part B). The ground tile's mesh and shape (dig-ground step 5) are
 already headed native. None of these is the gunfight's problem; they're the fire scene's and
-the blast's, and the hitches there (step 4) are single-core work that comes first.
+the blast's, and the hitches there (step 5) are single-core work that comes before them.
 
 **F. The determinism rule for every step:** the same seeds run twice on the new build are the
 same fight (`same_fight.py`, exit 0); a step that changes the fight on purpose (C) re-baselines
@@ -331,8 +343,9 @@ lab command, one game at a time (`python3 experiments/gunfight_lab/run.py --scen
 --hours=golden --weapons=revolver --styles=careful --bodies=studio --variant=D --seeds=1-10
 --jobs=1 --out=build/…`), the `perf` numbers summarised into a results folder; **run twice and
 compared with `same_fight.py`**; the tests green; a status entry; the next step's issue. Expected
-gains are this core's ms a frame in a D gunfight (x0.65 for Sean's), from the measurements in
-`results/2026-10-25_threading/`.
+gains are this core's ms a frame in a D gunfight (x0.65 for Sean's), against main today's 20.0
+(`results/2026-10-25_threading/probe.md`). Steps 1–4 are the gunfight's; 5 the fire scene's;
+6–8 the engine's threads and the structures; 9 the table.
 
 **Step 1. The determinism ground** (no gain in ms; a small session). *"Read docs/briefs/more-cores.md
 'The review' and 'The design' A and F. Make the query rule real: a `World.space(node)` helper
@@ -349,50 +362,64 @@ count budget when `Engine.is_in_physics_frame()` and a `deterministic` project s
 (the lab and tests set it). Put a counter on every query site under a Prof name
 (`q_senses`, `q_cover`, `q_brain`, `q_walk`, `q_balls`, `q_lamps`, `q_signs`) and one on the
 people's part transforms set a tick (`q_writes`), so the lab's `per_system_ms` shows rays and
-writes a frame as well as ms. Name the untimed share: in a D fight the
-named systems sum to ~13 of the frame's ~22 ms here; a `PhysicsWindow` pair of nodes (the
-first and the last to tick, by `process_physics_priority`) times the window, so the frame
-splits into the window (ours), the step (Jolt's) and the rest (the engine's), and `perf`
-records all three. Then run the baseline twice and
-`same_fight.py` them: 10 of 10 the same is the gate. Write the counts into the results folder:
-they are step 2's targets."*
+writes a frame as well as ms (`results/2026-10-25_threading/instrument.py` is the temporary
+version of this; make it permanent and cheap). Name the untimed share: the named systems sum
+to ~13.5 of the frame's ~20 ms here; a `PhysicsWindow` pair of nodes (the first and the last
+to tick, by `process_physics_priority`) times the window, so the frame splits into the window
+(ours), the step (Jolt's) and the rest (the engine's), and `perf` records all three. Then run
+the baseline twice and `same_fight.py` them: 10 of 10 the same is the gate."*
 
-**Step 2. The sight service** (expected −3 to −4 ms here: `outlaw_brain` 2.8 -> ~1.0, `senses`
-1.15 -> ~0.4, `civilian_brain` 0.5 -> ~0.3, the brains' cover searches no longer a tick's
-spike). *"Read 'The design' A. In `addons/saltcreek_native`, add `SightWorld`: boxes with an id,
-a kind and a layer (members, props, ground slabs, dug tiles), capsules per person (the anatomy's
-hitboxes posed from part transforms given each tick), a BVH rebuilt when boxes change and
-refitted for the capsules each tick, and `cast(from: PackedVector3Array, to: PackedVector3Array,
-mask: int, exclude: PackedInt32Array) -> PackedFloat32Array` (the hit fraction per ray, 1.0 for
-none, with the hit id in a second array), split across `pool.rs` threads above 200 rays. A
-GDScript face `Sight` (src/people/sight.gd): `Sight.lines(pairs)` for a batch, `Sight.clear(from,
-to, exclude)` for one (which queues it and answers at once by a single cast; the batch is for
-the pre-pass). Feed it: every StructureMember on enter/exit (and `member_broken`, `member_cut`,
-burnt away), kit props when they move, the people from PeopleTick's snapshot (step 3; until then
-from each HumanBody's own tick). Move `Cover` first (its `_blocked`, `_sees`, `hidden_at`,
-`_ground`, `_shadows`; `_room` and `path_clear` stay on Jolt until the capsules are in), then
-`Senses._clear`, `SightLight`'s lamp and sky lines, `OutlawBrain._clear` and `_aim_point`. Test:
-`tests/test_sight_world.gd` casts the lab's sight lines through both and counts disagreements
-(the gate: none on an unbroken saloon; on a shot-up one, only where a carved hole lies on the
-line, listed). The lab twice; the perception lab's score unchanged; the cover spots of
-`gf_coverwhy` the same on ten seeds."*
+**Step 2. The per-person tick made cheap, single-core** (expected −2.5 to −3 ms:
+`people_skeleton` 1.4 -> ~0.5, `people_body` 4.4 -> ~2.5). *"Read `results/2026-10-25_threading/probe.md`.
+Three things, each measured on its own with the lab's `perf` and the physics lab's falls held
+the same: (a) `_pose_fingers` does `String(e.fid).begins_with/ends_with` and a Dictionary walk
+for 45 bones a man every frame: precompute per entry (thumb or not, side sign, the rest and
+gain) once in `_add_finger_bones`, and set the finger bones only when a finger node's bend
+changed; (b) `_track_carry` reads 17 parts' `global_transform` a man a tick to get velocities
+the engine can't give for script-moved parts: keep the transforms `_apply_pose` just set (it
+knows the pivot chain) instead of re-reading them, and skip the whole loop for a man standing
+still whose pose didn't change; (c) `_apply_pose` sets 17 pivot `rotation_degrees` a man a
+tick, each a transform-changed notification down the subtree into the part body's
+`body_set_state`: set only the pivots whose rotation moved more than a hundredth of a degree
+(a man standing easy moves only his chest), and measure how much of `hb_pose` was the sets
+(`q_writes` from step 1). Then `_update_skeleton` runs on the physics tick after the pose, from
+the same transforms, and `_process` does nothing. Ten fights twice, `same_fight.py` the same;
+the body lab's and physics lab's goldens the same."*
 
-**Step 3. The people's tick in phases, the pure parts on workers** (expected −1.5 to −2 ms here:
-`people_body` 3.85 -> ~2.3, `people_skeleton` 1.47 -> ~0.6). *"Read 'The design' B. Add
-`PeopleTick` (src/people/people_tick.gd) and give every person a `tick_index`. Turn the people's
-`_physics_process` off and call their steps from PeopleTick in index order; first with no
-threads at all, the lab twice, `same_fight.py` the same: that is the order made explicit. Then
-split `HumanBody._physics_step` into `prepare(snapshot)` (pure: physiology, the signs' decisions,
-the pose maths into a `PoseOut` with the 17 rotations and the bone poses, the gun hand) and
-`apply(out)` (the pivot sets, the skeleton, the signs), and run `prepare` over the people with
-`WorkerThreadPool.add_group_task`. The skeleton's bone poses come from the computed chain, not
-from `global_transform` re-reads, and are set in `apply` on the physics tick (`_process` then
-does nothing for a man whose parts haven't moved since). Measure phase 2's wall time against its
-single-thread sum (the lab's `perf`): if the threads don't pay on this 4-core box, say so and
-keep the phases single-threaded (the order and the batched skeleton are a gain on their own).
-The lab twice; the physics lab's falls and the body lab's wounds the same."*
+**Step 3. The sight service** (expected −1 ms on average and the cover search's bursts gone:
+`senses` 1.2 -> ~0.6, the brains' `ob_cover_search` 0.5 -> ~0.1, `q_walk`'s ground rays
+stay on Jolt). *"Read 'The design' A. In `addons/saltcreek_native`, add `SightWorld`: boxes
+with an id, a kind and a layer (members, props, ground slabs, dug tiles), capsules per person
+(the anatomy's hitboxes posed from part transforms given each tick), a BVH rebuilt when boxes
+change and refitted for the capsules each tick, and `cast(from: PackedVector3Array, to:
+PackedVector3Array, mask: int, exclude: PackedInt32Array) -> PackedFloat32Array` (the hit
+fraction per ray, 1.0 for none, with the hit id in a second array), split across `pool.rs`
+threads above 200 rays. A GDScript face `Sight` (src/people/sight.gd): `Sight.lines(pairs)`
+for a batch, `Sight.clear(from, to, exclude)` for one. Feed it: every StructureMember on
+enter/exit (and `member_broken`, `member_cut`, burnt away), kit props when they move, the
+people from PeopleTick's snapshot (step 4; until then from each HumanBody's own tick). Move
+`Cover` first (its `_blocked`, `_sees`, `hidden_at`, `_ground`, `_shadows`; `_room` and
+`path_clear` stay on Jolt until the capsules are in), then `Senses._clear`, `SightLight`'s lamp
+and sky lines, `OutlawBrain._clear` and `_aim_point`. Test: `tests/test_sight_world.gd` casts
+the lab's sight lines through both and counts disagreements (the gate: none on an unbroken
+saloon; on a shot-up one, only where a carved hole lies on the line, listed). The lab twice;
+the perception lab's score unchanged; the cover spots of `gf_coverwhy` the same on ten seeds."*
 
-**Step 4. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
+**Step 4. The people's tick in phases, the pure parts on workers** (expected −0.5 to −1 ms
+here, more on 6–8 cores: the pose maths, physiology and the gun hands off the main thread; the
+order made explicit). *"Read 'The design' B. Add `PeopleTick` (src/people/people_tick.gd) and
+give every person a `tick_index`. Turn the people's `_physics_process` off and call their steps
+from PeopleTick in index order; first with no threads at all, the lab twice, `same_fight.py`
+the same: that is the order made explicit. Then split `HumanBody._physics_step` into
+`prepare(snapshot)` (pure: physiology, the signs' decisions, the pose maths into a `PoseOut`
+with the 17 rotations and the bone poses, the gun hand) and `apply(out)` (the pivot sets, the
+skeleton, the signs), and run `prepare` over the people with
+`WorkerThreadPool.add_group_task`. Measure phase 2's wall time against its single-thread sum
+(the lab's `perf`): if the threads don't pay on this 4-core box, say so, keep the phases
+single-threaded, and leave the group task behind a setting for Sean's cores. The lab twice;
+the physics lab's falls and the body lab's wounds the same."*
+
+**Step 5. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
 become frames under 20; no change to the gunfight's average). *"Read `experiments/blast_freeze/README.md`
 'What's left' and 'The design' E. Measure each with `bf_blast at=6.0,0.8,6.0 fire=6 burn=20
 fuse=1 seconds=8 out=…` (one game at a time) before and after. (a) `civilian_brain` while the
@@ -409,20 +436,19 @@ frame): add the pieces over two or three frames, or cut fewer, larger pieces; th
 fly from the hole (the breakage lab's goldens). The blast-freeze lab's frames the same twice;
 the fire tests and the soak green."*
 
-**Step 5. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
-worst 5% −5 ms). *"Read 'The review' 'Physics on its own thread'. With steps 1–3 merged, set
-`physics/3d/run_on_separate_thread` from a `Settings` entry (default off; the look panel and
-F-keys don't touch it) via `override.cfg`-free means (`ProjectSettings.set_setting` before the
-server starts isn't possible; it must be the project setting, so the setting is read at start
-and the project's value is the default): decide and document. First the rare race: seed 2 of
-`results/2026-10-25_threading/` ten times with the thread on, then with each suspect in 'The
-review' removed, until ten agree; what it was goes in the results. Then run the whole test
-suite, the soak for an hour and the lab twice under it: zero 'Space state is inaccessible'
-errors in any log is the gate, and the paired runs the same, every fight. Then re-baseline the lab's `baseline/` under it with a
-note of what moved (every brain now sees the last step). Ask Sean to play a saloon fight with
-it on and off and read F3."*
+**Step 6. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
+writes' share of it shrinks as step 2 lands). *"Read 'The review' 'Physics on its own thread'.
+With steps 1–4 merged, set `physics/3d/run_on_separate_thread` from a `Settings` entry (default
+off; the look panel and F-keys don't touch it): the project setting is read at start, so decide
+how a setting reaches it (an `override.cfg` the game writes, or the launcher) and document.
+First the rare race: seed 2 of `results/2026-10-25_threading/` ten times with the thread on,
+then with each suspect in 'The review' removed, until ten agree; what it was goes in the
+results. Then run the whole test suite, the soak for an hour and the lab twice under it: zero
+'Space state is inaccessible' errors in any log is the gate, and the paired runs the same, every
+fight. Then re-baseline the lab's `baseline/` under it with a note of what moved (every brain
+now sees the last step). Ask Sean to play a saloon fight with it on and off and read F3."*
 
-**Step 6. The render thread model, behind a setting** (expected −3 to −6 ms at Sean's, unknown
+**Step 7. The render thread model, behind a setting** (expected −3 to −6 ms at Sean's, unknown
 here). *"Set `rendering/driver/threads/thread_model` to Multi-Threaded behind a setting; keep
 the screenshot, golden, tour and lab tools on the single-threaded model (they read the viewport
 texture and await `frame_post_draw`). Check the twelve files that call `RenderingServer`
@@ -430,7 +456,7 @@ directly (`grep -rn 'RenderingServer\.' src`) for a same-frame assumption. Give 
 with it on and off (F3's frame, a gunfight in the new saloon, the burning street); it stays on
 only if his numbers say so and nothing draws wrong."*
 
-**Step 7. The structures' analysis and the fire's tick off the main thread** (the fire scene's
+**Step 8. The structures' analysis and the fire's tick off the main thread** (the fire scene's
 and the blast's; expected: the burning town's `fire` 2.4 -> ~1.0 and the collapse's rounds off
 the frame). *"Read 'The design' E. Snapshot the dirty set's members
 into packed arrays and run `StructuralAnalysis.begin_update` + `advance` on a worker (GDScript
@@ -438,8 +464,8 @@ on the pool first; native if it pays), `apply_round` on the main thread next tic
 `_visit` native over the grid. `tests/test_settle_incremental.gd` holds the analysis exact; the
 blast-freeze lab's frames and the fire test scenes the same twice."*
 
-**Step 8. The budget table re-stated** (no gain; one short session with Sean's F3 numbers from
-steps 5 and 6): CLAUDE.md's table becomes the per-thread one above with measured columns, and
+**Step 9. The budget table re-stated** (no gain; one short session with Sean's F3 numbers from
+steps 6 and 7): CLAUDE.md's table becomes the per-thread one above with measured columns, and
 `config/frame_budget.tres` and `perf_bench` learn the main thread's share and the frame's.
 
 ## What done looks like
