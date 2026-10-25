@@ -40,10 +40,21 @@ var _check: StructuralAnalysis
 ## Members a frame for that check (~30 µs each): a burning town's buildings each get looked at
 ## about once a second without any one frame taking a whole building's analysis.
 const CHECK_MEMBERS := 120
-## And while it's coming down (a round for each thing that snaps or falls).
-const SETTLE_MEMBERS := 400
+## And while it's coming down (a round for each thing that snaps or falls): a slice between looks
+## at the frame's budget (a joist carrying forty boards is ~0.2 ms; a round near a blast is a few
+## hundred members).
+const SETTLE_MEMBERS := 150
+## While it's coming down, slices and rounds go on until this much of the frame (ms, this
+## workspace's clock; x0.65 at Sean's) is spent: a collapse of 64 rounds unfolds over a few seconds
+## (an analysis carried over costs the members near the damage a round, StructuralAnalysis.begin_update).
+const SETTLE_FRAME_MS := 8.0
+## Every so many routine checks of a building, one from the top (anything a carried-over analysis
+## missed, a member changed without saying so, is caught there; its setting-up alone is ~70 ms for
+## the spec saloon, so rarely).
+const FULL_CHECK_EVERY := 30
 var _rounds := 0
 var _urgent := {}  # structure -> true: asked to settle (not just a check): worked out faster
+var _checks := {}  # structure -> routine checks so far (for FULL_CHECK_EVERY)
 # Members whose grid cells are fixed (standing in a structure that doesn't move).
 var _placed := {}
 ## Standing members' world boxes, from when they were placed (they don't move while standing).
@@ -217,6 +228,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
+	var t_tick := Prof.start()
 	_spreading = true
 	_accum += delta
 	var frames := maxi(1, roundi(tuning.tick / maxf(delta, 0.001)))
@@ -240,13 +252,18 @@ func _physics_step(delta: float) -> void:
 			_tick_keys = []
 			_finish(_tick_dt, _tick_gone, true)
 	_spreading = false
+	Prof.stop(&"fire_tick", t_tick)
+	var t_loads := Prof.start()
 	_check_loads()
+	Prof.stop(&"fire_loads", t_loads)
+	var t_fx := Prof.start()
 	_fx_accum += delta
 	if _fx_accum >= FX_EVERY:
 		_fx_accum = 0.0
 		_update_fx()
 	_refresh_fx(maxi(1, roundi(FX_EVERY / maxf(delta, 0.001))))
 	_flicker(delta)
+	Prof.stop(&"fire_fx", t_fx)
 
 
 ## Run the fire forward by `dt` seconds, all at once.
@@ -269,7 +286,9 @@ func _begin(dt: float) -> void:
 			smouldering.erase(m)
 			ignite(m)
 	if _grid_age > 2.0:
+		var t_grid := Prof.start()
 		_rebuild_grid()
+		Prof.stop(&"fire_grid", t_grid)
 	# Spilt oil heats what's round it.
 	for sp in spills.duplicate():
 		sp.left -= dt
@@ -345,11 +364,18 @@ func _finish(dt: float, gone: Array[StructureMember], spread: bool) -> void:
 		for m: StructureMember in active:
 			if is_instance_valid(m) and m.burning and not m.broken and m.get_parent() is Structure:
 				structures[m.get_parent()] = true
+				(m.get_parent() as Structure).mark_dirty(m.member_id)  # charred: lighter and weaker
 		for s: Structure in structures:
 			if not spread:
 				s.settle()
 			elif not s in _to_settle:
 				_to_settle.append(s)
+
+
+## A building to look at when there's time (a slice a frame, nothing urgent): a big one just built.
+func queue_check(s: Structure) -> void:
+	if is_inside_tree() and s != _checking and not s in _to_settle:
+		_to_settle.append(s)
 
 
 ## A building that's had something happen to it (a board burnt away, a hole, a timber landing
@@ -368,29 +394,54 @@ func queue_settle(s: Structure) -> bool:
 ## falls (`Structure.apply_round`, the rule `settle()` follows) and the building is analysed again,
 ## faster, until it stands: a big collapse unfolds over a second or so rather than one long frame.
 func _check_loads() -> void:
-	if _check == null:
-		while not _to_settle.is_empty() and _check == null:
-			var next: Variant = _to_settle.pop_front()
-			if is_instance_valid(next) and (next as Structure).collapses and (next as Structure).is_inside_tree():
-				_checking = next
-				_rounds = 0
-				_check = StructuralAnalysis.new(_checking.tuning)
-				_check.begin(_checking)
-		return
-	if not is_instance_valid(_checking) or not _checking.is_inside_tree():
-		_check = null
-		_checking = null
-		return
-	if not _check.advance(CHECK_MEMBERS if _rounds == 0 and not _urgent.has(_checking) else SETTLE_MEMBERS):
-		return
-	_rounds += 1
-	if _checking.apply_round(_check) and _rounds < 64:
-		_check = StructuralAnalysis.new(_checking.tuning)
-		_check.begin(_checking)
-	else:
-		_urgent.erase(_checking)
-		_check = null
-		_checking = null
+	var t0 := Time.get_ticks_usec()
+	while true:
+		if _check == null:
+			while not _to_settle.is_empty() and _check == null:
+				var next: Variant = _to_settle.pop_front()
+				if is_instance_valid(next) and (next as Structure).collapses and (next as Structure).is_inside_tree():
+					_checking = next
+					_rounds = 0
+					var full := false
+					if not _urgent.has(_checking):
+						_checks[_checking] = int(_checks.get(_checking, 0)) + 1
+						full = int(_checks[_checking]) % FULL_CHECK_EVERY == 0
+					_check = _checking.start_analysis(full)
+			if _check == null:
+				return
+		if not is_instance_valid(_checking) or not _checking.is_inside_tree():
+			_check = null
+			_checking = null
+			return
+		var t_a := Prof.start()
+		if _rounds == 0 and not _urgent.has(_checking):
+			# The routine look at a burning building: a slice a frame, never more.
+			var done := _check.advance(CHECK_MEMBERS)
+			Prof.stop(&"fire_analyse", t_a)
+			if not done:
+				return
+		elif not _check.advance(SETTLE_MEMBERS):
+			# Something's given way: on with it while the frame's budget lasts.
+			Prof.stop(&"fire_analyse", t_a)
+			if (Time.get_ticks_usec() - t0) / 1000.0 > SETTLE_FRAME_MS:
+				return
+			continue
+		else:
+			Prof.stop(&"fire_analyse", t_a)
+		_rounds += 1
+		var t_r := Prof.start()
+		var more := _checking.apply_round(_check)
+		Prof.stop(&"fire_apply", t_r)
+		if more and _rounds < 64:
+			var t_b := Prof.start()
+			_check = _checking.start_analysis()
+			Prof.stop(&"fire_analyse", t_b)
+		else:
+			_urgent.erase(_checking)
+			_check = null
+			_checking = null
+		if (Time.get_ticks_usec() - t0) / 1000.0 > SETTLE_FRAME_MS:
+			return
 
 
 ## Anyone standing in or right next to the flames gets burnt.
@@ -504,6 +555,8 @@ func _consume(m: StructureMember) -> void:
 	m.burning = false
 	var was_standing := not m.broken
 	m.broken = true
+	if m.get_parent() is Structure:
+		(m.get_parent() as Structure).mark_dirty(m.member_id)
 	var fx: Variant = _fx.get(m)
 	if is_instance_valid(fx):
 		(fx as Node).queue_free()
