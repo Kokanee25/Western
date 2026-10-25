@@ -339,7 +339,8 @@ def crops(root, out, light="golden", size=(560, 420)):
 
 # The view each wood is picked on (its part's own, a man in it).
 PICK_VIEW = {"saloon_red": "wall", "store_boards": "wall", "weathered_pine": "wall", "floor": "steps",
-             "timber": "post", "fascia": "deck_ends", "framing": "wall_end", "dark_trim": "wall"}
+             "timber": "post", "fascia": "deck_ends", "framing": "wall_end", "dark_trim": "wall",
+             "painted_white": "wall", "painted_red": "wall", "painted_green": "wall"}
 
 
 def _pick_box(base, cw=960, ch=640):
@@ -365,7 +366,8 @@ def _pick_box(base, cw=960, ch=640):
 # edge for scale.
 REVIEW_BOX = {"floor": (400, 100, 1200, 633), "saloon_red": (470, 40, 1250, 560),
               "store_boards": (470, 40, 1250, 560), "weathered_pine": (470, 40, 1250, 560),
-              "timber": (150, 0, 930, 520)}
+              "timber": (150, 0, 930, 520), "painted_white": (470, 40, 1250, 560),
+              "painted_red": (470, 40, 1250, 560), "painted_green": (470, 40, 1250, 560)}
 
 
 def review(rows, out, woods, light="golden", width=360, cols=3, view=None):

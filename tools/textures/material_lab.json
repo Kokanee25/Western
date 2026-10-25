@@ -2247,6 +2247,53 @@
     "framing",
     "dark_trim"
    ]
+  },
+  "studio1p": {
+   "note": "R1's painted sidings, free (Sean, 2026-10-25: 'redone in R1'): studio10p's kept paintings cut again as R1 (studio1) was, at 512 texels a metre, graded only in lightness and colour, without 6b's flat steps, light bands or sheen.",
+   "texels_per_metre": 512,
+   "woods": [],
+   "new_woods": {
+    "painted_white": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old whitewash, now a dirty chalky off-white",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_red": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old barn-red paint, faded by the sun to a dusty brick red",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_green": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old pale sage-green paint, faded and dusty",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    },
+    "painted_ochre_s": {
+     "from": "store_boards",
+     "what": "weathered pine siding boards painted with old ochre-yellow paint, faded to a dusty mustard",
+     "wear": "The paint is old: sun-bleached and chalky, faded most toward the top of each board, cracked and peeling in long strips and patches to grey weathered wood underneath, worn through in places, with soft darker dirt and splash toward one long edge."
+    }
+   },
+   "grade": {
+    "painted_white": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_red": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_green": {
+     "L": 0.84,
+     "C": 0.9
+    },
+    "painted_ochre_s": {
+     "L": 0.84,
+     "C": 0.9
+    }
+   },
+   "ask": "",
+   "raw": "woods_studio10p_%s.jpg"
   }
  }
 }
