@@ -372,7 +372,7 @@ func sign_room_bottom() -> float:
 func _hang_gable_sign() -> void:
 	if not gable_sign.has_area():
 		return
-	var id: StringName = SignArt.BOARDS.get(sign_text.to_upper(), &"")
+	var id: StringName = SignArt.board_id(sign_text)
 	var painted := SignArt.board_size(id)
 	if painted == Vector2.ZERO:
 		return
