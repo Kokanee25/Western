@@ -193,7 +193,7 @@ func setup() -> String:
 	for g: Dictionary in TownLife.GANG:
 		by_id[String(g.id)] = g
 	var i := 0
-	var space := player.get_world_3d().direct_space_state
+	var space := World.space(player)
 	var eye := at + Vector3.UP * player.tuning.stand_eye_height
 	for id: String in scen.gang:
 		var g: Dictionary = by_id[id]
@@ -780,7 +780,7 @@ func _on_near_miss(person: Node, shooter: Node, dist: float, _at: Vector3, _spee
 
 ## A clear line from his eyes to your head, chest or hips (the scenery only, nobody's body).
 func _in_sight(b: OutlawBrain, who: Player) -> bool:
-	var space := who.get_world_3d().direct_space_state
+	var space := World.space(who)
 	var eye: Vector3 = b.senses.eye()
 	for to in [who.camera.global_position, who.global_position + Vector3.UP * 1.2, who.global_position + Vector3.UP * 0.6]:
 		var q := PhysicsRayQueryParameters3D.create(eye, to, Layers.WORLD)
@@ -838,7 +838,7 @@ func _watch_knowing(m: Dictionary, b: OutlawBrain, pv: Dictionary) -> void:
 
 ## Each ray from his eyes to you (Senses' points and this check's) and what stops it, for the record.
 func _line_report(b: OutlawBrain) -> Dictionary:
-	var space := player.get_world_3d().direct_space_state
+	var space := World.space(player)
 	var eye: Vector3 = b.senses.eye()
 	var out := {"eye": _arr(eye), "you": _arr(player.global_position), "crouched": player.is_crouching,
 		"senses_sees": b.senses.sees(player)}

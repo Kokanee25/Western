@@ -51,7 +51,7 @@ func _man(d: Dictionary, at: Vector3, faces: Vector3) -> HumanBody:
 
 ## How far the nearest wall is from a point (a ray each way, level): the open side of the trough.
 func _open_around(p: Vector3) -> float:
-	var space := street.get_world_3d().direct_space_state
+	var space := World.space(street)
 	var least := 10.0
 	for d: Vector3 in [Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT]:
 		var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 1.2, p + Vector3.UP * 1.2 + d * 10.0, Layers.WORLD)

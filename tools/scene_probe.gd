@@ -85,7 +85,7 @@ func _people(street: Node) -> Array:
 
 
 func _probe(street: Node3D, phase: String, skip: Array) -> void:
-	var space := street.get_world_3d().direct_space_state
+	var space := World.space(street)
 	for man in _people(street):
 		if man in skip or man.skeleton == null:
 			continue

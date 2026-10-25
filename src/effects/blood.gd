@@ -147,7 +147,7 @@ static func _grow(d: Decal, ml: float) -> void:
 ## Throw blood from a point with a velocity and see where it comes down (world geometry only).
 ## Adds a splat there and returns the landing point, or null if it flew off into nothing.
 static func throw(world: Node3D, from: Vector3, velocity: Vector3, ml: float, exclude: Array[RID] = []) -> Variant:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var p := from
 	var v := velocity
 	var dt := 0.04

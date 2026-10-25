@@ -161,7 +161,7 @@ func _tick(delta: float) -> void:
 		swinging -= delta
 		if swinging <= 0.0:
 			swinging = 0.0
-			_let_go()
+			_in_tick(_let_go)  # (the swing's timed in _process)
 
 
 ## The water leaves the bucket: drops fly on their own arcs from in front of you; each lands on
@@ -172,7 +172,7 @@ func _let_go() -> Dictionary:
 	var eye := _eye()
 	var fwd := -basis.z
 	var from := eye + fwd * 0.45 - basis.y * 0.25
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var exclude: Array[RID] = []
 	if _player:
 		exclude.append(_player.get_rid())

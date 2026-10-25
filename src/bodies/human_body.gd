@@ -600,7 +600,7 @@ func _hat_meets_ground() -> void:
 	var head := parts.get(&"head") as RigidBody3D
 	if head == null or head.sleeping:
 		return
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for c in hat_body.get_children():
 		if not c is CollisionShape3D:
 			continue
@@ -1495,7 +1495,7 @@ func _spare_rubble(at: Vector3) -> void:
 	q.shape = ball
 	q.transform = Transform3D(Basis(), at)
 	q.collision_mask = Layers.WORLD
-	for hit: Dictionary in get_world_3d().direct_space_state.intersect_shape(q, 64):
+	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
 		var rb := hit.collider as RigidBody3D
 		if rb == null:
 			continue
@@ -1524,7 +1524,7 @@ func _lowest_point() -> float:
 func _ground_y(at: Vector3) -> float:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 3.0, Layers.STAND)
 	q.exclude = _own_rids()
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	return (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
 
 
@@ -1674,7 +1674,7 @@ func drag_toward(holder: Vector3, delta: float) -> void:
 
 ## Move by `motion` (flat), stopping at and sliding along whatever's in the way.
 func _slide(motion: Vector3) -> Vector3:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var shape := SphereShape3D.new()
 	shape.radius = 0.26
 	var exclude: Array[RID] = []
@@ -1747,7 +1747,7 @@ func _slide(motion: Vector3) -> Vector3:
 ## off it each way, the highest wins (one ray fell through a crack, and off a raised walk he couldn't
 ## step back up).
 func _snap_to_ground() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var best := -INF
 	var best_up := 1.0
 	for off: Vector3 in [Vector3.ZERO, Vector3(-0.06, 0, 0), Vector3(0.06, 0, 0), Vector3(0, 0, -0.06), Vector3(0, 0, 0.06)]:
@@ -2033,7 +2033,7 @@ func _clip_strikes(delta: float) -> void:
 	var c := _clip if _clip != null else null
 	if c == null or c.strikes.is_empty() or delta <= 0.0:
 		return
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for sid: StringName in c.strikes:
 		var part := parts.get(sid) as CollisionObject3D
 		if part == null:
@@ -3965,7 +3965,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	# stance foot is still, and that leg turns about it. What the ground takes is the stance leg's
 	# share and the gait's swing: a runner at 3.5 m/s keeps 93% (279 -> 260 N*s), and the rest of
 	# him all of his. Real strides will come with mocap.
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var hips: Vector3 = _carry_v.get(&"pelvis", Vector3.ZERO)
 	var side := _stance_side(bodies)
 	var foot: RigidBody3D = bodies.get(StringName("foot" + side))

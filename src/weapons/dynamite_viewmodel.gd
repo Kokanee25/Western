@@ -173,7 +173,7 @@ func _release(velocity: Vector3) -> DynamiteStick:
 		var want := from - cam.global_transform.basis.z * 0.45 + cam.global_transform.basis.x * 0.12 - cam.global_transform.basis.y * 0.1
 		var q := PhysicsRayQueryParameters3D.create(from, want, Layers.WORLD)
 		q.exclude = [_player.get_rid()]
-		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(self).intersect_ray(q)
 		at = want if hit.is_empty() else hit.position + (from - hit.position).normalized() * 0.05
 	var s := DynamiteStick.make(world, at, velocity, fuse_left if lit else _bt.fuse_seconds)
 	s.owner_node = _player
@@ -197,7 +197,8 @@ func _goes_off_in_hand() -> void:
 	sticks -= 1
 	_next_stick = 0.6
 	var world := _ballistics().get_parent() as Node3D
-	Blast.detonate(world, stick_node.global_position, _bt.tnt_per_stick, _player)
+	var at := stick_node.global_position
+	_in_tick(func() -> void: Blast.detonate(world, at, _bt.tnt_per_stick, _player))  # (the fuse burns in _process)
 
 
 func put_away() -> void:

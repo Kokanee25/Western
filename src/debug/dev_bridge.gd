@@ -162,6 +162,9 @@ func _run_next() -> void:
 		var reply = {}
 		var words := line.split(" ", false)
 		var cmd := words[0].to_lower()
+		# Every command starts in the physics frame: what it asks of the world (goto's footing, a
+		# lab's setup, look's line) it asks by the query rule (World.space).
+		await get_tree().physics_frame
 		if HELP.has(cmd):
 			reply = await call("_cmd_" + cmd, Array(words.slice(1)))
 		elif _lab_commands.has(cmd):
@@ -314,7 +317,7 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var points: Array[Vector3] = []
 	var place := StringName(a[0])
 	if _places().has(place):
-		points = _places().route(player.get_world_3d().direct_space_state, player.global_position, place, [player.get_rid()])
+		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 	elif _person(a[0]) != null:
 		var p := _person(a[0])
 		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
@@ -926,7 +929,7 @@ func _look_hit() -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(from, from - cam.global_basis.z * 80.0)
 	q.exclude = [player.get_rid()]
 	q.collide_with_areas = false
-	return cam.get_world_3d().direct_space_state.intersect_ray(q)
+	return World.space(cam).intersect_ray(q)
 
 
 func _chest(man: HumanBody) -> Vector3:

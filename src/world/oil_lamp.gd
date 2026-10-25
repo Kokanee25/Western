@@ -292,7 +292,7 @@ func smash(direction := Vector3.DOWN) -> void:
 	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.05, global_position + Vector3.DOWN * 4.0, Layers.WORLD)
 	if hitbox:
 		q.exclude = [hitbox.get_rid()]
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	if not hit.is_empty():
 		at = hit.position
 	if hitbox:

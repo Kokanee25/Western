@@ -37,7 +37,7 @@ func _ready() -> void:
 func _grow() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = grass_seed
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var ray := PhysicsRayQueryParameters3D.new()
 	ray.collision_mask = Layers.WORLD
 	var noise := FastNoiseLite.new()

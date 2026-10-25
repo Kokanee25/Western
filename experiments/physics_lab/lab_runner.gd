@@ -469,7 +469,7 @@ func _build_cameras() -> void:
 ## camera's frame (50 deg high, 4:3). "front^1.5" is the view from 1.5 m above the focus, as a
 ## scenario's "views" can name it.
 func _sample_seen() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var f := _focus()
 	var man := _men[0]
 	var keys: Array = ["top"]
@@ -865,7 +865,7 @@ func _record(frame_ms: float) -> void:
 	var awake := 0
 	var contacts := 0
 	var cimp := 0.0
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for sid: StringName in man.parts:
 		var n := man.parts[sid] as Node3D
 		var pos := n.global_position

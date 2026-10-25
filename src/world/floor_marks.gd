@@ -83,7 +83,7 @@ func _physics_process(delta: float) -> void:
 ## The wooden surface facing up under `at` (within `reach` above and below): {at, member, floor}
 ## (floor: one of FLOOR_KINDS), or empty.
 func surface_at(at: Vector3, reach := 0.3) -> Dictionary:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	# Right on the seam between two boards a ray meets a board's edge: a few mm off, the top.
 	for off: Vector3 in [Vector3.ZERO, Vector3(0.006, 0, 0.006), Vector3(-0.006, 0, -0.006)]:
 		var q := PhysicsRayQueryParameters3D.create(at + off + Vector3.UP * reach, at + off - Vector3.UP * reach, Layers.WORLD)

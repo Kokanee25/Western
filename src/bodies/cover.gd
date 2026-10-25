@@ -35,7 +35,7 @@ const PACE := 0.8
 ## body. `bias_from`: a spot he's been using (flanking: prefer a new angle). {} if none.
 static func find(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
 		bias_from := Vector3.INF, max_travel := 11.0, places: Waypoints = null) -> Dictionary:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var best := {}
 	var threat_flat := Vector3(threat_eye.x, from.y, threat_eye.z)
 	var start_angle := rng.randf() * TAU
@@ -85,7 +85,7 @@ class Search:
 static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], rng: RandomNumberGenerator,
 		bias_from := Vector3.INF, max_travel := 11.0, new_angle := 3.0, places: Waypoints = null) -> Search:
 	var s := Search.new()
-	s._space = world.get_world_3d().direct_space_state
+	s._space = World.space(world)
 	s._from = from
 	s._eye = threat_eye
 	s._flat = Vector3(threat_eye.x, from.y, threat_eye.z)

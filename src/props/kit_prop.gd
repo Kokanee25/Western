@@ -305,7 +305,7 @@ func _notification(what: int) -> void:
 
 ## Each foot's floor: what's in a thin box just under it (the room's members, the ground).
 func _find_footing() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var own: Array[RID] = []
 	for m in get_members():
 		own.append(m.get_rid())
@@ -670,7 +670,7 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 ## The next of its standing members a blow going `dir` from `at` meets (within its size), and where:
 ## [member, point], or [] (what it broke is rubble now, and left out).
 func _next_in_line(at: Vector3, dir: Vector3, after: StructureMember) -> Array:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var reach := PropKit.bounds(definition).size.length()
 	var q := PhysicsRayQueryParameters3D.create(at, at + dir * reach, Layers.WORLD)
 	var skip: Array[RID] = [after.get_rid()]

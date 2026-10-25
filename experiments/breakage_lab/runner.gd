@@ -320,7 +320,7 @@ func _target_point() -> Vector3:
 
 ## A point on the floor (or ground) under `p`: the first solid surface down from `up` above it.
 func _floor_point(p: Vector3, up: float) -> Vector3:
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	var from := Vector3(p.x, _floor_height_guess() + up, p.z)
 	var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 6.0, Layers.WORLD)
 	var hit := space.intersect_ray(q)
@@ -333,7 +333,7 @@ func _charge_point(d: float) -> Vector3:
 	var at := _aim + _heading * maxf(d, DynamiteStick.RADIUS + 0.01)
 	var p := _floor_point(at, 0.3)
 	if d <= 0.0 and _spec.get("charge_on", false):
-		var space := _street.get_world_3d().direct_space_state
+		var space := World.space(_street)
 		var from := Vector3(_aim.x, _aim.y + 0.6, _aim.z)
 		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 2.0, Layers.WORLD))
 		if not hit.is_empty():
@@ -348,7 +348,7 @@ func _floor_height_guess() -> float:
 ## Is the line from the shooter to the aim point clear? The first thing along it.
 func _line_check(shooter_xz: Vector3) -> Dictionary:
 	var shooter := _floor_point(shooter_xz, 1.0) + Vector3.UP * 1.5
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	var q := PhysicsRayQueryParameters3D.create(shooter, _aim + (_aim - shooter).normalized() * 0.05, Layers.BULLETS)
 	var hit := space.intersect_ray(q)
 	var first := _describe(hit.collider) if not hit.is_empty() else "nothing"
@@ -537,7 +537,7 @@ func _snapshot_before() -> void:
 ## within 1 m, 2 m and where timber can break it leaves out. (Before 2026-10-21's fix Blast took one
 ## query capped at 1024 colliders, in the engine's order: the baseline has those numbers.)
 func _blast_query(at: Vector3, kg: float) -> Dictionary:
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	var shape := SphereShape3D.new()
 	shape.radius = Blast.reach(kg)
 	var q := PhysicsShapeQueryParameters3D.new()
@@ -592,7 +592,7 @@ func _box_of_structure(s: Structure) -> AABB:
 ## target's own kind (a ray through the plane; anything else it meets, rubble, a joist behind,
 ## is looked past); for the ground, how high the ground is (a ray down; only the ground counts).
 func _scan() -> Dictionary:
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	var half := float(_spec.get("scan_m", 3.0))
 	var n := int(round(half / _step()))
 	var out := {}
@@ -802,7 +802,7 @@ func _physics_process(_delta: float) -> void:
 	var t0 := Time.get_ticks_usec()
 	var tick := Engine.get_physics_frames()
 	var after := tick - _event_tick if _event_tick >= 0 else -1
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	for p in _pieces:
 		_watch_piece(p, space, tick, after)
 	for m in _men:

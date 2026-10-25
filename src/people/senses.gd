@@ -198,7 +198,7 @@ func range_to(who: Node3D) -> float:
 func _look(dt: float) -> void:
 	var from := eye()
 	var fwd := facing()
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var far := SightLight.tune().range_day + 2.0
 	for who: Node in _people():
 		var k := _entry(who)
@@ -317,7 +317,7 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
 	if source is CollisionObject3D:
 		q.exclude = [(source as CollisionObject3D).get_rid()]  # his own body doesn't muffle him
-	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.3:
 		reach *= 0.5
 	if body.physiology.deaf_ears() > 0:
@@ -344,4 +344,4 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 func _in_view(who: Node3D, from: Vector3) -> bool:
 	if body == null or not body.is_inside_tree():
 		return false
-	return _visibility(who, from, facing(), range_to(who), body.get_world_3d().direct_space_state) > 0.0
+	return _visibility(who, from, facing(), range_to(who), World.space(body)) > 0.0

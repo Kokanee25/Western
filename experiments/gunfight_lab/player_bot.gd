@@ -209,7 +209,7 @@ func _look(dt: float) -> void:
 	var from := cam.global_position
 	var fwd := -cam.global_basis.z
 	var range_m := SightLight.sight_range(SightLight.sky_lux(_daylight()))  # the open sky's reach (the men's own now goes by the light on whom they look at)
-	var space := player.get_world_3d().direct_space_state
+	var space := World.space(player)
 	for man: HumanBody in _live():
 		if not is_instance_valid(man):
 			continue
@@ -257,7 +257,7 @@ func _visibility(man: HumanBody, from: Vector3, fwd: Vector3, range_m: float, sp
 
 func clear(from: Vector3, to: Vector3, space: PhysicsDirectSpaceState3D = null) -> bool:
 	if space == null:
-		space = player.get_world_3d().direct_space_state
+		space = World.space(player)
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = [player.get_rid()]
 	var hit := space.intersect_ray(q)

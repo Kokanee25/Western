@@ -91,7 +91,7 @@ static func _entry(who: Node3D, at: Vector3) -> Dictionary:
 		_cache[id] = e
 	e.frame = frame
 	if (e.lines_at as Vector3).distance_to(at) > t.lines_moved_m or frame - int(e.lines_frame) >= t.lines_frames:
-		var space := who.get_world_3d().direct_space_state
+		var space := World.space(who)
 		var ex: Array[RID] = []
 		if who is CollisionObject3D:
 			ex.append((who as CollisionObject3D).get_rid())

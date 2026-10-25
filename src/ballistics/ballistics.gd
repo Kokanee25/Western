@@ -119,7 +119,7 @@ func step(b: Bullet, delta: float) -> void:
 	if not b.alive:
 		return
 	b.age += delta
-	var space := get_viewport().find_world_3d().direct_space_state if get_viewport() else null
+	var space := World.space(self)
 	if space == null:
 		return
 	var remaining := b.velocity.length() * delta

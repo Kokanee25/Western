@@ -397,7 +397,7 @@ static func _doorway(street: Node3D) -> void:
 
 
 static func _floor_at(street: Node3D, at: Vector3) -> float:
-	var space := street.get_world_3d().direct_space_state
+	var space := World.space(street)
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 1.0, Layers.WORLD)
 	var hit := space.intersect_ray(q)
 	# The saloon's floor (up its steps), not the top of a table or chair over it.
