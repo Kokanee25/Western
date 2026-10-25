@@ -230,10 +230,13 @@ void fragment() {
 	ROUGHNESS = roughness_value;
 	float eye_boost = 1.0;
 	if (eye_radius > 0.0 && min(distance(local_pos, eye_r_pos), distance(local_pos, eye_l_pos)) < eye_radius) {
-		ROUGHNESS = 0.12;
-		SPECULAR = 0.9;
 		float top = max(max(base.r, base.g), base.b);
 		float pale = smoothstep(0.55, 0.8, min(min(base.r, base.g), base.b) / max(top, 1e-4)) * step(0.2, top);
+		// Only the painted eye is wet, not the skin round it: the sphere is the anatomy's eye and
+		// a hair of lid, wider than a Studio man's painted eye, and glossy skin there caught the
+		// day sky as a pale oval round each eye (Sean, 2026-10-25).
+		ROUGHNESS = mix(roughness_value, 0.12, pale);
+		SPECULAR = mix(0.5, 0.9, pale);
 		eye_boost = mix(1.0, eye_gain, pale);
 	}
 	if (eye_radius > 0.0) {

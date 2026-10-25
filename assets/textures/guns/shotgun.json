@@ -1,0 +1,15 @@
+{
+  "about": "The shotgun's paintings' canvases in the gun's space, from the gun lab's views.gd --side: rect the side's, seen from its right (z_min, y_min, width, height; GunParts.paint_gun); top_rect the top's, seen from above (z_min, x_min, width, height: the image's top its left side).",
+  "rect": [
+    -0.563499987125397,
+    -0.250705271959305,
+    0.93149995803833,
+    0.399214267730713
+  ],
+  "top_rect": [
+    -0.563499987125397,
+    -0.199607133865356,
+    0.93149995803833,
+    0.399214267730713
+  ]
+}

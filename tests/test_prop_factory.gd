@@ -133,6 +133,17 @@ func test_the_deer_head_is_drawn_from_its_mount() -> void:
 	check(paint != null and paint.get_shader_parameter(&"albedo_tex") != null, "the mount wears its own paint")
 
 
+func test_the_steer_skull_is_bone_on_a_plank() -> void:
+	for part in ["plank", "skull", "horn_l", "horn_r"]:
+		check(PropKit.model_part("steer_skull", part) != null, "the skull has its %s" % part)
+	var woods := {}
+	for m: Dictionary in PropKit.definition(&"steer_skull").members:
+		woods[m.id] = m.wood
+	check(woods.plank == "weathered_pine" and woods.skull == "bone" and woods.horn_l == "bone", "a pine plank, bone skull and horns: %s" % woods)
+	check(TimberTuning.new().woods.has(&"bone"), "bone has its strengths")
+	check(FireTuning.new().fireproof.has(&"bone"), "bone doesn't burn")
+
+
 func test_the_top_sack_comes_down_when_one_under_it_goes() -> void:
 	var s := await _place(&"grain_sacks")
 	var falling := s.members_without_load_path({_m(s, "sack0").member_id: true, _m(s, "sack1").member_id: true})

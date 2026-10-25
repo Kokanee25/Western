@@ -12,9 +12,13 @@ extends WeaponViewmodel
 
 enum Pose { HIP, AIM, LOADING }
 
+## From the hip, the usual first-person carry: the stock under your arm, the gun at the lower right
+## with the barrels running in towards the middle, both hands on it. Aimed, down the sights (Sean,
+## 2026-10-23): your eye over the comb, looking between the hammers along the rib to the bead on
+## the middle of the view.
 const POSES := {
-	Pose.HIP: [Vector3(0.1, -0.17, -0.33), Vector3(5.0, 6.0, 0.0)],
-	Pose.AIM: [Vector3(0.0, -0.056, -0.32), Vector3(0.6, 0.0, 0.0)],
+	Pose.HIP: [Vector3(0.18, -0.14, -0.34), Vector3(1.0, -1.5, -4.0)],
+	Pose.AIM: [Vector3(0.0, -0.053, -0.3), Vector3(2.5, 0.0, 0.0)],
 	Pose.LOADING: [Vector3(0.04, -0.12, -0.3), Vector3(-8.0, 14.0, 6.0)],
 }
 const PUT_AWAY_POS := Vector3(0.25, -0.8, 0.05)
@@ -25,29 +29,40 @@ const TUCK_ROT := Vector3(62.0, 12.0, -8.0)
 const OPEN_ANGLE := -32.0
 const HAMMER_BACK := 40.0
 
-## The hands (the gun lab's `views.gd --fit`: the fingers closed on the wood, every bone 0-3 mm
-## off it, the index's pad on the front trigger, the thumbs clear of the steel).
-## The right: its index knuckle on the right of the stock's wrist by the guard, the knuckles'
-## line run back along the wrist, the forearm back, down and out to the right.
-const R_HAND_POS := Vector3(0.026, -0.024, 0.016)
-const R_HAND_TILT := -45.0
+## The hands (the gun lab's `views.gd --fit`: each finger closed as one until it touches the wood
+## or the barrels, the index's pad on the front trigger, the thumbs clear of the steel).
+## The right holds the pistol grip as the revolver's is held (HandModel), in the grip's own space:
+## the palm on its right side, three fingers round its front, the index forward to the front
+## trigger, the thumb over the top of the wrist (to the hammers to cock); the wrist straight
+## behind it, the forearm back, down and out to the right.
+const R_HAND_POS := Vector3(0.027, -0.016, -0.013)
+const R_HAND_TILT := 0.0
 const R_HAND_ROLL := 0.0
-const R_FOREARM := Vector3(0.8, -0.58, 0.15)
-const R_GRIP := {"middle": [73.0, 59.0, 44.0], "ring": [107.0, 0.0, 75.0], "little": [115.0, 0.0, 0.0]}
-## The index swung forward from its knuckle onto the front trigger (a plain curl can't reach it),
-## and squeezed back.
-const R_INDEX_REST := [Vector3(24.0, 60.0, 36.0), 15.0, 10.0]
-const R_INDEX_PULL := [Vector3(24.0, 48.0, 24.0), 15.0, 10.0]
-const R_THUMB_REST := [Vector3(12.0, 24.0, 12.0), 45.0, 40.0]
-const R_THUMB_COCK := [Vector3(48.0, 12.0, 60.0), 45.0, 40.0]
-## The left, in the barrels' space: the forend across its palm, its fingers up the right side and
-## its thumb up the left, the forearm back, down and out to the left.
-const L_HAND_POS := Vector3(0.012, -0.026, -0.1)
-const L_HAND_TILT := -90.0
-const L_HAND_ROLL := 90.0
-const L_FOREARM := Vector3(-0.3, -0.55, 0.78)
-const L_GRIP := {"index": [13.0, 79.0, 4.0], "middle": [50.0, 77.0, 52.0], "ring": [29.0, 79.0, 32.0], "little": [2.0, 80.0, 0.0]}
-const L_THUMB := [Vector3(60.0, 60.0, -60.0), 45.0, 40.0]
+const R_FOREARM := Vector3(0.45, -0.35, 0.82)
+const R_GRIP := {"middle": 69.0, "ring": 62.0, "little": 55.0}
+## The index on the front trigger, at rest and squeezed (HeldHand.grasp; `views.gd --fit`).
+const R_INDEX_SPREAD := 30.0
+const R_INDEX_REST := 8.0
+const R_INDEX_PULL := 20.0
+const R_THUMB_REST := [Vector3(-24.0, -36.0, 24.0), 45.0, 40.0]
+const R_THUMB_COCK := [Vector3(48.0, 36.0, 60.0), 45.0, 40.0]
+## The left, in the barrels' space, as a hand lies under a forend: the forend across the palm
+## diagonally, the palm up and in, the fingers up its right side and the thumb up the left, kept
+## low off the sight line; the hand's long axis (knuckles to wrist) back, down and out to the left,
+## and the forearm straight on from it, so the wrist doesn't bend.
+const L_HAND_POS := Vector3(0.0, -0.012, -0.08)
+const L_WRIST_DIR := Vector3(-0.7, -0.35, 0.6)
+const L_PALM_DIR := Vector3(0.3, 1.0, 0.0)
+const L_FOREARM := Vector3(-0.7, -0.5, 0.6)
+const L_GRIP := {"index": 10.0, "middle": 51.0, "ring": 55.0, "little": 65.0}
+const L_THUMB := [Vector3(-36.0, 60.0, 48.0), 45.0, 40.0]
+
+## Your shoulders, in the camera's space (a hand's width below and behind your eyes, a shoulder's
+## half-width out), and which way each elbow drops (down and out).
+const SHOULDER_R := Vector3(0.19, -0.2, 0.07)
+const SHOULDER_L := Vector3(-0.19, -0.2, 0.07)
+const ELBOW_POLE_R := Vector3(0.5, -1.0, 0.2)
+const ELBOW_POLE_L := Vector3(-0.5, -1.0, 0.2)
 
 @export var tuning: ShotgunTuning
 
@@ -94,12 +109,17 @@ func _ready() -> void:
 
 
 func _build_hands() -> void:
-	hand = _held(true, model, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
+	hand = _held(true, model.grip, R_HAND_POS, R_HAND_TILT, R_HAND_ROLL, R_FOREARM)
 	for f: String in R_GRIP:
-		hand.curl(f, R_GRIP[f])
-	left_hand = _held(false, model.barrels, L_HAND_POS, L_HAND_TILT, L_HAND_ROLL, L_FOREARM)
+		hand.grasp(f, R_GRIP[f])
+	left_hand = _held_along(false, model.barrels, L_HAND_POS, L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
+	# Both arms bend at the elbow from your shoulders (HeldHand.shoulder: the camera's space).
+	hand.shoulder = SHOULDER_R
+	hand.elbow_pole = ELBOW_POLE_R
+	left_hand.shoulder = SHOULDER_L
+	left_hand.elbow_pole = ELBOW_POLE_L
 	for f: String in L_GRIP:
-		left_hand.curl(f, L_GRIP[f])
+		left_hand.grasp(f, L_GRIP[f])
 	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
 
 
@@ -113,7 +133,23 @@ func _held(is_right: bool, parent: Node3D, pos: Vector3, tilt: float, roll: floa
 	h.basis = Basis(Vector3.BACK, deg_to_rad(roll)) * Basis(Vector3.RIGHT, deg_to_rad(tilt))
 	parent.add_child(h)
 	h.build()
-	h.aim_forearm(forearm)
+	h.aim_forearm(parent.transform.basis.inverse() * forearm)
+	return h
+
+
+## A hand at `pos` in `parent`'s space laid along `wrist_dir` (from its knuckles back towards its
+## wrist) with its palm towards `palm_dir`, its forearm aimed `forearm` (all in the gun's space).
+func _held_along(is_right: bool, parent: Node3D, pos: Vector3, wrist_dir: Vector3, palm_dir: Vector3, forearm: Vector3) -> HeldHand:
+	var h := HeldHand.new(is_right)
+	h.name = "Hand" if is_right else "LeftHand"
+	h.position = pos
+	var z := wrist_dir.normalized()
+	# A right hand's palm is its -X, a left hand's its +X (HeldHand: the left is the mirror).
+	var x := (palm_dir - z * palm_dir.dot(z)).normalized() * (-1.0 if is_right else 1.0)
+	h.basis = Basis(x, z.cross(x), z)
+	parent.add_child(h)
+	h.build()
+	h.aim_forearm(parent.transform.basis.inverse() * forearm)
 	return h
 
 
@@ -255,13 +291,12 @@ func _animate(delta: float) -> void:
 		_triggers[i] = move_toward(_triggers[i], 0.0, delta * 5.0)
 		model.triggers[i].rotation_degrees.x = -18.0 * _triggers[i]
 	var pull := maxf(_triggers[0], _triggers[1])
-	hand.pose_finger("index", (R_INDEX_REST[0] as Vector3).lerp(R_INDEX_PULL[0], pull), lerpf(R_INDEX_REST[1], R_INDEX_PULL[1], pull),
-			lerpf(R_INDEX_REST[2], R_INDEX_PULL[2], pull))
+	hand.grasp("index", lerpf(R_INDEX_REST, R_INDEX_PULL, pull), R_INDEX_SPREAD)
 	_thumb = move_toward(_thumb, 0.0, delta * 3.0)
 	hand.thumb_pose((R_THUMB_REST[0] as Vector3).lerp(R_THUMB_COCK[0], _thumb), lerpf(R_THUMB_REST[1], R_THUMB_COCK[1], _thumb),
 			lerpf(R_THUMB_REST[2], R_THUMB_COCK[2], _thumb))
 	model.show_barrels(state.barrels)
-	model.butt.visible = not (selected and _pose_pos.distance_to(POSES[Pose.AIM][0]) < 0.06 and tuck < 0.3)
+	model.butt.visible = true
 	_animate_camera(delta, tuning.aim_fov)
 
 
