@@ -133,8 +133,9 @@ static func _view_move(view: String) -> Transform3D:
 			move = Transform3D(Basis(), Vector3.UP * lift) * move
 		return move
 	if view in STORE_VIEWS:
+		# The old store's door (x 3) to the store's door (the middle of its front), turned with it.
 		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
-		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))
+		return town.transform_of(&"Store") * Transform3D(Basis(), Vector3(w * 0.5 - 3.0, 0, 0))
 	if view in RANGE_VIEWS:
 		return town.transform_of(&"RangeCover")
 	return Transform3D()
@@ -352,6 +353,8 @@ func _run() -> void:
 		clock.set_time(v[1])
 		var move := _view_move(v[0])
 		player.global_position = move * (v[2] as Vector3)
+		# On the town's ground where it slopes (config/town.json ground; 0 where the views were laid out).
+		player.global_position.y += TownLayout.ground_height(player.global_position.x)
 		player.velocity = Vector3.ZERO
 		player.rotation = Vector3(0.0, deg_to_rad(v[3]) + move.basis.get_euler().y, 0.0)
 		player.input_enabled = true

@@ -4,7 +4,7 @@ extends Node3D
 ## seed.
 
 @export var scenery_seed := 1882
-@export var road_center_z := -8.4
+## The road's half width (its middle: TownLayout.street_z).
 @export var road_half_width := 6.0
 
 var _rng := RandomNumberGenerator.new()
@@ -73,10 +73,11 @@ func _build_sagebrush() -> void:
 	var colors: Array[Color] = []
 	while transforms.size() < 400:
 		var p := Vector3(_rng.randf_range(-120.0, 120.0), 0.0, _rng.randf_range(-120.0, 120.0))
-		if absf(p.z - road_center_z) < road_half_width + 1.5:
+		if absf(p.z - TownLayout.street_z(p.x)) < road_half_width + 1.5:
 			continue
-		if p.x > -34.0 and p.x < 15.0 and p.z > -32.0 and p.z < 12.0:
+		if p.x > -50.0 and p.x < 15.0 and p.z > -36.0 and p.z < 12.0:
 			continue  # keep the built-up area clear
+		p.y = TownLayout.ground_height(p.x, p.z)
 		var s := _rng.randf_range(0.4, 1.3)
 		var t := Transform3D(Basis.from_scale(Vector3(s, s * _rng.randf_range(0.6, 0.9), s)).rotated(Vector3.UP, _rng.randf() * TAU), p + Vector3(0, s * 0.15, 0))
 		transforms.append(t)

@@ -70,6 +70,7 @@ func _on_ground_changed(area: Rect2) -> void:
 ## A board something stood on was cut (a charge holed it): what stood on a piece left of it is still
 ## held by that piece; what stood on the stretch torn out has lost it.
 func _on_member_cut(old: Node, pieces: Array) -> void:
+	var t := Prof.start()
 	for item in items:
 		if item.down or not (item.members as Array).any(func(e: Array) -> bool: return e[0] == old):
 			continue
@@ -77,6 +78,7 @@ func _on_member_cut(old: Node, pieces: Array) -> void:
 		for p: StructureMember in pieces:
 			if is_instance_valid(p) and p.world_aabb().intersects(box):
 				item.members.append([p, p.global_position])
+	Prof.stop(&"fittings", t)
 
 
 func _physics_process(delta: float) -> void:
@@ -89,6 +91,7 @@ func _physics_process(delta: float) -> void:
 	_since += delta
 	if _since < CHECK_EVERY and _next == 0:
 		return
+	var t := Prof.start()
 	_since = 0.0
 	var n := mini(CHECK_PER_FRAME, items.size() - _next)
 	for i in n:
@@ -98,6 +101,7 @@ func _physics_process(delta: float) -> void:
 	_next += n
 	if _next >= items.size():
 		_next = 0
+	Prof.stop(&"fittings", t)
 
 
 ## Finds the fittings and what holds each (also callable again, from a test, once things change).

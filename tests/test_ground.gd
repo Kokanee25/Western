@@ -25,7 +25,7 @@ func _down(x: float, z: float) -> Dictionary:
 
 
 func test_the_flat_ground_is_at_zero_out_past_its_drawn_edge() -> void:
-	for p: Vector2 in [Vector2(0, 0), Vector2(-50.3, -8.4), Vector2(299, -299), Vector2(-1200, 900)]:
+	for p: Vector2 in [Vector2(0, 0), Vector2(30.3, -8.4), Vector2(299, -299), Vector2(1200, 900)]:
 		var hit := _down(p.x, p.y)
 		check(not hit.is_empty() and absf((hit.position as Vector3).y) < 1e-3, "ground at y 0 at %s" % p)
 		check(not hit.is_empty() and Ground.is_ground(hit.collider), "and it's the ground")
@@ -405,3 +405,90 @@ func test_a_small_fast_thing_doesn_t_go_through_a_dug_tile() -> void:
 	for rb in bits:
 		worst = maxf(worst, ground.height_at(rb.global_position.x, rb.global_position.z) - rb.global_position.y)
 	check(worst < 0.12, "none ends deeper than a crater's own depth under the surface (worst %.3f m)" % worst)
+
+
+func test_west_of_the_store_it_slopes_as_the_layout_says_with_no_seam() -> void:
+	# The town's ground (config/town.json): height fields by the chunk, the flat slabs east of them.
+	var worst := 0.0
+	var missed := 0
+	for p: Vector2 in [Vector2(-6, -8), Vector2(-20.3, -9), Vector2(-35, 4), Vector2(-60, -18), Vector2(-80.3, -20.6),
+			Vector2(-120, -30), Vector2(-152, 40), Vector2(-140, 210), Vector2(-299, -299), Vector2(-1.0, 0.0)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not Ground.is_ground(hit.collider):
+			missed += 1
+			continue
+		worst = maxf(worst, absf((hit.position as Vector3).y - TownLayout.ground_height(p.x)))
+		check_near(ground.height_at(p.x, p.y), TownLayout.ground_height(p.x), 0.001, "height_at says so at %s" % p)
+	check_eq(missed, 0, "a ray finds the ground everywhere on the slope")
+	check(worst < 0.02, "at the layout's height (worst %.3f m off)" % worst)
+	check(TownLayout.ground_height(-120) > 1.0, "and it's up there")
+
+
+func test_a_splinter_doesn_t_slide_down_a_seam_in_the_slope() -> void:
+	# 2026-10-24, test_chaos: a 6 mm chip off the barber's front came down on the seam between two
+	# chunks (z 0) and slid on down it, Jolt's rounded box edges pushing it only sideways. Chips on
+	# the chunks' seam, on a column's seam (x -19.2) and where both meet, edge-on and flat.
+	var size := ground.tuning.tile_size()
+	var bits: Array[RigidBody3D] = []
+	for at: Vector2 in [Vector2(-17.1, 0.0), Vector2(-19.2, 3.0), Vector2(-19.2, 0.0), Vector2(-6.0 * size, 0.0)]:
+		for k in 2:
+			var rb := RigidBody3D.new()
+			var cs := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(0.08, 0.036, 0.006)
+			cs.shape = box
+			rb.add_child(cs)
+			rb.mass = 0.01
+			rb.continuous_cd = true
+			if k == 1:
+				rb.rotation = Vector3(0.0, PI * 0.5, 0.0)  # its thin side along x, over the column's seam
+			rb.position = Vector3(at.x, TownLayout.ground_height(at.x) + 0.3, at.y)
+			rb.linear_velocity = Vector3(-0.2, -2.5, 0.0)
+			world.add_child(rb)
+			bits.append(rb)
+	await physics_frames(120)
+	var worst := 0.0
+	for rb in bits:
+		worst = maxf(worst, TownLayout.ground_height(rb.global_position.x) - rb.global_position.y)
+	check(worst < 0.03, "none goes under the slope (worst %.3f m)" % worst)
+
+
+func test_the_slope_s_boxes_don_t_reach_over_a_dug_tile() -> void:
+	# A tile dug just over a chunk's edge (z 0, x -19.2): the next chunk's boxes stop at it.
+	var size := ground.tuning.tile_size()
+	var at := Vector3(-6.5 * size, 0.0, 0.5 * size)
+	ground.take(Vector3(at.x, ground.height_at(at.x, at.z), at.z), 0.6, 0.3)
+	await physics_frames(2)
+	var key := ground.key_at(at.x, at.z)
+	var wrong := 0
+	for p: Vector2 in [Vector2(key.x * size + 0.03, at.z), Vector2((key.x + 1) * size - 0.03, at.z),
+			Vector2(at.x, key.y * size + 0.03), Vector2(at.x, (key.y + 1) * size - 0.03)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not hit.collider is GroundTile:
+			wrong += 1
+	check_eq(wrong, 0, "3 cm inside each of its edges a ray meets the tile, not a box reaching over")
+
+
+func test_a_tile_dug_on_the_rise_starts_as_the_ground_was() -> void:
+	var at := Vector3(-100.0, 0.0, -24.0)
+	var before := ground.height_at(at.x, at.z)
+	check(before > 1.0, "risen ground (%.2f m)" % before)
+	var bank := ground.take(Vector3(at.x, before, at.z), 0.5, 0.3)
+	await physics_frames(2)
+	check(bank > 0.0, "earth came out")
+	check_near(ground.height_at(at.x, at.z), before - 0.3, 0.02, "the hole's 30 cm under the ground there")
+	var off := at + Vector3(1.0, 0.0, 0.0)
+	check_near(ground.height_at(off.x, off.z), TownLayout.ground_height(off.x, off.z), 0.005, "beside it, the ground as it was")
+	var hit := _down(off.x, off.z)
+	check(not hit.is_empty() and absf((hit.position as Vector3).y - TownLayout.ground_height(off.x, off.z)) < 0.02,
+			"and a ray meets it there (%s)" % [hit.get("position")])
+	# Across the dug tile's edge to the chunk's small fields round it: no seam.
+	var size := ground.tuning.tile_size()
+	var key := ground.key_at(at.x, at.z)
+	var missed := 0
+	for i in 40:
+		var x := key.x * size - 0.5 + i * 0.11
+		var h := _down(x, at.z + 1.3)
+		if h.is_empty():
+			missed += 1
+	check_eq(missed, 0, "a ray finds the ground across the tile's edge")

@@ -497,6 +497,12 @@ func _check_balance() -> void:
 	_balance_queued = false
 	if loose or not is_inside_tree():
 		return
+	var t := Prof.start()
+	_balance_now()
+	Prof.stop(&"kit_balance", t)
+
+
+func _balance_now() -> void:
 	var left := get_members().filter(func(m: StructureMember) -> bool: return not m.broken)
 	if left.is_empty():
 		loose = true
@@ -764,6 +770,7 @@ func sit(man: Node3D) -> bool:
 		kg = 80.0
 	_seat_mass = kg * float(definition.get("seat", {}).get("share", 0.75))
 	_seat_member.extra_load = _seat_mass * 9.81
+	mark_dirty(_seat_member.member_id)
 	if man.has_signal(&"fell") and not man.is_connected(&"fell", _on_seated_fell):
 		man.connect(&"fell", _on_seated_fell)
 	settle_soon()
@@ -792,6 +799,7 @@ func _clear_seat() -> void:
 	_seat_mass = 0.0
 	if _seat_member and is_instance_valid(_seat_member):
 		_seat_member.extra_load = 0.0
+		mark_dirty(_seat_member.member_id)
 
 
 ## The chair's gone from under him: he goes down with it (limp, as any man who loses his footing;

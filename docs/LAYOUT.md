@@ -79,7 +79,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+`blast_freeze` (`bf_blast`, `bf_frames`: a stick in the burning spec saloon, every frame timed; its
+README), `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
@@ -384,7 +385,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
-  (`flat_rects`). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (`flat_rects`); west of the store it slopes (the town's `ground`, `TownLayout.ground_height`: height
+  fields by the chunk, the town layout's section "The street's shape"). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
   (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
   `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
   &"ground" (`Ballistics.surface_of`).
@@ -446,6 +448,28 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   out whatever would stand on steps and moves people out of doorways
   (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
   and range views the same way (`_view_move`).
+- **The street's shape** (2026-10-23, issue #325; Sean: "just too perfect"): `streets.main.line` is
+  Main Street's middle, a smooth curve (`TownLayout.street_z(x)`, cubic Hermite in x; `street_point(x,
+  across)`, `street_dir(x)`; `tools/textures/draw_street.py` draws the ruts along the same curve):
+  straight past the saloon and store, a jog north across Market Street (a survey's correction line),
+  then bending gently west, so the far end is out of line with the near. The fronts are set back or
+  forward and turned a degree or two off it (the saloon and store stay as they were); a
+  `StreetDressing/*` entry's `set` overrides the dressing's own settings (each front its height);
+  `StreetDressing/VacantLot` is the empty lot's junk and its board. What follows the street: the
+  waypoints' spine (`street_market` new), the outlaw's `_street_spot`, the ground shader's road
+  (`road_line`, set by `Ground`), stones, grass, sagebrush, prints, the poles and the far wagon, and
+  a point `carry()` finds no lot for (moved across with the street). **The grade** (Sean, 2026-10-23):
+  `ground` in town.json, the same at every z (`TownLayout.ground_height(x)`): flat from the east
+  through the saloon and the store (x -5 on), `fall` 1 m up westward to x -45 (Market Street ~0.75),
+  level by the hotel and bank, `rise` 3 m more out of town (x -51.2 to -153.6). Each building's `at`
+  y is `TownLayout.footing` (the ground under its low corner, its walk included; the uphill side set
+  in by less than its floor: `test_every_building_stands_on_the_ground`); street-level dressing,
+  the lot's junk, the waypoints, the outlaw's spot, the screenshot views, fire flight and the bucket
+  line go by the ground; the building lab's saloon (`Play.ORIGIN`) on its footing. `Ground` makes
+  everything west of x 0 solid slabs a tile wide tilted to the ground, a chunk of 8 tiles at a time, each chunk's
+  slabs shape owners on its column of chunks' body (`_column`), cut round dug tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`); a dug tile's `base`
+  holds the authored height (its `heights` stay above it). `tools/tour.gd`'s store and saloon stops move
+  with them (`laid_out`).
 
 ## src/structures
 
@@ -477,6 +501,28 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **The analysis carried over** (issue #374, 2026-10-25: a stick in the spec saloon froze the game
+  11.6 s here, the settle's 64 rounds each a fresh analysis of 5,150 members): a structure keeps
+  `last_analysis` and `start_analysis()` brings it up to date (`StructuralAnalysis.begin_update`)
+  for the members marked changed since (`mark_dirty(id)`: broken, holed, charred, a man seated on
+  it, a cut's new ends, the ground dug from under it; every path that sets `broken` marks, the
+  fire marks its burning members each `settle_every`), working out again only what the change
+  reaches: the broken member's `touching`, everything they hand load down through
+  (`supported_by`), what lost its last support (`falling`, up through `StructureMember.dependents`)
+  and its neighbours; the rest keep last time's loads (`_received`, by contributor). Full from the
+  top when the graph is new (`infer_supports` → `invalidate_analysis()`), a third of the members
+  changed, every 30th routine check (FireSystem `FULL_CHECK_EVERY`), or `-- --full-analysis`
+  (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
+  rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
+  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 150 a
+  slice); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
+  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also done a slice a frame when built,
+  `queue_check`) goes straight to the slices; a round drops at most `DROP_PER_ROUND` members (whole
+  clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
+  **Batches**: a material's batch rebuilds from its own members (`_batch_members`) within
+  `BATCH_FRAME_MS` a frame (the rest next frame); the shadow-only merge of every batch is plain
+  arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
+  rendering calls off the main thread: they deadlock against a main thread that waits).
   **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
@@ -521,7 +567,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people, water: `douse()` puts out and wets members, a wet one
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
-  clear; `config/fire.tres` via `FireTuning`), `FireFX` (flames, smoke, steam,
+  clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
+  slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
   `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
   **Smoke that knows the buildings** (`SmokeField`, docs/briefs/smoke.md): FireSystem puts a box
   of half-metre cells round each burning building (up to `smoke_fields`), from the ground to 9 m
