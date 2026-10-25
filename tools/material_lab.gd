@@ -8,7 +8,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- --out=DIR \
 ##       [--material=saloon_red,floor,... | --material=all] [--set=SET] [--lights=noon,golden,saloon]
-##       [--views=...] [--no-masks]
+##       [--views=...] [--no-masks] [--no-stains]
 ##   ... -s res://tools/material_lab.gd -- --out=DIR --repeats   # Main Street's neighbour repeats
 ##
 ## --material: the woods under test (MaterialStand.PART_OF's keys), each a run of its own: its parts
@@ -106,6 +106,7 @@ func _run() -> void:
 	var materials: Array = [""]
 	var set := ""
 	var repeats := false
+	var stains := true
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			_out = arg.substr(6)
@@ -122,6 +123,9 @@ func _run() -> void:
 			_masks = false
 		elif arg == "--repeats":
 			repeats = true
+		elif arg == "--no-stains":
+			# The woods as the game draws them today (no member carries the weathering frame).
+			stains = false
 	var pa = load("res://src/art/pixel_art.gd")
 	if set != "":
 		pa.lab = true
@@ -177,6 +181,8 @@ func _run() -> void:
 		stand.material = StringName(mat) if mat != "props" else &""
 		if mat == "interior_square":
 			stand.profiled = false
+		if not stains and "weathered" in stand:
+			stand.weathered = false
 		place.add_child(stand)
 		stand.build()
 		_stand_men(place, men, STAIR_MEN if mat == "stair" else (stand.MEN if interior else MEN))
