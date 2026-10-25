@@ -475,10 +475,7 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
-  (loads down the graph, compression/buckling/bending/joint checks; a hole re-checks only its own
-  member: `recheck` against the last settle while the building stands as worked out, `member_alone`
-  from what rests on it when it's never been; only an overloaded result settles it all;
-  `config/timber.tres` via
+  (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
   `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),

@@ -547,9 +547,9 @@ frozen until Sean names one.
   fights, the careful player down in half. Play: Y the next setup (D+), X again, Z the next variant.
   Sean played D+ (#349): fun, but the frame rate drops; the trial costs what D does (any
   saloon gunfight is ~20 ms here; brief `docs/briefs/more-cores.md`, results `2026-10-24_perf/`).
-  The performance phase step 1 (2026-10-25, #373, `results/2026-10-25_perf/`): a hole re-checks only
-  its member, the fire's grid only when hot, floor marks' drying redrawn once a second: fire 2.02 ->
-  0.15 ms, floor_marks 1.14 -> 0.10, worst 5% of frames 57 -> 41 ms here; merged with
+  The performance phase step 1 (2026-10-25, #373, `results/2026-10-25_perf/`): the fire's grid only
+  when hot, floor marks' drying redrawn once a second (fire 0.34 -> 0.13 ms, floor_marks 1.21 ->
+  0.12; the holes' settles were #375's); merged with
   `claude/gameplay-saloon-cover` (the lab's `--dress=cover`, `tactics.py`; the dress comparison
   still to run, `results/2026-10-24_dress/`). The lab's fights depend on the core's load (carved
   members' shapes swap in when the worker finishes). Next: step 2, the `next session` issue. Traps: `pkill -f`/`ps|grep` kill loops match their

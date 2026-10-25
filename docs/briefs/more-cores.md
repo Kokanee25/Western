@@ -56,13 +56,12 @@ and 16 threads, the Steam Deck 4 and 8, and a typical Steam PC has 6–8 cores. 
      again. Settle only the members near the damage, or move it off the main thread.
    - **`floor_marks` (~1 ms).** Its tick should sleep when nothing's tracked or wet.
    - Both are single-core fixes.
-   - **Done 2026-10-25** (`experiments/gunfight_lab/results/2026-10-25_perf/`): a hole re-checks only
-     its own member (`StructuralAnalysis.recheck`, `member_alone`), the fire's grid is built only
-     while something's hot, and floor marks' drying is redrawn once a second. On the bench's 10
-     fights fire 2.02 -> 0.15 ms, floor_marks 1.14 -> 0.10, the frame 28.7 -> 26.2 ms and its worst
-     5% 57.0 -> 41.4 (this workspace's slower core; at Sean's ~17.0 and ~27 ms). Found on the way:
-     a fight already depends on the core's load (carved members' shapes swap in when the worker
-     thread is done), which step 2 has to fix first.
+   - **Done 2026-10-25** (`experiments/gunfight_lab/results/2026-10-25_perf/`). The holes' settles
+     were fixed by #375's incremental analysis (fire 2.02 -> 0.34 ms on the bench). Then the fire's
+     grid built only while something's hot, and floor marks' drying redrawn once a second: fire
+     0.34 -> 0.13, floor_marks 1.21 -> 0.12. Found on the way: a fight already depends on the core's
+     load (carved members' shapes swap in when the worker thread is done), which step 2 has to fix
+     first.
 
 ## What done looks like
 
