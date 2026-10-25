@@ -48,8 +48,14 @@ and 16 threads, the Steam Deck 4 and 8, and a typical Steam PC has 6–8 cores. 
    pose solve. Anything that touches the scene stays on the main thread (moving nodes, emitting
    events, spawning). Each system's move is its own merge, with its test showing the same results
    in the same seeded fight.
-4. **The two surprises.** Why `fire` costs 1.5–2.8 ms with nothing burning, and why `floor_marks`
-   costs 1 ms. These are likely ticks that should sleep, and they're single-core fixes.
+4. **The two surprises.**
+   - **`fire` (1.5–2.8 ms) with nothing burning.** It's most likely not fire at all.
+     `FireSystem._check_loads` re-settles any building a broken member queued
+     (`StructuralAnalysis`, a few members a frame), and is timed under "fire". In a gunfight,
+     every ball that breaks a board queues the spec saloon, one structure of thousands of members,
+     again. Settle only the members near the damage, or move it off the main thread.
+   - **`floor_marks` (~1 ms).** Its tick should sleep when nothing's tracked or wet.
+   - Both are single-core fixes.
 
 ## What done looks like
 
