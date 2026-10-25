@@ -79,7 +79,8 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+`blast_freeze` (`bf_blast`, `bf_frames`: a stick in the burning spec saloon, every frame timed; its
+README), `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
@@ -473,6 +474,28 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **The analysis carried over** (issue #374, 2026-10-25: a stick in the spec saloon froze the game
+  11.6 s here, the settle's 64 rounds each a fresh analysis of 5,150 members): a structure keeps
+  `last_analysis` and `start_analysis()` brings it up to date (`StructuralAnalysis.begin_update`)
+  for the members marked changed since (`mark_dirty(id)`: broken, holed, charred, a man seated on
+  it, a cut's new ends, the ground dug from under it; every path that sets `broken` marks, the
+  fire marks its burning members each `settle_every`), working out again only what the change
+  reaches: the broken member's `touching`, everything they hand load down through
+  (`supported_by`), what lost its last support (`falling`, up through `StructureMember.dependents`)
+  and its neighbours; the rest keep last time's loads (`_received`, by contributor). Full from the
+  top when the graph is new (`infer_supports` → `invalidate_analysis()`), a third of the members
+  changed, every 30th routine check (FireSystem `FULL_CHECK_EVERY`), or `-- --full-analysis`
+  (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
+  rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
+  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 150 a
+  slice); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
+  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also done a slice a frame when built,
+  `queue_check`) goes straight to the slices; a round drops at most `DROP_PER_ROUND` members (whole
+  clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
+  **Batches**: a material's batch rebuilds from its own members (`_batch_members`) within
+  `BATCH_FRAME_MS` a frame (the rest next frame); the shadow-only merge of every batch is plain
+  arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
+  rendering calls off the main thread: they deadlock against a main thread that waits).
   **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
@@ -517,7 +540,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people, water: `douse()` puts out and wets members, a wet one
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
-  clear; `config/fire.tres` via `FireTuning`), `FireFX` (flames, smoke, steam,
+  clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
+  slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
   `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
   **Smoke that knows the buildings** (`SmokeField`, docs/briefs/smoke.md): FireSystem puts a box
   of half-metre cells round each burning building (up to `smoke_fields`), from the ground to 9 m
