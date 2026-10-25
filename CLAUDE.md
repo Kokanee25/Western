@@ -548,7 +548,14 @@ frozen until Sean names one.
   Sean played D+ (#349): fun, but the frame rate drops; the trial costs what D does (any
   saloon gunfight is ~20 ms here; brief `docs/briefs/more-cores.md`, results `2026-10-24_perf/`).
   Not merged: `claude/gameplay-saloon-cover` (the lab's `--dress=cover`, `tactics.py`; half measured,
-  `results/2026-10-24_dress/`). Next: the performance phase (issue #373). Traps: `pkill -f`/`ps|grep` kill loops match their
+  `results/2026-10-24_dress/`). Next: the performance phase (issue #373).
+- **The threading design** (Fable, 2026-10-25, `claude/perf-threading`; `docs/briefs/more-cores.md`
+  "The review"/"The design"/"The steps", `results/2026-10-25_threading/`): main today is a 20 ms
+  frame here, p95 24, in a D saloon fight (~13 at Sean's); the people's cost is GDScript scene
+  loops (pivot sets, part re-reads, finger strings), not rays (~1.3 ms) nor pure maths (~1.5);
+  physics on its own thread loses the player's shot (`_process`-time queries are refused) and has
+  a rare race; nine ordered steps, each a next-session prompt, gated on `same_fight.py` (the lab's
+  determinism check: the same seeds twice). Waiting on Sean: the order (#378). Traps: `pkill -f`/`ps|grep` kill loops match their
   own command line; merging main mid-run needs `godot --headless --import` before the next game;
   never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
   is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).
