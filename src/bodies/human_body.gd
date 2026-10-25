@@ -965,7 +965,25 @@ func _update_skeleton() -> void:
 ## docs/briefs/skinned-hands.md): after the anatomy's, each resting at his model's own finger
 ## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
 ## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
-var _finger_rig: Array = []
+var _finger_rig: Array[FingerBone] = []
+
+
+## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a
+## string test and a Dictionary walk a bone a frame were ~1 ms of the people's frame; more-cores
+## step 2), and its bend kept until the finger node's angle changes.
+class FingerBone:
+	var bone: int
+	var parent: int
+	var local: Transform3D
+	var fid: StringName
+	var k: int
+	var thumb: bool
+	var sx: float  ## the side's sign
+	var rest: float  ## the relaxed bend (radians)
+	var gain: float  ## the fist's gain on the node's angle
+	var z := NAN  ## the finger node's angle the bend was made for (INF: shot off)
+	var bend := Transform3D.IDENTITY
+	var parent_pose := Transform3D()  ## the parent bone's pose this bone was last set from
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
@@ -990,7 +1008,17 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 		var k := int(bits[3])
 		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
 		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
-		_finger_rig.append({"bone": i, "parent": parent, "local": parent_rest.affine_inverse() * rest, "fid": fid, "k": k})
+		var e := FingerBone.new()
+		e.bone = i
+		e.parent = parent
+		e.local = parent_rest.affine_inverse() * rest
+		e.fid = fid
+		e.k = k
+		e.thumb = bits[1] == "thumb"
+		e.sx = -1.0 if bits[2] == "r" else 1.0
+		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k])
+		e.gain = (FIST_GAIN_THUMB if e.thumb else FIST_GAIN)[k]
+		_finger_rig.append(e)
 		last[fid] = i
 
 
@@ -1010,25 +1038,32 @@ const THUMB_ACROSS_SIGN := -1.0
 
 
 func _pose_fingers() -> void:
-	for e: Dictionary in _finger_rig:
-		var bend := Basis.IDENTITY
+	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
-		if not gone:
-			var node := finger_bones[e.fid][e.k] as Node3D
-			var sx := -1.0 if String(e.fid).ends_with("_r") else 1.0
-			var rest: float = deg_to_rad((RELAXED_THUMB if String(e.fid).begins_with("thumb") else RELAXED_BEND)[e.k])
-			var angle: float = node.rotation.z * (FIST_GAIN_THUMB if String(e.fid).begins_with("thumb") else FIST_GAIN)[e.k]
-			if absf(angle) < rest:
-				angle = sx * rest
-			if String(e.fid).begins_with("thumb"):
-				var lean := deg_to_rad(THUMB_ACROSS)
-				bend = Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
-			else:
-				bend = Basis(Vector3(0, 0, 1), angle)
-		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
+		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
+		var pp := skeleton.get_bone_pose(e.parent)
+		if z == e.z and pp == e.parent_pose:
+			continue  # neither its finger nor what it hangs from moved
+		e.parent_pose = pp
+		if z != e.z:
+			e.z = z
+			e.bend = Transform3D.IDENTITY if gone else Transform3D(_finger_bend(e, z), Vector3.ZERO)
+		var pose: Transform3D = pp * e.local * e.bend
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
 		skeleton.set_bone_pose(e.bone, pose)
+
+
+## A finger bone's bend for its node's angle `z`: the fist's gain, at least the relaxed curl, a
+## thumb's leaning across the fist.
+static func _finger_bend(e: FingerBone, z: float) -> Basis:
+	var angle := z * e.gain
+	if absf(angle) < e.rest:
+		angle = e.sx * e.rest
+	if e.thumb:
+		var lean := deg_to_rad(THUMB_ACROSS)
+		return Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
+	return Basis(Vector3(0, 0, 1), angle)
 
 
 func _process(delta: float) -> void:
