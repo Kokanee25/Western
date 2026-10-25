@@ -2,6 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://cijgr0s11kmo7"
+path.bptc="res://.godot/imported/painted_green_end.png-315d5a9988fb660bd0c38aeff4a38aeb.bptc.ctex"
+path.astc="res://.godot/imported/painted_green_end.png-315d5a9988fb660bd0c38aeff4a38aeb.astc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_r1paint/painted_green_end.png"
+dest_files=["res://.godot/imported/painted_green_end.png-315d5a9988fb660bd0c38aeff4a38aeb.bptc.ctex", "res://.godot/imported/painted_green_end.png-315d5a9988fb660bd0c38aeff4a38aeb.astc.ctex"]
 
 [params]
 

@@ -324,6 +324,11 @@ def reduce(mid, spec, tpm):
     metres = list(spec["metres"])
     rng = np.random.default_rng(sum(map(ord, mid)))
     if kind == "sign":
+        # A white margin the model painted round the board (SHERIFF, run 128) trimmed off first.
+        g = np.asarray(raw.convert("L")).astype(np.float64)
+        rows, cols = np.nonzero(g.mean(1) < 235)[0], np.nonzero(g.mean(0) < 235)[0]
+        if len(rows) and len(cols):
+            raw = raw.crop((cols[0], rows[0], cols[-1] + 1, rows[-1] + 1))
         # The board as the model painted it: its height in metres, its width from its shape.
         metres[0] = round(metres[1] * raw.width / raw.height, 3)
     else:

@@ -2,6 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://0uyobj2512sr"
+path.bptc="res://.godot/imported/painted_green_b1.png-2e0e0e7881fdcefe38e0a7e33294841a.bptc.ctex"
+path.astc="res://.godot/imported/painted_green_b1.png-2e0e0e7881fdcefe38e0a7e33294841a.astc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_r1paint/painted_green_b1.png"
+dest_files=["res://.godot/imported/painted_green_b1.png-2e0e0e7881fdcefe38e0a7e33294841a.bptc.ctex", "res://.godot/imported/painted_green_b1.png-2e0e0e7881fdcefe38e0a7e33294841a.astc.ctex"]
 
 [params]
 

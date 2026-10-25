@@ -2,6 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://gpmgbu5uujj"
+path.bptc="res://.godot/imported/painted_red_b6.png-e5a513eb73a1e8f4b9c0adde0a9b5e03.bptc.ctex"
+path.astc="res://.godot/imported/painted_red_b6.png-e5a513eb73a1e8f4b9c0adde0a9b5e03.astc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_r1paint/painted_red_b6.png"
+dest_files=["res://.godot/imported/painted_red_b6.png-e5a513eb73a1e8f4b9c0adde0a9b5e03.bptc.ctex", "res://.godot/imported/painted_red_b6.png-e5a513eb73a1e8f4b9c0adde0a9b5e03.astc.ctex"]
 
 [params]
 

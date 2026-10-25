@@ -2,6 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
+uid="uid://d3qk1s2ab2cst"
+path.bptc="res://.godot/imported/painted_white_b4.png-d917218ae6eaf827f375672a96055401.bptc.ctex"
+path.astc="res://.godot/imported/painted_white_b4.png-d917218ae6eaf827f375672a96055401.astc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://assets/textures/mlab_r1paint/painted_white_b4.png"
+dest_files=["res://.godot/imported/painted_white_b4.png-d917218ae6eaf827f375672a96055401.bptc.ctex", "res://.godot/imported/painted_white_b4.png-d917218ae6eaf827f375672a96055401.astc.ctex"]
 
 [params]
 
