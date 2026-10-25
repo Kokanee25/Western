@@ -19,7 +19,9 @@ var blood_ml := 5000.0
 ## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
 ## Whether packing holds a bleed too fast to clot on its own (PhysiologyTuning.packing_holds) is
-## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed).
+## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed, the player's
+## PlayerWounds), else a fixed seed: a new generator's own seed is random, and the player's packing
+## held or slipped differently each run of the same fight (more-cores step 2's gate).
 var roll_rng := RandomNumberGenerator.new()
 ## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
 const BALL_RADIUS := 0.0057
@@ -64,6 +66,7 @@ func _init(t: PhysiologyTuning = null, a: Anatomy = null) -> void:
 	tuning = t if t != null else load("res://config/physiology.tres")
 	anatomy = a if a != null else Anatomy.shared()
 	blood_ml = tuning.blood_ml
+	roll_rng.seed = 1
 
 
 ## Take a bullet's path through one segment (an `Anatomy.trace()` result). Returns the ids of

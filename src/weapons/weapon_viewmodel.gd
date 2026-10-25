@@ -47,6 +47,8 @@ var steady_hands := false
 var sway_model := Sway.new(9001)
 
 var _player: Player
+## The gun's dice: a fixed seed unless the gun sets its own before _setup_common (a new
+## generator's own seed is random: a thrown stick's tumble differed each run of the same fight).
 var _rng := RandomNumberGenerator.new()
 var _pose_pos := Vector3.ZERO
 var _pose_rot := Vector3.ZERO
@@ -66,6 +68,10 @@ var _kick_rng := RandomNumberGenerator.new()
 var _climb_left := 0.0
 const CLIMB_TIME := 0.12
 var _cam_base := Vector3.ZERO
+
+
+func _init() -> void:
+	_rng.seed = 1
 
 
 func _setup_common() -> void:
