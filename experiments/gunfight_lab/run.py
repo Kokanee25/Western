@@ -48,7 +48,8 @@ def seeds(spec):
 
 
 def name_of(f):
-    return "{scenario}_{hour}_{weapon}_{style}_{bodies}_s{seed}".format(**f)
+    name = "{scenario}_{hour}_{weapon}_{style}_{bodies}_s{seed}".format(**f)
+    return name + ("_" + f["opening"] if f.get("opening") else "")
 
 
 def matrix(args):
@@ -60,7 +61,8 @@ def matrix(args):
         "bodies": opt(args, "bodies", "studio").split(","),
         "seed": seeds(opt(args, "seeds", "1-6")),
         "variant": [opt(args, "variant", "C")],
-        "opening": [opt(args, "opening", "")],
+        "opening": opt(args, "opening", "").split(","),
+        "fixes": [opt(args, "fixes", "all")],  # variant D's: all, none, a+b, -a (all but a)  # "" (as the arena starts), draw, shoot; several: a,b
     }
     return [dict(zip(keys, combo)) for combo in itertools.product(*keys.values())]
 
@@ -72,8 +74,8 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} max={max} out={out}\nquit\n".format(
-            max=max_s, out=os.path.abspath(rec), **f))
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} max={max} out={out}\nquit\n".format(
+            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
     t0 = time.time()
@@ -137,7 +139,7 @@ def main(argv):
     failed = []
     ports = queue.Queue()
     for i in range(jobs):
-        ports.put(8800 + i)
+        ports.put(int(opt(sys.argv[1:], "port_base", "8800")) + i)
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = [pool.submit(run_one, f, out, ports, max_s, godot) for f in fights]
         for fu in futures:

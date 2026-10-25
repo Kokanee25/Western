@@ -366,12 +366,20 @@ func test_a_man_down_gives_himself_up_when_you_come_and_you_can_arrest_him() -> 
 	kid.global_position = town.places.at(&"street_west")
 	await physics_frames(10)
 	b.relations.provoke(player)
+	# Down and beat: his gun gone as he falls (with it in his hand and unhurt he'd get back up:
+	# variant D's `floored`; whether it fell from his hand was the fall's luck).
+	kid.drop_gun()
 	kid.go_limp()
 	await physics_frames(60 * 10)
 	check(kid.physiology.is_conscious() and b.mood == OutlawBrain.Mood.DOWN, "down, and awake")
 	check(b.mood != OutlawBrain.Mood.SURRENDERED, "lying there with you nowhere near, he hasn't given up")
 	var at := OutlawBrain._lying_at(kid)
-	_put_player(Vector3(at.x + 2.0, kid.global_position.y, at.z), 90.0)
+	# Beside him, two paces off his middle (where he hears you from), whichever way he fell; on the
+	# ground there (the street slopes west of the store).
+	var along := Vector3(at.x - kid.global_position.x, 0.0, at.z - kid.global_position.z)
+	along = along.normalized() if along.length() > 0.05 else Vector3.RIGHT
+	var beside := kid.global_position + along * 0.6 + along.cross(Vector3.UP) * 2.0
+	_put_player(Vector3(beside.x, TownLayout.ground_height(beside.x) + 0.05, beside.z), 90.0)
 	_look_at(at)
 	var gave := await wait_until(func() -> bool: return b.mood == OutlawBrain.Mood.SURRENDERED, 60 * 3)
 	check(gave, "you come up on him and he gives himself up")
@@ -483,7 +491,14 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.colter != null and town.colter.held_gun == null, "the fourth Colter is in town, unarmed for now")
 	check_eq(town.colter.body_model, &"colter_rider_s2_talking", "he is the Studio's colter_rider_s2, talking")
 	check(town.colter.global_position.distance_to(town.places.at(&"livery_front")) < 0.6, "in front of the livery")
+	check(town.miner != null and town.miner.held_gun == null, "the miner is in town, unarmed")
+	check_eq(town.miner.body_model, &"miner_s4_talking", "he is the Studio's miner_s4, talking")
+	check(town.miner.global_position.distance_to(town.places.at(&"assay_front")) < 0.6, "in front of the assay office")
+	check(town.working_girl != null and town.working_girl.held_gun == null, "the working girl is in the saloon, unarmed")
+	check_eq(town.working_girl.body_model, &"working_girl_s2_talking", "she is the Studio's working_girl_s2, talking")
+	check(town.working_girl.global_position.distance_to(town.places.at(&"saloon_window")) < 0.6, "by the saloon's front windows")
+	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])

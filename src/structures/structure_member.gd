@@ -42,6 +42,9 @@ signal damaged
 @export var extra_load := 0.0
 
 var supported_by: Array[StringName] = []
+## The members resting on it (the other way up; set with supported_by by Structure._link), for
+## what a change to it reaches: StructuralAnalysis.begin_update.
+var dependents: Array[StringName] = []
 ## Where it rests on each support (structure space), for how the load comes down.
 var support_points := {}
 ## The contact region with each support (structure space AABB): a member lying along another
@@ -101,6 +104,65 @@ static var voxel_tuning: VoxelDamageTuning
 static var _fresh := {}
 ## Chips lying about, oldest first (untyped: a chip may be freed with its world).
 static var _chips: Array = []
+
+## At rest (drawn in its structure's batch, nothing yet happened to it) a member can be its body
+## alone (docs/briefs/props-scale.md): its mesh and shape nodes are taken out of the tree and kept
+## here, the shape held on the body as a shape owner, so a kit prop of a hundred members is a
+## hundred nodes, not three hundred. Anything that touches it (`realise`) puts them back as built.
+var _rest_mesh: MeshInstance3D
+var _rest_shape: CollisionShape3D
+var _rest_owner := -1
+
+
+## Its mesh node, in the tree or kept aside at rest (what its structure batches).
+func drawn_node() -> MeshInstance3D:
+	return _rest_mesh if _rest_mesh else get_child(0) as MeshInstance3D
+
+
+func resting() -> bool:
+	return _rest_mesh != null
+
+
+## Take its mesh and shape nodes out of the tree (the structure has it in a batch): the body keeps
+## the shape. Only as built: child 0 its mesh, child 1 its shape.
+func rest() -> void:
+	if _rest_mesh or get_child_count() < 2:
+		return
+	var mi := get_child(0) as MeshInstance3D
+	var cs := get_child(1) as CollisionShape3D
+	if mi == null or cs == null or cs.shape == null:
+		return
+	remove_child(mi)
+	remove_child(cs)
+	_rest_mesh = mi
+	_rest_shape = cs
+	_rest_owner = create_shape_owner(self)
+	shape_owner_add_shape(_rest_owner, cs.shape)
+	shape_owner_set_transform(_rest_owner, cs.transform)
+	shape_owner_set_disabled(_rest_owner, cs.disabled)
+
+
+## Its mesh and shape nodes back in the tree, where they were (child 0 and 1), before anything
+## reads or changes them.
+func realise() -> void:
+	if _rest_mesh == null:
+		return
+	var mi := _rest_mesh
+	var cs := _rest_shape
+	_rest_mesh = null
+	_rest_shape = null
+	remove_shape_owner(_rest_owner)
+	_rest_owner = -1
+	add_child(mi)
+	move_child(mi, 0)
+	add_child(cs)
+	move_child(cs, 1)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _rest_mesh:
+		_rest_mesh.free()
+		_rest_shape.free()
 
 
 static func tier_of(member_kind: StringName) -> int:
@@ -171,6 +233,8 @@ func weight(tuning: TimberTuning) -> float:
 
 ## Where it is in the world now (it may be lying in the street as rubble).
 func world_aabb() -> AABB:
+	if _rest_mesh and is_inside_tree():
+		return global_transform * _rest_mesh.transform * _rest_mesh.get_aabb()
 	var box := AABB()
 	var first := true
 	for p: Array in pieces:
@@ -252,6 +316,7 @@ func exit_distance(entry: Vector3, direction: Vector3) -> float:
 ## Record a bullet hole. `exit` is where it came out (world), or null if it stopped inside.
 ## Voxelised, it's carved: a channel of `radius` (a blind one is a pit at `entry`).
 func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
+	realise()
 	if _use_voxels():
 		var to: Vector3 = exit if exit != null else entry
 		carve_hit(entry, to, exit != null, (to - entry).normalized(), radius, 0.0, 0.0)
@@ -268,6 +333,7 @@ func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
 func _draw_holes() -> void:
 	if voxels != null:
 		return  # carved for real
+	realise()
 	var mi := get_child(0) as MeshInstance3D
 	if mi == null:
 		return
@@ -301,7 +367,10 @@ func _draw_holes() -> void:
 func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	if broken:
 		return
+	realise()
 	broken = true
+	if get_parent() is Structure:
+		(get_parent() as Structure).mark_dirty(member_id)
 	Events.noise.emit(at, 40.0, &"glass", null)
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
@@ -424,6 +493,7 @@ func solid_runs(from: Vector3, direction: Vector3) -> PackedFloat32Array:
 ## hits come, so a charge's pellets meet each other's holes); the mesh and collision follow from
 ## the worker threads; chips thrown. Not: a drawn hole, as before.
 func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, radius: float, joules: float, blast: float) -> void:
+	realise()
 	if not _make_voxels():
 		add_hole(entry, to if through else null, radius)
 		return
@@ -448,6 +518,7 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 ## The worker's mesh: drawn and solid as carved. The outside keeps the member's own material; the
 ## carved faces are fresh-cut wood.
 func apply_voxel_mesh(m: Array) -> void:
+	realise()
 	if m.size() < 3 or has_meta(&"snapped") or consumed or pieces.is_empty() or not is_instance_valid(pieces[0][0]):
 		return
 	var mi := pieces[0][0] as MeshInstance3D
@@ -538,6 +609,9 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.collision_layer = Layers.DEBRIS
 		chip.collision_mask = Layers.DEBRIS_MASK
 		chip.mass = maxf(dims.x * dims.y * dims.z * density, 0.002)
+		# It starts inside this member's box (the hole it came out of): free of it, or the physics
+		# shoves it out of the solid it's in, now and then at hundreds of m/s, off the map.
+		chip.add_collision_exception_with(self)
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = dims

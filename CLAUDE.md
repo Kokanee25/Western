@@ -38,7 +38,7 @@ the history in `docs/status/`.
     Rodin portrait route Sean approved 2026-10-14; skill `new-portrait-man`); another route only
     with Sean's OK. Since 2026-10-20 men are made in the Character Studio (`Kokanee25/saltcreek-characters`,
     attach it); its paid calls run on GitHub, not with keys in the session: a request file in its
-    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). The art session judges each new man in the shots and says what's off; the
+    `requests/` pushed to a `claude/studio-*` branch (its CLAUDE.md, "Keys and paid calls"). **Read the Studio's `docs/PLAYBOOK.md` before any character work** (the chain into the game, `tools/to_game.sh`, and every fault met). The art session judges each new man in the shots and says what's off; the
     characters session fixes him.
   - **Gameplay:** everything else (people's minds and bodies, weapons, structures, fire, blast,
     the town, saves, controls, CI).
@@ -285,6 +285,9 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
+- **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
+  motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
 - **src/weapons** — viewmodels, revolver, shotgun, dynamite, the bucket.
 - **src/blast** — overpressure, breaking, the player's wounds.
@@ -308,7 +311,7 @@ python3 tools/bridge.py stop
 **The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
 what each lane had open when it was adopted (2026-10-14).
 
-Latest status entries: `docs/status/2026-10-11_onward.md` (the end of the file). Builds: main is
+Latest status entries: `docs/status/2026-10-25_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
@@ -362,6 +365,23 @@ frozen until Sean names one.
   panel N turns them off; saved as `flipbook_fire`). Then (2026-10-22, Sean's OK to edit FireFX) the
   fire placed through the roof and openings (`WALL_FOOT`, `FLAME_FIRST`). Next: firelight's look
   (step 5), flames less alike, then the painted pass after Gate A. Tools: `flame_views.gd`, `fire_ab.gd`/`.py`, `fire_cost.gd`; view `saloon_fire_inside`.
+- **The light pass** (#318, #321; Sean: "looks too cheap"): the game's light is **B by day, C at
+  night** (Sean's pick; `config/looks/light_game.json` blends them by the sun; 8 cycles game /
+  today / A / B / C; `LightLooks`, `LightGrade`, `LightFinish`). Round 2 (`claude/art-light-pass-2`):
+  - cool deep shade (`ambient_day_cool`), moonlight in at the saloon's door and windows
+    (`MoonWindows`), the lamps' range edges softened;
+  - three painted fronts (`woods/painted_white|red|green`, $0.88 on Actions, Sean's OK);
+  - grime low / bleach high on every building (shader globals `grime_*`, `bleach_*`);
+  - the street's damp, straw and droppings (`StreetWear`).
+  The pictures and the street show only the Studio's men (Sean, 2026-10-24): the saloon table's
+  man `bold_cowboy_s3_talking` in a kit chair (`ShotMatch.FITS`, his hat not yet), the extras and
+  folk `ShotMatch.STUDIO_FOLK`; HumanBody's default `outlaw` remains for anything unset.
+  The day starts at noon held (T runs it), 7 the hour, Backspace restarts. The critic's next:
+  - the saloon too black at night with blown lamp blobs;
+  - the ruts read as straight rail grooves;
+  - the facades grey under the cool grade (warm the lit wood back).
+  Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
+  lavapipe wait ~5 s after a clock jump before a screenshot.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -409,6 +429,12 @@ frozen until Sean names one.
   four men (widow, bold_cowboy_s3, young_drifter, doctor) the jaw goes back more than down
   (`talking_face.py`'s spline extrapolation: carry the units by the warp's derivative, rebuild
   them); Sean's three takes (`docs/FACE_TAKES.md`) to tune it; issue #247.
+- **New townsfolk from the Studio** (2026-10-24, #360, build 2412): the miner (assay office, a
+  one-off), the storekeeper and the working girl (the saloon's front windows), talking faces and
+  hands. Open: the storekeeper's chin holes and the edge pin at hair (`docs/briefs/face-seam.md`).
+  **Props by Rodin** (prop lab's files, Sean's ask): the deer head from Sean's pictures (#361) and
+  the steer skull on the saloon's porch beam (pictures by the Studio's `prop-pictures`), on
+  `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $50.01 of $55.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -458,6 +484,37 @@ frozen until Sean names one.
   painted (#258; factory `bar_cloth`, reduce.py `whole`). Mopping (#282, build 2165): `FloorMarks`
   (tracked mud, wet patches, stains), `MopProp`, `MopBucket`, `MopFloor` (`CivilianBrain.chores`).
   Waiting on Sean: both films (in the PRs). Next: issue #293.
+- **Movement** (2026-10-23, #303, build 2216; `experiments/movement_feel/`): `PlayerMotion` (steps,
+  lean, dips, the gun with the body) and momentum; presets light/middle/heavy on F
+  (`config/movement/`), the game middle; stairs and steps climbed (`Player._step_up`, #313;
+  `stair_check.gd`). Waiting on Sean: #304 (his pick of the three), #308 (the deer head over the
+  street saloon's stair).
+- **The street's shape** (2026-10-23, street 1 of 4, issue #325, PR #332, merged 2026-10-25): the
+  street's middle a curve with a jog at Market Street (`TownLayout.street_z`), fronts off the ruler,
+  an empty lot, the ground graded (`ground`: flat from the store east, a metre up to Market Street,
+  then 3 m out of town; buildings on footings; the slope tilted solid boxes, `Ground.LAP`); LAYOUT.md
+  "The street's shape"; `experiments/street_shape/`. Next: street 3 of 4, #327.
+- **Old buildings** (2026-10-23, #326, PR #330, build 2278): `BuildingAge` wears each building by
+  its years in `config/town.json` (sag, lean, boards gone and patched, shutters, worn steps;
+  `config/building_age.tres`; `-- --young-town` builds it new). Goldens not re-approved yet: issue
+  #331, after light pass round 2 (#329).
+- **Props that scale** (2026-10-24, #357, brief `docs/briefs/props-scale.md`): a batched member is
+  its body alone at rest (`StructureMember.rest`/`realise`, every structure; read its mesh with
+  `drawn_node()`), the street ~31,700 -> ~16,000 nodes; kit props at rest drawn per 20 m cell
+  (`PropBatch`); `perf_bench --clutter=4` (four times the kit props, `tools/prop_clutter.gd`): draws
+  3,501 -> 2,653, lavapipe render 6.3 -> 4.75 ms, inside the guards (nodes now 24,000). Next: the
+  freight wagon in #332's lot once it merges; a resting prop's tick (~0.25 ms at 4x) if it grows.
+- **The blast freeze** (2026-10-25, issue #374, branch `claude/gameplay-blast-freeze`; lab
+  `experiments/blast_freeze/`): Sean's 20 s pause (dynamite mid-fight in the burning spec saloon)
+  was the settle: 64 rounds, each a fresh analysis of all 5,150 members, to snap one (11.6 s on one
+  frame here). Now a structure's analysis is carried over and brought up to date for what changed
+  (`StructuralAnalysis.begin_update`, `Structure.start_analysis`/`mark_dirty`), a settle runs on a
+  frame budget and hands the rest to the fire's slices, drops are capped a round, batches rebuild
+  on a budget and the shadow merge runs on a worker: the stick's frame 11,599 -> 241 ms here
+  (~160 at Sean's), the same cuts, pieces and broken set; `tests/test_settle_incremental.gd`.
+  Left for #373: `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
+  response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
+  stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -476,15 +533,36 @@ frozen until Sean names one.
   Next: fix 3, windows (its "next session" issue); smoke waits for the smoke branch's `transmittance()`.
 - The labs (2026-10-21, brief `docs/briefs/labs.md`; roadmap 3.0, 3.1b, 3.3a): a lab's bridge
   commands go in its own `experiments/<lab>/bridge.gd` (`BridgeLab`; LAYOUT.md "The dev bridge").
-- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): bench, baseline and three fixes,
-  now the gang's variants (`OutlawBrain.Variant`; the game plays A): B aims by the hand (`GunHand`,
-  `Sway`), reacts and finds the town's cover; C also shaken first. Playable: Y/X/Z, nine blind runs
-  in the saloon (`play.gd`, `PLAYTEST.md`; issue #257 for Sean), each man's decision and why on F3.
-  The bot's A/B/C (`results/2026-10-22_abc/`): the saloon is a quick draw in every variant. With the
-  perception lab's fix 1 (`results/2026-10-22_perception/`): no leak, but cover dropped on arrival
-  doubles. Next: cover against the same guess he chose it by, and cover in the saloon. Traps: wounds
-  bleed on the day clock's time scale; `pkill`/`ps|grep` kill loops match their own command line; a
-  `.gd` copy under `build/` with a `class_name` shadows the real class.
+- The gunfight lab (3.0; `experiments/gunfight_lab/README.md`): since 2026-10-23 **in the new saloon**
+  (the building lab's; `spec_*` setups: hall, stair, galleries, back, front; `spec_saloon.gd` joins
+  its 48 places to the town's; the batwings walkable). **Fights that commit** (#257, Sean: "kept
+  quitting"): variant D, the game's default since build 2230 (#309): you shooting first, A -> D, the
+  first quit 1.4 -> 3.8 s, Brody quits 76% -> 38%, Lyle 78% -> 32%, the Kid first to go. The
+  night's round (`claude/gameplay-gunfight-longer`, 14 fixes in `OutlawBrain.D_FIXES`, each measured
+  in `results/2026-10-23_commit/`): rescue and pressing by the town's ways, one man pressing on your
+  reload, a knee under fire, staying in while a friend's on you, a rattled hand: 45-90 s of
+  shooting 4% -> 14-16%; blind playtests round 2 and night (`docs/playtests/2026-10-23-gunfight*.md`):
+  they fight, never fold, and finish a slow player in seconds. **The trial** (2026-10-24, Sean's
+  consolidated review; `results/2026-10-23_expAB/`): `pain_fight`, `floor_fight`, `odds` (1C),
+  `flinch` (3A), `way_cost` (B), off in the game, on in the lab's Y ("D+"); the saloon's partition
+  doors fixed; a `careful` scripted player: shooting 15-17 -> 36 s median, 45-90 s in a third of
+  fights, the careful player down in half. Play: Y the next setup (D+), X again, Z the next variant.
+  Sean played D+ (#349): fun, but the frame rate drops; the trial costs what D does (any
+  saloon gunfight is ~20 ms here; brief `docs/briefs/more-cores.md`, results `2026-10-24_perf/`).
+  #373 (2026-10-25, `results/2026-10-25_perf/`): the fire's grid only when something's hot, floor
+  marks' drying redrawn once a second (fire 0.34 -> 0.13 ms, floor_marks 1.21 -> 0.12; the holes'
+  settles were #375's); `claude/gameplay-saloon-cover` merged with it (the lab's `--dress=cover`,
+  `tactics.py`; the dress comparison still to run, `results/2026-10-24_dress/`).
+- **The threading design** (Fable, 2026-10-25, `claude/perf-threading`; `docs/briefs/more-cores.md`
+  "The review"/"The design"/"The steps", `results/2026-10-25_threading/`): main today is a 20 ms
+  frame here, p95 24, in a D saloon fight (~13 at Sean's); the people's cost is GDScript scene
+  loops (pivot sets, part re-reads, finger strings), not rays (~1.3 ms) nor pure maths (~1.5);
+  physics on its own thread loses the player's shot (`_process`-time queries are refused) and has
+  a rare race; nine ordered steps, each a next-session prompt, gated on `same_fight.py` (the lab's
+  determinism check: the same seeds twice). Sean: the order as written (#378); next, step 1 (#380). Traps: `pkill -f`/`ps|grep` kill loops match their
+  own command line; merging main mid-run needs `godot --headless --import` before the next game;
+  never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
+  is one fight a game; the native plugin builds here (`cargo build --release`, ~3 min).
 - The sound lab (`experiments/sound_lab/`, brief `docs/briefs/sound-lab.md`; what the player hears):
   bench and baseline (#246, the ten worst in `baseline/baseline.md`), then five changes measured each
   against it (`results/2026-10-22_*`): `GameAudio` places every sound (late by distance, the air, the
@@ -493,10 +571,14 @@ frozen until Sean names one.
   breaking placed and a voice limit (#269); fire by size and footsteps. `--old-sound` is the before.
   Waiting on Sean: his ears and snap-or-whirr for a .45 ball (#264). Next: people's steps, the
   `GlassProp` shatter placed (prop lab's), an ambience bed, recorded sounds only if synthesis falls short.
-- The gun lab (2026-10-22, `experiments/gun_lab/`, #248): bench and baseline (`baseline/baseline.md`:
-  19 things wrong, the handling numbers; quick views `views.gd`). Next: the hands (WIP on
-  `claude/gameplay-gun-hands`: `HeldHand`, the grip's rake fixed), then the reloads, a man's gun
-  (use the gunfight lab's `GunHand`). Waiting on Sean: #249 (paint the gun metals).
+- The gun lab (`experiments/gun_lab/`; bench and baseline #248). The hands (#322): `HeldHand` is
+  Sean's Studio man's skinned arm. **The guns remade** (2026-10-24, `results/2026-10-24_remake/`,
+  brief `gun-remake.md`): both rebuilt in Blender and painted (`blender/guns_blender.py`,
+  `assets/weapons/<gun>.glb`), the coach gun with a pistol grip, a standard view and sights; the
+  arms painted in the men's hand and smooth (`blender/arm_blender.py`, `held_arm_skin.png`); blind
+  judge: new CLOSE in all four pairs. Sean's $3: $2.11 spent. Sean: the hold "still looks like
+  shit": **next, the rig posed by eye** (`docs/briefs/viewmodel-rig.md`; targets
+  `assets/textures/guns/hold_game_*.jpg`); the `next session` issue.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
@@ -524,12 +606,39 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
+- Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
+  Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
+  `horse_rodin.py`, `Horse`), tack apart (slid back 12 cm, `SADDLE_BACK`), an idle, capsules, tied
+  at the street's rails. Next: #341 (hit and going down, cover, spooking).
+- **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
+  `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
+  targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,
+  `-- --moment=NAME`), the Uthana clips in `assets/animations/` by
+  `tools/blender/retarget_motion.py` (#342, build 2338); 20 runs: Earl on his back 16/20 on the clips, 20/20 pose to
+  pose (`experiments/card_cheat/results/2026-10-24/`, films). Waiting on Sean: the kick (every
+  generated one is high and forward). Then (Sean, the same day): `WalkStyles`/`HumanBody.walk_clip`
+  (`config/walks.json`), the barkeep's `wipe_bar`/`mop_floor` clips under his deeds, moments
+  `walks_lineup` and `trough_scoop` (#358, build 2394); films `experiments/motion_films/results/2026-10-24/`. **Uthana
+  bills ~$0.50 a prediction** (the ledger had read $0.0001/s off its page: ~$20 spent against
+  Sean's $10, #347); the four other walks wait on his word. Next: the player's ways out and the
+  room (the `next session` issue #344).
+
 **Prop lab** (branch `claude/prop-lab-…`; brief `docs/briefs/prop-lab.md`, may edit `src/props/`,
 `assets/props/`):
 - The inventory of every prop is in `docs/PARTS.md` "Props". The kit (`assets/props/kit/`,
-  `PropKit`/`KitProp`/`GlassProp`): in the game the chair, card table, bottle and oil lamp (#232,
-  build 2011); on the branch, in_game: the barrel, crate and bar stool; the wall props hung on nails
-  (deer head, painting, sconce: `"hangs"`); the fixtures fitted to their place (`PropKit.fit`:
-  counter, shelves, table, trough; the buildings' furnishings and `WaterTrough` built of them); the
-  upright piano. The ragdoll lab tests men in the kit chair (how he falls is theirs). Next: issue
-  #281 (what the props hold: full barrels that leak; the spittoon and tin cup).
+  `PropKit`/`KitProp`/`GlassProp`/`LooseProp`): every one of the 12 drawn props in the game as the
+  kit's (#232, #280); the wall props hung on nails; the fixtures fitted to their place; the piano.
+  **What the props hold** (2026-10-23, branch `claude/prop-lab-contents`, issue #281): `PropContents`
+  (full barrels: their weight, leaks by Torricelli, slots, jets, spills on the bus, oil catching;
+  kit files `like` another: `whiskey_barrel`, `water_barrel`, `oil_barrel`), the saloon's two whiskey
+  barrels and the street's water ones; the spittoon and tin cup as `LooseProp` (holed, knocked,
+  dented, rolling, spilling). Results `experiments/prop_lab/results/2026-10-23_contents/`. Next: the
+  `next session` issue.
+- **The prop factory** (2026-10-24, #338, brief `docs/briefs/prop-factory.md`; branch
+  `claude/start-338-k3qk4h`): clutter in batches. Batch 1 the wagons and wheels as members
+  (`tools/props/wagons.py`; the street's two drawn wagons swapped); batch 2 by Blender
+  (`tools/blender/props/`, bpy in `~/bpyenv`; `"draw": {"shape": "mesh"}`): hay bale, straw heap, feed
+  and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
+  canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
+  Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.

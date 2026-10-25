@@ -26,6 +26,7 @@ func _ready() -> void:
 	recorder.name = "BugRecorder"
 	add_child(recorder)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var play := "res://experiments/gunfight_lab/play.gd"  # Y/X/Z: the three gunmen, played (if the lab's here)
 	if ResourceLoader.exists(play):
@@ -36,6 +37,9 @@ func _ready() -> void:
 	panel.name = "LookPanel"
 	add_child(panel)
 	LookPreset.apply_from_args.call_deferred(get_tree())  # --look=FILE
+	var looks := LightLooks.new()  # 8: the light pass's looks, today / A / B / C
+	looks.name = "LightLooks"
+	add_child(looks)
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -103,6 +107,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_surface_blocks(not Settings.surface_blocks)
 	elif event.is_action_pressed(&"debug_probe_mosaic"):
 		Settings.set_probe_mosaic(not Settings.probe_mosaic)
+	elif event.is_action_pressed(&"reset_game"):
+		GameReset.reset(get_tree())
 
 
 func _exit_tree() -> void:

@@ -27,6 +27,8 @@ means a section of this file.
 - [src/fire](#srcfire)
 - [src/bodies](#srcbodies)
 - [src/people](#srcpeople)
+- [src/creatures (the horse)](#srccreatures-the-horse)
+- [src/moments](#srcmoments)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -77,15 +79,20 @@ constant (name -> help line) and a `_cmd_<name>(a: Array) -> Dictionary` for eac
 The bridge loads every lab's file at start (folders in name order), lists them in `help` (with
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
-`breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+`blast_freeze` (`bf_blast`, `bf_frames`: a stick in the burning spec saloon, every frame timed; its
+README), `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
-scripted player, its record), `gf_cover`, `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`;
-`run.py` runs the matrix a game a fight, `analyse.py` makes the tables, `sheet.py` the contact
-sheet; `play.gd` (added by `main.gd` when the folder's there) lets you play it: Y/X/Z, the saloon,
-A/B/C, runs to `user://gunfight_runs/` (`PLAYTEST.md`).
+scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
+`gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
+sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
+its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
+play it: Y the next setup in the new saloon, X again, Z the next variant, runs to
+`user://gunfight_runs/` (`PLAYTEST.md`).
 
 ## The playtest
 
@@ -307,6 +314,28 @@ a few views renders them as the full run does.
   (median L*, deep-shadow and highlight shares, chroma–L* correlation) are the check, not the
   judge's score, until judge v2.
 
+**The light pass's looks** (issues #318, #321, `docs/screenshots/light_pass/`): `LightLooks`
+(`light_looks.gd`, a node `main.gd` adds). **The game's light** (Sean, #321) is B by day and C at
+night: `config/looks/light_game.json` names the two and the sun heights between which every dial
+they set is blended (`night_share`; the sky's dials stay day's; the grade steps in four lookups,
+cached). **8** cycles the game's / today's old / A / B / C (`--light-look=game|today|a|b|c` for a
+run). Moving the clock re-blends: a bridge `set` before a `time` is overwritten (set after it).
+Round 2's parts: the noon fill's colour (`DayCycleConfig.ambient_day_cool`, `ambient_day_colour`:
+cool shade); `MoonWindows` (`src/art/moon_windows.gd`: a soft cool spot inside the saloon's door
+and windows, strength by the moon's, `moon_window_*`); grime and sun on upright texel-grid faces by
+world height (shader globals `grime_amount|height|tint`, `bleach_amount|from|to`); `StreetWear`
+(`src/art/street_wear.gd`, `config/street_wear.json`: damp ground round troughs and rails via the
+ground's `damp_spots`/`damp_dark`, straw and droppings as two MultiMeshes); the saloon's lamps'
+range edges were the floor's curved shapes (soft with `attenuation`, `lamps.saloon_hanging|wall`).
+The looks' files apply `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
+the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
+(street colour), SSAO, `grade.*` (`LightGrade`: a 16-cube lookup on the environment's colour
+correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
+environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
+carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
+by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
+back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
+
 ## The look panel
 
 - **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
@@ -315,8 +344,8 @@ a few views renders them as the full run does.
   a time-of-day slider, Save (`user://looks/<name>.json`), Export (the preset to the clipboard),
   Load, Reset. `LookPreset` (`src/debug/look_preset.gd`) sets and reads every value by address
   (`day.`, `env.`, `sun.`/`moon.`, `sky.`/`ground.`/`backdrop.` shader uniforms, `lamps.<all|street|
-  saloon>.<energy|light_range|haze>` multipliers, `building.<id>.night_ambient|room_haze`,
-  `mosaic.`, `paint.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
+  saloon>[_hanging|_wall].<energy|light_range|haze|attenuation>` multipliers, `building.<id>.night_ambient|room_haze`,
+  `mosaic.`, `paint.`, `grade.`, `finish.`, `settings.`, `global.`, `hour`); a preset is `{"name", "hour", "values":
   {address: value}}`. **`--look=FILE`** after `--` applies one to any run of the main scene (the
   game, `tools/screenshots.gd`, the dev bridge): `xvfb-run -a godot --path . --rendering-driver
   vulkan -s res://tools/screenshots.gd -- --look=sean.json --only=shot_match`.
@@ -326,20 +355,38 @@ a few views renders them as the full run does.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
+  clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
+  lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
 
 ## src/player
 
 - `src/player/` — controller, visible body, tuning resource (`config/player_tuning.tres`),
   `PlayerComposure` (flinch, rattled, winded; the guns read `sway_scale()`/`extra_spread()`).
+- `PlayerMotion` (`player_motion.gd`): how the body carries the eyes and the gun, stepped by the
+  Player each physics frame: steps (a footfall each: the footstep sound and noise, the head's low
+  and thud, the legs), lean into strafes, turns and pushes off, a landing's dip, the crouch's
+  spring, a winded heave; the gun's lag and step ride (`hand_turn` joins the sway, `hand_pos` the
+  pose: `WeaponViewmodel._body_pos()`). Momentum is `Player._momentum` (along the way: accel,
+  `run_build`, decel, `reverse_decel`; across it `turn_grip`). Presets `config/movement/light|middle|
+  heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
+  (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
+  `experiments/movement_feel/` (measure, films).
 
 ## src/world
 
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
-  placeholder scenery.
+  placeholder scenery. The day starts at noon with the clock **held** (`hold_clock`, Sean 2026-10-23:
+  "daytime stays daytime"; `DayCycle.held`: `advance` doesn't move it, `time_scale` stays, since
+  bleeding runs on it); T: held -> x1 -> x30 -> x180 -> held; `set_time_scale` (soak, labs, bridge)
+  lets it run; 7 jumps through `hour_stops` (noon, 15:30, 17:36, 21:30). The high sun's dials
+  ("High sun" in the config: `exposure_day`, `ambient_sky_day`, `sky_high_*`, `fog_high_sun`) scale
+  by `get_high_sun()`; at their defaults the light is as it was.
 - `Ground` (`src/world/ground.gd`, `config/ground.tres`; brief `docs/briefs/dig-ground.md`): the street's
   ground (the scene's `Ground` node). Undug it's flat at y 0: deep box slabs (out to `reach_half`) and
   one mesh (to `drawn_half`, the old plane's 600 m), the ground less its dug tiles cut into rectangles
-  (`flat_rects`). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
+  (`flat_rects`); west of the store it slopes (the town's `ground`, `TownLayout.ground_height`: height
+  fields by the chunk, the town layout's section "The street's shape"). A dug tile is a `GroundTile`: its own StaticBody3D with a 65x65 `HeightMapShape3D`
   (5 cm cells, scaled), the hardpan box 2 m down, and a grid mesh in the ground's material.
   `height_at(x, z)`, `dug_tile(key)`; `Ground.is_ground(collider)` and every part carries `surface`
   &"ground" (`Ballistics.surface_of`).
@@ -374,7 +421,8 @@ a few views renders them as the full run does.
   it on the boards; `Events.liquid_spilled` lays a film; `age(hours)` (from `DayCycle.pass_hours`, or
   real time in a lab) dries it and soaks part in. `add_dirt`, `add_liquid`, `take(at, radius, share)`
   (what a mop lifts, with Blood's marks: `Blood.take`), `mess(at, radius)`, `dirty_cells`. Drawn as a
-  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change. Prof
+  Decal a 4 m chunk (32 px, scaled up bilinear x4), redrawn when its cells change (what the clock
+  dries, at most once a second: `AGE_REDRAW`; a dry cell or a jump of hours at once). Prof
   `floor_marks` (Structures). The water lab's spills will move its liquid cell to cell.
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
@@ -400,6 +448,28 @@ a few views renders them as the full run does.
   out whatever would stand on steps and moves people out of doorways
   (`StreetDressing.on_steps`/`out_of_doorway`); `tools/screenshots.gd` moves its store, saloon
   and range views the same way (`_view_move`).
+- **The street's shape** (2026-10-23, issue #325; Sean: "just too perfect"): `streets.main.line` is
+  Main Street's middle, a smooth curve (`TownLayout.street_z(x)`, cubic Hermite in x; `street_point(x,
+  across)`, `street_dir(x)`; `tools/textures/draw_street.py` draws the ruts along the same curve):
+  straight past the saloon and store, a jog north across Market Street (a survey's correction line),
+  then bending gently west, so the far end is out of line with the near. The fronts are set back or
+  forward and turned a degree or two off it (the saloon and store stay as they were); a
+  `StreetDressing/*` entry's `set` overrides the dressing's own settings (each front its height);
+  `StreetDressing/VacantLot` is the empty lot's junk and its board. What follows the street: the
+  waypoints' spine (`street_market` new), the outlaw's `_street_spot`, the ground shader's road
+  (`road_line`, set by `Ground`), stones, grass, sagebrush, prints, the poles and the far wagon, and
+  a point `carry()` finds no lot for (moved across with the street). **The grade** (Sean, 2026-10-23):
+  `ground` in town.json, the same at every z (`TownLayout.ground_height(x)`): flat from the east
+  through the saloon and the store (x -5 on), `fall` 1 m up westward to x -45 (Market Street ~0.75),
+  level by the hotel and bank, `rise` 3 m more out of town (x -51.2 to -153.6). Each building's `at`
+  y is `TownLayout.footing` (the ground under its low corner, its walk included; the uphill side set
+  in by less than its floor: `test_every_building_stands_on_the_ground`); street-level dressing,
+  the lot's junk, the waypoints, the outlaw's spot, the screenshot views, fire flight and the bucket
+  line go by the ground; the building lab's saloon (`Play.ORIGIN`) on its footing. `Ground` makes
+  everything west of x 0 solid slabs a tile wide tilted to the ground, a chunk of 8 tiles at a time, each chunk's
+  slabs shape owners on its column of chunks' body (`_column`), cut round dug tiles (`_rise_area`, `_make_chunk`, one `RiseMesh`); a dug tile's `base`
+  holds the authored height (its `heights` stay above it). `tools/tour.gd`'s store and saloon stops move
+  with them (`laid_out`).
 
 ## src/structures
 
@@ -414,6 +484,12 @@ a few views renders them as the full run does.
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
   it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
   per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
+  batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
+  kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
+  them back as child 0 and 1 before anything reads them (`unbatch`, `add_hole`, `carve_hit`,
+  `shatter`, the voxel mesh). Read a member's mesh with `drawn_node()`, never `get_child(0)`,
+  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes.
   **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
   it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
   is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and
@@ -422,6 +498,28 @@ a few views renders them as the full run does.
   group `fallen` (DEBRIS under 0.6 m, else WORLD) and falls; a lamp in it landing at 1.5 m/s or
   more `smash`es (burning oil). Painted signs are the sign member's children and go with it;
   loose bodies and invisible things (a stair's ramp) aren't fittings. Not saved yet.
+  **The analysis carried over** (issue #374, 2026-10-25: a stick in the spec saloon froze the game
+  11.6 s here, the settle's 64 rounds each a fresh analysis of 5,150 members): a structure keeps
+  `last_analysis` and `start_analysis()` brings it up to date (`StructuralAnalysis.begin_update`)
+  for the members marked changed since (`mark_dirty(id)`: broken, holed, charred, a man seated on
+  it, a cut's new ends, the ground dug from under it; every path that sets `broken` marks, the
+  fire marks its burning members each `settle_every`), working out again only what the change
+  reaches: the broken member's `touching`, everything they hand load down through
+  (`supported_by`), what lost its last support (`falling`, up through `StructureMember.dependents`)
+  and its neighbours; the rest keep last time's loads (`_received`, by contributor). Full from the
+  top when the graph is new (`infer_supports` → `invalidate_analysis()`), a third of the members
+  changed, every 30th routine check (FireSystem `FULL_CHECK_EVERY`), or `-- --full-analysis`
+  (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
+  rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
+  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 150 a
+  slice); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
+  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also done a slice a frame when built,
+  `queue_check`) goes straight to the slices; a round drops at most `DROP_PER_ROUND` members (whole
+  clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
+  **Batches**: a material's batch rebuilds from its own members (`_batch_members`) within
+  `BATCH_FRAME_MS` a frame (the rest next frame); the shadow-only merge of every batch is plain
+  arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
+  rendering calls off the main thread: they deadlock against a main thread that waits).
   **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
@@ -448,13 +546,26 @@ a few views renders them as the full run does.
   balusters (kind `baluster`, tier 5) on the floor under each or on given `posts` (a stair's
   treads), the rail on them in spans of up to 1.2 m (trim), level or sloped; the saloon's balcony
   and stair rails and the lab's 1 m railing (group Q) are built of it.
+  **Old buildings** (`BuildingAge`, dials `config/building_age.tres`; issue #326): `age_years` on a
+  `FalseFrontBuilding` or `Boardwalk` (town.json's `set`, or `age` on a StreetDressing entry) wears it,
+  seeded by its id and build seed (nothing saved). `alter` (before `infer_supports`): rough boards
+  gone or rotted short (never one a trim hangs on, never left on nothing: `remove_built`), a stretch
+  of one wall in newer boards (`WoodMaterials.newer`), shutters on side and back windows (members
+  resting on the siding), porch boards gone, a plank replaced, a step cracked in two (`.../a`,
+  `/b`). `settle_in` (after): fields move members (`reshape`: whole onto the chord of where its
+  ends go, body and collision with it, drawn bent by `MemberMesh.warped` where it bends): the porch
+  sags span by span and racks, the ridge sways, the false front leans out above the roofline; then
+  `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
+  framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
+  untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
 
 ## src/fire
 
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people, water: `douse()` puts out and wets members, a wet one
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
-  clear; `config/fire.tres` via `FireTuning`), `FireFX` (flames, smoke, steam,
+  clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
+  slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
   `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
   **Smoke that knows the buildings** (`SmokeField`, docs/briefs/smoke.md): FireSystem puts a box
   of half-metre cells round each burning building (up to `smoke_fields`), from the ground to 9 m
@@ -525,8 +636,15 @@ a few views renders them as the full run does.
   surrenders; a moment to react to a fight he didn't start, then draws; past his nerve behind
   cover he's shaken first, `_shaken_holds`: head down for up to `shaken_seconds`, breaking only if
   it doesn't pass or he's `shaken_margin` past it; fear settles `fear_settle_in_cover` there;
-  `variant`, the gunfight lab's A/B/C: A the game's default (a random cone, cover within a step),
-  B the hand, the reaction and the town's cover, C shaken too; `decision`, what he last decided and
+  `variant`, the gunfight lab's A/B/C/D: A the old default (a random cone, cover within a step),
+  B the hand, the reaction and the town's cover, C shaken too, D fights that commit (`D_FIXES`:
+  noise is `fright`, fading, at most a share of his nerve; aimed at frightens only before a fight;
+  a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
+  a green man's quitting barely counts; the long way round to cover; `_thump`; knocked down he
+  gets up; hunting, rescuing and pressing by the town's ways; no standing down while a friend's
+  on you; a knee in the open under fire; one man `press`es on your reload, the rest cover him);
+  `fear_from`, his
+  fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
@@ -545,6 +663,39 @@ a few views renders them as the full run does.
   of a person's lights under `light_cap` × his own colour (top channel; `light_knee` where it
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
+
+**Clips of motion** (`src/bodies/motion_clip.gd`, `MotionClip`; `assets/animations/<name>.json`,
+its README): each segment's turn a sample (quaternions), the root's travel and the hips' height in
+the clip's start frame (he faces -z; his turning in the clip is in his pelvis's turn), marks
+(`events`: `strike`, `draw`, the strike's `reach_m`, `kick_height_m`, `kick_dir`, where his hips
+are then), and `strikes` (parts that hit what they meet). `HumanBody.play_clip(name, speed, loop,
+{travel: false})` plays one as the targets his pose follows: every joint the clip has leads
+(a flinch, a wound's lean, a stumble stay on top), its travel goes through `_slide` and
+`_snap_to_ground` like a step, a swung part's sweep (between ticks too) meets a kit prop's member
+through `KitProp.take_blow` (`clip_struck`), `go_limp` ends it; `clip_done`, `clip_event` at the
+marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
+`tools/blender/retarget_motion.py` (docs/MOCAP.md): any humanoid glTF (Uthana's, Mixamo-named;
+FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
+(`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
+the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
+name; glTF of our rig beside each for the record.
+
+## src/moments
+
+**Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
+situation from data, `config/moments/<name>.json` (who, where, the hour, the clips, the lines, the
+timings; `script` names the moment's own class), played out by the systems. Started by the dev
+bridge (`moment NAME [key=value]`, `moment_result [wait [S]]`) or at launch with `-- --moment=NAME`
+(`Moment.maybe_start`, from `main.gd`); `result()` says what happened, `reset()` takes its people
+and props back out and puts a whole chair back. **The card cheat** (`card_cheat.gd`, `CardCheat`):
+Earl sat back at the saloon's front card table in the chair whose back faces the door (posed first,
+his weight on the seat half a second on), Cody in from `saloon_door` on `walk_angry` (steered;
+`walk_to` if a wall stops the clip's travel), onto a mark and a line worked out from the kick clip's
+strike marks so the boot's mid-swing is the right back post (`reach_k` 0.65 of its reach; pose to
+pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the clip's mark or
+45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
+nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
+(N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
 
 ## src/people
 
@@ -623,6 +774,42 @@ a few views renders them as the full run does.
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
   before the lab (its "before" from one build). Measured by `experiments/sound_lab/`.
 
+## src/creatures (the horse)
+
+- `src/creatures/horse.gd` — `Horse`, the town's only animals (never targets: DESIGN.md §5). Loads
+  `assets/creatures/horse/horse.glb` (a Skeleton3D of 39 bones, the meshes `coat`, `coat_lod`,
+  `saddle`, `blanket`, `bridle`, `reins`, `saddlebags`, `tack_lod`, the 12 s animation `idle`) and
+  draws every mesh in the men's skin shader (`Horse.material`, HeldHand's way: `use_uv`, uv_scale 1);
+  near meshes to `FAR` (26 m), the far ones past it. The idle loops, each horse at his own phase and
+  pace from where he stands (so a shot repeats). `body`: a StaticBody3D on `Layers.WORLD` with ten
+  capsules (barrel, quarters, neck, head, each leg's parts; `horse.json`'s `capsules`, from
+  `horse_shape.capsules`) that follow their bones every
+  `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
+  a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
+  ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
+  Model space: head at -X, his right -Z, ground y = 0.
+- `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
+  Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
+  turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail
+  by its paint) into `horse_shape`'s landmarks (`set_legs`...); its own paint baked as the coat. Without
+  `--shape`, the sculpt:
+- `tools/blender/horse.py` (pip bpy, ~40 s, ~80 s when the sculpt changes; `--blend` keeps
+  `build/horse/horse.blend`): Sean's pictures (`docs/concept/horse/`) read by `horse_ref.py` (cut out
+  by colour, 454 px a metre, each view's place); the sculpt (`horse_shape.py`: the body, neck and
+  head lofted from his side outline, legs, ears, muscles and tail as round cones and ellipsoids,
+  in a signed distance field, marching cubes at 1 cm, cached by a hash of the code and pictures),
+  decimated to 2,900 + a 477-triangle LOD, laid out by parts (`horse_uv.py`), baked (position, the
+  sculpt's normals, occlusion) and painted by projecting the four pictures onto him
+  (`horse_paint.projected`: each texel from the pictures that face it and see it, by a depth test;
+  `--paint=rules` the old rule-painted bay); the tack laid on the sculpt's surface, painted by rule; the
+  skeleton and weights (`horse_shape.bones`, `weights`: by distance, kept to each part's side and
+  region, crisp below the knees and hocks); the idle (`horse_idle.py`: dials over 12 s, the planted
+  hooves solved two bones at a time). Writes `horse.glb`, `horse_coat.png` (1024), `horse_coat_lod.png`
+  (256), `horse_tack.png` (512), `horse.json` (counts, bones, the bit's rings, the toes, capsules).
+- The street (`StreetDressing._horse`) ties each horse to its named rail's bar; `_rail` keeps a
+  rail clear of steps and doors point by point and cuts it to its longest clear stretch.
+- Tests `tests/test_horse.gd`; shots `docs/screenshots/horse/`.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
@@ -631,6 +818,14 @@ a few views renders them as the full run does.
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
+  The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
+  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
+  (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
+  (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
+  lab's `blender/guns_blender.py`: bevelled, the side painting baked) each part takes its Blender mesh
+  (`GunParts.blender_meshes`), else factory paintings (`GunParts._painted`). Next: a rig posed by eye
+  (`docs/briefs/viewmodel-rig.md`) in place of the fitted hold.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
@@ -772,6 +967,13 @@ a few views renders them as the full run does.
 
 ## The texture factory (tools/textures)
 
+- **Painted sidings** (the light pass round 2, Sean #321, $0.88): `material_lab.json` set
+  `studio10p` uses `paint_woods.py`'s `new_woods` (a wood painted from another's boards: whitewash,
+  barn red, pale green, ochre from `store_boards`; run on Actions, `people.yml` `textures:
+  mlab:studio10p`), cut here (`--cut`, needs scipy) and promoted (`promote_woods.py`) as
+  `woods/painted_white|red|green` (the ochre left out: a painted border). A building takes one by
+  `front_wood` (town.json's `set`, `StreetDressing.BUILDINGS`); a new wood also needs its row in
+  `ballistics_tuning`, `timber_tuning`, `voxel_damage_tuning`.
 - **The material lab** (roadmap 1.4a, brief `docs/briefs/material-lab.md`): `tools/material_lab.gd`
   puts `MaterialStand` (`src/art/material_stand.gd`: wall, post and beam, deck, steps, boards at
   their real sizes, every cut end in end grain, no neighbour repeats) out west of town with the
@@ -902,9 +1104,27 @@ a few views renders them as the full run does.
   going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
   dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
-  chair goes loose, its seat breaks or it's knocked from under him). Meshes it draws are indexed
+  chair goes loose, its seat breaks or it's knocked from under him). At rest (footed) it joins its
+  world's `PropBatch` (`src/props/prop_batch.gd`, a child of the topmost Node3D, the street): the
+  resting props in each 20 m cell drawn as one mesh a material and one far-lamp shadow, joined from
+  their own batches (`batch_nodes()`), non-indexed so a prop that `leave`s (any `unbatch`, moved,
+  hidden, freed, rebuilt) has its stretch zeroed in place (`mesh_surface_update_vertex_region`)
+  and its own batches shown; only materials that read the same in any mesh's space join
+  (`PropBatch.joins`: the texel grid's UV and world mappings, weathering only where the mesh has no
+  CUSTOM0). Off in Compatibility and with `-- --no-prop-batch`. Meshes it draws are indexed
   (a structure's batch keeps the first mesh's indices: a non-indexed one after an indexed draws
   nothing). The bench: `experiments/prop_lab/` (README).
+
+- **The prop factory** (`docs/briefs/prop-factory.md`): props in batches. Families written as kit
+  files by generators (`tools/props/wagons.py`: the wheels and wagons, every wheel built down the
+  tier ladder so it stands on its rim); organic shapes made in Blender (`~/bpyenv/bin/python
+  tools/blender/props/build.py [--only=]`; bpy 5.0.1 on Python 3.11 via `uv venv -p 3.11` and `uv pip
+  install bpy==5.0.1 numpy`; `common.py`: geometry in game space, UVs in metres, a part an object)
+  into `assets/props/models/<id>.glb` (then `godot --headless --import`, commit the `.import`), drawn
+  on members by `"draw": {"shape": "mesh", "model", "part", "at", "rot"}` (`PropKit.model_part`) or a
+  loose prop's `"model": "glb:<id>"` + `looks`. Lathes and sweeps take `"at"`/`"rot"` (onto any axis).
+  Contact sheets: `python3 experiments/prop_lab/factory_sheet.py --ids=a,b --out=DIR` (the lab's
+  bridge `prop ID X Y Z [YAW]`: before the saloon, a townsman beside, noon and 21:30).
 
 - **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
   `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over
@@ -914,6 +1134,23 @@ a few views renders them as the full run does.
   (FireSystem.fire_near); shattering: shards of its `glass` meshes, its `whole` groups as pieces,
   GlassCuts, the glass noise; a lamp's `OilLamp` children smashed (their hitboxes off: the prop is
   the hitbox), else `Events.liquid_spilled(at, liquid, litres, source)`.
+- **What a prop holds** (`PropContents`, `src/props/prop_contents.gd`; a KitProp whose file has `holds`
+  and `contents`, made in `KitProp._ready`): litres, the level from the inside's shape (a table of
+  litres by height), `kg()` in `KitProp.mass`; `leaks` from members' `damaged` (a through-hole's outer
+  end: an orifice, `flow` by Torricelli) and `Events.member_broken` (a side gone: a slot); each tick
+  while one runs, the level falls, the jets (`Jets`, an ImmediateMesh of crossed strips along each
+  parabola) are redrawn every 3 frames, and every 0.5 s each leak's litres go on the bus where it
+  lands (`landing`); `on_loose` (from `KitProp.go_loose`): one body, sides whole, it rides in it (its
+  mass added; `_burst` when that body breaks up), else `release` (the lot, round where it stood).
+  Idle (no physics process) till it leaks. Kit files `like` another (`PropKit.definition` lays theirs
+  over it): `whiskey_barrel`, `water_barrel`, `oil_barrel` are the barrel full.
+- **Loose rigid props** (`LooseProp`, `src/props/loose_prop.gd`, extends GlassProp; kit `"kind": "loose"`:
+  the spittoon, the tin cup): GlassProp's standing, footing, waking and blast throw; `shatter` means
+  struck hard (a dent), `_on_bullet_hit` holes (`Mark` quads, both sides via `_far_side`) and knocks
+  it by the momentum the ball lost (`bullet_hit`'s `mass`, energy before and after), `take_blow(at,
+  impulse, blow_mass)`, `dent` (copies the model's meshes, vertices pushed in a smooth dish),
+  `_spill` (tipped past `spills_below`, or holed under its contents' `level`); no `_heat`. A
+  `"shape": "cylinder"` fit body (GlassProp) so it rolls; `roll_damp` its angular damping.
 - **Props that are cloth** (`ClothProp`, `src/props/cloth_prop.gd`; kit `"kind": "cloth"`, made by
   `PropKit.make`; the bar rag `bar_cloth.json`): a `SoftBody3D` grid (`points`, UVs in metres, layer
   0, mask WORLD | BODY_PARTS | DEBRIS); `hold(man, side)` pins the points within `grip_radius` of
@@ -1142,6 +1379,10 @@ brows come along; not near the eyes, `EYE_FADE`), his face cut out and MakeHuman
 his paint copied texel by texel (lids from outside his painted eye), teeth set back behind his
 lips; `EXPRESSIONS` (units and amounts) → `assets/people/<out>.glb` (one head mesh, sparse
 morph targets), `<out>_head.png` (his + the face's), `<out>.json` (`facerig`, `textures_from`).
+The patch's outer edge is pinned onto his skin (2026-10-23, `docs/briefs/face-seam.md`: unpinned
+it sat up to 27 mm off and the stitch stood as a step); the run prints and `facerig.patch` keeps
+`edge_unpinned_mm` and `edge_mm_max`. `hole_count.py DIR --map=OUT`: background showing through
+inside him on the face lab's frames, with magenta maps (hat brims and hair gaps count too).
 In the game the shapes ride `PeopleBodies._load` → `BodyMesh.split_pieces` onto `Head_head`.
 `face_lab.gd` (via `lab_run.sh`): him as the game builds him; `--mode=sheet` each expression,
 `--mode=take` a take frame by frame; `face_sheet.py` the sheet. `arkit_take.py`: a Live Link

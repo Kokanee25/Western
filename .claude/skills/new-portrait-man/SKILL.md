@@ -5,6 +5,8 @@ description: Make a new man (character, cowboy, townsperson, NPC face) for Salt 
 
 # A new man in the approved look
 
+**First read the Studio's `docs/PLAYBOOK.md`** (how to work, the whole chain, every fault met).
+
 **Since 2026-10-20 new men are made in the Character Studio** (repo `Kokanee25/saltcreek-characters`:
 its `CLAUDE.md` and `docs/BRIEF.md`); attach it if the session has only the game. Every Studio
 man so far (the sheriff, the doctor, the Colter, the barkeep, the widow...) was made there and sent

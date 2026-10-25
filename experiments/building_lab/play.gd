@@ -6,8 +6,11 @@ extends RefCounted
 ##
 ##   load("res://experiments/building_lab/play.gd").build(street)   # -> the building
 
-## Where it stands, in the street's space (the boardwalk along its front, the door at x +7.62).
-const ORIGIN := Vector3(-72.0, 0.0, 26.0)
+## Where it stands, in the street's space (the boardwalk along its front, the door at x +7.62): on
+## the town's ground under its low (east) corner, which slopes out here (config/town.json ground;
+## its uphill side set into it by less than its floor's 0.78 m). The F5 stop
+## (`DebugSpawns/SpecSaloon`, in town.json) stands on its walk.
+static var ORIGIN := Vector3(-72.0, 0.0, 26.0) + Vector3.UP * TownLayout.footing(Transform3D(Basis(), Vector3(-72.0, 0.0, 26.0)), 16.44, 17.07)
 
 
 static func build(street: Node3D) -> Node3D:

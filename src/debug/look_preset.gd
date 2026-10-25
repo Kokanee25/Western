@@ -19,19 +19,24 @@ class_name LookPreset
 ## - `sky.<uniform>`: the sky's shader (sky.gdshader)
 ## - `ground.<uniform>`: the ground's shader (ground.gdshader)
 ## - `backdrop.<uniform>`: every ring of the painted backdrop (backdrop.gdshader)
-## - `lamps.<group>.<energy|light_range|haze>`: a multiplier over every OilLamp in the group (all,
-##   street, saloon) on the value it was built with
+## - `lamps.<group>.<energy|light_range|haze|attenuation>`: a multiplier over every OilLamp in the group (all,
+##   street, saloon; each with _hanging or _wall for those of them that hang or not:
+##   saloon_wall, all_hanging) on the value it was built with
 ## - `building.<structure_id>.<night_ambient|room_haze>`: a building's night fill and room haze
 ## - `mosaic.<knob>`: the screen mosaic's knobs (DepthMosaic.KNOB_DEFAULTS, block_in, block_out)
 ## - `paint.<key>`: HumanBody.paint_look on every painted person
+## - `grade.<dial>`: the colour grade (LightGrade: split tone, orange pull, saturation, contrast)
+## - `finish.<dial>`: vignette, grain, heat shimmer (LightFinish)
 
 const DIR := "user://looks"
-const LAMP_PROPS := ["energy", "light_range", "haze"]
+const LAMP_PROPS := ["energy", "light_range", "haze", "attenuation"]
 
 ## What every address read before anything set it this run (the panel's Reset goes back to it).
 static var defaults := {}
 ## The lamp multipliers in force (they aren't a property anywhere to read back).
 static var _lamp_scale := {}
+## Shader globals set this run (read back from here: the renderer's own read is slow).
+static var _globals := {}
 
 
 ## Set one value by its address. False if the address names nothing in this scene.
@@ -59,12 +64,13 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 				settings.emit_signal(&"changed")
 		"global":
 			RenderingServer.global_shader_parameter_set(StringName(key), v)
+			_globals[key] = v
 		"env":
 			environment(tree).set(key, v)
 		"day":
 			var clock := _clock(tree)
 			clock.config.set(key, v)
-			clock.set_time(clock.time_of_day)  # applied now
+			clock.apply_visuals()  # applied now (not set_time: that announces the hour again)
 		"sun", "moon":
 			_light(tree, group).set(key, v)
 		"sky", "ground", "backdrop":
@@ -85,7 +91,7 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 					c.set_meta(&"night_ambient", v)
 				elif prop == "room_haze" and c is FogVolume and (c as FogVolume).material is FogMaterial:
 					((c as FogVolume).material as FogMaterial).density = v
-			_clock(tree).set_time(_clock(tree).time_of_day)
+			_clock(tree).apply_visuals()
 		"mosaic":
 			DepthMosaic.tuning[key] = v
 			for m in tree.root.find_children("DepthMosaic", "", true, false):
@@ -99,6 +105,10 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 			HumanBody.paint_look[StringName(key)] = v
 			for m in _paint_materials(tree):
 				m.set_shader_parameter(StringName(key), v)
+		"grade":
+			return LightGrade.set_dial(tree, key, v)
+		"finish":
+			return LightFinish.set_dial(tree, key, v)
 		_:
 			return false
 	return true
@@ -118,7 +128,11 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 		"global":
 			if not ProjectSettings.has_setting("shader_globals/" + key):
 				return null
-			var g: Variant = RenderingServer.global_shader_parameter_get(StringName(key))
+			if _globals.has(key):
+				return _globals[key]
+			# Not global_shader_parameter_get: it waits on the render thread ("should never be used
+			# outside the editor") and the light looks read these while blending.
+			var g: Variant = null
 			# The headless renderer keeps no globals: project.godot's value then.
 			return g if g != null else (ProjectSettings.get_setting("shader_globals/" + key) as Dictionary).get("value")
 		"env":
@@ -153,6 +167,10 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 			return DepthMosaic.KNOB_DEFAULTS.get(key)
 		"paint":
 			return HumanBody.paint_look.get(StringName(key))
+		"grade":
+			return LightGrade.dials.get(key)
+		"finish":
+			return LightFinish.dials.get(key)
 	return null
 
 
@@ -176,6 +194,8 @@ static func uniform_default(shader: Shader, name: String) -> Variant:
 		var f: Array[float] = []
 		for n in nums:
 			f.append(float(n))
+		if type == "vec2":
+			return Vector2(f[0], f[1] if f.size() > 1 else f[0])
 		while f.size() < 3:
 			f.append(f[0] if not f.is_empty() else 0.0)
 		return Color(f[0], f[1], f[2], f[3] if f.size() > 3 else 1.0)
@@ -190,9 +210,12 @@ static func uniform_default(shader: Shader, name: String) -> Variant:
 static func apply(tree: SceneTree, preset: Dictionary) -> PackedStringArray:
 	var missed := PackedStringArray()
 	var values: Dictionary = preset.get("values", {})
+	LightGrade.batching = true  # the grade's dials together, one lookup
 	for address: String in values:
 		if not set_value(tree, address, values[address]):
 			missed.append(address)
+	LightGrade.batching = false
+	LightGrade.apply(tree)
 	if preset.has("hour"):
 		set_value(tree, "hour", preset.hour)
 	return missed
@@ -317,7 +340,12 @@ static func _lamps(tree: SceneTree, group: String) -> Array[OilLamp]:
 				in_saloon = true
 				break
 			p = p.get_parent()
-		if group == "all" or (group == "saloon") == in_saloon:
+		# saloon_hanging, saloon_wall, street_hanging...: the place, then hanging lamps or the rest.
+		var place := group.get_slice("_", 0)
+		var kind := group.get_slice("_", 1) if group.contains("_") else ""
+		if kind != "" and (kind == "hanging") != lamp.hanging:
+			continue
+		if place == "all" or (place == "saloon") == in_saloon:
 			out.append(lamp)
 	return out
 
@@ -361,6 +389,9 @@ static func _typed(value: Variant, like: Variant) -> Variant:
 		return Color(a[0], a[1], a[2], a[3] if a.size() > 3 else 1.0)
 	if like is Color and value is String:
 		return Color(value)
+	if like is Vector4 and value is Array:
+		var a4: Array = value
+		return Vector4(a4[0], a4[1], a4[2], a4[3] if a4.size() > 3 else 1.0)
 	if like is Vector3 and value is Array:
 		return Vector3(value[0], value[1], value[2])
 	if like is Vector2 and value is Array:
@@ -389,6 +420,8 @@ static func plain(v: Variant) -> Variant:
 		return (v as Array).map(plain)
 	if v is Color:
 		return [snappedf(v.r, 0.0001), snappedf(v.g, 0.0001), snappedf(v.b, 0.0001), snappedf(v.a, 0.0001)]
+	if v is Vector4:
+		return [v.x, v.y, v.z, v.w]
 	if v is Vector3:
 		return [v.x, v.y, v.z]
 	if v is Vector2:

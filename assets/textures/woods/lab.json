@@ -186,6 +186,42 @@
    "end_texels": 256,
    "promoted_from": "mlab_studio_int/dark_oak",
    "regraded_from": "int_oak, median L* 24.2 -> 33.0"
+  },
+  "painted_white": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "painted_white_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10p/painted_white",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
+  },
+  "painted_red": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "painted_red_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10p/painted_red",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
+  },
+  "painted_green": {
+   "boards": 10,
+   "rows": 72,
+   "length": 768,
+   "texels_per_metre": 384.0,
+   "end": "painted_green_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_studio10p/painted_green",
+   "edge_aa": 1.0,
+   "specular": 0.08,
+   "light_bands": 4.0
   }
  },
  "weathering": {

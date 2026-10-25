@@ -24,6 +24,15 @@ const CONTACT_EPSILON := 0.012
 ## of them). A member leaves the batch for good the moment anything happens to it (a hole, heat,
 ## breaking): its own mesh shows again and the batch is rebuilt without it.
 @export var batch_meshes := true
+## Members drawn in a batch are their bodies alone till something happens to them
+## (StructureMember.rest: their mesh and shape nodes out of the tree): a building's or a kit
+## prop's hundred members are a hundred nodes, not three hundred (docs/briefs/props-scale.md).
+@export var rest_batched := true
+## Off for every structure (`-- --no-member-rest`: the bench's before).
+static var members_rest := not "--no-member-rest" in OS.get_cmdline_user_args()
+## How long it has stood (years): 0 as built. Older, it shows it (BuildingAge: sagging, leaning,
+## boards gone and patched, worn steps), the same way every load.
+@export var age_years := 0.0
 
 ## StringName -> StructureMember
 var members := {}
@@ -38,8 +47,32 @@ const CUT_CHUNK := 0.3
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
 var tuning: TimberTuning
-## The last settle's analysis, for debugging (F3 / tests).
+## The last analysis of it, kept and brought up to date for what's changed since (start_analysis);
+## F3 and tests read it.
 var last_analysis: StructuralAnalysis
+## Members changed since last_analysis (id -> true): broken, holed, charred, loaded, added, or the
+## ground gone from under them. `start_analysis` works these out again, and what their loads reach.
+var _dirty := {}
+## last_analysis is of this support graph (false once the graph is worked out anew).
+var _analysis_valid := false
+## Analyses carried over and brought up to date (StructuralAnalysis.begin_update); off, every one
+## is done from the top (`-- --full-analysis`: the before for the blast-freeze lab, and the check).
+static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
+## A settle that has run this long (ms) on one frame hands the rest to the FireSystem's slices
+## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
+const SETTLE_FRAME_MS := 6.0
+## A building of more members than this with no analysis yet has its first done a slice a frame
+## (a budgeted settle hands it on), never on the frame that broke it.
+const SLICED_ABOVE := 1500
+## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
+## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
+const SETTLE_DIRTY_NOW := 48
+## An analysis in progress with more members than this still to do isn't finished on a budgeted
+## settle's frame either.
+const SLICE_LEFT := 300
+## What falls in one round, at most (members; whole clumps): the rest the next round, so a floor
+## of hundreds coming down is a few frames' rubble, not one frame's.
+const DROP_PER_ROUND := 40
 var _settle_pending := false
 var _sound_cooldown := 0.0
 var _rng := RandomNumberGenerator.new()
@@ -48,7 +81,19 @@ var _shape_cache := {}
 var _batches := {}
 ## StructureMember -> the Material of the batch it's drawn in.
 var _batched := {}
+## Material -> the members in its batch (the other way round, so a rebuild reads its own, not all).
+var _batch_members := {}
+## Material -> its batch's mesh arrays, kept for the shadow mesh (merged off the main thread).
+var _batch_arrays := {}
 var _batch_dirty := {}
+## The shadow mesh (every batch merged) is built on a worker thread, at most every
+## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
+## 60 ms on the main thread for the spec saloon, every frame something broke, 2026-10-25).
+const SHADOW_REBUILD_GAP := 1.0
+var _shadow_task := -1
+var _shadow_wanted := false
+var _shadow_last := -INF
+var _shadow_result: Array = []
 ## One shadow-only mesh of every batched member, for far lamps' shadows alone (Layers.VIS_WALLS):
 ## the batches are a material each (each wood's board strips, ~45 on the saloon), and a far lamp
 ## drew all of them in each of its shadow passes. The sun and near lamps still take theirs from
@@ -65,6 +110,10 @@ var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
 const BATCH_REBUILD_GAP := 0.5
+## Batches are rebuilt until this much of a frame (ms) is spent; the rest wait a frame (a fallen
+## board's copy stands in its batch that frame longer: a collapse dirtied a dozen materials a frame,
+## 65 ms, 2026-10-25).
+const BATCH_FRAME_MS := 6.0
 
 
 func _ready() -> void:
@@ -72,6 +121,25 @@ func _ready() -> void:
 	tuning = StructuralAnalysis.load_tuning()
 	rebuild()
 	Events.ground_changed.connect(_on_ground_changed)
+	if _order.size() > SLICED_ABOVE:
+		# A big building's first analysis now, a slice a frame (the fire's routine look), so the
+		# first thing to break it finds one to carry over, not every member to work out.
+		_first_look.call_deferred()
+
+
+func _first_look() -> void:
+	if not is_inside_tree() or _analysis_valid:
+		return
+	var fire := FireSystem.find(get_tree())
+	if fire:
+		fire.queue_check(self)
+
+
+func _notification(what: int) -> void:
+	# A shadow mesh still building on a worker writes to this object when it's done: not after it's gone.
+	if what == NOTIFICATION_PREDELETE and _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+		_shadow_task = -1
 
 
 ## The ground was dug (Ground, docs/briefs/dig-ground.md): a member standing on it (a post, a sill)
@@ -98,6 +166,7 @@ func _on_ground_changed(area: Rect2) -> void:
 				break
 		if not held:
 			m.grounded = false
+			mark_dirty(m.member_id)
 			lost = true
 	if lost:
 		settle_soon()
@@ -112,7 +181,9 @@ func rebuild() -> void:
 	_panes_of = -1
 	_rng.seed = build_seed
 	build()
+	BuildingAge.alter(self)  # what the years broke and replaced: the graph is worked out with it
 	infer_supports()
+	BuildingAge.settle_in(self)  # how it has settled: a look, after the graph
 	_batch_all()
 
 
@@ -169,18 +240,29 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	add_child(m)
 	m.pieces = [[mi, cs]]
 	m.damaged.connect(unbatch.bind(m))
-	m.damaged.connect(_on_member_damaged)
+	m.damaged.connect(_on_member_damaged.bind(m))
 	members[id] = m
 	_order.append(m)
 	return m
 
 
+## Take a member out again before the support graph is worked out (BuildingAge: a board long gone).
+func remove_built(m: StructureMember) -> void:
+	invalidate_analysis()
+	members.erase(m.member_id)
+	_order.erase(m)
+	_panes_of = -1
+	m.free()
+
+
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
 func infer_supports() -> void:
+	invalidate_analysis()
 	_by_stack.clear()
 	var boxes := {}
 	for m in _order:
 		boxes[m] = m.structure_aabb()
+		m.dependents.clear()  # before any linking: the others' links fill it
 	for m in _order:
 		m.supported_by.clear()
 		m.support_points.clear()
@@ -214,6 +296,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 			and other_box.position.y < box.position.y - CONTACT_EPSILON
 	if other_tier < tier or beneath:
 		m.supported_by.append(other.member_id)
+		other.dependents.append(m.member_id)
 		var contact := grown.intersection(other_box)
 		m.support_points[other.member_id] = contact.get_center()
 		m.support_boxes[other.member_id] = contact
@@ -263,7 +346,7 @@ func _batch_all() -> void:
 		return
 	var groups := {}
 	for m in _order:
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		# Glass stays its own (see-through, no shadow); so does anything already hidden (a sign
 		# member under its painted board) or drawn its own way.
 		if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
@@ -275,6 +358,7 @@ func _batch_all() -> void:
 		(groups[mat] as Array).append(m)
 		_batched[m] = mat
 		mi.visible = false
+	_batch_members = groups
 	# Unbatched members (holed, burning) are walls to a far lamp too (OilLamp).
 	for m in _order:
 		var own := m.get_child(0) as MeshInstance3D
@@ -283,24 +367,29 @@ func _batch_all() -> void:
 	for mat in groups:
 		_build_batch(mat)
 	_build_shadow()
+	if rest_batched and members_rest:
+		for m: StructureMember in _batched:
+			m.rest()
 
 
 func _build_batch(mat: Material) -> void:
 	var old: MeshInstance3D = _batches.get(mat)
 	var st := SurfaceTool.new()
 	var any := false
-	for m: StructureMember in _batched:
-		if _batched[m] != mat:
-			continue
-		var mi := m.get_child(0) as MeshInstance3D
+	for m: StructureMember in _batch_members.get(mat, []):
+		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
 		any = true
 	if not any:
 		if old:
 			old.queue_free()
 		_batches.erase(mat)
+		_batch_arrays.erase(mat)
 		return
-	var mesh := st.commit()
+	var arrays := st.commit_to_arrays()
+	_batch_arrays[mat] = arrays
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	if old == null:
 		old = MeshInstance3D.new()
 		old.name = "Batch"
@@ -314,10 +403,12 @@ func _build_batch(mat: Material) -> void:
 ## heating, a member at a time all over a burning building): its batch is rebuilt without it at
 ## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
 func unbatch(m: StructureMember, soon := false) -> void:
+	m.realise()
 	if not _batched.has(m):
 		return
 	var mat: Material = _batched[m]
 	_batched.erase(m)
+	(_batch_members.get(mat, []) as Array).erase(m)
 	_batch_dirty[mat] = true
 	var mi := m.get_child(0) as MeshInstance3D
 	if soon:
@@ -339,10 +430,18 @@ func _rebuild_dirty_batches() -> void:
 	_rebuild_timed = false
 	if not is_inside_tree() and _batch_dirty.is_empty():
 		return
-	for mat in _batch_dirty:
+	var t := Prof.start()
+	var t0 := Time.get_ticks_usec()
+	for mat in _batch_dirty.keys():
 		_build_batch(mat)
-	_batch_dirty.clear()
-	_build_shadow()
+		_batch_dirty.erase(mat)
+		if (Time.get_ticks_usec() - t0) / 1000.0 > BATCH_FRAME_MS and not _batch_dirty.is_empty():
+			# The rest next frame.
+			_rebuild_queued = true
+			get_tree().physics_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
+			break
+	Prof.stop(&"batches", t)
+	_shadow_soon()
 	for m: Variant in _show_after:
 		if is_instance_valid(m) and (m as StructureMember).get_child_count() > 0:
 			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
@@ -352,29 +451,102 @@ func _rebuild_dirty_batches() -> void:
 	_last_rebuild = Time.get_ticks_msec() / 1000.0
 
 
+## The shadow mesh now, on this thread (the build; tests).
 func _build_shadow() -> void:
-	var st := SurfaceTool.new()
-	var any := false
-	for mat in _batches:
-		var mi: MeshInstance3D = _batches[mat]
-		if is_instance_valid(mi) and mi.mesh and not mi.is_queued_for_deletion():
-			st.append_from(mi.mesh, 0, mi.transform)
-			any = true
-	if not any:
+	_set_shadow(_merge_batches(_batch_arrays.values()))
+
+
+## One set of mesh arrays of them all (vertices, normals, indices; empty for none). Pure data, no
+## rendering calls: runs on a worker (a worker asking the rendering server for a mesh's arrays
+## waits on the main thread, which deadlocks the moment the main thread waits on the worker).
+## The batches sit at the structure's origin, so their vertices need no moving.
+static func _merge_batches(parts: Array) -> Array:
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var indices := PackedInt32Array()
+	for arrays: Array in parts:
+		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var n: Variant = arrays[Mesh.ARRAY_NORMAL]
+		var idx: Variant = arrays[Mesh.ARRAY_INDEX]
+		var base := verts.size()
+		verts.append_array(v)
+		if n is PackedVector3Array:
+			normals.append_array(n)
+		if idx is PackedInt32Array:
+			for i: int in idx:
+				indices.append(i + base)
+		else:
+			for i in v.size():
+				indices.append(base + i)
+	if verts.is_empty():
+		return []
+	var out: Array = []
+	out.resize(Mesh.ARRAY_MAX)
+	out[Mesh.ARRAY_VERTEX] = verts
+	if normals.size() == verts.size():
+		out[Mesh.ARRAY_NORMAL] = normals
+	out[Mesh.ARRAY_INDEX] = indices
+	return out
+
+
+func _set_shadow(arrays: Array) -> void:
+	if arrays.is_empty():
 		if _shadow and is_instance_valid(_shadow):
 			_shadow.queue_free()
 		_shadow = null
 		return
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	if _shadow == null or not is_instance_valid(_shadow):
 		_shadow = MeshInstance3D.new()
 		_shadow.name = "Shadow"
 		_shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 		_shadow.layers = Layers.VIS_WALLS
 		add_child(_shadow, false, Node.INTERNAL_MODE_BACK)
-	_shadow.mesh = st.commit()
+	_shadow.mesh = mesh
+
+
+## The shadow mesh again, soon: on a worker thread, one at a time, at most every
+## SHADOW_REBUILD_GAP; asked again meanwhile, once more when that's done.
+func _shadow_soon() -> void:
+	_shadow_wanted = true
+	if _shadow_task >= 0 or not is_inside_tree():
+		return
+	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - Time.get_ticks_msec() / 1000.0, 0.0)
+	if wait > 0.0:
+		get_tree().create_timer(wait, true, true).timeout.connect(_shadow_start)
+	else:
+		_shadow_start()
+
+
+func _shadow_start() -> void:
+	if _shadow_task >= 0 or not _shadow_wanted or not is_inside_tree():
+		return
+	_shadow_wanted = false
+	_shadow_last = Time.get_ticks_msec() / 1000.0
+	var parts := _batch_arrays.values()  # the arrays themselves are never changed, only replaced
+	_shadow_task = WorkerThreadPool.add_task(func() -> void:
+		_shadow_result = _merge_batches(parts)
+		_shadow_done.call_deferred(), false, "structure shadow mesh")
+
+
+func _shadow_done() -> void:
+	if _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+	_shadow_task = -1
+	if not is_inside_tree():
+		return
+	_set_shadow(_shadow_result)
+	_shadow_result = []
+	if _shadow_wanted:
+		_shadow_soon()
 
 
 func _clear_batches() -> void:
+	if _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+		_shadow_task = -1
+	_shadow_wanted = false
 	if _shadow and is_instance_valid(_shadow):
 		_shadow.free()
 	_shadow = null
@@ -384,6 +556,8 @@ func _clear_batches() -> void:
 			mi.free()
 	_batches.clear()
 	_batched.clear()
+	_batch_members.clear()
+	_batch_arrays.clear()
 	_batch_dirty.clear()
 	_show_after.clear()
 
@@ -395,8 +569,43 @@ func batch_count() -> int:
 
 # --- Standing and falling -----------------------------------------------------------------------
 
-func _on_member_damaged() -> void:
+func _on_member_damaged(m: StructureMember) -> void:
+	mark_dirty(m.member_id)
 	settle_soon()
+
+
+## A member whose loads or strength changed since the last analysis (broken, holed, charred, a man
+## on it, new from a cut, the ground gone under it): the next analysis works it, and what its
+## load reaches, out again. Whatever breaks a member says so here (or the building stands wrong
+## until the fire's next full check).
+func mark_dirty(id: StringName) -> void:
+	_dirty[id] = true
+
+
+## The graph is new (built, or worked out again): the next analysis starts from the top.
+func invalidate_analysis() -> void:
+	_analysis_valid = false
+	_dirty.clear()
+
+
+## An analysis of it as it stands, begun (`advance` to finish it, as FireSystem does a slice a
+## frame): the last one brought up to date for what's changed since (a few dozen members), or
+## from the top when there's no last one, the graph is new, `full` is asked, most of it changed,
+## or `incremental` is off.
+func start_analysis(full := false) -> StructuralAnalysis:
+	if not full and incremental and _analysis_valid and last_analysis != null \
+			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty):
+		_dirty.clear()
+		return last_analysis
+	var t := Prof.start()
+	var a := StructuralAnalysis.new(tuning)
+	a.begin(self)
+	Prof.stop(&"analysis_full_begin", t)
+	last_analysis = a
+	_analysis_valid = true
+	_dirty.clear()
+	return a
+
 
 
 ## Settle soon, once however many times it's asked: in a world with a FireSystem it works
@@ -412,16 +621,38 @@ func settle_soon() -> void:
 
 
 ## Work out the loads again and let whatever can't stand break or fall, until it's stable.
-## Returns the ids that broke or fell.
-func settle() -> Array[StringName]:
+## Returns the ids that broke or fell. Past `budget_ms` on this frame, a FireSystem in the world
+## takes the rest a slice a frame (its queue), so a big collapse costs a few frames, never one long
+## one; without one (tests, the labs' stands) it runs to the end.
+func settle(budget_ms := INF) -> Array[StringName]:
 	_settle_pending = false
 	var changed: Array[StringName] = []
 	if not collapses or not is_inside_tree():
 		return changed
+	var t0 := Time.get_ticks_usec()
+	if budget_ms < INF and ((not _analysis_valid and _order.size() > SLICED_ABOVE) \
+			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
+			or _dirty.size() > SETTLE_DIRTY_NOW):
+		# No analysis of it yet and it's big (the first is every member), one in progress a slice a
+		# frame with much still to do (the fire's routine look), or many changed members waiting: a
+		# slice a frame for this too.
+		var fire := FireSystem.find(get_tree())
+		if fire and fire.queue_settle(self):
+			return changed
 	for round_ in 64:
-		var a := StructuralAnalysis.new(tuning).analyse(self)
-		if not apply_round(a, changed):
+		var t_a := Prof.start()
+		var a := start_analysis()
+		a.advance(a.left())
+		Prof.stop(&"settle_analyse", t_a)
+		var t_r := Prof.start()
+		var more := apply_round(a, changed)
+		Prof.stop(&"settle_apply", t_r)
+		if not more:
 			break
+		if (Time.get_ticks_usec() - t0) / 1000.0 > budget_ms:
+			var fire := FireSystem.find(get_tree())
+			if fire and fire.queue_settle(self):
+				break
 	return changed
 
 
@@ -439,8 +670,8 @@ func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool
 		return true
 	if a.falling.is_empty():
 		return false
-	_drop(a.falling)
-	changed.append_array(a.falling)
+	var dropped := _drop(a.falling, DROP_PER_ROUND)
+	changed.append_array(dropped)
 	return true
 
 
@@ -453,7 +684,7 @@ func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]
 		return [m.member_id]
 	_snap(m, m.weakest_t(), push)
 	var out: Array[StringName] = [m.member_id]
-	out.append_array(settle())
+	out.append_array(settle(SETTLE_FRAME_MS))
 	return out
 
 
@@ -482,7 +713,9 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 	# Panes carry nothing: a building that only lost glass doesn't need its loads worked out again
 	# (a whole building's analysis, ~0.1 s for the saloon, for a window across the street).
 	if structural:
-		out.append_array(settle())
+		var t_s := Prof.start()
+		out.append_array(settle(SETTLE_FRAME_MS))
+		Prof.stop(&"blast_settle", t_s)
 	return out
 
 
@@ -506,6 +739,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		t1 = half
 	unbatch(m)
 	m.broken = true
+	mark_dirty(m.member_id)
 	m.set_meta(&"cut", Vector2(t0, t1))
 	for c in m.get_children():
 		if c is MeshInstance3D or c is CollisionShape3D:
@@ -524,6 +758,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		offset[ai] = (a + b) * 0.5
 		var p := add_member("%s/%s" % [base, "a" if side == 0 else "b"], m.kind, m.wood, size, m.transform * offset, m.transform.basis)
 		p.set_meta(&"cut_from", m.member_id)
+		mark_dirty(p.member_id)
 		p.temperature = m.temperature
 		p.char_depth = m.char_depth
 		p.wet = m.wet
@@ -593,6 +828,7 @@ func _relink(old: StructureMember, pieces: Array[StructureMember]) -> void:
 func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	unbatch(m)
 	m.broken = true
+	mark_dirty(m.member_id)
 	var length := m.length()
 	var ai := m.axis_index()
 	var mi: MeshInstance3D = null
@@ -660,12 +896,15 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 
 
 ## Members with nothing holding them up fall; those still touching each other fall together as
-## one piece.
-func _drop(ids: Array[StringName]) -> void:
+## one piece. Up to `at_most` members (whole clumps; every one by default): the ids that fell.
+func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
+	var fallen: Array[StringName] = []
 	var left := {}
 	for id in ids:
 		left[id] = true
 	while not left.is_empty():
+		if at_most > 0 and fallen.size() >= at_most:
+			break
 		var start: StringName = left.keys()[0]
 		var clump: Array[StringName] = []
 		var stack: Array[StringName] = [start]
@@ -677,6 +916,7 @@ func _drop(ids: Array[StringName]) -> void:
 				if left.has(n):
 					left.erase(n)
 					stack.append(n)
+		fallen.append_array(clump)
 		var rb := _new_rubble(clump)
 		var first := get_member(clump[0])
 		rb.global_transform = Transform3D(Basis(), first.global_position)
@@ -685,6 +925,7 @@ func _drop(ids: Array[StringName]) -> void:
 			var m := get_member(id)
 			unbatch(m)
 			m.broken = true
+			mark_dirty(id)
 			mass += m.weight(tuning) / 9.81
 			for c in m.get_children():
 				if c is MeshInstance3D or c is CollisionShape3D:
@@ -701,6 +942,7 @@ func _drop(ids: Array[StringName]) -> void:
 			continue
 		rb.mass = maxf(mass, 0.3)
 		_wake_near(rb.global_position, 6.0)
+	return fallen
 
 
 ## Rubble asleep near something that just gave way wakes up (it may have been resting on it).

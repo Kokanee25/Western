@@ -4,7 +4,7 @@ extends Node3D
 ## member-built false fronts down the street (the SALOON with its big painted board, the GENERAL
 ## STORE with DRY GOODS on its side, a barber and a hotel on the north side; the LIVERY barn, the
 ## JAIL and an assay office across), boardwalks before them, carriage lanterns by the doors,
-## barrels, crates and hay along the boardwalks, a horse saddled at a rail, a covered wagon down
+## barrels, crates and hay along the boardwalks, a horse saddled at a rail (Horse), a covered wagon down
 ## the street, telegraph poles and a water tower over the roofs, townsfolk on the porches and in
 ## the street (FOLK), dry grass along the road's edges (DryGrass), and the red-rock country on the
 ## skyline (Backdrop: a painted backdrop on three rings). Models from PropModels on the texel grid;
@@ -30,7 +30,7 @@ const BUILDINGS := [
 			"sign_text": "GENERAL STORE", "sign_from": 3.75, "door_size": Vector2(1.3, 2.3), "front_wood": &"store_boards",
 			"facade": "store"}],
 	["Barber", -27.4, -21.4, false, {"depth": 8.0, "wall_height": 3.4, "front_height": 5.6, "sign_text": "BARBER",
-			"front_wood": &"painted_rust", "facade": "store"}],
+			"front_wood": &"painted_red", "facade": "store"}],
 	["Hotel", -35.6, -28.4, false, {"depth": 10.0, "wall_height": 5.2, "front_height": 7.0, "sign_text": "HOTEL", "facade": "store"}],
 	["Livery", -17.0, -7.0, true, {"depth": 14.0, "wall_height": 4.4, "roof_pitch_degrees": 38.0, "gable_front": true,
 			"door_size": Vector2(3.0, 3.0), "front_windows": false, "loft_door": Rect2(4.15, 4.6, 1.7, 1.5),
@@ -102,6 +102,9 @@ func _ready() -> void:
 	var prints := RoadPrints.new()
 	prints.name = "RoadPrints"
 	add_child(prints)
+	var wear := StreetWear.new()  # damp by the troughs and rails, straw, droppings (the light pass)
+	wear.name = "StreetWear"
+	add_child(wear)
 
 
 func _buildings() -> void:
@@ -115,6 +118,7 @@ func _buildings() -> void:
 		building.name = b[0]
 		building.structure_id = StringName((b[0] as String).to_snake_case())
 		building.build_seed = 40 + i
+		building.age_years = float(placed.get("age", 0.0))  # how worn (BuildingAge)
 		building.width = float(placed.get("width", (b[2] as float) - (b[1] as float)))
 		# Down the street, nobody's inside yet: no counter or lamp, and the store's lantern stays
 		# the only one hung under a porch (carriage lanterns by the doors instead).
@@ -123,6 +127,10 @@ func _buildings() -> void:
 		var settings: Dictionary = b[4]
 		for k in settings:
 			building.set(k, settings[k])
+		# The layout's own (each front its own height: config/town.json).
+		var sets: Dictionary = placed.get("set", {})
+		for k: String in sets:
+			building.set(k, TownLayout.value(k, sets[k]))
 		building.transform = TownLayout.transform_of(path)
 		add_child(building)
 		# Its boardwalk, up on steps, when the layout gives it steps.
@@ -131,6 +139,7 @@ func _buildings() -> void:
 			walk.name = "%sWalk" % b[0]
 			walk.structure_id = StringName("%s_walk" % (b[0] as String).to_snake_case())
 			walk.length = building.width
+			walk.age_years = building.age_years
 			walk.steps = TownLayout.value("steps", placed["steps"])
 			walk.transform = building.transform
 			add_child(walk)
@@ -141,11 +150,14 @@ func _buildings() -> void:
 
 
 ## Where whatever stood at `at` on the old street stands now, turned `yaw` degrees: carried with
-## the building it stood by (TownLayout.carry), or left where it was out in the street.
+## the building it stood by (TownLayout.carry), or with the street out in it; up on a walk with
+## the walk, down in the street on the ground where it ends up (the ground slopes).
 static func carried(at: Vector3, yaw := 0.0) -> Transform3D:
 	var t := TownLayout.carry(at) * Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
 	if at.y > 0.3:
 		t.origin.y += walk_lift(t.origin)
+	else:
+		t.origin.y = TownLayout.ground_height(t.origin.x) + at.y
 	return t
 
 
@@ -260,7 +272,8 @@ func _lanterns() -> void:
 		if placed.is_empty():
 			continue
 		var t := TownLayout.transform_of(path)
-		var faces := -1.0 if float(placed.get("facing", 0.0)) == 0.0 else 1.0
+		# A lantern faces out from its front, which faces the building's -Z.
+		var faces := t.basis.get_euler().y + PI
 		var settings: Dictionary = b[4]
 		if settings.get("gable_front", false):
 			# The livery's, either side of its big door. The west one is lit only after dark: it's
@@ -284,9 +297,10 @@ func _lanterns() -> void:
 			continue
 		for side in [-1.0, 1.0]:
 			var local := Vector3(b.door_rect.get_center().x + side * (b.door_rect.size.x * 0.5 + 0.55), b.floor_top + 1.87, -0.05)
-			_lantern(b.transform * local, -1.0 if absf(b.rotation.y) < 0.1 else 1.0)
+			_lantern(b.transform * local, b.rotation.y + PI)
 
 
+## A carriage lantern at `at`, its face turned `faces` (radians about the vertical: 0 faces +Z).
 func _lantern(at: Vector3, faces: float, lit_from := 17) -> void:
 	var root := Node3D.new()
 	root.name = "Lantern"
@@ -294,7 +308,7 @@ func _lantern(at: Vector3, faces: float, lit_from := 17) -> void:
 	# The painting's lanterns are big: half a metre of glass and tin by every door.
 	root.scale = Vector3.ONE * LANTERN_SCALE
 	add_child(root)
-	root.global_transform = Transform3D(Basis(Vector3.UP, 0.0 if faces > 0.0 else PI), at)
+	root.global_transform = Transform3D(Basis(Vector3.UP, faces), at)
 	var lamp := OilLamp.new()
 	lamp.set_meta(&"lamp_group", &"lantern")
 	lamp.show_mesh = false
@@ -371,37 +385,40 @@ static func lantern_glass() -> ShaderMaterial:
 ## Barrels, crates and hay along the fronts; a horse at a rail before the livery.
 func _loose() -> void:
 	# On the north boardwalk (its top 0.38 m up).
-	for p in [Vector3(-1.9, 0.38, -0.75), Vector3(-6.9, 0.38, -0.7)]:
-		_prop(&"barrel", p, 0.0)
+	# Barrels: water ones (fire barrels, kept along a street's boardwalks; the prop kit's, full)
+	# and empties waiting on the freight wagon.
+	_prop(&"barrel", Vector3(-1.9, 0.38, -0.75), 0.0)
+	_prop(&"water_barrel", Vector3(-6.9, 0.38, -0.7), 0.0)
 	for c in [[Vector3(-2.7, 0.38, -0.8), 10.0], [Vector3(-2.75, 0.98, -0.8), 35.0], [Vector3(-7.8, 0.38, -0.8), -15.0]]:
 		_prop(&"crate", c[0], c[1])
 	for p in [Vector3(-7.8, 0.0, -15.9), Vector3(-9.0, 0.0, -16.0), Vector3(-8.4, 0.45, -15.95), Vector3(-16.6, 0.0, -15.9)]:
 		_model("Hay", PropModels.hay_bale, p, 0.0, Vector3(0.9, 0.45, 0.5))
-	_prop(&"barrel", Vector3(-15.4, 0.0, -16.1), 0.0)
+	_prop(&"water_barrel", Vector3(-15.4, 0.0, -16.1), 0.0)
 	# On the jail's boardwalk.
-	_prop(&"barrel", Vector3(-19.4, 0.38, -15.9), 0.0)
+	_prop(&"water_barrel", Vector3(-19.4, 0.38, -15.9), 0.0)
 	_prop(&"crate", Vector3(-24.3, 0.38, -15.8), 20.0)
 	# The rail before the livery, and a bay horse tied to it.
 	_rail("LiveryRail", -14.6, -11.8, -14.2)
-	_model("Horse", PropModels.horse, Vector3(-13.0, 0.0, -14.75), 0.0, Vector3(2.4, 1.8, 0.6))
+	_horse(Vector3(-13.0, 0.0, -14.75), 0.0, "LiveryRail")
 	# The street crowded as the painting's is: rails with horses nosed in before the saloon and the
 	# store, more barrels and crates along both boardwalks, a buckboard by the jail, boards hung
 	# under the porches. All kept off the road's middle and the gang's way in (z -9).
 	_rail("SaloonRail", -8.2, -4.6, -2.9)
 	for h in [[Vector3(-7.4, 0.0, -4.1), 90.0], [Vector3(-5.4, 0.0, -4.0), 84.0]]:
-		_model("Horse", PropModels.horse, h[0], h[1], Vector3(2.4, 1.8, 0.6))
+		_horse(h[0], h[1], "SaloonRail")
 	_rail("StoreRail", -18.6, -15.8, -2.9)
-	_model("Horse", PropModels.horse, Vector3(-17.2, 0.0, -4.05), 95.0, Vector3(2.4, 1.8, 0.6))
+	_horse(Vector3(-17.2, 0.0, -4.05), 95.0, "StoreRail")
 	_rail("JailRail", -23.8, -21.0, -14.0)
-	_model("Horse", PropModels.horse, Vector3(-22.6, 0.0, -12.85), -88.0, Vector3(2.4, 1.8, 0.6))
-	for p in [Vector3(-9.6, 0.38, -0.7), Vector3(-10.25, 0.38, -0.75), Vector3(-19.9, 0.38, -0.7), Vector3(-26.2, 0.38, -0.75),
-			Vector3(-26.9, 0.38, -0.7), Vector3(-25.6, 0.38, -15.95), Vector3(-30.9, 0.38, -16.0)]:
-		_prop(&"barrel", p, 0.0)
+	_horse(Vector3(-22.6, 0.0, -12.85), -88.0, "JailRail")
+	for b in [[Vector3(-9.6, 0.38, -0.7), &"water_barrel"], [Vector3(-10.25, 0.38, -0.75), &"barrel"],
+			[Vector3(-19.9, 0.38, -0.7), &"water_barrel"], [Vector3(-26.2, 0.38, -0.75), &"water_barrel"],
+			[Vector3(-26.9, 0.38, -0.7), &"barrel"], [Vector3(-25.6, 0.38, -15.95), &"water_barrel"], [Vector3(-30.9, 0.38, -16.0), &"barrel"]]:
+		_prop(b[1], b[0], 0.0)
 	for c in [[Vector3(-11.0, 0.38, -0.8), 5.0], [Vector3(-11.1, 0.98, -0.8), -20.0], [Vector3(-20.7, 0.38, -0.85), 12.0],
 			[Vector3(-27.8, 0.38, -0.8), -8.0], [Vector3(-27.85, 0.98, -0.75), 25.0], [Vector3(-26.4, 0.38, -15.9), 30.0],
 			[Vector3(-31.8, 0.38, -15.85), -12.0], [Vector3(-31.75, 0.98, -15.9), 8.0]]:
 		_prop(&"crate", c[0], c[1])
-	_model("Buckboard", PropModels.wagon, Vector3(-27.5, 0.0, -13.0), 0.0, Vector3(3.4, 2.2, 1.8), false)
+	_kit_on_ground(&"buckboard", Vector3(-27.5, 0.0, -13.0), 0.0)
 	# Boards hung under the porches, end on to the street so you read them looking down it.
 	for b in [["MEALS", Vector3(-12.2, 2.45, -1.95)], ["BATHS", Vector3(-21.9, 2.45, -1.95)], ["ROOMS", Vector3(-28.6, 2.45, -1.95)],
 			["GUNSMITH", Vector3(-34.2, 2.45, -1.95)], ["SHERIFF", Vector3(-19.0, 2.45, -14.85)], ["ASSAYS", Vector3(-26.0, 2.45, -14.85)]]:
@@ -409,14 +426,18 @@ func _loose() -> void:
 
 
 ## Down the street and over the roofs: a covered wagon, telegraph poles with their wire, the water
-## tower.
+## tower, the empty lot. The wagon and the poles keep their places across the street as it bends.
 func _far() -> void:
-	_model("Wagon", PropModels.wagon, Vector3(-36.0, 0.0, -12.6), 0.0, Vector3(3.4, 2.2, 1.8), false)
-	# Half a metre into the street from the south boardwalks' edge (at -13.9 the jail's pole stood
-	# through the boardwalk: tools/visual_checks.py's floating/sunk check).
-	var poles := [Vector3(-2.0, 0.0, -13.4), Vector3(-27.0, 0.0, -13.4), Vector3(-52.0, 0.0, -13.4), Vector3(-77.0, 0.0, -13.4)]
+	var wagon := TownLayout.street_point(-36.0, -4.2)
+	_kit_on_ground(&"covered_wagon", wagon, _street_yaw(wagon.x))
+	# 5 m north of the street's middle: half a metre into the street from the north boardwalks'
+	# edge (at -13.9 the jail's pole stood through the boardwalk: tools/visual_checks.py's
+	# floating/sunk check).
+	var poles := []
+	for x in [-2.0, -27.0, -52.0, -77.0]:
+		poles.append(TownLayout.street_point(x, -5.0))
 	for p in poles:
-		_model("Pole", PropModels.telegraph_pole, p, 0.0, Vector3(0.25, 7.0, 0.25), false)
+		_model("Pole", PropModels.telegraph_pole, p, _street_yaw(p.x), Vector3(0.25, 7.0, 0.25), false)
 	var wire := PropModels.iron()
 	for i in poles.size() - 1:
 		for x in [-0.55, 0.55]:
@@ -432,22 +453,144 @@ func _far() -> void:
 	var tower := TownLayout.entry(&"StreetDressing/WaterTower")
 	var at: Array = tower.get("at", [-34.0, 0.0, -24.0])
 	_model("WaterTower", PropModels.water_tower, Vector3(at[0], at[1], at[2]), float(tower.get("facing", 20.0)), Vector3(3.8, 11.5, 3.8), false)
+	_vacant_lot()
+
+
+## `at` down on the ground (the town's slopes: TownLayout.ground_height).
+static func _grounded(at: Vector3) -> Vector3:
+	return Vector3(at.x, TownLayout.ground_height(at.x), at.z)
+
+
+## Which way the street runs at `x`, as a yaw in degrees (0 along it east, as the old straight
+## street ran).
+static func _street_yaw(x: float) -> float:
+	var d := TownLayout.street_dir(x)
+	return rad_to_deg(atan2(-d.z, d.x))
+
+
+## The empty lot between the assay office and Market Street (config/town.json VacantLot, in its own
+## space: its front on the street toward -Z, x along it): what's left on a lot nobody's built on
+## yet. A wagon's broken wheel, a heap of boards from somebody's building, empty barrels,
+## a crate, and a board on a post offering the lot.
+func _vacant_lot() -> void:
+	var lot := TownLayout.entry(&"StreetDressing/VacantLot")
+	if lot.is_empty():
+		return
+	var t := TownLayout.transform_of(&"StreetDressing/VacantLot")
+	var w := float(lot.get("width", 7.0))
+	var yaw := rad_to_deg(t.basis.get_euler().y)
+	# Everything on it in the lot's own node, where the layout puts it.
+	var root := Node3D.new()
+	root.name = "VacantLot"
+	add_child(root)
+	root.transform = t
+	# A wagon's broken wheel, left where it came off (a whole wagon of the kit's members is some
+	# three hundred nodes: the calm street's node budget).
+	var wheel := _kit_on_ground(&"broken_wagon_wheel", t * Vector3(w * 0.6, 0.0, 6.0), yaw + 20.0)
+	wheel.reparent(root)
+	# Boards stacked crooked, as they came off a wagon and were left.
+	var heap := Node3D.new()
+	heap.name = "BoardHeap"
+	root.add_child(heap)
+	heap.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(8.0)), Vector3(w * 0.22, 0.0, 3.2))
+	heap.global_position = _grounded(heap.global_position)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1877
+	for i in 9:
+		var y := 0.03 + 0.05 * i
+		var b := Basis(Vector3.UP, deg_to_rad(rng.randf_range(-9.0, 9.0))) * Basis(Vector3.FORWARD, deg_to_rad(rng.randf_range(-2.0, 2.0)))
+		PropModels._box(heap, "Board", Vector3(3.6 - rng.randf_range(0.0, 0.9), 0.05, 0.2), Vector3(rng.randf_range(-0.2, 0.2), y, -0.5 + (i % 4) * 0.24), PropModels.weathered(), b)
+	for b in [[Vector3(w * 0.85, 0.0, 2.2), &"barrel"], [Vector3(w * 0.93, 0.0, 2.9), &"barrel"]]:
+		var p := PropLibrary.spawn(b[1])
+		root.add_child(p)
+		p.transform = Transform3D(Basis(), b[0])
+		p.global_position = _grounded(p.global_position)
+	var crate := PropLibrary.spawn(&"crate")
+	root.add_child(crate)
+	crate.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(23.0)), Vector3(w * 0.35, 0.0, 5.0))
+	crate.global_position = _grounded(crate.global_position)
+	# The board at the lot's front, by the street.
+	var post := Node3D.new()
+	post.name = "LotSign"
+	root.add_child(post)
+	post.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(-6.0)), Vector3(w * 0.5, 0.0, -0.6))
+	post.global_position = _grounded(post.global_position)
+	var wood := PropModels.dark_wood()
+	PropModels._box(post, "Post", Vector3(0.1, 1.6, 0.1), Vector3(0.0, 0.8, 0.0), wood)
+	PropModels._box(post, "Board", Vector3(1.3, 0.55, 0.03), Vector3(0.0, 1.35, -0.07), PropModels.weathered())
+	var label := Label3D.new()
+	label.text = "LOT FOR SALE\nSEE THE BANK"
+	label.font_size = 18
+	label.pixel_size = 0.012
+	label.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	label.outline_size = 0
+	label.modulate = Color(0.16, 0.1, 0.07)
+	label.shaded = true
+	label.double_sided = false
+	label.position = Vector3(0.0, 1.35, -0.09)
+	label.rotation.y = PI
+	post.add_child(label)
 
 
 ## A hitching rail: two posts and a bar from x0 to x1 at z (on the old street; carried).
 func _rail(n: String, x0: float, x1: float, z: float) -> void:
-	var t := carried(Vector3((x0 + x1) * 0.5, 0.0, z))
-	if on_steps(t.origin, (x1 - x0) * 0.5):
+	# Kept clear of the steps and doors point by point along it (a post's or the bar's width round
+	# each), and cut to its longest clear stretch: tested as one circle the rail's length across,
+	# every rail near a step left the street (2026-10-24, the horse step).
+	var count := ceili((x1 - x0) / 0.4)
+	var best := Vector2i(-1, -1)
+	var run := -1
+	for i in count + 1:
+		var x := lerpf(x0, x1, i / float(count))
+		if on_steps(carried(Vector3(x, 0.0, z)).origin, 0.25):
+			run = -1
+			continue
+		if run < 0:
+			run = i
+		if i - run > best.y - best.x:
+			best = Vector2i(run, i)
+	if best.x < 0 or (best.y - best.x) * (x1 - x0) / count < RAIL_MIN:
 		return
+	var a := lerpf(x0, x1, best.x / float(count))
+	var b := lerpf(x0, x1, best.y / float(count))
+	var t := carried(Vector3((a + b) * 0.5, 0.0, z))
 	var rail := Node3D.new()
 	rail.name = n
 	add_child(rail)
 	rail.transform = t
 	var wood := PropModels.dark_wood()
-	var half := (x1 - x0) * 0.5
+	var half := (b - a) * 0.5
 	for x in [-half, half]:
 		PropModels._box(rail, "Post", Vector3(0.12, 1.1, 0.12), Vector3(x, 0.55, 0.0), wood)
-	PropModels._box(rail, "Bar", Vector3(x1 - x0 + 0.2, 0.1, 0.1), Vector3(0.0, 1.0, 0.0), wood)
+	PropModels._box(rail, "Bar", Vector3(b - a + 0.2, 0.1, 0.1), Vector3(0.0, 1.0, 0.0), wood)
+
+
+## The shortest hitching rail worth putting up (m): room for one horse's reins.
+const RAIL_MIN := 1.6
+
+
+## A saddled horse standing at `at` (head along -X turned by `yaw`), tied to the rail named `rail`
+## by his reins from the bit to the nearest point on its top bar: the Blender-built Horse
+## (tools/blender/horse.py), or PropModels' code horse where that model hasn't been built.
+func _horse(at: Vector3, yaw: float, rail: String) -> Node3D:
+	if not Horse.available():
+		return _model("Horse", PropModels.horse, at, yaw, Vector3(2.4, 1.8, 0.6))
+	var t := carried(at, yaw)
+	# Clear of the steps and doors from his nose to his tail.
+	for x in [-1.3, -0.65, 0.0, 0.65, 1.0]:
+		if on_steps(t * Vector3(x, 0.0, 0.0), 0.35):
+			return null
+	var horse := Horse.new()
+	add_child(horse)
+	horse.transform = t
+	var bar := get_node_or_null(rail + "/Bar") as Node3D
+	if bar != null:
+		var bits := horse.bits()
+		var bit := (bits[0] + bits[1]) * 0.5
+		var local := bar.global_transform.affine_inverse() * bit
+		var half := (bar as MeshInstance3D).get_aabb().size.x * 0.5 - 0.08 if bar is MeshInstance3D else 1.0
+		horse.tie_to(bar.global_transform * Vector3(clampf(local.x, -half, half), 0.05, 0.0))
+	return horse
 
 
 ## A small lettered board hung from a porch on two chains, its faces toward either end of the
@@ -487,7 +630,7 @@ func _folk() -> void:
 		man.person_id = StringName(String(f[0]).to_snake_case())
 		man.rng_seed = 201 + i
 		man.has_gun = false
-		man.use_paint = false
+		man.body_model = ShotMatch.STUDIO_FOLK[(i + 3) % ShotMatch.STUDIO_FOLK.size()]  # a Studio man (Sean, 2026-10-24)
 		man.shirt_color = f[4]
 		man.vest_color = f[5]
 		man.coat_color = f[6]
@@ -524,6 +667,8 @@ static func post_of(f: Array) -> Vector3:
 	var at := TownLayout.carry(f[1]) * (f[1] as Vector3)
 	if (f[1] as Vector3).y > 0.3:
 		at.y += walk_lift(at)
+	else:
+		at.y = TownLayout.ground_height(at.x) + (f[1] as Vector3).y
 	return out_of_doorway(at, 0.3)
 
 
@@ -543,6 +688,27 @@ func _prop(id: StringName, at: Vector3, yaw: float) -> void:
 	var p := PropLibrary.spawn(id)
 	add_child(p)
 	p.global_transform = t
+
+
+## A kit prop at `at` (not carried with a building), turned `yaw` degrees: the prop factory's wagons
+## (docs/briefs/prop-factory.md), built of members, so they break, burn and are cover.
+func _kit(id: StringName, at: Vector3, yaw: float) -> Node3D:
+	var p := PropLibrary.spawn(id)
+	add_child(p)
+	p.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
+	return p
+
+
+## A kit prop standing in the street, on the ground there and tilted to its slope (the ground
+## goes with x alone: TownLayout.ground_height), so every wheel or foot meets the dirt: set level
+## on the slope, a wagon's downhill wheels hung clear of it and it fell to pieces.
+func _kit_on_ground(id: StringName, at: Vector3, yaw: float) -> Node3D:
+	var p := PropLibrary.spawn(id)
+	add_child(p)
+	var slope := TownLayout.ground_height(at.x + 0.5) - TownLayout.ground_height(at.x - 0.5)
+	p.global_transform = Transform3D(Basis(Vector3.BACK, atan(slope)) * Basis(Vector3.UP, deg_to_rad(yaw)),
+			Vector3(at.x, TownLayout.ground_height(at.x), at.z))
+	return p
 
 
 ## A PropModels model at `at`, turned `yaw` degrees, with a box of `size` (bottom at its feet)

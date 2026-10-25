@@ -94,14 +94,18 @@ func _build_furniture() -> void:
 		_place(props, &"tin_cup", top + Vector3(0.35, 0.0, 0.25), 0.0)
 		_place(props, &"tin_cup", top + Vector3(-0.2, 0.0, -0.35), 0.0)
 
-	# Piano against the left wall, facing into the room; barrels in the back corner.
+	# Piano against the left wall, facing into the room; barrels in the back corner: two of whiskey
+	# (the prop kit's, full), an empty one up on them.
 	_place(props, &"upright_piano", Vector3(STUD_D + 0.33, f, 10.4), 90.0)
-	_place(props, &"barrel", Vector3(width - 0.9, f, depth - 0.9), 0.0)
-	_place(props, &"barrel", Vector3(width - 1.6, f, depth - 0.8), 20.0)
+	_place(props, &"whiskey_barrel", Vector3(width - 0.9, f, depth - 0.9), 0.0)
+	_place(props, &"whiskey_barrel", Vector3(width - 1.6, f, depth - 0.8), 20.0)
 	_place(props, &"barrel", Vector3(width - 0.95, f + 0.9, depth - 0.9), 45.0)
 
 	# On the walls: the stag over the back wall, a painting, and lamps in sconces.
 	_place(props, &"deer_head", Vector3(width * 0.5, f + 2.7, depth - STUD_D), 180.0)
+	# Outside, a longhorn's skull nailed to the porch beam's face over the door (the prop lab's,
+	# Sean 2026-10-24): its plank's top at the beam's top, its back on the beam's street face.
+	_place(props, &"steer_skull", Vector3(width * 0.5, porch_height + 0.18, -porch_depth - 0.06), 180.0)
 	_place(props, &"framed_painting", Vector3(STUD_D, f + 2.2, 6.2), 90.0)
 	for z: float in [2.4, 7.2]:
 		_place(props, &"wall_sconce", Vector3(STUD_D, f + 1.9, z), 90.0)

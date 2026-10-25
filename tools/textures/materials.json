@@ -665,6 +665,238 @@
    "about": "The barkeep's bar rag (ClothProp, assets/props/kit/bar_cloth.json; gameplay with the prop lab's leave, Sean's OK on #258, up to $0.30): its cloth painted in the Studio men's hand; ClothProp lays it over the whole rag and draws its hem, fraying, blood and burns on it in code.",
    "lightness": 0.72,
    "chroma": 0.8
+  },
+  "gun_blued": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "ref": [
+    "street",
+    1180,
+    590,
+    1370,
+    750
+   ],
+   "smooth": true,
+   "texels_per_metre": 512,
+   "about": "The gun lab's guns, painted in the men's hand (issue #274, Sean 2026-10-22 #249: 'spend the cash to draw'): smooth, its own colours, 512 a metre like the walnut; GunParts asks for it by this key.",
+   "what": "the worn blued steel of an old revolver's barrel seen close: dark blue-black steel, almost black, with a deep blue sheen, the bluing rubbed through to grey steel only along a few thin worn edges, fine scratches running lengthwise, a little brown freckling of rust; mostly dark, the grey wear a small share. It is hard, rigid machined steel lying perfectly flat: no folds, no wrinkles, no creases, no cloth (painted in the men's hand only in its brushwork and few close tones).",
+   "flatten": 1.0
+  },
+  "gun_case": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "ref": [
+    "street",
+    1180,
+    590,
+    1370,
+    750
+   ],
+   "smooth": true,
+   "texels_per_metre": 512,
+   "about": "The gun lab's guns, painted in the men's hand (issue #274, Sean 2026-10-22 #249: 'spend the cash to draw'): smooth, its own colours, 512 a metre like the walnut; GunParts asks for it by this key.",
+   "what": "the case-hardened steel frame of an old revolver seen close: mottled case colours in soft swirling patches, deep blue, purple-plum and pale straw-gold over silver-grey steel, the colours faded and worn to grey where it is handled, fine scratches, a soft sheen. It is hard, rigid machined steel lying perfectly flat: no folds, no wrinkles, no creases, no cloth (painted in the men's hand only in its brushwork and few close tones).",
+   "flatten": 1.0
+  },
+  "prop_hide": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the short coarse coat of a mounted whitetail deer's neck seen close: grey-brown and warm tawny hair lying all one way in soft overlapping strokes, darker brown along the lie of the hair, lighter tips, a little dust in it. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    728,
+    92,
+    752,
+    128
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide).",
+   "cut": "Cut at 128 a metre (the world's): at 256 and 512 the painted hair read as cork on the mount; the painting's deer is broad soft strokes."
+  },
+  "prop_hide_dark": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the dark leathery nose pad and lips of a deer seen close: near-black brown, a soft damp sheen, fine wrinkles and pores. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    752,
+    96,
+    762,
+    106
+   ],
+   "smooth": true,
+   "texels_per_metre": 256,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_dark).",
+   "cut": "Darkened and its contrast cut right down: the model painted a whole nose (nostrils, lips) where a flat patch was asked; muted, it reads as the dark leather.",
+   "lightness": 0.6,
+   "contrast": 0.35
+  },
+  "prop_hide_pale": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the white throat patch of a whitetail deer's coat seen close: off-white and cream short hair lying all one way, greyed with old dust, faint tan where it meets the brown. It is a flat even surface filling the frame: no eyes, no face, no animal shape, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    738,
+    108,
+    752,
+    124
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:hide_pale).",
+   "cut": "As prop_hide's."
+  },
+  "prop_antler": {
+   "for": "saloon",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "a deer's antler seen close, laid flat: pale ivory and tan bone, darker brown furrows running lengthwise along it, rough pearled bumps near the base, smoother and paler toward the tips, a little grime in the grooves. It is a flat even surface filling the frame: no eyes, no face, no antler shape, no points, no seams, no shadows (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "saloon",
+    723,
+    40,
+    780,
+    80
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's deer head mount (docs/briefs/prop-factory.md; Sean 2026-10-24: 'get a paint session done on it'), painted in the men's hand: smooth, its own colours, 256 a metre (seen on a wall from a few metres); PropModels asks for it by this key (the kit's prop:antler).",
+   "cut": "Cut at 128 a metre, its furrows' contrast cut (run 124's read as birch bark on the rack).",
+   "contrast": 0.5,
+   "chroma": 0.85
+  },
+  "prop_canvas": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.5,
+    0.5
+   ],
+   "colours": 16,
+   "what": "old cotton duck canvas of a covered wagon's cover seen close: off-white gone dusty tan and grey, faint coarse weave, water stains and brown road dust worked into it, a few darker streaks where rain ran, a patch or two of mending. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1020,
+    490,
+    1060,
+    530
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:canvas)."
+  },
+  "prop_burlap": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "the side of an old burlap feed sack seen close: coarse loose jute weave in tan and dull brown, the threads uneven and criss-crossing all over, grain dust and dirt worked into it, darker grime in patches. No lettering, no stencil, no stamp, no print, no labels, no marks of any kind on it: just the weave. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    720,
+    500,
+    800,
+    550
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:burlap).",
+   "repainted": "Run 125 painted a stencil stamp on it; repainted (Sean: 'yes repaint') with no lettering."
+  },
+  "prop_straw": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.5,
+    0.5
+   ],
+   "colours": 16,
+   "what": "pressed hay seen close, the face of a bale: dry golden and sun-greyed straw stalks lying mostly one way, crossed by stray ones, shadowy gaps between them, a little dust. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1600,
+    130,
+    1660,
+    230
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:straw)."
+  },
+  "prop_leather": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "plain old saddle leather seen close: smooth even brown oiled leather, one colour all over, darkened with sweat and grime, rubbed lighter and scuffed in soft patches where it is used, fine cracks and a faint pebbled grain. No spots, no blotches, no hair, no animal markings, no pattern, no stitching. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    1470,
+    480,
+    1500,
+    510
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:leather).",
+   "repainted": "Run 125 painted a spotted cowhide (the word 'cowhide'); repainted (Sean: 'yes repaint') with no spots or markings."
+  },
+  "prop_dung": {
+   "for": "street",
+   "kind": "tile",
+   "metres": [
+    0.25,
+    0.25
+   ],
+   "colours": 16,
+   "what": "dried horse dung seen close: dull olive-brown and dark brown fibrous matter, coarse chewed straw fibres in it, dry crumbly crust, dust on it. It is a flat even surface filling the frame, seen straight on: no objects, no edges, no folds' shadows, no seams across it (painted in the men's hand only in its brushwork and few close tones).",
+   "ref": [
+    "street",
+    860,
+    660,
+    940,
+    720
+   ],
+   "smooth": true,
+   "texels_per_metre": 128,
+   "about": "The prop factory's (docs/briefs/prop-factory.md; Sean 2026-10-24 on #351: 'yes keep going'), painted in the men's hand: smooth, its own colours, cut at the world's 128 a metre (finer read as cork on the deer); PropModels asks for it by this key (the kit's prop:dung)."
   }
  }
 }

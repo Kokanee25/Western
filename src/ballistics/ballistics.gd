@@ -166,7 +166,7 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	var collider: Object = hit.collider
 	var e_before := b.energy()
 	var info := {"position": hit.position, "normal": hit.normal, "direction": dir, "collider": collider,
-			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0}
+			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0, "mass": b.mass}
 	if collider != null and collider.has_meta(&"human_body"):
 		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
 		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0

@@ -32,10 +32,16 @@ const PATH := [
 	[30.0, Vector3(5.0, 1.8, -10.5), Vector3(-20.0, 2.5, -9.0), 23.5],
 ]
 
+## The path was laid out on the old street (the saloon across it, turned round): its stop at the
+## store and its stops at and in the saloon move with them, as screenshots.gd's views do.
+const STORE_STOPS := [2]
+const SALOON_STOPS := [3, 4, 5, 6, 7]
+
 ## Frames a second of the video (run with --fixed-fps 30 so each frame is this much game time).
 const FPS := 30.0
 
 var _camera: Camera3D
+var _path := []
 var _clock: Node
 var _frame := 0
 var _stop_at := -1
@@ -98,6 +104,7 @@ func _initialize() -> void:
 	load("res://src/render/depth_mosaic.gd").apply(_camera, settings.mosaic, settings.MOSAIC_K, settings.MOSAIC_STEPS)
 	if _stop_at > 0:
 		_stop_at += _frame
+	_path = laid_out()
 	_place(float(_frame) / FPS)
 	process_frame.connect(_step)
 
@@ -111,15 +118,30 @@ func _step() -> void:
 		quit()
 
 
+## PATH as the town stands now (config/town.json).
+static func laid_out() -> Array:
+	var shots = load("res://tools/screenshots.gd")
+	var out := []
+	for k in PATH.size():
+		var p: Array = (PATH[k] as Array).duplicate()
+		var view := "store_front_noon" if k in STORE_STOPS else ("saloon_night" if k in SALOON_STOPS else "")
+		if view != "":
+			var move: Transform3D = shots._view_move(view)
+			p[1] = move * (p[1] as Vector3)
+			p[2] = move * (p[2] as Vector3)
+		out.append(p)
+	return out
+
+
 func _place(t: float) -> void:
 	var i := 0
-	while i < PATH.size() - 2 and t > float(PATH[i + 1][0]):
+	while i < _path.size() - 2 and t > float(_path[i + 1][0]):
 		i += 1
-	var a: Array = PATH[i]
-	var b: Array = PATH[i + 1]
+	var a: Array = _path[i]
+	var b: Array = _path[i + 1]
 	var u := clampf((t - float(a[0])) / (float(b[0]) - float(a[0])), 0.0, 1.0)
-	var p0: Array = PATH[maxi(i - 1, 0)]
-	var p3: Array = PATH[mini(i + 2, PATH.size() - 1)]
+	var p0: Array = _path[maxi(i - 1, 0)]
+	var p3: Array = _path[mini(i + 2, _path.size() - 1)]
 	var eye := _spline(p0[1], a[1], b[1], p3[1], u)
 	var look := _spline(p0[2], a[2], b[2], p3[2], u)
 	var hour := lerpf(float(a[3]), float(b[3]), smoothstep(0.0, 1.0, u))

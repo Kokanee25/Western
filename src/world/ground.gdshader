@@ -10,6 +10,22 @@ uniform vec3 scrub_color : source_color = vec3(0.62, 0.52, 0.38);
 uniform vec3 sage_color : source_color = vec3(0.52, 0.49, 0.35);
 uniform float road_center_z = -8.4;
 uniform float road_half_width = 6.0;
+// The street isn't ruled straight (config/town.json streets.main.line, gameplay's, 2026-10-23):
+// its middle's z sampled every road_line_step metres from x road_line_x0 (Ground sets these from
+// TownLayout.street_z); off, the straight road_center_z.
+uniform bool use_road_line = false;
+uniform float road_line[64];
+uniform float road_line_x0 = -200.0;
+uniform float road_line_step = 4.0;
+
+float road_z(float x) {
+	if (!use_road_line) {
+		return road_center_z;
+	}
+	float u = clamp((x - road_line_x0) / road_line_step, 0.0, 62.999);
+	int i = int(floor(u));
+	return mix(road_line[i], road_line[i + 1], u - float(i));
+}
 // Ground pixels per metre (matches the chunky texels on walls; PixelArt.texels_per_meter).
 uniform float texels_per_meter = 40.0;
 // The street's dirt from the texture factory (assets/textures/road.png, set by PixelArt.track);
@@ -100,6 +116,22 @@ varying float v_h0;
 // The quantise-once trial (PixelArt.smooth): no per-texel dirt noise and no snap to 24 levels
 // here; the screen mosaic is the only quantisation.
 uniform bool smooth_source = false;
+// The light pass's street colour (issue #318, Sean: "less orange, a dusty grey-tan, with
+// variation"): the ground's colour multiplied by `ground_tint` and its saturation scaled by
+// `ground_saturation`; on the street, the churned (loose) earth and the rut troughs darker by
+// `churn_dark`, and broad trampled and scuffed patches, a few metres across, `patches` lighter or
+// darker. All at their defaults: the ground as it was.
+uniform vec3 ground_tint : source_color = vec3(1.0, 1.0, 1.0);
+uniform float ground_saturation = 1.0;
+uniform float churn_dark = 0.0;
+uniform float patches = 0.0;
+// Damp ground (the light pass, round 2; Sean, #321): darker, a little glossy, round the troughs and
+// the hitching rails, where water's slopped and horses stand (StreetWear sends the spots: x, z,
+// radius, strength). damp_dark 0 = none.
+uniform vec4 damp_spots[16];
+uniform int damp_count = 0;
+uniform float damp_dark = 0.0;
+uniform vec3 damp_tint : source_color = vec3(0.5, 0.45, 0.42);
 
 varying vec3 world_pos;
 
@@ -148,7 +180,7 @@ void fragment() {
 	// A square's own speck of difference, as the mean of the texels in it would have it (a big
 	// far square of many texels is nearly their average, not one texel's loud colour).
 	float fine = smooth_source ? 0.5 : mix(0.5, hash(floor(p * tpm)), inversesqrt(b.x * b.y));
-	float dz = abs(p.y - road_center_z);
+	float dz = abs(p.y - road_z(p.x));
 	float road = 1.0 - smoothstep(road_half_width - 1.0, road_half_width + 1.5, dz + (n - 0.5) * 3.0);
 	vec3 wild = mix(scrub_color, sage_color, smoothstep(0.45, 0.7, fbm(p * 0.08 + 3.0)));
 	vec3 dirt = dirt_color;
@@ -164,7 +196,7 @@ void fragment() {
 		// Its size along the street: the painted road's own (wide_metres), else the drawn one's at
 		// the ground's density.
 		float wm = float(textureSize(wide_tex, 0).x) / tpm;
-		vec2 w = vec2(p.x, p.y - road_center_z + 0.5 * wm) / wm;
+		vec2 w = vec2(p.x, p.y - road_z(p.x) + 0.5 * wm) / wm;
 		float cell = floor(w.x);
 		w.x = mod(cell, 2.0) > 0.5 ? cell + 1.0 - fract(w.x) : w.x;
 		vec2 ws = vec2(textureSize(wide_tex, 0));
@@ -188,7 +220,7 @@ void fragment() {
 	// most used), each a pair of grooves 1.5 m apart worn by more than one wagon, so each groove is
 	// two that drift apart and back along the street; dark in the bottom with a crisp edge, a lit
 	// ridge of thrown-up dirt along the outside.
-	float sz = p.y - road_center_z;
+	float sz = p.y - road_z(p.x);
 	float groove = 0.0;
 	float ridge = 0.0;
 	for (int track = 0; track < 3; track++) {
@@ -279,11 +311,25 @@ void fragment() {
 			v_loose = loose;
 			v_h0 = h0 * mix(compact_relief, loose_relief, loose) * relief_depth + rut;
 			v_on *= near;
+			earth *= 1.0 - churn_dark * (0.6 * loose + 0.4 * smoothstep(0.004, 0.05, -rut));
+			earth *= 1.0 + patches * (fbm(q * 0.11 + 31.0) - 0.5) * 2.0;
 			col = mix(col, earth, on);
 		}
 	}
+	float grey = dot(col, vec3(0.2126, 0.7152, 0.0722));
+	col = mix(vec3(grey), col, ground_saturation) * ground_tint;
+	float damp = 0.0;
+	if (damp_dark > 0.0) {
+		float edge = fbm(world_pos.xz * 0.9 + 3.0) - 0.5;
+		for (int i = 0; i < damp_count && i < 16; i++) {
+			vec4 sp = damp_spots[i];
+			float d = length(world_pos.xz - sp.xy) + edge * sp.z * 0.5;
+			damp = max(damp, (1.0 - smoothstep(sp.z * 0.35, sp.z, d)) * sp.w);
+		}
+		col *= mix(vec3(1.0), damp_tint, clamp(damp * damp_dark, 0.0, 1.0));
+	}
 	ALBEDO = col;
-	ROUGHNESS = 0.95;
+	ROUGHNESS = mix(0.95, 0.55, clamp(damp * damp_dark, 0.0, 1.0));
 	if (!smooth_road) {
 		LIGHT_VERTEX = tile_snap(VERTEX, tile_screen_offset(t, soft ? tile_soft_point(t) : (max(b.x, b.y) > 1.0 ? (floor(t / b) + 0.5) * b : tile_centre(t))));
 	}

@@ -25,6 +25,9 @@ const SPEC := "res://experiments/building_lab/saloon.json"
 
 var spec_path := SPEC
 var spec: Dictionary
+## Furniture laid in on top of the spec's for the next building built (the gunfight lab's `dress`:
+## more to hide behind in the hall, an experiment; the spec's own file is unchanged).
+static var extra_furniture: Array = []
 ## The band members added now go in (see the top).
 var band := 0
 ## [StaticBody3D ramp, [stringers]] for each stair.
@@ -80,6 +83,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 			and other_box.position.y < box.position.y - CONTACT_EPSILON
 	if other_tier < tier or beneath:
 		m.supported_by.append(other.member_id)
+		other.dependents.append(m.member_id)
 		var contact := grown.intersection(other_box)
 		m.support_points[other.member_id] = contact.get_center()
 		m.support_boxes[other.member_id] = contact
@@ -88,6 +92,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 ## Structure.infer_supports with a grid: the same links in the same order, from the pairs that
 ## share a cell.
 func infer_supports() -> void:
+	invalidate_analysis()
 	_by_stack.clear()
 	var boxes := {}
 	var grid := {}
@@ -95,6 +100,7 @@ func infer_supports() -> void:
 		var m := _order[i]
 		var b := m.structure_aabb()
 		boxes[m] = b
+		m.dependents.clear()  # before any linking: the others' links fill it
 		for c in _cells(b.grow(CONTACT_EPSILON)):
 			if not grid.has(c):
 				grid[c] = []
@@ -135,6 +141,8 @@ static func _cells(b: AABB) -> Array[Vector3i]:
 func build() -> void:
 	if spec.is_empty():
 		spec = load_spec(spec_path)
+		if not extra_furniture.is_empty():
+			spec.furniture = (spec.furniture as Array) + extra_furniture
 	var lot: Dictionary = spec.lot
 	var lv: Dictionary = spec.levels
 	_fr = spec.frame
@@ -682,6 +690,12 @@ func _outer_walls() -> void:
 				door_rect = o[0]
 				_build_door()
 				_build_batwings()
+				# They swing: a man (you, or anyone) walks through them; a ball still hits them (as
+				# debris is: on everything a bullet can hit, not on what a walker stands or slides on).
+				for i in 2:
+					var leaf := get_member(StringName("%s/front/batwing%d" % [structure_id, i]))
+					if leaf:
+						leaf.collision_layer = Layers.DEBRIS
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a
@@ -963,7 +977,9 @@ func _partitions(level: String, b: int) -> void:
 			var face := _face(wall, STUD_D * 0.5 * (1.0 if plus else -1.0), 1.0 if plus else -1.0)
 			_finish(face, "%s/%s" % [w.id, "p" if plus else "m"], 0.0, wall.length, foot, top + PLATE_H, String(fin.finish), rects, 1)
 		for o in ops:
-			_leaf(wall, o[0], false, -STUD_D * 0.5)
+			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
+			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
+			_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------

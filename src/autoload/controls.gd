@@ -33,7 +33,10 @@ func _ready() -> void:
 	_bind(&"debug_probe_mosaic", [KEY_V], [])  # the probe mosaic trial on/off (Settings.probe_mosaic)
 	_bind(&"look_panel", [KEY_N], [])  # the live look panel (LookPanel; controller: Back + Start)
 	_bind(&"debug_overlay", [KEY_F3], [JOY_BUTTON_BACK])
-	_bind(&"debug_time_scale", [KEY_T], [])
+	_bind(&"debug_time_scale", [KEY_T], [])  # held / x1 / x30 / x180 (DayCycle.cycle_time_scale)
+	_bind(&"debug_hour", [KEY_7], [])  # noon / afternoon / golden hour / night (DayCycle.next_hour_stop)
+	_bind(&"light_look", [KEY_8], [])  # the light pass's looks: today / A / B / C (LightLooks)
+	_bind(&"reset_game", [KEY_BACKSPACE], [])  # the game back as it started (GameReset)
 	_bind(&"debug_teleport", [KEY_F5], [JOY_BUTTON_DPAD_UP])
 	_bind(&"debug_traces", [KEY_F8], [])
 	_bind(&"debug_xray", [KEY_F10], [])
@@ -65,6 +68,8 @@ func _ready() -> void:
 	_bind(&"gunfight_next", [KEY_Y], [])
 	_bind(&"gunfight_again", [KEY_X], [])
 	_bind(&"gunfight_free", [KEY_Z], [])
+	# The player's movement presets, light / middle / heavy (Player.next_movement).
+	_bind(&"movement_preset", [KEY_F], [])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:

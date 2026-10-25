@@ -7,7 +7,7 @@ Guns (you start holstered; H draws): cock Q / wheel down / RB, fire LMB / RT, ai
 Dynamite: Q lights the fuse, hold LMB and let go to throw (longer = harder), RMB sets it down; don't hold it lit too long
 Move: WASD / left stick     Look: mouse / right stick
 Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
-Jump: Space / A     Time speed: T     Debug readout: F3 / View
+Jump: Space / A     Time held / running / faster: T     Noon / afternoon / golden hour / night: 7     Light look (today, A, B, C): 8     Start again: Backspace     Debug readout: F3 / View     Movement light / middle / heavy: F
 Pixel size: F2 (last = native)     Pixel shading: F6     Texel size: F7     Tiles off/square/ragged: P     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left
 Press on your wounds (hold for a belt): B / D-pad down     New outlaw: F9 / D-pad right     Bring the gang into town: U     Three gunmen in the saloon (A/B/C playtest): Y next run, X this run again, Z free play     Call a man out: G with your gun holstered     X-ray (see the anatomy): F10     Break the timber you're looking at: K (or F11)     Set it alight: L     Save a bug report: F12 / Back + Y     Tear a wound open: J     Reduced gore: F4     Look panel (sliders for the light and squares): N / Back + Start
@@ -56,6 +56,10 @@ func _ready() -> void:
 	_toast.visible = false
 	_toast.add_theme_font_size_override(&"font_size", 22)
 	Settings.changed.connect(_show_look)
+	Events.time_scale_changed.connect(_show_time)
+	if GameReset.just_reset:
+		GameReset.just_reset = false
+		toast.call_deferred("Started again (Backspace)")
 	if DisplayServer.is_touchscreen_available():
 		_help.text = ("SALT CREEK  %s\n" % build_label().to_upper()) + "Left thumb: move   Right thumb: look\nButtons: cock, fire, load, aim, jump, crouch, run, time, gun (swap)"
 
@@ -78,6 +82,29 @@ func _show_look() -> void:
 	_toast_timer = 3.0
 
 
+## T and 7: the clock held or running, and the hour.
+func _show_time(_scale: float) -> void:
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	if clock == null:
+		return
+	toast(clock.describe_speed())
+
+
+## A line at the bottom of the screen for a few seconds.
+func toast(text: String, seconds := 3.0) -> void:
+	_toast.text = text
+	_toast.visible = true
+	_toast_timer = seconds
+
+
+## F: which way of moving you've switched to (Player.next_movement).
+func _show_movement(preset: StringName) -> void:
+	var about := {&"light": "quick on your feet", &"middle": "the game's own", &"heavy": "a big man in boots"}
+	_toast.text = "Movement: %s (%s)   F for the next" % [String(preset).to_upper(), about.get(preset, "")]
+	_toast.visible = true
+	_toast_timer = 3.0
+
+
 func _process(delta: float) -> void:
 	var vp_size := get_viewport().get_visible_rect().size
 	_corner.position = Vector2(vp_size.x - _corner.size.x - 8.0, vp_size.y - _corner.size.y - 4.0)
@@ -86,6 +113,9 @@ func _process(delta: float) -> void:
 		_toast.visible = _toast_timer > 0.0
 		var vp := get_viewport().get_visible_rect().size
 		_toast.position = Vector2((vp.x - _toast.size.x) * 0.5, vp.y - _toast.size.y - 40.0)
+	var player := get_tree().get_first_node_in_group(&"player") as Player
+	if player and not player.movement_changed.is_connected(_show_movement):
+		player.movement_changed.connect(_show_movement)
 	if Input.is_action_just_pressed(&"debug_help"):
 		_help.visible = not _help.visible
 		_help_timer = -1.0
@@ -117,7 +147,7 @@ func _readout_text() -> String:
 	if player:
 		var state := "crouching" if player.is_crouching else ("running" if player.is_running else "walking")
 		var p := player.global_position
-		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f" % [player.get_horizontal_speed(), state, p.x, p.y, p.z])
+		lines.append("%.1f m/s %s   pos %.1f, %.1f, %.1f   moving %s" % [player.get_horizontal_speed(), state, p.x, p.y, p.z, player.movement])
 		if player.wounds:
 			lines.append(player.wounds.describe())
 		if player.composure and player.weapon:
@@ -163,9 +193,10 @@ func frame_lines() -> PackedStringArray:
 		render_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
 	var fps := maxf(Engine.get_frames_per_second(), 1.0)
 	var out: PackedStringArray = []
-	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f" % [1000.0 / fps,
+	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f  (catch-up <= %d steps)" % [1000.0 / fps,
 			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
-			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu])
+			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu,
+			Engine.max_physics_steps_per_frame])
 	out.append("draws %d  objects %d  tris %dk  nodes %d  bodies awake %d" % [
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 			Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),

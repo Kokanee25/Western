@@ -31,6 +31,7 @@ pointing/emulate_mouse_from_touch=false
 
 3d/physics_engine="Jolt Physics"
 common/physics_ticks_per_second=60
+common/max_physics_steps_per_frame=2
 jolt_physics_3d/simulation/velocity_steps=20
 jolt_physics_3d/simulation/position_steps=8
 jolt_physics_3d/limits/max_bodies=32768
@@ -64,6 +65,30 @@ light_bands={
 seam_px={
 "type": "float",
 "value": 0.0
+}
+grime_amount={
+"type": "float",
+"value": 0.0
+}
+grime_height={
+"type": "float",
+"value": 1.1
+}
+grime_tint={
+"type": "vec4",
+"value": Vector4(0.62, 0.55, 0.47, 1)
+}
+bleach_amount={
+"type": "float",
+"value": 0.0
+}
+bleach_from={
+"type": "float",
+"value": 3.2
+}
+bleach_to={
+"type": "float",
+"value": 6.5
 }
 
 [rendering]

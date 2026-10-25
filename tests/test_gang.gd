@@ -380,7 +380,7 @@ func test_a_friend_shot_down_goes_through_the_rest() -> void:
 func test_the_green_one_breaks_when_his_friend_goes_down() -> void:
 	await _three()
 	var c := _brain(&"c")
-	c.fear = 0.2
+	c.fear = 0.3  # at the edge of his nerve (in D the leader beside him steadies him a little: +0.08)
 	(men[&"b"] as HumanBody).go_limp()
 	var broke := await wait_until(func() -> bool: return c.mood in [OutlawBrain.Mood.FLEEING, OutlawBrain.Mood.SURRENDERED], 60 * 2)
 	check(broke, "the Kid's nerve goes (%s)" % c.describe().substr(0, 60))

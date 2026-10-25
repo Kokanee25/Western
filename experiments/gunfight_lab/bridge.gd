@@ -4,13 +4,23 @@ extends BridgeLab
 ## starts on the same frame every time (a seed gives the same fight).
 
 const Fight := preload("res://experiments/gunfight_lab/fight.gd")
+const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C] [opening=draw] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
+	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C|D] [fixes=all|none|a+b|-a] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
 	"gf_lineup": "gf_lineup PATH [holstered] [studio|outlaw|MODEL...] -> the men side by side, guns up (or holstered), facing a camera: a picture (drawn runs)",
 	"gf_cover": "gf_cover X Y Z [FROM_X FROM_Y FROM_Z] -> is there cover within 1.5 m of X Y Z from that eye (default: the street's trough), as the gang judges it",
 	"gf_bodies": "gf_bodies [studio|outlaw|MODEL...] -> each man stood up alone: his hat's hitbox, his gun, and how much of what you see of him no hitbox covers",
 	"gf_coverwhy": "gf_coverwhy X Y Z EYE_X EYE_Y EYE_Z [TRAVEL] -> the gang's cover search from X Y Z against that eye: how many spots, and why each was turned down",
+	"gf_ways": "gf_ways [PREFIX] [dress=NAME] -> the spec saloon built (its hall dressed as dressing.json's NAME) and its places added; a man walked along every link between places named PREFIX* (spec_ by default): which he gets along and which he doesn't",
+	"gf_what": "gf_what X Y Z [R] -> what a walker would touch in a sphere of R m (0.3) at X Y Z in the spec saloon's own space",
+	"gf_play": "gf_play SETUP [seed=N] [variant=A|B|C|D] -> the three gunmen in the new saloon, set up as the Y key does (spec_hall, spec_stair, spec_gallery, spec_back, spec_front), your gun away: it starts when you shoot or after 6 s; returns once they're in (play it with the usual commands)",
+	"gf_result": "gf_result -> the played fight so far: started, over, seconds, how it ended, each man's state",
+	"gf_aim": "gf_aim NAME SEGMENT -> turn to face that part of him (upper_arm_l, thigh_r, chest...): a shot there, for a film",
+	"gf_hit": "gf_hit NAME SEGMENT -> a revolver ball from your eye straight at that part of him (the lab's sure shot, for a film: no sway, no spread)",
+	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
+	"gf_trace": "gf_trace NAME [SECONDS] -> every 0.1 s of game time: where he is, his speed, gait, pose, stumbling, tactic, mood, reaction and stagger left, whether he's looking for cover, his decision",
+	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -291,3 +301,231 @@ func _cmd_gf_map(a: Array) -> Dictionary:
 		if Vector2(p.x - c.x, p.z - c.z).length() <= r:
 			out.places[String(k)] = arr(p)
 	return out
+
+
+## Every link between the spec saloon's places walked by a man (built and joined in first): along
+## each link from one end, at a run, until he's there, stuck (0.8 s without moving 5 cm) or 12 s.
+func _cmd_gf_ways(a: Array) -> Dictionary:
+	var prefix := String(a[0]) if a.size() > 0 and not String(a[0]).begins_with("dress=") else "spec_"
+	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	for w: String in a:
+		if w.begins_with("dress="):
+			var dressing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/gunfight_lab/dressing.json"))
+			Fight.SpecBuildingScript.extra_furniture = dressing.get(w.substr(6), [])
+	SpecSaloon.ensure(street, places)
+	await physics_frames(10)
+	var done := {}
+	var ok := []
+	var bad := []
+	var man := HumanBody.new()
+	man.name = "Walker"
+	man.person_id = &"walker"
+	for n: StringName in places.points:
+		if not String(n).begins_with(prefix):
+			continue
+		for nb: StringName in places.links.get(n, []):
+			var key := [String(n), String(nb)]
+			key.sort()
+			if done.has(str(key)):
+				continue
+			done[str(key)] = true
+			var from: Vector3 = places.points[n]
+			var to: Vector3 = places.points[nb]
+			if not man.is_inside_tree():
+				man.enter(street, from + Vector3.UP * 0.05, HumanBody.yaw_toward(from, to))
+				await physics_frames(20)
+			else:
+				man.global_position = from + Vector3.UP * 0.05
+				await physics_frames(3)
+			var t := 0.0
+			var still := 0.0
+			var last := man.global_position
+			var arrived := false
+			while t < 12.0:
+				await get_tree().physics_frame
+				var dt := 1.0 / Engine.physics_ticks_per_second
+				t += dt
+				if man.walk_to(to, 3.8, dt):
+					arrived = true
+					break
+				if man.global_position.distance_to(last) < 0.05:
+					still += dt
+					if still > 0.8:
+						break
+				else:
+					still = 0.0
+					last = man.global_position
+			var end := man.global_position
+			var line := {"from": String(n), "to": String(nb), "s": snappedf(t, 0.1), "at": arr(end - SpecSaloon.Play.ORIGIN),
+				"dy": snappedf(end.y - to.y, 0.01), "left_m": snappedf(Vector2(end.x - to.x, end.z - to.z).length(), 0.01)}
+			if arrived and absf(end.y - to.y) < 0.3:
+				ok.append(line)
+			else:
+				bad.append(line)
+	man.queue_free()
+	return {"walked": ok.size(), "blocked": bad.size(), "bad": bad, "ok": ok.map(func(l: Dictionary) -> String: return "%s -> %s %.1f s" % [l.from, l.to, l.s])}
+
+
+func _cmd_gf_what(a: Array) -> Dictionary:
+	SpecSaloon.ensure(street, (street.get_node_or_null(^"TownLife") as TownLife).places)
+	await physics_frames(3)
+	var shape := SphereShape3D.new()
+	shape.radius = float(a[3]) if a.size() > 3 else 0.3
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.collision_mask = Layers.STAND | Layers.PEOPLE
+	q.transform = Transform3D(Basis.IDENTITY, SpecSaloon.at(vec(a, 0)))
+	var out := []
+	for h: Dictionary in player.get_world_3d().direct_space_state.intersect_shape(q, 16):
+		var c := h.collider as Node
+		out.append(String(c.get("member_id")) if c is StructureMember else String(c.get_path()))
+	return {"touches": out}
+
+
+var _played: Node
+
+
+func _cmd_gf_play(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": HELP.gf_play}
+	if _played != null:
+		# Your wounds, blood and rounds are this game's: a fresh fight needs a fresh game (as the Y key
+		# reloads the scene, which the bridge can't follow).
+		return {"ok": false, "error": "one fight a game: your wounds and rounds carry over. Restart the game (bridge.py stop, then start) for the next"}
+	var opts := {"scenario": a[0], "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game", "seed": 1,
+		"variant": String(OutlawBrain.Variant.keys()[OutlawBrain.default_variant]), "max": 300.0, "count": 6.0, "draw_turns": "false"}
+	for w: String in a.slice(1):
+		var kv := w.split("=", true, 1)
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	_played = Fight.new(self, opts)
+	add_child(_played)
+	var err: String = await _played.setup()
+	if err != "":
+		_played.queue_free()
+		return {"ok": false, "error": err}
+	return {"setup": a[0], "count_s": float(opts.count), "say": "your gun's away; they go for theirs when you shoot or in %d s" % int(float(opts.count))}
+
+
+func _cmd_gf_result(_a: Array) -> Dictionary:
+	if not is_instance_valid(_played):
+		return {"ok": false, "error": "no played fight (gf_play)"}
+	var men := {}
+	for id: String in _played.gang_ids:
+		var m: Dictionary = _played._men[id]
+		men[id] = m.outcome
+	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
+		"men": men}
+
+
+func _cmd_gf_aim(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_aim}
+	bridge._face((m.parts[StringName(a[1])] as Node3D).global_position)
+	await physics_frames(1)
+	return {"aimed": a[1]}
+
+
+func _cmd_gf_watch(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_watch}
+	_watch = {"man": m, "dist": float(a[1]) if a.size() > 1 else 3.0, "deg": float(a[2]) if a.size() > 2 else 40.0,
+			"h": float(a[3]) if a.size() > 3 else 1.5, "fov": a[4] if a.size() > 4 else ""}
+	_follow()
+	await physics_frames(1)
+	return {"watching": a[0]}
+
+
+## The film camera (gf_watch): each frame from the side of him away from you, DEG round from there,
+## pulled in short of whatever's between, on his chest. `camera player` (the bridge's) ends it.
+var _watch := {}
+
+
+func _physics_process(_delta: float) -> void:
+	if not _watch.is_empty():
+		if bridge._free_camera == null and _watch.get("placed", false):
+			_watch = {}
+			return
+		_follow()
+
+
+func _follow() -> void:
+	var m := _watch.man as HumanBody
+	if not is_instance_valid(m):
+		_watch = {}
+		return
+	var chest := (m.parts[&"chest"] as Node3D).global_position if m.parts.has(&"chest") else m.global_position + Vector3.UP * 1.1
+	var away := m.global_position - player.global_position
+	away.y = 0.0
+	away = away.normalized() if away.length() > 0.1 else -m.global_basis.z
+	var to := away.rotated(Vector3.UP, deg_to_rad(float(_watch.deg))) * float(_watch.dist) + Vector3.UP * (float(_watch.h) - (chest.y - m.global_position.y))
+	var space := m.get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(chest, chest + to)
+	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	var hit := space.intersect_ray(q)
+	var at := chest + to
+	if not hit.is_empty():
+		at = chest + to.normalized() * maxf(chest.distance_to(hit.position) - 0.2, 0.5)
+	var args := [at.x, at.y, at.z, chest.x, chest.y, chest.z]
+	if str(_watch.fov) != "":
+		args.append(_watch.fov)
+	bridge._cmd_camera(args.map(func(v: Variant) -> String: return str(v)))
+	_watch.placed = true
+
+
+func _cmd_gf_hit(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 2 else null
+	if m == null or not m.parts.has(StringName(a[1])):
+		return {"ok": false, "error": HELP.gf_hit}
+	var b := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	var rev := player.revolver() as RevolverViewmodel
+	if b == null or rev == null:
+		return {"ok": false, "error": "no ballistics or revolver"}
+	var eye := player.camera.global_position
+	var dir := ((m.parts[StringName(a[1])] as Node3D).global_position - eye).normalized()
+	var t := rev.tuning
+	var exclude: Array[RID] = [player.get_rid()]
+	var ball := b.fire(eye + dir * 0.3, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+	ball.form = t.form_factor
+	ball.shooter = player
+	GunSmoke.spawn(b.get_parent(), eye + dir * 0.6, dir)
+	if GameAudio.enabled():
+		GameAudio.gunshot(rev, eye)
+	Events.shot_fired.emit(eye, dir, player)
+	var wounds := m.wounds.size()
+	await physics_frames(3)
+	return {"hit": m.wounds.size() > wounds, "wounds": m.wounds.size()}
+
+
+func _cmd_gf_minds(_a: Array) -> Dictionary:
+	var out := {}
+	for id: String in ["brody", "lyle", "kid"]:
+		var m := person(id)
+		var b := m.get_node_or_null(^"Brain") as OutlawBrain if m else null
+		if b:
+			out[id] = {"decision": b.decision, "fear": snappedf(b.fear, 0.01), "nerve": snappedf(b.nerve_now(), 0.01),
+					"pain": snappedf(m.physiology.felt_pain(), 0.01), "bleed": snappedf(m.physiology.total_bleed_rate(), 0.01)}
+	return {"men": out}
+
+
+func _cmd_gf_trace(a: Array) -> Dictionary:
+	var m := person(a[0]) if a.size() >= 1 else null
+	if m == null:
+		return {"ok": false, "error": HELP.gf_trace}
+	var b := m.get_node_or_null(^"Brain") as OutlawBrain
+	var secs := float(a[1]) if a.size() > 1 else 5.0
+	var out: Array = []
+	var t := 0.0
+	while t < secs:
+		var row := [snappedf(t, 0.01), snappedf(m.global_position.x, 0.01), snappedf(m.global_position.z, 0.01),
+				snappedf(m.move_speed, 0.01), String(m.gait), String(m.pose), m.stumbling > 0.0, m.limp]
+		if b:
+			row.append_array([String(OutlawBrain.Tactic.keys()[b.tactic]), String(OutlawBrain.Mood.keys()[b.mood]),
+					snappedf(b._react, 0.01), snappedf(b._stagger, 0.01), b._search != null, b.decision,
+					arr(b.cover.get("at", Vector3.ZERO)), (b.cover.get("route", []) as Array).map(func(w: Vector3) -> Array: return arr(w))])
+		out.append(row)
+		await seconds(0.1)
+		t += 0.1
+	return {"trace": out, "cols": "t x z speed gait pose stumbling limp tactic mood react stagger searching decision"}

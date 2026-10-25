@@ -70,7 +70,10 @@ func test_calm_until_shot_at() -> void:
 	# A ball cracks past his ear.
 	await _shoot(Vector3(0, 1.5, -1), Vector3(0.8, 1.6, -8), player)
 	check_eq(brain.mood, OutlawBrain.Mood.FIGHTING, "then he fights")
-	check(brain.fear > 0.0, "and it scared him a little (%.2f)" % brain.fear)
+	var scared := 0.0
+	for why: StringName in brain.fear_from:
+		scared += float(brain.fear_from[why])
+	check(scared > 0.0, "and it scared him a little (%s)" % str(brain.fear_from))  # a fright since variant D: it fades
 
 
 func test_he_shoots_back_and_hurts() -> void:

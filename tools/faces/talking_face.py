@@ -558,14 +558,34 @@ def build(man, out, head, report_only=False, landmarks=None):
     fe = np.clip((de - EYE_FADE[0]) / (EYE_FADE[1] - EYE_FADE[0]), 0, 1)
     off[pv] *= (fe * fe * (3 - 2 * fe))[:, None]
     ok |= de < EYE_FADE[1]
+    # The patch's outer edge is pinned onto his skin: the stitch to his kept head must meet flush.
+    # Unpinned, the edge sat where MakeHuman's face put it, up to 27 mm into a receding chin and 4 mm
+    # off a bald forehead, and the strip stood as a step there (dark arcs, pale dashes; the
+    # storekeeper, 2026-10-23). The laplace fill blends the face between it and the pulled skin.
+    loops0 = boundary_loops(Tp)
+    edge0 = max(loops0, key=len)
+    rim = np.isin(pv, edge0)
+    # How far off his skin the edge would sit unpinned, as before 2026-10-23 (the report's
+    # `edge_unpinned_mm`; a man made then has the step wherever this is large: face-seam.md).
+    fixed_u = np.ones(len(X), bool)
+    fixed_u[pv] = ok
+    rim_off = S.closest((X + laplace_fill(off.copy(), fixed_u, Tp))[edge0])[4]
+    off[pv[rim]] = (q - X[pv])[rim]
+    ok = ok | rim
     fixed = np.ones(len(X), bool)
     fixed[pv] = ok
     off = laplace_fill(off, fixed, Tp)
     Xr = X + off                                     # the patch at rest on his head
     inside = np.zeros(len(X))                        # how far into his head (mouth, lid backs)
     inside[pv] = np.clip(np.linalg.norm(S.closest(Xr[pv])[0] - Xr[pv], axis=1) / 0.005, 0, 1)
+    edge_now = S.closest(Xr[edge0])[4]
     rep["patch"] = {"triangles": int(len(Tp)), "vertices": int(len(pv)), "pulled": int(ok.sum()),
-                    "pull_mm_median": round(float(np.median(d[ok]) * 1000), 2)}
+                    "pull_mm_median": round(float(np.median(d[ok]) * 1000), 2),
+                    "edge_unpinned_mm": {"max": round(float(rim_off.max()) * 1000, 1),
+                                         "over_2mm": int((rim_off > 0.002).sum()), "points": int(rim.sum())},
+                    "edge_mm_max": round(float(edge_now.max()) * 1000, 2)}
+    print("talking_face: face edge %d points, %d were over 2 mm off his skin (worst %.1f mm), now %.2f mm" % (
+        rim.sum(), (rim_off > 0.002).sum(), rim_off.max() * 1000, edge_now.max() * 1000))
     print("talking_face: patch %d triangles, %d of %d vertices pulled onto his skin" % (len(Tp), ok.sum(), len(pv)))
 
     # His head's axis and the patch's outline on it.

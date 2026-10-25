@@ -16,13 +16,17 @@ adds its own lines.
 - **Mantaflow** (Apache-2.0, inside Blender's `bpy` 4.5.3): the fire simulation the flame
   flipbooks are baked from (`tools/textures/fire_sim/`); only its output, our sheets in
   `assets/textures/fire/`, is in the game.
-- **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU): Python libraries the tools use.
+- **NumPy** (BSD-3), **SciPy** (BSD-3), **Pillow** (MIT-CMU), **scikit-image** (BSD-3): Python libraries the tools use.
 - The portrait factory's reference pictures (`docs/concept/style/factory/`): made by Sean in ChatGPT.
 - **Hyper3D Rodin** Gen-2.5 (Deemos), through **fal.ai**: paid API generations, output owned by the
   customer with commercial use allowed (as understood; the terms pages couldn't be opened from the
   workspace, shipped on that basis with Sean's OK, 2026-10-21). The meshes and paint of
   `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`, `barkeep_s1`, `widow_s1` and
-  `sean_s2`, `doctor_s1`, `colter_rider_s1` (and the earlier Rodin men).
+  `sean_s2`, `doctor_s1`, `colter_rider_s1` (and the earlier Rodin men); the horse's shape and paint
+  (`assets/creatures/horse/`, 2026-10-24: from Sean's pictures and views drawn from them by Nano
+  Banana Pro in the Character Studio, Sean's OK, the game's #340); the saloon's deer head
+  (`assets/props/models/deer_head*`, 2026-10-24) and the steer skull (`steer_skull*`, from pictures drawn by
+  OpenAI's GPT-5.4 image model through OpenRouter, output owned by the customer).
 - `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`: made by the Character Studio
   (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
   Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
@@ -37,3 +41,8 @@ adds its own lines.
   BVH conversion (cgspeed.com; no further restrictions), fetched by
   `experiments/mocap_walk/fetch.sh` into `build/cmu/`. The walk (35_01) and run (35_17) are
   retargeted onto our rig in `experiments/mocap_walk/clips/` (an experiment, off by default).
+- **Uthana text-to-motion** (`uthana/text-to-motion-diffusion-v2`, run on Replicate under its
+  terms by the Studio, 2026-10-24): the card cheat's four clips in `assets/animations/` (a walk,
+  a kick, a draw, standing over a man) were generated from text for this project and retargeted
+  onto our rig by `tools/blender/retarget_motion.py`; the generated takes are kept in the Studio
+  (`motions/card_cheat/`).

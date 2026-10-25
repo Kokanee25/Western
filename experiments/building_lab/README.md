@@ -166,6 +166,23 @@ In the order the saloon needs them:
 5. **Gameplay:** a prop knocked by a ball or a body doesn't move; what stands on a shelf adds no
    weight (`extra_load` unused); `furniture_frame` members are never load-checked.
 
+## Fought in (2026-10-23, the gunfight lab)
+
+The gunfight lab's setups are in this saloon now (`experiments/gunfight_lab/`, `spec_*` arenas;
+`spec_saloon.gd` joins its ways into the town's places). What it took, as built:
+- **The batwings were solid**: two `door` members across the doorway at 0.4–1.55 m, on the world's
+  layer, so neither you nor anyone could walk in (the town's saloon has drawn batwings, FacadeArt's,
+  nothing to collide with). In the builder they're on `Layers.DEBRIS` now: a ball still hits them,
+  a walker passes.
+- **No places**: a man walks by `Waypoints` (straight to the nearest place he can reach, then along
+  the links); the spec saloon had none, so the stair, the galleries and the back rooms were out of
+  his reach. 48 places from the spec (doors, the bar's open end, round the open cellar trap, the
+  stair's foot and head, the galleries, the rooms, the balcony, the yard); every link walked by a
+  man (`gf_ways`: 52 of 52).
+- Walking needed nothing else: the stair's ramp carries a man up (1.5 s foot to head), the
+  doorways pass him. Two things to route round: the kitchen's cellar trap stands open, and the back
+  room's door leaf stands open into the hall beside a gallery post.
+
 ## Open for Sean
 
 (Settled: rooms 4 and 5, over the bar against the store, stay **without windows**, the cheap rooms
