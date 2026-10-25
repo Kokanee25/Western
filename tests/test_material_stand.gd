@@ -330,16 +330,19 @@ func test_the_back_bar_mirrors_paint_the_room() -> void:
 	check(m.shader.get_code().contains("room_depth"), "a room in front of the glass")
 
 
-func test_round_6b_is_the_game_exterior_woods() -> void:
-	# Sean picked round 6b (2026-10-22): the exterior woods promoted from mlab_studio10 under the
-	# game's names, with the lab's finish (seams a pixel wide, the low sheen, the light in 4 steps).
+func test_r1_is_the_game_exterior_woods() -> void:
+	# Sean picked R1 (2026-10-25, #391; 6b too painted): round 1's Studio repaint promoted from
+	# mlab_studio1 under the game's names at 512 texels a metre, with the lab's seams as he saw it
+	# (no light steps, no sheen of its own), VRAM-compressed (#286).
 	for wood in [&"saloon_red", &"store_boards", &"weathered_pine", &"floor", &"timber", &"fascia", &"framing", &"dark_trim"]:
 		var m := WoodMaterials.get_material(wood, 0) as ShaderMaterial
 		check(m != null and m.get_shader_parameter(&"edge_aa") == true, "%s with seams a pixel wide" % wood)
-		check(m.shader == PixelArt.GRID_SHADER_BLOCKS and float(m.get_shader_parameter(&"wood_bands")) == 4.0, "%s lit in 4 steps" % wood)
-		check(is_equal_approx(float(m.get_shader_parameter(&"specular")), 0.08), "%s with the low sheen" % wood)
+		check(m.shader != PixelArt.GRID_SHADER_BLOCKS, "%s lit smoothly (6b's 4 steps gone)" % wood)
 		check(m.get_shader_parameter(&"end_tex") is Texture2D, "%s has its end grain" % wood)
-	check(WoodMaterials.strip_count(&"timber") == 8, "timber's 8 boards, the old 12's extras gone")
-	# The game draws a batch a strip, so the woods round 6b cut more boards for keep their old counts.
+		check_eq(PixelArt.lab_density(String(wood) + "_b0", PixelArt.WOODS_SET), 512.0, "%s at 512 texels a metre" % wood)
+		var stub := FileAccess.get_file_as_string("res://assets/textures/woods/%s_b0.png.import" % wood)
+		check(stub.contains("compress/mode=2"), "%s VRAM-compressed" % wood)
+	check(WoodMaterials.strip_count(&"timber") == 8, "timber's 8 boards, R1's 12 capped at 6b's count")
+	# The game draws a batch a strip, so the woods keep 6b's counts.
 	for capped in [[&"floor", 7], [&"framing", 3], [&"dark_trim", 2]]:
 		check_eq(WoodMaterials.strip_count(capped[0]), capped[1], "%s keeps its %d strips (draw calls as before)" % capped)
