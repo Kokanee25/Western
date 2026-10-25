@@ -375,6 +375,17 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 
 ## src/world
 
+- `World` (`src/world/world.gd`): the determinism rules (docs/briefs/more-cores.md "The design" F).
+  `World.space(node)` is the only way to the physics space; a debug build errors once a site when
+  it's asked outside the physics frame (the test runner fails on it: fire a shot or a query from
+  `_process` through `WeaponViewmodel._in_tick`, or `await get_tree().physics_frame` first).
+  `World.deterministic` (the tests; the labs' `-- --deterministic`; `application/run/deterministic`
+  in an override.cfg): work spread over frames budgets by count (`WorkBudget`), gaps by physics
+  frames (`World.now()`), the plugin's voxel meshes swap in `VoxelWorks.DUE_FRAMES` after a carve,
+  the smoke steps on the main thread. No global `randf`/`randi` in src/: every die is a person's or a
+  thing's. Counters: `Prof.count` (`q_senses`, `q_cover`, `q_brain`, `q_walk`, `q_balls`, `q_lamps`,
+  `q_signs`, `q_body`, `q_writes`: a count a frame, read like ms) and `PhysicsWindow` (`window`,
+  `step`, `rest`; the gunfight lab adds it).
 - `src/world/` — `DayCycle` (clock + sky; `config/day_cycle.tres`), sky and ground shaders, oil lamps,
   placeholder scenery. The day starts at noon with the clock **held** (`hold_clock`, Sean 2026-10-23:
   "daytime stays daytime"; `DayCycle.held`: `advance` doesn't move it, `time_scale` stays, since

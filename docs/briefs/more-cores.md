@@ -369,6 +369,13 @@ to ~13.5 of the frame's ~20 ms here; a `PhysicsWindow` pair of nodes (the first 
 to tick, by `process_physics_priority`) times the window, so the frame splits into the window
 (ours), the step (Jolt's) and the rest (the engine's), and `perf` records all three. Then run
 the baseline twice and `same_fight.py` them: 10 of 10 the same is the gate."*
+**Done (2026-10-25, `claude/gameplay-perf-step1`; `results/2026-10-25_step1/`):** 10 of 10 the
+same (the second run with the tests on the other cores), no ms gained, as expected: 14.6 ms a
+frame, the window 10.0 / step 1.1 / rest 3.4; a frame's rays cover 65, senses 46, walking 19,
+lamps 4.5, brains 0.4; writes 336. The fights are re-baselined (the shot leaves on the tick after
+the trigger's read; 0 of 10 match main's). The chaos flake was two things: #375's clock budgets
+and GlassProp's global `randf()`. Under `World.deterministic` the plugin's voxel meshes and the
+smoke field land on fixed frames too.
 
 **Step 2. The per-person tick made cheap, single-core** (expected −2.5 to −3 ms:
 `people_skeleton` 1.4 -> ~0.5, `people_body` 4.4 -> ~2.5). *"Read `results/2026-10-25_threading/probe.md`.
