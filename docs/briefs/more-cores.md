@@ -344,8 +344,9 @@ lab command, one game at a time (`python3 experiments/gunfight_lab/run.py --scen
 --jobs=1 --out=build/…`), the `perf` numbers summarised into a results folder; **run twice and
 compared with `same_fight.py`**; the tests green; a status entry; the next step's issue. Expected
 gains are this core's ms a frame in a D gunfight (x0.65 for Sean's), against main today's 20.0
-(`results/2026-10-25_threading/probe.md`). Steps 1–4 are the gunfight's; 5 the fire scene's;
-6–8 the engine's threads and the structures; 9 the table. **The order waits on Sean: issue #378**
+(`results/2026-10-25_threading/probe.md`). Steps 1–4 are the gunfight's; 4b the finished map's
+(people ticked by distance, Sean's ask); 5 the fire scene's; 6–8 the engine's threads and the
+structures; 9 the table. **The order waits on Sean: issue #378**
 (the order as written, the engine's switches first, or steps 1–2 only for now).
 
 **Step 1. The determinism ground** (no gain in ms; a small session). *"Read docs/briefs/more-cores.md
@@ -419,6 +420,24 @@ skeleton, the signs), and run `prepare` over the people with
 (the lab's `perf`): if the threads don't pay on this 4-core box, say so, keep the phases
 single-threaded, and leave the group task behind a setting for Sean's cores. The lab twice;
 the physics lab's falls and the body lab's wounds the same."*
+
+**Step 4b. People ticked by distance** (Sean, 2026-10-25, for the finished map: no gain in the
+saloon fight, where everyone is near; on a full town with 30 townsfolk two streets off at a
+quarter rate, roughly half a millisecond a man at Sean's, so ~10 ms). *"Read 'The design' B and
+CLAUDE.md's rule that performance never fakes the game. In `PeopleTick`, give every person a
+tick band from his distance to the player and to any fight he's in (near: every tick; middle,
+past ~25 m: every 2nd; far, past ~60 m and out of any fight: every 4th), with hysteresis of a
+few metres so a man on a line doesn't flicker between bands, and the band chosen by distance
+only (game state), never by frame time, so a seeded fight stays the same. What the band slows:
+`Senses._look`, `_apply_pose` and the skeleton copy, `FaceLife`, `WoundSigns`, a calm brain's
+`_physics_step`; each steps with the delta it accumulated, so a far man walks at the right
+speed and his wounds bleed at the right rate. What never slows: hearing (`Events.noise` is a
+signal, not a tick), a brain that is fighting, fleeing, tending or rescuing, anyone the player
+is talking to or aiming at, the ragdoll (physics is the engine's), and anyone the camera can
+see within the near band (what the player sees ticks fully, by the rule). Test: a townsman
+walking his route two streets off arrives at the same places at the same times with bands on
+and off (`test_town_day`); the gunfight lab twice; and `perf_bench`'s calm street with the town
+doubled (`--folk=2`, new) shows the people's share flat where it was linear."*
 
 **Step 5. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
 become frames under 20; no change to the gunfight's average). *"Read `experiments/blast_freeze/README.md`
