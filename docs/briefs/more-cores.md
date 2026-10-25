@@ -156,6 +156,20 @@ seeds, D, the careful player, `spec_hall`, each configuration run twice):
   tick (three errors, one a game): under the thread nothing is collected, so the wall props hung
   on nails aren't known to the fittings at all. The same class of bug as the shot, found only
   because the paired runs were looked at.
+- **And it is not quite deterministic under the thread.** The same three seeds run twice with
+  the thread on (`same_fight.txt`): two fights the same event for event, the third (seed 2) the
+  same for 116 events and 48.9 s, then after an identical chest hit the player blacked out in
+  one run (the fight over at 49.5 s) and not in the other (on to 58.3 s). The game as it is was
+  the same 3 of 3 (and the lab has always been). So besides the systematic shift there is a
+  rare race on the player's wound path. Not found this session; the suspects, for step 5, in
+  order: the Jolt step's jobs on the same `WorkerThreadPool` as the server's pump task (Jolt
+  documents determinism regardless of thread count; whether Godot's job system keeps it with the
+  pump task occupying a thread is the first check: `threading/worker_pool/max_threads=1`), the
+  one wall-clock read left in gameplay code (`Structure._rebuild_dirty_batches`'
+  `BATCH_REBUILD_GAP` by `Time.get_ticks_msec`, if a realised member's body differs from its
+  batched one), and the global RNG's remaining users (`Blood.splat`, `ImpactEffects`,
+  `GlassProp`) if any draws on a different tick under the thread. The method: seed 2 ten times
+  with the thread on, then with each suspect removed, until the ten agree.
 - **Part of the thread's gain is the writes, not the step.** With the server threaded every
   `body_set_state` is a queue push instead of Jolt's position-and-broadphase update inline, so
   `people_body` itself fell 4.4 -> 3.7 ms (its 17 part transforms a man a tick are physics
@@ -400,9 +414,11 @@ worst 5% −5 ms). *"Read 'The review' 'Physics on its own thread'. With steps 1
 `physics/3d/run_on_separate_thread` from a `Settings` entry (default off; the look panel and
 F-keys don't touch it) via `override.cfg`-free means (`ProjectSettings.set_setting` before the
 server starts isn't possible; it must be the project setting, so the setting is read at start
-and the project's value is the default): decide and document. Run the whole test suite, the soak
-for an hour and the lab twice under it: zero 'Space state is inaccessible' errors in any log is
-the gate, and the paired runs the same. Then re-baseline the lab's `baseline/` under it with a
+and the project's value is the default): decide and document. First the rare race: seed 2 of
+`results/2026-10-25_threading/` ten times with the thread on, then with each suspect in 'The
+review' removed, until ten agree; what it was goes in the results. Then run the whole test
+suite, the soak for an hour and the lab twice under it: zero 'Space state is inaccessible'
+errors in any log is the gate, and the paired runs the same, every fight. Then re-baseline the lab's `baseline/` under it with a
 note of what moved (every brain now sees the last step). Ask Sean to play a saloon fight with
 it on and off and read F3."*
 

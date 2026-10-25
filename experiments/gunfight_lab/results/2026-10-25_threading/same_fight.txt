@@ -1,0 +1,79 @@
+# same_fight.py over the paired runs (2026-10-25)
+
+## base_a vs base_b (the game as it is, twice)
+SAME  spec_hall_golden_revolver_careful_studio_s1  (110 events, 34.2 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s2  (103 events, 36.4 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s3  (221 events, 73.1 s, fled)
+3 of 3 fights the same
+
+## phys_a vs phys_b (physics on its own thread, twice)
+SAME  spec_hall_golden_revolver_careful_studio_s1  (49 events, 19.6 s, you_down)
+DIFF  spec_hall_golden_revolver_careful_studio_s2
+      length_s: 49.52 vs 58.3
+      you.blood_ml: 3792 vs 3571
+      you.cover_moves: 5 vs 6
+      you.hits_taken: 4 vs 5
+      you.near_misses: 16 vs 26
+      you.near_misses_per_min: 19.4 vs 26.8
+      you.stuck: 0 vs 2
+      you.wounds: 5 vs 6
+      brody.reloads: 1 vs 2
+      brody.shots: 6 vs 10
+      kid.hits_on_you: 1 vs 2
+      kid.shots: 5 vs 9
+      first divergence at event 117 of 120 (98% in):
+        A: [49.52, 'mood', 'brody: calm']
+        B: [50.22, 'mood', 'kid: fighting']
+SAME  spec_hall_golden_revolver_careful_studio_s3  (116 events, 32.1 s, you_down)
+2 of 3 fights the same
+
+## base_a vs phys_a (the thread against the game as it is)
+DIFF  spec_hall_golden_revolver_careful_studio_s1
+      length_s: 34.18 vs 19.62
+      first_shot_by: 'you' vs 'brody'
+      first_hit_by: 'you' vs 'gang'
+      you.blood_ml: 4947 vs 4987
+      you.drew_at: -1.0 vs 8.09999999999998
+      you.first_hit_at: 19.8 vs 5.05
+      you.hits: 1 vs 0
+      you.hits_taken: 4 vs 3
+      you.near_misses: 9 vs 4
+      you.near_misses_per_min: 15.8 vs 12.2
+      you.pellet_hits: 1 vs 0
+      you.shots: 2 vs 0
+      first divergence at event 19 of 110 (17% in):
+        A: [3.67, 'shot', 'you fired']
+        B: [4.18, 'decision', 'brody: behind cover: got there']
+DIFF  spec_hall_golden_revolver_careful_studio_s2
+      length_s: 36.4 vs 49.52
+      first_shot_by: 'you' vs 'kid'
+      you.blood_ml: 4898 vs 3792
+      you.cover_moves: 2 vs 5
+      you.drew_at: 23.3833333333333 vs 23.0
+      you.first_hit_at: 20.33 vs 15.57
+      you.hits_taken: 5 vs 4
+      you.look_outs: 5 vs 3
+      you.near_misses: 13 vs 16
+      you.near_misses_per_min: 21.4 vs 19.4
+      you.reloads: 0 vs 1
+      you.shots: 1 vs 0
+      first divergence at event 21 of 103 (20% in):
+        A: [4.07, 'shot', 'you fired']
+        B: [4.13, 'decision', 'brody: behind cover: got there']
+DIFF  spec_hall_golden_revolver_careful_studio_s3
+      ending: 'fled' vs 'you_down'
+      end: 'gang_out' vs 'you_down'
+      length_s: 73.07 vs 32.15
+      first_shot_by: 'you' vs 'brody'
+      outcomes: {'down': 2, 'fled': 1} vs {'standing': 2, 'surrendered': 1}
+      you.blood_ml: 4974 vs 4928
+      you.cover_moves: 6 vs 5
+      you.down: False vs True
+      you.drew_at: 43.9333333333321 vs 16.9000000000003
+      you.first_hit_at: 40.88 vs 13.8
+      you.hits: 3 vs 0
+      you.hits_taken: 1 vs 3
+      first divergence at event 21 of 221 (10% in):
+        A: [3.63, 'shot', 'you fired']
+        B: [3.88, 'decision', 'brody: behind cover: got there']
+0 of 3 fights the same
