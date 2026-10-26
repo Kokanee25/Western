@@ -14,10 +14,21 @@ Each change was measured on its own, one on top of the other, from a worktree at
 (`runs/<name>/`: `fights/*.json`, `manifest.json`). **before** is step 1's head with main merged
 (8cbfa2c2: the base this branch starts from; its fights are step 1's own, 10 of 10).
 
+## The per-shot hitch (Sean's F3, added to this step by #390; `shot.md`)
+
+One revolver ball each way into the spec saloon's walls (`bf_shot`, the blast-freeze lab): the
+ball's member left its batch, and `_build_batch` rebuilt that material's mesh for the whole saloon
+(up to 683 members), **15-23 ms of the shot's frame**. Now a material's members are batched in
+pieces of at most 64 near members (`Structure.BATCH_PIECE`, 2 m cells on a Morton curve): **1-3
+ms**, and the shot's worst frame 42-58 -> 26-37 ms here. The saloon draws in 115 batches (was 62),
+the street's 92 structures in 736 (was 733). What's left of a shot is the holed member's load
+check (`fire_loads`, 14-20 ms) and, a second later, the townsfolk's `civilian_brain` burst (~100
+ms on one frame): step 5's, both named there.
+
 ## The gate
 
 **10 of 10 fights the same** (`same_fight.txt`; `runs/step2_a/`, `runs/step2_b/`), on the final
-build (4a858272).
+build (1f20f8f6), and its fights are the 4a858272 build's to the event (the batch pieces move nothing).
 
 It first failed: 8 of 10 on the (a2) build (`a2_runs.md`), one fight by the player's blood at the
 end alone (4694 vs 4699 ml), one from 91% in. A per-tick log of the player's bleeds over three
@@ -30,30 +41,31 @@ used before a seed found no others.
 
 The body lab found a second hidden die (below): `WoundSigns` took its every-fourth-tick phase from
 `body.get_instance_id() % 4`, and instance ids count every object made before him. Now
-`hash(["signs", rng_seed])`. The gate was run again after it (the final build, 4a858272).
+`hash(["signs", rng_seed])`. The gate was run again after it and after the batch pieces.
 
 ## The numbers (ms a frame; a `q_*` row is a count a frame)
 
 | | before | (a) | (ab) | (abc)* | (abcd)* | **step 2 (a)** | **step 2 (b)** |
 |---|---|---|---|---|---|---|---|
-| frame (mean / p95) | 16.26 / 20.55 | 15.51 / 20.02 | 15.75 / 20.11 | 15.49 / 20.12 | 15.05 / 19.01 | **15.00 / 19.32** | **14.31 / 18.23** |
-| people (mean / p95) | 9.26 / 12.11 | 8.78 / 11.54 | 8.57 / 11.41 | 8.56 / 11.19 | 8.31 / 10.79 | **8.22 / 10.79** | **7.91 / 10.33** |
-| window / step / rest | 10.18 / 1.51 / 4.49 | 9.96 / 1.49 / 3.99 | 9.79 / 1.53 / 4.36 | 9.83 / 1.50 / 4.09 | 10.35 / 1.61 / 3.02 | 10.23 / 1.61 / 3.09 | 9.85 / 1.57 / 2.83 |
-| `people_body` | 3.65 | 3.57 | 3.21 | 3.24 | 3.21 | 3.33 | 3.20 |
-| `people_skeleton` | 1.12 | 0.82 | 0.84 | 0.81 | 0.64 | 0.49 | 0.48 |
+| frame (mean / p95) | 16.26 / 20.55 | 15.51 / 20.02 | 15.75 / 20.11 | 15.49 / 20.12 | 15.05 / 19.01 | **15.03 / 18.78** | **14.86 / 18.61** |
+| people (mean / p95) | 9.26 / 12.11 | 8.78 / 11.54 | 8.57 / 11.41 | 8.56 / 11.19 | 8.31 / 10.79 | **8.22 / 10.63** | **8.17 / 10.63** |
+| window / step / rest | 10.18 / 1.51 / 4.49 | 9.96 / 1.49 / 3.99 | 9.79 / 1.53 / 4.36 | 9.83 / 1.50 / 4.09 | 10.35 / 1.61 / 3.02 | 10.23 / 1.61 / 3.13 | 10.16 / 1.59 / 3.05 |
+| `people_body` | 3.65 | 3.57 | 3.21 | 3.24 | 3.21 | 3.33 | 3.30 |
+| `people_skeleton` | 1.12 | 0.82 | 0.84 | 0.81 | 0.64 | 0.48 | 0.48 |
 | `q_writes` | 336 | 336 | 336 | 60 | 60 | 75 | 75 |
 
-All of it in `perf.md` (with `exact`, the 43f9ef3c build before the WoundSigns fix: 14.27 / 18.15).
-Step 2 (a)/(b) is the final build (4a858272: the five changes, (c) exact, and the seeds), run
-twice. \* (abc) and (abcd) had (c) within 0.01 degree, which changed the fights (`q_cover` 71
+All of it in `perf.md`, with the builds between: `exact` (43f9ef3c, before the WoundSigns fix) 14.27
+/ 18.15, `signs` (4a858272, before the batch pieces) 15.00 / 19.32 and 14.31 / 18.23. Step 2 (a)/(b)
+is the final build (1f20f8f6: the changes, (c) exact, the seeds, the batch pieces), run twice. \* (abc) and (abcd) had (c) within 0.01 degree, which changed the fights (`q_cover` 71
 against 65); the final build's are the before's again (every count the same; 9 of 10 event for
 event, `same_fight_before_vs_step2.txt`: the tenth is s4's packing roll, random before).
 
-**Against before: about -1.6 ms a frame (16.3 -> 14.7, the two runs' mean; p95 20.6 -> 18.8),
-people 9.3 -> 8.1.** Two runs of one build differ by up to 0.7 ms a frame here, and untouched
+**Against before: about -1.3 ms a frame (16.3 -> 14.95, the two runs' mean; p95 20.6 -> 18.7),
+people 9.3 -> 8.2.** The last six runs of these builds read 14.3 to 15.0, two runs of one build up
+to 0.7 apart here, and untouched
 systems (`outlaw_brain`, `senses`) read up to 5% lower in the later runs, so the frame's total is
 soft; the systems' own are steady across the runs: `people_skeleton` 1.12 -> 0.48, `people_body`
-3.65 -> ~3.25, and the skeleton out of `rest` (it was `_process`). At Sean's (x0.65): about -1 ms.
+3.65 -> ~3.3, and the skeleton out of `rest` (it was `_process`). At Sean's (x0.65): about -1 ms.
 
 | Change | What it did | Measured (this core) |
 |---|---|---|
@@ -97,8 +109,10 @@ settled pose holds still exactly, so most sets still go: `q_writes` 75 a frame, 
 the hundredth and 336 before.
 
 The physics lab (`physics_lab.md`): **150 of 151 falls identical to the before's**; the 151st,
-`Q_rail_charge_front`, isn't steady on main itself (step 1's README). On the final build 149: also
-`P_table_blackout`, which settles at 4.58 or 3.88 s on the before build itself.
+`Q_rail_charge_front`, isn't steady on main itself (step 1's README). On the final build 148:
+`P_table_blackout`, which settles at 4.58 or 3.88 s on the before build itself, and two railing
+charges, of which `Q_rail_charge_back` flips between two outcomes that the before gives as well
+(one without `deterministic`, the other with it).
 
 ## The body lab
 
@@ -114,9 +128,9 @@ the tenth the packing roll).
 
 ## What else was checked
 
-- Every test file, each in its own Godot, three at a time: 99 files, 98 green; `test_perf`'s burning
-  street failed its worst frame (272 and 273 ms against 250) in both sweeps, which ran beside the
-  physics lab. Alone it passes (four runs). Both builds side by side under the same load (two
+- Every test file, each in its own Godot, three at a time, on the final build: **99 of 99 green**.
+  On the builds before it, `test_perf`'s burning street failed its worst frame (272 and 273 ms
+  against 250) in two sweeps that ran beside the physics lab. Alone it passes (four runs). Both builds side by side under the same load (two
   busy loops), twice: worst 165 / 172 ms before, 178 / 169 after; mean 23.9 / 23.1 before,
   21.7 / 23.3 after. The same range: the fire's settle, not the people.
 - `test_studio_hands`, `test_bodies`, `test_body_lab`, `test_injuries`, the four weapon tests on

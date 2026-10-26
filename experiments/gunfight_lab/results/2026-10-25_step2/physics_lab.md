@@ -170,3 +170,13 @@ The within-0.01 run against the before:
 | Y_table_dead_onto | 2.70 -> 2.70 | 2.7 -> 2.7 | 0.030 -> 0.030 | 0.006 -> 0.006 | 0.014 -> 0.014 | 0 -> 0 |
 | Y_chair_shove_back | 2.80 -> 2.80 | 56.2 -> 56.2 | 0.279 -> 0.279 | 0.110 -> 0.110 | 0.012 -> 0.012 | 6 -> 6 |
 | Y_chair_blackout_back | 4.90 -> 4.90 | 2.8 -> 2.8 | 0.025 -> 0.025 | 0.009 -> 0.009 | 0.013 -> 0.013 | 0 -> 0 |
+
+## The final build (1f20f8f6, with the batch pieces)
+
+**148 of 151.** `P_table_blackout` as above. The railing charges: run twice more on each build,
+`T_balcony_rail_charge_back` and `Q_rail_charge_front` came out the before's; `Q_rail_charge_back`
+gave 16.5 m/s peak and 6 flags on the before and 23.6 / 7 on the final, steadily. Under
+`deterministic` (an override.cfg) the before gives **23.6 / 7** too, as does the final, and the
+4a858272 build 16.5 / 6: the scenario flips between those two outcomes with how a frame's work
+falls (the railing's settle on the clock), on the before build as well. Unsteady, as
+`Q_rail_charge_front` was in step 1.
