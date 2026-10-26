@@ -467,6 +467,25 @@ skeleton, the signs), and run `prepare` over the people with
 (the lab's `perf`): if the threads don't pay on this 4-core box, say so, keep the phases
 single-threaded, and leave the group task behind a setting for Sean's cores. The lab twice;
 the physics lab's falls and the body lab's wounds the same."*
+**Done (2026-10-26, `claude/gameplay-perf-step4`; `results/2026-10-26_step4/`):** both commits
+**10 of 10 the same twice, and every fight's record event for event main's** (threads on or
+off too); the street's townsfolk, who now tick after the player and the saloon's props, walk and
+look a few lines differently (`q_walk` +2-3 % in the long fights); the physics lab's 151 falls
+and the body lab's 216 records the before's. `PeopleTick` is an internal child of the last man in
+(a node before the first moved the fight's men ahead of the player, and seed 1 parted at 0.97 s).
+The phases: `begin_prepare` (main), `prepare` on the pool (physiology, favouring, `_pose_maths`
+into `_rots`), each man's tick applying it (`_pose_writes`, the rig, the skeleton) before his
+brain, face and senses. **Phase 2: 1.72 ms of work on one thread, 1.08 ms of the main thread's
+time on the pool** (its men's own times sum to 2.1 there: a man's half costs a quarter more on a
+worker). Scaled by the untouched systems (this VM drifted ~10% between runs): **the people -0.34
+ms against main, the threads ~0.6 against off, the frame -0.1** (the brief expected -0.5 to -1;
+the work moved is only ~1.7 ms). Threads stay on (`Settings.people_threads`,
+`-- --people-threads=off`). Not moved: the gun hand (it takes the aim the brain picks that tick,
+off the gun's muzzle node), the signs' decisions (each followed at once by its decal), the people's
+capsules in SightWorld (no line asks `BODY_PARTS` through Sight yet). **Phase 3 measured, not
+built:** `Senses`' 46 lines a frame cost 0.47 ms here one at a time (Jolt 0.62), so one batch
+could save ~0.4; it means every man looks from the tick's snapshot, a change to the fights, so
+it's a step of its own (#396's handover carries it for the review to place).
 
 **Step 4b. People ticked by distance** (Sean, 2026-10-25, for the finished map: no gain in the
 saloon fight, where everyone is near; on a full town with 30 townsfolk two streets off at a

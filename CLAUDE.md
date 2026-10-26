@@ -570,12 +570,17 @@ frozen until Sean names one.
   9.3 -> 8.2; `people_body` is the pose's GDScript now (1.6 of 3.2). The per-shot hitch: batches in
   pieces of 64 members (a shot's rebuild 15-23 -> 1-3 ms). Every later step has its issue
   (#394–#401, each the full prompt, gate and handover; a step's session labels the next one
-  `next session`). **Step 3 done** (PR #406, waiting on the Fable review, `claude/gameplay-perf-step3`;
-  `results/2026-10-26_step3/`): `SightWorld` (plugin) + `Sight` (`src/people/sight.gd`) answer the
-  sight lines (Cover, `Senses._clear`, SightLight, `OutlawBrain._clear`) by Jolt's rules, fed by
-  the tree; `tests/test_sight_world.gd` the gate; 10 of 10 the same; **no gain** (the ~115 lines a
-  frame were ~0.4 ms under Jolt; a batch is 0.7 us a line, so step 4's one batch a tick pays);
-  fights re-baselined against main (rounding at Cover's 20 cm snap). Step 4 is #395. **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  `next session`). **Step 3 merged** (PR #406, `results/2026-10-26_step3/`): `SightWorld` (plugin)
+  + `Sight` (`src/people/sight.gd`) answer the sight lines by Jolt's rules; no gain on its own.
+  **Step 4 done** (PR #PRNUM, waiting on the Fable review, `claude/gameplay-perf-step4`;
+  `results/2026-10-26_step4/`): `PeopleTick` (`src/people/people_tick.gd`; an internal child of
+  the last man in) ticks the people in `tick_index` order, then in phases: each man's pure half
+  (`HumanBody.prepare`: physiology, favouring, the pose's maths) on the worker pool
+  (`Settings.people_threads`, `-- --people-threads=off`), his tick applying it. Main's fights event
+  for event at both commits, threads on or off (the street's townsfolk tick after the player now);
+  phase 2 1.72 -> 1.08 ms of the main thread here, the people -0.34 scaled, the frame within the
+  VM's noise. Phase 3 (one sight batch a tick) measured, not built (~0.4 ms of `Senses`' lines; a
+  change to the fights). Step 4b is #396. **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
   worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
   switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
   (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.
