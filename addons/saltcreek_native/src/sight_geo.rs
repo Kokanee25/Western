@@ -399,7 +399,7 @@ fn ray_triangle(o: Vec3A, d: Vec3A, t: &[Vec3A; 3]) -> Option<(f32, Vec3A)> {
         return None;
     }
     let tt = e2.dot(q) * inv;
-    if tt < 0.0 || tt > 1.0 {
+    if !(0.0..=1.0).contains(&tt) {
         return None;
     }
     Some((tt, e2.cross(e1).normalize_or_zero()))
