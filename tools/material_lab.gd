@@ -8,7 +8,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/material_lab.gd -- --out=DIR \
 ##       [--material=saloon_red,floor,... | --material=all] [--set=SET] [--lights=noon,golden,saloon]
-##       [--views=...] [--no-masks]
+##       [--views=...] [--no-masks] [--no-stains]
 ##   ... -s res://tools/material_lab.gd -- --out=DIR --repeats   # Main Street's neighbour repeats
 ##
 ## --material: the woods under test (MaterialStand.PART_OF's keys), each a run of its own: its parts
@@ -51,6 +51,8 @@ const VIEWS := {
 	"post": [Vector3(-1.4, 1.75, -4.3), Vector3(0.3, 1.6, -1.65), 45.0],
 	# The deck's plank ends and the rim, low, the drifter beside the steps.
 	"deck_ends": [Vector3(0.4, 0.62, -3.0), Vector3(1.6, 0.4, -1.9), 40.0],
+	# The deck's planks close, looking down as you stand on the boardwalk (Sean's photo, 2026-10-25).
+	"deck_close": [Vector3(0.9, 1.75, -2.3), Vector3(1.5, 0.42, -0.5), 50.0],
 	# The steps from above, as you walk up them.
 	"steps": [Vector3(1.4, 1.65, -3.9), Vector3(1.7, 0.3, -1.9), 50.0],
 	# The three men close, for their reference sheet (tools/textures/men_reference.py; --views=men).
@@ -106,6 +108,7 @@ func _run() -> void:
 	var materials: Array = [""]
 	var set := ""
 	var repeats := false
+	var stains := true
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			_out = arg.substr(6)
@@ -122,6 +125,9 @@ func _run() -> void:
 			_masks = false
 		elif arg == "--repeats":
 			repeats = true
+		elif arg == "--no-stains":
+			# The woods as the game draws them today (no member carries the weathering frame).
+			stains = false
 	var pa = load("res://src/art/pixel_art.gd")
 	if set != "":
 		pa.lab = true
@@ -155,7 +161,10 @@ func _run() -> void:
 	var place := Node3D.new()
 	place.name = "MaterialLab"
 	street.add_child(place)
-	place.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)), ORIGIN)
+	# On the ground where it stands (the town's ground climbs west since 2026-10-25: TownLayout).
+	var tl = load("res://src/world/town_layout.gd")
+	place.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(YAW)),
+			ORIGIN + Vector3.UP * float(tl.ground_height(ORIGIN.x, ORIGIN.z)))
 	var lamps := _lamps(place)
 	var men := _men(place)
 	var cam := Camera3D.new()
@@ -177,6 +186,8 @@ func _run() -> void:
 		stand.material = StringName(mat) if mat != "props" else &""
 		if mat == "interior_square":
 			stand.profiled = false
+		if not stains and "weathered" in stand:
+			stand.weathered = false
 		place.add_child(stand)
 		stand.build()
 		_stand_men(place, men, STAIR_MEN if mat == "stair" else (stand.MEN if interior else MEN))
@@ -454,5 +465,9 @@ func _props(stand: Node3D) -> Node3D:
 ## The men to their places for this run (the stand's or the stair's).
 func _stand_men(place: Node3D, men: Array, where: Array) -> void:
 	for i in men.size():
-		men[i].global_position = place.global_transform * (where[i][1] as Vector3)
+		var at: Vector3 = place.global_transform * (where[i][1] as Vector3)
+		if is_zero_approx((where[i][1] as Vector3).y):
+			# A man on the sand stands on the ground where he is (it slopes out here).
+			at.y = float(load("res://src/world/town_layout.gd").ground_height(at.x, at.z))
+		men[i].global_position = at
 		men[i].face(place.global_transform * (where[i][2] as Vector3))

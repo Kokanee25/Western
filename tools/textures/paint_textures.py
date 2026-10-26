@@ -54,6 +54,27 @@ SIGN = (
     "painting: do NOT copy its square pixels, paint a clean, detailed real board instead. No other "
     "text, no building, no sky, no border."
 )
+# A sign on R1's boards (Sean, 2026-10-25: the coded lettering out; the woods real since he picked
+# R1): the reference is the game's own wood, not a painting's sign.
+SIGN_R1 = (
+    "A flat, straight-on picture of {what}. The board fills the whole frame edge to edge, seen "
+    "perfectly square on (orthographic, no perspective), in soft, even, flat light with no cast "
+    "shadows. The lettering reads exactly \"{text}\", spelled exactly so, big, clear and centred, "
+    "hand-painted by a sign-writer with crisp brush edges, the paint old, faded and a little "
+    "chipped. The wood is old sun-greyed pine like the boards in the reference image: real grain, "
+    "a knot or two, checks and weathering. Realistic and sharp. No other text, no building, no "
+    "sky, no border."
+)
+# A sign-writer's letters alone, to lay straight on a false front's own boards (FacadeArt): on
+# white, so reduce.py can take the white away and the wall shows through the chips.
+LETTERING = (
+    "Sign-writer's lettering seen perfectly square on (orthographic, no perspective): the words "
+    "\"{text}\", spelled exactly so, hand-painted in {what}. Only the letters, on a plain, flat, pure "
+    "white background that fills the rest of the frame: no board, no wall, no wood, no frame, no "
+    "shadow, no other text or marks. The letters fill the frame from side to side, centred, with "
+    "crisp brush edges; the paint is old: faded, dry and chipped, with small flakes missing inside "
+    "the strokes. Realistic and sharp."
+)
 
 
 # A material with "height": its relief, painted from its own picture (the ground shader lights the
@@ -160,6 +181,9 @@ def in_mans_hand(prompt):
 
 
 def reference(spec):
+    if "ref_image" in spec:
+        # A picture of the repo's (the game's own wood strip, for R1's signs) as the reference.
+        return Image.open(os.path.join(ROOT, spec["ref_image"])).convert("RGB")
     painting, x0, y0, x1, y1 = spec["ref"]
     return Image.open(os.path.join(ROOT, PAINTINGS[painting])).convert("RGB").crop((x0, y0, x1, y1))
 
@@ -168,9 +192,9 @@ def paint_material(mid, spec, key, out, style_man, tries=3, budget=None):
     """One material painted (in the men's hand with style_man) and kept at `out`; None if every
     try failed or the budget (dollars for the run, SPENT so far) can't take another call."""
     kind = spec["kind"]
-    prompt = (SIGN if kind == "sign" else GROUND if kind == "ground" else TILE).format(
-        what=spec["what"], text=spec.get("text", ""))
-    refs = [reference(spec)]
+    template = {"sign": SIGN_R1 if spec.get("r1") else SIGN, "ground": GROUND, "lettering": LETTERING}.get(kind, TILE)
+    prompt = template.format(what=spec["what"], text=spec.get("text", ""))
+    refs = [reference(spec)] if ("ref" in spec or "ref_image" in spec) else []
     if style_man:
         prompt = in_mans_hand(prompt)
         man = Image.open(MAN).convert("RGB")
@@ -204,8 +228,12 @@ def main():
         return
     only = None
     group = None
+    budget = None
     for a in sys.argv[1:]:
-        if a.startswith("--only=") and a.split("=", 1)[1] not in ("", "all"):
+        if a.startswith("--budget="):
+            # Sean's approval for the run, in dollars: no call that could take it past.
+            budget = float(a.split("=", 1)[1])
+        elif a.startswith("--only=") and a.split("=", 1)[1] not in ("", "all"):
             only = a.split("=", 1)[1].split(",")
         elif a.startswith("--for=") and a.split("=", 1)[1]:
             group = a.split("=", 1)[1]
@@ -222,7 +250,7 @@ def main():
         if os.path.exists(out) and not repaint:
             print("already painted:", mid)
             continue
-        img = paint_material(mid, spec, key, out, "--style=man" in sys.argv)
+        img = paint_material(mid, spec, key, out, "--style=man" in sys.argv, budget=budget)
         if img is None:
             failed.append(mid)
             continue
@@ -241,6 +269,7 @@ def main():
                 continue
             h.convert("L").resize(img.size, Image.LANCZOS).save(os.path.join(RAW, mid + "_height.jpg"), "JPEG", quality=95)
             print("painted:", mid + "_height")
+    print("spent: $%.2f" % SPENT)
     if failed:
         print("not painted:", ", ".join(failed))
         if painted == 0:

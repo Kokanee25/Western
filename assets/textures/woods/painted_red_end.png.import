@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://l2ayqsdnfcx5"
-path="res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.ctex"
+uid="uid://rg4q4bt8vvwm"
+path.bptc="res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.bptc.ctex"
+path.astc="res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/painted_red_end.png"
-dest_files=["res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.ctex"]
+dest_files=["res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.bptc.ctex", "res://.godot/imported/painted_red_end.png-f5eea6c59762759235f233399e87f162.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

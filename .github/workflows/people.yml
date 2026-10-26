@@ -376,6 +376,9 @@ jobs:
             saloon|street) args="--for=$WHICH" ;;
             # man:<ids>: repainted in the layered cowboy's hand (art, docs/briefs/match-the-man.md).
             man:*) args="--only=${WHICH#man:} --style=man --repaint" ;;
+            # paid:BUDGET:<ids>: painted inside Sean's approval for the run, in dollars (art: the
+            # painted signs, 2026-10-25, #402).
+            paid:*) rest="${WHICH#paid:}"; args="--only=${rest#*:} --budget=${rest%%:*}" ;;
             *) args="--only=$WHICH" ;;
           esac
           if [ "$REPAINT" = "true" ]; then args="$args --repaint"; fi

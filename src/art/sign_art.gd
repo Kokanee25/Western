@@ -12,10 +12,25 @@ const BOARDS := {
 	"JAIL": &"sign_jail",
 	"LIVERY": &"sign_livery",
 }
+## The boards painted on R1's wood (Sean, 2026-10-25, #402), taken over BOARDS where they're painted.
+const R1_BOARDS := {
+	"SALOON": &"sign_saloon_r1",
+	"LIVERY": &"sign_livery_r1",
+	"EATING HOUSE": &"sign_eating_house",
+}
 const INDEX_PATH := "res://assets/textures/textures.json"
 
 static var _index := {}
 static var _textures := {}
+
+
+## The painted board for a sign's text: R1's where it's painted, else the older one, else &"".
+static func board_id(text: String) -> StringName:
+	var t := text.to_upper()
+	var r1: StringName = R1_BOARDS.get(t, &"")
+	if r1 != &"" and board_size(r1) != Vector2.ZERO:
+		return r1
+	return BOARDS.get(t, &"")
 
 
 ## The painted board's size in metres (as painted), or zero if there's no such board.
@@ -90,7 +105,7 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 ## as big as fits the front above the porch roof, kept to the board's shape, a hand's width
 ## proud of the boards. False if there's no painted board for that text (the lettered label stays).
 static func hang(building: FalseFrontBuilding, sign: Node3D, text: String) -> bool:
-	var id: StringName = BOARDS.get(text.to_upper(), &"")
+	var id: StringName = board_id(text)
 	var painted := board_size(id)
 	if painted == Vector2.ZERO:
 		return false

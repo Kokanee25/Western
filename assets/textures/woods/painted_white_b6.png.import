@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cs1reoycrb0q6"
-path="res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.ctex"
+uid="uid://ceoy4a8kmfjcg"
+path.bptc="res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.bptc.ctex"
+path.astc="res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/painted_white_b6.png"
-dest_files=["res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.ctex"]
+dest_files=["res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.bptc.ctex", "res://.godot/imported/painted_white_b6.png-2c1076d4cd42c4b6b9321f322c6714f8.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
