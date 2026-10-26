@@ -810,6 +810,8 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		offset[ai] = (a + b) * 0.5
 		var p := add_member("%s/%s" % [base, "a" if side == 0 else "b"], m.kind, m.wood, size, m.transform * offset, m.transform.basis)
 		p.set_meta(&"cut_from", m.member_id)
+		if m.look != &"":
+			p.look = m.look
 		mark_dirty(p.member_id)
 		p.temperature = m.temperature
 		p.char_depth = m.char_depth
@@ -830,7 +832,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		rb.global_transform = m.global_transform * Transform3D(Basis(), offset)
 		var mi := MeshInstance3D.new()
 		mi.mesh = MemberMesh.box(size)
-		mi.material_override = WoodMaterials.get_material(m.wood, hash(m.member_id) + k)
+		mi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id) + k)
 		rb.add_child(mi)
 		var cs := CollisionShape3D.new()
 		cs.shape = _box_shape(size)
@@ -924,7 +926,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 				rb.global_basis = Basis(Vector3(kick.z, 0.0, -kick.x), deg_to_rad(10.0)) * rb.global_basis
 			var pmi := MeshInstance3D.new()
 			pmi.mesh = MemberMesh.box(piece_size)
-			pmi.material_override = WoodMaterials.get_material(m.wood, hash(m.member_id))
+			pmi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id))
 			rb.add_child(pmi)
 			var pcs := CollisionShape3D.new()
 			pcs.shape = _box_shape(piece_size)
