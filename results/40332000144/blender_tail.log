@@ -1,0 +1,36 @@
+/home/runner/work/Western/Western/tools/cinematic/saloon.py:74: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m.use_nodes = True
+/home/runner/work/Western/Western/tools/cinematic/saloon.py:480: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  haze.use_nodes = True
+13:37:35 | INFO: Data are loaded, start creating Blender stuff
+13:37:35 | INFO: Blender create Mesh node body_head
+13:37:35 | INFO: Blender create Mesh node body_skin
+13:37:35 | INFO: Blender create Mesh node cloth_bandana_mask
+13:37:35 | INFO: Blender create Mesh node cloth_bandana
+13:37:35 | INFO: glTF import finished in 0.45s
+Traceback (most recent call last):
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 815, in <module>
+    main()
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 796, in main
+    cast = build()
+           ^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 790, in build
+    cast = build_cast()
+           ^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 679, in build_cast
+    cast["player"] = seat("player", lean=0.25, head_tilt=8.0)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 636, in seat
+    arm = man(who, model)
+          ^^^^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 558, in man
+    mat = material("%s:%s" % (model, shape), path, rough=rough, closest=False, spec=0.2)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 81, in material
+    t.image = image(tex)
+              ^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/saloon.py", line 62, in image
+    im = bpy.data.images.load(path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Error: Cannot read '/home/runner/work/Western/Western/assets/people/sean_s3_Icosphere.png': No such file or directory
+
