@@ -696,8 +696,8 @@ def title_rig():
         bpy.context.scene.collection.objects.link(ob)
         return ob
 
-    text("SALT CREEK", 0.95, 0.15, 0.05)
-    text("1882", 0.28, -0.62, 0.025)
+    text("SALT CREEK", 0.6, 0.12, 0.045)
+    text("1882", 0.2, -0.42, 0.022)
     boards = S.wood("int_boards")
     S.box("title_boards", (9.0, 0.1, 5.0), o + Vector((0, 0.05, 0)), boards, grain=0)
     # The light: a warm spot raking down from the upper left, and haze to catch its beam.
@@ -999,10 +999,10 @@ def cameras(A, things):
     ch, ly, st, pl = A["cheater"].arm, A["lyle"].arm, A["stranger"].arm, A["player"].arm
 
     # 1. The felt and the lamp, very close, sliding across the cards.
-    ob, a, b = shot("table", 50, 1.6)
-    tgt = TB + Vector((0.12, 0.08, S.TABLE_TOP + 0.03))
-    look(ob, a, TB + Vector((-0.42, -0.36, S.TABLE_TOP + 0.13)), tgt)
-    look(ob, b, TB + Vector((-0.2, -0.42, S.TABLE_TOP + 0.11)), tgt + Vector((0.08, 0.05, 0)))
+    ob, a, b = shot("table", 40, 2.2)
+    tgt = TB + Vector((0.0, 0.05, S.TABLE_TOP + 0.02))
+    look(ob, a, TB + Vector((0.2, -0.22, S.TABLE_TOP + 0.42)), tgt)
+    look(ob, b, TB + Vector((0.12, -0.12, S.TABLE_TOP + 0.3)), tgt + Vector((-0.04, 0.05, 0)))
     f1 = S.empty("focus_table", tgt)
     focus_on(ob, f1)
     handheld(ob, 0.4)
@@ -1011,8 +1011,8 @@ def cameras(A, things):
     ob, a, b = shot("ots", 45, 2.0)
     stp = at(st, "head", a)
     plp = at(pl, "head", a)
-    look(ob, a, plp + Vector((-0.38, -0.72, -0.08)), stp + Vector((0.08, 0.0, -0.1)))
-    look(ob, b, plp + Vector((-0.3, -0.55, -0.06)), stp + Vector((0.06, 0.0, -0.08)), lens=50)
+    look(ob, a, plp + Vector((0.28, -0.62, 0.02)), stp + Vector((0.0, 0.0, -0.12)))
+    look(ob, b, plp + Vector((0.24, -0.5, 0.02)), stp + Vector((0.0, 0.0, -0.1)), lens=50)
     ob.data.lens = 45
     ob.data.keyframe_insert("lens", frame=a)
     focus_on(ob, st, "head")
@@ -1025,10 +1025,10 @@ def cameras(A, things):
     focus_on(ob, None, distance=5.5)
 
     # 4. The ace: low at his right hand on the table.
-    ob, a, b = shot("ace", 85, 2.8)
+    ob, a, b = shot("ace", 70, 4.0)
     hp = at(ch, "hand_r", a + 20, 0.3)
-    look(ob, a, hp + Vector((-0.42, -0.3, 0.1)), hp + Vector((0.02, 0.02, -0.02)))
-    look(ob, b, hp + Vector((-0.36, -0.25, 0.08)), hp + Vector((0.04, 0.03, -0.02)))
+    look(ob, a, hp + Vector((-0.75, -0.5, 0.28)), hp + Vector((0.02, 0.02, -0.02)))
+    look(ob, b, hp + Vector((-0.62, -0.42, 0.24)), hp + Vector((0.04, 0.03, -0.02)))
     focus_on(ob, ch, "hand_r")
     handheld(ob, 0.3)
 
@@ -1053,8 +1053,8 @@ def cameras(A, things):
 
     # 6. He rises: from low by the stranger, across the table.
     ob, a, b = shot("rise", 32, 2.8)
-    look(ob, a, TB + Vector((-1.5, -0.55, 0.95)), TB + Vector((0.7, 0.45, 1.05)))
-    look(ob, b, TB + Vector((-1.45, -0.35, 1.0)), TB + Vector((0.65, 0.85, 1.15)))
+    look(ob, a, TB + Vector((1.9, -1.15, 1.0)), TB + Vector((0.55, 0.45, 1.1)))
+    look(ob, b, TB + Vector((1.85, -0.95, 1.05)), TB + Vector((0.55, 0.85, 1.15)))
     focus_on(ob, ly, "chest")
     handheld(ob, 1.0)
 
@@ -1088,8 +1088,10 @@ def cameras(A, things):
     ob, a, b = shot("floor", 40, 2.2)
     lyh = at(ly, "head", a)
     chh = at(ch, "head", a + 20)
-    look(ob, a, lyh + sd * 0.3 - fl * 0.25 + Vector((0, 0, -0.12)), chh)
-    look(ob, b, lyh + sd * 0.25 - fl * 0.05 + Vector((0, 0, -0.22)), at(ch, "head", b))
+    look(ob, a, lyh + sd * 0.38 - fl * 0.7 + Vector((0, 0, 0.05)), chh)
+    look(ob, b, lyh + sd * 0.34 - fl * 0.5 + Vector((0, 0, -0.05)), at(ch, "head", b))
+    ob.data.lens = 32
+    ob.data.keyframe_insert("lens", frame=a)
     focus_on(ob, ch, "head")
     handheld(ob, 0.9)
 
@@ -1098,9 +1100,10 @@ def cameras(A, things):
     chh = at(ch, "head", a)
     gp = at(ly, "hand_r", a)
     lyh = at(ly, "head", a)
-    look(ob, a, chh + Vector((0.12, 0.05, 0.08)), gp.lerp(lyh, 0.35))
-    look(ob, b, chh + Vector((0.14, 0.07, 0.07)), gp.lerp(lyh, 0.5), lens=32)
-    ob.data.lens = 28
+    base = CHEAT_CHEST + Vector((0.4, -0.3, -0.12))
+    look(ob, a, base, gp.lerp(lyh, 0.35))
+    look(ob, b, base + Vector((0.03, 0.02, 0.0)), gp.lerp(lyh, 0.45), lens=28)
+    ob.data.lens = 24
     ob.data.keyframe_insert("lens", frame=a)
     focus_on(ob, ly, "hand_r")
     handheld(ob, 0.7)
@@ -1109,20 +1112,20 @@ def cameras(A, things):
     ob, a, b = shot("after", 35, 3.2)
     plh = at(pl, "head", a)
     tgt = TB + Vector((0.2, 1.35, 0.25))
-    look(ob, a, plh + Vector((0.0, 0.0, -0.02)), tgt)
-    look(ob, a + 30, at(pl, "head", a + 30) + Vector((0.05, 0.05, 0.0)), tgt + Vector((0, 0, 0.1)))
-    look(ob, b, at(pl, "head", b) + Vector((0.12, 0.12, 0.0)), tgt + Vector((0.1, 0.0, 0.15)))
+    look(ob, a, plh + Vector((0.0, 0.2, 0.02)), tgt)
+    look(ob, a + 30, at(pl, "head", a + 30) + Vector((0.05, 0.22, 0.02)), tgt + Vector((0, 0, 0.1)))
+    look(ob, b, at(pl, "head", b) + Vector((0.1, 0.25, 0.02)), tgt + Vector((0.1, 0.0, 0.15)))
     focus_on(ob, ch, "chest")
     handheld(ob, 1.3)
 
     # 10. The stranger, from your seat: he hasn't moved.
-    ob, a, b = shot("stranger", 60, 2.0)
+    ob, a, b = shot("stranger", 48, 2.2)
     sth = at(st, "head", a)
     plh = at(pl, "head", a)
-    eye = sth.lerp(plh, 0.55) + Vector((0.0, 0.0, -0.04))
-    look(ob, a, eye, sth + Vector((0, 0, -0.12)))
-    look(ob, b, sth.lerp(eye, 0.75), sth + Vector((0, 0, -0.08)), lens=70)
-    ob.data.lens = 60
+    dirn = (sth - plh).normalized()
+    look(ob, a, plh + dirn * 0.2 + Vector((0, 0, -0.03)), sth + Vector((0, 0, -0.2)))
+    look(ob, b, plh + dirn * 0.38 + Vector((0, 0, -0.03)), sth + Vector((0, 0, -0.15)), lens=58)
+    ob.data.lens = 48
     ob.data.keyframe_insert("lens", frame=a)
     focus_on(ob, st, "head")
     handheld(ob, 0.35)
