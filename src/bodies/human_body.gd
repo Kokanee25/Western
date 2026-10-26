@@ -399,6 +399,7 @@ func _ready() -> void:
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
 	physiology.treated.connect(_bind_wound)
+	physiology.warm()  # its shared lists filled here, not by the workers (PeopleTick)
 	_dress()
 	_build()
 	if face_life and PeopleBodies.report(body_model).has("facerig"):
@@ -1303,10 +1304,14 @@ func _tick(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
-	if _day_cycle == null and is_inside_tree():
-		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
-	var scale_now: float = _day_cycle.time_scale if _day_cycle != null else time_scale
-	physiology.step(delta * scale_now)
+	# The first half done ahead this tick (PeopleTick: `prepare`), taken once.
+	var ahead := _prepared
+	var pose_ahead := ahead and _prep_pose
+	_prepared = false
+	_prep_pose = false
+	var scale_now := _prep_scale if ahead else _time_scale_now()
+	if not ahead:
+		physiology.step(delta * scale_now)
 	_update_stains(delta * scale_now)
 	signs_now().step(delta * scale_now)
 	_after_step(delta, delta * scale_now)
@@ -1316,8 +1321,9 @@ func _physics_step(delta: float) -> void:
 	if stumbling > 0.0 and not limp:
 		_stumble_on(delta)
 	if not limp:
-		_favour_step(delta)
-		_apply_pose(delta)
+		if not pose_ahead:
+			_favour_step(delta)
+		_apply_pose(delta, false, pose_ahead)
 		if stumbling > 0.0:
 			pass  # he's going down already
 		elif not physiology.can_stand() and not prone and not rising:
@@ -1359,6 +1365,50 @@ func _physics_step(delta: float) -> void:
 		died.emit(physiology.cause_of_death)
 		Events.person_died.emit(self, physiology.cause_of_death)
 	_was_conscious = conscious
+
+
+func _time_scale_now() -> float:
+	if _day_cycle == null and is_inside_tree():
+		_day_cycle = get_tree().get_first_node_in_group(&"day_cycle")
+	return _day_cycle.time_scale if _day_cycle != null else time_scale
+
+
+# --- His tick in two halves (PeopleTick: more-cores step 4) -------------------------------------
+
+## The tick's first half done ahead (`prepare`): his physiology stepped, and with `_prep_pose` his
+## favouring and his pose's maths too; the rest of his tick (`_physics_step`) applies them.
+var _prepared := false
+var _prep_pose := false
+var _prep_scale := 1.0
+## How long his `prepare` took (us; PeopleTick sums them against the phase's wall time).
+var prep_us := 0
+
+
+## On the main thread before `prepare` (PeopleTick's first phase): what the half needs from the
+## scene (the day's time scale), and whether his pose can be worked out ahead: standing on no clip
+## or capture, not stumbling or getting up (those move him or ask the physics as the pose goes).
+## False: nothing to do ahead (he's done all in his tick, as before).
+func begin_prepare() -> bool:
+	if _prepared:
+		return false  # the last one never got its tick (switched off since): it's still to apply
+	_prep_scale = _time_scale_now()
+	_prep_pose = not limp and not rising and stumbling <= 0.0 and _clip == null and _clip_w <= 0.0 \
+			and not mocap_gait and _mocap_w <= 0.0
+	return true
+
+
+## The tick's pure half, his own data only (safe on a worker: no node, no physics, no signal, no
+## Prof, no shared state written): his physiology, then, standing, his favouring and his pose's
+## maths. In the order his tick did them, ahead of the stains and signs, which read neither.
+func prepare(delta: float, timed := false) -> void:
+	var t0 := Time.get_ticks_usec() if timed else 0
+	physiology.step(delta * _prep_scale)
+	if _prep_pose:
+		_favour_step(delta)
+		_pose_maths(delta, false)
+	_prepared = true
+	if timed:
+		prep_us = Time.get_ticks_usec() - t0
 
 
 ## Where each part is at the end of this tick, for its velocity should he go limp (the standing
@@ -1937,24 +1987,33 @@ func face(point: Vector3) -> void:
 	aim_pitch = rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
 
 
-func _apply_pose(delta: float, snap := false) -> void:
+## `ahead`: its maths done already this tick (`prepare`).
+func _apply_pose(delta: float, snap := false, ahead := false) -> void:
+	if not ahead:
+		_pose_maths(delta, snap)
+	_pose_writes(delta, snap)
+
+
+## His pose's maths for this tick, his own data only (no node, no physics, no signal while he's on
+## no clip; PeopleTick runs it on a worker then, `prepare`): each joint's goal, the blends, the
+## flinch springs, his breath, into `_rots` (degrees, in `pivots`' order). A clip's turns go to
+## `_pose_clip` / `_pose_played` for the writes.
+func _pose_maths(delta: float, snap: bool) -> void:
 	_breath += delta * breath_rate()
 	var target: Dictionary = POSES[pose]
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	if rising:
 		_rise_t += delta
 		_rise_k = smoothstep(0.0, 1.0, clampf(_rise_t / float(_rise_stages[_rise_i][2]), 0.0, 1.0))
-	var clip := _mocap_now(delta)
-	var played := _clip_now(delta)
-	var overlay := _gait_overlay(delta) if clip.is_empty() and _mocap_w <= 0.0 and _clip_w <= 0.0 else {}
-	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
-	# up or bound, clutching a wound, the pose has his arms and back).
-	var all_of_him := pose == &"stand"
+	_pose_clip = _mocap_now(delta)
+	_pose_played = _clip_now(delta)
+	var overlay := _gait_overlay(delta) if _pose_clip.is_empty() and _mocap_w <= 0.0 and _clip_w <= 0.0 else {}
 	_injury_targets()
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
 	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
-	var writes := 0
+	_rots.resize(pivots.size())
+	var i := 0
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO)
 		if leans:
@@ -1978,6 +2037,23 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var shock := physiology.shock()
 			var gasp := 2.5 if shock > AGONAL_SHOCK else 1.0
 			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
+		_rots[i] = rot
+		i += 1
+
+
+## The pose's writes, on the main thread: each joint turned to its `_rots` (or its clip's turn),
+## then the rig, the hands and the rest of the tick's pose work.
+func _pose_writes(delta: float, snap: bool) -> void:
+	var clip := _pose_clip
+	var played := _pose_played
+	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
+	# up or bound, clutching a wound, the pose has his arms and back).
+	var all_of_him := pose == &"stand"
+	var writes := 0
+	var i := 0
+	for sid: StringName in pivots:
+		var rot := _rots[i]
+		i += 1
 		var pv := pivots[sid] as Node3D
 		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
 		var clip_here := _clip_w > 0.0 and played.has(sid)
@@ -1991,20 +2067,19 @@ func _apply_pose(delta: float, snap := false) -> void:
 			pv.rotation_degrees = rot
 			writes += 1
 			_pose_set[sid] = [rot, pv.transform] if not (mocap_here or clip_here) else _NOT_SET
-		if mocap_here:
+		if mocap_here or clip_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
-			# as he stumbles) on top of it.
-			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
+			# as he stumbles, the lean his wounds give him) on top of it. The played clip leads
+			# every joint it has.
+			var flinch: Vector3 = (_flinch.get(sid, _NO_FLINCH) as Array)[0]
+			var extra: Vector3 = (flinch + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
-			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
-			writes += 1
-		if clip_here:
-			# The played clip leads every joint it has; a flinch, a staged touch, his fold as he
-			# stumbles and the lean his wounds give him stay on top of it.
-			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
-					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
-			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
-			writes += 1
+			if mocap_here:
+				pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
+				writes += 1
+			if clip_here:
+				pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
+				writes += 1
 	Prof.count(&"q_writes", writes)
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
@@ -2020,6 +2095,12 @@ const _MOCAP_ALWAYS := ["pelvis", "thigh", "shin", "foot"]
 ## Each pivot as _apply_pose last set it: [its rotation (degrees), its transform after].
 var _pose_set := {}
 const _NOT_SET := [Vector3.INF, Transform3D()]
+const _NO_FLINCH := [Vector3.ZERO, Vector3.ZERO]
+## The tick's pose from _pose_maths, for _pose_writes: each joint's turn (degrees, `pivots`' order)
+## and a clip's turns.
+var _rots := PackedVector3Array()
+var _pose_clip := {}
+var _pose_played := {}
 
 
 ## This tick's frame of the walk or run clip (segment -> Quaternion, blended between the clip's

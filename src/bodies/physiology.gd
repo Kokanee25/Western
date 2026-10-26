@@ -516,6 +516,14 @@ func muscle_strength(group: String, side: String) -> float:
 static var _muscle_lists := {}  # [anatomy id, group, side] -> Array[StringName]
 
 
+## Every group's lists made now, on the main thread: `prepare` asks them from the workers
+## (PeopleTick), which only read the shared Dictionary.
+func warm() -> void:
+	for group: String in ["leg", "arm", "grip"]:
+		for side: String in ["r", "l"]:
+			_muscles(group, side)
+
+
 func _muscles(group: String, side: String) -> Array:
 	var key := [anatomy.get_instance_id(), group, side]
 	var ids: Variant = _muscle_lists.get(key)

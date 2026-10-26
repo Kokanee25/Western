@@ -1,7 +1,7 @@
 extends TestCase
 ## PeopleTick (more-cores step 4): the people tick from one place, in the order they came into the
 ## world, each man's own nodes after him in the order the tree has them; a node's switch is still
-## its own.
+## its own; and the first half of their tick on the worker pool is the same game as on one thread.
 
 var world: Node3D
 var log_ticks: Array[String] = []
@@ -40,6 +40,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.people_threads = Settings.PEOPLE_THREADS
 	world.queue_free()
 	await physics_frames(2)
 
@@ -114,3 +115,45 @@ func test_a_switch_off_is_still_his_own() -> void:
 	log_ticks.clear()
 	await physics_frames(1)
 	check_eq(log_ticks, ["M0/A"] as Array[String], "back on: ticked again")
+
+
+## Six men, each with a wound that hurts but doesn't drop him (he favours it, his breath goes, his
+## blood runs), stepped on the workers and again on one thread: every number the same.
+func _run(threads: bool) -> Array:
+	Settings.people_threads = threads
+	var men: Array[HumanBody] = []
+	for i in 6:
+		men.append(_man("M%d" % i, Vector3(i * 1.5, 0, 0), 31 + i))
+	await physics_frames(2)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var joules := 0.5 * t.bullet_mass * t.muzzle_velocity * t.muzzle_velocity
+	for i in men.size():
+		var man := men[i]
+		var seg: StringName = [&"thigh_r", &"upper_arm_l", &"abdomen", &"forearm_r", &"thigh_l", &"chest"][i]
+		var at := (man.parts[seg] as Node3D).global_position + Vector3(0.03, 0, 0)
+		var dir := -man.global_basis.z
+		man.take_bullet(man.parts[seg], at - dir * 0.15, dir, joules, t.bullet_diameter * 0.5, t.bullet_mass, 5.0)
+	men[2].set_pose(&"aim")
+	men[4].set_pose(&"crouch")
+	await physics_frames(90)
+	var out := []
+	for man in men:
+		var rots := []
+		for sid: StringName in man.pivots:
+			rots.append((man.pivots[sid] as Node3D).rotation_degrees)
+		out.append([man.limp, man._pose_now.duplicate(true), man._flinch.duplicate(true), man._favour.duplicate(true),
+				man._breath, man.physiology.blood_ml, man.physiology.pain, man.physiology.oxygen, rots])
+	for man in men:
+		man.queue_free()
+	await physics_frames(2)
+	return out
+
+
+func test_the_workers_are_the_same_game() -> void:
+	var on: Array = await _run(true)
+	var off: Array = await _run(false)
+	var standing := 0
+	for i in on.size():
+		check_eq(var_to_str(on[i]), var_to_str(off[i]), "man %d: the same on the workers as on one thread" % i)
+		standing += 0 if on[i][0] else 1
+	check(standing >= 4, "most still standing, so their pose was worked out ahead (%d)" % standing)

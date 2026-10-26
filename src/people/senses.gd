@@ -292,7 +292,12 @@ func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceSt
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
 	Prof.count(&"q_senses")
-	return Sight.clear(space, from, to, ex)
+	# Timed on its own (`lines_senses`): what one batch of the tick's lines could save at most
+	# (more-cores step 4, "The design" B phase 3).
+	var t := Prof.start()
+	var clear := Sight.clear(space, from, to, ex)
+	Prof.stop(&"lines_senses", t)
+	return clear
 
 
 func _speed_of(who: Node3D) -> float:

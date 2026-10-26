@@ -84,9 +84,56 @@ static func _move_to(man: HumanBody) -> void:
 	man.add_child(n, false, Node.INTERNAL_MODE_FRONT)
 
 
+## The tick in phases ("The design" B):
+## 1. on the main thread, each man that ticks says what his first half needs from the scene
+##    (`HumanBody.begin_prepare`);
+## 2. their first halves, pure (`HumanBody.prepare`: physiology, favouring, the pose's maths), on
+##    the worker pool when `Settings.people_threads` is on, else here one after another: each man
+##    writes only his own data, so the two are the same game;
+## 3. each man's tick in order (`people_tick`): his tick applies the first half (the joints set,
+##    the rig, the skeleton, the signs), then his brain, face and senses.
+## Phase 2's wall time (`people_prep`) and the sum of its men's (`people_prep_sum`) go to Prof.
 func _physics_process(delta: float) -> void:
 	if _node != self:
 		return
-	for man: HumanBody in _people.duplicate():
+	var men := _people.duplicate()
+	_batch.clear()
+	for man: HumanBody in men:
+		if is_instance_valid(man) and man.is_inside_tree() and man.is_physics_processing() and man.can_process() \
+				and man.begin_prepare():
+			_batch.append(man)
+	_prep_phase(delta)
+	for man: HumanBody in men:
 		if is_instance_valid(man) and man.is_inside_tree():
 			man.people_tick(delta)
+
+
+## The men whose first half runs this tick, and the tick's delta, for the workers.
+var _batch: Array[HumanBody] = []
+var _dt := 0.0
+var _timed := false
+
+
+func _prep_phase(delta: float) -> void:
+	if _batch.is_empty():
+		return
+	_timed = Prof.on
+	var t0 := Time.get_ticks_usec() if _timed else 0
+	_dt = delta
+	if Settings.people_threads and _batch.size() > 1:
+		# High priority: a low-priority pool task can hang the game at quit (issue #392).
+		var id := WorkerThreadPool.add_group_task(_prep_one, _batch.size(), -1, true, "people: prepare")
+		WorkerThreadPool.wait_for_group_task_completion(id)
+	else:
+		for i in _batch.size():
+			_prep_one(i)
+	if _timed:
+		Prof.add(&"people_prep", Time.get_ticks_usec() - t0)
+		var sum := 0
+		for man in _batch:
+			sum += man.prep_us
+		Prof.add(&"people_prep_sum", sum)
+
+
+func _prep_one(i: int) -> void:
+	_batch[i].prepare(_dt, _timed)

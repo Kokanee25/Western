@@ -11,7 +11,7 @@ const SCENARIOS := "res://experiments/gunfight_lab/scenarios.json"
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const SpecBuildingScript := preload("res://experiments/building_lab/spec_building.gd")
 ## Prof's timers that are people (CLAUDE.md's frame budget table, "People").
-const PEOPLE := [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain", &"player", &"town_life", &"blood"]
+const PEOPLE := [&"people_body", &"people_prep", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain", &"player", &"town_life", &"blood"]
 ## How long with nobody firing before a fight's called a lull (both sides lost each other).
 const LULL := 45.0
 ## A ball into the ground this near a man's line of sight to another (m) throws dust across it.
