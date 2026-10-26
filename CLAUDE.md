@@ -562,7 +562,7 @@ frozen until Sean names one.
   the physics frame; the player's shot leaves on the tick), `World.deterministic` (count budgets),
   no global dice, `Prof.count` `q_*` and `PhysicsWindow`; the chaos flake was #375's clock budgets
   and GlassProp's `randf()`; 10 of 10 the same, the fights re-baselined; 14.6 ms a frame, window 10.0
-  / step 1.1 / rest 3.4, writes 336 a frame. **Step 2 done** (PR #PRNUM, waiting on the Fable review;
+  / step 1.1 / rest 3.4, writes 336 a frame. **Step 2 done** (PR #404, waiting on the Fable review;
   `results/2026-10-25_step2/`): fingers worked out once and parented in the skeleton, the carry as
   transforms, a pivot set only when it changed exactly (within 0.01 degree turned 19 falls), the
   bones on his tick; the player's packing roll and the wound signs' phase (was his instance id) by
