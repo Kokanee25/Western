@@ -698,9 +698,9 @@ def face_lights(arm):
     h = head_of(arm)
     lamp = TABLE + Vector((0.08, 0.12, TABLE_TOP + 0.2))
     to = (h - lamp)
-    area(arm.name + "_key", lamp + to * 0.35, h, 18.0, 0.3, LAMP_RGB)
+    area(arm.name + "_key", lamp + to * 0.35, h, 2.2, 0.3, LAMP_RGB)
     back = h - (lamp - h).normalized() * 1.2 + Vector((0, 0, 0.9))
-    area(arm.name + "_rim", back, h, 22.0, 0.5, MOON_RGB)
+    area(arm.name + "_rim", back, h, 6.0, 0.5, MOON_RGB)
 
 
 def build_cast():
@@ -762,7 +762,7 @@ def shots(cast):
     pl = head_of(cast["player"])
     out = {}
     # 2: over your shoulder at the stranger, your hat and shoulder soft in the foreground.
-    out["ots"] = camera("ots", pl + Vector((0.62, -0.5, 0.04)), st + Vector((0.0, 0.0, -0.12)), lens=45,
+    out["ots"] = camera("ots", pl + Vector((-0.38, -0.72, -0.08)), st + Vector((0.08, 0.0, -0.1)), lens=45,
                         focus=st, fstop=2.0)
     # 4: the cheater's smirk, close, the lamp's flame soft in front.
     out["cheater"] = camera("cheater", ch + Vector((-0.45, -1.75, -0.12)), ch + Vector((0, 0, -0.16)), lens=75,
