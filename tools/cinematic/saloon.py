@@ -341,7 +341,7 @@ def build_room():
     build_balcony(timber, trim, floor)
     # The moonlit street beyond the doors: a dark blue backdrop lit by the moon.
     street = material("street_night", colour=(0.012, 0.016, 0.03), rough=1.0,
-                      emit=(0.05, 0.07, 0.14), emit_strength=0.25)
+                      emit=(0.05, 0.07, 0.14), emit_strength=0.08)
     box("street_backdrop", (14, 0.1, 8), (cx, y1 + 9.0, 3.0), (street, (1, 1)))
     box("street_ground", (14, 9, 0.05), (cx, y1 + 4.5, -0.03), (material("street_dirt", colour=(0.05, 0.05, 0.06),
                                                                        rough=1.0), (1, 1)))
@@ -559,7 +559,7 @@ def man(who, model):
         if not os.path.exists(path):
             path = os.path.join(PEOPLE, "%s_%s.png" % (src, shape))
         rough = 0.75 if shape in ("skin", "head") else 0.85
-        mat = material("%s:%s" % (model, shape), path, rough=rough, closest=False, spec=0.2)
+        mat = material("%s:%s" % (model, shape), path, rough=rough, closest=True, spec=0.2)
         o.data.materials.clear()
         o.data.materials.append(mat)
         o.name = "%s_%s" % (who, shape)
@@ -678,15 +678,40 @@ def stand(who, model, at, yaw, pose=None):
     return arm
 
 
+def area(name, at, target, power, size, rgb):
+    """A film light: an area lamp aimed at `target`, not seen by the camera."""
+    lt = bpy.data.lights.new(name, "AREA")
+    lt.energy = power
+    lt.size = size
+    lt.color = rgb
+    ob = bpy.data.objects.new(name, lt)
+    ob.location = at
+    ob.rotation_euler = (Vector(target) - Vector(at)).to_track_quat("-Z", "Y").to_euler()
+    ob.visible_camera = False
+    bpy.context.scene.collection.objects.link(ob)
+    return ob
+
+
+def face_lights(arm):
+    """The lamp's light on his face, a little stronger than the lamp gives (a film's key from the
+    lamp's side), and a cool edge from the moon behind him."""
+    h = head_of(arm)
+    lamp = TABLE + Vector((0.08, 0.12, TABLE_TOP + 0.2))
+    to = (h - lamp)
+    area(arm.name + "_key", lamp + to * 0.35, h, 18.0, 0.3, LAMP_RGB)
+    back = h - (lamp - h).normalized() * 1.2 + Vector((0, 0, 0.9))
+    area(arm.name + "_rim", back, h, 22.0, 0.5, MOON_RGB)
+
+
 def build_cast():
     cast = {}
     cast["player"] = seat("player", lean=0.25, head_tilt=8.0)
     cast["stranger"] = seat("stranger", lean=0.3, head_turn=-18.0)
     cast["cheater"] = seat("cheater", lean=0.2)
     cast["lyle"] = seat("lyle", lean=0.35, head_turn=12.0)
-    face(cast["cheater"], smile_l=0.7, squint=0.3, look_left=0.25)
-    face(cast["lyle"], scowl=0.6, brows_down=0.5, squint=0.4)
-    face(cast["stranger"], squint=0.25, brows_down=0.15)
+    face(cast["cheater"], smile_l=0.75, brows_up=0.2)
+    face(cast["lyle"], scowl=0.5, brows_down=0.45)
+    face(cast["stranger"], brows_down=0.15)
 
     def lean_on_bar(arm, f):
         up = Vector((0, 0, 1))
@@ -695,6 +720,9 @@ def build_cast():
         aim(arm, "forearm_r", f - side * 0.3)
         aim(arm, "upper_arm_l", -up * 0.6 + f * 0.7 - side * 0.2)
         aim(arm, "forearm_l", f + side * 0.3)
+
+    for who in ("player", "stranger", "cheater", "lyle"):
+        face_lights(cast[who])
 
     cast["barkeep"] = stand("barkeep", "barkeep_s2_talking", (4.7, 8.9, 0.0), 90.0, lean_on_bar)
     cast["rancher"] = stand("rancher", "old_rancher_s3_talking", (3.25, 11.6, 0.0), -95.0, lean_on_bar)
@@ -734,15 +762,16 @@ def shots(cast):
     pl = head_of(cast["player"])
     out = {}
     # 2: over your shoulder at the stranger, your hat and shoulder soft in the foreground.
-    out["ots"] = camera("ots", pl + Vector((0.32, -0.42, 0.06)), st + Vector((0.05, 0, -0.04)), lens=55,
-                        focus=st, fstop=1.8)
+    out["ots"] = camera("ots", pl + Vector((0.62, -0.5, 0.04)), st + Vector((0.0, 0.0, -0.12)), lens=45,
+                        focus=st, fstop=2.0)
     # 4: the cheater's smirk, close, the lamp's flame soft in front.
-    out["cheater"] = camera("cheater", ch + Vector((-0.25, -0.95, -0.08)), ch + Vector((0, 0, -0.03)), lens=85,
-                            focus=ch, fstop=2.0)
+    out["cheater"] = camera("cheater", ch + Vector((-0.45, -1.75, -0.12)), ch + Vector((0, 0, -0.16)), lens=75,
+                            focus=ch, fstop=2.2)
     # 5: Lyle's eyes lift.
-    out["lyle"] = camera("lyle", ly + Vector((-0.85, 0.35, -0.12)), ly, lens=85, focus=ly, fstop=2.0)
+    out["lyle"] = camera("lyle", ly + Vector((-1.7, 0.55, -0.14)), ly + Vector((0, 0, -0.14)), lens=75, focus=ly,
+                         fstop=2.2)
     # 3: the room, slow push down it: the table, the bar, the balcony, the moon in the door.
-    out["room"] = camera("room", Vector((-3.6, 3.4, 2.6)), Vector((0.3, 11.5, 1.2)), lens=28,
+    out["room"] = camera("room", Vector((-1.4, 2.6, 2.3)), Vector((-0.2, 12.0, 1.1)), lens=30,
                          focus=TABLE + Vector((0, 0, 1)), fstop=4.0)
     return out
 
@@ -769,7 +798,7 @@ def setup_render(fast=False):
         sc.view_settings.look = "AgX - Medium High Contrast"
     except TypeError:
         pass
-    sc.view_settings.exposure = 1.0
+    sc.view_settings.exposure = 2.0
     w = sc.world or bpy.data.worlds.new("World")
     sc.world = w
     w.use_nodes = True
