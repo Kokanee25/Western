@@ -674,7 +674,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
-  per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
+  per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh; a Studio man gets
+  a helper bone a shoulder, `shoulder_share` of the arm's turn, carrying his chest/upper arm blend
+  so his raised arm keeps its width: `add_shoulders`, `pose_shoulders`, issue #388),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`). `body_skin`'s light pass holds the sum
   of a person's lights under `light_cap` × his own colour (top channel; `light_knee` where it
@@ -1473,7 +1475,10 @@ crotch, arms and legs by his shape `limb_sides`, weights smoothed across the lim
 `smooth_seams`); `whole_man.py` puts the approved game head (`heads/<head>_mesh.npz`) on him at his
 collar and his own hat as three pieces (`heads/<head>_hat.npz`). `works_check.gd`: the pose check,
 a ragdoll fall, the hat shot off, a wound, and every triangle's stretch (`--ref=` another man's
-`works.json`, judged by sheet area). `men_bench.gd`: perf_bench's calm street with N copies of
+`works.json`, judged by sheet area; `--share=` the shoulder helpers). `arm_dump.gd` +
+`arm_measure.py`: a man's skin, weights and bone moves in each pose, and his raised upper arm's
+width kept (`arm_poses.gd --share=` the pictures; `docs/style_test/raised-arms-2026-10-26/`).
+`men_bench.gd`: perf_bench's calm street with N copies of
 one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and layout.
 
 ## Training the image model on our style (tools/style)

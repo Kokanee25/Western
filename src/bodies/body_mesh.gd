@@ -410,18 +410,24 @@ static func _nose_and_ears(head: Lofter) -> void:
 ## vertex's rest position relative to its bone's centre (the wound shader opens holes there).
 ## `bones`/`weights` are 4 per vertex.
 ## `piece_of` (optional): bone -> the bone whose piece it goes in (a skinned hand's finger bones
-## go in their hand's: they aren't body parts).
+## go in their hand's: they aren't body parts). `by_bones`/`by_weights` (optional): the weights the
+## triangles are shared out by, when the skin's own differ (a Studio man's shoulder helpers,
+## PeopleBodies.shoulder_share: his pieces stay as his body parts are).
 static func split_pieces(verts: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array,
 		bones: PackedInt32Array, weights: PackedFloat32Array, tris: PackedInt32Array, centres: Dictionary,
-		piece_of: Dictionary = {}, blends: Dictionary = {}) -> Dictionary:
+		piece_of: Dictionary = {}, blends: Dictionary = {}, by_bones := PackedInt32Array(),
+		by_weights := PackedFloat32Array()) -> Dictionary:
+	if by_bones.is_empty():
+		by_bones = bones
+		by_weights = weights
 	var owner := {}  # bone -> Array of triangle starts (a plain Array: packed ones copy)
 	for t in range(0, tris.size(), 3):
 		var score := {}
 		for j in 3:
 			var v := tris[t + j]
 			for w in 4:
-				var b: int = piece_of.get(bones[v * 4 + w], bones[v * 4 + w])
-				score[b] = float(score.get(b, 0.0)) + weights[v * 4 + w]
+				var b: int = piece_of.get(by_bones[v * 4 + w], by_bones[v * 4 + w])
+				score[b] = float(score.get(b, 0.0)) + by_weights[v * 4 + w]
 		var best := -1
 		var best_score := -1.0
 		for b: int in score:
