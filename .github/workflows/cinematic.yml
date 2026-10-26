@@ -29,6 +29,8 @@ jobs:
   stills:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -39,7 +41,7 @@ jobs:
           cache-dependency-path: .github/workflows/cinematic.yml
 
       - name: Install Blender (bpy)
-        run: pip install "bpy==${BPY_VERSION}"
+        run: pip install "bpy==${BPY_VERSION}" pillow
 
       - name: Build the set and render the stills
         run: |
@@ -48,10 +50,37 @@ jobs:
           python tools/cinematic/saloon.py --stills=build/cinematic/stills \
             --blend=build/cinematic/saloon.blend \
             ${{ inputs.only && format('--only={0}', inputs.only) || '' }} \
-            ${{ inputs.fast && '--fast' || '' }} > build/cinematic/blender.log 2>&1 || { tail -60 build/cinematic/blender.log; exit 1; }
+            ${{ inputs.fast && '--fast' || '' }} > build/cinematic/blender.log 2>&1 || { tail -40 build/cinematic/blender.log | sed 's/^/::error::/'; exit 1; }
           grep -E "rendered|Error|Traceback" build/cinematic/blender.log | tail -20
           echo "took $(( $(date +%s) - start )) s"
           ls -la build/cinematic/stills
+
+      # Sessions can't download artifacts: the stills (as JPEGs) and the log's tail go to the
+      # `cinematic-results` branch under the run's id, where a session can fetch them.
+      - name: Keep the results on the cinematic-results branch
+        if: always()
+        run: |
+          id="${{ github.run_id }}"
+          mkdir -p /tmp/res/$id
+          tail -200 build/cinematic/blender.log > /tmp/res/$id/blender_tail.log 2>/dev/null || true
+          python - <<'PY'
+          import glob, os
+          from PIL import Image
+          for f in glob.glob("build/cinematic/stills/*.png"):
+              im = Image.open(f).convert("RGB")
+              im.save("/tmp/res/${{ github.run_id }}/" + os.path.basename(f)[:-4] + ".jpg", quality=90)
+          PY
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          if git fetch -q origin cinematic-results; then
+            git checkout -q -f -B cinematic-results FETCH_HEAD
+          else
+            git checkout -q --orphan cinematic-results && git rm -rq --cached . && git clean -fdq -e build
+          fi
+          mkdir -p results && cp -r /tmp/res/$id results/
+          git add results/$id
+          git commit -q -m "Cinematic results, run $id (${{ github.sha }})"
+          git push -q origin cinematic-results
 
       - uses: actions/upload-artifact@v4
         if: always()
