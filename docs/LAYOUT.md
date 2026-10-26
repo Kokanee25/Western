@@ -724,6 +724,19 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 ## src/people
 
+- **`PeopleTick`** (`people_tick.gd`; more-cores step 4): the people's tick from one place. Every
+  `HumanBody` gets a `tick_index` as he first enters the world (kept, saved in `to_dict`); his
+  engine `_physics_process` is gone and the node (an internal child of the last man in, so the
+  fight's men still tick after the player) ticks everyone in index order: his body, then his own
+  nodes in tree order (`HumanBody.add_ticker`: brain, `FaceLife`, `FaceSpeech`, `Senses`, each a
+  `tick(delta)`; physics processing on and `can_process` stay their switch). In phases: each man's
+  pure first half (`begin_prepare` on the main thread, then `prepare`: physiology, favouring, the
+  pose's maths into `_rots`) for all, on the worker pool (`WorkerThreadPool.add_group_task`, high
+  priority) while `Settings.people_threads` is on (`-- --people-threads=on|off`; `[performance]` in
+  the settings file), the same game either way; then each man's tick applies it (`_pose_writes`:
+  the joints, the rig, the skeleton) with his signs, brain, face and senses. Prof: `people_prep`
+  (phase 2's wall), `people_prep_sum` (its men's own times). Not ahead (his whole tick on the main
+  thread as before): limp, getting up, stumbling, on a clip or the mocap walk.
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
   hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
   by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,

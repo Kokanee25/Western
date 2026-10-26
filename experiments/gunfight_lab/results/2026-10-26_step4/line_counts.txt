@@ -1,0 +1,12 @@
+Lines and writes per fight (counts, not per frame): main (before_3) against step 4a (step4a_2); step4a_2 against step4b_2 and before_1 against before_3 are count for count the same.
+fight | frames | the counts that differ (main, step 4)
+s1 | 1303 | q_lamps 6720 -> 6727, q_senses 63873 -> 63857
+s10 | 1114 | q_lamps 5489 -> 5491, q_senses 54748 -> 54745
+s2 | 1407 | q_lamps 6647 -> 6657, q_senses 68299 -> 68286
+s3 | 4628 | q_lamps 18262 -> 18253, q_walk 60372 -> 61978
+s4 | 1693 | q_lamps 7959 -> 7950
+s5 | 6673 | q_senses 264578 -> 264558, q_walk 96018 -> 97613, q_writes 503311 -> 503278
+s6 | 2551 | q_senses 120078 -> 120081
+s7 | 4166 | q_lamps 16168 -> 16164, q_senses 179567 -> 179471, q_walk 62923 -> 64548
+s8 | 3039 | q_lamps 13554 -> 13542, q_senses 137718 -> 137676, q_walk 53708 -> 54787
+s9 | 3368 | q_lamps 13758 -> 13755, q_senses 149394 -> 149303, q_walk 50907 -> 52612
