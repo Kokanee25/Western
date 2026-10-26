@@ -1,0 +1,10 @@
+{
+ "music_score": {
+  "app": "fal-ai/elevenlabs/music",
+  "body": {
+   "prompt": "Cinematic western trailer score, 60 seconds, instrumental. Starts sparse and tense: a lone detuned saloon piano and low cello drone. Builds slowly with a soft heartbeat drum and a tremolo baritone guitar. At 34 seconds it stops dead for silence. At 50 seconds a big low brass and timpani hit for the title, then a lonely harmonica phrase that fades out. Gritty, dusty spaghetti-western feel, no vocals.",
+   "music_length_ms": 60000,
+   "force_instrumental": true
+  }
+ }
+}
