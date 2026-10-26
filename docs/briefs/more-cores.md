@@ -406,6 +406,23 @@ rebuilds a few metres, and build the cell's mesh off the frame if it's still lon
 hitch Sean feels on every shot, so it comes first in this step. Then `_update_skeleton` runs on the physics tick after the pose, from
 the same transforms, and `_process` does nothing. Ten fights twice, `same_fight.py` the same;
 the body lab's and physics lab's goldens the same."*
+**Done (2026-10-25, `claude/gameplay-perf-step2`; `results/2026-10-25_step2/`):** 10 of 10 the
+same; **about -1.3 ms a frame against the before** (16.3 -> 14.95, p95 20.6 -> 18.7; people
+9.3 -> 8.2; two runs of one build spread 0.7 here, so the total is soft): `people_skeleton` 1.12 ->
+0.48 as expected, `people_body` 3.65 -> ~3.3, not ~2.5. The pivot sets
+weren't its cost (336 -> 60 a frame moved nothing): what's left is GDScript a joint (the pose loop
+1.1, its tail 0.5) and the transform reads (0.46, the sets' composition lands there). (c) within
+0.01 degree turned 19 of the physics lab's 151 falls, so a pivot is skipped only when exactly as
+last set (75 sets a frame); the falls are the before's. Finger bones parented in
+the skeleton (set only when the finger bends). The gate found the player's packing roll unseeded
+(`Physiology.roll_rng`) and the body lab `WoundSigns`' phase taken from his instance id (which
+any new object moves): both by seed now, with the viewmodels' dice. **The per-shot hitch**
+(`results/2026-10-25_step2/shot.md`, the blast-freeze lab's `bf_shot`): `_build_batch` was 15-23
+ms of each shot's frame (a material's mesh for the whole saloon, up to 683 members); batched in
+pieces of at most 64 near members it's 1-3 ms, the shot's worst frame 42-58 -> 26-37 ms here (the
+saloon 62 -> 115 batches, the street 733 -> 736). Left: the holed member's load check
+(`fire_loads` 14-20 ms on the shot's frame) and the townsfolk's `civilian_brain` burst a second
+later (~100 ms on one frame), both step 5's.
 
 **Step 3. The sight service** (expected −1 ms on average and the cover search's bursts gone:
 `senses` 1.2 -> ~0.6, the brains' `ob_cover_search` 0.5 -> ~0.1, `q_walk`'s ground rays
