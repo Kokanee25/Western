@@ -65,7 +65,7 @@ CUES = [
     ("sfx_drink", 45.5, -9.0, 0.0, 1.2, 0.0, 0.3),
     ("voice", 46.0, 1.0, 0.0, None, 0.0, 0.1),
     ("sfx_title", 50.0, -2.0, 0.0, None, 0.0, 1.0),
-    ("music_score", 50.0, -5.0, -10.0, 10.0, 0.3, 1.6),   # from 10 s before its end
+    ("music_score", 50.0, -4.0, 51.25, 8.75, 0.05, 1.6),  # the score's own hit (51.5 s in it) on the title
 ]
 
 VOICE = "voice_welcome_bill"
