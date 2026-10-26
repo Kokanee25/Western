@@ -450,7 +450,7 @@ def hanging_lamp(name, at, power=60.0):
     return root
 
 
-def sconce(name, at, facing, power=18.0):
+def sconce(name, at, facing, power=150.0):
     root = empty(name, at, facing)
     brass = material("brass")
     box(name + "_plate", (0.12, 0.02, 0.22), (0, 0.0, 0), (brass, (1, 1)), parent=root)
@@ -462,7 +462,7 @@ def build_dressing():
     build_bar()
     # Lamps: three hanging down the room, sconces on the side walls.
     for k, (x, y) in enumerate(((-0.6, 10.5), (-0.6, 5.0), (1.5, 13.0))):
-        hanging_lamp("hang_%d" % k, (x, y, 3.3), power=45.0)
+        hanging_lamp("hang_%d" % k, (x, y, 3.3), power=400.0)
     for k, y in enumerate((3.0, 7.0, 11.0, 15.0)):
         sconce("sconce_l%d" % k, (ROOM_X[0] + 0.05, y, 2.1), -90.0)
     for k, y in enumerate((2.8, 14.0, 16.8)):
@@ -474,14 +474,14 @@ def build_dressing():
         for c in range(3):
             a = math.radians(yaw + 60 + c * 120)
             kit_prop("chair", (x + 0.75 * math.sin(a), y - 0.75 * math.cos(a), 0.0), yaw + c * 120)
-        oil_lamp("tlamp_%d" % k, (x + 0.1, y + 0.1, TABLE_TOP), power=8.0)
+        oil_lamp("tlamp_%d" % k, (x + 0.1, y + 0.1, TABLE_TOP), power=60.0)
     # The haze: lamp smoke hanging in the room.
     haze = bpy.data.materials.new("haze")
     haze.use_nodes = True
     nt = haze.node_tree
     nt.nodes.remove(nt.nodes["Principled BSDF"])
     vol = nt.nodes.new("ShaderNodeVolumePrincipled")
-    vol.inputs["Density"].default_value = 0.022
+    vol.inputs["Density"].default_value = 0.006
     vol.inputs["Anisotropy"].default_value = 0.45
     vol.inputs["Color"].default_value = (0.9, 0.85, 0.78, 1)
     nt.links.new(vol.outputs["Volume"], nt.nodes["Material Output"].inputs["Volume"])
@@ -495,7 +495,7 @@ def build_dressing():
 
 def build_card_table():
     kit_prop("card_table", tuple(TABLE), 0.0)
-    oil_lamp("table_lamp", (TABLE.x + 0.08, TABLE.y + 0.12, TABLE_TOP), power=30.0)
+    oil_lamp("table_lamp", (TABLE.x + 0.08, TABLE.y + 0.12, TABLE_TOP), power=120.0)
     bottle("table_bottle", (TABLE.x + 0.36, TABLE.y - 0.05, TABLE_TOP), colour=(0.16, 0.08, 0.02))
     tin = material("tin", colour=(0.42, 0.4, 0.37), rough=0.35, spec=0.7)
     tin.node_tree.nodes["Principled BSDF"].inputs["Metallic"].default_value = 0.85
@@ -769,11 +769,11 @@ def setup_render(fast=False):
         sc.view_settings.look = "AgX - Medium High Contrast"
     except TypeError:
         pass
-    sc.view_settings.exposure = 0.6
+    sc.view_settings.exposure = 1.0
     w = sc.world or bpy.data.worlds.new("World")
     sc.world = w
     w.use_nodes = True
-    w.node_tree.nodes["Background"].inputs["Color"].default_value = (0.002, 0.0025, 0.004, 1)
+    w.node_tree.nodes["Background"].inputs["Color"].default_value = (0.012, 0.009, 0.007, 1)
     w.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.0
     # The moon through the door: a cool sun low across the room.
     sun = bpy.data.lights.new("moon", "SUN")
@@ -784,6 +784,32 @@ def setup_render(fast=False):
     so.rotation_euler = (math.radians(68), 0, math.radians(200))
     sc.collection.objects.link(so)
     # Film grain and a soft vignette come in the cut (ffmpeg), not here.
+
+
+def debug_views(cast):
+    """Flat-lit views to check the staging: from above, the front and the side of the table."""
+    sc = bpy.context.scene
+    sc.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.6, 0.6, 0.6, 1)
+    sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.0
+    sc.cycles.samples = 12
+    sc.view_settings.exposure = 0.0
+    for n in ("ceiling", "haze"):
+        bpy.data.objects[n].hide_render = True
+    t = TABLE + Vector((0, 0, 0.8))
+    out = {}
+    for name, eye, lens in (("dbg_top", t + Vector((0.01, -0.3, 4.0)), 24),
+                            ("dbg_front", t + Vector((0.0, -3.2, 0.5)), 35),
+                            ("dbg_side", t + Vector((3.2, 0.0, 0.4)), 35),
+                            ("dbg_back", t + Vector((0.0, 3.2, 0.5)), 35)):
+        c = camera(name, eye, t, lens=lens, fstop=16)
+        c.data.dof.use_dof = False
+        out[name] = c
+    for who, arm in cast.items():
+        bpy.context.view_layer.update()
+        hp = head_of(arm)
+        print("man", who, "head", tuple(round(v, 2) for v in hp), "rot", round(math.degrees(arm.rotation_euler.z), 1),
+              flush=True)
+    return out
 
 
 def build():
@@ -800,6 +826,8 @@ def main():
     cast = build()
     setup_render(fast=bool(a.get("fast")))
     cams = shots(cast)
+    if a.get("debug"):
+        cams = debug_views(cast)
     if a.get("blend"):
         os.makedirs(os.path.dirname(os.path.abspath(a["blend"])), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(a["blend"]))
