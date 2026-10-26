@@ -16,8 +16,8 @@ import math
 import os
 import sys
 
+import bpy  # first: the bpy module brings bmesh and mathutils with it
 import bmesh
-import bpy
 from mathutils import Matrix, Quaternion, Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
