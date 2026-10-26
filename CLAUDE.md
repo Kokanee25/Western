@@ -557,17 +557,23 @@ frozen until Sean names one.
   loops (pivot sets, part re-reads, finger strings), not rays (~1.3 ms) nor pure maths (~1.5);
   physics on its own thread loses the player's shot (`_process`-time queries are refused) and has
   a rare race; nine ordered steps, each a next-session prompt, gated on `same_fight.py` (the lab's
-  determinism check: the same seeds twice). Sean: the order as written (#378). **Step 1 done**
-  (PR #384, Fable-approved; `results/2026-10-25_step1/`): `World.space` (queries only in
+  determinism check: the same seeds twice). Sean: the order as written (#378). **Step 1 merged**
+  (PR #384, build 2490, after the Fable review; `results/2026-10-25_step1/`): `World.space` (queries only in
   the physics frame; the player's shot leaves on the tick), `World.deterministic` (count budgets),
-  no global dice, `Prof.count` `q_*` and `PhysicsWindow`; 10 of 10 the same; 14.6 ms a frame,
-  window 10.0 / step 1.1 / rest 3.4, writes 336 a frame. **Step 2 done** (PR #PRNUM, waiting on the
-  Fable review; `results/2026-10-25_step2/`): fingers worked out once and parented in the skeleton,
-  the carry as transforms, a pivot set only when it changed exactly (within 0.01 degree turned 19
-  falls), the bones on his tick; the player's packing roll and the wound signs' phase (was his
-  instance id) by seed; 10 of 10 the same, the falls and the body lab the before's; 16.3 -> 14.95
-  ms here, people 9.3 -> 8.2; `people_body` is the pose's GDScript now (1.6 of 3.2). The per-shot
-  hitch: batches in pieces of 64 members (a shot's rebuild 15-23 -> 1-3 ms). Next, step 3 (#394).
+  no global dice, `Prof.count` `q_*` and `PhysicsWindow`; the chaos flake was #375's clock budgets
+  and GlassProp's `randf()`; 10 of 10 the same, the fights re-baselined; 14.6 ms a frame, window 10.0
+  / step 1.1 / rest 3.4, writes 336 a frame. **Step 2 done** (PR #PRNUM, waiting on the Fable review;
+  `results/2026-10-25_step2/`): fingers worked out once and parented in the skeleton, the carry as
+  transforms, a pivot set only when it changed exactly (within 0.01 degree turned 19 falls), the
+  bones on his tick; the player's packing roll and the wound signs' phase (was his instance id) by
+  seed; 10 of 10 the same, the falls and the body lab the before's; 16.3 -> 14.95 ms here, people
+  9.3 -> 8.2; `people_body` is the pose's GDScript now (1.6 of 3.2). The per-shot hitch: batches in
+  pieces of 64 members (a shot's rebuild 15-23 -> 1-3 ms). Every later step has its issue
+  (#394–#401, each the full prompt, gate and handover; a step's session labels the next one
+  `next session`): step 3 is #394. **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
+  switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
+  (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.
   Traps: `pkill -f`/`ps|grep` kill loops match their
   own command line; merging main mid-run needs `godot --headless --import` before the next game;
   never edit `outlaw_brain.gd` while `run.py` runs (each fight loads the code it finds); `gf_play`
