@@ -343,9 +343,12 @@ frozen until Sean names one.
   0.08, light in 4 steps; floor/framing/dark trim keep 7/3/2 strips; 25.7 MB of texture), with
   round 6b's stain sheet waiting on gameplay's frame (`docs/SESSION_PROMPTS.md`). **Round 7**: the
   flat-colour probe says the paint rolls, not the light; **7a** studio11 (broader flat shapes) doesn't
-  move the critic (0/6/2 vs 0/5/3), studio10 stays. **The memory test**: 384 BC7 looks the same as
-  lossless; **Sean picked 384 BC7** (#286, 2026-10-23): the ten exterior woods VRAM-compressed
-  (`promote_woods.py --vram=`), 25.7 -> 6.4 MB, every golden within tolerance. Labs parked 2026-10-22 (`docs/briefs/parked-labs-2026-10-22.md`). **The interior woodwork** (Sean's saloon picture, target 10;
+  move the critic (0/6/2 vs 0/5/3), studio10 stays. **The memory test**: Sean picked 384 BC7 (#286).
+  **6b "too painted"** (2026-10-25): every round reviewed, **Sean picked R1** (#391): round 1's
+  Studio repaint at 512, BC7, is the exterior woods (10.3 MB); the painted sidings repainted in its
+  hand (`r1paint`); **painted signs** (#402: the factory's kind `lettering` on the fronts, boards on
+  R1's wood; `FacadeArt`, `SignArt.board_id`, the porch boards). Sean's $10: $2.69 spent. PR #306.
+  Open: interiors built of the exterior woods read pale indoors (the saloon's floor, counter). Labs parked 2026-10-22 (`docs/briefs/parked-labs-2026-10-22.md`). **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
