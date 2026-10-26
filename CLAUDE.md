@@ -578,7 +578,7 @@ frozen until Sean names one.
   (#394–#401, each the full prompt, gate and handover; a step's session labels the next one
   `next session`). **Step 3 merged** (PR #406, `results/2026-10-26_step3/`): `SightWorld` (plugin)
   + `Sight` (`src/people/sight.gd`) answer the sight lines by Jolt's rules; no gain on its own.
-  **Step 4 done** (PR #PRNUM, waiting on the Fable review, `claude/gameplay-perf-step4`;
+  **Step 4 done** (PR #409, waiting on the Fable review, `claude/gameplay-perf-step4`;
   `results/2026-10-26_step4/`): `PeopleTick` (`src/people/people_tick.gd`; an internal child of
   the last man in) ticks the people in `tick_index` order, then in phases: each man's pure half
   (`HumanBody.prepare`: physiology, favouring, the pose's maths) on the worker pool
