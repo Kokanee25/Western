@@ -442,6 +442,17 @@ and sky lines, `OutlawBrain._clear` and `_aim_point`. Test: `tests/test_sight_wo
 the lab's sight lines through both and counts disagreements (the gate: none on an unbroken
 saloon; on a shot-up one, only where a carved hole lies on the line, listed). The lab twice;
 the perception lab's score unchanged; the cover spots of `gf_coverwhy` the same on ten seeds."*
+**Done (2026-10-26, `claude/gameplay-perf-step3`; `results/2026-10-26_step3/`):** 10 of 10 the
+same; **no gain** (frame 19.6 -> 20.0 here, within the noise; `senses` 1.27 -> 1.29,
+`outlaw_brain` 2.68 -> 2.65; Sight's upkeep `sight_sync` +0.05). The lines were never the cost: a
+D fight asks ~115 sight lines a frame, ~0.4 ms under Jolt (3.6 us a line from GDScript); one at a
+time Sight is 2.8-3.0 us, in a batch 0.7 us, so the gain waits for step 4's one batch a tick. SightWorld takes every
+body on the world and walk layers from the physics server (boxes, capsules, carved members' and
+dug tiles' triangles, a carve's hole exactly, not a box), fed by the tree; on the spec saloon's
+31,248 lines it agrees with Jolt but for 15 laid along a face (`tests/test_sight_world.gd`). The
+people's capsules are left for step 4 (no line moved here asks `BODY_PARTS`). Against main the
+fights re-baseline (0 of 10: hit points round differently in the last bits and Cover snaps spots
+to 20 cm); the perception lab 88 -> 88, `gf_coverwhy` 10 of 10 the same.
 
 **Step 4. The people's tick in phases, the pure parts on workers** (expected −0.5 to −1 ms
 here, more on 6–8 cores: the pose maths, physiology and the gun hands off the main thread; the

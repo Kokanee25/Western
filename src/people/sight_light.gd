@@ -147,17 +147,16 @@ static func _lamp_reaches(lamp: OilLamp, from: Vector3, to: Vector3, space: Phys
 	var own := lamp.hitbox_rid()
 	if own.is_valid():
 		skip.append(own)
+	var length := from.distance_to(to)
 	for i in 3:
-		var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
-		q.exclude = skip
 		Prof.count(&"q_lamps")
-		var hit := space.intersect_ray(q)
-		if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15:
+		var t := Sight.cast(space, from, to, Layers.WORLD, skip)
+		if t >= 1.0 or (1.0 - t) * length < 0.15:
 			return true
 		# The fitting it hangs in or stands on (a wall lamp's back plate, its bracket).
-		if (hit.position as Vector3).distance_to(from) > 0.35:
+		if t * length > 0.35:
 			return false
-		skip.append(hit.rid)
+		skip.append(Sight.hit_body())
 	return false
 
 
@@ -169,19 +168,24 @@ static func _sky_on(at: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID
 		return 1.0
 	var el := deg_to_rad(t.sky_elevation_deg)
 	var open := 0
+	# The ring, in one batch.
+	var froms := PackedVector3Array()
+	var tos := PackedVector3Array()
 	for i in t.sky_rays:
 		var az := TAU * float(i) / float(t.sky_rays)
 		var dir := Vector3(cos(el) * cos(az), sin(el), cos(el) * sin(az))
-		if _open(at, at + dir * t.sky_ray_m, space, ex):
+		froms.append(at)
+		tos.append(at + dir * t.sky_ray_m)
+	Prof.count(&"q_lamps", froms.size())
+	for f in Sight.lines(space, froms, tos, Layers.WORLD, ex):
+		if f >= 1.0:
 			open += 1
 	return maxf(float(open) / float(maxi(t.sky_rays, 1)), t.room_sky)
 
 
 static func _open(from: Vector3, to: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID]) -> bool:
-	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
-	q.exclude = ex
 	Prof.count(&"q_lamps")
-	return space.intersect_ray(q).is_empty()
+	return Sight.ray(space, from, to, Layers.WORLD, ex).is_empty()
 
 
 ## Every lamp in the world, gathered once a physics frame.

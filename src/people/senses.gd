@@ -270,15 +270,14 @@ func _points_on(who: Node3D) -> Array[Vector3]:
 	return [who.global_position + Vector3.UP * 1.2]
 
 
+## Asked of Sight (the sight service, docs/briefs/more-cores.md step 3); `space` is Jolt's, Sight
+## knows it.
 func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceState3D) -> bool:
-	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	var ex: Array[RID] = []
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
-	q.exclude = ex
 	Prof.count(&"q_senses")
-	var hit := space.intersect_ray(q)
-	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
+	return Sight.clear(space, from, to, ex)
 
 
 func _speed_of(who: Node3D) -> float:
