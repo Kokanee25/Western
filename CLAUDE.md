@@ -348,8 +348,10 @@ frozen until Sean names one.
   Studio repaint at 512, BC7, is the exterior woods (10.3 MB); the painted sidings repainted in its
   hand (`r1paint`); **painted signs** (#402: the factory's kind `lettering` on the fronts, boards on
   R1's wood; `FacadeArt`, `SignArt.board_id`, the porch boards). Sean's $10: $2.69 spent. PR #306.
-  Interiors: Sean picked A (R1 darkened, set `r1dark_a`) for the saloon's floor and framing; needs a
-  member `look` (gameplay's code; asked on #405), prompt #287. Labs parked 2026-10-22 (`docs/briefs/parked-labs-2026-10-22.md`). **The interior woodwork** (Sean's saloon picture, target 10;
+  **Interiors in A** (Sean's pick, #405, #287): `int_r1_floor`/`int_r1_framing` (R1 darkened, BC7)
+  drawn through `StructureMember.look` (the physics keeps `floor`/`framing`): inside floors and
+  framing, the saloon's balcony and stair, the kit's counter/shelves/table; +211 draws on the calm
+  street (~0.13 ms at Sean's). The sign boards drawn from their compressed imports. Labs parked 2026-10-22 (`docs/briefs/parked-labs-2026-10-22.md`). **The interior woodwork** (Sean's saloon picture, target 10;
   brief `docs/briefs/interior-woodwork.md`, branch `claude/art-interior-woodwork`): `Profiles`, the
   interior stand, the interior stain `studio_int`; the critic: the stain 6 CLOSE as the picture's
   woodwork, the game's woods all DIFFERENT. Sean picked C: the interior woods `int_*` in the game
