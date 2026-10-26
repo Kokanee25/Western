@@ -2332,6 +2332,90 @@
    },
    "ask": "",
    "budget": 0.9
+  },
+  "r1dark_a": {
+   "note": "R1 for indoors (Sean, 2026-10-26: 'let's try darkening it'): R1's (studio1's) kept paintings of the floor, framing and saloon red cut again at 512, each board pulled toward one warm brown, a step darker and warmer. Free.",
+   "texels_per_metre": 512,
+   "woods": [
+    "floor",
+    "framing",
+    "saloon_red"
+   ],
+   "boards": {
+    "framing": 8
+   },
+   "raw": "woods_studio1_%s.jpg",
+   "grade": {
+    "floor": {
+     "target": [
+      42,
+      10,
+      17
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    },
+    "framing": {
+     "target": [
+      38,
+      9,
+      15
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    },
+    "saloon_red": {
+     "target": [
+      38,
+      11,
+      13
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    }
+   }
+  },
+  "r1dark_b": {
+   "note": "R1 for indoors (Sean, 2026-10-26: 'let's try darkening it'): R1's (studio1's) kept paintings of the floor, framing and saloon red cut again at 512, each board pulled toward one warm brown, dark, near the interior stain. Free.",
+   "texels_per_metre": 512,
+   "woods": [
+    "floor",
+    "framing",
+    "saloon_red"
+   ],
+   "boards": {
+    "framing": 8
+   },
+   "raw": "woods_studio1_%s.jpg",
+   "grade": {
+    "floor": {
+     "target": [
+      32,
+      10,
+      17
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    },
+    "framing": {
+     "target": [
+      30,
+      9,
+      15
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    },
+    "saloon_red": {
+     "target": [
+      30,
+      11,
+      13
+     ],
+     "unify_L": 0.85,
+     "unify": 0.6
+    }
+   }
   }
  }
 }
