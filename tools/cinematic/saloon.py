@@ -578,10 +578,20 @@ def face(arm, **keys):
                     kb.value = v
 
 
+# The bone each bone points at (its "direction" for aim): the next down the chain.
+REF = {"pelvis": "abdomen", "abdomen": "chest", "chest": "neck", "neck": "head",
+       "upper_arm_r": "forearm_r", "forearm_r": "hand_r", "hand_r": "finger_middle_r_0",
+       "upper_arm_l": "forearm_l", "forearm_l": "hand_l", "hand_l": "finger_middle_l_0",
+       "thigh_r": "shin_r", "shin_r": "foot_r", "thigh_l": "shin_l", "shin_l": "foot_l"}
+
+
 def _bone_ref(pb):
-    """A bone's pointing reference: its first child's head, or its tail."""
-    if pb.children:
-        return pb.children[0].head
+    """A bone's pointing reference: the head of the next bone down its chain, or its tail."""
+    nxt = REF.get(pb.name)
+    if nxt:
+        other = pb.id_data.pose.bones.get(nxt)
+        if other is not None:
+            return other.head
     return pb.tail
 
 

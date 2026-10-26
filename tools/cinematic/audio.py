@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.request
 
 QUEUE = "https://queue.fal.run/"
@@ -46,7 +47,7 @@ MUSIC = {"name": "music_score", "app": "fal-ai/elevenlabs/music",
                             "a lone detuned saloon piano and low cello drone. Builds slowly with a soft heartbeat "
                             "drum and a tremolo baritone guitar. At 34 seconds it stops dead for silence. "
                             "At 50 seconds a big low brass and timpani hit for the title, then a lonely "
-                            "harmonica phrase that fades out. Gritty, dusty, Morricone feel, no vocals.",
+                            "harmonica phrase that fades out. Gritty, dusty spaghetti-western feel, no vocals.",
                   "music_length_ms": 60000, "force_instrumental": True}}
 
 
@@ -54,8 +55,11 @@ def request(method, url, key, body=None):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url, data=data, method=method,
                                  headers={"Authorization": "Key " + key, "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        raise RuntimeError("%s %s: %s" % (e.code, url, e.read().decode(errors="replace")[:800]))
 
 
 def run(app, body, key):

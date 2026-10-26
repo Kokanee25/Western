@@ -91,9 +91,10 @@ jobs:
       - name: Make the sound on fal
         env:
           FAL_KEY: ${{ secrets.FAL_KEY }}
+          AUDIO_ONLY: ${{ contains(github.event.head_commit.message, '[music]') && 'music' || '' }}
         run: |
           mkdir -p build/cinematic
-          python tools/cinematic/audio.py --out=build/cinematic/out/audio > build/cinematic/blender.log 2>&1 \
+          python tools/cinematic/audio.py --only=${AUDIO_ONLY:-voice,sfx,music} --out=build/cinematic/out/audio > build/cinematic/blender.log 2>&1 \
             || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
           cat build/cinematic/blender.log
       - name: Results to the branch
