@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbj7vprekinf5"
-path="res://.godot/imported/widow_s3_skin.png-5f536539a79839697877101c2bd1a9f2.ctex"
+uid="uid://b11rchobp6fio"
+path="res://.godot/imported/widow_s4_skin.png-fa1f1104f1a78bdbd08661937517e7a6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/widow_s3_skin.png"
-dest_files=["res://.godot/imported/widow_s3_skin.png-5f536539a79839697877101c2bd1a9f2.ctex"]
+source_file="res://assets/people/widow_s4_skin.png"
+dest_files=["res://.godot/imported/widow_s4_skin.png-fa1f1104f1a78bdbd08661937517e7a6.ctex"]
 
 [params]
 

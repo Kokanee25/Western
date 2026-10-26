@@ -65,7 +65,7 @@ func _spawn_townsfolk() -> void:
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
 	_give_cloth.call_deferred(barkeep)
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
-			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s3_talking")
+			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s4_talking")
 	# The sheriff (the Studio's sean_s2, Sean as him) in front of his jail, watching the street. A
 	# civilian's mind for now: no gun, no law yet.
 	sheriff = _civilian(&"sheriff", &"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 1.4, -9.0)), 104,

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bftyuoxqp4hv5"
-path="res://.godot/imported/widow_s3_talking_head.png-c13a55a7dffd06cacf1cc0e0878a8a8d.ctex"
+uid="uid://fjo6jfcffg2r"
+path="res://.godot/imported/widow_s4_talking_skin.png-7b8de8faf2fb228c775e7b9b4c4e4388.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/widow_s3_talking_head.png"
-dest_files=["res://.godot/imported/widow_s3_talking_head.png-c13a55a7dffd06cacf1cc0e0878a8a8d.ctex"]
+source_file="res://assets/people/widow_s4_talking_skin.png"
+dest_files=["res://.godot/imported/widow_s4_talking_skin.png-7b8de8faf2fb228c775e7b9b4c4e4388.ctex"]
 
 [params]
 

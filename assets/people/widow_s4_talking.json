@@ -12,20 +12,16 @@
   ]
  },
  "source": "the style's 3D model (styles/painted.yaml three_d) from her approved pictures",
- "head_texture": {
-  "islands": 33,
-  "atlas_px": 2048
- },
- "id": "widow_s3_talking",
+ "id": "widow_s4_talking",
  "whole": true,
  "triangles": {
   "body_skin": 27200,
   "body_head": 7299
  },
  "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)",
- "textures_from": "widow_s3",
+ "textures_from": "widow_s4",
  "facerig": {
-  "from": "widow_s3",
+  "from": "widow_s4",
   "head": null,
   "makehuman_units": 59,
   "patch": {
@@ -71,14 +67,14 @@
   },
   "eye_white": {
    "helper-l-eye": [
-    0.953,
-    0.914,
-    0.794
+    0.909,
+    0.876,
+    0.773
    ],
    "helper-r-eye": [
-    0.898,
-    0.871,
-    0.774
+    0.83,
+    0.776,
+    0.673
    ]
   },
   "expressions": {
