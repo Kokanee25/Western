@@ -601,9 +601,21 @@ func _hung_board(text: String, at: Vector3) -> void:
 	add_child(root)
 	root.transform = carried(at)
 	var w := 0.25 + 0.17 * text.length()
-	PropModels._box(root, "Board", Vector3(0.04, 0.42, w), Vector3.ZERO, PropModels.weathered())
 	for z in [-w * 0.4, w * 0.4]:
 		PropModels._box(root, "Chain", Vector3(0.015, 0.4, 0.015), Vector3(0, 0.41, z), PropModels.iron())
+	# Painted by the image model on R1's wood (Sean, 2026-10-25, #402: the coded lettering out), the
+	# same picture on both faces; the lettered label only where it isn't painted.
+	var id := StringName("sign_" + text.to_lower())
+	if SignArt.board_size(id) != Vector2.ZERO:
+		# Two thin boards back to back, each its painted face out (a board's picture reads mirrored
+		# from behind).
+		for side in [-1.0, 1.0]:
+			var face := SignArt.board(id, Vector2(w, 0.42), 0.02)
+			face.rotation.y = PI * 0.5 * side
+			face.position = Vector3(side * 0.01, 0.0, 0.0)
+			root.add_child(face)
+		return
+	PropModels._box(root, "Board", Vector3(0.04, 0.42, w), Vector3.ZERO, PropModels.weathered())
 	for side in [-1.0, 1.0]:
 		var label := Label3D.new()
 		label.text = text

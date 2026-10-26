@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cakpfk8bgr7kd"
-path="res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.ctex"
+uid="uid://cqv32r1hu6m4a"
+path.bptc="res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.bptc.ctex"
+path.astc="res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/painted_green_b1.png"
-dest_files=["res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.ctex"]
+dest_files=["res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.bptc.ctex", "res://.godot/imported/painted_green_b1.png-e364611850c85e8c65b34d5a8b5554c5.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

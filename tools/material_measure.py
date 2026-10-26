@@ -5,6 +5,8 @@
     python3 tools/material_measure.py sheet --a=DIR [--b=DIR2[,DIR3...]] --out=SHEETS [--material=a,b] [--light=golden]
     python3 tools/material_measure.py crops DIR --out=CROPS  # the blind critic's crops, a man in front of each wood
     python3 tools/material_measure.py pick --cands=A:DIR,B:DIR2 --out=FILE.jpg  # Sean's pick: a row a wood
+    python3 tools/material_measure.py review --rows="TAG:DIR;..." --masks=DIR --out=FILE_%s.jpg [--woods=a,b] [--light=noon --view=deck_close]
+        # every set at once: a sheet a wood, the sets in a grid (TAG its label, "|" then a note)
 
 The style every material is held to is the Character Studio's three men (bold_cowboy_s0,
 old_rancher_s1, young_drifter_s1), measured in the same frames under the same light:
@@ -337,7 +339,68 @@ def crops(root, out, light="golden", size=(560, 420)):
 
 # The view each wood is picked on (its part's own, a man in it).
 PICK_VIEW = {"saloon_red": "wall", "store_boards": "wall", "weathered_pine": "wall", "floor": "steps",
-             "timber": "post", "fascia": "deck_ends", "framing": "wall_end", "dark_trim": "wall"}
+             "timber": "post", "fascia": "deck_ends", "framing": "wall_end", "dark_trim": "wall",
+             "painted_white": "wall", "painted_red": "wall", "painted_green": "wall"}
+
+
+def _pick_box(base, cw=960, ch=640):
+    """The pick sheet's crop of a part view: mostly the wood, the nearest man at its edge for scale
+    (the view's masks, from MASK_DIRS); the frame's middle without them."""
+    img0 = Image.open(base + ".png")
+    mk = masks(base)
+    if mk is not None:
+        _, men, wood = mk
+        big = max(men, key=lambda m: m.sum())
+        ys, xs = np.nonzero(big)
+        wy, wx = np.nonzero(wood)
+        cx = int(np.median(xs) * 0.3 + np.median(wx) * 0.7) if len(wx) else int(np.median(xs))
+        cy = int(np.median(ys) * 0.3 + np.median(wy) * 0.7) if len(wy) else int(np.median(ys))
+    else:
+        cx, cy = img0.width // 2, img0.height // 2
+    x0 = int(np.clip(cx - cw // 2, 0, img0.width - cw))
+    y0 = int(np.clip(cy - ch // 2, 0, img0.height - ch))
+    return (x0, y0, x0 + cw, y0 + ch)
+
+
+# The review sheet's crop of each wood's pick view (1280 x 720): the wood filling it, a man at its
+# edge for scale.
+REVIEW_BOX = {"floor": (400, 100, 1200, 633), "saloon_red": (470, 40, 1250, 560),
+              "store_boards": (470, 40, 1250, 560), "weathered_pine": (470, 40, 1250, 560),
+              "timber": (150, 0, 930, 520), "painted_white": (470, 40, 1250, 560),
+              "painted_red": (470, 40, 1250, 560), "painted_green": (470, 40, 1250, 560)}
+
+
+def review(rows, out, woods, light="golden", width=360, cols=3, view=None):
+    """Every candidate for a phone (Sean, 2026-10-25: "pull all the samples for a review"): a sheet
+    a wood (`out`'s "%s" its name), the sets in a grid of `cols` (`rows`: [(label, dir)], a label's
+    note after "|"), each on the wood's pick view, cropped to the wood (REVIEW_BOX), or on `view`
+    (the frame's middle, 3:2)."""
+    font = ImageFont.load_default(size=26)
+    small = ImageFont.load_default(size=20)
+    h = width * 2 // 3
+    cell = h + 56
+    for w in woods:
+        v = view or PICK_VIEW[w]
+        n_rows = (len(rows) + cols - 1) // cols
+        sheet_im = Image.new("RGB", (width * cols, 44 + n_rows * cell), (24, 22, 20))
+        d = ImageDraw.Draw(sheet_im)
+        d.text((10, 6), "%s (%s, no stains)" % (w.replace("_", " "), "golden hour" if light == "golden" else light),
+               fill=(240, 230, 210), font=font)
+        for i, (label, dirp) in enumerate(rows):
+            x, y = (i % cols) * width, 44 + (i // cols) * cell
+            tag, _, note = label.partition("|")
+            d.text((x + 8, y + 2), tag, fill=(255, 255, 255), font=font)
+            d.text((x + 8, y + 30), note, fill=(200, 190, 170), font=small)
+            p = os.path.join(dirp, w, "%s_%s.png" % (light, v))
+            if not os.path.exists(p):
+                continue
+            box = (100, 0, 1180, 720) if view else (REVIEW_BOX.get(w) or _pick_box(os.path.join(dirp, w, "%s_%s" % (light, v))))
+            im = Image.open(p).convert("RGB").crop(box).resize((width - 4, h - 4), Image.LANCZOS)
+            sheet_im.paste(im, (x + 2, y + 54))
+        path = out % w if "%s" in out else out
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        sheet_im.save(path, quality=88)
+        print("review:", path, sheet_im.size)
 
 
 def pick(cands, out, light="golden", width=540):
@@ -405,6 +468,10 @@ def main():
     elif pos[0] == "pick":
         pick([tuple(c.split(":", 1)) for c in opt["cands"].split(",")], opt["out"], opt.get("light", "golden"),
              int(opt.get("width", 540)))
+    elif pos[0] == "review":
+        rows = [tuple(r.rsplit(":", 1)) for r in opt["rows"].split(";")]
+        review(rows, opt["out"], opt.get("woods", "floor,saloon_red,store_boards,timber").split(","),
+               opt.get("light", "golden"), int(opt.get("width", 360)), view=opt.get("view"))
     elif pos[0] == "crops":
         crops(pos[1], opt["out"], opt.get("light", "golden"))
 

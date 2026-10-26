@@ -34,6 +34,11 @@ __pycache__/
 /assets/textures/mlab_studio10*/
 /assets/textures/mlab_studio11*/
 /assets/textures/mlab_flat/
+/assets/textures/mlab_game_*/
+/assets/textures/mlab_studio1p/
 /assets/textures/weather/stains_studio9*
 /assets/textures/weather/stains_studio1[0-9]*
 /assets/textures/mlab_studio_int/
+/assets/textures/mlab_cint/
+/assets/textures/mlab_r1dark_*/
+/assets/textures/weather/stains_r1dark*

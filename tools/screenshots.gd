@@ -181,6 +181,11 @@ func _run() -> void:
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
+		elif arg.begins_with("--lab-set="):
+			# A material lab set's woods in place of the game's, everywhere they're drawn (art).
+			PixelArt.lab = true
+			PixelArt.lab_set = arg.substr(10)
+			WoodMaterials.reset()
 		elif arg.begins_with("--man-dist="):
 			man_dist = float(arg.substr(11))
 		elif arg.begins_with("--model="):

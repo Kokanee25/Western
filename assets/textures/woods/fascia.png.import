@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcs62xgk3tma6"
-path="res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.ctex"
+uid="uid://cfk37a015qf8o"
+path.bptc="res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.bptc.ctex"
+path.astc="res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/fascia.png"
-dest_files=["res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.ctex"]
+dest_files=["res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.bptc.ctex", "res://.godot/imported/fascia.png-a944a71cec0e5b2aa1ebf93e7edd0760.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

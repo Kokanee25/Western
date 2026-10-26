@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccnqxm84tp6lv"
-path="res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.ctex"
+uid="uid://df2i2tyodwybc"
+path.bptc="res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.bptc.ctex"
+path.astc="res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/painted_red_b1.png"
-dest_files=["res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.ctex"]
+dest_files=["res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.bptc.ctex", "res://.godot/imported/painted_red_b1.png-3a17a0912bbaaa6408ef521833b88327.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
