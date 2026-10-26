@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brxs5ysk135jk"
-path="res://.godot/imported/widow_s4_talking_bandana_mask.png-23e840aa53964bedb58cb855689bd6ea.ctex"
+uid="uid://cu4ga7q1jnrj"
+path="res://.godot/imported/widow_s5_skin.png-e5acc48adf378ddeeb45bfb736b0e1d0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/widow_s4_talking_bandana_mask.png"
-dest_files=["res://.godot/imported/widow_s4_talking_bandana_mask.png-23e840aa53964bedb58cb855689bd6ea.ctex"]
+source_file="res://assets/people/widow_s5_skin.png"
+dest_files=["res://.godot/imported/widow_s5_skin.png-e5acc48adf378ddeeb45bfb736b0e1d0.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

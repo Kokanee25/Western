@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dqvpjwive1j1g"
-path="res://.godot/imported/widow_s4_talking.glb-bdbdd1f19654f3aed03726f56242f15f.scn"
+uid="uid://d4m7etoidem3c"
+path="res://.godot/imported/widow_s5_talking.glb-eddde702754d75517b195b7a9d7a5965.scn"
 
 [deps]
 
-source_file="res://assets/people/widow_s4_talking.glb"
-dest_files=["res://.godot/imported/widow_s4_talking.glb-bdbdd1f19654f3aed03726f56242f15f.scn"]
+source_file="res://assets/people/widow_s5_talking.glb"
+dest_files=["res://.godot/imported/widow_s5_talking.glb-eddde702754d75517b195b7a9d7a5965.scn"]
 
 [params]
 
