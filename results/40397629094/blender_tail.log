@@ -1,0 +1,104 @@
+baked player 5 keys 0 face keys
+baked stranger 6 keys 64 face keys
+baked cheater 31 keys 34 face keys
+baked lyle 23 keys 25 face keys
+baked barkeep 55 keys 0 face keys
+baked rancher 4 keys 0 face keys
+baked miner 4 keys 0 face keys
+00:28.078  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0003.png'
+frame 3 table 5.3s
+00:32.708  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0053.png'
+frame 53 table 4.6s
+00:37.295  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0104.png'
+frame 104 table 4.6s
+00:41.576  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0111.png'
+frame 111 ots 4.3s
+00:45.891  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0167.png'
+frame 167 ots 4.3s
+00:50.168  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0224.png'
+frame 224 ots 4.3s
+00:54.293  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0231.png'
+frame 231 room 4.1s
+00:58.421  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0281.png'
+frame 281 room 4.1s
+01:02.544  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0332.png'
+frame 332 room 4.1s
+01:07.181  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0339.png'
+frame 339 ace 4.6s
+01:11.790  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0371.png'
+frame 371 ace 4.6s
+01:16.489  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0404.png'
+frame 404 ace 4.7s
+01:20.920  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0411.png'
+frame 411 smirk 4.4s
+01:25.245  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0443.png'
+frame 443 smirk 4.3s
+01:29.561  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0476.png'
+frame 476 smirk 4.3s
+01:33.777  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0483.png'
+frame 483 lyle 4.2s
+01:37.974  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0521.png'
+frame 521 lyle 4.2s
+01:42.206  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0560.png'
+frame 560 lyle 4.2s
+01:46.342  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0567.png'
+frame 567 rise 4.1s
+01:50.423  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0593.png'
+frame 593 rise 4.1s
+01:54.466  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0620.png'
+frame 620 rise 4.0s
+01:58.445  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0627.png'
+frame 627 kick 4.0s
+02:02.448  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0637.png'
+frame 637 kick 4.0s
+02:06.482  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0645.png'
+frame 645 kick 4.0s
+02:10.430  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0659.png'
+frame 659 kick 3.9s
+02:14.433  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0692.png'
+frame 692 kick 4.0s
+02:18.550  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0699.png'
+frame 699 rain 4.1s
+02:22.621  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0719.png'
+frame 719 rain 4.1s
+02:26.697  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0740.png'
+frame 740 rain 4.1s
+02:30.639  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0747.png'
+frame 747 draw 3.9s
+02:34.631  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0767.png'
+frame 767 draw 4.0s
+02:38.605  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0788.png'
+frame 788 draw 4.0s
+02:42.500  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0795.png'
+frame 795 floor 3.9s
+02:46.461  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0827.png'
+frame 827 floor 4.0s
+02:50.507  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0860.png'
+frame 860 floor 4.0s
+02:54.528  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0867.png'
+frame 867 aim 4.0s
+02:58.523  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0881.png'
+frame 881 aim 4.0s
+03:02.550  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0896.png'
+frame 896 aim 4.0s
+03:10.153  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0898.png'
+frame 898 aim 7.6s
+03:17.649  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0903.png'
+frame 903 after 7.5s
+03:25.101  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0904.png'
+frame 904 after 7.5s
+03:33.322  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f0959.png'
+frame 959 after 8.2s
+03:41.926  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1016.png'
+frame 1016 after 8.6s
+03:49.715  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1023.png'
+frame 1023 stranger 7.8s
+03:57.567  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1097.png'
+frame 1097 stranger 7.9s
+04:05.489  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1172.png'
+frame 1172 stranger 7.9s
+04:13.773  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1307.png'
+frame 1307 title 8.3s
+04:21.975  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/out/frames/f1436.png'
+frame 1436 title 8.2s
+sheet 48 frames
