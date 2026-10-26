@@ -67,7 +67,9 @@ func step(dt: float) -> void:
 	if body == null or not body.is_inside_tree():
 		return
 	if _ticks < 0:
-		_ticks = body.get_instance_id() % EVERY
+		# Spread by his seed, not his instance id: ids count every object made before him, so any
+		# change that makes a few more (more-cores step 2's finger bones) moved his drips' ticks.
+		_ticks = posmod(hash(["signs", body.rng_seed]), EVERY)
 	_ticks += 1
 	_dt_sum += dt
 	if _ticks % EVERY != 0:

@@ -288,10 +288,11 @@ var _bands: Array[Dictionary] = []  ## the dressings on him: {mi, segment}
 var _was_alive := true
 ## How each part was moving the last tick he stood (m/s and rad/s, from its script-driven pose and
 ## his walking): what he carries into the fall when he goes limp (go_limp), so a running man
-## pitches on along his run instead of stopping dead (experiments/physics_lab, fault 2).
-var _carry_v := {}
-var _carry_w := {}
-var _carry_last := {}  ## segment -> [position, rotation] at the end of the last tick
+## pitches on along his run instead of stopping dead (experiments/physics_lab, fault 2). Worked
+## out only then (_carry_velocities), from his parts' transforms the last two ticks he stood.
+var _carry_last := {}  ## segment -> its global transform the tick before _carry_new's
+var _carry_new := {}  ## segment -> its global transform at the end of the last tick he stood
+var _carry_dt := 0.0  ## that tick's length
 ## Faster than this in one tick is a teleport (placed, spawned, snapped), not movement.
 const CARRY_MAX_SPEED := 12.0
 const CARRY_MAX_SPIN := 25.0
@@ -389,6 +390,7 @@ func _ready() -> void:
 	BodyInterior.warm_up(get_tree())
 	Settings.changed.connect(_on_settings_changed)
 	_apply_pose(0.0, true)
+	set_process(false)  # (his bones follow on his tick while he stands; _process only when limp)
 	Events.scorched.connect(func(who: Node, amount: float) -> void:
 		if who == self:
 			physiology.burn(amount)
@@ -754,6 +756,11 @@ func _build_skin() -> void:
 			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
 			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
 			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
+			if baked.has(shape):
+				# His own painted texture (the Studio's Rodin men) carries its own shading: the light
+				# smooth on it, not cut into the old look's four flat steps, which carved their faces
+				# into hard patches in the sun (Sean, 2026-10-25), as paint_look already does.
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"light_steps", 0.0)
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",
@@ -949,13 +956,18 @@ func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -
 	return PeopleArt.material(key, PeopleArt.cloth(key, colour, rng_seed * 7 + what.length(), style), 0.95, cull_back)
 
 
-## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp).
-func _update_skeleton() -> void:
+## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp). `placed`: the
+## parts' global transforms already read this tick (segment -> Transform3D; _track_carry's).
+func _update_skeleton(placed := {}) -> void:
 	if skeleton == null:
 		return
 	var inv := skeleton.global_transform.affine_inverse()
 	for i in _bone_parts.size():
-		var part: Node3D = parts.get(_bone_parts[i])
+		var sid := _bone_parts[i]
+		if placed.has(sid):
+			skeleton.set_bone_pose(i, inv * (placed[sid] as Transform3D))
+			continue
+		var part: Node3D = parts.get(sid)
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
 	_pose_fingers()
@@ -964,8 +976,26 @@ func _update_skeleton() -> void:
 ## A skinned hand's finger bones (the characters session's skinned hands,
 ## docs/briefs/skinned-hands.md): after the anatomy's, each resting at his model's own finger
 ## joint (its report's finger_bones); the finger nodes still curl, grip and come off, and each
-## bone takes its node's bend about its own joint (_pose_fingers). None for other models.
-var _finger_rig: Array = []
+## bone takes its node's bend about its own joint (_pose_fingers). Each hangs from the bone before
+## it in the skeleton (the knuckle from the hand), so it's set only when its finger bends. None
+## for other models.
+var _finger_rig: Array[FingerBone] = []
+
+
+## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a
+## string test and a Dictionary walk a bone a frame were ~1 ms of the people's frame; more-cores
+## step 2); set only when the finger node's angle changes.
+class FingerBone:
+	var bone: int
+	var parent: int
+	var local: Transform3D  ## its rest on its parent bone's
+	var fid: StringName
+	var k: int
+	var thumb: bool
+	var sx: float  ## the side's sign
+	var rest: float  ## the relaxed bend (radians)
+	var gain: float  ## the fist's gain on the node's angle
+	var z := NAN  ## the finger node's angle it was last set for (INF: shot off)
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
@@ -973,6 +1003,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 	if fb.is_empty():
 		return
 	var last := {}
+	var rest_of := {}  ## bone -> its rest in the skeleton's space
 	for name: String in data.get("finger_bone_names", []):
 		if not fb.has(name):
 			return
@@ -983,14 +1014,26 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 				Vector3(b[2][0], b[2][1], b[2][2])), Vector3(o[0], o[1], o[2]))
 		var i := skeleton.get_bone_count()
 		skeleton.add_bone(name)
-		skeleton.set_bone_rest(i, rest)
 		skin.add_bind(i, rest.affine_inverse())
 		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
 		var fid := StringName("%s_%s" % [bits[1], bits[2]])
 		var k := int(bits[3])
 		var parent := _bone_parts.find(StringName("hand_" + bits[2])) if k == 0 else int(last[fid])
-		var parent_rest: Transform3D = rests[parent] if k == 0 else skeleton.get_bone_rest(parent)
-		_finger_rig.append({"bone": i, "parent": parent, "local": parent_rest.affine_inverse() * rest, "fid": fid, "k": k})
+		var parent_rest: Transform3D = rests[parent] if k == 0 else rest_of[parent]
+		rest_of[i] = rest
+		var e := FingerBone.new()
+		e.bone = i
+		e.parent = parent
+		e.local = parent_rest.affine_inverse() * rest
+		skeleton.set_bone_parent(i, parent)
+		skeleton.set_bone_rest(i, e.local)
+		e.fid = fid
+		e.k = k
+		e.thumb = bits[1] == "thumb"
+		e.sx = -1.0 if bits[2] == "r" else 1.0
+		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k])
+		e.gain = (FIST_GAIN_THUMB if e.thumb else FIST_GAIN)[k]
+		_finger_rig.append(e)
 		last[fid] = i
 
 
@@ -1010,27 +1053,34 @@ const THUMB_ACROSS_SIGN := -1.0
 
 
 func _pose_fingers() -> void:
-	for e: Dictionary in _finger_rig:
-		var bend := Basis.IDENTITY
+	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
-		if not gone:
-			var node := finger_bones[e.fid][e.k] as Node3D
-			var sx := -1.0 if String(e.fid).ends_with("_r") else 1.0
-			var rest: float = deg_to_rad((RELAXED_THUMB if String(e.fid).begins_with("thumb") else RELAXED_BEND)[e.k])
-			var angle: float = node.rotation.z * (FIST_GAIN_THUMB if String(e.fid).begins_with("thumb") else FIST_GAIN)[e.k]
-			if absf(angle) < rest:
-				angle = sx * rest
-			if String(e.fid).begins_with("thumb"):
-				var lean := deg_to_rad(THUMB_ACROSS)
-				bend = Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
-			else:
-				bend = Basis(Vector3(0, 0, 1), angle)
-		var pose: Transform3D = skeleton.get_bone_pose(e.parent) * (e.local as Transform3D) * Transform3D(bend, Vector3.ZERO)
+		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
+		if z == e.z:
+			continue
+		e.z = z
+		var pose: Transform3D = e.local
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
+		else:
+			pose = pose * Transform3D(_finger_bend(e, z), Vector3.ZERO)
 		skeleton.set_bone_pose(e.bone, pose)
 
 
+## A finger bone's bend for its node's angle `z`: the fist's gain, at least the relaxed curl, a
+## thumb's leaning across the fist.
+static func _finger_bend(e: FingerBone, z: float) -> Basis:
+	var angle := z * e.gain
+	if absf(angle) < e.rest:
+		angle = e.sx * e.rest
+	if e.thumb:
+		var lean := deg_to_rad(THUMB_ACROSS)
+		return Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
+	return Basis(Vector3(0, 0, 1), angle)
+
+
+## Only while he's limp (go_limp turns it on): the ragdoll moves in the physics step, after the
+## ticks, so his bones follow it here. Standing, they follow the pose on his tick (_physics_process).
 func _process(delta: float) -> void:
 	var t := Prof.start()
 	_process_step(delta)
@@ -1038,7 +1088,8 @@ func _process(delta: float) -> void:
 
 
 func _process_step(_delta: float) -> void:
-	_update_skeleton()
+	if limp:
+		_update_skeleton()
 
 
 ## The hand: palm, then each finger as three bones from its knuckle, following the anatomy.
@@ -1206,6 +1257,11 @@ func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"people_body", t)
+	if not limp:
+		# His bones after his pose, from the parts' places _track_carry has just read.
+		t = Prof.start()
+		_update_skeleton(_carry_new if delta > 0.0 else {})
+		Prof.stop(&"people_skeleton", t)
 
 
 func _physics_step(delta: float) -> void:
@@ -1267,39 +1323,45 @@ func _physics_step(delta: float) -> void:
 	_was_conscious = conscious
 
 
-## Each part's velocity this tick from where it was the last (the standing parts are moved by
-## script, so the engine knows no velocity for them).
+## Where each part is at the end of this tick, for its velocity should he go limp (the standing
+## parts are moved by script, so the engine knows no velocity for them). Kept as transforms and
+## turned into velocities only when he falls: 17 parts' sums a man a tick were most of this.
 func _track_carry(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	var teleport := false
-	var v := {}
-	var w := {}
+	for sid: StringName in _carry_new:
+		_carry_last[sid] = _carry_new[sid]
+	var now := {}
 	for sid: StringName in parts:
 		var n := parts[sid] as Node3D
 		if n == null or not is_instance_valid(n):
 			continue
-		var pos := n.global_position
-		var q := n.global_basis.orthonormalized().get_rotation_quaternion()
-		var last: Array = _carry_last.get(sid, [])
-		_carry_last[sid] = [pos, q]
-		if last.is_empty():
+		now[sid] = n.global_transform
+	_carry_new = now
+	_carry_dt = delta
+
+
+## Each part's velocity the last tick he stood ([segment -> m/s, segment -> rad/s]), from where it
+## was the tick before: both empty if any part moved faster than a man can (a teleport).
+func _carry_velocities() -> Array[Dictionary]:
+	var v := {}
+	var w := {}
+	for sid: StringName in _carry_new:
+		if not _carry_last.has(sid):
 			continue
-		var lv: Vector3 = (pos - (last[0] as Vector3)) / delta
+		var now: Transform3D = _carry_new[sid]
+		var was: Transform3D = _carry_last[sid]
+		var lv: Vector3 = (now.origin - was.origin) / _carry_dt
 		if lv.length() > CARRY_MAX_SPEED:
-			teleport = true
-		var dq := q * (last[1] as Quaternion).inverse()
+			return [{}, {}]
+		var q := now.basis.orthonormalized().get_rotation_quaternion()
+		var dq := q * was.basis.orthonormalized().get_rotation_quaternion().inverse()
 		if dq.w < 0.0:
 			dq = -dq
 		var angle := dq.get_angle()
 		v[sid] = lv
-		w[sid] = (dq.get_axis() * angle / delta).limit_length(CARRY_MAX_SPIN) if angle > 1e-6 else Vector3.ZERO
-	if teleport:
-		_carry_v.clear()
-		_carry_w.clear()
-		return
-	_carry_v = v
-	_carry_w = w
+		w[sid] = (dq.get_axis() * angle / _carry_dt).limit_length(CARRY_MAX_SPIN) if angle > 1e-6 else Vector3.ZERO
+	return [v, w]
 
 
 func set_pose(p: StringName) -> void:
@@ -1570,6 +1632,7 @@ func _rebuild_rig() -> void:
 	_new_blocker()
 	limp = false
 	rise_ok = false
+	set_process(false)
 
 
 ## Walk (or run, or crawl) towards a point on the ground, this tick. Stops short of walls and
@@ -1853,6 +1916,7 @@ func _apply_pose(delta: float, snap := false) -> void:
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
 	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
+	var writes := 0
 	for sid: StringName in pivots:
 		var goal: Vector3 = target.get(sid, Vector3.ZERO)
 		if leans:
@@ -1877,20 +1941,33 @@ func _apply_pose(delta: float, snap := false) -> void:
 			var gasp := 2.5 if shock > AGONAL_SHOCK else 1.0
 			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		var pv := pivots[sid] as Node3D
-		pv.rotation_degrees = rot
-		if _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l"))):
+		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
+		var clip_here := _clip_w > 0.0 and played.has(sid)
+		# Set only if it moved: each set is a transform change down the joint's subtree into its
+		# parts' physics state, and a man standing easy moves little but his chest once his pose
+		# has settled. Exactly as last set, and nothing else (a hand to a wound, a clip) has turned
+		# the joint since: setting it again would change nothing. (Within a hundredth of a degree
+		# was tried: 19 of the physics lab's 151 falls went another way.)
+		var was: Array = _pose_set.get(sid, _NOT_SET)
+		if mocap_here or clip_here or was[0] != rot or was[1] != pv.transform:
+			pv.rotation_degrees = rot
+			writes += 1
+			_pose_set[sid] = [rot, pv.transform] if not (mocap_here or clip_here) else _NOT_SET
+		if mocap_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles) on top of it.
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
-		if _clip_w > 0.0 and played.has(sid):
+			writes += 1
+		if clip_here:
 			# The played clip leads every joint it has; a flinch, a staged touch, his fold as he
 			# stumbles and the lean his wounds give him stay on top of it.
 			var extra: Vector3 = (f[0] + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
-	Prof.count(&"q_writes", pivots.size())  # (each pivot set once a tick at least)
+			writes += 1
+	Prof.count(&"q_writes", writes)
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
 		_clip_strikes(delta)
@@ -1902,6 +1979,9 @@ func _apply_pose(delta: float, snap := false) -> void:
 
 
 const _MOCAP_ALWAYS := ["pelvis", "thigh", "shin", "foot"]
+## Each pivot as _apply_pose last set it: [its rotation (degrees), its transform after].
+var _pose_set := {}
+const _NOT_SET := [Vector3.INF, Transform3D()]
 
 
 ## This tick's frame of the walk or run clip (segment -> Quaternion, blended between the clip's
@@ -3875,6 +3955,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	if limp:
 		return
 	limp = true
+	set_process(true)
 	rising = false
 	rise_ok = false
 	_clip = null  # the ragdoll has him now: whatever he was playing, physics won
@@ -3978,7 +4059,10 @@ func go_limp(push := Vector3.ZERO) -> void:
 	# share and the gait's swing: a runner at 3.5 m/s keeps 93% (279 -> 260 N*s), and the rest of
 	# him all of his. Real strides will come with mocap.
 	var space := World.space(self)
-	var hips: Vector3 = _carry_v.get(&"pelvis", Vector3.ZERO)
+	var carry := _carry_velocities()
+	var carry_v: Dictionary = carry[0]
+	var carry_w: Dictionary = carry[1]
+	var hips: Vector3 = carry_v.get(&"pelvis", Vector3.ZERO)
 	var side := _stance_side(bodies)
 	var foot: RigidBody3D = bodies.get(StringName("foot" + side))
 	var planted := foot != null and _on_ground(space, foot)
@@ -3990,8 +4074,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	var leg_w := Vector3.UP.cross(hips_flat) / leg_h
 	for sid: StringName in bodies:
 		var rb: RigidBody3D = bodies[sid]
-		var v: Vector3 = (_carry_v.get(sid, Vector3.ZERO) as Vector3)
-		var w: Vector3 = _carry_w.get(sid, Vector3.ZERO)
+		var v: Vector3 = (carry_v.get(sid, Vector3.ZERO) as Vector3)
+		var w: Vector3 = carry_w.get(sid, Vector3.ZERO)
 		var leg := String(sid).begins_with("thigh") or String(sid).begins_with("shin") or String(sid).begins_with("foot")
 		if leg:
 			v = hips

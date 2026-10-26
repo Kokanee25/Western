@@ -348,7 +348,11 @@ compared with `same_fight.py`**; the tests green; a status entry; the next step'
 gains are this core's ms a frame in a D gunfight (x0.65 for Sean's), against main today's 20.0
 (`results/2026-10-25_threading/probe.md`). Steps 1–4 are the gunfight's; 4b the finished map's
 (people ticked by distance, Sean's ask); 5 the fire scene's; 6–8 the engine's threads and the
-structures; 9 the table. **Sean, 2026-10-25 (#378): the order as written.** Step 1 is the next-session issue #380.
+structures; 9 the table. **Sean, 2026-10-25 (#378): the order as written.** Step 1 was issue #380 (PR #384); step 2 is
+#385. **Every later step has its issue already** (Sean, 2026-10-25: each step must know exactly what
+it's to do), each a complete prompt with its gate and handover: step 3 #394, step 4 #395, step 4b
+#396, step 5 #397, step 6 #398, step 7 #399, step 8 #400, step 9 #401. A step's session doesn't open
+the next issue: it labels the next step's issue `next session` when its PR merges and closes its own.
 
 **Step 1. The determinism ground** (no gain in ms; a small session). *"Read docs/briefs/more-cores.md
 'The review' and 'The design' A and F. Make the query rule real: a `World.space(node)` helper
@@ -392,9 +396,33 @@ still whose pose didn't change; (c) `_apply_pose` sets 17 pivot `rotation_degree
 tick, each a transform-changed notification down the subtree into the part body's
 `body_set_state`: set only the pivots whose rotation moved more than a hundredth of a degree
 (a man standing easy moves only his chest), and measure how much of `hb_pose` was the sets
-(`q_writes` from step 1). Then `_update_skeleton` runs on the physics tick after the pose, from
+(`q_writes` from step 1). (d) **The per-shot hitch** (Sean's F3, build 2466, on #385: while shooting in the
+spec saloon the worst physics step is 190–250 ms with `batches` 3.5 ms a frame on average):
+a ball into a batched member calls `Structure.unbatch` -> `_rebuild_dirty_batches` ->
+`_build_batch`, which rebuilds that material's whole batch mesh for the building on the physics
+frame. Measure one shot into the hall's wall with per-step timers (not the average); if
+`_build_batch` is the step, split the batches into cells (as `PropBatch` does, ~20 m) so a hit
+rebuilds a few metres, and build the cell's mesh off the frame if it's still long. This is the
+hitch Sean feels on every shot, so it comes first in this step. Then `_update_skeleton` runs on the physics tick after the pose, from
 the same transforms, and `_process` does nothing. Ten fights twice, `same_fight.py` the same;
 the body lab's and physics lab's goldens the same."*
+**Done (2026-10-25, `claude/gameplay-perf-step2`; `results/2026-10-25_step2/`):** 10 of 10 the
+same; **about -1.3 ms a frame against the before** (16.3 -> 14.95, p95 20.6 -> 18.7; people
+9.3 -> 8.2; two runs of one build spread 0.7 here, so the total is soft): `people_skeleton` 1.12 ->
+0.48 as expected, `people_body` 3.65 -> ~3.3, not ~2.5. The pivot sets
+weren't its cost (336 -> 60 a frame moved nothing): what's left is GDScript a joint (the pose loop
+1.1, its tail 0.5) and the transform reads (0.46, the sets' composition lands there). (c) within
+0.01 degree turned 19 of the physics lab's 151 falls, so a pivot is skipped only when exactly as
+last set (75 sets a frame); the falls are the before's. Finger bones parented in
+the skeleton (set only when the finger bends). The gate found the player's packing roll unseeded
+(`Physiology.roll_rng`) and the body lab `WoundSigns`' phase taken from his instance id (which
+any new object moves): both by seed now, with the viewmodels' dice. **The per-shot hitch**
+(`results/2026-10-25_step2/shot.md`, the blast-freeze lab's `bf_shot`): `_build_batch` was 15-23
+ms of each shot's frame (a material's mesh for the whole saloon, up to 683 members); batched in
+pieces of at most 64 near members it's 1-3 ms, the shot's worst frame 42-58 -> 26-37 ms here (the
+saloon 62 -> 115 batches, the street 733 -> 736). Left: the holed member's load check
+(`fire_loads` 14-20 ms on the shot's frame) and the townsfolk's `civilian_brain` burst a second
+later (~100 ms on one frame), both step 5's.
 
 **Step 3. The sight service** (expected −1 ms on average and the cover search's bursts gone:
 `senses` 1.2 -> ~0.6, the brains' `ob_cover_search` 0.5 -> ~0.1, `q_walk`'s ground rays
@@ -463,6 +491,23 @@ rate. (c) The frame after a stick (~125 ms: ~110 rubble bodies and 44 members ta
 frame): add the pieces over two or three frames, or cut fewer, larger pieces; they must still
 fly from the hole (the breakage lab's goldens). The blast-freeze lab's frames the same twice;
 the fire tests and the soak green."*
+Sean's F3 on his PC (build 2466, on #376) puts numbers on these: after a stick out front,
+`batches` 20–45 ms a frame, `civilian_brain` 42 ms (five cowering), `fire` 9–11 ms, the worst
+physics step 55–316 ms in the burning hall; 26 game minutes later and far down the street still a
+57 ms step, because the simulation isn't tied to the camera (the fire's members and the
+burning building's settle at full detail wherever the player is: (d) members far from the player
+tick coarser, with a bigger step, as step 4b does for people). **And the GPU, art's lane:** 56–75 ms
+out front and in the burning hall against 5.6 ms in the hall with no fire, at fewer triangles:
+about 3,200 extra draws, most likely shadow passes from the fire's lights (the lamp-shadow trap
+of 2026-10-13 with fire lights that flicker or move), plus the flipbook flames' and smoke's
+overdraw in a closed room, and 35 ms still far down the street (the embers' and fires' light
+ranges not culled). An art session measures `FireFX`'s lights (count, shadows, movement) on a
+real GPU or from Sean's F3 before the fight starts. The stopgap `max_physics_steps_per_frame=2`
+(#386) was reverted the same day (#393, issue #392): under it the game hangs at quit, in Godot's
+worker pool exit handshake (two low-priority pool tasks overlapping at the runlevel switch leave
+the idle workers uncounted for good; the engine's own tasks can form the pair), and the cap makes
+the whole game crawl on a slow frame so its work is still in flight at quit. A stopgap only comes
+back with a quit that can't hang; and every pool task this repo posts is high priority.
 
 **Step 6. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
 writes' share of it shrinks as step 2 lands). *"Read 'The review' 'Physics on its own thread'.

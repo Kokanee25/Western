@@ -50,6 +50,7 @@ func _ready() -> void:
 	_rng.seed = 1882
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
+	physiology.roll_rng.seed = hash(["physiology", "player"])
 	var layer := CanvasLayer.new()
 	layer.name = "WoundOverlay"
 	layer.layer = 4

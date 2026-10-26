@@ -80,13 +80,14 @@ var _settle_pending := false
 var _sound_cooldown := 0.0
 var _rng := RandomNumberGenerator.new()
 var _shape_cache := {}
-## Material -> MeshInstance3D drawing the batched members of that material.
+## A batch is one material's members, or a piece of them ([Material, piece]: see BATCH_PIECE).
+## Batch -> MeshInstance3D drawing its members.
 var _batches := {}
-## StructureMember -> the Material of the batch it's drawn in.
+## StructureMember -> the batch it's drawn in.
 var _batched := {}
-## Material -> the members in its batch (the other way round, so a rebuild reads its own, not all).
+## Batch -> the members in it (the other way round, so a rebuild reads its own, not all).
 var _batch_members := {}
-## Material -> its batch's mesh arrays, kept for the shadow mesh (merged off the main thread).
+## Batch -> its mesh arrays, kept for the shadow mesh (merged off the main thread).
 var _batch_arrays := {}
 var _batch_dirty := {}
 ## The shadow mesh (every batch merged) is built on a worker thread, at most every
@@ -117,8 +118,14 @@ const BATCH_REBUILD_GAP := 0.5
 ## board's copy stands in its batch that frame longer: a collapse dirtied a dozen materials a frame,
 ## 65 ms, 2026-10-25).
 const BATCH_FRAME_MS := 6.0
-## Under World.deterministic, the batches rebuilt a frame instead (~3-5 ms each for the saloon's).
-const BATCH_FRAME_COUNT := 2
+## Under World.deterministic, the members rebuilt a frame instead (~25 us each).
+const BATCH_FRAME_MEMBERS := 240
+## A material's members are batched in pieces of at most this many, near ones together (in the
+## order of 2 m cells along a Morton curve): a ball into one board rebuilt the material's batch for
+## the whole building, 683 members of the spec saloon's, ~20 ms on the physics frame every shot
+## (Sean's per-shot hitch, #385). A kit prop or a small building's material is one piece still.
+const BATCH_PIECE := 64
+const BATCH_CELL := 2.0
 
 
 func _ready() -> void:
@@ -361,38 +368,73 @@ func _batch_all() -> void:
 		if not groups.has(mat):
 			groups[mat] = []
 		(groups[mat] as Array).append(m)
-		_batched[m] = mat
 		mi.visible = false
-	_batch_members = groups
+	for mat in groups:
+		var pieces := _batch_pieces(groups[mat])
+		for i in pieces.size():
+			var key := [mat, i]
+			_batch_members[key] = pieces[i]
+			for m: StructureMember in pieces[i]:
+				_batched[m] = key
 	# Unbatched members (holed, burning) are walls to a far lamp too (OilLamp).
 	for m in _order:
 		var own := m.get_child(0) as MeshInstance3D
 		if own:
 			own.layers |= Layers.VIS_WALLS
-	for mat in groups:
-		_build_batch(mat)
+	for key in _batch_members:
+		_build_batch(key)
 	_build_shadow()
 	if rest_batched and members_rest:
 		for m: StructureMember in _batched:
 			m.rest()
 
 
-func _build_batch(mat: Material) -> void:
-	var old: MeshInstance3D = _batches.get(mat)
+## One material's members in pieces of at most BATCH_PIECE, each piece near together: sorted by
+## their 2 m cell's place on a Morton curve (then as built), and cut in runs.
+static func _batch_pieces(members: Array) -> Array:
+	if members.size() <= BATCH_PIECE:
+		return [members]
+	var low := Vector3.INF
+	for m: StructureMember in members:
+		low = low.min(m.transform.origin)
+	var keyed: Array = []
+	for i in members.size():
+		var c := ((members[i] as StructureMember).transform.origin - low) / BATCH_CELL
+		keyed.append([_morton(int(c.x), int(c.y), int(c.z)), i])
+	keyed.sort()  # (by cell, then the order they were built in: the same every time)
+	var out: Array = []
+	var n := ceili(members.size() / float(BATCH_PIECE))
+	var each := ceili(members.size() / float(n))  # even pieces, not 64, 64, ..., 3
+	for k in range(0, keyed.size(), each):
+		out.append(keyed.slice(k, k + each).map(func(e: Array) -> StructureMember: return members[e[1]]))
+	return out
+
+
+## Three cell indices (each under 1024) interleaved bit by bit: near cells, near numbers.
+static func _morton(x: int, y: int, z: int) -> int:
+	var out := 0
+	for b in 10:
+		out |= ((x >> b) & 1) << (3 * b) | ((y >> b) & 1) << (3 * b + 1) | ((z >> b) & 1) << (3 * b + 2)
+	return out
+
+
+func _build_batch(key: Array) -> void:
+	var mat: Material = key[0]
+	var old: MeshInstance3D = _batches.get(key)
 	var st := SurfaceTool.new()
 	var any := false
-	for m: StructureMember in _batch_members.get(mat, []):
+	for m: StructureMember in _batch_members.get(key, []):
 		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
 		any = true
 	if not any:
 		if old:
 			old.queue_free()
-		_batches.erase(mat)
-		_batch_arrays.erase(mat)
+		_batches.erase(key)
+		_batch_arrays.erase(key)
 		return
 	var arrays := st.commit_to_arrays()
-	_batch_arrays[mat] = arrays
+	_batch_arrays[key] = arrays
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	if old == null:
@@ -400,7 +442,7 @@ func _build_batch(mat: Material) -> void:
 		old.name = "Batch"
 		old.material_override = mat
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
-		_batches[mat] = old
+		_batches[key] = old
 	old.mesh = mesh
 
 
@@ -411,10 +453,10 @@ func unbatch(m: StructureMember, soon := false) -> void:
 	m.realise()
 	if not _batched.has(m):
 		return
-	var mat: Material = _batched[m]
+	var key: Array = _batched[m]
 	_batched.erase(m)
-	(_batch_members.get(mat, []) as Array).erase(m)
-	_batch_dirty[mat] = true
+	(_batch_members.get(key, []) as Array).erase(m)
+	_batch_dirty[key] = true
 	var mi := m.get_child(0) as MeshInstance3D
 	if soon:
 		_show_after[m] = true
@@ -436,11 +478,11 @@ func _rebuild_dirty_batches() -> void:
 	if not is_inside_tree() and _batch_dirty.is_empty():
 		return
 	var t := Prof.start()
-	var budget := WorkBudget.new(BATCH_FRAME_MS, BATCH_FRAME_COUNT - 1)
-	for mat in _batch_dirty.keys():
-		_build_batch(mat)
-		_batch_dirty.erase(mat)
-		budget.spend()
+	var budget := WorkBudget.new(BATCH_FRAME_MS, BATCH_FRAME_MEMBERS)
+	for key: Array in _batch_dirty.keys():
+		budget.spend((_batch_members.get(key, []) as Array).size())
+		_build_batch(key)
+		_batch_dirty.erase(key)
 		if budget.over() and not _batch_dirty.is_empty():
 			# The rest next frame.
 			_rebuild_queued = true
@@ -557,8 +599,8 @@ func _clear_batches() -> void:
 	if _shadow and is_instance_valid(_shadow):
 		_shadow.free()
 	_shadow = null
-	for mat in _batches:
-		var mi: MeshInstance3D = _batches[mat]
+	for key in _batches:
+		var mi: MeshInstance3D = _batches[key]
 		if is_instance_valid(mi):
 			mi.free()
 	_batches.clear()

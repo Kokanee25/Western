@@ -12,6 +12,8 @@ const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const HELP := {
 	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [out=FILE.json] -> the spec saloon (built if it isn't), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
+	"bf_batches": "bf_batches -> the batches every structure in the town draws in (Structure.batch_count), in all and the five largest, and the spec saloon's if it's built",
+	"bf_shot": "bf_shot [from=X,Y,Z] [dirs=x,-x,z,-z] [gap=S] [stall=MS] [out=FILE.json] -> the spec saloon (built if it isn't), a revolver ball from `from` (the saloon's own space) each way in `dirs`, `gap` s apart, every frame recorded: each shot's worst frame and what was in it, and the saloon's batches (members a material) (Sean's per-shot hitch, #385)",
 }
 
 ## A frame longer than this (ms, this workspace's wall clock) counts as a stall.
@@ -111,6 +113,88 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	summary.erase("broken_ids")
 	log_event("lab", "bf_blast: worst frame %.0f ms, %d over %.0f ms (%.1f s in all)" % [summary.worst_ms, summary.stalls, stall, summary.stall_s])
 	return summary
+
+
+## Sean's per-shot hitch (#385, more-cores step 2): a ball into the saloon's wall, each way in turn,
+## each frame recorded (wall clock and Prof, as bf_blast), and per shot the worst frame in the
+## second after it.
+func _cmd_bf_shot(a: Array) -> Dictionary:
+	var opts := {"from": "6.0,1.5,6.0", "dirs": "x,-x,z,-z", "gap": 1.0, "stall": STALL_MS, "out": ""}
+	for w: String in a:
+		var kv := w.split("=", true, 1)
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	var town := street.get_node_or_null(^"TownLife") as TownLife
+	var built := street.get_node_or_null(^"SpecSaloon") != null
+	var saloon := SpecSaloon.ensure(street, town.places if town else null) as Structure
+	if not built:
+		await physics_frames(30)
+	await seconds(1.0)  # the build's own rebuilds and shadow out of the way
+	var p := String(opts.from).split(",")
+	var from := SpecSaloon.at(Vector3(float(p[0]), float(p[1]), float(p[2])))
+	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var sizes: Array = []
+	for key: Variant in saloon._batch_members:
+		sizes.append((saloon._batch_members[key] as Array).size())
+	sizes.sort()
+	_frames.clear()
+	_event_tick = -1
+	Prof.on = true
+	Prof._sum.clear()
+	_last_us = Time.get_ticks_usec()
+	_recording = true
+	await seconds(0.5)
+	var shots: Array = []
+	for d: String in String(opts.dirs).split(","):
+		var axis := {"x": Vector3.RIGHT, "-x": Vector3.LEFT, "z": Vector3.BACK, "-z": Vector3.FORWARD}.get(d, Vector3.FORWARD) as Vector3
+		# The saloon's own axes in the world (it may stand turned).
+		var dir := (SpecSaloon.at(axis) - SpecSaloon.at(Vector3.ZERO)).normalized()
+		var damaged := [0]
+		var on_damaged := func(_info: Dictionary) -> void: damaged[0] += 1
+		Events.bullet_hit.connect(on_damaged)
+		var tick := Engine.get_physics_frames()
+		_event_tick = tick
+		ballistics.fire(from, dir, t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, [])
+		await seconds(float(opts.gap))
+		Events.bullet_hit.disconnect(on_damaged)
+		var worst := {}
+		for f: Dictionary in _frames:
+			if int(f.tick) >= tick and (worst.is_empty() or float(f.ms) > float(worst.ms)):
+				worst = f
+		shots.append({"dir": d, "hits": damaged[0], "worst_ms": worst.get("ms", 0.0),
+				"worst_after_ticks": int(worst.get("tick", tick)) - tick, "top": _top(worst.get("prof", {}), 6)})
+	_recording = false
+	var summary := _summarise(float(opts.stall))
+	summary["shots"] = shots
+	summary["batches"] = {"count": saloon.batch_count(), "members": saloon.member_count(),
+			"largest": sizes.slice(maxi(sizes.size() - 5, 0)), "median": sizes[sizes.size() / 2] if not sizes.is_empty() else 0}
+	if String(opts.out) != "":
+		var path := String(opts.out)
+		if not path.is_absolute_path():
+			path = ProjectSettings.globalize_path("res://").path_join(path)
+		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+		var f := FileAccess.open(path, FileAccess.WRITE)
+		var full := summary.duplicate()
+		full["frames"] = _frames
+		f.store_string(JSON.stringify(full, " "))
+		f.close()
+		summary["out"] = path
+	log_event("lab", "bf_shot: %s" % [shots.map(func(x: Dictionary) -> String: return "%s %.0f ms" % [x.dir, x.worst_ms])])
+	return summary
+
+
+func _cmd_bf_batches(_a: Array) -> Dictionary:
+	var rows: Array = []
+	var total := 0
+	for s: Node in get_tree().get_nodes_in_group(&"structures"):
+		var st := s as Structure
+		if st == null:
+			continue
+		total += st.batch_count()
+		rows.append([st.batch_count(), String(st.name), st.member_count()])
+	rows.sort()
+	return {"structures": rows.size(), "batches": total, "largest": rows.slice(maxi(rows.size() - 5, 0))}
 
 
 func _cmd_bf_frames(a: Array) -> Dictionary:

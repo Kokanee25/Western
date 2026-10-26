@@ -675,6 +675,14 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
 
+**HumanBody's tick** (more-cores step 2): standing, `_apply_pose` sets a pivot only when the pose
+turned it more than `POSE_EPS` (0.01°; `q_writes` counts the sets), `_track_carry` keeps the
+parts' global transforms for two ticks (`_carry_velocities` turns them into the fall's velocities
+in `go_limp`), and his bones follow on his physics tick from those transforms; `_process` runs
+only while he's limp (the ragdoll moves in the step). A Studio man's finger bones hang from the
+hand's bone in the skeleton (their pose and rest on their parent: read a bone's skin matrix as
+`get_bone_global_pose` × `get_bone_global_rest`⁻¹) and are set only when the finger bends.
+
 **Clips of motion** (`src/bodies/motion_clip.gd`, `MotionClip`; `assets/animations/<name>.json`,
 its README): each segment's turn a sample (quaternions), the root's travel and the hips' height in
 the clip's start frame (he faces -z; his turning in the clip is in his pelvis's turn), marks
