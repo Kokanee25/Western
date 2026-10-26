@@ -1,0 +1,45 @@
+14 calls, about $1.41
+making voice_welcome_bill
+making voice_welcome_brian
+making voice_welcome_callum
+making sfx_shuffle
+making sfx_room
+making sfx_clock
+making sfx_ace
+making sfx_kick
+making sfx_coins
+making sfx_draw
+making sfx_shot
+making sfx_drink
+making sfx_title
+making music_score
+Traceback (most recent call last):
+  File "/home/runner/work/Western/Western/tools/cinematic/audio.py", line 136, in <module>
+    main()
+  File "/home/runner/work/Western/Western/tools/cinematic/audio.py", line 127, in main
+    ans = run(app, b, key)
+          ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/audio.py", line 70, in run
+    return request("GET", resp, key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Western/Western/tools/cinematic/audio.py", line 57, in request
+    with urllib.request.urlopen(req, timeout=120) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 525, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 634, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 563, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/urllib/request.py", line 643, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 422: Unprocessable Entity
