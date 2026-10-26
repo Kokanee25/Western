@@ -570,7 +570,7 @@ frozen until Sean names one.
   9.3 -> 8.2; `people_body` is the pose's GDScript now (1.6 of 3.2). The per-shot hitch: batches in
   pieces of 64 members (a shot's rebuild 15-23 -> 1-3 ms). Every later step has its issue
   (#394–#401, each the full prompt, gate and handover; a step's session labels the next one
-  `next session`). **Step 3 done** (PR waiting on the Fable review, `claude/gameplay-perf-step3`;
+  `next session`). **Step 3 done** (PR #406, waiting on the Fable review, `claude/gameplay-perf-step3`;
   `results/2026-10-26_step3/`): `SightWorld` (plugin) + `Sight` (`src/people/sight.gd`) answer the
   sight lines (Cover, `Senses._clear`, SightLight, `OutlawBrain._clear`) by Jolt's rules, fed by
   the tree; `tests/test_sight_world.gd` the gate; 10 of 10 the same; **no gain** (the ~115 lines a
