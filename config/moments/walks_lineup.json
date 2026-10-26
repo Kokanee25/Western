@@ -14,6 +14,6 @@
     {"id": "walk_swagger_man", "name": "Brody", "model": "bold_cowboy_s3_talking", "walk": "walk_swagger", "seed": 802},
     {"id": "walk_nervous_man", "name": "the Kid", "model": "young_drifter_s3_talking", "walk": "walk_nervous", "seed": 803},
     {"id": "walk_drunk_man", "name": "Lyle", "model": "hothead_lyle_s2_talking", "walk": "walk_drunk", "seed": 804},
-    {"id": "walk_brisk_woman", "name": "the widow", "model": "widow_s2_talking", "walk": "walk_brisk", "seed": 805}
+    {"id": "walk_brisk_woman", "name": "the widow", "model": "widow_s3_talking", "walk": "walk_brisk", "seed": 805}
   ]
 }
