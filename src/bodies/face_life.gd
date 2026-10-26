@@ -24,7 +24,7 @@ static var enabled := true
 var body: HumanBody
 var tuning: FaceLifeTuning
 var gaze: FaceGaze
-## Stepped from _physics_process (a fixed step, so a run plays the same twice); off: call step().
+## Stepped on its tick (PeopleTick: a fixed step, so a run plays the same twice); off: call step().
 var auto := true
 ## Where the camera is for the near_camera rest (null: the viewport's camera; none: always near).
 var camera: Node3D
@@ -53,6 +53,7 @@ var _attend_over := false  ## ... even in a fight or a start (a man looking at h
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	if tuning == null:
 		tuning = load("res://config/face_life.tres")
 	if body == null and get_parent() is HumanBody:
@@ -72,7 +73,21 @@ func _ready() -> void:
 	Events.near_miss.connect(_on_near_miss)
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	if auto and enabled:
 		step(delta)
 

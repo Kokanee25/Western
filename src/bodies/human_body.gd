@@ -215,6 +215,11 @@ const MASS_SHARE := {
 
 var anatomy: Anatomy
 var physiology: Physiology
+## His place in the people's order (PeopleTick): given the first time he enters the world, kept.
+var tick_index := -1
+## His own nodes PeopleTick ticks after him, in tree order (his brain, face, senses: add_ticker).
+var _tickers: Array[Node] = []
+var _tickers_sorted := true
 var parts := {}  ## segment -> the physics body carrying it (AnimatableBody3D, RigidBody3D when limp)
 var pivots := {}  ## segment -> joint pivot (while standing)
 var visuals := {}  ## segment -> Node3D holding its meshes and decals
@@ -364,7 +369,27 @@ var _merged := {}
 var _bone_parts: Array[StringName] = []
 
 
+func _enter_tree() -> void:
+	PeopleTick.join(self)
+
+
+func _exit_tree() -> void:
+	PeopleTick.leave(self)
+
+
+## One of his nodes with a tick of its own (`tick(delta)`), ticked after him by PeopleTick.
+func add_ticker(n: Node) -> void:
+	if not _tickers.has(n):
+		_tickers.append(n)
+		_tickers_sorted = false
+
+
+func remove_ticker(n: Node) -> void:
+	_tickers.erase(n)
+
+
 func _ready() -> void:
+	set_physics_process(true)  # his switch: PeopleTick ticks him while it's on (people_tick)
 	if walk_clip == &"":
 		walk_clip = WalkStyles.clip_for(person_id, body_model)
 	add_to_group(&"people")
@@ -1080,7 +1105,7 @@ static func _finger_bend(e: FingerBone, z: float) -> Basis:
 
 
 ## Only while he's limp (go_limp turns it on): the ragdoll moves in the physics step, after the
-## ticks, so his bones follow it here. Standing, they follow the pose on his tick (_physics_process).
+## ticks, so his bones follow it here. Standing, they follow the pose on his tick (people_tick).
 func _process(delta: float) -> void:
 	var t := Prof.start()
 	_process_step(delta)
@@ -1253,7 +1278,20 @@ func _cylinder(parent: Node3D, n: String, radius: float, h: float, pos: Vector3,
 
 # --- Living ------------------------------------------------------------------------------------
 
-func _physics_process(delta: float) -> void:
+## His tick and then his nodes', from PeopleTick, in the order the tree had them: each only while
+## its physics processing is on and it can process (paused, disabled), as the engine asked.
+func people_tick(delta: float) -> void:
+	if not _tickers_sorted:
+		_tickers.sort_custom(func(a: Node, b: Node) -> bool: return b.is_greater_than(a))
+		_tickers_sorted = true
+	if is_physics_processing() and can_process():
+		_tick(delta)
+	for n: Node in _tickers.duplicate():
+		if is_instance_valid(n) and n.is_inside_tree() and n.is_physics_processing() and n.can_process():
+			n.call(&"tick", delta)
+
+
+func _tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"people_body", t)
@@ -5121,5 +5159,5 @@ func to_dict() -> Dictionary:
 	for sid: StringName in openings:
 		ops[String(sid)] = (openings[sid] as Array).map(func(o: Dictionary) -> Dictionary:
 			return {"at": [o.at.x, o.at.y, o.at.z], "energy": o.energy, "radius": o.radius})
-	return {"person_id": person_id, "physiology": physiology.to_dict(), "wounds": ws, "openings": ops,
+	return {"person_id": person_id, "tick_index": tick_index, "physiology": physiology.to_dict(), "wounds": ws, "openings": ops,
 			"garment_holes": gs, "limp": limp, "gun_dropped": has_gun and held_gun == null}
