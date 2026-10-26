@@ -49,7 +49,7 @@ func _scatter() -> void:
 			_rut_range = float((info as Dictionary).get("rut_range", 0.12))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = stone_seed
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var ray := PhysicsRayQueryParameters3D.new()
 	ray.collision_mask = Layers.WORLD
 	var noise := FastNoiseLite.new()

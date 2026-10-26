@@ -40,7 +40,7 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> BlastCloud:
 ## The way the blast vents: away from whatever's close round the charge (the ground under it, a
 ## wall it lay against), from rays a metre out every way; straight up in the open.
 static func vent_of(world: Node3D, at: Vector3) -> Vector3:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var open := Vector3.ZERO
 	for x in [-1, 0, 1]:
 		for y in [-1, 0, 1]:
@@ -60,7 +60,7 @@ static func vent_of(world: Node3D, at: Vector3) -> Vector3:
 ## The colour of what it throws up: the street's dirt, boards' wood, stone.
 static func dust_of(world: Node3D, at: Vector3) -> Color:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.1, at + Vector3.DOWN * 0.6, Layers.WORLD)
-	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(world).intersect_ray(q)
 	if not hit.is_empty() and hit.collider is StructureMember:
 		var m := hit.collider as StructureMember
 		if m.wood == &"stone":

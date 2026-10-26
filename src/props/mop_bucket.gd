@@ -158,7 +158,7 @@ func set_down(at: Vector3, parent: Node = null) -> void:
 	else:
 		var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.6, at - Vector3.UP * 1.0, Layers.WORLD)
 		q.exclude = [body.get_rid()]
-		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(self).intersect_ray(q)
 		if not hit.is_empty():
 			y = (hit.position as Vector3).y
 	global_transform = Transform3D(Basis(Vector3.UP, global_rotation.y), Vector3(at.x, y, at.z))

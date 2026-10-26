@@ -88,7 +88,7 @@ func _footsteps() -> void:
 		# The sound lab: on boards (any timber underfoot) a hollow knock, on the street's dirt a crunch.
 		var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.2, global_position + Vector3.DOWN * 0.4, Layers.STAND)
 		q.exclude = [get_rid()]
-		var under := get_world_3d().direct_space_state.intersect_ray(q)
+		var under := World.space(self).intersect_ray(q)
 		var boards: bool = not under.is_empty() and (under.collider is StructureMember or under.collider is KitProp)
 		_step_n += 1
 		var id := StringName("step_%s_%d" % ["boards" if boards else "dirt", _step_n % 4])
@@ -391,7 +391,7 @@ func can_stand() -> bool:
 	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (tuning.stand_height * 0.5 + 0.08))
 	params.exclude = [get_rid()]
 	params.collision_mask = collision_mask
-	return get_world_3d().direct_space_state.intersect_shape(params, 1).is_empty()
+	return World.space(self).intersect_shape(params, 1).is_empty()
 
 
 func _set_collision_height(height: float) -> void:

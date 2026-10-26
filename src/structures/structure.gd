@@ -61,6 +61,9 @@ static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
 ## A settle that has run this long (ms) on one frame hands the rest to the FireSystem's slices
 ## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
 const SETTLE_FRAME_MS := 6.0
+## Under World.deterministic a settle's budget is members analysed, this many a millisecond of it
+## (about what a millisecond analyses here: the spec saloon's 5,150 in ~170 ms).
+const MEMBERS_A_MS := 30
 ## A building of more members than this with no analysis yet has its first done a slice a frame
 ## (a budgeted settle hands it on), never on the frame that broke it.
 const SLICED_ABOVE := 1500
@@ -114,6 +117,8 @@ const BATCH_REBUILD_GAP := 0.5
 ## board's copy stands in its batch that frame longer: a collapse dirtied a dozen materials a frame,
 ## 65 ms, 2026-10-25).
 const BATCH_FRAME_MS := 6.0
+## Under World.deterministic, the batches rebuilt a frame instead (~3-5 ms each for the saloon's).
+const BATCH_FRAME_COUNT := 2
 
 
 func _ready() -> void:
@@ -415,7 +420,7 @@ func unbatch(m: StructureMember, soon := false) -> void:
 		_show_after[m] = true
 		if not _rebuild_timed and not _rebuild_queued and is_inside_tree():
 			_rebuild_timed = true
-			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - Time.get_ticks_msec() / 1000.0, 0.0)
+			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - World.now(), 0.0)
 			get_tree().create_timer(wait, true, true).timeout.connect(_rebuild_dirty_batches)
 		return
 	if mi:
@@ -431,14 +436,16 @@ func _rebuild_dirty_batches() -> void:
 	if not is_inside_tree() and _batch_dirty.is_empty():
 		return
 	var t := Prof.start()
-	var t0 := Time.get_ticks_usec()
+	var budget := WorkBudget.new(BATCH_FRAME_MS, BATCH_FRAME_COUNT - 1)
 	for mat in _batch_dirty.keys():
 		_build_batch(mat)
 		_batch_dirty.erase(mat)
-		if (Time.get_ticks_usec() - t0) / 1000.0 > BATCH_FRAME_MS and not _batch_dirty.is_empty():
+		budget.spend()
+		if budget.over() and not _batch_dirty.is_empty():
 			# The rest next frame.
 			_rebuild_queued = true
-			get_tree().physics_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
+			if not get_tree().physics_frame.is_connected(_rebuild_dirty_batches):  # (a timed rebuild came first)
+				get_tree().physics_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
 			break
 	Prof.stop(&"batches", t)
 	_shadow_soon()
@@ -448,7 +455,7 @@ func _rebuild_dirty_batches() -> void:
 			if mi and not (m as StructureMember).consumed:
 				mi.visible = true
 	_show_after.clear()
-	_last_rebuild = Time.get_ticks_msec() / 1000.0
+	_last_rebuild = World.now()
 
 
 ## The shadow mesh now, on this thread (the build; tests).
@@ -512,7 +519,7 @@ func _shadow_soon() -> void:
 	_shadow_wanted = true
 	if _shadow_task >= 0 or not is_inside_tree():
 		return
-	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - Time.get_ticks_msec() / 1000.0, 0.0)
+	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), 0.0)
 	if wait > 0.0:
 		get_tree().create_timer(wait, true, true).timeout.connect(_shadow_start)
 	else:
@@ -523,7 +530,7 @@ func _shadow_start() -> void:
 	if _shadow_task >= 0 or not _shadow_wanted or not is_inside_tree():
 		return
 	_shadow_wanted = false
-	_shadow_last = Time.get_ticks_msec() / 1000.0
+	_shadow_last = World.now()
 	var parts := _batch_arrays.values()  # the arrays themselves are never changed, only replaced
 	_shadow_task = WorkerThreadPool.add_task(func() -> void:
 		_shadow_result = _merge_batches(parts)
@@ -621,15 +628,16 @@ func settle_soon() -> void:
 
 
 ## Work out the loads again and let whatever can't stand break or fall, until it's stable.
-## Returns the ids that broke or fell. Past `budget_ms` on this frame, a FireSystem in the world
-## takes the rest a slice a frame (its queue), so a big collapse costs a few frames, never one long
-## one; without one (tests, the labs' stands) it runs to the end.
+## Returns the ids that broke or fell. Past `budget_ms` on this frame (under World.deterministic,
+## its MEMBERS_A_MS members analysed), a FireSystem in the world takes the rest a slice a frame (its
+## queue), so a big collapse costs a few frames, never one long one; without one (tests, the labs'
+## stands) it runs to the end.
 func settle(budget_ms := INF) -> Array[StringName]:
 	_settle_pending = false
 	var changed: Array[StringName] = []
 	if not collapses or not is_inside_tree():
 		return changed
-	var t0 := Time.get_ticks_usec()
+	var budget: WorkBudget = WorkBudget.new(budget_ms, int(budget_ms * MEMBERS_A_MS)) if budget_ms < INF else null
 	if budget_ms < INF and ((not _analysis_valid and _order.size() > SLICED_ABOVE) \
 			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
 			or _dirty.size() > SETTLE_DIRTY_NOW):
@@ -642,6 +650,8 @@ func settle(budget_ms := INF) -> Array[StringName]:
 	for round_ in 64:
 		var t_a := Prof.start()
 		var a := start_analysis()
+		if budget:
+			budget.spend(a.left() + 1)
 		a.advance(a.left())
 		Prof.stop(&"settle_analyse", t_a)
 		var t_r := Prof.start()
@@ -649,7 +659,7 @@ func settle(budget_ms := INF) -> Array[StringName]:
 		Prof.stop(&"settle_apply", t_r)
 		if not more:
 			break
-		if (Time.get_ticks_usec() - t0) / 1000.0 > budget_ms:
+		if budget and budget.over():
 			var fire := FireSystem.find(get_tree())
 			if fire and fire.queue_settle(self):
 				break

@@ -198,7 +198,7 @@ static func air_cutoff(d: float) -> float:
 ## Under a roof with walls round: a roof overhead and a wall every way (a porch's roof with the
 ## street open in front isn't a room).
 static func inside(world: Node3D, at: Vector3) -> bool:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var from := at + Vector3.UP * 0.1
 	if _ray(space, from, from + Vector3.UP * ROOF_REACH).is_empty():
 		return false
@@ -212,7 +212,7 @@ static func inside(world: Node3D, at: Vector3) -> bool:
 static func walled(world: Node3D, ears: Vector3, at: Vector3) -> bool:
 	if ears.distance_to(at) < WALL_MARGIN * 2.0:
 		return false
-	var hit := _ray(world.get_world_3d().direct_space_state, ears, at)
+	var hit := _ray(World.space(world), ears, at)
 	return not hit.is_empty() and (hit.position as Vector3).distance_to(at) > WALL_MARGIN
 
 
@@ -225,7 +225,7 @@ static func slaps(host: Node, at: Vector3) -> Array:
 	var ears := ears_of(host)
 	if holder == null or ears == null:
 		return []
-	var space := holder.get_world_3d().direct_space_state
+	var space := World.space(holder)
 	var direct := ears.global_position.distance_to(at)
 	var found := []
 	for i in 8:

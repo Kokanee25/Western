@@ -47,6 +47,7 @@ const SETTLE_MEMBERS := 150
 ## While it's coming down, slices and rounds go on until this much of the frame (ms, this
 ## workspace's clock; x0.65 at Sean's) is spent: a collapse of 64 rounds unfolds over a few seconds
 ## (an analysis carried over costs the members near the damage a round, StructuralAnalysis.begin_update).
+## Under World.deterministic, Structure.MEMBERS_A_MS members a millisecond of it instead.
 const SETTLE_FRAME_MS := 8.0
 ## Every so many routine checks of a building, one from the top (anything a carried-over analysis
 ## missed, a member changed without saying so, is caught there; its setting-up alone is ~70 ms for
@@ -397,7 +398,7 @@ func queue_settle(s: Structure) -> bool:
 ## falls (`Structure.apply_round`, the rule `settle()` follows) and the building is analysed again,
 ## faster, until it stands: a big collapse unfolds over a second or so rather than one long frame.
 func _check_loads() -> void:
-	var t0 := Time.get_ticks_usec()
+	var budget := WorkBudget.new(SETTLE_FRAME_MS, int(SETTLE_FRAME_MS * Structure.MEMBERS_A_MS))
 	while true:
 		if _check == null:
 			while not _to_settle.is_empty() and _check == null:
@@ -426,7 +427,8 @@ func _check_loads() -> void:
 		elif not _check.advance(SETTLE_MEMBERS):
 			# Something's given way: on with it while the frame's budget lasts.
 			Prof.stop(&"fire_analyse", t_a)
-			if (Time.get_ticks_usec() - t0) / 1000.0 > SETTLE_FRAME_MS:
+			budget.spend(SETTLE_MEMBERS)
+			if budget.over():
 				return
 			continue
 		else:
@@ -443,7 +445,8 @@ func _check_loads() -> void:
 			_urgent.erase(_checking)
 			_check = null
 			_checking = null
-		if (Time.get_ticks_usec() - t0) / 1000.0 > SETTLE_FRAME_MS:
+		budget.spend(SETTLE_MEMBERS)
+		if budget.over():
 			return
 
 

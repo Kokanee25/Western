@@ -120,7 +120,7 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 	d.add_to_group(&"blood_drying")
 	world.add_child(d)
 	d.global_position = at
-	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), randf() * TAU) if normal.length() > 0.01 else Basis()
+	d.global_basis = HumanBody._along(normal).rotated(normal.normalized(), _turn_at(at)) if normal.length() > 0.01 else Basis()
 	if velocity.length() > 0.5 and normal.length() > 0.01:
 		var n := normal.normalized()
 		var along := velocity - n * velocity.dot(n)
@@ -147,7 +147,7 @@ static func _grow(d: Decal, ml: float) -> void:
 ## Throw blood from a point with a velocity and see where it comes down (world geometry only).
 ## Adds a splat there and returns the landing point, or null if it flew off into nothing.
 static func throw(world: Node3D, from: Vector3, velocity: Vector3, ml: float, exclude: Array[RID] = []) -> Variant:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var p := from
 	var v := velocity
 	var dt := 0.04
@@ -277,3 +277,8 @@ static func clear() -> void:
 		if is_instance_valid(d):
 			d.queue_free()
 	_splats.clear()
+
+
+## A splat's turn about its normal (radians), by where it lands: no global dice.
+static func _turn_at(at: Vector3) -> float:
+	return posmod(hash(at.snapped(Vector3.ONE * 0.001)), 10000) / 10000.0 * TAU

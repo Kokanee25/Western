@@ -675,7 +675,7 @@ func _wake(area: Rect2) -> void:
 			if t:
 				ex.append(t.get_rid())
 	q.exclude = ex
-	for hit in get_world_3d().direct_space_state.intersect_shape(q, 512):
+	for hit in World.space(self).intersect_shape(q, 512):
 		if hit.collider is RigidBody3D:
 			(hit.collider as RigidBody3D).sleeping = false
 

@@ -91,7 +91,7 @@ static func _entry(who: Node3D, at: Vector3) -> Dictionary:
 		_cache[id] = e
 	e.frame = frame
 	if (e.lines_at as Vector3).distance_to(at) > t.lines_moved_m or frame - int(e.lines_frame) >= t.lines_frames:
-		var space := who.get_world_3d().direct_space_state
+		var space := World.space(who)
 		var ex: Array[RID] = []
 		if who is CollisionObject3D:
 			ex.append((who as CollisionObject3D).get_rid())
@@ -150,6 +150,7 @@ static func _lamp_reaches(lamp: OilLamp, from: Vector3, to: Vector3, space: Phys
 	for i in 3:
 		var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 		q.exclude = skip
+		Prof.count(&"q_lamps")
 		var hit := space.intersect_ray(q)
 		if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15:
 			return true
@@ -179,6 +180,7 @@ static func _sky_on(at: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID
 static func _open(from: Vector3, to: Vector3, space: PhysicsDirectSpaceState3D, ex: Array[RID]) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = ex
+	Prof.count(&"q_lamps")
 	return space.intersect_ray(q).is_empty()
 
 

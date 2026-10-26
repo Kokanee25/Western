@@ -1107,7 +1107,7 @@ func _begin_step(step: Dictionary) -> void:
 	_route = []
 	_stuck = 0.0
 	_last_pos = body.global_position
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	match step.do:
 		&"go":
 			if places and places.has(step.to):
@@ -1206,7 +1206,7 @@ func _call_out(delta: float, step: Dictionary) -> bool:
 		if p == Vector3.INF:
 			p = who.global_position  # he asks round town; somebody tells him
 		step.spot = _street_spot(p)
-		var space := body.get_world_3d().direct_space_state
+		var space := World.space(body)
 		_route = []
 		if places:
 			_route = places.route_to_point(space, body.global_position, step.spot, _exclude())
@@ -1518,7 +1518,7 @@ func _hunt(delta: float, t: Node3D) -> void:
 		if _hunt_t <= 0.0 or _hunt_to.distance_to(spot) > 1.0 or _hunt_way.is_empty():
 			_hunt_t = 2.0
 			_hunt_to = spot
-			_hunt_way = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, spot, _exclude(t))
+			_hunt_way = _town().route_to_point(World.space(body), body.global_position, spot, _exclude(t))
 		if not _hunt_way.is_empty() and body.walk_to(_hunt_way[0], walk_speed * 1.3, delta) and _hunt_way.size() > 1:
 			_hunt_way.pop_front()
 	elif body.global_position.distance_to(flat) > 1.5:
@@ -1605,7 +1605,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 	_check -= delta
 	if _check <= 0.0:
 		_check = 0.5
-		var space := body.get_world_3d().direct_space_state
+		var space := World.space(body)
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
 		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target()), _town() != null):
 			# He's come round it: this cover's no good now.
@@ -1637,7 +1637,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_peek_time = 0.0
 		_peek_shots = 0
 		_next_shot = _think.randf_range(0.35, 0.7)
-		var space := body.get_world_3d().direct_space_state
+		var space := World.space(body)
 		# Over low cover he shoots crouched if he can see over it that low, else he stands.
 		_peek_pose = &"crouch_aim" if cover.low and Cover._sees(space, cover.at + Vector3.UP * Cover.CROUCH_GUN, eye, _exclude(_find_target())) else &"aim"
 
@@ -1752,7 +1752,8 @@ func _aim_point(t: Node3D) -> Vector3:
 func _clear(from: Vector3, to: Vector3, t: Node3D) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = _exclude(t)
-	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	Prof.count(&"q_brain")
+	var hit := World.space(body).intersect_ray(q)
 	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
 
 
@@ -1776,7 +1777,8 @@ func _friend_in_the_way(point: Vector3) -> bool:
 		return false
 	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
 	q.exclude = _exclude()
-	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	Prof.count(&"q_brain")
+	var hit := World.space(body).intersect_ray(q)
 	return not hit.is_empty() and crew.is_mate((hit.collider as Object).get_meta(&"human_body", null))
 
 
@@ -2047,7 +2049,8 @@ func _hears(speaker: Node3D) -> bool:
 	var at := speaker.global_position + Vector3.UP * 1.6
 	var reach := Crew.EARSHOT
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
-	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	Prof.count(&"q_brain")
+	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.6:
 		reach *= 0.5
 	reach *= 1.0 - 0.35 * body.physiology.deaf_ears()
@@ -2175,7 +2178,7 @@ func _wounded_mate(t: Node3D) -> HumanBody:
 			or suppressed > 0.0 or body.held_gun == null or senses.since_known(t) > RESCUE_WHILE_KNOWN:
 		return null
 	var eye := _eye_of(t)
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var best: HumanBody = null
 	var best_d := RESCUE_REACH
 	for m in crew.mates(_now):
@@ -2242,9 +2245,9 @@ func _rescue(delta: float, t: Node3D) -> void:
 		body.set_pose(&"stand")
 		if _route.is_empty() or (_route[-1] as Vector3).distance_to(head) > 0.8:
 			if _has(&"rescue_way") and _town() != null:
-				_route = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, head, _exclude(t))
+				_route = _town().route_to_point(World.space(body), body.global_position, head, _exclude(t))
 			else:
-				_route = Cover.route(body.get_world_3d().direct_space_state, body.global_position, head, _exclude(t))
+				_route = Cover.route(World.space(body), body.global_position, head, _exclude(t))
 			if _route.is_empty():
 				_route = [head]
 		if body.walk_to(_route[0], run_speed, delta) and _route.size() > 1:
@@ -2262,7 +2265,7 @@ func _rescue(delta: float, t: Node3D) -> void:
 			_stop_rescue()  # can't get to him (or it's taking too long under the gun)
 		return
 	# Dragging: walking backwards, facing him, him sliding along behind by the collar.
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	if _rescue_goal == Vector3.INF:
 		_rescue_goal = _drag_goal(at, _eye_of(t), t)
 		_rescue_best = INF
@@ -2290,7 +2293,7 @@ func _rescue(delta: float, t: Node3D) -> void:
 ## the dragger's feet): past it, the way they're going, or straight back from the man's gun, or
 ## between the two; whichever there's room to walk to.
 func _drag_goal(at: Vector3, eye: Vector3, t: Node3D) -> Vector3:
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var travel := _rescue_to - at
 	travel.y = 0.0
 	var away := _rescue_to - eye
@@ -2437,7 +2440,7 @@ func _press_fight(delta: float, t: Node3D) -> void:
 	if to.length() > PRESS_NEAR and _town() != null:
 		if _hunt_way.is_empty() or _hunt_t <= 0.0:
 			_hunt_t = 1.0
-			_hunt_way = _town().route_to_point(body.get_world_3d().direct_space_state, body.global_position, t.global_position, _exclude(t))
+			_hunt_way = _town().route_to_point(World.space(body), body.global_position, t.global_position, _exclude(t))
 		_hunt_t -= delta
 		if not _hunt_way.is_empty() and body.walk_to(_hunt_way[0], walk_speed * 1.4, delta, false) and _hunt_way.size() > 1:
 			_hunt_way.pop_front()
@@ -2714,7 +2717,7 @@ func _pick_flight() -> void:
 	var away := body.global_position - (t.global_position if t else body.global_position + Vector3.FORWARD)
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.01 else Vector3.BACK
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	for ang in [0.0, 25.0, -25.0, 50.0, -50.0, 80.0, -80.0, 110.0, -110.0]:
 		var dir := away.rotated(Vector3.UP, deg_to_rad(ang + _think.randf_range(-8.0, 8.0)))
 		var probe := body.global_position + dir * 8.0

@@ -226,7 +226,7 @@ func _setup_ricochet() -> Dictionary:
 	else:
 		var q := PhysicsRayQueryParameters3D.create(_v(_spec.probe_from), _v(_spec.probe_to))
 		q.collide_with_areas = false
-		var hit := _street.get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(_street).intersect_ray(q)
 		if hit.is_empty():
 			return {"ok": false, "error": "nothing to glance off on %s -> %s" % [_spec.probe_from, _spec.probe_to]}
 		strike = hit.position
@@ -661,7 +661,7 @@ func _floor(p: Vector3) -> Vector3:
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 2.5, p + Vector3.DOWN * 3.0, Layers.WORLD | Layers.WALK)
 	if lab.player:
 		q.exclude = [lab.player.get_rid()]
-	var hit := _street.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(_street).intersect_ray(q)
 	return hit.position if not hit.is_empty() else p
 
 

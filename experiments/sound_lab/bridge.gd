@@ -72,7 +72,7 @@ func _cmd_sound_ray(a: Array) -> Dictionary:
 		return {"ok": false, "error": "sound_ray X Y Z X Y Z"}
 	var from := vec(a, 0)
 	var to := vec(a, 3)
-	var hit := GameAudio._ray(street.get_world_3d().direct_space_state, from, to)
+	var hit := GameAudio._ray(World.space(street), from, to)
 	if hit.is_empty():
 		return {"clear": true}
 	var c := hit.collider as Node

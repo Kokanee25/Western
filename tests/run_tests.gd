@@ -30,6 +30,8 @@ var _catcher := ErrorCatcher.new()
 
 func _initialize() -> void:
 	OS.add_logger(_catcher)
+	# Budgets by count, not the clock: a test's world doesn't depend on how busy the machine is.
+	World.deterministic = true
 	_run.call_deferred()
 
 

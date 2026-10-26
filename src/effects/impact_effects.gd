@@ -193,7 +193,10 @@ static func spent_case(parent: Node, at: Vector3, push: Vector3, radius := 0.006
 	parent.add_child(body)
 	body.global_position = at
 	body.linear_velocity = push
-	body.angular_velocity = Vector3(randf_range(-10, 10), randf_range(-10, 10), randf_range(-10, 10))
+	# Its tumble by where it's thrown from (no global dice: the same shot, the same case).
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(at.snapped(Vector3.ONE * 0.001))
+	body.angular_velocity = Vector3(rng.randf_range(-10, 10), rng.randf_range(-10, 10), rng.randf_range(-10, 10))
 	return body
 
 

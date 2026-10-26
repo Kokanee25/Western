@@ -60,7 +60,7 @@ static func fireball_radius(kg: float) -> float:
 static func shielding(world: Node3D, from: Vector3, to: Vector3, exclude: Array[RID] = []) -> float:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = exclude
-	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(world).intersect_ray(q)
 	if hit.is_empty():
 		return 1.0
 	var c: Object = hit.collider
@@ -76,7 +76,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	_rng.seed = hash(Vector3i((at * 1000.0).round()))
 	var report := {"broken": [], "people": [], "splinters": 0}
 	var r_max := reach(kg)
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var by_structure := {}  # Structure -> [[member, push]]
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
@@ -247,7 +247,7 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 ## physics engine's order: on Main Street it left out every member within a metre of a stick by
 ## the store; the breakage lab, 2026-10-21.)
 static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var r_max := reach(kg)
 	var out: Array[Object] = []
 	var seen := {}

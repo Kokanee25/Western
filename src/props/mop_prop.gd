@@ -239,7 +239,7 @@ func _lay_head() -> void:
 	# What would hang below the floor is laid out along it instead, splayed from the foot.
 	var f := xf.origin
 	var q := PhysicsRayQueryParameters3D.create(f + Vector3.UP * 0.2, f - Vector3.UP * 0.6, Layers.WORLD)
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	var floor_y: float = (hit.position as Vector3).y + 0.012 if not hit.is_empty() else -INF
 	for i in verts.size():
 		var p := xf * verts[i]

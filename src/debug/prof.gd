@@ -15,6 +15,18 @@ static func start() -> int:
 	return Time.get_ticks_usec() if on else 0
 
 
+## `n` of something this frame (a ray, a part moved): per_frame shows the count a frame, as if ms.
+static func count(system: StringName, n := 1) -> void:
+	if on:
+		_sum[system] = int(_sum.get(system, 0)) + n * 1000
+
+
+## `usec` microseconds measured elsewhere (PhysicsWindow).
+static func add(system: StringName, usec: int) -> void:
+	if on:
+		_sum[system] = int(_sum.get(system, 0)) + usec
+
+
 static func stop(system: StringName, t0: int) -> void:
 	if t0 != 0:
 		_sum[system] = int(_sum.get(system, 0)) + Time.get_ticks_usec() - t0

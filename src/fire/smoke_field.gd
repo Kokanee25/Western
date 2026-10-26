@@ -36,6 +36,7 @@ var structure: Structure
 var _accum := 0.0
 ## Every step here and now, none dropped (tests): on the worker thread, a busy machine skips steps
 ## when the last isn't done, so a test of how far the smoke has got in 20 s failed under load.
+## World.deterministic steps it here too (a field's smoke, and when it's done, by the clock).
 static var synchronous := false
 var _ready_cells := false
 var _raster: Array[StructureMember] = []
@@ -136,7 +137,7 @@ func _physics_step(delta: float) -> void:
 		return
 	# A step at a time on a worker thread (SmokeGrid.step_async): handed off when the last is done,
 	# so a frame never waits on one; a long frame's backlog is dropped rather than run all at once.
-	if synchronous:
+	if synchronous or World.deterministic:
 		_accum += delta
 		while _accum >= STEP:
 			var lit := _emit()

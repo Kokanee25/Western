@@ -511,7 +511,7 @@ func _run() -> void:
 			var fwd: Vector3 = -(cam.global_transform.basis.z as Vector3)
 			var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position + fwd * 8.0, 1)
 			q.exclude = [player.get_rid()]
-			var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(q)
+			var hit: Dictionary = World.space(player).intersect_ray(q)
 			if not hit.is_empty():
 				var flat := Vector3(fwd.x, 0, fwd.z).normalized()
 				player.global_position += flat * (Vector2(hit.position.x - cam.global_position.x, hit.position.z - cam.global_position.z).length() - 0.36)

@@ -678,7 +678,7 @@ func _find_bar(along: float) -> Dictionary:
 	var fwd := _forward()
 	var side := _side()
 	var base := post + side * along
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var d := tuning.bar_ahead.x
 	while d <= tuning.bar_ahead.y:
 		var p := base + fwd * d
@@ -692,7 +692,7 @@ func _find_bar(along: float) -> Dictionary:
 ## The top under `p` (near the stretch's height): {at, n}, or empty.
 func _surface(p: Vector3) -> Dictionary:
 	var y: float = (_bar.near as Vector3).y
-	var hit := _ray_down(body.get_world_3d().direct_space_state, Vector3(p.x, y + 0.2, p.z), Vector3(p.x, y - 0.15, p.z))
+	var hit := _ray_down(World.space(body), Vector3(p.x, y + 0.2, p.z), Vector3(p.x, y - 0.15, p.z))
 	if hit.is_empty():
 		return {}
 	return {"at": hit.position, "n": hit.normal}
@@ -724,7 +724,7 @@ func _cluttered(centre: Vector3) -> bool:
 	q.shape = sphere
 	q.transform = Transform3D(Basis.IDENTITY, centre + Vector3.UP * 0.12)
 	q.collision_mask = Layers.WORLD | Layers.DEBRIS
-	for hit in body.get_world_3d().direct_space_state.intersect_shape(q, 8):
+	for hit in World.space(body).intersect_shape(q, 8):
 		var c: Object = hit.collider
 		if c is Node and ((c as Node).has_meta(&"glass_prop") or ((c as Node).has_meta(&"prop_id") and not (c as Node).get_meta(&"prop_id") in CUPS)):
 			return true
@@ -766,7 +766,7 @@ func _find_cup() -> Node3D:
 	# Its own side or in front of him (not across his body), well inside his reach.
 	var own_side := _side() * (1.0 if other == "r" else -1.0)
 	var arm := body.palm(other).distance_to(sh) + 0.05
-	for hit in body.get_world_3d().direct_space_state.intersect_shape(q, 16):
+	for hit in World.space(body).intersect_shape(q, 16):
 		var c: Object = hit.collider
 		if c is Node3D and (c as Node).get_meta(&"prop_id", &"") in CUPS:
 			var top := (c as Node3D).global_position + Vector3.UP * 0.05

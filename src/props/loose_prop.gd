@@ -181,7 +181,7 @@ func _hole(at: Vector3, dir: Vector3) -> void:
 ## Where a line through it going `dir` from `at` comes out of its body's shape (world), or INF.
 func _far_side(at: Vector3, dir: Vector3) -> Vector3:
 	var q := PhysicsRayQueryParameters3D.create(at + dir, at - dir * 0.001, Layers.DEBRIS)
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	return hit.position if not hit.is_empty() and hit.collider == body else Vector3.INF
 
 
