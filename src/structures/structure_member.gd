@@ -34,6 +34,17 @@ const TIERS := {
 @export var kind: StringName
 @export var wood: StringName
 @export var size := Vector3.ONE
+## The wood it's drawn in, if not its own (art, Sean 2026-10-26, #405: an inside floor drawn in the
+## interior wood): its mesh takes that wood's look, while `wood` still decides how it bears,
+## breaks, burns and stops a ball. Empty: drawn in `wood`.
+@export var look: StringName:
+	set(value):
+		look = value
+		var meshes: Array = get_children().filter(func(c): return c is MeshInstance3D)
+		if _rest_mesh:
+			meshes.append(_rest_mesh)
+		for mi in meshes:
+			(mi as MeshInstance3D).material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
 
 ## Emitted when something damages the member (a bullet hole): the structure re-checks its loads.
 signal damaged
@@ -112,6 +123,11 @@ static var _chips: Array = []
 var _rest_mesh: MeshInstance3D
 var _rest_shape: CollisionShape3D
 var _rest_owner := -1
+
+
+## The wood its mesh is drawn in: its `look`, else its own.
+func drawn_wood() -> StringName:
+	return look if look != &"" else wood
 
 
 ## Its mesh node, in the tree or kept aside at rest (what its structure batches).

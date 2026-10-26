@@ -501,6 +501,12 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   them back as child 0 and 1 before anything reads them (`unbatch`, `add_hole`, `carve_hit`,
   `shatter`, the voxel mesh). Read a member's mesh with `drawn_node()`, never `get_child(0)`,
   unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes.
+  **A member's `look`** (art, 2026-10-26, #405): the wood its mesh is drawn in when not its own
+  (`drawn_wood()`); `wood` still decides the timber, ballistics and voxel tunings. A building's
+  inside floor and framing (`FalseFrontBuilding.INSIDE_LOOK`/`INSIDE_KINDS`, not the porch; the
+  saloon's balcony and stair) are drawn in `int_r1_floor`/`int_r1_framing`, Sean's A; a cut
+  piece keeps its member's look, and the kit's inside fixtures (counter, shelves, table) take
+  `wood:int_r1_*` looks.
   **Fittings** (`Fittings`, a node at the end of the test street): four physics frames after load
   it finds every prop, lamp and drawn thing in a structure or the street's dressing whose bottom
   is off the ground, and the members its box touches (a shape query on WORLD, 4 cm round it) and

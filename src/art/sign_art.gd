@@ -65,8 +65,9 @@ static func _box(size: Vector3) -> ArrayMesh:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var uvs := PackedVector2Array()
 	var face := PackedVector2Array()
+	# v runs down the board, as the picture's rows do (the texture stays as imported, compressed).
 	for v in verts:
-		uvs.append(Vector2(v.x + size.x * 0.5, v.y + size.y * 0.5))
+		uvs.append(Vector2(v.x + size.x * 0.5, size.y * 0.5 - v.y))
 		face.append(Vector2(size.x, size.y))
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = face
@@ -82,18 +83,15 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 	var key := "%s:%s" % [id, size]
 	if _textures.has(key):
 		return _textures[key]
-	var img := (load(PixelArt.FACTORY_PATH % id) as Texture2D).get_image()
-	if img.is_compressed():
-		img.decompress()
-	# The box's v runs up the board; the picture's rows run down.
-	img.flip_y()
-	img.generate_mipmaps()
+	# The imported texture itself (VRAM-compressed, its mipmaps made on import): never read back
+	# and flipped, which kept a full-size copy of every board in memory (#287).
+	var tex := load(PixelArt.FACTORY_PATH % id) as Texture2D
 	var m := ShaderMaterial.new()
 	m.shader = PixelArt.grid_shader()
-	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
+	m.set_shader_parameter(&"albedo_tex", tex)
 	m.set_shader_parameter(&"tint", Color.WHITE)
 	m.set_shader_parameter(&"roughness", 0.9)
-	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
+	m.set_shader_parameter(&"texels_per_meter", float(tex.get_width()) / size.x)
 	m.set_shader_parameter(&"use_mipmaps", true)
 	# The lettering stays as painted however far off (no bigger far squares).
 	m.set_shader_parameter(&"fixed_squares", true)
