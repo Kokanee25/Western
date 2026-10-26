@@ -546,7 +546,11 @@ def man(who, model):
     for o in new:
         if o.type != "MESH":
             continue
-        base = o.data.name.split(".")[0]   # the glTF mesh's name (node names vary)
+        base = o.name.split(".")[0]
+        if not (base.startswith("body_") or base.startswith("cloth_")):
+            o.hide_render = True    # the importer's own helpers (a bone shape's icosphere)
+            o.hide_viewport = True
+            continue
         shape = base.replace("body_", "").replace("cloth_", "")
         if shape == "bandana_mask":
             o.hide_render = True
