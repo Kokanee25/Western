@@ -1,0 +1,3 @@
+frames 720 missing 0 size (960, 402)
+ffmpeg -y -hide_banner -loglevel error -framerate 12 -i /tmp/cinematic_seq/s%05d.png -i /home/runner/work/Western/Western/assets/cinematic/audio/sfx_room.mp3 -i ...
+cut build/cinematic/out/salt_creek_preview.mp4 15730 KB
