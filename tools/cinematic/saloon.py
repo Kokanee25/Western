@@ -546,7 +546,7 @@ def man(who, model):
     for o in new:
         if o.type != "MESH":
             continue
-        base = o.name.split(".")[0]
+        base = o.data.name.split(".")[0]   # the glTF mesh's name (node names vary)
         shape = base.replace("body_", "").replace("cloth_", "")
         if shape == "bandana_mask":
             o.hide_render = True
