@@ -2,6 +2,8 @@ extends TestCase
 ## PeopleTick (more-cores step 4): the people tick from one place, in the order they came into the
 ## world, each man's own nodes after him in the order the tree has them; a node's switch is still
 ## its own; and the first half of their tick on the worker pool is the same game as on one thread.
+## Its bands (step 4b): a man far from the player ticks less often, each tick with the time he
+## missed, so he walks and bleeds as he would; a man in trouble, or woken, ticks every tick.
 
 var world: Node3D
 var log_ticks: Array[String] = []
@@ -31,7 +33,7 @@ func before_each() -> void:
 	var ground := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(40, 1, 40)
+	box.size = Vector3(300, 1, 300)
 	shape.shape = box
 	ground.add_child(shape)
 	ground.position.y = -0.5
@@ -41,6 +43,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	Settings.people_threads = Settings.PEOPLE_THREADS
+	Settings.people_bands = Settings.PEOPLE_BANDS
 	world.queue_free()
 	await physics_frames(2)
 
@@ -157,3 +160,213 @@ func test_the_workers_are_the_same_game() -> void:
 		check_eq(var_to_str(on[i]), var_to_str(off[i]), "man %d: the same on the workers as on one thread" % i)
 		standing += 0 if on[i][0] else 1
 	check(standing >= 4, "most still standing, so their pose was worked out ahead (%d)" % standing)
+
+
+# --- The bands (step 4b) ----------------------------------------------------------------------
+
+## A node of a man's that notes each tick's delta, and (with a target) walks him there, as a brain
+## does; `calm` is what it says to `can_slow`.
+class Walker:
+	extends Node
+	var deltas: Array[float] = []
+	var target := Vector3.INF
+	var arrived_at := -1
+	var frame := 0
+	var calm := true
+
+	func _enter_tree() -> void:
+		(get_parent() as HumanBody).add_ticker(self)
+
+	func _exit_tree() -> void:
+		(get_parent() as HumanBody).remove_ticker(self)
+
+	func _ready() -> void:
+		set_physics_process(true)
+
+	func can_slow() -> bool:
+		return calm
+
+	func tick(delta: float) -> void:
+		deltas.append(delta)
+		if target != Vector3.INF and arrived_at < 0 and (get_parent() as HumanBody).walk_to(target, 1.2, delta):
+			arrived_at = frame
+
+
+## The player, for the bands: only where he stands (no camera: nobody is in view).
+func _player_at(at: Vector3) -> Node3D:
+	var p := Node3D.new()
+	p.name = "PlayerStandIn"
+	p.add_to_group(&"player")
+	world.add_child(p)
+	p.global_position = at
+	return p
+
+
+func _walker(man: HumanBody) -> Walker:
+	var w := Walker.new()
+	w.name = "Walker"
+	man.add_child(w)
+	return w
+
+
+func _sum(a: Array[float]) -> float:
+	var t := 0.0
+	for d in a:
+		t += d
+	return t
+
+
+func test_far_men_tick_less_often_and_are_owed_the_time() -> void:
+	_player_at(Vector3.ZERO)
+	var near := _man("Near", Vector3(10, 0, 0), 41)
+	var mid := _man("Mid", Vector3(40, 0, 0), 42)
+	var far := _man("Far", Vector3(100, 0, 0), 43)
+	var wn := _walker(near)
+	var wm := _walker(mid)
+	var wf := _walker(far)
+	await physics_frames(4)
+	for w in [wn, wm, wf]:
+		w.deltas.clear()
+	var owed_then := far.tick_owed
+	await physics_frames(40)
+	check_eq(near.tick_band, 0, "10 m off: near")
+	check_eq(mid.tick_band, 1, "40 m off: the middle band")
+	check_eq(far.tick_band, 2, "100 m off: far")
+	check_eq(wn.deltas.size(), 40, "near: every tick")
+	check_eq(wm.deltas.size(), 20, "middle: every 2nd")
+	check_eq(wf.deltas.size(), 10, "far: every 4th")
+	var step := 1.0 / Engine.physics_ticks_per_second
+	check_near(wm.deltas[1], 2.0 * step, 1e-5, "a middle man's tick carries two ticks' time")
+	check_near(wf.deltas[1], 4.0 * step, 1e-5, "a far man's carries four")
+	check_near(_sum(wf.deltas) + far.tick_owed - owed_then, _sum(wn.deltas), 1e-4, "none of his time lost: what he ticked and what he's owed")
+	# Bands off: everyone, every tick, with what they were owed.
+	Settings.people_bands = false
+	wf.deltas.clear()
+	await physics_frames(8)
+	check_eq(wf.deltas.size(), 8, "bands off: every tick")
+	check_eq(far.tick_owed, 0.0, "and owed nothing")
+
+
+func test_a_man_on_a_band_edge_doesnt_flicker() -> void:
+	_player_at(Vector3.ZERO)
+	var man := _man("Edge", Vector3(20, 0, 0), 51)
+	_walker(man)
+	await physics_frames(2)
+	check_eq(man.tick_band, 0, "inside 25 m: near")
+	var t: PeopleTickTuning = load("res://config/people_tick.tres")
+	man.global_position = Vector3(t.near_m + t.margin_m * 0.5, 0, 0)
+	await physics_frames(2)
+	check_eq(man.tick_band, 0, "just past the edge, within the margin: still near")
+	man.global_position = Vector3(t.near_m + t.margin_m + 0.5, 0, 0)
+	await physics_frames(2)
+	check_eq(man.tick_band, 1, "past the margin: the middle band")
+	man.global_position = Vector3(t.near_m - t.margin_m * 0.5, 0, 0)
+	await physics_frames(2)
+	check_eq(man.tick_band, 1, "back inside the edge, within the margin: still the middle band")
+	man.global_position = Vector3(t.near_m - t.margin_m - 0.5, 0, 0)
+	await physics_frames(2)
+	check_eq(man.tick_band, 0, "well inside: near again")
+
+
+func test_a_man_in_trouble_or_woken_ticks_every_tick_and_so_does_his_neighbour() -> void:
+	_player_at(Vector3.ZERO)
+	var trouble := _man("Trouble", Vector3(100, 0, 0), 61)
+	var by := _man("By", Vector3(104, 0, 0), 62)
+	var off := _man("Off", Vector3(200, 0, 0), 63)
+	var wt := _walker(trouble)
+	var wb := _walker(by)
+	var wo := _walker(off)
+	wt.calm = false  # his brain's in a fight, or fleeing
+	await physics_frames(4)
+	for w in [wt, wb, wo]:
+		w.deltas.clear()
+	await physics_frames(20)
+	check_eq(wt.deltas.size(), 20, "a man who can't slow: every tick")
+	check_eq(wb.deltas.size(), 20, "a calm man 4 m from him: every tick (near the trouble)")
+	check_eq(wo.deltas.size(), 5, "a calm man 100 m from both: every 4th")
+	# Woken (he heard a shot, a deed done to him): he ticks the next tick, with what he's owed.
+	wo.deltas.clear()
+	await physics_frames(1)
+	var ticked := wo.deltas.size()
+	off.wake()
+	await physics_frames(1)
+	check_eq(wo.deltas.size(), ticked + 1, "woken: he ticked the next tick")
+	# Down (the ragdoll is the engine's): every tick.
+	wt.calm = true
+	trouble.go_limp()
+	wt.deltas.clear()
+	await physics_frames(8)
+	check_eq(wt.deltas.size(), 8, "limp: every tick")
+
+
+## A man walks 12 m, 100 m from the player: he gets there when he would with the bands off, a
+## tick or so either way, and his road is the same to the centimetre.
+func _walk_far(bands: bool) -> Array:
+	Settings.people_bands = bands
+	_player_at(Vector3.ZERO)
+	var man := _man("Walker%s" % bands, Vector3(100, 0, 0), 71)
+	var w := _walker(man)
+	await physics_frames(3)
+	w.target = Vector3(100, 0, 12)
+	var road := []
+	for f in 60 * 14:
+		w.frame = f
+		await physics_frames(1)
+		if f % 60 == 0:
+			road.append(man.global_position)
+	var out := [w.arrived_at, road, man.global_position]
+	man.queue_free()
+	await physics_frames(2)
+	return out
+
+
+func test_a_far_man_walks_at_the_right_speed() -> void:
+	var on: Array = await _walk_far(true)
+	var off: Array = await _walk_far(false)
+	check(off[0] > 0 and on[0] > 0, "he got there both ways (%d, %d)" % [on[0], off[0]])
+	check(absi(on[0] - off[0]) <= 4, "at the same time, within a far man's tick (%d against %d frames)" % [on[0], off[0]])
+	var worst := 0.0
+	for i in mini(on[1].size(), off[1].size()):
+		worst = maxf(worst, (on[1][i] as Vector3).distance_to(off[1][i]))
+	check(worst < 0.1, "along the same road, a second at a time (worst %.3f m)" % worst)
+	check((on[2] as Vector3).distance_to(off[2]) < 0.05, "and where he stopped")
+
+
+## Six wounded men 100 m off, stepped with the bands on and off: they bleed, hurt and breathe the
+## same (their physiology steps with the time they were owed).
+func _bleed(bands: bool) -> Array:
+	Settings.people_bands = bands
+	_player_at(Vector3.ZERO)
+	var men: Array[HumanBody] = []
+	for i in 6:
+		men.append(_man("B%d" % i, Vector3(100 + i * 1.5, 0, 0), 81 + i))
+	await physics_frames(2)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var joules := 0.5 * t.bullet_mass * t.muzzle_velocity * t.muzzle_velocity
+	for i in men.size():
+		var man := men[i]
+		var seg: StringName = [&"thigh_r", &"upper_arm_l", &"abdomen", &"forearm_r", &"thigh_l", &"chest"][i]
+		var at := (man.parts[seg] as Node3D).global_position + Vector3(0.03, 0, 0)
+		var dir := -man.global_basis.z
+		man.take_bullet(man.parts[seg], at - dir * 0.15, dir, joules, t.bullet_diameter * 0.5, t.bullet_mass, 5.0)
+	await physics_frames(60 * 6)
+	var out := []
+	for man in men:
+		out.append([man.limp, man.physiology.blood_ml, man.physiology.pain, man.physiology.oxygen, man.tick_band])
+		man.queue_free()
+	await physics_frames(2)
+	return out
+
+
+func test_a_far_man_bleeds_at_the_right_rate() -> void:
+	var on: Array = await _bleed(true)
+	var off: Array = await _bleed(false)
+	var slowed := 0
+	for i in on.size():
+		check_eq(on[i][0], off[i][0], "man %d: down or up the same" % i)
+		var lost_off: float = 5000.0 - float(off[i][1])
+		check(absf(float(on[i][1]) - float(off[i][1])) <= maxf(2.0, 0.01 * absf(lost_off)),
+				"man %d: the same blood (%.1f ml against %.1f)" % [i, on[i][1], off[i][1]])
+		check_near(float(on[i][2]), float(off[i][2]), 0.02, "man %d: the same pain" % i)
+		slowed += 1 if not on[i][0] else 0
+	check(slowed >= 3, "most were standing far off, so slowed (%d)" % slowed)

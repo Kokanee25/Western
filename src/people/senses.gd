@@ -345,6 +345,7 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 		reach *= 1.0 - 0.35 * body.physiology.deaf_ears()
 	if d > reach:
 		return
+	body.wake()  # heard: he takes it in next tick, far off or not (PeopleTick's bands)
 	var err := d * 0.12
 	var guess := at + Vector3(_rng.randf_range(-err, err), 0.0, _rng.randf_range(-err, err))
 	# Who made it he knows only if he can see him as he makes it.

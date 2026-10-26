@@ -132,6 +132,12 @@ var autosave := true
 var people_threads := PEOPLE_THREADS
 const PEOPLE_THREADS := true
 var _people_threads_file := PEOPLE_THREADS
+## People far off ticking less often, each tick with the time they missed (PeopleTick's bands,
+## more-cores step 4b). In the settings file ([performance] people_bands); for one run,
+## `-- --people-bands=on|off`.
+var people_bands := PEOPLE_BANDS
+const PEOPLE_BANDS := true
+var _people_bands_file := PEOPLE_BANDS
 
 
 func _ready() -> void:
@@ -160,6 +166,8 @@ func _ready() -> void:
 	for a in args:
 		if a.begins_with("--people-threads="):
 			people_threads = a.substr(17) == "on"
+		elif a.begins_with("--people-bands="):
+			people_bands = a.substr(15) == "on"
 	_protect_speakers()
 
 
@@ -249,6 +257,8 @@ func load_from_disk() -> void:
 	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
 	_people_threads_file = bool(cfg.get_value("performance", "people_threads", PEOPLE_THREADS))
 	people_threads = _people_threads_file
+	_people_bands_file = bool(cfg.get_value("performance", "people_bands", PEOPLE_BANDS))
+	people_bands = _people_bands_file
 	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
 	if not tile_look in TILE_LOOKS:
 		tile_look = &"square"
@@ -282,6 +292,7 @@ func save_to_disk() -> void:
 	cfg.set_value("controls", "invert_y", invert_y)
 	cfg.set_value("content", "reduced_gore", reduced_gore)
 	cfg.set_value("performance", "people_threads", _people_threads_file)
+	cfg.set_value("performance", "people_bands", _people_bands_file)
 	cfg.save(PATH)
 
 

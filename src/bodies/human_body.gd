@@ -220,6 +220,13 @@ var tick_index := -1
 ## His own nodes PeopleTick ticks after him, in tree order (his brain, face, senses: add_ticker).
 var _tickers: Array[Node] = []
 var _tickers_sorted := true
+## His tick band (PeopleTick, step 4b): 0 near (every tick), 1 middle, 2 far, by his distance with
+## a margin each way; what he's owed of the ticks he was left out of (s), and this tick's delta
+## (the tick's own and what he was owed). Woken (`wake`): he ticks next tick whatever his band.
+var tick_band := 0
+var tick_owed := 0.0
+var tick_dt := 0.0
+var woken := false
 var parts := {}  ## segment -> the physics body carrying it (AnimatableBody3D, RigidBody3D when limp)
 var pivots := {}  ## segment -> joint pivot (while standing)
 var visuals := {}  ## segment -> Node3D holding its meshes and decals
@@ -347,6 +354,10 @@ var _walk_clip_on := false
 const CLIP_STRIKE_SPEED := 1.5  ## m/s: slower than this a boot strikes nothing
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
+## Whole ticks of walking left over when a slowed tick (PeopleTick's bands) got him to his point
+## early: the next tick's `walk_to` walks them, as he'd have walked on at every tick. Always none
+## at one tick a tick; dropped if he doesn't walk on the next tick.
+var _walk_spare := 0.0
 var _pool: Decal
 var _pool_ml := 0.0
 var _day_cycle: Node
@@ -386,6 +397,36 @@ func add_ticker(n: Node) -> void:
 
 func remove_ticker(n: Node) -> void:
 	_tickers.erase(n)
+
+
+## Something to react to (a noise he heard, a deed done to him): he ticks next tick, whatever his
+## band (PeopleTick, step 4b).
+func wake() -> void:
+	woken = true
+
+
+## May PeopleTick tick him less often while he's far off (step 4b)? Only on his feet and going
+## about his business: never down (the ragdoll, crawling), stumbling, getting up, dragged, on a
+## clip other than his walk; and only while each of his nodes that says (`can_slow`: his brain
+## when he's in trouble, fighting, fleeing, tending, rescuing, at a chore) agrees.
+func can_slow() -> bool:
+	if limp or prone or rising or stumbling > 0.0 or dragged_by != null:
+		return false
+	if _clip != null and _clip.name != walk_clip:
+		return false
+	for n: Node in _tickers:
+		if is_instance_valid(n) and n.has_method(&"can_slow") and not n.call(&"can_slow"):
+			return false
+	return true
+
+
+## Is he in trouble (a fight, running, hands up, getting down: his brain's `in_trouble`)? Then
+## whoever's near him ticks every tick too (PeopleTick's bands: near a fight is near).
+func in_trouble() -> bool:
+	for n: Node in _tickers:
+		if is_instance_valid(n) and n.has_method(&"in_trouble") and n.call(&"in_trouble"):
+			return true
+	return false
 
 
 func _ready() -> void:
@@ -1334,6 +1375,7 @@ func _physics_step(delta: float) -> void:
 		elif prone and not _can_crawl():
 			go_limp()
 	if not _moved_this_tick:
+		_walk_spare = 0.0
 		move_speed = move_toward(move_speed, 0.0, delta * 6.0)
 		if move_speed < 0.05:
 			gait = &""
@@ -1745,7 +1787,20 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 		how = &"crawl"
 		speed = minf(speed, 0.35)
 	var dir := to / dist
+	delta += _walk_spare
+	_walk_spare = 0.0
 	var step := minf(speed * delta, dist)
+	var tick := 1.0 / Engine.physics_ticks_per_second
+	if delta > tick * 1.5 and speed > 0.0:
+		# A slowed tick (PeopleTick's bands: four in one): he walks the ticks' steps he'd have
+		# walked one at a time, and if he'd have been there (within 0.1 m) before they're out, he
+		# stops where that step put him and the ticks left over are the next point's.
+		var per := speed * tick
+		var ticks := roundi(delta / tick)
+		var need := floori((dist - 0.1) / per) + 1
+		if need < ticks:
+			step = minf(need * per, dist)
+			_walk_spare = (ticks - need) * tick
 	var moved := _slide(dir * step)
 	if facing and moved.length() > 0.001:
 		var look := global_position + (moved if not prone else dir)
