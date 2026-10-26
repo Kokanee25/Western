@@ -736,6 +736,7 @@ func _build_skin() -> void:
 		skin.add_bind(i, rests[i].affine_inverse())
 		_bone_parts.append(sid)
 	_add_finger_bones(data, skin, rests)
+	_shoulders = PeopleBodies.add_shoulders(skeleton, skin, data, _bone_parts)
 	skeleton.reset_bone_poses()
 	var f := look.duplicate()
 	f["tone"] = skin_tone
@@ -996,6 +997,7 @@ func _update_skeleton(placed := {}) -> void:
 		var part: Node3D = parts.get(sid)
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
+	PeopleBodies.pose_shoulders(skeleton, _shoulders)
 	_pose_fingers()
 
 
@@ -1006,6 +1008,8 @@ func _update_skeleton(placed := {}) -> void:
 ## it in the skeleton (the knuckle from the hand), so it's set only when its finger bends. None
 ## for other models.
 var _finger_rig: Array[FingerBone] = []
+## A Studio man's shoulder helpers (PeopleBodies.shoulder_share), posed after his bones.
+var _shoulders: Array[PeopleBodies.ShoulderBone] = []
 
 
 ## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a

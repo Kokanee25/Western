@@ -5,7 +5,7 @@ extends SceneTree
 ## (the wound and the blood). Each pose's skin measured against his rest: every triangle's longest
 ## edge over its own at rest (a sheet stretched between arm and side, a torn or pulled seam).
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/characters/works_check.gd -- \
-##       --id=bold_cowboy_whole --out=DIR
+##       --id=bold_cowboy_whole --out=DIR [--poses-only] [--share=0.35]
 ## Writes DIR/<check>_<view>.png and DIR/works.json (the numbers, and a pass/fail line for each).
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
 
@@ -49,6 +49,9 @@ func _run() -> void:
 			poses = Array(a.substr(8).split(","))
 		elif a == "--poses-only":
 			poses_only = true
+		elif a.begins_with("--share="):
+			# PeopleBodies.shoulder_share (0: no shoulder helpers), for a before and after.
+			load("res://src/bodies/people_bodies.gd").shoulder_share = float(a.substr(8))
 		elif a.begins_with("--ref="):
 			var r = JSON.parse_string(FileAccess.get_file_as_string(a.substr(6)))
 			if r is Dictionary:
