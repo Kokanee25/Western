@@ -80,6 +80,14 @@ const JOIST_W := 0.06
 var door_rect := Rect2()
 
 
+## Inside, the woods drawn darker (art, Sean 2026-10-26, #405: R1 darkened, set r1dark_a): a
+## member made of the left wood is drawn in the right one; it still bears and breaks as its wood.
+const INSIDE_LOOK := {&"floor": &"int_r1_floor", &"framing": &"int_r1_framing"}
+## The kinds of member seen only from inside: the floor, the walls' framing, the roof's framing.
+const INSIDE_KINDS := [&"floor_board", &"stud", &"cripple", &"plate", &"header", &"rafter", &"ridge",
+		&"furniture_frame", &"furniture_top"]
+
+
 func build() -> void:
 	var w := width
 	var d := depth
@@ -151,8 +159,21 @@ func build() -> void:
 		_build_porch()
 	if furnished:
 		_build_furniture()
+	_inside_looks()
 	_add_interior_ambient()
 	FacadeArt.dress(self)  # the painting's parts on a front that asks for them (art)
+
+
+## The members seen from inside drawn in the inside woods (INSIDE_LOOK); the porch is outside.
+func _inside_looks() -> void:
+	for m in get_members():
+		if m.kind in INSIDE_KINDS and INSIDE_LOOK.has(m.wood) and not String(m.member_id).contains("/porch/"):
+			m.look = INSIDE_LOOK[m.wood]
+
+
+## The inside wood a kit prop's top is drawn in (its `look`; its wood stays).
+static func inside_look(wood: StringName) -> StringName:
+	return INSIDE_LOOK.get(wood, wood)
 
 
 ## The sky's ambient light shouldn't fill the inside of a closed building. This probe replaces it
@@ -598,14 +619,14 @@ func _local(at: Vector2, p: Vector3) -> Array:
 ## each corner.
 func _table(id: String, x0: float, x1: float, z0: float, z1: float, h: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
 	return _fixture(&"table", id, Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5), Vector3(x1 - x0, h, z1 - z0), 0.0,
-			{"top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+			{"top": {"wood": String(top_wood), "look": "wood:" + String(inside_look(top_wood))}}, extra)
 
 
 ## A counter (the kit's) across the room from the left wall to `x1` at depth z0..z1: a front, its
 ## end and a top (overhanging the front by 6 cm).
 func _counter(id: String, x0: float, x1: float, z0: float, z1: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
 	return _fixture(&"counter", id, Vector2((x0 + x1) * 0.5, (z0 - 0.06 + z1) * 0.5), Vector3(x1 - x0, 0.99, z1 - z0 + 0.06), 0.0,
-			{"end_l": null, "top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+			{"end_l": null, "top": {"wood": String(top_wood), "look": "wood:" + String(inside_look(top_wood))}}, extra)
 
 
 ## Shelves (the kit's, four boards) on an upright pair against a wall at x0..x1 (deep across x),

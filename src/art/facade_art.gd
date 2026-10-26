@@ -168,8 +168,17 @@ static func _sign(b: FalseFrontBuilding, bt: float, framed: bool, painted := fal
 		return
 	var panel := _front(b, "facade/sign", &"trim", SIGN if framed else BOARDS, x0, x0 + size.x, y0, y0 + size.y, bt,
 			bt + (0.04 if framed else 0.012))
-	if tex:
-		_letter(panel, tex, size, tex != _drawn(id))
+	if tex and tex != _drawn(id):
+		# A painted board (compressed): SignArt's board over the panel, which stays a member
+		# (bullets, fire) but isn't drawn, as on the gable signs.
+		for c in panel.get_children():
+			if c is MeshInstance3D:
+				(c as MeshInstance3D).visible = false
+		var drawn := SignArt.board(board_id, size, 0.04 if framed else 0.012)
+		drawn.transform = Transform3D(Basis(Vector3.UP, PI), Vector3.ZERO)
+		panel.add_child(drawn)
+	elif tex:
+		_letter(panel, tex, size)
 	if not framed:
 		return
 	# The frame, proud of the boards.
@@ -224,7 +233,7 @@ static func _paint_letters(b: FalseFrontBuilding, sign: StructureMember, ink: Te
 
 ## The lettered board's picture laid once across the panel's front (its texels as big as the
 ## board needs: the texture's width over the board's).
-static func _letter(panel: StructureMember, tex: Texture2D, size: Vector2, mipmaps := false) -> void:
+static func _letter(panel: StructureMember, tex: Texture2D, size: Vector2) -> void:
 	var img := tex.get_image()
 	if img.is_compressed():
 		img.decompress()
@@ -238,10 +247,8 @@ static func _letter(panel: StructureMember, tex: Texture2D, size: Vector2, mipma
 	m.set_shader_parameter(&"shade_tint", PixelArt.SHADE_TINT)
 	m.set_shader_parameter(&"roughness", 0.92)
 	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
-	if mipmaps:
-		img.generate_mipmaps()
 	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
-	m.set_shader_parameter(&"use_mipmaps", mipmaps)
+	m.set_shader_parameter(&"use_mipmaps", false)
 	m.set_shader_parameter(&"fixed_squares", true)
 	for c in panel.get_children():
 		if c is MeshInstance3D:
