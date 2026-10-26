@@ -50,7 +50,7 @@ jobs:
           python tools/cinematic/saloon.py --stills=build/cinematic/stills \
             --blend=build/cinematic/saloon.blend \
             ${{ inputs.only && format('--only={0}', inputs.only) || '' }} \
-            ${{ inputs.fast && '--fast' || '' }} > build/cinematic/blender.log 2>&1 || { tail -40 build/cinematic/blender.log | sed 's/^/::error::/'; exit 1; }
+            ${{ inputs.fast && '--fast' || '' }} > build/cinematic/blender.log 2>&1 || { echo "::error::$(grep -v -e DeprecationWarning -e use_nodes -e 'INFO:' build/cinematic/blender.log | tail -25 | sed ':a;N;$!ba;s/\n/%0A/g')"; exit 1; }
           grep -E "rendered|Error|Traceback" build/cinematic/blender.log | tail -20
           echo "took $(( $(date +%s) - start )) s"
           ls -la build/cinematic/stills
