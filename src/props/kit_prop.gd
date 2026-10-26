@@ -403,6 +403,7 @@ func _set_down(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> bool:
 		drop = minf(drop, from.y - SET_LIFT - (hit.position as Vector3).y)
 	if drop != INF and absf(drop) > 0.002:
 		global_position.y -= drop
+		Sight.changed(self, true)  # its members moved with it (the server has them next frame)
 	return true
 
 

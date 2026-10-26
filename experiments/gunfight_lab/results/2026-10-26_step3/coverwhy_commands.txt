@@ -1,0 +1,13 @@
+gf_play spec_hall bodies=studio
+wait 1
+gf_coverwhy -62.2 1.8 31.4 -64.38 3.4 26.55
+gf_coverwhy -68.7 1.8 32.8 -58.6 3.4 28.2
+gf_coverwhy -64.38 1.8 28.4 -62.4 3.4 36.0
+gf_coverwhy -57.43 1.8 31.3 -68.7 3.4 32.8
+gf_coverwhy -71.0 1.8 32.8 -62.2 3.4 31.4
+gf_coverwhy -58.8 1.8 33.0 -64.38 3.4 28.4
+gf_coverwhy -62.4 1.8 36.0 -64.38 3.4 26.55
+gf_coverwhy -68.7 1.8 36.4 -58.6 3.4 28.2
+gf_coverwhy -58.6 1.8 28.2 -71.0 3.4 32.8
+gf_coverwhy -62.2 1.8 31.4 -64.0 7.06 37.4
+quit

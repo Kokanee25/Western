@@ -300,6 +300,7 @@ func _physics_step(delta: float) -> void:
 	else:
 		move_and_slide()
 	_update_head(delta, falling)
+	Sight.moved(self)  # where he is now, for the lines asked after him this tick
 	_footsteps()
 
 
@@ -397,6 +398,7 @@ func can_stand() -> bool:
 func _set_collision_height(height: float) -> void:
 	_body_shape.height = height
 	collision.position = Vector3(0.0, height * 0.5, 0.0)
+	Sight.changed(self, true)  # his capsule, crouched or not
 
 
 ## The eyes where the body carries them (PlayerMotion): steps, lean, dips, the crouch's spring.

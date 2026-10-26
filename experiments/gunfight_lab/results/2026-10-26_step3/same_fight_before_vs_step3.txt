@@ -1,0 +1,161 @@
+DIFF  spec_hall_golden_revolver_careful_studio_s1
+      ending: 'you_down' vs 'you_dead'
+      end: 'you_down' vs 'you_dead'
+      length_s: 22.67 vs 21.72
+      you.blood_ml: 4494 vs 4992
+      you.cover_moves: 1 vs 2
+      you.dead: False vs True
+      you.drew_at: -1.0 vs 21.1833333333334
+      you.first_hit_at: 20.53 vs 15.83
+      you.look_outs: 3 vs 2
+      you.near_misses: 3 vs 4
+      you.near_misses_per_min: 7.9 vs 11.1
+      you.shots: 3 vs 1
+      first divergence at event 19 of 71 (27% in):
+        A: [3.7, 'shot', 'you fired']
+        B: [3.65, 'shot', 'you fired']
+DIFF  spec_hall_golden_revolver_careful_studio_s10
+      ending: 'broke_off' vs 'you_down'
+      end: 'gang_out' vs 'you_down'
+      length_s: 58.22 vs 18.57
+      outcomes: {'broke_off': 1, 'down': 2} vs {'standing': 3}
+      you.blood_ml: 5000 vs 4904
+      you.cover_moves: 2 vs 1
+      you.down: False vs True
+      you.first_aimed_at: 2.36666666666666 vs 2.43333333333333
+      you.first_hit_at: -1.0 vs 16.0
+      you.hits_taken: 0 vs 3
+      you.look_outs: 7 vs 2
+      you.near_misses: 5 vs 4
+      first divergence at event 24 of 120 (20% in):
+        A: [2.73, 'shot', 'you fired']
+        B: [2.87, 'shot', 'you fired']
+DIFF  spec_hall_golden_revolver_careful_studio_s2
+      ending: 'down' vs 'you_down'
+      end: 'gang_out' vs 'you_down'
+      length_s: 38.75 vs 23.45
+      first_shot_by: 'kid' vs 'you'
+      outcomes: {'dead': 1, 'down': 1, 'surrendered': 1} vs {'standing': 3}
+      you.blood_ml: 4990 vs 4716
+      you.cover_moves: 2 vs 1
+      you.down: False vs True
+      you.first_aimed_at: 3.61666666666666 vs 3.56666666666666
+      you.first_hit_at: 11.4 vs 22.02
+      you.hits: 2 vs 0
+      you.hits_taken: 2 vs 1
+      first divergence at event 19 of 113 (17% in):
+        A: [3.13, 'decision', 'kid: run for cover: in the open, 2 m']
+        B: [3.13, 'decision', 'kid: run for cover: in the open, 1 m']
+DIFF  spec_hall_golden_revolver_careful_studio_s3
+      ending: 'you_down' vs 'down'
+      end: 'you_down' vs 'gang_out'
+      length_s: 33.07 vs 77.13
+      outcomes: {'standing': 3} vs {'dead': 1, 'down': 1, 'surrendered': 1}
+      you.arm_out_at: 31.1166666666662 vs -1.0
+      you.blood_ml: 4964 vs 4946
+      you.cover_moves: 3 vs 7
+      you.down: True vs False
+      you.drew_at: 31.1166666666662 vs 49.0666666666652
+      you.first_aimed_at: 3.18333333333333 vs 3.09999999999999
+      you.first_hit_at: 12.82 vs 13.2
+      you.hits: 0 vs 3
+      first divergence at event 21 of 149 (14% in):
+        A: [3.67, 'shot', 'you fired']
+        B: [3.47, 'shot', 'you fired']
+DIFF  spec_hall_golden_revolver_careful_studio_s4
+      length_s: 54.3 vs 28.22
+      outcomes: {'standing': 3} vs {'standing': 1, 'surrendered': 2}
+      you.blood_ml: 4699 vs 4983
+      you.cover_moves: 5 vs 2
+      you.drew_at: 26.1833333333331 vs -1.0
+      you.first_aimed_at: 3.43333333333333 vs 3.58333333333333
+      you.first_hit_at: 7.87 vs 8.95
+      you.hits: 0 vs 1
+      you.hits_taken: 5 vs 3
+      you.look_outs: 6 vs 2
+      you.near_misses: 11 vs 7
+      you.near_misses_per_min: 12.2 vs 14.9
+      first divergence at event 17 of 154 (11% in):
+        A: [3.97, 'shot', 'you fired']
+        B: [4.02, 'shot', 'you fired']
+DIFF  spec_hall_golden_revolver_careful_studio_s5
+      length_s: 29.48 vs 111.22
+      outcomes: {'standing': 3} vs {'standing': 2, 'surrendered': 1}
+      you.arm_out_at: 11.1833333333335 vs -1.0
+      you.blood_ml: 4977 vs 4895
+      you.cover_moves: 3 vs 16
+      you.drew_at: 11.1833333333335 vs 14.6333333333336
+      you.first_aimed_at: 3.16666666666666 vs 3.23333333333333
+      you.first_hit_at: 11.15 vs 7.7
+      you.hits: 0 vs 5
+      you.hits_taken: 3 vs 8
+      you.look_outs: 4 vs 5
+      you.near_misses: 7 vs 28
+      first divergence at event 8 of 89 (9% in):
+        A: [0.87, 'cover', 'lyle runs for new cover (8 m)']
+        B: [0.88, 'cover', 'lyle runs for new cover (7 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s6
+      length_s: 87.75 vs 42.52
+      you.arm_out_at: 41.6666666666656 vs -1.0
+      you.blood_ml: 4921 vs 3987
+      you.cover_moves: 8 vs 6
+      you.drew_at: 41.6666666666656 vs 9.55000000000005
+      you.first_aimed_at: 3.34999999999999 vs 3.31666666666666
+      you.first_hit_at: 41.63 vs 6.52
+      you.hits_taken: 5 vs 4
+      you.look_outs: 11 vs 4
+      you.near_misses: 16 vs 12
+      you.near_misses_per_min: 10.9 vs 16.9
+      you.reloads: 1 vs 0
+      first divergence at event 17 of 194 (9% in):
+        A: [3.88, 'shot', 'you fired']
+        B: [3.82, 'shot', 'you fired']
+DIFF  spec_hall_golden_revolver_careful_studio_s7
+      length_s: 81.07 vs 69.43
+      outcomes: {'down': 1, 'surrendered': 2} vs {'surrendered': 3}
+      you.blood_ml: 4969 vs 4970
+      you.cover_moves: 9 vs 3
+      you.drew_at: 43.5333333333321 vs 56.5166666666647
+      you.first_aimed_at: 3.21666666666666 vs 3.26666666666666
+      you.first_hit_at: 20.97 vs 16.78
+      you.hits: 5 vs 3
+      you.hits_taken: 3 vs 5
+      you.look_outs: 7 vs 6
+      you.near_misses_per_min: 7.4 vs 8.6
+      you.pellet_hits: 5 vs 4
+      first divergence at event 8 of 196 (4% in):
+        A: [0.78, 'cover', 'lyle runs for new cover (7 m)']
+        B: [0.8, 'cover', 'lyle runs for new cover (7 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s8
+      ending: 'surrendered' vs 'you_down'
+      end: 'gang_out' vs 'you_down'
+      length_s: 38.98 vs 50.65
+      first_shot_by: 'you' vs 'kid'
+      outcomes: {'dead': 1, 'down': 1, 'surrendered': 1} vs {'down': 1, 'standing': 2}
+      you.blood_ml: 5000 vs 3683
+      you.cover_moves: 3 vs 5
+      you.down: False vs True
+      you.drew_at: -1.0 vs 36.9166666666659
+      you.first_aimed_at: 3.49999999999999 vs 3.91666666666666
+      you.first_hit_at: -1.0 vs 33.87
+      you.hits_taken: 0 vs 2
+      first divergence at event 8 of 96 (8% in):
+        A: [0.87, 'cover', 'lyle runs for new cover (7 m)']
+        B: [0.88, 'cover', 'lyle runs for new cover (7 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s9
+      ending: 'you_down' vs 'surrendered'
+      end: 'you_down' vs 'gang_out'
+      length_s: 16.55 vs 56.13
+      first_shot_by: 'lyle' vs 'you'
+      outcomes: {'standing': 3} vs {'surrendered': 3}
+      you.blood_ml: 4982 vs 5000
+      you.cover_moves: 2 vs 3
+      you.down: True vs False
+      you.first_aimed_at: 2.41666666666666 vs 2.36666666666666
+      you.first_hit_at: 13.22 vs -1.0
+      you.hits: 1 vs 2
+      you.hits_taken: 2 vs 0
+      first divergence at event 10 of 59 (17% in):
+        A: [0.87, 'cover', 'lyle runs for new cover (7 m)']
+        B: [0.88, 'cover', 'lyle runs for new cover (7 m)']
+0 of 10 fights the same

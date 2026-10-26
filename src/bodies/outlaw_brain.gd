@@ -1750,11 +1750,8 @@ func _aim_point(t: Node3D) -> Vector3:
 
 ## Nothing solid between `from` and `to` (the man there aside).
 func _clear(from: Vector3, to: Vector3, t: Node3D) -> bool:
-	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
-	q.exclude = _exclude(t)
 	Prof.count(&"q_brain")
-	var hit := World.space(body).intersect_ray(q)
-	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
+	return Sight.clear(body, from, to, _exclude(t))
 
 
 ## Gun out and ready, and he can see the man (or only just lost him); covering a friend, he'll
