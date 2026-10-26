@@ -165,7 +165,7 @@ func test_the_workers_are_the_same_game() -> void:
 # --- The bands (step 4b) ----------------------------------------------------------------------
 
 ## A node of a man's that notes each tick's delta, and (with a target) walks him there, as a brain
-## does; `calm` is what it says to `can_slow`.
+## does; `calm` is what it says to `can_slow`, `trouble` to `in_trouble`.
 class Walker:
 	extends Node
 	var deltas: Array[float] = []
@@ -173,6 +173,7 @@ class Walker:
 	var arrived_at := -1
 	var frame := 0
 	var calm := true
+	var trouble := false
 
 	func _enter_tree() -> void:
 		(get_parent() as HumanBody).add_ticker(self)
@@ -185,6 +186,9 @@ class Walker:
 
 	func can_slow() -> bool:
 		return calm
+
+	func in_trouble() -> bool:
+		return trouble
 
 	func tick(delta: float) -> void:
 		deltas.append(delta)
@@ -277,6 +281,7 @@ func test_a_man_in_trouble_or_woken_ticks_every_tick_and_so_does_his_neighbour()
 	var wb := _walker(by)
 	var wo := _walker(off)
 	wt.calm = false  # his brain's in a fight, or fleeing
+	wt.trouble = true
 	await physics_frames(4)
 	for w in [wt, wb, wo]:
 		w.deltas.clear()
@@ -293,6 +298,7 @@ func test_a_man_in_trouble_or_woken_ticks_every_tick_and_so_does_his_neighbour()
 	check_eq(wo.deltas.size(), ticked + 1, "woken: he ticked the next tick")
 	# Down (the ragdoll is the engine's): every tick.
 	wt.calm = true
+	wt.trouble = false
 	trouble.go_limp()
 	wt.deltas.clear()
 	await physics_frames(8)

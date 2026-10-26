@@ -136,6 +136,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 				man.tick_dt = man.tick_owed + delta
 				man.tick_owed = 0.0
 				man.tick_band = 0
+				man.tick_every = 1
 				due.append(man)
 		return due
 	if _tuning == null:
@@ -183,6 +184,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 				run -= 1
 		man.woken = false
 		var n: int = every[run]
+		man.tick_every = n
 		if n <= 1 or (_ticks + man.tick_index) % n == 0:
 			man.tick_dt = man.tick_owed + delta
 			man.tick_owed = 0.0

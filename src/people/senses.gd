@@ -39,6 +39,8 @@ var body: HumanBody
 var light := -1.0
 
 var _t := 0.0
+## The while between his last look and the next as it was set (TICK, or TICK times his band's).
+var _every_t := TICK
 var _clock := 0.0
 var _rng := RandomNumberGenerator.new()
 var _day: Node
@@ -74,11 +76,19 @@ func tick(delta: float) -> void:
 
 func _physics_step(delta: float) -> void:
 	_clock += delta
+	# A far man (PeopleTick's bands) looks round as many times less often as he's ticked, each look
+	# taking in the time since the last; nearer again, he looks within a near man's while.
+	var every := body.tick_every if body != null else 1
+	var cut := _t - TICK * every
+	if cut > 0.0:
+		_t -= cut
+		_every_t -= cut
 	_t -= delta
 	if _t > 0.0:
 		return
-	var dt := TICK - _t
-	_t = TICK
+	var dt := _every_t - _t
+	_every_t = TICK * every
+	_t = _every_t
 	_forget_gone()
 	if body == null or not is_instance_valid(body) or not body.physiology.is_conscious():
 		var entries := known.values()

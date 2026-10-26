@@ -220,10 +220,15 @@ var tick_index := -1
 ## His own nodes PeopleTick ticks after him, in tree order (his brain, face, senses: add_ticker).
 var _tickers: Array[Node] = []
 var _tickers_sorted := true
+## Those of them that say whether he may tick slowly, and whether he's in trouble (PeopleTick's bands).
+var _slow_says: Array[Node] = []
+var _trouble_says: Array[Node] = []
 ## His tick band (PeopleTick, step 4b): 0 near (every tick), 1 middle, 2 far, by his distance with
 ## a margin each way; what he's owed of the ticks he was left out of (s), and this tick's delta
 ## (the tick's own and what he was owed). Woken (`wake`): he ticks next tick whatever his band.
 var tick_band := 0
+## How often he ticks now (1 every tick, 2, 4: his band, nearer if seen; Senses looks as often).
+var tick_every := 1
 var tick_owed := 0.0
 var tick_dt := 0.0
 var woken := false
@@ -393,10 +398,16 @@ func add_ticker(n: Node) -> void:
 	if not _tickers.has(n):
 		_tickers.append(n)
 		_tickers_sorted = false
+		if n.has_method(&"can_slow"):
+			_slow_says.append(n)
+		if n.has_method(&"in_trouble"):
+			_trouble_says.append(n)
 
 
 func remove_ticker(n: Node) -> void:
 	_tickers.erase(n)
+	_slow_says.erase(n)
+	_trouble_says.erase(n)
 
 
 ## Something to react to (a noise he heard, a deed done to him): he ticks next tick, whatever his
@@ -414,8 +425,8 @@ func can_slow() -> bool:
 		return false
 	if _clip != null and _clip.name != walk_clip:
 		return false
-	for n: Node in _tickers:
-		if is_instance_valid(n) and n.has_method(&"can_slow") and not n.call(&"can_slow"):
+	for n: Node in _slow_says:
+		if not n.call(&"can_slow"):
 			return false
 	return true
 
@@ -423,8 +434,8 @@ func can_slow() -> bool:
 ## Is he in trouble (a fight, running, hands up, getting down: his brain's `in_trouble`)? Then
 ## whoever's near him ticks every tick too (PeopleTick's bands: near a fight is near).
 func in_trouble() -> bool:
-	for n: Node in _tickers:
-		if is_instance_valid(n) and n.has_method(&"in_trouble") and n.call(&"in_trouble"):
+	for n: Node in _trouble_says:
+		if n.call(&"in_trouble"):
 			return true
 	return false
 
