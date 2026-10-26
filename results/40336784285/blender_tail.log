@@ -1,0 +1,63 @@
+/home/runner/work/Western/Western/tools/cinematic/saloon.py:74: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m.use_nodes = True
+/home/runner/work/Western/Western/tools/cinematic/saloon.py:480: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  haze.use_nodes = True
+14:10:35 | INFO: Data are loaded, start creating Blender stuff
+14:10:35 | INFO: Blender create Mesh node body_head
+14:10:35 | INFO: Blender create Mesh node body_skin
+14:10:35 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:35 | INFO: Blender create Mesh node cloth_bandana
+14:10:35 | INFO: glTF import finished in 0.41s
+14:10:36 | INFO: Data are loaded, start creating Blender stuff
+14:10:36 | INFO: Blender create Mesh node body_head
+14:10:36 | INFO: Blender create Mesh node body_skin
+14:10:36 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:36 | INFO: Blender create Mesh node cloth_bandana
+14:10:36 | INFO: glTF import finished in 0.38s
+14:10:36 | INFO: Data are loaded, start creating Blender stuff
+14:10:36 | INFO: Blender create Mesh node body_head
+14:10:36 | INFO: Blender create Mesh node body_skin
+14:10:37 | INFO: Blender create Mesh node cloth_hat
+14:10:37 | INFO: Blender create Mesh node cloth_hat_band
+14:10:37 | INFO: Blender create Mesh node cloth_hat_brim
+14:10:37 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:37 | INFO: glTF import finished in 0.43s
+14:10:37 | INFO: Data are loaded, start creating Blender stuff
+14:10:37 | INFO: Blender create Mesh node body_head
+14:10:37 | INFO: Blender create Mesh node body_skin
+14:10:37 | INFO: Blender create Mesh node cloth_hat
+14:10:37 | INFO: Blender create Mesh node cloth_hat_band
+14:10:37 | INFO: Blender create Mesh node cloth_hat_brim
+14:10:37 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:37 | INFO: Blender create Mesh node cloth_bandana
+14:10:37 | INFO: glTF import finished in 0.42s
+14:10:38 | INFO: Data are loaded, start creating Blender stuff
+14:10:38 | INFO: Blender create Mesh node body_head
+14:10:38 | INFO: Blender create Mesh node body_skin
+14:10:38 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:38 | INFO: Blender create Mesh node cloth_bandana
+14:10:38 | INFO: glTF import finished in 0.44s
+14:10:38 | INFO: Data are loaded, start creating Blender stuff
+14:10:38 | INFO: Blender create Mesh node body_head
+14:10:38 | INFO: Blender create Mesh node body_skin
+14:10:39 | INFO: Blender create Mesh node cloth_hat
+14:10:39 | INFO: Blender create Mesh node cloth_hat_band
+14:10:39 | INFO: Blender create Mesh node cloth_hat_brim
+14:10:39 | INFO: Blender create Mesh node cloth_bandana_mask
+14:10:39 | INFO: Blender create Mesh node cloth_bandana
+14:10:39 | INFO: glTF import finished in 0.46s
+14:10:39 | INFO: Data are loaded, start creating Blender stuff
+14:10:39 | INFO: Blender create Mesh node body_head
+14:10:39 | INFO: Blender create Mesh node body_skin
+14:10:39 | INFO: glTF import finished in 0.44s
+/home/runner/work/Western/Western/tools/cinematic/saloon.py:775: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w.use_nodes = True
+06:04.332  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/stills/ots.png'
+Info: Saved as "saloon.blend"
+rendered ots
+12:59.926  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/stills/cheater.png'
+rendered cheater
+19:58.432  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/stills/lyle.png'
+rendered lyle
+25:54.060  render           | Saved: '/home/runner/work/Western/Western/build/cinematic/stills/room.png'
+rendered room
