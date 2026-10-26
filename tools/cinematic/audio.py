@@ -22,7 +22,7 @@ POLL = 2.0
 VOICE = {"name": "voice_welcome", "app": "fal-ai/elevenlabs/tts/eleven-v3",
          "body": {"text": "[low, dry, unhurried] Welcome to Salt Creek.", "voice": "Bill",
                   "stability": 0.35, "similarity_boost": 0.75, "speed": 0.9}}
-VOICE_TAKES = [("Bill", 1), ("George", 2), ("Callum", 3)]   # three voices to pick from
+VOICE_TAKES = [("Bill", 1), ("Brian", 2), ("Callum", 3)]   # three voices to pick from
 
 SFX = [
     ("sfx_shuffle", "A deck of old playing cards riffle-shuffled and bridged on a felt table, close", 3.0),

@@ -1,99 +1,203 @@
-# The saloon cinematic (docs/briefs/cinematic.md): the set and cast built in Blender
-# (tools/cinematic/saloon.py) and rendered by Cycles on the runner's CPU. A push to a
-# claude/cinematic-* branch renders the look-test stills; run by hand for other modes.
+# The saloon cinematic (docs/briefs/cinematic.md), rendered by Blender's Cycles on the runners' CPUs.
+#
+# A push to a claude/cinematic-* branch runs the mode named in its commit message:
+#   [stills]  the look-test stills (tools/cinematic/saloon.py)
+#   [debug]   flat-lit staging views of the set
+#   [audio]   the voice, effects and score generated on fal (tools/cinematic/audio.py, FAL_KEY)
+#   [sheet]   a contact sheet of the film: key frames of every shot, fast and flat
+#   [preview] the whole film, every other frame, low quality, cut with its sound
+#   [final]   the whole film at full quality, cut with its sound
+# (no tag: nothing renders). Run by hand with the same modes.
+#
+# Sessions can't download artifacts, so every result goes to the `cinematic-results` branch
+# (results/<run id>/), and films also to the `cinematic` release for Sean's phone.
 name: Cinematic
 
 on:
   push:
     branches: ["claude/cinematic-**"]
-    paths: ["tools/cinematic/**", ".github/workflows/cinematic.yml"]
   workflow_dispatch:
     inputs:
-      only:
-        description: "Stills to render (comma list; empty = all)"
-        required: false
-        default: ""
-      fast:
-        description: "Fast preview quality"
-        type: boolean
-        default: false
+      mode:
+        description: "stills | debug | audio | sheet | preview | final"
+        required: true
+        default: sheet
 
 concurrency:
-  group: cinematic-${{ github.ref }}
+  group: cinematic-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 env:
   BPY_VERSION: "5.0.1"
+  CHUNKS: 20
 
 jobs:
+  mode:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.m.outputs.mode }}
+    steps:
+      - id: m
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+          INPUT: ${{ inputs.mode }}
+        run: |
+          mode="$INPUT"
+          if [ -z "$mode" ]; then
+            for m in stills debug audio sheet preview final; do
+              case "$MSG" in *"[$m]"*) mode=$m;; esac
+            done
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "mode: ${mode:-none}"
+
   stills:
+    needs: mode
+    if: needs.mode.outputs.mode == 'stills' || needs.mode.outputs.mode == 'debug'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
           cache-dependency-path: .github/workflows/cinematic.yml
-
-      - name: Install Blender (bpy)
-        run: pip install "bpy==${BPY_VERSION}" pillow
-
+      - run: pip install "bpy==${BPY_VERSION}" pillow
       - name: Build the set and render the stills
         run: |
           mkdir -p build/cinematic
-          start=$(date +%s)
-          python tools/cinematic/saloon.py --stills=build/cinematic/stills \
-            --blend=build/cinematic/saloon.blend \
-            ${{ inputs.only && format('--only={0}', inputs.only) || '' }} \
-            ${{ inputs.fast && '--fast' || '' }} \
-            ${{ contains(github.event.head_commit.message, '[debug]') && '--debug --fast' || '' }} > build/cinematic/blender.log 2>&1 || { echo "::error::$(grep -v -e DeprecationWarning -e use_nodes -e 'INFO:' build/cinematic/blender.log | tail -25 | sed ':a;N;$!ba;s/\n/%0A/g')"; exit 1; }
-          grep -E "rendered|^man |Error|Traceback" build/cinematic/blender.log | tail -20
-          echo "took $(( $(date +%s) - start )) s"
-          ls -la build/cinematic/stills
-
-      # Sessions can't download artifacts: the stills (as JPEGs) and the log's tail go to the
-      # `cinematic-results` branch under the run's id, where a session can fetch them.
-      - name: Keep the results on the cinematic-results branch
+          python tools/cinematic/saloon.py --stills=build/cinematic/out \
+            ${{ needs.mode.outputs.mode == 'debug' && '--debug --fast' || '' }} \
+            > build/cinematic/blender.log 2>&1 || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+      - name: Results to the branch
         if: always()
+        run: python tools/cinematic/ci.py publish build/cinematic
+
+  audio:
+    needs: mode
+    if: needs.mode.outputs.mode == 'audio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Make the sound on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
         run: |
-          id="${{ github.run_id }}"
-          mkdir -p /tmp/res/$id
-          tail -200 build/cinematic/blender.log > /tmp/res/$id/blender_tail.log 2>/dev/null || true
-          python - <<'PY'
-          import glob, os
-          from PIL import Image
-          for f in glob.glob("build/cinematic/stills/*.png"):
-              im = Image.open(f).convert("RGB")
-              im.save("/tmp/res/${{ github.run_id }}/" + os.path.basename(f)[:-4] + ".jpg", quality=90)
-          PY
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          if git fetch -q origin cinematic-results; then
-            git checkout -q -f -B cinematic-results FETCH_HEAD
-          else
-            git checkout -q --orphan cinematic-results && git rm -rq --cached . && git clean -fdq -e build
-          fi
-          mkdir -p results && cp -r /tmp/res/$id results/
-          git add results/$id
-          git commit -q -m "Cinematic results, run $id (${{ github.sha }})"
-          git push -q origin cinematic-results
-
-      - uses: actions/upload-artifact@v4
+          mkdir -p build/cinematic
+          python tools/cinematic/audio.py --out=build/cinematic/out/audio > build/cinematic/blender.log 2>&1 \
+            || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          cat build/cinematic/blender.log
+      - name: Results to the branch
         if: always()
-        with:
-          name: cinematic-stills
-          path: |
-            build/cinematic/stills
-            build/cinematic/blender.log
-          retention-days: 14
+        run: python tools/cinematic/ci.py publish build/cinematic
 
+  sheet:
+    needs: mode
+    if: needs.mode.outputs.mode == 'sheet'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: .github/workflows/cinematic.yml
+      - run: pip install "bpy==${BPY_VERSION}" pillow
+      - run: python tools/cinematic/ci.py font
+      - name: Key frames of every shot
+        run: |
+          mkdir -p build/cinematic
+          python tools/cinematic/film.py --sheet=build/cinematic/out \
+            > build/cinematic/blender.log 2>&1 || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          grep -E "^(shot|frame|warn)" build/cinematic/blender.log | tail -60
+      - name: Results to the branch
+        if: always()
+        run: python tools/cinematic/ci.py publish build/cinematic
+
+  render:
+    needs: mode
+    if: needs.mode.outputs.mode == 'preview' || needs.mode.outputs.mode == 'final'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: .github/workflows/cinematic.yml
+      - run: pip install "bpy==${BPY_VERSION}" pillow
+      - run: python tools/cinematic/ci.py font
+      - name: Render this chunk's frames
+        run: |
+          mkdir -p build/cinematic/frames
+          start=$(date +%s)
+          python tools/cinematic/film.py --render=build/cinematic/frames --quality=${{ needs.mode.outputs.mode }} \
+            --chunk=${{ matrix.chunk }} --chunks=${CHUNKS} > build/cinematic/blender.log 2>&1 \
+            || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          echo "$(ls build/cinematic/frames | wc -l) frames in $(( $(date +%s) - start )) s"
       - uses: actions/upload-artifact@v4
         with:
-          name: cinematic-blend
-          path: build/cinematic/saloon.blend
-          retention-days: 7
+          name: frames-${{ matrix.chunk }}
+          path: build/cinematic/frames
+          retention-days: 3
+          compression-level: 0
+
+  cut:
+    needs: [mode, render]
+    if: always() && (needs.mode.outputs.mode == 'preview' || needs.mode.outputs.mode == 'final')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          pip install pillow
+      - run: python tools/cinematic/ci.py font
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frames-*
+          path: build/cinematic/frames
+          merge-multiple: true
+      - name: Cut the film with its sound
+        run: |
+          mkdir -p build/cinematic/out
+          ls build/cinematic/frames | wc -l
+          python tools/cinematic/cut.py --frames=build/cinematic/frames --quality=${{ needs.mode.outputs.mode }} \
+            --out=build/cinematic/out/salt_creek_${{ needs.mode.outputs.mode }}.mp4 > build/cinematic/blender.log 2>&1 \
+            || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          tail -5 build/cinematic/blender.log
+      - name: Results to the branch
+        if: always()
+        run: python tools/cinematic/ci.py publish build/cinematic
+      - name: On the cinematic release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f=build/cinematic/out/salt_creek_${{ needs.mode.outputs.mode }}.mp4
+          name="salt_creek_${{ needs.mode.outputs.mode }}_${{ github.run_id }}.mp4"
+          cp "$f" "$name"
+          gh release view cinematic >/dev/null 2>&1 || gh release create cinematic --title "Salt Creek cinematic" \
+            --notes "The saloon cinematic (docs/briefs/cinematic.md): previews and finals by run." --latest=false
+          gh release upload cinematic "$name" --clobber
