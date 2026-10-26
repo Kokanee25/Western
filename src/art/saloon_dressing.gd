@@ -39,6 +39,12 @@ static func build(s: FalseFrontBuilding) -> void:
 	_panelling(s, f)
 	_balcony(s, f)
 	_stair(s, f)
+	# The balcony's and stair's boards and framing in the inside woods (FalseFrontBuilding.INSIDE_LOOK:
+	# R1 darkened, Sean 2026-10-26).
+	for m in s.get_members():
+		var id := String(m.member_id)
+		if (id.contains("/balcony/") or id.contains("/stair/")) and FalseFrontBuilding.INSIDE_LOOK.has(m.wood):
+			m.look = FalseFrontBuilding.INSIDE_LOOK[m.wood]
 	_mirrors(s, f)
 	_bottle_wall(s, f)
 	var props := s.get_node_or_null(^"Props") as Node3D

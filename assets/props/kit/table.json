@@ -35,7 +35,7 @@
         0.3625,
         -0.345
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     },
     {
       "id": "leg1",
@@ -51,7 +51,7 @@
         0.3625,
         -0.345
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     },
     {
       "id": "leg2",
@@ -67,7 +67,7 @@
         0.3625,
         0.345
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     },
     {
       "id": "leg3",
@@ -83,7 +83,7 @@
         0.3625,
         0.345
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     }
   ],
   "look": "wood:dark_trim"

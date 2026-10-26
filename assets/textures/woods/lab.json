@@ -196,6 +196,29 @@
    "end_texels": 256,
    "promoted_from": "mlab_r1paint/painted_green",
    "edge_aa": 1.0
+  },
+  "int_r1_floor": {
+   "boards": 7,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "int_r1_floor_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_r1dark_a/floor",
+   "edge_aa": 1.0,
+   "what": "Sean's A (2026-10-26, #405): R1 darkened for the inside floors"
+  },
+  "int_r1_framing": {
+   "boards": 3,
+   "rows": 96,
+   "length": 1024,
+   "texels_per_metre": 512.0,
+   "end": "int_r1_framing_end.png",
+   "end_texels": 256,
+   "promoted_from": "mlab_r1dark_a/framing",
+   "edge_aa": 1.0,
+   "capped": "first 3 of R1's 8 strips: the game's batches (a strip a batch) stay as they were",
+   "what": "Sean's A (2026-10-26, #405): R1 darkened for the inside framing"
   }
  },
  "weathering": {
