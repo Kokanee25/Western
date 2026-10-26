@@ -620,9 +620,9 @@ def turn(arm, bone, axis, degrees):
 
 def place_on(arm, point, yaw):
     """Turn him to face `yaw` (degrees from +Y, about Z) and move him so his pelvis is at `point`."""
-    # glTF men face +Z in Godot = -Y here; turn so he faces +Y at yaw 0 then by yaw.
+    # The Studio men face +Y here at no turn (checked in the [debug] views).
     arm.rotation_mode = "XYZ"
-    arm.rotation_euler = (0.0, 0.0, math.radians(180 + yaw))
+    arm.rotation_euler = (0.0, 0.0, math.radians(yaw))
     bpy.context.view_layer.update()
     pel = arm.matrix_world @ arm.pose.bones["pelvis"].head
     arm.location += Vector(point) - pel
@@ -670,7 +670,7 @@ def seat(who, lean=0.15, arms="table", head_turn=0.0, head_tilt=0.0):
 def stand(who, model, at, yaw, pose=None):
     arm = man(who, model)
     arm.rotation_mode = "XYZ"
-    arm.rotation_euler = (0.0, 0.0, math.radians(180 + yaw))
+    arm.rotation_euler = (0.0, 0.0, math.radians(yaw))
     arm.location = Vector(at)
     bpy.context.view_layer.update()
     if pose:
