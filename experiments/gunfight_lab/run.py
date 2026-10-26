@@ -78,6 +78,8 @@ def run_one(f, out, ports, max_s, godot):
             max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--deterministic", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
+    # --game-args=A,B: more of the game's own (--jolt-sight: sight lines asked of Jolt, the before).
+    cmd += [a for a in opt(sys.argv[1:], "game-args", "").split(",") if a]
     t0 = time.time()
     port = ports.get()
     cmd[cmd.index("--bridge-port=PORT")] = f"--bridge-port={port}"

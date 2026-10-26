@@ -6,6 +6,10 @@ class_name Cover
 ##
 ## A spot is {at, low (bool: only covers him down low), crouch_ok (he can crouch there, not just
 ## duck), peek (where he shoots from), score}.
+##
+## Its lines (what's in the way, the ground under a spot) are asked of `Sight` (the sight service,
+## docs/briefs/more-cores.md step 3); room to stand and a way on foot (`_room`, `path_clear`, the
+## town's ways) stay on Jolt, the truth for what a body touches.
 
 const DIRECTIONS := 20
 const RADII := [1.2, 2.2, 3.5, 5.0, 7.0, 10.0]
@@ -152,12 +156,13 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle: float,
 		places: Waypoints, ctx: Dictionary) -> Dictionary:
 	var scored: Array[Dictionary] = []
-	for p0 in candidates:
-		var floor_at: Variant = _floor_under(space, p0, exclude)
+	var first := _first_lines(space, candidates, threat_eye, exclude)
+	for i in candidates.size():
+		var floor_at: Variant = first[i][0]
 		if floor_at == null:
 			continue
 		var p: Vector3 = floor_at
-		var spot := evaluate(space, p, threat_eye, exclude, true)
+		var spot := evaluate(space, p, threat_eye, exclude, true, first[i])
 		if spot.is_empty():
 			continue
 		var r := Vector2(p.x - from.x, p.z - from.z).length()
@@ -194,6 +199,59 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		if tries >= WAY_TRIES:
 			break
 	return best
+
+
+## The first three lines of every spot at once, as `_best_in_town` and `evaluate` would ask them
+## one by one (the floor under it, the ground there, his chest lying down from the threat's eye;
+## each stage only for the spots the one before let through): one batch a stage. For each spot
+## [floor (null for none), ground (null for none, absent if not asked), [t, kind] of the chest's
+## line (absent if not asked)].
+static func _first_lines(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], threat_eye: Vector3, exclude: Array[RID]) -> Array:
+	var out: Array = []
+	var a := PackedVector3Array()
+	var b := PackedVector3Array()
+	for p0 in candidates:
+		a.append(p0 + Vector3.UP * LEVELS)
+		b.append(p0 + Vector3.DOWN * LEVELS)
+	Prof.count(&"q_cover", a.size())
+	var t := Sight.lines(space, a, b, Layers.STAND, exclude)
+	var normals := Sight.normals()
+	var ga := PackedVector3Array()
+	var gb := PackedVector3Array()
+	var asked: Array[int] = []
+	for i in candidates.size():
+		if t[i] >= 1.0 or normals[i].y < 0.7:
+			out.append([null])
+			continue
+		var p := a[i] + (b[i] - a[i]) * t[i]
+		out.append([p])
+		ga.append(p + Vector3.UP * 0.6)
+		gb.append(p + Vector3.DOWN * 0.6)
+		asked.append(i)
+	Prof.count(&"q_cover", ga.size())
+	t = Sight.lines(space, ga, gb, Layers.WORLD, exclude)
+	normals = Sight.normals()
+	var la := PackedVector3Array()
+	var lb := PackedVector3Array()
+	var lie_asked: Array[int] = []
+	for k in asked.size():
+		var e: Array = out[asked[k]]
+		if t[k] >= 1.0 or normals[k].y < 0.7:
+			e.append(null)
+			continue
+		var at := ga[k] + (gb[k] - ga[k]) * t[k]
+		e.append(at)
+		if absf(at.y - (e[0] as Vector3).y) > 0.5:
+			continue
+		la.append(threat_eye)
+		lb.append(at + Vector3.UP * LIE_CHEST)
+		lie_asked.append(asked[k])
+	Prof.count(&"q_cover", la.size())
+	t = Sight.lines(space, la, lb, Layers.WORLD, exclude)
+	var kinds := Sight.kinds()
+	for k in lie_asked.size():
+		(out[lie_asked[k]] as Array).append([t[k], kinds[k]])
+	return out
 
 
 ## With `by_way`: each metre the way there is longer than the straight line costs this much of a
@@ -237,49 +295,63 @@ static func _score(spot: Dictionary, r: float, d_threat: float, from: Vector3, t
 ## threat's sight lines low past him and step in behind what they hit.
 static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID], max_travel: float) -> Array[Vector3]:
 	var out: Array[Vector3] = []
+	# The threat's lines past him, all at once; then a line back through each thing they met.
+	var froms := PackedVector3Array()
+	var tos := PackedVector3Array()
 	for r: float in [1.5, 2.5, 3.5, 5.0, 7.0]:
 		if r > max_travel + 1.0:
 			break
 		for i in 32:
 			var ang := TAU * i / 32.0
 			var target := from + Vector3(cos(ang), 0.0, sin(ang)) * r + Vector3.UP * 0.5
-			var q := PhysicsRayQueryParameters3D.create(threat_eye, target + (target - threat_eye).normalized() * 3.0, Layers.WORLD)
-			q.exclude = exclude
-			Prof.count(&"q_cover")
-			var hit := space.intersect_ray(q)
-			if hit.is_empty() or hit.collider is CharacterBody3D:
-				continue
-			var at: Vector3 = hit.position
-			if Vector2(at.x - from.x, at.z - from.z).length() > max_travel:
-				continue
-			var along := (at - threat_eye)
-			along.y = 0.0
-			along = along.normalized()
-			# Through to its far side (a woodpile's a metre deep): a ray back from beyond it.
-			var q2 := PhysicsRayQueryParameters3D.create(at + along * 4.0, at, Layers.WORLD)
-			q2.exclude = exclude
-			Prof.count(&"q_cover")
-			var back_hit := space.intersect_ray(q2)
-			if not back_hit.is_empty():
-				at = back_hit.position
-			var side := along.cross(Vector3.UP)
-			for back: float in [0.35, 0.55]:
-				for lateral: float in [0.0, 0.25, -0.25]:
-					out.append(Vector3(at.x, from.y, at.z) + along * back + side * lateral)
+			froms.append(threat_eye)
+			tos.append(target + (target - threat_eye).normalized() * 3.0)
+	Prof.count(&"q_cover", froms.size())
+	var t := Sight.lines(space, froms, tos, Layers.WORLD, exclude)
+	var kinds := Sight.kinds()
+	var ats := PackedVector3Array()
+	var alongs := PackedVector3Array()
+	var backs := PackedVector3Array()
+	for k in t.size():
+		if t[k] >= 1.0 or kinds[k] == Sight.KIND_CHARACTER:
+			continue
+		var at := froms[k] + (tos[k] - froms[k]) * t[k]
+		if Vector2(at.x - from.x, at.z - from.z).length() > max_travel:
+			continue
+		var along := (at - threat_eye)
+		along.y = 0.0
+		along = along.normalized()
+		ats.append(at)
+		alongs.append(along)
+		# Through to its far side (a woodpile's a metre deep): a ray back from beyond it.
+		backs.append(at + along * 4.0)
+	Prof.count(&"q_cover", backs.size())
+	var tb := Sight.lines(space, backs, ats, Layers.WORLD, exclude)
+	for k in tb.size():
+		var at := ats[k]
+		var along := alongs[k]
+		if tb[k] < 1.0:
+			at = backs[k] + (ats[k] - backs[k]) * tb[k]
+		var side := along.cross(Vector3.UP)
+		for back: float in [0.35, 0.55]:
+			for lateral: float in [0.0, 0.25, -0.25]:
+				out.append(Vector3(at.x, from.y, at.z) + along * back + side * lateral)
 	return out
 
 
 ## Is a spot any good? {} if not; else {at, low, crouch_ok, lie, peek}. `far`: something wide a few
 ## metres off counts as his cover too (a man who knows the town: OutlawBrain with its `places`).
-static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> Dictionary:
-	var ground: Variant = _ground(space, p, exclude)
+## `first`: its first lines already asked (`_first_lines`).
+static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false, first := []) -> Dictionary:
+	var ground: Variant = first[1] if first.size() > 1 else _ground(space, p, exclude)
 	if ground == null:
 		return {}
 	var at: Vector3 = ground
 	if absf(at.y - p.y) > 0.5:
 		return {}
 	# Cheapest first: one ray at his chest lying down; if that's seen, nothing here hides him.
-	if not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far):
+	var asked: Array = first[2] if first.size() > 2 else []
+	if not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far, asked):
 		return {}
 	if not _room(space, at, exclude):
 		return {}
@@ -329,18 +401,24 @@ static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye:
 const SHOULDERS := 0.18
 
 
-static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false) -> bool:
+## `asked`: [t, kind] of its first line, already asked (`_first_lines`).
+static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false,
+		asked := []) -> bool:
 	var target := at + Vector3.UP * height
-	var q := PhysicsRayQueryParameters3D.create(threat_eye, target, Layers.WORLD)
-	q.exclude = exclude
-	Prof.count(&"q_cover")
-	var hit := space.intersect_ray(q)
-	if hit.is_empty():
+	var t: float
+	var kind: int
+	if asked.is_empty():
+		Prof.count(&"q_cover")
+		t = Sight.cast(space, threat_eye, target, Layers.WORLD, exclude)
+		kind = Sight.hit_kind() if t < 1.0 else Sight.KIND_OTHER
+	else:
+		t = asked[0]
+		kind = asked[1]
+	if t >= 1.0:
 		return false
-	var c: Object = hit.collider
-	if c is CharacterBody3D:
+	if kind == Sight.KIND_CHARACTER:
 		return false  # the shooter himself
-	var d := (hit.position as Vector3).distance_to(target)
+	var d := (1.0 - t) * threat_eye.distance_to(target)
 	if d < HUGGING:
 		return true
 	var reach := threat_eye.distance_to(target) * HUGGING_SHARE if far else 0.0
@@ -353,32 +431,28 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 		return true
 	side = side.normalized() * PACE
 	for s: Vector3 in [side, -side]:
-		var q2 := PhysicsRayQueryParameters3D.create(threat_eye + s, target, Layers.WORLD)
-		q2.exclude = exclude
 		Prof.count(&"q_cover")
-		var h2 := space.intersect_ray(q2)
-		if h2.is_empty() or h2.collider is CharacterBody3D or (h2.position as Vector3).distance_to(target) >= reach:
+		var t2 := Sight.cast(space, threat_eye + s, target, Layers.WORLD, exclude)
+		if t2 >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER or (1.0 - t2) * (threat_eye + s).distance_to(target) >= reach:
 			return false
 	return true
 
 
 static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> bool:
-	var q := PhysicsRayQueryParameters3D.create(from, threat_eye, Layers.WORLD)
-	q.exclude = exclude
 	Prof.count(&"q_cover")
-	var hit := space.intersect_ray(q)
-	return hit.is_empty() or hit.collider is CharacterBody3D or (hit.position as Vector3).distance_to(threat_eye) < 0.5
+	var t := Sight.cast(space, from, threat_eye, Layers.WORLD, exclude)
+	return t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER or (1.0 - t) * from.distance_to(threat_eye) < 0.5
 
 
 ## Ground under a point (the floor, the boardwalk), or null.
 static func _ground(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
-	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.6, p + Vector3.DOWN * 0.6, Layers.WORLD)
-	q.exclude = exclude
 	Prof.count(&"q_cover")
-	var hit := space.intersect_ray(q)
-	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
+	var from := p + Vector3.UP * 0.6
+	var to := p + Vector3.DOWN * 0.6
+	var t := Sight.cast(space, from, to, Layers.WORLD, exclude)
+	if t >= 1.0 or Sight.hit_normal().y < 0.7:
 		return null
-	return hit.position
+	return from + (to - from) * t
 
 
 ## Room for a man there (nothing solid in his way from the knee to the chest).
@@ -399,13 +473,13 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 
 ## The floor under a point, a step up to a porch's height above it or below it (null if none).
 static func _floor_under(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
-	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * LEVELS, p + Vector3.DOWN * LEVELS, Layers.STAND)
-	q.exclude = exclude
 	Prof.count(&"q_cover")
-	var hit := space.intersect_ray(q)
-	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
+	var from := p + Vector3.UP * LEVELS
+	var to := p + Vector3.DOWN * LEVELS
+	var t := Sight.cast(space, from, to, Layers.STAND, exclude)
+	if t >= 1.0 or Sight.hit_normal().y < 0.7:
 		return null
-	return hit.position
+	return from + (to - from) * t
 
 
 ## How far up or down (m) a spot may be from him when he knows the town's ways (a porch is 0.78).

@@ -191,6 +191,8 @@ func follow_bones() -> void:
 	for i in _shapes.size():
 		if _shape_bones[i] >= 0:
 			_shapes[i].transform = bone_move(_shape_bones[i]) * _shape_rest[i]
+	if body:
+		Sight.shapes_moved(body)
 
 
 func _physics_process(delta: float) -> void:

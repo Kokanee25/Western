@@ -724,7 +724,8 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   at least a shut room's 3 %; plus every lit `OilLamp` (group `oil_lamps`) with a clear line to his
   chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
   0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
-  passed; `config/sight.tres`, `SightTuning`), `Relations` (per person towards each
+  passed; `config/sight.tres`, `SightTuning`; every line asked of `Sight`, the sight service, in
+  "addons/saltcreek_native"), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
@@ -1488,7 +1489,25 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   --release` there, copy `target/release/libsaltcreek_native.so` into its `bin/`; `cargo test
   --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
-  `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`).
+  `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
+  (`SightWorld`, the sight service: below).
+
+- **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
+  world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,
+  capsules, cylinders, triangle meshes for carved members and dug tiles; a surface-area BVH, what
+  moves or changed kept beside it), and sight lines asked of it: `Sight.cast` (one line: fraction,
+  then `hit_kind/normal/body`), `Sight.clear` (one line, stops at the first thing), `Sight.lines`
+  (a batch, across the plugin's threads over 200), `Sight.ray` (Jolt's dictionary). Jolt's rules:
+  no hit on a convex shape a line starts inside, a line along a face touches it, carved meshes
+  one-sided. Fed by the tree (`node_added`/`node_removed` of bodies and their shape nodes), the
+  physics' movers placed once a physics frame, and `Sight.changed` / `shapes_moved` / `moved` where
+  a script moves or reshapes a body the tree doesn't see (a kit prop set down, the horse's
+  shapes, a pane gone, a carve, the player's step); `Events.ground_changed` re-takes the ground.
+  Cover's lines, `Senses._clear`, `SightLight`'s lamp and sky lines and `OutlawBrain._clear` ask
+  it; room to stand, ways on foot, balls, feet and hearing stay on Jolt. Without the plugin (web)
+  or with `--jolt-sight` every question goes to Jolt through the same face. `sight_sync` in the
+  lab's perf is its upkeep. Its lab: `experiments/sight_lab/` (census, bench); the gate test
+  `tests/test_sight_world.gd`.
 
 ## tests
 

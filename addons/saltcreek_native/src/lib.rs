@@ -5,6 +5,8 @@
 //! Step 2, members that take damage: `VoxelMember` (member.rs) over the brick volume
 //! (volume.rs, from Pixel-factory), carving (carve.rs), greedy meshing (mesh.rs) on the worker
 //! pool (pool.rs).
+//! The sight service (docs/briefs/more-cores.md step 3): `SightWorld` (sight.rs) over the sight
+//! layers' shapes (sight_geo.rs), rays answered in batches across the pool.
 
 use godot::classes::Node;
 use godot::prelude::*;
@@ -15,6 +17,8 @@ pub mod carve;
 pub mod member;
 pub mod mesh;
 pub mod pool;
+pub mod sight;
+pub mod sight_geo;
 pub mod smoke;
 pub mod volume;
 pub mod voxel;

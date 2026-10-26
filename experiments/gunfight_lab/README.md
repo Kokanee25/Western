@@ -31,6 +31,7 @@ python3 experiments/gunfight_lab/analyse.py build/gunfight_lab/base      # basel
 # a narrower set (any of --scenarios --hours --weapons --styles --bodies --seeds=1-4,7)
 python3 experiments/gunfight_lab/run.py --scenarios=street --styles=cover --seeds=1-20 --out=build/gunfight_lab/try
 python3 experiments/gunfight_lab/run.py --list ...                         # what it would run
+python3 experiments/gunfight_lab/run.py ... --game-args=--jolt-sight      # the game's own flags too (here: sight lines asked of Jolt)
 python3 experiments/gunfight_lab/perf.py ROOT [ROOT...]                     # what a frame cost: each run's frame, worst 5%, systems
 # one fight, drawn, with a pair of frames every 1.5 s (overview + your eyes) for the contact sheet
 xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 --fixed-fps 60 \

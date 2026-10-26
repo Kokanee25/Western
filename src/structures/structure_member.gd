@@ -378,6 +378,7 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		mi.visible = false
 	if cs:
 		cs.set_deferred(&"disabled", true)
+		Sight.changed(self, true)  # gone from sight with its shape, at the frame's end
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(member_id) + seed
 	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
@@ -542,6 +543,7 @@ func apply_voxel_mesh(m: Array) -> void:
 		var shape := ConcavePolygonShape3D.new()
 		shape.set_faces(m[2])
 		(pieces[0][1] as CollisionShape3D).shape = shape
+		Sight.changed(self)  # sight sees through the hole as the ball does
 
 
 func _fresh_material() -> Material:
