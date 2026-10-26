@@ -32,7 +32,7 @@ BEAT = {
     "kick": 26.3,
     "draw": 31.25,
     "flash": 37.42,       # the shot (the aim shot's last two frames)
-    "drink": 43.4,
+    "toast": 45.6,
     "line": 46.0,         # "Welcome to Salt Creek."
     "title_black": 49.0,
     "title_in": 50.0,
@@ -51,7 +51,7 @@ FADES = [
 # Sound: (file in assets/cinematic/audio without .mp3, at s, gain dB, from s in the file, length s or None,
 # fade-in s, fade-out s). The score is cut in two: its opening under the table and its end under the title.
 CUES = [
-    ("sfx_room", 0.3, -8.0, 0.0, 22.6, 1.5, 0.4),
+    ("sfx_room", 0.3, 7.0, 0.0, 22.6, 1.5, 0.4),
     ("music_score", 0.0, -6.0, 0.0, 22.8, 2.0, 0.25),
     ("sfx_shuffle", 1.2, -4.0, 0.0, None, 0.0, 0.2),
     ("sfx_ace", 14.6, -2.0, 0.0, None, 0.0, 0.1),
@@ -61,8 +61,8 @@ CUES = [
     ("sfx_coins", 26.9, -3.0, 0.0, None, 0.0, 0.5),
     ("sfx_draw", 31.15, -1.0, 0.0, None, 0.0, 0.2),
     ("sfx_shot", 37.42, 2.0, 0.0, None, 0.0, 1.5),
-    ("sfx_room", 40.0, -16.0, 5.0, 8.5, 2.5, 1.0),
-    ("sfx_drink", 43.4, -4.0, 0.0, None, 0.0, 0.2),
+    ("sfx_room", 40.0, 0.0, 5.0, 8.5, 2.5, 1.0),
+    ("sfx_drink", 45.5, -9.0, 0.0, 1.2, 0.0, 0.3),
     ("voice", 46.0, 1.0, 0.0, None, 0.0, 0.1),
     ("sfx_title", 50.0, -2.0, 0.0, None, 0.0, 1.0),
     ("music_score", 50.0, -5.0, -10.0, 10.0, 0.3, 1.6),   # from 10 s before its end

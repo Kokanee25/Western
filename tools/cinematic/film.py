@@ -775,13 +775,16 @@ def stage():
     st.blinks(0, F(49.0), 3.4, 0.5)
     # "Welcome to Salt Creek." (mouth shapes by the syllable, from the line's start).
     t0 = T.BEAT["line"]
-    for dt, shape in ((0.0, {"oo": 0.5}), (0.1, {"oo": 0.0, "ee": 0.45}), (0.22, {"ee": 0.0, "lips_apart": 0.3}),
-                      (0.3, {"lips_apart": 0.0, "aa": 0.45}), (0.42, {"aa": 0.0, "mbp": 0.9}),
-                      (0.5, {"mbp": 0.0, "lips_apart": 0.35}), (0.58, {"lips_apart": 0.0, "oo": 0.6}),
-                      (0.7, {"oo": 0.0, "ee": 0.35}), (0.8, {"ee": 0.0, "aa": 0.75, "jaw_open": 0.3}),
-                      (0.93, {"aa": 0.0, "jaw_open": 0.0, "lips_apart": 0.45}), (1.05, {"lips_apart": 0.2}),
-                      (1.12, {"lips_apart": 0.0, "ee": 0.35}), (1.22, {"ee": 0.85}), (1.36, {"ee": 0.0, "lips_apart": 0.2}),
-                      (1.5, {"lips_apart": 0.0}), (1.9, {"smile_r": 0.35}), (2.6, {"smile_r": 0.15})):
+    # Timed to Bill's take (voice_welcome_bill.mp3): "Welcome" 0.16-0.76 s, "to Salt" 0.85-1.55, "Creek" 1.69-2.0.
+    for dt, shape in ((0.12, {}), (0.16, {"oo": 0.5}), (0.26, {"oo": 0.0, "ee": 0.45}),
+                      (0.4, {"ee": 0.0, "lips_apart": 0.3}), (0.48, {"lips_apart": 0.0, "aa": 0.45}),
+                      (0.62, {"aa": 0.0, "mbp": 0.9}), (0.72, {"mbp": 0.0, "lips_apart": 0.1}),
+                      (0.8, {"lips_apart": 0.0}), (0.85, {"lips_apart": 0.35}), (0.95, {"lips_apart": 0.0, "oo": 0.55}),
+                      (1.1, {"oo": 0.0, "ee": 0.3}), (1.22, {"ee": 0.0, "aa": 0.75, "jaw_open": 0.3}),
+                      (1.38, {"aa": 0.0, "jaw_open": 0.0, "lips_apart": 0.45}), (1.5, {"lips_apart": 0.2}),
+                      (1.58, {"lips_apart": 0.0}), (1.69, {"lips_apart": 0.3}), (1.8, {"lips_apart": 0.0, "ee": 0.85}),
+                      (1.95, {"ee": 0.0, "lips_apart": 0.2}), (2.06, {"lips_apart": 0.0}),
+                      (2.5, {"smile_r": 0.35}), (3.2, {"smile_r": 0.15})):
         st.face(F(t0 + dt), **shape)
 
     # --- the cheater.

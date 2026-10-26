@@ -24,8 +24,8 @@ on:
         default: sheet
 
 concurrency:
-  group: cinematic-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: true
+  group: cinematic-${{ github.sha }}-${{ inputs.mode }}
+  cancel-in-progress: false
 
 env:
   BPY_VERSION: "5.0.1"
