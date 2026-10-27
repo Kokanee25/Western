@@ -1029,7 +1029,7 @@ func _finish(why: String) -> void:
 		men[id] = _men[id]
 	record.merge({
 		"variant": String(opts.get("variant", "C")), "opening": String(opts.get("opening", "")), "fixes": String(opts.get("fixes", "all")), "dress": String(opts.get("dress", "")), "scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
-		"seed": int(opts.seed), "aim_sd": float(opts.get("aim", 1.0)), "length_s": snappedf(t, 0.01), "end": why, "ending": ending, "outcomes": outcomes,
+		"seed": int(opts.seed), "physics_thread": Settings.physics_thread, "aim_sd": float(opts.get("aim", 1.0)), "length_s": snappedf(t, 0.01), "end": why, "ending": ending, "outcomes": outcomes,
 		"first_shot_by": _first.get("shot_by", "none"), "first_shot_at": _first.get("shot_at", -1.0),
 		"first_hit_by": _first.get("hit_by", "none"), "first_hit_at": _first.get("hit_at", -1.0),
 		"you": you, "gang": {"shots": gang_shots, "hits_on_you": gang_hits}, "men": men, "situations": sit,

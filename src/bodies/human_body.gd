@@ -1999,7 +1999,10 @@ func _snap_to_ground() -> void:
 	# stick's shallow crater): he goes in.
 	if _stood and (global_position.y - best > DROP_FALLS or (best_up < STEEP_UP and best < _level_y - STEEP_DROP)):
 		_stood = false
-		go_limp.call_deferred(Vector3.ZERO)
+		# Not mid-tick (it takes his parts out of the pose), and not deferred either: that runs after the
+		# physics frame, where with physics on its own thread his new parts' state can't be read. The
+		# next physics tick, before anyone ticks.
+		get_tree().physics_frame.connect(go_limp.bind(Vector3.ZERO), CONNECT_ONE_SHOT)
 		return
 	global_position.y = best
 	if not _stood or best_up >= STEEP_UP:

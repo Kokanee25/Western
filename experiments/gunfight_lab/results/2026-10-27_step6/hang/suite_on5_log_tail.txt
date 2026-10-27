@@ -1,0 +1,5 @@
+  ok   test_dynamite::test_light_and_throw
+  ok   test_dynamite::test_hold_it_too_long
+  thrown at the store: went off 0.30 m off its front, 60 broken
+  ok   test_dynamite::test_thrown_at_the_store_it_breaks_things
+  ok   test_dynamite::test_on_the_floor_it_blows_through_the_boards

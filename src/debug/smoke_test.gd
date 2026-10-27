@@ -38,6 +38,7 @@ var _next := 0  # the next event in EVENTS
 var _last_event_frame := 0
 var _first_frame_s := 0.0
 var _launched := 0
+var _due: Array[String] = []  # events chosen this frame, done on the next physics tick (the query rule)
 
 
 static func maybe_start(main_node: Node) -> SmokeTest:
@@ -79,11 +80,22 @@ func _process(_delta: float) -> void:
 	var settled := _frames - _last_event_frame >= FRAMES_BETWEEN
 	if _next < EVENTS.size():
 		if t > AT[_next] and settled:
-			_event(street, EVENTS[_next])
+			_due.append(EVENTS[_next])
 			_next += 1
 			_last_event_frame = _frames
 	elif t >= SECONDS and settled:
 		_finish(street, t)
+
+
+## Each event in the physics frame, as the game's own deeds are: a stick, a fire or a shot asks the
+## physics where it is, and with physics on its own thread it can only ask there (World.space).
+func _physics_process(_delta: float) -> void:
+	if _due.is_empty():
+		return
+	var street := main.find_child("TestStreet", true, false)
+	for what in _due:
+		_event(street, what)
+	_due.clear()
 
 
 func _event(street: Node, what: String) -> void:

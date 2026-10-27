@@ -125,12 +125,15 @@ Read for this: issue #373, the brief above, `results/2026-10-24_perf/`, CLAUDE.m
   the physics thread; `space_get_direct_state` is a direct call that fails off the main thread
   and, on it, returns null outside the window (`JoltPhysicsServer3D::space_get_direct_state`:
   `(on_separate_thread && !doing_sync) || space->is_stepping()`); the queue's pump thread
-  **holds the queue while the window is open** (`_thread_loop`: `if (!doing_sync) flush_all()`),
-  so the window's writes land, in order, just before the step. Hence: in the window, every query
-  sees the end of the last step; moving a man's capsules and then casting at him in the same tick
-  finds him where he was. Without the thread, the same writes are immediate (the server thread is
-  the main thread), so a query sees what ticked before it in tree order and not what ticks after.
-  The step itself overlaps the idle frame and the draw: that is the whole 2.7 ms gain.
+  **holds the queue while the window is open** (`_thread_loop`: `if (!doing_sync) flush_all()`).
+  **Corrected in step 6** (`results/2026-10-27_step6/race.md`): the wrapper queues a call only when
+  `!(doing_sync && Thread::is_main_thread())` (`ASYNC_COND_PUSH`), so in the window the main
+  thread's writes and queries go straight to Jolt, as without the thread: a query sees what ticked
+  before it in tree order, either way, and the thread on and off play the same fights event for
+  event. Outside the window writes are queued and value getters wait for the queue (after the
+  step); `body_test_motion` and calls on a space state held from before go straight to Jolt
+  against a racy `is_stepping()` flag (the one class that races). The step itself overlaps the
+  idle frame and the draw: that is the thread's gain (measured in step 6).
 - **`WorkerThreadPool`** runs GDScript callables on worker threads (`add_group_task` for one
   callable over N elements). Nothing of the scene may be touched from them (Node, Node3D, the
   servers' main-thread calls), and no physics query (see above). Pure data in, pure data out.
@@ -194,7 +197,8 @@ seeds, D, the careful player, `spec_hall`, each configuration run twice):
   -> `_on_ground`'s ray, now deferred to after the step; the dev bridge's commands (a `_process`
   loop: `gf_fight`'s cover search for the men's starting spots, `goto`, `moment`), and tests that
   query from `_ready` or an `await`.
-- **Everything inside the window reads the last step.** Men's parts (`AnimatableBody3D`, moved by
+- **Everything inside the window reads the last step** (*not so, step 6: in the window the
+  thread changes nothing; see "How Godot threads"*). Men's parts (`AnimatableBody3D`, moved by
   script in `_apply_pose`), the player's capsule, the blocker capsules, rubble: a ray in tick N
   meets them where the step N-1 left them. A ball at 250 m/s moves 4 m a tick; a man at most
   5 cm. This is not a ball through a man: it's the same 60 Hz tolerance the ragdoll, the
@@ -583,6 +587,22 @@ results. Then run the whole test suite, the soak for an hour and the lab twice u
 'Space state is inaccessible' errors in any log is the gate, and the paired runs the same, every
 fight. Then re-baseline the lab's `baseline/` under it with a note of what moved (every brain
 now sees the last step). Ask Sean to play a saloon fight with it on and off and read F3."*
+**Done (2026-10-27, `claude/gameplay-perf-step6`; `experiments/gunfight_lab/results/2026-10-27_step6/`):**
+`Settings.physics_thread` (off) through `user://engine.cfg` (project.godot's
+`project_settings_override`; `-- --physics-thread=on|off` for the next start; the lab's
+`run.py --physics-thread`). The race: seed 2 ten times 10 of 10 on today's code and on the review's
+commit; no suspect left (step 1 removed the wall clock and the dice); what can race in Godot's
+threaded server is in `race.md`. The thread on and off play the same fights (10 of 10, and main's),
+so `baseline/` didn't move: no re-baseline. Fixed for the thread: the smoke test's events (done in
+`_process`), a man into a hole (deferred `go_limp`), two tests, and a crash drawn: Godot's
+`SoftBody3D` copies its mesh outside the window and the queued copy writes a closed buffer
+(`SoftBodyDraw` draws soft bodies in the tick). **Gain, the gunfight: −0.05 and −0.54 ms a frame
+(p95 −0.5)** headless, not −2.7 (the review's fights weren't the same fights, and in the window
+nothing is queued); **the stick in the burning hall: −1.6 ms a frame after it, its worst frame −80
+to −90 ms**. Drawn, the step overlaps the draw. **Not ready to turn on:** with the thread the full
+suite hung in 2 of 5 runs (off: 0 of 4, the same load) and the soak 121 game minutes in, a deadlock inside Godot 4.7.2's threaded
+physics server and its worker pool with none of our code running (`results/2026-10-27_step6/hang/`);
+the setting stays off and Sean decides whether it's chased upstream or parked.
 
 **Step 7. The render thread model, behind a setting** (expected −3 to −6 ms at Sean's, unknown
 here). *"Set `rendering/driver/threads/thread_model` to Multi-Threaded behind a setting; keep
