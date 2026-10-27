@@ -387,9 +387,13 @@ frozen until Sean names one.
   all over (`light_game.json` `night_values` over C's: the room's fill in the lamps' gold, the lamps
   softer and reaching further, the night grade flatter and warmer); lamp props' lights at their
   flames (the blobs were sconce lights 0.3 m over their flames); the chimney glass gold with a
-  white flame. Judge saloon 1.200 -> 0.406, street 1.145 -> 0.878. The critic's next:
-  - the street: the sky all orange, the canyon closing it, the fronts dark (round 4);
-  - the saloon's depth (black voids over the bottle shelves) and the table top's noisy squares.
+  white flame. Judge saloon 1.200 -> 0.406, street 1.145 -> 0.878.
+  **Round 4** (#422, branch `claude/art-light-pass-4`): the street at golden hour, `light_game.json`
+  `day_values` over B's (a warm fill in the shade, exposure, the road's low-sun fill, the painted
+  sky's blue lower); judge street 0.878 -> 0.240. Waiting on Sean: the canyon at the street's end
+  (#423). The critic's next:
+  - the saloon's depth (black voids over the bottle shelves) and the table top's noisy squares;
+  - the street's signs and paint (the SALOON sign a dark stencil, the saloon not barn-red).
   Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
   lavapipe wait ~5 s after a clock jump before a screenshot; a view's render is ~9 min here, so
   try dials with `screenshots.gd --variants=` (one load, ~1 min a variant).

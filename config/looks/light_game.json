@@ -27,5 +27,15 @@
   "finish.vignette": 0.2,
   "lamps.saloon_wall.attenuation": 0.8,
   "lamps.saloon_wall.light_range": 0.7
+ },
+ "day_values_about": "Light pass round 4 (2026-10-27, the street at golden hour, shot_match_street 17.82): the game's low sun over B's, so B's own file stays as it was for 8. Each acts only with the sun low (DayCycle's golden, the painted sky's hours, the road's low-sun fill), so they are day's at every night share. The fronts and the road lit as the painting lights them (judge 0.878 -> 0.21: midtones 21 -> 41, deep shadow 0.21 -> 0.03): the fill in the shade a warm colour (its share from the coded sky's radiance down, that colour up: the sky's radiance at golden hour is dim and is what held the fronts dark), the exposure up, the road's fill from the glow round the sun up; and the painted sky's blue brought down between the clouds (its panels' span shorter, so their blue tops come lower), its orange less pushed and the whole of it dimmer.",
+ "day_values": {
+  "day.exposure_low_sun": 1.2,
+  "day.ambient_low_sun": 6.0,
+  "day.ambient_sky_low_sun": 0.25,
+  "ground.sky_fill_low_sun": 0.25,
+  "sky.paint_span": 42.0,
+  "sky.paint_saturation": 1.0,
+  "sky.paint_gain": 0.55
  }
 }
