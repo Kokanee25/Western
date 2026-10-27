@@ -1,0 +1,95 @@
+{
+ "round": 3,
+ "candidates": [
+  {
+   "who": "stranger",
+   "candidate": "boston_1",
+   "variant": "boston",
+   "description": "A Boston-born, Harvard-educated man of about forty who went West. Cultured, precise diction, a low, smooth baritone, faint old New England accent, quiet and composed, dry wit, cold intelligence behind every word. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "3HH2QV3FUrxuUIfF12fN",
+   "round": 3,
+   "seconds": 19.5684375,
+   "file": "stranger/boston_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "boston_2",
+   "variant": "boston",
+   "description": "A Boston-born, Harvard-educated man of about forty who went West. Cultured, precise diction, a low, smooth baritone, faint old New England accent, quiet and composed, dry wit, cold intelligence behind every word. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "HeIFjCNPQyb6IQNcX3X2",
+   "round": 3,
+   "seconds": 17.321875,
+   "file": "stranger/boston_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "boston_3",
+   "variant": "boston",
+   "description": "A Boston-born, Harvard-educated man of about forty who went West. Cultured, precise diction, a low, smooth baritone, faint old New England accent, quiet and composed, dry wit, cold intelligence behind every word. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "6TRbYVWPLfONbLSCsE6h",
+   "round": 3,
+   "seconds": 17.792125,
+   "file": "stranger/boston_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawyer_1",
+   "variant": "lawyer",
+   "description": "A former Philadelphia lawyer of about forty turned gambler. Articulate and measured, a warm, resonant baritone, polished East Coast speech, sardonic, calm in a way that is dangerous. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "DzoEdd6oWnTucVXa71zf",
+   "round": 3,
+   "seconds": 22.2068125,
+   "file": "stranger/lawyer_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawyer_2",
+   "variant": "lawyer",
+   "description": "A former Philadelphia lawyer of about forty turned gambler. Articulate and measured, a warm, resonant baritone, polished East Coast speech, sardonic, calm in a way that is dangerous. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "ljyy9fUkBGrAbsKJamlB",
+   "round": 3,
+   "seconds": 18.758625,
+   "file": "stranger/lawyer_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawyer_3",
+   "variant": "lawyer",
+   "description": "A former Philadelphia lawyer of about forty turned gambler. Articulate and measured, a warm, resonant baritone, polished East Coast speech, sardonic, calm in a way that is dangerous. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "mTH7YcDHAOFn6COacHEH",
+   "round": 3,
+   "seconds": 19.3333125,
+   "file": "stranger/lawyer_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "virginian_1",
+   "variant": "virginian",
+   "description": "A university-educated Virginia gentleman of about forty, a planter's son gone West. Refined, soft genteel Southern accent, not a drawl, velvet-smooth low baritone, unfailingly courteous and ice cold. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "7TbklyGHfIEKXFNLCCwb",
+   "round": 3,
+   "seconds": 16.198625,
+   "file": "stranger/virginian_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "virginian_2",
+   "variant": "virginian",
+   "description": "A university-educated Virginia gentleman of about forty, a planter's son gone West. Refined, soft genteel Southern accent, not a drawl, velvet-smooth low baritone, unfailingly courteous and ice cold. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "GcQIxnUz6nXjfbKhLKMp",
+   "round": 3,
+   "seconds": 15.3888125,
+   "file": "stranger/virginian_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "virginian_3",
+   "variant": "virginian",
+   "description": "A university-educated Virginia gentleman of about forty, a planter's son gone West. Refined, soft genteel Southern accent, not a drawl, velvet-smooth low baritone, unfailingly courteous and ice cold. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "yKkncwOH2IkWsW0yA9wq",
+   "round": 3,
+   "seconds": 17.321875,
+   "file": "stranger/virginian_3.mp3"
+  }
+ ]
+}
