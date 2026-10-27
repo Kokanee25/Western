@@ -504,6 +504,22 @@ see within the near band (what the player sees ticks fully, by the rule). Test: 
 walking his route two streets off arrives at the same places at the same times with bands on
 and off (`test_town_day`); the gunfight lab twice; and `perf_bench`'s calm street with the town
 doubled (`--folk=2`, new) shows the people's share flat where it was linear."*
+**Done (2026-10-26, `claude/gameplay-perf-step4b`; `results/2026-10-26_step4b/`):** the bands
+in `PeopleTick` (`config/people_tick.tres`): 25 / 60 m from the player and from everyone
+`in_trouble`, a 3 m margin, staggered by index; in the camera's view one band nearer, near its
+middle every tick. A man skipped is skipped in every phase and owed the time (`tick_owed`, his
+`tick_dt`). Never slowed: `HumanBody.can_slow` false (down, getting up, stumbling, dragged, a clip,
+a brain not calm, a chore in hand) or woken (a noise, a deed to him); no player in the world (the
+physics and body labs) means no bands. Two places that took a delta but not a long one: `walk_to`
+(a slowed step stops where one-tick steps would and carries the ticks left, `_walk_spare`) and
+`Senses`' 0.12 s clock (a far man's look interval times his band). **The lab: 10 of 10 the same
+twice; against step 4, 9 of 10 event for event** (seed 5 parts 74 % in, through `SightLight`'s
+cache, renewed by whoever asks first: the townsfolk looking less often moves it; left for 4c).
+**Gain: the lab's frame -4.5 ms here, the people -3.9** (the brief expected none: the street's
+townsfolk outside the saloon are far from you; half the people tick each frame). `perf_bench
+--folk=2`: the town doubled adds +5.1 ms of people with the bands off, +1.8 with them on (a far man
+~0.11 ms instead of ~0.32 here): a third of the slope, not flat. The gang walking in two streets
+off reaches the bar 4-6 frames behind in 33 s (`test_town_day`); wounded far men bleed the same.
 
 **Step 5. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
 become frames under 20; no change to the gunfight's average). *"Read `experiments/blast_freeze/README.md`

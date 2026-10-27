@@ -1,0 +1,26 @@
+SAME  spec_hall_golden_revolver_careful_studio_s1  (83 events, 21.7 s, you_dead)
+SAME  spec_hall_golden_revolver_careful_studio_s10  (79 events, 18.6 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s2  (74 events, 23.4 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s3  (203 events, 77.1 s, down)
+SAME  spec_hall_golden_revolver_careful_studio_s4  (78 events, 28.2 s, you_down)
+DIFF  spec_hall_golden_revolver_careful_studio_s5
+      length_s: 115.8 vs 111.22
+      outcomes: {'down': 1, 'standing': 1, 'surrendered': 1} vs {'standing': 2, 'surrendered': 1}
+      you.blood_ml: 4894 vs 4895
+      you.hits: 6 vs 5
+      you.hits_taken: 7 vs 8
+      you.near_misses: 25 vs 28
+      you.near_misses_per_min: 13.0 vs 15.1
+      you.pellet_hits: 6 vs 5
+      you.shots: 14 vs 12
+      you.wounds: 7 vs 8
+      brody.cover_changes: 2 vs 1
+      brody.hits_taken: 2 vs 1
+      first divergence at event 204 of 277 (74% in):
+        A: [92.8, 'decision', 'brody: fight: sees you again']
+        B: [92.67, 'decision', 'brody: fight: sees you again']
+SAME  spec_hall_golden_revolver_careful_studio_s6  (124 events, 42.5 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s7  (183 events, 69.4 s, surrendered)
+SAME  spec_hall_golden_revolver_careful_studio_s8  (128 events, 50.6 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s9  (147 events, 56.1 s, surrendered)
+9 of 10 fights the same

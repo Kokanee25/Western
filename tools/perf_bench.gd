@@ -16,6 +16,8 @@ extends SceneTree
 ## --clutter=N: the street with N times its kit props (tools/prop_clutter.gd: the copies in rows
 ## along the street; docs/briefs/props-scale.md). --no-prop-batch: kit props drawn each its own;
 ## --no-member-rest: members keep their mesh and shape nodes at rest (both the before).
+## --folk=N: the street's townsfolk N times over, the copies standing two streets off
+## (tools/folk_copies.gd; more-cores step 4b: far men ticking less often, `--people-bands=off` the before).
 ## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
@@ -40,6 +42,8 @@ var budget_report := true
 var render_time := true
 ## Times the street's kit props (1: as it is).
 var clutter := 1
+## Times the street's townsfolk (1: as it is).
+var folk := 1
 
 
 func _initialize() -> void:
@@ -63,6 +67,8 @@ func _initialize() -> void:
 			render_time = false
 		elif a.begins_with("--clutter="):
 			clutter = int(a.substr(10))
+		elif a.begins_with("--folk="):
+			folk = int(a.substr(7))
 		elif a == "--no-prop-batch":
 			pass  # PropBatch reads it itself
 		elif a.begins_with("--spikes="):
@@ -260,6 +266,11 @@ func _run() -> void:
 		var made: Array = load("res://tools/prop_clutter.gd").lay(street, clutter)
 		print("clutter: %d more kit props" % made.size())
 		await _frames(120)
+	if folk > 1:
+		await physics_frame  # (it finds each one's ground: World.space's rule)
+		var copies: Array = load("res://tools/folk_copies.gd").lay(street, folk)
+		print("folk: %d more townsfolk, two streets off" % copies.size())
+		await _frames(120)
 	var scenes := []
 	if only == "" or only == "calm":
 		scenes.append("calm")
@@ -386,6 +397,8 @@ func _budget(m: Dictionary) -> Dictionary:
 	var timed := 0.0
 	for k in m.systems_ms:
 		var p: StringName = fb.part_of(k)
+		if p == &"":
+			continue  # a count (lines asked, men ticked), not a time
 		parts[p] = float(parts.get(p, 0.0)) + float(m.systems_ms[k])
 		timed += float(m.systems_ms[k])
 	parts[&"physics"] = physics
