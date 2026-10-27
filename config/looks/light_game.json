@@ -6,5 +6,26 @@
  "night_from_sun": 0.26,
  "night_full_sun": -0.05,
  "grade_steps": 4,
- "day_only": ["sky."]
+ "day_only": [
+  "sky."
+ ],
+ "night_values_about": "Light pass round 3 (issue #412, 2026-10-27): the game's night over light C's, so C's own file stays as it was for 8. The saloon's room lit warm all over as the painting's is, not pools in black (the judge on the saloon shot 1.20 -> 0.44: deep shadow 0.56 -> 0.12, midtones 7 -> 28): its fill (the room's ambient probe, in the lamps' gold: SaloonDressing.ROOM_FILL_COLOUR) up, its lamps' falloff softer and reaching further so their pools spread; the night grade's S of contrast down, the blacks lifted a touch, the oranges kept and a touch more colour, the shade warm, the vignette lighter.",
+ "night_values": {
+  "building.saloon.night_ambient": 0.7,
+  "building.saloon.room_haze": 0.05,
+  "lamps.saloon_wall.energy": 1.0,
+  "grade.contrast": 0.05,
+  "grade.black": 0.04,
+  "grade.orange_pull": 0.0,
+  "grade.saturation": 1.1,
+  "grade.shadow_tint": [
+   1.0,
+   0.97,
+   0.9,
+   1.0
+  ],
+  "finish.vignette": 0.2,
+  "lamps.saloon_wall.attenuation": 0.8,
+  "lamps.saloon_wall.light_range": 0.7
+ }
 }

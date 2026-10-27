@@ -38,18 +38,23 @@ void fragment() {
 	vec3 f = vec3(0.0, flame_y + 0.015, 0.0);
 	vec3 off = (local_eye + dir * dot(f - local_eye, dir)) - f;
 	float flame = exp(-(off.x * off.x + off.z * off.z) / (0.016 * 0.016) - off.y * off.y / (0.03 * 0.03));
-	// The painting's colours as they show on screen (orange glass, near-white over the flame),
-	// turned back through the tonemap so they land as painted (a bright orange through ACES
-	// comes out cream).
 	// The glass's edge: where it turns away from the eye it's seen through more glass and
 	// catches the light (the painting's bright outline round the chimney).
-	float edge = pow(1.0 - abs(dot(normalize(NORMAL), normalize(VIEW))), 3.0);
-	vec3 shown = mix(vec3(0.86, 0.6, 0.3), vec3(1.0, 0.84, 0.52), heat * 0.6);
-	shown = mix(shown, vec3(1.0, 0.97, 0.86), clamp(flame * 1.4 + edge * rim * 0.5, 0.0, 1.0));
+	float edge = pow(1.0 - abs(dot(normalize(NORMAL), normalize(VIEW))), 1.6);
+	// The painting's colours as they show on screen, turned back through the tonemap so they land
+	// as painted (a bright orange through ACES comes out cream). Clear glass glowing gold round
+	// the flame and on its outline, near-white only over the flame itself (round 3 of the light
+	// pass, 2026-10-27: the whole chimney was drawn near-white and nearly opaque, the critic's
+	// "milky white tube"; clear all over, it read as a bare flame with no glass).
+	vec3 sheen = mix(vec3(0.92, 0.62, 0.26), vec3(1.0, 0.84, 0.5), heat);
+	vec3 shown = mix(sheen, vec3(1.0, 0.96, 0.82), clamp(flame * 1.6, 0.0, 1.0));
 	vec3 lit = aces_inverse(from_srgb(clamp(shown, 0.0, 1.0)));
-	lit *= 1.0 + bloom * clamp(heat * 0.5 + flame + edge * rim * 0.3, 0.0, 1.0);
+	// The flame's core goes well over white (the halo), the glass round it and its outline a little.
+	lit *= 1.0 + bloom * clamp(flame * 1.2 + heat * 0.2 + edge * rim * 0.3, 0.0, 1.0);
 	vec3 clear = aces_inverse(from_srgb(vec3(0.5, 0.52, 0.5)));
 	ALBEDO = mix(clear, lit, glow);
-	// Clear glass: the room shows through away from the flame, less at the edges.
-	ALPHA = mix(0.16 + 0.3 * edge, clamp(0.45 + 0.55 * max(heat, flame) + rim * edge * 0.4, 0.0, 1.0), glow);
+	// Clear glass: the room shows through away from the flame and its glow; the outline and the
+	// flame's light on the glass read.
+	float lit_alpha = 0.14 + 0.45 * heat + 0.85 * flame + rim * edge * 1.1;
+	ALPHA = mix(0.16 + 0.3 * edge, clamp(lit_alpha, 0.0, 1.0), glow);
 }

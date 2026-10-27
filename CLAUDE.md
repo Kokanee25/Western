@@ -382,12 +382,17 @@ frozen until Sean names one.
   The pictures and the street show only the Studio's men (Sean, 2026-10-24): the saloon table's
   man `bold_cowboy_s3_talking` in a kit chair (`ShotMatch.FITS`, his hat not yet), the extras and
   folk `ShotMatch.STUDIO_FOLK`; HumanBody's default `outlaw` remains for anything unset.
-  The day starts at noon held (T runs it), 7 the hour, Backspace restarts. The critic's next:
-  - the saloon too black at night with blown lamp blobs;
-  - the ruts read as straight rail grooves;
-  - the facades grey under the cool grade (warm the lit wood back).
+  The day starts at noon held (T runs it), 7 the hour, Backspace restarts.
+  **Round 3** (#412, PR #421, branch `claude/art-light-pass-3`): the saloon at night warm and lit
+  all over (`light_game.json` `night_values` over C's: the room's fill in the lamps' gold, the lamps
+  softer and reaching further, the night grade flatter and warmer); lamp props' lights at their
+  flames (the blobs were sconce lights 0.3 m over their flames); the chimney glass gold with a
+  white flame. Judge saloon 1.200 -> 0.406, street 1.145 -> 0.878. The critic's next:
+  - the street: the sky all orange, the canyon closing it, the fronts dark (round 4);
+  - the saloon's depth (black voids over the bottle shelves) and the table top's noisy squares.
   Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
-  lavapipe wait ~5 s after a clock jump before a screenshot.
+  lavapipe wait ~5 s after a clock jump before a screenshot; a view's render is ~9 min here, so
+  try dials with `screenshots.gd --variants=` (one load, ~1 min a variant).
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

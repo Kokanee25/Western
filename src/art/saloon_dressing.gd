@@ -23,6 +23,12 @@ class_name SaloonDressing
 const SCONCE_ENERGY := 0.8
 const SCONCE_FALLOFF := 2.0
 const SCONCE_REACH := 4.0
+## Where a lamp's flame burns in its own model's space (PropModels.lamp, chimney_glass's flame_y),
+## and how far over its own origin an OilLamp puts its light.
+const FLAME_IN_LAMP := 0.21
+const LIGHT_OVER_ORIGIN := 0.22
+## The saloon's ambient fill's colour (light pass round 3).
+const ROOM_FILL_COLOUR := Color(1.0, 0.68, 0.38)
 const BALCONY_HEIGHT := 2.3
 const BALCONY_X := 8.4
 const BALCONY_Z := 1.9
@@ -51,7 +57,17 @@ static func build(s: FalseFrontBuilding) -> void:
 	if props:
 		_props(s, props, f)
 		_lamps(s, props, _fresh(s, "Lamps"), f)
+		# Every lamp prop's light where its flame burns and its glass glowing with it (the
+		# building's own sconces and lamps too).
+		for lamp: OilLamp in props.find_children("Light", "OilLamp", true, false):
+			var prop := lamp.get_parent() as Node3D
+			_light_at_flame(prop, lamp)
+			var chimney := _prop_chimney(prop, lamp) as MeshInstance3D
+			if chimney and lamp._chimney != chimney:
+				lamp._chimney = chimney
+				lamp.set_lit(lamp.lit)
 	_reflections(s, f)
+	_room_fill.call_deferred(s)  # the building adds its fill after the dressing
 	_brighten_lamps(s)
 	MoonWindows.add(s)  # moonlight in at the door and windows at night (the light pass, round 2)
 
@@ -434,11 +450,47 @@ static func _lit_prop(s: FalseFrontBuilding, props: Node3D, id: StringName, pos:
 	prop.add_child(lamp)
 	props.add_child(prop)
 	# The prop's own chimney glows with the lamp (the light's own lamp model is hidden).
-	var chimney := prop.find_child("Chimney", true, false) as MeshInstance3D
+	var chimney := _prop_chimney(prop, lamp) as MeshInstance3D
 	if chimney:
 		lamp._chimney = chimney
 		lamp.set_lit(lamp.lit)
 	return prop
+
+
+## A lamp prop's light moved to burn where its own chimney's flame is. PropLibrary's
+## "light_height" put a sconce's light ~0.3 m over its flame, so each sconce lit a hot patch of
+## wall above itself: the critic's "big overexposed white-orange smears" (light pass round 3,
+## 2026-10-27).
+static func _light_at_flame(prop: Node3D, lamp: OilLamp) -> void:
+	var chimney := _prop_chimney(prop, lamp)
+	if chimney == null:
+		return
+	var to_prop := Transform3D.IDENTITY
+	var n: Node = chimney
+	while n != null and n != prop:
+		to_prop = (n as Node3D).transform * to_prop
+		n = n.get_parent()
+	if n != prop:
+		return
+	lamp.position = to_prop * Vector3(0.0, FLAME_IN_LAMP, 0.0) - Vector3(0.0, LIGHT_OVER_ORIGIN, 0.0)
+
+
+## The room's fill (its ambient probe, lifted at night by the game's light) in the lamps' gold, not
+## the plain warm white of every building's: raised in that, the night room read as daylit.
+static func _room_fill(s: FalseFrontBuilding) -> void:
+	var fill := s.get_node_or_null(^"InteriorAmbient") as ReflectionProbe if is_instance_valid(s) else null
+	if fill:
+		fill.ambient_color = ROOM_FILL_COLOUR
+
+
+## A lamp prop's own chimney, not the one in its light's hidden lamp model (the light is added
+## before the prop's model is built, so a plain find_child met the hidden one first, and the
+## dressing's sconces' glass never glowed).
+static func _prop_chimney(prop: Node3D, lamp: OilLamp) -> Node3D:
+	for c in prop.find_children("Chimney", "", true, false):
+		if not lamp.is_ancestor_of(c):
+			return c as Node3D
+	return null
 
 
 ## A lamp hung on a rod from the roof: its font in a brass ring, a tin shade over the chimney.
