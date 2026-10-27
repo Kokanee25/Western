@@ -563,11 +563,12 @@ neighbour refreshes spread by id; the load check's slices sized to what a member
 (~60-100 µs, not 30: `bf_analyse`; slices 50/40, `MEMBERS_A_MS` 15). (c) Measured: the stick's
 frame adds ~660 bodies, ~500 of them glass shards; without the cut pieces or without the shards
 the frame barely changes, so neither spreading nor bigger pieces was done (the rest is Jolt's,
-step 6's). Rubble wakes only where it touches what broke (it never slept through a collapse), a
-noise out of earshot casts no ray (985 → 166 rays on the stick's frame). (d) `FireSystem.bands`:
+step 6's), as is Jolt's ~8 ms a frame with ~200 pieces kept awake through a collapse (a narrower
+wake was tried and not kept: it changed where debris rests); a noise out of earshot casts no ray
+(985 → 166 rays on the stick's frame). (d) `FireSystem.bands`:
 past 30 / 60 m from the player a structure's members tick every 2nd / 4th fire tick, given the
-time since. **Gain, the burning hall:** before the stick 18.8 → 7.1 ms a frame (frames over 20 ms
-51 → 1 of 119), after its first second 32 → 21 (over 50 ms 80 → 3 of 420); the stick's three
+time since. **Gain, the burning hall:** before the stick 18.8 → 7.0 ms a frame (frames over 20 ms
+51 → 1 of 119), after its first second 32 → 21 (over 50 ms 80 → 5 of 420); the stick's three
 frames ~500 ms here, unchanged. The same 306 members broken in every run; the lab twice under
 `--deterministic` frame for frame the same.
 

@@ -72,9 +72,9 @@ What the fix is (`docs/LAYOUT.md` "src/structures", "src/fire"):
   point before the samples are walked (`Blast._member_response`): 48 -> 20 ms.
 
 **Since (more-cores step 5, `results/2026-10-27_step5/`):** the townsfolk's looks at the fire, the
-fire's grid and smoke redraws, the load check's slices, the rubble's wake and the noises' rays:
-in the burning hall before the stick 18.8 → 7.1 ms a frame (worst 90 → 32), after it 32 → 21
-(frames over 50 ms 80 → 3 of 420). The stick's own frames are as they were (~500 ms here over
+fire's grid and smoke redraws, the load check's slices and the noises' rays:
+in the burning hall before the stick 18.8 → 7.0 ms a frame (worst 90 → 32), after it 32 → 21
+(frames over 50 ms 80 → 5 of 420). The stick's own frames are as they were (~500 ms here over
 three: ~660 new bodies, ~500 of them glass shards, for the physics engine; step 6's).
 
 What was left on the after-frames before step 5 (noted for the performance session, #373):

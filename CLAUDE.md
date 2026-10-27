@@ -521,7 +521,7 @@ frozen until Sean names one.
   frame budget and hands the rest to the fire's slices, drops are capped a round, batches rebuild
   on a budget and the shadow merge runs on a worker: the stick's frame 11,599 -> 241 ms here
   (~160 at Sean's), the same cuts, pieces and broken set; `tests/test_settle_incremental.gd`.
-  Left for #373: `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
+  Left for #373 (since done by more-cores step 5, but the stick's frame): `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
   response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
   stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
@@ -591,12 +591,17 @@ frozen until Sean names one.
   for event at both commits, threads on or off (the street's townsfolk tick after the player now);
   phase 2 1.72 -> 1.08 ms of the main thread here, the people -0.34 scaled, the frame within the
   VM's noise. Phase 3 (one sight batch a tick) measured, not built (~0.4 ms of `Senses`' lines; a
-  change to the fights). **Step 4b done** (PR waiting on the Fable review,
+  change to the fights). **Step 4b merged** (PR #418,
   `claude/gameplay-perf-step4b`; `results/2026-10-26_step4b/`): people ticked by distance
   (`PeopleTick`'s bands, `config/people_tick.tres`, `Settings.people_bands`; `HumanBody.can_slow`,
   `in_trouble`, `wake`); the lab 10 of 10 twice, 9 of 10 step 4's (seed 5: `SightLight`'s
   ask-first cache); the lab's frame -4.5 ms here; `perf_bench --folk=2` +1.8 ms of people (was
-  +5.1). Next: step 5, #397 (4c, #413, optional, Sean decides). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  +5.1). **Step 5 done** (PR waiting on the Fable review, `claude/gameplay-perf-step5`;
+  `experiments/blast_freeze/results/2026-10-27_step5/`): the fire scene single-core (`fire_near`
+  from the fire's picture, the grid and smoke kept up by what changed, the load check's slices
+  sized, `FireSystem.bands`, unheard noises cast no ray): the burning hall
+  18.8 → 7.0 ms a frame before the stick, 32 → 21 after; the stick's frames (~660 new bodies,
+  ~500 glass shards) left for step 6. Next: step 6, #398 (4c, #413, optional, Sean decides). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
   worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
   switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
   (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.

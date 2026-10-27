@@ -26,35 +26,34 @@ counts and largest eight timers) and every run's summary (`summaries.txt`). Untr
 |---|---|---|---|
 | hall, before | 18.8 / 45.4 / 90, 51 of 119 | 32.1 / 66.4 / 133, 279, 80 of 420 | 478 |
 | hall, before (2nd) | 18.3 / 44.8 / 99, 50 | 32.5 / 73.8 / 131, 278, 74 | 497 |
-| **hall, after** | **7.1 / 10.0 / 32, 1** | **20.4 / 36.7 / 61, 215, 3** | 481 |
-| hall, after (2nd) | 7.2 / 11.6 / 33, 1 | 22.6 / 41.0 / 73, 232, 3 | 524 |
+| **hall, after** | **7.0 / 9.7 / 30, 1** | **21.8 / 40.2 / 56, 222, 5** | 467 |
+| hall, after (2nd) | 6.7 / 9.5 / 32, 1 | 21.0 / 39.7 / 66, 213, 4 | 504 |
 | far, before | 21.1 / 48.5 / 100, 52 | 34.6 / 72.7 / 140, 290, 84 | 565 |
 | far, before (2nd) | 21.5 / 48.0 / 117, 53 | 32.1 / 67.1 / 123, 277, 70 | 594 |
-| **far, after** | **9.3 / 12.4 / 33, 1** | **23.1 / 41.6 / 69, 236, 6** | 594 |
-| far, after (2nd) | 9.7 / 15.1 / 34, 1 | 23.4 / 43.1 / 67, 235, 6 | 512 |
-| far, after, `--fire-bands=off` | 10.0 / 15.0 / 32, 2 | 22.7 / 40.4 / 77, 222, 4 | 503 |
+| **far, after** | **10.7 / 14.8 / 38, 1** | **24.3 / 42.8 / 74, 246, 7** | 516 |
+| far, after (2nd) | 9.4 / 13.2 / 32, 1 | 23.5 / 43.3 / 62, 230, 7 | 424 |
 
 Every run breaks the same 306 members (`broken_ids_hash` 1650757771, as the lab's eight runs of
 2026-10-25), cuts the same 22 boards, leaves 256 pieces of rubble and 21 members burning. Before
 the stick the fire is the same frame for frame, before and after this step (every frame's count
 of hot members); after it, from 2.2 s on, the collapse comes in a slightly different order (the
-smaller slices, the rubble's wake): 26 of 480 frames' hot counts differ by a few, and 761
+smaller slices): 26 of 480 frames' hot counts differ by a few, and 761
 `member_broken` events against 746 (pieces of the same members), to the same end.
 
 **By system, hall** (mean / worst a frame; before the stick, then after its first second):
 
 | | before the stick: before → after | after the stick: before → after |
 |---|---|---|
-| `civilian_brain` | 9.8 / 59 → **0.4 / 1** | 9.5 / 51 → **0.4 / 3** |
-| `fire` (all its parts and the smoke) | 2.8 / 82 → 0.9 / 9 | 7.8 / 102 → 6.3 / 27 |
-| `fire_grid` | 0.2 / 21 → 0.0 / 0 | 0.2 / 27 → 0.0 / 6 |
-| `smoke_raster` (+ vents) | 1.0 / 80 → 0.4 / 3 | 0.9 / 85 → 0.3 / 3 |
-| `fire_loads` (the load check) | 0.1 / 6 → 0.1 / 5 | 4.8 / 26 → 5.2 / 23 |
-| Jolt's step (`step`, PhysicsWindow) | 1.0 / 1 → 1.0 / 3 | 7.3 / 35 → 7.0 / 28 |
-| our physics ticks (`window`) | 16.4 / 88 → 4.9 / 13 | 23.1 / 113 → 12.0 / 35 |
+| `civilian_brain` | 9.8 / 59 → **0.4 / 1** | 9.5 / 51 → **0.4 / 2** |
+| `fire` (all its parts and the smoke) | 2.8 / 82 → 0.9 / 10 | 7.8 / 102 → 6.6 / 27 |
+| `fire_grid` | 0.2 / 21 → 0.0 / 0 | 0.2 / 27 → 0.0 / 5 |
+| `smoke_raster` (+ vents) | 1.0 / 80 → 0.4 / 3 | 0.9 / 85 → 0.3 / 4 |
+| `fire_loads` (the load check) | 0.1 / 6 → 0.1 / 6 | 4.8 / 26 → 5.5 / 25 |
+| Jolt's step (`step`, PhysicsWindow) | 1.0 / 1 → 1.0 / 2 | 7.3 / 35 → 7.9 / 34 |
+| our physics ticks (`window`) | 16.4 / 88 → 4.9 / 13 | 23.1 / 113 → 12.4 / 38 |
 
-At Sean's clock (x0.65) the burning hall before the stick is ~4.6 ms a frame, worst ~21; after it
-~13-15, worst ~40-47; the stick's three frames ~320 ms together, as before.
+At Sean's clock (x0.65) the burning hall before the stick is ~4.5 ms a frame, worst ~20; after it
+~14, worst ~36-43; the stick's three frames ~300-330 ms together, as before.
 
 ## What each part was, and what it is now
 
@@ -103,16 +102,19 @@ wherever it is now, which the grid had where it lay at its last rebuild).
   done. What's left is the physics engine taking ~660 bodies in at once and stepping them at the
   falls' 20 velocity and 8 position iterations (`project.godot`): **step 6's** (physics on its own
   thread), and the shard counts the prop lab's and art's to weigh.
-- **The rubble never slept through a collapse:** every break woke every piece within 2-6 m of it,
-  twice (`_wake_near` and the deferred `_rewake`), so ~200 pieces stayed awake for the 5 s the
-  collapse took and Jolt's step was ~8 ms a frame. Now a piece wakes only where its own box
-  reaches into what broke or fell (the engine wakes what touches a moving body itself), in one
-  pass a frame. Awake pieces 2-3 s after the stick: ~200 → 56-180. Jolt's step barely moved (the
-  pieces still settling are the expensive ones); the cuts' wakes and noises on the stick's frame
-  (`cut_wake`) 17 → 6 ms.
+- **The rubble hardly sleeps through a collapse:** every break wakes every piece within 2-6 m of
+  it, twice (`Structure._wake_near` and the deferred `_rewake`), so ~200 pieces stay awake for the
+  5 s the collapse takes, Jolt's step ~8 ms a frame (1.3 before the stick). Tried and **not kept**:
+  waking only the pieces whose own box reaches into what broke, once a frame. Awake pieces 2-3 s in
+  went ~200 → 56-180 but Jolt's step barely moved (the pieces still settling are the expensive
+  ones), and it changed where debris comes to rest: the old wide wake keeps nudging a piece that
+  dozed off on a ledge until it slides down, and without it 5 of the store porch's 32 pieces stayed
+  up in the full suite (`test_loads::test_porch_comes_down_without_its_posts`, 84% down against
+  its 85%). The wake is main's again; step 6 (physics on its thread) is where its cost goes.
 - **Every noise cast a ray from every person**, in earshot or not (`Senses._on_noise`): the 22
   cuts' "timber" noises were 985 rays on the stick's frame. Out of earshot (`loudness`, which walls
-  and deaf ears only shorten) it now returns first: 166 rays.
+  and deaf ears only shorten) it now returns first: 166 rays (`cut_wake`, the cuts' wakes and
+  noises, 17 → 11 ms on the stick's frame).
 
 **(d) Far members coarser** (`FireSystem.bands`, `FireTuning.near_m` 30 / `far_m` 60,
 `middle_every` 2 / `far_every` 4; `--fire-bands=off` the before). A member of a structure past
@@ -121,8 +123,9 @@ own phase (its id), and given the time since its last visit (so it heats, burns 
 same rate; a member coming nearer gets what it's owed, never more than four ticks); a far burning
 building looks at its loads every 2nd or 4th time (its charring is marked dirty meanwhile). Chosen
 by distance only; no player (most tests) or `step()` (the fire tests, tools) runs everything every
-tick. In this scenario (one building, the collapse being the cost) bands on and off are within the
-noise (far, after: 23.1 / 23.4 with them, 22.7 without); they're for Sean's case of a fire left
+tick. In this scenario (one building, the collapse being the cost) bands on and off were within the
+noise (far, after the stick's first second, on this branch before the rubble's wake went back to
+main's: 23.1 / 23.4 ms with them, 22.7 without); they're for Sean's case of a fire left
 burning while he's elsewhere: 26 game minutes on, far down the street, the town's fire now ticks a
 quarter as often.
 
@@ -140,10 +143,26 @@ number to start from.
   set the same.
 - Every timed run (game mode, wall-clock budgets) broke the same 306 members.
 
+## The gunfight (no change expected, none found)
+
+The gunfight lab's ten D fights in the spec saloon (step 4b's command: `run.py --scenarios=spec_hall
+--hours=golden --weapons=revolver --styles=careful --bodies=studio --variant=D --seeds=1-10
+--jobs=1`), one run at a time: `s5_1`, `before_1` (the before's worktree), `s5_2`; and `s5_3` on
+the branch's head (after the rubble's wake went back to main's; `s5_1`/`_2` had the narrower one).
+
+- **10 of 10 the same twice on this build** (`gunfight_same_s5_1_vs_s5_2.txt`) and **10 of 10 the
+  same as the before, event for event** (`gunfight_same_before_vs_s5_1.txt`); the head's `s5_3`
+  the same as both (`gunfight_same_s5_1_vs_s5_3.txt`, `gunfight_same_before_vs_s5_3.txt`).
+- `gunfight_perf.md`: the frame 12.44 (before) against 12.39 / 12.03 / 12.78 ms, p95 15.08
+  against 15.01 / 14.82 / 15.34: within this VM's run-to-run noise; `civilian_brain`, `fire`,
+  `structures` the same. (These are faster than step
+  4b's 19-24 ms on the same command: the VM, not the build; before and after alternate here.)
+
 ## The timers (measurement only, the first commit)
 
 `fire_near`, `fire_neigh` (a neighbour list refreshed), `fire_flight`, `fire_route`,
 `civ_fire_look`, `bucket_line`, `smoke_raster`, `smoke_query`, `smoke_vents`, `smoke_upload`;
-`cut_unbatch`, `cut_ends`, `cut_relink`, `cut_chunks`, `cut_wake`, `cut_signals` (a board cut).
+`cut_unbatch`, `cut_ends`, `cut_relink`, `cut_chunks`, `cut_wake` (its rubble's wake and the
+noise), `cut_signals` (a board cut).
 The lab: `player=`, `PhysicsWindow`'s split (`window`, `step`, `rest`), rubble and rubble awake a
 frame, the stick's census (`stick_added`), `bf_analyse`.

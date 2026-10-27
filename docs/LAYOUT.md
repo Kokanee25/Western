@@ -539,8 +539,7 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
   rendering calls off the main thread: they deadlock against a main thread that waits).
   **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
-  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small; rubble asleep wakes only
-  where its own box reaches into what broke or fell, `_wake_near`, once a frame for all of them); what's left either side
+  t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
   `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
   `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).

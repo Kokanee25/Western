@@ -856,7 +856,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		rb.set_meta(&"start_v", rb.linear_velocity)
 	Prof.stop(&"cut_chunks", t_c)
 	var t_w := Prof.start()
-	_wake_near(m.global_transform * AABB(-m.size * 0.5, m.size))
+	_wake_near(m.global_position, length + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Prof.stop(&"cut_wake", t_w)
 	var t_s := Prof.start()
@@ -957,7 +957,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 		cs.queue_free()
 		m.pieces = new_pieces
 		m.set_meta(&"snapped", true)
-	_wake_near(m.global_transform * AABB(-m.size * 0.5, m.size))
+	_wake_near(m.global_position, m.length() + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)
 
@@ -1008,71 +1008,26 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			rb.queue_free()
 			continue
 		rb.mass = maxf(mass, 0.3)
-		_wake_near(_rubble_box(rb))
+		_wake_near(rb.global_position, 6.0)
 	return fallen
 
 
-## Rubble asleep against something that just gave way wakes up (it may have been resting on it):
-## whatever's own box reaches into `box` (world: the member that went, or the clump that fell)
-## grown by WAKE_GAP. The physics engine wakes what touches a moving body itself; not what lay on
-## one that's gone. (It was every piece within 2–6 m of it: through a collapse nothing slept for
-## seconds, ~200 pieces awake and Jolt's step ~8 ms a frame here, more-cores step 5.)
-const WAKE_GAP := 0.1
-var _wake_boxes: Array[AABB] = []
-
-
-func _wake_near(box: AABB) -> void:
-	if _wake_boxes.is_empty():
-		_wake_rubble.call_deferred()
-	_wake_boxes.append(box.grow(WAKE_GAP))
-
-
-## A piece of rubble's bounds in the world, from its shapes (kept from the first look: a piece only
-## loses shapes, as what's in it burns away).
-static func _rubble_box(rb: RigidBody3D) -> AABB:
-	var local: Variant = rb.get_meta(&"bounds", null)
-	if local == null:
-		var b := AABB()
-		var first := true
-		for c in rb.get_children():
-			var cs := c as CollisionShape3D
-			if cs == null:
-				continue
-			var half := (cs.shape as BoxShape3D).size * 0.5 if cs.shape is BoxShape3D else Vector3.ONE * 0.5
-			var a := cs.transform * AABB(-half, half * 2.0)
-			b = a if first else b.merge(a)
-			first = false
-		local = b
-		if not first:
-			rb.set_meta(&"bounds", b)
-	return rb.global_transform * (local as AABB)
-
-
-## The frame's wakes in one pass over the rubble, at the end of the frame's ticks (before the
-## physics step): what's touching any of them wakes, and a piece just made gets the push it was
-## given (set before it was in the world, it can be lost). It was a pass for each, twice, each cut.
-func _wake_rubble() -> void:
-	var boxes := _wake_boxes
-	_wake_boxes = []
-	if boxes.is_empty():
-		return
-	var all := boxes[0]
-	for b in boxes:
-		all = all.merge(b)
+## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
+func _wake_near(at: Vector3, radius: float) -> void:
 	for rb in rubble:
-		if not is_instance_valid(rb):
-			continue
-		var rbox := _rubble_box(rb)
-		if not all.intersects(rbox):
-			continue
-		for b in boxes:
-			if b.intersects(rbox):
-				rb.sleeping = false
-				var v: Vector3 = rb.get_meta(&"start_v", Vector3.ZERO)
-				if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
-					rb.linear_velocity = v
-				rb.remove_meta(&"start_v")
-				break
+		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
+			rb.sleeping = false
+	_rewake.call_deferred(at, radius)
+
+
+func _rewake(at: Vector3, radius: float) -> void:
+	for rb in rubble:
+		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
+			rb.sleeping = false
+			var v: Vector3 = rb.get_meta(&"start_v", Vector3.ZERO)
+			if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
+				rb.linear_velocity = v
+			rb.remove_meta(&"start_v")
 
 
 ## Has this body a shape left to land with? Not a shattered pane's (disabled) nor one going this
