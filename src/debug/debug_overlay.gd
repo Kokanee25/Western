@@ -163,12 +163,20 @@ func _readout_text() -> String:
 			for w in (n as HumanBody).describe_wounds():
 				lines.append("  " + w)
 	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
-	lines.append(native_label() + ("   physics on its own thread" if Settings.physics_thread else "   physics on the main thread"))
+	lines.append(native_label() + ("   physics on its own thread" if Settings.physics_thread else "   physics on the main thread")
+			+ ("   render on its own thread" if Settings.render_thread else "   render on the main thread"))
 	lines.append_array(frame_lines())
 	return "\n".join(lines)
 
 
 var _viewports: Array[RID] = []
+var _render_cpu := 0.0
+var _render_gpu := 0.0
+var _render_read := 0
+## With the render thread, asking for a viewport's render time waits for the draw in flight (Godot
+## warns of a sync every frame): the readout would take away what the thread gives. So it asks
+## twice a second then, and shows the last answer between.
+const RENDER_READ_FRAMES := 30
 
 
 ## Timing on while the readout's up: render times per viewport, and Prof's timers.
@@ -186,11 +194,15 @@ func _measure(on: bool) -> void:
 ## Where the frame goes (for Sean to read off): the frame, what scripts and physics take of it,
 ## the renderer's CPU and GPU time, what it drew, and the systems that cost most.
 func frame_lines() -> PackedStringArray:
-	var render_cpu := 0.0
-	var render_gpu := 0.0
-	for rid in _viewports:
-		render_cpu += RenderingServer.viewport_get_measured_render_time_cpu(rid)
-		render_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	if not Settings.render_thread or Engine.get_frames_drawn() - _render_read >= RENDER_READ_FRAMES:
+		_render_read = Engine.get_frames_drawn()
+		_render_cpu = 0.0
+		_render_gpu = 0.0
+		for rid in _viewports:
+			_render_cpu += RenderingServer.viewport_get_measured_render_time_cpu(rid)
+			_render_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	var render_cpu := _render_cpu
+	var render_gpu := _render_gpu
 	var fps := maxf(Engine.get_frames_per_second(), 1.0)
 	var out: PackedStringArray = []
 	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f" % [1000.0 / fps,

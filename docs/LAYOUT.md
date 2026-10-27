@@ -188,11 +188,26 @@ a few views renders them as the full run does.
 - **Engine settings read at start** (`Settings.ENGINE_PATH`, `user://engine.cfg`): project.godot's
   `application/config/project_settings_override` points Godot at it, so its keys (Godot's own,
   `[section]` then `key=value`, as in project.godot) override the project's before any script
-  runs. Today one: **physics on its own thread** (`[physics] 3d/run_on_separate_thread`, more-cores
-  step 6; off, no panel or key). `Settings.physics_thread` is what this run has (F3's native line
+  runs. Two: **physics on its own thread** (`[physics] 3d/run_on_separate_thread`, more-cores
+  step 6; off, no panel or key) and **the renderer on its own thread** (below). `Settings.physics_thread` is what this run has (F3's native line
   says which); `Settings.set_physics_thread(on)` and `-- --physics-thread=on|off` write it for the
   next start. The gunfight lab's `run.py --physics-thread=on|off` writes it for its games and puts
   the file back after. Delete the file to go back to the project's settings.
+- **The render thread** (more-cores step 7; off, no panel or key): `[rendering]
+  driver/threads/thread_model=2` (Godot's "Separate"; 1 is "Safe", the default). The draw runs on
+  a pump task of Godot's worker pool beside the next frame's ticks. `Settings.render_thread` is what
+  this run has (F3's native line); `Settings.set_render_thread(on)` and `-- --render-thread=on|off`
+  write it for the next start. With it Godot posts `frame_post_draw` a frame late (deferred from
+  the render thread) and a read of a texture (`get_image()`) waits for the draw in flight, so **a
+  script run (`-s`: the screenshot, golden, tour and lab tools) refuses to start when the file turns
+  it on** (`Settings._refuse_render_thread`); Godot's own `--render-thread separate` on the command
+  line asks for it by name (the suite or `perf_bench` under it), `--render-thread safe` runs a tool
+  whatever the file says. `tools/bridge.py start` draws on the main thread unless
+  `--render-thread=on`; the gunfight lab's `run.py --render-thread=on|off` sets its fights (its
+  `--sheet` always on the main thread). Any call into the RenderingServer that returns a value
+  (`viewport_get_measured_render_time_*`, `texture_2d_get`, `get_video_adapter_name`) waits for the
+  render thread: never every frame (Godot warns "causing RenderingServer synchronizations on every
+  frame"); F3 reads the render times twice a second with it.
 
 ## src/render (the per-texel look)
 
