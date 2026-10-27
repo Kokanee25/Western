@@ -273,6 +273,8 @@ func summary() -> Dictionary:
 	for i in NF:
 		split[FIELDS[i]] = snappedf(_frames[worst + 1 + i], 0.01)
 	split["systems"] = _systems(_frames, worst + 1 + NF)
+	# What none of the three accounts for: a load, the engine's own work, a stall (#437's review).
+	split["untimed_ms"] = snappedf(maxf(0.0, _frames[worst + 1] - _frames[worst + 2] - _frames[worst + 3] - _frames[worst + 5]), 0.01)
 	var ids := sums.keys()
 	ids.sort_custom(func(a: int, b: int) -> bool: return sums[a] > sums[b])
 	var biggest := []
@@ -311,8 +313,9 @@ static func summary_lines(s: Dictionary) -> PackedStringArray:
 	var w: Dictionary = s.worst
 	out.append("perf: the last %.1f s, %d frames: mean %.1f ms (%.0f fps), p95 %.1f, worst %.1f at %.1f s" % [
 			s.seconds, s.frames, s.mean_ms, 1000.0 / maxf(s.mean_ms, 0.001), s.p95_ms, w.frame_ms, w.at])
-	out.append("  the worst frame: process %.1f, physics %.1f (%d ticks), render cpu %.1f, gpu %.1f; draws %d, objects %d, nodes %d, bodies awake %d" % [
-			w.process_ms, w.physics_ms, int(w.ticks), w.render_cpu_ms, w.render_gpu_ms, int(w.draws), int(w.objects), int(w.nodes), int(w.bodies_awake)])
+	out.append("  the worst frame: process %.1f, physics %.1f (%d ticks), render cpu %.1f, gpu %.1f, untimed %.1f; draws %d, objects %d, nodes %d, bodies awake %d" % [
+			w.process_ms, w.physics_ms, int(w.ticks), w.render_cpu_ms, w.render_gpu_ms, float(w.get("untimed_ms", 0.0)),
+			int(w.draws), int(w.objects), int(w.nodes), int(w.bodies_awake)])
 	if not (w.systems as Dictionary).is_empty():
 		out.append("  its systems: " + _pieces(w.systems))
 	if (s.biggest as Array).is_empty():

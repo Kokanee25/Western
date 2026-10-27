@@ -41,7 +41,8 @@ def summary_lines(s):
     out = [f"perf: the last {s['seconds']:.1f} s, {s['frames']} frames: mean {s['mean_ms']:.1f} ms "
            f"({1000.0 / max(s['mean_ms'], 0.001):.0f} fps), p95 {s['p95_ms']:.1f}, worst {w['frame_ms']:.1f} at {w['at']:.1f} s",
            f"  the worst frame: process {w['process_ms']:.1f}, physics {w['physics_ms']:.1f} ({int(w['ticks'])} ticks), "
-           f"render cpu {w['render_cpu_ms']:.1f}, gpu {w['render_gpu_ms']:.1f}; draws {int(w['draws'])}, objects {int(w['objects'])}, "
+           f"render cpu {w['render_cpu_ms']:.1f}, gpu {w['render_gpu_ms']:.1f}, untimed {w.get('untimed_ms', 0.0):.1f}; "
+           f"draws {int(w['draws'])}, objects {int(w['objects'])}, "
            f"nodes {int(w['nodes'])}, bodies awake {int(w['bodies_awake'])}"]
     if w.get("systems"):
         out.append("  its systems: " + pieces(w["systems"]))

@@ -118,7 +118,7 @@ func test_f12_carries_the_frames_numbers() -> void:
 	zip.close()
 	check(text.strip_edges().begins_with("{\n  \"perf_summary\""), "perf_summary leads report.json")
 	var s: Dictionary = JSON.parse_string(text).perf_summary
-	check(s.has("worst") and s.has("mean_ms") and float(s.worst.frame_ms) >= float(s.mean_ms), "the worst frame and the mean (%s)" % [s.get("worst")])
+	check(s.has("worst") and s.has("mean_ms") and float(s.worst.frame_ms) >= float(s.mean_ms) and s.worst.has("untimed_ms"), "the worst frame, its untimed share and the mean (%s)" % [s.get("worst")])
 	check_eq((s.biggest as Array).size(), 3, "and the three biggest named costs (%s)" % [s.biggest])
 	check(not (s.biggest as Array).any(func(b: Dictionary) -> bool: return String(b.name).begins_with("q_") or String(b.name).begins_with("n_")), "costs, not counts")
 	check(PerfRing.summary_lines(s).size() >= 3, "which the replay prints")
