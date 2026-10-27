@@ -390,10 +390,17 @@ frozen until Sean names one.
   white flame. Judge saloon 1.200 -> 0.406, street 1.145 -> 0.878.
   **Round 4** (#422, branch `claude/art-light-pass-4`): the street at golden hour, `light_game.json`
   `day_values` over B's (a warm fill in the shade, exposure, the road's low-sun fill, the painted
-  sky's blue lower); judge street 0.878 -> 0.240. Waiting on Sean: the canyon at the street's end
-  (#423). The critic's next:
-  - the saloon's depth (black voids over the bottle shelves) and the table top's noisy squares;
+  sky's blue lower); judge street 0.878 -> 0.240. Sean kept the canyon (#423).
+  **Round 5** (#425, branch `claude/art-light-pass-5`): the black voids were the back bar's
+  mirrors (metal on a probe taken at noon); now the painted glass (`MIRROR_ROOM`), the probe
+  re-taken by `RoomReflections`, the table top drawn smooth and honey (`draw_table.py` painted
+  style), the lamps' brass gold; judge saloon 0.406 -> 0.354. The critic's next (r6):
+  - the back bar reads as a pale flat wall (the mirror's glow has no frame or room in it; the
+    painting's is dark carved woodwork with a gilt-framed lit mirror); the bar front bleached;
+  - the table still coarse squares up close (the texel grid at a low angle), the chip stack blotchy;
   - the street's signs and paint (the SALOON sign a dark stencil, the saloon not barn-red).
+  Main's nightly Visual checks fail on drift that isn't art's (`store_front_noon`, `street_night`
+  and more fail on clean main here too, as `porch_dusk` did).
   Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
   lavapipe wait ~5 s after a clock jump before a screenshot; a view's render is ~9 min here, so
   try dials with `screenshots.gd --variants=` (one load, ~1 min a variant).
