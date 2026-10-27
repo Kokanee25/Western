@@ -118,9 +118,19 @@ jobs:
       - name: The voice pilot on fal
         env:
           FAL_KEY: ${{ secrets.FAL_KEY }}
+          MSG: ${{ github.event.head_commit.message }}
         run: |
           mkdir -p build/cinematic
-          python tools/voice/pilot.py --out=build/cinematic/out/voice > build/cinematic/blender.log 2>&1 \
+          extra=""
+          run=$(echo "$MSG" | grep -oE "\[recheck [0-9]+\]" | grep -oE "[0-9]+" || true)
+          if [ -n "$run" ]; then
+            git fetch -q origin cinematic-results
+            mkdir -p build/cinematic/out
+            git archive FETCH_HEAD "results/$run/voice" | tar -x -C /tmp
+            mv "/tmp/results/$run/voice" build/cinematic/out/voice
+            extra="--recheck"
+          fi
+          python tools/voice/pilot.py --out=build/cinematic/out/voice $extra > build/cinematic/blender.log 2>&1 \
             || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
           grep -v "^made " build/cinematic/blender.log
       - name: Results to the branch

@@ -159,12 +159,16 @@ def main():
     only = a.get("only", "a,b,c,amb")
     only = only.split(",") if isinstance(only, str) else ["a", "b", "c", "amb"]
     js = jobs(only)
+    if a.get("recheck"):
+        js = []
     print("%d calls, about $%.2f (+ transcription, a few cents)" % (len(js), cost(js)), flush=True)
     if a.get("cost"):
         return
     key = os.environ["FAL_KEY"]
     out = os.path.abspath(a.get("out", "build/voice"))
     urls = {}
+    if a.get("recheck"):
+        js = []      # the clips are already in `out` (an earlier run's): only the word check runs
 
     def make(job):
         name, app, body = job
@@ -189,7 +193,7 @@ def main():
     split_ok = {}
     for c in LINES["conversations"]:
         whole = os.path.join(out, "c_whole", c["id"] + ".mp3")
-        if os.path.exists(whole):
+        if os.path.exists(whole) and not a.get("recheck"):
             made, ok = split_dialogue(whole, c, out)
             split_ok[c["id"]] = ok
     info = {lid: (who, plain, scene) for lid, who, plain, directed, scene in all_lines()}
