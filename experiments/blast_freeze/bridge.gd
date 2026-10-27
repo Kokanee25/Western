@@ -10,8 +10,9 @@ extends BridgeLab
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [out=FILE.json] -> the spec saloon (built if it isn't), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [out=FILE.json] -> the spec saloon (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
+	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
 	"bf_batches": "bf_batches -> the batches every structure in the town draws in (Structure.batch_count), in all and the five largest, and the spec saloon's if it's built",
 	"bf_shot": "bf_shot [from=X,Y,Z] [dirs=x,-x,z,-z] [gap=S] [stall=MS] [out=FILE.json] -> the spec saloon (built if it isn't), a revolver ball from `from` (the saloon's own space) each way in `dirs`, `gap` s apart, every frame recorded: each shot's worst frame and what was in it, and the saloon's batches (members a material) (Sean's per-shot hitch, #385)",
 }
@@ -28,7 +29,7 @@ var _cut := 0
 
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
-	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": ""}
+	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": ""}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() == 2:
@@ -43,6 +44,12 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 		return {"ok": false, "error": "at=X,Y,Z (the saloon's own space)"}
 	var local := Vector3(float(parts[0]), float(parts[1]), float(parts[2]))
 	var at := SpecSaloon.at(local)
+	if String(opts.player) != "" and player:
+		# Where he stands decides the fire's bands (FireSystem.bands): in the hall, everything near.
+		var pp := String(opts.player).split(",")
+		player.global_position = SpecSaloon.at(Vector3(float(pp[0]), float(pp[1]), float(pp[2])))
+		player.velocity = Vector3.ZERO
+		await physics_frames(2)
 	var fire := FireSystem.find(get_tree())
 	var lit: Array = []
 	var n_fire := int(opts.fire)
@@ -63,6 +70,7 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	var members_before := saloon.member_count()
 	var rubble_before := saloon.rubble.size()
 	# Record from a second before the stick to `seconds` after it goes off.
+	PhysicsWindow.add_to(get_tree().root)  # the frame as window, step (Jolt's) and rest
 	_frames.clear()
 	_broken = 0
 	_cut = 0
@@ -78,7 +86,10 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	await seconds(1.0)
 	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse))
 	stick.light()
-	stick.went_off.connect(func() -> void: _event_tick = Engine.get_physics_frames())
+	var census := [_census(), {}]
+	stick.went_off.connect(func() -> void:
+		_event_tick = Engine.get_physics_frames()
+		(func() -> void: census[1] = _census()).call_deferred())
 	await seconds(float(opts.fuse) + float(opts.seconds))
 	_recording = false
 	Events.member_broken.disconnect(on_broken)
@@ -89,7 +100,9 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			"burning_before": burning_before, "members_before": members_before, "rubble_before": rubble_before,
 			"members_after": saloon.member_count(), "rubble_after": saloon.rubble.size(),
 			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut,
-			"people": get_tree().get_nodes_in_group(&"people").size(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT)}
+			"people": get_tree().get_nodes_in_group(&"people").size(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
+			"player": arr(player.global_position) if player else [], "player_from_stick": player.global_position.distance_to(at) if player else -1.0,
+			"fire_bands": (load("res://src/fire/fire_system.gd") as Script).get(&"bands")}  # null before step 5
 	# Which members are broken at the end: two runs of the same scenario should name the same.
 	var broken_ids: Array = []
 	for m: StructureMember in saloon.get_members():
@@ -97,6 +110,15 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			broken_ids.append(String(m.member_id))
 	broken_ids.sort()
 	summary.setup["broken_ids_hash"] = hash(broken_ids)
+	# What the stick's frame added, by class (the nodes in the tree just after it went off).
+	var added: Array = []
+	for k: String in census[1]:
+		var n := int(census[1][k]) - int(census[0].get(k, 0))
+		if n != 0:
+			added.append([n, k])
+	added.sort()
+	added.reverse()
+	summary["stick_added"] = added.slice(0, 12)
 	summary.setup["broken_now"] = broken_ids.size()
 	summary["broken_ids"] = broken_ids
 	if String(opts.out) != "":
@@ -184,6 +206,48 @@ func _cmd_bf_shot(a: Array) -> Dictionary:
 	return summary
 
 
+func _cmd_bf_analyse(_a: Array) -> Dictionary:
+	var town := street.get_node_or_null(^"TownLife") as TownLife
+	var built := street.get_node_or_null(^"SpecSaloon") != null
+	var saloon := SpecSaloon.ensure(street, town.places if town else null) as Structure
+	if not built:
+		await physics_frames(30)
+	var out := {}
+	for run in 2:  # the second with every member's geometry already kept
+		var a := StructuralAnalysis.new(saloon.tuning)
+		var t0 := Time.get_ticks_usec()
+		a.begin(saloon)
+		var t_begin := Time.get_ticks_usec() - t0
+		var by_kind := {}
+		var slow: Array = []
+		var n := a.left()
+		var t_all := Time.get_ticks_usec()
+		for i in n:
+			var m: StructureMember = a._sorted[a._next]
+			var t := Time.get_ticks_usec()
+			a.advance(1)
+			var us := Time.get_ticks_usec() - t
+			var k: Array = by_kind.get_or_add(String(m.kind), [0, 0, 0])
+			k[0] += 1
+			k[1] += us
+			k[2] = maxi(k[2], us)
+			slow.append([us, String(m.member_id), m.supported_by.size(), (a._received.get(m.member_id, {}) as Dictionary).size()])
+		var total := Time.get_ticks_usec() - t_all
+		slow.sort_custom(func(x: Array, y: Array) -> bool: return x[0] > y[0])
+		var kinds := {}
+		for k: String in by_kind:
+			var v: Array = by_kind[k]
+			kinds[k] = "n %d mean %.0f worst %d (total %.1f ms)" % [v[0], float(v[1]) / v[0], v[2], v[1] / 1000.0]
+		var whole := StructuralAnalysis.new(saloon.tuning)
+		var t_w := Time.get_ticks_usec()
+		whole.begin(saloon)
+		whole.advance(whole.left())
+		out["whole%d_ms" % run] = (Time.get_ticks_usec() - t_w) / 1000.0  # begin and every member in one go, untimed inside
+		out["run%d" % run] = {"begin_ms": t_begin / 1000.0, "members": n, "advance_ms": total / 1000.0,
+				"us_a_member": float(total) / maxi(n, 1), "kinds": kinds, "slowest": slow.slice(0, 10)}
+	return out
+
+
 func _cmd_bf_batches(_a: Array) -> Dictionary:
 	var rows: Array = []
 	var total := 0
@@ -243,6 +307,28 @@ static func _top(prof: Dictionary, n: int) -> Array:
 	return out
 
 
+func _census() -> Dictionary:
+	var out := {}
+	var stack: Array[Node] = [get_tree().root]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		var k := n.get_class()
+		if n is RigidBody3D:
+			k += ":rubble" if n.is_in_group(&"rubble") else ":%s<%s>" % [n.get_parent().name if n.get_parent() else "", n.get_script().resource_path.get_file() if n.get_script() else ""]
+		out[k] = int(out.get(k, 0)) + 1
+		stack.append_array(n.get_children())
+	return out
+
+
+## The rubble bodies in the world, or those of them awake (moving: the physics engine's work).
+func _rubble_count(awake: bool) -> int:
+	var n := 0
+	for rb: Node in get_tree().get_nodes_in_group(&"rubble"):
+		if not awake or not (rb as RigidBody3D).sleeping:
+			n += 1
+	return n
+
+
 func _process(_delta: float) -> void:
 	if not _recording:
 		return
@@ -259,6 +345,8 @@ func _process(_delta: float) -> void:
 			"seeds": fire._check.last_seeds if fire and fire._check else -1,
 			"left": fire._check.left() if fire and fire._check else -1,
 			"queue": fire._to_settle.size() if fire else -1,
-			"active": PhysicsServer3D.get_process_info(PhysicsServer3D.INFO_ACTIVE_OBJECTS)})
+			"active": PhysicsServer3D.get_process_info(PhysicsServer3D.INFO_ACTIVE_OBJECTS),
+			"rubble": _rubble_count(false), "awake": _rubble_count(true),
+			"objects": Performance.get_monitor(Performance.OBJECT_COUNT)})
 	Prof._sum.clear()
 	_last_us = now

@@ -1,0 +1,384 @@
+### before_far_1
+build/step5/runs/before_far_1.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 21.1, p95 48.5, worst 100.4; over 20 ms 52, over 50 ms 6
+    window             total   2221.8  p95   46.0  worst   98.2
+    civilian_brain     total   1184.5  p95   34.8  worst   50.2
+    fire_near          total   1162.4  p95   34.2  worst   49.3
+    civ_fire_look      total   1131.4  p95   34.3  worst   49.5
+    fire               total    329.1  p95    6.5  worst   75.3
+    people_body        total    218.3  p95    2.6  worst    4.0
+    step               total    149.5  p95    1.7  worst    2.9
+    rest               total    130.3  p95    1.3  worst   22.8
+    senses             total    121.9  p95    1.8  worst    4.3
+    smoke_raster       total    112.0  p95    1.3  worst   70.6
+    people_prep_sum    total    111.2  p95    1.2  worst    2.5
+    smoke_vents        total     69.5  p95    0.0  worst   69.5
+    people_prep        total     64.5  p95    0.7  worst    1.7
+    people_skeleton    total     60.0  p95    0.7  worst    1.0
+  the stick and after: 481 frames, mean 37.1, p95 73.0, worst 270.9; over 20 ms 351, over 50 ms 110
+    window             total  12990.4  p95   57.8  worst  190.8
+    civilian_brain     total   4889.1  p95   30.7  worst   62.4
+    fire_near          total   4799.4  p95   31.4  worst   61.5
+    civ_fire_look      total   4655.1  p95   29.9  worst   61.7
+    fire               total   4353.7  p95   23.9  worst   99.8
+    step               total   3828.3  p95   19.2  worst   79.0
+    fire_loads         total   2906.8  p95   19.2  worst   28.2
+    fire_analyse       total   2764.1  p95   17.3  worst   28.2
+    people_body        total   1072.4  p95    3.0  worst    4.2
+    rest               total   1024.0  p95    3.4  worst   99.3
+    senses             total    575.8  p95    2.3  worst    5.5
+    people_prep_sum    total    497.8  p95    1.3  worst    3.5
+    smoke_raster       total    390.2  p95    1.3  worst   98.0
+    fire_tick          total    333.0  p95    2.3  worst   26.8
+  after the stick's first second: 420 frames, mean 34.6, p95 72.7, worst 140.0; over 20 ms 290, over 50 ms 84
+    window             total  10666.4  p95   56.8  worst  127.0
+    civilian_brain     total   4238.0  p95   30.5  worst   62.4
+    fire_near          total   4163.8  p95   30.5  worst   61.5
+    civ_fire_look      total   4036.3  p95   29.9  worst   61.7
+    fire               total   3325.0  p95   22.2  worst   99.8
+    step               total   3156.5  p95   17.5  worst   32.3
+    fire_loads         total   2024.5  p95   16.8  worst   28.2
+    fire_analyse       total   1926.9  p95   16.0  worst   28.2
+    people_body        total    928.6  p95    3.0  worst    4.2
+    rest               total    714.3  p95    2.7  worst   12.2
+    senses             total    502.7  p95    2.2  worst    5.5
+    people_prep_sum    total    433.8  p95    1.3  worst    3.5
+    smoke_raster       total    380.2  p95    1.4  worst   98.0
+    fire_tick          total    284.5  p95    2.3  worst   24.1
+
+### before_far_2
+build/step5/runs/before_far_2.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 21.5, p95 48.0, worst 117.0; over 20 ms 53, over 50 ms 4
+    window             total   2260.4  p95   45.8  worst  114.0
+    civilian_brain     total   1186.3  p95   34.7  worst   44.5
+    fire_near          total   1162.8  p95   34.3  worst   43.9
+    civ_fire_look      total   1131.1  p95   34.2  worst   44.0
+    fire               total    339.3  p95    7.0  worst   80.9
+    people_body        total    225.2  p95    2.4  worst    3.1
+    step               total    150.5  p95    1.5  worst    1.8
+    rest               total    136.5  p95    1.2  worst   25.1
+    smoke_raster       total    124.0  p95    1.4  worst   79.2
+    senses             total    122.8  p95    1.8  worst    3.3
+    people_prep_sum    total    115.8  p95    1.2  worst    1.4
+    smoke_vents        total     77.9  p95    0.0  worst   77.9
+    people_prep        total     64.5  p95    0.7  worst    0.8
+    people_skeleton    total     62.6  p95    0.7  worst    1.1
+  the stick and after: 481 frames, mean 35.1, p95 70.6, worst 321.2; over 20 ms 338, over 50 ms 95
+    window             total  12242.5  p95   53.6  worst  217.9
+    civilian_brain     total   4434.3  p95   28.8  worst   44.9
+    fire_near          total   4352.3  p95   28.2  worst   46.0
+    fire               total   4238.7  p95   23.0  worst   90.2
+    civ_fire_look      total   4211.8  p95   28.0  worst   44.3
+    step               total   3673.4  p95   17.8  worst  102.1
+    fire_loads         total   2869.2  p95   18.6  worst   31.5
+    fire_analyse       total   2723.9  p95   17.1  worst   26.2
+    people_body        total   1009.6  p95    3.0  worst    4.0
+    rest               total    960.0  p95    3.4  worst  107.9
+    senses             total    544.3  p95    2.1  worst    3.7
+    people_prep_sum    total    478.1  p95    1.3  worst    2.1
+    smoke_raster       total    364.4  p95    1.3  worst   84.4
+    fire_tick          total    319.3  p95    2.1  worst   27.0
+  after the stick's first second: 420 frames, mean 32.1, p95 67.1, worst 123.1; over 20 ms 277, over 50 ms 70
+    window             total   9885.1  p95   52.6  worst  111.8
+    civilian_brain     total   3806.7  p95   27.9  worst   44.9
+    fire_near          total   3741.7  p95   27.8  worst   46.0
+    civ_fire_look      total   3619.4  p95   27.4  worst   44.3
+    fire               total   3192.0  p95   21.0  worst   90.2
+    step               total   2945.0  p95   16.0  worst   32.5
+    fire_loads         total   1966.4  p95   15.8  worst   31.5
+    fire_analyse       total   1867.2  p95   15.0  worst   26.2
+    people_body        total    861.4  p95    2.8  worst    4.0
+    rest               total    655.2  p95    2.5  worst   12.2
+    senses             total    472.4  p95    2.1  worst    3.7
+    people_prep_sum    total    414.3  p95    1.3  worst    2.1
+    smoke_raster       total    354.2  p95    1.3  worst   84.4
+    fire_tick          total    273.4  p95    2.0  worst   27.0
+
+### after_far_1
+build/step5/runs/after_far_1.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 10.7, p95 14.8, worst 37.9; over 20 ms 1, over 50 ms 0
+    window             total    952.5  p95   11.9  worst   13.2
+    people_body        total    249.2  p95    2.8  worst    3.0
+    step               total    162.2  p95    1.7  worst    2.5
+    rest               total    151.3  p95    1.5  worst   30.2
+    senses             total    145.0  p95    2.2  worst    5.3
+    people_prep_sum    total    113.7  p95    1.2  worst    4.8
+    fire               total     96.0  p95    3.0  worst    4.2
+    people_prep        total     68.9  p95    0.8  worst    2.2
+    civilian_brain     total     67.7  p95    0.8  worst    1.0
+    people_skeleton    total     67.2  p95    0.8  worst    0.9
+    smoke_raster       total     52.4  p95    2.0  worst    3.5
+    lines_senses       total     51.1  p95    0.8  worst    1.1
+    structures         total     44.5  p95    2.2  worst    3.1
+    player             total     41.5  p95    0.5  worst    0.6
+  the stick and after: 481 frames, mean 26.7, p95 45.0, worst 270.6; over 20 ms 307, over 50 ms 17
+    window             total   7730.5  p95   28.5  worst  186.4
+    step               total   4068.5  p95   18.3  worst   82.9
+    fire               total   3594.0  p95   16.9  worst   29.7
+    fire_loads         total   3139.5  p95   15.8  worst   29.2
+    fire_analyse       total   2984.3  p95   14.9  worst   22.3
+    people_body        total   1124.7  p95    3.5  worst    6.3
+    rest               total   1059.4  p95    3.6  worst  102.5
+    senses             total    597.1  p95    2.6  worst    4.2
+    people_prep_sum    total    493.5  p95    1.3  worst    1.7
+    people_skeleton    total    315.2  p95    1.0  worst    1.9
+    people_prep        total    290.9  p95    0.8  worst    1.2
+    civilian_brain     total    275.2  p95    1.0  worst    2.4
+    structures         total    253.3  p95    2.4  worst    3.5
+    lines_senses       total    230.9  p95    1.0  worst    2.6
+  after the stick's first second: 420 frames, mean 24.3, p95 42.8, worst 73.9; over 20 ms 246, over 50 ms 7
+    window             total   6160.9  p95   26.9  worst   40.9
+    step               total   3340.1  p95   16.7  worst   36.8
+    fire               total   2837.2  p95   16.6  worst   29.7
+    fire_loads         total   2426.2  p95   14.9  worst   29.2
+    fire_analyse       total   2309.2  p95   13.8  worst   18.6
+    people_body        total    952.0  p95    3.3  worst    6.3
+    rest               total    721.6  p95    2.9  worst   12.9
+    senses             total    508.7  p95    2.4  worst    3.8
+    people_prep_sum    total    426.6  p95    1.3  worst    1.7
+    people_skeleton    total    265.2  p95    1.0  worst    1.5
+    people_prep        total    249.8  p95    0.8  worst    1.2
+    civilian_brain     total    232.2  p95    1.0  worst    2.3
+    structures         total    218.5  p95    2.4  worst    3.5
+    lines_senses       total    196.4  p95    1.0  worst    2.6
+
+### after_far_2
+build/step5/runs/after_far_2.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 9.4, p95 13.2, worst 32.0; over 20 ms 1, over 50 ms 0
+    window             total    825.1  p95    9.9  worst   11.7
+    people_body        total    215.8  p95    2.7  worst    3.0
+    step               total    148.7  p95    1.5  worst    5.4
+    rest               total    133.3  p95    1.3  worst   23.9
+    senses             total    123.9  p95    1.8  worst    3.5
+    people_prep_sum    total    107.1  p95    1.1  worst    1.3
+    fire               total     82.1  p95    2.5  worst    4.2
+    people_skeleton    total     62.3  p95    0.7  worst    0.9
+    people_prep        total     61.4  p95    0.7  worst    0.7
+    civilian_brain     total     58.2  p95    0.7  worst    0.8
+    lines_senses       total     44.2  p95    0.7  worst    1.1
+    smoke_raster       total     42.6  p95    1.6  worst    2.5
+    structures         total     38.5  p95    2.0  worst    2.8
+    player             total     36.4  p95    0.4  worst    0.6
+  the stick and after: 481 frames, mean 25.3, p95 45.1, worst 208.0; over 20 ms 291, over 50 ms 11
+    window             total   7308.3  p95   26.4  worst  123.5
+    step               total   3849.2  p95   17.7  worst   83.0
+    fire               total   3381.2  p95   16.2  worst   26.9
+    fire_loads         total   2957.2  p95   14.6  worst   26.7
+    fire_analyse       total   2809.9  p95   13.5  worst   20.4
+    people_body        total   1077.9  p95    3.0  worst    5.3
+    rest               total   1030.0  p95    3.0  worst  111.1
+    senses             total    566.6  p95    2.3  worst    3.4
+    people_prep_sum    total    483.3  p95    1.3  worst    2.1
+    people_skeleton    total    317.8  p95    0.9  worst    1.9
+    people_prep        total    277.9  p95    0.7  worst    1.6
+    civilian_brain     total    258.3  p95    0.8  worst    2.5
+    structures         total    250.7  p95    2.4  worst    5.3
+    fire_tick          total    215.3  p95    2.5  worst    8.2
+  after the stick's first second: 420 frames, mean 23.5, p95 43.3, worst 62.5; over 20 ms 230, over 50 ms 7
+    window             total   5951.4  p95   25.4  worst   36.7
+    step               total   3194.0  p95   16.6  worst   25.9
+    fire               total   2658.8  p95   16.0  worst   26.9
+    fire_loads         total   2274.3  p95   14.5  worst   26.7
+    fire_analyse       total   2167.3  p95   13.3  worst   18.3
+    people_body        total    937.8  p95    3.1  worst    5.3
+    rest               total    734.5  p95    2.6  worst   19.9
+    senses             total    496.8  p95    2.3  worst    3.4
+    people_prep_sum    total    421.1  p95    1.3  worst    2.1
+    people_skeleton    total    274.7  p95    0.9  worst    1.9
+    people_prep        total    241.2  p95    0.7  worst    1.6
+    civilian_brain     total    224.2  p95    0.9  worst    2.5
+    structures         total    219.7  p95    2.4  worst    5.3
+    lines_senses       total    187.7  p95    0.9  worst    1.5
+
+### before_hall_1
+build/step5/runs/before_hall_1.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 18.8, p95 45.4, worst 90.3; over 20 ms 51, over 50 ms 3
+    window             total   1949.1  p95   43.1  worst   87.7
+    civilian_brain     total   1168.8  p95   34.7  worst   59.0
+    fire_near          total   1157.3  p95   34.2  worst   58.0
+    civ_fire_look      total   1123.9  p95   34.3  worst   58.2
+    fire               total    337.7  p95    7.5  worst   82.1
+    rest               total    126.9  p95    1.4  worst   22.4
+    smoke_raster       total    124.1  p95    1.6  worst   79.8
+    people_body        total    120.2  p95    1.4  worst    2.0
+    step               total    119.9  p95    1.3  worst    1.4
+    smoke_vents        total     78.5  p95    0.0  worst   78.5
+    senses             total     56.6  p95    1.5  worst    6.5
+    people_prep_sum    total     52.3  p95    0.6  worst    1.1
+    fire_tick          total     50.5  p95    2.1  worst   23.7
+    people_prep        total     44.3  p95    0.5  worst    1.0
+  the stick and after: 481 frames, mean 34.6, p95 72.3, worst 240.2; over 20 ms 340, over 50 ms 102
+    window             total  11923.3  p95   54.1  worst  170.4
+    civilian_brain     total   4571.1  p95   30.4  worst   50.7
+    fire_near          total   4506.0  p95   29.8  worst   49.6
+    civ_fire_look      total   4364.0  p95   29.7  worst   49.8
+    fire               total   4304.6  p95   22.2  worst  101.5
+    step               total   3753.9  p95   17.6  worst   68.7
+    fire_loads         total   2867.0  p95   17.1  worst   36.9
+    fire_analyse       total   2725.5  p95   16.2  worst   36.9
+    rest               total    979.0  p95    3.1  worst   92.3
+    people_body        total    798.9  p95    2.3  worst    5.7
+    senses             total    378.7  p95    2.4  worst    5.3
+    smoke_raster       total    374.4  p95    1.3  worst   84.6
+    fire_tick          total    350.9  p95    2.8  worst   29.9
+    people_prep_sum    total    346.8  p95    1.0  worst    2.3
+  after the stick's first second: 420 frames, mean 32.1, p95 66.4, worst 133.2; over 20 ms 279, over 50 ms 80
+    window             total   9715.0  p95   52.1  worst  112.8
+    civilian_brain     total   3976.1  p95   30.7  worst   50.7
+    fire_near          total   3921.6  p95   29.9  worst   49.6
+    civ_fire_look      total   3798.6  p95   29.9  worst   49.8
+    fire               total   3293.0  p95   20.8  worst  101.5
+    step               total   3075.2  p95   16.2  worst   35.1
+    fire_loads         total   2008.2  p95   16.3  worst   26.0
+    fire_analyse       total   1911.9  p95   15.6  worst   25.9
+    rest               total    705.3  p95    2.5  worst   17.2
+    people_body        total    691.8  p95    2.3  worst    5.7
+    smoke_raster       total    359.6  p95    1.3  worst   84.6
+    senses             total    331.1  p95    2.5  worst    5.3
+    fire_tick          total    302.8  p95    2.8  worst   29.9
+    people_prep_sum    total    300.8  p95    0.9  worst    2.3
+
+### before_hall_2
+build/step5/runs/before_hall_2.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 18.3, p95 44.8, worst 99.3; over 20 ms 50, over 50 ms 2
+    window             total   1879.0  p95   39.5  worst   96.5
+    civilian_brain     total   1108.9  p95   34.1  worst   52.1
+    fire_near          total   1093.6  p95   34.4  worst   51.4
+    civ_fire_look      total   1062.6  p95   33.8  worst   51.6
+    fire               total    339.7  p95    7.2  worst   89.3
+    smoke_raster       total    129.0  p95    1.4  worst   87.1
+    rest               total    125.3  p95    1.3  worst   20.8
+    step               total    124.2  p95    1.4  worst    1.8
+    people_body        total    122.6  p95    1.5  worst    2.1
+    smoke_vents        total     85.4  p95    0.0  worst   85.4
+    senses             total     52.5  p95    1.4  worst    4.2
+    people_prep_sum    total     49.4  p95    0.6  worst    0.7
+    fire_tick          total     48.8  p95    2.1  worst   22.4
+    player             total     40.8  p95    0.5  worst    0.8
+  the stick and after: 481 frames, mean 35.3, p95 76.1, worst 220.9; over 20 ms 339, over 50 ms 100
+    window             total  12130.8  p95   60.0  worst  147.7
+    civilian_brain     total   4598.8  p95   29.7  worst   50.1
+    fire_near          total   4538.2  p95   29.6  worst   49.6
+    fire               total   4457.4  p95   23.8  worst   92.8
+    civ_fire_look      total   4391.6  p95   29.3  worst   49.7
+    step               total   3847.4  p95   18.9  worst   72.0
+    fire_loads         total   2952.5  p95   19.2  worst   57.0
+    fire_analyse       total   2778.9  p95   17.6  worst   28.4
+    rest               total   1017.8  p95    3.4  worst  126.6
+    people_body        total    817.8  p95    2.6  worst    6.2
+    smoke_raster       total    391.2  p95    1.3  worst   87.9
+    fire_tick          total    390.4  p95    2.9  worst   39.8
+    senses             total    377.2  p95    2.5  worst    4.5
+    people_prep_sum    total    336.4  p95    0.9  worst    1.8
+  after the stick's first second: 420 frames, mean 32.5, p95 73.8, worst 130.7; over 20 ms 278, over 50 ms 74
+    window             total   9834.5  p95   55.1  worst  127.9
+    civilian_brain     total   3984.3  p95   32.1  worst   50.1
+    fire_near          total   3934.5  p95   32.0  worst   49.6
+    civ_fire_look      total   3808.3  p95   31.8  worst   49.7
+    fire               total   3381.3  p95   22.4  worst   92.8
+    step               total   3150.7  p95   17.7  worst   39.5
+    fire_loads         total   2050.8  p95   17.6  worst   57.0
+    fire_analyse       total   1922.7  p95   16.1  worst   28.4
+    people_body        total    704.8  p95    2.6  worst    6.2
+    rest               total    699.5  p95    2.6  worst   12.6
+    smoke_raster       total    370.5  p95    1.3  worst   87.9
+    fire_tick          total    330.3  p95    2.9  worst   29.7
+    senses             total    330.1  p95    2.5  worst    4.5
+    people_prep_sum    total    291.7  p95    0.9  worst    1.8
+
+### after_hall_1
+build/step5/runs/after_hall_1.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 7.0, p95 9.7, worst 29.6; over 20 ms 1, over 50 ms 0
+    window             total    578.3  p95    7.9  worst   13.4
+    rest               total    125.5  p95    1.1  worst   23.6
+    step               total    119.6  p95    1.2  worst    1.6
+    people_body        total    109.7  p95    1.2  worst    1.4
+    fire               total    106.6  p95    3.4  worst   10.1
+    senses             total     49.6  p95    1.4  worst    3.0
+    people_prep_sum    total     49.0  p95    0.6  worst    0.8
+    civilian_brain     total     47.9  p95    0.6  worst    1.3
+    people_prep        total     42.4  p95    0.5  worst    1.6
+    smoke_raster       total     42.3  p95    1.6  worst    2.6
+    structures         total     40.3  p95    2.2  worst    3.1
+    player             total     40.2  p95    0.5  worst    0.8
+    fire_tick          total     40.2  p95    2.9  worst    3.9
+    people_skeleton    total     26.3  p95    0.3  worst    0.3
+  the stick and after: 481 frames, mean 23.9, p95 43.4, worst 232.2; over 20 ms 283, over 50 ms 11
+    window             total   6553.8  p95   24.2  worst  167.4
+    step               total   4009.4  p95   17.9  worst   63.6
+    fire               total   3488.9  p95   16.5  worst   26.9
+    fire_loads         total   2980.0  p95   14.7  worst   24.7
+    fire_analyse       total   2833.0  p95   13.4  worst   21.3
+    rest               total    937.2  p95    3.3  worst  111.0
+    people_body        total    764.2  p95    2.5  worst    4.5
+    senses             total    373.0  p95    2.6  worst    5.2
+    people_prep_sum    total    340.4  p95    1.0  worst    3.4
+    fire_tick          total    298.8  p95    3.5  worst    9.6
+    structures         total    239.5  p95    2.4  worst    4.4
+    people_prep        total    227.1  p95    0.6  worst    3.0
+    civilian_brain     total    218.5  p95    0.8  worst    2.4
+    people_skeleton    total    201.3  p95    0.7  worst    1.0
+  after the stick's first second: 420 frames, mean 21.8, p95 40.2, worst 56.2; over 20 ms 222, over 50 ms 5
+    window             total   5215.7  p95   23.5  worst   37.9
+    step               total   3335.9  p95   17.4  worst   34.1
+    fire               total   2772.7  p95   16.5  worst   26.9
+    fire_loads         total   2310.8  p95   14.0  worst   24.7
+    fire_analyse       total   2201.6  p95   13.1  worst   21.3
+    people_body        total    649.4  p95    2.4  worst    4.5
+    rest               total    639.3  p95    2.5  worst   11.2
+    senses             total    320.5  p95    2.6  worst    4.1
+    people_prep_sum    total    292.8  p95    0.9  worst    3.4
+    fire_tick          total    267.2  p95    3.5  worst    7.9
+    structures         total    205.9  p95    2.4  worst    4.4
+    people_prep        total    195.5  p95    0.6  worst    3.0
+    civilian_brain     total    183.6  p95    0.7  worst    2.3
+    people_skeleton    total    169.4  p95    0.6  worst    1.0
+
+### after_hall_2
+build/step5/runs/after_hall_2.json: broken 306 (hash 1650757771), cut 22, rubble 256, burning 6 -> 21
+  before the stick (1 s): 119 frames, mean 6.7, p95 9.5, worst 31.5; over 20 ms 1, over 50 ms 0
+    window             total    552.3  p95    7.1  worst   11.8
+    rest               total    126.3  p95    1.2  worst   24.6
+    step               total    116.1  p95    1.2  worst    3.3
+    people_body        total    107.1  p95    1.2  worst    1.4
+    fire               total     96.6  p95    3.1  worst    8.5
+    senses             total     48.9  p95    1.5  worst    3.7
+    people_prep_sum    total     47.1  p95    0.6  worst    0.7
+    civilian_brain     total     45.6  p95    0.6  worst    0.7
+    smoke_raster       total     40.0  p95    1.5  worst    2.1
+    player             total     39.9  p95    0.4  worst    0.7
+    people_prep        total     39.4  p95    0.4  worst    0.7
+    structures         total     38.4  p95    1.9  worst    2.9
+    fire_tick          total     35.3  p95    2.7  worst    3.1
+    people_skeleton    total     25.0  p95    0.3  worst    0.4
+  the stick and after: 481 frames, mean 23.1, p95 41.7, worst 244.4; over 20 ms 273, over 50 ms 10
+    window             total   6384.0  p95   23.9  worst  171.1
+    step               total   3829.2  p95   17.6  worst   72.1
+    fire               total   3390.9  p95   16.6  worst   22.4
+    fire_loads         total   2886.8  p95   14.6  worst   22.3
+    fire_analyse       total   2746.5  p95   13.8  worst   18.9
+    rest               total    920.2  p95    2.9  worst  114.5
+    people_body        total    728.3  p95    2.2  worst    3.3
+    senses             total    369.7  p95    2.5  worst    4.6
+    people_prep_sum    total    332.5  p95    0.9  worst    2.2
+    fire_tick          total    295.1  p95    3.2  worst   10.8
+    structures         total    237.0  p95    2.4  worst    8.0
+    people_prep        total    225.5  p95    0.6  worst    1.9
+    civilian_brain     total    214.5  p95    0.8  worst    3.9
+    people_skeleton    total    191.7  p95    0.6  worst    1.0
+  after the stick's first second: 420 frames, mean 21.0, p95 39.7, worst 66.5; over 20 ms 213, over 50 ms 4
+    window             total   5089.1  p95   23.2  worst   29.5
+    step               total   3152.8  p95   15.7  worst   39.0
+    fire               total   2691.3  p95   16.5  worst   22.4
+    fire_loads         total   2236.4  p95   14.5  worst   22.3
+    fire_analyse       total   2133.6  p95   13.5  worst   18.9
+    people_body        total    623.3  p95    2.1  worst    3.1
+    rest               total    609.3  p95    2.2  worst   11.9
+    senses             total    319.1  p95    2.5  worst    4.6
+    people_prep_sum    total    285.9  p95    0.9  worst    2.2
+    fire_tick          total    259.6  p95    3.2  worst    8.0
+    structures         total    204.3  p95    2.4  worst    8.0
+    people_prep        total    194.0  p95    0.6  worst    1.9
+    civilian_brain     total    184.6  p95    0.8  worst    3.9
+    people_skeleton    total    163.7  p95    0.6  worst    1.0
+

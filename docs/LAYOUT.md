@@ -536,8 +536,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   changed, every 30th routine check (FireSystem `FULL_CHECK_EVERY`), or `-- --full-analysis`
   (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
-  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 150 a
-  slice); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
+  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 50 a
+  slice, a routine look `CHECK_MEMBERS` 40; `MEMBERS_A_MS` 15 under `World.deterministic`: a
+  member is ~60 µs here, ~100 near a blast's damage, the blast-freeze lab's `bf_analyse`); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
   (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also done a slice a frame when built,
   `queue_check`) goes straight to the slices; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
@@ -592,13 +593,24 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
   slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
   `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
+  **What it costs** (more-cores step 5, `experiments/blast_freeze/results/2026-10-27_step5/`):
+  `fire_near` reads the fire's picture (the burning members and their boxes, taken once a physics
+  frame, again after anything catches), not the grid; the grid (2 m cells, for neighbours, spills,
+  scorching) is kept up by what changed: a structure's members are only added at its end
+  (`_walked`), what breaks or burns away says so (`Events.member_broken`), and what's placed goes
+  in the full walk's order. **Bands** (`FireSystem.bands`, `FireTuning.near_m`/`far_m`, `--fire-bands=off`):
+  a structure past 30 m from the player ticks every 2nd tick, past 60 m every 4th, each member on
+  its own phase and given the time since its last visit; a far burning building checks its loads
+  as seldom; no player or `step()` (tests): every tick. Neighbour lists refresh every 30 s (rubble
+  2 s) plus up to 4 s by the member's id.
   **Smoke that knows the buildings** (`SmokeField`, docs/briefs/smoke.md): FireSystem puts a box
   of half-metre cells round each burning building (up to `smoke_fields`), from the ground to 9 m
   over its top and 3 m past it, square to the world and offset 0.13 m off round numbers (a wall on
   a round coordinate falls inside one layer of cells, not two); its members are drawn into the
   cells (a member blocks smoke; burnt away, broken or shattered, it doesn't) a slice a frame, again
-  every 2 s; each burning member puts `smoke_per_m2` of its broadest face a second into the open
-  cells round it (both faces of a wall). The native `SmokeGrid` (`smoke.rs`) steps it 15 times a
+  every 2 s (the members listed from the grid once, then only what the structures gained); each
+  burning member puts `smoke_per_m2` of its broadest face a second into the open cells round it
+  (both faces of a wall; worked out when it first smokes after the cells are drawn). The native `SmokeGrid` (`smoke.rs`) steps it 15 times a
   second on a worker thread (`step_async`): hot smoke rises into the cell above while there's
   room (a cell holds 1), so a room fills from the ceiling down; smoke that can't rise runs toward
   the nearest way up (each cell's distance to open sky or the box's edge, a search made when the

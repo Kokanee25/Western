@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5r35aodjljjd"
-path="res://.godot/imported/widow_s2_talking_bandana.png-c77f4e6144b193cf62b74b175bb7d2d1.ctex"
+uid="uid://etjmu3frpuo6"
+path="res://.godot/imported/widow_s6_talking_bandana.png-5939c8ea3d75b40599eeafb3c2738f0b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/widow_s2_talking_bandana.png"
-dest_files=["res://.godot/imported/widow_s2_talking_bandana.png-c77f4e6144b193cf62b74b175bb7d2d1.ctex"]
+source_file="res://assets/people/widow_s6_talking_bandana.png"
+dest_files=["res://.godot/imported/widow_s6_talking_bandana.png-5939c8ea3d75b40599eeafb3c2738f0b.ctex"]
 
 [params]
 

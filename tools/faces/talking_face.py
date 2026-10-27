@@ -5,7 +5,7 @@ his expressions as blend shapes made from MakeHuman's face pose units (tools/fac
 
     ~/bpyenv/bin/python tools/faces/mh_units.py --fetch
     ~/bpyenv/bin/python tools/faces/talking_face.py --man=bold_cowboy_layered --out=bold_cowboy_talking
-    ~/bpyenv/bin/python tools/faces/talking_face.py --man=sean_s3 --out=sean_s3_talking --landmarks=FILE.npy
+    ~/bpyenv/bin/python tools/faces/talking_face.py --man=sean_s3 --out=sean_s3_talking --landmarks=FILE.npy [--pin=no]
 
 → assets/people/<out>.glb (his model, body_head replaced: his kept head, the new face, its eyes,
   teeth and tongue, one mesh with his expressions as blend shapes), <out>_head.png (his own paint
@@ -497,7 +497,7 @@ def smooth_near(D, V, T, ring, skin, passes):
     return D
 
 
-def build(man, out, head, report_only=False, landmarks=None):
+def build(man, out, head, report_only=False, landmarks=None, pin=True):
     import portrait as PT
     os.makedirs(WORK, exist_ok=True)
     g = Glb(os.path.join(PEOPLE, man + ".glb"))
@@ -570,8 +570,13 @@ def build(man, out, head, report_only=False, landmarks=None):
     fixed_u = np.ones(len(X), bool)
     fixed_u[pv] = ok
     rim_off = S.closest((X + laplace_fill(off.copy(), fixed_u, Tp))[edge0])[4]
-    off[pv[rim]] = (q - X[pv])[rim]
-    ok = ok | rim
+    # `--pin=no` leaves the edge where MakeHuman's face put it, as before 2026-10-23: for a man
+    # whose edge meets his hair, where the pin lays it on the hair's shell and opens a slash under
+    # the chin (the widow, 2026-10-26: face-seam.md "The pin's limit"; pinning only edge points on
+    # skin, by their paint, helped the hairline but kept the slash, so it isn't kept).
+    if pin:
+        off[pv[rim]] = (q - X[pv])[rim]
+        ok = ok | rim
     fixed = np.ones(len(X), bool)
     fixed[pv] = ok
     off = laplace_fill(off, fixed, Tp)
@@ -867,4 +872,4 @@ if __name__ == "__main__":
     man = a.get("--man", "bold_cowboy_layered")
     info = json.load(open(os.path.join(PEOPLE, man + ".json")))
     build(man, a.get("--out", "bold_cowboy_talking"), a.get("--head", info.get("neck_ring", {}).get("head")),
-          landmarks=a.get("--landmarks"))
+          landmarks=a.get("--landmarks"), pin=a.get("--pin", "yes") != "no")

@@ -40,11 +40,22 @@ var _accum := 0.0
 static var synchronous := false
 var _ready_cells := false
 var _raster: Array[StructureMember] = []
+## The structures `_raster` was listed from, each with its member count then, and how many
+## structures the town had.
+var _listed := {}
+var _structures := -1
 var _raster_at := 0
 var _solid := PackedByteArray()
+## The cells being drawn (they become `_solid` when done; the vents read the last whole drawing).
+var _solid_next := PackedByteArray()
 var _raster_wait := 0.0
-## Member -> the open cells beside it its smoke goes into.
+## Member -> the open cells beside it its smoke goes into: worked out when it first burns after the
+## cells are drawn (`_vents_of`), not for every member at once (5,000 of them were ~80 ms on one
+## frame every 2 s, more-cores step 5).
 var _vents := {}
+## The members drawn last time (those whose smoke this field takes), and those being drawn now.
+var _drawn := {}
+var _drawing := {}
 var _quiet := 0.0
 var _wind := Vector3.ZERO
 
@@ -132,7 +143,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
+	var t_r := Prof.start()
 	_raster_step()
+	Prof.stop(&"smoke_raster", t_r)
 	if not _ready_cells:
 		return
 	# A step at a time on a worker thread (SmokeGrid.step_async): handed off when the last is done,
@@ -154,19 +167,26 @@ func _physics_step(delta: float) -> void:
 	var done: int = grid.call(&"steps")
 	if _fog and done != _drawn_step:
 		_drawn_step = done
+		var t_u := Prof.start()
 		_upload()
+		Prof.stop(&"smoke_upload", t_u)
 	# Out, and the smoke gone: done.
 	if _quiet > 2.0 and total() < 0.5:
 		queue_free()
 
 
-## Each burning member's smoke into the open cells beside it; how many were burning.
+## Each burning member's smoke into the open cells beside it; how many were burning. What's burning
+## from the fire's picture (FireSystem.fire_near's), in the fire's order.
 func _emit() -> int:
 	var n := 0
-	for m: StructureMember in _vents:
-		if not is_instance_valid(m) or not m.burning or m.consumed:
+	fire._take_picture()
+	for e: Variant in fire._picture:
+		if not is_instance_valid(e) or not _drawn.has(e):
 			continue
-		var vents: PackedInt32Array = _vents[m]
+		var m := e as StructureMember
+		if not m.burning or m.consumed:
+			continue
+		var vents: PackedInt32Array = _vents[m] if _vents.has(m) else _vents_of(m)
 		if vents.is_empty():
 			continue
 		n += 1
@@ -183,11 +203,35 @@ func _emit() -> int:
 
 # --- The members in the cells ---------------------------------------------------------------------
 
+## The members to draw: looked up in the fire's grid once (the box's ~5,000 were ~10 ms), then only
+## what the structures in it have gained since (a structure's members are only added at its end:
+## the pieces a cut board leaves); again from the grid if the town's structures changed.
 func _start_raster() -> void:
-	_raster = fire._query(box())
+	var t := Prof.start()
+	var structures := get_tree().get_nodes_in_group(&"structures").size()
+	var again := _listed.is_empty() or structures != _structures
+	for st: Variant in _listed:
+		if not is_instance_valid(st):
+			again = true
+	if again:
+		_raster = fire._query(box())
+		_listed.clear()
+		_structures = structures
+		for m in _raster:
+			var st := m.get_parent() as Structure
+			if st and not _listed.has(st):
+				_listed[st] = st.member_count()
+	else:
+		for st: Structure in _listed:
+			var n := st.member_count()
+			if n > int(_listed[st]):
+				_raster.append_array(st.get_members().slice(int(_listed[st])))  # the drawing clips them to the box
+				_listed[st] = n
+	Prof.stop(&"smoke_query", t)
 	_raster_at = 0
-	_solid = PackedByteArray()
-	_solid.resize(dims.x * dims.y * dims.z)
+	_drawing = {}
+	_solid_next = PackedByteArray()
+	_solid_next.resize(dims.x * dims.y * dims.z)
 	_raster_wait = RASTER_EVERY
 
 
@@ -200,12 +244,19 @@ func _raster_step() -> void:
 	var to := mini(_raster_at + RASTER_A_FRAME, _raster.size())
 	for i in range(_raster_at, to):
 		var m := _raster[i]
-		if is_instance_valid(m) and _blocks(m):
+		if not is_instance_valid(m):
+			continue
+		if _blocks(m):
 			_draw_member(m)
+		if not m.consumed and fire.flammable(m):
+			_drawing[m] = true
 	_raster_at = to
 	if _raster_at >= _raster.size():
+		_solid = _solid_next
 		grid.call(&"set_solid", _solid)
-		_find_vents()
+		_drawn = _drawing
+		_drawing = {}
+		_vents.clear()  # the cells have changed: each burning member's worked out again when it smokes
 		_ready_cells = true
 
 
@@ -231,20 +282,16 @@ func _draw_member(m: StructureMember) -> void:
 			for x in range(maxi(lo.x, 0), mini(hi.x, dims.x - 1) + 1):
 				var p := inv * (origin + (Vector3(x, y, z) + Vector3(0.5, 0.5, 0.5)) * cell)
 				if p.x >= -reach.x and p.x < reach.x and p.y >= -reach.y and p.y < reach.y and p.z >= -reach.z and p.z < reach.z:
-					_solid[x + dims.x * (y + dims.y * z)] = 1
+					_solid_next[x + dims.x * (y + dims.y * z)] = 1
 
 
-## For each member that could burn, the open cells round its middle (its smoke comes out of both
-## faces of a wall): those a cell away, or if none (it's in among others), two.
-func _find_vents() -> void:
-	_vents.clear()
-	for m in _raster:
-		if not is_instance_valid(m) or m.consumed or not fire.flammable(m):
-			continue
-		var c := cell_of(m.global_position)
-		if index_of(c) < 0:
-			continue
-		var out := PackedInt32Array()
+## The open cells round a member's middle (its smoke comes out of both faces of a wall): those a
+## cell away, or if none (it's in among others), two. Kept until the cells are drawn again.
+func _vents_of(m: StructureMember) -> PackedInt32Array:
+	var t := Prof.start()
+	var out := PackedInt32Array()
+	var c := cell_of(m.global_position)
+	if index_of(c) >= 0:
 		for r in [1, 2]:
 			for dz in range(-r, r + 1):
 				for dy in range(-r, r + 1):
@@ -254,7 +301,9 @@ func _find_vents() -> void:
 							out.append(j)
 			if not out.is_empty():
 				break
-		_vents[m] = out
+	_vents[m] = out
+	Prof.stop(&"smoke_vents", t)
+	return out
 
 
 # --- Drawing it -------------------------------------------------------------------------------------
