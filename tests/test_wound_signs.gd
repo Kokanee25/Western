@@ -98,8 +98,52 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 			var rb := man.parts[sid] as RigidBody3D
 			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
 		await physics_frames(1)
-	var smears := _marks().filter(func(n: Node) -> bool: return (n as Decal).texture_albedo.resource_path.ends_with("smear.png"))
+	await physics_frames(90)  # let go: the swipe ends
+	var smears := _smears()
 	check(smears.size() >= 2, "smears along where he was dragged (%d)" % smears.size())
+	if smears.size() < 2:
+		return
+	# One band along the way he went, not a row of slashes from each part of him.
+	var joined := 0
+	for i in range(1, smears.size()):
+		var a := smears[i - 1] as Decal
+		var b := smears[i] as Decal
+		var a_end := a.global_position + a.global_basis.z.normalized() * a.size.z * 0.5
+		var b_start := b.global_position - b.global_basis.z.normalized() * b.size.z * 0.5
+		if a_end.distance_to(b_start) < 0.03:
+			joined += 1
+	check(joined >= smears.size() - 2, "each piece starts where the last ended (%d of %d)" % [joined, smears.size() - 1])
+	var first := smears[0] as Decal
+	check(first.global_basis.z.normalized().dot(Vector3.BACK) > 0.8, "laid lengthwise along the drag")
+	check(first.size.x > 0.12 and first.size.x < 0.4, "about as wide as his trunk (%.2f m)" % first.size.x)
+	check(first.texture_albedo.resource_path.ends_with("smear_start.png"), "heavy where it starts")
+	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends")
+
+
+func test_a_smear_runs_out_as_the_blood_on_him_does() -> void:
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[0].rate = 0.0  # what's on him, nothing more coming
+	man.go_limp()
+	await physics_frames(150)
+	man.signs._smear_load = WoundSigns.SMEAR_FULL
+	for i in 300:
+		for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
+			var rb := man.parts[sid] as RigidBody3D
+			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.5)
+		await physics_frames(1)
+	var smears := _smears()
+	check(smears.size() >= 3, "a swipe (%d pieces)" % smears.size())
+	if smears.size() < 3:
+		return
+	var a0 := (smears[0] as Decal).modulate.a
+	var a1 := (smears[-1] as Decal).modulate.a
+	check(a1 < a0, "fainter as it goes (%.2f -> %.2f)" % [a0, a1])
+	var far := (smears[-1] as Decal).global_position.distance_to((smears[0] as Decal).global_position)
+	check(far < 6.0, "and it runs out (%.1f m of the 7.5 he went)" % far)
+
+
+func _smears() -> Array[Node]:
+	return _marks().filter(func(n: Node) -> bool: return (n as Decal).texture_albedo.resource_path.get_file().begins_with("smear"))
 
 
 func test_a_broken_jaw_spits_teeth() -> void:
