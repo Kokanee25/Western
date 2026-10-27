@@ -13,9 +13,12 @@ export GODOT=~/godot/godot
 printf 'bf_blast at=6.0,0.8,6.0 fire=6 burn=20 fuse=1 seconds=8 out=build/blast_freeze/run.json\nquit\n' > /tmp/bf.txt
 python3 tools/bridge.py run /tmp/bf.txt --headless --fps=60        # ~2 min; the answer is the headline
 python3 tools/bridge.py run /tmp/bf.txt --headless --fps=60 --game-args=--full-analysis   # every analysis from the top (the before's way)
+python3 tools/bridge.py run /tmp/bf.txt --headless --fps=60 --game-args=--deterministic   # count budgets: two runs the same frame for frame
+python3 experiments/blast_freeze/summary.py build/blast_freeze/run.json [more.json]          # mean, p95, worst, each timer, before and after the stick
+python3 experiments/blast_freeze/summary.py --same A.json B.json                             # the same twice? (the broken set, each frame's counts)
 ```
 
-`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [out=FILE.json]`: the spec
+`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [out=FILE.json]`: the spec
 saloon (the building lab's, out in the desert; built if it isn't), `fire=N` floor and wall boards
 nearest `at` (the saloon's own space: x along the front, z back, y up; the hall floor is 0.78) set
 alight and left `burn` seconds (6 boards and 20 s give ~170 hot members, 20 burning, as Sean's
@@ -28,6 +31,12 @@ system, the blast's own timers (`blast_gather`, `blast_response`, `blast_break`,
 frame over the stall line (50 ms here), the sum of each timer. `bf_frames [N]` reads the last
 frames back. The file has them all, and `broken_ids` (every broken member of the saloon at the end,
 hashed in the setup): two runs of the same scenario on the same build should name the same.
+`player=X,Y,Z` (the saloon's space) puts the player there first: where he is decides the fire's
+bands (`player=12.0,0.8,2.0` is in the hall, 7 m from the stick; left out, he's where he starts,
+99 m off). Each frame also has PhysicsWindow's split (`window` our physics ticks, `step` Jolt's,
+`rest`; a frame late), the rubble and how much of it is awake; the run, `stick_added` (what the
+stick's frame added to the tree, by class). `bf_analyse` times the spec saloon's load analysis
+member by member (µs by kind, the slowest).
 
 The town's people are left as they are (Sean was in a fight): their brains cost what they cost.
 
@@ -62,7 +71,13 @@ What the fix is (`docs/LAYOUT.md` "src/structures", "src/fire"):
 - **The blast skips what it can't break**: a bound on the face impulse from the member's nearest
   point before the samples are walked (`Blast._member_response`): 48 -> 20 ms.
 
-What's left on the after-frames, not this lab's (noted for the performance session, #373):
+**Since (more-cores step 5, `results/2026-10-27_step5/`):** the townsfolk's looks at the fire, the
+fire's grid and smoke redraws, the load check's slices, the rubble's wake and the noises' rays:
+in the burning hall before the stick 18.8 → 7.1 ms a frame (worst 90 → 32), after it 32 → 21
+(frames over 50 ms 80 → 3 of 420). The stick's own frames are as they were (~500 ms here over
+three: ~660 new bodies, ~500 of them glass shards, for the physics engine; step 6's).
+
+What was left on the after-frames before step 5 (noted for the performance session, #373):
 - `civilian_brain` 30-90 ms a frame while the saloon burns (184 of 480 frames over 20 ms): the
   townsfolk's fire response.
 - The fire's periodic work: the grid rebuilt every 2 s (~40 ms), the neighbour lists refreshed

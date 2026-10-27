@@ -554,6 +554,22 @@ worker pool exit handshake (two low-priority pool tasks overlapping at the runle
 the idle workers uncounted for good; the engine's own tasks can form the pair), and the cap makes
 the whole game crawl on a slow frame so its work is still in flight at quit. A stopgap only comes
 back with a quit that can't hang; and every pool task this repo posts is high priority.
+**Done (2026-10-27, `claude/gameplay-perf-step5`; `experiments/blast_freeze/results/2026-10-27_step5/`):**
+(a) `fire_near` reads the fire's picture (the burning members' boxes, once a frame), not the grid:
+`civilian_brain` 9.8 → 0.4 ms a frame. (b) The grid kept up by what changed (members added at a
+structure's end, `Events.member_broken`), placed in the full walk's order (the fire the same frame
+for frame); the smoke's vents worked out when a member first smokes, its member list kept;
+neighbour refreshes spread by id; the load check's slices sized to what a member costs here
+(~60-100 µs, not 30: `bf_analyse`; slices 50/40, `MEMBERS_A_MS` 15). (c) Measured: the stick's
+frame adds ~660 bodies, ~500 of them glass shards; without the cut pieces or without the shards
+the frame barely changes, so neither spreading nor bigger pieces was done (the rest is Jolt's,
+step 6's). Rubble wakes only where it touches what broke (it never slept through a collapse), a
+noise out of earshot casts no ray (985 → 166 rays on the stick's frame). (d) `FireSystem.bands`:
+past 30 / 60 m from the player a structure's members tick every 2nd / 4th fire tick, given the
+time since. **Gain, the burning hall:** before the stick 18.8 → 7.1 ms a frame (frames over 20 ms
+51 → 1 of 119), after its first second 32 → 21 (over 50 ms 80 → 3 of 420); the stick's three
+frames ~500 ms here, unchanged. The same 306 members broken in every run; the lab twice under
+`--deterministic` frame for frame the same.
 
 **Step 6. Physics on its own thread, behind a setting** (expected −2.7 ms here, measured; the
 writes' share of it shrinks as step 2 lands). *"Read 'The review' 'Physics on its own thread'.

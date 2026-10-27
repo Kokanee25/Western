@@ -102,7 +102,7 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut,
 			"people": get_tree().get_nodes_in_group(&"people").size(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 			"player": arr(player.global_position) if player else [], "player_from_stick": player.global_position.distance_to(at) if player else -1.0,
-			"fire_bands": FireSystem.bands}
+			"fire_bands": (load("res://src/fire/fire_system.gd") as Script).get(&"bands")}  # null before step 5
 	# Which members are broken at the end: two runs of the same scenario should name the same.
 	var broken_ids: Array = []
 	for m: StructureMember in saloon.get_members():
