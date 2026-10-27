@@ -17,7 +17,7 @@ extends Resource
 ## part -> Prof systems (timer names) summed into it; anything not listed is "else".
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
-			&"player", &"town_life", &"blood", &"cloth", &"mop", &"faces"],
+			&"player", &"town_life", &"blood", &"cloth", &"mop", &"faces", &"people_prep", &"people_bands"],
 	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite"],
 }
@@ -26,8 +26,10 @@ extends Resource
 @export var clock_scale := 0.65
 
 
-## Which part a Prof system belongs to.
+## Which part a Prof system belongs to (&"" for a count, not a time: `q_*` lines, `n_*`).
 func part_of(system: StringName) -> StringName:
+	if String(system).begins_with("q_") or String(system).begins_with("n_"):
+		return &""
 	for p: StringName in parts:
 		if (parts[p] as Array).has(system):
 			return p

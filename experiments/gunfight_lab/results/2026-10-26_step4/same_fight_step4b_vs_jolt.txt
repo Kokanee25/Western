@@ -1,0 +1,151 @@
+DIFF  spec_hall_golden_revolver_careful_studio_s1
+      ending: 'you_dead' vs 'you_down'
+      end: 'you_dead' vs 'you_down'
+      length_s: 21.72 vs 24.5
+      you.blood_ml: 4992 vs 4991
+      you.dead: True vs False
+      you.look_outs: 2 vs 3
+      you.near_misses: 4 vs 5
+      you.near_misses_per_min: 11.1 vs 12.2
+      you.wounds: 2 vs 3
+      brody.hits_on_you: 1 vs 2
+      brody.peeks: 1 vs 2
+      brody.shots: 1 vs 2
+      first divergence at event 52 of 83 (63% in):
+        A: [17.28, 'cover', 'brody runs for new cover (8 m)']
+        B: [17.28, 'cover', 'brody runs for new cover (7 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s10
+      ending: 'you_down' vs 'broke_off'
+      end: 'you_down' vs 'gang_out'
+      length_s: 18.57 vs 48.22
+      first_hit_by: 'you' vs 'gang'
+      outcomes: {'standing': 3} vs {'broke_off': 3}
+      you.blood_ml: 4904 vs 4972
+      you.cover_moves: 1 vs 2
+      you.down: True vs False
+      you.drew_at: -1.0 vs 18.2166666666669
+      you.first_aimed_at: 2.43333333333333 vs 2.21666666666666
+      you.first_hit_at: 16.0 vs 15.17
+      you.hits: 1 vs 0
+      first divergence at event 12 of 79 (15% in):
+        A: [0.92, 'cover', 'lyle runs for new cover (2 m)']
+        B: [0.92, 'cover', 'lyle runs for new cover (7 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s2
+      ending: 'you_down' vs 'you_dead'
+      end: 'you_down' vs 'you_dead'
+      length_s: 23.45 vs 7.32
+      you.blood_ml: 4716 vs 5000
+      you.dead: False vs True
+      you.first_hit_at: 22.02 vs 7.3
+      you.look_outs: 3 vs 1
+      you.near_misses: 3 vs 1
+      you.near_misses_per_min: 7.7 vs 8.2
+      you.shots: 2 vs 1
+      brody.hits_on_you: 1 vs 0
+      brody.shots: 2 vs 0
+      first divergence at event 10 of 74 (14% in):
+        A: [0.98, 'cover', 'lyle runs for new cover (8 m)']
+        B: [0.97, 'cover', 'lyle runs for new cover (8 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s3
+      ending: 'down' vs 'you_down'
+      end: 'gang_out' vs 'you_down'
+      length_s: 77.13 vs 38.43
+      outcomes: {'dead': 1, 'down': 1, 'surrendered': 1} vs {'standing': 3}
+      you.blood_ml: 4946 vs 4582
+      you.cover_moves: 7 vs 3
+      you.down: False vs True
+      you.drew_at: 49.0666666666652 vs -1.0
+      you.first_hit_at: 13.2 vs 36.3
+      you.hits: 3 vs 0
+      you.hits_taken: 3 vs 2
+      you.look_outs: 9 vs 6
+      first divergence at event 12 of 203 (6% in):
+        A: [1.02, 'cover', 'brody runs for new cover (2 m)']
+        B: [1.0, 'cover', 'brody runs for new cover (2 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s4
+      length_s: 28.22 vs 55.05
+      first_hit_by: 'gang' vs 'you'
+      outcomes: {'standing': 1, 'surrendered': 2} vs {'down': 1, 'standing': 2}
+      you.blood_ml: 4983 vs 4967
+      you.cover_moves: 2 vs 3
+      you.drew_at: -1.0 vs 31.6333333333328
+      you.first_hit_at: 8.95 vs 28.58
+      you.hits_taken: 3 vs 2
+      you.look_outs: 2 vs 6
+      you.near_misses: 7 vs 8
+      you.near_misses_per_min: 14.9 vs 8.7
+      you.reloads: 0 vs 1
+      first divergence at event 18 of 78 (23% in):
+        A: [4.25, 'decision', 'brody: behind cover: got there']
+        B: [4.1, 'decision', 'brody: behind cover: got there']
+DIFF  spec_hall_golden_revolver_careful_studio_s5
+      length_s: 111.22 vs 37.08
+      outcomes: {'standing': 2, 'surrendered': 1} vs {'standing': 3}
+      you.arm_out_at: -1.0 vs 20.1666666666668
+      you.blood_ml: 4895 vs 4906
+      you.cover_moves: 16 vs 3
+      you.drew_at: 14.6333333333336 vs 20.1666666666668
+      you.first_hit_at: 7.7 vs 8.85
+      you.hits: 5 vs 0
+      you.hits_taken: 8 vs 4
+      you.look_outs: 5 vs 4
+      you.near_misses: 28 vs 12
+      you.near_misses_per_min: 15.1 vs 19.4
+      first divergence at event 19 of 266 (7% in):
+        A: [4.0, 'decision', 'brody: behind cover: got there']
+        B: [4.05, 'decision', 'lyle: fight from where he is: no cover he can reach (in the open)']
+DIFF  spec_hall_golden_revolver_careful_studio_s6
+      length_s: 42.52 vs 29.88
+      you.blood_ml: 3987 vs 4192
+      you.cover_moves: 6 vs 4
+      you.hits_taken: 4 vs 3
+      you.near_misses: 12 vs 5
+      you.near_misses_per_min: 16.9 vs 10.0
+      you.stuck: 1 vs 0
+      you.wounds: 5 vs 4
+      brody.peeks: 3 vs 0
+      brody.shots: 5 vs 3
+      kid.peeks: 2 vs 1
+      kid.reloads: 1 vs 0
+      first divergence at event 31 of 124 (25% in):
+        A: [7.37, 'decision', 'lyle: behind cover: got there']
+        B: [7.58, 'decision', 'lyle: behind cover: got there']
+DIFF  spec_hall_golden_revolver_careful_studio_s7
+      ending: 'surrendered' vs 'you_dead'
+      end: 'gang_out' vs 'you_dead'
+      length_s: 69.43 vs 17.73
+      outcomes: {'surrendered': 3} vs {'standing': 3}
+      you.blood_ml: 4970 vs 4990
+      you.cover_moves: 3 vs 2
+      you.dead: False vs True
+      you.down: False vs True
+      you.drew_at: 56.5166666666647 vs 17.6500000000003
+      you.first_hit_at: 16.78 vs 14.3
+      you.hits: 3 vs 0
+      you.hits_taken: 5 vs 2
+      first divergence at event 10 of 183 (5% in):
+        A: [0.92, 'said', 'kid: "I see him!"']
+        B: [0.92, 'cover', 'brody runs for new cover (2 m)']
+DIFF  spec_hall_golden_revolver_careful_studio_s8
+      length_s: 50.65 vs 29.33
+      outcomes: {'down': 1, 'standing': 2} vs {'standing': 1, 'surrendered': 2}
+      you.blood_ml: 3683 vs 4625
+      you.cover_moves: 5 vs 2
+      you.drew_at: 36.9166666666659 vs 28.933333333333
+      you.first_hit_at: 33.87 vs 25.88
+      you.hits_taken: 2 vs 1
+      you.look_outs: 7 vs 4
+      you.near_misses: 6 vs 5
+      you.near_misses_per_min: 7.1 vs 10.2
+      you.shots: 3 vs 1
+      you.wounds: 2 vs 1
+      first divergence at event 17 of 128 (13% in):
+        A: [3.93, 'decision', 'brody: behind cover: got there']
+        B: [4.17, 'decision', 'brody: behind cover: got there']
+DIFF  spec_hall_golden_revolver_careful_studio_s9
+      brody.cover_changes: 2 vs 1
+      lyle.cover_changes: 7 vs 6
+      first divergence at event 16 of 147 (11% in):
+        A: [4.08, 'decision', 'kid: behind cover: got there']
+        B: [3.87, 'decision', 'brody: behind cover: got there']
+0 of 10 fights the same

@@ -674,7 +674,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
   `PeopleBodies` (loads `assets/people/<id>.glb` — the MakeHuman body — and cuts it into
-  per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh),
+  per-segment pieces like BodyMesh; `HumanBody.body_model`, empty = BodyMesh; a Studio man gets
+  a helper bone a shoulder, `shoulder_share` of the arm's turn, carrying his chest/upper arm blend
+  so his raised arm keeps its width: `add_shoulders`, `pose_shoulders`, issue #388),
   `BodyInterior` (insides built from the anatomy when a part opens; `shaders/body_skin` and
   `body_inside` cut wound openings, `wounds.gdshaderinc`). `body_skin`'s light pass holds the sum
   of a person's lights under `light_cap` × his own colour (top channel; `light_knee` where it
@@ -724,6 +726,29 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 ## src/people
 
+- **`PeopleTick`** (`people_tick.gd`; more-cores step 4): the people's tick from one place. Every
+  `HumanBody` gets a `tick_index` as he first enters the world (kept, saved in `to_dict`); his
+  engine `_physics_process` is gone and the node (an internal child of the last man in, so the
+  fight's men still tick after the player) ticks everyone in index order: his body, then his own
+  nodes in tree order (`HumanBody.add_ticker`: brain, `FaceLife`, `FaceSpeech`, `Senses`, each a
+  `tick(delta)`; physics processing on and `can_process` stay their switch). In phases: each man's
+  pure first half (`begin_prepare` on the main thread, then `prepare`: physiology, favouring, the
+  pose's maths into `_rots`) for all, on the worker pool (`WorkerThreadPool.add_group_task`, high
+  priority) while `Settings.people_threads` is on (`-- --people-threads=on|off`; `[performance]` in
+  the settings file), the same game either way; then each man's tick applies it (`_pose_writes`:
+  the joints, the rig, the skeleton) with his signs, brain, face and senses. Prof: `people_prep`
+  (phase 2's wall), `people_prep_sum` (its men's own times). Not ahead (his whole tick on the main
+  thread as before): limp, getting up, stumbling, on a clip or the mocap walk.
+  **Bands** (step 4b, `config/people_tick.tres`, `PeopleTickTuning`): a man past 25 m from the
+  player and from everyone `in_trouble` ticks every 2nd tick, past 60 m every 4th (a 3 m margin
+  each way: `tick_band`), staggered by his index; skipped, he's skipped in every phase and owed the
+  time (`tick_owed`), so his tick (`tick_dt`) carries it. In the camera's view one band nearer;
+  within 8 deg of its middle, every tick. Never slowed: `HumanBody.can_slow` false (down, prone,
+  getting up, stumbling, dragged, on a clip but his walk, or a node's `can_slow` false: a brain not
+  calm, a chore in hand) or `woken` (`wake()`: a noise heard, a deed done to him). A slowed
+  `walk_to` stops where the one-tick steps would have and carries the ticks left (`_walk_spare`).
+  No player in the world, or `Settings.people_bands` off (`-- --people-bands=on|off`): every tick.
+  Prof counts `n_people_ticked`, `n_people_owed`; `perf_bench --folk=N` (`tools/folk_copies.gd`).
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
   hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
   by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
@@ -1460,7 +1485,10 @@ crotch, arms and legs by his shape `limb_sides`, weights smoothed across the lim
 `smooth_seams`); `whole_man.py` puts the approved game head (`heads/<head>_mesh.npz`) on him at his
 collar and his own hat as three pieces (`heads/<head>_hat.npz`). `works_check.gd`: the pose check,
 a ragdoll fall, the hat shot off, a wound, and every triangle's stretch (`--ref=` another man's
-`works.json`, judged by sheet area). `men_bench.gd`: perf_bench's calm street with N copies of
+`works.json`, judged by sheet area; `--share=` the shoulder helpers). `arm_dump.gd` +
+`arm_measure.py`: a man's skin, weights and bone moves in each pose, and his raised upper arm's
+width kept (`arm_poses.gd --share=` the pictures; `docs/style_test/raised-arms-2026-10-26/`).
+`men_bench.gd`: perf_bench's calm street with N copies of
 one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and layout.
 
 ## Training the image model on our style (tools/style)

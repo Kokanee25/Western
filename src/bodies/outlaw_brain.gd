@@ -351,6 +351,7 @@ var _startled := 0.0
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	body = get_parent() as HumanBody
 	_rng.seed = body.rng_seed * 31 + 7
 	_think.seed = body.rng_seed * 17 + 3
@@ -490,6 +491,8 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 		return
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
 	var to_me := deed_target == body
+	if to_me:
+		body.wake()  # done to him: he takes it in next tick, far off or not (PeopleTick's bands)
 	# Words shouted at him he hears whether he can see who it is or not.
 	var shouted := kind in [&"shout", &"call_out"] and to_me
 	if not loud and not shouted and not senses.sees(actor) and not (to_me and senses.aware_of(actor) > 0.6):
@@ -771,10 +774,41 @@ func _on_shouted(speaker: Node, kind: StringName) -> void:
 
 # --- Living ------------------------------------------------------------------------------------
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"outlaw_brain", t)
+
+
+## Far off, may he tick less often (PeopleTick, step 4b)? Only calm, with nobody he's wary of or
+## worse, nobody to fight, rescue or break from: a man fighting, fleeing, tending or rescuing ticks
+## every tick.
+func can_slow() -> bool:
+	if mood != Mood.CALM or target != null or rescuing != null or _pending_break != &"" or not _fire_way.is_empty():
+		return false
+	for who: Variant in relations.entries.keys():  # a copy (Senses: a freed key can loop the walk)
+		if relations.entries[who].stance >= Relations.Stance.WARY:
+			return false
+	return true
+
+
+## In a fight, running or tending (PeopleTick: whoever's near him ticks every tick too).
+func in_trouble() -> bool:
+	return mood in [Mood.FIGHTING, Mood.RELOADING, Mood.FLEEING, Mood.TENDING] or target != null or rescuing != null
 
 
 func _physics_step(delta: float) -> void:

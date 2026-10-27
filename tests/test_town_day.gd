@@ -502,3 +502,61 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
 	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
+
+
+## PeopleTick's bands (more-cores step 4b): with you two streets off (east of town, looking away),
+## the gang walking in ticks a tick in four. They reach the bar at the same times, a far man's tick
+## or so either way, by the same road as with the bands off; and they tick less often on the way.
+func _ride_in_from_afar(bands: bool) -> Array:
+	Settings.people_bands = bands
+	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
+	player.set_physics_process(false)  # he stands there (no ground under him out there to fall to)
+	await physics_frames(3)
+	town.bring_gang()
+	for g in town.gang:
+		(g.get_node(^"Brain") as OutlawBrain).walk_speed = 2.2  # a brisk walk, not a run
+	var seen_far := 0
+	var at_bar := {}
+	var road := []
+	for f in 60 * 50:
+		await physics_frames(1)
+		for g in town.gang:
+			if not is_instance_valid(g):
+				continue
+			if g.tick_band == 2:
+				seen_far += 1
+			var b := g.get_node(^"Brain") as OutlawBrain
+			if not at_bar.has(g.person_id) and g.global_position.distance_to(town.places.at(b.bar_spot)) < 0.5:
+				at_bar[g.person_id] = f
+		if f % 120 == 0:
+			for g in town.gang:
+				road.append(g.global_position if is_instance_valid(g) else Vector3.INF)
+		if at_bar.size() == town.gang.size():
+			break
+	return [at_bar, road, seen_far]
+
+
+func _fresh_street() -> void:
+	after_each()
+	await physics_frames(2)
+	await before_each()
+
+
+func test_far_off_the_gang_comes_in_on_time_with_the_bands() -> void:
+	town.drink_seconds = 60.0
+	var on: Array = await _ride_in_from_afar(true)
+	await _fresh_street()
+	town.drink_seconds = 60.0
+	var off: Array = await _ride_in_from_afar(false)
+	Settings.people_bands = Settings.PEOPLE_BANDS
+	check(on[2] > 0, "they were in the far band on the way (%d man-ticks)" % on[2])
+	check_eq(off[2], 0, "bands off: never")
+	for id in [&"brody", &"lyle", &"kid"]:
+		check(on[0].has(id) and off[0].has(id), "%s got to the bar both ways" % id)
+		if on[0].has(id) and off[0].has(id):
+			check(absi(int(on[0][id]) - int(off[0][id])) <= 6, "%s at the bar at the same time (frame %d against %d)" % [id, on[0][id], off[0][id]])
+	var worst := 0.0
+	for i in mini(on[1].size(), off[1].size()):
+		if on[1][i] != Vector3.INF and off[1][i] != Vector3.INF:
+			worst = maxf(worst, (on[1][i] as Vector3).distance_to(off[1][i]))
+	check(worst < 0.25, "by the same road, every two seconds (worst %.3f m)" % worst)

@@ -98,6 +98,7 @@ var _home_route: Array[Vector3] = []
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	body = get_parent() as HumanBody
 	_rng.seed = body.rng_seed * 23 + 11
 	senses = Senses.new()
@@ -125,6 +126,8 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	if actor == body or senses == null or not body.physiology.is_conscious():
 		return
 	var to_me := target == body
+	if to_me:
+		body.wake()  # done to him: he takes it in next tick, far off or not (PeopleTick's bands)
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
 	# The men who troubled him being run off, taken or shot: whoever did it did him a turn, if he
 	# saw it.
@@ -428,10 +431,41 @@ func _player() -> Player:
 	return get_tree().get_first_node_in_group(&"player") as Player
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"civilian_brain", t)
+
+
+## Far off, may he tick less often (PeopleTick, step 4b)? Only calm and going about his day: not
+## frightened, aimed at or getting down, not running from a fire or in a bucket line, not at a
+## chore that has his hands (the bar cloth, the mop: they move what the physics holds).
+func can_slow() -> bool:
+	if mood != Mood.CALM or _aimed > 0.0 or _cower > 0.0 or _flinch > 0.0 or fear > 0.05:
+		return false
+	if not _route.is_empty() or _bucket != &"" or _shout_in > 0.0:
+		return false
+	return chore == null or not chore.call(&"busy")
+
+
+## Frightened, aimed at, running from a fire or fighting it (PeopleTick: whoever's near him ticks
+## every tick too).
+func in_trouble() -> bool:
+	return mood in [Mood.HANDS_UP, Mood.COWERING, Mood.FLEEING] or _aimed > 0.0 or _cower > 0.0 or _bucket != &""
 
 
 func _physics_step(delta: float) -> void:

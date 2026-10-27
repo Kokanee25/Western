@@ -467,6 +467,25 @@ skeleton, the signs), and run `prepare` over the people with
 (the lab's `perf`): if the threads don't pay on this 4-core box, say so, keep the phases
 single-threaded, and leave the group task behind a setting for Sean's cores. The lab twice;
 the physics lab's falls and the body lab's wounds the same."*
+**Done (2026-10-26, `claude/gameplay-perf-step4`; `results/2026-10-26_step4/`):** both commits
+**10 of 10 the same twice, and every fight's record event for event main's** (threads on or
+off too); the street's townsfolk, who now tick after the player and the saloon's props, walk and
+look a few lines differently (`q_walk` +2-3 % in the long fights); the physics lab's 151 falls
+and the body lab's 216 records the before's. `PeopleTick` is an internal child of the last man in
+(a node before the first moved the fight's men ahead of the player, and seed 1 parted at 0.97 s).
+The phases: `begin_prepare` (main), `prepare` on the pool (physiology, favouring, `_pose_maths`
+into `_rots`), each man's tick applying it (`_pose_writes`, the rig, the skeleton) before his
+brain, face and senses. **Phase 2: 1.72 ms of work on one thread, 1.08 ms of the main thread's
+time on the pool** (its men's own times sum to 2.1 there: a man's half costs a quarter more on a
+worker). Scaled by the untouched systems (this VM drifted ~10% between runs): **the people -0.34
+ms against main, the threads ~0.6 against off, the frame -0.1** (the brief expected -0.5 to -1;
+the work moved is only ~1.7 ms). Threads stay on (`Settings.people_threads`,
+`-- --people-threads=off`). Not moved: the gun hand (it takes the aim the brain picks that tick,
+off the gun's muzzle node), the signs' decisions (each followed at once by its decal), the people's
+capsules in SightWorld (no line asks `BODY_PARTS` through Sight yet). **Phase 3 measured, not
+built:** `Senses`' 46 lines a frame cost 0.47 ms here one at a time (Jolt 0.62), so one batch
+could save ~0.4; it means every man looks from the tick's snapshot, a change to the fights, so
+it's a step of its own (#396's handover carries it for the review to place).
 
 **Step 4b. People ticked by distance** (Sean, 2026-10-25, for the finished map: no gain in the
 saloon fight, where everyone is near; on a full town with 30 townsfolk two streets off at a
@@ -485,6 +504,22 @@ see within the near band (what the player sees ticks fully, by the rule). Test: 
 walking his route two streets off arrives at the same places at the same times with bands on
 and off (`test_town_day`); the gunfight lab twice; and `perf_bench`'s calm street with the town
 doubled (`--folk=2`, new) shows the people's share flat where it was linear."*
+**Done (2026-10-26, `claude/gameplay-perf-step4b`; `results/2026-10-26_step4b/`):** the bands
+in `PeopleTick` (`config/people_tick.tres`): 25 / 60 m from the player and from everyone
+`in_trouble`, a 3 m margin, staggered by index; in the camera's view one band nearer, near its
+middle every tick. A man skipped is skipped in every phase and owed the time (`tick_owed`, his
+`tick_dt`). Never slowed: `HumanBody.can_slow` false (down, getting up, stumbling, dragged, a clip,
+a brain not calm, a chore in hand) or woken (a noise, a deed to him); no player in the world (the
+physics and body labs) means no bands. Two places that took a delta but not a long one: `walk_to`
+(a slowed step stops where one-tick steps would and carries the ticks left, `_walk_spare`) and
+`Senses`' 0.12 s clock (a far man's look interval times his band). **The lab: 10 of 10 the same
+twice; against step 4, 9 of 10 event for event** (seed 5 parts 74 % in, through `SightLight`'s
+cache, renewed by whoever asks first: the townsfolk looking less often moves it; left for 4c).
+**Gain: the lab's frame -4.5 ms here, the people -3.9** (the brief expected none: the street's
+townsfolk outside the saloon are far from you; half the people tick each frame). `perf_bench
+--folk=2`: the town doubled adds +5.1 ms of people with the bands off, +1.8 with them on (a far man
+~0.11 ms instead of ~0.32 here): a third of the slope, not flat. The gang walking in two streets
+off reaches the bar 4-6 frames behind in 33 s (`test_town_day`); wounded far men bleed the same.
 
 **Step 5. The fire scene's hitches, single-core** (the burning saloon: frames of 30–130 ms
 become frames under 20; no change to the gunfight's average). *"Read `experiments/blast_freeze/README.md`

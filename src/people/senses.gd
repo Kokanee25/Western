@@ -39,19 +39,36 @@ var body: HumanBody
 var light := -1.0
 
 var _t := 0.0
+## The while between his last look and the next as it was set (TICK, or TICK times his band's).
+var _every_t := TICK
 var _clock := 0.0
 var _rng := RandomNumberGenerator.new()
 var _day: Node
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	body = get_parent() as HumanBody
 	_rng.seed = (body.rng_seed if body else 1) * 13 + 5
 	_t = _rng.randf() * TICK  # stagger people's ticks
 	Events.noise.connect(_on_noise)
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"senses", t)
@@ -59,11 +76,19 @@ func _physics_process(delta: float) -> void:
 
 func _physics_step(delta: float) -> void:
 	_clock += delta
+	# A far man (PeopleTick's bands) looks round as many times less often as he's ticked, each look
+	# taking in the time since the last; nearer again, he looks within a near man's while.
+	var every := body.tick_every if body != null else 1
+	var cut := _t - TICK * every
+	if cut > 0.0:
+		_t -= cut
+		_every_t -= cut
 	_t -= delta
 	if _t > 0.0:
 		return
-	var dt := TICK - _t
-	_t = TICK
+	var dt := _every_t - _t
+	_every_t = TICK * every
+	_t = _every_t
 	_forget_gone()
 	if body == null or not is_instance_valid(body) or not body.physiology.is_conscious():
 		var entries := known.values()
@@ -277,7 +302,12 @@ func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceSt
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
 	Prof.count(&"q_senses")
-	return Sight.clear(space, from, to, ex)
+	# Timed on its own (`lines_senses`): what one batch of the tick's lines could save at most
+	# (more-cores step 4, "The design" B phase 3).
+	var t := Prof.start()
+	var clear := Sight.clear(space, from, to, ex)
+	Prof.stop(&"lines_senses", t)
+	return clear
 
 
 func _speed_of(who: Node3D) -> float:
@@ -325,6 +355,7 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 		reach *= 1.0 - 0.35 * body.physiology.deaf_ears()
 	if d > reach:
 		return
+	body.wake()  # heard: he takes it in next tick, far off or not (PeopleTick's bands)
 	var err := d * 0.12
 	var guess := at + Vector3(_rng.randf_range(-err, err), 0.0, _rng.randf_range(-err, err))
 	# Who made it he knows only if he can see him as he makes it.
