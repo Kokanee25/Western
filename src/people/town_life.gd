@@ -22,6 +22,7 @@ var doctor: HumanBody
 var colter: HumanBody
 var miner: HumanBody
 var working_girl: HumanBody
+var rancher: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -89,6 +90,10 @@ func _spawn_townsfolk() -> void:
 	# for now by its front windows, looking into the room (Sean, 2026-10-24). A civilian's mind.
 	working_girl = _civilian(&"working_girl", &"saloon_window", TownLayout.point(&"Saloon", Vector3(5.0, 1.4, 4.5)), 108,
 			Color(0.9, 0.86, 0.78), Color(0.62, 0.42, 0.4), &"working_girl_s2_talking")
+	# The Mexican rancher (the Studio's mexican_rancher_s1; DESIGN.md mission 4, the vaquero's horses)
+	# along the livery's front from the fourth Colter, looking in at its doors. A civilian's mind.
+	rancher = _civilian(&"rancher", &"livery_side", TownLayout.point(&"StreetDressing/Livery", Vector3(8.5, 1.4, 2.0)), 109,
+			Color(0.88, 0.82, 0.7), Color(0.45, 0.3, 0.2), &"mexican_rancher_s1_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
