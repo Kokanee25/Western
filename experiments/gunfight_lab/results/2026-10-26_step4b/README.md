@@ -79,7 +79,8 @@ everyone, every tick, as step 4.
 - **The physics lab and the body lab** have no player in the world, so the bands are off there by
   the rule above: every man every tick, step 4's code path (a slowed walk's and look's arithmetic
   is only taken when a man is slowed). Not re-run.
-- **The suite:** see the PR (`test_perf`'s frame budgets fail in this container on main too).
+- **The suite: 753 passed, 0 failed** (merged with main at f81c627; `test_perf`'s budgets pass on
+  a quiet machine, and failed when the lab shared it).
 
 ## The numbers
 
@@ -107,8 +108,23 @@ they tick every 2nd or 4th tick: half the people a frame. The three gunmen cost 
 likely the light cache above: the townsfolk asked for the player's and the gang's entries and
 renewed them; now the gunmen do more of it.
 
-`perf_bench`'s calm street with the town doubled (`--folk=2`: the townsfolk again, two streets off,
-`tools/folk_copies.gd`): see `bench.md`.
+**`perf_bench`'s calm street with the town doubled** (`--folk=2`: its 16 townsfolk again, standing
+two streets off, 80-100 m behind you, `tools/folk_copies.gd`; 20 s, three rounds alternated,
+`bench.md` by `bench.py`, scaled by the untouched systems):
+
+| | x1 | x2 | the town doubled adds |
+|---|---|---|---|
+| bands off: frame / people | 15.35 / 9.64 | 22.21 / 14.75 | **+6.9 / +5.1** |
+| bands on: frame / people | 14.75 / 9.14 | 17.59 / 10.96 | **+2.8 / +1.8** |
+
+A far man costs ~0.11 ms of people a frame instead of ~0.32 here (~0.07 against ~0.21 at Sean's):
+a third of the slope, not flat. What's left of him: a quarter of his tick (body, skeleton, prep,
+brain), the near men's looks passing over him (`q_senses` +9 a frame against +33 off), and the
+band pass (`people_bands` 0.21 -> 0.30 for 20 more men; ~10 us a man). Flat would need a far man
+to cost nothing between his ticks and the others not to look his way; the first is the band, the
+second is 4c's batch (and the per-man look loop). For the brief's 30 townsfolk two streets off:
+~6 ms of people at Sean's without the bands, ~2 with them. On the street as it is (x1) the bands
+save ~0.5 ms of people (two or three of its folk are far from the bench's spot).
 
 ## Not done, and why
 

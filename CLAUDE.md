@@ -580,7 +580,7 @@ frozen until Sean names one.
   (#394–#401, each the full prompt, gate and handover; a step's session labels the next one
   `next session`). **Step 3 merged** (PR #406, `results/2026-10-26_step3/`): `SightWorld` (plugin)
   + `Sight` (`src/people/sight.gd`) answer the sight lines by Jolt's rules; no gain on its own.
-  **Step 4 done** (PR #409, waiting on the Fable review, `claude/gameplay-perf-step4`;
+  **Step 4 merged** (PR #409, `claude/gameplay-perf-step4`;
   `results/2026-10-26_step4/`): `PeopleTick` (`src/people/people_tick.gd`; an internal child of
   the last man in) ticks the people in `tick_index` order, then in phases: each man's pure half
   (`HumanBody.prepare`: physiology, favouring, the pose's maths) on the worker pool
@@ -588,7 +588,12 @@ frozen until Sean names one.
   for event at both commits, threads on or off (the street's townsfolk tick after the player now);
   phase 2 1.72 -> 1.08 ms of the main thread here, the people -0.34 scaled, the frame within the
   VM's noise. Phase 3 (one sight batch a tick) measured, not built (~0.4 ms of `Senses`' lines; a
-  change to the fights). Step 4b is #396. **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  change to the fights). **Step 4b done** (PR waiting on the Fable review,
+  `claude/gameplay-perf-step4b`; `results/2026-10-26_step4b/`): people ticked by distance
+  (`PeopleTick`'s bands, `config/people_tick.tres`, `Settings.people_bands`; `HumanBody.can_slow`,
+  `in_trouble`, `wake`); the lab 10 of 10 twice, 9 of 10 step 4's (seed 5: `SightLight`'s
+  ask-first cache); the lab's frame -4.5 ms here; `perf_bench --folk=2` +1.8 ms of people (was
+  +5.1). Next: step 5, #397 (4c, #413, optional, Sean decides). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
   worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
   switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
   (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.
