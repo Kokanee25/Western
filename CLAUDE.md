@@ -441,6 +441,9 @@ frozen until Sean names one.
   **Props by Rodin** (prop lab's files, Sean's ask): the deer head from Sean's pictures (#361) and
   the steer skull on the saloon's porch beam (pictures by the Studio's `prop-pictures`), on
   `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $50.01 of $55.
+- **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
+  0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
+  `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.

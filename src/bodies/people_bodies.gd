@@ -14,6 +14,15 @@ const TEXTURE_PATH := "res://assets/people/%s_%s.png"
 ## The "quantise once" set: a whole man's <id>_skin_smooth.png / <id>_head_smooth.png
 ## (tools/blender/fit_tripo.py --smooth: no squares, no palette) where they exist. Off by default.
 static var smooth_paint := false
+## A Studio man's shoulder helpers (issue #388). His fit blends his chest into his upper arm over
+## his deltoid, and linear blend skinning turned 150 degrees (hands up) folds that blend in: his
+## upper arm went thin from the shoulder to halfway down (0.63 of its width a fifth of the way, the
+## doctor). Each shoulder gets a helper bone turned this share of the way from his chest to his
+## upper arm about the shoulder joint (as his collarbone and shoulder blade take part of a raised
+## arm), and each vertex's chest/upper arm blend is spread chest -> helper -> upper arm, so none
+## blends across more than the larger part of the turn. Measured by tools/characters/arm_measure.py
+## (tools/characters/arm_dump.gd). 0: off.
+static var shoulder_share := 0.35
 ## What make_people.py did for him (and what it measured, like his skin tone).
 const REPORT_PATH := "res://assets/people/%s.json"
 ## His painted textures (tools/paint_bake.gd + tools/paint/finish.py, or
@@ -117,7 +126,109 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if info.has("skin_tone"):
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
+	var bind := _shoulder_bind(model, anatomy)
+	if bind >= 0:
+		out["shoulders"] = {"bind": bind, "share": shoulder_share,
+				"pivots": [anatomy.segments[&"upper_arm_r"].a, anatomy.segments[&"upper_arm_l"].a]}
 	return out
+
+
+## Where his shoulder helpers' binds are (after the anatomy's bones and his finger bones), or -1
+## for a man without them (shoulder_share 0, not the Studio's, or an anatomy not loaded).
+static func _shoulder_bind(model: StringName, anatomy: Anatomy) -> int:
+	var info := report(model)
+	if shoulder_share <= 0.0 or not String(info.get("made_by", "")).contains("Character Studio"):
+		return -1
+	for sid: StringName in [&"chest", &"upper_arm_r", &"upper_arm_l"]:
+		if not anatomy.segments.has(sid):
+			return -1
+	return anatomy.segment_order().size() + (finger_bone_names().size() if info.has("finger_bones") else 0)
+
+
+## Each vertex blended between his chest and an upper arm (f of the way to the arm) blended instead
+## between the chest and that side's helper (f under the share) or the helper and the arm: the same
+## two slots of its four, the same total.
+static func _spread_shoulders(bones: PackedInt32Array, weights: PackedFloat32Array, index: Dictionary, bind: int) -> void:
+	var chest: int = index[&"chest"]
+	var arms := [int(index[&"upper_arm_r"]), int(index[&"upper_arm_l"])]
+	var s := shoulder_share
+	for v in bones.size() / 4:
+		var c := -1
+		for k in 4:
+			if bones[v * 4 + k] == chest and weights[v * 4 + k] > 0.0:
+				c = v * 4 + k
+		if c < 0:
+			continue
+		for side in 2:
+			var u := -1
+			for k in 4:
+				if bones[v * 4 + k] == arms[side] and weights[v * 4 + k] > 0.0:
+					u = v * 4 + k
+			if u < 0:
+				continue
+			var pair := weights[c] + weights[u]
+			var f := weights[u] / pair
+			if f < s:
+				weights[c] = pair * (1.0 - f / s)
+				bones[u] = bind + side
+				weights[u] = pair * f / s
+			else:
+				bones[c] = bind + side
+				weights[c] = pair * (1.0 - f) / (1.0 - s)
+				weights[u] = pair * (f - s) / (1.0 - s)
+			break
+
+
+## One shoulder helper: its bone, the chest's and the arm's, and the numbers its pose takes.
+class ShoulderBone:
+	var bone: int
+	var chest: int
+	var arm: int
+	var pivot: Vector3
+	var rest: Transform3D
+	var chest_unrest: Transform3D
+	var arm_unrest: Transform3D
+	var share: float
+
+
+## His shoulder helpers (`data.shoulders`, from build()), added to his skeleton and skin after his
+## finger bones; [] for a man without them. Pose them each tick with pose_shoulders.
+static func add_shoulders(skeleton: Skeleton3D, skin: Skin, data: Dictionary, bone_parts: Array) -> Array[ShoulderBone]:
+	var out: Array[ShoulderBone] = []
+	var sh: Dictionary = data.get("shoulders", {})
+	if sh.is_empty():
+		return out
+	# His pieces' helper weights name these binds: a finger rig cut short would have moved them.
+	if skin.get_bind_count() != int(sh.bind):
+		push_error("PeopleBodies: %s's shoulder helpers expect bind %d, his skin has %d" % [data.model, sh.bind, skin.get_bind_count()])
+		return out
+	var chest := bone_parts.find(&"chest")
+	for k in 2:
+		var e := ShoulderBone.new()
+		e.pivot = sh.pivots[k]
+		e.rest = Transform3D(Basis.IDENTITY, e.pivot)
+		e.bone = skeleton.get_bone_count()
+		skeleton.add_bone("shoulder_" + ("r" if k == 0 else "l"))
+		skeleton.set_bone_rest(e.bone, e.rest)
+		skin.add_bind(e.bone, e.rest.affine_inverse())
+		e.chest = chest
+		e.arm = bone_parts.find(&"upper_arm_r" if k == 0 else &"upper_arm_l")
+		e.chest_unrest = skeleton.get_bone_rest(e.chest).affine_inverse()
+		e.arm_unrest = skeleton.get_bone_rest(e.arm).affine_inverse()
+		e.share = float(sh.share)
+		out.append(e)
+	return out
+
+
+## Each helper turned its share of the way from his chest's move to his upper arm's, about the
+## shoulder joint (his chest and arms are root bones: their poses are in the skeleton's space).
+static func pose_shoulders(skeleton: Skeleton3D, rig: Array[ShoulderBone]) -> void:
+	for e in rig:
+		var mc := skeleton.get_bone_pose(e.chest) * e.chest_unrest
+		var rel := mc.affine_inverse() * (skeleton.get_bone_pose(e.arm) * e.arm_unrest)
+		var b := Basis(Quaternion.IDENTITY.slerp(rel.basis.get_rotation_quaternion(), e.share))
+		var part := Transform3D(b, e.pivot + (rel * e.pivot - e.pivot) * e.share - b * e.pivot)
+		skeleton.set_bone_pose(e.bone, mc * part * e.rest)
 
 
 ## Whose texture a shape wears: his own, or (a copy made by tools/faces/talking_face.py, whose
@@ -147,7 +258,7 @@ static func report(model: StringName) -> Dictionary:
 ## cached by model alone they were every later man's: his head skinned to his pelvis).
 static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	var order := anatomy.segment_order()
-	var key := "%s|%d" % [model, hash(order)]
+	var key := "%s|%d|%s" % [model, hash(order), shoulder_share]
 	if _cache.has(key):
 		return _cache[key]
 	var scene := load(PATH % model) as PackedScene
@@ -169,6 +280,7 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	var centres := {}
 	for i in order.size():
 		centres[i] = anatomy.segment_center(order[i])
+	var helper_bind := _shoulder_bind(model, anatomy)
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
 		var shape := String(mi.name).to_lower().trim_prefix("body_").trim_prefix("cloth_")
 		if mi.mesh == null:
@@ -231,7 +343,14 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 				for i in bv.size():
 					bv[i] = xf * bv[i]
 				blends[am.get_blend_shape_name(k)] = bv
-		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of, blends)
+		# His shoulder blends spread over his shoulder helpers; his pieces still cut by his own weights.
+		if helper_bind >= 0:
+			var sb := bones.duplicate()
+			var sw := weights.duplicate()
+			_spread_shoulders(sb, sw, index, helper_bind)
+			out[shape] = BodyMesh.split_pieces(verts, normals, uvs, sb, sw, tris, centres, piece_of, blends, bones, weights)
+		else:
+			out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of, blends)
 		if shape == "head":
 			_hat_fits[model] = hat_fit(verts)
 	root.free()
