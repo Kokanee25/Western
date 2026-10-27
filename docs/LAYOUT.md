@@ -207,7 +207,10 @@ a few views renders them as the full run does.
   `--sheet` always on the main thread). Any call into the RenderingServer that returns a value
   (`viewport_get_measured_render_time_*`, `texture_2d_get`, `get_video_adapter_name`) waits for the
   render thread: never every frame (Godot warns "causing RenderingServer synchronizations on every
-  frame"); F3 reads the render times twice a second with it.
+  frame"); F3 reads the render times twice a second with it. A shader material's
+  `duplicate()` asks for the shader's uniforms, a wait each copy: `BodyInterior.copy_material` asks
+  once a shader. Every write takes the render queue's lock and wakes the thread: `OilLamp`'s flicker
+  writes every third frame with it.
 
 ## src/render (the per-texel look)
 
