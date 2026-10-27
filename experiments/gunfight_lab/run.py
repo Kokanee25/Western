@@ -14,6 +14,8 @@ cores). --max=S caps a fight (180 s). --opening=draw: your gun starts away and t
 fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 --sheet=NAME draws that one fight (xvfb and lavapipe; --every=S between pairs of frames, --size=WxH)
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
+--physics-thread=on|off: physics on its own thread or not for this run's games (more-cores step 6;
+written to the game's user://engine.cfg while it runs, then put back); without it, as the game is set.
 """
 import itertools
 import json
@@ -113,6 +115,37 @@ def sheet(name, out, every, size, variant="C"):
                            f"--out={os.path.join(d, 'sheet.png')}"]).returncode
 
 
+def engine_cfg():
+    """The game's user://engine.cfg (Settings.ENGINE_PATH): engine settings read at start."""
+    data = os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share")
+    return os.path.join(data, "godot", "app_userdata", "Salt Creek", "engine.cfg")
+
+
+def physics_thread(on):
+    """Physics on its own thread (more-cores step 6) for the games this run starts: written to
+    user://engine.cfg (read at start, as the game's own setting); returns what was there, to put back."""
+    path = engine_cfg()
+    old = open(path).read() if os.path.exists(path) else None
+    lines = [l for l in (old or "").splitlines() if not l.startswith("3d/run_on_separate_thread")]
+    if "[physics]" not in lines:
+        lines += ["", "[physics]"]
+    lines.insert(lines.index("[physics]") + 1, "3d/run_on_separate_thread=%s" % ("true" if on else "false"))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines).strip() + "\n")
+    return old
+
+
+def restore_engine_cfg(old):
+    path = engine_cfg()
+    if old is None:
+        if os.path.exists(path):
+            os.remove(path)
+    else:
+        with open(path, "w") as fh:
+            fh.write(old)
+
+
 def main(argv):
     if "-h" in argv or "--help" in argv:
         print(__doc__)
@@ -133,9 +166,20 @@ def main(argv):
     godot = os.environ.get("GODOT", "godot")
     sha = subprocess.run(["git", "-C", ROOT, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
     version = subprocess.run([godot, "--version"], capture_output=True, text=True).stdout.strip()
+    thread = opt(argv, "physics-thread")
     with open(os.path.join(out, "manifest.json"), "w") as fh:
         json.dump({"source": sha, "godot": version, "cpu": os.cpu_count(), "jobs": jobs, "max_s": max_s,
-                   "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
+                   "physics_thread": thread or "as set", "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
+    if thread:
+        old_cfg = physics_thread(thread == "on")
+        try:
+            return run_all(fights, out, jobs, max_s, godot)
+        finally:
+            restore_engine_cfg(old_cfg)
+    return run_all(fights, out, jobs, max_s, godot)
+
+
+def run_all(fights, out, jobs, max_s, godot):
     t0 = time.time()
     done = 0
     failed = []

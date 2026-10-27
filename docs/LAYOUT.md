@@ -185,6 +185,14 @@ a few views renders them as the full run does.
 
 - `src/autoload/` — `Events` (the event bus), `Settings` (user://settings.cfg), `Controls` (the input
   map, built in code: keyboard/mouse and controller).
+- **Engine settings read at start** (`Settings.ENGINE_PATH`, `user://engine.cfg`): project.godot's
+  `application/config/project_settings_override` points Godot at it, so its keys (Godot's own,
+  `[section]` then `key=value`, as in project.godot) override the project's before any script
+  runs. Today one: **physics on its own thread** (`[physics] 3d/run_on_separate_thread`, more-cores
+  step 6; off, no panel or key). `Settings.physics_thread` is what this run has (F3's native line
+  says which); `Settings.set_physics_thread(on)` and `-- --physics-thread=on|off` write it for the
+  next start. The gunfight lab's `run.py --physics-thread=on|off` writes it for its games and puts
+  the file back after. Delete the file to go back to the project's settings.
 
 ## src/render (the per-texel look)
 

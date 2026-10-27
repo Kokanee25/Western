@@ -138,6 +138,14 @@ var _people_threads_file := PEOPLE_THREADS
 var people_bands := PEOPLE_BANDS
 const PEOPLE_BANDS := true
 var _people_bands_file := PEOPLE_BANDS
+## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
+## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
+## (project.godot's `application/config/project_settings_override`), so this is what this run has
+## and `set_physics_thread` is for the next start. Off until Sean has played it; no panel or key.
+## `-- --physics-thread=on|off` sets it for the next start.
+var physics_thread: bool = ProjectSettings.get_setting("physics/3d/run_on_separate_thread", false)
+## Engine settings read at start, before any script runs (Godot's own keys, section by section).
+const ENGINE_PATH := "user://engine.cfg"
 
 
 func _ready() -> void:
@@ -168,7 +176,20 @@ func _ready() -> void:
 			people_threads = a.substr(17) == "on"
 		elif a.begins_with("--people-bands="):
 			people_bands = a.substr(15) == "on"
+		elif a.begins_with("--physics-thread="):
+			set_physics_thread(a.substr(17) == "on")
 	_protect_speakers()
+	if physics_thread and DisplayServer.get_name() != "headless":
+		add_child(SoftBodyDraw.new())
+
+
+## Physics on its own thread from the next start on (`ENGINE_PATH`); this run keeps what it has.
+func set_physics_thread(on: bool) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(ENGINE_PATH)
+	cfg.set_value("physics", "3d/run_on_separate_thread", on)
+	cfg.save(ENGINE_PATH)
+	print("Physics thread %s from the next start (this run: %s)" % ["on" if on else "off", "on" if physics_thread else "off"])
 
 
 ## The master output never clips and carries no sub-bass: a hard limiter just under full scale,

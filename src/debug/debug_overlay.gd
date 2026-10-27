@@ -163,7 +163,7 @@ func _readout_text() -> String:
 			for w in (n as HumanBody).describe_wounds():
 				lines.append("  " + w)
 	lines.append("%d fps   look: %s   %s" % [Engine.get_frames_per_second(), Settings.look_description(), build_label()])
-	lines.append(native_label())
+	lines.append(native_label() + ("   physics on its own thread" if Settings.physics_thread else "   physics on the main thread"))
 	lines.append_array(frame_lines())
 	return "\n".join(lines)
 
