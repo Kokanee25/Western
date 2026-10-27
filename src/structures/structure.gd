@@ -62,8 +62,9 @@ static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
 ## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
 const SETTLE_FRAME_MS := 6.0
 ## Under World.deterministic a settle's budget is members analysed, this many a millisecond of it
-## (about what a millisecond analyses here: the spec saloon's 5,150 in ~170 ms).
-const MEMBERS_A_MS := 30
+## (about what a millisecond analyses here: the spec saloon's 5,150 in ~340 ms, measured
+## 2026-10-27 by the blast-freeze lab's `bf_analyse`; it was 30, from ~170 ms).
+const MEMBERS_A_MS := 15
 ## A building of more members than this with no analysis yet has its first done a slice a frame
 ## (a budgeted settle hands it on), never on the frame that broke it.
 const SLICED_ABOVE := 1500
@@ -789,7 +790,9 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		t0 = -half
 	if half - t1 < CUT_MIN_PIECE:
 		t1 = half
+	var t_u := Prof.start()
 	unbatch(m)
+	Prof.stop(&"cut_unbatch", t_u)
 	m.broken = true
 	mark_dirty(m.member_id)
 	m.set_meta(&"cut", Vector2(t0, t1))
@@ -798,6 +801,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 			c.queue_free()
 	m.pieces = []
 	var ai := m.axis_index()
+	var t_e := Prof.start()
 	var base := String(m.member_id).trim_prefix(String(structure_id) + "/")
 	for side in 2:
 		var a := -half if side == 0 else t1
@@ -817,7 +821,11 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		p.char_depth = m.char_depth
 		p.wet = m.wet
 		left.append(p)
+	Prof.stop(&"cut_ends", t_e)
+	var t_l := Prof.start()
 	_relink(m, left)
+	Prof.stop(&"cut_relink", t_l)
+	var t_c := Prof.start()
 	m.set_meta(&"cut_pieces", left)
 	# The stretch, in pieces about a hand-span long, thrown.
 	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
@@ -846,10 +854,15 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		rb.linear_velocity = push * _rng.randf_range(0.6, 1.1) + spread * push.length()
 		rb.angular_velocity = Vector3(_rng.randf_range(-12, 12), _rng.randf_range(-12, 12), _rng.randf_range(-12, 12))
 		rb.set_meta(&"start_v", rb.linear_velocity)
-	_wake_near(m.global_position, length + 2.0)
+	Prof.stop(&"cut_chunks", t_c)
+	var t_w := Prof.start()
+	_wake_near(m.global_transform * AABB(-m.size * 0.5, m.size))
 	_play(&"timber_crack", m.global_position)
+	Prof.stop(&"cut_wake", t_w)
+	var t_s := Prof.start()
 	Events.member_broken.emit(m.member_id)
 	Events.member_cut.emit(m, left)
+	Prof.stop(&"cut_signals", t_s)
 	return left
 
 
@@ -944,7 +957,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 		cs.queue_free()
 		m.pieces = new_pieces
 		m.set_meta(&"snapped", true)
-	_wake_near(m.global_position, m.length() + 2.0)
+	_wake_near(m.global_transform * AABB(-m.size * 0.5, m.size))
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)
 
@@ -995,26 +1008,71 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			rb.queue_free()
 			continue
 		rb.mass = maxf(mass, 0.3)
-		_wake_near(rb.global_position, 6.0)
+		_wake_near(_rubble_box(rb))
 	return fallen
 
 
-## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
-func _wake_near(at: Vector3, radius: float) -> void:
-	for rb in rubble:
-		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
-			rb.sleeping = false
-	_rewake.call_deferred(at, radius)
+## Rubble asleep against something that just gave way wakes up (it may have been resting on it):
+## whatever's own box reaches into `box` (world: the member that went, or the clump that fell)
+## grown by WAKE_GAP. The physics engine wakes what touches a moving body itself; not what lay on
+## one that's gone. (It was every piece within 2–6 m of it: through a collapse nothing slept for
+## seconds, ~200 pieces awake and Jolt's step ~8 ms a frame here, more-cores step 5.)
+const WAKE_GAP := 0.1
+var _wake_boxes: Array[AABB] = []
 
 
-func _rewake(at: Vector3, radius: float) -> void:
+func _wake_near(box: AABB) -> void:
+	if _wake_boxes.is_empty():
+		_wake_rubble.call_deferred()
+	_wake_boxes.append(box.grow(WAKE_GAP))
+
+
+## A piece of rubble's bounds in the world, from its shapes (kept from the first look: a piece only
+## loses shapes, as what's in it burns away).
+static func _rubble_box(rb: RigidBody3D) -> AABB:
+	var local: Variant = rb.get_meta(&"bounds", null)
+	if local == null:
+		var b := AABB()
+		var first := true
+		for c in rb.get_children():
+			var cs := c as CollisionShape3D
+			if cs == null:
+				continue
+			var half := (cs.shape as BoxShape3D).size * 0.5 if cs.shape is BoxShape3D else Vector3.ONE * 0.5
+			var a := cs.transform * AABB(-half, half * 2.0)
+			b = a if first else b.merge(a)
+			first = false
+		local = b
+		if not first:
+			rb.set_meta(&"bounds", b)
+	return rb.global_transform * (local as AABB)
+
+
+## The frame's wakes in one pass over the rubble, at the end of the frame's ticks (before the
+## physics step): what's touching any of them wakes, and a piece just made gets the push it was
+## given (set before it was in the world, it can be lost). It was a pass for each, twice, each cut.
+func _wake_rubble() -> void:
+	var boxes := _wake_boxes
+	_wake_boxes = []
+	if boxes.is_empty():
+		return
+	var all := boxes[0]
+	for b in boxes:
+		all = all.merge(b)
 	for rb in rubble:
-		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
-			rb.sleeping = false
-			var v: Vector3 = rb.get_meta(&"start_v", Vector3.ZERO)
-			if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
-				rb.linear_velocity = v
-			rb.remove_meta(&"start_v")
+		if not is_instance_valid(rb):
+			continue
+		var rbox := _rubble_box(rb)
+		if not all.intersects(rbox):
+			continue
+		for b in boxes:
+			if b.intersects(rbox):
+				rb.sleeping = false
+				var v: Vector3 = rb.get_meta(&"start_v", Vector3.ZERO)
+				if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
+					rb.linear_velocity = v
+				rb.remove_meta(&"start_v")
+				break
 
 
 ## Has this body a shape left to land with? Not a shattered pane's (disabled) nor one going this

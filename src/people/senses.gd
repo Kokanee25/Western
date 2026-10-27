@@ -342,6 +342,8 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 		return
 	var from := eye()
 	var d := from.distance_to(at)
+	if d > loudness:
+		return  # out of earshot whatever's between (walls and deaf ears only shorten it): no ray
 	var reach := loudness
 	# Walls in between muffle it.
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
