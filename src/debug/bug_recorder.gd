@@ -39,6 +39,8 @@ var _toast: Label
 var perf := PerfRing.new()
 ## Where the last report went (globalized), "" before one.
 var last_path := ""
+## `-- --no-perf-ring`: no timing ring and no viewport measuring (the bench's before, #437).
+var perf_on := not OS.get_cmdline_user_args().has("--no-perf-ring")
 
 
 func _ready() -> void:
@@ -62,13 +64,13 @@ func _ready() -> void:
 	_toast.add_theme_constant_override(&"outline_size", 6)
 	_toast.visible = false
 	layer.add_child(_toast)
-	# Every viewport's render time, measured from the start (F3 reads them too).
-	perf.watch(get_tree().root)
-	for vp in get_tree().root.find_children("*", "SubViewport", true, false):
-		perf.watch(vp as Viewport)
-	_hook(get_tree().node_added, func(n: Node) -> void:
-		if n is SubViewport:
-			perf.watch(n as Viewport))
+	if perf_on:  # every viewport's render time, measured from the start (F3 reads them too)
+		perf.watch(get_tree().root)
+		for vp in get_tree().root.find_children("*", "SubViewport", true, false):
+			perf.watch(vp as Viewport)
+		_hook(get_tree().node_added, func(n: Node) -> void:
+			if n is SubViewport:
+				perf.watch(n as Viewport))
 
 
 func _exit_tree() -> void:
@@ -103,7 +105,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	perf.sample()
+	if perf_on:
+		perf.sample()
 	if _toast_left > 0.0:
 		_toast_left -= delta
 		_toast.visible = _toast_left > 0.0
