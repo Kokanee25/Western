@@ -73,7 +73,10 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	check_eq(LightLooks.night_share(get_tree()), 1.0, "21:30 is all night")
 	LightLooks.blend(get_tree(), LightLooks.night_share(get_tree()))
 	check_near(LookPreset.get_value(get_tree(), "lamps.saloon_hanging.energy"), c.values["lamps.saloon_hanging.energy"], 0.001, "night: C's")
-	check_near(LookPreset.get_value(get_tree(), "grade.contrast"), c.values["grade.contrast"], 0.001, "and C's grade")
+	# The game's own night over C's (light pass round 3, #412): its night_values win.
+	var night_values: Dictionary = LookPreset.load_file(LightLooks.GAME).get("night_values", {})
+	check_near(LookPreset.get_value(get_tree(), "grade.contrast"), night_values.get("grade.contrast", c.values["grade.contrast"]), 0.001, "and the night's grade")
+	check_near(LookPreset.get_value(get_tree(), "grade.shadow_amount"), c.values["grade.shadow_amount"], 0.001, "C's where the game's night doesn't say")
 	var mid: float = LightLooks.mix(b.values["day.exposure_day"], c.values["day.exposure_day"], 0.5)
 	LightLooks.blend(get_tree(), 0.5)
 	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), mid, 0.001, "half way down, half each")

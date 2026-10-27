@@ -59,8 +59,12 @@ func _process(delta: float) -> void:
 ## Every address any look sets.
 static func addresses() -> PackedStringArray:
 	var out := PackedStringArray()
+	var sets: Array = []
 	for f: String in FILES:
-		for a: String in LookPreset.load_file(f).get("values", {}):
+		sets.append(LookPreset.load_file(f).get("values", {}))
+	sets.append(LookPreset.load_file(GAME).get("night_values", {}))
+	for values: Dictionary in sets:
+		for a: String in values:
 			if not a in out:
 				out.append(a)
 	return out
@@ -102,6 +106,8 @@ static func blend(tree: SceneTree, t: float) -> void:
 	var game := LookPreset.load_file(GAME)
 	var day: Dictionary = LookPreset.load_file(game.day).get("values", {})
 	var night: Dictionary = LookPreset.load_file(game.night).get("values", {})
+	# The game's own night over the night look's (the saloon's room at night, light pass round 3).
+	night.merge(game.get("night_values", {}), true)
 	var day_only: Array = game.get("day_only", [])
 	var steps := maxi(1, int(game.get("grade_steps", 4)))
 	LightGrade.batching = true

@@ -161,6 +161,9 @@ func _run() -> void:
 	var out := "user://screenshots"
 	var only := ""
 	var window_shot := false
+	# --variants=A.json,B.json: after the view's own render, each LookPreset file applied in turn
+	# (over the game's light put back first) and the view saved again as <view>_<file's name>.png.
+	var variants := PackedStringArray()
 	var screen_squares := 0.0
 	var mosaic_steps := 14.0
 	var view_tune := {}
@@ -313,6 +316,8 @@ func _run() -> void:
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
 				man_pose[StringName(part.get_slice(":", 0))] = Vector3(float(xyz[0]), float(xyz[1]), float(xyz[2]))
+		elif arg.begins_with("--variants="):
+			variants = arg.substr(11).split(",")
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
 		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
@@ -614,6 +619,19 @@ func _run() -> void:
 		big.resize(img.get_width() * 3, img.get_height() * 3, Image.INTERPOLATE_NEAREST)
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
+		for path in variants:
+			var looks: Variant = load("res://src/render/light_looks.gd")
+			var preset: Variant = load("res://src/debug/look_preset.gd")
+			looks.blend(self, looks.night_share(self))
+			var missed: PackedStringArray = preset.apply(self, preset.load_file(path))
+			for i in 8:
+				await process_frame
+			viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out, v[0], path.get_file().get_basename()])
+			print("saved ", v[0], " ", path, "" if missed.is_empty() else " (not here: %s)" % ", ".join(missed))
+		if not variants.is_empty():
+			# The game's light back for the next view (a dial no look sets keeps the last variant's).
+			var looks: Variant = load("res://src/render/light_looks.gd")
+			looks.blend(self, looks.night_share(self))
 		if man_mask:
 			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
 		if face_probe:
