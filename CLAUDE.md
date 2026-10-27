@@ -656,7 +656,10 @@ frozen until Sean names one.
   fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
   skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
   Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
-  `results/2026-10-21_gore_lab/`.
+  `results/2026-10-21_gore_lab/`. **The drag smears** (2026-10-27, PR #438, build 2615): one
+  trunk-wide swipe a man (`WoundSigns._smears`, `SMEAR_*`), not rows of slashes; slanting drops
+  drawn long (`splat_long`); generated textures (`tools/textures/smear_band.py`); lab `body_drag`.
+  Next: the smear painted (Sean's $4, #439).
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
