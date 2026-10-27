@@ -1,0 +1,32 @@
+#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64 (private=0, cancel=true
+#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64 (private=0, cancel=true
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x1590d
+#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mu
+#4  ___pthread_cond_wait (cond=0x1590da08, mutex=0x1590d9d0) at ./nptl/pthread_c
+#5  0x00000000042954ab in ?? ()
+#6  0x0000000000565d1b in ?? ()
+#7  0x000000000042c157 in ?? ()
+#8  0x00007f10b642a1ca in __libc_start_call_main (main=main@entry=0x42be50, argc
+#9  0x00007f10b642a28b in __libc_start_main_impl (main=0x42be50, argc=6, argv=0x
+#10 0x000000000048a6da in ?? ()
+#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64 (private=0, cancel=true
+#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64 (private=0, cancel=true
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x148e0
+#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mu
+#4  ___pthread_cond_wait (cond=0x148e0b08, mutex=0x148e0ad0) at ./nptl/pthread_c
+#5  0x0000000003d873ad in ?? ()
+#6  0x0000000003d41e5e in ?? ()
+#7  0x0000000000facc43 in ?? ()
+#8  0x0000000000fc67d2 in ?? ()
+#9  0x0000000000f2a174 in ?? ()
+#10 0x00000000004f7e67 in ?? ()
+#11 0x00000000041fce24 in ?? ()
+#12 0x0000000001989fe6 in ?? ()
+#13 0x00000000049052a8 in ?? ()
+#14 0x000000000490535c in ?? ()
+#15 0x0000000004406195 in ?? ()
+#16 0x00000000052e6c23 in ?? ()
+#17 0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_c
+#18 0x00007f10b6529ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.

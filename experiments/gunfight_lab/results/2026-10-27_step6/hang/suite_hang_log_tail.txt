@@ -1,0 +1,30 @@
+Initialize godot-rust (API v4.7.stable.official, runtime v4.7.2.stable.official, safeguards balanced)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  ok   test_anatomy::test_the_anatomy_loads
+  ok   test_anatomy::test_ray_capsule
+  ok   test_anatomy::test_femoral_bleeds_out_in_minutes
+  ok   test_anatomy::test_tourniquet_saves_the_leg_shot
+  ok   test_anatomy::test_pressure_slows_bleeding
+  ok   test_anatomy::test_gut_shot_lasts_hours
+  ok   test_anatomy::test_heart_shot_is_quick
+  ok   test_anatomy::test_head_shot_kills_outright
+  ok   test_anatomy::test_lung_shot_takes_the_breath
+  ok   test_anatomy::test_bone_breaks_or_stops_the_ball
+  ok   test_anatomy::test_through_and_through
+  ok   test_anatomy::test_upper_arm_drops_the_gun
+  ok   test_anatomy::test_a_finger_comes_off
+  ok   test_anatomy::test_adrenaline_delays_pain
+  ok   test_anatomy::test_physiology_round_trips
+  ok   test_anatomy::test_neck_shot_opens_carotid_and_jugular
+  ok   test_anatomy::test_broken_vertebra_isnt_a_cut_cord
+  ok   test_anatomy::test_windpipe_takes_his_voice
+  ok   test_anatomy::test_muscle_wound_makes_him_limp
+  ok   test_anatomy::test_heart_races_and_bleeding_slows_as_pressure_falls
+  ok   test_anatomy::test_everything_is_inside_its_segment
+  ok   test_ballistics::test_through_a_board_and_into_a_beam
+  ok   test_ballistics::test_bullets_take_time_and_drop
+  ok   test_ballistics::test_thick_beam_alone_stops_it_cold
+  ok   test_ballistics::test_knocks_loose_things_about
+  ok   test_ballistics::test_holes_are_saved_with_the_member
+  ok   test_ballistics::test_glass_shatters_and_the_bullet_goes_on

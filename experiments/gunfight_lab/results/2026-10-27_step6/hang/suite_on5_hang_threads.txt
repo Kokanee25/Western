@@ -1,0 +1,114 @@
+Thread 11 (LWP 15260) "godot"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 11 (LWP 15260) "godot"): | #1 __futex_abstimed_wait_common private=0,
+Thread 11 (LWP 15260) "godot"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expected@entry
+Thread 11 (LWP 15260) "godot"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 11 (LWP 15260) "godot"): | #4 ___pthread_cond_wait mutex=0x1d0af5f8)
+Thread 11 (LWP 15260) "godot"): | #5 0x00000000044f3da3 ??
+Thread 11 (LWP 15260) "godot"): | #6 0x0000000004406195 ??
+Thread 11 (LWP 15260) "godot"): | #7 0x00000000052e6c23 ??
+Thread 11 (LWP 15260) "godot"): | #8 0x00007f54eac9cb84 start_thread
+Thread 11 (LWP 15260) "godot"): | #9 0x00007f54ead29ecc clone3
+Thread 10 (LWP 15261) "WorkerThread 0"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 10 (LWP 15261) "WorkerThread 0"): | #1 __futex_abstimed_wait_common private=0,
+Thread 10 (LWP 15261) "WorkerThread 0"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expec
+Thread 10 (LWP 15261) "WorkerThread 0"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 10 (LWP 15261) "WorkerThread 0"): | #4 ___pthread_cond_wait mutex=0x1d0b1128)
+Thread 10 (LWP 15261) "WorkerThread 0"): | #5 0x00000000049065c1 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #6 0x0000000004907ca0 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #7 0x00000000041fcdfc ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #8 0x0000000001989fe6 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #9 0x00000000049052a8 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #10 0x000000000490535c ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #11 0x0000000004406195 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #12 0x00000000052e6c23 ??
+Thread 10 (LWP 15261) "WorkerThread 0"): | #13 0x00007f54eac9cb84 start_thread
+Thread 10 (LWP 15261) "WorkerThread 0"): | #14 0x00007f54ead29ecc clone3
+Thread 9 (LWP 15262) "WorkerThread 1"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 9 (LWP 15262) "WorkerThread 1"): | #1 __futex_abstimed_wait_common private=-582581006,
+Thread 9 (LWP 15262) "WorkerThread 1"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expect
+Thread 9 (LWP 15262) "WorkerThread 1"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 9 (LWP 15262) "WorkerThread 1"): | #4 ___pthread_cond_wait mutex=0x1d0b1128)
+Thread 9 (LWP 15262) "WorkerThread 1"): | #5 0x000000000490545d ??
+Thread 9 (LWP 15262) "WorkerThread 1"): | #6 0x0000000004406195 ??
+Thread 9 (LWP 15262) "WorkerThread 1"): | #7 0x00000000052e6c23 ??
+Thread 9 (LWP 15262) "WorkerThread 1"): | #8 0x00007f54eac9cb84 start_thread
+Thread 9 (LWP 15262) "WorkerThread 1"): | #9 0x00007f54ead29ecc clone3
+Thread 8 (LWP 15263) "WorkerThread 2"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 8 (LWP 15263) "WorkerThread 2"): | #1 __futex_abstimed_wait_common private=-582581006,
+Thread 8 (LWP 15263) "WorkerThread 2"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expect
+Thread 8 (LWP 15263) "WorkerThread 2"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 8 (LWP 15263) "WorkerThread 2"): | #4 ___pthread_cond_wait mutex=0x1d0b1128)
+Thread 8 (LWP 15263) "WorkerThread 2"): | #5 0x000000000490545d ??
+Thread 8 (LWP 15263) "WorkerThread 2"): | #6 0x0000000004406195 ??
+Thread 8 (LWP 15263) "WorkerThread 2"): | #7 0x00000000052e6c23 ??
+Thread 8 (LWP 15263) "WorkerThread 2"): | #8 0x00007f54eac9cb84 start_thread
+Thread 8 (LWP 15263) "WorkerThread 2"): | #9 0x00007f54ead29ecc clone3
+Thread 7 (LWP 15264) "WorkerThread 3"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 7 (LWP 15264) "WorkerThread 3"): | #1 __futex_abstimed_wait_common private=1964459991,
+Thread 7 (LWP 15264) "WorkerThread 3"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expect
+Thread 7 (LWP 15264) "WorkerThread 3"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 7 (LWP 15264) "WorkerThread 3"): | #4 ___pthread_cond_wait mutex=0x1d0b1128)
+Thread 7 (LWP 15264) "WorkerThread 3"): | #5 0x000000000490545d ??
+Thread 7 (LWP 15264) "WorkerThread 3"): | #6 0x0000000004406195 ??
+Thread 7 (LWP 15264) "WorkerThread 3"): | #7 0x00000000052e6c23 ??
+Thread 7 (LWP 15264) "WorkerThread 3"): | #8 0x00007f54eac9cb84 start_thread
+Thread 7 (LWP 15264) "WorkerThread 3"): | #9 0x00007f54ead29ecc clone3
+Thread 6 (LWP 15270) "godot"): | #0 0x00007f54eacecbdf __GI___clock_nanosleep
+Thread 6 (LWP 15270) "godot"): | #1 0x00007f54eacf9b27 __GI___nanosleep
+Thread 6 (LWP 15270) "godot"): | #2 0x0000000004d9a34a ??
+Thread 6 (LWP 15270) "godot"): | #3 0x0000000003b051a3 ??
+Thread 6 (LWP 15270) "godot"): | #4 0x0000000004406195 ??
+Thread 6 (LWP 15270) "godot"): | #5 0x00000000052e6c23 ??
+Thread 6 (LWP 15270) "godot"): | #6 0x00007f54eac9cb84 start_thread
+Thread 6 (LWP 15270) "godot"): | #7 0x00007f54ead29ecc clone3
+Thread 5 (LWP 15272) "godot"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 5 (LWP 15272) "godot"): | #1 __futex_abstimed_wait_common private=32596,
+Thread 5 (LWP 15272) "godot"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expected@entry=
+Thread 5 (LWP 15272) "godot"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 5 (LWP 15272) "godot"): | #4 ___pthread_cond_wait mutex=0x1e5fbf80)
+Thread 5 (LWP 15272) "godot"): | #5 0x00000000006e23d6 ??
+Thread 5 (LWP 15272) "godot"): | #6 0x00000000052e6c23 ??
+Thread 5 (LWP 15272) "godot"): | #7 0x00007f54eac9cb84 start_thread
+Thread 5 (LWP 15272) "godot"): | #8 0x00007f54ead29ecc clone3
+Thread 4 (LWP 15299) "saltcreek-worke"): | #0 syscall at
+Thread 4 (LWP 15299) "saltcreek-worke"): | #1 0x00007f54e3f0dce7 <std::sync::mpmc::list::Channel<all
+Thread 4 (LWP 15299) "saltcreek-worke"): | #2 0x00007f54e3f12636 <std::sync::mpmc::list::Channel<all
+Thread 4 (LWP 15299) "saltcreek-worke"): | #3 0x00007f54e3f08a91 std::sys::backtrace::__rust_begin_s
+Thread 4 (LWP 15299) "saltcreek-worke"): | #4 0x00007f54e3f31aee <std::thread::lifecycle::spawn_unch
+Thread 4 (LWP 15299) "saltcreek-worke"): | #5 0x00007f54e3f8c7e0 <std::sys::thread::unix::Thread>::n
+Thread 4 (LWP 15299) "saltcreek-worke"): | #6 0x00007f54eac9cb84 start_thread
+Thread 4 (LWP 15299) "saltcreek-worke"): | #7 0x00007f54ead29ecc clone3
+Thread 3 (LWP 15300) "saltcreek-worke"): | #0 syscall at
+Thread 3 (LWP 15300) "saltcreek-worke"): | #1 0x00007f54e3f78dc6 <std::sys::sync::mutex::futex::Mute
+Thread 3 (LWP 15300) "saltcreek-worke"): | #2 0x00007f54e3f08b30 std::sys::backtrace::__rust_begin_s
+Thread 3 (LWP 15300) "saltcreek-worke"): | #3 0x00007f54e3f31aee <std::thread::lifecycle::spawn_unch
+Thread 3 (LWP 15300) "saltcreek-worke"): | #4 0x00007f54e3f8c7e0 <std::sys::thread::unix::Thread>::n
+Thread 3 (LWP 15300) "saltcreek-worke"): | #5 0x00007f54eac9cb84 start_thread
+Thread 3 (LWP 15300) "saltcreek-worke"): | #6 0x00007f54ead29ecc clone3
+Thread 2 (LWP 15301) "saltcreek-worke"): | #0 syscall at
+Thread 2 (LWP 15301) "saltcreek-worke"): | #1 0x00007f54e3f78dc6 <std::sys::sync::mutex::futex::Mute
+Thread 2 (LWP 15301) "saltcreek-worke"): | #2 0x00007f54e3f08b30 std::sys::backtrace::__rust_begin_s
+Thread 2 (LWP 15301) "saltcreek-worke"): | #3 0x00007f54e3f31aee <std::thread::lifecycle::spawn_unch
+Thread 2 (LWP 15301) "saltcreek-worke"): | #4 0x00007f54e3f8c7e0 <std::sys::thread::unix::Thread>::n
+Thread 2 (LWP 15301) "saltcreek-worke"): | #5 0x00007f54eac9cb84 start_thread
+Thread 2 (LWP 15301) "saltcreek-worke"): | #6 0x00007f54ead29ecc clone3
+Thread 1 (LWP 15251) "godot"): | #0 0x00007f54eac98e51 __futex_abstimed_wait_common64
+Thread 1 (LWP 15251) "godot"): | #1 __futex_abstimed_wait_common private=0,
+Thread 1 (LWP 15251) "godot"): | #2 __GI___futex_abstimed_wait_cancelable64 expected=expected@entry=
+Thread 1 (LWP 15251) "godot"): | #3 0x00007f54eac9b8cd __pthread_cond_wait_common
+Thread 1 (LWP 15251) "godot"): | #4 ___pthread_cond_wait mutex=0x1e7ebf80)
+Thread 1 (LWP 15251) "godot"): | #5 0x0000000004e0fe3b ??
+Thread 1 (LWP 15251) "godot"): | #6 0x00000000004f7fdf ??
+Thread 1 (LWP 15251) "godot"): | #7 0x00000000041fbdd1 ??
+Thread 1 (LWP 15251) "godot"): | #8 0x0000000000af9647 ??
+Thread 1 (LWP 15251) "godot"): | #9 0x00000000009380de ??
+Thread 1 (LWP 15251) "godot"): | #10 0x00000000048f70b5 ??
+Thread 1 (LWP 15251) "godot"): | #11 0x00000000046ada1b ??
+Thread 1 (LWP 15251) "godot"): | #12 0x0000000000b1c5b8 ??
+Thread 1 (LWP 15251) "godot"): | #13 0x00000000009380de ??
+Thread 1 (LWP 15251) "godot"): | #14 0x00000000048f70b5 ??
+Thread 1 (LWP 15251) "godot"): | #15 0x00000000046ada1b ??
+Thread 1 (LWP 15251) "godot"): | #16 0x0000000000b1c5b8 ??
+Thread 1 (LWP 15251) "godot"): | #17 0x00000000009380de ??
+Thread 1 (LWP 15251) "godot"): | #18 0x0000000002acd31f ??
+Thread 1 (LWP 15251) "godot"): | #19 0x00000000005c8ead ??
