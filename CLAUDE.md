@@ -440,7 +440,12 @@ frozen until Sean names one.
   hands. Open: the storekeeper's chin holes and the edge pin at hair (`docs/briefs/face-seam.md`).
   **Props by Rodin** (prop lab's files, Sean's ask): the deer head from Sean's pictures (#361) and
   the steer skull on the saloon's porch beam (pictures by the Studio's `prop-pictures`), on
-  `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $50.01 of $55.
+  `tools/blender/props/rodin_prop.py`, look `model:<name>`, `bone` in the tunings. Studio $57.82 of $60.
+- **The widow remade** (2026-10-27, #414): `widow_s6_talking` (Studio `widow_s6`) from Sean's own
+  ChatGPT pictures, his front edited (her hair in the bun, the scowl relaxed), `head_size`; the
+  talking face `--pin=no` (the edge pin lays it on her hair and slashes her chin). Sheets
+  `docs/style_test/widow-look/`. Fronts by GPT-5.4 in the cowboy's look kept drawing her head small
+  (0.104-0.109 of her height, his 0.140): Sean's own pictures are the route for a woman.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
