@@ -1,0 +1,46 @@
+### time 17.6 goto -60 4 28 wait 2 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 107.0, "frame_ms": 9.3, "nodes": 22983.0, "physics_ms": 16.49, "process_ms": 2.13}, "ok": true, "t": 66.5}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 0, "people": 21}, "ok": true, "t": 66.52}
+### ignite -66 1.5 32 ignite -62 1.5 30 ignite -68 2.5 34 ignite -64 2.5 33 ignite -66 3.5 32 ignite -70 1.5 36
+{"cmd": "ignite -66 1.5 32", "member": "saloon_spec/girder/610/1", "ok": true, "t": 66.65}
+{"cmd": "ignite -62 1.5 30", "member": "saloon_spec/floor/ground/board/025_2", "ok": true, "t": 66.67}
+{"cmd": "ignite -68 2.5 34", "member": "saloon_spec/post/08", "ok": true, "t": 66.68}
+{"cmd": "ignite -64 2.5 33", "member": "saloon_spec_card_table_11/top_l2", "ok": true, "t": 66.7}
+{"cmd": "ignite -66 3.5 32", "member": "saloon_spec/post/05", "ok": true, "t": 66.72}
+{"cmd": "ignite -70 1.5 36", "member": "saloon_spec/floor/ground/board/066_0", "ok": true, "t": 66.73}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 87.0, "frame_ms": 11.5, "nodes": 23018.0, "physics_ms": 21.78, "process_ms": 4.02}, "ok": true, "t": 81.8}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 6, "people": 21}, "ok": true, "t": 81.82}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 66.0, "frame_ms": 15.2, "nodes": 23079.0, "physics_ms": 29.79, "process_ms": 7.3}, "ok": true, "t": 96.93}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 6, "people": 21}, "ok": true, "t": 96.95}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 74.0, "frame_ms": 13.5, "nodes": 23181.0, "physics_ms": 116.02, "process_ms": 2.09}, "ok": true, "t": 112.05}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 15, "people": 21}, "ok": true, "t": 112.07}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 67.0, "frame_ms": 14.9, "nodes": 23309.0, "physics_ms": 130.1, "process_ms": 1.92}, "ok": true, "t": 127.15}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 32, "people": 21}, "ok": true, "t": 127.17}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 52.0, "frame_ms": 19.2, "nodes": 23902.0, "physics_ms": 115.37, "process_ms": 2.04}, "ok": true, "t": 142.25}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 108, "people": 21}, "ok": true, "t": 142.27}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 44.0, "frame_ms": 22.7, "nodes": 24785.0, "physics_ms": 39.08, "process_ms": 1.52}, "ok": true, "t": 157.32}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 2, "members_burning": 313, "people": 21}, "ok": true, "t": 157.33}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 29.0, "frame_ms": 34.5, "nodes": 26263.0, "physics_ms": 56.07, "process_ms": 2.05}, "ok": true, "t": 172.38}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 3, "members_burning": 687, "people": 21}, "ok": true, "t": 172.4}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 23.0, "frame_ms": 43.5, "nodes": 27629.0, "physics_ms": 106.47, "process_ms": 1.64}, "ok": true, "t": 187.45}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 4, "members_burning": 1179, "people": 21}, "ok": true, "t": 187.47}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 23.0, "frame_ms": 43.5, "nodes": 28791.0, "physics_ms": 71.31, "process_ms": 1.36}, "ok": true, "t": 202.52}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 6, "members_burning": 1626, "people": 21}, "ok": true, "t": 202.53}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 23.0, "frame_ms": 43.5, "nodes": 30089.0, "physics_ms": 107.32, "process_ms": 1.53}, "ok": true, "t": 217.57}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 9, "members_burning": 2023, "people": 21}, "ok": true, "t": 217.58}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "23:36", "draw_calls": 0.0, "fps": 18.0, "frame_ms": 55.6, "nodes": 30858.0, "physics_ms": 73.84, "process_ms": 1.49}, "ok": true, "t": 232.62}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 11, "members_burning": 2450, "people": 18}, "ok": true, "t": 232.63}
+### wait 15 read frame read counts
+{"cmd": "read frame", "frame": {"clock": "23:36", "draw_calls": 0.0, "fps": 20.0, "frame_ms": 50.0, "nodes": 32932.0, "physics_ms": 86.14, "process_ms": 1.61}, "ok": true, "t": 247.67}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 21, "members_burning": 2944, "people": 18}, "ok": true, "t": 247.68}
