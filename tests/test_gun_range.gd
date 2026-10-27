@@ -215,6 +215,7 @@ func test_gun_pulls_back_from_a_wall() -> void:
 	if not check(not wall.is_empty(), "found a wall to face"):
 		return
 	await process_frames(40)
+	await physics_frames(1)  # queries in the physics frame (World.space)
 	var eye := player.camera.global_position
 	var q := PhysicsRayQueryParameters3D.create(eye, gun.model.muzzle.global_position, Layers.WORLD)
 	q.exclude = [player.get_rid()]

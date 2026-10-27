@@ -48,6 +48,7 @@ func test_a_member_at_rest_is_its_body_alone_and_still_solid() -> void:
 	check_eq(m.get_shape_owners().size(), 1, "its shape on its body")
 	check(m.drawn_node() != null and m.drawn_node().mesh != null, "its mesh kept for the batch")
 	# A ray at it finds the member itself (what ballistics, blows and footings ask for).
+	await physics_frames(1)  # queries in the physics frame (World.space)
 	var c := m.global_transform.origin
 	var space := world.get_world_3d().direct_space_state
 	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(c + Vector3(3, 0, 0), c, Layers.WORLD))
