@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://diurtgd33ij1r"
-path="res://.godot/imported/widow_s2_skin.png-6cb2ac6de44c58585639c69b52005b91.ctex"
+uid="uid://dpd71b8rliad"
+path="res://.godot/imported/widow_s6_talking_head.png-a9e1d638a0669fdf91ebb519e941d668.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/widow_s2_skin.png"
-dest_files=["res://.godot/imported/widow_s2_skin.png-6cb2ac6de44c58585639c69b52005b91.ctex"]
+source_file="res://assets/people/widow_s6_talking_head.png"
+dest_files=["res://.godot/imported/widow_s6_talking_head.png-a9e1d638a0669fdf91ebb519e941d668.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1

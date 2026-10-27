@@ -5,7 +5,7 @@ extends SceneTree
 ## Wall-clock on this machine; the frame budget's numbers are Sean's core (×0.65, FrameBudget's clock_scale).
 ## Untyped where it touches game classes: -s scripts compile before the autoloads exist.
 
-const MEN := ["hothead_lyle_s2_talking", "barkeep_s2_talking", "doctor_s2_talking", "widow_s2_talking",
+const MEN := ["hothead_lyle_s2_talking", "barkeep_s2_talking", "doctor_s2_talking", "widow_s6_talking",
 	"colter_rider_s2_talking", "sean_s3_talking", "old_rancher_s3_talking", "young_drifter_s3_talking",
 	"bold_cowboy_s3_talking", "bold_cowboy_talking"]
 

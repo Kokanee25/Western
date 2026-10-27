@@ -1,74 +1,80 @@
 {
  "eyes": {
   "right": [
-   0.031,
-   1.6545,
-   -0.0828
+   0.0362,
+   1.6595,
+   -0.0827
   ],
   "left": [
-   -0.031,
-   1.6555,
-   -0.0832
+   -0.0362,
+   1.6608,
+   -0.0834
   ]
  },
- "source": "the style's 3D model (styles/painted.yaml three_d) from her approved pictures",
- "id": "widow_s2_talking",
+ "source": "the style's 3D model (styles/painted.yaml three_d) from her third approved picture set (Sean's own)",
+ "id": "widow_s6_talking",
  "whole": true,
  "triangles": {
-  "body_skin": 27200,
-  "body_head": 7299
+  "body_skin": 27922,
+  "body_head": 4718
  },
  "made_by": "Salt Creek Character Studio (fresh code; DONT_REPEAT.md, REUSE.md)",
- "textures_from": "widow_s2",
+ "textures_from": "widow_s6",
  "facerig": {
-  "from": "widow_s2",
+  "from": "widow_s6",
   "head": null,
   "makehuman_units": 59,
   "patch": {
-   "triangles": 5609,
-   "vertices": 2856,
-   "pulled": 2051,
-   "pull_mm_median": 0.46
+   "triangles": 5441,
+   "vertices": 2780,
+   "pulled": 1963,
+   "pull_mm_median": 0.47,
+   "edge_unpinned_mm": {
+    "max": 18.6,
+    "over_2mm": 17,
+    "points": 81
+   },
+   "edge_mm_max": 18.63
   },
   "cut": {
-   "his_triangles_removed": 1251,
-   "his_edge": 108,
-   "patch_edge": 65
+   "his_triangles_removed": 759,
+   "his_edge": 144,
+   "patch_edge": 81
   },
   "holes_capped": 1,
   "teeth_back_mm": 5.9,
   "teeth_down_mm": 0.0,
   "eye_centres": {
    "helper-l-eye": [
-    -0.0285,
-    1.655,
-    -0.0882
+    -0.036,
+    1.6605,
+    -0.0873
    ],
    "helper-r-eye": [
-    0.0295,
-    1.6539,
-    -0.0862
+    0.0362,
+    1.6584,
+    -0.086
    ]
   },
   "eye_centre": [
-   0.0005,
-   1.6544,
-   -0.0872
+   0.0001,
+   1.6595,
+   -0.0866
   ],
   "facerig": {
-   "vertices": 3474,
-   "triangles": 6567
+   "vertices": 3389,
+   "triangles": 6399
   },
   "eye_white": {
    "helper-l-eye": [
-    0.57,
-    0.432,
-    0.36
+    0.996,
+    0.996,
+    0.995
    ],
    "helper-r-eye": [
-    0.636,
-    0.489,
-    0.401
+    0.997,
+    0.997,
+    0.996
    ]
   },
   "expressions": {
@@ -76,7 +82,7 @@
     "units": {
      "JawDrop": 1.0
     },
-    "max_mm": 89.4
+    "max_mm": 88.8
    },
    "aa": {
     "units": {
@@ -84,14 +90,14 @@
      "UpperLipUp": 0.35,
      "lowerLipDown": 0.5
     },
-    "max_mm": 77.5
+    "max_mm": 62.7
    },
    "lips_apart": {
     "units": {
      "UpperLipUp": 0.6,
      "lowerLipDown": 1.0
     },
-    "max_mm": 19.2
+    "max_mm": 21.3
    },
    "ee": {
     "units": {
@@ -101,14 +107,14 @@
      "UpperLipUp": 0.35,
      "lowerLipDown": 0.45
     },
-    "max_mm": 45.0
+    "max_mm": 16.0
    },
    "oo": {
     "units": {
      "LipsKiss": 1.35,
      "JawDrop": 0.25
     },
-    "max_mm": 49.7
+    "max_mm": 17.6
    },
    "fv": {
     "units": {
@@ -117,28 +123,28 @@
      "UpperLipUp": 0.5,
      "JawDrop": 0.12
     },
-    "max_mm": 13.6
+    "max_mm": 14.8
    },
    "mbp": {
     "units": {
      "lowerLipUp": 0.5,
      "LipsKiss": 0.25
     },
-    "max_mm": 19.9
+    "max_mm": 5.2
    },
    "blink_l": {
     "units": {
      "LeftUpperLidClosed": 1.0,
      "LeftLowerLidUp": 0.25
     },
-    "max_mm": 8.6
+    "max_mm": 12.7
    },
    "blink_r": {
     "units": {
      "RightUpperLidClosed": 1.0,
      "RightLowerLidUp": 0.25
     },
-    "max_mm": 8.3
+    "max_mm": 10.5
    },
    "squint": {
     "units": {
@@ -149,7 +155,7 @@
      "LeftUpperLidClosed": 0.12,
      "RightUpperLidClosed": 0.12
     },
-    "max_mm": 13.6
+    "max_mm": 10.9
    },
    "brows_up": {
     "units": {
@@ -158,14 +164,14 @@
      "LeftOuterBrowUp": 0.35,
      "RightOuterBrowUp": 0.35
     },
-    "max_mm": 7.0
+    "max_mm": 8.7
    },
    "brows_down": {
     "units": {
      "LeftBrowDown": 1.0,
      "RightBrowDown": 1.0
     },
-    "max_mm": 6.7
+    "max_mm": 8.3
    },
    "scowl": {
     "units": {
@@ -178,7 +184,7 @@
      "LeftLowerLidUp": 0.3,
      "RightLowerLidUp": 0.3
     },
-    "max_mm": 13.3
+    "max_mm": 11.6
    },
    "smile": {
     "units": {
@@ -189,7 +195,7 @@
      "LeftLowerLidUp": 0.35,
      "RightLowerLidUp": 0.35
     },
-    "max_mm": 16.3
+    "max_mm": 18.5
    },
    "smile_l": {
     "units": {
@@ -197,7 +203,7 @@
      "LeftCheekUp": 0.9,
      "LeftLowerLidUp": 0.35
     },
-    "max_mm": 18.1
+    "max_mm": 20.4
    },
    "smile_r": {
     "units": {
@@ -205,42 +211,42 @@
      "RightCheekUp": 0.9,
      "RightLowerLidUp": 0.35
     },
-    "max_mm": 17.7
+    "max_mm": 20.5
    },
    "look_left": {
     "units": {
      "LeftEyeturnLeft": 1.0,
      "RightEyeturnLeft": 1.0
     },
-    "max_mm": 5.1
+    "max_mm": 6.4
    },
    "look_right": {
     "units": {
      "LeftEyeturnRight": 1.0,
      "RightEyeturnRight": 1.0
     },
-    "max_mm": 5.0
+    "max_mm": 6.3
    },
    "look_up": {
     "units": {
      "LeftEyeUp": 1.0,
      "RightEyeUp": 1.0
     },
-    "max_mm": 4.9
+    "max_mm": 6.9
    },
    "look_down": {
     "units": {
      "LeftEyeDown": 1.0,
      "RightEyeDown": 1.0
     },
-    "max_mm": 5.2
+    "max_mm": 7.3
    }
   },
   "stitch": {
-   "stitch_points": 70,
-   "faded": 256,
+   "stitch_points": 387,
+   "faded": 757,
    "fade_m": 0.02,
-   "worst_before": 0.4,
+   "worst_before": 1.17,
    "worst_after": 0.0
   }
  },
@@ -252,8 +258,8 @@
   ],
   "neck": true,
   "mask": {
-   "top_y": 1.628,
-   "point_y": 1.451,
+   "top_y": 1.634,
+   "point_y": 1.439,
    "triangles": 3044,
    "follows": {
     "shapes": [
@@ -266,19 +272,19 @@
      "mbp"
     ],
     "most_mm": {
-     "jaw_open": 5.8,
-     "aa": 4.9,
-     "lips_apart": 2.2,
-     "ee": 4.4,
-     "oo": 5.3,
-     "fv": 3.5,
-     "mbp": 0.6
+     "jaw_open": 6.8,
+     "aa": 5.7,
+     "lips_apart": 2.3,
+     "ee": 4.2,
+     "oo": 5.5,
+     "fv": 3.6,
+     "mbp": 0.5
     }
    }
   },
   "neck_piece": {
-   "top_y": 1.521,
-   "point_y": 1.376,
+   "top_y": 1.509,
+   "point_y": 1.364,
    "triangles": 2880
   }
  },
@@ -1007,33 +1013,33 @@
  "own_fingers": {
   "from": "makehuman, skinned (tools/faces/hands.py)",
   "wrist_stitch": {
-   "r": 89,
-   "l": 90
+   "r": 96,
+   "l": 95
   },
   "hand_square": 0.09,
   "r": {
    "hand_triangles": 3270,
    "painted_at_uv": [
-    0.8662,
-    0.8691,
+    0.3682,
+    0.8633,
     0.09
    ]
   },
   "l": {
    "hand_triangles": 3270,
    "painted_at_uv": [
-    0.4805,
-    0.877,
+    0.4883,
+    0.8789,
     0.09
    ]
   },
   "matched_to_arm": {
    "arm_rgb": [
-    191,
-    131,
-    99
+    174,
+    116,
+    82
    ],
-   "grain": 6.3,
+   "grain": 3.7,
    "from": "his forearm"
   },
   "mixed_hand_triangles_dropped": 0
