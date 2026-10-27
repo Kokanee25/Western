@@ -42,6 +42,31 @@ static func skin_material(base: StandardMaterial3D) -> ShaderMaterial:
 	return m
 
 
+## Shader -> its uniforms' names, asked of the RenderingServer once a shader (`copy_material`).
+static var _uniform_names := {}
+
+
+## A shader material's own copy (each openable shell keeps its own openings). `duplicate()` reads
+## the material's property list, and that asks the RenderingServer for the shader's uniforms: with
+## the render thread a wait on it every copy (more-cores step 7: 0.08 -> 1.2 ms a copy, the chest's
+## first opening 9 -> 40 ms). Asked once a shader here, the values copied by name.
+static func copy_material(m: ShaderMaterial) -> ShaderMaterial:
+	if not _uniform_names.has(m.shader):
+		var names := PackedStringArray()
+		for u: Dictionary in m.shader.get_shader_uniform_list():
+			names.append(u.name)
+		_uniform_names[m.shader] = names
+	var out := ShaderMaterial.new()
+	out.shader = m.shader
+	out.render_priority = m.render_priority
+	out.next_pass = m.next_pass
+	for n: String in _uniform_names[m.shader]:
+		var v: Variant = m.get_shader_parameter(n)
+		if v != null:
+			out.set_shader_parameter(n, v)
+	return out
+
+
 ## The plain pixel-textured material for a kind of tissue (fragments, loose bits).
 static func material(key: StringName) -> StandardMaterial3D:
 	return _tex_material(key, 93 if key == &"bone" else 91 if key == &"flesh" else 95 + COLOURS.keys().find(key))
@@ -203,7 +228,7 @@ static func _ribs(root: Node3D, st: Dictionary, center: Vector3, anatomy: Anatom
 		torus.rings = 12
 		torus.ring_segments = 4
 		ring.mesh = torus
-		ring.material_override = mat.duplicate()
+		ring.material_override = copy_material(mat)
 		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		ring.layers = Layers.VIS_INSIDE
 		ring.basis = basis
@@ -269,7 +294,7 @@ static func _capsule(root: Node3D, n: String, a: Vector3, b: Vector3, r: float, 
 		mi.basis = HumanBody._along(b - a)
 	mi.position = (a + b) * 0.5 - center
 	# Openable shells need their own copy (each keeps its own openings).
-	mi.material_override = mat.duplicate() if mat is ShaderMaterial else mat
+	mi.material_override = copy_material(mat) if mat is ShaderMaterial else mat
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.layers = Layers.VIS_INSIDE
 	root.add_child(mi)
