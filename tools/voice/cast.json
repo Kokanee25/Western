@@ -1,0 +1,46 @@
+{
+ "_doc": "Casting Salt Creek's voices (docs/briefs/voice-casting.md). Each character has a brief, a few description variants (each makes 3 candidate voices on ElevenLabs Voice Design) and one audition everyone reads, with range: calm, threat or shout, quiet, a laugh. Sean picks on the casting page or asks for another round with notes; a picked candidate is saved to the account and recorded in cast_voices.json. Sean's note from the pilot (2026-10-27): many voices sounded 'very plain and modern'; every description asks for the 1880s frontier, textured and unpolished.",
+ "common": "Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+ "characters": {
+  "stranger": {
+   "name": "The stranger",
+   "brief": "Late fifties. Sits at the card table and watches. Says little, never raises his voice, dry humour, unbothered by violence.",
+   "variants": [
+    {"id": "tennessee", "text": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused."},
+    {"id": "texas", "text": "A weathered West Texas cattleman in his late fifties. Deep, rough, unhurried voice with a dusty Texan drawl and a rasp at the bottom. Calm, flat, faintly menacing, says every word like it costs money."},
+    {"id": "old_soldier", "text": "A former cavalry officer near sixty, Virginia accent faded by years out west. Measured, low and husky, clipped and precise, cold and wry, with a tired edge."}
+   ],
+   "audition": "[calm] You're the one the sheriff sent. Sit down... you're making the room nervous. [low] Most folks come here to get lost. Some of 'em manage it. [dry chuckle] I've seen three men shot over this table, and every one of 'em thought he was quicker. Welcome to Salt Creek."
+  },
+  "lyle": {
+   "name": "Hothead Lyle",
+   "brief": "Thirties, outlaw. A quick temper held on a short leash; menace under every word; mean humour; explodes into shouting.",
+   "variants": [
+    {"id": "texan", "text": "A Texan outlaw in his thirties. Hard, raspy mid-range voice with a strong rural Texas twang. Coiled and dangerous, sneering, a nasty grin you can hear, snaps into loud shouting."},
+    {"id": "missouri", "text": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable."},
+    {"id": "growl", "text": "A big, heavy-set frontier outlaw in his late thirties. Low growling voice full of gravel, Southern drawl, slow menace, heavy breathing, a cruel laugh."}
+   ],
+   "audition": "[quiet, menacing] Deal 'em again. Your sleeve's wrong, Earl. Let's start there. [mocking] Square? You hear that, boys? He's been SQUARE. [shouting] He's behind the bar! Flush him out! [cold] You picked the wrong town, mister. [laughs] Come on out and I'll make it quick."
+  },
+  "barkeep": {
+   "name": "Amos the barkeep",
+   "brief": "Forties. Tired, seen it all, keeps the peace by being dull and firm. Scared of Lyle and hiding it.",
+   "variants": [
+    {"id": "midwest", "text": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to."},
+    {"id": "irish", "text": "An Irish immigrant barkeep in his late forties, twenty years in the American West. Warm, gruff voice with a softened Irish lilt, world-weary, sardonic, can bellow across a room."},
+    {"id": "gruff", "text": "A heavy, balding frontier barman around fifty. Deep, gruff, phlegmy voice, rural American accent, slow and patient, long-suffering, a growl when he's angry."}
+   ],
+   "audition": "[tired] Evening. What're you drinking? Ten cents a glass, a dollar a bottle, no credit, no exceptions. [shouting] Not in my saloon! Take it outside! [low, worried] If you're looking for the sheriff, try the doctor's. [sighs] He won't be up and about for a while."
+  },
+  "cheater": {
+   "name": "Earl the card cheat",
+   "brief": "Twenties. Charming, quick talker, all nerve until the gun comes out; then panic and begging.",
+   "variants": [
+    {"id": "kentucky", "text": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared."},
+    {"id": "riverboat", "text": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened."},
+    {"id": "farmboy", "text": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging."}
+   ],
+   "audition": "[cheerful] Five card draw, nothing wild. You in, mister? [laughs] Lady luck's been sweet on me tonight, boys! [nervous laugh] Now hold on, hold on, I've been sat here square all night. [panicked] Lyle, wait, it was a joke! You can have it, have ALL of it! [begging] Please... I've got a sister in Abilene."
+  }
+ }
+}

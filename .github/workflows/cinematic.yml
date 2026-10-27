@@ -4,6 +4,8 @@
 #   [stills]  the look-test stills (tools/cinematic/saloon.py)
 #   [debug]   flat-lit staging views of the set
 #   [audio]   the voice, effects and score generated on fal (tools/cinematic/audio.py, FAL_KEY)
+#   [cast N]  casting round N: candidate voices from cast.json (tools/voice/casting.py, ELEVENLABS_API_KEY)
+#   [castsave] save the picks in tools/voice/picks.json as voices; commits cast_voices.json
 #   [voice]   the voice pilot: lines three ways and the saloon's ambience (tools/voice/pilot.py, FAL_KEY)
 #   [sheet]   a contact sheet of the film: key frames of every shot, fast and flat
 #   [preview] the whole film, every other frame, low quality, cut with its sound
@@ -45,7 +47,7 @@ jobs:
         run: |
           mode="$INPUT"
           if [ -z "$mode" ]; then
-            for m in stills debug audio voice sheet preview final; do
+            for m in stills debug audio voice cast castsave sheet preview final; do
               case "$MSG" in *"[$m]"*) mode=$m;; esac
             done
           fi
@@ -132,6 +134,44 @@ jobs:
           fi
           python tools/voice/pilot.py --out=build/cinematic/out/voice $extra > build/cinematic/blender.log 2>&1 \
             || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          grep -v "^made " build/cinematic/blender.log
+      - name: Results to the branch
+        if: always()
+        run: python tools/cinematic/ci.py publish build/cinematic
+
+  cast:
+    needs: mode
+    if: needs.mode.outputs.mode == 'cast' || needs.mode.outputs.mode == 'castsave'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Casting on ElevenLabs
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          MSG: ${{ github.event.head_commit.message }}
+          MODE: ${{ needs.mode.outputs.mode }}
+        run: |
+          mkdir -p build/cinematic/out
+          if [ "$MODE" = "cast" ]; then
+            rnd=$(echo "$MSG" | grep -oE "\[cast [0-9]+\]" | grep -oE "[0-9]+" || echo 1)
+            only=$(echo "$MSG" | grep -oE "\[only [a-z,]+\]" | sed -E 's/\[only (.*)\]/\1/' || true)
+            python tools/voice/casting.py design --round=$rnd --out=build/cinematic/out/casting \
+              --picks=tools/voice/picks.json ${only:+--only=$only} > build/cinematic/blender.log 2>&1 \
+              || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          else
+            python tools/voice/casting.py save --picks=tools/voice/picks.json > build/cinematic/blender.log 2>&1 \
+              || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+            git config user.name "github-actions"
+            git config user.email "github-actions@users.noreply.github.com"
+            git add tools/voice/cast_voices.json
+            git commit -q -m "Casting: voices saved [skip ci]" && git push -q origin HEAD:${GITHUB_REF_NAME}
+          fi
           grep -v "^made " build/cinematic/blender.log
       - name: Results to the branch
         if: always()
