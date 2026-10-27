@@ -347,7 +347,10 @@ the shade's fill a warm colour (`day.ambient_sky_low_sun` down, `ambient_low_sun
 hour the coded sky's radiance, which the fill took half from, is dim, and the ambient's energy
 doesn't scale it), `exposure_low_sun` up, the road's `ground.sky_fill_low_sun` up, and the painted
 sky's `paint_span` shorter (its panels' blue tops come down between the clouds), `paint_gain` and
-`paint_saturation` down. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
+`paint_saturation` down. Round 5 (the saloon's back and table, no dials): the back bar's mirrors
+painted (src/art/saloon_dressing.gd), the probe re-taken (`RoomReflections`), the shot's table top
+drawn smooth (`tools/textures/draw_table.py --style=painted`, the default; `blocks` the old) and
+polished (`ShotMatch.TABLE_*`), the lamps' brass and the table's token gold. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
 (over the game's light) in the same run, for trials.
 The looks' files apply `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
 the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
@@ -1262,8 +1265,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
-  stair and balcony (members), tall mirrors (a `ReflectionProbe` the room's size gives them
-  something to show), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
+  stair and balcony (members), tall mirrors (the game's painted glass, `PropModels.mirror`'s
+  `mirror.gdshader`, set to this room by `MIRROR_ROOM`; light pass round 5: as a metal finish on
+  the probe they were black at night), `RoomReflections` (`src/art/room_reflections.gd`: the
+  room's probe for its brass, glass and tin, taken again when the lamps are lit or put out or the
+  sun rises or sets, and the mirrors' painted lamps lit with the room's), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
   back bar, lamps hung on rods; no shadows, their chimneys glow), a bottle wall (`_bottle_wall`:
   a few hundred bottles merged into one mesh per material; scenery, not shootable).
   `ShotMatch` turns and places its whole set (`ROOM_YAW`, `TABLE`: beside the bar, the tall front

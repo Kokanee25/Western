@@ -434,11 +434,22 @@ static func _mesh(parent: Node3D, n: String, mesh: Mesh, pos: Vector3, mat: Mate
 	return mi
 
 
+## The table top's tint and polish (light pass round 5). Green held up against the lamps' orange:
+## the painting's lit top is honey (G/R ~0.62), the lamp and the room's gold fill drew ours red (0.40
+## at (0.81, 0.7, 0.55)). A glossier top (0.5/0.5) blew its pool out.
+const TABLE_TINT := Color(0.62, 0.74, 0.46)
+const TABLE_ROUGHNESS := 0.65
+const TABLE_SPECULAR := 0.25
+
+
 ## A round card table: a thick top of dark boards on a turned pedestal and four splayed feet.
 static func _table(root: Node3D) -> void:
 	# Its painted top a little darker than painted (2026-10-17): untinted, its lit half came out at
 	# L* ~54 to the painting's ~45; the old tint (0.46, 0.38, 0.33), for the drawn squares, ~39.
-	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), Color(0.7, 0.62, 0.56))
+	# Light pass round 5: drawn smooth (draw_table.py's painted style; the blocks' squares read as
+	# static), amber, and polished, a soft pool of the lamp's light on it as the painting has.
+	var wood := _mat("table", PixelArt.wood("shot_table", Color(0.36, 0.22, 0.12), 61, 2, 4, 0.9), TABLE_TINT, TABLE_ROUGHNESS)
+	wood.set_shader_parameter(&"specular", TABLE_SPECULAR)
 	var body := StaticBody3D.new()
 	body.name = "Table"
 	root.add_child(body)
@@ -525,7 +536,8 @@ static func _ashtray(root: Node3D, at: Vector3) -> void:
 	t.bottom_radius = 0.055
 	t.height = 0.025
 	t.radial_segments = 10
-	_mesh(root, "Ashtray", t, at + Vector3(0, 0.012, 0), _mat("iron", PixelArt.metal("prop_iron", PropModels.IRON, 217, 0.6), Color.WHITE, 0.7, 0.6))
+	# Brass, as the painting's gear token (in iron it was a dull dark blob: light pass round 5).
+	_mesh(root, "Ashtray", t, at + Vector3(0, 0.012, 0), PropModels.brass())
 
 
 ## Once he's settled into the pose, stand the cup up (a man holds his whiskey level).
