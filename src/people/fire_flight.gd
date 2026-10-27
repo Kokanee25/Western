@@ -18,6 +18,13 @@ const OUT := [9.0, 18.0]
 
 ## The way (points to walk through, the last the place) away from the fire.
 static func way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear: float) -> Array[Vector3]:
+	var t := Prof.start()
+	var out := _way_out(fire, places, body, clear)
+	Prof.stop(&"fire_flight", t)
+	return out
+
+
+static func _way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear: float) -> Array[Vector3]:
 	var map := fire.burning_map()
 	var me := body.global_position
 	var ways: Array = []  # [way, place]
@@ -101,11 +108,13 @@ static func distance(map: Dictionary, at: Vector3, reach: float) -> float:
 
 ## The way to a point: along the town's places where he can't walk straight there.
 static func route(places: Waypoints, body: HumanBody, point: Vector3) -> Array[Vector3]:
+	var t := Prof.start()
 	var out: Array[Vector3] = []
 	if places and body.is_inside_tree():
 		out = places.route_to_point(World.space(body), body.global_position, point, exclude(body))
 	if out.is_empty():
 		out.append(point)
+	Prof.stop(&"fire_route", t)
 	return out
 
 

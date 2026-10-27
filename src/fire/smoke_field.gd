@@ -132,7 +132,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
+	var t_r := Prof.start()
 	_raster_step()
+	Prof.stop(&"smoke_raster", t_r)
 	if not _ready_cells:
 		return
 	# A step at a time on a worker thread (SmokeGrid.step_async): handed off when the last is done,
@@ -154,7 +156,9 @@ func _physics_step(delta: float) -> void:
 	var done: int = grid.call(&"steps")
 	if _fog and done != _drawn_step:
 		_drawn_step = done
+		var t_u := Prof.start()
 		_upload()
+		Prof.stop(&"smoke_upload", t_u)
 	# Out, and the smoke gone: done.
 	if _quiet > 2.0 and total() < 0.5:
 		queue_free()
@@ -184,7 +188,9 @@ func _emit() -> int:
 # --- The members in the cells ---------------------------------------------------------------------
 
 func _start_raster() -> void:
+	var t := Prof.start()
 	_raster = fire._query(box())
+	Prof.stop(&"smoke_query", t)
 	_raster_at = 0
 	_solid = PackedByteArray()
 	_solid.resize(dims.x * dims.y * dims.z)
@@ -205,7 +211,9 @@ func _raster_step() -> void:
 	_raster_at = to
 	if _raster_at >= _raster.size():
 		grid.call(&"set_solid", _solid)
+		var t_v := Prof.start()
 		_find_vents()
+		Prof.stop(&"smoke_vents", t_v)
 		_ready_cells = true
 
 

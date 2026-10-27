@@ -166,6 +166,7 @@ func fire_near(at: Vector3, radius: float) -> Dictionary:
 	var out := {"count": 0, "at": Vector3.INF, "distance": INF}
 	if active.is_empty() and spills.is_empty():
 		return out
+	var t := Prof.start()
 	var reach := AABB(at - Vector3.ONE * radius, Vector3.ONE * radius * 2.0)
 	for m in _query(reach):
 		if not m.burning or m.consumed:
@@ -186,6 +187,7 @@ func fire_near(at: Vector3, radius: float) -> Dictionary:
 			if d < out.distance:
 				out.distance = d
 				out.at = sp.position
+	Prof.stop(&"fire_near", t)
 	return out
 
 
@@ -667,6 +669,7 @@ func _query(box: AABB) -> Array[StructureMember]:
 func _neighbours(m: StructureMember) -> Array:
 	if _near.has(m) and _near_age.get(m, 0.0) < (2.0 if m.broken else 30.0):
 		return _near[m]
+	var t := Prof.start()
 	var a := _aabb(m)
 	var out: Array = []
 	for o in _query(a.grow(tuning.reach)):
@@ -689,6 +692,7 @@ func _neighbours(m: StructureMember) -> Array:
 		out.append([o, w])
 	_near[m] = out
 	_near_age[m] = 0.0
+	Prof.stop(&"fire_neigh", t)
 	return out
 
 
