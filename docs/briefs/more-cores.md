@@ -632,7 +632,11 @@ carries it"):
 
 1. **The gate held:** the lab's same seeds run twice on the new build and `same_fight.py` says
    10 of 10 the same (the two runs' folders are in the results, not only the verdict). A step
-   that changed the fight on purpose (6) re-baselined and says why.
+   that changed the fight on purpose (6) re-baselined and says why. A step compares against the
+   main it branched from, not an older results folder: an art merge that touches the lights
+   (`light_game.json`, the lamps, `SightLight`'s inputs) moves the fights too, since a man is
+   seen by the light on him (the light pass rounds 3 and 4 did, 2026-10-27), and art says so in
+   its PR; gameplay re-runs the lab's `baseline/` after such a merge.
 2. **The numbers are the step's:** `perf` before and after with the same command, one game at
    a time, against the expected gain in "The steps"; the worst 5% as well as the mean; the
    counters (`q_*`, `q_writes`) and the frame's split (window, step, rest) reported. A gain
