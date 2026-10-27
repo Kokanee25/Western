@@ -1,0 +1,189 @@
+102 calls, about $2.38 (+ transcription, a few cents)
+made b/c1_01
+made a/c1_02
+made b/c1_02
+made a/c1_01
+made b/c1_03
+made a/c1_03
+made a/c1_04
+made b/c1_04
+made a/c1_05
+made b/c1_05
+made a/c1_06
+made b/c1_06
+made a/c1_07
+made b/c1_07
+made a/c2_01
+made a/c2_02
+made b/c2_01
+made b/c2_02
+made a/c2_03
+made b/c2_03
+made a/c2_04
+made a/c2_05
+made b/c2_04
+made b/c2_05
+made a/c3_01
+made a/c3_02
+made a/c3_03
+made b/c3_01
+made b/c3_02
+made b/c3_03
+made a/c3_04
+made b/c3_04
+made b/c4_01
+made a/c4_01
+made a/c4_02
+made b/c4_02
+made a/c4_03
+made a/c4_04
+made b/c4_04
+made b/c4_03
+made b/b_01
+made a/b_01
+made a/b_02
+made b/b_02
+made a/b_03
+made b/b_03
+made a/b_04
+made b/b_04
+made a/b_05
+made b/b_05
+made a/l_01
+made a/b_06
+made b/b_06
+made b/l_01
+made a/l_02
+made b/l_02
+made a/l_03
+made b/l_03
+made a/l_05
+made b/l_04
+made b/l_05
+made a/l_04
+made b/e_02
+made a/e_01
+made b/e_01
+made a/e_02
+made b/e_03
+made a/s_01
+made a/e_03
+made b/s_01
+made b/s_02
+made a/s_03
+made a/s_02
+made b/s_03
+made a/s_04
+made b/s_04
+made a/s_05
+made b/s_05
+made c_whole/c2_bottle
+made c_whole/c3_lyle_bar
+made c_whole/c1_cheat
+made c_whole/c4_floor
+made amb/crowd_quiet_1
+made amb/crowd_quiet_2
+made amb/crowd_evening_1
+made amb/crowd_evening_2
+made amb/crowd_busy_1
+made amb/crowd_tense_1
+made amb/crowd_busy_2
+made amb/hush
+made amb/crowd_tense_2
+made amb/laugh_table_1
+made amb/laugh_table_2
+made amb/laugh_one
+made amb/glass_clink
+made amb/glass_set
+made amb/cough
+made amb/chair_scrape_1
+made amb/chair_scrape_2
+made amb/cards_shuffle
+made amb/boots_boards
+made amb/bottle_pour
+clips 98, ambience 20, word mismatches 85, failed calls 0
+  check a/b_01.mp3 0.667 heard: Evening. What are you drinking?
+  check a/c1_01.mp3 0.667 heard: Deal him again
+  check a/c2_03.mp3 0.667 heard: Bottles a dollar
+  check a/c2_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c2_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c3_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c3_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c3_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c3_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c4_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c4_02.mp3 0.091 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c4_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/c4_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/e_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/e_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/e_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/l_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/l_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/l_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/l_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/l_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/s_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/s_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/s_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/s_04.mp3 0.062 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check a/s_05.mp3 0.083 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_03.mp3 0.053 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/b_06.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_06.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c1_07.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c2_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c2_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c2_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c2_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c2_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c3_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c3_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c3_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c3_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c4_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c4_02.mp3 0.091 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c4_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/c4_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/e_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/e_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/e_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/l_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/l_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/l_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/l_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/l_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/s_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/s_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/s_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/s_04.mp3 0.062 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check b/s_05.mp3 0.083 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_06.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c1_07.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c2_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c2_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c2_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c2_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c2_05.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c3_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c3_02.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c3_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c3_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c4_01.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c4_02.mp3 0.091 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c4_03.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
+  check c/c4_04.mp3 0.0 heard: ?? 403 https://queue.fal.run/fal-ai/elevenlabs/speech-to-text: {"detail":"User i
