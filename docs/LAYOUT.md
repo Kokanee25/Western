@@ -329,8 +329,8 @@ ground's `damp_spots`/`damp_dark`, straw and droppings as two MultiMeshes); the 
 range edges were the floor's curved shapes (soft with `attenuation`, `lamps.saloon_hanging|wall`).
 Round 3 (issue #412, the saloon at night): `light_game.json`'s `night_values` go over the night
 look's (C's file unchanged for 8; `LightLooks.addresses()` counts them): the saloon's fill (its
-ambient probe, `building.saloon.night_ambient`) up, its lamps down, the night grade flatter, warmer
-and fuller. Lamp props' lights burn at their own chimney's flame and light that chimney
+ambient probe, `building.saloon.night_ambient`, in the lamps' gold, `SaloonDressing.ROOM_FILL_COLOUR`)
+up, its lamps' falloff softer and reach longer, the night grade flatter, warmer and fuller. Lamp props' lights burn at their own chimney's flame and light that chimney
 (`SaloonDressing._light_at_flame`, `_prop_chimney`: a sconce's light was ~0.3 m over its flame,
 the critic's blown wall smears); `chimney_glass.gdshader` clear glass, near-white only over the
 flame. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
