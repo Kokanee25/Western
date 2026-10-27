@@ -27,6 +27,8 @@ const SCONCE_REACH := 4.0
 ## and how far over its own origin an OilLamp puts its light.
 const FLAME_IN_LAMP := 0.21
 const LIGHT_OVER_ORIGIN := 0.22
+## The saloon's ambient fill's colour (light pass round 3).
+const ROOM_FILL_COLOUR := Color(1.0, 0.68, 0.38)
 const BALCONY_HEIGHT := 2.3
 const BALCONY_X := 8.4
 const BALCONY_Z := 1.9
@@ -65,6 +67,7 @@ static func build(s: FalseFrontBuilding) -> void:
 				lamp._chimney = chimney
 				lamp.set_lit(lamp.lit)
 	_reflections(s, f)
+	_room_fill.call_deferred(s)  # the building adds its fill after the dressing
 	_brighten_lamps(s)
 	MoonWindows.add(s)  # moonlight in at the door and windows at night (the light pass, round 2)
 
@@ -470,6 +473,14 @@ static func _light_at_flame(prop: Node3D, lamp: OilLamp) -> void:
 	if n != prop:
 		return
 	lamp.position = to_prop * Vector3(0.0, FLAME_IN_LAMP, 0.0) - Vector3(0.0, LIGHT_OVER_ORIGIN, 0.0)
+
+
+## The room's fill (its ambient probe, lifted at night by the game's light) in the lamps' gold, not
+## the plain warm white of every building's: raised in that, the night room read as daylit.
+static func _room_fill(s: FalseFrontBuilding) -> void:
+	var fill := s.get_node_or_null(^"InteriorAmbient") as ReflectionProbe if is_instance_valid(s) else null
+	if fill:
+		fill.ambient_color = ROOM_FILL_COLOUR
 
 
 ## A lamp prop's own chimney, not the one in its light's hidden lamp model (the light is added
