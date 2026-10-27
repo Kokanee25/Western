@@ -82,12 +82,13 @@ def save(args, key):
     for who, p in picks.items():
         if not p.get("generated_voice_id") or who in done:
             continue
-        c = CAST["characters"][who]
-        body = {"voice_name": "Salt Creek - " + c["name"], "voice_description": p["description"][:500],
+        name = p.get("name") or CAST["characters"][who]["name"]   # spares (kept for later roles) carry their own
+        body = {"voice_name": "Salt Creek - " + name, "voice_description": p["description"][:500],
                 "generated_voice_id": p["generated_voice_id"]}
         ans = call("/text-to-voice", body, key)
         done[who] = {"voice_id": ans["voice_id"], "name": body["voice_name"], "description": p["description"],
-                     "from": "round %s candidate %s" % (p.get("round"), p.get("candidate")), "model": MODEL}
+                     "from": "round %s candidate %s" % (p.get("round"), p.get("candidate")), "model": MODEL,
+                     "spare": bool(p.get("spare"))}
         print("saved", who, ans["voice_id"], flush=True)
     json.dump(done, open(VOICES, "w"), indent=1)
 

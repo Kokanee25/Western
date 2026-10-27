@@ -1,0 +1,44 @@
+{
+ "lyle": {
+  "candidate": "missouri_1",
+  "round": 1,
+  "generated_voice_id": "RfskTXO0fxptbCvq3jRI",
+  "description": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish."
+ },
+ "barkeep": {
+  "candidate": "midwest_1",
+  "round": 1,
+  "generated_voice_id": "bPderYtjYthVP4mdRQoy",
+  "description": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish."
+ },
+ "cheater": {
+  "candidate": "kentucky_2",
+  "round": 1,
+  "generated_voice_id": "BlsbGA5H7wTRXoBaCBn2",
+  "description": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish."
+ },
+ "spare_riverboat": {
+  "candidate": "riverboat_1",
+  "round": 1,
+  "generated_voice_id": "i3g6duTyFFTLjgJXbaag",
+  "description": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "name": "Spare - riverboat gambler",
+  "spare": true
+ },
+ "spare_farmboy": {
+  "candidate": "farmboy_2",
+  "round": 1,
+  "generated_voice_id": "zEBdlkF5mzDVSCHpEq9O",
+  "description": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "name": "Spare - Arkansas farm boy",
+  "spare": true
+ },
+ "spare_tennessee": {
+  "candidate": "tennessee_3",
+  "round": 1,
+  "generated_voice_id": "l2UfniAuUyCLOhAyQESu",
+  "description": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "name": "Spare - Tennessee drifter",
+  "spare": true
+ }
+}
