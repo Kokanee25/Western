@@ -1,0 +1,365 @@
+{
+ "round": 1,
+ "candidates": [
+  {
+   "who": "stranger",
+   "candidate": "tennessee_1",
+   "variant": "tennessee",
+   "description": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "eGDQGLH6pNayOZ49v9Da",
+   "round": 1,
+   "seconds": 22.83375,
+   "file": "stranger/tennessee_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "tennessee_2",
+   "variant": "tennessee",
+   "description": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "LHT4pk5mtLiqjPJgXGjd",
+   "round": 1,
+   "seconds": 20.9268125,
+   "file": "stranger/tennessee_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "tennessee_3",
+   "variant": "tennessee",
+   "description": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "l2UfniAuUyCLOhAyQESu",
+   "round": 1,
+   "seconds": 20.6133125,
+   "file": "stranger/tennessee_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas_1",
+   "variant": "texas",
+   "description": "A weathered West Texas cattleman in his late fifties. Deep, rough, unhurried voice with a dusty Texan drawl and a rasp at the bottom. Calm, flat, faintly menacing, says every word like it costs money. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "Zr5NpwjOgYYJiQwEtunA",
+   "round": 1,
+   "seconds": 25.39375,
+   "file": "stranger/texas_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas_2",
+   "variant": "texas",
+   "description": "A weathered West Texas cattleman in his late fifties. Deep, rough, unhurried voice with a dusty Texan drawl and a rasp at the bottom. Calm, flat, faintly menacing, says every word like it costs money. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "btOwfclK9Vhh3LklDIF3",
+   "round": 1,
+   "seconds": 21.397,
+   "file": "stranger/texas_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas_3",
+   "variant": "texas",
+   "description": "A weathered West Texas cattleman in his late fifties. Deep, rough, unhurried voice with a dusty Texan drawl and a rasp at the bottom. Calm, flat, faintly menacing, says every word like it costs money. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "5GfndudNvrljWA976IyI",
+   "round": 1,
+   "seconds": 19.4116875,
+   "file": "stranger/texas_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "old_soldier_1",
+   "variant": "old_soldier",
+   "description": "A former cavalry officer near sixty, Virginia accent faded by years out west. Measured, low and husky, clipped and precise, cold and wry, with a tired edge. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "LxLmOV9RPVBicmKNl9Lb",
+   "round": 1,
+   "seconds": 19.1505,
+   "file": "stranger/old_soldier_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "old_soldier_2",
+   "variant": "old_soldier",
+   "description": "A former cavalry officer near sixty, Virginia accent faded by years out west. Measured, low and husky, clipped and precise, cold and wry, with a tired edge. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "O4WCZSFcBpQLqhKQgi19",
+   "round": 1,
+   "seconds": 19.96025,
+   "file": "stranger/old_soldier_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "old_soldier_3",
+   "variant": "old_soldier",
+   "description": "A former cavalry officer near sixty, Virginia accent faded by years out west. Measured, low and husky, clipped and precise, cold and wry, with a tired edge. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "I1CFXpTEzr3e3yDxuxrp",
+   "round": 1,
+   "seconds": 19.3333125,
+   "file": "stranger/old_soldier_3.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "texan_1",
+   "variant": "texan",
+   "description": "A Texan outlaw in his thirties. Hard, raspy mid-range voice with a strong rural Texas twang. Coiled and dangerous, sneering, a nasty grin you can hear, snaps into loud shouting. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "ZJgOFlkEoglZGaImJYp8",
+   "round": 1,
+   "seconds": 20.352125,
+   "file": "lyle/texan_1.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "texan_2",
+   "variant": "texan",
+   "description": "A Texan outlaw in his thirties. Hard, raspy mid-range voice with a strong rural Texas twang. Coiled and dangerous, sneering, a nasty grin you can hear, snaps into loud shouting. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "8GUl1RSXHoPLQF7JzpAU",
+   "round": 1,
+   "seconds": 16.8516875,
+   "file": "lyle/texan_2.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "texan_3",
+   "variant": "texan",
+   "description": "A Texan outlaw in his thirties. Hard, raspy mid-range voice with a strong rural Texas twang. Coiled and dangerous, sneering, a nasty grin you can hear, snaps into loud shouting. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "VdUiQSxVwChkxKh6KRl4",
+   "round": 1,
+   "seconds": 16.8516875,
+   "file": "lyle/texan_3.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "missouri_1",
+   "variant": "missouri",
+   "description": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "RfskTXO0fxptbCvq3jRI",
+   "round": 1,
+   "seconds": 19.072125,
+   "file": "lyle/missouri_1.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "missouri_2",
+   "variant": "missouri",
+   "description": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "iXBYeUmEijdMy4mrr55p",
+   "round": 1,
+   "seconds": 18.4451875,
+   "file": "lyle/missouri_2.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "missouri_3",
+   "variant": "missouri",
+   "description": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "5JsnYJ2KQXGi7MHxvzlb",
+   "round": 1,
+   "seconds": 17.2435625,
+   "file": "lyle/missouri_3.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "growl_1",
+   "variant": "growl",
+   "description": "A big, heavy-set frontier outlaw in his late thirties. Low growling voice full of gravel, Southern drawl, slow menace, heavy breathing, a cruel laugh. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "jcPTwqvcNJHKcExgpMoJ",
+   "round": 1,
+   "seconds": 18.99375,
+   "file": "lyle/growl_1.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "growl_2",
+   "variant": "growl",
+   "description": "A big, heavy-set frontier outlaw in his late thirties. Low growling voice full of gravel, Southern drawl, slow menace, heavy breathing, a cruel laugh. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "NFWkJLUbOfTtsig4LZpj",
+   "round": 1,
+   "seconds": 19.881875,
+   "file": "lyle/growl_2.mp3"
+  },
+  {
+   "who": "lyle",
+   "candidate": "growl_3",
+   "variant": "growl",
+   "description": "A big, heavy-set frontier outlaw in his late thirties. Low growling voice full of gravel, Southern drawl, slow menace, heavy breathing, a cruel laugh. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "ont9QHHDHWYVUGadqXR2",
+   "round": 1,
+   "seconds": 20.5088125,
+   "file": "lyle/growl_3.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "midwest_1",
+   "variant": "midwest",
+   "description": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "bPderYtjYthVP4mdRQoy",
+   "round": 1,
+   "seconds": 16.8516875,
+   "file": "barkeep/midwest_1.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "midwest_2",
+   "variant": "midwest",
+   "description": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "CFXDCRgvl7vSXYhk3kRy",
+   "round": 1,
+   "seconds": 22.0500625,
+   "file": "barkeep/midwest_2.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "midwest_3",
+   "variant": "midwest",
+   "description": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "GNIPqm4VjNdgWS9zX9J1",
+   "round": 1,
+   "seconds": 16.041875,
+   "file": "barkeep/midwest_3.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "irish_1",
+   "variant": "irish",
+   "description": "An Irish immigrant barkeep in his late forties, twenty years in the American West. Warm, gruff voice with a softened Irish lilt, world-weary, sardonic, can bellow across a room. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "iF5QLHbtcuCmxHzhgy9n",
+   "round": 1,
+   "seconds": 17.478625,
+   "file": "barkeep/irish_1.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "irish_2",
+   "variant": "irish",
+   "description": "An Irish immigrant barkeep in his late forties, twenty years in the American West. Warm, gruff voice with a softened Irish lilt, world-weary, sardonic, can bellow across a room. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "leP3acu2ZB5Nsb1etyCW",
+   "round": 1,
+   "seconds": 16.7733125,
+   "file": "barkeep/irish_2.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "irish_3",
+   "variant": "irish",
+   "description": "An Irish immigrant barkeep in his late forties, twenty years in the American West. Warm, gruff voice with a softened Irish lilt, world-weary, sardonic, can bellow across a room. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "hVtURmrUgHBvUINS0fgR",
+   "round": 1,
+   "seconds": 19.2288125,
+   "file": "barkeep/irish_3.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "gruff_1",
+   "variant": "gruff",
+   "description": "A heavy, balding frontier barman around fifty. Deep, gruff, phlegmy voice, rural American accent, slow and patient, long-suffering, a growl when he's angry. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "U7R6vbjWqvQxRNv0euNp",
+   "round": 1,
+   "seconds": 16.9300625,
+   "file": "barkeep/gruff_1.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "gruff_2",
+   "variant": "gruff",
+   "description": "A heavy, balding frontier barman around fifty. Deep, gruff, phlegmy voice, rural American accent, slow and patient, long-suffering, a growl when he's angry. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "74m7bdjJQvrAlWWWuJzV",
+   "round": 1,
+   "seconds": 18.837,
+   "file": "barkeep/gruff_2.mp3"
+  },
+  {
+   "who": "barkeep",
+   "candidate": "gruff_3",
+   "variant": "gruff",
+   "description": "A heavy, balding frontier barman around fifty. Deep, gruff, phlegmy voice, rural American accent, slow and patient, long-suffering, a growl when he's angry. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "E2RHJ8kpe57jWfQO77up",
+   "round": 1,
+   "seconds": 19.8035625,
+   "file": "barkeep/gruff_3.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "kentucky_1",
+   "variant": "kentucky",
+   "description": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "TZUdDmRFYoPzMrHqlGtS",
+   "round": 1,
+   "seconds": 15.4933125,
+   "file": "cheater/kentucky_1.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "kentucky_2",
+   "variant": "kentucky",
+   "description": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "BlsbGA5H7wTRXoBaCBn2",
+   "round": 1,
+   "seconds": 17.792125,
+   "file": "cheater/kentucky_2.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "kentucky_3",
+   "variant": "kentucky",
+   "description": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "EFkZTKzbD6ngwde3VI4j",
+   "round": 1,
+   "seconds": 13.3251875,
+   "file": "cheater/kentucky_3.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "riverboat_1",
+   "variant": "riverboat",
+   "description": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "i3g6duTyFFTLjgJXbaag",
+   "round": 1,
+   "seconds": 26.36025,
+   "file": "cheater/riverboat_1.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "riverboat_2",
+   "variant": "riverboat",
+   "description": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "Xc5H5ra93czeohM2ZTtg",
+   "round": 1,
+   "seconds": 18.99375,
+   "file": "cheater/riverboat_2.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "riverboat_3",
+   "variant": "riverboat",
+   "description": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "oy1XbEWTWiEtvmDVF7s5",
+   "round": 1,
+   "seconds": 16.355375,
+   "file": "cheater/riverboat_3.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "farmboy_1",
+   "variant": "farmboy",
+   "description": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "EyGFXC9u3mefvdVN4ZQG",
+   "round": 1,
+   "seconds": 18.68025,
+   "file": "cheater/farmboy_1.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "farmboy_2",
+   "variant": "farmboy",
+   "description": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "zEBdlkF5mzDVSCHpEq9O",
+   "round": 1,
+   "seconds": 20.117,
+   "file": "cheater/farmboy_2.mp3"
+  },
+  {
+   "who": "cheater",
+   "candidate": "farmboy_3",
+   "variant": "farmboy",
+   "description": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "AHRFw24QNhyQc3LFyUaB",
+   "round": 1,
+   "seconds": 16.8516875,
+   "file": "cheater/farmboy_3.mp3"
+  }
+ ]
+}
