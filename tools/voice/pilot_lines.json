@@ -1,0 +1,64 @@
+{
+ "_doc": "The voice pilot (docs/briefs/voice-pilot.md): the same lines made three ways. 'plain' is the words alone (version A); 'directed' is the same words with Claude's direction as v4 audio tags and punctuation (B); conversations are also made whole by Text to Dialogue (C) from their 'directed' lines. The words never change between versions. 'scene' is what the director knew when he wrote the direction.",
+ "cast": {
+  "stranger": {"voice": "Brian", "who": "The stranger at the card table: fifties, still, says little, dry and unbothered, never raises his voice."},
+  "lyle": {"voice": "Callum", "who": "Hothead Lyle: thirties, outlaw, quick temper held on a short leash, menace under every word."},
+  "barkeep": {"voice": "Roger", "who": "Amos the barkeep: forties, tired, seen it all, keeps the peace by being dull and firm."},
+  "cheater": {"voice": "Liam", "who": "Earl the card cheat: twenties, charming, quick talker, all nerve until the gun comes out."}
+ },
+ "conversations": [
+  {"id": "c1_cheat", "scene": "Night, the card table. Lyle has seen the ace in Earl's sleeve. The table goes quiet.",
+   "lines": [
+    {"id": "c1_01", "who": "lyle", "plain": "Deal 'em again.", "directed": "[quietly] Deal 'em again."},
+    {"id": "c1_02", "who": "cheater", "plain": "Something wrong with the last hand, Lyle?", "directed": "[light, smiling] Something wrong with the last hand, Lyle?"},
+    {"id": "c1_03", "who": "lyle", "plain": "Your sleeve's wrong. Let's start there.", "directed": "[low, menacing] Your sleeve's wrong. ... Let's start there."},
+    {"id": "c1_04", "who": "cheater", "plain": "Now hold on. I've been sat here square all night.", "directed": "[nervous laugh] Now hold on- hold on. I've been sat here square all night."},
+    {"id": "c1_05", "who": "lyle", "plain": "Square. You hear that? He's been square.", "directed": "[mocking] Square. [scoffs] You hear that? He's been SQUARE."},
+    {"id": "c1_06", "who": "stranger", "plain": "Leave it, Lyle. It's two dollars.", "directed": "[calm, flat] Leave it, Lyle. ... It's two dollars."},
+    {"id": "c1_07", "who": "lyle", "plain": "It ain't the two dollars.", "directed": "[through gritted teeth] It ain't the two dollars."}
+   ]},
+  {"id": "c2_bottle", "scene": "Late, quiet. The stranger at the bar. Amos is closing up and wants him gone, but not badly.",
+   "lines": [
+    {"id": "c2_01", "who": "barkeep", "plain": "Another?", "directed": "[tired] Another?"},
+    {"id": "c2_02", "who": "stranger", "plain": "Leave the bottle.", "directed": "[dry] Leave the bottle."},
+    {"id": "c2_03", "who": "barkeep", "plain": "Bottle's a dollar.", "directed": "[flatly] Bottle's a dollar."},
+    {"id": "c2_04", "who": "stranger", "plain": "Then leave half of it.", "directed": "[deadpan] Then leave half of it."},
+    {"id": "c2_05", "who": "barkeep", "plain": "Half a bottle's still a dollar, friend.", "directed": "[chuckles] Half a bottle's still a dollar, friend."}
+   ]},
+  {"id": "c3_lyle_bar", "scene": "The morning after the shooting. Lyle walks up to the bar. Amos is scared of him and trying not to show it.",
+   "lines": [
+    {"id": "c3_01", "who": "barkeep", "plain": "Lyle. Not in here. You know the sheriff won't stand for it.", "directed": "[nervous, keeping his voice down] Lyle. Not in here. ... You know the sheriff won't stand for it."},
+    {"id": "c3_02", "who": "lyle", "plain": "Sheriff's got a hole in his belly, Amos. Pour.", "directed": "[amused, cold] Sheriff's got a hole in his belly, Amos. [beat] Pour."},
+    {"id": "c3_03", "who": "barkeep", "plain": "What'll it be?", "directed": "[swallows] ...What'll it be?"},
+    {"id": "c3_04", "who": "lyle", "plain": "Whatever Earl was drinking. He won't be needing it.", "directed": "[grinning] Whatever Earl was drinking. [chuckles] He won't be needing it."}
+   ]},
+  {"id": "c4_floor", "scene": "Earl is on the floor after the kick, one hand up. Lyle stands over him with his gun drawn.",
+   "lines": [
+    {"id": "c4_01", "who": "cheater", "plain": "Lyle, wait, it was a joke, you can have it, have all of it.", "directed": "[panicked, breathless] Lyle- Lyle, wait, it was a joke, you can have it- have ALL of it-"},
+    {"id": "c4_02", "who": "lyle", "plain": "Get up.", "directed": "[cold, quiet] Get up."},
+    {"id": "c4_03", "who": "cheater", "plain": "I can't, my leg, I think it's broke.", "directed": "[whimpering] I can't- my leg, I think it's broke-"},
+    {"id": "c4_04", "who": "lyle", "plain": "Then don't.", "directed": "[softly] Then don't."}
+   ]}
+ ],
+ "lines": [
+  {"id": "b_01", "who": "barkeep", "scene": "A stranger (the player) walks up to the bar on a busy evening.", "plain": "Evening. What're you drinking?", "directed": "[friendly but busy] Evening. What're you drinking?"},
+  {"id": "b_02", "who": "barkeep", "scene": "The player asks about prices.", "plain": "Ten cents a glass. Dollar a bottle. No credit, no exceptions.", "directed": "[bored, reciting] Ten cents a glass. Dollar a bottle. No credit... no exceptions."},
+  {"id": "b_03", "who": "barkeep", "scene": "The player asks where the sheriff is. Amos knows he was shot this morning.", "plain": "If you're looking for the sheriff, try the doctor's. He won't be up and about for a while.", "directed": "[lowering his voice, grim] If you're looking for the sheriff, try the doctor's. ... He won't be up and about for a while."},
+  {"id": "b_04", "who": "barkeep", "scene": "The player walks across his wet floor.", "plain": "Mind the floor, I just mopped it.", "directed": "[irritated] Hey- mind the floor, I just mopped it."},
+  {"id": "b_05", "who": "barkeep", "scene": "Two men square up near the piano. Amos shouts across the room.", "plain": "Not in my saloon! Take it outside!", "directed": "[shouting] Not in MY saloon! Take it outside!"},
+  {"id": "b_06", "who": "barkeep", "scene": "He leans in to warn the player quietly.", "plain": "Don't look now, but those men by the stairs have been watching you since you walked in.", "directed": "[whispers] Don't look now... but those men by the stairs have been watching you since you walked in."},
+  {"id": "l_01", "who": "lyle", "scene": "Gunfight in the saloon. He spots the player hiding behind the bar.", "plain": "He's behind the bar!", "directed": "[shouting] He's behind the BAR!"},
+  {"id": "l_02", "who": "lyle", "scene": "Gunfight. His gun is empty.", "plain": "I'm empty! Cover me!", "directed": "[urgent, shouting] I'm empty! Cover me!"},
+  {"id": "l_03", "who": "lyle", "scene": "Gunfight. He's just been shot in the arm.", "plain": "I'm hit! Damn it, I'm hit!", "directed": "[in pain, gasping] Agh- I'm hit! Damn it... I'm hit!"},
+  {"id": "l_04", "who": "lyle", "scene": "Face to face with the player in the street, before a fight.", "plain": "You picked the wrong town, mister.", "directed": "[slow, threatening] You picked the wrong town... mister."},
+  {"id": "l_05", "who": "lyle", "scene": "The player is hiding. Lyle calls out, pretending to be reasonable.", "plain": "Come on out and I'll make it quick. That's a promise.", "directed": "[sing-song, mocking] Come on out and I'll make it quick. [chuckles] That's a promise."},
+  {"id": "e_01", "who": "cheater", "scene": "Earl invites the player to the card table, all charm.", "plain": "Five card draw, nothing wild. You in?", "directed": "[cheerful, inviting] Five card draw, nothing wild. You in?"},
+  {"id": "e_02", "who": "cheater", "scene": "Earl rakes in a pot, pleased with himself.", "plain": "Lady luck's been sweet on me tonight, boys.", "directed": "[laughs] Lady luck's been sweet on me tonight, boys."},
+  {"id": "e_03", "who": "cheater", "scene": "Earl begging for his life.", "plain": "Please. I've got a sister in Abilene.", "directed": "[crying, begging] Please... please. I've got a sister in Abilene."},
+  {"id": "s_01", "who": "stranger", "scene": "The player sits down at his table for the first time.", "plain": "You're the one the sheriff sent.", "directed": "[quietly, not a question] You're the one the sheriff sent."},
+  {"id": "s_02", "who": "stranger", "scene": "The player offers to buy him a drink.", "plain": "I don't drink with men whose names I don't know.", "directed": "[dry] I don't drink with men whose names I don't know."},
+  {"id": "s_03", "who": "stranger", "scene": "The player is standing over the table, hand near his gun.", "plain": "Sit down. You're making the room nervous.", "directed": "[unbothered, slow] Sit down. ... You're making the room nervous."},
+  {"id": "s_04", "who": "stranger", "scene": "The player asks why he's in Salt Creek.", "plain": "Most folks come here to get lost. Some of 'em manage it.", "directed": "[wry] Most folks come here to get lost. [beat] Some of 'em manage it."},
+  {"id": "s_05", "who": "stranger", "scene": "Right after Lyle shoots Earl dead on the saloon floor. The stranger hasn't moved; he lifts his cup to the player.", "plain": "Welcome to Salt Creek.", "directed": "[dry, almost amused] Welcome... to Salt Creek."}
+ ]
+}

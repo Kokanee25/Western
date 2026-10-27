@@ -4,6 +4,7 @@
 #   [stills]  the look-test stills (tools/cinematic/saloon.py)
 #   [debug]   flat-lit staging views of the set
 #   [audio]   the voice, effects and score generated on fal (tools/cinematic/audio.py, FAL_KEY)
+#   [voice]   the voice pilot: lines three ways and the saloon's ambience (tools/voice/pilot.py, FAL_KEY)
 #   [sheet]   a contact sheet of the film: key frames of every shot, fast and flat
 #   [preview] the whole film, every other frame, low quality, cut with its sound
 #   [final]   the whole film at full quality, cut with its sound
@@ -15,11 +16,11 @@ name: Cinematic
 
 on:
   push:
-    branches: ["claude/cinematic-**"]
+    branches: ["claude/cinematic-**", "claude/voice-**"]
   workflow_dispatch:
     inputs:
       mode:
-        description: "stills | debug | audio | sheet | preview | final"
+        description: "stills | debug | audio | voice | sheet | preview | final"
         required: true
         default: sheet
 
@@ -44,7 +45,7 @@ jobs:
         run: |
           mode="$INPUT"
           if [ -z "$mode" ]; then
-            for m in stills debug audio sheet preview final; do
+            for m in stills debug audio voice sheet preview final; do
               case "$MSG" in *"[$m]"*) mode=$m;; esac
             done
           fi
@@ -97,6 +98,31 @@ jobs:
           python tools/cinematic/audio.py --only=${AUDIO_ONLY:-voice,sfx,music} --out=build/cinematic/out/audio > build/cinematic/blender.log 2>&1 \
             || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
           cat build/cinematic/blender.log
+      - name: Results to the branch
+        if: always()
+        run: python tools/cinematic/ci.py publish build/cinematic
+
+  voice:
+    needs: mode
+    if: needs.mode.outputs.mode == 'voice'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+      - name: The voice pilot on fal
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+        run: |
+          mkdir -p build/cinematic
+          python tools/voice/pilot.py --out=build/cinematic/out/voice > build/cinematic/blender.log 2>&1 \
+            || { python tools/cinematic/ci.py error build/cinematic/blender.log; exit 1; }
+          grep -v "^made " build/cinematic/blender.log
       - name: Results to the branch
         if: always()
         run: python tools/cinematic/ci.py publish build/cinematic
