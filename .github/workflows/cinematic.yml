@@ -48,7 +48,7 @@ jobs:
           mode="$INPUT"
           if [ -z "$mode" ]; then
             for m in stills debug audio voice cast castsave sheet preview final; do
-              case "$MSG" in *"[$m]"*) mode=$m;; esac
+              case "$MSG" in *"[$m]"*|*"[$m "*) mode=$m;; esac
             done
           fi
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
