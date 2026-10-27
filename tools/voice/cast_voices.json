@@ -1,0 +1,50 @@
+{
+ "lyle": {
+  "voice_id": "RfskTXO0fxptbCvq3jRI",
+  "name": "Salt Creek - Hothead Lyle",
+  "description": "A Missouri bushwhacker turned gunman, about thirty-five. Rough, hoarse voice, thick backwoods accent, low and menacing when calm, ragged and loud when he shouts. Mean, mocking, unpredictable. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate missouri_1",
+  "model": "eleven_ttv_v3",
+  "spare": false
+ },
+ "barkeep": {
+  "voice_id": "bPderYtjYthVP4mdRQoy",
+  "name": "Salt Creek - Amos the barkeep",
+  "description": "A tired saloon keeper in his forties from Missouri. Plain, slightly nasal working-man's voice, flat Midwestern accent, weary and dry, firm when pushed, gets loud when he has to. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate midwest_1",
+  "model": "eleven_ttv_v3",
+  "spare": false
+ },
+ "cheater": {
+  "voice_id": "BlsbGA5H7wTRXoBaCBn2",
+  "name": "Salt Creek - Earl the card cheat",
+  "description": "A young Kentucky cardsharp in his mid twenties. Light, bright, quick voice with a charming Southern drawl, cocky and smiling, talks fast, cracks into high panic when scared. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate kentucky_2",
+  "model": "eleven_ttv_v3",
+  "spare": false
+ },
+ "spare_riverboat": {
+  "voice_id": "i3g6duTyFFTLjgJXbaag",
+  "name": "Salt Creek - Spare - riverboat gambler",
+  "description": "A Mississippi riverboat gambler of about twenty-five, slick and charming, smooth Southern accent with a showman's patter, easy laugh, voice breaks when he's frightened. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate riverboat_1",
+  "model": "eleven_ttv_v3",
+  "spare": true
+ },
+ "spare_farmboy": {
+  "voice_id": "zEBdlkF5mzDVSCHpEq9O",
+  "name": "Salt Creek - Spare - Arkansas farm boy",
+  "description": "A skinny young drifter around twenty-two from rural Arkansas. Reedy, twangy voice, nervous energy, too much confidence, a cackling laugh, whiny and desperate when begging. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate farmboy_2",
+  "model": "eleven_ttv_v3",
+  "spare": true
+ },
+ "spare_tennessee": {
+  "voice_id": "l2UfniAuUyCLOhAyQESu",
+  "name": "Salt Creek - Spare - Tennessee drifter",
+  "description": "Late fifties, Tennessee-born drifter. A dry, low, slightly gravelly baritone worn by tobacco and trail dust. Speaks slowly and evenly, long pauses, a faint Southern drawl, never hurried, quietly amused. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+  "from": "round 1 candidate tennessee_3",
+  "model": "eleven_ttv_v3",
+  "spare": true
+ }
+}
