@@ -36,6 +36,19 @@ uniforms each copy, a wait on the render thread (0.08 -> 1.2 ms a copy): `BodyIn
 After: `test_openings`, `test_bodies`, `test_body_lab`, `test_wound_signs`, `test_body_impacts`
 all pass with the thread on and off.
 
+**Drawn, the tests the race hit** (`xvfb-run`, Vulkan on lavapipe, `--render-thread separate`):
+
+| test file | result | the dummy race | what failed |
+|---|---|---|---|
+| `test_project` | 10 passed, 6 failed | none | one test, the main scene loaded: 6 font-cache upload errors |
+| `test_gun_range` | 9 passed, 2 failed | none | one test: 2 `particles_set_view_axis` (a shot's smoke ending) |
+| `test_barrel_contents` | 12 passed | none | |
+| `test_pixel_art` | 15 passed, 4 failed | none | one test, the main scene loaded: 4 font-cache upload errors |
+| `test_dev_bridge` | 3 passed, 3 failed | none | 1 `particles_set_view_axis` each |
+
+Every check of ours passed; each failure is a test that counts engine errors meeting one of
+Godot's two errors below.
+
 ## The lab (10 D fights in the spec hall, `--jobs=1`, headless)
 
 - `main` (main at bc8d5d2, its own worktree, as it is) vs `off_a`: **10 of 10 the same**.
