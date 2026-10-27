@@ -739,6 +739,16 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   the joints, the rig, the skeleton) with his signs, brain, face and senses. Prof: `people_prep`
   (phase 2's wall), `people_prep_sum` (its men's own times). Not ahead (his whole tick on the main
   thread as before): limp, getting up, stumbling, on a clip or the mocap walk.
+  **Bands** (step 4b, `config/people_tick.tres`, `PeopleTickTuning`): a man past 25 m from the
+  player and from everyone `in_trouble` ticks every 2nd tick, past 60 m every 4th (a 3 m margin
+  each way: `tick_band`), staggered by his index; skipped, he's skipped in every phase and owed the
+  time (`tick_owed`), so his tick (`tick_dt`) carries it. In the camera's view one band nearer;
+  within 8 deg of its middle, every tick. Never slowed: `HumanBody.can_slow` false (down, prone,
+  getting up, stumbling, dragged, on a clip but his walk, or a node's `can_slow` false: a brain not
+  calm, a chore in hand) or `woken` (`wake()`: a noise heard, a deed done to him). A slowed
+  `walk_to` stops where the one-tick steps would have and carries the ticks left (`_walk_spare`).
+  No player in the world, or `Settings.people_bands` off (`-- --people-bands=on|off`): every tick.
+  Prof counts `n_people_ticked`, `n_people_owed`; `perf_bench --folk=N` (`tools/folk_copies.gd`).
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
   hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
   by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
