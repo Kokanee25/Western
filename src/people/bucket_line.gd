@@ -290,6 +290,12 @@ func _along(d: float) -> Vector3:
 # --- Working it ----------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"bucket_line", t)
+
+
+func _physics_step(delta: float) -> void:
 	if fire == null or not is_instance_valid(fire) or water == null or not is_instance_valid(water):
 		disband()
 		return

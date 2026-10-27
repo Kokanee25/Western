@@ -62,8 +62,9 @@ static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
 ## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
 const SETTLE_FRAME_MS := 6.0
 ## Under World.deterministic a settle's budget is members analysed, this many a millisecond of it
-## (about what a millisecond analyses here: the spec saloon's 5,150 in ~170 ms).
-const MEMBERS_A_MS := 30
+## (about what a millisecond analyses here: the spec saloon's 5,150 in ~340 ms, measured
+## 2026-10-27 by the blast-freeze lab's `bf_analyse`; it was 30, from ~170 ms).
+const MEMBERS_A_MS := 15
 ## A building of more members than this with no analysis yet has its first done a slice a frame
 ## (a budgeted settle hands it on), never on the frame that broke it.
 const SLICED_ABOVE := 1500
@@ -789,7 +790,9 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		t0 = -half
 	if half - t1 < CUT_MIN_PIECE:
 		t1 = half
+	var t_u := Prof.start()
 	unbatch(m)
+	Prof.stop(&"cut_unbatch", t_u)
 	m.broken = true
 	mark_dirty(m.member_id)
 	m.set_meta(&"cut", Vector2(t0, t1))
@@ -798,6 +801,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 			c.queue_free()
 	m.pieces = []
 	var ai := m.axis_index()
+	var t_e := Prof.start()
 	var base := String(m.member_id).trim_prefix(String(structure_id) + "/")
 	for side in 2:
 		var a := -half if side == 0 else t1
@@ -817,7 +821,11 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		p.char_depth = m.char_depth
 		p.wet = m.wet
 		left.append(p)
+	Prof.stop(&"cut_ends", t_e)
+	var t_l := Prof.start()
 	_relink(m, left)
+	Prof.stop(&"cut_relink", t_l)
+	var t_c := Prof.start()
 	m.set_meta(&"cut_pieces", left)
 	# The stretch, in pieces about a hand-span long, thrown.
 	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
@@ -846,10 +854,15 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		rb.linear_velocity = push * _rng.randf_range(0.6, 1.1) + spread * push.length()
 		rb.angular_velocity = Vector3(_rng.randf_range(-12, 12), _rng.randf_range(-12, 12), _rng.randf_range(-12, 12))
 		rb.set_meta(&"start_v", rb.linear_velocity)
+	Prof.stop(&"cut_chunks", t_c)
+	var t_w := Prof.start()
 	_wake_near(m.global_position, length + 2.0)
 	_play(&"timber_crack", m.global_position)
+	Prof.stop(&"cut_wake", t_w)
+	var t_s := Prof.start()
 	Events.member_broken.emit(m.member_id)
 	Events.member_cut.emit(m, left)
+	Prof.stop(&"cut_signals", t_s)
 	return left
 
 

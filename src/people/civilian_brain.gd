@@ -223,7 +223,9 @@ func _mind_fire(delta: float) -> bool:
 	_fire_look -= delta
 	if _fire_look <= 0.0:
 		_fire_look = FIRE_LOOK
+		var t := Prof.start()
 		_look_for_fire()
+		Prof.stop(&"civ_fire_look", t)
 	if mood != Mood.FLEEING and _route.is_empty():
 		return false
 	if _shout_in > 0.0:
