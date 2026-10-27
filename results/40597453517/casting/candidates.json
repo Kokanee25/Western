@@ -1,0 +1,95 @@
+{
+ "round": 2,
+ "candidates": [
+  {
+   "who": "stranger",
+   "candidate": "gentleman_1",
+   "variant": "gentleman",
+   "description": "A Southern gentleman gambler and gunman of about forty, Georgia-born. Rich, dark baritone, smooth on top with a rough edge underneath, soft-spoken and educated, every word controlled, quiet menace and dry wit. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "A0toZSRVuF1UJ2mPC1Mp",
+   "round": 2,
+   "seconds": 17.9488125,
+   "file": "stranger/gentleman_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "gentleman_2",
+   "variant": "gentleman",
+   "description": "A Southern gentleman gambler and gunman of about forty, Georgia-born. Rich, dark baritone, smooth on top with a rough edge underneath, soft-spoken and educated, every word controlled, quiet menace and dry wit. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "B32WkRjqyXlocJKIJaRQ",
+   "round": 2,
+   "seconds": 18.2884375,
+   "file": "stranger/gentleman_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "gentleman_3",
+   "variant": "gentleman",
+   "description": "A Southern gentleman gambler and gunman of about forty, Georgia-born. Rich, dark baritone, smooth on top with a rough edge underneath, soft-spoken and educated, every word controlled, quiet menace and dry wit. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "AtdGYEu1NFYYl1sEsTs0",
+   "round": 2,
+   "seconds": 17.792125,
+   "file": "stranger/gentleman_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawman_1",
+   "variant": "lawman",
+   "description": "A hard former lawman of about forty from Kansas. Firm, clear, deep baritone, plain frontier American speech with no strong drawl, flat and level, intense, a man who has killed and doesn't talk about it. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "NIDsmybXkI5GsnGTm0WS",
+   "round": 2,
+   "seconds": 20.6916875,
+   "file": "stranger/lawman_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawman_2",
+   "variant": "lawman",
+   "description": "A hard former lawman of about forty from Kansas. Firm, clear, deep baritone, plain frontier American speech with no strong drawl, flat and level, intense, a man who has killed and doesn't talk about it. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "8JBevxZEvVFqh1CsHBbs",
+   "round": 2,
+   "seconds": 14.2133125,
+   "file": "stranger/lawman_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "lawman_3",
+   "variant": "lawman",
+   "description": "A hard former lawman of about forty from Kansas. Firm, clear, deep baritone, plain frontier American speech with no strong drawl, flat and level, intense, a man who has killed and doesn't talk about it. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "ZRdm9YEDRmiKAFwHiO6w",
+   "round": 2,
+   "seconds": 14.997,
+   "file": "stranger/lawman_3.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas40_1",
+   "variant": "texas40",
+   "description": "A strong Texas gunfighter in his early forties, handsome and sure of himself. Deep, warm baritone with grit in it and a light Texan drawl, unhurried, quietly confident, a hint of a smile in the voice, dangerous underneath. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "eJOcDnLs7MIVpcblyUKP",
+   "round": 2,
+   "seconds": 16.7733125,
+   "file": "stranger/texas40_1.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas40_2",
+   "variant": "texas40",
+   "description": "A strong Texas gunfighter in his early forties, handsome and sure of himself. Deep, warm baritone with grit in it and a light Texan drawl, unhurried, quietly confident, a hint of a smile in the voice, dangerous underneath. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "teM1weQ9WAKNuAAfmJfK",
+   "round": 2,
+   "seconds": 17.2435625,
+   "file": "stranger/texas40_2.mp3"
+  },
+  {
+   "who": "stranger",
+   "candidate": "texas40_3",
+   "variant": "texas40",
+   "description": "A strong Texas gunfighter in his early forties, handsome and sure of himself. Deep, warm baritone with grit in it and a light Texan drawl, unhurried, quietly confident, a hint of a smile in the voice, dangerous underneath. Voice of a man on the 1880s American frontier, recorded close and dry like a film actor's dialogue, no music, no room echo. Unpolished and lived-in, not a modern announcer or narrator, not radio-smooth, no corporate or audiobook polish.",
+   "generated_voice_id": "mjuTvH7oApfgsN14oVQb",
+   "round": 2,
+   "seconds": 16.8516875,
+   "file": "stranger/texas40_3.mp3"
+  }
+ ]
+}
