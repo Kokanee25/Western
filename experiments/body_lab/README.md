@@ -44,6 +44,12 @@ as the fourth.
 - `body_treat PERSON tourniquet|packing|doctor` treats him now.
 - `body_read PERSON` reports his wounds, what they crossed, what he can do, and his blood run
   forward from now under each treatment.
+- `body_drag PERSON DX DZ [SECONDS] [BLEED]` drops him limp (bleeding from the chest, 3 ml/s, if
+  nothing is) and drags him DX DZ metres: the smear he leaves (`WoundSigns._smears`). `body_marks`
+  lists the blood marks in the world. In the saloon (2026-10-27, the smear's before and after):
+  `"time 13" "body_spawn barkeep_s1 11.5 0.8 3.2 0" "body_drag body1 -2.2 1.0 3.0 3"
+  "camera 10.2 2.4 2.2 10.6 0.8 3.6 60" "wait 6" "screenshot OUT.png"` (needs Vulkan: under the
+  OpenGL fallback decals don't draw).
 
 ```sh
 python3 tools/bridge.py start --headless

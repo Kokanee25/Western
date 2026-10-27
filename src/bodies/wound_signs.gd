@@ -26,9 +26,23 @@ const DRIP_MIN_GAP := 0.25
 const PRINT_REACH := 0.06
 const PRINT_GAP := 0.6
 const PRINTS_PER_HAND := 6
-## Smears: a bleeding part sliding over something solid this fast leaves one every this far.
-const SMEAR_SPEED := 0.3
-const SMEAR_EVERY := 0.18
+## Smears: a bleeding man drawn over a floor leaves a swipe, one band along the way he went, about
+## as wide as what touched, streaked along its length, heaviest where he lay and feathering out at
+## the end as the blood on him runs out (Bevel & Gardner, *Bloodstain Pattern Analysis*, ch. 9;
+## James, Kish & Sutton 2005, "swipes"). Laid in pieces, each from where the last one ended (the
+## band's texture tiles along its length: tools/textures/smear_band.py).
+const SMEAR_SPEED := 0.3  ## m/s along the surface
+const SMEAR_SLIDE := 0.6  ## at least this share of the part's speed along the surface (not landing on it)
+const SMEAR_EVERY := 0.25  ## a piece at least this long (m)
+const SMEAR_BREAK := 0.8  ## a jump further than this between looks (lifted, thrown) starts a new swipe
+const SMEAR_STILL := 1.0  ## s not sliding and the swipe has ended
+const SMEAR_WIDTH := 1.25  ## of the touching part's width (his back lies flatter and wider than its capsule)
+const SMEAR_LOAD_MAX := 30.0  ## ml his clothes hold where they touch
+const SMEAR_SOAK := 0.15  ## of the pool he lies in that soaks into them
+const SMEAR_FULL := 10.0  ## ml on him that draws a full-strength smear
+const SMEAR_EMPTY := 0.8  ## less than this and it has run out
+const SMEAR_BANDS := 3  ## the band's variants (smear_band0-2.png), the same where they join
+const SMEAR_REACH := 1.5  ## m: what's on him goes onto the floor over about this far (an e-fold)
 
 var _drip_ml := 0.0
 ## Its own dice, seeded by the man's (his `_rng` decides how he falls; the drips and spits come
@@ -45,7 +59,12 @@ var _spit_in := 4.0
 var _teeth_out := false
 var _bloody := {}  ## "r"/"l" -> prints left in that hand
 var _print_gap := {}
-var _smear_from := {}  ## segment -> where the last smear was
+var _smear_last := Vector3.INF  ## where the swipe's last piece ended (INF: no swipe)
+var _smear_normal := Vector3.UP
+var _smear_load := 0.0  ## ml of his blood on what touches
+var _smear_tail: Decal  ## the swipe's last piece (drawn as its end when it stops)
+var _smear_pieces := 0
+var _smear_still := 0.0
 var _bubble_in := 0.0
 var _festered := {}
 var _dead_for := 0.0
@@ -353,33 +372,93 @@ func _hands(_p: Physiology, world: Node3D, dt: float) -> void:
 
 
 ## A bleeding man down and sliding (dragged, or slumping down a wall) smears his blood along it.
-func _smears(world: Node3D, _dt: float) -> void:
-	if not (body.limp or body.prone):
+func _smears(world: Node3D, dt: float) -> void:
+	var p := body.physiology
+	_smear_load = minf(SMEAR_LOAD_MAX, _smear_load + p.total_bleed_rate() * dt)
+	if not (body.limp or body.prone) or maxf(_smear_load, body._pool_ml * SMEAR_SOAK) < SMEAR_EMPTY:
+		_end_smear()
 		return
-	var bleeding := body.physiology.total_bleed_rate() > 0.3 or not body.physiology.alive and body.physiology.blood_loss() > 0.2
-	if not bleeding:
+	var contact := _sliding_contact(world)
+	if contact.is_empty():
+		# Lying in his own blood, his clothes soak it up.
+		_smear_load = clampf(body._pool_ml * SMEAR_SOAK, _smear_load, SMEAR_LOAD_MAX)
+		_smear_still += dt
+		if _smear_still > SMEAR_STILL:
+			_end_smear()
 		return
-	for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
+	_smear_still = 0.0
+	var at: Vector3 = contact.at
+	var n: Vector3 = contact.normal
+	if _smear_last != Vector3.INF and (n.dot(_smear_normal) < 0.85 or at.distance_to(_smear_last) > SMEAR_BREAK):
+		_end_smear()
+	if _smear_last == Vector3.INF:
+		_smear_last = at
+		_smear_normal = n
+		return
+	var run := at - _smear_last
+	run -= n * run.dot(n)
+	var length := run.length()
+	if length < SMEAR_EVERY:
+		return
+	if _smear_load < SMEAR_EMPTY:
+		_end_smear()
+		_smear_last = at
+		return
+	var strength := clampf(_smear_load / SMEAR_FULL, 0.3, 1.0)
+	var width: float = contact.width * lerpf(0.7, 1.0, strength)
+	var mid := _smear_last + run * 0.5
+	var key := "smear_start" if _smear_pieces == 0 else "smear_band%d" % posmod(hash([body.rng_seed, _smear_pieces]), SMEAR_BANDS)
+	var d := _mark(world, mid, n, key, width, run)
+	# A hair longer than the run, so a bend leaves no gap between pieces.
+	d.size = Vector3(width, 0.1, length + 0.01)
+	d.modulate = Color(1, 1, 1, strength)
+	var ml := _smear_load * (1.0 - exp(-length / SMEAR_REACH))
+	_smear_load -= ml
+	d.set_meta(&"ml", ml)
+	_smear_tail = d
+	_smear_pieces += 1
+	_smear_last = mid + run * 0.5
+	_smear_normal = n
+
+
+## Of his trunk, the part sliding along something solid (a bleeding one first): where it touches,
+## the surface's normal and how wide a swipe it draws. Empty if none is.
+func _sliding_contact(world: Node3D) -> Dictionary:
+	var order: Array[StringName] = []
+	for b: Dictionary in body.physiology.bleeds:
+		var seg: StringName = b.segment
+		if seg in [&"chest", &"abdomen", &"pelvis"] and not order.has(seg):
+			order.append(seg)
+	for seg: StringName in [&"abdomen", &"chest", &"pelvis"]:
+		if not order.has(seg):
+			order.append(seg)
+	for sid in order:
 		var rb := body.parts.get(sid) as RigidBody3D
 		if rb == null:
 			continue
 		var v := rb.linear_velocity
 		if v.length() < SMEAR_SPEED:
 			continue
-		var at := rb.global_position
-		var last: Vector3 = _smear_from.get(sid, Vector3.INF)
-		if last != Vector3.INF and last.distance_to(at) < SMEAR_EVERY:
-			continue
-		var hit := _touching(world, at, float(body.anatomy.segments[sid].radius) + 0.08)
+		var radius := float(body.anatomy.segments[sid].radius)
+		var hit := _touching(world, rb.global_position, radius + 0.08)
 		if hit.is_empty():
 			continue
-		_smear_from[sid] = at
 		var n: Vector3 = hit.normal
 		var along := v - n * v.dot(n)
-		if along.length() < 0.05:
+		if along.length() < SMEAR_SPEED or along.length() < v.length() * SMEAR_SLIDE:
 			continue
-		var d := _mark(world, hit.position, n, "smear", 0.35, along)
-		d.size = Vector3(0.16, 0.1, 0.4)
+		return {"at": hit.position, "normal": n, "width": radius * 2.0 * SMEAR_WIDTH}
+	return {}
+
+
+## The swipe stops: its last piece drawn as the feathered end.
+func _end_smear() -> void:
+	if is_instance_valid(_smear_tail) and _smear_tail.is_inside_tree():
+		_smear_tail.texture_albedo = PixelArt.blood("smear_end", 73, false, 32)
+	_smear_tail = null
+	_smear_last = Vector3.INF
+	_smear_pieces = 0
+	_smear_still = 0.0
 
 
 ## The nearest solid thing within `reach` of a point, by a few rays (down first).
