@@ -81,6 +81,11 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	LightLooks.blend(get_tree(), 0.5)
 	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), mid, 0.001, "half way down, half each")
 	check_eq(LookPreset.get_value(get_tree(), "sky.cloud_scale"), b.values["sky.cloud_scale"], "the sky's dials stay day's")
+	# The game's own low sun over B's (light pass round 4): day's at every share.
+	var day_values: Dictionary = LookPreset.load_file(LightLooks.GAME).get("day_values", {})
+	check(day_values.has("day.ambient_low_sun"), "the game's low sun sets the golden hour's fill")
+	check_near(LookPreset.get_value(get_tree(), "day.ambient_low_sun"), day_values["day.ambient_low_sun"], 0.001, "the low sun's dials stay day's")
+	check("day.ambient_low_sun" in LightLooks.addresses(), "and today's puts them back")
 	LightLooks.pick(get_tree(), 1)
 	LightLooks.current = 0
 	street.free()
