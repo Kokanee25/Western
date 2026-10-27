@@ -28,7 +28,12 @@ frame may be queued.
 **Reads through nodes** (not `RenderingServer.` in the text, the same wait): `Texture2D.get_image()`
 in `facade_art`, `material_stand`, `pixel_art`, `road_stones`, `human_body` (the face's maps),
 `cloth_prop` waits for the render thread, once each when a thing is built, not a frame: a hitch at
-building time, the right image.
+building time, the right image. Meshes read back the same way (`surface_get_arrays`,
+`SurfaceTool.create_from`, `get_faces`, `create_convex_shape`): `static_batch` (a batch rebuilt
+after a shot), `prop_batch`, `loose_prop._dented` (a dent), `human_body._joined` and
+`people_bodies` (a man built), `held_hand`, `gun_parts`, `mop_prop`, `horse`. Each is on an event,
+not every frame: the first read in a frame waits for the draw in flight, so that frame loses the
+thread's overlap (it costs what it costs without the thread), the next frame has it again.
 
 **At run time** (`tools/bridge.py run build/rt_audit.txt --render-thread=on`: the street at 17:36,
 F3 up, the gang and a fight, a stick of dynamite; 73 s of play under lavapipe): **no "synchronizations
