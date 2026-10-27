@@ -24,9 +24,15 @@ static var _next_index := 0
 ## He's in the world (his `_enter_tree`): his index (the next, the first time), and his place in
 ## the order. The last man in takes the node.
 static func join(man: HumanBody) -> void:
+	if _people.is_empty() and _host() == null:
+		# A new world (no one in it, no node yet): the counters start again, as a game's do, so the
+		# ticks a far man falls on don't depend on what ran before (a test suite; #413, #430).
+		_next_index = 0
+		_ticks = 0
 	if man.tick_index < 0:
 		man.tick_index = _next_index
 		_next_index += 1
+	_next_index = maxi(_next_index, man.tick_index + 1)  # one coming back with his own: no one shares it
 	if not _people.has(man):
 		var i := _people.size()
 		while i > 0 and _people[i - 1].tick_index > man.tick_index:
