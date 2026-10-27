@@ -63,6 +63,7 @@ static func addresses() -> PackedStringArray:
 	for f: String in FILES:
 		sets.append(LookPreset.load_file(f).get("values", {}))
 	sets.append(LookPreset.load_file(GAME).get("night_values", {}))
+	sets.append(LookPreset.load_file(GAME).get("day_values", {}))
 	for values: Dictionary in sets:
 		for a: String in values:
 			if not a in out:
@@ -108,6 +109,10 @@ static func blend(tree: SceneTree, t: float) -> void:
 	var night: Dictionary = LookPreset.load_file(game.night).get("values", {})
 	# The game's own night over the night look's (the saloon's room at night, light pass round 3).
 	night.merge(game.get("night_values", {}), true)
+	# And its own low sun over the day look's (the street at golden hour, round 4): dials that act
+	# only while the sun is up, so they are day's at every share, not blended toward the night's.
+	var day_values: Dictionary = game.get("day_values", {})
+	day.merge(day_values, true)
 	var day_only: Array = game.get("day_only", [])
 	var steps := maxi(1, int(game.get("grade_steps", 4)))
 	LightGrade.batching = true
@@ -116,6 +121,8 @@ static func blend(tree: SceneTree, t: float) -> void:
 		for prefix: String in day_only:
 			if a.begins_with(prefix):
 				k = 0.0
+		if day_values.has(a):
+			k = 0.0
 		if a.begins_with("grade."):
 			k = roundf(k * steps) / steps  # each step a lookup of its own, built once
 		var base: Variant = LookPreset.defaults[a] if LookPreset.defaults.has(a) else LookPreset.get_value(tree, a)

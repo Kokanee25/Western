@@ -341,7 +341,13 @@ ambient probe, `building.saloon.night_ambient`, in the lamps' gold, `SaloonDress
 up, its lamps' falloff softer and reach longer, the night grade flatter, warmer and fuller. Lamp props' lights burn at their own chimney's flame and light that chimney
 (`SaloonDressing._light_at_flame`, `_prop_chimney`: a sconce's light was ~0.3 m over its flame,
 the critic's blown wall smears); `chimney_glass.gdshader` clear glass, near-white only over the
-flame. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
+flame. Round 4 (the street at golden hour): `light_game.json`'s `day_values` go over the day
+look's (B's file unchanged) and stay day's at every night share (they act only with the sun low):
+the shade's fill a warm colour (`day.ambient_sky_low_sun` down, `ambient_low_sun` up: at golden
+hour the coded sky's radiance, which the fill took half from, is dim, and the ambient's energy
+doesn't scale it), `exposure_low_sun` up, the road's `ground.sky_fill_low_sun` up, and the painted
+sky's `paint_span` shorter (its panels' blue tops come down between the clouds), `paint_gain` and
+`paint_saturation` down. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
 (over the game's light) in the same run, for trials.
 The looks' files apply `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
 the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
