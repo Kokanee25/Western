@@ -7,16 +7,16 @@
    "brief": "About forty (his model, bold_cowboy_s3: thick dark wavy hair, heavy dark moustache, a hard heavy-browed stare, clean white shirt and vest; a gentleman gunfighter or gambler). Sits at the card table and watches. Says little, never raises his voice, dry humour, unbothered by violence.",
    "variants": [
     {
-     "id": "gentleman",
-     "text": "A Southern gentleman gambler and gunman of about forty, Georgia-born. Rich, dark baritone, smooth on top with a rough edge underneath, soft-spoken and educated, every word controlled, quiet menace and dry wit."
+     "id": "boston",
+     "text": "A Boston-born, Harvard-educated man of about forty who went West. Cultured, precise diction, a low, smooth baritone, faint old New England accent, quiet and composed, dry wit, cold intelligence behind every word."
     },
     {
-     "id": "lawman",
-     "text": "A hard former lawman of about forty from Kansas. Firm, clear, deep baritone, plain frontier American speech with no strong drawl, flat and level, intense, a man who has killed and doesn't talk about it."
+     "id": "lawyer",
+     "text": "A former Philadelphia lawyer of about forty turned gambler. Articulate and measured, a warm, resonant baritone, polished East Coast speech, sardonic, calm in a way that is dangerous."
     },
     {
-     "id": "texas40",
-     "text": "A strong Texas gunfighter in his early forties, handsome and sure of himself. Deep, warm baritone with grit in it and a light Texan drawl, unhurried, quietly confident, a hint of a smile in the voice, dangerous underneath."
+     "id": "virginian",
+     "text": "A university-educated Virginia gentleman of about forty, a planter's son gone West. Refined, soft genteel Southern accent, not a drawl, velvet-smooth low baritone, unfailingly courteous and ice cold."
     }
    ],
    "audition": "[calm] You're the one the sheriff sent. Sit down... you're making the room nervous. [low] Most folks come here to get lost. Some of 'em manage it. [dry chuckle] I've seen three men shot over this table, and every one of 'em thought he was quicker. Welcome to Salt Creek."
