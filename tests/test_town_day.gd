@@ -497,6 +497,9 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.working_girl != null and town.working_girl.held_gun == null, "the working girl is in the saloon, unarmed")
 	check_eq(town.working_girl.body_model, &"working_girl_s2_talking", "she is the Studio's working_girl_s2, talking")
 	check(town.working_girl.global_position.distance_to(town.places.at(&"saloon_window")) < 0.6, "by the saloon's front windows")
+	check(town.rancher != null and town.rancher.held_gun == null, "the Mexican rancher is in town, unarmed")
+	check_eq(town.rancher.body_model, &"mexican_rancher_s1_talking", "he is the Studio's mexican_rancher_s1, talking")
+	check(town.rancher.global_position.distance_to(town.places.at(&"livery_side")) < 0.6, "along the livery's front")
 	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
@@ -554,7 +557,9 @@ func test_far_off_the_gang_comes_in_on_time_with_the_bands() -> void:
 	for id in [&"brody", &"lyle", &"kid"]:
 		check(on[0].has(id) and off[0].has(id), "%s got to the bar both ways" % id)
 		if on[0].has(id) and off[0].has(id):
-			check(absi(int(on[0][id]) - int(off[0][id])) <= 6, "%s at the bar at the same time (frame %d against %d)" % [id, on[0][id], off[0][id]])
+			# Within two of the far band's steps: a man there ticks every 4th frame, so where on
+			# that grain the gang land (who else is in town shifts it) moves his arrival a few frames.
+			check(absi(int(on[0][id]) - int(off[0][id])) <= 8, "%s at the bar at the same time (frame %d against %d)" % [id, on[0][id], off[0][id]])
 	var worst := 0.0
 	for i in mini(on[1].size(), off[1].size()):
 		if on[1][i] != Vector3.INF and off[1][i] != Vector3.INF:
