@@ -73,6 +73,11 @@ func test_the_two_cores_agree_to_the_last_bit() -> void:
 			c.add(temp, wet, 0.0, burn, flags, size, h, st)
 	for c: Object in cores:
 		c.tune("growth_seconds", 32.0)
+	# Their boxes in the grid: a jumble about 8 m across, so each has a few within reach.
+	for i in n:
+		var b := AABB(Vector3(rng.randf_range(-4, 4), rng.randf_range(0, 4), rng.randf_range(-4, 4)), Vector3(rng.randf_range(0.02, 2.0), rng.randf_range(0.02, 2.0), rng.randf_range(0.02, 0.4)))
+		for c: Object in cores:
+			c.place(i, b)
 	var bands := PackedInt32Array([1, 2, 4, 1])
 	for tick in 600:
 		var banded := tick % 3 != 0
@@ -87,18 +92,6 @@ func test_the_two_cores_agree_to_the_last_bit() -> void:
 			order[j] = t
 		for part in 3:
 			var slots := order.slice(part * n / 3, (part + 1) * n / 3)
-			var due: Array = [cores[0].near_due(slots, banded, tick, bands), cores[1].near_due(slots, banded, tick, bands)]
-			if due[0] != due[1]:
-				check(false, "tick %d: due %s and %s" % [tick, due[0], due[1]])
-				return
-			for j: int in due[0]:
-				var others := PackedInt32Array()
-				var weights := PackedFloat64Array()
-				for k in rng.randi_range(0, 10):
-					others.append(rng.randi_range(0, n - 1))
-					weights.append(rng.randf_range(0.5, 30.0))
-				for c: Object in cores:
-					c.set_near(slots[j], others, weights)
 			var ev: Array = [cores[0].visit(slots, 0.25, banded, tick, bands), cores[1].visit(slots, 0.25, banded, tick, bands)]
 			if ev[0] != ev[1]:
 				check(false, "tick %d: events %s and %s" % [tick, ev[0], ev[1]])
@@ -107,6 +100,12 @@ func test_the_two_cores_agree_to_the_last_bit() -> void:
 				if ev[0][k] == FireCoreScript.EV_GONE:
 					for c: Object in cores:
 						c.forget(slots[ev[0][k + 1]])
+		# Something moving (rubble re-placed where it lies now).
+		var mv := rng.randi_range(0, n - 1)
+		var nb := AABB(Vector3(rng.randf_range(-4, 4), rng.randf_range(0, 4), rng.randf_range(-4, 4)), Vector3(rng.randf_range(0.02, 2.0), 0.1, 0.1))
+		for c: Object in cores:
+			c.unplace(mv)
+			c.place(mv, nb)
 		# Now and then something from outside: water, a spill's heat, a pane gone, a member freed.
 		var s := rng.randi_range(0, n - 1)
 		var amount := rng.randf_range(0.0, 900.0)
@@ -130,14 +129,14 @@ func test_the_two_cores_agree_to_the_last_bit() -> void:
 		if diff != "":
 			check(false, "tick %d: %s" % [tick, diff])
 			return
+	for s2 in n:
+		if cores[0].near_of(s2) != cores[1].near_of(s2):
+			check(false, "slot %d heats %s and %s" % [s2, cores[0].near_of(s2), cores[1].near_of(s2)])
+			return
 	var burning: int = cores[0].burning_count()
 	check(burning == cores[1].burning_count(), "the same burning (%d)" % burning)
 	check(burning > 0, "some still burning at the end (%d)" % burning)
 	# fire_near's answers: the same boxes, the same counts, nearest points and distances.
-	for s in n:
-		var b := AABB(Vector3(rng.randf_range(-10, 10), rng.randf_range(0, 5), rng.randf_range(-10, 10)), Vector3(rng.randf_range(0, 3), rng.randf_range(0, 3), rng.randf_range(0, 3)))
-		for c: Object in cores:
-			c.set_box(s, b)
 	for q in 50:
 		var at := Vector3(rng.randf_range(-12, 12), rng.randf_range(0, 5), rng.randf_range(-12, 12))
 		var r := rng.randf_range(0.5, 20.0)

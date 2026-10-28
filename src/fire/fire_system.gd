@@ -143,7 +143,8 @@ func _tune_core() -> void:
 	if tuning == null:
 		tuning = load("res://config/fire.tres")
 	for k: String in ["ignition_temperature", "ambient_temperature", "glass_cracks_at", "cooling",
-			"growth_seconds", "char_rate", "ash_thickness", "water_per_degree", "evaporation", "far_every"]:
+			"growth_seconds", "char_rate", "ash_thickness", "water_per_degree", "evaporation", "far_every",
+			"reach", "contact_heating", "radiant_heating", "downward", "sideways", "flame_height"]:
 		_core.tune(k, float(tuning.get(k)))
 
 
@@ -452,10 +453,10 @@ func _begin(dt: float) -> void:
 
 
 ## Members `keys[from..to)` heat, burn, cool; what's done with goes on `gone`. The rules run in
-## the core (natively where the plugin is: a burning saloon's 2,500 members were ~20 ms a frame
-## of GDScript here); what they say the scene must do comes back as events, done here in order:
-## a member burnt away, one catching, a pane cracking, one done with, one newly hot. First, the
-## burning ones due a fresh list of what they heat get one (it's the grid's: `_neighbours`).
+## the core (natively where the plugin is: a burning saloon's 2,500 members were ~12 ms a frame
+## of GDScript here), what each burning one heats made from the core's grid when it's due; what
+## they say the scene must do comes back as events, done here in order: a member burnt away, one
+## catching, a pane cracking, one done with, one newly hot.
 func _visit(keys: Array, from: int, to: int, tick_dt: float, gone: Array[StructureMember]) -> void:
 	var t_visit := Prof.start()
 	var core := _get_core()
@@ -466,8 +467,6 @@ func _visit(keys: Array, from: int, to: int, tick_dt: float, gone: Array[Structu
 		slots[i - from] = _slot(m) if is_instance_valid(m) else -1
 	var banded := _eye != Vector3.INF
 	var bands := _structure_bands() if banded else PackedInt32Array()
-	for j: int in core.near_due(slots, banded, _ticks, bands):
-		_neighbours(keys[from + j])
 	var ev: PackedInt32Array = core.visit(slots, tick_dt, banded, _ticks, bands)
 	for k in range(0, ev.size(), 2):
 		var w := ev[k + 1]
@@ -873,11 +872,12 @@ func _rebuild_grid() -> void:
 		else:
 			_placed[m] = cells
 			_box[m] = b
-		if _core != null and m.fire_core == _core:
-			_core.set_box(m.fire_slot, b)  # where fire_near finds it
+		_get_core().place(_slot(m), b)  # the core's grid, the same cells in the same order
 
 
 func _unplace(m: Variant, cells: Array) -> void:
+	if is_instance_valid(m) and (m as StructureMember).fire_core == _core and _core != null:
+		_core.unplace((m as StructureMember).fire_slot)  # (a freed one left it when it went)
 	for c: Vector3i in cells:
 		var list: Array = _grid.get(c, [])
 		list.erase(m)
@@ -916,37 +916,9 @@ func _query(box: AABB) -> Array[StructureMember]:
 	return out
 
 
-## What a burning member heats, and how hard: touching at full strength, near things less with
-## distance; up full, sideways less, down least. Kept in the core, and made again while it moves
-## (every 2 s) or now and then if it stands (every 30 s); each member a little later than the last
-## by its id, so those that caught together don't all look again on one tick (more-cores step 5;
-## the core's `near_due` says when).
-func _neighbours(m: StructureMember) -> void:
-	var t := Prof.start()
-	var a := _aabb(m)
-	var others := PackedInt32Array()
-	var weights := PackedFloat64Array()
-	for o in _query(a.grow(tuning.reach)):
-		if o == m or o.consumed:
-			continue
-		var b := _aabb(o)
-		var gap := _gap(a, b)
-		if gap > tuning.reach:
-			continue
-		var w := tuning.contact_heating if gap < 0.03 else tuning.radiant_heating * (1.0 - gap / tuning.reach)
-		var dy := b.get_center().y - a.get_center().y
-		var above := b.position.y >= a.position.y + 0.05 or dy > 0.15
-		var below := b.end.y <= a.position.y + 0.05 or dy < -0.3
-		w *= 1.0 if above and not below else (tuning.downward if below else tuning.sideways)
-		# Straight over the flames: the flames themselves reach it.
-		var overlaps := b.position.x < a.end.x and b.end.x > a.position.x and b.position.z < a.end.z and b.end.z > a.position.z
-		var rise := b.position.y - a.end.y
-		if overlaps and rise >= -0.03 and rise < tuning.flame_height:
-			w = maxf(w, tuning.contact_heating * (1.0 - 0.5 * maxf(rise, 0.0) / tuning.flame_height))
-		others.append(_slot(o))
-		weights.append(w)
-	_get_core().set_near(_slot(m), others, weights)
-	Prof.stop(&"fire_neigh", t)
+## What a burning member heats, and how hard, is the core's (`make_near`, over its grid: touching
+## at full strength, near things less with distance; up full, sideways less, down least; made
+## again while it moves every 2 s, standing every 30 s, each a little later by its id).
 
 
 ## Where a member is: kept for standing ones, worked out for rubble.

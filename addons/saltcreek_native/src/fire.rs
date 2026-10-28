@@ -5,12 +5,14 @@
 //! A tick's visit (`visit`) runs the rules over a slice of the burning and hot members in
 //! FireSystem's order and hands back what the scene must do (burn away, catch, crack, drop out of
 //! the fire's list, newly hot) as events, in the order they happened; FireSystem does them on the
-//! main thread. Only plain numbers here: no Godot objects, so it's the same answer every run.
+//! main thread. What a burning member heats comes from the core's own grid of the members' boxes
+//! (2 m cells, kept in FireSystem's order: `place`, `unplace`), made again in the visit when due. Only plain numbers here: no Godot objects, so it's the same answer every run.
 //! The numbers are f64 as GDScript's floats are, and a member's size f32 as its Vector3 is, each
 //! sum in the order the GDScript does it: the same rules give the same numbers either way
 //! (`tests/test_fire_core.gd` runs both).
 
 use godot::prelude::*;
+use std::collections::HashMap;
 
 const BURNING: u8 = 1;
 const CONSUMED: u8 = 2;
@@ -43,6 +45,12 @@ pub struct Tuning {
     pub water_per_degree: f64,
     pub evaporation: f64,
     pub far_every: i64,
+    pub reach: f64,
+    pub contact: f64,
+    pub radiant: f64,
+    pub downward: f64,
+    pub sideways: f64,
+    pub flame_height: f64,
 }
 
 impl Default for Tuning {
@@ -59,6 +67,12 @@ impl Default for Tuning {
             water_per_degree: 0.0007,
             evaporation: 0.002,
             far_every: 4,
+            reach: 1.3,
+            contact: 30.0,
+            radiant: 4.5,
+            downward: 0.12,
+            sideways: 0.45,
+            flame_height: 0.6,
         }
     }
 }
@@ -78,9 +92,40 @@ pub struct Core {
     pub structure: Vec<i32>,
     pub near: Vec<Vec<(u32, f64)>>,
     pub near_age: Vec<f64>,
-    /// Where it is (min xyz, max xyz), for `near`: a standing member's box, rubble's as it lay at
-    /// the grid's last rebuild.
+    /// Where it is (position xyz, size xyz, as Godot's AABB): a standing member's box, rubble's as
+    /// it lay at the grid's last rebuild.
     pub bx: Vec<[f32; 6]>,
+    /// The grid: a 2 m cell -> the slots in it, in the order placed; each slot's cells.
+    pub grid: HashMap<[i32; 3], Vec<u32>>,
+    pub cells: Vec<Vec<[i32; 3]>>,
+}
+
+/// The grid's cell size (FireSystem.CELL).
+const CELL: f32 = 2.0;
+
+fn end(b: &[f32; 6]) -> [f32; 3] {
+    [b[0] + b[3], b[1] + b[4], b[2] + b[5]]
+}
+
+/// The cells a box covers (FireSystem's `(box.position / CELL).floor()` to `(box.end / CELL).floor()`).
+fn cell_range(b: &[f32; 6]) -> ([i32; 3], [i32; 3]) {
+    let e = end(b);
+    let lo = [(b[0] / CELL).floor() as i32, (b[1] / CELL).floor() as i32, (b[2] / CELL).floor() as i32];
+    let hi = [(e[0] / CELL).floor() as i32, (e[1] / CELL).floor() as i32, (e[2] / CELL).floor() as i32];
+    (lo, hi)
+}
+
+/// FireSystem._gap: the distance between two boxes (0 touching or overlapping), Godot's sums.
+fn gap(a: &[f32; 6], b: &[f32; 6]) -> f64 {
+    let (ae, be) = (end(a), end(b));
+    let mut d = [0f32; 3];
+    for i in 0..3 {
+        d[i] = maxf(0.0, maxf(b[i] as f64 - ae[i] as f64, a[i] as f64 - be[i] as f64)) as f32;
+    }
+    let x2 = d[0] * d[0];
+    let y2 = d[1] * d[1];
+    let z2 = d[2] * d[2];
+    (x2 + y2 + z2).sqrt() as f64
 }
 
 impl Core {
@@ -98,6 +143,7 @@ impl Core {
         self.near.push(Vec::new());
         self.near_age.push(0.0);
         self.bx.push([0.0; 6]);
+        self.cells.push(Vec::new());
         self.temp.len() - 1
     }
 
@@ -170,27 +216,101 @@ impl Core {
         if !self.has(s, VALID) || self.has(s, CONSUMED) { None } else { Some(s) }
     }
 
-    /// Of the slice's slots, the ones whose list of what they heat is to be made (again) before
-    /// `visit`: burning, visited this tick, and with no list or one past its age (rubble 2 s,
-    /// standing 30 s, each later by its id).
-    pub fn near_due(&self, slots: &[i32], banded: bool, ticks: i64, bands: &[i32]) -> Vec<i32> {
-        let mut out = Vec::new();
-        for (i, &s) in slots.iter().enumerate() {
-            let Some(s) = self.live(s) else { continue };
-            if !self.has(s, BURNING) || self.skipped(s, banded, ticks, bands) {
-                continue;
-            }
-            if !self.has(s, HAS_NEAR) {
-                out.push(i as i32);
-                continue;
-            }
-            let spread = self.hash[s].rem_euclid(16) as f64 / 16.0;
-            let keep = if self.has(s, BROKEN) { 2.0 + spread * 0.5 } else { 30.0 + spread * 4.0 };
-            if self.near_age[s] >= keep {
-                out.push(i as i32);
+    /// Into the grid at its box (FireSystem._rebuild_grid's order).
+    pub fn place(&mut self, s: usize, b: [f32; 6]) {
+        self.bx[s] = b;
+        let (lo, hi) = cell_range(&b);
+        let mut mine = Vec::new();
+        for x in lo[0]..=hi[0] {
+            for y in lo[1]..=hi[1] {
+                for z in lo[2]..=hi[2] {
+                    let c = [x, y, z];
+                    self.grid.entry(c).or_default().push(s as u32);
+                    mine.push(c);
+                }
             }
         }
-        out
+        self.cells[s] = mine;
+    }
+
+    /// Out of its cells (each list keeps its order).
+    pub fn unplace(&mut self, s: usize) {
+        let mine = std::mem::take(&mut self.cells[s]);
+        for c in mine {
+            if let Some(list) = self.grid.get_mut(&c) {
+                if let Some(i) = list.iter().position(|&o| o as usize == s) {
+                    list.remove(i);
+                }
+                if list.is_empty() {
+                    self.grid.remove(&c);
+                }
+            }
+        }
+    }
+
+    /// What `s` heats, and how hard (it was FireSystem._neighbours): touching at full strength, near things
+    /// less with distance; up full, sideways less, down least; straight over the flames, the flames.
+    pub fn make_near(&mut self, s: usize) {
+        let t = &self.t;
+        let a = self.bx[s];
+        let ae = end(&a);
+        // The query: its box grown by the reach (AABB.grow), every member in those cells once.
+        let r = t.reach as f32;
+        let g = [a[0] - r, a[1] - r, a[2] - r, a[3] + r * 2.0, a[4] + r * 2.0, a[5] + r * 2.0];
+        let (lo, hi) = cell_range(&g);
+        let mut seen: Vec<u32> = Vec::new();
+        let mut out: Vec<(u32, f64)> = Vec::new();
+        for x in lo[0]..=hi[0] {
+            for y in lo[1]..=hi[1] {
+                for z in lo[2]..=hi[2] {
+                    let Some(list) = self.grid.get(&[x, y, z]) else { continue };
+                    for &o in list {
+                        if seen.contains(&o) || self.flags[o as usize] & VALID == 0 {
+                            continue;
+                        }
+                        seen.push(o);
+                        let ou = o as usize;
+                        if ou == s || self.flags[ou] & CONSUMED != 0 {
+                            continue;
+                        }
+                        let b = self.bx[ou];
+                        let be = end(&b);
+                        let gp = gap(&a, &b);
+                        if gp > t.reach {
+                            continue;
+                        }
+                        let mut w = if gp < 0.03 { t.contact } else { t.radiant * (1.0 - gp / t.reach) };
+                        let ac = a[1] + a[4] * 0.5;
+                        let bc = b[1] + b[4] * 0.5;
+                        let dy = bc as f64 - ac as f64;
+                        let above = b[1] as f64 >= a[1] as f64 + 0.05 || dy > 0.15;
+                        let below = be[1] as f64 <= a[1] as f64 + 0.05 || dy < -0.3;
+                        w *= if above && !below { 1.0 } else if below { t.downward } else { t.sideways };
+                        let overlaps = b[0] < ae[0] && be[0] > a[0] && b[2] < ae[2] && be[2] > a[2];
+                        let rise = b[1] as f64 - ae[1] as f64;
+                        if overlaps && rise >= -0.03 && rise < t.flame_height {
+                            w = maxf(w, t.contact * (1.0 - 0.5 * maxf(rise, 0.0) / t.flame_height));
+                        }
+                        out.push((o, w));
+                    }
+                }
+            }
+        }
+        self.near[s] = out;
+        self.near_age[s] = 0.0;
+        self.flags[s] |= HAS_NEAR;
+    }
+
+    /// Its list of what it heats is to be made (again): none yet, or past its age (rubble 2 s,
+    /// standing 30 s, each later by its id, so those that caught together don't all look again on
+    /// one tick).
+    fn near_is_due(&self, s: usize) -> bool {
+        if !self.has(s, HAS_NEAR) {
+            return true;
+        }
+        let spread = self.hash[s].rem_euclid(16) as f64 / 16.0;
+        let keep = if self.has(s, BROKEN) { 2.0 + spread * 0.5 } else { 30.0 + spread * 4.0 };
+        self.near_age[s] >= keep
     }
 
     /// FireSystem._visit over a slice: each member heats, burns and cools by the rules; what it
@@ -218,6 +338,9 @@ impl Core {
                 let intensity = clampf(self.burn[s] / self.t.growth, 0.15, 1.0);
                 self.temp[s] = maxf(self.temp[s], 650.0);
                 self.chr[s] += self.t.char_rate * dt;
+                if self.near_is_due(s) {
+                    self.make_near(s);
+                }
                 let mut near = std::mem::take(&mut self.near[s]);
                 let mut dropped = false;
                 for &(o, w) in near.iter() {
@@ -285,8 +408,9 @@ impl Core {
                 continue;
             }
             let b = &self.bx[s];
+            let e = end(b);
             // at.clamp(box.position, box.end), then its distance (Vector3: f32 sums, the length f32).
-            let p = [clamp32(at[0], b[0], b[3]), clamp32(at[1], b[1], b[4]), clamp32(at[2], b[2], b[5])];
+            let p = [clamp32(at[0], b[0], e[0]), clamp32(at[1], b[1], e[1]), clamp32(at[2], b[2], e[2])];
             let d = [p[0] - at[0], p[1] - at[1], p[2] - at[2]];
             let d = ((d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt()) as f64;
             if d > radius {
@@ -357,6 +481,12 @@ impl FireCore {
             "water_per_degree" => t.water_per_degree = value,
             "evaporation" => t.evaporation = value,
             "far_every" => t.far_every = value as i64,
+            "reach" => t.reach = value,
+            "contact_heating" => t.contact = value,
+            "radiant_heating" => t.radiant = value,
+            "downward" => t.downward = value,
+            "sideways" => t.sideways = value,
+            "flame_height" => t.flame_height = value,
             _ => return false,
         }
         true
@@ -375,6 +505,7 @@ impl FireCore {
         if let Some(s) = slot(&self.c, s) {
             self.c.set(s, VALID, false);
             self.c.forget(s);
+            self.c.unplace(s);
         }
     }
 
@@ -446,15 +577,32 @@ impl FireCore {
         slot(&self.c, s).is_some_and(|s| self.c.heat(s, amount))
     }
 
-    /// What it heats (slots) and how hard; its list's age starts again.
+    /// Into the grid at its box (also where `burning_near` finds it).
     #[func]
-    fn set_near(&mut self, s: i64, others: PackedInt32Array, weights: PackedFloat64Array) {
-        let Some(s) = slot(&self.c, s) else { return };
-        let o = others.as_slice();
-        let w = weights.as_slice();
-        self.c.near[s] = o.iter().zip(w.iter()).map(|(&o, &w)| (o as u32, w)).collect();
-        self.c.near_age[s] = 0.0;
-        self.c.set(s, HAS_NEAR, true);
+    fn place(&mut self, s: i64, b: Aabb) {
+        if let Some(s) = slot(&self.c, s) {
+            self.c.place(s, [b.position.x, b.position.y, b.position.z, b.size.x, b.size.y, b.size.z]);
+        }
+    }
+
+    #[func]
+    fn unplace(&mut self, s: i64) {
+        if let Some(s) = slot(&self.c, s) {
+            self.c.unplace(s);
+        }
+    }
+
+    /// What it heats, as slots and weights (for the tests).
+    #[func]
+    fn near_of(&self, s: i64) -> VarArray {
+        let mut out = VarArray::new();
+        if let Some(s) = slot(&self.c, s) {
+            let o: Vec<i32> = self.c.near[s].iter().map(|p| p.0 as i32).collect();
+            let w: Vec<f64> = self.c.near[s].iter().map(|p| p.1).collect();
+            out.push(&PackedInt32Array::from(o).to_variant());
+            out.push(&PackedFloat64Array::from(w).to_variant());
+        }
+        out
     }
 
     /// Every list of what a member heats a tick older.
@@ -475,21 +623,15 @@ impl FireCore {
     }
 
     #[func]
-    fn near_due(&self, slots: PackedInt32Array, banded: bool, ticks: i64, bands: PackedInt32Array) -> PackedInt32Array {
-        PackedInt32Array::from(self.c.near_due(slots.as_slice(), banded, ticks, bands.as_slice()))
-    }
-
-    #[func]
     fn visit(&mut self, slots: PackedInt32Array, tick_dt: f64, banded: bool, ticks: i64, bands: PackedInt32Array) -> PackedInt32Array {
         PackedInt32Array::from(self.c.visit(slots.as_slice(), tick_dt, banded, ticks, bands.as_slice()))
     }
 
-    /// Where it is, for `fire_near`.
+    /// Where it is (not in the grid: a member the grid doesn't hold), for `fire_near`.
     #[func]
     fn set_box(&mut self, s: i64, b: Aabb) {
         if let Some(s) = slot(&self.c, s) {
-            let (p, e) = (b.position, b.position + b.size);
-            self.c.bx[s] = [p.x, p.y, p.z, e.x, e.y, e.z];
+            self.c.bx[s] = [b.position.x, b.position.y, b.position.z, b.size.x, b.size.y, b.size.z];
         }
     }
 
@@ -538,8 +680,9 @@ mod tests {
         let mut c = Core::default();
         let a = board(&mut c, 700.0, BURNING);
         let b = c.add(20.0, 0.0, 0.0, 0.0, FLAMMABLE, [2.0, 0.15, 0.02], 9, -1);
-        c.near[a] = vec![(b as u32, 30.0)];
-        c.set(a, HAS_NEAR, true);
+        // Side by side, touching.
+        c.place(a, [0.0, 0.0, 0.0, 0.15, 2.0, 0.02]);
+        c.place(b, [0.15, 0.0, 0.0, 0.15, 2.0, 0.02]);
         let ev = c.visit(&[a as i32], 0.25, false, 1, &[]);
         assert_eq!(ev, vec![EV_ACTIVATE, b as i32]);
         let mut caught = false;
@@ -557,7 +700,7 @@ mod tests {
     fn a_board_burns_away() {
         let mut c = Core::default();
         let a = board(&mut c, 700.0, BURNING);
-        c.set(a, HAS_NEAR, true);
+        c.place(a, [0.0, 0.0, 0.0, 0.15, 2.0, 0.02]);
         let mut gone = false;
         for tick in 0..100_000 {
             let ev = c.visit(&[a as i32], 0.25, false, tick, &[]);
