@@ -39,7 +39,8 @@ const SMEAR_STILL := 1.0  ## s not sliding and the swipe has ended
 const SMEAR_WIDTH := 1.25  ## of the touching part's width (his back lies flatter and wider than its capsule)
 const SMEAR_LOAD_MAX := 30.0  ## ml his clothes hold where they touch
 const SMEAR_SOAK := 0.15  ## of the pool he lies in that soaks into them
-const SMEAR_FULL := 10.0  ## ml on him that draws a full-strength smear
+const SMEAR_FULL := 6.0  ## ml on him that draws a full-strength smear
+const SMEAR_FAINT := 0.7  ## the faintest a piece is drawn (thinning shows as a narrower band, not a see-through one)
 const SMEAR_EMPTY := 0.8  ## less than this and it has run out
 const SMEAR_BANDS := 3  ## the band's variants (smear_band0-2.png), the same where they join
 const SMEAR_REACH := 1.5  ## m: what's on him goes onto the floor over about this far (an e-fold)
@@ -318,8 +319,8 @@ const FROTH := Color(0.86, 0.36, 0.38)
 
 ## A man bleeding on his feet leaves drops behind him, a trail that can be followed.
 func _drips(p: Physiology, world: Node3D, dt: float) -> void:
-	if body.limp:
-		return
+	if body.limp or body.prone:
+		return  # down, it pools under him (HumanBody._update_pool)
 	var rate := 0.0
 	for b: Dictionary in p.bleeds:
 		if b.kind != &"internal":
@@ -411,7 +412,7 @@ func _smears(world: Node3D, dt: float) -> void:
 	var d := _mark(world, mid, n, key, width, run)
 	# A hair longer than the run, so a bend leaves no gap between pieces.
 	d.size = Vector3(width, 0.1, length + 0.01)
-	d.modulate = Color(1, 1, 1, strength)
+	d.modulate = Color(1, 1, 1, lerpf(SMEAR_FAINT, 1.0, strength))
 	var ml := _smear_load * (1.0 - exp(-length / SMEAR_REACH))
 	_smear_load -= ml
 	d.set_meta(&"ml", ml)
