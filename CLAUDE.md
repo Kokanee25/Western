@@ -551,6 +551,9 @@ frozen until Sean names one.
   Left for #373 (since done by more-cores step 5, but the stick's frame): `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
   response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
   stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
+- **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
+  is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
+  With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
