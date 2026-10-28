@@ -737,7 +737,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   a hothead holds `HOT_EARLY`; the man who `leads` holds the rest and calls a shaken one back;
   a green man's quitting barely counts; the long way round to cover; `_thump`; knocked down he
   gets up; hunting, rescuing and pressing by the town's ways; no standing down while a friend's
-  on you; a knee in the open under fire; one man `press`es on your reload, the rest cover him);
+  on you; a knee in the open under fire; one man `press`es on your reload, the rest cover him;
+  `hold_cover`: cover held against the idea of you he chose it by, `cover.eye`, `_held_eye`);
   `fear_from`, his
   fear's ledger by cause; `decision`, what he last decided and
   why, for F3 and the lab), `GunHand` (where his
