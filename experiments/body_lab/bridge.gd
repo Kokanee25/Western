@@ -12,6 +12,8 @@ const HELP := {
 	"body_blast": "body_blast PERSON [DIST] -> a stick of dynamite on the ground DIST m (3) in front of him; what it did",
 	"body_treat": "body_treat PERSON tourniquet|packing|doctor -> treat him now (as the game's tending does); what it could do",
 	"body_read": "body_read PERSON -> his wounds, what they crossed, what he can do, and his blood run forward from now under each treatment",
+	"body_drag": "body_drag PERSON DX DZ [SECONDS] [BLEED] -> he goes limp (bleeding BLEED ml/s from the chest, 3) and is dragged DX DZ metres over SECONDS (3): the smear he leaves",
+	"body_marks": "body_marks -> the blood marks in the world (first 12) and what the floor is at the saloon",
 }
 
 var _spawned := 0
@@ -94,3 +96,43 @@ func _cmd_body_read(a: Array) -> Dictionary:
 	return {"model": String(m.body_model), "wounds": m.wounds.map(func(w: Dictionary) -> Dictionary: return Bench.wound_row(w)),
 			"injuries": Bench.injuries(m.physiology), "abilities": Bench.abilities(m.physiology),
 			"from_now": Bench.outcomes(m.physiology.to_dict(), 0.0)}
+
+
+func _cmd_body_drag(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null or a.size() < 3:
+		return {"ok": false, "error": HELP.body_drag}
+	var by := Vector3(float(a[1]), 0.0, float(a[2]))
+	var secs := float(a[3]) if a.size() > 3 else 3.0
+	if m.physiology.bleeds.is_empty():
+		m.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	m.physiology.bleeds[0].rate = float(a[4]) if a.size() > 4 else 3.0
+	if not m.limp:
+		m.go_limp()
+		await seconds(2.5)
+	var v := by / secs
+	var frames := int(secs * Engine.physics_ticks_per_second)
+	for i in frames:
+		for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
+			var rb := m.parts[sid] as RigidBody3D
+			rb.linear_velocity = Vector3(v.x, rb.linear_velocity.y, v.z)
+		await physics_frames(1)
+	await seconds(0.5)
+	var marks := get_tree().get_nodes_in_group(&"blood_marks").filter(func(n: Node) -> bool:
+		return (n as Decal).texture_albedo.resource_path.get_file().begins_with("smear"))
+	return {"smears": marks.size(), "at": arr((m.parts[&"pelvis"] as Node3D).global_position)}
+
+
+func _cmd_body_marks(_a: Array) -> Dictionary:
+	var out := []
+	for n in get_tree().get_nodes_in_group(&"blood_drying"):
+		var d := n as Decal
+		if d != null and d.is_inside_tree():
+			out.append([d.name, d.texture_albedo.resource_path.get_file(), arr(d.global_position), arr(d.size), d.cull_mask, d.visible])
+	var floors := []
+	var space := World.space(street)
+	var q := PhysicsRayQueryParameters3D.create(Vector3(10.5, 2.0, 3.5), Vector3(10.5, -1.0, 3.5), Layers.WORLD)
+	var hit := space.intersect_ray(q)
+	if not hit.is_empty():
+		floors.append([str(hit.collider), arr(hit.position)])
+	return {"marks": out.slice(0, 12), "count": out.size(), "floor": floors}
