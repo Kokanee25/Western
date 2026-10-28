@@ -2,8 +2,8 @@ extends TestCase
 ## Muscle tone that fades a region at a time as he goes limp (HumanBody.tone_style &"fade", issue
 ## #442; experiments/physics_lab/results/2026-10-28_tone): his legs give first, his arms last, each
 ## man in his own way and the same way every time; the springs are gone when the fade ends. &"dying"
-## adds what he does as he goes (a free hand finds a hole in his front, never one in his back), and
-## is the game's (Sean, #445).
+## adds what he does as he goes (a free hand finds a hole in his front, never one in his back). Both
+## are the lab's: the game keeps the quick fade (Sean, 2026-10-28, after build 2668).
 
 var world: Node3D
 var man: HumanBody
@@ -37,11 +37,10 @@ func _end(seg: StringName) -> float:
 	return w.x + w.y
 
 
-func test_the_game_dies_dying() -> void:
-	check_eq(HumanBody.tone_style, &"dying", "the game's tone is the fade with what he does as he goes")
-	HumanBody.tone_style = &""
+func test_the_game_keeps_the_quick_fade() -> void:
+	check_eq(HumanBody.tone_style, &"", "the game's tone is the quick fade (Sean: he moves more, falls into things)")
 	man.go_limp()
-	check(man._tone_when.is_empty(), "the quick fade from before has no regions")
+	check(man._tone_when.is_empty(), "the quick fade has no regions")
 
 
 func test_legs_go_first_arms_last_and_the_springs_end() -> void:
