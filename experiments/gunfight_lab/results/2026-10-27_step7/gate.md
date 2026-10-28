@@ -84,3 +84,22 @@ The two engine errors, only with the thread, neither in our code:
   ~26,500; orphans fell 14,000 -> 321; frame 7-8 ms in the quiet windows. Step 6's physics thread
   froze the soak at 121. The one problem: the dummy race's empty mesh at start, while the saloon
   was built (headless, as above). No `soak.md` (written only at 240).
+
+## The goldens (`python3 tools/golden_check.py --render`, the thread off as the tools are)
+
+**This branch renders what main renders; main's goldens don't hold on this machine.** The full
+render: 77 views, 23 over their tolerance. main (bc8d5d2, its own worktree) rendering the same 23:
+20 over (`porch_dusk`, the night views, the range views...). Branch against main, render for render:
+19 of the 23 within 0.02-0.33 mean (noise); the rest explained:
+- `outlaw_back`, `shotgun_open`, `outlaw_blast` (~7 apart): the golden render draws its views in
+  batches, one game a batch, and what an earlier view leaves behind moves a later one; main's
+  23-view render batched them differently. Rendered alone, `outlaw_back` is 6.94 from its golden
+  on both, 0.15 between them.
+- `porch_collapse` (the collapse's rubble): two runs of the same code differ by 6.2-8.8; branch
+  against main 6.5-7.6, inside that.
+- `gun_smoke_saloon`: its tolerance is noise-set (16.8); 2.3 between branch and main, 63 from the
+  golden on both.
+
+Nothing re-approved. Nothing this step changes runs in a tool's render: the tools draw on the main
+thread (the lamps' every-frame flicker and F3 as before), and `copy_material` gives a wound's inside
+the same values as `duplicate()`.
