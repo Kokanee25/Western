@@ -109,6 +109,7 @@ func test_a_charred_member_that_breaks_keeps_its_char() -> void:
 	fire._show_char(m)
 	await physics_frames(2)
 	var want := store.fire_look(m)
+	store.collapses = true
 	store.break_member(m)
 	await physics_frames(2)
 	var meshes := 0
@@ -119,6 +120,7 @@ func test_a_charred_member_that_breaks_keeps_its_char() -> void:
 		meshes += 1
 		check(mi.material_overlay != null and (mi.material_overlay as ShaderMaterial).shader == Structure.CHAR_OVERLAY,
 				"a piece drawn with the char overlay")
-		check(is_equal_approx(float(mi.get_instance_shader_parameter(&"char_amount")), want.x),
+		var got: Variant = mi.get_instance_shader_parameter(&"char_amount")
+		check(got != null and is_equal_approx(float(got), want.x),
 				"its char amount (%s, %s)" % [mi.get_instance_shader_parameter(&"char_amount"), want.x])
 	check(meshes > 0, "its pieces drawn on their own (%d)" % meshes)
