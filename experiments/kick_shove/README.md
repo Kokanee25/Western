@@ -74,3 +74,16 @@ lab's flags (`launch`, `jitter_after_settle`) in these runs are the get-up: the 
 the rig's parts as he rises and takes that for flying parts (50 to 86 m/s, 2 to 3.5 s after he
 went down, as he rises). In the 1.5 s after he goes down his fastest part is a hand at 4 to 10 m/s
 (9 m/s falling 2.6 m off the gallery), and his head is at 3 m/s as a kick turns him over.
+
+### The frame cost of a kick that breaks a rail
+
+The kick itself costs nothing to speak of (a cast and a push: the open floor's worst frame in the
+3 s after it, 5.3 to 5.8 ms here, all the ragdoll). Breaking the saloon gallery's rail costs one
+long frame, the first member's: `settle_analyse` ~95 ms (+ `analysis_full_begin` ~5 ms) here,
+about 60 ms at Sean's (x 0.65), with a FireSystem in the world or not, before and after more-cores
+step 8 (main 520abe1). The members after the first are brought up to date in 2 to 3 ms. It is the
+saloon's first analysis, done whole on the frame something first breaks in it: a ball through a
+baluster pays it the same. (`lab.gd --light` and the Prof timers, 2026-10-28; the frame's whole
+time was 110 to 150 ms while a playtest ran alongside.) The fix is the structures': each
+building's analysis taken before anything breaks (at load, a slice a frame, or on the worker), so
+the first break is an update.
