@@ -534,7 +534,13 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
   it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
-  per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  per material (`batch_meshes`); `unbatch(m)` (a hole, a cut, breaking, burning away) shows the member's own.
+  **Fire in the batch** (#434): heat no longer unbatches. `show_fire(m, char, glow)` (FireSystem)
+  keeps each member's look; a batch with any (rebuilt once with them) carries each vertex's
+  member's place in CUSTOM2 and draws `char_batch.gdshader` over itself (`looks[64]`, a piece's
+  members); a member drawn on its own has the shared `char_overlay.gdshader` with its look as
+  instance uniforms, carried over when it's unbatched or snaps (`_own_fire_look`); both share
+  `char.gdshaderinc`. A KitProp leaves its PropBatch when it heats.
   **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
   batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
@@ -624,7 +630,7 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
   clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
   slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
-  `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
+  char drawn by the structure, see "src/structures"). `tools/fire_timeline.gd` measures how fast a fire grows.
   **What it costs** (more-cores step 5, `experiments/blast_freeze/results/2026-10-27_step5/`):
   `fire_near` reads the fire's picture (the burning members and their boxes, taken once a physics
   frame, again after anything catches), not the grid; the grid (2 m cells, for neighbours, spills,
@@ -676,7 +682,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   member's sheet from `WALL_FOOT` (0.3) up its face; a sloped one (long axis 0.2-0.7 off level:
   rafters) from along its middle; flat ones on top; a door or window head's in the opening under
   it. FireSystem's `max_flames` (40) go to the nearest burning members, the roof's and the heads'
-  `FLAME_FIRST` (6 m) nearer than they are. A wide sheet holds up to `max_tiles` flipbook flames,
+  `FLAME_FIRST` (6 m) nearer than they are. Only those have a FireFX (#434; the rest's go each
+  half second): its sheets and one smoke stand on the member itself while it's at rest in its
+  batch, on its meshes once it's broken (`_hosts`; moved when that changes). A wide sheet holds up to `max_tiles` flipbook flames,
   half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
 ## src/bodies

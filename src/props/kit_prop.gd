@@ -291,6 +291,12 @@ func unbatch(m: StructureMember, soon := false) -> void:
 	super.unbatch(m, soon)
 
 
+## Heated or charred: drawn by its own batches, which carry the char (Structure.show_fire).
+func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
+	_leave_batch()
+	super.show_fire(m, char_amount, glow)
+
+
 func rebuild() -> void:
 	_leave_batch()
 	super.rebuild()

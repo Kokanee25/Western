@@ -895,6 +895,14 @@ func _update_fx() -> void:
 			if _flaming.size() >= tuning.max_flames:
 				break
 			_flaming[burning[int(v.y)]] = true
+	# Only the members showing flames have a FireFX (#434): the rest's go (their char stays, drawn
+	# by their structure).
+	for m: Variant in _fx.keys():
+		if not _flaming.has(m):
+			var fx: Variant = _fx[m]
+			if is_instance_valid(fx):
+				(fx as FireFX).queue_free()
+			_fx.erase(m)
 	_fx_keys = active.keys()
 	_fx_at = 0
 	_place_lights(burning)
@@ -916,7 +924,8 @@ func _longest_burning() -> Array[StructureMember]:
 	return out
 
 
-## A share of the members' looks (char, glow, flames) each frame.
+## A share of the members' looks (char, glow, flames) each frame. Char and glow are drawn by the
+## member's structure (in its batch while it stands: #434); a FireFX only for those showing flames.
 func _refresh_fx(frames: int) -> void:
 	var to := mini(_fx_at + ceili(float(_fx_keys.size()) / maxi(frames, 1)), _fx_keys.size())
 	for i in range(_fx_at, to):
@@ -924,20 +933,30 @@ func _refresh_fx(frames: int) -> void:
 		if not is_instance_valid(o):
 			continue
 		var m := o as StructureMember
+		_show_char(m)
+		var flames := _flaming.has(m)
 		var fx: Variant = _fx.get(m)
 		if not is_instance_valid(fx):
 			fx = null
-		if (m.temperature > 120.0 or m.char_depth > 0.0) and fx == null:
-			# Heated or charred, it's drawn on its own (the char overlay), not with its structure's batch.
-			if m.get_parent() is Structure:
-				(m.get_parent() as Structure).unbatch(m, true)
+		if flames and fx == null:
 			fx = FireFX.new()
 			fx.member = m
 			add_child(fx)
 			_fx[m] = fx
 		if fx != null:
-			(fx as FireFX).refresh(_flaming.has(m), tuning, not smoked(m))
+			(fx as FireFX).refresh(flames, tuning, not smoked(m))
 	_fx_at = to
+
+
+## Its scorch and char, and the glow of its burning front, to its structure to draw.
+func _show_char(m: StructureMember) -> void:
+	var s := m.get_parent() as Structure
+	if s == null or not (m.temperature > 120.0 or m.char_depth > 0.0 or s.has_fire_look(m)):
+		return
+	var half := maxf(minf(m.size.x, minf(m.size.y, m.size.z)) * 0.5, 0.001)
+	var scorch := clampf((m.temperature - 120.0) / 400.0, 0.0, 0.25)
+	var glow := clampf(m.burn_time / tuning.growth_seconds, 0.2, 1.0) if m.burning else 0.0
+	s.show_fire(m, clampf(maxf(m.char_depth / half, scorch), 0.0, 1.0), glow)
 
 
 ## Smoke that knows the buildings (SmokeField, docs/briefs/smoke.md): a field round each building
