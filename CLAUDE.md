@@ -562,7 +562,7 @@ frozen until Sean names one.
 - **The tone fade** (2026-10-28, #442, PR #447; `experiments/physics_lab/results/2026-10-28_tone/`):
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
-  fall into shit and down stairs"). Next #446 (bodies that keep moving), from the quick fade.
+  fall into shit and down stairs"). (#446 done: above.)
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
