@@ -14,10 +14,16 @@ from standing) and the colours are the splats' reds, so a thin film darkens the 
 tinting it pink.
 
     python3 tools/textures/smear_band.py   # writes assets/textures/blood/smear_{band0-2,start,end}.png, splat_long.png
+    python3 tools/textures/smear_band.py --painted   # the same pieces cut from the painted sheet
+                                                     # (assets/textures/raw/blood/smears.jpg, #439)
+
+The game's smear pieces are the painted ones since 2026-10-28 (run 129, $0.14): run with --painted
+after any change; without it the generated set overwrites them (splat_long.png is always generated).
 """
 import math
 import os
 import random
+import sys
 
 from PIL import Image
 
@@ -239,7 +245,126 @@ def splat_long():
     return img
 
 
+# The painted smears (paint_blood.py's "smears" sheet, #439): four swipes top to bottom on white.
+RAW = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "textures", "raw", "blood", "smears.jpg")
+INNER = 28  ## a painted swipe's width in the pieces' 32 (a little white either side for its ragged edge)
+SEAM = 6  ## rows at each end of a piece eased to the seam all the pieces share, so any two join
+
+
+def _painted_strips(path):
+    """Each swipe on the sheet as (premultiplied rgb, alpha) arrays INNER wide, top to bottom."""
+    import numpy as np
+    a = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32)
+    away = (255.0 - a).max(axis=2)
+    alpha = np.clip((away - 16.0) / 40.0, 0.0, 1.0)
+    on = alpha.mean(axis=0) > 0.02
+    runs, x = [], 0
+    while x < len(on):
+        if on[x]:
+            x0 = x
+            while x < len(on) and (on[x] or on[min(x + 1, len(on) - 1)]):
+                x += 1
+            if x - x0 > len(on) * 0.04:
+                runs.append((x0, x))
+        x += 1
+    strips = []
+    for x0, x1 in runs:
+        col = alpha[:, x0:x1]
+        rows = np.nonzero(col.mean(axis=1) > 0.01)[0]
+        if len(rows) < 10:
+            continue
+        y0, y1 = rows[0], rows[-1] + 1
+        rgb = a[y0:y1, x0:x1] / 255.0
+        al = col[y0:y1]
+        h = max(H, round((y1 - y0) * INNER / (x1 - x0)))
+        # Resized premultiplied, so the white round it doesn't bleed into its edge.
+        pm = Image.fromarray(np.uint8(np.clip(rgb * al[..., None], 0, 1) * 255), "RGB").resize((INNER, h), Image.LANCZOS)
+        am = Image.fromarray(np.uint8(al * 255), "L").resize((INNER, h), Image.LANCZOS)
+        strips.append((np.asarray(pm, dtype=np.float32) / 255.0, np.asarray(am, dtype=np.float32) / 255.0))
+    return strips
+
+
+def _ease(piece, seam, top, bottom):
+    """A piece's first and/or last SEAM rows eased to the shared seam row (premultiplied rgb, alpha)."""
+    import numpy as np
+    rgb, al = piece[0].copy(), piece[1].copy()
+    for i in range(SEAM):
+        w = 1.0 - i / SEAM
+        for y in ([i] if top else []) + ([H - 1 - i] if bottom else []):
+            rgb[y] = rgb[y] * (1 - w) + seam[0] * w
+            al[y] = al[y] * (1 - w) + seam[1] * w
+    return rgb, al
+
+
+def _to_reds(piece, lo, hi):
+    """A painted piece in the splats' reds: its darkness picks the red, its cover the alpha step."""
+    import numpy as np
+    rgb, al = piece
+    img = Image.new("RGBA", (W, H))
+    pad = (W - INNER) // 2
+    for y in range(H):
+        for x in range(INNER):
+            a = float(al[y, x])
+            if a < 0.2:
+                continue
+            c = rgb[y, x] / max(a, 1e-3)  # back from premultiplied
+            dark = 1.0 - float(c.mean())
+            v = min(1.0, max(0.0, (dark - lo) / max(hi - lo, 1e-3)))
+            step = 235 if a > 0.75 else (190 if a > 0.45 else 140)
+            img.putpixel((x + pad, y), _colour(v, step))
+    return img
+
+
+def painted():
+    """The pieces cut from the painted sheet: the start from one swipe's top, the end from
+    another's bottom, the bands from their middles, every piece eased to one seam so they join."""
+    import numpy as np
+    strips = _painted_strips(RAW)
+    if len(strips) < 2:
+        raise SystemExit("smears.jpg: found %d swipes, need at least 2" % len(strips))
+    strips.sort(key=lambda s: -s[0].shape[0])
+    take = lambda s, y: (s[0][y:y + H], s[1][y:y + H])
+    start_p = take(strips[0], 0)
+    end_s = strips[1]
+    end_p = take(end_s, end_s[0].shape[0] - H)
+    bands = []
+    # The middles of the others, then the stretch after the start and before the end.
+    for s in strips[2:]:
+        if s[0].shape[0] >= H:
+            bands.append(take(s, (s[0].shape[0] - H) // 2))
+    if strips[0][0].shape[0] >= 2 * H:
+        bands.append(take(strips[0], H))
+    if end_s[0].shape[0] >= 2 * H:
+        bands.append(take(end_s, end_s[0].shape[0] - 2 * H))
+    bands = bands[:BANDS]
+    while len(bands) < BANDS:  # too few long swipes: a band turned over
+        r, a = bands[-1] if bands else start_p
+        bands.append((r[:, ::-1], a[:, ::-1]))
+    rows = [b[0][0] for b in bands] + [b[0][-1] for b in bands]
+    arows = [b[1][0] for b in bands] + [b[1][-1] for b in bands]
+    seam = (np.mean(rows, axis=0), np.mean(arows, axis=0))
+    bands = [_ease(b, seam, True, True) for b in bands]
+    start_p = _ease(start_p, seam, False, True)
+    end_p = _ease(end_p, seam, True, False)
+    # One darkness scale over all of them, so the pieces' reds agree.
+    dark = []
+    for r, a in bands + [start_p, end_p]:
+        m = a > 0.2
+        dark.append(1.0 - (r[m] / np.maximum(a[m][:, None], 1e-3)).mean(axis=1))
+    dark = np.concatenate(dark)
+    lo, hi = np.percentile(dark, 5), np.percentile(dark, 95)
+    out = [("smear_band%d" % i, _to_reds(b, lo, hi)) for i, b in enumerate(bands)]
+    return out + [("smear_start", _to_reds(start_p, lo, hi)), ("smear_end", _to_reds(end_p, lo, hi))]
+
+
 def main():
+    if "--painted" in sys.argv:
+        os.makedirs(OUT, exist_ok=True)
+        for name, img in painted():
+            path = os.path.join(OUT, name + ".png")
+            img.save(path)
+            print("cut", os.path.relpath(path))
+        return
     field = Field(SEED)
     os.makedirs(OUT, exist_ok=True)
     pieces = [("smear_band%d" % i, band(Field(SEED).variant(SEED + 100 + i))) for i in range(BANDS)]

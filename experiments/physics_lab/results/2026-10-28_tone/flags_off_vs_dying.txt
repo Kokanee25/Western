@@ -1,0 +1,26 @@
+F_chair_behind               {'never_settled': 1} -> {}
+F_stairs_down                {} -> {'launch': 1, 'discontinuity': 1}
+K_stand_thigh_right          {} -> {'sunk_into_world': 1}
+L_run_belly_side             {'swing_past_limit': 1, 'joint_pulled_apart': 2} -> {'swing_past_limit': 2, 'joint_pulled_apart': 8, 'never_settled': 1}
+L_run_chest_front            {'joint_pulled_apart': 5, 'swing_past_limit': 2} -> {'swing_past_limit': 3, 'joint_pulled_apart': 8}
+L_walk_belly_front           {'never_settled': 1, 'awake_at_end': 1} -> {}
+L_walk_thigh_right           {} -> {'discontinuity': 1}
+M_men10_ball                 {'never_settled': 1, 'awake_at_end': 1} -> {'sunk_into_world': 1}
+M_men5_ball                  {} -> {'sunk_into_world': 1}
+M_men5_blackout_close        {} -> {'lingering_motion': 13, 'awake_at_end': 1}
+M_repeat_hits                {} -> {'sunk_into_world': 1, 'lingering_motion': 1}
+M_table_behind_ball          {'never_settled': 1, 'awake_at_end': 1} -> {'sunk_into_world': 1}
+P_flight_backwards_ball      {'never_settled': 1} -> {'never_settled': 1, 'awake_at_end': 1}
+P_flight_side_ball           {'twist_past_limit': 1, 'never_settled': 1, 'awake_at_end': 1} -> {}
+P_flight_top_ball_back       {'launch': 1} -> {}
+P_flight_top_blackout        {'never_settled': 1} -> {}
+P_flight_top_dead_head       {'never_settled': 1, 'awake_at_end': 1} -> {'launch': 2}
+P_hitch_run_dead             {'launch': 1, 'twist_past_limit': 1, 'swing_past_limit': 1, 'sunk_into_world': 1} -> {'launch': 2}
+P_porch_edge_backwards_ball  {} -> {'sunk_into_world': 1}
+P_porch_edge_ball_back       {'bounce': 1} -> {}
+S_oak_mid_ball_back          {} -> {'discontinuity': 1}
+S_oak_mid_facing_up_ball     {} -> {'never_settled': 1}
+S_oak_top_ball_back          {'never_settled': 1, 'awake_at_end': 1} -> {}
+S_oak_top_blackout           {'swing_past_limit': 1, 'sunk_into_world': 1, 'never_settled': 1, 'awake_at_end': 1} -> {}
+S_oak_top_dead_head          {'sunk_into_world': 1, 'swing_past_limit': 2, 'never_settled': 1, 'awake_at_end': 1} -> {'sunk_into_world': 2, 'swing_past_limit': 1, 'twist_past_limit': 1, 'never_settled': 1, 'awake_at_end': 1}
+S_oak_walk_rail_blast        {} -> {'sunk_into_world': 1, 'swing_past_limit': 1, 'never_settled': 1, 'awake_at_end': 1}

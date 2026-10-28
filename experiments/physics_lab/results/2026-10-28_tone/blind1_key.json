@@ -1,0 +1,57 @@
+{
+ "A_stand_blackout": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_001.png"
+ },
+ "A_stand_shot_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_002.png"
+ },
+ "K_stand_belly_front": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_003.png"
+ },
+ "K_stand_chest_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_004.png"
+ },
+ "K_walk_chest_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_005.png"
+ },
+ "L_walk_belly_front": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_006.png"
+ },
+ "N_blast_2m_side": {
+  "X": "A",
+  "Y": "B",
+  "file": "pair_007.png"
+ },
+ "P_bar_front_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_008.png"
+ },
+ "P_flight_top_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_009.png"
+ },
+ "P_table_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_010.png"
+ },
+ "T_balcony_rail_ball_back": {
+  "X": "B",
+  "Y": "A",
+  "file": "pair_011.png"
+ }
+}
