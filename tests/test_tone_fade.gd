@@ -1,9 +1,9 @@
 extends TestCase
 ## Muscle tone that fades a region at a time as he goes limp (HumanBody.tone_style &"fade", issue
 ## #442; experiments/physics_lab/results/2026-10-28_tone): his legs give first, his arms last, each
-## man in his own way and the same way every time; the springs are gone when the fade ends. Off by
-## default (the game falls as before until Sean says). &"dying" adds what he does as he goes: a free
-## hand finds a hole in his front, never one in his back.
+## man in his own way and the same way every time; the springs are gone when the fade ends. &"dying"
+## adds what he does as he goes (a free hand finds a hole in his front, never one in his back), and
+## is the game's (Sean, #445).
 
 var world: Node3D
 var man: HumanBody
@@ -27,7 +27,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	HumanBody.tone_style = &""
+	HumanBody.tone_style = HumanBody.TONE_GAME
 	world.queue_free()
 	await physics_frames(1)
 
@@ -37,10 +37,11 @@ func _end(seg: StringName) -> float:
 	return w.x + w.y
 
 
-func test_off_by_default() -> void:
-	check_eq(HumanBody.tone_style, &"", "the game's tone is today's until Sean turns the fade on")
+func test_the_game_dies_dying() -> void:
+	check_eq(HumanBody.tone_style, &"dying", "the game's tone is the fade with what he does as he goes")
+	HumanBody.tone_style = &""
 	man.go_limp()
-	check(man._tone_when.is_empty(), "no regions without the fade")
+	check(man._tone_when.is_empty(), "the quick fade from before has no regions")
 
 
 func test_legs_go_first_arms_last_and_the_springs_end() -> void:

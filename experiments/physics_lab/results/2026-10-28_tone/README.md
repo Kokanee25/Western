@@ -1,12 +1,13 @@
-# 2026-10-28: muscle tone that fades (issue #442; waiting on Sean)
+# 2026-10-28: muscle tone that fades (issue #442; `dying` on in the game)
 
 Sean (2026-10-27, after the saloon shootout): "Okay how do we make it closer to euphoria style
 physics - I don't want people flying around but I don't want every death to be a drop dead rag
-doll." **Off in the game** (`HumanBody.tone_style` is `""`): nothing changes until he says.
+doll." **Sean, 2026-10-28 (#445): "dying, turn it on in the game".** `HumanBody.TONE_GAME` is
+`dying`; the lab's `--tone=off` is the quick fade from before, `""` in `tone_style`.
 
 ## The change (`src/bodies/human_body.gd`, behind `HumanBody.tone_style`)
 
-Today (`""`): as he goes limp every joint is held toward the pose he went in, all of him at once,
+Before (`""`, the lab's `off`): as he goes limp every joint is held toward the pose he went in, all of him at once,
 fading away over 0.35 s (0.6 awake, 0.15 killed outright).
 
 **`fade` (step 1):** the same springs and stiffness (no more force), but a region at a time:
@@ -117,7 +118,7 @@ What it would take, and what it's worth:
   holds them every tick, not for 2 s, plus the balance and the extra bodies awake: roughly 17
   bodies and 16 joints a man for every man in view. A brief first.
 
-## Sean's calls (the `waiting on Sean` issue)
+## Sean's calls (#445, answered 2026-10-28: `dying`, on in the game, no cap; next #446)
 
 1. Does the tone read as Euphoria-ish, or rubbery? (The judges: a split; better crumples, worse
    sit-downs.)

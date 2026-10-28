@@ -4448,8 +4448,10 @@ var _tone_fade := 1.0
 ## over its own time, in a dying man's order: his legs first (he buckles and goes down onto a knee),
 ## his trunk and neck after (he folds as he goes), his arms last. No more force than before: the
 ## same stiffness for longer, toward the pose he went in. &"dying": the fade, and what he still does
-## as he goes (`_start_dying`).
-static var tone_style := &""
+## as he goes (`_start_dying`): the game's since 2026-10-28 (Sean, #445: "dying, turn it on in the
+## game"). The lab's `--tone=off` is today's again.
+const TONE_GAME := &"dying"
+static var tone_style := TONE_GAME
 ## Each region's [hold from, hold to, fade from, fade to] (s): drawn per man (his own seed), the
 ## hold at full TONE_START, then a smooth fall to nothing over the fade.
 const TONE_REGIONS := {

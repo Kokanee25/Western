@@ -41,8 +41,8 @@ var surface_friction := -1.0
 ## --jitter=N: his start moved by up to 2 cm and turned by up to 3 deg, drawn from N (0: none), so a
 ## chaotic fall can be run several times and its spread compared rather than one sample.
 var jitter := 0
-## --tone=STYLE: how his tone lets go as he goes limp (HumanBody.tone_style: "" or "off" today's
-## quick fade, "fade" the regions in turn, "dying" that and what he does as he goes; 2026-10-28), over the scenario's own `tone` field.
+## --tone=STYLE: how his tone lets go as he goes limp (HumanBody.tone_style; none: the game's, "off"
+## the quick fade from before 2026-10-28, "fade" the regions in turn, "dying" that and what he does as he goes; 2026-10-28), over the scenario's own `tone` field.
 var tone := &""
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
@@ -98,8 +98,10 @@ var _pairs: Array = []  ## non-adjacent segment pairs
 func _ready() -> void:
 	process_physics_priority = -100
 	HumanBody.mocap_gait = mocap
+	# No --tone and no `tone` field: the game's (HumanBody.TONE_GAME).
 	var style := StringName(tone if tone != &"" else StringName(scenario.get("tone", "")))
-	HumanBody.tone_style = &"" if style == &"off" else style
+	if style != &"":
+		HumanBody.tone_style = &"" if style == &"off" else style
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
 	# stop instead, so a run never claims a man it didn't use.

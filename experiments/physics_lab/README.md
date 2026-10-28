@@ -75,7 +75,8 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
 
 **Since 2026-10-28** (`results/2026-10-28_tone/`, issue #442):
 - `--tone=off|fade|dying` (or a scenario's `tone` field): `HumanBody.tone_style`, how his tone lets
-  go (off in the game). `run.py` passes it on, `--perf` too.
+  go; none, the game's (`dying` since 2026-10-28; `off` the quick fade from before). `run.py` passes
+  it on, `--perf` too.
 - `python3 experiments/physics_lab/tone.py ROOT [ROOT...] [--each] [--only=...]`: time to the
   ground, planked landings, how fast his head and chest land, settle, frame ms.
 - `segments.csv` has a `world_contacts` column: contacts with anything but a man's own parts

@@ -546,8 +546,8 @@ frozen until Sean names one.
   response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
   stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
 - **The tone fade** (2026-10-28, #442, branch `claude/gameplay-tone-fade`; `experiments/physics_lab/results/2026-10-28_tone/`):
-  `HumanBody.tone_style` `fade` / `dying` (off in the game), the lab's `--tone=`, `tone.py`. Blind judge
-  split 5/5; ~0.03 ms a man. Waiting on Sean: #445 (which, on or not); next session #446.
+  `HumanBody.tone_style` `fade` / `dying`, **`dying` the game's** (Sean, #445; the lab's `--tone=off` the
+  old quick fade), `tone.py`. Blind judge split 5/5; ~0.03 ms a man. Next #446 (bodies that keep moving).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
