@@ -408,7 +408,8 @@ jobs:
               # $0.39 on run 104 (gore_test), $0.28 on run 105 (Gemini: the stumps and gore),
               # $0.42 on run 108 (the gore lab's marks, aftercare, cloth), $0.14 on run 109,
               # $0.14 on run 110 (the face: torn ear, nose, jaw), $0.28 on runs 111-112 (real bullet
-              # holes); $4.40 left.
+              # holes); $4.40 left. Sean's $4 more on 2026-10-27 ("I approve more paint sessions
+              # if needed $4"): the painted drag smear (blood:smears, #439).
               python3 tools/textures/paint_blood.py $only --budget=4.40 $( [ "$REPAINT" = "true" ] && echo --repaint )
               python3 tools/textures/cut_blood.py --sheet=docs/screenshots/textures/blood_run${{ github.run_number }}.png
               exit 0 ;;
