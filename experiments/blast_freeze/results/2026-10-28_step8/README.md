@@ -117,5 +117,5 @@ dead by 165 s on both.
   The ~15,600 orphan nodes the soak's end would report (over 1,000) are main's too (main's soak at
   5:00: 15,957, the same as here): the members' rest meshes and shapes (#357), not this step's.
 - **After merging main** (a0ee589: #462's quick fade, which moves the fights: main before and
-  after it 6 of 10 the same): the merged branch against main a0ee589, MERGED_RESULT; the tone-fade,
+  after it 6 of 10 the same): the merged branch against main a0ee589, **10 of 10 the same**; the tone-fade,
   fire, core and settle tests pass.
