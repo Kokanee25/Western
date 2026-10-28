@@ -34,7 +34,8 @@ python3 tools/bridge.py "breakage wall_dynamite_1m body=old_rancher_s1 seed=1" "
 python3 tools/bridge.py "breakage_aim door"        # what a shooter's line meets from 16 headings
 ```
 
-`run.py` takes `--seed=N` (default scenarios.json's), `--seconds=S` (8), `--bodies=ID,...|all`,
+`run.py` takes `--seed=N` (default scenarios.json's), `--seconds=S` (8), `--hour=H` (the clock
+over the scenario's: the saloon by day, its lamps out), `--bodies=ID,...|all`,
 `--jobs=N`. Rendering needs xvfb and lavapipe (`apt-get install mesa-vulkan-drivers xvfb`).
 
 ## Files

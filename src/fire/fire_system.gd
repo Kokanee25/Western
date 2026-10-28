@@ -37,6 +37,9 @@ var _to_settle: Array = []
 ## The building whose loads are being checked, a slice of members a frame, and its analysis.
 var _checking: Structure
 var _check: StructuralAnalysis
+## Something happened to `_checking` since its analysis began (a blast while its first look was
+## under way): the analysis is of how it stood before, so it begins again.
+var _stale := false
 ## Members a frame for that check (~60 µs each here, ~100 near a blast's damage, where the joists
 ## and their loads are: the blast-freeze lab's `bf_analyse`, 2026-10-27): a burning town's
 ## buildings each get looked at every second or two without any one frame taking more than a few
@@ -481,7 +484,9 @@ func queue_check(s: Structure) -> void:
 func queue_settle(s: Structure) -> bool:
 	if not is_inside_tree() or not is_physics_processing():
 		return false
-	if s != _checking and not s in _to_settle:
+	if s == _checking:
+		_stale = true
+	elif not s in _to_settle:
 		_to_settle.push_front(s)
 	_urgent[s] = true
 	return true
@@ -505,12 +510,16 @@ func _check_loads() -> void:
 						_checks[_checking] = int(_checks.get(_checking, 0)) + 1
 						full = int(_checks[_checking]) % FULL_CHECK_EVERY == 0
 					_check = _checking.start_analysis(full)
+					_stale = false
 			if _check == null:
 				return
 		if not is_instance_valid(_checking) or not _checking.is_inside_tree():
 			_check = null
 			_checking = null
 			return
+		if _stale:
+			_stale = false
+			_check = _checking.start_analysis()
 		var t_a := Prof.start()
 		if _rounds == 0 and not _urgent.has(_checking):
 			# The routine look at a burning building: a slice a frame, never more.
@@ -534,6 +543,7 @@ func _check_loads() -> void:
 		if more and _rounds < 64:
 			var t_b := Prof.start()
 			_check = _checking.start_analysis()
+			_stale = false  # its own round's changes are in this one
 			Prof.stop(&"fire_analyse", t_b)
 		else:
 			_urgent.erase(_checking)

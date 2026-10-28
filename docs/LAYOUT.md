@@ -952,7 +952,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
-  Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
+  Ballistics, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
   on people; what it acts on comes from `gather()`: every member where timber can break,
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
@@ -960,8 +960,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
   (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
   taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie
-  down as loose earth where they land on the dirt; BlastTuning's Craters group). Wood it lights
-  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  down as loose earth where they land on the dirt; BlastTuning's Craters group). It lights no wood
+  itself (`ignite_chance` 0 since 2026-10-28, Sean): a fire after a blast is a lit lamp's oil (GlassProp
+  past `shatters_kpa`, thrown and broken, or down with its shelf: `OilLamp.smash`). `src/effects/blast_cloud.gd`
   (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
   jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
   `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's

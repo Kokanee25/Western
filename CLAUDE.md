@@ -462,6 +462,12 @@ frozen until Sean names one.
   talking face `--pin=no` (the edge pin lays it on her hair and slashes her chin). Sheets
   `docs/style_test/widow-look/`. Fronts by GPT-5.4 in the cowboy's look kept drawing her head small
   (0.104-0.109 of her height, his 0.140): Sean's own pictures are the route for a woman.
+- **Three more from Sean's own ChatGPT pictures** (2026-10-27/28, the cowboy attached, Rodin $1.60
+  each; Studio $62.62 of $65): the Mexican rancher (#430, livery's west end), the blacksmith (#443,
+  build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
+  knees; Sean: "she may be yoinked"). `talking_face.py`'s cut, when its edge comes apart (loose
+  hair, a head mesh ending just under the chin), keeps the neck ring and gives back pinches and
+  hair (the earlier men unchanged). Next: Sean's word on the working girl.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
@@ -545,6 +551,12 @@ frozen until Sean names one.
   Left for #373 (since done by more-cores step 5, but the stick's frame): `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
   response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
   stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
+- **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
+  is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
+  With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
+- **The tone fade** (2026-10-28, #442, branch `claude/gameplay-tone-fade`; `experiments/physics_lab/results/2026-10-28_tone/`):
+  `HumanBody.tone_style` `fade` / `dying`, **`dying` the game's** (Sean, #445; the lab's `--tone=off` the
+  old quick fade), `tone.py`. Blind judge split 5/5; ~0.03 ms a man. Next #446 (bodies that keep moving).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -663,7 +675,11 @@ frozen until Sean names one.
   `results/2026-10-21_gore_lab/`. **The drag smears** (2026-10-27, PR #438, build 2615): one
   trunk-wide swipe a man (`WoundSigns._smears`, `SMEAR_*`), not rows of slashes; slanting drops
   drawn long (`splat_long`); generated textures (`tools/textures/smear_band.py`); lab `body_drag`.
-  Next: the smear painted (Sean's $4, #439).
+  A thinning smear narrows, not see-through; **more blood on a shot man** (2026-10-28, PR #441,
+  build 2652): wound stains by what cloth soaks (`STAIN_SOAK`/`FILM`/`MAX`), soaked from below in
+  his pool (`_soak_in_pool`, `POOL_SOAK_*`), pools under men down but not limp; lab `body_where`,
+  `body_meshes`, `body_probe`. **The smear painted** (#439, 2026-10-28): run 129, Gemini, $0.14 of
+  Sean's $4 ($3.86 left); `smear_band.py --painted` cuts it. Next: bloody hands, #451.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief

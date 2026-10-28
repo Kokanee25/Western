@@ -13,7 +13,10 @@ const HELP := {
 	"body_treat": "body_treat PERSON tourniquet|packing|doctor -> treat him now (as the game's tending does); what it could do",
 	"body_read": "body_read PERSON -> his wounds, what they crossed, what he can do, and his blood run forward from now under each treatment",
 	"body_drag": "body_drag PERSON DX DZ [SECONDS] [BLEED] -> he goes limp (bleeding BLEED ml/s from the chest, 3) and is dragged DX DZ metres over SECONDS (3): the smear he leaves",
-	"body_marks": "body_marks -> the blood marks in the world (first 12) and what the floor is at the saloon",
+	"body_where": "body_where PERSON -> where his head, chest and pelvis are, and the blood he's lost (ml)",
+	"body_meshes": "body_meshes PERSON -> each drawn mesh of him: its name, layers, shader and transparency",
+	"body_probe": "body_probe PERSON SEG SIZE [parent|world] [TEXTURE] -> a plain red test decal SIZE m on his body layer at that part (world-placed, or parented to its visual)",
+	"body_marks": "body_marks [PREFIX] -> the blood marks in the world (first 40; PREFIX: only textures named so, e.g. splat) and what the floor is at the saloon",
 }
 
 var _spawned := 0
@@ -123,11 +126,12 @@ func _cmd_body_drag(a: Array) -> Dictionary:
 	return {"smears": marks.size(), "at": arr((m.parts[&"pelvis"] as Node3D).global_position)}
 
 
-func _cmd_body_marks(_a: Array) -> Dictionary:
+func _cmd_body_marks(a: Array) -> Dictionary:
 	var out := []
+	var only := String(a[0]) if a.size() > 0 else ""
 	for n in get_tree().get_nodes_in_group(&"blood_drying"):
 		var d := n as Decal
-		if d != null and d.is_inside_tree():
+		if d != null and d.is_inside_tree() and (only == "" or d.texture_albedo.resource_path.get_file().begins_with(only)):
 			out.append([d.name, d.texture_albedo.resource_path.get_file(), arr(d.global_position), arr(d.size), d.cull_mask, d.visible])
 	var floors := []
 	var space := World.space(street)
@@ -135,4 +139,51 @@ func _cmd_body_marks(_a: Array) -> Dictionary:
 	var hit := space.intersect_ray(q)
 	if not hit.is_empty():
 		floors.append([str(hit.collider), arr(hit.position)])
-	return {"marks": out.slice(0, 12), "count": out.size(), "floor": floors}
+	return {"marks": out.slice(0, 40), "count": out.size(), "floor": floors}
+
+
+func _cmd_body_where(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null:
+		return {"ok": false, "error": HELP.body_where}
+	return {"head": arr((m.parts[&"head"] as Node3D).global_position), "chest": arr((m.parts[&"chest"] as Node3D).global_position),
+			"pelvis": arr((m.parts[&"pelvis"] as Node3D).global_position), "lost_ml": snappedf(m.physiology.tuning.blood_ml - m.physiology.blood_ml, 1.0),
+			"down": m.limp or m.prone, "soaks": m._pool_soaks.keys().map(func(k: StringName) -> Array:
+				var d := m._pool_soaks[k] as Decal
+				return [String(k), arr((m.parts[k] as Node3D).global_position), arr(d.global_position), arr(d.global_basis.y), arr(d.size), d.is_inside_tree(), d.visible])}
+
+
+func _cmd_body_meshes(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null:
+		return {"ok": false, "error": HELP.body_meshes}
+	var out := []
+	for mi: MeshInstance3D in m.find_children("*", "MeshInstance3D", true, false):
+		if not mi.is_visible_in_tree():
+			continue
+		var mat := mi.material_override
+		var sh := ""
+		if mat is ShaderMaterial and (mat as ShaderMaterial).shader:
+			sh = (mat as ShaderMaterial).shader.resource_path.get_file()
+		out.append([String(mi.name), mi.layers, sh, mi.transparency, str(mat.get_class()) if mat else "none", mi.cast_shadow])
+	return {"meshes": out}
+
+
+func _cmd_body_probe(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null or a.size() < 3:
+		return {"ok": false, "error": HELP.body_probe}
+	var sid := StringName(a[1])
+	var part := m.parts[sid] as Node3D
+	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.8, 0.0, 0.0, 1.0))
+	var d := Decal.new()
+	d.texture_albedo = PixelArt.blood(String(a[4]), 23, false, 32) if a.size() > 4 else ImageTexture.create_from_image(img)
+	d.cull_mask = Layers.VIS_BODY
+	d.size = Vector3.ONE * float(a[2])
+	if a.size() > 3 and String(a[3]) == "parent":
+		(m.visuals[sid] as Node3D).add_child(d)
+	else:
+		street.add_child(d)
+	d.global_position = part.global_position
+	return {"at": arr(d.global_position), "vis": arr((m.visuals[sid] as Node3D).global_position), "part": arr(part.global_position)}

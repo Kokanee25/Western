@@ -101,6 +101,30 @@ func test_a_lit_lamp_shot_throws_its_burning_oil_and_an_unlit_one_lets_its_oil_g
 	check(dark.broken and spilled.any(func(e: Array) -> bool: return e[1] == &"lamp_oil"), "an unlit lamp lets its oil go")
 
 
+func test_a_stick_smashes_a_lit_lamp_and_its_oil_burns_an_unlit_one_lights_nothing() -> void:
+	# The only way a blast starts a fire (Sean, 2026-10-28): the lamp it breaks, if it was lit.
+	var fire := FireSystem.new()
+	world.add_child(fire)
+	fire.set_physics_process(false)
+	var lamps: Array[OilLamp] = []
+	for x in [-0.8, 0.8]:
+		var g := _glass(&"oil_lamp", Vector3(x, 0.3, 0.0))
+		var light := OilLamp.new()
+		light.name = "Light"
+		light.show_mesh = false
+		g.add_child(light)
+		light.position.y = 0.04
+		light.set_lit(x < 0.0)
+		lamps.append(light)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	Blast.detonate(world, Vector3(0.0, 0.35, 0.0), Blast.t().tnt_per_stick)
+	await physics_frames(3)
+	check(lamps[0].broken and lamps[1].broken, "80 cm from a stick both lamps smash (lit %s, dark %s)" % [lamps[0].broken, lamps[1].broken])
+	check_eq(fire.spills.size(), 1, "the lit one's oil burns where it lands, the dark one's doesn't")
+	fire.step(Blast.t().ignite_delay.y + 0.1)
+	check_eq(fire.spills.size(), 1, "the blast lit nothing else")
+
+
 func test_off_the_table_a_lamp_breaks_and_a_bottle_mostly_doesnt() -> void:
 	var lamp := _glass(&"oil_lamp", Vector3(0.0, 0.3 + 0.8, 0.0))
 	var bottle := _glass(&"whiskey_bottle", Vector3(0.4, 0.3 + 0.8, 0.0))
