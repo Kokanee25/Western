@@ -666,7 +666,8 @@ frozen until Sean names one.
   A thinning smear narrows, not see-through; **more blood on a shot man** (2026-10-28, PR #441,
   build 2652): wound stains by what cloth soaks (`STAIN_SOAK`/`FILM`/`MAX`), soaked from below in
   his pool (`_soak_in_pool`, `POOL_SOAK_*`), pools under men down but not limp; lab `body_where`,
-  `body_meshes`, `body_probe`. Next: the smear painted (Sean's $4, #439).
+  `body_meshes`, `body_probe`. **The smear painted** (#439, 2026-10-28): run 129, Gemini, $0.14 of
+  Sean's $4 ($3.86 left); `smear_band.py --painted` cuts it. Next: bloody hands, #451.
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
