@@ -1414,7 +1414,8 @@ func _physics_step(delta: float) -> void:
 			_impacts.step(delta)
 		if not _apart.is_empty():
 			_rejoin_apart()
-		_update_pool()
+	if limp or prone:
+		_update_pool()  # down, limp or not, he bleeds into a pool under him
 	_cough(delta)
 	var conscious := physiology.is_conscious()
 	if _was_alive and not physiology.alive:
@@ -3925,6 +3926,13 @@ func _decal(parent: Node3D, seg: StringName, local: Vector3, size: float, tex: T
 ## spread for 2-5 minutes, NIJ grant report 248671): the patch creeps out to what's bled, this many
 ## seconds to get most of the way.
 const STAIN_WICK := 40.0
+## What a wound's stain covers: the share of what it bleeds that soaks into his clothes (the rest
+## runs off, drips and pools), spread at what shirting and wool hold, ~0.05 ml a cm2 (0.5 l a m2,
+## as a film this deep; cotton takes up a few times its own weight: ~150 g/m2 shirting), and the
+## widest it gets (his front, side to side: a big one runs onto his sleeves and trousers).
+const STAIN_SOAK := 0.5
+const STAIN_FILM := 0.0005
+const STAIN_MAX := 0.75
 
 
 func _update_stains(dt: float) -> void:
@@ -3935,7 +3943,8 @@ func _update_stains(dt: float) -> void:
 			continue
 		var stain := was as Decal
 		var ml := physiology.blood_lost_from(w.bleeds)
-		var target := clampf(0.04 + sqrt(ml) * 0.013, 0.04, 0.38)
+		# Across the cloth it soaks into: its share of what's come out over the patch that holds it.
+		var target := clampf(2.0 * sqrt(ml * STAIN_SOAK * 1e-6 / STAIN_FILM / PI), 0.04, STAIN_MAX)
 		var s: float = w.get("stain_size", 0.04)
 		s += (target - s) * k
 		w.stain_size = s
@@ -4003,6 +4012,61 @@ func _update_pool() -> void:
 	_pool.global_position = Vector3(chest.global_position.x, chest.global_position.y, chest.global_position.z)
 	_pool.global_rotation = Vector3.ZERO
 	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+	_soak_in_pool(r, get_physics_process_delta_time())
+
+
+## Lying in his blood, his clothes take it up from below: each part of him resting in the pool gets
+## a soak on its underside, growing with the pool, and it stays on the cloth if he's moved.
+const POOL_SOAK_PARTS: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"neck", &"head",
+		&"upper_arm_r", &"forearm_r", &"upper_arm_l", &"forearm_l", &"thigh_r", &"shin_r", &"thigh_l", &"shin_l"]
+const POOL_SOAK_EVERY := 0.5  ## s between looks
+const POOL_SOAK_REACH := 0.06  ## m: a part this close to the floor past its own radius lies in it
+const POOL_SOAK_TRUNK_WIDE := 1.6  ## his trunk's half-width side to side, in its middle capsule's radii
+const POOL_SOAK_LIMB_UP := 2.2  ## how high up a limb's cloth it reaches, in its radii (right round)
+const POOL_SOAK_TRUNK_UP := 1.0  ## and up his trunk and head (to about the middle: a man on his back keeps a clean front and face)
+var _pool_soaks := {}  ## segment -> its soak (Decal)
+var _pool_soak_in := 0.0
+
+
+func _soak_in_pool(r: float, dt: float) -> void:
+	_pool_soak_in -= dt
+	if _pool_soak_in > 0.0 or not (limp or prone) or _pool == null:
+		return
+	_pool_soak_in = POOL_SOAK_EVERY
+	var centre := _pool.global_position
+	var q := PhysicsRayQueryParameters3D.create(centre, centre + Vector3.DOWN * 0.6, Layers.WORLD)
+	q.exclude = _own_rids()
+	Prof.count(&"q_pool")
+	var hit := World.space(self).intersect_ray(q)
+	if hit.is_empty():
+		return
+	var floor_y: float = hit.position.y
+	for sid in POOL_SOAK_PARTS:
+		var part := parts.get(sid) as Node3D
+		var vis := visuals.get(sid) as Node3D
+		if part == null or vis == null or not anatomy.segments.has(sid):
+			continue
+		var rad := float(anatomy.segments[sid].radius)
+		var p := part.global_position
+		var flat := Vector2(p.x - centre.x, p.z - centre.z).length()
+		var trunk := sid in [&"chest", &"abdomen", &"pelvis"]
+		# The trunk is wider than its middle capsule (side to side): on his side it sits that much higher.
+		if flat > r or p.y - floor_y > rad * (POOL_SOAK_TRUNK_WIDE if trunk else 1.0) + POOL_SOAK_REACH:
+			continue
+		# Wider the further into the pool it lies, up to its whole length; up its sides as cloth
+		# wicks (a limb's sleeve or leg right round, the trunk to about its middle).
+		var seg: Dictionary = anatomy.segments[sid]
+		var length := ((seg.a as Vector3) - (seg.b as Vector3)).length() + rad * 2.0
+		var size := clampf((r - flat) * 2.0 + rad, rad * 2.0, maxf(length, rad * 2.0))
+		var up := rad * (POOL_SOAK_TRUNK_UP if trunk or sid in [&"neck", &"head"] else POOL_SOAK_LIMB_UP) + POOL_SOAK_REACH
+		var d: Decal = _pool_soaks.get(sid)
+		if d == null or not is_instance_valid(d):
+			d = _decal(vis, sid, vis.to_local(Vector3(p.x, floor_y, p.z)), size, PixelArt.blood("pool1", 23, false, 32))
+			d.modulate = Color(0.75, 0.68, 0.68)
+			d.add_to_group(&"blood_drying")
+			_pool_soaks[sid] = d
+		# Only ever grows: the cloth stays soaked.
+		d.size = Vector3(maxf(size, d.size.x), maxf(up * 2.0, d.size.y), maxf(size, d.size.z))
 
 
 func sever_finger(fid: StringName, dir: Vector3) -> void:

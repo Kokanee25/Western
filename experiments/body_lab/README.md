@@ -50,6 +50,10 @@ as the fourth.
   `"time 13" "body_spawn barkeep_s1 11.5 0.8 3.2 0" "body_drag body1 -2.2 1.0 3.0 3"
   "camera 10.2 2.4 2.2 10.6 0.8 3.6 60" "wait 6" "screenshot OUT.png"` (needs Vulkan: under the
   OpenGL fallback decals don't draw).
+- `body_where PERSON` (his head, chest and pelvis, blood lost, his pool soaks), `body_meshes PERSON`
+  (each drawn mesh, its layers and shader: a Studio man is one `Skin_whole` mesh, his clothes
+  painted on), `body_probe PERSON SEG SIZE [parent|world] [TEXTURE]` (a test decal on his body
+  layer at a part: does a decal reach that cloth?).
 
 ```sh
 python3 tools/bridge.py start --headless

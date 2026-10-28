@@ -319,8 +319,8 @@ const FROTH := Color(0.86, 0.36, 0.38)
 
 ## A man bleeding on his feet leaves drops behind him, a trail that can be followed.
 func _drips(p: Physiology, world: Node3D, dt: float) -> void:
-	if body.limp:
-		return
+	if body.limp or body.prone:
+		return  # down, it pools under him (HumanBody._update_pool)
 	var rate := 0.0
 	for b: Dictionary in p.bleeds:
 		if b.kind != &"internal":
