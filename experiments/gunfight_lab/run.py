@@ -79,8 +79,9 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} max={max} out={out}\nquit\n".format(
-            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), **f))
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} falls={falls} momentum={momentum} max={max} out={out}\nquit\n".format(
+            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""),
+            falls=opt(sys.argv[1:], "falls", ""), momentum=opt(sys.argv[1:], "momentum", ""), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--deterministic", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
     # --game-args=A,B: more of the game's own (--jolt-sight: sight lines asked of Jolt, the before).
