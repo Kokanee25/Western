@@ -395,6 +395,7 @@ func _wall_between() -> void:
 func test_a_shot_he_hears_puts_you_at_your_feet_not_over_your_gun() -> void:
 	_wall_between()
 	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
 	brain.target = player
 	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
 	await physics_frames(2)
@@ -409,6 +410,7 @@ func test_a_shot_he_hears_puts_you_at_your_feet_not_over_your_gun() -> void:
 func test_behind_cover_he_holds_it_against_what_he_knows_not_a_guess() -> void:
 	_wall_between()
 	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
 	brain.target = player
 	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
 	await physics_frames(2)
