@@ -16,7 +16,7 @@ import sys
 
 # What a touch is, from the member's kind (or the node's): the floor and ground he lands on aren't
 # "something he fell into".
-FLOOR = {"floor_board", "joist", "ground", "Ground", "tread", "stair_tread", "deck", "slab", "rubble", "man"}
+FLOOR = {"floor_board", "joist", "ground", "Ground", "tread", "stair_tread", "deck", "slab", "rubble", "man", "player"}
 
 
 def what(t):
