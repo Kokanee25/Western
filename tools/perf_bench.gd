@@ -16,6 +16,7 @@ extends SceneTree
 ## --clutter=N: the street with N times its kit props (tools/prop_clutter.gd: the copies in rows
 ## along the street; docs/briefs/props-scale.md). --no-prop-batch: kit props drawn each its own;
 ## --no-member-rest: members keep their mesh and shape nodes at rest (both the before).
+## --no-perf-ring: without the bug report's frame-timing ring and its viewport measuring (PerfRing, #437).
 ## --folk=N: the street's townsfolk N times over, the copies standing two streets off
 ## (tools/folk_copies.gd; more-cores step 4b: far men ticking less often, `--people-bands=off` the before).
 ## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
@@ -71,6 +72,8 @@ func _initialize() -> void:
 			folk = int(a.substr(7))
 		elif a == "--no-prop-batch":
 			pass  # PropBatch reads it itself
+		elif a == "--no-perf-ring":
+			pass  # BugRecorder reads it itself: no frame-timing ring (PerfRing), no viewport measuring
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a.begins_with("--hour="):
