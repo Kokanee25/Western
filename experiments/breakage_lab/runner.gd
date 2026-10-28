@@ -51,6 +51,8 @@ var scenario := ""
 var seed_value := 1
 var body := &"bold_cowboy_s0"
 var seconds := 8.0
+## The clock for this run (`hour=`), over the scenario's own; < 0: the scenario's.
+var hour := -1.0
 var out_dir := ""
 ## Rendered: before / just after / at the end frames from the target's camera (needs a renderer).
 var shots := false
@@ -84,6 +86,8 @@ var _ignited := {}  # member -> [id, structure, seconds after the event]
 var _before := {}  # member -> {broken, holes, carved}
 var _analysis_before := {}  # structure -> StructuralAnalysis
 var _lamps: Array[OilLamp] = []
+var _lit_before := 0  # of _lamps
+var _own_lit := false  # a GlassProp target's own lamp
 var _stick: DynamiteStick
 ## Things the scenario puts in or round the crater (`extras_round`): [{what, node, peak_speed, min_above}].
 var _extras: Array[Dictionary] = []
@@ -139,6 +143,10 @@ static func spec_of(name: String, d: Dictionary) -> Dictionary:
 			s["weapon"] = (d.weapons[s.weapon_name] as Dictionary).duplicate()
 			return s
 	return {}
+
+
+func _hour() -> float:
+	return hour if hour >= 0.0 else float(_spec.get("hour", 21))
 
 
 func run() -> Dictionary:
@@ -249,7 +257,7 @@ func _quiet_town() -> void:
 		lab.player.velocity = Vector3.ZERO
 	var clock := _street.find_child("DayCycle", true, false) as DayCycle
 	if clock:
-		clock.set_time(float(_spec.get("hour", 21)))
+		clock.set_time(_hour())
 		clock.set_time_scale(0.0)
 	Prof.on = true
 	Prof._sum.clear()
@@ -260,7 +268,7 @@ func _quiet_town() -> void:
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	if ballistics:
 		ballistics._rng.seed = 1873 + seed_value
-	_setup = {"people_removed": gone, "player_at": lab.arr(PLAYER_AWAY), "hour": _spec.get("hour", 21), "clock": "stopped",
+	_setup = {"people_removed": gone, "player_at": lab.arr(PLAYER_AWAY), "hour": _hour(), "clock": "stopped",
 			"voxels": StructureMember.voxels_available() and not no_voxels, "seed": seed_value}
 
 
@@ -288,7 +296,7 @@ func _find_target(building: Node3D, find: Dictionary) -> Node3D:
 	var best_d := INF
 	if find.has("prop"):
 		for n in building.find_children("*", "Node3D", true, false):
-			if (n is StaticBody3D or n is KitProp) and n.get_meta(&"prop_id", &"") == StringName(find.prop):
+			if (n is StaticBody3D or n is KitProp or n is GlassProp) and n.get_meta(&"prop_id", &"") == StringName(find.prop):
 				var d := (n as Node3D).global_position.distance_to(near)
 				if d < best_d:
 					best_d = d
@@ -524,6 +532,8 @@ func _snapshot_before() -> void:
 	for lamp in _street.find_children("*", "OilLamp", true, false):
 		if (lamp as Node3D).global_position.distance_to(_aim) < 15.0:
 			_lamps.append(lamp as OilLamp)
+			_lit_before += int((lamp as OilLamp).lit)
+			_own_lit = _own_lit or (_target is GlassProp and (_target as Node).is_ancestor_of(lamp) and (lamp as OilLamp).lit)
 	if _spec.get("surface", false) or _target_kind == "ground":
 		_scan_before = _scan()
 	_setup["target"] = _describe(_target)
@@ -1019,6 +1029,8 @@ func _target_result(timber: TimberTuning, charge: Vector3) -> Dictionary:
 		return r
 	if _target_kind == "kit":
 		return _kit_result(r, timber, charge)
+	if _target is GlassProp:
+		return _glass_result(r)
 	if _target_kind == "prop":
 		var still := is_instance_valid(_target) and _target.is_inside_tree()
 		r["kind"] = "static prop (one box, PropLibrary)"
@@ -1211,12 +1223,35 @@ func _piece_summary() -> Dictionary:
 			"max_m": snappedf(dists[-1], 0.01) if not dists.is_empty() else 0.0}
 
 
+## A prop that shatters (the kit's lamp, a bottle): its node stays where it stood; its body is what
+## flies, and its light (a lamp's OilLamp) is its child.
+func _glass_result(r: Dictionary) -> Dictionary:
+	var g := _target as GlassProp
+	r["kind"] = "a prop that shatters (GlassProp)"
+	r["shattered"] = g.broken
+	r["thrown"] = g.loose
+	r["moved_m"] = snappedf(g.body.global_position.distance_to(_v(_setup.target_at)), 0.001) if is_instance_valid(g.body) else null
+	var own := g.find_children("*", "OilLamp", true, false)
+	r["lamp_lit_before"] = _own_lit
+	if not own.is_empty():
+		r["lamp_smashed"] = (own[0] as OilLamp).broken
+	r["result"] = "smashed" if g.broken else ("thrown" if g.loose else "holds")
+	r["lamps_lit_before"] = _lit_before
+	r["lamps_smashed"] = _lamps.filter(func(l: OilLamp) -> bool: return is_instance_valid(l) and l.broken).size()
+	return r
+
+
 func _fire_summary() -> Dictionary:
 	var fire := FireSystem.find(get_tree())
 	var caught := []
+	var kinds := {}  # what caught by kind (the saloon's floor boards, a crate's sides): how many, first when
 	for key in _ignited:
 		caught.append({"id": _ignited[key][0], "after_s": _ignited[key][1]})
-	return {"caught": caught.slice(0, 20), "caught_count": caught.size(), "burning_at_end": fire.burning_members().size() if fire else 0,
+		var kind := String((key as StructureMember).kind) if is_instance_valid(key) else "gone"
+		var k: Dictionary = kinds.get_or_add(kind, {"n": 0, "first_s": _ignited[key][1]})
+		k.n += 1
+		k.first_s = minf(k.first_s, _ignited[key][1])
+	return {"caught": caught.slice(0, 20), "caught_count": caught.size(), "caught_kinds": kinds, "burning_at_end": fire.burning_members().size() if fire else 0,
 			"spills_at_end": fire.spills.size() if fire else 0, "log": _fire_log.slice(0, 20),
 			"lamps_smashed": _lamps.filter(func(l: OilLamp) -> bool: return is_instance_valid(l) and l.broken).size()}
 
