@@ -75,19 +75,65 @@ var analysis_cache := {}
 
 # Fire (FireSystem runs it): degrees C, alight or not, how deep the char has gone from each face
 # (m), how long it's been alight, and whether it's burnt away to nothing.
-var temperature := 20.0
-var burning := false
-var char_depth := 0.0
-var burn_time := 0.0
-var consumed := false
+## Once the fire has met it, its temperature, water, char and burn time live in the fire's core
+## (FireSystem's `_core`: the native FireCore, or FireCoreScript), slot `fire_slot`, where the
+## fire's tick works them out (more-cores step 8); these read and write them there.
+var temperature: float:
+	get: return fire_core.temperature(fire_slot) if fire_slot >= 0 else _temperature
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_temperature(fire_slot, v)
+		else:
+			_temperature = v
+var burning := false:
+	set(v):
+		burning = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_BURNING, v)
+var char_depth: float:
+	get: return fire_core.char_depth(fire_slot) if fire_slot >= 0 else _char_depth
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_char_depth(fire_slot, v)
+		else:
+			_char_depth = v
+var burn_time: float:
+	get: return fire_core.burn_time(fire_slot) if fire_slot >= 0 else _burn_time
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_burn_time(fire_slot, v)
+		else:
+			_burn_time = v
+var consumed := false:
+	set(v):
+		consumed = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_CONSUMED, v)
 ## Litres of water soaked into it (a bucket thrown on it): while it's wet, heat goes into drying it
 ## and it gets no hotter than boiling (FireSystem._heat). Dries in the air and the heat.
-var wet := 0.0
+var wet: float:
+	get: return fire_core.wet(fire_slot) if fire_slot >= 0 else _wet
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_wet(fire_slot, v)
+		else:
+			_wet = v
+## The fire's core and this member's slot in it (-1: the fire hasn't met it).
+var fire_core: Object = null
+var fire_slot := -1
+var _temperature := 20.0
+var _char_depth := 0.0
+var _burn_time := 0.0
+var _wet := 0.0
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []
 ## Broken members are gone from the world (a shattered pane). Saved.
-var broken := false
+var broken := false:
+	set(v):
+		broken = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_BROKEN, v)
 
 const MAX_DRAWN_HOLES := 16
 const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
@@ -176,7 +222,11 @@ func realise() -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE and _rest_mesh:
+	if what != NOTIFICATION_PREDELETE:
+		return
+	if fire_slot >= 0:
+		fire_core.release(fire_slot)  # nothing heats it now, nothing it heats
+	if _rest_mesh:
 		_rest_mesh.free()
 		_rest_shape.free()
 

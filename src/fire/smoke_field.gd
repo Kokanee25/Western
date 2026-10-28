@@ -176,11 +176,10 @@ func _physics_step(delta: float) -> void:
 
 
 ## Each burning member's smoke into the open cells beside it; how many were burning. What's burning
-## from the fire's picture (FireSystem.fire_near's), in the fire's order.
+## from the fire's list of them (FireSystem.burning_now), in the fire's order.
 func _emit() -> int:
 	var n := 0
-	fire._take_picture()
-	for e: Variant in fire._picture:
+	for e: Variant in fire.burning_now():
 		if not is_instance_valid(e) or not _drawn.has(e):
 			continue
 		var m := e as StructureMember
