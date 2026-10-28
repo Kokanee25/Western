@@ -176,27 +176,37 @@ func _physics_step(delta: float) -> void:
 
 
 ## Each burning member's smoke into the open cells beside it; how many were burning. What's burning
-## from the fire's list of them (FireSystem.burning_now), in the fire's order.
+## from the fire's lists of them, those of the structures drawn into its cells (FireSystem.burning_in,
+## each in the fire's order: a field loops its own buildings' burning, not the town's), into the grid
+## in one call.
 func _emit() -> int:
+	var t := Prof.start()
 	var n := 0
-	for e: Variant in fire.burning_now():
-		if not is_instance_valid(e) or not _drawn.has(e):
+	var cells := PackedInt32Array()
+	var amounts := PackedFloat32Array()
+	for st: Variant in _listed:
+		if not is_instance_valid(st):
 			continue
-		var m := e as StructureMember
-		if not m.burning or m.consumed:
-			continue
-		var vents: PackedInt32Array = _vents[m] if _vents.has(m) else _vents_of(m)
-		if vents.is_empty():
-			continue
-		n += 1
-		var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / vents.size()
-		for v in vents:
-			grid.call(&"emit", v, each, tuning.smoke_heat)
+		for e: Variant in fire.burning_in(st):
+			if not _drawn.has(e):
+				continue
+			var m := e as StructureMember
+			var vents: PackedInt32Array = _vents[m] if _vents.has(m) else _vents_of(m)
+			if vents.is_empty():
+				continue
+			n += 1
+			var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / vents.size()
+			for v in vents:
+				cells.append(v)
+				amounts.append(each)
+	if not cells.is_empty():
+		grid.call(&"emit_many", cells, amounts, tuning.smoke_heat)
 	for sp: Dictionary in fire.spills:
 		var c := index_of(cell_of((sp.position as Vector3) + Vector3.UP * 0.3))
 		if c >= 0:
 			grid.call(&"emit", c, tuning.smoke_per_m2 * 0.5, tuning.smoke_heat)
 			n += 1
+	Prof.stop(&"smoke_emit", t)
 	return n
 
 

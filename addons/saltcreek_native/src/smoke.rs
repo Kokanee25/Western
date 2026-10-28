@@ -467,6 +467,17 @@ impl SmokeGrid {
         }
     }
 
+    /// `emit` for many cells at once, each its own smoke, all the same heat (a step's sources in
+    /// one call: a burning saloon's were thousands of calls, 15 a second, for each field).
+    #[func]
+    fn emit_many(&mut self, cells: PackedInt32Array, smoke: PackedFloat32Array, heat: f32) {
+        for (&c, &s) in cells.as_slice().iter().zip(smoke.as_slice().iter()) {
+            if c >= 0 {
+                self.pending.push((c as usize, s, heat));
+            }
+        }
+    }
+
     /// One step of `dt` seconds with the wind (m/s, world x and z: the box is laid square to
     /// them), here and now.
     #[func]

@@ -301,10 +301,22 @@ func burning_now() -> Array:
 	if frame != _burning_frame:
 		_burning_frame = frame
 		_burning_now.clear()
+		_burning_in.clear()
 		for m: Variant in active:
 			if is_instance_valid(m) and (m as StructureMember).burning and not (m as StructureMember).consumed:
 				_burning_now.append(m)
+				(_burning_in.get_or_add((m as Node).get_parent(), []) as Array).append(m)
 	return _burning_now
+
+
+## The same, by what they're part of (a structure -> its burning members, in the fire's order): a
+## smoke field reads only its own buildings'.
+func burning_in(structure: Node) -> Array:
+	burning_now()
+	return _burning_in.get(structure, [])
+
+
+var _burning_in := {}
 
 
 ## Where it's burning, seen from above: the `MAP_CELL` m squares (Vector2i) any burning member or
