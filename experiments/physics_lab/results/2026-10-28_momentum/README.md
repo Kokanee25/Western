@@ -4,7 +4,7 @@ Sean, 2026-10-28: "what i really want is bodies reacting to the environment arou
 into chairs, over rails, through bannisters and stuff like that - I believe if a guy is running and
 gets killed his body keeps moving so we need to find a way to get that more often". No bigger
 impulses: he keeps what he had. Judged by how far he travels and what he falls into, not how he
-folds. The review page with the films (not in git): https://claude.ai/artifact/7SiaxZJMD2FNrPj9Zrck6Y
+folds. The review page with the films (not in git; version 2 after Sean's note on the table): https://claude.ai/artifact/7SiaxZJMD2FNrPj9Zrck6Y
 
 Runs are in `build/` of the session's worktree (not in git): `build/gf/base`, `build/gf/on`
 (fights), `build/physics_lab/x_off`, `x_on` (headless), `xr_off`, `xr_on` (drawn).
@@ -88,6 +88,38 @@ ticks as he strikes at 3.3 m/s; the worst gap 0.13 -> 0.17 m, down the stair) an
 `swing_past_limit` (20 -> 58). Harder impacts, not new faults; to be judged by eye on the films.
 Frame: the lab's collapse 11.2 -> 12.0 ms headless here (the harder falls' contacts); the probe is
 two shape casts a tick while a man stumbles.
+
+## Sean on the films: "that table doesn't move or flip" (the kit fix, and half a step)
+
+He was right: in the first `on` run the card table went loose (its members rubble) but stood, and
+he knelt against its foot. Two faults:
+
+1. **A body into a kit prop counted only the parts touching it** (`BodyImpacts._kit_contact`: each
+   part's own momentum, once, as a blow from those parts' weight; a hand or a shin is 0.5-3 kg), so
+   the prop, held rigid until it decides, stopped all 80 kg of him and was told it was tapped. Now
+   (with `keep_stride`): once that first touch is held, the engine's level contact impulse stopping
+   him against it is summed for `KIT_HOLD` (0.2 s) and given to it each tick as a blow from his
+   whole weight (`_kit_stop`, `_kit_stops`); when it goes loose, what a free prop wouldn't have taken
+   (his share, M / (M + its weight)) goes back to the parts it stopped. The card table (46 kg) took
+   189 N·s from him in 0.05 s and went at 1.8 m/s.
+2. **A whole step was too far out**: he went limp ~1 m short and the quick fade buckled his knees
+   before he got there. Half a step (0.12 s at his speed, 0.2-0.45 m past his walking sphere): his
+   trunk is still going when it meets the table. With the kit fix a whole step scores better over
+   all 16 (travel 1.45 vs 1.17 m, `x_probe_half_vs_full.txt`) but kneels short of both tables (the
+   thing Sean saw), so half a step.
+
+Test: `test_body_impacts::test_shot_running_he_takes_a_card_table_with_him` (tips 59 deg; fails with
+the switch off: 0 m, 0 deg).
+
+**Final group X** (`x_tone.txt`, `x_tally.txt`: before vs half a step with the kit fix): travel 0.84
+-> **1.17 m**, broke something 7 -> **13** of 16, all three table falls loose (none before). Flags
+94 -> 434 (`joint_pulled_apart` 46 -> 289, `launch` 5 -> 34: the railing falls' 2.3 m drop, and
+`X_stair_down_run_back` before he goes limp, the stumble's gait at 3 m/s down the treads).
+
+**Not fixed: running straight down the saloon stair** he stumbles the whole flight (nothing ahead
+at 0.6-1.0 m), lands on the lower treads and lies with his left shin and right forearm 8-10 cm
+apart at their joints for ~5 s (302 ticks over 8 cm; the whole step had 43, before 0). Its film
+was dropped (the scenario's cameras don't see him). Fix before the switch goes on.
 
 ## Step 4 (proposed, not built): more men dying on the move
 
