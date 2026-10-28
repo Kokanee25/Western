@@ -47,3 +47,30 @@ xvfb-run -a godot --path . --rendering-driver vulkan --resolution 960x540 --fixe
 The cases are the ragdoll lab's group O (`experiments/physics_lab/scenarios.json`, cause `push`):
 each pushed back (his +z) as a man facing you is, on the lab's fixtures. Each seed (`--jitter`)
 moves where he stands (2 cm, 3°) and the push (10% of its momentum, 4 cm up or down, 6° either way).
+
+## Results (2026-10-28, `results/2026-10-28/tally.md`, 20 seeds a case)
+
+"down" is runs in which he went off his feet; "back" is where his middle ended along the push
+(m, from where he stood); "drop" how far it fell; "broke" runs with any member broken.
+
+| case | shove | kick |
+|---|---|---|
+| open floor | 0 of 20 down; 0.25 m back (0.20 to 0.29), on his feet | 20 of 20 down; 0.88 m back, up again in all |
+| wounded (torn right thigh: he catches 0.41 m/s, not 0.8) | 20 of 20 down, 0.95 m back | 20 of 20 down |
+| saloon gallery rail behind him (0.45 m) | 0 of 20: stopped on his feet against it | 20 of 20 down, 18 over and off the gallery (2.6 m), the rail broken in all 20 (5 members) |
+| a breakable 1 m rail over a 2.47 m drop (the lab's) | 0 of 20: stopped against it | 20 of 20 through it and off the deck (2.8 m) |
+| the hitching rail (0.8 m behind, its top at 1.14) | 0 of 20: doesn't reach it | 20 of 20 down against it (0.94 m), it holds |
+| the saloon stair's head, his back to the flight | 0 of 20 (0.25 m: short of the first step) | 20 of 20 down the stair (1.9 m), a rail member broken in 11 |
+| the stair's sixth tread, facing up | 17 of 20 down the stair (1.4 m) | 20 of 20 down the stair |
+| the oak stair's head | 9 of 20 down it (the edge is nearer) | 20 of 20 down it (1.7 m) |
+| a porch edge 0.15 m behind his heels | 19 of 20 off it (0.7 m down) | 20 of 20 off it |
+| a chair behind him | 20 of 20 down over it (17 up again; it broke in 5) | 20 of 20, the chair smashed in all 20 (13 members) |
+| a card table behind him | 20 of 20 down into it | 20 of 20, over it in most (1.25 m), broke in 7 |
+| the bar behind him | 0 of 20: stopped on his feet against it | 20 of 20 down against it |
+
+So the shove moves a man and takes him over anything low or light at his back, or off an edge.
+The kick puts him down anywhere, and through a rail or off a gallery when one's behind him. The
+lab's flags (`launch`, `jitter_after_settle`) in these runs are the get-up: the ragdoll lab reads
+the rig's parts as he rises and takes that for flying parts (50 to 86 m/s, 2 to 3.5 s after he
+went down, as he rises). In the 1.5 s after he goes down his fastest part is a hand at 4 to 10 m/s
+(9 m/s falling 2.6 m off the gallery), and his head is at 3 m/s as a kick turns him over.
