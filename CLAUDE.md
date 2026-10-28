@@ -554,10 +554,15 @@ frozen until Sean names one.
 - **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
   is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
   With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
+- **Bodies that keep moving** (2026-10-28, #446, PR #469; `experiments/physics_lab/results/2026-10-28_momentum/`):
+  the gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 men go down standing); `HumanBody.keep_stride`
+  (off; Sean: "Love em", #468) keeps a stumbling man's speed into what's half a step ahead, and a body into a
+  kit prop counts all of him; the ragdoll lab's group X and `--momentum=on`. Next #471 (the stair-down jam,
+  the switch on, then chairs and tables you can shove).
 - **The tone fade** (2026-10-28, #442, PR #447; `experiments/physics_lab/results/2026-10-28_tone/`):
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
-  fall into shit and down stairs"). Next #446 (bodies that keep moving), from the quick fade.
+  fall into shit and down stairs"). (#446 done: above.)
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

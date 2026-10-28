@@ -83,6 +83,15 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   (`contacts` counts his parts touching each other too).
 - `blind.py A B OUT SEED [TIMES]`: the sheets' times, for renders shorter than 6 s.
 
+**Since 2026-10-28, momentum** (`results/2026-10-28_momentum/`, issue #446):
+- `--momentum=on|off`: `HumanBody.keep_stride` (the stumble keeps his speed and goes limp into a
+  solid thing within a step; off in the game). `run.py` passes it on.
+- Group X: walking and running into a kit chair, the card table (`x_chair`, `x_table`), a thin
+  plank wall of the game's members (`x_wall`, `lab_plank_wall.gd`), the breakable railing and the
+  saloon stair, shot in the back or side.
+- `tone.py` also prints `speed` (as he went limp), `travel` (his centre of mass, level, from there
+  to the end), `broke` (members broken after) and where he ends.
+
 ## Files
 
 - `scenarios.json`: the 25 scenarios, A–I. Directions are in the man's frame (−z is the way he

@@ -7,7 +7,7 @@ const Fight := preload("res://experiments/gunfight_lab/fight.gd")
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C|D] [fixes=all|none|a+b|-a] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
+	"gf_fight": "gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push] [variant=A|B|C|D] [fixes=all|none|a+b|-a] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [aim=DEGREES] [falls=1] [momentum=on] [max=S] [out=FILE.json] [shots=DIR every=S] -> one fight to its end, its numbers",
 	"gf_lineup": "gf_lineup PATH [holstered] [studio|outlaw|MODEL...] -> the men side by side, guns up (or holstered), facing a camera: a picture (drawn runs)",
 	"gf_cover": "gf_cover X Y Z [FROM_X FROM_Y FROM_Z] -> is there cover within 1.5 m of X Y Z from that eye (default: the street's trough), as the gang judges it",
 	"gf_bodies": "gf_bodies [studio|outlaw|MODEL...] -> each man stood up alone: his hat's hitbox, his gun, and how much of what you see of him no hitbox covers",
@@ -43,6 +43,13 @@ func _cmd_gf_fight(a: Array) -> Dictionary:
 	while not fight.done:
 		await get_tree().physics_frame
 	await get_tree().physics_frame
+	# The last man down is followed to the end of his fall (FallLog.TRACK_S at most).
+	var wait := 0
+	while fight.falls and not fight.falls.finished() and wait < 300:
+		await get_tree().physics_frame
+		wait += 1
+	if fight.falls:
+		fight.record["falls"] = fight.falls.falls
 	while fight.capturing > 0:
 		await get_tree().process_frame
 	var rec: Dictionary = fight.record
