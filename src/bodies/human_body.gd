@@ -266,7 +266,7 @@ var gun_holstered := false
 const DRAW_TIME := 0.5
 ## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
 ## whose faces point inward).
-const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair", "apron"]
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
