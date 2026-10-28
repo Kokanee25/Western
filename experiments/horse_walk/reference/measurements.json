@@ -1,0 +1,28 @@
+{
+ "clip": "Pexels, \"Video of a walking horse\" (https://www.pexels.com/video/video-of-a-walking-horse-9943096/): 13.9 s, 30 fps, 970x512; a saddled chestnut walking left to right (his left side to the camera), the camera panning with him for ~2 s, then holding",
+ "method": "pan.py (phase correlation on the ground strip), legmask.py (legs by colour, laid on the ground: a space-time picture of the hoof band), contacts.py (stances = runs in ground columns), legs named by which leg is drawn over which as they pass (occl.jpg): the planted one is near when it hides the swinging one",
+ "scale": {"trunk_px": 173, "px_per_m_estimate": 108, "note": "from the trunk's length (barrel + quarters ~1.6 m); +-15%"},
+ "speed_px_per_frame": {"frames_20_92": 1.24, "frames_93_165": 2.02, "frames_166_239": 1.78, "mean": 1.68},
+ "stances": {
+  "note": "frames at the clip's 30 fps; ground x in pixels (pan taken out); on = landing, off = the toe leaving. Frame 0 = the clip's first frame.",
+  "LH": [[645, 106, 159], [778, 185, 232]],
+  "LF": [[800, 135, 184], [943, 207, 244]],
+  "RH": [[565, 57, 117], [700, 144, 199], [845, 228, null]],
+  "RF": [[861, 172, 218]]
+ },
+ "footfalls": ["RH 57", "LH 106", "LF 135", "RH 144", "RF 172", "LH 185", "LF 207", "RH 228"],
+ "derived": {
+  "order": "LH, LF, RH, RF: the lateral sequence (as the literature)",
+  "stride_frames": {"LH": 79, "LF": 72, "RH": [87, 84], "mean": 80},
+  "stride_px": 145,
+  "stance_frames": {"LH": [54, 48], "LF": [50, 38], "RH": [61, 56], "RF": [47]},
+  "duty_factor": {"LH": 0.66, "LF": 0.69, "RH": 0.68, "RF": 0.60, "mean": 0.67},
+  "lateral_phase": {"note": "LH -> LF landing as a share of the stride (0.25 = evenly spaced)", "values": [0.37, 0.31, 0.33], "mean": 0.33},
+  "clip_speed": "stride ~80 frames = 2.7 s at the clip's rate, at ~0.47 m/s: no walking horse is that slow; the clip is almost certainly slowed (stock is often shot at 60 fps and played at 30). At 2x the stride is 1.33 s at 0.94 m/s, at 2.5x 1.07 s at 1.17 m/s: a slow, relaxed walk either way. The clip can't say which, so timing comes from the literature and only the shares (duty, phase, poses) from the clip."
+ },
+ "poses_by_eye": {
+  "note": "read off 2x crops (ang_lh.jpg, ang_lf.jpg; reference/), +-10 degrees; angles from vertical, + = hoof ahead",
+  "LF": {"contact": "limb straight, +15", "mid_stance": "limb vertical, fetlock sunk", "lift_off": "limb -20, heel up, toe last", "mid_swing": "knee flexed ~45, cannon ~35 back of vertical, hoof ~8-12 cm up"},
+  "LH": {"contact": "cannon +10..20", "mid_stance": "cannon vertical, fetlock sunk", "lift_off": "limb -25, toe down", "mid_swing": "hock flexed, cannon ~30 back, hoof ~10 cm up"}
+ }
+}

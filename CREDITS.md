@@ -46,3 +46,8 @@ adds its own lines.
   a kick, a draw, standing over a man) were generated from text for this project and retargeted
   onto our rig by `tools/blender/retarget_motion.py`; the generated takes are kept in the Studio
   (`motions/card_cheat/`).
+- **"Video of a walking horse"** (Pexels, https://www.pexels.com/video/video-of-a-walking-horse-9943096/):
+  the Pexels licence (free to use and modify; no selling unaltered copies or redistributing them on
+  stock or wallpaper sites). The horse walk experiment's reference (2026-10-28, the horse lane, #470):
+  cropped frames and sheets of it in `experiments/horse_walk/reference/` and the matched pairs in
+  `experiments/horse_walk/compare/`; the clip itself is not in the repo.
