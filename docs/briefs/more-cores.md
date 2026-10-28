@@ -636,6 +636,19 @@ into packed arrays and run `StructuralAnalysis.begin_update` + `advance` on a wo
 on the pool first; native if it pays), `apply_round` on the main thread next tick; the fire's
 `_visit` native over the grid. `tests/test_settle_incremental.gd` holds the analysis exact; the
 blast-freeze lab's frames and the fire test scenes the same twice."*
+**Done (2026-10-28, `claude/gameplay-perf-step8`; `experiments/blast_freeze/results/2026-10-28_step8/`):**
+the fire's member tick in the native `FireCore` (`fire.rs`; `FireCoreScript` the same rules in
+GDScript, held the same to the bit by `tests/test_fire_core.gd`): the members' fire numbers live
+in its slots, its own grid makes what each heats, `fire_near` and the smoke fields' sources read
+it; the analysis over `LoadRecord`s, FireSystem's checks on the pool, applied on a tick fixed by
+their size. **Gain**, the whole saloon burning (`perf_bench --scene=blaze`): the frame 56.6 →
+29.8 ms here (p99 127 → 67), `fire` 23.9 → 4.5 (`fire_tick` 12.9 → 1.1, `fire_loads` 3.8 → 1.1,
+the smoke fields' untimed ~6 → 0.5, `fire_near` 5.3 → 0.08); ~2.9 at Sean's against the ~1.0
+expected (FireFX, the smoke raster and the checks' main-thread share are left). The stick in the
+burning hall: after its first second 42.3 → 25.7 ms a frame, `fire_loads` 9.9 → 1.5, frames over
+50 ms 121 → 24 of 420; the same 306 members broken; under `--deterministic` twice and with the
+worker off, 600 of 600 frames the same. Also: `perf_bench`'s `systems_ms` is the whole run's mean
+(it was the last second's).
 
 **Step 9. The budget table re-stated** (no gain; one short session with Sean's F3 numbers from
 steps 6 and 7): CLAUDE.md's table becomes the per-thread one above with measured columns, and

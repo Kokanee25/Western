@@ -1038,5 +1038,15 @@
    "from": "his own hand (his forearm is a sleeve)"
   },
   "mixed_hand_triangles_dropped": 0
+ },
+ "apron": {
+  "top_y": 1.35,
+  "hem_y": 0.51,
+  "triangles": 2510,
+  "colour": [
+   150,
+   104,
+   68
+  ]
  }
 }
