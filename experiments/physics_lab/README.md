@@ -73,6 +73,15 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   `blind.py A B OUT SEED`: pairs of sheets in random order for a blind judge, the key beside OUT.
 - The hitching rail is its own fixture (`hitch`); it had stood in `oak_stair` by mistake.
 
+**Since 2026-10-28** (`results/2026-10-28_tone/`, issue #442):
+- `--tone=off|fade|dying` (or a scenario's `tone` field): `HumanBody.tone_style`, how his tone lets
+  go (off in the game). `run.py` passes it on, `--perf` too.
+- `python3 experiments/physics_lab/tone.py ROOT [ROOT...] [--each] [--only=...]`: time to the
+  ground, planked landings, how fast his head and chest land, settle, frame ms.
+- `segments.csv` has a `world_contacts` column: contacts with anything but a man's own parts
+  (`contacts` counts his parts touching each other too).
+- `blind.py A B OUT SEED [TIMES]`: the sheets' times, for renders shorter than 6 s.
+
 ## Files
 
 - `scenarios.json`: the 25 scenarios, A–I. Directions are in the man's frame (−z is the way he

@@ -1410,6 +1410,7 @@ func _physics_step(delta: float) -> void:
 		_step_brace(delta)
 		_rise_watch(delta)
 		_step_tone(delta)
+		_step_dying(delta)
 		if _impacts:
 			_impacts.step(delta)
 		if not _apart.is_empty():
@@ -1771,6 +1772,8 @@ func _rebuild_rig() -> void:
 		(old[sid] as Node).queue_free()
 	_impacts = null
 	_tone.clear()
+	_tone_when.clear()
+	_end_dying()
 	_apart.clear()
 	cone_frames.clear()
 	_brace_t = -1.0
@@ -4154,8 +4157,12 @@ func go_limp(push := Vector3.ZERO) -> void:
 	_clip_w = 0.0
 	_down_t = 0.0
 	_still_t = 0.0
+	var holding := {}
 	if not _grab.is_empty():
-		_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
+		if tone_style == &"dying" and float(_grab.w) >= GRAB_PRESSES:
+			holding = _grab.duplicate()  # he keeps it there as he goes (`_start_dying`)
+		else:
+			_hand_press(_grab.wound, false)  # his hand falls away from it as he goes
 		_grab.clear()
 	_impacts = BodyImpacts.new()
 	var conscious := physiology.is_conscious()
@@ -4241,6 +4248,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		child.global_transform = now
 	_keep_apart(bodies)
 	_start_tone(bodies, conscious, joint_at)
+	_start_dying(holding, joint_at)
 	# Each part goes on as it was moving (walking, running, flinching), plus `push`: a blast's
 	# wind, the same on all of him. Nothing scripted on top (there was a shove of the chest and a
 	# random kick: experiments/physics_lab/README.md, baseline).
@@ -4434,6 +4442,46 @@ var _tone_t := 0.0
 var _tone_start := 0.0
 var _tone_fade := 1.0
 
+## How his tone lets go (experiments/physics_lab `tone`, issue #442; Sean, 2026-10-27: "I don't want
+## people flying around but I don't want every death to be a drop dead rag doll"). "": all of him at
+## once, TONE_FADE (the game's). &"fade": a region at a time, each holding a moment and then going
+## over its own time, in a dying man's order: his legs first (he buckles and goes down onto a knee),
+## his trunk and neck after (he folds as he goes), his arms last. No more force than before: the
+## same stiffness for longer, toward the pose he went in. &"dying": the fade, and what he still does
+## as he goes (`_start_dying`).
+static var tone_style := &""
+## Each region's [hold from, hold to, fade from, fade to] (s): drawn per man (his own seed), the
+## hold at full TONE_START, then a smooth fall to nothing over the fade.
+const TONE_REGIONS := {
+	&"legs": [0.02, 0.08, 0.3, 0.5],
+	&"trunk": [0.15, 0.3, 0.6, 1.0],
+	&"neck": [0.2, 0.35, 0.7, 1.1],
+	&"arms": [0.3, 0.5, 0.9, 1.4],
+}
+## One leg gives before the other by this much (s, drawn): he goes onto one knee and over that
+## side, not down into an even squat (experiments/physics_lab/results/2026-10-21_faint: the judges'
+## shared fault was "every joint at once, both legs alike").
+const TONE_LEG_LAG := [0.15, 0.35]
+## ... and the first one buckles: its knee and hip pulled this far into a bend (degrees, the poses'
+## axes, as FAVOUR_LEG) as it goes, the other's this share of it. A standing man's knees are near
+## straight and carry him on the bone: let go evenly, he stood like a post for half a second and
+## then sank into a squat (the faint's judges: "a controlled crouch, not legs giving way").
+const TONE_BUCKLE := {&"thigh": Vector3(18, 0, 0), &"shin": Vector3(-40, 0, 0)}
+const TONE_BUCKLE_OTHER := 0.35
+## Now and then (this share of men) his trunk goes before his legs: he folds at the waist first.
+const TONE_TRUNK_FIRST := 0.2
+## Each man's stiffness, this much either side of TONE's.
+const TONE_SPREAD := 0.15
+## Killed outright, every region's times are this share (he still doesn't drop like a sack); awake,
+## this many times longer (he fights it).
+const TONE_DEAD_SCALE := 0.45
+const TONE_CONSCIOUS_SCALE := 1.3
+## The leg he stands on as a post (TONE_STANCE): only for this instant, smoothly, whatever the style.
+const TONE_POST_FADE := 0.35
+var _tone_when: Array = []  ## per _tone entry: Vector2(hold, fade) (s) under &"fade"
+var _tone_index := {}  ## segment -> its _tone entry
+var _tone_until := TONE_UNTIL
+
 
 func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> void:
 	_tone.clear()
@@ -4454,6 +4502,10 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 		column = column or absf((bodies[&"foot_l"] as Node3D).global_position.y - (bodies[&"foot_r"] as Node3D).global_position.y) > SINGLE_SUPPORT
 	# At the end of a stumble his legs are what gave: they fold first.
 	column = column and not _legs_gone
+	_tone_when.clear()
+	_tone_index.clear()
+	_tone_until = TONE_UNTIL
+	var when := _tone_regions(dead, conscious) if tone_style in [&"fade", &"dying"] else {}
 	for sid: StringName in bodies:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -4463,11 +4515,63 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 		var rest := (up.global_basis.orthonormalized().inverse() * child.global_basis.orthonormalized()).get_rotation_quaternion()
 		var key := StringName(String(sid).trim_suffix("_r").trim_suffix("_l"))
 		var k := float(TONE.get(key, 30.0))
-		if column and String(sid).ends_with(stance) and (key == &"shin" or key == &"thigh"):
+		var post := column and String(sid).ends_with(stance) and (key == &"shin" or key == &"thigh")
+		if post:
 			k *= TONE_STANCE
 		elif _legs_gone and key == &"shin":
 			k *= LEGS_GONE
-		_tone.append([child, up, rest, k, child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
+		_tone_index[sid] = _tone.size()
+		_tone.append([child, up, rest, k * float(when.get(&"stiff", 1.0)), child.global_transform.affine_inverse() * (joint_at[sid] as Vector3)])
+		if not when.is_empty():
+			if not post and not column and not _legs_gone and TONE_BUCKLE.has(key):
+				var d: Vector3 = TONE_BUCKLE[key] * (1.0 if String(sid).ends_with(String(when[&"first"])) else TONE_BUCKLE_OTHER)
+				var last: Array = _tone[-1]
+				last[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (last[2] as Quaternion)
+			var w: Vector2 = Vector2(0.0, TONE_POST_FADE) if post else when.get(sid, when.get(_tone_region(key), Vector2(0.0, TONE_FADE)))
+			_tone_when.append(w)
+			_tone_until = maxf(_tone_until, w.x + w.y)
+
+
+static func _tone_region(key: StringName) -> StringName:
+	match key:
+		&"thigh", &"shin", &"foot":
+			return &"legs"
+		&"abdomen", &"chest":
+			return &"trunk"
+		&"neck", &"head":
+			return &"neck"
+	return &"arms"
+
+
+## This man's way of letting go (&"fade"): each region's Vector2(hold, fade) drawn from his own seed
+## (the same man goes the same way every time; nothing else's draws move), each leg its own, and
+## "stiff" his share of TONE.
+func _tone_regions(dead: bool, conscious: bool) -> Dictionary:
+	var r := RandomNumberGenerator.new()
+	r.seed = hash(["tone", rng_seed])
+	var scale := TONE_DEAD_SCALE if dead else (TONE_CONSCIOUS_SCALE if conscious else 1.0)
+	var out := {&"stiff": r.randf_range(1.0 - TONE_SPREAD, 1.0 + TONE_SPREAD)}
+	for region: StringName in TONE_REGIONS:
+		var t: Array = TONE_REGIONS[region]
+		out[region] = Vector2(r.randf_range(t[0], t[1]), r.randf_range(t[2], t[3])) * scale
+	if r.randf() < TONE_TRUNK_FIRST:
+		var legs: Vector2 = out[&"legs"]
+		out[&"legs"] = out[&"trunk"]
+		out[&"trunk"] = legs
+	# One leg first: which, and by how much.
+	var first := "_r" if r.randf() < 0.5 else "_l"
+	out[&"first"] = first
+	var lag := r.randf_range(TONE_LEG_LAG[0], TONE_LEG_LAG[1]) * scale
+	var legs_now: Vector2 = out[&"legs"]
+	if _legs_gone:
+		# At the end of a stumble his legs are what gave: both go now, at once.
+		legs_now = Vector2(0.0, legs_now.y / scale)
+		lag = 0.0
+	for side in ["_r", "_l"]:
+		var w := legs_now if side == first else legs_now + Vector2(lag, 0.0)
+		for part in ["thigh", "shin", "foot"]:
+			out[StringName(part + side)] = w
+	return out
 
 
 ## Hit and going down alive: his muscles pull him round the wound for the moment they still hold
@@ -4484,6 +4588,7 @@ const HUNCH_BACK := {&"abdomen": Vector3(6, 0, 8), &"chest": Vector3(5, 0, 6), &
 func _hunch(seg: StringName, at: Vector3, dir: Vector3) -> void:
 	if _tone.is_empty() or not physiology.alive:
 		return
+	_dying_wound(seg, at)
 	var s := String(seg)
 	if s.begins_with("thigh") or s.begins_with("shin"):
 		var side := s.right(2)
@@ -4585,17 +4690,237 @@ func _step_brace(delta: float) -> void:
 			j.append(BRACE_FADE)
 
 
+# --- Going down (tone_style &"dying") -----------------------------------------------------------
+
+## What a man still does while his tone goes (issue #442): the hand he held a wound with stays on
+## it (or a free one goes to a fresh hole in his trunk), a free hand goes out to a rail, table, bar
+## or wall within his reach, and his arms come up in front of him before his chest or face meets
+## the ground. Small, not a performance, and his own: the hand drawn toward its place with the same
+## pull back on him (nothing from outside), as strong as that arm's tone still is and none once
+## it's gone. Dead, none of it; out cold, only the arms, weaker.
+const DYING_REACH := 0.75  ## m from his shoulder: a rail, table or wall this near he puts a hand to
+const DYING_ABOVE := 0.45  ## m over his feet: lower than this it's the floor, nothing to hold
+const DYING_HAND_K := 80.0  ## N/m: the hand's pull toward its place
+const DYING_HAND_MAX := 20.0  ## N: the most an arm pulls with as he goes
+const DYING_HAND_DAMP := 10.0  ## N per m/s of the hand's speed against the place
+const DYING_FIND := 0.2  ## s before a hand goes to a fresh wound (he's only just found it)
+const DYING_GRAB_AT := 0.1  ## s before a hand goes out to something beside him
+const DYING_LET_GO := 0.05  ## m past his arm's length from it, he lets it go
+const DYING_ARM_HOLD := 1.4  ## an arm on a wound or a rail goes this many times slower
+## His arms come up in front of him (BRACE_FRONT's arms) as he pitches forward: his chest facing at
+## least this far down, coming down this fast (m/s), this near the ground (m); held again at this
+## many times their tone for DYING_ARMS_FOR s, then fading over DYING_ARMS_FADE.
+const DYING_FACE_DOWN := 0.3
+const DYING_FALL_SPEED := 0.6
+const DYING_ARMS_NEAR := 0.9
+const DYING_ARMS_TONE := 1.2
+const DYING_ARMS_OUT_COLD := 0.6  ## ... this share of it, unconscious
+const DYING_ARMS_FOR := 0.15
+const DYING_ARMS_FADE := 0.35
+var _dying := {}  ## side -> {seg (&"" for the world), at (in the part, or world), n, from, wound, pressed}
+var _dying_on := false  ## he's going down under &"fade", alive
+var _dying_arms := true  ## his arms have come forward this fall (or won't)
+var _dying_t := 0.0
+
+
+func _start_dying(holding: Dictionary, joint_at: Dictionary) -> void:
+	_end_dying()
+	_dying_t = 0.0
+	if tone_style != &"dying" or _tone_when.size() != _tone.size() or _tone.is_empty() or not physiology.alive:
+		return
+	_dying_on = true
+	_dying_arms = false
+	if not holding.is_empty() and parts.has(holding.seg):
+		_dying_hand(String(holding.side), holding.seg, holding.at, 0.0, holding.wound)
+	if not physiology.is_conscious():
+		return
+	# Something beside him to put a hand to: the nearest of the world, not the floor, to a shoulder.
+	var space := World.space(self)
+	if space == null:
+		return
+	var feet := INF
+	for f in [&"foot_l", &"foot_r"]:
+		if parts.has(f):
+			feet = minf(feet, (parts[f] as Node3D).global_position.y)
+	var ball := SphereShape3D.new()
+	ball.radius = DYING_REACH
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = ball
+	q.collision_mask = Layers.WORLD
+	var best := INF
+	var pick := ""
+	var at := Vector3.ZERO
+	for side in ["r", "l"]:
+		var sh := StringName("upper_arm_" + side)
+		if _dying.has(side) or not joint_at.has(sh) or not _hand_free(side):
+			continue
+		var shoulder: Vector3 = joint_at[sh]
+		q.transform = Transform3D(Basis.IDENTITY, shoulder)
+		Prof.count(&"q_body")
+		var info := space.get_rest_info(q)
+		if info.is_empty():
+			continue
+		var p: Vector3 = info.point
+		var d := p.distance_to(shoulder)
+		if p.y - feet < DYING_ABOVE or d >= best:
+			continue
+		best = d
+		pick = side
+		at = p + (shoulder - p).normalized() * 0.05  # the palm's own thickness off it
+	if pick != "":
+		_dying_hand(pick, &"", at, DYING_GRAB_AT, {})
+
+
+## A ball in his trunk as he goes down (`_hunch`): a free hand finds the hole.
+func _dying_wound(seg: StringName, at: Vector3) -> void:
+	if not _dying_on or not physiology.is_conscious():
+		return
+	if not seg in [&"chest", &"abdomen", &"pelvis", &"neck"] or not parts.has(seg):
+		return
+	for side: String in _dying:
+		if not (_dying[side].wound as Dictionary).is_empty():
+			return  # he's holding one already
+	var local := (parts[seg] as Node3D).global_transform.affine_inverse() * at
+	if _skin_normal(seg, local).z > 0.3:
+		return  # in his back: out of his reach
+	var side := _grab_hand(seg, local)
+	if _dying.has(side):
+		var other := "l" if side == "r" else "r"
+		side = other if not _dying.has(other) and _hand_free(other) else ""
+	if side == "":
+		return
+	var w: Dictionary = wounds.back() if not wounds.is_empty() and wounds.back().segment == seg else {}
+	_dying_hand(side, seg, local, DYING_FIND, w)
+
+
+func _dying_hand(side: String, seg: StringName, at: Vector3, from: float, wound: Dictionary) -> void:
+	_drop_dying(side)
+	var n := _skin_normal(seg, at) if seg != &"" else Vector3.ZERO
+	_dying[side] = {"seg": seg, "at": at, "n": n, "from": from, "wound": wound, "pressed": false}
+	# That arm holds on longer than the other.
+	for part in ["upper_arm_", "forearm_", "hand_"]:
+		var i: int = _tone_index.get(StringName(part + side), -1)
+		if i >= 0:
+			var w: Vector2 = _tone_when[i]
+			_tone_when[i] = Vector2(w.x, w.y * DYING_ARM_HOLD)
+			_tone_until = maxf(_tone_until, w.x + w.y * DYING_ARM_HOLD)
+
+
+func _drop_dying(side: String) -> void:
+	if not _dying.has(side):
+		return
+	var d: Dictionary = _dying[side]
+	if d.pressed:
+		_hand_press(d.wound, false)
+	_dying.erase(side)
+
+
+func _end_dying() -> void:
+	for side: String in _dying.keys():
+		_drop_dying(side)
+	_dying_arms = true
+	_dying_on = false
+
+
+## How much of its tone the joint above `sid` has left (0..1 of what it started with).
+func _tone_left(sid: StringName) -> float:
+	var i: int = _tone_index.get(sid, -1)
+	if i < 0 or i >= _tone_when.size() or _tone.is_empty():
+		return 0.0
+	var w: Vector2 = _tone_when[i]
+	return 1.0 - smoothstep(w.x, w.x + w.y, _tone_t)
+
+
+func _step_dying(delta: float) -> void:
+	if not _dying_on:
+		return
+	if _tone.is_empty():
+		_end_dying()
+		return
+	_dying_t += delta
+	for side: String in _dying.keys():
+		var d: Dictionary = _dying[side]
+		var hand := parts.get(StringName("hand_" + side)) as RigidBody3D
+		var left := _tone_left(StringName("upper_arm_" + side))
+		var on := parts.get(d.seg if d.seg != &"" else &"chest") as RigidBody3D
+		if hand == null or on == null or not is_instance_valid(hand) or not is_instance_valid(on) or left <= 0.0 \
+				or physiology.severed_segments.has(StringName("hand_" + side)):
+			_drop_dying(side)
+			continue
+		if _dying_t < float(d.from):
+			continue
+		var target: Vector3 = d.at
+		var back_at := (parts.get(StringName("upper_arm_" + side), on) as Node3D).global_position
+		if d.seg == &"" and back_at.distance_to(target) > _arm_length(side) + DYING_LET_GO:
+			# He's gone past it: the hand comes away rather than hold his arm up after it (the blind
+			# judge: "both arms raised straight like a mannequin, one stays sticking up").
+			_drop_dying(side)
+			continue
+		var v_rel := hand.linear_velocity
+		if d.seg != &"":
+			target = on.global_transform * ((d.at as Vector3) + (d.n as Vector3) * GRAB_OFF_SKIN)
+			back_at = target
+			v_rel -= on.linear_velocity + on.angular_velocity.cross(target - on.global_position)
+		var f := ((target - hand.global_position) * DYING_HAND_K - v_rel * DYING_HAND_DAMP).limit_length(DYING_HAND_MAX) * left
+		hand.apply_central_force(f)
+		on.apply_force(-f, back_at - on.global_position)
+		var there := hand.global_position.distance_to(target) < 0.1
+		if not (d.wound as Dictionary).is_empty() and there != bool(d.pressed):
+			d.pressed = there
+			_hand_press(d.wound, there)
+	if _dying_arms or _dying_t < 0.1 or not physiology.alive:
+		_dying_arms = _dying_arms or not physiology.alive
+		return
+	var chest := parts.get(&"chest") as RigidBody3D
+	if chest == null or not is_instance_valid(chest) or chest.linear_velocity.y > -DYING_FALL_SPEED \
+			or (-chest.global_basis.z).y > -DYING_FACE_DOWN:
+		return
+	if chest.global_position.y - _ground_y(chest.global_position) > DYING_ARMS_NEAR:
+		return
+	_dying_arms = true
+	# His arms up in front of him to take it: BRACE_FRONT's arms, held again for a moment.
+	var mult := DYING_ARMS_TONE if physiology.is_conscious() else DYING_ARMS_TONE * DYING_ARMS_OUT_COLD
+	for side in ["_r", "_l"]:
+		if _dying.has(side.right(1)):
+			continue  # that hand's busy
+		for key: StringName in [&"upper_arm", &"forearm"]:
+			var i: int = _tone_index.get(StringName(String(key) + side), -1)
+			if i < 0:
+				continue
+			var j: Array = _tone[i]
+			var e: Vector3 = BRACE_FRONT[key]
+			if side == "_l":
+				e.z = -e.z
+			var q := Basis.from_euler(e * (PI / 180.0)).get_rotation_quaternion()
+			if key == &"upper_arm":
+				q = Quaternion(Vector3.DOWN, q * Vector3.DOWN)  # (as `_step_brace`: no twist)
+			j[2] = q
+			j[3] = float(j[3]) * mult
+			_tone_when[i] = Vector2(_tone_t + DYING_ARMS_FOR, DYING_ARMS_FADE)
+			_tone_until = maxf(_tone_until, _tone_t + DYING_ARMS_FOR + DYING_ARMS_FADE)
+
+
 func _step_tone(delta: float) -> void:
 	if _tone.is_empty():
 		return
 	_tone_t += delta
-	if _tone_t > TONE_UNTIL:
+	if _tone_t > _tone_until:
 		_tone.clear()
+		_tone_when.clear()
 		return
 	var share := _tone_start * exp(-_tone_t / _tone_fade)
-	for j: Array in _tone:
+	var regions := _tone_when.size() == _tone.size()
+	for i in _tone.size():
+		var j: Array = _tone[i]
 		# A braced joint (`brace`) holds on longer than the rest of him.
-		var held := share if j.size() < 6 else _tone_start * exp(-_tone_t / float(j[5]))
+		var held := share
+		if j.size() >= 6:
+			held = _tone_start * exp(-_tone_t / float(j[5]))
+		elif regions:
+			var w: Vector2 = _tone_when[i]
+			held = _tone_start * (1.0 - smoothstep(w.x, w.x + w.y, _tone_t))
+			if held <= 0.0:
+				continue  # this joint's let go: no spring left on it
 		var child := j[0] as RigidBody3D
 		var up := j[1] as RigidBody3D
 		if not is_instance_valid(child) or not is_instance_valid(up) 				or physiology.severed_segments.has(child.get_meta(&"segment", &"")):

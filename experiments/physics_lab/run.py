@@ -65,7 +65,7 @@ def main():
     os.makedirs(out, exist_ok=True)
     render = arg("render") is not None
     extra = [a for a in sys.argv[1:] if a.split("=")[0] in
-             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds", "--follow", "--cam-dist", "--mocap", "--old-flinch", "--friction", "--friction-ends", "--surface-friction", "--jitter")]
+             ("--render", "--views", "--size", "--every", "--seed", "--model", "--seconds", "--follow", "--cam-dist", "--mocap", "--old-flinch", "--friction", "--friction-ends", "--surface-friction", "--jitter", "--tone")]
     if arg("scenario") == "list":
         for s in scenarios():
             print("%-24s %s  %s" % (s["name"], s["group"], s["fixture"]))
@@ -79,7 +79,7 @@ def main():
     results = []
     if names == ["--perf"]:
         cmd = [GODOT, "--path", ROOT, "--headless", "--fixed-fps", "60", "-s",
-               "res://experiments/physics_lab/lab.gd", "--", "--perf", "--in-process", "--out=" + out]
+               "res://experiments/physics_lab/lab.gd", "--", "--perf", "--in-process", "--out=" + out] + extra
         p = subprocess.run(cmd, capture_output=True, text=True)
         print("\n".join(l for l in p.stdout.splitlines() if l.startswith("perf") or l.startswith("   ")))
         return p.returncode

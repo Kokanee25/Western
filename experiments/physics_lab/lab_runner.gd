@@ -41,6 +41,9 @@ var surface_friction := -1.0
 ## --jitter=N: his start moved by up to 2 cm and turned by up to 3 deg, drawn from N (0: none), so a
 ## chaotic fall can be run several times and its spread compared rather than one sample.
 var jitter := 0
+## --tone=STYLE: how his tone lets go as he goes limp (HumanBody.tone_style: "" or "off" today's
+## quick fade, "fade" the regions in turn, "dying" that and what he does as he goes; 2026-10-28), over the scenario's own `tone` field.
+var tone := &""
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -95,6 +98,8 @@ var _pairs: Array = []  ## non-adjacent segment pairs
 func _ready() -> void:
 	process_physics_priority = -100
 	HumanBody.mocap_gait = mocap
+	var style := StringName(tone if tone != &"" else StringName(scenario.get("tone", "")))
+	HumanBody.tone_style = &"" if style == &"off" else style
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
 	# stop instead, so a run never claims a man it didn't use.
@@ -145,7 +150,7 @@ func _ready() -> void:
 		_ticks_csv = FileAccess.open(out_dir.path_join("ticks.csv"), FileAccess.WRITE)
 		_ticks_csv.store_line("tick,t,phase,com_x,com_y,com_z,com_vx,com_vy,com_vz,max_speed,max_penetration,max_self_overlap,max_joint_gap,awake,contacts,contact_impulse_sum,frame_ms")
 		_segs_csv = FileAccess.open(out_dir.path_join("segments.csv"), FileAccess.WRITE)
-		_segs_csv.store_line("tick,t,segment,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz,vel_source,sleeping,contacts,contact_impulse,penetration,self_overlap,swing,twist,swing_limit,twist_limit,bend,joint_gap,step_m,step_deg")
+		_segs_csv.store_line("tick,t,segment,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz,vel_source,sleeping,contacts,contact_impulse,penetration,self_overlap,swing,twist,swing_limit,twist_limit,bend,joint_gap,step_m,step_deg,world_contacts")
 	if render:
 		_build_cameras()
 	_last_us = Time.get_ticks_usec()
@@ -879,6 +884,7 @@ func _record(frame_ms: float) -> void:
 		var src := "finite_diff"
 		var sleeping := false
 		var nc := 0
+		var nw := 0  ## contacts with anything but a man's own parts (the world, a fixture, a prop)
 		var ci := 0.0
 		if n is RigidBody3D:
 			var rb := n as RigidBody3D
@@ -896,6 +902,9 @@ func _record(frame_ms: float) -> void:
 				nc = st.get_contact_count()
 				for i in nc:
 					ci += st.get_contact_impulse(i).length()
+					var o := st.get_contact_collider_object(i)
+					if not (o is Node and (o as Node).has_meta(&"human_body")):
+						nw += 1
 		contacts += nc
 		cimp += ci
 		max_speed = maxf(max_speed, v.length())
@@ -965,7 +974,7 @@ func _record(frame_ms: float) -> void:
 					"%.4f" % pos.x, "%.4f" % pos.y, "%.4f" % pos.z, "%.5f" % q.x, "%.5f" % q.y, "%.5f" % q.z, "%.5f" % q.w,
 					"%.4f" % v.x, "%.4f" % v.y, "%.4f" % v.z, "%.4f" % w.x, "%.4f" % w.y, "%.4f" % w.z, src,
 					int(sleeping), nc, "%.4f" % ci, "%.4f" % pen, "%.4f" % self_o, "%.2f" % swing, "%.2f" % twist,
-					lim[0], lim[1], "%.2f" % bend, "%.4f" % gap, "%.4f" % step_m, "%.2f" % step_deg])))
+					lim[0], lim[1], "%.2f" % bend, "%.4f" % gap, "%.4f" % step_m, "%.2f" % step_deg, nw])))
 	if limp:
 		_peak.penetration = maxf(_peak.penetration, max_pen)
 		_peak.self_overlap = maxf(_peak.self_overlap, max_self)
