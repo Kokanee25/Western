@@ -89,6 +89,20 @@ each: **10 of 10** and **10 of 10**; step 7's `main3` against `s8_a`: **10 of 10
 has no fire unless a lamp breaks, so its frame is as it was: 24.0 / p95 29.5 ms (main) against
 22.9 / 27.6 and 23.5 / 28.5; `fire` 0.14 → 0.09.
 
-## The burn, the suite, the soak
+## The whole saloon burning (`burn.sh`, the Fable session's `run_burn_headless.sh`; `burn_*.txt`)
+
+The spec saloon (`gf_ways`), six timbers lit, read every 15 s of game time (headless; `frame_ms`
+is the bridge's frame, one game at a time):
+
+| s after lighting | 61 | 91 | 121 | 151 | 181 |
+|---|---|---|---|---|---|
+| burning, main / after | 32 / 32 | 319 / 322 | 1,179 / 1,187 | 2,027 / 2,030 | 2,951 / 2,961 |
+| frame ms, main | 26.3 | 29.4 | 62.5 | 76.9 | **100.0** |
+| frame ms, after | 18.9 | 20.4 | 30.3 | 22.2 | **28.6** |
+
+The fire spreads as it did (the counts a few apart from 90 s: rubble's boxes); three townsfolk are
+dead by 165 s on both.
+
+## The suite, the soak
 
 (filled in below as they finish)
