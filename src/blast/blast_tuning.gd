@@ -86,11 +86,13 @@ extends Resource
 @export var earth_density := 1600.0
 
 @export_group("Fire")
-## The fireball: this radius per cube root of kg TNT; dry wood inside it may catch, people in it
-## are burnt.
+## The fireball: this radius per cube root of kg TNT; people in it are burnt (and wood in it
+## catches at `ignite_chance`).
 @export var fireball_per_cbrt_kg := 1.4
-## The flash is over in a moment: only now and then does a board in it catch.
-@export var ignite_chance := 0.12
+## The flash is over in a moment: the chance a board in it catches. 0 since 2026-10-28 (Sean: a
+## blast lights nothing itself; a fire after one comes from a lit lamp it smashed or knocked down,
+## OilLamp.smash). Was 0.12: every stick in the saloon lit its floor.
+@export var ignite_chance := 0.0
 ## Wood it lights catches this many seconds after the flash (seeded within the range), out of the dust.
 @export var ignite_delay := Vector2(1.0, 4.0)
 @export var burn_in_fireball := 1.2

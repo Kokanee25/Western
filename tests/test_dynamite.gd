@@ -268,20 +268,20 @@ func test_far_off_it_only_cracks_panes() -> void:
 	check_eq(timber, 0, "no timber broken from 7 m")
 
 
-func test_it_can_start_a_fire() -> void:
+func test_it_lights_nothing_itself() -> void:
+	# Sean, 2026-10-28: dry siding in the flash, four sticks, and nothing catches; a fire after a
+	# blast comes from a lamp it smashed (test_glass_props).
 	var store := await _store()
 	var fire := FireSystem.new()
 	world.add_child(fire)
 	await physics_frames(1)
 	var siding := _side_board(store)
-	var lit := 0
 	for k in 4:
 		Blast.detonate(world, _outside(store, siding, 0.3) + Vector3.UP * 0.4 * k, 0.15)
 		await physics_frames(1)
-	check_eq(fire.burning_members().size(), 0, "nothing alight in the flash itself")
 	fire.step(Blast.t().ignite_delay.y + 0.1)
-	lit = fire.burning_members().size()
-	check(lit >= 1, "dry wood caught a moment after (%d burning)" % lit)
+	check_eq(fire.burning_members().size(), 0, "no wood alight after the flash")
+	check_eq(fire.spills.size(), 0, "and nothing burning on the ground")
 
 
 # --- People -------------------------------------------------------------------------------------------
