@@ -716,6 +716,12 @@ frozen until Sean names one.
   Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
   `horse_rodin.py`, `Horse`), tack apart (slid back 12 cm, `SADDLE_BACK`), an idle, capsules, tied
   at the street's rails. Next: #341 (hit and going down, cover, spooking).
+- **The walk** (2026-10-28, #470, PR #472 not merged, an experiment: `experiments/horse_walk/`): the
+  Pexels clip measured (slowed ~2x; lateral walk, duty 0.67), the game horse's rig checked (the left
+  hip behind the buttock, the tail's hair without tail weight, seam weights that disagree: fixed in
+  the experiment's copy only, `rigtools.py`), a looping walk solved per leg (`gait.py`; slide
+  <= 0.8 mm); the blind judge 4/10 (head high, swing stiff, hind too far back). Waiting on Sean: #473.
+  Next: #474.
 - **The card cheat on AI animation** (2026-10-24, `claude/card-cheat-animation-scene-jg04xz`;
   `docs/briefs/showcase-moments.md`): `MotionClip` + `HumanBody.play_clip` (clips as the body's
   targets, physics last), `src/moments/` (moments from data; bridge `moment NAME`,
