@@ -2161,6 +2161,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 	_reach_step()
 	_grab_step(delta)
 	_sling_step(delta)
+	_crawl_hands(delta)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 
@@ -2384,8 +2385,7 @@ func _gait_overlay(delta: float) -> Dictionary:
 	var aiming := pose == &"aim" or pose == &"crouch_aim" or pose == &"prone_aim"
 	match gait:
 		&"crawl":
-			out[&"upper_arm_r"] = Vector3(s * 25.0, 0, 0)
-			out[&"upper_arm_l"] = Vector3(-s * 25.0, 0, 0)
+			# (His arms: _crawl_hands puts them down on the floor. Swung, they went through it.)
 			out[&"thigh_r"] = Vector3(-maxf(s, 0.0) * 20.0, 0, 10)
 			out[&"thigh_l"] = Vector3(-maxf(-s, 0.0) * 20.0, 0, -10)
 			out[&"shin_r"] = Vector3(-maxf(s, 0.0) * 50.0, 0, 0)
@@ -2676,6 +2676,53 @@ func drawn_hand(side: String) -> Vector3:
 			var t := skeleton.global_transform * skeleton.get_bone_global_pose(i)
 			return t.origin + t.basis.y.normalized() * 0.04
 	return (parts[StringName("hand_" + side)] as Node3D).global_position
+
+
+## Crawling, each hand goes down flat on the floor ahead of his shoulder and stays where it's put
+## while he pulls himself up to it, then comes up and reaches on (half his stride down, half
+## reaching, the hands in turn). Where it goes down is where its print is (WoundSigns).
+const CRAWL_REACH := 0.32  ## m ahead of his shoulder a hand goes down
+const CRAWL_WIDE := 0.06  ## m outside it
+const CRAWL_LIFT := 0.06  ## m a reaching hand comes up off the floor
+const CRAWL_EASE := 0.3  ## s for his arms to come to it, or off it when he stops
+var _crawl_plant := {}  ## side -> where that hand went down last (world)
+var _crawl_down := {}  ## side -> whether it's down now
+var _crawl_w := 0.0
+
+
+func _crawl_hands(delta: float) -> void:
+	var crawling := gait == &"crawl" and prone and not limp and not rising and move_speed >= 0.05 and pose != &"prone_aim"
+	_crawl_w = move_toward(_crawl_w, 1.0 if crawling else 0.0, delta / CRAWL_EASE)
+	if _crawl_w <= 0.0:
+		_crawl_plant.clear()
+		_crawl_down.clear()
+		return
+	var fwd := -global_basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized() if fwd.length() > 1e-4 else Vector3.FORWARD
+	var right := fwd.cross(Vector3.UP)
+	var k := smoothstep(0.0, 1.0, _crawl_w)
+	for side: String in ["r", "l"]:
+		if not _hand_free(side) and not (side == "r" and held_gun != null):
+			continue
+		var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
+		if up == null:
+			continue
+		var sx := 1.0 if side == "r" else -1.0
+		var u := fmod(_gait_phase / TAU + (0.0 if side == "r" else 0.5), 1.0)
+		var ahead := up.global_position + fwd * CRAWL_REACH + right * sx * CRAWL_WIDE
+		ahead.y = global_position.y
+		var down := u < 0.5
+		if down and not _crawl_down.get(side, false) or not _crawl_plant.has(side):
+			_crawl_plant[side] = ahead  # it goes down
+		_crawl_down[side] = down
+		var at: Vector3 = _crawl_plant[side]
+		if not down:
+			var t := (u - 0.5) * 2.0
+			at = at.lerp(ahead, smoothstep(0.0, 1.0, t)) + Vector3.UP * sin(t * PI) * CRAWL_LIFT
+		# Elbows out and up, not down through the floor.
+		var pole := right * sx * 0.7 + Vector3.UP * 0.5 - fwd * 0.3
+		_arm_to(side, at, Vector3.UP, k, &"", pole)
 
 
 func _sling_step(delta: float) -> void:
@@ -3256,7 +3303,7 @@ func _reach_step() -> void:
 ## pose: two-bone IK on the shoulder and elbow, the elbow out and down, then the hand turned to lie
 ## across the hole palm in. False if it's out of his reach. `on_seg`: the part of him it's on, if any
 ## (his neck and trunk take the hand more level).
-func _arm_to(side: String, at: Vector3, n: Vector3, k: float, on_seg := &"") -> bool:
+func _arm_to(side: String, at: Vector3, n: Vector3, k: float, on_seg := &"", pole_hint := Vector3.ZERO) -> bool:
 	var up := pivots.get(StringName("upper_arm_" + side)) as Node3D
 	var fa := pivots.get(StringName("forearm_" + side)) as Node3D
 	var hd := pivots.get(StringName("hand_" + side)) as Node3D
@@ -3289,6 +3336,8 @@ func _arm_to(side: String, at: Vector3, n: Vector3, k: float, on_seg := &"") -> 
 	var pole := global_basis.x * sx * 0.6 + Vector3.DOWN * 0.4 + global_basis.z * 0.3
 	if high:
 		pole = -global_basis.z * 0.5 + Vector3.DOWN * 0.6 + global_basis.x * sx * 0.2
+	if pole_hint != Vector3.ZERO:
+		pole = pole_hint
 	pole = (pole - dir * pole.dot(dir)).normalized()
 	var a := (l1 * l1 + d * d - l2 * l2) / (2.0 * d)
 	var elbow := sh + dir * a + pole * sqrt(maxf(l1 * l1 - a * a, 0.0))

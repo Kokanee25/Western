@@ -238,6 +238,31 @@ static func marks_near(at: Vector3, radius: float) -> Array[Decal]:
 	return out
 
 
+## How much of blood this many game hours old still comes off on what touches it (a hand, cloth):
+## wet it transfers, skinned over and dried it doesn't. An e-fold of WET_HOURS (a drop skins over
+## in minutes, a pool stays wet an hour or more; drying runs slower in the thick of it), and under
+## WET_MIN it's dried.
+const WET_HOURS := 0.75
+const WET_MIN := 0.15
+
+
+static func wetness(age_h: float) -> float:
+	return exp(-maxf(age_h, 0.0) / WET_HOURS)
+
+
+## Wet blood near `at` (ml, each mark by its wetness; a dried one none): what a hand pressed
+## there takes up. A hand's own prints don't count (it would load itself again off them).
+static func wet_near(at: Vector3, radius: float) -> float:
+	var ml := 0.0
+	for d in marks_near(at, radius):
+		if d.has_meta(&"print"):
+			continue
+		var wet := wetness(float(d.get_meta(&"age_h", 0.0)))
+		if wet >= WET_MIN:
+			ml += _ml_of(d) * wet
+	return ml
+
+
 ## Blood near `at` (ml, roughly: a mark without its own measure counts by its area).
 static func amount_near(at: Vector3, radius: float) -> float:
 	var ml := 0.0
