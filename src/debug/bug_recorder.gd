@@ -6,6 +6,8 @@ extends Node
 ## user://bug_reports/<date-time>.saltbug (a zip): the screenshot, the recording, the game's log,
 ## the build, where you are and what you're holding, the settings, what's been happening.
 ## `tools/replay.gd FILE` plays the recording back and says where the game went differently.
+## The frame's numbers go in it too (PerfRing, #433): `perf.json`, and `perf_summary` at the top of
+## `report.json` (`tools/perf_report.py FILE` prints them).
 ##
 ## A session under REPLAY_FROM_START minutes is replayed from the start (the most faithful: the
 ## same scene, the same seeds, every input since); a longer one from a snapshot of where everyone
@@ -33,10 +35,17 @@ var _snapshots: Array = []
 var _events: Array = []
 var _toast_left := 0.0
 var _toast: Label
+## The frame's timing, every frame (PerfRing).
+var perf := PerfRing.new()
+## Where the last report went (globalized), "" before one.
+var last_path := ""
+## `-- --no-perf-ring`: no timing ring and no viewport measuring (the bench's before, #437).
+var perf_on := not OS.get_cmdline_user_args().has("--no-perf-ring")
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	process_priority = 1000  # last in the frame, after the overlay has rolled Prof's frame
 	for a in InputMap.get_actions():
 		if not SKIP_PREFIX.any(func(p: String) -> bool: return String(a).begins_with(p)):
 			_actions.append(a)
@@ -49,10 +58,19 @@ func _ready() -> void:
 	layer.layer = 30
 	add_child(layer)
 	_toast = Label.new()
-	_toast.position = Vector2(16, 16)
 	_toast.modulate = Color(1.0, 0.85, 0.5)
+	_toast.add_theme_font_size_override(&"font_size", 18)
+	_toast.add_theme_color_override(&"font_outline_color", Color(0.05, 0.03, 0.02))
+	_toast.add_theme_constant_override(&"outline_size", 6)
 	_toast.visible = false
 	layer.add_child(_toast)
+	if perf_on:  # every viewport's render time, measured from the start (F3 reads them too)
+		perf.watch(get_tree().root)
+		for vp in get_tree().root.find_children("*", "SubViewport", true, false):
+			perf.watch(vp as Viewport)
+		_hook(get_tree().node_added, func(n: Node) -> void:
+			if n is SubViewport:
+				perf.watch(n as Viewport))
 
 
 func _exit_tree() -> void:
@@ -87,9 +105,14 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if perf_on:
+		perf.sample()
 	if _toast_left > 0.0:
 		_toast_left -= delta
 		_toast.visible = _toast_left > 0.0
+		# At the foot of the screen, clear of F3's readout.
+		var vp := get_viewport().get_visible_rect().size
+		_toast.position = Vector2(16.0, vp.y - _toast.size.y - 72.0)
 
 
 ## Past REPLAY_FROM_START minutes only the last KEEP_SECONDS (and the snapshot before them) are kept.
@@ -108,6 +131,10 @@ func save() -> String:
 	DirAccess.make_dir_recursive_absolute(DIR)
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
 	var path := "%s/%s.saltbug" % [DIR, stamp]
+	var n := 2
+	while FileAccess.file_exists(path):  # two in one second: the second its own file
+		path = "%s/%s-%d.saltbug" % [DIR, stamp, n]
+		n += 1
 	var shot: Image = null
 	if DisplayServer.get_name() != "headless":  # headless, nothing is drawn (and no frame is posted)
 		await RenderingServer.frame_post_draw
@@ -125,8 +152,11 @@ func save() -> String:
 	if zip.open(ProjectSettings.globalize_path(path)) != OK:
 		_say("couldn't write %s" % path)
 		return ""
-	_put(zip, "report.json", JSON.stringify(report(get_tree(), tick, _events), "  "))
+	var rep := {"perf_summary": perf.summary()}
+	rep.merge(report(get_tree(), tick, _events))
+	_put(zip, "report.json", JSON.stringify(rep, "  ", false))
 	_put(zip, "recording.json", JSON.stringify(recording))
+	_put(zip, "perf.json", JSON.stringify(perf.to_dict(), "", false))  # systems stay largest first
 	var log_path := "user://logs/godot.log"
 	if FileAccess.file_exists(log_path):
 		_put(zip, "godot.log", FileAccess.get_file_as_string(log_path))
@@ -135,9 +165,17 @@ func save() -> String:
 		zip.write_file(shot.save_png_to_buffer())
 		zip.close_file()
 	zip.close()
-	_say("Bug report saved: %s" % ProjectSettings.globalize_path(path))
-	print("[bug report] %s" % ProjectSettings.globalize_path(path))
+	last_path = ProjectSettings.globalize_path(path)
+	_say("Bug report saved: %s" % shown_path(last_path), 12.0)
+	print("[bug report] %s" % last_path)
+	for line in PerfRing.summary_lines(rep.perf_summary):
+		print("[bug report] " + line)
 	return path
+
+
+## The path as the desktop writes it (backslashes on Windows: %APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\).
+static func shown_path(p: String) -> String:
+	return p.replace("/", "\\") if OS.get_name() == "Windows" else p
 
 
 static func _put(zip: ZIPPacker, name: String, text: String) -> void:
@@ -146,10 +184,10 @@ static func _put(zip: ZIPPacker, name: String, text: String) -> void:
 	zip.close_file()
 
 
-func _say(text: String) -> void:
+func _say(text: String, seconds := 6.0) -> void:
 	_toast.text = text
 	_toast.visible = true
-	_toast_left = 6.0
+	_toast_left = seconds
 
 
 # -- What goes in it -------------------------------------------------------------------------------
