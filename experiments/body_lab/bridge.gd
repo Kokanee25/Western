@@ -13,6 +13,7 @@ const HELP := {
 	"body_treat": "body_treat PERSON tourniquet|packing|doctor -> treat him now (as the game's tending does); what it could do",
 	"body_read": "body_read PERSON -> his wounds, what they crossed, what he can do, and his blood run forward from now under each treatment",
 	"body_drag": "body_drag PERSON DX DZ [SECONDS] [BLEED] -> he goes limp (bleeding BLEED ml/s from the chest, 3) and is dragged DX DZ metres over SECONDS (3): the smear he leaves",
+	"body_blood": "body_blood X Z ML -> a pool of ML of fresh blood on the floor there (for a hand or a crawl to go through)",
 	"body_crawl": "body_crawl PERSON DX DZ [SECONDS] -> he goes down on his front and crawls DX DZ metres (SECONDS, 8, at most): his hands, the prints they left",
 	"body_hands": "body_hands PERSON [r|l|both PRINTS] -> the blood on his hands (prints left, hours wet), or wet them with PRINTS' worth",
 	"body_haul": "body_haul PERSON HELPER DX DZ [SECONDS] -> HELPER drags PERSON (down: limp, bleeding from the chest if nothing is) by the collar DX DZ metres over SECONDS (4): both men's hands",
@@ -142,6 +143,19 @@ func _prints() -> int:
 		return (n as Decal).texture_albedo.resource_path.get_file() == "handprint.png").size()
 
 
+func _cmd_body_blood(a: Array) -> Dictionary:
+	if a.size() < 3:
+		return {"ok": false, "error": HELP.body_blood}
+	var at := Vector3(float(a[0]), 3.0, float(a[1]))
+	var q := PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * 4.0, Layers.WORLD)
+	await physics_frames(1)
+	var hit := World.space(street).intersect_ray(q)
+	if hit.is_empty():
+		return {"ok": false, "error": "no floor there"}
+	var d := Blood.splat(street, hit.position, hit.normal, float(a[2]))
+	return {"at": arr(d.global_position), "size": arr(d.size)}
+
+
 func _cmd_body_hands(a: Array) -> Dictionary:
 	var m := _man(a)
 	if m == null:
@@ -163,12 +177,20 @@ func _cmd_body_crawl(a: Array) -> Dictionary:
 		await seconds(1.0)
 	var before := _prints()
 	var frames := int(secs * Engine.physics_ticks_per_second)
+	var wet := {"r": 0.0, "l": 0.0}  # the most wet blood under each hand on the way (ml)
+	var low := {"r": INF, "l": INF}  # and the nearest it came to the floor (over his lowest foot)
 	for i in frames:
 		if m.walk_to(to, 0.35, 1.0 / Engine.physics_ticks_per_second):
 			break
 		await physics_frames(1)
+		var feet := minf((m.parts[&"foot_r"] as Node3D).global_position.y, (m.parts[&"foot_l"] as Node3D).global_position.y)
+		for side: String in ["r", "l"]:
+			var h := m.drawn_hand(side)
+			wet[side] = maxf(wet[side], Blood.wet_near(h, WoundSigns.PICK_REACH))
+			low[side] = minf(low[side], h.y - feet)
 	await seconds(0.5)
-	return {"hands": _hands_of(m), "prints": _prints() - before, "at": arr(m.global_position)}
+	return {"hands": _hands_of(m), "prints": _prints() - before, "at": arr(m.global_position),
+			"wet_under": wet, "lowest": low}
 
 
 func _cmd_body_haul(a: Array) -> Dictionary:
@@ -196,10 +218,17 @@ func _cmd_body_haul(a: Array) -> Dictionary:
 		to_him.y = 0.0
 		m.drag_toward(helper.global_position + to_him.normalized() * 0.45, dt)
 		await physics_frames(1)
+	# How near the helper's hands came to his wounds' soaked patches (m, each patch's half-width).
+	var near := []
+	for w: Dictionary in m.wounds:
+		var st: Variant = w.get("stain")
+		if st != null and is_instance_valid(st):
+			var d := minf((st as Node3D).global_position.distance_to(helper.drawn_hand("r")), (st as Node3D).global_position.distance_to(helper.drawn_hand("l")))
+			near.append([String(w.segment), snappedf(d, 0.01), snappedf(float(w.get("stain_size", 0.0)) * 0.5, 0.01)])
 	m.dragged_by = null
 	helper.set_pose(&"stand")
 	await seconds(0.5)
-	return {"helper_hands": _hands_of(helper), "his_hands": _hands_of(m), "prints": _prints()}
+	return {"helper_hands": _hands_of(helper), "his_hands": _hands_of(m), "prints": _prints(), "stains_from_hands": near}
 
 
 func _cmd_body_marks(a: Array) -> Dictionary:

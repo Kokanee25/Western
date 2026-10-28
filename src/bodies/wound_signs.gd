@@ -45,11 +45,12 @@ const PICK_LOW := 0.25
 ## soaked patch of clothes, by how much it holds (ml) against HAND_FULL_ML.
 const ON_WOUND := 0.08
 const WOUND_BLEED := 0.2  ## ml/s: less and it's too little to wet a hand
+const ON_COLLAR := 0.4  ## m round his neck that a grip on his collar and shoulders takes in (dragging him)
 ## The blood on his hand, drawn on his skin: as full as the prints left, down to RESIDUE (a hand
 ## that's printed itself out is still stained).
-const HAND_STAIN_SIZE := Vector3(0.12, 0.1, 0.16)
-const HAND_STAIN_AT := 0.06  ## m from the wrist toward the fingers
-const RESIDUE := 0.35
+const HAND_STAIN_SIZE := Vector3(0.14, 0.12, 0.22)
+const HAND_STAIN_AT := 0.1  ## m from the wrist toward the fingers
+const RESIDUE := 0.5
 ## Smears: a bleeding man drawn over a floor leaves a swipe, one band along the way he went, about
 ## as wide as what touched, streaked along its length, heaviest where he lay and feathering out at
 ## the end as the blood on him runs out (Bevel & Gardner, *Bloodstain Pattern Analysis*, ch. 9;
@@ -130,7 +131,6 @@ func step(dt: float) -> void:
 	_ears(p)
 	_eyes(p)
 	_festering(p)
-	_onto_dragger()
 	if not p.alive:
 		_smears(world, dt)
 		_dead_for += dt
@@ -383,6 +383,7 @@ func _hands(p: Physiology, world: Node3D, dt: float) -> void:
 	var holding := "" if g.is_empty() else String(g.side)
 	if holding != "" and float(g.get("w", 0.0)) > 0.8 and body._wound_bleed(g.wound) > WOUND_BLEED:
 		wet_hand(holding, PRINTS_PER_HAND)
+	_off_the_dragged()
 	# Tending himself (OutlawBrain._tend): pressing it, packing it, both hands in it.
 	if body.pose == &"tend" and p.total_bleed_rate() > WOUND_BLEED:
 		wet_hand("r", PRINTS_PER_HAND)
@@ -430,7 +431,7 @@ func wet_hand(side: String, prints: float) -> void:
 ## How bloody a hand at `at` (world) gets off him, in prints: on a bleeding hole, full; on the
 ## soaked patch round a wound, full while it's wet (a palm on soaked shirting takes up ~5 ml: the
 ## patch holds HumanBody.STAIN_FILM over its area).
-func blood_on_me(at: Vector3) -> float:
+func blood_on_me(at: Vector3, reach := ON_WOUND) -> float:
 	var best := 0.0
 	for w: Dictionary in body.wounds:
 		var part := body.parts.get(w.segment) as Node3D
@@ -438,26 +439,34 @@ func blood_on_me(at: Vector3) -> float:
 			continue
 		if body._wound_bleed(w) > WOUND_BLEED:
 			for hole: Variant in [w.entry, w.exit]:
-				if hole != null and (part.global_transform * (hole as Vector3)).distance_to(at) < ON_WOUND:
+				if hole != null and (part.global_transform * (hole as Vector3)).distance_to(at) < reach:
 					return PRINTS_PER_HAND
 		var was: Variant = w.get("stain")
 		if was == null or not is_instance_valid(was):
 			continue
 		var stain := was as Decal
-		if stain.global_position.distance_to(at) < float(w.get("stain_size", 0.04)) * 0.5 + ON_WOUND * 0.5:
+		if stain.global_position.distance_to(at) < float(w.get("stain_size", 0.04)) * 0.5 + reach * 0.5:
 			best = maxf(best, PRINTS_PER_HAND * Blood.wetness(float(stain.get_meta(&"age_h", 0.0))))
 	return best
 
 
-## Being dragged, his blood comes off on the hands that have him by the collar.
-func _onto_dragger() -> void:
-	if body.dragged_by == null or not is_instance_valid(body.dragged_by):
+## Dragging a man by the collar (OutlawBrain's rescue, HumanBody.dragged_by), both hands have his
+## collar: what's bled onto it comes off on them (a soaked shirt front up to it, a neck wound; a
+## leg wound leaves them clean). Judged at his collar, not where the drag pose draws the hands, and
+## asked from the dragger's side (a dead man isn't ticked for long).
+func _off_the_dragged() -> void:
+	if body.pose != &"drag":
 		return
-	var by := body.dragged_by as HumanBody
-	if by == null:
+	for n: Node in body.get_tree().get_nodes_in_group(&"people"):
+		var him := n as HumanBody
+		if him == null or him.dragged_by != body:
+			continue
+		var neck := him.parts.get(&"neck") as Node3D
+		if neck != null:
+			var prints := him.signs_now().blood_on_me(neck.global_position, ON_COLLAR)
+			wet_hand("r", prints)
+			wet_hand("l", prints)
 		return
-	for side: String in ["r", "l"]:
-		by.signs_now().wet_hand(side, blood_on_me(by.drawn_hand(side)))
 
 
 ## A bloody hand's print where it touches (`hit`, a ray's): no closer than PRINT_GAP in time or

@@ -160,17 +160,23 @@ func test_dragging_a_bleeding_man_bloodies_the_hands_on_him() -> void:
 	friend.has_gun = false
 	world.add_child(friend)
 	friend.global_position = Vector3(0, 0, 1.5)
-	await physics_frames(10)
-	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	friend.set_pose(&"drag")
+	man.physiology.apply_trace({"segment": &"thigh_r", "track_cm": 8.0, "hits": []})
 	man.physiology.bleeds[0].rate = 3.0
-	var chest := man.parts[&"chest"] as Node3D
-	# The hole where his friend's hand has him.
-	man.wounds.append({"segment": &"chest", "entry": chest.global_transform.affine_inverse() * friend.drawn_hand("r"),
-			"exit": null, "kind": &"bullet", "bleeds": [0], "hits": [], "stain": null})
+	man.wounds.append({"segment": &"thigh_r", "entry": Vector3(0.1, -0.1, -0.06), "exit": null, "kind": &"bullet",
+			"bleeds": [0], "hits": [], "stain": null})
 	man.dragged_by = friend
 	await physics_frames(8)
-	check(float(friend.signs_now()._bloody.get("r", 0.0)) > 0.0, "the hand on his wound is bloody")
-	check(float(friend.signs_now()._bloody.get("l", 0.0)) == 0.0, "not the hand off him")
+	check(float(friend.signs_now()._bloody.get("r", 0.0)) == 0.0, "his collar's clean of a leg wound: so are the hands on it")
+	# A hole at his collar (a neck wound, or a chest's that's soaked up to it).
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[1].rate = 3.0
+	var chest := man.parts[&"chest"] as Node3D
+	man.wounds.append({"segment": &"chest", "entry": chest.global_transform.affine_inverse() * (man.parts[&"neck"] as Node3D).global_position,
+			"exit": null, "kind": &"bullet", "bleeds": [1], "hits": [], "stain": null})
+	await physics_frames(8)
+	check(float(friend.signs_now()._bloody.get("r", 0.0)) > 0.0 and float(friend.signs_now()._bloody.get("l", 0.0)) > 0.0,
+			"both hands on his bloody collar are bloody")
 
 
 func test_a_bleeding_man_dragged_smears_the_ground() -> void:
