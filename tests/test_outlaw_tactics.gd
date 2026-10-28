@@ -383,3 +383,42 @@ func test_on_the_range_he_uses_the_cover_there() -> void:
 	check(shots[0] >= 2, "and shoots from it (%d shots)" % shots[0])
 	print("  on the range he took cover at %s (%s)" % [str(b.cover.get("at", "-")), "lying" if b.cover.get("lie", false) else ("low" if b.cover.get("low", false) else "a wall")])
 	street.queue_free()
+
+
+# --- Holding his cover (variant D's hold_cover, #294) ------------------------------------------------
+
+## A wall between you and him: he can hear you, not see you.
+func _wall_between() -> void:
+	_box(Vector3(0, 1.5, -6.0), Vector3(10.0, 3.0, 0.4))
+
+
+func test_a_shot_he_hears_puts_you_at_your_feet_not_over_your_gun() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.target = player
+	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
+	await physics_frames(2)
+	check(not brain.senses.sees(player), "he can't see you through the wall")
+	brain._on_heard(Vector3(0.6, 1.4, 0.2), &"gunshot", null)
+	var lk := brain.senses.last_known(player)
+	check(Vector2(lk.x - 0.6, lk.z - 0.2).length() < 0.01, "he takes the shot for you (%s)" % lk)
+	check(absf(lk.y) < 0.05, "at your feet, not up at your gun (%.2f m up)" % lk.y)
+	check(absf(brain._eye_of(player).y - 1.6) < 0.05, "so your eyes a man's height up (%.2f)" % brain._eye_of(player).y)
+
+
+func test_behind_cover_he_holds_it_against_what_he_knows_not_a_guess() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.target = player
+	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
+	await physics_frames(2)
+	var chosen := Vector3(0.5, 1.6, 0.0)
+	brain.cover = {"at": outlaw.global_position, "eye": chosen, "low": false}
+	brain._sure = false
+	check(brain._held_eye(Vector3(4.0, 1.6, 2.0)) == chosen, "a new guess at where you are doesn't move it")
+	brain._on_near_miss(outlaw, player, 1.0, outlaw.global_position, 300.0, false)
+	check(brain._held_eye(Vector3(4.0, 1.6, 2.0)) == Vector3(4.0, 1.6, 2.0), "a ball past him does")
+	check(brain._held_eye(Vector3(-3.0, 1.6, 1.0)) == Vector3(4.0, 1.6, 2.0), "and holds there till the next thing he's sure of")
+	OutlawBrain.d_fixes.erase(&"hold_cover")
+	check(brain._held_eye(Vector3(-3.0, 1.6, 1.0)) == Vector3(-3.0, 1.6, 1.0), "without the fix, his guess as before")
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()

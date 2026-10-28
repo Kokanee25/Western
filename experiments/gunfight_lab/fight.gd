@@ -1213,7 +1213,19 @@ func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -
 			if b.tactic == OutlawBrain.Tactic.PEEKING:
 				st.peek_s = float(st.peek_s) + delta
 		else:
-			_end_stay(m, b.decision if b.decision != st._dec else String(OutlawBrain.Tactic.keys()[b.tactic]).to_lower())
+			var why: String = b.decision if b.decision != st._dec else String(OutlawBrain.Tactic.keys()[b.tactic]).to_lower()
+			if why.begins_with("leave his cover") and not b.cover.is_empty():
+				# What he dropped it against (#294): where he takes your eyes to be now, against where
+				# he took them to be when he chose it; whether he sees you; and whether it still hides
+				# him from that first idea of you.
+				var eye := b._eye_of(player)
+				var was: Vector3 = b.cover.get("eye", Vector3.INF)
+				var h := Cover.LIE_HEAD if b.cover.get("lie", false) else (Cover.HIDE_HEAD if b.cover.low else Cover.STAND_HEAD)
+				st.drop = {"sees": b.senses.sees(player), "eye": _arr(eye), "chosen_eye": _arr(was) if was != Vector3.INF else [],
+					"moved": snappedf(Vector2(eye.x - was.x, eye.z - was.z).length(), 0.01) if was != Vector3.INF else -1.0,
+					"dy": snappedf(eye.y - was.y, 0.01) if was != Vector3.INF else 0.0, "you_crouched": player.is_crouching, "low": b.cover.low,
+					"hides_from_chosen": was != Vector3.INF and Cover.hidden_at(World.space(man), st._at, was, h, b._exclude(player), true)}
+			_end_stay(m, why)
 
 
 func _end_move(m: Dictionary, how: String) -> void:
