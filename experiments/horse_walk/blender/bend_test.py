@@ -1,8 +1,8 @@
 """The bend test: each near leg flexed through a walk's range at every joint, rendered from his
 left, the bones drawn on. Before (the game's rig) and after (--fix: rigtools.fix_hind).
 
-    ~/bpyenv/bin/python experiments/horse_walk/blender/bend_test.py [--fix]
-Writes build/horse_walk/rig/bend[_fix].png (a strip: rest, then each pose).
+    ~/bpyenv/bin/python experiments/horse_walk/blender/bend_test.py [--fix [--no-fore]]
+Writes build/horse_walk/rig/bend[_fix[_nofore]].png (a strip: rest, then each pose).
 """
 import os
 import sys
@@ -19,7 +19,7 @@ fix = "--fix" in args
 arm = C.load()
 arm.animation_data.action = None
 if fix:
-    R.fix_hind(arm, [o for o in bpy.data.objects if o.type == "MESH"])
+    R.fix_hind(arm, [o for o in bpy.data.objects if o.type == "MESH"], fore="--no-fore" not in args)
 C.scene(size=(700, 900))
 cam = C.side_camera(centre=(0.0, 0, 0.75), width=2.6)
 # + about y tips a bone's lower end forward (toward the head, -x)
@@ -29,6 +29,8 @@ POSES = [
     ("fore swing", [("upperarm.L", -15), ("forearm.L", 25), ("cannon.L", -70), ("pastern.L", -35)]),
     # the fore's lift-off: the limb back, the fetlock over-extended, the toe down
     ("fore lift-off", [("scapula.L", -15), ("cannon.L", -10), ("pastern.L", 30)]),
+    # the fore at full reach, just before it lands: the scapula slid forward, the leg straight out
+    ("fore reach", [("scapula.L", 22), ("upperarm.L", 8), ("forearm.L", -4)]),
     # the hind in swing: hip forward, stifle and hock folded, fetlock flexed
     ("hind swing", [("thigh.L", 25), ("shin.L", -30), ("hcannon.L", 40), ("hpastern.L", -30)]),
     # the hind's mid-stance: the fetlock sunk (pastern toward level), hock a little closed
@@ -52,10 +54,10 @@ for label, turns in POSES:
     d.text((8, 8), label + (" (fixed rig)" if fix else " (game rig)"), fill=(0, 0, 0))
     cells.append(im.crop((0, 200, 700, 900)))
 w, h = cells[0].size
-sheet = Image.new("RGB", (w * 3, h * 2))
+sheet = Image.new("RGB", (w * 3, h * ((len(cells) + 2) // 3)), (255, 255, 255))
 for i, c in enumerate(cells):
     sheet.paste(c, ((i % 3) * w, (i // 3) * h))
 sheet = sheet.resize((sheet.width * 2 // 3, sheet.height * 2 // 3), Image.LANCZOS)
-path = os.path.join(out, "bend_fix.png" if fix else "bend.png")
+path = os.path.join(out, ("bend_fix_nofore.png" if "--no-fore" in args else "bend_fix.png") if fix else "bend.png")
 sheet.save(path)
 print("wrote", path)

@@ -20,23 +20,36 @@ D2R = math.pi / 180.0
 
 
 class Walk:
-    def __init__(self, T=1.1, L=1.5, duty=0.62, lateral=0.30, fps=60):
+    def __init__(self, T=1.1, L=1.35, duty=0.62, lateral=0.30, fps=60):
         self.T, self.L, self.duty, self.fps = T, L, duty, fps
         self.v = L / T
         # where each leg lands in the stride (LH first)
         self.offset = {"LH": 0.0, "LF": lateral, "RH": 0.5, "RF": 0.5 + lateral}
         self.frames = int(round(T * fps))
-        # swing shapes: the toe's height over the ground (m), and the hoof's turn (degrees, + = heel
-        # up/sole back): at lift-off, its most in the swing, before landing (toe up)
-        self.lift = {"F": 0.07, "H": 0.07}
-        self.breakover = {"F": 45.0, "H": 35.0}
-        self.flip = {"F": 55.0, "H": 45.0}
-        self.toe_up = {"F": -10.0, "H": -6.0}
+        # swing shapes: the toe's height over the ground (m) and when it peaks (share of the swing);
+        # the hoof's turn (degrees, + = heel up/sole back) through the swing as (share, turn): the
+        # breakover's at lift-off, flipped sole-back early as the knee and fetlock fold, carried
+        # level by mid-swing (not tipped toe-down: round 4's "dancer's toe"), a touch toe-up, flat
+        self.lift = {"F": 0.09, "H": 0.10}
+        self.lift_peak = {"F": 0.32, "H": 0.36}
+        self.breakover = {"F": 45.0, "H": 50.0}
+        # the heel starts up at this share of the stance: the hind's earlier, so it leaves heel up
+        # with the pastern near upright (round 4: "flat at lift-off")
+        self.breakover_from = {"F": 0.67, "H": 0.58}
+        self.hang_flex = {"F": 8.0, "H": 8.0}
+        self.turns = {"F": [(0.2, 60.0), (0.55, 4.0), (0.85, -10.0)],
+                      "H": [(0.2, 55.0), (0.55, 4.0), (0.85, -6.0)]}
         # stance: the fetlock's sink at mid-stance (degrees, pastern toward level); swing: the knee's
         # and hock's fold at their most
         self.sink = {"F": 18.0, "H": 15.0}
-        self.knee_fold = 42.0
-        self.hock_fold = 35.0
+        # the fold peaks early in the swing (a third of the way: the hoof picked up, then the leg
+        # carried forward), as the clip's fore and hind do; the elbow flexes with the knee
+        self.knee_fold = 55.0
+        self.hock_fold = 50.0
+        self.elbow_fold = 18.0
+        self.fold_peak = {"F": 0.3, "H": 0.4}
+        # the hock closes over the stance's last part, the stifle with it: the hind leaves angled
+        self.hock_close = 12.0
         # the trunk: rise and fall at withers and croup (m, half the swing), the neck's nod (degrees)
         self.bob = 0.02
         self.nod = 5.0
@@ -64,26 +77,36 @@ class Walk:
         land_t = (k + self.offset[leg]) * self.T       # when this stance began
         # each stance placed about the rest toe: the fore's a touch ahead, the hind's behind (the
         # hind retracts further than it protracts; the clip's fore: +15 at contact, -20 at lift-off)
-        ahead = 0.02 if kind == "F" else -0.03
+        ahead = 0.02 if kind == "F" else 0.0
         land_u = rest_toe[0] + self.v * land_t + self.L * b / 2 + ahead
         if s < b:
             u = land_u
             z = rest_toe[1]
-            # breakover: the heel rises about the toe over the stance's last third
-            q = max(0.0, (s / b - 0.67) / 0.33)
+            # breakover: the heel rises about the toe over the stance's last part
+            q0 = self.breakover_from[kind]
+            q = max(0.0, (s / b - q0) / (1.0 - q0))
             turn = self.breakover[kind] * smooth(q) ** 1.5
             return (u, z), rest_angle - math.radians(turn)
         w = (s - b) / (1.0 - b)                         # 0..1 through the swing
         u = land_u + self.L * minjerk(w)
-        z = rest_toe[1] + self.lift[kind] * lift_curve(w, 0.38 if kind == "F" else 0.42)
-        # the hoof flips sole-back early in the swing, comes round, lands a touch toe-up then flat
-        if w < 0.35:
-            turn = lerp(self.breakover[kind], self.flip[kind], smooth(w / 0.35))
-        elif w < 0.85:
-            turn = lerp(self.flip[kind], self.toe_up[kind], smooth((w - 0.35) / 0.5))
-        else:
-            turn = lerp(self.toe_up[kind], 0.0, smooth((w - 0.85) / 0.15))
+        z = rest_toe[1] + self.lift[kind] * lift_curve(w, self.lift_peak[kind])
+        keys = [(0.0, self.breakover[kind])] + self.turns[kind] + [(1.0, 0.0)]
+        for (w0, a0), (w1, a1) in zip(keys, keys[1:]):
+            if w <= w1:
+                turn = lerp(a0, a1, smooth((w - w0) / (w1 - w0)))
+                break
         return (u, z), rest_angle - math.radians(turn)
+
+    def hang(self, leg, t):
+        """How much the hoof hangs from the folded leg (0..1) rather than following `turns`, and
+        its flex past the cannon's line (degrees). In the clip's swings the hoof hangs in line with
+        the cannon, sole back, as the knee or hock folds: a hoof turned by the clock alone read as
+        a pointed toe where the cannon was upright (round 4) and as tipped where it was back."""
+        s = self.phase(leg, t)
+        if s < self.duty:
+            return 0.0, 0.0
+        w = (s - self.duty) / (1.0 - self.duty)
+        return smooth(w / 0.2) * (1.0 - smooth((w - 0.55) / 0.3)), self.hang_flex[leg[1]]
 
     # --- preferences for the leg solve --------------------------------------------------------
     def prefs(self, leg, t):
@@ -101,13 +124,21 @@ class Walk:
             sink = 0.0
             swing = (s - b) / (1.0 - b)
             lock = 0.5 * (1.0 - smooth(swing / 0.1)) + 0.0
+        peak = self.fold_peak[kind]
         if kind == "F":
-            fold = -self.knee_fold * bump(swing, 0.4) if s >= b else 0.0
-            return {"scap": (0.0, 0.3), "shoulder": (0.0, 0.05), "elbow": (0.0, 0.8),
-                    "knee": (fold, 4.0 + 16.0 * lock), "fetlock": (0.0, 0.05),
+            k = bump(swing, peak) if s >= b else 0.0
+            # the scapula (the chain's root) held loosely: more of the reach comes from its slide
+            # (Sean, #474). Its key was "scap" before, which the solve never read: the default 0.02
+            return {"root": (0.0, 0.02), "shoulder": (0.0, 0.05), "elbow": (self.elbow_fold * k, 0.8),
+                    "knee": (-self.knee_fold * k, 4.0 + 16.0 * lock), "fetlock": (0.0, 0.05),
                     "pastern_abs": (sink, 3.0 * lock)}
-        fold = self.hock_fold * bump(swing, 0.4) if s >= b else 0.0
-        return {"hip": (0.0, 0.05), "stifle": (-fold, 0.4), "hock": (fold, 2.0), "fetlock": (0.0, 0.05),
+        if s >= b:
+            fold = self.hock_fold * bump(swing, peak)
+            # the push-off's closed hock carried into the swing's start
+            fold = max(fold, self.hock_close * (1.0 - smooth(swing / 0.25)))
+        else:
+            fold = self.hock_close * smooth((s / b - 0.7) / 0.3)
+        return {"root": (0.0, 0.02), "stifle": (-fold, 0.4), "hock": (fold, 2.0), "fetlock": (0.0, 0.05),
                 "pastern_abs": (sink, 3.0 * lock), "couple": (0.0, 3.0)}
 
     # --- the trunk, neck, tail ----------------------------------------------------------------
@@ -232,5 +263,5 @@ class Leg:
 # (2004) and Back & Clayton (2013)'s walk ranges, with room.
 FORE_LIMITS = {"shoulder": (-30, 30), "elbow": (-12, 60), "knee": (-110, 2), "fetlock": (-100, 30)}
 HIND_LIMITS = {"stifle": (-65, 30), "hock": (-15, 65), "fetlock": (-90, 30)}
-FORE_ROOT = (-16, 16)   # the scapula's swing about its top
+FORE_ROOT = (-22, 22)   # the scapula's swing about its top (±16 left the elbow doing the reach)
 HIND_ROOT = (-35, 35)   # the thigh at the hip

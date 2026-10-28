@@ -4,6 +4,7 @@ on the chequered ground (25 cm squares: a slide shows against them).
 
     ~/bpyenv/bin/python experiments/horse_walk/blender/render.py --film=side|threeq [--strides=2]
     ~/bpyenv/bin/python experiments/horse_walk/blender/render.py --phases=0,0.125,...  (stills)
+        [--cam=shoulder] [--tag=NAME] [--name=DIR]
 Frames go to build/horse_walk/<name>/; films are made from them with ffmpeg (make_films.sh).
 """
 import math
@@ -17,11 +18,12 @@ import common as C  # noqa: E402
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
 opts = dict(a[2:].split("=", 1) for a in args if a.startswith("--") and "=" in a)
-bpy.ops.wm.open_mainfile(filepath=os.path.join(C.OUT, "walk.blend"))
+TAG = ("_" + opts["tag"]) if opts.get("tag") else ""   # walk_build.py --tag=NAME's walk
+bpy.ops.wm.open_mainfile(filepath=os.path.join(C.OUT, "walk%s.blend" % TAG))
 arm = bpy.data.objects["Horse"]
 sc = bpy.context.scene
 import json  # noqa: E402
-rep = json.load(open(os.path.join(C.OUT, "walk_report.json")))
+rep = json.load(open(os.path.join(C.OUT, "walk_report%s.json" % TAG)))
 T, v, keys = rep["walk"]["T"], rep["walk"]["v"], rep["walk"]["frames"]
 KEY_FPS = keys / T
 
@@ -85,7 +87,12 @@ def stills():
     out = os.path.join(C.OUT, opts.get("name", "stills"))
     os.makedirs(out, exist_ok=True)
     setup((900, 640))
-    cam = C.persp_camera((-0.15, -9.0, 1.35), (-0.15, 0, 0.95), lens=70)
+    if opts.get("cam") == "shoulder":
+        # close on the near fore's shoulder and elbow, from his left, level (Sean's "abrupt stop
+        # where the leg meets the body", #474)
+        cam = C.persp_camera((-0.78, -3.6, 1.0), (-0.78, 0, 0.92), lens=60)
+    else:
+        cam = C.persp_camera((-0.15, -9.0, 1.35), (-0.15, 0, 0.95), lens=70)
     base = cam.location.copy()
     for ph in phases:
         t = ph * T + T     # the second stride (the solve has warmed up; it's periodic anyway)

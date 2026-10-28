@@ -2,8 +2,9 @@
 lift-offs; frames from reference/measurements.json) beside ours at the same event, ours mirrored to
 face the same way (both show the left side). Also writes the reference crops alone.
 
-    python3 experiments/horse_walk/compare.py     (needs build/horse_walk/frames, pan.json and the
-                                                   stills: render.py --phases=... --name=pairs)
+    python3 experiments/horse_walk/compare.py     (needs the stills: render.py --phases=... --name=pairs;
+                                                   the clip's frames and pan.json if there, else
+                                                   reference/crops/)
 """
 import json
 import os
@@ -29,6 +30,9 @@ EVENTS = [
 
 
 def ref_crop(f):
+    """The clip's horse at frame f; without the clip (it isn't in the repo), the committed crop."""
+    if not os.path.exists(os.path.join(B, "frames", "f%03d.png" % (f + 1))):
+        return Image.open(os.path.join(REF, "crops", "f%03d.jpg" % f)).convert("RGB")
     pan = json.load(open(os.path.join(B, "pan.json")))["pan"]
     sp = json.load(open(os.path.join(B, "speed.json")))
     k = min(range(len(sp["frames"])), key=lambda i: abs(sp["frames"][i] - f))
@@ -50,7 +54,8 @@ def main():
     cells = []
     for name, f, ph in EVENTS:
         a, b = ref_crop(f), ours(ph)
-        a.save(os.path.join(REF, "crops", "f%03d.jpg" % f), quality=85)
+        if not os.path.exists(os.path.join(REF, "crops", "f%03d.jpg" % f)):
+            a.save(os.path.join(REF, "crops", "f%03d.jpg" % f), quality=85)
         pair = Image.new("RGB", (1600, 584 + 30), (255, 255, 255))
         pair.paste(a, (0, 30))
         pair.paste(b, (800, 30))

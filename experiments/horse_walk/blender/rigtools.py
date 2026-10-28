@@ -51,9 +51,10 @@ def tail(arm, name):
 HIND_FIX = {"hip": (0.74, 1.04), "stifle": (0.55, 0.82)}
 
 
-def fix_hind(arm, meshes):
+def fix_hind(arm, meshes, fore=True):
     """Moves each hind's hip and stifle (x, z; its own y kept) and re-weights the quarters' and
-    thighs' vertices to the moved bones; the lower leg's weights (hock down) and the tail's stay."""
+    thighs' vertices to the moved bones; the lower leg's weights (hock down) and the tail's stay.
+    With `fore`, the shoulders and fore legs are re-weighted the same way (reweight_fore)."""
     bpy.context.view_layer.objects.active = arm
     bpy.ops.object.mode_set(mode="EDIT")
     eb = arm.data.edit_bones
@@ -70,6 +71,8 @@ def fix_hind(arm, meshes):
             png = "horse_coat_lod.png" if ob.name == "coat_lod" else "horse_coat.png"
             fix_tail(ob, arm, os.path.join(os.path.dirname(__file__), "..", "..", "..", "assets", "creatures", "horse", png))
         reweight_hind(ob, arm)
+        if fore:
+            reweight_fore(ob, arm)
         if ob.name.startswith("coat"):
             weld_weights(ob)
 
@@ -207,6 +210,92 @@ def reweight_hind(ob, arm, power=2.0, smooth=12):
         for i in np.where(side)[0]:
             # the legs stay off the far side: a vertex past the midline only to the pelvis
             new[i] = {"pelvis": 1.0} if P[i, 1] * sign < 0.0 else dict(zip(cand, w[i]))
+    _smooth_apply(ob, P, W, new, vg, smooth)
+    # the tail's vertices lose any leg weight they had
+    for i in np.where(tailw >= 0.05)[0]:
+        for g in list(ob.data.vertices[i].groups):
+            if names.get(g.group, "").split(".")[0] in ("thigh", "shin"):
+                ob.vertex_groups[g.group].remove([int(i)])
+    return len(new)
+
+
+def reweight_fore(ob, arm, power=2.0, smooth=12, radius=0.03):
+    """The shoulders and each fore leg, withers to the forearm's lower half, re-weighted among the
+    trunk (spine), scapula, upperarm and forearm of their side by inverse distance, then smoothed.
+    The game's weights put a hard edge between the leg and the chest at the elbow and the shoulder:
+    when the fore reaches, the top of the leg hinged under the chest (Sean, #474).
+
+    Smoothed in space, not over the mesh's edges as the hinds are: the glb is split into islands at
+    its UV seams, and most of the shoulder's seams don't meet vertex to vertex (a vertex on one side
+    lies on an edge of the other, 3-20 mm from any twin), so weights smoothed island by island
+    differ across a seam and it opens (a hole at the elbow's back, seen in the close render). Each
+    pass averages a vertex's weights with every region vertex within `radius` (any island), Gaussian.
+    The new weights are blended into the game's over the region's edges (the knee down, and the
+    neck's and head's skin, keep theirs), so no edge of the region is a step either.
+    Coat only (the saddle and girth stay on the trunk)."""
+    if not ob.name.startswith("coat"):
+        return 0
+    from scipy.spatial import cKDTree
+    vg = {g.name: g.index for g in ob.vertex_groups}
+    leg = ("scapula", "upperarm", "forearm")
+    for n in ["spine"] + ["%s.%s" % (b, s) for b in leg for s in "LR"]:
+        if n not in vg:
+            vg[n] = ob.vertex_groups.new(name=n).index
+    names = {i: n for n, i in vg.items()}
+    P = np.array([v.co[:] for v in ob.data.vertices])
+    W = [dict((names[g.group], g.weight) for g in v.groups) for v in ob.data.vertices]
+    headw = np.array([sum(w for n, w in d.items() if n.startswith(("neck", "head", "ear"))) for d in W])
+    bones = {b.name: (np.array(b.head_local[:]), np.array(b.tail_local[:])) for b in arm.data.bones}
+    # how much of the new weighting a vertex takes: all of it inside, ramped to none over 12 cm
+    # above the knee's line, 10 cm behind the girth, and as the neck's or head's weight rises
+    ramp = lambda x: np.clip(x, 0.0, 1.0)  # noqa: E731
+    f = (ramp((P[:, 2] - 0.62) / 0.12) * ramp((-0.25 - P[:, 0]) / 0.10) * ramp((1.15 + P[:, 0]) / 0.08)
+         * ramp((1.55 - P[:, 2]) / 0.08) * ramp(1.0 - headw / 0.3))
+    region = np.where(f > 0.0)[0]
+    # the trunk's distance: to its bones along the back, or to the barrel's axis at the elbow's
+    # height (so the chest wall behind the elbow shares the leg's turn rather than all or nothing)
+    axis = (np.array([-1.0, 0.0, 1.0]), np.array([-0.25, 0.0, 1.0]))
+    d_trunk = np.min([_seg(P, *bones["spine"]), _seg(P, *bones["chest"]), _seg(P, *axis)], axis=0)
+    cols = ["spine"] + ["%s.%s" % (b, s) for s in "LR" for b in leg]
+    M = np.zeros((len(P), len(cols)))
+    M[:, 0] = 1.0
+    for s, sign in (("L", -1.0), ("R", 1.0)):
+        cand = ["spine"] + ["%s.%s" % (b, s) for b in leg]
+        d = np.stack([d_trunk] + [_seg(P, *bones[c]) for c in cand[1:]], axis=1)
+        w = 1.0 / np.maximum(d, 0.015) ** power
+        w /= w.sum(axis=1, keepdims=True)
+        # each side's leg on its own side only; at the midline, the trunk (smoothing joins them)
+        mine = P[:, 1] * sign > 0.0
+        M[mine] = 0.0
+        M[np.ix_(mine, [cols.index(c) for c in cand])] = w[mine]
+    # the game's weights where the region fades out, in the same columns plus whatever else they hold
+    Q = P[region]
+    tree = cKDTree(Q)
+    pairs = tree.query_ball_point(Q, radius * 2.0)
+    g = [np.exp(-0.5 * (np.linalg.norm(Q[nb] - Q[k], axis=1) / radius) ** 2) for k, nb in enumerate(pairs)]
+    Mr = M[region]
+    for _ in range(smooth):
+        Mr = np.array([(gk[:, None] * Mr[nb]).sum(axis=0) / gk.sum() for nb, gk in zip(pairs, g)])
+    for k, i in enumerate(region):
+        mixed = {n: (1.0 - f[i]) * v for n, v in W[i].items()}
+        for c, n in enumerate(cols):
+            if Mr[k, c] > 0.0:
+                mixed[n] = mixed.get(n, 0.0) + f[i] * Mr[k, c]
+        for gg in list(ob.data.vertices[int(i)].groups):
+            ob.vertex_groups[gg.group].remove([int(i)])
+        top = sorted(mixed.items(), key=lambda kv: -kv[1])[:4]
+        tot = sum(v for _, v in top)
+        for n, v in top:
+            if v / tot > 1e-3:
+                if n not in vg:
+                    vg[n] = ob.vertex_groups.new(name=n).index
+                ob.vertex_groups[vg[n]].add([int(i)], v / tot, "REPLACE")
+    return len(region)
+
+
+def _smooth_apply(ob, P, W, new, vg, smooth):
+    """`new` (vertex -> {group: weight}) smoothed `smooth` times over the mesh's edges inside it,
+    seam copies given one weighting, then written (each vertex's top four, normalised)."""
     # smoothing over the mesh's edges inside the region (the glb's vertices are split at UV seams:
     # copies of one point are joined here, or a seam opens when the weights on its sides differ)
     nb = neighbours(ob, P)
@@ -238,9 +327,3 @@ def reweight_hind(ob, arm, power=2.0, smooth=12):
         for n, v in top:
             if v / tot > 1e-3:
                 ob.vertex_groups[vg[n]].add([int(i)], v / tot, "REPLACE")
-    # the tail's vertices lose any leg weight they had
-    for i in np.where(tailw >= 0.05)[0]:
-        for g in list(ob.data.vertices[i].groups):
-            if names.get(g.group, "").split(".")[0] in ("thigh", "shin"):
-                ob.vertex_groups[g.group].remove([int(i)])
-    return len(new)

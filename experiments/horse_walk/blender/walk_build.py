@@ -1,8 +1,8 @@
 """Builds the walk on the game horse (its own copy, the hind legs fixed: rigtools.fix_hind) as a
 looping action, measures it, and saves build/horse_walk/walk.blend (and walk.glb).
 
-    ~/bpyenv/bin/python experiments/horse_walk/blender/walk_build.py [--T=1.1] [--L=1.5] [--duty=0.62]
-        [--lateral=0.30] [--no-fix]
+    ~/bpyenv/bin/python experiments/horse_walk/blender/walk_build.py [--T=1.1] [--L=1.35] [--duty=0.62]
+        [--lateral=0.30] [--no-fix] [--no-fore] [--tag=NAME] [--set=hock_fold=50,lift.H=0.11]
 
 The action "walk" is in place (the root stays; planted hooves slide back at the walking speed);
 the preview's armature object is moved forward at that speed ("walk_root") so planted hooves stand.
@@ -26,14 +26,22 @@ import rigtools as R  # noqa: E402
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
 opts = dict(a[2:].split("=", 1) for a in args if a.startswith("--") and "=" in a)
-W = G.Walk(T=float(opts.get("T", 1.1)), L=float(opts.get("L", 1.5)), duty=float(opts.get("duty", 0.62)),
+W = G.Walk(T=float(opts.get("T", 1.1)), L=float(opts.get("L", 1.35)), duty=float(opts.get("duty", 0.62)),
            lateral=float(opts.get("lateral", 0.30)))
+# --set=hock_fold=50,lift.H=0.11: any of Walk's numbers (a dict's entry by a dot), to try one
+for kv in filter(None, opts.get("set", "").split(",")):
+    k, v = kv.split("=")
+    if "." in k:
+        getattr(W, k.split(".")[0])[k.split(".")[1]] = float(v)
+    else:
+        setattr(W, k, float(v))
+TAG = ("_" + opts["tag"]) if opts.get("tag") else ""   # walk<TAG>.blend, walk_report<TAG>.json
 
 arm = C.load()
 arm.animation_data.action = None
 meshes = [o for o in bpy.data.objects if o.type == "MESH"]
 if "--no-fix" not in args:
-    R.fix_hind(arm, meshes)
+    R.fix_hind(arm, meshes, fore="--no-fore" not in args)
 bones = arm.data.bones
 REST = {b.name: np.array(b.matrix_local) for b in bones}
 HEAD = {b.name: np.array(b.head_local[:]) for b in bones}
@@ -109,14 +117,33 @@ def pose(t):
         coronet = np.array([tu, tz]) - c["hoof_len"] * np.array([math.cos(ha), math.sin(ha)])
         rel, pts, absang, miss = ch.solve(anchor, coronet, W.prefs(leg, t), tilt=pitch,
                                           hoof=ha, rest_coffin=c["coffin_rest"])
+        k, flex = W.hang(leg, t)
+        ha0 = ha
+        for _ in range(3 if k > 0 else 0):
+            # the hoof hung from the cannon: turned with it, plus a little flex, then solved again
+            # (the toe's path kept; the coronet moves with the hoof)
+            ic = 3 if c["fore"] else 2
+            hung = c["hoof_rest"] + (absang[ic] - ch.rest_abs[ic]) - pitch - math.radians(flex) + pitch
+            ha = (1 - k) * ha0 + k * hung
+            coronet = np.array([tu, tz]) - c["hoof_len"] * np.array([math.cos(ha), math.sin(ha)])
+            rel, pts, absang, miss = ch.solve(anchor, coronet, W.prefs(leg, t), tilt=pitch,
+                                              hoof=ha, rest_coffin=c["coffin_rest"])
         for i, n in enumerate(c["seg"]):
             new_head = np.array([-pts[i][0], HEAD[n][1], pts[i][1]])
             A[n] = trans(new_head - HEAD[n]) @ ry(absang[i] - ch.rest_abs[i], HEAD[n])
         h = c["hoof"]
         A[h] = trans(np.array([-coronet[0], HEAD[h][1], coronet[1]]) - HEAD[h]) @ ry(ha - c["hoof_rest"], HEAD[h])
         d = (rel - ch.rest_rel) / G.D2R
+        ic = 3 if c["fore"] else 2                               # the cannon's segment
         info[leg] = {"joints": dict(zip(["root"] + ch.joints, d.tolist())), "miss": miss,
-                     "coffin": (ha - absang[-1] - c["coffin_rest"]) / G.D2R}
+                     "coffin": (ha - absang[-1] - c["coffin_rest"]) / G.D2R,
+                     # the swing's shape, against the clip's poses by eye: the cannon's lean (+ = its
+                     # lower end behind vertical), the hoof's turn (+ = heel up), the toe's height
+                     # and how far it is behind the hip or the shoulder (m; the trailing leg's reach)
+                     "cannon_back": -90.0 - absang[ic] / G.D2R,
+                     "hoof_turn": (c["hoof_rest"] - ha) / G.D2R + pitch / G.D2R,
+                     "toe_up": tz - c["toe"][1],
+                     "toe_behind": float(anchor[0] - tu)}
     nod = math.radians(W.neck(t))
     low = math.radians(W.neck_carriage)
     An = Ab @ ry(0.6 * low - 0.6 * nod, HEAD["neck1"])
@@ -233,6 +260,28 @@ for leg, c in CHAINS.items():
         "coffin_range_deg": [round(min(inf[leg]["coffin"] for inf in infos), 1), round(max(inf[leg]["coffin"] for inf in infos), 1)],
         "miss_mm_max": round(1000 * max(inf[leg]["miss"] for inf in infos), 2),
     }
+# the swing's shape at its moments (from the solve, a key a 60th of a second): lift-off, the fold's
+# peak, mid-swing (w = 0.5), and the toe's reach behind at lift-off
+for leg, c in CHAINS.items():
+    fold = "knee" if c["fore"] else "hock"
+    sw = [(k, (W.phase(leg, k / W.fps) - W.duty) / (1 - W.duty)) for k in range(W.frames)]
+    sw = [(k, w) for k, w in sw if w >= 0]
+    kf = max(sw, key=lambda kw: abs(infos[kw[0]][leg]["joints"][fold]))
+    k0 = min(sw, key=lambda kw: kw[1])[0]
+    km = min(sw, key=lambda kw: abs(kw[1] - 0.5))[0]
+    r = report["legs"][leg]
+    r["swing"] = {
+        "fold_peak_deg": round(abs(infos[kf[0]][leg]["joints"][fold]), 1),
+        "fold_peak_at": round(kf[1], 2),
+        "liftoff": {q: round(infos[k0][leg][q], 2 if q.startswith("toe") else 1) for q in ("cannon_back", "hoof_turn", "toe_behind")},
+        "mid": {q: round(infos[km][leg][q], 2 if q.startswith("toe") else 1) for q in ("cannon_back", "hoof_turn", "toe_up")},
+        "hoof_turn_max": round(max(infos[k][leg]["hoof_turn"] for k, _ in sw), 1),
+        # through the swing, a tenth at a time: (cannon's lean, hoof's turn, toe's height in cm)
+        "by_tenth": [[round(infos[k][leg]["cannon_back"]), round(infos[k][leg]["hoof_turn"]),
+                      round(100 * infos[k][leg]["toe_up"], 1)]
+                     for k, _ in (min(sw, key=lambda kw: abs(kw[1] - q / 10)) for q in range(10))],
+    }
+    print(leg, "swing", r["swing"])
 # the footfall order read from the toes: each leg's first landing in the second stride
 land = {}
 for leg in CHAINS:
@@ -253,7 +302,7 @@ lh = first["LH"]
 seq = sorted(first, key=lambda leg: (first[leg] - lh) % 1.0)
 report["order"] = seq
 report["landing_after_LH"] = {leg: round((first[leg] - lh) % 1.0, 3) for leg in seq}
-json.dump(report, open(os.path.join(C.OUT, "walk_report.json"), "w"), indent=1)
+json.dump(report, open(os.path.join(C.OUT, "walk_report%s.json" % TAG), "w"), indent=1)
 for leg, r in report["legs"].items():
     print(leg, "slide %.3f cm" % r["slide_cm_max"], "duty", r["duty_from_toe"], "lift", r["lift_cm"], "cm",
           "under", r["below_ground_mm"], "mm", "worst miss at phase", r["miss_worst_phase"],
@@ -307,16 +356,16 @@ for f in range(0, W.frames, 2):
             worst[name] = (k, f)
 report["folded_triangles_worst"] = {k: {"count": v[0], "frame": v[1]} for k, v in worst.items()}
 report["triangles"] = len(n0)
-json.dump(report, open(os.path.join(C.OUT, "walk_report.json"), "w"), indent=1)
+json.dump(report, open(os.path.join(C.OUT, "walk_report%s.json" % TAG), "w"), indent=1)
 print("folded (worst frame)", report["folded_triangles_worst"], "of", len(n0))
 
-bpy.ops.wm.save_as_mainfile(filepath=os.path.join(C.OUT, "walk.blend"))
+bpy.ops.wm.save_as_mainfile(filepath=os.path.join(C.OUT, "walk%s.blend" % TAG))
 print("saved walk.blend")
 # the horse with the walk as a glb (in place, 60 keys a second), for a later look in the game; not
 # the game's asset (assets/creatures/horse/ is untouched)
 for o in bpy.data.objects:
     o.select_set(o.type in ("ARMATURE", "MESH"))
-bpy.ops.export_scene.gltf(filepath=os.path.join(C.OUT, "walk.glb"), export_format="GLB", use_selection=True,
+bpy.ops.export_scene.gltf(filepath=os.path.join(C.OUT, "walk%s.glb" % TAG), export_format="GLB", use_selection=True,
                           export_skins=True, export_animations=True, export_force_sampling=True,
                           export_frame_step=1, export_def_bones=False, export_yup=True,
                           export_materials="NONE", export_attributes=False)

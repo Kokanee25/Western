@@ -7,7 +7,8 @@ gait, as the reference for the game's later procedural gait (issue #470, brief `
 
 Films: `films/walk_side.mp4|.gif` (from his left, a little above, 3 strides at 30 fps, the ground
 chequered in 25 cm squares so a sliding hoof would show) and `films/walk_threeq.mp4|.gif`. Matched
-pairs against the clip: `compare/pairs_sheet.jpg` and `compare/pair_*.jpg`.
+pairs against the clip: `compare/pairs_sheet.jpg` and `compare/pair_*.jpg`; one stride of the side
+film as a contact sheet beside the clip's: `films/walk_side_sheet.jpg` (`film_sheet.py`).
 
 ## How to run it
 
@@ -29,9 +30,13 @@ python3 experiments/horse_walk/slit.py --clean=5           # the first space-tim
 ~/bpyenv/bin/python experiments/horse_walk/blender/rig_check.py          # the rig, bones drawn on
 ~/bpyenv/bin/python experiments/horse_walk/blender/bend_test.py [-- --fix]  # every near joint flexed
 ~/bpyenv/bin/python experiments/horse_walk/blender/walk_build.py         # the walk: build/horse_walk/walk.blend, walk.glb, walk_report.json
-~/bpyenv/bin/python experiments/horse_walk/blender/render.py -- --phases=0,0.12,0.25,0.5,0.62,0.56,0.75,0.87 --name=pairs
-python3 experiments/horse_walk/compare.py                  # the matched pairs
+~/bpyenv/bin/python experiments/horse_walk/blender/render.py -- --phases=0,0.12,0.30,0.5,0.62,0.61,0.80,0.92 --name=pairs   # compare.py's EVENTS
+python3 experiments/horse_walk/compare.py                  # the matched pairs (reference/crops/ without the clip)
 ./experiments/horse_walk/make_films.sh                     # the films
+python3 experiments/horse_walk/film_sheet.py               # one stride of the side film, as the clip's sheet
+# try a number without editing: walk_build.py -- --tag=try --set=hock_fold=50,lift.H=0.11 (walk_try.blend,
+# walk_report_try.json; render.py -- --tag=try); --no-fore leaves the fores' game weights;
+# render.py -- --phases=0.25,0.92 --cam=shoulder: close on the near fore's shoulder
 ```
 
 ## 1. The reference clip
@@ -117,19 +122,41 @@ weighted to the tail's bones only; then every group of seam copies within 3 mm g
 (`weld_weights`). After it the bend test is clean at every joint (`rig/bend_fixed.jpg`), the elbow's
 crease included.
 
+**The fores re-weighted** (round 5, Sean on the films, #474: "the kinda abrupt stop at the base
+where his leg meets the body with the forward step"): the game's weights put a hard edge between the
+leg and the chest, so at full reach the top of the leg hinged under the chest at the elbow.
+`rigtools.reweight_fore`: withers to mid-forearm, among the trunk (to its bones, or to the barrel's
+axis at the elbow's height), scapula, upperarm and forearm, power 2 inverse distance, smoothed 12
+times, blended into the game's weights over the region's edges (the knee down and the neck keep
+theirs); and the scapula may slide ±22° (was ±16; its preference's key was never read: it now is,
+light). **Smoothed in space, not over the mesh:** smoothed over the edges as the hinds are, it opened
+a hole at the elbow's back. Most of the shoulder's UV seams don't meet vertex to vertex (a vertex on
+one side lies on an edge of the other, 3–20 mm from any twin: 59 of 325 seam vertices there), so
+weights smoothed island by island differ across a seam. Each pass now averages over every vertex
+within 3 cm, any island. In the close render (`--cam=shoulder`) the elbow's crease at reach is a
+soft fold with a small notch left at its front; the breast's holes at lift-off are gone
+(`rig/shoulder_reweight.jpg`: the game's weights above, the new below). Not fixed:
+the coat shows through the saddle pad's front edge as the shoulder moves (the game's weights too).
+
 ## 3. The walk
 
 `blender/gait.py` (pure numpy/scipy, so it can be ported) and `blender/walk_build.py` (Blender).
 
 - **Hooves by phase:** each leg lands at its offset (LH 0, LF 0.30, RH 0.5, RF 0.80), stays planted
   for 0.62 of the stride (the toe fixed on the ground), the heel rising about the toe over the
-  stance's last third (breakover: 45° fore, 35° hind). The swing carries the toe one stride
-  forward on a minimum-jerk path, lifted 7 cm, the hoof turned a little further (to 55°/45°) early
-  and brought round to land a touch toe-up then flat.
+  stance's last part (breakover: 45° fore from 0.67 of the stance, 50° hind from 0.58). The swing
+  carries the toe one stride forward on a minimum-jerk path, lifted 9 cm (fore, peak at 0.32 of the
+  swing) and 10 cm (hind, 0.36): the clip's 8–12. **The hoof hangs** from the folded leg through
+  mid-swing (`Walk.hang`): turned with the cannon plus 8° of flex, solved again three times, so it
+  hangs sole-back in line with the cannon as the clip's do; at its ends it follows `Walk.turns`
+  (flipped early, a touch toe-up, flat to land). A hoof turned by the clock alone read as a dancer's
+  toe where the cannon was upright (round 4).
 - **Each leg solved in its own plane** by least squares: the coronet must meet its target; every
   joint is bounded to the range a horse's leg has (no knee or hock past straight, no fetlock folded
   forward: the bounds are in `gait.py`); within that, it keeps near what the gait wants. The knee is
-  locked straight in stance and folds up to 42° in swing; the fetlock sinks 18° (fore) / 15° (hind)
+  locked straight in stance and folds up to 55° in swing, peaking at 0.3 of it (the elbow flexing
+  18° with it); the hock folds to 50°, peaking at 0.4, and closes 12° over the stance's last part
+  (the hind leaves angled); the fetlock sinks 18° (fore) / 15° (hind)
   at mid-stance; the stifle and hock move together as the reciprocal apparatus makes them; the
   elbow stays near rest. The preferences blend across lift-off (a step makes the solve jump between
   keys, and the keys' blend then dips the hoof into the ground: seen and fixed).
@@ -138,12 +165,14 @@ crease included.
   neck 34° and puts the nose forward 24° over the model's standing pose (head up, alert; a horse
   walking on a loose rein carries it low and long); the neck nods 5° twice a
   stride, lowest just after each fore lands; the tail sways and lifts with a lag down its bones.
-- **The hind stance** is centred 3 cm behind the hind's rest toe, the fore's 2 cm ahead of its own.
-- **One stride length** (1.5 m) and the root speed from it (1.36 m/s), so planted hooves don't slide.
+- **The hind stance** is centred on the hind's rest toe (was 3 cm behind), the fore's 2 cm ahead of its own.
+- **One stride length** (1.35 m, the clip's measured 1.34; was 1.5) and the root speed from it
+  (1.23 m/s), so planted hooves don't slide.
   The action (`walk`, 66 keys = 1.1 s at 60 a second, the game's rate) is in place; the previews
   move the armature forward at the walking speed. Keying at 30 a second dipped the toe 11 mm at
   breakover (the blend cuts the hoof's arc about the toe); at 60 it's under a millimetre.
-- **The stride length is the hind leg's reach.** At 1.7 m (the clip's ratio) the hind can't reach
+- **The stride length is the hind leg's reach.** (Round 5 shortened it to 1.35 m for the trailing
+  hind: the judge then saw the hind land too far back. Both ends want the hip to travel.) At 1.7 m (the clip's ratio) the hind can't reach
   where the stride asks: from hip to coronet it's ~1.1 m; it fell 10 cm short at landing, then at
   lift-off. 1.5 m (a relaxed walk, inside the published range) with the hind stance a little behind
   its rest, and the stifle allowed 30° past standing, reaches everywhere it stands.
@@ -155,12 +184,18 @@ moving at the walking speed:
 
 | | LF | RF | LH | RH | needed |
 |---|---|---|---|---|---|
-| planted hoof's slide (max) | 0.8 mm | 0.8 mm | 0.7 mm | 0.2 mm | < 1 cm |
-| toe below the ground (max) | 0.3 mm | 0.4 mm | 0.6 mm | 0.2 mm | |
-| duty factor (toe within 5 mm of the ground) | 0.67 | 0.67 | 0.67 | 0.67 | 0.60–0.65 published; the clip 0.67 |
+| planted hoof's slide (max) | 1.4 mm | 1.4 mm | 0.2 mm | 0.2 mm | < 1 cm |
+| toe below the ground (max) | 0.3 mm | 0.3 mm | 0.4 mm | 0.2 mm | |
+| duty factor (toe within 5 mm of the ground) | 0.67 | 0.67 | 0.66 | 0.66 | 0.60–0.65 published; the clip 0.67 |
 | landing (share of the stride after LH) | 0.30 | 0.80 | 0 | 0.50 | lateral sequence |
-| toe lift | 7.0 cm | 7.0 cm | 7.0 cm | 7.0 cm | |
+| toe lift | 9.0 cm | 9.0 cm | 10.0 cm | 10.0 cm | the clip 8–12 by eye |
 | the solve's miss on the ground | 0 | 0 | 0 | 0 | |
+| knee/hock fold at its most (at share of swing) | 55° (0.29) | 55° (0.29) | 35° (0.40) | 40° (0.40) | the clip ~45° fore |
+| cannon behind vertical / hoof turned, mid-swing | 37° / 40° | 33° / 39° | 0° / −3° | 4° / −4° | the clip ~35° fore, ~30° hind |
+| at lift-off: hoof turned (heel up); toe behind hip or shoulder | 44°; 0.27 m | 44°; 0.27 m | 51°; 0.31 m | 51°; 0.29 m | |
+
+Round 5's numbers (round 4's: slides ≤ 0.8 mm, lift 7 cm, fold 42° at 0.4, the hind's toe ~0.36 m
+behind the hip at lift-off). The report's `swing` block holds the swing a tenth at a time.
 
 - **Hoof order:** LH, LF, RH, RF, the fore 0.30 of a stride after its hind: the lateral sequence.
   **Pass.**
@@ -168,16 +203,18 @@ moving at the walking speed:
   ground for a moment at each end of the swing. Within the clip's measure; a touch above the
   published 0.60–0.65 by that reading. **Pass, near the edge.**
 - **No joint bends backwards:** every joint stays inside its bounds by construction, and the ranges
-  used are (degrees from standing) fore knee −43..0, fetlock −26..+27, elbow −5..+7, shoulder
-  −20..+29, scapula ±16; hind stifle −40..+30, hock −13..+38, fetlock −48..+25, hip −35..+24. The
+  used are (degrees from standing) fore knee −55..0, fetlock −20..+15, elbow −4..+17, shoulder −24..+28, scapula −19..+22; hind stifle −34..+30, hock −13..+40, fetlock −46..+22, hip −27..+15. The
   hip's extension (−35) and the stifle's (+30) are at their bounds at push-off, the coffin joint
   (pastern to hoof) at its −40° in the fore's swing. **Pass.**
 - **The mesh doesn't fold:** a triangle counts as folded when it has turned more than 90° away from
-  where its own bone turned it. Worst frame: fore legs 5, hind legs 10, trunk/neck/head 11 of 2,900
+  where its own bone turned it. Worst frame: fore legs 3 (round 4: 5), hind legs 10, trunk/neck/head 11 of 2,900
   (single triangles at the stifle, the elbow and the throat as the neck lowers). Checked by eye in the
   bend test, a close render of the hind at push-off and the films: no cracks or inside-out surfaces
   after the weld. **Pass.**
-- **The hinds in the air** fall short of their path by up to 3.2 cm (LH) late in the swing, the leg
+- **The hind's mid-swing cannon is upright** (the clip's ~30° back): the hock's fold peaks at 0.4
+  but the hoof's path forward brings the cannon round by mid-swing; a stronger hock preference
+  (to 60°) didn't move it (tried with `--set`). It wants the hip to protract more.
+- **The hinds in the air** fall short of their path by up to 2.1 cm (LH) late in the swing, the leg
   at its reach: airborne, not seen; on the ground they meet it.
 
 ## 5. The blind judge
@@ -191,8 +228,7 @@ Each round a fresh agent that had seen no code and no reasoning, given only the 
   against the hinds (the lateral phase: 0.25 -> 0.30), legs stiff. Changed; and the seam weld.
 - `judge/round3.md`: head high, the hind's stance too far back ("a sawhorse"), the swing now too low,
   no tracking up, the tail off the buttocks. Changed what the reach allows; the rest reported.
-- `judge/round4.md`, **the final walk: 4/10.** Its top three, **not fixed this session** (the
-  session stops at its step; they're the next session's):
+- `judge/round4.md`, round 4's walk: 4/10. Its top three, as they were then:
   1. **Head and neck still too high.** Four rounds rank it first. The bones have lowered the neck 34
      degrees; lower wasn't tried (the model is built with a high, upright neck: the bones may not take
      it far without the neck's mesh or rig).
@@ -201,6 +237,10 @@ Each round a fresh agent that had seen no code and no reasoning, given only the 
      and a fore fold that peaks early with the hoof carried level.
   3. **The trailing hind too far back and flat at lift-off.** The hind can't reach both ends of a
      1.5 m stride at duty 0.62 (README, "The stride length"); a shorter stride or a pelvis that tips.
+- `judge/round5.md`, **round 5 (the swing, the hind, the fores re-weighted): 5/10**, judged on the
+  pairs and a contact sheet of the side film beside the clip's. Its top three: the head (waiting on
+  Sean, #473); the hind's reach forward now short (the stride's other end); lift-off without a
+  visible roll over the toe. The toe-down swing and the trailing hind are off its list.
 
 ## What was checked by eye, and what wasn't
 
@@ -211,8 +251,11 @@ Each round a fresh agent that had seen no code and no reasoning, given only the 
 
 ## What's left
 
-- **The judge's top three** (above): the head's carriage (lower by bones, or the neck's mesh/rig), the swing's fold
-  (judged on the films), the hind's reach (a shorter stride, or the pelvis tipping).
+- **Round 5's top three** (`judge/round5.md`): the head's carriage (Sean's choice on #473: lower by
+  bones, or the neck rebuilt); the hind's reach both ways (the hip's travel: a lumbosacral bone, or the
+  pelvis tipping with each hind); the toe's roll at lift-off (the toe held down over the stance's last
+  tenth while the heel goes past 60°). Also the forearm's reach (the elbow's protraction), the trunk's
+  give and the pastern's sink (18° is too little to see), the saddle pad's front edge.
 
 - **For the game's horse** (`horse.py`, `horse_rodin.py`; gameplay/characters to decide): the hind's
   hip and stifle placed anatomically (as `rigtools.HIND_FIX`), the tail's hair weighted to the tail
