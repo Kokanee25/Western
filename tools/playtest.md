@@ -40,6 +40,10 @@ whenever something is worth showing: good or bad.
 - `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.
 - `shoot N` — cock and fire what's in your hands N times, wherever you're facing.
+- `shove` / `kick` — lay hands on whoever's in front of you (a tap of E in the game), or kick
+  (E held and let go). Arm's length is about 0.75 m, a kick's reach about 1 m. The answer and
+  `events` say what it did, a miss included. (Not `press shove`: drawn this slowly, a press is
+  held long enough to be a kick every time.)
 - `press ACTION [SECONDS]` — a key: `aim` (raise the sights; hold it with a duration), `reload`
   (hold ~3 s to load the revolver a round at a time), `holster`, `shout` (shout "Drop it!" with a
   gun out; with your gun holstered and facing an armed man, call him out to a duel), `crouch_toggle`,

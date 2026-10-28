@@ -97,6 +97,25 @@ func update_pose(delta: float, speed: float, crouch: float, on_floor: bool, stri
 		_knees[i].rotation.x = knee_angle
 
 
+## How far a kick drives your hip forward as the leg goes out (m).
+const KICK_HIPS := 0.25
+
+
+## Your right leg in a kick (PlayerShove.leg): drawn up (x: thigh forward, knee bent under it)
+## and out straight (y: the knee opening, the boot out level with your hip at his belly), over
+## whatever the walk had.
+func kick_leg(lift: Vector2) -> void:
+	if _thighs.size() < 2:
+		return
+	# A push kick drives the hip in behind the boot (the leg's root: the torso stays out of view).
+	_thighs[1].position.z = -KICK_HIPS * lift.y
+	if lift == Vector2.ZERO:
+		return
+	var up := maxf(lift.x, lift.y)
+	_thighs[1].rotation.x = lerpf(_thighs[1].rotation.x, deg_to_rad(lerpf(75.0, 90.0, lift.y)), up)
+	_knees[1].rotation.x = lerpf(_knees[1].rotation.x, deg_to_rad(lerpf(-105.0, -2.0, lift.y)), up)
+
+
 func _box(parent: Node3D, n: String, size: Vector3, pos: Vector3, mat: Material) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = size

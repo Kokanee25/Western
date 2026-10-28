@@ -6,7 +6,7 @@ const HELP := """SALT CREEK — test street
 Guns (you start holstered; H draws): cock Q / wheel down / RB, fire LMB / RT, aim RMB / LT, reload R / X (hold), holster H / LB     Revolver 1, shotgun 2, dynamite 3, next wheel up / Y
 Dynamite: Q lights the fuse, hold LMB and let go to throw (longer = harder), RMB sets it down; don't hold it lit too long
 Move: WASD / left stick     Look: mouse / right stick
-Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B
+Run: hold Shift / click left stick     Crouch: hold Ctrl, or C / B     Shove: tap E / click right stick (hold and let go: kick)
 Jump: Space / A     Time held / running / faster: T     Noon / afternoon / golden hour / night: 7     Light look (today, A, B, C): 8     Start again: Backspace     Debug readout: F3 / View     Movement light / middle / heavy: F
 Pixel size: F2 (last = native)     Pixel shading: F6     Texel size: F7     Tiles off/square/ragged: P     Jump to next place (street, store, saloon, range): F5 / D-pad up     Bullet traces: F8
 The outlaw (range, F5): shoot at him and he fights back.  Shout "Drop it!": G / D-pad left

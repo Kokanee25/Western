@@ -40,6 +40,10 @@ const WEIGHTS := {
 	&"surrender": [-1.5, -0.8, -0.3],
 	# Hands laid on someone: a shove, a grab at the collar.
 	&"shove": [0.8, 0.3, 0.05],
+	# A boot in him (PlayerShove): an assault, not a push; and a man kicked where he lies is past
+	# words for him and his friends.
+	&"kick": [1.5, 0.8, 0.15],
+	&"kick_down": [INF, INF, 0.4],
 	# "You! Step out into the street!"
 	&"call_out": [0.35, 0.1, 0.0],
 }

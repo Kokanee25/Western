@@ -567,6 +567,11 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
+- **The kick and shove** (2026-10-28, #479, `claude/gameplay-kick-shove`; `experiments/kick_shove/`):
+  E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
+  `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);
+  the ragdoll lab's group O, 20 seeds a case; bridge `shove`/`kick`. Waiting on Sean: the force and
+  the key. Next: the `next session` issue (the first-break hitch, a man grabbing a rail or your leg).
 - **The tone fade** (2026-10-28, #442, PR #447; `experiments/physics_lab/results/2026-10-28_tone/`):
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and

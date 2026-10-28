@@ -440,9 +440,10 @@ const NEAR := 12.0
 ## A shot's deed (shoot_at, hit, kill) goes with a shot he heard this recently (s).
 const SHOT_HEARD_WITHIN := 1.5
 ## The sounds a man makes, that a man hunting him takes for his.
-const MAN_SOUNDS := [&"footsteps", &"gunshot", &"shout", &"speech"]
-## How high over a man's feet each of his sounds is made (m): a gun held up, his mouth.
-const SOUND_HEIGHT := {&"gunshot": 1.4, &"shout": 1.6, &"speech": 1.6}
+const MAN_SOUNDS := [&"footsteps", &"gunshot", &"shout", &"speech", &"scuffle"]
+## How high over a man's feet each of his sounds is made (m): a gun held up, his mouth, the man he
+## kicked or shoved (`PlayerShove`'s scuffle, at the other's body).
+const SOUND_HEIGHT := {&"gunshot": 1.4, &"shout": 1.6, &"speech": 1.6, &"scuffle": 1.0}
 ## How far he reckons a man he's lost can have got (m a second, from where he last knew him, on
 ## top of a few metres' slack): a brisk walk. A man who runs gets further, and away.
 const MAN_SPEED := 2.0
