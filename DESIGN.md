@@ -356,17 +356,20 @@ manager, the ending as the state of the town.
   stage to settle the land claims (the agent's forged deeds, the spring). The railroad's survey crew
   is already in the valley; the rails are still coming. Whatever the town is when the judge steps
   down is the ending.
-- **It opens at the saloon table** (Sean 2026-10-15): the evening before day 1, the concept
-  painting's shot. The stranger sits down across from you and talks (friendly, too curious about
-  the sheriff and your spring); a shooting breaks out at the bar and plays out however you handle
-  it. At dawn you find the sheriff on the road; the ball the doctor digs out may match the
-  stranger's gun, or clear him.
+- **It opens at home** (Sean 2026-10-28; was the saloon table, 2026-10-15; the beats in
+  `docs/briefs/opening.md`): you wake in your cabin; stepping out you hear shots toward town;
+  on the road you find the sheriff shot and help him to the doctor; you see the town; in the
+  saloon you sit with the stranger (friendly, too curious about the sheriff and your spring);
+  with no sheriff in town, the card cheat at the next table goes all the way. **You have no gun
+  at the start**: no gunfight in the opening; your ways out are a shout, a shove, a bottle, or a
+  chase on foot (you're a no one: nothing makes you). The next morning you see the sheriff at the
+  doctor's: he knows he's dying, gives you his gun and asks you to help the town; he dies that day
+  whatever you did. The ball the doctor digs out may match the stranger's gun, or clear him.
 - **The days, roughly:**
 
 | | Main thread | Side missions that can land here |
 |---|---|---|
-| Prologue, evening | The saloon table, the stranger, a shooting at the bar | |
-| Day 1 | The sheriff on the road; the doctor; the ball as evidence | |
+| Day 1 (the opening) | Home; shots; the sheriff on the road; the doctor; the town; the stranger at the saloon table; the card cheat, no sheriff, no gun (`docs/briefs/opening.md`) | |
 | Days 2–3 | The town without law; the gang in town; offers and threats | The vaquero's horses; the Kid wants out |
 | Days 4–6 | The squeeze: the factions make their moves | **The camp** (the big one, a day and a half); the cave-in; the fever house |
 | Days 7–8 | Things come to a head | Hold him till the Marshal comes; the lynching at the railhead; the dust storm |
