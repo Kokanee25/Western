@@ -127,7 +127,8 @@ func _run() -> void:
 			runner.out_dir = dir
 			runner.count = int(s.get("men", 1))
 			runner.render = args.has("render")
-			runner.light = bool(s.get("light", false))
+			# --light: no per-tick logging, for a frame's cost (group O's rail broken by a kick).
+			runner.light = bool(s.get("light", false)) or args.has("light")
 			if args.has("views"):
 				runner.views = Array(args.views.split(","))
 			if args.has("size"):

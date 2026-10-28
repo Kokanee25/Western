@@ -21,6 +21,9 @@ var head_turn := Vector3.ZERO
 ## off your line of sight (degrees: x to the right, y up; the shot goes with it).
 var hand_pos := Vector3.ZERO
 var hand_turn := Vector2.ZERO
+## What's in your hands pushed out ahead of you this far (m: a shove with the shotgun held across,
+## PlayerShove), on top of the rest.
+var push_out := 0.0
 ## True on the frame a foot comes down.
 var footfall := false
 ## The last landing's fall speed (m/s, for tests and the bridge).
@@ -59,6 +62,12 @@ class Spring:
 ## The body was lifted onto a step this frame: the eyes follow it up over a moment.
 func stepped(gained: float) -> void:
 	_step_lag = maxf(_step_lag - gained, -0.3)
+
+
+## A blow landing through you (your shove or kick meeting something): the head jolts down by
+## this (m/s on the dip's spring) and comes back.
+func thump(dv: float) -> void:
+	_dip.kick(-dv)
 
 
 func reset(eye: float) -> void:
@@ -143,7 +152,7 @@ func step(t: PlayerTuning, delta: float, local_velocity: Vector3, on_floor: bool
 	var hy := _hand_y.step(lag.y + (bob + dip) * 100.0 * t.hand_bob_turn, delta, t.hand_hz, t.hand_damping)
 	var hz := _hand_z.step(clampf(-accel.z * t.hand_push, -0.04, 0.04) if on_floor else 0.0, delta, t.hand_hz, t.hand_damping)
 	hand_turn = Vector2(hx, hy) * aim_k
-	hand_pos = Vector3(side * t.hand_bob, (bob + dip) * t.hand_bob, hz) * aim_k
+	hand_pos = Vector3(side * t.hand_bob, (bob + dip) * t.hand_bob, hz) * aim_k + Vector3(0.0, 0.0, -push_out)
 
 
 func describe() -> String:

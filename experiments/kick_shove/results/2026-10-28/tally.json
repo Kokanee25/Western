@@ -1,0 +1,458 @@
+[
+ {
+  "case": "O_bar_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": -0.07339999999999999,
+  "back_range": [
+   -0.1238,
+   0.4542
+  ],
+  "drop_m": 0.31,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_bar_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": -0.0025,
+  "back_range": [
+   -0.0025,
+   0.01
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_chair_behind_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 1.24455,
+  "back_range": [
+   1.0611,
+   1.3042
+  ],
+  "drop_m": 0.3,
+  "fell_far": 0,
+  "broke_any": 20,
+  "broke_median": 13.0
+ },
+ {
+  "case": "O_chair_behind_shove",
+  "n": 20,
+  "down": 20,
+  "up_again": 17,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": -0.14325,
+  "back_range": [
+   -0.5978,
+   0.0069
+  ],
+  "drop_m": 0.33,
+  "fell_far": 0,
+  "broke_any": 5,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_floor_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 0.88005,
+  "back_range": [
+   0.843,
+   1.1127
+  ],
+  "drop_m": 0.31,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_floor_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.2549,
+  "back_range": [
+   0.2007,
+   0.292
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_gallery_rail_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 19,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 1.24285,
+  "back_range": [
+   0.0033,
+   2.0835
+  ],
+  "drop_m": 2.625,
+  "fell_far": 18,
+  "broke_any": 20,
+  "broke_median": 5.0
+ },
+ {
+  "case": "O_gallery_rail_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": -0.0025,
+  "back_range": [
+   -0.0025,
+   -0.0025
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_hitch_rail_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 0.9424,
+  "back_range": [
+   0.8353,
+   1.0314
+  ],
+  "drop_m": 0.33,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_hitch_rail_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.2549,
+  "back_range": [
+   0.2007,
+   0.292
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_oak_top_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 1.8241,
+  "back_range": [
+   1.5296,
+   2.6725
+  ],
+  "drop_m": 1.66,
+  "fell_far": 20,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_oak_top_shove",
+  "n": 20,
+  "down": 9,
+  "up_again": 9,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.2509,
+  "back_range": [
+   0.0727,
+   1.9413
+  ],
+  "drop_m": -0.02,
+  "fell_far": 1,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_porch_edge_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 0.95455,
+  "back_range": [
+   0.9153,
+   1.2189
+  ],
+  "drop_m": 0.69,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_porch_edge_shove",
+  "n": 20,
+  "down": 19,
+  "up_again": 19,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.60075,
+  "back_range": [
+   0.2007,
+   1.7024
+  ],
+  "drop_m": 0.72,
+  "fell_far": 7,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_rail_break_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 1.14405,
+  "back_range": [
+   -0.0816,
+   1.7279
+  ],
+  "drop_m": 2.8,
+  "fell_far": 20,
+  "broke_any": 20,
+  "broke_median": 5.0
+ },
+ {
+  "case": "O_rail_break_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": -0.0025,
+  "back_range": [
+   -0.0025,
+   -0.0025
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_stair_mid_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 0.8928,
+  "back_range": [
+   0.7772,
+   1.6945
+  ],
+  "drop_m": 1.13,
+  "fell_far": 20,
+  "broke_any": 1,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_stair_mid_shove",
+  "n": 20,
+  "down": 17,
+  "up_again": 17,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 1.4132,
+  "back_range": [
+   0.2007,
+   2.1178
+  ],
+  "drop_m": 1.37,
+  "fell_far": 17,
+  "broke_any": 1,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_stair_top_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 19,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 2.1050500000000003,
+  "back_range": [
+   1.6085,
+   3.5477
+  ],
+  "drop_m": 1.9,
+  "fell_far": 20,
+  "broke_any": 11,
+  "broke_median": 1.0
+ },
+ {
+  "case": "O_stair_top_shove",
+  "n": 20,
+  "down": 0,
+  "up_again": 0,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.2549,
+  "back_range": [
+   0.2007,
+   0.292
+  ],
+  "drop_m": -0.02,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_table_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.8,
+  "joules": 139.1,
+  "back_m": 1.2544,
+  "back_range": [
+   -1.0923,
+   1.328
+  ],
+  "drop_m": 0.765,
+  "fell_far": 2,
+  "broke_any": 7,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_table_shove",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.8,
+  "joules": 0.0,
+  "back_m": 0.1037,
+  "back_range": [
+   -0.096,
+   1.296
+  ],
+  "drop_m": 0.33,
+  "fell_far": 2,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_wounded_kick",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 149.2,
+  "his_speed": 1.8650000000000002,
+  "catch": 0.41,
+  "joules": 139.1,
+  "back_m": 0.87725,
+  "back_range": [
+   0.8148,
+   1.0957
+  ],
+  "drop_m": 0.31,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ },
+ {
+  "case": "O_wounded_shove",
+  "n": 20,
+  "down": 20,
+  "up_again": 20,
+  "momentum": 56.9,
+  "his_speed": 0.71,
+  "catch": 0.41,
+  "joules": 0.0,
+  "back_m": 0.954,
+  "back_range": [
+   0.8195,
+   1.0381
+  ],
+  "drop_m": 0.32,
+  "fell_far": 0,
+  "broke_any": 0,
+  "broke_median": 0.0
+ }
+]

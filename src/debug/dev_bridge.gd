@@ -23,6 +23,8 @@ const HELP := {
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
 	"weapon": "weapon revolver|shotgun|dynamite|bucket|none -> take that out (none: put it away)",
+	"shove": "shove -> a shove, as a tap of its key (E) does; answers what it did (a man, a prop, a wall, a miss)",
+	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
 	"time": "time HOUR -> set the clock",
 	"clock": "clock SCALE|on|off -> time runs at SCALE (1 = 45 min a day), or stops",
@@ -114,6 +116,8 @@ func _arm_player() -> void:
 	if player:
 		for w in player.weapons:
 			w.needs_captured_mouse = false
+		if player.shove:
+			player.shove.landed.connect(_on_shove_landed)
 	# The key help starts hidden (press debug_help for it): it'd cover every screenshot.
 	var overlay := main.get_node_or_null(^"DebugOverlay")
 	if overlay and "_help" in overlay:
@@ -385,6 +389,57 @@ func _cmd_release(a: Array) -> Dictionary:
 		_held.erase(k)
 	await _settle()
 	return {"holding": _held.keys().map(func(k): return String(k))}
+
+
+## A shove or a kick, exactly (a `press` of its key at a frame a second is held for many ticks:
+## every tap a kick). Answers when it's landed or come to nothing.
+func _cmd_shove(_a: Array) -> Dictionary:
+	return await _shove_move(&"shove")
+
+
+func _cmd_kick(_a: Array) -> Dictionary:
+	return await _shove_move(&"kick")
+
+
+func _shove_move(kind: StringName) -> Dictionary:
+	var before: Dictionary = player.shove.last
+	player.shove.wants = kind
+	var until := _game_seconds() + 2.0
+	while player.shove.last == before and _game_seconds() < until:
+		await get_tree().physics_frame
+	if player.shove.last == before:
+		return {"ok": false, "error": "it didn't start (busy, or down on a stair)"}
+	return {"did": _shove_words(player.shove.last)}
+
+
+## What a shove or a kick did, in words (its event, `shove`/`kick`, and the commands' answer).
+func _shove_words(i: Dictionary) -> String:
+	var you := "you kicked" if i.get("move") == &"kick" else "you shoved"
+	match i.get("what"):
+		&"man":
+			var how := {&"down": "went over", &"stagger": "staggered back", &"moved": "moved where they lay"}
+			return "%s %s: %s (%.0f N*s, %.2f m/s given; a step catches %.2f)" % [you, i.get("who", "?"),
+					how.get(i.get("result"), str(i.get("result"))), float(i.get("momentum", 0.0)),
+					float(i.get("his_speed", 0.0)), float(i.get("catch", 0.0))]
+		&"prop":
+			return "%s a prop (%s): it %s" % [you, i.get("member", "?"), {&"broke": "broke", &"moved": "moved", &"held": "held"}.get(i.get("result"), str(i.get("result")))]
+		&"thing":
+			return "%s something loose: it %s" % [you, i.get("result", "?")]
+		&"wall":
+			if i.get("result") == &"broke":
+				return "%s %s: it broke" % [you, i.get("member", "it")]
+			return "%s something solid: it held%s" % [you, ", your foot hurts" if i.get("move") == &"kick" else ""]
+		&"miss":
+			return "%s at nothing: a miss (nothing within reach)" % you
+		&"slip":
+			return "you lost your footing on the stair: no kick"
+		&"cant":
+			return "you can't: %s" % ("your leg won't take a kick" if i.get("move") == &"kick" else "no arm to shove with")
+	return str(i)
+
+
+func _on_shove_landed(info: Dictionary) -> void:
+	_log(String(info.get("move", "shove")), _shove_words(info))
 
 
 func _cmd_shoot(a: Array) -> Dictionary:
@@ -720,7 +775,8 @@ func _listen_to_events() -> void:
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
-		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), " (graze)" if info.get("graze", false) else ""]))
+		var how := " (graze)" if info.get("graze", false) else (" (a push: %s)" % info.pushed if info.has("pushed") else "")
+		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), how]))
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
 	_hook(Events.person_surrendered, func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))

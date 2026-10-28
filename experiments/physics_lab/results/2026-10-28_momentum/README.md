@@ -125,6 +125,8 @@ holds: loose, and 0.12 m or 30 deg.
 at 0.6-1.0 m), lands on the lower treads and lies with his left shin and right forearm 8-10 cm
 apart at their joints for ~5 s (302 ticks over 8 cm; the whole step had 43, before 0). Its film
 was dropped (the scenario's cameras don't see him). Fix before the switch goes on.
+**Later (#471): not a jam.** The lab measured those falls from a tick after he went limp; his
+joints were whole. The flags above are mostly that (`../2026-10-28_stair_jam/`).
 
 ## Step 4 (proposed, not built): more men dying on the move
 

@@ -430,6 +430,14 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
+  action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
+  (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
+  under the camera). On the hit tick a sphere is cast from the eyes (`_find`, reach from your
+  middle); `knock()` is the inelastic knock (the lab uses it too); men take `HumanBody.take_push`.
+  `pace()`/`slipped()` slow you after a kick or a slip on a stair. `landed` (and `last`) report each
+  one; the lab and tests set `wants`. Lab: the ragdoll lab's group O via `experiments/kick_shove/`
+  (`run.py` 20 seeds, `tally.py`, `fp_view.gd` first-person frames).
 
 ## src/world
 

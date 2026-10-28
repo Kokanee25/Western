@@ -3500,11 +3500,12 @@ const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0,
 		&"head": Vector3(-10, 0, 0)}
 const STUMBLE_FOLD_IN := 0.2
 ## Issue #446 (Sean, 2026-10-28: "if a guy is running and gets killed his body keeps moving"),
-## behind a switch until he's seen it: the stumble keeps his speed (it braked him to 0.6), and when
-## something solid stands in his way within a step (a chair, a table, a rail, a banister, a wall)
-## his legs go there and then, so he goes into it with all he had rather than being steered along
-## it by `_slide` and dropping beside it. Nothing's added to him: the ragdoll keeps what he carried.
-const KEEP_STRIDE_GAME := false
+## on in the game since #471 (Sean on the films, #468: "Love em"): the stumble keeps his speed (it
+## braked him to 0.6), and when something solid stands in his way within a step (a chair, a table,
+## a rail, a banister, a wall) his legs go there and then, so he goes into it with all he had rather
+## than being steered along it by `_slide` and dropping beside it. Nothing's added to him: the
+## ragdoll keeps what he carried.
+const KEEP_STRIDE_GAME := true
 static var keep_stride := KEEP_STRIDE_GAME
 ## What's "in his way" (`_way_blocked`): a sphere this big at these heights over his feet (the
 ## seat of a chair or a table's top; a rail, a banister or a chair's back; low steps and the floor
@@ -3546,6 +3547,9 @@ func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float) -> void
 
 
 func _stumble_on(delta: float) -> void:
+	if _stumble.get("stagger", false):
+		_stagger_on(delta)
+		return
 	stumbling -= delta
 	var k := clampf(1.0 - stumbling / float(_stumble.time), 0.0, 1.0)
 	# Folding round a wound in his front as he goes (at once: it's a flinch that stays); his stride
@@ -3831,6 +3835,198 @@ func take_blow(collider: Node3D, joules: float, point: Vector3, dir := Vector3.D
 	hit.emit(info)
 	Events.body_hit.emit(info)
 	return harm
+
+
+# --- Pushed: a shove, a kick ------------------------------------------------------------------
+
+## Pushed by hands or a boot (PlayerShove; issue #479): `momentum` N*s given him at `point` along
+## `dir` (the pusher works out how much: his arms' or leg's mass and speed), `joules` what the blow
+## itself does to the part it lands on. More than he can catch with a step (`catch_speed`: the
+## blast's knockdown speed, less on a hurt leg or in shock) and he goes over where he stands, turning
+## about his feet (`_tip`). Less, and he staggers back with it, braking as his steps take it out
+## (`_stagger_on`); whatever stops him on the way (a rail at his hip, a chair's seat behind his knees,
+## a table, the top of a stair) he goes over, carrying what he had left. Already down, it moves the
+## part it lands on. Returns &"down", &"stagger" or &"moved".
+## The stagger's braking (m/s²): a shove's 0.7 m/s is taken out over about a step back, ~0.25 m in
+## ~0.7 s (a man's backward recovery steps; numbers to try in experiments/kick_shove).
+const STAGGER_BRAKE := 1.0
+## ... below this (m/s) he's caught it.
+const STAGGER_DONE := 0.05
+## ... his feet dropping this far below where it began (m: under a stair's riser) and he's gone off
+## the edge backwards: a man can't catch himself stepping back off a step he can't see.
+const STAGGER_DROP := 0.12
+## ... and his trunk rocked by it (degrees at his catch speed; the poses' axes: + x is back).
+const STAGGER_LEAN := 14.0
+## The least he can catch with a step however hurt (a share of the knockdown speed), and how much
+## shock takes off it.
+const CATCH_HURT_MIN := 0.3
+const CATCH_SHOCK := 0.5
+
+
+## How fast a push can move him and still be caught with a step (m/s).
+func catch_speed() -> float:
+	var p := physiology
+	var legs := 1.0
+	for side in ["r", "l"]:
+		legs = minf(legs, p.muscle_strength("leg", side) * (1.0 - favouring(StringName("leg_" + side))))
+	if not p.can_stand():
+		legs = 0.0
+	return Blast.t().knockdown_speed * lerpf(CATCH_HURT_MIN, 1.0, clampf(legs, 0.0, 1.0)) * (1.0 - CATCH_SHOCK * p.shock())
+
+
+func take_push(point: Vector3, dir: Vector3, momentum: float, joules := 0.0, by: Node = null) -> StringName:
+	var flat := Vector3(dir.x, 0.0, dir.z)
+	dir = dir.normalized()
+	var seg := segment_at(point)
+	var harm := physiology.blow(seg, joules, _rng) if joules > 0.0 else PackedStringArray()
+	if by != null:
+		set_meta(&"last_hit_by", by)
+	var result := &"moved"
+	if limp:
+		var rb := parts.get(seg) as RigidBody3D
+		if rb:
+			rb.apply_impulse(dir * momentum, point - rb.global_position)
+			rb.sleeping = false
+	else:
+		var speed := momentum / _body_mass()
+		var sat := String(pose).begins_with("sit")
+		if speed > catch_speed() or prone or rising or flat.length() < 0.2:
+			go_limp()
+			_tip(dir, momentum, point)
+			brace()
+			result = &"down"
+		elif sat:
+			_flinch_from(seg, point, dir, momentum * 0.002)
+		else:
+			# A stagger is a stumble that ends on his feet (`_stagger_on`): brains leave him be the same.
+			flat = flat.normalized()
+			var local := global_basis.inverse() * flat
+			stumbling = 10.0
+			_stumble = {"stagger": true, "seg": seg, "at": (parts[seg] as Node3D).global_transform.affine_inverse() * point,
+					"dir": flat, "given": 0.0, "speed": speed, "from_y": global_position.y,
+					"lean": Vector3(local.z, 0.0, -local.x) * STAGGER_LEAN}
+			result = &"stagger"
+	var info := {"person": self, "person_id": person_id, "segment": seg, "hits": [], "position": point,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blow", "harm": harm, "joules": joules,
+			"pushed": result, "momentum": momentum, "shooter": by}
+	hit.emit(info)
+	Events.body_hit.emit(info)
+	return result
+
+
+## Gone over from a push: he turns about his feet as a body does given `momentum` at `point` (the
+## angular impulse about his feet over his moment of inertia there, each part by its own mass and
+## height), on top of whatever he was doing. His feet stay where they are; the higher it lands, the
+## more of it turns him and the less moves him.
+func _tip(dir: Vector3, momentum: float, point: Vector3) -> void:
+	var feet := global_position
+	var axis := Vector3.UP.cross(Vector3(dir.x, 0.0, dir.z))
+	var lever := maxf(point.y - feet.y, 0.1)
+	var inertia := 0.0
+	for rb: Variant in parts.values():
+		if rb is RigidBody3D:
+			var h := maxf((rb as RigidBody3D).global_position.y - feet.y, 0.0)
+			inertia += (rb as RigidBody3D).mass * h * h
+	if inertia < 1e-3 or axis.length() < 1e-3:
+		var any := parts.get(&"chest") as RigidBody3D
+		if any:
+			any.apply_impulse(dir * momentum)
+		return
+	axis = axis.normalized()
+	var w := momentum * lever / inertia
+	for rb: Variant in parts.values():
+		if rb is RigidBody3D:
+			var body := rb as RigidBody3D
+			var h := maxf(body.global_position.y - feet.y, 0.0)
+			# v = w x r, r straight up from his feet: along the push, by height.
+			body.linear_velocity += Vector3(dir.x, 0.0, dir.z).normalized() * w * h
+			body.angular_velocity += axis * w
+			body.sleeping = false
+
+
+## Staggering back from a push (`take_push`): his feet carry him along it, slowing; something in
+## his way or the ground gone from under his heels and he's over.
+func _stagger_on(delta: float) -> void:
+	var v := float(_stumble.speed)
+	var dir: Vector3 = _stumble.dir
+	var k := clampf(v / maxf(catch_speed(), 0.1), 0.0, 1.0)
+	for sid: StringName in [&"abdomen", &"chest"]:
+		_stumble_lean[sid] = (_stumble.lean as Vector3) * k * (0.4 if sid == &"abdomen" else 0.6)
+	var way := _stagger_way(dir, v)
+	if way == &"over" or float(_stumble.from_y) - global_position.y > STAGGER_DROP:
+		_stagger_down()
+		return
+	var want := dir * v * delta if way == &"clear" else Vector3.ZERO
+	var moved := _slide(want)
+	_snap_to_ground()
+	if way == &"stop" or (want.length() > 1e-4 and moved.length() < want.length() * 0.5):
+		# Against something fixed at his hips or above (a rail, the bar, a wall): it stops him there,
+		# on his feet.
+		_stumble.speed = 0.0
+	gait = &"walk"
+	move_speed = moved.length() / maxf(delta, 1e-4)
+	_moved_this_tick = true
+	_stumble.speed = v - STAGGER_BRAKE * delta
+	if float(_stumble.speed) <= STAGGER_DONE or limp:
+		stumbling = 0.0
+		_stumble.clear()
+		_stumble_lean.clear()
+
+
+## What's at his back as he staggers (within the step he's taking, as `_way_blocked` looks):
+## &"clear"; &"over" if it'll take him over (low, under his hips: a chair's seat behind his knees, a
+## stool, a step up behind his heels; or light enough to go with him, a kit prop under
+## STAGGER_CARRIES of his weight: a chair, a card table); &"stop" if it's fixed at his hips or above
+## (a rail, the bar, a wall, a heavy prop), which holds him up.
+## A kit prop this many times his weight or more holds him; lighter, it goes with him.
+const STAGGER_CARRIES := 3.0
+## Over his feet (m): what's in his way at or above this is at his hips.
+const STAGGER_HIPS := 0.85
+
+
+func _stagger_way(heading: Vector3, speed: float) -> StringName:
+	var dir := Vector3(heading.x, 0.0, heading.z).normalized()
+	var reach := 0.26 - STRIDE_PROBE_R + clampf(speed * STRIDE_STEP_S, STRIDE_STEP_MIN, STRIDE_STEP_MAX)
+	var space := World.space(self)
+	var shape := SphereShape3D.new()
+	shape.radius = STRIDE_PROBE_R
+	var exclude: Array[RID] = []
+	if _blocker and is_instance_valid(_blocker):
+		exclude.append(_blocker.get_rid())
+	var low := false
+	for up: float in STRIDE_PROBE_UP:
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape
+		q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3.UP * up)
+		q.motion = dir * reach
+		q.collision_mask = Layers.WORLD
+		q.exclude = exclude
+		Prof.count(&"q_walk")
+		var frac := space.cast_motion(q)
+		if frac[1] >= 1.0:
+			continue
+		q.transform.origin += q.motion * frac[1]
+		q.motion = Vector3.ZERO
+		Prof.count(&"q_walk")
+		var rest := space.get_rest_info(q)
+		if rest.is_empty():
+			continue
+		var c := instance_from_id(rest.collider_id)
+		var kit := (c as Node).get_parent() as KitProp if c is StructureMember else null
+		if c is RigidBody3D or (kit != null and kit.mass() < STAGGER_CARRIES * _body_mass()):
+			return &"over"
+		if (rest.point as Vector3).y - global_position.y >= STAGGER_HIPS:
+			return &"stop"
+		low = true
+	return &"over" if low else &"clear"
+
+
+func _stagger_down() -> void:
+	stumbling = 0.0
+	_stumble.clear()
+	_stumble_lean.clear()
+	go_limp()
+	brace()
 
 
 ## Which part of him is at a world point (for a standing man, by height and side).

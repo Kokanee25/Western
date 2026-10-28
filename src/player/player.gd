@@ -33,6 +33,8 @@ var weapon: WeaponViewmodel
 var _switch_to: WeaponViewmodel
 ## What you do that people notice (drawing, aiming at them, crowding them...).
 var deeds: PlayerDeeds
+## Your shove and kick (E).
+var shove: PlayerShove
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -134,6 +136,10 @@ func _arm() -> void:
 	deeds = PlayerDeeds.new()
 	deeds.name = "Deeds"
 	add_child(deeds)
+	shove = PlayerShove.new()
+	shove.name = "Shove"
+	shove.player = self
+	add_child(shove)
 
 
 func revolver() -> RevolverViewmodel:
@@ -260,7 +266,7 @@ func _physics_step(delta: float) -> void:
 		wants_crouch = _crouch_toggled or Input.is_action_pressed(&"crouch")
 		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump
 	wants_run = wants_run and can_sprint
-	wants_crouch = wants_crouch or force_crouch
+	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
 
 	_update_crouch(wants_crouch)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
@@ -272,7 +278,7 @@ func _physics_step(delta: float) -> void:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor
+	speed *= move_factor * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
 	var target := Vector2(wish.x, wish.z) * speed
@@ -411,10 +417,14 @@ func _update_head(delta: float, falling: float) -> void:
 	motion.step(tuning, delta, global_basis.inverse() * velocity, grounded, is_crouching, aiming, winded, falling)
 	_eye_height = motion.eye_height
 	head.position = Vector3(motion.head_pos.x, _eye_height + motion.head_pos.y, 0.0)
-	# The lean's pitch goes on top of yours by its change, so whoever else turns the head keeps it.
-	head.rotation.x += deg_to_rad(motion.head_turn.x - _tilt)
-	_tilt = motion.head_turn.x
+	# The lean's pitch (and a kick's look down) goes on top of yours by its change, so whoever else
+	# turns the head keeps it.
+	var kick_look := shove.view_pitch() if shove else 0.0
+	head.rotation.x += deg_to_rad(motion.head_turn.x + kick_look - _tilt)
+	_tilt = motion.head_turn.x + kick_look
 	head.rotation.z = deg_to_rad(motion.head_turn.z)
 	var crouch_amount := inverse_lerp(tuning.stand_eye_height, tuning.crouch_eye_height, _eye_height)
 	# The legs: widest apart as each foot comes down.
 	body.update_pose(delta, speed, clampf(crouch_amount, 0.0, 1.0), grounded, motion.steps + 0.5, _pitch)
+	if shove:
+		body.kick_leg(shove.leg())
