@@ -647,7 +647,7 @@ frozen until Sean names one.
   `user://engine.cfg` (LAYOUT.md "src/autoload"); script runs refuse it from the file; F3/`PerfRing`
   read render times twice a second with it, lamps flicker every third frame, `BodyInterior.copy_material`;
   the lab the same fights; no hang (5 suites, 210 soak minutes); headless +1.6 ms, drawn unmeasured
-  here. Sean's F3: #461. **Step 8 done** (PR #PR waiting on the Fable review, branch
+  here. Sean's F3: #461. **Step 8 done** (PR #475 waiting on the Fable review, branch
   `claude/gameplay-perf-step8`; `experiments/blast_freeze/results/2026-10-28_step8/`): the fire's
   member tick in the plugin's `FireCore` (`fire.rs`; `FireCoreScript` the same rules, held the same
   to the bit by `test_fire_core`): a member's fire numbers live in its slot, its own grid makes what
