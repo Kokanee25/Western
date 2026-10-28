@@ -127,6 +127,21 @@ settings and the last things that happened; `recording.json`; `godot.log`; `scre
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
 its last frame beside the report's screenshot.
 
+**The frame's numbers in it** (`src/debug/perf_ring.gd`, `PerfRing`, #433): every frame the recorder
+(last in the frame, `process_priority` 1000) notes the wall-clock frame, the engine's process and
+physics time, the physics ticks run, render CPU and GPU (every viewport measured from the start;
+with a separate render thread only while F3 is up), draws, objects, nodes, bodies awake, and,
+while F3 is up, the eight biggest `Prof` systems (`Prof.frame()` keeps the frame's own costs in
+`frame_ms`/`frame_top_*`; `q_*`/`n_*` counts left out). Fixed rings: the last 15 s at every frame
+(up to 4096), the last 10 minutes as one-second means and worsts. F12 adds `perf.json` (both
+rings, columns and rows) and `perf_summary` at the top of `report.json` (the worst frame of the
+last 15 s with its split and systems, mean, p95, the three biggest costs, the worst second); the
+log, the replay and `python3 tools/perf_report.py FILE.saltbug [--seconds=N|--all] [--over=MS]`
+print it (the last also the 15 s's per-system table and the per-second table). The path shows at
+the foot of the screen for 12 s (on Windows `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`).
+Costs here: the recorder ~12 µs a frame with F3 closed, ~38 µs open; the profiler on ~0.2 ms.
+F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
+
 ## The soak
 
 **The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC and by

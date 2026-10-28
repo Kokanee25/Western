@@ -555,6 +555,9 @@ frozen until Sean names one.
   six proposed ranges), then a hit man's behaviour. Feel ranges marked proposed wait on Sean's play.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
+- **The performance report** (#433, `claude/gameplay-perf-report`): F12's `.saltbug` has the
+  frame's numbers (`PerfRing`: `perf.json`, `perf_summary`; `tools/perf_report.py FILE`), systems
+  while F3 is up; LAYOUT "Bug reports". PR waiting on the Fable review.
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
   top five in its `baseline/baseline.md`); fix 1 (#263: a heard sound doesn't name its maker, 74 -> 88);
