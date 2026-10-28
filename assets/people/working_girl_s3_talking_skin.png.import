@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dqgqy011nl0xw"
-path="res://.godot/imported/working_girl_s2_talking_skin.png-0ff4c95ff71c3f123f6020706796b156.ctex"
+uid="uid://dx41e3ffug8iy"
+path="res://.godot/imported/working_girl_s3_talking_skin.png-02837a7b2ba47773289267762f9a77e7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/working_girl_s2_talking_skin.png"
-dest_files=["res://.godot/imported/working_girl_s2_talking_skin.png-0ff4c95ff71c3f123f6020706796b156.ctex"]
+source_file="res://assets/people/working_girl_s3_talking_skin.png"
+dest_files=["res://.godot/imported/working_girl_s3_talking_skin.png-02837a7b2ba47773289267762f9a77e7.ctex"]
 
 [params]
 
