@@ -87,10 +87,11 @@ func _spawn_townsfolk() -> void:
 	# office, where the mine's ore is weighed. A civilian's mind, unarmed.
 	miner = _civilian(&"miner", &"assay_front", TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 1.4, -9.0)), 107,
 			Color(0.3, 0.42, 0.6), Color(0, 0, 0, 0), &"miner_s4_talking")
-	# The working girl upstairs at the saloon (the Studio's working_girl_s2; DESIGN.md §5), downstairs
-	# for now by its front windows, looking into the room (Sean, 2026-10-24). A civilian's mind.
+	# The working girl upstairs at the saloon (the Studio's working_girl_s3, from Sean's own pictures
+	# since 2026-10-28; DESIGN.md §5), downstairs for now by its front windows, looking into the
+	# room (Sean, 2026-10-24). A civilian's mind.
 	working_girl = _civilian(&"working_girl", &"saloon_window", TownLayout.point(&"Saloon", Vector3(5.0, 1.4, 4.5)), 108,
-			Color(0.9, 0.86, 0.78), Color(0.62, 0.42, 0.4), &"working_girl_s2_talking")
+			Color(0.9, 0.86, 0.78), Color(0.62, 0.42, 0.4), &"working_girl_s3_talking")
 	# The Mexican rancher (the Studio's mexican_rancher_s1; DESIGN.md mission 4, the vaquero's horses)
 	# along the livery's front from the fourth Colter, looking in at its doors. A civilian's mind.
 	rancher = _civilian(&"rancher", &"livery_side", TownLayout.point(&"StreetDressing/Livery", Vector3(8.5, 1.4, 2.0)), 109,

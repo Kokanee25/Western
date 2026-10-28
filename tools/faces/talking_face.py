@@ -271,6 +271,26 @@ def boundary_loops(T):
     return sorted(loops, key=len, reverse=True)
 
 
+def pinch_vertices(T):
+    """Vertices where the boundary meets itself: more than one boundary edge leaves them, or an
+    edge there is shared by more than two triangles (boundary_loops can't chain through them)."""
+    e = np.concatenate([T[:, [0, 1]], T[:, [1, 2]], T[:, [2, 0]]])
+    key = {}
+    for a, b in e:
+        key[(a, b)] = key.get((a, b), 0) + 1
+    out = {}
+    for (a, b), k in key.items():
+        if (b, a) not in key:
+            out[a] = out.get(a, 0) + 1
+    und = {}
+    for (a, b), k in key.items():
+        s = (min(a, b), max(a, b))
+        und[s] = und.get(s, 0) + k
+    bad = {v for v, k in out.items() if k > 1}
+    bad |= {v for s, k in und.items() if k > 2 for v in s}
+    return np.array(sorted(bad), int)
+
+
 def rings_from(seed, T, n, most):
     """Edge hops from the seed vertices (capped at `most`)."""
     e = edges_of(T)
@@ -308,6 +328,8 @@ OVAL_GROW = (1.10, 1.06)   # MakeHuman's patch: MediaPipe's face oval grown this
 ABOVE_RING = 0.010     # the patch stops this far above the bottom of his head mesh (the neck ring)
 FADE_RINGS = 4         # the expressions fade to nothing over this many edges in from the patch's edge
 MOVED = 0.0005         # metres: a vertex any pose unit moves this much belongs to the face
+PINCH_PASSES = 8       # at most this many rings of his triangles given back round a pinch in the cut's edge
+PINCH_SHORT = 0.6      # ... when the edge zipped is shorter than this share of the patch's (it's in pieces)
 
 
 def cyl(P, axis):
@@ -611,16 +633,56 @@ def build(man, out, head, report_only=False, landmarks=None, pin=True):
     Thw = weld[Th]
     cen = Vh[Th].mean(1)
     cut = inside_polygon(flat(cen), poly) & (cen[:, 2] < axis[1])
-    keep_rows = np.where(~cut)[0]
-    Tkw = largest_component(Thw[keep_rows], weld.max() + 1)
+    first = np.zeros(weld.max() + 1, int)
+    first[weld] = np.arange(len(weld))                       # a welded vertex's position
+    pc = poly.mean(0)
+
+    def the_hole(cut):
+        keep_rows = np.where(~cut)[0]
+        Tkw = largest_component(Thw[keep_rows], weld.max() + 1)
+        hl = boundary_loops(Tkw)
+        return keep_rows, Tkw, min(hl, key=lambda l: np.linalg.norm(flat(Vh[first[l]]).mean(0) - pc))
+
+    keep_rows, Tkw, hole = the_hole(cut)
+    # Where the cut's edge touches itself at a vertex (loose hair over her cheeks and jaw: the working
+    # girl, 2026-10-28), its boundary chains into pieces and only one, far shorter than the patch's
+    # edge, is zipped: holes along the jaw. The pinches are where her face's hole all but meets the
+    # neck ring under her chin (her head mesh ends 21 mm under it): the cut triangles at a pinch are
+    # given back to her head until none is left (taking more instead joined the hole to the ring).
+    # (Only then: an edge as long as the patch's is left as it was, so the men made before keep
+    # their faces.)
+    rep["cut_pinch_passes"] = 0
+    if len(hole) < PINCH_SHORT * len(outer):
+        # first his neck ring kept whole: no triangle on it is cut, so a strip of his skin stays
+        # between the face's hole and the ring
+        own = boundary_loops(Thw)                 # his head's own edges: the neck ring, then any holes it had
+        ring = own[0]
+        had = np.concatenate(own[1:]) if len(own) > 1 else np.zeros(0, int)
+        cut &= ~np.isin(Thw, ring).any(1)
+        keep_rows, Tkw, _ = the_hole(cut)
+        for grow in range(1, PINCH_PASSES + 1):
+            back = cut & np.isin(Thw, pinch_vertices(Tkw)).any(1)
+            if not back.any():
+                break
+            cut &= ~back
+            keep_rows, Tkw, _ = the_hole(cut)
+            rep["cut_pinch_passes"] = grow
+        keep_rows, Tkw, hole = the_hole(cut)
+        # and the hair the cut took off a lock hanging beside her jaw (a small hole of its own, not
+        # the face's or the ring's) given back to her
+        for _ in range(PINCH_PASSES):
+            stray = [l for l in boundary_loops(Tkw) if l is not hole and len(l) < len(hole)
+                     and not np.isin(l, ring).any() and not np.isin(l, had).all()]
+            if not stray:
+                break
+            back = cut & np.isin(Thw, np.concatenate(stray)).any(1)
+            if not back.any():
+                break
+            cut &= ~back
+            keep_rows, Tkw, hole = the_hole(cut)
     rows = {tuple(t): r for t, r in zip(Thw[keep_rows], keep_rows)}
     kept = np.array([rows[tuple(t)] for t in Tkw])
     Tk = Th[kept]
-    first = np.zeros(weld.max() + 1, int)
-    first[weld] = np.arange(len(weld))                       # a welded vertex's position
-    hl = boundary_loops(Tkw)
-    pc = poly.mean(0)
-    hole = min(hl, key=lambda l: np.linalg.norm(flat(Vh[first[l]]).mean(0) - pc))
     hole_P = Vh[first[hole]]
     rep["cut"] = {"his_triangles_removed": int(len(Th) - len(Tk)), "his_edge": len(hole), "patch_edge": len(outer)}
     print("talking_face: his face cut out (%d triangles), edges %d and %d zipped" % (len(Th) - len(Tk), len(hole), len(outer)))
