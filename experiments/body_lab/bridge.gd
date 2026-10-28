@@ -13,7 +13,7 @@ const HELP := {
 	"body_treat": "body_treat PERSON tourniquet|packing|doctor -> treat him now (as the game's tending does); what it could do",
 	"body_read": "body_read PERSON -> his wounds, what they crossed, what he can do, and his blood run forward from now under each treatment",
 	"body_drag": "body_drag PERSON DX DZ [SECONDS] [BLEED] -> he goes limp (bleeding BLEED ml/s from the chest, 3) and is dragged DX DZ metres over SECONDS (3): the smear he leaves",
-	"body_marks": "body_marks -> the blood marks in the world (first 12) and what the floor is at the saloon",
+	"body_marks": "body_marks [PREFIX] -> the blood marks in the world (first 40; PREFIX: only textures named so, e.g. splat) and what the floor is at the saloon",
 }
 
 var _spawned := 0
@@ -123,11 +123,12 @@ func _cmd_body_drag(a: Array) -> Dictionary:
 	return {"smears": marks.size(), "at": arr((m.parts[&"pelvis"] as Node3D).global_position)}
 
 
-func _cmd_body_marks(_a: Array) -> Dictionary:
+func _cmd_body_marks(a: Array) -> Dictionary:
 	var out := []
+	var only := String(a[0]) if a.size() > 0 else ""
 	for n in get_tree().get_nodes_in_group(&"blood_drying"):
 		var d := n as Decal
-		if d != null and d.is_inside_tree():
+		if d != null and d.is_inside_tree() and (only == "" or d.texture_albedo.resource_path.get_file().begins_with(only)):
 			out.append([d.name, d.texture_albedo.resource_path.get_file(), arr(d.global_position), arr(d.size), d.cull_mask, d.visible])
 	var floors := []
 	var space := World.space(street)
@@ -135,4 +136,4 @@ func _cmd_body_marks(_a: Array) -> Dictionary:
 	var hit := space.intersect_ray(q)
 	if not hit.is_empty():
 		floors.append([str(hit.collider), arr(hit.position)])
-	return {"marks": out.slice(0, 12), "count": out.size(), "floor": floors}
+	return {"marks": out.slice(0, 40), "count": out.size(), "floor": floors}
