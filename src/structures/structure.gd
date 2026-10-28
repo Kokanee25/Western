@@ -136,7 +136,8 @@ const BATCH_CELL := 2.0
 ## on a town's charred rubble, 4,096 under the Compatibility renderer).
 var _fire_look := {}
 var _fire_mats := {}  # batch -> its char_batch ShaderMaterial (built with places)
-var _batch_built := {}  # batch -> its members in the order its places were drawn
+var _looks := {}  # batch (one with places) -> each place's look, as sent
+var _slot := {}  # StructureMember in a batch with places -> its place
 var _looks_dirty := {}
 var _looks_queued := false
 const CHAR_BATCH := preload("res://src/fire/char_batch.gdshader")
@@ -459,7 +460,7 @@ func _build_batch(key: Array) -> void:
 		_batches.erase(key)
 		_batch_arrays.erase(key)
 		_fire_mats.erase(key)
-		_batch_built.erase(key)
+		_looks.erase(key)
 		return
 	var arrays := st.commit_to_arrays()
 	var flags := 0
@@ -480,17 +481,23 @@ func _build_batch(key: Array) -> void:
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
 		_batches[key] = old
 	old.mesh = mesh
-	_batch_built[key] = list.duplicate()
 	if fire:
 		if not _fire_mats.has(key):
 			var cm := ShaderMaterial.new()
 			cm.shader = CHAR_BATCH
 			cm.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
 			_fire_mats[key] = cm
+		var looks := PackedVector2Array()
+		looks.resize(BATCH_PIECE)
+		for i in list.size():
+			_slot[list[i]] = i
+			looks[i] = _fire_look.get(list[i], Vector2.ZERO)
+		_looks[key] = looks
 		old.material_overlay = _fire_mats[key]
-		_send_looks(key)
+		(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", looks)
 	else:
 		_fire_mats.erase(key)
+		_looks.erase(key)
 		old.material_overlay = null
 
 
@@ -530,11 +537,15 @@ func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
 		if not _rebuild_queued:
 			_rebuild_queued = true
 			_rebuild_dirty_batches.call_deferred()
-	elif not _looks_dirty.has(key):
-		_looks_dirty[key] = true
-		if not _looks_queued:
-			_looks_queued = true
-			_send_dirty_looks.call_deferred()
+	else:
+		var looks: PackedVector2Array = _looks[key]
+		looks[_slot[m]] = v
+		_looks[key] = looks
+		if not _looks_dirty.has(key):
+			_looks_dirty[key] = true
+			if not _looks_queued:
+				_looks_queued = true
+				_send_dirty_looks.call_deferred()
 
 
 func has_fire_look(m: StructureMember) -> bool:
@@ -545,22 +556,15 @@ func fire_look(m: StructureMember) -> Vector2:
 	return _fire_look.get(m, Vector2.ZERO)
 
 
+## The batches whose looks changed this frame send them, once each.
 func _send_dirty_looks() -> void:
+	var t := Prof.start()
 	_looks_queued = false
 	for key: Array in _looks_dirty:
 		if _fire_mats.has(key):
-			_send_looks(key)
+			(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", _looks[key])
 	_looks_dirty.clear()
-
-
-## A batch's members' looks, by their places as drawn, to its char_batch overlay.
-func _send_looks(key: Array) -> void:
-	var looks := PackedVector2Array()
-	looks.resize(BATCH_PIECE)
-	var built: Array = _batch_built.get(key, [])
-	for i in mini(built.size(), BATCH_PIECE):
-		looks[i] = _fire_look.get(built[i], Vector2.ZERO)
-	(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", looks)
+	Prof.stop(&"char_looks", t)
 
 
 ## A member drawn on its own: the char overlay of its look's step over each of its meshes.
@@ -601,6 +605,7 @@ func unbatch(m: StructureMember, soon := false) -> void:
 		return
 	var key: Array = _batched[m]
 	_batched.erase(m)
+	_slot.erase(m)
 	(_batch_members.get(key, []) as Array).erase(m)
 	_batch_dirty[key] = true
 	_own_fire_look(m)  # charred, it stays charred
@@ -757,7 +762,8 @@ func _clear_batches() -> void:
 	_batch_dirty.clear()
 	_show_after.clear()
 	_fire_mats.clear()
-	_batch_built.clear()
+	_looks.clear()
+	_slot.clear()
 	_looks_dirty.clear()
 
 

@@ -44,7 +44,7 @@ func _look_in_batch(m: StructureMember) -> Variant:
 	if mat == null or (store._batches[key] as MeshInstance3D).material_overlay != mat:
 		return null
 	var looks: PackedVector2Array = mat.get_shader_parameter(&"looks")
-	return looks[(store._batch_built[key] as Array).find(m)]
+	return looks[store._slot[m]]
 
 
 func test_a_charred_member_stays_in_its_batch_and_its_batch_draws_the_char() -> void:
