@@ -1,0 +1,14 @@
+== bf_det1 vs bf_det2
+broken set: same (1650757771 / 1650757771)
+frames compared 600, differing 0
+== bf_det1 vs bf_detoff
+broken set: same (1650757771 / 1650757771)
+frames compared 600, differing 0
+== bf_a vs bf_b
+  tick +147: after/broken/hot 28/476/173 vs 28/475/173
+  tick +150: after/broken/hot 31/477/173 vs 31/476/173
+frames compared 600, differing 8
+== bf_main_a vs bf_a
+  tick +135: after/broken/hot 16/470/170 vs 16/470/173
+  tick +136: after/broken/hot 17/470/170 vs 17/471/173
+frames compared 600, differing 468
