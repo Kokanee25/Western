@@ -655,7 +655,9 @@ def build(man, out, head, report_only=False, landmarks=None, pin=True):
     if len(hole) < PINCH_SHORT * len(outer):
         # first his neck ring kept whole: no triangle on it is cut, so a strip of his skin stays
         # between the face's hole and the ring
-        ring = boundary_loops(Thw)[0]
+        own = boundary_loops(Thw)                 # his head's own edges: the neck ring, then any holes it had
+        ring = own[0]
+        had = np.concatenate(own[1:]) if len(own) > 1 else np.zeros(0, int)
         cut &= ~np.isin(Thw, ring).any(1)
         keep_rows, Tkw, _ = the_hole(cut)
         for grow in range(1, PINCH_PASSES + 1):
@@ -666,6 +668,18 @@ def build(man, out, head, report_only=False, landmarks=None, pin=True):
             keep_rows, Tkw, _ = the_hole(cut)
             rep["cut_pinch_passes"] = grow
         keep_rows, Tkw, hole = the_hole(cut)
+        # and the hair the cut took off a lock hanging beside her jaw (a small hole of its own, not
+        # the face's or the ring's) given back to her
+        for _ in range(PINCH_PASSES):
+            stray = [l for l in boundary_loops(Tkw) if l is not hole and len(l) < len(hole)
+                     and not np.isin(l, ring).any() and not np.isin(l, had).all()]
+            if not stray:
+                break
+            back = cut & np.isin(Thw, np.concatenate(stray)).any(1)
+            if not back.any():
+                break
+            cut &= ~back
+            keep_rows, Tkw, hole = the_hole(cut)
     rows = {tuple(t): r for t, r in zip(Thw[keep_rows], keep_rows)}
     kept = np.array([rows[tuple(t)] for t in Tkw])
     Tk = Th[kept]
