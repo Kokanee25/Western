@@ -4482,6 +4482,7 @@ const TONE_CONSCIOUS_SCALE := 1.3
 const TONE_POST_FADE := 0.35
 var _tone_when: Array = []  ## per _tone entry: Vector2(hold, fade) (s) under &"fade"
 var _tone_index := {}  ## segment -> its _tone entry
+var _tone_buckle := {}  ## _tone entry -> the buckle laid on its target (TONE_BUCKLE)
 var _tone_until := TONE_UNTIL
 
 
@@ -4506,6 +4507,7 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 	column = column and not _legs_gone
 	_tone_when.clear()
 	_tone_index.clear()
+	_tone_buckle.clear()
 	_tone_until = TONE_UNTIL
 	var when := _tone_regions(dead, conscious) if tone_style in [&"fade", &"dying"] else {}
 	for sid: StringName in bodies:
@@ -4528,7 +4530,9 @@ func _start_tone(bodies: Dictionary, conscious: bool, joint_at: Dictionary) -> v
 			if not post and not column and not _legs_gone and TONE_BUCKLE.has(key):
 				var d: Vector3 = TONE_BUCKLE[key] * (1.0 if String(sid).ends_with(String(when[&"first"])) else TONE_BUCKLE_OTHER)
 				var last: Array = _tone[-1]
-				last[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (last[2] as Quaternion)
+				var q := Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion()
+				last[2] = q * (last[2] as Quaternion)
+				_tone_buckle[_tone.size() - 1] = q
 			var w: Vector2 = Vector2(0.0, TONE_POST_FADE) if post else when.get(sid, when.get(_tone_region(key), Vector2(0.0, TONE_FADE)))
 			_tone_when.append(w)
 			_tone_until = maxf(_tone_until, w.x + w.y)
@@ -4598,6 +4602,7 @@ func _hunch(seg: StringName, at: Vector3, dir: Vector3) -> void:
 			var sid := String((j[0] as Node).get_meta(&"segment", &""))
 			if sid == "thigh" + side or sid == "shin" + side:
 				j[3] = 0.0
+		_shot_leg_first(side)
 		return
 	if not seg in [&"chest", &"abdomen", &"pelvis"]:
 		return
@@ -4613,6 +4618,31 @@ func _hunch(seg: StringName, at: Vector3, dir: Vector3) -> void:
 		var d: Vector3 = shape[sid]
 		var bend := Basis.from_euler(Vector3(deg_to_rad(d.x), 0.0, deg_to_rad(d.z * left)))
 		j[2] = bend.get_rotation_quaternion() * (j[2] as Quaternion)
+
+
+## The fade's legs (`_start_tone`), when a leg is shot: that one is the leg that goes, so the other
+## loses its buckle and holds the longer of the two legs' times.
+func _shot_leg_first(side: String) -> void:
+	if _tone_when.size() != _tone.size():
+		return
+	var other := "_l" if side == "_r" else "_r"
+	var later := Vector2.ZERO
+	for part in ["thigh", "shin", "foot"]:
+		for sd in [side, other]:
+			var i: int = _tone_index.get(StringName(part + sd), -1)
+			if i >= 0:
+				var w: Vector2 = _tone_when[i]
+				if w.x + w.y > later.x + later.y:
+					later = w
+	for part in ["thigh", "shin", "foot"]:
+		var i: int = _tone_index.get(StringName(part + other), -1)
+		if i < 0:
+			continue
+		if _tone_buckle.has(i):
+			var j: Array = _tone[i]
+			j[2] = (_tone_buckle[i] as Quaternion).inverse() * (j[2] as Quaternion)
+			_tone_buckle.erase(i)
+		_tone_when[i] = later
 
 
 ## Awake and going over with nothing hurting him (his chair gone from under him, a shove): his arms

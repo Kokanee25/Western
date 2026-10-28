@@ -93,13 +93,16 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	man.physiology.bleeds[0].rate = 3.0
 	man.go_limp()
 	await physics_frames(150)  # down on the ground
+	# Only what the drag lays: how he lands, and whether he slides a little settling (his tone lets go
+	# a region at a time since 2026-10-28), changes with whatever tests ran before this one.
+	var before := _smears().size()
 	for i in 60:
 		for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
 			var rb := man.parts[sid] as RigidBody3D
 			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
 		await physics_frames(1)
 	await physics_frames(90)  # let go: the swipe ends
-	var smears := _smears()
+	var smears := _smears().slice(before)
 	check(smears.size() >= 2, "smears along where he was dragged (%d)" % smears.size())
 	if smears.size() < 2:
 		return
