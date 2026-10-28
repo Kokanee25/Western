@@ -211,6 +211,14 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+**Sean, 2026-10-28: the opening first.** The saloon fight is fun ("already fun and it's still
+rough"), so 3.0's question is answered; its polish (#465) goes on beside. The work now builds
+the game's opening, from waking at home to the card cheat with no sheriff and no gun
+(`docs/briefs/opening.md`, its "order to build it"): **3.5 Acts** first, the card cheat as the first
+act with **3.4 shoves** (#479), then the sheriff (5.6, with 3.1c's first aid and 5.4's doctor),
+the cabin and a short road, the town and the stranger, stitched together. The homestead and road
+come in now, small, ahead of Phase 4's block. The valley, the horse and riding wait.
+
 **Sean, 2026-10-22: the labs are parked** (each where it stands, with how to pick it up:
 `docs/briefs/parked-labs-2026-10-22.md`). **Focus: the card cheat playable in the saloon, and
 whether the shooting is fun** (Sean plays the gunfight lab's nine runs, #257). One gameplay session
