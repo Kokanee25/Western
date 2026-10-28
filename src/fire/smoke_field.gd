@@ -184,6 +184,55 @@ func _emit() -> int:
 	var n := 0
 	var cells := PackedInt32Array()
 	var amounts := PackedFloat32Array()
+	if _native_sources():
+		# The grid reads the fire core's flags itself; those alight with no vents yet come back.
+		var need: PackedInt32Array = grid.call(&"emit_burning", fire._core, tuning.smoke_heat)
+		n = int(grid.call(&"lit"))
+		for s in need:
+			var m: Variant = fire.member_of_slot(s)
+			if not is_instance_valid(m):
+				continue
+			var v := _vents_of(m)
+			var vc: PackedInt32Array = v[0]
+			grid.call(&"set_vents", s, vc, (v[1] as PackedFloat32Array)[0] if not vc.is_empty() else 0.0)
+			if not vc.is_empty():
+				n += 1
+				cells.append_array(vc)
+				amounts.append_array(v[1])
+	else:
+		n = _emit_listed(cells, amounts)
+	if not cells.is_empty():
+		grid.call(&"emit_many", cells, amounts, tuning.smoke_heat)
+	for sp: Dictionary in fire.spills:
+		var c := index_of(cell_of((sp.position as Vector3) + Vector3.UP * 0.3))
+		if c >= 0:
+			grid.call(&"emit", c, tuning.smoke_per_m2 * 0.5, tuning.smoke_heat)
+			n += 1
+	Prof.stop(&"smoke_emit", t)
+	return n
+
+
+## The fire's core is the native one (the grid can read it): its slots for the drawn members.
+func _native_sources() -> bool:
+	return fire._core != null and fire._core.get_class() == "FireCore"
+
+
+## The drawn members' slots to the grid (those the fire has met; one it meets later smokes from the
+## next drawing, at most 2 s on).
+func _drawn_to_grid() -> void:
+	if not _native_sources():
+		return
+	var slots := PackedInt32Array()
+	for m: Variant in _drawn:
+		if is_instance_valid(m) and (m as StructureMember).fire_core == fire._core:
+			slots.append((m as StructureMember).fire_slot)
+	grid.call(&"set_drawn", slots)
+
+
+## Without the native core: the burning members of the structures drawn here, from the fire's
+## lists, into `cells` and `amounts`; how many smoked.
+func _emit_listed(cells: PackedInt32Array, amounts: PackedFloat32Array) -> int:
+	var n := 0
 	for st: Variant in _listed:
 		if not is_instance_valid(st):
 			continue
@@ -198,14 +247,6 @@ func _emit() -> int:
 			n += 1
 			cells.append_array(v[0])
 			amounts.append_array(v[1])
-	if not cells.is_empty():
-		grid.call(&"emit_many", cells, amounts, tuning.smoke_heat)
-	for sp: Dictionary in fire.spills:
-		var c := index_of(cell_of((sp.position as Vector3) + Vector3.UP * 0.3))
-		if c >= 0:
-			grid.call(&"emit", c, tuning.smoke_per_m2 * 0.5, tuning.smoke_heat)
-			n += 1
-	Prof.stop(&"smoke_emit", t)
 	return n
 
 
@@ -265,6 +306,7 @@ func _raster_step() -> void:
 		_drawn = _drawing
 		_drawing = {}
 		_vents.clear()  # the cells have changed: each burning member's worked out again when it smokes
+		_drawn_to_grid()
 		_ready_cells = true
 
 

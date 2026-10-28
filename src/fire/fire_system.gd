@@ -309,6 +309,11 @@ func burning_now() -> Array:
 	return _burning_now
 
 
+## The member in a slot of the core (null if it's gone).
+func member_of_slot(s: int) -> Variant:
+	return _members[s] if s >= 0 and s < _members.size() else null
+
+
 ## The same, by what they're part of (a structure -> its burning members, in the fire's order): a
 ## smoke field reads only its own buildings'.
 func burning_in(structure: Node) -> Array:

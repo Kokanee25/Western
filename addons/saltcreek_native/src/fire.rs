@@ -325,6 +325,17 @@ pub struct FireCore {
     c: Core,
 }
 
+impl FireCore {
+    /// Alight (not burnt away, not freed): for the smoke grid's sources.
+    pub fn burning_slot(&self, s: i32) -> bool {
+        if s < 0 || s as usize >= self.c.flags.len() {
+            return false;
+        }
+        let f = self.c.flags[s as usize];
+        f & (VALID | BURNING) == (VALID | BURNING) && f & CONSUMED == 0
+    }
+}
+
 fn slot(c: &Core, s: i64) -> Option<usize> {
     if s >= 0 && (s as usize) < c.flags.len() { Some(s as usize) } else { None }
 }
