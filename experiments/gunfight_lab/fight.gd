@@ -134,8 +134,10 @@ func setup() -> String:
 		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.filter(func(f: StringName) -> bool: return not String(f) in drop)
 	else:
 		OutlawBrain.d_fixes = Array(fx.split("+")).map(func(f: String) -> StringName: return StringName(f))
-	# Issue #446's switch: the stumble keeps his speed and he falls into what's in his way.
-	HumanBody.keep_stride = String(opts.get("momentum", "")) in ["1", "on", "true"]
+	# Issue #446's switch: the stumble keeps his speed and he falls into what's in his way
+	# (momentum=on|off; none: the game's).
+	var momentum := String(opts.get("momentum", ""))
+	HumanBody.keep_stride = HumanBody.KEEP_STRIDE_GAME if momentum == "" else momentum in ["1", "on", "true"]
 	var clock := street.find_child("DayCycle", true, false) as DayCycle
 	# The clock runs as it does in the game (scale 1, 45 minutes a day): bodies bleed and heal on
 	# its time (PlayerWounds, HumanBody: physiology.step(delta * time_scale)), so a stopped clock

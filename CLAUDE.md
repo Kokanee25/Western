@@ -561,11 +561,12 @@ frozen until Sean names one.
 - **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
   is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
   With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
-- **Bodies that keep moving** (2026-10-28, #446, PR #469; `experiments/physics_lab/results/2026-10-28_momentum/`):
-  the gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 men go down standing); `HumanBody.keep_stride`
-  (off; Sean: "Love em", #468) keeps a stumbling man's speed into what's half a step ahead, and a body into a
-  kit prop counts all of him; the ragdoll lab's group X and `--momentum=on`. Next #471 (the stair-down jam,
-  the switch on, then chairs and tables you can shove).
+- **Bodies that keep moving** (2026-10-28, #446, PR #469; #471; `experiments/physics_lab/results/2026-10-28_momentum/`,
+  `2026-10-28_stair_jam/`): `HumanBody.keep_stride` **on in the game** (Sean: "Love em", #468): a man shot on the
+  move keeps his speed and goes into what's half a step ahead; a body into a kit prop counts all of him; the
+  gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
+  ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
+  (the gang dying on the move, then chairs and tables you can shove).
 - **The tone fade** (2026-10-28, #442, PR #447; `experiments/physics_lab/results/2026-10-28_tone/`):
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
