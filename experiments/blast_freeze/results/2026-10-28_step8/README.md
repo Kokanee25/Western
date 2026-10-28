@@ -82,6 +82,13 @@ fire is the same frame for frame until 16 frames after the stick; then the hot c
 few (170 against 173: rubble heats from where it lay at the last rebuild), to the same end. The
 two wall-clock runs differ in 8 frames by a member's timing, as main's two always have.
 
-## The gunfight lab, the burn, the suite, the soak
+## The gunfight lab (10 D fights in the spec hall, `--jobs=1`; `gunfight_same_*.txt`, `gunfight_perf.txt`)
+
+The branch twice (`s8_a`, `s8_b`): **10 of 10 the same**. Main at 635efcf in its worktree against
+each: **10 of 10** and **10 of 10**; step 7's `main3` against `s8_a`: **10 of 10**. A saloon fight
+has no fire unless a lamp breaks, so its frame is as it was: 24.0 / p95 29.5 ms (main) against
+22.9 / 27.6 and 23.5 / 28.5; `fire` 0.14 → 0.09.
+
+## The burn, the suite, the soak
 
 (filled in below as they finish)
