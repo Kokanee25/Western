@@ -1,0 +1,505 @@
+[
+ {
+  "run": "night",
+  "scenario": "lamp_dynamite_1m__outlaw",
+  "hour": 21.0,
+  "target": "smashed",
+  "lamps_lit_within_15m": 42,
+  "lamps_smashed": 7,
+  "caught_in_40s": 315,
+  "spills_at_end": 3,
+  "caught_kinds": {
+   "baluster": {
+    "first_s": 38.0,
+    "n": 3
+   },
+   "board": {
+    "first_s": 5.5,
+    "n": 123
+   },
+   "cripple": {
+    "first_s": 37.0,
+    "n": 2
+   },
+   "door": {
+    "first_s": 26.0,
+    "n": 1
+   },
+   "floor_board": {
+    "first_s": 8.5,
+    "n": 22
+   },
+   "furniture_frame": {
+    "first_s": 9.5,
+    "n": 22
+   },
+   "furniture_top": {
+    "first_s": 8.5,
+    "n": 31
+   },
+   "header": {
+    "first_s": 24.5,
+    "n": 1
+   },
+   "joist": {
+    "first_s": 19.0,
+    "n": 3
+   },
+   "ledger": {
+    "first_s": 31.5,
+    "n": 2
+   },
+   "plate": {
+    "first_s": 30.0,
+    "n": 1
+   },
+   "post": {
+    "first_s": 9.5,
+    "n": 35
+   },
+   "rafter": {
+    "first_s": 14.5,
+    "n": 5
+   },
+   "roof_board": {
+    "first_s": 20.5,
+    "n": 9
+   },
+   "sill": {
+    "first_s": 5.5,
+    "n": 6
+   },
+   "stud": {
+    "first_s": 14.0,
+    "n": 14
+   },
+   "trim": {
+    "first_s": 6.0,
+    "n": 35
+   }
+  },
+  "fire_log": [
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 2
+   },
+   {
+    "burning": 0,
+    "s": 0.5,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 1.0,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 1.5,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 2.0,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 2.5,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 3.0,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 3.5,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 4.0,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 4.5,
+    "spills": 4
+   },
+   {
+    "burning": 0,
+    "s": 5.0,
+    "spills": 4
+   }
+  ]
+ },
+ {
+  "run": "night",
+  "scenario": "lamp_dynamite_3m__outlaw",
+  "hour": 21.0,
+  "target": "thrown",
+  "lamps_lit_within_15m": 42,
+  "lamps_smashed": 5,
+  "caught_in_40s": 502,
+  "spills_at_end": 2,
+  "caught_kinds": {
+   "baluster": {
+    "first_s": 38.0,
+    "n": 3
+   },
+   "board": {
+    "first_s": 5.5,
+    "n": 159
+   },
+   "cripple": {
+    "first_s": 37.0,
+    "n": 2
+   },
+   "door": {
+    "first_s": 26.0,
+    "n": 1
+   },
+   "floor_board": {
+    "first_s": 8.0,
+    "n": 111
+   },
+   "furniture_frame": {
+    "first_s": 8.0,
+    "n": 33
+   },
+   "furniture_top": {
+    "first_s": 10.5,
+    "n": 34
+   },
+   "header": {
+    "first_s": 24.5,
+    "n": 1
+   },
+   "joist": {
+    "first_s": 17.5,
+    "n": 12
+   },
+   "ledger": {
+    "first_s": 31.5,
+    "n": 2
+   },
+   "plate": {
+    "first_s": 29.0,
+    "n": 1
+   },
+   "post": {
+    "first_s": 9.5,
+    "n": 54
+   },
+   "rafter": {
+    "first_s": 14.5,
+    "n": 5
+   },
+   "roof_board": {
+    "first_s": 20.5,
+    "n": 10
+   },
+   "sill": {
+    "first_s": 5.5,
+    "n": 10
+   },
+   "stud": {
+    "first_s": 14.0,
+    "n": 21
+   },
+   "trim": {
+    "first_s": 6.0,
+    "n": 43
+   }
+  },
+  "fire_log": [
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 1
+   },
+   {
+    "burning": 0,
+    "s": 0.5,
+    "spills": 2
+   },
+   {
+    "burning": 0,
+    "s": 1.0,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 1.5,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 2.0,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 2.5,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 3.0,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 3.5,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 4.0,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 4.5,
+    "spills": 3
+   },
+   {
+    "burning": 0,
+    "s": 5.0,
+    "spills": 3
+   }
+  ]
+ },
+ {
+  "run": "day",
+  "scenario": "lamp_dynamite_1m__outlaw",
+  "hour": 12.0,
+  "target": "smashed",
+  "lamps_lit_within_15m": 0,
+  "lamps_smashed": 4,
+  "caught_in_40s": 0,
+  "spills_at_end": 0,
+  "caught_kinds": {},
+  "fire_log": [
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 5.0,
+    "spills": 0
+   }
+  ]
+ },
+ {
+  "run": "day",
+  "scenario": "lamp_dynamite_3m__outlaw",
+  "hour": 12.0,
+  "target": "thrown",
+  "lamps_lit_within_15m": 0,
+  "lamps_smashed": 3,
+  "caught_in_40s": 0,
+  "spills_at_end": 0,
+  "caught_kinds": {},
+  "fire_log": [
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 5.0,
+    "spills": 0
+   }
+  ]
+ },
+ {
+  "run": "nolamp",
+  "scenario": "wall_dynamite_1m__outlaw",
+  "hour": 21.0,
+  "target": "cut (1.5 m torn out)",
+  "lamps_lit_within_15m": null,
+  "lamps_smashed": 0,
+  "caught_in_40s": 0,
+  "spills_at_end": 0,
+  "caught_kinds": {},
+  "fire_log": [
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 0.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 1.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 2.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 3.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.0,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 4.5,
+    "spills": 0
+   },
+   {
+    "burning": 0,
+    "s": 5.0,
+    "spills": 0
+   }
+  ]
+ }
+]
