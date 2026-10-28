@@ -227,7 +227,7 @@ func _kit_blows(kit: Dictionary, broke: Array[StructureMember]) -> void:
 			broke.append(m)
 		elif HumanBody.keep_stride and not s.get(&"loose"):
 			# Held: what the engine takes from all of him against it over the next few ticks decides.
-			_kit_held[s] = [Vector3.ZERO, 0.0, {}, m, e[5]]
+			_kit_held[s] = [Vector3.ZERO, 0.0, {}, m, e[5], 0.0]
 	_kit_stops(broke)
 
 
@@ -240,7 +240,7 @@ func _kit_blows(kit: Dictionary, broke: Array[StructureMember]) -> void:
 ## what a free prop wouldn't have taken from him (his share, M / (M + its weight)) goes back to the
 ## parts it stopped, and he carries on with it.
 const KIT_HOLD := 0.2
-var _kit_held := {}  ## KitProp -> [level impulse it took from him, seconds, {part: impulse on it}, member, where]
+var _kit_held := {}  ## KitProp -> [level impulse it took from him, seconds, {part: impulse on it}, member, where, weight of where]
 
 
 func _kit_stop(s: Structure, m: StructureMember, rb: RigidBody3D, j: Vector3, at: Vector3) -> void:
@@ -248,12 +248,17 @@ func _kit_stop(s: Structure, m: StructureMember, rb: RigidBody3D, j: Vector3, at
 	if e.is_empty() or s.get(&"loose"):
 		return
 	var level := Vector3(j.x, 0.0, j.z)
+	var w := level.length()
+	if w <= 0.0:
+		return
 	e[0] = (e[0] as Vector3) - level
 	var given: Dictionary = e[2]
 	given[rb] = (given.get(rb, Vector3.ZERO) as Vector3) + level
-	if level.length() > 0.0:
-		e[3] = m
-		e[4] = at
+	# Where he bears on it: the contacts weighted by what each took (his chest on its top and his
+	# shins on its foot push it over about the middle, not at whichever touched last).
+	e[4] = ((e[4] as Vector3) * float(e[5]) + at * w) / (float(e[5]) + w)
+	e[5] = float(e[5]) + w
+	e[3] = m
 
 
 func _kit_stops(broke: Array[StructureMember]) -> void:
