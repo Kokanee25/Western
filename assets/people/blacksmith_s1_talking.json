@@ -1041,8 +1041,8 @@
  },
  "apron": {
   "top_y": 1.35,
-  "hem_y": 0.41,
-  "triangles": 2266,
+  "hem_y": 0.51,
+  "triangles": 2510,
   "colour": [
    150,
    104,
