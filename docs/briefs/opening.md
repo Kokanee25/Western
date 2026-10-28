@@ -84,6 +84,17 @@ The valley (#467), the horse walk (#470) and riding, the train (#466), the props
   you treated him decides how lucid he is and what else he can say (who shot him, a name, which
   way they went), and you answer as you like: take the gun, say yes, say no. If you don't come,
   the doctor sends for you. A no one, holding the lawman's gun and his request.
+- **If you left him on the road** (Sean: all three, by what happened), someone else brings him
+  in and the scene still happens. The doctor sends for you, and he still gives you the gun and
+  asks. Only its tone changes, by what he knows (witnesses and memory, 5.3):
+  - **He saw you walk away** (he was conscious when you found him): he gives it anyway, bitter, with
+    no one else to give it to ("You walked right past me. Well. You're what's left."). The town
+    knows too.
+  - **He never saw you** (you left before he came round, or never went near): he asks you not
+    knowing. You know.
+  - **You took his gun off him on the road** (unarmed, it's right there): you've had it all day.
+    The scene is about the ask and what you took; theft or keeping it safe, by what he saw.
+  He never refuses you: the opening's ending and the way into day 2 stay.
 - **The demo ends the next morning** with his death and the gun.
 
 ## Open (Sean)
