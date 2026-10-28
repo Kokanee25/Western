@@ -131,8 +131,9 @@ const BATCH_CELL := 2.0
 ## StructureMember -> Vector2(char_amount, glow). A member still in a batch is drawn charred by
 ## its batch (#434: a saloon burning whole was 2,500 members each drawn on its own, 18,000 draws):
 ## a batch with any of them has each vertex's member's place (CUSTOM2) and the char_batch overlay,
-## its `looks` that place's. One drawn on its own (broken, holed, cut) has the char_overlay with
-## its look as instance uniforms.
+## its `looks` that place's. One drawn on its own (broken, holed, cut) has a char_overlay, shared by
+## every member whose look is in the same step (CHAR_STEPS, GLOW_STEPS: instance uniforms ran out
+## on a town's charred rubble, 4,096 under the Compatibility renderer).
 var _fire_look := {}
 var _fire_mats := {}  # batch -> its char_batch ShaderMaterial (built with places)
 var _batch_built := {}  # batch -> its members in the order its places were drawn
@@ -140,7 +141,9 @@ var _looks_dirty := {}
 var _looks_queued := false
 const CHAR_BATCH := preload("res://src/fire/char_batch.gdshader")
 const CHAR_OVERLAY := preload("res://src/fire/char_overlay.gdshader")
-static var _char_overlay: ShaderMaterial
+static var _char_overlays := {}  # Vector2i(char step, glow step) -> ShaderMaterial
+const CHAR_STEPS := 32
+const GLOW_STEPS := 8
 
 
 func _ready() -> void:
@@ -560,25 +563,33 @@ func _send_looks(key: Array) -> void:
 	(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", looks)
 
 
-## A member drawn on its own: the char overlay over each of its meshes, its look their instance's.
+## A member drawn on its own: the char overlay of its look's step over each of its meshes.
 func _own_fire_look(m: StructureMember) -> void:
 	if not _fire_look.has(m):
 		return
-	var v: Vector2 = _fire_look[m]
-	if _char_overlay == null:
-		_char_overlay = ShaderMaterial.new()
-		_char_overlay.shader = CHAR_OVERLAY
-		_char_overlay.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+	var mat := char_material(_fire_look[m])
 	for p: Array in m.pieces:
 		if not is_instance_valid(p[0]):
 			continue
 		var mi := p[0] as MeshInstance3D
-		if mi == null:
-			continue
-		if mi.material_overlay != _char_overlay:
-			mi.material_overlay = _char_overlay
-		mi.set_instance_shader_parameter(&"char_amount", v.x)
-		mi.set_instance_shader_parameter(&"glow", v.y)
+		if mi and mi.material_overlay != mat:
+			mi.material_overlay = mat
+
+
+## The char overlay for a look (char_amount, glow), its step's: made once and shared.
+static func char_material(look: Vector2) -> ShaderMaterial:
+	var step := Vector2i(roundi(clampf(look.x, 0.0, 1.0) * CHAR_STEPS), roundi(clampf(look.y, 0.0, 1.0) * GLOW_STEPS))
+	if look.y > 0.0:
+		step.y = maxi(step.y, 1)  # alight: some glow, however little
+	var mat: ShaderMaterial = _char_overlays.get(step)
+	if mat == null:
+		mat = ShaderMaterial.new()
+		mat.shader = CHAR_OVERLAY
+		mat.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+		mat.set_shader_parameter(&"char_amount", float(step.x) / CHAR_STEPS)
+		mat.set_shader_parameter(&"glow", float(step.y) / GLOW_STEPS)
+		_char_overlays[step] = mat
+	return mat
 
 
 ## Draw this member on its own from now on (something's happened to it). `soon` (the fire's

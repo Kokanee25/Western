@@ -118,9 +118,7 @@ func test_a_charred_member_that_breaks_keeps_its_char() -> void:
 		if mi == null:
 			continue
 		meshes += 1
-		check(mi.material_overlay != null and (mi.material_overlay as ShaderMaterial).shader == Structure.CHAR_OVERLAY,
-				"a piece drawn with the char overlay")
-		var got: Variant = mi.get_instance_shader_parameter(&"char_amount")
-		check(got != null and is_equal_approx(float(got), want.x),
-				"its char amount (%s, %s)" % [mi.get_instance_shader_parameter(&"char_amount"), want.x])
+		check(mi.material_overlay == Structure.char_material(want), "a piece drawn with its look's char overlay")
+		var got: float = (Structure.char_material(want)).get_shader_parameter(&"char_amount")
+		check(absf(got - want.x) <= 0.5 / Structure.CHAR_STEPS, "its char amount (%.3f, %.3f)" % [got, want.x])
 	check(meshes > 0, "its pieces drawn on their own (%d)" % meshes)
