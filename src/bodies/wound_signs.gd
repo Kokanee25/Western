@@ -41,8 +41,8 @@ const PICK_MIN := 0.3
 ## Only a hand this near the floor (above his lowest foot) looks for blood on it: standing, his
 ## hands are nowhere near it (and the rays aren't paid for every man in town).
 const PICK_LOW := 0.25
-## A hand this near a bleeding hole (his own, or the man he's dragging) is bloody from it; on a
-## soaked patch of clothes, by how much it holds (ml) against HAND_FULL_ML.
+## A hand this near a bleeding hole (his own, or the man he's dragging) is bloody from it, and on
+## a soaked patch of clothes as wet as the patch still is.
 const ON_WOUND := 0.08
 const WOUND_BLEED := 0.2  ## ml/s: less and it's too little to wet a hand
 const ON_COLLAR := 0.4  ## m round his neck that a grip on his collar and shoulders takes in (dragging him)
@@ -385,7 +385,7 @@ func _hands(p: Physiology, world: Node3D, dt: float) -> void:
 		wet_hand(holding, PRINTS_PER_HAND)
 	_off_the_dragged()
 	# Tending himself (OutlawBrain._tend): pressing it, packing it, both hands in it.
-	if body.pose == &"tend" and p.total_bleed_rate() > WOUND_BLEED:
+	if body.pose == &"tend" and p.bleeds.any(func(b: Dictionary) -> bool: return b.kind != &"internal" and p.bleed_rate(b) > WOUND_BLEED):
 		wet_hand("r", PRINTS_PER_HAND)
 		wet_hand("l", PRINTS_PER_HAND)
 	var hours := dt / p.tuning.game_hour_seconds
