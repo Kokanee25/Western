@@ -95,6 +95,10 @@ The valley (#467), the horse walk (#470) and riding, the train (#466), the props
   - **You took his gun off him on the road** (unarmed, it's right there): you've had it all day.
     The scene is about the ask and what you took; theft or keeping it safe, by what he saw.
   He never refuses you: the opening's ending and the way into day 2 stay.
+- **You answer him with your head** (Sean): a nod or a shake, DESIGN.md §9 "Answering with a nod"
+  (proposed 2026-10-21), its first real use. Taught earlier with small questions so his isn't the
+  first: the sheriff on the road ("Can you get me up?"), the doctor ("Hold him. Got him?"), the
+  stranger ("Another?"). Silence and a slow, small nod are answers too.
 - **The demo ends the next morning** with his death and the gun.
 
 ## Open (Sean)
