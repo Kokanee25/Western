@@ -55,6 +55,9 @@ Godot's two errors below.
 - `on_a` vs `on_b` (the thread on twice): **10 of 10**.
 - `off_a` vs `on_a`: **10 of 10**; `main` vs `on_b`: **10 of 10**.
 - 2 of `on_a`'s 10 logs carry the dummy race's errors, and the fights are still the same.
+- After the merge with main at 55a510b1 (host 2): main there (`main3`) against this branch with
+  the thread on (`on_e`): **10 of 10**; frame 14.66 -> 15.21 ms (p95 17.70 -> 18.44). The suite with
+  the thread off on the merged branch: **775 passed, 0 failed**.
 
 ## The drawn smoke test (two cores, `taskset -c 0,1`, 640x360, the thread on from the setting file)
 
