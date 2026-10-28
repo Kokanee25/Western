@@ -201,3 +201,19 @@ func test_a_kick_is_a_deed() -> void:
 	await physics_frames(40)
 	Events.deed.disconnect(on)
 	check(deeds.size() >= 1 and deeds[0][0] == &"kick" and deeds[0][1] == man, "kicking him is a deed: %s" % [deeds])
+
+
+func test_a_kick_on_a_stair_can_cost_your_footing() -> void:
+	# A stair's walking ramp (Layers.WALK) under you.
+	var ramp := _box(Vector3(2, 0.1, 2), Vector3(0, -0.05, 0))
+	ramp.collision_layer = Layers.WALK
+	await _player()
+	var sure := player.shove.tuning.duplicate() as ShoveTuning
+	sure.stair_slip = 1.0
+	player.shove.tuning = sure
+	var got: Array[Dictionary] = []
+	player.shove.landed.connect(func(i: Dictionary) -> void: got.append(i))
+	player.shove.wants = &"kick"
+	await physics_frames(5)
+	check(got.size() == 1 and got[0].what == &"slip", "on the stair the kick costs your footing: %s" % [got])
+	check(player.shove.slipped(), "and you're down on the tread a moment")
