@@ -49,9 +49,9 @@ var _solid := PackedByteArray()
 ## The cells being drawn (they become `_solid` when done; the vents read the last whole drawing).
 var _solid_next := PackedByteArray()
 var _raster_wait := 0.0
-## Member -> the open cells beside it its smoke goes into: worked out when it first burns after the
-## cells are drawn (`_vents_of`), not for every member at once (5,000 of them were ~80 ms on one
-## frame every 2 s, more-cores step 5).
+## Member -> [the open cells beside it its smoke goes into, how much a second into each]: worked out
+## when it first burns after the cells are drawn (`_vents_of`), not for every member at once (5,000
+## of them were ~80 ms on one frame every 2 s, more-cores step 5).
 var _vents := {}
 ## The members drawn last time (those whose smoke this field takes), and those being drawn now.
 var _drawn := {}
@@ -176,28 +176,77 @@ func _physics_step(delta: float) -> void:
 
 
 ## Each burning member's smoke into the open cells beside it; how many were burning. What's burning
-## from the fire's picture (FireSystem.fire_near's), in the fire's order.
+## from the fire's lists of them, those of the structures drawn into its cells (FireSystem.burning_in,
+## each in the fire's order: a field loops its own buildings' burning, not the town's), into the grid
+## in one call.
 func _emit() -> int:
+	var t := Prof.start()
 	var n := 0
-	fire._take_picture()
-	for e: Variant in fire._picture:
-		if not is_instance_valid(e) or not _drawn.has(e):
-			continue
-		var m := e as StructureMember
-		if not m.burning or m.consumed:
-			continue
-		var vents: PackedInt32Array = _vents[m] if _vents.has(m) else _vents_of(m)
-		if vents.is_empty():
-			continue
-		n += 1
-		var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / vents.size()
-		for v in vents:
-			grid.call(&"emit", v, each, tuning.smoke_heat)
+	var cells := PackedInt32Array()
+	var amounts := PackedFloat32Array()
+	if _native_sources():
+		# The grid reads the fire core's flags itself; those alight with no vents yet come back.
+		var need: PackedInt32Array = grid.call(&"emit_burning", fire._core, tuning.smoke_heat)
+		n = int(grid.call(&"lit"))
+		for s in need:
+			var m: Variant = fire.member_of_slot(s)
+			if not is_instance_valid(m):
+				continue
+			var v := _vents_of(m)
+			var vc: PackedInt32Array = v[0]
+			grid.call(&"set_vents", s, vc, (v[1] as PackedFloat32Array)[0] if not vc.is_empty() else 0.0)
+			if not vc.is_empty():
+				n += 1
+				cells.append_array(vc)
+				amounts.append_array(v[1])
+	else:
+		n = _emit_listed(cells, amounts)
+	if not cells.is_empty():
+		grid.call(&"emit_many", cells, amounts, tuning.smoke_heat)
 	for sp: Dictionary in fire.spills:
 		var c := index_of(cell_of((sp.position as Vector3) + Vector3.UP * 0.3))
 		if c >= 0:
 			grid.call(&"emit", c, tuning.smoke_per_m2 * 0.5, tuning.smoke_heat)
 			n += 1
+	Prof.stop(&"smoke_emit", t)
+	return n
+
+
+## The fire's core is the native one (the grid can read it): its slots for the drawn members.
+func _native_sources() -> bool:
+	return fire._core != null and fire._core.get_class() == "FireCore"
+
+
+## The drawn members' slots to the grid (those the fire has met; one it meets later smokes from the
+## next drawing, at most 2 s on).
+func _drawn_to_grid() -> void:
+	if not _native_sources():
+		return
+	var slots := PackedInt32Array()
+	for m: Variant in _drawn:
+		if is_instance_valid(m) and (m as StructureMember).fire_core == fire._core:
+			slots.append((m as StructureMember).fire_slot)
+	grid.call(&"set_drawn", slots)
+
+
+## Without the native core: the burning members of the structures drawn here, from the fire's
+## lists, into `cells` and `amounts`; how many smoked.
+func _emit_listed(cells: PackedInt32Array, amounts: PackedFloat32Array) -> int:
+	var n := 0
+	for st: Variant in _listed:
+		if not is_instance_valid(st):
+			continue
+		for e: Variant in fire.burning_in(st):
+			if not _drawn.has(e):
+				continue
+			var v: Variant = _vents.get(e)
+			if v == null:
+				v = _vents_of(e)
+			if (v[0] as PackedInt32Array).is_empty():
+				continue
+			n += 1
+			cells.append_array(v[0])
+			amounts.append_array(v[1])
 	return n
 
 
@@ -257,6 +306,7 @@ func _raster_step() -> void:
 		_drawn = _drawing
 		_drawing = {}
 		_vents.clear()  # the cells have changed: each burning member's worked out again when it smokes
+		_drawn_to_grid()
 		_ready_cells = true
 
 
@@ -287,7 +337,7 @@ func _draw_member(m: StructureMember) -> void:
 
 ## The open cells round a member's middle (its smoke comes out of both faces of a wall): those a
 ## cell away, or if none (it's in among others), two. Kept until the cells are drawn again.
-func _vents_of(m: StructureMember) -> PackedInt32Array:
+func _vents_of(m: StructureMember) -> Array:
 	var t := Prof.start()
 	var out := PackedInt32Array()
 	var c := cell_of(m.global_position)
@@ -301,9 +351,14 @@ func _vents_of(m: StructureMember) -> PackedInt32Array:
 							out.append(j)
 			if not out.is_empty():
 				break
-	_vents[m] = out
+	var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / maxi(out.size(), 1)
+	var amounts := PackedFloat32Array()
+	amounts.resize(out.size())
+	amounts.fill(each)
+	var v := [out, amounts]
+	_vents[m] = v
 	Prof.stop(&"smoke_vents", t)
-	return out
+	return v
 
 
 # --- Drawing it -------------------------------------------------------------------------------------

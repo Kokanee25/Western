@@ -592,12 +592,24 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   changed, every 30th routine check (FireSystem `FULL_CHECK_EVERY`), or `-- --full-analysis`
   (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
-  the FireSystem's slices (its queue; `SETTLE_FRAME_MS` 8 a frame there, `SETTLE_MEMBERS` 50 a
-  slice, a routine look `CHECK_MEMBERS` 40; `MEMBERS_A_MS` 15 under `World.deterministic`: a
-  member is ~60 µs here, ~100 near a blast's damage, the blast-freeze lab's `bf_analyse`); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
-  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also done a slice a frame when built,
-  `queue_check`) goes straight to the slices; a round drops at most `DROP_PER_ROUND` members (whole
+  the FireSystem's (its queue: below); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
+  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also queued when built,
+  `queue_check`) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
+  **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
+  only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
+  methods, worked out on the main thread). A structure keeps one a member (`load_record`), taken
+  again when it's been `mark_dirty`'d since or for an analysis from the top (`records_all_stale`).
+  FireSystem's checks: `start_analysis` (main), the records copied a slice a frame (`prepare`,
+  `CHECK_MEMBERS` 120 for a routine look, `SETTLE_MEMBERS` 150 a slice while it's coming down,
+  `SETTLE_FRAME_MS` 8), the rest on a worker (`run_async`, the pool, high priority), applied
+  (`apply_round`) on a tick fixed by its size (1 + members / `WORKER_MEMBERS_A_TICK` 200), never
+  when it's done, so a run is the same with and without it (`-- --analysis-worker=off`: the same work on the
+  main thread on the same ticks). Anything that touches an analysis or its records
+  (`start_analysis`, `settle`, `apply_round`, `begin`, `prepare`, freeing the structure) waits
+  for the job first (`wait_analysis`); another analysis begun meanwhile (`analysis_epoch`) or a
+  `queue_settle` throws the worker's results away and begins again (#454). Under
+  `World.deterministic` the budget counts members (`MEMBERS_A_MS` 15; a record is a sixth of one).
   **Batches**: a material's batch rebuilds from its own members (`_batch_members`) within
   `BATCH_FRAME_MS` a frame (the rest next frame); the shadow-only merge of every batch is plain
   arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
@@ -647,11 +659,21 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   char, ash, spilt lamp oil, scorching people, water: `douse()` puts out and wets members, a wet one
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
   clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
-  slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
+  slice a frame, each building's analysis carried over and worked out on a worker, see "src/structures"), `FireFX` (flames, smoke, steam,
   char drawn by the structure, see "src/structures"). `tools/fire_timeline.gd` measures how fast a fire grows.
+  **The core** (more-cores step 8, `experiments/blast_freeze/results/2026-10-28_step8/`): every
+  member the fire meets gets a slot in the native `FireCore` (`addons/saltcreek_native/src/fire.rs`;
+  `FireCoreScript` is the same rules in GDScript, for the web and `-- --fire-core=script`;
+  `tests/test_fire_core.gd` holds the two the same to the bit). Its temperature, wet, char and
+  burn time live there (StructureMember's properties read and write them through; `burning`,
+  `consumed`, `broken` stay on the member and tell the core), with its size, what it heats and how
+  hard, and its box. The tick's `_visit` maps a slice of `active` to slots, makes the lists due
+  (`near_due`, `_neighbours`: the grid's query stays GDScript), runs `visit` natively and does its
+  events in order (burnt away, caught, a pane cracked, done with, newly hot). `fire_near` asks the
+  core (`burning_near`: each burning member's box, a standing one's from when it was placed,
+  rubble's from the grid's last rebuild, ≤ 2 s); `burning_now()` is the smoke fields' list.
   **What it costs** (more-cores step 5, `experiments/blast_freeze/results/2026-10-27_step5/`):
-  `fire_near` reads the fire's picture (the burning members and their boxes, taken once a physics
-  frame, again after anything catches), not the grid; the grid (2 m cells, for neighbours, spills,
+  the grid (2 m cells, for neighbours, spills,
   scorching) is kept up by what changed: a structure's members are only added at its end
   (`_walked`), what breaks or burns away says so (`Events.member_broken`), and what's placed goes
   in the full walk's order. **Bands** (`FireSystem.bands`, `FireTuning.near_m`/`far_m`, `--fire-bands=off`):
@@ -1615,7 +1637,7 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
   `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
-  (`SightWorld`, the sight service: below).
+  (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire").
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
   world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,
