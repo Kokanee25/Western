@@ -1,4 +1,10 @@
-# 2026-10-28: muscle tone that fades (issue #442; `dying` on in the game)
+# 2026-10-28: muscle tone that fades (issue #442; in the game for build 2668, then off again)
+
+**Off again, 2026-10-28** (Sean, on build 2668's videos): "I like the before more - the bodies tended
+to move a bit more and fall into shit and down stairs". `HumanBody.TONE_GAME` is `""` (the quick
+fade). What it says: the fade folds a man where he stands (to the ground 1.58 -> 1.18 s, his trunk
+held while a knee buckles at once); the quick fade lets him go slack with his momentum, so he
+travels into things. The fade and `dying` stay in the lab (`--tone=fade|dying`).
 
 Sean (2026-10-27, after the saloon shootout): "Okay how do we make it closer to euphoria style
 physics - I don't want people flying around but I don't want every death to be a drop dead rag
