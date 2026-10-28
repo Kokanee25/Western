@@ -65,9 +65,43 @@ a cost with the thread:
   course played each time. Its verdict FAILED each time on two of Godot's errors that only the
   thread brings (the font cache's glyph upload, `particles_set_view_axis` on a freed particles
   system: `gate.md`); thread off, `ok`.
-- **The soak**: (pending)
-- **The goldens**: (pending)
+- **The soak, the thread on: 210 game minutes, no freeze** (stopped by this session's 3-hour cap;
+  step 6's physics thread froze it at 121). Memory flat, frame 7-8 ms. A first run was cut at 55 by
+  a container restart.
+- **The goldens: this branch renders what main renders**; main's goldens don't hold on this
+  machine (23 of 77 over on the branch, 20 of the same 23 on main itself); branch against main
+  within run-to-run noise, view by view. Nothing re-approved.
+- **Merged with main at 55a510b1:** `PerfRing` (#433, F12's frame numbers) read the render times
+  every frame while F3 was up with the thread: now as F3 does.
 
 ## The numbers
 
-(pending)
+**Headless (the lab's ten D fights, `--jobs=1`; `perf.md`, `perf_host2.md`).** Headless there's
+no draw for the thread to overlap, so this is its cost alone: the queue's lock and a wake of the
+render thread for every write. The container moved to another host mid-step, so the before and
+after are each from one host:
+
+| host 2, ms a frame | main | off | on (both fixes) | on again |
+|---|---|---|---|---|
+| frame (mean / p95) | 14.61 / 18.23 | 14.51 / 17.77 | 16.11 / 20.07 | 16.13 / 19.46 |
+| window / step / rest | 9.28 / 1.31 / 3.94 | 9.23 / 1.31 / 3.89 | 9.63 / 1.80 / 4.61 | 9.69 / 1.78 / 4.59 |
+| people | 6.90 | 6.87 | 7.04 | 7.10 |
+| lamps | 0.12 | 0.14 | 0.40 | 0.40 |
+
+**+1.6 ms a frame headless with the thread**, before the fixes +2.9 (host 1: frame 21.5 -> 24.4,
+lamps 0.21 -> 1.00). It is the engine's: the physics step's transforms and the skeletons' bones
+(`step`, `rest`), each a queued write. The counters are the same in all (`q_cover` 60.4, `q_writes`
+63.9, `q_lamps` 4.3 a frame), and the fights 10 of 10.
+
+**Drawn (lavapipe, `perf_bench --render --no-render-time --scene=calm --seconds=4`, `drawn/`):**
+the frame is the CPU-drawn draw, ~1.2 s, so this can't show the gain; it shows the main thread's
+work coming out from under the draw and nothing stalling:
+
+| | off 1 | on 1 | off 2 | on 2 |
+|---|---|---|---|---|
+| frame mean / p99, ms | 1204 / 1426 | 1187 / 1353 | 1244 / 1597 | 1184 / 1520 |
+
+**At Sean's** the draw is the GPU's and the render CPU 2.9 ms in the calm street (CLAUDE.md's
+table), more in a saloon fight: with the thread that CPU side runs beside the next frame's ticks,
+against ~1 ms of the thread's own cost (1.6 here x 0.65). The brief expected -3 to -6 ms; whether
+it's that is his F3's to say.
