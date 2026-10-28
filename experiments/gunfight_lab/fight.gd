@@ -47,6 +47,8 @@ var record := {}
 
 var _men := {}  # id -> his record
 var _prev := {}  # id -> {tactic, mood, suppressed}
+var _posts: Array[Vector3] = []  # the spec saloon's posts a man might stand behind (their feet, world)
+var _floor_y := INF  # the spec saloon's ground floor (world): 2 m over it is up on the galleries
 var _timeline: Array = []
 var _track: Array = []
 var _track_t := 0.0
@@ -147,6 +149,8 @@ func setup() -> String:
 		SpecBuildingScript.extra_furniture = dressing.get(dress, [])
 		SpecSaloon.ensure(street, town.places)
 		_origin = SpecSaloon.Play.ORIGIN
+		_posts = _spec_posts()
+		_floor_y = SpecSaloon.at(Vector3(0.0, 0.78, 0.0)).y
 		if not built:
 			await lab.physics_frames(30)
 	town._arrived = true  # the gang's day doesn't start on its own: they're the lab's
@@ -470,6 +474,7 @@ func _watch_men(_delta: float) -> void:
 		var man := gang[i] as HumanBody
 		var b := brains[_mid(man)] as OutlawBrain
 		var pv: Dictionary = _prev[_mid(man)]
+		_watch_moves(m, b, man, _delta)
 		if b.tactic != pv.tactic:
 			if b.tactic == OutlawBrain.Tactic.MOVING:
 				m.cover_changes += 1
@@ -726,11 +731,19 @@ func _on_bullet_hit(info: Dictionary) -> void:
 				if not _you.has("first_hit_at"):
 					_you.first_hit_at = snappedf(t, 0.01)
 				if shooter in gang:
-					_men[_mid(shooter)].hits_on_you += 1
+					var sm: Dictionary = _men[_mid(shooter)]
+					sm.hits_on_you += 1
+					if not (sm.get("_stay", {}) as Dictionary).is_empty():
+						sm._stay.hits_on_you = int(sm._stay.hits_on_you) + 1
+					if _up((shooter as Node3D).global_position):
+						sm.hits_from_up = int(sm.get("hits_from_up", 0)) + 1
 				_first_hit("gang")
 			_note("hit", "you hit in the %s by %s" % [info.get("segment", "?"), _who(shooter)])
 		elif victim in gang:
 			_men[_mid(victim)].hits_taken += 1
+			var stay: Dictionary = _men[_mid(victim)].get("_stay", {})
+			if not stay.is_empty():
+				stay.hits = int(stay.hits) + 1
 			_men[_mid(victim)]._ball_t = t
 			_fright(victim, "hit")
 			if shooter == player:
@@ -1026,6 +1039,8 @@ func _finish(why: String) -> void:
 			sit.times[k] = _sit[k]
 	var men := {}
 	for id in gang_ids:
+		_end_move(_men[id], "fight over")
+		_end_stay(_men[id], "fight over")
 		men[id] = _men[id]
 	record.merge({
 		"variant": String(opts.get("variant", "C")), "opening": String(opts.get("opening", "")), "fixes": String(opts.get("fixes", "all")), "dress": String(opts.get("dress", "")), "scenario": opts.scenario, "hour": opts.hour, "weapon": opts.weapon, "style": opts.style, "bodies": opts.bodies,
@@ -1158,6 +1173,97 @@ func _at(a: Array) -> Vector3:
 
 func _v(a: Array) -> Vector3:
 	return Vector3(float(a[0]), float(a[1]), float(a[2]))
+
+
+## How he moves (#465): each run for cover (`moves`: when, from and to, how far in a straight line
+## and by the way he meant, how far he ran, how long, how it ended: got there, switched to another
+## spot on the way, or his decision that ended it; whether it was to a post, up on the galleries, a
+## climb) and each stay behind cover once he's there (`stays`: how long, how long of it up
+## shooting, hits taken and given there, why he left).
+func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -> void:
+	var pos := man.global_position
+	var cov: Vector3 = b.cover.get("at", Vector3.INF) if not b.cover.is_empty() else Vector3.INF
+	var moving := b.tactic == OutlawBrain.Tactic.MOVING
+	var mv: Dictionary = m.get("_mv", {})
+	if not mv.is_empty():
+		if moving and cov == mv._to:
+			mv.ran = float(mv.ran) + Vector2(pos.x - (mv._at as Vector3).x, pos.z - (mv._at as Vector3).z).length()
+			mv._at = pos
+			mv.s = float(mv.s) + delta
+		else:
+			var there: bool = b.tactic == OutlawBrain.Tactic.HIDDEN and cov == mv._to
+			_end_move(m, "arrived" if there else ("switched" if moving else b.decision))
+			if there:
+				m._stay = {"t": snappedf(t, 0.01), "at": _arr(cov), "post": _at_post(cov), "up": _up(cov), "s": 0.0, "peek_s": 0.0,
+					"hits": 0, "hits_on_you": 0, "_at": cov, "_dec": b.decision}
+	if moving and (m.get("_mv", {}) as Dictionary).is_empty():
+		var way: Array = b.cover.get("route", [cov])
+		var way_m := 0.0
+		var at := pos
+		for w: Vector3 in way:
+			way_m += Vector2(w.x - at.x, w.z - at.z).length()
+			at = w
+		m._mv = {"t": snappedf(t, 0.01), "from": _arr(pos), "to": _arr(cov), "m": snappedf(Vector2(cov.x - pos.x, cov.z - pos.z).length(), 0.01),
+			"way": snappedf(way_m, 0.01), "ran": 0.0, "s": 0.0, "post": _at_post(cov), "up": _up(cov), "climb": _up(cov) and not _up(pos),
+			"_to": cov, "_at": pos}
+	var st: Dictionary = m.get("_stay", {})
+	if not st.is_empty():
+		if b.tactic in [OutlawBrain.Tactic.HIDDEN, OutlawBrain.Tactic.PEEKING] and cov == st._at and not man.limp:
+			st.s = float(st.s) + delta
+			if b.tactic == OutlawBrain.Tactic.PEEKING:
+				st.peek_s = float(st.peek_s) + delta
+		else:
+			_end_stay(m, b.decision if b.decision != st._dec else String(OutlawBrain.Tactic.keys()[b.tactic]).to_lower())
+
+
+func _end_move(m: Dictionary, how: String) -> void:
+	var mv: Dictionary = m.get("_mv", {})
+	if mv.is_empty():
+		return
+	mv.how = how
+	mv.ran = snappedf(float(mv.ran), 0.01)
+	mv.s = snappedf(float(mv.s), 0.01)
+	mv.erase("_to")
+	mv.erase("_at")
+	(m.get_or_add("moves", []) as Array).append(mv)
+	m._mv = {}
+
+
+func _end_stay(m: Dictionary, why: String) -> void:
+	var st: Dictionary = m.get("_stay", {})
+	if st.is_empty():
+		return
+	st.left = why
+	st.s = snappedf(float(st.s), 0.01)
+	st.peek_s = snappedf(float(st.peek_s), 0.01)
+	st.erase("_at")
+	st.erase("_dec")
+	(m.get_or_add("stays", []) as Array).append(st)
+	m._stay = {}
+
+
+## The spec saloon's posts a man might stand behind: the galleries' in the hall, the hall stair's,
+## the street balcony's along the boardwalk (saloon.json), at their feet in the world.
+func _spec_posts() -> Array[Vector3]:
+	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/building_lab/saloon.json"))
+	var out: Array[Vector3] = []
+	for l: Array in [spec.posts.free, spec.stairs[0].posts, spec.balconies[0].posts]:
+		for p: Array in l:
+			out.append(SpecSaloon.at(Vector3(float(p[0]), 0.78, float(p[1]))))
+	return out
+
+
+## A spot right by a post (his cover the post, by where he stands).
+func _at_post(at: Vector3) -> bool:
+	for p in _posts:
+		if Vector2(at.x - p.x, at.z - p.z).length() < 0.6 and absf(at.y - p.y) < 1.0:
+			return true
+	return false
+
+
+## Up on the galleries (or the stair's top half, the rooms, the street balcony).
+func _up(at: Vector3) -> bool:
+	return at.y > _floor_y + 2.0
 
 
 func _arr(v: Vector3) -> Array:
