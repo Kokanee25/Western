@@ -209,3 +209,36 @@ func test_a_stick_in_the_spec_saloon_doesnt_freeze_the_frame() -> void:
 	check(lab.fire._to_settle.is_empty() and lab.fire._check == null, "the settle is finished 5 s on")
 	lab.queue_free()
 	await physics_frames(2)
+
+
+## The fire's load checks on a worker (more-cores step 8): its results come on a tick fixed by the
+## count of members, so the spec saloon's stick comes down the same with the worker as without
+## (`--analysis-worker=off`: the same work on the main thread, on the same ticks).
+func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
+	var results := []
+	for worker in [true, false]:
+		FireSystem.analysis_worker = worker
+		var lab := Lab.new()
+		add_child(lab)
+		await physics_frames(10)
+		var saloon: Structure = lab.building
+		Blast.detonate(lab, Vector3(6.0, 0.8, 6.0), 0.15)
+		var settled_at := -1
+		for f in 400:
+			await physics_frames(1)
+			if settled_at < 0 and lab.fire._to_settle.is_empty() and lab.fire._check == null:
+				settled_at = f
+		var broken: Array = []
+		for m in saloon.get_members():
+			if m.broken:
+				broken.append(String(m.member_id))
+		broken.sort()
+		results.append({"broken": broken, "settled_at": settled_at})
+		lab.queue_free()
+		await physics_frames(2)
+	FireSystem.analysis_worker = true
+	print("  worker / main thread: %d / %d broken, settled after %d / %d frames" % [results[0].broken.size(),
+			results[1].broken.size(), results[0].settled_at, results[1].settled_at])
+	check(results[0].broken.size() > 10, "the stick brings something down (%d)" % results[0].broken.size())
+	check(results[0].broken == results[1].broken, "the same members broken with the worker as without")
+	check_eq(results[0].settled_at, results[1].settled_at, "and done on the same frame")

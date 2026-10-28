@@ -652,7 +652,16 @@ frozen until Sean names one.
   `user://engine.cfg` (LAYOUT.md "src/autoload"); script runs refuse it from the file; F3/`PerfRing`
   read render times twice a second with it, lamps flicker every third frame, `BodyInterior.copy_material`;
   the lab the same fights; no hang (5 suites, 210 soak minutes); headless +1.6 ms, drawn unmeasured
-  here. Next: Sean's F3 (#461), step 8 (#400; 4c, #413, optional). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  here. Sean's F3: #461. **Step 8 done** (PR #475 waiting on the Fable review, branch
+  `claude/gameplay-perf-step8`; `experiments/blast_freeze/results/2026-10-28_step8/`): the fire's
+  member tick in the plugin's `FireCore` (`fire.rs`; `FireCoreScript` the same rules, held the same
+  to the bit by `test_fire_core`): a member's fire numbers live in its slot, its own grid makes what
+  each heats, `fire_near` and the smoke fields' sources read it; the analysis over `LoadRecord`s,
+  FireSystem's checks on the pool on a tick fixed by their size (`--analysis-worker=off` the same).
+  The saloon burning whole 56.6 -> 29.8 ms a frame here, `fire` 23.9 -> 4.5; the burning hall's
+  stick 42.3 -> 25.7 after its first second; the lab and the blast-freeze lab the same twice and
+  with the worker off. `perf_bench`'s systems are the run's mean now (were its last second's).
+  Next: the review; when it merges, step 9 (#401; 4c, #413, optional). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
   worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
   switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
   (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.

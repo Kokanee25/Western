@@ -7,6 +7,7 @@
 //! pool (pool.rs).
 //! The sight service (docs/briefs/more-cores.md step 3): `SightWorld` (sight.rs) over the sight
 //! layers' shapes (sight_geo.rs), rays answered in batches across the pool.
+//! The fire's member tick (more-cores step 8): `FireCore` (fire.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
@@ -14,6 +15,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
 pub mod carve;
+pub mod fire;
 pub mod member;
 pub mod mesh;
 pub mod pool;

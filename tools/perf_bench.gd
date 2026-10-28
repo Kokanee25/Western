@@ -119,7 +119,9 @@ func _measure(n: int) -> Dictionary:
 	var before := {}
 	for i in n:
 		await process_frame
-		prof.frame(1 << 30)
+		# Never rolled while it measures: the systems are the whole run's mean (with the default
+		# second, they were only the last second's).
+		prof.frame(1 << 30, 1e9)
 		var now := Time.get_ticks_usec()
 		times.append((now - last) / 1000.0)
 		if spikes > 0.0:

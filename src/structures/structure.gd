@@ -171,6 +171,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _shadow_task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_shadow_task)
 		_shadow_task = -1
+	# Nor its analysis on a worker (issue #392: every task of ours waited for before it's freed).
+	if what == NOTIFICATION_PREDELETE:
+		wait_analysis()
 
 
 ## The ground was dug (Ground, docs/briefs/dig-ground.md): a member standing on it (a post, a sill)
@@ -785,12 +788,50 @@ func _on_member_damaged(m: StructureMember) -> void:
 ## until the fire's next full check).
 func mark_dirty(id: StringName) -> void:
 	_dirty[id] = true
+	_record_stale[id] = true
+
+
+## Each member's LoadRecord (what the analysis reads of it), id -> record, taken again when it's
+## been marked dirty since, or for an analysis from the top (`_record_round`): more-cores step 8.
+var _records := {}
+var _record_stale := {}
+var _record_round := 0
+## Analyses begun on it so far (FireSystem knows another has been since its own: a blast's settle).
+var analysis_epoch := 0
+
+
+## Its record as it stands (taken again if it's changed since the last).
+func load_record(m: StructureMember) -> LoadRecord:
+	var r: LoadRecord = _records.get(m.member_id)
+	if r == null or r.taken_in != _record_round or _record_stale.has(m.member_id):
+		if r == null:
+			r = LoadRecord.new()
+			_records[m.member_id] = r
+		r.take(m, tuning, self)
+		r.taken_in = _record_round
+		_record_stale.erase(m.member_id)
+	return r
+
+
+## Every record to take again (an analysis from the top: anything changed without saying so is
+## caught there).
+func records_all_stale() -> void:
+	_record_round += 1
+
+
+## An analysis of it on a worker (FireSystem's) finished before anything else touches it.
+func wait_analysis() -> void:
+	if last_analysis != null:
+		last_analysis.wait()
 
 
 ## The graph is new (built, or worked out again): the next analysis starts from the top.
 func invalidate_analysis() -> void:
+	wait_analysis()
 	_analysis_valid = false
 	_dirty.clear()
+	_records.clear()
+	_record_stale.clear()
 
 
 ## An analysis of it as it stands, begun (`advance` to finish it, as FireSystem does a slice a
@@ -798,6 +839,8 @@ func invalidate_analysis() -> void:
 ## from the top when there's no last one, the graph is new, `full` is asked, most of it changed,
 ## or `incremental` is off.
 func start_analysis(full := false) -> StructuralAnalysis:
+	wait_analysis()
+	analysis_epoch += 1
 	if not full and incremental and _analysis_valid and last_analysis != null \
 			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty):
 		_dirty.clear()
@@ -831,6 +874,7 @@ func settle_soon() -> void:
 ## queue), so a big collapse costs a few frames, never one long one; without one (tests, the labs'
 ## stands) it runs to the end.
 func settle(budget_ms := INF) -> Array[StringName]:
+	wait_analysis()
 	_settle_pending = false
 	var changed: Array[StringName] = []
 	if not collapses or not is_inside_tree():
@@ -868,6 +912,8 @@ func settle(budget_ms := INF) -> Array[StringName]:
 ## else what has no load path falls. True if something did (another round is due). FireSystem
 ## runs a burning building's rounds this way, an analysis spread over frames.
 func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool:
+	a.wait()
+	wait_analysis()
 	last_analysis = a
 	var over := a.overloaded()
 	if not over.is_empty():
