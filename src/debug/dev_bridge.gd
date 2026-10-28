@@ -417,8 +417,8 @@ func _shove_words(i: Dictionary) -> String:
 	var you := "you kicked" if i.get("move") == &"kick" else "you shoved"
 	match i.get("what"):
 		&"man":
-			var how := {&"down": "he went over", &"stagger": "he staggered back", &"moved": "it moved him where he lay"}
-			return "%s %s: %s (%.0f N*s, %.2f m/s on him; he catches %.2f)" % [you, i.get("who", "?"),
+			var how := {&"down": "went over", &"stagger": "staggered back", &"moved": "moved where they lay"}
+			return "%s %s: %s (%.0f N*s, %.2f m/s given; a step catches %.2f)" % [you, i.get("who", "?"),
 					how.get(i.get("result"), str(i.get("result"))), float(i.get("momentum", 0.0)),
 					float(i.get("his_speed", 0.0)), float(i.get("catch", 0.0))]
 		&"prop":
@@ -775,7 +775,8 @@ func _listen_to_events() -> void:
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
-		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), " (graze)" if info.get("graze", false) else ""]))
+		var how := " (graze)" if info.get("graze", false) else (" (a push: %s)" % info.pushed if info.has("pushed") else "")
+		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), how]))
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
 	_hook(Events.person_surrendered, func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))

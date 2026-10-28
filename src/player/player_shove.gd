@@ -143,9 +143,11 @@ func _start(kind: StringName) -> void:
 		_with_held = held and not _one_hand
 		var arms := 0.0
 		if p:
-			arms = (p.muscle_strength("arm", "l") if p.can_hold("l") else 0.0)
-			if not _one_hand:
-				arms = (arms + (p.muscle_strength("arm", "r") if p.can_hold("r") else 0.0)) * 0.5
+			var left := p.muscle_strength("arm", "l") if p.can_hold("l") else 0.0
+			var right := p.muscle_strength("arm", "r") if p.can_hold("r") else 0.0
+			# One hand free (the other on the gun): the free one, or the gun hand if that's all you
+			# have; both, their mean.
+			arms = (left if left > 0.05 else right) if _one_hand else (left + right) * 0.5
 		else:
 			arms = 1.0
 		if arms <= 0.05:
