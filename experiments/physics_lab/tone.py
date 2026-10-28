@@ -11,6 +11,10 @@
 - `head_v` / `chest_v`: how fast his head and his chest were moving as each first touched (m/s):
   a sack dropped lands hard; a man who crumples lands softer.
 - `ms`: the lab's frame time over the first 3 s after he went limp (headless, measuring included).
+- `speed` / `travel` (issue #446): his centre of mass's level speed as he went limp, and how far
+  (level, m) it went from there to the end; `broke`: members broken after he went limp (the
+  fixture's: what he went into); `ends`: his centre of mass at the end in his starting frame
+  (z ahead of him is negative; `final_com_local`).
 
 Per root a line of totals; --each a line per scenario. Groups V, W and R (not falls) are left out.
 """
@@ -45,9 +49,11 @@ def one(d):
     if limp_t is None:
         return None
     coms = []
+    flat = []
     with open(os.path.join(d, "ticks.csv")) as f:
         for r in csv.DictReader(f):
             coms.append((float(r["t"]), float(r["com_y"])))
+            flat.append((float(r["t"]), float(r["com_x"]), float(r["com_z"]), float(r["com_vx"]), float(r["com_vz"]), r["phase"]))
     after = [c for c in coms if c[0] >= limp_t - 1e-6]
     if not after:
         return None
@@ -97,7 +103,16 @@ def one(d):
                     caught = "planked"
             elif base in ("shin", "thigh", "pelvis") and trunk_at is None and caught is None:
                 caught = base
-    return {"ground": ground, "first": first, "planked": caught == "planked", "head_v": hit_v.get("head"), "chest_v": hit_v.get("chest"),
+    level = [c for c in flat if c[0] >= limp_t - 1e-6]
+    travel = ((level[-1][1] - level[0][1]) ** 2 + (level[-1][2] - level[0][2]) ** 2) ** 0.5
+    # (The tick he goes limp on is a finite difference across the rig and the ragdoll: the next.)
+    at_limp = next((c for c in level if c[5] == "limp"), level[0])
+    speed = (at_limp[3] ** 2 + at_limp[4] ** 2) ** 0.5
+    limp_tick = next((e["tick"] for e in sm.get("events", []) if e.get("kind") == "go_limp"), 0)
+    broke = sorted({e["member"].split("/", 1)[-1] for e in sm.get("events", [])
+                    if e.get("kind") == "member_broken" and e.get("tick", 0) >= limp_tick})
+    return {"travel": travel, "speed": speed, "broke": broke, "ends": sm.get("final_com_local"),
+            "ground": ground, "first": first, "planked": caught == "planked", "head_v": hit_v.get("head"), "chest_v": hit_v.get("chest"),
             "trunk_at": trunk_at, "ms": sm.get("frame_ms_collapse_3s"), "settle": sm.get("settle_s"),
             "lying": (sm.get("rest") or {}).get("lying"), "kneel_s": (sm.get("rest") or {}).get("kneel_s")}
 
@@ -129,9 +144,12 @@ def main():
                     name, fmt(r["ground"]), (r["first"] or ("-",))[0], fmt((r["first"] or (0, None))[1]),
                     fmt(r["trunk_at"]), "PLANK " if r["planked"] else "      ", fmt(r["head_v"]), fmt(r["chest_v"]),
                     fmt(r["lying"], "%s"), fmt(r["settle"]), fmt(ms)))
+                ends = r["ends"] or [0, 0, 0]
+                print("  %-30s   speed %s  travel %s  ends (%.2f, %.2f, %.2f)  broke %d %s" % (
+                    "", fmt(r["speed"]), fmt(r["travel"]), ends[0], ends[1], ends[2], len(r["broke"]), ", ".join(r["broke"][:6])))
         ms = [r["ms"].get("mean") if isinstance(r["ms"], dict) else r["ms"] for r in rows]
-        print("%s: %d falls, ground %s s (mean), planked %d, head lands %s m/s, chest %s, settle %s s, ms %s" % (
-            root, len(rows), fmt(mean([r["ground"] for r in rows])), sum(r["planked"] for r in rows),
+        print("%s: %d falls, travel %s m (mean), broke something %d, ground %s s (mean), planked %d, head lands %s m/s, chest %s, settle %s s, ms %s" % (
+            root, len(rows), fmt(mean([r["travel"] for r in rows])), sum(1 for r in rows if r["broke"]), fmt(mean([r["ground"] for r in rows])), sum(r["planked"] for r in rows),
             fmt(mean([r["head_v"] for r in rows])), fmt(mean([r["chest_v"] for r in rows])), fmt(mean([r["settle"] for r in rows])), fmt(mean(ms), "%.3f")))
 
 

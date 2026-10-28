@@ -152,3 +152,37 @@ func test_a_slow_touch_leaves_a_kit_chair_standing() -> void:
 	check_near(float((kit[chair] as Array)[1]), 5.0, 0.01, "3 m/s into it: a blow from the part's 5 kg")
 	impacts._kit_blows(kit, [] as Array[StructureMember])
 	check(chair.loose or leg.broken, "and the chair goes over or its leg breaks")
+
+
+## Issue #446 (HumanBody.keep_stride): shot in the back at a run toward a card table, he keeps his
+## speed into it and it skids off with him (0.16-0.34 m over eight starts a few centimetres apart)
+## and goes over about half the time (its feet reach nearly as far as its top: pushed at the rim it
+## would rather slide). Before, the stumble braked him, `_slide`
+## stopped him at it, and a hit on a kit prop counted only the few parts touching it (a hand, a
+## shin: a blow from a kilo or two), so he knelt against its foot and it stood (Sean, 2026-10-28:
+## "that table doesn't move or flip").
+func test_shot_running_he_takes_a_card_table_with_him() -> void:
+	HumanBody.keep_stride = true
+	var table := PropLibrary.spawn(&"card_table") as KitProp
+	world.add_child(table)
+	table.global_position = Vector3(0, 0, -3.0)
+	await physics_frames(5)
+	var man := _man(Vector3.ZERO)
+	await physics_frames(2)
+	for i in 22:  # 0.37 s at a run: hit 1.2 m short of its near edge
+		man.walk_to(Vector3(0, 0, -10), 3.5, 1.0 / 60.0)
+		await physics_frames(1)
+	var chest := man.parts[&"chest"] as Node3D
+	man._knocked(&"chest", chest.global_position + man.global_basis.z * 0.12, -man.global_basis.z, 4.5)
+	await physics_frames(240)
+	HumanBody.keep_stride = HumanBody.KEEP_STRIDE_GAME
+	check(table.loose, "the table's knocked loose")
+	var moved := 0.0
+	var tilt := 0.0
+	for rb: Variant in table.rubble:
+		if is_instance_valid(rb):
+			var p := (rb as Node3D).global_position
+			moved = maxf(moved, Vector2(p.x, p.z + 3.0).length())
+			tilt = maxf(tilt, rad_to_deg((rb as Node3D).global_basis.y.angle_to(Vector3.UP)))
+	print("  the table moved %.2f m, tipped %.0f deg" % [moved, tilt])
+	check(moved > 0.12 or tilt > 30.0, "and it skidded off or went over (%.2f m, %.0f deg)" % [moved, tilt])

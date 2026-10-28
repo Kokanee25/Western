@@ -10,6 +10,7 @@ const Bot := preload("res://experiments/gunfight_lab/player_bot.gd")
 const SCENARIOS := "res://experiments/gunfight_lab/scenarios.json"
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const SpecBuildingScript := preload("res://experiments/building_lab/spec_building.gd")
+const FallLog := preload("res://experiments/gunfight_lab/fall_log.gd")
 ## Prof's timers that are people (CLAUDE.md's frame budget table, "People").
 const PEOPLE := [&"people_body", &"people_prep", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain", &"player", &"town_life", &"blood"]
 ## How long with nobody firing before a fight's called a lull (both sides lost each other).
@@ -44,6 +45,7 @@ var t := 0.0
 var started := false
 var done := false
 var record := {}
+var falls: Node  ## FallLog (`falls=1`): every man down, how he went and what he went into
 
 var _men := {}  # id -> his record
 var _prev := {}  # id -> {tactic, mood, suppressed}
@@ -130,6 +132,8 @@ func setup() -> String:
 		OutlawBrain.d_fixes = OutlawBrain.D_FIXES.filter(func(f: StringName) -> bool: return not String(f) in drop)
 	else:
 		OutlawBrain.d_fixes = Array(fx.split("+")).map(func(f: String) -> StringName: return StringName(f))
+	# Issue #446's switch: the stumble keeps his speed and he falls into what's in his way.
+	HumanBody.keep_stride = String(opts.get("momentum", "")) in ["1", "on", "true"]
 	var clock := street.find_child("DayCycle", true, false) as DayCycle
 	# The clock runs as it does in the game (scale 1, 45 minutes a day): bodies bleed and heal on
 	# its time (PlayerWounds, HumanBody: physiology.step(delta * time_scale)), so a stopped clock
@@ -265,6 +269,12 @@ func setup() -> String:
 		bot.walking = true
 		bot.walk_dir = _v(p.get("walk", [1, 0, 0])).normalized()
 	_hook_events()
+	if String(opts.get("falls", "")) in ["1", "on", "true"]:
+		falls = FallLog.new()
+		falls.name = "FallLog"
+		falls.men = gang
+		falls.name_of = func(m: Node) -> String: return String(_men[_mid(m)].id) if _men.has(_mid(m)) else _mid(m)
+		add_child(falls)
 	if not human:
 		await lab.seconds(1.0)  # they look about them (and see you) before it starts (yours: the count)
 	for man: HumanBody in _live():
@@ -964,6 +974,7 @@ func _who(n: Variant) -> String:
 ## not with the fixes this fight was given (play.gd's trial "D+").
 func _exit_tree() -> void:
 	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+	HumanBody.keep_stride = HumanBody.KEEP_STRIDE_GAME
 
 
 func _finish(why: String) -> void:
