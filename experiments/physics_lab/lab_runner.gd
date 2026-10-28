@@ -44,6 +44,9 @@ var jitter := 0
 ## --tone=STYLE: how his tone lets go as he goes limp (HumanBody.tone_style; none: the game's, "off"
 ## the quick fade from before 2026-10-28, "fade" the regions in turn, "dying" that and what he does as he goes; 2026-10-28), over the scenario's own `tone` field.
 var tone := &""
+## --momentum=on: HumanBody.keep_stride (issue #446: the stumble keeps his speed and he falls into
+## what's in his way); off or none: the game's.
+var momentum := ""
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -102,6 +105,8 @@ func _ready() -> void:
 	var style := StringName(tone if tone != &"" else StringName(scenario.get("tone", "")))
 	if style != &"":
 		HumanBody.tone_style = &"" if style == &"off" else style
+	if momentum != "":
+		HumanBody.keep_stride = momentum == "on"
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
 	# stop instead, so a run never claims a man it didn't use.
@@ -339,6 +344,18 @@ func _build_fixture(kind: String) -> void:
 			var rail = load(LAB_DIR + "lab_railing.gd").new()
 			rail.structure_id = &"lab_rail"
 			_world.add_child(rail)
+		"x_chair", "x_table":
+			# Issue #446 (group X): the kit's chair (its back toward him) or card table across his
+			# way, its near side 2.5 m ahead: he walks or runs at it and is shot on the way.
+			if kind == "x_chair":
+				_prop(&"chair", Vector3(0, 0, -2.75), 180.0)
+			else:
+				_prop(&"card_table", Vector3(0, 0, -3.0))
+		"x_wall":
+			# A thin plank wall of the game's members across his way, its boards 2.5 m ahead.
+			var wall = load(LAB_DIR + "lab_plank_wall.gd").new()
+			wall.structure_id = &"lab_wall"
+			_world.add_child(wall)
 		"saloon":
 			_prop(&"card_table", Vector3(0, 0, -1.0))
 			_prop(&"chair", Vector3(-0.85, 0, -1.0), 90.0)

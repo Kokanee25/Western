@@ -60,6 +60,12 @@ cores. A drawn fight (lavapipe) is drawn only round each capture
 (`RenderingServer.render_loop_enabled` off between), ~8 minutes for a 7.5 s fight with a pair of
 frames a second; `run.py --sheet=NAME` does it and makes the sheet.
 
+**Every man down** (2026-10-28, issue #446): `run.py ... --falls=1` adds `fall_log.gd`, and each
+record a `falls` list (his speed and heading as he went limp, what's within 2 m ahead, his travel
+once limp, what he touched and broke); `falls.py ROOT [ROOT...] [--each]` sums them. The bridge
+waits up to 4 s after the fight for the last fall. `--momentum=on` is `HumanBody.keep_stride`.
+Numbers: `experiments/physics_lab/results/2026-10-28_momentum/`.
+
 ## Playing it (`play.gd`, `PLAYTEST.md`)
 
 `main.gd` adds `GunfightPlay` when this folder is in the build. Y starts the next of nine blind
