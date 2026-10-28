@@ -23,7 +23,7 @@ const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing"
 	&"report_big", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
-	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
+	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh"]
 
 
 ## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
@@ -87,6 +87,8 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"eject": samples = _tink(rng)
 		&"glass": samples = _glass(rng)
 		&"flesh": samples = _flesh(rng)
+		&"thump": samples = _thump(rng)
+		&"whoosh": samples = _whoosh(rng)
 		&"zip": samples = _zip(rng)
 		&"crack": samples = _crack(rng)
 		&"ricochet": samples = _ricochet(rng)
@@ -631,6 +633,36 @@ static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		lp += (rng.randf_range(-1, 1) - lp) * 0.18
 		out[i] = lp * exp(-t / 0.018) * 1.4 + sin(TAU * lerpf(140.0, 70.0, minf(t / 0.08, 1.0)) * t) * exp(-t / 0.05) * 0.8
 	return _normalise(out, 0.8)
+
+
+## A boot or two hands landing on a man (PlayerShove): the dull thud of a body taking it through
+## his clothes, lower and longer than a ball's slap, with the cloth's scuff on top.
+static func _thump(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.3)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.08
+		out[i] = sin(TAU * lerpf(95.0, 55.0, minf(t / 0.12, 1.0)) * t) * exp(-t / 0.07) \
+				+ lp * exp(-t / 0.03) * 1.6
+	return _normalise(out, 0.8)
+
+
+## A swing that meets nothing: the air past a sleeve or a trouser leg, swelling and gone.
+static func _whoosh(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.28)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var bp := 0.0
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.3
+		bp += (lp - bp) * 0.25
+		out[i] = (lp - bp) * sin(PI * t / 0.28)
+	return _normalise(out, 0.4)
 
 
 ## The whiz of a tumbling ball (a ricochet) going by: tearing air coming fast, a tick as it's
