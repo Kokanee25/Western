@@ -209,8 +209,10 @@ static func test_street() -> Waypoints:
 	w.add(&"doctor_front", ground.call(TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0))), [&"street_west"])
 	# The street in front of the livery, off everyone's way (the fourth Colter waits here).
 	w.add(&"livery_front", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0))), [&"street_east"])
-	# Along the livery's front, at its east end, off everyone's way (the Mexican rancher stands here).
+	# Along the livery's front, at its west end, off everyone's way (the Mexican rancher stands here).
 	w.add(&"livery_side", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(8.5, 0, -4.0))), [&"street_east"])
+	# Along the livery's front, at its east end, off everyone's way (the blacksmith stands here).
+	w.add(&"livery_east", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(1.5, 0, -4.0))), [&"street_east"])
 	# The street in front of the assay office, off everyone's way (the miner stands here).
 	w.add(&"assay_front", ground.call(TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 0, -4.0))), [&"street_mid"])
 	var floor_top := float(TownLayout.data().get("floor", 0.38))
