@@ -266,7 +266,7 @@ var gun_holstered := false
 const DRAW_TIME := 0.5
 ## Shapes drawn from both sides: single sheets (open garments, the brim, the band, the hair shell,
 ## whose faces point inward).
-const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair"]
+const DOUBLE_SIDED := ["vest", "coat", "trousers", "gun_belt", "belt", "bandana", "bandana_mask", "hat_brim", "hat_band", "cravat", "shirt", "hair", "apron"]
 ## How a painted texture (tools/paint_bake.gd) is shown (body_skin.gdshaderinc): self_lit of it glows
 ## as painted, light and all; the rest is lit by the scene's lamps × paint_gain (so he still darkens
 ## in shadow and warms by a fire), wrapped round him (paint_wrap) as the shading is painted in, no
@@ -3500,11 +3500,12 @@ const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0,
 		&"head": Vector3(-10, 0, 0)}
 const STUMBLE_FOLD_IN := 0.2
 ## Issue #446 (Sean, 2026-10-28: "if a guy is running and gets killed his body keeps moving"),
-## behind a switch until he's seen it: the stumble keeps his speed (it braked him to 0.6), and when
-## something solid stands in his way within a step (a chair, a table, a rail, a banister, a wall)
-## his legs go there and then, so he goes into it with all he had rather than being steered along
-## it by `_slide` and dropping beside it. Nothing's added to him: the ragdoll keeps what he carried.
-const KEEP_STRIDE_GAME := false
+## on in the game since #471 (Sean on the films, #468: "Love em"): the stumble keeps his speed (it
+## braked him to 0.6), and when something solid stands in his way within a step (a chair, a table,
+## a rail, a banister, a wall) his legs go there and then, so he goes into it with all he had rather
+## than being steered along it by `_slide` and dropping beside it. Nothing's added to him: the
+## ragdoll keeps what he carried.
+const KEEP_STRIDE_GAME := true
 static var keep_stride := KEEP_STRIDE_GAME
 ## What's "in his way" (`_way_blocked`): a sphere this big at these heights over his feet (the
 ## seat of a chair or a table's top; a rail, a banister or a chair's back; low steps and the floor

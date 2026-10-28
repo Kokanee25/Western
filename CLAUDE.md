@@ -467,7 +467,14 @@ frozen until Sean names one.
   build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
   knees; Sean: "she may be yoinked"). `talking_face.py`'s cut, when its edge comes apart (loose
   hair, a head mesh ending just under the chin), keeps the neck ring and gives back pinches and
-  hair (the earlier men unchanged). Next: Sean's word on the working girl.
+  hair (the earlier men unchanged). Next: Sean's word on the working girl (#453).
+- **The 3D bake-off and the apron** (2026-10-28; Studio $67.97 of $75): Tripo H3.1, Meshy 7.1,
+  Trellis 2 and Hi3D on the blacksmith's pictures (Studio branch `claude/studio-bakeoff`, not merged;
+  `docs/sheets/bakeoff/`): Meshy best of them, but on the bold cowboy worse than Rodin; Sean: Rodin
+  stays, Meshy a second opinion for new men. **The blacksmith's leather apron**
+  (`tools/faces/apron.py`, bandana-style: a sheet hung from his trunk's shell, bib to the knee,
+  crossed straps and a knot behind, weighted to the thighs below the hip; `cloth_apron`, two-sided
+  in `HumanBody.DOUBLE_SIDED`); sheets `docs/style_test/apron/`. Sean: "Perfect".
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
@@ -554,11 +561,12 @@ frozen until Sean names one.
 - **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
   is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
   With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
-- **Bodies that keep moving** (2026-10-28, #446, PR #469; `experiments/physics_lab/results/2026-10-28_momentum/`):
-  the gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 men go down standing); `HumanBody.keep_stride`
-  (off; Sean: "Love em", #468) keeps a stumbling man's speed into what's half a step ahead, and a body into a
-  kit prop counts all of him; the ragdoll lab's group X and `--momentum=on`. Next #471 (the stair-down jam,
-  the switch on, then chairs and tables you can shove).
+- **Bodies that keep moving** (2026-10-28, #446, PR #469; #471; `experiments/physics_lab/results/2026-10-28_momentum/`,
+  `2026-10-28_stair_jam/`): `HumanBody.keep_stride` **on in the game** (Sean: "Love em", #468): a man shot on the
+  move keeps his speed and goes into what's half a step ahead; a body into a kit prop counts all of him; the
+  gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
+  ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
+  (the gang dying on the move, then chairs and tables you can shove).
 - **The kick and shove** (2026-10-28, #479, `claude/gameplay-kick-shove`; `experiments/kick_shove/`):
   E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
   `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);

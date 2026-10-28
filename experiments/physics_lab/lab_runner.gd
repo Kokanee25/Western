@@ -155,6 +155,8 @@ func _ready() -> void:
 		var gap := float(scenario.get("spacing", 1.2))
 		man.global_transform = Transform3D(_start_xf.basis, _start_xf.origin + _start_xf.basis.x * gap * i)
 		_men.append(man)
+		if i == 0:
+			man.fell.connect(_on_fell.bind(man))
 	if not light:
 		_ticks_csv = FileAccess.open(out_dir.path_join("ticks.csv"), FileAccess.WRITE)
 		_ticks_csv.store_line("tick,t,phase,com_x,com_y,com_z,com_vx,com_vy,com_vz,max_speed,max_penetration,max_self_overlap,max_joint_gap,awake,contacts,contact_impulse_sum,frame_ms")
@@ -446,6 +448,9 @@ func _focus() -> Vector3:
 		travel = float(pre.get("speed", 0.0)) * float(pre.get("seconds", 0.0))
 	var push: Array = scenario.get("push", [0, 0, 0])
 	var lean := Vector3(push[0], 0, push[2]).normalized() * 0.6 if Vector3(push[0], 0, push[2]).length() > 0.01 else Vector3.ZERO
+	# "focus_ahead": metres along his heading the cameras look, where he ends up rather than where
+	# he's knocked (a run down the stair lands him 2.5 m on).
+	travel = float(scenario.get("focus_ahead", travel))
 	# "focus_y": the height the cameras look at (a man on his feet: ~0.9).
 	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * float(scenario.get("focus_y", 0.5))
 
@@ -839,7 +844,21 @@ func _go_limp() -> void:
 			for man in _men:
 				if man.has_method(&"_hunch"):
 					man._hunch(sid, man.parts[sid].global_transform * Vector3(p[0], p[1], p[2]), jw.normalized())
-	_take_reference(man0)
+	if not _ref_taken:
+		_take_reference(man0)
+
+
+## The reference is taken as he goes limp, before the solver moves him: the joints are made where
+## his parts are then. Stumbling on after a ball (`knock` on the move), he goes limp in his own tick
+## and the lab only sees it a tick later, when at a run his parts have gone on ~5 cm from the
+## joints' points (issue #471: knees and elbows read 8-12 cm apart once bent, the joints whole).
+var _ref_taken := false
+
+
+func _on_fell(_conscious: bool, man: HumanBody) -> void:
+	if not _ref_taken:
+		_ref_taken = true
+		_take_reference(man)
 
 
 func _take_reference(man: HumanBody) -> void:

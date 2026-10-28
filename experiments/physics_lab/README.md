@@ -55,8 +55,13 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   the hitching rail, the saloon's props (`PropLibrary`), the bar and crates; S art's oak stair
   (`OakStair` with `solid` on, `room` off: #172), down its flight, at its foot, and over its
   walkway's 1 m railing. `start` places him in the fixture's space, `focus_y` aims the cameras,
-  `views` picks a scenario's own cameras where the usual ones would look through the fixture.
+  `focus_ahead` (m along his heading) where he ends up rather than where he's hit, `views` picks a
+  scenario's own cameras where the usual ones would look through the fixture.
 - Joints of a torn-off limb aren't measured; `lab.gd` quits if `lab_runner.gd` doesn't load.
+- The reference his joints and swings are measured from is taken as he goes limp (`HumanBody.fell`).
+  Before 2026-10-28 (#471) a man stumbling on after a `knock` was measured from a tick later: at a
+  run his parts had gone ~5 cm from the joints, and a bent knee or elbow read 8-12 cm apart with the
+  joint whole (`results/2026-10-28_stair_jam/`). Older runs' `joint_gap` on those is too high.
 
 **Since 2026-10-21, round 4** (`results/2026-10-21_round4/`):
 - `--model=ID` stops with an error if that body isn't imported (it used to draw the outlaw without
