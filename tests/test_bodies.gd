@@ -625,8 +625,11 @@ func test_skin_and_clothes_are_one_skinned_body() -> void:
 func test_body_follows_the_ragdoll() -> void:
 	await _shoot(Vector3(0, 1.64, -6), Vector3(0, 1.64, 0))
 	await physics_frames(120)
-	await process_frames(2)
 	var head: Node3D = man.parts[&"head"]
+	# Still, so a frame's lag between the physics and the drawn skin doesn't count (he can still be
+	# rolling at 2 s: his tone lets go a region at a time since 2026-10-28).
+	await wait_until(func() -> bool: return (head as RigidBody3D).linear_velocity.length() < 0.05, 300)
+	await process_frames(2)
 	var i := man.skeleton.find_bone("head")
 	var bone_world := man.skeleton.global_transform * man.skeleton.get_bone_global_pose(i)
 	check(bone_world.origin.distance_to(head.global_position) < 0.01, "the head's skin is where the ragdoll's head is")

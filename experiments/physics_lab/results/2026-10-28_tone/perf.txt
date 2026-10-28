@@ -1,0 +1,24 @@
+perf_off_1
+   1 men: frame ms standing 0.88 (p99 10.13) | collapse 0.49 (p99 0.91, max 4.01) | after 5 s 0.04 (p99 0.10)
+   5 men: frame ms standing 1.15 (p99 1.55) | collapse 1.33 (p99 2.55, max 12.12) | after 5 s 0.32 (p99 0.98)
+   10 men: frame ms standing 2.04 (p99 2.44) | collapse 2.08 (p99 4.03, max 23.00) | after 5 s 0.50 (p99 1.00)
+perf_off_2
+   1 men: frame ms standing 0.93 (p99 11.07) | collapse 0.54 (p99 1.00, max 4.13) | after 5 s 0.04 (p99 0.08)
+   5 men: frame ms standing 1.37 (p99 2.32) | collapse 1.36 (p99 2.33, max 13.54) | after 5 s 0.31 (p99 0.78)
+   10 men: frame ms standing 1.88 (p99 2.15) | collapse 2.08 (p99 3.85, max 22.05) | after 5 s 0.43 (p99 0.71)
+perf_fade_1
+   1 men: frame ms standing 0.88 (p99 9.61) | collapse 0.51 (p99 0.88, max 4.19) | after 5 s 0.05 (p99 0.09)
+   5 men: frame ms standing 1.09 (p99 1.46) | collapse 1.43 (p99 8.01, max 12.18) | after 5 s 0.29 (p99 0.55)
+   10 men: frame ms standing 2.06 (p99 2.59) | collapse 2.28 (p99 7.01, max 21.84) | after 5 s 0.43 (p99 0.76)
+perf_fade_2
+   1 men: frame ms standing 0.89 (p99 10.35) | collapse 0.61 (p99 1.41, max 3.72) | after 5 s 0.04 (p99 0.08)
+   5 men: frame ms standing 1.61 (p99 12.08) | collapse 1.29 (p99 2.23, max 13.22) | after 5 s 0.27 (p99 0.41)
+   10 men: frame ms standing 1.82 (p99 2.94) | collapse 2.28 (p99 4.26, max 33.06) | after 5 s 0.44 (p99 0.90)
+perf_dying_1
+   1 men: frame ms standing 0.90 (p99 9.94) | collapse 0.47 (p99 0.87, max 3.86) | after 5 s 0.04 (p99 0.09)
+   5 men: frame ms standing 1.33 (p99 2.31) | collapse 1.55 (p99 2.89, max 15.46) | after 5 s 0.28 (p99 0.45)
+   10 men: frame ms standing 2.22 (p99 4.29) | collapse 2.61 (p99 5.06, max 23.95) | after 5 s 0.42 (p99 0.70)
+perf_dying_2
+   1 men: frame ms standing 0.87 (p99 10.02) | collapse 0.55 (p99 0.81, max 4.03) | after 5 s 0.08 (p99 0.17)
+   5 men: frame ms standing 1.01 (p99 1.40) | collapse 1.31 (p99 2.35, max 12.92) | after 5 s 0.24 (p99 0.37)
+   10 men: frame ms standing 2.36 (p99 3.32) | collapse 2.36 (p99 4.40, max 23.66) | after 5 s 0.43 (p99 0.73)

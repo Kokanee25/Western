@@ -554,6 +554,9 @@ frozen until Sean names one.
 - **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
   is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
   With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
+- **The tone fade** (2026-10-28, #442, branch `claude/gameplay-tone-fade`; `experiments/physics_lab/results/2026-10-28_tone/`):
+  `HumanBody.tone_style` `fade` / `dying`, **`dying` the game's** (Sean, #445; the lab's `--tone=off` the
+  old quick fade), `tone.py`. Blind judge split 5/5; ~0.03 ms a man. Next #446 (bodies that keep moving).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

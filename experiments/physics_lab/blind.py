@@ -1,11 +1,11 @@
-# blind.py A_ROOT B_ROOT OUT_DIR SEED (the lab's blind pairwise judge, 2026-10-21): for each fall in both, a sheet of A and one of B stacked in a
+# blind.py A_ROOT B_ROOT OUT_DIR SEED [TIMES] (the lab's blind pairwise judge, 2026-10-21): for each fall in both, a sheet of A and one of B stacked in a
 # random order (X above, Y below), unlabelled; the key in OUT_DIR/../key_<name>.json (not for the judge).
 import sys,os,glob,json,random,subprocess
 from PIL import Image,ImageDraw
 a,b,out,seed=sys.argv[1],sys.argv[2],sys.argv[3],int(sys.argv[4])
+T=sys.argv[5] if len(sys.argv)>5 else '0,0.18,0.38,0.68,0.98,1.48,2.48,3.98,5.98'
 os.makedirs(out,exist_ok=True); os.makedirs(out.rstrip('/')+'_unblind',exist_ok=True); rnd=random.Random(seed); key={}
 cmp=os.path.join(os.path.dirname(os.path.abspath(__file__)),'compare.py')
-T='0,0.18,0.38,0.68,0.98,1.48,2.48,3.98,5.98'
 for d in sorted(glob.glob(a+'/*/frames')):
     n=os.path.basename(os.path.dirname(d))
     if not os.path.isdir(os.path.join(b,n,'frames')): continue
