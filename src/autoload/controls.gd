@@ -18,9 +18,12 @@ func _ready() -> void:
 	# Hold to run (Shift) or click the left stick to run until you stop.
 	_bind(&"run", [KEY_SHIFT], [])
 	_bind(&"run_toggle", [], [JOY_BUTTON_LEFT_STICK])
-	# Hold to crouch (Ctrl) or toggle (C, B button, right stick click).
+	# Hold to crouch (Ctrl) or toggle (C, B button).
 	_bind(&"crouch", [KEY_CTRL], [])
-	_bind(&"crouch_toggle", [KEY_C], [JOY_BUTTON_B, JOY_BUTTON_RIGHT_STICK])
+	_bind(&"crouch_toggle", [KEY_C], [JOY_BUTTON_B])
+	# Tap to shove, hold and let go to kick (PlayerShove; the right stick's click, as many shooters
+	# put their melee).
+	_bind(&"shove", [KEY_E], [JOY_BUTTON_RIGHT_STICK])
 	_bind(&"release_mouse", [KEY_ESCAPE], [])
 	_bind(&"debug_help", [KEY_F1], [])
 	_bind(&"debug_resolution", [KEY_F2], [])

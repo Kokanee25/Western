@@ -58,6 +58,9 @@ var _say_again := 0.0
 var _calm_for := 0.0
 var _rng := RandomNumberGenerator.new()
 
+## Seen kicking a man (PlayerShove's deeds), within this (m), it frightens him.
+const ASSAULTS := [&"kick", &"kick_down"]
+const ASSAULT_SEEN := 15.0
 ## Fire within `FIRE_REACH` m of him sends him off to somewhere `FIRE_CLEAR` m from any; he goes
 ## back once his post has had none within `FIRE_CLEAR` for `FIRE_OVER` s. Looked for every
 ## `FIRE_LOOK` s.
@@ -142,12 +145,17 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	if not to_me:
 		if loud and actor is Node3D and (actor as Node3D).global_position.distance_to(body.global_position) < 25.0:
 			_scared_by_shooting()
+		elif kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
+				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
+			# A man kicked in front of him: it's turned ugly.
+			fear += 0.1 if kind == &"kick" else 0.2
+			_flinch = 1.0
 		return
 	if not loud and not senses.sees(actor) and senses.aware_of(actor) < 0.4:
 		return  # done behind his back and he never knew
 	match kind:
-		&"shove":
-			fear += 0.25
+		&"shove", &"kick", &"kick_down":
+			fear += 0.25 if kind == &"shove" else 0.5
 			_flinch = 1.0
 			_troubled(actor)
 			say(&"shoved")
