@@ -5,7 +5,8 @@ class_name Blast
 ## - timber breaks when the kick it's given (impulse² / 2m) passes what it can soak up bending,
 ##   and the pieces fly; splinters off it are flown as projectiles;
 ## - panes crack from a few kPa, much further out;
-## - dry wood in the fireball may catch (a moment later: it smoulders first);
+## - it lights nothing itself (Sean, 2026-10-28: `ignite_chance` 0); a lit lamp it smashes or
+##   knocks down spills burning oil (GlassProp, OilLamp.smash), and that lights the floor;
 ## - loose things are pushed; other sticks close by go off with it;
 ## - people take it through `take_blast(at, kg)` (ears, lungs, head, thrown down, torn open, limbs).
 ## Tuning in config/blast.tres (BlastTuning).

@@ -739,7 +739,7 @@ knock out one stud and the wall shrugs it off.
 ### Dynamite
 - Breaks what's near it: plank walls splinter into holes, brick and adobe crack into chunks, doors
   blow off.
-- Can start fires in dry wood.
+- Lights nothing itself (Sean, 2026-10-28); a fire after a blast comes from a lit lamp it smashed or knocked down, or oil it spilt.
 - Feeds the anatomy system: pressure, flying debris, burns, deafness and ringing ears.
 - Uses: blow the vault, collapse a mine entrance, open the jail's back wall.
 
