@@ -185,7 +185,9 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	man.go_limp()
 	await physics_frames(150)  # down on the ground
 	# Only what the drag lays: how he lands, and whether he slides a little settling (his tone lets go
-	# a region at a time since 2026-10-28), changes with whatever tests ran before this one.
+	# a region at a time since 2026-10-28), changes with whatever tests ran before this one. A swipe
+	# from his settling still going when the drag starts would run on into it: ended first.
+	man.signs._end_smear()
 	var before := _smears().size()
 	for i in 60:
 		for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
