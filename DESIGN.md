@@ -362,7 +362,8 @@ manager, the ending as the state of the town.
   saloon you sit with the stranger (friendly, too curious about the sheriff and your spring);
   with no sheriff in town, the card cheat at the next table goes all the way. **You have no gun
   at the start**: no gunfight in the opening; your ways out are a shout, a shove, a bottle, or a
-  chase on foot. The ball the doctor digs out may match the stranger's gun, or clear him.
+  chase on foot (you're a no one: nothing makes you). The sheriff dies the next morning whatever
+  you do, and you get his gun. The ball the doctor digs out may match the stranger's gun, or clear him.
 - **The days, roughly:**
 
 | | Main thread | Side missions that can land here |

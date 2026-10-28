@@ -20,14 +20,15 @@ in the opening, even after the cheat is shot; maybe you can chase after them.
 |---|---|---|---|
 | 1 | **Home** | You wake in your cabin, morning. A quiet minute: what you stand to lose. | Look round, dress, step out. No gun in the house. |
 | 2 | **The shots** | Outside, several shots in the distance toward town, heard late, as sound travels. | Go toward them, or not (the act waits, then the sheriff is found by someone else and the town tells you). |
-| 3 | **The sheriff** | On the road, not far from your place: the sheriff down, shot, bleeding. What he says follows his blood loss: who, which way, a name or half of one. | Stop the bleeding (pressure, a bandage, a belt), talk to him, help him up. Leave him and he dies on the road; the town remembers. |
-| 4 | **To the doctor** | You walk him into town, his arm over your shoulder, or drag him if he can't stand. The doctor takes him; the ball he digs out later is evidence. | Get him there; the time it takes and what you did on the road decide if he lives. |
+| 3 | **The sheriff** | On the road, not far from your place: the sheriff down, shot, bleeding. What he says follows his blood loss: who, which way, a name or half of one. | Stop the bleeding (pressure, a bandage, a belt), talk to him, help him up. Leave him and someone else brings him in later; the town remembers you didn't. |
+| 4 | **To the doctor** | You walk him into town, his arm over your shoulder, or drag him if he can't stand. The doctor takes him; the ball he digs out later is evidence. | Get him there. **He dies the next day whatever you do** (Sean); how well you treated him decides how long he's lucid and what he can say before he goes. |
 | 5 | **The town** | The town as it is, a little shaken: people ask what happened; word spreads. No timer. | Walk, look, talk (typed lines for now). |
 | 6 | **The saloon** | You end up at a table with **the stranger**: friendly, too curious about the sheriff and your spring. | Talk, drink, watch. |
-| 7 | **The card cheat** | At the next table the cheat is caught; with **no sheriff** in town, it goes all the way: the chair kicked out, the gun in his mouth, the shot. | No gun: shout, shove or kick (#479), throw a bottle, grab the gun arm, or do nothing. The shooter runs or rides off; **maybe you chase him**, unarmed. |
+| 7 | **The card cheat** | At the next table the cheat is caught; with **no sheriff** in town, it goes all the way: the chair kicked out, the gun in his mouth, the shot. | No gun: shout, shove or kick (#479), throw a bottle, grab the gun arm, or do nothing. The shooter gets away. **You're a no one: nothing makes you chase him** (Sean); you can follow, unarmed, at your own risk. |
 | 8 | **After** | The room reacts by what each person saw; the barman about his chair; the stranger's reaction is a clue. | Talk to witnesses, follow the shooter, go back to the doctor's. |
+| 9 | **Next morning** | **The sheriff dies** at the doctor's, whatever you did. **You get his gun.** | What he says at the end, and who hands you the gun (him, while he can, or the doctor after), follows how you treated him. |
 
-Where it ends (for the demo) and **when you first get a gun** are open: see "Open" below.
+The demo ends on the next morning: the sheriff dead, his gun in your hand (Gate D: the prologue and on into the next morning).
 
 ## Why it works
 
@@ -73,13 +74,18 @@ or a playtest where there's something to measure, a film for Sean).
 The valley (#467), the horse walk (#470) and riding, the train (#466), the props and buildings
 (#463): the opening needs none of them. You walk.
 
+## Decided (Sean, 2026-10-28)
+
+- **You're a no one.** Nothing obliges you to chase the card cheat's shooter, help, or take a side; the
+  game doesn't push you. He gets away unless you choose to go after him.
+- **The sheriff dies the next day whatever you do,** and **you get his gun.** It's the story's fixed
+  point, and how it plays out still comes from the systems: how well you treated him decides how
+  long he's lucid, what he says, whether he names anyone, and whether he hands you the gun himself
+  or the doctor gives it to you after. His death is the town losing its law for good, and you
+  holding the badge's gun, a no one no longer.
+- **The demo ends the next morning** with his death and the gun.
+
 ## Open (Sean)
 
-- **When you get a gun:** the sheriff's, pressed on you at the doctor's; bought at the store; your
-  own, left at home on purpose and fetched after the card cheat; or not until day 2.
-- **Where the demo ends:** after the card cheat, or on into the night and the next morning (Gate D
-  says the next morning).
-- **The chase:** the shooter on foot (you can catch him, then what, unarmed?) or on a horse (he
-  gets away, and that's a lead).
 - **Who shot the sheriff** and why: the story isn't settled (Sean, 2026-10-28); the opening works
   whoever it is, so long as the stranger could have.
