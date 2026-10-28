@@ -3499,6 +3499,22 @@ const STUMBLE_FROM := 0.8  ## m/s: slower than this he drops where he is
 const STUMBLE_FOLD := {&"abdomen": Vector3(-20, 0, 8), &"chest": Vector3(-16, 0, 6), &"neck": Vector3(-6, 0, 0),
 		&"head": Vector3(-10, 0, 0)}
 const STUMBLE_FOLD_IN := 0.2
+## Issue #446 (Sean, 2026-10-28: "if a guy is running and gets killed his body keeps moving"),
+## behind a switch until he's seen it: the stumble keeps his speed (it braked him to 0.6), and when
+## something solid stands in his way within a step (a chair, a table, a rail, a banister, a wall)
+## his legs go there and then, so he goes into it with all he had rather than being steered along
+## it by `_slide` and dropping beside it. Nothing's added to him: the ragdoll keeps what he carried.
+const KEEP_STRIDE_GAME := false
+static var keep_stride := KEEP_STRIDE_GAME
+## What's "in his way" (`_way_blocked`): a sphere this big at these heights over his feet (the
+## seat of a chair or a table's top; a rail, a banister or a chair's back; low steps and the floor
+## under neither), cast along his heading this far past his walking sphere: a step at his speed,
+## within these bounds (m).
+const STRIDE_PROBE_R := 0.2
+const STRIDE_PROBE_UP := [0.6, 1.0]
+const STRIDE_STEP_S := 0.25
+const STRIDE_STEP_MIN := 0.35
+const STRIDE_STEP_MAX := 0.9
 
 
 func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float) -> void:
@@ -3538,11 +3554,41 @@ func _stumble_on(delta: float) -> void:
 			var d: Vector3 = STUMBLE_FOLD[sid]
 			_stumble_lean[sid] = Vector3(d.x, 0.0, d.z * float(_stumble.left)) * fold
 	var heading: Vector3 = _stumble.heading
+	if keep_stride and _way_blocked(heading, float(_stumble.speed)):
+		_fall_now()
+		return
 	_stumble.steering = true
-	walk_to(global_position + heading * 2.0, float(_stumble.speed) * lerpf(1.0, 0.6, k), delta)
+	walk_to(global_position + heading * 2.0, float(_stumble.speed) * (1.0 if keep_stride else lerpf(1.0, 0.6, k)), delta)
 	_stumble.steering = false
 	if stumbling <= 0.0:
 		_fall_now()
+
+
+## Something solid ahead within a step (`keep_stride`): a chair, table, rail, banister or wall,
+## not a man (he'd bowl into him standing) nor the walkers' ramps (Layers.WALK).
+func _way_blocked(heading: Vector3, speed: float) -> bool:
+	var dir := Vector3(heading.x, 0.0, heading.z)
+	if dir.length() < 0.01:
+		return false
+	dir = dir.normalized()
+	var reach := 0.26 - STRIDE_PROBE_R + clampf(speed * STRIDE_STEP_S, STRIDE_STEP_MIN, STRIDE_STEP_MAX)
+	var space := World.space(self)
+	var shape := SphereShape3D.new()
+	shape.radius = STRIDE_PROBE_R
+	var exclude: Array[RID] = []
+	if _blocker and is_instance_valid(_blocker):
+		exclude.append(_blocker.get_rid())
+	for up: float in STRIDE_PROBE_UP:
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape
+		q.transform = Transform3D(Basis.IDENTITY, global_position + Vector3.UP * up)
+		q.motion = dir * reach
+		q.collision_mask = Layers.WORLD
+		q.exclude = exclude
+		Prof.count(&"q_walk")
+		if space.cast_motion(q)[1] < 1.0:
+			return true
+	return false
 
 
 func _fall_now() -> void:
