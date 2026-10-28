@@ -108,8 +108,13 @@ he knelt against its foot. Two faults:
    all 16 (travel 1.45 vs 1.17 m, `x_probe_half_vs_full.txt`) but kneels short of both tables (the
    thing Sean saw), so half a step.
 
-Test: `test_body_impacts::test_shot_running_he_takes_a_card_table_with_him` (tips 59 deg; fails with
-the switch off: 0 m, 0 deg).
+Test: `test_body_impacts::test_shot_running_he_takes_a_card_table_with_him` (fails with the switch
+off: 0 m, 0 deg). On CI it skidded 0.20 m and didn't tip (here alone 59 deg): over eight starts a few
+centimetres apart the table always goes loose and skids 0.16-0.34 m, and tips past 30 deg in 4 of 8
+(its feet reach nearly as far as its top: pushed at the rim it would rather slide). The push now goes
+in where he bears on it (the contacts weighted by what each took, not the last touch, often his shin
+on its foot): 1 of 4 -> 4 of 8 over. A 0.4 s window over 0.2 changed nothing. The test asks for what
+holds: loose, and 0.12 m or 30 deg.
 
 **Final group X** (`x_tone.txt`, `x_tally.txt`: before vs half a step with the kit fix): travel 0.84
 -> **1.17 m**, broke something 7 -> **13** of 16, all three table falls loose (none before). Flags
