@@ -209,10 +209,20 @@ func test_a_stick_beside_the_table_throws_it_over_and_brings_its_lamp_down() -> 
 	await physics_frames(Fittings.SETTLE_FRAMES + 4)
 	check(fittings.items.any(func(it: Dictionary) -> bool: return it.node == lamp), "the lamp stands on the table (a fitting)")
 	Blast.detonate(world, table.global_position + Vector3(-1.0, 0.02, 0), Blast.t().tnt_per_stick)
-	await physics_frames(40)
+	# Since the ground counts (#220) the blast breaks a leg or two off itself, and what's left goes
+	# loose then, thrown by the breaking (KitProp._on_exploded's push is for a prop it didn't break).
+	await physics_frames(2)
+	var thrown := Vector3.ZERO
+	var heaviest := 0.0
+	for rb in table.rubble:
+		if is_instance_valid(rb) and rb is RigidBody3D and (rb as RigidBody3D).mass > heaviest:
+			heaviest = (rb as RigidBody3D).mass
+			thrown = (rb as RigidBody3D).linear_velocity
+	await physics_frames(38)
 	check(table.loose, "the table's thrown")
 	var top: Vector3 = table.get_meta(&"blast_push", Vector3.ZERO)
-	check(top.y > 0.0 and top.length() / 46.0 > 1.0, "the blast lifts it, faster than a metre a second (%s N·s)" % top)
+	check((top.y > 0.0 and top.length() / 46.0 > 1.0) or (thrown.y > 0.0 and thrown.length() > 1.0),
+			"the blast lifts it, faster than a metre a second (%s N·s pushed, or its top thrown at %s m/s)" % [top, thrown])
 	check(fittings.items.any(func(it: Dictionary) -> bool: return it.node == lamp and it.down), "the lamp comes down with it")
 
 
