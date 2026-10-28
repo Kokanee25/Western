@@ -127,6 +127,24 @@ const BATCH_FRAME_MEMBERS := 240
 ## (Sean's per-shot hitch, #385). A kit prop or a small building's material is one piece still.
 const BATCH_PIECE := 64
 const BATCH_CELL := 2.0
+## The fire's look on its members (FireSystem: scorch and char, the glow of a burning front):
+## StructureMember -> Vector2(char_amount, glow). A member still in a batch is drawn charred by
+## its batch (#434: a saloon burning whole was 2,500 members each drawn on its own, 18,000 draws):
+## a batch with any of them has each vertex's member's place (CUSTOM2) and the char_batch overlay,
+## its `looks` that place's. One drawn on its own (broken, holed, cut) has a char_overlay, shared by
+## every member whose look is in the same step (CHAR_STEPS, GLOW_STEPS: instance uniforms ran out
+## on a town's charred rubble, 4,096 under the Compatibility renderer).
+var _fire_look := {}
+var _fire_mats := {}  # batch -> its char_batch ShaderMaterial (built with places)
+var _looks := {}  # batch (one with places) -> each place's look, as sent
+var _slot := {}  # StructureMember in a batch with places -> its place
+var _looks_dirty := {}
+var _looks_queued := false
+const CHAR_BATCH := preload("res://src/fire/char_batch.gdshader")
+const CHAR_OVERLAY := preload("res://src/fire/char_overlay.gdshader")
+static var _char_overlays := {}  # Vector2i(char step, glow step) -> ShaderMaterial
+const CHAR_STEPS := 32
+const GLOW_STEPS := 8
 
 
 func _ready() -> void:
@@ -187,6 +205,7 @@ func _on_ground_changed(area: Rect2) -> void:
 
 func rebuild() -> void:
 	_clear_batches()
+	_fire_look.clear()
 	for m in _order:
 		m.free()
 	members.clear()
@@ -423,21 +442,38 @@ func _build_batch(key: Array) -> void:
 	var mat: Material = key[0]
 	var old: MeshInstance3D = _batches.get(key)
 	var st := SurfaceTool.new()
-	var any := false
-	for m: StructureMember in _batch_members.get(key, []):
+	var list: Array = _batch_members.get(key, [])
+	var fire := false
+	for m: StructureMember in list:
+		if _fire_look.has(m):
+			fire = true
+			break
+	var counts := PackedInt32Array()
+	for m: StructureMember in list:
 		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
-		any = true
-	if not any:
+		if fire:
+			counts.append(mi.mesh.surface_get_array_len(0))
+	if list.is_empty():
 		if old:
 			old.queue_free()
 		_batches.erase(key)
 		_batch_arrays.erase(key)
+		_fire_mats.erase(key)
+		_looks.erase(key)
 		return
 	var arrays := st.commit_to_arrays()
+	var flags := 0
+	if fire:
+		var places := _places(arrays, counts)
+		if places.is_empty():
+			fire = false
+		else:
+			arrays[Mesh.ARRAY_CUSTOM2] = places
+			flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
 	_batch_arrays[key] = arrays
 	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	if old == null:
 		old = MeshInstance3D.new()
 		old.name = "Batch"
@@ -445,6 +481,119 @@ func _build_batch(key: Array) -> void:
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
 		_batches[key] = old
 	old.mesh = mesh
+	if fire:
+		if not _fire_mats.has(key):
+			var cm := ShaderMaterial.new()
+			cm.shader = CHAR_BATCH
+			cm.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+			_fire_mats[key] = cm
+		var looks := PackedVector2Array()
+		looks.resize(BATCH_PIECE)
+		for i in list.size():
+			_slot[list[i]] = i
+			looks[i] = _fire_look.get(list[i], Vector2.ZERO)
+		_looks[key] = looks
+		old.material_overlay = _fire_mats[key]
+		(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", looks)
+	else:
+		_fire_mats.erase(key)
+		_looks.erase(key)
+		old.material_overlay = null
+
+
+## Each vertex's member's place in the batch (CUSTOM2.x), from how many vertices each member's mesh
+## gave it; empty if the batch's vertices aren't those (they always are: append_from keeps them).
+static func _places(arrays: Array, counts: PackedInt32Array) -> PackedFloat32Array:
+	var n: int = (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+	var places := PackedFloat32Array()
+	places.resize(n)
+	var at := 0
+	for i in counts.size():
+		if at + counts[i] > n:
+			push_warning("Structure: a batch's vertices aren't its members' (%d > %d)" % [at + counts[i], n])
+			return PackedFloat32Array()
+		for v in range(at, at + counts[i]):
+			places[v] = float(i)
+		at += counts[i]
+	if at != n:
+		push_warning("Structure: a batch's vertices aren't its members' (%d of %d)" % [at, n])
+		return PackedFloat32Array()
+	return places
+
+
+## The fire's look on a member (FireSystem: `char_amount` 0 sound to 1 charred through, `glow` its
+## burning front's, 0 when out): drawn by its batch while it's in one, else over its own meshes.
+func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
+	var v := Vector2(snappedf(char_amount, 0.01), snappedf(glow, 0.01))
+	if _fire_look.has(m) and _fire_look[m] == v:
+		return
+	_fire_look[m] = v
+	var key: Variant = _batched.get(m)
+	if key == null:
+		_own_fire_look(m)
+	elif not _fire_mats.has(key):
+		# Its batch was drawn without places: again, with them (a piece of 64 members at most).
+		_batch_dirty[key] = true
+		if not _rebuild_queued:
+			_rebuild_queued = true
+			_rebuild_dirty_batches.call_deferred()
+	else:
+		var looks: PackedVector2Array = _looks[key]
+		looks[_slot[m]] = v
+		_looks[key] = looks
+		if not _looks_dirty.has(key):
+			_looks_dirty[key] = true
+			if not _looks_queued:
+				_looks_queued = true
+				_send_dirty_looks.call_deferred()
+
+
+func has_fire_look(m: StructureMember) -> bool:
+	return _fire_look.has(m)
+
+
+func fire_look(m: StructureMember) -> Vector2:
+	return _fire_look.get(m, Vector2.ZERO)
+
+
+## The batches whose looks changed this frame send them, once each.
+func _send_dirty_looks() -> void:
+	var t := Prof.start()
+	_looks_queued = false
+	for key: Array in _looks_dirty:
+		if _fire_mats.has(key):
+			(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", _looks[key])
+	_looks_dirty.clear()
+	Prof.stop(&"char_looks", t)
+
+
+## A member drawn on its own: the char overlay of its look's step over each of its meshes.
+func _own_fire_look(m: StructureMember) -> void:
+	if not _fire_look.has(m):
+		return
+	var mat := char_material(_fire_look[m])
+	for p: Array in m.pieces:
+		if not is_instance_valid(p[0]):
+			continue
+		var mi := p[0] as MeshInstance3D
+		if mi and mi.material_overlay != mat:
+			mi.material_overlay = mat
+
+
+## The char overlay for a look (char_amount, glow), its step's: made once and shared.
+static func char_material(look: Vector2) -> ShaderMaterial:
+	var step := Vector2i(roundi(clampf(look.x, 0.0, 1.0) * CHAR_STEPS), roundi(clampf(look.y, 0.0, 1.0) * GLOW_STEPS))
+	if look.y > 0.0:
+		step.y = maxi(step.y, 1)  # alight: some glow, however little
+	var mat: ShaderMaterial = _char_overlays.get(step)
+	if mat == null:
+		mat = ShaderMaterial.new()
+		mat.shader = CHAR_OVERLAY
+		mat.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+		mat.set_shader_parameter(&"char_amount", float(step.x) / CHAR_STEPS)
+		mat.set_shader_parameter(&"glow", float(step.y) / GLOW_STEPS)
+		_char_overlays[step] = mat
+	return mat
 
 
 ## Draw this member on its own from now on (something's happened to it). `soon` (the fire's
@@ -456,8 +605,10 @@ func unbatch(m: StructureMember, soon := false) -> void:
 		return
 	var key: Array = _batched[m]
 	_batched.erase(m)
+	_slot.erase(m)
 	(_batch_members.get(key, []) as Array).erase(m)
 	_batch_dirty[key] = true
+	_own_fire_look(m)  # charred, it stays charred
 	var mi := m.get_child(0) as MeshInstance3D
 	if soon:
 		_show_after[m] = true
@@ -610,6 +761,10 @@ func _clear_batches() -> void:
 	_batch_arrays.clear()
 	_batch_dirty.clear()
 	_show_after.clear()
+	_fire_mats.clear()
+	_looks.clear()
+	_slot.clear()
+	_looks_dirty.clear()
 
 
 ## How many draw calls its intact members take (tests, F3).
@@ -957,6 +1112,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 		cs.queue_free()
 		m.pieces = new_pieces
 		m.set_meta(&"snapped", true)
+		_own_fire_look(m)
 	_wake_near(m.global_position, m.length() + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)

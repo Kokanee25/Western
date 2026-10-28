@@ -16,8 +16,10 @@ extends SceneTree
 ## --clutter=N: the street with N times its kit props (tools/prop_clutter.gd: the copies in rows
 ## along the street; docs/briefs/props-scale.md). --no-prop-batch: kit props drawn each its own;
 ## --no-member-rest: members keep their mesh and shape nodes at rest (both the before).
+## --no-perf-ring: without the bug report's frame-timing ring and its viewport measuring (PerfRing, #437).
 ## --folk=N: the street's townsfolk N times over, the copies standing two streets off
 ## (tools/folk_copies.gd; more-cores step 4b: far men ticking less often, `--people-bands=off` the before).
+## --census-by: the census's particles, visible meshes and collision shapes by what owns them.
 ## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
@@ -44,6 +46,9 @@ var render_time := true
 var clutter := 1
 ## Times the street's townsfolk (1: as it is).
 var folk := 1
+## --census-by: the census's particles, visible meshes and collision shapes counted by what owns
+## them (the nearest scripted node up the tree: its class, or its script's file).
+var census_by := false
 
 
 func _initialize() -> void:
@@ -63,6 +68,8 @@ func _initialize() -> void:
 			out_path = a.substr(6)
 		elif a == "--no-budget":
 			budget_report = false
+		elif a == "--census-by":
+			census_by = true
 		elif a == "--no-render-time":
 			render_time = false
 		elif a.begins_with("--clutter="):
@@ -71,6 +78,8 @@ func _initialize() -> void:
 			folk = int(a.substr(7))
 		elif a == "--no-prop-batch":
 			pass  # PropBatch reads it itself
+		elif a == "--no-perf-ring":
+			pass  # BugRecorder reads it itself: no frame-timing ring (PerfRing), no viewport measuring
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a.begins_with("--hour="):
@@ -148,15 +157,29 @@ func _measure(n: int) -> Dictionary:
 func _census() -> Dictionary:
 	var c := {}
 	var count := func(key: String) -> void: c[key] = int(c.get(key, 0)) + 1
+	var by := {}
+	var count_by := func(key: String, n: Node) -> void:
+		if not census_by:
+			return
+		var o := n.get_parent()
+		while o and o.get_script() == null:
+			o = o.get_parent()
+		var s: Script = o.get_script() if o else null
+		var who := "none" if s == null else (String(s.get_global_name()) if s.get_global_name() != &"" else s.resource_path.get_file())
+		if not by.has(key):
+			by[key] = {}
+		by[key][who] = int(by[key].get(who, 0)) + 1
 	for n in street.find_children("*", "", true, false):
 		if n is MeshInstance3D:
 			count.call("meshes")
 			if (n as MeshInstance3D).is_visible_in_tree():
 				count.call("meshes_visible")
+				count_by.call("meshes_visible", n)
 		elif n is MultiMeshInstance3D:
 			count.call("multimeshes")
 		elif n is GPUParticles3D or n is CPUParticles3D:
 			count.call("particles")
+			count_by.call("particles", n)
 		elif n is Light3D:
 			count.call("lights")
 		if n is RigidBody3D:
@@ -169,10 +192,13 @@ func _census() -> Dictionary:
 			count.call("animatable_bodies")
 		if n is CollisionShape3D:
 			count.call("collision_shapes")
+			count_by.call("collision_shapes", n)
 		if n.get_script() != null:
 			var g: String = (n.get_script() as Script).get_global_name()
 			if g in ["StructureMember", "HumanBody", "Structure", "FireFX", "GunSmoke", "BloodJet"]:
 				count.call(g)
+	if census_by:
+		c["by"] = by
 	c["nodes"] = Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
 	c["objects"] = Performance.get_monitor(Performance.OBJECT_COUNT)
 	c["physics_active"] = Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)

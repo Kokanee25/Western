@@ -1,18 +1,19 @@
 class_name FireFX
 extends Node
-## How one member looks in a fire: scorch and char creeping over it (char_overlay.gdshader, which
-## stays after the fire's out), and while it burns, its fire and smoke rising. The fire is a sheet
-## (fire_sheet.gdshader, the art session's: one continuous fire a member, every sheet drawing the
-## same field so a burning front is one mass); `sheets` false draws the older flipbook tongues
-## (flame.gdshader) instead, for comparing. Both ride on the member's own meshes, so they go with
-## it when it falls.
-
-const OVERLAY := preload("res://src/fire/char_overlay.gdshader")
+## How one burning member's fire is drawn: its fire and smoke rising. Only the members that show
+## flames have one (FireSystem's `max_flames`, the biggest and nearest fires: #434, a saloon burning
+## whole was 2,500 of these); the scorch, char and glow of every heated member are drawn by its
+## structure (Structure.show_fire: in its batch, or over its own mesh once it's broken). The fire is
+## a sheet (fire_sheet.gdshader, the art session's: one continuous fire a member, every sheet
+## drawing the same field so a burning front is one mass); `sheets` false draws the older flipbook
+## tongues (flame.gdshader) instead, for comparing. Standing in its batch they ride on the member
+## itself; once it's broken, on its own meshes, so they go with it when it falls.
 
 var member: StructureMember
 
-var _overlay: ShaderMaterial
 var _emitters: Array[Node3D] = []
+## What the emitters are on: the member (at rest in its batch) or its meshes (drawn on their own).
+var _on: Array[Node3D] = []
 
 const FLAME := preload("res://src/fire/flame.gdshader")
 const SHEET := preload("res://src/fire/fire_sheet.gdshader")
@@ -40,39 +41,33 @@ static var _smoke_mat: StandardMaterial3D
 
 
 ## `smoke` false: a SmokeField draws this member's smoke (FireSystem.smoked), so no particles.
+## `flames` false: it's out (or no longer one shown), and its fire goes.
 func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 	if member == null or not is_instance_valid(member):
 		queue_free()
 		return
-	if _overlay == null:
-		_overlay = ShaderMaterial.new()
-		_overlay.shader = OVERLAY
-		_overlay.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
-	var half := maxf(minf(member.size.x, minf(member.size.y, member.size.z)) * 0.5, 0.001)
-	var scorch := clampf((member.temperature - 120.0) / 400.0, 0.0, 0.25)
-	_overlay.set_shader_parameter(&"char_amount", clampf(maxf(member.char_depth / half, scorch), 0.0, 1.0))
-	_overlay.set_shader_parameter(&"glow", clampf(member.burn_time / tuning.growth_seconds, 0.2, 1.0) if member.burning else 0.0)
-	var meshes: Array[MeshInstance3D] = []
-	for p: Array in member.pieces:
-		if not is_instance_valid(p[0]):
-			continue
-		var mi := p[0] as MeshInstance3D
-		if mi:
-			meshes.append(mi)
-			if mi.material_overlay != _overlay:
-				mi.material_overlay = _overlay
+	var hosts := _hosts()
+	var on: Array[Node3D] = []
+	for h: Array in hosts:
+		on.append(h[0])
+	if not _emitters.is_empty() and on != _on:
+		_clear()  # broken since: its fire goes onto the pieces
 	if flames and _emitters.is_empty():
-		for mi in meshes:
+		_on = on
+		for h: Array in hosts:
+			var host: Node3D = h[0]
+			var box: AABB = h[1]
 			if sheets:
-				_emitters.append(_sheet_on(mi, tuning, false))
+				_emitters.append(_sheet_on(host, box, tuning, false))
 				if _over_opening():
-					_emitters.append(_sheet_on(mi, tuning, true))
+					_emitters.append(_sheet_on(host, box, tuning, true))
 			else:
-				_emitters.append(_flames_on(mi, tuning))
+				_emitters.append(_flames_on(host, box, tuning))
 				if _over_opening():
-					_emitters.append(_opening_flames(mi, tuning))
-			if smoke:
-				_emitters.append(_smoke_on(mi))
+					_emitters.append(_opening_flames(host, box, tuning))
+		# One smoke a member, from its biggest piece (each piece's was a fire's worth of particles).
+		if smoke and not hosts.is_empty():
+			_emitters.append(_smoke_on(hosts[0][0], hosts[0][1]))
 	elif not flames and not _emitters.is_empty():
 		_clear()
 	# The fire grows as it burns.
@@ -90,6 +85,23 @@ func refresh(flames: bool, tuning: FireTuning, smoke := true) -> void:
 					(e as GeometryInstance3D).material_override = _sheet_material()
 
 
+## Where its fire stands: [node, its box in that node's space]. At rest in its structure's batch
+## (its mesh out of the tree), the member itself; drawn on its own, each of its meshes, biggest first.
+func _hosts() -> Array:
+	if member.resting():
+		var mi := member.drawn_node()
+		return [[member, mi.transform * mi.get_aabb()]]
+	var out: Array = []
+	for p: Array in member.pieces:
+		if not is_instance_valid(p[0]):
+			continue
+		var mi := p[0] as MeshInstance3D
+		if mi and mi.is_inside_tree():
+			out.append([mi, mi.get_aabb()])
+	out.sort_custom(func(a: Array, b: Array) -> bool: return (a[1] as AABB).get_volume() > (b[1] as AABB).get_volume())
+	return out
+
+
 func _exit_tree() -> void:
 	_clear()
 
@@ -105,6 +117,7 @@ func _clear() -> void:
 		else:
 			e.queue_free()
 	_emitters.clear()
+	_on.clear()
 
 
 ## The tongues' size now: from catching to fully alight over `growth_seconds` of burning.
@@ -125,8 +138,8 @@ static func sheet_heat(m: StructureMember, tuning: FireTuning) -> float:
 ## one lying flat (its thinnest side up); over a door or window head (`opening`), standing in the opening under it, so the
 ## fire inside pours out of its top. As wide as the member plus half a tongue, so the sheets of a
 ## wall's boards overlap and draw one fire.
-func _sheet_on(mi: MeshInstance3D, tuning: FireTuning, opening: bool) -> MeshInstance3D:
-	var box := mi.global_transform * mi.get_aabb()
+func _sheet_on(host: Node3D, local_box: AABB, tuning: FireTuning, opening: bool) -> MeshInstance3D:
+	var box := host.global_transform * local_box
 	var flame := tuning.flame_size_alight.y * SHEET_GROW
 	var width := maxf(box.size.x, box.size.z) + tuning.flame_size_alight.x * 0.6
 	var foot := box.get_center()
@@ -159,7 +172,7 @@ func _sheet_on(mi: MeshInstance3D, tuning: FireTuning, opening: bool) -> MeshIns
 	# The shader turns and sizes the quad round its foot; this box only has to hold it.
 	var r := maxf(width, height) + 0.5
 	sheet.custom_aabb = AABB(Vector3(-r, -r, -r), Vector3(2.0 * r, 2.0 * r, 2.0 * r))
-	mi.add_child(sheet)
+	host.add_child(sheet)
 	sheet.global_position = foot
 	sheet.set_instance_shader_parameter(&"size", Vector2(width, height))
 	sheet.set_instance_shader_parameter(&"heat", sheet_heat(member, tuning))
@@ -196,8 +209,7 @@ func _over_opening() -> bool:
 ## Tongues off the member's upper half (its top face, if it lies flat), licking up and off it: a
 ## few big ones, not a sprinkle over its whole shell (the art session, docs/briefs/fire-look.md:
 ## the painting's fire is masses of tall tongues pouring off the tops).
-func _flames_on(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
-	var box := mi.get_aabb()
+func _flames_on(host: Node3D, box: AABB, tuning: FireTuning) -> GPUParticles3D:
 	var area := box.size.x * box.size.y + box.size.y * box.size.z + box.size.x * box.size.z
 	var p := _particles(clampi(int(area * 3.3), 2, tuning.flames_a_member), 0.9, _flame_material(), 0.42)
 	p.set_meta(&"flame", 1.0)
@@ -230,16 +242,15 @@ func _flames_on(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
 	var tex := GradientTexture1D.new()
 	tex.gradient = ramp
 	pm.color_ramp = tex
-	mi.add_child(p)
+	host.add_child(p)
 	# Centred on the upper half (an upright member) or just over its top (one lying flat).
 	p.position = box.get_center() + Vector3.UP * (box.size.y * 0.25 if upright else box.size.y * 0.5 + 0.05)
 	return p
 
 
 ## A few tongues pouring up out of the top of the opening under this head or header.
-func _opening_flames(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
-	var box := mi.get_aabb()
-	var p := _flames_on(mi, tuning)
+func _opening_flames(host: Node3D, box: AABB, tuning: FireTuning) -> GPUParticles3D:
+	var p := _flames_on(host, box, tuning)
 	p.amount = clampi(int(maxf(box.size.x, box.size.z) * 2.0), 2, 4)
 	p.set_meta(&"flame", 1.15)
 	var pm := p.process_material as ParticleProcessMaterial
@@ -250,8 +261,7 @@ func _opening_flames(mi: MeshInstance3D, tuning: FireTuning) -> GPUParticles3D:
 	return p
 
 
-func _smoke_on(mi: MeshInstance3D) -> GPUParticles3D:
-	var box := mi.get_aabb()
+func _smoke_on(host: Node3D, box: AABB) -> GPUParticles3D:
 	var p := _particles(clampi(int(box.size.length() * 3.0), 3, 10), 5.0, _smoke_material(), 1.1)
 	var pm := p.process_material as ParticleProcessMaterial
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
@@ -271,7 +281,7 @@ func _smoke_on(mi: MeshInstance3D) -> GPUParticles3D:
 	var tex := GradientTexture1D.new()
 	tex.gradient = ramp
 	pm.color_ramp = tex
-	mi.add_child(p)
+	host.add_child(p)
 	p.position = box.get_center() + Vector3.UP * 0.2
 	return p
 

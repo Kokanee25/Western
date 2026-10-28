@@ -37,6 +37,9 @@ var _to_settle: Array = []
 ## The building whose loads are being checked, a slice of members a frame, and its analysis.
 var _checking: Structure
 var _check: StructuralAnalysis
+## Something happened to `_checking` since its analysis began (a blast while its first look was
+## under way): the analysis is of how it stood before, so it begins again.
+var _stale := false
 ## Members a frame for that check (~60 µs each here, ~100 near a blast's damage, where the joists
 ## and their loads are: the blast-freeze lab's `bf_analyse`, 2026-10-27): a burning town's
 ## buildings each get looked at every second or two without any one frame taking more than a few
@@ -481,7 +484,9 @@ func queue_check(s: Structure) -> void:
 func queue_settle(s: Structure) -> bool:
 	if not is_inside_tree() or not is_physics_processing():
 		return false
-	if s != _checking and not s in _to_settle:
+	if s == _checking:
+		_stale = true
+	elif not s in _to_settle:
 		_to_settle.push_front(s)
 	_urgent[s] = true
 	return true
@@ -505,12 +510,16 @@ func _check_loads() -> void:
 						_checks[_checking] = int(_checks.get(_checking, 0)) + 1
 						full = int(_checks[_checking]) % FULL_CHECK_EVERY == 0
 					_check = _checking.start_analysis(full)
+					_stale = false
 			if _check == null:
 				return
 		if not is_instance_valid(_checking) or not _checking.is_inside_tree():
 			_check = null
 			_checking = null
 			return
+		if _stale:
+			_stale = false
+			_check = _checking.start_analysis()
 		var t_a := Prof.start()
 		if _rounds == 0 and not _urgent.has(_checking):
 			# The routine look at a burning building: a slice a frame, never more.
@@ -534,6 +543,7 @@ func _check_loads() -> void:
 		if more and _rounds < 64:
 			var t_b := Prof.start()
 			_check = _checking.start_analysis()
+			_stale = false  # its own round's changes are in this one
 			Prof.stop(&"fire_analyse", t_b)
 		else:
 			_urgent.erase(_checking)
@@ -885,6 +895,14 @@ func _update_fx() -> void:
 			if _flaming.size() >= tuning.max_flames:
 				break
 			_flaming[burning[int(v.y)]] = true
+	# Only the members showing flames have a FireFX (#434): the rest's go (their char stays, drawn
+	# by their structure).
+	for m: Variant in _fx.keys():
+		if not _flaming.has(m):
+			var fx: Variant = _fx[m]
+			if is_instance_valid(fx):
+				(fx as FireFX).queue_free()
+			_fx.erase(m)
 	_fx_keys = active.keys()
 	_fx_at = 0
 	_place_lights(burning)
@@ -906,7 +924,8 @@ func _longest_burning() -> Array[StructureMember]:
 	return out
 
 
-## A share of the members' looks (char, glow, flames) each frame.
+## A share of the members' looks (char, glow, flames) each frame. Char and glow are drawn by the
+## member's structure (in its batch while it stands: #434); a FireFX only for those showing flames.
 func _refresh_fx(frames: int) -> void:
 	var to := mini(_fx_at + ceili(float(_fx_keys.size()) / maxi(frames, 1)), _fx_keys.size())
 	for i in range(_fx_at, to):
@@ -914,20 +933,30 @@ func _refresh_fx(frames: int) -> void:
 		if not is_instance_valid(o):
 			continue
 		var m := o as StructureMember
+		_show_char(m)
+		var flames := _flaming.has(m)
 		var fx: Variant = _fx.get(m)
 		if not is_instance_valid(fx):
 			fx = null
-		if (m.temperature > 120.0 or m.char_depth > 0.0) and fx == null:
-			# Heated or charred, it's drawn on its own (the char overlay), not with its structure's batch.
-			if m.get_parent() is Structure:
-				(m.get_parent() as Structure).unbatch(m, true)
+		if flames and fx == null:
 			fx = FireFX.new()
 			fx.member = m
 			add_child(fx)
 			_fx[m] = fx
 		if fx != null:
-			(fx as FireFX).refresh(_flaming.has(m), tuning, not smoked(m))
+			(fx as FireFX).refresh(flames, tuning, not smoked(m))
 	_fx_at = to
+
+
+## Its scorch and char, and the glow of its burning front, to its structure to draw.
+func _show_char(m: StructureMember) -> void:
+	var s := m.get_parent() as Structure
+	if s == null or not (m.temperature > 120.0 or m.char_depth > 0.0 or s.has_fire_look(m)):
+		return
+	var half := maxf(minf(m.size.x, minf(m.size.y, m.size.z)) * 0.5, 0.001)
+	var scorch := clampf((m.temperature - 120.0) / 400.0, 0.0, 0.25)
+	var glow := clampf(m.burn_time / tuning.growth_seconds, 0.2, 1.0) if m.burning else 0.0
+	s.show_fire(m, clampf(maxf(m.char_depth / half, scorch), 0.0, 1.0), glow)
 
 
 ## Smoke that knows the buildings (SmokeField, docs/briefs/smoke.md): a field round each building

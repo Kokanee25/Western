@@ -133,8 +133,10 @@ static func chimney_glass() -> ShaderMaterial:
 
 
 ## The lamp's dark old brass (the painting's lamp foot is near-black bronze with lit edges).
+## A lamp's brass: lit gold by its own flame (light pass round 5: at (0.36, 0.3, 0.24) the table
+## lamp's base was a dull dark blob where the painting's shines).
 static func lamp_brass() -> ShaderMaterial:
-	return _mat("lamp_brass", PixelArt.metal("prop_brass", BRASS, 215), Color(0.36, 0.3, 0.24), 0.5, 0.5, 0.6)
+	return _mat("lamp_brass", PixelArt.metal("prop_brass", BRASS, 215), Color(0.72, 0.6, 0.48), 0.5, 0.5, 0.6)
 
 
 ## Pewter: a dark grey mug, its texels mottled, catching the lamp at its rim.

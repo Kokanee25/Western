@@ -10,6 +10,12 @@ const VENOUS := Color(0.3, 0.02, 0.03)
 
 static var _splats: Array[Decal] = []
 
+## A drop that hit this slanting (length over width) is drawn with the long drop (splat_long.png,
+## tools/textures/smear_band.py), its box stretched by LONG_BOX of that: the stain in it is already
+## ~1.5 times as long as wide (52 of 64 rows by 17 of 32 columns).
+const LONG_FROM := 1.6
+const LONG_BOX := 0.654
+
 ## A drop's radius (m) and how long a stretch of its flight it draws (s).
 const DROP_RADIUS := 0.0048
 const TRAIL_SECONDS := 0.035
@@ -129,7 +135,13 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 			var z := along.normalized()
 			d.global_basis = Basis(n.cross(z).normalized(), n, z)
 			var slant := absf(velocity.normalized().dot(n))
-			d.set_meta(&"long", clampf(1.0 / maxf(slant, 0.2), 1.0, 5.0))
+			var long := clampf(1.0 / maxf(slant, 0.2), 1.0, 5.0)
+			if long >= LONG_FROM:
+				# A round splat squeezed to this reads as a slash: a long one is drawn as a long
+				# drop instead, its tail on down the way it flew (+Z, the texture's foot).
+				d.texture_albedo = PixelArt.blood("splat_long", 44, false, 16)
+				long *= LONG_BOX
+			d.set_meta(&"long", long)
 	_grow(d, ml)
 	_splats.append(d)
 	return d
@@ -224,6 +236,31 @@ static func marks_near(at: Vector3, radius: float) -> Array[Decal]:
 		if Vector2(p.x - at.x, p.z - at.z).length() <= reach:
 			out.append(d)
 	return out
+
+
+## How much of blood this many game hours old still comes off on what touches it (a hand, cloth):
+## wet it transfers, skinned over and dried it doesn't. An e-fold of WET_HOURS (a drop skins over
+## in minutes, a pool stays wet an hour or more; drying runs slower in the thick of it), and under
+## WET_MIN it's dried.
+const WET_HOURS := 0.75
+const WET_MIN := 0.15
+
+
+static func wetness(age_h: float) -> float:
+	return exp(-maxf(age_h, 0.0) / WET_HOURS)
+
+
+## Wet blood near `at` (ml, each mark by its wetness; a dried one none): what a hand pressed
+## there takes up. A hand's own prints don't count (it would load itself again off them).
+static func wet_near(at: Vector3, radius: float) -> float:
+	var ml := 0.0
+	for d in marks_near(at, radius):
+		if d.has_meta(&"print"):
+			continue
+		var wet := wetness(float(d.get_meta(&"age_h", 0.0)))
+		if wet >= WET_MIN:
+			ml += _ml_of(d) * wet
+	return ml
 
 
 ## Blood near `at` (ml, roughly: a mark without its own measure counts by its area).

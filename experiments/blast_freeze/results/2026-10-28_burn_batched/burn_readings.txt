@@ -1,0 +1,26 @@
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 66.0, "frame_ms": 15.2, "nodes": 23155.0, "physics_ms": 19.19, "process_ms": 4.11}, "ok": true, "t": 66.48}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 0, "people": 22}, "ok": true, "t": 66.5}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 113.0, "frame_ms": 8.8, "nodes": 23177.0, "physics_ms": 15.41, "process_ms": 2.14}, "ok": true, "t": 81.73}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 6, "people": 22}, "ok": true, "t": 81.75}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 67.0, "frame_ms": 14.9, "nodes": 23188.0, "physics_ms": 91.98, "process_ms": 4.44}, "ok": true, "t": 96.83}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 6, "people": 22}, "ok": true, "t": 96.85}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 71.0, "frame_ms": 14.1, "nodes": 23207.0, "physics_ms": 143.79, "process_ms": 1.85}, "ok": true, "t": 111.9}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 15, "people": 22}, "ok": true, "t": 111.92}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 86.0, "frame_ms": 11.6, "nodes": 23242.0, "physics_ms": 30.71, "process_ms": 1.98}, "ok": true, "t": 126.98}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 29, "people": 22}, "ok": true, "t": 127.0}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 49.0, "frame_ms": 20.4, "nodes": 23266.0, "physics_ms": 139.84, "process_ms": 3.71}, "ok": true, "t": 142.05}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 0, "members_burning": 105, "people": 22}, "ok": true, "t": 142.07}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 48.0, "frame_ms": 20.8, "nodes": 23262.0, "physics_ms": 62.04, "process_ms": 2.1}, "ok": true, "t": 157.13}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 2, "members_burning": 310, "people": 22}, "ok": true, "t": 157.15}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 27.0, "frame_ms": 37.0, "nodes": 23261.0, "physics_ms": 66.1, "process_ms": 3.89}, "ok": true, "t": 172.22}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 3, "members_burning": 679, "people": 22}, "ok": true, "t": 172.23}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 24.0, "frame_ms": 41.7, "nodes": 23259.0, "physics_ms": 68.94, "process_ms": 1.68}, "ok": true, "t": 187.3}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 4, "members_burning": 1173, "people": 22}, "ok": true, "t": 187.32}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 18.0, "frame_ms": 55.6, "nodes": 23253.0, "physics_ms": 121.09, "process_ms": 1.97}, "ok": true, "t": 202.37}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 6, "members_burning": 1619, "people": 22}, "ok": true, "t": 202.38}
+{"cmd": "read frame", "frame": {"clock": "17:36", "draw_calls": 0.0, "fps": 21.0, "frame_ms": 47.6, "nodes": 23323.0, "physics_ms": 125.75, "process_ms": 1.61}, "ok": true, "t": 217.43}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 9, "members_burning": 2020, "people": 22}, "ok": true, "t": 217.45}
+{"cmd": "read frame", "frame": {"clock": "23:36", "draw_calls": 0.0, "fps": 19.0, "frame_ms": 52.6, "nodes": 22707.0, "physics_ms": 78.88, "process_ms": 2.01}, "ok": true, "t": 232.5}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 11, "members_burning": 2448, "people": 19}, "ok": true, "t": 232.52}
+{"cmd": "read frame", "frame": {"clock": "23:36", "draw_calls": 0.0, "fps": 15.0, "frame_ms": 66.7, "nodes": 22942.0, "physics_ms": 117.01, "process_ms": 2.23}, "ok": true, "t": 247.57}
+{"cmd": "read counts", "counts": {"fire": true, "members_broken": 21, "members_burning": 2938, "people": 19}, "ok": true, "t": 247.58}

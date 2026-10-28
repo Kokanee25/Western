@@ -127,6 +127,21 @@ settings and the last things that happened; `recording.json`; `godot.log`; `scre
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
 its last frame beside the report's screenshot.
 
+**The frame's numbers in it** (`src/debug/perf_ring.gd`, `PerfRing`, #433): every frame the recorder
+(last in the frame, `process_priority` 1000) notes the wall-clock frame, the engine's process and
+physics time, the physics ticks run, render CPU and GPU (every viewport measured from the start;
+with a separate render thread only while F3 is up), draws, objects, nodes, bodies awake, and,
+while F3 is up, the eight biggest `Prof` systems (`Prof.frame()` keeps the frame's own costs in
+`frame_ms`/`frame_top_*`; `q_*`/`n_*` counts left out). Fixed rings: the last 15 s at every frame
+(up to 4096), the last 10 minutes as one-second means and worsts. F12 adds `perf.json` (both
+rings, columns and rows) and `perf_summary` at the top of `report.json` (the worst frame of the
+last 15 s with its split and systems, mean, p95, the three biggest costs, the worst second); the
+log, the replay and `python3 tools/perf_report.py FILE.saltbug [--seconds=N|--all] [--over=MS]`
+print it (the last also the 15 s's per-system table and the per-second table). The path shows at
+the foot of the screen for 12 s (on Windows `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`).
+Costs here: the recorder ~12 µs a frame with F3 closed, ~38 µs open; the profiler on ~0.2 ms.
+F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
+
 ## The soak
 
 **The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC and by
@@ -365,7 +380,10 @@ the shade's fill a warm colour (`day.ambient_sky_low_sun` down, `ambient_low_sun
 hour the coded sky's radiance, which the fill took half from, is dim, and the ambient's energy
 doesn't scale it), `exposure_low_sun` up, the road's `ground.sky_fill_low_sun` up, and the painted
 sky's `paint_span` shorter (its panels' blue tops come down between the clouds), `paint_gain` and
-`paint_saturation` down. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
+`paint_saturation` down. Round 5 (the saloon's back and table, no dials): the back bar's mirrors
+painted (src/art/saloon_dressing.gd), the probe re-taken (`RoomReflections`), the shot's table top
+drawn smooth (`tools/textures/draw_table.py --style=painted`, the default; `blocks` the old) and
+polished (`ShotMatch.TABLE_*`), the lamps' brass and the table's token gold. `screenshots.gd --variants=A.json,B.json` saves a view again under each LookPreset file
 (over the game's light) in the same run, for trials.
 The looks' files apply `config/looks/light_{a,b,c}.json`, LookPreset files of dials: DayCycle's high-sun dials,
 the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_dark`/`patches`
@@ -534,7 +552,13 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
   it and glances off as metal, it doesn't burn, it isn't carved. A structure draws its untouched members as one mesh
-  per material (`batch_meshes`); `unbatch(m)` (a hole, heat, breaking) shows the member's own.
+  per material (`batch_meshes`); `unbatch(m)` (a hole, a cut, breaking, burning away) shows the member's own.
+  **Fire in the batch** (#434): heat no longer unbatches. `show_fire(m, char, glow)` (FireSystem)
+  keeps each member's look; a batch with any (rebuilt once with them) carries each vertex's
+  member's place in CUSTOM2 and draws `char_batch.gdshader` over itself (`looks[64]`, a piece's
+  members); a member drawn on its own has the shared `char_overlay.gdshader` with its look as
+  instance uniforms, carried over when it's unbatched or snaps (`_own_fire_look`); both share
+  `char.gdshaderinc`. A KitProp leaves its PropBatch when it heats.
   **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
   batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
@@ -624,7 +648,7 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting
   clear; `config/fire.tres` via `FireTuning`; `_check_loads`: the burning buildings' loads a
   slice a frame, each building's analysis carried over, see "src/structures"), `FireFX` (flames, smoke, steam,
-  `char_overlay.gdshader`). `tools/fire_timeline.gd` measures how fast a fire grows.
+  char drawn by the structure, see "src/structures"). `tools/fire_timeline.gd` measures how fast a fire grows.
   **What it costs** (more-cores step 5, `experiments/blast_freeze/results/2026-10-27_step5/`):
   `fire_near` reads the fire's picture (the burning members and their boxes, taken once a physics
   frame, again after anything catches), not the grid; the grid (2 m cells, for neighbours, spills,
@@ -676,7 +700,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   member's sheet from `WALL_FOOT` (0.3) up its face; a sloped one (long axis 0.2-0.7 off level:
   rafters) from along its middle; flat ones on top; a door or window head's in the opening under
   it. FireSystem's `max_flames` (40) go to the nearest burning members, the roof's and the heads'
-  `FLAME_FIRST` (6 m) nearer than they are. A wide sheet holds up to `max_tiles` flipbook flames,
+  `FLAME_FIRST` (6 m) nearer than they are. Only those have a FireFX (#434; the rest's go each
+  half second): its sheets and one smoke stand on the member itself while it's at rest in its
+  batch, on its meshes once it's broken (`_hosts`; moved when that changes). A wide sheet holds up to `max_tiles` flipbook flames,
   half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
 ## src/bodies
@@ -944,7 +970,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
-  Ballistics, ignites, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
+  Ballistics, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
   on people; what it acts on comes from `gather()`: every member where timber can break,
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
@@ -952,8 +978,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
   (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
   taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie
-  down as loose earth where they land on the dirt; BlastTuning's Craters group). Wood it lights
-  smoulders `ignite_delay` first (`FireSystem.ignite_after`). `src/effects/blast_cloud.gd`
+  down as loose earth where they land on the dirt; BlastTuning's Craters group). It lights no wood
+  itself (`ignite_chance` 0 since 2026-10-28, Sean): a fire after a blast is a lit lamp's oil (GlassProp
+  past `shatters_kpa`, thrown and broken, or down with its shelf: `OilLamp.smash`). `src/effects/blast_cloud.gd`
   (`BlastCloud`, brief `docs/briefs/blast-look.md`): what a charge throws up (a blink of flash, a dust
   jet out of the open side `vent_of`, the billow and ground surge in the colour of what it blew apart
   `dust_of`, dark chunks, a fog volume), lit by the world, seeded; judged in the breakage lab's
@@ -1280,8 +1307,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
-  stair and balcony (members), tall mirrors (a `ReflectionProbe` the room's size gives them
-  something to show), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
+  stair and balcony (members), tall mirrors (the game's painted glass, `PropModels.mirror`'s
+  `mirror.gdshader`, set to this room by `MIRROR_ROOM`; light pass round 5: as a metal finish on
+  the probe they were black at night), `RoomReflections` (`src/art/room_reflections.gd`: the
+  room's probe for its brass, glass and tin, taken again when the lamps are lit or put out or the
+  sun rises or sets, and the mirrors' painted lamps lit with the room's), piano by the door, stag, pictures, two dozen lamps (sconces, lamps on the
   back bar, lamps hung on rods; no shadows, their chimneys glow), a bottle wall (`_bottle_wall`:
   a few hundred bottles merged into one mesh per material; scenery, not shootable).
   `ShotMatch` turns and places its whole set (`ROOM_YAW`, `TABLE`: beside the bar, the tall front

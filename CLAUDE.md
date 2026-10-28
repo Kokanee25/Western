@@ -390,10 +390,17 @@ frozen until Sean names one.
   white flame. Judge saloon 1.200 -> 0.406, street 1.145 -> 0.878.
   **Round 4** (#422, branch `claude/art-light-pass-4`): the street at golden hour, `light_game.json`
   `day_values` over B's (a warm fill in the shade, exposure, the road's low-sun fill, the painted
-  sky's blue lower); judge street 0.878 -> 0.240. Waiting on Sean: the canyon at the street's end
-  (#423). The critic's next:
-  - the saloon's depth (black voids over the bottle shelves) and the table top's noisy squares;
+  sky's blue lower); judge street 0.878 -> 0.240. Sean kept the canyon (#423).
+  **Round 5** (#425, branch `claude/art-light-pass-5`): the black voids were the back bar's
+  mirrors (metal on a probe taken at noon); now the painted glass (`MIRROR_ROOM`), the probe
+  re-taken by `RoomReflections`, the table top drawn smooth and honey (`draw_table.py` painted
+  style), the lamps' brass gold; judge saloon 0.406 -> 0.354. The critic's next (r6):
+  - the back bar reads as a pale flat wall (the mirror's glow has no frame or room in it; the
+    painting's is dark carved woodwork with a gilt-framed lit mirror); the bar front bleached;
+  - the table still coarse squares up close (the texel grid at a low angle), the chip stack blotchy;
   - the street's signs and paint (the SALOON sign a dark stencil, the saloon not barn-red).
+  Main's nightly Visual checks fail on drift that isn't art's (`store_front_noon`, `street_night`
+  and more fail on clean main here too, as `porch_dusk` did).
   Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
   lavapipe wait ~5 s after a clock jump before a screenshot; a view's render is ~9 min here, so
   try dials with `screenshots.gd --variants=` (one load, ~1 min a variant).
@@ -455,6 +462,12 @@ frozen until Sean names one.
   talking face `--pin=no` (the edge pin lays it on her hair and slashes her chin). Sheets
   `docs/style_test/widow-look/`. Fronts by GPT-5.4 in the cowboy's look kept drawing her head small
   (0.104-0.109 of her height, his 0.140): Sean's own pictures are the route for a woman.
+- **Three more from Sean's own ChatGPT pictures** (2026-10-27/28, the cowboy attached, Rodin $1.60
+  each; Studio $62.62 of $65): the Mexican rancher (#430, livery's west end), the blacksmith (#443,
+  build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
+  knees; Sean: "she may be yoinked"). `talking_face.py`'s cut, when its edge comes apart (loose
+  hair, a head mesh ending just under the chin), keeps the neck ring and gives back pinches and
+  hair (the earlier men unchanged). Next: Sean's word on the working girl.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
@@ -538,6 +551,12 @@ frozen until Sean names one.
   Left for #373 (since done by more-cores step 5, but the stick's frame): `civilian_brain` 30-90 ms a frame while a building burns (townsfolk's fire
   response), the fire's grid/neighbour refresh and smoke step spikes (40-130 ms), the frame after a
   stick (~125 ms of physics taking ~110 new bodies), making ~110 pieces of rubble on the stick's frame (~100 ms).
+- **Dynamite lights nothing itself** (2026-10-28, #449, Sean): `ignite_chance` 0; a fire after a blast
+  is a lit lamp's oil (GlassProp -> `OilLamp.smash`); `experiments/breakage_lab/results/2026-10-28_no_fire/`.
+  With it, a blast's collapse lost under the fire's routine check fixed (`FireSystem.queue_settle`).
+- **The tone fade** (2026-10-28, #442, branch `claude/gameplay-tone-fade`; `experiments/physics_lab/results/2026-10-28_tone/`):
+  `HumanBody.tone_style` `fade` / `dying`, **`dying` the game's** (Sean, #445; the lab's `--tone=off` the
+  old quick fade), `tone.py`. Blind judge split 5/5; ~0.03 ms a man. Next #446 (bodies that keep moving).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -548,6 +567,15 @@ frozen until Sean names one.
   six proposed ranges), then a hit man's behaviour. Feel ranges marked proposed wait on Sean's play.
 - Also open: 0.1 the nightlies green three nights; performance part B (the fire tick native first);
   Sean's calls on a key for the CMU walk and the mocap clean-up.
+- **The performance report** (#433, PR #437, build 2627): F12's `.saltbug` has the frame's numbers
+  (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
+  FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
+  Next: the play log, #387 (its updated prompt in the comments).
+- **The burning building in its batch** (#434, PR #457, waiting on the Fable review): char and glow
+  drawn by the structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the
+  40 flames shown; `FrameBudget` counts nested timers once. Sean's F3 and the fire's lights: #458.
+  Next: rubble at rest batched, #459. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
+  Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
   top five in its `baseline/baseline.md`); fix 1 (#263: a heard sound doesn't name its maker, 74 -> 88);
@@ -649,7 +677,20 @@ frozen until Sean names one.
   fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
   skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
   Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
-  `results/2026-10-21_gore_lab/`.
+  `results/2026-10-21_gore_lab/`. **The drag smears** (2026-10-27, PR #438, build 2615): one
+  trunk-wide swipe a man (`WoundSigns._smears`, `SMEAR_*`), not rows of slashes; slanting drops
+  drawn long (`splat_long`); generated textures (`tools/textures/smear_band.py`); lab `body_drag`.
+  A thinning smear narrows, not see-through; **more blood on a shot man** (2026-10-28, PR #441,
+  build 2652): wound stains by what cloth soaks (`STAIN_SOAK`/`FILM`/`MAX`), soaked from below in
+  his pool (`_soak_in_pool`, `POOL_SOAK_*`), pools under men down but not limp; lab `body_where`,
+  `body_meshes`, `body_probe`. **The smear painted** (#439, 2026-10-28): run 129, Gemini, $0.14 of
+  Sean's $4 ($3.86 left); `smear_band.py --painted` cuts it. **Bloody hands** (#451, 2026-10-28,
+  branch `claude/gameplay-bloody-hands`): a hand wets on any wet blood it's pressed into
+  (`Blood.wet_near`/`wetness`: dried doesn't come off), a bleeding hole or soaked patch, tending, a
+  dragged man's collar; prints by what's on it, spaced (`PRINT_SPACING`); the blood drawn on the
+  hand (`_show_hand`); the crawl's hands planted on the floor (`HumanBody._crawl_hands`, was 20 cm
+  through it); lab `body_blood`, `body_crawl`, `body_hands`, `body_haul`; results
+  `results/2026-10-28_hands/`. Waiting on Sean: the player's own hands (#455).
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief
