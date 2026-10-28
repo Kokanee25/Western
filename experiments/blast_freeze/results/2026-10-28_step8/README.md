@@ -105,4 +105,17 @@ dead by 165 s on both.
 
 ## The suite, the soak
 
-(filled in below as they finish)
+- **The suite: 777 passed, 2 failed**: `test_perf`'s calm and cluttered streets (17.4 and 20.7 ms
+  against 16). Main fails them here too: `test_perf` on main 16.7 / 19.9 / burning 37.6 against the
+  branch 18.4 / 20.6 / 30.1 (budgets 16 / 16 / 30). The calm street alone, main and branch in turn
+  (`perf_bench --scene=calm --seconds=30`): 21.7, 22.8, 22.6, 21.7 ms: no change; the burning
+  street is the one that moves.
+- **The soak** (`--minutes=120`, headless): stopped at game minute 89 by this session's 2-hour cap
+  on a background job (the VM runs it at ~0.7x real time), past both cycles' fire (20, 70) and
+  stick (30, 80): **no problem found**, no script error, memory flat (~1.4 GB, resident 1.6–1.8),
+  nodes 16–22 k (`soak_windows.txt`). The 85-minute window's 37 ms is the second stick's fire.
+  The ~15,600 orphan nodes the soak's end would report (over 1,000) are main's too (main's soak at
+  5:00: 15,957, the same as here): the members' rest meshes and shapes (#357), not this step's.
+- **After merging main** (a0ee589: #462's quick fade, which moves the fights: main before and
+  after it 6 of 10 the same): the merged branch against main a0ee589, MERGED_RESULT; the tone-fade,
+  fire, core and settle tests pass.
