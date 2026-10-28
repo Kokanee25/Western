@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6q0fvbue5tqs"
-path="res://.godot/imported/working_girl_s2_talking_head.png-c5f4e1c99aee76d2f22e99cc9215022f.ctex"
+uid="uid://6kiii4p27dms"
+path="res://.godot/imported/blacksmith_s1_talking_skin.png-b81559d977dc8e78c1d6700e3bef5a8e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/people/working_girl_s2_talking_head.png"
-dest_files=["res://.godot/imported/working_girl_s2_talking_head.png-c5f4e1c99aee76d2f22e99cc9215022f.ctex"]
+source_file="res://assets/people/blacksmith_s1_talking_skin.png"
+dest_files=["res://.godot/imported/blacksmith_s1_talking_skin.png-b81559d977dc8e78c1d6700e3bef5a8e.ctex"]
 
 [params]
 
