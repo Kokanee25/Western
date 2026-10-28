@@ -170,7 +170,11 @@ func test_a_wounds_stain_covers_what_his_clothes_soak_up() -> void:
 func test_lying_in_his_pool_his_clothes_soak_it_up() -> void:
 	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
 	man.physiology.bleeds[0].rate = 6.0
+	# The quick fade: he lands with his arms by him, in the pool. (The game's tone lets go a region
+	# at a time and can leave them spread past it; what's tested here is what lies in it soaking.)
+	HumanBody.tone_style = &""
 	man.go_limp()
+	HumanBody.tone_style = HumanBody.TONE_GAME
 	man.time_scale = 20.0
 	await physics_frames(240)
 	man.time_scale = 1.0
