@@ -20,6 +20,8 @@ extends SceneTree
 ## --folk=N: the street's townsfolk N times over, the copies standing two streets off
 ## (tools/folk_copies.gd; more-cores step 4b: far men ticking less often, `--people-bands=off` the before).
 ## --census-by: the census's particles, visible meshes and collision shapes by what owns them.
+## --by-ticks: waits and measures in physics ticks, not frames (drawn, without --fixed-fps: the cap's
+## before and after over the same game time, #435).
 ## --spikes=MS: each frame longer than that, with what each system took in it. "timed" is each system's own frame entries (Prof), the rest is
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
@@ -37,6 +39,9 @@ var report := {}
 var _voxel_tuning: Resource
 ## Print frames longer than this (ms) with what each system took in them (0 = off).
 var spikes := 0.0
+## --by-ticks: every wait and measure counted in physics ticks, not frames (a drawn run in real time,
+## where the catch-up cap changes how many ticks a frame runs: the same game time either way, #435).
+var by_ticks := false
 ## Each scene against config/frame_budget.tres (off with --no-budget, and with --quick).
 var budget_report := true
 ## Leave out the render time read (viewport_get_measured_render_time_cpu makes a separate render
@@ -80,6 +85,8 @@ func _initialize() -> void:
 			pass  # PropBatch reads it itself
 		elif a == "--no-perf-ring":
 			pass  # BugRecorder reads it itself: no frame-timing ring (PerfRing), no viewport measuring
+		elif a == "--by-ticks":
+			by_ticks = true
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a.begins_with("--hour="):
@@ -99,6 +106,11 @@ func _initialize() -> void:
 
 
 func _frames(n: int) -> void:
+	if by_ticks:
+		var t0 := Engine.get_physics_frames()
+		while Engine.get_physics_frames() - t0 < n:
+			await process_frame
+		return
 	for i in n:
 		await process_frame
 
@@ -106,7 +118,12 @@ func _frames(n: int) -> void:
 ## Frame times (ms) over `n` frames, wall clock, plus the monitors averaged.
 func _measure(n: int) -> Dictionary:
 	var times := PackedFloat32Array()
-	var mon := {"render_cpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0, "process_ms": 0.0, "physics_ms": 0.0}
+	var mon := {"render_cpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0, "process_ms": 0.0, "physics_ms": 0.0, "ticks": 0.0}
+	# The frame's own process and physics, from the bug report's ring (#435; Godot's monitors are a
+	# second's worst frame and worst tick): none with --no-perf-ring.
+	var rec = main.get_node_or_null(^"BugRecorder") if main else null
+	var ring = rec.perf if rec and rec.perf_on else null
+	var ticks0 := Engine.get_physics_frames()
 	var vp: Viewport = main.get_node_or_null(^"GameViewport") if main else null
 	var vp_rid: RID = vp.get_viewport_rid() if vp and render_time else RID()
 	if vp_rid.is_valid():
@@ -117,7 +134,9 @@ func _measure(n: int) -> Dictionary:
 	prof.roll()
 	var last := Time.get_ticks_usec()
 	var before := {}
-	for i in n:
+	ticks0 = Engine.get_physics_frames()
+	var i := 0
+	while (Engine.get_physics_frames() - ticks0 < n) if by_ticks else i < n:
 		await process_frame
 		# Never rolled while it measures: the systems are the whole run's mean (with the default
 		# second, they were only the last second's).
@@ -136,13 +155,21 @@ func _measure(n: int) -> Dictionary:
 				print("   spike: frame %d %.1f ms: %s" % [i, (now - last) / 1000.0, ", ".join(parts)])
 			before = sums
 		last = now
+		i += 1
 		mon.draw_calls += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / n
 		mon.objects_in_frame += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME) / n
-		# The main thread's own work (meaningless headless: the loop isn't paced).
-		mon.process_ms += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 / n
-		mon.physics_ms += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0 / n
+		# The main thread's own work (headless the loop isn't paced: one tick a frame).
+		if ring:
+			var row: Dictionary = ring.last_frame()
+			mon.process_ms += float(row.get("process_ms", 0.0)) / n
+			mon.physics_ms += float(row.get("physics_ms", 0.0)) / n
 		if vp_rid.is_valid():
 			mon.render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(vp_rid) / n
+	if by_ticks:  # the sums above were over n; there were i frames
+		for k in mon:
+			mon[k] *= float(n) / maxf(i, 1)
+	mon.ticks = float(Engine.get_physics_frames() - ticks0) / maxf(i, 1)  # physics ticks a frame (the catch-up, #435)
+	mon["frames_measured"] = i
 	var sorted := times.duplicate()
 	sorted.sort()
 	var avg := 0.0
@@ -459,8 +486,8 @@ func _print(s: String, e: Dictionary) -> void:
 		print("\n   %d charges into the store's front" % f.charges)
 	print("\n== %s: avg %.2f ms (%.0f fps), p99 %.2f ms, max %.1f ms; render cpu %.2f ms, draw calls %.0f, objects in frame %.0f" % [
 			s, f.avg_ms, 1000.0 / maxf(f.avg_ms, 0.001), f.p99_ms, f.max_ms, f.render_cpu_ms, f.draw_calls, f.objects_in_frame])
-	if render:
-		print("   main thread: process %.2f ms, physics %.2f ms a frame" % [f.get("process_ms", 0.0), f.get("physics_ms", 0.0)])
+	if render or by_ticks:
+		print("   main thread: process %.2f ms, physics %.2f ms a frame (%.2f ticks, %d frames)" % [f.get("process_ms", 0.0), f.get("physics_ms", 0.0), f.get("ticks", 0.0), int(f.get("frames_measured", 0))])
 	print("   census: %s" % JSON.stringify(e.census))
 	if e.has("budget"):
 		_print_budget(e.budget)

@@ -51,6 +51,9 @@ func test_f12_saves_everything_in_one_file() -> void:
 		check(names.has(n), "with %s in it (%s)" % [n, names])
 	var report: Dictionary = JSON.parse_string(zip.read_file("report.json").get_string_from_utf8())
 	check(report.has("build") and report.has("player") and report.has("people") and report.has("settings"), "the build, you, everyone, the settings")
+	check(path.ends_with(".saltbug.zip"), "named .saltbug.zip, as GitHub takes it (%s)" % path)
+	for k in ["render_thread", "physics_thread", "people_threads", "max_physics_steps_per_frame"]:
+		check((report.settings as Dictionary).has(k), "the settings say %s" % k)
 	var rec: Dictionary = JSON.parse_string(zip.read_file("recording.json").get_string_from_utf8())
 	check_eq(rec.from, "start", "a short session replays from the start")
 	var moves := (rec.inputs as Array).filter(func(e: Array) -> bool: return rec.actions[int(e[1])] == "move_forward")
@@ -97,6 +100,25 @@ func test_f12_carries_the_frames_numbers() -> void:
 	check_eq(row.size(), cols.size(), "a row is its columns")
 	check(float(row[cols.find("frame_ms")]) > 0.0 and float(row[cols.find("nodes")]) > 100.0, "with the frame's time and the nodes (%s)" % [row])
 	check((row[-1] as Dictionary).is_empty(), "and no systems with F3 closed")
+	# The frame's own process and physics (#435), inside its wall clock, physics only with ticks.
+	var fi := cols.find("frame_ms")
+	var pi := cols.find("process_ms")
+	var hi := cols.find("physics_ms")
+	var ti := cols.find("ticks")
+	var ticked := 0
+	for r: Array in (perf.frames as Array).slice(2):
+		check(float(r[pi]) >= 0.0 and float(r[hi]) >= 0.0 and float(r[pi]) + float(r[hi]) <= float(r[fi]) + 0.05,
+				"a frame's process and physics fit in it (%s)" % [r])
+		if int(r[ti]) == 0:
+			check_eq(float(r[hi]), 0.0, "no ticks, no physics")
+		else:
+			ticked += 1
+			check(float(r[hi]) > 0.0, "ticks take time (%s)" % [r])
+	check(ticked > 10, "frames that ticked (%d)" % ticked)
+	# A lab with the profiler on before F3 opens (the gunfight lab's Y play): F3's first frame reads
+	# only that frame, not everything summed since.
+	Prof.on = true
+	Prof.add(&"rest", 9000000)
 	check(not (perf.seconds as Array).is_empty(), "the per-second ring has this second at least")
 	check(float(perf.recorder_us.f3_closed.mean) < 100.0, "the recorder takes under 0.1 ms a frame (%.1f µs)" % float(perf.recorder_us.f3_closed.mean))
 	_key(&"debug_overlay", true)  # F3: the profiler on
@@ -109,7 +131,10 @@ func test_f12_carries_the_frames_numbers() -> void:
 	await process_frames(2)
 	_key(&"debug_overlay", false)
 	await process_frames(1)
-	check(not Prof.on, "and F3 again turns it off")
+	check(Prof.on, "and F3 again leaves it as the lab had it")
+	Prof.on = false
+	for r: Array in perf.frames:
+		check(float((r[-1] as Dictionary).get("rest", 0.0)) < 1000.0, "no frame carries the sums from before F3 (%s)" % [r[-1]])
 	var named := (perf.frames as Array).filter(func(r: Array) -> bool: return not (r[-1] as Dictionary).is_empty())
 	check(named.size() >= 30, "with F3 up the frames name their systems (%d)" % named.size())
 	var zip := ZIPReader.new()

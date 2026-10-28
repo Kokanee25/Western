@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""A bug report's frame timing (F12's .saltbug, src/debug/perf_ring.gd; #433), without replaying it:
+"""A bug report's frame timing (F12's .saltbug.zip, src/debug/perf_ring.gd; #433), without replaying it:
 the summary at the top of report.json, the last 15 s of frames (mean, p95, worst, how many over 20
 and 50 ms, and each system's total, p95 and worst, as experiments/blast_freeze/summary.py prints a
 run), then the per-second table (the last 10 minutes: each second's frames, mean and worst frame,
 process, physics, ticks, render, draws, and its biggest systems). Systems are there only for the
 frames F3 was up (the profiler on).
 
-    python3 tools/perf_report.py FILE.saltbug [--seconds=N|--all] [--over=MS]
+    python3 tools/perf_report.py FILE.saltbug.zip [--seconds=N|--all] [--over=MS]
 
 --seconds=N: the table's last N seconds (default 60); --all: every second kept. --over=MS: also list
 each frame of the last 15 s longer than MS with its split and systems.

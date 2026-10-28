@@ -3,7 +3,7 @@ extends Node
 ## The bug-report key (docs/briefs/automated-checks.md, item 1). Always listening, cheaply: every
 ## physics tick it notes which actions changed (keys, buttons, sticks, as strengths) and how far the
 ## mouse turned the view, and every second where everyone is. F12 writes one file,
-## user://bug_reports/<date-time>.saltbug (a zip): the screenshot, the recording, the game's log,
+## user://bug_reports/<date-time>.saltbug.zip (a zip; named so GitHub takes it): the screenshot, the recording, the game's log,
 ## the build, where you are and what you're holding, the settings, what's been happening.
 ## `tools/replay.gd FILE` plays the recording back and says where the game went differently.
 ## The frame's numbers go in it too (PerfRing, #433): `perf.json`, and `perf_summary` at the top of
@@ -65,6 +65,7 @@ func _ready() -> void:
 	_toast.visible = false
 	layer.add_child(_toast)
 	if perf_on:  # every viewport's render time, measured from the start (F3 reads them too)
+		add_child(perf.make_clock())
 		perf.watch(get_tree().root)
 		for vp in get_tree().root.find_children("*", "SubViewport", true, false):
 			perf.watch(vp as Viewport)
@@ -130,10 +131,10 @@ func _trim(tick: int) -> void:
 func save() -> String:
 	DirAccess.make_dir_recursive_absolute(DIR)
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
-	var path := "%s/%s.saltbug" % [DIR, stamp]
+	var path := "%s/%s.saltbug.zip" % [DIR, stamp]
 	var n := 2
 	while FileAccess.file_exists(path):  # two in one second: the second its own file
-		path = "%s/%s-%d.saltbug" % [DIR, stamp, n]
+		path = "%s/%s-%d.saltbug.zip" % [DIR, stamp, n]
 		n += 1
 	var shot: Image = null
 	if DisplayServer.get_name() != "headless":  # headless, nothing is drawn (and no frame is posted)
@@ -212,7 +213,11 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 	if settings:
 		out["settings"] = {"internal_resolution": str(settings.internal_resolution), "mosaic": settings.mosaic,
 			"quantise_once": settings.quantise_once, "tile_look": String(settings.tile_look),
-			"texels_per_meter": settings.texels_per_meter, "reduced_gore": settings.reduced_gore}
+			"texels_per_meter": settings.texels_per_meter, "reduced_gore": settings.reduced_gore,
+			# Which threads this run had (#435: the runs told apart only by the engine's warning).
+			"render_thread": settings.render_thread, "physics_thread": settings.physics_thread,
+			"people_threads": settings.people_threads, "people_bands": settings.people_bands,
+			"max_physics_steps_per_frame": Engine.max_physics_steps_per_frame}
 	var people := []
 	for n in tree.get_nodes_in_group(&"people"):
 		var man := n as HumanBody

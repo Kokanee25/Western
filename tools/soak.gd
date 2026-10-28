@@ -309,4 +309,4 @@ func _finish() -> void:
 	f = FileAccess.open(_out.path_join("soak.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify({"ok": ok, "problems": _problems, "windows": _windows, "happened": _happened}, "  "))
 	print(md)
-	quit(0 if ok else 1)
+	GameQuit.quit(self, 0 if ok else 1)  # its work waited for first (#435)

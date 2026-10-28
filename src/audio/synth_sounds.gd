@@ -41,7 +41,12 @@ static func warm_all() -> void:
 				_lock.lock()
 				if not _cache.has(id):
 					_cache[id] = wav
-				_lock.unlock(), false, "SynthSounds.warm_all")
+				_lock.unlock(), true, "SynthSounds.warm_all")  # high priority: a low one can hang the quit (#392, #435)
+
+
+## `warm_all`'s thread still making sounds (GameQuit waits for it).
+static func warming() -> bool:
+	return _warm_task >= 0 and not WorkerThreadPool.is_task_completed(_warm_task)
 
 
 ## Wait for `warm_all`'s thread (at quit, or in a test that needs every sound made).

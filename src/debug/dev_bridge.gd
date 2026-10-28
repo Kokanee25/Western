@@ -225,7 +225,7 @@ func _cmd_help(_a: Array) -> Dictionary:
 
 
 func _cmd_quit(_a: Array) -> Dictionary:
-	get_tree().quit.call_deferred()
+	(func() -> void: GameQuit.quit(get_tree())).call_deferred()  # its work waited for first (#435)
 	return {"ok": true}
 
 
@@ -814,9 +814,14 @@ func _who(n: Variant) -> String:
 
 func _frame() -> Dictionary:
 	var fps := maxf(Engine.get_frames_per_second(), 1.0)
+	# The frame's own process and physics, the last second's means (the bug report's ring; Godot's
+	# TIME_PROCESS / TIME_PHYSICS_PROCESS are a second's worst frame and worst single tick, #435).
+	var rec := get_tree().root.find_child("BugRecorder", true, false) as BugRecorder
+	var sec: Dictionary = rec.perf.last_second() if rec and rec.perf_on else {}
 	return {"fps": fps, "frame_ms": snappedf(1000.0 / fps, 0.1),
-		"process_ms": snappedf(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0, 0.01),
-		"physics_ms": snappedf(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, 0.01),
+		"process_ms": snappedf(float(sec.get("process_ms", 0.0)), 0.01),
+		"physics_ms": snappedf(float(sec.get("physics_ms", 0.0)), 0.01),
+		"ticks": snappedf(float(sec.get("ticks", 0.0)), 0.01),
 		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 		"nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 		"clock": _clock().get_clock_text() if _clock() else ""}

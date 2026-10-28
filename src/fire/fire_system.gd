@@ -553,6 +553,11 @@ func _band_of_structure(s: Structure) -> int:
 	return b
 
 
+## The structures' check on a worker, not finished (GameQuit waits for it).
+func check_running() -> bool:
+	return _check != null and _check.running()
+
+
 ## A building to look at when there's time (a slice a frame, nothing urgent): a big one just built.
 func queue_check(s: Structure) -> void:
 	if is_inside_tree() and s != _checking and not s in _to_settle:

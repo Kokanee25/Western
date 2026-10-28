@@ -109,6 +109,11 @@ func busy() -> bool:
 	return _task >= 0
 
 
+## On a worker and not finished (busy() stays true till it's waited for).
+func running() -> bool:
+	return _task >= 0 and not WorkerThreadPool.is_task_completed(_task)
+
+
 # An analysis can also be done a slice at a time (`begin`, then `advance` until it says it's
 # done: FireSystem checks burning buildings that way, so a big one isn't one long frame).
 var _structure: Structure

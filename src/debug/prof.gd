@@ -86,6 +86,15 @@ static func _take_frame() -> void:
 	frame_number = Engine.get_process_frames()
 
 
+## Everything summed so far forgotten, as if just started (F3 opening, #435).
+static func reset() -> void:
+	_sum.clear()
+	_seen.clear()
+	per_frame.clear()
+	_frames = 0
+	_rolled_at = Time.get_ticks_usec()
+
+
 static func roll() -> void:
 	per_frame.clear()
 	for k: StringName in _sum:
