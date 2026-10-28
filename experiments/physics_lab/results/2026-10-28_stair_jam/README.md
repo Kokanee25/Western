@@ -62,3 +62,22 @@ python3 experiments/physics_lab/tally.py OFF ON;  python3 experiments/physics_la
 
 `HumanBody.KEEP_STRIDE_GAME := true`. The gunfight lab's `momentum=` now defaults to the game's
 (it forced the switch off unless asked); the ragdoll lab already did.
+
+The 50 D+ fights with the game's setting (no `momentum=`; `falls_game.md`, `quits_game.md`):
+
+```sh
+python3 experiments/gunfight_lab/run.py --scenarios=spec_hall,spec_stair,spec_gallery,spec_back,spec_front \
+    --hours=golden --weapons=revolver --styles=careful --bodies=studio --variant=D \
+    --fixes=all+pain_fight+floor_fight+odds+flinch --seeds=1-10 --jobs=4 --falls=1 --out=build/gf/game
+python3 experiments/gunfight_lab/falls.py build/gf/game;  python3 experiments/gunfight_lab/quits.py build/gf/game
+```
+
+- Falls: the momentum round's `on` column (50 down, 10 moving, 6 stumbling, travel max 1.57 m, 28 hit
+  something at >= 0.5 m/s, 4 fell further), but one broke something (none then).
+- They still commit: fights 53.8 s (median), 41.4 s of shooting, 45-90 s of shooting in 36%, anyone
+  quits in 46%, you down in 56%.
+- Still four men in five go down standing: more deaths on the move is the gang's brain (the momentum
+  README's step 4, issue #483).
+
+Tests: all pass but `test_perf`'s budgets, which fail on this VM on main's setting too (calm 17.1,
+cluttered 19.5 ms with the switch off; cluttered 16.8, burning 30.1 with it on: the VM's noise).
