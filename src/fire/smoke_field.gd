@@ -49,9 +49,9 @@ var _solid := PackedByteArray()
 ## The cells being drawn (they become `_solid` when done; the vents read the last whole drawing).
 var _solid_next := PackedByteArray()
 var _raster_wait := 0.0
-## Member -> the open cells beside it its smoke goes into: worked out when it first burns after the
-## cells are drawn (`_vents_of`), not for every member at once (5,000 of them were ~80 ms on one
-## frame every 2 s, more-cores step 5).
+## Member -> [the open cells beside it its smoke goes into, how much a second into each]: worked out
+## when it first burns after the cells are drawn (`_vents_of`), not for every member at once (5,000
+## of them were ~80 ms on one frame every 2 s, more-cores step 5).
 var _vents := {}
 ## The members drawn last time (those whose smoke this field takes), and those being drawn now.
 var _drawn := {}
@@ -190,15 +190,14 @@ func _emit() -> int:
 		for e: Variant in fire.burning_in(st):
 			if not _drawn.has(e):
 				continue
-			var m := e as StructureMember
-			var vents: PackedInt32Array = _vents[m] if _vents.has(m) else _vents_of(m)
-			if vents.is_empty():
+			var v: Variant = _vents.get(e)
+			if v == null:
+				v = _vents_of(e)
+			if (v[0] as PackedInt32Array).is_empty():
 				continue
 			n += 1
-			var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / vents.size()
-			for v in vents:
-				cells.append(v)
-				amounts.append(each)
+			cells.append_array(v[0])
+			amounts.append_array(v[1])
 	if not cells.is_empty():
 		grid.call(&"emit_many", cells, amounts, tuning.smoke_heat)
 	for sp: Dictionary in fire.spills:
@@ -296,7 +295,7 @@ func _draw_member(m: StructureMember) -> void:
 
 ## The open cells round a member's middle (its smoke comes out of both faces of a wall): those a
 ## cell away, or if none (it's in among others), two. Kept until the cells are drawn again.
-func _vents_of(m: StructureMember) -> PackedInt32Array:
+func _vents_of(m: StructureMember) -> Array:
 	var t := Prof.start()
 	var out := PackedInt32Array()
 	var c := cell_of(m.global_position)
@@ -310,9 +309,14 @@ func _vents_of(m: StructureMember) -> PackedInt32Array:
 							out.append(j)
 			if not out.is_empty():
 				break
-	_vents[m] = out
+	var each := tuning.smoke_per_m2 * clampf(FireSystem._broadest_face(m), 0.05, 2.0) / maxi(out.size(), 1)
+	var amounts := PackedFloat32Array()
+	amounts.resize(out.size())
+	amounts.fill(each)
+	var v := [out, amounts]
+	_vents[m] = v
 	Prof.stop(&"smoke_vents", t)
-	return out
+	return v
 
 
 # --- Drawing it -------------------------------------------------------------------------------------
