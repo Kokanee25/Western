@@ -26,7 +26,7 @@ in the opening, even after the cheat is shot; maybe you can chase after them.
 | 6 | **The saloon** | You end up at a table with **the stranger**: friendly, too curious about the sheriff and your spring. | Talk, drink, watch. |
 | 7 | **The card cheat** | At the next table the cheat is caught; with **no sheriff** in town, it goes all the way: the chair kicked out, the gun in his mouth, the shot. | No gun: shout, shove or kick (#479), throw a bottle, grab the gun arm, or do nothing. The shooter gets away. **You're a no one: nothing makes you chase him** (Sean); you can follow, unarmed, at your own risk. |
 | 8 | **After** | The room reacts by what each person saw; the barman about his chair; the stranger's reaction is a clue. | Talk to witnesses, follow the shooter, go back to the doctor's. |
-| 9 | **Next morning** | **The sheriff dies** at the doctor's, whatever you did. **You get his gun.** | What he says at the end, and who hands you the gun (him, while he can, or the doctor after), follows how you treated him. |
+| 9 | **Next morning** | You go to see the sheriff at the doctor's. He knows he's dying. **He gives you his gun and asks you to help the town.** He dies that day, whatever you did. | Take it, say yes or no (you're a no one; you don't owe it). How well you treated him decides what else he can tell you: who shot him, a name, which way they went. If you don't come, the doctor sends for you. |
 
 The demo ends on the next morning: the sheriff dead, his gun in your hand (Gate D: the prologue and on into the next morning).
 
@@ -78,11 +78,12 @@ The valley (#467), the horse walk (#470) and riding, the train (#466), the props
 
 - **You're a no one.** Nothing obliges you to chase the card cheat's shooter, help, or take a side; the
   game doesn't push you. He gets away unless you choose to go after him.
-- **The sheriff dies the next day whatever you do,** and **you get his gun.** It's the story's fixed
-  point, and how it plays out still comes from the systems: how well you treated him decides how
-  long he's lucid, what he says, whether he names anyone, and whether he hands you the gun himself
-  or the doctor gives it to you after. His death is the town losing its law for good, and you
-  holding the badge's gun, a no one no longer.
+- **The sheriff dies the next day whatever you do.** You go to see him at the doctor's; he knows
+  he's going, **gives you his gun and asks you to help the town** (Sean). That scene always happens,
+  so the story has its fixed point. What varies by the systems is everything round it: how well
+  you treated him decides how lucid he is and what else he can say (who shot him, a name, which
+  way they went), and you answer as you like: take the gun, say yes, say no. If you don't come,
+  the doctor sends for you. A no one, holding the lawman's gun and his request.
 - **The demo ends the next morning** with his death and the gun.
 
 ## Open (Sean)
