@@ -74,6 +74,13 @@ The two engine errors, only with the thread, neither in our code:
 - And at quit, with text drawn: `This function (finalize) can only be called from the render
   thread`. The game exits 0 anyway.
 
-## The soak
+## The soak (`--minutes=240`, `--render-thread separate`, headless)
 
-(below, when it ends)
+- First run: the container restarted 55 game minutes in (nothing wrong before it: no problem,
+  frame 7.8 ms, 1241 MB).
+- Second run: **210 game minutes, no freeze**, stopped by the 3-hour cap this session put on it
+  (the golden render beside it slowed it for an hour, then was paused). The clock file moved every
+  600 frames to the end (757,800 frames); memory flat at ~1306 MB from 120 minutes on; nodes
+  ~26,500; orphans fell 14,000 -> 321; frame 7-8 ms in the quiet windows. Step 6's physics thread
+  froze the soak at 121. The one problem: the dummy race's empty mesh at start, while the saloon
+  was built (headless, as above). No `soak.md` (written only at 240).
