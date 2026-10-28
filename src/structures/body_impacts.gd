@@ -133,6 +133,7 @@ func step(delta: float) -> Array[StructureMember]:
 				continue
 			if s.has_method(&"take_blow"):
 				_kit_contact(kit, s, m, rb, n, before, st.get_contact_collider_position(i))
+				_kit_stop(s, m, rb, j, st.get_contact_collider_position(i))
 				continue
 			if m.is_upright() and not m.grounded and _top_free(s, m):
 				# Free at the top it holds nothing up: leaning on it or lying across it, any way he
@@ -224,6 +225,70 @@ func _kit_blows(kit: Dictionary, broke: Array[StructureMember]) -> void:
 		_kit_last[s] = 0.0
 		if s.call(&"take_blow", m, e[5], e[0], e[1]) == &"broke":
 			broke.append(m)
+		elif HumanBody.keep_stride and not s.get(&"loose"):
+			# Held: what the engine takes from all of him against it over the next few ticks decides.
+			_kit_held[s] = [Vector3.ZERO, 0.0, {}, m, e[5]]
+	_kit_stops(broke)
+
+
+## Issue #446 (with HumanBody.keep_stride): a kit prop held rigid until it decides stops all of him
+## through the few parts that touch it, a hand or a shin: as a blow from those parts' weight alone,
+## a man running into a card table left it standing ("that table doesn't move or flip", Sean,
+## 2026-10-28). So once his parts' first touch has been taken as a blow and held, what the engine
+## takes from him against it (the contacts' level impulses: his whole weight coming on behind those
+## parts) is summed for KIT_HOLD and given to it each tick, a blow from his whole weight; when it goes,
+## what a free prop wouldn't have taken from him (his share, M / (M + its weight)) goes back to the
+## parts it stopped, and he carries on with it.
+const KIT_HOLD := 0.2
+var _kit_held := {}  ## KitProp -> [level impulse it took from him, seconds, {part: impulse on it}, member, where]
+
+
+func _kit_stop(s: Structure, m: StructureMember, rb: RigidBody3D, j: Vector3, at: Vector3) -> void:
+	var e: Array = _kit_held.get(s, [])
+	if e.is_empty() or s.get(&"loose"):
+		return
+	var level := Vector3(j.x, 0.0, j.z)
+	e[0] = (e[0] as Vector3) - level
+	var given: Dictionary = e[2]
+	given[rb] = (given.get(rb, Vector3.ZERO) as Vector3) + level
+	if level.length() > 0.0:
+		e[3] = m
+		e[4] = at
+
+
+func _kit_stops(broke: Array[StructureMember]) -> void:
+	var dt := 1.0 / float(Engine.physics_ticks_per_second)
+	for s: Variant in _kit_held.keys():
+		var e: Array = _kit_held[s]
+		e[1] = float(e[1]) + dt
+		if not is_instance_valid(s) or s.get(&"loose") or float(e[1]) > KIT_HOLD:
+			_kit_held.erase(s)
+			continue
+		var m := e[3] as StructureMember
+		var took: Vector3 = e[0]
+		if m == null or not is_instance_valid(m) or m.broken or took.length() < 1e-3:
+			continue
+		var him := _mass()
+		var its := float(s.call(&"mass"))  # (before: gone loose, its members are rubble)
+		var r: StringName = s.call(&"take_blow", m, e[4], took, him)
+		if r == &"broke":
+			broke.append(m)
+		if s.get(&"loose"):
+			var keep := him / (him + maxf(its, 0.1))
+			var given: Dictionary = e[2]
+			for rb: Variant in given:
+				if is_instance_valid(rb):
+					(rb as RigidBody3D).apply_central_impulse(-(given[rb] as Vector3) * keep)
+			_kit_held.erase(s)
+
+
+## His weight (the parts watched).
+func _mass() -> float:
+	var kg := 0.0
+	for rb in _rbs:
+		if is_instance_valid(rb):
+			kg += rb.mass
+	return maxf(kg, 1.0)
 
 
 ## A member breaks having taken no more than it could (`can_take`), but the engine held it rigid

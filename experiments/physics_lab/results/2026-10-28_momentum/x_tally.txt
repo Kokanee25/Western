@@ -4,9 +4,9 @@ build/physics_lab/x_off: 16 falls, 94 flags {'awake_at_end': 2, 'discontinuity':
   swing_excess  sum  204.66  worst 28.400 (X_stair_banister_run_back, foot_l)
   twist_excess  sum  236.15  worst 41.690 (X_rail_run_side, hand_l)
   ends {'face_down': 4, 'back': 9, 'side': 3}; both knees folded > 120 deg at rest 2; up on his knees at the end 0; kneeling 1.3 s in all; deepest hand at rest 0.009 m (X_table_walk_back); hands > 2 cm in: 0
-build/physics_lab/x_on: 16 falls, 393 flags {'awake_at_end': 5, 'joint_pulled_apart': 284, 'launch': 6, 'never_settled': 7, 'sunk_into_world': 9, 'swing_past_limit': 58, 'twist_past_limit': 24}
-  joint_gap     sum    1.31  worst  0.173 (X_stair_down_run_back, shin_r)
-  penetration   sum    0.63  worst  0.067 (X_rail_run_back, foot_r)
-  swing_excess  sum  338.92  worst 63.660 (X_stair_down_run_back, abdomen)
-  twist_excess  sum  345.83  worst 34.880 (X_table_run_back, hand_r)
-  ends {'face_down': 8, 'back': 5, 'side': 3}; both knees folded > 120 deg at rest 1; up on his knees at the end 1; kneeling 13.2 s in all; deepest hand at rest 0.014 m (X_wall_run_back); hands > 2 cm in: 0
+build/physics_lab/x_half: 16 falls, 434 flags {'awake_at_end': 4, 'joint_pulled_apart': 289, 'launch': 34, 'never_settled': 6, 'sunk_into_world': 11, 'swing_past_limit': 70, 'twist_past_limit': 20}
+  joint_gap     sum    1.34  worst  0.119 (X_chair_run_side, forearm_r)
+  penetration   sum    0.61  worst  0.060 (X_rail_walk_back, thigh_r)
+  swing_excess  sum  323.89  worst 35.140 (X_stair_banister_run_back, abdomen)
+  twist_excess  sum  350.92  worst 33.810 (X_rail_run_back, hand_r)
+  ends {'face_down': 5, 'back': 9, 'side': 2}; both knees folded > 120 deg at rest 2; up on his knees at the end 0; kneeling 1.8 s in all; deepest hand at rest 0.010 m (X_wall_walk_back); hands > 2 cm in: 0

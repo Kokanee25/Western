@@ -3508,13 +3508,15 @@ const KEEP_STRIDE_GAME := false
 static var keep_stride := KEEP_STRIDE_GAME
 ## What's "in his way" (`_way_blocked`): a sphere this big at these heights over his feet (the
 ## seat of a chair or a table's top; a rail, a banister or a chair's back; low steps and the floor
-## under neither), cast along his heading this far past his walking sphere: a step at his speed,
-## within these bounds (m).
+## under neither), cast along his heading this far past his walking sphere: half a step at his
+## speed, within these bounds (m). A whole step out (0.9 m at a run) his legs went under him short of
+## a card table and he knelt into its foot with nothing left (Sean, 2026-10-28: "that table doesn't
+## move or flip"); half a step, his trunk is still going when it meets it and the table goes over.
 const STRIDE_PROBE_R := 0.2
 const STRIDE_PROBE_UP := [0.6, 1.0]
-const STRIDE_STEP_S := 0.25
-const STRIDE_STEP_MIN := 0.35
-const STRIDE_STEP_MAX := 0.9
+const STRIDE_STEP_S := 0.12
+const STRIDE_STEP_MIN := 0.2
+const STRIDE_STEP_MAX := 0.45
 
 
 func _knocked(seg: StringName, pos: Vector3, dir: Vector3, given: float) -> void:
