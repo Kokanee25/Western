@@ -4,8 +4,9 @@ extends Node
 ## gore lab, docs/briefs/gore-lab.md, part C): blood from burst eardrums, a nosebleed after a blow,
 ## blood at the mouth from the lungs or the gut (running when he's down), spitting blood and teeth
 ## with a broken jaw, a chest wound that sucks and bubbles as he breathes, blood from a scalp wound
-## running into his eye, a drip trail behind a man who's bleeding, bloody handprints where his
-## hands touch, and smears where he's dragged or slides. HumanBody owns one and steps it.
+## running into his eye, a drip trail behind a man who's bleeding, bloody hands (from his wound, his
+## pool, anyone's wet blood, a bleeding man he's dragging) and their prints where they touch, and
+## smears where he's dragged or slides. HumanBody owns one and steps it.
 
 var body: HumanBody
 
@@ -26,6 +27,31 @@ const DRIP_MIN_GAP := 0.25
 const PRINT_REACH := 0.06
 const PRINT_GAP := 0.6
 const PRINTS_PER_HAND := 6
+## A hand still on the spot of its last print doesn't print it again (a crawl leaves a trail of
+## them, not a carpet).
+const PRINT_SPACING := 0.12
+## What a print leaves on the floor (ml: a thin film over a palm, so a mop or a rag takes it up).
+const PRINT_ML := 0.3
+## A hand on fresh blood takes some up, whoever's it is: this much blood under the palm (ml) loads
+## it with every print, less with fewer; under PICK_MIN it's only a drop and it prints, not loads.
+## Only wet blood comes off (Blood.wetness), and the blood on the hand dries the same way.
+const HAND_FULL_ML := 3.0
+const PICK_REACH := 0.05  ## m round the palm
+const PICK_MIN := 0.3
+## Only a hand this near the floor (above his lowest foot) looks for blood on it: standing, his
+## hands are nowhere near it (and the rays aren't paid for every man in town).
+const PICK_LOW := 0.25
+const HANDS_LOW: Array[StringName] = [&"crouch", &"crouch_aim", &"kneel", &"duck", &"cower", &"sit_ground", &"tend"]
+## A hand this near a bleeding hole (his own, or the man he's dragging) is bloody from it, and on
+## a soaked patch of clothes as wet as the patch still is.
+const ON_WOUND := 0.08
+const WOUND_BLEED := 0.2  ## ml/s: less and it's too little to wet a hand
+const ON_COLLAR := 0.4  ## m round his neck that a grip on his collar and shoulders takes in (dragging him)
+## The blood on his hand, drawn on his skin: as full as the prints left, down to RESIDUE (a hand
+## that's printed itself out is still stained).
+const HAND_STAIN_SIZE := Vector3(0.14, 0.12, 0.22)
+const HAND_STAIN_AT := 0.1  ## m from the wrist toward the fingers
+const RESIDUE := 0.5
 ## Smears: a bleeding man drawn over a floor leaves a swipe, one band along the way he went, about
 ## as wide as what touched, streaked along its length, heaviest where he lay and feathering out at
 ## the end as the blood on him runs out (Bevel & Gardner, *Bloodstain Pattern Analysis*, ch. 9;
@@ -58,8 +84,11 @@ var _mouth_marked := false
 var _mouth_in := 2.0
 var _spit_in := 4.0
 var _teeth_out := false
-var _bloody := {}  ## "r"/"l" -> prints left in that hand
+var _bloody := {}  ## "r"/"l" -> prints left in that hand (a fraction for the last, faint one)
+var _bloody_age := {}  ## "r"/"l" -> game hours since that hand was last wetted
 var _print_gap := {}
+var _print_last := {}  ## "r"/"l" -> where that hand's last print is
+var _hand_stain := {}  ## "r"/"l" -> the Decal of blood on that hand
 var _smear_last := Vector3.INF  ## where the swipe's last piece ended (INF: no swipe)
 var _smear_normal := Vector3.UP
 var _smear_load := 0.0  ## ml of his blood on what touches
@@ -347,29 +376,179 @@ func _drips(p: Physiology, world: Node3D, dt: float) -> void:
 	Blood.throw(world, from + Vector3.DOWN * 0.03, v, ml, body._own_rids())
 
 
-## A hand that's held a bleeding wound, or pressed into the blood under him, is bloody; where it
-## comes near something solid it leaves a print, fainter each time.
-func _hands(_p: Physiology, world: Node3D, dt: float) -> void:
+## A hand that's held a bleeding wound or tended one, or been pressed into wet blood (his pool, a
+## splat or a smear, another man's), or that has hold of a bleeding man, is bloody; where it comes
+## near something solid it leaves a print, fainter each time, and the blood shows on it.
+func _hands(p: Physiology, world: Node3D, dt: float) -> void:
+	# A man on his feet, unhurt, his hands clean, not dragging anyone: nothing to wet them or print.
+	if _bloody.is_empty() and body.wounds.is_empty() and body.pose != &"drag" and not (body.prone or body.limp
+			or body.rising or body.pose in HANDS_LOW):
+		return
 	var g: Dictionary = body._grab
-	if not g.is_empty() and float(g.get("w", 0.0)) > 0.8 and body._wound_bleed(g.wound) > 0.2:
-		_bloody[g.side] = PRINTS_PER_HAND
-	for side: String in _bloody.keys():
-		if int(_bloody[side]) <= 0:
-			continue
+	var holding := "" if g.is_empty() else String(g.side)
+	if holding != "" and float(g.get("w", 0.0)) > 0.8 and body._wound_bleed(g.wound) > WOUND_BLEED:
+		wet_hand(holding, PRINTS_PER_HAND)
+	_off_the_dragged()
+	# Tending himself (OutlawBrain._tend): pressing it, packing it, both hands in it.
+	if body.pose == &"tend" and p.bleeds.any(func(b: Dictionary) -> bool: return b.kind != &"internal" and p.bleed_rate(b) > WOUND_BLEED):
+		wet_hand("r", PRINTS_PER_HAND)
+		wet_hand("l", PRINTS_PER_HAND)
+	var hours := dt / p.tuning.game_hour_seconds
+	var floor_y := _lowest_foot()
+	for side: String in ["r", "l"]:
+		if _bloody.has(side):
+			_bloody_age[side] = float(_bloody_age.get(side, 0.0)) + hours
 		_print_gap[side] = float(_print_gap.get(side, 0.0)) - dt
-		if float(_print_gap[side]) > 0.0:
+		if _hand_gone(side):
 			continue
-		var hand := body.parts.get(StringName("hand_" + side)) as Node3D
-		if hand == null or (not g.is_empty() and g.side == side and float(g.get("w", 0.0)) > 0.3):
+		if holding == side and float(g.get("w", 0.0)) > 0.3:
+			_show_hand(side)
 			continue  # on the wound, not on the wall
-		var hit := _touching(world, body.drawn_hand(side), PRINT_REACH)
-		if hit.is_empty():
+		var at := body.drawn_hand(side)
+		wet_hand(side, blood_on_me(at))
+		var low := at.y - floor_y < PICK_LOW
+		if float(_bloody.get(side, 0.0)) <= 0.25 and not low:
+			_show_hand(side)
+			continue  # nothing to print, nothing to pick up
+		var hit := _touching(world, at, PRINT_REACH)
+		if not hit.is_empty():
+			var wet := Blood.wet_near(hit.position, PICK_REACH) if low else 0.0
+			if wet >= PICK_MIN:
+				# In it: it takes up, it doesn't print.
+				wet_hand(side, PRINTS_PER_HAND * clampf(wet / HAND_FULL_ML, 0.0, 1.0))
+			else:
+				_print(world, side, hit)
+		_show_hand(side)
+
+
+## Wets a hand ("r"/"l") with blood worth this many prints, if that's more than it has on it
+## still wet (a hand fresh from a wound isn't made fainter by a drop it touches).
+func wet_hand(side: String, prints: float) -> void:
+	if prints < 0.5:
+		return
+	var now := float(_bloody.get(side, 0.0)) * Blood.wetness(float(_bloody_age.get(side, 0.0)))
+	if prints <= now:
+		return
+	_bloody[side] = minf(prints, PRINTS_PER_HAND)
+	_bloody_age[side] = 0.0
+
+
+## How bloody a hand at `at` (world) gets off him, in prints: on a bleeding hole, full; on the
+## soaked patch round a wound, full while it's wet (a palm on soaked shirting takes up ~5 ml: the
+## patch holds HumanBody.STAIN_FILM over its area).
+func blood_on_me(at: Vector3, reach := ON_WOUND) -> float:
+	var best := 0.0
+	for w: Dictionary in body.wounds:
+		var part := body.parts.get(w.segment) as Node3D
+		if part == null or w.kind == &"blast":
 			continue
-		_print_gap[side] = PRINT_GAP
-		var left: int = int(_bloody[side])
-		_bloody[side] = left - 1
-		var d := _mark(world, hit.position, hit.normal, "handprint", 0.17, hand.global_basis.y)
-		d.modulate.a = clampf(float(left) / PRINTS_PER_HAND + 0.2, 0.25, 1.0)
+		if body._wound_bleed(w) > WOUND_BLEED:
+			for hole: Variant in [w.entry, w.exit]:
+				if hole != null and (part.global_transform * (hole as Vector3)).distance_to(at) < reach:
+					return PRINTS_PER_HAND
+		var was: Variant = w.get("stain")
+		if was == null or not is_instance_valid(was):
+			continue
+		var stain := was as Decal
+		if stain.global_position.distance_to(at) < float(w.get("stain_size", 0.04)) * 0.5 + reach * 0.5:
+			best = maxf(best, PRINTS_PER_HAND * Blood.wetness(float(stain.get_meta(&"age_h", 0.0))))
+	return best
+
+
+## Dragging a man by the collar (OutlawBrain's rescue, HumanBody.dragged_by), both hands have his
+## collar: what's bled onto it comes off on them (a soaked shirt front up to it, a neck wound; a
+## leg wound leaves them clean). Judged at his collar, not where the drag pose draws the hands, and
+## asked from the dragger's side (a dead man isn't ticked for long).
+func _off_the_dragged() -> void:
+	if body.pose != &"drag":
+		return
+	for n: Node in body.get_tree().get_nodes_in_group(&"people"):
+		var him := n as HumanBody
+		if him == null or him.dragged_by != body:
+			continue
+		var neck := him.parts.get(&"neck") as Node3D
+		if neck != null:
+			var prints := him.signs_now().blood_on_me(neck.global_position, ON_COLLAR)
+			wet_hand("r", prints)
+			wet_hand("l", prints)
+		return
+
+
+## A bloody hand's print where it touches (`hit`, a ray's): no closer than PRINT_GAP in time or
+## PRINT_SPACING to its last, as strong as what's left on it and as wet as it still is.
+func _print(world: Node3D, side: String, hit: Dictionary) -> void:
+	var left := float(_bloody.get(side, 0.0))
+	if left <= 0.25 or float(_print_gap[side]) > 0.0:
+		return
+	var wet := Blood.wetness(float(_bloody_age.get(side, 0.0)))
+	if wet < Blood.WET_MIN:
+		return  # dried on him: it doesn't come off
+	var pos: Vector3 = hit.position
+	var last: Variant = _print_last.get(side)
+	if last != null and (last as Vector3).distance_to(pos) < PRINT_SPACING:
+		return
+	_print_gap[side] = PRINT_GAP
+	_print_last[side] = pos
+	_bloody[side] = maxf(left - 1.0, 0.0)
+	var hand := body.parts[StringName("hand_" + side)] as Node3D
+	var d := _mark(world, pos, hit.normal, "handprint", 0.17, hand.global_basis.y)
+	var strength := clampf(minf(left, 1.0) * (left / PRINTS_PER_HAND + 0.2), 0.25, 1.0) * wet
+	d.modulate.a = strength
+	d.set_meta(&"ml", PRINT_ML * strength)
+	d.set_meta(&"print", true)
+
+
+func _hand_gone(side: String) -> bool:
+	var sev := body.physiology.severed_segments
+	for seg in [&"hand_", &"forearm_", &"upper_arm_"]:
+		if sev.has(StringName(String(seg) + side)):
+			return true
+	return not body.parts.has(StringName("hand_" + side))
+
+
+## The floor's height near him, near enough: his lowest foot (his pelvis's, without them).
+func _lowest_foot() -> float:
+	var y := INF
+	for sid: StringName in [&"foot_r", &"foot_l"]:
+		var foot := body.parts.get(sid) as Node3D
+		if foot != null and not body.physiology.severed_segments.has(sid):
+			y = minf(y, foot.global_position.y)
+	if y == INF:
+		y = (body.parts[&"pelvis"] as Node3D).global_position.y - 0.15
+	return y
+
+
+## The blood on a bloody hand, drawn on his skin (a decal on his body's layer, riding the hand's
+## bone): as full as the prints left on it, down to RESIDUE, browning as it dries.
+func _show_hand(side: String) -> void:
+	var left := float(_bloody.get(side, 0.0))
+	var d: Decal = _hand_stain.get(side)
+	if d == null or not is_instance_valid(d):
+		if left <= 0.0 or body.skeleton == null:
+			return
+		var bone := body.skeleton.find_bone("hand_" + side)
+		if bone < 0:
+			return
+		var on := BoneAttachment3D.new()
+		on.name = "BloodyHand_" + side
+		on.bone_idx = bone
+		body.skeleton.add_child(on)
+		d = Decal.new()
+		d.name = "HandBlood"
+		d.texture_albedo = PixelArt.blood("stain1", 75, false, 32)
+		d.cull_mask = Layers.VIS_BODY
+		d.upper_fade = 0.0
+		d.lower_fade = 0.0
+		d.size = HAND_STAIN_SIZE
+		# Its box across the hand (palm and back), the long side along it to the fingers.
+		d.basis = Basis(Vector3.RIGHT, PI * 0.5)
+		d.position = Vector3(0, HAND_STAIN_AT, 0)
+		on.add_child(d)
+		_hand_stain[side] = d
+	var k := 1.0 - exp(-float(_bloody_age.get(side, 0.0)) / Blood.DRY_HOURS)
+	var c := Color(lerpf(1.0, Blood.DRIED.r, k), lerpf(1.0, Blood.DRIED.g, k), lerpf(1.0, Blood.DRIED.b, k))
+	c.a = lerpf(RESIDUE, 1.0, clampf(left / PRINTS_PER_HAND, 0.0, 1.0))
+	d.modulate = c
 
 
 ## A bleeding man down and sliding (dragged, or slumping down a wall) smears his blood along it.

@@ -88,13 +88,106 @@ func test_a_bloody_hand_leaves_prints_on_a_wall() -> void:
 	check(prints.size() >= 1, "a bloody handprint on the wall (%d)" % prints.size())
 
 
+func _prints() -> Array[Node]:
+	return _marks().filter(func(n: Node) -> bool: return (n as Decal).texture_albedo.resource_path.ends_with("handprint.png"))
+
+
+## Down on the ground, a pool of `ml` laid on the floor under his right hand, `age_h` game hours old.
+func _pool_under_hand(ml: float, age_h: float) -> void:
+	man.go_limp()
+	await physics_frames(150)
+	var at := man.drawn_hand("r")
+	var d := Blood.splat(world, Vector3(at.x, 0.0, at.z), Vector3.UP, ml)
+	d.set_meta(&"age_h", age_h)
+	await physics_frames(20)
+
+
+func test_a_hand_pressed_into_a_pool_gets_bloody() -> void:
+	await _pool_under_hand(20.0, 0.0)
+	check(float(man.signs._bloody.get("r", 0.0)) >= WoundSigns.PRINTS_PER_HAND - 0.01,
+			"his hand in the pool is bloody (%s)" % [man.signs._bloody])
+	check(float(man.signs._bloody.get("l", 0.0)) == 0.0, "not the other hand, out of it")
+	var stain := man.signs._hand_stain.get("r") as Decal
+	check(stain != null and stain.cull_mask == Layers.VIS_BODY, "the blood drawn on his hand")
+	check(_prints().is_empty(), "in the pool it takes up, it doesn't print (%d)" % _prints().size())
+
+
+func test_dried_blood_leaves_none() -> void:
+	await _pool_under_hand(20.0, 6.0)
+	check(float(man.signs._bloody.get("r", 0.0)) == 0.0, "a dried pool doesn't come off (%s)" % [man.signs._bloody])
+	# And blood dried on a hand doesn't print.
+	var wall := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(2.0, 0.02, 2.0)
+	shape.shape = box
+	wall.add_child(shape)
+	world.add_child(wall)
+	wall.global_position = man.drawn_hand("l") + Vector3(0, -0.03, 0)
+	man.signs._bloody["l"] = float(WoundSigns.PRINTS_PER_HAND)
+	man.signs._bloody_age["l"] = 6.0
+	await physics_frames(20)
+	check(_prints().is_empty(), "a hand with its blood dried on it leaves no print (%d)" % _prints().size())
+
+
+func test_a_crawler_leaves_prints() -> void:
+	man.go_prone()
+	await physics_frames(60)
+	man.signs._bloody["r"] = float(WoundSigns.PRINTS_PER_HAND)
+	man.signs._bloody["l"] = float(WoundSigns.PRINTS_PER_HAND)
+	var start := man.global_position
+	var lowest := INF
+	for i in 600:
+		man.walk_to(start + Vector3(0, 0, 3), 0.35, 1.0 / 60.0)
+		lowest = minf(lowest, man.drawn_hand("r").y)
+		await physics_frames(1)
+	var prints := _prints()
+	check(lowest > -0.03, "his hands go down on the floor, not through it (%.2f m)" % lowest)
+	check(prints.size() >= 3, "prints where his hands go down (%d)" % prints.size())
+	check(prints.size() <= 2 * WoundSigns.PRINTS_PER_HAND, "no more than his hands held")
+	if prints.size() >= 2:
+		var zs := prints.map(func(d: Node) -> float: return (d as Node3D).global_position.z)
+		check(zs.max() - zs.min() > 0.5, "a trail along his way (%.2f m)" % (zs.max() - zs.min()))
+		for i in prints.size():
+			for j in range(i + 1, prints.size()):
+				var a := prints[i] as Node3D
+				var b := prints[j] as Node3D
+				check(a.global_position.distance_to(b.global_position) > 0.05, "not one on another")
+
+
+func test_dragging_a_bleeding_man_bloodies_the_hands_on_him() -> void:
+	var friend := HumanBody.new()
+	friend.has_gun = false
+	world.add_child(friend)
+	friend.global_position = Vector3(0, 0, 1.5)
+	friend.set_pose(&"drag")
+	man.physiology.apply_trace({"segment": &"thigh_r", "track_cm": 8.0, "hits": []})
+	man.physiology.bleeds[0].rate = 3.0
+	man.wounds.append({"segment": &"thigh_r", "entry": Vector3(0.1, -0.1, -0.06), "exit": null, "kind": &"bullet",
+			"bleeds": [0], "hits": [], "stain": null})
+	man.dragged_by = friend
+	await physics_frames(8)
+	check(float(friend.signs_now()._bloody.get("r", 0.0)) == 0.0, "his collar's clean of a leg wound: so are the hands on it")
+	# A hole at his collar (a neck wound, or a chest's that's soaked up to it).
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[1].rate = 3.0
+	var chest := man.parts[&"chest"] as Node3D
+	man.wounds.append({"segment": &"chest", "entry": chest.global_transform.affine_inverse() * (man.parts[&"neck"] as Node3D).global_position,
+			"exit": null, "kind": &"bullet", "bleeds": [1], "hits": [], "stain": null})
+	await physics_frames(8)
+	check(float(friend.signs_now()._bloody.get("r", 0.0)) > 0.0 and float(friend.signs_now()._bloody.get("l", 0.0)) > 0.0,
+			"both hands on his bloody collar are bloody")
+
+
 func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
 	man.physiology.bleeds[0].rate = 3.0
 	man.go_limp()
 	await physics_frames(150)  # down on the ground
 	# Only what the drag lays: how he lands, and whether he slides a little settling (his tone lets go
-	# a region at a time since 2026-10-28), changes with whatever tests ran before this one.
+	# a region at a time since 2026-10-28), changes with whatever tests ran before this one. A swipe
+	# from his settling still going when the drag starts would run on into it: ended first.
+	man.signs._end_smear()
 	var before := _smears().size()
 	for i in 60:
 		for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:

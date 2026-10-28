@@ -13,6 +13,10 @@ const HELP := {
 	"body_treat": "body_treat PERSON tourniquet|packing|doctor -> treat him now (as the game's tending does); what it could do",
 	"body_read": "body_read PERSON -> his wounds, what they crossed, what he can do, and his blood run forward from now under each treatment",
 	"body_drag": "body_drag PERSON DX DZ [SECONDS] [BLEED] -> he goes limp (bleeding BLEED ml/s from the chest, 3) and is dragged DX DZ metres over SECONDS (3): the smear he leaves",
+	"body_blood": "body_blood X Z ML -> a pool of ML of fresh blood on the floor there (for a hand or a crawl to go through)",
+	"body_crawl": "body_crawl PERSON DX DZ [SECONDS] -> he goes down on his front and crawls DX DZ metres (SECONDS, 8, at most): his hands, the prints they left",
+	"body_hands": "body_hands PERSON [r|l|both PRINTS] -> the blood on his hands (prints left, hours wet), or wet them with PRINTS' worth",
+	"body_haul": "body_haul PERSON HELPER DX DZ [SECONDS] -> HELPER drags PERSON (down: limp, bleeding from the chest if nothing is) by the collar DX DZ metres over SECONDS (4): both men's hands",
 	"body_where": "body_where PERSON -> where his head, chest and pelvis are, and the blood he's lost (ml)",
 	"body_meshes": "body_meshes PERSON -> each drawn mesh of him: its name, layers, shader and transparency",
 	"body_probe": "body_probe PERSON SEG SIZE [parent|world] [TEXTURE] -> a plain red test decal SIZE m on his body layer at that part (world-placed, or parented to its visual)",
@@ -124,6 +128,107 @@ func _cmd_body_drag(a: Array) -> Dictionary:
 	var marks := get_tree().get_nodes_in_group(&"blood_marks").filter(func(n: Node) -> bool:
 		return (n as Decal).texture_albedo.resource_path.get_file().begins_with("smear"))
 	return {"smears": marks.size(), "at": arr((m.parts[&"pelvis"] as Node3D).global_position)}
+
+
+func _hands_of(m: HumanBody) -> Dictionary:
+	var sg := m.signs_now()
+	var out := {}
+	for side: String in ["r", "l"]:
+		out[side] = [snappedf(float(sg._bloody.get(side, 0.0)), 0.01), snappedf(float(sg._bloody_age.get(side, 0.0)), 0.001)]
+	return out
+
+
+func _prints() -> int:
+	return get_tree().get_nodes_in_group(&"blood_marks").filter(func(n: Node) -> bool:
+		return (n as Decal).texture_albedo.resource_path.get_file() == "handprint.png").size()
+
+
+func _cmd_body_blood(a: Array) -> Dictionary:
+	if a.size() < 3:
+		return {"ok": false, "error": HELP.body_blood}
+	var at := Vector3(float(a[0]), 3.0, float(a[1]))
+	var q := PhysicsRayQueryParameters3D.create(at, at + Vector3.DOWN * 4.0, Layers.WORLD)
+	await physics_frames(1)
+	var hit := World.space(street).intersect_ray(q)
+	if hit.is_empty():
+		return {"ok": false, "error": "no floor there"}
+	var d := Blood.splat(street, hit.position, hit.normal, float(a[2]))
+	return {"at": arr(d.global_position), "size": arr(d.size)}
+
+
+func _cmd_body_hands(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null:
+		return {"ok": false, "error": HELP.body_hands}
+	if a.size() >= 3:
+		for side: String in (["r", "l"] if String(a[1]) == "both" else [String(a[1])]):
+			m.signs_now().wet_hand(side, float(a[2]))
+	return {"hands": _hands_of(m), "prints": _prints()}
+
+
+func _cmd_body_crawl(a: Array) -> Dictionary:
+	var m := _man(a)
+	if m == null or a.size() < 3:
+		return {"ok": false, "error": HELP.body_crawl}
+	var to := m.global_position + Vector3(float(a[1]), 0.0, float(a[2]))
+	var secs := float(a[3]) if a.size() > 3 else 8.0
+	if not m.prone:
+		m.go_prone()
+		await seconds(1.0)
+	var before := _prints()
+	var frames := int(secs * Engine.physics_ticks_per_second)
+	var wet := {"r": 0.0, "l": 0.0}  # the most wet blood under each hand on the way (ml)
+	var low := {"r": INF, "l": INF}  # and the nearest it came to the floor (over his lowest foot)
+	for i in frames:
+		if m.walk_to(to, 0.35, 1.0 / Engine.physics_ticks_per_second):
+			break
+		await physics_frames(1)
+		var feet := minf((m.parts[&"foot_r"] as Node3D).global_position.y, (m.parts[&"foot_l"] as Node3D).global_position.y)
+		for side: String in ["r", "l"]:
+			var h := m.drawn_hand(side)
+			wet[side] = maxf(wet[side], Blood.wet_near(h, WoundSigns.PICK_REACH))
+			low[side] = minf(low[side], h.y - feet)
+	await seconds(0.5)
+	return {"hands": _hands_of(m), "prints": _prints() - before, "at": arr(m.global_position),
+			"wet_under": wet, "lowest": low}
+
+
+func _cmd_body_haul(a: Array) -> Dictionary:
+	var m := _man(a)
+	var helper := person(String(a[1])) if a.size() > 1 else null
+	if m == null or helper == null or a.size() < 4:
+		return {"ok": false, "error": HELP.body_haul}
+	var secs := float(a[4]) if a.size() > 4 else 4.0
+	if m.physiology.bleeds.is_empty():
+		m.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+		m.physiology.bleeds[0].rate = 3.0
+	if not (m.limp or m.prone):
+		m.go_limp()
+		await seconds(2.5)
+	var goal := helper.global_position + Vector3(float(a[2]), 0.0, float(a[3]))
+	m.dragged_by = helper
+	var frames := int(secs * Engine.physics_ticks_per_second)
+	var dt := 1.0 / Engine.physics_ticks_per_second
+	for i in frames:
+		var at := (m.parts[&"chest"] as Node3D).global_position
+		helper.set_pose(&"drag")
+		helper.walk_to(goal, 0.9, dt, false)
+		helper.face(at + Vector3.UP * 0.3)
+		var to_him := at - helper.global_position
+		to_him.y = 0.0
+		m.drag_toward(helper.global_position + to_him.normalized() * 0.45, dt)
+		await physics_frames(1)
+	# How near the helper's hands came to his wounds' soaked patches (m, each patch's half-width).
+	var near := []
+	for w: Dictionary in m.wounds:
+		var st: Variant = w.get("stain")
+		if st != null and is_instance_valid(st):
+			var d := minf((st as Node3D).global_position.distance_to(helper.drawn_hand("r")), (st as Node3D).global_position.distance_to(helper.drawn_hand("l")))
+			near.append([String(w.segment), snappedf(d, 0.01), snappedf(float(w.get("stain_size", 0.0)) * 0.5, 0.01)])
+	m.dragged_by = null
+	helper.set_pose(&"stand")
+	await seconds(0.5)
+	return {"helper_hands": _hands_of(helper), "his_hands": _hands_of(m), "prints": _prints(), "stains_from_hands": near}
 
 
 func _cmd_body_marks(a: Array) -> Dictionary:
