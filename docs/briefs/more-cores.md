@@ -611,6 +611,23 @@ texture and await `frame_post_draw`). Check the twelve files that call `Renderin
 directly (`grep -rn 'RenderingServer\.' src`) for a same-frame assumption. Give Sean a build
 with it on and off (F3's frame, a gunfight in the new saloon, the burning street); it stays on
 only if his numbers say so and nothing draws wrong."*
+**Done (2026-10-28, `claude/gameplay-perf-step7`; `experiments/gunfight_lab/results/2026-10-27_step7/`):**
+`Settings.render_thread` (off) through step 6's `user://engine.cfg` (`[rendering]
+driver/threads/thread_model=2`; `-- --render-thread=on|off` for the next start, Godot's
+`--render-thread separate` for one run; F3 says which). A script run refuses the thread when it
+comes from the file (the tools read the drawn frame; with the thread `frame_post_draw` is a frame
+late); `bridge.py` and the lab's `--sheet` draw on the main thread. The direct `RenderingServer`
+calls (16 files, `audit.md`): none assumed a drawn frame; fixed for the thread: F3 and `PerfRing`
+read the render times twice a second (each read waits for the draw), the lamps' flicker every third
+frame (each write wakes the render thread), `BodyInterior.copy_material` (a material's
+`duplicate()` asks for its shader's uniforms: the chest's first opening 9 -> 40 ms). **The gate:**
+the lab 10 of 10 every way (on twice, on/off, against main), the soak 210 game minutes and the suite
+five times with no hang; the suite can't be green headless (Godot's dummy renderer isn't
+thread-safe: a different test each run, none drawn); the drawn smoke test exits 5 of 5 but fails on
+two Godot errors only the thread brings (the font cache's glyph upload, `particles_set_view_axis`
+on a freed particles system); the goldens as main's. **Gain:** headless the thread costs +1.6 ms a
+frame (the queue's writes, nothing to overlap); drawn here the frame is lavapipe's draw (−17 and
+−60 ms of 1.2 s). Sean's F3 decides; off until then.
 
 **Step 8. The structures' analysis and the fire's tick off the main thread** (the fire scene's
 and the blast's; expected: the burning town's `fire` 2.4 -> ~1.0 and the collapse's rounds off

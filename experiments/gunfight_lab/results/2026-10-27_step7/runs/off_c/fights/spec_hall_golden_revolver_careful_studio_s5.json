@@ -1,0 +1,5200 @@
+{
+ "aim_sd": 1.0,
+ "bodies": "studio",
+ "body_notes": [],
+ "dress": "",
+ "end": "gang_out",
+ "ending": "surrendered",
+ "first_hit_at": 7.7,
+ "first_hit_by": "gang",
+ "first_shot_at": 5.3,
+ "first_shot_by": "brody",
+ "fixes": "all",
+ "gang": {
+  "hits_on_you": 3,
+  "shots": 14
+ },
+ "hour": "golden",
+ "hour_at_end": 17.97,
+ "hour_at_start": 17.42,
+ "length_s": 61.37,
+ "longest_quiet_from": 11.55,
+ "longest_quiet_s": 10.97,
+ "men": {
+  "brody": {
+   "callouts": {
+    "covering": 2,
+    "down": 1,
+    "drag": 1,
+    "give_up": 1,
+    "hit": 1,
+    "reloading": 1,
+    "spotted": 2
+   },
+   "cover_changes": 3,
+   "cover_found": null,
+   "cover_kind": "",
+   "decisions": [
+    [
+     0.92,
+     "run for cover: in the open, 2 m"
+    ],
+    [
+     4.0,
+     "behind cover: got there"
+    ],
+    [
+     4.02,
+     "leave his cover: you can see him there now"
+    ],
+    [
+     4.22,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     16.13,
+     "look for you: lost sight of you 4 s ago, going to where you were"
+    ],
+    [
+     22.27,
+     "fight: sees you again"
+    ],
+    [
+     22.47,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     29.6,
+     "drag Kid to cover: he's down in the open"
+    ],
+    [
+     37.12,
+     "run for cover: in the open, 1 m"
+    ],
+    [
+     37.4,
+     "behind cover: got there"
+    ],
+    [
+     38.43,
+     "leave his cover: you can see him there now"
+    ],
+    [
+     38.5,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     40.07,
+     "run for cover: in the open, 1 m"
+    ],
+    [
+     40.28,
+     "behind cover: got there"
+    ],
+    [
+     46.43,
+     "look for you: lost sight of you 5 s ago, going to where you were"
+    ],
+    [
+     47.87,
+     "fight: sees you again"
+    ],
+    [
+     47.98,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     60.38,
+     "give up: past his nerve (fear 0.95 / 0.95)"
+    ]
+   ],
+   "fear_from": {
+    "a friend down or quit": 0.12,
+    "hit": 0.509,
+    "pain, shock, bleeding": 0.45
+   },
+   "fear_named": {
+    "a friend down": 0.12,
+    "hit": 0.312,
+    "near miss (fright)": 0.427,
+    "no gun": 0.46,
+    "pain, shock, bleeding": 0.191
+   },
+   "flanks": 0,
+   "fought": true,
+   "friendly_hits": 0,
+   "hat_can_be_shot": false,
+   "hits_on_you": 2,
+   "hits_taken": 1,
+   "id": "brody",
+   "model": "bold_cowboy_s0",
+   "model_loaded": true,
+   "moods": [
+    [
+     0.0,
+     "fighting"
+    ],
+    [
+     53.5,
+     "reloading"
+    ],
+    [
+     60.4,
+     "surrendered"
+    ]
+   ],
+   "near_misses_on_him": 6,
+   "nerve": 0.95,
+   "open_searching": 3.366,
+   "open_waiting": 31.943,
+   "out_at": 60.38,
+   "outcome": "surrendered",
+   "peeks": 1,
+   "pinned": 5,
+   "placed_unseen": 8,
+   "quit": {
+    "fear": 0.95,
+    "fear_from": {
+     "a friend down or quit": 0.12,
+     "hit": 0.509,
+     "pain, shock, bleeding": 0.45
+    },
+    "fear_named": {
+     "a friend down": 0.12,
+     "hit": 0.312,
+     "near miss (fright)": 0.427,
+     "no gun": 0.46,
+     "pain, shock, bleeding": 0.191
+    },
+    "following": "",
+    "hits": 1,
+    "how": "surrendered",
+    "nerve": 0.95,
+    "t": 60.38,
+    "was": {
+     "cover": true,
+     "gun": false,
+     "prone": false,
+     "searching": false,
+     "shaken": -1.0,
+     "tactic": "open"
+    }
+   },
+   "reloads": 1,
+   "searches_empty": 23,
+   "searches_found": 2,
+   "shot_errors": [
+    [
+     5.3,
+     3.41,
+     8.3,
+     false,
+     0.0
+    ],
+    [
+     7.67,
+     1.67,
+     9.2,
+     false,
+     0.0
+    ],
+    [
+     11.55,
+     0.55,
+     11.2,
+     false,
+     0.0
+    ],
+    [
+     22.52,
+     2.27,
+     4.5,
+     false,
+     0.0
+    ],
+    [
+     51.87,
+     1.39,
+     14.2,
+     false,
+     0.0
+    ]
+   ],
+   "shots": 5,
+   "start": [
+    -69.31,
+    1.8,
+    32.6
+   ],
+   "suppressing_shots": 2,
+   "temper": 0.2,
+   "whole_model": true,
+   "worst_overshoot_m": -0.7
+  },
+  "kid": {
+   "callouts": {
+    "hit": 1,
+    "spotted": 2
+   },
+   "cover_changes": 1,
+   "cover_found": null,
+   "cover_kind": "",
+   "decisions": [
+    [
+     1.17,
+     "run for cover: in the open, 3 m"
+    ],
+    [
+     3.07,
+     "behind cover: got there"
+    ],
+    [
+     11.05,
+     "look for you: lost sight of you 5 s ago, going to where you were"
+    ],
+    [
+     25.57,
+     "fight: sees you again"
+    ],
+    [
+     25.8,
+     "fight from where he is: no cover he can reach (in the open)"
+    ]
+   ],
+   "fear_from": {
+    "a friend down or quit": 0.372,
+    "hit": 0.698
+   },
+   "fear_named": {
+    "a friend quit": 0.222,
+    "half of them out": 0.15,
+    "hit": 0.698,
+    "near miss (fright)": 0.981
+   },
+   "flanks": 0,
+   "fought": true,
+   "friendly_hits": 0,
+   "hat_can_be_shot": true,
+   "hits_on_you": 1,
+   "hits_taken": 1,
+   "id": "kid",
+   "model": "young_drifter_s1",
+   "model_loaded": true,
+   "moods": [
+    [
+     0.0,
+     "fighting"
+    ],
+    [
+     29.6,
+     "down"
+    ]
+   ],
+   "near_misses_on_him": 14,
+   "nerve": 0.3,
+   "open_searching": 0.714,
+   "open_waiting": 4.556,
+   "out_at": 29.58,
+   "outcome": "down",
+   "peeks": 2,
+   "pinned": 3,
+   "placed_unseen": 16,
+   "reloads": 0,
+   "searches_empty": 3,
+   "searches_found": 1,
+   "shot_errors": [
+    [
+     5.72,
+     1.6,
+     13.1,
+     false,
+     0.0
+    ],
+    [
+     25.72,
+     3.92,
+     3.1,
+     false,
+     0.0
+    ],
+    [
+     28.2,
+     2.26,
+     8.5,
+     false,
+     0.0
+    ]
+   ],
+   "shots": 3,
+   "start": [
+    -59.7,
+    1.8,
+    35.6
+   ],
+   "suppressing_shots": 0,
+   "temper": 0.45,
+   "whole_model": true,
+   "worst_overshoot_m": -1.5
+  },
+  "lyle": {
+   "callouts": {
+    "covering": 1,
+    "drag": 1,
+    "press": 1,
+    "reloading": 1,
+    "spotted": 3
+   },
+   "cover_changes": 3,
+   "cover_found": null,
+   "cover_kind": "",
+   "decisions": [
+    [
+     0.88,
+     "run for cover: in the open, 7 m"
+    ],
+    [
+     3.9,
+     "behind cover: got there"
+    ],
+    [
+     3.92,
+     "leave his cover: you can see him there now"
+    ],
+    [
+     4.05,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     5.07,
+     "look for you: lost sight of you 4 s ago, going to where you were"
+    ],
+    [
+     5.4,
+     "fight: sees you again"
+    ],
+    [
+     5.6,
+     "run for cover: in the open, 1 m"
+    ],
+    [
+     6.35,
+     "behind cover: got there"
+    ],
+    [
+     11.73,
+     "look for you: lost sight of you 6 s ago, going to where you were"
+    ],
+    [
+     25.53,
+     "fight: sees you again"
+    ],
+    [
+     25.77,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     29.58,
+     "go for you: Kid down (a hothead's rage)"
+    ],
+    [
+     38.23,
+     "run for cover: in the open, 8 m"
+    ],
+    [
+     40.47,
+     "behind cover: got there"
+    ],
+    [
+     41.23,
+     "leave his cover: you can see him there now"
+    ],
+    [
+     41.3,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     45.15,
+     "look for you: lost sight of you 4 s ago, going to where you were"
+    ],
+    [
+     47.93,
+     "fight: sees you again"
+    ],
+    [
+     48.05,
+     "fight from where he is: no cover he can reach (in the open)"
+    ],
+    [
+     49.12,
+     "come at you: you're reloading"
+    ],
+    [
+     50.67,
+     "drag Kid to cover: he's down in the open"
+    ],
+    [
+     61.37,
+     "give up: his friends' word (give up)"
+    ]
+   ],
+   "fear_from": {
+    "a friend down or quit": 0.302,
+    "hit": 0.25
+   },
+   "fear_named": {
+    "a friend down": 0.12,
+    "a friend quit": 0.152,
+    "half of them out": 0.15,
+    "hit": 0.25,
+    "near miss (fright)": 0.444,
+    "pain, shock, bleeding": 0.002
+   },
+   "flanks": 0,
+   "fought": true,
+   "friendly_hits": 0,
+   "hat_can_be_shot": true,
+   "hits_on_you": 0,
+   "hits_taken": 2,
+   "id": "lyle",
+   "model": "old_rancher_s1",
+   "model_loaded": true,
+   "moods": [
+    [
+     0.0,
+     "fighting"
+    ],
+    [
+     33.3,
+     "reloading"
+    ],
+    [
+     45.3,
+     "fighting"
+    ],
+    [
+     61.4,
+     "surrendered"
+    ]
+   ],
+   "near_misses_on_him": 11,
+   "nerve": 0.7,
+   "open_searching": 1.632,
+   "open_waiting": 20.366,
+   "out_at": 61.37,
+   "outcome": "surrendered",
+   "peeks": 1,
+   "pinned": 8,
+   "placed_unseen": 6,
+   "quit": {
+    "fear": 0.48,
+    "fear_from": {
+     "a friend down or quit": 0.302,
+     "hit": 0.25
+    },
+    "fear_named": {
+     "a friend down": 0.12,
+     "a friend quit": 0.152,
+     "half of them out": 0.15,
+     "hit": 0.25,
+     "near miss (fright)": 0.444,
+     "pain, shock, bleeding": 0.002
+    },
+    "following": "surrender",
+    "hits": 2,
+    "how": "surrendered",
+    "nerve": 0.7,
+    "t": 61.37,
+    "was": {
+     "cover": true,
+     "gun": true,
+     "prone": false,
+     "searching": false,
+     "shaken": -1.0,
+     "tactic": "rescuing"
+    }
+   },
+   "reloads": 1,
+   "searches_empty": 8,
+   "searches_found": 3,
+   "shot_errors": [
+    [
+     25.83,
+     5.74,
+     3.6,
+     false,
+     0.0
+    ],
+    [
+     27.03,
+     4.3,
+     8.4,
+     false,
+     0.0
+    ],
+    [
+     29.3,
+     4.57,
+     8.5,
+     false,
+     0.0
+    ],
+    [
+     30.98,
+     1.73,
+     8.2,
+     false,
+     0.0
+    ],
+    [
+     32.18,
+     0.65,
+     8.2,
+     false,
+     0.0
+    ],
+    [
+     48.83,
+     2.42,
+     13.5,
+     false,
+     0.19
+    ]
+   ],
+   "shots": 6,
+   "start": [
+    -62.6,
+    1.8,
+    32.0
+   ],
+   "suppressing_shots": 2,
+   "temper": 0.9,
+   "whole_model": true,
+   "worst_overshoot_m": -0.8
+  }
+ },
+ "opening": "",
+ "outcomes": {
+  "down": 1,
+  "surrendered": 2
+ },
+ "perf": {
+  "frame_ms": 14.09,
+  "frame_p95_ms": 16.65,
+  "frames": 3682,
+  "people_calm_ms": 3.369,
+  "people_ms": 6.416,
+  "people_p95_ms": 9.417,
+  "per_system_ms": {
+   "analysis_full_begin": 0.002,
+   "ballistics": 0.047,
+   "batches": 0.001,
+   "blood": 0.034,
+   "bu_closure": 0.001,
+   "bu_forget": 0.001,
+   "bu_seeds": 0.0,
+   "civ_fire_look": 0.018,
+   "civilian_brain": 0.423,
+   "cloth": 0.017,
+   "day_cycle": 0.191,
+   "faces": 0.01,
+   "fire": 0.084,
+   "fire_analyse": 0.053,
+   "fire_apply": 0.002,
+   "fire_fx": 0.006,
+   "fire_loads": 0.071,
+   "fire_route": 0.035,
+   "fire_tick": 0.005,
+   "fittings": 0.033,
+   "floor_marks": 0.147,
+   "horses": 0.071,
+   "kit_balance": 0.08,
+   "lamps": 0.13,
+   "lines_senses": 0.133,
+   "mop": 0.068,
+   "n_people_owed": 9.576,
+   "n_people_ticked": 10.424,
+   "outlaw_brain": 1.954,
+   "people_bands": 0.145,
+   "people_body": 1.911,
+   "people_prep": 0.541,
+   "people_prep_sum": 0.747,
+   "people_skeleton": 0.427,
+   "player": 0.416,
+   "q_balls": 0.388,
+   "q_body": 0.043,
+   "q_brain": 0.589,
+   "q_cover": 39.671,
+   "q_lamps": 3.935,
+   "q_senses": 20.348,
+   "q_signs": 0.21,
+   "q_walk": 13.098,
+   "q_writes": 65.11,
+   "rest": 4.057,
+   "senses": 0.708,
+   "sight_sync": 0.029,
+   "smoke": 0.019,
+   "step": 1.34,
+   "structures": 0.388,
+   "town_life": 0.002,
+   "voxels": 0.002,
+   "window": 8.688
+  },
+  "three_men_ms": 3.047
+ },
+ "physics_thread": false,
+ "scenario": "spec_hall",
+ "seed": 5,
+ "situations": {
+  "cover_shot_away": 0,
+  "dust_by_man": 0,
+  "dust_on_line": 0,
+  "fires_started": 0,
+  "flights": 0,
+  "ground_hits": 23,
+  "hats_shot": 0,
+  "lamps_hit": 0,
+  "members_broken": 0,
+  "most_timber_alight": 0,
+  "rallied": 0,
+  "shaken": 0,
+  "surrenders": 2,
+  "times": {
+   "surrenders": [
+    60.4,
+    61.3
+   ]
+  },
+  "townsfolk_hit": 0
+ },
+ "style": "careful",
+ "timeline": [
+  [
+   0.0,
+   "said",
+   "brody: \"You damn fool!\""
+  ],
+  [
+   0.0,
+   "said",
+   "lyle: \"You damn fool!\""
+  ],
+  [
+   0.0,
+   "said",
+   "kid: \"You damn fool!\""
+  ],
+  [
+   0.0,
+   "start",
+   "the gang turns on you (spec_hall, golden, revolver, careful, variant D, seed 5)"
+  ],
+  [
+   0.53,
+   "said",
+   "lyle: \"I see him!\""
+  ],
+  [
+   0.53,
+   "callout",
+   "lyle called spotted"
+  ],
+  [
+   0.65,
+   "said",
+   "brody: \"I see him!\""
+  ],
+  [
+   0.65,
+   "callout",
+   "brody called spotted"
+  ],
+  [
+   0.88,
+   "cover",
+   "lyle runs for new cover (7 m)"
+  ],
+  [
+   0.88,
+   "decision",
+   "lyle: run for cover: in the open, 7 m"
+  ],
+  [
+   0.92,
+   "cover",
+   "brody runs for new cover (2 m)"
+  ],
+  [
+   0.92,
+   "decision",
+   "brody: run for cover: in the open, 2 m"
+  ],
+  [
+   1.02,
+   "said",
+   "kid: \"Over there!\""
+  ],
+  [
+   1.02,
+   "callout",
+   "kid called spotted"
+  ],
+  [
+   1.17,
+   "cover",
+   "kid runs for new cover (3 m)"
+  ],
+  [
+   1.17,
+   "decision",
+   "kid: run for cover: in the open, 3 m"
+  ],
+  [
+   3.07,
+   "decision",
+   "kid: behind cover: got there"
+  ],
+  [
+   3.9,
+   "decision",
+   "lyle: behind cover: got there"
+  ],
+  [
+   3.92,
+   "decision",
+   "lyle: leave his cover: you can see him there now"
+  ],
+  [
+   4.0,
+   "decision",
+   "brody: behind cover: got there"
+  ],
+  [
+   4.02,
+   "decision",
+   "brody: leave his cover: you can see him there now"
+  ],
+  [
+   4.05,
+   "decision",
+   "lyle: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   4.22,
+   "decision",
+   "brody: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   5.05,
+   "said",
+   "lyle: \"Come on out!\""
+  ],
+  [
+   5.07,
+   "decision",
+   "lyle: look for you: lost sight of you 4 s ago, going to where you were"
+  ],
+  [
+   5.3,
+   "shot",
+   "brody fired"
+  ],
+  [
+   5.33,
+   "near_miss",
+   "a round from brody passed 0.5 m from you"
+  ],
+  [
+   5.4,
+   "decision",
+   "lyle: fight: sees you again"
+  ],
+  [
+   5.6,
+   "cover",
+   "lyle runs for new cover (1 m)"
+  ],
+  [
+   5.6,
+   "decision",
+   "lyle: run for cover: in the open, 1 m"
+  ],
+  [
+   5.72,
+   "shot",
+   "kid fired"
+  ],
+  [
+   5.73,
+   "said",
+   "lyle: \"Hey! That was me!\""
+  ],
+  [
+   5.77,
+   "near_miss",
+   "a round from kid passed 0.4 m from you"
+  ],
+  [
+   6.35,
+   "decision",
+   "lyle: behind cover: got there"
+  ],
+  [
+   7.67,
+   "shot",
+   "brody fired"
+  ],
+  [
+   7.7,
+   "hit",
+   "you hit in the upper_arm_r by brody"
+  ],
+  [
+   7.7,
+   "near_miss",
+   "a round from brody passed 0.7 m from you"
+  ],
+  [
+   11.03,
+   "said",
+   "kid: \"I know you're there.\""
+  ],
+  [
+   11.05,
+   "decision",
+   "kid: look for you: lost sight of you 5 s ago, going to where you were"
+  ],
+  [
+   11.55,
+   "shot",
+   "brody fired"
+  ],
+  [
+   11.6,
+   "hit",
+   "you hit in the chest by brody"
+  ],
+  [
+   11.6,
+   "near_miss",
+   "a round from brody passed 0.4 m from you"
+  ],
+  [
+   11.72,
+   "said",
+   "lyle: \"Where'd he go?\""
+  ],
+  [
+   11.73,
+   "decision",
+   "lyle: look for you: lost sight of you 6 s ago, going to where you were"
+  ],
+  [
+   16.12,
+   "said",
+   "brody: \"Come on out!\""
+  ],
+  [
+   16.13,
+   "decision",
+   "brody: look for you: lost sight of you 4 s ago, going to where you were"
+  ],
+  [
+   22.27,
+   "decision",
+   "brody: fight: sees you again"
+  ],
+  [
+   22.47,
+   "decision",
+   "brody: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   22.52,
+   "shot",
+   "brody fired"
+  ],
+  [
+   22.53,
+   "said",
+   "lyle: \"Watch where you're shooting!\""
+  ],
+  [
+   22.53,
+   "said",
+   "kid: \"Watch where you're shooting!\""
+  ],
+  [
+   22.53,
+   "near_miss",
+   "a round from brody passed 1.6 m from you"
+  ],
+  [
+   22.92,
+   "shot",
+   "you fired"
+  ],
+  [
+   25.53,
+   "decision",
+   "lyle: fight: sees you again"
+  ],
+  [
+   25.57,
+   "decision",
+   "kid: fight: sees you again"
+  ],
+  [
+   25.57,
+   "said",
+   "lyle: \"There he is!\""
+  ],
+  [
+   25.57,
+   "callout",
+   "lyle called spotted"
+  ],
+  [
+   25.72,
+   "shot",
+   "kid fired"
+  ],
+  [
+   25.73,
+   "hit",
+   "you hit in the chest by kid"
+  ],
+  [
+   25.73,
+   "near_miss",
+   "a round from kid passed 0.3 m from you"
+  ],
+  [
+   25.73,
+   "said",
+   "kid: \"There he is!\""
+  ],
+  [
+   25.73,
+   "callout",
+   "kid called spotted"
+  ],
+  [
+   25.77,
+   "decision",
+   "lyle: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   25.8,
+   "decision",
+   "kid: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   25.83,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   25.85,
+   "near_miss",
+   "a round from lyle passed 0.5 m from you"
+  ],
+  [
+   27.03,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   27.07,
+   "near_miss",
+   "a round from lyle passed 1.3 m from you"
+  ],
+  [
+   28.2,
+   "shot",
+   "kid fired"
+  ],
+  [
+   28.23,
+   "near_miss",
+   "a round from kid passed 0.7 m from you"
+  ],
+  [
+   29.3,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   29.32,
+   "said",
+   "kid: \"Watch where you're shooting!\""
+  ],
+  [
+   29.33,
+   "near_miss",
+   "a round from lyle passed 0.7 m from you"
+  ],
+  [
+   29.53,
+   "shot",
+   "you fired"
+  ],
+  [
+   29.57,
+   "said",
+   "kid: \"My leg... damn you...\""
+  ],
+  [
+   29.57,
+   "said",
+   "brody: \"They got Kid!\""
+  ],
+  [
+   29.57,
+   "said",
+   "lyle: \"You'll pay for that!\""
+  ],
+  [
+   29.57,
+   "callout",
+   "brody called down"
+  ],
+  [
+   29.57,
+   "fell",
+   "kid went down"
+  ],
+  [
+   29.57,
+   "said",
+   "kid: \"I'm hit! I'm hit!\""
+  ],
+  [
+   29.57,
+   "said",
+   "brody: \"Covering!\""
+  ],
+  [
+   29.57,
+   "callout",
+   "brody called covering"
+  ],
+  [
+   29.57,
+   "said",
+   "lyle: \"Go! I got him!\""
+  ],
+  [
+   29.57,
+   "callout",
+   "lyle called covering"
+  ],
+  [
+   29.57,
+   "callout",
+   "kid called hit"
+  ],
+  [
+   29.57,
+   "hit",
+   "kid hit in the chest by you"
+  ],
+  [
+   29.58,
+   "decision",
+   "lyle: go for you: Kid down (a hothead's rage)"
+  ],
+  [
+   29.58,
+   "mood",
+   "kid: down"
+  ],
+  [
+   29.58,
+   "out",
+   "kid is out of it: down"
+  ],
+  [
+   29.58,
+   "said",
+   "brody: \"Hold on, I got you!\""
+  ],
+  [
+   29.58,
+   "callout",
+   "brody called drag"
+  ],
+  [
+   29.6,
+   "decision",
+   "brody: drag Kid to cover: he's down in the open"
+  ],
+  [
+   30.58,
+   "said",
+   "lyle: \"Over there!\""
+  ],
+  [
+   30.58,
+   "callout",
+   "lyle called spotted"
+  ],
+  [
+   30.98,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   31.0,
+   "said",
+   "brody: \"Hey! That was me!\""
+  ],
+  [
+   31.02,
+   "near_miss",
+   "a round from lyle passed 1.8 m from you"
+  ],
+  [
+   32.18,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   32.22,
+   "near_miss",
+   "a round from lyle passed 1.3 m from you"
+  ],
+  [
+   32.25,
+   "said",
+   "brody: \"I see him!\""
+  ],
+  [
+   32.25,
+   "callout",
+   "brody called spotted"
+  ],
+  [
+   33.25,
+   "said",
+   "lyle: \"Reloading! Cover me!\""
+  ],
+  [
+   33.25,
+   "callout",
+   "lyle called reloading"
+  ],
+  [
+   33.27,
+   "mood",
+   "lyle: reloading"
+  ],
+  [
+   37.12,
+   "cover",
+   "brody runs for new cover (1 m)"
+  ],
+  [
+   37.12,
+   "decision",
+   "brody: run for cover: in the open, 1 m"
+  ],
+  [
+   37.4,
+   "decision",
+   "brody: behind cover: got there"
+  ],
+  [
+   38.1,
+   "shot",
+   "you fired"
+  ],
+  [
+   38.15,
+   "hit",
+   "lyle hit in the upper_arm_r by you"
+  ],
+  [
+   38.23,
+   "cover",
+   "lyle runs for new cover (8 m)"
+  ],
+  [
+   38.23,
+   "decision",
+   "lyle: run for cover: in the open, 8 m"
+  ],
+  [
+   38.43,
+   "decision",
+   "brody: leave his cover: you can see him there now"
+  ],
+  [
+   38.5,
+   "decision",
+   "brody: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   40.07,
+   "cover",
+   "brody runs for new cover (1 m)"
+  ],
+  [
+   40.07,
+   "decision",
+   "brody: run for cover: in the open, 1 m"
+  ],
+  [
+   40.15,
+   "shot",
+   "you fired"
+  ],
+  [
+   40.22,
+   "hit",
+   "lyle hit in the pelvis by you"
+  ],
+  [
+   40.28,
+   "decision",
+   "brody: behind cover: got there"
+  ],
+  [
+   40.47,
+   "decision",
+   "lyle: behind cover: got there"
+  ],
+  [
+   41.23,
+   "decision",
+   "lyle: leave his cover: you can see him there now"
+  ],
+  [
+   41.3,
+   "decision",
+   "lyle: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   45.13,
+   "said",
+   "lyle: \"Come on out!\""
+  ],
+  [
+   45.15,
+   "decision",
+   "lyle: look for you: lost sight of you 4 s ago, going to where you were"
+  ],
+  [
+   45.27,
+   "mood",
+   "lyle: fighting"
+  ],
+  [
+   46.42,
+   "said",
+   "brody: \"Come on out!\""
+  ],
+  [
+   46.43,
+   "decision",
+   "brody: look for you: lost sight of you 5 s ago, going to where you were"
+  ],
+  [
+   47.87,
+   "decision",
+   "brody: fight: sees you again"
+  ],
+  [
+   47.93,
+   "decision",
+   "lyle: fight: sees you again"
+  ],
+  [
+   47.98,
+   "decision",
+   "brody: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   48.05,
+   "decision",
+   "lyle: fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   48.57,
+   "shot",
+   "you fired"
+  ],
+  [
+   48.83,
+   "shot",
+   "lyle fired"
+  ],
+  [
+   48.85,
+   "said",
+   "brody: \"Hey! That was me!\""
+  ],
+  [
+   49.1,
+   "said",
+   "lyle: \"He's empty! Get him!\""
+  ],
+  [
+   49.1,
+   "said",
+   "brody: \"Covering!\""
+  ],
+  [
+   49.1,
+   "callout",
+   "brody called covering"
+  ],
+  [
+   49.1,
+   "callout",
+   "lyle called press"
+  ],
+  [
+   49.12,
+   "decision",
+   "lyle: come at you: you're reloading"
+  ],
+  [
+   50.65,
+   "said",
+   "lyle: \"Easy, I got you. Come on!\""
+  ],
+  [
+   50.65,
+   "callout",
+   "lyle called drag"
+  ],
+  [
+   50.67,
+   "decision",
+   "lyle: drag Kid to cover: he's down in the open"
+  ],
+  [
+   51.87,
+   "shot",
+   "brody fired"
+  ],
+  [
+   51.88,
+   "said",
+   "lyle: \"Hey! That was me!\""
+  ],
+  [
+   51.92,
+   "near_miss",
+   "a round from brody passed 1.8 m from you"
+  ],
+  [
+   53.48,
+   "said",
+   "brody: \"Reloading! Cover me!\""
+  ],
+  [
+   53.48,
+   "callout",
+   "brody called reloading"
+  ],
+  [
+   53.5,
+   "mood",
+   "brody: reloading"
+  ],
+  [
+   58.78,
+   "shot",
+   "you fired"
+  ],
+  [
+   58.85,
+   "said",
+   "brody: \"He got me!\""
+  ],
+  [
+   58.85,
+   "callout",
+   "brody called hit"
+  ],
+  [
+   58.85,
+   "hit",
+   "brody hit in the chest by you"
+  ],
+  [
+   60.37,
+   "said",
+   "brody: \"That's it, boys. Throw 'em down.\""
+  ],
+  [
+   60.37,
+   "said",
+   "lyle: \"Brody! Pick up that gun!\""
+  ],
+  [
+   60.37,
+   "callout",
+   "brody called give_up"
+  ],
+  [
+   60.37,
+   "situation",
+   "brody gives up"
+  ],
+  [
+   60.38,
+   "mood",
+   "brody: surrendered"
+  ],
+  [
+   60.38,
+   "decision",
+   "brody: give up: past his nerve (fear 0.95 / 0.95)"
+  ],
+  [
+   60.38,
+   "out",
+   "brody is out of it: gave up"
+  ],
+  [
+   61.35,
+   "said",
+   "lyle: \"Enough! It's yours!\""
+  ],
+  [
+   61.35,
+   "situation",
+   "lyle gives up"
+  ],
+  [
+   61.37,
+   "mood",
+   "lyle: surrendered"
+  ],
+  [
+   61.37,
+   "decision",
+   "lyle: give up: his friends' word (give up)"
+  ],
+  [
+   61.37,
+   "out",
+   "lyle is out of it: gave up"
+  ]
+ ],
+ "track": [
+  {
+   "men": {
+    "brody": [
+     -69.31,
+     32.6,
+     "open",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.7,
+     35.6,
+     "open",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -62.6,
+     32.0,
+     "open",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 0.0,
+   "you": [
+    -64.38,
+    27.4,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.31,
+     32.6,
+     "open",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.7,
+     35.6,
+     "open",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -62.6,
+     32.0,
+     "open",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 0.5,
+   "you": [
+    -64.4,
+    27.18,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.34,
+     32.03,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.7,
+     35.6,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -61.93,
+     32.18,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 1.1,
+   "you": [
+    -64.18,
+    25.84,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.46,
+     30.07,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -60.3,
+     37.07,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -60.03,
+     32.68,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 1.6,
+   "you": [
+    -63.16,
+    25.63,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.57,
+     28.11,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -60.39,
+     38.87,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -58.95,
+     33.74,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 2.1,
+   "you": [
+    -63.58,
+    25.66,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.96,
+     28.25,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.63,
+     40.42,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -59.18,
+     35.69,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 2.6,
+   "you": [
+    -64.82,
+    25.67,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.98,
+     30.21,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.63,
+     38.64,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -59.58,
+     37.47,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 3.1,
+   "you": [
+    -64.85,
+    25.66,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.99,
+     32.17,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -59.63,
+     38.64,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -60.78,
+     38.41,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 3.6,
+   "you": [
+    -64.51,
+    25.65,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.3,
+     38.85,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.85,
+     39.3,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 4.1,
+   "you": [
+    -63.27,
+    25.64,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.3,
+     38.85,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.85,
+     39.3,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 4.7,
+   "you": [
+    -63.22,
+    25.64,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.3,
+     38.85,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.79,
+     39.15,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 5.2,
+   "you": [
+    -63.93,
+    25.68,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.3,
+     38.85,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.78,
+     39.1,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 5.7,
+   "you": [
+    -64.87,
+    25.65,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.96,
+     38.71,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -60.63,
+     39.77,
+     "moving",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 6.2,
+   "you": [
+    -64.87,
+    25.65,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.96,
+     38.71,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -61.08,
+     39.52,
+     "hidden",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 6.7,
+   "you": [
+    -64.35,
+    25.64,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.96,
+     38.71,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -61.08,
+     39.52,
+     "hidden",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 7.2,
+   "you": [
+    -63.2,
+    25.64,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.96,
+     38.71,
+     "hidden",
+     "fighting",
+     "stand"
+    ],
+    "lyle": [
+     -61.08,
+     39.52,
+     "hidden",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 7.8,
+   "you": [
+    -63.18,
+    25.64,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -61.08,
+     39.52,
+     "hidden",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 8.3,
+   "you": [
+    -62.03,
+    25.61,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.83,
+     39.44,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 8.8,
+   "you": [
+    -60.58,
+    25.61,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.72,
+     39.4,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 9.3,
+   "you": [
+    -61.03,
+    25.61,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.72,
+     39.4,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 9.8,
+   "you": [
+    -61.03,
+    25.61,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.72,
+     39.4,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 10.4,
+   "you": [
+    -61.03,
+    25.61,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.28,
+     38.83,
+     "peeking",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.72,
+     39.4,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 10.9,
+   "you": [
+    -61.1,
+    25.49,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.84,
+     39.32,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.72,
+     39.4,
+     "peeking",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 11.4,
+   "you": [
+    -61.75,
+    24.3,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.67,
+     40.25,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.83,
+     39.23,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 11.9,
+   "you": [
+    -62.01,
+    24.32,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.91,
+     39.92,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.76,
+     38.37,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 12.4,
+   "you": [
+    -62.5,
+    25.62,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.33,
+     39.07,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.52,
+     37.64,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 12.9,
+   "you": [
+    -62.37,
+    25.3,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.61,
+     38.18,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -59.67,
+     37.45,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 13.5,
+   "you": [
+    -62.37,
+    25.3,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.32,
+     37.62,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -59.56,
+     36.51,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 14.0,
+   "you": [
+    -62.37,
+    25.3,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.46,
+     37.42,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -59.45,
+     35.58,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 14.5,
+   "you": [
+    -62.37,
+    25.3,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.32,
+     36.49,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -59.34,
+     34.64,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 15.0,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.23,
+     35.55,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -59.38,
+     33.76,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 15.5,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.94,
+     31.92,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.15,
+     34.62,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.02,
+     33.07,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 16.0,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.95,
+     31.13,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.07,
+     33.68,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -60.66,
+     32.38,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 16.6,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.97,
+     30.19,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -58.99,
+     32.74,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -61.31,
+     31.69,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 17.1,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.98,
+     29.25,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -59.83,
+     32.37,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -61.95,
+     31.01,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 17.6,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -71.0,
+     28.31,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -60.7,
+     32.01,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -62.59,
+     30.32,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 18.1,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.18,
+     27.88,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -61.57,
+     31.66,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -63.23,
+     29.63,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 18.6,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.3,
+     27.68,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -62.27,
+     31.26,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -63.87,
+     28.94,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 19.1,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.7,
+     27.82,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -62.76,
+     30.61,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.29,
+     28.16,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 19.7,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.72,
+     27.95,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -63.32,
+     29.85,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.22,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 20.2,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.64,
+     28.89,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -63.87,
+     29.09,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.19,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 20.7,
+   "you": [
+    -62.38,
+    25.29,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.1,
+     29.2,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.33,
+     28.3,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.19,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 21.2,
+   "you": [
+    -62.7,
+    25.04,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -67.18,
+     29.0,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.31,
+     27.73,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.19,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 21.7,
+   "you": [
+    -62.71,
+    25.03,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.3,
+     28.74,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     27.68,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.19,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 22.2,
+   "you": [
+    -62.71,
+    25.03,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -63.9,
+     27.28,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     27.19,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 22.7,
+   "you": [
+    -62.71,
+    25.03,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.32,
+     26.5,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.37,
+     26.56,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 23.3,
+   "you": [
+    -62.46,
+    25.08,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.35,
+     25.56,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.38,
+     25.62,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 23.8,
+   "you": [
+    -62.46,
+    25.08,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 24.3,
+   "you": [
+    -62.46,
+    25.08,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 24.8,
+   "you": [
+    -62.46,
+    25.08,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.35,
+     24.89,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 25.3,
+   "you": [
+    -61.95,
+    25.01,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 25.8,
+   "you": [
+    -59.84,
+    24.69,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 26.4,
+   "you": [
+    -56.97,
+    24.28,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 26.9,
+   "you": [
+    -55.41,
+    24.05,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 27.4,
+   "you": [
+    -54.69,
+    24.05,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 27.9,
+   "you": [
+    -55.0,
+    25.21,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 28.4,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 28.9,
+   "you": [
+    -55.04,
+    25.39,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.28,
+     28.72,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "lyle": [
+     -64.2,
+     24.89,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 29.5,
+   "you": [
+    -55.04,
+    25.39,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -65.28,
+     27.58,
+     "rescuing",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 30.0,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -64.46,
+     25.9,
+     "rescuing",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 30.5,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -64.94,
+     25.61,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 31.0,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -65.51,
+     25.57,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 31.5,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.07,
+     25.52,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 32.0,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -66.64,
+     25.48,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 32.6,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -67.21,
+     25.44,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 33.1,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -67.77,
+     25.4,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 33.6,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.34,
+     25.36,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 34.1,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -68.91,
+     25.32,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 34.6,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -69.47,
+     25.27,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 35.1,
+   "you": [
+    -55.04,
+    25.39,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.04,
+     25.23,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 35.7,
+   "you": [
+    -55.02,
+    25.38,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.61,
+     25.19,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 36.2,
+   "you": [
+    -53.92,
+    25.14,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -71.17,
+     25.15,
+     "rescuing",
+     "fighting",
+     "drag"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 36.7,
+   "you": [
+    -53.77,
+    25.11,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -71.92,
+     24.97,
+     "moving",
+     "fighting",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 37.2,
+   "you": [
+    -53.77,
+    25.11,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.57,
+     24.72,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.01,
+     24.9,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 37.7,
+   "you": [
+    -53.77,
+    25.11,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.57,
+     24.72,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -64.14,
+     24.88,
+     "moving",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 38.2,
+   "you": [
+    -53.77,
+    25.11,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.57,
+     24.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -66.09,
+     24.65,
+     "moving",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 38.8,
+   "you": [
+    -53.77,
+    25.11,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.57,
+     24.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -68.04,
+     24.42,
+     "moving",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 39.3,
+   "you": [
+    -53.77,
+    25.11,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.57,
+     24.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.99,
+     24.19,
+     "moving",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 39.8,
+   "you": [
+    -53.77,
+    25.11,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.85,
+     24.0,
+     "moving",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 40.3,
+   "you": [
+    -53.77,
+    25.11,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "hidden",
+     "reloading",
+     "lie"
+    ]
+   },
+   "t": 40.8,
+   "you": [
+    -54.29,
+    25.43,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 41.3,
+   "you": [
+    -55.31,
+    26.25,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 41.9,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 42.4,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "hidden",
+     "fighting",
+     "lie"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 42.9,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 43.4,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 43.9,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 44.4,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.3,
+     23.92,
+     "open",
+     "reloading",
+     "stand"
+    ]
+   },
+   "t": 45.0,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.96,
+     24.05,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 45.5,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.38,
+     25.59,
+     "peeking",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.45,
+     24.25,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 46.0,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -72.21,
+     25.53,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -70.94,
+     24.44,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 46.5,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -71.31,
+     25.24,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -70.43,
+     24.64,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 47.0,
+   "you": [
+    -55.28,
+    26.22,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.42,
+     24.94,
+     "searching",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.9,
+     24.69,
+     "searching",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 47.5,
+   "you": [
+    -55.26,
+    26.15,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.51,
+     24.7,
+     "open",
+     "fighting",
+     "aim"
+    ]
+   },
+   "t": 48.1,
+   "you": [
+    -55.2,
+    25.8,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.51,
+     24.7,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 48.6,
+   "you": [
+    -55.2,
+    25.8,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.51,
+     24.7,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 49.1,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -68.93,
+     24.71,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 49.6,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -68.34,
+     24.72,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 50.1,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -67.76,
+     24.73,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ]
+   },
+   "t": 50.6,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "crouch_aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -68.41,
+     24.91,
+     "rescuing",
+     "fighting",
+     "stand"
+    ]
+   },
+   "t": 51.2,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -68.96,
+     25.03,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 51.7,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.29,
+     25.03,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 52.2,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.61,
+     25.03,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 52.7,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "fighting",
+     "aim"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.68,
+     25.15,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 53.2,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -69.85,
+     25.24,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 53.7,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -70.18,
+     25.22,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 54.3,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -70.51,
+     25.21,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 54.8,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -70.84,
+     25.19,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 55.3,
+   "you": [
+    -55.2,
+    25.8,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.16,
+     25.18,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 55.8,
+   "you": [
+    -55.2,
+    25.8,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.49,
+     25.17,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 56.3,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -71.82,
+     25.15,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 56.8,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.14,
+     25.14,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 57.4,
+   "you": [
+    -55.2,
+    25.8,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.47,
+     25.12,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 57.9,
+   "you": [
+    -55.26,
+    24.83,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -72.8,
+     25.11,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 58.4,
+   "you": [
+    -55.26,
+    24.42,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -73.13,
+     25.09,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 58.9,
+   "you": [
+    -55.26,
+    24.42,
+    false
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -73.45,
+     25.08,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 59.4,
+   "you": [
+    -55.26,
+    24.42,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "reloading",
+     "stand"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -73.78,
+     25.06,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 59.9,
+   "you": [
+    -55.26,
+    24.42,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "surrendered",
+     "hands_up"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -74.11,
+     25.05,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 60.5,
+   "you": [
+    -55.26,
+    24.42,
+    true
+   ]
+  },
+  {
+   "men": {
+    "brody": [
+     -70.12,
+     24.84,
+     "open",
+     "surrendered",
+     "hands_up"
+    ],
+    "kid": [
+     -64.13,
+     24.87,
+     "open",
+     "down",
+     "crouch_aim"
+    ],
+    "lyle": [
+     -74.43,
+     25.04,
+     "rescuing",
+     "fighting",
+     "drag"
+    ]
+   },
+   "t": 61.0,
+   "you": [
+    -54.7,
+    24.51,
+    false
+   ]
+  }
+ ],
+ "variant": "D",
+ "weapon": "revolver",
+ "you": {
+  "arm_out_at": -1.0,
+  "blood_ml": 4949,
+  "cover_moves": 8,
+  "dead": false,
+  "down": false,
+  "drew_at": 14.6333333333336,
+  "first_aimed_at": 3.23333333333333,
+  "first_hit_at": 7.7,
+  "hits": 4,
+  "hits_taken": 3,
+  "look_outs": 5,
+  "near_misses": 13,
+  "near_misses_per_min": 12.7,
+  "pellet_hits": 4,
+  "reloads": 1,
+  "shots": 6,
+  "stuck": 0,
+  "wounds": 4
+ }
+}

@@ -41,8 +41,13 @@ var _row := PackedFloat32Array()
 ## Viewports measured (the root and every SubViewport), by RID.
 var _viewports: Array[RID] = []
 ## Reading a render time makes a separate render thread wait for the main one (perf_bench's
-## note), so with that thread model it's read only while F3 is up.
+## note), so with that thread model (Settings.render_thread) it's read only while F3 is up, and then
+## twice a second as F3 reads it (debug_overlay.gd), the last read kept between.
 var _render_every_frame := true
+const RENDER_READ_FRAMES := 30
+var _render_read := 0
+var _cpu := 0.0
+var _gpu := 0.0
 # This second so far.
 var _sec_start := 0
 var _sec_n := 0
@@ -62,7 +67,7 @@ func _init() -> void:
 	_row.resize(NF)
 	_sec_sum.resize(NF)
 	_sec_max.resize(NF)
-	_render_every_frame = int(ProjectSettings.get_setting("rendering/driver/threads/thread_model", 1)) != 2
+	_render_every_frame = not Settings.render_thread
 
 
 ## Measure `vp`'s render time from now on (until it leaves the tree).
@@ -89,12 +94,18 @@ func sample() -> void:
 		_sec_start = t0
 		_last_ticks = ticks
 		return
-	var cpu := 0.0
-	var gpu := 0.0
-	if _render_every_frame or Prof.on:
+	if not _render_every_frame and not Prof.on:
+		_cpu = 0.0
+		_gpu = 0.0
+	elif _render_every_frame or Engine.get_frames_drawn() - _render_read >= RENDER_READ_FRAMES:
+		_render_read = Engine.get_frames_drawn()
+		_cpu = 0.0
+		_gpu = 0.0
 		for rid in _viewports:
-			cpu += RenderingServer.viewport_get_measured_render_time_cpu(rid)
-			gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+			_cpu += RenderingServer.viewport_get_measured_render_time_cpu(rid)
+			_gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	var cpu := _cpu
+	var gpu := _gpu
 	_row[0] = (t0 - _last) / 1000.0
 	_row[1] = Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
 	_row[2] = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0

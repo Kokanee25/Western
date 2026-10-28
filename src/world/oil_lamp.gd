@@ -63,6 +63,11 @@ var _flame: MeshInstance3D
 var _chimney: MeshInstance3D
 var _flame_material: StandardMaterial3D
 var _time := 0.0
+## With the render thread (Settings.render_thread) every write to the light wakes that thread
+## and waits on its queue's lock: the flicker, a write a lamp a frame, was 0.2 -> 1.0 ms a frame
+## in the lab's saloon fight. Then each lamp writes it every third frame (lamps staggered); the
+## flicker is a few hertz, so 20 writes a second draw the same. Without the thread, every frame.
+const THREAD_FLICKER_FRAMES := 3
 
 
 func _ready() -> void:
@@ -119,6 +124,8 @@ func _process_step(delta: float) -> void:
 			_shadow_check = SHADOW_CHECK
 			_shadow_for_distance()
 	_time += delta
+	if Settings.render_thread and (Engine.get_process_frames() + get_instance_id()) % THREAD_FLICKER_FRAMES != 0:
+		return
 	var flicker := 1.0 + sin(_time * 7.3) * 0.04 + sin(_time * 13.1 + 1.7) * 0.03
 	_light.light_energy = energy * flicker
 

@@ -4,7 +4,7 @@
 Start the game with the bridge, send it commands, stop it:
 
     python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
-        [--game-args=--young-town,...]
+        [--game-args=--young-town,...] [--render-thread=on]
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
@@ -20,6 +20,11 @@ clock), from start to stop; cut clips from it with ffmpeg by the game's clock.
 Each command prints the game's one-line JSON answer. `start` runs Godot under xvfb with the
 Vulkan renderer (lavapipe here) so screenshots work; --headless is quicker but draws nothing.
 The game's own output goes to build/bridge/godot.log.
+
+The game starts with the renderer on the main thread (Godot's --render-thread safe), whatever the
+game's own setting (Settings.render_thread): screenshots are of the frame the commands set up.
+--render-thread=on draws on its own thread (more-cores step 7): a screenshot is then a drawn
+frame, but may be one later than the one asked for.
 """
 import json
 import os
@@ -51,7 +56,7 @@ def start(args):
         return 0
     size = _opt(args, "size", "960x540")
     godot = os.environ.get("GODOT", "godot")
-    cmd = [godot, "--path", ROOT]
+    cmd = [godot, "--path", ROOT, "--render-thread", "separate" if _opt(args, "render-thread") == "on" else "safe"]
     if _opt(args, "headless"):
         cmd += ["--headless"]
     else:

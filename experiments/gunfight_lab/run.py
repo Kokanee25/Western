@@ -16,6 +16,9 @@ fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
 --physics-thread=on|off: physics on its own thread or not for this run's games (more-cores step 6;
 written to the game's user://engine.cfg while it runs, then put back); without it, as the game is set.
+--render-thread=on|off: the renderer on its own thread or not for the fights (more-cores step 7;
+Godot's --render-thread separate|safe on each game's command line); without it, as the game is set.
+A --sheet is always drawn on the main thread (its shots are the frames it sets up).
 """
 import itertools
 import json
@@ -82,6 +85,9 @@ def run_one(f, out, ports, max_s, godot):
            f"--bridge-script={os.path.abspath(script)}"]
     # --game-args=A,B: more of the game's own (--jolt-sight: sight lines asked of Jolt, the before).
     cmd += [a for a in opt(sys.argv[1:], "game-args", "").split(",") if a]
+    render = opt(sys.argv[1:], "render-thread")
+    if render:
+        cmd[1:1] = ["--render-thread", "separate" if render == "on" else "safe"]
     t0 = time.time()
     port = ports.get()
     cmd[cmd.index("--bridge-port=PORT")] = f"--bridge-port={port}"
@@ -106,7 +112,7 @@ def sheet(name, out, every, size, variant="C"):
         fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} out={d}/fight.json "
                  "shots={d}/shots every={every}\nquit\n".format(d=d, every=every, **f))
     godot = os.environ.get("GODOT", "godot")
-    cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--rendering-driver", "vulkan", "--resolution", size,
+    cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--render-thread", "safe", "--rendering-driver", "vulkan", "--resolution", size,
            "--fixed-fps", "60", "--", "--dev-bridge", "--deterministic", "--bridge-port=8899", f"--bridge-script={script}"]
     with open(os.path.join(d, "godot.log"), "w") as log:
         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=7200)
@@ -169,7 +175,7 @@ def main(argv):
     thread = opt(argv, "physics-thread")
     with open(os.path.join(out, "manifest.json"), "w") as fh:
         json.dump({"source": sha, "godot": version, "cpu": os.cpu_count(), "jobs": jobs, "max_s": max_s,
-                   "physics_thread": thread or "as set", "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
+                   "physics_thread": thread or "as set", "render_thread": opt(argv, "render-thread") or "as set", "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
     if thread:
         old_cfg = physics_thread(thread == "on")
         try:

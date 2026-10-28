@@ -144,8 +144,19 @@ var _people_bands_file := PEOPLE_BANDS
 ## and `set_physics_thread` is for the next start. Off until Sean has played it; no panel or key.
 ## `-- --physics-thread=on|off` sets it for the next start.
 var physics_thread: bool = ProjectSettings.get_setting("physics/3d/run_on_separate_thread", false)
+## The renderer on its own thread (more-cores step 7, Godot's "Separate" thread model): the draw
+## runs beside the next frame's ticks instead of after them. Read at start like the physics thread
+## (`ENGINE_PATH`, `[rendering] driver/threads/thread_model=2`); this is what this run has, and
+## `set_render_thread` is for the next start. Off until Sean has played it; no panel or key.
+## `-- --render-thread=on|off` sets it for the next start. A script run (`-s`: the screenshot,
+## golden, tour and lab tools read the drawn frame) never takes it from the file: it refuses to
+## start (`_refuse_render_thread`); Godot's own `--render-thread separate` on its command line
+## asks for it by name (the suite run under it, `perf_bench`).
+var render_thread: bool = not RenderingServer.is_on_render_thread()
 ## Engine settings read at start, before any script runs (Godot's own keys, section by section).
 const ENGINE_PATH := "user://engine.cfg"
+const THREAD_MODEL_KEY := "rendering/driver/threads/thread_model"
+const THREAD_MODEL_SEPARATE := 2
 
 
 func _ready() -> void:
@@ -178,7 +189,10 @@ func _ready() -> void:
 			people_bands = a.substr(15) == "on"
 		elif a.begins_with("--physics-thread="):
 			set_physics_thread(a.substr(17) == "on")
+		elif a.begins_with("--render-thread="):
+			set_render_thread(a.substr(16) == "on")
 	_protect_speakers()
+	_refuse_render_thread()
 	if physics_thread and DisplayServer.get_name() != "headless":
 		add_child(SoftBodyDraw.new())
 
@@ -190,6 +204,32 @@ func set_physics_thread(on: bool) -> void:
 	cfg.set_value("physics", "3d/run_on_separate_thread", on)
 	cfg.save(ENGINE_PATH)
 	print("Physics thread %s from the next start (this run: %s)" % ["on" if on else "off", "on" if physics_thread else "off"])
+
+
+## The renderer on its own thread from the next start on (`ENGINE_PATH`); this run keeps what it has.
+func set_render_thread(on: bool) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(ENGINE_PATH)
+	# Godot's keys: 1 is "Safe" (drawn on the main thread, the default), 2 "Separate".
+	cfg.set_value("rendering", "driver/threads/thread_model", THREAD_MODEL_SEPARATE if on else 1)
+	cfg.save(ENGINE_PATH)
+	print("Render thread %s from the next start (this run: %s)" % ["on" if on else "off", "on" if render_thread else "off"])
+
+
+## A script run (`-s`) that got the render thread from `ENGINE_PATH` quits at once. The tools
+## await `frame_post_draw` and read the viewport's texture: with the thread, Godot posts that signal
+## a frame late (deferred from the render thread) and the read waits for the frame drawing then,
+## so the image isn't the frame the tool set up. Godot's `--render-thread separate` on the command
+## line leaves the project setting alone, so a run that asks for the thread by name goes on.
+func _refuse_render_thread() -> void:
+	if not render_thread or not ("-s" in OS.get_cmdline_args() or "--script" in OS.get_cmdline_args()):
+		return
+	if int(ProjectSettings.get_setting(THREAD_MODEL_KEY, 1)) != THREAD_MODEL_SEPARATE:
+		return
+	push_error("The render thread is on in %s (Settings.render_thread): the tools read the drawn frame and need it off. "
+			% ProjectSettings.globalize_path(ENGINE_PATH)
+			+ "Run with Godot's --render-thread safe, or ask for the thread by name with --render-thread separate.")
+	get_tree().quit(1)
 
 
 ## The master output never clips and carries no sub-bass: a hard limiter just under full scale,

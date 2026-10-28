@@ -640,14 +640,13 @@ frozen until Sean names one.
   ask-first cache); the lab's frame -4.5 ms here; `perf_bench --folk=2` +1.8 ms of people (was
   +5.1). **Step 5 merged** (PR #419; `experiments/blast_freeze/results/2026-10-27_step5/`): the
   fire scene single-core: the burning hall 18.8 → 7.0 ms a frame before the stick, 32 → 21 after.
-  **Step 6 done** (PR waiting on the Fable review and Sean, `claude/gameplay-perf-step6`;
-  `experiments/gunfight_lab/results/2026-10-27_step6/`): `Settings.physics_thread` (off) through
-  `user://engine.cfg` (`project_settings_override`; LAYOUT.md "src/autoload"); the thread on and
-  off play the same fights (in the window Godot doesn't queue: no re-baseline); fixed for it: the
-  smoke test's events, a man into a hole, two tests, a soft-body crash drawn (`SoftBodyDraw`).
-  Gain headless small (gunfight −0.05/−0.54 ms, after the stick −1.6). **Not on:** the suite hung
-  2 of 5 runs with the thread (0 of 4 off) and the soak once, a deadlock in Godot's threaded physics server and
-  pool (`hang/`). Next: Sean's call (the issue), then step 7, #399 (4c, #413, optional). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
+  **Step 6 merged** (PR #426, `results/2026-10-27_step6/`): `Settings.physics_thread`, off (Sean:
+  park it, #427; Godot's threaded physics server deadlocks, `hang/`). **Step 7 done** (PR #460
+  waiting on the Fable review; `results/2026-10-27_step7/`): `Settings.render_thread`, off, through
+  `user://engine.cfg` (LAYOUT.md "src/autoload"); script runs refuse it from the file; F3/`PerfRing`
+  read render times twice a second with it, lamps flicker every third frame, `BodyInterior.copy_material`;
+  the lab the same fights; no hang (5 suites, 210 soak minutes); headless +1.6 ms, drawn unmeasured
+  here. Next: Sean's F3 (#461), step 8 (#400; 4c, #413, optional). **The quit hang** (#392): #386's catch-up cap hung the game at quit (Godot's
   worker pool exit handshake loses idle workers when two low-priority tasks overlap at the
   switch; the engine's own tasks can form the pair; dumps in that issue), reverted in #393
   (build 2487): post pool tasks high priority, and no stopgap without a quit that can't hang.
