@@ -8,7 +8,9 @@ class_name Blast
 ## - it lights nothing itself (Sean, 2026-10-28: `ignite_chance` 0); a lit lamp it smashes or
 ##   knocks down spills burning oil (GlassProp, OilLamp.smash), and that lights the floor;
 ## - loose things are pushed; other sticks close by go off with it;
-## - people take it through `take_blast(at, kg)` (ears, lungs, head, thrown down, torn open, limbs).
+## - people take it through `take_blast(at, kg)` (ears, lungs, head, thrown down, torn open, limbs),
+##   the side of each part facing it taking the reflected pressure (`reflected_kpa`);
+## - on (or near) the ground it hits as 1.8 times its TNT (`effective_kg`).
 ## Tuning in config/blast.tres (BlastTuning).
 
 const P_ATM := 101.325  # kPa
@@ -49,6 +51,38 @@ static func reflection(kpa: float) -> float:
 	return 2.0 + (strong - 2.0) * kpa / (kpa + 7.0 * P_ATM)
 
 
+## What a charge `at` hits as (kg TNT): one lying on (or just over) the ground blasts a hemisphere,
+## not a sphere, the ground turning back the half that would have gone down, so it counts as about
+## `ground_factor` times its TNT (2 for a perfect reflector, about 1.8 for earth, which soaks some
+## up and digs a crater: the usual surface-burst allowance, as in Baker et al., "Explosion Hazards
+## and Evaluation", 1983, ch. 2, and UFC 3-340-02, "Structures to Resist the Effects of Accidental
+## Explosions", 2008, §2-13). Any floor counts as ground. Fading to free air by `ground_height`
+## per cube root of kg up (a stick held at the chest is in free air). Sean picked this, with
+## everything facing the blast taking the reflected pressure, for everything (issue #220).
+static func effective_kg(world: Node3D, at: Vector3, kg: float) -> float:
+	var h := _height_over_ground(World.space(world), at, kg)
+	return kg * ground_share(kg, h)
+
+
+## The ground's allowance (x kg) for a charge `height` m over it (INF: none under it).
+static func ground_share(kg: float, height: float) -> float:
+	var tn := t()
+	var top := tn.ground_height * pow(maxf(kg, 1e-4), 1.0 / 3.0)
+	return 1.0 + (tn.ground_factor - 1.0) * clampf(1.0 - maxf(height, 0.0) / maxf(top, 1e-4), 0.0, 1.0)
+
+
+## How high `at` is over what's under it (m; INF if nothing within the ground's reach).
+static func _height_over_ground(space: PhysicsDirectSpaceState3D, at: Vector3, kg: float) -> float:
+	var top := t().ground_height * pow(maxf(kg, 1e-4), 1.0 / 3.0)
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * top, Layers.WORLD))
+	return INF if hit.is_empty() else maxf(at.y - (hit.position as Vector3).y, 0.0)
+
+
+## The pressure (kPa) a face turned to the charge takes: the side-on `side` reflected off it.
+static func reflected_kpa(side: float) -> float:
+	return side * reflection(side)
+
+
 static func reach(kg: float) -> float:
 	return t().reach_per_cbrt_kg * pow(kg, 1.0 / 3.0)
 
@@ -70,14 +104,18 @@ static func shielding(world: Node3D, from: Vector3, to: Vector3, exclude: Array[
 	return 1.0 if not c is StaticBody3D else 0.35
 
 
-## Set it off. Returns what happened: {broken: [member ids], people: [nodes], splinters: n}.
-static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null) -> Dictionary:
+## Set it off. Returns what happened: {broken: [member ids], people: [nodes], splinters: n,
+## kg: what it hit as, the ground counted (effective_kg)}. `charge` is its TNT; everything it acts
+## on takes it as `kg`, but the crater (Kinney and Graham's fit is for charges on the ground already)
+## and the look.
+static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = null) -> Dictionary:
 	var tn := t()
 	# Seeded by where it went off (to the millimetre): the same blast throws the same way.
 	_rng.seed = hash(Vector3i((at * 1000.0).round()))
-	var report := {"broken": [], "people": [], "splinters": 0}
-	var r_max := reach(kg)
 	var space := World.space(world)
+	var kg := charge * ground_share(charge, _height_over_ground(space, at, charge))
+	var report := {"broken": [], "people": [], "splinters": 0, "kg": kg}
+	var r_max := reach(kg)
 	var by_structure := {}  # Structure -> [[member, push]]
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
@@ -156,7 +194,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 	var t_crater := Prof.start()
 	var under := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.05, at + Vector3.DOWN * 0.4, Layers.WORLD))
 	if not under.is_empty() and Ground.is_ground(under.collider):
-		report["crater"] = crater(world, at, kg, at.y - (under.position as Vector3).y)
+		report["crater"] = crater(world, at, charge, at.y - (under.position as Vector3).y)
 	Prof.stop(&"blast_crater", t_crater)
 	# The clods and the gravel are thrown together, not at each other.
 	var clods: Array[RID] = []
@@ -199,7 +237,7 @@ static func detonate(world: Node3D, at: Vector3, kg: float, held_by: Node = null
 		if is_instance_valid(st) and overpressure_kpa(kg, st.global_position.distance_to(at)) > tn.sympathetic_kpa:
 			st.detonate.call_deferred()
 	var t_fx := Prof.start()
-	BlastEffects.spawn(world, at, kg)
+	BlastEffects.spawn(world, at, charge)
 	Prof.stop(&"blast_fx", t_fx)
 	Events.exploded.emit(at, kg)
 	return report
@@ -300,8 +338,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	var dist := maxf(near.distance_to(at), 0.03)
 	var dir := (m.global_position - at).normalized()
 	if m.kind == &"glass":
-		var side := overpressure_kpa(kg, dist)
-		var kpa := side * reflection(side)
+		var kpa := reflected_kpa(overpressure_kpa(kg, dist))
 		return {"break": kpa > tn.glass_kpa, "push": dir * minf(kpa * 0.2, 15.0), "distance": dist}
 	var length := m.length()
 	var cs := m.cross_section()

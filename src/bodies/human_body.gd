@@ -5145,8 +5145,8 @@ func _step_tone(delta: float) -> void:
 const LIMBS := [["hand", "forearm", "upper_arm"], ["foot", "shin", "thigh"]]
 
 
-## Caught by a charge of `kg` TNT going off at `at`: the pressure at each part of him (less behind
-## a wall), then ears, lungs and head, burns in the fireball, parts torn open, limbs torn off at
+## Caught by a charge of `kg` TNT going off at `at`: the pressure at each part of him (reflected
+## off the side turned to it, less behind a wall), then ears, lungs and head, burns in the fireball, parts torn open, limbs torn off at
 ## the joint, and thrown down by the blast wind.
 func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	var bt := Blast.t()
@@ -5162,7 +5162,9 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 		var part := parts[sid] as Node3D
 		if part == null or not is_instance_valid(part) or physiology.severed_segments.has(sid):
 			continue
-		kpa[sid] = Blast.overpressure_kpa(kg, _distance_to_part(sid, at)) * shield
+		# The side of the part turned to it takes the reflected pressure (#220).
+		kpa[sid] = Blast.reflected_kpa(Blast.overpressure_kpa(kg, _distance_to_part(sid, at)) * shield)
+	var wind := Blast.overpressure_kpa(kg, _distance_to_part(&"chest", at)) * shield
 	var harm := physiology.blast_injury(kpa.get(&"head", 0.0), kpa.get(&"chest", 0.0), kpa.get(&"head", 0.0), bt, _rng)
 	if chest.distance_to(at) < Blast.fireball_radius(kg):
 		physiology.burn(bt.burn_in_fireball)
@@ -5194,7 +5196,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	# Along the blast's own way out from the charge: no lift added (near the ground the reflected
 	# wave runs along it, and a charge lower than his chest already pushes him up and away).
 	var push := dir * minf(speed, bt.max_throw)
-	var down: bool = kpa.get(&"chest", 0.0) > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
+	var down: bool = wind > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
 	if down:
 		harm.append("thrown off his feet")
 		# The blast that throws a man takes his hat: a light thing with a wide brim, it goes faster

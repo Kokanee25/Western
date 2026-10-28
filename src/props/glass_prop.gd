@@ -286,6 +286,9 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if r > Blast.reach(kg) + 2.0:
 		return
 	var shield := Blast.shielding(self, at, centre, [body.get_rid()])
+	# Side-on, not reflected (as panes and people take it, #220): on a thing a few cm across the
+	# reflected spike clears in a tenth of a millisecond, a stick's pulse lasts ~1 ms (Baker et al.,
+	# "Explosion Hazards and Evaluation", 1983, ch. 6: clearing and diffraction loading).
 	var kpa := Blast.overpressure_kpa(kg, r) * shield
 	var away := (centre - at).normalized()
 	if kpa > float(definition.get("shatters_kpa", 60.0)):
