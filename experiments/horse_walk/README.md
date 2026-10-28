@@ -23,6 +23,7 @@ python3 experiments/horse_walk/pan.py                      # the camera's pan, f
 python3 experiments/horse_walk/contacts.py                 # stances found in it
 ~/cvenv/bin/python experiments/horse_walk/speed.py         # his speed over the ground
 python3 experiments/horse_walk/sheet.py --frames=90,136,2  # contact sheets, to check by eye
+python3 experiments/horse_walk/slit.py --clean=5           # the first space-time picture (by darkness; legmask.py's is cleaner)
 
 # the walk (Cycles on the CPU; ~1.5 s a still, ~5 s a film frame)
 ~/bpyenv/bin/python experiments/horse_walk/blender/rig_check.py          # the rig, bones drawn on
@@ -181,9 +182,25 @@ moving at the walking speed:
 
 ## 5. The blind judge
 
-A fresh agent, no code or reasoning, only the eight matched pairs: `judge/round1.md` (our first walk:
-head high and stiff, the fore prancing, the hind stiff, lift-off early, the body level; all changed,
-listed there) and `judge/round2.md` (after).
+Each round a fresh agent that had seen no code and no reasoning, given only the eight matched pairs
+(`compare/`) and told to ignore background, paint, tack, framing and polygon count:
+
+- `judge/round1.md`, our first walk: head high and stiff, the fore prancing, the hind stiff, lift-off
+  early, the body level. All five changed (listed there).
+- `judge/round2.md`: head still high, the fore still too high, the hind "en pointe", the fores early
+  against the hinds (the lateral phase: 0.25 -> 0.30), legs stiff. Changed; and the seam weld.
+- `judge/round3.md`: head high, the hind's stance too far back ("a sawhorse"), the swing now too low,
+  no tracking up, the tail off the buttocks. Changed what the reach allows; the rest reported.
+- `judge/round4.md`, **the final walk: 4/10.** Its top three, **not fixed this session** (the
+  session stops at its step; they're the next session's):
+  1. **Head and neck still too high.** Four rounds rank it first. The bones have lowered the neck 34
+     degrees; lower wasn't tried (the model is built with a high, upright neck: the bones may not take
+     it far without the neck's mesh or rig).
+  2. **The swing legs too straight, the hoof toe-down and skimming.** The fold has swung between
+     "prancing" (round 2) and "shuffling" (rounds 3, 4) on stills; it needs judging on the films,
+     and a fore fold that peaks early with the hoof carried level.
+  3. **The trailing hind too far back and flat at lift-off.** The hind can't reach both ends of a
+     1.5 m stride at duty 0.62 (README, "The stride length"); a shorter stride or a pelvis that tips.
 
 ## What was checked by eye, and what wasn't
 
@@ -193,6 +210,9 @@ listed there) and `judge/round2.md` (after).
 - Not checked: Muybridge (blocked); the game (nothing here is in it); a real GPU's look (Cycles CPU).
 
 ## What's left
+
+- **The judge's top three** (above): the head's carriage (lower by bones, or the neck's mesh/rig), the swing's fold
+  (judged on the films), the hind's reach (a shorter stride, or the pelvis tipping).
 
 - **For the game's horse** (`horse.py`, `horse_rodin.py`; gameplay/characters to decide): the hind's
   hip and stifle placed anatomically (as `rigtools.HIND_FIX`), the tail's hair weighted to the tail
