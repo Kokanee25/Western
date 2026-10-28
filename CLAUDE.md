@@ -467,7 +467,14 @@ frozen until Sean names one.
   build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
   knees; Sean: "she may be yoinked"). `talking_face.py`'s cut, when its edge comes apart (loose
   hair, a head mesh ending just under the chin), keeps the neck ring and gives back pinches and
-  hair (the earlier men unchanged). Next: Sean's word on the working girl.
+  hair (the earlier men unchanged). Next: Sean's word on the working girl (#453).
+- **The 3D bake-off and the apron** (2026-10-28; Studio $67.97 of $75): Tripo H3.1, Meshy 7.1,
+  Trellis 2 and Hi3D on the blacksmith's pictures (Studio branch `claude/studio-bakeoff`, not merged;
+  `docs/sheets/bakeoff/`): Meshy best of them, but on the bold cowboy worse than Rodin; Sean: Rodin
+  stays, Meshy a second opinion for new men. **The blacksmith's leather apron**
+  (`tools/faces/apron.py`, bandana-style: a sheet hung from his trunk's shell, bib to the knee,
+  crossed straps and a knot behind, weighted to the thighs below the hip; `cloth_apron`, two-sided
+  in `HumanBody.DOUBLE_SIDED`); sheets `docs/style_test/apron/`. Sean: "Perfect".
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
