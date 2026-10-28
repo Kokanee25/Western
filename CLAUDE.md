@@ -676,7 +676,13 @@ frozen until Sean names one.
   build 2652): wound stains by what cloth soaks (`STAIN_SOAK`/`FILM`/`MAX`), soaked from below in
   his pool (`_soak_in_pool`, `POOL_SOAK_*`), pools under men down but not limp; lab `body_where`,
   `body_meshes`, `body_probe`. **The smear painted** (#439, 2026-10-28): run 129, Gemini, $0.14 of
-  Sean's $4 ($3.86 left); `smear_band.py --painted` cuts it. Next: bloody hands, #451.
+  Sean's $4 ($3.86 left); `smear_band.py --painted` cuts it. **Bloody hands** (#451, 2026-10-28,
+  branch `claude/gameplay-bloody-hands`): a hand wets on any wet blood it's pressed into
+  (`Blood.wet_near`/`wetness`: dried doesn't come off), a bleeding hole or soaked patch, tending, a
+  dragged man's collar; prints by what's on it, spaced (`PRINT_SPACING`); the blood drawn on the
+  hand (`_show_hand`); the crawl's hands planted on the floor (`HumanBody._crawl_hands`, was 20 cm
+  through it); lab `body_blood`, `body_crawl`, `body_hands`, `body_haul`; results
+  `results/2026-10-28_hands/`. Waiting on Sean: the player's own hands (#455).
 - The breakage lab (3.3a, 2026-10-21, `experiments/breakage_lab/`, PR #200, build 1835): bench and baseline (`baseline/`): props never
   break; a shot lamp doesn't smash; saloon floors fall in whole 5–10 m lengths; side panes shatter
   into 1 m slabs; a blast is 0.2–0.65 s of hitch at Sean's; no crater. Brief

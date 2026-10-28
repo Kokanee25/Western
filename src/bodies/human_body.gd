@@ -2164,7 +2164,8 @@ func _pose_writes(delta: float, snap: bool) -> void:
 	_reach_step()
 	_grab_step(delta)
 	_sling_step(delta)
-	_crawl_hands(delta)
+	if gait == &"crawl" or _crawl_w > 0.0:
+		_crawl_hands(delta)
 	if held_gun != null and not gun_holstered:
 		curl_hand("r", 0.85)
 

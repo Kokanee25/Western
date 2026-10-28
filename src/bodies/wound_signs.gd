@@ -41,6 +41,7 @@ const PICK_MIN := 0.3
 ## Only a hand this near the floor (above his lowest foot) looks for blood on it: standing, his
 ## hands are nowhere near it (and the rays aren't paid for every man in town).
 const PICK_LOW := 0.25
+const HANDS_LOW: Array[StringName] = [&"crouch", &"crouch_aim", &"kneel", &"duck", &"cower", &"sit_ground", &"tend"]
 ## A hand this near a bleeding hole (his own, or the man he's dragging) is bloody from it, and on
 ## a soaked patch of clothes as wet as the patch still is.
 const ON_WOUND := 0.08
@@ -379,6 +380,10 @@ func _drips(p: Physiology, world: Node3D, dt: float) -> void:
 ## splat or a smear, another man's), or that has hold of a bleeding man, is bloody; where it comes
 ## near something solid it leaves a print, fainter each time, and the blood shows on it.
 func _hands(p: Physiology, world: Node3D, dt: float) -> void:
+	# A man on his feet, unhurt, his hands clean, not dragging anyone: nothing to wet them or print.
+	if _bloody.is_empty() and body.wounds.is_empty() and body.pose != &"drag" and not (body.prone or body.limp
+			or body.rising or body.pose in HANDS_LOW):
+		return
 	var g: Dictionary = body._grab
 	var holding := "" if g.is_empty() else String(g.side)
 	if holding != "" and float(g.get("w", 0.0)) > 0.8 and body._wound_bleed(g.wound) > WOUND_BLEED:
