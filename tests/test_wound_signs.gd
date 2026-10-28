@@ -146,6 +146,52 @@ func _smears() -> Array[Node]:
 	return _marks().filter(func(n: Node) -> bool: return (n as Decal).texture_albedo.resource_path.get_file().begins_with("smear"))
 
 
+func test_a_wounds_stain_covers_what_his_clothes_soak_up() -> void:
+	var chest := man.parts[&"chest"] as Node3D
+	man.take_bullet(chest, chest.global_position + Vector3(0.05, 0.0, -0.4), Vector3.BACK, 300.0, 0.0057)
+	var w: Dictionary = man.wounds[-1]
+	check(w.stain != null, "a stain round the hole")
+	if w.stain == null or (w.bleeds as Array).is_empty():
+		return
+	man.physiology.bleeds[(w.bleeds as Array)[0]].rate = 5.0
+	man.time_scale = 30.0  # ~3 minutes: ~900 ml out, the stain soaked through
+	await physics_frames(360)
+	man.time_scale = 1.0
+	var ml := man.physiology.blood_lost_from(w.bleeds)
+	# Half of it in shirting at ~0.05 ml a cm2 (HumanBody.STAIN_SOAK, STAIN_FILM).
+	var wide := 2.0 * sqrt(ml * HumanBody.STAIN_SOAK * 1e-6 / HumanBody.STAIN_FILM / PI)
+	check(ml > 100.0, "he bled (%.0f ml)" % ml)
+	check((w.stain as Decal).size.x > minf(wide, HumanBody.STAIN_MAX) * 0.8, "the stain as wide as what soaked in (%.2f m, %.2f for %.0f ml)" % [(w.stain as Decal).size.x, wide, ml])
+
+
+func test_lying_in_his_pool_his_clothes_soak_it_up() -> void:
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[0].rate = 6.0
+	man.go_limp()
+	man.time_scale = 20.0
+	await physics_frames(240)
+	man.time_scale = 1.0
+	check(man._pool != null, "a pool under him")
+	var soaks: Dictionary = man._pool_soaks
+	check(soaks.has(&"chest") or soaks.has(&"abdomen") or soaks.has(&"pelvis"), "his trunk soaked from below (%s)" % [soaks.keys()])
+	var limbs := soaks.keys().filter(func(k: StringName) -> bool: return String(k).contains("arm") or String(k).contains("thigh") or String(k).contains("shin"))
+	check(limbs.size() >= 1, "and what of his arms and legs lies in it (%s)" % [limbs])
+	for sid: StringName in soaks:
+		var d := soaks[sid] as Decal
+		check(d.get_parent() == man.visuals[sid], "%s's soak is on his clothes (it goes where he goes)" % sid)
+		check(d.cull_mask == Layers.VIS_BODY, "drawn on him, not the floor")
+		break
+	check(not man._pool_soaks.has(&"hand_r"), "not on his hands (they're skin)")
+
+
+func test_a_conscious_man_down_bleeds_into_a_pool() -> void:
+	man.physiology.apply_trace({"segment": &"thigh_r", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[0].rate = 4.0
+	man.prone = true
+	await physics_frames(60)
+	check(man._pool != null, "a pool under a man who's down, limp or not")
+
+
 func test_a_broken_jaw_spits_teeth() -> void:
 	man.physiology.jaw_broken = true
 	man.signs._spit_in = 0.1

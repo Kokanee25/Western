@@ -462,6 +462,12 @@ frozen until Sean names one.
   talking face `--pin=no` (the edge pin lays it on her hair and slashes her chin). Sheets
   `docs/style_test/widow-look/`. Fronts by GPT-5.4 in the cowboy's look kept drawing her head small
   (0.104-0.109 of her height, his 0.140): Sean's own pictures are the route for a woman.
+- **Three more from Sean's own ChatGPT pictures** (2026-10-27/28, the cowboy attached, Rodin $1.60
+  each; Studio $62.62 of $65): the Mexican rancher (#430, livery's west end), the blacksmith (#443,
+  build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
+  knees; Sean: "she may be yoinked"). `talking_face.py`'s cut, when its edge comes apart (loose
+  hair, a head mesh ending just under the chin), keeps the neck ring and gives back pinches and
+  hair (the earlier men unchanged). Next: Sean's word on the working girl.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c6mlhlpr4mopu"
-path="res://.godot/imported/working_girl_s2_talking.glb-5af0a4762bfec1c4b7c1a37ae91402e2.scn"
+uid="uid://erphtbhjkq8t"
+path="res://.godot/imported/working_girl_s3_talking.glb-31af4e76c174c68fa87d234cb5971e24.scn"
 
 [deps]
 
-source_file="res://assets/people/working_girl_s2_talking.glb"
-dest_files=["res://.godot/imported/working_girl_s2_talking.glb-5af0a4762bfec1c4b7c1a37ae91402e2.scn"]
+source_file="res://assets/people/working_girl_s3_talking.glb"
+dest_files=["res://.godot/imported/working_girl_s3_talking.glb-31af4e76c174c68fa87d234cb5971e24.scn"]
 
 [params]
 
