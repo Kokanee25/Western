@@ -576,6 +576,11 @@ frozen until Sean names one.
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
+- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
+  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
+  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
+  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
+  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
