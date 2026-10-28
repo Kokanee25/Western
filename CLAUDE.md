@@ -571,6 +571,11 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The burning building in its batch** (#434, PR #457, waiting on the Fable review): char and glow
+  drawn by the structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the
+  40 flames shown; `FrameBudget` counts nested timers once. Sean's F3 and the fire's lights: #458.
+  Next: rubble at rest batched, #459. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
+  Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
   top five in its `baseline/baseline.md`); fix 1 (#263: a heard sound doesn't name its maker, 74 -> 88);
