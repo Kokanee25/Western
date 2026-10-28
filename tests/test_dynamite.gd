@@ -197,7 +197,7 @@ func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	# Not checked since the ground counts (#220, a stick on the floor hits as ~1.4-1.8 of its TNT):
 	# that it isn't one he walks through upright. Along this wall one stick now blows a full-height
 	# slot at 5 spots in 8 and a ~1.4 m hole at the rest (before: 4 in 8, and 1.0-1.3 m holes); Sean's
-	# call on it is open (experiments/body_lab/results/2026-10-28_dynamite_c/README.md).
+	# call on it is #484 (experiments/body_lab/results/2026-10-28_dynamite_c/README.md).
 
 
 func test_a_bundle_inside_against_the_wall_blows_a_door() -> void:

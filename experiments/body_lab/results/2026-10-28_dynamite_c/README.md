@@ -74,8 +74,7 @@ are with lamps on the side-on pressure. The runs are in `runs/breakage_*.json`.
   less true now: **one stick usually blows a hole a man walks or stoops through**. Raising the
   timber's `absorb_factor` doesn't bring it back: 0.3–0.8 still gave full-height slots, and 0.6+
   stopped three sticks making a doorway. The test (`test_a_stick_inside_against_the_wall_blows_a_way_out`)
-  checks the crawl hole and leaves the upright check out. Sean's call is in the "waiting on Sean"
-  issue.
+  checks the crawl hole and leaves the upright check out. Sean's call: #484.
 - **Fires at night** (lamps lit, the saloon): a fire after a blast comes only from a lamp it
   smashes (#449), and on main every stick in the saloon at night already started one. With (c),
   lamps smashed 2–8 → 3–12, members alight within 8 s 25–111 → 31–176 (the lamp at 1 m: 31 → 67).
