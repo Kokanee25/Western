@@ -147,4 +147,4 @@ func _finish(street: Node, t: float) -> void:
 			if f:
 				f.store_string("\n".join(lines) + "\n")
 				f.close()
-	get_tree().quit(0 if problems.is_empty() else 1)
+	GameQuit.quit(get_tree(), 0 if problems.is_empty() else 1)  # its work waited for first (#435)

@@ -31,6 +31,9 @@ pointing/emulate_mouse_from_touch=false
 [physics]
 
 3d/physics_engine="Jolt Physics"
+; At most 2 physics ticks a frame to catch up (Godot's default 8): a slow frame stays a stutter, not
+; a crawl that multiplies itself (issue #435). Safe only with GameQuit's drain and watchdog (#392).
+common/max_physics_steps_per_frame=2
 common/physics_ticks_per_second=60
 jolt_physics_3d/simulation/velocity_steps=20
 jolt_physics_3d/simulation/position_steps=8

@@ -179,20 +179,31 @@ var _render_read := 0
 const RENDER_READ_FRAMES := 30
 
 
-## Timing on while the readout's up: render times per viewport, and Prof's timers.
+## Whether Prof was on before the readout opened (the gunfight lab's Y play turns it on itself).
+var _prof_was_on := false
+
+
+## Timing on while the readout's up: render times per viewport, and Prof's timers. Opening it
+## starts the sums afresh (#435: with Prof already on for a lab, the first frame read everything
+## they'd held since the start, `rest` 7,449 ms); closing it leaves Prof as it found it.
 func _measure(on: bool) -> void:
-	Prof.on = on
 	_viewports.clear()
 	if not on:
+		Prof.on = _prof_was_on
 		return
+	_prof_was_on = Prof.on
+	Prof.reset()
+	Prof.on = true
 	for vp in [get_tree().root] + get_tree().root.find_children("*", "SubViewport", true, false):
 		var rid: RID = (vp as Viewport).get_viewport_rid()
 		RenderingServer.viewport_set_measure_render_time(rid, true)
 		_viewports.append(rid)
 
 
-## Where the frame goes (for Sean to read off): the frame, what scripts and physics take of it,
-## the renderer's CPU and GPU time, what it drew, and the systems that cost most.
+## Where the frame goes (for Sean to read off): the frame, what scripts and physics take of it (the
+## last second's means of each frame's own, from the bug report's ring: Godot's TIME_PROCESS and
+## TIME_PHYSICS_PROCESS are a second's worst frame and worst single tick, #435), the renderer's CPU
+## and GPU time, what it drew, and the systems that cost most.
 func frame_lines() -> PackedStringArray:
 	if not Settings.render_thread or Engine.get_frames_drawn() - _render_read >= RENDER_READ_FRAMES:
 		_render_read = Engine.get_frames_drawn()
@@ -205,9 +216,12 @@ func frame_lines() -> PackedStringArray:
 	var render_gpu := _render_gpu
 	var fps := maxf(Engine.get_frames_per_second(), 1.0)
 	var out: PackedStringArray = []
-	out.append("frame %.1f ms: process %.1f, physics %.1f, render cpu %.1f, gpu %.1f" % [1000.0 / fps,
-			Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
-			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, render_cpu, render_gpu])
+	var sec := _ring_second()
+	if sec.is_empty():
+		out.append("frame %.1f ms: render cpu %.1f, gpu %.1f" % [1000.0 / fps, render_cpu, render_gpu])
+	else:
+		out.append("frame %.1f ms: process %.1f, physics %.1f (%.1f ticks), render cpu %.1f, gpu %.1f" % [
+				sec.frame_ms, sec.process_ms, sec.physics_ms, sec.ticks, render_cpu, render_gpu])
 	out.append("draws %d  objects %d  tris %dk  nodes %d  bodies awake %d" % [
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 			Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
@@ -217,3 +231,15 @@ func frame_lines() -> PackedStringArray:
 	if not Prof.per_frame.is_empty():
 		out.append("ms a frame: " + "  ".join(Prof.top(8)))
 	return out
+
+
+var _recorder: BugRecorder
+
+
+## The bug report's ring's last second (BugRecorder's PerfRing), {} without one.
+func _ring_second() -> Dictionary:
+	if _recorder == null or not is_instance_valid(_recorder):
+		_recorder = get_tree().root.find_child("BugRecorder", true, false) as BugRecorder
+	if _recorder == null or not _recorder.perf_on:
+		return {}
+	return _recorder.perf.last_second()

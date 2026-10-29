@@ -120,23 +120,28 @@ brings the kept videos along, so `/tour/` is never empty. Preview a moment of it
 **Bug reports** (`src/debug/bug_recorder.gd`, `BugRecorder`, in every build; **F12**, controller
 Back + Y; debug ignite is L only now): the recorder notes every action's changes and the mouse's
 turns by physics tick, everyone's place each second and a snapshot every 30 s; F12 writes
-`user://bug_reports/<date-time>.saltbug` (a zip: `report.json` with the build, clock, you, everyone,
-settings and the last things that happened; `recording.json`; `godot.log`; `screenshot.png`).
-`godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug [--out=DIR]` plays it back
+`user://bug_reports/<date-time>.saltbug.zip` (a zip, named so GitHub takes it: `report.json` with
+the build, clock, you, everyone, settings (with which threads the run had and the physics cap) and
+the last things that happened; `recording.json`; `godot.log`; `screenshot.png`).
+`godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug.zip [--out=DIR]` plays it back
 (from the start for a session under 20 minutes, else from the snapshot 30 s before) and says where
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
 its last frame beside the report's screenshot.
 
 **The frame's numbers in it** (`src/debug/perf_ring.gd`, `PerfRing`, #433): every frame the recorder
-(last in the frame, `process_priority` 1000) notes the wall-clock frame, the engine's process and
-physics time, the physics ticks run, render CPU and GPU (every viewport measured from the start;
+(last in the frame, `process_priority` 1000) notes the wall-clock frame, the frame's own process and
+physics time (`PerfRing.Clock`, first of everything to tick and to process: physics from the
+frame's first tick to the idle process, process from there to the recorder; #435: Godot's
+`TIME_PROCESS`/`TIME_PHYSICS_PROCESS` are a second's worst frame and worst single tick, so F3, the
+report and the bridge no longer read them), the physics ticks run, render CPU and GPU (every viewport measured from the start;
 with a separate render thread only while F3 is up), draws, objects, nodes, bodies awake, and,
 while F3 is up, the eight biggest `Prof` systems (`Prof.frame()` keeps the frame's own costs in
-`frame_ms`/`frame_top_*`; `q_*`/`n_*` counts left out). Fixed rings: the last 15 s at every frame
+`frame_ms`/`frame_top_*`; `q_*`/`n_*` counts left out; F3 opening starts Prof's sums afresh,
+`Prof.reset`, so a lab that had it on doesn't pour its whole run into one frame). Fixed rings: the last 15 s at every frame
 (up to 4096), the last 10 minutes as one-second means and worsts. F12 adds `perf.json` (both
 rings, columns and rows) and `perf_summary` at the top of `report.json` (the worst frame of the
 last 15 s with its split and systems, mean, p95, the three biggest costs, the worst second); the
-log, the replay and `python3 tools/perf_report.py FILE.saltbug [--seconds=N|--all] [--over=MS]`
+log, the replay and `python3 tools/perf_report.py FILE.saltbug.zip [--seconds=N|--all] [--over=MS]`
 print it (the last also the 15 s's per-system table and the per-second table). The path shows at
 the foot of the screen for 12 s (on Windows `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`).
 Costs here: the recorder ~12 µs a frame with F3 closed, ~38 µs open; the profiler on ~0.2 ms.
@@ -416,6 +421,16 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
+- `GameQuit` (`game_quit.gd`, #435): every way out (the window's close, the smoke test, the soak,
+  the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up; if a task of ours runs
+  (`in_flight`: shadow merges, analyses, the fire's check, the sound warm-up, smoke steps) the tree
+  pauses and they're waited for a frame at a time up to 2 s, else it quits in the same frame (an
+  extra drawn frame each quit made the engine's hang likelier); then the plugin's `QuitWatchdog`
+  armed (`addons/saltcreek_native/src/watchdog.rs`: ends the process with the same code if it's
+  still shutting down 5 s after the scene tree's root left the tree, as in the worker pool's exit
+  hang, #392; 60 s after the quit whatever; stands down at the plugin's Scene deinit) and `quit`. Every pool task is posted high priority
+  (`tests/test_game_quit.gd` reads the source). The cap it makes safe: `project.godot`'s
+  `max_physics_steps_per_frame=2` (Godot's 8: a slow frame ran 8 ticks and fed itself).
 
 ## src/player
 

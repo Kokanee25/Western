@@ -1,17 +1,16 @@
 class_name PerfRing
 extends RefCounted
 ## The frame's numbers for the bug report (#433; BugRecorder, F12): every frame what it took (the
-## wall clock between frames, the engine's process and physics time, how many physics ticks ran,
+## wall clock between frames, its own process and physics time (`Clock`), how many physics ticks ran,
 ## the renderer's CPU and GPU time, what it drew, nodes, bodies awake) and, while F3 is up (Prof on
 ## and rolled each frame by the overlay), the eight systems that cost most. Kept in fixed rings
 ## (nothing allocated a frame): the last FRAME_SECONDS at every frame (up to FRAMES of them) and
 ## the last SECONDS seconds as one-second means and worsts. F12 writes them as `perf.json` and a
 ## `perf_summary` at the top of `report.json`; `tools/perf_report.py` reads them.
 ##
-## Only what the engine and Prof already measure is read (no new queries); `sample()` runs on the
-## main thread, in BugRecorder's _process (last in the frame), and nothing it notes changes a tick.
-## The process/physics split is the engine's own (the previous frame's process, this frame's
-## physics); render times lag the frame by one or two.
+## Only what the engine, Prof and `Clock` already measure is read (no new queries); `sample()` runs
+## on the main thread, in BugRecorder's _process (last in the frame), and nothing it notes changes a
+## tick. Render times lag the frame by one or two.
 
 const FIELDS: PackedStringArray = ["frame_ms", "process_ms", "physics_ms", "ticks", "render_cpu_ms",
 		"render_gpu_ms", "draws", "objects", "nodes", "bodies_awake"]
@@ -59,6 +58,34 @@ var _sec_sys := {}  # name id -> ms summed this second
 var cost_sum := PackedInt64Array([0, 0])
 var cost_n := PackedInt64Array([0, 0])
 var cost_worst := PackedInt64Array([0, 0])
+## The frame's own physics and process clock (make_clock(); null, both read 0).
+var clock: Clock
+
+
+## The frame's own physics and process times (#435). Godot's TIME_PROCESS and TIME_PHYSICS_PROCESS
+## monitors aren't this frame's: once a second they become that second's slowest frame's process
+## and its slowest single tick's physics (main.cpp, 4.7.2: process_max, physics_process_max), so
+## "physics 177 (8 ticks)" was one 177 ms tick somewhere in the second. First of everything to tick
+## and to process, this notes when the frame's first tick began and when its idle process began:
+## the frame's physics is the one to the other (every tick, its scripts and Jolt's step), its
+## process the idle start to sample(). Always on with the ring, not only with F3 up.
+class Clock:
+	extends Node
+	var first_tick := 0  # µs, 0 until the frame's first tick
+	var idle := 0  # µs
+
+	func _init() -> void:
+		name = "PerfClock"
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		process_physics_priority = PhysicsWindow.FIRST - 1
+		process_priority = PhysicsWindow.FIRST - 1
+
+	func _physics_process(_delta: float) -> void:
+		if first_tick == 0:
+			first_tick = Time.get_ticks_usec()
+
+	func _process(_delta: float) -> void:
+		idle = Time.get_ticks_usec()
 
 
 func _init() -> void:
@@ -68,6 +95,13 @@ func _init() -> void:
 	_sec_sum.resize(NF)
 	_sec_max.resize(NF)
 	_render_every_frame = not Settings.render_thread
+
+
+## The clock for the owner to put in the tree (BugRecorder), once.
+func make_clock() -> Clock:
+	if clock == null:
+		clock = Clock.new()
+	return clock
 
 
 ## Measure `vp`'s render time from now on (until it leaves the tree).
@@ -93,6 +127,8 @@ func sample() -> void:
 		_last = t0
 		_sec_start = t0
 		_last_ticks = ticks
+		if clock:
+			clock.first_tick = 0
 		return
 	if not _render_every_frame and not Prof.on:
 		_cpu = 0.0
@@ -107,8 +143,12 @@ func sample() -> void:
 	var cpu := _cpu
 	var gpu := _gpu
 	_row[0] = (t0 - _last) / 1000.0
-	_row[1] = Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
-	_row[2] = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
+	var idle := clock.idle if clock else 0
+	var first := clock.first_tick if clock else 0
+	_row[1] = (t0 - idle) / 1000.0 if idle > 0 and t0 >= idle else 0.0
+	_row[2] = (idle - first) / 1000.0 if first > 0 and idle >= first else 0.0
+	if clock:
+		clock.first_tick = 0
 	_row[3] = ticks - _last_ticks
 	_row[4] = cpu
 	_row[5] = gpu
@@ -218,7 +258,7 @@ func to_dict() -> Dictionary:
 	for f in FIELDS:
 		worsts.append(f + "_worst")
 	return {
-		"about": "BugRecorder's timing rings (src/debug/perf_ring.gd): frames, the last %d s at every frame; seconds, the last %d s as means and worsts; ms unless named; systems (Prof) only while F3 was up" % [int(FRAME_SECONDS), SECONDS],
+		"about": "BugRecorder's timing rings (src/debug/perf_ring.gd): frames, the last %d s at every frame; seconds, the last %d s as means and worsts; ms unless named; process and physics the frame's own (PerfRing.Clock, since #435; before, Godot's once-a-second worsts); systems (Prof) only while F3 was up" % [int(FRAME_SECONDS), SECONDS],
 		"frames_columns": ["t"] + Array(FIELDS) + ["systems"],
 		"frames": frames,
 		"seconds_columns": ["t", "frames"] + Array(FIELDS) + Array(worsts) + ["systems"],
@@ -255,6 +295,28 @@ func _systems(a: PackedFloat32Array, at: int) -> Dictionary:
 		var id := int(a[at + i])
 		if id > 0:
 			out[String(_names[id - 1])] = snappedf(a[at + TOP + i], 0.01)
+	return out
+
+
+## The newest frame by field (FIELDS), {} before the first (tools/perf_bench.gd).
+func last_frame() -> Dictionary:
+	if _fn == 0:
+		return {}
+	var b := ((_fn - 1) % FRAMES) * FSTRIDE
+	var out := {}
+	for i in NF:
+		out[FIELDS[i]] = _frames[b + 1 + i]
+	return out
+
+
+## The last whole second's means by field (FIELDS), for F3; empty before the first.
+func last_second() -> Dictionary:
+	if _sn == 0:
+		return {}
+	var b := ((_sn - 1) % SECONDS) * SSTRIDE
+	var out := {"frames": int(_secs[b + 1])}
+	for i in NF:
+		out[FIELDS[i]] = _secs[b + 2 + i]
 	return out
 
 

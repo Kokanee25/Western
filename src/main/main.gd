@@ -10,6 +10,7 @@ extends Node
 
 
 func _ready() -> void:
+	get_tree().auto_accept_quit = false  # the window's close quits through GameQuit (#435)
 	SynthSounds.warm_all()  # every sound made ahead on a worker, so the first shot doesn't freeze
 	screen.texture = game_viewport.get_texture()
 	screen.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -111,5 +112,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		GameReset.reset(get_tree())
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		GameQuit.quit(get_tree())
+
+
 func _exit_tree() -> void:
+	get_tree().auto_accept_quit = true
 	SynthSounds.finish_warm()

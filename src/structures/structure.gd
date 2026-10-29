@@ -714,7 +714,7 @@ func _set_shadow(arrays: Array) -> void:
 ## SHADOW_REBUILD_GAP; asked again meanwhile, once more when that's done.
 func _shadow_soon() -> void:
 	_shadow_wanted = true
-	if _shadow_task >= 0 or not is_inside_tree():
+	if _shadow_task >= 0 or not is_inside_tree() or GameQuit.quitting:
 		return
 	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), 0.0)
 	if wait > 0.0:
@@ -724,14 +724,19 @@ func _shadow_soon() -> void:
 
 
 func _shadow_start() -> void:
-	if _shadow_task >= 0 or not _shadow_wanted or not is_inside_tree():
+	if _shadow_task >= 0 or not _shadow_wanted or not is_inside_tree() or GameQuit.quitting:
 		return
 	_shadow_wanted = false
 	_shadow_last = World.now()
 	var parts := _batch_arrays.values()  # the arrays themselves are never changed, only replaced
 	_shadow_task = WorkerThreadPool.add_task(func() -> void:
 		_shadow_result = _merge_batches(parts)
-		_shadow_done.call_deferred(), false, "structure shadow mesh")
+		_shadow_done.call_deferred(), true, "structure shadow mesh")  # high priority: a low one can hang the quit (#392, #435)
+
+
+## A shadow merge on a worker, not finished yet (GameQuit waits for it).
+func shadow_running() -> bool:
+	return _shadow_task >= 0 and not WorkerThreadPool.is_task_completed(_shadow_task)
 
 
 func _shadow_done() -> void:
