@@ -462,6 +462,12 @@ frozen until Sean names one.
   talking face `--pin=no` (the edge pin lays it on her hair and slashes her chin). Sheets
   `docs/style_test/widow-look/`. Fronts by GPT-5.4 in the cowboy's look kept drawing her head small
   (0.104-0.109 of her height, his 0.140): Sean's own pictures are the route for a woman.
+- **The fitted coat** (brief `docs/briefs/fitted-coat.md`, branch `claude/characters-coat`, not
+  merged): Mitchell 1886's sack drafted out to knee length (Sean, #500), the template built on a
+  MakeHuman stand by `tools/blender/coat_template.py` (`sack_coat.json` the numbers with their
+  sources, `assets/people/garments/sack_coat.glb`, UVs the pattern; sheet
+  `docs/style_test/coat/template_sheet.jpg`). Waiting on Sean: #502 (the cut and collar; the
+  front-shoulder wrinkle). Next: #503 (the fit on the bold cowboy).
 - **Three more from Sean's own ChatGPT pictures** (2026-10-27/28, the cowboy attached, Rodin $1.60
   each; Studio $62.62 of $65): the Mexican rancher (#430, livery's west end), the blacksmith (#443,
   build 2637, the livery's east end), the working girl remade (#448, her arms no longer to her
