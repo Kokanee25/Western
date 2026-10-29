@@ -31,7 +31,7 @@ def scenarios():
             for spot in d["spots"]:
                 out.append(("%s_%02dm_%s" % (w, r, spot), w))
     for r in d["dynamite"]["distances"]:
-        out.append(("dynamite_%dm" % r, "dynamite"))
+        out.append(("dynamite_%sm" % ("%g" % r), "dynamite"))
     for spot in d["spots"]:
         out.append(("grab_%s" % spot, "grab"))
     for spot in d["spots"]:
@@ -46,7 +46,7 @@ def pick(all_, d):
     want = arg("scenario", "all")
     if arg("render") and want == "all":
         names = [s % spot for s in SHEET for spot in d["spots"]]
-        names += ["dynamite_%dm" % r for r in d["dynamite"]["distances"]] + ["check"]
+        names += ["dynamite_%sm" % ("%g" % r) for r in d["dynamite"]["distances"]] + ["check"]
         return names
     if want == "all":
         return [n for n, _ in all_]

@@ -999,7 +999,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
-  more glancingly; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
+  more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or
+  near the ground or a floor hits as 1.8x its TNT, `effective_kg`/`ground_share`, for all but the
+  crater and the look, #220; a timber bedded on the ground, a sill, is cut but stays, `_bedded()`; `detonate()` breaks
   members by impulse energy vs bending capacity, glass by pressure, throws splinters through
   Ballistics, pushes loose bodies, sets off sticks nearby, calls `take_blast(at, kg, held)`
   on people; what it acts on comes from `gather()`: every member where timber can break,

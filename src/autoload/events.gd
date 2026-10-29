@@ -43,7 +43,8 @@ signal person_arrested(person: Node, by: Node)
 signal spoke(speaker: Node, text: String)
 ## Someone's too close to a fire: `amount` is how badly it burnt them this moment.
 signal scorched(person: Node, amount: float)
-## A charge went off: where, and how big (kg TNT).
+## A charge went off: where, and how big (kg TNT as it hits: one on the ground counts 1.8 times its
+## own, Blast.effective_kg).
 signal exploded(at: Vector3, kg: float)
 ## The ground over `area` (world xz) was dug or laid on (Ground.take/put): what stands or rests
 ## there looks again at what's under it.

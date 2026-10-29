@@ -193,8 +193,9 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 			# The stick in your right hand, out in front of you.
 			d = {&"hand_r": 0.03, &"forearm_r": 0.18, &"upper_arm_r": 0.42, &"head": 0.5, &"neck": 0.5,
 					&"chest": 0.45}.get(sid, maxf(d, 0.6))
-		kpa[sid] = Blast.overpressure_kpa(kg, maxf(d, 0.02)) * shield
-	var ear_kpa: float = kpa.get(&"head", Blast.overpressure_kpa(kg, head.distance_to(at)) * shield)
+		# The side turned to it takes the reflected pressure (#220).
+		kpa[sid] = Blast.reflected_kpa(Blast.overpressure_kpa(kg, maxf(d, 0.02)) * shield)
+	var ear_kpa: float = kpa.get(&"head", Blast.reflected_kpa(Blast.overpressure_kpa(kg, head.distance_to(at)) * shield))
 	var harm := physiology.blast_injury(ear_kpa, kpa.get(&"chest", 0.0), ear_kpa, bt, _rng)
 	if chest.distance_to(at) < Blast.fireball_radius(kg) or held:
 		physiology.burn(bt.burn_in_fireball)

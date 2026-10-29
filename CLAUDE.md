@@ -708,8 +708,11 @@ frozen until Sean names one.
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
   fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
   skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
-  Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
-  `results/2026-10-21_gore_lab/`. **The drag smears** (2026-10-27, PR #438, build 2615): one
+  Results: `results/2026-10-21_gore_lab/`. **Dynamite up close, option (c)** (#220, 2026-10-28,
+  branch `claude/gameplay-body-lab-dynamite`; `results/2026-10-28_dynamite_c/`): on the ground 1.8x
+  its TNT (`Blast.effective_kg`), people take the reflected pressure (`Blast.reflected_kpa`; lamps
+  side-on), blast lung 400 / 1,000 kPa; a stick a metre off takes his feet. One stick against a
+  wall now usually opens a way through: Sean's call #484. **The drag smears** (2026-10-27, PR #438, build 2615): one
   trunk-wide swipe a man (`WoundSigns._smears`, `SMEAR_*`), not rows of slashes; slanting drops
   drawn long (`splat_long`); generated textures (`tools/textures/smear_band.py`); lab `body_drag`.
   A thinning smear narrows, not see-through; **more blood on a shot man** (2026-10-28, PR #441,

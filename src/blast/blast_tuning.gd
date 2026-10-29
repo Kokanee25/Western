@@ -23,6 +23,12 @@ extends Resource
 ## Other sticks this close go off with it.
 @export var sympathetic_kpa := 2000.0
 
+## On (or just over) the ground a charge hits as this many times its TNT (Blast.effective_kg: a
+## hemisphere, not a sphere; 2 for a perfect reflector, ~1.8 for earth), fading to 1 by this
+## height (m per cube root of kg: 35 cm for a stick).
+@export var ground_factor := 1.8
+@export var ground_height := 0.6
+
 @export_group("Structures")
 ## A shock reflected off a face square to it hits 2x as hard when weak, rising toward this when
 ## strong (8 for an ideal gas; Blast.reflection()).
@@ -104,20 +110,29 @@ extends Resource
 ## Ringing ears: seconds per kPa at the ear, most.
 @export var ringing_per_kpa := 0.5
 @export var ringing_max := 40.0
-## Blast lung: bruised from the first, both holed and bleeding from the second.
-@export var lung_kpa := 250.0
-@export var lung_severe_kpa := 700.0
+## Blast lung: bruised from the first, both holed and bleeding from the second, by the reflected
+## pressure at his chest (since 2026-10-28, issue #220; was 250 / 700 against the side-on). Bowen,
+## Fletcher and Richmond's curves for a 70 kg man ("Estimate of Man's Tolerance to the Direct
+## Effects of Air Blast", DASA-2113, 1968), which take the reflected pressure for a man facing the
+## blast, at a stick's ~1 ms pulse: the threshold of lung injury ~400 kPa, half killed ~1,000 (the
+## short-pulse end of the curves, where it takes several times the long-pulse 100 / 350; Bass,
+## Rafaels and Salzar, "Pulmonary injury risk assessment for short-duration blasts", J Trauma 65,
+## 2008, refit them the same way). Quoted from memory: the papers' hosts are blocked here (#227).
+@export var lung_kpa := 400.0
+@export var lung_severe_kpa := 1000.0
 ## Knocked senseless from this pressure at the head.
 @export var concussion_kpa := 150.0
-## Knocked off his feet by this much pressure, or by being pushed faster than this (m/s).
+## Knocked off his feet by this much side-on pressure at his chest (the blast wind, not its
+## reflection), or by being pushed faster than this (m/s).
 @export var knockdown_kpa := 35.0
 @export var knockdown_speed := 0.8
 ## The blast wind pushes a body with this share of impulse × its frontal area (0.7 m²).
 @export var throw_factor := 2.5
-## A body part torn open: past this pressure at the part, this many joules per kPa more.
+## A body part torn open: past this (reflected) pressure at the part, this many joules per kPa more.
 @export var open_kpa := 800.0
 @export var open_joules_per_kpa := 1.2
-## Limbs torn off at the joint above: kPa at the part's centre.
+## Limbs torn off at the joint above: reflected kPa at the part's skin (Sean's pick, #220: with
+## the ground, a foot or shin off within about a metre of a stick).
 @export var sever_kpa := {
 	"hand": 1500.0, "foot": 1500.0, "forearm": 2600.0, "shin": 2600.0, "upper_arm": 4500.0, "thigh": 4500.0,
 }
