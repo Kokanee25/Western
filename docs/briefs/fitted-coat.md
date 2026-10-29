@@ -1,7 +1,7 @@
 # Brief: a fitted coat (route 3), tried on the bold cowboy
 
 Sean, 2026-10-29: "Yeah let's try with the bold cowboy." Issue #499. Lane: characters. Branch
-`claude/characters-coat`. **Status: Sean answered #500 (2026-10-29): knee length, the paid paint, the numbers estimated. Next: step 2 (#501).**
+`claude/characters-coat`. **Status: Sean answered #500 (2026-10-29): knee length, the paid paint first; the cut's numbers from Mitchell 1886, which he uploaded. Next: step 2 (#501).**
 
 ## Goal
 
@@ -48,14 +48,11 @@ the hidden skin under the coat), not copied wholesale. It wasn't approved (Studi
   - Gordon, *The American Coat, Vest and Trousers System*
     ([archive.org](https://archive.org/details/americancoatvest00gord)).
 
-  **The hosts are blocked here** (`archive.org`, `cuttersguide.com`), and Sean can't allow them
-  from his phone: "just guess from now" (#500). So each template number in `sack_coat.json` is
-  marked `"source": "estimate"`, and taken where it can be from his coated pictures (measured on
-  the front and side: the hem, the lapels' width, the button stance) or from the Studio's
-  `config/coat.yaml` (the collar's stand under DONT_REPEAT 2's 3.5 cm). If the manual turns up (a
-  PDF Sean uploads to a session), its numbers replace the estimates, with their pages. These
-  numbers include the length off the nape, the collar's stand and fall, the lapels' width and
-  notch, the sleeve's cap height and width at the cuff, the vent, and the button stance.
+  **Mitchell 1886 is read** (Sean uploaded the PDF to the session, 2026-10-29). Its plates are in
+  `docs/style_test/coat/mitchell_1886/` (the drafts' text and diagrams, public domain). Its
+  numbers are in "The manual's numbers" below; `sack_coat.json` carries each with its page. A
+  number the manual leaves "to style or taste" is measured from his coated pictures and marked
+  `"source": "his pictures"`; nothing is filled in from memory.
 - **His look:** the bold cowboy's coated pictures, `docs/concept/style/factory/bold_cowboy_dressed/`
   (front, left, right, back), the ones his layered coat was painted from. They show a rough brown
   wool with a darker mottle, broad notched lapels, the coat open over his waistcoat, flap pockets,
@@ -67,6 +64,37 @@ the hidden skin under the coat), not copied wholesale. It wasn't approved (Studi
   - the hang (a column's distance from the axis never shrinks going down);
   - weights from his joints;
   - the skirt's hip-to-thigh bend (`BEND`, `THIGH_SHARE`).
+
+## The manual's numbers (Mitchell, *The Standard Work on Cutting*, 5th ed., 1886)
+
+The drafts are for a 36-inch breast (the oversack's for a 38). The fit places the coat by his
+joints. Lengths given against the body (the hem, the waist) become his landmarks; the small fixed
+widths (the collar, lapels, pocket, cuff) scale by his breast over 36 in. Pages are the book's
+printed numbers.
+
+| What | The manual | cm | Page |
+|---|---|---|---|
+| Sack, full length from the top of the back (measured over the vest, 36 breast) | 29 in | 73.7 | 24 (plate 8) |
+| Oversack, full length (measured over the coat, 38 breast): **the knee coat Sean picked is this length** | 38 in | 96.5 | 32 (plate 12) |
+| The top of the back: one inch under where the collar's top should be | 1 in | 2.5 | 8 (taking the measures) |
+| Depth of scye (the armhole), as drafted (8½ measured + 1) | 9½ in | 24.1 | 24 |
+| Natural waist from the top of the back | 16½ in | 41.9 | 24 |
+| Collar's stand (an ordinary collar, diagram A) | 1⅛ in | 2.9 | 44 (plate 18) |
+| Collar's fall | "to style or taste" | his pictures | 44 |
+| The break line: ¼ in ahead of the shoulder; the collar's crease ¼ in behind it | ¼ in | 0.6 | 44 |
+| Collars that "stand up about the ears, close to the throat" are a different cut (diagram F): **not this one** (the rancher's fault) | | | 44 |
+| Gorge raised "for a short roll" | ¾ in | 1.9 | 24 |
+| Lapel, a frock's "for present styles": top / breast / bottom (the sack's is "desired width", p. 60) | 2 / 2½ / 2 in | 5.1 / 6.4 / 5.1 | 54 (plate 21) |
+| Pocket: its top this far above the hem, parallel with the bottom; its width "usually" | 7¾ in; 6½ in | 19.7; 16.5 | 24 |
+| Under-arm cut taken out at the waist | ½ in | 1.3 | 24 |
+| Back hollowed at the waist (a sack hangs nearly straight) | ½ in | 1.3 | 24 |
+| Oversack's back sprung out at the hem (the skirt's flare) | 1 in | 2.5 | 32 |
+| Sleeve: the cap's height (A to D, "always") | 4 in | 10.2 | 40 (plate 16) |
+| Sleeve: the outside sleeve's width at the cuff, "more or less"; the under sleeve 1 in in from it each side | 6¼ in | 15.9 | 40 |
+| Sleeve: the forearm notch above the breast line | ¾ in | 1.9 | 40 |
+
+A coat cut to the oversack's length but worn over the waistcoat, as his is, takes the sack's body
+measures (over the vest) and the oversack's length and hem spring.
 
 ## The template (built once: `tools/blender/coat_template.py`)
 
@@ -212,8 +240,8 @@ already use), in its rest pose.
 
 1. **Length:** knee.
 2. **Paint:** the paid GPT-5.4 painting (route B) first.
-3. **The manuals:** he can't allow the hosts from his phone: "just guess from now". The numbers
-   are estimates, from his pictures where they can be (above, References).
+3. **The manuals:** he couldn't allow the hosts from his phone, so he uploaded Mitchell 1886 to the
+   session instead. Its numbers are below; the rest come from his pictures.
 
 ## Not in this brief
 
