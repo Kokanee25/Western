@@ -33,6 +33,7 @@ python3 experiments/gunfight_lab/run.py --scenarios=street --styles=cover --seed
 python3 experiments/gunfight_lab/run.py --list ...                         # what it would run
 python3 experiments/gunfight_lab/run.py ... --game-args=--jolt-sight      # the game's own flags too (here: sight lines asked of Jolt)
 python3 experiments/gunfight_lab/perf.py ROOT [ROOT...]                     # what a frame cost: each run's frame, worst 5%, systems
+python3 experiments/gunfight_lab/moves.py ROOT [ROOT...]                    # how the gang moves: runs, stays, drops, posts, the galleries
 # one fight, drawn, with a pair of frames every 1.5 s (overview + your eyes) for the contact sheet
 xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 --fixed-fps 60 \
     -- --dev-bridge --bridge-script=FILE   # FILE: "gf_fight street seed=2 style=cover out=/abs/f.json shots=/abs/shots every=1.5" and "quit"
@@ -186,7 +187,9 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
   `OutlawBrain.decision`), how his flanks and his looking for you came out (`flanks_made`,
   `flanks_failed`, `searches_found`, `searches_failed`), seconds stuck on the way to cover
   (`stuck_s`), and in the record `unfair`: a man firing at you, or calling he's spotted you, with
-  no clear line from his eyes to you for over half a second; and since fix 3, where his fear came from (`fear_from`), what he'd been through
+  no clear line from his eyes to you for over half a second; since 2026-10-28 each run for cover
+  (`moves`) and each stay behind it (`stays`, with what a drop was against), to a post or up on the
+  galleries, and his hits on you from up there (`hits_from_up`); and since fix 3, where his fear came from (`fear_from`), what he'd been through
   when he quit (`quit`), and times shaken and rallied (also situations `shaken`, `rallied`).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,
@@ -359,6 +362,12 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   hits decide it now. The night's round (four more fixes: rescue and pressing by the town's ways,
   staying in while a friend's on you, a knee under fire, one man pressing on your reload; two tried
   and dropped): 45–90 s of shooting 4% → 14% when you shoot first, 12% → 16% when they do.
+
+- `2026-10-28_hold_cover/`: how the gang moves (`moves.py`: runs, stays, posts, the galleries),
+  and `hold_cover` (#294, in D): behind cover he holds it against the idea of you he chose it by,
+  not every new guess at a sound, and a heard shot puts you at your feet. Cover left within 2 s of
+  getting there 39% → 23% of arrivals (they draw first), 27% → 19% (you shoot first); stays twice
+  as long; the fights as long and as dangerous. Posts and the galleries next.
 
 ## Limitations
 

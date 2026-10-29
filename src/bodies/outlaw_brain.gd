@@ -149,13 +149,14 @@ var variant: Variant = default_variant
 ## rescue_way (a friend down he goes for only if he can get to him by the town's ways, and goes by
 ## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
 ## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
-## him, and calls the others on). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## him, and calls the others on), hold_cover (#294: behind cover he holds it against the idea of
+## the man he chose it by, moved only by what he's sure of, not by a guess at a sound). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
-		&"rescue_way", &"stay_in", &"go_low", &"press"]
+		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -278,6 +279,8 @@ var _move_time := 0.0
 var _check := 0.0
 var _search: Cover.Search
 var _search_bias := Vector3.INF
+var _search_eye := Vector3.INF  # where he took your eyes to be when he started that search (the spot keeps it: cover.eye)
+var _sure := false  # variant D's hold_cover: something he's sure of told him where you are since his last look (`_held_eye`)
 ## Keeping his head down: seconds left (rounds cracking past).
 var suppressed := 0.0
 ## How long he's been shaken (gone to ground past his nerve), or -1 when he isn't.
@@ -438,6 +441,9 @@ const NEAR := 12.0
 const SHOT_HEARD_WITHIN := 1.5
 ## The sounds a man makes, that a man hunting him takes for his.
 const MAN_SOUNDS := [&"footsteps", &"gunshot", &"shout", &"speech", &"scuffle"]
+## How high over a man's feet each of his sounds is made (m): a gun held up, his mouth, the man he
+## kicked or shoved (`PlayerShove`'s scuffle, at the other's body).
+const SOUND_HEIGHT := {&"gunshot": 1.4, &"shout": 1.6, &"speech": 1.6, &"scuffle": 1.0}
 ## How far he reckons a man he's lost can have got (m a second, from where he last knew him, on
 ## top of a few metres' slack): a brisk walk. A man who runs gets further, and away.
 const MAN_SPEED := 2.0
@@ -466,7 +472,9 @@ func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:
 	var t := _find_target()
 	if t != null and not senses.sees(t) and kind in MAN_SOUNDS and _could_be(t, at) \
 			and not crew.standing(_now).any(func(m: HumanBody) -> bool: return m.global_position.distance_to(at) < 3.0):
-		senses.note(t, at, 0.0)
+		# Where the man stands, not where the noise was made: a shot's at his gun, a shout at his
+		# mouth (variant D's `hold_cover`; else his eyes were taken to be 1.6 m over his gun).
+		senses.note(t, at + Vector3.DOWN * float(SOUND_HEIGHT.get(kind, 0.0)) if _has(&"hold_cover") else at, 0.0)
 		return
 	if kind == &"gunshot" and mood == Mood.CALM:
 		_scare(STARTLE_FEAR, &"a shot nearby")
@@ -597,6 +605,7 @@ func _on_near_miss(person: Node, shooter: Node, distance: float, _at: Vector3, _
 			_next_shot = maxf(_next_shot, FLINCH_HOLD.x + FLINCH_HOLD.y * close)
 			_on_sights = 0.0
 	_react = minf(_react, 0.15)  # rounds cracking past get a man moving
+	_sure = true
 	if shooter is Node3D and senses and not senses.sees(shooter):
 		senses.note(shooter, (shooter as Node3D).global_position, 0.1 * body.global_position.distance_to((shooter as Node3D).global_position))
 	# Heads down.
@@ -633,6 +642,7 @@ func _on_hit(info: Dictionary) -> void:
 	_stagger = maxf(_stagger, 0.45 + float(info.get("deposited", 0.0)) / 700.0)
 	hand.jerk(hand_tuning().hit_jerk * share)
 	_react = minf(_react, 0.15)
+	_sure = true
 	if mood == Mood.SURRENDERED:
 		say(&"shot_while_surrendered")
 		return
@@ -1586,6 +1596,7 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 	if _has(&"way_cost"):
 		_search._ctx["by_way"] = true
 	_search_bias = bias_from
+	_search_eye = eye
 
 
 ## A few more candidate spots this tick; when the hunt's done, go if it found somewhere.
@@ -1609,6 +1620,7 @@ func _step_search() -> void:
 		if crew.someone_flanking(_now):
 			return
 		callout(&"flank", _find_target(), spot.at)
+	spot.eye = _search_eye
 	cover = spot
 	_decide("go round on you" if going_round else "run for cover", "%s, %.0f m" % [_search_why, (spot.at as Vector3).distance_to(body.global_position)])
 	tactic = Tactic.MOVING
@@ -1641,7 +1653,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_check = 0.5
 		var space := World.space(body)
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
-		if not Cover.hidden_at(space, cover.at, eye, h, _exclude(_find_target()), _town() != null):
+		if not Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null):
 			# He's come round it: this cover's no good now.
 			_decide("leave his cover", "you can see him there now")
 			tactic = Tactic.OPEN
@@ -1674,6 +1686,20 @@ func _hide(delta: float, eye: Vector3) -> void:
 		var space := World.space(body)
 		# Over low cover he shoots crouched if he can see over it that low, else he stands.
 		_peek_pose = &"crouch_aim" if cover.low and Cover._sees(space, cover.at + Vector3.UP * Cover.CROUCH_GUN, eye, _exclude(_find_target())) else &"aim"
+
+
+## Where he holds his cover against the man's eyes (variant D's `hold_cover`, #294): where they are
+## when he sees him; else the idea of him he chose this spot by, moved only by what he's sure of
+## (a ball into him or past him, a friend's word of where he is), not by a guess at a sound (his
+## last-known spot moves with every noise he takes for the man's). Without the fix, his guess.
+func _held_eye(eye: Vector3) -> Vector3:
+	if not _has(&"hold_cover"):
+		return eye
+	var t := _find_target()
+	if t == null or senses.sees(t) or _sure or cover.get("eye", Vector3.INF) == Vector3.INF:
+		cover.eye = eye
+		_sure = false
+	return cover.eye
 
 
 ## Up (or out) and shooting: a shot or two, then back down.
@@ -2097,6 +2123,7 @@ func _on_callout(speaker: Node, kind: StringName, about: Node, at: Vector3) -> v
 		&"spotted":
 			if about is Node3D and at != Vector3.INF and not senses.sees(about):
 				senses.note(about, at, 0.8)
+				_sure = true
 			_join(about, speaker)
 		&"reloading":
 			_join(about, speaker)

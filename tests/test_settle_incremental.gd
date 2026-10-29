@@ -216,6 +216,11 @@ func test_a_stick_in_the_spec_saloon_doesnt_freeze_the_frame() -> void:
 ## (`--analysis-worker=off`: the same work on the main thread, on the same ticks).
 func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 	var results := []
+	# The blast it was written with, in free air (#220 counts the floor under it: then the saloon
+	# takes ~290 frames to settle, and a floor board or two broken late differs run to run, with the
+	# worker or without, which is the rubble's doing, not the analysis's).
+	var ground := Blast.t().ground_factor
+	Blast.t().ground_factor = 1.0
 	for worker in [true, false]:
 		FireSystem.analysis_worker = worker
 		var lab := Lab.new()
@@ -237,6 +242,7 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 		lab.queue_free()
 		await physics_frames(2)
 	FireSystem.analysis_worker = true
+	Blast.t().ground_factor = ground
 	print("  worker / main thread: %d / %d broken, settled after %d / %d frames" % [results[0].broken.size(),
 			results[1].broken.size(), results[0].settled_at, results[1].settled_at])
 	check(results[0].broken.size() > 10, "the stick brings something down (%d)" % results[0].broken.size())

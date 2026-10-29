@@ -567,15 +567,20 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
-- **The kick and shove** (2026-10-28, #479, `claude/gameplay-kick-shove`; `experiments/kick_shove/`):
+- **The kick and shove** (2026-10-28, #479, PR #486, build 2757; `experiments/kick_shove/`):
   E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
   `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);
   the ragdoll lab's group O, 20 seeds a case; bridge `shove`/`kick`. Waiting on Sean: the force and
-  the key. Next: the `next session` issue (the first-break hitch, a man grabbing a rail or your leg).
+  the key (#489). Next: #490 (reactions, a kick that counts in a fight, the first-break hitch).
 - **The tone fade** (2026-10-28, #442, PR #447; `experiments/physics_lab/results/2026-10-28_tone/`):
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
+- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
+  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
+  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
+  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
+  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -710,8 +715,11 @@ frozen until Sean names one.
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
   fourth tick, and bullet holes as real ones are (Sean: "way too big": the ball's width, no torn
   skin from a single ball). Ten wounded men are 2.9 ms at Sean's (was 1.65). Paint $4.40 left of Sean's $7.
-  Sean's calls: issue #220 (dynamite up close, the gut's time). Results:
-  `results/2026-10-21_gore_lab/`. **The drag smears** (2026-10-27, PR #438, build 2615): one
+  Results: `results/2026-10-21_gore_lab/`. **Dynamite up close, option (c)** (#220, 2026-10-28,
+  branch `claude/gameplay-body-lab-dynamite`; `results/2026-10-28_dynamite_c/`): on the ground 1.8x
+  its TNT (`Blast.effective_kg`), people take the reflected pressure (`Blast.reflected_kpa`; lamps
+  side-on), blast lung 400 / 1,000 kPa; a stick a metre off takes his feet. One stick against a
+  wall now usually opens a way through: Sean's call #484. **The drag smears** (2026-10-27, PR #438, build 2615): one
   trunk-wide swipe a man (`WoundSigns._smears`, `SMEAR_*`), not rows of slashes; slanting drops
   drawn long (`splat_long`); generated textures (`tools/textures/smear_band.py`); lab `body_drag`.
   A thinning smear narrows, not see-through; **more blood on a shot man** (2026-10-28, PR #441,

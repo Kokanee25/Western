@@ -312,10 +312,14 @@ The baseline above is kept as it was. Each change, with its before and after:
   4 ms at Sean's. The worst 1% of frames reach ~4.3 ms.
 - `results/2026-10-21_dynamite_options/` (item 7, nothing changed): Sean's call between leaving
   dynamite as it is, counting the ground, or the ground and the man's front.
+- `results/2026-10-28_dynamite_c/`: Sean's pick (c), for everything. A charge on the ground hits
+  as 1.8 times its TNT, and people take the reflected pressure; blast lung is now 400 / 1,000 kPa.
+  A stick a metre off takes his feet, and eardrums go out past 3 m. One stick on the floor by a
+  wall now usually blows a hole a man walks through (his call, #484).
 
 Still open: the cut through the bone's shaft rather than the joint (4 below; it needs the mesh cut
 mid-part, the people pipeline's job), capped stumps, the rancher's hat crown (characters), the gut's
-time (Sean's call), and the artery rates against their resting flow (no source to set them by).
+time (Sean: stays at 30 game hours), and the artery rates against their resting flow (no source to set them by).
 
 ## Where the game is furthest from the medicine
 

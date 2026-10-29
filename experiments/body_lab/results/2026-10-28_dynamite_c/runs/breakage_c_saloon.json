@@ -1,0 +1,8748 @@
+{
+"bottle_dynamite_1m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 69,
+"Store": 4,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 9,
+"board/weathered_pine": 51,
+"floor_board/floor": 49,
+"floor_board/oak": 6,
+"furniture_frame/dark_trim": 4,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 3,
+"furniture_top/oak": 30,
+"furniture_top/sign": 3,
+"glass/glass": 10,
+"joist/framing": 4,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 86,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 446,
+"cut": 30,
+"furthest_m": 14.98,
+"holed_not_broken": 28,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/leg3",
+"kind": "post",
+"m_from_event": 0.24,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool1:bar_stool_1/leg2",
+"kind": "post",
+"m_from_event": 0.24,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/ring3",
+"kind": "trim",
+"m_from_event": 0.31,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/ring2",
+"kind": "trim",
+"m_from_event": 0.37,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool1:bar_stool_1/ring0",
+"kind": "trim",
+"m_from_event": 0.37,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/leg0",
+"kind": "post",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool1:bar_stool_1/leg1",
+"kind": "post",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/ring1",
+"kind": "trim",
+"m_from_event": 0.55,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "BarStool1:bar_stool_1/seat",
+"kind": "furniture_top",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/11",
+"kind": "joist",
+"m_from_event": 0.98,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+11.75,
+0.8,
+5.1
+],
+"kg": 0.2,
+"to_target_m": 1.59,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 38,
+"caught": [
+{
+"after_s": 5.5,
+"id": "Chair2:chair_2/spindle1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Chair2:chair_2/spindle0"
+},
+{
+"after_s": 6.0,
+"id": "Chair2:chair_2/spindle3"
+},
+{
+"after_s": 6.0,
+"id": "Chair1:chair_1/spindle1"
+},
+{
+"after_s": 6.0,
+"id": "Chair1:chair_1/spindle2"
+},
+{
+"after_s": 6.0,
+"id": "Chair5:chair_5/spindle1"
+},
+{
+"after_s": 6.0,
+"id": "Chair5:chair_5/spindle2"
+},
+{
+"after_s": 6.0,
+"id": "Chair2:chair_2/spindle4"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_r0"
+},
+{
+"after_s": 6.5,
+"id": "Chair2:chair_2/spindle2"
+},
+{
+"after_s": 6.5,
+"id": "Chair1:chair_1/spindle0"
+},
+{
+"after_s": 6.5,
+"id": "Chair1:chair_1/spindle3"
+},
+{
+"after_s": 6.5,
+"id": "Chair1:chair_1/spindle4"
+},
+{
+"after_s": 6.5,
+"id": "Chair5:chair_5/spindle0"
+},
+{
+"after_s": 6.5,
+"id": "Chair5:chair_5/spindle3"
+}
+],
+"caught_count": 35,
+"caught_kinds": {
+"board": {
+"first_s": 5.5,
+"n": 15
+},
+"sill": {
+"first_s": 5.5,
+"n": 2
+},
+"trim": {
+"first_s": 5.5,
+"n": 18
+}
+},
+"lamps_smashed": 4,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 3.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 4.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 4.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 5.0,
+"spills": 4
+},
+{
+"burning": 5,
+"s": 5.5,
+"spills": 4
+},
+{
+"burning": 14,
+"s": 6.0,
+"spills": 4
+},
+{
+"burning": 25,
+"s": 6.5,
+"spills": 4
+},
+{
+"burning": 27,
+"s": 7.0,
+"spills": 4
+},
+{
+"burning": 35,
+"s": 7.5,
+"spills": 4
+}
+],
+"spills_at_end": 4
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 41.5,
+"mean": 21.05,
+"n": 120,
+"p99": 33.59
+},
+"added_ms_first_1s": 2588.9,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 7.09,
+"mean": 3.01,
+"n": 59,
+"p99": 7.09
+},
+"event_frame_ms": 240.21,
+"event_frame_systems": {
+"blast_break": 92.411,
+"blast_fx": 18.398,
+"blast_response": 40.219,
+"cut_chunks": 22.039,
+"cut_signals": 16.745,
+"dynamite": 172.835
+},
+"fire_grid_ms": [
+17.3,
+25.5,
+29.7,
+29.1,
+25.2,
+20.6,
+18.6,
+21.0,
+13.3,
+9.0,
+10.0,
+11.4
+],
+"first_1s_ms": {
+"max": 210.63,
+"mean": 38.22,
+"n": 58,
+"p99": 210.63
+},
+"first_1s_systems": {
+"analysis_full_begin": 0.09,
+"ballistics": 0.88,
+"batches": 0.4,
+"bu_closure": 0.6,
+"bu_forget": 0.39,
+"bu_seeds": 0.57,
+"day_cycle": 0.22,
+"fire": 8.16,
+"fire_analyse": 2.55,
+"fire_fx": 0.06,
+"fire_grid": 3.04,
+"fire_loads": 4.66,
+"fire_tick": 3.44,
+"fittings": 0.09,
+"horses": 0.09,
+"kit_balance": 0.12,
+"lamps": 0.18,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.63,
+"people_prep": 0.09,
+"people_prep_sum": 0.08,
+"people_skeleton": 0.08,
+"player": 0.77,
+"q_balls": 2.38,
+"q_signs": 0.69,
+"settle_analyse": 1.27,
+"settle_apply": 0.09,
+"structures": 1.08,
+"voxels": 0.19
+},
+"lab_ms_total": 6361.9,
+"next_frame_ms": 312.4,
+"next_frame_systems": {
+"analysis_full_begin": 12.693,
+"ballistics": 32.207,
+"fire": 17.314,
+"fire_analyse": 4.421,
+"fire_loads": 17.281,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.39,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "forearm_r",
+"peak_part_mps": 3.88,
+"pelvis_end": [
+9.98,
+0.92,
+8.31
+],
+"role": "bystander",
+"settle_s": 2.92,
+"severed": [],
+"start": [
+10.6,
+0.78,
+7.2
+],
+"sunk_max_m": 0.018,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": false,
+"lamps_lit_before": 42,
+"lamps_smashed": 4,
+"moved_m": 0.0,
+"result": "holds",
+"shattered": false,
+"thrown": false,
+"what": "prop:whiskey_bottle"
+}
+},
+"bottle_dynamite_3m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 54,
+"Store": 4,
+"Telegraph": 2,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 9,
+"board/weathered_pine": 52,
+"floor_board/floor": 35,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 5,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 12,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 426,
+"cut": 30,
+"furthest_m": 16.93,
+"holed_not_broken": 50,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/07",
+"kind": "joist",
+"m_from_event": 0.98,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/08",
+"kind": "joist",
+"m_from_event": 1.04,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/25",
+"kind": "floor_board",
+"m_from_event": 1.09,
+"snapped": false,
+"utilisation_before": 0.12,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/41",
+"kind": "floor_board",
+"m_from_event": 1.17,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/24",
+"kind": "floor_board",
+"m_from_event": 1.24,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/06",
+"kind": "joist",
+"m_from_event": 1.25,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/42",
+"kind": "floor_board",
+"m_from_event": 1.32,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/09",
+"kind": "joist",
+"m_from_event": 1.38,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/23",
+"kind": "floor_board",
+"m_from_event": 1.39,
+"snapped": false,
+"utilisation_before": 0.27,
+"wood": "floor"
+},
+{
+"id": "Chair1:chair_1/post_back_r",
+"kind": "post",
+"m_from_event": 1.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+9.75,
+0.8,
+5.1
+],
+"kg": 0.2,
+"to_target_m": 3.24,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 45,
+"caught": [
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_r1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_r0"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/15_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/19_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 6.5,
+"id": "Chair0:chair_0/spindle4"
+},
+{
+"after_s": 6.5,
+"id": "Crate0:crate_0/side_f2"
+},
+{
+"after_s": 6.5,
+"id": "Crate0:crate_0/side_r2"
+},
+{
+"after_s": 6.5,
+"id": "Crate1:crate_1/bottom2"
+},
+{
+"after_s": 7.0,
+"id": "Store:store/right/trim_555_120/jamb0"
+},
+{
+"after_s": 7.0,
+"id": "Saloon:saloon/panel/left/17_7"
+},
+{
+"after_s": 7.0,
+"id": "Saloon:saloon/panel/left/18_7"
+},
+{
+"after_s": 7.0,
+"id": "Saloon:saloon/panel/front/28_7"
+},
+{
+"after_s": 7.0,
+"id": "Saloon:saloon/panel/right/01_7"
+},
+{
+"after_s": 7.0,
+"id": "Chair0:chair_0/spindle2"
+}
+],
+"caught_count": 31,
+"caught_kinds": {
+"board": {
+"first_s": 5.5,
+"n": 22
+},
+"sill": {
+"first_s": 5.5,
+"n": 2
+},
+"trim": {
+"first_s": 6.5,
+"n": 7
+}
+},
+"lamps_smashed": 5,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 3.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 4.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 4.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 5.0,
+"spills": 5
+},
+{
+"burning": 5,
+"s": 5.5,
+"spills": 5
+},
+{
+"burning": 7,
+"s": 6.0,
+"spills": 5
+},
+{
+"burning": 14,
+"s": 6.5,
+"spills": 5
+},
+{
+"burning": 20,
+"s": 7.0,
+"spills": 5
+},
+{
+"burning": 31,
+"s": 7.5,
+"spills": 5
+}
+],
+"spills_at_end": 5
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 43.16,
+"mean": 20.94,
+"n": 120,
+"p99": 38.43
+},
+"added_ms_first_1s": 2030.4,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 14.39,
+"mean": 4.36,
+"n": 59,
+"p99": 14.39
+},
+"event_frame_ms": 246.58,
+"event_frame_systems": {
+"blast_break": 80.618,
+"blast_fx": 17.411,
+"blast_response": 45.594,
+"cut_chunks": 21.676,
+"cut_signals": 11.941,
+"dynamite": 169.967
+},
+"fire_grid_ms": [
+13.4,
+15.3,
+24.2,
+16.1,
+17.7,
+23.9,
+11.9,
+10.2,
+13.0,
+16.1,
+13.3,
+15.7
+],
+"first_1s_ms": {
+"max": 164.75,
+"mean": 31.74,
+"n": 58,
+"p99": 164.75
+},
+"first_1s_systems": {
+"ballistics": 1.09,
+"batches": 0.41,
+"bu_closure": 0.31,
+"bu_forget": 0.22,
+"bu_seeds": 0.38,
+"day_cycle": 0.21,
+"fire": 5.97,
+"fire_analyse": 1.89,
+"fire_apply": 0.09,
+"fire_fx": 0.1,
+"fire_grid": 2.17,
+"fire_loads": 3.16,
+"fire_near": 0.06,
+"fire_tick": 2.7,
+"fittings": 0.06,
+"horses": 0.07,
+"kit_balance": 0.06,
+"lamps": 0.17,
+"mop": 0.1,
+"n_people_ticked": 1.0,
+"people_bands": 0.11,
+"people_body": 0.57,
+"people_skeleton": 0.06,
+"player": 0.73,
+"q_balls": 2.52,
+"q_signs": 0.62,
+"structures": 1.01,
+"voxels": 0.28
+},
+"lab_ms_total": 6112.5,
+"next_frame_ms": 204.32,
+"next_frame_systems": {
+"analysis_full_begin": 10.734,
+"ballistics": 21.377,
+"fire": 13.443,
+"fire_analyse": 2.603,
+"fire_loads": 13.419,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.27,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "head",
+"peak_part_mps": 3.76,
+"pelvis_end": [
+11.0,
+0.92,
+8.4
+],
+"role": "bystander",
+"settle_s": 3.08,
+"severed": [],
+"start": [
+10.6,
+0.78,
+7.2
+],
+"sunk_max_m": 0.021,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": false,
+"lamps_lit_before": 42,
+"lamps_smashed": 5,
+"moved_m": 0.012,
+"result": "thrown",
+"shattered": false,
+"thrown": true,
+"what": "prop:whiskey_bottle"
+}
+},
+"bottle_dynamite_6m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Batteries": 7,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 64,
+"Shelves": 7,
+"SteerSkull0": 4,
+"Store": 23,
+"Telegraph": 3,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 8,
+"board/weathered_pine": 80,
+"floor_board/floor": 33,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/bone": 1,
+"furniture_top/dark_trim": 5,
+"furniture_top/floor": 4,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 20,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/framing": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 13,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/bone": 2,
+"trim/dark_trim": 6,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 474,
+"cut": 66,
+"furthest_m": 16.97,
+"holed_not_broken": 30,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair3:chair_3/post_back_l",
+"kind": "post",
+"m_from_event": 0.44,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair3:chair_3/stretcher_l",
+"kind": "furniture_frame",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair3:chair_3/leg_front_l",
+"kind": "post",
+"m_from_event": 0.59,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair3:chair_3/seat",
+"kind": "furniture_top",
+"m_from_event": 0.6,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair3:chair_3/spindle0",
+"kind": "trim",
+"m_from_event": 0.67,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Chair3:chair_3/spindle1",
+"kind": "trim",
+"m_from_event": 0.73,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "CardTable0:card_table_0/foot3",
+"kind": "sill",
+"m_from_event": 0.78,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair3:chair_3/spindle2",
+"kind": "trim",
+"m_from_event": 0.78,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Chair3:chair_3/post_back_r",
+"kind": "post",
+"m_from_event": 0.82,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair3:chair_3/spindle3",
+"kind": "trim",
+"m_from_event": 0.84,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair3:chair_3/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.84,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/leg_front_r",
+"kind": "post",
+"m_from_event": 0.85,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.86,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+6.75,
+0.8,
+5.1
+],
+"kg": 0.2,
+"to_target_m": 6.13,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 218,
+"caught": [
+{
+"after_s": 2.5,
+"id": "FramedPainting2:framed_painting_2/canvas"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/07"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/05_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/06_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/24_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/front/08_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/28_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/joist/01"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/joist/02"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/11"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/left/siding/c05_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/04_7"
+},
+{
+"after_s": 4.0,
+"id": "Store:store/right/siding/c09_0"
+},
+{
+"after_s": 4.0,
+"id": "Store:store/right/siding/c10_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/15"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/19"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/20"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/08_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/09_7"
+}
+],
+"caught_count": 176,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 95
+},
+"floor_board": {
+"first_s": 3.0,
+"n": 38
+},
+"furniture_frame": {
+"first_s": 4.5,
+"n": 5
+},
+"joist": {
+"first_s": 4.0,
+"n": 3
+},
+"post": {
+"first_s": 6.5,
+"n": 1
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"stud": {
+"first_s": 7.5,
+"n": 6
+},
+"trim": {
+"first_s": 2.5,
+"n": 25
+}
+},
+"lamps_smashed": 12,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 10
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 10
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 12
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 12
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 12
+},
+{
+"burning": 1,
+"s": 2.5,
+"spills": 12
+},
+{
+"burning": 2,
+"s": 3.0,
+"spills": 12
+},
+{
+"burning": 8,
+"s": 3.5,
+"spills": 12
+},
+{
+"burning": 29,
+"s": 4.0,
+"spills": 12
+},
+{
+"burning": 63,
+"s": 4.5,
+"spills": 12
+},
+{
+"burning": 88,
+"s": 5.0,
+"spills": 12
+},
+{
+"burning": 98,
+"s": 5.5,
+"spills": 12
+},
+{
+"burning": 103,
+"s": 6.0,
+"spills": 12
+},
+{
+"burning": 125,
+"s": 6.5,
+"spills": 12
+},
+{
+"burning": 141,
+"s": 7.0,
+"spills": 12
+},
+{
+"burning": 176,
+"s": 7.5,
+"spills": 12
+}
+],
+"spills_at_end": 12
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 106.05,
+"mean": 34.53,
+"n": 120,
+"p99": 54.83
+},
+"added_ms_first_1s": 3503.9,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 5.53,
+"mean": 2.55,
+"n": 59,
+"p99": 5.53
+},
+"event_frame_ms": 529.95,
+"event_frame_systems": {
+"blast_break": 211.952,
+"blast_response": 77.85,
+"blast_settle": 58.504,
+"cut_chunks": 44.765,
+"dynamite": 345.774,
+"settle_analyse": 56.548
+},
+"fire_grid_ms": [
+13.0,
+14.5,
+17.3,
+22.6,
+14.5,
+12.1,
+8.5,
+8.8,
+17.4,
+8.6,
+9.2,
+14.9
+],
+"first_1s_ms": {
+"max": 223.17,
+"mean": 50.17,
+"n": 58,
+"p99": 223.17
+},
+"first_1s_systems": {
+"ballistics": 0.61,
+"batches": 0.21,
+"bu_closure": 0.32,
+"bu_forget": 0.18,
+"bu_seeds": 0.31,
+"day_cycle": 0.21,
+"fire": 7.05,
+"fire_analyse": 1.77,
+"fire_apply": 0.06,
+"fire_fx": 0.11,
+"fire_grid": 2.89,
+"fire_loads": 2.96,
+"fire_near": 0.17,
+"fire_tick": 3.98,
+"horses": 0.08,
+"kit_balance": 0.06,
+"lamps": 0.15,
+"mop": 0.12,
+"n_people_owed": 0.74,
+"n_people_ticked": 0.26,
+"people_bands": 0.07,
+"people_body": 0.09,
+"people_prep": 0.06,
+"people_prep_sum": 0.06,
+"player": 0.71,
+"q_balls": 1.91,
+"q_writes": 0.78,
+"structures": 1.26,
+"voxels": 0.24
+},
+"lab_ms_total": 9675.5,
+"next_frame_ms": 217.31,
+"next_frame_systems": {
+"analysis_full_begin": 7.47,
+"ballistics": 20.046,
+"batches": 6.997,
+"fire": 12.985,
+"fire_loads": 12.964,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 4.39,
+"harm": [],
+"has_model": true,
+"knocked_down": false,
+"limp": false,
+"parts": 17,
+"peak_part": "",
+"peak_part_mps": 0.0,
+"pelvis_end": [
+10.6,
+1.68,
+7.2
+],
+"role": "bystander",
+"settle_s": null,
+"severed": [],
+"start": [
+10.6,
+0.78,
+7.2
+],
+"sunk_max_m": 0.0,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": false,
+"lamps_lit_before": 42,
+"lamps_smashed": 12,
+"moved_m": 0.0,
+"result": "holds",
+"shattered": false,
+"thrown": false,
+"what": "prop:whiskey_bottle"
+}
+},
+"chair_dynamite_1m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 53,
+"Store": 4,
+"Telegraph": 2,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 8,
+"board/weathered_pine": 52,
+"floor_board/floor": 35,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 3,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 3,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 12,
+"joist/framing": 4,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 1,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 412,
+"cut": 30,
+"furthest_m": 16.34,
+"holed_not_broken": 34,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/25",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.12,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/24",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/23",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.27,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/22",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/21",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/20",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Chair1:chair_1/post_back_r",
+"kind": "post",
+"m_from_event": 0.78,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Chair1:chair_1/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.81,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/19",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.11,
+"wood": "floor"
+},
+{
+"id": "Chair1:chair_1/seat",
+"kind": "furniture_top",
+"m_from_event": 0.88,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/post_back_l",
+"kind": "post",
+"m_from_event": 0.89,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/spindle4",
+"kind": "trim",
+"m_from_event": 0.9,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/spindle3",
+"kind": "trim",
+"m_from_event": 0.91,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/stretcher_l",
+"kind": "furniture_frame",
+"m_from_event": 0.92,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/spindle2",
+"kind": "trim",
+"m_from_event": 0.93,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair1:chair_1/spindle1",
+"kind": "trim",
+"m_from_event": 0.95,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/spindle0",
+"kind": "trim",
+"m_from_event": 0.97,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/18",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.03,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+9.42,
+0.8,
+3.98
+],
+"kg": 0.2,
+"to_target_m": 1.09,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 153,
+"caught": [
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/03"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/07"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/06_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/front/08_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/floor/board/01"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/floor/board/02"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/floor/board/05"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/floor/board/06"
+},
+{
+"after_s": 3.5,
+"id": "Chair2:chair_2/spindle2"
+},
+{
+"after_s": 3.5,
+"id": "Chair2:chair_2/spindle3"
+},
+{
+"after_s": 3.5,
+"id": "FramedPainting2:framed_painting_2/canvas"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/11"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/left/siding/c05_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/04_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/05_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/floor/board/11/a"
+},
+{
+"after_s": 4.0,
+"id": "Store:store/right/siding/c09_0"
+},
+{
+"after_s": 4.0,
+"id": "Store:store/right/siding/c10_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/08_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/09_7"
+}
+],
+"caught_count": 138,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 72
+},
+"floor_board": {
+"first_s": 3.0,
+"n": 31
+},
+"furniture_frame": {
+"first_s": 4.5,
+"n": 4
+},
+"furniture_top": {
+"first_s": 6.5,
+"n": 1
+},
+"joist": {
+"first_s": 6.5,
+"n": 2
+},
+"post": {
+"first_s": 6.0,
+"n": 4
+},
+"sill": {
+"first_s": 5.5,
+"n": 2
+},
+"stud": {
+"first_s": 7.5,
+"n": 4
+},
+"trim": {
+"first_s": 3.5,
+"n": 18
+}
+},
+"lamps_smashed": 11,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 9
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 10
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 11
+},
+{
+"burning": 2,
+"s": 3.0,
+"spills": 11
+},
+{
+"burning": 11,
+"s": 3.5,
+"spills": 11
+},
+{
+"burning": 30,
+"s": 4.0,
+"spills": 11
+},
+{
+"burning": 60,
+"s": 4.5,
+"spills": 11
+},
+{
+"burning": 73,
+"s": 5.0,
+"spills": 11
+},
+{
+"burning": 79,
+"s": 5.5,
+"spills": 11
+},
+{
+"burning": 85,
+"s": 6.0,
+"spills": 11
+},
+{
+"burning": 103,
+"s": 6.5,
+"spills": 11
+},
+{
+"burning": 120,
+"s": 7.0,
+"spills": 11
+},
+{
+"burning": 138,
+"s": 7.5,
+"spills": 11
+}
+],
+"spills_at_end": 11
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 50.76,
+"mean": 25.96,
+"n": 120,
+"p99": 49.58
+},
+"added_ms_first_1s": 2459.0,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 10.06,
+"mean": 3.79,
+"n": 59,
+"p99": 10.06
+},
+"event_frame_ms": 275.16,
+"event_frame_systems": {
+"blast_break": 89.355,
+"blast_fx": 17.644,
+"blast_response": 40.078,
+"cut_chunks": 22.437,
+"dynamite": 185.416,
+"kit_balance": 19.842
+},
+"fire_grid_ms": [
+10.1,
+15.9,
+23.3,
+35.9,
+26.0,
+21.3,
+10.4,
+15.4,
+18.1,
+11.9,
+15.5,
+8.7
+],
+"first_1s_ms": {
+"max": 178.18,
+"mean": 38.48,
+"n": 58,
+"p99": 178.18
+},
+"first_1s_systems": {
+"ballistics": 1.55,
+"batches": 0.26,
+"bu_closure": 0.39,
+"bu_forget": 0.31,
+"bu_seeds": 0.47,
+"day_cycle": 0.23,
+"fire": 8.1,
+"fire_analyse": 2.89,
+"fire_apply": 0.09,
+"fire_fx": 0.13,
+"fire_grid": 2.32,
+"fire_loads": 4.53,
+"fire_near": 0.13,
+"fire_tick": 3.43,
+"fittings": 0.06,
+"horses": 0.08,
+"kit_balance": 0.07,
+"lamps": 0.16,
+"mop": 0.1,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.54,
+"people_skeleton": 0.06,
+"player": 0.73,
+"q_balls": 5.64,
+"q_signs": 0.69,
+"structures": 1.24,
+"voxels": 0.25
+},
+"lab_ms_total": 7102.6,
+"next_frame_ms": 179.34,
+"next_frame_systems": {
+"analysis_full_begin": 7.528,
+"ballistics": 23.742,
+"fire": 10.113,
+"fire_analyse": 2.487,
+"fire_loads": 10.09,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.87,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "forearm_r",
+"peak_part_mps": 4.03,
+"pelvis_end": [
+11.11,
+0.92,
+7.72
+],
+"role": "bystander",
+"settle_s": 2.78,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.012,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 10.96,
+"distance_m": 0.9,
+"impulse_Ns": 1.39,
+"kick_J": 10.53,
+"member": "spindle4",
+"ratio": 0.96
+},
+"kind": "kit prop chair (13 members)",
+"loose": true,
+"members_broken": [
+"spindle0",
+"spindle1",
+"spindle2",
+"spindle3",
+"spindle4"
+],
+"members_holed": [],
+"moved_m": 3.291,
+"result": "broken (5 of 13 members, the rest loose)",
+"what": "prop:chair"
+}
+},
+"chair_dynamite_3m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 56,
+"Store": 4,
+"Telegraph": 1,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 9,
+"board/weathered_pine": 51,
+"floor_board/floor": 36,
+"floor_board/oak": 6,
+"furniture_frame/dark_trim": 4,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 3,
+"furniture_top/oak": 30,
+"furniture_top/sign": 3,
+"glass/glass": 11,
+"joist/framing": 4,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 86,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 434,
+"cut": 30,
+"furthest_m": 17.38,
+"holed_not_broken": 23,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/25",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.12,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/24",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/23",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.27,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/22",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "BarStool0:bar_stool_0/leg3",
+"kind": "post",
+"m_from_event": 0.54,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/21",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "BarStool0:bar_stool_0/ring3",
+"kind": "trim",
+"m_from_event": 0.58,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool0:bar_stool_0/leg2",
+"kind": "post",
+"m_from_event": 0.61,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool0:bar_stool_0/ring0",
+"kind": "trim",
+"m_from_event": 0.62,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "BarStool0:bar_stool_0/ring2",
+"kind": "trim",
+"m_from_event": 0.7,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/20",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "BarStool0:bar_stool_0/leg0",
+"kind": "post",
+"m_from_event": 0.78,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "BarStool0:bar_stool_0/leg1",
+"kind": "post",
+"m_from_event": 0.83,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool0:bar_stool_0/seat",
+"kind": "furniture_top",
+"m_from_event": 0.86,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool0:bar_stool_0/ring1",
+"kind": "trim",
+"m_from_event": 0.86,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/19",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.11,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/18",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.03,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 1.09,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+11.42,
+0.8,
+3.98
+],
+"kg": 0.2,
+"to_target_m": 3.03,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 49,
+"caught": [
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/front/siding/r06_1"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/front/siding/r05_1"
+},
+{
+"after_s": 5.5,
+"id": "Chair6:chair_6/spindle1"
+},
+{
+"after_s": 5.5,
+"id": "Chair5:chair_5/spindle2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_r1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 6.0,
+"id": "Chair6:chair_6/spindle0"
+},
+{
+"after_s": 6.0,
+"id": "Chair6:chair_6/spindle3"
+},
+{
+"after_s": 6.0,
+"id": "Chair6:chair_6/spindle4"
+},
+{
+"after_s": 6.0,
+"id": "Chair5:chair_5/spindle0"
+},
+{
+"after_s": 6.0,
+"id": "Chair5:chair_5/spindle1"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_r0"
+},
+{
+"after_s": 6.5,
+"id": "Chair6:chair_6/spindle2"
+},
+{
+"after_s": 6.5,
+"id": "Chair5:chair_5/spindle3"
+},
+{
+"after_s": 6.5,
+"id": "Chair5:chair_5/spindle4"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/front/trim_425_77/jamb1"
+}
+],
+"caught_count": 42,
+"caught_kinds": {
+"board": {
+"first_s": 4.5,
+"n": 26
+},
+"sill": {
+"first_s": 5.5,
+"n": 2
+},
+"trim": {
+"first_s": 5.5,
+"n": 14
+}
+},
+"lamps_smashed": 3,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 3.5,
+"spills": 3
+},
+{
+"burning": 0,
+"s": 4.0,
+"spills": 3
+},
+{
+"burning": 1,
+"s": 4.5,
+"spills": 3
+},
+{
+"burning": 2,
+"s": 5.0,
+"spills": 3
+},
+{
+"burning": 9,
+"s": 5.5,
+"spills": 3
+},
+{
+"burning": 16,
+"s": 6.0,
+"spills": 3
+},
+{
+"burning": 27,
+"s": 6.5,
+"spills": 3
+},
+{
+"burning": 35,
+"s": 7.0,
+"spills": 3
+},
+{
+"burning": 42,
+"s": 7.5,
+"spills": 3
+}
+],
+"spills_at_end": 3
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 43.98,
+"mean": 27.02,
+"n": 120,
+"p99": 43.77
+},
+"added_ms_first_1s": 2485.7,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 9.48,
+"mean": 3.72,
+"n": 59,
+"p99": 9.48
+},
+"event_frame_ms": 258.12,
+"event_frame_systems": {
+"blast_break": 82.432,
+"blast_fx": 18.689,
+"blast_response": 40.716,
+"cut_chunks": 21.47,
+"dynamite": 167.819,
+"kit_balance": 19.32
+},
+"fire_grid_ms": [
+10.6,
+15.9,
+19.7,
+27.6,
+15.2,
+15.9,
+11.5,
+9.2,
+18.4,
+9.1,
+11.8,
+9.2
+],
+"first_1s_ms": {
+"max": 244.93,
+"mean": 38.54,
+"n": 58,
+"p99": 244.93
+},
+"first_1s_systems": {
+"analysis_full_begin": 0.05,
+"ballistics": 0.75,
+"batches": 0.26,
+"blood": 0.05,
+"bu_closure": 0.31,
+"bu_forget": 0.2,
+"bu_seeds": 0.32,
+"day_cycle": 0.28,
+"fire": 8.16,
+"fire_analyse": 3.42,
+"fire_apply": 0.1,
+"fire_fx": 0.06,
+"fire_grid": 2.97,
+"fire_loads": 4.68,
+"fire_near": 0.07,
+"fire_tick": 3.41,
+"fittings": 0.1,
+"horses": 0.09,
+"kit_balance": 0.07,
+"lamps": 0.26,
+"mop": 0.13,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.75,
+"people_prep": 0.05,
+"people_skeleton": 0.07,
+"player": 0.84,
+"q_balls": 2.26,
+"q_signs": 0.69,
+"structures": 1.07,
+"voxels": 0.11
+},
+"lab_ms_total": 6438.3,
+"next_frame_ms": 215.43,
+"next_frame_systems": {
+"analysis_full_begin": 7.824,
+"ballistics": 36.956,
+"fire": 10.59,
+"fire_loads": 10.567,
+"q_balls": 121.0,
+"voxels": 3.057
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.75,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "forearm_l",
+"peak_part_mps": 3.96,
+"pelvis_end": [
+10.24,
+0.92,
+7.87
+],
+"role": "bystander",
+"settle_s": 3.72,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.019,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 10.96,
+"distance_m": 2.89,
+"impulse_Ns": 0.34,
+"kick_J": 0.62,
+"member": "spindle0",
+"ratio": 0.06
+},
+"kind": "kit prop chair (13 members)",
+"loose": true,
+"members_broken": [],
+"members_holed": [],
+"moved_m": 0.439,
+"result": "thrown 0.4 m",
+"what": "prop:chair"
+}
+},
+"chair_dynamite_6m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"Barrel0": 20,
+"Barrel1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair5": 13,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting1": 5,
+"Saloon": 96,
+"Store": 4
+},
+"by_kind": {
+"board/saloon_wall": 25,
+"board/weathered_pine": 67,
+"floor_board/floor": 32,
+"floor_board/oak": 6,
+"furniture_frame/framing": 2,
+"furniture_frame/oak": 15,
+"furniture_frame/sign": 2,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/floor": 2,
+"furniture_top/oak": 16,
+"furniture_top/sign": 1,
+"glass/glass": 10,
+"joist/framing": 2,
+"post/oak": 68,
+"post/sign": 1,
+"post/weathered_pine": 12,
+"sill/weathered_pine": 9,
+"stud/framing": 4,
+"trim/dark_trim": 1,
+"trim/iron": 20,
+"trim/oak": 25,
+"trim/sign": 1
+},
+"count": 345,
+"cut": 69,
+"furthest_m": 17.22,
+"holed_not_broken": 9,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/25",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.12,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/24",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/23",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.27,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/backbar/upright0",
+"kind": "furniture_frame",
+"m_from_event": 0.37,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/22",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/panel/right/12_7",
+"kind": "board",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/panel/right/13_7",
+"kind": "board",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/panel/right/11_7",
+"kind": "board",
+"m_from_event": 0.54,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/panel/right/14_7",
+"kind": "board",
+"m_from_event": 0.56,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/floor/board/21",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/right/siding/c14_0",
+"kind": "board",
+"m_from_event": 0.59,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "weathered_pine"
+},
+{
+"id": "Saloon:saloon/right/siding/c16_0",
+"kind": "board",
+"m_from_event": 0.6,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "weathered_pine"
+},
+{
+"id": "Saloon:saloon/right/siding/c15_0",
+"kind": "board",
+"m_from_event": 0.6,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "weathered_pine"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/right/siding/c13_0",
+"kind": "board",
+"m_from_event": 0.7,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "weathered_pine"
+},
+{
+"id": "Saloon:saloon/floor/board/20",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/right/siding/c17_0",
+"kind": "board",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "weathered_pine"
+},
+{
+"id": "Saloon:saloon/panel/right/10_7",
+"kind": "board",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/panel/right/15_7",
+"kind": "board",
+"m_from_event": 0.77,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "saloon_wall"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/19",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.11,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+14.42,
+0.8,
+3.98
+],
+"kg": 0.2,
+"to_target_m": 6.02,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 89,
+"caught": [
+{
+"after_s": 2.0,
+"id": "Saloon:saloon/floor/board/15"
+},
+{
+"after_s": 2.5,
+"id": "Saloon:saloon/right/siding/c09_0"
+},
+{
+"after_s": 2.5,
+"id": "Saloon:saloon/panel/right/07_7"
+},
+{
+"after_s": 2.5,
+"id": "Saloon:saloon/panel/right/08_7"
+},
+{
+"after_s": 2.5,
+"id": "Saloon:saloon/panel/right/06_7/b"
+},
+{
+"after_s": 2.5,
+"id": "Saloon:saloon/panel/right/03_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/16"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/19"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/20"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/floor/board/21"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/right/siding/c12_0"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/09_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/10_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/11_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/right/siding/c07_0"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/05_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/06_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/right/siding/c03_0"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/01_7"
+},
+{
+"after_s": 3.0,
+"id": "Saloon:saloon/panel/right/02_7"
+}
+],
+"caught_count": 86,
+"caught_kinds": {
+"board": {
+"first_s": 2.5,
+"n": 45
+},
+"floor_board": {
+"first_s": 2.0,
+"n": 26
+},
+"furniture_frame": {
+"first_s": 5.0,
+"n": 1
+},
+"furniture_top": {
+"first_s": 4.0,
+"n": 2
+},
+"joist": {
+"first_s": 4.0,
+"n": 2
+},
+"sill": {
+"first_s": 5.5,
+"n": 2
+},
+"stud": {
+"first_s": 3.5,
+"n": 5
+},
+"trim": {
+"first_s": 6.5,
+"n": 3
+}
+},
+"lamps_smashed": 6,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 6
+},
+{
+"burning": 1,
+"s": 2.0,
+"spills": 6
+},
+{
+"burning": 6,
+"s": 2.5,
+"spills": 6
+},
+{
+"burning": 20,
+"s": 3.0,
+"spills": 6
+},
+{
+"burning": 32,
+"s": 3.5,
+"spills": 6
+},
+{
+"burning": 42,
+"s": 4.0,
+"spills": 6
+},
+{
+"burning": 55,
+"s": 4.5,
+"spills": 6
+},
+{
+"burning": 64,
+"s": 5.0,
+"spills": 6
+},
+{
+"burning": 67,
+"s": 5.5,
+"spills": 6
+},
+{
+"burning": 70,
+"s": 6.0,
+"spills": 6
+},
+{
+"burning": 75,
+"s": 6.5,
+"spills": 6
+},
+{
+"burning": 79,
+"s": 7.0,
+"spills": 6
+},
+{
+"burning": 86,
+"s": 7.5,
+"spills": 6
+}
+],
+"spills_at_end": 6
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 79.39,
+"mean": 34.78,
+"n": 120,
+"p99": 73.69
+},
+"added_ms_first_1s": 2986.5,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 12.1,
+"mean": 3.94,
+"n": 59,
+"p99": 12.1
+},
+"event_frame_ms": 395.17,
+"event_frame_systems": {
+"blast_break": 157.492,
+"blast_response": 62.384,
+"cut_chunks": 44.48,
+"cut_signals": 35.003,
+"dynamite": 285.301,
+"fittings": 26.767
+},
+"fire_grid_ms": [
+15.7,
+26.0,
+19.3,
+17.1,
+9.8,
+10.9,
+8.5,
+9.0,
+14.5,
+15.5,
+10.7,
+25.0
+],
+"first_1s_ms": {
+"max": 258.14,
+"mean": 44.87,
+"n": 58,
+"p99": 258.14
+},
+"first_1s_systems": {
+"ballistics": 0.62,
+"batches": 0.34,
+"bu_closure": 0.23,
+"bu_forget": 0.15,
+"bu_seeds": 0.23,
+"day_cycle": 0.23,
+"fire": 7.07,
+"fire_analyse": 2.43,
+"fire_apply": 0.17,
+"fire_fx": 0.08,
+"fire_grid": 3.14,
+"fire_loads": 3.37,
+"fire_near": 0.07,
+"fire_tick": 3.61,
+"fittings": 0.22,
+"floor_marks": 0.13,
+"horses": 0.08,
+"kit_balance": 0.25,
+"lamps": 0.17,
+"mop": 0.11,
+"n_people_owed": 0.74,
+"n_people_ticked": 0.26,
+"people_bands": 0.11,
+"people_body": 0.09,
+"people_prep": 0.28,
+"people_prep_sum": 0.28,
+"player": 0.78,
+"q_balls": 9.59,
+"q_writes": 0.78,
+"structures": 1.63,
+"voxels": 0.13
+},
+"lab_ms_total": 8051.3,
+"next_frame_ms": 225.5,
+"next_frame_systems": {
+"analysis_full_begin": 11.007,
+"ballistics": 58.167,
+"batches": 6.503,
+"fire": 15.652,
+"fire_loads": 15.631,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 4.63,
+"harm": [],
+"has_model": true,
+"knocked_down": false,
+"limp": false,
+"parts": 17,
+"peak_part": "",
+"peak_part_mps": 0.0,
+"pelvis_end": [
+10.6,
+1.68,
+6.6
+],
+"role": "bystander",
+"settle_s": null,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.0,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 10.96,
+"distance_m": 5.87,
+"impulse_Ns": 0.16,
+"kick_J": 0.14,
+"member": "spindle0",
+"ratio": 0.01
+},
+"kind": "kit prop chair (13 members)",
+"loose": true,
+"members_broken": [],
+"members_holed": [],
+"moved_m": 0.277,
+"result": "went loose",
+"what": "prop:chair"
+}
+},
+"floor_dynamite_0m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 48,
+"Store": 4,
+"Telegraph": 2,
+"UprightPiano0": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_red": 1,
+"board/saloon_wall": 1,
+"board/weathered_pine": 51,
+"floor_board/floor": 36,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 3,
+"furniture_frame/framing": 5,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 3,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 12,
+"joist/framing": 4,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 1,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 407,
+"cut": 30,
+"furthest_m": 16.89,
+"holed_not_broken": 37,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/43",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/42",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/44",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/41",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/45",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/46",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/47",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/06",
+"kind": "joist",
+"m_from_event": 0.72,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/48",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/07",
+"kind": "joist",
+"m_from_event": 0.77,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/49",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/05",
+"kind": "joist",
+"m_from_event": 1.09,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 1.09,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Chair5:chair_5/post_back_l",
+"kind": "post",
+"m_from_event": 1.13,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair5:chair_5/stretcher_l",
+"kind": "furniture_frame",
+"m_from_event": 1.15,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/51",
+"kind": "floor_board",
+"m_from_event": 1.17,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/08",
+"kind": "joist",
+"m_from_event": 1.17,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Chair5:chair_5/seat",
+"kind": "furniture_top",
+"m_from_event": 1.19,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair6:chair_6/post_back_r",
+"kind": "post",
+"m_from_event": 1.2,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+9.2,
+0.8,
+6.6
+],
+"kg": 0.2,
+"to_target_m": 0.02,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 80,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/24_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/22_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/23_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/26_7"
+},
+{
+"after_s": 4.0,
+"id": "FramedPainting0:framed_painting_0/canvas"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c29_0"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c30_0"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c31_0"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c32_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c26_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c27_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c31_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/21_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/25_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c32_0"
+},
+{
+"after_s": 5.0,
+"id": "Store:store/right/siding/c28_0"
+},
+{
+"after_s": 5.0,
+"id": "Store:store/right/glass_555_120/shutter1"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/left/siding/c25_0"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/left/siding/c28_0"
+}
+],
+"caught_count": 57,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 44
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"stud": {
+"first_s": 7.5,
+"n": 2
+},
+"trim": {
+"first_s": 4.0,
+"n": 8
+}
+},
+"lamps_smashed": 6,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 6
+},
+{
+"burning": 2,
+"s": 3.5,
+"spills": 6
+},
+{
+"burning": 6,
+"s": 4.0,
+"spills": 6
+},
+{
+"burning": 16,
+"s": 4.5,
+"spills": 6
+},
+{
+"burning": 23,
+"s": 5.0,
+"spills": 6
+},
+{
+"burning": 29,
+"s": 5.5,
+"spills": 6
+},
+{
+"burning": 31,
+"s": 6.0,
+"spills": 6
+},
+{
+"burning": 38,
+"s": 6.5,
+"spills": 6
+},
+{
+"burning": 45,
+"s": 7.0,
+"spills": 6
+},
+{
+"burning": 57,
+"s": 7.5,
+"spills": 6
+}
+],
+"spills_at_end": 6
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 32.22,
+"mean": 19.11,
+"n": 120,
+"p99": 30.96
+},
+"added_ms_first_1s": 2024.3,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 9.55,
+"mean": 4.2,
+"n": 59,
+"p99": 9.55
+},
+"event_frame_ms": 338.8,
+"event_frame_systems": {
+"blast_break": 129.631,
+"blast_response": 73.034,
+"cut_chunks": 34.837,
+"cut_signals": 24.078,
+"dynamite": 245.92,
+"kit_balance": 21.276
+},
+"fire_grid_ms": [
+10.2,
+14.4,
+18.9,
+28.6,
+27.3,
+19.2,
+18.7,
+8.5,
+10.8,
+10.7,
+13.9,
+13.9
+],
+"first_1s_ms": {
+"max": 156.75,
+"mean": 29.23,
+"n": 58,
+"p99": 156.75
+},
+"first_1s_systems": {
+"ballistics": 0.93,
+"batches": 0.29,
+"bu_closure": 0.46,
+"bu_forget": 0.29,
+"bu_seeds": 0.43,
+"day_cycle": 0.22,
+"fire": 7.31,
+"fire_analyse": 2.79,
+"fire_fx": 0.11,
+"fire_grid": 2.21,
+"fire_loads": 4.4,
+"fire_near": 0.1,
+"fire_tick": 2.79,
+"horses": 0.08,
+"kit_balance": 0.1,
+"lamps": 0.17,
+"mop": 0.12,
+"n_people_owed": 0.74,
+"n_people_ticked": 0.26,
+"people_bands": 0.07,
+"people_body": 0.1,
+"people_prep": 0.06,
+"people_prep_sum": 0.05,
+"player": 0.71,
+"q_balls": 3.83,
+"q_writes": 0.98,
+"structures": 0.97,
+"voxels": 0.28
+},
+"lab_ms_total": 6489.9,
+"next_frame_ms": 242.06,
+"next_frame_systems": {
+"analysis_full_begin": 7.373,
+"ballistics": 21.392,
+"fire": 10.185,
+"fire_analyse": 2.671,
+"fire_loads": 10.159,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 3.44,
+"harm": [],
+"has_model": true,
+"knocked_down": false,
+"limp": false,
+"parts": 17,
+"peak_part": "",
+"peak_part_mps": 0.0,
+"pelvis_end": [
+12.0,
+1.68,
+8.6
+],
+"role": "bystander",
+"settle_s": null,
+"severed": [],
+"start": [
+12.0,
+0.78,
+8.6
+],
+"sunk_max_m": 0.0,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {
+"closed_before_m2": 37.21,
+"farthest_opening_m": 4.24,
+"kind": "floor_board",
+"opened_m2": 13.63,
+"opened_within_1m_m2": 3.08,
+"scan_m": 3.0
+},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 653.98,
+"distance_m": 0.03,
+"impulse_Ns": 137.3,
+"kick_J": 510.27,
+"ratio": 309.83
+},
+"broken": true,
+"carved": false,
+"cut_m": 1.21,
+"holes": 0,
+"kind": "member floor_board, floor (9.8x0.025x0.145)",
+"mode": "joint",
+"result": "cut (1.2 m torn out)",
+"utilisation_before": 0.017,
+"what": "Saloon:saloon/floor/board/43",
+"wood": {
+"bending_MPa": 45.0,
+"id": "floor",
+"stiffness_GPa": 11.0
+}
+}
+},
+"floor_dynamite_1m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 42,
+"Store": 4,
+"Telegraph": 1,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 1,
+"board/weathered_pine": 51,
+"floor_board/floor": 32,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 5,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 11,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 413,
+"cut": 30,
+"furthest_m": 16.18,
+"holed_not_broken": 43,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/43",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/42",
+"kind": "floor_board",
+"m_from_event": 0.04,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/44",
+"kind": "floor_board",
+"m_from_event": 0.12,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/41",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/45",
+"kind": "floor_board",
+"m_from_event": 0.27,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/46",
+"kind": "floor_board",
+"m_from_event": 0.42,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/47",
+"kind": "floor_board",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/08",
+"kind": "joist",
+"m_from_event": 0.68,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/48",
+"kind": "floor_board",
+"m_from_event": 0.72,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/49",
+"kind": "floor_board",
+"m_from_event": 0.87,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/09",
+"kind": "joist",
+"m_from_event": 0.87,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.94,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/07",
+"kind": "joist",
+"m_from_event": 0.94,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 1.02,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 1.09,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/51",
+"kind": "floor_board",
+"m_from_event": 1.17,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 1.24,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/52",
+"kind": "floor_board",
+"m_from_event": 1.32,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/10",
+"kind": "joist",
+"m_from_event": 1.34,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 1.39,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/53",
+"kind": "floor_board",
+"m_from_event": 1.47,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+10.2,
+0.8,
+6.6
+],
+"kg": 0.2,
+"to_target_m": 0.02,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 82,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/right/19_22"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/right/20_22"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/right/22_22"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/right/23_22"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/right/siding/c23_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/right/siding/c26_1"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/right/siding/c27_1"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/right/trim_609_160/head"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/right/21_22"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/right/siding/c24_1"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/right/siding/c25_1"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/right/siding/c28_1"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/backbar/mirror_b/side_72"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/backbar/shelf2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_r1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/side_f0"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/bottom1"
+}
+],
+"caught_count": 60,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 46
+},
+"cripple": {
+"first_s": 7.5,
+"n": 1
+},
+"furniture_frame": {
+"first_s": 6.5,
+"n": 1
+},
+"furniture_top": {
+"first_s": 5.5,
+"n": 1
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"trim": {
+"first_s": 4.5,
+"n": 8
+}
+},
+"lamps_smashed": 8,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 9
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 9
+},
+{
+"burning": 2,
+"s": 3.5,
+"spills": 9
+},
+{
+"burning": 4,
+"s": 4.0,
+"spills": 9
+},
+{
+"burning": 9,
+"s": 4.5,
+"spills": 9
+},
+{
+"burning": 12,
+"s": 5.0,
+"spills": 9
+},
+{
+"burning": 20,
+"s": 5.5,
+"spills": 9
+},
+{
+"burning": 24,
+"s": 6.0,
+"spills": 9
+},
+{
+"burning": 33,
+"s": 6.5,
+"spills": 9
+},
+{
+"burning": 46,
+"s": 7.0,
+"spills": 9
+},
+{
+"burning": 60,
+"s": 7.5,
+"spills": 9
+}
+],
+"spills_at_end": 9
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 27.17,
+"mean": 13.79,
+"n": 120,
+"p99": 23.88
+},
+"added_ms_first_1s": 1761.2,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 7.91,
+"mean": 3.44,
+"n": 59,
+"p99": 7.91
+},
+"event_frame_ms": 242.75,
+"event_frame_systems": {
+"blast_break": 90.722,
+"blast_fx": 18.194,
+"blast_response": 40.723,
+"cut_chunks": 24.212,
+"cut_signals": 15.331,
+"dynamite": 176.526
+},
+"fire_grid_ms": [
+10.1,
+25.6,
+16.6,
+14.5,
+28.7,
+11.0,
+11.6,
+14.7,
+8.1,
+10.4,
+8.3,
+8.4
+],
+"first_1s_ms": {
+"max": 161.89,
+"mean": 26.34,
+"n": 58,
+"p99": 161.89
+},
+"first_1s_systems": {
+"ballistics": 1.18,
+"batches": 0.22,
+"bu_closure": 0.31,
+"bu_forget": 0.18,
+"bu_seeds": 0.31,
+"day_cycle": 0.21,
+"fire": 6.53,
+"fire_analyse": 2.51,
+"fire_fx": 0.09,
+"fire_grid": 2.24,
+"fire_loads": 3.59,
+"fire_near": 0.09,
+"fire_tick": 2.85,
+"horses": 0.07,
+"kit_balance": 0.06,
+"lamps": 0.16,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.49,
+"people_skeleton": 0.06,
+"player": 0.72,
+"q_balls": 3.02,
+"q_signs": 0.17,
+"structures": 0.89,
+"voxels": 0.3
+},
+"lab_ms_total": 6197.7,
+"next_frame_ms": 197.4,
+"next_frame_systems": {
+"analysis_full_begin": 7.357,
+"ballistics": 21.134,
+"batches": 3.909,
+"fire": 10.051,
+"fire_loads": 10.03,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.69,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet",
+"bruised",
+"bruised"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "head",
+"peak_part_mps": 4.21,
+"pelvis_end": [
+12.32,
+0.99,
+9.47
+],
+"role": "bystander",
+"settle_s": 5.2,
+"severed": [],
+"start": [
+12.0,
+0.78,
+8.6
+],
+"sunk_max_m": 0.039,
+"sunk_ticks": 1,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {
+"closed_before_m2": 37.21,
+"farthest_opening_m": 3.72,
+"kind": "floor_board",
+"opened_m2": 12.58,
+"opened_within_1m_m2": 2.16,
+"scan_m": 3.0
+},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 653.98,
+"distance_m": 0.03,
+"impulse_Ns": 137.66,
+"kick_J": 512.91,
+"ratio": 309.83
+},
+"broken": true,
+"carved": false,
+"cut_m": 1.23,
+"holes": 0,
+"kind": "member floor_board, floor (9.8x0.025x0.145)",
+"mode": "joint",
+"result": "cut (1.2 m torn out)",
+"utilisation_before": 0.017,
+"what": "Saloon:saloon/floor/board/43",
+"wood": {
+"bending_MPa": 45.0,
+"id": "floor",
+"stiffness_GPa": 11.0
+}
+}
+},
+"lamp_dynamite_1m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Batteries": 2,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 43,
+"Shelves": 7,
+"Store": 4,
+"Telegraph": 3,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/weathered_pine": 51,
+"floor_board/floor": 34,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 5,
+"furniture_top/floor": 4,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 15,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/framing": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 425,
+"cut": 31,
+"furthest_m": 17.47,
+"holed_not_broken": 36,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.05,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.11,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.19,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 0.26,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.34,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.41,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/leg_front_l",
+"kind": "post",
+"m_from_event": 0.43,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/stretcher_l",
+"kind": "furniture_frame",
+"m_from_event": 0.44,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/post_back_l",
+"kind": "post",
+"m_from_event": 0.47,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "CardTable0:card_table_0/foot0",
+"kind": "sill",
+"m_from_event": 0.54,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.56,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/seat",
+"kind": "furniture_top",
+"m_from_event": 0.58,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/leg_front_r",
+"kind": "post",
+"m_from_event": 0.59,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.61,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/spindle0",
+"kind": "trim",
+"m_from_event": 0.69,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/post_back_r",
+"kind": "post",
+"m_from_event": 0.7,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/seat",
+"kind": "furniture_top",
+"m_from_event": 0.71,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.71,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/spindle1",
+"kind": "trim",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/spindle2",
+"kind": "trim",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/25",
+"kind": "floor_board",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.12,
+"wood": "floor"
+},
+{
+"id": "CardTable0:card_table_0/top_r2",
+"kind": "furniture_top",
+"m_from_event": 0.8,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+8.41,
+0.8,
+4.81
+],
+"kg": 0.2,
+"to_target_m": 1.37,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 79,
+"caught": [
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/01"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/05"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/front/08_7"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/front/trim_55_145/jamb1"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/00"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/03"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/04"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/07"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/panel/front/06_7"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/panel/front/07_7"
+},
+{
+"after_s": 5.5,
+"id": "Chair6:chair_6/spindle1"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/floor/board/02"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/floor/board/06"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/panel/front/09_7"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_r1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/side_f0"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/bottom1"
+}
+],
+"caught_count": 67,
+"caught_kinds": {
+"board": {
+"first_s": 4.5,
+"n": 37
+},
+"floor_board": {
+"first_s": 4.5,
+"n": 8
+},
+"furniture_frame": {
+"first_s": 6.5,
+"n": 2
+},
+"furniture_top": {
+"first_s": 7.5,
+"n": 1
+},
+"post": {
+"first_s": 7.0,
+"n": 2
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"trim": {
+"first_s": 5.0,
+"n": 14
+}
+},
+"lamps_smashed": 8,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 3.5,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 4.0,
+"spills": 8
+},
+{
+"burning": 3,
+"s": 4.5,
+"spills": 8
+},
+{
+"burning": 10,
+"s": 5.0,
+"spills": 8
+},
+{
+"burning": 20,
+"s": 5.5,
+"spills": 8
+},
+{
+"burning": 26,
+"s": 6.0,
+"spills": 8
+},
+{
+"burning": 38,
+"s": 6.5,
+"spills": 8
+},
+{
+"burning": 54,
+"s": 7.0,
+"spills": 8
+},
+{
+"burning": 67,
+"s": 7.5,
+"spills": 8
+}
+],
+"spills_at_end": 8
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 60.6,
+"mean": 21.44,
+"n": 120,
+"p99": 38.38
+},
+"added_ms_first_1s": 2145.7,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 8.24,
+"mean": 3.15,
+"n": 59,
+"p99": 8.24
+},
+"event_frame_ms": 280.37,
+"event_frame_systems": {
+"blast_break": 92.111,
+"blast_fx": 17.684,
+"blast_response": 43.619,
+"cut_chunks": 23.765,
+"dynamite": 186.142,
+"kit_balance": 22.651
+},
+"fire_grid_ms": [
+10.1,
+17.3,
+17.1,
+17.2,
+17.0,
+21.8,
+12.0,
+8.9,
+13.7,
+8.3,
+8.5,
+10.1
+],
+"first_1s_ms": {
+"max": 171.63,
+"mean": 32.31,
+"n": 58,
+"p99": 171.63
+},
+"first_1s_systems": {
+"ballistics": 0.77,
+"batches": 0.38,
+"blood": 0.06,
+"bu_closure": 0.28,
+"bu_forget": 0.2,
+"bu_seeds": 0.32,
+"day_cycle": 0.24,
+"fire": 5.79,
+"fire_analyse": 1.7,
+"fire_fx": 0.08,
+"fire_grid": 2.36,
+"fire_loads": 2.76,
+"fire_near": 0.12,
+"fire_tick": 2.94,
+"horses": 0.09,
+"kit_balance": 0.06,
+"lamps": 0.18,
+"mop": 0.12,
+"n_people_ticked": 1.0,
+"people_bands": 0.09,
+"people_body": 0.59,
+"people_prep": 0.06,
+"people_prep_sum": 0.05,
+"people_skeleton": 0.07,
+"player": 0.79,
+"q_balls": 2.0,
+"q_signs": 0.69,
+"structures": 1.05,
+"voxels": 0.22
+},
+"lab_ms_total": 7070.4,
+"next_frame_ms": 180.38,
+"next_frame_systems": {
+"analysis_full_begin": 7.461,
+"ballistics": 16.49,
+"fire": 10.063,
+"fire_analyse": 2.495,
+"fire_loads": 10.038,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.83,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "forearm_l",
+"peak_part_mps": 3.93,
+"pelvis_end": [
+11.53,
+0.92,
+7.36
+],
+"role": "bystander",
+"settle_s": 4.03,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.02,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": true,
+"lamps_lit_before": 42,
+"lamps_smashed": 8,
+"moved_m": 0.0,
+"result": "smashed",
+"shattered": true,
+"thrown": false,
+"what": "prop:oil_lamp"
+}
+},
+"lamp_dynamite_3m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 68,
+"Store": 4,
+"Telegraph": 2,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 10,
+"board/weathered_pine": 54,
+"cripple/framing": 1,
+"floor_board/floor": 42,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 5,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 5,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 12,
+"header/framing": 1,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"stud/framing": 1,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 440,
+"cut": 31,
+"furthest_m": 17.34,
+"holed_not_broken": 46,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/41",
+"kind": "floor_board",
+"m_from_event": 0.05,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.11,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/42",
+"kind": "floor_board",
+"m_from_event": 0.2,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.26,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/43",
+"kind": "floor_board",
+"m_from_event": 0.35,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.41,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/07",
+"kind": "joist",
+"m_from_event": 0.48,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/44",
+"kind": "floor_board",
+"m_from_event": 0.5,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/08",
+"kind": "joist",
+"m_from_event": 0.51,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.56,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/45",
+"kind": "floor_board",
+"m_from_event": 0.65,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.71,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/46",
+"kind": "floor_board",
+"m_from_event": 0.8,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.86,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/47",
+"kind": "floor_board",
+"m_from_event": 0.95,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/06",
+"kind": "joist",
+"m_from_event": 0.95,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 1.01,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/09",
+"kind": "joist",
+"m_from_event": 1.01,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/48",
+"kind": "floor_board",
+"m_from_event": 1.1,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 1.16,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/49",
+"kind": "floor_board",
+"m_from_event": 1.25,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 1.31,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 1.4,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 1.46,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+9.82,
+0.8,
+6.22
+],
+"kg": 0.2,
+"to_target_m": 3.14,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 77,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 4.0,
+"id": "FramedPainting0:framed_painting_0/canvas"
+},
+{
+"after_s": 4.0,
+"id": "FramedPainting1:framed_painting_1/canvas"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c25_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c26_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/21_7"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_f1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/side_r1"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/lid2"
+},
+{
+"after_s": 5.5,
+"id": "Crate0:crate_0/bottom2"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/side_f0"
+},
+{
+"after_s": 5.5,
+"id": "Crate1:crate_1/bottom1"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_f0"
+},
+{
+"after_s": 6.0,
+"id": "Crate0:crate_0/side_r0"
+},
+{
+"after_s": 6.5,
+"id": "Store:store/right/trim_555_120/jamb1"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/23_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/24_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/15_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/left/19_7"
+},
+{
+"after_s": 6.5,
+"id": "Saloon:saloon/panel/front/08_7"
+}
+],
+"caught_count": 58,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 36
+},
+"furniture_frame": {
+"first_s": 7.5,
+"n": 1
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"trim": {
+"first_s": 4.0,
+"n": 18
+}
+},
+"lamps_smashed": 7,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 7
+},
+{
+"burning": 1,
+"s": 3.5,
+"spills": 7
+},
+{
+"burning": 3,
+"s": 4.0,
+"spills": 7
+},
+{
+"burning": 6,
+"s": 4.5,
+"spills": 7
+},
+{
+"burning": 6,
+"s": 5.0,
+"spills": 7
+},
+{
+"burning": 12,
+"s": 5.5,
+"spills": 7
+},
+{
+"burning": 14,
+"s": 6.0,
+"spills": 7
+},
+{
+"burning": 24,
+"s": 6.5,
+"spills": 7
+},
+{
+"burning": 41,
+"s": 7.0,
+"spills": 7
+},
+{
+"burning": 58,
+"s": 7.5,
+"spills": 7
+}
+],
+"spills_at_end": 7
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 44.47,
+"mean": 25.46,
+"n": 120,
+"p99": 43.0
+},
+"added_ms_first_1s": 2721.8,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 8.63,
+"mean": 3.09,
+"n": 59,
+"p99": 8.63
+},
+"event_frame_ms": 335.84,
+"event_frame_systems": {
+"blast_break": 106.907,
+"blast_fx": 27.461,
+"blast_response": 42.927,
+"cut_chunks": 26.577,
+"cut_signals": 21.894,
+"dynamite": 260.222
+},
+"fire_grid_ms": [
+12.1,
+36.3,
+21.7,
+16.4,
+35.0,
+25.6,
+9.2,
+11.5,
+21.2,
+11.2,
+12.3,
+14.5
+],
+"first_1s_ms": {
+"max": 208.03,
+"mean": 40.86,
+"n": 58,
+"p99": 208.03
+},
+"first_1s_systems": {
+"ballistics": 1.32,
+"batches": 0.63,
+"blood": 0.22,
+"bu_closure": 0.43,
+"bu_forget": 0.29,
+"bu_seeds": 0.64,
+"day_cycle": 0.22,
+"fire": 9.12,
+"fire_analyse": 4.07,
+"fire_apply": 0.2,
+"fire_fx": 0.11,
+"fire_grid": 2.47,
+"fire_loads": 5.94,
+"fire_near": 0.08,
+"fire_tick": 3.06,
+"fittings": 0.07,
+"horses": 0.09,
+"kit_balance": 0.08,
+"lamps": 0.17,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.11,
+"people_body": 0.55,
+"people_prep": 0.11,
+"people_prep_sum": 0.1,
+"people_skeleton": 0.11,
+"player": 0.8,
+"q_balls": 3.48,
+"structures": 1.12,
+"voxels": 0.42
+},
+"lab_ms_total": 7725.7,
+"next_frame_ms": 201.27,
+"next_frame_systems": {
+"analysis_full_begin": 9.33,
+"ballistics": 16.436,
+"fire": 12.129,
+"fire_analyse": 2.653,
+"fire_loads": 12.105,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": false,
+"distance_to_event_m": 0.87,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"lungs bruised by the blast",
+"knocked senseless",
+"thrown off his feet",
+"hand (right) torn off",
+"shin (right) torn off",
+"hand (left) torn off",
+"shin (left) torn off"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "hand_l",
+"peak_part_mps": 5.35,
+"pelvis_end": [
+10.35,
+0.14,
+6.99
+],
+"role": "bystander",
+"settle_s": 3.72,
+"severed": [
+"hand_r",
+"shin_r",
+"foot_r",
+"hand_l",
+"shin_l",
+"foot_l"
+],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.024,
+"sunk_ticks": 0,
+"triangles": 24807,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": true,
+"lamps_lit_before": 42,
+"lamps_smashed": 7,
+"moved_m": 0.481,
+"result": "thrown",
+"shattered": false,
+"thrown": true,
+"what": "prop:oil_lamp"
+}
+},
+"lamp_dynamite_6m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 54,
+"Store": 4,
+"UprightPiano0": 13,
+"WaterTrough": 13,
+"WhiskeyBarrel0": 20,
+"WhiskeyBarrel1": 20
+},
+"by_kind": {
+"board/saloon_wall": 1,
+"board/weathered_pine": 51,
+"floor_board/floor": 37,
+"floor_board/oak": 12,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 5,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 4,
+"furniture_top/oak": 36,
+"furniture_top/sign": 3,
+"glass/glass": 10,
+"joist/framing": 5,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 114,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 471,
+"cut": 30,
+"furthest_m": 16.52,
+"holed_not_broken": 20,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/54",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/55",
+"kind": "floor_board",
+"m_from_event": 0.03,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/53",
+"kind": "floor_board",
+"m_from_event": 0.13,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/56",
+"kind": "floor_board",
+"m_from_event": 0.18,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/52",
+"kind": "floor_board",
+"m_from_event": 0.28,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/57",
+"kind": "floor_board",
+"m_from_event": 0.33,
+"snapped": false,
+"utilisation_before": 0.19,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/51",
+"kind": "floor_board",
+"m_from_event": 0.43,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/58",
+"kind": "floor_board",
+"m_from_event": 0.48,
+"snapped": false,
+"utilisation_before": 0.15,
+"wood": "floor"
+},
+{
+"id": "BarStool3:bar_stool_3/leg3",
+"kind": "post",
+"m_from_event": 0.5,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool4:bar_stool_4/leg2",
+"kind": "post",
+"m_from_event": 0.52,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool3:bar_stool_3/ring0",
+"kind": "trim",
+"m_from_event": 0.54,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/ring2",
+"kind": "trim",
+"m_from_event": 0.56,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool3:bar_stool_3/leg0",
+"kind": "post",
+"m_from_event": 0.57,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool3:bar_stool_3/ring3",
+"kind": "trim",
+"m_from_event": 0.58,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/leg1",
+"kind": "post",
+"m_from_event": 0.58,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 0.58,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "BarStool4:bar_stool_4/ring3",
+"kind": "trim",
+"m_from_event": 0.6,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/59",
+"kind": "floor_board",
+"m_from_event": 0.63,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "BarStool3:bar_stool_3/ring1",
+"kind": "trim",
+"m_from_event": 0.66,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/ring1",
+"kind": "trim",
+"m_from_event": 0.67,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/49",
+"kind": "floor_board",
+"m_from_event": 0.73,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "BarStool3:bar_stool_3/leg2",
+"kind": "post",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool4:bar_stool_4/leg3",
+"kind": "post",
+"m_from_event": 0.75,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/60",
+"kind": "floor_board",
+"m_from_event": 0.78,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "BarStool3:bar_stool_3/leg1",
+"kind": "post",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+11.94,
+0.8,
+8.34
+],
+"kg": 0.2,
+"to_target_m": 6.07,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 40,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/back/22_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/19_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/20_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/21_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/24_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/25_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/72"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/73"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/76"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/77"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c25_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c28_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c29_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/back/23_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c30_0"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/70"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/71"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/74"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/75"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/78"
+}
+],
+"caught_count": 37,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 23
+},
+"floor_board": {
+"first_s": 4.5,
+"n": 9
+},
+"joist": {
+"first_s": 6.5,
+"n": 1
+},
+"stud": {
+"first_s": 7.5,
+"n": 1
+},
+"trim": {
+"first_s": 7.5,
+"n": 3
+}
+},
+"lamps_smashed": 5,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 6
+},
+{
+"burning": 1,
+"s": 3.5,
+"spills": 6
+},
+{
+"burning": 6,
+"s": 4.0,
+"spills": 6
+},
+{
+"burning": 15,
+"s": 4.5,
+"spills": 6
+},
+{
+"burning": 24,
+"s": 5.0,
+"spills": 6
+},
+{
+"burning": 24,
+"s": 5.5,
+"spills": 6
+},
+{
+"burning": 24,
+"s": 6.0,
+"spills": 6
+},
+{
+"burning": 26,
+"s": 6.5,
+"spills": 6
+},
+{
+"burning": 28,
+"s": 7.0,
+"spills": 6
+},
+{
+"burning": 37,
+"s": 7.5,
+"spills": 6
+}
+],
+"spills_at_end": 6
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 51.09,
+"mean": 27.69,
+"n": 120,
+"p99": 49.71
+},
+"added_ms_first_1s": 2469.4,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 9.81,
+"mean": 3.25,
+"n": 59,
+"p99": 9.81
+},
+"event_frame_ms": 276.48,
+"event_frame_systems": {
+"blast_break": 86.607,
+"blast_fx": 17.654,
+"blast_response": 43.705,
+"cut_chunks": 22.073,
+"dynamite": 177.239,
+"kit_balance": 20.687
+},
+"fire_grid_ms": [
+11.5,
+13.3,
+18.2,
+17.5,
+15.2,
+10.8,
+9.7,
+17.8,
+18.6,
+20.8,
+10.4,
+13.3
+],
+"first_1s_ms": {
+"max": 197.25,
+"mean": 37.46,
+"n": 58,
+"p99": 197.25
+},
+"first_1s_systems": {
+"analysis_full_begin": 0.08,
+"ballistics": 0.71,
+"batches": 0.21,
+"blood": 0.15,
+"bu_closure": 0.23,
+"bu_forget": 0.15,
+"bu_seeds": 0.31,
+"day_cycle": 0.21,
+"fire": 6.83,
+"fire_analyse": 3.01,
+"fire_fx": 0.05,
+"fire_grid": 2.46,
+"fire_loads": 3.98,
+"fire_tick": 2.79,
+"fittings": 0.08,
+"horses": 0.09,
+"kit_balance": 0.06,
+"lamps": 0.2,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.54,
+"people_prep": 0.05,
+"people_skeleton": 0.07,
+"player": 0.73,
+"q_balls": 2.17,
+"q_signs": 0.69,
+"structures": 1.05,
+"voxels": 0.12
+},
+"lab_ms_total": 6836.7,
+"next_frame_ms": 215.48,
+"next_frame_systems": {
+"analysis_full_begin": 8.807,
+"ballistics": 28.768,
+"fire": 11.468,
+"fire_analyse": 2.546,
+"fire_loads": 11.442,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.2,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "head",
+"peak_part_mps": 3.7,
+"pelvis_end": [
+9.84,
+0.92,
+5.62
+],
+"role": "bystander",
+"settle_s": 2.32,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.021,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"kind": "a prop that shatters (GlassProp)",
+"lamp_lit_before": true,
+"lamps_lit_before": 42,
+"lamps_smashed": 5,
+"moved_m": 0.103,
+"result": "thrown",
+"shattered": false,
+"thrown": true,
+"what": "prop:oil_lamp"
+}
+},
+"table_dynamite_1m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Batteries": 3,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 40,
+"Shelves": 7,
+"SteerSkull0": 4,
+"Store": 4,
+"Telegraph": 3,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/weathered_pine": 51,
+"floor_board/floor": 31,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 4,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/bone": 1,
+"furniture_top/dark_trim": 5,
+"furniture_top/floor": 4,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 16,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/framing": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 13,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/bone": 2,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 427,
+"cut": 30,
+"furthest_m": 17.59,
+"holed_not_broken": 48,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/30",
+"kind": "floor_board",
+"m_from_event": 0.14,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 0.16,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/29",
+"kind": "floor_board",
+"m_from_event": 0.29,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.31,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/stretcher_l",
+"kind": "furniture_frame",
+"m_from_event": 0.32,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/post_back_l",
+"kind": "post",
+"m_from_event": 0.32,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/leg_front_l",
+"kind": "post",
+"m_from_event": 0.35,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/28",
+"kind": "floor_board",
+"m_from_event": 0.44,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.46,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/seat",
+"kind": "furniture_top",
+"m_from_event": 0.5,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "CardTable0:card_table_0/foot0",
+"kind": "sill",
+"m_from_event": 0.55,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/27",
+"kind": "floor_board",
+"m_from_event": 0.59,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/spindle0",
+"kind": "trim",
+"m_from_event": 0.59,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.61,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Chair0:chair_0/spindle1",
+"kind": "trim",
+"m_from_event": 0.64,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/leg_front_r",
+"kind": "post",
+"m_from_event": 0.67,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/spindle2",
+"kind": "trim",
+"m_from_event": 0.68,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair1:chair_1/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.69,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/stretcher_r",
+"kind": "furniture_frame",
+"m_from_event": 0.69,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/post_back_r",
+"kind": "post",
+"m_from_event": 0.69,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/leg_front_r",
+"kind": "post",
+"m_from_event": 0.7,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Chair0:chair_0/spindle3",
+"kind": "trim",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "Saloon:saloon/floor/board/26",
+"kind": "floor_board",
+"m_from_event": 0.74,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+8.31,
+0.8,
+4.91
+],
+"kg": 0.2,
+"to_target_m": 1.17,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 89,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/front/08_7"
+},
+{
+"after_s": 4.0,
+"id": "FramedPainting0:framed_painting_0/canvas"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/front/trim_55_145/jamb1"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/front/06_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/front/07_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c25_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c26_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/21_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/front/09_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/01"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/05"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/00"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/03"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/04"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/07"
+},
+{
+"after_s": 5.0,
+"id": "FramedPainting1:framed_painting_1/canvas"
+},
+{
+"after_s": 5.5,
+"id": "UprightPiano1:upright_piano_1/back"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/floor/board/02"
+},
+{
+"after_s": 5.5,
+"id": "Saloon:saloon/floor/board/06"
+}
+],
+"caught_count": 69,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 42
+},
+"floor_board": {
+"first_s": 4.5,
+"n": 8
+},
+"furniture_frame": {
+"first_s": 5.5,
+"n": 3
+},
+"post": {
+"first_s": 6.5,
+"n": 1
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"trim": {
+"first_s": 4.0,
+"n": 12
+}
+},
+"lamps_smashed": 7,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 6
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 7
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 7
+},
+{
+"burning": 2,
+"s": 3.5,
+"spills": 7
+},
+{
+"burning": 6,
+"s": 4.0,
+"spills": 7
+},
+{
+"burning": 12,
+"s": 4.5,
+"spills": 7
+},
+{
+"burning": 17,
+"s": 5.0,
+"spills": 7
+},
+{
+"burning": 26,
+"s": 5.5,
+"spills": 7
+},
+{
+"burning": 28,
+"s": 6.0,
+"spills": 7
+},
+{
+"burning": 41,
+"s": 6.5,
+"spills": 7
+},
+{
+"burning": 55,
+"s": 7.0,
+"spills": 7
+},
+{
+"burning": 69,
+"s": 7.5,
+"spills": 7
+}
+],
+"spills_at_end": 7
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 42.06,
+"mean": 22.7,
+"n": 120,
+"p99": 39.27
+},
+"added_ms_first_1s": 2265.9,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 6.97,
+"mean": 3.44,
+"n": 59,
+"p99": 6.97
+},
+"event_frame_ms": 308.25,
+"event_frame_systems": {
+"blast_break": 90.262,
+"blast_fx": 17.917,
+"blast_response": 67.761,
+"cut_chunks": 21.278,
+"dynamite": 215.758,
+"kit_balance": 24.787
+},
+"fire_grid_ms": [
+9.9,
+14.8,
+23.0,
+17.5,
+31.6,
+19.7,
+12.2,
+18.7,
+9.1,
+8.3,
+16.8,
+10.8
+],
+"first_1s_ms": {
+"max": 165.24,
+"mean": 34.56,
+"n": 58,
+"p99": 165.24
+},
+"first_1s_systems": {
+"analysis_full_begin": 0.05,
+"ballistics": 1.06,
+"batches": 0.44,
+"bu_closure": 0.51,
+"bu_forget": 0.3,
+"bu_seeds": 0.59,
+"day_cycle": 0.23,
+"fire": 7.38,
+"fire_analyse": 2.61,
+"fire_fx": 0.11,
+"fire_grid": 2.11,
+"fire_loads": 4.43,
+"fire_near": 0.12,
+"fire_tick": 2.83,
+"horses": 0.07,
+"kit_balance": 0.06,
+"lamps": 0.18,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.06,
+"people_body": 0.49,
+"people_skeleton": 0.07,
+"player": 0.72,
+"q_balls": 2.97,
+"q_signs": 0.69,
+"structures": 1.03,
+"voxels": 0.52
+},
+"lab_ms_total": 7684.0,
+"next_frame_ms": 159.62,
+"next_frame_systems": {
+"analysis_full_begin": 7.229,
+"ballistics": 11.208,
+"fire": 9.907,
+"fire_analyse": 2.59,
+"fire_loads": 9.887,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.85,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "forearm_r",
+"peak_part_mps": 3.98,
+"pelvis_end": [
+11.6,
+0.92,
+7.34
+],
+"role": "bystander",
+"settle_s": 2.33,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.011,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 468.54,
+"distance_m": 0.83,
+"impulse_Ns": 35.64,
+"kick_J": 161.98,
+"member": "top_r2",
+"ratio": 0.35
+},
+"kind": "kit prop card_table (20 members)",
+"loose": true,
+"members_broken": [],
+"members_holed": [],
+"moved_m": 2.947,
+"result": "thrown 2.9 m",
+"what": "prop:card_table"
+}
+},
+"table_dynamite_3m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 63,
+"Store": 4,
+"Telegraph": 2,
+"UprightPiano0": 13,
+"UprightPiano1": 13,
+"WaterTrough": 13
+},
+"by_kind": {
+"board/saloon_wall": 9,
+"board/weathered_pine": 51,
+"floor_board/floor": 43,
+"floor_board/oak": 3,
+"furniture_frame/dark_trim": 7,
+"furniture_frame/framing": 5,
+"furniture_frame/iron": 2,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 5,
+"furniture_top/oak": 27,
+"furniture_top/sign": 3,
+"glass/glass": 12,
+"joist/framing": 4,
+"post/dark_trim": 8,
+"post/floor": 3,
+"post/oak": 72,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 4,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 435,
+"cut": 31,
+"furthest_m": 17.28,
+"holed_not_broken": 41,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/41",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/40",
+"kind": "floor_board",
+"m_from_event": 0.06,
+"snapped": false,
+"utilisation_before": 0.26,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/42",
+"kind": "floor_board",
+"m_from_event": 0.1,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/39",
+"kind": "floor_board",
+"m_from_event": 0.21,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/43",
+"kind": "floor_board",
+"m_from_event": 0.25,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/38",
+"kind": "floor_board",
+"m_from_event": 0.36,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/44",
+"kind": "floor_board",
+"m_from_event": 0.4,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/07",
+"kind": "joist",
+"m_from_event": 0.49,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/37",
+"kind": "floor_board",
+"m_from_event": 0.51,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/45",
+"kind": "floor_board",
+"m_from_event": 0.55,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/08",
+"kind": "joist",
+"m_from_event": 0.62,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/36",
+"kind": "floor_board",
+"m_from_event": 0.66,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/46",
+"kind": "floor_board",
+"m_from_event": 0.7,
+"snapped": false,
+"utilisation_before": 0.01,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/35",
+"kind": "floor_board",
+"m_from_event": 0.81,
+"snapped": false,
+"utilisation_before": 0.13,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/47",
+"kind": "floor_board",
+"m_from_event": 0.85,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/06",
+"kind": "joist",
+"m_from_event": 0.9,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/34",
+"kind": "floor_board",
+"m_from_event": 0.96,
+"snapped": false,
+"utilisation_before": 0.07,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/48",
+"kind": "floor_board",
+"m_from_event": 1.0,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/33",
+"kind": "floor_board",
+"m_from_event": 1.11,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/joist/09",
+"kind": "joist",
+"m_from_event": 1.12,
+"snapped": true,
+"utilisation_before": 0.03,
+"wood": "framing"
+},
+{
+"id": "Saloon:saloon/floor/board/49",
+"kind": "floor_board",
+"m_from_event": 1.15,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/32",
+"kind": "floor_board",
+"m_from_event": 1.26,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 1.3,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/31",
+"kind": "floor_board",
+"m_from_event": 1.41,
+"snapped": false,
+"utilisation_before": 0.14,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/51",
+"kind": "floor_board",
+"m_from_event": 1.45,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+}
+]
+},
+"charge": {
+"at": [
+9.72,
+0.8,
+6.32
+],
+"kg": 0.2,
+"to_target_m": 3.06,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 135,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/20_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/24_7"
+},
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/left/28_7"
+},
+{
+"after_s": 4.0,
+"id": "Store:store/right/siding/c32_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/left/siding/c27_0"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/22_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/23_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/left/26_7"
+},
+{
+"after_s": 4.0,
+"id": "FramedPainting0:framed_painting_0/canvas"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c29_0"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c30_0"
+},
+{
+"after_s": 4.5,
+"id": "Store:store/right/siding/c31_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c25_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c26_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c29_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c30_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c31_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/21_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/left/25_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/left/siding/c32_0"
+}
+],
+"caught_count": 105,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 60
+},
+"floor_board": {
+"first_s": 4.5,
+"n": 18
+},
+"furniture_frame": {
+"first_s": 6.5,
+"n": 2
+},
+"joist": {
+"first_s": 6.5,
+"n": 2
+},
+"post": {
+"first_s": 7.0,
+"n": 1
+},
+"sill": {
+"first_s": 5.5,
+"n": 3
+},
+"stud": {
+"first_s": 7.5,
+"n": 2
+},
+"trim": {
+"first_s": 4.0,
+"n": 17
+}
+},
+"lamps_smashed": 11,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 8
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 9
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 11
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 11
+},
+{
+"burning": 3,
+"s": 3.5,
+"spills": 11
+},
+{
+"burning": 9,
+"s": 4.0,
+"spills": 11
+},
+{
+"burning": 23,
+"s": 4.5,
+"spills": 11
+},
+{
+"burning": 39,
+"s": 5.0,
+"spills": 11
+},
+{
+"burning": 53,
+"s": 5.5,
+"spills": 11
+},
+{
+"burning": 56,
+"s": 6.0,
+"spills": 11
+},
+{
+"burning": 71,
+"s": 6.5,
+"spills": 11
+},
+{
+"burning": 88,
+"s": 7.0,
+"spills": 11
+},
+{
+"burning": 105,
+"s": 7.5,
+"spills": 11
+}
+],
+"spills_at_end": 11
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 59.76,
+"mean": 30.14,
+"n": 120,
+"p99": 58.51
+},
+"added_ms_first_1s": 2802.3,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 8.21,
+"mean": 3.53,
+"n": 59,
+"p99": 8.21
+},
+"event_frame_ms": 396.22,
+"event_frame_systems": {
+"blast_break": 144.304,
+"blast_fx": 28.514,
+"blast_response": 50.923,
+"cut_chunks": 36.907,
+"cut_signals": 29.634,
+"dynamite": 313.397
+},
+"fire_grid_ms": [
+15.5,
+29.6,
+21.6,
+36.0,
+18.3,
+12.7,
+11.4,
+8.6,
+9.9,
+11.9,
+26.7,
+13.5
+],
+"first_1s_ms": {
+"max": 155.55,
+"mean": 41.0,
+"n": 58,
+"p99": 155.55
+},
+"first_1s_systems": {
+"ballistics": 1.19,
+"batches": 0.44,
+"blood": 0.1,
+"bu_closure": 0.32,
+"bu_forget": 0.44,
+"bu_seeds": 0.41,
+"day_cycle": 0.23,
+"fire": 7.5,
+"fire_analyse": 2.51,
+"fire_apply": 0.12,
+"fire_fx": 0.12,
+"fire_grid": 2.2,
+"fire_loads": 4.26,
+"fire_near": 0.16,
+"fire_tick": 3.12,
+"fittings": 0.06,
+"horses": 0.08,
+"kit_balance": 0.14,
+"lamps": 0.18,
+"mop": 0.17,
+"n_people_ticked": 1.0,
+"people_bands": 0.06,
+"people_body": 0.72,
+"people_prep": 0.08,
+"people_prep_sum": 0.08,
+"people_skeleton": 0.06,
+"player": 0.73,
+"q_balls": 3.07,
+"q_signs": 2.24,
+"structures": 1.14,
+"voxels": 0.39
+},
+"lab_ms_total": 7508.2,
+"next_frame_ms": 239.66,
+"next_frame_systems": {
+"analysis_full_begin": 10.222,
+"ballistics": 18.579,
+"fire": 15.534,
+"fire_analyse": 5.137,
+"fire_loads": 15.503,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": false,
+"distance_to_event_m": 0.92,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"lungs bruised by the blast",
+"knocked senseless",
+"thrown off his feet",
+"shin (right) torn off",
+"shin (left) torn off"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "hand_r",
+"peak_part_mps": 4.79,
+"pelvis_end": [
+10.55,
+0.14,
+7.16
+],
+"role": "bystander",
+"settle_s": 3.17,
+"severed": [
+"shin_r",
+"foot_r",
+"shin_l",
+"foot_l"
+],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.023,
+"sunk_ticks": 0,
+"triangles": 24799,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": false,
+"capacity_J": 121.01,
+"distance_m": 2.86,
+"impulse_Ns": 2.16,
+"kick_J": 2.3,
+"member": "cleat_x",
+"ratio": 0.02
+},
+"kind": "kit prop card_table (20 members)",
+"loose": true,
+"members_broken": [],
+"members_holed": [],
+"moved_m": 0.181,
+"result": "went loose",
+"what": "prop:card_table"
+}
+},
+"table_dynamite_6m": {
+"broken": {
+"by_building": {
+"BarStool0": 9,
+"BarStool1": 9,
+"BarStool2": 9,
+"BarStool3": 9,
+"BarStool4": 9,
+"BarStool5": 9,
+"Barrel0": 20,
+"Barrel1": 20,
+"CardTable0": 20,
+"CardTable1": 20,
+"Chair0": 13,
+"Chair1": 13,
+"Chair2": 13,
+"Chair3": 13,
+"Chair4": 13,
+"Chair5": 13,
+"Chair6": 13,
+"Chair7": 13,
+"Counter": 4,
+"Crate0": 30,
+"Crate1": 30,
+"Crate2": 30,
+"FramedPainting0": 5,
+"FramedPainting1": 5,
+"FramedPainting2": 5,
+"Saloon": 55,
+"Store": 4,
+"UprightPiano0": 13,
+"WaterTrough": 13,
+"WhiskeyBarrel0": 20,
+"WhiskeyBarrel1": 20
+},
+"by_kind": {
+"board/saloon_wall": 1,
+"board/weathered_pine": 51,
+"floor_board/floor": 39,
+"floor_board/oak": 12,
+"furniture_frame/dark_trim": 6,
+"furniture_frame/framing": 5,
+"furniture_frame/iron": 1,
+"furniture_frame/oak": 28,
+"furniture_frame/sign": 6,
+"furniture_frame/weathered_pine": 24,
+"furniture_top/dark_trim": 4,
+"furniture_top/oak": 36,
+"furniture_top/sign": 3,
+"glass/glass": 10,
+"joist/framing": 4,
+"post/dark_trim": 4,
+"post/floor": 3,
+"post/oak": 114,
+"post/sign": 3,
+"post/weathered_pine": 12,
+"sill/dark_trim": 2,
+"sill/framing": 2,
+"sill/oak": 8,
+"sill/weathered_pine": 9,
+"trim/dark_trim": 2,
+"trim/iron": 24,
+"trim/oak": 56,
+"trim/sign": 3
+},
+"count": 472,
+"cut": 31,
+"furthest_m": 16.49,
+"holed_not_broken": 21,
+"nearest": [
+{
+"id": "Saloon:saloon/floor/board/55",
+"kind": "floor_board",
+"m_from_event": 0.02,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/56",
+"kind": "floor_board",
+"m_from_event": 0.08,
+"snapped": false,
+"utilisation_before": 0.04,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/54",
+"kind": "floor_board",
+"m_from_event": 0.08,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/53",
+"kind": "floor_board",
+"m_from_event": 0.23,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/57",
+"kind": "floor_board",
+"m_from_event": 0.23,
+"snapped": false,
+"utilisation_before": 0.19,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/52",
+"kind": "floor_board",
+"m_from_event": 0.38,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/58",
+"kind": "floor_board",
+"m_from_event": 0.38,
+"snapped": false,
+"utilisation_before": 0.15,
+"wood": "floor"
+},
+{
+"id": "BarStool4:bar_stool_4/leg2",
+"kind": "post",
+"m_from_event": 0.44,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool4:bar_stool_4/ring2",
+"kind": "trim",
+"m_from_event": 0.49,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/ring3",
+"kind": "trim",
+"m_from_event": 0.52,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/51",
+"kind": "floor_board",
+"m_from_event": 0.53,
+"snapped": false,
+"utilisation_before": 0.1,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/59",
+"kind": "floor_board",
+"m_from_event": 0.53,
+"snapped": false,
+"utilisation_before": 0.05,
+"wood": "floor"
+},
+{
+"id": "BarStool4:bar_stool_4/leg1",
+"kind": "post",
+"m_from_event": 0.56,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool3:bar_stool_3/leg3",
+"kind": "post",
+"m_from_event": 0.62,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool3:bar_stool_3/ring0",
+"kind": "trim",
+"m_from_event": 0.65,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/ring1",
+"kind": "trim",
+"m_from_event": 0.65,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/leg3",
+"kind": "post",
+"m_from_event": 0.67,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool3:bar_stool_3/ring3",
+"kind": "trim",
+"m_from_event": 0.68,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "Saloon:saloon/floor/board/60",
+"kind": "floor_board",
+"m_from_event": 0.68,
+"snapped": false,
+"utilisation_before": 0.02,
+"wood": "floor"
+},
+{
+"id": "Saloon:saloon/floor/board/50",
+"kind": "floor_board",
+"m_from_event": 0.68,
+"snapped": false,
+"utilisation_before": 0.06,
+"wood": "floor"
+},
+{
+"id": "BarStool3:bar_stool_3/leg0",
+"kind": "post",
+"m_from_event": 0.71,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool4:bar_stool_4/leg0",
+"kind": "post",
+"m_from_event": 0.75,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+},
+{
+"id": "BarStool4:bar_stool_4/ring0",
+"kind": "trim",
+"m_from_event": 0.75,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool3:bar_stool_3/ring1",
+"kind": "trim",
+"m_from_event": 0.79,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "iron"
+},
+{
+"id": "BarStool4:bar_stool_4/seat",
+"kind": "furniture_top",
+"m_from_event": 0.8,
+"snapped": false,
+"utilisation_before": 0.0,
+"wood": "oak"
+}
+]
+},
+"charge": {
+"at": [
+11.84,
+0.8,
+8.44
+],
+"kg": 0.2,
+"to_target_m": 6.03,
+"went_off": true
+},
+"fire": {
+"burning_at_end": 54,
+"caught": [
+{
+"after_s": 3.5,
+"id": "Saloon:saloon/panel/back/22_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/19_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/20_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/21_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/24_7"
+},
+{
+"after_s": 4.0,
+"id": "Saloon:saloon/panel/back/25_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/72"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/73"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/76"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/floor/board/77"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c25_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c28_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c29_0"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/panel/back/23_7"
+},
+{
+"after_s": 4.5,
+"id": "Saloon:saloon/back/siding/c30_0"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/70"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/71"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/74"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/75"
+},
+{
+"after_s": 5.0,
+"id": "Saloon:saloon/floor/board/78"
+}
+],
+"caught_count": 49,
+"caught_kinds": {
+"board": {
+"first_s": 3.5,
+"n": 26
+},
+"floor_board": {
+"first_s": 4.5,
+"n": 11
+},
+"sill": {
+"first_s": 6.5,
+"n": 3
+},
+"stud": {
+"first_s": 7.5,
+"n": 1
+},
+"trim": {
+"first_s": 5.5,
+"n": 8
+}
+},
+"lamps_smashed": 5,
+"log": [
+{
+"burning": 0,
+"s": 0.0,
+"spills": 0
+},
+{
+"burning": 0,
+"s": 0.0,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 0.5,
+"spills": 4
+},
+{
+"burning": 0,
+"s": 1.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 1.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.0,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 2.5,
+"spills": 5
+},
+{
+"burning": 0,
+"s": 3.0,
+"spills": 5
+},
+{
+"burning": 1,
+"s": 3.5,
+"spills": 5
+},
+{
+"burning": 6,
+"s": 4.0,
+"spills": 5
+},
+{
+"burning": 15,
+"s": 4.5,
+"spills": 5
+},
+{
+"burning": 26,
+"s": 5.0,
+"spills": 5
+},
+{
+"burning": 27,
+"s": 5.5,
+"spills": 5
+},
+{
+"burning": 31,
+"s": 6.0,
+"spills": 5
+},
+{
+"burning": 40,
+"s": 6.5,
+"spills": 5
+},
+{
+"burning": 40,
+"s": 7.0,
+"spills": 5
+},
+{
+"burning": 49,
+"s": 7.5,
+"spills": 5
+}
+],
+"spills_at_end": 5
+},
+"frame": {
+"1_to_3s_ms": {
+"max": 51.72,
+"mean": 25.68,
+"n": 120,
+"p99": 47.1
+},
+"added_ms_first_1s": 2428.0,
+"awake_bodies_before": 0,
+"awake_bodies_end": 0,
+"before_ms": {
+"max": 15.83,
+"mean": 3.52,
+"n": 59,
+"p99": 15.83
+},
+"event_frame_ms": 295.43,
+"event_frame_systems": {
+"blast_break": 97.381,
+"blast_fx": 18.206,
+"blast_response": 43.405,
+"cut_chunks": 24.566,
+"dynamite": 188.744,
+"kit_balance": 24.939
+},
+"fire_grid_ms": [
+11.2,
+27.8,
+34.2,
+30.5,
+23.0,
+10.5,
+19.5,
+9.4,
+9.6,
+8.6,
+12.6,
+12.4
+],
+"first_1s_ms": {
+"max": 176.72,
+"mean": 36.58,
+"n": 58,
+"p99": 176.72
+},
+"first_1s_systems": {
+"ballistics": 0.68,
+"batches": 0.29,
+"bu_closure": 0.5,
+"bu_forget": 0.28,
+"bu_seeds": 0.45,
+"day_cycle": 0.25,
+"fire": 6.4,
+"fire_analyse": 1.99,
+"fire_fx": 0.09,
+"fire_grid": 2.29,
+"fire_loads": 3.63,
+"fire_near": 0.07,
+"fire_tick": 2.66,
+"fittings": 0.13,
+"horses": 0.13,
+"kit_balance": 0.06,
+"lamps": 0.18,
+"mop": 0.11,
+"n_people_ticked": 1.0,
+"people_bands": 0.07,
+"people_body": 0.51,
+"people_skeleton": 0.07,
+"player": 0.82,
+"q_balls": 1.98,
+"q_signs": 0.69,
+"structures": 1.05,
+"voxels": 0.21
+},
+"lab_ms_total": 6858.7,
+"next_frame_ms": 222.15,
+"next_frame_systems": {
+"analysis_full_begin": 8.476,
+"ballistics": 27.12,
+"batches": 3.73,
+"fire": 11.175,
+"fire_loads": 11.147,
+"q_balls": 120.0
+},
+"note": "wall clock per frame, headless, this workspace's core (x0.65 for Sean's), the lab's own measuring taken out, and FireSystem's grid rebuilds with nothing hot (fire_grid_ms)"
+},
+"men": [
+{
+"alive": true,
+"body": "outlaw",
+"conscious": true,
+"distance_to_event_m": 2.22,
+"harm": [
+"right eardrum burst",
+"left eardrum burst",
+"thrown off his feet"
+],
+"has_model": true,
+"knocked_down": true,
+"limp": true,
+"parts": 17,
+"peak_part": "head",
+"peak_part_mps": 3.77,
+"pelvis_end": [
+9.87,
+0.92,
+5.53
+],
+"role": "bystander",
+"settle_s": 3.05,
+"severed": [],
+"start": [
+10.6,
+0.78,
+6.6
+],
+"sunk_max_m": 0.017,
+"sunk_ticks": 0,
+"triangles": 20420,
+"whole": false
+}
+],
+"surface": {},
+"target_result": {
+"blast": {
+"bedded": true,
+"capacity_J": 188.23,
+"distance_m": 5.54,
+"impulse_Ns": 0.55,
+"kick_J": 0.1,
+"member": "foot0",
+"ratio": 0.0
+},
+"kind": "kit prop card_table (20 members)",
+"loose": true,
+"members_broken": [],
+"members_holed": [],
+"moved_m": 0.206,
+"result": "went loose",
+"what": "prop:card_table"
+}
+}
+}
