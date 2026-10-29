@@ -590,6 +590,13 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The catch-up cap and a quit that can't hang** (#435, branch `claude/gameplay-catchup-cap`, PR
+  waiting on the Fable review): `max_physics_steps_per_frame=2`; every way out through `GameQuit`
+  (our pool tasks waited for, then the plugin's `QuitWatchdog` ends the process with the quit's code
+  if it's still shutting down 5 s after the tree went: Godot's pool hang, #392, still happens under
+  load, the engine's own tasks); every pool task high priority (`test_game_quit` reads the source);
+  F3/F12's process and physics the frame's own (`PerfRing.Clock`), `.saltbug.zip`, `perf_bench
+  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #459 and #495 (#492).
 - **The burning building in its batch** (#434, PR #457, waiting on the Fable review): char and glow
   drawn by the structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the
   40 flames shown; `FrameBudget` counts nested timers once. Sean's F3 and the fire's lights: #458.
