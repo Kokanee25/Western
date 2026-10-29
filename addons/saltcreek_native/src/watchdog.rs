@@ -21,7 +21,33 @@ use std::time::{Duration, Instant};
 
 extern "C" {
     fn fflush(stream: *mut std::ffi::c_void) -> i32;
+    #[cfg(not(windows))]
     fn _exit(code: i32) -> !;
+}
+
+// Windows: ending the process outright. Its CRT's `_exit` still goes through ExitProcess, which
+// runs every DLL's detach (the graphics driver's too) and can stall in turn.
+#[cfg(windows)]
+extern "system" {
+    fn GetCurrentProcess() -> *mut std::ffi::c_void;
+    fn TerminateProcess(process: *mut std::ffi::c_void, code: u32) -> i32;
+}
+
+/// Flush C's stdout (Godot prints through it) and end the process with `code`, now.
+fn end_now(code: i32) -> ! {
+    // SAFETY: plain C and system calls; nothing of Godot's is touched from this thread.
+    unsafe {
+        fflush(std::ptr::null_mut());
+        #[cfg(windows)]
+        {
+            TerminateProcess(GetCurrentProcess(), code as u32);
+            loop {
+                std::thread::park();
+            }
+        }
+        #[cfg(not(windows))]
+        _exit(code)
+    }
 }
 
 const BACKSTOP_S: f64 = 60.0;
@@ -69,11 +95,7 @@ impl QuitWatchdog {
                             None => format!("{:.0} s after the quit, the scene tree still up", BACKSTOP_S),
                         };
                         eprintln!("[quit] still shutting down {}: ending the process (exit {}), issue #435", what, code);
-                        // SAFETY: plain C calls; nothing of Godot's is touched from this thread.
-                        unsafe {
-                            fflush(std::ptr::null_mut());
-                            _exit(code);
-                        }
+                        end_now(code);
                     }
                     state = WAKE.wait_timeout(state, until - now).unwrap().0;
                 }
