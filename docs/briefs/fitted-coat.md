@@ -1,7 +1,7 @@
 # Brief: a fitted coat (route 3), tried on the bold cowboy
 
 Sean, 2026-10-29: "Yeah let's try with the bold cowboy." Issue #499. Lane: characters. Branch
-`claude/characters-coat`. **Status: waiting on Sean's look at this brief; nothing is built yet.**
+`claude/characters-coat`. **Status: Sean answered #500 (2026-10-29): knee length, the paid paint, the numbers estimated. Next: step 2 (#501).**
 
 ## Goal
 
@@ -11,7 +11,7 @@ not cut from a Rodin twin. This is the "proper garments" Sean asked for on 2026-
 - **One template, built once by script:** a period sack coat with:
   - a turned collar and lapels with real depth;
   - separate set-in sleeves;
-  - skirts to mid-thigh (but see question 1: his pictures' coat is longer);
+  - skirts to the knee (Sean, #500: his pictures' length; `hem` a shared option, mid-thigh the other);
   - an open front, so his waistcoat, tie and belt show.
 - **One fit for every man:** a script sizes the template by his own joints and lays it just
   outside his body. Each sleeve is skinned to its arm, and the skirts are bent to his thighs below
@@ -48,12 +48,14 @@ the hidden skin under the coat), not copied wholesale. It wasn't approved (Studi
   - Gordon, *The American Coat, Vest and Trousers System*
     ([archive.org](https://archive.org/details/americancoatvest00gord)).
 
-  **The hosts are blocked here:** `archive.org` and `cuttersguide.com` fail through the
-  session's network policy, so no numbers have been read yet (question 3). Until they are, each
-  template number in `sack_coat.json` carries its source, or is marked `"source": "to read"`. It
-  is never filled in from memory. These numbers include the length off the nape, the collar's
-  stand and fall, the lapels' width and notch, the sleeve's cap height and width at the cuff, the
-  vent, and the button stance.
+  **The hosts are blocked here** (`archive.org`, `cuttersguide.com`), and Sean can't allow them
+  from his phone: "just guess from now" (#500). So each template number in `sack_coat.json` is
+  marked `"source": "estimate"`, and taken where it can be from his coated pictures (measured on
+  the front and side: the hem, the lapels' width, the button stance) or from the Studio's
+  `config/coat.yaml` (the collar's stand under DONT_REPEAT 2's 3.5 cm). If the manual turns up (a
+  PDF Sean uploads to a session), its numbers replace the estimates, with their pages. These
+  numbers include the length off the nape, the collar's stand and fall, the lapels' width and
+  notch, the sleeve's cap height and width at the cuff, the vent, and the button stance.
 - **His look:** the bold cowboy's coated pictures, `docs/concept/style/factory/bold_cowboy_dressed/`
   (front, left, right, back), the ones his layered coat was painted from. They show a rough brown
   wool with a darker mottle, broad notched lapels, the coat open over his waistcoat, flap pockets,
@@ -124,7 +126,8 @@ already use), in its rest pose.
 
 ## The paint (`tools/faces/coat_paint.py`)
 
-- **Route A (free; the first try):** his coated pictures laid onto the coat piece by piece.
+- **Route B (paid; the first try, Sean's OK on #500)** is below; route A is the free fallback.
+- **Route A (free):** his coated pictures laid onto the coat piece by piece.
   - Each piece is rendered from each view and its outline lined up with that piece's region in
     the picture (a per-piece line-up, the fix `LAYERED.md` §5 named for the sleeves).
   - A view is used for a piece only if the outlines overlap by ≥ 0.90 (DONT_REPEAT 3).
@@ -137,10 +140,13 @@ already use), in its rest pose.
     that piece's own painted texels (their colour spread and mottle scale), not a flat fill (fault
     4) and not a tiled swatch.
   - The lining (inside, seen at the open front and the vent) is a darker plain cloth.
-- **Fallback:** procedural wool, the apron's `leather()` way, in the colour measured from his
-  pictures, if route A fails its checks twice. Report that, then move on.
-- **Route B (paid, only with Sean's OK):** GPT-5.4 paints the coat flat in the template's pattern
-  layout from his pictures (Studio `task: pictures`; the Studio's own estimate was ~$0.25 a man).
+- **Route B (paid, first; Sean said yes on #500):** GPT-5.4 paints the coat flat in the
+  template's pattern layout from his coated pictures (the Studio's paid workflow, `task: pictures`;
+  the Studio's estimate ~$0.25 a man; give the cost before the run). Held to the same checks: no
+  light in the paint (fault 6), no squares (fault 7), mipmaps (fault 9), and its seams meeting where
+  the pattern's pieces meet.
+- **Fallback:** route A, then procedural wool (the apron's `leather()` way, in the colour measured
+  from his pictures), each after two failed tries. Report that, then move on.
 
 ## Into the game
 
@@ -199,20 +205,15 @@ already use), in its rest pose.
    Sean, before it's fitted to anyone. He has turned down two collars, so he sees this one first.
 3. **The fit:** `coat.py` on the bold cowboy, procedural paint, the works check and the fault
    numbers.
-4. **The paint:** route A, then the sheets for Sean.
+4. **The paint:** route B (paid), then the sheets for Sean.
 5. **Merge** when Sean keeps it; the cast swap after his word.
 
-## Questions for Sean (in the issue)
+## Sean's answers (#500, 2026-10-29)
 
-1. **Length.** The issue says a sack coat to mid-thigh. His pictures' coat, and his layered
-   coat, reach the knee. Which? I suggest the template's length be a shared option (`hem`: mid
-   thigh or knee), and that he gets his pictures' length (knee), so his paint fits it.
-2. **Paint.** Route A (free, from his pictures) first, with route B (~$0.25, paid) only if A
-   fails?
-3. **The manuals.** Allow `archive.org` and `cuttersguide.com` in the environment's network
-   settings, so the template's numbers come from the 1886 manual and not from guesses?
-   (Settings: the environment menu in the session's title bar → Edit → Network access → Allowed
-   domains.)
+1. **Length:** knee.
+2. **Paint:** the paid GPT-5.4 painting (route B) first.
+3. **The manuals:** he can't allow the hosts from his phone: "just guess from now". The numbers
+   are estimates, from his pictures where they can be (above, References).
 
 ## Not in this brief
 

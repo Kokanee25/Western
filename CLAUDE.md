@@ -480,8 +480,8 @@ frozen until Sean names one.
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
 - **The fitted coat** (2026-10-29, #499, branch `claude/characters-coat`, brief
   `docs/briefs/fitted-coat.md`): a sack-coat template fitted the apron's way and painted from his
-  pictures, on a copy of the bold cowboy; only the brief so far. Waiting on Sean: #500 (length,
-  paint, the manual's blocked hosts). Next: #501.
+  pictures, on a copy of the bold cowboy; only the brief so far. Sean (#500): knee length, the paid
+  painting first, the numbers estimated. Next: #501.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
