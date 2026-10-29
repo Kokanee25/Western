@@ -1,7 +1,7 @@
 # Brief: a fitted coat (route 3), tried on the bold cowboy
 
 Sean, 2026-10-29: "Yeah let's try with the bold cowboy." Issue #499. Lane: characters. Branch
-`claude/characters-coat`. **Status: Sean answered #500 (2026-10-29): knee length, the paid paint first; the cut's numbers from Mitchell 1886, which he uploaded. Next: step 2 (#501).**
+`claude/characters-coat`. **Status: step 2 done (2026-10-29, #501): the baseline works checks (the table), `sack_coat.json`, `tools/blender/coat_template.py` -> `assets/people/garments/sack_coat.glb`, the sheet `docs/style_test/coat/template_sheet.jpg`. Waiting on Sean's look at the cut and the collar before the fit (step 3).**
 
 ## Goal
 
@@ -211,8 +211,16 @@ already use), in its rest pose.
 
 | Works check (sheet cm² / sheets) | stand | walk | run | hands up | aim | sit | crouch | ragdoll |
 |---|---|---|---|---|---|---|---|---|
-| `bold_cowboy_layered` (yardstick) | to measure | | | | | | | |
-| `bold_cowboy_s3_talking` (no coat) | to measure | | | | | | | |
+| `bold_cowboy_layered` (yardstick) | 1,222 / 114 | 1,827 / 171 | 584 / 83 | 27,250 / 646 | 10,228 / 320 | 18,740 / 776 | 16,253 / 706 | 10,733 / 691 |
+| `bold_cowboy_s3_talking` (no coat) | 0 / 0 | 0 / 0 | 0 / 0 | 917 / 233 | 2 / 1 | 0 / 0 | 0 / 0 | 4 / 2 |
+
+Measured 2026-10-29 on main at 1f35f93d (lavapipe's Vulkan wasn't there, so Godot drew with OpenGL;
+the stretch is computed, not drawn). The yardstick fails every pose, standing included: its coat's
+sleeves and skirt stretch (`coat/forearm_*`, `coat/pelvis` at rest), so "no worse than the
+layered coat" is a low bar; the new coat is held to the coatless man's numbers instead, with his
+`hands_up` (the shoulder fault every Studio man has, PLAYBOOK §6) the one allowance. Neither man
+has his own hat, so the hat check has nothing to knock off. A .45 through the arm and chest shows
+on both.
 | `bold_cowboy_s3_coat` (new) | | | | | | | | |
 
 ## How it's judged
@@ -223,6 +231,39 @@ already use), in its rest pose.
    entry.
 3. **Sean judges from the sheets:** keep it, or say what's off. A coat that passes every number
    but that Sean doesn't like isn't done.
+
+## Step 2: the template (2026-10-29, #501)
+
+`tools/blender/coat_template.py` (its docstring says how) builds `sack_coat.glb` from
+`sack_coat.json`; `tools/blender/coat_sheet.py` makes the sheet `docs/style_test/coat/template_sheet.jpg`;
+the pattern as laid out is `docs/style_test/coat/sack_coat_pattern.png`. 14 pieces, 6,312 triangles.
+
+- **The stand** is MakeHuman's young average man on the game's skeleton (1.795 m). His breast over
+  the vest is 43.2 in, so the plates' widths are drawn x 1.20; the lengths are his own (depth of
+  scye 7.8, natural waist 17.1, to the hem 34.1 in). The hem is his pictures' (0.38 of his thigh
+  above the knee: 0.643 m); the manual's oversack length (38 in on a 38 breast, scaled by his
+  breast) would end at 0.413 m, 7 cm under his knee joint (`--hem=oversack`).
+- **Found on him, not set by hand:** the neck point where his neck's side meets his shoulder (the
+  skeleton's neck joint lies under his shoulders' top); the shoulder point where his shoulder's top
+  turns down into the arm; the armhole an oval from there to the manual's inch under his armpit
+  (the skin's arm/trunk edge sat 4 cm inside the shoulder point).
+- **The front:** worn open at his pictures' gap (break 9.8 cm, belt 10.7, hem 11.7 each side of
+  his middle); the roll line upright on his chest from the break, the gorge level with the notch,
+  the lapel 8.4 cm wide there; the collar a stand of 1 1/8 in round the back, its fall 4.1 cm,
+  lying flat over the roll in front down to the notch.
+- **The sleeve:** its top scaled to his armhole by the manual's rule (x 1.43; his armhole is 24.7
+  in), its cuff the plate's own ('6 1/4 inches, more or less'): 40 cm round at the elbow.
+- **The ease:** the sack's drafted ease spread evenly round as if buttoned: 3.0 cm off the form at
+  the breast, 2.6 at the waist, 5.1 at the hem; over the yoke none (the shoulder line 12.0 mm off
+  his skin, DONT_REPEAT 2's limit). The collar stands 2.9 cm (limit 3.5) and is 1.14 of his neck's
+  round (limit 1.25).
+- **Known faults, reported not fixed** (each tried more than twice):
+  1. The forepart's yoke is drafted wider than the room the open front leaves it (laid over drafted
+     area 0.80; the sack buttons at the centre, his coat hangs open), so it wrinkles at the front of
+     the shoulder under the collar's end, and close to, the stand shows through there.
+  2. A beaded shading line down the vent's left edge.
+  3. The top sleeve is laid at 0.72 of its pattern's area (the cap's width), so its paint will be
+     squeezed across the top of the arm.
 
 ## Steps (each a session; the session stops at its end, CLAUDE.md "Working lean")
 

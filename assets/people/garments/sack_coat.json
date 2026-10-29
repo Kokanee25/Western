@@ -1,0 +1,432 @@
+{
+ "_readme": "The sack coat's numbers (docs/briefs/fitted-coat.md). tools/blender/coat_template.py reads them and writes sack_coat.glb beside this file, then adds `template` (what it built: the stand's measures, landmarks, pieces, the ease) at the end of this file. Drafts are for a 36-inch breast (the oversack's for 38); inches unless a key ends _m. Every number has its source: a page of Jno. J. Mitchell, The Standard Work on Cutting Men's Garments, 5th ed., 1886 (the book's printed page numbers; plates and text in docs/style_test/coat/mitchell_1886/), a plate measured in pixels where the scan's small fractions can't be read (the scale is checked against the rules that can), or his pictures (docs/concept/style/factory/bold_cowboy_dressed/, measured at 1.534 mm a pixel in the front and 1.487 in the back, his model bold_cowboy_s3 being 1.787 m tall). Nothing is from memory.",
+ "measures": {
+  "_note": "The sack's measures as used in drafting (taken over the vest, with the manual's additions). The template takes the vertical ones from the stand's own landmarks and scales the widths by its breast over 36: the manual's proportional system.",
+  "breast": {"value": 36, "source": "Mitchell 1886 p. 24"},
+  "depth_of_scye": {"value": 9.5, "source": "Mitchell 1886 p. 24 (8 1/2 measured + 1)"},
+  "natural_waist": {"value": 16.5, "source": "Mitchell 1886 p. 24"},
+  "full_length_sack": {"value": 29, "source": "Mitchell 1886 p. 24"},
+  "full_length_oversack_38": {"value": 38, "source": "Mitchell 1886 p. 32 (over the coat, 38 breast)"},
+  "front_of_scye": {"value": 12.5, "source": "Mitchell 1886 p. 24 (11 + 1 1/2)"},
+  "first_over": {"value": 12.75, "source": "Mitchell 1886 p. 24 (11 3/4 + 1)"},
+  "second_over": {"value": 17.75, "source": "Mitchell 1886 p. 24 (17 + 3/4)"},
+  "top_of_back_below_collar_top": {"value": 1, "source": "Mitchell 1886 p. 8"}
+ },
+ "plate8_rules": {
+  "neck_point_above_top_of_back": {"value": 0.625, "source": "Mitchell 1886 p. 24 ('D to 2 is 5/8 inch')"},
+  "break_line_ahead_of_neck_point": {"value": 0.25, "source": "Mitchell 1886 p. 44 (diagram A: 'point A is 1/4 inch in advance of shoulder')"},
+  "cap_height": {"value": 4, "source": "Mitchell 1886 p. 40 ('A to D is 4 inches always': the sleeve's cap)"}
+ },
+ "plate8": {
+  "_note": "The straight-front sack (plate 8, p. 25) traced from the plate: inches from O (the top of the back at its centre), x towards the front, y down. Scale 21.47 px to the inch, checked against the rules on p. 24: O-C 9.5 (plate 9.50), O-K 16.5 (16.3), C-W 7 1/4 (7.03), C-F 12.5 (12.16), C-S 18 5/8 (18.4), C-T 20 7/8 (20.8), C-A 21 7/8 (21.8), E 11.29 (11.04), H (16.40, -2.64) by the rules (16.1, -2.56). Where the scan's fractions don't match the plate the plate is taken: O to D reads 1/8 breast (4 1/2 in) but the plate's is 2.7 in (1/12 breast: 3); H to I reads 1/3 breast but the plate's is 5.8 (1/6: 6); K to L reads 1/3 breast but the plate's is 6.0 (1/6). The breast line is y = 9.5, the waist 16.5, the sack's hem 28.6 at the back.",
+  "source": "Mitchell 1886 plate 8 (p. 25), traced",
+  "back": {
+   "neck": [
+    [0.0, 0.0],
+    [1.21, -0.09],
+    [2.14, -0.33],
+    [2.75, -0.65]
+   ],
+   "shoulder": [
+    [2.75, -0.65],
+    [4.0, 0.42],
+    [5.4, 1.58],
+    [6.8, 2.77],
+    [7.64, 3.49]
+   ],
+   "armhole": [
+    [7.64, 3.49],
+    [7.36, 4.33],
+    [7.17, 5.26],
+    [7.13, 6.43],
+    [7.22, 7.13],
+    [7.27, 7.45]
+   ],
+   "side": [
+    [7.27, 7.45],
+    [7.13, 9.5],
+    [6.19, 11.1],
+    [5.96, 16.5],
+    [6.1, 20.4],
+    [6.24, 29.4]
+   ],
+   "hem": [
+    [6.24, 29.4],
+    [4.0, 29.0],
+    [2.0, 28.7],
+    [0.0, 28.55]
+   ],
+   "centre": [
+    [0.0, 28.55],
+    [0.0, 22.0],
+    [0.5, 16.5],
+    [0.25, 12.0],
+    [0.0, 9.5],
+    [0.0, 0.0]
+   ]
+  },
+  "fore": {
+   "shoulder": [
+    [15.09, 0.0],
+    [13.32, 0.51],
+    [11.46, 1.3],
+    [10.06, 2.0],
+    [9.46, 2.7]
+   ],
+   "armhole": [
+    [9.46, 2.7],
+    [10.06, 3.4],
+    [10.99, 4.33],
+    [11.92, 5.5],
+    [12.3, 6.43],
+    [12.34, 7.36],
+    [12.16, 8.29],
+    [11.69, 8.99],
+    [11.18, 9.5],
+    [10.53, 9.64],
+    [9.59, 9.59],
+    [8.66, 9.32],
+    [8.1, 8.38],
+    [7.73, 7.59],
+    [7.64, 7.27]
+   ],
+   "side": [
+    [7.64, 7.27],
+    [6.89, 11.08],
+    [7.17, 16.3],
+    [6.1, 20.4],
+    [4.75, 28.4]
+   ],
+   "hem": [
+    [4.75, 28.4],
+    [8.0, 28.53],
+    [12.5, 28.72],
+    [17.0, 28.95],
+    [20.4, 29.0]
+   ],
+   "front": [
+    [20.4, 29.0],
+    [21.3, 28.6],
+    [21.8, 27.9],
+    [22.0, 26.0],
+    [21.95, 16.5],
+    [21.875, 9.5]
+   ],
+   "neck": [
+    [15.09, 0.0],
+    [15.42, 0.84],
+    [16.12, 1.49],
+    [17.05, 1.82],
+    [17.98, 1.91],
+    [19.1, 1.86]
+   ]
+  }
+ },
+ "plate16": {
+  "_note": "The two-piece sleeve (plate 16, p. 41), traced: s inches from A along the line A-O (A at the cap, O at the cuff), h inches up from it. Scale 25 px to the inch from D-H (6 in, 'always', 150 px) and A-D (4 in, 98 px); C-E is then 9.0 (half scye + 1/2, p. 40) and R-S 6.2 (6 1/4). The top sleeve's cuff R-S 6 1/4 and the under sleeve 1 inch in from it each side (p. 40); the hind seam swells 3/4 at the elbow (p. 40).",
+  "source": "Mitchell 1886 plate 16 (p. 41), traced",
+  "top": {
+   "cap": [
+    [1.72, 0.0],
+    [0.92, 0.6],
+    [0.52, 1.8],
+    [0.72, 3.4],
+    [1.52, 5.4],
+    [2.92, 7.2],
+    [5.0, 8.4]
+   ],
+   "hind": [
+    [5.0, 8.4],
+    [8.92, 7.88],
+    [12.92, 7.72],
+    [16.92, 8.08],
+    [20.92, 8.6],
+    [24.04, 8.92]
+   ],
+   "cuff": [
+    [24.04, 8.92],
+    [24.72, 2.0]
+   ],
+   "fore": [
+    [24.72, 2.0],
+    [20.92, 0.0],
+    [16.92, -1.2],
+    [12.92, -1.48],
+    [8.92, -1.2],
+    [4.92, -0.6],
+    [1.72, 0.0]
+   ]
+  },
+  "under": {
+   "cap": [
+    [2.04, 1.0],
+    [3.32, 2.0],
+    [4.52, 3.4],
+    [5.4, 5.48],
+    [5.72, 5.8],
+    [5.2, 7.0]
+   ],
+   "hind": [
+    [5.2, 7.0],
+    [8.92, 6.2],
+    [12.92, 6.0],
+    [16.92, 6.28],
+    [20.92, 6.68],
+    [23.92, 7.2]
+   ],
+   "cuff": [
+    [23.92, 7.2],
+    [24.6, 3.0]
+   ],
+   "fore": [
+    [24.6, 3.0],
+    [20.92, 1.0],
+    [16.92, -0.2],
+    [12.92, -0.48],
+    [8.92, -0.2],
+    [4.92, 0.4],
+    [2.04, 1.0]
+   ]
+  },
+  "forearm_notch_above_breast_line": {"value": 0.75, "source": "Mitchell 1886 p. 40"}
+ },
+ "oversack": {
+  "back_spring_at_hem": {"value": 1, "source": "Mitchell 1886 p. 32 ('spring out at U 1 inch')"},
+  "_note": "A coat cut to the oversack's length but worn over the waistcoat takes the sack's body (plate 8) and the oversack's length and back spring: the sack's skirt below the waist is drawn out to the hem, its seams keeping their line."
+ },
+ "collar": {
+  "stand": {"value": 1.125, "source": "Mitchell 1886 p. 44 (diagram A, 'the stand at E is 1 1/8 inch'), inside DONT_REPEAT 2's 3.5 cm"},
+  "fall_m": {"value": 0.041, "source": "his pictures (the back, at the centre: 27.5 px)"},
+  "break_line_ahead_of_shoulder": {"value": 0.25, "source": "Mitchell 1886 p. 44 (point A)"},
+  "crease_behind_shoulder": {"value": 0.25, "source": "Mitchell 1886 p. 44 (point C)"},
+  "not_this_cut": "Mitchell 1886 p. 44 diagram F: collars that 'stand up about the ears, close to the throat' (the rancher's fault)"
+ },
+ "lapel": {
+  "width_at_notch_m": {"value": 0.084, "source": "his pictures (the front, across the lapel at the notch, square to the roll: 55 px)"},
+  "notch_gap_m": {"value": 0.015, "source": "his pictures (the front: the V between the collar's end and the lapel's top, 10 px)"},
+  "notch_height_of_his_height": {"value": 0.8, "source": "his pictures (the front: the notch 1.429 m on 1.787 m)"},
+  "break_between_breast_and_waist": {"value": 0.33, "source": "his pictures (the front: the lapels end 1.203 m up, 0.30 m under his nape: a third of the way from the breast line to the natural waist)"},
+  "frock_lapel_for_comparison": {"value": [2, 2.5, 2], "source": "Mitchell 1886 p. 54 (top / breast / bottom; the sack's is 'desired width', p. 60)"}
+ },
+ "front": {
+  "_note": "Worn open: each front edge hangs this far out from his middle (half the gap between them).",
+  "half_gap_at_break_m": {"value": 0.098, "source": "his pictures (the front, at the break)"},
+  "half_gap_at_belt_m": {"value": 0.107, "source": "his pictures (the front, at his belt)"},
+  "half_gap_at_hem_m": {"value": 0.117, "source": "his pictures (the front, at the hem: 152 px between the edges)"}
+ },
+ "back": {
+  "half_belt_length_m": {"value": 0.335, "source": "his pictures (the back: 225 px)"},
+  "half_belt_height_m": {"value": 0.05, "source": "his pictures (the back: 33 px)"},
+  "half_belt_centre_of_his_height": {"value": 0.628, "source": "his pictures (the back: 1.123 m on 1.787 m)"},
+  "half_belt_buttons_apart_m": {"value": 0.2, "source": "his pictures (the back: 137 px)"},
+  "vent": "from the half-belt's lower edge to the hem (his pictures, the back)"
+ },
+ "sleeve": {
+  "shirt_cuff_showing_m": {"value": 0.025, "source": "his pictures (the back: the shirt's cuff below the coat's, 17 px)"},
+  "cuff_band_m": {"value": 0.055, "source": "his pictures (the back: the turned cuff, 37 px)"}
+ },
+ "pocket": {
+  "below_breast_line": {"value": 12.5, "source": "Mitchell 1886 p. 32 ('point 4 is 12 1/2 inches, more or less, below F')"},
+  "width": {"value": 6.5, "source": "Mitchell 1886 p. 24 ('usually 6 1/2 inches')"},
+  "_note": "Painted, not modelled: its place is a landmark for the paint."
+ },
+ "hem": {
+  "default": "knee",
+  "knee": {"above_knee_share_of_thigh": 0.38, "source": "his pictures (the hem 0.64 m up on bold_cowboy_s3, whose knee is 0.48 and hip 0.90: 0.38 of his thigh above the knee). Sean, #500: to the knee."},
+  "mid_thigh": {"above_knee_share_of_thigh": 0.5, "source": "the brief (#500: the other length, half way down his thigh)"},
+  "oversack": {"inches_from_top_of_back": 38, "source": "Mitchell 1886 p. 32 (38 in on a 38 breast, scaled by his breast over 38)"}
+ },
+ "cloth": {
+  "thickness_m": {"value": 0.004, "source": "the brief (about 4 mm of wool, closed at every edge)"},
+  "vest_allowance_m": {"value": 0.006, "source": "DONT_REPEAT 2 (a waistcoat stands 6-12 mm off the skin: the least of it, as the manual's measures are taken over the vest)"},
+  "clearance_m": {"value": 0.005, "source": "DONT_REPEAT 2 (vest and coat together at most 12 mm off the skin over the shoulder line)"},
+  "triangles": {"value": 6000, "source": "the brief (about 6,000 for the whole coat; the apron is 2,510)"}
+ },
+ "folds": {"_note": "Modelled where wool really breaks (the brief), small so they bend with him; the rest is paint. Their depths are the template's own design, not the manual's.", "elbow_m": 0.004, "back_waist_m": 0.003, "sleeve_head_m": 0.005},
+ "template": {
+  "_note": "Written by tools/blender/coat_template.py. Body space: metres, facing -Z, his right +X. The pieces' `laid_over_drafted` is each piece's area on the stand over its drafted area (under 1: the drafted cloth is fuller than where it lies; the open fronts carry the cloth that would have crossed to the buttons).",
+  "hem": "knee",
+  "stand": {
+   "source": "MakeHuman base (CC0): caucasian-male-young 1, averagemuscle min/max weight 0.5 each, on the game's skeleton (make_people.py warp + fit)",
+   "height_m": 1.795,
+   "breast_over_vest_in": 43.17,
+   "waist_girth_in": 32.2,
+   "depth_of_scye_in": 7.83,
+   "natural_waist_in": 17.11,
+   "full_length_in": 34.13,
+   "width_scale": 1.1991
+  },
+  "landmarks": {
+   "neck_point": [0.0798, 1.5254, 0.0099],
+   "nape": [-0.0, 1.5096, 0.0806],
+   "shoulder_point": [0.2213, 1.5005, -0.0067],
+   "armhole_top": [0.2213, 1.5005, -0.0067],
+   "armhole_bottom": [0.2212, 1.3097, 0.0253],
+   "forearm_notch": [0.2224, 1.3278, -0.0458],
+   "side_top": [0.2017, 1.3517, 0.0812],
+   "break": [0.0984, 1.2328, -0.1737],
+   "roll_top": [0.0743, 1.5254, 0.0046],
+   "chest_line_y": 1.3106,
+   "waist_line_y": 1.075,
+   "hip_line_y": 0.9,
+   "hem_y": 0.6427,
+   "vent_top_y": 1.1021,
+   "back_pitch": [0.2144, 1.4532, 0.074],
+   "elbow": [0.2885, 1.1302, 0.0],
+   "cuff": [0.2804, 0.8919, -0.009],
+   "lapel_point": [0.1659, 1.4494, -0.0789],
+   "gorge": [0.0843, 1.437, -0.0953],
+   "notch_y": 1.436
+  },
+  "landmarks_joints": {
+   "neck": [0.0, 1.47, 0.005],
+   "r-shoulder": [0.2, 1.43, 0.0],
+   "r-elbow": [0.225, 1.125, 0.0],
+   "r-hand": [0.235, 0.865, -0.01],
+   "hips": [0.0, 0.9, 0.0],
+   "r-knee": [0.1, 0.485, 0.0]
+  },
+  "pocket_y": 1.0487,
+  "ease": [
+   {"line": "breast", "y": 1.311, "drafted_half_in": 26.04, "stand_off_m": 0.0304},
+   {"line": "waist", "y": 1.075, "drafted_half_in": 24.93, "stand_off_m": 0.0256},
+   {"line": "hip", "y": 0.9, "drafted_half_in": 27.03, "stand_off_m": 0.0384},
+   {"line": "hem", "y": 0.648, "drafted_half_in": 28.59, "stand_off_m": 0.0511}
+  ],
+  "sleeve": {
+   "crown_to_cuff_m": 0.61,
+   "along_scale": 1.243,
+   "armhole_in": 24.72,
+   "cap_width_scale": 1.426,
+   "tube_round_at_elbow_m": 0.4,
+   "top_share": 0.589
+  },
+  "collar": {"stand_m": 0.0286, "fall_m": 0.0412, "crease_over_neck_round": 1.138, "neck_girth_m": 0.458},
+  "pieces": {
+   "back_r": {
+    "triangles": 593,
+    "vertices": 351,
+    "area_m2": 0.1868,
+    "pattern_area_m2": 0.171,
+    "laid_over_drafted": 1.092
+   },
+   "fore_r": {
+    "triangles": 1270,
+    "vertices": 704,
+    "area_m2": 0.2837,
+    "pattern_area_m2": 0.357,
+    "laid_over_drafted": 0.795
+   },
+   "sleeve_top_r": {
+    "triangles": 622,
+    "vertices": 359,
+    "area_m2": 0.132,
+    "pattern_area_m2": 0.1837,
+    "laid_over_drafted": 0.719
+   },
+   "sleeve_under_r": {
+    "triangles": 358,
+    "vertices": 218,
+    "area_m2": 0.0999,
+    "pattern_area_m2": 0.1087,
+    "laid_over_drafted": 0.919
+   },
+   "lapel_r": {
+    "triangles": 64,
+    "vertices": 46,
+    "area_m2": 0.0098,
+    "pattern_area_m2": 0.0098,
+    "laid_over_drafted": 1.0
+   },
+   "fold_r": {
+    "triangles": 16,
+    "vertices": 18,
+    "area_m2": 0.0009,
+    "pattern_area_m2": 0.0,
+    "laid_over_drafted": null
+   },
+   "collar": {
+    "triangles": 348,
+    "vertices": 211,
+    "area_m2": 0.0403,
+    "pattern_area_m2": 0.0412,
+    "laid_over_drafted": 0.977
+   },
+   "belt": {
+    "triangles": 118,
+    "vertices": 85,
+    "area_m2": 0.0183,
+    "pattern_area_m2": 0.0178,
+    "laid_over_drafted": 1.025
+   },
+   "back_l": {
+    "triangles": 593,
+    "vertices": 351,
+    "area_m2": 0.1869,
+    "pattern_area_m2": 0.171,
+    "laid_over_drafted": 1.093
+   },
+   "fore_l": {
+    "triangles": 1270,
+    "vertices": 704,
+    "area_m2": 0.2837,
+    "pattern_area_m2": 0.357,
+    "laid_over_drafted": 0.795
+   },
+   "sleeve_top_l": {
+    "triangles": 622,
+    "vertices": 359,
+    "area_m2": 0.132,
+    "pattern_area_m2": 0.1837,
+    "laid_over_drafted": 0.719
+   },
+   "sleeve_under_l": {
+    "triangles": 358,
+    "vertices": 218,
+    "area_m2": 0.0999,
+    "pattern_area_m2": 0.1087,
+    "laid_over_drafted": 0.919
+   },
+   "lapel_l": {
+    "triangles": 64,
+    "vertices": 46,
+    "area_m2": 0.0098,
+    "pattern_area_m2": 0.0098,
+    "laid_over_drafted": 1.0
+   },
+   "fold_l": {
+    "triangles": 16,
+    "vertices": 18,
+    "area_m2": 0.0009,
+    "pattern_area_m2": 0.0,
+    "laid_over_drafted": null
+   }
+  },
+  "triangles": 6312,
+  "atlas": {
+   "side_in": 72.25,
+   "islands": {
+    "back_r": [0.3, 0.836],
+    "back_l": [19.2223, 0.836],
+    "fore_r": [14.1265, 0.3],
+    "fore_l": [67.4863, 0.3],
+    "sleeve_top_r": [-0.3478, 38.2444],
+    "sleeve_top_l": [61.6904, 38.2444],
+    "sleeve_under_r": [-2.2351, 51.3001],
+    "sleeve_under_l": [59.5049, 51.3001],
+    "collar": [0.3, 63.0025],
+    "lapel_r": [26.0338, 61.8775],
+    "lapel_l": [44.948, 61.8775],
+    "belt": [52.172, 62.8662]
+   }
+  },
+  "faults": {
+   "shoulder_line_max_off_skin_mm": 12.0,
+   "shoulder_line_limit_mm": 12,
+   "collar_stand_m": 0.0286,
+   "collar_stand_limit_m": 0.035,
+   "collar_over_neck_girth": 1.138,
+   "collar_over_neck_limit": 1.25
+  }
+ }
+}
