@@ -309,4 +309,5 @@ func _finish() -> void:
 	f = FileAccess.open(_out.path_join("soak.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify({"ok": ok, "problems": _problems, "windows": _windows, "happened": _happened}, "  "))
 	print(md)
-	GameQuit.quit(self, 0 if ok else 1)  # its work waited for first (#435)
+	# Its work waited for first (#435); loaded, not named: a -s script compiles before the autoloads.
+	load("res://src/main/game_quit.gd").quit(self, 0 if ok else 1)

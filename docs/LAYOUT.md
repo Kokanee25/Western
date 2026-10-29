@@ -422,9 +422,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
 - `GameQuit` (`game_quit.gd`, #435): every way out (the window's close, the smoke test, the soak,
-  the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up and the tree paused (no
-  new pool work), our tasks waited for a frame at a time up to 2 s (`in_flight`: shadow merges,
-  analyses, the fire's check, the sound warm-up, smoke steps), then the plugin's `QuitWatchdog`
+  the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up; if a task of ours runs
+  (`in_flight`: shadow merges, analyses, the fire's check, the sound warm-up, smoke steps) the tree
+  pauses and they're waited for a frame at a time up to 2 s, else it quits in the same frame (an
+  extra drawn frame each quit made the engine's hang likelier); then the plugin's `QuitWatchdog`
   armed (`addons/saltcreek_native/src/watchdog.rs`: ends the process with the same code if it's
   still shutting down 5 s after the scene tree's root left the tree, as in the worker pool's exit
   hang, #392; 60 s after the quit whatever; stands down at the plugin's Scene deinit) and `quit`. Every pool task is posted high priority
