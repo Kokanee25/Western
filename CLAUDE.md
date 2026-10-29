@@ -601,7 +601,7 @@ frozen until Sean names one.
   if it's still shutting down 5 s after the tree went: Godot's pool hang, #392, still happens under
   load, the engine's own tasks); every pool task high priority (`test_game_quit` reads the source);
   F3/F12's process and physics the frame's own (`PerfRing.Clock`), `.saltbug.zip`, `perf_bench
-  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #459 and #495 (#492).
+  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #459, #495.
 - **The burning building in its batch** (#434, PR #457, waiting on the Fable review): char and glow
   drawn by the structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the
   40 flames shown; `FrameBudget` counts nested timers once. Sean's F3 and the fire's lights: #458.
