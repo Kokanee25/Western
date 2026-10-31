@@ -607,10 +607,12 @@ frozen until Sean names one.
   load, the engine's own tasks); every pool task high priority (`test_game_quit` reads the source);
   F3/F12's process and physics the frame's own (`PerfRing.Clock`), `.saltbug.zip`, `perf_bench
   --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #459, #495.
-- **The burning building in its batch** (#434, PR #457, waiting on the Fable review): char and glow
-  drawn by the structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the
-  40 flames shown; `FrameBudget` counts nested timers once. Sean's F3 and the fire's lights: #458.
-  Next: rubble at rest batched, #459. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
+- **The burning building in its batch** (#434, PR #457, merged): char and glow drawn by the
+  structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the 40 flames
+  shown; `FrameBudget` counts nested timers once. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
+  **Fire out of play** (Sean, 2026-10-31, #458: explosions first, fire later): `FireSystem.in_play`
+  off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays. Next:
+  rubble at rest batched, #459.
   Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
