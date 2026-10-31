@@ -9,6 +9,11 @@ adds its own lines.
   `tools/blender/fetch_makehuman.py` into `build/`; the men in `assets/people/` are made from them.
   Also its face pose units, default skeleton and weights (`poseunits/`, `rigs/`; CC0, fetched by
   `tools/faces/mh_units.py --fetch`): the talking men's mouths, lids and expressions.
+- **MPFB 2** data (makehumancommunity/mpfb2, pinned in `tools/blender/fetch_mpfb.py`): its base
+  mesh, targets, the game_engine rig and its weights, CC0 (its LICENSE.ASSETS.md). Its code (GPL-3)
+  is not run or copied. **MakeHuman's legacy system asset kit** (skins, eyes, brows, hair, clothes,
+  shoes, the fedora; "All of these assets are CC0", as released by Makehuman-2/MH2_Asset_Repository_CCO).
+  The bake-off's MPFB men (`assets/people/mpfb_*`, `tools/blender/mpfb_man.py`) are made from them.
 - **MediaPipe Face Landmarker** (Google, `face_landmarker.task`): Apache-2.0. Fetched into
   `build/mediapipe/` at run time and used by the tools only (the portrait factory's fit,
   `tools/paint/align.py`); not in the repo or the game.

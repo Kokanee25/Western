@@ -1,0 +1,241 @@
+{
+ "id": "mpfb_drifter",
+ "whole": true,
+ "spec": {
+  "about": "a weathered man of about 40, stubble, a hat, period working clothes",
+  "macros": {
+   "gender": 1.0,
+   "age": 0.615,
+   "muscle": 0.62,
+   "weight": 0.45,
+   "height": 0.55,
+   "proportions": 0.6,
+   "caucasian": 1.0
+  },
+  "targets": {
+   "chin/chin-prominent-incr": 0.3,
+   "chin/chin-width-incr": 0.35,
+   "head/head-square": 0.35,
+   "cheek/l-cheek-bones-incr": 0.35,
+   "cheek/r-cheek-bones-incr": 0.35,
+   "cheek/l-cheek-volume-decr": 0.4,
+   "cheek/r-cheek-volume-decr": 0.4,
+   "nose/nose-hump-incr": 0.3,
+   "nose/nose-scale-vert-incr": 0.2,
+   "head/head-age-incr": 0.35
+  },
+  "skin": "skins/middleage_caucasian_male/middleage_lightskinned_male_diffuse.png",
+  "eyes": "brown",
+  "wear": {
+   "shirt": [
+    "clothes",
+    "male_casualsuit03"
+   ],
+   "boots": [
+    "clothes",
+    "shoes03"
+   ],
+   "hat": [
+    "clothes",
+    "fedora01"
+   ]
+  },
+  "paint_on": {
+   "brows": [
+    "eyebrows",
+    "eyebrow001"
+   ],
+   "hair": [
+    "hair",
+    "short02"
+   ]
+  },
+  "paint_alpha": {
+   "brows": 0.9,
+   "hair": 0.85
+  },
+  "hair_tint": [
+   0.55,
+   0.45,
+   0.38
+  ],
+  "beard_colour": [
+   0.17,
+   0.12,
+   0.09
+  ],
+  "stubble": 0.4,
+  "tan": [
+   0.92,
+   0.82,
+   0.71
+  ],
+  "hat_shape": {
+   "brim": 1.45,
+   "crown_raise": 0.025,
+   "band_percentile": 35
+  },
+  "retint": {
+   "shirt": [
+    {
+     "where": "region:legs",
+     "to": [
+      0.34,
+      0.28,
+      0.21
+     ],
+     "keep": 0.0,
+     "gain": 0.9,
+     "contrast": 0.35,
+     "desaturate": 0.1
+    },
+    {
+     "where": "region:top",
+     "to": [
+      0.5,
+      0.3,
+      0.24
+     ],
+     "keep": 0.25,
+     "desaturate": 0.45,
+     "gain": 0.8,
+     "contrast": 0.6
+    }
+   ],
+   "boots": [
+    {
+     "where": "all",
+     "to": [
+      0.3,
+      0.19,
+      0.11
+     ],
+     "keep": 0.15,
+     "gain": 1.6
+    }
+   ],
+   "hat": [
+    {
+     "where": "all",
+     "to": [
+      0.32,
+      0.25,
+      0.19
+     ],
+     "keep": 0.0,
+     "gain": 1.0,
+     "desaturate": 0.1
+    }
+   ]
+  },
+  "regions": {
+   "shirt": {
+    "legs": "below:0.93:0.17"
+   }
+  }
+ },
+ "made_by": "tools/blender/mpfb_man.py (the bake-off's route B: MPFB's data, MakeHuman's CC0 assets)",
+ "targets": {
+  "macrodetails/caucasian-male-young.target.gz": 0.77,
+  "macrodetails/universal-male-young-averagemuscle-minweight.target.gz": 0.0585,
+  "macrodetails/height/male-young-averagemuscle-minweight-maxheight.target.gz": 0.0059,
+  "macrodetails/proportions/male-young-averagemuscle-minweight-idealproportions.target.gz": 0.0117,
+  "macrodetails/universal-male-young-averagemuscle-averageweight.target.gz": 0.5267,
+  "macrodetails/height/male-young-averagemuscle-averageweight-maxheight.target.gz": 0.0527,
+  "macrodetails/proportions/male-young-averagemuscle-averageweight-idealproportions.target.gz": 0.1053,
+  "macrodetails/universal-male-young-maxmuscle-minweight.target.gz": 0.0185,
+  "macrodetails/height/male-young-maxmuscle-minweight-maxheight.target.gz": 0.0018,
+  "macrodetails/proportions/male-young-maxmuscle-minweight-idealproportions.target.gz": 0.0037,
+  "macrodetails/universal-male-young-maxmuscle-averageweight.target.gz": 0.1663,
+  "macrodetails/height/male-young-maxmuscle-averageweight-maxheight.target.gz": 0.0166,
+  "macrodetails/proportions/male-young-maxmuscle-averageweight-idealproportions.target.gz": 0.0333,
+  "macrodetails/caucasian-male-old.target.gz": 0.23,
+  "macrodetails/universal-male-old-averagemuscle-minweight.target.gz": 0.0175,
+  "macrodetails/height/male-old-averagemuscle-minweight-maxheight.target.gz": 0.0017,
+  "macrodetails/proportions/male-old-averagemuscle-minweight-idealproportions.target.gz": 0.0035,
+  "macrodetails/universal-male-old-averagemuscle-averageweight.target.gz": 0.1573,
+  "macrodetails/height/male-old-averagemuscle-averageweight-maxheight.target.gz": 0.0157,
+  "macrodetails/proportions/male-old-averagemuscle-averageweight-idealproportions.target.gz": 0.0315,
+  "macrodetails/universal-male-old-maxmuscle-minweight.target.gz": 0.0055,
+  "macrodetails/height/male-old-maxmuscle-minweight-maxheight.target.gz": 0.0006,
+  "macrodetails/proportions/male-old-maxmuscle-minweight-idealproportions.target.gz": 0.0011,
+  "macrodetails/universal-male-old-maxmuscle-averageweight.target.gz": 0.0497,
+  "macrodetails/height/male-old-maxmuscle-averageweight-maxheight.target.gz": 0.005,
+  "macrodetails/proportions/male-old-maxmuscle-averageweight-idealproportions.target.gz": 0.0099,
+  "chin/chin-prominent-incr": 0.3,
+  "chin/chin-width-incr": 0.35,
+  "head/head-square": 0.35,
+  "cheek/l-cheek-bones-incr": 0.35,
+  "cheek/r-cheek-bones-incr": 0.35,
+  "cheek/l-cheek-volume-decr": 0.4,
+  "cheek/r-cheek-volume-decr": 0.4,
+  "nose/nose-hump-incr": 0.3,
+  "nose/nose-scale-vert-incr": 0.2,
+  "head/head-age-incr": 0.35
+ },
+ "scale": 0.9918,
+ "bone_heights": {
+  "pelvis": [
+   0.0,
+   0.98,
+   -0.011
+  ],
+  "spine_01": [
+   0.0,
+   1.067,
+   0.022
+  ],
+  "spine_02": [
+   0.0,
+   1.136,
+   0.013
+  ],
+  "spine_03": [
+   0.0,
+   1.199,
+   0.026
+  ],
+  "neck_01": [
+   0.0,
+   1.552,
+   -0.017
+  ],
+  "head": [
+   0.0,
+   1.648,
+   -0.048
+  ],
+  "clavicle_r": [
+   0.024,
+   1.475,
+   -0.032
+  ],
+  "upperarm_r": [
+   0.195,
+   1.446,
+   -0.022
+  ],
+  "thigh_r": [
+   0.114,
+   0.967,
+   0.0
+  ]
+ },
+ "triangles": {
+  "body_skin": 15492,
+  "body_eyes": 1060,
+  "cloth_shirt": 4800,
+  "cloth_boots": 4128,
+  "cloth_hat": 1244
+ },
+ "triangles_total": 26724,
+ "timings_s": {
+  "body": 0.9,
+  "rig": 0.08,
+  "dress": 0.12,
+  "pose": 0.57,
+  "skin_texture": 16.28,
+  "export": 0.9
+ },
+ "total_s": 29.3
+}

@@ -1,0 +1,268 @@
+{
+ "_readme": "Men made by tools/blender/mpfb_man.py from MPFB's data and MakeHuman's CC0 system assets (the character bake-off's route B, issue #505). Paths under build/mpfb/mh_system; targets under MPFB's data/targets. Macros 0..1 as MPFB's sliders (age 0.5 = 25, 1.0 = 90 years).",
+ "men": {
+  "mpfb_drifter": {
+   "about": "a weathered man of about 40, stubble, a hat, period working clothes",
+   "macros": {
+    "gender": 1.0,
+    "age": 0.615,
+    "muscle": 0.62,
+    "weight": 0.45,
+    "height": 0.55,
+    "proportions": 0.6,
+    "caucasian": 1.0
+   },
+   "targets": {
+    "chin/chin-prominent-incr": 0.3,
+    "chin/chin-width-incr": 0.35,
+    "head/head-square": 0.35,
+    "cheek/l-cheek-bones-incr": 0.35,
+    "cheek/r-cheek-bones-incr": 0.35,
+    "cheek/l-cheek-volume-decr": 0.4,
+    "cheek/r-cheek-volume-decr": 0.4,
+    "nose/nose-hump-incr": 0.3,
+    "nose/nose-scale-vert-incr": 0.2,
+    "head/head-age-incr": 0.35
+   },
+   "skin": "skins/middleage_caucasian_male/middleage_lightskinned_male_diffuse.png",
+   "eyes": "brown",
+   "wear": {
+    "shirt": [
+     "clothes",
+     "male_casualsuit03"
+    ],
+    "boots": [
+     "clothes",
+     "shoes03"
+    ],
+    "hat": [
+     "clothes",
+     "fedora01"
+    ]
+   },
+   "paint_on": {
+    "brows": [
+     "eyebrows",
+     "eyebrow001"
+    ],
+    "hair": [
+     "hair",
+     "short02"
+    ]
+   },
+   "paint_alpha": {
+    "brows": 0.9,
+    "hair": 0.85
+   },
+   "hair_tint": [
+    0.55,
+    0.45,
+    0.38
+   ],
+   "beard_colour": [
+    0.17,
+    0.12,
+    0.09
+   ],
+   "stubble": 0.4,
+   "tan": [
+    0.92,
+    0.82,
+    0.71
+   ],
+   "hat_shape": {
+    "brim": 1.45,
+    "crown_raise": 0.025,
+    "band_percentile": 35
+   },
+   "retint": {
+    "shirt": [
+     {
+      "where": "region:legs",
+      "to": [
+       0.34,
+       0.28,
+       0.21
+      ],
+      "keep": 0.0,
+      "gain": 0.9,
+      "contrast": 0.35,
+      "desaturate": 0.1
+     },
+     {
+      "where": "region:top",
+      "to": [
+       0.5,
+       0.3,
+       0.24
+      ],
+      "keep": 0.25,
+      "desaturate": 0.45,
+      "gain": 0.8,
+      "contrast": 0.6
+     }
+    ],
+    "boots": [
+     {
+      "where": "all",
+      "to": [
+       0.3,
+       0.19,
+       0.11
+      ],
+      "keep": 0.15,
+      "gain": 1.6
+     }
+    ],
+    "hat": [
+     {
+      "where": "all",
+      "to": [
+       0.32,
+       0.25,
+       0.19
+      ],
+      "keep": 0.0,
+      "gain": 1.0,
+      "desaturate": 0.1
+     }
+    ]
+   },
+   "regions": {
+    "shirt": {
+     "legs": "below:0.93:0.17"
+    }
+   }
+  },
+  "mpfb_teamster": {
+   "about": "the timing test: an older, heavier teamster in canvas bib overalls",
+   "macros": {
+    "gender": 1.0,
+    "age": 0.68,
+    "muscle": 0.7,
+    "weight": 0.62,
+    "height": 0.5,
+    "proportions": 0.5,
+    "caucasian": 1.0
+   },
+   "targets": {
+    "nose/nose-scale-horiz-incr": 0.3,
+    "nose/nose-volume-incr": 0.3,
+    "chin/chin-width-incr": 0.4,
+    "neck/neck-scale-horiz-incr": 0.3,
+    "head/head-fat-incr": 0.2,
+    "head/head-age-incr": 0.6
+   },
+   "skin": "skins/old_caucasian_male/old_lightskinned_male_diffuse.png",
+   "eyes": "grey",
+   "wear": {
+    "shirt": [
+     "clothes",
+     "male_worksuit01"
+    ],
+    "boots": [
+     "clothes",
+     "shoes03"
+    ],
+    "hat": [
+     "clothes",
+     "fedora01"
+    ]
+   },
+   "paint_on": {
+    "brows": [
+     "eyebrows",
+     "eyebrow003"
+    ],
+    "hair": [
+     "hair",
+     "short04"
+    ]
+   },
+   "paint_alpha": {
+    "brows": 0.9,
+    "hair": 0.85
+   },
+   "hair_tint": [
+    0.75,
+    0.72,
+    0.68
+   ],
+   "beard_colour": [
+    0.35,
+    0.32,
+    0.3
+   ],
+   "stubble": 0.55,
+   "stubble_shadow": 0.25,
+   "tan": [
+    0.9,
+    0.8,
+    0.7
+   ],
+   "hat_shape": {
+    "brim": 1.6,
+    "crown_raise": 0.01,
+    "band_percentile": 35
+   },
+   "regions": {
+    "shirt": {
+     "legs": "below:1.30:0.17"
+    }
+   },
+   "retint": {
+    "shirt": [
+     {
+      "where": "region:legs",
+      "to": [
+       0.42,
+       0.36,
+       0.25
+      ],
+      "keep": 0.0,
+      "gain": 0.9,
+      "contrast": 0.4,
+      "desaturate": 0.1
+     },
+     {
+      "where": "region:top",
+      "to": [
+       0.78,
+       0.74,
+       0.66
+      ],
+      "keep": 0.2,
+      "gain": 0.85,
+      "contrast": 0.7,
+      "desaturate": 0.3
+     }
+    ],
+    "boots": [
+     {
+      "where": "all",
+      "to": [
+       0.25,
+       0.17,
+       0.11
+      ],
+      "keep": 0.15,
+      "gain": 1.6
+     }
+    ],
+    "hat": [
+     {
+      "where": "all",
+      "to": [
+       0.45,
+       0.4,
+       0.33
+      ],
+      "keep": 0.0,
+      "gain": 1.0,
+      "desaturate": 0.15
+     }
+    ]
+   }
+  }
+ }
+}

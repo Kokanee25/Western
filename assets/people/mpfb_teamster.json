@@ -1,0 +1,218 @@
+{
+ "id": "mpfb_teamster",
+ "whole": true,
+ "spec": {
+  "about": "the timing test: an older, heavier teamster in canvas bib overalls",
+  "macros": {
+   "gender": 1.0,
+   "age": 0.68,
+   "muscle": 0.7,
+   "weight": 0.62,
+   "height": 0.5,
+   "proportions": 0.5,
+   "caucasian": 1.0
+  },
+  "targets": {
+   "nose/nose-scale-horiz-incr": 0.3,
+   "nose/nose-volume-incr": 0.3,
+   "chin/chin-width-incr": 0.4,
+   "neck/neck-scale-horiz-incr": 0.3,
+   "head/head-fat-incr": 0.2,
+   "head/head-age-incr": 0.6
+  },
+  "skin": "skins/old_caucasian_male/old_lightskinned_male_diffuse.png",
+  "eyes": "grey",
+  "wear": {
+   "shirt": [
+    "clothes",
+    "male_worksuit01"
+   ],
+   "boots": [
+    "clothes",
+    "shoes03"
+   ],
+   "hat": [
+    "clothes",
+    "fedora01"
+   ]
+  },
+  "paint_on": {
+   "brows": [
+    "eyebrows",
+    "eyebrow003"
+   ],
+   "hair": [
+    "hair",
+    "short04"
+   ]
+  },
+  "paint_alpha": {
+   "brows": 0.9,
+   "hair": 0.85
+  },
+  "hair_tint": [
+   0.75,
+   0.72,
+   0.68
+  ],
+  "beard_colour": [
+   0.35,
+   0.32,
+   0.3
+  ],
+  "stubble": 0.55,
+  "stubble_shadow": 0.25,
+  "tan": [
+   0.9,
+   0.8,
+   0.7
+  ],
+  "hat_shape": {
+   "brim": 1.6,
+   "crown_raise": 0.01,
+   "band_percentile": 35
+  },
+  "regions": {
+   "shirt": {
+    "legs": "below:1.30:0.17"
+   }
+  },
+  "retint": {
+   "shirt": [
+    {
+     "where": "region:legs",
+     "to": [
+      0.42,
+      0.36,
+      0.25
+     ],
+     "keep": 0.0,
+     "gain": 0.9,
+     "contrast": 0.4,
+     "desaturate": 0.1
+    },
+    {
+     "where": "region:top",
+     "to": [
+      0.78,
+      0.74,
+      0.66
+     ],
+     "keep": 0.2,
+     "gain": 0.85,
+     "contrast": 0.7,
+     "desaturate": 0.3
+    }
+   ],
+   "boots": [
+    {
+     "where": "all",
+     "to": [
+      0.25,
+      0.17,
+      0.11
+     ],
+     "keep": 0.15,
+     "gain": 1.6
+    }
+   ],
+   "hat": [
+    {
+     "where": "all",
+     "to": [
+      0.45,
+      0.4,
+      0.33
+     ],
+     "keep": 0.0,
+     "gain": 1.0,
+     "desaturate": 0.15
+    }
+   ]
+  }
+ },
+ "made_by": "tools/blender/mpfb_man.py (the bake-off's route B: MPFB's data, MakeHuman's CC0 assets)",
+ "targets": {
+  "macrodetails/caucasian-male-young.target.gz": 0.64,
+  "macrodetails/universal-male-young-averagemuscle-averageweight.target.gz": 0.2918,
+  "macrodetails/universal-male-young-averagemuscle-maxweight.target.gz": 0.0922,
+  "macrodetails/universal-male-young-maxmuscle-averageweight.target.gz": 0.1946,
+  "macrodetails/universal-male-young-maxmuscle-maxweight.target.gz": 0.0614,
+  "macrodetails/caucasian-male-old.target.gz": 0.36,
+  "macrodetails/universal-male-old-averagemuscle-averageweight.target.gz": 0.1642,
+  "macrodetails/universal-male-old-averagemuscle-maxweight.target.gz": 0.0518,
+  "macrodetails/universal-male-old-maxmuscle-averageweight.target.gz": 0.1094,
+  "macrodetails/universal-male-old-maxmuscle-maxweight.target.gz": 0.0346,
+  "nose/nose-scale-horiz-incr": 0.3,
+  "nose/nose-volume-incr": 0.3,
+  "chin/chin-width-incr": 0.4,
+  "neck/neck-scale-horiz-incr": 0.3,
+  "head/head-fat-incr": 0.2,
+  "head/head-age-incr": 0.6
+ },
+ "scale": 1.0335,
+ "bone_heights": {
+  "pelvis": [
+   -0.0,
+   0.972,
+   -0.011
+  ],
+  "spine_01": [
+   0.0,
+   1.06,
+   0.022
+  ],
+  "spine_02": [
+   0.0,
+   1.131,
+   0.014
+  ],
+  "spine_03": [
+   0.0,
+   1.191,
+   0.03
+  ],
+  "neck_01": [
+   0.0,
+   1.547,
+   -0.017
+  ],
+  "head": [
+   0.0,
+   1.642,
+   -0.048
+  ],
+  "clavicle_r": [
+   0.024,
+   1.468,
+   -0.032
+  ],
+  "upperarm_r": [
+   0.191,
+   1.439,
+   -0.021
+  ],
+  "thigh_r": [
+   0.116,
+   0.955,
+   0.0
+  ]
+ },
+ "triangles": {
+  "body_skin": 16604,
+  "body_eyes": 1060,
+  "cloth_shirt": 6986,
+  "cloth_boots": 4128,
+  "cloth_hat": 1244
+ },
+ "triangles_total": 30022,
+ "timings_s": {
+  "body": 0.48,
+  "rig": 0.14,
+  "dress": 0.17,
+  "pose": 0.96,
+  "skin_texture": 17.33,
+  "export": 1.19
+ },
+ "total_s": 32.1
+}
