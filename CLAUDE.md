@@ -482,8 +482,10 @@ frozen until Sean names one.
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
 - **The bake-off** (2026-10-31, #505, branch `claude/characters-bakeoff-mpfb`, not merged): route
   B, MPFB (`tools/blender/mpfb_man.py`, MPFB's data + MakeHuman's CC0 kit, `assets/people/mpfb_*`);
-  Sean: "terrible", not the direction. Next #516: Human Generator (price, licence, can it run), then
-  the Studio from realistic pictures.
+  Sean: "terrible", not the direction. Route C, Human Generator, researched (#516, branch
+  `claude/issue-516-6fsl2o`, `docs/style_test/bakeoff-2026-10/human_generator.md`): Commercial $128,
+  its men can't be in the public repo; not bought. Waiting on Sean: #518 (buy? ~$3 for route A).
+  Next #519: route A, the Studio from realistic pictures (`styles/realistic.yaml`, a draft request).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
