@@ -7,6 +7,12 @@ extends WeaponViewmodel
 ## release (the longer the wind-up, the harder); aim (RMB) sets it down in front of you. Hold a lit
 ## stick too long and it goes off in your hand. A fresh stick comes out after each throw while
 ## you've any left.
+##
+## Planting (issue #506, the farmhouse breach): facing a wall within reach (or the floor at its
+## foot), hold the use key (E, `shove`): you set a stick down at the wall's base, lying flat to the
+## boards (`plant_time`), and its fuse is lit when you let go (`plant_fuse_seconds`). Let go before
+## it's down and nothing's set. Lit, it's the wall's: there's no picking it back up. Away from a
+## wall E is the shove and kick as before (PlayerShove asks `claims_use()`).
 
 const HIP_POS := Vector3(0.16, -0.2, -0.3)
 const HIP_ROT := Vector3(10.0, -20.0, 60.0)
@@ -14,6 +20,9 @@ const WINDUP_POS := Vector3(0.24, -0.08, -0.05)
 const WINDUP_ROT := Vector3(-40.0, -10.0, 70.0)
 const PUT_AWAY_POS := Vector3(0.25, -0.7, 0.0)
 const LIGHT_TIME := 0.9
+## The hand reaching down to the wall's foot as you set it.
+const PLANT_POS := Vector3(0.05, -0.5, -0.4)
+const PLANT_ROT := Vector3(-50.0, 0.0, 90.0)
 
 signal thrown(stick: DynamiteStick)
 
@@ -23,6 +32,13 @@ var fuse_left := 0.0
 ## 0 = not winding up; counts up while fire is held.
 var windup := 0.0
 var lighting := 0.0
+## Where a stick would go if you held E now (`plant_spot()`: {at, basis, wall}), worked out each
+## tick while you've one in hand and free; empty with no wall in reach.
+var plant_at := {}
+## s E has been held setting one down (-1 not setting one).
+var planting := -1.0
+## The stick you've set and are still holding E over: lit when you let go.
+var planted: DynamiteStick
 
 var stick_node: Node3D
 var hand: Node3D
@@ -97,7 +113,7 @@ func _read_controls(delta: float) -> void:
 		return
 	if Input.is_action_just_pressed(&"holster") and not lit:
 		drawn = not drawn
-	if not drawn or _draw < 0.9 or not has_stick():
+	if not drawn or _draw < 0.9 or not has_stick() or planting >= 0.0 or planted != null:
 		windup = 0.0
 		return
 	if Input.is_action_just_pressed(&"cock"):
@@ -111,6 +127,136 @@ func _read_controls(delta: float) -> void:
 			windup += delta
 	elif windup > 0.0:
 		throw()
+
+
+func _physics_process(delta: float) -> void:
+	super(delta)
+	_plant_tick(delta)
+
+
+## E (`shove`) is this hand's while it's setting a stick, holding one it set, or facing a wall it
+## could set one at; PlayerShove leaves the key alone then.
+func claims_use() -> bool:
+	return selected and (planting >= 0.0 or planted != null or not plant_at.is_empty())
+
+
+func _plant_tick(delta: float) -> void:
+	if planted != null:
+		# Set; lit as the key comes up (or if you're no longer at the controls).
+		if not is_instance_valid(planted) or planted.lit:
+			planted = null
+		elif not Input.is_action_pressed(&"shove") or not _can_act():
+			_light_planted()
+		return
+	var free := _can_act() and drawn and _draw >= 0.9 and has_stick() and not lit and lighting <= 0.0 \
+			and windup <= 0.0 and not hands_busy and not arm_disabled
+	if not free or _player == null or _player.camera == null:
+		plant_at = {}
+		planting = -1.0
+		return
+	var cam := _player.camera
+	plant_at = plant_spot(World.space(self), cam.global_position, -cam.global_basis.z, _bt.plant_reach, [_player.get_rid()], _player.global_position.y)
+	if planting >= 0.0:
+		if plant_at.is_empty() or not Input.is_action_pressed(&"shove"):
+			planting = -1.0  # let go too soon, or turned away: nothing set
+			return
+		planting += delta
+		if planting >= _bt.plant_time:
+			plant(plant_at)
+	elif not plant_at.is_empty() and Input.is_action_just_pressed(&"shove"):
+		planting = 0.0
+
+
+## Where a stick goes for a wall seen from `eye` along `look` (within `reach`): on the floor at the
+## wall's foot, lying along it flat to the boards. Looking at the wall or at the floor just in
+## front of it both find it. Empty when there's no upright face in reach with a floor at its foot;
+## with `feet` (your feet's height), the floor you're standing on (within FLOOR_OFF), not a ledge
+## or a window's sill.
+## {at: the stick's centre, basis: its long axis (Z) along the wall, wall: the face's outward
+## normal, collider: the wall}.
+static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vector3, reach: float, exclude: Array = [], feet := NAN) -> Dictionary:
+	if space == null:
+		return {}
+	var hit := _ray(space, eye, eye + look.normalized() * reach, exclude)
+	if hit.is_empty():
+		return {}
+	var n: Vector3 = hit.normal
+	var floor_at: Vector3
+	var flat := Vector3(look.x, 0.0, look.z)
+	if flat.length() < 0.05:
+		return {}
+	flat = flat.normalized()
+	if n.y > 0.7:
+		# The floor: is there a wall just ahead along it?
+		floor_at = hit.position
+		var ahead := _ray(space, floor_at + Vector3.UP * 0.08, floor_at + Vector3.UP * 0.08 + flat * 0.7, exclude)
+		if ahead.is_empty() or absf((ahead.normal as Vector3).y) > 0.4:
+			return {}
+		n = ahead.normal
+	elif absf(n.y) < 0.4:
+		# The wall: the floor under where you're looking, a hand-span out from it (from knee height
+		# over your feet, so a ledge or a window sill isn't taken for it).
+		var nf := Vector3(n.x, 0.0, n.z).normalized()
+		var from := (hit.position as Vector3) + nf * 0.12
+		if not is_nan(feet):
+			from.y = minf(from.y, feet + FLOOR_OFF)
+		var down := _ray(space, from, from + Vector3.DOWN * 2.5, exclude)
+		if down.is_empty() or (down.normal as Vector3).y < 0.7:
+			return {}
+		floor_at = down.position
+	else:
+		return {}
+	if not is_nan(feet) and absf(floor_at.y - feet) > FLOOR_OFF:
+		return {}
+	var out := Vector3(n.x, 0.0, n.z).normalized()
+	# The face where it meets the floor (a window or a ledge higher up isn't where it lies).
+	# (A few heights: a ray along a board's bottom edge meets its underside.)
+	var base := {}
+	for h: float in [0.05, 0.09, 0.03, 0.14]:
+		var low := floor_at + Vector3.UP * h
+		base = _ray(space, low + out * 0.45, low - out * 0.4, exclude)
+		if not base.is_empty() and absf((base.normal as Vector3).y) < 0.4:
+			break
+		base = {}
+	if base.is_empty():
+		return {}
+	out = Vector3((base.normal as Vector3).x, 0.0, (base.normal as Vector3).z).normalized()
+	var at := Vector3((base.position as Vector3).x, floor_at.y, (base.position as Vector3).z) \
+			+ out * (DynamiteStick.RADIUS + 0.004) + Vector3.UP * (DynamiteStick.RADIUS + 0.002)
+	var along := out.cross(Vector3.UP).normalized()
+	return {"at": at, "basis": Basis(out, Vector3.UP, along).orthonormalized(), "wall": out, "collider": base.collider}
+
+
+## How far the floor at the wall may be from your feet (m).
+const FLOOR_OFF := 0.25
+
+
+static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array) -> Dictionary:
+	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+	q.exclude = exclude
+	return space.intersect_ray(q)
+
+
+## Set a stick down at `spot` (`plant_spot()`), unlit: it's lit when E comes up. Returns it.
+func plant(spot: Dictionary) -> DynamiteStick:
+	planting = -1.0
+	if spot.is_empty() or sticks <= 0:
+		return null
+	var s := DynamiteStick.make(_ballistics().get_parent(), spot.at, Vector3.ZERO, _bt.plant_fuse_seconds)
+	s.owner_node = _player
+	s.planted = true
+	s.global_basis = spot.basis
+	sticks -= 1
+	_next_stick = 0.6
+	planted = s
+	return s
+
+
+func _light_planted() -> void:
+	planted.fuse_left = _bt.plant_fuse_seconds
+	planted.light()
+	_play(&"match")
+	planted = null
 
 
 func has_stick() -> bool:
@@ -218,8 +364,9 @@ func _animate(delta: float) -> void:
 	hand.visible = true
 	var winding := clampf(windup / _bt.throw_windup, 0.0, 1.0)
 	var k := 1.0 - exp(-delta * 12.0)
-	_pose_pos = _pose_pos.lerp(HIP_POS.lerp(WINDUP_POS, winding), k)
-	_pose_rot = _pose_rot.lerp(HIP_ROT.lerp(WINDUP_ROT, winding), k)
+	var setting := clampf(planting / maxf(_bt.plant_time, 0.01), 0.0, 1.0) if planting >= 0.0 else (1.0 if planted != null else 0.0)
+	_pose_pos = _pose_pos.lerp(HIP_POS.lerp(WINDUP_POS, winding).lerp(PLANT_POS, setting), k)
+	_pose_rot = _pose_rot.lerp(HIP_ROT.lerp(WINDUP_ROT, winding).lerp(PLANT_ROT, setting), k)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * 10.0))
 	_apply_pose(_draw)
 	match_node.visible = lighting > 0.0

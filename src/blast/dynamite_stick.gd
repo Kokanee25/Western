@@ -17,12 +17,18 @@ var fuse_left := 5.0
 var kg := 0.15
 ## Who threw or dropped it (for the record).
 var owner_node: Node
+## Set at a wall's foot by hand (DynamiteViewmodel.plant, #506), not thrown or dropped. Lit, its
+## fuse's hiss is a noise men near enough hear (Events.noise `fuse`); a thrown one's isn't (as before).
+## (It lies where it settles: between two studs, where the floor stops short of the boards, that's
+## down in the bay on the sill.)
+var planted := false
 
 var _fuse: Node3D
 var _sparks: GPUParticles3D
 var _hiss: AudioStreamPlayer3D
 var _done := false
 var _fire_check := 0.0
+var _hiss_heard := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -151,6 +157,11 @@ func _physics_step(delta: float) -> void:
 		if fuse_left <= 0.0:
 			detonate()
 			return
+		if planted:
+			_hiss_heard -= delta
+			if _hiss_heard <= 0.0:
+				_hiss_heard = 0.5
+				Events.noise.emit(global_position, Blast.t().fuse_heard, &"fuse", self)
 	else:
 		_fire_check -= delta
 		if _fire_check <= 0.0:

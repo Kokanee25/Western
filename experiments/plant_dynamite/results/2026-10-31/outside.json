@@ -1,0 +1,70 @@
+{
+  "rows": [
+    {
+      "along": -1.0,
+      "blast_ms": 39.255,
+      "blocking": "left_siding_c15_0_b <- @Node3D@7, left_siding_c13_0_b <- @Node3D@7, left_siding_c14_0_b <- @Node3D@7, left_stud_06 <- @Node3D@7",
+      "clear": 1.0,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 10, settle_analyse 2, batches 1, player 0, structures 0"
+    },
+    {
+      "along": -1.5,
+      "blast_ms": 21.068,
+      "blocking": "left_siding_c13_0_b <- @Node3D@2016, left_siding_c12_0_b <- @Node3D@2016, left_siding_c11_0_b <- @Node3D@2016, left_stud_05 <- @Node3D@2016",
+      "clear": 1.0,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, settle_analyse 1, batches 1, player 0, structures 0"
+    },
+    {
+      "along": -2.0,
+      "blast_ms": 19.284,
+      "blocking": "left_stud_04 <- @Node3D@4008, left_siding_c10_0_b <- @Node3D@4008, left_siding_c11_0_b <- @Node3D@4008, left_siding_c09_0_b <- @Node3D@4008",
+      "clear": 1.1,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, batches 1, settle_analyse 1, player 0, structures 0"
+    },
+    {
+      "along": -2.5,
+      "blast_ms": 21.067,
+      "blocking": "left_siding_c09_0_b <- @Node3D@5983, left_siding_c07_0_b <- @Node3D@5983, left_siding_c08_0_b <- @Node3D@5983",
+      "clear": 1.1,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, batches 1, settle_analyse 1, player 0, structures 0"
+    },
+    {
+      "along": -3.0,
+      "blast_ms": 21.207,
+      "blocking": "left_siding_c07_0_b <- @Node3D@7959, left_siding_c06_0_b <- @Node3D@7959, left_siding_c05_0_b <- @Node3D@7959",
+      "clear": 1.1,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, batches 1, settle_analyse 1, player 0, structures 0"
+    },
+    {
+      "along": -3.5,
+      "blast_ms": 22.056,
+      "blocking": "left_stud_02 <- @Node3D@9964, left_siding_c05_0_b <- @Node3D@9964, left_siding_c04_0_b <- @Node3D@9964, left_siding_c03_0_b <- @Node3D@9964",
+      "clear": 1.1,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, batches 2, settle_analyse 1, player 0, structures 0"
+    },
+    {
+      "along": -4.0,
+      "blast_ms": 27.292,
+      "blocking": "left_siding_c01_0_b <- @Node3D@11968, left_siding_c03_0_b <- @Node3D@11968, left_siding_c02_0_b <- @Node3D@11968, left_stud_01 <- @Node3D@11968",
+      "clear": 1.0,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 6, settle_analyse 1, player 1, batches 1, structures 0"
+    },
+    {
+      "along": -4.5,
+      "blast_ms": 22.638,
+      "clear": 1.9,
+      "stick": "(-0.04, 0.01)",
+      "top": "ballistics 4, batches 2, settle_analyse 1, player 1, structures 0"
+    }
+  ],
+  "side": "outside",
+  "stoop": 1,
+  "walk": 1
+}

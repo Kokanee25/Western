@@ -1,0 +1,18 @@
+side inside: walk-through (>= 1.7 m) 2 of 8, stoop-through (>= 1.3 m) 4 of 8
+  along -1.0  stick (0.01, 0.22)  clear 1.2 m  blast frame 44 ms  top ballistics 10, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c14_0_b 
+  along -1.5  stick (0.01, 0.22)  clear 1.2 m  blast frame 23 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c13_0_b <
+  along -2.0  stick (0.02, 0.22)  clear 1.2 m  blast frame 25 ms  top ballistics 5, settle_analyse 2, batches 2, player 0, structures 0  in the way: left_siding_c11_0_b <
+  along -2.5  stick (0.02, 0.22)  clear 1.2 m  blast frame 24 ms  top ballistics 4, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c07_0_b <
+  along -3.0  stick (0.02, 0.22)  clear 1.3 m  blast frame 22 ms  top ballistics 4, settle_analyse 2, batches 2, player 0, structures 0
+  along -3.5  stick (0.02, 0.22)  clear 1.3 m  blast frame 21 ms  top ballistics 3, batches 1, player 0, structures 0, settle_analyse 0
+  along -4.0  stick (0.01, 0.22)  clear 1.9 m  blast frame 27 ms  top settle_analyse 4, ballistics 4, batches 1, player 0, structures 0
+  along -4.5  stick (0.02, 0.22)  clear 1.9 m  blast frame 36 ms  top settle_analyse 13, ballistics 4, batches 1, bu_forget 1, bu_closure 1
+side outside: walk-through (>= 1.7 m) 1 of 8, stoop-through (>= 1.3 m) 1 of 8
+  along -1.0  stick (-0.04, 0.01)  clear 1.0 m  blast frame 39 ms  top ballistics 10, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c15_0_b
+  along -1.5  stick (-0.04, 0.01)  clear 1.0 m  blast frame 21 ms  top ballistics 4, settle_analyse 1, batches 1, player 0, structures 0  in the way: left_siding_c13_0_b 
+  along -2.0  stick (-0.04, 0.01)  clear 1.1 m  blast frame 19 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_stud_04 <- @Nod
+  along -2.5  stick (-0.04, 0.01)  clear 1.1 m  blast frame 21 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c09_0_b 
+  along -3.0  stick (-0.04, 0.01)  clear 1.1 m  blast frame 21 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c07_0_b 
+  along -3.5  stick (-0.04, 0.01)  clear 1.1 m  blast frame 22 ms  top ballistics 4, batches 2, settle_analyse 1, player 0, structures 0  in the way: left_stud_02 <- @Nod
+  along -4.0  stick (-0.04, 0.01)  clear 1.0 m  blast frame 27 ms  top ballistics 6, settle_analyse 1, player 1, batches 1, structures 0  in the way: left_siding_c01_0_b 
+  along -4.5  stick (-0.04, 0.01)  clear 1.9 m  blast frame 23 ms  top ballistics 4, batches 2, settle_analyse 1, player 1, structures 0
