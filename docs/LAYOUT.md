@@ -896,7 +896,8 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
-  saloon), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
+  saloon; `route` asks only the first place of the shortest way and a ray down the middle before
+  each sweep, the same ways as asking every place, #510), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
   test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in;
   the riders' bodies are built while the street loads and wait out of the tree in `_waiting`, so
   `bring_gang` only adds them with their brains, #488; `tools/gang_frame.gd` holds its frame).
