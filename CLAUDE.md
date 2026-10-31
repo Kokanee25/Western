@@ -100,7 +100,9 @@ the history in `docs/status/`.
   (`docs/playtests/<date>.md`) goes with the build.
 - **Refactor and adversarial review:** every few weeks or at each milestone, a Fable session
   restructures what has grown messy and reviews the codebase for what's fragile, slow, untested or
-  likely to break. It reports before changing anything.
+  likely to break. It reports before changing anything. This is the only Fable review: PRs are
+  not sent to Fable one by one (Sean, 2026-10-31, too many tokens). A session merges its PR once
+  "Test and build" is green, and its issues don't add a Fable review step.
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
@@ -567,6 +569,11 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
+- **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
+  stick where you aim on any structure piece or the ground, lit on letting go
+  (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
+  its hiss is `Events.noise` `fuse`, outlaws hear it. Every spot at least a crawl hole; chest high
+  from outside a doorway 8 of 8. Next: #491 (#492's order; #488 merged meanwhile, #509).
 - **The kick and shove** (2026-10-28, #479, PR #486, build 2757; `experiments/kick_shove/`):
   E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
   `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);

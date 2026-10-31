@@ -17,12 +17,19 @@ var fuse_left := 5.0
 var kg := 0.15
 ## Who threw or dropped it (for the record).
 var owner_node: Node
+## Set at a wall's foot by hand (DynamiteViewmodel.plant, #506), not thrown or dropped. Lit, its
+## fuse's hiss is a noise men near enough hear (Events.noise `fuse`); a thrown one's isn't (as before).
+## Fixed where it was set (`stick_to`: tied or wedged on, frozen) until the piece it's on breaks,
+## is cut or goes, or a ball hits it; then it falls as any loose stick.
+var planted := false
+var stuck_to: Node
 
 var _fuse: Node3D
 var _sparks: GPUParticles3D
 var _hiss: AudioStreamPlayer3D
 var _done := false
 var _fire_check := 0.0
+var _hiss_heard := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -129,8 +136,41 @@ func light() -> void:
 		_hiss.play()
 
 
+## Set by hand on `what` (a StructureMember, the ground, any static piece): held there.
+func stick_to(what: Object) -> void:
+	planted = true
+	stuck_to = what as Node
+	freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
+	freeze = true
+	if not Events.member_broken.is_connected(_on_member_broken):
+		Events.member_broken.connect(_on_member_broken)
+		Events.member_cut.connect(_on_member_cut)
+
+
+func _on_member_broken(_id: StringName) -> void:
+	# (Ids repeat from building to building: ask the piece itself.)
+	if is_instance_valid(stuck_to) and stuck_to is StructureMember and (stuck_to as StructureMember).broken:
+		loosen()
+
+
+func _on_member_cut(old: Node, _pieces: Array) -> void:
+	if old == stuck_to:
+		loosen()
+
+
+## No longer held: it drops where it is.
+func loosen() -> void:
+	stuck_to = null
+	freeze = false
+	if Events.member_broken.is_connected(_on_member_broken):
+		Events.member_broken.disconnect(_on_member_broken)
+		Events.member_cut.disconnect(_on_member_cut)
+
+
 ## A bullet through it: usually it just tears the paper; sometimes it goes.
 func shot(impulse_vec: Vector3) -> void:
+	if freeze:
+		loosen()
 	apply_central_impulse(impulse_vec * 0.3)
 	if _rng.randf() < Blast.t().bullet_detonation_chance:
 		detonate.call_deferred()
@@ -145,12 +185,19 @@ func _physics_process(delta: float) -> void:
 func _physics_step(delta: float) -> void:
 	if _done:
 		return
+	if freeze and not is_instance_valid(stuck_to):
+		loosen()  # what it was on is gone
 	if lit:
 		fuse_left -= delta
 		show_fuse(_fuse, _sparks, fuse_left, Blast.t().fuse_seconds, true)
 		if fuse_left <= 0.0:
 			detonate()
 			return
+		if planted:
+			_hiss_heard -= delta
+			if _hiss_heard <= 0.0:
+				_hiss_heard = 0.5
+				Events.noise.emit(global_position, Blast.t().fuse_heard, &"fuse", self)
 	else:
 		_fire_check -= delta
 		if _fire_check <= 0.0:

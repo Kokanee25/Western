@@ -450,6 +450,8 @@ const MAN_SPEED := 2.0
 ## An unplaced shot when all's calm: how much it unsettles him, and how long he looks its way (s).
 const STARTLE_FEAR := 0.04
 const STARTLE_LOOK := 2.5
+## A lit fuse he hears (every half second it burns): how much each hiss frightens him.
+const FUSE_FEAR := 0.04
 
 
 ## Could that man be where a sound came from: near where he last knew him, or as far off as a man
@@ -475,6 +477,13 @@ func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:
 		# Where the man stands, not where the noise was made: a shot's at his gun, a shout at his
 		# mouth (variant D's `hold_cover`; else his eyes were taken to be 1.6 m over his gun).
 		senses.note(t, at + Vector3.DOWN * float(SOUND_HEIGHT.get(kind, 0.0)) if _has(&"hold_cover") else at, 0.0)
+		return
+	if kind == &"fuse":
+		# A lit fuse hissing near him (a planted stick, #506): it frightens him a little more each
+		# time he hears it, and turns his head. Getting clear of it isn't built: that's his fear's.
+		_scare(FUSE_FEAR, &"a fuse hissing")
+		_startled_at = at
+		_startled = STARTLE_LOOK
 		return
 	if kind == &"gunshot" and mood == Mood.CALM:
 		_scare(STARTLE_FEAR, &"a shot nearby")
