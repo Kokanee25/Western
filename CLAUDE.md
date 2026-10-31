@@ -573,7 +573,7 @@ frozen until Sean names one.
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
   its hiss is `Events.noise` `fuse`, outlaws hear it. Every spot at least a crawl hole; chest high
-  from outside a doorway 8 of 8. Next: #488 (#492's order).
+  from outside a doorway 8 of 8. Next: #491 (#492's order; #488 merged meanwhile, #509).
 - **The kick and shove** (2026-10-28, #479, PR #486, build 2757; `experiments/kick_shove/`):
   E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
   `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);
