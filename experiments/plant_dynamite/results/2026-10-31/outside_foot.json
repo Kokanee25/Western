@@ -1,0 +1,148 @@
+{
+  "aim": "foot",
+  "rows": [
+    {
+      "along": -1.0,
+      "blast_ms": 57.121,
+      "blocking": "left_siding_c13_0_b <- @Node3D@7, left_siding_c15_0_b <- @Node3D@7, left_siding_c14_0_b <- @Node3D@7",
+      "broken": {
+        "board": 19,
+        "floor_board": 16,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2
+      },
+      "clear": 1.0,
+      "stick": "(-0.04, 0.18) on left_siding_c14_0",
+      "studs": "",
+      "top": "ballistics 13, batches 2, player 1, structures 1, settle_analyse 0"
+    },
+    {
+      "along": -1.5,
+      "blast_ms": 34.04,
+      "blocking": "left_siding_c11_0_b <- @Node3D@1985, left_siding_c12_0_b <- @Node3D@1985, left_siding_c13_0_b <- @Node3D@1985",
+      "broken": {
+        "board": 19,
+        "floor_board": 16,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2
+      },
+      "clear": 0.9,
+      "stick": "(-0.04, 0.18) on left_siding_c12_0",
+      "studs": "",
+      "top": "settle_analyse 5, ballistics 4, batches 2, player 0, structures 0"
+    },
+    {
+      "along": -2.0,
+      "blast_ms": 26.31,
+      "blocking": "left_siding_c09_0_b <- @Node3D@3965, left_siding_c11_0_b <- @Node3D@3965, left_siding_c10_0_b <- @Node3D@3965",
+      "broken": {
+        "board": 19,
+        "floor_board": 16,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2
+      },
+      "clear": 1.0,
+      "stick": "(-0.04, 0.18) on left_siding_c10_0",
+      "studs": "",
+      "top": "ballistics 4, settle_analyse 2, batches 2, player 1, structures 0"
+    },
+    {
+      "along": -2.5,
+      "blast_ms": 25.142,
+      "blocking": "left_siding_c08_0_b <- @Node3D@5926, left_siding_c09_0_b <- @Node3D@5926, left_siding_c07_0_b <- @Node3D@5926",
+      "broken": {
+        "board": 18,
+        "floor_board": 16,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2,
+        "trim": 1
+      },
+      "clear": 1.0,
+      "stick": "(-0.04, 0.18) on left_siding_c08_0",
+      "studs": "",
+      "top": "ballistics 4, settle_analyse 2, batches 2, player 0, structures 0"
+    },
+    {
+      "along": -3.0,
+      "blast_ms": 28.92,
+      "blocking": "left_siding_c07_0_b <- @Node3D@7880, left_siding_c06_0_b <- @Node3D@7880, left_siding_c05_0_b <- @Node3D@7880",
+      "broken": {
+        "board": 17,
+        "floor_board": 16,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2,
+        "trim": 2
+      },
+      "clear": 1.1,
+      "stick": "(-0.04, 0.18) on left_siding_c06_0",
+      "studs": "",
+      "top": "ballistics 7, settle_analyse 2, batches 1, player 0, structures 0"
+    },
+    {
+      "along": -3.5,
+      "blast_ms": 20.722,
+      "blocking": "left_siding_c04_0_b <- @Node3D@9800, left_siding_c03_0_b <- @Node3D@9800, left_siding_c05_0_b <- @Node3D@9800",
+      "broken": {
+        "board": 23,
+        "floor_board": 15,
+        "glass": 4,
+        "joist": 2,
+        "stud": 2,
+        "trim": 2
+      },
+      "clear": 1.1,
+      "stick": "(-0.04, 0.18) on left_siding_c04_0",
+      "studs": "",
+      "top": "ballistics 3, settle_analyse 2, batches 1, player 0, structures 0"
+    },
+    {
+      "along": -4.0,
+      "blast_ms": 31.866,
+      "broken": {
+        "board": 31,
+        "floor_board": 14,
+        "glass": 4,
+        "joist": 2,
+        "plate": 1,
+        "rafter": 4,
+        "roof_board": 1,
+        "stud": 4,
+        "trim": 2
+      },
+      "clear": 1.9,
+      "stick": "(-0.04, 0.18) on left_siding_c02_0",
+      "studs": "",
+      "top": "ballistics 3, settle_analyse 3, batches 1, player 0, structures 0"
+    },
+    {
+      "along": -4.5,
+      "blast_ms": 29.898,
+      "broken": {
+        "board": 34,
+        "cripple": 2,
+        "floor_board": 8,
+        "glass": 4,
+        "header": 1,
+        "joist": 1,
+        "ledger": 1,
+        "plate": 1,
+        "rafter": 12,
+        "roof_board": 13,
+        "stud": 5,
+        "trim": 4
+      },
+      "clear": 1.9,
+      "stick": "(-0.04, 0.18) on left_siding_c00_0",
+      "studs": "",
+      "top": "ballistics 6, batches 1, settle_analyse 1, player 0, structures 0"
+    }
+  ],
+  "side": "outside",
+  "stoop": 2,
+  "walk": 2
+}

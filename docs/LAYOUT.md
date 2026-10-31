@@ -1013,7 +1013,10 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
   measures it (and the rhythm, reload, sway) frame by frame against the feel ranges.
   `Ballistics.fire_charge()` flies a shotgun charge as separate pellets. `DynamiteViewmodel` is the
-  stick in hand. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
+  (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
+  its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
+  OutlawBrain hears; `experiments/plant_dynamite/`). `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 

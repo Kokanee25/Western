@@ -30,7 +30,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	Events.exploded.disconnect(_on_boom)
-	for a in [&"fire", &"cock", &"aim", &"weapon_dynamite"]:
+	for a in [&"fire", &"cock", &"aim", &"weapon_dynamite", &"shove"]:
 		Input.action_release(a)
 	world.queue_free()
 	await physics_frames(2)
@@ -539,6 +539,159 @@ func test_hold_it_too_long() -> void:
 	check(p.severed_segments.has(&"hand_r"), "your hand's gone (%s)" % str(p.severed_segments.keys()))
 	check(player.wounds.ringing > 5.0, "your ears ring (%.0f s)" % player.wounds.ringing)
 	check(not p.can_hold("r"), "you can't hold anything in it")
+
+
+# --- Planted at a wall's foot (#506: hold E by a wall, lit when you let go) -------------------------
+
+## The player in the store, `off` m in from its side wall, facing it and looking `pitch` degrees
+## (down is less than 0), the stick in hand.
+func _facing_wall(off: float, pitch: float) -> Array:
+	var store := await _store()
+	var player := await _player()
+	var board := _side_board(store)
+	player.global_position = Vector3(off, store.floor_top + 0.05, board.global_position.z - 3.0)
+	player.rotation.y = PI * 0.5  # -Z turned to -X: at the wall
+	player.add_look(Vector2(0.0, pitch - player.get_pitch_degrees()), false)
+	await physics_frames(10)
+	return [store, player]
+
+
+func _key(down: bool) -> void:
+	var ev := InputEventAction.new()
+	ev.action = &"shove"
+	ev.pressed = down
+	ev.strength = 1.0 if down else 0.0
+	Input.parse_input_event(ev)
+
+
+func _sticks() -> Array:
+	return get_tree().get_nodes_in_group(&"dynamite").filter(func(n: Node) -> bool: return n is DynamiteStick and not n.is_queued_for_deletion())
+
+
+func test_held_by_a_wall_it_plants_and_lights_on_letting_go() -> void:
+	var r := await _facing_wall(0.9, -35.0)
+	var store: FalseFrontBuilding = r[0]
+	var player: Player = r[1]
+	var d := player.dynamite()
+	check(d.claims_use(), "a wall in reach: E is the stick's")
+	var sticks := d.sticks
+	var hisses := []
+	var on_noise := func(at: Vector3, _l: float, kind: StringName, _s: Node) -> void:
+		if kind == &"fuse":
+			hisses.append(at)
+	Events.noise.connect(on_noise)
+	_key(true)
+	await physics_frames(int(Blast.t().plant_time * 60.0) + 6)
+	var set_down := _sticks()
+	check_eq(set_down.size(), 1, "a stick set down")
+	check_eq(player.shove.move, &"", "no shove or kick")
+	check(player.shove.holding < 0.0, "nor one wound up")
+	if set_down.size() == 1:
+		var s: DynamiteStick = set_down[0]
+		check(not s.lit, "unlit while you hold the key")
+		check(s.planted, "planted, not thrown")
+		var aim := _aimed(player)
+		check(s.global_position.distance_to(aim) < 0.03, "where you aimed (%s, aimed %s)" % [s.global_position, aim])
+		check(aim.y > store.floor_top + 0.6, "up the wall, not at its foot (%.2f)" % aim.y)
+		check(absf(s.global_basis.z.normalized().y) < 0.2 or absf(s.global_basis.z.normalized().y) > 0.95, "lying along the board or the stud")
+		check_eq(d.sticks, sticks - 1, "one fewer in hand")
+		await physics_frames(30)
+		check(not s.lit, "still unlit, key down")
+		check(s.global_position.distance_to(aim) < 0.03, "held there, not fallen")
+		_key(false)
+		await physics_frames(3)
+		check(s.lit, "lit as the key comes up")
+		check_near(s.fuse_left, Blast.t().plant_fuse_seconds, 0.2, "a fuse to get round a corner")
+		await physics_frames(70)
+		check(not hisses.is_empty(), "its hiss is a noise men hear (%d)" % hisses.size())
+		await wait_until(func() -> bool: return not booms.is_empty(), int(Blast.t().plant_fuse_seconds * 60.0) + 30)
+		check_eq(booms.size(), 1, "and it goes")
+	Events.noise.disconnect(on_noise)
+
+
+func test_let_go_too_soon_sets_nothing() -> void:
+	var r := await _facing_wall(0.9, -35.0)
+	var player: Player = r[1]
+	var sticks := player.dynamite().sticks
+	_key(true)
+	await physics_frames(int(Blast.t().plant_time * 30.0))
+	_key(false)
+	await physics_frames(20)
+	check(_sticks().is_empty(), "nothing set down")
+	check_eq(player.dynamite().sticks, sticks, "still in hand")
+	check_eq(player.shove.move, &"", "and no shove either")
+
+
+## Where the player's eye line meets the store, a stick's radius out from it.
+func _aimed(player: Player) -> Vector3:
+	var cam := player.camera
+	var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position - cam.global_basis.z * 3.0, Layers.WORLD)
+	q.exclude = [player.get_rid()]
+	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	return (hit.position as Vector3) + (hit.normal as Vector3) * (DynamiteStick.RADIUS + 0.003) if not hit.is_empty() else Vector3.INF
+
+
+func test_it_goes_where_you_aim() -> void:
+	var store := await _store()
+	var space := world.get_world_3d().direct_space_state
+	var z := _side_board(store).global_position.z - 3.0
+	var eye := Vector3(1.0, store.floor_top + 1.6, z)
+	# The wall high and low, the floor in front of it.
+	for look: Vector3 in [Vector3(-1, -0.1, 0), Vector3(-1, -1.4, 0), Vector3(-0.3, -1, 0)]:
+		var spot := DynamiteViewmodel.plant_spot(space, eye, look, 2.2)
+		check(not spot.is_empty(), "a spot looking %s" % look)
+		if spot.is_empty():
+			continue
+		var q := PhysicsRayQueryParameters3D.create(eye, eye + look.normalized() * 2.2, Layers.WORLD)
+		var hit := space.intersect_ray(q)
+		check((spot.at as Vector3).distance_to(hit.position) < 0.02, "right where the line meets it (%s)" % look)
+	# A stud: up it, along it.
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud") and absf(m.global_position.z - z) < 1.5:
+			stud = m
+			break
+	check(stud != null, "a stud by you")
+	if stud:
+		var at := stud.global_position + Vector3(0.3, 0.0, 0.0)
+		var spot := DynamiteViewmodel.plant_spot(space, at + Vector3(0.6, 0.0, 0.0), Vector3(-1, 0, 0), 2.2)
+		check(not spot.is_empty() and spot.collider == stud, "on the stud (%s)" % [spot.get("collider")])
+		if not spot.is_empty():
+			check(absf((spot.basis as Basis).z.y) > 0.95, "lying up it")
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(1, -0.2, 0), 1.6).is_empty(), "nothing that way in reach")
+	# A man in front: no spot (E is the shove).
+	await _man(Vector3(0.45, store.floor_top, z))
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(-1, -0.4, 0), 2.2).is_empty(), "not through a man")
+
+
+func test_on_a_stud_until_the_stud_goes() -> void:
+	var store := await _store()
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud"):
+			stud = m
+			break
+	var s := DynamiteStick.make(world, stud.global_position + Vector3(0.1, 0.4, 0.0))
+	s.stick_to(stud)
+	await physics_frames(30)
+	check_near(s.global_position.y, stud.global_position.y + 0.4, 0.01, "held on the stud")
+	(stud.get_parent() as Structure).break_member(stud)
+	await physics_frames(40)
+	check(not s.freeze, "let go when the stud breaks")
+	check(s.global_position.y < stud.global_position.y + 0.3, "and it falls (%.2f)" % s.global_position.y)
+
+
+func test_aimed_at_nothing_in_reach_e_is_still_the_shove() -> void:
+	var player := await _player()
+	player.add_look(Vector2(0.0, -20.0 - player.get_pitch_degrees()), false)
+	await physics_frames(5)
+	check(not player.dynamite().claims_use(), "nothing to set it against")
+	_key(true)
+	await physics_frames(3)
+	check(player.shove.holding >= 0.0 or player.shove.move != &"", "E winds up the shove")
+	_key(false)
+	await physics_frames(3)
+	check(_sticks().is_empty(), "no stick set down")
 
 
 # --- On the real street (Sean: "it doesn't destroy the buildings nor damage the bad guy") ------

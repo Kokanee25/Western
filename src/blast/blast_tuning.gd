@@ -18,6 +18,15 @@ extends Resource
 @export var throw_speed_max := 15.0
 @export var throw_windup := 0.7
 @export var throw_lift := 2.5
+## Planting (issue #506): how far off a wall can be (m from your eye) for E held to set a stick at
+## its foot, how long setting it down takes (s), and the fuse it gets when you let go (s: time to
+## get round a corner).
+@export var plant_reach := 2.2
+@export var plant_time := 0.6
+@export var plant_fuse_seconds := 5.0
+## How far a burning planted stick's hiss carries (m, halved through a wall): men that near hear it
+## (Senses, `fuse`).
+@export var fuse_heard := 9.0
 ## Chance a bullet through a stick sets it off (usually it just tears the paper).
 @export var bullet_detonation_chance := 0.25
 ## Other sticks this close go off with it.

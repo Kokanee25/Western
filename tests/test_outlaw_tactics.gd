@@ -424,3 +424,23 @@ func test_behind_cover_he_holds_it_against_what_he_knows_not_a_guess() -> void:
 	OutlawBrain.d_fixes.erase(&"hold_cover")
 	check(brain._held_eye(Vector3(-3.0, 1.6, 1.0)) == Vector3(-3.0, 1.6, 1.0), "without the fix, his guess as before")
 	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+## A planted stick's fuse hissing a few metres off (#506): he hears it, it frightens him and turns
+## his head; one round the corner out of earshot he doesn't.
+func test_he_hears_a_planted_fuse() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var near := DynamiteStick.make(world, Vector3(3.0, 0.02, -10.0), Vector3.ZERO, 60.0)
+	near.planted = true
+	near.light()
+	await physics_frames(70)
+	var heard := float(brain.fear_from.get(&"a fuse hissing", 0.0))
+	check(heard > 0.0, "a fuse 3 m off frightens him (%.2f)" % heard)
+	near.queue_free()
+	brain.fear_from.erase(&"a fuse hissing")
+	var far := DynamiteStick.make(world, Vector3(30.0, 0.02, -10.0), Vector3.ZERO, 60.0)
+	far.planted = true
+	far.light()
+	await physics_frames(70)
+	check_eq(float(brain.fear_from.get(&"a fuse hissing", 0.0)), 0.0, "one 30 m off he doesn't hear")
+	far.queue_free()

@@ -100,7 +100,8 @@ func _physics_process(delta: float) -> void:
 			wants = &""
 		elif player.input_enabled:
 			if Input.is_action_just_pressed(&"shove"):
-				holding = 0.0
+				# A stick in hand by a wall: E sets it there (DynamiteViewmodel, #506).
+				holding = -1.0 if _planting() else 0.0
 			elif holding >= 0.0:
 				if Input.is_action_pressed(&"shove"):
 					holding += delta
@@ -118,6 +119,11 @@ func _physics_process(delta: float) -> void:
 				_recover = tuning.kick_recover
 			move = &""
 	_show_hands()
+
+
+func _planting() -> bool:
+	var w := player.weapon
+	return w is DynamiteViewmodel and (w as DynamiteViewmodel).claims_use()
 
 
 func _start(kind: StringName) -> void:
