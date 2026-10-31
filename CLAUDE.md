@@ -602,9 +602,10 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
-- **The gang's ride-in frame** (#488, PR #509 waiting on Sean's merge): the riders built at load,
-  waiting out of the tree (`TownLife._waiting`), 2,942 -> 71 ms here (`tools/gang_frame.gd`); a
-  harmless blast is no wound and no hit (the radii in `docs/briefs/blast-surfaces.md`). Next: #510.
+- **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
+  out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
+  a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
+  is no wound and no hit (the radii in `docs/briefs/blast-surfaces.md`).
 - **The catch-up cap and a quit that can't hang** (#435, branch `claude/gameplay-catchup-cap`, PR
   waiting on the Fable review): `max_physics_steps_per_frame=2`; every way out through `GameQuit`
   (our pool tasks waited for, then the plugin's `QuitWatchdog` ends the process with the quit's code
