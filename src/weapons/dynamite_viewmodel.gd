@@ -8,11 +8,12 @@ extends WeaponViewmodel
 ## stick too long and it goes off in your hand. A fresh stick comes out after each throw while
 ## you've any left.
 ##
-## Planting (issue #506, the farmhouse breach): facing a wall within reach (or the floor at its
-## foot), hold the use key (E, `shove`): you set a stick down at the wall's base, lying flat to the
-## boards (`plant_time`), and its fuse is lit when you let go (`plant_fuse_seconds`). Let go before
-## it's down and nothing's set. Lit, it's the wall's: there's no picking it back up. Away from a
-## wall E is the shove and kick as before (PlayerShove asks `claims_use()`).
+## Planting (issue #506, the farmhouse breach): aim at any piece of a building within reach (a
+## wall, a stud, a post, a beam, the floor) or the ground and hold the use key (E, `shove`): the
+## stick is fixed right where you aim, flat to it (`plant_time`), and its fuse is lit when you let
+## go (`plant_fuse_seconds`). Let go before it's set and nothing is. Lit, there's no picking it back
+## up. Aiming at a man (or at nothing in reach), E is the shove and kick as before (PlayerShove asks
+## `claims_use()`).
 
 const HIP_POS := Vector3(0.16, -0.2, -0.3)
 const HIP_ROT := Vector3(10.0, -20.0, 60.0)
@@ -155,7 +156,7 @@ func _plant_tick(delta: float) -> void:
 		planting = -1.0
 		return
 	var cam := _player.camera
-	plant_at = plant_spot(World.space(self), cam.global_position, -cam.global_basis.z, _bt.plant_reach, [_player.get_rid()], _player.global_position.y)
+	plant_at = plant_spot(World.space(self), cam.global_position, -cam.global_basis.z, _bt.plant_reach, [_player.get_rid()])
 	if planting >= 0.0:
 		if plant_at.is_empty() or not Input.is_action_pressed(&"shove"):
 			planting = -1.0  # let go too soon, or turned away: nothing set
@@ -167,74 +168,44 @@ func _plant_tick(delta: float) -> void:
 		planting = 0.0
 
 
-## Where a stick goes for a wall seen from `eye` along `look` (within `reach`): on the floor at the
-## wall's foot, lying along it flat to the boards. Looking at the wall or at the floor just in
-## front of it both find it. Empty when there's no upright face in reach with a floor at its foot;
-## with `feet` (your feet's height), the floor you're standing on (within FLOOR_OFF), not a ledge
-## or a window's sill.
-## {at: the stick's centre, basis: its long axis (Z) along the wall, wall: the face's outward
-## normal, collider: the wall}.
-static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vector3, reach: float, exclude: Array = [], feet := NAN) -> Dictionary:
-	if space == null:
+## Where a stick goes for what you're aiming at from `eye` along `look` (within `reach`): right
+## where the line meets it, on any structure's piece (a wall's board, a stud, a post, a beam, a
+## floor, a sill) or the ground, lying flat to that face. Along the piece's own length where that
+## lies across the face (up a post, along a board or a beam), else level across a wall, else along
+## your look on a floor. Empty with nothing in reach, a man in the way (E is the shove then), or a
+## loose thing (a rigid body) in front. Where you put it is your affair (Sean, 2026-10-31: "if you
+## fuck up the placement in game that's the player's fault").
+## {at: the stick's centre, basis: its long axis (Z) along the face, X out of it, wall: the face's
+## normal, collider: what it's on}.
+static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vector3, reach: float, exclude: Array = []) -> Dictionary:
+	if space == null or look.length() < 0.01:
 		return {}
-	var hit := _ray(space, eye, eye + look.normalized() * reach, exclude)
+	var dir := look.normalized()
+	var q := PhysicsRayQueryParameters3D.create(eye, eye + dir * reach, Layers.WORLD | Layers.PEOPLE)
+	q.exclude = exclude
+	var hit := space.intersect_ray(q)
 	if hit.is_empty():
 		return {}
-	var n: Vector3 = hit.normal
-	var floor_at: Vector3
-	var flat := Vector3(look.x, 0.0, look.z)
-	if flat.length() < 0.05:
+	var c: Object = hit.collider
+	if c is RigidBody3D or c is CharacterBody3D or (c is CollisionObject3D and ((c as CollisionObject3D).collision_layer & Layers.WORLD) == 0):
 		return {}
-	flat = flat.normalized()
-	if n.y > 0.7:
-		# The floor: is there a wall just ahead along it?
-		floor_at = hit.position
-		var ahead := _ray(space, floor_at + Vector3.UP * 0.08, floor_at + Vector3.UP * 0.08 + flat * 0.7, exclude)
-		if ahead.is_empty() or absf((ahead.normal as Vector3).y) > 0.4:
-			return {}
-		n = ahead.normal
-	elif absf(n.y) < 0.4:
-		# The wall: the floor under where you're looking, a hand-span out from it (from knee height
-		# over your feet, so a ledge or a window sill isn't taken for it).
-		var nf := Vector3(n.x, 0.0, n.z).normalized()
-		var from := (hit.position as Vector3) + nf * 0.12
-		if not is_nan(feet):
-			from.y = minf(from.y, feet + FLOOR_OFF)
-		var down := _ray(space, from, from + Vector3.DOWN * 2.5, exclude)
-		if down.is_empty() or (down.normal as Vector3).y < 0.7:
-			return {}
-		floor_at = down.position
-	else:
-		return {}
-	if not is_nan(feet) and absf(floor_at.y - feet) > FLOOR_OFF:
-		return {}
-	var out := Vector3(n.x, 0.0, n.z).normalized()
-	# The face where it meets the floor (a window or a ledge higher up isn't where it lies).
-	# (A few heights: a ray along a board's bottom edge meets its underside.)
-	var base := {}
-	for h: float in [0.05, 0.09, 0.03, 0.14]:
-		var low := floor_at + Vector3.UP * h
-		base = _ray(space, low + out * 0.45, low - out * 0.4, exclude)
-		if not base.is_empty() and absf((base.normal as Vector3).y) < 0.4:
-			break
-		base = {}
-	if base.is_empty():
-		return {}
-	out = Vector3((base.normal as Vector3).x, 0.0, (base.normal as Vector3).z).normalized()
-	var at := Vector3((base.position as Vector3).x, floor_at.y, (base.position as Vector3).z) \
-			+ out * (DynamiteStick.RADIUS + 0.004) + Vector3.UP * (DynamiteStick.RADIUS + 0.002)
-	var along := out.cross(Vector3.UP).normalized()
-	return {"at": at, "basis": Basis(out, Vector3.UP, along).orthonormalized(), "wall": out, "collider": base.collider}
-
-
-## How far the floor at the wall may be from your feet (m).
-const FLOOR_OFF := 0.25
-
-
-static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array) -> Dictionary:
-	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
-	q.exclude = exclude
-	return space.intersect_ray(q)
+	var n: Vector3 = (hit.normal as Vector3).normalized()
+	var along := Vector3.ZERO
+	if c is StructureMember:
+		var ax := (c as StructureMember).axis()
+		ax = ax - n * ax.dot(n)
+		if ax.length() > 0.5:
+			along = ax.normalized()
+	if along == Vector3.ZERO:
+		along = n.cross(Vector3.UP)
+		if along.length() < 0.3:
+			# A floor, a ceiling, a beam's top: along your look.
+			along = dir - n * dir.dot(n)
+			if along.length() < 0.05:
+				along = n.cross(Vector3.RIGHT)
+		along = along.normalized()
+	var at: Vector3 = (hit.position as Vector3) + n * (DynamiteStick.RADIUS + 0.003)
+	return {"at": at, "basis": Basis(n, along.cross(n), along).orthonormalized(), "wall": n, "collider": c}
 
 
 ## Set a stick down at `spot` (`plant_spot()`), unlit: it's lit when E comes up. Returns it.
@@ -244,8 +215,8 @@ func plant(spot: Dictionary) -> DynamiteStick:
 		return null
 	var s := DynamiteStick.make(_ballistics().get_parent(), spot.at, Vector3.ZERO, _bt.plant_fuse_seconds)
 	s.owner_node = _player
-	s.planted = true
 	s.global_basis = spot.basis
+	s.stick_to(spot.collider)
 	sticks -= 1
 	_next_stick = 0.6
 	planted = s

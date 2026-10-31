@@ -12,6 +12,8 @@ const WALK := 1.7
 const STOOP := 1.3
 
 var side := "inside"
+## Where you aim on the wall from 0.9 m off: its foot (~0.1 m up) or chest high (~1.2 m up).
+var aim := "foot"
 var out_path := ""
 var rows: Array = []
 
@@ -20,6 +22,8 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--side="):
 			side = a.substr(7)
+		elif a.begins_with("--aim="):
+			aim = a.substr(6)
 		elif a.begins_with("--spots="):
 			SPOTS = int(a.substr(8))
 		elif a.begins_with("--first="):
@@ -36,7 +40,7 @@ func _run() -> void:
 	var walk := rows.filter(func(r: Dictionary) -> bool: return r["clear"] >= WALK).size()
 	var stoop := rows.filter(func(r: Dictionary) -> bool: return r["clear"] >= STOOP).size()
 	var lines := PackedStringArray()
-	lines.append("side %s: walk-through (>= %.1f m) %d of %d, stoop-through (>= %.1f m) %d of %d" % [side, WALK, walk, SPOTS, STOOP, stoop, SPOTS])
+	lines.append("aim %s, side %s: walk-through (>= %.1f m) %d of %d, stoop-through (>= %.1f m) %d of %d" % [aim, side, WALK, walk, SPOTS, STOOP, stoop, SPOTS])
 	for r: Dictionary in rows:
 		lines.append("  along %+.1f  stick %s  clear %.1f m  blast frame %.0f ms  top %s%s" % [r["along"], r["stick"], r["clear"], r["blast_ms"], r["top"], ("  in the way: " + r["blocking"]) if r.has("blocking") else ""])
 	for r: Dictionary in rows:
@@ -44,7 +48,7 @@ func _run() -> void:
 	print("\n".join(lines))
 	if out_path != "":
 		var f := FileAccess.open(out_path, FileAccess.WRITE)
-		f.store_string(JSON.stringify({"side": side, "walk": walk, "stoop": stoop, "rows": rows}, "  "))
+		f.store_string(JSON.stringify({"side": side, "aim": aim, "walk": walk, "stoop": stoop, "rows": rows}, "  "))
 	done.emit()
 
 
@@ -84,7 +88,7 @@ func _one(k: int) -> Dictionary:
 	else:
 		player.global_position = Vector3(-0.9, 0.05, z)
 		player.rotation.y = -PI * 0.5
-	player.add_look(Vector2(0.0, -35.0 - player.get_pitch_degrees()), false)
+	player.add_look(Vector2(0.0, (-59.0 if aim == "foot" else -22.0) - player.get_pitch_degrees()), false)
 	await _frames(10)
 	var row := {"along": along, "stick": "-", "clear": 0.0, "blast_ms": 0.0, "top": ""}
 	_key(true)
@@ -100,7 +104,7 @@ func _one(k: int) -> Dictionary:
 		await _frames(2)
 		return row
 	await _frames(10)
-	row["stick"] = "(%.2f, %.2f)" % [s.global_position.x, s.global_position.y]
+	row["stick"] = "(%.2f, %.2f) on %s" % [s.global_position.x, s.global_position.y, s.stuck_to.name if is_instance_valid(s.stuck_to) else "-"]
 	_key(false)
 	await _frames(2)
 	# Off round the corner (out of the way of the hole's measure).

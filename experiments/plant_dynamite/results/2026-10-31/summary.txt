@@ -1,18 +1,68 @@
-side inside: walk-through (>= 1.7 m) 2 of 8, stoop-through (>= 1.3 m) 4 of 8
-  along -1.0  stick (0.01, 0.22)  clear 1.2 m  blast frame 44 ms  top ballistics 10, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c14_0_b 
-  along -1.5  stick (0.01, 0.22)  clear 1.2 m  blast frame 23 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c13_0_b <
-  along -2.0  stick (0.02, 0.22)  clear 1.2 m  blast frame 25 ms  top ballistics 5, settle_analyse 2, batches 2, player 0, structures 0  in the way: left_siding_c11_0_b <
-  along -2.5  stick (0.02, 0.22)  clear 1.2 m  blast frame 24 ms  top ballistics 4, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c07_0_b <
-  along -3.0  stick (0.02, 0.22)  clear 1.3 m  blast frame 22 ms  top ballistics 4, settle_analyse 2, batches 2, player 0, structures 0
-  along -3.5  stick (0.02, 0.22)  clear 1.3 m  blast frame 21 ms  top ballistics 3, batches 1, player 0, structures 0, settle_analyse 0
-  along -4.0  stick (0.01, 0.22)  clear 1.9 m  blast frame 27 ms  top settle_analyse 4, ballistics 4, batches 1, player 0, structures 0
-  along -4.5  stick (0.02, 0.22)  clear 1.9 m  blast frame 36 ms  top settle_analyse 13, ballistics 4, batches 1, bu_forget 1, bu_closure 1
-side outside: walk-through (>= 1.7 m) 1 of 8, stoop-through (>= 1.3 m) 1 of 8
-  along -1.0  stick (-0.04, 0.01)  clear 1.0 m  blast frame 39 ms  top ballistics 10, settle_analyse 2, batches 1, player 0, structures 0  in the way: left_siding_c15_0_b
-  along -1.5  stick (-0.04, 0.01)  clear 1.0 m  blast frame 21 ms  top ballistics 4, settle_analyse 1, batches 1, player 0, structures 0  in the way: left_siding_c13_0_b 
-  along -2.0  stick (-0.04, 0.01)  clear 1.1 m  blast frame 19 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_stud_04 <- @Nod
-  along -2.5  stick (-0.04, 0.01)  clear 1.1 m  blast frame 21 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c09_0_b 
-  along -3.0  stick (-0.04, 0.01)  clear 1.1 m  blast frame 21 ms  top ballistics 4, batches 1, settle_analyse 1, player 0, structures 0  in the way: left_siding_c07_0_b 
-  along -3.5  stick (-0.04, 0.01)  clear 1.1 m  blast frame 22 ms  top ballistics 4, batches 2, settle_analyse 1, player 0, structures 0  in the way: left_stud_02 <- @Nod
-  along -4.0  stick (-0.04, 0.01)  clear 1.0 m  blast frame 27 ms  top ballistics 6, settle_analyse 1, player 1, batches 1, structures 0  in the way: left_siding_c01_0_b 
-  along -4.5  stick (-0.04, 0.01)  clear 1.9 m  blast frame 23 ms  top ballistics 4, batches 2, settle_analyse 1, player 1, structures 0
+aim foot, side inside: walk-through (>= 1.7 m) 4 of 8, stoop-through (>= 1.3 m) 6 of 8
+  along -1.0  stick (0.45, 1.29) on shelf1  clear 1.9 m  blast frame 54 ms  top ballistics 10, settle_analyse 2, batches 1, structures 1, player 1
+  along -1.5  stick (0.45, 1.29) on shelf1  clear 1.9 m  blast frame 50 ms  top settle_analyse 8, ballistics 5, batches 1, structures 1, player 0
+  along -2.0  stick (0.02, 0.52) on left_siding_c10_0  clear 1.2 m  blast frame 22 ms  top ballistics 3, batches 2, settle_analyse 1, player 0, structures 0  in the way: 
+  along -2.5  stick (0.02, 0.52) on left_siding_c08_0  clear 1.2 m  blast frame 26 ms  top ballistics 4, settle_analyse 3, batches 2, player 1, structures 0  in the way: 
+  along -3.0  stick (0.02, 0.52) on left_siding_c06_0  clear 1.3 m  blast frame 57 ms  top settle_analyse 12, ballistics 8, batches 7, bu_forget 2, player 1
+  along -3.5  stick (0.02, 0.52) on left_siding_c04_0  clear 1.3 m  blast frame 26 ms  top ballistics 6, settle_analyse 3, batches 1, player 0, structures 0
+  along -4.0  stick (0.02, 0.52) on left_siding_c02_0  clear 1.9 m  blast frame 27 ms  top ballistics 4, batches 2, settle_analyse 2, player 0, structures 0
+  along -4.5  stick (0.02, 0.52) on left_siding_c01_0  clear 1.9 m  blast frame 39 ms  top settle_analyse 13, ballistics 4, bu_forget 1, bu_closure 1, batches 1
+  along -1.0  broken { &"board": 23, &"floor_board": 26, &"stud": 6, &"joist": 2, &"roof_board": 7, &"glass": 4 }  studs within 0.5 m: 
+  along -1.5  broken { &"floor_board": 27, &"board": 23, &"stud": 5, &"joist": 2, &"roof_board": 7, &"glass": 4 }  studs within 0.5 m: 
+  along -2.0  broken { &"floor_board": 14, &"board": 17, &"joist": 1, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -2.5  broken { &"board": 17, &"joist": 1, &"floor_board": 14, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.0  broken { &"board": 16, &"joist": 1, &"trim": 1, &"floor_board": 16, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.5  broken { &"joist": 1, &"trim": 2, &"floor_board": 14, &"board": 21, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -4.0  broken { &"joist": 1, &"stud": 6, &"trim": 2, &"floor_board": 11, &"board": 35, &"glass": 4, &"ledger": 1, &"header": 1, &"plate": 1, &"rafter": 14, &"cripp
+  along -4.5  broken { &"joist": 1, &"stud": 6, &"trim": 3, &"floor_board": 9, &"board": 38, &"glass": 4, &"ledger": 1, &"header": 1, &"plate": 1, &"rafter": 14, &"crippl
+aim foot, side outside: walk-through (>= 1.7 m) 2 of 8, stoop-through (>= 1.3 m) 2 of 8
+  along -1.0  stick (-0.04, 0.18) on left_siding_c14_0  clear 1.0 m  blast frame 57 ms  top ballistics 13, batches 2, player 1, structures 1, settle_analyse 0  in the way
+  along -1.5  stick (-0.04, 0.18) on left_siding_c12_0  clear 0.9 m  blast frame 34 ms  top settle_analyse 5, ballistics 4, batches 2, player 0, structures 0  in the way:
+  along -2.0  stick (-0.04, 0.18) on left_siding_c10_0  clear 1.0 m  blast frame 26 ms  top ballistics 4, settle_analyse 2, batches 2, player 1, structures 0  in the way:
+  along -2.5  stick (-0.04, 0.18) on left_siding_c08_0  clear 1.0 m  blast frame 25 ms  top ballistics 4, settle_analyse 2, batches 2, player 0, structures 0  in the way:
+  along -3.0  stick (-0.04, 0.18) on left_siding_c06_0  clear 1.1 m  blast frame 29 ms  top ballistics 7, settle_analyse 2, batches 1, player 0, structures 0  in the way:
+  along -3.5  stick (-0.04, 0.18) on left_siding_c04_0  clear 1.1 m  blast frame 21 ms  top ballistics 3, settle_analyse 2, batches 1, player 0, structures 0  in the way:
+  along -4.0  stick (-0.04, 0.18) on left_siding_c02_0  clear 1.9 m  blast frame 32 ms  top ballistics 3, settle_analyse 3, batches 1, player 0, structures 0
+  along -4.5  stick (-0.04, 0.18) on left_siding_c00_0  clear 1.9 m  blast frame 30 ms  top ballistics 6, batches 1, settle_analyse 1, player 0, structures 0
+  along -1.0  broken { &"floor_board": 16, &"board": 19, &"stud": 2, &"joist": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -1.5  broken { &"floor_board": 16, &"board": 19, &"stud": 2, &"joist": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -2.0  broken { &"floor_board": 16, &"board": 19, &"joist": 2, &"stud": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -2.5  broken { &"floor_board": 16, &"board": 18, &"joist": 2, &"trim": 1, &"stud": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -3.0  broken { &"board": 17, &"joist": 2, &"trim": 2, &"floor_board": 16, &"stud": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -3.5  broken { &"board": 23, &"joist": 2, &"trim": 2, &"floor_board": 15, &"stud": 2, &"glass": 4 }  studs within 0.5 m: 
+  along -4.0  broken { &"joist": 2, &"stud": 4, &"trim": 2, &"floor_board": 14, &"board": 31, &"glass": 4, &"plate": 1, &"rafter": 4, &"roof_board": 1 }  studs within 0.5
+  along -4.5  broken { &"joist": 1, &"stud": 5, &"trim": 4, &"floor_board": 8, &"board": 34, &"glass": 4, &"ledger": 1, &"header": 1, &"rafter": 12, &"plate": 1, &"crippl
+aim chest, side inside: walk-through (>= 1.7 m) 6 of 8, stoop-through (>= 1.3 m) 6 of 8
+  along -1.0  stick (0.43, 1.85) on shelf2  clear 1.9 m  blast frame 63 ms  top ballistics 12, settle_analyse 1, batches 1, structures 1, player 0
+  along -1.5  stick (0.43, 1.85) on shelf2  clear 1.9 m  blast frame 40 ms  top settle_analyse 5, ballistics 4, batches 1, structures 1, player 1
+  along -2.0  stick (0.02, 1.66) on left_siding_c10_0  clear 1.9 m  blast frame 21 ms  top batches 2, ballistics 2, player 0, settle_analyse 0, structures 0
+  along -2.5  stick (0.02, 1.66) on left_siding_c08_0  clear 1.9 m  blast frame 37 ms  top settle_analyse 5, ballistics 3, batches 1, player 1, settle_apply 0
+  along -3.0  stick (0.02, 1.66) on left_siding_c06_0  clear 0.0 m  blast frame 26 ms  top settle_analyse 2, ballistics 2, batches 2, player 1, structures 0  in the way: 
+  along -3.5  stick (0.02, 1.66) on left_siding_c04_0  clear 1.9 m  blast frame 23 ms  top batches 4, settle_analyse 2, ballistics 1, player 0, settle_apply 0
+  along -4.0  stick (0.02, 1.66) on left_siding_c02_0  clear 0.0 m  blast frame 21 ms  top settle_analyse 2, ballistics 1, player 0, structures 0, settle_apply 0  in the 
+  along -4.5  stick (0.02, 1.66) on left_siding_c01_0  clear 1.9 m  blast frame 76 ms  top settle_analyse 27, ballistics 1, bu_forget 1, bu_closure 1, player 1
+  along -1.0  broken { &"roof_board": 12, &"board": 23, &"floor_board": 18, &"stud": 9, &"glass": 4, &"trim": 1 }  studs within 0.5 m: 
+  along -1.5  broken { &"floor_board": 18, &"board": 23, &"stud": 8, &"roof_board": 11, &"glass": 4 }  studs within 0.5 m: 
+  along -2.0  broken { &"board": 20, &"roof_board": 4, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -2.5  broken { &"board": 23, &"roof_board": 4, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.0  broken { &"board": 26, &"roof_board": 4, &"trim": 2, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.5  broken { &"roof_board": 4, &"trim": 3, &"board": 24, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -4.0  broken { &"roof_board": 18, &"stud": 6, &"trim": 4, &"board": 30, &"glass": 4, &"ledger": 1, &"header": 1, &"plate": 1, &"rafter": 14, &"cripple": 2 }  stud
+  along -4.5  broken { &"roof_board": 20, &"stud": 5, &"trim": 5, &"board": 32, &"glass": 4, &"ledger": 1, &"header": 1, &"plate": 1, &"rafter": 14, &"cripple": 2 }  stud
+aim chest, side outside: walk-through (>= 1.7 m) 8 of 8, stoop-through (>= 1.3 m) 8 of 8
+  along -1.0  stick (-0.04, 1.29) on left_siding_c14_0  clear 1.9 m  blast frame 50 ms  top ballistics 11, batches 2, settle_analyse 1, player 0, structures 0
+  along -1.5  stick (-0.04, 1.29) on left_siding_c12_0  clear 1.9 m  blast frame 21 ms  top settle_analyse 2, ballistics 2, batches 1, player 0, structures 0
+  along -2.0  stick (-0.04, 1.29) on left_siding_c10_0  clear 1.9 m  blast frame 18 ms  top ballistics 2, batches 2, settle_analyse 1, player 0, structures 0
+  along -2.5  stick (-0.04, 1.29) on left_siding_c08_0  clear 1.9 m  blast frame 21 ms  top ballistics 2, batches 1, settle_analyse 1, player 0, structures 0
+  along -3.0  stick (-0.04, 1.29) on left_siding_c06_0  clear 1.9 m  blast frame 25 ms  top ballistics 4, batches 3, player 0, settle_analyse 0, structures 0
+  along -3.5  stick (-0.04, 1.29) on left_siding_c04_0  clear 1.9 m  blast frame 21 ms  top ballistics 2, settle_analyse 1, batches 1, player 0, structures 0
+  along -4.0  stick (-0.04, 1.29) on left_siding_c02_0  clear 1.9 m  blast frame 22 ms  top ballistics 3, batches 1, player 0, structures 0, settle_analyse 0
+  along -4.5  stick (-0.04, 1.29) on left_siding_c00_0  clear 1.9 m  blast frame 39 ms  top settle_analyse 11, ballistics 2, batches 2, bu_closure 1, bu_forget 1
+  along -1.0  broken { &"floor_board": 4, &"board": 18, &"stud": 3, &"roof_board": 1, &"glass": 4, &"header": 1 }  studs within 0.5 m: 
+  along -1.5  broken { &"floor_board": 4, &"board": 19, &"stud": 3, &"roof_board": 1, &"glass": 4 }  studs within 0.5 m: 
+  along -2.0  broken { &"board": 17, &"roof_board": 1, &"floor_board": 4, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -2.5  broken { &"board": 18, &"roof_board": 1, &"floor_board": 4, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.0  broken { &"board": 19, &"roof_board": 1, &"trim": 2, &"floor_board": 4, &"stud": 4, &"glass": 4 }  studs within 0.5 m: 
+  along -3.5  broken { &"roof_board": 1, &"trim": 2, &"floor_board": 4, &"board": 21, &"stud": 3, &"glass": 4 }  studs within 0.5 m: 
+  along -4.0  broken { &"roof_board": 14, &"stud": 5, &"trim": 4, &"floor_board": 4, &"board": 31, &"glass": 4, &"ledger": 1, &"header": 1, &"plate": 1, &"rafter": 14, &"
+  along -4.5  broken { &"stud": 5, &"trim": 5, &"board": 33, &"glass": 4, &"floor_board": 2, &"ledger": 1, &"header": 1, &"rafter": 12, &"plate": 1, &"cripple": 2, &"roof

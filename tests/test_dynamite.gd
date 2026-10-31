@@ -520,16 +520,14 @@ func test_held_by_a_wall_it_plants_and_lights_on_letting_go() -> void:
 		var s: DynamiteStick = set_down[0]
 		check(not s.lit, "unlit while you hold the key")
 		check(s.planted, "planted, not thrown")
-		check(s.global_position.y < store.floor_top + 0.05, "down at the floor (%.2f)" % s.global_position.y)
-		check_near(s.global_position.x, 0.02, 0.03, "against the wall's inside")
-		check(absf(s.global_basis.z.normalized().dot(Vector3.FORWARD)) > 0.95, "lying along the wall")
+		var aim := _aimed(player)
+		check(s.global_position.distance_to(aim) < 0.03, "where you aimed (%s, aimed %s)" % [s.global_position, aim])
+		check(aim.y > store.floor_top + 0.6, "up the wall, not at its foot (%.2f)" % aim.y)
+		check(absf(s.global_basis.z.normalized().y) < 0.2 or absf(s.global_basis.z.normalized().y) > 0.95, "lying along the board or the stud")
 		check_eq(d.sticks, sticks - 1, "one fewer in hand")
 		await physics_frames(30)
 		check(not s.lit, "still unlit, key down")
-		# Between two studs the floor stops short of the boards: it settles into the bay, on the sill,
-		# still against them.
-		check_near(s.global_position.y, FalseFrontBuilding.SILL + DynamiteStick.RADIUS, 0.03, "on the sill in the stud bay")
-		check_near(s.global_position.x, 0.02, 0.03, "still against the boards")
+		check(s.global_position.distance_to(aim) < 0.03, "held there, not fallen")
 		_key(false)
 		await physics_frames(3)
 		check(s.lit, "lit as the key comes up")
@@ -554,21 +552,66 @@ func test_let_go_too_soon_sets_nothing() -> void:
 	check_eq(player.shove.move, &"", "and no shove either")
 
 
-func test_looking_at_the_wall_or_the_floor_by_it() -> void:
+## Where the player's eye line meets the store, a stick's radius out from it.
+func _aimed(player: Player) -> Vector3:
+	var cam := player.camera
+	var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position - cam.global_basis.z * 3.0, Layers.WORLD)
+	q.exclude = [player.get_rid()]
+	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	return (hit.position as Vector3) + (hit.normal as Vector3) * (DynamiteStick.RADIUS + 0.003) if not hit.is_empty() else Vector3.INF
+
+
+func test_it_goes_where_you_aim() -> void:
 	var store := await _store()
 	var space := world.get_world_3d().direct_space_state
 	var z := _side_board(store).global_position.z - 3.0
 	var eye := Vector3(1.0, store.floor_top + 1.6, z)
-	for look: Vector3 in [Vector3(-1, -0.3, 0), Vector3(-1, -1.4, 0), Vector3(-1, -0.9, 0)]:
-		var spot := DynamiteViewmodel.plant_spot(space, eye, look, 1.9)
+	# The wall high and low, the floor in front of it.
+	for look: Vector3 in [Vector3(-1, -0.1, 0), Vector3(-1, -1.4, 0), Vector3(-0.3, -1, 0)]:
+		var spot := DynamiteViewmodel.plant_spot(space, eye, look, 2.2)
 		check(not spot.is_empty(), "a spot looking %s" % look)
+		if spot.is_empty():
+			continue
+		var q := PhysicsRayQueryParameters3D.create(eye, eye + look.normalized() * 2.2, Layers.WORLD)
+		var hit := space.intersect_ray(q)
+		check((spot.at as Vector3).distance_to(hit.position) < 0.02, "right where the line meets it (%s)" % look)
+	# A stud: up it, along it.
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud") and absf(m.global_position.z - z) < 1.5:
+			stud = m
+			break
+	check(stud != null, "a stud by you")
+	if stud:
+		var at := stud.global_position + Vector3(0.3, 0.0, 0.0)
+		var spot := DynamiteViewmodel.plant_spot(space, at + Vector3(0.6, 0.0, 0.0), Vector3(-1, 0, 0), 2.2)
+		check(not spot.is_empty() and spot.collider == stud, "on the stud (%s)" % [spot.get("collider")])
 		if not spot.is_empty():
-			check_near(spot.at.y, store.floor_top + DynamiteStick.RADIUS, 0.03, "at the wall's foot (%s)" % look)
-			check_near(spot.at.x, 0.02, 0.03, "against it (%s)" % look)
-	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(1, -0.2, 0), 1.6).is_empty(), "no wall that way in reach")
+			check(absf((spot.basis as Basis).z.y) > 0.95, "lying up it")
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(1, -0.2, 0), 1.6).is_empty(), "nothing that way in reach")
+	# A man in front: no spot (E is the shove).
+	await _man(Vector3(0.45, store.floor_top, z))
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(-1, -0.4, 0), 2.2).is_empty(), "not through a man")
 
 
-func test_away_from_a_wall_e_is_still_the_shove() -> void:
+func test_on_a_stud_until_the_stud_goes() -> void:
+	var store := await _store()
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud"):
+			stud = m
+			break
+	var s := DynamiteStick.make(world, stud.global_position + Vector3(0.1, 0.4, 0.0))
+	s.stick_to(stud)
+	await physics_frames(30)
+	check_near(s.global_position.y, stud.global_position.y + 0.4, 0.01, "held on the stud")
+	(stud.get_parent() as Structure).break_member(stud)
+	await physics_frames(40)
+	check(not s.freeze, "let go when the stud breaks")
+	check(s.global_position.y < stud.global_position.y + 0.3, "and it falls (%.2f)" % s.global_position.y)
+
+
+func test_aimed_at_nothing_in_reach_e_is_still_the_shove() -> void:
 	var player := await _player()
 	player.add_look(Vector2(0.0, -20.0 - player.get_pitch_degrees()), false)
 	await physics_frames(5)
