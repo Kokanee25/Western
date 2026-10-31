@@ -39,6 +39,8 @@ func _run() -> void:
 	lines.append("side %s: walk-through (>= %.1f m) %d of %d, stoop-through (>= %.1f m) %d of %d" % [side, WALK, walk, SPOTS, STOOP, stoop, SPOTS])
 	for r: Dictionary in rows:
 		lines.append("  along %+.1f  stick %s  clear %.1f m  blast frame %.0f ms  top %s%s" % [r["along"], r["stick"], r["clear"], r["blast_ms"], r["top"], ("  in the way: " + r["blocking"]) if r.has("blocking") else ""])
+	for r: Dictionary in rows:
+		lines.append("  along %+.1f  broken %s  studs within 0.5 m: %s" % [r["along"], r.get("broken", {}), r.get("studs", "")])
 	print("\n".join(lines))
 	if out_path != "":
 		var f := FileAccess.open(out_path, FileAccess.WRITE)
@@ -105,6 +107,9 @@ func _one(k: int) -> Dictionary:
 	player.global_position = Vector3(6.0 if side == "inside" else -8.0, player.global_position.y, z + 4.0)
 	var went := [false]
 	s.went_off.connect(func() -> void: went[0] = true)
+	var broke: Array = []
+	var on_broken := func(id: StringName) -> void: broke.append(id)
+	Events.member_broken.connect(on_broken)
 	Prof.reset()
 	var last := Time.get_ticks_usec()
 	while not went[0]:
@@ -122,6 +127,19 @@ func _one(k: int) -> Dictionary:
 			top.append("%s %.0f" % [Prof.frame_top_names[i], Prof.frame_top_ms[i]])
 	row["top"] = ", ".join(top)
 	await _frames(120)
+	Events.member_broken.disconnect(on_broken)
+	var kinds := {}
+	for id: StringName in broke:
+		var m := store.get_member(id)
+		if m:
+			kinds[m.kind] = int(kinds.get(m.kind, 0)) + 1
+	row["broken"] = kinds
+	# The studs either side of the stick: standing or not.
+	var studs := PackedStringArray()
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).begins_with("left/") and absf(m.global_position.z - z) < 0.5:
+			studs.append("%+.2f %s" % [m.global_position.z - z, "broken" if m.broken else "standing"])
+	row["studs"] = ", ".join(studs)
 	# From the floor's height either side: from outside a man steps over the sill (which a blast
 	# leaves bedded: `Blast._bedded`).
 	var base := store.floor_top + 0.07
