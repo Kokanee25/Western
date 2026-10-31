@@ -100,7 +100,9 @@ the history in `docs/status/`.
   (`docs/playtests/<date>.md`) goes with the build.
 - **Refactor and adversarial review:** every few weeks or at each milestone, a Fable session
   restructures what has grown messy and reviews the codebase for what's fragile, slow, untested or
-  likely to break. It reports before changing anything.
+  likely to break. It reports before changing anything. This is the only Fable review: PRs are
+  not sent to Fable one by one (Sean, 2026-10-31, too many tokens). A session merges its PR once
+  "Test and build" is green, and its issues don't add a Fable review step.
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
