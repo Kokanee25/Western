@@ -886,7 +886,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
   saloon), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
-  test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in).
+  test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in;
+  the riders' bodies are built while the street loads and wait out of the tree in `_waiting`, so
+  `bring_gang` only adds them with their brains, #488; `tools/gang_frame.gd` holds its frame).
   `OutlawBrain.agenda` steps: go, wait, drink, harass, call_out, duel, leave. `BucketLine`
   (a bucket brigade, one a water source, `bucket_lines`): the townsfolk fighting a fire stand along
   the way from the water to a spot a couple of paces off the nearest burning (`_stand_by`: of eight

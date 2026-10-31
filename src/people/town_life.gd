@@ -27,6 +27,10 @@ var blacksmith: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
+## The riders built while the street loads and kept out of the world till they ride in (id ->
+## HumanBody, not in the tree): building three Studio men (their meshes cut, painted faces, hands,
+## ~1,700 nodes) took one frame of 2.4 s at ~45 s into every game (#488). `bring_gang` only adds them.
+var _waiting := {}
 
 const GANG := [
 	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "leads": true, "bar": &"bar_0", "model": &"bold_cowboy_s3_talking",
@@ -43,6 +47,16 @@ func _ready() -> void:
 	# What boots, spills and blood leave on the boards (deferred: the town's still being put together).
 	(func() -> void: FloorMarks.ensure(get_parent())).call_deferred()
 	_spawn_townsfolk.call_deferred()
+	_build_gang.call_deferred()  # after the townsfolk: the riders keep the tick order they had (PeopleTick)
+
+
+func _notification(what: int) -> void:
+	# Riders still waiting are nobody's children: they go with the street.
+	if what == NOTIFICATION_PREDELETE:
+		for man: HumanBody in _waiting.values():
+			if is_instance_valid(man) and not man.is_inside_tree():
+				man.free()
+		_waiting.clear()
 
 
 func _process(delta: float) -> void:
@@ -165,7 +179,41 @@ func _give_cloth(man: HumanBody) -> void:
 const MOP_CORNER := Vector3(9.25, 0.78, 1.3)
 
 
-## Three riders in from the west, a few paces apart, with a day planned (`only`: just these).
+## The three riders built while the street loads, where they'll ride in, and taken straight out of
+## the world again (no frame passes with them in it: nobody sees them, nothing ticks them), to wait
+## for `bring_gang`. Their minds come with them then (a mind out of the world would hear the town).
+func _build_gang() -> void:
+	if _arrived or not is_inside_tree():
+		return
+	for i in GANG.size():
+		var man := _rider(i)
+		man.enter(get_parent(), _ride_in_at(i), -PI * 0.5)
+		get_parent().remove_child(man)
+		_waiting[man.person_id] = man
+
+
+## Rider `i` of GANG, his body only, not yet in the world.
+func _rider(i: int) -> HumanBody:
+	var g: Dictionary = GANG[i]
+	var man := HumanBody.new()
+	man.name = String(g.id).capitalize()
+	man.person_id = g.id
+	man.rng_seed = 200 + i
+	man.shirt_color = g.shirt
+	man.coat_color = g.coat
+	man.hat_color = g.hat
+	man.body_model = g.get("model", man.body_model)
+	return man
+
+
+## Where rider `i` comes in: at the west edge, a few paces apart.
+func _ride_in_at(i: int) -> Vector3:
+	return places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2))
+
+
+## Three riders in from the west, a few paces apart, with a day planned (`only`: just these). The
+## ones built while the street loaded only step in (#488); any more (U again, after they're gone)
+## are built here.
 func bring_gang(only: Array = []) -> void:
 	_arrived = true
 	gang.clear()
@@ -176,14 +224,12 @@ func bring_gang(only: Array = []) -> void:
 		var g: Dictionary = GANG[i]
 		if not only.is_empty() and not only.has(g.id):
 			continue
-		var man := HumanBody.new()
-		man.name = String(g.id).capitalize()
-		man.person_id = g.id
-		man.rng_seed = 200 + i
-		man.shirt_color = g.shirt
-		man.coat_color = g.coat
-		man.hat_color = g.hat
-		man.body_model = g.get("model", man.body_model)
+		var man: HumanBody = _waiting.get(g.id)
+		_waiting.erase(g.id)
+		if man != null and not is_instance_valid(man):
+			man = null
+		if man == null:
+			man = _rider(i)
 		var brain := OutlawBrain.new()
 		brain.name = "Brain"
 		brain.temper = g.temper
@@ -199,8 +245,11 @@ func bring_gang(only: Array = []) -> void:
 		brain.bar_spot = g.bar
 		brain.agenda = _plan(g, i)
 		man.add_child(brain)
+		# His mind first among his nodes, as when it came with his body (PeopleTick ticks them in
+		# tree order).
+		man.move_child(brain, 0)
 		# Facing east, into town.
-		man.enter(get_parent(), places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2)), -PI * 0.5)
+		man.enter(get_parent(), _ride_in_at(i), -PI * 0.5)
 		gang.append(man)
 
 
