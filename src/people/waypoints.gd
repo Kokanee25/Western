@@ -38,27 +38,84 @@ func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: StringName, excl
 	var goal: Vector3 = points[to]
 	if _walkable(space, from, goal, exclude) and absf(from.y - goal.y) < 0.6:
 		return [goal]
-	# Nearest points he can walk straight to, then the shortest way along the links.
-	var starts: Array[StringName] = []
+	# The shortest way: straight to a point he can walk to, then along the links. Whether he can walk
+	# straight to a point (a sphere cast and a ray every 0.3 m) is most of a route's cost, and was
+	# asked of every point first (the three riders' first routes, 30-37 ms each; #510). Now the
+	# shortest way is found as if he could walk straight to any point, and only its first point is
+	# asked; one he can't is crossed off and the way found again (the searches cost nothing next to
+	# one ask). The same way as asking every point first (test_places holds it to that).
+	var blocked := {}
+	var asked := {}
+	while true:
+		var names := _shortest(from, to, blocked)
+		if names.is_empty():
+			break
+		var first: StringName = names[0]
+		if not asked.has(first):
+			asked[first] = _walkable(space, from, points[first], exclude)
+		if asked[first]:
+			var path: Array[Vector3] = []
+			for n: StringName in names:
+				path.append(points[n])
+			return path
+		blocked[first] = true
+	# No way from the points left: none, if he can walk straight to any of them (as before, when the
+	# starts were all asked first); nothing in a straight line, head for the nearest anyway.
 	for n: StringName in points:
-		if _walkable(space, from, points[n], exclude):
-			starts.append(n)
-	if starts.is_empty():
-		# Nothing in a straight line: head for the nearest anyway.
-		var best := &""
-		var best_d := INF
-		for n: StringName in points:
-			var d := from.distance_to(points[n])
-			if d < best_d:
-				best_d = d
-				best = n
-		starts.append(best)
+		if not blocked.has(n) and (asked.get(n, false) or (not asked.has(n) and _walkable(space, from, points[n], exclude))):
+			return []
+	return _route_from_nearest(from, to)
+
+
+## The shortest way to `to` (point names, from where he'd start) as if he could walk straight from
+## `from` to any point but the `blocked`; [] if there's none.
+func _shortest(from: Vector3, to: StringName, blocked: Dictionary) -> Array[StringName]:
 	var dist := {}
 	var prev := {}
 	var open: Array[StringName] = []
-	for n in starts:
-		dist[n] = from.distance_to(points[n])
-		open.append(n)
+	for n: StringName in points:
+		if not blocked.has(n):
+			dist[n] = from.distance_to(points[n])
+			open.append(n)
+	while not open.is_empty():
+		var cur: StringName = open[0]
+		for n in open:
+			if dist[n] < dist[cur]:
+				cur = n
+		open.erase(cur)
+		if cur == to:
+			break
+		for nb: StringName in links.get(cur, []):
+			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
+			if d < dist.get(nb, INF):
+				dist[nb] = d
+				prev[nb] = cur
+				if not open.has(nb):
+					open.append(nb)
+	var names: Array[StringName] = []
+	if not dist.has(to):
+		return names
+	var n := to
+	while true:
+		names.push_front(n)
+		if not prev.has(n):
+			break
+		n = prev[n]
+	return names
+
+
+## No point he can walk straight to: the way from the nearest point, along the links.
+func _route_from_nearest(from: Vector3, to: StringName) -> Array[Vector3]:
+	var start := &""
+	var best_d := INF
+	for n: StringName in points:
+		var d := from.distance_to(points[n])
+		if d < best_d:
+			best_d = d
+			start = n
+	var dist := {start: best_d}
+	var prev := {}
+	var open: Array[StringName] = [start]
 	while not open.is_empty():
 		var cur: StringName = open[0]
 		for n in open:
@@ -156,7 +213,27 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 ## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var low := minf(a.y, b.y)
-	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH) and _no_step_up(space, a, b, exclude)
+	var from := Vector3(a.x, low, a.z)
+	var to := Vector3(b.x, low, b.z)
+	return not _centre_blocked(space, from, to, exclude) and Cover.path_clear(space, from, to, exclude, WIDTH) \
+			and _no_step_up(space, a, b, exclude)
+
+
+## A ray down the middle of Cover.path_clear's sweep (the same height, mask and stretch) hits
+## something before the sweep's end: then the sweep, a sphere round that line, hits it no later, and
+## isn't clear. A ray is a few hundredths of a ms; the sweep over tens of metres of town ~0.65 ms
+## here, and from the west edge 33 of the 38 places are behind a wall (#510). Back faces not
+## counted, so it only ever says "blocked" where the sweep would.
+static func _centre_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID]) -> bool:
+	var lift := Vector3.UP * 0.75  # Cover.path_clear's sphere height
+	var q := PhysicsRayQueryParameters3D.create(from + lift, to + lift, Layers.WORLD, exclude)
+	q.hit_back_faces = false
+	Prof.count(&"q_walk")
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return false
+	var along := (to - from).length()
+	return along > 0.0 and ((hit.position as Vector3) - (from + lift)).length() < 0.98 * along
 
 
 ## The tallest rise a way may have from one footfall to the next: the steps' rise and the slope over
