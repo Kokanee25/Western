@@ -297,8 +297,11 @@ static func environment(tree: SceneTree) -> Environment:
 	return we.environment if we else null
 
 
+## The clock, the lamps and the buildings are found by their groups (DayCycle, OilLamp and
+## Structure join them in _ready), not by a search of the whole tree: the light looks set ~50 dials
+## at each step of the dusk blend, and the searches were ~160 ms of stall at Sean's (#491).
 static func _clock(tree: SceneTree) -> DayCycle:
-	return tree.root.find_child("DayCycle", true, false) as DayCycle
+	return tree.get_first_node_in_group(&"day_cycle") as DayCycle
 
 
 static func _light(tree: SceneTree, which: String) -> DirectionalLight3D:
@@ -331,8 +334,10 @@ static func _materials(tree: SceneTree, which: String) -> Array[ShaderMaterial]:
 
 static func _lamps(tree: SceneTree, group: String) -> Array[OilLamp]:
 	var out: Array[OilLamp] = []
-	for n in tree.root.find_children("*", "OilLamp", true, false):
+	for n in tree.get_nodes_in_group(&"oil_lamps"):
 		var lamp := n as OilLamp
+		if lamp == null:
+			continue
 		var in_saloon := false
 		var p := lamp.get_parent()
 		while p:
@@ -365,8 +370,8 @@ static func _scale_lamp(lamp: OilLamp, prop: String, k: float) -> void:
 
 
 static func _building(tree: SceneTree, id: String) -> Node:
-	for n in tree.root.find_children("*", "FalseFrontBuilding", true, false):
-		if String(n.get(&"structure_id")) == id:
+	for n in tree.get_nodes_in_group(&"structures"):
+		if n is FalseFrontBuilding and String(n.get(&"structure_id")) == id:
 			return n
 	return null
 

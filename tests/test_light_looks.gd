@@ -91,3 +91,43 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	street.free()
 	LookPreset.defaults.clear()
 	await process_frames(1)
+
+
+## #491: the dusk blend stalled the game ~160 ms at Sean's each step (every ~2.4 s): each of its
+## dials searched the whole tree for the lamps and buildings, and each grade step built a lookup.
+## Now they're found by their groups and every step's lookup is built when the look is picked.
+func test_the_dusk_blend_is_quick() -> void:
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	var tree := get_tree()
+	# The groups find what the tree's search found.
+	var searched := tree.root.find_children("*", "OilLamp", true, false)
+	check(not searched.is_empty(), "the street has lamps")
+	check_eq(LookPreset._lamps(tree, "all").size(), searched.size(), "every lamp by its group")
+	check_eq(LookPreset._clock(tree), tree.root.find_child("DayCycle", true, false), "the clock by its group")
+	for n in tree.root.find_children("*", "FalseFrontBuilding", true, false):
+		check_eq(LookPreset._building(tree, String(n.get(&"structure_id"))), n, "%s by its group" % n.get(&"structure_id"))
+	LightLooks.pick(tree, 0)
+	var built := LightGrade._cache.size()
+	var steps := LightLooks.grade_steps()
+	var worst := 0.0
+	for i in steps + 1:
+		var lut_before := LightGrade._lut
+		var t0 := Time.get_ticks_usec()
+		LightLooks.blend(tree, float(i) / steps)
+		worst = maxf(worst, (Time.get_ticks_usec() - t0) / 1000.0)
+		check_eq(LightGrade._cache.size(), built, "step %d: its lookup was built at the pick" % i)
+		if i > 0:
+			check(LightGrade._lut != lut_before, "step %d: a lookup of its own" % i)
+	# Was ~360 ms here; ~3-5 now. Generous for a busy runner.
+	check(worst < 60.0, "a blend step takes %.1f ms" % worst)
+	LightLooks.pick(tree, 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
+	await process_frames(1)

@@ -366,6 +366,12 @@ night: `config/looks/light_game.json` names the two and the sun heights between 
 they set is blended (`night_share`; the sky's dials stay day's; the grade steps in four lookups,
 cached). **8** cycles the game's / today's old / A / B / C (`--light-look=game|today|a|b|c` for a
 run). Moving the clock re-blends: a bridge `set` before a `time` is overwritten (set after it).
+The blend's cost (#491: it was a ~160 ms stall at Sean's every ~2.4 s at dusk): LookPreset finds
+the clock, the lamps and the buildings by their groups (`day_cycle`, `oil_lamps`, `structures`),
+never a search of the tree; every grade step's lookup is built when the game's light is picked
+(`LightLooks.warm_grades`); Prof `light_looks` times it (in "else"). `tools/dusk_frame.gd`
+(`-- [--hour=17.6] [--speed=30] [--seconds=20] [--spec]`) times dusk frame by frame and fails
+if the light's share of a frame passes 8 ms at Sean's.
 Round 2's parts: the noon fill's colour (`DayCycleConfig.ambient_day_cool`, `ambient_day_colour`:
 cool shade); `MoonWindows` (`src/art/moon_windows.gd`: a soft cool spot inside the saloon's door
 and windows, strength by the moon's, `moon_window_*`); grime and sun on upright texel-grid faces by

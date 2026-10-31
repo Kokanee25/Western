@@ -406,6 +406,9 @@ frozen until Sean names one.
   Trap: moving the clock re-blends the look (a bridge `set` before `time` is lost); under
   lavapipe wait ~5 s after a clock jump before a screenshot; a view's render is ~9 min here, so
   try dials with `screenshots.gd --variants=` (one load, ~1 min a variant).
+- **The dusk stall** (#491, branch `claude/art-dusk-stall`): the light blend's lamps and buildings found by
+  their groups, the grade steps built at the pick: ~500 ms here every ~2.4 s at dusk -> ~3 ms
+  (`tools/dusk_frame.gd`); the look unchanged. Gameplay's dusk frames left: `civilian_brain`/`fire_route`.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
