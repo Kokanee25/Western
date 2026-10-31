@@ -305,5 +305,5 @@ func smash(direction := Vector3.DOWN) -> void:
 	if hitbox:
 		hitbox.queue_free()
 	var fire := FireSystem.find(get_tree())
-	if fire:
+	if fire and FireSystem.in_play:  # (fire out of the game for now: FireSystem.in_play)
 		fire.spill(at)

@@ -27,6 +27,13 @@ var _core: Object
 var _members: Array = []  # slot -> member
 var _structures: Array = []  # a member's structure, by the index its slot carries (for the bands)
 var _structure_index := {}
+## Fire in play: a lit lamp smashed (a ball, a fall, a blast) throws down its oil burning
+## (OilLamp.smash), the one thing in the game that starts a fire on its own (dynamite lights nothing,
+## #449; a rag, a barrel's oil and spilt lamp oil only catch from a fire already there). Off since
+## Sean, 2026-10-31 (#458: "remove fire from the game for now ... get the explosions fun and working
+## great then think about the fire"); `-- --fire` turns it back on. The fire itself is untouched:
+## the debug key, the bridge's `ignite`, the screenshot views, the benches and the tests light it.
+static var in_play := "--fire" in OS.get_cmdline_user_args()
 static var native_core := ClassDB.class_exists(&"FireCore") and not "--fire-core=script" in OS.get_cmdline_user_args()
 var _grid := {}  # Vector3i -> Array[StructureMember]
 var _grid_age := INF
