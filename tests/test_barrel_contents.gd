@@ -11,6 +11,7 @@ var spilled: Array = []
 
 
 func before_each() -> void:
+	FireSystem.in_play = true  # a lit lamp smashed starts a fire here (off in the game, #458)
 	world = Node3D.new()
 	add_child(world)
 	var ground := StaticBody3D.new()
@@ -34,6 +35,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	FireSystem.in_play = "--fire" in OS.get_cmdline_user_args()
 	Events.liquid_spilled.disconnect(_on_spilled)
 	world.queue_free()
 	await physics_frames(2)

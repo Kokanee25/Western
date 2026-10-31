@@ -678,6 +678,11 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
 
 ## src/fire
 
+- **Fire out of play** (Sean, 2026-10-31, #458: the explosions first, the fire later):
+  `FireSystem.in_play` (off; `-- --fire` on) gates the one thing in play that starts a fire, a lit
+  lamp smashed (`OilLamp.smash`'s burning oil). The fire itself is unchanged and lit directly by
+  the debug key, the bridge's `ignite`, the screenshot views, the benches and the tests (those
+  about a lamp's oil set `in_play` themselves).
 - `src/fire/` — `FireSystem` (member temperatures, heating by contact/radiant/flame plume, ignition,
   char, ash, spilt lamp oil, scorching people, water: `douse()` puts out and wets members, a wet one
   dries before it heats (`StructureMember.wet`); `fire_near()`/`burning_map()` for people getting

@@ -1,13 +1,15 @@
 extends TestCase
 ## Fire: dry boards catch from their neighbours and flames climb; stone doesn't burn; a heavy
 ## timber shrugs off a little flame; charring weakens timber until what it carries brings it
-## down; a building set alight burns and falls in; a lit lamp shot to pieces starts a fire.
+## down; a building set alight burns and falls in; a lit lamp shot to pieces starts a fire (with
+## fire in play: FireSystem.in_play, off in the game for now).
 
 var world: Node3D
 var fire: FireSystem
 
 
 func before_each() -> void:
+	FireSystem.in_play = true  # a lit lamp smashed starts a fire here (off in the game, #458)
 	world = Node3D.new()
 	add_child(world)
 	var ground := StaticBody3D.new()
@@ -24,6 +26,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	FireSystem.in_play = "--fire" in OS.get_cmdline_user_args()
 	world.queue_free()
 	await physics_frames(1)
 
@@ -158,6 +161,17 @@ func test_an_unlit_lamp_just_breaks() -> void:
 	lamp.set_lit(false)
 	lamp.smash()
 	check(lamp.broken and fire.spills.is_empty(), "no flame, no fire")
+
+
+func test_a_lit_lamp_starts_nothing_while_fire_is_out_of_play() -> void:
+	# Sean, 2026-10-31 (#458): fire out of the game for now; `-- --fire` brings it back.
+	FireSystem.in_play = false
+	var lamp := OilLamp.new()
+	world.add_child(lamp)
+	await physics_frames(1)
+	lamp.set_lit(true)
+	lamp.smash()
+	check(lamp.broken and fire.spills.is_empty() and fire.active.is_empty(), "smashed and dark, nothing alight")
 
 
 func test_glass_cracks_in_the_heat() -> void:
