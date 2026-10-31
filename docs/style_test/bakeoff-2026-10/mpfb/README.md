@@ -1,12 +1,28 @@
 # The character bake-off, route B: MPFB (issue #505)
 
+**Sean's verdict (2026-10-31): "he sucks... that was terrible". Not the direction. Human Generator
+is next** (route C, then A, the Studio from realistic pictures). What stays useful from this: the
+body. MakeHuman's mesh bent better than the Studio man's (both arms up 496 against 917 cm²), it
+costs nothing and a man builds in 32 s, every man shares one UV layout, and the talking face's
+expressions are MakeHuman's own: a candidate *base* under a better head, not a route for faces.
+
+Why he looks this bad (near MakeHuman's floor, and its ceiling isn't much higher for faces): the
+face gets ~400 px of MakeHuman's 2048 skin and the game ignores the normal maps (smooth, plastic,
+young); hair, brows and lashes flattened into the skin (the game draws no alpha cards); MPFB's
+skin material not used (a Blender node tree, and its code wasn't run); the system kit's modern
+clothes; an hour's tuning. Done properly it reaches a competent background extra; every face
+comes from one base moved by sliders, so none has the character Sean wants.
+
 Sean, 2026-10-31: find the route that makes men he actually likes; realistic is fine, the concept
 painting's squares can go. Route B is MPFB (MakeHuman for Blender), free. Same brief for every
 route: a weathered man of about 40, stubble, a hat, period clothes, on the game's 17 bones, shot
 beside the current Studio man (`bold_cowboy_s3_talking`).
 
-**Sheets:** `poses.jpg` (the pose check, MPFB over Studio), `shots.jpg` (the step-4 shots),
-`faces.jpg` (faces close, and the second man). Remade by `make_sheets.py` from the renders.
+**Sheets:** `poses.jpg` (the pose check, MPFB over Studio; taken before the trousers' regrade, so
+his jeans' pale fades still show there), `shots.jpg` (the step-4 shots), `faces.jpg` (faces close,
+and the second man). Remade by `make_sheets.py` from the renders in `build/`. Not made (stopped at
+Sean's verdict): the card table's close view and the Studio man's table renders, the one-arm-high
+pose, the frame-time and draw-call numbers.
 
 ## What was made
 
@@ -69,7 +85,7 @@ for the bent poses.
 
 Taken in the game's own render (lavapipe, no real GPU): the saloon by lamplight at 21:30 from 1.6 m
 and across the room (5.6 m, the men swapped); the card table from the player's seat
-(`screenshots.gd --only=shot_match_* --model=`); the street at golden hour (1.7 m, 5.8 m) and noon;
+(`screenshots.gd --only=shot_match_saloon --model=mpfb_drifter`; ~20 min a view under lavapipe); the street at golden hour (1.7 m, 5.8 m) and noon;
 shot standing (arm and thigh: the hole, blood on the sleeve, blood running) and down (ragdoll).
 At the table he sits in ShotMatch's fallback pose (`sit_lean`, the stranger's): it has no fit for
 him (adding one is the art session's file).
@@ -89,9 +105,9 @@ head (a step in `mpfb_man.py`, about half a day), no landmarks, no edge pin, no 
 | | MPFB man | Studio man (bold_cowboy_s3_talking) |
 |---|---|---|
 | triangles | 26,724 (skin 15,492, eyes 1,060, shirt and trousers 4,800, boots 4,128, hat 1,244) | 34,182 (skin 28,063, head 6,119) + bandanas, hands |
-| draw calls (whole) | 5 (skin, eyes, clothes, boots, hat) | FILLED |
-| textures | 4 × 2048² + 1024² eyes + 1024² boots | 2048² skin + 3072×2048 head + bandanas |
-| headless frame | FILLED | FILLED |
+| draw calls (whole) | 5 (skin, eyes, clothes, boots, hat) | 2 + bandana + hands (not counted) |
+| textures | 3 × 2048² (skin, clothes, hat) + 1024² eyes + 1024² boots | 2048² skin + 3072×2048 head + bandanas |
+| headless frame | not measured (stopped) | not measured |
 | money | $0 | $1.60 Rodin a man, plus pictures |
 
 ## Making one more man (timed)

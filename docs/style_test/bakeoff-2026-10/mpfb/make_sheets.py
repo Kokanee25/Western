@@ -40,7 +40,7 @@ def grid(cells, cols, w, h, path):
 def poses():
     """Every pose, the MPFB man (top) over the bold cowboy (bottom)."""
     names = [("stand_front", "stand"), ("aim_side", "aim"), ("crouch_side", "crouch"), ("sit_side", "seated"),
-             ("hands_up_front", "both arms up"), ("up_front", "arms raised high (150)"), ("ragdoll_side", "lying dead")]
+             ("hands_up_front", "both arms up"), ("ragdoll_side", "lying dead")]
     cells = []
     for who, d, arms in (("MPFB", "works_mpfb", "arms_mpfb"), ("Studio", "works_ref", "arms_ref")):
         for n, t in names:
@@ -54,10 +54,7 @@ def shots():
     cells = [
         (os.path.join(S, "s1_saloon_close.png"), "saloon, lamplight, 1.6 m (Studio left, MPFB right)", None),
         (os.path.join(S, "s2_saloon_across.png"), "across the room, 5.6 m, swapped (MPFB left)", None),
-        (os.path.join(B, "table_mpfb_drifter", "shot_match_close.png"), "the player's seat: MPFB", None),
-        (os.path.join(B, "table_bold_cowboy_s3_talking", "shot_match_close.png"), "the player's seat: Studio", None),
-        (os.path.join(B, "table_mpfb_drifter", "shot_match_saloon.png"), "the table shot: MPFB", None),
-        (os.path.join(B, "table_bold_cowboy_s3_talking", "shot_match_saloon.png"), "the table shot: Studio", None),
+        (os.path.join(B, "table_mpfb_drifter", "shot_match_saloon.png"), "the card table: MPFB (Studio extras behind)", None),
         (os.path.join(S, "s3_street_golden_close.png"), "street, golden hour, 1.7 m", None),
         (os.path.join(S, "s3_street_golden_far.png"), "street, golden hour, 5.8 m", None),
         (os.path.join(S, "s3_street_noon_close.png"), "street, noon", None),
