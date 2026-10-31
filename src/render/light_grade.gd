@@ -75,6 +75,18 @@ static func apply(tree: SceneTree) -> void:
 	env.adjustment_enabled = true
 
 
+## The lookup for these dials built and kept now, if it isn't already (LightLooks.warm_grades).
+static func warm(d: Dictionary) -> void:
+	if float(d.strength) <= 0.0:
+		return
+	var key := str(d)
+	if _cache.has(key):
+		return
+	if _cache.size() >= CACHE_MAX:
+		_cache.clear()
+	_cache[key] = build(d)
+
+
 ## The lookup: SIZE^3 texels, input the tone-mapped colour (sRGB), output the graded one.
 static func build(d: Dictionary) -> ImageTexture3D:
 	var images: Array[Image] = []

@@ -22,6 +22,10 @@ const CHECK_SECONDS := 0.25
 static var current := 0
 static var _from_args_done := false
 
+## The look files as parsed (night_share reads light_game.json every CHECK_SECONDS and blend reads
+## three of them each step); emptied by pick, so 8 reads them afresh.
+static var _files := {}
+
 var _blend := -1.0  # the day-to-night blend last applied (the game's light), -1 none yet
 var _since := 0.0
 
@@ -50,10 +54,12 @@ func _process(delta: float) -> void:
 	if _since < CHECK_SECONDS and _blend >= 0.0:
 		return
 	_since = 0.0
+	var p := Prof.start()  # F3 and F12's frames: "else" (#491's stall was this, untimed)
 	var t := night_share(get_tree())
 	if _blend < 0.0 or absf(t - _blend) >= BLEND_STEP or (t != _blend and (t == 0.0 or t == 1.0)):
 		_blend = t
 		blend(get_tree(), t)
+	Prof.stop(&"light_looks", p)
 
 
 ## Every address any look sets.
@@ -74,10 +80,10 @@ static func addresses() -> PackedStringArray:
 ## 0 by day, 1 by night, between as the sun goes down (light_game.json's night_from_sun and
 ## night_full_sun, the sun's height).
 static func night_share(tree: SceneTree) -> float:
-	var clock := tree.root.find_child("DayCycle", true, false) as DayCycle
+	var clock := tree.get_first_node_in_group(&"day_cycle") as DayCycle
 	if clock == null:
 		return 0.0
-	var game := LookPreset.load_file(GAME)
+	var game := _file(GAME)
 	var y := clock.get_sun_direction().y
 	return 1.0 - smoothstep(float(game.get("night_full_sun", -0.05)), float(game.get("night_from_sun", 0.26)), y)
 
@@ -85,6 +91,7 @@ static func night_share(tree: SceneTree) -> float:
 ## Today's light, then look `index` over it: 0 the game's (blended by the sun now), 2..4 A, B, C.
 static func pick(tree: SceneTree, index: int) -> void:
 	current = index
+	_files.clear()
 	LightGrade.batching = true
 	for a in addresses():
 		if LookPreset.defaults.has(a):
@@ -93,6 +100,7 @@ static func pick(tree: SceneTree, index: int) -> void:
 	LightGrade.apply(tree)
 	if index == 0:
 		blend(tree, night_share(tree))
+		warm_grades(tree)
 	elif index >= 2:
 		var preset := LookPreset.load_file(FILES[index - 2])
 		preset.erase("hour")  # the look is for every hour; 7 moves the clock
@@ -104,9 +112,19 @@ static func pick(tree: SceneTree, index: int) -> void:
 ## The game's light at night share `t`: each dial the day and night looks set, blended. A dial only
 ## one of them sets is blended with what the game has without it (the first value read).
 static func blend(tree: SceneTree, t: float) -> void:
-	var game := LookPreset.load_file(GAME)
-	var day: Dictionary = LookPreset.load_file(game.day).get("values", {})
-	var night: Dictionary = LookPreset.load_file(game.night).get("values", {})
+	var values := blended(tree, t)
+	LightGrade.batching = true
+	for a: String in values:
+		LookPreset.set_value(tree, a, values[a])
+	LightGrade.batching = false
+	LightGrade.apply(tree)
+
+
+## What blend sets at night share `t` (address -> value), only the addresses starting `prefix`.
+static func blended(tree: SceneTree, t: float, prefix := "") -> Dictionary:
+	var game := _file(GAME)
+	var day: Dictionary = _file(game.day).get("values", {}).duplicate()
+	var night: Dictionary = _file(game.night).get("values", {}).duplicate()
 	# The game's own night over the night look's (the saloon's room at night, light pass round 3).
 	night.merge(game.get("night_values", {}), true)
 	# And its own low sun over the day look's (the street at golden hour, round 4): dials that act
@@ -114,12 +132,14 @@ static func blend(tree: SceneTree, t: float) -> void:
 	var day_values: Dictionary = game.get("day_values", {})
 	day.merge(day_values, true)
 	var day_only: Array = game.get("day_only", [])
-	var steps := maxi(1, int(game.get("grade_steps", 4)))
-	LightGrade.batching = true
+	var steps := grade_steps()
+	var out := {}
 	for a: String in _union(day, night):
+		if not a.begins_with(prefix):
+			continue
 		var k := t
-		for prefix: String in day_only:
-			if a.begins_with(prefix):
+		for p: String in day_only:
+			if a.begins_with(p):
 				k = 0.0
 		if day_values.has(a):
 			k = 0.0
@@ -130,9 +150,32 @@ static func blend(tree: SceneTree, t: float) -> void:
 		var to: Variant = night.get(a, base)
 		if from == null or to == null:
 			continue
-		LookPreset.set_value(tree, a, mix(from, to, k))
-	LightGrade.batching = false
-	LightGrade.apply(tree)
+		out[a] = mix(from, to, k)
+	return out
+
+
+static func grade_steps() -> int:
+	return maxi(1, int(_file(GAME).get("grade_steps", 4)))
+
+
+## Every grade step's lookup built now (the game's light picked, at load), so the dusk blend only
+## finds them: each is ~15-25 ms to build, a hitch at each step (#491).
+static func warm_grades(tree: SceneTree) -> void:
+	var steps := grade_steps()
+	for i in steps + 1:
+		var dials := LightGrade.dials.duplicate()
+		var values := blended(tree, float(i) / steps, "grade.")
+		for a: String in values:
+			var key := a.substr(6)
+			if dials.has(key):
+				dials[key] = LookPreset._typed(values[a], dials[key])  # as set_value types it
+		LightGrade.warm(dials)
+
+
+static func _file(path: String) -> Dictionary:
+	if not _files.has(path):
+		_files[path] = LookPreset.load_file(path)
+	return _files[path]
 
 
 static func _union(a: Dictionary, b: Dictionary) -> Array:
