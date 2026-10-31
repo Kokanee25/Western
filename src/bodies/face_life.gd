@@ -325,7 +325,8 @@ func _start(at: Vector3, who: Node) -> void:
 
 
 func _awake() -> bool:
-	return enabled and body != null and is_instance_valid(body) and body.physiology.is_conscious()
+	# (In the world: a rider waiting to come in, TownLife's, hears the town's events out of it.)
+	return enabled and body != null and is_instance_valid(body) and body.is_inside_tree() and body.physiology.is_conscious()
 
 
 func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:

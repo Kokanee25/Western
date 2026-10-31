@@ -104,6 +104,26 @@ the playtest agent, then Sean.
   when step 3 is built; for one stick lying on the street, expect a scoop well under a metre across
   and a few inches deep (to be confirmed from the paper, not this brief).
 
+## What a stick does to people (#488, 2026-10-31)
+
+One stick (0.2 kg TNT, `tnt_per_stick`) lying on the street counts as 0.36 kg (the ground's 1.8x).
+Measured from the charge to the skin, with the reflected pressure a body takes (`config/blast.tres`;
+`test_dynamite`'s `test_a_sticks_radii_are_the_briefs` holds these):
+
+| Within | What |
+|---|---|
+| ~1 m (the fireball, 1.4 m a cube root of kg) | burnt |
+| 1.3 m of the chest | lungs torn (1,000 kPa): the lethal radius |
+| 1.4 m of a part | that part torn open (800 kPa); a foot or shin off within about a metre |
+| 1.7 m of the chest | lungs bruised (400 kPa): the injury radius; nobody's chest is wounded past it |
+| 2.5 m of the head | knocked senseless (150 kPa); both eardrums burst |
+| 3.2 m of the chest | thrown off his feet (35 kPa side-on) |
+| 5.0 m of the head | an eardrum may burst (35 kPa, surely by 2.5 m) |
+| 17.8 m (`reach`) | felt: the shove, the ringing, the fright; no wound and no hit |
+
+A man the blast does nothing to has no wound and no `body_hit` (it was logged "hit (chest)" for
+everyone in reach); the logs name what it did ("caught by the blast: right eardrum burst").
+
 ## Lanes
 
 - **Gameplay**: the query, the cut, the crater's shape, collision and saving, the lab.

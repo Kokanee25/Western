@@ -216,11 +216,17 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
 	_flash = 1.0
 	shake = maxf(shake, clampf(ear_kpa / 40.0, 0.2, 3.0))
-	if not harm.is_empty():
-		say("The blast: %s." % ", ".join(harm), 5.0)
-	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
 	var info := {"person": player, "person_id": &"player", "segment": &"chest", "hits": [], "position": chest,
 			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm, "kpa": kpa.get(&"chest", 0.0)}
+	# Only what it did to you is a wound and a hit (as HumanBody.take_blast, #488): the ringing,
+	# the shake and the shove above are all a blast that missed you leaves, and it rattles you as
+	# a hit would (PlayerComposure took it from the hit before).
+	if harm.is_empty():
+		if player.composure:
+			player.composure.incoming(1.0)
+		return info
+	say("The blast: %s." % ", ".join(harm), 5.0)
+	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
 	Events.body_hit.emit(info)
 	return info
 

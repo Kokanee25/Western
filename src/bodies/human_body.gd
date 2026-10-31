@@ -5410,13 +5410,18 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	for sid in torn_off:
 		sever_limb(sid, _limb_throw(sid, at, kg, shield, bt) - push)
 		harm.append("%s torn off" % _place(sid))
+	var info := {"person": self, "person_id": person_id, "segment": &"chest", "hits": [], "position": chest,
+			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm,
+			"kpa": kpa.get(&"chest", 0.0), "knocked_down": down}
+	# Only what it did to him is a wound and a hit: a blast that only rattles him (everyone in its
+	# reach, ~18 m for a stick on the ground) leaves none, and his fright is OutlawBrain's own
+	# (Events.exploded). Each was logged "hit (chest)" for every townsperson in the street (#488).
+	if harm.is_empty():
+		return info
 	var w := {"segment": &"chest", "entry": Vector3.ZERO, "exit": null, "lodged": false, "hits": [],
 			"bleeds": [], "garments": [], "stain": null, "kind": &"blast", "dir": dir, "harm": harm,
 			"kpa": kpa.get(&"chest", 0.0)}
 	wounds.append(w)
-	var info := {"person": self, "person_id": person_id, "segment": &"chest", "hits": [], "position": chest,
-			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm,
-			"kpa": kpa.get(&"chest", 0.0), "knocked_down": down}
 	hit.emit(info)
 	Events.body_hit.emit(info)
 	return info
