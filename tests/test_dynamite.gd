@@ -345,6 +345,76 @@ func test_across_the_street_ringing_but_whole() -> void:
 	check(man.physiology.alive, "alive")
 
 
+## Where a stick's chest wounds end (docs/briefs/blast-surfaces.md, "What a stick does to people"):
+## the distance from the charge to the skin at which the reflected pressure falls to `kpa`.
+func _radius(kg: float, kpa: float) -> float:
+	var lo := 0.02
+	var hi := 100.0
+	for i in 60:
+		var mid := (lo + hi) * 0.5
+		if Blast.reflected_kpa(Blast.overpressure_kpa(kg, mid)) > kpa:
+			lo = mid
+		else:
+			hi = mid
+	return lo
+
+
+## The stick's people radii as the brief states them: lungs bruised within 1.7 m of the chest's
+## skin, torn within 1.3 m, eardrums from 5.0 m in (a 0.2 kg stick on the ground, 1.8x).
+func test_a_sticks_radii_are_the_briefs() -> void:
+	var bt := Blast.t()
+	var kg := bt.tnt_per_stick * bt.ground_factor
+	check_near(_radius(kg, bt.lung_kpa), 1.7, 0.05, "lungs bruised within 1.7 m")
+	check_near(_radius(kg, bt.lung_severe_kpa), 1.3, 0.05, "lungs torn within 1.3 m")
+	check_near(_radius(kg, bt.eardrum_kpa), 5.0, 0.1, "eardrums from 5 m")
+
+
+## A stick on the street (#488: every townsperson in its reach was logged "hit (chest)"): no chest
+## is wounded beyond its injury radius, and a man it does nothing to has no wound and no hit; the
+## one by it has both.
+func test_a_stick_on_the_street_wounds_no_chest_beyond_its_radius() -> void:
+	var bt := Blast.t()
+	var radius := _radius(bt.tnt_per_stick * bt.ground_factor, bt.lung_kpa)
+	var men: Array[HumanBody] = []
+	# A fan of men round it, none in another's way: 1, 3, 6, 10 and 17 m off.
+	var offs := [1.0, 3.0, 6.0, 10.0, 17.0]
+	for k in offs.size():
+		var a := TAU * k / offs.size()
+		men.append(await _man(Vector3(sin(a), 0.0, cos(a)) * float(offs[k])))
+	var hits := {}
+	var on_hit := func(info: Dictionary) -> void: hits[info.get("person")] = info.get("harm")
+	Events.body_hit.connect(on_hit)
+	Blast.detonate(world, Vector3(0, 0.05, 0), bt.tnt_per_stick)
+	Events.body_hit.disconnect(on_hit)
+	for man in men:
+		var chest := (man.parts[&"chest"] as Node3D).global_position
+		var lungs := " ".join(man.describe_wounds()).contains("lungs")
+		var away := chest.distance_to(Vector3(0, 0.05, 0))
+		var blasted := man.wounds.filter(func(w: Dictionary) -> bool: return w.kind == &"blast")
+		if away > radius + 0.3:
+			check(not lungs, "no chest wound %.1f m off" % away)
+		if blasted.is_empty():
+			check(not hits.has(man), "unhurt %.1f m off, so no hit (%s)" % [away, str(hits.get(man))])
+		else:
+			check(hits.has(man) and not (hits[man] as PackedStringArray).is_empty(), "a blast wound %.1f m off is its harm, hit" % away)
+	var far := men.slice(3)
+	for man: HumanBody in far:
+		check(man.wounds.is_empty() and not hits.has(man), "nothing at all %.0f m off" % man.global_position.length())
+	check(hits.has(men[0]), "the man a metre off is hit (%s)" % str(hits.get(men[0])))
+
+
+## You, a stick going off 12 m away: ringing, no wound, no hit (#488).
+func test_a_stick_across_the_street_isnt_a_hit_on_you() -> void:
+	var player := await _player()
+	var hits := []
+	var on_hit := func(info: Dictionary) -> void: hits.append(info)
+	Events.body_hit.connect(on_hit)
+	Blast.detonate(world, player.global_position + Vector3(12.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	Events.body_hit.disconnect(on_hit)
+	check(hits.is_empty(), "no hit on you (%s)" % str(hits))
+	check(player.wounds.wounds.is_empty(), "no wound")
+
+
 func test_at_his_feet_it_takes_a_leg() -> void:
 	var man := await _man(Vector3.ZERO)
 	var foot := (man.parts[&"foot_r"] as Node3D).global_position

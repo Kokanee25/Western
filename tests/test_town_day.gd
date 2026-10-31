@@ -121,6 +121,29 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
 
 
+## The riders are built while the street loads and wait out of the world (#488: building them took
+## one frame of 2.4 s when they rode in); riding in only puts them in, with their minds.
+func test_the_riders_are_built_before_they_ride_in() -> void:
+	var waiting: Array = town._waiting.values()
+	check_eq(waiting.size(), 3, "three riders built at load")
+	var ids := PackedStringArray()
+	for man: HumanBody in waiting:
+		check(not man.is_inside_tree(), "%s not in the world yet" % man.person_id)
+		check(man.skeleton != null, "%s's body already made" % man.person_id)
+		check(man.get_node_or_null(^"Brain") == null, "%s's mind not with him yet" % man.person_id)
+		ids.append(String(man.person_id))
+	for p in get_tree().get_nodes_in_group(&"people"):
+		check(not String((p as HumanBody).person_id) in ids, "%s isn't among the people yet" % (p as HumanBody).person_id)
+	town.bring_gang([&"kid"])
+	check(waiting.has(town.gang[0]), "the Kid who rides in is the one built")
+	var kid := town.gang[0]
+	check(kid.is_inside_tree() and kid.get_child(0) is OutlawBrain, "in, his mind first among his nodes")
+	check_eq(town._waiting.size(), 2, "the other two still waiting")
+	await physics_frames(30)
+	check(kid.global_position.distance_to(town.places.at(&"west_edge")) < 6.0, "the Kid on the street by the west edge (%s)" % str(kid.global_position))
+	check(kid.get_node_or_null(^"Senses") != null, "his senses with his mind")
+
+
 func test_the_gang_rides_in_and_drinks() -> void:
 	town.drink_seconds = 60.0
 	town.bring_gang()

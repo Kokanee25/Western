@@ -100,7 +100,9 @@ the history in `docs/status/`.
   (`docs/playtests/<date>.md`) goes with the build.
 - **Refactor and adversarial review:** every few weeks or at each milestone, a Fable session
   restructures what has grown messy and reviews the codebase for what's fragile, slow, untested or
-  likely to break. It reports before changing anything.
+  likely to break. It reports before changing anything. This is the only Fable review: PRs are
+  not sent to Fable one by one (Sean, 2026-10-31, too many tokens). A session merges its PR once
+  "Test and build" is green, and its issues don't add a Fable review step.
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
@@ -600,6 +602,9 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The gang's ride-in frame** (#488, PR #509 waiting on Sean's merge): the riders built at load,
+  waiting out of the tree (`TownLife._waiting`), 2,942 -> 71 ms here (`tools/gang_frame.gd`); a
+  harmless blast is no wound and no hit (the radii in `docs/briefs/blast-surfaces.md`). Next: #510.
 - **The catch-up cap and a quit that can't hang** (#435, branch `claude/gameplay-catchup-cap`, PR
   waiting on the Fable review): `max_physics_steps_per_frame=2`; every way out through `GameQuit`
   (our pool tasks waited for, then the plugin's `QuitWatchdog` ends the process with the quit's code
