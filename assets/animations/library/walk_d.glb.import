@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://e6cy5igh8lxj"
-path="res://.godot/imported/long_aim.glb-78b728ce48883b8828b1e907dde48293.scn"
+uid="uid://cayotftcck5w7"
+path="res://.godot/imported/walk_d.glb-025fd3a235e36adb6c8ce68bdb8968a3.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/long_aim.glb"
-dest_files=["res://.godot/imported/long_aim.glb-78b728ce48883b8828b1e907dde48293.scn"]
+source_file="res://assets/animations/library/walk_d.glb"
+dest_files=["res://.godot/imported/walk_d.glb-025fd3a235e36adb6c8ce68bdb8968a3.scn"]
 
 [params]
 

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b4x1x4g5trban"
-path="res://.godot/imported/pistol_shoot.glb-5797e8a1d3c5e892870e30e6d989b5f9.scn"
+uid="uid://cjxpidiuyq7l3"
+path="res://.godot/imported/stagger.glb-a0f3e108084300763560befa871cbd1a.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/pistol_shoot.glb"
-dest_files=["res://.godot/imported/pistol_shoot.glb-5797e8a1d3c5e892870e30e6d989b5f9.scn"]
+source_file="res://assets/animations/library/stagger.glb"
+dest_files=["res://.godot/imported/stagger.glb-a0f3e108084300763560befa871cbd1a.scn"]
 
 [params]
 

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c0yc5mf1bxtdx"
-path="res://.godot/imported/long_reload.glb-10b0b035d0b86a3f9c2380a93d0f2a1a.scn"
+uid="uid://deyp5sg5c3wji"
+path="res://.godot/imported/run_e.glb-bb4b907e8ea935ae6638497cef353d2a.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/long_reload.glb"
-dest_files=["res://.godot/imported/long_reload.glb-10b0b035d0b86a3f9c2380a93d0f2a1a.scn"]
+source_file="res://assets/animations/library/run_e.glb"
+dest_files=["res://.godot/imported/run_e.glb-bb4b907e8ea935ae6638497cef353d2a.scn"]
 
 [params]
 

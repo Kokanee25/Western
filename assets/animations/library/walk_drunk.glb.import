@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cfgiphw4j2abk"
-path="res://.godot/imported/hit_front.glb-89e4da237cf94d8e4dd625a2be2a2195.scn"
+uid="uid://dcaljclvw6cvg"
+path="res://.godot/imported/walk_drunk.glb-4136f35315df27095a51c8201ab240a8.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/hit_front.glb"
-dest_files=["res://.godot/imported/hit_front.glb-89e4da237cf94d8e4dd625a2be2a2195.scn"]
+source_file="res://assets/animations/library/walk_drunk.glb"
+dest_files=["res://.godot/imported/walk_drunk.glb-4136f35315df27095a51c8201ab240a8.scn"]
 
 [params]
 

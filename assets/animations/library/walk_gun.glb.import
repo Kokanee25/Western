@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://mnhearpv4h20"
-path="res://.godot/imported/crouch_idle.glb-90c57525b6b4e8e9e5ab0c123361d0a8.scn"
+uid="uid://cune55hf55p8r"
+path="res://.godot/imported/walk_gun.glb-115b15a80b0966ef7a9c4f329791a156.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/crouch_idle.glb"
-dest_files=["res://.godot/imported/crouch_idle.glb-90c57525b6b4e8e9e5ab0c123361d0a8.scn"]
+source_file="res://assets/animations/library/walk_gun.glb"
+dest_files=["res://.godot/imported/walk_gun.glb-115b15a80b0966ef7a9c4f329791a156.scn"]
 
 [params]
 

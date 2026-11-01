@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://2yi3iet5uy1b"
-path="res://.godot/imported/hit_head.glb-e45e55f9305be595eed7c881426aefd5.scn"
+uid="uid://cvngq0tfp1ndk"
+path="res://.godot/imported/walk_g.glb-4810c3a4a8970ef20b191c1c54882f82.scn"
 
 [deps]
 
-source_file="res://assets/animations/library/hit_head.glb"
-dest_files=["res://.godot/imported/hit_head.glb-e45e55f9305be595eed7c881426aefd5.scn"]
+source_file="res://assets/animations/library/walk_g.glb"
+dest_files=["res://.godot/imported/walk_g.glb-4810c3a4a8970ef20b191c1c54882f82.scn"]
 
 [params]
 
