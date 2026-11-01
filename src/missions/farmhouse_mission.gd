@@ -518,9 +518,11 @@ func _check_end() -> void:
 	if not clear_of_house(hostage.global_position, tuning.safe_from_house):
 		return
 	# Nobody still fighting: no man still in it who knows where you are (one holed up in the house
-	# who's lost you this long isn't: you've got the rancher clear of him).
+	# who's lost you this long isn't: you've got the rancher clear of him). Or he's well away (out of
+	# their reach: whoever's left in the house can have it).
+	var away := hostage.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) > tuning.safe_away
 	for b in brains:
-		if not _out(b) and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING] and b.senses.since_known(p) < 10.0:
+		if not away and not _out(b) and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING] and b.senses.since_known(p) < 10.0:
 			return
 	state = State.WON
 	end_t = t

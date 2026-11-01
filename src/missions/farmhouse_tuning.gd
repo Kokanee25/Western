@@ -27,6 +27,8 @@ extends Resource
 @export var follow_hurry := 5.0
 ## Out and safe: this far (m) from the house's walls.
 @export var safe_from_house := 4.0
+## Or this far (m) from it, whoever's still in the house.
+@export var safe_away := 40.0
 
 @export_group("The outlaws")
 ## A blast this near the house (m) is a breach: the alarm, and they turn to it.

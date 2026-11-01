@@ -116,11 +116,11 @@ func _route_out() -> Array[Vector3]:
 		"back":
 			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
 					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _place(&"farm_kitchen_e"), _place(&"farm_back_door"),
-					_place(&"farm_back_steps"), _place(&"farm_back"), _g(4.4, 16.0), _g(4.4, 24.0)]
+					_place(&"farm_back_steps"), _place(&"farm_back"), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
 		"breach":
 			var f := Farmhouse.FLOOR
 			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
-					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 24.0)]
+					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
 	return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room"), _place(&"farm_door"), _place(&"farm_porch"),
 			_place(&"farm_steps"), _place(&"farm_lane"), _place(&"road_farm")]
 
