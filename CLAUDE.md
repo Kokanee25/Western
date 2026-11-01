@@ -629,7 +629,7 @@ frozen until Sean names one.
   shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
   (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
   the merge on the pool, a cut's ends batched; the blaze 4,247/3,185 -> 2,249/1,494 meshes/shapes
-  (calm 1,428/789); merged, build 2833. Then (PR #PRNUM) `perf_bench --scene=blast`, dynamite and
+  (calm 1,428/789); merged, build 2833. Then (PR #534) `perf_bench --scene=blast`, dynamite and
   no fire (the game since #458): rendered draws 6,617 -> 3,749, render CPU 13.2 -> 8.7 ms
   (lavapipe), shapes 4,003 -> 1,015; a cell's part-made chunk stalled (fixed: `_spread`).
   Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs 33 ms by how
