@@ -162,3 +162,31 @@ func test_a_joining_piece_is_drawn_all_the_while() -> void:
 			break
 	check_eq(unseen, 0, "drawn by itself or by its cell every frame")
 	check(_rest() != null and _rest().piece_count() == bodies.size(), "and both joined")
+
+
+## A chunk's meshes made a few a tick (here one): every piece still gets drawn by its cell (the
+## bench found a cell whose part-made chunk never finished, its pieces waiting for good).
+func test_a_chunk_made_over_many_ticks_is_finished() -> void:
+	var ids: Array[StringName] = []
+	for i in 8:
+		var m := s.add_member("bit%d" % i, &"post", &"framing", Vector3(0.1, 0.1, 0.6), Vector3(4.0 + 0.4 * i, 0.3, 8.0))
+		ids.append(m.member_id)
+	await physics_frames(2)
+	var was := RubbleRest.mesh_ms
+	RubbleRest.mesh_ms = 0.0
+	s._drop(ids)
+	var bodies := s.rubble.duplicate()
+	var done := false
+	for i in 600:
+		await physics_frames(1)
+		var r := _rest()
+		if r and r.piece_count() == bodies.size() and r._jobs.is_empty() and r._pending.is_empty():
+			done = true
+			break
+	RubbleRest.mesh_ms = was
+	check(done, "every piece joined and no job left (%s)" % (str(_rest().state()) if _rest() else "no rest"))
+	var drawn := 0
+	for rb: RigidBody3D in bodies:
+		if _rest() and _rest().drawn_by_cell(rb):
+			drawn += 1
+	check_eq(drawn, bodies.size(), "all of them drawn by their cell")
