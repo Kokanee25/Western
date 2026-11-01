@@ -289,6 +289,7 @@ python3 tools/bridge.py stop
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
 - **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
+- **src/missions (the farmhouse)** — the farmhouse out east (its spec, its places), the hills.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
   motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
