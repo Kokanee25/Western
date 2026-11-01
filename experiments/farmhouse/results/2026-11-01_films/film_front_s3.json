@@ -1,0 +1,168 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 37.03,
+  "phase_at": {
+   "out": 37.03,
+   "rescue": 35.2
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 50.08,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1987,
+  "max_ms": 4087.25,
+  "mean_ms": 334.8,
+  "p95_ms": 928.06
+ },
+ "freed": 37.53,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.81,
+   1.26,
+   -9.23
+  ],
+  "limp": false,
+  "pelvis": [
+   2.81,
+   0.52,
+   -9.14
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.81,
+  0.9,
+  -9.15
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "id": "kid",
+   "inside": false,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "id": "hollis",
+   "inside": false,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, bone broken.",
+ "player_local": [
+  3.97,
+  -1.75,
+  -30.8
+ ],
+ "seed": 3,
+ "state": "WON",
+ "t": 50.08,
+ "threat": 23.22,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   18.4,
+   "Kid down"
+  ],
+  [
+   23.2,
+   "Hollis down"
+  ],
+  [
+   23.22,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   37.53,
+   "the rancher cut loose"
+  ],
+  [
+   38.88,
+   "Lyle down"
+  ],
+  [
+   39.58,
+   "Dutch down"
+  ],
+  [
+   41.12,
+   "you backed off"
+  ],
+  [
+   50.08,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}
