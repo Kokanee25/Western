@@ -623,7 +623,7 @@ frozen until Sean names one.
   shown; `FrameBudget` counts nested timers once. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
   **Fire out of play** (Sean, 2026-10-31, #458: explosions first, fire later): `FireSystem.in_play`
   off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays.
-  **Rubble at rest** (#459, PR #PRNUM, branch `claude/issue-459-9om801`; results
+  **Rubble at rest** (#459, PR #523, branch `claude/issue-459-9om801`; results
   `experiments/blast_freeze/results/2026-11-01_rubble_rest/`): `RubbleRest` draws still rubble and
   shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
   (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
