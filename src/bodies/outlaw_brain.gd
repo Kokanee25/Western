@@ -150,13 +150,16 @@ var variant: Variant = default_variant
 ## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
 ## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
 ## him, and calls the others on), hold_cover (#294: behind cover he holds it against the idea of
-## the man he chose it by, moved only by what he's sure of, not by a guess at a sound). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## the man he chose it by, moved only by what he's sure of, not by a guess at a sound), watch_spot
+## (#477: behind cover, with the man last known near and lately, he watches that spot rather than go
+## looking for him; `_lost_you`, WATCH_*). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
-		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover"]
+		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
+		&"watch_spot"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -817,12 +820,29 @@ func tick(delta: float) -> void:
 ## worse, nobody to fight, rescue or break from: a man fighting, fleeing, tending or rescuing ticks
 ## every tick.
 func can_slow() -> bool:
-	if mood != Mood.CALM or target != null or rescuing != null or _pending_break != &"" or not _fire_way.is_empty():
-		return false
+	return slow_reason() == &""
+
+
+const MOOD_NAMES: Array[StringName] = [&"calm", &"fighting", &"reloading", &"surrendered", &"down", &"dead", &"fleeing", &"tending"]
+
+
+## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
+## counts (#495).
+func slow_reason() -> StringName:
+	if mood != Mood.CALM:
+		return MOOD_NAMES[mood]
+	if target != null:
+		return &"target"
+	if rescuing != null:
+		return &"rescuing"
+	if _pending_break != &"":
+		return &"break"
+	if not _fire_way.is_empty():
+		return &"fire_way"
 	for who: Variant in relations.entries.keys():  # a copy (Senses: a freed key can loop the walk)
 		if relations.entries[who].stance >= Relations.Stance.WARY:
-			return false
-	return true
+			return &"wary"
+	return &""
 
 
 ## In a fight, running or tending (PeopleTick: whoever's near him ticks every tick too).
@@ -1464,7 +1484,7 @@ func _combat(delta: float) -> void:
 	var eye := _eye_of(t)
 	# Lost sight of him for a while: go and look where he was.
 	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone \
-			and _shaken < 0.0:
+			and _shaken < 0.0 and (tactic != Tactic.HIDDEN or _lost_you(t)):
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
@@ -1519,6 +1539,23 @@ func _combat(delta: float) -> void:
 			_hide(delta, eye)
 		Tactic.PEEKING:
 			_peek(delta, t, eye)
+
+
+## Behind cover, has he lost the man enough to go looking for him? Without variant D's
+## `watch_spot`, yes (4 s unseen and unheard, the caller's test). With it (#477: the careful
+## player pops up every few seconds, and a man who went to look walked out of good cover into his
+## gun): only once he's no idea where the man is, or his last idea is far off, or he's heard
+## nothing for WATCH_QUIET s (WATCH_ALONE with no friend standing in earshot to keep the man
+## busy). Till then he holds and watches that spot; he still moves for an angle (`_flank_after`),
+## cover shot away or seen round (`_hide`), a friend down (`_wounded_mate`) or the man reloading
+## (`_press_why`).
+func _lost_you(t: Node3D) -> bool:
+	if not _has(&"watch_spot"):
+		return true
+	var spot := senses.last_known(t)
+	if spot == Vector3.INF or body.global_position.distance_to(spot) > WATCH_NEAR:
+		return true
+	return senses.since_known(t) > (WATCH_QUIET if crew.any_in_earshot(_now) else WATCH_ALONE)
 
 
 ## Where he thinks the man's eyes are: where they are if he can see him, else where he last knew.
@@ -2080,6 +2117,12 @@ const FLINCH_HOLD := Vector2(0.3, 0.7)
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
+## Variant D's `watch_spot` (#477): behind cover, with the man last known this near (m), he watches
+## where he was for this long unseen and unheard (s) before he goes to look; WATCH_ALONE with no
+## friend standing in earshot.
+const WATCH_NEAR := 15.0
+const WATCH_QUIET := 14.0
+const WATCH_ALONE := 8.0
 ## He only goes for a friend down in the open while the man who put him there is about: seen or
 ## heard this recently.
 const RESCUE_WHILE_KNOWN := 8.0

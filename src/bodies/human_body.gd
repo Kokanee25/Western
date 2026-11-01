@@ -438,6 +438,26 @@ func can_slow() -> bool:
 	return true
 
 
+## Why he can't slow, for PeopleTick's counts (#495): his body's (`down`, `rising`, `stumbling`,
+## `dragged`, `clip`) or the first of his nodes' `slow_reason` (his brain's: `fleeing`, `fear`...);
+## &"" when he can.
+func slow_reason() -> StringName:
+	if limp or prone:
+		return &"down"
+	if rising:
+		return &"rising"
+	if stumbling > 0.0:
+		return &"stumbling"
+	if dragged_by != null:
+		return &"dragged"
+	if _clip != null and _clip.name != walk_clip:
+		return &"clip"
+	for n: Node in _slow_says:
+		if not n.call(&"can_slow"):
+			return n.call(&"slow_reason") if n.has_method(&"slow_reason") else &"brain"
+	return &""
+
+
 ## Is he in trouble (a fight, running, hands up, getting down: his brain's `in_trouble`)? Then
 ## whoever's near him ticks every tick too (PeopleTick's bands: near a fight is near).
 func in_trouble() -> bool:

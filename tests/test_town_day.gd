@@ -591,3 +591,30 @@ func test_far_off_the_gang_comes_in_on_time_with_the_bands() -> void:
 		if on[1][i] != Vector3.INF and off[1][i] != Vector3.INF:
 			worst = maxf(worst, (on[1][i] as Vector3).distance_to(off[1][i]))
 	check(worst < 0.25, "by the same road, every two seconds (worst %.3f m)" % worst)
+
+
+## A stick far off (#495): the street hears it and cowers, then stands shaken, but far from you and
+## from any fight they still tick slowly (the bands' own rule), and a cowering man isn't trouble
+## that keeps his neighbours at every tick. Your gun on one of them: every tick, and trouble.
+func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> void:
+	Settings.people_bands = true
+	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
+	player.set_physics_process(false)
+	await physics_frames(3)
+	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
+	await physics_frames(30)
+	var cowering: Array[HumanBody] = []
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+		var b := p.get_node_or_null(^"Brain") as CivilianBrain
+		if b != null and b.mood == CivilianBrain.Mood.COWERING:
+			cowering.append(p)
+	check(cowering.size() >= 3, "the street cowers from the blast (%d of them)" % cowering.size())
+	for p in cowering:
+		check(p.can_slow() and not p.in_trouble(), "%s cowering: he can slow, and he's no trouble" % p.person_id)
+		check(p.tick_every > 1, "%s, 100 m and more from you: ticks every %d" % [p.person_id, p.tick_every])
+	if not cowering.is_empty():
+		var b := cowering[0].get_node(^"Brain") as CivilianBrain
+		b._aimed = 2.0
+		check(not cowering[0].can_slow() and cowering[0].in_trouble(), "aimed at: he can't slow, and he's trouble")
+		b._aimed = 0.0
+	Settings.people_bands = Settings.PEOPLE_BANDS

@@ -594,11 +594,12 @@ frozen until Sean names one.
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
-- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
-  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
-  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
-  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
-  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
+- **Men who move with purpose** (#465; `experiments/gunfight_lab/results/2026-10-28_hold_cover/`,
+  `2026-11-01_watch_spot/`): the lab's `moves.py` (runs, stays, drops, posts, the galleries);
+  `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
+  (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
+  hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
+  Next: #531 (posts as narrow cover, then the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -613,6 +614,11 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The people after a blast** (#495, branch `claude/issue-495-0pf0fm`;
+  `experiments/people_after_blast/`): a townsman cowering or shaken where he stands ticks slowly far
+  off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
+  stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
+  fights and perception the same. Next: #492's gate on Sean's F12s.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
@@ -819,3 +825,7 @@ frozen until Sean names one.
   and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
   canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
   Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.
+- **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
+  results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
+  mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
+  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).
