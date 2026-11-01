@@ -492,6 +492,8 @@ frozen until Sean names one.
   the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
   walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
   films (do they pass, turn them on?).
+- **MetaHuman** (2026-11-01, branch `claude/characters-metahuman-feasibility`): blocked here (no GPU, Epic
+  hosts refused, Mesh to MetaHuman is Windows-only); report `docs/style_test/metahuman-2026-11-01/REPORT.md`.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
