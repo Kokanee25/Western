@@ -387,11 +387,19 @@ def main(argv):
             if m.get("parts"):
                 # Only these segments: the rest of him stays the pose's.
                 clip["frames"] = [{k: v for k, v in fr.items() if k in m["parts"]} for fr in clip["frames"]]
+            drop = m.get("drop", picks.get("drop", []))
+            if drop:
+                # Left to the pose (and FaceLife's looks): CMU's two neck bones go into our neck and
+                # head as a kink, the neck back and the head forward (the chin poked out; standing
+                # still, the chin on his chest).
+                clip["frames"] = [{k: v for k, v in fr.items() if k not in drop} for fr in clip["frames"]]
             write_clip(clip, j, move, m["kind"], OUT, rig)
             entry = {"source": "%s: %s%s" % (LIBS[lib]["pack"], j["file"], (", animation " + anim) if anim else ""), "licence": LIBS[lib]["licence"],
                      "page": LIBS[lib]["page"], "length_s": j["seconds"], "loop": m["kind"] != "once", "kind": m["kind"]}
             if m.get("parts"):
                 entry["parts"] = m["parts"]
+            if drop:
+                entry["left_to_the_pose"] = drop
             for k in ("speed_mps", "stride_m", "seam_before_deg", "seam_after_deg", "slide_after_m", "missing", "why"):
                 if k in j:
                     entry[k] = j[k]

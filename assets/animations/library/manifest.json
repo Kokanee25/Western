@@ -2,16 +2,20 @@
  "_doc": "The library clips (issue #529; tools/blender/library_motion.py, picks in tools/blender/library_picks.json): each move's clip, where it came from, its licence, its length and whether it loops. HumanBody plays them through LibraryMotion when Settings.library_motion is on.",
  "clips": {
   "idle": {
-   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 111_28.bvh",
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 77_02.bvh",
    "licence": "CMU: free for research and commercial use",
    "page": "http://mocap.cs.cmu.edu",
-   "length_s": 2.5,
+   "length_s": 2.7,
    "loop": true,
    "kind": "idle",
-   "seam_before_deg": 52.14,
-   "seam_after_deg": 0.05,
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "seam_before_deg": 54.84,
+   "seam_after_deg": 0.0,
    "missing": [],
-   "why": "standing still, the least sway and slide (111_28)"
+   "why": "77_02, standing: the trunk upright and the arms hanging (111_28 leans back with the hands clasped, 140_06 leans forward)"
   },
   "walk": {
    "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 08_01.bvh",
@@ -20,6 +24,10 @@
    "length_s": 1.0,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 1.479,
    "stride_m": 1.479,
    "seam_before_deg": 28.75,
@@ -34,6 +42,10 @@
    "length_s": 0.733,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 2.574,
    "stride_m": 1.887,
    "seam_before_deg": 77.93,
@@ -48,6 +60,10 @@
    "length_s": 1.033,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 0.448,
    "stride_m": 0.463,
    "seam_before_deg": 54.8,
@@ -62,6 +78,10 @@
    "length_s": 1.0,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 0.424,
    "stride_m": 0.424,
    "seam_before_deg": 33.38,
@@ -76,6 +96,10 @@
    "length_s": 1.0,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 0.424,
    "stride_m": 0.424,
    "seam_before_deg": 33.38,
@@ -90,6 +114,10 @@
    "length_s": 1.433,
    "loop": true,
    "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
    "speed_mps": 0.515,
    "stride_m": 0.738,
    "seam_before_deg": 47.19,

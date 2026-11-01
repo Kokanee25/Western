@@ -1,5 +1,5 @@
 {
- "_doc": "The library clips (issues #529, #539): each move's candidate takes and the `pick` that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, tools/library_lineup.gd). Since #539 (Sean on #536's films: the free packs' clips were 'brutal', KayKit a chibi's, the strafe 'highland dancing') the basics are real people from the CMU motion-capture database (B. Hahne's BVH conversion, fetched into build/cmu/ by tools/blender/fetch_library.sh); a take is [source, part, animation, options]: `cycle` [lo, hi] s cuts one loop from a long take's steady middle (find_cycle), `mirror` swaps his sides. `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once, hold. The aim, the reload and a few others are to come from Uthana (#539 step 3).",
+ "_doc": "The library clips (issues #529, #539): each move's candidate takes and the `pick` that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, tools/library_lineup.gd). Since #539 (Sean on #536's films: the free packs' clips were 'brutal', KayKit a chibi's, the strafe 'highland dancing') the basics are real people from the CMU motion-capture database (B. Hahne's BVH conversion, fetched into build/cmu/ by tools/blender/fetch_library.sh); a take is [source, part, animation, options]: `cycle` [lo, hi] s cuts one loop from a long take's steady middle (find_cycle), `mirror` swaps his sides. `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once, hold. The aim, the reload and a few others are to come from Uthana (#539 step 3). `drop` (all moves, or a move's own): segments left to the pose: the neck and head (CMU's two neck bones put a kink in ours, the chin poked out).",
  "sources": {
   "quaternius": "gltf-universal-animation-library/glTF/AnimationLibrary_Godot_Standard.gltf",
   "kaykit": "kaykit-character-animations-1.1/Rig_Medium_%s.glb",
@@ -43,8 +43,8 @@
      }
     ]
    ],
-   "pick": 2,
-   "why": "standing still, the least sway and slide (111_28)"
+   "pick": 0,
+   "why": "77_02, standing: the trunk upright and the arms hanging (111_28 leans back with the hands clasped, 140_06 leans forward)"
   },
   "walk": {
    "kind": "gait",
@@ -301,5 +301,9 @@
    "pick": 0,
    "why": "77_29, a creeping walk"
   }
- }
+ },
+ "drop": [
+  "neck",
+  "head"
+ ]
 }
