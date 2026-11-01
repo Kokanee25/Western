@@ -2,275 +2,100 @@
  "_doc": "The library clips (issue #529; tools/blender/library_motion.py, picks in tools/blender/library_picks.json): each move's clip, where it came from, its licence, its length and whether it loops. HumanBody plays them through LibraryMotion when Settings.library_motion is on.",
  "clips": {
   "idle": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Idle_Loop",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 111_28.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
    "length_s": 2.5,
    "loop": true,
    "kind": "idle",
-   "seam_before_deg": 2.28,
-   "seam_after_deg": 0.73,
-   "missing": []
+   "seam_before_deg": 52.14,
+   "seam_after_deg": 0.05,
+   "missing": [],
+   "why": "standing still, the least sway and slide (111_28)"
   },
   "walk": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Walk_Loop",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 1.333,
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 08_01.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.0,
    "loop": true,
    "kind": "gait",
-   "speed_mps": 1.079,
-   "stride_m": 1.439,
-   "seam_before_deg": 0.0,
+   "speed_mps": 1.479,
+   "stride_m": 1.479,
+   "seam_before_deg": 28.75,
    "seam_after_deg": 0.0,
-   "missing": []
+   "missing": [],
+   "why": "the planted foot stays put on our men: 0.11 m/s of skate at 1.3 m/s (the old gait 1.04)"
   },
   "run": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Jog_Fwd_Loop",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 0.933,
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 09_01.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 0.733,
    "loop": true,
    "kind": "gait",
-   "speed_mps": 4.886,
-   "stride_m": 4.56,
-   "seam_before_deg": 12.8,
-   "seam_after_deg": 0.06,
+   "speed_mps": 2.574,
+   "stride_m": 1.887,
+   "seam_before_deg": 77.93,
+   "seam_after_deg": 0.0,
    "missing": [],
-   "why": "Quaternius' jog: KayKit's runs fling the arms out (a chibi's)"
+   "why": "half the old run's skate (1.07 vs 2.24 m/s); the planted foot still drifts (needs foot IK)"
   },
   "walk_back": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_MovementAdvanced.glb, animation Walking_Backwards",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.067,
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 69_34.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.033,
    "loop": true,
    "kind": "gait",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "speed_mps": 1.613,
-   "stride_m": 1.72,
-   "seam_before_deg": 0.0,
+   "speed_mps": 0.448,
+   "stride_m": 0.463,
+   "seam_before_deg": 54.8,
    "seam_after_deg": 0.0,
-   "missing": [
-    "neck"
-   ]
-  },
-  "strafe_l": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_MovementAdvanced.glb, animation Running_Strafe_Left",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 0.8,
-   "loop": true,
-   "kind": "gait",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "speed_mps": 4.697,
-   "stride_m": 3.758,
-   "seam_before_deg": 0.0,
-   "seam_after_deg": 0.0,
-   "missing": [
-    "neck"
-   ]
+   "missing": [],
+   "why": "one subject's steady backing walk; 76_09 barely moves"
   },
   "strafe_r": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_MovementAdvanced.glb, animation Running_Strafe_Right",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 0.8,
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 69_43.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.0,
    "loop": true,
    "kind": "gait",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "speed_mps": 4.676,
-   "stride_m": 3.741,
-   "seam_before_deg": 0.0,
+   "speed_mps": 0.424,
+   "stride_m": 0.424,
+   "seam_before_deg": 33.38,
    "seam_after_deg": 0.0,
-   "missing": [
-    "neck"
-   ]
+   "missing": [],
+   "why": "69_43 mirrored"
+  },
+  "strafe_l": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 69_43.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.0,
+   "loop": true,
+   "kind": "gait",
+   "speed_mps": 0.424,
+   "stride_m": 0.424,
+   "seam_before_deg": 33.38,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "69_43, a sideways walk to his left"
   },
   "crouch_walk": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Crouch_Fwd_Loop",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 2.0,
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 77_29.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.433,
    "loop": true,
    "kind": "gait",
-   "speed_mps": 0.656,
-   "stride_m": 1.311,
-   "seam_before_deg": 0.0,
-   "seam_after_deg": 0.0,
-   "missing": []
-  },
-  "crouch_idle": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Crouch_Idle_Loop",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 2.933,
-   "loop": true,
-   "kind": "idle",
-   "seam_before_deg": 0.29,
-   "seam_after_deg": 0.06,
-   "missing": []
-  },
-  "pistol_aim": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_1H_Aiming",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.067,
-   "loop": true,
-   "kind": "hold",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.013,
-   "missing": [
-    "neck"
-   ]
-  },
-  "pistol_shoot": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_1H_Shoot",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.067,
-   "loop": false,
-   "kind": "once",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.04,
-   "missing": [
-    "neck"
-   ]
-  },
-  "long_aim": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_2H_Aiming",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.6,
-   "loop": true,
-   "kind": "hold",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.002,
-   "missing": [
-    "neck"
-   ]
-  },
-  "long_shoot": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_2H_Shoot",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 0.7,
-   "loop": false,
-   "kind": "once",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.023,
-   "missing": [
-    "neck"
-   ]
-  },
-  "reload": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_1H_Reload",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.167,
-   "loop": false,
-   "kind": "once",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.143,
-   "missing": [
-    "neck"
-   ]
-  },
-  "long_reload": {
-   "source": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium): Rig_Medium_CombatRanged.glb, animation Ranged_2H_Reload",
-   "licence": "CC0 1.0",
-   "page": "https://kaylousberg.itch.io/kaykit-character-animations",
-   "length_s": 1.6,
-   "loop": false,
-   "kind": "once",
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ],
-   "slide_after_m": 0.0,
-   "missing": [
-    "neck"
-   ]
-  },
-  "hit_front": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Hit_Chest",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 0.333,
-   "loop": false,
-   "kind": "once",
-   "slide_after_m": 0.001,
-   "missing": []
-  },
-  "hit_head": {
-   "source": "Quaternius, Universal Animation Library (UAL1 Standard, free): AnimationLibrary_Godot_Standard.gltf, animation Hit_Head",
-   "licence": "CC0 1.0",
-   "page": "https://quaternius.com/packs/universalanimationlibrary.html",
-   "length_s": 0.4,
-   "loop": false,
-   "kind": "once",
-   "slide_after_m": 0.0,
-   "missing": []
+   "speed_mps": 0.515,
+   "stride_m": 0.738,
+   "seam_before_deg": 47.19,
+   "seam_after_deg": 0.19,
+   "missing": [],
+   "why": "77_29, a creeping walk"
   }
  }
 }

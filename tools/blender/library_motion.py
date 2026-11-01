@@ -34,6 +34,8 @@ SRC = os.path.join(ROOT, "build", "library_src")
 WORK = os.path.join(ROOT, "build", "library")
 OUT = os.path.join(ROOT, "assets", "animations", "library")
 LIBS = {
+    "cmu": {"pack": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion)", "licence": "CMU: free for research and commercial use",
+            "page": "http://mocap.cs.cmu.edu"},
     "quaternius": {"pack": "Quaternius, Universal Animation Library (UAL1 Standard, free)", "licence": "CC0 1.0",
                    "page": "https://quaternius.com/packs/universalanimationlibrary.html"},
     "kaykit": {"pack": "Kay Lousberg, KayKit Character Animations 1.1 (Rig_Medium)", "licence": "CC0 1.0",
@@ -121,7 +123,26 @@ def _q_rot(q, v):
     return v + 2.0 * np.cross(u, np.cross(u, v) + w * v)
 
 
-def our_feet(clip, rig):
+def _carried_slide(feet, v, fps):
+    """The lower ankle's level speed (m/s) over the loop with his hips carried at `v` (m/s): how much
+    the foot carrying him skates."""
+    n = len(feet["l"])
+    low = {k: float(np.min(feet[k][:, 1])) for k in feet}
+    tot, cnt = 0.0, 0
+    for i in range(1, n):
+        s = "l" if feet["l"][i][1] < feet["r"][i][1] else "r"
+        o = "r" if s == "l" else "l"
+        # Carrying him: the lower foot, and on the ground (within 2.5 cm of its lowest) both frames
+        # (in a run's flight neither foot carries him).
+        on = feet[s][i][1] < low[s] + 0.025 and feet[s][i - 1][1] < low[s] + 0.025
+        if on and feet[s][i - 1][1] < feet[o][i - 1][1]:
+            d = feet[s][i] - feet[s][i - 1] + v / fps
+            tot += math.hypot(d[0], d[2])
+            cnt += 1
+    return tot / max(cnt, 1) * fps
+
+
+def our_feet(clip, rig, point="sole"):
     """Each frame, his two soles (the foot segment's middle, its `a`..`b` line at the ground) in his
     hips' frame, worked forward through our own rig from the clip's turns: what the game's man does
     with the clip, whatever the source's proportions were (KayKit's are a chibi's)."""
@@ -141,6 +162,9 @@ def our_feet(clip, rig):
                 P[seg] = P[par] + _q_rot(G[par], piv - np.array(rig[par]["pivot"]))
         for side in ("l", "r"):
             f = "foot_" + side
+            if point == "ankle":
+                out[side].append(P[f])
+                continue
             mid = (np.array(rig[f]["a"]) + np.array(rig[f]["b"])) * 0.5 - np.array(rig[f]["pivot"])
             out[side].append(P[f] + _q_rot(G[f], mid))
     return {s: np.array(v) for s, v in out.items()}
@@ -151,7 +175,7 @@ def gait_speed(clip, rig):
     right, -z ahead): the planted foot's level speed back under his hips (the frames a foot is the
     lower and within 4 cm of the lowest it gets), the clip in place (the libraries' are). Also how
     much the planted foot's speed wanders over the stance (m/s; low: it stays planted at that
-    pace)."""
+    pace; after the fit, the carrying foot's skate left at that speed, m/s)."""
     fps = clip["fps"]
     feet = our_feet(clip, rig)
     floor = min(float(np.min(feet["l"][:, 1])), float(np.min(feet["r"][:, 1])))
@@ -168,8 +192,85 @@ def gait_speed(clip, rig):
     vs = np.array(vs)
     v = np.median(vs, axis=0)
     sp = float(np.linalg.norm(v))
-    wander = float(np.median(np.linalg.norm(vs - v, axis=1)))
+    # Fitted: the speed along that way that keeps the foot carrying him (the lower ankle) stillest,
+    # walked over the loop (a run's feet both leave the ground, which the median above can't tell).
+    ank = our_feet(clip, rig, point="ankle")
+    way = v / sp if sp > 1e-6 else np.array([0.0, 0.0, -1.0])
+    best = (1e9, sp)
+    for k in np.linspace(0.4, 2.5, 85):
+        cost = _carried_slide(ank, way * sp * k, fps)
+        if cost < best[0]:
+            best = (cost, sp * k)
+    v = way * best[1]
+    sp = best[1]
+    wander = round(best[0], 3)
     return sp, [round(float(c), 3) for c in (v / sp if sp > 1e-6 else np.array([0.0, 0.0, -1.0]))], round(wander, 3)
+
+
+def _yaw_of_q(q):
+    """His heading (rad) from a pelvis turn: where its -z points, level."""
+    f = _q_rot(q, [0.0, 0.0, -1.0])
+    return math.atan2(-f[0], -f[2])
+
+
+def find_cycle(clip, lo_s, hi_s, skip=0.2):
+    """One loop out of a long take (a CMU walk goes on for metres, turns at its ends): the pair of
+    frames i < j, j - i between lo_s and hi_s seconds, in the take's steady middle (its first and
+    last `skip` left out), whose poses and the poses either side of them match best (each joint's
+    turn summed; the pelvis's includes his heading, so a stretch where he turns scores badly).
+    Returns (i, j, cost in degrees)."""
+    fr = clip["frames"]
+    n = len(fr)
+    fps = clip["fps"]
+    lo, hi = max(2, int(lo_s * fps)), int(hi_s * fps)
+    a, b = int(n * skip), int(n * (1 - skip))
+    segs = [s for s in fr[0]]
+
+    def d(x, y):
+        return sum(_angle(fr[x][s], fr[y][s]) for s in segs if s in fr[x] and s in fr[y])
+
+    best = (None, None, 1e9)
+    for i in range(max(1, a), b):
+        for j in range(i + lo, min(i + hi, b) + 1):
+            if j + 1 >= n:
+                break
+            c = d(i, j) + 0.5 * (d(i - 1, j - 1) + d(i + 1, j + 1))
+            if c < best[2]:
+                best = (i, j, c)
+    return best[0], best[1], round(math.degrees(best[2]), 2)
+
+
+def level_heading(clip):
+    """Turn the loop so he faces -z on the whole (the mean of his pelvis's heading over it taken
+    out): a cut from the middle of a take faces whatever way he was walking then."""
+    ys = [_yaw_of_q(fr["pelvis"]) for fr in clip["frames"] if "pelvis" in fr]
+    if not ys:
+        return 0.0
+    mean = math.atan2(sum(math.sin(y) for y in ys), sum(math.cos(y) for y in ys))
+    q = [0.0, math.sin(-mean / 2), 0.0, math.cos(-mean / 2)]
+    for fr in clip["frames"]:
+        if "pelvis" in fr:
+            fr["pelvis"] = _norm(_q_mul(q, fr["pelvis"]))
+    return round(math.degrees(mean), 1)
+
+
+def mirror(clip):
+    """Left for right: each joint's turn reflected across his middle (x -> -x: a quaternion's y and
+    z flip) and the sides swapped. A sidestep to his right becomes one to his left."""
+    out = []
+    for fr in clip["frames"]:
+        m = {}
+        for s, q in fr.items():
+            other = s[:-2] + ("_r" if s.endswith("_l") else "_l") if s.endswith(("_l", "_r")) else s
+            m[other] = [q[0], -q[1], -q[2], q[3]]
+        out.append(m)
+    clip["frames"] = out
+    for k in ("root", "hips_path", "hands_path"):
+        if clip.get(k):
+            clip[k] = [[-p[0], p[1], p[2]] for p in clip[k]]
+    if clip.get("feet"):
+        clip["feet"] = {"l": [[-p[0], p[1], p[2]] for p in clip["feet"]["r"]],
+                        "r": [[-p[0], p[1], p[2]] for p in clip["feet"]["l"]]}
 
 
 def source_path(sources, lib, part):
@@ -177,12 +278,24 @@ def source_path(sources, lib, part):
     return os.path.join(SRC, s % part if "%s" in s else s)
 
 
-def run_take(lib, part, anim, move, kind, sources, rig, out_dir):
+def run_take(lib, part, anim, move, kind, sources, rig, out_dir, opts=None):
+    opts = opts or {}
     path = source_path(sources, lib, part)
-    names, rest, frames, _ = rm.read_source(path, anim=anim)
+    names, rest, frames, _ = rm.read_source(path, anim=anim, work=os.path.join(WORK, "converted"))
     clip, notes = rm.retarget(names, rest, frames, rig, move)
     j = {"lib": lib, "file": os.path.basename(path), "anim": anim, "frames_in": len(frames),
          "missing": notes.get("missing", []), "scale": notes.get("scale")}
+    if opts.get("cycle"):
+        # A long take (CMU's): one loop cut from its steady middle, facing ahead.
+        lo, hi = opts["cycle"]
+        i, k, cost = find_cycle(clip, lo, hi, opts.get("skip", 0.2))
+        rm._cut(clip, i, k)
+        j["cycle"] = [round(i / clip["fps"], 2), round(k / clip["fps"], 2)]
+        j["cycle_cost_deg"] = cost
+        j["heading_taken_deg"] = level_heading(clip)
+    if opts.get("mirror"):
+        mirror(clip)
+        j["mirrored"] = True
     # His hands' least distance apart (both hands near: a two-handed grip).
     bones = notes["bones"]
     if "hand_l" in bones and "hand_r" in bones:
@@ -249,12 +362,13 @@ def main(argv):
         for move, m in picks["moves"].items():
             if only and move not in only:
                 continue
-            for i, (lib, part, anim) in enumerate(m["takes"]):
-                clip, j = run_take(lib, part, anim, move, m["kind"], sources, rig, work)
+            for i, take in enumerate(m["takes"]):
+                lib, part, anim = take[:3]
+                clip, j = run_take(lib, part, anim, move, m["kind"], sources, rig, work, take[3] if len(take) > 3 else None)
                 write_clip(clip, j, "%s_%d" % (move, i), m["kind"], work, rig, glb=False)
                 report.setdefault(move, []).append(j)
                 print("%s %d %s/%s: %s" % (move, i, lib, anim, json.dumps({k: j[k] for k in j if k in (
-                    "seconds", "speed_mps", "way", "plant_wander_mps", "stride_m", "seam_before_deg", "slide_after_m", "hands_apart_min_m", "jitter", "missing")})))
+                    "seconds", "speed_mps", "way", "plant_wander_mps", "stride_m", "cycle", "cycle_cost_deg", "heading_taken_deg", "seam_before_deg", "slide_after_m", "hands_apart_min_m", "jitter", "missing")})))
         with open(os.path.join(WORK, "takes.json"), "w") as f:
             json.dump(report, f, indent=1)
         return
@@ -267,13 +381,14 @@ def main(argv):
         for move, m in picks["moves"].items():
             if "pick" not in m:
                 continue
-            lib, part, anim = m["takes"][m["pick"]]
-            clip, j = run_take(lib, part, anim, move, m["kind"], sources, rig, OUT)
+            take = m["takes"][m["pick"]]
+            lib, part, anim = take[:3]
+            clip, j = run_take(lib, part, anim, move, m["kind"], sources, rig, OUT, take[3] if len(take) > 3 else None)
             if m.get("parts"):
                 # Only these segments: the rest of him stays the pose's.
                 clip["frames"] = [{k: v for k, v in fr.items() if k in m["parts"]} for fr in clip["frames"]]
             write_clip(clip, j, move, m["kind"], OUT, rig)
-            entry = {"source": "%s: %s, animation %s" % (LIBS[lib]["pack"], j["file"], anim), "licence": LIBS[lib]["licence"],
+            entry = {"source": "%s: %s%s" % (LIBS[lib]["pack"], j["file"], (", animation " + anim) if anim else ""), "licence": LIBS[lib]["licence"],
                      "page": LIBS[lib]["page"], "length_s": j["seconds"], "loop": m["kind"] != "once", "kind": m["kind"]}
             if m.get("parts"):
                 entry["parts"] = m["parts"]

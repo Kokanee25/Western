@@ -40,7 +40,9 @@ adds its own lines.
   mocap.cs.cmu.edu; the database was created with funding from NSF EIA-0196217. In B. Hahne's 2010
   BVH conversion (cgspeed.com; no further restrictions), fetched by
   `experiments/mocap_walk/fetch.sh` into `build/cmu/`. The walk (35_01) and run (35_17) are
-  retargeted onto our rig in `experiments/mocap_walk/clips/` (an experiment, off by default).
+  retargeted onto our rig in `experiments/mocap_walk/clips/` (an experiment, off by default). Since #539 also the library clips in `assets/animations/library/` (a walk, a run, walking
+  backwards and sideways, a creeping walk, standing: which take each is in its `manifest.json`),
+  by `tools/blender/library_motion.py`, fetched by `tools/blender/fetch_library.sh`.
 - **Uthana text-to-motion** (`uthana/text-to-motion-diffusion-v2`, run on Replicate under its
   terms by the Studio, 2026-10-24): the card cheat's four clips in `assets/animations/` (a walk,
   a kick, a draw, standing over a man) were generated from text for this project and retargeted

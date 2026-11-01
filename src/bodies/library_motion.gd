@@ -1,7 +1,8 @@
 class_name LibraryMotion
 extends RefCounted
-## A man moved by library clips (issue #529; `Settings.library_motion`, off in the game until Sean
-## passes them): Quaternius' and KayKit's CC0 animations, retargeted onto our 17 segments
+## A man moved by library clips (issues #529, #539; `Settings.library_motion`, off in the game until
+## Sean passes them): since #539 real people from CMU's motion-capture database (the free packs'
+## cartoon clips didn't pass), retargeted onto our 17 segments
 ## (`tools/blender/library_motion.py`, `assets/animations/library/`, its manifest). The body picks
 ## the clip by its own state, never a brain's say: walking, running, backing or sidestepping by the
 ## way his feet take him, crouched, aiming, standing about; a hit he stays up from plays a small
@@ -20,7 +21,8 @@ const DIR := "library/"
 ## The clips by move (assets/animations/library/<move>.json).
 const MOVES: Array[StringName] = [&"idle", &"walk", &"run", &"walk_back", &"strafe_l",
 		&"strafe_r", &"crouch_walk", &"crouch_idle", &"pistol_aim", &"hit_front", &"hit_head"]
-## In the library but not picked by any state yet (the tools show them: the lineup, the sheet).
+## A move with no clip (none yet: the aim, the reload and the hits are to come, #539) leaves him on
+## his pose. In the library but not picked by any state (the tools show them: the lineup, the sheet).
 const SHOWN: Array[StringName] = [&"pistol_shoot", &"reload", &"long_aim", &"long_shoot", &"long_reload"]
 ## Faster than this (m/s) over the ground, the run.
 const RUN_FROM := 2.4
