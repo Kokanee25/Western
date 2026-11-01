@@ -1,4 +1,4 @@
-# The library clips lab (issue #529)
+# The library clips lab (issues #529, #539)
 
 Generic movement for every man from two CC0 libraries, Quaternius' Universal Animation Library
 (UAL1 Standard) and KayKit's Character Animations 1.1, retargeted onto our 17 segments and played
@@ -47,3 +47,22 @@ side), the takes sheet (every candidate), the old-vs-new films.
   surrendered with the clips (none without); the farmhouse, back door seed 2, won without, the
   hostage dead with. One run each: not measured, but the gunfight and farmhouse labs should be
   run with `--library-motion=on` before they go on in the game.
+
+## Results, 2026-11-01 (#539): CMU and Uthana
+
+Sean on the first set (#536): "brutal", the strafe and run "highland dancing", the pistol clips
+didn't show. Part of that was the lineup tool's: it moved the men twice the speed the clip was
+told (the loop wakes every physics tick, it moved them a frame's worth): fixed, and it now measures
+the carrying foot's skate (`--measure`; the game's own gait with `--off`). Then:
+
+- **CMU motion capture** for the basics (`library_picks.json`, `find_cycle` cuts one loop from a
+  long take's steady middle and one that travels; the speed fitted to keep the carrying foot
+  still; the neck and head left to the pose: CMU's two neck bones kinked ours, the chin poked out).
+  Skate (m/s, the game's gait in brackets): walk 0.12 (1.04), backwards 0.50 (1.16), sidesteps
+  0.36 (1.12), crouch walk 0.53 (0.41), run 1.10 (2.24; the planting foot drifts on our legs: foot
+  IK would fix it).
+- **Variety**: five walkers (0.12-0.18) and two runners a man picks from by his seed, named styles
+  in `config/walks.json` (Lyle drunk, Brody and the sheriff confident), stride ±6%, arm swing ±20%.
+- **Uthana** ($7.50, the Studio's `motions/gun_moves`): the gun walk 0.10, the gun run 0.73; the
+  aim takes all two-handed (legs only); reload and stagger in the library, not played.
+- Sean: "good enough as a placeholder". Still off in the game.
