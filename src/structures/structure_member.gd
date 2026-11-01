@@ -309,9 +309,18 @@ func world_aabb() -> AABB:
 		if not is_instance_valid(p[0]):
 			continue
 		var mi := p[0] as MeshInstance3D
-		if mi == null or not mi.is_inside_tree():
+		if mi == null:
 			continue
-		var b := mi.global_transform * mi.get_aabb()
+		var xf: Transform3D
+		if mi.is_inside_tree():
+			xf = mi.global_transform
+		else:
+			# Lying in its cell (RubbleRest keeps its mesh aside): where its body is.
+			var rb: Variant = mi.get_meta(&"rest_body", null)
+			if not is_instance_valid(rb) or not (rb as Node3D).is_inside_tree():
+				continue
+			xf = (rb as Node3D).global_transform * mi.transform
+		var b := xf * mi.get_aabb()
 		box = b if first else box.merge(b)
 		first = false
 	if first and is_inside_tree():
@@ -473,6 +482,7 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		smi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		shard.add_child(smi)
 		host.add_child(shard)
+		RubbleRest.watch(shard)
 		var local := Vector3(rng.randf_range(-0.5, 0.5) * size.x, rng.randf_range(-0.5, 0.5) * size.y, 0.0)
 		shard.global_transform = Transform3D(global_transform.basis.rotated(global_transform.basis.z, rng.randf() * TAU), global_transform * local)
 		# Pieces near the hit fly with the bullet; the rest mostly drop.

@@ -198,12 +198,24 @@ func _census() -> Dictionary:
 		if not by.has(key):
 			by[key] = {}
 		by[key][who] = int(by[key].get(who, 0)) + 1
+	var on_body := func(key: String, n: Node) -> void:
+		# A mesh or shape on a loose body: whether that's asleep, awake or frozen, and its group.
+		var p := n.get_parent()
+		if not census_by or not p is RigidBody3D:
+			return
+		var rb := p as RigidBody3D
+		var g := "rubble" if rb.is_in_group(&"rubble") else ("glass_shards" if rb.is_in_group(&"glass_shards") else ("wood_chips" if rb.is_in_group(&"wood_chips") else "other"))
+		var st := "frozen" if rb.freeze else ("asleep" if rb.sleeping else "awake")
+		if rb.has_meta(&"resting_in"):
+			st += ", in a cell"  # (RubbleRest: its shapes or its own meshes not off it yet)
+		by.get_or_add(key + "_on_bodies", {})[g + " " + st] = int(by.get(key + "_on_bodies", {}).get(g + " " + st, 0)) + 1
 	for n in street.find_children("*", "", true, false):
 		if n is MeshInstance3D:
 			count.call("meshes")
 			if (n as MeshInstance3D).is_visible_in_tree():
 				count.call("meshes_visible")
 				count_by.call("meshes_visible", n)
+				on_body.call("meshes_visible", n)
 		elif n is MultiMeshInstance3D:
 			count.call("multimeshes")
 		elif n is GPUParticles3D or n is CPUParticles3D:
@@ -215,6 +227,10 @@ func _census() -> Dictionary:
 			count.call("rigid_bodies")
 			if not (n as RigidBody3D).sleeping and not (n as RigidBody3D).freeze:
 				count.call("rigid_awake")
+				if census_by:
+					# What's still moving (it can't rest in a cell: RubbleRest, #459), by its group.
+					var g := "rubble" if n.is_in_group(&"rubble") else ("glass_shards" if n.is_in_group(&"glass_shards") else n.get_class())
+					by.get_or_add("rigid_awake", {})[g] = int(by.get("rigid_awake", {}).get(g, 0)) + 1
 		elif n is StaticBody3D:
 			count.call("static_bodies")
 		elif n is AnimatableBody3D:
@@ -222,12 +238,16 @@ func _census() -> Dictionary:
 		if n is CollisionShape3D:
 			count.call("collision_shapes")
 			count_by.call("collision_shapes", n)
+			on_body.call("collision_shapes", n)
 		if n.get_script() != null:
 			var g: String = (n.get_script() as Script).get_global_name()
 			if g in ["StructureMember", "HumanBody", "Structure", "FireFX", "GunSmoke", "BloodJet"]:
 				count.call(g)
 	if census_by:
 		c["by"] = by
+		var rest := street.get_node_or_null(^"RubbleRest")
+		if rest:
+			c["rubble_rest"] = {"pieces": rest.piece_count(), "meshes": rest.mesh_count(), "waiting": rest._waiting.size(), "refused": rest.refused, "counts": rest.counts}
 	c["nodes"] = Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
 	c["objects"] = Performance.get_monitor(Performance.OBJECT_COUNT)
 	c["physics_active"] = Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)

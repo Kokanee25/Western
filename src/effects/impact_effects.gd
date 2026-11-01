@@ -109,6 +109,7 @@ func _first_of_a_charge(at: Vector3) -> bool:
 ## A one-shot burst of chunky bits flying off `normal`, falling under gravity.
 static func burst(parent: Node, at: Vector3, normal: Vector3, color: Color, count: int, speed: float, size: float) -> GPUParticles3D:
 	var p := GPUParticles3D.new()
+	p.emitting = false  # (made emitting: set again below, `finished` never came and the burst lived for ever, #459)
 	p.one_shot = true
 	p.amount = count
 	p.lifetime = 1.4

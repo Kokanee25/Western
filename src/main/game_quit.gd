@@ -69,15 +69,23 @@ static func in_flight(tree: SceneTree) -> PackedStringArray:
 		out.append("the sound warm-up")
 	var shadows := 0
 	var analyses := 0
+	var batches := 0
 	for s: Structure in tree.get_nodes_in_group(&"structures"):
 		if s.shadow_running():
 			shadows += 1
+		if s.batches_running():
+			batches += 1
 		if s.last_analysis and s.last_analysis.running():
 			analyses += 1
 	if shadows > 0:
 		out.append("%d shadow merges" % shadows)
 	if analyses > 0:
 		out.append("%d analyses" % analyses)
+	if batches > 0:
+		out.append("%d batch merges" % batches)
+	for r: RubbleRest in tree.root.find_children("*", "RubbleRest", true, false):
+		if r.running():
+			out.append("a rubble cell")
 	var fire := FireSystem.find(tree)
 	if fire and fire.check_running():
 		out.append("the fire's check")
