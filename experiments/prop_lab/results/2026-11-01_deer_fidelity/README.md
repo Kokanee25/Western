@@ -2,6 +2,7 @@
 
 How it was made: `experiments/prop_lab/deer_fidelity/README.md`. Spend: $0 (Rodin's master re-used).
 
+- `pick.jpg`: the options Sean picks between (C0 now, C1f, C4, C7, A), four views.
 - `sheet_stand.jpg`: every version (rows: the ladder from the game's deer to Rodin's master) in
   every view (columns: front, three-quarter, profile, close at the player's eye and lens, across the
   saloon at 9 m, daylight, night by lamplight), the same camera and light for each; each cell the
