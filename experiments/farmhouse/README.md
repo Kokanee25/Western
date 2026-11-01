@@ -46,7 +46,13 @@ Measured (scripted runs, 4 seeds a way; each round's `summary.md`):
 | r3 | before the squad (the bot's routes in sight of the porch) | 0/4 | 0/4 | 0/4 | 8/12 |
 | r5 | the squad; the bot's routes fixed | 2/4 | 1/4 | 2/4 | 12/12 (the guard's shots at his chest didn't kill) |
 | r6 | the last stand, the guard shoots to kill, the quiet way round the north | 2/4 | 2/4 | 0/4 | 10/12 |
-| **r7** | **final**: the rancher's safe 40 m off; the same seeds as r6 run for run (front, back): deterministic | **2/4** | **4/4** | **0/4** | **10/12** |
+| r7 | the rancher's safe 40 m off; the same seeds as r6 run for run (front, back): deterministic | 2/4 | 4/4 | 0/4 | 10/12 |
+| **r8** | **final**: the scripted player switches to the stick once (drawn, its switch never finished) | **2/4** | **2/4** | **0/4** | **10/12** |
+
+In r8's two breach timeouts every one of the five had given up; the scripted player stuck on its
+way to the rancher through the wreck (its straight line, not the mission). The breach runs shift
+with the stick's timing (r7 to r8, one tick's difference at the plant); front and back match r6-r8
+run for run.
 
 Through the back the scripted player clears the house fast (Hollis, Lyle, Dutch, the Kid) and the
 guard, the last man, kills the rancher 5 s after his threat, before it's through the bedroom door
