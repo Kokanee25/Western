@@ -51,6 +51,9 @@ extends Resource
 @export var glass_kpa := 3.5
 ## The fastest a broken piece is thrown (m/s).
 @export var max_throw := 25.0
+## A loose body the blast would move slower than this (m/s) isn't moved or woken: a piece of rubble
+## 17 m off gets ~0.07 m/s, and a third stick woke ~1,200 of them for the physics (#538).
+@export var min_throw := 0.15
 ## Splinters thrown off each board it breaks, flown as projectiles: mass (kg), size (m), and
 ## their speed as a multiple of the piece's own.
 @export var splinters_per_member := 4
