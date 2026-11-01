@@ -1,0 +1,144 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_joist_021",
+  "0.3:House/floor_ground_joist_025",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player",
+  "1.6:Part/Hat"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Brody",
+ "breach": -1.0,
+ "end": 76.08,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 459,
+  "max_ms": 121.83,
+  "mean_ms": 11.9,
+  "p95_ms": 18.35
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_local": [
+  7.35,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, going pale with no wound to show for it, blood pumping out bright, bone broken.",
+ "player_local": [
+  3.06,
+  0.56,
+  3.7
+ ],
+ "route_left": 4,
+ "route_next": [
+  4.75,
+  0.56,
+  3.35
+ ],
+ "seed": 3,
+ "state": "LOST",
+ "t": 76.08,
+ "threat": 72.4,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   69.0,
+   "Hollis down"
+  ],
+  [
+   72.38,
+   "Kid down"
+  ],
+  [
+   72.4,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.23,
+   "Brody down"
+  ],
+  [
+   76.08,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}
