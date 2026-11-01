@@ -26,6 +26,13 @@ var _last_us := 0
 var _event_tick := -1
 var _broken := 0
 var _cut := 0
+## The frame's phases (#538 round 3): stamps at the last _process, the first physics tick and
+## process_frame, so a frame's time splits into late process / the frame's end (deferred calls,
+## frees, the server sync) / physics / early process.
+var _late_us := 0
+var _phys_us := 0
+var _proc_us := 0
+var _late_node: Node
 
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
@@ -103,6 +110,16 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	Events.member_broken.connect(on_broken)
 	Events.member_cut.connect(on_cut)
 	_last_us = Time.get_ticks_usec()
+	if _late_node == null:
+		_late_node = Node.new()
+		_late_node.process_priority = 1000000
+		_late_node.set_script(_LATE)
+		_late_node.set_meta(&"lab", self)
+		add_child(_late_node)
+		get_tree().physics_frame.connect(func() -> void:
+			if _phys_us == 0:
+				_phys_us = Time.get_ticks_usec())
+		get_tree().process_frame.connect(func() -> void: _proc_us = Time.get_ticks_usec())
 	_recording = true
 	await seconds(1.0)
 	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse))
@@ -371,6 +388,7 @@ func _process(_delta: float) -> void:
 	var fire := FireSystem.find(get_tree())
 	_frames.append({"tick": tick, "after": tick - _event_tick if _event_tick >= 0 else -1,
 			"ms": snappedf((now - _last_us) / 1000.0, 0.01), "prof": prof,
+			"ph": _phases(now),
 			"hot": fire.active.size() if fire else 0, "broken": _broken,
 			"set": fire._check.last_set if fire and fire._check else -1,
 			"seeds": fire._check.last_seeds if fire and fire._check else -1,
@@ -381,3 +399,15 @@ func _process(_delta: float) -> void:
 			"objects": Performance.get_monitor(Performance.OBJECT_COUNT)})
 	Prof._sum.clear()
 	_last_us = now
+	_phys_us = 0
+
+
+const _LATE := preload("res://experiments/blast_freeze/late_stamp.gd")
+
+
+func _phases(now: int) -> Dictionary:
+	if _late_us == 0 or _phys_us == 0:
+		return {}
+	var p := _phys_us if _phys_us > _late_us else _proc_us
+	return {"late": snappedf((_late_us - _last_us) / 1000.0, 0.01), "end": snappedf((p - _late_us) / 1000.0, 0.01),
+			"physics": snappedf((_proc_us - p) / 1000.0, 0.01), "early": snappedf((now - _proc_us) / 1000.0, 0.01)}

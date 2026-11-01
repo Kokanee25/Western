@@ -595,7 +595,13 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
   them back as child 0 and 1 before anything reads them (`unbatch`, `add_hole`, `carve_hit`,
   `shatter`, the voxel mesh). Read a member's mesh with `drawn_node()`, never `get_child(0)`,
-  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes.
+  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes. Falling (`_drop`), a
+  member's nodes go straight into its new body (`unbatch(m, false, true)` leaves them aside,
+  `take_parts()` hands them over), and the body is made up whole before it enters the world
+  (`_new_rubble(ids, false)`, `_enter_rubble`; its members' `member_broken` after): a kit prop's
+  ~20 members each put back, moved and registered with a body already there was ~1 ms a prop (#538).
+  A building's timber cracks and panes sound at most `breaking_limit` (GameAudio's voice limit) a
+  tick each (`under_this_tick`; what's heard, `Events.noise`, once a tick as before).
   **A member's `look`** (art, 2026-10-26, #405): the wood its mesh is drawn in when not its own
   (`drawn_wood()`); `wood` still decides the timber, ballistics and voxel tunings. A building's
   inside floor and framing (`FalseFrontBuilding.INSIDE_LOOK`/`INSIDE_KINDS`, not the porch; the
@@ -624,7 +630,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
   the FireSystem's (its queue: below); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
-  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also queued when built,
+  (`SLICE_LEFT`), one the FireSystem is already settling (`FireSystem.settling`: a piece of a
+  blast's collapse landing on a joist was a whole round, ~15 ms, on the stick's next frame, #538)
+  or a big building's first (`SLICED_ABOVE`; also queued when built,
   `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
   Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
@@ -660,8 +668,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   **SpawnQueue** (`src/structures/spawn_queue.gd`, #538; one per tree, group `spawn_queue`): the
   loose bodies a break makes, `PER_TICK` (120) bodies a physics tick at most, in the order asked,
   `SOON` (a cut's flying pieces, `Structure._make_chunks`) before `LATER` (glass shards,
-  `StructureMember._make_shards`). The bodies a kit prop blown loose makes count against the tick
-  (`SpawnQueue.spent`). A kit prop's blast push and tipping over stay on their tick
+  `StructureMember._make_shards`). A kit prop blown loose counts its members against the tick
+  (`SpawnQueue.spent`: each a mesh and a shape moved into its body, as a shard is a body; the
+  saloon's 27 props are 488 members, so the shards wait a tick). A kit prop's blast push and tipping over stay on their tick
   (queued, three sticks brought the spec saloon down to 450 members, not 240).
   A job that fits the tick's room with nothing ahead of it runs at once (a ball's pane shatters on
   its tick, as before). Counted in bodies, never time (World.deterministic); after every system's

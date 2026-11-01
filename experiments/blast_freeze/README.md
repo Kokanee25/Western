@@ -96,6 +96,11 @@ sticks' worst 330 -> 160 (saloon), 550 -> 280 (street). Glass shards and a cut b
 made 120 a tick (SpawnQueue), the kit props' blast handler and Fittings made cheap, the blast's
 inner sum inlined, a small building's first analysis sliced. Left there: the street's frame ~110 at
 Sean's, the frame after (the kit props' push), the shadow mesh.
+Rounds 2 and 3 (`results/2026-11-01_blast_frame_3/`): the native face sums, the shadow's wait, the
+kit props' members into their bodies straight, a break during a sliced settle queued, the cracks
+and panes sounded to the voice limit: the saloon's next frame ~160 -> ~113 here, the street's worst
+~146 -> ~121, three sticks' worst 170 -> 130 (saloon), 308 -> 175 (street). Frames carry `ph`: the
+frame split into late process / the frame's end / physics / early process (`late_stamp.gd`).
 
 ## Files
 

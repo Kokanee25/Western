@@ -571,6 +571,11 @@ func queue_check(s: Structure) -> void:
 		_to_settle.append(s)
 
 
+## Asked to settle and not done yet: being worked out a slice a frame, or waiting its turn.
+func settling(s: Structure) -> bool:
+	return _urgent.has(s) and (s == _checking or s in _to_settle)
+
+
 ## A building that's had something happen to it (a board burnt away, a hole, a timber landing
 ## on it): its loads are worked out as soon as what's ahead of it in the queue is done.
 func queue_settle(s: Structure) -> bool:
