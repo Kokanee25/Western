@@ -6,7 +6,7 @@ spec `experiments/building_lab/farmhouse.json`), and the mission held in it.
 | File | What |
 | --- | --- |
 | `probe.gd` | the house built on its own: time, members, whether it stands, fits people, is destructible |
-| `bridge.gd` | bridge commands: `farm_wall WALL`, `farm_hole WALL`, `farm_view NAME` |
+| `bridge.gd` | bridge commands: `farm_wall WALL`, `farm_hole WALL`, `farm_view NAME`; `farm_hide` (where a crouched man is out of sight of every opening and clear of a stick on a wall: a map of the yard), `farm_blast WALL` (one stick on a wall before any alarm: the rancher, the men, what broke) |
 | `breach.py` | the breach check: one stick planted chest high from outside on each wall by the player's own planting, in the game; the hole's clear height and a picture |
 | `sheet.py` | the contact sheet (from the road, closer, round it, each room, the breaches) and F3's numbers on a walk round it and through it |
 | `farm_bot.gd` | the scripted player: in by the front door, a breach (the kitchen's back wall) or the back door; the gunfight lab's eyes and hand (player_bot.gd), the guard first when he has his gun on the rancher; cuts him loose and takes him out |
@@ -20,6 +20,56 @@ python3 experiments/farmhouse/sheet.py --out=experiments/farmhouse/results/DATE_
 python3 experiments/farmhouse/run.py --ways=front,breach,back --seeds=1-4 --jobs=3 --out=experiments/farmhouse/results/DATE_rN
 python3 tools/bridge.py "farm_start" "farm_state"      # in a running game (bridge): the mission, its state
 ```
+
+## The surprise assault (issue #537, 2026-11-01)
+
+Sean: the dynamite way is a surprise assault. You set the stick on a back wall without them
+knowing, get to a hiding spot, and the wall going up is the first they know of you.
+
+- **The hiss** is heard only within 3 m (`BlastTuning.fuse_heard`, was 9) and only on the stick's
+  side of its wall (`Senses.THROUGH_WALLS`: a fuse none; the stick makes its noise 0.3 m off the
+  face it's on, so even a thin wall stands between). Hollis, 1.5 m from it through the kitchen's
+  wall, no longer hears it ("What's that hissing?") and looks out of the back window.
+- **The hiding spot** (`results/2026-11-01_surprise/hide.md`, `farm_hide`): round the lean-to's
+  west corner (x -0.5 to -1.5, z 5-7.5), 4.6 m from the stick's spot between the kitchen's window and
+  door, 3.3 s at a crouch (its 5 s fuse), out of sight of every window and door, the lean-to between
+  you and the stick (3.4-3.8 m, shielded). Crouched steps carry 2 m (1 through a wall): unheard. The
+  outhouse hides you and is clear, but at 10.3 m it's 7.4 s at a crouch; running there is heard
+  through the wall. No prop needed.
+- **The blast** before any alarm is the alarm (`FarmhouseMission._surprised`; the guard's clock
+  starts there) but they're caught cold: each dazed `caught_cold` s (`config/farmhouse.tres`, 4 s,
+  0.8-1.2 of it; `OutlawBrain.caught_cold`: in the fight at once, before his fright is weighed),
+  knowing only where the blast was, and nobody calls where you are (`HouseDefence.quiet`) till one
+  of them sees you or you fire (`found` in the record). What the blast itself does (a man hit,
+  timber or glass heard) no longer raises the alarm ahead of it: those wait a tick
+  (`_alarm_soon`), and the blast's announced last (Blast.detonate).
+- The scripted player: wide round to the house's west side, crouched along the kitchen's back
+  wall under its window, the stick between window and door, crouched back round the corner
+  (2.7 s), in through the hole at a run once it's gone (ducking under the fallen plate).
+
+Measured (`results/2026-11-01_surprise/r4`, 8 seeds, the scripted player as it is now; `r2` the
+same before its fix for a board across the hole; main as it is today the same 8):
+
+| | alarm | lost (blast to found) | at the bedroom | rancher cut loose | won | rancher lives | the guard fired on him |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| r13 (Sean's build) | 65.6 s, Hollis at the window, 3.6 s before the blast | 0 | 8-11 s after the blast | 10-14 s after | 3/4 | 4/4 | 0 |
+| main today, 8 seeds | the same | 0 | | | 4/8 | 8/8 | 0 |
+| the surprise, r2 | at the blast, 8/8 | 10.5 s (7.5-11.7) | 12.8-15.9 s after | 14.9-19.1 s after | 5/8 | 8/8 | 0 |
+| **the surprise, r4** | **at the blast, 8/8** | **14.1 s (6.4-15.3)** | 11.9-16.2 s after | 14.5-18.3 s after | **4/8** | **8/8** | 1 (he lived) |
+
+Every loss is a timeout after he's cut loose (alive): the scripted player trading shots on the way
+out, or dragging him out cold through the bedroom door, as main's losses are. The film's runs (30
+fps under the Movie Maker, the afternoon light) lose all five seeds tried that way, so the film
+stops 10 s after he's cut loose. The front way is round 13's (3/4); the back way's 0/4 is main's
+today too (it was 2/4 at r13: something merged since changed it; the freed rancher can end up
+stood on the kitchen's barrel).
+
+**Which back wall** (`results/2026-11-01_surprise/walls.md`, one stick each, before any alarm):
+the kitchen's back wall between its window and door (x 2.5-3.3) leaves the rancher awake (3 of 3;
+the scripted runs' stick: 8 of 8, a few blows from what settles); the lean-to's west end leaves him
+unhurt (2 of 3) but has no corner to hide behind (5 m out in the open yard); west of the kitchen
+window, the lean-to's east end and the bedroom's own back wall each knock him out cold or break a
+bone (and the bedroom's takes the guard). Best: the kitchen's back wall between window and door.
 
 ## The mission and the squad (steps 2-5, 2026-11-01)
 

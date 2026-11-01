@@ -486,12 +486,13 @@ frozen until Sean names one.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
-- **Library clips** (2026-11-01, #529, branch `claude/characters-library-motion`; lab
-  `experiments/library_motion/`): Quaternius' and KayKit's CC0 animations retargeted onto our rig
-  (`tools/blender/library_motion.py`, `assets/animations/library/`), played by `LibraryMotion` by
-  the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
-  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
-  films (do they pass, turn them on?).
+- **Library clips** (2026-11-01, #529, #539; branch `claude/characters-cmu-basics`; lab
+  `experiments/library_motion/`): played by `LibraryMotion` by the body's own state behind
+  `Settings.library_motion` (off in the game; Sean: "good enough as a placeholder"). CMU motion
+  capture for the basics (the free packs' clips were cartoon), each man his own walk and run,
+  stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
+  Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
+  `theorangeduck.com` allowed.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -587,7 +588,11 @@ frozen until Sean names one.
   blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
   the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
   stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs (r13) won 8 of 12,
-  the rancher alive in all 12. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  the rancher alive in all 12. **The surprise assault** (#537, branch `claude/gameplay-farmhouse-surprise`):
+  a fuse heard 3 m and never through a wall, the hiding spot round the lean-to's west corner, a blast
+  before any alarm catches them cold (dazed, nobody calls where you are till one sees you); breach
+  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`). Losses
+  are the way out (dragging him out cold). Waiting on Sean: the film (#537). Trap: a `-s` script
   can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go

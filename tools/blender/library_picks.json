@@ -1,238 +1,594 @@
 {
- "_doc": "The library clips (issue #529): each move's candidate takes from Quaternius' Universal Animation Library (UAL1, free) and KayKit's Character Animations 1.1 (Rig_Medium), both CC0; `pick` is the take that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, the lineup film). `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once (played through), hold (played through, its last frame held while he keeps at it). An armed idle is the idle with his gun arm the pose's (LibraryMotion's mask): Quaternius' Pistol_Idle_Loop, like all its Pistol_ clips, holds the gun in both hands (10 cm apart), a modern grip. Source files: SOURCES; where they came from in assets/animations/library/README.md. `parts`: the segments kept (KayKit's: its legs alone; on our men its arms stand out from the body and its head tips back, as its chibi's must).",
+ "_doc": "The library clips (issues #529, #539): each move's candidate takes and the `pick` that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, tools/library_lineup.gd). Since #539 (Sean on #536's films: the free packs' clips were 'brutal', KayKit a chibi's, the strafe 'highland dancing') the basics are real people from the CMU motion-capture database (B. Hahne's BVH conversion, fetched into build/cmu/ by tools/blender/fetch_library.sh); a take is [source, part, animation, options]: `cycle` [lo, hi] s cuts one loop from a long take's steady middle (find_cycle), `mirror` swaps his sides. `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once, hold. The aim, the reload and a few others are to come from Uthana (#539 step 3). `drop` (all moves, or a move's own): segments left to the pose: the neck and head (CMU's two neck bones put a kink in ours, the chin poked out). `variant_of`: another walk or run a man may have as his own (LibraryMotion picks one a man by his seed, or config/walks.json's `library` names it). `style`: a variant only a man named to it gets (not in the pool a man's seed picks from). Uthana's takes (#539: the gun moves, $7.50) come from the Studio's motions/gun_moves, copied into build/library_src/uthana/ with its rest pose (motions/card_cheat_rest).",
  "sources": {
   "quaternius": "gltf-universal-animation-library/glTF/AnimationLibrary_Godot_Standard.gltf",
-  "kaykit": "kaykit-character-animations-1.1/Rig_Medium_%s.glb"
+  "kaykit": "kaykit-character-animations-1.1/Rig_Medium_%s.glb",
+  "cmu": "../cmu/%s.bvh",
+  "uthana": "uthana/%s.glb"
  },
  "moves": {
   "idle": {
    "kind": "idle",
    "takes": [
     [
-     "quaternius",
+     "cmu",
+     "77_02",
      "",
-     "Idle_Loop"
+     {
+      "cycle": [
+       2.5,
+       5.0
+      ]
+     }
     ],
     [
-     "kaykit",
-     "General",
-     "Idle_A"
+     "cmu",
+     "140_06",
+     "",
+     {
+      "cycle": [
+       2.5,
+       5.0
+      ]
+     }
     ],
     [
-     "kaykit",
-     "General",
-     "Idle_B"
+     "cmu",
+     "111_28",
+     "",
+     {
+      "cycle": [
+       2.5,
+       5.0
+      ]
+     }
     ]
    ],
-   "pick": 0
+   "pick": 0,
+   "why": "77_02, standing: the trunk upright and the arms hanging (111_28 leans back with the hands clasped, 140_06 leans forward)"
   },
   "walk": {
    "kind": "gait",
    "takes": [
     [
-     "quaternius",
+     "cmu",
+     "35_01",
      "",
-     "Walk_Loop"
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ],
     [
-     "quaternius",
+     "cmu",
+     "69_01",
      "",
-     "Walk_Formal_Loop"
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ],
     [
-     "kaykit",
-     "MovementBasic",
-     "Walking_A"
-    ],
-    [
-     "kaykit",
-     "MovementBasic",
-     "Walking_B"
-    ],
-    [
-     "kaykit",
-     "MovementBasic",
-     "Walking_C"
+     "cmu",
+     "08_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ]
    ],
-   "pick": 0
+   "pick": 2,
+   "why": "the planted foot stays put on our men: 0.11 m/s of skate at 1.3 m/s (the old gait 1.04)"
   },
   "run": {
    "kind": "gait",
    "takes": [
     [
-     "quaternius",
+     "cmu",
+     "09_01",
      "",
-     "Jog_Fwd_Loop"
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
     ],
     [
-     "quaternius",
+     "cmu",
+     "09_03",
      "",
-     "Sprint_Loop"
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
     ],
     [
-     "kaykit",
-     "MovementBasic",
-     "Running_A"
+     "cmu",
+     "35_17",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
     ],
     [
-     "kaykit",
-     "MovementBasic",
-     "Running_B"
+     "cmu",
+     "16_36",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
     ]
    ],
    "pick": 0,
-   "why": "Quaternius' jog: KayKit's runs fling the arms out (a chibi's)"
+   "why": "half the old run's skate (1.07 vs 2.24 m/s); the planted foot still drifts (needs foot IK)"
   },
   "walk_back": {
    "kind": "gait",
    "takes": [
     [
-     "kaykit",
-     "MovementAdvanced",
-     "Walking_Backwards"
-    ]
-   ],
-   "pick": 0,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
-  },
-  "strafe_l": {
-   "kind": "gait",
-   "takes": [
+     "cmu",
+     "69_34",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ],
     [
-     "kaykit",
-     "MovementAdvanced",
-     "Running_Strafe_Left"
+     "cmu",
+     "76_09",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ]
    ],
    "pick": 0,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
+   "why": "one subject's steady backing walk; 76_09 barely moves"
   },
   "strafe_r": {
    "kind": "gait",
    "takes": [
     [
-     "kaykit",
-     "MovementAdvanced",
-     "Running_Strafe_Right"
+     "cmu",
+     "69_42",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ]
+     }
+    ],
+    [
+     "cmu",
+     "69_43",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ]
+     }
+    ],
+    [
+     "cmu",
+     "69_42",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ],
+      "mirror": true
+     }
+    ],
+    [
+     "cmu",
+     "69_43",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ],
+      "mirror": true
+     }
     ]
    ],
-   "pick": 0,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
+   "pick": 3,
+   "why": "69_43 mirrored"
+  },
+  "strafe_l": {
+   "kind": "gait",
+   "takes": [
+    [
+     "cmu",
+     "69_42",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ]
+     }
+    ],
+    [
+     "cmu",
+     "69_43",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ]
+     }
+    ],
+    [
+     "cmu",
+     "69_42",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ],
+      "mirror": true
+     }
+    ],
+    [
+     "cmu",
+     "69_43",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.8
+      ],
+      "mirror": true
+     }
+    ]
+   ],
+   "pick": 1,
+   "why": "69_43, a sideways walk to his left"
   },
   "crouch_walk": {
    "kind": "gait",
    "takes": [
     [
-     "quaternius",
+     "cmu",
+     "77_29",
      "",
-     "Crouch_Fwd_Loop"
+     {
+      "cycle": [
+       1.0,
+       2.4
+      ]
+     }
     ],
     [
-     "kaykit",
-     "MovementAdvanced",
-     "Sneaking"
-    ],
-    [
-     "kaykit",
-     "MovementAdvanced",
-     "Crouching"
+     "cmu",
+     "77_14",
+     "",
+     {
+      "cycle": [
+       1.0,
+       2.4
+      ]
+     }
     ]
    ],
-   "pick": 0
+   "pick": 0,
+   "why": "77_29, a creeping walk"
   },
-  "crouch_idle": {
-   "kind": "idle",
+  "walk_b": {
+   "kind": "gait",
+   "variant_of": "walk",
    "takes": [
     [
-     "quaternius",
+     "cmu",
+     "35_01",
      "",
-     "Crouch_Idle_Loop"
-    ],
-    [
-     "kaykit",
-     "MovementAdvanced",
-     "Crouching"
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ]
    ],
-   "pick": 0
+   "why": "not used: 35_01: 0.37, the others are better"
+  },
+  "walk_c": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "69_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 69_01: 0.48"
+  },
+  "walk_d": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "16_15",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "16_15, another man's walk: 0.18 m/s of skate"
+  },
+  "walk_e": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "07_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "07_01: 0.16"
+  },
+  "walk_f": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "38_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "38_01: 0.18"
+  },
+  "walk_g": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "39_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "39_01: 0.16"
+  },
+  "walk_heavy": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "17_08",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 17_08: 2.85, its stride wouldn't fit"
+  },
+  "walk_jaunty": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "17_06",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 17_06: 0.55"
+  },
+  "walk_confident": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "82_09",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "82_09, 'confident walk forward': 0.39; for a man named to it (config/walks.json)",
+   "style": true
+  },
+  "walk_drunk": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "91_09",
+     "",
+     {
+      "cycle": [
+       1.0,
+       2.4
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "91_09, 'DrunkWalk': 0.44; for a man named to it",
+   "style": true
+  },
+  "run_b": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "09_03",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 09_03: 1.51"
+  },
+  "run_c": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "35_17",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 35_17: its loop wouldn't fit"
+  },
+  "run_d": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "16_36",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 16_36: its loop wouldn't fit"
+  },
+  "run_e": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "02_03",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "02_03, another man's run: 1.19 (the main run 1.15)"
   },
   "pistol_aim": {
    "kind": "hold",
    "takes": [
     [
-     "quaternius",
+     "uthana",
+     "aim_stance_01",
      "",
-     "Pistol_Aim_Neutral"
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ],
     [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_1H_Aiming"
-    ]
-   ],
-   "pick": 1,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
-  },
-  "pistol_shoot": {
-   "kind": "once",
-   "takes": [
-    [
-     "quaternius",
+     "uthana",
+     "aim_stance_02",
      "",
-     "Pistol_Shoot"
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ],
     [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_1H_Shoot"
-    ]
-   ],
-   "pick": 1,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
-  },
-  "long_aim": {
-   "kind": "hold",
-   "takes": [
-    [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_2H_Aiming"
+     "uthana",
+     "aim_stance_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ]
    ],
    "pick": 0,
@@ -243,101 +599,160 @@
     "thigh_r",
     "shin_r",
     "foot_r"
-   ]
-  },
-  "long_shoot": {
-   "kind": "once",
-   "takes": [
-    [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_2H_Shoot"
-    ]
    ],
-   "pick": 0,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
+   "why": "Uthana's three aim takes all came out two-handed despite the prompt: his legs' stance only (the gun arm is the procedural aim)"
   },
   "reload": {
    "kind": "once",
    "takes": [
     [
-     "quaternius",
+     "uthana",
+     "reload_01",
      "",
-     "Pistol_Reload"
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ],
     [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_1H_Reload"
+     "uthana",
+     "reload_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "reload_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ]
    ],
    "pick": 1,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
+   "why": "both hands at his chest, loading; the least jitter (not played by any state yet)"
   },
-  "long_reload": {
-   "kind": "once",
+  "walk_gun": {
+   "kind": "gait",
    "takes": [
     [
-     "kaykit",
-     "CombatRanged",
-     "Ranged_2H_Reload"
-    ]
-   ],
-   "pick": 0,
-   "parts": [
-    "thigh_l",
-    "shin_l",
-    "foot_l",
-    "thigh_r",
-    "shin_r",
-    "foot_r"
-   ]
-  },
-  "hit_front": {
-   "kind": "once",
-   "takes": [
-    [
-     "quaternius",
+     "uthana",
+     "walk_gun_01",
      "",
-     "Hit_Chest"
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ],
     [
-     "kaykit",
-     "General",
-     "Hit_A"
+     "uthana",
+     "walk_gun_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "walk_gun_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
     ]
    ],
-   "pick": 0
+   "pick": 1,
+   "why": "the revolver low in his right hand, the arm straight down, the other swinging; 0.10 m/s of skate"
   },
-  "hit_head": {
+  "run_gun": {
+   "kind": "gait",
+   "takes": [
+    [
+     "uthana",
+     "run_gun_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "run_gun_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "run_gun_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "pick": 2,
+   "why": "the revolver raised before his chest; 0.73 m/s of skate, less than either CMU run (the other takes 3.9 and 8.8)"
+  },
+  "stagger": {
    "kind": "once",
    "takes": [
     [
-     "quaternius",
+     "uthana",
+     "stagger_01",
      "",
-     "Hit_Head"
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ],
     [
-     "kaykit",
-     "General",
-     "Hit_B"
+     "uthana",
+     "stagger_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "stagger_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
     ]
    ],
-   "pick": 0
+   "pick": 1,
+   "why": "hunched, two steps back, catches himself (not played by any state yet: Sean's call, bullet hits carry no wince)"
   }
- }
+ },
+ "drop": [
+  "neck",
+  "head"
+ ]
 }

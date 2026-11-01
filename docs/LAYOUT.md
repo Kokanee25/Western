@@ -976,11 +976,17 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   tied man (`claims_use`, PlayerShove's group `claims_use`) cuts him loose; he follows you,
   crouched, behind you from the nearest man. Won/lost: a line on screen (`PlayerWounds.say`),
   Enter to try again. `result()` is what the bridge and the scripted runs read.
+  **The surprise assault** (#537): a blast at the house before any alarm (`_surprised`) is the
+  alarm, but the men are caught cold (`OutlawBrain.caught_cold`: in the fight, dazed `caught_cold`
+  s), know only where the blast was, and don't call where you are (`HouseDefence.quiet`) till one
+  sees you or you fire (`found_t`); a hit or a loud sound raises the alarm a tick late
+  (`_alarm_soon`) so the blast's own effects don't. A fuse's hiss: 3 m, never through a wall
+  (`Senses.THROUGH_WALLS`; DynamiteStick makes it off the face it's on).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
-  playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_view`, `farm_start`, `farm_state`,
+  playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,
   `farm_free`, `farm_fail`, `farm_run`.
 
 ## src/people

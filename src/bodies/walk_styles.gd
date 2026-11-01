@@ -26,3 +26,17 @@ static func clip_for(person_id: StringName, model: StringName) -> StringName:
 	if models.has(String(model)):
 		return StringName(models[String(model)])
 	return &""
+
+
+## His library walk by name (LibraryMotion, `Settings.library_motion`): `config/walks.json`'s
+## `library` (`{"people": {"lyle": "walk_drunk"}, "models": {...}}`), else empty (his seed picks).
+static func library_for(person_id: StringName, model: StringName) -> StringName:
+	clip_for(person_id, model)  # the table, loaded once
+	var lib: Dictionary = _table.get("library", {})
+	var people: Dictionary = lib.get("people", {})
+	if people.has(String(person_id)):
+		return StringName(people[String(person_id)])
+	var models: Dictionary = lib.get("models", {})
+	if models.has(String(model)):
+		return StringName(models[String(model)])
+	return &""
