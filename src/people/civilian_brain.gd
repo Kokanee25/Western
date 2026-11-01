@@ -461,21 +461,44 @@ func tick(delta: float) -> void:
 	Prof.stop(&"civilian_brain", t)
 
 
-## Far off, may he tick less often (PeopleTick, step 4b)? Only calm and going about his day: not
-## frightened, aimed at or getting down, not running from a fire or in a bucket line, not at a
-## chore that has his hands (the bar cloth, the mop: they move what the physics holds).
+## Far off, may he tick less often (PeopleTick, step 4b)? Going about his day, or cowering or
+## shaken where he stands from a shot or a blast he heard (#495: after a stick the whole street
+## cowers for 7 s and stays frightened for ~8 more; far from you and from any fight, the bands' own
+## rule, he can tick slowly through it). Not with your gun on him or his hands up, flinching from a
+## deed, running from a fire or in a bucket line, about to shout, or at a chore that has his hands
+## (the bar cloth, the mop: they move what the physics holds).
 func can_slow() -> bool:
-	if mood != Mood.CALM or _aimed > 0.0 or _cower > 0.0 or _flinch > 0.0 or fear > 0.05:
-		return false
-	if not _route.is_empty() or _bucket != &"" or _shout_in > 0.0:
-		return false
-	return chore == null or not chore.call(&"busy")
+	return slow_reason() == &""
 
 
-## Frightened, aimed at, running from a fire or fighting it (PeopleTick: whoever's near him ticks
-## every tick too).
+const MOOD_NAMES: Array[StringName] = [&"calm", &"shaken", &"hands_up", &"cowering", &"down", &"dead", &"fleeing"]
+
+
+## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
+## counts (#495).
+func slow_reason() -> StringName:
+	if mood not in [Mood.CALM, Mood.SHAKEN, Mood.COWERING]:
+		return MOOD_NAMES[mood]
+	if _aimed > 0.0:
+		return &"aimed"
+	if _flinch > 0.0:
+		return &"flinch"
+	if not _route.is_empty():
+		return &"route"
+	if _bucket != &"":
+		return &"bucket"
+	if _shout_in > 0.0:
+		return &"shout"
+	if chore != null and chore.call(&"busy"):
+		return &"chore"
+	return &""
+
+
+## Hands up or aimed at, running from a fire or fighting it (PeopleTick: whoever's near him ticks
+## every tick too). Cowering isn't trouble of his own (#495): it's from a shot or a blast, and the
+## shooting's own men are the trouble.
 func in_trouble() -> bool:
-	return mood in [Mood.HANDS_UP, Mood.COWERING, Mood.FLEEING] or _aimed > 0.0 or _cower > 0.0 or _bucket != &""
+	return mood in [Mood.HANDS_UP, Mood.FLEEING] or _aimed > 0.0 or _bucket != &""
 
 
 func _physics_step(delta: float) -> void:
