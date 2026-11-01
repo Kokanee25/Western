@@ -47,17 +47,23 @@ Measured (scripted runs, 4 seeds a way; each round's `summary.md`):
 | r5 | the squad; the bot's routes fixed | 2/4 | 1/4 | 2/4 | 12/12 (the guard's shots at his chest didn't kill) |
 | r6 | the last stand, the guard shoots to kill, the quiet way round the north | 2/4 | 2/4 | 0/4 | 10/12 |
 | r7 | the rancher's safe 40 m off; the same seeds as r6 run for run (front, back): deterministic | 2/4 | 4/4 | 0/4 | 10/12 |
-| **r8** | **final**: the scripted player switches to the stick once (drawn, its switch never finished) | **2/4** | **2/4** | **0/4** | **10/12** |
+| r8 | the scripted player switches to the stick once (drawn, its switch never finished) | 2/4 | 2/4 | 0/4 | 10/12 |
+| r10 | the playtest's fixes: warned off before shot, a look out of the window at a sound, the drag | 1/4 | 0/4 | 1/4 | 12/12 |
+| r11 | the guard's last word counts from you in the house; men with hands up step out of your road | 2/4 | 0/4 | 0/4 | 11/12 |
+| r12 | a guard who gives up lets go of the rancher | 3/4 | 0/4 | 1/4 | 12/12 |
+| **r13** | **final**: E reaches him by any of him; the scripted player drags him out cold | **3/4** | **3/4** | **2/4** | **12/12** |
 
-In r8's two breach timeouts every one of the five had given up; the scripted player stuck on its
-way to the rancher through the wreck (its straight line, not the mission). The breach runs shift
-with the stick's timing (r7 to r8, one tick's difference at the plant); front and back match r6-r8
-run for run.
+What the late rounds found (each a fault a player would meet too):
+- r10: every breach timed out with all five given up. Dutch gave up standing in the kitchen
+  door and nobody could get by him; the walk from the kitchen's middle caught the door's jamb.
+- r11: Brody, giving up, kept his gun "on" the rancher, so the scripted player kept aiming at a
+  man with his hands up. And the guard's 5 s ran from his first drawing on the rancher (at the
+  blast), so he shot the moment you came in; now they run from you being in the house.
+- r12: the blast at the kitchen brings the loft down in the bedroom and knocks the rancher out
+  cold most times. E only reached his chest, and the scripted player left him lying.
 
-Through the back the scripted player clears the house fast (Hollis, Lyle, Dutch, the Kid) and the
-guard, the last man, kills the rancher 5 s after his threat, before it's through the bedroom door
-(`threat_seconds`, `shoot_after_alarm`: Sean's dials). The scripted player's seed changes little
-(its aim): with the world deterministic the runs of a way mostly come out alike. A person plays
+In r13 the breach's one loss is a timeout with the rancher cut loose and out cold, dragged as far
+as the front room. Front and back losses are the scripted player shot down. A person plays
 better and worse than it: the films and the playtest are the judge of how it plays.
 
 The alarm comes at 17 s through the front (the Kid sees you on the lane), at 64-68 s the quiet

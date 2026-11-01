@@ -1,0 +1,157 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 35.13,
+  "phase_at": {
+   "clear": 51.85,
+   "out": 35.13,
+   "rescue": 33.17
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 51.1,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2048,
+  "max_ms": 151.88,
+  "mean_ms": 9.12,
+  "p95_ms": 13.79
+ },
+ "freed": 35.63,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.82,
+   1.26,
+   -9.29
+  ],
+  "limp": false,
+  "pelvis": [
+   2.81,
+   0.52,
+   -9.19
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.81,
+  0.89,
+  -9.21
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "bedroom_corner",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "west",
+   "id": "kid",
+   "inside": false,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  4.5,
+  -1.77,
+  -40.84
+ ],
+ "seed": 4,
+ "state": "WON",
+ "t": 51.1,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   33.67,
+   "Brody down"
+  ],
+  [
+   35.63,
+   "the rancher cut loose"
+  ],
+  [
+   36.18,
+   "Kid down"
+  ],
+  [
+   45.77,
+   "Kid dead"
+  ],
+  [
+   48.47,
+   "Brody dead"
+  ],
+  [
+   51.1,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}
