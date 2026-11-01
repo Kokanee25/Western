@@ -2164,7 +2164,12 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		# was tried: 19 of the physics lab's 151 falls went another way.)
 		var was: Array = _pose_set.get(sid, _NOT_SET)
 		var layered := mocap_here or clip_here or lib_here or hit_here
-		if layered or was[0] != rot or was[1] != pv.transform:
+		# The library clip wholly has the joint: its turn is set alone (the pose's under it would be
+		# written for nothing).
+		var lib_only := lib_here and lib_w >= 1.0 and not (mocap_here or clip_here)
+		if lib_only:
+			_pose_set[sid] = _NOT_SET
+		elif layered or was[0] != rot or was[1] != pv.transform:
 			pv.rotation_degrees = rot
 			writes += 1
 			_pose_set[sid] = [rot, pv.transform] if not layered else _NOT_SET
@@ -2172,9 +2177,10 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			# The library clip under any played one (a kick, his own walk lead over it), what's on
 			# top of any pose on top of it, as the played clip's.
 			var lf: Vector3 = (_flinch.get(sid, _NO_FLINCH) as Array)[0]
-			var lx: Vector3 = (lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
-					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
-			pv.quaternion = pv.quaternion.slerp((lib[sid] as Quaternion) * Quaternion.from_euler(lx), lib_w)
+			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
+					+ _favour_lean.get(sid, Vector3.ZERO)
+			var lq: Quaternion = lib[sid] if lx == Vector3.ZERO else (lib[sid] as Quaternion) * Quaternion.from_euler(lx * (PI / 180.0))
+			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_w)
 			writes += 1
 		if mocap_here or clip_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
