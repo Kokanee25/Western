@@ -1,9 +1,10 @@
 {
- "_doc": "The library clips (issues #529, #539): each move's candidate takes and the `pick` that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, tools/library_lineup.gd). Since #539 (Sean on #536's films: the free packs' clips were 'brutal', KayKit a chibi's, the strafe 'highland dancing') the basics are real people from the CMU motion-capture database (B. Hahne's BVH conversion, fetched into build/cmu/ by tools/blender/fetch_library.sh); a take is [source, part, animation, options]: `cycle` [lo, hi] s cuts one loop from a long take's steady middle (find_cycle), `mirror` swaps his sides. `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once, hold. The aim, the reload and a few others are to come from Uthana (#539 step 3). `drop` (all moves, or a move's own): segments left to the pose: the neck and head (CMU's two neck bones put a kink in ours, the chin poked out).",
+ "_doc": "The library clips (issues #529, #539): each move's candidate takes and the `pick` that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, tools/library_lineup.gd). Since #539 (Sean on #536's films: the free packs' clips were 'brutal', KayKit a chibi's, the strafe 'highland dancing') the basics are real people from the CMU motion-capture database (B. Hahne's BVH conversion, fetched into build/cmu/ by tools/blender/fetch_library.sh); a take is [source, part, animation, options]: `cycle` [lo, hi] s cuts one loop from a long take's steady middle (find_cycle), `mirror` swaps his sides. `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once, hold. The aim, the reload and a few others are to come from Uthana (#539 step 3). `drop` (all moves, or a move's own): segments left to the pose: the neck and head (CMU's two neck bones put a kink in ours, the chin poked out). `variant_of`: another walk or run a man may have as his own (LibraryMotion picks one a man by his seed, or config/walks.json's `library` names it). `style`: a variant only a man named to it gets (not in the pool a man's seed picks from). Uthana's takes (#539: the gun moves, $7.50) come from the Studio's motions/gun_moves, copied into build/library_src/uthana/ with its rest pose (motions/card_cheat_rest).",
  "sources": {
   "quaternius": "gltf-universal-animation-library/glTF/AnimationLibrary_Godot_Standard.gltf",
   "kaykit": "kaykit-character-animations-1.1/Rig_Medium_%s.glb",
-  "cmu": "../cmu/%s.bvh"
+  "cmu": "../cmu/%s.bvh",
+  "uthana": "uthana/%s.glb"
  },
  "moves": {
   "idle": {
@@ -300,6 +301,454 @@
    ],
    "pick": 0,
    "why": "77_29, a creeping walk"
+  },
+  "walk_b": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "35_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 35_01: 0.37, the others are better"
+  },
+  "walk_c": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "69_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 69_01: 0.48"
+  },
+  "walk_d": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "16_15",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "16_15, another man's walk: 0.18 m/s of skate"
+  },
+  "walk_e": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "07_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "07_01: 0.16"
+  },
+  "walk_f": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "38_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "38_01: 0.18"
+  },
+  "walk_g": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "39_01",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "39_01: 0.16"
+  },
+  "walk_heavy": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "17_08",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 17_08: 2.85, its stride wouldn't fit"
+  },
+  "walk_jaunty": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "17_06",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 17_06: 0.55"
+  },
+  "walk_confident": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "82_09",
+     "",
+     {
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "82_09, 'confident walk forward': 0.39; for a man named to it (config/walks.json)",
+   "style": true
+  },
+  "walk_drunk": {
+   "kind": "gait",
+   "variant_of": "walk",
+   "takes": [
+    [
+     "cmu",
+     "91_09",
+     "",
+     {
+      "cycle": [
+       1.0,
+       2.4
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "91_09, 'DrunkWalk': 0.44; for a man named to it",
+   "style": true
+  },
+  "run_b": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "09_03",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 09_03: 1.51"
+  },
+  "run_c": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "35_17",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 35_17: its loop wouldn't fit"
+  },
+  "run_d": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "16_36",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "why": "not used: 16_36: its loop wouldn't fit"
+  },
+  "run_e": {
+   "kind": "gait",
+   "variant_of": "run",
+   "takes": [
+    [
+     "cmu",
+     "02_03",
+     "",
+     {
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "pick": 0,
+   "why": "02_03, another man's run: 1.19 (the main run 1.15)"
+  },
+  "pistol_aim": {
+   "kind": "hold",
+   "takes": [
+    [
+     "uthana",
+     "aim_stance_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "aim_stance_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "aim_stance_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ],
+   "why": "Uthana's three aim takes all came out two-handed despite the prompt: his legs' stance only (the gun arm is the procedural aim)"
+  },
+  "reload": {
+   "kind": "once",
+   "takes": [
+    [
+     "uthana",
+     "reload_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "reload_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "reload_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ]
+   ],
+   "pick": 1,
+   "why": "both hands at his chest, loading; the least jitter (not played by any state yet)"
+  },
+  "walk_gun": {
+   "kind": "gait",
+   "takes": [
+    [
+     "uthana",
+     "walk_gun_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "walk_gun_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "walk_gun_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.9,
+       1.6
+      ]
+     }
+    ]
+   ],
+   "pick": 1,
+   "why": "the revolver low in his right hand, the arm straight down, the other swinging; 0.10 m/s of skate"
+  },
+  "run_gun": {
+   "kind": "gait",
+   "takes": [
+    [
+     "uthana",
+     "run_gun_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "run_gun_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ],
+    [
+     "uthana",
+     "run_gun_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb",
+      "cycle": [
+       0.5,
+       0.95
+      ]
+     }
+    ]
+   ],
+   "pick": 2,
+   "why": "the revolver raised before his chest; 0.73 m/s of skate, less than either CMU run (the other takes 3.9 and 8.8)"
+  },
+  "stagger": {
+   "kind": "once",
+   "takes": [
+    [
+     "uthana",
+     "stagger_01",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "stagger_02",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ],
+    [
+     "uthana",
+     "stagger_03",
+     "",
+     {
+      "rest": "uthana/rest_pose_01.glb"
+     }
+    ]
+   ],
+   "pick": 1,
+   "why": "hunched, two steps back, catches himself (not played by any state yet: Sean's call, bullet hits carry no wince)"
   }
  },
  "drop": [

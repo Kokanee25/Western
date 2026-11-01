@@ -18,4 +18,14 @@ skate, m/s; the game's own gait in brackets): walk 0.12 (1.04), backwards 0.50 (
 0.42-0.44 (1.12), crouch walk 0.51 (0.41), run 1.15 (2.24: a CMU runner's planting foot drifts on
 our legs; foot IK would fix it).
 
-Not here yet: the one-handed aim, the reload, hits (Uthana, #539 step 3, with Sean's OK on the cost).
+**Variety** (#539): each man has his own walk, one of five CMU walkers' (08_01, 16_15, 07_01,
+38_01, 39_01: 0.12-0.18 m/s of skate) and his own run (09_01, 02_03), picked by his seed, or a
+style named for him in `config/walks.json`'s `library` (Lyle walks drunk, 91_09; Brody and the
+sheriff confident, 82_09); his stride within ±6% and his arm swing within ±20% of the clip's.
+
+**The gun moves** (Uthana, generated for this project in the Studio's `motions/gun_moves/`, $7.50
+with Sean's OK): with his gun out he walks with it low in his right hand (`walk_gun`, 0.10 m/s)
+and runs with it raised (`run_gun`, 0.73: better than either CMU run). The aim stance's takes all
+came out two-handed, so `pistol_aim` gives only his legs' stance (the gun arm stays the procedural
+aim). `reload` and `stagger` are here but no state plays them yet (the stagger: Sean's call,
+bullet hits carry no wince).

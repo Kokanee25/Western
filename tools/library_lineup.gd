@@ -17,7 +17,8 @@ const PLAN := [
 	["crouch_idle", 0.0, "", 3.0], ["crouch_walk", 0.7, "ahead", 3.5], ["pistol_aim", 0.0, "", 2.5],
 	["pistol_shoot", 0.0, "", 2.0], ["reload", 0.0, "", 2.0], ["long_aim", 0.0, "", 2.5],
 	["long_shoot", 0.0, "", 2.0], ["long_reload", 0.0, "", 2.5], ["hit_front", 0.0, "hit", 3.0],
-	["hit_head", 0.0, "hit_head", 3.0]]
+	["hit_head", 0.0, "hit_head", 3.0], ["walk_gun", 1.3, "ahead", 3.5], ["run_gun", 3.2, "ahead", 3.0],
+	["stagger", 0.0, "", 3.0]]
 const JOINTS := [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"upper_arm_l", &"upper_arm_r", &"forearm_l", &"forearm_r"]
 
 var vp: SubViewport
@@ -84,17 +85,28 @@ func _takes() -> Array:
 	lib.preload_clips()
 	var dir := ProjectSettings.globalize_path("res://build/library/takes")
 	var out := []
-	for step in PLAN:
-		for n in 8:
-			var path := "%s/%s_%d.json" % [dir, step[0], n]
-			if not FileAccess.file_exists(path):
-				break
-			var c = load("res://src/bodies/motion_clip.gd").new()
-			c._read(StringName("%s_%d" % [step[0], n]), JSON.parse_string(FileAccess.get_file_as_string(path)))
-			lib._clips[StringName("%s_%d" % [step[0], n])] = c
-			var s2: Array = step.duplicate()
-			s2[0] = "%s_%d" % [step[0], n]
-			out.append(s2)
+	var files := Array(DirAccess.get_files_at(dir)).filter(func(f: String) -> bool: return f.ends_with(".json"))
+	files.sort()
+	for f: String in files:
+		var take := f.trim_suffix(".json")
+		var move := take.rsplit("_", true, 1)[0]
+		# The plan's line for the move, or for what it's a variant of (walk_heavy: walk's).
+		var step: Array = []
+		for st in PLAN:
+			if st[0] == move:
+				step = st
+		if step.is_empty():
+			for st in PLAN:
+				if st[0] == move.split("_")[0]:
+					step = st
+		if step.is_empty():
+			continue
+		var c = load("res://src/bodies/motion_clip.gd").new()
+		c._read(StringName(take), JSON.parse_string(FileAccess.get_file_as_string(dir + "/" + f)))
+		lib._clips[StringName(take)] = c
+		var s2: Array = step.duplicate()
+		s2[0] = take
+		out.append(s2)
 	return out
 
 

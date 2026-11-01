@@ -47,7 +47,9 @@ adds its own lines.
   terms by the Studio, 2026-10-24): the card cheat's four clips in `assets/animations/` (a walk,
   a kick, a draw, standing over a man) were generated from text for this project and retargeted
   onto our rig by `tools/blender/retarget_motion.py`; the generated takes are kept in the Studio
-  (`motions/card_cheat/`).
+  (`motions/card_cheat/`). Since #539 also the gun moves (a walk and a run with the revolver in
+  hand, an aim stance, a reload, a stagger; the Studio's `motions/gun_moves/`, $7.50), in
+  `assets/animations/library/` by `tools/blender/library_motion.py`.
 - **Quaternius, Universal Animation Library** (UAL1, the free Standard set; quaternius.com): CC0
   1.0. **Kay Lousberg, KayKit Character Animations 1.1** (Rig_Medium; www.kaylousberg.com): CC0
   1.0. Retargeted onto our rig by `tools/blender/library_motion.py` (issue #529) into

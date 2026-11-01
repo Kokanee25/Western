@@ -34,6 +34,8 @@ SRC = os.path.join(ROOT, "build", "library_src")
 WORK = os.path.join(ROOT, "build", "library")
 OUT = os.path.join(ROOT, "assets", "animations", "library")
 LIBS = {
+    "uthana": {"pack": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves)",
+               "licence": "Uthana: generated for this project (Replicate's terms)", "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2"},
     "cmu": {"pack": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion)", "licence": "CMU: free for research and commercial use",
             "page": "http://mocap.cs.cmu.edu"},
     "quaternius": {"pack": "Quaternius, Universal Animation Library (UAL1 Standard, free)", "licence": "CC0 1.0",
@@ -213,12 +215,13 @@ def _yaw_of_q(q):
     return math.atan2(-f[0], -f[2])
 
 
-def find_cycle(clip, lo_s, hi_s, skip=0.2):
+def find_cycle(clip, lo_s, hi_s, skip=0.2, min_speed=0.0):
     """One loop out of a long take (a CMU walk goes on for metres, turns at its ends): the pair of
     frames i < j, j - i between lo_s and hi_s seconds, in the take's steady middle (its first and
     last `skip` left out), whose poses and the poses either side of them match best (each joint's
     turn summed; the pelvis's includes his heading, so a stretch where he turns scores badly).
-    Returns (i, j, cost in degrees)."""
+    A gait's loop must go somewhere (`min_speed`, m/s of his hips over it): a still stretch matches
+    itself best of all. Returns (i, j, cost in degrees)."""
     fr = clip["frames"]
     n = len(fr)
     fps = clip["fps"]
@@ -234,6 +237,10 @@ def find_cycle(clip, lo_s, hi_s, skip=0.2):
         for j in range(i + lo, min(i + hi, b) + 1):
             if j + 1 >= n:
                 break
+            if min_speed > 0.0:
+                r0, r1 = clip["root"][i], clip["root"][j]
+                if math.hypot(r1[0] - r0[0], r1[2] - r0[2]) * fps / (j - i) < min_speed:
+                    continue
             c = d(i, j) + 0.5 * (d(i - 1, j - 1) + d(i + 1, j + 1))
             if c < best[2]:
                 best = (i, j, c)
@@ -281,14 +288,15 @@ def source_path(sources, lib, part):
 def run_take(lib, part, anim, move, kind, sources, rig, out_dir, opts=None):
     opts = opts or {}
     path = source_path(sources, lib, part)
-    names, rest, frames, _ = rm.read_source(path, anim=anim, work=os.path.join(WORK, "converted"))
+    rest_path = os.path.join(SRC, opts["rest"]) if opts.get("rest") else None
+    names, rest, frames, _ = rm.read_source(path, rest_path=rest_path, anim=anim, work=os.path.join(WORK, "converted"))
     clip, notes = rm.retarget(names, rest, frames, rig, move)
     j = {"lib": lib, "file": os.path.basename(path), "anim": anim, "frames_in": len(frames),
          "missing": notes.get("missing", []), "scale": notes.get("scale")}
     if opts.get("cycle"):
         # A long take (CMU's): one loop cut from its steady middle, facing ahead.
         lo, hi = opts["cycle"]
-        i, k, cost = find_cycle(clip, lo, hi, opts.get("skip", 0.2))
+        i, k, cost = find_cycle(clip, lo, hi, opts.get("skip", 0.2), opts.get("min_speed", 0.5 if kind == "gait" else 0.0))
         rm._cut(clip, i, k)
         j["cycle"] = [round(i / clip["fps"], 2), round(k / clip["fps"], 2)]
         j["cycle_cost_deg"] = cost
@@ -405,6 +413,9 @@ def main(argv):
                     entry[k] = j[k]
             if m.get("why"):
                 entry["why"] = m["why"]
+            if m.get("variant_of"):
+                entry["variant_of"] = m["variant_of"]
+                entry["style"] = bool(m.get("style", False))
             manifest["clips"][move] = entry
             print("%s <- %s/%s %s" % (move, lib, anim, json.dumps({k: entry[k] for k in entry if k in ("length_s", "speed_mps", "seam_after_deg")})))
         with open(os.path.join(OUT, "manifest.json"), "w") as f:

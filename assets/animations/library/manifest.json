@@ -75,17 +75,17 @@
    "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 69_43.bvh",
    "licence": "CMU: free for research and commercial use",
    "page": "http://mocap.cs.cmu.edu",
-   "length_s": 1.0,
+   "length_s": 1.1,
    "loop": true,
    "kind": "gait",
    "left_to_the_pose": [
     "neck",
     "head"
    ],
-   "speed_mps": 0.424,
-   "stride_m": 0.424,
-   "seam_before_deg": 33.38,
-   "seam_after_deg": 0.0,
+   "speed_mps": 0.406,
+   "stride_m": 0.447,
+   "seam_before_deg": 61.83,
+   "seam_after_deg": 0.22,
    "missing": [],
    "why": "69_43 mirrored"
   },
@@ -93,17 +93,17 @@
    "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 69_43.bvh",
    "licence": "CMU: free for research and commercial use",
    "page": "http://mocap.cs.cmu.edu",
-   "length_s": 1.0,
+   "length_s": 1.1,
    "loop": true,
    "kind": "gait",
    "left_to_the_pose": [
     "neck",
     "head"
    ],
-   "speed_mps": 0.424,
-   "stride_m": 0.424,
-   "seam_before_deg": 33.38,
-   "seam_after_deg": 0.0,
+   "speed_mps": 0.406,
+   "stride_m": 0.447,
+   "seam_before_deg": 61.83,
+   "seam_after_deg": 0.22,
    "missing": [],
    "why": "69_43, a sideways walk to his left"
   },
@@ -124,6 +124,235 @@
    "seam_after_deg": 0.19,
    "missing": [],
    "why": "77_29, a creeping walk"
+  },
+  "walk_d": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 16_15.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.167,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 0.985,
+   "stride_m": 1.149,
+   "seam_before_deg": 30.81,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "16_15, another man's walk: 0.18 m/s of skate",
+   "variant_of": "walk",
+   "style": false
+  },
+  "walk_e": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 07_01.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.067,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 1.281,
+   "stride_m": 1.367,
+   "seam_before_deg": 38.87,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "07_01: 0.16",
+   "variant_of": "walk",
+   "style": false
+  },
+  "walk_f": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 38_01.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.1,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 1.197,
+   "stride_m": 1.316,
+   "seam_before_deg": 46.4,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "38_01: 0.18",
+   "variant_of": "walk",
+   "style": false
+  },
+  "walk_g": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 39_01.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.033,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 1.408,
+   "stride_m": 1.455,
+   "seam_before_deg": 45.52,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "39_01: 0.16",
+   "variant_of": "walk",
+   "style": false
+  },
+  "walk_confident": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 82_09.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 1.367,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 0.789,
+   "stride_m": 1.078,
+   "seam_before_deg": 87.22,
+   "seam_after_deg": 0.13,
+   "missing": [],
+   "why": "82_09, 'confident walk forward': 0.39; for a man named to it (config/walks.json)",
+   "variant_of": "walk",
+   "style": true
+  },
+  "walk_drunk": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 91_09.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 2.067,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 0.497,
+   "stride_m": 1.028,
+   "seam_before_deg": 165.31,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "91_09, 'DrunkWalk': 0.44; for a man named to it",
+   "variant_of": "walk",
+   "style": true
+  },
+  "run_e": {
+   "source": "CMU Graphics Lab Motion Capture Database (B. Hahne's BVH conversion): 02_03.bvh",
+   "licence": "CMU: free for research and commercial use",
+   "page": "http://mocap.cs.cmu.edu",
+   "length_s": 0.767,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 1.417,
+   "stride_m": 1.086,
+   "seam_before_deg": 57.65,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "02_03, another man's run: 1.19 (the main run 1.15)",
+   "variant_of": "run",
+   "style": false
+  },
+  "pistol_aim": {
+   "source": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves): aim_stance_01.glb",
+   "licence": "Uthana: generated for this project (Replicate's terms)",
+   "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2",
+   "length_s": 2.933,
+   "loop": true,
+   "kind": "hold",
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ],
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "slide_after_m": 0.055,
+   "missing": [],
+   "why": "Uthana's three aim takes all came out two-handed despite the prompt: his legs' stance only (the gun arm is the procedural aim)"
+  },
+  "reload": {
+   "source": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves): reload_02.glb",
+   "licence": "Uthana: generated for this project (Replicate's terms)",
+   "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2",
+   "length_s": 4.933,
+   "loop": false,
+   "kind": "once",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "slide_after_m": 0.064,
+   "missing": [],
+   "why": "both hands at his chest, loading; the least jitter (not played by any state yet)"
+  },
+  "walk_gun": {
+   "source": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves): walk_gun_02.glb",
+   "licence": "Uthana: generated for this project (Replicate's terms)",
+   "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2",
+   "length_s": 1.133,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 1.148,
+   "stride_m": 1.301,
+   "seam_before_deg": 77.32,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "the revolver low in his right hand, the arm straight down, the other swinging; 0.10 m/s of skate"
+  },
+  "run_gun": {
+   "source": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves): run_gun_03.glb",
+   "licence": "Uthana: generated for this project (Replicate's terms)",
+   "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2",
+   "length_s": 0.633,
+   "loop": true,
+   "kind": "gait",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "speed_mps": 3.337,
+   "stride_m": 2.113,
+   "seam_before_deg": 114.67,
+   "seam_after_deg": 0.0,
+   "missing": [],
+   "why": "the revolver raised before his chest; 0.73 m/s of skate, less than either CMU run (the other takes 3.9 and 8.8)"
+  },
+  "stagger": {
+   "source": "Uthana text-to-motion (uthana/text-to-motion-diffusion-v2 on Replicate), generated for this project by the Character Studio (motions/gun_moves): stagger_02.glb",
+   "licence": "Uthana: generated for this project (Replicate's terms)",
+   "page": "https://replicate.com/uthana/text-to-motion-diffusion-v2",
+   "length_s": 2.933,
+   "loop": false,
+   "kind": "once",
+   "left_to_the_pose": [
+    "neck",
+    "head"
+   ],
+   "slide_after_m": 0.073,
+   "missing": [],
+   "why": "hunched, two steps back, catches himself (not played by any state yet: Sean's call, bullet hits carry no wince)"
   }
  }
 }
