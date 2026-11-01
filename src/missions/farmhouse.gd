@@ -103,7 +103,7 @@ static func add_places(w: Waypoints) -> void:
 	# The front room: round the table (x 1.3..2.7, z 2.0..2.85) and its chairs.
 	w.add(&"farm_room", p.call(3.3, g, 1.4), [&"farm_door"])
 	w.add(&"farm_room_w", p.call(0.8, g, 1.4), [&"farm_room"])
-	w.add(&"farm_room_stove", p.call(4.3, g, 1.5), [&"farm_room"])
+	w.add(&"farm_room_stove", p.call(4.0, g, 1.5), [&"farm_room"])  # clear of the bedroom door's leaf (open into this room)
 	w.add(&"farm_room_e", p.call(4.75, g, 3.35), [&"farm_room", &"farm_room_stove"])
 	w.add(&"farm_room_back", p.call(1.0, g, 3.9))  # round the table by its back, not past its west chair
 	w.add(&"farm_room_back_e", p.call(3.0, g, 3.75), [&"farm_room_back", &"farm_room_e"])

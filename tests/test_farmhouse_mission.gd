@@ -78,6 +78,9 @@ func test_a_shot_raises_the_alarm_and_they_keep_to_the_house() -> void:
 
 func test_e_held_by_him_cuts_him_loose_and_he_follows() -> void:
 	await _begin()
+	# The men elsewhere (their senses on you would start the fight: not what this is about).
+	for b in mission.brains:
+		b.body.process_mode = Node.PROCESS_MODE_DISABLED
 	var h := mission.hostage
 	var side := (h.global_position - Farmhouse.at(Vector3(7.3, 0.0, 0.0)))
 	player.global_position = h.global_position + Vector3(0.0, 0.05, 0.0) + side.normalized() * -0.9

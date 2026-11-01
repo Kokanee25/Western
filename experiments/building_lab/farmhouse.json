@@ -147,7 +147,7 @@
 				{"side": "+", "finish": "boards"}
 			],
 			"openings": [
-				{"type": "door", "at": 3.0, "width": 0.81, "height": 2.03, "leaf": "outward"}
+				{"type": "door", "at": 3.0, "width": 0.81, "height": 2.03, "_doc": "its leaf swings into the front room, out of the bedroom's way (the rancher's way out)"}
 			]
 		},
 		{

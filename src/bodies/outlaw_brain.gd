@@ -203,6 +203,8 @@ var _menace_said := false
 var _menace_shots := 0
 var _post_way: Array[Vector3] = []
 var _fled_said := -99.0
+## Into the fight without a word of his own (one of them's already called it: FarmhouseMission's alarm).
+var quiet_start := false
 ## A spot he's been told to hold (HouseDefence, the farmhouse: a window, a door to cover, a hole):
 ## {id, at, look (what he watches from it), low (cover he crouches behind, up to shoot), window
 ## (stand to shoot, below the sill under fire), why}. Empty: he picks his own (Cover).
@@ -588,7 +590,9 @@ func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
 	if mood == Mood.CALM:
-		say(&"provoked")
+		if not quiet_start:
+			say(&"provoked")
+		quiet_start = false
 		_set_mood(Mood.FIGHTING)
 		_fight_from = _now
 		_next_shot = _rng.randf_range(0.6, 1.1)
@@ -1034,6 +1038,8 @@ func _done_with(who: Node) -> bool:
 func _social(delta: float) -> void:
 	_reload_quietly(delta)
 	var who := relations.focus()
+	if who is Player and not (who as Player).wounds.physiology.is_conscious():
+		who = null  # nothing to say to a man lying out cold
 	var st := relations.stance(who) if who else Relations.Stance.IGNORE
 	if who != _social_who or st != _social_stance:
 		_on_rung(_social_stance, st)
@@ -1514,6 +1520,13 @@ func _menacing(delta: float) -> bool:
 	if not _menace_said:
 		_menace_said = true
 		say(&"menace")
+	if mood == Mood.RELOADING:
+		# Loading with his gun on him (the fight's own countdown doesn't run while he holds him).
+		_reload_left -= delta
+		if _reload_left <= 0.0:
+			rounds = rounds_per_load
+			_set_mood(Mood.FIGHTING)
+		return true
 	if not menace_fire or not body.gun_ready():
 		return true
 	if rounds <= 0:
@@ -1559,7 +1572,7 @@ func _follow_order(delta: float, t: Node3D) -> void:
 	flat.y = 0.0
 	var sees := senses.sees(t)
 	if flat.length() > 0.45:
-		if sees and body.global_position.distance_to(t.global_position) < 5.0:
+		if sees and body.global_position.distance_to(t.global_position) < 5.0 and mood != Mood.RELOADING:
 			tactic = Tactic.OPEN
 			_fight(delta)
 			return
@@ -1589,7 +1602,9 @@ func _follow_order(delta: float, t: Node3D) -> void:
 		return
 	_order_way.clear()
 	tactic = Tactic.HIDDEN
-	if sees or (covering > 0.0 and senses.since_known(t) < 20.0):
+	# Up to shoot when he has you, not while he's loading (the fight would start his reload over,
+	# and call it, every tick: #520's playtest).
+	if mood != Mood.RELOADING and (sees or (covering > 0.0 and senses.since_known(t) < 20.0)):
 		_fight(delta)
 		return
 	body.face(order.look)

@@ -60,6 +60,7 @@ var _idle_in := 12.0
 var _rng := RandomNumberGenerator.new()
 var _tell_t := 0.0
 var _hailed := false
+var _hiss_said := -99.0
 var _holding := false
 var _idle_t := 0.0
 ## Who fired last, and when (a ball into the rancher: whose it likely was).
@@ -283,7 +284,7 @@ func _watch(man: HumanBody, brain: OutlawBrain) -> void:
 			_heard(brain, at, kind, who))).call_deferred()
 
 
-const LOUD := [&"gunshot", &"blast", &"glass", &"timber", &"crash", &"scuffle", &"fuse"]
+const LOUD := [&"gunshot", &"blast", &"glass", &"timber", &"crash", &"scuffle"]
 
 
 func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> void:
@@ -291,6 +292,12 @@ func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> vo
 		return
 	if kind in LOUD:
 		_alarm(brain, at, "%s heard %s" % [brain.body.name, kind])
+	elif kind == &"fuse" and alarm_t < 0.0:
+		# A hiss he can't place: he turns to it and wonders (the blast is the alarm).
+		brain.glance(at + Vector3.UP * 0.5, 5.0)
+		if t - _hiss_said > 6.0:
+			_hiss_said = t
+			Events.spoke.emit(brain.body, ["What's that hissing?", "You hear that? Something's hissing.", "Hey— what's that?"][_rng.randi() % 3])
 	elif alarm_t < 0.0:
 		# A step, a voice: he turns to it (and may see you); the nearest of them goes to the window on
 		# that side for a look.
@@ -445,6 +452,7 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 		if not is_instance_valid(b) or not b.body.physiology.alive:
 			continue
 		b.senses.note(p, at, 0.5 if b == by else tuning.heard_error)
+		b.quiet_start = b != by  # one of them says it; the rest just go to it
 		b.relations.provoke(p)
 		var m: Dictionary = specs.get(b.body.person_id, {})
 		var alarm_post := String(m.get("alarm_post", ""))
@@ -535,6 +543,7 @@ func _physics_process(delta: float) -> void:
 			t += delta
 			_idle_talk(delta)
 			_warning_step()
+			_rancher_calls(delta)
 			if _looking != null and t > float(_looking_post.get("until", INF)):
 				_back_to_post()
 			_guard_step()
@@ -581,6 +590,23 @@ func _idle_talk(delta: float) -> void:
 	var said: Array = IDLE.get(b.body.person_id, [])
 	if not said.is_empty():
 		Events.spoke.emit(b.body, said[_rng.randi() % said.size()])  # heard as speech (DeedWatch)
+
+
+## You in the house and him still tied and awake: he calls out where he is now and then (a
+## blast's dust, the fight: you'd not know otherwise).
+var _call_t := 0.0
+
+
+func _rancher_calls(delta: float) -> void:
+	_call_t -= delta
+	if _call_t > 0.0 or hostage_brain == null or not is_instance_valid(hostage) or not hostage_brain.tied:
+		return
+	if not hostage.physiology.alive or not hostage.physiology.is_conscious():
+		return
+	var p := player()
+	if p and inside(p.global_position):
+		_call_t = 7.0
+		hostage_brain.say(&"help")
 
 
 ## Where the rancher is (his chest: knocked down, out cold, his body's root can be a way off).
