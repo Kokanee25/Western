@@ -86,7 +86,7 @@ python3 experiments/gunfight_lab/results/2026-11-01_posts/pairs.py build/gf/base
   beside another run, so the drop is the machine. As a share of the frame the brains are the
   same (10.2% / 9.8%): the narrow check costs nothing seen.
 - **Determinism:** `same_fight.py`, 20 fights (seeds 1-4, every setup, they draw) run again on the
-  branch head against the run's own: DETERMINISM.
+  branch head against the run's own: 20 of 20 the same.
 
 ## What's left (the next steps, in #531's order)
 
