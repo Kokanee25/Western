@@ -484,8 +484,10 @@ frozen until Sean names one.
   B, MPFB (`tools/blender/mpfb_man.py`, MPFB's data + MakeHuman's CC0 kit, `assets/people/mpfb_*`);
   Sean: "terrible", not the direction. Route C, Human Generator, researched (#516, branch
   `claude/issue-516-6fsl2o`, `docs/style_test/bakeoff-2026-10/human_generator.md`): Commercial $128,
-  its men can't be in the public repo; not bought. Waiting on Sean: #518 (buy? ~$3 for route A).
-  Next #519: route A, the Studio from realistic pictures (`styles/realistic.yaml`, a draft request).
+  its men can't be in the public repo; not bought. Route A, the Studio from realistic pictures
+  (Studio `claude/studio-realistic`, `bold_cowboy_real_s1`, `docs/style_test/bakeoff-2026-10/realistic_studio/`):
+  Sean, "horrible next to our original bold cowboy". Studio $71.32 of $75. Waiting on Sean: #518
+  (painted look, or one Human Generator head). Next #522.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
