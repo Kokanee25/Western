@@ -68,9 +68,9 @@ it, or he shifts first. For the brain when the narrow cover kind goes in.
 | right upper arm off vertical | 8-21 deg | 82-84 (arm out) |
 | elbow | 90-98 deg | 176 |
 | forearm off level / off the threat's line | within 4.4 / 5.5 deg | within 4.1 / 2.7 |
-| left arm off vertical | 2-8 deg | 2-4 |
+| left arm off vertical | 2-8 deg | 2-3 |
 | lean | 12-18 deg | 16-21 |
-| hidden from the threat (of his capsules' surface toward it) | 63-82% (head 50-90, trunk 85-91) | 57-62% |
+| hidden from the threat (of his capsules' surface toward it) | 63-82% (head 50-90, trunk 85-91) | 66-68% |
 | his eye sees past the edge; the gun clear of the post; body into the post | all; all; 0 cm | all; all; 0 cm |
 
 Limits:
