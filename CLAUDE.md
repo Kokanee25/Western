@@ -588,11 +588,12 @@ frozen until Sean names one.
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
-- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
-  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
-  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
-  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
-  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
+- **Men who move with purpose** (#465; `experiments/gunfight_lab/results/2026-10-28_hold_cover/`,
+  `2026-11-01_watch_spot/`): the lab's `moves.py` (runs, stays, drops, posts, the galleries);
+  `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
+  (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
+  hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
+  Next: #531 (posts as narrow cover, then the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -816,3 +817,7 @@ frozen until Sean names one.
   and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
   canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
   Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.
+- **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
+  results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
+  mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
+  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).
