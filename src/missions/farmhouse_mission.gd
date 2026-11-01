@@ -637,9 +637,16 @@ func claims_use(p: Player) -> bool:
 		return false
 	if not (hostage_brain.tied or hostage.limp):
 		return false
-	var at := hostage_at()
-	return Vector2(p.global_position.x - at.x, p.global_position.z - at.z).length() <= tuning.free_reach \
-			and absf(p.global_position.y - at.y) < 1.6
+	# By any of him in reach (out cold he may lie anyhow: his head under the boards, his legs by you).
+	for part: StringName in [&"chest", &"pelvis", &"head", &"thigh_l", &"thigh_r"]:
+		var n := hostage.parts.get(part) as Node3D if hostage.parts else null
+		if n == null:
+			continue
+		var at := n.global_position
+		if Vector2(p.global_position.x - at.x, p.global_position.z - at.z).length() <= tuning.free_reach \
+				and absf(p.global_position.y + 0.9 - at.y) < 1.7:
+			return true
+	return false
 
 
 func _rescue_step(delta: float) -> void:

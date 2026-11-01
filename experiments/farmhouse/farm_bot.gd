@@ -183,7 +183,9 @@ func tick(delta: float, t: float) -> void:
 		"rescue":
 			_rescue(delta, shooting)
 		"out":
-			if shooting and not bot._reloading and player.global_position.distance_to(mission.hostage.global_position) < 6.0:
+			if _drag(delta):
+				pass
+			elif shooting and not bot._reloading and player.global_position.distance_to(mission.hostage.global_position) < 6.0:
 				_stop()
 			elif _follow(out_route, delta):
 				_phase("clear")
@@ -254,13 +256,36 @@ func _rescue(delta: float, shooting: bool) -> void:
 		_stop()
 		bot._hold_action(&"shove", false)
 		return
-	var to := h.global_position - player.global_position
+	var to := mission.hostage_at() - player.global_position
 	to.y = 0.0
-	if to.length() > mission.tuning.free_reach - 0.3:
-		_follow([h.global_position], delta)
+	if not mission.claims_use(player) or to.length() > mission.tuning.free_reach - 0.3:
+		bot._hold_action(&"shove", false)  # E away from him is a shove (or a kick)
+		if to.length() > 0.5:
+			_follow([mission.hostage_at()], delta)
+			return
+	if not mission.claims_use(player):
+		_stop()
 		return
 	_stop()
 	bot._hold_action(&"shove", true)
+
+
+## Out with him out cold: by the collar (E held while he's in reach) along the way out, at a walk;
+## back to him when he's slipped from reach. False when he's on his feet (he follows by himself).
+func _drag(delta: float) -> bool:
+	var h: HumanBody = mission.hostage
+	if h == null or not is_instance_valid(h) or not h.physiology.alive or not h.limp:
+		bot._hold_action(&"shove", false)
+		return false
+	if mission.claims_use(player):
+		bot._hold_action(&"shove", true)
+		if _follow(out_route, delta):
+			_phase("clear")
+			_stop()
+	else:
+		bot._hold_action(&"shove", false)
+		_follow([h.global_position], delta)
+	return true
 
 
 ## Along `way` by the movement keys, facing where he goes (unless he's shooting); true at its end.

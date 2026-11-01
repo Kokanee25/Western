@@ -199,6 +199,11 @@ func _cmd_farm_run(a: Array) -> Dictionary:
 	r.player_local = arr(inv * player.global_position)
 	if m.hostage and is_instance_valid(m.hostage):
 		r.hostage_local = arr(inv * m.hostage_at())
+		r.hostage_body = {"conscious": m.hostage.physiology.is_conscious(), "limp": m.hostage.limp, "prone": m.hostage.prone,
+				"pose": str(m.hostage.pose), "tied": m.hostage_brain.tied,
+				"head": arr(inv * (m.hostage.parts[&"head"] as Node3D).global_position),
+				"pelvis": arr(inv * (m.hostage.parts[&"pelvis"] as Node3D).global_position) if m.hostage.parts.has(&"pelvis") else [],
+				"chair": arr(inv * m.hostage_brain.chair.global_position) if m.hostage_brain.chair and is_instance_valid(m.hostage_brain.chair) else []}
 	if not bot.route.is_empty():
 		r.route_next = arr(inv * bot.route[0])
 		r.route_left = bot.route.size()
