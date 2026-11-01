@@ -1,6 +1,6 @@
 """Round 2's sheets (#547): each a row of labelled cells, the same man in Blender and in the game.
-A cell is LABEL=PATH[@crop], crop "face" (the face shot's middle) or "half" (the half figure's), any
-other image whole; a row is its cells joined by '|', rows by ';'. Renders only (the men's files stay
+A cell is LABEL=PATH[@crop], crop "face" (the face shot's middle), "half" (the half figure's) or a box
+"x0,y0,x1,y1" (round 3: a cell cut from an earlier sheet), any other image whole; a row is its cells joined by '|', rows by ';'. Renders only (the men's files stay
 in the private Studio). Blender renders: the Studio's store/humgen/out/renders/ (hg_render.py).
 
     python3 docs/style_test/bakeoff-2026-10/human_generator/make_round2_sheet.py --out=PATH.jpg \
@@ -34,7 +34,7 @@ def cell(spec, h):
         path, crop = path.rsplit("@", 1)
     im = Image.open(os.path.expanduser(path)).convert("RGB")
     if crop:
-        im = im.crop(CROPS[crop])
+        im = im.crop(tuple(int(v) for v in crop.split(",")) if "," in crop else CROPS[crop])
     w = round(im.width * h / im.height)
     return label(im.resize((w, h), Image.LANCZOS), name)
 

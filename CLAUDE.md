@@ -504,7 +504,10 @@ frozen until Sean names one.
   (Human Generator is fine in Blender; the gap is the conversion and the game's rendering). **Round 2** (#547):
   strand colours measured in his Blender render, the cowboy remade from its Julius (`hg_real_cowboy2`), soft card
   edges, strand highlight and soft skin (`realistic_hair*.gdshader`, `realistic_light.gdshaderinc`; `--real-off=`,
-  the lab bridge's `real_off`); sheets `human_generator/round2/`. Waiting on Sean: #547 (step 4 is art's look).
+  the lab bridge's `real_off`); sheets `human_generator/round2/`. **Round 3** (#547, the cowboy only,
+  `hg_real_cowboy3`): a felt hat by code and hair groomed by us (Studio `groom.py`, `strand_atlas.py`: a walrus
+  moustache, mutton-chops, a period cut under the hat; Blender curves and game cards from the same strands);
+  sheet `human_generator/round3/round3_cowboy.jpg`. Waiting on Sean: #547 (go on? step 4 is art's look).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.

@@ -124,3 +124,65 @@ change, each shot in the same moment by the lab's `real_off`; `experiments/reali
   a bright day.
 - No tone curve like Blender's.
 - 1280x720.
+
+## Round 3 (#547): the cowboy's hat and hair, groomed by us
+
+Sean, after round 2: "the hair is just not cowboy hair, not the facial hair". Human Generator's hair
+library is modern (fades, side parts, trimmed beards) and it has no western hat, so round 3 makes
+both ourselves, on the cowboy only (`hg_real_cowboy3`: round 2's face and clothes). Sheet
+**`round3/round3_cowboy.jpg`**:
+- top row, round 3: his Blender render (front and his left three-quarter), the game (saloon at
+  21:30, street at 14:00), his Blender full figure;
+- middle row: the painted bold cowboy (his portrait, then the game);
+- bottom row: round 2's cowboy, cut from `round2/step2_cowboy.jpg`.
+
+**What was made** (Studio `tools/humgen/groom.py`, `strand_atlas.py`, its README "Round 3"):
+- **Hair groomed by script.** Blender's hair node assets aren't in the headless bpy 5.0 module, so
+  the grooming operators are our own, in numpy on the strands' points:
+  - roots are sampled on his skin where Human Generator's own face-hair density groups say
+    (`fh_mustache_*`, `fh_sideburns_high`), and for the scalp near its own scalp hair's roots;
+  - each strand is grown along a comb rule per region, lifted near the root, drooped under
+    gravity and kept off the skin;
+  - then clumped, frizzed and waved.
+
+  The same strands are drawn as Blender hair curves (Principled Hair BSDF) for his render and as
+  hair cards for the game: a ribbon per clump along its mean strand, two or three crossed, textured
+  by a strand atlas drawn by code and coloured from his render's measure.
+  - **Walrus moustache**: 6,000 strands, 2.4-3 cm, the ends half as long again, drooping over the
+    lip past the mouth's corners.
+  - **Mutton-chops**: 8,000 strands, bushy, down the cheeks to the jaw angle; the chin and under
+    the mouth shaved.
+  - **Period cut**: 45,000 strands, to the collar behind, shorter over the ears, unkempt (frizz,
+    a slow wave), dark brown with a quarter of the strands grey.
+  - His own brows and lashes kept.
+- **A felt hat by script** (`groom.felt_hat`): the opening fitted to the slice of his head where
+  the band sits (221 x 171 mm with an 8 mm hair gap); a 11.5 cm crown with a centre crease and a
+  front pinch; a 7.5 cm brim curled up at the sides; a leather band with ten brass studs. Felt with
+  its nap's mottle and a fine bump, baked to the game's colour, normal and roughness maps like the
+  clothes. Inside the crown the hair is held flat, and cards wholly under it are dropped. The game
+  can knock it off like any hat (`HAT_SHAPES`).
+- In the game: 105.6k triangles in all (hat 13.9k, beard cards 15.0k, hair cards 8.9k; Human
+  Generator's "high" hair cards were about 8k). The frame cost is step 5's.
+
+**Faults met and fixed on the way:**
+- Felt sheen made the hat read tan in Blender and near-black in the game; the sheen is off now
+  and the felt's colour carries it.
+- At high melanin, Blender's hair model shows only its white highlight, so dark hair read ash
+  grey; now less melanin with more redness.
+- The atlas's grey strands at a fixed brightness pushed the dark strands to flat grey; grey is
+  now relative to the measured colour.
+- Narrow cards with gathered tips drew the moustache as a comb's teeth in the game; now wider
+  cards, tips that don't gather, and denser strands.
+
+**Honest result:**
+- In Blender he now reads as the bold cowboy's type: hat, walrus moustache, chops, hair under
+  the brim.
+- In the game the shapes carry over, but the chops read thinner and darker than in Blender: their
+  cards lie along the cheek, so from the front they're near edge-on. Fanning them to ±40° helped a
+  little; that was the second fix, so it stops there.
+- The hat reads tan under Blender's bright studio and dark brown in the game, darkest in the
+  street's shade. Like the faces, that is the game's light (step 4), not the hat's colour, which
+  both draw from the same felt.
+- His face is still Human Generator's Julius (younger and softer than the brief); round 3 didn't
+  touch it.
+- $0 spent.
