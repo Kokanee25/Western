@@ -123,6 +123,10 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	if info.has("finger_bones"):
 		out["finger_bones"] = info.finger_bones
 		out["finger_bone_names"] = finger_bone_names()
+	# A realistic man's texture drawn smooth, not in texel squares (his report's "smooth_texels";
+	# body_skin.gdshaderinc). Sean, 2026-11-01, the bake-off's route A.
+	if bool(info.get("smooth_texels", false)):
+		out["smooth_texels"] = true
 	if info.has("skin_tone"):
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
