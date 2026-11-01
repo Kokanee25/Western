@@ -813,3 +813,7 @@ frozen until Sean names one.
   and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
   canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
   Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.
+- **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
+  results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
+  mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
+  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).
