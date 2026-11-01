@@ -67,9 +67,9 @@ const SETTLE_FRAME_MS := 6.0
 const MEMBERS_A_MS := 15
 ## A building of more members than this has its first analysis done a slice a frame once it's
 ## built (the fire's routine look), so the first thing to break it finds one to carry over. A
-## smaller one with none yet has it a slice a frame when something breaks it, if it's more than a
-## budgeted settle's frame analyses (Main Street's store had its whole first analysis, ~100 ms,
-## on a stick's frame, #538).
+## smaller one with none yet has it a slice a frame when a blast breaks it (`settle(...,
+## first_sliced)`), if it's more than a budgeted settle's frame analyses (Main Street's store had
+## its whole first analysis, ~100 ms, on a stick's frame, #538); one break settles it at once.
 const SLICED_ABOVE := 1500
 ## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
 ## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
@@ -101,6 +101,9 @@ var _batch_dirty := {}
 ## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
 ## 60 ms on the main thread for the spec saloon, every frame something broke, 2026-10-25).
 const SHADOW_REBUILD_GAP := 1.0
+## The shadow mesh is made again this long (s) after the first change that asks for it at the soonest.
+const SHADOW_FIRST_WAIT := 0.3
+var _shadow_timed := false
 var _shadow_task := -1
 var _shadow_wanted := false
 var _shadow_last := -INF
@@ -1015,11 +1018,16 @@ func _shadow_soon() -> void:
 	_shadow_wanted = true
 	if _shadow_task >= 0 or not is_inside_tree() or GameQuit.quitting:
 		return
-	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), 0.0)
-	if wait > 0.0:
-		get_tree().create_timer(wait, true, true).timeout.connect(_shadow_start)
-	else:
-		_shadow_start()
+	if _shadow_timed:
+		return  # (one timer at a time: a blast asks hundreds of times)
+	# Never at once: a break comes with more on its heels (a stick's ~70 members, then the bodies it
+	# throws), and the mesh made on the main thread (~30 ms for the spec saloon) landed on the
+	# blast's next frame (#538). SHADOW_FIRST_WAIT later, it takes them all.
+	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), SHADOW_FIRST_WAIT)
+	_shadow_timed = true
+	get_tree().create_timer(wait, true, true).timeout.connect(func() -> void:
+		_shadow_timed = false
+		_shadow_start())
 
 
 func _shadow_start() -> void:
@@ -1186,14 +1194,15 @@ func settle_soon() -> void:
 ## its MEMBERS_A_MS members analysed), a FireSystem in the world takes the rest a slice a frame (its
 ## queue), so a big collapse costs a few frames, never one long one; without one (tests, the labs'
 ## stands) it runs to the end.
-func settle(budget_ms := INF) -> Array[StringName]:
+func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 	wait_analysis()
 	_settle_pending = false
 	var changed: Array[StringName] = []
 	if not collapses or not is_inside_tree():
 		return changed
 	var budget: WorkBudget = WorkBudget.new(budget_ms, int(budget_ms * MEMBERS_A_MS)) if budget_ms < INF else null
-	if budget_ms < INF and ((not _analysis_valid and _order.size() > int(budget_ms * MEMBERS_A_MS)) \
+	var first_over := SLICED_ABOVE if not first_sliced else int(budget_ms * MEMBERS_A_MS)
+	if budget_ms < INF and ((not _analysis_valid and _order.size() > first_over) \
 			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
 			or _dirty.size() > SETTLE_DIRTY_NOW):
 		# No analysis of it yet and it's big (the first is every member), one in progress a slice a
@@ -1288,7 +1297,7 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 	# (a whole building's analysis, ~0.1 s for the saloon, for a window across the street).
 	if structural:
 		var t_s := Prof.start()
-		out.append_array(settle(SETTLE_FRAME_MS))
+		out.append_array(settle(SETTLE_FRAME_MS, true))
 		Prof.stop(&"blast_settle", t_s)
 	return out
 

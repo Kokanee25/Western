@@ -53,6 +53,15 @@ static func run(n: Node, job: Callable, cost: int, queue := SOON) -> void:
 	q._run(job, cost, queue)
 
 
+## `cost` bodies made elsewhere this tick (a kit prop blown loose, which can't wait: its push is
+## the tick after it goes loose): they use up this tick's room, so the queue's own wait a tick.
+static func spent(n: Node, cost: int) -> void:
+	var q := for_node(n)
+	if q:
+		q._new_tick()
+		q._spent += cost
+
+
 ## Jobs waiting in `n`'s tree (all queues).
 static func waiting(n: Node) -> int:
 	var q := n.get_tree().get_first_node_in_group(&"spawn_queue") as SpawnQueue if n and n.is_inside_tree() else null

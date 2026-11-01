@@ -770,6 +770,7 @@ func _blast_push(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	SpawnQueue.spent(self, bodies.size())  # (the shards and pieces waiting make way, #538)
 	# What actually moves: what it held may have run out as it went (a full barrel blown open).
 	if contents and contents.released:
 		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())
