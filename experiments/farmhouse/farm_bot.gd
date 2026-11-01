@@ -78,21 +78,33 @@ func _route_in() -> Array[Vector3]:
 			r = [_place(&"farm_lane"), _place(&"farm_steps"), _place(&"farm_porch"), _place(&"farm_door"), _place(&"farm_room"),
 					_place(&"farm_room_e"), _place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"), _place(&"farm_bedroom")]
 		"breach":
-			# Round to the west wall (as built) from the lane, wide of the front windows.
-			r = [_g(-8.0, -9.0), _g(-6.0, 1.2), _g(-0.9, 1.2)]
+			# Up the draw west of the knoll (the house's east as built), out of the porch's sight, round
+			# behind, to the kitchen's back wall (the lean-to's), west of its window.
+			r = _the_draw() + [_g(4.0, 13.0), _g(2.9, 8.5)]
 		"back":
-			r = [_g(18.0, -10.0), _g(18.0, 12.0), _g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
+			r = _the_draw() + [_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
 					_place(&"farm_back_door"), _place(&"farm_kitchen_e"), _place(&"farm_kitchen"), _place(&"farm_kitchen_door"),
 					_place(&"farm_room_back"), _place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"),
 					_place(&"farm_bedroom_door"), _place(&"farm_bedroom")]
 	return r
 
 
-## After the breach: in through the hole to the bedroom.
+## The quiet way round: back along the road west to the draw between the knoll and the low rise,
+## up it out of sight of the porch, round behind the house (the world's: its back, as built).
+func _the_draw() -> Array[Vector3]:
+	return [TownLayout.street_point(78.0, 3.0), _w(80.0, -30.0), _w(82.0, -62.0), _w(92.0, -64.0)]
+
+
+func _w(x: float, z: float) -> Vector3:
+	return Vector3(x, TownLayout.ground_height(x, z), z)
+
+
+## After the breach: in through the hole in the kitchen's back wall, to the bedroom.
 func _route_through_hole() -> Array[Vector3]:
 	var f := Farmhouse.FLOOR
-	return [_p(Vector3(0.5, f, 1.2)), _p(Vector3(1.6, f, 1.2)), _place(&"farm_room"), _place(&"farm_room_e"),
-			_place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"), _place(&"farm_bedroom")]
+	return [_p(Vector3(2.9, f, 7.2)), _place(&"farm_kitchen"), _place(&"farm_kitchen_door"), _place(&"farm_room_back"),
+			_place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"),
+			_place(&"farm_bedroom")]
 
 
 ## Out: back the way he came, to the lane and on down to the road.
@@ -104,8 +116,8 @@ func _route_out() -> Array[Vector3]:
 					_place(&"farm_back_steps"), _place(&"farm_back"), _g(4.4, 16.0), _g(4.4, 24.0)]
 		"breach":
 			var f := Farmhouse.FLOOR
-			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room"), _p(Vector3(1.6, f, 1.2)),
-					_p(Vector3(0.5, f, 1.2)), _g(-3.0, 1.2), _g(-10.0, -6.0), _g(-12.0, -16.0)]
+			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
+					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 24.0)]
 	return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room"), _place(&"farm_door"), _place(&"farm_porch"),
 			_place(&"farm_steps"), _place(&"farm_lane"), _place(&"road_farm")]
 
@@ -175,7 +187,9 @@ func tick(delta: float, t: float) -> void:
 				_stop()
 		"clear":
 			_stop()
-	bot._hold_action(&"crouch", _crouch and not shooting)
+	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
+	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 35.0
+	bot._hold_action(&"crouch", _crouch and close and not shooting and not phase in ["lit", "out", "clear"])
 
 
 ## The stick out, aimed chest high at the wall in front, E held till it's set, let go to light it,
@@ -188,7 +202,7 @@ func _plant(delta: float) -> void:
 		return
 	if not d.drawn:
 		return
-	var wall := _p(Vector3(0.0, 0.0, 1.2))
+	var wall := _p(Vector3(2.9, 0.0, 7.6))
 	wall.y = player.global_position.y + 1.2
 	_look_at(wall)
 	if _hold_e <= 0.0 and d.plant_at.is_empty():
@@ -201,7 +215,7 @@ func _plant(delta: float) -> void:
 		if d.sticks < _sticks0 or d.planted != null:
 			stats.planted = snappedf(_t, 0.01)
 			_phase("lit")
-			route = [_g(-6.0, 1.2), _g(-11.0, -2.0)]
+			route = [_g(2.9, 12.0), _g(6.0, 17.0)]
 		else:
 			_hold_e = 0.0  # it didn't take: again
 
