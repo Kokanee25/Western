@@ -842,4 +842,5 @@ frozen until Sean names one.
 - **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
   results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
   mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
-  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).
+  StandardMaterial3D. Sean picked C1f (#526, "for now": an art style change is being tried):
+  `model_paint` mipmapped and a texel a square, the deer and steer skull paints imported with mipmaps.
