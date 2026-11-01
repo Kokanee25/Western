@@ -130,6 +130,7 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 			var m := c as StructureMember
 			if m.broken or m.consumed:
 				continue
+			Prof.count(&"n_blast_members")
 			var s := m.get_parent() as Structure
 			var hitres := _member_response(m, at, kg, s)
 			if hitres.break and not _bedded(m):
@@ -164,6 +165,7 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 			near.append(pair[2])
 			cuts.append(pair[3])
 		# Splinters fly off the boards it breaks (before they're rubble).
+		var t_spl := Prof.start()
 		for i in list.size():
 			var m := list[i]
 			if m.kind == &"glass" or ballistics == null or splinters >= tn.max_splinters:
@@ -180,6 +182,7 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 				b.blast = 0.0
 				b.passed = passed
 				splinters += 1
+		Prof.stop(&"blast_splinters", t_spl)
 		report.broken.append_array(s.break_members(list, ps, cuts))
 		if fire:
 			# By how near the fireball came to it, as for what it didn't break (a tall board's middle
@@ -218,6 +221,8 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 		var rb: RigidBody3D = pair[0]
 		if is_instance_valid(rb):
 			var v: Vector3 = pair[1] / maxf(rb.mass, 0.01)
+			if v.length() < tn.min_throw:
+				continue  # a nudge it wouldn't show: left lying (asleep) as it was (#538)
 			if v.length() > tn.max_throw:
 				v = v.normalized() * tn.max_throw
 			RubbleRest.let_go(rb)  # (lying in its cell: its own again before it moves)
@@ -301,7 +306,10 @@ static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
 		add.call(f.collider)
 	for s: Node in world.get_tree().get_nodes_in_group(&"structures"):
 		for m: StructureMember in (s as Structure).panes():
-			if not m.broken and _nearest_on(m, at).distance_to(at) <= r_max:
+			# (Its middle out of reach by more than half its size: its nearest point is too.)
+			if m.broken or m.global_position.distance_to(at) > r_max + m.size.length() * 0.5:
+				continue
+			if _nearest_on(m, at).distance_to(at) <= r_max:
 				add.call(m)
 	for g: StringName in [&"rubble", &"fallen"]:
 		for rb: Node in world.get_tree().get_nodes_in_group(g):
@@ -357,7 +365,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	# it soaks up, so the samples aren't walked (a stick in the spec saloon reaches thousands).
 	var width := maxf(cs.x, cs.y)
 	var r0 := maxf(near.distance_to(at), 0.02)  # the samples' own floor, not dist's
-	var most := impulse(kg, r0) * reflection(overpressure_kpa(kg, r0)) * width
+	var most := impulse(kg, r0) * reflection(overpressure_kpa(kg, r0)) * width  # (most_face_impulse / length)
 	if pow(most * length, 2.0) / (2.0 * mass) < capacity and pow(most * span, 2.0) / (2.0 * mass * share) < capacity * share:
 		return {"break": false, "push": Vector3.ZERO, "distance": dist}
 	var total := face_impulse(m, at, kg)
@@ -371,6 +379,18 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	if broke:
 		m.set_meta(&"blast_t", clampf((at - m.global_position).dot(m.axis()), -length * 0.5, length * 0.5))
 	return {"break": broke, "push": (dir + Vector3.UP * 0.25).normalized() * speed, "distance": dist}
+
+
+## Where face_impulse samples a member, about its point nearest the charge (m along it).
+const FACE_OFFSETS: Array[float] = [0.0, 0.03, -0.03, 0.08, -0.08, 0.15, -0.15, 0.3, -0.3, 0.6, -0.6, 1.2, -1.2, 2.4, -2.4, 4.8, -4.8]
+
+
+## The most `face_impulse(m, at, kg)` can be (N·s): the whole face as near and as square to the
+## charge as its nearest point (the bound _member_response skips members by).
+static func most_face_impulse(m: StructureMember, at: Vector3, kg: float) -> float:
+	var cs := m.cross_section()
+	var r0 := maxf(_nearest_on(m, at).distance_to(at), 0.02)
+	return impulse(kg, r0) * reflection(overpressure_kpa(kg, r0)) * maxf(cs.x, cs.y) * m.length()
 
 
 ## The blast's push on a member (N·s): reflected impulse per area summed over the face turned to it. The
@@ -390,12 +410,10 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 	# reflected in full, one running along it hardly at all.
 	var perp := _nearest_on(m, at).distance_to(at)
 	var out := _out_from_face(m, at)
-	var offsets := [0.0]
-	for d in [0.03, 0.08, 0.15, 0.3, 0.6, 1.2, 2.4, 4.8]:
-		offsets.append(d)
-		offsets.append(-d)
+	var w3 := pow(maxf(kg, 1e-4), 1.0 / 3.0)
+	var strong := t().reflection_strong
 	var ts: Array[float] = []
-	for o: float in offsets:
+	for o: float in FACE_OFFSETS:
 		var t := clampf(t0 + o, -half, half)
 		if not ts.has(t):
 			ts.append(t)
@@ -418,12 +436,21 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 		var along := ts[i] - t0
 		var r := maxf(sqrt(perp * perp + along * along), 0.02)
 		# Across the width, the part near the charge takes more: average over the strip.
+		# (impulse(kg, rk) * (1 + (reflection(overpressure_kpa(kg, rk)) - 1) * square_on), the same
+		# sums in the same order, with the charge's cube root and the tuning taken once: this is the
+		# blast's inner loop, ~40 µs a call, a dozen calls a holed board, #538.)
 		var mean := 0.0
 		for k in 3:
 			var off := width * (k - 1) / 3.0
 			var rk := sqrt(r * r + off * off)
 			var square_on := clampf(out / rk, 0.0, 1.0)
-			mean += impulse(kg, rk) * (1.0 + (reflection(overpressure_kpa(kg, rk)) - 1.0) * square_on)
+			var z := maxf(rk, 0.02) / w3
+			var imp := 0.067 * sqrt(1.0 + pow(z / 0.23, 4.0)) / (z * z * pow(1.0 + pow(z / 1.55, 3.0), 1.0 / 3.0)) * w3 * 100.0
+			var num := 808.0 * (1.0 + pow(z / 4.5, 2.0))
+			var den := sqrt((1.0 + pow(z / 0.048, 2.0)) * (1.0 + pow(z / 0.32, 2.0)) * (1.0 + pow(z / 1.35, 2.0)))
+			var kpa := P_ATM * num / den
+			var refl := 2.0 + (strong - 2.0) * kpa / (kpa + 7.0 * P_ATM)
+			mean += imp * (1.0 + (refl - 1.0) * square_on)
 		total += mean / 3.0 * seg * width
 	return total
 

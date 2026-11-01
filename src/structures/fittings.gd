@@ -35,6 +35,10 @@ var items: Array[Dictionary] = []
 var on_ground: Array[Dictionary] = []
 var fallen: Array[RigidBody3D] = []
 var _by_body := {}
+## Member (instance id) -> the items it holds, in `items`' order (each item's "i"): a cut or a prop
+## going loose finds its fittings without walking them all (a stick's 31 cuts and 27 props were
+## ~50 ms of lambdas over every item, #538).
+var _by_member := {}
 var _next := 0
 var _since := 0.0
 var _frames := 0
@@ -42,6 +46,7 @@ var _ready_to_watch := false
 
 
 func _enter_tree() -> void:
+	add_to_group(&"fittings")  # (found by group: a search of the tree was ~27 ms, #538)
 	if not Events.member_cut.is_connected(_on_member_cut):
 		Events.member_cut.connect(_on_member_cut)
 		Events.ground_changed.connect(_on_ground_changed)
@@ -71,13 +76,14 @@ func _on_ground_changed(area: Rect2) -> void:
 ## held by that piece; what stood on the stretch torn out has lost it.
 func _on_member_cut(old: Node, pieces: Array) -> void:
 	var t := Prof.start()
-	for item in items:
-		if item.down or not (item.members as Array).any(func(e: Array) -> bool: return e[0] == old):
+	for item: Dictionary in items_on(old).duplicate():
+		if item.down:
 			continue
 		var box: AABB = (item.box as AABB).grow(TOUCH)
 		for p: StructureMember in pieces:
 			if is_instance_valid(p) and p.world_aabb().intersects(box):
 				item.members.append([p, p.global_position])
+				_index(p, item)
 	Prof.stop(&"fittings", t)
 
 
@@ -109,6 +115,7 @@ func collect() -> void:
 	items.clear()
 	on_ground.clear()
 	_by_body.clear()
+	_by_member.clear()
 	var street := get_parent()
 	var nodes: Array[Node3D] = []
 	for s: Node in get_tree().get_nodes_in_group(&"structures"):
@@ -136,6 +143,39 @@ func collect() -> void:
 	for item in items:
 		_find_supports(space, item)
 	items = items.filter(func(it: Dictionary) -> bool: return not (it.members as Array).is_empty() or not (it.on as Array).is_empty())
+	_by_member.clear()
+	for i in items.size():
+		items[i]["i"] = i
+		for e: Array in items[i].members:
+			_index(e[0], items[i])
+
+
+## The items member `m` holds (touches), in `items`' order.
+func items_on(m: Object) -> Array:
+	return _by_member.get(m.get_instance_id(), []) if m != null else []
+
+
+## The items any of `ms` hold, each once, in `items`' order.
+func items_on_any(ms: Array) -> Array:
+	var seen := {}
+	var out: Array = []
+	for m: Object in ms:
+		for item: Dictionary in items_on(m):
+			if not seen.has(item.i):
+				seen[item.i] = true
+				out.append(item)
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.i < b.i)
+	return out
+
+
+func _index(m: Object, item: Dictionary) -> void:
+	var list: Array = _by_member.get_or_add(m.get_instance_id(), [])
+	for other: Dictionary in list:
+		if other.i == item.i:
+			return
+	list.append(item)
+	if list.size() > 1 and int(list[-2].i) > int(item.i):
+		list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.i < b.i)
 
 
 ## The things under `root` that are fittings: props (static bodies), lamps, and nodes drawing

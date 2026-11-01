@@ -18,7 +18,8 @@ extends Resource
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
 			&"player", &"town_life", &"blood", &"cloth", &"mop", &"faces", &"people_prep", &"people_bands"],
-	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks", &"rubble_rest"],
+	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks", &"rubble_rest", &"spawn_queue",
+			&"shadow_set", &"kit_blast", &"kit_balance"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite", &"char_looks"],
 }
 ## Timers taken inside another one (a system's own parts: the fire's tick and loads inside `fire`,
