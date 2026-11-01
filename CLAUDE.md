@@ -616,6 +616,11 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The people after a blast** (#495, branch `claude/issue-495-0pf0fm`;
+  `experiments/people_after_blast/`): a townsman cowering or shaken where he stands ticks slowly far
+  off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
+  stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
+  fights and perception the same. Next: #492's gate on Sean's F12s.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

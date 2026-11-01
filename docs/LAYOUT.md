@@ -946,10 +946,14 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   time (`tick_owed`), so his tick (`tick_dt`) carries it. In the camera's view one band nearer;
   within 8 deg of its middle, every tick. Never slowed: `HumanBody.can_slow` false (down, prone,
   getting up, stumbling, dragged, on a clip but his walk, or a node's `can_slow` false: a brain not
-  calm, a chore in hand) or `woken` (`wake()`: a noise heard, a deed done to him). A slowed
+  calm, a chore in hand; a townsman cowering or shaken where he stands can slow, #495, and isn't
+  `in_trouble`) or `woken` (`wake()`: a noise heard, a deed done to him). A slowed
   `walk_to` stops where the one-tick steps would have and carries the ticks left (`_walk_spare`).
   No player in the world, or `Settings.people_bands` off (`-- --people-bands=on|off`): every tick.
-  Prof counts `n_people_ticked`, `n_people_owed`; `perf_bench --folk=N` (`tools/folk_copies.gd`).
+  Prof counts `n_people_ticked`, `n_people_owed`, `n_people_trouble`, `n_slow` and why each
+  unslowed man isn't (`n_full_<reason>`: `HumanBody.slow_reason`/the brains', `near_player`,
+  `near_trouble`, `woken`, `seen`, `aimed`); `perf_bench --folk=N` (`tools/folk_copies.gd`);
+  `tools/people_after_blast.gd` (before and after a stick, `--spec`; `PeopleTick.time_by_why`).
 - `src/people/` — `Senses` (per person: sight cone + light + line of sight + movement/crouch;
   hearing via `Events.noise`; `known[who]` last seen/heard), `SightLight` (the light a man is seen
   by, in lux: the sky's where it reaches him, open overhead or through a roofed spot's open sides,
