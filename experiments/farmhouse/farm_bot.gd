@@ -38,6 +38,10 @@ var _sidestep := 0.0
 var _went_off := false
 var _sticks0 := 0
 var _duck := 0.0
+var _hole := Vector3.INF
+var _hole_tries := 0
+var _best_d := INF
+var _no_gain := 0.0
 
 
 func setup(p: Player, m: FarmhouseMission, how: String, seed_value: int, aim_degrees := 1.0) -> void:
@@ -249,6 +253,7 @@ func _lit(delta: float) -> void:
 		if not player.revolver().selected:
 			player.select_weapon(player.revolver())
 		route = _route_through_hole()
+		_hole = route[2]
 		_phase("through")
 
 
@@ -311,6 +316,18 @@ func _follow(way_pts: Array[Vector3], delta: float, run := false) -> bool:
 		_stuck += delta
 	else:
 		_stuck = maxf(_stuck - delta, 0.0)
+	if phase == "through":
+		# On the rubble in the hole he can shuffle without getting anywhere: no nearer in 2 s is stuck.
+		var d := flat.length()
+		if d < _best_d - 0.1:
+			_best_d = d
+			_no_gain = 0.0
+		else:
+			_no_gain += delta
+		if _no_gain > 2.0:
+			_no_gain = 0.0
+			_best_d = INF
+			_stuck = 1.3
 	_last = player.global_position
 	if _stuck > 0.5 and _stuck - delta <= 0.5:
 		bot._tap(&"jump")  # a step up into a hole's sill, a broken board
@@ -319,6 +336,11 @@ func _follow(way_pts: Array[Vector3], delta: float, run := false) -> bool:
 		_sidestep = 0.5
 		_stuck = 0.0
 		_side = -_side
+		if phase == "through" and way_pts[0].distance_to(_hole) < 1.0:
+			# Held at the hole (a board fallen across it, the siding left low at one side): try
+			# it a little further along the wall, each way in turn, wider each time.
+			_hole_tries += 1
+			way_pts[0] = _hole + Vector3(Farmhouse.origin().basis.x) * 0.3 * ceilf(_hole_tries / 2.0) * _side
 	var dir := flat.normalized()
 	if _sidestep > 0.0:
 		_sidestep -= delta

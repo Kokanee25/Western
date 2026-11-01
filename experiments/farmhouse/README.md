@@ -47,18 +47,22 @@ knowing, get to a hiding spot, and the wall going up is the first they know of y
   wall under its window, the stick between window and door, crouched back round the corner
   (2.7 s), in through the hole at a run once it's gone (ducking under the fallen plate).
 
-Measured (`results/2026-11-01_surprise/r2`, 8 seeds; main as it is today the same 8):
+Measured (`results/2026-11-01_surprise/r4`, 8 seeds, the scripted player as it is now; `r2` the
+same before its fix for a board across the hole; main as it is today the same 8):
 
 | | alarm | lost (blast to found) | at the bedroom | rancher cut loose | won | rancher lives | the guard fired on him |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | r13 (Sean's build) | 65.6 s, Hollis at the window, 3.6 s before the blast | 0 | 8-11 s after the blast | 10-14 s after | 3/4 | 4/4 | 0 |
 | main today, 8 seeds | the same | 0 | | | 4/8 | 8/8 | 0 |
-| **the surprise** | **at the blast, 8/8** | **10.5 s (7.5-11.7)** | 12.8-15.9 s after | 14.9-19.1 s after | **5/8** | **8/8** | **0** |
+| the surprise, r2 | at the blast, 8/8 | 10.5 s (7.5-11.7) | 12.8-15.9 s after | 14.9-19.1 s after | 5/8 | 8/8 | 0 |
+| **the surprise, r4** | **at the blast, 8/8** | **14.1 s (6.4-15.3)** | 11.9-16.2 s after | 14.5-18.3 s after | **4/8** | **8/8** | 1 (he lived) |
 
-The losses are timeouts after the rescue (the rancher loose and alive; the scripted player
-trading shots with a man still in the house on the way out, or stuck in the house), as main's are.
-The front way is round 13's (3/4); the back way's 0/4 is main's today too (it was 2/4 at r13:
-something merged since changed it; the freed rancher can end up stood on the kitchen's barrel).
+Every loss is a timeout after he's cut loose (alive): the scripted player trading shots on the way
+out, or dragging him out cold through the bedroom door, as main's losses are. The film's runs (30
+fps under the Movie Maker, the afternoon light) lose all five seeds tried that way, so the film
+stops 10 s after he's cut loose. The front way is round 13's (3/4); the back way's 0/4 is main's
+today too (it was 2/4 at r13: something merged since changed it; the freed rancher can end up
+stood on the kitchen's barrel).
 
 **Which back wall** (`results/2026-11-01_surprise/walls.md`, one stick each, before any alarm):
 the kitchen's back wall between its window and door (x 2.5-3.3) leaves the rancher awake (3 of 3;
