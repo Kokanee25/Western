@@ -890,6 +890,19 @@ the gun's barrel); under a played clip, over the pose; the hips' height as the c
 top as turns from the clip's first frame (`LibraryMotion.hits`). Tools: `tools/library_lineup.gd`
 (`--film`, `--sheet` each clip's worst frame, `--takes` every candidate), `experiments/library_motion/film.sh`.
 
+**The post pose** (issue #531, `src/bodies/post_pose.gd`): a man bladed behind a narrow post (the
+gallery's 8x8), side-on with the threat at his left, left shoulder on the post, the right upper arm
+down by his ribs and the forearm level across his belly along the threat's line, the gun pointed
+past the post's edge (point-fired: `PostPose.point_spread`, a rule for the brain, not used yet).
+A family: `PostPose.dials(seed)` (the gun across him or the regular hold, legs straight or
+staggered, chest or backside showing, the forearm's height and line, the lean); `make` works the
+joints out from his anatomy (the elbow raised till the forearm clears his belly, the trunk leaned
+till his eye is past the edge, by forward kinematics); `HumanBody.take_post(threat)` turns him and
+sets pose `post` (his joints in `post_pose`); `PostPose.place_at` puts him at a post (trunk
+behind it, shoulder on its face, the gun clear). A still pose only: no brain takes it, and face()
+would turn him square. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
+`sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
