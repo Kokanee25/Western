@@ -7,6 +7,8 @@ extends RefCounted
 
 var points := {}  ## name -> Vector3
 var links := {}  ## name -> Array[StringName]
+## Links that go up a stair ("a|b", both ways): walked by its ramp, not a straight sweep.
+var stairs := {}
 
 
 func add(name: StringName, at: Vector3, linked: Array = []) -> void:
@@ -21,6 +23,17 @@ func link(a: StringName, b: StringName) -> void:
 		links[a].append(b)
 	if not (links.get_or_add(b, []) as Array).has(a):
 		links[b].append(a)
+
+
+## The link between `a` and `b` climbs a stair (its ramp carries a man up; a level sweep would meet
+## its treads).
+func mark_stair(a: StringName, b: StringName) -> void:
+	stairs["%s|%s" % [a, b]] = true
+	stairs["%s|%s" % [b, a]] = true
+
+
+func is_stair(a: StringName, b: StringName) -> bool:
+	return stairs.has("%s|%s" % [a, b])
 
 
 func has(name: StringName) -> bool:

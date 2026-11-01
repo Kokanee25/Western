@@ -104,25 +104,29 @@ static func add_places(w: Waypoints) -> void:
 	w.add(&"farm_room", p.call(3.3, g, 1.4), [&"farm_door"])
 	w.add(&"farm_room_w", p.call(0.8, g, 1.4), [&"farm_room"])
 	w.add(&"farm_room_stove", p.call(4.3, g, 1.5), [&"farm_room"])
-	w.add(&"farm_room_e", p.call(4.2, g, 3.4), [&"farm_room", &"farm_room_stove"])
-	w.add(&"farm_room_back", p.call(1.0, g, 3.9), [&"farm_room_w"])
+	w.add(&"farm_room_e", p.call(4.75, g, 3.35), [&"farm_room", &"farm_room_stove"])
+	w.add(&"farm_room_back", p.call(1.0, g, 3.9))  # round the table by its back, not past its west chair
 	w.add(&"farm_room_back_e", p.call(3.0, g, 3.75), [&"farm_room_back", &"farm_room_e"])
 	# The kitchen through its door in the back wall (x 1.0), out the back door (x 4.4).
 	w.add(&"farm_kitchen_door", p.call(1.0, g, 5.2), [&"farm_room_back"])
-	w.add(&"farm_kitchen", p.call(1.6, g, 6.5), [&"farm_kitchen_door"])
-	w.add(&"farm_kitchen_e", p.call(4.3, g, 6.7), [&"farm_kitchen"])
+	w.add(&"farm_kitchen", p.call(1.6, g, 6.35), [&"farm_kitchen_door"])
+	w.add(&"farm_kitchen_e", p.call(4.3, g, 6.35), [&"farm_kitchen"])  # between the table and the back door's leaf (open into the room)
 	w.add(&"farm_back_door", p.call(4.4, g, 7.35), [&"farm_kitchen_e"])
 	w.add(&"farm_back_steps", o.call(4.4, 8.7), [&"farm_back_door"])
 	# The bedroom through its door in its wall (x 5.6, z 3.1).
 	w.add(&"farm_bedroom_door_w", p.call(5.05, g, 3.1), [&"farm_room_e"])
 	w.add(&"farm_bedroom_door", p.call(5.6, g, 3.1), [&"farm_bedroom_door_w"])
 	w.add(&"farm_bedroom", p.call(6.3, g, 3.3), [&"farm_bedroom_door"])
-	w.add(&"farm_bedroom_s", p.call(6.6, g, 1.6), [&"farm_bedroom"])
-	w.add(&"farm_bedroom_e", p.call(8.3, g, 1.9), [&"farm_bedroom_s"])
-	# Up the stair (its foot at x 4.47, climbing west along the back wall to its head at x 2.1).
-	w.add(&"farm_stair_foot", p.call(4.85, g, 4.65), [&"farm_room_e"])
-	w.add(&"farm_stair_head", p.call(1.75, u, 4.65), [&"farm_stair_foot"])
-	w.add(&"farm_loft", p.call(2.6, u, 2.8), [&"farm_stair_head"])
+	# Round the end of the door's leaf (open into the room along z 2.7 from the wall).
+	w.add(&"farm_bedroom_mid", p.call(6.8, g, 3.0), [&"farm_bedroom"])
+	w.add(&"farm_bedroom_s", p.call(6.8, g, 1.6), [&"farm_bedroom_mid"])
+	w.add(&"farm_bedroom_e", p.call(8.3, g, 1.95), [&"farm_bedroom_s"])  # off a seam between boards
+	# Up the stair (its foot at x 4.47, climbing west along the back wall to its head at x 2.1; its
+	# newel at the foot and its rail up its room side are passed wide).
+	w.add(&"farm_stair_foot", p.call(5.05, g, 4.65), [&"farm_room_e"])
+	w.add(&"farm_stair_head", p.call(1.7, u, 4.65), [&"farm_stair_foot"])
+	w.mark_stair(&"farm_stair_foot", &"farm_stair_head")
+	w.add(&"farm_loft", p.call(1.2, u, 3.0), [&"farm_stair_head"])
 	w.add(&"farm_loft_window", p.call(4.5, u, 0.8), [&"farm_loft"])
 	w.add(&"farm_loft_e", p.call(7.0, u, 2.6), [&"farm_loft"])
 	# Round the house outside: the yard each side of the porch, along the sides, the back.
