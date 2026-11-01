@@ -613,11 +613,12 @@ frozen until Sean names one.
   `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
   (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
   hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
-  Next: #531 (posts as narrow cover, then the galleries).
-  **The post pose** (#531, Sean: the pose first; branch `claude/issue-531-nigmw5`, lab
-  `experiments/post_pose/`): `PostPose` (dials by seed, joints worked out from his anatomy, `place_at`)
-  and `HumanBody.take_post`, a still pose only (no brain takes it; the point-fired spread is a stated
-  rule). Waiting on Sean: the sheets (#531). Then the narrow cover kind, then the galleries.
+  **The post pose** (PR #545, `experiments/post_pose/`): `PostPose`, `HumanBody.take_post`.
+  **Posts as narrow cover** (#531, branch `claude/gameplay-cover-moves-3-posts`,
+  `results/2026-11-01_posts/`): `posts` in D (`Cover._narrow`/`hidden_narrow`, `_hold_post`,
+  `_pointing`; `Senses.eye()` the pose's): stays at a post 24 -> 193 and 34 -> 148, shooting 6.9 s
+  longer seed for seed, as dangerous. Next: #531 (stepping out and back in, then the galleries;
+  the wide covers count your own cover as nothing, for the drops step).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
