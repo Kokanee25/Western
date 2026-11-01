@@ -1,2 +1,0 @@
-farm_run back seed=3 max=240 out=/home/user/Western/experiments/farmhouse/results/2026-11-01_r6/runs/back_s3.json
-quit

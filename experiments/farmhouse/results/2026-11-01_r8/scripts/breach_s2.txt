@@ -1,2 +1,0 @@
-farm_run breach seed=2 max=240 out=/home/user/Western/experiments/farmhouse/results/2026-11-01_r8/runs/breach_s2.json
-quit
