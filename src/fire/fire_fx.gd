@@ -324,6 +324,7 @@ static func _smoke_material() -> StandardMaterial3D:
 ## Water on fire: a burst of white steam rising off it, and a hiss. `members` how many it put out.
 static func steam(parent: Node, at: Vector3, members: int) -> void:
 	var p := _particles(clampi(10 + members * 6, 10, 60), 1.6, _steam_material(), 0.35)
+	p.emitting = false  # (made emitting: set again below, `finished` never came, #459)
 	p.one_shot = true
 	p.explosiveness = 0.85
 	var pm := p.process_material as ParticleProcessMaterial

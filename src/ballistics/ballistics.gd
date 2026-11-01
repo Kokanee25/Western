@@ -286,6 +286,7 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		return remaining
 	elif collider is RigidBody3D:
 		var body := collider as RigidBody3D
+		RubbleRest.let_go(body)  # (lying in its cell: its own again before it moves)
 		body.apply_impulse(dir * b.mass * b.velocity.length() * tuning.impulse_transfer, hit.position - body.global_position)
 		var thin: float = body.get_meta(&"ballistic_thickness", -1.0)
 		if thin >= 0.0:

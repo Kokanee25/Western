@@ -107,6 +107,7 @@ var _shadow_result: Array = []
 var _shadow: MeshInstance3D
 var _by_stack: Array[StructureMember] = []  # see by_stack()
 var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
+var _hide_after := {}  # members batched after the build (a cut's ends): hidden when their batch has them
 var _rebuild_queued := false
 var _rebuild_timed := false
 var _panes: Array[StructureMember] = []
@@ -115,12 +116,28 @@ var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
 const BATCH_REBUILD_GAP := 0.5
-## Batches are rebuilt until this much of a frame (ms) is spent; the rest wait a frame (a fallen
-## board's copy stands in its batch that frame longer: a collapse dirtied a dozen materials a frame,
-## 65 ms, 2026-10-25).
-const BATCH_FRAME_MS := 6.0
+## Batches are rebuilt until this much of a drawn frame's main thread (ms) is spent, every
+## structure's together; the rest wait a frame (a fallen board's copy stands in its batch that frame
+## longer: a collapse dirtied a dozen materials a frame, 65 ms, 2026-10-25). It was each structure's
+## own 6 ms on each physics tick, 90-163 ms a frame for seconds after a stick under the catch-up
+## (Sean's F12 reports, #459); a piece's mesh is now merged on a worker (`_merge_members`) and only
+## made into a mesh here.
+const BATCH_FRAME_MS := 3.0
 ## Under World.deterministic, the members rebuilt a frame instead (~25 us each).
 const BATCH_FRAME_MEMBERS := 240
+static var _batch_frame := -1
+static var _batch_frame_us := 0
+static var _batch_frame_units := 0
+## Batch -> how many times it's been made dirty (a job's result is stale if it's changed since).
+var _batch_gen := {}
+## The batches being merged on a worker: [[key, gen, members, fire]], their arrays in _batch_out.
+var _batch_job: Array = []
+var _batch_out: Array = []
+var _batch_task := -1
+## A member mesh's arrays, read once (the worker mustn't ask the rendering server: it waits on the
+## main thread, which deadlocks the moment the main thread waits on it).
+static var _mesh_arrays := {}
+const MESH_ARRAYS_KEPT := 20000
 ## A material's members are batched in pieces of at most this many, near ones together (in the
 ## order of 2 m cells along a Morton curve): a ball into one board rebuilt the material's batch for
 ## the whole building, 683 members of the spec saloon's, ~20 ms on the physics frame every shot
@@ -171,9 +188,12 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _shadow_task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_shadow_task)
 		_shadow_task = -1
-	# Nor its analysis on a worker (issue #392: every task of ours waited for before it's freed).
+	# Nor its analysis or its batches on a worker (issue #392: every task of ours waited for before it's freed).
 	if what == NOTIFICATION_PREDELETE:
 		wait_analysis()
+		if _batch_task >= 0:
+			WorkerThreadPool.wait_for_task_completion(_batch_task)
+			_batch_task = -1
 
 
 ## The ground was dug (Ground, docs/briefs/dig-ground.md): a member standing on it (a post, a sill)
@@ -442,22 +462,41 @@ static func _morton(x: int, y: int, z: int) -> int:
 
 
 func _build_batch(key: Array) -> void:
-	var mat: Material = key[0]
-	var old: MeshInstance3D = _batches.get(key)
-	var st := SurfaceTool.new()
 	var list: Array = _batch_members.get(key, [])
-	var fire := false
-	for m: StructureMember in list:
-		if _fire_look.has(m):
-			fire = true
-			break
+	var fire := _any_fire(list)
+	if list.is_empty():
+		_apply_batch(key, list, [], false)
+		return
+	var st := SurfaceTool.new()
 	var counts := PackedInt32Array()
 	for m: StructureMember in list:
 		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
 		if fire:
 			counts.append(mi.mesh.surface_get_array_len(0))
-	if list.is_empty():
+	var arrays := st.commit_to_arrays()
+	if fire:
+		var places := _places(arrays, counts)
+		if places.is_empty():
+			fire = false
+		else:
+			arrays[Mesh.ARRAY_CUSTOM2] = places
+	_apply_batch(key, list, arrays, fire)
+
+
+func _any_fire(list: Array) -> bool:
+	for m: StructureMember in list:
+		if _fire_look.has(m):
+			return true
+	return false
+
+
+## A batch's mesh made from its arrays (worked out here or on a worker) for `list`, its members as
+## they were then; nothing left of it if `list` is empty.
+func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
+	var mat: Material = key[0]
+	var old: MeshInstance3D = _batches.get(key)
+	if list.is_empty() or arrays.is_empty():
 		if old:
 			old.queue_free()
 		_batches.erase(key)
@@ -465,15 +504,9 @@ func _build_batch(key: Array) -> void:
 		_fire_mats.erase(key)
 		_looks.erase(key)
 		return
-	var arrays := st.commit_to_arrays()
 	var flags := 0
 	if fire:
-		var places := _places(arrays, counts)
-		if places.is_empty():
-			fire = false
-		else:
-			arrays[Mesh.ARRAY_CUSTOM2] = places
-			flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
+		flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
 	_batch_arrays[key] = arrays
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
@@ -493,7 +526,8 @@ func _build_batch(key: Array) -> void:
 		var looks := PackedVector2Array()
 		looks.resize(BATCH_PIECE)
 		for i in list.size():
-			_slot[list[i]] = i
+			if _batched.get(list[i]) == key:  # (not one unbatched since the job began)
+				_slot[list[i]] = i
 			looks[i] = _fire_look.get(list[i], Vector2.ZERO)
 		_looks[key] = looks
 		old.material_overlay = _fire_mats[key]
@@ -536,7 +570,7 @@ func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
 		_own_fire_look(m)
 	elif not _fire_mats.has(key):
 		# Its batch was drawn without places: again, with them (a piece of 64 members at most).
-		_batch_dirty[key] = true
+		_dirty_batch(key)
 		if not _rebuild_queued:
 			_rebuild_queued = true
 			_rebuild_dirty_batches.call_deferred()
@@ -574,6 +608,7 @@ func _send_dirty_looks() -> void:
 func _own_fire_look(m: StructureMember) -> void:
 	if not _fire_look.has(m):
 		return
+	RubbleRest.touch(m)
 	var mat := char_material(_fire_look[m])
 	for p: Array in m.pieces:
 		if not is_instance_valid(p[0]):
@@ -603,18 +638,20 @@ static func char_material(look: Vector2) -> ShaderMaterial:
 ## heating, a member at a time all over a burning building): its batch is rebuilt without it at
 ## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
 func unbatch(m: StructureMember, soon := false) -> void:
+	RubbleRest.touch(m)  # (its pieces lying at rest in a cell are their bodies' own again)
 	m.realise()
 	if not _batched.has(m):
 		return
 	var key: Array = _batched[m]
 	_batched.erase(m)
 	_slot.erase(m)
+	_hide_after.erase(m)
 	(_batch_members.get(key, []) as Array).erase(m)
-	_batch_dirty[key] = true
+	_dirty_batch(key)
 	_own_fire_look(m)  # charred, it stays charred
 	var mi := m.get_child(0) as MeshInstance3D
 	if soon:
-		_show_after[m] = true
+		_show_after[m] = key
 		if not _rebuild_timed and not _rebuild_queued and is_inside_tree():
 			_rebuild_timed = true
 			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - World.now(), 0.0)
@@ -627,32 +664,268 @@ func unbatch(m: StructureMember, soon := false) -> void:
 		_rebuild_dirty_batches.call_deferred()
 
 
+## A member made after the build (a cut's ends) into a batch of its material with room (a new
+## piece if none has), drawn on its own till that batch is drawn with it (#459: a blast's cut boards
+## were each a draw of their own for good).
+func _batch_new(m: StructureMember) -> void:
+	if not batch_meshes or _batch_members.is_empty() or _batched.has(m):
+		return
+	var mi := m.drawn_node()
+	if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
+			or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
+		return
+	var mat := mi.material_override
+	var key: Variant = null
+	var next := 0
+	for k: Array in _batch_members:
+		if k[0] == mat:
+			next = maxi(next, int(k[1]) + 1)
+			if key == null and (_batch_members[k] as Array).size() < BATCH_PIECE:
+				key = k
+	if key == null:
+		key = [mat, next]
+		_batch_members[key] = []
+	(_batch_members[key] as Array).append(m)
+	_batched[m] = key
+	_hide_after[m] = key
+	_dirty_batch(key)
+	if not _rebuild_queued:
+		_rebuild_queued = true
+		_rebuild_dirty_batches.call_deferred()
+
+
+func _dirty_batch(key: Array) -> void:
+	_batch_dirty[key] = true
+	_batch_gen[key] = int(_batch_gen.get(key, 0)) + 1
+
+
+## The dirty batches again, within the drawn frame's budget (every structure's together): each
+## piece's members gathered here, merged on a worker, made into its mesh when that's done.
 func _rebuild_dirty_batches() -> void:
 	_rebuild_queued = false
 	_rebuild_timed = false
-	if not is_inside_tree() and _batch_dirty.is_empty():
+	if not is_inside_tree() or _batch_dirty.is_empty():
+		if _batch_task < 0:
+			_show_rebuilt()
+		return
+	if _batch_task >= 0:
+		_rebuild_next_frame()  # (one job at a time: the rest when it's in)
+		return
+	var frame := Engine.get_process_frames()
+	if frame != _batch_frame:
+		_batch_frame = frame
+		_batch_frame_us = 0
+		_batch_frame_units = 0
+	var t := Prof.start()
+	var t0 := Time.get_ticks_usec()
+	var job: Array = []
+	for key: Array in _batch_dirty.keys():
+		if _batch_over(t0):
+			break
+		var list: Array = (_batch_members.get(key, []) as Array).duplicate()
+		_batch_frame_units += list.size()
+		_batch_dirty.erase(key)
+		var inputs: Variant = null if list.is_empty() else _member_inputs(list)
+		if inputs == null:
+			_build_batch(key)  # (nothing left of it, or members the merge doesn't take: here)
+			_show_rebuilt(key)
+			continue
+		job.append([key, int(_batch_gen.get(key, 0)), list, _any_fire(list), inputs])
+	_batch_frame_us += Time.get_ticks_usec() - t0
+	if not job.is_empty():
+		_batch_job = job
+		if World.deterministic or GameQuit.quitting:
+			# The same frame for frame: done now, on this thread.
+			_batch_out = _merge_job(job)
+			_batch_done()
+		else:
+			_batch_task = WorkerThreadPool.add_task(func() -> void:
+				_batch_out = _merge_job(job)
+				_batch_done.call_deferred(), true, "structure batches")  # high priority: a low one can hang the quit (#392, #435)
+	Prof.stop(&"batches", t)
+	if not _batch_dirty.is_empty():
+		_rebuild_next_frame()
+	_last_rebuild = World.now()
+
+
+func _batch_over(t0: int) -> bool:
+	if World.deterministic:
+		return _batch_frame_units > BATCH_FRAME_MEMBERS
+	return (_batch_frame_us + Time.get_ticks_usec() - t0) / 1000.0 > BATCH_FRAME_MS
+
+
+func _rebuild_next_frame() -> void:
+	_rebuild_queued = true
+	if is_inside_tree() and not get_tree().process_frame.is_connected(_rebuild_dirty_batches):
+		get_tree().process_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
+
+
+## Each member's mesh arrays (read once a mesh) and where it sits; null if they don't all carry
+## the channels the merge takes (it falls back to the SurfaceTool's, here).
+func _member_inputs(list: Array) -> Variant:
+	var out: Array = []
+	var shape := -1
+	for m: StructureMember in list:
+		var mi := m.drawn_node()
+		if mi == null or mi.mesh == null or mi.mesh.get_surface_count() == 0:
+			return null
+		var arrays: Variant = _mesh_arrays.get(mi.mesh)
+		if arrays == null:
+			if _mesh_arrays.size() > MESH_ARRAYS_KEPT:
+				_mesh_arrays.clear()
+			arrays = mi.mesh.surface_get_arrays(0)
+			_mesh_arrays[mi.mesh] = arrays
+		var has := _channels(arrays)
+		if has < 0 or (shape >= 0 and has != shape):
+			return null
+		shape = has
+		out.append([arrays, m.transform * mi.transform])
+	return out
+
+
+## Which of the merge's channels the arrays carry (a bit each), or -1 if they carry one it doesn't
+## take (custom channels, bones).
+static func _channels(arrays: Array) -> int:
+	if arrays.size() < Mesh.ARRAY_MAX or arrays[Mesh.ARRAY_VERTEX] == null:
+		return -1
+	for slot: int in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
+		if arrays[slot] != null:
+			return -1
+	var has := 0
+	for slot: int in [Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_INDEX]:
+		if arrays[slot] != null:
+			has |= 1 << slot
+	return has
+
+
+## A job's batches merged (on a worker: pure data, no rendering calls).
+static func _merge_job(job: Array) -> Array:
+	var out: Array = []
+	for j: Array in job:
+		out.append(_merge_members(j[4], j[3]))
+	return out
+
+
+## Members' arrays one after another in the batch's space, as the SurfaceTool's append_from makes
+## them (an index if they have one; each member's vertex count for its places when `fire`).
+static func _merge_members(inputs: Array, fire: bool) -> Array:
+	var first: Array = inputs[0][0]
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var tangents := PackedFloat32Array()
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	var uv2s := PackedVector2Array()
+	var indices := PackedInt32Array()
+	var counts := PackedInt32Array()
+	var indexed: bool = first[Mesh.ARRAY_INDEX] != null
+	for inp: Array in inputs:
+		var a: Array = inp[0]
+		var xf: Transform3D = inp[1]
+		var v: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var base := verts.size()
+		verts.append_array(xf * v)
+		if first[Mesh.ARRAY_NORMAL] != null:
+			var n: PackedVector3Array = Transform3D(xf.basis, Vector3.ZERO) * (a[Mesh.ARRAY_NORMAL] as PackedVector3Array)
+			for i in n.size():
+				n[i] = n[i].normalized()
+			normals.append_array(n)
+		if first[Mesh.ARRAY_TANGENT] != null:
+			var tin: PackedFloat32Array = a[Mesh.ARRAY_TANGENT]
+			var tout := PackedFloat32Array()
+			tout.resize(tin.size())
+			for i in range(0, tin.size(), 4):
+				var tv := (xf.basis * Vector3(tin[i], tin[i + 1], tin[i + 2])).normalized()
+				tout[i] = tv.x
+				tout[i + 1] = tv.y
+				tout[i + 2] = tv.z
+				tout[i + 3] = tin[i + 3]
+			tangents.append_array(tout)
+		if first[Mesh.ARRAY_COLOR] != null:
+			colors.append_array(a[Mesh.ARRAY_COLOR])
+		if first[Mesh.ARRAY_TEX_UV] != null:
+			uvs.append_array(a[Mesh.ARRAY_TEX_UV])
+		if first[Mesh.ARRAY_TEX_UV2] != null:
+			uv2s.append_array(a[Mesh.ARRAY_TEX_UV2])
+		if indexed:
+			for i: int in (a[Mesh.ARRAY_INDEX] as PackedInt32Array):
+				indices.append(i + base)
+		counts.append(v.size())
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	if first[Mesh.ARRAY_NORMAL] != null:
+		arrays[Mesh.ARRAY_NORMAL] = normals
+	if first[Mesh.ARRAY_TANGENT] != null:
+		arrays[Mesh.ARRAY_TANGENT] = tangents
+	if first[Mesh.ARRAY_COLOR] != null:
+		arrays[Mesh.ARRAY_COLOR] = colors
+	if first[Mesh.ARRAY_TEX_UV] != null:
+		arrays[Mesh.ARRAY_TEX_UV] = uvs
+	if first[Mesh.ARRAY_TEX_UV2] != null:
+		arrays[Mesh.ARRAY_TEX_UV2] = uv2s
+	if indexed:
+		arrays[Mesh.ARRAY_INDEX] = indices
+	if fire:
+		arrays[Mesh.ARRAY_CUSTOM2] = _places(arrays, counts)
+	return arrays
+
+
+## A job's batches in: each made into its mesh (as its members were when the job began; a batch
+## changed since is left dirty and its members unbatched meanwhile not shown yet).
+func _batch_done() -> void:
+	if _batch_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_batch_task)
+	_batch_task = -1
+	var job := _batch_job
+	var out := _batch_out
+	_batch_job = []
+	_batch_out = []
+	if not is_inside_tree() or job.size() != out.size():
 		return
 	var t := Prof.start()
-	var budget := WorkBudget.new(BATCH_FRAME_MS, BATCH_FRAME_MEMBERS)
-	for key: Array in _batch_dirty.keys():
-		budget.spend((_batch_members.get(key, []) as Array).size())
-		_build_batch(key)
-		_batch_dirty.erase(key)
-		if budget.over() and not _batch_dirty.is_empty():
-			# The rest next frame.
-			_rebuild_queued = true
-			if not get_tree().physics_frame.is_connected(_rebuild_dirty_batches):  # (a timed rebuild came first)
-				get_tree().physics_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
-			break
+	for i in job.size():
+		var j: Array = job[i]
+		var arrays: Array = out[i]
+		var fire: bool = j[3]
+		if fire and (arrays[Mesh.ARRAY_CUSTOM2] as PackedFloat32Array).is_empty():
+			fire = false  # (the vertices weren't its members': drawn without places)
+			arrays[Mesh.ARRAY_CUSTOM2] = null
+		_apply_batch(j[0], j[2], arrays, fire)
+		if int(_batch_gen.get(j[0], 0)) == int(j[1]):
+			_show_rebuilt(j[0])
 	Prof.stop(&"batches", t)
 	_shadow_soon()
-	for m: Variant in _show_after:
+	if not _batch_dirty.is_empty():
+		_rebuild_next_frame()
+
+
+## A batch merge on a worker, not finished yet (GameQuit waits for it).
+func batches_running() -> bool:
+	return _batch_task >= 0 and not WorkerThreadPool.is_task_completed(_batch_task)
+
+
+## Members unbatched `soon` shown now their batch is drawn without them (`key`; all with no key:
+## nothing left to rebuild).
+func _show_rebuilt(key: Variant = null) -> void:
+	for m: Variant in _hide_after.keys():
+		if key != null and _hide_after[m] != key:
+			continue
+		_hide_after.erase(m)
+		if is_instance_valid(m) and _batched.has(m) and (m as StructureMember).get_child_count() > 0:
+			var own := (m as StructureMember).get_child(0) as MeshInstance3D
+			if own:
+				own.visible = false
+			if rest_batched and members_rest:
+				(m as StructureMember).rest()
+	for m: Variant in _show_after.keys():
+		if key != null and _show_after[m] != key:
+			continue
+		_show_after.erase(m)
 		if is_instance_valid(m) and (m as StructureMember).get_child_count() > 0:
 			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
 			if mi and not (m as StructureMember).consumed:
 				mi.visible = true
-	_show_after.clear()
-	_last_rebuild = World.now()
 
 
 ## The shadow mesh now, on this thread (the build; tests).
@@ -755,6 +1028,11 @@ func _clear_batches() -> void:
 	if _shadow_task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_shadow_task)
 		_shadow_task = -1
+	if _batch_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_batch_task)
+		_batch_task = -1
+	_batch_job = []
+	_batch_out = []
 	_shadow_wanted = false
 	if _shadow and is_instance_valid(_shadow):
 		_shadow.free()
@@ -769,6 +1047,7 @@ func _clear_batches() -> void:
 	_batch_arrays.clear()
 	_batch_dirty.clear()
 	_show_after.clear()
+	_hide_after.clear()
 	_fire_mats.clear()
 	_looks.clear()
 	_slot.clear()
@@ -1022,6 +1301,7 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		p.set_meta(&"cut_from", m.member_id)
 		if m.look != &"":
 			p.look = m.look
+		_batch_new(p)
 		mark_dirty(p.member_id)
 		p.temperature = m.temperature
 		p.char_depth = m.char_depth
@@ -1263,6 +1543,7 @@ func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
 	host.add_child(rb)
 	rb.body_entered.connect(_on_rubble_hit.bind(rb))
 	rubble.append(rb)
+	RubbleRest.watch(rb)
 	return rb
 
 
@@ -1324,6 +1605,9 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 func _break_up(rb: RigidBody3D) -> void:
 	if not is_instance_valid(rb) or rb.get_meta(&"broken_up", false):
 		return
+	var rest := RubbleRest.for_node(rb)
+	if rest:
+		rest.release(rb)
 	rb.set_meta(&"broken_up", true)
 	var v := rb.linear_velocity
 	var w := rb.angular_velocity

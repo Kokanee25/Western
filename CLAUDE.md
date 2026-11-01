@@ -596,11 +596,12 @@ frozen until Sean names one.
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
-- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
-  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
-  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
-  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
-  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
+- **Men who move with purpose** (#465; `experiments/gunfight_lab/results/2026-10-28_hold_cover/`,
+  `2026-11-01_watch_spot/`): the lab's `moves.py` (runs, stays, drops, posts, the galleries);
+  `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
+  (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
+  hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
+  Next: #531 (posts as narrow cover, then the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -625,13 +626,19 @@ frozen until Sean names one.
   if it's still shutting down 5 s after the tree went: Godot's pool hang, #392, still happens under
   load, the engine's own tasks); every pool task high priority (`test_game_quit` reads the source);
   F3/F12's process and physics the frame's own (`PerfRing.Clock`), `.saltbug.zip`, `perf_bench
-  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #459, #495.
+  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #495 (#459 done).
 - **The burning building in its batch** (#434, PR #457, merged): char and glow drawn by the
   structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the 40 flames
   shown; `FrameBudget` counts nested timers once. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
   **Fire out of play** (Sean, 2026-10-31, #458: explosions first, fire later): `FireSystem.in_play`
-  off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays. Next:
-  rubble at rest batched, #459.
+  off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays.
+  **Rubble at rest** (#459, PR #523, branch `claude/issue-459-9om801`; results
+  `experiments/blast_freeze/results/2026-11-01_rubble_rest/`): `RubbleRest` draws still rubble and
+  shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
+  (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
+  the merge on the pool, a cut's ends batched; the blaze 4,247/3,185 -> 2,249/1,494 meshes/shapes
+  (calm 1,428/789). Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs
+  33 ms by how many), holed/carved members drawn alone.
   Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
@@ -815,3 +822,7 @@ frozen until Sean names one.
   and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
   canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
   Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.
+- **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
+  results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
+  mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
+  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).
