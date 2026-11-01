@@ -5,7 +5,8 @@ class_name Cover
 ## samples spots in rings round him and tests each against the threat with rays.
 ##
 ## A spot is {at, low (bool: only covers him down low), crouch_ok (he can crouch there, not just
-## duck), peek (where he shoots from), score}.
+## duck), peek (where he shoots from), score}; a post he blades behind (`narrow`, issue #531) adds
+## {narrow: true, post (its foot, middle), post_w (its width across the threat's line)}.
 ##
 ## Its lines (what's in the way, the ground under a spot) are asked of `Sight` (the sight service,
 ## docs/briefs/more-cores.md step 3); room to stand and a way on foot (`_room`, `path_clear`, the
@@ -162,7 +163,7 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		if floor_at == null:
 			continue
 		var p: Vector3 = floor_at
-		var spot := evaluate(space, p, threat_eye, exclude, true, first[i])
+		var spot := evaluate(space, p, threat_eye, exclude, true, first[i], ctx.get("narrow", false))
 		if spot.is_empty():
 			continue
 		# Holding a house (OutlawBrain.hold): only spots inside it.
@@ -278,6 +279,8 @@ static func _score(spot: Dictionary, r: float, d_threat: float, from: Vector3, t
 	var score := -r * 0.35 - absf(d_threat - 12.0) * 0.12 + rng.randf() * 0.6
 	if not spot.low:
 		score += 0.5  # a wall is better than a trough
+	if spot.get("narrow", false):
+		score += NARROW_SCORE  # a post: below a wall, above a trough
 	if spot.lie:
 		score -= 0.4  # flat in the dirt is the worst of it
 	if d_threat < 4.0:
@@ -344,8 +347,10 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 
 ## Is a spot any good? {} if not; else {at, low, crouch_ok, lie, peek}. `far`: something wide a few
 ## metres off counts as his cover too (a man who knows the town: OutlawBrain with its `places`).
-## `first`: its first lines already asked (`_first_lines`).
-static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false, first := []) -> Dictionary:
+## `first`: its first lines already asked (`_first_lines`). `narrow`: a post too narrow to hide him
+## square on counts, bladed behind it (`_narrow`; OutlawBrain's variant D `posts`).
+static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false, first := [],
+		narrow := false) -> Dictionary:
 	var ground: Variant = first[1] if first.size() > 1 else _ground(space, p, exclude)
 	if ground == null:
 		return {}
@@ -360,6 +365,11 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 		return {}
 	var lie := false
 	if not hidden_at(space, at, threat_eye, HIDE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, CHEST, exclude, far):
+		# Too narrow to hide him square on: a post he can blade himself behind?
+		if narrow:
+			var post := _narrow(space, at, threat_eye, exclude, far)
+			if not post.is_empty():
+				return post
 		# Too low to duck behind: flat on the ground, then.
 		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude, far):
 			return {}
@@ -402,6 +412,90 @@ static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye:
 
 ## Half the width of a man, crouched.
 const SHOULDERS := 0.18
+
+
+## A post (issue #531, OutlawBrain's variant D `posts`): something upright too narrow to hide him
+## square on (a gallery post is 20 cm; `hidden_at` asks for 36), close in front of him, that hides
+## him standing side-on (`PostPose`: his belly, chest and head on the line), with room to see and
+## point his gun past its edge on his right as he looks at the threat (the pose is that way round),
+## and the threat within his forearm's reach up or down (`PostPose.POINT_ARC`). {} if not, else the
+## spot as `evaluate` gives it, {narrow, post, post_w} added; he shoots from where he stands.
+static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> Dictionary:
+	var to := threat_eye - at
+	to.y = 0.0
+	if to.length() < 0.5:
+		return {}
+	var fwd := to.normalized()
+	var side := fwd.cross(Vector3.UP)  # his right, side-on with the threat at his left
+	var gun := at + Vector3.UP * NARROW_GUN
+	var pitch := rad_to_deg(atan2(threat_eye.y - gun.y, Vector2(threat_eye.x - gun.x, threat_eye.z - gun.z).length()))
+	if absf(pitch) > PostPose.POINT_ARC - NARROW_ARC_SPARE:
+		return {}
+	# It's close in front of him: the line to his chest stopped within arm's length.
+	var chest := at + Vector3.UP * NARROW_HEIGHTS[NARROW_CHEST]
+	Prof.count(&"q_cover")
+	var t := Sight.cast(space, threat_eye, chest, Layers.WORLD, exclude)
+	if t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER:
+		return {}
+	var d := (1.0 - t) * threat_eye.distance_to(chest)
+	if d > NARROW_NEAR:
+		return {}
+	for h: float in NARROW_HEIGHTS:
+		if not _blocked(space, at, threat_eye, h, exclude, far):
+			return {}
+	# How wide it is across the line at his chest, either side of him.
+	var lo := 0.0
+	var hi := 0.0
+	for sgn: float in [1.0, -1.0]:
+		for k in range(1, NARROW_SCAN + 1):
+			var off := sgn * NARROW_STEP * k
+			if not _blocked(space, at + side * off, threat_eye, NARROW_HEIGHTS[NARROW_CHEST], exclude, far):
+				break
+			if sgn > 0.0:
+				hi = off
+			else:
+				lo = off
+	var w := hi - lo + NARROW_STEP
+	if w < NARROW_MIN:
+		return {}
+	# Past its edge on his right: his eye leaning out, his gun hand across him.
+	var edge := hi + NARROW_STEP * 0.5
+	if not _sees(space, at + side * (edge + 0.08) + Vector3.UP * NARROW_EYE, threat_eye, exclude) \
+			or not _sees(space, at + side * (edge + 0.1) + Vector3.UP * NARROW_GUN, threat_eye, exclude):
+		return {}
+	# Its foot, its middle (a post as deep as it's wide).
+	var post := at + side * ((hi + lo) * 0.5) + fwd * (d - w * 0.5)
+	return {"at": at, "low": false, "peek": at, "crouch_ok": false, "lie": false, "narrow": true, "post": post, "post_w": w}
+
+
+## Still hidden at a post: the post on the lines to his legs, belly and chest from the threat (`at`
+## where his trunk is now; his head leans out past it on purpose).
+static func hidden_narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> bool:
+	for h: float in NARROW_HEIGHTS.slice(0, NARROW_CHEST + 1):
+		if not _blocked(space, at, threat_eye, h, exclude, far):
+			return false
+	return true
+
+
+## A post (`_narrow`): the heights that have to be hidden standing side-on (his thighs, belly, chest
+## and head: the rig's abdomen runs 1.0-1.16, the chest to 1.37, the eyes ~1.6; a rail open below
+## is no post); his eye and gun hand past
+## its edge (PostPose's, ~1.55 and ~1.15); no further in front of him than this (m: right up to
+## it, his shoulder on it); at least this wide (m; a man side-on is ~0.25 deep, the pose hides
+## 63-82% of him behind 0.2); scanned for its width in steps of this either side; the threat no
+## more than POINT_ARC less this (degrees) up or down from his gun.
+const NARROW_HEIGHTS := [0.5, 1.0, 1.3, 1.55]
+const NARROW_CHEST := 2
+const NARROW_EYE := 1.55
+const NARROW_GUN := 1.15
+const NARROW_NEAR := 0.7
+const NARROW_MIN := 0.14
+const NARROW_STEP := 0.04
+const NARROW_SCAN := 7
+const NARROW_ARC_SPARE := 5.0
+## How a post scores against other cover (`_score`): a wall (+0.5) less this, so below a wall and
+## just above a trough: it hides most of him all the time, never all of him.
+const NARROW_SCORE := -0.4
 
 
 ## `asked`: [t, kind] of its first line, already asked (`_first_lines`).
