@@ -529,6 +529,14 @@ func test_a_post_is_cover_side_on_but_not_square_on() -> void:
 	check(spot.peek == spot.at, "he shoots from where he stands")
 	check(not spot.low, "it covers him standing")
 	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), true), "his legs, belly and chest behind it")
+	# You tight behind your own cover (a board a hand in front of your eye): that hides him too, it's
+	# no reason for him to leave.
+	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
+	await physics_frames(2)
+	check(not Cover._blocked(space, POST_SPOT, eye, 1.0, _exclude(), true), "(the board's not his cover)")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), true), "and he stays at his post behind it")
+	world.get_child(world.get_child_count() - 1).free()
+	await physics_frames(2)
 	# Too high above him to point at: not from here.
 	check(Cover.evaluate(space, POST_SPOT, Vector3(0.0, 6.5, 0.0), _exclude(), true, [], true).is_empty(),
 			"a man 5 m up is past his forearm's reach")

@@ -482,12 +482,23 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 
 
 ## Still hidden at a post: the post on the lines to his legs, belly and chest from the threat (`at`
-## where his trunk is now; his head leans out past it on purpose).
+## where his trunk is now; his head leans out past it on purpose). A line stopped right by the
+## threat's eye (the man tight behind his own cover, peeking round its edge) doesn't show him either:
+## it's no reason to leave (the lab, #531: half the early drops at a post were that).
 static func hidden_narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> bool:
 	for h: float in NARROW_HEIGHTS.slice(0, NARROW_CHEST + 1):
+		var target := at + Vector3.UP * h
+		Prof.count(&"q_cover")
+		var t := Sight.cast(space, threat_eye, target, Layers.WORLD, exclude)
+		if t < 1.0 and Sight.hit_kind() != Sight.KIND_CHARACTER and t * threat_eye.distance_to(target) < BY_THE_EYE:
+			continue
 		if not _blocked(space, at, threat_eye, h, exclude, far):
 			return false
 	return true
+
+
+## How near the threat's eye (m) something on the line is his own cover, not the man's (`hidden_narrow`).
+const BY_THE_EYE := 0.6
 
 
 ## A post (`_narrow`): the heights that have to be hidden standing side-on (his thighs, belly, chest
