@@ -16,7 +16,8 @@ func test_every_link_can_be_walked() -> void:
 	var bad: Array[String] = []
 	for a: StringName in w.links:
 		for b: StringName in w.links[a]:
-			if String(a) < String(b) and not Cover.path_clear(space, w.at(a), w.at(b), ex):
+			# A stair's link is climbed by its ramp (Waypoints.mark_stair), not walked level.
+			if String(a) < String(b) and not w.is_stair(a, b) and not Cover.path_clear(space, w.at(a), w.at(b), ex):
 				bad.append("%s-%s" % [a, b])
 	check(bad.is_empty(), "blocked links: %s" % str(bad))
 	var floorless: Array[String] = []

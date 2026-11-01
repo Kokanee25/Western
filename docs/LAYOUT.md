@@ -29,6 +29,7 @@ means a section of this file.
 - [src/people](#srcpeople)
 - [src/creatures (the horse)](#srccreatures-the-horse)
 - [src/moments](#srcmoments)
+- [src/missions (the farmhouse)](#srcmissions-the-farmhouse)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -888,6 +889,24 @@ pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the
 45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
 nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
 (N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
+
+## src/missions (the farmhouse)
+
+- `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
+  (`scenes/test_street.tscn`) at `config/town.json`'s `Farmhouse` (out east on its knoll in the
+  hills, facing the road; its y the ground under its low corner, held to `TownLayout.footing` by
+  `test_town_layout`). It builds the house from its spec `experiments/building_lab/farmhouse.json`
+  with the building lab's builder (`spec_building.gd`; FORMAT.md: the lean-to, the porch, a gable
+  front, a loft, the bed/dresser/stove furniture) and its porch deck (a `Boardwalk`), and gives its
+  places to `Waypoints.test_street()` (`road_east`, `road_farm`, `farm_*`). `Farmhouse.at(local)`,
+  `on_ground(x, z)`, `use_point(id)` (the spec's use points: [where, what it looks at]). Built in
+  ~0.2 s, ~1,340 members, 17 kit props. Turned to face the road, the spec's west is the world's east.
+- **The hills** (`config/town.json` `ground.hills.bumps`, `TownLayout.hills_height`/`hills_area`):
+  smooth bumps north of the road east of town; `Ground` draws and collides them as height fields in
+  x and z (a tilted box a tile, `_hill_piece`), the west rise's chunks as before. Code asking the
+  ground's height out there must give z (`ground_height(x, z)`).
+- The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, its
+  bridge commands (`farm_wall`, `farm_hole`, `farm_view`).
 
 ## src/people
 

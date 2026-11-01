@@ -46,7 +46,8 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 		t.set_meta(m, ground.get_meta(m))
 	var size := tn.tile_size()
 	t.position = Vector3((at.x + 0.5) * size, 0.0, (at.y + 0.5) * size)
-	# The authored ground under it, where it slopes (it goes with x alone: TownLayout.ground_height).
+	# The authored ground under it, where it slopes (the town's goes with x alone; the hills out of
+	# town with x and z: TownLayout.ground_height).
 	if at.x * size < TownLayout.ground_flat_east_of():
 		var along := PackedFloat32Array()
 		for i in t._n:
@@ -55,6 +56,11 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 		for j in t._n:
 			for i in t._n:
 				t.base[j * t._n + i] = along[i]
+	elif TownLayout.hills_area().intersects(Rect2(at.x * size, at.y * size, size, size)):
+		t.base.resize(t._n * t._n)
+		for j in t._n:
+			for i in t._n:
+				t.base[j * t._n + i] = TownLayout.ground_height(at.x * size + i * tn.cell, at.y * size + j * tn.cell)
 	# The height field: Godot centres it on its shape's origin with points 1 apart, so scaled to the
 	# cell (Jolt takes a scaled height field on a static body).
 	t._shape = HeightMapShape3D.new()

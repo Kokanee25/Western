@@ -27,6 +27,8 @@ var _chunks := {}
 ## ~280 more nodes in the street).
 var _columns := {}
 var _rise_tangents := PackedFloat32Array()
+## Where the hills reach (chunk-aligned): its chunks are height fields in x and z.
+var _hills := Rect2()
 
 ## Tiles a side of a chunk of the slope; its height field has a point every tile corner (the
 ## slope is gentle: between them it's within millimetres of the curve).
@@ -179,8 +181,9 @@ func _rebuild_flat() -> void:
 			remove_child(c)
 			c.free()
 	var area := _rise_area()
+	var hills := _hill_area()
 	var i := 0
-	for piece in _levelled(flat_rects(tuning.reach_half), area):
+	for piece in _levelled(flat_rects(tuning.reach_half), area, hills):
 		var r: Rect2 = piece[0]
 		var cs := CollisionShape3D.new()
 		cs.name = "Slab%d" % i
@@ -190,8 +193,8 @@ func _rebuild_flat() -> void:
 		cs.position = Vector3(r.get_center().x, float(piece[1]) - tuning.slab_depth * 0.5, r.get_center().y)
 		add_child(cs)
 		i += 1
-	_mesh.mesh = _flat_mesh(_levelled(flat_rects(tuning.drawn_half), area))
-	_rebuild_rise(area)
+	_mesh.mesh = _flat_mesh(_levelled(flat_rects(tuning.drawn_half), area, hills))
+	_rebuild_rise(area, hills)
 
 
 ## Where the authored ground slopes (chunk-aligned: from where it stops being flat west to the drawn
@@ -207,19 +210,40 @@ func _rise_area() -> Rect2:
 	return Rect2(x0, z0, x1 - x0, -2.0 * z0)
 
 
-## `rects` less the slope's area, each with the level its slab or quad stands at: 0 east of it, or
-## past its drawn edge the height there (taken flat over the piece, so far out it never shows).
-func _levelled(rects: Array[Rect2], area: Rect2) -> Array:
+## Where the hills out of town reach (TownLayout.hills_area, chunk-aligned and within the drawn
+## ground), or an empty Rect2 if there are none. Its chunks are height fields in x and z.
+func _hill_area() -> Rect2:
+	var h := TownLayout.hills_area()
+	if h.size == Vector2.ZERO:
+		return Rect2()
+	var c := tuning.tile_size() * CHUNK_TILES
+	var x0 := maxf(floorf(h.position.x / c) * c, floorf(-tuning.drawn_half / c) * c)
+	var z0 := maxf(floorf(h.position.y / c) * c, floorf(-tuning.drawn_half / c) * c)
+	var x1 := minf(ceilf(h.end.x / c) * c, ceilf(tuning.drawn_half / c) * c)
+	var z1 := minf(ceilf(h.end.y / c) * c, ceilf(tuning.drawn_half / c) * c)
+	if x1 <= x0 or z1 <= z0:
+		return Rect2()
+	return Rect2(x0, z0, x1 - x0, z1 - z0)
+
+
+## `rects` less the slope's area (and the hills'), each with the level its slab or quad stands at:
+## 0 east of it, or past its drawn edge the height there (taken flat over the piece, so far out it
+## never shows).
+func _levelled(rects: Array[Rect2], area: Rect2, hills := Rect2()) -> Array:
 	var out := []
-	for r in rects:
-		if area.size == Vector2.ZERO:
-			out.append([r, 0.0])
-			continue
-		for p in _minus(r, area):
-			if p.position.x >= area.end.x - 0.01:
-				out.append([p, 0.0])
-			else:
-				out.append([p, TownLayout.ground_height(clampf(p.get_center().x, area.position.x, area.end.x))])
+	for whole in rects:
+		var parts: Array[Rect2] = [whole]
+		if hills.size != Vector2.ZERO:
+			parts = _minus(whole, hills)
+		for r in parts:
+			if area.size == Vector2.ZERO:
+				out.append([r, 0.0])
+				continue
+			for p in _minus(r, area):
+				if p.position.x >= area.end.x - 0.01:
+					out.append([p, 0.0])
+				else:
+					out.append([p, TownLayout.ground_height(clampf(p.get_center().x, area.position.x, area.end.x))])
 	return out
 
 
@@ -260,9 +284,10 @@ func _flat_mesh(rects: Array) -> ArrayMesh:
 ## column of chunks' body, and its part of the slope's mesh; a chunk with dug tiles in it is cut
 ## round them into rectangles.
 ## Only the chunks whose dug tiles have changed are made again.
-func _rebuild_rise(area: Rect2) -> void:
-	if area.size == Vector2.ZERO:
+func _rebuild_rise(area: Rect2, hills := Rect2()) -> void:
+	if area.size == Vector2.ZERO and hills.size == Vector2.ZERO:
 		return
+	_hills = hills
 	var size := tuning.tile_size()
 	var c := size * CHUNK_TILES
 	var dug := {}
@@ -278,24 +303,28 @@ func _rebuild_rise(area: Rect2) -> void:
 				dug[ck] = []
 			(dug[ck] as Array).append(key)
 	var changed := false
-	var c0 := Vector2i(roundi(area.position.x / c), roundi(area.position.y / c))
-	var c1 := Vector2i(roundi(area.end.x / c), roundi(area.end.y / c))
 	var slot := 0
-	for cz in range(c0.y, c1.y):
-		for cx in range(c0.x, c1.x):
-			var ck := Vector2i(cx, cz)
-			slot += 1
-			var keys: Array = dug.get(ck, [])
-			keys.sort()
-			var known: Dictionary = _chunks.get(ck, {})
-			if not known.is_empty() and known.dug == keys:
-				continue
-			if known.has("owners"):
-				var col := _column(ck.x)
-				for id: int in known.owners:
-					col.remove_shape_owner(id)
-			_chunks[ck] = _make_chunk(ck, keys, (slot - 1) * CHUNK_SLOT)
-			changed = true
+	for a: Rect2 in [area, hills]:
+		if a.size == Vector2.ZERO:
+			continue
+		var c0 := Vector2i(roundi(a.position.x / c), roundi(a.position.y / c))
+		var c1 := Vector2i(roundi(a.end.x / c), roundi(a.end.y / c))
+		for cz in range(c0.y, c1.y):
+			for cx in range(c0.x, c1.x):
+				var ck := Vector2i(cx, cz)
+				slot += 1
+				var keys: Array = dug.get(ck, [])
+				keys.sort()
+				var known: Dictionary = _chunks.get(ck, {})
+				if not known.is_empty() and known.dug == keys:
+					continue
+				if known.has("owners"):
+					var col := _column(ck.x)
+					for id: int in known.owners:
+						col.remove_shape_owner(id)
+				_chunks[ck] = _make_chunk(ck, keys, (slot - 1) * CHUNK_SLOT)
+				_chunks[ck].slot = slot
+				changed = true
 	for cx: int in _columns:
 		var body: StaticBody3D = _columns[cx]
 		if body.get_parent() == null:
@@ -326,6 +355,11 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	var holed := {}
 	for key: Vector2i in dug:
 		holed[key] = true
+	var chunk := Rect2(ck.x * size * CHUNK_TILES, ck.y * size * CHUNK_TILES, size * CHUNK_TILES, size * CHUNK_TILES)
+	if _hills.size != Vector2.ZERO and _hills.intersects(chunk):
+		for r in pieces:
+			_hill_piece(r, step, first, holed, body, owners, verts, normals, idx)
+		pieces = []
 	for r in pieces:
 		var nx := roundi(r.size.x / step) + 1
 		var nz := roundi(r.size.y / step) + 1
@@ -396,6 +430,58 @@ func _make_chunk(ck: Vector2i, dug: Array, first: int) -> Dictionary:
 	return {"dug": dug, "owners": owners, "verts": verts, "normals": normals, "index": idx}
 
 
+## A piece of a chunk in the hills (TownLayout.hills_height): the ground's height goes with x and
+## z, sampled at every tile corner (one more ring round, for the normals); drawn as that grid, and
+## each tile a solid box tilted to the plane through its corners (as the columns are; the corners
+## are within a centimetre or two of one plane on hills this gentle), reaching LAP onto the next.
+func _hill_piece(r: Rect2, step: float, first: int, holed: Dictionary, body: StaticBody3D, owners: Array[int],
+		verts: PackedVector3Array, normals: PackedVector3Array, idx: PackedInt32Array) -> void:
+	var nx := roundi(r.size.x / step) + 1
+	var nz := roundi(r.size.y / step) + 1
+	var w := nx + 2
+	var hs := PackedFloat32Array()
+	for j in range(-1, nz + 1):
+		for i in range(-1, nx + 1):
+			hs.append(TownLayout.ground_height(r.position.x + i * step, r.position.y + j * step))
+	var at := func(i: int, j: int) -> float: return hs[(j + 1) * w + (i + 1)]
+	var base := first + verts.size()
+	var inv := 1.0 / (2.0 * step)
+	for j in nz:
+		for i in nx:
+			verts.append(Vector3(r.position.x + i * step, at.call(i, j), r.position.y + j * step))
+			normals.append(Vector3(-(at.call(i + 1, j) - at.call(i - 1, j)) * inv, 1.0, -(at.call(i, j + 1) - at.call(i, j - 1)) * inv).normalized())
+	for j in nz - 1:
+		for i in nx - 1:
+			var a := base + j * nx + i
+			idx.append_array([a, a + 1, a + nx + 1, a, a + nx + 1, a + nx])
+	var size := tuning.tile_size()
+	for j in nz - 1:
+		for i in nx - 1:
+			var h00: float = at.call(i, j)
+			var h10: float = at.call(i + 1, j)
+			var h01: float = at.call(i, j + 1)
+			var h11: float = at.call(i + 1, j + 1)
+			var gx := ((h10 - h00) + (h11 - h01)) * 0.5 / step
+			var gz := ((h01 - h00) + (h11 - h10)) * 0.5 / step
+			var up := Vector3(-gx, 1.0, -gz).normalized()
+			var xa := Vector3(1.0, gx, 0.0).normalized()
+			var za := xa.cross(up).normalized()
+			xa = up.cross(za).normalized()
+			var key := Vector2i(roundi((r.position.x + i * step) / size), roundi((r.position.y + j * step) / size))
+			var lx := 0.0 if holed.has(key + Vector2i.LEFT) else LAP
+			var hx := 0.0 if holed.has(key + Vector2i.RIGHT) else LAP
+			var lz := 0.0 if holed.has(key + Vector2i.UP) else LAP
+			var hz := 0.0 if holed.has(key + Vector2i.DOWN) else LAP
+			var box := BoxShape3D.new()
+			box.size = Vector3(step * sqrt(1.0 + gx * gx) + lx + hx, tuning.slab_depth, step * sqrt(1.0 + gz * gz) + lz + hz)
+			var mid := Vector3(r.position.x + (i + 0.5) * step, (h00 + h10 + h01 + h11) * 0.25, r.position.y + (j + 0.5) * step)
+			var top := mid + xa * (hx - lx) * 0.5 + za * (hz - lz) * 0.5
+			var owner := body.create_shape_owner(body)
+			body.shape_owner_add_shape(owner, box)
+			body.shape_owner_set_transform(owner, Transform3D(Basis(xa, up, za), top - up * tuning.slab_depth * 0.5))
+			owners.append(owner)
+
+
 ## The body a column of the slope's chunks (along x) puts its shapes on, made the first time.
 func _column(cx: int) -> StaticBody3D:
 	if _columns.has(cx):
@@ -423,7 +509,7 @@ func _rise_mesh_rebuild() -> void:
 	var idx := PackedInt32Array()
 	# In the order the chunks were given their slots (the index arrays count from them).
 	var keys := _chunks.keys()
-	keys.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+	keys.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return int(_chunks[a].slot) < int(_chunks[b].slot))
 	for ck: Vector2i in keys:
 		var part: Dictionary = _chunks[ck]
 		verts.append_array(part.verts)
