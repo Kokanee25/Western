@@ -458,13 +458,26 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 	var w := hi - lo + NARROW_STEP
 	if w < NARROW_MIN:
 		return {}
+	# Onto the middle of its shadow (a spot at the shadow's edge is in the open as soon as the man
+	# takes a step), and check it again there.
+	var mid := (hi + lo) * 0.5
+	if absf(mid) > 0.005:
+		var g: Variant = _ground(space, at + side * mid, exclude)
+		if g == null or absf((g as Vector3).y - at.y) > 0.1 or not _room(space, g, exclude):
+			return {}
+		at = g
+		hi -= mid
+		lo -= mid
+		for h: float in NARROW_HEIGHTS:
+			if not _blocked(space, at, threat_eye, h, exclude, far):
+				return {}
 	# Past its edge on his right: his eye leaning out, his gun hand across him.
 	var edge := hi + NARROW_STEP * 0.5
 	if not _sees(space, at + side * (edge + 0.08) + Vector3.UP * NARROW_EYE, threat_eye, exclude) \
 			or not _sees(space, at + side * (edge + 0.1) + Vector3.UP * NARROW_GUN, threat_eye, exclude):
 		return {}
 	# Its foot, its middle (a post as deep as it's wide).
-	var post := at + side * ((hi + lo) * 0.5) + fwd * (d - w * 0.5)
+	var post := at + fwd * (d - w * 0.5)
 	return {"at": at, "low": false, "peek": at, "crouch_ok": false, "lie": false, "narrow": true, "post": post, "post_w": w}
 
 
