@@ -875,8 +875,25 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   smooth bumps north of the road east of town; `Ground` draws and collides them as height fields in
   x and z (a tilted box a tile, `_hill_piece`), the west rise's chunks as before. Code asking the
   ground's height out there must give z (`ground_height(x, z)`).
-- The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, its
-  bridge commands (`farm_wall`, `farm_hole`, `farm_view`).
+- `src/missions/farmhouse_mission.gd` — **the hostage rescue** (`FarmhouseMission`, a node in the
+  street; dials `config/farmhouse.tres`, `FarmhouseTuning`). Starts when you walk up to the
+  blacksmith by the livery before the gang's ridden in (`TownLife.take_riders`: they're at the
+  farm instead), after a lost try on Enter (`start_on_load`, `GameReset`), or `-- --mission=farmhouse`
+  / the bridge's `farm_start`. Five men at their posts (`OutlawBrain.hold`: cover, hunting and
+  pressing kept to the house, or the bedroom for the guard; `{do: post}` before and after), the
+  rancher tied in the bedroom's chair (`HostageBrain`). The alarm (a man sees you; hears a shot,
+  glass, timber, a scuffle, a fuse; a ball into one; a blast) provokes them all and tells them where;
+  a blast by the house is a breach (`cover_against`). The guard: `menace` (his gun on the rancher)
+  when it goes badly, `menace_fire` when you're in the house and he's had enough. E held by the
+  tied man (`claims_use`, PlayerShove's group `claims_use`) cuts him loose; he follows you,
+  crouched, behind you from the nearest man. Won/lost: a line on screen (`PlayerWounds.say`),
+  Enter to try again. `result()` is what the bridge and the scripted runs read.
+- `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
+  (`stunned`), no "hit" callout, no turning on a shooter.
+- The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
+  scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
+  playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_view`, `farm_start`, `farm_state`,
+  `farm_free`, `farm_fail`, `farm_run`.
 
 ## src/people
 

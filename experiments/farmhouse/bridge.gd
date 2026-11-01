@@ -8,6 +8,11 @@ const HELP := {
 	"farm_wall": "farm_wall WALL -> where to stand 0.9 m outside that wall (front, west, east, back, lean_back, lean_west, lean_east) and the chest-high point to look at",
 	"farm_hole": "farm_hole WALL -> the clear height through that wall at its breach spot (0 if none): a 0.4 x 0.5 m box from the floor up, slid 0.5 m either way",
 	"farm_view": "farm_view NAME -> where to stand and look for a contact sheet view (closer, corner, back, front_room, front_room_back, bedroom, kitchen, loft)",
+	"farm_start": "farm_start [here] -> start the farmhouse mission (the men at their posts, the rancher tied), you at the edge of town (here: where you are)",
+	"farm_state": "farm_state -> the mission: its state, the alarm, threat, rescue and end times, each man",
+	"farm_free": "farm_free -> cut the rancher loose (as E held by him does)",
+	"farm_fail": "farm_fail -> lose it now (to try the way back in: Enter starts it again)",
+	"farm_run": "farm_run front|breach|back seed=N [max=S] [aim=DEG] [out=FILE] -> one scripted run: the mission started and the scripted player in that way, till it's won or lost",
 }
 
 ## Each wall's breach spot in the house's own space (FORMAT.md): a point on its outer face in a
@@ -94,3 +99,111 @@ func _cmd_farm_view(a: Array) -> Dictionary:
 	var look := Farmhouse.at(Vector3(lk.x, 0.0, lk.z))
 	look.y = Farmhouse.origin().origin.y + lk.y if s.y >= 0.05 else stand.y + lk.y
 	return {"stand": arr(stand), "look": arr(look)}
+
+
+# --- The mission (steps 2-5) ---------------------------------------------------------------------
+
+const FarmBot := preload("res://experiments/farmhouse/farm_bot.gd")
+
+
+func _mission() -> FarmhouseMission:
+	return FarmhouseMission.of(get_tree())
+
+
+func _cmd_farm_start(a: Array) -> Dictionary:
+	var m := _mission()
+	if m == null:
+		return {"ok": false, "error": "no FarmhouseMission in the street"}
+	m.begin(not a.has("here"))
+	await seconds(1.0)
+	return m.result()
+
+
+func _cmd_farm_state(_a: Array) -> Dictionary:
+	var m := _mission()
+	return m.result() if m else {"ok": false, "error": "no mission"}
+
+
+func _cmd_farm_free(_a: Array) -> Dictionary:
+	var m := _mission()
+	if m == null or m.hostage_brain == null:
+		return {"ok": false, "error": "not started"}
+	m.hostage_brain.free_by(player)
+	return m.result()
+
+
+func _cmd_farm_fail(_a: Array) -> Dictionary:
+	var m := _mission()
+	if m == null or m.state != FarmhouseMission.State.ON:
+		return {"ok": false, "error": "not on"}
+	m._lose(&"test", m.tuning_line("lost_hostage"))
+	return m.result()
+
+
+## One scripted run: the mission started, the scripted player in by `way` till it's won or lost (or
+## `max` s), the record to `out`.
+func _cmd_farm_run(a: Array) -> Dictionary:
+	var way: String = a[0] if a.size() > 0 else "front"
+	var opts := {}
+	for w in a.slice(1):
+		var kv := String(w).split("=")
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	var seed_value := int(opts.get("seed", "1"))
+	var max_s := float(opts.get("max", "240"))
+	var m := _mission()
+	if m == null:
+		return {"ok": false, "error": "no mission"}
+	seed(seed_value)
+	m.begin(true)
+	await physics_frames(30)
+	var bot = FarmBot.new()
+	bot.setup(player, m, way, seed_value, float(opts.get("aim", "1.0")))
+	var t := 0.0
+	var tail := -1.0
+	# The frames' wall clock (each physics tick's, here: F3's frame on this core, headless): through
+	# the fight (from the alarm), and the blast's (the worst of the ticks just after it went off).
+	var ms: Array[float] = []
+	var blast_ms := -1.0
+	var blast_at := -1
+	var went := [false]
+	var on_blast := func(_at: Vector3, _kg: float) -> void: went[0] = true
+	Events.exploded.connect(on_blast)
+	var last := Time.get_ticks_usec()
+	while t < max_s:
+		await get_tree().physics_frame
+		var now := Time.get_ticks_usec()
+		var frame := (now - last) / 1000.0
+		last = now
+		if m.alarm_t >= 0.0 and m.state == FarmhouseMission.State.ON:
+			ms.append(frame)
+		if went[0] and blast_at < 0:
+			blast_at = ms.size()
+		if blast_at >= 0 and ms.size() - blast_at < 4:
+			blast_ms = maxf(blast_ms, frame)
+		var dt := get_physics_process_delta_time()
+		t += dt
+		bot.tick(dt, t)
+		if m.state in [FarmhouseMission.State.WON, FarmhouseMission.State.LOST]:
+			if tail < 0.0:
+				tail = t
+			if t - tail > 2.0:
+				break
+	bot.bot.release_all()
+	var r := m.result()
+	r.way = way
+	r.seed = seed_value
+	r.bot = bot.stats
+	r.bot_phase = bot.phase
+	Events.exploded.disconnect(on_blast)
+	ms.sort()
+	r.frames = {"fight_ticks": ms.size(), "mean_ms": snappedf(ms.reduce(func(x: float, y: float) -> float: return x + y, 0.0) / maxf(ms.size(), 1), 0.01),
+			"p95_ms": snappedf(ms[int(ms.size() * 0.95)] if not ms.is_empty() else 0.0, 0.01), "max_ms": snappedf(ms.back() if not ms.is_empty() else 0.0, 0.01),
+			"blast_ms": snappedf(blast_ms, 0.01)}
+	if r.outcome == "":
+		r.outcome = "timeout"
+	if opts.has("out"):
+		var f := FileAccess.open(String(opts.out), FileAccess.WRITE)
+		f.store_string(JSON.stringify(r, " "))
+	bot.teardown()
+	return r

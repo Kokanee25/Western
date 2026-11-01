@@ -192,6 +192,22 @@ func _build_gang() -> void:
 		_waiting[man.person_id] = man
 
 
+## The riders, if they haven't ridden in: theirs to take (id -> HumanBody, built, not in the
+## tree), and they won't ride in (the farmhouse's men, issue #520: the gang's holding the rancher
+## out at his place). Empty once they've come.
+func gang_came() -> bool:
+	return _arrived
+
+
+func take_riders() -> Dictionary:
+	if _arrived:
+		return {}
+	_arrived = true
+	var out := _waiting.duplicate()
+	_waiting.clear()
+	return out
+
+
 ## Rider `i` of GANG, his body only, not yet in the world.
 func _rider(i: int) -> HumanBody:
 	var g: Dictionary = GANG[i]
