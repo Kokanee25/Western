@@ -42,3 +42,7 @@ __pycache__/
 /assets/textures/mlab_cint/
 /assets/textures/mlab_r1dark_*/
 /assets/textures/weather/stains_r1dark*
+
+# Human Generator men (Western #522): Sean's licence forbids sharing its exported files; they live in the
+# private Studio (store/humgen/) and are copied in here only for shots. Never commit them.
+/assets/people/hg_*
