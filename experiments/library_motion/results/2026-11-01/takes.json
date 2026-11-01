@@ -1,0 +1,812 @@
+{
+ "idle": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Idle_Loop",
+   "frames_in": 76,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.616,
+   "hands_apart_mean_m": 0.632,
+   "seam_before_deg": 2.59,
+   "seam_after_deg": 2.12,
+   "seconds": 2.5,
+   "jitter": 0.0102,
+   "hip_min_legs": 0.945,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_General.glb",
+   "anim": "Idle_A",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.923,
+   "hands_apart_mean_m": 1.923,
+   "seam_before_deg": 2.14,
+   "seam_after_deg": 2.14,
+   "seconds": 1.067,
+   "jitter": 0.0133,
+   "hip_min_legs": 0.935,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_General.glb",
+   "anim": "Idle_B",
+   "frames_in": 65,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.193,
+   "hands_apart_mean_m": 2.193,
+   "seam_before_deg": 3.7,
+   "seam_after_deg": 3.3,
+   "seconds": 2.133,
+   "jitter": 0.0777,
+   "hip_min_legs": 0.804,
+   "hip_max_legs": 0.957
+  }
+ ],
+ "look_around": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Idle_Talking_Loop",
+   "frames_in": 89,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.328,
+   "hands_apart_mean_m": 0.348,
+   "seam_before_deg": 3.14,
+   "seam_after_deg": 2.66,
+   "seconds": 2.933,
+   "jitter": 0.026,
+   "hip_min_legs": 0.947,
+   "hip_max_legs": 0.955
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_General.glb",
+   "anim": "Idle_B",
+   "frames_in": 65,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.193,
+   "hands_apart_mean_m": 2.193,
+   "seam_before_deg": 3.7,
+   "seam_after_deg": 3.3,
+   "seconds": 2.133,
+   "jitter": 0.0777,
+   "hip_min_legs": 0.804,
+   "hip_max_legs": 0.957
+  }
+ ],
+ "walk": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Walk_Loop",
+   "frames_in": 41,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.571,
+   "hands_apart_mean_m": 0.61,
+   "seam_before_deg": 3.38,
+   "seam_after_deg": 3.07,
+   "speed_mps": 1.079,
+   "way": [
+    0.076,
+    0.0,
+    -0.997
+   ],
+   "plant_wander_mps": 0.148,
+   "stride_m": 1.439,
+   "seconds": 1.333,
+   "jitter": 0.0945,
+   "hip_min_legs": 0.938,
+   "hip_max_legs": 1.0
+  },
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Walk_Formal_Loop",
+   "frames_in": 41,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.589,
+   "hands_apart_mean_m": 0.599,
+   "seam_before_deg": 2.53,
+   "seam_after_deg": 1.47,
+   "speed_mps": 1.062,
+   "way": [
+    0.059,
+    0.0,
+    -0.998
+   ],
+   "plant_wander_mps": 0.106,
+   "stride_m": 1.416,
+   "seconds": 1.333,
+   "jitter": 0.0881,
+   "hip_min_legs": 0.948,
+   "hip_max_legs": 0.99
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementBasic.glb",
+   "anim": "Walking_A",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.181,
+   "hands_apart_mean_m": 2.264,
+   "seam_before_deg": 2.77,
+   "seam_after_deg": 2.7,
+   "speed_mps": 0.75,
+   "way": [
+    -0.059,
+    0.0,
+    -0.998
+   ],
+   "plant_wander_mps": 0.209,
+   "stride_m": 0.8,
+   "seconds": 1.067,
+   "jitter": 0.4509,
+   "hip_min_legs": 0.767,
+   "hip_max_legs": 0.912
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementBasic.glb",
+   "anim": "Walking_B",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.149,
+   "hands_apart_mean_m": 2.206,
+   "seam_before_deg": 2.8,
+   "seam_after_deg": 2.73,
+   "speed_mps": 0.586,
+   "way": [
+    -0.06,
+    0.0,
+    -0.998
+   ],
+   "plant_wander_mps": 0.758,
+   "stride_m": 0.625,
+   "seconds": 1.067,
+   "jitter": 0.3522,
+   "hip_min_legs": 0.783,
+   "hip_max_legs": 0.922
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementBasic.glb",
+   "anim": "Walking_C",
+   "frames_in": 49,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.149,
+   "hands_apart_mean_m": 2.157,
+   "seam_before_deg": 6.94,
+   "seam_after_deg": 2.16,
+   "speed_mps": 0.404,
+   "way": [
+    -0.128,
+    0.0,
+    -0.992
+   ],
+   "plant_wander_mps": 0.435,
+   "stride_m": 0.646,
+   "seconds": 1.6,
+   "jitter": 0.2141,
+   "hip_min_legs": 0.766,
+   "hip_max_legs": 0.908
+  }
+ ],
+ "run": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Jog_Fwd_Loop",
+   "frames_in": 29,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.784,
+   "hands_apart_mean_m": 0.827,
+   "seam_before_deg": 13.88,
+   "seam_after_deg": 2.02,
+   "speed_mps": 4.886,
+   "way": [
+    0.35,
+    0.0,
+    -0.937
+   ],
+   "plant_wander_mps": 1.169,
+   "stride_m": 4.56,
+   "seconds": 0.933,
+   "jitter": 0.3838,
+   "hip_min_legs": 0.721,
+   "hip_max_legs": 0.995
+  },
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Sprint_Loop",
+   "frames_in": 21,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.649,
+   "hands_apart_mean_m": 0.773,
+   "seam_before_deg": 4.05,
+   "seam_after_deg": 2.49,
+   "speed_mps": 2.341,
+   "way": [
+    0.313,
+    0.0,
+    -0.95
+   ],
+   "plant_wander_mps": 1.376,
+   "stride_m": 1.561,
+   "seconds": 0.667,
+   "jitter": 0.5071,
+   "hip_min_legs": 0.832,
+   "hip_max_legs": 0.98
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementBasic.glb",
+   "anim": "Running_A",
+   "frames_in": 25,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.181,
+   "hands_apart_mean_m": 2.209,
+   "seam_before_deg": 2.06,
+   "seam_after_deg": 2.06,
+   "speed_mps": 5.679,
+   "way": [
+    -0.254,
+    0.0,
+    -0.967
+   ],
+   "plant_wander_mps": 0.299,
+   "stride_m": 4.543,
+   "seconds": 0.8,
+   "jitter": 0.6008,
+   "hip_min_legs": 0.805,
+   "hip_max_legs": 1.085
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementBasic.glb",
+   "anim": "Running_B",
+   "frames_in": 25,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.756,
+   "hands_apart_mean_m": 2.118,
+   "seam_before_deg": 3.34,
+   "seam_after_deg": 3.34,
+   "speed_mps": 10.601,
+   "way": [
+    0.014,
+    0.0,
+    1.0
+   ],
+   "plant_wander_mps": 0.001,
+   "stride_m": 8.48,
+   "seconds": 0.8,
+   "jitter": 0.9605,
+   "hip_min_legs": 0.707,
+   "hip_max_legs": 1.068
+  }
+ ],
+ "walk_back": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Walking_Backwards",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.221,
+   "hands_apart_mean_m": 2.309,
+   "seam_before_deg": 3.25,
+   "seam_after_deg": 3.25,
+   "speed_mps": 1.613,
+   "way": [
+    -0.221,
+    0.0,
+    0.975
+   ],
+   "plant_wander_mps": 0.172,
+   "stride_m": 1.72,
+   "seconds": 1.067,
+   "jitter": 0.2494,
+   "hip_min_legs": 0.794,
+   "hip_max_legs": 0.939
+  }
+ ],
+ "strafe_l": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Running_Strafe_Left",
+   "frames_in": 25,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.258,
+   "hands_apart_mean_m": 2.258,
+   "seam_before_deg": 4.62,
+   "seam_after_deg": 4.37,
+   "speed_mps": 4.697,
+   "way": [
+    -0.483,
+    0.0,
+    -0.876
+   ],
+   "plant_wander_mps": 0.102,
+   "stride_m": 3.758,
+   "seconds": 0.8,
+   "jitter": 0.449,
+   "hip_min_legs": 0.809,
+   "hip_max_legs": 1.083
+  }
+ ],
+ "strafe_r": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Running_Strafe_Right",
+   "frames_in": 25,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.258,
+   "hands_apart_mean_m": 2.258,
+   "seam_before_deg": 3.68,
+   "seam_after_deg": 3.68,
+   "speed_mps": 4.676,
+   "way": [
+    -0.02,
+    0.0,
+    -1.0
+   ],
+   "plant_wander_mps": 0.074,
+   "stride_m": 3.741,
+   "seconds": 0.8,
+   "jitter": 0.4675,
+   "hip_min_legs": 0.8,
+   "hip_max_legs": 1.074
+  }
+ ],
+ "crouch_walk": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Crouch_Fwd_Loop",
+   "frames_in": 61,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.751,
+   "hands_apart_mean_m": 0.782,
+   "seam_before_deg": 3.99,
+   "seam_after_deg": 3.99,
+   "speed_mps": 0.656,
+   "way": [
+    -0.037,
+    0.0,
+    -0.999
+   ],
+   "plant_wander_mps": 0.096,
+   "stride_m": 1.311,
+   "seconds": 2.0,
+   "jitter": 0.0445,
+   "hip_min_legs": 0.434,
+   "hip_max_legs": 0.507
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Sneaking",
+   "frames_in": 65,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.359,
+   "hands_apart_mean_m": 2.472,
+   "seam_before_deg": 3.35,
+   "seam_after_deg": 3.35,
+   "speed_mps": 2.193,
+   "way": [
+    0.155,
+    0.0,
+    -0.988
+   ],
+   "plant_wander_mps": 0.468,
+   "stride_m": 4.677,
+   "seconds": 2.133,
+   "jitter": 0.1172,
+   "hip_min_legs": 0.64,
+   "hip_max_legs": 0.776
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Crouching",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.121,
+   "hands_apart_mean_m": 2.133,
+   "seam_before_deg": 2.96,
+   "seam_after_deg": 2.96,
+   "speed_mps": 4.624,
+   "way": [
+    0.16,
+    0.0,
+    -0.987
+   ],
+   "plant_wander_mps": 0.355,
+   "stride_m": 4.932,
+   "seconds": 1.067,
+   "jitter": 0.2133,
+   "hip_min_legs": 0.643,
+   "hip_max_legs": 0.776
+  }
+ ],
+ "crouch_idle": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Crouch_Idle_Loop",
+   "frames_in": 89,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.756,
+   "hands_apart_mean_m": 0.778,
+   "seam_before_deg": 3.56,
+   "seam_after_deg": 3.87,
+   "seconds": 2.933,
+   "jitter": 0.0091,
+   "hip_min_legs": 0.439,
+   "hip_max_legs": 0.451
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_MovementAdvanced.glb",
+   "anim": "Crouching",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.121,
+   "hands_apart_mean_m": 2.133,
+   "seam_before_deg": 2.96,
+   "seam_after_deg": 2.96,
+   "seconds": 1.067,
+   "jitter": 0.3244,
+   "hip_min_legs": 0.643,
+   "hip_max_legs": 0.776
+  }
+ ],
+ "pistol_aim": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Pistol_Aim_Neutral",
+   "frames_in": 6,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.105,
+   "hands_apart_mean_m": 0.105,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.0,
+   "slide_after_m": 0.0,
+   "seconds": 0.167,
+   "jitter": 0.0123,
+   "hip_min_legs": 0.957,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_1H_Aiming",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.207,
+   "hands_apart_mean_m": 2.431,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.036,
+   "slide_after_m": 0.013,
+   "seconds": 1.067,
+   "jitter": 0.0733,
+   "hip_min_legs": 0.918,
+   "hip_max_legs": 0.962
+  }
+ ],
+ "pistol_shoot": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Pistol_Shoot",
+   "frames_in": 20,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.105,
+   "hands_apart_mean_m": 0.105,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.0,
+   "slide_after_m": 0.0,
+   "seconds": 0.633,
+   "jitter": 0.1315,
+   "hip_min_legs": 0.957,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_1H_Shoot",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.207,
+   "hands_apart_mean_m": 2.373,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.068,
+   "slide_after_m": 0.04,
+   "seconds": 1.067,
+   "jitter": 0.34,
+   "hip_min_legs": 0.918,
+   "hip_max_legs": 0.962
+  }
+ ],
+ "long_aim": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_2H_Aiming",
+   "frames_in": 49,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.635,
+   "hands_apart_mean_m": 1.682,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.015,
+   "slide_after_m": 0.002,
+   "seconds": 1.6,
+   "jitter": 0.0867,
+   "hip_min_legs": 0.915,
+   "hip_max_legs": 0.965
+  }
+ ],
+ "long_shoot": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_2H_Shoot",
+   "frames_in": 33,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.622,
+   "hands_apart_mean_m": 1.711,
+   "trimmed": [
+    0,
+    11
+   ],
+   "slide_before_m": 0.037,
+   "slide_after_m": 0.023,
+   "seconds": 0.7,
+   "jitter": 0.5825,
+   "hip_min_legs": 0.926,
+   "hip_max_legs": 0.965
+  }
+ ],
+ "reload": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Pistol_Reload",
+   "frames_in": 51,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.103,
+   "hands_apart_mean_m": 0.268,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.0,
+   "slide_after_m": 0.0,
+   "seconds": 1.667,
+   "jitter": 0.1233,
+   "hip_min_legs": 0.957,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_1H_Reload",
+   "frames_in": 36,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.138,
+   "hands_apart_mean_m": 1.512,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.143,
+   "slide_after_m": 0.143,
+   "seconds": 1.167,
+   "jitter": 0.1375,
+   "hip_min_legs": 0.913,
+   "hip_max_legs": 0.957
+  }
+ ],
+ "long_reload": [
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_CombatRanged.glb",
+   "anim": "Ranged_2H_Reload",
+   "frames_in": 49,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 1.293,
+   "hands_apart_mean_m": 1.512,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.0,
+   "slide_after_m": 0.0,
+   "seconds": 1.6,
+   "jitter": 0.0631,
+   "hip_min_legs": 0.961,
+   "hip_max_legs": 0.961
+  }
+ ],
+ "hit_front": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Hit_Chest",
+   "frames_in": 11,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.647,
+   "hands_apart_mean_m": 0.648,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.001,
+   "slide_after_m": 0.001,
+   "seconds": 0.333,
+   "jitter": 0.147,
+   "hip_min_legs": 0.942,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_General.glb",
+   "anim": "Hit_A",
+   "frames_in": 21,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.207,
+   "hands_apart_mean_m": 2.319,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.231,
+   "slide_after_m": 0.002,
+   "seconds": 0.667,
+   "jitter": 0.3531,
+   "hip_min_legs": 0.948,
+   "hip_max_legs": 0.957
+  }
+ ],
+ "hit_head": [
+  {
+   "lib": "quaternius",
+   "file": "AnimationLibrary_Godot_Standard.gltf",
+   "anim": "Hit_Head",
+   "frames_in": 13,
+   "missing": [],
+   "scale": 0.964,
+   "hands_apart_min_m": 0.647,
+   "hands_apart_mean_m": 0.647,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.0,
+   "slide_after_m": 0.0,
+   "seconds": 0.4,
+   "jitter": 0.1412,
+   "hip_min_legs": 0.954,
+   "hip_max_legs": 0.957
+  },
+  {
+   "lib": "kaykit",
+   "file": "Rig_Medium_General.glb",
+   "anim": "Hit_B",
+   "frames_in": 27,
+   "missing": [
+    "neck"
+   ],
+   "scale": 2.125,
+   "hands_apart_min_m": 2.057,
+   "hands_apart_mean_m": 2.181,
+   "trimmed": [
+    0,
+    0
+   ],
+   "slide_before_m": 0.042,
+   "slide_after_m": 0.042,
+   "seconds": 0.867,
+   "jitter": 0.518,
+   "hip_min_legs": 0.719,
+   "hip_max_legs": 0.957
+  }
+ ]
+}

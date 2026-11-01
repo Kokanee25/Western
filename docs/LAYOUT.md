@@ -873,6 +873,22 @@ FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method mad
 the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
 name; glTF of our rig beside each for the record.
 
+**Library clips** (`src/bodies/library_motion.gd`, `LibraryMotion`; issue #529): generic movement
+from Quaternius' and KayKit's CC0 libraries (`assets/animations/library/`, its README and
+`manifest.json`; made by `tools/blender/library_motion.py takes|promote` from
+`tools/blender/library_picks.json`, the packs fetched by `fetch_library.sh`; `retarget_motion.py`
+knows both rigs, `RIGS`, and takes `--anim=NAME`). Behind `Settings.library_motion` (off in the
+game; `-- --library-motion=on`, the bridge's `library on|off`). A layer in the pose (`HumanBody._lib`,
+worked out in `_pose_maths`, so on the worker with PeopleTick; the clips load on the main thread
+first): the move by his own state (`move_for`: idle, walk, run past 2.4 m/s, walk_back,
+strafe_l/r by which way his feet go, `lib_travel`; crouch_idle/crouch_walk; pistol_aim), a gait's
+phase by the ground he covers (`stride_m` scaled to his legs: the planted foot stays put), what it
+has of him by his pose (`mask_for`: aiming, his legs and free arm only, since the shot leaves down
+the gun's barrel); under a played clip, over the pose; the hips' height as the capture's;
+`go_limp` lets go at once. A hit from in front he stays up from plays `hit_front`/`hit_head` on
+top as turns from the clip's first frame (`LibraryMotion.hits`). Tools: `tools/library_lineup.gd`
+(`--film`, `--sheet` each clip's worst frame, `--takes` every candidate), `experiments/library_motion/film.sh`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a

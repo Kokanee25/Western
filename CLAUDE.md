@@ -485,6 +485,12 @@ frozen until Sean names one.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
+- **Library clips** (2026-11-01, #529, branch `claude/characters-library-motion`; lab
+  `experiments/library_motion/`): Quaternius' and KayKit's CC0 animations retargeted onto our rig
+  (`tools/blender/library_motion.py`, `assets/animations/library/`), played by `LibraryMotion` by
+  the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
+  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
+  films (do they pass, turn them on?).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
