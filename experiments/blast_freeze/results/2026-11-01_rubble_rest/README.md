@@ -74,4 +74,33 @@ pose drift from run to run. The branch's renders against main's: `dynamite_store
 rubble lying in the street, all of it in cells) mean 0.17, `outlaw_blast` 1.2, the mid-blast view
 7.5 (its cloud). Nothing re-approved.
 
-RENDER_DRAWS
+## Dynamite with no fire (the game since #458)
+
+The blaze lights the town, which the game can't do now (`FireSystem.in_play` off), so its draws
+(5,717 rendered on Vulkan) are a burning town's. `perf_bench --scene=blast` (added after the merge):
+a stick in each of three buildings, no fire, 20 s for the rubble to lie, then measured.
+
+| headless census | meshes_visible | collision_shapes | particles | nodes |
+|---|---|---|---|---|
+| main (9caba43) | 5,072 | 4,016 | 367 | 28,222 |
+| #523 as merged | 3,546 | 1,202 | 4 | 23,545 |
+| with the stall fix (b25cd68) | 2,336 | 1,092 | – | – |
+| the calm street | 1,428 | 789 | 1 | 16,634 |
+
+The stall: in #523 a cell whose new chunk's meshes were made over several frames could stop half
+made (its continuation on `process_frame` never came back); 831 pieces were left drawing
+themselves 42 s on. A part-made chunk is now carried on by the rest's own tick (`_spread`), and
+Structure's queued batch rebuild by the structure's tick; `test_rubble_rest` makes a chunk a mesh a
+tick.
+
+**Rendered** (`--scene=blast --render --quick --census-by`, Vulkan on lavapipe; `blast_render.json`):
+
+| | draws | render CPU ms | meshes_visible | collision_shapes | particles |
+|---|---|---|---|---|---|
+| main (9caba43) | 6,617 | 13.2 | 5,058 | 4,003 | 362 |
+| **branch (b25cd68)** | **3,749** | **8.7** | **2,316** | **1,015** | **4** |
+
+Draws after dynamite are under the gate's 4,000; shapes within a few hundred of the calm street's
+(+226); meshes +888 over it: the cells' own (~290), people, holed and carved members. Every piece
+lying still was drawn by its cell (2,328; none waiting, no job left). Render CPU here is lavapipe's:
+~5.7 ms at Sean's by the bench's scale, against a 4.0 budget (the calm street is ~2.9).

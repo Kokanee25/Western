@@ -754,10 +754,12 @@ func _batch_over(t0: int) -> bool:
 	return (_batch_frame_us + Time.get_ticks_usec() - t0) / 1000.0 > BATCH_FRAME_MS
 
 
+## The rest later: the structure's own tick picks a queued rebuild up (`_physics_process`), once a
+## job on a worker is in and the drawn frame's budget allows (a continuation on a signal was lost
+## for a cell of RubbleRest's in a bench run and never came: here a lost one would leave its
+## batches stale for good).
 func _rebuild_next_frame() -> void:
 	_rebuild_queued = true
-	if is_inside_tree() and not get_tree().process_frame.is_connected(_rebuild_dirty_batches):
-		get_tree().process_frame.connect(_rebuild_dirty_batches, CONNECT_ONE_SHOT)
 
 
 ## Each member's mesh arrays (read once a mesh) and where it sits; null if they don't all carry
@@ -1551,6 +1553,8 @@ func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"structures", t)
+	if _rebuild_queued and not _rebuild_timed and _batch_task < 0 and not _batch_dirty.is_empty():
+		_rebuild_dirty_batches()  # (within the drawn frame's budget, every structure's together)
 
 
 func _physics_step(delta: float) -> void:

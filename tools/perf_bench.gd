@@ -10,6 +10,8 @@ extends SceneTree
 ##   xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 -s res://tools/perf_bench.gd -- --render
 ## --quick: shorter runs and no ablation (for the CI guard). --no-ablate: full length, no ablation.
 ## --hour=H: the street starts at that hour (23: night, every lamp lit).
+## --scene=blast: dynamite and no fire (the game since #458): a stick in each of three buildings,
+## 20 s for the rubble to come down and lie, then measured.
 ## --scene=calm|fire: just one; --scene=blaze: the fire left 45 s first, till the whole town
 ## burns; --scene=wall: a shotgun charge into the store's front from 3 m every half second while it
 ## measures (voxel damage, docs/DESTRUCTION_BRIEF.md step 2); --no-voxels: drawn holes instead.
@@ -247,7 +249,7 @@ func _census() -> Dictionary:
 		c["by"] = by
 		var rest := street.get_node_or_null(^"RubbleRest")
 		if rest:
-			c["rubble_rest"] = {"pieces": rest.piece_count(), "meshes": rest.mesh_count(), "waiting": rest._waiting.size(), "refused": rest.refused, "counts": rest.counts}
+			c["rubble_rest"] = {"pieces": rest.piece_count(), "meshes": rest.mesh_count(), "waiting": rest._waiting.size(), "refused": rest.refused, "counts": rest.counts, "state": rest.state()}
 	c["nodes"] = Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
 	c["objects"] = Performance.get_monitor(Performance.OBJECT_COUNT)
 	c["physics_active"] = Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS)
@@ -355,10 +357,15 @@ func _run() -> void:
 		scenes.append("blaze")
 	if only == "wall":
 		scenes.append("wall")
+	if only == "blast":
+		scenes.append("blast")
 	for s in scenes:
 		if s == "fire":
 			_set_off_dynamite_and_fires()
 			await _frames(180)
+		elif s == "blast":
+			_set_off_dynamite()
+			await _frames(60 * 20)
 		elif s == "blaze":
 			# The fire left to spread till the whole town's alight.
 			_set_off_dynamite_and_fires()
@@ -422,6 +429,24 @@ func _shoot_the_wall() -> void:
 
 ## Two sticks against the store's front, a third at the saloon's; the store, the saloon and one
 ## more building set alight; a few rounds fired (brass on the ground).
+## A stick in each of the first three buildings, where `_set_off_dynamite_and_fires` puts its two,
+## and nothing lit (#459: fire is out of play).
+func _set_off_dynamite() -> void:
+	var blast = load("res://src/blast/blast.gd")
+	var done := 0
+	for b in street.get_children():
+		var sname: String = (b.get_script() as Script).get_global_name() if b.get_script() else ""
+		if sname not in ["FalseFrontBuilding", "SaloonBuilding"]:
+			continue
+		var members: Array = b.find_children("*", "StructureMember", true, false)
+		if members.is_empty():
+			continue
+		blast.detonate(street, (members[members.size() / 3] as Node3D).global_position + Vector3(0, 0.3, 0), 0.2)
+		done += 1
+		if done >= 3:
+			break
+
+
 func _set_off_dynamite_and_fires() -> void:
 	var blast = load("res://src/blast/blast.gd")
 	var fire = street.find_child("FireSystem", true, false)

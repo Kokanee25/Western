@@ -45,7 +45,7 @@ const BUILD_GAP := 0.5
 const MAX_CHUNKS := 4
 ## A chunk's meshes are made a few a frame, up to this much (ms) of it (one merged from four of a
 ## street's cells was 8 ms in one go); it's shown when they're all made.
-const MESH_MS := 2.0
+static var mesh_ms := 2.0  # (tests set it to 0: a mesh a tick)
 ## Joining is spread over ticks: this much (ms) a tick, or under World.deterministic this many pieces.
 const JOIN_MS := 1.0
 const JOIN_PIECES := 30
@@ -85,6 +85,8 @@ var _keys := {}
 var _leaving := {}
 ## Vector3i -> a cell's chunk being joined on a worker (`_build`, `_built`).
 var _jobs := {}
+## Vector3i -> true: a cell whose new chunk's meshes are part made (`_built` again each tick).
+var _spread := {}
 ## Why pieces didn't join, counted (the bench's census, tests).
 var refused := {}
 ## What it's done, counted (the bench's census).
@@ -232,7 +234,7 @@ static func _reach(rb: RigidBody3D) -> float:
 
 
 func _physics_process(_delta: float) -> void:
-	if _waiting.is_empty() and _pending.is_empty() and _stirring.is_empty() and _tidy.is_empty():
+	if _waiting.is_empty() and _pending.is_empty() and _stirring.is_empty() and _tidy.is_empty() and _spread.is_empty():
 		return
 	var t := Prof.start()
 	var t_s := Prof.start()
@@ -270,6 +272,8 @@ func _physics_process(_delta: float) -> void:
 			_build(cell)
 			_built_at[cell] = now
 	Prof.stop(&"rr_build", t_b)
+	for cell: Vector3i in _spread.keys():
+		_built(cell)
 	var t_t := Prof.start()
 	_tidy_up()
 	Prof.stop(&"rr_tidy", t_t)
@@ -480,6 +484,28 @@ func _leave(id: int, e: Dictionary) -> void:
 			return
 
 
+## Where its pieces are (the bench's census): drawn by a cell or waiting for one, jobs, tidying.
+func state() -> Dictionary:
+	var drawn := 0
+	for cell: Vector3i in _chunks:
+		for ch: Dictionary in _chunks[cell]:
+			drawn += (ch.live as Dictionary).size()
+	var pending := 0
+	for cell: Vector3i in _pending:
+		pending += (_pending[cell] as Dictionary).size()
+	var no_parts := 0
+	for e: Dictionary in _rest.values():
+		if (e.parts as Array).is_empty():
+			no_parts += 1
+	var oldest := 0.0
+	var how := []
+	for job: Dictionary in _jobs.values():
+		oldest = maxf(oldest, World.now() - float(job.since))
+		how.append("task %d done %s made %d/%d" % [int(job.task), str(int(job.task) >= 0 and WorkerThreadPool.is_task_completed(int(job.task))), (job.get("chunk", {"meshes": {}}).meshes as Dictionary).size(), (job.out as Dictionary).size()])
+	return {"drawn": drawn, "pending": pending, "no_parts": no_parts, "jobs": _jobs.size(), "oldest_job_s": oldest, "jobs_how": how, "tidy": _tidy.size(),
+			"cells": _chunks.size(), "stirring": _stirring.size()}
+
+
 ## Is it drawn by its cell (not by itself)? (Tests.)
 func drawn_by_cell(rb: RigidBody3D) -> bool:
 	var e: Dictionary = _rest.get(rb.get_instance_id(), {})
@@ -569,7 +595,7 @@ func _build(cell: Vector3i) -> void:
 	for id: int in new_ids:
 		if _rest.has(id):
 			fresh[id] = _rest[id]
-	var job := {"cell": cell, "fresh": fresh, "old": old, "left": {}, "out": {}, "task": -1}
+	var job := {"cell": cell, "fresh": fresh, "old": old, "left": {}, "out": {}, "task": -1, "since": World.now()}
 	_jobs[cell] = job
 	if World.deterministic or GameQuit.quitting:
 		job.out = _group_and_concat(items)
@@ -602,6 +628,7 @@ static func _concat_all(joined: Dictionary) -> Dictionary:
 ## drawn by it (their own meshes off now), the chunks it was made from gone, anything let go
 ## meanwhile zeroed in it.
 func _built(cell: Vector3i) -> void:
+	_spread.erase(cell)
 	var job: Dictionary = _jobs.get(cell, {})
 	if job.is_empty():
 		return
@@ -618,11 +645,9 @@ func _built(cell: Vector3i) -> void:
 	for key: String in job.out:
 		if (ch.meshes as Dictionary).has(key):
 			continue
-		if not World.deterministic and (Time.get_ticks_usec() - t0) / 1000.0 > MESH_MS:
+		if not World.deterministic and (Time.get_ticks_usec() - t0) / 1000.0 > mesh_ms:
 			Prof.stop(&"rr_mesh", t)
-			var next: Callable = job.get_or_add("next", _built.bind(cell))
-			if not get_tree().process_frame.is_connected(next):
-				get_tree().process_frame.connect(next, CONNECT_ONE_SHOT)  # (the rest next frame)
+			_spread[cell] = true  # (the rest next tick: _physics_process)
 			return
 		var arrays: Array = job.out[key][0]
 		var mi := MeshInstance3D.new()
