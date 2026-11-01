@@ -625,7 +625,8 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
   the FireSystem's (its queue: below); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
   (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also queued when built,
-  `queue_check`) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
+  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
+  Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
   **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
@@ -652,7 +653,21 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   their material (`_batch_new`; drawn on their own till it's built: `_hide_after`). The
   shadow-only merge of every batch is plain arrays merged on a worker thread (`_shadow_soon`, at
   most every `SHADOW_REBUILD_GAP`; no rendering calls off the main thread: they deadlock against
-  a main thread that waits). GameQuit waits for both (`batches_running`, `shadow_running`).
+  a main thread that waits, and a mesh made on a worker was used before the server had it, #538).
+  Its ArrayMesh on the main thread is `shadow_set` (~30 ms for the spec saloon, a second apart while
+  it changes). GameQuit waits for both (`batches_running`, `shadow_running`).
+  **SpawnQueue** (`src/structures/spawn_queue.gd`, #538; one per tree, group `spawn_queue`): the
+  loose bodies a break makes, `PER_TICK` (120) bodies a physics tick at most, in the order asked,
+  `SOON` (a cut's flying pieces, `Structure._make_chunks`) before `LATER` (glass shards,
+  `StructureMember._make_shards`). A kit prop's blast push and tipping over stay on their tick
+  (queued, three sticks brought the spec saloon down to 450 members, not 240).
+  A job that fits the tick's room with nothing ahead of it runs at once (a ball's pane shatters on
+  its tick, as before). Counted in bodies, never time (World.deterministic); after every system's
+  tick (`TICK_PRIORITY`). (Holding all of a blast's bodies to the next tick saved ~30 ms of its
+  frame but made `test_settle_incremental`'s worker/main-thread pair break different ground
+  boards run to run: not done.)
+  What breaks is decided and shown on its tick (the pane hidden, the board's ends, the settle);
+  a cut's pieces' velocities are drawn then too, so they fly as before, a tick or few later.
   **Rubble at rest** (`RubbleRest`, `src/structures/rubble_rest.gd`, #459; `-- --no-rubble-rest`
   off): one per world (a child of the street, made by `for_node`; not under Compatibility, as
   PropBatch). Rubble (`Structure._new_rubble`) and shards (`StructureMember.shatter`, GlassProp)
@@ -679,7 +694,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
   `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
-  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays; Fittings
+  keeps each member's items, `items_on`, #538). In `break_members` the cuts' wakes are one pass
+  (`_wake_near_all`); a building's breaking noise is heard once a tick (`first_this_tick`).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -1426,7 +1443,10 @@ made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log
   `blow_span` (the stretch that bends: a leg below the seat) breaks
   it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
   him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
-  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put;
+  out of reach, or short of it even at `Blast.most_face_impulse` a member, nothing is walked,
+  #538); every prop's breaks heard
+  through one listener by structure id (`_any_member_broken`);
   going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
   dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the

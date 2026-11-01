@@ -640,6 +640,12 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
+- **The blast's own frame** (#538, branch `claude/gameplay-blast-frame`; results
+  `experiments/blast_freeze/results/2026-11-01_blast_frame/`): `SpawnQueue` makes shards and cut
+  pieces 120 bodies a tick; kit props' blast handler, Fittings and `Blast.face_impulse` made cheap;
+  a small building's first analysis sliced. Saloon stick 305 -> ~110 ms here, street ~480 -> ~165;
+  the lab's pair the same. Left (#538 open): the street's frame ~110 at Sean's, the frame after
+  (kit props' push), `shadow_set`.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

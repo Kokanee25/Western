@@ -10,7 +10,7 @@ extends BridgeLab
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [out=FILE.json] -> the spec saloon (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
 	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
 	"bf_batches": "bf_batches -> the batches every structure in the town draws in (Structure.batch_count), in all and the five largest, and the spec saloon's if it's built",
@@ -29,21 +29,42 @@ var _cut := 0
 
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
-	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": ""}
+	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() == 2:
 			opts[kv[0]] = kv[1]
+	var on_street := String(opts["in"]) == "street"
 	var town := street.get_node_or_null(^"TownLife") as TownLife
 	var built := street.get_node_or_null(^"SpecSaloon") != null
-	var saloon := SpecSaloon.ensure(street, town.places if town else null) as Structure
-	if not built:
-		await physics_frames(30)
+	var saloon: Structure = null
+	if not on_street:
+		saloon = SpecSaloon.ensure(street, town.places if town else null) as Structure
+		if not built:
+			await physics_frames(30)
 	var parts := String(opts.at).split(",")
 	if parts.size() != 3:
 		return {"ok": false, "error": "at=X,Y,Z (the saloon's own space)"}
 	var local := Vector3(float(parts[0]), float(parts[1]), float(parts[2]))
-	var at := SpecSaloon.at(local)
+	# Where the sticks go: in the saloon `at`, the rest `spread` m apart along its front; on Main
+	# Street (in=street) perf_bench's spots, a third of the way through the first buildings' members.
+	var spots: Array[Vector3] = []
+	var n_sticks := maxi(int(opts.sticks), 1)
+	if on_street:
+		for b in street.get_children():
+			var sname: String = (b.get_script() as Script).get_global_name() if b.get_script() else ""
+			if sname not in ["FalseFrontBuilding", "SaloonBuilding"]:
+				continue
+			var ms: Array = b.find_children("*", "StructureMember", true, false)
+			if ms.is_empty():
+				continue
+			spots.append((ms[ms.size() / 3] as Node3D).global_position + Vector3(0, 0.3, 0))
+			if spots.size() >= n_sticks:
+				break
+	else:
+		for k in n_sticks:
+			spots.append(SpecSaloon.at(local + Vector3(float(opts.spread) * k, 0.0, 0.0)))
+	var at: Vector3 = spots[0]
 	if String(opts.player) != "" and player:
 		# Where he stands decides the fire's bands (FireSystem.bands): in the hall, everything near.
 		var pp := String(opts.player).split(",")
@@ -53,7 +74,7 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	var fire := FireSystem.find(get_tree())
 	var lit: Array = []
 	var n_fire := int(opts.fire)
-	if n_fire > 0 and fire:
+	if n_fire > 0 and fire and saloon:
 		# The nearest flammable boards to the spot, so the fire is where the stick lands.
 		var cands: Array = []
 		for m: StructureMember in saloon.get_members():
@@ -67,8 +88,8 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			lit.append(String(m.member_id))
 		await seconds(float(opts.burn))
 	var burning_before := fire.burning_members().size() if fire else 0
-	var members_before := saloon.member_count()
-	var rubble_before := saloon.rubble.size()
+	var members_before := saloon.member_count() if saloon else 0
+	var rubble_before := saloon.rubble.size() if saloon else 0
 	# Record from a second before the stick to `seconds` after it goes off.
 	PhysicsWindow.add_to(get_tree().root)  # the frame as window, step (Jolt's) and rest
 	_frames.clear()
@@ -86,28 +107,38 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 	await seconds(1.0)
 	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse))
 	stick.light()
-	var census := [_census(), {}]
+	for k in range(1, spots.size()):
+		DynamiteStick.make(street, spots[k], Vector3.ZERO, float(opts.fuse) + float(opts.gap) * k).light()
+	# The census walks the whole tree (~26,000 nodes, ~0.1 s): only when asked, as it lands on the
+	# frames measured (#538: it was the stick's frame's deferred calls and the one before).
+	var take_census := int(opts.census) != 0
+	var census := [_census() if take_census else {}, {}]
 	stick.went_off.connect(func() -> void:
 		_event_tick = Engine.get_physics_frames()
-		(func() -> void: census[1] = _census()).call_deferred())
-	await seconds(float(opts.fuse) + float(opts.seconds))
+		if take_census:
+			(func() -> void: census[1] = _census()).call_deferred())
+	await seconds(float(opts.fuse) + float(opts.gap) * (spots.size() - 1) + float(opts.seconds))
 	_recording = false
 	Events.member_broken.disconnect(on_broken)
 	Events.member_cut.disconnect(on_cut)
 	var stall := float(opts.stall)
 	var summary := _summarise(stall)
 	summary["setup"] = {"at": arr(at), "at_local": [local.x, local.y, local.z], "lit": lit, "burn_s": float(opts.burn),
+			"in": String(opts["in"]), "spots": spots.map(func(v: Vector3) -> Array: return arr(v)), "gap": float(opts.gap),
 			"burning_before": burning_before, "members_before": members_before, "rubble_before": rubble_before,
-			"members_after": saloon.member_count(), "rubble_after": saloon.rubble.size(),
+			"members_after": saloon.member_count() if saloon else 0, "rubble_after": saloon.rubble.size() if saloon else 0,
 			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut,
 			"people": get_tree().get_nodes_in_group(&"people").size(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 			"player": arr(player.global_position) if player else [], "player_from_stick": player.global_position.distance_to(at) if player else -1.0,
 			"fire_bands": (load("res://src/fire/fire_system.gd") as Script).get(&"bands")}  # null before step 5
 	# Which members are broken at the end: two runs of the same scenario should name the same.
 	var broken_ids: Array = []
-	for m: StructureMember in saloon.get_members():
-		if m.broken:
-			broken_ids.append(String(m.member_id))
+	for st: Node in ([saloon] if saloon else get_tree().get_nodes_in_group(&"structures")):
+		if not is_instance_valid(st) or not st is Structure:
+			continue
+		for m: StructureMember in (st as Structure).get_members():
+			if m.broken:
+				broken_ids.append(String(m.member_id))
 	broken_ids.sort()
 	summary.setup["broken_ids_hash"] = hash(broken_ids)
 	# What the stick's frame added, by class (the nodes in the tree just after it went off).
