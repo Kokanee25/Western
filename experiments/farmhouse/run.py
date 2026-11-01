@@ -71,7 +71,7 @@ def summary(out):
     by = {}
     for r in rows:
         by.setdefault(r["way"], []).append(r)
-    lines = ["| way in | runs | rancher lives | won | you down | rancher killed by the guard | alarm (s, median) | breach | ended (s, median) | men out (mean) |",
+    lines = ["| way in | runs | rancher lives | won | you down | the guard fired on him | alarm (s, median) | breach | ended (s, median) | men out (mean) |",
              "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     out_json = {}
     for way, rs in sorted(by.items()):

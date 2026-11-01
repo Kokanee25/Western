@@ -91,10 +91,10 @@ func _route_in() -> Array[Vector3]:
 	return r
 
 
-## The quiet way round: back along the road west to the draw between the knoll and the low rise,
-## up it out of sight of the porch, round behind the house (the world's: its back, as built).
+## The quiet way round: off the road short of the range's targets, north wide of the house past the
+## low rise, along behind it (the porch faces the road: behind its man) and down on the back.
 func _the_draw() -> Array[Vector3]:
-	var r: Array[Vector3] = [_w(60.0, -14.0), _w(74.0, -28.0), _w(78.0, -62.0), _w(92.0, -66.0)]
+	var r: Array[Vector3] = [_w(50.0, -14.0), _w(52.0, -72.0), _w(88.0, -72.0), _w(94.0, -64.0)]
 	return r
 
 

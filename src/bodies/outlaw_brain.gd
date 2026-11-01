@@ -197,6 +197,8 @@ var stunned := 0.0
 ## threat: `menace_fire` false); with `menace_fire`, he shoots him (FarmhouseMission's guard).
 var menace: HumanBody = null
 var menace_fire := false
+## How many balls he puts into him (FarmhouseTuning.execute_shots).
+var menace_shots := 2
 var _menace_said := false
 var _menace_shots := 0
 var _post_way: Array[Vector3] = []
@@ -1523,7 +1525,7 @@ func _menacing(delta: float) -> bool:
 	_fire_at(head, menace)
 	_menace_shots += 1
 	_next_shot = 0.7
-	if _menace_shots >= 2:
+	if _menace_shots >= menace_shots:
 		menace_fire = false
 	return true
 
@@ -2049,6 +2051,8 @@ func _fight(delta: float) -> void:
 
 
 func _aim_point(t: Node3D) -> Vector3:
+	if t != null and t == menace and menace.parts.has(&"head"):
+		return (menace.parts[&"head"] as Node3D).global_position  # a man he means to kill, at a pace
 	if t is HumanBody and (t as HumanBody).parts.has(&"chest"):
 		if senses.sees(t):
 			return ((t as HumanBody).parts[&"chest"] as Node3D).global_position

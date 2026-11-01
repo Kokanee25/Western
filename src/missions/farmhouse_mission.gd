@@ -455,6 +455,7 @@ func _guard_step() -> void:
 		_note("the guard puts his gun on the rancher" + (" (the last man)" if last else ""))
 	if threat_t >= 0.0 and execute_t < 0.0 and t - threat_t >= tuning.threat_seconds and player_in and had_enough:
 		execute_t = t
+		guard.menace_shots = tuning.execute_shots
 		guard.menace_fire = true
 		_note("the guard shoots the rancher")
 

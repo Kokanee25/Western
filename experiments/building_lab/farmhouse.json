@@ -300,7 +300,9 @@
 			{"id": "kitchen_crates", "room": "kitchen", "at": [4.6, 6.15], "look": [4.4, 1.2, 7.6], "low": true, "covers": ["back_door"]},
 			{"id": "loft_stair", "room": "loft", "at": [3.4, 3.6], "look": [2.0, 0.6, 4.65], "covers": ["stair"]},
 			{"id": "bedroom_door", "room": "bedroom", "at": [6.3, 3.4], "look": [5.6, 1.4, 3.1], "guard": true, "covers": ["bedroom_door"]},
-			{"id": "window_east", "room": "bedroom", "at": [8.45, 2.0], "look": [15.0, 1.4, 2.0], "window": true, "guard": true, "covers": ["east"]}
+			{"id": "window_east", "room": "bedroom", "at": [8.45, 2.0], "look": [15.0, 1.4, 2.0], "window": true, "guard": true, "covers": ["east"]},
+			{"id": "bedroom_corner", "room": "bedroom", "at": [8.4, 0.6], "look": [5.6, 1.2, 3.1], "covers": ["bedroom_door"]},
+			{"id": "bedroom_bed", "room": "bedroom", "at": [7.6, 3.6], "look": [5.6, 1.0, 3.1], "low": true, "covers": ["bedroom_door"]}
 		],
 		"plans": {
 			"front": ["window_front_w", "window_front_e", "inside_door", "loft_window", "behind_table"],
@@ -310,8 +312,10 @@
 			"front_room": ["kitchen_table", "loft_stair", "kitchen_door"],
 			"kitchen": ["kitchen_door", "behind_table", "by_stove"],
 			"bedroom": ["by_stove", "kitchen_door", "behind_table", "inside_door"],
-			"loft": ["by_stove", "kitchen_door", "behind_table"]
+			"loft": ["by_stove", "kitchen_door", "behind_table"],
+			"last_stand": ["bedroom_corner", "bedroom_bed"]
 		},
+		"last_stand": {"_doc": "Once this many of them are out of it, the rest fall back to the bedroom with the guard and the rancher, covering its one door.", "men_out": 3},
 		"guard": {"default": "bedroom_door", "east": "window_east"}
 	},
 	"use": {

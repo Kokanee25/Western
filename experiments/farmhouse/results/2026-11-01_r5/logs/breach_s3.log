@@ -1,0 +1,23 @@
+Initialize godot-rust (API v4.7.stable.official, runtime v4.7.2.stable.official, safeguards balanced)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[bridge] lab barkeep_rag: rag, rag_do
+[bridge] lab blast_freeze: bf_blast, bf_frames, bf_analyse, bf_batches, bf_shot
+[bridge] lab body_lab: body_spawn, body_shoot, body_blast, body_treat, body_read, body_drag, body_blood, body_crawl, body_hands, body_haul, body_where, body_meshes, body_probe, body_marks
+[bridge] lab breakage_lab: breakage, breakage_list, breakage_aim, dig, ground
+[bridge] lab farmhouse: farm_wall, farm_hole, farm_view, farm_start, farm_state, farm_free, farm_fail, farm_run
+[bridge] lab gun_lab: gun_fp, gun_men, gun_grip, gun_framing, gun_handling
+[bridge] lab gunfight_lab: gf_fight, gf_lineup, gf_cover, gf_bodies, gf_coverwhy, gf_ways, gf_what, gf_play, gf_result, gf_aim, gf_hit, gf_minds, gf_trace, gf_watch, gf_map
+[bridge] lab light_pass: lp_lamps, lp_lamp_shadows, lp_casters
+[bridge] lab mopping: mop, mop_do
+[bridge] lab perception_lab: perception, perception_list, perception_probe, perception_known
+[bridge] lab plant_dynamite: plant_where
+[bridge] lab prop_lab: prop, props_clear, props_of
+[bridge] lab sight_lab: sight_census, sight_cover_at, sight_bench
+[bridge] lab sound_lab: sound, sound_list, sound_find, sound_ray, sound_inventory
+[bridge] listening on 127.0.0.1:8840
+[bridge] {"alarm":22.7,"bot":{"blast":68.15,"freed":88.13,"phase_at":{"clear":100.13,"lit":63.22,"out":88.13,"plant":61.13,"rescue":86.43,"through":69.65},"planted":63.22},"bot_phase":"clear","breach":68.65,"cmd":"farm_run breach seed=3 max=240 out=/home/user/Western/experiments/farmhouse/results/2026-11-01_r5/runs/breach_s3.json","end":118.08,"executed":84.97,"frames":{"blast_ms":190.55,"fight_ticks":5723,"max_ms":190.55,"mean_ms":10.57,"p95_ms":19.02},"freed":88.63,"hostage_alive":true,"men":5,"men_out":3,"men_state":[{"alive":true,"at":"loft","id":"brody","inside":true,"mood":"RELOADING","order":"bedroom_door","tactic":"HIDDEN"},{"alive":false,"at":"front_room","id":"lyle","inside":true,"mood":"DEAD","order":"","tactic":"OPEN"},{"alive":true,"at":"loft","id":"dutch","inside":true,"mood":"FIGHTING","order":"kitchen_door","tactic":"HIDDEN"},{"alive":false,"at":"front_room","id":"kid","inside":true,"mood":"DEAD","order":"","tactic":"OPEN"},{"alive":true,"at":"kitchen","id":"hollis","inside":true,"mood":"SURRENDERED","order":"","tactic":"OPEN"}],"ok":true,"outcome":"won","player_down":false,"player_how":"Bleeding steady, short of breath, bubbling cough, bone broken.","seed":3,"state":"WON","t":120.13,"threat":79.95,"timeline":[[0.0,"started"],[22.7,"the alarm: Kid saw you"],[55.88,"Hollis down"],[66.02,"the rancher hit (graze, by Brody)"],[66.02,"the rancher hit (bullet, by Brody)"],[67.4,"the rancher hit (bullet, by Brody)"],[68.65,"a blast at the house"],[71.43,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.45,"the rancher hit (blow, ?)"],[71.47,"the rancher hit (blow, ?)"],[71.48,"the rancher hit (blow, ?)"],[79.95,"the guard puts his gun on the rancher"],[83.55,"Kid down"],[84.97,"the guard shoots the rancher"],[88.63,"the rancher cut loose"],[92.08,"Kid down"],[97.67,"the rancher hit (blow, ?)"],[97.8,"Kid dead"],[98.67,"the rancher hit (blow, by Dutch)"],[98.67,"the rancher hit (blow, by Dutch)"],[99.2,"the rancher hit (blow, ?)"],[99.42,"the rancher hit (blow, ?)"],[104.08,"Lyle down"],[114.93,"Lyle dead"],[118.08,"won"]],"way":"breach","where":"back"}
+[bridge] {"cmd":"quit","ok":true,"t":120.15}
+[quit] the shutdown reached the extensions 0.40 s after the scene tree went (watchdog stood down)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)

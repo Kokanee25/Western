@@ -33,6 +33,7 @@ const CALLS := {
 	"bedroom": ["He's at the old man! Bedroom!", "Bedroom!"],
 	"loft": ["He's up in the loft!", "Loft! He's up top!"],
 	"breach": ["The wall! Watch the hole!", "He's blowing his way in!"],
+	"last_stand": ["Back! Back to the old man!", "Fall back! Bedroom! Hold the door!"],
 }
 
 var brains: Array[OutlawBrain] = []
@@ -43,6 +44,9 @@ var spots := {}
 var plans := {}
 var guard_plan := {}
 var entries := {}
+## Out of it this many, the rest fall back to the bedroom (the spec's tactics.last_stand).
+var last_stand_at := 3
+var last_stand := false
 ## Where you are as they have it ("front", "kitchen", ...), and since when the latest guess.
 var where := ""
 var _guess := ""
@@ -70,6 +74,7 @@ func setup(spec: Dictionary, men: Array[OutlawBrain], the_guard: OutlawBrain, p:
 		spots[sp.id] = d
 	plans = tac.get("plans", {})
 	guard_plan = tac.get("guard", {})
+	last_stand_at = int((tac.get("last_stand", {}) as Dictionary).get("men_out", 3))
 	for k: String in tac.get("entries", {}):
 		var e: Array = tac.entries[k]
 		entries[k] = Farmhouse.at(Vector3(e[0], Farmhouse.FLOOR, e[1]))
@@ -160,6 +165,13 @@ func _plan() -> void:
 			continue
 		free.append(b)
 	var want: Array = []
+	# Going badly: the rest back to the bedroom with the guard and the rancher (unless you're in it).
+	var out := brains.filter(func(x: OutlawBrain) -> bool: return not is_instance_valid(x) or not is_instance_valid(x.body) 			or not x.body.physiology.alive or not x.body.physiology.is_conscious() or x.body.limp 			or x.mood in [OutlawBrain.Mood.SURRENDERED, OutlawBrain.Mood.FLEEING, OutlawBrain.Mood.DOWN, OutlawBrain.Mood.DEAD]).size()
+	if out >= last_stand_at and where != "bedroom":
+		if not last_stand:
+			last_stand = true
+			_say_where("last_stand")
+		want.append_array(plans.get("last_stand", []))
 	# A fresh breach: a man on the hole first.
 	if _hole != Vector3.INF and _t - _hole_t < 25.0 and not where in ["front_room", "kitchen", "bedroom", "loft"]:
 		var on_hole := _spot_on(_hole)
