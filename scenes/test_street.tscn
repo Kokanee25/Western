@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Script" path="res://src/world/town_layout.gd" id="30_town"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/structures/well.gd" id="32_well"]
 [ext_resource type="Script" path="res://src/structures/windpump.gd" id="33_windpump"]
 [ext_resource type="Script" path="res://src/structures/corral.gd" id="34_corral"]
+[ext_resource type="Script" path="res://src/missions/farmhouse.gd" id="37_farmhouse"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
@@ -200,6 +201,9 @@ build_seed = 29
 script = ExtResource("34_corral")
 structure_id = &"corral"
 build_seed = 30
+
+[node name="Farmhouse" type="Node3D" parent="."]
+script = ExtResource("37_farmhouse")
 
 [node name="Ballistics" type="Node" parent="."]
 script = ExtResource("13_ballistics")

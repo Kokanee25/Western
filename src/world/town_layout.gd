@@ -142,7 +142,7 @@ static func street_dir(x: float) -> Vector3:
 ## The authored ground's height at (x, z): the same at every z (config/town.json ground): flat
 ## from the east through the saloon and the store, falling toward them from Market Street ('fall',
 ## the town on a slope), level by the hotel and the bank, then climbing west out of town ('rise').
-static func ground_height(x: float, _z := 0.0) -> float:
+static func ground_height(x: float, z := 0.0) -> float:
 	var g: Dictionary = data().get("ground", {})
 	var h := 0.0
 	for part: String in ["fall", "rise"]:
@@ -150,7 +150,48 @@ static func ground_height(x: float, _z := 0.0) -> float:
 		if not p.is_empty():
 			var t := clampf((float(p.from) - x) / (float(p.from) - float(p.to)), 0.0, 1.0)
 			h += float(p.height) * t * t * (3.0 - 2.0 * t)
+	return h + hills_height(x, z)
+
+
+## The hills out of town (config/town.json ground.hills.bumps; Sean: hilly outskirts, not flat):
+## each bump `h` m high at `at` (x, z), falling smoothly to nothing at `r` (a smoothstep of the
+## distance, flat on top and at its foot), the bumps summed. None reaches the town or the road, so
+## everything in town keeps its height (and code that asks with x alone is right there).
+static func hills_height(x: float, z: float) -> float:
+	var h := 0.0
+	for b: Vector4 in _hill_bumps():
+		var d := Vector2(x - b.x, z - b.y).length()
+		if d < b.z:
+			var t := 1.0 - d / b.z
+			h += b.w * t * t * (3.0 - 2.0 * t)
 	return h
+
+
+## The rectangle the hills reach over (x, z), or an empty Rect2 if there are none.
+static func hills_area() -> Rect2:
+	var bumps := _hill_bumps()
+	if bumps.is_empty():
+		return Rect2()
+	var area := Rect2()
+	for i in bumps.size():
+		var b: Vector4 = bumps[i]
+		var r := Rect2(b.x - b.z, b.y - b.z, b.z * 2.0, b.z * 2.0)
+		area = r if i == 0 else area.merge(r)
+	return area
+
+
+static var _bumps: Array[Vector4] = []
+static var _bumps_read := false
+
+
+## The bumps as (x, z, r, h), read once.
+static func _hill_bumps() -> Array[Vector4]:
+	if not _bumps_read:
+		_bumps_read = true
+		var hills: Dictionary = (data().get("ground", {}) as Dictionary).get("hills", {})
+		for b: Dictionary in hills.get("bumps", []):
+			_bumps.append(Vector4(float(b.at[0]), float(b.at[1]), float(b.r), float(b.h)))
+	return _bumps
 
 
 ## The x east of which the authored ground is flat (at 0); INF if it's flat everywhere.

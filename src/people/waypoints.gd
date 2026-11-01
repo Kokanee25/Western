@@ -274,7 +274,7 @@ static func test_street() -> Waypoints:
 	var street := func(x: float) -> Vector3: return TownLayout.street_point(x, -0.6)
 	# A place out in the street before a building stands on the street's ground there, not at the
 	# building's footing (the ground slopes: config/town.json ground).
-	var ground := func(p: Vector3) -> Vector3: return Vector3(p.x, TownLayout.ground_height(p.x), p.z)
+	var ground := func(p: Vector3) -> Vector3: return Vector3(p.x, TownLayout.ground_height(p.x, p.z), p.z)
 	w.add(&"west_edge", street.call(-50.0))
 	w.add(&"street_market", street.call(-32.0), [&"west_edge"])
 	w.add(&"street_west", street.call(-20.0), [&"street_market"])
@@ -338,4 +338,7 @@ static func test_street() -> Waypoints:
 	w.add(&"bar_end", saloon.call(6.7, saloon_top, 2.3), [&"saloon_floor"])
 	w.add(&"bar_end_inside", saloon.call(8.8, saloon_top, 2.3), [&"bar_end"])
 	w.add(&"behind_bar", saloon.call(8.8, saloon_top, 5.8), [&"bar_end_inside"])
+	# The road east and the farmhouse out on its knoll (issue #520): its door, rooms, loft and yard.
+	if not TownLayout.entry(&"Farmhouse").is_empty():
+		Farmhouse.add_places(w)
 	return w
