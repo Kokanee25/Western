@@ -1,0 +1,9 @@
+{
+ "game": "C0 the game's deer now (6k, 1k paint, grid shader, no mipmaps)",
+ "C1": "C1 + mipmaps",
+ "C1f": "C1f + mipmaps, no min-square coarsening (the game's look kept)",
+ "C2": "C2 the game's mesh and paint, standard material",
+ "C4": "C4 6k, 2k paint, baked normals, Rodin's roughness",
+ "C7": "C7 15k, 2k paint, baked normals, roughness by surface",
+ "A": "A Rodin's master (30k, 4k, all its maps)"
+}
