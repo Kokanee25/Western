@@ -481,24 +481,32 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 	return {"at": at, "low": false, "peek": at, "crouch_ok": false, "lie": false, "narrow": true, "post": post, "post_w": w}
 
 
-## Still hidden at a post: the post on the lines to his legs, belly and chest from the threat (`at`
-## where his trunk is now; his head leans out past it on purpose). A line stopped right by the
-## threat's eye (the man tight behind his own cover, peeking round its edge) doesn't show him either:
-## it's no reason to leave (the lab, #531: half the early drops at a post were that).
-static func hidden_narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> bool:
-	for h: float in NARROW_HEIGHTS.slice(0, NARROW_CHEST + 1):
-		var target := at + Vector3.UP * h
-		Prof.count(&"q_cover")
-		var t := Sight.cast(space, threat_eye, target, Layers.WORLD, exclude)
-		if t < 1.0 and Sight.hit_kind() != Sight.KIND_CHARACTER and t * threat_eye.distance_to(target) < BY_THE_EYE:
-			continue
-		if not _blocked(space, at, threat_eye, h, exclude, far):
-			return false
-	return true
+## Still hidden at a post: the post (its foot `post`, `width` across) still between the threat's eye
+## and his trunk (`at`), seen from above: the line between them passes through it, his trunk well in
+## behind it; and something there on the line to his chest (the post not shot away). Not the first
+## thing the line meets: a careful man crouched behind his own cover a pace or two off stops that
+## line by himself (the lab, #531: most of the early drops at a post were that), and the post still
+## hides him. His head leans out past it on purpose.
+static func hidden_narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], post: Vector3,
+		width: float) -> bool:
+	var e := Vector2(threat_eye.x, threat_eye.z)
+	var m := Vector2(at.x, at.z)
+	var c := Vector2(post.x, post.z)
+	var line := m - e
+	if line.length() < 0.5:
+		return false
+	var k := (c - e).dot(line) / line.length_squared()
+	if k <= 0.0 or k >= 1.0:
+		return false  # the post's not between you
+	if (e + line * k).distance_to(c) > width * 0.5 - NARROW_MARGIN:
+		return false  # the line's past its edge: he's seen round it
+	var chest := at + Vector3.UP * NARROW_HEIGHTS[NARROW_CHEST]
+	Prof.count(&"q_cover")
+	return Sight.cast(space, threat_eye, chest, Layers.WORLD, exclude) < 1.0
 
 
-## How near the threat's eye (m) something on the line is his own cover, not the man's (`hidden_narrow`).
-const BY_THE_EYE := 0.6
+## How far inside the post's edge (m) the line to his trunk has to pass (`hidden_narrow`).
+const NARROW_MARGIN := 0.02
 
 
 ## A post (`_narrow`): the heights that have to be hidden standing side-on (his thighs, belly, chest

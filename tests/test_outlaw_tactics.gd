@@ -528,13 +528,15 @@ func test_a_post_is_cover_side_on_but_not_square_on() -> void:
 	check(Vector2(post.x - POST_AT.x, post.z - POST_AT.z).length() < 0.08, "its middle where it stands (%s)" % post)
 	check(spot.peek == spot.at, "he shoots from where he stands")
 	check(not spot.low, "it covers him standing")
-	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), true), "his legs, belly and chest behind it")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "his legs, belly and chest behind it")
 	# You tight behind your own cover (a board a hand in front of your eye): that hides him too, it's
 	# no reason for him to leave.
 	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
 	await physics_frames(2)
 	check(not Cover._blocked(space, POST_SPOT, eye, 1.0, _exclude(), true), "(the board's not his cover)")
-	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), true), "and he stays at his post behind it")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "and he stays at his post behind it")
+	check(not Cover.hidden_narrow(space, POST_SPOT, Vector3(3.0, 1.6, 0.0), _exclude(), spot.post, spot.post_w),
+			"you 3 m to the side: the line's past its edge")
 	world.get_child(world.get_child_count() - 1).free()
 	await physics_frames(2)
 	# Too high above him to point at: not from here.
@@ -589,7 +591,7 @@ func test_at_a_post_he_blades_himself_and_shoots_round_it() -> void:
 			var regular: bool = brain._post_dials.get("style", &"") == &"regular"
 			if absf(fwd.normalized().dot(to.normalized())) < (0.85 if regular else 0.4):
 				side_on += 1
-			if Cover.hidden_narrow(space, brain._trunk_at(_eye()), _eye(), _exclude(), true):
+			if Cover.hidden_narrow(space, brain._trunk_at(_eye()), _eye(), _exclude(), spot.post, spot.post_w):
 				hidden += 1
 	check(brain.cover.get("narrow", false), "he keeps to the post (%s)" % brain.describe().substr(0, 60))
 	check(posed > frames * 0.8, "in his post pose (%d of %d frames)" % [posed, frames])
