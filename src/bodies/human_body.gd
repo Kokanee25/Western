@@ -852,6 +852,8 @@ func _build_skin() -> void:
 				for k: StringName in own_look:
 					if not paint_look.has(k):
 						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
+			if (data.get("realistic", {}) as Dictionary).has(shape):  # a realistic test man (#522)
+				mi.material_override = data.realistic[shape]
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
@@ -5823,6 +5825,8 @@ func _apply_openings(segment: StringName) -> void:
 		arr.append(Vector4.ZERO)
 	for mi: MeshInstance3D in segment_pieces.get(segment, []):
 		var m := mi.material_override as ShaderMaterial
+		if m == null or m.shader == PeopleBodies.REALISTIC_SHADER:  # a realistic test man's shape (#522)
+			continue
 		m.set_shader_parameter(&"wound_count", mini(list.size(), BodyInterior.MAX_OPENINGS))
 		m.set_shader_parameter(&"wounds", arr)
 		m.set_shader_parameter(&"reduced_gore", Settings.reduced_gore)

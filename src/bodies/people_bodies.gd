@@ -127,6 +127,16 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	# body_skin.gdshaderinc). Sean, 2026-11-01, the bake-off's route A.
 	if bool(info.get("smooth_texels", false)):
 		out["smooth_texels"] = true
+	# A realistic test man (Sean, 2026-11-01, #522: to see real-looking people in the game): the
+	# shapes his report lists under "realistic" are drawn by realistic_person.gdshader (Godot's own
+	# lighting: colour, normal and roughness maps, hair cards cut by their alpha), not the people
+	# shader. No wounds are cut in those shapes.
+	if info.has("realistic"):
+		var real := {}
+		for shape: String in (info.realistic as Dictionary):
+			if shapes.has(shape):
+				real[shape] = _realistic_material(model, shape, info.realistic[shape])
+		out["realistic"] = real
 	if info.has("skin_tone"):
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
@@ -135,6 +145,33 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		out["shoulders"] = {"bind": bind, "share": shoulder_share,
 				"pivots": [anatomy.segments[&"upper_arm_r"].a, anatomy.segments[&"upper_arm_l"].a]}
 	return out
+
+
+const REALISTIC_SHADER := preload("res://src/bodies/shaders/realistic_person.gdshader")
+
+
+## A realistic shape's material: <model>_<shape>.png (colour, with alpha for cards),
+## <model>_<shape>_normal.png and <model>_<shape>_rough.png where they exist; `opts` from his report
+## (alpha, cut, roughness, specular, normal_strength, backlight).
+static func _realistic_material(model: StringName, shape: String, opts: Dictionary) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = REALISTIC_SHADER
+	var albedo := TEXTURE_PATH % [model, shape]
+	if ResourceLoader.exists(albedo):
+		m.set_shader_parameter(&"albedo_tex", load(albedo))
+	var normal := TEXTURE_PATH % [model, shape + "_normal"]
+	if ResourceLoader.exists(normal):
+		m.set_shader_parameter(&"normal_tex", load(normal))
+		m.set_shader_parameter(&"use_normal", true)
+	var rough := TEXTURE_PATH % [model, shape + "_rough"]
+	if ResourceLoader.exists(rough):
+		m.set_shader_parameter(&"rough_tex", load(rough))
+		m.set_shader_parameter(&"use_rough", true)
+	m.set_shader_parameter(&"use_alpha", bool(opts.get("alpha", false)))
+	for k: String in ["cut", "roughness", "specular", "normal_strength", "backlight"]:
+		if opts.has(k):
+			m.set_shader_parameter(StringName("alpha_cut" if k == "cut" else k), float(opts[k]))
+	return m
 
 
 ## Where his shoulder helpers' binds are (after the anatomy's bones and his finger bones), or -1

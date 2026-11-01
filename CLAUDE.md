@@ -492,7 +492,9 @@ frozen until Sean names one.
   Studio (`tools/humgen/`; its files only in the Studio's git-ignored store, `.gitignore` keeps
   `assets/people/hg_*` out here), shots `docs/style_test/bakeoff-2026-10/human_generator/`. Waiting
   on Sean: better than the bold cowboy? (#527: "unacceptable"). No more men: diagnosed and one corrected bald
-  head (Studio `face_fit.py`, `hg_head`; `DIAGNOSIS.md`, `head_sheet.jpg`). Waiting on Sean: #530, the face.
+  head (Studio `face_fit.py`, `hg_head`; `DIAGNOSIS.md`, `head_sheet.jpg`); not it (#530). **Realistic men**
+  for a possible art style change: `hg_real_cowboy`, `hg_real_rancher` (Studio `hg_real.py`), drawn by
+  `realistic_person.gdshader` when a report lists `realistic`; `REALISTIC.md`, `real_sheet.jpg`. Waiting on Sean: #541.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
