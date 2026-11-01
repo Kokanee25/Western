@@ -33,8 +33,17 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> BlastCloud:
 	c.name = "BlastCloud"
 	world.add_child(c)
 	c.global_position = at
-	c._start(vent, dust, size, seed_value, GunSmoke._is_indoors(c, at))
+	c._start_next_tick(vent, dust, size, seed_value)
 	return c
+
+
+## The dust begins a tick after the flash (#538: its three particle systems were ~5-8 ms of the
+## blast's own tick, the heaviest of the game's frames; a tick later is the same picture).
+func _start_next_tick(vent: Vector3, dust: Color, size: float, seed_value: int) -> void:
+	_size = size
+	await get_tree().physics_frame
+	if is_inside_tree():
+		_start(vent, dust, size, seed_value, GunSmoke._is_indoors(self, global_position))
 
 
 ## The way the blast vents: away from whatever's close round the charge (the ground under it, a
