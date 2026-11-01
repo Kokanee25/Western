@@ -817,12 +817,29 @@ func tick(delta: float) -> void:
 ## worse, nobody to fight, rescue or break from: a man fighting, fleeing, tending or rescuing ticks
 ## every tick.
 func can_slow() -> bool:
-	if mood != Mood.CALM or target != null or rescuing != null or _pending_break != &"" or not _fire_way.is_empty():
-		return false
+	return slow_reason() == &""
+
+
+const MOOD_NAMES: Array[StringName] = [&"calm", &"fighting", &"reloading", &"surrendered", &"down", &"dead", &"fleeing", &"tending"]
+
+
+## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
+## counts (#495).
+func slow_reason() -> StringName:
+	if mood != Mood.CALM:
+		return MOOD_NAMES[mood]
+	if target != null:
+		return &"target"
+	if rescuing != null:
+		return &"rescuing"
+	if _pending_break != &"":
+		return &"break"
+	if not _fire_way.is_empty():
+		return &"fire_way"
 	for who: Variant in relations.entries.keys():  # a copy (Senses: a freed key can loop the walk)
 		if relations.entries[who].stance >= Relations.Stance.WARY:
-			return false
-	return true
+			return &"wary"
+	return &""
 
 
 ## In a fight, running or tending (PeopleTick: whoever's near him ticks every tick too).
