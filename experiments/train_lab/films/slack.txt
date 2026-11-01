@@ -1,26 +1,29 @@
-# Film 1 (#551): the slack running out on a start, car by car, and bunching on a stop. Slow motion
-# for the couplers (65 mm of play each).
+# Film 1 (#551): the slack running out on a start, car by car, and bunching on a stop.
+#   1. The whole train from the lineside (the sunlit side) as the regulator opens: the cars set off
+#      one after another, the engine first, the coach ~1.9 s after it.
+#   2. Again from a stand, close on the boxcar-express coupler: its 65 mm of play opening.
+#   3. At 20 km/h, steam off, brakes on: riding alongside the boxcar, the express car runs in on it.
 time 15.5
 train_lab
 train_place depot
-train_watch ore2 7.6 -3.2 1.5 0 follow
+train_watch ore2 7.6 11 2.2
 wait 1
-train_slowmo 0.25
 throttle 1
-wait 2.2
-train_watch express 0 -3.4 1.5 0 follow
-wait 1.2
-train_slowmo 1
-train_watch coach 6 -14 3.5 -8 follow
 wait 9
 throttle 0
-wait 4
-train_watch box 0 -3.2 1.5 0 follow
-train_slowmo 0.25
+train_place depot
+train_watch box 9.1 3.0 1.4
+wait 1
+throttle 1
+wait 6
+train_drive hold 20
+train_watch coach 6 12 4 -6 follow
+wait 12
+train_drive off
+throttle 0
+wait 5
+train_watch box 9.1 3.0 1.4 0 follow
 brake 1
-wait 2.4
-train_watch ore1 7.3 -3.2 1.5 0 follow
-wait 1.0
-train_slowmo 1
-train_watch coach 6 -14 3.5 -8 follow
-wait 14
+wait 8
+train_watch coach 6 12 4 -6 follow
+wait 12

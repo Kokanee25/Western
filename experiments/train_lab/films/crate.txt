@@ -8,6 +8,6 @@ wait 2
 camera 53.5 2.6 214 60 0.9 204.5 70
 train_run 0
 wait 14
-camera 66 2.4 392 60 0.9 381 70
+camera 54 2.4 392 60 0.9 381 70
 wait 33
 wait 6
