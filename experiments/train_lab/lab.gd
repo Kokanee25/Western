@@ -366,8 +366,9 @@ func board(i: int, where := "back") -> Dictionary:
 	var along := -0.4 if where == "back" else (0.4 if where == "front" else (float(train.sim.cars[i].length) * 0.5 if where == "mid" else float(where)))
 	var at := car_point(i, along, TrainCars.DECK + 0.05)
 	player.global_position = at
-	player.velocity = Vector3.ZERO
 	var fwd := -train.view.solids[i].global_basis.z
+	# On a moving car he's moving with it (set down still, the car would run on from under him).
+	player.velocity = fwd * float(train.sim.vel[i])
 	player.rotation.y = atan2(-fwd.x, -fwd.z)
 	return {"car": i, "at": at}
 
