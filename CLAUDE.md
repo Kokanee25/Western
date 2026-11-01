@@ -289,6 +289,7 @@ python3 tools/bridge.py stop
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
 - **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
+- **src/train (the train)** — the 1D train, the track from a curve, cars on trucks (the train lab).
 - **src/missions (the farmhouse)** — the farmhouse out east (its spec, its places), the hills.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
   motion (`MotionClip`, `play_clip`) are under src/bodies.
@@ -608,6 +609,11 @@ frozen until Sean names one.
   (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
   hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
   Next: #531 (posts as narrow cover, then the galleries).
+- **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
+  `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
+  `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
+  south of town, 9 in a build for the cab. 0-25 km/h 22.6 s, 30 to a stand 94 m, top 43 / 27 on 2.5 %.
+  Waiting on Sean: the feel dials. Then step 2 (couplers, riding, the timetable).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

@@ -280,6 +280,15 @@ breaks; a prop knocked by a ball or a body doesn't fall (only losing its support
 | A ball going by (snaps only faster than sound, else `whirr`; louder the closer), striking (`impact_wood/dirt/metal/stone`) and glancing off (`glance_*`) by surface; one per charge | `ImpactEffects`, `SynthSounds`, `SoundTuning.subsonic_snaps` | the sound lab (`results/2026-10-22_strikes/`), `test_ricochet.gd`, `test_composure.gd` | in the game, waiting on Sean's ears (#264) |
 | Sounds made in code | `src/audio/synth_sounds.gd` | `tests/test_sounds.gd` (heard, never clips, nothing under 40 Hz) | in the game |
 
+## The train (gameplay; the train lab, `docs/briefs/train.md`)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The train's dials (engine, brakes, Davis resistance, consist, track sizes), all proposed | `src/train/train_tuning.gd`, `config/train.tres` | the brief's "Numbers and where they're from" | waiting on Sean (the feel dials, #543's issue) |
+| The 1D train: distance and speed from tractive effort (steam, power, adhesion), Davis and curve resistance, the grade under each car, brakes; deterministic | `src/train/train_sim.gd` (`TrainSim`) | `tests/test_train.gd`, the lab's graphs (`experiments/train_lab/results/2026-11-01_step1/`) | waiting to be promoted (step 6 puts a line in the world) |
+| A track from plan and profile (straights, arcs, spirals; grades with vertical curves) as a `Curve3D`, with rails, ties, ballast and fill drawn along it (plain, unbreakable) | `src/train/track_line.gd` (`TrackLine`) | `tests/test_train.gd` (`test_track_as_laid`) | waiting to be promoted (step 5 makes it members) |
+| Cars on two trucks each, drawn between ticks at the interpolated distance | `src/train/train.gd` (`Train`), `train_view.gd` (`TrainView`: boxes until step 3's models) | the lab's jitter and drift checks | waiting to be promoted |
+
 ## The Systems Playground
 
 The test saloon (`docs/briefs/labs.md`, "The Systems Playground"): the game's own saloon and a

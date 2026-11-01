@@ -30,6 +30,7 @@ means a section of this file.
 - [src/creatures (the horse)](#srccreatures-the-horse)
 - [src/moments](#srcmoments)
 - [src/missions (the farmhouse)](#srcmissions-the-farmhouse)
+- [src/train (the train)](#srctrain-the-train)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -1084,6 +1085,20 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 - The street (`StreetDressing._horse`) ties each horse to its named rail's bar; `_rail` keeps a
   rail clear of steps and doors point by point and cuts it to its longest clear stretch.
 - Tests `tests/test_horse.gd`; shots `docs/screenshots/horse/`.
+
+## src/train (the train)
+
+The train, built in the train lab (`experiments/train_lab/`, its README; brief
+`docs/briefs/train.md`, plan #542). Step 1 (#543): `TrainTuning` (`config/train.tres`, every dial
+proposed), `TrainSim` (the train in one dimension: `s` its front along the line, `v`; tractive
+effort the least of steam, power and adhesion; Davis, curve and breakaway resistance; the grade
+under each car by its weight; brakes over seconds, harder as the wheels slow; deterministic),
+`TrackLine` (plan and profile to a `Curve3D`; `grade_at`, `curvature_at`, `transform_at`; rails,
+ties as a MultiMesh a 100 m chunk, ballast and fill, the fill and ballast colliding), `TrainView`
+(boxes on two trucks a car, the body the chord between its trucks) and `Train` (the sim on the
+physics tick, the cars drawn at the interpolated distance; `cost` counters). Nothing is in the
+town yet: the lab lays its test line out on the flat south of town (9 in a build; bridge
+`train_lab`).
 
 ## src/weapons
 
