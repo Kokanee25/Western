@@ -1,0 +1,107 @@
+{
+ "alarm": 35.63,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "breach": -1.0,
+ "end": 91.0,
+ "executed": 79.5,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 3322,
+  "max_ms": 135.59,
+  "mean_ms": 10.99,
+  "p95_ms": 19.63
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "men": 5,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "kid",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "PEEKING"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "seed": 3,
+ "state": "LOST",
+ "t": 91.0,
+ "threat": 74.48,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   35.63,
+   "the alarm: Kid saw you"
+  ],
+  [
+   74.48,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   79.5,
+   "the guard shoots the rancher"
+  ],
+  [
+   79.52,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   80.22,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   80.22,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   91.0,
+   "the rancher dead (blood_loss)"
+  ],
+  [
+   91.0,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "back"
+}

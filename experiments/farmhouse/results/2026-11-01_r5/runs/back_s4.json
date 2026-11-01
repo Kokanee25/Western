@@ -1,0 +1,125 @@
+{
+ "alarm": 22.7,
+ "bot": {
+  "blast": -1.0,
+  "freed": 77.92,
+  "phase_at": {
+   "out": 77.92,
+   "rescue": 76.08
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "breach": -1.0,
+ "end": 82.57,
+ "executed": 69.05,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 3592,
+  "max_ms": 185.14,
+  "mean_ms": 9.06,
+  "p95_ms": 13.93
+ },
+ "freed": 78.42,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, bone broken.",
+ "seed": 4,
+ "state": "LOST",
+ "t": 82.57,
+ "threat": 64.03,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   22.7,
+   "the alarm: Kid saw you"
+  ],
+  [
+   57.83,
+   "Hollis down"
+  ],
+  [
+   64.03,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   69.05,
+   "the guard shoots the rancher"
+  ],
+  [
+   69.77,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   72.8,
+   "Kid down"
+  ],
+  [
+   74.13,
+   "Kid down, out"
+  ],
+  [
+   78.42,
+   "the rancher cut loose"
+  ],
+  [
+   82.57,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

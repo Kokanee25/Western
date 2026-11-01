@@ -165,6 +165,9 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		var spot := evaluate(space, p, threat_eye, exclude, true, first[i])
 		if spot.is_empty():
 			continue
+		# Holding a house (OutlawBrain.hold): only spots inside it.
+		if ctx.has("inside") and not (ctx.inside as Callable).call(spot.at):
+			continue
 		var r := Vector2(p.x - from.x, p.z - from.z).length()
 		var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
 		if d_threat < 5.0 or ((spot.at as Vector3) - from).dot((threat_flat - from).normalized()) > 3.0:

@@ -580,6 +580,14 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
+- **The farmhouse hostage rescue** (2026-11-01, #520, Sean's overnight; PRs #521 (the house, build 2824)
+  and the mission's; `src/missions/`, `experiments/farmhouse/` README): the farmhouse on its knoll in the
+  hills east (spec `experiments/building_lab/farmhouse.json`; `config/town.json` `ground.hills`); the
+  blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
+  the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
+  stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs (r13) won 8 of 12,
+  the rancher alive in all 12. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
@@ -640,8 +648,11 @@ frozen until Sean names one.
   shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
   (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
   the merge on the pool, a cut's ends batched; the blaze 4,247/3,185 -> 2,249/1,494 meshes/shapes
-  (calm 1,428/789). Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs
-  33 ms by how many), holed/carved members drawn alone.
+  (calm 1,428/789); merged, build 2833. Then (PR #534) `perf_bench --scene=blast`, dynamite and
+  no fire (the game since #458): rendered draws 6,617 -> 3,749, render CPU 13.2 -> 8.7 ms
+  (lavapipe), shapes 4,003 -> 1,015; a cell's part-made chunk stalled (fixed: `_spread`).
+  Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs 33 ms by how
+  many), holed/carved members drawn alone.
   Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;

@@ -27,6 +27,8 @@ var blacksmith: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
+## Held out of town (the farmhouse mission on offer: FarmhouseMission._hold_the_gang).
+var hold_gang := false
 ## The riders built while the street loads and kept out of the world till they ride in (id ->
 ## HumanBody, not in the tree): building three Studio men (their meshes cut, painted faces, hands,
 ## ~1,700 nodes) took one frame of 2.4 s at ~45 s into every game (#488). `bring_gang` only adds them.
@@ -66,7 +68,7 @@ func _process(delta: float) -> void:
 
 
 func _process_step(delta: float) -> void:
-	if not _arrived:
+	if not _arrived and not hold_gang:
 		_t += delta
 		if _t >= gang_arrives or Input.is_action_just_pressed(&"debug_gang"):
 			bring_gang()
@@ -190,6 +192,22 @@ func _build_gang() -> void:
 		man.enter(get_parent(), _ride_in_at(i), -PI * 0.5)
 		get_parent().remove_child(man)
 		_waiting[man.person_id] = man
+
+
+## The riders, if they haven't ridden in: theirs to take (id -> HumanBody, built, not in the
+## tree), and they won't ride in (the farmhouse's men, issue #520: the gang's holding the rancher
+## out at his place). Empty once they've come.
+func gang_came() -> bool:
+	return _arrived
+
+
+func take_riders() -> Dictionary:
+	if _arrived:
+		return {}
+	_arrived = true
+	var out := _waiting.duplicate()
+	_waiting.clear()
+	return out
 
 
 ## Rider `i` of GANG, his body only, not yet in the world.

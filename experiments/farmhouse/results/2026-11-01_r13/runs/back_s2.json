@@ -1,0 +1,175 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:FarmhouseChair2/leg_front_l",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:FarmhouseChair2/spindle2",
+  "0.3:FarmhouseChair2/spindle0",
+  "0.3:FarmhouseChair2/post_back_l",
+  "0.3:FarmhouseChair2/spindle1",
+  "0.3:FarmhouseChair2/seat",
+  "0.3:House/floor_ground_joist_013",
+  "0.3:FarmhouseChair2/stretcher_l",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_022_0",
+  "1.0:FarmhouseChair2/crest",
+  "1.0:FarmhouseChair2/spindle2",
+  "1.0:FarmhouseChair2/spindle0",
+  "1.0:FarmhouseChair2/post_back_l",
+  "1.0:FarmhouseChair2/spindle1",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 80.3,
+  "phase_at": {
+   "out": 80.3,
+   "rescue": 78.33
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "Lyle",
+ "breach": -1.0,
+ "end": 83.27,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 890,
+  "max_ms": 126.29,
+  "mean_ms": 10.69,
+  "p95_ms": 17.25
+ },
+ "freed": 80.8,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   5.89,
+   1.65,
+   2.25
+  ],
+  "limp": false,
+  "pelvis": [
+   5.93,
+   0.94,
+   2.48
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  5.92,
+  1.31,
+  2.41
+ ],
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, pale and sweating, going pale with no wound to show for it, blood pumping out bright, an ear shot off, bone broken.",
+ "player_local": [
+  2.48,
+  0.56,
+  3.5
+ ],
+ "seed": 2,
+ "state": "LOST",
+ "t": 83.27,
+ "threat": 73.28,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   73.28,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.65,
+   "Dutch down"
+  ],
+  [
+   80.8,
+   "the rancher cut loose"
+  ],
+  [
+   81.18,
+   "Kid down, out"
+  ],
+  [
+   81.18,
+   "Kid dead"
+  ],
+  [
+   83.27,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

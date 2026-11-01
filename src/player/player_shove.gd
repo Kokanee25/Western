@@ -123,7 +123,14 @@ func _physics_process(delta: float) -> void:
 
 func _planting() -> bool:
 	var w := player.weapon
-	return w is DynamiteViewmodel and (w as DynamiteViewmodel).claims_use()
+	if w is DynamiteViewmodel and (w as DynamiteViewmodel).claims_use():
+		return true
+	# Something else E is for here (in the group `claims_use`, its `claims_use(player)`: the
+	# farmhouse's tied man, E held by him to cut him loose).
+	for n in get_tree().get_nodes_in_group(&"claims_use"):
+		if n.call(&"claims_use", player):
+			return true
+	return false
 
 
 func _start(kind: StringName) -> void:

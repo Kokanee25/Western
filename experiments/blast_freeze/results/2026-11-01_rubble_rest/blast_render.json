@@ -1,0 +1,240 @@
+{
+ "main_9caba43": {
+  "frames": {
+   "avg_ms": 1588.84926045736,
+   "draw_calls": 6617.31249999998,
+   "frames_measured": 480,
+   "max_ms": 2057.48901367188,
+   "objects_in_frame": 8218.42708333333,
+   "p99_ms": 1882.248046875,
+   "physics_ms": 35.9532457947731,
+   "process_ms": 1.01630833322803,
+   "render_cpu_ms": 13.1921374797821,
+   "ticks": 1.0
+  },
+  "census": {
+   "BloodJet": 3,
+   "HumanBody": 22,
+   "StructureMember": 9755,
+   "by": {
+    "collision_shapes": {
+     "Boardwalk": 11,
+     "CanRail": 6,
+     "FalseFrontBuilding": 108,
+     "GlassProp": 78,
+     "Ground": 7,
+     "Horse": 40,
+     "HumanBody": 496,
+     "LooseProp": 8,
+     "MopBucket": 1,
+     "MopProp": 1,
+     "OilLamp": 60,
+     "Player": 1,
+     "SaloonBuilding": 327,
+     "StreetDressing": 513,
+     "StructureMember": 355,
+     "main.gd": 1989,
+     "spec_building.gd": 2
+    },
+    "collision_shapes_on_bodies": {
+     "glass_shards asleep": 530,
+     "glass_shards frozen": 61,
+     "other asleep": 116,
+     "other frozen": 73,
+     "rubble asleep": 2279,
+     "wood_chips frozen": 3
+    },
+    "meshes_visible": {
+     "Backdrop": 4,
+     "Boardwalk": 121,
+     "CanRail": 10,
+     "ClothProp": 1,
+     "Corral": 14,
+     "FalseFrontBuilding": 562,
+     "GlassProp": 20,
+     "Ground": 2,
+     "HitchingRail": 4,
+     "Horse": 32,
+     "HumanBody": 200,
+     "LooseProp": 2,
+     "MopBucket": 5,
+     "MopProp": 2,
+     "OilLamp": 129,
+     "Player": 1,
+     "PlayerBody": 17,
+     "PropBatch": 80,
+     "RangeCover": 13,
+     "RevolverModel": 172,
+     "SaloonBuilding": 447,
+     "StreetDressing": 587,
+     "StructureMember": 452,
+     "TargetBoard": 33,
+     "WaterTrough": 1,
+     "Well": 12,
+     "Windpump": 35,
+     "main.gd": 2046,
+     "spec_building.gd": 54
+    },
+    "meshes_visible_on_bodies": {
+     "glass_shards asleep": 550,
+     "glass_shards frozen": 61,
+     "other asleep": 56,
+     "other frozen": 1,
+     "rubble asleep": 2279,
+     "wood_chips frozen": 3
+    },
+    "particles": {
+     "BloodJet": 3,
+     "DynamiteViewmodel": 1,
+     "FalseFrontBuilding": 4,
+     "GlassProp": 5,
+     "ImpactEffects": 321,
+     "SaloonBuilding": 8,
+     "StreetDressing": 7,
+     "main.gd": 13
+    }
+   },
+   "collision_shapes": 4003,
+   "lights": 71,
+   "meshes": 7414,
+   "meshes_visible": 5058,
+   "multimeshes": 108,
+   "nodes": 28094.0,
+   "objects": 82315.0,
+   "particles": 362,
+   "physics_active": 0.0,
+   "physics_pairs": 0.0,
+   "rigid_bodies": 2548,
+   "static_bodies": 10229
+  }
+ },
+ "branch_b25cd68": {
+  "frames": {
+   "avg_ms": 1584.33677647908,
+   "draw_calls": 3749.30208333331,
+   "frames_measured": 480,
+   "max_ms": 2058.21704101562,
+   "objects_in_frame": 3934.05833333336,
+   "p99_ms": 1892.28100585938,
+   "physics_ms": 38.7143833239873,
+   "process_ms": 1.08490624999007,
+   "render_cpu_ms": 8.73623123367628,
+   "ticks": 1.0
+  },
+  "census": {
+   "BloodJet": 3,
+   "HumanBody": 22,
+   "StructureMember": 9755,
+   "by": {
+    "collision_shapes": {
+     "Boardwalk": 11,
+     "CanRail": 6,
+     "GlassProp": 78,
+     "Ground": 7,
+     "Horse": 40,
+     "HumanBody": 496,
+     "LooseProp": 8,
+     "MopBucket": 1,
+     "MopProp": 1,
+     "OilLamp": 60,
+     "Player": 1,
+     "SaloonBuilding": 58,
+     "StreetDressing": 38,
+     "StructureMember": 180,
+     "main.gd": 28,
+     "spec_building.gd": 2
+    },
+    "collision_shapes_on_bodies": {
+     "glass_shards asleep": 11,
+     "glass_shards frozen": 46,
+     "other asleep": 116,
+     "other frozen": 73,
+     "wood_chips frozen": 3
+    },
+    "meshes_visible": {
+     "Backdrop": 4,
+     "Boardwalk": 121,
+     "CanRail": 10,
+     "ClothProp": 1,
+     "Corral": 14,
+     "FalseFrontBuilding": 458,
+     "GlassProp": 20,
+     "Ground": 2,
+     "HitchingRail": 4,
+     "Horse": 32,
+     "HumanBody": 200,
+     "KitProp": 41,
+     "LooseProp": 2,
+     "MopBucket": 5,
+     "MopProp": 2,
+     "OilLamp": 129,
+     "Player": 1,
+     "PlayerBody": 17,
+     "PropBatch": 80,
+     "RangeCover": 13,
+     "RevolverModel": 172,
+     "RubbleRest": 260,
+     "SaloonBuilding": 150,
+     "StreetDressing": 84,
+     "StructureMember": 277,
+     "TargetBoard": 33,
+     "WaterTrough": 2,
+     "Well": 12,
+     "Windpump": 35,
+     "main.gd": 81,
+     "spec_building.gd": 54
+    },
+    "meshes_visible_on_bodies": {
+     "glass_shards asleep": 31,
+     "glass_shards frozen": 46,
+     "other asleep": 56,
+     "other frozen": 1,
+     "wood_chips frozen": 3
+    },
+    "particles": {
+     "BloodJet": 3,
+     "DynamiteViewmodel": 1
+    }
+   },
+   "collision_shapes": 1015,
+   "lights": 71,
+   "meshes": 4672,
+   "meshes_visible": 2316,
+   "multimeshes": 108,
+   "nodes": 22029.0,
+   "objects": 81953.0,
+   "particles": 4,
+   "physics_active": 0.0,
+   "physics_pairs": 0.0,
+   "rigid_bodies": 2569,
+   "rubble_rest": {
+    "counts": {
+     "joined": 2753,
+     "let go: moved": 219,
+     "let go: moving": 190,
+     "let go: pushed": 14,
+     "let go: turning": 2,
+     "woken in its cell": 1902
+    },
+    "meshes": 260,
+    "pieces": 2328,
+    "refused": {
+     "material chimney_glass.gdshader": 46
+    },
+    "state": {
+     "cells": 12,
+     "drawn": 2328,
+     "jobs": 0,
+     "jobs_how": [],
+     "no_parts": 0,
+     "oldest_job_s": 0.0,
+     "pending": 0,
+     "stirring": 0,
+     "tidy": 0
+    },
+    "waiting": 0
+   },
+   "static_bodies": 10229
+  }
+ }
+}
