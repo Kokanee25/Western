@@ -12,6 +12,8 @@ const HELP := {
 	"farm_state": "farm_state -> the mission: its state, the alarm, threat, rescue and end times, each man",
 	"farm_free": "farm_free -> cut the rancher loose (as E held by him does)",
 	"farm_fail": "farm_fail -> lose it now (to try the way back in: Enter starts it again)",
+	"farm_hide": "farm_hide [wall=lean_back] [x=-6,15] [z=5,22] [step=0.5] [doorway=1] [spots=X,Z;X,Z] -> where to hide from a stick planted chest high on that wall: a map of the yard (seen from an opening, hidden, hidden and clear of the blast) and each spot's detail",
+	"farm_blast": "farm_blast WALL [along=M] [wait=S] [none=1] -> the mission started (you left where you are), a stick planted chest high on that wall's breach spot (slid along it M) as you'd plant it, set off; after S s (8): the rancher (hits, awake), the loft's broken members, each man",
 	"farm_run": "farm_run front|breach|back seed=N [max=S] [aim=DEG] [out=FILE] -> one scripted run: the mission started and the scripted player in that way, till it's won or lost",
 }
 
@@ -74,6 +76,169 @@ func _cmd_farm_hole(a: Array) -> Dictionary:
 		if through:
 			clear = tall
 	return {"wall": a[0], "clear": clear, "walk": clear >= 1.7, "stoop": clear >= 1.3}
+
+
+## Where to hide from a stick on a wall (issue #537): a crouched man (eyes 1.15 m up, his body 0.9)
+## at each spot of the yard, looked for from every window and door of the house (a man 0.3 and
+## 0.9 m inside it, at its sides and middle, crouched and standing; `doorway=1`, a man standing in
+## each doorway too: he's as good as out in the yard and sees along the wall), the gang's
+## own sight line (Sight.clear). And the stick's harm there: the head's distance from it and
+## whether a standing wall is between (Blast.shielding). The map's rows run from the far yard to
+## the house, x along: '#' something solid, 'H' the house, '.' seen, 'o' hidden but in the blast's
+## harm (an eardrum within 5 m in the open, within 3.2 m behind a wall), '+' hidden and clear.
+func _cmd_farm_hide(a: Array) -> Dictionary:
+	var opts := {}
+	for w in a:
+		var kv := String(w).split("=")
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	var wall: Array = WALLS.get(String(opts.get("wall", "lean_back")), [])
+	if wall.is_empty():
+		return {"ok": false, "error": "no wall %s" % opts.get("wall")}
+	await physics_frames(1)
+	var house := Farmhouse.of(get_tree())
+	var space := World.space(house)
+	var on: Vector3 = wall[0]
+	var out: Vector3 = wall[1]
+	var stick := Farmhouse.on_ground(on.x + out.x * 0.9, on.z + out.z * 0.9)
+	stick = Farmhouse.at(Vector3(on.x + out.x * 0.05, 0.0, on.z + out.z * 0.05)) * Vector3(1, 0, 1) + Vector3.UP * (stick.y + 1.2)
+	var eyes := _opening_eyes(opts.get("doorway", "0") == "1")
+	var xs := String(opts.get("x", "-6,15")).split(",")
+	var zs := String(opts.get("z", "5,22")).split(",")
+	var step := float(opts.get("step", "0.5"))
+	var rows: Array[String] = []
+	var clear_spots: Array = []
+	var z := float(zs[1])
+	while z >= float(zs[0]) - 0.001:
+		var row := ""
+		var x := float(xs[0])
+		while x <= float(xs[1]) + 0.001:
+			var r := _hide_at(space, eyes, stick, x, z)
+			row += r.mark
+			if r.mark == "+":
+				clear_spots.append([x, z, r.dist])
+			x += step
+		rows.append("%5.1f %s" % [z, row])
+		z -= step
+	clear_spots.sort_custom(func(p: Array, q: Array) -> bool: return p[2] < q[2])
+	var detail := {}
+	for sp in String(opts.get("spots", "")).split(";", false):
+		var xz := sp.split(",")
+		detail[sp] = _hide_at(space, eyes, stick, float(xz[0]), float(xz[1]))
+	return {"wall": opts.get("wall", "lean_back"), "stick": arr(Farmhouse.origin().affine_inverse() * stick), "x": xs, "step": step,
+			"map": rows, "nearest_clear": clear_spots.slice(0, 12), "spots": detail}
+
+
+## Every opening's eyes (the spec's walls with a way out): [{id, eyes: Array[Vector3]}] in the world.
+func _opening_eyes(doorway := false) -> Array:
+	var spec: Dictionary = load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC)
+	var outs := {"-z": Vector3(0, 0, -1), "+z": Vector3(0, 0, 1), "-x": Vector3(-1, 0, 0), "+x": Vector3(1, 0, 0)}
+	var levels := {"ground": Farmhouse.FLOOR, "upper": 3.11}
+	var res: Array = []
+	for w: Dictionary in spec.walls:
+		if not outs.has(String(w.get("out", ""))):
+			continue
+		var p0 := Vector3(w.line[0][0], 0.0, w.line[0][1])
+		var p1 := Vector3(w.line[1][0], 0.0, w.line[1][1])
+		var along := (p1 - p0).normalized()
+		var n: Vector3 = outs[w.out]
+		for o: Dictionary in w.get("openings", []):
+			var floor_y: float = levels.get(String(o.get("level", "ground")), Farmhouse.FLOOR)
+			var c := p0 + along * float(o.at)
+			var pts: Array[Vector3] = []
+			var depths := [0.3, 0.9] + ([0.0] if o.type == "door" and doorway else [])
+			for depth: float in depths:
+				for side in [-0.35, 0.0, 0.35]:
+					for h in [1.1, 1.6]:
+						pts.append(Farmhouse.at(c + along * float(o.width) * side - n * depth + Vector3.UP * (floor_y + h)))
+			res.append({"id": "%s_%s_%s" % [w.id, o.type, o.at], "eyes": pts})
+	return res
+
+
+func _hide_at(space: PhysicsDirectSpaceState3D, eyes: Array, stick: Vector3, x: float, z: float) -> Dictionary:
+	if not FarmhouseMission.clear_of_house(Farmhouse.at(Vector3(x, 0.0, z)), 0.25):
+		return {"mark": "H"}
+	var g := Farmhouse.on_ground(x, z)
+	var pq := PhysicsShapeQueryParameters3D.new()
+	var sph := SphereShape3D.new()
+	sph.radius = 0.25
+	pq.shape = sph
+	pq.collision_mask = Layers.WORLD
+	pq.transform = Transform3D(Basis(), g + Vector3.UP * 0.9)
+	if not space.intersect_shape(pq, 1).is_empty():
+		return {"mark": "#"}
+	var seen_by: Array = []
+	for o: Dictionary in eyes:
+		for e: Vector3 in o.eyes:
+			if Sight.clear(space, e, g + Vector3.UP * 1.15) or Sight.clear(space, e, g + Vector3.UP * 0.9):
+				seen_by.append(o.id)
+				break
+	var head := g + Vector3.UP * 1.15
+	var dist := head.distance_to(stick)
+	var shield := Blast.shielding(Farmhouse.of(get_tree()).get_parent() as Node3D, stick, g + Vector3.UP * 1.0)
+	var harmed := dist < (3.2 if shield < 1.0 else 5.0)
+	var mark := "." if not seen_by.is_empty() else ("o" if harmed else "+")
+	return {"mark": mark, "seen_by": seen_by, "dist": snappedf(dist, 0.01), "shielded": shield < 1.0}
+
+
+## Which wall to blow (issue #537): what one stick on it does to the house and the men in it, before
+## any alarm (the surprise). The stick as the player sets it (DynamiteViewmodel.plant_spot from 0.9 m
+## out, chest high), its fuse 0.1 s.
+func _cmd_farm_blast(a: Array) -> Dictionary:
+	var opts := {}
+	for w in a.slice(1):
+		var kv := String(w).split("=")
+		if kv.size() == 2:
+			opts[kv[0]] = kv[1]
+	var wall: Array = WALLS.get(String(a[0]) if a.size() > 0 else "", [])
+	var m := _mission()
+	if wall.is_empty() or m == null:
+		return {"ok": false, "error": "no wall %s or no mission" % [a]}
+	if m.state != FarmhouseMission.State.ON:
+		m.begin(false)
+		await seconds(3.0)
+	var on: Vector3 = wall[0]
+	var out: Vector3 = wall[1]
+	var along := Vector3(absf(out.z), 0.0, absf(out.x)) * float(opts.get("along", "0"))
+	var stand := Farmhouse.on_ground(on.x + along.x + out.x * 0.9, on.z + along.z + out.z * 0.9)
+	var to := Farmhouse.at(Vector3(on.x + along.x, 0.0, on.z + along.z))
+	to.y = stand.y + 1.2
+	var eye := stand + Vector3.UP * 1.6
+	var house := Farmhouse.of(get_tree())
+	var spot := DynamiteViewmodel.plant_spot(World.space(house), eye, (to - eye).normalized(), 2.2, [player.get_rid()])
+	if spot.is_empty():
+		return {"ok": false, "error": "no wall in reach"}
+	var hits := []
+	var on_hit := func(info: Dictionary) -> void: hits.append([snappedf(m.t, 0.01), String(info.get("kind", "")), String(info.get("part", ""))])
+	m.hostage.hit.connect(on_hit)
+	if opts.get("none", "0") != "1":  # none=1: the same wait without the stick (what happens anyway)
+		var s := DynamiteStick.make(house.get_parent(), spot.at, Vector3.ZERO, 0.1)
+		s.owner_node = player
+		s.global_basis = spot.basis
+		s.stick_to(spot.collider)
+		s.light()
+	var t0 := m.t
+	await seconds(float(opts.get("wait", "8")))
+	m.hostage.hit.disconnect(on_hit)
+	var broken := 0
+	var loft := 0
+	var kinds := {}
+	for mem in house.building.get_members():
+		if mem.broken:
+			broken += 1
+			if String(mem.member_id).contains("loft"):
+				loft += 1
+			var parts := String(mem.member_id).split("/")
+			var k := "/".join(parts.slice(1, 3)) if parts.size() > 2 else String(mem.member_id)
+			k = k.rstrip("0123456789_")
+			kinds[k] = kinds.get(k, 0) + 1
+	var r := m.result()
+	r.timeline = r.timeline.filter(func(e: Array) -> bool: return e[0] >= t0 - 0.01)
+	var h := m.hostage
+	return {"wall": a[0], "along": opts.get("along", "0"), "stick": arr(Farmhouse.origin().affine_inverse() * spot.at),
+			"rancher": {"alive": h.physiology.alive, "awake": h.physiology.is_conscious(), "limp": h.limp, "hits": hits.size(),
+				"how": h.physiology.describe(), "first_hits": hits.slice(0, 6)},
+			"broken": broken, "loft_broken": loft, "broken_kinds": kinds, "alarm": r.alarm, "surprise": r.surprise, "men": r.men_state, "timeline": r.timeline}
 
 
 ## The contact sheet's views (the house's own space: where you stand, feet; what you look at).

@@ -726,6 +726,20 @@ func _on_hit(info: Dictionary) -> void:
 		_hold_break = maxf(_hold_break, lerpf(ODDS_STOCK.x, ODDS_STOCK.y, clampf(nerve, 0.0, 1.0)))
 
 
+## Caught cold by `who` (the farmhouse's surprise assault, issue #537: a wall blown in before any
+## alarm): it's his fight at once, before his fright is weighed (a calm man past his nerve would
+## back down to a man he's never seen), and he's dazed `seconds` on top of what the blast did to
+## him. Where he thinks `who` is is the caller's (FarmhouseMission: the blast's place).
+func caught_cold(who: Node, seconds: float) -> void:
+	if mood in [Mood.DEAD, Mood.SURRENDERED, Mood.DOWN] or who == null:
+		return
+	quiet_start = true
+	relations.provoke(who)
+	relations.side_with(who)
+	_start_fight(who)
+	stunned = maxf(stunned, seconds)
+
+
 ## A blast that hurt him (HumanBody.take_blast's hit, its `harm`: thrown down, burst eardrums, a
 ## limb), not a ball (#488's gap: it was taken as one, "I'm hit!", a stagger and a turn on the
 ## shooter). He's dazed by how hard it hit him (deafened, his head ringing: he does nothing for a
@@ -953,6 +967,8 @@ func _physics_step(delta: float) -> void:
 	_drop_it_heard += delta
 	_startled = maxf(_startled - delta, 0.0)
 	suppressed = maxf(suppressed - delta, 0.0)
+	if not mood in [Mood.FIGHTING, Mood.RELOADING]:
+		stunned = maxf(stunned - delta, 0.0)  # (in a fight it wears off in _combat, where it holds him)
 	_pain_step(delta)
 	# Fear settles slowly, but pain, shock and an empty hand keep it up.
 	var floor_fear := p.felt_pain() * 0.3 + p.shock() * 0.6 + (0.25 if not _armed_still() else 0.0) \

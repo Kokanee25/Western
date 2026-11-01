@@ -204,3 +204,30 @@ func test_forgets_people_who_are_gone() -> void:
 	check(senses.known.size() <= others.size() + 2, "only the living (and you) are (%d known)" % senses.known.size())
 	for n: Node in others:
 		n.free()
+
+
+## A planted stick's hiss (issue #537, Sean): heard only really close (Blast.t().fuse_heard, 3 m)
+## and only on its side of the wall it's set on, however thin: the wall-side noise is made a hand
+## off the face the stick is on, and none of a fuse's hiss gets through a wall.
+func test_a_fuse_is_heard_only_close_and_on_its_side_of_the_wall() -> void:
+	var wall := _box(Vector3(0, 1.5, -8.0), Vector3(12, 3, 0.15))
+	await physics_frames(2)
+	var hissed := []
+	senses.heard.connect(func(_at: Vector3, kind: StringName, _w: Node) -> void:
+		if kind == &"fuse":
+			hissed.append(kind))
+	# [where on the wall's face, the face's way out, heard?, what]; he stands at (0, 0, -10).
+	var cases := [[Vector3(0.3, 1.2, -7.92), Vector3(0, 0, 1), false, "the far side of the wall, 2 m from him"],
+			[Vector3(0.3, 1.2, -8.08), Vector3(0, 0, -1), true, "his side of the wall, 2 m off"],
+			[Vector3(4.4, 1.2, -8.08), Vector3(0, 0, -1), false, "his side, 4.5 m along it"]]
+	for c: Array in cases:
+		hissed.clear()
+		var s := DynamiteStick.make(world, c[0], Vector3.ZERO, 30.0)
+		var n: Vector3 = c[1]
+		s.global_basis = Basis(n, Vector3.UP, n.cross(Vector3.UP))  # as planted: its x the face's normal
+		s.stick_to(wall)
+		s.light()
+		await physics_frames(40)
+		check_eq(not hissed.is_empty(), c[2], "%s: %s" % [c[3], "heard" if not hissed.is_empty() else "not heard"])
+		s.queue_free()
+		await physics_frames(2)

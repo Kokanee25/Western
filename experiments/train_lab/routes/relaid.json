@@ -1,0 +1,15 @@
+{
+  "name": "A re-laid line (the route-moves test)",
+  "_doc": "A second, different route (#542 'The route can move'; #551): longer (2.1 km), a right-hand bend of 150 m (60 degrees, 40 m spirals) then a left-hand reverse bend of 200 m (40 degrees), a 3 % climb and a long 1.5 % descent, and a water stop between the depot and the mine. The same timetable runs it: its stops are named, the run times come from the sim.",
+  "origin": [-200.0, 0.0, 150.0],
+  "heading": 120.0,
+  "plan": [
+    {"straight": 250},
+    {"bend": {"radius": 150, "turn": 60, "spirals": 40, "side": "right"}},
+    {"straight": 300},
+    {"bend": {"radius": 200, "turn": 40, "spirals": 30, "side": "left"}},
+    {"straight_to": 2100}
+  ],
+  "profile": {"vertical_curve": 80, "grades": [[0, 0], [600, 3.0], [900, 0], [1100, -1.5], [1700, 0]]},
+  "marks": {"depot": 100, "water": 1000, "mine": 2020}
+}

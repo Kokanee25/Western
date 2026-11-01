@@ -23,16 +23,42 @@ curve_resistance = 0.70
 breakaway = 0.004
 breakaway_speed = 0.3
 rotating_share = 0.06
-engine_length = 9.4
-engine_mass = 31000.0
-engine_trucks = Vector2(1.4, 6.6)
-tender_length = 6.4
-tender_mass = 24000.0
-tender_trucks = Vector2(1.2, 5.2)
-car_count = 3
-car_length = 9.1
-car_mass = 17000.0
-car_trucks = Vector2(1.3, 7.8)
+consist = [{
+"kind": "engine",
+"length": 9.4,
+"mass": 31000.0,
+"trucks": Vector2(1.4, 6.6)
+}, {
+"kind": "tender",
+"length": 6.4,
+"mass": 24000.0,
+"trucks": Vector2(1.2, 5.2)
+}, {
+"kind": "ore",
+"length": 7.3,
+"mass": 14000.0,
+"trucks": Vector2(1, 6.3)
+}, {
+"kind": "ore",
+"length": 7.3,
+"mass": 14000.0,
+"trucks": Vector2(1, 6.3)
+}, {
+"kind": "box",
+"length": 9.1,
+"mass": 12000.0,
+"trucks": Vector2(1.3, 7.8)
+}, {
+"kind": "express",
+"length": 10.4,
+"mass": 11000.0,
+"trucks": Vector2(1.5, 8.9)
+}, {
+"kind": "coach",
+"length": 12.8,
+"mass": 13500.0,
+"trucks": Vector2(1.6, 11.2)
+}]
 coupler_gap = 0.6
 car_width = 2.3
 car_height = 3.1
@@ -43,6 +69,19 @@ rail_size = Vector2(0.06, 0.08)
 ballast_top = 2.4
 ballast_depth = 0.3
 rail_length = 9.14
+coupler_slack = 0.065
+draft_stiffness = 3e+06
+draft_damping = 0.35
+coupler_bang_speed = 0.15
+substeps = 6
+brake_propagation = 0.35
+service_brake = 0.6
+brake_lead = 2.5
+creep_speed = 1.2
+stop_tolerance = 0.5
+throttle_gain = 0.6
+hold_brake_gain = 0.25
+dwell_min = 60.0
 start_to_25_range = Vector2(20.0, 45.0)
 stop_from_30_range = Vector2(70.0, 120.0)
 top_speed_range = Vector2(30.0, 45.0)

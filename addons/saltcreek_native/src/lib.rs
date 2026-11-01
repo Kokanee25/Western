@@ -9,12 +9,14 @@
 //! layers' shapes (sight_geo.rs), rays answered in batches across the pool.
 //! The fire's member tick (more-cores step 8): `FireCore` (fire.rs).
 //! The quit's last layer (issue #435): `QuitWatchdog` (watchdog.rs).
+//! The blast's face sums (issue #538): `BlastCore` (blast.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
+pub mod blast;
 pub mod carve;
 pub mod fire;
 pub mod member;

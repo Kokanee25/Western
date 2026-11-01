@@ -486,12 +486,13 @@ frozen until Sean names one.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
-- **Library clips** (2026-11-01, #529, branch `claude/characters-library-motion`; lab
-  `experiments/library_motion/`): Quaternius' and KayKit's CC0 animations retargeted onto our rig
-  (`tools/blender/library_motion.py`, `assets/animations/library/`), played by `LibraryMotion` by
-  the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
-  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
-  films (do they pass, turn them on?).
+- **Library clips** (2026-11-01, #529, #539; branch `claude/characters-cmu-basics`; lab
+  `experiments/library_motion/`): played by `LibraryMotion` by the body's own state behind
+  `Settings.library_motion` (off in the game; Sean: "good enough as a placeholder"). CMU motion
+  capture for the basics (the free packs' clips were cartoon), each man his own walk and run,
+  stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
+  Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
+  `theorangeduck.com` allowed.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -587,7 +588,11 @@ frozen until Sean names one.
   blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
   the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
   stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs (r13) won 8 of 12,
-  the rancher alive in all 12. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  the rancher alive in all 12. **The surprise assault** (#537, branch `claude/gameplay-farmhouse-surprise`):
+  a fuse heard 3 m and never through a wall, the hiding spot round the lean-to's west corner, a blast
+  before any alarm catches them cold (dazed, nobody calls where you are till one sees you); breach
+  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`). Losses
+  are the way out (dragging him out cold). Waiting on Sean: the film (#537). Trap: a `-s` script
   can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
@@ -617,7 +622,10 @@ frozen until Sean names one.
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
   south of town, 9 in a build for the cab. 0-25 km/h 22.6 s, 30 to a stand 94 m, top 43 / 27 on 2.5 %.
-  Waiting on Sean: the feel dials. Then step 2 (couplers, riding, the timetable).
+  Waiting on Sean: the feel dials (#553). **Step 2** (2026-11-01, #551, branch
+  `claude/gameplay-train-lab-2`): couplers with slack, the six cars as walkable solids (`TrainCars`),
+  the route as a file with named marks (`TrainRoute`), `TrainTimetable` and `TrainEngineer` (ten
+  stops within 0.46 m); results `results/2026-11-01_step2/`. Next: #542 (the coordinator writes step 3).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -637,6 +645,15 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
+- **The blast's own frame** (#538; PR #548, then #559 rounds 2-3, branch `claude/538-part-2-7zqn44`;
+  results `experiments/blast_freeze/results/2026-11-01_blast_frame/`, `..._blast_frame_3/`):
+  `SpawnQueue` (120 bodies a tick; a kit prop charged by its members), `BlastCore` (native face
+  sums), the shadow's 0.3 s wait, kit props' members straight into their bodies, a break during a
+  sliced settle queued, cracks and panes to the voice limit. One stick at Sean's: saloon ~68 / next
+  ~73, street ~80 / ~70; three sticks' worst saloon ~85, street ~115 (over). Left (#538 open): the
+  street's second stick (the settle's first round, the gather over ~700 loose bodies); 50 fps is back
+  ~0.5 s (saloon) / ~0.9 s (street), the building coming down. Trap: `test_settle_incremental`'s
+  worker/main pair flakes ~1 in 6-8 on 2 cores, main too (#560).
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

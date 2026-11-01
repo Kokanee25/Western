@@ -18,7 +18,11 @@ python3 experiments/blast_freeze/summary.py build/blast_freeze/run.json [more.js
 python3 experiments/blast_freeze/summary.py --same A.json B.json                             # the same twice? (the broken set, each frame's counts)
 ```
 
-`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [out=FILE.json]`: the spec
+`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [out=FILE.json]`:
+`in=street` puts the sticks on Main Street instead (perf_bench `--scene=blast`'s spots: a third of
+the way through the first buildings' members); `sticks`/`gap` set off several, `gap` s apart (in the
+saloon `spread` m along its front); `census=1` takes the tree census (`stick_added`), off by default
+since #538 (a walk of ~26,000 nodes, ~40 ms, landed on the stick's frame). The spec
 saloon (the building lab's, out in the desert; built if it isn't), `fire=N` floor and wall boards
 nearest `at` (the saloon's own space: x along the front, z back, y up; the hall floor is 0.78) set
 alight and left `burn` seconds (6 boards and 20 s give ~170 hot members, 20 burning, as Sean's
@@ -85,6 +89,18 @@ What was left on the after-frames before step 5 (noted for the performance sessi
 - The frame after the stick: ~125 ms untimed (the physics engine taking ~110 new bodies and 44
   new members; the batches' upload).
 - The stick's frame itself: making ~110 pieces of rubble for 22 cut boards is ~100 ms here.
+
+**The blast's own frame (#538, `results/2026-11-01_blast_frame/`):** one stick in the spec saloon,
+no fire: 305 -> ~110 ms here on its frame, the next ~250 -> ~160; Main Street ~480 -> ~165; three
+sticks' worst 330 -> 160 (saloon), 550 -> 280 (street). Glass shards and a cut board's pieces are
+made 120 a tick (SpawnQueue), the kit props' blast handler and Fittings made cheap, the blast's
+inner sum inlined, a small building's first analysis sliced. Left there: the street's frame ~110 at
+Sean's, the frame after (the kit props' push), the shadow mesh.
+Rounds 2 and 3 (`results/2026-11-01_blast_frame_3/`): the native face sums, the shadow's wait, the
+kit props' members into their bodies straight, a break during a sliced settle queued, the cracks
+and panes sounded to the voice limit: the saloon's next frame ~160 -> ~113 here, the street's worst
+~146 -> ~121, three sticks' worst 170 -> 130 (saloon), 308 -> 175 (street). Frames carry `ph`: the
+frame split into late process / the frame's end / physics / early process (`late_stamp.gd`).
 
 ## Files
 

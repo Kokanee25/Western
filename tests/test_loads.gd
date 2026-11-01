@@ -120,15 +120,21 @@ func test_porch_comes_down_without_its_posts() -> void:
 	check(store.rubble.size() >= 2, "as rubble (%d pieces)" % store.rubble.size())
 	# Down on the ground: every piece's lowest corner near the ground (a rafter may end up leaning
 	# on the wall).
+	# By the body's shape owners: a piece lying still in RubbleRest's cell has its shape nodes set
+	# aside, its shapes held as owners on the body (the CI run of #538 had them all down, asleep,
+	# with no shape nodes left: read from those, every piece was "nowhere").
 	var lowest := func(rb: RigidBody3D) -> float:
 		var y := INF
-		for c in rb.get_children():
-			if c is CollisionShape3D:
-				var cs := c as CollisionShape3D
-				var half: Vector3 = (cs.shape as BoxShape3D).size * 0.5
+		for owner_id: int in rb.get_shape_owners():
+			var at := rb.global_transform * rb.shape_owner_get_transform(owner_id)
+			for k in rb.shape_owner_get_shape_count(owner_id):
+				var box := rb.shape_owner_get_shape(owner_id, k) as BoxShape3D
+				if box == null:
+					continue
+				var half: Vector3 = box.size * 0.5
 				for i in 8:
 					var corner := Vector3(half.x * (1 if i & 1 else -1), half.y * (1 if i & 2 else -1), half.z * (1 if i & 4 else -1))
-					y = minf(y, (cs.global_transform * corner).y)
+					y = minf(y, (at * corner).y)
 		return y
 	# Nearly all of it (a piece can end up propped on the post that's left or leaning on the wall).
 	var down_share := func() -> float:
@@ -142,7 +148,14 @@ func test_porch_comes_down_without_its_posts() -> void:
 		return float(down) / maxf(n, 1)
 	await wait_until(func() -> bool: return down_share.call() >= 0.95, 60 * 6)
 	var share: float = down_share.call()
-	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces)" % (share * 100.0))
+	# (What each piece is doing, in the message when it fails: #538's CI failed here and nowhere else.)
+	var pieces: Array[String] = []
+	for rb in store.rubble:
+		if is_instance_valid(rb):
+			var shapes := rb.get_shape_owners().size()
+			pieces.append("y %.2f low %.2f v %.2f%s%s %d shapes" % [rb.global_position.y, lowest.call(rb), rb.linear_velocity.length(),
+					" asleep" if rb.sleeping else "", " frozen" if rb.freeze else "", shapes])
+	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces: %s)" % [share * 100.0, "; ".join(pieces)])
 	var asleep := func() -> Vector2i:
 		var n := Vector2i.ZERO
 		for rb in store.rubble:

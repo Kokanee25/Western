@@ -96,6 +96,108 @@ func test_pressure_falls_with_distance() -> void:
 	check(Blast.impulse(kg, 1.0) > Blast.impulse(kg, 3.0), "impulse falls off too")
 
 
+## The face's sum taken the plain way (impulse() and reflection(overpressure_kpa()) per strip, as
+## face_impulse was before #538 inlined them): the same to the last bit, so the same boards break
+## and are cut the same.
+static func _face_reference(m: StructureMember, at: Vector3, kg: float, window := INF, center := NAN) -> float:
+	var length := m.length()
+	var cs := m.cross_section()
+	var width := maxf(cs.x, cs.y)
+	var half := length * 0.5
+	var t0 := clampf((at - m.global_position).dot(m.axis()), -half, half)
+	var tc := t0 if is_nan(center) else clampf(center, -half, half)
+	var perp := Blast._nearest_on(m, at).distance_to(at)
+	var out := Blast._out_from_face(m, at)
+	var offsets := [0.0]
+	for d in [0.03, 0.08, 0.15, 0.3, 0.6, 1.2, 2.4, 4.8]:
+		offsets.append(d)
+		offsets.append(-d)
+	var ts: Array[float] = []
+	for o: float in offsets:
+		var t := clampf(t0 + o, -half, half)
+		if not ts.has(t):
+			ts.append(t)
+	if tc != t0 and window < INF:
+		for o: float in [0.0, -0.4, -0.15, 0.15, 0.4]:
+			var t := clampf(tc + o * window, -half, half)
+			if not ts.has(t):
+				ts.append(t)
+	ts.sort()
+	var total := 0.0
+	for i in ts.size():
+		var lo := -half if i == 0 else (ts[i - 1] + ts[i]) * 0.5
+		var hi := half if i == ts.size() - 1 else (ts[i] + ts[i + 1]) * 0.5
+		if window < INF:
+			lo = maxf(lo, tc - window * 0.5)
+			hi = minf(hi, tc + window * 0.5)
+		var seg := hi - lo
+		if seg <= 0.0:
+			continue
+		var along := ts[i] - t0
+		var r := maxf(sqrt(perp * perp + along * along), 0.02)
+		var mean := 0.0
+		for k in 3:
+			var off := width * (k - 1) / 3.0
+			var rk := sqrt(r * r + off * off)
+			var square_on := clampf(out / rk, 0.0, 1.0)
+			mean += Blast.impulse(kg, rk) * (1.0 + (Blast.reflection(Blast.overpressure_kpa(kg, rk)) - 1.0) * square_on)
+		total += mean / 3.0 * seg * width
+	return total
+
+
+func test_the_face_sum_is_the_plain_one_to_the_bit() -> void:
+	var store := await _store()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 538
+	var members := store.get_members()
+	var n := 0
+	var most_ok := true
+	for i in 120:
+		var m := members[rng.randi() % members.size()]
+		var at := m.global_position + Vector3(rng.randf_range(-2, 2), rng.randf_range(-1, 1), rng.randf_range(-2, 2))
+		var kg := rng.randf_range(0.05, 1.5)
+		if Blast.face_impulse(m, at, kg) == _face_reference(m, at, kg):
+			n += 1
+		var c := rng.randf_range(-1.0, 1.0)
+		if Blast.face_impulse(m, at, kg, 0.3, c) == _face_reference(m, at, kg, 0.3, c):
+			n += 1
+		most_ok = most_ok and Blast.face_impulse(m, at, kg) <= Blast.most_face_impulse(m, at, kg) * (1.0 + 1e-9)
+	check_eq(n, 240, "face_impulse is the plain sum exactly, whole and windowed (%s)" % ("native" if Blast.native else "script"))
+	check(most_ok, "and never more than most_face_impulse (what KitProp skips a blast by)")
+
+
+## The plugin's sums (BlastCore, #538) against the script's own: the same to the bit, so the same
+## boards break and are cut the same with it or without (the web runs without).
+func test_the_native_face_sum_is_the_scripts() -> void:
+	if Blast.native == null:
+		check(true, "no plugin here: the script's sums are the game's")
+		return
+	var store := await _store()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5380
+	var members := store.get_members()
+	var timber: TimberTuning = load("res://config/timber.tres")
+	var faces := 0
+	var cuts := 0
+	var cut_some := 0
+	var native: Object = Blast.native
+	for i in 150:
+		var m := members[rng.randi() % members.size()]
+		var at := m.global_position + Vector3(rng.randf_range(-1.5, 1.5), rng.randf_range(-1, 1), rng.randf_range(-1.5, 1.5))
+		var kg := rng.randf_range(0.05, 1.5)
+		var c := rng.randf_range(-1.0, 1.0)
+		var a := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = null
+		var b := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = native
+		faces += int(a[0] == b[0]) + int(a[1] == b[1])
+		cuts += int(a[2] == b[2])
+		cut_some += int((b[2] as Vector2).y > (b[2] as Vector2).x)
+	check_eq(faces, 300, "the native face sum is the script's to the bit, whole and windowed")
+	print("  native vs script: %d faces, %d stretches the same, %d of them torn" % [faces, cuts, cut_some])
+	check_eq(cuts, 150, "and the stretch it tears out the same (%d of them a stretch)" % cut_some)
+
+
 # --- Buildings --------------------------------------------------------------------------------------
 
 func test_a_stick_by_the_wall_blows_a_hole_in_the_siding() -> void:

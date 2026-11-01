@@ -39,6 +39,9 @@ extends Resource
 @export var warn_far := 55.0
 ## A blast this near the house (m) is a breach: the alarm, and they turn to it.
 @export var breach_reach := 18.0
+## A blast at the house before any alarm (a stick set unheard: the surprise assault, issue #537):
+## the men are dazed this long (s, each 0.8-1.2 of it) and don't know where you are.
+@export var caught_cold := 4.0
 ## How far (m) off a man hearing a shot or a blast places you (his guess, not your spot).
 @export var heard_error := 3.0
 ## The men, each {id, model, post (a farmhouse use point), hold ("house" or "bedroom"), nerve,

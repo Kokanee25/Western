@@ -224,3 +224,47 @@ func test_an_out_cold_rancher_is_cut_loose_and_dragged_out() -> void:
 	Input.action_release(&"shove")
 	check(mission.hostage_at().distance_to(from) > 0.5, "dragged (%.2f m)" % mission.hostage_at().distance_to(from))
 	check(player.shove.move == &"", "not a shove or a kick")
+
+
+## The surprise assault (issue #537, Sean): a stick set on the kitchen's back wall without them
+## knowing. Its hiss isn't heard inside (Hollis is a metre and a half from it, through the wall),
+## so there's no alarm before it; the wall going up is the alarm, and they're caught cold: dazed,
+## nobody calling where you are, nobody knowing it, till one of them sees you or you fire.
+func test_a_stick_they_never_heard_is_a_surprise() -> void:
+	await _begin()
+	# You in the hiding spot round the lean-to's corner (out of sight of every window and door).
+	player.global_position = Farmhouse.on_ground(-0.9, 6.6) + Vector3.UP * 0.05
+	await physics_frames(10)
+	var eye := Farmhouse.on_ground(2.9, 8.3) + Vector3.UP * 1.6
+	var to := Farmhouse.at(Vector3(2.9, 0.0, 7.6))
+	to.y = eye.y - 0.4
+	var spot := DynamiteViewmodel.plant_spot(World.space(street), eye, (to - eye).normalized(), 2.2, [player.get_rid()])
+	check(not spot.is_empty(), "the kitchen's back wall in reach")
+	if spot.is_empty():
+		return
+	var s := DynamiteStick.make(street, spot.at, Vector3.ZERO, 3.0)
+	s.owner_node = player
+	s.global_basis = spot.basis
+	s.stick_to(spot.collider)
+	s.light()
+	await physics_frames(int(2.8 * 60))
+	check_eq(mission.alarm_t, -1.0, "no alarm while it burns (%s)" % [mission.timeline])
+	check(not lines.any(func(l: String) -> bool: return l.contains("hiss")), "nobody heard it hiss: %s" % [lines.slice(-3)])
+	await wait_until(func() -> bool: return mission.breach_t >= 0.0, 60)
+	await physics_frames(2)
+	check(mission.surprise_t >= 0.0 and is_equal_approx(mission.alarm_t, mission.surprise_t), "the blast's the alarm (%s)" % [mission.timeline])
+	check(not mission.timeline.any(func(e: Array) -> bool: return String(e[1]).begins_with("the alarm: ")), "not raised by what it broke or whom it hit")
+	var dazed := mission.brains.filter(func(b: OutlawBrain) -> bool: return b.body.physiology.is_conscious() and b.mood != OutlawBrain.Mood.SURRENDERED)
+	check(not dazed.is_empty() and dazed.all(func(b: OutlawBrain) -> bool: return b.stunned > 0.0), "every man still in it dazed")
+	check(mission.defence.quiet, "nobody calls where you are")
+	await physics_frames(60 * 3)
+	var calls: Array = []
+	for place: String in HouseDefence.CALLS:
+		if place != "last_stand":
+			calls.append_array(HouseDefence.CALLS[place])
+	check(not lines.any(func(l: String) -> bool: return calls.any(func(c: String) -> bool: return l.ends_with(c))), "no \"Round back!\": %s" % [lines.slice(-5)])
+	check_eq(mission.found_t, -1.0, "they don't know where you are")
+	# You fire: now they do.
+	Events.shot_fired.emit(player.global_position + Vector3.UP * 1.5, Vector3.UP, player)
+	await physics_frames(3)
+	check(mission.found_t >= 0.0 and not mission.defence.quiet, "found once you fire (%s)" % [mission.timeline.slice(-3)])

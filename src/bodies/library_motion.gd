@@ -1,7 +1,8 @@
 class_name LibraryMotion
 extends RefCounted
-## A man moved by library clips (issue #529; `Settings.library_motion`, off in the game until Sean
-## passes them): Quaternius' and KayKit's CC0 animations, retargeted onto our 17 segments
+## A man moved by library clips (issues #529, #539; `Settings.library_motion`, off in the game until
+## Sean passes them): since #539 real people from CMU's motion-capture database (the free packs'
+## cartoon clips didn't pass), retargeted onto our 17 segments
 ## (`tools/blender/library_motion.py`, `assets/animations/library/`, its manifest). The body picks
 ## the clip by its own state, never a brain's say: walking, running, backing or sidestepping by the
 ## way his feet take him, crouched, aiming, standing about; a hit he stays up from plays a small
@@ -18,10 +19,11 @@ extends RefCounted
 
 const DIR := "library/"
 ## The clips by move (assets/animations/library/<move>.json).
-const MOVES: Array[StringName] = [&"idle", &"walk", &"run", &"walk_back", &"strafe_l",
+const MOVES: Array[StringName] = [&"walk_gun", &"run_gun", &"idle", &"walk", &"run", &"walk_back", &"strafe_l",
 		&"strafe_r", &"crouch_walk", &"crouch_idle", &"pistol_aim", &"hit_front", &"hit_head"]
-## In the library but not picked by any state yet (the tools show them: the lineup, the sheet).
-const SHOWN: Array[StringName] = [&"pistol_shoot", &"reload", &"long_aim", &"long_shoot", &"long_reload"]
+## A move with no clip (none yet: the aim, the reload and the hits are to come, #539) leaves him on
+## his pose. In the library but not picked by any state (the tools show them: the lineup, the sheet).
+const SHOWN: Array[StringName] = [&"reload", &"stagger"]
 ## Faster than this (m/s) over the ground, the run.
 const RUN_FROM := 2.4
 ## Slower than this he's standing.
@@ -50,6 +52,17 @@ const NONE := [&"duck", &"tend", &"cower", &"sit", &"sit_back", &"kick", &"lie",
 
 static var _clips := {}  ## move -> MotionClip (null: no file)
 static var _loaded := false
+## Other people's walks and runs (the manifest's `variant_of`): the base move -> the clips a man's
+## seed picks from (the base's own first); a `style` variant (a drunk's walk) only for a man named
+## to it in config/walks.json's `library`.
+static var _pool := {}
+## Each gait's and idle's mean turn a joint (clip -> {segment: Quaternion}), for his arm swing.
+static var _means := {}
+const ARMS := [&"upper_arm_l", &"forearm_l", &"upper_arm_r", &"forearm_r"]
+## A man's own: how much longer his stride than the clip's (his cadence), how much more his arms
+## swing (both about 1, set by his seed: `choose`).
+const STRIDE_SPREAD := 0.06
+const ARM_SPREAD := 0.2
 
 var move := &""  ## the clip he's on now
 var w := 0.0  ## how far the layer has him (0..1)
@@ -63,6 +76,9 @@ var _last := {}  ## his last frame out (for letting go)
 ## -1: as it plays).
 var force := &""
 var force_at := -1.0
+var own := {}  ## base move -> his own variant (walk -> walk_e)
+var stride_k := 1.0
+var arm_k := 1.0
 var _hit: MotionClip
 var _hit_t := 0.0
 
@@ -74,6 +90,69 @@ static func preload_clips() -> void:
 	_loaded = true
 	for m: StringName in MOVES + SHOWN:
 		_clips[m] = MotionClip.load_clip(StringName(DIR + String(m)))
+	var path := "res://assets/animations/library/manifest.json"
+	var man: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
+	var clips: Dictionary = (man as Dictionary).get("clips", {}) if man is Dictionary else {}
+	for k: String in clips:
+		var e: Dictionary = clips[k]
+		if not e.has("variant_of"):
+			continue
+		var c := MotionClip.load_clip(StringName(DIR + k))
+		if c == null:
+			continue
+		_clips[StringName(k)] = c
+		var base := StringName(e.variant_of)
+		if not e.get("style", false):
+			if not _pool.has(base):
+				_pool[base] = [base] if _clips.get(base) != null else []
+			(_pool[base] as Array).append(StringName(k))
+	for k: StringName in _clips:
+		var c := _clips[k] as MotionClip
+		if c != null and c.kind in [&"gait", &"idle"]:
+			_means[k] = _mean_turns(c)
+
+
+## Each arm joint's mean turn over the clip (a normalised sum, the signs lined up with the first).
+static func _mean_turns(c: MotionClip) -> Dictionary:
+	var out := {}
+	for sid: StringName in ARMS:
+		var sum := Vector4.ZERO
+		var first := Quaternion.IDENTITY
+		var have := false
+		for fr: Dictionary in c.frames:
+			if not fr.has(sid):
+				continue
+			var q: Quaternion = fr[sid]
+			if not have:
+				first = q
+				have = true
+			if q.dot(first) < 0.0:
+				q = -q
+			sum += Vector4(q.x, q.y, q.z, q.w)
+		if have and sum.length() > 1e-6:
+			sum = sum.normalized()
+			out[sid] = Quaternion(sum.x, sum.y, sum.z, sum.w)
+	return out
+
+
+## His own walk and run, stride and arm swing (on the main thread, as he's made): a walk named for
+## him or his model in config/walks.json's `library`, else one of the pool by his seed; his stride
+## and swing a little either side of the clip's, by his seed too.
+func choose(body: HumanBody) -> void:
+	var h: int = hash(String(body.person_id)) ^ (body.rng_seed * 7919)
+	var named := WalkStyles.library_for(body.person_id, body.body_model)
+	for base: StringName in _pool:
+		var pool: Array = _pool[base]
+		if pool.is_empty():
+			continue
+		own[base] = pool[posmod(h, pool.size())]
+	if named != &"" and _clips.get(named) != null:
+		var base := StringName(String(named).split("_")[0])
+		own[base] = named
+	var r := RandomNumberGenerator.new()
+	r.seed = h
+	stride_k = 1.0 + r.randf_range(-STRIDE_SPREAD, STRIDE_SPREAD)
+	arm_k = 1.0 + r.randf_range(-ARM_SPREAD, ARM_SPREAD)
 
 
 static func clip(m: StringName) -> MotionClip:
@@ -125,6 +204,11 @@ func now(body: HumanBody, delta: float) -> Dictionary:
 	var want := &"" if mask.is_empty() else move_for(body.pose, body.gait, body.move_speed, body.lib_travel)
 	if force != &"" and not mask.is_empty():
 		want = force
+	elif armed and (want == &"walk" or want == &"run") and clip(StringName(String(want) + "_gun")) != null:
+		# A gun in his hand: Uthana's walk and run holding it (#539), not his own empty-handed one.
+		want = StringName(String(want) + "_gun")
+	elif own.has(want):
+		want = own[want]
 	var c := clip(want) if want != &"" else null
 	if c == null or c.frames.is_empty():
 		w = move_toward(w, 0.0, delta / EASE_S)
@@ -143,7 +227,7 @@ func now(body: HumanBody, delta: float) -> Dictionary:
 	var at := 0.0
 	var length := c.length()
 	if c.kind == &"gait" and c.stride > 0.0:
-		var stride := c.stride * body.leg_length() / RIG_LEG_M
+		var stride := c.stride * stride_k * body.leg_length() / RIG_LEG_M
 		_phase = fposmod(_phase + delta * body.move_speed / maxf(stride, 0.1), 1.0)
 		at = _phase * length
 	else:
@@ -154,10 +238,18 @@ func now(body: HumanBody, delta: float) -> Dictionary:
 	var f := c.sample(at)
 	hips = c.hips_at(at)
 	var out := {}
+	var means: Dictionary = _means.get(move, {}) if absf(arm_k - 1.0) > 0.01 else {}
 	for sid: StringName in mask:
 		if not f.has(sid):
 			continue
 		var q: Quaternion = f[sid]
+		if means.has(sid):
+			# His arm swing: the clip's turn about its mean, more or less.
+			var mean: Quaternion = means[sid]
+			var d := (mean.inverse() * q).normalized()
+			var ang := d.get_angle()
+			if ang > 1e-4:
+				q = (mean * Quaternion(d.get_axis().normalized(), ang * arm_k)).normalized()
 		if _xf < 1.0 and _from.has(sid):
 			q = (_from[sid] as Quaternion).slerp(q, smoothstep(0.0, 1.0, _xf))
 		out[sid] = q

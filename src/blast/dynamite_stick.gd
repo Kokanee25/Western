@@ -197,7 +197,11 @@ func _physics_step(delta: float) -> void:
 			_hiss_heard -= delta
 			if _hiss_heard <= 0.0:
 				_hiss_heard = 0.5
-				Events.noise.emit(global_position, Blast.t().fuse_heard, &"fuse", self)
+				# Made a hand off the face it's on (its basis.x as planted, DynamiteViewmodel.plant), so a
+				# man the other side of the wall has the wall between him and it (Senses: none of a
+				# fuse's hiss gets through), however thin the wall.
+				var off := global_basis.x.normalized() * 0.3 if is_instance_valid(stuck_to) else Vector3.ZERO
+				Events.noise.emit(global_position + off, Blast.t().fuse_heard, &"fuse", self)
 	else:
 		_fire_check -= delta
 		if _fire_check <= 0.0:

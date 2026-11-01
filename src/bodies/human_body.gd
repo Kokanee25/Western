@@ -2549,6 +2549,7 @@ func _lib_switch() -> void:
 	if on and _lib == null:
 		LibraryMotion.preload_clips()
 		_lib = LibraryMotion.new()
+		_lib.choose(self)
 	elif not on and _lib != null:
 		_lib = null
 		_pose_lib = {}

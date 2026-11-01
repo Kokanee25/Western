@@ -74,9 +74,30 @@ func _ready() -> void:
 		contents = PropContents.make(self)
 		if contents:
 			add_child(contents)
-	if not Events.member_broken.is_connected(_on_member_broken):
-		Events.member_broken.connect(_on_member_broken)
+	# One listener for every prop's breaks (#538: ~110 props each hearing each of a stick's ~600
+	# breaks was ~0.15 ms a break): by the structure id the member's id starts with.
+	var mine: Array = _by_structure.get_or_add(structure_id, [])
+	if not mine.has(self):
+		mine.append(self)
+	if not Events.member_broken.is_connected(_any_member_broken):
+		Events.member_broken.connect(_any_member_broken)
+	if not Events.exploded.is_connected(_on_exploded):
 		Events.exploded.connect(_on_exploded)
+
+
+## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").
+static var _by_structure := {}
+
+
+static func _any_member_broken(id: StringName) -> void:
+	var props: Variant = _by_structure.get(StringName(String(id).get_slice("/", 0)))
+	if props == null:
+		return
+	for p: Variant in (props as Array).duplicate():
+		if is_instance_valid(p):
+			(p as KitProp)._on_member_broken(id)
+		else:
+			(props as Array).erase(p)
 
 
 func build() -> void:
@@ -286,9 +307,9 @@ func _leave_batch() -> void:
 
 
 ## In a PropBatch: anything happening to a member, or to it (moved, hidden), and it draws itself.
-func unbatch(m: StructureMember, soon := false) -> void:
+func unbatch(m: StructureMember, soon := false, aside := false) -> void:
 	_leave_batch()
-	super.unbatch(m, soon)
+	super.unbatch(m, soon, aside)
 
 
 ## Heated or charred: drawn by its own batches, which carry the char (Structure.show_fire).
@@ -452,7 +473,8 @@ static func _bottom_corners(m: StructureMember) -> Array[Vector3]:
 # --- Balance -------------------------------------------------------------------------------------
 
 func _on_member_broken(id: StringName) -> void:
-	if loose or not String(id).begins_with(String(structure_id) + "/") or not members.has(id):
+	# (Every prop hears every break: the cheap test first.)
+	if loose or not members.has(id) or not String(id).begins_with(String(structure_id) + "/"):
 		return
 	if _seat_member and id == _seat_member.member_id:
 		_unseat()
@@ -574,20 +596,14 @@ static func _mass_of(bodies: Array[RigidBody3D]) -> float:
 	return kg
 
 
-static var _fittings: WeakRef
-
-
 ## What stood on it alone (a lamp, a bottle: Fittings' items) comes down with it now, not at
 ## Fittings' next look: left there a moment, it's a fixed thing the table rises into.
 func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
-	var f: Node = _fittings.get_ref() if _fittings else null
-	if f == null or not f.is_inside_tree():
-		var found := get_tree().root.find_children("*", "Fittings", true, false)
-		f = found[0] if not found.is_empty() else null
-		_fittings = weakref(f) if f else null
+	var f := get_tree().get_first_node_in_group(&"fittings") as Fittings
 	if f == null:
 		return
-	for item: Dictionary in f.get(&"items"):
+	# Only what its own members hold (Fittings' index, in its order) can be all its.
+	for item: Dictionary in f.items_on_any(get_members()):
 		if item.down or (item.members as Array).is_empty():
 			continue
 		var mine := (item.members as Array).all(func(e: Array) -> bool:
@@ -706,13 +722,34 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
 	await get_tree().physics_frame  # after the blast's own breaking has settled
+	# (Every prop in the town hears every blast: out of reach, done. This runs as `physics_frame`
+	# is emitted, before any system's tick, so it's timed here: `kit_blast`.)
+	if loose or not is_inside_tree() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:
+		return
+	var t := Prof.start()
+	# (Not a SpawnQueue job: thrown a few ticks late, behind a stick's shards, props flew into a
+	# changed building and three sticks brought down 450 members, not main's 240: #538.)
+	_blast_push(at, kg)
+	Prof.stop(&"kit_blast", t)
+
+
+func _blast_push(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
 	var left: Array[StructureMember] = []
 	for m in get_members():
 		if not m.broken:
 			left.append(m)
-	if left.is_empty() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:
+	if left.is_empty():
+		return
+	# The most it could be pushed (every face as near and square as its nearest point, nothing in
+	# between) short of moving it: it doesn't, and its faces needn't be walked (#538: a prop's
+	# faces and rays were ~0.2 ms a member, for the dozens a stick reaches and doesn't move).
+	var kgs := mass()
+	var most := 0.0
+	for m in left:
+		most += Blast.most_face_impulse(m, at, kg)
+	if most / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	var pushes := {}  # member -> its push (N·s)
 	var total := Vector3.ZERO
@@ -725,7 +762,6 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 			push = _off_the_wall(push)
 		pushes[m] = push
 		total += push
-	var kgs := mass()
 	if total.length() / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	# No faster than Blast throws anything.
@@ -734,6 +770,12 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	# (The shards and pieces waiting make way, #538: by its members, each a mesh and a shape moved
+	# into its body, as a shard is a body made, not by its bodies, a dozen members one of them.)
+	var cost := 0
+	for rb in bodies:
+		cost += (rb.get_meta(&"members", []) as Array).size()
+	SpawnQueue.spent(self, cost)
 	# What actually moves: what it held may have run out as it went (a full barrel blown open).
 	if contents and contents.released:
 		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())

@@ -1,0 +1,226 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:House/back_stud_012",
+  "0.3:House/back_stud_014",
+  "0.3:House/back_stud_013",
+  "0.3:House/back_siding_c18_0",
+  "0.3:House/back_in_ground_board_019_0",
+  "0.3:House/back_siding_c19_0",
+  "0.3:House/back_in_ground_board_020_0",
+  "0.3:House/back_siding_c20_0",
+  "0.3:House/back_in_ground_board_021_0",
+  "0.3:House/back_siding_c21_0",
+  "0.3:House/bedroom_m_board_020_0",
+  "0.3:House/bedroom_stud_011",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.0:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_032_1"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 103.38,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 103.38,
+   "plant": 79.7,
+   "rescue": 100.43,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 98.88,
+ "frames": {
+  "blast_ms": 251.57,
+  "fight_ticks": 9198,
+  "max_ms": 257.55,
+  "mean_ms": 20.48,
+  "p95_ms": 29.94
+ },
+ "freed": 103.88,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   1.63,
+   0.67,
+   4.99
+  ],
+  "limp": true,
+  "pelvis": [
+   1.9,
+   0.69,
+   4.34
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  1.78,
+  0.7,
+  4.7
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "give up: past his nerve (fear 1.27 / 0.95)",
+   "id": "brody",
+   "inside": true,
+   "knows": 135.7,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 119.2,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.82 / 0.75)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 109.7,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 2 s since your last shot",
+   "id": "kid",
+   "inside": false,
+   "knows": 134.8,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 110.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Bone broken.",
+ "player_local": [
+  5.26,
+  1.82,
+  5.53
+ ],
+ "seed": 8,
+ "state": "ON",
+ "surprise": 87.22,
+ "t": 240.5,
+ "threat": 87.25,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.25,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   89.73,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.48,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   98.88,
+   "found: you fired"
+  ],
+  [
+   103.88,
+   "the rancher cut loose"
+  ],
+  [
+   121.3,
+   "Brody down"
+  ],
+  [
+   132.4,
+   "Brody dead"
+  ],
+  [
+   158.42,
+   "Dutch down, out"
+  ]
+ ],
+ "way": "breach",
+ "where": "bedroom"
+}

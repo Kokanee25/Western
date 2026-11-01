@@ -595,7 +595,13 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
   them back as child 0 and 1 before anything reads them (`unbatch`, `add_hole`, `carve_hit`,
   `shatter`, the voxel mesh). Read a member's mesh with `drawn_node()`, never `get_child(0)`,
-  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes.
+  unless it's been unbatched. The street went ~31,700 -> ~16,000 nodes. Falling (`_drop`), a
+  member's nodes go straight into its new body (`unbatch(m, false, true)` leaves them aside,
+  `take_parts()` hands them over), and the body is made up whole before it enters the world
+  (`_new_rubble(ids, false)`, `_enter_rubble`; its members' `member_broken` after): a kit prop's
+  ~20 members each put back, moved and registered with a body already there was ~1 ms a prop (#538).
+  A building's timber cracks and panes sound at most `breaking_limit` (GameAudio's voice limit) a
+  tick each (`under_this_tick`; what's heard, `Events.noise`, once a tick as before).
   **A member's `look`** (art, 2026-10-26, #405): the wood its mesh is drawn in when not its own
   (`drawn_wood()`); `wood` still decides the timber, ballistics and voxel tunings. A building's
   inside floor and framing (`FalseFrontBuilding.INSIDE_LOOK`/`INSIDE_KINDS`, not the porch; the
@@ -624,8 +630,11 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
   the FireSystem's (its queue: below); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
-  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also queued when built,
-  `queue_check`) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
+  (`SLICE_LEFT`), one the FireSystem is already settling (`FireSystem.settling`: a piece of a
+  blast's collapse landing on a joist was a whole round, ~15 ms, on the stick's next frame, #538)
+  or a big building's first (`SLICED_ABOVE`; also queued when built,
+  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
+  Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
   **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
@@ -652,7 +661,24 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   their material (`_batch_new`; drawn on their own till it's built: `_hide_after`). The
   shadow-only merge of every batch is plain arrays merged on a worker thread (`_shadow_soon`, at
   most every `SHADOW_REBUILD_GAP`; no rendering calls off the main thread: they deadlock against
-  a main thread that waits). GameQuit waits for both (`batches_running`, `shadow_running`).
+  a main thread that waits, and a mesh made on a worker was used before the server had it, #538).
+  Its ArrayMesh on the main thread is `shadow_set` (~30 ms for the spec saloon, a second apart while
+  it changes), never sooner than `SHADOW_FIRST_WAIT` (0.3 s) after the change that asks for it (it
+  landed on a blast's next frame). GameQuit waits for both (`batches_running`, `shadow_running`).
+  **SpawnQueue** (`src/structures/spawn_queue.gd`, #538; one per tree, group `spawn_queue`): the
+  loose bodies a break makes, `PER_TICK` (120) bodies a physics tick at most, in the order asked,
+  `SOON` (a cut's flying pieces, `Structure._make_chunks`) before `LATER` (glass shards,
+  `StructureMember._make_shards`). A kit prop blown loose counts its members against the tick
+  (`SpawnQueue.spent`: each a mesh and a shape moved into its body, as a shard is a body; the
+  saloon's 27 props are 488 members, so the shards wait a tick). A kit prop's blast push and tipping over stay on their tick
+  (queued, three sticks brought the spec saloon down to 450 members, not 240).
+  A job that fits the tick's room with nothing ahead of it runs at once (a ball's pane shatters on
+  its tick, as before). Counted in bodies, never time (World.deterministic); after every system's
+  tick (`TICK_PRIORITY`). (Holding all of a blast's bodies to the next tick saved ~30 ms of its
+  frame but made `test_settle_incremental`'s worker/main-thread pair break different ground
+  boards run to run: not done.)
+  What breaks is decided and shown on its tick (the pane hidden, the board's ends, the settle);
+  a cut's pieces' velocities are drawn then too, so they fly as before, a tick or few later.
   **Rubble at rest** (`RubbleRest`, `src/structures/rubble_rest.gd`, #459; `-- --no-rubble-rest`
   off): one per world (a child of the street, made by `for_node`; not under Compatibility, as
   PropBatch). Rubble (`Structure._new_rubble`) and shards (`StructureMember.shatter`, GlassProp)
@@ -679,7 +705,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
   `infer_supports` for those alone); the member is broken with `cut`/`cut_pieces` meta, saved in
-  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays).
+  `to_dict().cuts`; `Events.member_cut` tells Fittings (what stood on a piece stays; Fittings
+  keeps each member's items, `items_on`, #538). In `break_members` the cuts' wakes are one pass
+  (`_wake_near_all`); a building's breaking noise is heard once a tick (`first_this_tick`).
   **Voxel damage** (docs/DESTRUCTION_BRIEF.md step 2; `config/voxel_damage.tres` via
   `VoxelDamageTuning`): a member hit for the first time gets `voxels`, the native plugin's
   `VoxelMember` (64 cells a metre, a whole number per side so the uncarved member is its box);
@@ -953,11 +981,17 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   tied man (`claims_use`, PlayerShove's group `claims_use`) cuts him loose; he follows you,
   crouched, behind you from the nearest man. Won/lost: a line on screen (`PlayerWounds.say`),
   Enter to try again. `result()` is what the bridge and the scripted runs read.
+  **The surprise assault** (#537): a blast at the house before any alarm (`_surprised`) is the
+  alarm, but the men are caught cold (`OutlawBrain.caught_cold`: in the fight, dazed `caught_cold`
+  s), know only where the blast was, and don't call where you are (`HouseDefence.quiet`) till one
+  sees you or you fire (`found_t`); a hit or a loud sound raises the alarm a tick late
+  (`_alarm_soon`) so the blast's own effects don't. A fuse's hiss: 3 m, never through a wall
+  (`Senses.THROUGH_WALLS`; DynamiteStick makes it off the face it's on).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
-  playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_view`, `farm_start`, `farm_state`,
+  playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,
   `farm_free`, `farm_fail`, `farm_run`.
 
 ## src/people
@@ -1118,6 +1152,23 @@ physics tick, the cars drawn at the interpolated distance; `cost` counters). Not
 town yet: the lab lays its test line out on the flat south of town (9 in a build; bridge
 `train_lab`).
 
+Step 2 (#551): `TrainSim` has each car its own mass on the line (`x[i]`, `vel[i]`; `s`/`v` are the
+engine's), joined by couplers with free play (`coupler_slack`) and a draft gear's spring-damper
+past it, stepped `substeps` a tick; brakes come on car by car (`brake_propagation`); every
+slack-out and bunch is an event (`take_events`, `Train.coupler`). The consist is data
+(`TrainTuning.consist`: the six cars). `TrainRoute` reads a route file (plan, profile, **named
+marks**) into a `TrackLine` (`mark_s(name)`, `along()`); the bed is two-sided (kit props find their
+footing on it). `TrainCars` lists each car's boxes (walkable stand-ins: decks with lips, the
+coach's and express car's shells with doorways, the boxcar's and tender's steps with a ramp over
+them, the cab open at the gangway, the pilot's wedge), drawn and solid alike: `TrainView.solids`
+(an `AnimatableBody3D` a car on `Layers.WORLD`, meta `train_car`, `surface`) placed on the tick;
+`Train.rider` drawn without interpolation while he stands on a car (`car_under`); `Train._strike`
+knocks a standing kit prop loose and shoves or strikes a man in a moving car's way (`struck`).
+`TrainTimetable` (stops by mark, dwell, times given or measured from the line: `fill`, `measure`,
+`scheduled_at`) and `TrainEngineer` (drives by regulator, brake and reverser: holds the speed that
+keeps time, brakes for the mark from the 1D stopping distance, creeps or sets back, a late start
+made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log`).
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
@@ -1148,6 +1199,10 @@ town yet: the lab lays its test line out on the flat south of town (9 in a build
 
 ## src/blast
 
+- **Native sums** (#538): `Blast.native` (the plugin's `BlastCore`, made by ClassDB; null on the web
+  or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
+  `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the
+  same order: `test_the_native_face_sum_is_the_scripts` holds them to the bit (on Linux; CI).
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or
@@ -1414,7 +1469,10 @@ town yet: the lab lays its test line out on the flat south of town (9 in a build
   `blow_span` (the stretch that bends: a leg below the seat) breaks
   it, else what's left moves, or holds under a seated man unless it'd slide `hold` out from under
   him); `Events.exploded` (what the blast didn't break is thrown: each member pushed by `Blast.face_impulse` at
-  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put);
+  itself, through `Blast.shielding`, a frame after it goes loose; under `LOOSE_FROM` it stays put;
+  out of reach, or short of it even at `Blast.most_face_impulse` a member, nothing is walked,
+  #538); every prop's breaks heard
+  through one listener by structure id (`_any_member_broken`);
   going loose drops at once what stood only on it (Fittings' items), its pieces kept clear of a
   dropped lamp's hitbox (a fixed body inside the fallen lamp);
   `sit(man)`/`leave()` (his weight times `share` as the seat's `extra_load`; he goes limp when the
@@ -1798,7 +1856,8 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
   `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
-  (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire").
+  (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
+  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast").
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
   world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,

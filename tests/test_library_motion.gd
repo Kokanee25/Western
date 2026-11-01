@@ -48,11 +48,13 @@ func test_the_manifest_lists_every_clip_with_its_licence() -> void:
 	check(FileAccess.file_exists(path), "the manifest is there")
 	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
 	var clips: Dictionary = d.get("clips", {})
-	for m: StringName in LibraryMotion.MOVES:
+	# The basics, from CMU's motion capture since #539 (the rest of MOVES may come later: a move
+	# with no clip leaves him on his pose).
+	for m: StringName in [&"idle", &"walk", &"run", &"walk_back", &"strafe_l", &"strafe_r", &"crouch_walk"]:
 		check(clips.has(String(m)), "%s is in the manifest" % m)
 	for k: String in clips:
 		var e: Dictionary = clips[k]
-		check_eq(e.get("licence"), "CC0 1.0", "%s is CC0" % k)
+		check(String(e.get("licence", "")) != "", "%s says its licence" % k)
 		check(String(e.get("source", "")) != "", "%s says where it's from" % k)
 		check(float(e.get("length_s", 0.0)) > 0.0, "%s has a length" % k)
 		check(e.has("loop"), "%s says if it loops" % k)
@@ -93,7 +95,7 @@ func test_on_he_walks_on_the_library_walk_and_off_he_doesnt() -> void:
 	for i in 60:
 		m.walk_to(target, 1.4, 1.0 / 60.0)
 		await physics_frames(1)
-	check_eq(m._lib.move, &"walk", "he's on the walk")
+	check(String(m._lib.move).begins_with("walk"), "he's on a walk (his own: %s)" % m._lib.move)
 	check(m._lib.w > 0.9, "the clip has him")
 	for i in 60:
 		await physics_frames(1)
@@ -139,3 +141,49 @@ func test_he_still_falls_as_before_with_clips_on() -> void:
 	for on in [false, true]:
 		var e: Vector2 = ends["%s_false" % on]
 		check(e.length() < 1.2, "standing, %s: he folds where he stands (%.2f m)" % ["on" if on else "off", e.length()])
+
+
+## Each man his own walk and run (by his seed, or named in config/walks.json's `library`), his own
+## stride and arm swing, the same every time he's made.
+func test_men_walk_their_own_ways() -> void:
+	Settings.library_motion = true
+	var walks := {}
+	for i in 8:
+		var m := _man(Vector3(-14.0 + i * 1.5, 0, -10))
+		m.person_id = StringName("walker_%d" % i)
+		m.rng_seed = 100 + i
+		m._lib = null
+		m._lib_switch()
+		walks[m._lib.own.get(&"walk", &"walk")] = true
+		check(absf(m._lib.stride_k - 1.0) <= LibraryMotion.STRIDE_SPREAD + 1e-6, "his stride within its spread")
+		check(absf(m._lib.arm_k - 1.0) <= LibraryMotion.ARM_SPREAD + 1e-6, "his swing within its spread")
+		var again := LibraryMotion.new()
+		again.choose(m)
+		check_eq(again.own, m._lib.own, "the same man, the same walk")
+	check(walks.size() >= 3, "eight men, at least three walks: %s" % [walks.keys()])
+	var lyle := _man(Vector3(0, 0, -14))
+	lyle.person_id = &"lyle"
+	lyle._lib = null
+	lyle._lib_switch()
+	check_eq(lyle._lib.own.get(&"walk"), &"walk_drunk", "Lyle walks as config/walks.json says")
+
+
+## His gun out, he walks and runs on Uthana's gun-in-hand clips (#539).
+func test_gun_in_hand_he_walks_holding_it() -> void:
+	Settings.library_motion = true
+	var m := HumanBody.new()
+	m.has_gun = true
+	world.add_child(m)
+	m.global_position = Vector3(8, 0, 10)
+	await physics_frames(3)
+	m.draw_gun()
+	await physics_frames(30)
+	var target := m.global_position + Vector3(0, 0, -20)
+	for i in 40:
+		m.walk_to(target, 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+	check_eq(m._lib.move, &"walk_gun", "gun out, the gun walk")
+	for i in 40:
+		m.walk_to(target, 3.6, 1.0 / 60.0)
+		await physics_frames(1)
+	check_eq(m._lib.move, &"run_gun", "gun out, the gun run")

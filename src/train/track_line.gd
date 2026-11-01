@@ -107,6 +107,17 @@ func grade_profile(at: float) -> float:
 	return g
 
 
+## A distance along the line as laid (the plan's metres, as a route file gives them) as a distance
+## along the drawn curve (what `s` is everywhere else).
+func along(laid: float) -> float:
+	return laid * _scale
+
+
+## A named mark's distance along the curve (`marks`), or NAN if there's no such mark.
+func mark_s(mark_name: String) -> float:
+	return float(marks[mark_name]) if marks.has(mark_name) else NAN
+
+
 func _index(s: float) -> float:
 	return clampf(s / _scale / STEP, 0.0, float(_grade.size() - 1))
 
@@ -223,7 +234,11 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		mi.material_override = pair[1]
 		chunk.add_child(mi)
 		var cs := CollisionShape3D.new()
-		cs.shape = mesh.create_trimesh_shape()
+		var tri := mesh.create_trimesh_shape()
+		# Two-sided: a kit prop finds its footing with a thin box mostly below the surface it stands
+		# on, which a one-sided bed doesn't count (a crate set on the ballast went loose at once).
+		tri.backface_collision = true
+		cs.shape = tri
 		body.add_child(cs)
 	st_rail.generate_normals()
 	var rail_mi := MeshInstance3D.new()

@@ -19,4 +19,11 @@ if [ ! -d kaykit-character-animations-1.1 ]; then
   cp kk_mirror/assets/kaykit/character-animations-1.1/Animations/gltf/Rig_Medium/*.glb kk_mirror/LICENSES/KayKit-CC0-License.txt kaykit-character-animations-1.1/
   rm -rf kk_mirror
 fi
-ls "$OUT"/*
+# The CMU takes the picks name (#539; B. Hahne's BVH conversion of mocap.cs.cmu.edu, mirrored at
+# github.com/una-dinosauria/cmu-mocap, as experiments/mocap_walk/fetch.sh) into build/cmu/.
+mkdir -p "$ROOT/build/cmu"
+for c in $(python3 -c "import json; d=json.load(open('$ROOT/tools/blender/library_picks.json')); print(' '.join(sorted({t[1] for m in d['moves'].values() for t in m['takes'] if t[0]=='cmu'})))"); do
+  s=${c%%_*}; d=$(printf "%03d" $((10#$s)))
+  [ -f "$ROOT/build/cmu/$c.bvh" ] || curl -sSf -o "$ROOT/build/cmu/$c.bvh" "https://raw.githubusercontent.com/una-dinosauria/cmu-mocap/master/data/$d/$c.bvh"
+done
+ls "$OUT"/* "$ROOT/build/cmu"

@@ -24,9 +24,10 @@ extends Resource
 @export var plant_reach := 2.2
 @export var plant_time := 0.6
 @export var plant_fuse_seconds := 5.0
-## How far a burning planted stick's hiss carries (m, halved through a wall): men that near hear it
-## (Senses, `fuse`).
-@export var fuse_heard := 9.0
+## How far a burning planted stick's hiss carries (m): men that near on its side of the wall hear
+## it (Senses, `fuse`: a wall stops it). Sean, issue #537: only really close, so a stick set on a
+## wall is a surprise to the men inside.
+@export var fuse_heard := 3.0
 ## Chance a bullet through a stick sets it off (usually it just tears the paper).
 @export var bullet_detonation_chance := 0.25
 ## Other sticks this close go off with it.
@@ -51,6 +52,9 @@ extends Resource
 @export var glass_kpa := 3.5
 ## The fastest a broken piece is thrown (m/s).
 @export var max_throw := 25.0
+## A loose body the blast would move slower than this (m/s) isn't moved or woken: a piece of rubble
+## 17 m off gets ~0.07 m/s, and a third stick woke ~1,200 of them for the physics (#538).
+@export var min_throw := 0.15
 ## Splinters thrown off each board it breaks, flown as projectiles: mass (kg), size (m), and
 ## their speed as a multiple of the piece's own.
 @export var splinters_per_member := 4
