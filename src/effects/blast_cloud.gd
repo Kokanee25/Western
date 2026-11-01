@@ -114,6 +114,7 @@ static func _chunks(world: Node3D, at: Vector3, vent: Vector3, dust: Color, size
 
 static func _particles(world: Node3D, amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 	var p := GPUParticles3D.new()
+	p.emitting = false  # (made emitting: set again when placed, `finished` never came, #459)
 	p.one_shot = true
 	p.amount = maxi(amount, 1)
 	p.lifetime = lifetime

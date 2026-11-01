@@ -18,14 +18,14 @@ extends Resource
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
 			&"player", &"town_life", &"blood", &"cloth", &"mop", &"faces", &"people_prep", &"people_bands"],
-	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks"],
+	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks", &"rubble_rest"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite", &"char_looks"],
 }
 ## Timers taken inside another one (a system's own parts: the fire's tick and loads inside `fire`,
 ## a settle's rounds, the analysis's steps, a brain's look for fire): already in their system's
 ## time, so in no part (each was counted again in "else": the blaze's "else" was mostly the fire's
 ## own tick, #434). By prefix, and by name; `people_prep_sum` is the workers' summed time.
-@export var inside_prefixes: Array[String] = ["fire_", "smoke_", "blast_", "cut_", "settle_", "bu_", "analysis_"]
+@export var inside_prefixes: Array[String] = ["fire_", "smoke_", "blast_", "cut_", "settle_", "bu_", "analysis_", "rr_"]
 @export var inside: Array[StringName] = [&"lines_senses", &"civ_fire_look", &"people_prep_sum"]
 ## This workspace's core against Sean's (2.1 / 3.25 GHz): the bench scales its wall-clock numbers
 ## by this before comparing them with the budgets.

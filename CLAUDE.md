@@ -616,13 +616,19 @@ frozen until Sean names one.
   if it's still shutting down 5 s after the tree went: Godot's pool hang, #392, still happens under
   load, the engine's own tasks); every pool task high priority (`test_game_quit` reads the source);
   F3/F12's process and physics the frame's own (`PerfRing.Clock`), `.saltbug.zip`, `perf_bench
-  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #459, #495.
+  --by-ticks`. Trap: a `-s` tool must `load()` GameQuit, not name it. Next: #498 (merge #497), then #495 (#459 done).
 - **The burning building in its batch** (#434, PR #457, merged): char and glow drawn by the
   structure's batch (`Structure.show_fire`, `char_batch.gdshader`), FireFX only for the 40 flames
   shown; `FrameBudget` counts nested timers once. Results `experiments/blast_freeze/results/2026-10-28_burn_batched/`.
   **Fire out of play** (Sean, 2026-10-31, #458: explosions first, fire later): `FireSystem.in_play`
-  off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays. Next:
-  rubble at rest batched, #459.
+  off (`-- --fire` on): a smashed lit lamp no longer spills burning oil; the fire code stays.
+  **Rubble at rest** (#459, PR #PRNUM, branch `claude/issue-459-9om801`; results
+  `experiments/blast_freeze/results/2026-11-01_rubble_rest/`): `RubbleRest` draws still rubble and
+  shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
+  (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
+  the merge on the pool, a cut's ends batched; the blaze 4,247/3,185 -> 2,249/1,494 meshes/shapes
+  (calm 1,428/789). Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs
+  33 ms by how many), holed/carved members drawn alone.
   Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;

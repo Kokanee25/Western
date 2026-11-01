@@ -402,6 +402,7 @@ func _shards_from(host: Node, rng: RandomNumberGenerator, at: Vector3, dir: Vect
 				continue
 		host.add_child(shard)
 		shard.global_transform = Transform3D(b, p)
+		RubbleRest.watch(shard)  # (lying still, drawn with the rest: #459)
 		var with_it := rng.randf() < 0.55
 		var v := (dir * rng.randf_range(1.5, 5.0) if with_it else out * rng.randf_range(0.4, 2.0)) \
 				+ Vector3(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.2, 1.2), rng.randf_range(-0.5, 0.5))
