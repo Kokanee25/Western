@@ -127,6 +127,8 @@ def main():
     frames = opt("frames")
     if frames and os.path.exists(frames):
         jitter(read(frames), out)
+    if os.path.exists(os.path.join(runs, "slack.csv")):
+        step2(runs, out, summary)
 
 
 def jitter(rows, out):
@@ -167,6 +169,75 @@ def jitter(rows, out):
     fig.savefig(os.path.join(out, "jitter.png"), dpi=90)
     plt.close(fig)
     print(json.dumps({"frames": len(rows), "worst_curvature_roughness_per_km": worst, "max_truck_off_mm": max(off)}))
+
+
+CARS = ["engine", "tender", "ore 1", "ore 2", "boxcar", "express", "coach"]
+
+
+def step2(runs, out, summary):
+    """Step 2 (#551): slack.png (each car's speed on a start and a stop: the slack running out car by
+    car and bunching), delay_distance.png (the engineer's delay against distance run, on time and
+    3 minutes late, and on the re-laid line), and ten_stops.md (the table)."""
+    rows = read(os.path.join(runs, "slack.csv"))
+    start = [r for r in rows if r["phase"] == "start"]
+    stop = [r for r in rows if r["phase"] == "stop"]
+    n = len(CARS)
+    cmap = plt.get_cmap("copper")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+    ax = axes[0]
+    for i in range(n):
+        ax.plot([r["t"] for r in start if r["t"] < 8], [r["v%d" % i] * 3.6 for r in start if r["t"] < 8],
+                color=cmap(i / (n - 1)), lw=1.6, label=CARS[i])
+    for e in summary.get("slack_events", []):
+        if e["phase"] == "start" and e["kind"] == "out" and e["t"] < 8:
+            ax.axvline(e["t"], color="#999", lw=0.6, ls=":")
+    ax.set_title("A start: the slack running out car by car (dotted: each coupler goes taut)", fontsize=10)
+    ax.set_xlabel("seconds from a stand, regulator opening")
+    ax.set_ylabel("km/h")
+    ax.legend(fontsize=8, ncol=2)
+    ax.grid(alpha=0.3)
+    ax = axes[1]
+    t0 = stop[0]["t"] if stop else 0.0
+    for i in range(n):
+        ax.plot([r["t"] - t0 for r in stop], [r["v%d" % i] * 3.6 for r in stop], color=cmap(i / (n - 1)), lw=1.6, label=CARS[i])
+    ax2 = ax.twinx()
+    for j in range(n - 1):
+        ax2.plot([r["t"] - t0 for r in stop], [r["c%d" % j] / 1000.0 for r in stop], color="#3b6ea5", lw=0.6, alpha=0.5)
+    ax2.set_ylabel("coupler force, kN (+ pulling, - pushing)", color="#3b6ea5")
+    ax.set_title("A stop from 20 km/h, full brake: the cars running in (blue: the couplers)", fontsize=10)
+    ax.set_xlabel("seconds from the brake handle")
+    ax.set_ylabel("km/h")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(os.path.join(out, "slack.png"), dpi=90)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(11, 4.5))
+    for name, colour, label in [("timetable_late0", "#5a8f4e", "on time"), ("timetable_late180", "#b5562b", "3 minutes late"),
+                                ("timetable_relaid", "#3b6ea5", "on time, the re-laid line (2.1 km)")]:
+        path = os.path.join(runs, name + ".csv")
+        if not os.path.exists(path):
+            continue
+        rr = [r for r in read(path) if r["state"] != "done"]
+        ax.plot([r["odo"] for r in rr], [r["delay"] for r in rr], color=colour, lw=1.8, label=label)
+    ax.axhline(0, color="#333", lw=0.8)
+    ax.set_title("The engineer against the timetable (depot, the mine, back): seconds late against distance run", fontsize=10)
+    ax.set_xlabel("metres run")
+    ax.set_ylabel("seconds late (- early)")
+    ax.legend(fontsize=9)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(os.path.join(out, "delay_distance.png"), dpi=90)
+    plt.close(fig)
+
+    lines = ["| Run | Error on the mark (m, + past it) | Time (s) | Top km/h |", "|---|---|---|---|"]
+    for r in summary.get("ten_stops", []):
+        lines.append("| %s | %+.2f | %.1f | %.1f |" % (r["name"], r["error"], r["time"], r["top_kmh"]))
+    worst = max(abs(r["error"]) for r in summary.get("ten_stops", [])) if summary.get("ten_stops") else float("nan")
+    lines.append("")
+    lines.append("Worst: %.2f m (the proof asks within 1 m)." % worst)
+    open(os.path.join(out, "ten_stops.md"), "w").write("\n".join(lines) + "\n")
+    print(json.dumps({"ten_stops_worst_m": worst}))
 
 
 if __name__ == "__main__":
