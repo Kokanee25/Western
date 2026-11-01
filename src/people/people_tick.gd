@@ -114,9 +114,32 @@ func _physics_process(delta: float) -> void:
 		if man.is_physics_processing() and man.can_process() and man.begin_prepare():
 			_batch.append(man)
 	_prep_phase()
+	if time_by_why and Prof.on:
+		_tick_by_why(due)
+		return
 	for man: HumanBody in due:
 		if is_instance_valid(man) and man.is_inside_tree():
 			man.people_tick(man.tick_dt)
+
+
+## A lab's switch (tools/people_after_blast.gd, #495): each man's tick timed and summed by why he
+## can't slow (`t_<reason>`, `t_calm` when he can; his first half's `prep_us` in it) with how many
+## ticks (`c_<reason>`). The same ticks, in the same order.
+static var time_by_why := false
+
+
+func _tick_by_why(due: Array[HumanBody]) -> void:
+	for man: HumanBody in due:
+		if not is_instance_valid(man) or not man.is_inside_tree():
+			continue
+		var r := man.slow_reason()
+		if r == &"":
+			r = &"calm"
+		var t0 := Time.get_ticks_usec()
+		man.people_tick(man.tick_dt)
+		var us := Time.get_ticks_usec() - t0 + (man.prep_us if _batch.has(man) else 0)
+		Prof.add(StringName("t_" + String(r)), us)
+		Prof.count(StringName("c_" + String(r)))
 
 
 # --- The bands (more-cores step 4b) ------------------------------------------------------------
@@ -171,8 +194,12 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 		var man := live[i]
 		var at := man.global_position
 		var d2 := INF
-		for p in hot:
-			d2 = minf(d2, at.distance_squared_to(p))
+		var near_hot := 0  # (which: the player is 0)
+		for h in hot.size():
+			var e := at.distance_squared_to(hot[h])
+			if e < d2:
+				d2 = e
+				near_hot = h
 		var d := sqrt(d2)
 		var b := man.tick_band
 		while b < 2 and d > edges[b] + tn.margin_m:
@@ -181,13 +208,18 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 			b -= 1
 		man.tick_band = b
 		var run := b if calm[i] and not man.woken else 0
+		var why := &""
 		if run > 0 and cam != null:
 			var chest := at + Vector3.UP * 1.3
 			var to := chest - cam_at
 			if to.length_squared() > 1e-6 and cam_fwd.dot(to.normalized()) > cone:
 				run = 0  # where he's looking, where the gun points
+				why = &"n_full_aimed"
 			elif tn.seen_nearer and cam.is_position_in_frustum(chest):
 				run -= 1
+				why = &"n_full_seen"
+		if Prof.on:
+			_count_why(man, run, calm[i], b, near_hot, why)
 		man.woken = false
 		var n: int = every[run]
 		man.tick_every = n
@@ -200,7 +232,32 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 	if Prof.on:
 		Prof.count(&"n_people_ticked", due.size())
 		Prof.count(&"n_people_owed", live.size() - due.size())
+		Prof.count(&"n_people_trouble", hot.size() - 1)
 	return due
+
+
+## Each man's band in the counts (#495): `n_slow` (a band slower than every tick), else why he
+## ticks every tick: `n_full_<reason>` (his `HumanBody.slow_reason`: down, stumbling, fleeing, fear,
+## route...), `n_full_woken`, `n_full_near_player`/`n_full_near_trouble` (inside the near band of
+## the player or of someone in trouble), `n_full_aimed`/`n_full_seen` (the camera).
+func _count_why(man: HumanBody, run: int, calm: bool, band: int, near_hot: int, why: StringName) -> void:
+	if run > 0:
+		Prof.count(&"n_slow")
+		return
+	if not calm:
+		var r := man.slow_reason()
+		if not _why_names.has(r):
+			_why_names[r] = StringName("n_full_" + String(r))
+		Prof.count(_why_names[r])
+	elif man.woken:
+		Prof.count(&"n_full_woken")
+	elif band == 0:
+		Prof.count(&"n_full_near_player" if near_hot == 0 else &"n_full_near_trouble")
+	else:
+		Prof.count(why if why != &"" else &"n_full_other")
+
+
+static var _why_names := {}
 
 
 static func _find_player() -> Node3D:
