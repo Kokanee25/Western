@@ -239,7 +239,7 @@
 		{"kit": "grain_sacks", "at": [0.55, 6.6], "facing": 80},
 		{"kit": "feed_sack", "at": [0.5, 7.15], "facing": 20},
 		{"kit": "crate", "at": [5.0, 5.6], "facing": -8},
-		{"kit": "crate", "at": [2.9, 6.9], "facing": 30}
+		{"kit": "crate", "at": [4.0, 5.55], "facing": 30}
 	],
 	"lamps": {
 		"_doc": "Two oil lamps (OilLamps): on the table and on the dresser.",
