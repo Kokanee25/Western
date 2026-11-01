@@ -574,6 +574,14 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
+- **The farmhouse hostage rescue** (2026-11-01, #520, Sean's overnight; PRs #521 (the house, build 2824)
+  and the mission's; `src/missions/`, `experiments/farmhouse/` README): the farmhouse on its knoll in the
+  hills east (spec `experiments/building_lab/farmhouse.json`; `config/town.json` `ground.hills`); the
+  blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
+  the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
+  stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs won 6 of 12,
+  the rancher alive in 10. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
