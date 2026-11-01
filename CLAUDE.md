@@ -610,7 +610,8 @@ frozen until Sean names one.
   **The post pose** (#531, Sean: the pose first; branch `claude/issue-531-nigmw5`, lab
   `experiments/post_pose/`): `PostPose` (dials by seed, joints worked out from his anatomy, `place_at`)
   and `HumanBody.take_post`, a still pose only (no brain takes it; the point-fired spread is a stated
-  rule). Waiting on Sean: the sheets (#531). Then the narrow cover kind, then the galleries.
+  rule). Sean: "I really like it"; merged (PR #545, build 2894). Next: #531, the narrow cover kind
+  with stepping out and back in (its last comment), then the galleries.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
