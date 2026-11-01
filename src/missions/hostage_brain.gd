@@ -16,6 +16,11 @@ const LINES := {
 	&"flinch": ["¡Dios!", "Ay—!"],
 	&"stay": ["Wait— wait for me!", "Don't leave me here!"],
 	&"safe": ["Thank God. Thank God.", "I owe you my life, señor."],
+	&"warn_kitchen": ["One in the kitchen!", "Careful, the kitchen! There's one there!"],
+	&"warn_front_room": ["In the front room! By the stove!", "There's one in the front room!"],
+	&"warn_bedroom": ["Behind you, in here!", "The one in here—watch him!"],
+	&"warn_loft": ["Up in the loft!", "One went up the ladder!"],
+	&"warn_outside": ["One went outside!", "There's one out in the yard!"],
 }
 
 ## The arms of a man sat back in his chair turned to where `hands_bound` has them (behind him), as
@@ -45,6 +50,7 @@ var _flinch_said := 0.0
 var _route: Array[Vector3] = []
 var _route_t := 0.0
 var _crouched := false
+var _warn_in := 2.0
 
 
 func _ready() -> void:
@@ -128,6 +134,7 @@ func _step(delta: float) -> void:
 		_tied(delta)
 	elif follow != null and is_instance_valid(follow):
 		_follow(delta)
+		_warn(delta)
 
 
 ## In the chair: still but for his head, ducked while it's loud near him.
@@ -180,6 +187,21 @@ func _follow(delta: float) -> void:
 	body.set_pose(&"stand" if far else &"crouch")
 	if body.walk_to(_route[0], 3.6 if far else 1.6, delta):
 		_route.pop_front()
+
+
+## Free and with you: he tells you where the ones still in it are (he's been listening to them),
+## now and then, the nearest first.
+func _warn(delta: float) -> void:
+	_warn_in -= delta
+	if _warn_in > 0.0 or safe:
+		return
+	_warn_in = _rng.randf_range(6.0, 10.0)
+	var t := _nearest_threat()
+	if t == null:
+		return
+	var where := HouseDefence.place_of(t.global_position)
+	var kind := StringName("warn_" + where) if LINES.has(StringName("warn_" + where)) else &"warn_outside"
+	say(kind)
 
 
 ## The nearest of the men holding him still fighting.

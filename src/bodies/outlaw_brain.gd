@@ -201,6 +201,12 @@ var _menace_said := false
 var _menace_shots := 0
 var _post_way: Array[Vector3] = []
 var _fled_said := -99.0
+## A spot he's been told to hold (HouseDefence, the farmhouse: a window, a door to cover, a hole):
+## {id, at, look (what he watches from it), low (cover he crouches behind, up to shoot), window
+## (stand to shoot, below the sill under fire), why}. Empty: he picks his own (Cover).
+var order := {}
+var _order_way: Array[Vector3] = []
+var _order_stuck := 0.0
 var _tend_said := -99.0
 var _post_glance := 0.0
 var _post_look := Vector3.INF
@@ -1522,6 +1528,75 @@ func _menacing(delta: float) -> bool:
 	return true
 
 
+## Told to hold a spot (HouseDefence): `o` empty lets him be. The same spot again changes nothing.
+func give_order(o: Dictionary) -> void:
+	if o.is_empty():
+		if not order.is_empty():
+			order = {}
+			_order_way.clear()
+			tactic = Tactic.OPEN
+			_cover_search = 0.0
+		return
+	if order.get("id", "") == o.id:
+		order.look = o.look
+		return
+	order = o
+	_order_way.clear()
+	_order_stuck = 0.0
+	_search = null
+	_decide("to %s" % o.id.replace("_", " "), String(o.get("why", "")))
+
+
+## His spot: there by the house's ways (fighting you where he meets you, if you're close and in
+## sight); there, watching what it covers: low behind low cover or below a window's sill while
+## rounds come in, up to shoot when he has you (or a friend wants you kept down), topping up his
+## gun while it's quiet.
+func _follow_order(delta: float, t: Node3D) -> void:
+	var at: Vector3 = order.at
+	var flat := at - body.global_position
+	flat.y = 0.0
+	var sees := senses.sees(t)
+	if flat.length() > 0.45:
+		if sees and body.global_position.distance_to(t.global_position) < 5.0:
+			tactic = Tactic.OPEN
+			_fight(delta)
+			return
+		if _order_way.is_empty():
+			if places:
+				_order_way = places.route_to_point(World.space(body), body.global_position, at, _exclude(t))
+			if _order_way.is_empty():
+				_order_way = [at]
+		tactic = Tactic.MOVING
+		body.set_pose(&"stand")
+		if body.walk_to(_order_way[0], run_speed, delta):
+			_order_way.pop_front()
+			if _order_way.is_empty():
+				_order_way = [at]
+		if body.global_position.distance_to(_last_pos) < 0.02 * 60.0 * delta:
+			_order_stuck += delta
+		else:
+			_order_stuck = maxf(_order_stuck - delta, 0.0)
+		_last_pos = body.global_position
+		if _order_stuck > 2.5:
+			# Can't get there (a body, the wreck of a wall): his own cover instead.
+			_decide("give up on %s" % String(order.id).replace("_", " "), "stuck on the way")
+			order = {}
+			_order_way.clear()
+			tactic = Tactic.OPEN
+			_cover_search = 0.0
+		return
+	_order_way.clear()
+	tactic = Tactic.HIDDEN
+	if sees or (covering > 0.0 and senses.since_known(t) < 20.0):
+		_fight(delta)
+		return
+	body.face(order.look)
+	var down: bool = order.get("low", false) or (order.get("window", false) and (suppressed > 0.0 or _shaken >= 0.0))
+	body.set_pose(&"crouch" if down else &"stand")
+	if rounds < rounds_per_load and mood == Mood.FIGHTING and senses.since_seen(t) > 2.5 and suppressed <= 0.0:
+		_start_reload()
+
+
 ## Holding a house: is `p` in it (anywhere, if he holds none; nowhere he knows of, if unknown)?
 func _inside(p: Vector3) -> bool:
 	if hold.is_empty():
@@ -1630,6 +1705,9 @@ func _combat(delta: float) -> void:
 	_press = maxf(_press - delta, 0.0)
 	if _press > 0.0 and not body.prone and _inside(senses.last_known(t)):
 		_press_fight(delta, t)
+		return
+	if not order.is_empty() and not body.prone:
+		_follow_order(delta, t)
 		return
 	var eye := _eye_of(t)
 	# Holding a house and he's lost you outside it: back to his post (a window), to watch for you.

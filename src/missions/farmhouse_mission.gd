@@ -43,6 +43,8 @@ var brains: Array[OutlawBrain] = []
 ## Each man's spec (FarmhouseTuning.men) by his person_id.
 var specs := {}
 var guard: OutlawBrain
+## The men fought as one (their spots by where you are: HouseDefence).
+var defence: HouseDefence
 var hostage: HumanBody
 var hostage_brain: HostageBrain
 
@@ -170,6 +172,10 @@ func begin(place_player := false) -> void:
 	_hostage(street, town)
 	for b in brains:
 		b.hold.spare = [hostage]
+	defence = HouseDefence.new()
+	defence.name = "HouseDefence"
+	add_child(defence)
+	defence.setup(load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC), brains, guard, player())
 	if place_player:
 		var p := player()
 		if p:
@@ -223,6 +229,7 @@ func _hostage(street: Node, town: TownLife) -> void:
 	hostage_brain.freed.connect(func() -> void:
 		freed_t = t
 		_note("the rancher cut loose")
+		_say("He's loose. Get him out of the house and well away from it.", 6.0)
 		# Loose and gone from his chair: the guard's back to the fight (he can't hold a running man).
 		if guard != null and is_instance_valid(guard):
 			guard.menace = null
@@ -268,8 +275,59 @@ func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> vo
 	if kind in LOUD:
 		_alarm(brain, at, "%s heard %s" % [brain.body.name, kind])
 	elif alarm_t < 0.0:
-		# A step, a voice: he turns to it (and may see you).
+		# A step, a voice: he turns to it (and may see you); the nearest of them goes to the window on
+		# that side for a look.
 		brain.glance(at + Vector3.UP * 1.0, 4.0)
+		if kind != &"speech":
+			_look_out(at)
+
+
+## Something heard outside before the alarm: the nearest calm man to a window on that side goes
+## and looks out of it a while (says so), then back to his post. Not more often than every 8 s.
+var _look_out_t := -99.0
+var _looking: OutlawBrain = null
+var _looking_post := {}
+
+
+func _look_out(at: Vector3) -> void:
+	if t - _look_out_t < 8.0 or defence == null:
+		return
+	var side := HouseDefence.place_of(at)
+	var window := ""
+	for id in defence.plans.get(side, []):
+		if (defence.spots.get(id, {}) as Dictionary).get("window", false):
+			window = id
+			break
+	if window == "":
+		return
+	var sp: Dictionary = defence.spots[window]
+	var best: OutlawBrain = null
+	var best_d := INF
+	for b in brains:
+		if b == guard or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b == _looking:
+			continue
+		var d := b.body.global_position.distance_to(sp.world)
+		if d < best_d:
+			best = b
+			best_d = d
+	if best == null or best_d > 9.0:
+		return
+	_look_out_t = t
+	_back_to_post()
+	_looking = best
+	_looking_post = {"post": best.hold.post, "look": best.hold.look, "until": t + 9.0}
+	best.hold.post = sp.world
+	best.hold.look = at + Vector3.UP * 1.0
+	Events.spoke.emit(best.body, ["Heard something.", "Hold on. Something out there.", "You hear that?"][_rng.randi() % 3])
+	_note("%s goes to the %s to look" % [best.body.name, window.replace("_", " ")])
+
+
+func _back_to_post() -> void:
+	if _looking != null and is_instance_valid(_looking) and not _looking_post.is_empty():
+		_looking.hold.post = _looking_post.post
+		_looking.hold.look = _looking_post.look
+	_looking = null
+	_looking_post = {}
 
 
 ## The alarm: everyone in it, told where (as near as the one who raised it knows).
@@ -308,24 +366,13 @@ func _on_exploded(at: Vector3, _kg: float) -> void:
 	breach_t = t
 	_note("a blast at the house")
 	_alarm(null, at, "the blast")
-	# They turn to it; the nearest able man (not the guard) goes to cover it.
+	# They turn to it, and a man goes to a spot with a line on the hole (HouseDefence).
 	var p := player()
-	var best: OutlawBrain = null
-	var best_d := INF
 	for b in brains:
-		if not _able(b):
-			continue
-		if p:
+		if _able(b) and p:
 			b.senses.note(p, at, 1.0)
-		if b == guard or b.stunned > 0.0:
-			continue
-		var d := b.body.global_position.distance_to(at)
-		if d < best_d:
-			best = b
-			best_d = d
-	if best != null:
-		best.cover_against(at)
-		_note("%s covers the breach" % best.body.name)
+	if defence:
+		defence.breach(at)
 
 
 func _able(b: OutlawBrain) -> bool:
@@ -381,6 +428,8 @@ func _physics_process(delta: float) -> void:
 		State.ON:
 			t += delta
 			_idle_talk(delta)
+			if _looking != null and t > float(_looking_post.get("until", INF)):
+				_back_to_post()
 			_guard_step()
 			_rescue_step(delta)
 			_check_end()
@@ -580,6 +629,8 @@ func result() -> Dictionary:
 			ms.append({"gone": true})
 			continue
 		ms.append({"id": String(b.body.person_id), "mood": OutlawBrain.Mood.keys()[b.mood], "alive": b.body.physiology.alive,
-				"tactic": OutlawBrain.Tactic.keys()[b.tactic], "inside": inside(b.body.global_position)})
+				"tactic": OutlawBrain.Tactic.keys()[b.tactic], "inside": inside(b.body.global_position),
+				"order": String(b.order.get("id", "")), "at": HouseDefence.place_of(b.body.global_position)})
+	out.where = defence.where if defence else ""
 	out.men_state = ms
 	return out
