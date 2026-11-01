@@ -840,6 +840,8 @@ func _build_skin() -> void:
 				# smooth on it, not cut into the old look's four flat steps, which carved their faces
 				# into hard patches in the sun (Sean, 2026-10-25), as paint_look already does.
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"light_steps", 0.0)
+			if bool(data.get("smooth_texels", false)):
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"smooth_texels", true)
 			if paint.has(shape):
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"uv_rect", paint[shape])
 				(mi.material_override as ShaderMaterial).set_shader_parameter(&"square_texels",

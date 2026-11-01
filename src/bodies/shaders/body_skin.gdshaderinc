@@ -91,6 +91,10 @@ uniform float paint_probe = 0.0;
 // Texels a side in one of the painted texture's squares (lit as one): 1, or 3 on the face, whose
 // eyes are drawn finer than its squares.
 uniform float square_texels = 1.0;
+// A realistic man (Sean, 2026-11-01: "can we turn that shader off", the bake-off's route A): his
+// texture sampled smoothly (bilinear, tile_sample_soft at the fragment's own texel point) and lit
+// at the fragment, not one flat colour and one light a texel. Off: every other man as before.
+uniform bool smooth_texels = false;
 // The surface-blocks look: what the lower bands of light lean toward (skin's half-light warm).
 uniform vec3 shade_tint : source_color = vec3(1.0);
 
@@ -203,13 +207,15 @@ void fragment() {
 		t = (an.x > an.y && an.x > an.z ? p.zy : (an.y > an.z ? p.xz : p.xy)) * tsize;
 	}
 	bool soft = block_soft > 0.0;
-	vec2 centre = soft ? tile_soft_point(t) : tile_centre(t);
+	vec2 centre = smooth_texels ? t : (soft ? tile_soft_point(t) : tile_centre(t));
 	vec2 tuv_dx = dFdx(tuv);
 	vec2 tuv_dy = dFdy(tuv);
 	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.05);
 	vec3 base;
 	if (!use_uv) {
 		base = triplanar(local_pos, local_normal);
+	} else if (smooth_texels) {
+		base = tile_sample_soft(albedo_tex, tuv * tsize, tsize, tuv_dx, tuv_dy).rgb;
 	} else if (soft) {
 		// Soft block edges: the texture's own texels (the face's finer eyes included) blended
 		// only across their edges.
