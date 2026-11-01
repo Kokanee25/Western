@@ -1,0 +1,138 @@
+{
+ "alarm": 68.43,
+ "bot": {
+  "blast": -1.0,
+  "freed": 80.85,
+  "phase_at": {
+   "clear": 100.93,
+   "out": 80.85,
+   "rescue": 78.93
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "breach": -1.0,
+ "end": -1.0,
+ "executed": 83.5,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 10325,
+  "max_ms": 128.85,
+  "mean_ms": 8.59,
+  "p95_ms": 14.71
+ },
+ "freed": 81.35,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "seed": 1,
+ "state": "ON",
+ "t": 240.5,
+ "threat": 73.83,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.88,
+   "Hollis down"
+  ],
+  [
+   73.83,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   74.42,
+   "Dutch down"
+  ],
+  [
+   74.82,
+   "Dutch down, out"
+  ],
+  [
+   81.35,
+   "the rancher cut loose"
+  ],
+  [
+   83.5,
+   "the guard shoots the rancher"
+  ],
+  [
+   83.58,
+   "Dutch dead"
+  ],
+  [
+   84.27,
+   "Kid down, out"
+  ],
+  [
+   84.9,
+   "Lyle down, out"
+  ],
+  [
+   99.27,
+   "Hollis dead"
+  ],
+  [
+   105.28,
+   "Kid dead"
+  ]
+ ],
+ "way": "back",
+ "where": "kitchen"
+}
