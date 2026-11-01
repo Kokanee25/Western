@@ -446,7 +446,8 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	broken = true
 	if get_parent() is Structure:
 		(get_parent() as Structure).mark_dirty(member_id)
-	Events.noise.emit(at, 40.0, &"glass", null)
+	if not get_parent() is Structure or (get_parent() as Structure).first_this_tick(&"glass"):
+		Events.noise.emit(at, 40.0, &"glass", null)  # (once a tick a building, as its timber, #538)
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
 	if mi:
@@ -454,12 +455,40 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	if cs:
 		cs.set_deferred(&"disabled", true)
 		Sight.changed(self, true)  # gone from sight with its shape, at the frame's end
+	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
+	# The shards themselves are made as the tick has room (SpawnQueue: a blast's dozens of panes
+	# were ~0.1 s of its frame); a ball's one pane, at once.
+	SpawnQueue.run(self, _make_shards.bind(at, direction, seed, host), shard_count(), SpawnQueue.LATER)
+	# The shards cut whoever's close.
+	var excl: Array[RID] = [get_rid()]
+	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
+	if GameAudio.enabled():
+		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
+	else:
+		var snd := AudioStreamPlayer3D.new()
+		snd.stream = SynthSounds.get_sound(&"glass")
+		snd.unit_size = 6.0
+		host.add_child(snd)
+		snd.global_position = at
+		snd.play()
+		snd.finished.connect(snd.queue_free)
+	Events.member_broken.emit(member_id)
+
+
+## How many shards a pane breaks into.
+func shard_count() -> int:
+	return clampi(int(size.x * size.y * 30.0), 8, 26)
+
+
+## The shards of a shattered pane, falling from where it stood (its own seeded dice: the same
+## pane breaks the same way whenever they're made).
+func _make_shards(at: Vector3, direction: Vector3, seed: int, host: Node) -> void:
+	if not is_inside_tree() or not is_instance_valid(host) or not host.is_inside_tree():
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(member_id) + seed
-	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
 	var local_hit := global_transform.affine_inverse() * at
-	var count := clampi(int(size.x * size.y * 30.0), 8, 26)
-	for i in count:
+	for i in shard_count():
 		var shard := RigidBody3D.new()
 		shard.name = "GlassShard"
 		shard.mass = 0.04
@@ -489,20 +518,6 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		var near := 1.0 - clampf(local.distance_to(Vector3(local_hit.x, local_hit.y, 0.0)) / maxf(size.x, 0.1), 0.0, 1.0)
 		shard.linear_velocity = direction * rng.randf_range(0.5, 3.0) * near + Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(-0.2, 0.6), rng.randf_range(-0.4, 0.4))
 		shard.angular_velocity = Vector3(rng.randf_range(-8, 8), rng.randf_range(-8, 8), rng.randf_range(-8, 8))
-	# The shards cut whoever's close.
-	var excl: Array[RID] = [get_rid()]
-	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
-	if GameAudio.enabled():
-		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
-	else:
-		var snd := AudioStreamPlayer3D.new()
-		snd.stream = SynthSounds.get_sound(&"glass")
-		snd.unit_size = 6.0
-		host.add_child(snd)
-		snd.global_position = at
-		snd.play()
-		snd.finished.connect(snd.queue_free)
-	Events.member_broken.emit(member_id)
 
 
 func to_dict() -> Dictionary:
