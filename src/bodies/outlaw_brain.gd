@@ -1996,7 +1996,10 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_check = 0.5
 		var space := World.space(body)
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
-		var hidden := Cover.hidden_narrow(space, _trunk_at(_held_eye(eye)), _held_eye(eye), _exclude(_find_target()), _town() != null) if at_post \
+		# At a post: the spot it was chosen by till he's set against it (his trunk is mid-turn while
+		# the pose blends in), then where his trunk is.
+		var trunk: Vector3 = cover.at if _post_place > 0.0 else _trunk_at(_held_eye(eye))
+		var hidden := Cover.hidden_narrow(space, trunk, _held_eye(eye), _exclude(_find_target()), _town() != null) if at_post \
 				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null)
 		if not hidden:
 			# He's come round it: this cover's no good now.
