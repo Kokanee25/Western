@@ -13,5 +13,6 @@ train_drive off
 train_place 1250 25
 train_goto mine 25
 train_board coach back
+wait 0.5
 train_cross 40
 wait 6
