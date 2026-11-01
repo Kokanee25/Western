@@ -489,7 +489,7 @@ frozen until Sean names one.
   `experiments/library_motion/`): Quaternius' and KayKit's CC0 animations retargeted onto our rig
   (`tools/blender/library_motion.py`, `assets/animations/library/`), played by `LibraryMotion` by
   the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
-  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's). Waiting on Sean: the
+  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
   films (do they pass, turn them on?).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
