@@ -607,7 +607,10 @@ frozen until Sean names one.
   `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
   (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
   hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
-  Next: #531 (posts as narrow cover, then the galleries).
+  **The post pose** (#531, Sean: the pose first; branch `claude/issue-531-nigmw5`, lab
+  `experiments/post_pose/`): `PostPose` (dials by seed, joints worked out from his anatomy, `place_at`)
+  and `HumanBody.take_post`, a still pose only (no brain takes it; the point-fired spread is a stated
+  rule). Waiting on Sean: the sheets (#531). Then the narrow cover kind, then the galleries.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
