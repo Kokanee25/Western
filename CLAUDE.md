@@ -491,7 +491,7 @@ frozen until Sean names one.
   `claude/issue-522-s2z82c`, carrying #516's branch): Sean bought it; `hg_bold_cowboy` built in the
   Studio (`tools/humgen/`; its files only in the Studio's git-ignored store, `.gitignore` keeps
   `assets/people/hg_*` out here), shots `docs/style_test/bakeoff-2026-10/human_generator/`. Waiting
-  on Sean: better than the bold cowboy? Later, separately: why the other Studio men fall short of him.
+  on Sean: better than the bold cowboy? (#527). Later, separately: why the other Studio men fall short of him.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
