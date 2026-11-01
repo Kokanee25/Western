@@ -3,7 +3,8 @@
 Sean bought Human Generator Commercial ($128, his own money; #518) and put 4.0.29 and its
 content packs on the Studio's private release `humgen-4.0.29`. He OK'd running its add-on code
 in the session (2026-11-01). The painted Studio look stays; this man is a try beside the bold
-cowboy, not a switch. **Waiting on Sean: is he better than the bold cowboy?**
+cowboy, not a switch. **Sean's verdict (2026-11-01): "unacceptable as a Salt Creek character."**
+The diagnosis and one corrected bald head: `DIAGNOSIS.md`, `head_sheet.jpg`.
 
 **Sheets:** `sheet.jpg` (the saloon by lamplight close and across the room, the street at 14:00
 close and across, golden hour, the four faces, his face in the baked skin), `faces_saloon.jpg`
