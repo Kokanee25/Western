@@ -80,19 +80,22 @@ func _route_in() -> Array[Vector3]:
 		"breach":
 			# Up the draw west of the knoll (the house's east as built), out of the porch's sight, round
 			# behind, to the kitchen's back wall (the lean-to's), west of its window.
-			r = _the_draw() + [_g(4.0, 13.0), _g(2.9, 8.5)]
+			r = _the_draw()
+			r.append_array([_g(4.0, 13.0), _g(2.9, 8.5)])
 		"back":
-			r = _the_draw() + [_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
+			r = _the_draw()
+			r.append_array([_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
 					_place(&"farm_back_door"), _place(&"farm_kitchen_e"), _place(&"farm_kitchen"), _place(&"farm_kitchen_door"),
 					_place(&"farm_room_back"), _place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"),
-					_place(&"farm_bedroom_door"), _place(&"farm_bedroom")]
+					_place(&"farm_bedroom_door"), _place(&"farm_bedroom")])
 	return r
 
 
 ## The quiet way round: back along the road west to the draw between the knoll and the low rise,
 ## up it out of sight of the porch, round behind the house (the world's: its back, as built).
 func _the_draw() -> Array[Vector3]:
-	return [TownLayout.street_point(78.0, 3.0), _w(80.0, -30.0), _w(82.0, -62.0), _w(92.0, -64.0)]
+	var r: Array[Vector3] = [_w(60.0, -14.0), _w(74.0, -28.0), _w(78.0, -62.0), _w(92.0, -66.0)]
+	return r
 
 
 func _w(x: float, z: float) -> Vector3:
@@ -188,7 +191,7 @@ func tick(delta: float, t: float) -> void:
 		"clear":
 			_stop()
 	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
-	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 35.0
+	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 45.0
 	bot._hold_action(&"crouch", _crouch and close and not shooting and not phase in ["lit", "out", "clear"])
 
 
@@ -272,7 +275,9 @@ func _follow(way_pts: Array[Vector3], delta: float, run := false) -> bool:
 	else:
 		_stuck = maxf(_stuck - delta, 0.0)
 	_last = player.global_position
-	if _stuck > 0.8:
+	if _stuck > 0.5 and _stuck - delta <= 0.5:
+		bot._tap(&"jump")  # a step up into a hole's sill, a broken board
+	if _stuck > 1.2:
 		_sidestep = 0.5
 		_stuck = 0.0
 		_side = -_side
