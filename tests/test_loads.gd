@@ -142,7 +142,14 @@ func test_porch_comes_down_without_its_posts() -> void:
 		return float(down) / maxf(n, 1)
 	await wait_until(func() -> bool: return down_share.call() >= 0.95, 60 * 6)
 	var share: float = down_share.call()
-	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces)" % (share * 100.0))
+	# (What each piece is doing, in the message when it fails: #538's CI failed here and nowhere else.)
+	var pieces: Array[String] = []
+	for rb in store.rubble:
+		if is_instance_valid(rb):
+			var shapes := rb.get_children().filter(func(c: Node) -> bool: return c is CollisionShape3D).size()
+			pieces.append("y %.2f low %.2f v %.2f%s%s %d shapes" % [rb.global_position.y, lowest.call(rb), rb.linear_velocity.length(),
+					" asleep" if rb.sleeping else "", " frozen" if rb.freeze else "", shapes])
+	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces: %s)" % [share * 100.0, "; ".join(pieces)])
 	var asleep := func() -> Vector2i:
 		var n := Vector2i.ZERO
 		for rb in store.rubble:
