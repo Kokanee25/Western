@@ -35,6 +35,7 @@ var _last := Vector3.ZERO
 var _side := 1.0
 var _sidestep := 0.0
 var _went_off := false
+var _sticks0 := 0
 
 
 func setup(p: Player, m: FarmhouseMission, how: String, seed_value: int, aim_degrees := 1.0) -> void:
@@ -190,12 +191,19 @@ func _plant(delta: float) -> void:
 	var wall := _p(Vector3(0.0, 0.0, 1.2))
 	wall.y = player.global_position.y + 1.2
 	_look_at(wall)
+	if _hold_e <= 0.0 and d.plant_at.is_empty():
+		return  # not ready in hand yet, or nothing in reach: E would be a shove
+	if _hold_e <= 0.0:
+		_sticks0 = d.sticks
 	_hold_e += delta
 	bot._hold_action(&"shove", _hold_e < 1.2)
-	if _hold_e > 1.3 and d.planted != null:
-		stats.planted = snappedf(_t, 0.01)
-		_phase("lit")
-		route = [_g(-6.0, 1.2), _g(-11.0, -2.0)]
+	if _hold_e > 1.3:
+		if d.sticks < _sticks0 or d.planted != null:
+			stats.planted = snappedf(_t, 0.01)
+			_phase("lit")
+			route = [_g(-6.0, 1.2), _g(-11.0, -2.0)]
+		else:
+			_hold_e = 0.0  # it didn't take: again
 
 
 func _lit(delta: float) -> void:

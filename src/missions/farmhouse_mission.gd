@@ -168,6 +168,8 @@ func begin(place_player := false) -> void:
 		if is_instance_valid(left) and not left.is_inside_tree():
 			left.free()
 	_hostage(street, town)
+	for b in brains:
+		b.hold.spare = [hostage]
 	if place_player:
 		var p := player()
 		if p:
@@ -570,6 +572,8 @@ func result() -> Dictionary:
 	out.hostage_alive = hostage != null and is_instance_valid(hostage) and hostage.physiology.alive
 	var p := player()
 	out.player_down = p != null and not p.wounds.physiology.is_conscious()
+	if p:
+		out.player_how = p.wounds.physiology.describe()
 	var ms := []
 	for b in brains:
 		if not is_instance_valid(b) or not is_instance_valid(b.body):

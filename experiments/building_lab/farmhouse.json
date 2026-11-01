@@ -283,6 +283,37 @@
 		{"id": "kitchen_crates", "use": "cover", "who": "outlaw", "at": [4.6, 0.56, 6.1], "look": [4.4, 7.6]},
 		{"id": "kitchen_door", "use": "cover", "who": "outlaw", "at": [1.4, 0.56, 4.3], "look": [1.0, 5.2]}
 	],
+	"tactics": {
+		"_doc": "How the men holding it fight it (issue #520; src/missions/house_defence.gd): its firing spots (x, z on the floor of their room; `look` the point they watch, x, y over that floor, z), what each covers, whether it's a window (stand to shoot, below the sill under fire) or low cover (crouched behind it, up to shoot); the doors you can come in by; and for each place you might be (round the house as built, its west the world's east; or a room in it), the spots to man, best first. The guard keeps to the bedroom (his own spots). Men in the room you're in fight you there; the rest hold these.",
+		"entries": {"front_door": [2.8, 0.0], "back_door": [4.4, 7.6], "kitchen_door": [1.0, 5.2], "bedroom_door": [5.6, 3.1], "stair": [2.1, 4.65]},
+		"spots": [
+			{"id": "window_front_w", "room": "front_room", "at": [1.1, 0.75], "look": [1.1, 1.4, -6.0], "window": true, "covers": ["front", "front_door"]},
+			{"id": "window_front_e", "room": "front_room", "at": [4.5, 0.75], "look": [4.5, 1.4, -6.0], "window": true, "covers": ["front", "front_door"]},
+			{"id": "window_west", "room": "front_room", "at": [0.7, 2.0], "look": [-6.0, 1.4, 2.8], "window": true, "covers": ["west"]},
+			{"id": "window_back", "room": "kitchen", "at": [1.6, 7.1], "look": [1.6, 1.4, 14.0], "window": true, "covers": ["back"]},
+			{"id": "loft_window", "room": "loft", "at": [4.5, 0.8], "look": [4.5, 0.9, -14.0], "window": true, "covers": ["front"]},
+			{"id": "inside_door", "room": "front_room", "at": [3.4, 1.7], "look": [2.8, 1.4, 0.0], "covers": ["front_door"]},
+			{"id": "behind_table", "room": "front_room", "at": [1.3, 3.3], "look": [2.8, 1.2, 0.0], "low": true, "covers": ["front_door", "kitchen_door"]},
+			{"id": "by_stove", "room": "front_room", "at": [4.45, 2.6], "look": [2.8, 1.2, 0.0], "low": true, "covers": ["front_door", "bedroom_door", "stair"]},
+			{"id": "kitchen_door", "room": "front_room", "at": [1.4, 4.3], "look": [1.0, 1.4, 5.6], "covers": ["kitchen_door"]},
+			{"id": "kitchen_table", "room": "kitchen", "at": [3.0, 6.55], "look": [1.0, 1.2, 5.3], "low": true, "covers": ["kitchen_door", "back_door"]},
+			{"id": "kitchen_crates", "room": "kitchen", "at": [4.6, 6.15], "look": [4.4, 1.2, 7.6], "low": true, "covers": ["back_door"]},
+			{"id": "loft_stair", "room": "loft", "at": [3.4, 3.6], "look": [2.0, 0.6, 4.65], "covers": ["stair"]},
+			{"id": "bedroom_door", "room": "bedroom", "at": [6.3, 3.4], "look": [5.6, 1.4, 3.1], "guard": true, "covers": ["bedroom_door"]},
+			{"id": "window_east", "room": "bedroom", "at": [8.45, 2.0], "look": [15.0, 1.4, 2.0], "window": true, "guard": true, "covers": ["east"]}
+		],
+		"plans": {
+			"front": ["window_front_w", "window_front_e", "inside_door", "loft_window", "behind_table"],
+			"east": ["window_front_e", "by_stove", "inside_door", "kitchen_crates", "window_front_w"],
+			"west": ["window_west", "window_front_w", "behind_table", "kitchen_table", "window_front_e"],
+			"back": ["window_back", "kitchen_crates", "kitchen_table", "kitchen_door", "by_stove"],
+			"front_room": ["kitchen_table", "loft_stair", "kitchen_door"],
+			"kitchen": ["kitchen_door", "behind_table", "by_stove"],
+			"bedroom": ["by_stove", "kitchen_door", "behind_table", "inside_door"],
+			"loft": ["by_stove", "kitchen_door", "behind_table"]
+		},
+		"guard": {"default": "bedroom_door", "east": "window_east"}
+	},
 	"use": {
 		"_doc": "Fourteen years of a family and its hired man: the door to the stove and the table, the kitchen's door, the bedroom's, the loft's stair; muddy boots in from the yard by the back.",
 		"years": 14,

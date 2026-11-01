@@ -200,6 +200,8 @@ var menace_fire := false
 var _menace_said := false
 var _menace_shots := 0
 var _post_way: Array[Vector3] = []
+var _fled_said := -99.0
+var _tend_said := -99.0
 var _post_glance := 0.0
 var _post_look := Vector3.INF
 
@@ -2013,13 +2015,17 @@ func _can_shoot_at(t: Node3D) -> bool:
 ## A friend between his muzzle and where he's shooting.
 func _friend_in_the_way(point: Vector3) -> bool:
 	var gun := body.held_gun as RevolverModel
-	if gun == null or crew.ids.is_empty():
+	if gun == null or (crew.ids.is_empty() and not hold.has("spare")):
 		return false
 	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
 	q.exclude = _exclude()
 	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
-	return not hit.is_empty() and crew.is_mate((hit.collider as Object).get_meta(&"human_body", null))
+	if hit.is_empty():
+		return false
+	var who: Variant = (hit.collider as Object).get_meta(&"human_body", null)
+	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
+	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
 
 func _fire_at(point: Vector3, t: Node3D) -> void:
@@ -2944,7 +2950,8 @@ func _start_fleeing() -> void:
 	_stop_rescue()
 	if crew.any_in_earshot(_now) and crew.since(&"fall_back", _now) > 3.0 and crew.may_say(&"fall_back", _now, 30.0):
 		callout(&"fall_back", _find_target())
-	else:
+	elif _now - _fled_said > 6.0:
+		_fled_said = _now
 		say(&"flee")
 	_set_mood(Mood.FLEEING)
 	tactic = Tactic.OPEN
@@ -2988,8 +2995,10 @@ func _flee(delta: float) -> void:
 	if _stuck > 0.8:
 		_pick_flight()
 	var d := t.global_position.distance_to(body.global_position) if t else 99.0
-	if arrived or d > 38.0 or _flee_time > 14.0:
-		# Far enough: get his breath back, see to his wounds.
+	# Far enough: get his breath back, see to his wounds. (Not on the tick he set off: a man who
+	# stopped to tend, was shot at and ran again went back and forth between the two every tick,
+	# saying so each time, #520's farmhouse.)
+	if _flee_time > 1.5 and (arrived or d > 38.0 or _flee_time > 14.0):
 		_start_tending(Mood.FLEEING)
 
 
@@ -3015,7 +3024,8 @@ func _start_tending(after: Mood) -> void:
 	_set_mood(Mood.TENDING)
 	_tend_time = 0.0
 	_tend_bleed = _worst_bleed()
-	if not _tend_bleed.is_empty():
+	if not _tend_bleed.is_empty() and _now - _tend_said > 6.0:
+		_tend_said = _now
 		say(&"tend")
 
 
