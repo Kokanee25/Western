@@ -54,3 +54,7 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
   the saloon's set with its 2 spittoons and 5 cups +0.018 ms physics at Sean's and 30 fewer draws
   than the drawn props; the town's stores with 8 full barrels +0.054 ms and +127 draws, as when
   they were empty), the look sheet's blind critic (`critic.md`).
+- `results/2026-11-01_deer_fidelity/`: the deer head's fidelity (issue #524; the lab in
+  `deer_fidelity/`): which step loses Rodin's deer between its render and the saloon's wall (the
+  grid shader's min-square coarsening, then no mipmaps; not the triangles or the paint's size),
+  the stand and in-game sheets, costs, the kit checks.

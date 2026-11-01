@@ -1,0 +1,343 @@
+{
+ "_doc": "The library clips (issue #529): each move's candidate takes from Quaternius' Universal Animation Library (UAL1, free) and KayKit's Character Animations 1.1 (Rig_Medium), both CC0; `pick` is the take that became assets/animations/library/<move> (judged on the game's men: tools/blender/library_motion.py, the lineup film). `kind`: gait (looped, its phase by the ground he covers), idle (looped by time), once (played through), hold (played through, its last frame held while he keeps at it). An armed idle is the idle with his gun arm the pose's (LibraryMotion's mask): Quaternius' Pistol_Idle_Loop, like all its Pistol_ clips, holds the gun in both hands (10 cm apart), a modern grip. Source files: SOURCES; where they came from in assets/animations/library/README.md. `parts`: the segments kept (KayKit's: its legs alone; on our men its arms stand out from the body and its head tips back, as its chibi's must).",
+ "sources": {
+  "quaternius": "gltf-universal-animation-library/glTF/AnimationLibrary_Godot_Standard.gltf",
+  "kaykit": "kaykit-character-animations-1.1/Rig_Medium_%s.glb"
+ },
+ "moves": {
+  "idle": {
+   "kind": "idle",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Idle_Loop"
+    ],
+    [
+     "kaykit",
+     "General",
+     "Idle_A"
+    ],
+    [
+     "kaykit",
+     "General",
+     "Idle_B"
+    ]
+   ],
+   "pick": 0
+  },
+  "walk": {
+   "kind": "gait",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Walk_Loop"
+    ],
+    [
+     "quaternius",
+     "",
+     "Walk_Formal_Loop"
+    ],
+    [
+     "kaykit",
+     "MovementBasic",
+     "Walking_A"
+    ],
+    [
+     "kaykit",
+     "MovementBasic",
+     "Walking_B"
+    ],
+    [
+     "kaykit",
+     "MovementBasic",
+     "Walking_C"
+    ]
+   ],
+   "pick": 0
+  },
+  "run": {
+   "kind": "gait",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Jog_Fwd_Loop"
+    ],
+    [
+     "quaternius",
+     "",
+     "Sprint_Loop"
+    ],
+    [
+     "kaykit",
+     "MovementBasic",
+     "Running_A"
+    ],
+    [
+     "kaykit",
+     "MovementBasic",
+     "Running_B"
+    ]
+   ],
+   "pick": 0,
+   "why": "Quaternius' jog: KayKit's runs fling the arms out (a chibi's)"
+  },
+  "walk_back": {
+   "kind": "gait",
+   "takes": [
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Walking_Backwards"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "strafe_l": {
+   "kind": "gait",
+   "takes": [
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Running_Strafe_Left"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "strafe_r": {
+   "kind": "gait",
+   "takes": [
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Running_Strafe_Right"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "crouch_walk": {
+   "kind": "gait",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Crouch_Fwd_Loop"
+    ],
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Sneaking"
+    ],
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Crouching"
+    ]
+   ],
+   "pick": 0
+  },
+  "crouch_idle": {
+   "kind": "idle",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Crouch_Idle_Loop"
+    ],
+    [
+     "kaykit",
+     "MovementAdvanced",
+     "Crouching"
+    ]
+   ],
+   "pick": 0
+  },
+  "pistol_aim": {
+   "kind": "hold",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Pistol_Aim_Neutral"
+    ],
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_1H_Aiming"
+    ]
+   ],
+   "pick": 1,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "pistol_shoot": {
+   "kind": "once",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Pistol_Shoot"
+    ],
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_1H_Shoot"
+    ]
+   ],
+   "pick": 1,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "long_aim": {
+   "kind": "hold",
+   "takes": [
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_2H_Aiming"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "long_shoot": {
+   "kind": "once",
+   "takes": [
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_2H_Shoot"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "reload": {
+   "kind": "once",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Pistol_Reload"
+    ],
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_1H_Reload"
+    ]
+   ],
+   "pick": 1,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "long_reload": {
+   "kind": "once",
+   "takes": [
+    [
+     "kaykit",
+     "CombatRanged",
+     "Ranged_2H_Reload"
+    ]
+   ],
+   "pick": 0,
+   "parts": [
+    "thigh_l",
+    "shin_l",
+    "foot_l",
+    "thigh_r",
+    "shin_r",
+    "foot_r"
+   ]
+  },
+  "hit_front": {
+   "kind": "once",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Hit_Chest"
+    ],
+    [
+     "kaykit",
+     "General",
+     "Hit_A"
+    ]
+   ],
+   "pick": 0
+  },
+  "hit_head": {
+   "kind": "once",
+   "takes": [
+    [
+     "quaternius",
+     "",
+     "Hit_Head"
+    ],
+    [
+     "kaykit",
+     "General",
+     "Hit_B"
+    ]
+   ],
+   "pick": 0
+  }
+ }
+}

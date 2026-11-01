@@ -1,0 +1,165 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:House/bedroom_door_259",
+  "0.3:House/bedroom_p_casing0_jamb0",
+  "0.3:House/bedroom_m_casing0_jamb0",
+  "0.3:House/bedroom_opening0_king0",
+  "0.3:House/bedroom_m_nailer_0_0_0",
+  "0.3:House/bedroom_p_nailer_1_0_0",
+  "0.3:House/bedroom_m_nailer_1_0_0",
+  "0.3:House/bedroom_p_nailer_0_0_0",
+  "0.3:House/floor_ground_joist_036",
+  "0.3:House/floor_ground_board_016_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_019_1",
+  "1.0:House/bedroom_m_nailer_2_0_0",
+  "1.0:House/bedroom_p_nailer_2_0_0",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_p_casing0_jamb0",
+  "1.0:House/bedroom_m_casing0_jamb0",
+  "1.0:House/bedroom_opening0_king0",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.6:House/bedroom_m_nailer_2_0_0",
+  "1.6:House/bedroom_p_nailer_2_0_0",
+  "1.6:House/bedroom_p_board_011_0",
+  "1.6:House/bedroom_m_board_011_0",
+  "1.6:House/bedroom_p_board_010_0",
+  "1.6:House/bedroom_m_board_010_0",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_p_casing0_jamb0",
+  "1.6:House/bedroom_m_casing0_jamb0",
+  "1.6:House/bedroom_opening0_king0",
+  "1.6:House/bedroom_m_casing0_head",
+  "1.6:House/bedroom_opening0_header"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 76.23,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 468,
+  "max_ms": 167.88,
+  "mean_ms": 14.32,
+  "p95_ms": 25.62
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  5.3,
+  0.56,
+  3.1
+ ],
+ "route_left": 2,
+ "route_next": [
+  5.6,
+  0.56,
+  3.1
+ ],
+ "seed": 2,
+ "state": "LOST",
+ "t": 76.23,
+ "threat": 72.38,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   72.37,
+   "Kid down"
+  ],
+  [
+   72.38,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   73.0,
+   "Dutch down"
+  ],
+  [
+   76.23,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

@@ -51,3 +51,10 @@ adds its own lines.
   a kick, a draw, standing over a man) were generated from text for this project and retargeted
   onto our rig by `tools/blender/retarget_motion.py`; the generated takes are kept in the Studio
   (`motions/card_cheat/`).
+- **Quaternius, Universal Animation Library** (UAL1, the free Standard set; quaternius.com): CC0
+  1.0. **Kay Lousberg, KayKit Character Animations 1.1** (Rig_Medium; www.kaylousberg.com): CC0
+  1.0. Retargeted onto our rig by `tools/blender/library_motion.py` (issue #529) into
+  `assets/animations/library/` (which clip from which pack: its `manifest.json`); the packs
+  themselves are fetched into `build/` by `tools/blender/fetch_library.sh` (from GitHub mirrors of
+  the itch.io downloads, J-Ponzo/gltf-universal-animation-library and
+  GeorgeQLe/assets-kaykit-3d-characters, each with the pack's CC0 licence text) and not kept here.

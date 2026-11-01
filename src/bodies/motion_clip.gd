@@ -21,6 +21,12 @@ var hips := PackedFloat32Array()  ## hip joints' height over the ground in leg l
 var events := {}  ## name -> seconds: "strike" (the boot lands), "draw" (his hand's on the gun)
 var strikes: Array[StringName] = []  ## parts that strike what they meet while it plays (foot_r)
 var source := ""
+## The library's (assets/animations/library/, LibraryMotion): `gait` (looped, its phase by the ground
+## he covers: `stride` m a loop on the rig it was measured on), `idle` (looped by time), `once`,
+## `hold` (played through, its last frame held); empty for the others.
+var kind := &""
+var loop := false
+var stride := 0.0
 
 
 ## The clip called `n`, loaded once (null when there's no such file).
@@ -57,6 +63,9 @@ func _read(n: StringName, d: Dictionary) -> void:
 	events = d.get("events", {})
 	for s: String in d.get("strikes", []):
 		strikes.append(StringName(s))
+	kind = StringName(d.get("kind", ""))
+	loop = bool(d.get("loop", false))
+	stride = float(d.get("stride_m", 0.0))
 
 
 ## How long it plays (s).

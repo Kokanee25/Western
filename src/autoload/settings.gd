@@ -138,6 +138,10 @@ var _people_threads_file := PEOPLE_THREADS
 var people_bands := PEOPLE_BANDS
 const PEOPLE_BANDS := true
 var _people_bands_file := PEOPLE_BANDS
+## People moved by the library clips (LibraryMotion, issue #529: Quaternius' and KayKit's CC0
+## animations): on in the lab, off in the game until Sean passes them. Not saved; for one run,
+## `-- --library-motion=on|off`, or the dev bridge's `library on|off`.
+var library_motion := false
 ## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
 ## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
 ## (project.godot's `application/config/project_settings_override`), so this is what this run has
@@ -187,6 +191,8 @@ func _ready() -> void:
 			people_threads = a.substr(17) == "on"
 		elif a.begins_with("--people-bands="):
 			people_bands = a.substr(15) == "on"
+		elif a.begins_with("--library-motion="):
+			library_motion = a.substr(17) == "on"
 		elif a.begins_with("--physics-thread="):
 			set_physics_thread(a.substr(17) == "on")
 		elif a.begins_with("--render-thread="):

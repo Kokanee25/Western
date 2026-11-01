@@ -1,0 +1,91 @@
+{
+ "alarm": 16.97,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "breach": -1.0,
+ "end": 33.47,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 990,
+  "max_ms": 149.9,
+  "mean_ms": 11.43,
+  "p95_ms": 25.57
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "id": "kid",
+   "inside": false,
+   "mood": "DEAD",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, can't feel his legs, gut-shot, bone broken.",
+ "seed": 4,
+ "state": "LOST",
+ "t": 33.47,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   20.13,
+   "Kid down, out"
+  ],
+  [
+   20.13,
+   "Kid dead"
+  ],
+  [
+   33.47,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front"
+}

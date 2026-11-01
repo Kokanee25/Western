@@ -1,0 +1,85 @@
+{
+ "alarm": 30.83,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {
+   "plant": 75.98
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "plant",
+ "breach": -1.0,
+ "end": -1.0,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 10181,
+  "max_ms": 308.05,
+  "mean_ms": 11.94,
+  "p95_ms": 22.18
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "PEEKING"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "kid",
+   "inside": true,
+   "mood": "DOWN",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "HIDDEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "seed": 2,
+ "state": "ON",
+ "t": 200.5,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   30.83,
+   "the alarm: Kid saw you"
+  ],
+  [
+   54.77,
+   "Kid down"
+  ]
+ ],
+ "way": "breach"
+}

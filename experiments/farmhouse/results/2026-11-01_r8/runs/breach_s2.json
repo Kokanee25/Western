@@ -1,0 +1,159 @@
+{
+ "alarm": 64.2,
+ "bot": {
+  "blast": 68.7,
+  "freed": -1.0,
+  "phase_at": {
+   "lit": 63.77,
+   "plant": 61.68,
+   "rescue": 87.15,
+   "through": 70.2
+  },
+  "planted": 63.77
+ },
+ "bot_phase": "rescue",
+ "breach": 69.2,
+ "end": -1.0,
+ "executed": 83.32,
+ "frames": {
+  "blast_ms": 487.83,
+  "fight_ticks": 10579,
+  "max_ms": 1680.46,
+  "mean_ms": 10.96,
+  "p95_ms": 22.51
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_table",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_door",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "seed": 2,
+ "state": "ON",
+ "t": 240.5,
+ "threat": 69.22,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   64.2,
+   "the alarm: Hollis heard fuse"
+  ],
+  [
+   69.2,
+   "Dutch down"
+  ],
+  [
+   69.2,
+   "Hollis down"
+  ],
+  [
+   69.2,
+   "a blast at the house"
+  ],
+  [
+   69.22,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   69.28,
+   "Lyle down"
+  ],
+  [
+   70.85,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.88,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.88,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.37,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   83.32,
+   "the guard shoots the rancher"
+  ]
+ ],
+ "way": "breach",
+ "where": "back"
+}

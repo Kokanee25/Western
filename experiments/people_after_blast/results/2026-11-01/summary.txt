@@ -1,0 +1,25 @@
+run                          window   ticked  slow     ms   Sean | people people senses civili outlaw people | why (a tick)
+street_before_1.json         before     19.6   4.7   6.47   4.21 |   2.17   0.66   1.64   0.42   0.44   1.14 | near_player 12.1, seen 4.3, chore 1.0
+street_before_1.json         0-6 s      21.6   1.0   8.56   5.56 |   3.17   1.02   2.09   0.14   0.64   1.44 | cowering 15.0, down 3.0, near_trouble 3.0, woken 0.1
+street_before_1.json         7 s on     21.5   1.0   8.04   5.23 |   2.93   0.99   1.76   0.32   0.61   1.38 | shaken 11.9, fear 3.1, down 3.0, seen 3.0
+street_before_2.json         before     19.6   4.7   6.86   4.46 |   2.33   0.73   1.75   0.45   0.47   1.13 | near_player 12.1, seen 4.3, chore 1.0
+street_before_2.json         0-6 s      21.6   1.0   9.39   6.10 |   3.57   1.14   2.23   0.15   0.68   1.55 | cowering 15.0, down 3.0, near_trouble 3.0, woken 0.1
+street_before_2.json         7 s on     21.5   1.0   8.87   5.77 |   3.36   1.14   1.92   0.34   0.65   1.41 | shaken 11.9, fear 3.1, down 3.0, seen 3.0
+street_after_1.json          before     19.6   4.7   5.85   3.80 |   1.98   0.58   1.52   0.37   0.41   0.98 | near_player 12.1, seen 4.3, chore 1.0
+street_after_1.json          0-6 s      20.6   2.9   7.90   5.13 |   3.00   0.95   1.82   0.13   0.61   1.35 | near_player 9.2, seen 5.8, down 3.0, woken 1.2
+street_after_1.json          7 s on     20.5   3.0   7.42   4.82 |   2.80   0.91   1.55   0.29   0.58   1.24 | near_player 10.0, seen 6.0, down 3.0
+street_after_2.json          before     19.6   4.7   6.84   4.45 |   2.29   0.71   1.80   0.43   0.47   1.15 | near_player 12.1, seen 4.3, chore 1.0
+street_after_2.json          0-6 s      20.6   2.9   8.61   5.60 |   3.23   1.02   2.06   0.18   0.64   1.43 | near_player 9.3, seen 5.8, down 3.0, woken 1.0
+street_after_2.json          7 s on     20.5   3.0   7.01   4.56 |   2.57   0.81   1.54   0.27   0.56   1.23 | near_player 10.0, seen 6.0, down 3.0
+spec_before_1.json           before      8.3  21.1   3.54   2.30 |   1.20   0.36   0.82   0.29   0.33   0.54 | chore 1.0
+spec_before_1.json           0-6 s      15.3  13.0   6.21   4.03 |   2.15   0.68   1.47   0.33   0.61   0.97 | near_trouble 5.0, cowering 3.0, chore 1.0, woken 0.1
+spec_before_1.json           7 s on      9.4  18.7   4.24   2.75 |   1.47   0.42   0.94   0.42   0.35   0.64 | shaken 2.2, clip 0.9, chore 0.1
+spec_before_2.json           before      8.3  21.1   2.94   1.91 |   0.98   0.28   0.69   0.24   0.29   0.47 | chore 1.0
+spec_before_2.json           0-6 s      15.3  13.0   5.81   3.78 |   2.02   0.64   1.38   0.31   0.56   0.90 | near_trouble 5.0, cowering 3.0, chore 1.0, woken 0.1
+spec_before_2.json           7 s on      9.4  18.7   3.47   2.26 |   1.20   0.33   0.75   0.34   0.30   0.54 | shaken 2.2, clip 0.9, chore 0.1
+spec_after_1.json            before      8.3  21.1   2.80   1.82 |   0.93   0.26   0.66   0.23   0.28   0.45 | chore 1.0
+spec_after_1.json            0-6 s       8.3  21.0   3.58   2.32 |   1.28   0.38   0.79   0.25   0.33   0.54 | chore 1.0
+spec_after_1.json            7 s on      8.3  21.0   3.49   2.27 |   1.21   0.33   0.74   0.36   0.33   0.52 | clip 0.9, chore 0.1
+spec_after_2.json            before      8.3  21.1   3.35   2.18 |   1.14   0.33   0.77   0.27   0.32   0.52 | chore 1.0
+spec_after_2.json            0-6 s       8.3  21.0   3.88   2.52 |   1.42   0.43   0.83   0.27   0.36   0.58 | chore 1.0
+spec_after_2.json            7 s on      8.3  21.0   3.71   2.41 |   1.30   0.37   0.77   0.37   0.35   0.55 | clip 0.9, chore 0.1

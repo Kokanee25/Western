@@ -29,6 +29,8 @@ const LINES := {
 	&"provoked": ["You damn fool!", "Your funeral, friend.", "That's how it is? Fine!"],
 	&"hat": ["My hat!", "That was a good hat, you son of a—", "Close. Real damn close."],
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
+	&"menace": ["Back off! Back off or he's dead!", "One more step and I kill him, I swear to God!", "You hear me? He's dead if you come in here!"],
+	&"blasted": ["My ears— I can't hear!", "God, my head...", "Christ! Christ almighty!"],
 	&"gut": ["Oh God, not the belly..."],
 	&"cornered": ["Come on, then! Come on!", "You'll have to kill me!", "Not like this. Not to you."],
 	&"back_off": ["I'm getting out of here...", "Easy... easy... I'm going.", "Not worth dying for."],
@@ -150,13 +152,16 @@ var variant: Variant = default_variant
 ## them), stay_in (he doesn't stand down while a friend in earshot's still on the man), go_low (in
 ## the open under fire he fights from a knee), press (the man's reloading or just hit: he comes at
 ## him, and calls the others on), hold_cover (#294: behind cover he holds it against the idea of
-## the man he chose it by, moved only by what he's sure of, not by a guess at a sound). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## the man he chose it by, moved only by what he's sure of, not by a guess at a sound), watch_spot
+## (#477: behind cover, with the man last known near and lately, he watches that spot rather than go
+## looking for him; `_lost_you`, WATCH_*). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
-		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover"]
+		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
+		&"watch_spot"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -179,8 +184,39 @@ var places: Waypoints
 var bar_spot := &""
 ## What he means to do, in order. Steps: {do: &"go", to: <place>}, {do: &"drink", seconds, face},
 ## {do: &"harass", who, seconds, rough}, {do: &"call_out", who}, {do: &"duel", who},
-## {do: &"wait", seconds}, {do: &"leave"}. He gets on with it while nobody's troubling him.
+## {do: &"wait", seconds}, {do: &"leave"}, {do: &"post"} (holding a house: at his post, `hold`). He gets
+## on with it while nobody's troubling him.
 var agenda: Array[Dictionary] = []
+## Holding a house he's been told to hold (the farmhouse, issue #520: #477's "stay in cover", for a
+## house alone, not the town's fights), set by whoever posts him (FarmhouseMission): "inside"
+## (Callable(Vector3) -> bool: the house, or for the guard his room), "post" (where he stands
+## watching before it starts, and goes back to when he's lost you), "look" (what he watches from
+## it). With it he takes cover only inside, hunts you only inside, never presses or rages out after
+## you, and after the fight he goes back to his post (he doesn't leave town). Empty: the town's man.
+var hold := {}
+## Seconds left dazed by a blast that hurt him (deafened, his head ringing: `_blasted`).
+var stunned := 0.0
+## A man he's holding (the hostage, issue #520): set, he goes to him and puts his gun on him (his
+## threat: `menace_fire` false); with `menace_fire`, he shoots him (FarmhouseMission's guard).
+var menace: HumanBody = null
+var menace_fire := false
+## How many balls he puts into him (FarmhouseTuning.execute_shots).
+var menace_shots := 2
+var _menace_said := false
+var _menace_shots := 0
+var _post_way: Array[Vector3] = []
+var _fled_said := -99.0
+## Into the fight without a word of his own (one of them's already called it: FarmhouseMission's alarm).
+var quiet_start := false
+## A spot he's been told to hold (HouseDefence, the farmhouse: a window, a door to cover, a hole):
+## {id, at, look (what he watches from it), low (cover he crouches behind, up to shoot), window
+## (stand to shoot, below the sill under fire), why}. Empty: he picks his own (Cover).
+var order := {}
+var _order_way: Array[Vector3] = []
+var _order_stuck := 0.0
+var _tend_said := -99.0
+var _post_glance := 0.0
+var _post_look := Vector3.INF
 
 var body: HumanBody
 var mood := Mood.CALM
@@ -557,7 +593,9 @@ func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
 	if mood == Mood.CALM:
-		say(&"provoked")
+		if not quiet_start:
+			say(&"provoked")
+		quiet_start = false
 		_set_mood(Mood.FIGHTING)
 		_fight_from = _now
 		_next_shot = _rng.randf_range(0.6, 1.1)
@@ -632,6 +670,9 @@ func _on_hit(info: Dictionary) -> void:
 		&"cut":
 			_scare(0.04, &"hit")
 			return
+		&"blast":
+			_blasted(info)
+			return
 		&"blow":
 			_scare(clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5), &"hit")
 			return
@@ -670,6 +711,24 @@ func _on_hit(info: Dictionary) -> void:
 	_start_wince(info, fear - fear_before)
 	if _has(&"odds") and mood in [Mood.FIGHTING, Mood.RELOADING]:
 		_hold_break = maxf(_hold_break, lerpf(ODDS_STOCK.x, ODDS_STOCK.y, clampf(nerve, 0.0, 1.0)))
+
+
+## A blast that hurt him (HumanBody.take_blast's hit, its `harm`: thrown down, burst eardrums, a
+## limb), not a ball (#488's gap: it was taken as one, "I'm hit!", a stagger and a turn on the
+## shooter). He's dazed by how hard it hit him (deafened, his head ringing: he does nothing for a
+## moment, longer the nearer he was), frightened by what it did to him on top of its fright
+## (`_on_exploded`); there's no shooter to turn on, and he doesn't call out "hit".
+func _blasted(info: Dictionary) -> void:
+	var kpa := float(info.get("kpa", 0.0))
+	stunned = maxf(stunned, clampf(kpa / 20.0, 1.0, 6.0) * _think.randf_range(0.8, 1.2))
+	_scare(0.1 * (info.get("harm", []) as Array).size() * _thump(), &"blast")
+	_react = minf(_react, 0.15)
+	if mood == Mood.SURRENDERED:
+		return
+	say(&"blasted")
+	if not _said_gut and body.physiology.gut_seconds >= 0.0:
+		_said_gut = true
+		say(&"gut")
 
 
 ## Variant D's `wince`: hit and still on his feet and in it, he winces and gets out of sight to see
@@ -817,12 +876,29 @@ func tick(delta: float) -> void:
 ## worse, nobody to fight, rescue or break from: a man fighting, fleeing, tending or rescuing ticks
 ## every tick.
 func can_slow() -> bool:
-	if mood != Mood.CALM or target != null or rescuing != null or _pending_break != &"" or not _fire_way.is_empty():
-		return false
+	return slow_reason() == &""
+
+
+const MOOD_NAMES: Array[StringName] = [&"calm", &"fighting", &"reloading", &"surrendered", &"down", &"dead", &"fleeing", &"tending"]
+
+
+## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
+## counts (#495).
+func slow_reason() -> StringName:
+	if mood != Mood.CALM:
+		return MOOD_NAMES[mood]
+	if target != null:
+		return &"target"
+	if rescuing != null:
+		return &"rescuing"
+	if _pending_break != &"":
+		return &"break"
+	if not _fire_way.is_empty():
+		return &"fire_way"
 	for who: Variant in relations.entries.keys():  # a copy (Senses: a freed key can loop the walk)
 		if relations.entries[who].stance >= Relations.Stance.WARY:
-			return false
-	return true
+			return &"wary"
+	return &""
 
 
 ## In a fight, running or tending (PeopleTick: whoever's near him ticks every tick too).
@@ -876,6 +952,8 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.SURRENDERED:
 		if arrested_by != null:
 			_go_along(delta)
+		else:
+			_make_way(delta)
 		return
 	if mood == Mood.FLEEING:
 		_flee(delta)
@@ -915,6 +993,8 @@ func _physics_step(delta: float) -> void:
 		if mood in [Mood.FIGHTING, Mood.RELOADING]:
 			say(&"rally")
 			_decide("back in it", "his fear's settled (%.2f / %.2f)" % [dread(), nerve_now()])
+	if menace != null and _menacing(delta):
+		return
 	relations.tick(delta)
 	_pick_fight(delta)
 	match mood:
@@ -980,6 +1060,8 @@ func _done_with(who: Node) -> bool:
 func _social(delta: float) -> void:
 	_reload_quietly(delta)
 	var who := relations.focus()
+	if who is Player and not (who as Player).wounds.physiology.is_conscious():
+		who = null  # nothing to say to a man lying out cold
 	var st := relations.stance(who) if who else Relations.Stance.IGNORE
 	if who != _social_who or st != _social_stance:
 		_on_rung(_social_stance, st)
@@ -1129,6 +1211,8 @@ func _go_about(delta: float) -> void:
 			_ease_off(delta)
 		&"call_out":
 			done = _call_out(delta, step)
+		&"post":
+			_keep_post(delta)
 		&"duel":
 			done = _duel(step)
 		_:
@@ -1410,7 +1494,7 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	fear = 0.0
 	_set_mood(Mood.CALM)
 	_after_fight()
-	if places and body.physiology.can_stand() and not body.limp and not body.prone:
+	if places and hold.is_empty() and body.physiology.can_stand() and not body.limp and not body.prone:
 		agenda.clear()
 		left_town.emit()
 		body.queue_free()
@@ -1422,9 +1506,208 @@ func _after_fight() -> void:
 	_stop_rescue()
 	covering = 0.0
 	rage = 0.0
-	if places:
+	if not hold.is_empty():
+		# Holding a house: back to his post, not out of town.
+		agenda = [{"do": &"post"}]
+		_step_started = false
+	elif places:
 		agenda = [{"do": &"leave"}]
 		_step_started = false
+
+
+## The threat shouted again (his last word, FarmhouseMission), the next tick he's on it.
+func warn_again() -> void:
+	_menace_said = false
+
+
+## His gun on the man he's holding (`menace`): to him, a pace off, gun on his head, the threat
+## shouted once; with `menace_fire`, he fires (FarmhouseMission.execute_shots in all). True while he
+## does (nothing else this tick); false when he can't (down, stunned, given up, no gun).
+func _menacing(delta: float) -> bool:
+	if not is_instance_valid(menace) or not menace.physiology.alive:
+		menace = null
+		return false
+	if mood in [Mood.SURRENDERED, Mood.FLEEING, Mood.DOWN, Mood.DEAD, Mood.TENDING] or body.prone or stunned > 0.0 \
+			or body.held_gun == null or not body.physiology.can_hold("r"):
+		return false
+	var head: Vector3 = (menace.parts[&"head"] as Node3D).global_position if menace.parts.has(&"head") else menace.global_position + Vector3.UP * 1.2
+	var from := body.global_position - menace.global_position
+	from.y = 0.0
+	if from.length() > 1.5:
+		body.set_pose(&"stand")
+		var stand := menace.global_position + (from.normalized() if from.length() > 0.01 else Vector3.BACK) * 1.0
+		body.walk_to(stand, run_speed, delta, false)
+		body.face(head)
+		return true
+	body.face(head)
+	body.set_pose(&"aim")
+	if body.gun_holstered:
+		body.draw_gun()
+		return true
+	if not _menace_said:
+		_menace_said = true
+		say(&"menace")
+	if mood == Mood.RELOADING:
+		# Loading with his gun on him (the fight's own countdown doesn't run while he holds him).
+		_reload_left -= delta
+		if _reload_left <= 0.0:
+			rounds = rounds_per_load
+			_set_mood(Mood.FIGHTING)
+		return true
+	if not menace_fire or not body.gun_ready():
+		return true
+	if rounds <= 0:
+		_start_reload()
+		return true
+	_next_shot -= delta
+	if _next_shot > 0.0:
+		return true
+	_fire_at(head, menace)
+	_menace_shots += 1
+	_next_shot = 0.7
+	if _menace_shots >= menace_shots:
+		menace_fire = false
+	return true
+
+
+## Told to hold a spot (HouseDefence): `o` empty lets him be. The same spot again changes nothing.
+func give_order(o: Dictionary) -> void:
+	if o.is_empty():
+		if not order.is_empty():
+			order = {}
+			_order_way.clear()
+			tactic = Tactic.OPEN
+			_cover_search = 0.0
+		return
+	if order.get("id", "") == o.id:
+		order.look = o.look
+		return
+	order = o
+	_order_way.clear()
+	_order_stuck = 0.0
+	_search = null
+	_decide("to %s" % o.id.replace("_", " "), String(o.get("why", "")))
+
+
+## His spot: there by the house's ways (fighting you where he meets you, if you're close and in
+## sight); there, watching what it covers: low behind low cover or below a window's sill while
+## rounds come in, up to shoot when he has you (or a friend wants you kept down), topping up his
+## gun while it's quiet.
+func _follow_order(delta: float, t: Node3D) -> void:
+	var at: Vector3 = order.at
+	var flat := at - body.global_position
+	flat.y = 0.0
+	var sees := senses.sees(t)
+	if flat.length() > 0.45:
+		if sees and body.global_position.distance_to(t.global_position) < 5.0 and mood != Mood.RELOADING:
+			tactic = Tactic.OPEN
+			_fight(delta)
+			return
+		if _order_way.is_empty():
+			if places:
+				_order_way = places.route_to_point(World.space(body), body.global_position, at, _exclude(t))
+			if _order_way.is_empty():
+				_order_way = [at]
+		tactic = Tactic.MOVING
+		body.set_pose(&"stand")
+		if body.walk_to(_order_way[0], run_speed, delta):
+			_order_way.pop_front()
+			if _order_way.is_empty():
+				_order_way = [at]
+		if body.global_position.distance_to(_last_pos) < 0.02 * 60.0 * delta:
+			_order_stuck += delta
+		else:
+			_order_stuck = maxf(_order_stuck - delta, 0.0)
+		_last_pos = body.global_position
+		if _order_stuck > 2.5:
+			# Can't get there (a body, the wreck of a wall): his own cover instead.
+			_decide("give up on %s" % String(order.id).replace("_", " "), "stuck on the way")
+			order = {}
+			_order_way.clear()
+			tactic = Tactic.OPEN
+			_cover_search = 0.0
+		return
+	_order_way.clear()
+	tactic = Tactic.HIDDEN
+	# Up to shoot when he has you, not while he's loading (the fight would start his reload over,
+	# and call it, every tick: #520's playtest).
+	if mood != Mood.RELOADING and (sees or (covering > 0.0 and senses.since_known(t) < 20.0)):
+		_fight(delta)
+		return
+	body.face(order.look)
+	var down: bool = order.get("low", false) or (order.get("window", false) and (suppressed > 0.0 or _shaken >= 0.0))
+	body.set_pose(&"crouch" if down else &"stand")
+	if rounds < rounds_per_load and mood == Mood.FIGHTING and senses.since_seen(t) > 2.5 and suppressed <= 0.0:
+		_start_reload()
+
+
+## Holding a house: is `p` in it (anywhere, if he holds none; nowhere he knows of, if unknown)?
+func _inside(p: Vector3) -> bool:
+	if hold.is_empty():
+		return true
+	if p == Vector3.INF:
+		return false
+	return (hold.inside as Callable).call(p)
+
+
+## His post in the house he holds, before it starts and after: there by the house's ways, then
+## standing watching what he's set to watch, glancing about now and then (a man bored at a window).
+func _keep_post(delta: float) -> void:
+	if hold.is_empty():
+		return
+	var post: Vector3 = hold.post
+	if body.global_position.distance_to(post) > 0.6:
+		if _post_way.is_empty():
+			if places:
+				_post_way = places.route_to_point(World.space(body), body.global_position, post, _exclude(null))
+			if _post_way.is_empty():
+				_post_way = [post]
+		body.set_pose(&"stand")
+		if body.walk_to(_post_way[0], walk_speed, delta):
+			_post_way.pop_front()
+			if _post_way.is_empty():
+				_post_way = [post]
+		return
+	_post_way.clear()
+	body.set_pose(&"stand")
+	_post_glance -= delta
+	if _post_glance <= 0.0:
+		_post_glance = _think.randf_range(3.0, 8.0)
+		var look: Vector3 = hold.look
+		if _think.randf() < 0.35:
+			# A look round: to one side of what he watches.
+			var to := look - post
+			look = post + to.rotated(Vector3.UP, deg_to_rad(_think.randf_range(-55.0, 55.0)))
+		_post_look = look
+	body.face(_post_look if _post_look != Vector3.INF else hold.look)
+
+
+## A look at something he heard at his post (holding a house): he turns to it for a while.
+func glance(at: Vector3, seconds := 3.0) -> void:
+	_post_look = at
+	_post_glance = seconds
+
+
+## Into cover against `point` now (a breach in the house he holds: a man to cover the hole).
+func cover_against(point: Vector3, why := "the breach") -> void:
+	_search = null
+	_seek_cover(point + Vector3.UP * 1.0, Vector3.INF, 11.0, 3.0, why)
+
+
+## Holding a house and lost you outside it: back to his post by the house's ways, to watch for you.
+func _to_post(t: Node3D) -> void:
+	var post: Vector3 = hold.post
+	var way: Array[Vector3] = []
+	if places:
+		way = places.route_to_point(World.space(body), body.global_position, post, _exclude(t))
+	if way.is_empty():
+		way = [post]
+	cover = {"at": post, "route": way, "low": false, "peek": post, "eye": _eye_of(t)}
+	tactic = Tactic.MOVING
+	_move_time = 0.0
+	_stuck = 0.0
+	_last_pos = body.global_position
+	_decide("back to his post", "lost you outside the house")
 
 
 # --- Fighting ----------------------------------------------------------------------------------
@@ -1432,6 +1715,12 @@ func _after_fight() -> void:
 func _combat(delta: float) -> void:
 	var t := _find_target()
 	if t == null:
+		return
+	if stunned > 0.0:
+		# Dazed by a blast: on his feet (or where it threw him), doing nothing till his head clears.
+		stunned -= delta
+		if not body.prone and not body.limp:
+			body.set_pose(&"wince")
 		return
 	if _react > 0.0:
 		# Taking it in: he looks at the man, his hand not yet moving.
@@ -1454,17 +1743,24 @@ func _combat(delta: float) -> void:
 		return
 	if _wince > 0.0 and not body.prone and _wince_step(delta, t):
 		return
-	if rage > 0.0 and not body.prone:
+	if rage > 0.0 and not body.prone and _inside(senses.last_known(t)):
 		_rage_fight(delta, t)
 		return
 	_press = maxf(_press - delta, 0.0)
-	if _press > 0.0 and not body.prone:
+	if _press > 0.0 and not body.prone and _inside(senses.last_known(t)):
 		_press_fight(delta, t)
 		return
+	if not order.is_empty() and not body.prone:
+		_follow_order(delta, t)
+		return
 	var eye := _eye_of(t)
-	# Lost sight of him for a while: go and look where he was.
+	# Holding a house and he's lost you outside it: back to his post (a window), to watch for you.
+	if not hold.is_empty() and not senses.sees(t) and senses.since_known(t) > 6.0 and tactic == Tactic.OPEN \
+			and not body.prone and body.global_position.distance_to(hold.post) > 0.8 and not _inside(senses.last_known(t)):
+		_to_post(t)
+	# Lost sight of him for a while: go and look where he was (in the house he holds, only inside it).
 	if not senses.sees(t) and senses.since_known(t) > 4.0 and tactic in [Tactic.OPEN, Tactic.HIDDEN] and not body.prone \
-			and _shaken < 0.0:
+			and _shaken < 0.0 and (tactic != Tactic.HIDDEN or _lost_you(t)) and _inside(senses.last_known(t)):
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
@@ -1519,6 +1815,23 @@ func _combat(delta: float) -> void:
 			_hide(delta, eye)
 		Tactic.PEEKING:
 			_peek(delta, t, eye)
+
+
+## Behind cover, has he lost the man enough to go looking for him? Without variant D's
+## `watch_spot`, yes (4 s unseen and unheard, the caller's test). With it (#477: the careful
+## player pops up every few seconds, and a man who went to look walked out of good cover into his
+## gun): only once he's no idea where the man is, or his last idea is far off, or he's heard
+## nothing for WATCH_QUIET s (WATCH_ALONE with no friend standing in earshot to keep the man
+## busy). Till then he holds and watches that spot; he still moves for an angle (`_flank_after`),
+## cover shot away or seen round (`_hide`), a friend down (`_wounded_mate`) or the man reloading
+## (`_press_why`).
+func _lost_you(t: Node3D) -> bool:
+	if not _has(&"watch_spot"):
+		return true
+	var spot := senses.last_known(t)
+	if spot == Vector3.INF or body.global_position.distance_to(spot) > WATCH_NEAR:
+		return true
+	return senses.since_known(t) > (WATCH_QUIET if crew.any_in_earshot(_now) else WATCH_ALONE)
 
 
 ## Where he thinks the man's eyes are: where they are if he can see him, else where he last knew.
@@ -1604,6 +1917,8 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 		_search._ctx["way_extra"] = Cover.WAY_EXTRA_FAR
 	if _has(&"way_cost"):
 		_search._ctx["by_way"] = true
+	if not hold.is_empty():
+		_search._ctx["inside"] = hold.inside
 	_search_bias = bias_from
 	_search_eye = eye
 
@@ -1795,6 +2110,8 @@ func _fight(delta: float) -> void:
 
 
 func _aim_point(t: Node3D) -> Vector3:
+	if t != null and t == menace and menace.parts.has(&"head"):
+		return (menace.parts[&"head"] as Node3D).global_position  # a man he means to kill, at a pace
 	if t is HumanBody and (t as HumanBody).parts.has(&"chest"):
 		if senses.sees(t):
 			return ((t as HumanBody).parts[&"chest"] as Node3D).global_position
@@ -1839,13 +2156,17 @@ func _can_shoot_at(t: Node3D) -> bool:
 ## A friend between his muzzle and where he's shooting.
 func _friend_in_the_way(point: Vector3) -> bool:
 	var gun := body.held_gun as RevolverModel
-	if gun == null or crew.ids.is_empty():
+	if gun == null or (crew.ids.is_empty() and not hold.has("spare")):
 		return false
 	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
 	q.exclude = _exclude()
 	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
-	return not hit.is_empty() and crew.is_mate((hit.collider as Object).get_meta(&"human_body", null))
+	if hit.is_empty():
+		return false
+	var who: Variant = (hit.collider as Object).get_meta(&"human_body", null)
+	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
+	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
 
 func _fire_at(point: Vector3, t: Node3D) -> void:
@@ -1951,6 +2272,8 @@ func _step_hand(delta: float) -> void:
 	if gun == null or gun.muzzle == null:
 		return
 	var t := _find_target()
+	if menace != null and is_instance_valid(menace) and body.pose in AIM_POSES:
+		t = menace  # his gun on the man he's holding
 	var aimed := t != null and body.gun_ready() and body.pose in AIM_POSES
 	var p := body.physiology
 	var tune := hand_tuning()
@@ -2080,6 +2403,12 @@ const FLINCH_HOLD := Vector2(0.3, 0.7)
 ## Seconds since he last saw or heard the man he was fighting before he gives up looking (going
 ## after a friend in between doesn't start the count again).
 const HUNT_GIVE_UP := 30.0
+## Variant D's `watch_spot` (#477): behind cover, with the man last known this near (m), he watches
+## where he was for this long unseen and unheard (s) before he goes to look; WATCH_ALONE with no
+## friend standing in earshot.
+const WATCH_NEAR := 15.0
+const WATCH_QUIET := 14.0
+const WATCH_ALONE := 8.0
 ## He only goes for a friend down in the open while the man who put him there is about: seen or
 ## heard this recently.
 const RESCUE_WHILE_KNOWN := 8.0
@@ -2768,7 +3097,8 @@ func _start_fleeing() -> void:
 	_stop_rescue()
 	if crew.any_in_earshot(_now) and crew.since(&"fall_back", _now) > 3.0 and crew.may_say(&"fall_back", _now, 30.0):
 		callout(&"fall_back", _find_target())
-	else:
+	elif _now - _fled_said > 6.0:
+		_fled_said = _now
 		say(&"flee")
 	_set_mood(Mood.FLEEING)
 	tactic = Tactic.OPEN
@@ -2812,8 +3142,10 @@ func _flee(delta: float) -> void:
 	if _stuck > 0.8:
 		_pick_flight()
 	var d := t.global_position.distance_to(body.global_position) if t else 99.0
-	if arrived or d > 38.0 or _flee_time > 14.0:
-		# Far enough: get his breath back, see to his wounds.
+	# Far enough: get his breath back, see to his wounds. (Not on the tick he set off: a man who
+	# stopped to tend, was shot at and ran again went back and forth between the two every tick,
+	# saying so each time, #520's farmhouse.)
+	if _flee_time > 1.5 and (arrived or d > 38.0 or _flee_time > 14.0):
 		_start_tending(Mood.FLEEING)
 
 
@@ -2839,7 +3171,8 @@ func _start_tending(after: Mood) -> void:
 	_set_mood(Mood.TENDING)
 	_tend_time = 0.0
 	_tend_bleed = _worst_bleed()
-	if not _tend_bleed.is_empty():
+	if not _tend_bleed.is_empty() and _now - _tend_said > 6.0:
+		_tend_said = _now
 		say(&"tend")
 
 
@@ -2890,8 +3223,14 @@ func _release_pressure() -> void:
 			b.pressure = false
 
 
+## How near a man with his hands up lets you come before he backs out of your road.
+const MAKE_WAY := 1.3
+
+
 func _surrender() -> void:
 	_stop_rescue()
+	menace = null  # his gun's down: no more holding it on the man he had
+	menace_fire = false
 	_set_mood(Mood.SURRENDERED)
 	if leads and crew.any_in_earshot(_now):
 		callout(&"give_up", _find_target())
@@ -2945,6 +3284,24 @@ func arrest(by: Node3D) -> bool:
 		body.set_pose(&"hands_bound")
 	Events.person_arrested.emit(body, by)
 	return true
+
+
+## Given up, hands up, not yet taken: a man with a gun coming right at him, he backs off out of his
+## road (a step or two, not out of the room), so he's never a post in a doorway (issue #520).
+func _make_way(delta: float) -> void:
+	if body.prone or body.limp or not body.physiology.can_stand():
+		return
+	var pl := _player()
+	if pl == null:
+		return
+	var away := body.global_position - pl.global_position
+	away.y = 0.0
+	if away.length() > MAKE_WAY:
+		return
+	var dir := away.normalized() if away.length() > 0.05 else -body.global_basis.z
+	body.walk_to(body.global_position + dir * 1.0, walk_speed * 0.7, delta)
+	body.face(pl.global_position + Vector3.UP * 1.4)
+	body.set_pose(&"hands_up")
 
 
 ## Arrested: hands behind him; he keeps a few steps behind the man who took him, at a walk.

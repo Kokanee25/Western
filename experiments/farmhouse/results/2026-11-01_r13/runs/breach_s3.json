@@ -1,0 +1,247 @@
+{
+ "alarm": 65.63,
+ "blocking": [
+  "0.3:House/back_in_ground_nailer_2_1_0",
+  "0.3:House/back_stud_012",
+  "0.3:House/back_stud_014",
+  "0.3:House/back_stud_013",
+  "0.3:House/bedroom_m_nailer_2_1_0",
+  "0.3:House/back_siding_c18_0",
+  "0.3:House/back_in_ground_board_019_0",
+  "0.3:House/back_siding_c19_0",
+  "0.3:House/back_in_ground_board_020_0",
+  "0.3:House/back_siding_c20_0",
+  "0.3:House/back_in_ground_board_021_0",
+  "0.3:House/back_siding_c21_0",
+  "1.0:House/back_in_ground_nailer_2_1_0",
+  "1.0:House/back_stud_012",
+  "1.0:House/back_stud_014",
+  "1.0:House/back_stud_013",
+  "1.0:House/back_siding_c18_0",
+  "1.0:House/back_in_ground_board_019_0",
+  "1.0:House/back_siding_c19_0",
+  "1.0:House/back_in_ground_board_020_0",
+  "1.0:House/back_siding_c20_0",
+  "1.0:House/back_in_ground_board_021_0",
+  "1.0:House/back_siding_c21_0",
+  "1.0:House/bedroom_m_board_020_0",
+  "1.6:House/floor_loft_board_032_1",
+  "1.6:House/floor_loft_board_033_1",
+  "1.6:House/floor_loft_board_036_1",
+  "1.6:House/floor_loft_board_035_1",
+  "1.6:House/floor_loft_board_034_1",
+  "1.6:House/back_stud_012",
+  "1.6:House/floor_loft_joist_035",
+  "1.6:House/back_stud_014",
+  "1.6:House/back_stud_013",
+  "1.6:House/back_in_ground_nailer_3_0_1",
+  "1.6:House/floor_loft_joist_036",
+  "1.6:House/bedroom_m_nailer_3_0_1"
+ ],
+ "bot": {
+  "blast": 68.7,
+  "freed": 80.4,
+  "phase_at": {
+   "lit": 63.77,
+   "out": 80.4,
+   "plant": 61.68,
+   "rescue": 78.67,
+   "through": 70.2
+  },
+  "planted": 63.77
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 69.2,
+ "end": -1.0,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": 201.1,
+  "fight_ticks": 10493,
+  "max_ms": 201.1,
+  "mean_ms": 12.56,
+  "p95_ms": 21.85
+ },
+ "freed": 80.9,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   1.55,
+   0.66,
+   4.54
+  ],
+  "limp": true,
+  "pelvis": [
+   1.78,
+   0.73,
+   3.87
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  1.73,
+  0.74,
+  4.24
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_table",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_crates",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_door",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  5.26,
+  1.15,
+  5.53
+ ],
+ "seed": 3,
+ "state": "ON",
+ "t": 240.5,
+ "threat": 69.23,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   64.62,
+   "Hollis goes to the window back to look"
+  ],
+  [
+   65.63,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   69.2,
+   "Hollis down"
+  ],
+  [
+   69.2,
+   "a blast at the house"
+  ],
+  [
+   69.23,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   69.28,
+   "Lyle down"
+  ],
+  [
+   70.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   80.9,
+   "the rancher cut loose"
+  ],
+  [
+   83.33,
+   "the guard's last word"
+  ]
+ ],
+ "way": "breach",
+ "where": "back"
+}

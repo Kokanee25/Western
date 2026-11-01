@@ -1,0 +1,215 @@
+{
+ "alarm": 65.63,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 68.73,
+  "freed": 78.97,
+  "phase_at": {
+   "lit": 63.78,
+   "out": 78.97,
+   "plant": 61.7,
+   "rescue": 77.3,
+   "through": 70.23
+  },
+  "planted": 63.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 69.23,
+ "end": 126.87,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": 588.23,
+  "fight_ticks": 3674,
+  "max_ms": 1278.55,
+  "mean_ms": 198.88,
+  "p95_ms": 684.69
+ },
+ "freed": 79.47,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.38,
+   1.44,
+   14.24
+  ],
+  "limp": false,
+  "pelvis": [
+   4.38,
+   0.69,
+   14.33
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.38,
+  1.07,
+  14.31
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_table",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_crates",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "kitchen_door",
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  4.37,
+  1.11,
+  29.76
+ ],
+ "seed": 2,
+ "state": "WON",
+ "t": 126.87,
+ "threat": 69.27,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   64.63,
+   "Hollis goes to the window back to look"
+  ],
+  [
+   65.63,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   69.23,
+   "Hollis down"
+  ],
+  [
+   69.23,
+   "a blast at the house"
+  ],
+  [
+   69.27,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   69.32,
+   "Lyle down"
+  ],
+  [
+   69.53,
+   "Dutch down"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   70.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.73,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   76.72,
+   "Dutch down, out"
+  ],
+  [
+   79.47,
+   "the rancher cut loose"
+  ],
+  [
+   82.82,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   83.37,
+   "the guard's last word"
+  ],
+  [
+   83.8,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   84.7,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   85.72,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   97.42,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   125.52,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   126.87,
+   "won"
+  ]
+ ],
+ "way": "breach",
+ "where": "back"
+}

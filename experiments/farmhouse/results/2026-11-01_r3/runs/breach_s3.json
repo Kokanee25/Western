@@ -1,0 +1,83 @@
+{
+ "alarm": 30.83,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "breach": -1.0,
+ "end": 63.45,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1957,
+  "max_ms": 137.41,
+  "mean_ms": 11.6,
+  "p95_ms": 21.5
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "kid",
+   "inside": false,
+   "mood": "TENDING",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "seed": 3,
+ "state": "LOST",
+ "t": 63.45,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   30.83,
+   "the alarm: Kid saw you"
+  ],
+  [
+   63.45,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach"
+}

@@ -485,6 +485,12 @@ frozen until Sean names one.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
+- **Library clips** (2026-11-01, #529, branch `claude/characters-library-motion`; lab
+  `experiments/library_motion/`): Quaternius' and KayKit's CC0 animations retargeted onto our rig
+  (`tools/blender/library_motion.py`, `assets/animations/library/`), played by `LibraryMotion` by
+  the body's own state behind `Settings.library_motion` (off in the game). Quaternius for idle,
+  walk, jog, crouch, hits; KayKit's legs only (its arms stand out, a chibi's); PR #535. Waiting on Sean (#536): the
+  films (do they pass, turn them on?).
 - **The bake-off** (2026-10-31, #505/#516/#518): route B MPFB (`tools/blender/mpfb_man.py`) "terrible";
   route A the Studio from realistic pictures "horrible next to our original bold cowboy"; the painted
   look stays (Sean, 2026-11-01). **Route C, one Human Generator man** (#522, branch
@@ -585,6 +591,14 @@ frozen until Sean names one.
   gunfight lab's fall log (`--falls=1`, `falls.py`: 40 of 50 still go down standing). The stair-down "jam" was the
   ragdoll lab's reference taken a tick late for stumbling men (now on `HumanBody.fell`), not his joints. Next #483
   (the gang dying on the move, then chairs and tables you can shove).
+- **The farmhouse hostage rescue** (2026-11-01, #520, Sean's overnight; PRs #521 (the house, build 2824)
+  and the mission's; `src/missions/`, `experiments/farmhouse/` README): the farmhouse on its knoll in the
+  hills east (spec `experiments/building_lab/farmhouse.json`; `config/town.json` `ground.hills`); the
+  blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
+  the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
+  stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs (r13) won 8 of 12,
+  the rancher alive in all 12. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
@@ -599,11 +613,12 @@ frozen until Sean names one.
   `HumanBody.tone_style` `fade` / `dying` in the lab (`--tone=`, `tone.py`); on in the game for build
   2668, then back to the quick fade (Sean, on the videos: "the bodies tended to move a bit more and
   fall into shit and down stairs"). (#446 done: above.)
-- **Men who move with purpose** (2026-10-28, #465, branch `claude/gameplay-cover-moves`;
-  `experiments/gunfight_lab/results/2026-10-28_hold_cover/`): the lab's `moves.py` (runs, stays,
-  drops, posts, the galleries); `hold_cover` in D (#294): cover held against the idea of you he
-  chose it by, a heard shot at your feet; drops on arrival 39% -> 23%. Next: the `next session`
-  issue (hunting out of cover after 4 s, posts as narrow cover, climbing to the galleries).
+- **Men who move with purpose** (#465; `experiments/gunfight_lab/results/2026-10-28_hold_cover/`,
+  `2026-11-01_watch_spot/`): the lab's `moves.py` (runs, stays, drops, posts, the galleries);
+  `hold_cover` in D (#294, PR #476, build 2767): drops on arrival 39% -> 23%; `watch_spot` in D
+  (#477): behind cover with you last known near he watches the spot (`_lost_you`, `WATCH_*`), not
+  hunting at 4 s: stays ended to go and look 41% -> 24%, flanks nearly doubled, fights as long.
+  Next: #531 (posts as narrow cover, then the galleries).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -618,6 +633,11 @@ frozen until Sean names one.
   (`PerfRing`: `perf.json`, `perf_summary` with the worst frame's untimed share; `tools/perf_report.py
   FILE`), systems while F3 is up; `perf_bench --no-perf-ring` the before; LAYOUT "Bug reports".
   Next: the play log, #387 (its updated prompt in the comments).
+- **The people after a blast** (#495, branch `claude/issue-495-0pf0fm`;
+  `experiments/people_after_blast/`): a townsman cowering or shaken where he stands ticks slowly far
+  off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
+  stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
+  fights and perception the same. Next: #492's gate on Sean's F12s.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
@@ -639,8 +659,11 @@ frozen until Sean names one.
   shards per 20 m cell (shapes set aside only while asleep), one-shot particles free themselves
   (they never had: 225 in a blaze), batches rebuild in 3 ms of a drawn frame for all structures with
   the merge on the pool, a cut's ends batched; the blaze 4,247/3,185 -> 2,249/1,494 meshes/shapes
-  (calm 1,428/789). Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs
-  33 ms by how many), holed/carved members drawn alone.
+  (calm 1,428/789); merged, build 2833. Then (PR #534) `perf_bench --scene=blast`, dynamite and
+  no fire (the game since #458): rendered draws 6,617 -> 3,749, render CPU 13.2 -> 8.7 ms
+  (lavapipe), shapes 4,003 -> 1,015; a cell's part-made chunk stalled (fixed: `_spread`).
+  Left: ~500 rubble bodies Jolt keeps awake in piles (main's too; frame 15 vs 33 ms by how
+  many), holed/carved members drawn alone.
   Trap: here `--rendering-driver vulkan` falls back to OpenGL without `mesa-vulkan-drivers` (lavapipe).
 - Waiting on Sean: the sun's cascades (two for four saves ~0.2 ms, a look call).
 - The perception lab (2026-10-22, `experiments/perception_lab/`): bench and baseline (117 judged;
@@ -824,3 +847,7 @@ frozen until Sean names one.
   and grain sacks, droppings, the deer head as a real mount. Critics: mostly CLOSE (too clean, the
   canvas stiff, the freight wagon not heavy). Contact sheets `experiments/prop_lab/factory_sheet.py`.
   Waiting on Sean: six painted materials (#351, ~$2.64). Next: the `next session` issue.
+- **The deer head's fidelity** (2026-11-01, #524, diagnosis only; `experiments/prop_lab/deer_fidelity/`,
+  results `results/2026-11-01_deer_fidelity/`): the grid shader's min-square coarsening, then no
+  mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
+  StandardMaterial3D. Waiting on Sean: which deer (#526; C1f recommended).

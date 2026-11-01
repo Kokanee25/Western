@@ -356,6 +356,13 @@ const CLIP_BLOW_MASS := 8.0  ## kg behind a kicking boot (the chair lab's: a leg
 ## its rate following his speed, his walking doing the moving. Empty: the swinging gait.
 var walk_clip := &""
 var _walk_clip_on := false
+## Library clips (LibraryMotion, issue #529; `Settings.library_motion`): the walks, runs, stances and
+## small hits from Quaternius' and KayKit's libraries, by his own state. Null while it's off.
+var _lib: LibraryMotion
+var _pose_lib := {}
+var _pose_lib_hit := {}
+## His travel this tick in his own frame (x his right, -z ahead; m/s): which way his feet go.
+var lib_travel := Vector3.ZERO
 const CLIP_STRIKE_SPEED := 1.5  ## m/s: slower than this a boot strikes nothing
 var _rest_foot_y := 0.0
 var _moved_this_tick := false
@@ -431,6 +438,26 @@ func can_slow() -> bool:
 	return true
 
 
+## Why he can't slow, for PeopleTick's counts (#495): his body's (`down`, `rising`, `stumbling`,
+## `dragged`, `clip`) or the first of his nodes' `slow_reason` (his brain's: `fleeing`, `fear`...);
+## &"" when he can.
+func slow_reason() -> StringName:
+	if limp or prone:
+		return &"down"
+	if rising:
+		return &"rising"
+	if stumbling > 0.0:
+		return &"stumbling"
+	if dragged_by != null:
+		return &"dragged"
+	if _clip != null and _clip.name != walk_clip:
+		return &"clip"
+	for n: Node in _slow_says:
+		if not n.call(&"can_slow"):
+			return n.call(&"slow_reason") if n.has_method(&"slow_reason") else &"brain"
+	return &""
+
+
 ## Is he in trouble (a fight, running, hands up, getting down: his brain's `in_trouble`)? Then
 ## whoever's near him ticks every tick too (PeopleTick's bands: near a fight is near).
 func in_trouble() -> bool:
@@ -444,6 +471,10 @@ func _ready() -> void:
 	set_physics_process(true)  # his switch: PeopleTick ticks him while it's on (people_tick)
 	if walk_clip == &"":
 		walk_clip = WalkStyles.clip_for(person_id, body_model)
+	_lib_switch()
+	hit.connect(func(info: Dictionary) -> void:
+		if _lib != null:
+			_lib.on_hit(self, info))
 	add_to_group(&"people")
 	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
@@ -1396,6 +1427,7 @@ func _physics_step(delta: float) -> void:
 	if not _moved_this_tick:
 		_walk_spare = 0.0
 		move_speed = move_toward(move_speed, 0.0, delta * 6.0)
+		lib_travel = Vector3.ZERO
 		if move_speed < 0.05:
 			gait = &""
 		if _walk_clip_on and move_speed < 0.3:
@@ -1832,6 +1864,7 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 	_snap_to_ground()
 	gait = how
 	move_speed = moved.length() / maxf(delta, 1e-4)
+	lib_travel = global_basis.inverse() * moved / maxf(delta, 1e-4)
 	_moved_this_tick = true
 	_walk_clip_step(how, move_speed)
 	var left := target - global_position
@@ -1843,7 +1876,9 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 ## sets off, its rate his speed over the clip's, let go as he stops (the gait's sines take a
 ## limp; a run too, until there's a run clip).
 func _walk_clip_step(how: StringName, speed_now: float) -> void:
-	if walk_clip == &"" or how != &"walk":
+	# On the library clips, crouched he goes on the crouch walk, not his own upright walk.
+	var crouched_lib := _lib != null and (pose == &"crouch" or pose == &"crouch_aim")
+	if walk_clip == &"" or how != &"walk" or crouched_lib:
 		if _walk_clip_on and _clip != null and _clip.name == walk_clip:
 			stop_clip()
 		_walk_clip_on = false
@@ -2088,7 +2123,10 @@ func _pose_maths(delta: float, snap: bool) -> void:
 		_rise_k = smoothstep(0.0, 1.0, clampf(_rise_t / float(_rise_stages[_rise_i][2]), 0.0, 1.0))
 	_pose_clip = _mocap_now(delta)
 	_pose_played = _clip_now(delta)
-	var overlay := _gait_overlay(delta) if _pose_clip.is_empty() and _mocap_w <= 0.0 and _clip_w <= 0.0 else {}
+	_pose_lib = _lib.now(self, delta) if _lib != null else {}
+	_pose_lib_hit = _lib.hit_now(delta) if _lib != null else {}
+	var overlay := _gait_overlay(delta) if _pose_clip.is_empty() and _mocap_w <= 0.0 and _clip_w <= 0.0 \
+			and (_lib == null or _lib.w <= 0.0) else {}
 	_injury_targets()
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
@@ -2127,6 +2165,9 @@ func _pose_maths(delta: float, snap: bool) -> void:
 func _pose_writes(delta: float, snap: bool) -> void:
 	var clip := _pose_clip
 	var played := _pose_played
+	var lib := _pose_lib
+	var lib_w := _lib.w if _lib != null else 0.0
+	var lib_hit := _pose_lib_hit
 	# The clip has his legs and hips always; the rest of him only standing easy (aiming, his hands
 	# up or bound, clutching a wound, the pose has his arms and back).
 	var all_of_him := pose == &"stand"
@@ -2138,16 +2179,33 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		var pv := pivots[sid] as Node3D
 		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
 		var clip_here := _clip_w > 0.0 and played.has(sid)
+		var lib_here := lib_w > 0.0 and lib.has(sid)
+		var hit_here := lib_hit.has(sid)
 		# Set only if it moved: each set is a transform change down the joint's subtree into its
 		# parts' physics state, and a man standing easy moves little but his chest once his pose
 		# has settled. Exactly as last set, and nothing else (a hand to a wound, a clip) has turned
 		# the joint since: setting it again would change nothing. (Within a hundredth of a degree
 		# was tried: 19 of the physics lab's 151 falls went another way.)
 		var was: Array = _pose_set.get(sid, _NOT_SET)
-		if mocap_here or clip_here or was[0] != rot or was[1] != pv.transform:
+		var layered := mocap_here or clip_here or lib_here or hit_here
+		# The library clip wholly has the joint: its turn is set alone (the pose's under it would be
+		# written for nothing).
+		var lib_only := lib_here and lib_w >= 1.0 and not (mocap_here or clip_here)
+		if lib_only:
+			_pose_set[sid] = _NOT_SET
+		elif layered or was[0] != rot or was[1] != pv.transform:
 			pv.rotation_degrees = rot
 			writes += 1
-			_pose_set[sid] = [rot, pv.transform] if not (mocap_here or clip_here) else _NOT_SET
+			_pose_set[sid] = [rot, pv.transform] if not layered else _NOT_SET
+		if lib_here:
+			# The library clip under any played one (a kick, his own walk lead over it), what's on
+			# top of any pose on top of it, as the played clip's.
+			var lf: Vector3 = (_flinch.get(sid, _NO_FLINCH) as Array)[0]
+			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
+					+ _favour_lean.get(sid, Vector3.ZERO)
+			var lq: Quaternion = lib[sid] if lx == Vector3.ZERO else (lib[sid] as Quaternion) * Quaternion.from_euler(lx * (PI / 180.0))
+			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_w)
+			writes += 1
 		if mocap_here or clip_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
 			# as he stumbles, the lean his wounds give him) on top of it. The played clip leads
@@ -2161,7 +2219,15 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			if clip_here:
 				pv.quaternion = pv.quaternion.slerp((played[sid] as Quaternion) * Quaternion.from_euler(extra), _clip_w)
 				writes += 1
+	if not lib_hit.is_empty():
+		# A small hit on top of all of it (LibraryMotion.hit_now): each joint turned by the clip's.
+		for sid: StringName in lib_hit:
+			var hp := pivots.get(sid) as Node3D
+			if hp:
+				hp.quaternion = hp.quaternion * (lib_hit[sid] as Quaternion)
+				writes += 1
 	Prof.count(&"q_writes", writes)
+	_lib_switch()
 	_place_rig(delta, snap)
 	if _clip_w > 0.0:
 		_clip_strikes(delta)
@@ -2445,12 +2511,35 @@ func _place_rig(delta: float, snap: bool) -> void:
 		var hip_rest := _pivot_rest(&"thigh_l").y
 		var ankle_rest := _pivot_rest(&"foot_l").y
 		drop = lerpf(drop, _mocap_hips * _leg_length() + ankle_rest - hip_rest, _mocap_w)
+	if _lib != null and _lib.w > 0.0 and _lib.hips >= 0.0 and _clip_w <= 0.0:
+		# The library clip's hips, as the capture's: a crouch's down low, a run's off the ground.
+		var hip_rest := _pivot_rest(&"thigh_l").y
+		var ankle_rest := _pivot_rest(&"foot_l").y
+		drop = lerpf(drop, _lib.hips * _leg_length() + ankle_rest - hip_rest, _lib.w)
 	if _clip_w > 0.0 and _clip_hips >= 0.0:
 		var hip_rest := _pivot_rest(&"thigh_l").y
 		var ankle_rest := _pivot_rest(&"foot_l").y
 		drop = lerpf(drop, _clip_hips * _leg_length() + ankle_rest - hip_rest, _clip_w)
 	_rig.position.y = lerpf(_rig.position.y, drop, k)
 	_set_blocker(false)
+
+
+## Library clips on or off as `Settings.library_motion` says (on the main thread: the clips load
+## here, before any worker reads them).
+func _lib_switch() -> void:
+	var on: bool = Settings.library_motion
+	if on and _lib == null:
+		LibraryMotion.preload_clips()
+		_lib = LibraryMotion.new()
+	elif not on and _lib != null:
+		_lib = null
+		_pose_lib = {}
+		_pose_lib_hit = {}
+
+
+## Thigh and shin (m).
+func leg_length() -> float:
+	return _leg_length()
 
 
 func _leg_length() -> float:
@@ -4515,6 +4604,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	set_process(true)
 	rising = false
 	rise_ok = false
+	if _lib != null:
+		_lib.let_go()
 	_clip = null  # the ragdoll has him now: whatever he was playing, physics won
 	_clip_w = 0.0
 	_down_t = 0.0

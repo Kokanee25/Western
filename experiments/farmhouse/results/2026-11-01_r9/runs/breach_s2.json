@@ -1,0 +1,134 @@
+{
+ "alarm": 64.2,
+ "bot": {
+  "blast": 68.7,
+  "freed": -1.0,
+  "phase_at": {
+   "lit": 63.77,
+   "plant": 61.68,
+   "through": 70.2
+  },
+  "planted": 63.77
+ },
+ "bot_phase": "through",
+ "breach": 69.2,
+ "end": 84.43,
+ "executed": 84.22,
+ "frames": {
+  "blast_ms": 268.65,
+  "fight_ticks": 1214,
+  "max_ms": 268.65,
+  "mean_ms": 16.99,
+  "p95_ms": 30.46
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "bedroom_corner",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "seed": 2,
+ "state": "LOST",
+ "t": 84.43,
+ "threat": 69.22,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   64.2,
+   "the alarm: Hollis heard fuse"
+  ],
+  [
+   69.2,
+   "Dutch down"
+  ],
+  [
+   69.2,
+   "Hollis down"
+  ],
+  [
+   69.2,
+   "a blast at the house"
+  ],
+  [
+   69.22,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   70.85,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.0,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   84.22,
+   "the guard shoots the rancher"
+  ],
+  [
+   84.43,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   84.43,
+   "the rancher dead (brain)"
+  ],
+  [
+   84.43,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "breach",
+ "where": "kitchen"
+}
