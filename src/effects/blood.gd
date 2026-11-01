@@ -75,6 +75,7 @@ static func drop_particles(amount: int, lifetime: float) -> GPUParticles3D:
 ## A burst of blood drops (a cough, a limb torn off): `count` drops thrown along `dir`.
 static func burst(parent: Node, at: Vector3, dir: Vector3, count: int, speed: float, colour := ARTERIAL) -> void:
 	var p := drop_particles(count, 1.2)
+	p.emitting = false  # (made emitting: set again below, `finished` never came, #459)
 	p.one_shot = true
 	p.explosiveness = 0.9
 	var pm := p.process_material as ParticleProcessMaterial
