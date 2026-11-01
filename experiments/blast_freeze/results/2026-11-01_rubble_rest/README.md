@@ -67,4 +67,11 @@ same twice, 600 frames, 0 differing, broken set 1632629072. Against main: the sa
 with `--no-rubble-rest` every frame the same as main's, with the rest on 12 frames near the end
 one "hot" member apart (bodies' shapes set aside while asleep).
 
-RENDER_AND_GOLDENS
+**Goldens** (Vulkan, lavapipe): `dynamite_lit` passes. `dynamite_store_blast`,
+`dynamite_store_after` and `outlaw_blast` fail on main too, by as much or more (main against the
+goldens: mean 10.8 / 6.4 / 6.4; the branch 5.9 / 6.4 / 6.3): the mid-blast cloud and the outlaw's
+pose drift from run to run. The branch's renders against main's: `dynamite_store_after` (the
+rubble lying in the street, all of it in cells) mean 0.17, `outlaw_blast` 1.2, the mid-blast view
+7.5 (its cloud). Nothing re-approved.
+
+RENDER_DRAWS
