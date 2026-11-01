@@ -109,7 +109,10 @@ static func add_places(w: Waypoints) -> void:
 	w.add(&"farm_room_back_e", p.call(3.0, g, 3.75), [&"farm_room_back", &"farm_room_e"])
 	# The kitchen through its door in the back wall (x 1.0), out the back door (x 4.4).
 	w.add(&"farm_kitchen_door", p.call(1.0, g, 5.2), [&"farm_room_back"])
-	w.add(&"farm_kitchen", p.call(1.6, g, 6.35), [&"farm_kitchen_door"])
+	# Square to the door before it (a slant from the kitchen's middle catches its jamb), clear of
+	# its leaf (open into the kitchen along x 0.6).
+	w.add(&"farm_kitchen_in", p.call(1.05, g, 5.8), [&"farm_kitchen_door"])
+	w.add(&"farm_kitchen", p.call(1.6, g, 6.35), [&"farm_kitchen_in"])
 	w.add(&"farm_kitchen_e", p.call(4.3, g, 6.35), [&"farm_kitchen"])  # between the table and the back door's leaf (open into the room)
 	w.add(&"farm_back_door", p.call(4.4, g, 7.35), [&"farm_kitchen_e"])
 	w.add(&"farm_back_steps", o.call(4.4, 8.7), [&"farm_back_door"])

@@ -30,6 +30,8 @@ var t := 0.0
 var alarm_t := -1.0
 var threat_t := -1.0
 var execute_t := -1.0
+## When the guard gave you his last word (you in the house, him out of patience); -1 if not now.
+var ultimatum_t := -1.0
 var freed_t := -1.0
 var breach_t := -1.0
 var end_t := -1.0
@@ -569,7 +571,20 @@ func _guard_step() -> void:
 		threat_t = t
 		guard.menace = hostage
 		_note("the guard puts his gun on the rancher" + (" (the last man)" if last else ""))
-	if threat_t >= 0.0 and execute_t < 0.0 and t - threat_t >= tuning.threat_seconds and player_in and had_enough:
+	# His last word: once you're in the house and he's had enough, he tells you (again) and gives you
+	# `threat_seconds` from then, not from when he first drew on him (the blast that took two of
+	# his friends): back out of the house and the count starts over.
+	if threat_t >= 0.0 and execute_t < 0.0:
+		if player_in and had_enough:
+			if ultimatum_t < 0.0:
+				ultimatum_t = t
+				if t - threat_t > 0.5:
+					guard.warn_again()
+				_note("the guard's last word")
+		elif ultimatum_t >= 0.0:
+			ultimatum_t = -1.0
+			_note("you backed off")
+	if ultimatum_t >= 0.0 and execute_t < 0.0 and t - ultimatum_t >= tuning.threat_seconds:
 		execute_t = t
 		guard.menace_shots = tuning.execute_shots
 		guard.menace_fire = true

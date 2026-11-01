@@ -195,6 +195,31 @@ func _cmd_farm_run(a: Array) -> Dictionary:
 	r.seed = seed_value
 	r.bot = bot.stats
 	r.bot_phase = bot.phase
+	var inv := Farmhouse.origin().affine_inverse()
+	r.player_local = arr(inv * player.global_position)
+	if m.hostage and is_instance_valid(m.hostage):
+		r.hostage_local = arr(inv * m.hostage_at())
+	if not bot.route.is_empty():
+		r.route_next = arr(inv * bot.route[0])
+		r.route_left = bot.route.size()
+	var q := PhysicsShapeQueryParameters3D.new()
+	var sph := SphereShape3D.new()
+	sph.radius = 0.6
+	q.shape = sph
+	q.collide_with_bodies = true
+	var near: Array = []
+	for hgt in [0.3, 1.0, 1.6]:
+		q.transform = Transform3D(Basis(), player.global_position + Vector3(0, hgt, 0) + (bot.route[0] - player.global_position if not bot.route.is_empty() else Vector3.ZERO).normalized() * 0.4)
+		for hit in player.get_world_3d().direct_space_state.intersect_shape(q, 12):
+			var c: Object = hit.collider
+			near.append("%s:%s" % [hgt, c.get_parent().name + "/" + c.name if c is Node and c.get_parent() else str(c)])
+			if c is RigidBody3D:
+				var kids := []
+				for k in (c as Node).get_children():
+					kids.append(k.name)
+				near.append("RB %s at %s mass %s kids %s meta %s" % [c.get_class(), arr(inv * (c as Node3D).global_position), (c as RigidBody3D).mass, kids, (c as Node).get_meta_list()])
+	r.blocking = near
+	r.bot_target = str(bot.bot.target.name) if bot.bot.target != null and is_instance_valid(bot.bot.target) else ""
 	Events.exploded.disconnect(on_blast)
 	ms.sort()
 	r.frames = {"fight_ticks": ms.size(), "mean_ms": snappedf(ms.reduce(func(x: float, y: float) -> float: return x + y, 0.0) / maxf(ms.size(), 1), 0.01),

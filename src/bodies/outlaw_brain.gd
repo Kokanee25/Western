@@ -932,6 +932,8 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.SURRENDERED:
 		if arrested_by != null:
 			_go_along(delta)
+		else:
+			_make_way(delta)
 		return
 	if mood == Mood.FLEEING:
 		_flee(delta)
@@ -1491,6 +1493,11 @@ func _after_fight() -> void:
 	elif places:
 		agenda = [{"do": &"leave"}]
 		_step_started = false
+
+
+## The threat shouted again (his last word, FarmhouseMission), the next tick he's on it.
+func warn_again() -> void:
+	_menace_said = false
 
 
 ## His gun on the man he's holding (`menace`): to him, a pace off, gun on his head, the threat
@@ -3173,6 +3180,10 @@ func _release_pressure() -> void:
 			b.pressure = false
 
 
+## How near a man with his hands up lets you come before he backs out of your road.
+const MAKE_WAY := 1.3
+
+
 func _surrender() -> void:
 	_stop_rescue()
 	_set_mood(Mood.SURRENDERED)
@@ -3228,6 +3239,24 @@ func arrest(by: Node3D) -> bool:
 		body.set_pose(&"hands_bound")
 	Events.person_arrested.emit(body, by)
 	return true
+
+
+## Given up, hands up, not yet taken: a man with a gun coming right at him, he backs off out of his
+## road (a step or two, not out of the room), so he's never a post in a doorway (issue #520).
+func _make_way(delta: float) -> void:
+	if body.prone or body.limp or not body.physiology.can_stand():
+		return
+	var pl := _player()
+	if pl == null:
+		return
+	var away := body.global_position - pl.global_position
+	away.y = 0.0
+	if away.length() > MAKE_WAY:
+		return
+	var dir := away.normalized() if away.length() > 0.05 else -body.global_basis.z
+	body.walk_to(body.global_position + dir * 1.0, walk_speed * 0.7, delta)
+	body.face(pl.global_position + Vector3.UP * 1.4)
+	body.set_pose(&"hands_up")
 
 
 ## Arrested: hands behind him; he keeps a few steps behind the man who took him, at a walk.

@@ -85,7 +85,7 @@ func _route_in() -> Array[Vector3]:
 		"back":
 			r = _the_draw()
 			r.append_array([_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
-					_place(&"farm_back_door"), _place(&"farm_kitchen_e"), _place(&"farm_kitchen"), _place(&"farm_kitchen_door"),
+					_place(&"farm_back_door"), _place(&"farm_kitchen_e"), _place(&"farm_kitchen"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen_door"),
 					_place(&"farm_room_back"), _place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"),
 					_place(&"farm_bedroom_door"), _place(&"farm_bedroom")])
 	return r
@@ -105,7 +105,7 @@ func _w(x: float, z: float) -> Vector3:
 ## After the breach: in through the hole in the kitchen's back wall, to the bedroom.
 func _route_through_hole() -> Array[Vector3]:
 	var f := Farmhouse.FLOOR
-	return [_p(Vector3(2.9, f, 7.2)), _place(&"farm_kitchen"), _place(&"farm_kitchen_door"), _place(&"farm_room_back"),
+	return [_p(Vector3(2.9, f, 7.2)), _place(&"farm_kitchen"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen_door"), _place(&"farm_room_back"),
 			_place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"),
 			_place(&"farm_bedroom")]
 
@@ -115,12 +115,12 @@ func _route_out() -> Array[Vector3]:
 	match way:
 		"back":
 			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
-					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _place(&"farm_kitchen_e"), _place(&"farm_back_door"),
+					_place(&"farm_kitchen_door"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen"), _place(&"farm_kitchen_e"), _place(&"farm_back_door"),
 					_place(&"farm_back_steps"), _place(&"farm_back"), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
 		"breach":
 			var f := Farmhouse.FLOOR
 			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
-					_place(&"farm_kitchen_door"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
+					_place(&"farm_kitchen_door"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
 	return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room"), _place(&"farm_door"), _place(&"farm_porch"),
 			_place(&"farm_steps"), _place(&"farm_lane"), _place(&"road_farm")]
 
@@ -178,7 +178,7 @@ func tick(delta: float, t: float) -> void:
 		"through":
 			if shooting and not bot._reloading:
 				_stop()
-			elif _follow(route, delta):
+			elif _follow(route, delta, mission.alarm_t >= 0.0):
 				_phase("rescue")
 		"rescue":
 			_rescue(delta, shooting)
@@ -192,7 +192,8 @@ func tick(delta: float, t: float) -> void:
 			_stop()
 	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
 	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 45.0
-	bot._hold_action(&"crouch", _crouch and close and not shooting and not phase in ["lit", "out", "clear"])
+	# Once they know (the alarm's up), no more creeping: he goes at a run.
+	bot._hold_action(&"crouch", _crouch and close and not shooting and mission.alarm_t < 0.0 and not phase in ["lit", "out", "clear"])
 
 
 ## The stick out, aimed chest high at the wall in front, E held till it's set, let go to light it,
