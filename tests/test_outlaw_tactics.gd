@@ -426,6 +426,61 @@ func test_behind_cover_he_holds_it_against_what_he_knows_not_a_guess() -> void:
 	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
 
 
+# --- Watching the spot (variant D's watch_spot, #477) ----------------------------------------------
+
+## As if he last saw or heard you `ago` seconds back, at `at`.
+func _known_ago(at: Vector3, ago: float) -> void:
+	brain.senses.note(player, at, 0.0)
+	var k: Dictionary = brain.senses.known[player]
+	k.seen = false
+	k.heard_time = brain.senses._clock - ago
+	k.last_time = minf(float(k.last_time), k.heard_time)
+
+
+func test_behind_cover_he_watches_where_you_were_rather_than_go_looking() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	check(not brain.senses.sees(player), "he can't see you through the wall")
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	check(not brain._lost_you(player), "6 s quiet, 12 m off: he watches the spot")
+	_known_ago(Vector3(0.5, 0.0, 0.0), OutlawBrain.WATCH_ALONE + 1.0)
+	check(brain._lost_you(player), "on his own, past WATCH_ALONE he goes to look")
+	_known_ago(Vector3(0.5, 0.0, 0.0), OutlawBrain.WATCH_ALONE - 1.0)
+	check(not brain._lost_you(player), "short of it he still watches")
+	_known_ago(Vector3(0.0, 0.0, 8.0), 6.0)
+	check(brain._lost_you(player), "his idea of you 20 m off: he's lost you")
+	brain.senses.known.erase(player)
+	check(brain._lost_you(player), "no idea of you at all: he's lost you")
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	OutlawBrain.d_fixes.erase(&"watch_spot")
+	check(brain._lost_you(player), "without the fix, 4 s and he goes, as before")
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+func test_watching_he_stays_behind_his_cover_in_the_fight() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -6.8))  # right behind the wall
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	brain.cover = {"at": outlaw.global_position, "eye": Vector3(0.5, 1.6, 0.0), "low": false, "peek": outlaw.global_position}
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 5.0
+	brain._flank_after = 99.0
+	brain._in_cover = 0.0
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	brain._combat(0.1)
+	check(brain.tactic == OutlawBrain.Tactic.HIDDEN, "6 s quiet: still behind his cover (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes.erase(&"watch_spot")
+	brain._combat(0.1)
+	check(brain.tactic == OutlawBrain.Tactic.SEARCHING, "without the fix he goes to look (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
 ## A planted stick's fuse hissing a few metres off (#506): he hears it, it frightens him and turns
 ## his head; one round the corner out of earshot he doesn't.
 func test_he_hears_a_planted_fuse() -> void:
