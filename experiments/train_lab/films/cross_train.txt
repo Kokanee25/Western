@@ -1,0 +1,17 @@
+# Film 3 (#551): walking the whole train, coach to cab, hopping each gap: at a start (the slack
+# running out under you), at speed (17 km/h), and as it stops at the mine (the slack bunching).
+time 15.5
+train_lab
+train_run 0
+train_board coach back
+train_cross 40
+wait 1
+train_board coach back
+train_cross 40
+wait 1
+train_drive off
+train_place 1250 25
+train_goto mine 25
+train_board coach back
+train_cross 40
+wait 6

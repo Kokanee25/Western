@@ -1,0 +1,26 @@
+# Film 1 (#551): the slack running out on a start, car by car, and bunching on a stop. Slow motion
+# for the couplers (65 mm of play each).
+time 15.5
+train_lab
+train_place depot
+train_watch ore2 7.6 -3.2 1.5 0 follow
+wait 1
+train_slowmo 0.25
+throttle 1
+wait 2.2
+train_watch express 0 -3.4 1.5 0 follow
+wait 1.2
+train_slowmo 1
+train_watch coach 6 -14 3.5 -8 follow
+wait 9
+throttle 0
+wait 4
+train_watch box 0 -3.2 1.5 0 follow
+train_slowmo 0.25
+brake 1
+wait 2.4
+train_watch ore1 7.3 -3.2 1.5 0 follow
+wait 1.0
+train_slowmo 1
+train_watch coach 6 -14 3.5 -8 follow
+wait 14

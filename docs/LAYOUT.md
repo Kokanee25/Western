@@ -1113,6 +1113,23 @@ physics tick, the cars drawn at the interpolated distance; `cost` counters). Not
 town yet: the lab lays its test line out on the flat south of town (9 in a build; bridge
 `train_lab`).
 
+Step 2 (#551): `TrainSim` has each car its own mass on the line (`x[i]`, `vel[i]`; `s`/`v` are the
+engine's), joined by couplers with free play (`coupler_slack`) and a draft gear's spring-damper
+past it, stepped `substeps` a tick; brakes come on car by car (`brake_propagation`); every
+slack-out and bunch is an event (`take_events`, `Train.coupler`). The consist is data
+(`TrainTuning.consist`: the six cars). `TrainRoute` reads a route file (plan, profile, **named
+marks**) into a `TrackLine` (`mark_s(name)`, `along()`); the bed is two-sided (kit props find their
+footing on it). `TrainCars` lists each car's boxes (walkable stand-ins: decks with lips, the
+coach's and express car's shells with doorways, the boxcar's and tender's steps with a ramp over
+them, the cab open at the gangway, the pilot's wedge), drawn and solid alike: `TrainView.solids`
+(an `AnimatableBody3D` a car on `Layers.WORLD`, meta `train_car`, `surface`) placed on the tick;
+`Train.rider` drawn without interpolation while he stands on a car (`car_under`); `Train._strike`
+knocks a standing kit prop loose and shoves or strikes a man in a moving car's way (`struck`).
+`TrainTimetable` (stops by mark, dwell, times given or measured from the line: `fill`, `measure`,
+`scheduled_at`) and `TrainEngineer` (drives by regulator, brake and reverser: holds the speed that
+keeps time, brakes for the mark from the 1D stopping distance, creeps or sets back, a late start
+made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log`).
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;

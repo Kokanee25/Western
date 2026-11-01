@@ -1,0 +1,13 @@
+# Film 4 (#551): a crate on the line, struck by the engine's pilot as it pulls away from the depot
+# (shoved off whole), and one at 17 km/h (smashed: loose timber breaks up over 2.5 m/s).
+time 15.5
+train_lab
+train_crate 124 0.25
+train_crate 300 -0.2
+wait 2
+camera 53.5 2.6 214 60 0.9 204.5 70
+train_run 0
+wait 14
+camera 66 2.4 392 60 0.9 381 70
+wait 33
+wait 6
