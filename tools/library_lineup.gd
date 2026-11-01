@@ -62,6 +62,7 @@ func _run() -> void:
 		m.person_id = StringName(String(ids[i]) + "_lineup")
 		m.rng_seed = 11 + i
 		m.has_gun = false
+		m.walk_clip = &"none"  # his own walk (config/walks.json) would lead the library's
 		w.add_child(m)
 		m.global_position = Vector3(i * 1.1, 0.0, -i * 1.4)
 		m.global_rotation.y = -PI / 2  # facing +x

@@ -1852,7 +1852,9 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 ## sets off, its rate his speed over the clip's, let go as he stops (the gait's sines take a
 ## limp; a run too, until there's a run clip).
 func _walk_clip_step(how: StringName, speed_now: float) -> void:
-	if walk_clip == &"" or how != &"walk":
+	# On the library clips, crouched he goes on the crouch walk, not his own upright walk.
+	var crouched_lib := _lib != null and (pose == &"crouch" or pose == &"crouch_aim")
+	if walk_clip == &"" or how != &"walk" or crouched_lib:
 		if _walk_clip_on and _clip != null and _clip.name == walk_clip:
 			stop_clip()
 		_walk_clip_on = false
