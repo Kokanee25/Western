@@ -1,0 +1,239 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:Ground/Rise_4",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 103.25,
+  "hid": 84.47,
+  "phase_at": {
+   "clear": 127.33,
+   "lit": 81.78,
+   "out": 103.25,
+   "plant": 79.7,
+   "rescue": 101.6,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": 128.45,
+ "executed": -1.0,
+ "found": 97.72,
+ "frames": {
+  "blast_ms": 289.08,
+  "fight_ticks": 2474,
+  "max_ms": 314.74,
+  "mean_ms": 26.82,
+  "p95_ms": 41.54
+ },
+ "freed": 103.75,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   -6.46,
+   8.21,
+   43.04
+  ],
+  "limp": false,
+  "pelvis": [
+   -6.42,
+   7.48,
+   42.94
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  -6.43,
+  7.85,
+  42.95
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "give up: past his nerve (fear 1.38 / 0.95)",
+   "id": "brody",
+   "inside": true,
+   "knows": 19.7,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Brody dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "give up: far past his nerve (fear 1.72 / 0.75), covered close",
+   "id": "dutch",
+   "inside": true,
+   "knows": 28.5,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 2 s since your last shot",
+   "id": "kid",
+   "inside": false,
+   "knows": 26.4,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 7.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  -10.59,
+  9.0,
+  48.75
+ ],
+ "seed": 3,
+ "state": "WON",
+ "surprise": 87.22,
+ "t": 128.45,
+ "threat": 87.25,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.25,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   89.73,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.57,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.68,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   97.72,
+   "found: Dutch sees you"
+  ],
+  [
+   99.4,
+   "the rancher hit (bullet, by Player)"
+  ],
+  [
+   99.4,
+   "the rancher hit (graze, by Player)"
+  ],
+  [
+   101.52,
+   "Dutch down, out"
+  ],
+  [
+   103.75,
+   "the rancher cut loose"
+  ],
+  [
+   116.85,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   117.43,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   118.08,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   118.1,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   118.18,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   118.43,
+   "Brody down"
+  ],
+  [
+   119.05,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   122.28,
+   "Dutch dead"
+  ],
+  [
+   128.02,
+   "Brody dead"
+  ],
+  [
+   128.45,
+   "won"
+  ]
+ ],
+ "way": "breach",
+ "where": "bedroom"
+}

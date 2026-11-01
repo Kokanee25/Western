@@ -7,8 +7,9 @@ extends RefCounted
 ## Ways in:
 ##   front  - up the lane, onto the porch, in at the front door, through the front room to the
 ##            bedroom's door.
-##   breach - round the yard to the house's west wall (the front room's; as built: the world's
-##            east), a stick planted chest high, back off, in through the hole when it's gone.
+##   breach - wide round to the house's west side (as built: the world's east), crouched along the
+##            kitchen's back wall, a stick planted chest high on it, crouched back round the
+##            lean-to's corner to hide (issue #537), in through the hole at a run when it's gone.
 ##   back   - wide round the knoll to the back, crouched (quiet), in at the lean-to's back door,
 ##            through the kitchen and the front room to the bedroom.
 
@@ -36,6 +37,11 @@ var _side := 1.0
 var _sidestep := 0.0
 var _went_off := false
 var _sticks0 := 0
+var _duck := 0.0
+var _hole := Vector3.INF
+var _hole_tries := 0
+var _best_d := INF
+var _no_gain := 0.0
 
 
 func setup(p: Player, m: FarmhouseMission, how: String, seed_value: int, aim_degrees := 1.0) -> void:
@@ -78,10 +84,13 @@ func _route_in() -> Array[Vector3]:
 			r = [_place(&"farm_lane"), _place(&"farm_steps"), _place(&"farm_porch"), _place(&"farm_door"), _place(&"farm_room"),
 					_place(&"farm_room_e"), _place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"), _place(&"farm_bedroom")]
 		"breach":
-			# Up the draw west of the knoll (the house's east as built), out of the porch's sight, round
-			# behind, to the kitchen's back wall (the lean-to's), west of its window.
+			# Up the draw west of the knoll (the house's east as built), out of the porch's sight, wide
+			# round behind to its west side (as built: no window looks that way but the front room's,
+			# far down it), to the lean-to's corner, then crouched along the kitchen's back wall under
+			# its window to the stick's spot between the window and the door (issue #537; the map:
+			# results/2026-11-01_surprise/hide.md).
 			r = _the_draw()
-			r.append_array([_g(4.0, 13.0), _g(2.9, 8.5)])
+			r.append_array([_g(-8.0, 22.0), _g(-8.0, 12.0), _g(-3.0, 9.5), _g(-0.8, 8.3), _g(1.0, 7.95), _g(2.6, 7.95)])
 		"back":
 			r = _the_draw()
 			r.append_array([_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
@@ -105,7 +114,7 @@ func _w(x: float, z: float) -> Vector3:
 ## After the breach: in through the hole in the kitchen's back wall, to the bedroom.
 func _route_through_hole() -> Array[Vector3]:
 	var f := Farmhouse.FLOOR
-	return [_p(Vector3(2.9, f, 7.2)), _place(&"farm_kitchen"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen_door"), _place(&"farm_room_back"),
+	return [_g(-0.6, 8.1), _g(2.9, 8.2), _p(Vector3(2.9, f, 7.2)), _place(&"farm_kitchen"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen_door"), _place(&"farm_room_back"),
 			_place(&"farm_room_back_e"), _place(&"farm_room_e"), _place(&"farm_bedroom_door_w"), _place(&"farm_bedroom_door"),
 			_place(&"farm_bedroom")]
 
@@ -195,7 +204,8 @@ func tick(delta: float, t: float) -> void:
 	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
 	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 45.0
 	# Through the hole he goes at a run (they know he's coming).
-	bot._hold_action(&"crouch", _crouch and close and not shooting and not phase in ["lit", "through", "out", "clear"])
+	_duck = maxf(_duck - delta, 0.0)
+	bot._hold_action(&"crouch", (_crouch and close and not shooting and not phase in ["through", "out", "clear"]) or (_duck > 0.0 and not shooting))
 
 
 ## The stick out, aimed chest high at the wall in front, E held till it's set, let go to light it,
@@ -222,14 +232,17 @@ func _plant(delta: float) -> void:
 		if d.sticks < _sticks0 or d.planted != null:
 			stats.planted = snappedf(_t, 0.01)
 			_phase("lit")
-			route = [_g(2.9, 12.0), _g(6.0, 17.0)]
+			# Crouched (unheard) back under the window and round the lean-to's corner: out of sight of
+			# every window and door, its wall between him and the stick (issue #537's hiding spot).
+			route = [_g(1.0, 7.95), _g(-0.6, 8.0), _g(-0.9, 6.6)]
 		else:
 			_hold_e = 0.0  # it didn't take: again
 
 
 func _lit(delta: float) -> void:
 	if not _went_off:
-		_follow(route, delta, true)
+		if _follow(route, delta) and stats.get("hid", -1.0) < 0.0:
+			stats.hid = snappedf(_t, 0.01)  # in the hiding spot
 		return
 	if stats.blast < 0.0:
 		stats.blast = snappedf(_t, 0.01)
@@ -240,6 +253,7 @@ func _lit(delta: float) -> void:
 		if not player.revolver().selected:
 			player.select_weapon(player.revolver())
 		route = _route_through_hole()
+		_hole = route[2]
 		_phase("through")
 
 
@@ -302,13 +316,31 @@ func _follow(way_pts: Array[Vector3], delta: float, run := false) -> bool:
 		_stuck += delta
 	else:
 		_stuck = maxf(_stuck - delta, 0.0)
+	if phase == "through":
+		# On the rubble in the hole he can shuffle without getting anywhere: no nearer in 2 s is stuck.
+		var d := flat.length()
+		if d < _best_d - 0.1:
+			_best_d = d
+			_no_gain = 0.0
+		else:
+			_no_gain += delta
+		if _no_gain > 2.0:
+			_no_gain = 0.0
+			_best_d = INF
+			_stuck = 1.3
 	_last = player.global_position
 	if _stuck > 0.5 and _stuck - delta <= 0.5:
 		bot._tap(&"jump")  # a step up into a hole's sill, a broken board
+		_duck = 2.0  # and ducked: the lean-to's fallen plate across the top of the hole, a low beam
 	if _stuck > 1.2:
 		_sidestep = 0.5
 		_stuck = 0.0
 		_side = -_side
+		if phase == "through" and way_pts[0].distance_to(_hole) < 1.0:
+			# Held at the hole (a board fallen across it, the siding left low at one side): try
+			# it a little further along the wall, each way in turn, wider each time.
+			_hole_tries += 1
+			way_pts[0] = _hole + Vector3(Farmhouse.origin().basis.x) * 0.3 * ceilf(_hole_tries / 2.0) * _side
 	var dir := flat.normalized()
 	if _sidestep > 0.0:
 		_sidestep -= delta

@@ -587,7 +587,11 @@ frozen until Sean names one.
   blacksmith starts it, Enter tries again; five of the gang hold the house as a squad (`HouseDefence`,
   the spec's `tactics`: windows by your side, doors covered, room to room, a breach covered, the last
   stand), the guard and the rancher (`config/farmhouse.tres` dials); the scripted runs (r13) won 8 of 12,
-  the rancher alive in all 12. Waiting on Sean: is it fun (the issue with the films). Trap: a `-s` script
+  the rancher alive in all 12. **The surprise assault** (#537, branch `claude/gameplay-farmhouse-surprise`):
+  a fuse heard 3 m and never through a wall, the hiding spot round the lean-to's west corner, a blast
+  before any alarm catches them cold (dazed, nobody calls where you are till one sees you); breach
+  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`). Losses
+  are the way out (dragging him out cold). Waiting on Sean: the film (#537). Trap: a `-s` script
   can't build a structure (autoloads); probe through a test or the bridge.
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
