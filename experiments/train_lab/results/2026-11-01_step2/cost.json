@@ -1,0 +1,7 @@
+{
+  "_doc": "bridge train_cost 10 in a headless game here (2.1 GHz core), the engineer running the timetable at 17 km/h, the player riding the coach; x0.65 for Sean's 3.25 GHz (clock_scale). Render CPU: Sean's F3.",
+  "here_ms": {"sim": 0.124, "solids": 0.054, "strike": 0.012, "tick_total": 0.221, "engineer": 0.022, "draw": 0.078},
+  "at_seans_ms_a_frame": {"tick": 0.14, "engineer": 0.014, "draw": 0.05, "total": 0.21},
+  "step1_at_seans_ms_a_frame": 0.09,
+  "_note": "The strike check looks up who's near the train twice a second (0.09 -> 0.012 ms here). The sim's six substeps for the couplers are most of the rest."
+}
