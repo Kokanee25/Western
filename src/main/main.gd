@@ -34,6 +34,11 @@ func _ready() -> void:
 		var node: Node = (load(play) as GDScript).new()
 		node.name = "GunfightPlay"
 		add_child(node)
+	var trains := "res://experiments/train_lab/play.gd"  # 9/0: the train lab's line and cab (if the lab's here)
+	if ResourceLoader.exists(trains):
+		var node: Node = (load(trains) as GDScript).new()
+		node.name = "TrainLabPlay"
+		add_child(node)
 	var panel := LookPanel.new()  # N: the live look panel
 	panel.name = "LookPanel"
 	add_child(panel)

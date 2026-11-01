@@ -280,6 +280,19 @@ breaks; a prop knocked by a ball or a body doesn't fall (only losing its support
 | A ball going by (snaps only faster than sound, else `whirr`; louder the closer), striking (`impact_wood/dirt/metal/stone`) and glancing off (`glance_*`) by surface; one per charge | `ImpactEffects`, `SynthSounds`, `SoundTuning.subsonic_snaps` | the sound lab (`results/2026-10-22_strikes/`), `test_ricochet.gd`, `test_composure.gd` | in the game, waiting on Sean's ears (#264) |
 | Sounds made in code | `src/audio/synth_sounds.gd` | `tests/test_sounds.gd` (heard, never clips, nothing under 40 Hz) | in the game |
 
+## The train (gameplay; the train lab, `docs/briefs/train.md`)
+
+| Part | Where it lives | Proven by | Status |
+| --- | --- | --- | --- |
+| The train's dials (engine, brakes, Davis resistance, consist, track sizes), all proposed | `src/train/train_tuning.gd`, `config/train.tres` | the brief's "Numbers and where they're from" | waiting on Sean (the feel dials, #543's issue) |
+| The 1D train: distance and speed from tractive effort (steam, power, adhesion), Davis and curve resistance, the grade under each car, brakes; deterministic | `src/train/train_sim.gd` (`TrainSim`) | `tests/test_train.gd`, the lab's graphs (`experiments/train_lab/results/2026-11-01_step1/`) | waiting to be promoted (step 6 puts a line in the world) |
+| A track from plan and profile (straights, arcs, spirals; grades with vertical curves) as a `Curve3D`, with rails, ties, ballast and fill drawn along it (plain, unbreakable) | `src/train/track_line.gd` (`TrackLine`) | `tests/test_train.gd` (`test_track_as_laid`) | waiting to be promoted (step 5 makes it members) |
+| Cars on two trucks each, drawn between ticks at the interpolated distance (on the tick while you stand on one) | `src/train/train.gd` (`Train`), `train_view.gd` (`TrainView`: boxes until step 3's models) | the lab's jitter and drift checks | waiting to be promoted |
+| Couplers with slack: each car its own mass, free play and a draft gear's spring-damper, brakes car by car; every slack-out and bunch an event (step 4's clanks) | `src/train/train_sim.gd` | `tests/test_train.gd` (`test_slack_runs_out_car_by_car_and_bunches`), `results/2026-11-01_step2/slack.png` | waiting to be promoted |
+| The cars as moving solids: walked on end to end, ridden, jumped off; they shove kit props off the line and strike men; bullets hit them (wood, the engine and tender iron) | `src/train/train_cars.gd` (`TrainCars`: the boxes), `train_view.gd` (`solids`), `train.gd` (`_strike`, `car_under`) | `test_cars_are_solids_where_drawn`; the lab's films and bridge runs (step 2) | waiting to be promoted (step 3 swaps the boxes for the models) |
+| A route as data: plan (straights, bends with spirals), profile, **named marks** | `src/train/train_route.gd` (`TrainRoute`), `experiments/train_lab/routes/*.json` | `test_route_relaid`, `test_track_as_laid` | waiting to be promoted (step 6: `config/valley.json`) |
+| A timetable as data (stops by mark, dwell; times given or measured from the line) and the engineer who keeps it (regulator, brake, reverser; stops on the mark) | `src/train/train_timetable.gd`, `train_engineer.gd`, `experiments/train_lab/timetable.json` | `test_engineer_stops_on_the_mark`, `test_timetable_from_data`; `results/2026-11-01_step2/ten_stops.md`, `delay_distance.png` | waiting to be promoted |
+
 ## The Systems Playground
 
 The test saloon (`docs/briefs/labs.md`, "The Systems Playground"): the game's own saloon and a

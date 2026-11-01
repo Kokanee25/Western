@@ -1,0 +1,611 @@
+{
+ "start": {
+  "at_s": 395.038792275459,
+  "s25": 77.6998923578149,
+  "slack_out": [
+   {
+    "bang": true,
+    "coupler": 0,
+    "speed": 0.151,
+    "t": 2.2
+   },
+   {
+    "bang": true,
+    "coupler": 1,
+    "speed": 0.159,
+    "t": 2.733
+   },
+   {
+    "bang": true,
+    "coupler": 2,
+    "speed": 0.207,
+    "t": 3.117
+   },
+   {
+    "bang": true,
+    "coupler": 3,
+    "speed": 0.262,
+    "t": 3.483
+   },
+   {
+    "bang": true,
+    "coupler": 4,
+    "speed": 0.27,
+    "t": 3.783
+   },
+   {
+    "bang": true,
+    "coupler": 5,
+    "speed": 0.308,
+    "t": 4.067
+   }
+  ],
+  "t10": 11.4666666666668,
+  "t25": 24.7333333333332,
+  "top_on_straight_kmh": 36.5286461583914
+ },
+ "stop30": {
+  "bunched": [
+   {
+    "bang": false,
+    "coupler": 2,
+    "speed": 0.077,
+    "t": 2.517
+   },
+   {
+    "bang": false,
+    "coupler": 1,
+    "speed": 0.126,
+    "t": 2.633
+   },
+   {
+    "bang": true,
+    "coupler": 3,
+    "speed": 0.164,
+    "t": 2.733
+   },
+   {
+    "bang": true,
+    "coupler": 4,
+    "speed": 0.273,
+    "t": 2.917
+   },
+   {
+    "bang": true,
+    "coupler": 5,
+    "speed": 0.323,
+    "t": 3.083
+   },
+   {
+    "bang": true,
+    "coupler": 0,
+    "speed": 0.19,
+    "t": 3.15
+   }
+  ],
+  "distance": 99.2500249838264,
+  "from_s": 330.058078341709,
+  "time": 20.4166666666668
+ },
+ "climb": {
+  "balance_on_climb_kmh": 24.75,
+  "crest_kmh": 29.0600579463167,
+  "entry_kmh": 38.0,
+  "lowest_kmh": 28.7289132167047,
+  "regulator_for_25_level": 0.0810326249338686,
+  "time": 37.6999999999991
+ },
+ "descent": {
+  "entry_kmh": 15.0,
+  "foot_kmh": 40.651948869175,
+  "time": 37.8833333333325
+ },
+ "top_speed_level_kmh": 42.9106225309444,
+ "consist": {
+  "cars": 7,
+  "length_m": 66.3,
+  "mass_t": 119.5
+ },
+ "ten_stops": [
+  {
+   "delay": 0.0,
+   "error": 0.446,
+   "mark": "mine",
+   "name": "depot to mine, 22 km/h",
+   "slack_events": 130,
+   "time": 258.7,
+   "top_kmh": 23.8
+  },
+  {
+   "delay": 0.0,
+   "error": -0.449,
+   "mark": "depot",
+   "name": "mine to depot (tender first), 22 km/h",
+   "slack_events": 126,
+   "time": 247.6,
+   "top_kmh": 28.9
+  },
+  {
+   "delay": 0.0,
+   "error": -0.43,
+   "mark": "mine",
+   "name": "depot to mine, 15 km/h",
+   "slack_events": 110,
+   "time": 336.3,
+   "top_kmh": 16.9
+  },
+  {
+   "delay": 0.0,
+   "error": 0.364,
+   "mark": "mine",
+   "name": "depot to mine, 32 km/h",
+   "slack_events": 118,
+   "time": 213.7,
+   "top_kmh": 32.9
+  },
+  {
+   "delay": 0.0,
+   "error": 0.366,
+   "mark": "mine",
+   "name": "depot to mine, ore cars empty",
+   "slack_events": 153,
+   "time": 239.5,
+   "top_kmh": 26.7
+  },
+  {
+   "delay": 0.0,
+   "error": -0.423,
+   "mark": "mine",
+   "name": "depot to mine, worn shoes (brakes 0.035 g)",
+   "slack_events": 126,
+   "time": 236.6,
+   "top_kmh": 26.3
+  },
+  {
+   "delay": 0.0,
+   "error": -0.425,
+   "mark": "water",
+   "name": "re-laid: depot to water, 22 km/h",
+   "slack_events": 35,
+   "time": 180.9,
+   "top_kmh": 22.3
+  },
+  {
+   "delay": 0.0,
+   "error": -0.458,
+   "mark": "mine",
+   "name": "re-laid: water to mine, 28 km/h",
+   "slack_events": 150,
+   "time": 166.2,
+   "top_kmh": 29.3
+  },
+  {
+   "delay": 0.0,
+   "error": -0.453,
+   "mark": "depot",
+   "name": "re-laid: mine to depot (tender first), 25 km/h",
+   "slack_events": 96,
+   "time": 313.6,
+   "top_kmh": 29.6
+  },
+  {
+   "delay": 84.4,
+   "error": 0.379,
+   "mark": "mine",
+   "name": "timetable, 3 minutes late: depot to mine",
+   "slack_events": 119,
+   "time": 394.4,
+   "top_kmh": 32.9
+  }
+ ],
+ "slack_events": [
+  {
+   "bang": true,
+   "coupler": 0,
+   "kind": "out",
+   "phase": "start",
+   "s": 110.676328220025,
+   "speed": 0.151242630474812,
+   "t": 2.2
+  },
+  {
+   "bang": false,
+   "coupler": 0,
+   "kind": "out",
+   "phase": "start",
+   "s": 110.727789966459,
+   "speed": 0.0291867533792983,
+   "t": 2.63333333333333
+  },
+  {
+   "bang": true,
+   "coupler": 1,
+   "kind": "out",
+   "phase": "start",
+   "s": 103.708994117521,
+   "speed": 0.158929063187379,
+   "t": 2.73333333333333
+  },
+  {
+   "bang": true,
+   "coupler": 2,
+   "kind": "out",
+   "phase": "start",
+   "s": 95.8416277511585,
+   "speed": 0.207399381649374,
+   "t": 3.11666666666666
+  },
+  {
+   "bang": false,
+   "coupler": 1,
+   "kind": "out",
+   "phase": "start",
+   "s": 103.781192808964,
+   "speed": 0.0660404007986858,
+   "t": 3.16666666666666
+  },
+  {
+   "bang": true,
+   "coupler": 3,
+   "kind": "out",
+   "phase": "start",
+   "s": 87.9738091212941,
+   "speed": 0.262185528535593,
+   "t": 3.48333333333333
+  },
+  {
+   "bang": true,
+   "coupler": 4,
+   "kind": "out",
+   "phase": "start",
+   "s": 78.3064550204589,
+   "speed": 0.26993440369276,
+   "t": 3.78333333333332
+  },
+  {
+   "bang": true,
+   "coupler": 5,
+   "kind": "out",
+   "phase": "start",
+   "s": 67.3394646155071,
+   "speed": 0.307999943784683,
+   "t": 4.06666666666666
+  },
+  {
+   "bang": false,
+   "coupler": 0,
+   "kind": "in",
+   "phase": "stop",
+   "s": 243.636591765651,
+   "speed": 0.0709577590558226,
+   "t": 32.9333333333327
+  },
+  {
+   "bang": false,
+   "coupler": 1,
+   "kind": "in",
+   "phase": "stop",
+   "s": 236.925247899388,
+   "speed": 0.0949247130023751,
+   "t": 32.9666666666661
+  },
+  {
+   "bang": true,
+   "coupler": 2,
+   "kind": "in",
+   "phase": "stop",
+   "s": 230.11595305117,
+   "speed": 0.209381847694345,
+   "t": 33.1333333333327
+  },
+  {
+   "bang": true,
+   "coupler": 3,
+   "kind": "in",
+   "phase": "stop",
+   "s": 223.429755572672,
+   "speed": 0.275049910560453,
+   "t": 33.3166666666661
+  },
+  {
+   "bang": true,
+   "coupler": 4,
+   "kind": "in",
+   "phase": "stop",
+   "s": 214.957220929653,
+   "speed": 0.327922206004136,
+   "t": 33.4999999999994
+  },
+  {
+   "bang": true,
+   "coupler": 5,
+   "kind": "in",
+   "phase": "stop",
+   "s": 205.182088212879,
+   "speed": 0.375802710819602,
+   "t": 33.6833333333327
+  },
+  {
+   "bang": false,
+   "coupler": 3,
+   "kind": "in",
+   "phase": "stop",
+   "s": 230.584754459558,
+   "speed": 0.0111380990291705,
+   "t": 34.4333333333327
+  },
+  {
+   "bang": false,
+   "coupler": 2,
+   "kind": "in",
+   "phase": "stop",
+   "s": 240.957507270987,
+   "speed": 0.0316219323158338,
+   "t": 34.8333333333326
+  },
+  {
+   "bang": false,
+   "coupler": 4,
+   "kind": "in",
+   "phase": "stop",
+   "s": 227.297235322218,
+   "speed": 0.0035043262377501,
+   "t": 35.4833333333326
+  },
+  {
+   "bang": false,
+   "coupler": 3,
+   "kind": "in",
+   "phase": "stop",
+   "s": 239.395016709752,
+   "speed": 0.00292720187672391,
+   "t": 35.9166666666659
+  },
+  {
+   "bang": false,
+   "coupler": 4,
+   "kind": "in",
+   "phase": "stop",
+   "s": 230.675175002194,
+   "speed": 0.00129188007823355,
+   "t": 36.0833333333326
+  },
+  {
+   "bang": false,
+   "coupler": 5,
+   "kind": "in",
+   "phase": "stop",
+   "s": 220.673667189748,
+   "speed": 0.000729053403814461,
+   "t": 36.2666666666659
+  },
+  {
+   "bang": false,
+   "coupler": 0,
+   "kind": "out",
+   "phase": "stop",
+   "s": 264.437183394792,
+   "speed": 0.0326491244553928,
+   "t": 36.3166666666659
+  },
+  {
+   "bang": false,
+   "coupler": 5,
+   "kind": "in",
+   "phase": "stop",
+   "s": 233.07601318025,
+   "speed": 0.00024257772300107,
+   "t": 38.7666666666657
+  },
+  {
+   "bang": false,
+   "coupler": 1,
+   "kind": "out",
+   "phase": "stop",
+   "s": 274.194752279321,
+   "speed": 0.0168485277400539,
+   "t": 39.8833333333324
+  },
+  {
+   "bang": false,
+   "coupler": 5,
+   "kind": "in",
+   "phase": "stop",
+   "s": 238.423749315423,
+   "speed": 8.36484772808177e-05,
+   "t": 40.0666666666657
+  },
+  {
+   "bang": false,
+   "coupler": 5,
+   "kind": "in",
+   "phase": "stop",
+   "s": 240.653103979172,
+   "speed": 2.63224719061483e-05,
+   "t": 40.6666666666656
+  },
+  {
+   "bang": false,
+   "coupler": 2,
+   "kind": "out",
+   "phase": "stop",
+   "s": 278.404634141884,
+   "speed": 0.0168385822911197,
+   "t": 43.8833333333321
+  },
+  {
+   "bang": false,
+   "coupler": 0,
+   "kind": "in",
+   "phase": "stop",
+   "s": 296.296179734086,
+   "speed": 0.00421212835369666,
+   "t": 45.7166666666654
+  }
+ ],
+ "timetable_late0": {
+  "stops": [
+   {
+    "delay": -3.99999999994964,
+    "error": 0.368067331281281,
+    "mark": "mine",
+    "scheduled": 310.0,
+    "stopped_at": 1440.50330170628,
+    "t": 306.00000000005,
+    "target": 1440.135234375
+   },
+   {
+    "delay": -2.28333333371654,
+    "error": -0.439555891885504,
+    "mark": "depot",
+    "scheduled": 785.0,
+    "stopped_at": 120.450825423136,
+    "t": 782.716666666283,
+    "target": 120.01126953125
+   }
+  ],
+  "timetable": [
+   {
+    "arrive": null,
+    "depart": 0.0,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 120.01
+   },
+   {
+    "arrive": 310.0,
+    "depart": 490.0,
+    "dwell": 180.0,
+    "mark": "mine",
+    "s": 1440.14
+   },
+   {
+    "arrive": 785.0,
+    "depart": null,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 120.01
+   }
+  ],
+  "legs": [
+   {
+    "allowed": 310.0,
+    "time": 258.750000000093
+   },
+   {
+    "allowed": 295.0,
+    "time": 247.600000000089
+   }
+  ]
+ },
+ "timetable_late180": {
+  "stops": [
+   {
+    "delay": 84.4166666666366,
+    "error": 0.378540393681533,
+    "mark": "mine",
+    "scheduled": 310.0,
+    "stopped_at": 1440.51377476868,
+    "t": 394.416666666637,
+    "target": 1440.135234375
+   },
+   {
+    "delay": -2.28333333371654,
+    "error": -0.439572101741049,
+    "mark": "depot",
+    "scheduled": 785.0,
+    "stopped_at": 120.450841632991,
+    "t": 782.716666666283,
+    "target": 120.01126953125
+   }
+  ],
+  "timetable": [
+   {
+    "arrive": null,
+    "depart": 0.0,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 120.01
+   },
+   {
+    "arrive": 310.0,
+    "depart": 490.0,
+    "dwell": 180.0,
+    "mark": "mine",
+    "s": 1440.14
+   },
+   {
+    "arrive": 785.0,
+    "depart": null,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 120.01
+   }
+  ],
+  "legs": [
+   {
+    "allowed": 310.0,
+    "time": 258.750000000093
+   },
+   {
+    "allowed": 295.0,
+    "time": 247.600000000089
+   }
+  ]
+ },
+ "timetable_relaid": {
+  "stops": [
+   {
+    "delay": -2.76666666671292,
+    "error": -0.434250525206608,
+    "mark": "mine",
+    "scheduled": 415.0,
+    "stopped_at": 2019.64958736542,
+    "t": 412.233333333287,
+    "target": 2020.08383789063
+   },
+   {
+    "delay": -2.483333333921,
+    "error": -0.436925782027544,
+    "mark": "depot",
+    "scheduled": 1010.0,
+    "stopped_at": 100.441076172653,
+    "t": 1007.51666666608,
+    "target": 100.004150390625
+   }
+  ],
+  "timetable": [
+   {
+    "arrive": null,
+    "depart": 0.0,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 100.0
+   },
+   {
+    "arrive": 415.0,
+    "depart": 595.0,
+    "dwell": 180.0,
+    "mark": "mine",
+    "s": 2020.08
+   },
+   {
+    "arrive": 1010.0,
+    "depart": null,
+    "dwell": 0.0,
+    "mark": "depot",
+    "s": 100.0
+   }
+  ],
+  "legs": [
+   {
+    "allowed": 415.0,
+    "time": 347.183333333346
+   },
+   {
+    "allowed": 415.0,
+    "time": 345.983333333347
+   }
+  ]
+ }
+}
