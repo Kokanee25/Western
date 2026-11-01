@@ -61,3 +61,18 @@ case "$WHICH" in
       --out="$OUT/lineup" --sheet > "$OUT/sheet.log" 2>&1 ;;&
 esac
 ls -la "$OUT"/*.mp4
+
+# The farmhouse (#520): the scripted player in by the back door, from his eyes (the mission's own
+# film set-up, experiments/farmhouse/film.sh), old and new side by side.
+if [ "$WHICH" = farmhouse ]; then
+  for v in old new; do
+    lib=$([ "$v" = new ] && echo on || echo off)
+    printf 'library %s\ntime 15\nfarm_run back seed=2 max=200\nquit\n' "$lib" > "$OUT/farm_$v.txt"
+    xvfb-run -a -s "-screen 0 640x360x24" godot --path "$ROOT" --rendering-driver vulkan --resolution 640x360 --fixed-fps 30 \
+      --write-movie "$(realpath "$OUT")/farmhouse_$v.avi" -- --dev-bridge --deterministic --bridge-port=8772 \
+      --bridge-script="$(realpath "$OUT/farm_$v.txt")" > "$OUT/farmhouse_$v.log" 2>&1 || true
+    ffmpeg -y -loglevel error -i "$OUT/farmhouse_$v.avi" -an -c:v libx264 -crf 23 -pix_fmt yuv420p "$OUT/farmhouse_$v.mp4"
+    rm -f "$OUT/farmhouse_$v.avi"
+  done
+  pair farmhouse
+fi
