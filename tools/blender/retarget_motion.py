@@ -81,6 +81,40 @@ PARENT = {"pelvis": None, "abdomen": "pelvis", "chest": "abdomen", "neck": "ches
           "upper_arm_r": "chest", "forearm_r": "upper_arm_r", "hand_r": "forearm_r"}
 FPS = 30
 
+# Rigs read by their own names, not the patterns above (their names fool them: Quaternius' rigify
+# DEF- bones have a "root" under the hips' parent; KayKit's legs are upperleg/lowerleg): picked when
+# the file has the rig's `detect` bone. `bones`: our segment -> theirs; `tips`: the joint at a
+# segment's far end where it isn't the next segment's (a toe, the hand's middle).
+RIGS = {
+    # Quaternius' Universal Animation Library (a rigify-style humanoid): spine.001 the belly,
+    # spine.003 the upper chest the shoulders hang from (spine.002's turn is in the chest's world
+    # turn, which is all the retarget reads).
+    "quaternius": {"detect": "DEF-hips", "bones": {
+        "pelvis": "DEF-hips", "abdomen": "DEF-spine.001", "chest": "DEF-spine.003", "neck": "DEF-neck", "head": "DEF-head",
+        "thigh_l": "DEF-thigh.L", "shin_l": "DEF-shin.L", "foot_l": "DEF-foot.L",
+        "thigh_r": "DEF-thigh.R", "shin_r": "DEF-shin.R", "foot_r": "DEF-foot.R",
+        "upper_arm_l": "DEF-upper_arm.L", "forearm_l": "DEF-forearm.L", "hand_l": "DEF-hand.L",
+        "upper_arm_r": "DEF-upper_arm.R", "forearm_r": "DEF-forearm.R", "hand_r": "DEF-hand.R"},
+        "tips": {"foot_l": "DEF-toe.L", "foot_r": "DEF-toe.R", "hand_l": "DEF-f_middle.01.L", "hand_r": "DEF-f_middle.01.R"}},
+    # KayKit's Rig_Medium (Character Animations 1.1): no neck bone (the head hangs from the chest:
+    # our neck stays the pose's); wrist.* is the hand's joint, hand.* its middle.
+    "kaykit": {"detect": "upperleg.l", "bones": {
+        "pelvis": "hips", "abdomen": "spine", "chest": "chest", "head": "head",
+        "thigh_l": "upperleg.l", "shin_l": "lowerleg.l", "foot_l": "foot.l",
+        "thigh_r": "upperleg.r", "shin_r": "lowerleg.r", "foot_r": "foot.r",
+        "upper_arm_l": "upperarm.l", "forearm_l": "lowerarm.l", "hand_l": "wrist.l",
+        "upper_arm_r": "upperarm.r", "forearm_r": "lowerarm.r", "hand_r": "wrist.r"},
+        "tips": {"foot_l": "toes.l", "foot_r": "toes.r", "hand_l": "hand.l", "hand_r": "hand.r"}},
+}
+
+
+def rig_of(names):
+    """The known rig these bone names are (RIGS), or None."""
+    for key, r in RIGS.items():
+        if r["detect"] in names:
+            return r
+    return None
+
 
 def opt(name, default=None, args=None):
     for a in (args if args is not None else sys.argv[1:]):
@@ -150,6 +184,9 @@ def yaw_of(R):
 
 def match_bones(names):
     """Our segment -> the source bone that carries it, by name."""
+    r = rig_of(names)
+    if r is not None:
+        return {seg: b for seg, b in r["bones"].items() if b in names}
     low = {n: n.lower() for n in names}
     out = {}
     used = set()
@@ -183,7 +220,17 @@ def _to_gltf(path, work):
     return out
 
 
-def read_source(path, rest_path=None, work=None):
+def anim_index(g, anim):
+    """The animation called `anim` in the file (its index; 0 when `anim` is empty)."""
+    if not anim:
+        return 0
+    for i, a in enumerate(g.doc.get("animations", [])):
+        if a.get("name") == anim:
+            return i
+    sys.exit("retarget_motion: no animation %r in the file" % anim)
+
+
+def read_source(path, rest_path=None, work=None, anim=None):
     """The motion as (joint names, the rest pose, the animation sampled at FPS, the file's frame
     rate), each pose a joint name -> 4x4 world matrix in glTF's axes (Godot's: y up, -z forward),
     metres. Read from the glTF itself (tools/blender/gltf_motion.py): the rest is the nodes' default
@@ -194,7 +241,7 @@ def read_source(path, rest_path=None, work=None):
     g = gltf_motion.Gltf(path)
     rest_src = gltf_motion.Gltf(rest_path).rest() if rest_path else g.rest()
     rest = {n: (m, m[:3, 3].copy(), None) for n, m in rest_src.items()}
-    frames = g.frames(FPS)
+    frames = g.frames(FPS, anim_index(g, anim))
     names = [n for n in g.names().values() if n in rest]
     return names, rest, frames, FPS
 
@@ -230,6 +277,12 @@ def retarget(names, rest, frames, rig, source_name=""):
         tip = TIP.get(seg)
         if tip and tip in bones:
             _, ht = to_godot_m(rest[bones[tip]][0])
+            d = ht - h0
+            if np.linalg.norm(d) > 1e-6:
+                return d
+        known = (rig_of(names) or {}).get("tips", {}).get(seg)
+        if known and known in rest:
+            _, ht = to_godot_m(rest[known][0])
             d = ht - h0
             if np.linalg.norm(d) > 1e-6:
                 return d

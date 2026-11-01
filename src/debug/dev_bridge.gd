@@ -27,6 +27,7 @@ const HELP := {
 	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
 	"time": "time HOUR -> set the clock",
+	"library": "library on|off -> people moved by the library clips (Settings.library_motion, LibraryMotion; issue #529); answers what each man near is on",
 	"clock": "clock SCALE|on|off -> time runs at SCALE (1 = 45 min a day), or stops",
 	"set": "set ADDRESS VALUE -> a look value (settings.X, global.X, env.X, day.X, hour; see LookPreset)",
 	"get": "get ADDRESS -> read one",
@@ -519,6 +520,17 @@ func _cmd_time(a: Array) -> Dictionary:
 	clock.set_time(float(a[0]))
 	await _physics_frames(2)
 	return {"clock": clock.get_clock_text()}
+
+
+func _cmd_library(a: Array) -> Dictionary:
+	if not a.is_empty():
+		Settings.library_motion = String(a[0]) == "on"
+	await _physics_frames(2)
+	var on := {}
+	for p: Node in get_tree().get_nodes_in_group(&"people"):
+		if p is HumanBody and p._lib != null:
+			on[String((p as HumanBody).person_id)] = String(p._lib.move)
+	return {"library_motion": Settings.library_motion, "moves": on}
 
 
 func _cmd_clock(a: Array) -> Dictionary:
