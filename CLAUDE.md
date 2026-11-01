@@ -204,13 +204,14 @@ paid on every turn of every session.
   through the status file and Current state, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
   when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
-  open). Then, and never later: write the status entry and your Current state lines; open an
-  issue labelled **`next session`**, titled with the lane and the next step, whose body is the
-  ready-to-paste prompt for it (the branch, what's done, what to read, what to do next; written
-  for a fresh session that knows nothing of this one); then tell Sean, as your last message,
-  **"Step done: <what>. Start a fresh session with issue #N."** and do no more work. Don't
-  start the next step in the same session, even if it looks small. A session that picks up a
-  `next session` issue closes it at the start, with a line saying so.
+  open). Then, and never later: write the status entry and your Current state lines, and tell
+  Sean, as your last message, **"Step done: <what>. Next: issue #N."**, naming the issue that
+  already holds the next step, and do no more work. **Keep the issues few** (Sean, 2026-10-31:
+  too many to keep track of): never open an issue that only points at another issue or hands a
+  step on; what a fresh session must know goes as a comment on the issue it will work, or in the
+  status entry. A new issue only for a decision only Sean can make (`waiting on Sean`) or real new
+  work no issue holds; and close each issue the moment it's done or answered. Don't start the
+  next step in the same session, even if it looks small.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
   `history.md`, `docs/BUILD_NOTES.md` or a brief's history unless asked. Grep for the heading,
@@ -576,7 +577,7 @@ frozen until Sean names one.
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
   its hiss is `Events.noise` `fuse`, outlaws hear it. Every spot at least a crawl hole; chest high
-  from outside a doorway 8 of 8. Next: #491 (#492's order; #488 merged meanwhile, #509).
+  from outside a doorway 8 of 8. Merged, build 2797. Next: #491.
 - **The kick and shove** (2026-10-28, #479, PR #486, build 2757; `experiments/kick_shove/`):
   E tapped a shove, held and let go a kick (`PlayerShove`, `ShoveTuning`), a man by
   `HumanBody.take_push` (over past his step's catch, else a stagger over what's low behind him);
