@@ -501,7 +501,10 @@ frozen until Sean names one.
   head (Studio `face_fit.py`, `hg_head`; `DIAGNOSIS.md`, `head_sheet.jpg`); not it (#530). **Realistic men**
   for a possible art style change: `hg_real_cowboy`, `hg_real_rancher` (Studio `hg_real.py`), drawn by
   `realistic_person.gdshader` when a report lists `realistic`; `REALISTIC.md`, `real_sheet.jpg`, `blender_vs_game.jpg`
-  (Human Generator is fine in Blender; the gap is the conversion and the game's rendering). Next: round 2, #547.
+  (Human Generator is fine in Blender; the gap is the conversion and the game's rendering). **Round 2** (#547):
+  strand colours measured in his Blender render, the cowboy remade from its Julius (`hg_real_cowboy2`), soft card
+  edges, strand highlight and soft skin (`realistic_hair*.gdshader`, `realistic_light.gdshaderinc`; `--real-off=`,
+  the lab bridge's `real_off`); sheets `human_generator/round2/`. Waiting on Sean: #547 (step 4 is art's look).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
