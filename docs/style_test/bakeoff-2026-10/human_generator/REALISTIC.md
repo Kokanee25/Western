@@ -50,3 +50,23 @@ Every other man is drawn as before; `test_bodies` passes (37 of 37).
 
 The rest of the world is still the painted, squared look, so a style change would be the whole
 game's art, not only its people.
+
+## Is it Human Generator, or the game? (`blender_vs_game.jpg`)
+
+The same two men rendered in Blender as Human Generator's own showcase images are (Studio
+`tools/humgen/hg_render.py`): its strand hair as real curves, its skin with subsurface scattering,
+its own materials and 4K textures, Cycles, a three-light studio, about a minute a render. Beside
+them, their faces in the game.
+
+- **Human Generator is fine:** in Blender the rancher looks like its website.
+- **What my conversion did wrong:** in the game his grey beard and brows came out near-black and
+  heavy. The brows were painted onto the skin with thick strands under its brow cap, and the beard
+  cap was baked dark. The cowboy's brows have the same fault. Fixable in `hg_real.py`.
+- **What the game's rendering costs:**
+  - strand hair becomes cards and caps;
+  - no subsurface light in the skin;
+  - the saloon's warm lamps turn faces orange and the street's light leaves them dark;
+  - 1280x720 with hard pixels.
+
+A realistic style would mean the game's lighting and render settings reworked for it, not only
+its people.
