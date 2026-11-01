@@ -20,5 +20,6 @@ warn_close = 14.0
 warn_seconds = 8.0
 warn_far = 55.0
 breach_reach = 18.0
+caught_cold = 4.0
 heard_error = 3.0
 men = Array[Dictionary]([{"id": "brody", "model": "bold_cowboy_s3_talking", "post": "guard", "hold": "bedroom", "temper": 0.2, "nerve": 0.95, "proud": true, "leads": true}, {"id": "lyle", "model": "hothead_lyle_s2_talking", "post": "window_front_w", "hold": "house", "temper": 0.9, "nerve": 0.7, "proud": true}, {"id": "dutch", "model": "colter_rider_s1", "post": "window_front_e", "hold": "house", "temper": 0.5, "nerve": 0.6}, {"id": "kid", "model": "young_drifter_s3_talking", "post": "porch", "alarm_post": "inside_door", "hold": "house", "temper": 0.45, "nerve": 0.3}, {"id": "hollis", "model": "old_rancher_s1", "post": "kitchen", "hold": "house", "temper": 0.35, "nerve": 0.65}])

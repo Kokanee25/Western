@@ -34,6 +34,10 @@ var execute_t := -1.0
 var ultimatum_t := -1.0
 var freed_t := -1.0
 var breach_t := -1.0
+## A blast at the house before any alarm (the surprise assault, issue #537): when; -1 if not.
+var surprise_t := -1.0
+## After a surprise, when the first of them knew where you were (saw or heard you); -1 if not yet.
+var found_t := -1.0
 var end_t := -1.0
 var outcome := &""
 var why := ""
@@ -272,7 +276,7 @@ func _watch(man: HumanBody, brain: OutlawBrain) -> void:
 	man.hit.connect(func(info: Dictionary) -> void:
 		var at: Vector3 = info.get("position", man.global_position)
 		var p := player()
-		_alarm(brain, p.global_position if p and info.get("shooter") == p else at, "%s hit" % man.name))
+		_alarm_soon(brain, p.global_position if p and info.get("shooter") == p else at, "%s hit" % man.name))
 	man.died.connect(func(_c: StringName) -> void: _note("%s dead" % man.name))
 	man.fell.connect(func(conscious: bool) -> void: _note("%s down%s" % [man.name, "" if conscious else ", out"]))
 	# The senses are made in the brain's _ready.
@@ -293,7 +297,7 @@ func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> vo
 	if state != State.ON:
 		return
 	if kind in LOUD:
-		_alarm(brain, at, "%s heard %s" % [brain.body.name, kind])
+		_alarm_soon(brain, at, "%s heard %s" % [brain.body.name, kind])
 	elif kind == &"fuse" and alarm_t < 0.0:
 		# A hiss he can't place: he turns to it and wonders (the blast is the alarm).
 		brain.glance(at + Vector3.UP * 0.5, 5.0)
@@ -436,6 +440,17 @@ func _back_to_post() -> void:
 	_looking_post = {}
 
 
+## A man hit, or a loud sound, is the alarm on the mission's next tick, not at once: a blast hits
+## them and breaks timber before it's announced (Blast.detonate: Events.exploded last), and a
+## blast before any alarm is a surprise (`_surprised`), not "Hollis heard timber" with you placed.
+var _pending := []
+
+
+func _alarm_soon(by: OutlawBrain, at: Vector3, what: String) -> void:
+	if state == State.ON and alarm_t < 0.0 and _pending.is_empty():
+		_pending = [by, at, what]
+
+
 ## The alarm: everyone in it, told where (as near as the one who raised it knows).
 func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 	if state != State.ON or alarm_t >= 0.0:
@@ -456,14 +471,18 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 		b.senses.note(p, at, 0.5 if b == by else tuning.heard_error)
 		b.quiet_start = b != by  # one of them says it; the rest just go to it
 		b.relations.provoke(p)
-		var m: Dictionary = specs.get(b.body.person_id, {})
-		var alarm_post := String(m.get("alarm_post", ""))
-		if alarm_post != "":
-			# The man outside: in, to his place at a window.
-			var pt := Farmhouse.use_point(alarm_post)
-			if not pt.is_empty():
-				b.hold.post = pt[0]
-				b.hold.look = pt[1]
+		_to_alarm_post(b)
+
+
+## The man outside: in, to his place at a window (his spec's `alarm_post`).
+func _to_alarm_post(b: OutlawBrain) -> void:
+	var m: Dictionary = specs.get(b.body.person_id, {})
+	var alarm_post := String(m.get("alarm_post", ""))
+	if alarm_post != "":
+		var pt := Farmhouse.use_point(alarm_post)
+		if not pt.is_empty():
+			b.hold.post = pt[0]
+			b.hold.look = pt[1]
 
 
 func _on_exploded(at: Vector3, _kg: float) -> void:
@@ -474,6 +493,9 @@ func _on_exploded(at: Vector3, _kg: float) -> void:
 	if house == null or at.distance_to(centre) > tuning.breach_reach:
 		return
 	breach_t = t
+	if alarm_t < 0.0:
+		_surprised(at)
+		return
 	_note("a blast at the house")
 	_alarm(null, at, "the blast")
 	# They turn to it, and a man goes to a spot with a line on the hole (HouseDefence).
@@ -482,6 +504,33 @@ func _on_exploded(at: Vector3, _kg: float) -> void:
 		if _able(b) and p:
 			b.senses.note(p, at, 1.0)
 	if defence:
+		defence.breach(at)
+
+
+## The surprise assault (issue #537, Sean): a stick set on a wall without them knowing, and the
+## wall going up is the first they know of you. It's the alarm (the guard's clock starts here), but
+## they're caught cold: dazed `caught_cold` s (OutlawBrain.stunned, on top of what the blast did to
+## each), and nobody knows where you are, only where the blast was (HouseDefence turns them to the
+## hole); nobody calls where you are (`HouseDefence.quiet`) till one of them sees you or you fire
+## (`_found_step`).
+func _surprised(at: Vector3) -> void:
+	surprise_t = t
+	alarm_t = t
+	_pending = []  # what the blast itself did (hit them, broke timber) isn't them finding you
+	_note("a blast at the house: the alarm, caught cold")
+	_back_to_post()
+	var p := player()
+	for b in brains:
+		if not is_instance_valid(b) or not b.body.physiology.alive:
+			continue
+		b.hold.erase("warned")
+		_to_alarm_post(b)
+		if p == null:
+			continue
+		b.senses.note(p, at, tuning.heard_error)
+		b.caught_cold(p, tuning.caught_cold * _rng.randf_range(0.8, 1.2))
+	if defence:
+		defence.quiet = true
 		defence.breach(at)
 
 
@@ -543,11 +592,16 @@ func _physics_process(delta: float) -> void:
 			_telling(delta)
 		State.ON:
 			t += delta
+			if not _pending.is_empty():
+				var a := _pending
+				_pending = []
+				_alarm(a[0], a[1], a[2])
 			_idle_talk(delta)
 			_warning_step()
 			_rancher_calls(delta)
 			if _looking != null and t > float(_looking_post.get("until", INF)):
 				_back_to_post()
+			_found_step()
 			_guard_step()
 			_rescue_step(delta)
 			_check_end()
@@ -589,6 +643,25 @@ func _guard_step() -> void:
 		guard.menace_shots = tuning.execute_shots
 		guard.menace_fire = true
 		_note("the guard shoots the rancher")
+
+
+## After a surprise: found once one of them sees you or you fire (the scripted runs: how long they
+## were lost); then they call where you are again.
+func _found_step() -> void:
+	if surprise_t < 0.0 or found_t >= 0.0:
+		return
+	var p := player()
+	var by := ""
+	if _last_shooter == p and _last_shot_t > surprise_t:
+		by = "you fired"
+	for b in brains:
+		if by == "" and _able(b) and b.senses and b.senses.sees(p):
+			by = "%s sees you" % b.body.name
+	if by != "":
+		found_t = t
+		_note("found: " + by)
+		if defence:
+			defence.quiet = false
 
 
 ## Before the alarm: a word now and then from a man at his post.
@@ -800,7 +873,7 @@ func _note(what: String) -> void:
 ## What it came to (the scripted runs, the bridge's `farm_state`).
 func result() -> Dictionary:
 	var out := {"state": State.keys()[state], "outcome": String(outcome), "t": snappedf(t, 0.01),
-			"alarm": snappedf(alarm_t, 0.01), "breach": snappedf(breach_t, 0.01), "threat": snappedf(threat_t, 0.01),
+			"alarm": snappedf(alarm_t, 0.01), "breach": snappedf(breach_t, 0.01), "surprise": snappedf(surprise_t, 0.01), "found": snappedf(found_t, 0.01), "threat": snappedf(threat_t, 0.01),
 			"executed": snappedf(execute_t, 0.01), "freed": snappedf(freed_t, 0.01), "end": snappedf(end_t, 0.01),
 			"men_out": men_out(), "men": brains.size(), "timeline": timeline}
 	out.hostage_alive = hostage != null and is_instance_valid(hostage) and hostage.physiology.alive
@@ -815,7 +888,8 @@ func result() -> Dictionary:
 			continue
 		ms.append({"id": String(b.body.person_id), "mood": OutlawBrain.Mood.keys()[b.mood], "alive": b.body.physiology.alive,
 				"tactic": OutlawBrain.Tactic.keys()[b.tactic], "inside": inside(b.body.global_position),
-				"order": String(b.order.get("id", "")), "at": HouseDefence.place_of(b.body.global_position)})
+				"order": String(b.order.get("id", "")), "at": HouseDefence.place_of(b.body.global_position),
+				"stunned": snappedf(b.stunned, 0.1), "stance": Relations.Stance.keys()[b.relations.stance(p)] if p else "", "decision": b.decision, "knows": snappedf(minf(b.senses.since_known(p), 999.0), 0.1) if p and b.senses else 999.0})
 	out.where = defence.where if defence else ""
 	out.men_state = ms
 	return out
