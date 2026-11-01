@@ -76,3 +76,24 @@ until Sean has played it.
   far more pull than a level line needs (7 % regulator holds 25 km/h). The start's 22.6 s to
   25 km/h is the real engine's at full regulator; a slower one is a dial (`regulator_open_time`,
   `adhesion`), Sean's call.
+
+## Numbers and where they're from (step 2, #551)
+
+All in `config/train.tres`, all *proposed*; the timetable's in `experiments/train_lab/timetable.json`.
+
+- **The six cars** (#552): ore cars as the D&RG's narrow-gauge drop-bottom gondolas (24 ft, ~4 t
+  empty, 10 t of ore), a 30 ft boxcar (~7 t, 5 t of freight), a 34 ft express car (~10 t, the
+  strongbox and mail), a 42 ft coach (~12 t, twenty aboard): with the engine and tender 119.5 t,
+  66 m. Against step 1's three boxes (106 t): 0-25 km/h 22.6 -> 24.7 s, the stop from 30 km/h
+  94 -> 99 m, top 43 km/h level (unchanged), 25 on 2.5 % (was 27).
+- **Couplers:** link-and-pin with 65 mm of free play a coupler (the plan's 50-75 mm; real
+  link-and-pin had more, 75-150 mm); past it a draft gear spring of 3 MN/m (100 kN takes 33 mm),
+  damped at 0.35 of critical. A start takes the slack up front to back, the coach moving 1.9 s
+  after the engine; the run-in on a stop reaches 0.38 m/s at the rear coupler (a bang: over
+  `coupler_bang_speed`, 0.15 m/s).
+- **Brakes down the train:** 0.35 s a car (the signal back along an 1882 train), so the rear runs
+  in on the front.
+- **The engineer:** plans to use 0.6 of full brake (`service_brake`), looks 2.5 s ahead
+  (`brake_lead`), stands at least 60 s when late (`dwell_min`); the timetable allows the measured run
+  at 22 km/h plus 20 % and lets him run 32 km/h to make up time. Ten runs stop within 0.46 m of the
+  mark; a 3-minute late start is 84 s late at the mine and on time back at the depot.
