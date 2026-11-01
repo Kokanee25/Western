@@ -19,7 +19,8 @@ godot --headless --fixed-fps 60 -s res://tools/perf_bench.gd -- --scene=calm --n
 ## Results, 2026-11-01
 
 `results/2026-11-01/`: the lineup film (every clip on the bold cowboy, the rancher and the
-drifter), the deformation sheet (each clip's frame with its legs and arms bent furthest, front and
+drifter), the street (four men walking), the saloon (spec_hall, the camera on Brody), the
+farmhouse (#520's scripted run by the back door, from his eyes; the fight from 1:00), the deformation sheet (each clip's frame with its legs and arms bent furthest, front and
 side), the takes sheet (every candidate), the old-vs-new films.
 
 - **The picks** (judged on the men, `library_picks.json`): Quaternius for the idle, walk, jog,
@@ -41,3 +42,8 @@ side), the takes sheet (every candidate), the old-vs-new films.
 - **Cost** (`perf_bench --scene=calm --folk=2`, at Sean's): people 5.41 -> 6.39 ms with the clips
   on (the street with twice its folk; already over its 4.0 budget off). Joint writes 81 -> 436 a
   frame: a clip moves every joint every tick where a man standing on the pose moves almost none.
+- **Fights go another way with them on** (the poses change what each man sees and is seen by,
+  and how he's hit): the saloon, seed 3, the player down at 27 s both ways, but two of the gang
+  surrendered with the clips (none without); the farmhouse, back door seed 2, won without, the
+  hostage dead with. One run each: not measured, but the gunfight and farmhouse labs should be
+  run with `--library-motion=on` before they go on in the game.
