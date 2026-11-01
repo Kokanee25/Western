@@ -152,7 +152,7 @@ func tick(delta: float, t: float) -> void:
 	# The guard with his gun on the rancher: him first, if he can be seen (the pause he gives you).
 	var g := mission.guard
 	if g != null and is_instance_valid(g) and g.menace != null and is_instance_valid(g.body) and g.body.physiology.alive \
-			and bot._k(g.body).seen and bot.target != g.body:
+			and bot._k(g.body).seen and bot.target != g.body and bot._alive_in_fight(g.body):
 		bot.target = g.body
 		bot._on_target = 0.0
 		bot._settle = rng.randf_range(0.2, 0.4)
@@ -192,8 +192,8 @@ func tick(delta: float, t: float) -> void:
 			_stop()
 	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
 	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 45.0
-	# Once they know (the alarm's up), no more creeping: he goes at a run.
-	bot._hold_action(&"crouch", _crouch and close and not shooting and mission.alarm_t < 0.0 and not phase in ["lit", "out", "clear"])
+	# Through the hole he goes at a run (they know he's coming).
+	bot._hold_action(&"crouch", _crouch and close and not shooting and not phase in ["lit", "through", "out", "clear"])
 
 
 ## The stick out, aimed chest high at the wall in front, E held till it's set, let go to light it,

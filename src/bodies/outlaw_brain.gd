@@ -3186,6 +3186,8 @@ const MAKE_WAY := 1.3
 
 func _surrender() -> void:
 	_stop_rescue()
+	menace = null  # his gun's down: no more holding it on the man he had
+	menace_fire = false
 	_set_mood(Mood.SURRENDERED)
 	if leads and crew.any_in_earshot(_now):
 		callout(&"give_up", _find_target())
