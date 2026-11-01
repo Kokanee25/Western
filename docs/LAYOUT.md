@@ -654,11 +654,13 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   most every `SHADOW_REBUILD_GAP`; no rendering calls off the main thread: they deadlock against
   a main thread that waits, and a mesh made on a worker was used before the server had it, #538).
   Its ArrayMesh on the main thread is `shadow_set` (~30 ms for the spec saloon, a second apart while
-  it changes). GameQuit waits for both (`batches_running`, `shadow_running`).
+  it changes), never sooner than `SHADOW_FIRST_WAIT` (0.3 s) after the change that asks for it (it
+  landed on a blast's next frame). GameQuit waits for both (`batches_running`, `shadow_running`).
   **SpawnQueue** (`src/structures/spawn_queue.gd`, #538; one per tree, group `spawn_queue`): the
   loose bodies a break makes, `PER_TICK` (120) bodies a physics tick at most, in the order asked,
   `SOON` (a cut's flying pieces, `Structure._make_chunks`) before `LATER` (glass shards,
-  `StructureMember._make_shards`). A kit prop's blast push and tipping over stay on their tick
+  `StructureMember._make_shards`). The bodies a kit prop blown loose makes count against the tick
+  (`SpawnQueue.spent`). A kit prop's blast push and tipping over stay on their tick
   (queued, three sticks brought the spec saloon down to 450 members, not 240).
   A job that fits the tick's room with nothing ahead of it runs at once (a ball's pane shatters on
   its tick, as before). Counted in bodies, never time (World.deterministic); after every system's
@@ -1132,6 +1134,10 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
 
 ## src/blast
 
+- **Native sums** (#538): `Blast.native` (the plugin's `BlastCore`, made by ClassDB; null on the web
+  or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
+  `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the
+  same order: `test_the_native_face_sum_is_the_scripts` holds them to the bit (on Linux; CI).
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or
@@ -1785,7 +1791,8 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   --release` for its own tests): `volume.rs` (Pixel-factory's brick volume, cells per axis),
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
   `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
-  (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire").
+  (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
+  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast").
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
   world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,
