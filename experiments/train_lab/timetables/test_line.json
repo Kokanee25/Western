@@ -1,0 +1,12 @@
+{
+  "_doc": "The train lab's timetable (step 2, #551): the stops by name on the route, each with its leave time (HH:MM) or its dwell (s; arrive and leave times worked out from the sim: the engineer's own run at the schedule speed, padded by `pad` and rounded up to `round` s). `min_dwell` is the least a stop takes when he's late (the loading can't be cut shorter). Proposed numbers.",
+  "name": "lab_day",
+  "route": "test_line",
+  "pad": 0.06,
+  "round": 30,
+  "stops": [
+    {"at": "depot", "leave": "08:00"},
+    {"at": "mine", "dwell": 600, "min_dwell": 420},
+    {"at": "depot", "dwell": 0}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "_doc": "The re-laid line's timetable (step 2, #551): the same engineer, a water stop between. Nothing here says how far apart the stops are: the run times are the sim's.",
+  "name": "relaid_day",
+  "route": "relaid",
+  "pad": 0.06,
+  "round": 30,
+  "stops": [
+    {"at": "depot", "leave": "09:30"},
+    {"at": "tank", "dwell": 120, "min_dwell": 60},
+    {"at": "mine", "dwell": 480, "min_dwell": 300},
+    {"at": "tank", "dwell": 60, "min_dwell": 60},
+    {"at": "depot", "dwell": 0}
+  ]
+}

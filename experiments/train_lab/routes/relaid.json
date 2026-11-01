@@ -1,0 +1,25 @@
+{
+  "_doc": "A second, different line for the re-laying test (step 2, #551; #542 'The route can move'): longer, a right-hand S of two curves, a water tank stop between, down first and then a stiffer climb to the mine. Nothing in the lab's code knows its numbers: it is built, run and timed from this file alone.",
+  "name": "relaid",
+  "origin": [-40.0, 0.0, 120.0],
+  "heading": 160.0,
+  "length": 2300.0,
+  "plan": [
+    {"straight": 260.0},
+    {"curve": "right", "radius": 150.0, "degrees": 60.0, "spiral": 40.0},
+    {"straight": 300.0},
+    {"curve": "left", "radius": 95.0, "degrees": 45.0, "spiral": 25.0},
+    {"straight": 500.0},
+    {"curve": "right", "radius": 200.0, "degrees": 30.0, "spiral": 30.0}
+  ],
+  "profile": {
+    "vertical_curve": 80.0,
+    "grades": [[0.0, 0.0], [350.0, -1.5], [800.0, 0.0], [1150.0, 3.0], [1700.0, 0.5], [2050.0, 0.0]]
+  },
+  "marks": {
+    "depot": 180.0,
+    "tank": 980.0,
+    "mine": 2200.0
+  },
+  "stops": ["depot", "tank", "mine"]
+}

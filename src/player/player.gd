@@ -38,6 +38,11 @@ var shove: PlayerShove
 
 var _crouch_toggled := false
 var _run_latched := false
+## Riding something that moves (the train's cars, #551): its speed under him as he left it, kept
+## while he's in the air so he steers relative to it, not to the ground (a jump on a moving car
+## comes down on the car, not metres back along it).
+var _carried := Vector2.ZERO
+var _floor_moving := Vector3.ZERO
 var _eye_height := 0.0
 var _pitch := 0.0
 ## The lean's pitch now on the head (degrees), on top of your own.
@@ -286,7 +291,7 @@ func _physics_step(delta: float) -> void:
 	var on_floor := is_on_floor()
 	var horizontal := Vector2(velocity.x, velocity.z)
 	if not on_floor:
-		horizontal = horizontal.move_toward(target, tuning.air_accel * delta)
+		horizontal = (horizontal - _carried).move_toward(target, tuning.air_accel * delta) + _carried
 	else:
 		horizontal = _momentum(horizontal, target, delta)
 	velocity.x = horizontal.x
@@ -305,9 +310,27 @@ func _physics_step(delta: float) -> void:
 		velocity = keep
 	else:
 		move_and_slide()
+	_ride(on_floor)
 	_update_head(delta, falling)
 	Sight.moved(self)  # where he is now, for the lines asked after him this tick
 	_footsteps()
+
+
+## Off something moving, the engine has added its speed to his (platform_on_leave): keep it as what
+## he's carried along with in the air. Down on something moving, he's moving with it already: take
+## its speed back off his own, or he'd skid along it at its speed.
+func _ride(was_on_floor: bool) -> void:
+	var now := is_on_floor()
+	if was_on_floor and not now:
+		_carried = Vector2(_floor_moving.x, _floor_moving.z)
+	elif now and not was_on_floor:
+		var under := get_platform_velocity()
+		velocity.x -= under.x
+		velocity.z -= under.z
+		_carried = Vector2.ZERO
+	if now:
+		_floor_moving = get_platform_velocity()
+		_carried = Vector2.ZERO
 
 
 ## Steps and stairs: blocked low down (a riser, a tread's nosing, a porch step), try the same move

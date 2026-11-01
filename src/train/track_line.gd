@@ -23,8 +23,12 @@ var tuning: TrainTuning
 var ground_y: Callable = func(_x: float, _z: float) -> float: return 0.0
 ## Where the rail top starts above the ground at s = 0, m.
 var start_height := 1.0
-## Named distances along the line (stop marks): name -> s. Drawn as white boards.
+## Named distances along the line: name -> s (TrackRoute's marks). The stops are drawn as white
+## boards, the rest as plain posts.
 var marks: Dictionary = {}
+var stops: Array = []
+## The route this line was laid from (TrackRoute), "" for one made in code.
+var route_name := &""
 ## Chunks of the drawn track, m.
 const CHUNK := 100.0
 const STEP := 1.0  # the alignment's sampling, m
@@ -165,7 +169,7 @@ func build() -> void:
 	for n in chunks:
 		_build_chunk(n * CHUNK, minf((n + 1) * CHUNK, length), t, n)
 	for mark_name in marks:
-		_build_mark(String(mark_name), float(marks[mark_name]))
+		_build_mark(String(mark_name), float(marks[mark_name]), stops.is_empty() or stops.has(mark_name))
 
 
 func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
@@ -223,7 +227,9 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		mi.material_override = pair[1]
 		chunk.add_child(mi)
 		var cs := CollisionShape3D.new()
-		cs.shape = mesh.create_trimesh_shape()
+		var tri := mesh.create_trimesh_shape()
+		tri.backface_collision = true  # the sweep's faces are drawn both sides; things stand on either
+		cs.shape = tri
 		body.add_child(cs)
 	st_rail.generate_normals()
 	var rail_mi := MeshInstance3D.new()
@@ -281,7 +287,12 @@ func _quad(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3) -> v
 	st.add_vertex(c)
 
 
-func _build_mark(mark_name: String, s: float) -> void:
+## Where a named mark is along the line (m), or NAN if there's none of that name.
+func mark(mark_name: StringName) -> float:
+	return float(marks[mark_name]) if marks.has(mark_name) else NAN
+
+
+func _build_mark(mark_name: String, s: float, stop := true) -> void:
 	var f := transform_at(s)
 	var post := MeshInstance3D.new()
 	post.name = "Mark_" + mark_name
@@ -292,6 +303,8 @@ func _build_mark(mark_name: String, s: float) -> void:
 	post.transform = f
 	post.position += f.basis.x * 2.6 + f.basis.y * 0.8
 	add_child(post)
+	if not stop:
+		return
 	var board := MeshInstance3D.new()
 	var bm := BoxMesh.new()
 	bm.size = Vector3(0.8, 0.5, 0.05)

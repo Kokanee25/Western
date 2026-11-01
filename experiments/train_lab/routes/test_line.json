@@ -1,0 +1,23 @@
+{
+  "_doc": "The train lab's test line (issue #543, made data in step 2, #551): 1.5 km south then east of town on the flat. Plan: a straight, a 90 degree left-hand bend of 120 m radius eased in and out by 30 m spirals, then straight to the end (the last straight runs to `length`). Profile: grades in per cent from each distance on, each change eased over `vertical_curve` m. Marks are named points along the line (m from its start): the stops (depot, mine) and the grade posts. Everything on the line hangs off these names, never off world positions.",
+  "name": "test_line",
+  "origin": [60.0, 0.0, 80.0],
+  "heading": 180.0,
+  "length": 1500.0,
+  "plan": [
+    {"straight": 400.0},
+    {"curve": "left", "radius": 120.0, "degrees": 90.0, "spiral": 30.0}
+  ],
+  "profile": {
+    "vertical_curve": 60.0,
+    "grades": [[0.0, 0.0], [750.0, 2.5], [1050.0, -2.5], [1350.0, 0.0]]
+  },
+  "marks": {
+    "depot": 120.0,
+    "climb_foot": 750.0,
+    "crest": 1050.0,
+    "descent_foot": 1350.0,
+    "mine": 1440.0
+  },
+  "stops": ["depot", "mine"]
+}
