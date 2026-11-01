@@ -134,3 +134,47 @@ func test_a_man_a_blast_hurts_takes_it_as_a_blast_not_a_ball() -> void:
 	check(said_hit.is_empty(), "no \"I'm hit!\" call")
 	check(not lines.any(func(l: String) -> bool: return (OutlawBrain.LINES[&"hit"] as Array).any(func(m: String) -> bool: return l.ends_with(m))),
 			"no \"I'm hit\": %s" % [lines.slice(-4)])
+
+
+func test_on_the_alarm_they_man_the_windows_on_your_side() -> void:
+	await _begin()
+	# Seen out front, on the lane.
+	player.global_position = Farmhouse.on_ground(3.0, -9.0) + Vector3.UP * 0.05
+	await physics_frames(2)
+	mission._alarm(mission.brains[3], player.global_position, "the test")
+	await physics_frames(60 * 3)
+	check_eq(mission.defence.where, "front", "they have you out front")
+	var spots := {}
+	for b in mission.brains:
+		spots[String(b.order.get("id", ""))] = b.body.name
+	check(spots.has("window_front_w") and spots.has("window_front_e"), "both front windows manned: %s" % [spots])
+	check(spots.has("inside_door"), "a man on the front door: %s" % [spots])
+	check(mission.guard.order.get("id", "") == "bedroom_door", "the guard on the bedroom's door (%s)" % mission.guard.order.get("id", ""))
+	# Round the back, a while: the plan follows you.
+	player.global_position = Farmhouse.on_ground(4.0, 14.0) + Vector3.UP * 0.05
+	for b in mission.brains:
+		b.senses.note(player, player.global_position, 0.5)
+	await physics_frames(60 * 3)
+	check_eq(mission.defence.where, "back", "they have you round the back")
+	var back := mission.brains.filter(func(b: OutlawBrain) -> bool: return b.order.get("id", "") in ["window_back", "kitchen_crates"])
+	check(back.size() >= 2, "the back window and the back door covered (%d)" % back.size())
+
+
+func test_with_three_out_the_rest_fall_back_to_the_bedroom() -> void:
+	await _begin()
+	player.global_position = Farmhouse.on_ground(3.0, -9.0) + Vector3.UP * 0.05
+	await physics_frames(2)
+	mission._alarm(null, player.global_position, "the test")
+	await physics_frames(30)
+	var others := mission.brains.filter(func(b: OutlawBrain) -> bool: return b != mission.guard)
+	# A steady last man (three friends dying round him, a man of ordinary nerve gives up or runs).
+	(others[3] as OutlawBrain).nerve = 9.0
+	for b: OutlawBrain in others.slice(0, 3):
+		b.body.physiology.alive = false
+		b.body.go_limp(Vector3.ZERO)
+	await physics_frames(60 * 2)
+	check(mission.defence.last_stand, "the last stand")
+	var last: OutlawBrain = others[3]
+	check(String(last.order.get("id", "")) in ["bedroom_corner", "bedroom_bed"], "the last of them to the bedroom (%s)" % last.order.get("id", ""))
+	check(lines.any(func(l: String) -> bool: return (HouseDefence.CALLS["last_stand"] as Array).any(func(m: String) -> bool: return l.ends_with(m))),
+			"someone calls it: %s" % [lines.slice(-6)])
