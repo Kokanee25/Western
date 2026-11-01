@@ -162,8 +162,40 @@ func test_the_face_sum_is_the_plain_one_to_the_bit() -> void:
 		if Blast.face_impulse(m, at, kg, 0.3, c) == _face_reference(m, at, kg, 0.3, c):
 			n += 1
 		most_ok = most_ok and Blast.face_impulse(m, at, kg) <= Blast.most_face_impulse(m, at, kg) * (1.0 + 1e-9)
-	check_eq(n, 240, "face_impulse is the plain sum exactly, whole and windowed")
+	check_eq(n, 240, "face_impulse is the plain sum exactly, whole and windowed (%s)" % ("native" if Blast.native else "script"))
 	check(most_ok, "and never more than most_face_impulse (what KitProp skips a blast by)")
+
+
+## The plugin's sums (BlastCore, #538) against the script's own: the same to the bit, so the same
+## boards break and are cut the same with it or without (the web runs without).
+func test_the_native_face_sum_is_the_scripts() -> void:
+	if Blast.native == null:
+		check(true, "no plugin here: the script's sums are the game's")
+		return
+	var store := await _store()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5380
+	var members := store.get_members()
+	var timber: TimberTuning = load("res://config/timber.tres")
+	var faces := 0
+	var cuts := 0
+	var cut_some := 0
+	var native: Object = Blast.native
+	for i in 150:
+		var m := members[rng.randi() % members.size()]
+		var at := m.global_position + Vector3(rng.randf_range(-1.5, 1.5), rng.randf_range(-1, 1), rng.randf_range(-1.5, 1.5))
+		var kg := rng.randf_range(0.05, 1.5)
+		var c := rng.randf_range(-1.0, 1.0)
+		var a := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = null
+		var b := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = native
+		faces += int(a[0] == b[0]) + int(a[1] == b[1])
+		cuts += int(a[2] == b[2])
+		cut_some += int((b[2] as Vector2).y > (b[2] as Vector2).x)
+	check_eq(faces, 300, "the native face sum is the script's to the bit, whole and windowed")
+	print("  native vs script: %d faces, %d stretches the same, %d of them torn" % [faces, cuts, cut_some])
+	check_eq(cuts, 150, "and the stretch it tears out the same (%d of them a stretch)" % cut_some)
 
 
 # --- Buildings --------------------------------------------------------------------------------------

@@ -307,9 +307,9 @@ func _leave_batch() -> void:
 
 
 ## In a PropBatch: anything happening to a member, or to it (moved, hidden), and it draws itself.
-func unbatch(m: StructureMember, soon := false) -> void:
+func unbatch(m: StructureMember, soon := false, aside := false) -> void:
 	_leave_batch()
-	super.unbatch(m, soon)
+	super.unbatch(m, soon, aside)
 
 
 ## Heated or charred: drawn by its own batches, which carry the char (Structure.show_fire).
@@ -770,6 +770,12 @@ func _blast_push(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	# (The shards and pieces waiting make way, #538: by its members, each a mesh and a shape moved
+	# into its body, as a shard is a body made, not by its bodies, a dozen members one of them.)
+	var cost := 0
+	for rb in bodies:
+		cost += (rb.get_meta(&"members", []) as Array).size()
+	SpawnQueue.spent(self, cost)
 	# What actually moves: what it held may have run out as it went (a full barrel blown open).
 	if contents and contents.released:
 		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())

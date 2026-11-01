@@ -221,6 +221,28 @@ func realise() -> void:
 	move_child(cs, 1)
 
 
+## Its mesh and shape nodes out of the tree, for a body of its own (it's going loose,
+## Structure._drop), in the order they hang under it (its mesh, its shape, then any others), each
+## with its transform as it is under the member. At rest, the pair kept aside as they are: put back
+## under the member only to be moved again was a kit prop's going loose twice over (#538).
+func take_parts() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	if _rest_mesh:
+		out.append(_rest_mesh)
+		out.append(_rest_shape)
+		_rest_mesh = null
+		_rest_shape = null
+		remove_shape_owner(_rest_owner)
+		_rest_owner = -1
+	for c in get_children():
+		if c is MeshInstance3D or c is CollisionShape3D:
+			out.append(c as Node3D)
+	for c in out:
+		if c.get_parent() == self:
+			remove_child(c)
+	return out
+
+
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PREDELETE:
 		return
@@ -462,9 +484,11 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	# The shards cut whoever's close.
 	var excl: Array[RID] = [get_rid()]
 	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
-	if GameAudio.enabled():
+	# (As many panes a tick a building as can sound at once: the rest weren't heard anyway, #538.)
+	var sounds := not get_parent() is Structure or (get_parent() as Structure).under_this_tick(&"glass", GameAudio.t().breaking_limit)
+	if sounds and GameAudio.enabled():
 		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
-	else:
+	elif sounds:
 		var snd := AudioStreamPlayer3D.new()
 		snd.stream = SynthSounds.get_sound(&"glass")
 		snd.unit_size = 6.0

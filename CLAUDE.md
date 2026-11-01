@@ -645,12 +645,15 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
-- **The blast's own frame** (#538, branch `claude/gameplay-blast-frame`; results
-  `experiments/blast_freeze/results/2026-11-01_blast_frame/`): `SpawnQueue` makes shards and cut
-  pieces 120 bodies a tick; kit props' blast handler, Fittings and `Blast.face_impulse` made cheap;
-  a small building's first analysis sliced. Saloon stick 305 -> ~110 ms here, street ~480 -> ~165;
-  the lab's pair the same. Left (#538 open): the street's frame ~110 at Sean's, the frame after
-  (kit props' push), `shadow_set`.
+- **The blast's own frame** (#538; PR #548, then #559 rounds 2-3, branch `claude/538-part-2-7zqn44`;
+  results `experiments/blast_freeze/results/2026-11-01_blast_frame/`, `..._blast_frame_3/`):
+  `SpawnQueue` (120 bodies a tick; a kit prop charged by its members), `BlastCore` (native face
+  sums), the shadow's 0.3 s wait, kit props' members straight into their bodies, a break during a
+  sliced settle queued, cracks and panes to the voice limit. One stick at Sean's: saloon ~68 / next
+  ~73, street ~80 / ~70; three sticks' worst saloon ~85, street ~115 (over). Left (#538 open): the
+  street's second stick (the settle's first round, the gather over ~700 loose bodies); 50 fps is back
+  ~0.5 s (saloon) / ~0.9 s (street), the building coming down. Trap: `test_settle_incremental`'s
+  worker/main pair flakes ~1 in 6-8 on 2 cores, main too (#560).
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

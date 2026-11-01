@@ -84,6 +84,7 @@ const DROP_PER_ROUND := 40
 var _settle_pending := false
 var _sound_cooldown := 0.0
 var _heard := {}  # what -> the tick it was last heard (first_this_tick)
+var _heard_n := {}  # what -> Vector2i(tick, how many so far that tick) (under_this_tick)
 ## While break_members runs: the cuts' wakes, done together at its end (else null).
 var _wakes: Variant = null
 var _rng := RandomNumberGenerator.new()
@@ -102,6 +103,9 @@ var _batch_dirty := {}
 ## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
 ## 60 ms on the main thread for the spec saloon, every frame something broke, 2026-10-25).
 const SHADOW_REBUILD_GAP := 1.0
+## The shadow mesh is made again this long (s) after the first change that asks for it at the soonest.
+const SHADOW_FIRST_WAIT := 0.3
+var _shadow_timed := false
 var _shadow_task := -1
 var _shadow_wanted := false
 var _shadow_last := -INF
@@ -648,10 +652,12 @@ static func char_material(look: Vector2) -> ShaderMaterial:
 
 ## Draw this member on its own from now on (something's happened to it). `soon` (the fire's
 ## heating, a member at a time all over a burning building): its batch is rebuilt without it at
-## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
-func unbatch(m: StructureMember, soon := false) -> void:
+## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile. `aside`: its nodes
+## left aside if it's resting (they're taken for a body of its own next: StructureMember.take_parts).
+func unbatch(m: StructureMember, soon := false, aside := false) -> void:
 	RubbleRest.touch(m)  # (its pieces lying at rest in a cell are their bodies' own again)
-	m.realise()
+	if not aside:
+		m.realise()
 	if not _batched.has(m):
 		return
 	var key: Array = _batched[m]
@@ -661,7 +667,7 @@ func unbatch(m: StructureMember, soon := false) -> void:
 	(_batch_members.get(key, []) as Array).erase(m)
 	_dirty_batch(key)
 	_own_fire_look(m)  # charred, it stays charred
-	var mi := m.get_child(0) as MeshInstance3D
+	var mi := m.drawn_node()
 	if soon:
 		_show_after[m] = key
 		if not _rebuild_timed and not _rebuild_queued and is_inside_tree():
@@ -1016,11 +1022,16 @@ func _shadow_soon() -> void:
 	_shadow_wanted = true
 	if _shadow_task >= 0 or not is_inside_tree() or GameQuit.quitting:
 		return
-	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), 0.0)
-	if wait > 0.0:
-		get_tree().create_timer(wait, true, true).timeout.connect(_shadow_start)
-	else:
-		_shadow_start()
+	if _shadow_timed:
+		return  # (one timer at a time: a blast asks hundreds of times)
+	# Never at once: a break comes with more on its heels (a stick's ~70 members, then the bodies it
+	# throws), and the mesh made on the main thread (~30 ms for the spec saloon) landed on the
+	# blast's next frame (#538). SHADOW_FIRST_WAIT later, it takes them all.
+	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), SHADOW_FIRST_WAIT)
+	_shadow_timed = true
+	get_tree().create_timer(wait, true, true).timeout.connect(func() -> void:
+		_shadow_timed = false
+		_shadow_start())
 
 
 func _shadow_start() -> void:
@@ -1197,10 +1208,12 @@ func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 	var first_over := SLICED_ABOVE if not first_sliced else int(budget_ms * MEMBERS_A_MS)
 	if budget_ms < INF and ((not _analysis_valid and _order.size() > first_over) \
 			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
-			or _dirty.size() > SETTLE_DIRTY_NOW):
+			or _dirty.size() > SETTLE_DIRTY_NOW or _settling_sliced()):
 		# No analysis of it yet and it's big (the first is every member), one in progress a slice a
-		# frame with much still to do (the fire's routine look), or many changed members waiting: a
-		# slice a frame for this too.
+		# frame with much still to do (the fire's routine look), many changed members waiting, or
+		# it's coming down a slice a frame already (a blast's settle, handed on: a piece of it
+		# landing on a joist was a whole round on the frame after a stick, #538): a slice a frame
+		# for this too.
 		var fire := FireSystem.find(get_tree())
 		if fire and fire.queue_settle(self):
 			return changed
@@ -1221,6 +1234,12 @@ func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 			if fire and fire.queue_settle(self):
 				break
 	return changed
+
+
+## The fire's queue settling it already, a slice a frame (FireSystem.settling).
+func _settling_sliced() -> bool:
+	var fire := FireSystem.find(get_tree())
+	return fire != null and fire.settling(self)
 
 
 ## One round of settling from an analysis of it as it stands: the worst overloaded member snaps,
@@ -1531,23 +1550,32 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 					left.erase(n)
 					stack.append(n)
 		fallen.append_array(clump)
-		var rb := _new_rubble(clump)
+		# Made up whole before it goes in (its shapes and meshes in it as it enters the world, not
+		# each one added to a body already there: a kit prop's ~20 members, #538).
+		var rb := _new_rubble(clump, false)
 		var first := get_member(clump[0])
-		rb.global_transform = Transform3D(Basis(), first.global_position)
+		var at := Transform3D(Basis(), first.global_position)
+		var host := _rubble_host() as Node3D
+		rb.transform = host.global_transform.affine_inverse() * at if host else at
+		var to_rb := at.affine_inverse()
 		var mass := 0.0
 		for id in clump:
 			var m := get_member(id)
-			unbatch(m)
+			unbatch(m, false, true)
 			m.broken = true
 			mark_dirty(id)
 			mass += m.weight(tuning) / 9.81
-			for c in m.get_children():
-				if c is MeshInstance3D or c is CollisionShape3D:
-					c.reparent(rb, true)
+			# Its mesh and shape into the body where they are (as reparent(rb, true) put them).
+			var at_m := m.global_transform
+			for c in m.take_parts():
+				c.transform = to_rb * (at_m * c.transform)
+				rb.add_child(c)
 				if c is CollisionShape3D and not (c as CollisionShape3D).shape is BoxShape3D:
 					# Carved (concave): a moving body takes its box, as in _snap, or it falls
 					# through the ground (a blasted sign, the nightly soak, 2026-10-13).
 					(c as CollisionShape3D).shape = _box_shape(m.size)
+		_enter_rubble(rb)
+		for id in clump:
 			Events.member_broken.emit(id)
 		if not has_solid_shape(rb):
 			# Only shattered glass or burnt-away members: no shape to land with (it'd fall for ever).
@@ -1613,7 +1641,8 @@ static func has_solid_shape(body: Node) -> bool:
 		return c is CollisionShape3D and not (c as CollisionShape3D).disabled and not c.is_queued_for_deletion())
 
 
-func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
+## `enter`: into the world now (else it's made up first: _enter_rubble).
+func _new_rubble(ids: Array[StringName], enter := true) -> RigidBody3D:
 	var rb := RigidBody3D.new()
 	rb.name = "Rubble"
 	rb.collision_layer = Layers.WORLD
@@ -1627,12 +1656,22 @@ func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
 	pm.bounce = 0.05
 	rb.physics_material_override = pm
 	rb.add_to_group(&"rubble")
-	var host: Node = get_parent() if get_parent() else self
-	host.add_child(rb)
+	if enter:
+		_enter_rubble(rb)
+	return rb
+
+
+## Where a piece of it's put when it falls (its parent, else itself).
+func _rubble_host() -> Node:
+	return get_parent() if get_parent() else self
+
+
+## A new piece into the world, one of its rubble.
+func _enter_rubble(rb: RigidBody3D) -> void:
+	_rubble_host().add_child(rb)
 	rb.body_entered.connect(_on_rubble_hit.bind(rb))
 	rubble.append(rb)
 	RubbleRest.watch(rb)
-	return rb
 
 
 func _physics_process(delta: float) -> void:
@@ -1732,6 +1771,15 @@ func first_this_tick(what: StringName) -> bool:
 	return true
 
 
+## Fewer than `n` of `what` so far this tick (and one more counted).
+func under_this_tick(what: StringName, n: int) -> bool:
+	var tick := Engine.get_physics_frames()
+	var seen: Vector2i = _heard_n.get(what, Vector2i(-1, 0))
+	seen = Vector2i(tick, 1) if seen.x != tick else Vector2i(tick, seen.y + 1)
+	_heard_n[what] = seen
+	return seen.y <= n
+
+
 func _play(id: StringName, at: Vector3) -> void:
 	if not is_inside_tree():
 		return
@@ -1739,6 +1787,10 @@ func _play(id: StringName, at: Vector3) -> void:
 	# everyone in earshot, #538): what's heard is that timber broke there.
 	if first_this_tick(&"timber"):
 		Events.noise.emit(at, 60.0, &"timber", null)
+	# As many of a sound a tick a building as can sound at once (GameAudio's voice limit): a stick's
+	# ~30 cuts were 30 players made, sorted against the rest and placed by rays, to be dropped (#538).
+	if not under_this_tick(id, GameAudio.t().breaking_limit):
+		return
 	if GameAudio.enabled():
 		GameAudio.play(self, id, at, {"unit_size": 10.0, "limit": GameAudio.t().breaking_limit})
 		return

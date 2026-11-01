@@ -16,6 +16,11 @@ class_name Blast
 const P_ATM := 101.325  # kPa
 
 static var tuning: BlastTuning
+## The plugin's BlastCore (blast.rs), which takes face_impulse's and torn_stretch's loops over the
+## samples (the same sums: test_dynamite holds them equal); null on the web, or with
+## `-- --blast-core=script`, and the script's own sums run.
+static var native: Object = ClassDB.instantiate(&"BlastCore") \
+		if ClassDB.class_exists(&"BlastCore") and not "--blast-core=script" in OS.get_cmdline_user_args() else null
 static var _rng := RandomNumberGenerator.new()
 
 
@@ -412,6 +417,8 @@ static func face_impulse(m: StructureMember, at: Vector3, kg: float, window := I
 	var out := _out_from_face(m, at)
 	var w3 := pow(maxf(kg, 1e-4), 1.0 / 3.0)
 	var strong := t().reflection_strong
+	if native:
+		return native.call(&"face_sum", length, width, t0, perp, out, w3, strong, window, 0.0 if is_nan(center) else center, not is_nan(center))
 	var ts: Array[float] = []
 	for o: float in FACE_OFFSETS:
 		var t := clampf(t0 + o, -half, half)
@@ -478,6 +485,13 @@ static func torn_stretch(m: StructureMember, at: Vector3, kg: float, timber: Tim
 	var fb: float = wood.bending
 	var capacity := fb * fb / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor * share
 	var near := clampf((at - m.global_position).dot(m.axis()), -half, half)
+	if native:
+		# (face_impulse's measures of the member, the search over them natively: a dozen windows.)
+		var width := maxf(cs.x, cs.y)
+		var ends: PackedFloat64Array = native.call(&"torn_ends", length, width, near, _nearest_on(m, at).distance_to(at),
+				_out_from_face(m, at), pow(maxf(kg, 1e-4), 1.0 / 3.0), tn.reflection_strong, span, mass, share, capacity,
+				near, break_reach(kg), CUT_STEP)
+		return Vector2(clampf(ends[0] - span * 0.5, -half, half), clampf(ends[1] + span * 0.5, -half, half))
 	var over := func(tc: float) -> bool:
 		var j := face_impulse(m, at, kg, span, tc)
 		return j * j / (2.0 * mass * share) > capacity
