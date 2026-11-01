@@ -46,6 +46,13 @@ Measured (scripted runs, 4 seeds a way; each round's `summary.md`):
 | r3 | before the squad (the bot's routes in sight of the porch) | 0/4 | 0/4 | 0/4 | 8/12 |
 | r5 | the squad; the bot's routes fixed | 2/4 | 1/4 | 2/4 | 12/12 (the guard's shots at his chest didn't kill) |
 | r6 | the last stand, the guard shoots to kill, the quiet way round the north | 2/4 | 2/4 | 0/4 | 10/12 |
+| **r7** | **final**: the rancher's safe 40 m off; the same seeds as r6 run for run (front, back): deterministic | **2/4** | **4/4** | **0/4** | **10/12** |
+
+Through the back the scripted player clears the house fast (Hollis, Lyle, Dutch, the Kid) and the
+guard, the last man, kills the rancher 5 s after his threat, before it's through the bedroom door
+(`threat_seconds`, `shoot_after_alarm`: Sean's dials). The scripted player's seed changes little
+(its aim): with the world deterministic the runs of a way mostly come out alike. A person plays
+better and worse than it: the films and the playtest are the judge of how it plays.
 
 The alarm comes at 17 s through the front (the Kid sees you on the lane), at 64-68 s the quiet
 ways (a fuse's hiss, or Hollis seeing you at the back door). Frames (headless here, the fight):
