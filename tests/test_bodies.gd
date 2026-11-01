@@ -899,3 +899,22 @@ func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
 	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
 	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
 	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")
+
+
+func test_a_realistic_mans_cards_draw_a_soft_fringe_and_skin_soft_unless_left_out() -> void:
+	# #547 step 3: a realistic test man's hair, beard and brow cards are a cut core and a blended
+	# fringe (its next pass); his skin's light wraps round. Each can be left out (the before/after).
+	var hair := PeopleBodies._realistic_material(&"no_such_man", "beard", {"alpha": true, "cut": 0.3})
+	check(PeopleBodies.is_realistic(hair), "the card is a realistic material")
+	check(hair.next_pass != null and (hair.next_pass as ShaderMaterial).shader == PeopleBodies.REALISTIC_FRINGE,
+			"the fringe is the card's next pass")
+	check_near(float(hair.get_shader_parameter(&"alpha_cut")), 0.6, 1e-4, "the core keeps only what's near solid")
+	check_near(float(hair.get_shader_parameter(&"spec_strength")), 0.06, 1e-4, "a beard's highlight is a third of hair's")
+	PeopleBodies.set_real_off(hair, PackedStringArray(["fringe", "highlight"]))
+	check(hair.next_pass == null, "no fringe when it's left out")
+	check_near(float(hair.get_shader_parameter(&"alpha_cut")), 0.3, 1e-4, "and the card is cut where round 1 cut it")
+	check_near(float(hair.get_shader_parameter(&"spec_strength")), 0.0, 1e-4, "no highlight when it's left out")
+	var skin := PeopleBodies._realistic_material(&"no_such_man", "skin", {"soft": true})
+	check(bool(skin.get_shader_parameter(&"soft_skin")), "his skin is soft")
+	PeopleBodies.set_real_off(skin, PackedStringArray(["soft"]))
+	check(not bool(skin.get_shader_parameter(&"soft_skin")), "and not when it's left out")

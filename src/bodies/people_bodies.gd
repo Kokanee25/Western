@@ -148,30 +148,89 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 
 
 const REALISTIC_SHADER := preload("res://src/bodies/shaders/realistic_person.gdshader")
+const REALISTIC_HAIR := preload("res://src/bodies/shaders/realistic_hair.gdshader")
+const REALISTIC_FRINGE := preload("res://src/bodies/shaders/realistic_hair_fringe.gdshader")
+
+
+## A realistic test man's material (skin, cloth or hair: no wounds are cut in it).
+static func is_realistic(m: ShaderMaterial) -> bool:
+	return m.shader in [REALISTIC_SHADER, REALISTIC_HAIR]
+
+
+## What of #547's step 3 is left out (for its before/after pairs; `-- --real-off=fringe+highlight+soft`,
+## or live by the realistic men lab's bridge command `real_off`): fringe, the cards' blended soft
+## edge; highlight, the strands' highlights; soft, the soft skin and the light through him.
+static func _real_off() -> PackedStringArray:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--real-off="):
+			return a.substr(11).split("+")
+	return PackedStringArray()
 
 
 ## A realistic shape's material: <model>_<shape>.png (colour, with alpha for cards),
 ## <model>_<shape>_normal.png and <model>_<shape>_rough.png where they exist; `opts` from his report
-## (alpha, cut, roughness, specular, normal_strength, backlight).
+## (alpha, cut, core, roughness, specular, normal_strength, backlight, soft). A shape with alpha
+## (hair, beard, brows, lashes) is drawn by the hair shaders: its core, then its blended fringe as
+## the next pass (#547 step 3).
 static func _realistic_material(model: StringName, shape: String, opts: Dictionary) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
-	m.shader = REALISTIC_SHADER
 	var albedo := TEXTURE_PATH % [model, shape]
-	if ResourceLoader.exists(albedo):
-		m.set_shader_parameter(&"albedo_tex", load(albedo))
-	var normal := TEXTURE_PATH % [model, shape + "_normal"]
-	if ResourceLoader.exists(normal):
-		m.set_shader_parameter(&"normal_tex", load(normal))
-		m.set_shader_parameter(&"use_normal", true)
-	var rough := TEXTURE_PATH % [model, shape + "_rough"]
-	if ResourceLoader.exists(rough):
-		m.set_shader_parameter(&"rough_tex", load(rough))
-		m.set_shader_parameter(&"use_rough", true)
-	m.set_shader_parameter(&"use_alpha", bool(opts.get("alpha", false)))
-	for k: String in ["cut", "roughness", "specular", "normal_strength", "backlight"]:
-		if opts.has(k):
-			m.set_shader_parameter(StringName("alpha_cut" if k == "cut" else k), float(opts[k]))
+	if bool(opts.get("alpha", false)):
+		m.shader = REALISTIC_HAIR
+		if ResourceLoader.exists(albedo):
+			m.set_shader_parameter(&"albedo_tex", load(albedo))
+		for k: String in ["roughness", "backlight"]:
+			if opts.has(k):
+				m.set_shader_parameter(StringName(k), float(opts[k]))
+		var f := ShaderMaterial.new()
+		f.shader = REALISTIC_FRINGE
+		for p: Dictionary in REALISTIC_HAIR.get_shader_uniform_list():
+			f.set_shader_parameter(p.name, m.get_shader_parameter(p.name))
+		# The core keeps only what's near solid; the fringe draws the rest, blended. Without the
+		# fringe, the core is cut where round 1 cut the cards.
+		# The highlights: full on scalp hair's long strands; a third on beard, brows and lashes, whose
+		# short curled strands make no one sheen (full, the rancher's grey beard went white).
+		var h := float(opts.get("highlight", 1.0 if shape == "hair" else 0.3))
+		m.set_meta(&"real", {"cut": float(opts.get("cut", 0.5)), "core": float(opts.get("core", 0.6)), "fringe": f,
+				"spec": 0.2 * h, "spec2": 0.3 * h})
+	else:
+		m.shader = REALISTIC_SHADER
+		if ResourceLoader.exists(albedo):
+			m.set_shader_parameter(&"albedo_tex", load(albedo))
+		var normal := TEXTURE_PATH % [model, shape + "_normal"]
+		if ResourceLoader.exists(normal):
+			m.set_shader_parameter(&"normal_tex", load(normal))
+			m.set_shader_parameter(&"use_normal", true)
+		var rough := TEXTURE_PATH % [model, shape + "_rough"]
+		if ResourceLoader.exists(rough):
+			m.set_shader_parameter(&"rough_tex", load(rough))
+			m.set_shader_parameter(&"use_rough", true)
+		for k: String in ["roughness", "specular", "normal_strength"]:
+			if opts.has(k):
+				m.set_shader_parameter(StringName(k), float(opts[k]))
+		# Light through him: only a trace (no thickness map, so it can't tell an ear from a cheek: at
+		# the report's round 1 backlight, 0.15, the sun behind him laid a red patch across his face).
+		m.set_meta(&"real", {"soft": bool(opts.get("soft", false)), "backlight": float(opts.get("through", 0.02))})
+	set_real_off(m, _real_off())
 	return m
+
+
+## A realistic material with `off` (fringe, highlight, soft) of #547 step 3 left out, the rest in.
+static func set_real_off(m: ShaderMaterial, off: PackedStringArray) -> void:
+	var r: Dictionary = m.get_meta(&"real", {})
+	if m.shader == REALISTIC_HAIR:
+		var fringe := not off.has("fringe")
+		var lit := not off.has("highlight")
+		var f := r.fringe as ShaderMaterial
+		m.next_pass = f if fringe else null
+		for mat: ShaderMaterial in [m, f]:
+			mat.set_shader_parameter(&"alpha_cut", r.core if fringe else r.cut)
+			mat.set_shader_parameter(&"spec_strength", r.spec if lit else 0.0)
+			mat.set_shader_parameter(&"spec2_strength", r.spec2 if lit else 0.0)
+	elif m.shader == REALISTIC_SHADER:
+		var soft := not off.has("soft")
+		m.set_shader_parameter(&"soft_skin", soft and bool(r.soft))
+		m.set_shader_parameter(&"backlight", float(r.backlight) if soft else 0.0)
 
 
 ## Where his shoulder helpers' binds are (after the anatomy's bones and his finger bones), or -1

@@ -70,3 +70,57 @@ them, their faces in the game.
 
 A realistic style would mean the game's lighting and render settings reworked for it, not only
 its people.
+
+## Round 2 (#547): steps 1 to 3
+
+Sheets in `round2/` (renders only; made by `make_round2_sheet.py` from `real_shots.py`'s game
+shots: the men in the saloon at 21:30 and the street at 14:00, faces at 0.9 m and half figures at
+2.2 m, and their Blender renders by Studio `hg_render.py`).
+
+**Step 1, the conversion's faults** (`round2/step1_rancher.jpg`; Studio `hg_real.py`, `hg_render.py`):
+- No beard or brows painted on the skin any more; only the scalp's hair under the hair cards.
+- Strand colours measured in his Blender render: masks of his hair, beard and brows (flat
+  renders), the strands lit alone, his skin's base colour. Each strand's lit colour over his
+  skin's, times the skin's base colour, is the base colour a strand texture needs beside the same
+  skin. The rancher's cards now match it to 0.005: hair 0.28, beard 0.30, brows 0.21 sRGB (round 1:
+  hair 0.42 picked by hand, beard 0.24, brows 0.22).
+- Round 1's near-black beard and brows were the paint under the caps, not the caps' colour.
+- Blender's view (AgX) compresses his very bright skin, so there his hair looks lighter than its
+  measure: in Blender's frame the hair is 0.60 of the skin's brightness, in the game's street shot
+  about 0.55. What's left of "too dark" is the game's light on faces (step 4), and solid cards
+  (step 3).
+
+**Step 2, the cowboy remade with Human Generator's own face** (`hg_real_cowboy2`, `round2/step2_cowboy.jpg`):
+- Its Julius's face (the most rugged of its men) with the sliders moved to his brief: a squarer
+  jaw and chin, heavier brow, leaner cheeks, age 42, deep wrinkles. No landmark warp.
+- Its Medium Side Part cut to the collar, heavier brows, the mutton-chops, a measured dark brown.
+- Found: its face sliders move a face only millimetres (jaw_width from -0.56 to -1.0 moves 2.5 mm
+  at most), so three slider sets rendered alike; its face is mostly its base mesh, skin and age.
+  He reads younger and softer than the brief in Blender, and darker and rounder in the game.
+- In Blender his trousers render tan, though their recoloured base colour (what the game gets) is
+  dark brown: its trouser material colours them by more than that input. Not chased.
+
+**Step 3, the game drawing them better, people only** (`round2/step3_pairs.jpg`, one pair a
+change, each shot in the same moment by the lab's `real_off`; `experiments/realistic_men/bridge.gd`):
+- **Soft hair edges:** `realistic_hair.gdshader` draws each card's near-solid core (alpha over 0.6,
+  writing depth, casting shadows), and `realistic_hair_fringe.gdshader` (its next pass) blends the
+  thin strands round it, writing no depth. Not alpha to coverage: the game draws no MSAA. The hair
+  reads fuller, and the brows and the beard's edge softer.
+- **Strand highlight:** Kajiya-Kay with Scheuermann's two shifted highlights (a white one and one in
+  the hair's colour), along the strand's direction from the card's UVs. Full on scalp hair, a third
+  on beard and brows: at full, the rancher's grey beard went white.
+- **Soft skin:** the diffuse light wrapped past the terminator per channel, red furthest (Green,
+  GPU Gems 1 ch. 16), and a trace of light through him (Barré-Brisebois and Bouchard, GDC 2011).
+  Two fixes: the first wrap (0.42 red) and a through-light at round 1's 0.15 laid a red patch across
+  the face against the sun; now 0.2/0.08/0.05 and 0.02, a faint warm edge where the sun meets the
+  face.
+- **More cards:** not needed. Human Generator's "high" density reads full once the fringe is drawn.
+- Each change can be left out: `-- --real-off=fringe+highlight+soft`, or live by the bridge's
+  `real_off`. `test_bodies` holds the switches. Skin and cloth use their own `light()` now
+  (`realistic_light.gdshaderinc`: GGX shine as Godot's, Lambert where it isn't soft).
+
+**What's still between the game and Blender** (step 4 is art's ground; ask Sean first):
+- The light on faces: the saloon's lamps turn them orange, and the street leaves them dark against
+  a bright day.
+- No tone curve like Blender's.
+- 1280x720.

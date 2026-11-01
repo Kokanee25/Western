@@ -5916,7 +5916,7 @@ func _apply_openings(segment: StringName) -> void:
 		arr.append(Vector4.ZERO)
 	for mi: MeshInstance3D in segment_pieces.get(segment, []):
 		var m := mi.material_override as ShaderMaterial
-		if m == null or m.shader == PeopleBodies.REALISTIC_SHADER:  # a realistic test man's shape (#522)
+		if m == null or PeopleBodies.is_realistic(m):  # a realistic test man's shape (#522)
 			continue
 		m.set_shader_parameter(&"wound_count", mini(list.size(), BodyInterior.MAX_OPENINGS))
 		m.set_shader_parameter(&"wounds", arr)
