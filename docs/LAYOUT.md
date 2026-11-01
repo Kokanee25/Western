@@ -623,9 +623,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (`Structure.incremental` off: the before). `overloaded()` breaks ties by id. `settle(budget_ms)`:
   rounds while the frame has budget (`SETTLE_FRAME_MS` 6, the blast's and a body impact's), then
   the FireSystem's (its queue: below); a settle with many changes waiting (`SETTLE_DIRTY_NOW`), an analysis far from done
-  (`SLICE_LEFT`) or a first analysis bigger than the frame's share (`budget_ms * MEMBERS_A_MS`
-  members, #538: Main Street's store's was ~100 ms on a stick's frame; one over `SLICED_ABOVE`
-  is also queued when built, `queue_check`) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
+  (`SLICE_LEFT`) or a big building's first (`SLICED_ABOVE`; also queued when built,
+  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
+  Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
   **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own

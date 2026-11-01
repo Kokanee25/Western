@@ -69,7 +69,8 @@ const MEMBERS_A_MS := 15
 ## built (the fire's routine look), so the first thing to break it finds one to carry over. A
 ## smaller one with none yet has it a slice a frame when a blast breaks it (`settle(...,
 ## first_sliced)`), if it's more than a budgeted settle's frame analyses (Main Street's store had
-## its whole first analysis, ~100 ms, on a stick's frame, #538); one break settles it at once.
+## its whole first analysis, ~100 ms, on a stick's frame, #538); one break settles it at once (a
+## post shot out: the porch comes down on that frame, as test_street's F11 and test_loads ask).
 const SLICED_ABOVE := 1500
 ## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
 ## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
