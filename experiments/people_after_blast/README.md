@@ -53,3 +53,18 @@ frame), not repeated in the other three (worst 11.3–12.4 ms at Sean's), and no
 over 8 ms in a run that watched for it (`dusk.txt`). The spec hall at 18:00 x1: one 107 ms frame
 (Sean's) on the ninth frame after the saloon is built, the fire's load analysis (`fire_loads`),
 a load-time cost, not dusk.
+
+## The gate (2026-11-01)
+
+- **The gunfight lab** (`run.py --scenarios=spec_hall --hours=golden --weapons=revolver
+  --styles=careful --bodies=studio --variant=D --seeds=1-10 --jobs=1`): two runs on the change,
+  `same_fight.py` 10 of 10 the same; and 10 of 10 the same as the old rule (no fight changed).
+- **The perception lab** (`run.py`, every group): 82 of 117 as expected on the change and on the
+  old rule, the tables identical line for line.
+- **`perf_bench --scene=fire --no-ablate`:** people 5.07 -> 5.05 ms at Sean's (unchanged): that
+  scene still lights three buildings directly (`FireSystem.ignite`; only the lamp's spill is behind
+  `in_play`), so ~7 townsfolk are running from the fire on a route (`n_full_fleeing` 7.4), which
+  rightly ticks every tick; trouble 10.0 -> 7.6 men, slowed 1.0 -> 1.6. The game has no such fire
+  now (#508); this lab's two scenes are the blast without it.
+- The suite: 831 passed, 0 failed (with the new `test_town_day::
+  test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly`).
