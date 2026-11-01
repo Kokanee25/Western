@@ -148,6 +148,9 @@ const POSES := {
 			&"upper_arm_r": Vector3(90, 0, 6), &"upper_arm_l": Vector3(90, 0, -6),
 			&"forearm_r": Vector3(5, 0, 0), &"forearm_l": Vector3(5, 0, 0), &"neck": Vector3(20, 0, 0),
 			&"head": Vector3(15, 0, 0)},
+	# Bladed behind a narrow post, the gun across his body (issue #531): each man's own, worked out
+	# from his dials (PostPose, `take_post`), in `post_pose`; this entry only names it.
+	&"post": {},
 }
 ## Poses lying down (the rig is turned face-down). "lie" is lying flat by choice (behind something
 ## low), and he can get up again; "prone" is down because his legs have gone.
@@ -260,6 +263,8 @@ var pose := &"stand"
 ## Staged scenes' touch on top of whatever pose he's in: segment -> extra rotation (degrees, same
 ## axes as POSES), e.g. {&"head": Vector3(0, 12, -10)} to turn his head to you and tip it.
 var pose_offsets := {}
+## The "post" pose's joints for him (PostPose.make from his dials, `take_post`).
+var post_pose := {}
 var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
@@ -2099,6 +2104,19 @@ func face(point: Vector3) -> void:
 	aim_pitch = rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
 
 
+## Blade himself behind a narrow post against `threat` (issue #531): side-on, the threat at his
+## left, the gun across his body (PostPose; `dials` his own numbers, by default drawn from his
+## seed). Turns him; face() would turn him square again. Returns the dials used.
+func take_post(threat: Vector3, dials := {}) -> Dictionary:
+	if rising or limp or prone:
+		return {}
+	var d := dials if not dials.is_empty() else PostPose.dials(rng_seed)
+	global_rotation.y = PostPose.yaw(global_position, threat, d)
+	post_pose = PostPose.make(self, d)
+	pose = &"post"
+	return d
+
+
 ## `ahead`: its maths done already this tick (`prepare`).
 func _apply_pose(delta: float, snap := false, ahead := false) -> void:
 	if not ahead:
@@ -2112,7 +2130,7 @@ func _apply_pose(delta: float, snap := false, ahead := false) -> void:
 ## `_pose_clip` / `_pose_played` for the writes.
 func _pose_maths(delta: float, snap: bool) -> void:
 	_breath += delta * breath_rate()
-	var target: Dictionary = POSES[pose]
+	var target: Dictionary = POSES[pose] if pose != &"post" else post_pose
 	var blend := 1.0 if snap else clampf(delta * 6.0, 0.0, 1.0)
 	if rising:
 		_rise_t += delta
