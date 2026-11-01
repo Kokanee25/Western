@@ -178,3 +178,46 @@ func test_with_three_out_the_rest_fall_back_to_the_bedroom() -> void:
 	check(String(last.order.get("id", "")) in ["bedroom_corner", "bedroom_bed"], "the last of them to the bedroom (%s)" % last.order.get("id", ""))
 	check(lines.any(func(l: String) -> bool: return (HouseDefence.CALLS["last_stand"] as Array).any(func(m: String) -> bool: return l.ends_with(m))),
 			"someone calls it: %s" % [lines.slice(-6)])
+
+
+func test_seen_a_way_off_with_your_gun_away_you_are_warned_off_not_shot() -> void:
+	await _begin()
+	player.global_position = Farmhouse.on_ground(3.0, -40.0) + Vector3.UP * 0.05
+	if player.weapon:
+		player.weapon.drawn = false
+	await physics_frames(2)
+	var kid: OutlawBrain = mission.brains[3]
+	mission._seen(kid, player)
+	await physics_frames(30)
+	check(mission.warned_t >= 0.0, "warned off (%s)" % [mission.timeline])
+	check(mission.alarm_t < 0.0, "not the alarm, not yet")
+	check(mission.brains.any(func(b: OutlawBrain) -> bool: return b.hold.get("warned", false)), "men to the windows on your side")
+	check(lines.any(func(l: String) -> bool: return l.begins_with("Kid:")), "the Kid calls it: %s" % [lines.slice(-4)])
+	# Come on in close: the alarm.
+	player.global_position = Farmhouse.on_ground(3.0, -6.0) + Vector3.UP * 0.05
+	await physics_frames(2)
+	mission._seen(kid, player)
+	await physics_frames(5)
+	check(mission.alarm_t >= 0.0, "closer than they'll have you: the alarm")
+
+
+func test_an_out_cold_rancher_is_cut_loose_and_dragged_out() -> void:
+	await _begin()
+	var h := mission.hostage
+	h.go_limp(Vector3.ZERO)
+	await physics_frames(60)
+	player.global_position = mission.hostage_at() + Vector3(0.0, -0.2, 0.0) + (Farmhouse.at(Vector3(6.0, 0.0, 3.0)) - Farmhouse.at(Vector3(7.3, 0.0, 2.5))).normalized() * 0.9
+	player.global_position.y = Farmhouse.at(Vector3(0, Farmhouse.FLOOR, 0)).y + 0.05
+	await physics_frames(3)
+	check(mission.claims_use(player), "E is for him, out cold as he is")
+	Input.action_press(&"shove")
+	await physics_frames(int(mission.tuning.free_hold * 60.0) + 20)
+	check(not mission.hostage_brain.tied, "cut loose")
+	var from := mission.hostage_at()
+	# Backing off toward the bedroom door with E held: he comes along by the collar.
+	for i in 90:
+		player.global_position = player.global_position.move_toward(Farmhouse.at(Vector3(6.2, Farmhouse.FLOOR, 3.2)) + Vector3.UP * 0.05, 1.0 / 60.0)
+		await physics_frames(1)
+	Input.action_release(&"shove")
+	check(mission.hostage_at().distance_to(from) > 0.5, "dragged (%.2f m)" % mission.hostage_at().distance_to(from))
+	check(player.shove.move == &"", "not a shove or a kick")

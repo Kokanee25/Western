@@ -31,6 +31,12 @@ extends Resource
 @export var safe_away := 40.0
 
 @export_group("The outlaws")
+## Seen with your gun put away further off than `warn_close` (m from the house), they warn you off
+## first; coming on after it for `warn_seconds` (s), drawing, or closer than `warn_close` is the
+## alarm; past `warn_far` (m) they stand down.
+@export var warn_close := 14.0
+@export var warn_seconds := 8.0
+@export var warn_far := 55.0
 ## A blast this near the house (m) is a breach: the alarm, and they turn to it.
 @export var breach_reach := 18.0
 ## How far (m) off a man hearing a shot or a blast places you (his guess, not your spot).

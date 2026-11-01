@@ -27,6 +27,8 @@ var blacksmith: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
+## Held out of town (the farmhouse mission on offer: FarmhouseMission._hold_the_gang).
+var hold_gang := false
 ## The riders built while the street loads and kept out of the world till they ride in (id ->
 ## HumanBody, not in the tree): building three Studio men (their meshes cut, painted faces, hands,
 ## ~1,700 nodes) took one frame of 2.4 s at ~45 s into every game (#488). `bring_gang` only adds them.
@@ -66,7 +68,7 @@ func _process(delta: float) -> void:
 
 
 func _process_step(delta: float) -> void:
-	if not _arrived:
+	if not _arrived and not hold_gang:
 		_t += delta
 		if _t >= gang_arrives or Input.is_action_just_pressed(&"debug_gang"):
 			bring_gang()

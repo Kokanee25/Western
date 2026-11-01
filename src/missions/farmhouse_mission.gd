@@ -60,6 +60,8 @@ var _idle_in := 12.0
 var _rng := RandomNumberGenerator.new()
 var _tell_t := 0.0
 var _hailed := false
+var _holding := false
+var _idle_t := 0.0
 ## Who fired last, and when (a ball into the rancher: whose it likely was).
 var _last_shooter: Node = null
 var _last_shot_t := -9.0
@@ -80,6 +82,21 @@ func _ready() -> void:
 	if start_on_load or START_ARG in OS.get_cmdline_user_args():
 		start_on_load = false
 		_begin_when_ready.call_deferred(true)
+	else:
+		_hold_the_gang.call_deferred()
+
+
+## In the game itself (not the dev bridge's, the tests' or the tools'): the gang waits out at the
+## farm while the blacksmith's word is to be had (they'd ride into town at 45 s, and with them in
+## town the mission's gone): till you've heard him, or ten minutes.
+func _hold_the_gang() -> void:
+	var scene := get_tree().current_scene
+	if scene == null or scene.scene_file_path != "res://scenes/main.tscn" or "--dev-bridge" in OS.get_cmdline_user_args():
+		return
+	var town := _town()
+	if town:
+		town.hold_gang = true
+		_holding = true
 
 
 static func of(tree: SceneTree) -> FarmhouseMission:
@@ -183,7 +200,7 @@ func begin(place_player := false) -> void:
 			p.global_position = at + Vector3.UP * 0.05
 			var to := Farmhouse.at(Vector3(4.5, 0.0, 2.6)) - at
 			p.rotation.y = atan2(-to.x, -to.z)
-	_say(tuning_line("intro"), 9.0)
+	_say(tuning_line("intro"), 10.0, true)
 
 
 func tuning_line(kind: String) -> String:
@@ -261,7 +278,7 @@ func _watch(man: HumanBody, brain: OutlawBrain) -> void:
 			return
 		brain.senses.spotted.connect(func(who: Node3D) -> void:
 			if who is Player:
-				_alarm(brain, who.global_position, "%s saw you" % man.name))
+				_seen(brain, who as Player))
 		brain.senses.heard.connect(func(at: Vector3, kind: StringName, who: Node) -> void:
 			_heard(brain, at, kind, who))).call_deferred()
 
@@ -280,6 +297,86 @@ func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> vo
 		brain.glance(at + Vector3.UP * 1.0, 4.0)
 		if kind != &"speech":
 			_look_out(at)
+
+
+## Seen. A man walking up with his gun put away, a way off, gets a warning first (they take their
+## windows, guns on him); one with his gun out, or close, or coming on after it, is the alarm.
+var warned_t := -1.0
+var _warn_from := INF
+
+
+func _seen(by: OutlawBrain, p: Player) -> void:
+	if state != State.ON or alarm_t >= 0.0:
+		return
+	var d := p.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8)))
+	var armed := p.weapon != null and p.weapon.drawn and not p.weapon is DynamiteViewmodel
+	if armed or d < tuning.warn_close or FarmhouseMission.inside(p.global_position):
+		_alarm(by, p.global_position, "%s saw you" % by.body.name)
+		return
+	if warned_t < 0.0:
+		warned_t = t
+		_warn_from = d
+		_note("%s warns you off" % by.body.name)
+		Events.spoke.emit(by.body, ["That's far enough, mister! Turn around!", "Hold it right there! Walk away, friend!", "You're on private land. Keep walking!"][_rng.randi() % 3])
+		# To the windows on your side, watching you (not shooting: not yet).
+		if defence:
+			var side := HouseDefence.place_of(p.global_position)
+			var given := 0
+			for id in defence.plans.get(side, []):
+				var sp: Dictionary = defence.spots.get(id, {})
+				if sp.is_empty() or not sp.get("window", false):
+					continue
+				var best: OutlawBrain = null
+				var best_d := INF
+				for b in brains:
+					if b == guard or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b.hold.get("warned", false):
+						continue
+					var bd := b.body.global_position.distance_to(sp.world)
+					if bd < best_d:
+						best = b
+						best_d = bd
+				if best:
+					best.hold.warned = true
+					best.hold.post_was = best.hold.post
+					best.hold.look_was = best.hold.look
+					best.hold.post = sp.world
+					best.hold.look = p.global_position + Vector3.UP * 1.0
+					given += 1
+				if given >= 2:
+					break
+
+
+## While you've been warned off: coming on, drawing, or hanging about it's the alarm; gone far
+## enough off, they stand down.
+func _warning_step() -> void:
+	if warned_t < 0.0 or alarm_t >= 0.0:
+		return
+	var p := player()
+	if p == null:
+		return
+	var d := p.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8)))
+	var armed := p.weapon != null and p.weapon.drawn and not p.weapon is DynamiteViewmodel
+	var seen := brains.any(func(b: OutlawBrain) -> bool: return _able_calm(b) and b.senses.sees(p))
+	if seen and (armed or d < tuning.warn_close or (t - warned_t > tuning.warn_seconds and d < _warn_from + 5.0)):
+		var by: OutlawBrain = null
+		for b in brains:
+			if _able_calm(b) and b.senses.sees(p):
+				by = b
+				break
+		_alarm(by, p.global_position, "you came on after the warning" if not armed else "you drew on them")
+		return
+	if d > tuning.warn_far:
+		warned_t = -1.0
+		_note("you walked off; they stand down")
+		for b in brains:
+			if b.hold.get("warned", false):
+				b.hold.post = b.hold.post_was
+				b.hold.look = b.hold.look_was
+				b.hold.erase("warned")
+
+
+func _able_calm(b: OutlawBrain) -> bool:
+	return is_instance_valid(b) and is_instance_valid(b.body) and b.body.physiology.alive and b.body.physiology.is_conscious() and not b.body.limp
 
 
 ## Something heard outside before the alarm: the nearest calm man to a window on that side goes
@@ -336,6 +433,9 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 		return
 	alarm_t = t
 	_note("the alarm: " + what)
+	for b in brains:
+		if is_instance_valid(b):
+			b.hold.erase("warned")
 	var p := player()
 	if p == null:
 		return
@@ -423,11 +523,18 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.IDLE:
 			_offer(delta)
+			_idle_t += delta
+			if _holding and _idle_t > 600.0:
+				_holding = false
+				var town := _town()
+				if town:
+					town.hold_gang = false
 		State.TELLING:
 			_telling(delta)
 		State.ON:
 			t += delta
 			_idle_talk(delta)
+			_warning_step()
 			if _looking != null and t > float(_looking_post.get("until", INF)):
 				_back_to_post()
 			_guard_step()
@@ -476,21 +583,48 @@ func _idle_talk(delta: float) -> void:
 		Events.spoke.emit(b.body, said[_rng.randi() % said.size()])  # heard as speech (DeedWatch)
 
 
-## E held by the tied man cuts him loose.
+## Where the rancher is (his chest: knocked down, out cold, his body's root can be a way off).
+func hostage_at() -> Vector3:
+	var chest := hostage.parts.get(&"chest") as Node3D if hostage.parts else null
+	return chest.global_position if chest else hostage.global_position
+
+
+## E is for the rancher by him: held, it cuts him loose; out cold and loose, held, you drag him
+## by the collar.
 func claims_use(p: Player) -> bool:
-	if state != State.ON or hostage_brain == null or not is_instance_valid(hostage) or not hostage_brain.tied:
+	if state != State.ON or hostage_brain == null or not is_instance_valid(hostage) or not hostage.physiology.alive:
 		return false
-	if not hostage.physiology.alive or p.global_position.distance_to(hostage.global_position) > tuning.free_reach:
+	if not (hostage_brain.tied or hostage.limp):
 		return false
-	return true
+	var at := hostage_at()
+	return Vector2(p.global_position.x - at.x, p.global_position.z - at.z).length() <= tuning.free_reach \
+			and absf(p.global_position.y - at.y) < 1.6
 
 
 func _rescue_step(delta: float) -> void:
 	var p := player()
 	if p == null or not claims_use(p):
 		_free_hold = 0.0
+		if hostage != null and is_instance_valid(hostage) and hostage.dragged_by == p:
+			hostage.dragged_by = null
 		return
 	_prompt -= delta
+	if not hostage_brain.tied:
+		# Loose and out cold: by the collar while E's held, backing out with him.
+		if Input.is_action_pressed(&"shove"):
+			hostage.dragged_by = p
+			var back := p.global_basis.z
+			back.y = 0.0
+			hostage.drag_toward(p.global_position + back.normalized() * 0.2 + Vector3.UP * 0.4, delta)
+			if _prompt <= 0.0:
+				_prompt = 0.5
+				_say("Dragging him...", 0.6)
+		else:
+			hostage.dragged_by = null
+			if _prompt <= 0.0:
+				_prompt = 0.5
+				_say("He's out cold. Hold E to drag him", 0.6)
+		return
 	if Input.is_action_pressed(&"shove"):
 		_free_hold += delta
 		if _prompt <= 0.0:
@@ -530,7 +664,7 @@ func _check_end() -> void:
 	_note("won")
 	hostage_brain.safe = true
 	hostage_brain.say(&"safe")
-	_say(tuning_line("won"), 10.0)
+	_say(tuning_line("won"), 10.0, true)
 
 
 func _hostage_died() -> void:
@@ -544,7 +678,7 @@ func _lose(what: StringName, line: String) -> void:
 	outcome = what
 	why = line
 	_note("lost: %s" % what)
-	_say(line + "  (Enter: try again)", 12.0)
+	_say(line + "  (Enter: try again)", 12.0, true)
 	_hold_line.call_deferred(line)
 
 
@@ -554,7 +688,7 @@ func _hold_line(line: String) -> void:
 		await get_tree().create_timer(1.0).timeout
 		if state != State.LOST:
 			return
-		_say(line + "  (Enter: try again)", 1.5)
+		_say(line + "  (Enter: try again)", 1.5, true)
 
 
 ## Again from the start: the game started over (GameReset), the mission on from the edge of town.
@@ -605,10 +739,10 @@ func _telling(delta: float) -> void:
 
 # --- Telling ------------------------------------------------------------------------------------
 
-func _say(text: String, seconds: float) -> void:
+func _say(text: String, seconds: float, hold := false) -> void:
 	var p := player()
 	if p and p.wounds and text != "":
-		p.wounds.say(text, seconds)
+		p.wounds.say(text, seconds, hold)
 
 
 func _note(what: String) -> void:
