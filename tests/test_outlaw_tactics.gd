@@ -485,12 +485,13 @@ func test_watching_he_stays_behind_his_cover_in_the_fight() -> void:
 ## his head; one round the corner out of earshot he doesn't.
 func test_he_hears_a_planted_fuse() -> void:
 	await _outlaw(Vector3(0, 0, -10))
-	var near := DynamiteStick.make(world, Vector3(3.0, 0.02, -10.0), Vector3.ZERO, 60.0)
+	# 2 m off: a hiss carries 3 m from the stick to his ears (issue #537), his eyes 1.6 m up.
+	var near := DynamiteStick.make(world, Vector3(2.0, 0.02, -10.0), Vector3.ZERO, 60.0)
 	near.planted = true
 	near.light()
 	await physics_frames(70)
 	var heard := float(brain.fear_from.get(&"a fuse hissing", 0.0))
-	check(heard > 0.0, "a fuse 3 m off frightens him (%.2f)" % heard)
+	check(heard > 0.0, "a fuse 2 m off frightens him (%.2f)" % heard)
 	near.queue_free()
 	brain.fear_from.erase(&"a fuse hissing")
 	var far := DynamiteStick.make(world, Vector3(30.0, 0.02, -10.0), Vector3.ZERO, 60.0)

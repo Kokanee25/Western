@@ -335,6 +335,11 @@ func _people() -> Array[Node]:
 	return out
 
 
+## How much of a sound's reach gets through a wall: half, but a fuse's hiss (a planted stick,
+## issue #537) none: only a man on its side of the wall hears it.
+const THROUGH_WALLS := {&"fuse": 0.0}
+
+
 ## A noise somewhere: heard if it's loud enough for the distance (less through walls), placed only
 ## roughly (the further, the rougher).
 func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> void:
@@ -352,7 +357,7 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 	Prof.count(&"q_senses")
 	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.3:
-		reach *= 0.5
+		reach *= float(THROUGH_WALLS.get(kind, 0.5))
 	if body.physiology.deaf_ears() > 0:
 		reach *= 1.0 - 0.35 * body.physiology.deaf_ears()
 	if d > reach:

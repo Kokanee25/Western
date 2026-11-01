@@ -49,6 +49,9 @@ var last_stand_at := 3
 var last_stand := false
 ## Where you are as they have it ("front", "kitchen", ...), and since when the latest guess.
 var where := ""
+## Caught cold (a surprise blast, FarmhouseMission._surprised): none of them calls where you are
+## till one of them has seen you (they only have where the blast was).
+var quiet := false
 var _guess := ""
 var _guess_t := 0.0
 var _plan_t := 0.0
@@ -80,7 +83,8 @@ func setup(spec: Dictionary, men: Array[OutlawBrain], the_guard: OutlawBrain, p:
 		entries[k] = Farmhouse.at(Vector3(e[0], Farmhouse.FLOOR, e[1]))
 
 
-## A blast at the house: a breach where it went off (`at`): a man on the hole.
+## A blast at the house: a breach where it went off (`at`): a man on the hole, one of them shouts
+## it (not when they're caught cold: `quiet`).
 func breach(at: Vector3) -> void:
 	_hole = at
 	_hole_t = _t
@@ -255,6 +259,8 @@ func _spot_on(at: Vector3) -> String:
 
 ## One of them who knows calls where you are (the first time in a while for that place).
 func _say_where(place: String) -> void:
+	if quiet and place != "last_stand":
+		return
 	var lines: Array = CALLS.get(place, [])
 	if lines.is_empty():
 		return
