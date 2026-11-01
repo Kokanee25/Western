@@ -552,8 +552,9 @@ static func picture(variant: int, width := 0.84) -> ShaderMaterial:
 	return _materials[key]
 
 
-## A model's own painted texture (assets/props/models/<name>_paint.png) on its UVs (0..1, the whole
-## texture: texels_per_meter its width, as the picture's), the texel grid at the paint's own texels:
+## A model's own painted texture (assets/props/models/<name>_paint.png, imported with mipmaps) on its
+## UVs (0..1, the whole texture: texels_per_meter its width, as the picture's), the texel grid at the
+## paint's own texels, never coarsened into bigger squares:
 ## a model made whole by image-to-3D (the deer head, Rodin from Sean's pictures, 2026-10-24).
 static func model_paint(model: String) -> ShaderMaterial:
 	var key := "model_" + model
@@ -566,7 +567,11 @@ static func model_paint(model: String) -> ShaderMaterial:
 		m.set_shader_parameter(&"tint", Color.WHITE)
 		m.set_shader_parameter(&"roughness", 0.85)
 		m.set_shader_parameter(&"texels_per_meter", float(tex.get_width()) if tex else 64.0)
-		m.set_shader_parameter(&"use_mipmaps", false)
+		# Mipmapped, a texel a square (Sean, 2026-11-01, #526: C1f of the deer fidelity lab,
+		# experiments/prop_lab/results/2026-11-01_deer_fidelity/): the min-square coarsening took one
+		# unfiltered texel a square off Rodin's patchwork atlas (speckle, blotches, sparkle at 9 m).
+		m.set_shader_parameter(&"use_mipmaps", true)
+		m.set_shader_parameter(&"fixed_squares", true)
 		m.resource_name = key
 		_materials[key] = m
 	return _materials[key]
