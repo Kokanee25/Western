@@ -226,6 +226,7 @@ static func _fly(space: PhysicsDirectSpaceState3D, from: Vector3, v: Vector3, ex
 ## The water seen going: a burst of drops on the throw's arc.
 func _spray(from: Vector3, v: Vector3) -> void:
 	var p := GPUParticles3D.new()
+	p.emitting = false  # (made emitting: set again below, `finished` never came, #459)
 	p.amount = 90
 	p.lifetime = 0.9
 	p.one_shot = true

@@ -908,6 +908,8 @@ static func _lying_still(m: StructureMember) -> bool:
 		if not is_instance_valid(p[0]):
 			continue
 		var body: Variant = (p[0] as Node).get_parent()
+		if body == null:
+			body = (p[0] as Node).get_meta(&"rest_body", null)  # (lying in its cell: RubbleRest keeps its mesh aside)
 		if body is RigidBody3D and not ((body as RigidBody3D).sleeping or (body as RigidBody3D).freeze):
 			return false
 	return true

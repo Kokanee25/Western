@@ -29,6 +29,7 @@ means a section of this file.
 - [src/people](#srcpeople)
 - [src/creatures (the horse)](#srccreatures-the-horse)
 - [src/moments](#srcmoments)
+- [src/missions (the farmhouse)](#srcmissions-the-farmhouse)
 - [src/weapons](#srcweapons)
 - [src/blast](#srcblast)
 - [src/art/shot_match.gd (the saloon painting's shot)](#srcartshot_matchgd-the-saloon-paintings-shot)
@@ -640,9 +641,39 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `queue_settle` throws the worker's results away and begins again (#454). Under
   `World.deterministic` the budget counts members (`MEMBERS_A_MS` 15; a record is a sixth of one).
   **Batches**: a material's batch rebuilds from its own members (`_batch_members`) within
-  `BATCH_FRAME_MS` a frame (the rest next frame); the shadow-only merge of every batch is plain
-  arrays merged on a worker thread (`_shadow_soon`, at most every `SHADOW_REBUILD_GAP`; no
-  rendering calls off the main thread: they deadlock against a main thread that waits).
+  `BATCH_FRAME_MS` (3) of a *drawn* frame for every structure together (`_batch_frame*`, static;
+  was each structure's 6 ms on each physics tick, 90-163 ms a frame under the catch-up, #459), the
+  rest on the next `process_frame`. Each piece's members are gathered on the main thread (their
+  mesh arrays read once a mesh, `_mesh_arrays`) and merged on a worker (`_merge_members`: what
+  SurfaceTool.append_from makes, held to it by `test_batch_rebuild`); only the ArrayMesh is made
+  here (`_batch_done` → `_apply_batch`); a batch changed meanwhile (`_batch_gen`) stays dirty.
+  Under `World.deterministic` (and quitting) the merge runs in place. A cut's ends join a batch of
+  their material (`_batch_new`; drawn on their own till it's built: `_hide_after`). The
+  shadow-only merge of every batch is plain arrays merged on a worker thread (`_shadow_soon`, at
+  most every `SHADOW_REBUILD_GAP`; no rendering calls off the main thread: they deadlock against
+  a main thread that waits). GameQuit waits for both (`batches_running`, `shadow_running`).
+  **Rubble at rest** (`RubbleRest`, `src/structures/rubble_rest.gd`, #459; `-- --no-rubble-rest`
+  off): one per world (a child of the street, made by `for_node`; not under Compatibility, as
+  PropBatch). Rubble (`Structure._new_rubble`) and shards (`StructureMember.shatter`, GlassProp)
+  are `watch`ed; a piece that hasn't moved (`MOVED` 1.5 cm at its far end) for `REST_AFTER`
+  (1.5 s), asleep, frozen or awake, joins its 20 m cell: its mesh arrays (in the cell's space,
+  non-indexed) are drawn as a new **chunk** of the cell (per material and char overlay; joined
+  on a worker, its meshes made `MESH_MS` a frame, shown when all are), at most every `BUILD_GAP`;
+  past `MAX_CHUNKS` the cell's chunks are made one. Its own mesh nodes leave the tree once its
+  chunk shows (`_tidy`, a share a frame); its shape nodes only while it's asleep (`_shapes_aside`:
+  held on the body as shape owners; a body's shapes changed resets its contacts and woke awake
+  piles, 1.4x the physics step). Its sleep is never forced. Let go (nodes back, its stretch of
+  the chunk zeroed in place, `_zero`): moving or moved (`_look_at_stirring`, woken pieces every
+  `STIR_TICKS`), shot/blasted/shoved (`let_go`: Ballistics, Blast, PlayerShove), the fire or a
+  break touching its member (`touch`: `Structure.unbatch`, `_own_fire_look`; then held `HOLD`),
+  broken up, or its body leaving the tree (its kept nodes freed with it). A kept node carries
+  `rest_body` (its body: `StructureMember.world_aabb`, FireSystem's `_lying_still` read it);
+  a resting body carries `resting_in`. Glowing pieces don't join. `counts`/`refused` for the
+  bench (`perf_bench --census-by`: `rubble_rest`, and what's on loose bodies by state).
+  **Particles**: a new GPUParticles3D starts emitting, so setting `emitting = true` on it again
+  cancelled `finished` and one-shot bursts never freed (225 alive in a blaze, #459): every
+  one-shot sets `emitting = false` first (ImpactEffects, Blood, BlastCloud, FireFX.steam, the
+  bucket's spray).
   **Cut** (`Structure.cut_member(m, t0, t1, push)`, docs/briefs/blast-surfaces.md step 2): the stretch
   t0..t1 of a member flies as ~0.3 m pieces of rubble (DEBRIS when small); what's left either side
   stays as members `<id>/a`, `<id>/b` relinked to the old one's neighbours (`_relink`, the rules of
@@ -858,6 +889,24 @@ pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the
 45% in), to a spot off Earl's head, `stand_over` looping with the lines, `hold_s` then a timeout:
 nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
 (N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
+
+## src/missions (the farmhouse)
+
+- `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
+  (`scenes/test_street.tscn`) at `config/town.json`'s `Farmhouse` (out east on its knoll in the
+  hills, facing the road; its y the ground under its low corner, held to `TownLayout.footing` by
+  `test_town_layout`). It builds the house from its spec `experiments/building_lab/farmhouse.json`
+  with the building lab's builder (`spec_building.gd`; FORMAT.md: the lean-to, the porch, a gable
+  front, a loft, the bed/dresser/stove furniture) and its porch deck (a `Boardwalk`), and gives its
+  places to `Waypoints.test_street()` (`road_east`, `road_farm`, `farm_*`). `Farmhouse.at(local)`,
+  `on_ground(x, z)`, `use_point(id)` (the spec's use points: [where, what it looks at]). Built in
+  ~0.2 s, ~1,340 members, 17 kit props. Turned to face the road, the spec's west is the world's east.
+- **The hills** (`config/town.json` `ground.hills.bumps`, `TownLayout.hills_height`/`hills_area`):
+  smooth bumps north of the road east of town; `Ground` draws and collides them as height fields in
+  x and z (a tilted box a tile, `_hill_piece`), the west rise's chunks as before. Code asking the
+  ground's height out there must give z (`ground_height(x, z)`).
+- The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, its
+  bridge commands (`farm_wall`, `farm_hole`, `farm_view`).
 
 ## src/people
 

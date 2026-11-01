@@ -220,6 +220,7 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 			var v: Vector3 = pair[1] / maxf(rb.mass, 0.01)
 			if v.length() > tn.max_throw:
 				v = v.normalized() * tn.max_throw
+			RubbleRest.let_go(rb)  # (lying in its cell: its own again before it moves)
 			rb.sleeping = false
 			rb.linear_velocity += v
 	# People.

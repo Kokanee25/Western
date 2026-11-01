@@ -225,6 +225,7 @@ func _strike() -> void:
 		else:
 			var rb := c as RigidBody3D
 			var mu := m_e * rb.mass / (m_e + rb.mass)
+			RubbleRest.let_go(rb)  # (lying in its cell: its own again before it moves)
 			rb.apply_impulse(flat * mu * v, at - rb.global_position)
 			info.result = &"moved"
 		info.what = &"thing"

@@ -42,6 +42,19 @@ separately and don't agree). The pictures are the look to match.
 | `materials` | which approved wood each surface takes | the interior woods inside, the exterior woods out |
 | `sources` | the references the frame and sizes came from | Wood Handbook, Bell, Woodward, Tredgold, Hodgson |
 
+**The farmhouse's parts** (`farmhouse.json`, issue #520; all optional, the saloon's spec unchanged):
+no `cellar` (the footing all round), no `posts`/`beams`/`balconies`/`galleries`/`fixtures`; a
+front wall whose `top` is `"gable"` has no false front; `levels.roof_from`/`roof_to` (the roof's
+boards past a gable as its rake); `porch` {depth, height}: FalseFrontBuilding's porch roof, its
+deck a Boardwalk set down with it; an outer wall's `top` as `[a, b]` slopes from its line's start
+to its end (a lean-to's end walls), with `plate` a plate on its studs and `boards: "under"` its
+boards stopped under the rafters that cross it, `ribbon: false` none; an inside finish's `to_y`
+caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuildings` kind
+`lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
+studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
+furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
+axes, `facing`, `pipe`).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

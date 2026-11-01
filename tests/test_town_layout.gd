@@ -17,6 +17,24 @@ func test_the_street_stands_where_the_layout_says() -> void:
 	await process_frames(2)
 
 
+func test_the_farmhouse_stands_on_its_knoll() -> void:
+	# Out east in the hills (issue #520): its y in config/town.json is the ground under its low
+	# corner, with the lean-to (TownLayout.footing over 9 x 7.6 m), and the hills are its: it's up.
+	var t := TownLayout.transform_of(&"Farmhouse")
+	check_near(t.origin.y, TownLayout.footing(t, Farmhouse.WIDTH, Farmhouse.DEPTH), 0.005, "on the ground under its low corner")
+	check(t.origin.y > 1.0, "up on its knoll (%.2f m)" % t.origin.y)
+	var high := -INF
+	for c: Vector3 in [Vector3(0, 0, 0), Vector3(Farmhouse.WIDTH, 0, 0), Vector3(0, 0, Farmhouse.DEPTH), Vector3(Farmhouse.WIDTH, 0, Farmhouse.DEPTH),
+			Vector3(Farmhouse.WIDTH * 0.5, 0, 2.6)]:
+		var p := t * c
+		high = maxf(high, TownLayout.ground_height(p.x, p.z))
+	check(high - t.origin.y < Farmhouse.FLOOR - 0.05, "its floor above the ground everywhere under it (%.2f m set in)" % (high - t.origin.y))
+	for x in range(-60, 61, 4):
+		check_eq(TownLayout.hills_height(float(x), TownLayout.street_z(float(x))), 0.0, "no hill on the street (x %d)" % x)
+	for x in range(30, 200, 10):
+		check(TownLayout.hills_height(float(x), -8.4) < 0.01, "nor on the road east (x %d)" % x)
+
+
 func test_a_place_inside_moves_with_its_building() -> void:
 	# At the saloon's own floor (config/town.json raises it above the street's other walks).
 	var f := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", 0.38))
@@ -103,8 +121,8 @@ func test_every_building_stands_on_the_ground() -> void:
 		var high := -INF
 		for c: Vector3 in [Vector3(0, 0, -2.4), Vector3(b.width, 0, -2.4), Vector3(0, 0, b.depth), Vector3(b.width, 0, b.depth)]:
 			var p := t * c
-			low = minf(low, TownLayout.ground_height(p.x))
-			high = maxf(high, TownLayout.ground_height(p.x))
+			low = minf(low, TownLayout.ground_height(p.x, p.z))
+			high = maxf(high, TownLayout.ground_height(p.x, p.z))
 		check(absf(t.origin.y - low) < 0.01, "%s stands on the ground under its low corner (%.3f, the ground %.3f)" % [b.name, t.origin.y, low])
 		check(high - t.origin.y < b.floor_top - 0.05, "%s's floor above the ground under its high corner (%.2f m set in, its floor %.2f)" % [b.name, high - t.origin.y, b.floor_top])
 	street.queue_free()

@@ -7,7 +7,15 @@
 		"freight": {"from": [23, 40], "to": [23, -60], "width": 12},
 		"market": {"from": [-31, 40], "to": [-31, -60], "width": 12}
 	},
-	"ground": {"fall": {"from": -5.0, "to": -45.0, "height": 1.0}, "rise": {"from": -51.2, "to": -153.6, "height": 3.0}},
+	"ground": {"fall": {"from": -5.0, "to": -45.0, "height": 1.0}, "rise": {"from": -51.2, "to": -153.6, "height": 3.0},
+		"hills": {"_doc": "Sean, 2026-10-31 (#520): hilly outskirts, not flat. North of the road east of town (TownLayout.hills_height): the farmhouse's knoll, a low rise west of it with a draw between them to come up unseen, a hill east of it, and the ridge behind; none reaches the road or the range (z -14 and north).",
+			"bumps": [
+				{"at": [98, -50], "r": 36, "h": 2.0, "_doc": "the farmhouse's knoll: broad, so the ground stays under the house's floor"},
+				{"at": [66, -52], "r": 24, "h": 4.5, "_doc": "the low rise west, the draw between it and the knoll"},
+				{"at": [136, -56], "r": 30, "h": 7.0, "_doc": "the hill east"},
+				{"at": [80, -102], "r": 44, "h": 11.0, "_doc": "the ridge behind, west"},
+				{"at": [124, -106], "r": 44, "h": 13.0, "_doc": "the ridge behind, east"}
+			]}},
 	"nodes": {
 		"Saloon": {"at": [5, 0, 0], "facing": 0, "set": {"age_years": 12, "floor_top": 0.78},
 			"was": [{"at": [12, 0, -16.8], "facing": 180, "width": 10}, {"at": [-10.8, 0, 0], "facing": 0, "width": 9.6}]},
@@ -43,6 +51,7 @@
 		"Well": {"at": [-2.5, 0, -28.5], "facing": 0},
 		"Windpump": {"at": [1.5, 0, -30], "facing": 0},
 		"WindpumpTank": {"at": [2.2, 0, -30], "facing": 0},
+		"Farmhouse": {"at": [102.5, 1.767, -46.2], "facing": 180, "_doc": "The rancher's farmhouse out east (issue #520): on its knoll north of the road, its front to the road; built from experiments/building_lab/farmhouse.json (src/missions/farmhouse.gd), standing on the ground under its low corner (TownLayout.footing over its 9 x 7.6 m with the lean-to: change the hills, change its y)."},
 		"Corral": {"at": [18, 0, -32], "facing": 180},
 		"TargetBoard": {"at": [60, 0, -8.4], "facing": 90},
 		"TargetBoard50": {"at": [94, 0, 3], "facing": 90},

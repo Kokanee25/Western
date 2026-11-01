@@ -1,0 +1,344 @@
+{
+	"_doc": "The farmhouse out east of town (issue #520, the hostage rescue): a one-storey frame house with a loft under a gable roof, a lean-to kitchen on its back, a porch on its front to the road. Format: experiments/building_lab/FORMAT.md. Metres in the building's own space: x along the front from its west corner as built (0) to its east corner (9.0), z back from the front wall's outer stud face, y up from the ground; the front faces -Z as built (config/town.json turns it round to face the road, south). Sizes are a small farmhouse's of the 1870s (a 30 by 17 ft house, a 18 by 8 ft lean-to); the frame is the saloon's balloon frame cut down (Bell 1858; Woodward 1865).",
+	"format": 1,
+	"id": "farmhouse",
+	"identity": {
+		"owner": "the Mexican rancher, who runs horses on the bottom land east of town",
+		"trade": "a horse ranch's house: the front room to eat and sit in, a bedroom, the loft for the hired man and the stores, the kitchen in the lean-to",
+		"means": "a working man's: built by hand from freighted lumber, never painted, the lean-to added later from what was left",
+		"age_and_repair": "14 years: the boards grey and checked, the lean-to's roof patched in newer pine, the porch steps worn hollow",
+		"clues": ["a saddle on a peg by the door", "a crucifix over the bed", "spurs on the dresser", "flour sacks by the back door", "a path worn to the outhouse and on to the corral"],
+		"built": 1868,
+		"now": 1882
+	},
+	"lot": {
+		"town_node": "Farmhouse",
+		"side": "north",
+		"at": [102.5, 0, -46.2],
+		"facing": 180,
+		"width": 9.0,
+		"depth": 5.2,
+		"yard": [-6.0, -8.0, 15.0, 18.0],
+		"footprint_with_stair": [0, -1.8, 9.0, 7.6]
+	},
+	"levels": {
+		"_doc": "The floor about two feet up on a low stone footing; the loft 8 1/2 ft over it, its floor the ceiling's joists; the side walls' plate 2 1/4 ft over the loft floor (knee walls), a 9/12 roof (35 degrees). The roof's boards run out over both gables as their rake.",
+		"ground": {"top": 0.56},
+		"upper": {"top": 3.11},
+		"plate": 3.8,
+		"false_front": 0.0,
+		"roof_pitch": 35.0,
+		"roof_from": -0.35,
+		"roof_to": 5.55
+	},
+	"frame": {
+		"_doc": "The saloon's balloon frame cut down: 2x4 studs at 16 in sill to plate, the loft's joists (2x10, the span front to back 16 1/2 ft) on 1x6 ribbons let into them; two trusses, one inside each gable, carrying the purlins and the common rafters (no tie across the loft: it's lived in).",
+		"foundation": {"wood": "stone", "thick": 0.3, "bottom": -0.25, "top": 0.15, "piece": 1.5},
+		"sill": {"section": [0.15, 0.15], "wood": "framing"},
+		"pier": {"size": 0.35, "wood": "stone"},
+		"girder": {"section": [0.15, 0.15], "wood": "framing", "pier_every": 1.8},
+		"joist": {"section": [0.05, 0.235], "spacing": 0.305, "wood": "framing"},
+		"floor_board": {"width": 0.15, "thick": 0.025, "wood": "floor"},
+		"stud": {"section": [0.05, 0.1], "spacing": 0.406, "wood": "framing"},
+		"plate": {"height": 0.1},
+		"ribbon": {"section": [0.025, 0.15]},
+		"header": {"height": 0.15},
+		"post": {"section": [0.15, 0.15], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.02},
+		"beam": {"section": [0.15, 0.2], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.02},
+		"bracket": {"reach": 0.4, "thick": 0.08, "look": "wood:int_timber"},
+		"wall_post": {"section": [0.15, 0.1]},
+		"truss": {
+			"tie": [0.15, 0.2],
+			"principal": [0.1, 0.15],
+			"queen": [0.1, 0.1],
+			"purlin": [0.1, 0.2],
+			"rafter": [0.05, 0.14],
+			"rafter_spacing": 0.61,
+			"at": [0.2, 5.0],
+			"purlins": [0.3, 2.0, 3.7, 5.2]
+		}
+	},
+	"girders": {"_doc": "One line under the ground floor's joists, on stone piers.", "z": [2.6]},
+	"floors": [
+		{"id": "ground", "level": "ground", "rect": [0.1, 0.1, 8.9, 5.1], "joists": "z", "look": "wood:int_floor"},
+		{
+			"_doc": "The loft over both rooms, open to the roof; the stair comes up along the back wall. Its joists run east-west on the side walls' ribbons, cut over the bedroom's wall under them (a span of 18 ft at most), so the stair's hole cuts only the few short ones along the back wall.",
+			"id": "loft",
+			"level": "upper",
+			"rect": [0.1, 0.1, 8.9, 5.1],
+			"joists": "x",
+			"breaks": [5.6],
+			"rough": [[0.1, 0.1, 8.9, 5.1]],
+			"openings": [{"id": "stair", "rect": [2.1, 4.25, 4.75, 5.05]}]
+		}
+	],
+	"walls": [
+		{
+			"_doc": "The front, to the road: the door on the porch, a window either side of it into the front room, the loft's window in the gable.",
+			"id": "front",
+			"line": [[0, 0], [9.0, 0]],
+			"out": "-z",
+			"top": "gable",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 8.9, "finish": "boards"},
+				{"level": "upper", "from": 0.1, "to": 8.9, "finish": "rough"}
+			],
+			"openings": [
+				{"type": "door", "level": "ground", "at": 2.8, "width": 0.91, "height": 2.03},
+				{"type": "window", "level": "ground", "at": 1.1, "width": 0.76, "height": 1.22, "sill": 0.85},
+				{"type": "window", "level": "ground", "at": 4.5, "width": 0.76, "height": 1.22, "sill": 0.85},
+				{"type": "window", "level": "upper", "at": 4.5, "width": 0.61, "height": 0.9, "sill": 1.1}
+			]
+		},
+		{
+			"_doc": "The back: the door into the lean-to's kitchen, west of the stair's head.",
+			"id": "back",
+			"line": [[0, 5.2], [9.0, 5.2]],
+			"out": "+z",
+			"top": "gable",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 8.9, "finish": "boards"},
+				{"level": "upper", "from": 0.1, "to": 8.9, "finish": "rough"}
+			],
+			"openings": [
+				{"type": "door", "level": "ground", "at": 1.0, "width": 0.81, "height": 2.03, "leaf": "outward"}
+			]
+		},
+		{
+			"id": "west",
+			"line": [[0, 0], [0, 5.2]],
+			"out": "-x",
+			"top": "plate",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 5.1, "finish": "boards"},
+				{"level": "upper", "from": 0.1, "to": 5.1, "finish": "rough"}
+			],
+			"openings": [
+				{"type": "window", "level": "ground", "at": 2.6, "width": 0.76, "height": 1.22, "sill": 0.85}
+			]
+		},
+		{
+			"_doc": "The east side: the bedroom's one window.",
+			"id": "east",
+			"line": [[9.0, 0], [9.0, 5.2]],
+			"out": "+x",
+			"top": "plate",
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [
+				{"level": "ground", "from": 0.1, "to": 5.1, "finish": "boards"},
+				{"level": "upper", "from": 0.1, "to": 5.1, "finish": "rough"}
+			],
+			"openings": [
+				{"type": "window", "level": "ground", "at": 2.0, "width": 0.76, "height": 1.22, "sill": 0.85}
+			]
+		},
+		{
+			"_doc": "The bedroom's wall, its door near the back; it carries the loft's joists over it.",
+			"id": "bedroom",
+			"line": [[5.6, 0.1], [5.6, 5.1]],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{"side": "-", "finish": "boards"},
+				{"side": "+", "finish": "boards"}
+			],
+			"openings": [
+				{"type": "door", "at": 3.0, "width": 0.81, "height": 2.03, "leaf": "outward"}
+			]
+		},
+		{
+			"_doc": "The lean-to's west end, flush with the house's west wall, its top falling with the shed roof.",
+			"id": "lean_west",
+			"line": [[0, 5.2], [0, 7.6]],
+			"out": "-x",
+			"top": [3.466, 2.786],
+			"ribbon": false,
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [{"level": "ground", "from": 0.1, "to": 2.3, "finish": "rough"}],
+			"openings": []
+		},
+		{
+			"_doc": "The lean-to's back: the back door to the yard and the kitchen's window.",
+			"id": "lean_back",
+			"line": [[0, 7.6], [5.6, 7.6]],
+			"out": "+z",
+			"top": [2.81, 2.81],
+			"plate": true,
+			"boards": "under",
+			"ribbon": false,
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [{"level": "ground", "from": 0.1, "to": 5.5, "finish": "rough"}],
+			"openings": [
+				{"type": "door", "level": "ground", "at": 4.4, "width": 0.91, "height": 2.03},
+				{"type": "window", "level": "ground", "at": 1.6, "width": 0.76, "height": 1.0, "sill": 0.9}
+			]
+		},
+		{
+			"id": "lean_east",
+			"line": [[5.6, 5.2], [5.6, 7.6]],
+			"out": "+x",
+			"top": [3.466, 2.786],
+			"ribbon": false,
+			"outside": {"siding": "vertical", "wood": "weathered_pine"},
+			"inside": [{"level": "ground", "from": 0.1, "to": 2.3, "finish": "rough"}],
+			"openings": []
+		}
+	],
+	"stairs": [
+		{
+			"_doc": "A steep box stair up the front room's back wall to the loft, climbing west: 12 risers of 8 3/8 in on 8 1/2 in treads, 2 ft 7 in wide, its rail on the room's side.",
+			"id": "loft",
+			"dir": "-x",
+			"width": 0.8,
+			"from": "ground",
+			"to": "upper",
+			"risers": 12,
+			"going": 0.215,
+			"rail": "-z",
+			"look": "wood:int_timber",
+			"head": [2.1, 4.27]
+		},
+		{
+			"_doc": "Three steps from the yard to the lean-to's back door.",
+			"id": "back",
+			"head": [3.95, 7.62],
+			"dir": "-z",
+			"width": 0.9,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 3,
+			"going": 0.28,
+			"wood": "weathered_pine"
+		}
+	],
+	"porch": {"_doc": "A porch roof across the front on two posts (the town's porches); its deck a Boardwalk the farmhouse sets down (src/missions/farmhouse.gd).", "depth": 1.8, "height": 2.75},
+	"rooms": [
+		{"id": "front_room", "level": "ground", "rect": [0.1, 0.1, 5.55, 5.1], "use": "eating, sitting by the stove; the stair to the loft"},
+		{"id": "bedroom", "level": "ground", "rect": [5.65, 0.1, 8.9, 5.1], "use": "the rancher's bed; where the hostage is held"},
+		{"id": "kitchen", "level": "ground", "rect": [0.1, 5.23, 5.5, 7.5], "use": "cooking, the stores; the back door to the yard"},
+		{"id": "loft", "level": "upper", "rect": [0.1, 0.1, 8.9, 5.1], "use": "the hired man's cot, sacks and harness; a lookout over the road from its window"}
+	],
+	"furniture": [
+		{"members": "table", "id": "table", "rect": [1.3, 2.0, 2.7, 2.85], "height": 0.76, "level": "ground"},
+		{"kit": "chair", "at": [1.1, 2.4], "facing": 90},
+		{"kit": "chair", "at": [2.9, 2.45], "facing": -90},
+		{"kit": "chair", "at": [2.0, 3.15], "facing": 175},
+		{"members": "stove", "id": "stove", "at": [5.15, 1.95], "size": [0.75, 0.8, 0.6], "facing": -90, "pipe": 1.4, "level": "ground"},
+		{"members": "shelves", "id": "shelves", "rect": [0.14, 3.5, 0.54, 4.9], "boards": 4, "level": "ground"},
+		{"kit": "crate", "at": [3.6, 0.5], "facing": 10},
+		{"members": "bed", "id": "bed", "rect": [6.95, 3.95, 8.85, 5.0], "head": "+x", "level": "ground"},
+		{"members": "dresser", "id": "dresser", "at": [5.95, 1.2], "size": [1.0, 0.95, 0.45], "facing": -90, "level": "ground"},
+		{"kit": "chair", "at": [7.3, 2.5], "facing": -90, "_doc": "the hostage's chair, turned to the door"},
+		{"members": "table", "id": "kitchen_table", "rect": [2.2, 5.45, 3.4, 6.05], "height": 0.8, "level": "ground"},
+		{"members": "shelves", "id": "kitchen_shelves", "rect": [5.05, 5.9, 5.45, 7.3], "boards": 4, "level": "ground"},
+		{"kit": "water_barrel", "at": [3.35, 7.1], "facing": 0},
+		{"kit": "grain_sacks", "at": [0.55, 6.6], "facing": 80},
+		{"kit": "feed_sack", "at": [0.5, 7.15], "facing": 20},
+		{"kit": "crate", "at": [5.0, 5.6], "facing": -8},
+		{"kit": "crate", "at": [4.0, 5.55], "facing": 30}
+	],
+	"lamps": {
+		"_doc": "Two oil lamps (OilLamps): on the table and on the dresser.",
+		"on_furniture": [[2.1, 0.76, 2.4], [5.95, 0.95, 1.4]]
+	},
+	"outbuildings": [
+		{
+			"_doc": "The lean-to kitchen on the back wall: a shed roof falling to the yard from a ledger on the house's studs.",
+			"id": "lean_to",
+			"kind": "lean_to",
+			"wall": "back",
+			"rect": [0.0, 5.2, 5.6, 7.6],
+			"high": 3.45,
+			"low": 2.8,
+			"floor_look": "wood:int_floor"
+		},
+		{
+			"id": "outhouse",
+			"kind": "outhouse",
+			"at": [7.6, 15.5],
+			"size": [1.22, 1.22],
+			"height": 2.2,
+			"facing": 180,
+			"wood": "weathered_pine"
+		}
+	],
+	"use_points": [
+		{"id": "hostage", "use": "held", "who": "hostage", "seats": "chair", "at": [7.3, 0.56, 2.5], "look": [5.6, 3.1]},
+		{"id": "guard", "use": "guard", "who": "outlaw", "at": [6.4, 0.56, 4.3], "look": [7.3, 2.5]},
+		{"id": "window_front_w", "use": "watch", "who": "outlaw", "at": [1.1, 0.56, 0.75], "look": [1.1, -6.0]},
+		{"id": "window_front_e", "use": "watch", "who": "outlaw", "at": [4.5, 0.56, 0.75], "look": [4.5, -6.0]},
+		{"id": "window_west", "use": "watch", "who": "outlaw", "at": [0.7, 0.56, 2.0], "look": [-6.0, 2.6]},
+		{"id": "porch", "use": "watch", "who": "outlaw", "at": [6.4, 0.56, -1.0], "look": [7.0, -12.0]},
+		{"id": "yard", "use": "watch", "who": "outlaw", "at": [10.5, 0.0, -2.5], "look": [12.0, -14.0]},
+		{"id": "kitchen", "use": "watch", "who": "outlaw", "at": [1.9, 0.56, 6.4], "look": [4.4, 7.6]},
+		{"id": "loft_window", "use": "watch", "who": "outlaw", "at": [4.5, 3.11, 0.8], "look": [4.5, -12.0]},
+		{"id": "inside_door", "use": "cover", "who": "outlaw", "at": [3.4, 0.56, 1.7], "look": [2.8, 0.0]},
+		{"id": "behind_table", "use": "cover", "who": "outlaw", "at": [1.3, 0.56, 3.3], "look": [2.8, 0.0]},
+		{"id": "by_stove", "use": "cover", "who": "outlaw", "at": [4.45, 0.56, 2.6], "look": [2.8, 0.0]},
+		{"id": "bedroom_door", "use": "cover", "who": "outlaw", "at": [6.3, 0.56, 3.4], "look": [5.6, 3.1]},
+		{"id": "kitchen_crates", "use": "cover", "who": "outlaw", "at": [4.6, 0.56, 6.1], "look": [4.4, 7.6]},
+		{"id": "kitchen_door", "use": "cover", "who": "outlaw", "at": [1.4, 0.56, 4.3], "look": [1.0, 5.2]}
+	],
+	"use": {
+		"_doc": "Fourteen years of a family and its hired man: the door to the stove and the table, the kitchen's door, the bedroom's, the loft's stair; muddy boots in from the yard by the back.",
+		"years": 14,
+		"paths": [
+			{"id": "door_to_table", "who": "everyone", "level": "ground", "daily": 40, "width": 0.9, "points": [[2.8, 0.1], [2.6, 1.4], [2.0, 1.8]]},
+			{"id": "to_the_stove", "who": "everyone", "level": "ground", "daily": 30, "width": 0.7, "points": [[2.6, 1.4], [4.4, 1.9]]},
+			{"id": "to_the_kitchen", "who": "everyone", "level": "ground", "daily": 50, "width": 0.8, "points": [[2.0, 3.4], [1.3, 4.4], [1.0, 5.1]]},
+			{"id": "to_the_bedroom", "who": "the rancher", "level": "ground", "daily": 10, "width": 0.7, "points": [[2.6, 1.4], [4.6, 2.6], [5.6, 3.1], [6.6, 3.4]]},
+			{"id": "kitchen", "who": "everyone", "level": "ground", "daily": 60, "width": 0.8, "points": [[1.0, 5.3], [2.8, 6.4], [4.4, 7.5]]}
+		],
+		"stairs": {"loft": 6, "back": 40},
+		"spots": [],
+		"doors": {"daily": 30},
+		"spills": [
+			{"id": "by_the_stove", "level": "ground", "rect": [4.3, 1.5, 5.5, 2.5], "s": 0.4},
+			{"id": "kitchen", "level": "ground", "rect": [1.8, 5.3, 3.8, 6.4], "s": 0.5}
+		],
+		"furniture": {"tables": true, "chairs": true},
+		"lamps": {"soot": 0.6},
+		"weather": {
+			"_doc": "Out on the knoll with nothing round it: the front faces the road (south) and takes the sun, bleached; mud splashed up every wall's foot.",
+			"splash": {"walls": ["front", "west", "east", "lean_back"], "height": 0.35},
+			"bleach": {"walls": ["front"], "roof": true},
+			"streaks": "under_sills"
+		},
+		"edges": 0.6
+	},
+	"past": [
+		{
+			"id": "the_patched_roof",
+			"when": "1880",
+			"what": "A wind took boards off the lean-to's roof; they were replaced in new pine.",
+			"marks": [{"kind": "new", "at": [3.0, 3.2, 6.2], "r": 0.9, "kinds": ["roof_board"]}]
+		},
+		{
+			"id": "the_wolf",
+			"when": "1876",
+			"what": "A shot at a wolf from the front door went into the porch post.",
+			"marks": [{"kind": "bullet", "at": [8.88, 1.6, -1.8], "r": 0.15, "kinds": ["post"]}]
+		},
+		{
+			"id": "by_the_stove",
+			"when": "",
+			"what": "The floor by the stove scorched by dropped coals, scrubbed.",
+			"marks": [{"kind": "scrubbed", "at": [4.6, 0.56, 2.0], "r": 0.4, "kinds": ["floor_board"]}]
+		}
+	],
+	"materials": {
+		"floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_timber",
+		"timber": "wood:int_timber",
+		"exterior_sides": "weathered_pine",
+		"trim_outside": "dark_trim",
+		"roof": "weathered_pine",
+		"rough": "framing"
+	},
+	"sources": ["USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021): the timber figures (config/timber.tres) and checks.gd's sizing.", "William E. Bell, Carpentry Made Easy (1858): the balloon frame.", "George E. Woodward, Woodward's Country Homes (1865): the balloon frame, a farmhouse's plan."]
+}
