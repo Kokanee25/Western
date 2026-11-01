@@ -37,21 +37,20 @@ pair() {  # name: name_old.mp4 | name_new.mp4 side by side, labelled, as name.mp
 
 case "$WHICH" in
   street|all)
-    # The walkers' moment across the street (five men; Earl keeps his own walk_old, a played clip
-    # leads the library's), from the middle of the street, then the town about its day.
+    # Four men with no walk of their own crossing toward the camera (config/moments/library_walkers.json).
     for v in old new; do
       lib=$([ "$v" = new ] && echo on || echo off)
-      film "street_$v" "library $lib" "time 17.5" "camera 5.0 1.6 -5.8 -3.0 0.9 -3.3 50" "wait 3" \
-        "moment walks_lineup from_x=-9 to_x=7" "waits 9" "moment_result" "library"
+      film "street_$v" "library $lib" "time 17.5" "camera 5.0 1.6 -5.8 -3.0 0.9 -4.6 50" "wait 3" \
+        "moment library_walkers" "waits 6" "moment_result" "library"
     done
     pair street ;;&
   saloon|all)
-    # The gunfight lab's hall (spec_hall): the scripted careful player against the three, from the
-    # hall's corner by the door.
+    # The gunfight lab's hall (spec_hall): the scripted careful player against the three, the
+    # camera on Brody (gf_watch: from his side away from you).
     for v in old new; do
       lib=$([ "$v" = new ] && echo on || echo off)
-      film "saloon_$v" "library $lib" "camera 11.5 2.6 1.2 5.0 0.9 6.0 62" \
-        "gf_fight spec_hall style=cover seed=3 max=40" "library"
+      film "saloon_$v" "library $lib" "gf_play spec_hall seed=3 style=cover count=2" \
+        "gf_watch brody 4.5 50 1.7 60" "waits 12" "gf_result" "library"
     done
     pair saloon ;;&
   lineup|all)
