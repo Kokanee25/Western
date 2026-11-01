@@ -200,8 +200,9 @@ func tick(delta: float, t: float) -> void:
 func _plant(delta: float) -> void:
 	_stop()
 	var d := player.dynamite()
-	if player.weapon != d:
-		player.select_weapon(d)
+	if player.weapon != d or not d.selected:
+		if not d.selected:
+			player.select_weapon(d)  # once: asked again every tick the switch never finishes
 		return
 	if not d.drawn:
 		return
@@ -233,7 +234,8 @@ func _lit(delta: float) -> void:
 		_stop()
 	_wait -= delta
 	if _wait <= 0.0:
-		player.select_weapon(player.revolver())
+		if not player.revolver().selected:
+			player.select_weapon(player.revolver())
 		route = _route_through_hole()
 		_phase("through")
 
