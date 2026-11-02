@@ -864,7 +864,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
   town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
-  a doorway, a building's corner),
+  a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
+  on counts for a man bladed behind it: `Cover._narrow`, spots with `narrow`/`post`/`post_w`,
+  `hidden_narrow`),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
@@ -921,14 +923,17 @@ top as turns from the clip's first frame (`LibraryMotion.hits`). Tools: `tools/l
 **The post pose** (issue #531, `src/bodies/post_pose.gd`): a man bladed behind a narrow post (the
 gallery's 8x8), side-on with the threat at his left, left shoulder on the post, the right upper arm
 down by his ribs and the forearm level across his belly along the threat's line, the gun pointed
-past the post's edge (point-fired: `PostPose.point_spread`, a rule for the brain, not used yet).
+past the post's edge (point-fired: `PostPose.point_spread`; in the brain the hand's wander x2.5, a
+1.5 degree cone, no hold-over: `OutlawBrain._pointing`).
 A family: `PostPose.dials(seed)` (the gun across him or the regular hold, legs straight or
 staggered, chest or backside showing, the forearm's height and line, the lean); `make` works the
 joints out from his anatomy (the elbow raised till the forearm clears his belly, the trunk leaned
 till his eye is past the edge, by forward kinematics); `HumanBody.take_post(threat)` turns him and
 sets pose `post` (his joints in `post_pose`); `PostPose.place_at` puts him at a post (trunk
-behind it, shoulder on its face, the gun clear). A still pose only: no brain takes it, and face()
-would turn him square. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
+behind it, shoulder on its face, the gun clear). The gang take it at a narrow cover spot (variant
+D's `posts`, `OutlawBrain._hold_post`: set against the post once it has blended in, turned again
+as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not built yet:
+entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
 ## src/moments

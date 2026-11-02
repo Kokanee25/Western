@@ -154,14 +154,16 @@ var variant: Variant = default_variant
 ## him, and calls the others on), hold_cover (#294: behind cover he holds it against the idea of
 ## the man he chose it by, moved only by what he's sure of, not by a guess at a sound), watch_spot
 ## (#477: behind cover, with the man last known near and lately, he watches that spot rather than go
-## looking for him; `_lost_you`, WATCH_*). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## looking for him; `_lost_you`, WATCH_*), posts (#531: a post too narrow to hide him square on is
+## cover too, bladed behind it in Sean's post pose and shooting from it point-fired: `Cover._narrow`,
+## `_hold_post`, `_pointing`). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
-		&"watch_spot"]
+		&"watch_spot", &"posts"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -308,6 +310,17 @@ var _tactic_time := 0.0
 var _peek_time := 0.0
 var _peek_shots := 0
 var _peek_pose := &"aim"
+## At a post (variant D's `posts`): his post pose's dials, the post he's set against (its foot) and
+## the line to the man he bladed himself to, and seconds till he's set against it (the pose blends in
+## first).
+var _post_dials := {}
+var _post_at := Vector3.INF
+var _post_dir := Vector3.ZERO
+var _post_place := 0.0
+## He turns to the man again at a post once the man's this far round it (degrees); his pose blends
+## in for this long (s) before he's set against the post.
+const POST_TURN := 12.0
+const POST_SETTLE := 1.0
 var _peeks := 0
 var _in_cover := 0.0
 var _flank_after := 12.0
@@ -1933,6 +1946,8 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 		_search._ctx["way_extra"] = Cover.WAY_EXTRA_FAR
 	if _has(&"way_cost"):
 		_search._ctx["by_way"] = true
+	if _has(&"posts"):
+		_search._ctx["narrow"] = true
 	if not hold.is_empty():
 		_search._ctx["inside"] = hold.inside
 	_search_bias = bias_from
@@ -1979,12 +1994,16 @@ func _watch_stuck(delta: float) -> void:
 
 ## Behind it: head down (lower still while rounds crack past), reloading, waiting his moment.
 func _hide(delta: float, eye: Vector3) -> void:
-	body.face(eye)
-	var down_low: bool = cover.low and (suppressed > 0.0 or _shaken >= 0.0 or not cover.get("crouch_ok", false))
-	if cover.get("lie", false):
-		body.set_pose(&"lie")
+	var at_post: bool = cover.get("narrow", false)
+	if at_post:
+		_hold_post(delta, _held_eye(eye))
 	else:
-		body.set_pose(&"duck" if down_low else (&"crouch" if cover.low else &"stand"))
+		body.face(eye)
+		var down_low: bool = cover.low and (suppressed > 0.0 or _shaken >= 0.0 or not cover.get("crouch_ok", false))
+		if cover.get("lie", false):
+			body.set_pose(&"lie")
+		else:
+			body.set_pose(&"duck" if down_low else (&"crouch" if cover.low else &"stand"))
 	_in_cover += delta
 	if suppressed <= 0.0:
 		_tactic_time -= delta
@@ -1993,7 +2012,12 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_check = 0.5
 		var space := World.space(body)
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
-		if not Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null):
+		# At a post: the spot it was chosen by till he's set against it (his trunk is mid-turn while
+		# the pose blends in), then where his trunk is.
+		var trunk: Vector3 = cover.at if _post_place > 0.0 else _trunk_at(_held_eye(eye))
+		var hidden := Cover.hidden_narrow(space, trunk, _held_eye(eye), _exclude(_find_target()), cover.post, cover.post_w) if at_post \
+				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null)
+		if not hidden:
 			# He's come round it: this cover's no good now.
 			_decide("leave his cover", "you can see him there now")
 			tactic = Tactic.OPEN
@@ -2024,8 +2048,9 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_peek_shots = 0
 		_next_shot = _think.randf_range(0.35, 0.7)
 		var space := World.space(body)
-		# Over low cover he shoots crouched if he can see over it that low, else he stands.
-		_peek_pose = &"crouch_aim" if cover.low and Cover._sees(space, cover.at + Vector3.UP * Cover.CROUCH_GUN, eye, _exclude(_find_target())) else &"aim"
+		# Over low cover he shoots crouched if he can see over it that low, else he stands; at a post
+		# he shoots from it as he stands.
+		_peek_pose = &"post" if at_post else &"crouch_aim" if cover.low and Cover._sees(space, cover.at + Vector3.UP * Cover.CROUCH_GUN, eye, _exclude(_find_target())) else &"aim"
 
 
 ## Where he holds his cover against the man's eyes (variant D's `hold_cover`, #294): where they are
@@ -2042,18 +2067,89 @@ func _held_eye(eye: Vector3) -> Vector3:
 	return cover.eye
 
 
+## At a post (Cover's narrow kind, variant D's `posts`, #531): bladed behind it in his own post pose
+## (PostPose, Sean's: side-on, his left shoulder to it, the gun across him past its edge), turned to
+## the man again once he's POST_TURN round it, and set against it (`PostPose.place_at`) once the pose
+## has blended in. Hidden and shooting alike: the pose sees past the edge.
+func _hold_post(delta: float, threat_eye: Vector3) -> void:
+	var post: Vector3 = cover.post
+	var to := threat_eye - post
+	to.y = 0.0
+	if to.length() < 0.05:
+		return
+	var dir := to.normalized()
+	if body.pose != &"post" or _post_at != post or _post_dir.angle_to(dir) > deg_to_rad(POST_TURN):
+		var d := body.take_post(threat_eye, _post_dials)
+		if d.is_empty():
+			return  # getting up, or down
+		_post_dials = d
+		_post_at = post
+		_post_dir = dir
+		_post_place = POST_SETTLE
+	if _post_place > 0.0:
+		_post_place -= delta
+		if _post_place <= 0.0:
+			PostPose.place_at(body, post, threat_eye, float(_post_dials.peek), float(cover.post_w))
+
+
+## Where his trunk stands against the man at `threat_eye`: the middle of his pelvis, belly and chest
+## across the man's line (as `PostPose.place_at` centres it behind the post: his chest leans out
+## toward its edge, his hips sit back the other way), over the floor of his spot.
+func _trunk_at(threat_eye: Vector3) -> Vector3:
+	var root := body.global_position
+	var to := threat_eye - root
+	to.y = 0.0
+	if to.length() < 0.05:
+		return cover.at
+	var across := Vector3.UP.cross(to.normalized())
+	var lo := INF
+	var hi := -INF
+	for c: Array in PostPose.capsules_now(body):
+		if c[0] in [&"pelvis", &"abdomen", &"chest"]:
+			for p: Vector3 in [c[1], c[2]]:
+				lo = minf(lo, (p - root).dot(across) - float(c[3]))
+				hi = maxf(hi, (p - root).dot(across) + float(c[3]))
+	if lo == INF:
+		return cover.at
+	var at := root + across * ((lo + hi) * 0.5)
+	return Vector3(at.x, (cover.at as Vector3).y, at.z)
+
+
+## Pointing the gun across him from a post, not aiming it (PostPose's "cross" hold; the regular
+## hold, arm out, is aimed): the hand's wander PostPose.POINT_SPREAD times as wide, a cone of
+## POINT_SPREAD_ADD degrees on it, and no hold-over for range (the rule in PostPose).
+func _pointing() -> bool:
+	return body.pose == &"post" and _post_dials.get("style", &"") == &"cross"
+
+
+## The man within PostPose.POINT_ARC of where his forearm points (the line he bladed himself to, level).
+func _in_point_arc(point: Vector3) -> bool:
+	var shoulder := (body.pivots[&"upper_arm_r"] as Node3D).global_position
+	var v := point - shoulder
+	var flat := Vector3(v.x, 0.0, v.z)
+	if flat.length() < 0.1:
+		return false
+	var pitch := rad_to_deg(atan2(v.y, flat.length()))
+	return absf(pitch) <= PostPose.POINT_ARC and rad_to_deg(_post_dir.angle_to(flat.normalized())) <= PostPose.POINT_ARC
+
+
 ## Up (or out) and shooting: a shot or two, then back down.
 func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 	_peek_time += delta
-	if not cover.low and body.global_position.distance_to(cover.peek) > 0.2:
+	var at_post: bool = cover.get("narrow", false)
+	if not cover.low and not at_post and body.global_position.distance_to(cover.peek) > 0.2:
 		body.walk_to(cover.peek, walk_speed * 1.6, delta, false)
 	var aim_point := _aim_point(t)
-	body.face(aim_point)
+	if not at_post:
+		body.face(aim_point)
 	_stagger -= delta
 	if _pain_locked() or _stagger > 0.0:
 		_duck_back()
 		return
-	body.set_pose(_peek_pose)
+	if at_post:
+		_hold_post(delta, _held_eye(eye))
+	else:
+		body.set_pose(_peek_pose)
 	_next_shot -= delta
 	if _next_shot <= 0.0:
 		if rounds <= 0:
@@ -2062,6 +2158,9 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 			return
 		if not _can_shoot_at(t):
 			_next_shot = 0.2
+			return
+		if at_post and not _in_point_arc(aim_point):
+			_next_shot = 0.2  # not where his forearm points: he'll turn to it first
 			return
 		if variant != Variant.A and not _sights_on(delta, t):
 			return
@@ -2083,7 +2182,7 @@ func _duck_back() -> void:
 	tactic = Tactic.HIDDEN
 	_peeks += 1
 	_tactic_time = _think.randf_range(0.3, 0.8) if covering > 0.0 else _think.randf_range(1.2, 3.0)
-	if not cover.low:
+	if not cover.low and not cover.get("narrow", false):
 		# Back in behind the wall.
 		body.global_position = body.global_position.lerp(cover.at, 0.5)
 
@@ -2195,6 +2294,8 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	# Along the barrel, where his hand has it: the wander, the lag onto a moving man, the kick of
 	# his last shot, a jolt. No dice (GunHand). Variant A: in a cone round his aim.
 	var dir := hand.barrel() if variant != Variant.A else _cone_shot(ballistics, origin, point, t)
+	if variant != Variant.A and _pointing():
+		dir = _cone(dir, deg_to_rad(PostPose.POINT_SPREAD_ADD))
 	var exclude: Array[RID] = []
 	for sid: StringName in body.parts:
 		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
@@ -2273,6 +2374,8 @@ func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vect
 ## held low before him.
 func _want_dir(origin: Vector3, t: Node3D) -> Vector3:
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	if t != null and _pointing():
+		return (_aim_point(t) - origin).normalized()  # pointed, not sighted: no hold-over
 	if t != null and ballistics != null:
 		return _held_over(ballistics, origin, _aim_point(t))
 	var fwd := -body.global_basis.z
@@ -2290,16 +2393,18 @@ func _step_hand(delta: float) -> void:
 	var t := _find_target()
 	if menace != null and is_instance_valid(menace) and body.pose in AIM_POSES:
 		t = menace  # his gun on the man he's holding
-	var aimed := t != null and body.gun_ready() and body.pose in AIM_POSES
+	var aimed := t != null and body.gun_ready() and (body.pose in AIM_POSES or body.pose == &"post")
 	var p := body.physiology
 	var tune := hand_tuning()
 	# Rounds cracking past (variant D's noise) leave his hand rattled long after the fright has
 	# gone (`rattled`, fading as slowly as fear does): they spoil his aim, they don't break him.
 	var stress := 1.0 + (fear + (rattled if _has(&"noise") else 0.0)) * tune.fear_sway + p.felt_pain() * tune.pain_sway + p.shock() * tune.shock_sway \
 			+ (tune.rattled_sway if suppressed > 0.0 else 0.0)
+	var eye := tune.wrong_eye if p.blind.has(&"eye_r") else (lerpf(1.0, tune.wrong_eye, 0.6) if p.blood_in_eye.has(&"r") else 1.0)
+	if _pointing():
+		eye *= PostPose.POINT_SPREAD
 	hand.step(delta, _want_dir(gun.muzzle.global_position, t if aimed else null), aimed, body.pose in LOW_POSES, body.move_speed,
-			stress, (1.0 - p.arm_steadiness("r")) * tune.arm_tremor, tune.wrong_eye if p.blind.has(&"eye_r") \
-			else (lerpf(1.0, tune.wrong_eye, 0.6) if p.blood_in_eye.has(&"r") else 1.0))
+			stress, (1.0 - p.arm_steadiness("r")) * tune.arm_tremor, eye)
 
 
 ## Holding on his man till his sights settle on him (or he can't hold any longer), then the

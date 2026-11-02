@@ -500,3 +500,125 @@ func test_he_hears_a_planted_fuse() -> void:
 	await physics_frames(70)
 	check_eq(float(brain.fear_from.get(&"a fuse hissing", 0.0)), 0.0, "one 30 m off he doesn't hear")
 	far.queue_free()
+
+
+# --- Posts as narrow cover (variant D's posts, #531) ----------------------------------------------
+
+## A gallery post (8x8 in, 20 cm) standing 9 m in front of you; the spot 0.4 m behind it.
+const POST_AT := Vector3(0.0, 0.0, -9.0)
+const POST_SPOT := Vector3(0.0, 0.0, -9.5)
+
+
+func _post(width := 0.2, low := 0.0, high := 3.66) -> void:
+	_box(POST_AT + Vector3.UP * (low + high) * 0.5, Vector3(width, high - low, width))
+
+
+func test_a_post_is_cover_side_on_but_not_square_on() -> void:
+	await _outlaw(Vector3(4, 0, -14))
+	_post()
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := Vector3(0.0, 1.6, 0.0)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true).is_empty(), "too narrow to hide a man square on (as before)")
+	var spot := Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true)
+	check(spot.get("narrow", false), "but a man bladed behind it: a narrow spot (%s)" % spot)
+	if spot.is_empty():
+		return
+	check(absf(float(spot.post_w) - 0.2) <= 0.05, "its width across the line about 20 cm (%.2f)" % spot.post_w)
+	var post: Vector3 = spot.post
+	check(Vector2(post.x - POST_AT.x, post.z - POST_AT.z).length() < 0.08, "its middle where it stands (%s)" % post)
+	check(spot.peek == spot.at, "he shoots from where he stands")
+	check(not spot.low, "it covers him standing")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "his legs, belly and chest behind it")
+	# You tight behind your own cover (a board a hand in front of your eye): that hides him too, it's
+	# no reason for him to leave.
+	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
+	await physics_frames(2)
+	check(not Cover._blocked(space, POST_SPOT, eye, 1.0, _exclude(), true), "(the board's not his cover)")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "and he stays at his post behind it")
+	check(not Cover.hidden_narrow(space, POST_SPOT, Vector3(3.0, 1.6, 0.0), _exclude(), spot.post, spot.post_w),
+			"you 3 m to the side: the line's past its edge")
+	world.get_child(world.get_child_count() - 1).free()
+	await physics_frames(2)
+	# Too high above him to point at: not from here.
+	check(Cover.evaluate(space, POST_SPOT, Vector3(0.0, 6.5, 0.0), _exclude(), true, [], true).is_empty(),
+			"a man 5 m up is past his forearm's reach")
+
+
+func test_a_pole_or_a_rail_is_no_post() -> void:
+	await _outlaw(Vector3(4, 0, -14))
+	_post(0.06)
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := Vector3(0.0, 1.6, 0.0)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true).is_empty(), "a 6 cm pole hides nothing")
+	world.get_child(world.get_child_count() - 1).free()
+	_post(0.2, 0.8, 1.8)
+	await physics_frames(2)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true).is_empty(), "a rail open below leaves his legs out")
+
+
+func test_at_a_post_he_blades_himself_and_shoots_round_it() -> void:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.nerve = 99.0
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var spot := Cover.evaluate(space, POST_SPOT, _eye(), _exclude(), true, [], true)
+	check(spot.get("narrow", false), "the post is a narrow spot")
+	if spot.is_empty():
+		return
+	await _provoke()
+	brain._search = null
+	outlaw.global_position = POST_SPOT
+	spot.eye = _eye()
+	brain.cover = spot
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 0.4
+	brain._flank_after = 99.0
+	shots_by_outlaw = 0
+	var posed := 0
+	var side_on := 0
+	var hidden := 0
+	var frames := 60 * 6
+	for i in frames:
+		await physics_frames(1)
+		if brain.cover.get("narrow", false) and brain.tactic in [OutlawBrain.Tactic.HIDDEN, OutlawBrain.Tactic.PEEKING]:
+			if outlaw.pose == &"post":
+				posed += 1
+			var fwd := -outlaw.global_basis.z
+			var to := (_eye() - outlaw.global_position) * Vector3(1, 0, 1)
+			var regular: bool = brain._post_dials.get("style", &"") == &"regular"
+			if absf(fwd.normalized().dot(to.normalized())) < (0.85 if regular else 0.4):
+				side_on += 1
+			if Cover.hidden_narrow(space, brain._trunk_at(_eye()), _eye(), _exclude(), spot.post, spot.post_w):
+				hidden += 1
+	check(brain.cover.get("narrow", false), "he keeps to the post (%s)" % brain.describe().substr(0, 60))
+	check(posed > frames * 0.8, "in his post pose (%d of %d frames)" % [posed, frames])
+	check(side_on > frames * 0.8, "turned side-on to you (%d of %d)" % [side_on, frames])
+	check(hidden > frames * 0.8, "his trunk behind it (%d of %d)" % [hidden, frames])
+	check(shots_by_outlaw >= 1, "and shoots round it (%d shots)" % shots_by_outlaw)
+	var post: Vector3 = spot.post
+	var gap := Vector2(outlaw.global_position.x - post.x, outlaw.global_position.z - post.z).length()
+	check(gap < 0.6, "set against it, not stood off (%.2f m from its middle)" % gap)
+
+
+func test_from_a_post_he_points_the_gun_rather_than_aims_it() -> void:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D
+	await physics_frames(2)
+	brain.cover = {"at": POST_SPOT, "low": false, "peek": POST_SPOT, "narrow": true, "post": POST_AT, "post_w": 0.2}
+	brain._post_dials = PostPose.dials(3)  # seed 3: the gun across him (the sheet's hero)
+	check_eq(brain._post_dials.style, &"cross", "seed 3 holds it across him")
+	brain._hold_post(0.016, _eye())
+	check_eq(outlaw.pose, &"post", "bladed")
+	check(brain._pointing(), "pointing it from there, not sighting")
+	check(brain._in_point_arc(_eye() + Vector3.DOWN * 0.3), "you're along his forearm")
+	check(not brain._in_point_arc(outlaw.global_position + Vector3(6.0, 1.3, 0.0)), "a man off to his side isn't")
+	var origin := outlaw.global_position + Vector3.UP * 1.15
+	var want := brain._want_dir(origin, player)
+	check(want.angle_to((brain._aim_point(player) - origin).normalized()) < 0.001, "no hold-over for range")
+	outlaw.set_pose(&"aim")
+	check(not brain._pointing(), "out of the pose he aims as before")

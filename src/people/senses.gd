@@ -189,8 +189,11 @@ func _entry(who: Node) -> Dictionary:
 	return known[who]
 
 
-## His eye, in the world.
+## His eye, in the world. Bladed behind a post (#531) it's his leading eye itself, leaned out past
+## the post's edge a few centimetres (PostPose), not his head's middle, still behind it.
 func eye() -> Vector3:
+	if body.pose == &"post":
+		return PostPose.eye_now(body)
 	var head := body.parts.get(&"head") as Node3D
 	return head.global_position + Vector3.UP * 0.04 if head else body.global_position + Vector3.UP * 1.62
 

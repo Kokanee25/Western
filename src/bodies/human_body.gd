@@ -265,6 +265,7 @@ var pose := &"stand"
 var pose_offsets := {}
 ## The "post" pose's joints for him (PostPose.make from his dials, `take_post`).
 var post_pose := {}
+var _post_made := 0
 var aim_pitch := 0.0
 var held_gun: Node3D
 var gun_holstered := false
@@ -2112,7 +2113,10 @@ func take_post(threat: Vector3, dials := {}) -> Dictionary:
 		return {}
 	var d := dials if not dials.is_empty() else PostPose.dials(rng_seed)
 	global_rotation.y = PostPose.yaw(global_position, threat, d)
-	post_pose = PostPose.make(self, d)
+	# The joints don't hang on where the threat is (the turn's his yaw): worked out once for his dials.
+	if post_pose.is_empty() or d.hash() != _post_made:
+		post_pose = PostPose.make(self, d)
+		_post_made = d.hash()
 	pose = &"post"
 	return d
 
