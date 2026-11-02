@@ -89,7 +89,7 @@ now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
 scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
 `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
-`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`); `run.py` runs the matrix
 a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
 sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
 its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you

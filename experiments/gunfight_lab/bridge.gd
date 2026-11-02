@@ -21,6 +21,7 @@ const HELP := {
 	"gf_minds": "gf_minds -> each of the gang's last decision and why, his fear and nerve (as F3 shows them)",
 	"gf_trace": "gf_trace NAME [SECONDS] -> every 0.1 s of game time: where he is, his speed, gait, pose, stumbling, tactic, mood, reaction and stagger left, whether he's looking for cover, his decision",
 	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
+	"gf_postcam": "gf_postcam [DIST] [DEG] [HEIGHT] [HOLD] | off -> a film camera on whichever of the gang is at a post (narrow cover), DIST m (3.2) off behind his shoulder on the side he steps out to, DEG (50) round from straight behind, HEIGHT m (1.7) up; back to your eyes HOLD s (1.5) after he leaves it; prints `postcam FRAME T NAME on|off` to cut the film by",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -451,6 +452,8 @@ var _watch := {}
 
 
 func _physics_process(_delta: float) -> void:
+	if not _postcam.is_empty():
+		_post_follow(_delta)
 	if not _watch.is_empty():
 		if bridge._free_camera == null and _watch.get("placed", false):
 			_watch = {}
@@ -536,3 +539,89 @@ func _cmd_gf_trace(a: Array) -> Dictionary:
 		await seconds(0.1)
 		t += 0.1
 	return {"trace": out, "cols": "t x z speed gait pose stumbling limp tactic mood react stagger searching decision"}
+
+
+## The posts' film camera (gf_postcam, #566): finds a man of the gang at a post (Cover's narrow
+## kind) and holds on him from behind his shoulder on the side he steps out to, so the post, the
+## man bladed behind it, his steps out past its edge and you beyond are all in the shot; back to
+## your eyes `hold` s after he's left it, then the next man at a post. Each cut is printed
+## (`postcam FRAME T NAME on|off`: frames drawn, game seconds) to cut the film by.
+var _postcam := {}
+
+
+func _cmd_gf_postcam(a: Array) -> Dictionary:
+	if a.size() == 1 and a[0] == "off":
+		_postcam = {}
+		bridge._cmd_camera(["player"])
+		return {"postcam": "off"}
+	_postcam = {"dist": float(a[0]) if a.size() > 0 else 3.2, "deg": float(a[1]) if a.size() > 1 else 50.0,
+			"h": float(a[2]) if a.size() > 2 else 1.7, "hold": float(a[3]) if a.size() > 3 else 1.5, "man": null, "away": 0.0}
+	return {"postcam": "on"}
+
+
+func _at_post(m: HumanBody) -> OutlawBrain:
+	if m == null or not is_instance_valid(m) or m.limp:
+		return null
+	var b := m.get_node_or_null(^"Brain") as OutlawBrain
+	if b == null or not b.cover.get("narrow", false) or not b.tactic in [OutlawBrain.Tactic.HIDDEN, OutlawBrain.Tactic.PEEKING]:
+		return null
+	return b
+
+
+func _post_follow(delta: float) -> void:
+	var pc := _postcam
+	var m: HumanBody = pc.man as HumanBody if is_instance_valid(pc.get("man")) else null
+	var b := _at_post(m)
+	if m != null and (b == null or (b.cover.post as Vector3).distance_to(pc.post) > 0.05):
+		pc.away = float(pc.away) + delta
+		if float(pc.away) > float(pc.hold) or not is_instance_valid(m):
+			print("postcam %d %.2f %s off" % [Engine.get_frames_drawn(), Engine.get_physics_frames() / 60.0, m.person_id])
+			pc.man = null
+			bridge._cmd_camera(["player"])
+		return
+	pc.away = 0.0
+	if m == null:
+		for id: String in ["brody", "lyle", "kid"]:
+			var c := person(id)
+			var cb := _at_post(c)
+			if cb != null:
+				m = c
+				b = cb
+				pc.man = c
+				pc.post = cb.cover.post
+				pc.side = Vector3.ZERO
+				pc.cam = Vector3.INF
+				print("postcam %d %.2f %s on" % [Engine.get_frames_drawn(), Engine.get_physics_frames() / 60.0, id])
+				break
+		if m == null:
+			return
+	var post: Vector3 = pc.post
+	var fwd := player.camera.global_position - post
+	fwd.y = 0.0
+	if fwd.length() < 0.3:
+		return
+	fwd = fwd.normalized()
+	var across := Vector3.UP.cross(fwd)
+	# The side he steps out to: where the step's going, else the way he faces bladed.
+	var side := Vector3.ZERO
+	if not b._step.is_empty():
+		var o: Vector3 = (b._step.out_at as Vector3) - post
+		side = across * signf(o.dot(across)) if absf(o.dot(across)) > 0.01 else Vector3.ZERO
+	elif m.pose == &"post":
+		var f := (-m.global_basis.z).dot(across)
+		side = across * signf(f) if absf(f) > 0.3 else Vector3.ZERO
+	if side != Vector3.ZERO:
+		pc.side = side
+	side = pc.side if pc.side != Vector3.ZERO else across
+	var th := deg_to_rad(float(pc.deg))
+	var look := post + Vector3.UP * 1.25 + side * 0.25 + fwd * 0.4
+	var want := post + (-fwd * cos(th) + side * sin(th)) * float(pc.dist) + Vector3.UP * float(pc.h)
+	# Short of a wall between.
+	var q := PhysicsRayQueryParameters3D.create(look, want)
+	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	var hit := World.space(m).intersect_ray(q)
+	if not hit.is_empty():
+		want = look + (want - look).normalized() * maxf(look.distance_to(hit.position) - 0.2, 0.6)
+	var cam: Vector3 = want if pc.cam == Vector3.INF else (pc.cam as Vector3).lerp(want, 0.08)
+	pc.cam = cam
+	bridge._cmd_camera([str(cam.x), str(cam.y), str(cam.z), str(look.x), str(look.y), str(look.z), "62"])
