@@ -1,0 +1,36 @@
+{
+ "models_14_passengers": {
+  "cmd": "train_cost 10",
+  "draw_calls": 646.0,
+  "draw_ms": 0.4044,
+  "engineer_ms": 0.0,
+  "frames": 15,
+  "kmh": 24.9309502998252,
+  "ok": true,
+  "primitives": 2247214.0,
+  "sim_ms": 0.220091666666667,
+  "solids_ms": 0.530221666666667,
+  "strike_ms": 0.0684566666666667,
+  "t": 23.35,
+  "tick_ms": 0.898761666666667,
+  "ticks": 600,
+  "wall_ms_a_frame": 2166.1004
+ },
+ "boxes_14_passengers": {
+  "cmd": "train_cost 10",
+  "draw_calls": 430.0,
+  "draw_ms": 0.177933333333333,
+  "engineer_ms": 0.0,
+  "frames": 15,
+  "kmh": 24.9291969668399,
+  "ok": true,
+  "primitives": 2046444.0,
+  "sim_ms": 0.228693333333333,
+  "solids_ms": 0.681058333333333,
+  "strike_ms": 0.070145,
+  "t": 44.02,
+  "tick_ms": 1.06479,
+  "ticks": 600,
+  "wall_ms_a_frame": 2157.2696
+ }
+}

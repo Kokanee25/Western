@@ -105,7 +105,13 @@ func _riding() -> bool:
 
 ## The car a body stands on (what's just under its feet is a car's solid), or -1.
 func car_under(who: CharacterBody3D) -> int:
-	if who == null or not is_instance_valid(who) or not who.is_on_floor():
+	if who == null or not is_instance_valid(who):
+		return -1
+	# On a car's ladder (the boxcar's) he rides that car.
+	var ladder: Variant = who.get(&"ladder")
+	if ladder is Ladder and is_instance_valid(ladder) and (ladder as Node).get_parent().has_meta(&"train_car"):
+		return int((ladder as Node).get_parent().get_meta(&"train_car"))
+	if not who.is_on_floor():
 		return -1
 	var space := get_world_3d().direct_space_state if is_inside_tree() else null
 	if space == null:

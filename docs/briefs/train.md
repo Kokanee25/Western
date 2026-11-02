@@ -97,3 +97,15 @@ All in `config/train.tres`, all *proposed*; the timetable's in `experiments/trai
   (`brake_lead`), stands at least 60 s when late (`dwell_min`); the timetable allows the measured run
   at 22 km/h plus 20 % and lets him run 32 km/h to make up time. Ten runs stop within 0.46 m of the
   mark; a 3-minute late start is 84 s late at the mine and on time back at the depot.
+
+## Numbers and where they're from (step 3, #542)
+
+- **The engine's shape:** the D&RG class 70 (1880-82): 37 in drivers (0.94 m), four pairs at
+  1.3 m (a 13 ft driving wheelbase), 15 x 20 in cylinders (the crank 10 in, 0.254 m), a 24 in pony
+  truck, the main rod on the third pair (2.6 m), the boiler 44 in, a diamond stack, a box
+  headlight; Stephenson gear inside the frames. Its numbers are in `assets/train/engine_rig.json`
+  (written by `engine.py`).
+- **The exhaust:** two double-acting cylinders, so four beats a turn of the drivers (2.95 m of
+  track): at 25 km/h ~9.4 a second; the cocks open below 2.5 m/s.
+- **The cars:** 26 in wheels on arch-bar trucks, 1.2 m between axles; floors at 1.1 m (step 2's);
+  the coach's benches 0.85 m apart, seats 0.45 m high, the aisle 0.66 m.
