@@ -204,9 +204,17 @@ paid on every turn of every session.
   through the status file and Current state, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
   when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
-  open). Then, and never later: write the status entry and your Current state lines, and tell
-  Sean, as your last message, **"Step done: <what>. Next: issue #N."**, naming the issue that
-  already holds the next step, and do no more work. **Keep the issues few** (Sean, 2026-10-31:
+  open). Then, and never later: write the status entry and your Current state lines, and do no
+  more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
+  last message with **"Step done: <what>."** and then a **handover prompt** in one fenced block
+  that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
+  nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
+  branch to start (from `main`), the goal and what done looks like, what this session found and
+  where (files, results, the dead ends), the traps, how it's measured, and when to stop. Post the
+  same prompt as a comment on that issue (headed "Handover for the next session") so it's there
+  from any session. Pointing at the issue alone isn't a handover: the session you're in may be
+  that issue's. If nothing goes on (or it waits on Sean's answer), say so instead.
+  **Keep the issues few** (Sean, 2026-10-31:
   too many to keep track of): never open an issue that only points at another issue or hands a
   step on; what a fresh session must know goes as a comment on the issue it will work, or in the
   status entry. A new issue only for a decision only Sean can make (`waiting on Sean`) or real new
