@@ -709,6 +709,11 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		var m: Dictionary = _men[_mid(shooter)]
 		m.shots += 1
 		var b := brains[_mid(shooter)] as OutlawBrain
+		var stay: Dictionary = m.get("_stay", {})
+		if not stay.is_empty():
+			stay.shots = int(stay.get("shots", 0)) + 1
+			if b.stepped_out():
+				stay.shots_out = int(stay.get("shots_out", 0)) + 1
 		if b.covering > 0.0 or not b.senses.sees(player):
 			m.suppressing_shots += 1
 		elif t - float(m.get("_line_t", 0.0)) > NO_LINE and not _in_sight(b, player):
@@ -747,6 +752,8 @@ func _on_bullet_hit(info: Dictionary) -> void:
 					sm.hits_on_you += 1
 					if not (sm.get("_stay", {}) as Dictionary).is_empty():
 						sm._stay.hits_on_you = int(sm._stay.hits_on_you) + 1
+						if (brains[_mid(shooter)] as OutlawBrain).stepped_out():
+							sm._stay.hits_on_you_out = int(sm._stay.get("hits_on_you_out", 0)) + 1
 					if _up((shooter as Node3D).global_position):
 						sm.hits_from_up = int(sm.get("hits_from_up", 0)) + 1
 				_first_hit("gang")
@@ -756,6 +763,8 @@ func _on_bullet_hit(info: Dictionary) -> void:
 			var stay: Dictionary = _men[_mid(victim)].get("_stay", {})
 			if not stay.is_empty():
 				stay.hits = int(stay.hits) + 1
+				if (brains[_mid(victim)] as OutlawBrain).stepped_out():
+					stay.hits_out = int(stay.get("hits_out", 0)) + 1
 			_men[_mid(victim)]._ball_t = t
 			_fright(victim, "hit")
 			if shooter == player:
@@ -1225,6 +1234,13 @@ func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -
 			st.s = float(st.s) + delta
 			if b.tactic == OutlawBrain.Tactic.PEEKING:
 				st.peek_s = float(st.peek_s) + delta
+			# Stepped out from a post to aim (#566): how long out, how many times.
+			var out := b.stepped_out()
+			if out:
+				st.out_s = float(st.get("out_s", 0.0)) + delta
+				if not st.get("_out", false):
+					st.steps = int(st.get("steps", 0)) + 1
+			st._out = out
 		else:
 			var why: String = b.decision if b.decision != st._dec else String(OutlawBrain.Tactic.keys()[b.tactic]).to_lower()
 			if why.begins_with("leave his cover") and not b.cover.is_empty():
@@ -1261,6 +1277,9 @@ func _end_stay(m: Dictionary, why: String) -> void:
 	st.left = why
 	st.s = snappedf(float(st.s), 0.01)
 	st.peek_s = snappedf(float(st.peek_s), 0.01)
+	if st.has("out_s"):
+		st.out_s = snappedf(float(st.out_s), 0.01)
+	st.erase("_out")
 	st.erase("_at")
 	st.erase("_dec")
 	(m.get_or_add("stays", []) as Array).append(st)
