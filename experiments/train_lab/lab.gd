@@ -119,6 +119,47 @@ func _put_engineer_in_cab() -> void:
 	engineer_body = man
 
 
+## Passengers (step 3): `n` townsfolk (the Studio's men) sitting on the coach's benches, window
+## seats first, facing forward, riding with the car as the engineer does. Gone with the next call.
+var passengers: Array[HumanBody] = []
+
+
+func seat_passengers(n: int) -> int:
+	for p in passengers:
+		if is_instance_valid(p):
+			p.queue_free()
+	passengers.clear()
+	var coach := -1
+	for i in train.sim.cars.size():
+		if train.sim.cars[i].kind == &"coach":
+			coach = i
+	if coach < 0:
+		return 0
+	var car: AnimatableBody3D = train.view.solids[coach]
+	var seats := TrainModels.seats(train.sim.cars[coach], train.sim.tuning)
+	var order: Array[Transform3D] = []
+	for k in range(0, seats.size(), 2):
+		order.append(seats[k])
+	for k in range(1, seats.size(), 2):
+		order.append(seats[k])
+	var folk: Array = ShotMatch.STUDIO_FOLK
+	for k in mini(n, order.size()):
+		var seat := order[k]
+		var man := HumanBody.new()
+		man.body_model = folk[k % folk.size()]
+		man.person_id = StringName("passenger_%d" % k)
+		man.name = "Passenger%d" % k
+		man.rng_seed = 553 + k
+		man.has_gun = false
+		man.set_meta(&"train_rides", true)
+		var at := seat.origin
+		at.y = TrainCars.DECK
+		man.enter(car, car.global_transform * at, car.global_rotation.y)
+		man.set_pose(&"sit_back")
+		passengers.append(man)
+	return passengers.size()
+
+
 func _physics_process(delta: float) -> void:
 	if train == null or not is_instance_valid(train):
 		return

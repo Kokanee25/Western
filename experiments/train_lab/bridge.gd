@@ -32,6 +32,8 @@ const HELP := {
 	"train_hits": "train_hits -> the balls that have struck a car (which, its surface, where)",
 	"train_placed": "train_placed -> the crates and men put on the line: where they are now, how far off the line",
 	"train_events": "train_events [N] -> the last N couplers' slack-outs and bunches",
+	"train_models": "train_models on|off -> the cars drawn as step 3's models or step 2's boxes (rebuilt; passengers go)",
+	"train_passengers": "train_passengers N -> N passengers seated in the coach (window seats first)",
 	"train_where": "train_where CAR [ALONG] [UP] -> a point on a car (for look/shoot): ALONG m behind its front",
 }
 
@@ -241,6 +243,26 @@ func _cmd_train_engineer(_a: Array) -> Dictionary:
 	return {"state": ["wait", "run", "done"][e.state], "stop": e.stop, "target": e.target, "cruise_kmh": e.cruise * 3.6,
 		"delay": e.delay(), "time": lab.train.sim.time, "kmh": lab.train.sim.v * 3.6, "alive": e._alive(),
 		"stops": e.stop_log}
+
+
+func _cmd_train_models(a: Array) -> Dictionary:
+	var lab := _built()
+	var view: TrainView = lab.train.view
+	view.models = a.is_empty() or a[0] != "off"
+	view.setup(view.track, view.sim)
+	view.place()
+	view.place_solids()
+	return {"models": view.models}
+
+
+func _cmd_train_passengers(a: Array) -> Dictionary:
+	var lab := _built()
+	var n: int = lab.seat_passengers(int(a[0]) if a.size() > 0 else 12)
+	await seconds(1.0)
+	var where := []
+	for p: HumanBody in lab.passengers:
+		where.append(arr(p.global_position))
+	return {"seated": n, "at": where}
 
 
 func _cmd_train_board(a: Array) -> Dictionary:

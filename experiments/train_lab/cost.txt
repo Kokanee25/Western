@@ -1,0 +1,16 @@
+# Step 3's frame cost: the whole train in view running at 25 km/h with fourteen passengers, as
+# models, then as step 2's boxes (the same run).
+time 16.5
+train_lab
+train_drive off
+train_place 150 25
+train_drive hold 25
+train_passengers 14
+train_watch box 5 -30 5 -8 follow
+wait 6
+train_cost 10
+train_models off
+train_place 150 25
+train_watch box 5 -30 5 -8 follow
+wait 6
+train_cost 10

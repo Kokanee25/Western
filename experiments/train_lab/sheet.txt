@@ -1,0 +1,43 @@
+# Step 3's sheet: the train standing at the depot, golden hour then night (each view twice).
+# Run: python3 tools/bridge.py run experiments/train_lab/sheet.txt --size=960x540 (OUT set below)
+train_lab
+train_drive off
+train_place depot 0
+train_passengers 14
+time 17.6
+wait 6
+train_watch engine 2 -4.5 2.2 -6
+wait 2
+screenshot build/train_sheet/gold_engine_front.png
+train_watch engine 5 -3.4 1.1
+wait 2
+screenshot build/train_sheet/gold_engine_side.png
+train_watch tender 3 -2.6 3.7 4.5
+wait 2
+screenshot build/train_sheet/gold_tender_cab.png
+train_watch ore 3 -6 2.6 5
+wait 2
+screenshot build/train_sheet/gold_ore_box.png
+train_watch coach 5 -6.5 2.0 -4
+wait 2
+screenshot build/train_sheet/gold_express_coach.png
+train_watch coach 3 0 1.75 7.5
+wait 2
+screenshot build/train_sheet/gold_coach_inside.png
+train_watch box 5 -26 4 -6
+wait 2
+screenshot build/train_sheet/gold_whole.png
+time 22.5
+wait 6
+train_watch engine 2 -4.5 2.2 -6
+wait 2
+screenshot build/train_sheet/night_engine_front.png
+train_watch coach 5 -6.5 2.0 -4
+wait 2
+screenshot build/train_sheet/night_express_coach.png
+train_watch coach 3 0 1.75 7.5
+wait 2
+screenshot build/train_sheet/night_coach_inside.png
+train_watch box 5 -26 4 -6
+wait 2
+screenshot build/train_sheet/night_whole.png

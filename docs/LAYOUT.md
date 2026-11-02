@@ -1169,6 +1169,18 @@ knocks a standing kit prop loose and shoves or strikes a man in a moving car's w
 keeps time, brakes for the mark from the 1D stopping distance, creeps or sets back, a late start
 made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log`).
 
+Step 3 (#542): the models. `EngineModel` (`assets/train/engine.glb` by
+`experiments/train_lab/blender/engine.py`; its numbers `engine_rig.json`): the glb's nodes moved
+by `roll(s)` (drivers s / r, side rods on the pins, main rods pin to crosshead), exhaust beats
+four a turn (`emit_particle` puffs, `beats`), cylinder cocks below `COCKS_BELOW`, the stack's
+smoke, the headlight (`set_night`). `TrainModels`: the glb parts dressed by material name
+(`dress`: PixelArt metals and woods mapped in their own space), the cars of boards
+(`MemberMesh` boards in `WoodMaterials`, merged a material a car), `truck` (arch bars, wheelsets
+turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) draws them over
+`TrainCars`' solids, which stay the walk path; the boxcar is shut and climbed by a `Ladder`
+(`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
+`train_passengers N` seats the Studio's men in the coach.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;

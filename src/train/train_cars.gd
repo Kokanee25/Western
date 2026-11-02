@@ -7,14 +7,15 @@ extends RefCounted
 ## where a car is taller the way over it is steps (no step higher than the player can take):
 ##
 ##   coach, express  a shell: end platforms, walls, a roof, a doorway in each end; you walk the aisle
-##   box             steps up from each end platform to the roof and down the other side
+##   box             shut: a ladder up each end to the roof walk (Ladder, step 3)
 ##   ore             a floor with low sides, open ends: you walk along inside
 ##   tender          the coal space in front at deck height, steps up over the tank, steps down behind
 ##   engine          the cab at the back (open to the tender), the boiler, the frame, a pilot in front
 ##
 ## A shape: {size: Vector3, at: Vector3 (its middle), colour, solid: bool, surface} in the car's
 ## frame (origin on the rail top midway between its trucks, -Z toward its front, +Y up); the pilot
-## is {hull: PackedVector3Array} (a wedge that shoves things aside).
+## is {hull: PackedVector3Array} (a wedge that shoves things aside); a ladder is {ladder, at (its
+## foot), height, facing (+1: it faces the car's back, -1 its front)}.
 
 ## The car floors above the rail top, m (a narrow-gauge car's floor ~1.1 m).
 const DECK := 1.1
@@ -108,11 +109,13 @@ static func shapes(car: Dictionary, t: TrainTuning) -> Array[Dictionary]:
 			box.call(-LIP, l + LIP, -w, -w + 0.1, DECK, DECK + 0.6)
 			box.call(-LIP, l + LIP, w - 0.1, w, DECK, DECK + 0.6)
 		&"box":
+			# Shut (its side doors closed): a solid box you go over by a ladder at each end and
+			# its roof walk (step 3, Ladder; step 2 had steps up from each end).
 			var roof := DECK + 2.0
-			var run := ceilf(2.0 / RISE) * RUN
-			stairs.call(0.15, 0.15 + run, DECK, roof, -w, w)
-			box.call(0.15 + run, l - 0.15 - run, -w, w, DECK, roof)
-			stairs.call(l - 0.15, l - 0.15 - run, DECK, roof, -w, w)
+			box.call(0.0, l, -w, w, DECK, roof)
+			for end in [0.0, l]:
+				out.append({"ladder": true, "at": Vector3(0.0, DECK, end - mid), "height": roof - DECK,
+					"facing": -1.0 if end == 0.0 else 1.0, "solid": false, "drawn": false})
 		&"coach", &"express":
 			var plat := 0.9
 			var h := 2.3

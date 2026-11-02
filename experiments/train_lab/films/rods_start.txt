@@ -1,0 +1,16 @@
+# Step 3 film: the rods at a start. The engine standing at the depot, seen from the lineside by its
+# running gear; the regulator opened: the drivers turn, the rods follow, the exhaust beats up the
+# stack and the cylinder cocks blow; then the camera rides along beside the rods.
+time 16.8
+train_lab
+train_drive off
+train_place depot 0
+train_watch engine 5.2 3.4 0.9 1.2
+wait 2
+throttle 1
+wait 10
+train_watch engine 5.2 3.6 1.0 0 follow
+wait 8
+throttle 0
+brake 1
+wait 4
