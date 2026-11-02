@@ -21,7 +21,7 @@ screenshot build/train_sheet/gold_ore_box.png
 train_watch coach 5 -6.5 2.0 -4
 wait 2
 screenshot build/train_sheet/gold_express_coach.png
-train_watch coach 3 0 1.75 7.5
+train_watch coach 3 0 2.75 7.5
 wait 2
 screenshot build/train_sheet/gold_coach_inside.png
 train_watch box 5 -26 4 -6
@@ -35,7 +35,7 @@ screenshot build/train_sheet/night_engine_front.png
 train_watch coach 5 -6.5 2.0 -4
 wait 2
 screenshot build/train_sheet/night_express_coach.png
-train_watch coach 3 0 1.75 7.5
+train_watch coach 3 0 2.75 7.5
 wait 2
 screenshot build/train_sheet/night_coach_inside.png
 train_watch box 5 -26 4 -6

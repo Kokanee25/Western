@@ -43,7 +43,7 @@ static func _metal(key: String, colour: Color, seed: int, mottle: float, rough: 
 
 
 static func iron() -> Material:
-	return _metal("iron", Color(0.11, 0.105, 0.1), 301, 0.6, 0.75, 0.35)
+	return _metal("iron", Color(0.11, 0.105, 0.1), 301, 0.25, 0.75, 0.35)
 
 
 static func steel() -> Material:
@@ -51,7 +51,7 @@ static func steel() -> Material:
 
 
 static func jacket() -> Material:  # Russia iron: the boiler's planished blue-grey sheet
-	return _metal("jacket", Color(0.2, 0.24, 0.27), 305, 0.5, 0.4, 0.6)
+	return _metal("jacket", Color(0.17, 0.2, 0.23), 305, 0.15, 0.6, 0.2)
 
 
 static func brass() -> Material:
@@ -159,7 +159,7 @@ class Build:
 	func board(wood: StringName, u0: float, u1: float, x0: float, x1: float, y0: float, y1: float, v := -1) -> void:
 		var variant := v if v >= 0 else rng.randi_range(0, 7)
 		var n := WoodMaterials.strip_count(wood)
-		variant = posmod(variant, n) if n > 0 else posmod(variant, 3)
+		variant = posmod(variant, mini(n, 2)) if n > 0 else posmod(variant, 2)  # two a wood: draws
 		var mat := WoodMaterials.get_material(wood, variant)
 		var size := Vector3(absf(x1 - x0), absf(y1 - y0), absf(u1 - u0))
 		var at := Vector3((x0 + x1) * 0.5, (y0 + y1) * 0.5, z((u0 + u1) * 0.5))
@@ -531,7 +531,7 @@ static func _express_inside(b: Build, l: float, w: float, u0: float, u1: float) 
 
 
 static func _coach_lamps(m: Node3D, b: Build, l: float) -> void:
-	for u in [l * 0.33, l * 0.67]:
+	for u: float in [l * 0.25, l * 0.5, l * 0.75]:
 		var at := Vector3(0.0, DECK + 1.95, b.z(u))
 		var mi := MeshInstance3D.new()
 		var lm := SphereMesh.new()
@@ -553,7 +553,7 @@ static func _coach_lamps(m: Node3D, b: Build, l: float) -> void:
 		var light := OmniLight3D.new()
 		light.name = "Lamp"
 		light.light_color = Color(1.0, 0.72, 0.4)
-		light.omni_range = 4.5
+		light.omni_range = 7.0
 		light.light_energy = 0.0
 		light.visible = false
 		light.position = at - Vector3.UP * 0.1
@@ -645,6 +645,6 @@ static func set_night(view: Node, night: float) -> void:
 			(n as EngineModel).set_night(night)
 	for l: Node in view.get_tree().get_nodes_in_group(&"train_lamps"):
 		if view.is_ancestor_of(l):
-			(l as OmniLight3D).light_energy = 1.4 * night
+			(l as OmniLight3D).light_energy = 2.6 * night
 			(l as OmniLight3D).visible = night > 0.01
 	lamp().emission_energy_multiplier = 0.3 + 2.5 * night

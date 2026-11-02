@@ -19,8 +19,6 @@ const GLB := "res://assets/train/engine.glb"
 const RIG := "res://assets/train/engine_rig.json"
 ## Below this speed (m/s) with steam on, the cocks are open (they drain the cylinders at a start).
 const COCKS_BELOW := 2.5
-## The puffs' size and life at full steam.
-const PUFF_PARTICLES := 3
 
 var rig := {}
 var drivers: Array[Node3D] = []
@@ -29,8 +27,6 @@ var side_rods := {}  # "R"/"L" -> Node3D
 var main_rods := {}
 var crossheads := {}
 var stack_smoke: GPUParticles3D
-var exhaust: GPUParticles3D
-var cocks: Array[GPUParticles3D] = []
 var headlight: SpotLight3D
 var lens: MeshInstance3D
 ## How many beats have gone up the stack (the sound's step 4 counts on them).
@@ -106,22 +102,94 @@ func roll(s: float) -> void:
 
 func _exhaust_beat() -> void:
 	beats += 1
-	if steam < 0.03:
+	if steam < 0.03 or not is_inside_tree():
 		return
+	# A puff up the stack, as fast and as big as the steam; at a start the cocks blow too.
 	var up := global_basis.y
 	var at := to_global(_v3(rig.stack))
-	var n := maxi(1, int(round(PUFF_PARTICLES * clampf(steam * 1.5, 0.3, 1.5))))
-	for k in n:
-		var v := up * (3.0 + 5.0 * steam) + Vector3(randf_range(-0.4, 0.4), 0.0, randf_range(-0.4, 0.4))
-		exhaust.emit_particle(Transform3D(Basis.IDENTITY, at), v, Color(1, 1, 1, clampf(0.4 + steam, 0.4, 1.0)),
-			Color(), GPUParticles3D.EMIT_FLAG_POSITION | GPUParticles3D.EMIT_FLAG_VELOCITY | GPUParticles3D.EMIT_FLAG_COLOR)
+	_puff(at, up * (3.0 + 6.0 * steam), 0.7 + 0.6 * steam, 2.4, _exhaust_mat())
 	if speed < COCKS_BELOW:
-		for k in cocks.size():
-			var c := cocks[k]
-			var out := global_basis.x * (1.0 if k == 1 else -1.0)
-			for j in 2:
-				c.emit_particle(Transform3D(Basis.IDENTITY, c.global_position), out * randf_range(2.0, 3.5) + up * 0.3,
-					Color.WHITE, Color(), GPUParticles3D.EMIT_FLAG_POSITION | GPUParticles3D.EMIT_FLAG_VELOCITY)
+		for p: Array in rig.cylinder_cocks:
+			var out := global_basis.x * signf(float(p[0]))
+			_puff(to_global(_v3(p)), out * 3.0 + up * 0.3 - global_basis.z * 0.5, 0.45, 1.1, _steam_mat())
+
+
+## The puffs: billboards in the world, left behind by the moving engine (a pool, the oldest reused).
+const PUFFS := 40
+
+var _puffs: Array[Dictionary] = []
+var _next_puff := 0
+var _puff_root: Node3D
+
+
+func _puff(at: Vector3, vel: Vector3, size: float, life: float, mat: Material) -> void:
+	if _puff_root == null:
+		_puff_root = Node3D.new()
+		_puff_root.name = "Puffs"
+		_puff_root.top_level = true
+		add_child(_puff_root)
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE
+		for k in PUFFS:
+			var mi := MeshInstance3D.new()
+			mi.mesh = quad
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			mi.visible = false
+			_puff_root.add_child(mi)
+			_puffs.append({"mi": mi, "vel": Vector3.ZERO, "age": 0.0, "life": 0.0, "size": 1.0})
+	var p := _puffs[_next_puff]
+	_next_puff = (_next_puff + 1) % PUFFS
+	var mi: MeshInstance3D = p.mi
+	mi.material_override = mat
+	mi.global_position = at
+	mi.scale = Vector3.ONE * size
+	mi.transparency = 0.0
+	mi.visible = true
+	p.vel = vel
+	p.age = 0.0
+	p.life = life
+	p.size = size
+
+
+func _process(delta: float) -> void:
+	for p in _puffs:
+		var mi: MeshInstance3D = p.mi
+		if not mi.visible:
+			continue
+		p.age += delta
+		var f: float = p.age / p.life
+		if f >= 1.0:
+			mi.visible = false
+			continue
+		# Fast out of the stack, then slowing in the air (drag), rising, spreading, thinning.
+		p.vel *= exp(-3.0 * delta)
+		p.vel.y += 0.4 * delta
+		mi.global_position += p.vel * delta
+		mi.scale = Vector3.ONE * float(p.size) * (1.0 + 2.2 * f)
+		mi.transparency = f * f
+
+
+static var _mats := {}
+
+
+static func _puff_mat(key: String, colour: Color, seed: int) -> Material:
+	if not _mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		m.albedo_texture = PixelArt.puff(key, seed)
+		m.albedo_color = colour
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_mats[key] = m
+	return _mats[key]
+
+
+static func _exhaust_mat() -> Material:
+	return _puff_mat("train_exhaust", Color(0.62, 0.6, 0.58, 0.85), 73)
+
+
+static func _steam_mat() -> Material:
+	return _puff_mat("train_steam", Color(0.95, 0.95, 0.93, 0.8), 79)
 
 
 static func _v3(a: Array) -> Vector3:
@@ -146,36 +214,6 @@ func _smoke() -> void:
 	stack_smoke.visibility_aabb = AABB(Vector3(-30, -5, -30), Vector3(60, 30, 60))
 	add_child(stack_smoke)
 	stack_smoke.position = _v3(rig.stack)
-	# The exhaust: puffs emitted one by one at the beats (no steady stream), grey-white, fast up
-	# then slowing and spreading.
-	exhaust = FireFX._particles(160, 3.0, FireFX._smoke_material(), 1.0)
-	exhaust.emitting = true
-	exhaust.amount_ratio = 0.0  # nothing on its own: only what emit_particle sends
-	var em := exhaust.process_material as ParticleProcessMaterial
-	em.gravity = Vector3(0.0, 0.3, 0.0)
-	em.damping_min = 3.0
-	em.damping_max = 4.0
-	em.scale_min = 0.9
-	em.scale_max = 1.6
-	em.scale_curve = _curve(0.6, 2.6)
-	em.color_ramp = _ramp([[0.0, Color(0.55, 0.54, 0.52, 0.85)], [0.35, Color(0.45, 0.44, 0.43, 0.55)],
-		[1.0, Color(0.6, 0.6, 0.6, 0.0)]])
-	exhaust.visibility_aabb = AABB(Vector3(-40, -5, -40), Vector3(80, 30, 80))
-	add_child(exhaust)
-	exhaust.position = _v3(rig.stack)
-	for p: Array in rig.cylinder_cocks:
-		var c := FireFX._particles(48, 1.1, FireFX._steam_material(), 0.5)
-		c.emitting = true
-		c.amount_ratio = 0.0
-		var cm := c.process_material as ParticleProcessMaterial
-		cm.gravity = Vector3(0.0, 0.6, 0.0)
-		cm.damping_min = 2.0
-		cm.damping_max = 3.0
-		cm.scale_curve = _curve(0.5, 2.4)
-		cm.color_ramp = _ramp([[0.0, Color(0.95, 0.95, 0.93, 0.8)], [1.0, Color(0.9, 0.9, 0.9, 0.0)]])
-		add_child(c)
-		c.position = _v3(p)
-		cocks.append(c)
 
 
 static func _ramp(points: Array) -> GradientTexture1D:
@@ -184,16 +222,6 @@ static func _ramp(points: Array) -> GradientTexture1D:
 	g.colors = PackedColorArray(points.map(func(p: Array) -> Color: return p[1]))
 	var t := GradientTexture1D.new()
 	t.gradient = g
-	return t
-
-
-static func _curve(a: float, b: float) -> CurveTexture:
-	var c := Curve.new()
-	c.max_value = maxf(a, b)
-	c.add_point(Vector2(0.0, a))
-	c.add_point(Vector2(1.0, b))
-	var t := CurveTexture.new()
-	t.curve = c
 	return t
 
 
