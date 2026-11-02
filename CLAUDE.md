@@ -206,7 +206,8 @@ paid on every turn of every session.
   when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
   open). Then, and never later: write the status entry and your Current state lines, and do no
   more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
-  last message with **"Step done: <what>."** and then a **handover prompt** in one fenced block
+  last message with **"Step done: <what>."**, one plain sentence for Sean saying what the next
+  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block
   that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
   nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
   branch to start (from `main`), the goal and what done looks like, what this session found and
