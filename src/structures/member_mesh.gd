@@ -10,6 +10,69 @@ static func box(size: Vector3) -> ArrayMesh:
 	var key := size.snappedf(0.001)
 	if _cache.has(key):
 		return _cache[key]
+	var mesh := _from_template(size)
+	if mesh == null:
+		mesh = _built(size)
+	_cache[key] = mesh
+	return mesh
+
+
+## Laid out once a kind of box (which axis is longest, and which of the other two is the longer:
+## that decides every face's u and v): each vertex's corner (±0.5 an axis), and its u and v axes.
+## A cut's ends are each a size of their own, so each missed the cache and was built the long way
+## (~70 µs here, a blast's ~140 ends, #538). [corners, normals, indices, axes (u, v a vertex)]
+static var _templates := {}
+
+
+static func _kind_of(size: Vector3) -> int:
+	var long_axis := 0
+	for a in 3:
+		if size[a] > size[long_axis]:
+			long_axis = a
+	var p0 := 1 if long_axis == 0 else 0
+	var p1 := 2 if long_axis != 2 else 1
+	return long_axis * 2 + (0 if size[p0] >= size[p1] else 1)
+
+
+static func _from_template(size: Vector3) -> ArrayMesh:
+	if size.x <= 0.0 or size.y <= 0.0 or size.z <= 0.0:
+		return null
+	var kind := _kind_of(size)
+	var tpl: Array = _templates.get(kind, [])
+	if tpl.is_empty():
+		return null
+	var corners: PackedVector3Array = tpl[0]
+	var axes: PackedInt32Array = tpl[3]
+	var n := corners.size()
+	var verts := PackedVector3Array()
+	verts.resize(n)
+	var uvs := PackedVector2Array()
+	uvs.resize(n)
+	var face_sizes := PackedVector2Array()
+	face_sizes.resize(n)
+	var half := size * 0.5
+	for i in n:
+		var v := corners[i] * size
+		verts[i] = v
+		var p := v + half
+		var u := axes[i * 2]
+		var w := axes[i * 2 + 1]
+		uvs[i] = Vector2(p[u], p[w])
+		face_sizes[i] = Vector2(size[u], size[w])
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = tpl[1]
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_TEX_UV2] = face_sizes
+	arrays[Mesh.ARRAY_INDEX] = tpl[2]
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+## The box the long way (a BoxMesh's faces, each laid out), its kind's template kept.
+static func _built(size: Vector3) -> ArrayMesh:
 	var src := BoxMesh.new()
 	src.size = size
 	var arrays := src.get_mesh_arrays()
@@ -25,6 +88,10 @@ static func box(size: Vector3) -> ArrayMesh:
 	for a in 3:
 		if size[a] > size[long_axis]:
 			long_axis = a
+	var corners := PackedVector3Array()
+	corners.resize(verts.size())
+	var axes := PackedInt32Array()
+	axes.resize(verts.size() * 2)
 	for i in verts.size():
 		var n := normals[i].abs()
 		var face_axis := 0 if n.x >= n.y and n.x >= n.z else (1 if n.y >= n.z else 2)
@@ -39,12 +106,16 @@ static func box(size: Vector3) -> ArrayMesh:
 		var p := verts[i] + size * 0.5
 		uvs[i] = Vector2(p[u_axis], p[v_axis])
 		face_sizes[i] = Vector2(size[u_axis], size[v_axis])
+		corners[i] = verts[i].sign() * 0.5
+		axes[i * 2] = u_axis
+		axes[i * 2 + 1] = v_axis
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = face_sizes
 	arrays[Mesh.ARRAY_TANGENT] = null
+	if size.x > 0.0 and size.y > 0.0 and size.z > 0.0 and not _templates.has(_kind_of(size)):
+		_templates[_kind_of(size)] = [corners, arrays[Mesh.ARRAY_NORMAL], arrays[Mesh.ARRAY_INDEX], axes]
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	_cache[key] = mesh
 	return mesh
 
 
