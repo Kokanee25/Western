@@ -71,4 +71,5 @@ side by side, two jobs each.
 - **Quits** (`quits.md`, both runs together) as #572's.
 - **The frame** (`perf.txt`): the gang's brains 1.08 -> 1.21 ms here (~0.08 at Sean's), frame
   11.6 -> 11.7, people 5.8 -> 5.9. Both runs side by side.
-- **Determinism**: see below.
+- **Determinism**: `same_fight.py`, 20 fights (seeds 1-4, every setup, they draw) run twice on the
+  branch with main merged: 20 of 20 the same.
