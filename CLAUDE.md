@@ -211,10 +211,13 @@ paid on every turn of every session.
   that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
   nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
   branch to start (from `main`), the goal and what done looks like, what this session found and
-  where (files, results, the dead ends), the traps, how it's measured, and when to stop. Post the
-  same prompt as a comment on that issue (headed "Handover for the next session") so it's there
-  from any session. Pointing at the issue alone isn't a handover: the session you're in may be
-  that issue's. If nothing goes on (or it waits on Sean's answer), say so instead.
+  where (files, results, the dead ends), the traps, how it's measured, and when to stop. **A new
+  step gets a new issue** (Sean, 2026-11-02): the next step's issue is never the one this session
+  worked. Open it, titled by what the next session will do, with the plain sentence and the
+  handover prompt as its body, and close the finished issue with a line pointing at it. (A step
+  that only continues unfinished work on an open issue posts the handover there as a comment,
+  headed "Handover for the next session".) Pointing at an issue alone isn't a handover. If
+  nothing goes on (or it waits on Sean's answer), say so instead.
   **Keep the issues few** (Sean, 2026-10-31:
   too many to keep track of): never open an issue that only points at another issue or hands a
   step on; what a fresh session must know goes as a comment on the issue it will work, or in the
