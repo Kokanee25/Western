@@ -43,6 +43,11 @@ var outcome := &""
 var why := ""
 ## What happened, in order: [t, what] (the scripted runs read it).
 var timeline: Array = []
+## Counted for the scripted runs (issue #565): their shots from inside the house at you outside it,
+## and all of theirs; each man quitting [t, id, "gives up"/"runs", why].
+var shots_out := 0
+var shots_men := 0
+var quits: Array = []
 
 var men: Array[HumanBody] = []
 var brains: Array[OutlawBrain] = []
@@ -83,9 +88,10 @@ func _ready() -> void:
 	if tuning == null:
 		tuning = load("res://config/farmhouse.tres")
 	Events.exploded.connect(_on_exploded)
-	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, shooter: Node) -> void:
+	Events.shot_fired.connect(func(o: Vector3, _d: Vector3, shooter: Node) -> void:
 		_last_shooter = shooter
-		_last_shot_t = t)
+		_last_shot_t = t
+		_count_shot(o, shooter))
 	if start_on_load or START_ARG in OS.get_cmdline_user_args():
 		start_on_load = false
 		_begin_when_ready.call_deferred(true)
@@ -278,6 +284,12 @@ func _watch(man: HumanBody, brain: OutlawBrain) -> void:
 		var p := player()
 		_alarm_soon(brain, p.global_position if p and info.get("shooter") == p else at, "%s hit" % man.name))
 	man.died.connect(func(_c: StringName) -> void: _note("%s dead" % man.name))
+	brain.mood_changed.connect(func(mood: OutlawBrain.Mood) -> void:
+		if state != State.ON or not mood in [OutlawBrain.Mood.SURRENDERED, OutlawBrain.Mood.FLEEING]:
+			return
+		var how := "gives up" if mood == OutlawBrain.Mood.SURRENDERED else "runs"
+		quits.append([snappedf(t, 0.01), String(man.person_id), how, brain.decision])
+		_note("%s %s (%s)" % [man.name, how, brain.decision]))
 	man.fell.connect(func(conscious: bool) -> void: _note("%s down%s" % [man.name, "" if conscious else ", out"]))
 	# The senses are made in the brain's _ready.
 	(func() -> void:
@@ -386,6 +398,16 @@ func _warning_step() -> void:
 				b.hold.post = b.hold.post_was
 				b.hold.look = b.hold.look_was
 				b.hold.erase("warned")
+
+
+## One of theirs fired: from inside the house at you outside it, or not (issue #565).
+func _count_shot(origin: Vector3, shooter: Node) -> void:
+	if state != State.ON or shooter == null or not shooter is HumanBody or not (shooter as HumanBody).person_id in specs:
+		return
+	shots_men += 1
+	var p := player()
+	if p and inside(origin) and not inside(p.global_position):
+		shots_out += 1
 
 
 func _able_calm(b: OutlawBrain) -> bool:
@@ -875,7 +897,8 @@ func result() -> Dictionary:
 	var out := {"state": State.keys()[state], "outcome": String(outcome), "t": snappedf(t, 0.01),
 			"alarm": snappedf(alarm_t, 0.01), "breach": snappedf(breach_t, 0.01), "surprise": snappedf(surprise_t, 0.01), "found": snappedf(found_t, 0.01), "threat": snappedf(threat_t, 0.01),
 			"executed": snappedf(execute_t, 0.01), "freed": snappedf(freed_t, 0.01), "end": snappedf(end_t, 0.01),
-			"men_out": men_out(), "men": brains.size(), "timeline": timeline}
+			"men_out": men_out(), "men": brains.size(), "timeline": timeline,
+			"shots_out": shots_out, "shots_men": shots_men, "quits": quits}
 	out.hostage_alive = hostage != null and is_instance_valid(hostage) and hostage.physiology.alive
 	var p := player()
 	out.player_down = p != null and not p.wounds.physiology.is_conscious()

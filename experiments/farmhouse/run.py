@@ -71,8 +71,8 @@ def summary(out):
     by = {}
     for r in rows:
         by.setdefault(r["way"], []).append(r)
-    lines = ["| way in | runs | rancher lives | won | you down | the guard fired on him | alarm (s, median) | breach | ended (s, median) | men out (mean) |",
-             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    lines = ["| way in | runs | rancher lives | won | you down | the guard fired on him | alarm (s, median) | breach | ended (s, median) | men out (mean) | first quit (s after the alarm, median) | gave up / ran (all runs) | their shots out of the house / all theirs |",
+             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     out_json = {}
     for way, rs in sorted(by.items()):
         n = len(rs)
@@ -85,9 +85,18 @@ def summary(out):
         med = lambda xs: xs[len(xs) // 2] if xs else -1
         mean_out = sum(r.get("men_out", 0) for r in rs) / max(n, 1)
         breach = sum(1 for r in rs if r.get("breach", -1) >= 0)
-        lines.append(f"| {way} | {n} | {lives} | {won} | {down} | {shot} | {med(alarms):.1f} | {breach} | {med(ends):.1f} | {mean_out:.1f} |")
+        # Each man quitting (issue #565): the first in each run, after the alarm; all of them.
+        firsts = sorted(r["quits"][0][0] - r["alarm"] for r in rs if r.get("quits") and r.get("alarm", -1) >= 0)
+        gave = sum(1 for r in rs for q in r.get("quits", []) if q[2] == "gives up")
+        ran = sum(1 for r in rs for q in r.get("quits", []) if q[2] == "runs")
+        no_quit = sum(1 for r in rs if "quits" in r and not r["quits"])
+        s_out = sum(r.get("shots_out", 0) for r in rs)
+        s_all = sum(r.get("shots_men", 0) for r in rs)
+        first = f"{med(firsts):.1f} (none in {no_quit})" if firsts else f"none in {no_quit}"
+        lines.append(f"| {way} | {n} | {lives} | {won} | {down} | {shot} | {med(alarms):.1f} | {breach} | {med(ends):.1f} | {mean_out:.1f} | {first} | {gave} / {ran} | {s_out} / {s_all} |")
         out_json[way] = {"runs": n, "lives": lives, "won": won, "down": down, "executed": shot, "alarm_median": med(alarms),
-                         "end_median": med(ends), "men_out_mean": mean_out}
+                         "end_median": med(ends), "men_out_mean": mean_out, "first_quit_median": med(firsts),
+                         "gave_up": gave, "ran": ran, "shots_out": s_out, "shots_men": s_all}
     with open(os.path.join(out, "summary.md"), "w") as f:
         f.write("\n".join(lines) + "\n")
     with open(os.path.join(out, "summary.json"), "w") as f:
