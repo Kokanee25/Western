@@ -763,7 +763,93 @@ func _wake(area: Rect2) -> void:
 	q.exclude = ex
 	for hit in World.space(self).intersect_shape(q, 512):
 		if hit.collider is RigidBody3D:
+			_lift_out(hit.collider as RigidBody3D)
 			(hit.collider as RigidBody3D).sleeping = false
+
+
+## A loose body the earth has just come up through (a crater's lip or a clod's earth laid where it
+## lay) is set back on top of it. Left under the height field (it has no thickness) it's held
+## between the field and the solid earth's column just under it, and jitters there or is thrown
+## out at speed: its pile never sleeps (#584: after a ring of sticks at the farmhouse, ~900 pieces
+## awake a minute on, the physics' step ~85 ms). People's parts are left to their joints.
+func _lift_out(rb: RigidBody3D, over := LIFT_OVER) -> bool:
+	if not lift or rb.freeze or rb.has_meta(&"human_body"):
+		return false
+	var deepest := 0.0
+	var xf := rb.global_transform
+	for o: int in rb.get_shape_owners():
+		if rb.is_shape_owner_disabled(o):
+			continue
+		var sxf := xf * rb.shape_owner_get_transform(o)
+		for k in rb.shape_owner_get_shape_count(o):
+			for p: Vector3 in _low_points(rb.shape_owner_get_shape(o, k)):
+				var w := sxf * p
+				deepest = maxf(deepest, height_at(w.x, w.z) - w.y)
+	if deepest <= over:
+		return false
+	rb.global_position += Vector3.UP * (deepest + 0.005)
+	lifted += 1
+	return true
+
+
+## A loose body caught under a dug tile's surface is set back on top of it (Structure looks at its
+## awake rubble a share each tick). A dug tile is a height field over solid columns whose tops are
+## just under the lowest of the surface over them (GroundTile): a piece pressed through the field (a
+## pile's weight on it, a hard landing) is held in the gap between, the field pushing it down and
+## the column up, and spins there for good or is thrown out at a hundred m/s, and its pile never
+## sleeps (#584: after a ring of sticks round the farmhouse, ~900 pieces awake a minute on). Caught:
+## touching the field from below (it pushes the piece down), or its middle under the surface. (Not
+## by touching a column: a piece resting on a sloping stretch sinks into the field as far as the
+## physics allows, 2 cm, and can touch the column top 1 cm under; lifted, it fell back, woke its
+## pile and was lifted again, for good.) Whether it was lifted.
+func rescue(rb: RigidBody3D) -> bool:
+	var caught := false
+	var st := PhysicsServer3D.body_get_direct_state(rb.get_rid())
+	if st:
+		for i in st.get_contact_count():
+			if st.get_contact_collider_object(i) is GroundTile and st.get_contact_collider_shape(i) == GroundTile.FIELD_SHAPE \
+					and st.get_contact_local_normal(i).y < -0.3:
+				caught = true
+				break
+	if not caught:
+		var p := rb.global_position
+		caught = tiles.has(key_at(p.x, p.z)) and height_at(p.x, p.z) > p.y
+	if not caught:
+		return false
+	rescued += 1
+	return _lift_out(rb, 0.0)
+
+
+## How far (m) a body may be in the earth before it's lifted out: the physics' own slop.
+const LIFT_OVER := 0.02
+## How many bodies have been lifted out (the blast-freeze lab's count); `-- --no-ground-lift` the
+## before (the lab's).
+static var lifted := 0
+static var lift := not "--no-ground-lift" in OS.get_cmdline_user_args()
+## How many bodies rescue() found under the ground (the lab's count).
+static var rescued := 0
+
+
+## A shape's points to test against the surface, in its own space: a box's corners, a convex hull's
+## points, a sphere's or capsule's foot; anything else its middle.
+static func _low_points(s: Shape3D) -> Array[Vector3]:
+	var pts: Array[Vector3] = []
+	if s is BoxShape3D:
+		var h := (s as BoxShape3D).size * 0.5
+		for i in 8:
+			pts.append(Vector3(h.x if i & 1 else -h.x, h.y if i & 2 else -h.y, h.z if i & 4 else -h.z))
+	elif s is ConvexPolygonShape3D:
+		pts.append_array((s as ConvexPolygonShape3D).points)
+	elif s is SphereShape3D or s is CapsuleShape3D:
+		# (turned any way: the ends of its three axes, the capsule's along its length)
+		var r: float = s.radius
+		var half := (s as CapsuleShape3D).height * 0.5 if s is CapsuleShape3D else r
+		for v: Vector3 in [Vector3(r, 0, 0), Vector3(0, half, 0), Vector3(0, 0, r)]:
+			pts.append(v)
+			pts.append(-v)
+	else:
+		pts.append(Vector3.ZERO)
+	return pts
 
 
 # --- What's buried --------------------------------------------------------------------------------

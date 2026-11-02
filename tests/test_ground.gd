@@ -225,6 +225,63 @@ func test_a_box_asleep_on_the_ground_falls_into_a_hole_dug_under_it() -> void:
 	check(rb.global_position.y < -0.15, "it fell into the hole (y %.2f)" % rb.global_position.y)
 
 
+## Earth laid where a thing lies (a crater's lip, a clod's earth) comes up under it, not through it
+## (#584: left inside the height field, it's held there between the field and the solid column under
+## it and jitters or is thrown out, and its pile never sleeps).
+func test_earth_laid_where_a_box_lies_comes_up_under_it() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var rb := RigidBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.3, 0.04, 0.12)
+	cs.shape = box
+	rb.add_child(cs)
+	rb.position = Vector3(5.1, 0.2, 5.0)
+	world.add_child(rb)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "it's asleep in the hole")
+	var before := ground.height_at(5.1, 5.0)
+	ground.put(Vector3(5.0, 0, 5.0), 0.08, 0.7)
+	check(ground.height_at(5.1, 5.0) > before + 0.06, "the earth's come up %.2f m where it lay" % (ground.height_at(5.1, 5.0) - before))
+	var low := INF
+	for i in 8:
+		var c := rb.global_transform * (Vector3(0.15 if i & 1 else -0.15, 0.02 if i & 2 else -0.02, 0.06 if i & 4 else -0.06))
+		low = minf(low, c.y - ground.height_at(c.x, c.z))
+	check(low > -Ground.LIFT_OVER - 0.005, "it's on the earth, not in it (lowest corner %.3f m off it)" % low)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "and asleep on it again")
+	check(rb.global_position.y < ground.height_at(5.1, 5.0) + 0.2, "where it was, not thrown out")
+
+
+## Under a dug tile's surface there's a gap down to its solid columns (their tops under the lowest
+## of the surface over them: on a crater's wall, centimetres). A piece pressed through the field is
+## held there; a structure's rubble found so is set back on top (#584).
+func test_rubble_pressed_through_a_dug_tile_is_set_back_on_it() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var s := Structure.new()
+	s.structure_id = &"rig"
+	world.add_child(s)
+	s.add_member("board", &"board", &"framing", Vector3(0.3, 0.04, 0.12), Vector3(9.0, 0.3, 9.0))
+	await physics_frames(2)
+	s._drop([&"rig/board"] as Array[StringName])
+	var rb: RigidBody3D = s.rubble[0]
+	# Into the crater's wall, its middle 1.5 cm under the surface.
+	var x := 5.6
+	var h := ground.height_at(x, 5.0)
+	rb.global_transform = Transform3D(Basis(), Vector3(x, h - 0.015, 5.0))
+	rb.linear_velocity = Vector3.ZERO
+	rb.sleeping = false
+	await physics_frames(Structure.RESCUE_TICKS + 2)
+	var low := INF
+	for i in 8:
+		var c := rb.global_transform * (Vector3(0.15 if i & 1 else -0.15, 0.02 if i & 2 else -0.02, 0.06 if i & 4 else -0.06))
+		low = minf(low, c.y - ground.height_at(c.x, c.z))
+	check(low > -0.03, "set back on the earth (lowest corner %.3f m off it)" % low)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "and it sleeps there")
+	check(rb.global_position.distance_to(Vector3(x, h, 5.0)) < 0.5, "where it was, not thrown out (%.2f m off)" % rb.global_position.distance_to(Vector3(x, h, 5.0)))
+
+
 func test_an_edit_is_cheap() -> void:
 	var t0 := Time.get_ticks_usec()
 	ground.take(Vector3(1.6, 0, 1.6), 0.25, 0.13)

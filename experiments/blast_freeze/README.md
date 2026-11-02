@@ -102,6 +102,16 @@ and panes sounded to the voice limit: the saloon's next frame ~160 -> ~113 here,
 ~146 -> ~121, three sticks' worst 170 -> 130 (saloon), 308 -> 175 (street). Frames carry `ph`: the
 frame split into late process / the frame's end / physics / early process (`late_stamp.gd`).
 
+**The farmhouse's slow motion (#584, `results/2026-11-02_farm_slowmo/`):** `bf_blast in=farm`
+(a stick on the ground by each wall, `walls=`, `gap` s apart; `mission=1` the gang in the house),
+a twice-a-second census of the awake bodies (`bodies`), `slept`/`woke` a frame, `bf_movers N`
+(the fastest awake bodies and all their contacts); `seconds.py` (a row a second from the last
+stick; `--brief`, a line a run), `farm_runs.sh` (N runs two at a time: outcomes), `farm_pairs.sh`
+(main and the branch alternately: frame times). Six sticks left ~900 pieces awake for a minute
+(frames ~100 ms here, Jolt's step ~85): RubbleRest woke every pile as it fell asleep, and pieces
+pressed under the dug ground spun or were thrown out. Fixed both; 4 of 6 runs settle within 30 s
+(main 1 of 4).
+
 ## Files
 
 - `bridge.gd`: the commands (`BridgeLab`; found by the bridge at start). `results/2026-10-25/`:
