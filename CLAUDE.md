@@ -649,7 +649,10 @@ frozen until Sean names one.
   **Step 3** (2026-11-02, branch `claude/issue-542-train-step-3-n2i4z1`; `results/2026-11-02_step3/`):
   the 2-8-0 and tender from Blender (`EngineModel`, rods and puffs by distance), the cars of
   boards (`TrainModels`), the boxcar's ladders (`Ladder`, the player's `_ladder_step`), passengers.
-  The critic fails the look (paint, shade, ground). Waiting on Sean: the look (#569).
+  The critic fails the look (paint, shade, ground). Then the engine's shape pass (Sean: "solid
+  circles, things don't connect"; PR #576, `results/2026-11-02_step3/shape_pass/`): spoked wheels,
+  rods, cab, cowcatcher, lathed domes; Sean: "way better, ready for a paid paint". Next: #577 (the
+  paint), then #571 (sound). Waiting on Sean: the look (#569).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
