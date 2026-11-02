@@ -47,7 +47,7 @@ func _init() -> void:
 	var root := scene.instantiate()
 	add_child(root)
 	for mi in root.find_children("*", "MeshInstance3D", true, false):
-		TrainModels.dress(mi as MeshInstance3D)
+		TrainModels.dress(mi as MeshInstance3D, TrainModels.painted("engine"))
 	for k in 4:
 		drivers.append(root.find_child("Driver%d" % k, true, false))
 	pony = root.find_child("Pony", true, false)
