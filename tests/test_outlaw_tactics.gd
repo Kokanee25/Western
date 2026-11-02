@@ -727,6 +727,24 @@ func test_near_he_points_round_the_post_instead() -> void:
 		check_eq(brain.shots_pointed, shots_by_outlaw, "pointing it round")
 
 
+func test_covering_on_his_last_round_he_doesnt_step_out() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	brain.rounds = 1
+	var peeks := 0
+	for i in 60 * 3:
+		brain.covering = 5.0
+		brain.rounds = 1
+		await physics_frames(1)
+		if brain.tactic == OutlawBrain.Tactic.PEEKING:
+			peeks += 1
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "keeping your head down on his last round: no step out to duck straight back from")
+
+
 func test_shot_at_out_there_he_steps_back_in() -> void:
 	var spot := await _at_post(true)
 	if spot.is_empty():

@@ -2180,6 +2180,8 @@ func _step_choose(eye: Vector3) -> void:
 	_step = {}
 	if _post_place > 0.0 or _post_back > 0.0 or body.pose != &"post" or suppressed > 0.0 or body.rising or body.prone or body.limp:
 		return
+	if covering > 0.0 and rounds <= 1:
+		return  # keeping your head down on his last round he's straight back in (`_peek`): no step for it
 	var t := _find_target()
 	if t == null:
 		return
