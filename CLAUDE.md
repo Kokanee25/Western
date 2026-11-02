@@ -663,7 +663,7 @@ frozen until Sean names one.
   realistic ones (Sean: "closer to Red Dead Redemption 2"; $0.73, ledger $64.09 of $65); `engine.py`'s face materials fixed (half the jacket was brass). Sean picked **E**
   (realistic, working-dirty; #569 closed), **baked** (`paint_bake.py`, `assets/train/*_paint.png`,
   `TrainModels.painted`; `results/2026-11-02_bake/`): the critic still fails the views on light and
-  ground first, then E's realism; waiting on Sean's look on #577. **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
+  ground first, then E's realism; PR #587, build 3003; waiting on Sean's look on #577. **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
   `TrainSound` (one-shots timed from the sim to the sub-tick, late by distance, Doppler; loops held
   by the frame), `TrainSynth` (all synthesised: the recording sites are blocked here), dials
   `config/train_sound.tres`; GameAudio's wall test looks past the train's own cars. Waiting on
