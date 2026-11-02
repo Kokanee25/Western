@@ -657,15 +657,16 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
-- **The blast's own frame** (#538; PR #548, then #559 rounds 2-3, branch `claude/538-part-2-7zqn44`;
-  results `experiments/blast_freeze/results/2026-11-01_blast_frame/`, `..._blast_frame_3/`):
-  `SpawnQueue` (120 bodies a tick; a kit prop charged by its members), `BlastCore` (native face
-  sums), the shadow's 0.3 s wait, kit props' members straight into their bodies, a break during a
-  sliced settle queued, cracks and panes to the voice limit. One stick at Sean's: saloon ~68 / next
-  ~73, street ~80 / ~70; three sticks' worst saloon ~85, street ~115 (over). Left (#538 open): the
-  street's second stick (the settle's first round, the gather over ~700 loose bodies); 50 fps is back
-  ~0.5 s (saloon) / ~0.9 s (street), the building coming down. Trap: `test_settle_incremental`'s
-  worker/main pair flakes ~1 in 6-8 on 2 cores, main too (#560).
+- **The blast's own frame** (#538; PRs #548, #559, then #567 round 4, branch
+  `claude/issue-538-part-2-q8wwa6`; results `experiments/blast_freeze/results/2026-11-01_blast_frame*/`,
+  `2026-11-02_blast_frame_4/`): `SpawnQueue`, `BlastCore`, the shadow's wait, kit props straight into
+  their bodies; round 4: `Blast.gather` finds rubble by its groups, not Jolt's queries (~15 µs a rubble
+  body there), a blast's first analyses over 24 members sliced (`BLAST_FIRST_WHOLE`, not kit props'),
+  the fire's load checks sit out a stick's tick (`FireSystem.sit_out`), template box meshes. Street,
+  three sticks, worst: main 210 -> 177 here (~115 at Sean's by x0.65, over the gate; this VM ran main
+  1.3x slower than round 3's). Left (#538 open): the cuts, the response, the frame after (kit push,
+  gravel impacts, Jolt's step). Traps: this VM swings 1.4x within a run (compare alternately); the
+  `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
