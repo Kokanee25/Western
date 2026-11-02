@@ -2,8 +2,8 @@
 
 Generic movement for every man from two CC0 libraries, Quaternius' Universal Animation Library
 (UAL1 Standard) and KayKit's Character Animations 1.1, retargeted onto our 17 segments and played
-by `LibraryMotion` (`src/bodies/library_motion.gd`) behind `Settings.library_motion` (off in the
-game). The clips: `assets/animations/library/` (README, `manifest.json`); LAYOUT.md "src/bodies",
+by `LibraryMotion` (`src/bodies/library_motion.gd`) behind `Settings.library_motion` (on in the
+game since PR #575; `--library-motion=off` for the old moves). The clips: `assets/animations/library/` (README, `manifest.json`); LAYOUT.md "src/bodies",
 "Library clips".
 
 ```sh
@@ -65,4 +65,4 @@ the carrying foot's skate (`--measure`; the game's own gait with `--off`). Then:
   in `config/walks.json` (Lyle drunk, Brody and the sheriff confident), stride ±6%, arm swing ±20%.
 - **Uthana** ($7.50, the Studio's `motions/gun_moves`): the gun walk 0.10, the gun run 0.73; the
   aim takes all two-handed (legs only); reload and stagger in the library, not played.
-- Sean: "good enough as a placeholder". Still off in the game.
+- Sean: "good enough as a placeholder"; on in the game since PR #575 (build 2982).
