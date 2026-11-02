@@ -114,7 +114,15 @@ The gang's shots by kind (`shots.md`, step2, both openings):
 `film_posts.sh SETUP SEED OPENING OUT [SIZE] [MAX]`: one lab fight drawn under xvfb (lavapipe) by
 Godot's Movie Maker at 30 fps. The camera (`gf_postcam` in the lab's bridge) holds behind the
 shoulder of a man at a post, on the side he steps out to, and is your eyes otherwise. The cuts are
-in the `.cuts` beside each film.
+in the `.cuts` beside each film. A drawn fight isn't the headless one with that seed (the hall's
+seed 17 drawn never took a post), so the films are chosen from what the drawn run did. Each
+takes ~20 min under lavapipe for ~45 s of fight; both are cut to the man at the post.
+
+- `films/spec_front_s20_lyle.mp4` (14 s; the setup's front, they draw, seed 20): Lyle takes the
+  porch post, points once round it, then steps out three times and shoots from out each time,
+  back in between. The camera sits down the porch (it's pulled in short of the wall), so he's small.
+- `films/spec_front_s16_lyle.mp4` (22 s; seed 16): Lyle at the next post along, closer, two stays,
+  stepping out to shoot; you're hit at the end.
 
 ## What's left (#531's order)
 
