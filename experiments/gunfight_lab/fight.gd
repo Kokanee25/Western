@@ -11,6 +11,8 @@ const SCENARIOS := "res://experiments/gunfight_lab/scenarios.json"
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const SpecBuildingScript := preload("res://experiments/building_lab/spec_building.gd")
 const FallLog := preload("res://experiments/gunfight_lab/fall_log.gd")
+## A ball of his that lands this soon after he was last stepped out from a post (s) came from out there.
+const OUT_LATE := 0.25
 ## Prof's timers that are people (CLAUDE.md's frame budget table, "People").
 const PEOPLE := [&"people_body", &"people_prep", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain", &"player", &"town_life", &"blood"]
 ## How long with nobody firing before a fight's called a lull (both sides lost each other).
@@ -710,6 +712,8 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 		m.shots += 1
 		var b := brains[_mid(shooter)] as OutlawBrain
 		var stay: Dictionary = m.get("_stay", {})
+		if b.stepped_out():
+			m._out_t = t  # his ball's hit, a tick on, is from out there though he's already turning back in
 		if not stay.is_empty():
 			stay.shots = int(stay.get("shots", 0)) + 1
 			if b.stepped_out():
@@ -753,7 +757,7 @@ func _on_bullet_hit(info: Dictionary) -> void:
 					sm.hits_on_you += 1
 					if not (sm.get("_stay", {}) as Dictionary).is_empty():
 						sm._stay.hits_on_you = int(sm._stay.hits_on_you) + 1
-						if (brains[_mid(shooter)] as OutlawBrain).stepped_out():
+						if t - float(sm.get("_out_t", -9.0)) < OUT_LATE:
 							sm._stay.hits_on_you_out = int(sm._stay.get("hits_on_you_out", 0)) + 1
 					if _up((shooter as Node3D).global_position):
 						sm.hits_from_up = int(sm.get("hits_from_up", 0)) + 1
@@ -764,7 +768,7 @@ func _on_bullet_hit(info: Dictionary) -> void:
 			var stay: Dictionary = _men[_mid(victim)].get("_stay", {})
 			if not stay.is_empty():
 				stay.hits = int(stay.hits) + 1
-				if (brains[_mid(victim)] as OutlawBrain).stepped_out():
+				if t - float(_men[_mid(victim)].get("_out_t", -9.0)) < OUT_LATE:
 					stay.hits_out = int(stay.get("hits_out", 0)) + 1
 			_men[_mid(victim)]._ball_t = t
 			_fright(victim, "hit")
@@ -1020,6 +1024,7 @@ func _finish(why: String) -> void:
 			m["fear_named"] = _named((b as OutlawBrain).fear_from)
 		m.erase("_line_t")
 		m.erase("_ball_t")
+		m.erase("_out_t")
 		outcomes[m.outcome] = int(outcomes.get(m.outcome, 0)) + 1
 	var ending := why
 	if why == "gang_out":
@@ -1238,6 +1243,7 @@ func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -
 			# Stepped out from a post to aim (#566): how long out, how many times.
 			var out := b.stepped_out()
 			if out:
+				m._out_t = t
 				st.out_s = float(st.get("out_s", 0.0)) + delta
 				if not st.get("_out", false):
 					st.steps = int(st.get("steps", 0)) + 1
