@@ -219,10 +219,9 @@ paid on every turn of every session.
   headed "Handover for the next session".) Pointing at an issue alone isn't a handover. If
   nothing goes on (or it waits on Sean's answer), say so instead.
   **Keep the issues few** (Sean, 2026-10-31:
-  too many to keep track of): never open an issue that only points at another issue or hands a
-  step on; what a fresh session must know goes as a comment on the issue it will work, or in the
-  status entry. A new issue only for a decision only Sean can make (`waiting on Sean`) or real new
-  work no issue holds; and close each issue the moment it's done or answered. Don't start the
+  too many to keep track of): never open an issue that only points at another issue; one open
+  issue a step (the next step's, holding its handover), plus one for a decision only Sean can
+  make (`waiting on Sean`); close each issue the moment it's done or answered. Don't start the
   next step in the same session, even if it looks small.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
