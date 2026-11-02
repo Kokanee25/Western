@@ -72,6 +72,11 @@ const MEMBERS_A_MS := 15
 ## its whole first analysis, ~100 ms, on a stick's frame, #538); one break settles it at once (a
 ## post shot out: the porch comes down on that frame, as test_street's F11 and test_loads ask).
 const SLICED_ABOVE := 1500
+## A blast's first analysis of a building is done on its frame only if it has no more members than
+## this: the rest go a slice a frame. A boardwalk's 57-73 members, their planks on many joists, were
+## ~10 ms each here on the street's second stick (~200 µs a member, the estimate's 15 a ms being the
+## saloon's), on a frame already well over budget (#538).
+const BLAST_FIRST_WHOLE := 24
 ## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
 ## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
 const SETTLE_DIRTY_NOW := 48
@@ -1205,7 +1210,7 @@ func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 	if not collapses or not is_inside_tree():
 		return changed
 	var budget: WorkBudget = WorkBudget.new(budget_ms, int(budget_ms * MEMBERS_A_MS)) if budget_ms < INF else null
-	var first_over := SLICED_ABOVE if not first_sliced else int(budget_ms * MEMBERS_A_MS)
+	var first_over := SLICED_ABOVE if not first_sliced else mini(int(budget_ms * MEMBERS_A_MS), BLAST_FIRST_WHOLE)
 	if budget_ms < INF and ((not _analysis_valid and _order.size() > first_over) \
 			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
 			or _dirty.size() > SETTLE_DIRTY_NOW or _settling_sliced()):

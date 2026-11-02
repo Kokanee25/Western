@@ -633,8 +633,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (`SLICE_LEFT`), one the FireSystem is already settling (`FireSystem.settling`: a piece of a
   blast's collapse landing on a joist was a whole round, ~15 ms, on the stick's next frame, #538)
   or a big building's first (`SLICED_ABOVE`; also queued when built,
-  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
-  Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
+  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share or than
+  `BLAST_FIRST_WHOLE` (24), #538: Main Street's store's was ~100 ms on a stick's frame, a boardwalk's
+  ~10) goes straight to the FireSystem (which sits out the tick a stick goes off on,
+  `FireSystem.sit_out`: a lit stick asks a tick ahead); a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
   **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
@@ -1203,6 +1205,10 @@ made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log
   or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
   `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the
   same order: `test_the_native_face_sum_is_the_scripts` holds them to the bit (on Linux; CI).
+- **`Blast.gather`'s rubble** (#538): the `rubble`/`fallen` groups are walked, not asked of Jolt
+  (excluded from both sphere queries: each was ~15 µs there); one whose middle is past the reach
+  is still in when a shape of it reaches in (`_shapes_within`), as the query had it
+  (`test_gather_finds_the_rubble_the_queries_found`). Timers `gather_query`/`_panes`/`_loose`.
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or

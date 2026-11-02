@@ -70,6 +70,8 @@ const ROUND_COST := 50
 ## The analyses on a worker (`-- --analysis-worker=off`: on the main thread, on the same ticks).
 static var analysis_worker := not "--analysis-worker=off" in OS.get_cmdline_user_args()
 var _due := -1  # the physics frame the worker's results are applied on (-1: none on it)
+## Physics frames the load checks sit out (`sit_out`: a blast's), tick -> true.
+var _sit_out := {}
 var _epoch := -1  # `_checking.analysis_epoch` when its analysis was begun
 ## And while it's coming down (a round for each thing that snaps or falls): records a slice, slices
 ## at the frame's budget (a round near a blast is a few hundred members).
@@ -589,6 +591,15 @@ func queue_settle(s: Structure) -> bool:
 	return true
 
 
+## The load checks skip physics frame `tick` (this one by default): a blast's frame is long
+## enough without a slice of them (the street's third stick: a building's first analysis begun and
+## 150 records copied, ~36 ms here, on the stick's own frame, #538). A lit stick asks for the tick
+## its fuse runs out on, a tick ahead (the fire may tick before it does); a blast for its own, and
+## what it queues (its settles) starts on the next.
+func sit_out(tick := -1) -> void:
+	_sit_out[Engine.get_physics_frames() if tick < 0 else tick] = true
+
+
 ## Burning buildings' loads, one at a time: most of the time nothing's wrong and that's that; if
 ## something's overloaded or has lost its support, it snaps or falls (`Structure.apply_round`, the
 ## rule `settle()` follows) and the building is analysed again until it stands: a big collapse
@@ -601,6 +612,13 @@ func queue_settle(s: Structure) -> bool:
 ## blast's settle: Structure.analysis_epoch), or asks it to settle, and the worker's results are of
 ## how it stood before: thrown away, and begun again.
 func _check_loads() -> void:
+	if not _sit_out.is_empty():
+		var now := Engine.get_physics_frames()
+		for k: int in _sit_out.keys():
+			if k < now:
+				_sit_out.erase(k)
+		if _sit_out.has(now):
+			return
 	var budget := WorkBudget.new(SETTLE_FRAME_MS, int(SETTLE_FRAME_MS * Structure.MEMBERS_A_MS))
 	while true:
 		if _check == null:

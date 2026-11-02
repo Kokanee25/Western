@@ -268,6 +268,69 @@ func test_a_crowded_street_doesnt_hide_whats_beside_it() -> void:
 	check(siding.broken, "and the board beside it goes (%d broken)" % report.broken.size())
 
 
+## The rubble and fallen fittings are found by their groups, not the queries (#538): the same set
+## the queries found. Rubble inside the reach, outside it, and a long board and a chip whose middles
+## are past it but reach into it (the board on timber's layer, into where timber breaks).
+func test_gather_finds_the_rubble_the_queries_found() -> void:
+	var at := Vector3(0, 1, 0)
+	var kg := 0.15
+	var r_max := Blast.reach(kg)
+	var r_break := Blast.break_reach(kg)
+	var made := []  # (untyped: the queries find the ground too)
+	var place := func(pos: Vector3, size: Vector3, layer: int, group: StringName, rot := 0.0) -> RigidBody3D:
+		var rb := RigidBody3D.new()
+		rb.collision_layer = layer
+		rb.collision_mask = 0
+		rb.freeze = true
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = size
+		cs.shape = box
+		cs.position = Vector3(0.0, 0.0, size.z * 0.1)
+		rb.add_child(cs)
+		rb.add_to_group(group)
+		world.add_child(rb)
+		rb.global_position = pos
+		rb.rotation.y = rot
+		made.append(rb)
+		return rb
+	for k in 24:
+		var a := TAU * k / 24.0
+		var r := 1.0 + k * 0.9
+		place.call(at + Vector3(cos(a) * r, 0.0, sin(a) * r), Vector3(0.3, 0.1, 0.1), Layers.DEBRIS if k % 2 else Layers.WORLD, &"rubble" if k % 3 else &"fallen")
+	var chip_in: RigidBody3D = place.call(at + Vector3(r_max + 0.1, 0, 0), Vector3(0.6, 0.1, 0.1), Layers.DEBRIS, &"rubble")
+	var chip_out: RigidBody3D = place.call(at + Vector3(0, 0, r_max + 0.2), Vector3(0.2, 0.1, 0.1), Layers.DEBRIS, &"rubble")
+	var board_in: RigidBody3D = place.call(at + Vector3(-(r_max + 1.0), 0, 0), Vector3(2 * (r_max + 1.0 - r_break) + 0.4, 0.1, 0.1), Layers.WORLD, &"rubble")
+	var board_out: RigidBody3D = place.call(at + Vector3(0, 0, -(r_max + 1.0)), Vector3(0.1, 0.1, 2 * (r_max + 1.0 - r_break) + 0.4), Layers.WORLD, &"rubble", PI * 0.5)
+	await physics_frames(2)
+	# The old way: both queries (rubble in them) and every loose body by its middle.
+	var before := {}
+	for spec: Array in [[r_break, Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS], [r_max, Layers.DEBRIS | Layers.BODY_PARTS]]:
+		var shape := SphereShape3D.new()
+		shape.radius = spec[0]
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape
+		q.transform = Transform3D(Basis.IDENTITY, at)
+		q.collision_mask = spec[1]
+		for f: Dictionary in world.get_world_3d().direct_space_state.intersect_shape(q, 1 << 12):
+			if f.collider in made:
+				before[f.collider] = true
+	for rb in made:
+		if rb.global_position.distance_to(at) <= r_max:
+			before[rb] = true
+	var looked := Blast.gather(world, at, kg)
+	var now := {}
+	for c in looked:
+		if c in made:
+			now[c] = true
+	check_eq(now.size(), before.size(), "as many rubble pieces (%d)" % before.size())
+	for rb: RigidBody3D in before:
+		check(now.has(rb), "found as before: %s" % rb.global_position)
+	check(now.has(chip_in), "a chip past the reach reaching into it")
+	check(now.has(board_in), "a board past the reach reaching where timber breaks")
+	check(not now.has(chip_out) and not now.has(board_out), "but not ones that don't (a board on timber's layer only the near query takes)")
+
+
 ## cut, not whole boards gone): a hole to crawl through, at least. Three in a bundle: a way to walk out.
 ## cut, not whole boards gone): a hole to crawl through. Three in a bundle: a way to walk out.
 func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:

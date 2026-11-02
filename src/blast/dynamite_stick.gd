@@ -193,6 +193,11 @@ func _physics_step(delta: float) -> void:
 		if fuse_left <= 0.0:
 			detonate()
 			return
+		if fuse_left <= delta:
+			# Off on the next tick: the fire's load checks sit it out (FireSystem.sit_out).
+			var fire := FireSystem.find(get_tree())
+			if fire:
+				fire.sit_out(Engine.get_physics_frames() + 1)
 		if planted:
 			_hiss_heard -= delta
 			if _hiss_heard <= 0.0:
