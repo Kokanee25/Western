@@ -327,7 +327,7 @@ python3 tools/bridge.py stop
 **The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
 what each lane had open when it was adopted (2026-10-14).
 
-Latest status entries: `docs/status/2026-10-25_onward.md` (the end of the file). Builds: main is
+Latest status entries: `docs/status/2026-11-02_onward.md` (the end of the file; before it `2026-10-25_onward.md`). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
@@ -689,6 +689,12 @@ frozen until Sean names one.
   hangs on the order structures break in (Jolt's, kept: other orders broke 919-1,043 to main's ~950).
   Left: the cuts, the response, Jolt's step with ~700 awake. Traps: compare alternately; the
   `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
+- **Rubble that won't sleep** (#585, branch `claude/gameplay-rubble-sleep-9n8wlb`; results
+  `experiments/blast_freeze/results/2026-11-02_rubble_sleep/`): one restless piece kept a whole pile
+  awake (Jolt sleeps islands whole); `RubbleSleep` freezes it once nothing near has moved or broken,
+  let go on any blow or break near. The farmhouse ring settles 8-16 s after the last stick (main
+  never, ~150 ms frames: #584's slow motion), the street 7-9 s. Lab: `bf_blast in=farm`, `awake=S`.
+  Tried, not kept: whole piles put to sleep (the contact monitor doesn't see Jolt's islands), damping.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

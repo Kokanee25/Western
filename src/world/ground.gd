@@ -763,6 +763,7 @@ func _wake(area: Rect2) -> void:
 	q.exclude = ex
 	for hit in World.space(self).intersect_shape(q, 512):
 		if hit.collider is RigidBody3D:
+			RubbleSleep.let_go(hit.collider)  # (rubble held still: its own again, #585)
 			(hit.collider as RigidBody3D).sleeping = false
 
 

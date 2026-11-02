@@ -129,7 +129,10 @@ static func watch(rb: RigidBody3D) -> void:
 static func touch(m: StructureMember) -> void:
 	for p: Array in m.pieces:
 		for o: Variant in p:
+			if is_instance_valid(o) and (o as Node).get_parent() is RigidBody3D:
+				RubbleSleep.let_go((o as Node).get_parent())  # (held still by RubbleSleep: its own again, #585)
 			if is_instance_valid(o) and (o as Node).has_meta(&"rest_body"):
+				RubbleSleep.let_go((o as Node).get_meta(&"rest_body"))
 				var rb: Variant = (o as Node).get_meta(&"rest_body")
 				if is_instance_valid(rb) and (rb as Node).has_meta(&"resting_in"):
 					((rb as Node).get_meta(&"resting_in") as RubbleRest)._count("let go: touched")
@@ -139,6 +142,7 @@ static func touch(m: StructureMember) -> void:
 ## A body about to be moved (shot, blasted, shoved, struck): if it's lying in a cell, its own again
 ## first. Anything else: nothing.
 static func let_go(body: Object) -> void:
+	RubbleSleep.let_go(body)  # (held still by RubbleSleep, #585: its own again, awake)
 	if body is RigidBody3D and (body as Node).has_meta(&"resting_in"):
 		var r: Variant = (body as Node).get_meta(&"resting_in")
 		if is_instance_valid(r):

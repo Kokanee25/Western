@@ -10,12 +10,23 @@ extends BridgeLab
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street|farm] [mission=1] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; or round the farmhouse, a stick a wall, in=farm, `mission=1` with the gang in it, the player 20 m out front; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last; #585)",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
 	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
 	"bf_batches": "bf_batches -> the batches every structure in the town draws in (Structure.batch_count), in all and the five largest, and the spec saloon's if it's built",
 	"bf_shot": "bf_shot [from=X,Y,Z] [dirs=x,-x,z,-z] [gap=S] [stall=MS] [out=FILE.json] -> the spec saloon (built if it isn't), a revolver ball from `from` (the saloon's own space) each way in `dirs`, `gap` s apart, every frame recorded: each shot's worst frame and what was in it, and the saloon's batches (members a material) (Sean's per-shot hitch, #385)",
 }
+
+## The farmhouse's walls a stick is thrown at (in=farm), in order: [breach spot, the way out], the
+## house's own space (experiments/farmhouse/bridge.gd's WALLS).
+const FARM_WALLS := [
+	[Vector3(7.3, 0.0, 0.0), Vector3(0, 0, -1)],  # front
+	[Vector3(0.0, 0.0, 1.2), Vector3(-1, 0, 0)],  # west
+	[Vector3(9.0, 0.0, 4.0), Vector3(1, 0, 0)],  # east
+	[Vector3(7.3, 0.0, 5.2), Vector3(0, 0, 1)],  # back
+	[Vector3(0.0, 0.0, 6.4), Vector3(-1, 0, 0)],  # lean_west
+	[Vector3(5.6, 0.0, 6.4), Vector3(1, 0, 0)],  # lean_east
+]
 
 ## A frame longer than this (ms, this workspace's wall clock) counts as a stall.
 const STALL_MS := 50.0
@@ -33,19 +44,27 @@ var _late_us := 0
 var _phys_us := 0
 var _proc_us := 0
 var _late_node: Node
+## The awake rubble's census (#585, `awake=S`): instance id -> [asleep last tick, wakes].
+var _sleep_state := {}
+var _wakes_since := 0
+var _sleeps_since := 0
+var _awake_log: Array = []
+var _awake_every := 0.0
+var _awake_next := 0.0
 
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
-	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0}
+	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0, "awake": 0.0}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() == 2:
 			opts[kv[0]] = kv[1]
 	var on_street := String(opts["in"]) == "street"
+	var at_farm := String(opts["in"]) == "farm"
 	var town := street.get_node_or_null(^"TownLife") as TownLife
 	var built := street.get_node_or_null(^"SpecSaloon") != null
 	var saloon: Structure = null
-	if not on_street:
+	if not on_street and not at_farm:
 		saloon = SpecSaloon.ensure(street, town.places if town else null) as Structure
 		if not built:
 			await physics_frames(30)
@@ -68,11 +87,32 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			spots.append((ms[ms.size() / 3] as Node3D).global_position + Vector3(0, 0.3, 0))
 			if spots.size() >= n_sticks:
 				break
+	elif at_farm:
+		# The farmhouse (#584/#585): sticks thrown round the house, one a wall in FARM_WALLS' order,
+		# lying on the ground 0.4 m out from each breach spot; `mission=1` starts the mission first
+		# (the gang in the house, the rovers on the yard).
+		if int(opts.get("mission", 0)) != 0:
+			var mission := FarmhouseMission.of(get_tree())
+			if mission and mission.state != FarmhouseMission.State.ON:
+				mission.begin(false)
+				await seconds(3.0)
+		for k in n_sticks:
+			var w: Array = FARM_WALLS[k % FARM_WALLS.size()]
+			var on: Vector3 = w[0]
+			var out: Vector3 = w[1]
+			spots.append(Farmhouse.on_ground(on.x + out.x * 0.4, on.z + out.z * 0.4) + Vector3.UP * 0.1)
 	else:
 		for k in n_sticks:
 			spots.append(SpecSaloon.at(local + Vector3(float(opts.spread) * k, 0.0, 0.0)))
 	var at: Vector3 = spots[0]
-	if String(opts.player) != "" and player:
+	if at_farm and player:
+		# He stands where Sean threw from: `player=X,Z` in the house's space (FORMAT.md), 20 m out
+		# from the front wall if not given.
+		var pz := String(opts.player).split(",") if String(opts.player) != "" else PackedStringArray(["7.3", "-20.0"])
+		player.global_position = Farmhouse.on_ground(float(pz[0]), float(pz[pz.size() - 1])) + Vector3.UP * 0.1
+		player.velocity = Vector3.ZERO
+		await physics_frames(2)
+	elif String(opts.player) != "" and player:
 		# Where he stands decides the fire's bands (FireSystem.bands): in the hall, everything near.
 		var pp := String(opts.player).split(",")
 		player.global_position = SpecSaloon.at(Vector3(float(pp[0]), float(pp[1]), float(pp[2])))
@@ -120,6 +160,12 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			if _phys_us == 0:
 				_phys_us = Time.get_ticks_usec())
 		get_tree().process_frame.connect(func() -> void: _proc_us = Time.get_ticks_usec())
+	_awake_every = float(opts.awake)
+	_awake_log.clear()
+	_sleep_state.clear()
+	_awake_next = World.now()
+	if _awake_every > 0.0 and not get_tree().physics_frame.is_connected(_track_sleep):
+		get_tree().physics_frame.connect(_track_sleep)
 	_recording = true
 	await seconds(1.0)
 	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse))
@@ -136,10 +182,17 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			(func() -> void: census[1] = _census()).call_deferred())
 	await seconds(float(opts.fuse) + float(opts.gap) * (spots.size() - 1) + float(opts.seconds))
 	_recording = false
+	if get_tree().physics_frame.is_connected(_track_sleep):
+		get_tree().physics_frame.disconnect(_track_sleep)
 	Events.member_broken.disconnect(on_broken)
 	Events.member_cut.disconnect(on_cut)
 	var stall := float(opts.stall)
 	var summary := _summarise(stall)
+	if _awake_every > 0.0:
+		summary["awake_log"] = _awake_log.duplicate()
+	var sleeper := _sleeper()
+	summary["rubble_sleep"] = (sleeper.get(&"counts") as Dictionary).duplicate() if sleeper else {}
+	summary["awake_end"] = _rubble_count(true)
 	summary["setup"] = {"at": arr(at), "at_local": [local.x, local.y, local.z], "lit": lit, "burn_s": float(opts.burn),
 			"in": String(opts["in"]), "spots": spots.map(func(v: Vector3) -> Array: return arr(v)), "gap": float(opts.gap),
 			"burning_before": burning_before, "members_before": members_before, "rubble_before": rubble_before,
@@ -368,12 +421,207 @@ func _census() -> Dictionary:
 	return out
 
 
+## RubbleSleep (#585), if this build has it (the lab runs on main's too: not named, found).
+func _sleeper() -> Node:
+	for n: Node in [street, get_tree().root]:
+		var top: Node = n
+		while top and top.get_parent() is Node3D:
+			top = top.get_parent()
+		var r := top.get_node_or_null(^"RubbleSleep") if top else null
+		if r:
+			return r
+	return null
+
+
+## Each tick (`awake=S`): every rubble body's sleep looked at, wakes and sleeps counted, and every
+## S s the census taken.
+func _track_sleep() -> void:
+	if not _recording:
+		return
+	for rb: Node in get_tree().get_nodes_in_group(&"rubble"):
+		var id := rb.get_instance_id()
+		var asleep := (rb as RigidBody3D).sleeping
+		var was: Variant = _sleep_state.get(id)
+		if was == null:
+			_sleep_state[id] = [asleep, 0, World.now()]
+			continue
+		if was[0] and not asleep:
+			_wakes_since += 1
+			was[1] = int(was[1]) + 1
+			was[2] = World.now()
+		elif not was[0] and asleep:
+			_sleeps_since += 1
+		was[0] = asleep
+	if World.now() >= _awake_next:
+		_awake_next = World.now() + _awake_every
+		_awake_log.append(_awake_census())
+
+
+## The awake rubble now: how fast each moves (its farthest point: what Jolt's sleep test looks at),
+## what it touches, the piles it's in (awake bodies joined by contact), the fastest few.
+func _awake_census() -> Dictionary:
+	var awake: Array[RigidBody3D] = []
+	var n_all := 0
+	for n: Node in get_tree().get_nodes_in_group(&"rubble"):
+		n_all += 1
+		if not (n as RigidBody3D).sleeping and not (n as RigidBody3D).freeze:
+			awake.append(n)
+	var edges := [0.01, 0.03, 0.1, 0.3, 1.0, 1e9]
+	var speed_hist := [0, 0, 0, 0, 0, 0]
+	var touch := {"rubble": 0, "only_other": 0, "none": 0, "in_cell": 0, "ccd": 0, "multi": 0}
+	var parent := {}
+	var info := []
+	for rb in awake:
+		var reach := RubbleRest._reach(rb)
+		var ps := rb.linear_velocity.length() + rb.angular_velocity.length() * reach
+		for i in edges.size():
+			if ps < edges[i]:
+				speed_hist[i] += 1
+				break
+		var cols := rb.get_colliding_bodies()
+		var on_rubble := false
+		for c: Node in cols:
+			if c.is_in_group(&"rubble"):
+				on_rubble = true
+				_union(parent, rb.get_instance_id(), c.get_instance_id())
+		if cols.is_empty():
+			touch.none += 1
+		elif on_rubble:
+			touch.rubble += 1
+		else:
+			touch.only_other += 1
+		if rb.has_meta(&"resting_in"):
+			touch.in_cell += 1
+		if rb.continuous_cd:
+			touch.ccd += 1
+		if (rb.get_meta(&"members", []) as Array).size() > 1:
+			touch.multi += 1
+		var st: Variant = _sleep_state.get(rb.get_instance_id())
+		info.append([ps, rb, cols.size(), int(st[1]) if st else 0, World.now() - float(st[2]) if st else -1.0])
+	# Piles: awake bodies joined by contact (through any rubble, asleep or not).
+	var piles := {}
+	var pile_fast := {}
+	for e: Array in info:
+		var root: int = _find(parent, (e[1] as Node).get_instance_id())
+		piles[root] = int(piles.get(root, 0)) + 1
+		pile_fast[root] = maxf(float(pile_fast.get(root, 0.0)), float(e[0]))
+	var sizes := piles.values()
+	sizes.sort()
+	sizes.reverse()
+	# Each pile of 10 or more: its size, its fastest body (point, linear, angular), what it touches
+	# that isn't rubble and is awake (a prop, a man, a shard: Jolt keeps the island awake with it).
+	var pile_rows := []
+	var pile_other := {}
+	for e: Array in info:
+		var rb: RigidBody3D = e[1]
+		var root: int = _find(parent, rb.get_instance_id())
+		if int(piles[root]) < 10:
+			continue
+		var row: Dictionary = pile_other.get(root, {"n": piles[root], "fast": 0.0, "v": 0.0, "w": 0.0, "fast_at": [], "fast_n": 0, "other": {}})
+		var ps: float = e[0]
+		if ps > float(row.fast):
+			row.fast = snappedf(ps, 0.001)
+			row.v = snappedf(rb.linear_velocity.length(), 0.001)
+			row.w = snappedf(rb.angular_velocity.length(), 0.001)
+			row.fast_at = arr(rb.global_position)
+		if ps >= 0.03:
+			row.fast_n = int(row.fast_n) + 1
+		for c: Node in rb.get_colliding_bodies():
+			if c.is_in_group(&"rubble"):
+				continue
+			var key := "%s:%s%s" % [c.get_class(), (c.get_script() as Script).get_global_name() if c.get_script() else "", "(awake)" if c is RigidBody3D and not (c as RigidBody3D).sleeping else ""]
+			if c is RigidBody3D and not (c as RigidBody3D).sleeping:
+				key += " %s<%s>" % [String(c.name).left(14), String(c.get_parent().name).left(14) if c.get_parent() else ""]
+			row.other[key] = int(row.other.get(key, 0)) + 1
+		pile_other[root] = row
+	for root: int in pile_other:
+		pile_rows.append(pile_other[root])
+	pile_rows.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return int(x.n) > int(y.n))
+	info.sort_custom(func(x: Array, y: Array) -> bool: return x[0] > y[0])
+	var fastest := []
+	for e: Array in info.slice(0, 8):
+		var rb: RigidBody3D = e[1]
+		fastest.append({"ps": snappedf(e[0], 0.001), "v": snappedf(rb.linear_velocity.length(), 0.001),
+				"w": snappedf(rb.angular_velocity.length(), 0.001), "reach": snappedf(RubbleRest._reach(rb), 0.01),
+				"mass": snappedf(rb.mass, 0.1), "n": (rb.get_meta(&"members", []) as Array).size(), "contacts": e[2],
+				"wakes": e[3], "since_wake": snappedf(e[4], 0.1), "at": arr(rb.global_position)})
+	var quiet := 0  # awake, slower than Jolt's own line (0.03 m/s) at every point
+	for e: Array in info:
+		if float(e[0]) < 0.03:
+			quiet += 1
+	var woke_hist := {}
+	for e: Array in info:
+		var k := str(mini(int(e[3]), 5))
+		woke_hist[k] = int(woke_hist.get(k, 0)) + 1
+	var out := {"t": snappedf(World.now(), 0.1), "after": Engine.get_physics_frames() - _event_tick if _event_tick >= 0 else -1,
+			"rubble": n_all, "awake": awake.size(), "quiet": quiet, "speed_hist": speed_hist, "touch": touch,
+			"piles": sizes.size(), "pile_sizes": sizes.slice(0, 8), "wakes": _wakes_since, "sleeps": _sleeps_since,
+			"woken_times": woke_hist, "fastest": fastest, "pile_rows": pile_rows.slice(0, 12),
+			"other_awake": _other_awake() if awake.size() > 0 else {},
+			"active": PhysicsServer3D.get_process_info(PhysicsServer3D.INFO_ACTIVE_OBJECTS)}
+	var sleeper := _sleeper()
+	if sleeper:
+		out["rs"] = (sleeper.get(&"counts") as Dictionary).duplicate()
+		out["rs_held"] = sleeper.call(&"held_count")
+		out["rs_disturbed"] = (sleeper.get(&"_disturbed") as Dictionary).size()
+		var still_s := float((sleeper.get_script() as Script).get_script_constant_map().get("STILL_S", 1.5))
+		var now := Engine.get_physics_frames() / float(Engine.physics_ticks_per_second)
+		var spells := [0, 0, 0]  # awake rubble: not still yet, still but near a break, still and quiet
+		for e: Array in info:
+			var sp: Variant = (sleeper.get(&"_still") as Dictionary).get(e[1])
+			if sp == null or now - float(sp[1]) < still_s:
+				spells[0] += 1
+			elif sleeper.call(&"_near_disturbed", (e[1] as Node3D).global_position):
+				spells[1] += 1
+			else:
+				spells[2] += 1
+		out["rs_spells"] = spells
+	_wakes_since = 0
+	_sleeps_since = 0
+	return out
+
+
+## Awake rigid bodies that aren't rubble, by class and script (a walk of the tree: census only).
+func _other_awake() -> Dictionary:
+	var out := {}
+	var stack: Array[Node] = [get_tree().root]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		if n is RigidBody3D and not n.is_in_group(&"rubble") and not (n as RigidBody3D).sleeping and not (n as RigidBody3D).freeze:
+			var rb := n as RigidBody3D
+			var key := "%s<%s> %s inner=%d" % [n.name.left(16), (n.get_script() as Script).resource_path.get_file() if n.get_script() else "", str(n.get_groups().filter(func(g: StringName) -> bool: return not String(g).begins_with("_"))), n.find_children("*", "CollisionObject3D", true, false).size()]
+			var row: Dictionary = out.get(key, {"n": 0, "v": 0.0, "w": 0.0})
+			row.n = int(row.n) + 1
+			row.v = maxf(float(row.v), snappedf(rb.linear_velocity.length(), 0.001))
+			row.w = maxf(float(row.w), snappedf(rb.angular_velocity.length(), 0.001))
+			out[key] = row
+		stack.append_array(n.get_children())
+	return out
+
+
+static func _find(parent: Dictionary, a: int) -> int:
+	while parent.has(a) and parent[a] != a:
+		a = parent[a]
+	return a
+
+
+static func _union(parent: Dictionary, a: int, b: int) -> void:
+	if not parent.has(a):
+		parent[a] = a
+	if not parent.has(b):
+		parent[b] = b
+	var ra := _find(parent, a)
+	var rb := _find(parent, b)
+	if ra != rb:
+		parent[ra] = rb
+
+
 ## The rubble bodies in the world, or those of them awake (moving: the physics engine's work).
 func _rubble_count(awake: bool) -> int:
 	var n := 0
 	for rb: Node in get_tree().get_nodes_in_group(&"rubble"):
-		if not awake or not (rb as RigidBody3D).sleeping:
-			n += 1
+		if not awake or not ((rb as RigidBody3D).sleeping or (rb as RigidBody3D).freeze):
+			n += 1  # (frozen, held still by RubbleSleep: no work for the physics either)
 	return n
 
 

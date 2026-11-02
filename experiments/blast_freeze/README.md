@@ -18,9 +18,15 @@ python3 experiments/blast_freeze/summary.py build/blast_freeze/run.json [more.js
 python3 experiments/blast_freeze/summary.py --same A.json B.json                             # the same twice? (the broken set, each frame's counts)
 ```
 
-`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [out=FILE.json]`:
+`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street|farm] [mission=1] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json]`:
 `in=street` puts the sticks on Main Street instead (perf_bench `--scene=blast`'s spots: a third of
-the way through the first buildings' members); `sticks`/`gap` set off several, `gap` s apart (in the
+the way through the first buildings' members); `in=farm` throws them round the farmhouse (#584,
+#585: a stick a wall, front, west, east, back, lean_west, lean_east, lying 0.4 m out; the player
+20 m out front, or `player=X,Z` in the house's space; `mission=1` starts the mission first, the
+gang in the house); `awake=S` takes a census of the awake rubble every S s into `awake_log`
+(each piece's speed at its far end, what it touches, the piles by contact, wakes and sleeps, the
+awake bodies that aren't rubble, RubbleSleep's counts and spells; it walks every piece each tick,
+so leave it off when timing); `sticks`/`gap` set off several, `gap` s apart (in the
 saloon `spread` m along its front); `census=1` takes the tree census (`stick_added`), off by default
 since #538 (a walk of ~26,000 nodes, ~40 ms, landed on the stick's frame). The spec
 saloon (the building lab's, out in the desert; built if it isn't), `fire=N` floor and wall boards
@@ -101,6 +107,14 @@ kit props' members into their bodies straight, a break during a sliced settle qu
 and panes sounded to the voice limit: the saloon's next frame ~160 -> ~113 here, the street's worst
 ~146 -> ~121, three sticks' worst 170 -> 130 (saloon), 308 -> 175 (street). Frames carry `ph`: the
 frame split into late process / the frame's end / physics / early process (`late_stamp.gd`).
+
+**Rubble that won't sleep (#585, `results/2026-11-02_rubble_sleep/`):** after the sticks, one
+restless piece (wedged and spinning, a jiggling fitting or glass prop, a bone fragment twirling)
+kept its whole pile awake, hundreds of pieces still to a centimetre a second: at the farmhouse
+~1,000 for the whole minute after a ring of six sticks, frames ~150 ms here (Sean's slow motion,
+#584). `RubbleSleep` freezes the restless piece once nothing near it has moved or broken for a
+couple of seconds, and Jolt sleeps the rest: the farmhouse settles 8-16 s after the last stick
+(~17 ms frames after), the street's three sticks 7-9 s; broken counts in main's spread.
 
 ## Files
 
