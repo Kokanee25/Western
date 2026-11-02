@@ -11,6 +11,7 @@ wait 6
 train_cost 10
 train_models off
 train_place 150 25
+train_passengers 14
 train_watch box 5 -30 5 -8 follow
 wait 6
 train_cost 10

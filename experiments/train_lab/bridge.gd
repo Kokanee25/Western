@@ -216,6 +216,8 @@ func _cmd_train_cost(a: Array) -> Dictionary:
 		"draw_ms": float(c.get("draw_us", 0)) / maxf(1.0, c.get("draws", 0)) / 1000.0,
 		"ticks": c.get("ticks", 0), "frames": frames,
 		"wall_ms_a_frame": float(Time.get_ticks_usec() - u0) / maxf(1.0, frames) / 1000.0,
+		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		"primitives": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
 		"kmh": train.sim.v * 3.6}
 
 
