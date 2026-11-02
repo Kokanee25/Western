@@ -3502,10 +3502,12 @@ func _break_odds(t: Node3D, d: float, caught: bool, why: String) -> bool:
 	if not armed or (caught and not (temper >= HOT_TEMPER)):
 		return false
 	if temper >= HOT_TEMPER and (caught or not can_go):
+		var again := rage > 0.0 and _hold_break > 0.0  # far past his nerve this asks every tick: said once (#583's playtest)
 		rage = ODDS_CORNERED
 		_hold_break = ODDS_CORNERED
-		say(&"cornered")
-		_decide("fight it out", why + (", covered close" if caught else ", can't get away"))
+		if not again:
+			say(&"cornered")
+			_decide("fight it out", why + (", covered close" if caught else ", can't get away"))
 		return true
 	var far_past := dread() > nerve_now() + shaken_margin
 	if can_go and (far_past or _hid_once or _think.randf() < lerpf(ODDS_FLEE.x, ODDS_FLEE.y, clampf(nerve, 0.0, 1.0))):
