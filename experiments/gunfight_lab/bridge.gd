@@ -22,6 +22,8 @@ const HELP := {
 	"gf_trace": "gf_trace NAME [SECONDS] -> every 0.1 s of game time: where he is, his speed, gait, pose, stumbling, tactic, mood, reaction and stagger left, whether he's looking for cover, his decision",
 	"gf_watch": "gf_watch NAME [DIST] [DEG] [HEIGHT] [FOV] -> a free camera following him, DIST m (3) off on his side away from you, DEG (40) round from there, HEIGHT m (1.5) up, on his chest, short of walls; `camera player` to come back",
 	"gf_postcam": "gf_postcam [DIST] [DEG] [HEIGHT] [HOLD] | off -> a film camera on whichever of the gang is at a post (narrow cover), DIST m (3.2) off behind his shoulder on the side he steps out to, DEG (50) round from straight behind, HEIGHT m (1.7) up; back to your eyes HOLD s (1.5) after he leaves it; prints `postcam FRAME T NAME on|off` to cut the film by",
+	"gf_climbwhy": "gf_climbwhy X Y Z EYE_X EYE_Y EYE_Z -> in the spec saloon's own space: the climb search (variant D's `climb`, #572) from X Y Z against that eye: its spots over the floor above, why each was turned down, and the one it picks with its way up",
+	"gf_climbcam": "gf_climbcam [DIST] [HEIGHT] [HOLD] | off -> a film camera on whichever of the gang goes up for height (#572): behind him, DIST m (2.6) back and HEIGHT m (0.7) over his chest, as he runs for the stair and up it, then behind his shoulder looking down at you; back to your eyes HOLD s (3) after he leaves that spot; prints `climbcam FRAME T NAME on|off` to cut the film by",
 	"gf_map": "gf_map [X Z R] -> what stands near the arena (cover props, troughs, lamps, places) within R m of X Z",
 }
 
@@ -286,6 +288,72 @@ func _cmd_gf_coverwhy(a: Array) -> Dictionary:
 		"picked": picked, "ms_plain": t_plain / 1000.0, "ms_town": t_town / 1000.0}
 
 
+func _cmd_gf_climbwhy(a: Array) -> Dictionary:
+	if a.size() < 6:
+		return {"ok": false, "error": HELP.gf_climbwhy}
+	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	SpecSaloon.ensure(street, places)
+	await physics_frames(2)
+	var from := SpecSaloon.at(vec(a, 0))
+	var eye := SpecSaloon.at(vec(a, 3))
+	var feet := eye + Vector3.DOWN * 1.6
+	var space := World.space(player)
+	var ex: Array[RID] = [player.get_rid()]
+	var tune := OutlawBrain.climb_tuning()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var s := Cover.climb_search(street, from, eye, feet, ex, rng, places, tune)
+	var why := {}
+	var good: Array = []
+	var flat := Vector3(eye.x, from.y, eye.z)
+	var first := Cover._first_lines(space, s._cands, eye, ex)
+	var shares := {}
+	for i in s._cands.size():
+		var reason := ""
+		if first[i][0] == null:
+			reason = "no floor"
+		else:
+			var spot := Cover.evaluate(space, first[i][0], eye, ex, true, first[i], true, tune.screen, feet.y + tune.rise)
+			if spot.is_empty() and first[i][0] != null:
+				var sh := Cover.screen_share(space, first[i][0], eye, ex)
+				var key := "share %.1f" % snappedf(sh, 0.1)
+				shares[key] = int(shares.get(key, 0)) + 1
+			if spot.is_empty():
+				var g: Variant = first[i][1] if (first[i] as Array).size() > 1 else null
+				if g == null:
+					reason = "no ground"
+				elif not Cover._blocked(space, g, eye, Cover.LIE_CHEST, ex, true):
+					reason = "in plain view"
+				elif not Cover._room(space, g, ex):
+					reason = "no room"
+				else:
+					var hid := Cover.hidden_at(space, g, eye, Cover.HIDE_HEAD, ex, true) and Cover.hidden_at(space, g, eye, Cover.CHEST, ex, true)
+					reason = "no peek to shoot from" if hid else "too low to hide him"
+			elif (spot.at as Vector3).distance_to(flat) < 5.0 or ((spot.at as Vector3) - from).dot((flat - from).normalized()) > 3.0:
+				reason = "toward you, or within 5 m of you"
+			else:
+				var c := {"routes": s._ctx.routes, "way_extra": tune.max_way}
+				var way := Cover._town_way(space, from, spot.at, ex, places, 0.0, c)
+				if way.is_empty():
+					reason = "no way up within %.0f m" % tune.max_way
+				elif not Cover._way_clear_of(from, way, feet, tune.way_clear):
+					reason = "the way passes you"
+				else:
+					good.append([arr(SpecSaloon.at(Vector3.ZERO) * -1.0 + spot.at), snappedf(Cover._run_length(from, way), 0.1), spot.low, spot.get("narrow", false), spot.get("screen", false)])
+		if reason != "":
+			why[reason] = int(why.get(reason, 0)) + 1
+	s._ctx["narrow"] = true
+	while not s.step(40):
+		pass
+	var picked: Variant = null
+	if not s.result.is_empty():
+		var o := SpecSaloon.at(Vector3.ZERO)
+		picked = {"at": arr(s.result.at - o), "low": s.result.low, "narrow": s.result.get("narrow", false), "screen": s.result.get("screen", false), "way_m": s.result.way_m,
+			"way": (s.result.route as Array).map(func(w: Vector3) -> Array: return arr(w - o))}
+	return {"candidates": s._cands.size(), "good": good.size(), "good_spots": good.slice(0, 12), "turned_down": why, "picked": picked,
+		"turned_down_screen_shares": shares}
+
+
 func _cmd_gf_map(a: Array) -> Dictionary:
 	var c := Vector3(float(a[0]), 0.0, float(a[1])) if a.size() >= 2 else Vector3(8.0, 0.0, -4.0)
 	var r := float(a[2]) if a.size() >= 3 else 20.0
@@ -454,6 +522,8 @@ var _watch := {}
 func _physics_process(_delta: float) -> void:
 	if not _postcam.is_empty():
 		_post_follow(_delta)
+	if not _climbcam.is_empty():
+		_climb_follow(_delta)
 	if not _watch.is_empty():
 		if bridge._free_camera == null and _watch.get("placed", false):
 			_watch = {}
@@ -624,4 +694,80 @@ func _post_follow(delta: float) -> void:
 		want = look + (want - look).normalized() * maxf(look.distance_to(hit.position) - 0.2, 0.6)
 	var cam: Vector3 = want if pc.cam == Vector3.INF else (pc.cam as Vector3).lerp(want, 0.08)
 	pc.cam = cam
+	bridge._cmd_camera([str(cam.x), str(cam.y), str(cam.z), str(look.x), str(look.y), str(look.z), "62"])
+
+
+## The climb's film camera (gf_climbcam, #572): finds a man of the gang going up for height
+## (OutlawBrain's variant D `climb`: his cover's a `climb` spot and he's on his way), follows him
+## from behind as he runs for the stair and up it, then holds behind his shoulder looking down past
+## him at you while he fights from the rail; your eyes again HOLD s after he's left that spot or
+## gone down. Prints `climbcam FRAME T NAME on|off` (the cuts).
+var _climbcam := {}
+
+
+func _cmd_gf_climbcam(a: Array) -> Dictionary:
+	if a.size() == 1 and a[0] == "off":
+		_climbcam = {}
+		bridge._cmd_camera(["player"])
+		return {"climbcam": "off"}
+	_climbcam = {"dist": float(a[0]) if a.size() > 0 else 2.6, "h": float(a[1]) if a.size() > 1 else 0.7,
+			"hold": float(a[2]) if a.size() > 2 else 3.0, "man": null, "away": 0.0}
+	return {"climbcam": "on"}
+
+
+func _climbing(m: HumanBody) -> OutlawBrain:
+	if m == null or not is_instance_valid(m):
+		return null
+	var b := m.get_node_or_null(^"Brain") as OutlawBrain
+	if b == null or not b.cover.get("climb", false):
+		return null
+	return b
+
+
+func _climb_follow(delta: float) -> void:
+	var cc := _climbcam
+	var m: HumanBody = cc.man as HumanBody if is_instance_valid(cc.get("man")) else null
+	var b := _climbing(m)
+	if m != null and (b == null or m.limp or (b.cover.at as Vector3).distance_to(cc.spot) > 0.05):
+		cc.away = float(cc.away) + delta
+		if float(cc.away) > float(cc.hold):
+			print("climbcam %d %.2f %s off" % [Engine.get_frames_drawn(), Engine.get_physics_frames() / 60.0, m.person_id])
+			cc.man = null
+			bridge._cmd_camera(["player"])
+			return
+	else:
+		cc.away = 0.0
+	if m == null:
+		for id: String in ["brody", "lyle", "kid"]:
+			var c := person(id)
+			var cb := _climbing(c)
+			if cb != null and cb.tactic == OutlawBrain.Tactic.MOVING and not c.limp:
+				m = c
+				b = cb
+				cc.man = c
+				cc.spot = cb.cover.at
+				cc.cam = Vector3.INF
+				print("climbcam %d %.2f %s on" % [Engine.get_frames_drawn(), Engine.get_physics_frames() / 60.0, id])
+				break
+		if m == null:
+			return
+	var chest := (m.parts[&"chest"] as Node3D).global_position if m.parts.has(&"chest") else m.global_position + Vector3.UP * 1.1
+	# On his way: behind him, the way he runs; up there: behind his shoulder, looking at you.
+	var fwd := -m.global_basis.z
+	if b != null and b.tactic != OutlawBrain.Tactic.MOVING:
+		fwd = player.camera.global_position - chest
+	fwd.y = 0.0
+	if fwd.length() < 0.1:
+		return
+	fwd = fwd.normalized()
+	var side := Vector3.UP.cross(fwd)
+	var look := chest + fwd * 2.0 + Vector3.DOWN * (0.6 if b != null and b.tactic != OutlawBrain.Tactic.MOVING else 0.0)
+	var want := chest - fwd * float(cc.dist) + side * 0.6 + Vector3.UP * float(cc.h)
+	var q := PhysicsRayQueryParameters3D.create(chest, want)
+	q.exclude = m.parts.values().filter(func(p: Node) -> bool: return p is CollisionObject3D).map(func(p: CollisionObject3D) -> RID: return p.get_rid())
+	var hit := World.space(m).intersect_ray(q)
+	if not hit.is_empty():
+		want = chest + (want - chest).normalized() * maxf(chest.distance_to(hit.position) - 0.2, 0.5)
+	var cam: Vector3 = want if cc.cam == Vector3.INF else (cc.cam as Vector3).lerp(want, 0.1)
+	cc.cam = cam
 	bridge._cmd_camera([str(cam.x), str(cam.y), str(cam.z), str(look.x), str(look.y), str(look.z), "62"])

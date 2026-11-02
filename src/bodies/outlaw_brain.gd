@@ -158,14 +158,16 @@ var variant: Variant = default_variant
 ## cover too, bladed behind it in Sean's post pose and shooting from it point-fired: `Cover._narrow`,
 ## `_hold_post`, `_pointing`), step_out (#566: at a post, far off or with you past where his forearm
 ## points, he steps out past its edge, squares up, aims and steps back in; near, he points:
-## `_step_choose`, `_step_move`, PostStepTuning). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## `_step_choose`, `_step_move`, PostStepTuning), climb (#572: his cover gone stale with you below a
+## floor he can get to, he may take the stair up and fight from the rail: `_climb_choose`,
+## Cover.climb_search, ClimbTuning). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
-		&"watch_spot", &"posts", &"step_out"]
+		&"watch_spot", &"posts", &"step_out", &"climb"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -348,6 +350,9 @@ var _move_time := 0.0
 var _check := 0.0
 var _search: Cover.Search
 var _search_bias := Vector3.INF
+var _search_climb := false  # variant D's climb: this search is over the floor above (Cover.climb_search)
+var _climbed_at := -INF  # when (his clock) he last went up, or looked for a way up
+static var _climb_tuning: ClimbTuning
 var _search_eye := Vector3.INF  # where he took your eyes to be when he started that search (the spot keeps it: cover.eye)
 var _sure := false  # variant D's hold_cover: something he's sure of told him where you are since his last look (`_held_eye`)
 ## Keeping his head down: seconds left (rounds cracking past).
@@ -1862,7 +1867,7 @@ func _combat(delta: float) -> void:
 				_in_cover = 0.0
 				_peeks = 0
 				_flank_after = _think.randf_range(10.0, 18.0)
-			elif _move_time > 7.0 or _stuck > 1.2:
+			elif _move_time > _run_time() or _stuck > 1.2:
 				_decide("give that cover up", "stuck on the way" if _stuck > 1.2 else "too long getting there")
 				tactic = Tactic.OPEN
 				_cover_search = 0.0
@@ -1881,6 +1886,8 @@ func _combat(delta: float) -> void:
 ## cover shot away or seen round (`_hide`), a friend down (`_wounded_mate`) or the man reloading
 ## (`_press_why`).
 func _lost_you(t: Node3D) -> bool:
+	if cover.get("climb", false) and _in_cover < climb_tuning().watch_up and _has(&"climb"):
+		return false  # up for height (#572): he watches the floor below a while first, however long the climb took
 	if not _has(&"watch_spot"):
 		return true
 	var spot := senses.last_known(t)
@@ -1966,6 +1973,7 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 	if _search != null:
 		return
 	_search_why = why
+	_search_climb = false
 	_search = Cover.search(body.get_parent() as Node3D, body.global_position, eye, _exclude(_find_target()), _think, bias_from,
 			max_travel, new_angle, _town())
 	if _has(&"cover_way"):
@@ -1974,10 +1982,69 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 		_search._ctx["by_way"] = true
 	if _has(&"posts"):
 		_search._ctx["narrow"] = true
+	if _has(&"climb"):
+		# Up over the man, a balustrade's screen is cover too (Cover._screen_spot).
+		_search._ctx["screen"] = climb_tuning().screen
+		_search._ctx["screen_above"] = eye.y - 1.6 + climb_tuning().rise
 	if not hold.is_empty():
 		_search._ctx["inside"] = hold.inside
 	_search_bias = bias_from
 	_search_eye = eye
+
+
+## Going up for height (variant D's `climb`, #572): his cover gone stale, with you below a floor
+## he can get to (the galleries round the hall), he may take the stair up and fight from the rail.
+## Whether, by ClimbTuning.chance_now (his temper, nerve, a friend keeping you busy, your fire, his
+## pain); only while he knows where you are lately, not with a bad leg, not while your fire keeps
+## his head down, not holding a house (its own tactics) and not again for a while. Where, by a cover
+## search over the floor above (Cover.climb_search). True if he's started that search.
+func _climb_choose(eye: Vector3, why: String) -> bool:
+	if not _has(&"climb") or _search != null or _town() == null or not hold.is_empty() or mood not in [Mood.FIGHTING, Mood.RELOADING]:
+		return false
+	var tune := climb_tuning()
+	if _now - _climbed_at < tune.again_after or suppressed > 0.0 or _shaken >= 0.0 or body.prone or body.limp:
+		return false
+	var t := _find_target()
+	if t == null or senses.last_known(t) == Vector3.INF or senses.since_known(t) > tune.known_within:
+		return false
+	var p := body.physiology
+	if minf(p.muscle_strength("leg", "r"), p.muscle_strength("leg", "l")) <= tune.legs_min:
+		return false
+	var c := tune.chance_now(temper, dread() / maxf(nerve_now(), 0.01), crew.any_in_earshot(_now), rattled, p.felt_pain())
+	if _think.randf() >= c:
+		return false
+	_climbed_at = _now
+	var feet := eye + Vector3.DOWN * 1.6
+	var s := Cover.climb_search(body.get_parent() as Node3D, body.global_position, eye, feet, _exclude(t), _think, _town(), tune)
+	if not Cover.has_up(s):
+		return false
+	if _has(&"posts"):
+		s._ctx["narrow"] = true
+	# Not where a friend is, or is going.
+	var taken: Array[Vector3] = []
+	var standing: Array[Vector3] = []
+	for m in crew.mates(_now):
+		taken.append(m.global_position)
+		if not m.limp and not m.prone:
+			standing.append(m.global_position)  # and not past one on the stair
+		var mb := m.get_node_or_null(^"Brain") as OutlawBrain
+		if mb != null and not mb.cover.is_empty():
+			taken.append(mb.cover.at)
+	s._ctx["taken"] = taken
+	s._ctx["standing"] = standing
+	_search = s
+	_search_why = why
+	_search_bias = Vector3.INF
+	_search_eye = eye
+	_search_climb = true
+	return true
+
+
+## Going up for height (variant D's `climb`, #572): the dials (config/climb.tres).
+static func climb_tuning() -> ClimbTuning:
+	if _climb_tuning == null:
+		_climb_tuning = load("res://config/climb.tres")
+	return _climb_tuning
 
 
 ## A few more candidate spots this tick; when the hunt's done, go if it found somewhere.
@@ -1986,6 +2053,13 @@ func _step_search() -> void:
 		return
 	var spot := _search.result
 	_search = null
+	var was_climb := _search_climb
+	_search_climb = false
+	if spot.is_empty() and was_climb:
+		# Nowhere up there he can get to that's any good: an ordinary look round from here instead.
+		if tactic == Tactic.HIDDEN and not cover.is_empty():
+			_seek_cover(_search_eye, cover.at, 11.0, 3.0, _search_why)
+		return
 	if spot.is_empty():
 		if tactic == Tactic.OPEN:
 			_decide("fight from where he is", "no cover he can reach (%s)" % _search_why)
@@ -2003,11 +2077,22 @@ func _step_search() -> void:
 		callout(&"flank", _find_target(), spot.at)
 	spot.eye = _search_eye
 	cover = spot
-	_decide("go round on you" if going_round else "run for cover", "%s, %.0f m" % [_search_why, (spot.at as Vector3).distance_to(body.global_position)])
+	if spot.get("climb", false):
+		_decide("go up for height", "%s, %.0f m by the stair" % [_search_why, float(spot.way_m)])
+	else:
+		_decide("go round on you" if going_round else "run for cover", "%s, %.0f m" % [_search_why, (spot.at as Vector3).distance_to(body.global_position)])
 	tactic = Tactic.MOVING
 	_move_time = 0.0
 	_stuck = 0.0
 	_last_pos = body.global_position
+
+
+## How long he gives a run for cover before he gives it up (s): 7, or for the way up a stair
+## (variant D's `climb`) the way at his run plus ClimbTuning.time_spare.
+func _run_time() -> float:
+	if not cover.get("climb", false):
+		return 7.0
+	return maxf(7.0, float(cover.get("way_m", 0.0)) / maxf(run_speed, 0.5) + climb_tuning().time_spare)
 
 
 func _watch_stuck(delta: float) -> void:
@@ -2042,6 +2127,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		# the pose blends in), then where his trunk is.
 		var trunk: Vector3 = cover.at if _post_place > 0.0 or _post_back > 0.0 or not _step.is_empty() else _trunk_at(_held_eye(eye))
 		var hidden := Cover.hidden_narrow(space, trunk, _held_eye(eye), _exclude(_find_target()), cover.post, cover.post_w) if at_post \
+				else Cover.screen_share(space, cover.at, _held_eye(eye), _exclude(_find_target())) >= climb_tuning().screen if cover.get("screen", false) \
 				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null)
 		if not hidden:
 			# He's come round it: this cover's no good now.
@@ -2059,7 +2145,9 @@ func _hide(delta: float, eye: Vector3) -> void:
 		_in_cover = 0.0
 		_peeks = 0
 		_flank_after = _think.randf_range(10.0, 18.0)
-		if crew.someone_flanking(_now):
+		if _climb_choose(eye, stale):
+			pass  # up the stair for height (variant D's `climb`, #572)
+		elif crew.someone_flanking(_now):
 			pass  # a friend's going round: he stays and keeps the man busy
 		else:
 			# With friends there to keep the man's head down, he goes right round on him.
