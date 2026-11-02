@@ -1198,6 +1198,25 @@ turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) 
 (`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
 `train_passengers N` seats the Studio's men in the coach.
 
+Step 4 (#571): the sound. `TrainSound` (a child of `Train`, `sound`; dials `TrainSoundTuning`,
+`config/train_sound.tres`, proposed) is ticked after the sim's step with its coupler events and
+times every one-shot from the sim to the sub-tick: an exhaust beat each quarter turn of the drivers
+(as `EngineModel.roll` counts them: `train_chuff_long|mid|short_N` by the beats a second, louder by
+`TrainSim.steam`, each of the four its own level and pitch; the cocks' burst below `COCKS_BELOW`), a
+clack each axle over a rail joint (the engine's pony and four drivers from `engine_rig.json`, two
+axles a truck under the rest), a bang or bump each coupler event, a bell strike every
+`bell_period`. Each is queued at its moment plus distance / 343 m/s, Doppler-pitched (`doppler`),
+and started on the drawn frame that's due, skipped into its `TrainSynth.LEAD` of silence by how
+late it is, so it's heard on its moment at any frame rate (the sound's pools: exhaust, clack,
+clank, bell; the oldest gives way). Loops held by the drawn frame on their car: rumble (by speed),
+squeal and grind (by `car_brake` and speed), the cocks' hiss, simmer, the safety valve (lifts after
+`valve_after` s standing with the regulator shut), the whistle (`blow("--o-")`, `whistle(held)`).
+Its bus (walls) from GameAudio a few times a second. Without ears nothing is made or played. The
+sounds: `src/audio/train_synth.gd` (`TrainSynth`, all synthesised; SynthSounds makes `train_*`,
+loops seamless, `SynthSounds.warm(TrainSynth.WARM)` the first time a train is heard). Prof timer
+`train_sound`. The lab: `train_whistle`, `train_bell`, `train_valve`, `train_sound`,
+`train_caption`, `train_cam side S OFF`; the cab's H (whistle) and B (bell).
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;

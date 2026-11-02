@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="TrainSoundTuning" format=3]
+
+[ext_resource type="Script" path="res://src/train/train_sound_tuning.gd" id="1_tsound"]
+
+[resource]
+script = ExtResource("1_tsound")

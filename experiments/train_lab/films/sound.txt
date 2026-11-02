@@ -1,0 +1,55 @@
+# Step 4 film (#571): the train heard. Every sound from the sim (TrainSound): a chuff a beat, a clack
+# an axle a rail joint, the couplers' slack, the brakes, the steam, the bell and the whistle.
+#   1. A start, close by the engine: the bell, two long blasts, the cocks open, the slack running out.
+#   2. Passing at 10 m, 40 m (blowing for a crossing: hear it drop as it passes) and 150 m, working.
+#   3. A stop, close by: the brakes grinding then squealing, the slack bunching; standing, the
+#      safety valve lifts.
+# python3 tools/bridge.py run experiments/train_lab/films/sound.txt --size=960x540 --movie=build/sound.avi
+time 16.8
+train_lab
+train_drive off
+throttle 0
+brake 0
+train_place depot 0
+train_watch engine 4.0 7.0 1.6 3.0
+train_caption A start, close by the engine
+wait 2
+train_bell on
+wait 1.5
+train_whistle --
+wait 4.5
+throttle 1
+wait 14
+train_bell off
+throttle 0
+train_caption Passing at 10 m, working (about 35 km/h)
+train_place 150 30
+throttle 0.8
+train_cam side 230 10
+wait 5
+train_cost 10
+wait 4
+train_caption Passing at 40 m, blowing for a crossing
+train_place 150 30
+throttle 0.8
+train_cam side 230 40
+wait 3.5
+train_whistle --o-
+wait 15.5
+train_caption Passing at 150 m
+train_place 150 30
+throttle 0.8
+train_cam side 230 150
+wait 20
+train_caption A stop, close by: the brakes, the slack bunching, then standing
+throttle 0
+train_place 240 30
+train_cam side 326 8
+wait 1
+brake 1
+wait 22
+train_caption Standing: the safety valve lifts
+train_valve
+wait 9
+train_caption
+train_sound counts

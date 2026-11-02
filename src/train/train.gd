@@ -10,7 +10,8 @@ extends Node3D
 ## A man standing where a car comes is struck (`take_blow`, by the car's speed: below a walking
 ## pace he's shoved, above it he goes down; down, his limp body is pushed by the solids as any
 ## loose thing is). A loose kit prop (a crate) is pushed by the solids; one still standing is
-## knocked loose first. Every slack-out and bunch is emitted (`coupler`) for the sound (step 4).
+## knocked loose first. Every slack-out and bunch is emitted (`coupler`) and heard (`sound`, step 4:
+## TrainSound, timed from the tick).
 ##
 ## `record` keeps a row a tick (time, s, v, forces, levers) for the lab's graphs.
 
@@ -20,6 +21,8 @@ var tuning: TrainTuning
 var track: TrackLine
 var sim: TrainSim
 var view: TrainView
+## The train heard (step 4): chuffs, rail joints, couplers, brakes, steam, the bell and whistle.
+var sound: TrainSound
 ## Who to watch for riding (the player): while he stands on a car, the cars are drawn on the tick.
 var rider: CharacterBody3D
 var riding := false
@@ -51,6 +54,11 @@ func setup(on_track: TrackLine, t: TrainTuning) -> void:
 		view.name = "Cars"
 		add_child(view)
 	view.setup(track, sim)
+	if sound == null:
+		sound = TrainSound.new()
+		sound.name = "Sound"
+		add_child(sound)
+	sound.setup(self)
 
 
 func place(s: float, slack := -1.0) -> void:
@@ -58,6 +66,8 @@ func place(s: float, slack := -1.0) -> void:
 	drawn_s = s
 	view.place(1.0)
 	view.place_solids()
+	if sound:
+		sound.reset()
 
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +84,8 @@ func _physics_process(delta: float) -> void:
 	if absf(sim.v) > 0.05:
 		_strike()
 	cost.strike_us = cost.get("strike_us", 0) + Time.get_ticks_usec() - u2
-	for e in sim.take_events():
+	var events := sim.take_events()
+	for e in events:
 		coupler.emit(e)
 	riding = _riding()
 	if record:
@@ -82,6 +93,8 @@ func _physics_process(delta: float) -> void:
 	cost.tick_us = cost.get("tick_us", 0) + Time.get_ticks_usec() - u
 	cost.ticks = cost.get("ticks", 0) + 1
 	Prof.stop(&"train", t0)
+	if sound:
+		sound.tick(delta, events)
 
 
 func _process(_delta: float) -> void:
