@@ -44,6 +44,31 @@ extends Resource
 @export var caught_cold := 4.0
 ## How far (m) off a man hearing a shot or a blast places you (his guess, not your spot).
 @export var heard_error := 3.0
+## The house's men hold a hostage with nowhere to run (issue #565, Sean: "the guards give up too
+## easily"): this much more nerve than their own (`men`), and past it they hold on rather than
+## run or give up while they're armed and not covered close (OutlawBrain._cornered_break).
+@export var house_nerve := 0.25
+## ... and shot down but still with it, they fight on from the floor (the gunfight lab's D+
+## `floor_fight`, for them alone): the hardest of it (the scripted runs, issue #565).
+@export var house_floor_fight := true
 ## The men, each {id, model, post (a farmhouse use point), hold ("house" or "bedroom"), nerve,
 ## temper, proud, leads, masked, alarm_post (where he goes on the alarm, a use point; "" stays)}.
 @export var men: Array[Dictionary] = []
+
+@export_group("The rovers")
+## Men outside walking a beat before the alarm (issue #565, Sean: "it needs roving guards
+## outside"): each {id, model, masked, nerve, temper, beat (a name in `beats`), start (the beat's
+## stop he starts at)}. They see you and call it in (the alarm, or the warning as the house's men
+## give it); a fuse they hear only within its 3 m, as anyone.
+@export var rovers: Array[Dictionary] = []
+## The beats: name -> its stops in order, walked round and round: each {at (a farm place:
+## Farmhouse.add_places), pause (s), look [x, z] (the house's own space: what he stands watching),
+## quiet (the sides of the house, as HouseDefence.place_of names them, that his beat leaves
+## unwatched a while from this stop on: what a player who's watched him waits for, as the scripted
+## player does)}.
+@export var beats: Dictionary = {}
+## On the alarm a rover falls back into the house (and fights from it with the rest) if he's
+## nearer its door than this share of his distance from you; else he takes cover outside, in the
+## yard (`yard_reach` m of the house), and falls back once you're in the house or he's hit.
+@export var rover_fall_back := 0.7
+@export var yard_reach := 30.0

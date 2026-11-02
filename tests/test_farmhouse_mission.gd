@@ -45,7 +45,10 @@ func _begin() -> void:
 func test_it_starts_with_the_men_at_their_posts_and_the_rancher_tied() -> void:
 	await _begin()
 	check_eq(mission.state, FarmhouseMission.State.ON, "it's on")
-	check_eq(mission.brains.size(), 5, "five men")
+	check_eq(mission.brains.size() - mission.rovers.size(), 5, "five men in the house")
+	check_eq(mission.rovers.size(), mission.tuning.rovers.size(), "and the rovers outside (issue #565)")
+	for r in mission.rovers:
+		check(mission.in_yard(r.body.global_position), "%s in the yard" % r.body.name)
 	check(town.gang_came(), "the gang won't ride into town: they're out there")
 	for b in mission.brains:
 		check_eq(b.mood, OutlawBrain.Mood.CALM, "%s calm before the alarm" % b.body.name)
@@ -73,7 +76,11 @@ func test_a_shot_raises_the_alarm_and_they_keep_to_the_house() -> void:
 	await physics_frames(60 * 12)
 	for b in mission.brains:
 		if b.body.physiology.alive and b.mood != OutlawBrain.Mood.FLEEING:
-			check(FarmhouseMission.inside(b.body.global_position), "%s still in the house" % b.body.name)
+			# A rover keeps to the yard or falls back into the house (issue #565): never off after you.
+			if b in mission.rovers:
+				check(FarmhouseMission.inside(b.body.global_position) or mission.in_yard(b.body.global_position), "%s in the yard or the house" % b.body.name)
+			else:
+				check(FarmhouseMission.inside(b.body.global_position), "%s still in the house" % b.body.name)
 
 
 func test_e_held_by_him_cuts_him_loose_and_he_follows() -> void:
@@ -232,6 +239,17 @@ func test_an_out_cold_rancher_is_cut_loose_and_dragged_out() -> void:
 ## nobody calling where you are, nobody knowing it, till one of them sees you or you fire.
 func test_a_stick_they_never_heard_is_a_surprise() -> void:
 	await _begin()
+	# Timed by the rovers (issue #565): their beats have them at the lane, out front.
+	for r in mission.rovers:
+		var lane := town.places.at(&"farm_lane")
+		r.body.global_position = lane
+		r.hold.post = lane
+		var st: Dictionary = mission._beat[r]
+		for i in (st.stops as Array).size():
+			if (st.stops[i][0] as Vector3).distance_to(lane) < 0.1:
+				st.i = i
+		r.hold.look = st.stops[st.i][2]
+		st.wait = 60.0
 	# You in the hiding spot round the lean-to's corner (out of sight of every window and door).
 	player.global_position = Farmhouse.on_ground(-0.9, 6.6) + Vector3.UP * 0.05
 	await physics_frames(10)
@@ -268,3 +286,29 @@ func test_a_stick_they_never_heard_is_a_surprise() -> void:
 	Events.shot_fired.emit(player.global_position + Vector3.UP * 1.5, Vector3.UP, player)
 	await physics_frames(3)
 	check(mission.found_t >= 0.0 and not mission.defence.quiet, "found once you fire (%s)" % [mission.timeline.slice(-3)])
+
+
+## The rovers (issue #565): they walk their beats round the yard, and one who sees you is how the
+## house learns of you.
+func test_the_rovers_walk_their_beats() -> void:
+	await _begin()
+	var pike: OutlawBrain = mission.rovers[0]
+	var from := pike.body.global_position
+	var i0: int = mission.rover_stop(pike).i
+	await physics_frames(60 * 25)
+	check(mission.alarm_t < 0.0, "no alarm with you out at the edge of town (%s)" % [mission.timeline])
+	check(mission.rover_stop(pike).i != i0, "Pike's on to another stop of his beat")
+	check(pike.body.global_position.distance_to(from) > 3.0, "and walked there (%.1f m)" % pike.body.global_position.distance_to(from))
+	check(mission.in_yard(pike.body.global_position), "in the yard")
+
+
+func test_a_rover_sees_you_and_calls_it_in() -> void:
+	await _begin()
+	# Out west of the house, in front of Pike at the first stop of his beat, gun out.
+	player.global_position = Farmhouse.on_ground(-12.0, -5.0) + Vector3.UP * 0.05
+	player.select_weapon(player.revolver())
+	await physics_frames(60 * 4)
+	check(mission.rover_found.begins_with("Pike"), "Pike saw you (%s)" % mission.rover_found)
+	check(mission.alarm_t >= 0.0, "the alarm's up (%s)" % [mission.timeline])
+	var known := mission.brains.filter(func(b: OutlawBrain) -> bool: return not b in mission.rovers and b.senses.since_known(player) < 5.0)
+	check(known.size() >= 3, "the house knows where you are (%d)" % known.size())

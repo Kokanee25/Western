@@ -21,6 +21,29 @@ python3 experiments/farmhouse/run.py --ways=front,breach,back --seeds=1-4 --jobs
 python3 tools/bridge.py "farm_start" "farm_state"      # in a running game (bridge): the mission, its state
 ```
 
+## Harder (issue #565, 2026-11-02)
+
+Sean: the guards give up too easily, can't see him outside a window, don't really shoot from
+inside to outside, and it needs roving guards outside. Each step measured on its own against main
+(`results/2026-11-02_harder/README.md`, 8 seeds a way):
+
+- **Glass** (the whole game): the sight service passes unbroken panes (the physics keeps them
+  solid); a man through glass is seen a little less plainly, and less from the bright side into
+  the dark. The front way's shots from inside at you outside 106 -> 135.
+- **Harder to break:** the house's men have `house_nerve` more nerve, hold on past it while armed
+  and not covered within 6 m (`hold.cornered`), and fight from the floor (`house_floor_fight`).
+  Nobody runs; standing surrenders nearly gone; the front way's first quit 2.7 -> 21-24 s.
+- **The rovers:** Pike walks the whole yard, Wes the lane and the east yard (`rovers`, `beats`);
+  they see you and call it in, fall back into the house on the alarm (or fight from the yard).
+  Each beat stop says which side it leaves unwatched (`quiet`): the scripted player waits for it
+  at a gate out of sight (the breach now wide round the far north and in from the west, since the
+  kitchen window sees out). A rover found the quiet ways 0 of 16 times; the surprise held 8 of 8.
+- All of it: the scripted player wins 2 of 24 (main 16 of 24), down in 18. The dials to ease it,
+  biggest first: `house_floor_fight`, `house_nerve`, `rovers`.
+- Lab switches: `run.py --args="--farm-rovers=0 --farm-cornered=off"` (the befores); the record
+  has each man's quit (`quits`: t, id, gives up/runs, why, on the floor), `shots_out`/`shots_men`,
+  `rover_found`; the bot's `gate_wait`, `froze`.
+
 ## The surprise assault (issue #537, 2026-11-01)
 
 Sean: the dynamite way is a surprise assault. You set the stick on a back wall without them

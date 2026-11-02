@@ -1,0 +1,186 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:House/floor_ground_board_006_0",
+  "0.3:House/floor_ground_board_008_0",
+  "0.3:House/floor_ground_board_007_0",
+  "0.3:House/floor_ground_board_010_0",
+  "0.3:House/floor_ground_board_009_0",
+  "0.3:House/floor_ground_joist_020",
+  "0.3:House/floor_ground_joist_024",
+  "0.3:House/floor_ground_joist_022",
+  "0.3:House/floor_ground_board_011_0",
+  "0.3:House/floor_ground_board_012_0",
+  "0.3:House/floor_ground_board_013_0",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Kid",
+ "breach": -1.0,
+ "end": 43.92,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1617,
+  "max_ms": 158.13,
+  "mean_ms": 15.16,
+  "p95_ms": 26.14
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.27,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "come at you: you're reloading",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 5 m",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "run for cover: in the open, 5 m",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, grey and cold, pulse thready, going pale with no wound to show for it, bleeding steady, bone broken.",
+ "player_local": [
+  3.25,
+  0.56,
+  1.25
+ ],
+ "quits": [],
+ "route_left": 4,
+ "route_next": [
+  4.75,
+  0.56,
+  3.35
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 5,
+ "shots_men": 23,
+ "shots_out": 22,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 43.92,
+ "threat": 39.73,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   39.73,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   39.73,
+   "the guard's last word"
+  ],
+  [
+   43.92,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

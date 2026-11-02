@@ -1,0 +1,219 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:House/floor_ground_board_017_0",
+  "0.3:House/floor_ground_board_018_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/bedroom_door_259",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_joist_027",
+  "0.3:House/floor_ground_joist_029",
+  "1.0:House/bedroom_door_259",
+  "1.0:TestStreet/Player",
+  "1.6:House/bedroom_door_259",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Brody",
+ "breach": -1.0,
+ "end": 44.22,
+ "executed": 43.42,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1635,
+  "max_ms": 182.34,
+  "mean_ms": 14.84,
+  "p95_ms": 27.0
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   7.24,
+   1.77,
+   2.26
+  ],
+  "limp": true,
+  "pelvis": [
+   7.31,
+   1.15,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.33,
+  1.52,
+  2.46
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Dutch to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.7,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "RESCUING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Hollis down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (1.01 / 1.06)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.7,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "go to ground: past his nerve (fear 0.70 / 0.69), behind cover",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.7,
+   "mood": "FIGHTING",
+   "order": "kitchen_table",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "player_local": [
+  4.38,
+  0.56,
+  2.86
+ ],
+ "quits": [
+  [
+   44.2,
+   "hollis",
+   "gives up",
+   "fight from where he is: no cover he can reach (in the open)"
+  ]
+ ],
+ "route_left": 4,
+ "route_next": [
+  4.75,
+  0.56,
+  3.35
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 8,
+ "shots_men": 19,
+ "shots_out": 17,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 44.22,
+ "threat": 38.4,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   38.4,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   38.4,
+   "the guard's last word"
+  ],
+  [
+   43.42,
+   "the guard shoots the rancher"
+  ],
+  [
+   43.57,
+   "Dutch down, out"
+  ],
+  [
+   44.2,
+   "Hollis down"
+  ],
+  [
+   44.2,
+   "Hollis gives up (fight from where he is: no cover he can reach (in the open))"
+  ],
+  [
+   44.22,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   44.22,
+   "the rancher dead (brain)"
+  ],
+  [
+   44.22,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

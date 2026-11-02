@@ -273,6 +273,30 @@ func test_broken_he_runs_for_it() -> void:
 	check(outlaw.held_gun != null, "keeps his gun")
 
 
+## Holding a house with a man to keep and nowhere to run (the farmhouse, issue #565): broken, he
+## doesn't run or give up while he's armed and not covered close; he goes to ground and holds on.
+func test_cornered_he_holds_on_rather_than_run() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	brain.flee_chance = 1.0
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check(brain.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING], "neither runs nor gives up (%s)" % OutlawBrain.Mood.keys()[brain.mood])
+	check(brain.decision.begins_with("hold on"), "holds on (%s)" % brain.decision)
+	check(outlaw.held_gun != null, "his gun still in his hand")
+
+
+func test_cornered_but_covered_close_he_gives_up() -> void:
+	await _outlaw(Vector3(0, 0, -4))
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain._aimed_at = 1.0
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "a gun on him at 4 m: hands up, cornered or not")
+
+
 func test_covered_up_close_he_gives_up_instead() -> void:
 	await _outlaw(Vector3(0, 0, -4))
 	brain.flee_chance = 1.0
