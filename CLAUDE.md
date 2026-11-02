@@ -634,8 +634,12 @@ frozen until Sean names one.
   **Posts as narrow cover** (#531, branch `claude/gameplay-cover-moves-3-posts`,
   `results/2026-11-01_posts/`): `posts` in D (`Cover._narrow`/`hidden_narrow`, `_hold_post`,
   `_pointing`; `Senses.eye()` the pose's): stays at a post 24 -> 193 and 34 -> 148, shooting 6.9 s
-  longer seed for seed, as dangerous. Next: #531 (stepping out and back in, then the galleries;
-  the wide covers count your own cover as nothing, for the drops step).
+  longer seed for seed, as dangerous. **Stepping out** (#566, `results/2026-11-02_step_out/`):
+  `step_out` in D (`PostStepTuning`, `config/post_step.tres`; `_step_choose`/`_step_move`): near he
+  points, far he steps out past the post's edge to aim and back in (shot at, his hold); 96 / 74
+  steps out a hundred fights, one hit in 3.2 shots from out (pointed: 11); the fights as long and
+  as dangerous; films in its `films/` (`film_posts.sh`, bridge `gf_postcam`). Next: #572 (the
+  galleries, then the last drops on arrival, then a blind playtest).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line

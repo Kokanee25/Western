@@ -38,6 +38,8 @@ python3 experiments/gunfight_lab/moves.py ROOT [ROOT...]                    # ho
 xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 --fixed-fps 60 \
     -- --dev-bridge --bridge-script=FILE   # FILE: "gf_fight street seed=2 style=cover out=/abs/f.json shots=/abs/shots every=1.5" and "quit"
 python3 experiments/gunfight_lab/sheet.py /abs/f.json /abs/shots --out=sheet.png
+# a film of one fight, the camera on a man at a post (gf_postcam) and else your eyes: mp4 + cuts
+experiments/gunfight_lab/film_posts.sh spec_hall 17 shoot build/film 640x360 30
 ```
 
 The bridge commands (`bridge.gd`, `python3 tools/bridge.py help` lists them with the game running):
@@ -368,6 +370,12 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   not every new guess at a sound, and a heard shot puts you at your feet. Cover left within 2 s of
   getting there 39% → 23% of arrivals (they draw first), 27% → 19% (you shoot first); stays twice
   as long; the fights as long and as dangerous. Posts and the galleries next.
+
+- `2026-11-02_step_out/`: `step_out` (#566, in D): at a post he points round it near, steps out
+  past its edge to aim far (`PostStepTuning`, `config/post_step.tres`: range, nerve, your fire,
+  pain), and back in when shot at or after his hold. 96 / 74 steps out in a hundred fights, a
+  second each; from out one hit on you in 3.2 shots, pointed one in 11; the fights as long and as
+  dangerous (`shots.py`, `steps.py`; films by `film_posts.sh`).
 
 ## Limitations
 
