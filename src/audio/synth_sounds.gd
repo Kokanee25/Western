@@ -149,6 +149,15 @@ static func _make(id: StringName) -> AudioStreamWAV:
 ## been playing (the filter run over it twice, the second pass kept: no step at the seam); a
 ## one-shot given its lead of silence (TrainSound starts it early, by how late it is).
 static func _make_train(id: StringName, rng: RandomNumberGenerator) -> AudioStreamWAV:
+	var rec := TrainSynth.recording(id)
+	if rec != null:
+		return rec
+	return make_train_synth(id, rng)
+
+
+## The train sound made in code (what `_make_train` falls back to without a recording; the lab's
+## before).
+static func make_train_synth(id: StringName, rng: RandomNumberGenerator) -> AudioStreamWAV:
 	var samples := TrainSynth.make(id, rng)
 	var rate := TrainSynth.RATE
 	var wav: AudioStreamWAV
