@@ -78,9 +78,9 @@ def start(args):
     script = _opt(args, "script")
     if script:
         cmd.append(f"--bridge-script={os.path.abspath(script)}")
-    log = open(os.path.join(STATE, "godot.log"), "w")
+    log = open(os.path.join(STATE, _per_port("godot.log", port)), "w")
     proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-    with open(os.path.join(STATE, "pid"), "w") as f:
+    with open(os.path.join(STATE, _per_port("pid", port)), "w") as f:
         f.write(str(proc.pid))
     deadline = time.time() + 180
     while time.time() < deadline:
@@ -138,10 +138,16 @@ def send(lines, port=PORT, timeout=600):
     return out
 
 
+def _per_port(name, port):
+    """The game's pid and log files: the default port's as they were, another port's its own (two
+    games at once, each stopped by its own pid)."""
+    return name if int(port) == PORT else f"{name}.{port}"
+
+
 def stop(port=PORT):
     if _connect(port, quiet=True):
         send(["quit"], port)
-    pid_file = os.path.join(STATE, "pid")
+    pid_file = os.path.join(STATE, _per_port("pid", port))
     if os.path.exists(pid_file):
         pid = int(open(pid_file).read())
         for _ in range(20):

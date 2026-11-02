@@ -4,12 +4,19 @@ extends StaticBody3D
 ## heights (above the authored ground, at the cells' corners: one more a side than cells, the edges
 ## shared with the next tile's) as a Jolt height field and a mesh in the ground's material. A height
 ## field has no thickness, and a small thing moving fast (a bone fragment, a chip: 10 cm a tick)
-## goes through it, so under it the earth is solid: a box a column of COLUMN cells, its top just
-## under the lowest of the surface over it, down through the hardpan. Its own body, so an edit
+## goes through it, so under it the earth is solid: a box a column of COLUMN cells, its top a few
+## cm under the lowest of the surface over it (COLUMN_GAP), down through the hardpan. Its own body, so an edit
 ## rebuilds only this tile's shapes.
 
 ## Cells a side of the solid earth's columns under the surface (8: 40 cm at 5 cm cells).
 const COLUMN := 8
+## The height field's shape index on the tile's body (the columns' come after it: Ground.rescue).
+const FIELD_SHAPE := 0
+## How far (m) a column's top is under the lowest of the surface over it: past the 2 cm the physics
+## lets a resting body sink into the field. At 1 cm a piece lying on a sloping stretch touched the
+## field and the flat column top both, pushed two ways, and spun there, its pile never asleep (#584);
+## at 6 cm a fast chip through the field fell on through the columns' seams (3 cm holds it).
+const COLUMN_GAP := 0.03
 
 var key: Vector2i
 ## (tile_cells + 1)² heights, row by row along x, rows along z (m, above the authored ground).
@@ -119,8 +126,8 @@ func rebuild(material: Material) -> void:
 	_rebuild_columns()
 
 
-## The solid earth under the surface: each column's box from the hardpan's foot up to 1 cm under
-## the lowest point of the surface over it.
+## The solid earth under the surface: each column's box from the hardpan's foot up to COLUMN_GAP
+## under the lowest point of the surface over it.
 func _rebuild_columns() -> void:
 	var half := (_n - 1) * 0.5
 	var cols := ceili(float(_n - 1) / COLUMN)
@@ -136,7 +143,7 @@ func _rebuild_columns() -> void:
 			for j in range(j0, j1 + 1):
 				for i in range(i0, i1 + 1):
 					low = minf(low, surf[index(i, j)])
-			var top := low - 0.01
+			var top := low - COLUMN_GAP
 			var col := _columns[cj * cols + ci]
 			(col.shape as BoxShape3D).size = Vector3((i1 - i0) * _cell, top - bottom, (j1 - j0) * _cell)
 			col.position = Vector3(((i0 + i1) * 0.5 - half) * _cell, (top + bottom) * 0.5, ((j0 + j1) * 0.5 - half) * _cell)

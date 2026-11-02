@@ -502,8 +502,15 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
   b depth below the authored ground.
   Under a dug tile the earth is solid: boxes a column of 8 cells (`GroundTile.COLUMN`), each topped
-  1 cm under the lowest surface over it, down through the hardpan (a height field has no
-  thickness: a 2 cm bone fragment at 6 m/s went through it). What stands and walks there (step 4),
+  `COLUMN_GAP` (3 cm) under the lowest surface over it, down through the hardpan (a height field has
+  no thickness: a 2 cm bone fragment at 6 m/s went through it). Past the 2 cm a resting body sinks
+  into the field: at 1 cm a piece lying on a slope touched the field and a column top both and spun
+  there, its pile never asleep (#584); at 6 cm fast chips fell on through the columns' seams. A
+  piece pressed through the field is held between it and a column (#584: spinning, or thrown out
+  at 100+ m/s), so an edit sets any loose body the earth has come up through back on top
+  (`_lift_out`, from `_wake`; people's parts left), and a `Structure` looks at its awake rubble
+  every `RESCUE_TICKS` (a share each tick) for one touching a field from below or with its middle
+  under the surface (`Ground.rescue`). `-- --no-ground-lift`: neither (the lab's before). What stands and walks there (step 4),
   on `Events.ground_changed`: a `Structure`'s grounded member whose bottom has lost the earth by
   `undercut` (5 cm) at its corners and middle is grounded no more and the structure settles;
   a `KitProp` looks for its feet again (its own `_on_ground_changed`); `Fittings` drops a prop
@@ -689,9 +696,11 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   non-indexed) are drawn as a new **chunk** of the cell (per material and char overlay; joined
   on a worker, its meshes made `MESH_MS` a frame, shown when all are), at most every `BUILD_GAP`;
   past `MAX_CHUNKS` the cell's chunks are made one. Its own mesh nodes leave the tree once its
-  chunk shows (`_tidy`, a share a frame); its shape nodes only while it's asleep (`_shapes_aside`:
-  held on the body as shape owners; a body's shapes changed resets its contacts and woke awake
-  piles, 1.4x the physics step). Its sleep is never forced. Let go (nodes back, its stretch of
+  chunk shows (`_tidy`, a share a frame); its shape nodes only while it's frozen (`_shapes_aside`:
+  held on the body as shape owners). A body's shapes changed wakes it: done to awake piles it was
+  1.4x the physics step; done as a pile fell asleep, it woke the whole pile on the next tick, every
+  time it slept (#584: ~900 pieces awake most of a minute; `-- --rr-shapes-asleep` the before, a
+  lab switch). Its sleep is never forced. Let go (nodes back, its stretch of
   the chunk zeroed in place, `_zero`): moving or moved (`_look_at_stirring`, woken pieces every
   `STIR_TICKS`), shot/blasted/shoved (`let_go`: Ballistics, Blast, PlayerShove), the fire or a
   break touching its member (`touch`: `Structure.unbatch`, `_own_fire_look`; then held `HOLD`),
