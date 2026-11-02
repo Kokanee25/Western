@@ -81,6 +81,14 @@ The scripted player wins 2 of 24 (main 16 of 24). It isn't a person: it shoots w
 walks its route, and the men it puts down get it from the floor. The dials to ease it, in order of
 how much they did: `house_floor_fight` (false), `house_nerve` (lower), the rovers (`rovers = []`).
 
+## The film
+
+`film/film_front_s3.mp4` (45 s, the scripted player's view, the front way, seed 3 drawn at 30 fps):
+Pike on the lane sees it coming and warns it off, it draws, the alarm; Pike and Wes fall back into
+the house, the house shoots out through its windows (28 shots out), it goes down at 43 s. (The
+headless run of the same seed won: the drawn film's 30 fps plays a different fight, as the
+surprise round found.)
+
 ## Checks
 
 - The perception lab's sight group, main against the branch: only the three window cases differ
