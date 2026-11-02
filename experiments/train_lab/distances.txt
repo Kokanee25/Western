@@ -1,0 +1,27 @@
+# The paint at 3, 6 and 10 m (#577): how much of E's detail the texel grid keeps. The engine's side
+# by its domes and drivers, then the tender's, at golden hour; each distance from the car's side
+# (the engine and tender are ~2.2 m wide, so SIDE = 1.1 + d, the sunlit side at golden hour).
+# Run: python3 tools/bridge.py run experiments/train_lab/distances.txt --size=960x540
+train_lab
+train_drive off
+train_place depot 0
+time 17.6
+wait 6
+train_watch engine 4.6 4.1 1.7
+wait 2
+screenshot build/train_dist/engine_3m.png
+train_watch engine 4.6 7.1 1.7
+wait 2
+screenshot build/train_dist/engine_6m.png
+train_watch engine 4.6 11.1 1.7
+wait 2
+screenshot build/train_dist/engine_10m.png
+train_watch tender 3.2 4.1 1.7
+wait 2
+screenshot build/train_dist/tender_3m.png
+train_watch tender 3.2 7.1 1.7
+wait 2
+screenshot build/train_dist/tender_6m.png
+train_watch tender 3.2 11.1 1.7
+wait 2
+screenshot build/train_dist/tender_10m.png

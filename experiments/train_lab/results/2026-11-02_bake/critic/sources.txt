@@ -1,0 +1,6 @@
+a experiments/train_lab/results/2026-11-02_bake/sheet/gold_engine_side.jpg
+b experiments/train_lab/results/2026-11-02_bake/sheet/gold_engine_front.jpg
+c experiments/train_lab/results/2026-11-02_bake/sheet/gold_tender_cab.jpg
+d experiments/train_lab/results/2026-11-02_bake/sheet/gold_whole.jpg
+e experiments/train_lab/results/2026-11-02_bake/sheet/night_engine_front.jpg
+(a-e are the sheet's pictures, listed above; the crops are jpg)
