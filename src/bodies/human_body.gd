@@ -2197,7 +2197,10 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		var pv := pivots[sid] as Node3D
 		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
 		var clip_here := _clip_w > 0.0 and played.has(sid)
-		var lib_here := lib_w > 0.0 and lib.has(sid)
+		# A joint his wound has (a cut nerve's dropped wrist, a hurt leg's hold) goes to the wound as
+		# its hold comes on (`_injury_w`, 0..1: no snap from the clip to the pose).
+		var lib_j := lib_w * (1.0 - clampf(float(_injury_w.get(sid, 0.0)), 0.0, 1.0))
+		var lib_here := lib_j > 0.0 and lib.has(sid)
 		var hit_here := lib_hit.has(sid)
 		# Set only if it moved: each set is a transform change down the joint's subtree into its
 		# parts' physics state, and a man standing easy moves little but his chest once his pose
@@ -2208,7 +2211,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		var layered := mocap_here or clip_here or lib_here or hit_here
 		# The library clip wholly has the joint: its turn is set alone (the pose's under it would be
 		# written for nothing).
-		var lib_only := lib_here and lib_w >= 1.0 and not (mocap_here or clip_here)
+		var lib_only := lib_here and lib_j >= 1.0 and not (mocap_here or clip_here)
 		if lib_only:
 			_pose_set[sid] = _NOT_SET
 		elif layered or was[0] != rot or was[1] != pv.transform:
@@ -2222,7 +2225,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
 					+ _favour_lean.get(sid, Vector3.ZERO)
 			var lq: Quaternion = lib[sid] if lx == Vector3.ZERO else (lib[sid] as Quaternion) * Quaternion.from_euler(lx * (PI / 180.0))
-			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_w)
+			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_j)
 			writes += 1
 		if mocap_here or clip_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold
@@ -5488,7 +5491,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 			var local := part.global_transform.affine_inverse() * at
 			var toward := local.normalized() if local.length() > 0.001 else Vector3.FORWARD
 			var skin := toward * float(anatomy.segments[sid].radius)
-			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized(), &"gore_blast")
+			open_wound(sid, skin, minf((p - bt.open_kpa) * bt.open_joules_per_kpa, 3000.0), (part.global_position - at).normalized(), &"gore_blast", true)
 	# Limbs: the most of each arm and leg the blast can take.
 	var torn_off: Array[StringName] = []
 	for side in ["r", "l"]:
@@ -5713,7 +5716,7 @@ func _on_settings_changed() -> void:
 ## bullets dumping their energy, a blast, point-blank buckshot. Close hits add up; past
 ## DESTROY_ENERGY the region is destroyed and the bone in it flies out along `dir` (world).
 ## `look` is the painted torn edge laid round it once it opens (`_gore_edge`), none for a stump's.
-func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO, look := &"gore_crater") -> Dictionary:
+func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.ZERO, look := &"gore_crater", soon := false) -> Dictionary:
 	var list: Array = openings.get_or_add(segment, [])
 	var o: Dictionary = {}
 	for existing: Dictionary in list:
@@ -5731,7 +5734,10 @@ func open_wound(segment: StringName, at: Vector3, energy: float, dir := Vector3.
 	var cap: float = float(anatomy.segments[segment].radius) * 1.2
 	o.radius = minf(OPEN_PER_SQRT_JOULE * sqrt(total), cap)
 	if o.radius >= OPEN_MIN_RADIUS:
-		_apply_openings(segment)
+		if soon:
+			_apply_openings_soon(segment)
+		else:
+			_apply_openings(segment)
 		_gore_edge(segment, o, look)
 	if total >= DESTROY_ENERGY:
 		o.destroyed = true
@@ -5912,6 +5918,28 @@ func is_open(segment: StringName) -> bool:
 		if o.radius >= OPEN_MIN_RADIUS:
 			return true
 	return false
+
+
+## Its insides built and shown a few ticks on (a blast's: what the charge tore open is in his
+## wounds now; the meshes of it, ~8 ms a man, aren't on the stick's own frame: #538, round 5).
+func _apply_openings_soon(segment: StringName) -> void:
+	if not is_inside_tree():
+		_apply_openings(segment)
+		return
+	if _openings_soon.is_empty():
+		get_tree().create_timer(OPENINGS_AFTER, true, true).timeout.connect(_apply_openings_now)
+	_openings_soon[segment] = true
+
+
+func _apply_openings_now() -> void:
+	var due := _openings_soon.keys()
+	_openings_soon.clear()
+	for sid: StringName in due:
+		_apply_openings(sid)
+
+
+var _openings_soon := {}  # segment -> true: its insides to build (`_apply_openings_soon`)
+const OPENINGS_AFTER := 0.04
 
 
 func _apply_openings(segment: StringName) -> void:

@@ -46,6 +46,9 @@ static func warm_all() -> void:
 
 ## `warm_all`'s thread still making sounds (GameQuit waits for it).
 static func warming() -> bool:
+	for task in _more_tasks:
+		if not WorkerThreadPool.is_task_completed(task):
+			return true
 	return _warm_task >= 0 and not WorkerThreadPool.is_task_completed(_warm_task)
 
 
@@ -54,6 +57,17 @@ static func finish_warm() -> void:
 	if _warm_task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_warm_task)
 		_warm_task = -2
+	for task in _more_tasks:
+		WorkerThreadPool.wait_for_task_completion(task)
+	_more_tasks.clear()
+
+
+## Made already (asking for it won't make it on the spot).
+static func made(id: StringName) -> bool:
+	_lock.lock()
+	var have := _cache.has(id)
+	_lock.unlock()
+	return have
 
 
 static func get_sound(id: StringName) -> AudioStreamWAV:
@@ -74,6 +88,8 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 static func _make(id: StringName) -> AudioStreamWAV:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
+	if TrainSynth.is_train(id):
+		return _make_train(id, rng)
 	var samples: PackedFloat32Array
 	match id:
 		&"gunshot": samples = _gunshot(rng)
@@ -129,6 +145,37 @@ static func _make(id: StringName) -> AudioStreamWAV:
 
 ## A black-powder shot: `boom_hz` the low thump (a shotgun's is deeper), `boom_decay` and
 ## `body_decay` how long the thump and the roar last.
+## The train's (TrainSynth, train step 4): at its own rate; a loop cleaned of sub-bass as if it had
+## been playing (the filter run over it twice, the second pass kept: no step at the seam); a
+## one-shot given its lead of silence (TrainSound starts it early, by how late it is).
+static func _make_train(id: StringName, rng: RandomNumberGenerator) -> AudioStreamWAV:
+	var samples := TrainSynth.make(id, rng)
+	var rate := TrainSynth.RATE
+	var wav: AudioStreamWAV
+	if TrainSynth.is_loop(id):
+		var twice := samples.duplicate()
+		twice.append_array(samples)
+		twice = _no_sub_bass(twice, rate)
+		samples = twice.slice(samples.size())
+		wav = _to_wav(samples, rate)
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_end = samples.size()
+	else:
+		wav = _to_wav(TrainSynth.lead(_no_sub_bass(samples, rate)), rate)
+	return wav
+
+
+## Make `ids` on a worker thread ahead of their first use (the train's sounds, when a train is
+## heard: not every game makes them). Waited for at quit as warm_all is.
+static var _more_tasks: Array[int] = []
+
+
+static func warm(ids: Array) -> void:
+	_more_tasks.append(WorkerThreadPool.add_task(func() -> void:
+		for id: StringName in ids:
+			get_sound(id), true, "SynthSounds.warm"))  # high priority (#392, #435)
+
+
 static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 0.16, body_decay := 0.09) -> PackedFloat32Array:
 	var n := int(RATE * 2.2)
 	var out := PackedFloat32Array()

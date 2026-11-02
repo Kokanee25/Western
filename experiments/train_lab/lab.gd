@@ -9,7 +9,8 @@ extends Node
 ##   0    the next camera: cab, chase, lineside at the curve, lineside at the depot, you
 ##   8    you on the coach's back platform, the engineer running the timetable (depot, the mine
 ##        and back): walk the train to the cab, ride it, jump off (8 again: back on, a new run)
-##   in the cab: W / S the regulator open / shut, D / A the brake on / off, R the reverser
+##   in the cab: W / S the regulator open / shut, D / A the brake on / off, R the reverser,
+##        H the whistle (held), B the bell (on / off)
 ##
 ## Nothing in the town changes: the line is laid in the street's space far out on the flat.
 
@@ -25,6 +26,7 @@ var train: Train
 var camera: Camera3D
 var view := &"player"
 var side_at := 120.0  # the lineside camera's spot along the line
+var side_off := 10.0  # and how far off the line's middle it stands, m
 var driver := &""  # "" (the levers as set), "whole" (scenarios' driver to B), "hold" (holds hold_kmh), "engineer"
 var route_file := LINE.ROUTE
 var timetable: TrainTimetable
@@ -261,7 +263,7 @@ func _place_camera() -> void:
 			camera.look_at(ef * Vector3(0.0, 1.5, 4.0), Vector3.UP)
 		_:
 			var f := line.global_transform * line.transform_at(side_at)
-			var at := f * Vector3(-10.0, 1.7, 0.0)
+			var at := f * Vector3(-side_off, 1.7, 0.0)
 			camera.global_position = at
 			camera.look_at(ef * Vector3(0.0, 1.8, 4.0), Vector3.UP)
 
@@ -291,6 +293,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				if view == &"cab" and train:
 					train.sim.reverser = -train.sim.reverser
 					get_viewport().set_input_as_handled()
+			KEY_B:
+				if view == &"cab" and train:
+					train.sound.ring(not train.sound.bell)
+					get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and view == &"cab":
 		_yaw = clampf(_yaw - event.relative.x * 0.15, -120.0, 120.0)
 		_pitch = clampf(_pitch - event.relative.y * 0.15, -60.0, 50.0)
@@ -307,6 +313,7 @@ func _cab_keys(delta: float) -> void:
 		sim.brake_lever = minf(1.0, sim.brake_lever + lever)
 	if Input.is_physical_key_pressed(KEY_A):
 		sim.brake_lever = maxf(0.0, sim.brake_lever - lever)
+	train.sound.whistle(Input.is_physical_key_pressed(KEY_H))
 
 
 func _show_hud(on: bool) -> void:
@@ -344,10 +351,33 @@ func _hud_text() -> String:
 			if d > -5.0:
 				next = "  mark %s in %d m" % [m, int(d)]
 				break
-	return "TRAIN LAB (%s)  9 cab  0 camera  8 ride\n%.1f km/h%s\nregulator %d%% (hand %d%%)  W/S\nbrake %d%% (handle %d%%)  D/A\nreverser %s  R   grade %.1f%%   %s" % [
+	return "TRAIN LAB (%s)  9 cab  0 camera  8 ride\n%.1f km/h%s\nregulator %d%% (hand %d%%)  W/S\nbrake %d%% (handle %d%%)  D/A\nreverser %s  R   whistle H  bell B   grade %.1f%%   %s" % [
 		String(view), sim.v * 3.6, next, int(sim.regulator * 100.0), int(sim.throttle * 100.0),
 		int(sim.brake * 100.0), int(sim.brake_lever * 100.0), "fwd" if sim.reverser > 0 else "back",
 		line.grade_at(sim.s - sim.length * 0.5) * 100.0, String(sim.limit)] + eng
+
+
+## A line of text at the bottom of the screen (the films' captions); empty takes it away.
+var _caption: Label
+
+
+func caption(text: String) -> void:
+	if _caption == null:
+		var layer := CanvasLayer.new()
+		layer.name = "TrainLabCaption"
+		layer.layer = 51
+		add_child(layer)
+		_caption = Label.new()
+		_caption.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		_caption.offset_top = -64
+		_caption.offset_bottom = -24
+		_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_caption.add_theme_font_size_override(&"font_size", 22)
+		_caption.add_theme_color_override(&"font_outline_color", Color.BLACK)
+		_caption.add_theme_constant_override(&"outline_size", 6)
+		layer.add_child(_caption)
+	_caption.text = text
+	_caption.visible = not text.is_empty()
 
 
 # --- The checks ------------------------------------------------------------------------------

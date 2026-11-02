@@ -286,8 +286,13 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		return remaining
 	elif collider is RigidBody3D:
 		var body := collider as RigidBody3D
-		RubbleRest.let_go(body)  # (lying in its cell: its own again before it moves)
-		body.apply_impulse(dir * b.mass * b.velocity.length() * tuning.impulse_transfer, hit.position - body.global_position)
+		var j := dir * b.mass * b.velocity.length() * tuning.impulse_transfer
+		# Lying at rest in its cell, a knock it wouldn't show (a blast's gravel on a beam: ~0.05 m/s)
+		# leaves it lying, as a blast's own push does (Blast.t().min_throw; #538, round 5: a stick's
+		# gravel let go of ~50 pieces of rubble the tick after, ~0.25 ms each).
+		if not (RubbleRest.resting(body) and j.length() / maxf(body.mass, 0.01) < Blast.t().min_throw):
+			RubbleRest.let_go(body)  # (lying in its cell: its own again before it moves)
+			body.apply_impulse(j, hit.position - body.global_position)
 		var thin: float = body.get_meta(&"ballistic_thickness", -1.0)
 		if thin >= 0.0:
 			_set_energy(b, maxf(e_before - thin * 100.0 * tuning.default_resistance, 0.0))

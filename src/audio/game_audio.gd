@@ -209,10 +209,11 @@ static func inside(world: Node3D, at: Vector3) -> bool:
 
 
 ## Something solid between the ears and the sound (more than a hand's breadth short of it).
-static func walled(world: Node3D, ears: Vector3, at: Vector3) -> bool:
+## `exclude`: bodies looked past (a moving source's own: the train's cars).
+static func walled(world: Node3D, ears: Vector3, at: Vector3, exclude: Array[RID] = []) -> bool:
 	if ears.distance_to(at) < WALL_MARGIN * 2.0:
 		return false
-	var hit := _ray(World.space(world), ears, at)
+	var hit := _ray(World.space(world), ears, at, exclude)
 	return not hit.is_empty() and (hit.position as Vector3).distance_to(at) > WALL_MARGIN
 
 
@@ -268,8 +269,9 @@ static func _wall(space: PhysicsDirectSpaceState3D, at: Vector3, dir: Vector3) -
 
 ## The first solid thing on the line: buildings, the ground, fixed props; not people (the player's
 ## capsule is on WORLD) or loose things, which are looked past.
-static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3) -> Dictionary:
+static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID] = []) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+	q.exclude = exclude
 	for i in 4:
 		var hit := space.intersect_ray(q)
 		if hit.is_empty() or hit.collider is StaticBody3D:
