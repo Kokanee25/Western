@@ -32,6 +32,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	FireSystem.in_play = "--fire" in OS.get_cmdline_user_args()
 	world.queue_free()
 	man = null
@@ -134,6 +135,8 @@ func test_held_dropped_and_it_lies_on_the_floor() -> void:
 
 
 func test_a_shove_or_a_blast_knocks_it_off_his_shoulder() -> void:
+	# On the procedural pose (library clips off, #539): this measures where the rag lies on his shoulder.
+	Settings.library_motion = false
 	await _barkeep(false)
 	await physics_frames(30)
 	Events.deed.emit(null, &"shove", man, man.global_position)

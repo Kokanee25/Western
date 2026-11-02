@@ -39,6 +39,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Input.action_release(&"aim")
 	world.queue_free()
 	await physics_frames(2)
@@ -151,6 +152,8 @@ func test_a_round_ball_slows_faster_than_the_revolvers_bullet() -> void:
 
 
 func test_an_outlaw_holds_over_at_long_range() -> void:
+	# On the procedural pose (library clips off, #539): this measures balls fired from inside the man standing at the origin (his idle moves his head into their path).
+	Settings.library_motion = false
 	# A man 60 m off: had he allowed for nothing his balls would strike the dirt short; holding over
 	# by the range he judges, they arrive about where he aimed.
 	player.queue_free()
