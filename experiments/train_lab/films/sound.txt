@@ -47,7 +47,8 @@ train_place 240 30
 train_cam side 326 8
 wait 1
 brake 1
-wait 22
+wait 11
+wait 11
 train_caption Standing: the safety valve lifts
 train_valve
 wait 9

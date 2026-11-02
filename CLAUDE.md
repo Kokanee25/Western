@@ -652,7 +652,11 @@ frozen until Sean names one.
   The critic fails the look (paint, shade, ground). Then the engine's shape pass (Sean: "solid
   circles, things don't connect"; PR #576, `results/2026-11-02_step3/shape_pass/`): spoked wheels,
   rods, cab, cowcatcher, lathed domes; Sean: "way better, ready for a paid paint". Next: #577 (the
-  paint), then #571 (sound). Waiting on Sean: the look (#569).
+  paint). Waiting on Sean: the look (#569). **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
+  `TrainSound` (one-shots timed from the sim to the sub-tick, late by distance, Doppler; loops held
+  by the frame), `TrainSynth` (all synthesised: the recording sites are blocked here), dials
+  `config/train_sound.tres`; GameAudio's wall test looks past the train's own cars. Waiting on
+  Sean's ears (the film); step 5 waits on #492/#538.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
