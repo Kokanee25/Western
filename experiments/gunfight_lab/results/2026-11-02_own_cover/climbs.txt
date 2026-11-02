@@ -1,0 +1,6 @@
+| Run | Opening | Fights with a climb | Climbs | How they ended | Way m (med) | Run s (med) | Stays at the spot climbed to: n, s a stay (mean), hits on you, hits on him | Other stays up: n, s, hits on you, on him | Stays up behind a screen |
+|---|---|---|---|---|---|---|---|---|---|
+| base | you | 7 of 100 | 7 | got there 4, get away 1, drag Brody to cover 1, go up for height 1 | 22.9 | 5.6 | 4, 8.5, 0, 0 | 120, 6.0, 24, 7 | 38 of 124 |
+| base | they | 17 of 100 | 17 | got there 15, go up for height 2 | 23.1 | 6.0 | 15, 12.5, 2, 3 | 249, 6.6, 21, 14 | 108 of 264 |
+| own | you | 22 of 100 | 31 | got there 24, go up for height 5, drag Lyle to cover 1, give that cover up 1 | 26.1 | 6.8 | 24, 13.8, 0, 2 | 106, 8.0, 21, 7 | 20 of 130 |
+| own | they | 26 of 100 | 30 | got there 27, go up for height 1, go for you 1, drag Brody to cover 1 | 28.3 | 7.6 | 27, 13.0, 0, 0 | 207, 8.6, 15, 8 | 32 of 234 |

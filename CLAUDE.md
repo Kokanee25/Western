@@ -644,7 +644,14 @@ frozen until Sean names one.
   up over you a balustrade is a screen (`Cover._screen_spot`). 34 climbs in 200 fights (was 0),
   stays up 268 -> 415, hits on you from up unchanged; shooting and hits seed for seed inside the
   noise, the medians lower. Film `spec_hall_s3_kid.mp4`. Trap: a drawn film is the headless fight at
-  `--fixed-fps 30` with the same script. Next: #583 (the last drops on arrival, a blind playtest).
+  `--fixed-fps 30` with the same script. **Your own cover isn't his** (#583, branch
+  `claude/gameplay-drops-on-arrival-8bm2c4`, `results/2026-11-02_own_cover/`): `own_cover` in D (a
+  line stopped far from him asks a short ray from his end, `Cover._near_him`): drops on arrival
+  within 2 s 168 -> 87 and 84 -> 30, stays 5.0 -> 7.6 s; fights as long, hits the same seed for seed,
+  you down less (72 -> 61%); fewer posts, more climbs. The blind playtest of D+
+  (`docs/playtests/2026-11-02-gunfight-d-plus.md`) found men stuck reloading from the floor and a
+  cornered man's shout every tick: both fixed. Next: #591 (the clicks after your reload, `walk`, a
+  second playtest); D+'s difficulty is Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
