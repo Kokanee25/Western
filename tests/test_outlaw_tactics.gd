@@ -505,6 +505,67 @@ func test_watching_he_stays_behind_his_cover_in_the_fight() -> void:
 	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
 
 
+# --- Your own cover isn't his (variant D's own_cover, #583) ----------------------------------------
+
+## Crates stacked chest high a pace in front of him, 12 m off; you tight behind a board a hand in
+## front of your eye (a careful man crouched behind his own cover: it's first on every line).
+const OWN_SPOT := Vector3(0.0, 0.0, -12.0)
+
+
+func _own_cover_setup() -> void:
+	_box(Vector3(0.0, 0.6, -11.3), Vector3(2.0, 1.2, 0.6))  # his
+	_box(_eye() + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))  # yours
+
+
+func test_your_own_cover_doesnt_make_his_seen() -> void:
+	await _outlaw(Vector3(4, 0, -16))
+	_box(Vector3(0.0, 0.6, -11.3), Vector3(2.0, 1.2, 0.6))
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := _eye()
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true), "ducked behind the crates he's hidden")
+	var plain := Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true)
+	check(not plain.is_empty() and plain.low, "the crates are low cover (%s)" % plain)
+	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
+	await physics_frames(2)
+	check(not Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true), "the old check: your board first on the line, he reads as seen")
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true, true), "own_cover: the crates near him still hide him")
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.CHEST, _exclude(), true, true), "his chest too")
+	check(not Cover.hidden_at(space, OWN_SPOT, eye, Cover.STAND_HEAD, _exclude(), true, true), "but not standing: they're low")
+	var spot := Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true, [], false, 0.0, INF, true)
+	check(not spot.is_empty() and spot.low, "the search finds the crates with your board up (%s)" % spot)
+	check(Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true).is_empty(), "(the old search didn't)")
+	# Out in the open, your board's no cover of his.
+	check(not Cover.hidden_at(space, Vector3(-5.0, 0.0, -12.0), eye, Cover.HIDE_HEAD, _exclude(), true, true),
+			"in the open with nothing near him he's not hidden, whatever's in front of you")
+	check(Cover.evaluate(space, Vector3(-5.0, 0.0, -12.0), eye, _exclude(), true, [], false, 0.0, INF, true).is_empty(),
+			"and the open is no spot")
+
+
+func test_behind_his_cover_your_own_doesnt_drive_him_out() -> void:
+	await _outlaw(OWN_SPOT)
+	_own_cover_setup()
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	var hold := func() -> void:
+		brain.cover = {"at": OWN_SPOT, "eye": _eye(), "low": true, "crouch_ok": true, "peek": OWN_SPOT}
+		brain.tactic = OutlawBrain.Tactic.HIDDEN
+		brain._tactic_time = 5.0
+		brain._flank_after = 99.0
+		brain._in_cover = 0.0
+		brain._check = 0.0
+	hold.call()
+	brain._hide(0.1, _eye())
+	check(brain.tactic == OutlawBrain.Tactic.HIDDEN, "your board up, he holds his crates (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes.erase(&"own_cover")
+	hold.call()
+	brain._hide(0.1, _eye())
+	check(brain.tactic == OutlawBrain.Tactic.OPEN, "without the fix he leaves them, as before (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
 ## A planted stick's fuse hissing a few metres off (#506): he hears it, it frightens him and turns
 ## his head; one round the corner out of earshot he doesn't.
 func test_he_hears_a_planted_fuse() -> void:

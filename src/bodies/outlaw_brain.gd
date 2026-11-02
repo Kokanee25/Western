@@ -160,14 +160,17 @@ var variant: Variant = default_variant
 ## points, he steps out past its edge, squares up, aims and steps back in; near, he points:
 ## `_step_choose`, `_step_move`, PostStepTuning), climb (#572: his cover gone stale with you below a
 ## floor he can get to, he may take the stair up and fight from the rail: `_climb_choose`,
-## Cover.climb_search, ClimbTuning). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## Cover.climb_search, ClimbTuning), own_cover (#583: his cover hides him when something near him
+## stops the line from your eye, whatever stands first on it: a careful man crouched behind his own
+## crate or the bar no longer makes a wall or trough read as "seen", in the search or the hold check;
+## `Cover._near_him`, a ray from his end). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
-		&"watch_spot", &"posts", &"step_out", &"climb"]
+		&"watch_spot", &"posts", &"step_out", &"climb", &"own_cover"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -1982,6 +1985,8 @@ func _seek_cover(eye: Vector3, bias_from: Vector3, max_travel := 11.0, new_angle
 		_search._ctx["by_way"] = true
 	if _has(&"posts"):
 		_search._ctx["narrow"] = true
+	if _has(&"own_cover"):
+		_search._ctx["own"] = true
 	if _has(&"climb"):
 		# Up over the man, a balustrade's screen is cover too (Cover._screen_spot).
 		_search._ctx["screen"] = climb_tuning().screen
@@ -2020,6 +2025,8 @@ func _climb_choose(eye: Vector3, why: String) -> bool:
 		return false
 	if _has(&"posts"):
 		s._ctx["narrow"] = true
+	if _has(&"own_cover"):
+		s._ctx["own"] = true
 	# Not where a friend is, or is going.
 	var taken: Array[Vector3] = []
 	var standing: Array[Vector3] = []
@@ -2126,9 +2133,10 @@ func _hide(delta: float, eye: Vector3) -> void:
 		# At a post: the spot it was chosen by till he's set against it (his trunk is mid-turn while
 		# the pose blends in), then where his trunk is.
 		var trunk: Vector3 = cover.at if _post_place > 0.0 or _post_back > 0.0 or not _step.is_empty() else _trunk_at(_held_eye(eye))
+		var own := _has(&"own_cover")  # what's near him hides him, whatever's first on the line (#583)
 		var hidden := Cover.hidden_narrow(space, trunk, _held_eye(eye), _exclude(_find_target()), cover.post, cover.post_w) if at_post \
-				else Cover.screen_share(space, cover.at, _held_eye(eye), _exclude(_find_target())) >= climb_tuning().screen if cover.get("screen", false) \
-				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null)
+				else Cover.screen_share(space, cover.at, _held_eye(eye), _exclude(_find_target()), own) >= climb_tuning().screen if cover.get("screen", false) \
+				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null, own)
 		if not hidden:
 			# He's come round it: this cover's no good now.
 			_decide("leave his cover", "you can see him there now")
