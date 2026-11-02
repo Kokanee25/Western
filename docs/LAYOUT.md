@@ -89,7 +89,8 @@ now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
 scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
 `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
-`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`); `run.py` runs the matrix
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`), `gf_climbcam` (on a man going up to the
+galleries, `film_posts.sh ... climb`); `run.py` runs the matrix
 a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
 sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
 its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
@@ -883,7 +884,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
   a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
   on counts for a man bladed behind it: `Cover._narrow`, spots with `narrow`/`post`/`post_w`,
-  `hidden_narrow`),
+  `hidden_narrow`; with `climb` (#572), his cover stale and you below a floor he can reach, a
+  search over the floor above: `Cover.climb_search` samples its places' walks, `_best_up` routes
+  each by the places up the stair, spots carry `climb`/`way_m`; `OutlawBrain._climb_choose`,
+  `ClimbTuning`, `config/climb.tres`),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
@@ -1212,6 +1216,16 @@ turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) 
 `TrainCars`' solids, which stay the walk path; the boxcar is shut and climbed by a `Ladder`
 (`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
 `train_passengers N` seats the Studio's men in the coach.
+
+The paint (#577): the engine and tender are drawn in Sean's pick E (the Studio's realistic
+working-dirty repaint, `experiments/train_lab/paint/real_dirty.png`) baked onto their own UVs:
+`engine.py` unwraps every node of a car into one atlas (moving parts too), `paint_views.py` lays out
+the clay views the painting was made over (`layout.json`), `paint_bake.py` projects the painting
+back from each orthographic panel (z-buffered, registered to the painted silhouette, weighted by
+dot(normal, toward)^2, sampled 1.2 cm inside) into `assets/train/engine_paint.png` and
+`tender_paint.png` (2048, BC7, mipmapped). `TrainModels.painted(car)` lays an atlas on in the texel
+grid (a texel a square, as `PropModels.model_paint`); `dress(mi, paint)` gives it every surface but
+the lamp and the glass.
 
 Step 4 (#571): the sound. `TrainSound` (a child of `Train`, `sound`; dials `TrainSoundTuning`,
 `config/train_sound.tres`, proposed) is ticked after the sim's step with its coupler events and

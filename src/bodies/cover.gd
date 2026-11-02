@@ -111,6 +111,62 @@ static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: A
 	return s
 
 
+## Going up for height (OutlawBrain's variant D `climb`, #572): a search over the floor above, the
+## spots along its walks (the upper floor's places within `tune.reach` of him and the links between
+## them, `tune.spacing` apart and `tune.across` either side: out to the rail and back), each reached
+## by the town's places, up the stair (`_best_in_town`'s `climb`). `threat_feet`: where he takes your
+## feet to be; a spot is up when it's `tune.rise` above both. An empty search if there's no such floor
+## he can get to (`has_up`).
+static func climb_search(world: Node3D, from: Vector3, threat_eye: Vector3, threat_feet: Vector3, exclude: Array[RID],
+		rng: RandomNumberGenerator, places: Waypoints, tune: ClimbTuning) -> Search:
+	var s := Search.new()
+	s._space = World.space(world)
+	s._from = from
+	s._eye = threat_eye
+	s._flat = Vector3(threat_eye.x, from.y, threat_eye.z)
+	s._exclude = exclude
+	s._rng = rng
+	s._places = places
+	s._ctx.climb = tune
+	s._ctx.threat_feet = threat_feet
+	s._ctx.screen = tune.screen
+	s._ctx.screen_above = threat_feet.y + tune.rise
+	var routes := places.routes_from(s._space, from, exclude)
+	s._ctx.routes = routes
+	var floor_y := maxf(from.y, threat_feet.y) + tune.rise
+	var up := {}
+	for n: StringName in routes:
+		var p: Vector3 = places.points[n]
+		if p.y > floor_y and Vector2(p.x - from.x, p.z - from.z).length() <= tune.reach:
+			up[n] = p
+	for n: StringName in up:
+		var a: Vector3 = up[n]
+		for k: float in tune.across:
+			s._cands.append(a + Vector3(k, 0.0, 0.0))
+			s._cands.append(a + Vector3(0.0, 0.0, k))
+		for m: StringName in places.links.get(n, []):
+			if not up.has(m) or String(m) < String(n):
+				continue  # each walk once, both ends up
+			var b: Vector3 = up[m]
+			var along := b - a
+			if absf(along.y) > 0.6:
+				continue  # a stair between two upper floors: not somewhere to stand
+			var flat := Vector3(along.x, 0.0, along.z)
+			var side := flat.normalized().cross(Vector3.UP)
+			var steps := maxi(1, int(flat.length() / tune.spacing))
+			for i in range(1, steps):
+				var q := a + along * (float(i) / steps)
+				for k: float in tune.across:
+					s._cands.append(q + side * k)
+	s._cands = _dedupe(s._cands)
+	return s
+
+
+## Is the floor above anywhere he can get to? (A climb search with no spots to try.)
+static func has_up(s: Search) -> bool:
+	return not s._cands.is_empty()
+
+
 static func _dedupe(points: Array[Vector3]) -> Array[Vector3]:
 	var seen := {}
 	var out: Array[Vector3] = []
@@ -163,7 +219,8 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		if floor_at == null:
 			continue
 		var p: Vector3 = floor_at
-		var spot := evaluate(space, p, threat_eye, exclude, true, first[i], ctx.get("narrow", false))
+		var spot := evaluate(space, p, threat_eye, exclude, true, first[i], ctx.get("narrow", false), ctx.get("screen", 0.0),
+				ctx.get("screen_above", INF))
 		if spot.is_empty():
 			continue
 		# Holding a house (OutlawBrain.hold): only spots inside it.
@@ -183,6 +240,8 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 	var by_way: bool = ctx.get("by_way", false)
 	var best := {}
 	var tries := 0
+	if ctx.has("climb"):
+		return _best_up(space, scored, from, exclude, places, ctx)
 	for spot in scored:
 		var way := route(space, from, spot.at, exclude)
 		if way.is_empty():
@@ -203,6 +262,73 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 		if tries >= WAY_TRIES:
 			break
 	return best
+
+
+## Going up (`climb_search`): the best few spots up there, each by its way up the stair (never
+## straight: a level sweep from below passes under the gallery), no longer than the tuning's
+## `max_way`, not past your gun on your floor (`way_clear`), each metre of it costing `way_cost`.
+static func _best_up(space: PhysicsDirectSpaceState3D, scored: Array[Dictionary], from: Vector3, exclude: Array[RID],
+		places: Waypoints, ctx: Dictionary) -> Dictionary:
+	var tune: ClimbTuning = ctx.climb
+	var feet: Vector3 = ctx.threat_feet
+	var best := {}
+	var tries := 0
+	for spot in scored:
+		var at: Vector3 = spot.at
+		if at.y < maxf(from.y, feet.y) + tune.rise:
+			continue
+		if (ctx.get("taken", []) as Array).any(func(q: Vector3) -> bool: return q.distance_to(at) < tune.apart):
+			continue  # a friend's there, or going there
+		var c := {"routes": ctx.routes, "way_extra": tune.max_way}
+		var way := _town_way(space, from, at, exclude, places, 0.0, c)
+		if way.is_empty() or not _way_clear_of(from, way, feet, tune.way_clear) or _way_blocked(from, way, ctx.get("standing", []), tune.apart * 0.5):
+			continue
+		var run := _run_length(from, way)
+		spot.route = way
+		spot.way_m = run
+		spot.climb = true
+		spot.score -= run * tune.way_cost
+		spot.erase("r")
+		if best.is_empty() or spot.score > best.score:
+			best = spot
+		tries += 1
+		if tries >= WAY_TRIES:
+			break
+	return best
+
+
+## Does the way's climb (a stretch of it rising or falling more than half a metre: the stair) pass
+## within `near` (m) of a friend standing on it? A stair's too narrow to pass him; on a floor he'd
+## walk round him.
+static func _way_blocked(from: Vector3, way: Array, standing: Array, near: float) -> bool:
+	var a := from
+	for w: Vector3 in way:
+		if absf(w.y - a.y) < 0.5:
+			a = w
+			continue
+		for q: Vector3 in standing:
+			var ab := w - a
+			var k := clampf((q - a).dot(ab) / maxf(ab.length_squared(), 1e-6), 0.0, 1.0)
+			if (a + ab * k).distance_to(q) < near:
+				return true
+		a = w
+	return false
+
+
+## Does the way keep `clear` (m, flat) from the man's feet where it's on his floor?
+static func _way_clear_of(from: Vector3, way: Array, feet: Vector3, clear: float) -> bool:
+	var a := from
+	var f := Vector2(feet.x, feet.z)
+	for w: Vector3 in way:
+		if absf(a.y - feet.y) < 1.0 or absf(w.y - feet.y) < 1.0:
+			var pa := Vector2(a.x, a.z)
+			var pb := Vector2(w.x, w.z)
+			var ab := pb - pa
+			var k := clampf((f - pa).dot(ab) / maxf(ab.length_squared(), 1e-6), 0.0, 1.0)
+			if (pa + ab * k).distance_to(f) < clear:
+				return false
+		a = w
+	return true
 
 
 ## The first three lines of every spot at once, as `_best_in_town` and `evaluate` would ask them
@@ -281,6 +407,8 @@ static func _score(spot: Dictionary, r: float, d_threat: float, from: Vector3, t
 		score += 0.5  # a wall is better than a trough
 	if spot.get("narrow", false):
 		score += NARROW_SCORE  # a post: below a wall, above a trough
+	if spot.get("screen", false):
+		score += SCREEN_SCORE  # a balustrade: below a trough
 	if spot.lie:
 		score -= 0.4  # flat in the dirt is the worst of it
 	if d_threat < 4.0:
@@ -350,7 +478,7 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 ## `first`: its first lines already asked (`_first_lines`). `narrow`: a post too narrow to hide him
 ## square on counts, bladed behind it (`_narrow`; OutlawBrain's variant D `posts`).
 static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false, first := [],
-		narrow := false) -> Dictionary:
+		narrow := false, screen := 0.0, screen_above := INF) -> Dictionary:
 	var ground: Variant = first[1] if first.size() > 1 else _ground(space, p, exclude)
 	if ground == null:
 		return {}
@@ -359,7 +487,8 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 		return {}
 	# Cheapest first: one ray at his chest lying down; if that's seen, nothing here hides him.
 	var asked: Array = first[2] if first.size() > 2 else []
-	if not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far, asked):
+	var up_over := screen > 0.0 and at.y > screen_above  # a balustrade's screen may still do (`_screen_spot`)
+	if not up_over and not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far, asked):
 		return {}
 	if not _room(space, at, exclude):
 		return {}
@@ -372,6 +501,9 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 				return post
 		# Too low to duck behind: flat on the ground, then.
 		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude, far):
+			# Up over the man, behind a balustrade (variant D's `climb`): a screen, if enough of it's in the way.
+			if up_over:
+				return _screen_spot(space, at, threat_eye, exclude, screen)
 			return {}
 		lie = true
 	var low := not hidden_at(space, at, threat_eye, STAND_HEAD, exclude, far)
@@ -396,6 +528,49 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 	if peek == Vector3.INF:
 		return {}
 	return {"at": at, "low": low, "peek": peek, "crouch_ok": crouch_ok, "lie": lie}
+
+
+## A balustrade between him and a man below (OutlawBrain's variant D `climb`, #572): no rail of
+## balusters hides a man (a gallery's are 3.5 cm every 15 cm: three lines in four pass), but ducked
+## behind one, up over the man, he's in slices, and the floor's edge takes his lower half. A spot
+## is a screen when at least `share` of the lines to him ducked (`screen_share`) are stopped close
+## to him; he shoots standing over its top rail. {} if not, or if he can't shoot from it.
+static func _screen_spot(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], share: float) -> Dictionary:
+	if screen_share(space, at, threat_eye, exclude) < share:
+		return {}
+	if not _sees(space, at + Vector3.UP * GUN_HEIGHT, threat_eye, exclude):
+		return {}
+	return {"at": at, "low": true, "peek": at, "crouch_ok": false, "lie": false, "screen": true}
+
+
+## How much of a man ducked at `at` (his width across the line, from his hip to the top of his
+## head ducked: SCREEN_ACROSS lines at each of SCREEN_HEIGHTS) the threat's lines meet something
+## solid close to him (within HUGGING): 0..1.
+static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> float:
+	var to := threat_eye - at
+	to.y = 0.0
+	var side := to.normalized().cross(Vector3.UP) if to.length() > 0.01 else Vector3.RIGHT
+	var froms := PackedVector3Array()
+	var tos := PackedVector3Array()
+	for h: float in SCREEN_HEIGHTS:
+		for i in SCREEN_ACROSS:
+			var off := lerpf(-SHOULDERS, SHOULDERS, float(i) / (SCREEN_ACROSS - 1))
+			froms.append(threat_eye)
+			tos.append(at + side * off + Vector3.UP * h)
+	Prof.count(&"q_cover", froms.size())
+	var t := Sight.lines(space, froms, tos, Layers.WORLD, exclude)
+	var kinds := Sight.kinds()
+	var stopped := 0
+	for k in t.size():
+		if t[k] < 1.0 and kinds[k] != Sight.KIND_CHARACTER and (1.0 - t[k]) * froms[k].distance_to(tos[k]) < HUGGING:
+			stopped += 1
+	return float(stopped) / t.size()
+
+
+## The lines of `screen_share`: heights (m) over his feet, ducked (his hip, chest, the top of his
+## head), and how many across his shoulders at each.
+const SCREEN_HEIGHTS := [0.5, 0.75, 0.97]
+const SCREEN_ACROSS := 9
 
 
 ## Is a man at `at` hidden from the threat at this height, all of him (his shoulders either side,
@@ -528,6 +703,8 @@ const NARROW_ARC_SPARE := 5.0
 ## How a post scores against other cover (`_score`): a wall (+0.5) less this, so below a wall and
 ## just above a trough: it hides most of him all the time, never all of him.
 const NARROW_SCORE := -0.4
+## A screen (a balustrade, `_screen_spot`): below a trough.
+const SCREEN_SCORE := -0.3
 
 
 ## `asked`: [t, kind] of its first line, already asked (`_first_lines`).

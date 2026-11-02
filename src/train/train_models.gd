@@ -111,13 +111,42 @@ static func glass() -> Material:
 	return _mats["glass"]
 
 
-## The game's look on a Blender part, by its material's name (engine.py's names).
-static func dress(mi: MeshInstance3D) -> void:
+## A car's painted atlas (assets/train/<car>_paint.png, #577: Sean's pick E, the Studio's realistic
+## working-dirty repaint baked onto the model's UVs by experiments/train_lab/blender/paint_bake.py),
+## as PropModels.model_paint lays a model's paint: the texel grid on the model's own UVs (0..1, the
+## whole texture), mipmapped, a texel a square (Sean's C1f, #526). Null if the atlas isn't there.
+static func painted(car: String) -> Material:
+	var key := "paint_" + car
+	if not _mats.has(key):
+		var path := "res://assets/train/%s_paint.png" % car
+		if not ResourceLoader.exists(path):
+			return null
+		var tex: Texture2D = load(path)
+		var m := ShaderMaterial.new()
+		m.shader = PixelArt.GRID_SHADER
+		m.set_shader_parameter(&"albedo_tex", tex)
+		m.set_shader_parameter(&"tint", Color.WHITE)
+		m.set_shader_parameter(&"roughness", 0.75)
+		m.set_shader_parameter(&"metallic", 0.15)
+		m.set_shader_parameter(&"texels_per_meter", float(tex.get_width()))
+		m.set_shader_parameter(&"use_mipmaps", true)
+		m.set_shader_parameter(&"fixed_squares", true)
+		m.resource_name = key
+		_mats[key] = m
+	return _mats[key]
+
+
+## The game's look on a Blender part, by its material's name (engine.py's names). With `paint` (a
+## car's `painted` atlas) every surface but the lamp and the glass takes the painting.
+static func dress(mi: MeshInstance3D, paint: Material = null) -> void:
 	var mesh := mi.mesh
 	for i in mesh.get_surface_count():
 		var src := mesh.surface_get_material(i)
 		var name := String(src.resource_name) if src else ""
 		var m: Material
+		if paint and name != "lamp" and name != "glass":
+			mi.set_surface_override_material(i, paint)
+			continue
 		match name:
 			"iron": m = iron()
 			"jacket": m = jacket()
@@ -214,7 +243,7 @@ static func car(car: Dictionary, t: TrainTuning) -> Node3D:
 		var root: Node3D = (load("res://assets/train/tender.glb") as PackedScene).instantiate()
 		root.name = "Model"
 		for mi in root.find_children("*", "MeshInstance3D", true, false):
-			dress(mi as MeshInstance3D)
+			dress(mi as MeshInstance3D, painted("tender"))
 		return root
 	var b := Build.new()
 	var tr: Vector2 = car.trucks
