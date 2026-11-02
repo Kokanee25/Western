@@ -2197,7 +2197,10 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		var pv := pivots[sid] as Node3D
 		var mocap_here := _mocap_w > 0.0 and clip.has(sid) and (all_of_him or _MOCAP_ALWAYS.has(String(sid).trim_suffix("_r").trim_suffix("_l")))
 		var clip_here := _clip_w > 0.0 and played.has(sid)
-		var lib_here := lib_w > 0.0 and lib.has(sid)
+		# A joint his wound has (a cut nerve's dropped wrist, a hurt leg's hold) goes to the wound as
+		# its hold comes on (`_injury_w`, 0..1: no snap from the clip to the pose).
+		var lib_j := lib_w * (1.0 - clampf(float(_injury_w.get(sid, 0.0)), 0.0, 1.0))
+		var lib_here := lib_j > 0.0 and lib.has(sid)
 		var hit_here := lib_hit.has(sid)
 		# Set only if it moved: each set is a transform change down the joint's subtree into its
 		# parts' physics state, and a man standing easy moves little but his chest once his pose
@@ -2208,7 +2211,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 		var layered := mocap_here or clip_here or lib_here or hit_here
 		# The library clip wholly has the joint: its turn is set alone (the pose's under it would be
 		# written for nothing).
-		var lib_only := lib_here and lib_w >= 1.0 and not (mocap_here or clip_here)
+		var lib_only := lib_here and lib_j >= 1.0 and not (mocap_here or clip_here)
 		if lib_only:
 			_pose_set[sid] = _NOT_SET
 		elif layered or was[0] != rot or was[1] != pv.transform:
@@ -2222,7 +2225,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
 					+ _favour_lean.get(sid, Vector3.ZERO)
 			var lq: Quaternion = lib[sid] if lx == Vector3.ZERO else (lib[sid] as Quaternion) * Quaternion.from_euler(lx * (PI / 180.0))
-			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_w)
+			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_j)
 			writes += 1
 		if mocap_here or clip_here:
 			# The clip's turn, with what's on top of any pose (a flinch, a staged touch, his fold

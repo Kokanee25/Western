@@ -27,6 +27,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Blood.clear()
 	world.queue_free()
 	await physics_frames(1)
@@ -180,6 +181,9 @@ func test_dragging_a_bleeding_man_bloodies_the_hands_on_him() -> void:
 
 
 func test_a_bleeding_man_dragged_smears_the_ground() -> void:
+	# On the procedural pose (library clips off, #539): this measures the smear's end from a still man.
+	Settings.library_motion = false
+	await physics_frames(30)  # back on his pose from the clip he stood on
 	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
 	man.physiology.bleeds[0].rate = 3.0
 	man.go_limp()

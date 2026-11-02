@@ -37,9 +37,9 @@ func _man(at: Vector3) -> HumanBody:
 	return m
 
 
-func test_off_by_default_in_the_game() -> void:
+func test_on_by_default_in_the_game() -> void:
 	var fresh: Node = load("res://src/autoload/settings.gd").new()
-	check(not fresh.library_motion, "off until Sean passes them")
+	check(fresh.library_motion, "on in the game (Sean, 2026-11-02: stand-ins)")
 	fresh.free()
 
 

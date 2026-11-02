@@ -56,6 +56,7 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(out + "/frames")
 	var lib_on := not "--off" in OS.get_cmdline_user_args()  # --off: the game's own gait, to measure against
 	root.get_node("/root/Settings").set("library_motion", lib_on)
+	load("res://src/bodies/library_motion.gd").hits = true  # off in the game; shown here
 	_stage(size)
 	var body_script = load("res://src/bodies/human_body.gd")
 	for i in ids.size():

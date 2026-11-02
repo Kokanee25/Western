@@ -35,9 +35,9 @@ const XFADE_S := 0.2
 const EASE_S := 0.2
 ## The rig the clips' strides were measured on (thigh + shin, experiments/mocap_walk/rig_rest.json).
 const RIG_LEG_M := 0.8
-## Turned off, the hit reactions alone (Sean's call: bullet hits carry no flinch since "just get rid
-## of these winces"; the walks and stances don't depend on them).
-static var hits := true
+## The hit reactions, off (Sean: bullet hits carry no flinch, "just get rid of these winces"; the
+## walks and stances don't depend on them). The lineup and tests turn them on to look.
+static var hits := false
 
 const ALL := [&"pelvis", &"abdomen", &"chest", &"neck", &"head", &"thigh_l", &"shin_l", &"foot_l",
 		&"thigh_r", &"shin_r", &"foot_r", &"upper_arm_l", &"forearm_l", &"hand_l", &"upper_arm_r",
@@ -47,8 +47,9 @@ const FREE_ARM := [&"upper_arm_l", &"forearm_l", &"hand_l"]
 const GUN_ARM := [&"upper_arm_r", &"forearm_r", &"hand_r"]
 ## Poses whose legs and hips the clip may have while he walks; the pose keeps the rest of him.
 const LEGS_ONLY := [&"hands_up", &"hands_bound", &"clutch", &"wince", &"shove"]
-## Poses the clip never touches: what they do with his legs is the point of them.
-const NONE := [&"duck", &"tend", &"cower", &"sit", &"sit_back", &"kick", &"lie", &"prone", &"prone_aim"]
+## Poses the clip has all of him in (others it never touches: what any other pose does with him is
+## the point of it, a sit, a duck, the post at a pillar (#531), whatever pose comes next).
+const FULL := [&"stand", &"wary", &""]
 
 static var _clips := {}  ## move -> MotionClip (null: no file)
 static var _loaded := false
@@ -161,15 +162,13 @@ static func clip(m: StringName) -> MotionClip:
 
 ## Which of his joints the clip leads in `pose` (empty: none), armed or not.
 static func mask_for(pose: StringName, armed: bool, moving: bool) -> Array:
-	if pose in NONE:
-		return []
 	if pose == &"aim" or pose == &"crouch_aim":
 		return LEGS + FREE_ARM
 	if pose == &"crouch":
 		return ALL.filter(func(s: StringName) -> bool: return not (armed and s in GUN_ARM))
 	if pose in LEGS_ONLY:
 		return ([&"pelvis"] + LEGS) if moving else []
-	return ALL
+	return ALL if pose in FULL else []
 
 
 ## The move for his state: `pose`, how fast and which way his feet take him (`local`: his travel

@@ -29,6 +29,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Events.exploded.disconnect(_on_boom)
 	for a in [&"fire", &"cock", &"aim", &"weapon_dynamite", &"shove"]:
 		Input.action_release(a)
@@ -546,6 +547,8 @@ func test_the_blast_pushes_him_along_its_line() -> void:
 
 ## A limb torn off goes with what tore it off, and no spin is thrown in.
 func test_a_torn_off_limb_isnt_spun() -> void:
+	# On the procedural pose (library clips off, #539): this measures the spin the blast gives (a clip's swing adds its own).
+	Settings.library_motion = false
 	var man := await _man(Vector3.ZERO)
 	man.sever_limb(&"forearm_r")
 	var w := (man.parts[&"forearm_r"] as RigidBody3D).angular_velocity.length()
