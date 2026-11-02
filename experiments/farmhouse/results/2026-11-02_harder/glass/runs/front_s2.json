@@ -1,0 +1,190 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 24.23,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 436,
+  "max_ms": 229.09,
+  "mean_ms": 25.11,
+  "p95_ms": 52.1
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front w: window front w (you're front)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "window_front_w",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front e: window front e (you're front)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "window_front_e",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "run: far past his nerve (fear 0.89 / 0.38)",
+   "id": "kid",
+   "inside": false,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to loft window: loft window (you're front)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "loft_window",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "player_local": [
+  9.51,
+  -0.7,
+  -12.59
+ ],
+ "quits": [
+  [
+   19.2,
+   "kid",
+   "runs",
+   "run: far past his nerve (fear 0.89 / 0.38)"
+  ],
+  [
+   19.9,
+   "kid",
+   "gives up",
+   "run: far past his nerve (fear 0.89 / 0.38)"
+  ]
+ ],
+ "route_left": 9,
+ "route_next": [
+  2.8,
+  -0.35,
+  -9.0
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 2,
+ "shots_men": 9,
+ "shots_out": 9,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 24.23,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   19.2,
+   "Kid runs (run: far past his nerve (fear 0.89 / 0.38))"
+  ],
+  [
+   19.9,
+   "Kid gives up (run: far past his nerve (fear 0.89 / 0.38))"
+  ],
+  [
+   24.23,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

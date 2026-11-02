@@ -197,6 +197,10 @@ var agenda: Array[Dictionary] = []
 ## watching before it starts, and goes back to when he's lost you), "look" (what he watches from
 ## it). With it he takes cover only inside, hunts you only inside, never presses or rages out after
 ## you, and after the fight he goes back to his post (he doesn't leave town). Empty: the town's man.
+## "cornered" (true: a man to keep and nowhere to run, issue #565): past his nerve he holds on
+## (`_cornered_break`) rather than run off or give up while he's armed and not covered close;
+## "floor_fight" (true): shot down and still with it, he fights from the floor (variant D's trial
+## fix of that name, for him alone).
 var hold := {}
 ## Seconds left dazed by a blast that hurt him (deafened, his head ringing: `_blasted`).
 var stunned := 0.0
@@ -255,6 +259,8 @@ var _hold_break := 0.0
 var _flinch_spread := 0.0
 var _hurry := 0.0
 var _hid_once := false
+## How many times he's held on past his nerve, cornered (`_cornered_break`).
+var _cornered := 0
 var _pain_over := false
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
@@ -1014,11 +1020,14 @@ func _physics_step(delta: float) -> void:
 		if _pending_in <= 0.0 or dread() > nerve_now():
 			var how := _pending_break
 			_pending_break = &""
-			_decide("give up" if how == &"surrender" else "run", "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back"))
+			_decide("give up" if how == &"surrender" else "run", why_friends(how))
 			if how == &"surrender":
-				_surrender()
-				return
-			if body.physiology.can_run() and not body.prone:
+				if not (hold.get("cornered", false) and _cornered_break(why_friends(how))):
+					_surrender()
+					return
+			elif hold.get("cornered", false):
+				pass  # "Fall back!": he's nowhere to run to (issue #565)
+			elif body.physiology.can_run() and not body.prone:
 				_start_fleeing()
 				return
 	if variant == Variant.D:
@@ -1028,7 +1037,7 @@ func _physics_step(delta: float) -> void:
 	_hold_break = maxf(_hold_break - delta, 0.0)
 	_flinch_spread = move_toward(_flinch_spread, 0.0, FLINCH_FADE * delta)
 	_hurry = maxf(_hurry - delta, 0.0)
-	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * 2.0:
+	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * (CORNERED_FAR if _cornered > 0 else 2.0):
 		pass  # (odds) taking stock, fighting it out, or gone to ground to weigh it
 	elif dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
 		_break()
@@ -3339,14 +3348,51 @@ func _break() -> void:
 		return
 	var why := ("past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()]) if shaken_for < 0.0 \
 			else ("still shaken after %.0f s" % shaken_for if dread() <= nerve_now() + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()])
+	# (Covered close, cornered: a gun on him within ODDS_CAUGHT m, not the 12 m that's the whole house.)
+	if hold.get("cornered", false) and not (_aimed_at > 0.8 and d < ODDS_CAUGHT) and _cornered_break(why):
+		return
 	if _has(&"odds") and _break_odds(t, d, caught, why):
 		return
-	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
+	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance \
+			and not hold.get("cornered", false):
 		_decide("run", why)
 		_start_fleeing()
 	else:
 		_decide("give up", why + (", covered close" if caught else ", can't run" if not body.physiology.can_run() or body.prone else ""))
 		_surrender()
+
+
+## Why a friend's word broke him (F3).
+func why_friends(how: StringName) -> String:
+	return "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back")
+
+
+## Holding a house with a man to keep and nowhere to run (the farmhouse, issue #565, Sean: "the
+## guards give up too easily"): past his nerve, armed, awake and not covered close, he doesn't run
+## off or throw his gun down. He goes to ground where he is (below the sill, behind what he's got)
+## and holds on CORNERED_HOLD s, a hothead swearing at you, the rest cursing their luck; and if his
+## fear settles there he's back in it. Past it again he holds on again, up to CORNERED_TIMES; then,
+## or far past his nerve once he's held on, he does as any man would. True if he held on.
+func _cornered_break(why: String) -> bool:
+	if not _armed_still() or not body.physiology.is_conscious():
+		return false
+	if _cornered >= CORNERED_TIMES or (_cornered > 0 and dread() > nerve_now() + shaken_margin * CORNERED_FAR):
+		return false
+	_cornered += 1
+	_hold_break = CORNERED_HOLD
+	_shaken = 0.0
+	_hid_once = true
+	say(&"cornered" if temper >= HOT_TEMPER else &"shaken")
+	_decide("hold on", why + ", nowhere to run (%d of %d)" % [_cornered, CORNERED_TIMES])
+	if tactic == Tactic.PEEKING:
+		_duck_back()
+	return true
+
+
+const CORNERED_HOLD := 8.0
+const CORNERED_TIMES := 3
+## Past his nerve by this many `shaken_margin`s he's beaten after his first hold, cornered or not.
+const CORNERED_FAR := 3.0
 
 
 ## Variant D's odds: what a man past his nerve does, weighed (true if he's done something other than
@@ -3540,7 +3586,8 @@ func _down_but_awake(delta: float) -> void:
 	if _give_up_look > 0.0 or not body.physiology.is_conscious():
 		return
 	_give_up_look = 0.5
-	if _has(&"floor_fight") and not body.rise_ok and dread() < nerve_now() * FLOOR_FIGHTS and body.held_gun != null \
+	# (Holding a house, issue #565: `hold.floor_fight`, he fights from the floor too; nowhere to crawl to.)
+	if (_has(&"floor_fight") or hold.get("floor_fight", false)) and not body.rise_ok and dread() < nerve_now() * FLOOR_FIGHTS and body.held_gun != null \
 			and body.physiology.can_hold("r") and body.come_to_ground():
 		_decide("fight from the floor", "shot down, not beat (fear %.2f / %.2f)" % [dread(), nerve_now()])
 		return

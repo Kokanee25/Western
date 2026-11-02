@@ -1,0 +1,229 @@
+{
+ "alarm": 60.43,
+ "blocking": [
+  "0.3:Farmhouse/@RigidBody3D@22603",
+  "RB RigidBody3D at [0.66, 0.57, 5.53] mass 0.00898521393538 kids [&\"@CollisionShape3D@22601\", &\"@MeshInstance3D@22602\"] meta []",
+  "0.3:Farmhouse/@RigidBody3D@22600",
+  "RB RigidBody3D at [1.01, 0.56, 5.3] mass 0.01123151928186 kids [&\"@CollisionShape3D@22598\", &\"@MeshInstance3D@22599\"] meta []",
+  "0.3:House/back_opening0_king0",
+  "0.3:House/back_in_ground_casing0_jamb0",
+  "0.3:House/back_trim_59_56_jamb0",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "0.3:House/back_door_59",
+  "1.0:House/back_opening0_king0",
+  "1.0:House/back_in_ground_casing0_jamb0",
+  "1.0:House/back_trim_59_56_jamb0",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.0:House/back_door_59",
+  "1.6:House/back_siding_c03_1",
+  "1.6:House/back_siding_c04_1",
+  "1.6:House/back_siding_c05_1",
+  "1.6:House/back_in_ground_board_002_0",
+  "1.6:House/back_opening0_king0",
+  "1.6:House/back_in_ground_board_003_0",
+  "1.6:House/back_in_ground_casing0_head",
+  "1.6:House/back_opening0_header",
+  "1.6:House/back_trim_59_56_head",
+  "1.6:House/back_in_ground_casing0_jamb0",
+  "1.6:House/back_trim_59_56_jamb0",
+  "1.6:House/back_door_59"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Lyle",
+ "breach": -1.0,
+ "end": 67.05,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 397,
+  "max_ms": 206.54,
+  "mean_ms": 19.75,
+  "p95_ms": 36.47
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.21 / 1.20), covered close",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to kitchen door: kitchen door (you're kitchen)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (0.32 / 0.85)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "behind_table",
+   "stance": "WARNING",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (0.31 / 0.55)",
+   "id": "kid",
+   "inside": true,
+   "knows": 2.4,
+   "mood": "CALM",
+   "order": "by_stove",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.61 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, bone broken.",
+ "player_local": [
+  1.29,
+  0.56,
+  5.69
+ ],
+ "quits": [
+  [
+   63.47,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.61 / 1.12)",
+   true
+  ],
+  [
+   65.2,
+   "brody",
+   "gives up",
+   "give up: past his nerve (fear 1.21 / 1.20), covered close",
+   false
+  ]
+ ],
+ "route_left": 7,
+ "route_next": [
+  1.0,
+  0.56,
+  5.2
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 1,
+ "shots_men": 8,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 67.05,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   60.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   60.88,
+   "Hollis down"
+  ],
+  [
+   63.47,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.61 / 1.12))"
+  ],
+  [
+   65.2,
+   "Brody gives up (give up: past his nerve (fear 1.21 / 1.20), covered close)"
+  ],
+  [
+   67.05,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "kitchen"
+}

@@ -1,0 +1,271 @@
+{
+ "alarm": 89.07,
+ "blocking": [
+  "0.3:Ground/Rise_4",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 88.57,
+  "freed": 103.3,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 86.32,
+  "phase_at": {
+   "lit": 83.63,
+   "out": 103.3,
+   "plant": 81.55,
+   "rescue": 101.65,
+   "through": 90.07
+  },
+  "planted": 83.63
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 89.07,
+ "end": 114.88,
+ "executed": -1.0,
+ "found": 96.95,
+ "frames": {
+  "blast_ms": 205.91,
+  "fight_ticks": 1549,
+  "max_ms": 304.99,
+  "mean_ms": 26.76,
+  "p95_ms": 42.37
+ },
+ "freed": 103.8,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.29,
+   1.1,
+   19.9
+  ],
+  "limp": false,
+  "pelvis": [
+   2.26,
+   0.4,
+   19.67
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.27,
+  0.77,
+  19.73
+ ],
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Dutch dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 13.1,
+   "mood": "RELOADING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 16.2,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "kid",
+   "inside": true,
+   "knows": 10.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 11.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, bone broken.",
+ "player_local": [
+  -2.0,
+  4.18,
+  37.91
+ ],
+ "quits": [
+  [
+   89.08,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   97.88,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)",
+   true
+  ],
+  [
+   100.73,
+   "kid",
+   "gives up",
+   "fight from where he is: no cover he can reach (in the open)",
+   true
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 1,
+ "shots_men": 9,
+ "shots_out": 1,
+ "state": "WON",
+ "surprise": 89.07,
+ "t": 114.88,
+ "threat": 97.9,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   89.07,
+   "Hollis down"
+  ],
+  [
+   89.07,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   89.08,
+   "Hollis gives up ()"
+  ],
+  [
+   90.75,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.8,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   91.0,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   91.07,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   96.95,
+   "found: you fired"
+  ],
+  [
+   97.88,
+   "Dutch down"
+  ],
+  [
+   97.88,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   97.9,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   100.73,
+   "Kid down"
+  ],
+  [
+   100.73,
+   "Kid gives up (fight from where he is: no cover he can reach (in the open))"
+  ],
+  [
+   103.8,
+   "the rancher cut loose"
+  ],
+  [
+   104.17,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   109.22,
+   "the rancher hit (blow, by Lyle)"
+  ],
+  [
+   110.42,
+   "Dutch dead"
+  ],
+  [
+   110.43,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   110.52,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   114.88,
+   "won"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

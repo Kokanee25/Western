@@ -67,6 +67,7 @@ var _seat_mass := 0.0
 
 
 func _ready() -> void:
+	blast_first_whole = SLICED_ABOVE  # (settled on the blast's tick: _on_exploded reads what's left)
 	if definition.is_empty() and kit_id != &"":
 		definition = PropKit.definition(kit_id)
 	super._ready()

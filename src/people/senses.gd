@@ -270,8 +270,13 @@ func _visibility(who: Node3D, from: Vector3, fwd: Vector3, range_m: float, space
 		dist = dist * dist * 0.8 + 0.2 * float(d < range_m * 0.5)
 		var v := cone * dist
 		# The line looked along only for a point that would show him better than one already seen.
-		if v <= best or not _clear(from, p, who, space):
+		if v <= best:
 			continue
+		var through := _see(from, p, who, space)
+		if through < 1.0:
+			v *= through * _glare(who) if through > 0.0 else 0.0
+			if v <= best:
+				continue
 		best = v
 	if best <= 0.0:
 		return 0.0
@@ -299,8 +304,8 @@ func _points_on(who: Node3D) -> Array[Vector3]:
 
 
 ## Asked of Sight (the sight service, docs/briefs/more-cores.md step 3); `space` is Jolt's, Sight
-## knows it.
-func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceState3D) -> bool:
+## knows it. 1 a clear line, 0 none, between for one through a window pane (issue #565).
+func _see(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceState3D) -> float:
 	var ex: Array[RID] = []
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
@@ -308,9 +313,23 @@ func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceSt
 	# Timed on its own (`lines_senses`): what one batch of the tick's lines could save at most
 	# (more-cores step 4, "The design" B phase 3).
 	var t := Prof.start()
-	var clear := Sight.clear(space, from, to, ex)
+	var seen := Sight.see(space, from, to, ex, 0.15, SightLight.tune().glass_seen)
 	Prof.stop(&"lines_senses", t)
-	return clear
+	return seen
+
+
+## Through glass, the glare off it: the light on him against the light on me (SightTuning glass_*).
+func _glare(who: Node3D) -> float:
+	var tn := SightLight.tune()
+	var mine := SightLight.lux_on(body, _light())
+	if mine <= 0.0:
+		return 1.0
+	var ratio := SightLight.lux_on(who, _light()) / mine
+	if ratio >= 1.0:
+		return 1.0
+	var k := sqrt(maxf(ratio, tn.glass_glare_ratio) / 1.0)
+	var lo := sqrt(tn.glass_glare_ratio)
+	return lerpf(tn.glass_glare_min, 1.0, (k - lo) / (1.0 - lo))
 
 
 func _speed_of(who: Node3D) -> float:

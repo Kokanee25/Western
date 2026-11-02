@@ -1,0 +1,282 @@
+{
+ "alarm": 12.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 46.98,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "clear": 64.87,
+   "out": 46.98,
+   "rescue": 45.17
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 66.68,
+ "executed": 48.98,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 3223,
+  "max_ms": 271.33,
+  "mean_ms": 22.39,
+  "p95_ms": 40.06
+ },
+ "freed": 47.48,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.88,
+   1.16,
+   -10.42
+  ],
+  "limp": false,
+  "pelvis": [
+   2.88,
+   0.41,
+   -10.51
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.88,
+  0.79,
+  -10.5
+ ],
+ "men": 7,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "drag Wes to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 16.5,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "go for you: Kid dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_bed",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.55 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 19.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.21 / 0.69), covered close",
+   "id": "kid",
+   "inside": true,
+   "knows": 19.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom corner: bedroom corner (you're loft)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 16.6,
+   "mood": "RELOADING",
+   "order": "bedroom_corner",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Dutch to cover: he's down in the open",
+   "id": "pike",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front",
+   "decision": "run for cover: in the open, 8 m",
+   "id": "wes",
+   "inside": false,
+   "knows": 36.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding a little.",
+ "player_local": [
+  4.5,
+  -1.77,
+  -40.84
+ ],
+ "quits": [
+  [
+   40.52,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 1.21 / 0.69), covered close",
+   false
+  ],
+  [
+   48.68,
+   "pike",
+   "gives up",
+   "drag Dutch to cover: he's down in the open",
+   true
+  ]
+ ],
+ "rover_found": "Pike saw you at 12.5 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 3,
+ "shots_men": 39,
+ "shots_out": 36,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 66.68,
+ "threat": 32.73,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.53,
+   "Pike saw you at 12.5 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.53,
+   "Pike warns you off"
+  ],
+  [
+   12.97,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.97,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   14.82,
+   "Wes down"
+  ],
+  [
+   32.72,
+   "Dutch down"
+  ],
+  [
+   32.73,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   40.52,
+   "Kid gives up (give up: past his nerve (fear 1.21 / 0.69), covered close)"
+  ],
+  [
+   43.48,
+   "Dutch down, out"
+  ],
+  [
+   43.57,
+   "Kid down, out"
+  ],
+  [
+   43.97,
+   "the guard's last word"
+  ],
+  [
+   47.48,
+   "the rancher cut loose"
+  ],
+  [
+   48.68,
+   "Pike down"
+  ],
+  [
+   48.68,
+   "Pike gives up (drag Dutch to cover: he's down in the open)"
+  ],
+  [
+   48.98,
+   "the guard shoots the rancher"
+  ],
+  [
+   52.4,
+   "Dutch dead"
+  ],
+  [
+   56.65,
+   "Wes dead"
+  ],
+  [
+   66.68,
+   "won"
+  ],
+  [
+   66.68,
+   "Kid dead"
+  ]
+ ],
+ "way": "front",
+ "where": "loft"
+}

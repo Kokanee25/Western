@@ -1,0 +1,259 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 81.95,
+  "phase_at": {
+   "out": 81.95,
+   "rescue": 80.1
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 96.62,
+ "executed": 81.25,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1691,
+  "max_ms": 220.32,
+  "mean_ms": 20.11,
+  "p95_ms": 41.3
+ },
+ "freed": 82.45,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.4,
+   1.45,
+   14.17
+  ],
+  "limp": false,
+  "pelvis": [
+   4.4,
+   0.7,
+   14.26
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.4,
+  1.08,
+  14.24
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 14.2,
+   "mood": "DOWN",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.61 / 1.32), covered close",
+   "id": "lyle",
+   "inside": true,
+   "knows": 22.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.33 / 0.75), covered close",
+   "id": "dutch",
+   "inside": true,
+   "knows": 22.4,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.48 / 0.38)",
+   "id": "kid",
+   "inside": true,
+   "knows": 11.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 22.4,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  3.96,
+  1.23,
+  30.34
+ ],
+ "quits": [
+  [
+   68.95,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   73.7,
+   "dutch",
+   "gives up",
+   "give up: past his nerve (fear 1.33 / 0.75), covered close"
+  ],
+  [
+   74.63,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.48 / 0.38)"
+  ],
+  [
+   76.22,
+   "lyle",
+   "gives up",
+   "give up: past his nerve (fear 1.61 / 1.32), covered close"
+  ]
+ ],
+ "seed": 5,
+ "shots_men": 6,
+ "shots_out": 0,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 96.62,
+ "threat": 73.72,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   68.95,
+   "Hollis gives up ()"
+  ],
+  [
+   73.7,
+   "Dutch down"
+  ],
+  [
+   73.7,
+   "Dutch gives up (give up: past his nerve (fear 1.33 / 0.75), covered close)"
+  ],
+  [
+   73.72,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   74.63,
+   "Lyle down"
+  ],
+  [
+   74.63,
+   "Kid gives up (give up: past his nerve (fear 0.48 / 0.38))"
+  ],
+  [
+   74.88,
+   "Dutch down, out"
+  ],
+  [
+   76.22,
+   "Lyle gives up (give up: past his nerve (fear 1.61 / 1.32), covered close)"
+  ],
+  [
+   76.23,
+   "the guard's last word"
+  ],
+  [
+   76.68,
+   "Lyle down, out"
+  ],
+  [
+   81.25,
+   "the guard shoots the rancher"
+  ],
+  [
+   82.45,
+   "the rancher cut loose"
+  ],
+  [
+   83.07,
+   "Lyle dead"
+  ],
+  [
+   83.65,
+   "Brody down"
+  ],
+  [
+   84.73,
+   "Brody down, out"
+  ],
+  [
+   85.8,
+   "Hollis dead"
+  ],
+  [
+   95.85,
+   "Dutch dead"
+  ],
+  [
+   96.62,
+   "won"
+  ]
+ ],
+ "way": "back",
+ "where": "bedroom"
+}
