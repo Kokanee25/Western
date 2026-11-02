@@ -655,8 +655,9 @@ frozen until Sean names one.
   (#577, branch `claude/gameplay-train-paint`, `results/2026-11-02_paint/`): `paint_views.py` (every
   side orthographic at 100 px/m, `layout.json` for the bake), repainted at 4K by the Studio's new
   `prop-repaint` (its `claude/studio-train-paint`, not merged): clean, dirty, showy ($0.74), then
-  realistic ones (Sean: "closer to Red Dead Redemption 2"; $0.73, ledger $64.09 of $65); `engine.py`'s face materials fixed (half the jacket was brass). Waiting on Sean: the
-  pick (#569); then the bake (#577's handover), then #571 (sound).
+  realistic ones (Sean: "closer to Red Dead Redemption 2"; $0.73, ledger $64.09 of $65); `engine.py`'s face materials fixed (half the jacket was brass). Sean picked **E**
+  (realistic, working-dirty; the Studio's `paint_real/real_dirty.png`; #569 closed). Next: the bake
+  (#577's newest handover), then #571 (sound).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
