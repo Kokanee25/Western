@@ -28,6 +28,10 @@ const WALK := 128
 const STAND := WORLD | WALK
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE & ~WALK
+## Sight only, no physics body is on it: an unbroken window pane as the sight service holds it
+## (`Sight`, issue #565). A pane stays on WORLD for the physics (balls, the player, a blast), but
+## a line looked along on WORLD passes it; one asked on this bit finds it (`Sight.see`).
+const SIGHT_GLASS := 1 << 20
 
 ## Render: people's skin and clothes (wound and blood decals paint only these).
 const VIS_BODY := 2

@@ -26,6 +26,12 @@ const KIND_GROUND := 2
 const KIND_CHARACTER := 3
 ## Rubble, a loose prop: moved by the physics.
 const KIND_RIGID := 4
+## An unbroken window pane (a member of kind glass). Sight holds it on `Layers.SIGHT_GLASS`, not
+## the world's layer (the plugin's `sight_layer`): every line looked along on WORLD (Senses, a
+## man's shot, Cover, the light) passes glass, and `see` says when it did (issue #565: windows
+## were walls to the eye, the perception lab's baseline item 4). The physics keeps it on WORLD:
+## a ball still meets it and breaks it, a man still can't walk through it.
+const KIND_GLASS := 5
 
 ## The layers it holds.
 const LAYERS := Layers.WORLD | Layers.WALK
@@ -115,6 +121,19 @@ static func clear(world: Object, from: Vector3, to: Vector3, exclude: Array[RID]
 	return w.native.clear(from, to, Layers.WORLD, exclude, near)
 
 
+## As `clear`, but how much of him shows along it: 0.0 for nothing (a wall), 1.0 for a clear
+## line, `through_glass` when the only thing between is window glass (Senses dims it more for
+## glare: SightTuning `glass_*`). Asks the glass only once the line's clear.
+static func see(world: Object, from: Vector3, to: Vector3, exclude: Array[RID] = [], near := 0.15, through_glass := 0.75) -> float:
+	if not clear(world, from, to, exclude, near):
+		return 0.0
+	var d := from.distance_to(to)
+	if d <= near:
+		return 1.0
+	var t := cast(world, from, to, Layers.SIGHT_GLASS, exclude)
+	return through_glass if t < 1.0 - near / d else 1.0
+
+
 ## A batch: the fraction along each line `from[i]`..`to[i]` where it first meets something on
 ## `mask` (1.0 for nothing). `kinds()`, `normals()` and `hit_rid(i)` have the rest of each hit.
 static func lines(world: Object, from: PackedVector3Array, to: PackedVector3Array, mask: int, exclude: Array[RID] = []) -> PackedFloat32Array:
@@ -144,13 +163,36 @@ static func hit_rid(i: int) -> RID:
 # --- Without the plugin: Jolt -------------------------------------------------------------------
 
 static func _jolt_ray(world: Object, from: Vector3, to: Vector3, mask: int, exclude: Array[RID]) -> Dictionary:
-	var q := PhysicsRayQueryParameters3D.create(from, to, mask)
+	return _jolt_hit(_space(world), PhysicsRayQueryParameters3D.new(), from, to, mask, exclude)
+
+
+## Jolt's first hit as the plugin gives it: a pane is on SIGHT_GLASS, not WORLD (KIND_GLASS), so
+## a line on WORLD looks again past each pane it meets, and one on SIGHT_GLASS looks along WORLD
+## for the first pane.
+static func _jolt_hit(space: PhysicsDirectSpaceState3D, q: PhysicsRayQueryParameters3D, from: Vector3, to: Vector3, mask: int, exclude: Array[RID]) -> Dictionary:
+	var want_glass := mask & Layers.SIGHT_GLASS != 0
+	q.from = from
+	q.to = to
+	q.collision_mask = (mask & ~Layers.SIGHT_GLASS) | (Layers.WORLD if want_glass else 0)
 	q.exclude = exclude
-	var hit := _space(world).intersect_ray(q)
-	if hit.is_empty():
-		return hit
-	hit.kind = _kind_of(hit.collider as Node)
-	return hit
+	var ex := exclude
+	# (Glass is looked for past whatever else is on the line: Sight.see asks it only of a line
+	# that's clear on WORLD, so there it's the first thing met; the tests ask it of any line.)
+	for i in (48 if want_glass else 8):
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return hit
+		hit.kind = _kind_of(hit.collider as Node)
+		if hit.kind == KIND_GLASS:
+			if want_glass:
+				return hit
+		elif (hit.collider as CollisionObject3D).collision_layer & mask != 0:
+			return hit
+		if ex == exclude:
+			ex = exclude.duplicate()
+		ex.append(hit.rid)
+		q.exclude = ex
+	return {}
 
 
 static func _jolt_lines(world: Object, from: PackedVector3Array, to: PackedVector3Array, mask: int, exclude: Array[RID]) -> PackedFloat32Array:
@@ -160,12 +202,8 @@ static func _jolt_lines(world: Object, from: PackedVector3Array, to: PackedVecto
 	_last_normals = PackedVector3Array()
 	var space := _space(world)
 	var q := PhysicsRayQueryParameters3D.new()
-	q.collision_mask = mask
-	q.exclude = exclude
 	for i in mini(from.size(), to.size()):
-		q.from = from[i]
-		q.to = to[i]
-		var hit := space.intersect_ray(q)
+		var hit := _jolt_hit(space, q, from[i], to[i], mask, exclude)
 		if hit.is_empty():
 			out.append(1.0)
 			_last_kind.append(KIND_OTHER)
@@ -415,7 +453,7 @@ static func _disabled(co: CollisionObject3D) -> int:
 
 static func _kind_of(n: Node) -> int:
 	if n is StructureMember:
-		return KIND_MEMBER
+		return KIND_GLASS if (n as StructureMember).kind == &"glass" and not (n as StructureMember).broken else KIND_MEMBER
 	if n is Ground or n is GroundTile:
 		return KIND_GROUND
 	if n is CharacterBody3D:
