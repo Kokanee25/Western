@@ -82,22 +82,25 @@ class Car:
         self._settle(node)
         if node not in self.parts:
             self.parts[node] = bmesh.new()
+            self.parts[node].faces.layers.int.new("settled")
             self.slots[node] = []
         if mat not in self.slots[node]:
             self.slots[node].append(mat)
-        bm = self.parts[node]
-        bm.faces.ensure_lookup_table()
-        self.pending[node] = (self.slots[node].index(mat), len(bm.faces))
-        return bm
+        self.pending[node] = self.slots[node].index(mat)
+        return self.parts[node]
 
     def _settle(self, node):
-        """Gives the faces made since the last `bm` call their material."""
+        """Gives the faces made since the last `bm` call their material. They're found by a mark on
+        each face, not by index: Blender's primitive ops don't always append their faces at the end
+        of the list (2026-11-02: half the boiler jacket had taken the brass bands' material)."""
         if node in self.pending:
-            index, first = self.pending.pop(node)
+            index = self.pending.pop(node)
             bm = self.parts[node]
-            bm.faces.ensure_lookup_table()
-            for f in bm.faces[first:]:
-                f.material_index = index
+            done = bm.faces.layers.int["settled"]
+            for f in bm.faces:
+                if not f[done]:
+                    f.material_index = index
+                    f[done] = 1
 
     def _place(self, node, verts, m):
         """Moves a primitive's verts (as its bmesh op returned them: they aren't always the last
