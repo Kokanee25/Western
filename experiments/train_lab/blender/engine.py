@@ -68,55 +68,65 @@ class Car:
     def __init__(self, length, trucks):
         self.length = length
         self.mid = (trucks[0] + trucks[1]) * 0.5
-        self.parts = {}  # node -> {material: bmesh}
+        self.parts = {}  # node -> bmesh
+        self.slots = {}  # node -> its material names, in slot order
+        self.pending = {}  # node -> (slot, first face) still to be given its material
         self.origins = {}  # node -> game-space origin
 
     def z(self, u):
         return u - self.mid
 
     def bm(self, node, mat):
-        self.parts.setdefault(node, {})
-        if mat not in self.parts[node]:
-            self.parts[node][mat] = bmesh.new()
-        return self.parts[node][mat]
+        """The node's one bmesh; the faces made from now until the next call take `mat`."""
+        self._settle(node)
+        if node not in self.parts:
+            self.parts[node] = bmesh.new()
+            self.slots[node] = []
+        if mat not in self.slots[node]:
+            self.slots[node].append(mat)
+        bm = self.parts[node]
+        bm.faces.ensure_lookup_table()
+        self.pending[node] = (self.slots[node].index(mat), len(bm.faces))
+        return bm
 
-    def _place(self, node, mat, verts_before, bm, m):
-        """Moves the verts made since `verts_before` by the game-space matrix `m`, less the node's origin."""
+    def _settle(self, node):
+        """Gives the faces made since the last `bm` call their material."""
+        if node in self.pending:
+            index, first = self.pending.pop(node)
+            bm = self.parts[node]
+            bm.faces.ensure_lookup_table()
+            for f in bm.faces[first:]:
+                f.material_index = index
+
+    def _place(self, node, verts, m):
+        """Moves a primitive's verts (as its bmesh op returned them: they aren't always the last
+        ones in the list) by the game-space matrix `m`, less the node's origin."""
         o = self.origins.get(node, Vector((0, 0, 0)))
         full = Matrix.Translation(-o) @ m
-        new = bm.verts[verts_before:]
-        for v in new:
+        for v in verts:
             v.co = full @ v.co
 
     def box(self, node, mat, u0, u1, x0, x1, y0, y1, bevel=0.0):
         """A box from u0..u1 (behind the front), x0..x1 across, y0..y1 up."""
         bm = self.bm(node, mat)
-        bm.verts.ensure_lookup_table()
-        n = len(bm.verts)
         res = bmesh.ops.create_cube(bm, size=1.0)
         sx, sy, sz = abs(x1 - x0), abs(y1 - y0), abs(u1 - u0)
         m = Matrix.Translation(Vector(((x0 + x1) / 2, (y0 + y1) / 2, self.z((u0 + u1) / 2)))) @ \
             Matrix.Diagonal(Vector((sx, sy, sz, 1.0)))
-        bm.verts.ensure_lookup_table()
-        self._place(node, mat, n, bm, m)
-        if bevel > 0:
-            bmesh.ops.bevel(bm, geom=list(res["verts"]) + [e for e in bm.edges if all(v in res["verts"] for v in e.verts)],
-                            offset=min(bevel, sx * 0.45, sy * 0.45, sz * 0.45), segments=1, affect="EDGES")
+        self._place(node, res["verts"], m)
+        # (`bevel` is kept in the calls for a later pass: bmesh.ops.bevel broke the thin boxes.)
 
     def cyl(self, node, mat, a, b, r0, r1=None, seg=20, caps=True):
         """A cylinder (or a cone) from game-space point a to b, radius r0 at a and r1 at b."""
         r1 = r0 if r1 is None else r1
         bm = self.bm(node, mat)
-        bm.verts.ensure_lookup_table()
-        n = len(bm.verts)
         a, b = Vector(a), Vector(b)
         d = b - a
         ln = d.length
-        bmesh.ops.create_cone(bm, cap_ends=caps, cap_tris=False, segments=seg, radius1=r0, radius2=r1, depth=ln)
+        res = bmesh.ops.create_cone(bm, cap_ends=caps, cap_tris=False, segments=seg, radius1=r0, radius2=r1, depth=ln)
         rot = Vector((0, 0, 1)).rotation_difference(d.normalized()).to_matrix().to_4x4()
         m = Matrix.Translation((a + b) * 0.5) @ rot
-        bm.verts.ensure_lookup_table()
-        self._place(node, mat, n, bm, m)
+        self._place(node, res["verts"], m)
 
     def cyl_z(self, node, mat, u0, u1, x, y, r0, r1=None, seg=24, caps=True):
         """A cylinder along the car (u0 to u1) at (x, y)."""
@@ -130,17 +140,14 @@ class Car:
 
     def sphere(self, node, mat, centre, r, squash=1.0, seg=16, top_only=False):
         bm = self.bm(node, mat)
-        bm.verts.ensure_lookup_table()
-        n = len(bm.verts)
-        bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=seg // 2, radius=r)
+        res = bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=seg // 2, radius=r)
         if top_only:
-            for v in bm.verts[n:]:
+            for v in res["verts"]:
                 if v.co.z < 0:
                     v.co.z = 0
         # Blender's sphere poles on its z: lay that up (game y).
         m = Matrix.Translation(Vector(centre)) @ Matrix(((1, 0, 0, 0), (0, 0, squash, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
-        bm.verts.ensure_lookup_table()
-        self._place(node, mat, n, bm, m)
+        self._place(node, res["verts"], m)
 
     def quad_prism(self, node, mat, pts, x0, x1):
         """A prism across x0..x1 of the outline `pts` [(u, y), ...] (convex, in order)."""
@@ -171,25 +178,15 @@ class Car:
         """Every node an object (a mesh a node, its materials as slots), parented under one root."""
         root = bpy.data.objects.new(name, None)
         bpy.context.collection.objects.link(root)
-        for node, mats in self.parts.items():
+        for node, big in self.parts.items():
+            self._settle(node)
             me = bpy.data.meshes.new(node)
-            big = bmesh.new()
-            slots = []
-            for mat, bm in mats.items():
-                bm.normal_update()
-                tmp = bpy.data.meshes.new("tmp")
-                bm.to_mesh(tmp)
-                for p in tmp.polygons:
-                    p.material_index = len(slots)
-                big.from_mesh(tmp)
-                bpy.data.meshes.remove(tmp)
-                slots.append(material(mat))
-                bm.free()
             bmesh.ops.remove_doubles(big, verts=big.verts, dist=0.0005)
+            bmesh.ops.recalc_face_normals(big, faces=big.faces)
             big.to_mesh(me)
             big.free()
-            for s in slots:
-                me.materials.append(s)
+            for name in self.slots[node]:
+                me.materials.append(material(name))
             # Game space to Blender's: the exporter turns +Y up back again.
             me.transform(Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1))))
             for p in me.polygons:
