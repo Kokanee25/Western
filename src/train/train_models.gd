@@ -553,7 +553,8 @@ static func _coach_lamps(m: Node3D, b: Build, l: float) -> void:
 		var light := OmniLight3D.new()
 		light.name = "Lamp"
 		light.light_color = Color(1.0, 0.72, 0.4)
-		light.omni_range = 8.0
+		light.omni_range = 5.0
+		light.omni_attenuation = 1.6
 		light.light_energy = 0.0
 		light.visible = false
 		light.position = at - Vector3.UP * 0.1
@@ -645,6 +646,6 @@ static func set_night(view: Node, night: float) -> void:
 			(n as EngineModel).set_night(night)
 	for l: Node in view.get_tree().get_nodes_in_group(&"train_lamps"):
 		if view.is_ancestor_of(l):
-			(l as OmniLight3D).light_energy = 6.0 * night
+			(l as OmniLight3D).light_energy = 3.5 * night
 			(l as OmniLight3D).visible = night > 0.01
 	lamp().emission_energy_multiplier = 0.3 + 2.5 * night
