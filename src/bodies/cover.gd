@@ -297,11 +297,15 @@ static func _best_up(space: PhysicsDirectSpaceState3D, scored: Array[Dictionary]
 	return best
 
 
-## Does the way pass within `near` (m) of a friend standing on it (one on the stair, the stair's
-## too narrow to pass him)?
+## Does the way's climb (a stretch of it rising or falling more than half a metre: the stair) pass
+## within `near` (m) of a friend standing on it? A stair's too narrow to pass him; on a floor he'd
+## walk round him.
 static func _way_blocked(from: Vector3, way: Array, standing: Array, near: float) -> bool:
 	var a := from
 	for w: Vector3 in way:
+		if absf(w.y - a.y) < 0.5:
+			a = w
+			continue
 		for q: Vector3 in standing:
 			var ab := w - a
 			var k := clampf((q - a).dot(ab) / maxf(ab.length_squared(), 1e-6), 0.0, 1.0)
