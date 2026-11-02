@@ -566,6 +566,21 @@ func test_behind_his_cover_your_own_doesnt_drive_him_out() -> void:
 	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
 
 
+## Fighting from the floor (D+'s floor_fight) a man empty asks to reload every tick: the load he's
+## started goes on to its end, not over again (#583's playtest: "Reloading! Cover me!" for a minute).
+func test_a_reload_once_started_runs_to_its_end() -> void:
+	await _outlaw(OWN_SPOT)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	brain.rounds = 0
+	brain._start_reload()
+	check(brain.mood == OutlawBrain.Mood.RELOADING, "empty: he reloads")
+	brain._reload_left = 0.4
+	brain._start_reload()
+	check(is_equal_approx(brain._reload_left, 0.4), "asked again, the load goes on (%.2f s left)" % brain._reload_left)
+
+
 ## A planted stick's fuse hissing a few metres off (#506): he hears it, it frightens him and turns
 ## his head; one round the corner out of earshot he doesn't.
 func test_he_hears_a_planted_fuse() -> void:

@@ -2921,6 +2921,8 @@ func _cover_mate(seconds: float) -> void:
 
 
 func _start_reload() -> void:
+	if mood == Mood.RELOADING:
+		return  # loading already: fighting from the floor asks every tick (#583's playtest: it never ended)
 	_reload_left = reload_seconds
 	_set_mood(Mood.RELOADING)
 	if crew.any_in_earshot(_now):
