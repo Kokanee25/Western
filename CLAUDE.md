@@ -327,7 +327,7 @@ python3 tools/bridge.py stop
 **The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
 what each lane had open when it was adopted (2026-10-14).
 
-Latest status entries: `docs/status/2026-10-25_onward.md` (the end of the file). Builds: main is
+Latest status entries: `docs/status/2026-11-02_onward.md` (the end of the file). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
@@ -656,8 +656,14 @@ frozen until Sean names one.
   boards (`TrainModels`), the boxcar's ladders (`Ladder`, the player's `_ladder_step`), passengers.
   The critic fails the look (paint, shade, ground). Then the engine's shape pass (Sean: "solid
   circles, things don't connect"; PR #576, `results/2026-11-02_step3/shape_pass/`): spoked wheels,
-  rods, cab, cowcatcher, lathed domes; Sean: "way better, ready for a paid paint". Next: #577 (the
-  paint). Waiting on Sean: the look (#569). **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
+  rods, cab, cowcatcher, lathed domes; Sean: "way better, ready for a paid paint". **The paint**
+  (#577, branch `claude/gameplay-train-paint`, `results/2026-11-02_paint/`): `paint_views.py` (every
+  side orthographic at 100 px/m, `layout.json` for the bake), repainted at 4K by the Studio's new
+  `prop-repaint` (its `claude/studio-train-paint`, not merged): clean, dirty, showy ($0.74), then
+  realistic ones (Sean: "closer to Red Dead Redemption 2"; $0.73, ledger $64.09 of $65); `engine.py`'s face materials fixed (half the jacket was brass). Sean picked **E**
+  (realistic, working-dirty; #569 closed), **baked** (`paint_bake.py`, `assets/train/*_paint.png`,
+  `TrainModels.painted`; `results/2026-11-02_bake/`): the critic still fails the views on light and
+  ground first, then E's realism; waiting on Sean's look on #577. **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
   `TrainSound` (one-shots timed from the sim to the sub-tick, late by distance, Doppler; loops held
   by the frame), `TrainSynth` (all synthesised: the recording sites are blocked here), dials
   `config/train_sound.tres`; GameAudio's wall test looks past the train's own cars. Waiting on

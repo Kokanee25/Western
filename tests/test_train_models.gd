@@ -65,6 +65,36 @@ func test_rods_hold_their_pins() -> void:
 	e.free()
 
 
+## The paint (#577): the engine and tender draw their baked atlas on their own UVs, but for the
+## headlight's lens and the cab's glass (TrainModels.lamp/glass).
+func test_engine_and_tender_painted() -> void:
+	for car in ["engine", "tender"]:
+		var paint := TrainModels.painted(car)
+		check(paint != null, "%s's atlas is there" % car)
+		var root: Node3D
+		if car == "engine":
+			root = _engine()
+		else:
+			root = TrainModels.car({"kind": &"tender"}, tuning)
+			add_child(root)
+		var painted := 0
+		var kept := 0
+		for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+			if mi.mesh == null or mi.mesh.get_surface_count() == 0:
+				continue
+			check(mi.mesh.surface_get_format(0) & Mesh.ARRAY_FORMAT_TEX_UV, "%s %s has UVs" % [car, mi.name])
+			for i in mi.mesh.get_surface_count():
+				var m := mi.get_surface_override_material(i)
+				if m == paint:
+					painted += 1
+				elif m == TrainModels.lamp() or m == TrainModels.glass():
+					kept += 1
+		check(painted > 0, "%s: %d surfaces painted" % [car, painted])
+		if car == "engine":
+			check(kept >= 2, "the engine keeps its lamp and glass (%d)" % kept)
+		root.free()
+
+
 func test_four_beats_a_turn() -> void:
 	var e := _engine()
 	e.steam = 0.5
