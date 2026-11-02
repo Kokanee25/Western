@@ -33,6 +33,7 @@ const HELP := {
 	"train_placed": "train_placed -> the crates and men put on the line: where they are now, how far off the line",
 	"train_events": "train_events [N] -> the last N couplers' slack-outs and bunches",
 	"train_models": "train_models on|off -> the cars drawn as step 3's models or step 2's boxes (rebuilt; passengers go)",
+	"train_lamps": "train_lamps -> the train's lamps (the coach's, the headlight): where, how bright, shown",
 	"train_passengers": "train_passengers N -> N passengers seated in the coach (window seats first)",
 	"train_where": "train_where CAR [ALONG] [UP] -> a point on a car (for look/shoot): ALONG m behind its front",
 }
@@ -255,6 +256,18 @@ func _cmd_train_models(a: Array) -> Dictionary:
 	view.place()
 	view.place_solids()
 	return {"models": view.models}
+
+
+func _cmd_train_lamps(_a: Array) -> Dictionary:
+	var lab := _built()
+	var out := []
+	for l in lab.train.view.find_children("*", "Light3D", true, false):
+		var light := l as Light3D
+		out.append({"name": String(light.name), "at": arr(light.global_position), "energy": light.light_energy,
+			"shown": light.is_visible_in_tree()})
+	var clock := lab.get_tree().root.find_child("DayCycle", true, false) as DayCycle
+	return {"lamps": out, "night": lab.train.view._night, "clock": clock != null,
+		"daylight": clock.get_daylight() if clock else -1.0}
 
 
 func _cmd_train_passengers(a: Array) -> Dictionary:

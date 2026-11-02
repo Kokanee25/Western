@@ -165,8 +165,6 @@ func car_transform(i: int, frac := 1.0) -> Transform3D:
 ## Stand every drawn car on the track, `frac` of the way from a tick ago to now; turn the wheels
 ## and rods by the distance each has come.
 func place(frac := 1.0) -> void:
-	if models:
-		_night_check()
 	for i in sim.cars.size():
 		var s0 := sim.truck_s(i, 0, frac)
 		trucks[i * 2].transform = track.transform_at(s0)
@@ -178,18 +176,19 @@ func place(frac := 1.0) -> void:
 				TrainModels.roll_truck(trucks[i * 2 + w], s0)
 
 
-var _night_frames := 0
 var _night := -1.0
+var _clock: DayCycle
 
 
-## The lamps by the clock (every second or so).
-func _night_check() -> void:
-	_night_frames -= 1
-	if _night_frames > 0 or not is_inside_tree():
+## The lamps (the coach's, the headlight) by the clock, the train moving or standing.
+func _process(_delta: float) -> void:
+	if not models or not is_inside_tree():
 		return
-	_night_frames = 60
-	var clock := get_tree().root.find_child("DayCycle", true, false) as DayCycle
-	var night := 1.0 - clampf(clock.get_daylight() * 2.0, 0.0, 1.0) if clock else 0.0
+	if _clock == null or not is_instance_valid(_clock):
+		_clock = get_tree().root.find_child("DayCycle", true, false) as DayCycle
+		if _clock == null:
+			return
+	var night := 1.0 - clampf(_clock.get_daylight() * 2.0, 0.0, 1.0)
 	if absf(night - _night) > 0.02:
 		_night = night
 		TrainModels.set_night(self, night)
