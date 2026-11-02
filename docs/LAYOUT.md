@@ -503,15 +503,15 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (16-bit, deflated, base64) and what's buried. Tile meshes carry COLOR for art: r loose depth,
   b depth below the authored ground.
   Under a dug tile the earth is solid: boxes a column of 8 cells (`GroundTile.COLUMN`), each topped
-  `COLUMN_GAP` (3 cm) under the lowest surface over it, down through the hardpan (a height field has
-  no thickness: a 2 cm bone fragment at 6 m/s went through it). Past the 2 cm a resting body sinks
-  into the field: at 1 cm a piece lying on a slope touched the field and a column top both and spun
-  there, its pile never asleep (#584); at 6 cm fast chips fell on through the columns' seams. A
-  piece pressed through the field is held between it and a column (#584: spinning, or thrown out
-  at 100+ m/s), so an edit sets any loose body the earth has come up through back on top
+  1 cm under the lowest surface over it, down through the hardpan (a height field has no
+  thickness: a 2 cm bone fragment at 6 m/s went through it). A piece pressed through the field is
+  held between it and a column, spins there or is thrown out at 100+ m/s, and its pile never
+  sleeps (#584). So an edit sets any loose body the earth has come up through back on top
   (`_lift_out`, from `_wake`; people's parts left), and a `Structure` looks at its awake rubble
   every `RESCUE_TICKS` (a share each tick) for one touching a field from below or with its middle
-  under the surface (`Ground.rescue`). `-- --no-ground-lift`: neither (the lab's before). What stands and walks there (step 4),
+  under the surface (`Ground.rescue`). Not by touching a column: a piece resting on a slope sinks
+  2 cm into the field (the physics' slop) and can touch it legitimately. `-- --no-ground-lift`:
+  neither (the lab's before). What stands and walks there (step 4),
   on `Events.ground_changed`: a `Structure`'s grounded member whose bottom has lost the earth by
   `undercut` (5 cm) at its corners and middle is grounded no more and the structure settles;
   a `KitProp` looks for its feet again (its own `_on_ground_changed`); `Fittings` drops a prop
