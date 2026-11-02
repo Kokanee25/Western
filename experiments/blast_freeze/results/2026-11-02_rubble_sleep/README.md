@@ -77,6 +77,9 @@ rubble lands on it, the ground is dug under it, or something near it gives way.
 Before the sticks the frame is ~19 ms (street) and ~15 ms (farmhouse) here on both. In the
 seconds the house is still coming down (3-8 s after the last stick) both are ~55-65 ms (street)
 and ~90-160 ms (farmhouse): that's the rubble actually moving, and isn't this change's.
+With the mission on (`mission=1`: the gang in the house, the rovers; one branch run): broken 736,
+settled 25 s after the last stick (the men moving about the wreck keep some piles stirring),
+then ~19 ms frames. Not measured on main with the mission (#584's).
 In this series main's street slept on its own in all three runs (11-18 s); in the census runs it
 didn't in 3 of 5 (680-770 awake at 60 s, frames ~60 ms, Jolt's step ~30 ms).
 
