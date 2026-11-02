@@ -726,7 +726,8 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 			if not m.has("shot_errors"):
 				m["shot_errors"] = []
 			(m.shot_errors as Array).append([snappedf(t, 0.01), snappedf(rad_to_deg(_dir.angle_to(want)), 0.01),
-				snappedf(_origin.distance_to(player.global_position), 0.1), b._aim_head, snappedf(b.fear, 0.01)])
+				snappedf(_origin.distance_to(player.global_position), 0.1), b._aim_head, snappedf(b.fear, 0.01),
+				&"out" if b.stepped_out() else &"pointed" if b._pointing() else &"post" if b.cover.get("narrow", false) else &""])
 	_note("shot", "%s fired" % who)
 
 
