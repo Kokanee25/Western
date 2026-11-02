@@ -1198,6 +1198,25 @@ turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) 
 (`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
 `train_passengers N` seats the Studio's men in the coach.
 
+Step 4 (#571): the sound. `TrainSound` (a child of `Train`, `sound`; dials `TrainSoundTuning`,
+`config/train_sound.tres`, proposed) is ticked after the sim's step with its coupler events and
+times every one-shot from the sim to the sub-tick: an exhaust beat each quarter turn of the drivers
+(as `EngineModel.roll` counts them: `train_chuff_long|mid|short_N` by the beats a second, louder by
+`TrainSim.steam`, each of the four its own level and pitch; the cocks' burst below `COCKS_BELOW`), a
+clack each axle over a rail joint (the engine's pony and four drivers from `engine_rig.json`, two
+axles a truck under the rest), a bang or bump each coupler event, a bell strike every
+`bell_period`. Each is queued at its moment plus distance / 343 m/s, Doppler-pitched (`doppler`),
+and started on the drawn frame that's due, skipped into its `TrainSynth.LEAD` of silence by how
+late it is, so it's heard on its moment at any frame rate (the sound's pools: exhaust, clack,
+clank, bell; the oldest gives way). Loops held by the drawn frame on their car: rumble (by speed),
+squeal and grind (by `car_brake` and speed), the cocks' hiss, simmer, the safety valve (lifts after
+`valve_after` s standing with the regulator shut), the whistle (`blow("--o-")`, `whistle(held)`).
+Its bus (walls) from GameAudio a few times a second. Without ears nothing is made or played. The
+sounds: `src/audio/train_synth.gd` (`TrainSynth`, all synthesised; SynthSounds makes `train_*`,
+loops seamless, `SynthSounds.warm(TrainSynth.WARM)` the first time a train is heard). Prof timer
+`train_sound`. The lab: `train_whistle`, `train_bell`, `train_valve`, `train_sound`,
+`train_caption`, `train_cam side S OFF`; the cab's H (whistle) and B (bell).
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
@@ -1236,6 +1255,16 @@ turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) 
   (excluded from both sphere queries: each was ~15 µs there); one whose middle is past the reach
   is still in when a shape of it reaches in (`_shapes_within`), as the query had it
   (`test_gather_finds_the_rubble_the_queries_found`). Timers `gather_query`/`_panes`/`_loose`.
+  The panes are walked only in structures whose bounds come within reach (`Structure.bounds()`,
+  `may_reach`: every member's box in its own space, made at build, 1.5 m spare). The timber keeps
+  Jolt's order on purpose: it's the order the structures break in, and another order broke
+  919-1,043 of the street's three sticks' members, main 947-952 (#538 round 5,
+  `experiments/blast_freeze/results/2026-11-02_blast_frame_5/`).
+- **A blast's side-work off its tick** (#538 round 5): the fire's load checks sit out the tick
+  after too; a townsman's cry at a blast waits 0.2 s plus the sound's travel to him
+  (`CivilianBrain.CRY_AFTER`, his fear at once); the insides of what it tore open are built 0.04 s
+  on (`HumanBody.open_wound(..., soon)`); `GlassCuts.spray` casts no rays with nobody in reach;
+  a kit prop's push is bounded for the whole prop first (`KitProp._blast_push`, `bounds_distance`).
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or
