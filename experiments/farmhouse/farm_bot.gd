@@ -24,7 +24,12 @@ var rng := RandomNumberGenerator.new()
 var phase := "in"
 var route: Array[Vector3] = []
 var out_route: Array[Vector3] = []
-var stats := {"phase_at": {}, "planted": -1.0, "blast": -1.0, "freed": -1.0}
+var stats := {"phase_at": {}, "planted": -1.0, "blast": -1.0, "freed": -1.0, "gate_wait": 0.0, "froze": 0.0}
+## The quiet ways' gate (issue #565: the rovers): the point on the way in where he waits, out of
+## their sight, for their beats to leave the back unwatched (`_rovers_away`); passed once.
+var _gate := Vector3.INF
+var _frozen := 0.0
+var _hold_low := 0.0
 
 var _t := 0.0
 var _look_t := 0.0
@@ -56,6 +61,10 @@ func setup(p: Player, m: FarmhouseMission, how: String, seed_value: int, aim_deg
 	Events.exploded.connect(func(_at: Vector3, _kg: float) -> void: _went_off = true)
 	route = _route_in()
 	out_route = _route_out()
+	if way == "back" and route.size() > 2:
+		_gate = route[2]  # waits at the draw's second point: the far side of the rise, out of the yard's sight
+	elif way == "breach" and route.size() > 4:
+		_gate = route[4]  # waits 50 m behind the house, wide to its west
 	_crouch = way == "back" or way == "breach"
 
 
@@ -89,8 +98,13 @@ func _route_in() -> Array[Vector3]:
 			# far down it), to the lean-to's corner, then crouched along the kitchen's back wall under
 			# its window to the stick's spot between the window and the door (issue #537; the map:
 			# results/2026-11-01_surprise/hide.md).
-			r = _the_draw()
-			r.append_array([_g(-8.0, 22.0), _g(-8.0, 12.0), _g(-3.0, 9.5), _g(-0.8, 8.3), _g(1.0, 7.95), _g(2.6, 7.95)])
+			# Since #565 the windows see out, and Pike walks the yard: wide round the far north (50 m
+			# behind the house: where he waits for Pike's beat to take him to the front or east, the
+			# gate), down on its west side wide of the kitchen window's cone, in at z 7 (wide of the
+			# front room's west window), along the lean-to's west wall to its corner, then under the
+			# kitchen window.
+			r = [_w(50.0, -14.0), _w(52.0, -72.0), _w(70.0, -95.0), _w(125.0, -95.0), _g(-25.0, 16.0)]
+			r.append_array([_g(-10.0, 7.0), _g(-1.0, 7.0), _g(-0.6, 8.0), _g(1.0, 7.95), _g(2.6, 7.95)])
 		"back":
 			r = _the_draw()
 			r.append_array([_g(4.4, 12.0), _place(&"farm_back"), _place(&"farm_back_steps"),
@@ -175,6 +189,8 @@ func tick(delta: float, t: float) -> void:
 		"in":
 			if shooting and not bot._reloading:
 				_stop()
+			elif _wait_for_rovers(delta):
+				_stop()
 			elif _follow(route, delta):
 				if way == "breach":
 					_phase("plant")
@@ -201,11 +217,59 @@ func tick(delta: float, t: float) -> void:
 				_stop()
 		"clear":
 			_stop()
-	# Crouched (quiet, low) once he's within 35 m of the house on a quiet way in.
-	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 45.0
+	# Crouched (quiet, low) once he's within 25 m of the house on a quiet way in (45 before the
+	# rovers, #565: the walk from the gate has to beat the beat).
+	var close := player.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < 25.0
 	# Through the hole he goes at a run (they know he's coming).
 	_duck = maxf(_duck - delta, 0.0)
-	bot._hold_action(&"crouch", (_crouch and close and not shooting and not phase in ["through", "out", "clear"]) or (_duck > 0.0 and not shooting))
+	_hold_low = maxf(_hold_low - delta, 0.0)
+	bot._hold_action(&"crouch", (_crouch and (close or _hold_low > 0.0) and not shooting and not phase in ["through", "out", "clear"]) or (_duck > 0.0 and not shooting))
+
+
+## A quiet way in, before the alarm, timed by the rovers (issue #565): at the gate (the draw's far
+## side) he waits till each rover's beat has him at a stop that leaves the back unwatched (the
+## beat's `quiet` stops: what a player learns by watching it); past it, he keeps still, crouched,
+## while a rover within 45 m has a clear line to him and looks within 110 degrees of him (his eye's
+## reach and a little), a minute at most at a time. True while he waits.
+func _wait_for_rovers(delta: float) -> bool:
+	if mission.alarm_t >= 0.0 or mission.rovers.is_empty():
+		return false
+	if _gate != Vector3.INF:
+		if route.is_empty() or route[0] != _gate:
+			return false
+		if _rovers_away("west" if way == "breach" else "back"):
+			_gate = Vector3.INF
+			stats.gate_left = snappedf(_t, 0.01)
+			return false
+		stats.gate_wait += delta
+		return true
+	if way == "front" or _frozen > 60.0:
+		_frozen = 0.0 if _frozen > 70.0 else _frozen + delta  # (then on, ten seconds, before he'll stop again)
+		return false
+	var me := player.global_position + Vector3.UP * 1.2
+	for b: OutlawBrain in mission.rovers:
+		if not mission._able(b) or b.mood != OutlawBrain.Mood.CALM or b.senses == null:
+			continue
+		var eye := b.senses.eye()
+		if eye.distance_to(me) > 45.0 or rad_to_deg(b.senses.facing().angle_to(me - eye)) > 110.0:
+			continue
+		if Sight.clear(player, eye, me, [player.get_rid()]):
+			stats.froze += delta
+			_frozen += delta
+			_hold_low = 0.3
+			return true
+	_frozen = 0.0
+	return false
+
+
+func _rovers_away(side: String) -> bool:
+	for b: OutlawBrain in mission.rovers:
+		if not mission._able(b):
+			continue
+		var st := mission.rover_stop(b)
+		if not side in st.get("quiet", []):
+			return false
+	return true
 
 
 ## The stick out, aimed chest high at the wall in front, E held till it's set, let go to light it,

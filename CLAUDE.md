@@ -602,9 +602,15 @@ frozen until Sean names one.
   the rancher alive in all 12. **The surprise assault** (#537, branch `claude/gameplay-farmhouse-surprise`):
   a fuse heard 3 m and never through a wall, the hiding spot round the lean-to's west corner, a blast
   before any alarm catches them cold (dazed, nobody calls where you are till one sees you); breach
-  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`). Losses
-  are the way out (dragging him out cold). Waiting on Sean: the film (#537). Trap: a `-s` script
-  can't build a structure (autoloads); probe through a test or the bridge.
+  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`).
+  **Harder** (#565, PR #568, branch `claude/gameplay-farmhouse-harder-a819tg`;
+  `results/2026-11-02_harder/`): windows see out for the whole game (`Sight` holds a pane on
+  `Layers.SIGHT_GLASS`; `Sight.see`, Senses' `glass_*`); the house's men hold on past their nerve and
+  fight from the floor (`house_nerve`, `hold.cornered`, `house_floor_fight`); two rovers on the yard
+  (`rovers`, `beats`, `quiet`). The scripted player wins 2 of 24 (main 16), a rover found the quiet
+  ways 0 of 16, the surprise held 8 of 8. Waiting on Sean: the film and his play (#565). Traps: a
+  `-s` script can't build a structure (autoloads); probe through a test or the bridge; `farm_hide`'s
+  old map assumed glass a wall (`hide_glass.txt` is now's).
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);

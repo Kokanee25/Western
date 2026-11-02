@@ -58,6 +58,8 @@ func _lines() -> Array:
 				continue
 			for h: float in heights:
 				out.append([eye, b + Vector3.UP * h, Layers.WORLD])
+			# The glass on the line (Sight.see, issue #565).
+			out.append([eye, b + Vector3.UP * Cover.STAND_HEAD, Layers.SIGHT_GLASS])
 		# The cover search round him: a ring of spots, the ground under each and the floor a level up
 		# or down, his chest lying down from the first place's eye.
 		for r: float in Cover.RADII:
@@ -101,10 +103,8 @@ func _compare(lines: Array) -> Array:
 	for i in lines.size():
 		var from: Vector3 = lines[i][0]
 		var to: Vector3 = lines[i][1]
-		q.from = from
-		q.to = to
-		q.collision_mask = lines[i][2]
-		var hit := space.intersect_ray(q)
+		# Jolt as Sight asks it without the plugin: a pane passed on WORLD, found on SIGHT_GLASS.
+		var hit := Sight._jolt_hit(space, q, from, to, lines[i][2], [])
 		var s: Array = sight[i]
 		var s_hit: bool = s[0] < 1.0
 		var s_at: Vector3 = from + (to - from) * float(s[0])

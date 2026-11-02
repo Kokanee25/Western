@@ -1,0 +1,218 @@
+{
+ "alarm": 12.97,
+ "blocking": [
+  "0.3:Ground/Rise_2",
+  "0.3:Ground/Rise_2",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 16.3,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 200,
+  "max_ms": 185.3,
+  "mean_ms": 25.7,
+  "p95_ms": 80.7
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.26,
+   1.81,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front w: window front w (you're front)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 4.3,
+   "mood": "CALM",
+   "order": "window_front_w",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front e: window front e (you're front)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "window_front_e",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "inside_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to loft window: loft window (you're front)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "loft_window",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're front)",
+   "id": "pike",
+   "inside": true,
+   "knows": 3.2,
+   "mood": "CALM",
+   "order": "behind_table",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "fight from the floor: shot down, not beat (fear 0.65 / 0.88)",
+   "id": "wes",
+   "inside": false,
+   "knows": 3.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "player_local": [
+  31.07,
+  -1.77,
+  -24.19
+ ],
+ "quits": [],
+ "route_left": 9,
+ "route_next": [
+  2.8,
+  -0.35,
+  -9.0
+ ],
+ "rover_found": "Pike saw you at 12.5 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 5,
+ "shots_men": 2,
+ "shots_out": 2,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 16.3,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.53,
+   "Pike saw you at 12.5 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.53,
+   "Pike warns you off"
+  ],
+  [
+   12.97,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.97,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   14.35,
+   "Wes down"
+  ],
+  [
+   16.3,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

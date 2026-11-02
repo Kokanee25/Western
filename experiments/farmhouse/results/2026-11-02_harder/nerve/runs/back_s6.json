@@ -1,0 +1,208 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:Ground/Rise_4",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 79.52,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 79.52,
+   "rescue": 77.5
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 100.1,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1900,
+  "max_ms": 216.88,
+  "mean_ms": 13.94,
+  "p95_ms": 22.24
+ },
+ "freed": 80.02,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   -1.7,
+   4.09,
+   34.19
+  ],
+  "limp": false,
+  "pelvis": [
+   -1.67,
+   3.34,
+   34.11
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  -1.67,
+  3.72,
+  34.13
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 11.5,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.77 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 27.3,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're loft)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 22.1,
+   "mood": "CALM",
+   "order": "by_stove",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "look for you: lost sight of you 19 s ago, going to where you were",
+   "id": "kid",
+   "inside": true,
+   "knows": 22.1,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.66 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 28.6,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, short of breath, bubbling cough, bone broken.",
+ "player_local": [
+  -4.95,
+  5.95,
+  41.6
+ ],
+ "quits": [
+  [
+   70.12,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.66 / 1.12)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 6,
+ "shots_men": 14,
+ "shots_out": 1,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 100.1,
+ "threat": 73.52,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   69.08,
+   "Hollis down"
+  ],
+  [
+   70.12,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.66 / 1.12))"
+  ],
+  [
+   73.5,
+   "Lyle down"
+  ],
+  [
+   73.52,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   80.02,
+   "the rancher cut loose"
+  ],
+  [
+   86.03,
+   "Hollis dead"
+  ],
+  [
+   88.45,
+   "the guard's last word"
+  ],
+  [
+   89.22,
+   "you backed off"
+  ],
+  [
+   90.65,
+   "Lyle dead"
+  ],
+  [
+   100.1,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "loft"
+}

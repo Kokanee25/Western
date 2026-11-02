@@ -974,7 +974,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   street; dials `config/farmhouse.tres`, `FarmhouseTuning`). Starts when you walk up to the
   blacksmith by the livery before the gang's ridden in (`TownLife.take_riders`: they're at the
   farm instead), after a lost try on Enter (`start_on_load`, `GameReset`), or `-- --mission=farmhouse`
-  / the bridge's `farm_start`. Five men at their posts (`OutlawBrain.hold`: cover, hunting and
+  / the bridge's `farm_start`. Five men at their posts in the house and two on beats outside (`OutlawBrain.hold`: cover, hunting and
   pressing kept to the house, or the bedroom for the guard; `{do: post}` before and after), the
   rancher tied in the bedroom's chair (`HostageBrain`). The alarm (a man sees you; hears a shot,
   glass, timber, a scuffle, a fuse; a ball into one; a blast) provokes them all and tells them where;
@@ -989,6 +989,17 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   sees you or you fire (`found_t`); a hit or a loud sound raises the alarm a tick late
   (`_alarm_soon`) so the blast's own effects don't. A fuse's hiss: 3 m, never through a wall
   (`Senses.THROUGH_WALLS`; DynamiteStick makes it off the face it's on).
+  **Harder** (#565): the house's men have `house_nerve` more nerve and `hold.cornered`: past
+  their nerve, armed and not covered within 6 m, they hold on where they are
+  (`OutlawBrain._cornered_break`: 8 s, three times) instead of running or giving up, and a
+  friend's "fall back" doesn't send them off. **The rovers** (`tuning.rovers`, `beats`): men
+  outside on a beat of the yard's places (pauses, looks; `quiet` stops leave the back unwatched),
+  held to the yard (`in_yard`), walked by moving their post (`_beat_step`); they see you and it's
+  the warning or the alarm as from the house (`rover_found`); on the alarm each falls back into
+  the house by the nearer door if he's nearer it than you are to him, else takes cover in the yard
+  and falls back once you're in the house or he's hit (`_rover_in`: then he's the squad's,
+  `HouseDefence.brains`; till then his eyes are `HouseDefence.eyes`). Lab switches
+  `--farm-rovers=0`, `--farm-cornered=off` (the befores).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
@@ -1032,7 +1043,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
   0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
   passed; `config/sight.tres`, `SightTuning`; every line asked of `Sight`, the sight service, in
-  "addons/saltcreek_native"), `Relations` (per person towards each
+  "addons/saltcreek_native"; **glass** (#565): an unbroken pane is on WORLD for the physics but
+  sight holds it on `Layers.SIGHT_GLASS` (`Sight.KIND_GLASS`, the plugin's `sight_layer`; without
+  it `Sight._jolt_hit` looks past panes), so sight, shot lines, Cover and the light pass windows;
+  `Sight.see` says a line went through glass and Senses dims it, `glass_seen`, and for glare by
+  the light on him against the looker's, `glass_glare_*`), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
