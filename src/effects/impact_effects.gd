@@ -115,22 +115,33 @@ static func burst(parent: Node, at: Vector3, normal: Vector3, color: Color, coun
 	p.lifetime = 1.4
 	p.explosiveness = 1.0
 	p.local_coords = false
-	var pm := ParticleProcessMaterial.new()
-	pm.direction = normal
-	pm.spread = 55.0
-	pm.initial_velocity_min = speed * 0.4
-	pm.initial_velocity_max = speed
-	pm.gravity = Vector3(0, -9.8, 0)
-	pm.damping_min = 1.0
-	pm.damping_max = 2.0
-	pm.color = color
+	# Made once a kind and shared (#538, round 5: a stick's gravel and splinters strike ~60 times a
+	# tick, a material and a mesh each was ~0.15 ms a strike): it flies along the burst's own up,
+	# turned to `normal`; gravity is the world's (local_coords off).
+	var key := [color, speed]
+	var pm: ParticleProcessMaterial = _process_mats.get(key)
+	if pm == null:
+		pm = ParticleProcessMaterial.new()
+		pm.direction = Vector3.UP
+		pm.spread = 55.0
+		pm.initial_velocity_min = speed * 0.4
+		pm.initial_velocity_max = speed
+		pm.gravity = Vector3(0, -9.8, 0)
+		pm.damping_min = 1.0
+		pm.damping_max = 2.0
+		pm.color = color
+		_process_mats[key] = pm
 	p.process_material = pm
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3.ONE * size
-	mesh.material = _mat(color)
+	var mkey := [color, size]
+	var mesh: BoxMesh = _bit_meshes.get(mkey)
+	if mesh == null:
+		mesh = BoxMesh.new()
+		mesh.size = Vector3.ONE * size
+		mesh.material = _mat(color)
+		_bit_meshes[mkey] = mesh
 	p.draw_pass_1 = mesh
 	parent.add_child(p)
-	p.global_position = at
+	p.global_transform = Transform3D(_up_to(normal), at)
 	p.emitting = true
 	p.finished.connect(p.queue_free)
 	return p
@@ -226,6 +237,17 @@ static func bone_fragment(parent: Node, at: Vector3, velocity: Vector3, rng: Ran
 	body.linear_velocity = velocity
 	body.angular_velocity = Vector3(rng.randf_range(-15, 15), rng.randf_range(-15, 15), rng.randf_range(-15, 15))
 	return body
+
+
+static var _process_mats := {}  # [color, speed] -> ParticleProcessMaterial
+static var _bit_meshes := {}  # [color, size] -> BoxMesh
+
+
+## A basis whose up is `n` (any way round it).
+static func _up_to(n: Vector3) -> Basis:
+	var y := n.normalized() if n.length_squared() > 1e-8 else Vector3.UP
+	var x := y.cross(Vector3.FORWARD if absf(y.dot(Vector3.FORWARD)) < 0.9 else Vector3.RIGHT).normalized()
+	return Basis(x, y, x.cross(y))
 
 
 static func _mat(color: Color) -> StandardMaterial3D:

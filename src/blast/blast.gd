@@ -126,7 +126,10 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
 	if fire:
+		# This tick and the next: the kit props' push, the gravel's hits and the physics taking the
+		# new bodies are all on the next (#538, round 5: the load checks' slices there were 4-22 ms).
 		fire.sit_out()
+		fire.sit_out(Engine.get_physics_frames() + 1)
 	var fireball := fireball_radius(kg)
 	var t_gather := Prof.start()
 	var found := gather(world, at, kg)
@@ -304,7 +307,8 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 ## the rest of what's out there, ~550 shards, parts and sticks, 2 ms), and every one within `reach`
 ## was walked to anyway. One whose middle is past `reach` is still in it when a shape of it comes
 ## within either query's sphere on that query's layers (`_shapes_within`), as the query found it.
-## The members come back in the same order as before (Jolt's, with the rubble filtered out).
+## The members come back in the same order as before (Jolt's, with the rubble filtered out). The
+## panes are walked only in structures whose bounds come within reach (`Structure.may_reach`).
 static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
 	var space := World.space(world)
 	var r_max := reach(kg)
@@ -323,13 +327,20 @@ static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
 				loose.append(n as RigidBody3D)
 				skip.append((n as RigidBody3D).get_rid())
 	var tq := Prof.start()
+	# (The members where timber breaks come back in the physics engine's order, and that order is
+	# the order the structures break in: it decides whose pieces fly on this tick and which the fire
+	# settles first. Walked in another order, the street's three sticks broke 919-1,043 members, main
+	# 947-952: #538, round 5. Kept.)
 	for f: Dictionary in _sphere(space, at, r_break, Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS, skip):
 		add.call(f.collider)
 	for f: Dictionary in _sphere(space, at, r_max, Layers.DEBRIS | Layers.BODY_PARTS, skip):
 		add.call(f.collider)
 	Prof.stop(&"gather_query", tq)
 	tq = Prof.start()
-	for s: Node in world.get_tree().get_nodes_in_group(&"structures"):
+	var structures := world.get_tree().get_nodes_in_group(&"structures")
+	for s: Node in structures:
+		if not (s as Structure).may_reach(at, r_max):
+			continue
 		for m: StructureMember in (s as Structure).panes():
 			# (Its middle out of reach by more than half its size: its nearest point is too.)
 			if m.broken or m.global_position.distance_to(at) > r_max + m.size.length() * 0.5:

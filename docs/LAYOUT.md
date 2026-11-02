@@ -1255,6 +1255,16 @@ loops seamless, `SynthSounds.warm(TrainSynth.WARM)` the first time a train is he
   (excluded from both sphere queries: each was ~15 µs there); one whose middle is past the reach
   is still in when a shape of it reaches in (`_shapes_within`), as the query had it
   (`test_gather_finds_the_rubble_the_queries_found`). Timers `gather_query`/`_panes`/`_loose`.
+  The panes are walked only in structures whose bounds come within reach (`Structure.bounds()`,
+  `may_reach`: every member's box in its own space, made at build, 1.5 m spare). The timber keeps
+  Jolt's order on purpose: it's the order the structures break in, and another order broke
+  919-1,043 of the street's three sticks' members, main 947-952 (#538 round 5,
+  `experiments/blast_freeze/results/2026-11-02_blast_frame_5/`).
+- **A blast's side-work off its tick** (#538 round 5): the fire's load checks sit out the tick
+  after too; a townsman's cry at a blast waits 0.2 s plus the sound's travel to him
+  (`CivilianBrain.CRY_AFTER`, his fear at once); the insides of what it tore open are built 0.04 s
+  on (`HumanBody.open_wound(..., soon)`); `GlassCuts.spray` casts no rays with nobody in reach;
+  a kit prop's push is bounded for the whole prop first (`KitProp._blast_push`, `bounds_distance`).
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or

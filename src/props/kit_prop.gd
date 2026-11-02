@@ -734,8 +734,30 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	Prof.stop(&"kit_blast", t)
 
 
+var _faces_sum := 0.0
+var _faces_of := -1
+
+
+## Every member's broadest side by its length together (m²), as built (`_blast_push`'s bound).
+func _faces() -> float:
+	if _faces_of != get_members().size():
+		_faces_sum = 0.0
+		for m in get_members():
+			var cs := m.cross_section()
+			_faces_sum += maxf(cs.x, cs.y) * m.length()
+		_faces_of = get_members().size()
+	return _faces_sum
+
+
 func _blast_push(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
+		return
+	# The most any of it could take, all its faces at its nearest point to the charge, short of
+	# moving it: done, before its members are walked (#538, round 5: most of the ~100 props a
+	# stick reaches; the blast's push only falls off with distance, so this can't stop one moving).
+	var r := maxf(bounds_distance(at), 0.02)
+	var kgs := mass()
+	if Blast.impulse(kg, r) * Blast.reflection(Blast.overpressure_kpa(kg, r)) * _faces() / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	var left: Array[StructureMember] = []
 	for m in get_members():
@@ -746,7 +768,6 @@ func _blast_push(at: Vector3, kg: float) -> void:
 	# The most it could be pushed (every face as near and square as its nearest point, nothing in
 	# between) short of moving it: it doesn't, and its faces needn't be walked (#538: a prop's
 	# faces and rays were ~0.2 ms a member, for the dozens a stick reaches and doesn't move).
-	var kgs := mass()
 	var most := 0.0
 	for m in left:
 		most += Blast.most_face_impulse(m, at, kg)
