@@ -497,9 +497,10 @@ frozen until Sean names one.
 - **The raised arms** (2026-10-26, #388): a helper bone a shoulder (`PeopleBodies.shoulder_share`,
   0.35 of the arm's turn) keeps a Studio man's raised upper arm its width, no rebuild; sheets
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
-- **Library clips** (2026-11-01, #529, #539; branch `claude/characters-cmu-basics`; lab
+- **Library clips** (2026-11-01, #529, #539; PR #575, build 2982; lab
   `experiments/library_motion/`): played by `LibraryMotion` by the body's own state behind
-  `Settings.library_motion` (off in the game; Sean: "good enough as a placeholder"). CMU motion
+  `Settings.library_motion`, **on in the game** (Sean: "I should at least try it"; `--library-motion=off`,
+  bridge `library off`); the saloon fights harder with them (`results/2026-11-02_on/`). CMU motion
   capture for the basics (the free packs' clips were cartoon), each man his own walk and run,
   stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
   Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
