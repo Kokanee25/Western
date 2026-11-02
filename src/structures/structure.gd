@@ -130,6 +130,13 @@ var _rebuild_queued := false
 var _rebuild_timed := false
 var _panes: Array[StructureMember] = []
 var _panes_of := -1  # _order.size() when _panes was made
+## Every member's box, in its own space, together (`bounds`): made as it's built, kept up to date
+## as members are added (a cut's ends), made again when one's taken out (BuildingAge). A blast asks
+## it before walking a structure's panes, and a kit prop before its members (#538, round 5).
+var _bounds := AABB()
+var _bounds_ok := false
+## How far a member may have moved from where it was built (m): a door swung, a board sagged.
+const BOUNDS_SPARE := 1.5
 var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
@@ -252,11 +259,13 @@ func rebuild() -> void:
 	members.clear()
 	_order.clear()
 	_panes_of = -1
+	_bounds_ok = false
 	_rng.seed = build_seed
 	build()
 	BuildingAge.alter(self)  # what the years broke and replaced: the graph is worked out with it
 	infer_supports()
 	BuildingAge.settle_in(self)  # how it has settled: a look, after the graph
+	bounds()  # (now, not on the first blast's frame: ~10 ms for the street's ~10,000 members)
 	_batch_all()
 
 
@@ -279,6 +288,45 @@ func get_members() -> Array[StructureMember]:
 
 func members_of_kind(kind: StringName) -> Array[StructureMember]:
 	return _order.filter(func(m: StructureMember) -> bool: return m.kind == kind)
+
+
+## Every member's box together, in its own space (nothing yet: an empty box).
+func bounds() -> AABB:
+	if not _bounds_ok:
+		_bounds = AABB()
+		var first := true
+		for m in _order:
+			var box := m.transform * AABB(-m.size * 0.5, m.size)
+			_bounds = box if first else _bounds.merge(box)
+			first = false
+		_bounds_ok = true
+	return _bounds
+
+
+## Whether any member could come within `radius` of `at` (world): its bounds that near. A scaled
+## structure says yes (its own space isn't the world's in metres).
+func may_reach(at: Vector3, radius: float) -> bool:
+	if _order.is_empty():
+		return false
+	var b := bounds()
+	var basis := global_basis
+	if not basis.is_conformal() or absf(basis.x.length() - 1.0) > 1e-3:
+		return true
+	var local := global_transform.affine_inverse() * at
+	# (With room to spare: a member moved since, a door swung, a board sagged, stays in.)
+	return local.clamp(b.position, b.end).distance_to(local) <= radius + BOUNDS_SPARE
+
+
+## How far `at` (world) is from its bounds, its members as built (0 inside, or scaled).
+func bounds_distance(at: Vector3) -> float:
+	if _order.is_empty():
+		return INF
+	var b := bounds()
+	var basis := global_basis
+	if not basis.is_conformal() or absf(basis.x.length() - 1.0) > 1e-3:
+		return 0.0
+	var local := global_transform.affine_inverse() * at
+	return local.clamp(b.position, b.end).distance_to(local)
 
 
 ## Its panes, kept (a blast looks at glass much further out than at timber: Blast.gather).
@@ -316,6 +364,8 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	m.damaged.connect(_on_member_damaged.bind(m))
 	members[id] = m
 	_order.append(m)
+	if _bounds_ok:
+		_bounds = _bounds.merge(m.transform * AABB(-size * 0.5, size))
 	if _panes_of == _order.size() - 1:
 		# Kept up to date (a cut's ends made every blast re-filter all of them: #538).
 		_panes_of = _order.size()
@@ -330,6 +380,7 @@ func remove_built(m: StructureMember) -> void:
 	members.erase(m.member_id)
 	_order.erase(m)
 	_panes_of = -1
+	_bounds_ok = false
 	m.free()
 
 
@@ -1530,7 +1581,10 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 		m.pieces = new_pieces
 		m.set_meta(&"snapped", true)
 		_own_fire_look(m)
-	_wake_near(m.global_position, m.length() + 2.0)
+	if _wakes is Array:
+		_wakes.append([m.global_position, m.length() + 2.0])  # (break_members wakes them all at once, as a cut's)
+	else:
+		_wake_near(m.global_position, m.length() + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)
 
@@ -1649,6 +1703,9 @@ static func has_solid_shape(body: Node) -> bool:
 
 
 ## `enter`: into the world now (else it's made up first: _enter_rubble).
+static var _rubble_material: PhysicsMaterial
+
+
 func _new_rubble(ids: Array[StringName], enter := true) -> RigidBody3D:
 	var rb := RigidBody3D.new()
 	rb.name = "Rubble"
@@ -1658,10 +1715,11 @@ func _new_rubble(ids: Array[StringName], enter := true) -> RigidBody3D:
 	rb.max_contacts_reported = 4
 	rb.continuous_cd = true
 	rb.set_meta(&"members", ids)
-	var pm := PhysicsMaterial.new()
-	pm.friction = 0.8
-	pm.bounce = 0.05
-	rb.physics_material_override = pm
+	if _rubble_material == null:
+		_rubble_material = PhysicsMaterial.new()
+		_rubble_material.friction = 0.8
+		_rubble_material.bounce = 0.05
+	rb.physics_material_override = _rubble_material  # (one for all: nothing changes it after)
 	rb.add_to_group(&"rubble")
 	if enter:
 		_enter_rubble(rb)

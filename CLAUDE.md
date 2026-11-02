@@ -672,15 +672,18 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
-- **The blast's own frame** (#538; PRs #548, #559, then #567 round 4, branch
-  `claude/issue-538-part-2-q8wwa6`; results `experiments/blast_freeze/results/2026-11-01_blast_frame*/`,
-  `2026-11-02_blast_frame_4/`): `SpawnQueue`, `BlastCore`, the shadow's wait, kit props straight into
-  their bodies; round 4: `Blast.gather` finds rubble by its groups, not Jolt's queries (~15 µs a rubble
-  body there), a blast's first analyses over 24 members sliced (`BLAST_FIRST_WHOLE`, not kit props'),
-  the fire's load checks sit out a stick's tick (`FireSystem.sit_out`), template box meshes. Street,
-  three sticks, worst: main 210 -> 177 here (~115 at Sean's by x0.65, over the gate; this VM ran main
-  1.3x slower than round 3's). Left (#538 open): the cuts, the response, the frame after (kit push,
-  gravel impacts, Jolt's step). Traps: this VM swings 1.4x within a run (compare alternately); the
+- **The blast's own frame** (#538; PRs #548, #559, #567, then round 5, branch
+  `claude/gameplay-blast-frame-5`; results `experiments/blast_freeze/results/2026-11-01_blast_frame*/`,
+  `2026-11-02_blast_frame_4/`, `_5/`): `SpawnQueue`, `BlastCore`, the shadow's wait, kit props straight
+  into their bodies, rubble by its groups, a blast's first analyses sliced, the fire sitting out a
+  stick's tick; round 5 only what doesn't move what breaks: panes by `Structure.bounds()`, a kit
+  prop's push bounded whole, the fire sitting out the tick after too, a blast's cries after its sound
+  (`CivilianBrain.CRY_AFTER`), its openings' insides 0.04 s on, `GlassCuts` rays only with someone
+  near, shared burst materials, gravel's small knocks leave resting rubble lying. Street, three
+  sticks, worst: main 163 -> 147 here (~96 at Sean's by x0.65; this VM ran main 1.3x faster than
+  round 4's, ~125 by that one); one stick 130 -> 102; saloon three 127 -> 109. Found: the broken set
+  hangs on the order structures break in (Jolt's, kept: other orders broke 919-1,043 to main's ~950).
+  Left: the cuts, the response, Jolt's step with ~700 awake. Traps: compare alternately; the
   `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,

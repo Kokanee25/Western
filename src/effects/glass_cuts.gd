@@ -6,8 +6,27 @@ class_name GlassCuts
 const REACH := 2.4
 
 
+## How far a man's parts reach from where he stands (m): a limp one's sprawl included.
+const PERSON_SPAN := 2.5
+
+
 static func spray(world: Node3D, at: Vector3, direction: Vector3, pane_area: float, seed: int, exclude: Array[RID] = []) -> int:
 	if world == null or not world.is_inside_tree():
+		return 0
+	# Nobody near enough for a ray to find: none cast (#538, round 5: a stick's ~60 panes were
+	# ~1,000 rays, ~8 ms, across an empty street). A ray finds only a person's parts, all of them
+	# within PERSON_SPAN of where he stands.
+	var anyone := false
+	for p: Node in world.get_tree().get_nodes_in_group(&"people") + world.get_tree().get_nodes_in_group(&"player"):
+		if not p is Node3D:
+			continue
+		var where := (p as Node3D).global_position
+		if p is HumanBody and (p as HumanBody).parts.has(&"chest"):
+			where = ((p as HumanBody).parts[&"chest"] as Node3D).global_position  # (thrown, limp: his parts went)
+		if where.distance_to(at) < REACH + PERSON_SPAN:
+			anyone = true
+			break
+	if not anyone:
 		return 0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed

@@ -53,6 +53,10 @@ var thanked := false
 var _aimed := 0.0
 var _aimed_by: Node3D
 var _cower := 0.0
+## A cry still to come (s): a blast's (`_scared_by_shooting`).
+var _cry_in := 0.0
+## A man's start at a blast before he cries out (s), the sound's travel to him on top.
+const CRY_AFTER := 0.2
 var _flinch := 0.0
 var _say_again := 0.0
 var _calm_for := 0.0
@@ -195,9 +199,12 @@ func _troubled(who: Node) -> void:
 		thanked = false
 
 
-func _scared_by_shooting() -> void:
+func _scared_by_shooting(cry_in := 0.0) -> void:
 	if _cower <= 0.0:
-		say(&"cower")
+		if cry_in > 0.0:
+			_cry_in = cry_in
+		else:
+			say(&"cower")
 	_cower = maxf(_cower, 7.0)
 	fear += 0.3
 
@@ -217,6 +224,7 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	fear = 0.0
 	_aimed = 0.0
 	_cower = 0.0
+	_cry_in = 0.0
 	_flinch = 0.0
 	troubled_by.clear()
 	if mood in [Mood.HANDS_UP, Mood.COWERING, Mood.SHAKEN]:
@@ -418,6 +426,7 @@ func _flee(from: Vector3) -> void:
 	_fire_at = from
 	_fire_out = 0.0
 	_cower = 0.0
+	_cry_in = 0.0
 	_aimed = 0.0
 	_flinch = 0.0
 	_route = FireFlight.way_out(_fire, _places(), body, FIRE_CLEAR)
@@ -434,7 +443,10 @@ func _places() -> Waypoints:
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
 	if kind in [&"gunshot", &"blast"] and at.distance_to(body.global_position) < (25.0 if kind == &"gunshot" else 60.0):
 		if body.physiology.is_conscious():
-			_scared_by_shooting()
+			# A blast's cry comes as its sound reaches him and he takes it in, not on its own tick
+			# (#538, round 5: the whole street's cries on the stick's frame, each heard by all the
+			# rest, a ray apiece, were ~14 ms of it).
+			_scared_by_shooting(CRY_AFTER + at.distance_to(body.global_position) / GameAudio.SPEED_OF_SOUND if kind == &"blast" else 0.0)
 
 
 func _player() -> Player:
@@ -512,6 +524,10 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.DOWN:
 		# Back on his feet (HumanBody.get_up): shaken by it.
 		mood = Mood.SHAKEN
+	if _cry_in > 0.0:
+		_cry_in -= delta
+		if _cry_in <= 0.0:
+			say(&"cower")
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
