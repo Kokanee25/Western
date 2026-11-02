@@ -42,6 +42,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Settings.people_threads = Settings.PEOPLE_THREADS
 	Settings.people_bands = Settings.PEOPLE_BANDS
 	world.queue_free()
@@ -365,6 +366,8 @@ func _bleed(bands: bool) -> Array:
 
 
 func test_a_far_man_bleeds_at_the_right_rate() -> void:
+	# On the procedural pose (library clips off, #539): this measures the same wounds near and far (the shots land by his pose).
+	Settings.library_motion = false
 	var on: Array = await _bleed(true)
 	var off: Array = await _bleed(false)
 	var slowed := 0

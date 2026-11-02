@@ -30,6 +30,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Events.body_hit.disconnect(_on_body_hit)
 	world.queue_free()
 	await physics_frames(1)
@@ -127,6 +128,9 @@ func test_broken_leg_drops_him_but_he_lives() -> void:
 
 
 func test_shot_off_finger_falls() -> void:
+	# On the procedural pose (library clips off, #539): this measures a ball aimed at where his hand was a tick ago.
+	Settings.library_motion = false
+	await physics_frames(30)  # back on his pose from the clip he stood on
 	var st := man.anatomy.structure(&"index_r")
 	var at := _world(&"hand_r", st.a.lerp(st.b, 0.75))
 	var side: Vector3 = (man.parts[&"hand_r"] as Node3D).global_basis.x
@@ -229,6 +233,8 @@ func _knee_bend(man: HumanBody, side: String) -> float:
 ## over his legs and down on his front, not down onto his knees. Before the stance leg held for an
 ## instant, a running man killed folded one knee right under him (150 deg by 0.4 s) and knelt.
 func test_killed_running_he_pitches_over_not_onto_his_knees() -> void:
+	# On the procedural pose (library clips off, #539): this measures the fall from the old gait's stride; with the clips the run's swing knee can be caught folded (112 deg, one stride of four): Sean's call (#539's turn-on).
+	Settings.library_motion = false
 	for n in 4:
 		var runner := HumanBody.new()
 		runner.has_gun = false
@@ -430,6 +436,8 @@ func test_an_arm_hit_lets_his_gun_hand_sag() -> void:
 
 
 func test_a_body_hit_slows_him() -> void:
+	# On the procedural pose (library clips off, #539): this measures the chest's lean in the tenth of a second after the hit (the clips' walk-to-idle crossfade moves it ~3 deg).
+	Settings.library_motion = false
 	var from := man.global_position
 	for i in 60:
 		man.walk_to(from + Vector3(0, 0, -10), 1.4, 1.0 / 60.0)

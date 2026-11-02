@@ -138,10 +138,10 @@ var _people_threads_file := PEOPLE_THREADS
 var people_bands := PEOPLE_BANDS
 const PEOPLE_BANDS := true
 var _people_bands_file := PEOPLE_BANDS
-## People moved by the library clips (LibraryMotion, issue #529: Quaternius' and KayKit's CC0
-## animations): on in the lab, off in the game until Sean passes them. Not saved; for one run,
-## `-- --library-motion=on|off`, or the dev bridge's `library on|off`.
-var library_motion := false
+## People moved by the library clips (LibraryMotion: CMU motion capture and Uthana's gun moves,
+## #529/#539): on in the game since Sean passed them as stand-ins (2026-11-02). Not saved; for one
+## run, `-- --library-motion=on|off`, or the dev bridge's `library on|off`.
+var library_motion := true
 ## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
 ## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
 ## (project.godot's `application/config/project_settings_override`), so this is what this run has
