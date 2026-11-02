@@ -1207,7 +1207,8 @@ func _v(a: Array) -> Vector3:
 ## and by the way he meant, how far he ran, how long, how it ended: got there, switched to another
 ## spot on the way, or his decision that ended it; whether it was to a post, up on the galleries, a
 ## climb) and each stay behind cover once he's there (`stays`: how long, how long of it up
-## shooting, hits taken and given there, why he left).
+## shooting, hits taken and given there, why he left; `climbed` at the spot he went up the stair for,
+## `screen` behind a balustrade's screen: #572).
 func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -> void:
 	var pos := man.global_position
 	var cov: Vector3 = b.cover.get("at", Vector3.INF) if not b.cover.is_empty() else Vector3.INF
@@ -1223,6 +1224,7 @@ func _watch_moves(m: Dictionary, b: OutlawBrain, man: HumanBody, delta: float) -
 			_end_move(m, "arrived" if there else ("switched" if moving else b.decision))
 			if there:
 				m._stay = {"t": snappedf(t, 0.01), "at": _arr(cov), "post": _at_post(cov), "up": _up(cov), "s": 0.0, "peek_s": 0.0,
+					"climbed": b.cover.get("climb", false), "screen": b.cover.get("screen", false),
 					"hits": 0, "hits_on_you": 0, "_at": cov, "_dec": b.decision}
 	if moving and (m.get("_mv", {}) as Dictionary).is_empty():
 		var way: Array = b.cover.get("route", [cov])

@@ -638,8 +638,13 @@ frozen until Sean names one.
   `step_out` in D (`PostStepTuning`, `config/post_step.tres`; `_step_choose`/`_step_move`): near he
   points, far he steps out past the post's edge to aim and back in (shot at, his hold); 96 / 74
   steps out a hundred fights, one hit in 3.2 shots from out (pointed: 11); the fights as long and
-  as dangerous; films in its `films/` (`film_posts.sh`, bridge `gf_postcam`). Next: #572 (the
-  galleries, then the last drops on arrival, then a blind playtest).
+  as dangerous; films in its `films/` (`film_posts.sh`, bridge `gf_postcam`). **The galleries**
+  (#572, PR #582, `results/2026-11-02_climb/`): `climb` in D (`ClimbTuning`, `config/climb.tres`;
+  `_climb_choose`, `Cover.climb_search`/`_best_up`): cover stale, you below, he takes the stair up;
+  up over you a balustrade is a screen (`Cover._screen_spot`). 34 climbs in 200 fights (was 0),
+  stays up 268 -> 415, hits on you from up unchanged; shooting and hits seed for seed inside the
+  noise, the medians lower. Film `spec_hall_s3_kid.mp4`. Trap: a drawn film is the headless fight at
+  `--fixed-fps 30` with the same script. Next: #583 (the last drops on arrival, a blind playtest).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
