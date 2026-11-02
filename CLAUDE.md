@@ -640,10 +640,12 @@ frozen until Sean names one.
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
   south of town, 9 in a build for the cab. 0-25 km/h 22.6 s, 30 to a stand 94 m, top 43 / 27 on 2.5 %.
-  Waiting on Sean: the feel dials (#553). **Step 2** (2026-11-01, #551, branch
-  `claude/gameplay-train-lab-2`): couplers with slack, the six cars as walkable solids (`TrainCars`),
-  the route as a file with named marks (`TrainRoute`), `TrainTimetable` and `TrainEngineer` (ten
-  stops within 0.46 m); results `results/2026-11-01_step2/`. Next: #542 (the coordinator writes step 3).
+  Waiting on Sean: the feel dials (#553). **Step 2** (#551): couplers with slack, the six cars as
+  walkable solids (`TrainCars`), the route as data (`TrainRoute`), `TrainTimetable`/`TrainEngineer`.
+  **Step 3** (2026-11-02, branch `claude/issue-542-train-step-3-n2i4z1`; `results/2026-11-02_step3/`):
+  the 2-8-0 and tender from Blender (`EngineModel`, rods and puffs by distance), the cars of
+  boards (`TrainModels`), the boxcar's ladders (`Ladder`, the player's `_ladder_step`), passengers.
+  The critic fails the look (paint, shade, ground). Waiting on Sean: the look (#569).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
