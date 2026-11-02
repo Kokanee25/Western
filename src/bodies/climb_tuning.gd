@@ -43,7 +43,8 @@ extends Resource
 ## these (m, either side: out to the rail and back to the wall).
 @export var spacing := 1.0
 @export var across := PackedFloat32Array([0.0, 0.6, -0.6, 1.0, -1.0])
-## Not within this (m) of where a friend is or is going.
+## Not within this (m) of where a friend is or is going; nor by a way that passes within half of it
+## of a friend on his feet (one standing on the stair: there's no getting past him).
 @export var apart := 1.2
 ## The longest way he'll run (m), by the town's places, up the stair; each metre of it costs a spot
 ## this much of its score (Cover._score's straight metre is 0.35).

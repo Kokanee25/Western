@@ -281,7 +281,7 @@ static func _best_up(space: PhysicsDirectSpaceState3D, scored: Array[Dictionary]
 			continue  # a friend's there, or going there
 		var c := {"routes": ctx.routes, "way_extra": tune.max_way}
 		var way := _town_way(space, from, at, exclude, places, 0.0, c)
-		if way.is_empty() or not _way_clear_of(from, way, feet, tune.way_clear):
+		if way.is_empty() or not _way_clear_of(from, way, feet, tune.way_clear) or _way_blocked(from, way, ctx.get("standing", []), tune.apart * 0.5):
 			continue
 		var run := _run_length(from, way)
 		spot.route = way
@@ -295,6 +295,20 @@ static func _best_up(space: PhysicsDirectSpaceState3D, scored: Array[Dictionary]
 		if tries >= WAY_TRIES:
 			break
 	return best
+
+
+## Does the way pass within `near` (m) of a friend standing on it (one on the stair, the stair's
+## too narrow to pass him)?
+static func _way_blocked(from: Vector3, way: Array, standing: Array, near: float) -> bool:
+	var a := from
+	for w: Vector3 in way:
+		for q: Vector3 in standing:
+			var ab := w - a
+			var k := clampf((q - a).dot(ab) / maxf(ab.length_squared(), 1e-6), 0.0, 1.0)
+			if (a + ab * k).distance_to(q) < near:
+				return true
+		a = w
+	return false
 
 
 ## Does the way keep `clear` (m, flat) from the man's feet where it's on his floor?

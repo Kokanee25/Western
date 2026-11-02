@@ -2022,12 +2022,16 @@ func _climb_choose(eye: Vector3, why: String) -> bool:
 		s._ctx["narrow"] = true
 	# Not where a friend is, or is going.
 	var taken: Array[Vector3] = []
+	var standing: Array[Vector3] = []
 	for m in crew.mates(_now):
 		taken.append(m.global_position)
+		if not m.limp and not m.prone:
+			standing.append(m.global_position)  # and not past one on the stair
 		var mb := m.get_node_or_null(^"Brain") as OutlawBrain
 		if mb != null and not mb.cover.is_empty():
 			taken.append(mb.cover.at)
 	s._ctx["taken"] = taken
+	s._ctx["standing"] = standing
 	_search = s
 	_search_why = why
 	_search_bias = Vector3.INF
