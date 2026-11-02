@@ -125,6 +125,8 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
+	if fire:
+		fire.sit_out()
 	var fireball := fireball_radius(kg)
 	var t_gather := Prof.start()
 	var found := gather(world, at, kg)
@@ -296,19 +298,37 @@ static func crater(world: Node3D, at: Vector3, kg: float, height: float) -> Dict
 ## rubble and fallen fittings. (One query of everything to `reach`, capped, came back in the
 ## physics engine's order: on Main Street it left out every member within a metre of a stick by
 ## the store; the breakage lab, 2026-10-21.)
+##
+## The rubble and fallen fittings are left out of both queries and found by their groups (#538):
+## each came back from Jolt at ~15 µs (a street's second stick: 1,300 of them, 12-33 ms a query;
+## the rest of what's out there, ~550 shards, parts and sticks, 2 ms), and every one within `reach`
+## was walked to anyway. One whose middle is past `reach` is still in it when a shape of it comes
+## within either query's sphere on that query's layers (`_shapes_within`), as the query found it.
+## The members come back in the same order as before (Jolt's, with the rubble filtered out).
 static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
 	var space := World.space(world)
 	var r_max := reach(kg)
+	var r_break := break_reach(kg)
 	var out: Array[Object] = []
 	var seen := {}
 	var add := func(c: Object) -> void:
 		if c != null and not seen.has(c.get_instance_id()):
 			seen[c.get_instance_id()] = true
 			out.append(c)
-	for f: Dictionary in _sphere(space, at, break_reach(kg), Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS):
+	var loose: Array[RigidBody3D] = []
+	var skip: Array[RID] = []
+	for g: StringName in [&"rubble", &"fallen"]:
+		for n: Node in world.get_tree().get_nodes_in_group(g):
+			if n is RigidBody3D:
+				loose.append(n as RigidBody3D)
+				skip.append((n as RigidBody3D).get_rid())
+	var tq := Prof.start()
+	for f: Dictionary in _sphere(space, at, r_break, Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS, skip):
 		add.call(f.collider)
-	for f: Dictionary in _sphere(space, at, r_max, Layers.DEBRIS | Layers.BODY_PARTS):
+	for f: Dictionary in _sphere(space, at, r_max, Layers.DEBRIS | Layers.BODY_PARTS, skip):
 		add.call(f.collider)
+	Prof.stop(&"gather_query", tq)
+	tq = Prof.start()
 	for s: Node in world.get_tree().get_nodes_in_group(&"structures"):
 		for m: StructureMember in (s as Structure).panes():
 			# (Its middle out of reach by more than half its size: its nearest point is too.)
@@ -316,11 +336,54 @@ static func gather(world: Node3D, at: Vector3, kg: float) -> Array[Object]:
 				continue
 			if _nearest_on(m, at).distance_to(at) <= r_max:
 				add.call(m)
-	for g: StringName in [&"rubble", &"fallen"]:
-		for rb: Node in world.get_tree().get_nodes_in_group(g):
-			if rb is RigidBody3D and (rb as Node3D).global_position.distance_to(at) <= r_max:
-				add.call(rb)
+	Prof.stop(&"gather_panes", tq)
+	tq = Prof.start()
+	for rb in loose:
+		if not rb.is_inside_tree():
+			continue
+		if rb.global_position.distance_to(at) <= r_max \
+				or (rb.collision_layer & (Layers.DEBRIS | Layers.BODY_PARTS) and _shapes_within(rb, at, r_max)) \
+				or (rb.collision_layer & Layers.WORLD and _shapes_within(rb, at, r_break)):
+			add.call(rb)
+	Prof.stop(&"gather_loose", tq)
 	return out
+
+
+## Whether a shape of `body` (enabled, its owners' as a query sees them, resting rubble's held
+## shapes too) comes within `radius` of `at`: a box exactly, any other shape by the sphere round it.
+static func _shapes_within(body: CollisionObject3D, at: Vector3, radius: float) -> bool:
+	var local := body.global_transform.affine_inverse() * at
+	for o: int in body.get_shape_owners():
+		if body.is_shape_owner_disabled(o):
+			continue
+		var p := body.shape_owner_get_transform(o).affine_inverse() * local
+		if p.length() - radius > 50.0:
+			continue  # (nothing it carries is that big)
+		for i in body.shape_owner_get_shape_count(o):
+			var sh := body.shape_owner_get_shape(o, i)
+			if sh is BoxShape3D:
+				var h := (sh as BoxShape3D).size * 0.5
+				if p.clamp(-h, h).distance_to(p) <= radius:
+					return true
+			elif p.length() <= radius + _bound(sh):
+				return true
+	return false
+
+
+## The radius of a sphere round a shape (its own origin).
+static func _bound(sh: Shape3D) -> float:
+	if sh is SphereShape3D:
+		return (sh as SphereShape3D).radius
+	if sh is CapsuleShape3D:
+		return (sh as CapsuleShape3D).height * 0.5
+	if sh is CylinderShape3D:
+		return Vector2((sh as CylinderShape3D).radius, (sh as CylinderShape3D).height * 0.5).length()
+	if sh is ConvexPolygonShape3D:
+		var r := 0.0
+		for v: Vector3 in (sh as ConvexPolygonShape3D).points:
+			r = maxf(r, v.length())
+		return r
+	return INF  # (anything else: counted in)
 
 
 ## Where timber can break (m) round `kg` of TNT.
@@ -329,13 +392,14 @@ static func break_reach(kg: float) -> float:
 
 
 ## A sphere query that won't run out: asked again with room to spare if it came back full.
-static func _sphere(space: PhysicsDirectSpaceState3D, at: Vector3, radius: float, mask: int) -> Array[Dictionary]:
+static func _sphere(space: PhysicsDirectSpaceState3D, at: Vector3, radius: float, mask: int, exclude: Array[RID] = []) -> Array[Dictionary]:
 	var shape := SphereShape3D.new()
 	shape.radius = radius
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = shape
 	q.transform = Transform3D(Basis.IDENTITY, at)
 	q.collision_mask = mask
+	q.exclude = exclude
 	var cap := 2048
 	var found := space.intersect_shape(q, cap)
 	while found.size() >= cap:
