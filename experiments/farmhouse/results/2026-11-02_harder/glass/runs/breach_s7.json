@@ -1,0 +1,315 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 102.32,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 102.32,
+   "plant": 79.7,
+   "rescue": 100.67,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": 113.12,
+ "executed": -1.0,
+ "found": 101.13,
+ "frames": {
+  "blast_ms": 141.03,
+  "fight_ticks": 1554,
+  "max_ms": 260.42,
+  "mean_ms": 26.38,
+  "p95_ms": 38.92
+ },
+ "freed": 102.82,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.35,
+   1.26,
+   19.06
+  ],
+  "limp": false,
+  "pelvis": [
+   4.35,
+   0.52,
+   18.95
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.35,
+  0.89,
+  18.97
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're bedroom)",
+   "id": "brody",
+   "inside": true,
+   "knows": 10.9,
+   "mood": "SURRENDERED",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.33 / 1.32)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 7.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.90 / 0.75)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 2 s since your last shot",
+   "id": "kid",
+   "inside": false,
+   "knows": 11.3,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 1.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  4.36,
+  -0.02,
+  24.63
+ ],
+ "quits": [
+  [
+   87.23,
+   "kid",
+   "runs",
+   "run: past his nerve (fear 0.34 / 0.30)"
+  ],
+  [
+   87.23,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   94.75,
+   "lyle",
+   "gives up",
+   "give up: past his nerve (fear 1.33 / 1.32)"
+  ],
+  [
+   94.75,
+   "dutch",
+   "gives up",
+   "give up: past his nerve (fear 0.90 / 0.75)"
+  ],
+  [
+   103.82,
+   "kid",
+   "runs",
+   "tend his wound: bleeding 0.0 ml/s, 99 s since your last shot"
+  ],
+  [
+   103.83,
+   "brody",
+   "gives up",
+   "to bedroom door: bedroom door (you're bedroom)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 7,
+ "shots_men": 0,
+ "shots_out": 0,
+ "state": "WON",
+ "surprise": 87.22,
+ "t": 113.12,
+ "threat": 87.25,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.23,
+   "Kid runs (run: past his nerve (fear 0.34 / 0.30))"
+  ],
+  [
+   87.23,
+   "Hollis gives up ()"
+  ],
+  [
+   87.25,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   88.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   89.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   94.75,
+   "Lyle gives up (give up: past his nerve (fear 1.33 / 1.32))"
+  ],
+  [
+   94.75,
+   "Dutch gives up (give up: past his nerve (fear 0.90 / 0.75))"
+  ],
+  [
+   101.13,
+   "found: Brody sees you"
+  ],
+  [
+   102.82,
+   "the rancher cut loose"
+  ],
+  [
+   103.82,
+   "Kid runs (tend his wound: bleeding 0.0 ml/s, 99 s since your last shot)"
+  ],
+  [
+   103.83,
+   "the guard's last word"
+  ],
+  [
+   103.83,
+   "Brody down"
+  ],
+  [
+   103.83,
+   "Brody gives up (to bedroom door: bedroom door (you're bedroom))"
+  ],
+  [
+   110.08,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   110.15,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   110.98,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.53,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.62,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.65,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.65,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.67,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.68,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.72,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.72,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   111.85,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   113.12,
+   "won"
+  ],
+  [
+   113.12,
+   "the rancher hit (blow, ?)"
+  ]
+ ],
+ "way": "breach",
+ "where": "bedroom"
+}

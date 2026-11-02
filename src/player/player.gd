@@ -270,6 +270,10 @@ func _physics_step(delta: float) -> void:
 
 	_update_crouch(wants_crouch)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
+	if _ladder_step(move, wants_jump, delta):
+		_update_head(delta, 0.0)
+		Sight.moved(self)
+		return
 
 	var speed := tuning.walk_speed
 	if is_crouching:
@@ -308,6 +312,60 @@ func _physics_step(delta: float) -> void:
 	_update_head(delta, falling)
 	Sight.moved(self)  # where he is now, for the lines asked after him this tick
 	_footsteps()
+
+
+## On a ladder (Ladder, train step 3): carried with it (a moving car's keeps you on the car),
+## forward and back climbing it (forward up from its foot, down from its top), over onto what's
+## behind its top, off at its foot, jump to let go. True while on one (the walk is skipped).
+var ladder: Ladder
+var _ladder_x := 0.0
+var _ladder_y := 0.0
+var _ladder_dir := 1.0
+var _ladder_was := Transform3D()
+
+
+func _ladder_step(move: Vector2, wants_jump: bool, delta: float) -> bool:
+	if ladder != null and not is_instance_valid(ladder):
+		ladder = null
+	if ladder == null:
+		if not input_enabled or move.y > -0.5 or not is_on_floor():
+			return false
+		var along := -global_basis.z
+		along.y = 0.0
+		var got := Ladder.reach(get_tree(), global_position, along.normalized())
+		if got.is_empty():
+			return false
+		ladder = got.ladder
+		var p := ladder.local(global_position)
+		_ladder_x = clampf(p.x, -ladder.width * 0.25, ladder.width * 0.25)
+		_ladder_y = clampf(p.y, 0.0, ladder.height)
+		_ladder_dir = -1.0 if got.from_top else 1.0
+		_ladder_was = ladder.global_transform
+	var g := ladder.global_transform
+	var carried := (g.origin - _ladder_was.origin) / maxf(delta, 0.001)
+	_ladder_was = g
+	var off := tuning.radius + 0.05
+	if wants_jump:
+		_ladder_off(g * Vector3(_ladder_x, _ladder_y, off + 0.2), carried + g.basis.z * 2.0)
+		return true
+	var climb := -move.y * _ladder_dir * ladder.climb_speed
+	_ladder_y += climb * delta
+	if _ladder_y >= ladder.height:
+		_ladder_off(g * Vector3(_ladder_x, ladder.height + 0.05, -off - 0.15), carried)
+		return true
+	if _ladder_y <= 0.0 and climb < 0.0:
+		_ladder_off(g * Vector3(_ladder_x, 0.02, off + 0.05), carried)
+		return true
+	_ladder_y = maxf(_ladder_y, 0.0)
+	global_position = g * Vector3(_ladder_x, _ladder_y, off)
+	velocity = carried
+	return true
+
+
+func _ladder_off(at: Vector3, carried: Vector3) -> void:
+	ladder = null
+	global_position = at
+	velocity = carried
 
 
 ## Steps and stairs: blocked low down (a riser, a tread's nosing, a porch step), try the same move

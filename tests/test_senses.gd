@@ -63,6 +63,31 @@ func test_not_through_a_wall() -> void:
 	check(not senses.sees(player), "a wall between you")
 
 
+## A window pane (issue #565; the perception lab's fix 3): he sees you through unbroken glass, as
+## a little less plain than in the open (Sight.see), where a wall the same size hides you.
+func test_sees_you_through_a_window_pane() -> void:
+	var pane := StructureMember.new()
+	pane.kind = &"glass"
+	pane.collision_layer = Layers.WORLD
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(4, 3, 0.006)
+	cs.shape = bs
+	pane.add_child(cs)
+	pane.position = Vector3(0, 1.5, -5)
+	world.add_child(pane)
+	await physics_frames(2)
+	var eye := senses.eye()
+	var at := player.global_position + Vector3.UP * 1.2
+	var ex: Array[RID] = [player.get_rid()]
+	check(not World.space(man).intersect_ray(PhysicsRayQueryParameters3D.create(eye, at, Layers.WORLD)).is_empty(), "the pane's solid to the physics")
+	check(Sight.clear(man, eye, at, ex), "a sight line passes it")
+	var through := Sight.see(man, eye, at, ex, 0.15, 0.8)
+	check(is_equal_approx(through, 0.8), "and says it went through glass (%.2f)" % through)
+	var spotted := await wait_until(func() -> bool: return senses.sees(player), 150)
+	check(spotted, "picks you out through the window")
+
+
 func test_night_shortens_his_sight() -> void:
 	senses.light = 0.0
 	player.global_position = Vector3(0, 0, 10)  # 20 m off

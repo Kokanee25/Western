@@ -116,3 +116,33 @@ CAR ... [follow]`, `train_slowmo X`.
 platform: walk forward through the train to the cab, ride it round, jump off (8 again for a new run).
 
 Results: `results/2026-11-01_step2/` (its `summary.md`).
+
+
+## Step 3 (#542): the models
+
+**What's new:**
+
+- **The engine and tender** from Blender by script (`blender/engine.py` -> `assets/train/engine.glb`,
+  `tender.glb`, `engine_rig.json`; `~/bpyenv/bin/python experiments/train_lab/blender/engine.py`,
+  bpy 5.2): a D&RG class 70-style 2-8-0 (37 in drivers, 15 x 20 in cylinders, a diamond stack, box
+  headlight, wooden pilot and cab), the tender a U tank round its coal. `EngineModel` moves its
+  parts by distance: drivers s / r, the side rods on the pins (right leading left by a quarter),
+  the main rods from pin to crosshead; four exhaust beats a wheel turn, each a puff up the stack
+  sized by the steam, the cylinder cocks blowing at a start; the stack's own smoke; the headlight
+  at night. Materials by name in the game's look (PixelArt metals, woods mapped in their own space).
+- **The five cars of boards** (`TrainModels`): sills, a plank deck, truss rods, drawheads,
+  stirrups; the ore cars' plank sides on stakes and a low heap of ore; the boxcar's red sheathing,
+  sliding doors, roof walk, end ladders and brake wheel; the express car's green sheathing, doors,
+  barred windows, and inside the strongbox, mail case and parcels; the coach's varnished sides,
+  windows, clerestory, platforms with railings, and inside benches both sides of the aisle, a stove
+  and two lamps (lit at night). Arch-bar trucks, their wheels turning with distance.
+- **Ladders:** the boxcar is shut; you go over it by the ladder at each end and its roof walk
+  (`Ladder`, the player's `_ladder_step`: walk into it to climb, walk out over its top to go down;
+  it carries you with the car). Step 2's steps up its ends are gone.
+- **Passengers:** `train_passengers N` seats the Studio's men in the coach, window seats first.
+
+New bridge commands: `train_passengers N`, `train_models on|off`. Run files: `sheet.txt` (golden
+hour and night), `cost.txt` (the frame with the whole train in view, models then boxes),
+`films/rods_start.txt`, `films/walk_train.txt`.
+
+Results: `results/2026-11-02_step3/` (its `summary.md`).

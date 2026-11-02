@@ -1,0 +1,225 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 41.4,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 41.4,
+   "rescue": 39.38
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 55.02,
+ "executed": 43.18,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2283,
+  "max_ms": 179.61,
+  "mean_ms": 14.22,
+  "p95_ms": 23.08
+ },
+ "freed": 41.9,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.88,
+   1.14,
+   -10.59
+  ],
+  "limp": false,
+  "pelvis": [
+   2.89,
+   0.39,
+   -10.69
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.89,
+  0.77,
+  -10.67
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Kid to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 11.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.64 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 10.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "hold on: far past his nerve (fear 1.33 / 0.69), nowhere to run (1 of 3)",
+   "id": "kid",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "back in it: his fear's settled (0.64 / 0.90)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "RELOADING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Blood pumping out bright, bone broken.",
+ "player_local": [
+  3.95,
+  -1.75,
+  -30.38
+ ],
+ "quits": [
+  [
+   40.45,
+   "lyle",
+   "gives up",
+   "give up: past his nerve (fear 1.64 / 1.64)"
+  ],
+  [
+   44.43,
+   "brody",
+   "gives up",
+   "drag Kid to cover: he's down in the open"
+  ],
+  [
+   45.0,
+   "dutch",
+   "gives up",
+   "fight from where he is: no cover he can reach (in the open)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 6,
+ "shots_men": 23,
+ "shots_out": 20,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 55.02,
+ "threat": 38.17,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   35.02,
+   "Kid down, out"
+  ],
+  [
+   38.17,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   38.17,
+   "the guard's last word"
+  ],
+  [
+   40.45,
+   "Lyle gives up (give up: past his nerve (fear 1.64 / 1.64))"
+  ],
+  [
+   41.9,
+   "the rancher cut loose"
+  ],
+  [
+   43.18,
+   "the guard shoots the rancher"
+  ],
+  [
+   44.43,
+   "Brody down"
+  ],
+  [
+   44.43,
+   "Brody gives up (drag Kid to cover: he's down in the open)"
+  ],
+  [
+   45.0,
+   "Dutch down"
+  ],
+  [
+   45.0,
+   "Dutch gives up (fight from where he is: no cover he can reach (in the open))"
+  ],
+  [
+   55.02,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

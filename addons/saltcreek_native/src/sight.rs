@@ -53,6 +53,23 @@ pub struct SightWorld {
     one: Hit,
 }
 
+/// What sight.gd calls an unbroken window pane (`Sight.KIND_GLASS`).
+const KIND_GLASS: i32 = 5;
+/// The world's physics layer (`Layers.WORLD`), and the bit only sight knows (`Layers.SIGHT_GLASS`):
+/// a pane is taken off the world's layer onto it, so a line looked along on the world's layer
+/// passes glass (issue #565: men see and are seen through a window) and one asked on the glass
+/// bit finds it.
+const WORLD: u32 = 1;
+const SIGHT_GLASS: u32 = 1 << 20;
+
+fn sight_layer(layer: u32, kind: i32) -> u32 {
+    if kind == KIND_GLASS && layer & WORLD != 0 {
+        (layer & !WORLD) | SIGHT_GLASS
+    } else {
+        layer
+    }
+}
+
 fn v3(v: Vector3) -> Vec3 {
     Vec3::new(v.x, v.y, v.z)
 }
@@ -263,7 +280,8 @@ impl SightWorld {
                 self.drop_body(id);
                 continue;
             }
-            let layer = server.body_get_collision_layer(rid);
+            let kind = kinds.get(k).copied().unwrap_or(0);
+            let layer = sight_layer(server.body_get_collision_layer(rid), kind);
             let off = disabled.get(k).copied().unwrap_or(0);
             let mut shapes = Vec::new();
             for i in 0..server.body_get_shape_count(rid) {
@@ -277,7 +295,6 @@ impl SightWorld {
             }
             let moving = server.body_get_mode(rid) != BodyMode::STATIC;
             let xf = server.body_get_state(rid, BodyState::TRANSFORM).try_to::<Transform3D>().map(affine).unwrap_or(Affine3A::IDENTITY);
-            let kind = kinds.get(k).copied().unwrap_or(0);
             let placed: Vec<Prim> = shapes.iter().map(|(g, local)| Prim::new(g.clone(), xf * *local, id, layer, kind)).collect();
             let old = self.bodies.remove(&id);
             if let Some(mut b) = old {

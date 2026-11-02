@@ -273,6 +273,30 @@ func test_broken_he_runs_for_it() -> void:
 	check(outlaw.held_gun != null, "keeps his gun")
 
 
+## Holding a house with a man to keep and nowhere to run (the farmhouse, issue #565): broken, he
+## doesn't run or give up while he's armed and not covered close; he goes to ground and holds on.
+func test_cornered_he_holds_on_rather_than_run() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	brain.flee_chance = 1.0
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check(brain.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING], "neither runs nor gives up (%s)" % OutlawBrain.Mood.keys()[brain.mood])
+	check(brain.decision.begins_with("hold on"), "holds on (%s)" % brain.decision)
+	check(outlaw.held_gun != null, "his gun still in his hand")
+
+
+func test_cornered_but_covered_close_he_gives_up() -> void:
+	await _outlaw(Vector3(0, 0, -4))
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain._aimed_at = 1.0
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "a gun on him at 4 m: hands up, cornered or not")
+
+
 func test_covered_up_close_he_gives_up_instead() -> void:
 	await _outlaw(Vector3(0, 0, -4))
 	brain.flee_chance = 1.0
@@ -563,6 +587,7 @@ func test_at_a_post_he_blades_himself_and_shoots_round_it() -> void:
 	await _outlaw(POST_SPOT)
 	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
 	brain.nerve = 99.0
+	OutlawBrain.d_fixes.erase(&"step_out")  # only pointing round it here (stepping out: below)
 	await physics_frames(2)
 	var space := world.get_world_3d().direct_space_state
 	var spot := Cover.evaluate(space, POST_SPOT, _eye(), _exclude(), true, [], true)
@@ -602,6 +627,7 @@ func test_at_a_post_he_blades_himself_and_shoots_round_it() -> void:
 	var post: Vector3 = spot.post
 	var gap := Vector2(outlaw.global_position.x - post.x, outlaw.global_position.z - post.z).length()
 	check(gap < 0.6, "set against it, not stood off (%.2f m from its middle)" % gap)
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
 
 
 func test_from_a_post_he_points_the_gun_rather_than_aims_it() -> void:
@@ -622,3 +648,182 @@ func test_from_a_post_he_points_the_gun_rather_than_aims_it() -> void:
 	check(want.angle_to((brain._aim_point(player) - origin).normalized()) < 0.001, "no hold-over for range")
 	outlaw.set_pose(&"aim")
 	check(not brain._pointing(), "out of the pose he aims as before")
+
+
+# --- Stepping out from a post to aim (variant D's step_out, #566) --------------------------------
+
+## A man at the post (as above) who always steps out (`always`) or never; returns the spot.
+func _at_post(always: bool) -> Dictionary:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D
+	brain.nerve = 99.0
+	var tune: PostStepTuning = (load("res://config/post_step.tres") as PostStepTuning).duplicate()
+	tune.chance_near = 1.0 if always else 0.0
+	tune.chance_far = tune.chance_near
+	tune.chance_off_arc = tune.chance_near
+	tune.unseen_factor = 1.0
+	OutlawBrain._step_tuning = tune
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var spot := Cover.evaluate(space, POST_SPOT, _eye(), _exclude(), true, [], true)
+	if spot.is_empty():
+		return spot
+	await _provoke()
+	brain._search = null
+	outlaw.global_position = POST_SPOT
+	spot.eye = _eye()
+	brain.cover = spot
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 0.4
+	brain._flank_after = 99.0
+	shots_by_outlaw = 0
+	return spot
+
+
+func test_from_a_post_he_steps_out_to_aim_and_back_in() -> void:
+	var spot := await _at_post(true)
+	check(spot.get("narrow", false), "the post is a narrow spot")
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		return
+	var space := world.get_world_3d().direct_space_state
+	var post: Vector3 = spot.post
+	var across := Vector3.UP.cross(((_eye() - post) * Vector3(1, 0, 1)).normalized())
+	var held := 0
+	var square := 0
+	var out_far := 0
+	var sees := 0
+	var back := 0
+	var back_near := 0
+	var back_posed := 0
+	var was_out := false
+	var in_at := Vector3.INF
+	for i in 60 * 8:
+		await physics_frames(1)
+		if not brain._step.is_empty():
+			in_at = brain._step.in_at
+		if brain._step.get("phase", &"") == &"held":
+			held += 1
+			was_out = true
+			var to := (_eye() - outlaw.global_position) * Vector3(1, 0, 1)
+			if (-outlaw.global_basis.z).normalized().dot(to.normalized()) > 0.95:
+				square += 1
+			# The middle of him at the post's edge or past it, across your line.
+			if absf((outlaw.global_position - post).dot(across)) >= float(spot.post_w) * 0.5 - 0.01:
+				out_far += 1
+			if Cover._sees(space, brain.senses.eye(), _eye(), _exclude()):
+				sees += 1
+		elif was_out and brain._step.is_empty() and brain.tactic == OutlawBrain.Tactic.HIDDEN:
+			back += 1
+			if in_at != Vector3.INF and outlaw.global_position.distance_to(in_at) < 0.02:
+				back_near += 1
+			if outlaw.pose == &"post":
+				back_posed += 1
+	OutlawBrain._step_tuning = null
+	check(brain.steps_out >= 1, "far enough off, he steps out (%d times)" % brain.steps_out)
+	check(held > 20, "and stays out a while to aim (%d frames)" % held)
+	check(square > held * 0.8, "squared up to you out there (%d of %d)" % [square, held])
+	check(out_far > held * 0.8, "out past the post's edge (%d of %d)" % [out_far, held])
+	check(sees > held * 0.8, "where he can see you (%d of %d)" % [sees, held])
+	check(brain.shots_out >= 1, "and takes an aimed shot from there (%d of %d shots)" % [brain.shots_out, shots_by_outlaw])
+	check(back > 0 and back_near == back, "back in where he stood (%d of %d frames)" % [back_near, back])
+	check(back_posed == back, "bladed in his post pose again (%d of %d)" % [back_posed, back])
+	check(brain.cover.get("narrow", false), "and still at the post")
+
+
+func test_near_he_points_round_the_post_instead() -> void:
+	var spot := await _at_post(false)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	var stepped := 0
+	for i in 60 * 5:
+		await physics_frames(1)
+		if not brain._step.is_empty():
+			stepped += 1
+	check_eq(stepped, 0, "never steps out")
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "no steps out")
+	check(shots_by_outlaw >= 1 and brain.shots_out == 0, "he shoots from the post (%d shots, %d from out)" % [shots_by_outlaw, brain.shots_out])
+	if brain._post_dials.get("style", &"") == &"cross":
+		check_eq(brain.shots_pointed, shots_by_outlaw, "pointing it round")
+
+
+func test_covering_on_his_last_round_he_doesnt_step_out() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	brain.rounds = 1
+	var peeks := 0
+	for i in 60 * 3:
+		brain.covering = 5.0
+		brain.rounds = 1
+		await physics_frames(1)
+		if brain.tactic == OutlawBrain.Tactic.PEEKING:
+			peeks += 1
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "keeping your head down on his last round: no step out to duck straight back from")
+
+
+func test_shot_at_out_there_he_steps_back_in() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	var out := false
+	for i in 60 * 6:
+		await physics_frames(1)
+		if brain._step.get("phase", &"") == &"held":
+			out = true
+			break
+	check(out, "he steps out")
+	brain._on_near_miss(outlaw, player, 0.4, outlaw.global_position, 300.0, false)
+	check_eq(brain._step.get("phase", &""), &"in", "a ball past him: back in at once")
+	var back := false
+	for i in 60:
+		await physics_frames(1)
+		if brain._step.is_empty():
+			back = true
+			break
+	check(back, "and back behind the post within a second")
+	var stepped := brain.steps_out
+	for i in 30:
+		await physics_frames(1)
+	check_eq(brain.steps_out, stepped, "and not out again while rounds are cracking past")
+	OutlawBrain._step_tuning = null
+
+
+func test_no_room_by_the_post_no_step() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	# A wall along your line on both sides of the post, a hand off it: nowhere to step to.
+	_box(POST_AT + Vector3(0.45, 1.5, -0.4), Vector3(0.5, 3.0, 1.2))
+	_box(POST_AT + Vector3(-0.45, 1.5, -0.4), Vector3(0.5, 3.0, 1.2))
+	await physics_frames(2)
+	for i in 60 * 4:
+		await physics_frames(1)
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "walled in beside the post, he doesn't step out")
+
+
+func test_the_step_chance_by_range_nerve_and_fire() -> void:
+	var tune: PostStepTuning = load("res://config/post_step.tres")
+	var near := tune.chance(4.0, true, 0.0, 0.5, 0.0, 0.0, true, 0.0)
+	var far := tune.chance(15.0, true, 0.0, 0.5, 0.0, 0.0, true, 0.0)
+	check(near < 0.3 and far > 0.7, "near he points, far he steps out (%.2f, %.2f)" % [near, far])
+	check(tune.chance(4.0, false, 0.0, 0.5, 0.0, 0.0, true, 0.0) > 0.8, "you off his forearm's line: he steps out")
+	check(tune.chance(15.0, true, 0.9, 0.5, 0.0, 0.0, true, 0.0) < far * 0.4, "near breaking, he stays in")
+	check(tune.chance(15.0, true, 0.0, 0.5, 1.0, 0.0, true, 0.0) < far * 0.7, "rattled by your fire, less")
+	check(tune.chance(15.0, true, 0.0, 0.9, 0.0, 0.0, true, 0.0) > far, "a hothead more")
+	check(tune.chance(15.0, true, 0.0, 0.5, 0.0, 0.0, false, 0.0) < far * 0.5, "not seeing you, less")
+	var a := tune.dials(1)
+	check_eq(a, tune.dials(1), "his own numbers are his seed's")
+	check(a != tune.dials(2), "and another man's differ")

@@ -156,14 +156,16 @@ var variant: Variant = default_variant
 ## (#477: behind cover, with the man last known near and lately, he watches that spot rather than go
 ## looking for him; `_lost_you`, WATCH_*), posts (#531: a post too narrow to hide him square on is
 ## cover too, bladed behind it in Sean's post pose and shooting from it point-fired: `Cover._narrow`,
-## `_hold_post`, `_pointing`). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
+## `_hold_post`, `_pointing`), step_out (#566: at a post, far off or with you past where his forearm
+## points, he steps out past its edge, squares up, aims and steps back in; near, he points:
+## `_step_choose`, `_step_move`, PostStepTuning). On trial, not yet in D_FIXES (the lab's `fixes=all+wince`): wince
 ## (hit and still up, he winces and gets out of sight a moment to see how bad it is); pain_fight
 ## (pain past disabling comes in bouts, not as a wall); floor_fight (shot down and still with it, he
 ## fights from the floor); flinch (spec 3A: a ball past him spoils his shot, FLINCH_*); odds (spec 1C: past his nerve he weighs it, ODDS_*); way_cost (Experiment B: cover scored by the way he'd run to it, not the
 ## straight line).
 const D_FIXES := [&"aim_fight", &"noise", &"hothead", &"leader", &"green", &"cover_way", &"steady", &"floored", &"hunt_way",
 		&"rescue_way", &"stay_in", &"go_low", &"press", &"hold_cover",
-		&"watch_spot", &"posts"]
+		&"watch_spot", &"posts", &"step_out"]
 static var d_fixes: Array = D_FIXES.duplicate()
 ## Fright (variant D's `noise`): fades this fast (a second), and counts toward breaking him for at
 ## most this share of his nerve: noise alone can pin a man, never break him.
@@ -195,6 +197,10 @@ var agenda: Array[Dictionary] = []
 ## watching before it starts, and goes back to when he's lost you), "look" (what he watches from
 ## it). With it he takes cover only inside, hunts you only inside, never presses or rages out after
 ## you, and after the fight he goes back to his post (he doesn't leave town). Empty: the town's man.
+## "cornered" (true: a man to keep and nowhere to run, issue #565): past his nerve he holds on
+## (`_cornered_break`) rather than run off or give up while he's armed and not covered close;
+## "floor_fight" (true): shot down and still with it, he fights from the floor (variant D's trial
+## fix of that name, for him alone).
 var hold := {}
 ## Seconds left dazed by a blast that hurt him (deafened, his head ringing: `_blasted`).
 var stunned := 0.0
@@ -253,6 +259,8 @@ var _hold_break := 0.0
 var _flinch_spread := 0.0
 var _hurry := 0.0
 var _hid_once := false
+## How many times he's held on past his nerve, cornered (`_cornered_break`).
+var _cornered := 0
 var _pain_over := false
 var _you_hit_at := -INF  # when he last saw the man he's fighting hit
 var rounds := 5
@@ -321,6 +329,18 @@ var _post_place := 0.0
 ## in for this long (s) before he's set against the post.
 const POST_TURN := 12.0
 const POST_SETTLE := 1.0
+## Stepping out from the post to aim (variant D's `step_out`, #566): {} when he's in, else
+## {phase: &"out" (stepping out) / &"held" (out, aiming) / &"in" (stepping back), t (s in the phase),
+## in_at / out_at (where he stands in and out), yaw_in (his bladed turn), from_at / from_yaw (where
+## the step back started), dials (his own: PostStepTuning.dials)}. `_post_back`: seconds till he's
+## settled back in the post pose (the hidden check goes by the spot till then, as at first).
+var _step := {}
+var _post_back := 0.0
+## Counts for the lab: steps out from a post, shots from out there, shots pointed round it.
+var steps_out := 0
+var shots_out := 0
+var shots_pointed := 0
+static var _step_tuning: PostStepTuning
 var _peeks := 0
 var _in_cover := 0.0
 var _flank_after := 12.0
@@ -895,6 +915,9 @@ func _exit_tree() -> void:
 
 func tick(delta: float) -> void:
 	var t := Prof.start()
+	if not _step.is_empty() and _step_lost():
+		_step = {}
+	_post_back = maxf(_post_back - delta, 0.0)
 	_physics_step(delta)
 	Prof.stop(&"outlaw_brain", t)
 
@@ -997,11 +1020,14 @@ func _physics_step(delta: float) -> void:
 		if _pending_in <= 0.0 or dread() > nerve_now():
 			var how := _pending_break
 			_pending_break = &""
-			_decide("give up" if how == &"surrender" else "run", "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back"))
+			_decide("give up" if how == &"surrender" else "run", why_friends(how))
 			if how == &"surrender":
-				_surrender()
-				return
-			if body.physiology.can_run() and not body.prone:
+				if not (hold.get("cornered", false) and _cornered_break(why_friends(how))):
+					_surrender()
+					return
+			elif hold.get("cornered", false):
+				pass  # "Fall back!": he's nowhere to run to (issue #565)
+			elif body.physiology.can_run() and not body.prone:
 				_start_fleeing()
 				return
 	if variant == Variant.D:
@@ -1011,7 +1037,7 @@ func _physics_step(delta: float) -> void:
 	_hold_break = maxf(_hold_break - delta, 0.0)
 	_flinch_spread = move_toward(_flinch_spread, 0.0, FLINCH_FADE * delta)
 	_hurry = maxf(_hurry - delta, 0.0)
-	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * 2.0:
+	if dread() > nerve_now() and _hold_break > 0.0 and dread() <= nerve_now() + shaken_margin * (CORNERED_FAR if _cornered > 0 else 2.0):
 		pass  # (odds) taking stock, fighting it out, or gone to ground to weigh it
 	elif dread() > nerve_now() and not (variant >= Variant.C and _shaken_holds(delta)):
 		_break()
@@ -2014,7 +2040,7 @@ func _hide(delta: float, eye: Vector3) -> void:
 		var h := Cover.LIE_HEAD if cover.get("lie", false) else (Cover.HIDE_HEAD if cover.low else Cover.STAND_HEAD)
 		# At a post: the spot it was chosen by till he's set against it (his trunk is mid-turn while
 		# the pose blends in), then where his trunk is.
-		var trunk: Vector3 = cover.at if _post_place > 0.0 else _trunk_at(_held_eye(eye))
+		var trunk: Vector3 = cover.at if _post_place > 0.0 or _post_back > 0.0 or not _step.is_empty() else _trunk_at(_held_eye(eye))
 		var hidden := Cover.hidden_narrow(space, trunk, _held_eye(eye), _exclude(_find_target()), cover.post, cover.post_w) if at_post \
 				else Cover.hidden_at(space, cover.at, _held_eye(eye), h, _exclude(_find_target()), _town() != null)
 		if not hidden:
@@ -2042,6 +2068,8 @@ func _hide(delta: float, eye: Vector3) -> void:
 					stale + (", friends to keep your head down" if _flanking else ""))
 	if covering > 0.0 and suppressed <= 0.0:
 		_tactic_time = minf(_tactic_time, 0.25)
+	if not _step.is_empty():
+		_tactic_time = maxf(_tactic_time, 0.05)  # still stepping back in behind the post
 	if _tactic_time <= 0.0 and mood == Mood.FIGHTING and body.held_gun != null and body.physiology.can_hold("r"):
 		tactic = Tactic.PEEKING
 		_peek_time = 0.0
@@ -2051,6 +2079,8 @@ func _hide(delta: float, eye: Vector3) -> void:
 		# Over low cover he shoots crouched if he can see over it that low, else he stands; at a post
 		# he shoots from it as he stands.
 		_peek_pose = &"post" if at_post else &"crouch_aim" if cover.low and Cover._sees(space, cover.at + Vector3.UP * Cover.CROUCH_GUN, eye, _exclude(_find_target())) else &"aim"
+		if at_post and _has(&"step_out"):
+			_step_choose(eye)
 
 
 ## Where he holds his cover against the man's eyes (variant D's `hold_cover`, #294): where they are
@@ -2072,6 +2102,12 @@ func _held_eye(eye: Vector3) -> Vector3:
 ## the man again once he's POST_TURN round it, and set against it (`PostPose.place_at`) once the pose
 ## has blended in. Hidden and shooting alike: the pose sees past the edge.
 func _hold_post(delta: float, threat_eye: Vector3) -> void:
+	if not _step.is_empty():
+		# Out from it, or on his way back: back in behind it first.
+		if _step.phase != &"in":
+			_step_back()
+		_step_move(delta, threat_eye)
+		return
 	var post: Vector3 = cover.post
 	var to := threat_eye - post
 	to.y = 0.0
@@ -2133,6 +2169,133 @@ func _in_point_arc(point: Vector3) -> bool:
 	return absf(pitch) <= PostPose.POINT_ARC and rad_to_deg(_post_dir.angle_to(flat.normalized())) <= PostPose.POINT_ARC
 
 
+## Stepping out from the post (variant D's `step_out`, #566): the dials (config/post_step.tres).
+static func step_tuning() -> PostStepTuning:
+	if _step_tuning == null:
+		_step_tuning = load("res://config/post_step.tres")
+	return _step_tuning
+
+
+## Out from his post to aim (stepping out, or out): what the lab counts as shots from out there.
+func stepped_out() -> bool:
+	return not _step.is_empty() and _step.phase != &"in"
+
+
+## Coming up to shoot at a post: point round it, or step out past its edge to aim? By the range,
+## whether his forearm can point at the man, his nerve, his temper, your fire and his pain
+## (PostStepTuning.chance), and only once he's set against the post and with room to step and a
+## line to the man from out there. Starts the step when he steps.
+func _step_choose(eye: Vector3) -> void:
+	_step = {}
+	if _post_place > 0.0 or _post_back > 0.0 or body.pose != &"post" or suppressed > 0.0 or body.rising or body.prone or body.limp:
+		return
+	if covering > 0.0 and rounds <= 1:
+		return  # keeping your head down on his last round he's straight back in (`_peek`): no step for it
+	var t := _find_target()
+	if t == null:
+		return
+	var tune := step_tuning()
+	var mine := tune.dials(body.rng_seed)
+	var aim_point := _aim_point(t)
+	var sees := senses.sees(t)
+	var c := tune.chance(body.global_position.distance_to(aim_point), _in_point_arc(aim_point), dread() / maxf(nerve_now(), 0.01),
+			temper, rattled, body.physiology.felt_pain(), sees, float(mine.eager))
+	if _think.randf() >= c:
+		return
+	var out_at := _step_spot(eye, float(mine.clear))
+	if out_at == Vector3.INF:
+		return
+	_step = {"phase": &"out", "t": 0.0, "in_at": body.global_position, "out_at": out_at, "yaw_in": body.global_rotation.y,
+			"from_at": body.global_position, "from_yaw": body.global_rotation.y, "dials": mine}
+	steps_out += 1
+	# Square to you, the arm coming out as he turns: the aim pose's joints blend in from the post's.
+	body.set_pose(&"aim")
+
+
+## Where he stands stepped out from the post against the man at `eye` (Vector3.INF if he can't):
+## across the man's line to the post's gun-side edge (the side he faces, bladed: PostPose.place_at's
+## edge), the middle of his trunk `clear` past it; room to get there, a floor there, and a line from
+## his eye there to the man.
+func _step_spot(eye: Vector3, clear: float) -> Vector3:
+	var post: Vector3 = cover.post
+	var to := eye - post
+	to.y = 0.0
+	if to.length() < 0.3:
+		return Vector3.INF
+	var across := Vector3.UP.cross(to.normalized())
+	var front := (-body.global_basis.z).dot(across)
+	var side := across * (signf(front) if absf(front) > 0.1 else 1.0)
+	var at := body.global_position
+	var now := (at - post).dot(side)
+	var want := float(cover.get("post_w", PostPose.POST_WIDTH)) * 0.5 + clear
+	var out_at := at + side * (want - now)
+	var space := World.space(body)
+	var ex := _exclude(_find_target())
+	var tune := step_tuning()
+	for h: float in tune.room_heights:
+		var up := Vector3.UP * h
+		if Sight.cast(space, at + up, out_at + up + side * tune.room_beyond, Layers.WORLD, ex) < 1.0:
+			return Vector3.INF
+	var ground: Variant = Cover._ground(space, out_at, ex)
+	if ground == null or absf((ground as Vector3).y - at.y) > tune.floor_step:
+		return Vector3.INF
+	# His aiming eye out there: over the middle of him, a little to his right (the gun side).
+	if not Cover._sees(space, out_at + Vector3.UP * (Cover.STAND_HEAD - 0.12) + side * 0.03, eye, ex):
+		return Vector3.INF
+	return out_at
+
+
+## Back in behind the post from where he is (out, or part way out).
+func _step_back() -> void:
+	_step.phase = &"in"
+	_step.t = 0.0
+	_step.from_at = body.global_position
+	_step.from_yaw = body.global_rotation.y
+	body.set_pose(&"post")
+
+
+## The step this tick: out, his feet across to the out spot and his turn from bladed to square on
+## `point` (the arm coming up as the aim pose blends in), then held there facing it; or back, the
+## same in reverse to where he stood and his bladed turn, the post pose blending back in.
+func _step_move(delta: float, point: Vector3) -> void:
+	_step.t = float(_step.t) + delta
+	var d: Dictionary = _step.dials
+	var t: float = _step.t
+	match _step.phase:
+		&"out":
+			var k := smoothstep(0.0, 1.0, clampf(t / float(d.out_time), 0.0, 1.0))
+			var at: Vector3 = (_step.in_at as Vector3).lerp(_step.out_at, k)
+			body.global_position = Vector3(at.x, body.global_position.y, at.z)
+			body.global_rotation.y = lerp_angle(float(_step.yaw_in), HumanBody.yaw_toward(body.global_position, point), k)
+			_aim_pitch_at(point)
+			if k >= 1.0:
+				_step.phase = &"held"
+				_step.t = 0.0
+		&"held":
+			body.face(point)
+		&"in":
+			var k := smoothstep(0.0, 1.0, clampf(t / (float(d.out_time) * step_tuning().back_share), 0.0, 1.0))
+			var at: Vector3 = (_step.from_at as Vector3).lerp(_step.in_at, k)
+			body.global_position = Vector3(at.x, body.global_position.y, at.z)
+			body.global_rotation.y = lerp_angle(float(_step.from_yaw), float(_step.yaw_in), k)
+			if k >= 1.0:
+				_step = {}
+				_post_back = POST_SETTLE * 0.6
+
+
+## His gun arm's pitch onto `point` from his shoulder, as face() sets it (it turns him as well).
+func _aim_pitch_at(point: Vector3) -> void:
+	var shoulder := (body.pivots[&"upper_arm_r"] as Node3D).global_position
+	var d := point - shoulder
+	body.aim_pitch = rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
+
+
+## The step's no longer his to finish: he's left the post's cover, fallen, or is getting up.
+func _step_lost() -> bool:
+	return not tactic in [Tactic.PEEKING, Tactic.HIDDEN] or not cover.get("narrow", false) or body.prone or body.limp \
+			or body.rising or mood == Mood.DEAD
+
+
 ## Up (or out) and shooting: a shot or two, then back down.
 func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 	_peek_time += delta
@@ -2146,7 +2309,16 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 	if _pain_locked() or _stagger > 0.0:
 		_duck_back()
 		return
-	if at_post:
+	var out := false
+	if at_post and not _step.is_empty() and _step.phase != &"in":
+		_step_move(delta, aim_point)
+		out = true
+		if _step.phase == &"out":
+			_next_shot = maxf(_next_shot, 0.1)  # not square to you yet
+		elif float(_step.t) > float(_step.dials.hold):
+			_duck_back()  # long enough out there
+			return
+	elif at_post:
 		_hold_post(delta, _held_eye(eye))
 	else:
 		body.set_pose(_peek_pose)
@@ -2159,7 +2331,7 @@ func _peek(delta: float, t: Node3D, eye: Vector3) -> void:
 		if not _can_shoot_at(t):
 			_next_shot = 0.2
 			return
-		if at_post and not _in_point_arc(aim_point):
+		if at_post and not out and _step.is_empty() and not _in_point_arc(aim_point):
 			_next_shot = 0.2  # not where his forearm points: he'll turn to it first
 			return
 		if variant != Variant.A and not _sights_on(delta, t):
@@ -2180,6 +2352,8 @@ func _duck_back() -> void:
 	if tactic != Tactic.PEEKING:
 		return
 	tactic = Tactic.HIDDEN
+	if not _step.is_empty() and _step.phase != &"in":
+		_step_back()
 	_peeks += 1
 	_tactic_time = _think.randf_range(0.3, 0.8) if covering > 0.0 else _think.randf_range(1.2, 3.0)
 	if not cover.low and not cover.get("narrow", false):
@@ -2303,6 +2477,10 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	bullet.form = t_rev.form_factor
 	bullet.shooter = body
 	rounds -= 1
+	if stepped_out():
+		shots_out += 1
+	elif _pointing():
+		shots_pointed += 1
 	if variant != Variant.A:
 		hand.fired(t_rev)
 		_on_sights = 0.0
@@ -3170,14 +3348,51 @@ func _break() -> void:
 		return
 	var why := ("past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()]) if shaken_for < 0.0 \
 			else ("still shaken after %.0f s" % shaken_for if dread() <= nerve_now() + shaken_margin else "far past his nerve (fear %.2f / %.2f)" % [dread(), nerve_now()])
+	# (Covered close, cornered: a gun on him within ODDS_CAUGHT m, not the 12 m that's the whole house.)
+	if hold.get("cornered", false) and not (_aimed_at > 0.8 and d < ODDS_CAUGHT) and _cornered_break(why):
+		return
 	if _has(&"odds") and _break_odds(t, d, caught, why):
 		return
-	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance:
+	if body.physiology.can_run() and not body.prone and d > 5.0 and not caught and _think.randf() < flee_chance \
+			and not hold.get("cornered", false):
 		_decide("run", why)
 		_start_fleeing()
 	else:
 		_decide("give up", why + (", covered close" if caught else ", can't run" if not body.physiology.can_run() or body.prone else ""))
 		_surrender()
+
+
+## Why a friend's word broke him (F3).
+func why_friends(how: StringName) -> String:
+	return "his friends' word (%s)" % ("give up" if how == &"surrender" else "fall back")
+
+
+## Holding a house with a man to keep and nowhere to run (the farmhouse, issue #565, Sean: "the
+## guards give up too easily"): past his nerve, armed, awake and not covered close, he doesn't run
+## off or throw his gun down. He goes to ground where he is (below the sill, behind what he's got)
+## and holds on CORNERED_HOLD s, a hothead swearing at you, the rest cursing their luck; and if his
+## fear settles there he's back in it. Past it again he holds on again, up to CORNERED_TIMES; then,
+## or far past his nerve once he's held on, he does as any man would. True if he held on.
+func _cornered_break(why: String) -> bool:
+	if not _armed_still() or not body.physiology.is_conscious():
+		return false
+	if _cornered >= CORNERED_TIMES or (_cornered > 0 and dread() > nerve_now() + shaken_margin * CORNERED_FAR):
+		return false
+	_cornered += 1
+	_hold_break = CORNERED_HOLD
+	_shaken = 0.0
+	_hid_once = true
+	say(&"cornered" if temper >= HOT_TEMPER else &"shaken")
+	_decide("hold on", why + ", nowhere to run (%d of %d)" % [_cornered, CORNERED_TIMES])
+	if tactic == Tactic.PEEKING:
+		_duck_back()
+	return true
+
+
+const CORNERED_HOLD := 8.0
+const CORNERED_TIMES := 3
+## Past his nerve by this many `shaken_margin`s he's beaten after his first hold, cornered or not.
+const CORNERED_FAR := 3.0
 
 
 ## Variant D's odds: what a man past his nerve does, weighed (true if he's done something other than
@@ -3371,7 +3586,8 @@ func _down_but_awake(delta: float) -> void:
 	if _give_up_look > 0.0 or not body.physiology.is_conscious():
 		return
 	_give_up_look = 0.5
-	if _has(&"floor_fight") and not body.rise_ok and dread() < nerve_now() * FLOOR_FIGHTS and body.held_gun != null \
+	# (Holding a house, issue #565: `hold.floor_fight`, he fights from the floor too; nowhere to crawl to.)
+	if (_has(&"floor_fight") or hold.get("floor_fight", false)) and not body.rise_ok and dread() < nerve_now() * FLOOR_FIGHTS and body.held_gun != null \
 			and body.physiology.can_hold("r") and body.come_to_ground():
 		_decide("fight from the floor", "shot down, not beat (fear %.2f / %.2f)" % [dread(), nerve_now()])
 		return

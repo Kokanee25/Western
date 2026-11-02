@@ -1,0 +1,304 @@
+{
+ "alarm": 124.97,
+ "blocking": [
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_017_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/bedroom_door_259",
+  "0.3:House/bedroom_p_casing0_jamb0",
+  "0.3:House/bedroom_m_casing0_jamb0",
+  "0.3:House/bedroom_opening0_king0",
+  "0.3:House/bedroom_m_nailer_0_0_0",
+  "0.3:House/bedroom_m_nailer_1_0_0",
+  "0.3:House/bedroom_p_nailer_0_0_0",
+  "0.3:House/floor_ground_board_016_1",
+  "1.0:House/bedroom_m_nailer_2_0_0",
+  "1.0:House/bedroom_p_nailer_2_0_0",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_p_casing0_jamb0",
+  "1.0:House/bedroom_m_casing0_jamb0",
+  "1.0:House/bedroom_opening0_king0",
+  "1.0:Wes/Blocker",
+  "1.0:Dutch/Blocker",
+  "1.0:House/bedroom_m_casing0_jamb1",
+  "1.0:House/bedroom_p_casing0_jamb1",
+  "1.0:House/bedroom_opening0_king1",
+  "1.0:House/bedroom_m_nailer_2_1_0",
+  "1.6:House/bedroom_p_board_011_0",
+  "1.6:House/bedroom_m_board_011_0",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_p_casing0_jamb0",
+  "1.6:House/bedroom_m_casing0_jamb0",
+  "1.6:House/bedroom_opening0_king0",
+  "1.6:Wes/Blocker",
+  "1.6:Dutch/Blocker",
+  "1.6:House/bedroom_m_casing0_head",
+  "1.6:House/bedroom_m_casing0_head",
+  "1.6:House/bedroom_m_casing0_head",
+  "1.6:House/bedroom_m_casing0_head"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 3.31666666666666,
+  "gate_left": 86.3,
+  "gate_wait": 60.9999999999978,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Wes",
+ "breach": -1.0,
+ "end": 136.17,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 672,
+  "max_ms": 94.6,
+  "mean_ms": 22.5,
+  "p95_ms": 36.35
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.9,
+   0.66,
+   2.17
+  ],
+  "limp": true,
+  "pelvis": [
+   7.72,
+   0.71,
+   2.9
+  ],
+  "pose": "lie_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.82,
+  0.7,
+  2.53
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "get back up: knocked down, not beat (fear 0.67 / 1.20)",
+   "id": "brody",
+   "inside": true,
+   "knows": 1.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.83 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "back in it: his fear's settled (0.65 / 0.85)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "hold on: his friends' word (give up), nowhere to run (2 of 3)",
+   "id": "kid",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "CALM",
+   "order": "kitchen_table",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.66 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 5.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  4.88,
+  0.56,
+  3.19
+ ],
+ "quits": [
+  [
+   126.65,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.66 / 1.12)",
+   true
+  ],
+  [
+   133.32,
+   "lyle",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.83 / 1.64)",
+   true
+  ],
+  [
+   134.02,
+   "brody",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.67 / 1.20)",
+   true
+  ]
+ ],
+ "route_left": 2,
+ "route_next": [
+  5.6,
+  0.56,
+  3.1
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 6,
+ "shots_men": 19,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 136.17,
+ "threat": 130.75,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   124.97,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   124.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   124.97,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.62,
+   "Hollis down"
+  ],
+  [
+   126.65,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.66 / 1.12))"
+  ],
+  [
+   130.73,
+   "Lyle down"
+  ],
+  [
+   130.75,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   132.62,
+   "the rancher hit (bullet, by Player)"
+  ],
+  [
+   132.98,
+   "Brody down"
+  ],
+  [
+   133.32,
+   "Lyle gives up (get back up: knocked down, not beat (fear 0.83 / 1.64))"
+  ],
+  [
+   134.02,
+   "Brody gives up (get back up: knocked down, not beat (fear 0.67 / 1.20))"
+  ],
+  [
+   136.17,
+   "lost: you_down"
+  ],
+  [
+   136.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   136.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   136.17,
+   "the rancher hit (blow, ?)"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

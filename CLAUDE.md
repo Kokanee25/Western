@@ -204,13 +204,24 @@ paid on every turn of every session.
   through the status file and Current state, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
   when its merge is green, or when it can't go on without Sean (a `waiting on Sean` issue is
-  open). Then, and never later: write the status entry and your Current state lines, and tell
-  Sean, as your last message, **"Step done: <what>. Next: issue #N."**, naming the issue that
-  already holds the next step, and do no more work. **Keep the issues few** (Sean, 2026-10-31:
-  too many to keep track of): never open an issue that only points at another issue or hands a
-  step on; what a fresh session must know goes as a comment on the issue it will work, or in the
-  status entry. A new issue only for a decision only Sean can make (`waiting on Sean`) or real new
-  work no issue holds; and close each issue the moment it's done or answered. Don't start the
+  open). Then, and never later: write the status entry and your Current state lines, and do no
+  more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
+  last message with **"Step done: <what>."**, one plain sentence for Sean saying what the next
+  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block
+  that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
+  nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
+  branch to start (from `main`), the goal and what done looks like, what this session found and
+  where (files, results, the dead ends), the traps, how it's measured, and when to stop. **A new
+  step gets a new issue** (Sean, 2026-11-02): the next step's issue is never the one this session
+  worked. Open it, titled by what the next session will do, with the plain sentence and the
+  handover prompt as its body, and close the finished issue with a line pointing at it. (A step
+  that only continues unfinished work on an open issue posts the handover there as a comment,
+  headed "Handover for the next session".) Pointing at an issue alone isn't a handover. If
+  nothing goes on (or it waits on Sean's answer), say so instead.
+  **Keep the issues few** (Sean, 2026-10-31:
+  too many to keep track of): never open an issue that only points at another issue; one open
+  issue a step (the next step's, holding its handover), plus one for a decision only Sean can
+  make (`waiting on Sean`); close each issue the moment it's done or answered. Don't start the
   next step in the same session, even if it looks small.
 - **Read on demand:** DESIGN.md's index then only the sections the task touches; the
   `docs/LAYOUT.md` section for the system you're in; never a whole status file, the judge's
@@ -591,9 +602,15 @@ frozen until Sean names one.
   the rancher alive in all 12. **The surprise assault** (#537, branch `claude/gameplay-farmhouse-surprise`):
   a fuse heard 3 m and never through a wall, the hiding spot round the lean-to's west corner, a blast
   before any alarm catches them cold (dazed, nobody calls where you are till one sees you); breach
-  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`). Losses
-  are the way out (dragging him out cold). Waiting on Sean: the film (#537). Trap: a `-s` script
-  can't build a structure (autoloads); probe through a test or the bridge.
+  runs: the alarm at the blast 8/8, won 4-5/8, the rancher 8/8 (`results/2026-11-01_surprise/`).
+  **Harder** (#565, PR #568, branch `claude/gameplay-farmhouse-harder-a819tg`;
+  `results/2026-11-02_harder/`): windows see out for the whole game (`Sight` holds a pane on
+  `Layers.SIGHT_GLASS`; `Sight.see`, Senses' `glass_*`); the house's men hold on past their nerve and
+  fight from the floor (`house_nerve`, `hold.cornered`, `house_floor_fight`); two rovers on the yard
+  (`rovers`, `beats`, `quiet`). The scripted player wins 2 of 24 (main 16), a rover found the quiet
+  ways 0 of 16, the surprise held 8 of 8. Waiting on Sean: the film and his play (#565). Traps: a
+  `-s` script can't build a structure (autoloads); probe through a test or the bridge; `farm_hide`'s
+  old map assumed glass a wall (`hide_glass.txt` is now's).
 - **Planting dynamite** (2026-10-31, #506, PR #512; `experiments/plant_dynamite/`): E held sets the
   stick where you aim on any structure piece or the ground, lit on letting go
   (`DynamiteViewmodel.plant_spot`/`claims_use`, `DynamiteStick.stick_to`, `BlastTuning` plant_*);
@@ -617,16 +634,22 @@ frozen until Sean names one.
   **Posts as narrow cover** (#531, branch `claude/gameplay-cover-moves-3-posts`,
   `results/2026-11-01_posts/`): `posts` in D (`Cover._narrow`/`hidden_narrow`, `_hold_post`,
   `_pointing`; `Senses.eye()` the pose's): stays at a post 24 -> 193 and 34 -> 148, shooting 6.9 s
-  longer seed for seed, as dangerous. Next: #531 (stepping out and back in, then the galleries;
-  the wide covers count your own cover as nothing, for the drops step).
+  longer seed for seed, as dangerous. **Stepping out** (#566, `results/2026-11-02_step_out/`):
+  `step_out` in D (`PostStepTuning`, `config/post_step.tres`; `_step_choose`/`_step_move`): near he
+  points, far he steps out past the post's edge to aim and back in (shot at, his hold); 96 / 74
+  steps out a hundred fights, one hit in 3.2 shots from out (pointed: 11); the fights as long and
+  as dangerous; films in its `films/` (`film_posts.sh`, bridge `gf_postcam`). Next: #572 (the
+  galleries, then the last drops on arrival, then a blind playtest).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
   south of town, 9 in a build for the cab. 0-25 km/h 22.6 s, 30 to a stand 94 m, top 43 / 27 on 2.5 %.
-  Waiting on Sean: the feel dials (#553). **Step 2** (2026-11-01, #551, branch
-  `claude/gameplay-train-lab-2`): couplers with slack, the six cars as walkable solids (`TrainCars`),
-  the route as a file with named marks (`TrainRoute`), `TrainTimetable` and `TrainEngineer` (ten
-  stops within 0.46 m); results `results/2026-11-01_step2/`. Next: #542 (the coordinator writes step 3).
+  Waiting on Sean: the feel dials (#553). **Step 2** (#551): couplers with slack, the six cars as
+  walkable solids (`TrainCars`), the route as data (`TrainRoute`), `TrainTimetable`/`TrainEngineer`.
+  **Step 3** (2026-11-02, branch `claude/issue-542-train-step-3-n2i4z1`; `results/2026-11-02_step3/`):
+  the 2-8-0 and tender from Blender (`EngineModel`, rods and puffs by distance), the cars of
+  boards (`TrainModels`), the boxcar's ladders (`Ladder`, the player's `_ladder_step`), passengers.
+  The critic fails the look (paint, shade, ground). Waiting on Sean: the look (#569).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -646,15 +669,16 @@ frozen until Sean names one.
   off and isn't trouble (was: every tick, and everyone near him, ~15 s a stick); spec hall after a
   stick 3.9 -> 2.4 ms of people at Sean's; `n_full_*` counts and `tools/people_after_blast.gd`. The
   fights and perception the same. Next: #492's gate on Sean's F12s.
-- **The blast's own frame** (#538; PR #548, then #559 rounds 2-3, branch `claude/538-part-2-7zqn44`;
-  results `experiments/blast_freeze/results/2026-11-01_blast_frame/`, `..._blast_frame_3/`):
-  `SpawnQueue` (120 bodies a tick; a kit prop charged by its members), `BlastCore` (native face
-  sums), the shadow's 0.3 s wait, kit props' members straight into their bodies, a break during a
-  sliced settle queued, cracks and panes to the voice limit. One stick at Sean's: saloon ~68 / next
-  ~73, street ~80 / ~70; three sticks' worst saloon ~85, street ~115 (over). Left (#538 open): the
-  street's second stick (the settle's first round, the gather over ~700 loose bodies); 50 fps is back
-  ~0.5 s (saloon) / ~0.9 s (street), the building coming down. Trap: `test_settle_incremental`'s
-  worker/main pair flakes ~1 in 6-8 on 2 cores, main too (#560).
+- **The blast's own frame** (#538; PRs #548, #559, then #567 round 4, branch
+  `claude/issue-538-part-2-q8wwa6`; results `experiments/blast_freeze/results/2026-11-01_blast_frame*/`,
+  `2026-11-02_blast_frame_4/`): `SpawnQueue`, `BlastCore`, the shadow's wait, kit props straight into
+  their bodies; round 4: `Blast.gather` finds rubble by its groups, not Jolt's queries (~15 µs a rubble
+  body there), a blast's first analyses over 24 members sliced (`BLAST_FIRST_WHOLE`, not kit props'),
+  the fire's load checks sit out a stick's tick (`FireSystem.sit_out`), template box meshes. Street,
+  three sticks, worst: main 210 -> 177 here (~115 at Sean's by x0.65, over the gate; this VM ran main
+  1.3x slower than round 3's). Left (#538 open): the cuts, the response, the frame after (kit push,
+  gravel impacts, Jolt's step). Traps: this VM swings 1.4x within a run (compare alternately); the
+  `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

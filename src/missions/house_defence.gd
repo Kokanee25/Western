@@ -37,6 +37,9 @@ const CALLS := {
 }
 
 var brains: Array[OutlawBrain] = []
+## Men outside the squad whose eyes it uses (the rovers, issue #565, till they fall back into the
+## house and join it): what they know of you counts for where you are.
+var eyes: Array[OutlawBrain] = []
 var guard: OutlawBrain
 var player: Player
 ## The spec's tactics, its spots by id (each with `world` and `look_world` worked out).
@@ -118,7 +121,7 @@ func _physics_process(delta: float) -> void:
 func _known_player() -> Vector3:
 	var best := Vector3.INF
 	var best_age := STALE
-	for b in brains:
+	for b in brains + eyes:
 		if not _able(b) or b.senses == null:
 			continue
 		var age := b.senses.since_known(player)

@@ -43,6 +43,11 @@ var outcome := &""
 var why := ""
 ## What happened, in order: [t, what] (the scripted runs read it).
 var timeline: Array = []
+## Counted for the scripted runs (issue #565): their shots from inside the house at you outside it,
+## and all of theirs; each man quitting [t, id, "gives up"/"runs", why].
+var shots_out := 0
+var shots_men := 0
+var quits: Array = []
 
 var men: Array[HumanBody] = []
 var brains: Array[OutlawBrain] = []
@@ -51,6 +56,20 @@ var specs := {}
 var guard: OutlawBrain
 ## The men fought as one (their spots by where you are: HouseDefence).
 var defence: HouseDefence
+## The men outside on their beats before the alarm (issue #565; FarmhouseTuning.rovers), in
+## `brains` too; each one's beat: brain -> {stops (each [world point, pause, look]), i, wait}.
+var rovers: Array[OutlawBrain] = []
+var _beat := {}
+## The rovers that have fallen back into the house (HouseDefence has them then), and those hit
+## (a rover hit outside falls back).
+var _fell_back := {}
+var _rover_hit := {}
+## The house's men hold a hostage with nowhere to run (issue #565): more nerve
+## (FarmhouseTuning.house_nerve) and they hold on past it (OutlawBrain.hold's `cornered`).
+## `--farm-cornered=off` is the lab's before.
+var cornered := not "--farm-cornered=off" in OS.get_cmdline_user_args()
+## The first rover to see you before the alarm, and where his beat had him (the scripted runs).
+var rover_found := ""
 var hostage: HumanBody
 var hostage_brain: HostageBrain
 
@@ -61,6 +80,8 @@ const IDLE := {
 	&"dutch": ["Quiet out there.", "Wind's getting up.", "Dust on the road. No, nothing."],
 	&"kid": ["Hot as hell on this porch.", "You reckon they'll send the law?", "Ain't nobody out there."],
 	&"hollis": ["Coffee's cold.", "Smells like horse in here.", "Back's clear."],
+	&"pike": ["Nothing out back.", "Walking this yard all damn day.", "Hills are quiet."],
+	&"wes": ["Road's empty.", "Nobody's coming.", "Spell me on this, somebody."],
 }
 var _idle_in := 12.0
 var _rng := RandomNumberGenerator.new()
@@ -83,9 +104,10 @@ func _ready() -> void:
 	if tuning == null:
 		tuning = load("res://config/farmhouse.tres")
 	Events.exploded.connect(_on_exploded)
-	Events.shot_fired.connect(func(_o: Vector3, _d: Vector3, shooter: Node) -> void:
+	Events.shot_fired.connect(func(o: Vector3, _d: Vector3, shooter: Node) -> void:
 		_last_shooter = shooter
-		_last_shot_t = t)
+		_last_shot_t = t
+		_count_shot(o, shooter))
 	if start_on_load or START_ARG in OS.get_cmdline_user_args():
 		start_on_load = false
 		_begin_when_ready.call_deferred(true)
@@ -169,7 +191,7 @@ func begin(place_player := false) -> void:
 		var brain := OutlawBrain.new()
 		brain.name = "Brain"
 		brain.temper = float(m.get("temper", 0.5))
-		brain.nerve = float(m.get("nerve", 0.6))
+		brain.nerve = float(m.get("nerve", 0.6)) + (tuning.house_nerve if cornered else 0.0)
 		brain.proud = bool(m.get("proud", false))
 		brain.leads = bool(m.get("leads", false))
 		var friends: Array[StringName] = []
@@ -180,7 +202,8 @@ func begin(place_player := false) -> void:
 		brain.places = town.places
 		var post := Farmhouse.use_point(String(m.post))
 		var room := String(m.get("hold", "house"))
-		brain.hold = {"inside": inside_bedroom if room == "bedroom" else inside, "post": post[0], "look": post[1]}
+		brain.hold = {"inside": inside_bedroom if room == "bedroom" else inside, "post": post[0], "look": post[1], "cornered": cornered,
+				"floor_fight": cornered and tuning.house_floor_fight}
 		brain.agenda = [{"do": &"post"}]
 		man.add_child(brain)
 		man.move_child(brain, 0)
@@ -190,6 +213,7 @@ func begin(place_player := false) -> void:
 		if room == "bedroom":
 			guard = brain
 		_watch(man, brain)
+	_rovers_out(street, town, ids)
 	for left: HumanBody in riders.values():
 		if is_instance_valid(left) and not left.is_inside_tree():
 			left.free()
@@ -199,7 +223,10 @@ func begin(place_player := false) -> void:
 	defence = HouseDefence.new()
 	defence.name = "HouseDefence"
 	add_child(defence)
-	defence.setup(load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC), brains, guard, player())
+	var in_house: Array[OutlawBrain] = []
+	in_house.assign(brains.filter(func(b: OutlawBrain) -> bool: return not b in rovers))
+	defence.setup(load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC), in_house, guard, player())
+	defence.eyes = rovers.duplicate()
 	if place_player:
 		var p := player()
 		if p:
@@ -210,10 +237,182 @@ func begin(place_player := false) -> void:
 	_say(tuning_line("intro"), 10.0, true)
 
 
+## The rovers (FarmhouseTuning.rovers): outlaws held to the yard (OutlawBrain.hold, its `inside`
+## the yard round the house), at the first stop of their beats; the mission walks them round it
+## (`_beat_step`) by moving the post they keep.
+func _rovers_out(street: Node, town: TownLife, ids: Array[StringName]) -> void:
+	var all := ids.duplicate()
+	if "--farm-rovers=0" in OS.get_cmdline_user_args():
+		return  # the lab's before (issue #565)
+	for r: Dictionary in tuning.rovers:
+		all.append(StringName(r.id))
+	for i in tuning.rovers.size():
+		var r: Dictionary = tuning.rovers[i]
+		var id := StringName(r.id)
+		var stops: Array = []
+		for st: Dictionary in tuning.beats.get(String(r.get("beat", "")), []):
+			if not town.places.has(StringName(st.at)):
+				continue
+			var at := town.places.at(StringName(st.at))
+			var lk: Array = st.get("look", [4.5, -30.0])
+			stops.append([at, float(st.get("pause", 4.0)), Farmhouse.on_ground(float(lk[0]), float(lk[1])) + Vector3.UP * 1.5, st.get("quiet", [])])
+		if stops.is_empty():
+			push_warning("FarmhouseMission: rover %s has no beat" % id)
+			continue
+		specs[id] = r
+		var man := HumanBody.new()
+		man.name = String(id).capitalize()
+		man.person_id = id
+		man.rng_seed = 540 + i
+		man.body_model = StringName(r.get("model", "outlaw"))
+		man.masked = bool(r.get("masked", false))
+		var brain := OutlawBrain.new()
+		brain.name = "Brain"
+		brain.temper = float(r.get("temper", 0.5))
+		brain.nerve = float(r.get("nerve", 0.6))
+		var friends: Array[StringName] = []
+		for other: StringName in all:
+			if other != id:
+				friends.append(other)
+		brain.friends = friends
+		brain.places = town.places
+		var k := int(r.get("start", 0)) % stops.size()
+		brain.hold = {"inside": in_yard, "post": stops[k][0], "look": stops[k][2]}
+		brain.agenda = [{"do": &"post"}]
+		man.add_child(brain)
+		man.move_child(brain, 0)
+		var from: Vector3 = stops[k][0]
+		man.enter(street, from, HumanBody.yaw_toward(from, stops[k][2]))
+		men.append(man)
+		brains.append(brain)
+		rovers.append(brain)
+		_beat[brain] = {"stops": stops, "i": k, "wait": float(stops[k][1])}
+		_watch(man, brain)
+		man.hit.connect(func(_info: Dictionary) -> void: _rover_hit[brain] = true)
+	# The house's men count the rovers among their friends (the crew: callouts, help).
+	for b in brains:
+		if not b in rovers:
+			for r in rovers:
+				if not r.body.person_id in b.friends:
+					b.friends.append(r.body.person_id)
+
+
+## A rover on his beat within a step of where a sound was heard (it's him; Senses places a sound
+## roughly: 0.12 of its distance).
+func _a_rover_by(at: Vector3) -> bool:
+	for b: OutlawBrain in rovers:
+		if _able(b) and b.mood == OutlawBrain.Mood.CALM and Vector2(b.body.global_position.x - at.x, b.body.global_position.z - at.z).length() < 2.5:
+			return true
+	return false
+
+
+## The yard round the house (a rover's ground outside it: `yard_reach` of its middle, not in it).
+func in_yard(p: Vector3) -> bool:
+	return not inside(p) and p.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8))) < tuning.yard_reach
+
+
+## Before the alarm: each rover at a stop of his beat waits out its pause watching what it looks
+## at (glancing about: OutlawBrain._keep_post), then on to the next. Not while he's been sent to
+## look at something (`_looking`) or warned you off.
+func _beat_step(delta: float) -> void:
+	if alarm_t >= 0.0:
+		return
+	for b: OutlawBrain in rovers:
+		if not _able(b) or b.mood != OutlawBrain.Mood.CALM or b == _looking or b.hold.get("warned", false):
+			continue
+		var st: Dictionary = _beat[b]
+		var stop: Array = st.stops[st.i]
+		var to: Vector3 = stop[0] - b.body.global_position
+		if Vector2(to.x, to.z).length() > 0.8:
+			continue
+		st.wait -= delta
+		if st.wait > 0.0:
+			continue
+		st.i = (int(st.i) + 1) % (st.stops as Array).size()
+		var next: Array = st.stops[st.i]
+		st.wait = float(next[1])
+		b.hold.post = next[0]
+		b.hold.look = next[2]
+
+
+## Where a rover's beat has him (the scripted player times his way in by it): the stop he's at or
+## walking to, whether he's there, and the side of the house he's on.
+func rover_stop(b: OutlawBrain) -> Dictionary:
+	var st: Dictionary = _beat.get(b, {})
+	if st.is_empty():
+		return {}
+	var stop: Array = st.stops[st.i]
+	var to: Vector3 = stop[0] - b.body.global_position
+	return {"i": st.i, "there": Vector2(to.x, to.z).length() <= 0.8, "place": HouseDefence.place_of(b.body.global_position), "quiet": stop[3]}
+
+
+## The alarm, for a rover: back into the house if he's nearer its door than you are to him (he'll
+## be in before you can stop him), else into cover in the yard to fight you there.
+func _rover_alarm(b: OutlawBrain) -> void:
+	if _fell_back.has(b) or not _able(b):
+		return
+	var p := player()
+	var door := _nearest_door(b.body.global_position)
+	var d_door := b.body.global_position.distance_to(door[0])
+	var d_you := b.body.global_position.distance_to(p.global_position) if p else INF
+	if (p and inside(p.global_position)) or d_door < d_you * tuning.rover_fall_back:
+		_rover_in(b, "the alarm, %.0f m from the door, you %.0f m off" % [d_door, d_you])
+	else:
+		b.hold.post = b.body.global_position
+		if p:
+			b.hold.look = p.global_position + Vector3.UP * 1.0
+		_note("%s takes cover in the yard" % b.body.name)
+
+
+## The nearer of the house's two doors to `at`: [the doorway, the use point inside he holds].
+func _nearest_door(at: Vector3) -> Array:
+	var front := _town().places.at(&"farm_door")
+	var back := _town().places.at(&"farm_back_door")
+	return [front, "inside_door"] if at.distance_to(front) <= at.distance_to(back) else [back, "kitchen"]
+
+
+## A rover falls back into the house: held to it from now, his post inside the nearer door, and
+## the squad has him (HouseDefence gives him a spot).
+func _rover_in(b: OutlawBrain, why: String) -> void:
+	_fell_back[b] = true
+	var door := _nearest_door(b.body.global_position)
+	var pt := Farmhouse.use_point(String(door[1]))
+	b.hold.inside = inside
+	b.hold.cornered = cornered  # in the house with the rest: nowhere to run now
+	b.hold.floor_fight = cornered and tuning.house_floor_fight
+	if not pt.is_empty():
+		b.hold.post = pt[0]
+		b.hold.look = pt[1]
+	b.give_order({})
+	if defence and not b in defence.brains:
+		defence.brains.append(b)
+		defence.eyes.erase(b)
+	Events.spoke.emit(b.body, ["Inside! Get inside!", "I'm coming in! Cover me!", "Back to the house!"][_rng.randi() % 3])
+	_note("%s falls back to the house (%s)" % [b.body.name, why])
+
+
+## After the alarm: a rover still outside falls back once you're in the house, or he's been hit.
+func _rovers_step() -> void:
+	if alarm_t < 0.0:
+		return
+	var p := player()
+	for b: OutlawBrain in rovers:
+		if _fell_back.has(b) or not _able(b):
+			continue
+		if p and inside(p.global_position):
+			_rover_in(b, "you're in the house")
+		elif _rover_hit.get(b, false):
+			_rover_in(b, "hit")
+
+
 func tuning_line(kind: String) -> String:
 	match kind:
 		"intro":
-			return "The gang's holding the rancher at his place, east along the road. Five of them. Get him out alive."
+			var n := tuning.men.size()
+			var out := rovers.size()
+			return "The gang's holding the rancher at his place, east along the road. %s of them in the house%s. Get him out alive." % [
+					["None", "One", "Two", "Three", "Four", "Five", "Six", "Seven"][mini(n, 7)],
+					"" if out == 0 else (", and %s walking the yard" % ["", "one", "two", "three", "four"][mini(out, 4)])]
 		"won":
 			return "The rancher's out, and alive."
 		"lost_hostage":
@@ -278,6 +477,12 @@ func _watch(man: HumanBody, brain: OutlawBrain) -> void:
 		var p := player()
 		_alarm_soon(brain, p.global_position if p and info.get("shooter") == p else at, "%s hit" % man.name))
 	man.died.connect(func(_c: StringName) -> void: _note("%s dead" % man.name))
+	brain.mood_changed.connect(func(mood: OutlawBrain.Mood) -> void:
+		if state != State.ON or not mood in [OutlawBrain.Mood.SURRENDERED, OutlawBrain.Mood.FLEEING]:
+			return
+		var how := "gives up" if mood == OutlawBrain.Mood.SURRENDERED else "runs"
+		quits.append([snappedf(t, 0.01), String(man.person_id), how, brain.decision, man.limp or man.prone])
+		_note("%s %s (%s)" % [man.name, how, brain.decision]))
 	man.fell.connect(func(conscious: bool) -> void: _note("%s down%s" % [man.name, "" if conscious else ", out"]))
 	# The senses are made in the brain's _ready.
 	(func() -> void:
@@ -305,6 +510,8 @@ func _heard(brain: OutlawBrain, at: Vector3, kind: StringName, _who: Node) -> vo
 			_hiss_said = t
 			Events.spoke.emit(brain.body, ["What's that hissing?", "You hear that? Something's hissing.", "Hey— what's that?"][_rng.randi() % 3])
 	elif alarm_t < 0.0:
+		if kind != &"speech" and _a_rover_by(at):
+			return  # Pike's own boots on his beat (issue #565)
 		# A step, a voice: he turns to it (and may see you); the nearest of them goes to the window on
 		# that side for a look.
 		brain.glance(at + Vector3.UP * 1.0, 4.0)
@@ -323,6 +530,10 @@ func _seen(by: OutlawBrain, p: Player) -> void:
 		return
 	var d := p.global_position.distance_to(Farmhouse.at(Vector3(4.5, 0.0, 3.8)))
 	var armed := p.weapon != null and p.weapon.drawn and not p.weapon is DynamiteViewmodel
+	if by in rovers and rover_found == "":
+		var where := rover_stop(by)
+		rover_found = "%s saw you at %.1f s (his beat's stop %d, %s; you %s)" % [by.body.name, t, int(where.get("i", -1)), where.get("place", ""), HouseDefence.place_of(p.global_position)]
+		_note(rover_found)
 	if armed or d < tuning.warn_close or FarmhouseMission.inside(p.global_position):
 		_alarm(by, p.global_position, "%s saw you" % by.body.name)
 		return
@@ -342,7 +553,7 @@ func _seen(by: OutlawBrain, p: Player) -> void:
 				var best: OutlawBrain = null
 				var best_d := INF
 				for b in brains:
-					if b == guard or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b.hold.get("warned", false):
+					if b == guard or b in rovers or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b.hold.get("warned", false):
 						continue
 					var bd := b.body.global_position.distance_to(sp.world)
 					if bd < best_d:
@@ -388,6 +599,16 @@ func _warning_step() -> void:
 				b.hold.erase("warned")
 
 
+## One of theirs fired: from inside the house at you outside it, or not (issue #565).
+func _count_shot(origin: Vector3, shooter: Node) -> void:
+	if state != State.ON or shooter == null or not shooter is HumanBody or not (shooter as HumanBody).person_id in specs:
+		return
+	shots_men += 1
+	var p := player()
+	if p and inside(origin) and not inside(p.global_position):
+		shots_out += 1
+
+
 func _able_calm(b: OutlawBrain) -> bool:
 	return is_instance_valid(b) and is_instance_valid(b.body) and b.body.physiology.alive and b.body.physiology.is_conscious() and not b.body.limp
 
@@ -414,7 +635,7 @@ func _look_out(at: Vector3) -> void:
 	var best: OutlawBrain = null
 	var best_d := INF
 	for b in brains:
-		if b == guard or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b == _looking:
+		if b == guard or b in rovers or not _able(b) or b.mood != OutlawBrain.Mood.CALM or b == _looking:
 			continue
 		var d := b.body.global_position.distance_to(sp.world)
 		if d < best_d:
@@ -472,6 +693,8 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 		b.quiet_start = b != by  # one of them says it; the rest just go to it
 		b.relations.provoke(p)
 		_to_alarm_post(b)
+		if b in rovers:
+			_rover_alarm(b)
 
 
 ## The man outside: in, to his place at a window (his spec's `alarm_post`).
@@ -529,6 +752,8 @@ func _surprised(at: Vector3) -> void:
 			continue
 		b.senses.note(p, at, tuning.heard_error)
 		b.caught_cold(p, tuning.caught_cold * _rng.randf_range(0.8, 1.2))
+		if b in rovers:
+			_rover_alarm(b)
 	if defence:
 		defence.quiet = true
 		defence.breach(at)
@@ -597,6 +822,8 @@ func _physics_process(delta: float) -> void:
 				_pending = []
 				_alarm(a[0], a[1], a[2])
 			_idle_talk(delta)
+			_beat_step(delta)
+			_rovers_step()
 			_warning_step()
 			_rancher_calls(delta)
 			if _looking != null and t > float(_looking_post.get("until", INF)):
@@ -875,7 +1102,9 @@ func result() -> Dictionary:
 	var out := {"state": State.keys()[state], "outcome": String(outcome), "t": snappedf(t, 0.01),
 			"alarm": snappedf(alarm_t, 0.01), "breach": snappedf(breach_t, 0.01), "surprise": snappedf(surprise_t, 0.01), "found": snappedf(found_t, 0.01), "threat": snappedf(threat_t, 0.01),
 			"executed": snappedf(execute_t, 0.01), "freed": snappedf(freed_t, 0.01), "end": snappedf(end_t, 0.01),
-			"men_out": men_out(), "men": brains.size(), "timeline": timeline}
+			"men_out": men_out(), "men": brains.size(), "timeline": timeline,
+			"shots_out": shots_out, "shots_men": shots_men, "quits": quits, "rover_found": rover_found,
+			"rovers": rovers.map(func(b: OutlawBrain) -> String: return String(b.body.person_id) if is_instance_valid(b) and is_instance_valid(b.body) else "")}
 	out.hostage_alive = hostage != null and is_instance_valid(hostage) and hostage.physiology.alive
 	var p := player()
 	out.player_down = p != null and not p.wounds.physiology.is_conscious()

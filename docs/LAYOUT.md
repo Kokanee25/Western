@@ -89,7 +89,7 @@ now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
 scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
 `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
-`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent); `run.py` runs the matrix
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`); `run.py` runs the matrix
 a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
 sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
 its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
@@ -633,8 +633,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   (`SLICE_LEFT`), one the FireSystem is already settling (`FireSystem.settling`: a piece of a
   blast's collapse landing on a joist was a whole round, ~15 ms, on the stick's next frame, #538)
   or a big building's first (`SLICED_ABOVE`; also queued when built,
-  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share, #538:
-  Main Street's store's was ~100 ms on a stick's frame) goes straight to the FireSystem; a round drops at most `DROP_PER_ROUND` members (whole
+  `queue_check`; a blast's settle, `first_sliced`, any first bigger than the frame's share or than
+  `BLAST_FIRST_WHOLE` (24), #538: Main Street's store's was ~100 ms on a stick's frame, a boardwalk's
+  ~10) goes straight to the FireSystem (which sits out the tick a stick goes off on,
+  `FireSystem.sit_out`: a lit stick asks a tick ahead); a round drops at most `DROP_PER_ROUND` members (whole
   clumps). `tests/test_settle_incremental.gd` holds it to the full analysis member by member.
   **The analysis on a worker** (more-cores step 8): `StructuralAnalysis.advance` reads no member,
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
@@ -972,7 +974,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   street; dials `config/farmhouse.tres`, `FarmhouseTuning`). Starts when you walk up to the
   blacksmith by the livery before the gang's ridden in (`TownLife.take_riders`: they're at the
   farm instead), after a lost try on Enter (`start_on_load`, `GameReset`), or `-- --mission=farmhouse`
-  / the bridge's `farm_start`. Five men at their posts (`OutlawBrain.hold`: cover, hunting and
+  / the bridge's `farm_start`. Five men at their posts in the house and two on beats outside (`OutlawBrain.hold`: cover, hunting and
   pressing kept to the house, or the bedroom for the guard; `{do: post}` before and after), the
   rancher tied in the bedroom's chair (`HostageBrain`). The alarm (a man sees you; hears a shot,
   glass, timber, a scuffle, a fuse; a ball into one; a blast) provokes them all and tells them where;
@@ -987,6 +989,17 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   sees you or you fire (`found_t`); a hit or a loud sound raises the alarm a tick late
   (`_alarm_soon`) so the blast's own effects don't. A fuse's hiss: 3 m, never through a wall
   (`Senses.THROUGH_WALLS`; DynamiteStick makes it off the face it's on).
+  **Harder** (#565): the house's men have `house_nerve` more nerve and `hold.cornered`: past
+  their nerve, armed and not covered within 6 m, they hold on where they are
+  (`OutlawBrain._cornered_break`: 8 s, three times) instead of running or giving up, and a
+  friend's "fall back" doesn't send them off. **The rovers** (`tuning.rovers`, `beats`): men
+  outside on a beat of the yard's places (pauses, looks; `quiet` stops leave the back unwatched),
+  held to the yard (`in_yard`), walked by moving their post (`_beat_step`); they see you and it's
+  the warning or the alarm as from the house (`rover_found`); on the alarm each falls back into
+  the house by the nearer door if he's nearer it than you are to him, else takes cover in the yard
+  and falls back once you're in the house or he's hit (`_rover_in`: then he's the squad's,
+  `HouseDefence.brains`; till then his eyes are `HouseDefence.eyes`). Lab switches
+  `--farm-rovers=0`, `--farm-cornered=off` (the befores).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
@@ -1030,7 +1043,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   chest, falling off as the lamp is drawn; his reach goes with log(lux), 14 m at a night sky's
   0.02 lux, 60 m at a day's 10,000; the lines re-cast once he's moved 0.5 m or a second has
   passed; `config/sight.tres`, `SightTuning`; every line asked of `Sight`, the sight service, in
-  "addons/saltcreek_native"), `Relations` (per person towards each
+  "addons/saltcreek_native"; **glass** (#565): an unbroken pane is on WORLD for the physics but
+  sight holds it on `Layers.SIGHT_GLASS` (`Sight.KIND_GLASS`, the plugin's `sight_layer`; without
+  it `Sight._jolt_hit` looks past panes), so sight, shot lines, Cover and the light pass windows;
+  `Sight.see` says a line went through glass and Senses dims it, `glass_seen`, and for glare by
+  the light on him against the looker's, `glass_glare_*`), `Relations` (per person towards each
   other: pressure, grudge, fear, stance on the ladder IGNORE…FIGHT; `Relations.WEIGHTS` per deed),
   `DeedWatch` (turns shots/deaths/surrenders/speech into `Events.deed` and `Events.noise`),
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
@@ -1169,6 +1186,18 @@ knocks a standing kit prop loose and shoves or strikes a man in a moving car's w
 keeps time, brakes for the mark from the 1D stopping distance, creeps or sets back, a late start
 made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log`).
 
+Step 3 (#542): the models. `EngineModel` (`assets/train/engine.glb` by
+`experiments/train_lab/blender/engine.py`; its numbers `engine_rig.json`): the glb's nodes moved
+by `roll(s)` (drivers s / r, side rods on the pins, main rods pin to crosshead), exhaust beats
+four a turn (`emit_particle` puffs, `beats`), cylinder cocks below `COCKS_BELOW`, the stack's
+smoke, the headlight (`set_night`). `TrainModels`: the glb parts dressed by material name
+(`dress`: PixelArt metals and woods mapped in their own space), the cars of boards
+(`MemberMesh` boards in `WoodMaterials`, merged a material a car), `truck` (arch bars, wheelsets
+turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) draws them over
+`TrainCars`' solids, which stay the walk path; the boxcar is shut and climbed by a `Ladder`
+(`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
+`train_passengers N` seats the Studio's men in the coach.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
@@ -1203,6 +1232,10 @@ made up within `max_kmh` and `dwell_min`; dead, nobody drives; `rows`, `stop_log
   or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
   `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the
   same order: `test_the_native_face_sum_is_the_scripts` holds them to the bit (on Linux; CI).
+- **`Blast.gather`'s rubble** (#538): the `rubble`/`fallen` groups are walked, not asked of Jolt
+  (excluded from both sphere queries: each was ~15 µs there); one whose middle is past the reach
+  is still in when a shape of it reaches in (`_shapes_within`), as the query had it
+  (`test_gather_finds_the_rubble_the_queries_found`). Timers `gather_query`/`_panes`/`_loose`.
 - `src/blast/` — `Blast` (Kinney-Graham overpressure/impulse by scaled distance, reflected off a
   face by the shock's strength, `reflection()`: x2 weak to x8 strong, less as it strikes the face
   more glancingly; people take it reflected too, `reflected_kpa`, lamps side-on; a charge on or

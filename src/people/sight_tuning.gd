@@ -41,3 +41,15 @@ extends Resource
 ## The light on a man is worked out at most once in this many physics frames (Senses' tick, 0.12 s),
 ## shared by everyone looking at him.
 @export var refresh_frames := 7
+
+@export_group("Glass")
+## Seen through an unbroken window pane (issue #565; the perception lab's fix 3): the glass passes
+## the line, and he shows `glass_seen` as plainly as in the open (old glass, wavy, dirty, its
+## frame). And glare: looking from the bright side into the dark one the pane gives back the
+## brighter side's light, so a man in a dim room is hard to make out from a sunlit yard, while
+## from inside the yard shows plain. By the ratio of the light on him to the light on the
+## looker: at or above 1 nothing lost, down to `glass_glare_min` at `glass_glare_ratio` and below
+## (by its square root between, as the eye takes contrast by ratios).
+@export var glass_seen := 0.8
+@export var glass_glare_min := 0.25
+@export var glass_glare_ratio := 0.02

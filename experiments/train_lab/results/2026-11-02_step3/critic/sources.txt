@@ -1,0 +1,7 @@
+a experiments/train_lab/results/2026-11-02_step3/sheet/gold_engine_side.jpg
+b experiments/train_lab/results/2026-11-02_step3/sheet/gold_engine_front.jpg
+c experiments/train_lab/results/2026-11-02_step3/sheet/gold_ore_box.jpg
+d experiments/train_lab/results/2026-11-02_step3/sheet/gold_express_coach.jpg
+e experiments/train_lab/results/2026-11-02_step3/sheet/gold_coach_inside.jpg
+f experiments/train_lab/results/2026-11-02_step3/sheet/night_coach_inside.jpg
+(a-f are the sheet's pictures, listed above; the crops are jpg)
