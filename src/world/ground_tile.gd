@@ -10,6 +10,8 @@ extends StaticBody3D
 
 ## Cells a side of the solid earth's columns under the surface (8: 40 cm at 5 cm cells).
 const COLUMN := 8
+## The height field's shape index on the tile's body (the columns' come after it: Ground.rescue).
+const FIELD_SHAPE := 0
 
 var key: Vector2i
 ## (tile_cells + 1)² heights, row by row along x, rows along z (m, above the authored ground).

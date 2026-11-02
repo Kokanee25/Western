@@ -18,12 +18,10 @@ python3 experiments/blast_freeze/summary.py build/blast_freeze/run.json [more.js
 python3 experiments/blast_freeze/summary.py --same A.json B.json                             # the same twice? (the broken set, each frame's counts)
 ```
 
-`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street|farm] [mission=1] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json]`:
+`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street|farm] [walls=W,..] [mission=1] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json]`:
 `in=street` puts the sticks on Main Street instead (perf_bench `--scene=blast`'s spots: a third of
-the way through the first buildings' members); `in=farm` throws them round the farmhouse (#584,
-#585: a stick a wall, front, west, east, back, lean_west, lean_east, lying 0.4 m out; the player
-20 m out front, or `player=X,Z` in the house's space; `mission=1` starts the mission first, the
-gang in the house); `awake=S` takes a census of the awake rubble every S s into `awake_log`
+the way through the first buildings' members); `in=farm` throws them round the farmhouse (#584's:
+`walls=`, `mission=1`, below); `awake=S` takes a census of the awake rubble every S s into `awake_log`
 (each piece's speed at its far end, what it touches, the piles by contact, wakes and sleeps, the
 awake bodies that aren't rubble, RubbleSleep's counts and spells; it walks every piece each tick,
 so leave it off when timing); `sticks`/`gap` set off several, `gap` s apart (in the
@@ -108,6 +106,15 @@ and panes sounded to the voice limit: the saloon's next frame ~160 -> ~113 here,
 ~146 -> ~121, three sticks' worst 170 -> 130 (saloon), 308 -> 175 (street). Frames carry `ph`: the
 frame split into late process / the frame's end / physics / early process (`late_stamp.gd`).
 
+**The farmhouse's slow motion (#584, `results/2026-11-02_farm_slowmo/`):** `bf_blast in=farm`
+(a stick on the ground by each wall, `walls=`, `gap` s apart; `mission=1` the gang in the house),
+a twice-a-second census of the awake bodies (`bodies`), `slept`/`woke` a frame, `bf_movers N`
+(the fastest awake bodies and all their contacts); `seconds.py` (a row a second from the last
+stick; `--brief`, a line a run), `farm_runs.sh` (N runs two at a time: outcomes), `farm_pairs.sh`
+(main and the branch alternately: frame times). Six sticks left ~900 pieces awake for a minute
+(frames ~100 ms here, Jolt's step ~85): RubbleRest woke every pile as it fell asleep, and pieces
+pressed under the dug ground spun or were thrown out. Fixed both; 4 of 6 runs settle within 30 s
+(main 1 of 4).
 **Rubble that won't sleep (#585, `results/2026-11-02_rubble_sleep/`):** after the sticks, one
 restless piece (wedged and spinning, a jiggling fitting or glass prop, a bone fragment twirling)
 kept its whole pile awake, hundreds of pieces still to a centimetre a second: at the farmhouse

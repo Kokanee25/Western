@@ -700,6 +700,12 @@ frozen until Sean names one.
   hangs on the order structures break in (Jolt's, kept: other orders broke 919-1,043 to main's ~950).
   Left: the cuts, the response, Jolt's step with ~700 awake. Traps: compare alternately; the
   `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
+- **The farmhouse's slow motion** (#584, branch `claude/gameplay-farmhouse-slowmo-cyqo2p`;
+  `experiments/blast_freeze/results/2026-11-02_farm_slowmo/`): `bf_blast in=farm` (six sticks round
+  the house, `mission=1`), a census of awake bodies, `farm_runs.sh`/`farm_pairs.sh`. ~900 pieces kept
+  awake: RubbleRest woke each pile as it slept (shapes aside now only when frozen), earth laid up
+  through pieces (`Ground._lift_out`), pieces pressed under a dug tile (`Ground.rescue`). 6 of 8 runs
+  settle within 30 s (main 1 of 6). Next: #585 (what's left: crater-wall spin, the gang in the pile).
 - **Rubble that won't sleep** (#585, branch `claude/gameplay-rubble-sleep-9n8wlb`; results
   `experiments/blast_freeze/results/2026-11-02_rubble_sleep/`): one restless piece kept a whole pile
   awake (Jolt sleeps islands whole); `RubbleSleep` freezes it once nothing near has moved or broken,

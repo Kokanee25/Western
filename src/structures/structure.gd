@@ -40,6 +40,9 @@ var members := {}
 var _order: Array[StructureMember] = []
 ## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
 const LOST_BELOW := -5.0
+## Each awake piece of rubble is looked at every this many ticks for having gone under the dug
+## ground (Ground.rescue, #584).
+const RESCUE_TICKS := 15
 ## A cut leaves no end shorter than this (m): it goes with the stretch.
 const CUT_MIN_PIECE := 0.15
 ## The stretch a cut tears out flies in pieces about this long (m).
@@ -135,6 +138,7 @@ var _panes_of := -1  # _order.size() when _panes was made
 ## it before walking a structure's panes, and a kit prop before its members (#538, round 5).
 var _bounds := AABB()
 var _bounds_ok := false
+var _ground: Ground  # (_dug_ground)
 ## How far a member may have moved from where it was built (m): a door swung, a board sagged.
 const BOUNDS_SPARE := 1.5
 var _last_rebuild := -INF
@@ -1754,16 +1758,32 @@ func _physics_process(delta: float) -> void:
 func _physics_step(delta: float) -> void:
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
 	var lost: Array[RigidBody3D] = []
+	var ground := _dug_ground()
+	var tick := Engine.get_physics_frames()
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:
 			rb.set_meta(&"v", rb.linear_velocity)
 			if rb.global_position.y < LOST_BELOW:
 				lost.append(rb)
+			elif ground and (tick + rb.get_instance_id()) % RESCUE_TICKS == 0:
+				ground.rescue(rb)
 	for rb in lost:
 		# Gone through the ground somehow: a piece falling for ever costs the physics every frame.
 		push_warning("rubble %s fell through the ground at %s; removed" % [rb.get_meta(&"members", []), rb.global_position])
 		rubble.erase(rb)
 		rb.queue_free()
+
+
+## The ground, if any of it's been dug (its dug tiles are a height field a piece can be pressed
+## through, Ground.rescue); null where it hasn't, or there's none.
+func _dug_ground() -> Ground:
+	if _ground == null or not is_instance_valid(_ground):
+		if not is_inside_tree():
+			return null
+		_ground = Ground.of(get_tree())
+		if _ground == null:
+			return null
+	return _ground if not _ground.tiles.is_empty() else null
 
 
 ## Falling timber lands on something: hard enough and it breaks what it hits; a piece of several

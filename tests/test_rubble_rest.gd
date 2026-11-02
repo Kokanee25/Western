@@ -1,7 +1,8 @@
 extends TestCase
-## Rubble at rest drawn in its cell (#459): a piece lying still a while is its body alone, its mesh
-## in the cell's and its shape held as an owner; it's still there to hit; waking it, or the fire
-## touching it, makes it its own again where it lies.
+## Rubble at rest drawn in its cell (#459): a piece lying still a while is its body and its shape,
+## its mesh in the cell's; it's still there to hit; waking it, or the fire touching it, makes it its
+## own again where it lies. Its shape stays on it (#584): changing a sleeping body's shapes wakes it,
+## and with it the pile it lies in.
 
 var world: Node3D
 var s: Structure
@@ -60,7 +61,8 @@ func test_rubble_lying_still_joins_its_cell() -> void:
 	check(meshes >= mats.size() and meshes <= mats.size() * RubbleRest.MAX_CHUNKS,
 			"drawn as a mesh a material in each of the cell's chunks (%d meshes, %d materials)" % [meshes, mats.size()])
 	for rb: RigidBody3D in bodies:
-		check_eq(rb.get_child_count(), 0, "its mesh and shape out of the tree")
+		check_eq(rb.get_children().filter(func(c: Node) -> bool: return c is MeshInstance3D).size(), 0, "its mesh out of the tree")
+		check_eq(rb.get_children().filter(func(c: Node) -> bool: return c is CollisionShape3D).size(), 1, "its shape kept on it")
 		check(rb.sleeping, "still asleep")
 		check(RubbleRest.resting(rb), "resting")
 	# Still solid: a ray down finds the body.
@@ -100,7 +102,38 @@ func test_a_piece_woken_that_doesnt_stir_stays_in_its_cell() -> void:
 	rb.sleeping = false
 	await physics_frames(60)
 	check(RubbleRest.resting(rb), "woken and asleep again where it lay: still in its cell")
-	check_eq(rb.get_child_count(), 0, "its nodes still aside")
+	check_eq(rb.get_children().filter(func(c: Node) -> bool: return c is MeshInstance3D).size(), 0, "its mesh still aside")
+
+
+## Joining its cell never wakes a piece (#584: a pile kept awake a while by one piece in it joined
+## awake; when the pile fell asleep at last its shapes were set aside, and that woke it all again,
+## time after time: hundreds of pieces awake for most of a minute after a ring of sticks).
+func test_a_pile_asleep_in_its_cell_isnt_woken_by_it() -> void:
+	# A pile: four boards crosswise on each other, one of them kept from sleeping (and so the pile:
+	# the physics puts a pile to sleep whole) till they've all joined their cell awake.
+	var ids: Array[StringName] = []
+	for k in 4:
+		var size := Vector3(0.1, 0.05, 1.0) if k % 2 == 0 else Vector3(1.0, 0.05, 0.1)
+		s.add_member("pile%d" % k, &"board", &"framing", size, Vector3(2.0, 0.05 + 0.06 * k, 5.0))
+		ids.append(StringName("rig/pile%d" % k))
+	await physics_frames(2)
+	s._drop(ids)
+	var bodies := s.rubble.filter(func(b: RigidBody3D) -> bool: return absf(b.global_position.x - 2.0) < 0.8)
+	(bodies[0] as RigidBody3D).can_sleep = false
+	await wait_until(func() -> bool: return _rest() != null and _rest().piece_count() >= bodies.size(), 600)
+	check_eq(_rest().piece_count() if _rest() else 0, bodies.size(), "the pile joined its cell awake")
+	(bodies[0] as RigidBody3D).can_sleep = true
+	await wait_until(func() -> bool: return bodies.all(func(b: RigidBody3D) -> bool: return b.sleeping), 300)
+	check(bodies.all(func(b: RigidBody3D) -> bool: return b.sleeping), "then fell asleep")
+	var woken := [0]
+	for rb: RigidBody3D in bodies:
+		rb.sleeping_state_changed.connect(func() -> void:
+			if not rb.sleeping:
+				woken[0] += 1)
+	await physics_frames(120)
+	check_eq(woken[0], 0, "and wasn't woken again")
+	for rb: RigidBody3D in bodies:
+		check(rb.sleeping and RubbleRest.resting(rb), "asleep in its cell")
 
 
 func test_the_fire_on_a_piece_lets_it_go() -> void:
