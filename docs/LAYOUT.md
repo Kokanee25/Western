@@ -1204,6 +1204,16 @@ turned by `roll_truck`), `seats` (the coach's benches). `TrainView.models` (on) 
 (`src/structures/ladder.gd`, the player's `_ladder_step`) at each end. The lab's
 `train_passengers N` seats the Studio's men in the coach.
 
+The paint (#577): the engine and tender are drawn in Sean's pick E (the Studio's realistic
+working-dirty repaint, `experiments/train_lab/paint/real_dirty.png`) baked onto their own UVs:
+`engine.py` unwraps every node of a car into one atlas (moving parts too), `paint_views.py` lays out
+the clay views the painting was made over (`layout.json`), `paint_bake.py` projects the painting
+back from each orthographic panel (z-buffered, registered to the painted silhouette, weighted by
+dot(normal, toward)^2, sampled 1.2 cm inside) into `assets/train/engine_paint.png` and
+`tender_paint.png` (2048, BC7, mipmapped). `TrainModels.painted(car)` lays an atlas on in the texel
+grid (a texel a square, as `PropModels.model_paint`); `dress(mi, paint)` gives it every surface but
+the lamp and the glass.
+
 Step 4 (#571): the sound. `TrainSound` (a child of `Train`, `sound`; dials `TrainSoundTuning`,
 `config/train_sound.tres`, proposed) is ticked after the sim's step with its coupler events and
 times every one-shot from the sim to the sub-tick: an exhaust beat each quarter turn of the drivers

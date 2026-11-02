@@ -82,22 +82,25 @@ class Car:
         self._settle(node)
         if node not in self.parts:
             self.parts[node] = bmesh.new()
+            self.parts[node].faces.layers.int.new("settled")
             self.slots[node] = []
         if mat not in self.slots[node]:
             self.slots[node].append(mat)
-        bm = self.parts[node]
-        bm.faces.ensure_lookup_table()
-        self.pending[node] = (self.slots[node].index(mat), len(bm.faces))
-        return bm
+        self.pending[node] = self.slots[node].index(mat)
+        return self.parts[node]
 
     def _settle(self, node):
-        """Gives the faces made since the last `bm` call their material."""
+        """Gives the faces made since the last `bm` call their material. They're found by a mark on
+        each face, not by index: Blender's primitive ops don't always append their faces at the end
+        of the list (2026-11-02: half the boiler jacket had taken the brass bands' material)."""
         if node in self.pending:
-            index, first = self.pending.pop(node)
+            index = self.pending.pop(node)
             bm = self.parts[node]
-            bm.faces.ensure_lookup_table()
-            for f in bm.faces[first:]:
-                f.material_index = index
+            done = bm.faces.layers.int["settled"]
+            for f in bm.faces:
+                if not f[done]:
+                    f.material_index = index
+                    f[done] = 1
 
     def _place(self, node, verts, m):
         """Moves a primitive's verts (as its bmesh op returned them: they aren't always the last
@@ -617,13 +620,33 @@ def tender():
     return root, {"mid": car.mid}
 
 
+def unwrap(root):
+    """Every node of the car unwrapped together into one atlas (the paint, #577: `paint_bake.py`
+    projects the painting onto it), in metres: smart_project keeps each island its real size and
+    pack_islands scales them all alike, so a texel is the same size on every part, moving or not
+    (the gun route, experiments/gun_lab/blender/guns_blender.py)."""
+    obs = [o for o in root.children_recursive if o.type == "MESH"]
+    bpy.ops.object.select_all(action="DESELECT")
+    for ob in obs:
+        ob.select_set(True)
+    bpy.context.view_layer.objects.active = obs[0]
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    # 66 degrees: a six-sided spoke or rod is one island round, not six (the engine has ~2,000
+    # small parts; at a margin each, 2 px on the 2048 atlas, they had taken four fifths of it).
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.0, scale_to_bounds=False)
+    bpy.ops.uv.pack_islands(margin_method="FRACTION", margin=0.001, rotate=True, shape_method="CONCAVE")
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+
 def export(root, path):
+    unwrap(root)
     bpy.ops.object.select_all(action="DESELECT")
     root.select_set(True)
     for c in root.children_recursive:
         c.select_set(True)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_yup=True,
-                              export_normals=True, export_texcoords=False, export_materials="EXPORT",
+                              export_normals=True, export_texcoords=True, export_materials="EXPORT",
                               export_animations=False)
 
 

@@ -26,7 +26,10 @@ adds its own lines.
   (`assets/creatures/horse/`, 2026-10-24: from Sean's pictures and views drawn from them by Nano
   Banana Pro in the Character Studio, Sean's OK, the game's #340); the saloon's deer head
   (`assets/props/models/deer_head*`, 2026-10-24) and the steer skull (`steer_skull*`, from pictures drawn by
-  OpenAI's GPT-5.4 image model through OpenRouter, output owned by the customer).
+  OpenAI's GPT-5.4 image model through OpenRouter, output owned by the customer). The train's engine and tender paint
+  (`assets/train/*_paint.png`, `experiments/train_lab/paint/real_dirty.png`, 2026-11-02: Nano Banana
+  Pro, Google's Gemini 3 Pro Image through OpenRouter, repainting the game's own clay layout in the
+  Character Studio, Sean's OK, the game's #569/#577), baked onto the models by our own code.
 - `bold_cowboy_s0`, `old_rancher_s1`, `young_drifter_s1`, `hothead_lyle_s1`: made by the Character Studio
   (Kokanee25/saltcreek-characters) from pictures by Sean (ChatGPT) and views drawn from them by
   Google's Gemini 3 Pro Image (through OpenRouter); fitted, rigged and written by the Studio's code.
