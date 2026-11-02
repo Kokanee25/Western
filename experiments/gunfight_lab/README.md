@@ -377,6 +377,14 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   second each; from out one hit on you in 3.2 shots, pointed one in 11; the fights as long and as
   dangerous (`shots.py`, `steps.py`; films by `film_posts.sh`).
 
+- `2026-11-02_climb/`: `climb` (#572, in D): his cover stale with you below the galleries, he goes
+  up the stair and fights from the rail (`Cover.climb_search`, `ClimbTuning`, `config/climb.tres`);
+  up over you a balustrade is a screen (`Cover._screen_spot`). 34 climbs in 200 fights (none
+  before), stays up 268 -> 415; hits on you from up unchanged (50 -> 52); the fights as long and as
+  dangerous inside the noise, the medians a little lower (`climbs.py`; a film by
+  `film_posts.sh ... climb`; a drawn fight is the headless one at `--fixed-fps 30` with the same
+  script).
+
 ## Limitations
 
 - Headless numbers aren't play: the brief's measure is Sean playing three fights and saying which

@@ -89,7 +89,8 @@ now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `gun_men`, `gun_grip`, `gun_framing`, `gun_handling`; its README); the gunfight lab (`experiments/gunfight_lab/`, its README; roadmap 3.0): `gf_fight` (one fight,
 scripted player, its record; `opening=shoot`: you fire first on men at their drink), `gf_cover`,
 `gf_coverwhy`, `gf_bodies`, `gf_lineup`, `gf_map`, `gf_ways` (the spec saloon's places walked),
-`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`); `run.py` runs the matrix
+`gf_what`, `gf_play`/`gf_result` (a played fight for the playtest agent), `gf_postcam` (the camera on a man at a post, `film_posts.sh`), `gf_climbcam` (on a man going up to the
+galleries, `film_posts.sh ... climb`); `run.py` runs the matrix
 a game a fight, `analyse.py` makes the tables, `quits.py` how they quit, `sheet.py` the contact
 sheet; the `spec_*` arenas are in the building lab's saloon (`spec_saloon.gd`: built if it isn't,
 its places joined to the town's); `play.gd` (added by `main.gd` when the folder's there) lets you
@@ -877,7 +878,10 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
   a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
   on counts for a man bladed behind it: `Cover._narrow`, spots with `narrow`/`post`/`post_w`,
-  `hidden_narrow`),
+  `hidden_narrow`; with `climb` (#572), his cover stale and you below a floor he can reach, a
+  search over the floor above: `Cover.climb_search` samples its places' walks, `_best_up` routes
+  each by the places up the stair, spots carry `climb`/`way_m`; `OutlawBrain._climb_choose`,
+  `ClimbTuning`, `config/climb.tres`),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
