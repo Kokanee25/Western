@@ -146,3 +146,31 @@ hour and night), `cost.txt` (the frame with the whole train in view, models then
 `films/rods_start.txt`, `films/walk_train.txt`.
 
 Results: `results/2026-11-02_step3/` (its `summary.md`).
+
+## Step 4 (#571): the sound
+
+**What's new:** `TrainSound` (`src/train/train_sound.gd`, a child of `Train`; dials
+`config/train_sound.tres`, proposed) and the sounds, all synthesised (`src/audio/train_synth.gd`:
+the recording sites are outside this workspace's network policy). Every one-shot is timed from the
+sim to the sub-tick and heard on its moment at any frame rate:
+
+- **the exhaust:** a chuff each quarter turn of the drivers (four a turn, as the puffs), long and
+  heavy below 3 beats a second, short above 8 (a blur at speed), louder with `TrainSim.steam`, each
+  of the four beats its own level and pitch; the cylinder cocks' burst on each beat at a start and
+  their hiss between;
+- **the rail joints:** a clack each axle over a joint (`rail_length` 9.14 m): the engine's pony and
+  four drivers (heavier, lower), two axles a truck under the rest, louder with speed;
+- **the couplers:** a bang (or a soft bump) each slack-out and bunch (`TrainSim`'s events);
+- **the brakes:** grind at speed, squeal as the shoes grip near a stand;
+- **rolling** by speed; the engine **simmering** standing; the **safety valve** lifting after
+  `valve_after` s standing with the regulator shut; the **bell** and a three-chime **whistle**;
+- placed by `GameAudio`'s rules: late by distance / 343 m/s, the air's highs, walls; **Doppler** on
+  every sound (one-shots at their moment, loops each frame).
+
+Bridge: `train_whistle [--o-|on|off]`, `train_bell on|off`, `train_valve`, `train_sound
+[on|off|counts|reset]` (counts and its cost), `train_caption TEXT` (for films), `train_cam side S
+OFF`; `train_cost` adds the sound's tick and frame. The cab: H the whistle (held), B the bell.
+Film: `films/sound.txt`; measured by `sound_measure.py FILM BRIDGE_LOG OUTDIR` (each section's
+levels and beats a second, a spectrogram). Tests `tests/test_train_sound.gd`.
+
+Results: `results/2026-11-02_step4/` (its `summary.md`).

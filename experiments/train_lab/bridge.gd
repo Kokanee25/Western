@@ -12,7 +12,7 @@ const HELP := {
 	"reverser": "reverser 1|-1 -> forward (toward B) or back",
 	"train_place": "train_place S|MARK [KMH] -> the train's front at S (or a named mark: depot, mine; A and B as step 1's), at a speed (default standing)",
 	"train_drive": "train_drive off|hold [KMH]|whole [KMH] -> a scripted driver: hold a speed, or run to B and stop",
-	"train_cam": "train_cam cab|chase|curve|side_a|side S|player -> watch from the cab, chasing, lineside, or back to you",
+	"train_cam": "train_cam cab|chase|curve|side_a|side S [OFF]|player -> watch from the cab, chasing, lineside (S along, OFF m off the line, default 10), or back to you",
 	"train_log": "train_log on|off|PATH -> log every drawn frame (on clears it); PATH writes it as CSV (graphs.py --frames)",
 	"train_cost": "train_cost [S] -> over S seconds (default 10): the train's tick and its drawing, ms a tick / a frame, and the frame's",
 	"train_record": "train_record on|off|PATH -> the train's tick rows (on clears them); PATH writes them as CSV",
@@ -36,6 +36,11 @@ const HELP := {
 	"train_lamps": "train_lamps -> the train's lamps (the coach's, the headlight): where, how bright, shown",
 	"train_passengers": "train_passengers N -> N passengers seated in the coach (window seats first)",
 	"train_where": "train_where CAR [ALONG] [UP] -> a point on a car (for look/shoot): ALONG m behind its front",
+	"train_whistle": "train_whistle [PATTERN|on|off] -> blow the whistle: - long, o short (default -; --o- a crossing), or hold it open/let go",
+	"train_bell": "train_bell on|off -> ring the bell (a strike every bell_period) or stop",
+	"train_valve": "train_valve -> lift the safety valve now (it blows valve_blow s)",
+	"train_sound": "train_sound [on|off|counts|reset|solo KIND,KIND|solo] -> the train's sound on or off, or what it's played (beats, clacks, couplers, started, culled, stolen) and its cost",
+	"train_caption": "train_caption TEXT -> a line of text at the bottom of the screen (for films; empty clears it)",
 }
 
 
@@ -155,9 +160,10 @@ func _cmd_train_cam(a: Array) -> Dictionary:
 	if v == "side":
 		lab.set_view(&"side_a")
 		lab.side_at = float(a[1]) if a.size() > 1 else 150.0
+		lab.side_off = float(a[2]) if a.size() > 2 else 10.0
 	else:
 		lab.set_view(StringName(v))
-	return {"view": String(lab.view), "side_at": lab.side_at}
+	return {"view": String(lab.view), "side_at": lab.side_at, "side_off": lab.side_off}
 
 
 func _cmd_train_log(a: Array) -> Dictionary:
@@ -204,6 +210,7 @@ func _cmd_train_cost(a: Array) -> Dictionary:
 	lab.ensure_built()
 	var train: Train = lab.train
 	train.cost_reset()
+	train.sound.cost_reset()
 	var f0 := Engine.get_process_frames()
 	var u0 := Time.get_ticks_usec()
 	await seconds(float(a[0]) if a.size() > 0 else 10.0)
@@ -215,6 +222,8 @@ func _cmd_train_cost(a: Array) -> Dictionary:
 		"solids_ms": float(c.get("solids_us", 0)) / maxf(1.0, c.get("ticks", 0)) / 1000.0,
 		"strike_ms": float(c.get("strike_us", 0)) / maxf(1.0, c.get("ticks", 0)) / 1000.0,
 		"draw_ms": float(c.get("draw_us", 0)) / maxf(1.0, c.get("draws", 0)) / 1000.0,
+		"sound_tick_ms": float(train.sound.cost.get("tick_us", 0)) / maxf(1.0, train.sound.cost.get("ticks", 0)) / 1000.0,
+		"sound_frame_ms": float(train.sound.cost.get("frame_us", 0)) / maxf(1.0, train.sound.cost.get("frames", 0)) / 1000.0,
 		"ticks": c.get("ticks", 0), "frames": frames,
 		"wall_ms_a_frame": float(Time.get_ticks_usec() - u0) / maxf(1.0, frames) / 1000.0,
 		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
@@ -432,3 +441,66 @@ func _cmd_train_watch(a: Array) -> Dictionary:
 func _cmd_train_slowmo(a: Array) -> Dictionary:
 	Engine.time_scale = clampf(float(a[0]) if a.size() > 0 else 1.0, 0.05, 1.0)
 	return {"time_scale": Engine.time_scale}
+
+
+func _cmd_train_whistle(a: Array) -> Dictionary:
+	var lab := _built()
+	var w: String = a[0] if a.size() > 0 else "-"
+	if w == "on" or w == "off":
+		lab.train.sound.whistle(w == "on")
+	else:
+		lab.train.sound.blow(w)
+	return {"whistle": w}
+
+
+func _cmd_train_bell(a: Array) -> Dictionary:
+	var lab := _built()
+	lab.train.sound.ring((a[0] if a.size() > 0 else "on") == "on")
+	return {"bell": lab.train.sound.bell}
+
+
+func _cmd_train_valve(_a: Array) -> Dictionary:
+	var lab := _built()
+	lab.train.sound.lift_valve()
+	return {"valve": "lifted"}
+
+
+func _cmd_train_sound(a: Array) -> Dictionary:
+	var lab := _built()
+	var snd: TrainSound = lab.train.sound
+	var w: String = a[0] if a.size() > 0 else "counts"
+	if w == "on" or w == "off":
+		snd.on = w == "on"
+		if not snd.on:
+			for p in snd.find_children("*", "AudioStreamPlayer3D", false, false):
+				(p as AudioStreamPlayer3D).stop()
+		else:
+			snd.reset()
+	elif w == "reset":
+		snd.counts = {}
+		snd.cost_reset()
+	elif w == "solo":
+		snd.solo = PackedStringArray(String(a[1]).split(",")) if a.size() > 1 else PackedStringArray()
+	var c := snd.cost
+	var playing := 0
+	for p in snd.find_children("*", "AudioStreamPlayer3D", false, false):
+		if (p as AudioStreamPlayer3D).playing:
+			playing += 1
+	var at := snd._car_frame(0, 1.0) * Vector3(0.0, 2.0, 0.0)
+	var own: Array[RID] = []
+	for body in lab.train.view.solids:
+		own.append(body.get_rid())
+	var hit := GameAudio._ray(World.space(lab.train), snd._ears_at, at, own)
+	var wall := {}
+	if not hit.is_empty() and hit.collider:
+		wall = {"hit": String((hit.collider as Node).get_path()), "at": arr(hit.position), "short_m": (hit.position as Vector3).distance_to(at)}
+	return {"on": snd.on, "counts": snd.counts, "ears": arr(snd._ears_at), "engine": arr(at), "wall": wall, "queued": snd.queue.size(), "playing": playing,
+		"tick_ms": float(c.get("tick_us", 0)) / maxf(1.0, c.get("ticks", 0)) / 1000.0,
+		"frame_ms": float(c.get("frame_us", 0)) / maxf(1.0, c.get("frames", 0)) / 1000.0,
+		"bell": snd.bell, "whistle": snd._whistle, "valve": snd._valve, "solo": snd.solo, "bus": String(snd._bus)}
+
+
+func _cmd_train_caption(a: Array) -> Dictionary:
+	var lab := _lab()
+	lab.caption(" ".join(a))
+	return {"caption": " ".join(a)}
