@@ -287,7 +287,10 @@ painterly squares. Where this section says otherwise below, this wins. The town'
 - **The doctor** — knows more about the sheriff's wound than he says. The most important
   character in the town, given the wound system.
 - **The saloon owner** — hears everything, sells it to whoever pays.
-- **The widow** — refuses to sell her claim, alone.
+- **The widow** — refuses to sell her claim; she lives on it with her **two young sons**
+  (**decided**, Sean 2026-11-03). The Baron wants her land for its water rights, and his gunmen
+  occupy it to make her give it up: the farmhouse rescue, then her sons (`docs/briefs/widow-farmhouse.md`).
+  **The boys are protected actors: never hurt, never a target, by how they're built** (that brief, §3).
 - Plus ordinary townsfolk (barber, blacksmith, storekeeper, preacher, children, dogs) with routines,
   feuds, debts, friendships and affairs among themselves.
 

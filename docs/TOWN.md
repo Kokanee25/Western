@@ -123,7 +123,11 @@ siding, shingles, bricks) with pixel-art textures made in code, unless noted.
 - **The player's homestead:** small cabin (bed = save point, stove, table, trunk), **the spring**
   (the stakes of the whole game), vegetable garden, small barn, well, woodpile, outhouse, fence. It
   can be improved — or burned out by the gang.
-- **The widow's homestead:** similar, older, better kept; she's alone.
+- **The widow's homestead:** similar, older, better kept; she lives there with her two young sons
+  (Sean, 2026-11-03). East of town, north of the railway, on the eastern wagon road (`docs/briefs/valley.md`);
+  the farmhouse of the rescue mission (`docs/briefs/widow-farmhouse.md`).
+- **The timber camp** (decided it exists, 2026-11-03; place proposed: the western foothills): a stand,
+  a sawpit or small mill, log and lumber piles, wagons into town (`docs/briefs/town-economy.md`).
 - **The cattle baron's ranch:** big painted two-storey house, bunkhouse, corrals, barn, windmill, a
   water tank; hands who work and fight for him.
 - **The railroad survey camp:** tents, stakes and flags along the line, a cook wagon; grows over the
