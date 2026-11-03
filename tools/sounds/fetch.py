@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Fetch recorded sounds where the workspace can't (issue #596; run by .github/workflows/sounds.yml).
 
-Freesound through its API only (its robots.txt shuts out crawlers and ClaudeBot by name; the API is
-the way its terms give). Needs the repo secret FREESOUND_API_KEY (a free key:
-https://freesound.org/apiv2/apply). For every layer in tools/sounds/queries.json it searches
+Freesound through its API only: its robots.txt shuts out crawlers (ClaudeBot by name), and its API
+terms (https://freesound.org/help/tos_api/, read 2026-11-03) forbid robots or scraping to reach its
+content (4f); nothing here touches the site's pages. Needs the repo secret FREESOUND_API_KEY (a free
+key, https://freesound.org/apiv2/apply), sent in the Authorization header (kept secret, terms §2 and
+B4). For every layer in tools/sounds/queries.json it searches
 Creative Commons 0 sounds only, keeps the most downloaded few of each query inside the layer's
 length, and downloads each one's high-quality OGG preview (no login needed for previews) with its
 record: id, name, author, licence, page, length, rating, downloads, tags, description.
 
-Out (--out): pool.json and <layer>/<id>.ogg. The Sonniss GDC bundles are not fetched: their
+Out (--out): pool.json and <layer>/<id>.ogg. These are the terms' "limited intermediate copies"
+(1b): the workflow encrypts them before they leave the runner (tools/sounds/pool_key.sh; never
+published as they are, 4a) and the pool is deleted once the sets are chosen. Only the few files
+picked for the game, CC0, go in the repo. About 26 searches and 80 downloads a run, paced (4g). The Sonniss GDC bundles are not fetched: their
 licence (restriction c) forbids publishing the files as sound effects, which a public repo does.
 
     FREESOUND_API_KEY=... python3 tools/sounds/fetch.py --out=build/sounds
@@ -29,16 +34,19 @@ FIELDS = "id,name,username,license,url,duration,samplerate,channels,avg_rating,n
 HERE = pathlib.Path(__file__).resolve().parent
 
 
-def get(url: str, timeout=60) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+def get(url: str, timeout=60, key="") -> bytes:
+    headers = {"User-Agent": UA}
+    if key:
+        headers["Authorization"] = f"Token {key}"
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 
 
 def search(key: str, query: str, lo: float, hi: float, n: int) -> list:
     q = {"query": query, "filter": f'license:"{CC0}" duration:[{lo} TO {hi}]', "fields": FIELDS,
-         "sort": "downloads_desc", "page_size": str(n), "token": key}
-    d = json.loads(get(API + "?" + urllib.parse.urlencode(q)))
+         "sort": "downloads_desc", "page_size": str(n)}
+    d = json.loads(get(API + "?" + urllib.parse.urlencode(q), key=key))
     return d.get("results", [])
 
 

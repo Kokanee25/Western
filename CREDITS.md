@@ -89,6 +89,9 @@ unchanged. The brakes' squeal and grind are still synthesised (`src/audio/train_
   `tools/sounds/fetch.py` (each file's id, title, author and page in `assets/audio/blast/sets.json`;
   listed here as they come in, though CC0 asks for no credit). The Sonniss GDC bundles are not
   used while this repo is public: their licence forbids publishing the files as sound effects.
+  Freesound's API terms (https://freesound.org/help/tos_api/, read 2026-11-03): the API only, no
+  scraping; the fetched pool is an intermediate copy, kept encrypted and deleted once the sets are
+  chosen; only the files the game uses are in this repo, under their own CC0.
 
 The dynamite's recordings (#596), Freesound, cut by `experiments/train_lab/recordings.py
 --manifest=experiments/sound_lab/blast_recordings.json` (trimmed, filtered, levelled):
