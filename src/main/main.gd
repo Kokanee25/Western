@@ -12,6 +12,7 @@ extends Node
 func _ready() -> void:
 	get_tree().auto_accept_quit = false  # the window's close quits through GameQuit (#435)
 	SynthSounds.warm_all()  # every sound made ahead on a worker, so the first shot doesn't freeze
+	BlastSounds.warm()  # the dynamite's recordings loaded on a worker too (#596)
 	screen.texture = game_viewport.get_texture()
 	screen.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	screen.stretch_mode = TextureRect.STRETCH_SCALE

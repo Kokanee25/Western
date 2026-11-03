@@ -19,6 +19,7 @@ const LAYERS: Array[StringName] = [&"crack", &"boom", &"sub", &"roll", &"debris_
 static var _sets := {}
 static var _loaded := false
 static var _streams := {}
+static var _lock := Mutex.new()
 static var _override := -2
 
 
@@ -50,9 +51,35 @@ static func stream(n: int, layer: StringName, pick := 0) -> AudioStream:
 	if f.is_empty():
 		return null
 	var path := DIR + String(f[posmod(pick, f.size())])
-	if not _streams.has(path):
-		_streams[path] = load(path) if ResourceLoader.exists(path) else null
-	return _streams[path]
+	_lock.lock()
+	var have := _streams.has(path)
+	var s: AudioStream = _streams.get(path)
+	_lock.unlock()
+	if not have:  # not warmed (a test, a lab run): loaded on the spot
+		s = load(path) if ResourceLoader.exists(path) else null
+		_lock.lock()
+		_streams[path] = s
+		_lock.unlock()
+	return s
+
+
+## Load the set in play's files on a worker at the start (high priority, tracked by SynthSounds
+## so GameQuit waits for it: #392), so the first blast doesn't load them on its frame.
+static func warm() -> void:
+	var n := active()
+	if n == 0:
+		return
+	var paths: Array[String] = []
+	for layer: StringName in LAYERS:
+		for f: String in files(n, layer):
+			paths.append(DIR + f)
+	SynthSounds.track(WorkerThreadPool.add_task(func() -> void:
+		for path in paths:
+			var s: AudioStream = load(path) if ResourceLoader.exists(path) else null
+			_lock.lock()
+			if not _streams.has(path):
+				_streams[path] = s
+			_lock.unlock(), true, "BlastSounds.warm"))
 
 
 ## For tests: set `n` made of these streams ({layer: AudioStream}), without files.
@@ -62,7 +89,9 @@ static func inject(n: int, layers: Dictionary) -> void:
 	for layer: StringName in layers:
 		var path := "test_%d_%s" % [n, layer]
 		names[String(layer)] = [path]
+		_lock.lock()
 		_streams[DIR + path] = layers[layer]
+		_lock.unlock()
 	_sets[str(n)] = {"name": "test", "layers": names}
 
 

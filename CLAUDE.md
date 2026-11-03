@@ -688,11 +688,12 @@ frozen until Sean names one.
   real recordings (`assets/audio/train/`, cut by `experiments/train_lab/recordings.py`; Commons
   CC0/CC BY, `CREDITS.md`; Wikimedia refuses downloads here, Sean uploads them), the brakes still
   synthesised, `-- --train-synth` the before. Waiting on Sean's ears (the film); step 5 waits on #492/#538.
-- **The dynamite's sound** (#596 step 1, branch `claude/gameplay-dynamite-sound`): `BlastSounds`
-  (recorded sets of layers, `assets/audio/blast/sets.json`; none yet, so the synthesised blast
-  plays), `tools/sounds/fetch.py` + `sounds.yml` (Freesound CC0 through its API, to the branch
-  `claude/gameplay-dynamite-sound-pool`), the lab's `blast_clips.py`. Waiting on Sean: a Freesound
-  API key (#599); Sonniss can't go in the public repo. Handover on #596.
+- **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
+  (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
+  Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
+  --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
+  `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
+  (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed. Next if wanted: the
   PRs' macOS/Windows native jobs only when `addons/saltcreek_native` changes.

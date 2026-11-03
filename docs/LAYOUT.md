@@ -1157,6 +1157,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   fetched on Actions by `tools/sounds/fetch.py` (`.github/workflows/sounds.yml`, the repo secret
   `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`).
   Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
+  The sets (2026-11-03): three, from eight Freesound CC0 recordings Sean downloaded (#599), cut by
+  `experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json` into
+  `assets/audio/blast/s1..s3/` (crack, boom, sub, roll; no debris, glass or groan yet).
 
 ## src/creatures (the horse)
 
