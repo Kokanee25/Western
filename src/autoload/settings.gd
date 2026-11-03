@@ -142,6 +142,11 @@ var _people_bands_file := PEOPLE_BANDS
 ## #529/#539): on in the game since Sean passed them as stand-ins (2026-11-02). Not saved; for one
 ## run, `-- --library-motion=on|off`, or the dev bridge's `library on|off`.
 var library_motion := true
+## Indoor light that knows the building (RoomLight, art, #608 part 1): the lamps' bounce, each
+## room's own fill, sky through openings and holes, haze that holds the gunsmoke. Off until Sean
+## has looked; not saved. For one run `-- --room-light=on|off`; the look address
+## `settings.room_light` (the screenshots' --variants, the bridge's `set`).
+var room_light := false
 ## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
 ## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
 ## (project.godot's `application/config/project_settings_override`), so this is what this run has
@@ -193,6 +198,8 @@ func _ready() -> void:
 			people_bands = a.substr(15) == "on"
 		elif a.begins_with("--library-motion="):
 			library_motion = a.substr(17) == "on"
+		elif a.begins_with("--room-light="):
+			room_light = a.substr(13) == "on"
 		elif a.begins_with("--physics-thread="):
 			set_physics_thread(a.substr(17) == "on")
 		elif a.begins_with("--render-thread="):
@@ -394,6 +401,11 @@ func set_finish(on: bool) -> void:
 func set_mosaic(on: bool) -> void:
 	mosaic = on
 	_changed()
+
+
+## RoomLight on or off (it follows on its next frame). Not saved.
+func set_room_light(on: bool) -> void:
+	room_light = on
 
 
 ## The simulated fire's flipbooks on or off (FireFX.flipbooks; burning members change over as
