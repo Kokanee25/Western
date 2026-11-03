@@ -174,3 +174,13 @@ Film: `films/sound.txt`; measured by `sound_measure.py FILM BRIDGE_LOG OUTDIR` (
 levels and beats a second, a spectrogram). Tests `tests/test_train_sound.gd`.
 
 Results: `results/2026-11-02_step4/` (its `summary.md`).
+
+## Train sound 2 (#586): the sounds from real recordings
+
+18 of the 20 train sounds cut from four Wikimedia Commons recordings (CC0, CC BY; `CREDITS.md`) by
+`recordings.py` from `recordings.json` into `assets/audio/train/` (the brakes' squeal and grind
+stay synthesised); `SynthSounds` plays a recording where there is one (`TrainSynth.recording`),
+`-- --train-synth` the synthesis. Sources go in `build/train_rec/src/` (`recordings.py fetch`,
+or by hand: Wikimedia refused this workspace's address); the loudness each is set to comes from
+`tools/train_synth_dump.gd`. Dials set for them in `config/train_sound.tres`. Film and levels:
+`results/2026-11-03_sound2/`.
