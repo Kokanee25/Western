@@ -335,3 +335,9 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-03_cheap_r1 | road_low_noon | **good indie** | 3, 5, 6, 8, 9 | Blue pebbles strewn like confetti | 19% / 0.0 / 1.71 / 0.05 | baseline: main on 2026-11-03 (after #606) |
 | 2026-11-03_cheap_r1 | street_golden_hour | **good indie** | 8 | The rubber hand | 7% / 1.5 / 0.76 / 0.03 | baseline: main on 2026-11-03 (after #606) |
 | 2026-11-03_cheap_r1 | film | **good indie** | 9, 10 | Frozen people | (film) | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r2 | saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Everything the same orange | 4% / 6.1 / 0.95 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | The player's hand | 6% / 5.0 / 1.00 / 0.07 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Flat orange wash | 3% / 7.6 / 0.99 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | road_low_noon | **good indie** | 3, 4, 6 | Plastic pebbles | 19% / 0.0 / 1.71 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | street_golden_hour | **good indie** | 3, 6 | The hand again | 7% / 1.5 / 0.76 / 0.03 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | film | **good indie** | 6, 10 | Frozen horses | (film) | with --refs (32 AAA screenshots, the Studio) |
