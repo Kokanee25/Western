@@ -98,6 +98,7 @@ func start_engineer(late := 0.0, file := "res://experiments/train_lab/timetable.
 	engineer.run(timetable, late)
 	_put_engineer_in_cab()
 	engineer.body = engineer_body
+	engineer.lookout = train.lookout  # (step 5: he watches the line and brakes for what's wrong)
 	driver = &"engineer"
 	return engineer
 
@@ -586,3 +587,48 @@ func _act(action: StringName, down: bool) -> void:
 	ev.pressed = down
 	ev.strength = 1.0 if down else 0.0
 	Input.parse_input_event(ev)
+
+
+# --- Step 5 (#616): save and load, the next train ---------------------------------------------
+
+## What a save keeps of the line and its train: the track's damage and the wreck, both by the
+## route's places (section and distance), never world positions.
+func save_state() -> Dictionary:
+	ensure_built()
+	var d := {"route": route_file, "track": line.state.to_dict()}
+	if train.wreck:
+		d["wreck"] = train.wreck.to_dict()
+	return d
+
+
+## The line built again from `file` (its route: the same, or a re-laid one), a train on it, and a
+## save put back: the damage and the wreck where the save had them on the route.
+func load_state(d: Dictionary, file := "") -> Dictionary:
+	set_route(file if file != "" else String(d.get("route", route_file)))
+	await get_tree().physics_frame
+	var missed := line.state.from_dict(d.get("track", {}))
+	var bodies := 0
+	if d.has("wreck"):
+		var w := TrainWreck.restore(train, d.wreck)
+		bodies = w.bodies.size()
+	return {"missed": missed, "wreck_bodies": bodies}
+
+
+## After the crew's mended the line: the railroad's next train at the depot (the wreck left
+## where it lies beside the line), the engineer running the timetable.
+func next_train() -> Train:
+	ensure_built()
+	var old := train
+	engineer_body = null  # (his body stays where the wreck left it)
+	engineer = null
+	old.name = "WreckedTrain"
+	old.set_physics_process(false)
+	old.set_process(false)
+	var t := Train.new()
+	t.name = "Train"
+	line.add_child(t)
+	t.setup(line, tuning)
+	t.rider = player
+	t.place(line.mark_s("depot"))
+	train = t
+	return t

@@ -31,6 +31,10 @@ var tuning: TrainTuning
 var timetable: TrainTimetable
 ## His body (a HumanBody in the cab), or null to drive regardless (the headless runs).
 var body: Node3D
+## His eyes on the line (step 5, #616: the Train's TrainLookout). Alarmed, he shuts the regulator
+## and throws the brake on full, whistles, and stands where it stops till the line's mended.
+var lookout: TrainLookout
+var emergency := false
 
 var state := DONE
 var stop := 0  # the stop he's at (WAIT) or last left (RUN)
@@ -107,6 +111,16 @@ func drive(dt: float) -> void:
 	odo += absf(sim.s - _last_s)
 	_last_s = sim.s
 	if not _alive():
+		return
+	if lookout and lookout.alarmed():
+		if not emergency:
+			emergency = true
+			if lookout.train and lookout.train.sound:
+				lookout.train.sound.whistle(true)
+		sim.throttle = 0.0
+		sim.brake_lever = 1.0
+		if absf(sim.v) < 0.05 and lookout.train and lookout.train.sound:
+			lookout.train.sound.whistle(false)
 		return
 	match state:
 		WAIT:

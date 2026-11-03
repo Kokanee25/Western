@@ -15,6 +15,15 @@ func before_each() -> void:
 	tuning = load("res://config/train.tres")
 	world = Node3D.new()
 	add_child(world)
+	# The flat the line's laid on (its fill meets it).
+	var ground := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(4000, 1, 4000)
+	shape.shape = box
+	ground.add_child(shape)
+	ground.position.y = -0.5
+	world.add_child(ground)
 
 
 func after_each() -> void:
@@ -184,3 +193,179 @@ func test_the_wheels_run_over_a_man_down_between_the_rails() -> void:
 	var off: Array = over.filter(func(x: Dictionary) -> bool: return String(x.how).contains(" off"))
 	check(Settings.reduced_gore or not off.is_empty(), "a limb on the rail is cut off (gore on): %s" % [over])
 	check(man.limp, "he's limp")
+
+
+## A rail torn out at `at` (the left one), the train coming on at `kmh` from 60 m short, nobody
+## braking: returns the train once it's derailed and `settle` s have passed.
+func _derail_run(kmh: float, at := 400.0, settle := 6.0) -> Train:
+	var line := _line()
+	var c := line.chunk_at(at)
+	c.tear_loose(c.rail_at(-1, at + 1.0))
+	var train := _train(line, at - 60.0)
+	await physics_frames(2)
+	train.sim.set_speed(kmh / 3.6)
+	await wait_until(func() -> bool: return not train.derail.is_empty(), 60 * 120)
+	await physics_frames(int(settle * 60.0))
+	return train
+
+
+func test_a_derail_hands_the_train_over_with_its_momentum() -> void:
+	var line := _line()
+	var c := line.chunk_at(400.0)
+	c.tear_loose(c.rail_at(-1, 401.0))
+	var train := _train(line, 340.0)
+	await physics_frames(2)
+	train.sim.set_speed(30.0 / 3.6)
+	var p1d := [0.0]
+	train.derailed.connect(func(_i: Dictionary) -> void:
+		var p := Vector3.ZERO
+		var m := 0.0
+		for b: Dictionary in train.wreck.bodies:
+			var rb := b.body as RigidBody3D
+			p += rb.linear_velocity * rb.mass
+			m += rb.mass
+		p1d[0] = p.length() / m)
+	var mom := 0.0
+	for i in train.sim.cars.size():
+		mom += float(train.sim.cars[i].mass)
+	var ok := await wait_until(func() -> bool: return not train.derail.is_empty(), 60 * 60)
+	check(ok, "it leaves the rails at the break")
+	check_near(float(train.derail.s), 400.0, 10.0, "where the rail's gone (%.1f)" % float(train.derail.s))
+	check_eq(train.wreck.bodies.size(), train.sim.cars.size(), "a body a car")
+	# The momentum the bodies were given is the 1D train's (all its cars at about the same speed).
+	check_near(float(p1d[0]), float(train.derail.kmh) / 3.6, 0.6, "handed over at its speed (%.2f m/s of %.2f)" % [float(p1d[0]), float(train.derail.kmh) / 3.6])
+	await physics_frames(60 * 8)
+	var off := 0.0
+	for b: Dictionary in train.wreck.bodies:
+		var rb := b.body as RigidBody3D
+		var local := line.global_transform.affine_inverse() * rb.global_position
+		var s := line.curve.get_closest_offset(local)
+		off = maxf(off, local.distance_to(line.point_at(s)))
+	check(off > 0.3, "the cars are off the line (%.2f m at most)" % off)
+
+
+## The engineer driving (no body: he drives regardless) toward a torn-out rail at `at`.
+func _engineer_run(line: TrackLine, kmh: float, at: float, daylight: float, seed_value := 616) -> Train:
+	var c := line.chunk_at(at)
+	c.tear_loose(c.rail_at(-1, at + 0.5))
+	var train := _train(line, at - 300.0)
+	train.lookout.daylight = daylight
+	train.lookout.reset(seed_value)
+	train.sim.set_speed(kmh / 3.6)
+	var e := TrainEngineer.new(train.sim, line)
+	e.go_to(line.length - 3.0, kmh)
+	e.lookout = train.lookout
+	var drive := func() -> void: e.drive(1.0 / 60.0)
+	get_tree().physics_frame.connect(drive)
+	await wait_until(func() -> bool: return not train.derail.is_empty() or (train.lookout.alarmed() and absf(train.sim.v) < 0.02), 60 * 120)
+	get_tree().physics_frame.disconnect(drive)
+	return train
+
+
+func test_the_engineer_sees_the_break_and_stops_short() -> void:
+	var line := _line()
+	var train: Train = await _engineer_run(line, 20.0, 380.0, 1.0)
+	check(train.derail.is_empty(), "by day at 20 km/h he stops short")
+	check(not train.lookout.log.is_empty(), "he saw it")
+	var d1: float = train.lookout.log[0].distance if not train.lookout.log.is_empty() else 0.0
+	var s1 := train.sim.s
+	check(s1 < 380.0, "short of the break (front at %.1f)" % s1)
+	line.free()
+	await physics_frames(2)
+	var again: Train = await _engineer_run(_line(), 20.0, 380.0, 1.0)
+	check_near(float(again.lookout.log[0].distance) if not again.lookout.log.is_empty() else -1.0, d1, 0.01, "the same seed, the same sighting")
+	check_near(again.sim.s, s1, 0.5, "and the same stop")
+
+
+func test_by_night_he_sees_it_later() -> void:
+	var day: Train = await _engineer_run(_line(), 40.0, 380.0, 1.0)
+	var d_day: float = day.lookout.log[0].distance if not day.lookout.log.is_empty() else 0.0
+	day.track.free()
+	await physics_frames(2)
+	var night: Train = await _engineer_run(_line(), 40.0, 380.0, 0.0)
+	var d_night: float = night.lookout.log[0].distance if not night.lookout.log.is_empty() else 0.0
+	check(d_night < d_day * 0.5, "the headlight shows it at %.0f m, the day at %.0f m" % [d_night, d_day])
+	check(not night.derail.is_empty(), "at 40 km/h by night he can't stop in that")
+
+
+func test_off_screen_it_derails_in_numbers() -> void:
+	var line := _line()
+	var c := line.chunk_at(380.0)
+	c.tear_loose(c.rail_at(1, 380.5))
+	var train := _train(line, 330.0)
+	train.physical = false
+	train.sim.set_speed(20.0 / 3.6)
+	var ok := await wait_until(func() -> bool: return not train.derail.is_empty() and absf(train.sim.v) < 0.01, 60 * 60)
+	check(ok, "off the rails, and stood")
+	check(bool(train.derail.get("numeric", false)), "in numbers (no bodies)")
+	check(train.wreck == null, "no wreck of bodies")
+	var plough: float = pow(20.0 / 3.6, 2) / (2.0 * tuning.plough_g * 9.81)
+	check(train.sim.s - float(train.derail.s) < plough * 2.0 + 5.0, "ploughs %.1f m past the break (%.1f at plough_g)" % [train.sim.s - float(train.derail.s), plough])
+
+
+func test_the_wreck_and_the_damage_stay_after_a_save_and_load() -> void:
+	var lab_line := _line()
+	var c := lab_line.chunk_at(400.0)
+	c.tear_loose(c.rail_at(-1, 401.0))
+	var train := _train(lab_line, 340.0)
+	train.sim.set_speed(20.0 / 3.6)
+	await wait_until(func() -> bool: return not train.derail.is_empty(), 60 * 60)
+	await physics_frames(60 * 6)
+	var saved := {"track": lab_line.state.to_dict(), "wreck": train.wreck.to_dict()}
+	var where := []
+	for b: Dictionary in train.wreck.bodies:
+		if is_instance_valid(b.body) and b.part != "broken":
+			where.append((b.body as RigidBody3D).global_position)
+	var damage: Array = lab_line.state.damage().map(func(x: Dictionary) -> String: return "%s %s %.1f" % [x.kind, x.key.section, x.key.at])
+	for b: Dictionary in train.wreck.bodies:
+		if is_instance_valid(b.body):
+			(b.body as Node).queue_free()
+	lab_line.queue_free()
+	await physics_frames(3)
+	var line := _line()
+	var t2 := _train(line, 120.0)
+	check_eq(line.state.from_dict(saved.track), 0, "every piece of track damage placed")
+	var w := TrainWreck.restore(t2, saved.wreck)
+	check_eq(w.bodies.size(), where.size(), "every wreck body laid again")
+	var worst := 0.0
+	for i in mini(where.size(), w.bodies.size()):
+		worst = maxf(worst, (w.bodies[i].body as RigidBody3D).global_position.distance_to(where[i]))
+	check(worst < 0.05, "where they lay (%.3f m at most)" % worst)
+	var damage2: Array = line.state.damage().map(func(x: Dictionary) -> String: return "%s %s %.1f" % [x.kind, x.key.section, x.key.at])
+	check_eq(damage2, damage, "the track's damage as it was")
+
+
+func test_the_crew_mends_the_line_and_the_next_train_runs_through() -> void:
+	var line := _line()
+	var c := line.chunk_at(380.0)
+	c.tear_loose(c.rail_at(-1, 380.5))
+	# A crate on the line by it as well.
+	var crate := RigidBody3D.new()
+	crate.mass = 60.0
+	crate.add_to_group(&"rubble")
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.6, 0.6, 0.6)
+	cs.shape = box
+	crate.add_child(cs)
+	world.add_child(crate)
+	var f := line.global_transform * line.transform_at(384.0)
+	crate.global_position = f.origin + f.basis.y * 0.3
+	await physics_frames(30)
+	check(not line.state.damage().is_empty(), "the line's broken")
+	var t := tuning.duplicate() as TrainTuning
+	t.tie_s = 2.0
+	t.rail_s = 4.0
+	t.clear_s_per_t = 20.0
+	line.repair.tuning = t
+	line.repair.call_now()
+	var ok := await wait_until(func() -> bool: return line.repair.state >= TrackRepair.LEAVING or line.repair.state == TrackRepair.IDLE and line.repair.log.size() > 3, 60 * 240)
+	check(ok, "the crew comes and works: %s" % [line.repair.log])
+	check(line.state.damage().filter(func(x: Dictionary) -> bool: return x.kind != &"blocked").is_empty(), "the line's whole again: %s" % [line.state.damage()])
+	var local := line.global_transform.affine_inverse() * crate.global_position
+	var s := line.curve.get_closest_offset(local)
+	check(local.distance_to(line.point_at(s)) > 1.5, "the crate's off the line")
+	var train := _train(line, 300.0)
+	train.sim.set_speed(5.0)
+	await wait_until(func() -> bool: return train.sim.s > 450.0 or not train.derail.is_empty(), 60 * 60)
+	check(train.derail.is_empty(), "the next train runs through")

@@ -38,6 +38,8 @@ static var members_default := not "--track-drawn" in OS.get_cmdline_user_args()
 var chunks: Array[TrackChunk] = []
 ## What's wrong with the line (TrackState): broken, bent and blocked stretches.
 var state: TrackState
+## The railroad's repair crew for this line (TrackRepair): sent for when it's damaged.
+var repair: TrackRepair
 ## Chunks of the drawn track, m.
 const CHUNK := 100.0
 const STEP := 1.0  # the alignment's sampling, m
@@ -230,6 +232,10 @@ func build() -> void:
 	if state == null:
 		state = TrackState.new(self)
 	state.line_built()
+	if track_members:
+		repair = TrackRepair.new()
+		repair.setup(self)
+		add_child(repair)
 
 
 ## The TrackChunk holding distance s, or null.

@@ -115,6 +115,11 @@ func _draw_shape(parent: Node3D, sh: Dictionary) -> void:
 
 
 func _solid_shape(solid: AnimatableBody3D, sh: Dictionary) -> void:
+	_solid_shape_into(solid, sh)
+
+
+## A shape of TrainCars' list on any body (a wreck's section too).
+func _solid_shape_into(solid: CollisionObject3D, sh: Dictionary) -> void:
 	var cs := CollisionShape3D.new()
 	if sh.has("hull"):
 		var cp := ConvexPolygonShape3D.new()
