@@ -896,7 +896,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `hidden_narrow`; with `climb` (#572), his cover stale and you below a floor he can reach, a
   search over the floor above: `Cover.climb_search` samples its places' walks, `_best_up` routes
   each by the places up the stair, spots carry `climb`/`way_m`; `OutlawBrain._climb_choose`,
-  `ClimbTuning`, `config/climb.tres`),
+  `ClimbTuning`, `config/climb.tres`; with `own_cover` (#583), `own` in `_blocked`/`hidden_at`/
+  `evaluate`/`screen_share`: a line stopped first far from him is asked again from his end
+  (`_near_him`), so the threat's own cover doesn't make his read as seen),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),

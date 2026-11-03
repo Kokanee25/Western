@@ -220,7 +220,7 @@ static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Ve
 			continue
 		var p: Vector3 = floor_at
 		var spot := evaluate(space, p, threat_eye, exclude, true, first[i], ctx.get("narrow", false), ctx.get("screen", 0.0),
-				ctx.get("screen_above", INF))
+				ctx.get("screen_above", INF), ctx.get("own", false))
 		if spot.is_empty():
 			continue
 		# Holding a house (OutlawBrain.hold): only spots inside it.
@@ -476,9 +476,10 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 ## Is a spot any good? {} if not; else {at, low, crouch_ok, lie, peek}. `far`: something wide a few
 ## metres off counts as his cover too (a man who knows the town: OutlawBrain with its `places`).
 ## `first`: its first lines already asked (`_first_lines`). `narrow`: a post too narrow to hide him
-## square on counts, bladed behind it (`_narrow`; OutlawBrain's variant D `posts`).
+## square on counts, bladed behind it (`_narrow`; OutlawBrain's variant D `posts`). `own`: what's
+## near him hides him whatever's first on the line (`_blocked`; variant D's `own_cover`, #583).
 static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false, first := [],
-		narrow := false, screen := 0.0, screen_above := INF) -> Dictionary:
+		narrow := false, screen := 0.0, screen_above := INF, own := false) -> Dictionary:
 	var ground: Variant = first[1] if first.size() > 1 else _ground(space, p, exclude)
 	if ground == null:
 		return {}
@@ -488,26 +489,26 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 	# Cheapest first: one ray at his chest lying down; if that's seen, nothing here hides him.
 	var asked: Array = first[2] if first.size() > 2 else []
 	var up_over := screen > 0.0 and at.y > screen_above  # a balustrade's screen may still do (`_screen_spot`)
-	if not up_over and not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far, asked):
+	if not up_over and not _blocked(space, at, threat_eye, LIE_CHEST, exclude, far, asked, own):
 		return {}
 	if not _room(space, at, exclude):
 		return {}
 	var lie := false
-	if not hidden_at(space, at, threat_eye, HIDE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, CHEST, exclude, far):
+	if not hidden_at(space, at, threat_eye, HIDE_HEAD, exclude, far, own) or not hidden_at(space, at, threat_eye, CHEST, exclude, far, own):
 		# Too narrow to hide him square on: a post he can blade himself behind?
 		if narrow:
-			var post := _narrow(space, at, threat_eye, exclude, far)
+			var post := _narrow(space, at, threat_eye, exclude, far, own)
 			if not post.is_empty():
 				return post
 		# Too low to duck behind: flat on the ground, then.
-		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude, far) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude, far):
+		if not hidden_at(space, at, threat_eye, LIE_HEAD, exclude, far, own) or not hidden_at(space, at, threat_eye, LIE_CHEST, exclude, far, own):
 			# Up over the man, behind a balustrade (variant D's `climb`): a screen, if enough of it's in the way.
 			if up_over:
-				return _screen_spot(space, at, threat_eye, exclude, screen)
+				return _screen_spot(space, at, threat_eye, exclude, screen, own)
 			return {}
 		lie = true
-	var low := not hidden_at(space, at, threat_eye, STAND_HEAD, exclude, far)
-	var crouch_ok := hidden_at(space, at, threat_eye, CROUCH_HEAD, exclude, far)
+	var low := not hidden_at(space, at, threat_eye, STAND_HEAD, exclude, far, own)
+	var crouch_ok := hidden_at(space, at, threat_eye, CROUCH_HEAD, exclude, far, own)
 	var peek := Vector3.INF
 	if low:
 		# Rise up and shoot over it.
@@ -535,8 +536,9 @@ static func evaluate(space: PhysicsDirectSpaceState3D, p: Vector3, threat_eye: V
 ## behind one, up over the man, he's in slices, and the floor's edge takes his lower half. A spot
 ## is a screen when at least `share` of the lines to him ducked (`screen_share`) are stopped close
 ## to him; he shoots standing over its top rail. {} if not, or if he can't shoot from it.
-static func _screen_spot(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], share: float) -> Dictionary:
-	if screen_share(space, at, threat_eye, exclude) < share:
+static func _screen_spot(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], share: float,
+		own := false) -> Dictionary:
+	if screen_share(space, at, threat_eye, exclude, own) < share:
 		return {}
 	if not _sees(space, at + Vector3.UP * GUN_HEIGHT, threat_eye, exclude):
 		return {}
@@ -545,8 +547,9 @@ static func _screen_spot(space: PhysicsDirectSpaceState3D, at: Vector3, threat_e
 
 ## How much of a man ducked at `at` (his width across the line, from his hip to the top of his
 ## head ducked: SCREEN_ACROSS lines at each of SCREEN_HEIGHTS) the threat's lines meet something
-## solid close to him (within HUGGING): 0..1.
-static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> float:
+## solid close to him (within HUGGING): 0..1. `own` (variant D's `own_cover`, #583): a line stopped
+## first far from him is asked again from his end (`_near_him`, one batch).
+static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], own := false) -> float:
 	var to := threat_eye - at
 	to.y = 0.0
 	var side := to.normalized().cross(Vector3.UP) if to.length() > 0.01 else Vector3.RIGHT
@@ -561,9 +564,22 @@ static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_e
 	var t := Sight.lines(space, froms, tos, Layers.WORLD, exclude)
 	var kinds := Sight.kinds()
 	var stopped := 0
+	var back_from := PackedVector3Array()
+	var back_to := PackedVector3Array()
 	for k in t.size():
 		if t[k] < 1.0 and kinds[k] != Sight.KIND_CHARACTER and (1.0 - t[k]) * froms[k].distance_to(tos[k]) < HUGGING:
 			stopped += 1
+		elif own and t[k] < 1.0:
+			var n := (froms[k] - tos[k]).normalized()
+			back_from.append(tos[k])
+			back_to.append(tos[k] + n * minf(HUGGING, froms[k].distance_to(tos[k])))
+	if not back_from.is_empty():
+		Prof.count(&"q_cover", back_from.size())
+		var tb := Sight.lines(space, back_from, back_to, Layers.WORLD, exclude)
+		var kb := Sight.kinds()
+		for k in tb.size():
+			if tb[k] < 1.0 and kb[k] != Sight.KIND_CHARACTER:
+				stopped += 1
 	return float(stopped) / t.size()
 
 
@@ -575,12 +591,14 @@ const SCREEN_ACROSS := 9
 
 ## Is a man at `at` hidden from the threat at this height, all of him (his shoulders either side,
 ## not just a line down his middle)? The shot has to be stopped close to him.
-static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false) -> bool:
+## `own`: as `_blocked`'s (variant D's `own_cover`, #583).
+static func hidden_at(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false,
+		own := false) -> bool:
 	var to := threat_eye - at
 	to.y = 0.0
 	var side := to.normalized().cross(Vector3.UP) if to.length() > 0.01 else Vector3.RIGHT
 	for off in [0.0, SHOULDERS, -SHOULDERS]:
-		if not _blocked(space, at + side * float(off), threat_eye, height, exclude, far):
+		if not _blocked(space, at + side * float(off), threat_eye, height, exclude, far, [], own):
 			return false
 	return true
 
@@ -595,7 +613,8 @@ const SHOULDERS := 0.18
 ## point his gun past its edge on his right as he looks at the threat (the pose is that way round),
 ## and the threat within his forearm's reach up or down (`PostPose.POINT_ARC`). {} if not, else the
 ## spot as `evaluate` gives it, {narrow, post, post_w} added; he shoots from where he stands.
-static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false) -> Dictionary:
+static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, exclude: Array[RID], far := false,
+		own := false) -> Dictionary:
 	var to := threat_eye - at
 	to.y = 0.0
 	if to.length() < 0.5:
@@ -610,13 +629,15 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 	var chest := at + Vector3.UP * NARROW_HEIGHTS[NARROW_CHEST]
 	Prof.count(&"q_cover")
 	var t := Sight.cast(space, threat_eye, chest, Layers.WORLD, exclude)
-	if t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER:
+	if t >= 1.0:
 		return {}
-	var d := (1.0 - t) * threat_eye.distance_to(chest)
+	var d := INF if Sight.hit_kind() == Sight.KIND_CHARACTER else (1.0 - t) * threat_eye.distance_to(chest)
+	if d > NARROW_NEAR and own:
+		d = _near_him(space, chest, threat_eye, exclude, NARROW_NEAR + 0.01)  # past the threat's own cover
 	if d > NARROW_NEAR:
 		return {}
 	for h: float in NARROW_HEIGHTS:
-		if not _blocked(space, at, threat_eye, h, exclude, far):
+		if not _blocked(space, at, threat_eye, h, exclude, far, [], own):
 			return {}
 	# How wide it is across the line at his chest, either side of him.
 	var lo := 0.0
@@ -624,7 +645,7 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 	for sgn: float in [1.0, -1.0]:
 		for k in range(1, NARROW_SCAN + 1):
 			var off := sgn * NARROW_STEP * k
-			if not _blocked(space, at + side * off, threat_eye, NARROW_HEIGHTS[NARROW_CHEST], exclude, far):
+			if not _blocked(space, at + side * off, threat_eye, NARROW_HEIGHTS[NARROW_CHEST], exclude, far, [], own):
 				break
 			if sgn > 0.0:
 				hi = off
@@ -644,7 +665,7 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 		hi -= mid
 		lo -= mid
 		for h: float in NARROW_HEIGHTS:
-			if not _blocked(space, at, threat_eye, h, exclude, far):
+			if not _blocked(space, at, threat_eye, h, exclude, far, [], own):
 				return {}
 	# Past its edge on his right: his eye leaning out, his gun hand across him.
 	var edge := hi + NARROW_STEP * 0.5
@@ -708,8 +729,9 @@ const SCREEN_SCORE := -0.3
 
 
 ## `asked`: [t, kind] of its first line, already asked (`_first_lines`).
+## `own` (variant D's `own_cover`, #583): what stops the line near him counts whatever's first on it.
 static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: Vector3, height: float, exclude: Array[RID], far := false,
-		asked := []) -> bool:
+		asked := [], own := false) -> bool:
 	var target := at + Vector3.UP * height
 	var t: float
 	var kind: int
@@ -722,12 +744,17 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 		kind = asked[1]
 	if t >= 1.0:
 		return false
-	if kind == Sight.KIND_CHARACTER:
-		return false  # the shooter himself
-	var d := (1.0 - t) * threat_eye.distance_to(target)
+	var dist := threat_eye.distance_to(target)
+	var d := INF if kind == Sight.KIND_CHARACTER else (1.0 - t) * dist  # a man first on the line hides nobody
 	if d < HUGGING:
 		return true
-	var reach := threat_eye.distance_to(target) * HUGGING_SHARE if far else 0.0
+	var reach := dist * HUGGING_SHARE if far else 0.0
+	if own and d >= maxf(HUGGING, reach):
+		# The first thing on the line is far from him (the threat's own cover, a man): is there
+		# something near him on it too? (Variant D's `own_cover`, #583.)
+		d = _near_him(space, target, threat_eye, exclude, maxf(HUGGING, reach))
+		if d < HUGGING:
+			return true
 	if d >= reach:
 		return false
 	# Further off than arm's length: only something wide (a wall, a building's corner, not a crate
@@ -739,9 +766,30 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 	for s: Vector3 in [side, -side]:
 		Prof.count(&"q_cover")
 		var t2 := Sight.cast(space, threat_eye + s, target, Layers.WORLD, exclude)
-		if t2 >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER or (1.0 - t2) * (threat_eye + s).distance_to(target) >= reach:
+		var d2 := INF if t2 >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER else (1.0 - t2) * (threat_eye + s).distance_to(target)
+		if own and t2 < 1.0 and d2 >= reach:
+			d2 = _near_him(space, target, threat_eye + s, exclude, reach)
+		if d2 >= reach:
 			return false
 	return true
+
+
+## How far (m) from `target` (a point on him) the nearest solid on the line back to `eye` is, looked
+## for no further than `within`; INF if nothing (or only a man) is there. A ray from him, so the
+## first thing it meets is what's near him, whatever stands nearer the eye (variant D's
+## `own_cover`, #583: the careful man's own crate or bar, first on the line from his eye, isn't the
+## gunman's cover, and doesn't make the gunman's cover any less).
+static func _near_him(space: PhysicsDirectSpaceState3D, target: Vector3, eye: Vector3, exclude: Array[RID], within: float) -> float:
+	var to := eye - target
+	var n := to.length()
+	if n < 0.01:
+		return INF
+	var span := minf(within, n)
+	Prof.count(&"q_cover")
+	var t := Sight.cast(space, target, target + to / n * span, Layers.WORLD, exclude)
+	if t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER:
+		return INF
+	return t * span
 
 
 static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> bool:
