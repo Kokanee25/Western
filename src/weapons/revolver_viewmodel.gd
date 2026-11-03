@@ -98,7 +98,10 @@ func _read_controls(delta: float) -> void:
 		reload_press()
 	elif Input.is_action_pressed(&"reload"):
 		_reload_held += delta
-		if _reload_held > 0.3 and state.ready():
+		# Held, it keeps working round the cylinder and shuts the gate when it's done, but never
+		# opens it again: a held key used to shut and reopen the gate over and over, and a let-go
+		# left the hammer at half cock (the D+ playtest).
+		if _reload_held > 0.3 and state.ready() and state.gate_open:
 			reload_press()
 	if Input.is_action_just_pressed(&"cock"):
 		cock_press()
@@ -128,6 +131,7 @@ func pull_trigger() -> RevolverState.Shot:
 func toggle_holster() -> void:
 	drawn = not drawn
 	if not drawn and state.gate_open:
+		state.line_up()
 		state.gate_open = false
 		state.hammer = RevolverState.Hammer.DOWN
 	if _player and _player.body:
