@@ -39,7 +39,9 @@ static func add(s: FalseFrontBuilding) -> void:
 ## DayCycle: every opening's spot to the moon's strength now (`share`: the moon's light over its
 ## full), coloured and reaching as the config says.
 static func apply(tree: SceneTree, cfg: DayCycleConfig, share: float) -> void:
-	var on := cfg.moon_window_energy > 0.0 and share > 0.001
+	# RoomLight's openings stand in for these while it's on (door, windows and holes alike).
+	var room := tree.get_first_node_in_group(&"room_light")
+	var on: bool = cfg.moon_window_energy > 0.0 and share > 0.001 and not (room != null and room.running())
 	for n in tree.get_nodes_in_group(GROUP):
 		var spot := n as SpotLight3D
 		spot.visible = on

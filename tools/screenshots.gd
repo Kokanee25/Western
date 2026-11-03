@@ -177,7 +177,8 @@ func _run() -> void:
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	# The talking men's faces at rest in the fixed views, as their goldens (FaceLife; --face-life: alive).
-	FaceLife.enabled = OS.get_cmdline_user_args().has("--face-life")
+	# (By path: naming it compiles FaceLife, which uses the Events autoload, before the autoloads exist.)
+	load("res://src/bodies/face_life.gd").enabled = OS.get_cmdline_user_args().has("--face-life")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
@@ -626,6 +627,15 @@ func _run() -> void:
 			var missed: PackedStringArray = preset.apply(self, preset.load_file(path))
 			for i in 8:
 				await process_frame
+			# RoomLight (settings.room_light, art #608) casts its lamps' rays over a few ticks.
+			var room = root.find_child("RoomLight", true, false)
+			for i in 240:
+				if room == null or not room.busy():
+					break
+				await physics_frame
+			if room:
+				for i in 4:
+					await process_frame
 			viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out, v[0], path.get_file().get_basename()])
 			print("saved ", v[0], " ", path, "" if missed.is_empty() else " (not here: %s)" % ", ".join(missed))
 		if not variants.is_empty():

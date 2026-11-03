@@ -241,6 +241,7 @@ func apply_visuals() -> void:
 		env.tonemap_exposure = lerpf(config.exposure_night, lerpf(config.exposure_day, config.exposure_low_sun, golden), daylight)
 		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
 			var night: float = probe.get_meta(&"night_ambient", config.interior_ambient_night)
+			night *= float(probe.get_meta(&"room_light_scale", 1.0))  # RoomLight's room fill (art; 1 off)
 			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)
 		var sky_mat: ShaderMaterial = env.sky.sky_material as ShaderMaterial if env.sky else null
 		if sky_mat:
