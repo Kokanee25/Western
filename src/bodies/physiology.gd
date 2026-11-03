@@ -625,6 +625,27 @@ func can_hold(side: String) -> bool:
 	return fingers >= 3
 
 
+## Why this hand can't hold a gun, in plain words ("" when it can): what `can_hold` found.
+func why_cant_hold(side: String) -> String:
+	var arm := "right" if side == "r" else "left"
+	if not is_conscious():
+		return "you're out cold"
+	if severed_segments.has(StringName("hand_" + side)):
+		return "your %s hand is gone" % arm
+	if arms_paralysed():
+		return "your arms won't move"
+	for part: Array in [["humerus_", "a broken upper arm"], ["radius_", "a broken forearm"], ["ulna_", "a broken forearm"],
+			["hand_bones_", "a broken hand"], ["clavicle_", "a broken collarbone"],
+			["radial_nerve_", "the nerve in your arm cut"], ["median_nerve_", "the nerve in your arm cut"]]:
+		if broken.has(StringName(part[0] + side)) or cut.has(StringName(part[0] + side)):
+			return part[1]
+	if muscle_strength("grip", side) < 0.3:
+		return "no grip left in your %s hand" % arm
+	if not can_hold(side):
+		return "too many fingers gone from your %s hand" % arm
+	return ""
+
+
 ## Which finger works the trigger on this hand: index, else middle, else none.
 func trigger_finger(side: String) -> StringName:
 	for f in ["index_", "middle_"]:

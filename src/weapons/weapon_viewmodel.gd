@@ -26,6 +26,8 @@ var aiming := false
 ## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).
 var hands_busy := false
 var arm_disabled := false
+## Why the arm can't hold it, in plain words (PlayerWounds sets it with `arm_disabled`).
+var arm_why := ""
 ## Extra wobble from pain, shock and a wounded arm, degrees.
 var extra_spread := 0.0
 ## Tests and scripted scenes drive the gun without a captured mouse.
@@ -157,6 +159,17 @@ func take_out() -> void:
 ## Fully in the hands and ready to use.
 func is_ready_in_hand() -> bool:
 	return selected and drawn and _draw >= 0.9
+
+
+## Why it can't be used now, in plain words ("" when it can): said on the screen and in the bridge's
+## answers (#595: a broken gun arm put the revolver away, and draw, shoot and reload did nothing,
+## without a word).
+func why_not_usable() -> String:
+	if arm_disabled:
+		return arm_why if arm_why != "" else "your arm won't hold it"
+	if hands_busy:
+		return "your hands are pressing on a wound"
+	return ""
 
 
 ## Fully put away (switching guns waits for this).

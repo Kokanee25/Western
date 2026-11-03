@@ -83,7 +83,8 @@ const LINES := {
 	&"call_give_up": ["That's it, boys. Throw 'em down.", "Enough! We're done. Drop 'em."],
 	&"scorn": ["Get up, you yellow dog!", "{name}! Pick up that gun!"],
 	&"rage": ["You'll pay for that!", "You son of a bitch! Come on!"],
-	&"watch_it": ["Watch where you're shooting!", "Hey! That was me!"],
+	# (Two lines, as before: his dice draw the same. "Hey! That was me!" read as claiming the shot.)
+	&"watch_it": ["Watch where you're shooting!", "Hey! Mind where you're aiming!"],
 }
 
 ## How much fear he can carry before he breaks. A hired gun; a family man would be lower.
@@ -417,7 +418,14 @@ var _rescue_time := 0.0
 var _rescue_goal := Vector3.INF
 ## Friends he went for and couldn't get to (or get out): when.
 var _tried_rescue := {}
+## Variant D's `rescue_way`: friends he ran for and couldn't reach, or took hold of and couldn't
+## move: [where the friend lay, how far his way to him was]. Not again while the friend lies there,
+## unless his way's halved (#595: the Kid called "Hold on, I got you!" every 20 s for 100 s from the
+## gallery over Brody).
+var _unreachable := {}
 var _rescue_best := INF
+## Where the friend lay when he took hold of him.
+var _grabbed_at := Vector3.INF
 var _gang_check := 0.0
 ## Who's arrested him (null: nobody has). Hands bound, he goes along where he's taken.
 var arrested_by: Node3D = null
@@ -1123,11 +1131,14 @@ func _done_with(who: Node) -> bool:
 func _social(delta: float) -> void:
 	_reload_quietly(delta)
 	var who := relations.focus()
+	var out_cold := false
 	if who is Player and not (who as Player).wounds.physiology.is_conscious():
 		who = null  # nothing to say to a man lying out cold
+		out_cold = true
 	var st := relations.stance(who) if who else Relations.Stance.IGNORE
 	if who != _social_who or st != _social_stance:
-		_on_rung(_social_stance, st)
+		if not out_cold:
+			_on_rung(_social_stance, st)  # (out cold, he hasn't backed down: no "That's better.")
 		_social_who = who
 		_social_stance = st
 	_say_again -= delta
@@ -2569,6 +2580,7 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var exclude: Array[RID] = []
 	for sid: StringName in body.parts:
 		exclude.append((body.parts[sid] as CollisionObject3D).get_rid())
+	origin = shot_origin(origin, exclude)
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
 	bullet.form = t_rev.form_factor
 	bullet.shooter = body
@@ -2590,6 +2602,25 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	else:
 		_gun_sound.play()
 	Events.shot_fired.emit(origin, dir, body)
+
+
+## Where his ball starts: at the muzzle, or, with his gun hand through something from his eye (lying
+## on the floor with it through the boards, up against a wall), where the line from his eye meets
+## it: the ball meets it, as yours does (WeaponViewmodel._shot_line). #595: 11% of the gang's shots
+## in the lab left from the far side of a floor board, joist, sill or wall board, and a ball that
+## starts inside a board isn't stopped by it.
+func shot_origin(muzzle: Vector3, exclude: Array[RID]) -> Vector3:
+	var eye := senses.eye()
+	var ex := exclude.duplicate()
+	if body.hat_body != null:
+		ex.append(body.hat_body.get_rid())
+	var q := PhysicsRayQueryParameters3D.create(eye, muzzle, Layers.BULLETS)
+	q.exclude = ex
+	Prof.count(&"q_brain")
+	var hit := World.space(body).intersect_ray(q)
+	if hit.is_empty():
+		return muzzle
+	return (hit.position as Vector3) + (eye - (hit.position as Vector3)).normalized() * 0.01
 
 
 ## Variant A's shot: held over for the range he judges, then anywhere in a cone that widens with
@@ -2998,6 +3029,9 @@ func _wounded_mate(t: Node3D) -> HumanBody:
 			d = _way_length(way)
 			if way.is_empty() or absf((way[-1] as Vector3).y - m.global_position.y) > 0.6:
 				continue
+			var gave_up: Variant = _unreachable.get(m)
+			if gave_up != null and (gave_up[0] as Vector3).distance_to(at) < 1.0 and d > float(gave_up[1]) * 0.5:
+				continue  # he ran for him from about here and couldn't get there
 		if d < best_d:
 			best = m
 			best_d = d
@@ -3050,11 +3084,16 @@ func _rescue(delta: float, t: Node3D) -> void:
 			_route = []
 			_rescue_phase = 1
 			m.dragged_by = body
+			_grabbed_at = at
 			_rescue_to = _drag_spot(m, t)
 			_rescue_goal = Vector3.INF
 			_last_pos = body.global_position
 			_stuck = 0.0
 		elif _stuck > 2.0 or (_has(&"rescue_way") and _rescue_time > RESCUE_RUN):
+			if _has(&"rescue_way") and _town() != null:
+				var back := _town().route_to_point(World.space(body), body.global_position, head, _exclude(t))
+				_unreachable[m] = [at, _way_length(back) if not back.is_empty() else to.length()]
+				_decide("give up on %s" % Crew.name_of(m), "can't get to him")
 			_stop_rescue()  # can't get to him (or it's taking too long under the gun)
 		return
 	# Dragging: walking backwards, facing him, him sliding along behind by the collar.
@@ -3079,6 +3118,10 @@ func _rescue(delta: float, t: Node3D) -> void:
 	var safe := _rescue_time > 1.0 and Cover.hidden_at(space, _lying_at(m), _eye_of(t), Cover.LIE_HEAD, _exclude(t)) \
 			and Cover.hidden_at(space, _lying_at(m), _eye_of(t), Cover.LIE_CHEST, _exclude(t))
 	if safe or arrived or _stuck > 1.5:
+		if not safe and not arrived and _has(&"rescue_way") and _grabbed_at.distance_to(at) < 1.0:
+			# Up against something with him barely moved: no use trying again from here.
+			_unreachable[m] = [at, 0.0]
+			_decide("give up on %s" % Crew.name_of(m), "can't get him out")
 		_stop_rescue()
 
 

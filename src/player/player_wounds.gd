@@ -10,6 +10,8 @@ extends Node
 ## Sits under the Player; registers itself as the thing bullets hit (meta "human_body").
 
 signal knocked_out
+## A line put on the screen (`say`): the dev bridge's `events` logs it.
+signal shown(text: String)
 
 const OVERLAY_SHADER := preload("res://src/player/wound_overlay.gdshader")
 const CLOTHES_RESISTANCE := 3.0
@@ -27,6 +29,12 @@ var player: Player
 var wounds: Array[Dictionary] = []
 var tending := 0.0
 var out_cold := 0.0
+## Down (or dead), you stay down: no coming round (the gunfight lab, once its played fight is over,
+## so its record, `read all` and what happens next agree: #595's "dead, then up again").
+var stays_down := false
+## Why the gun in your hand can't be used, as last told (so it's said once, and again only when tried).
+var _gun_why := ""
+var _gun_told := -INF
 
 var _rng := RandomNumberGenerator.new()
 var _flash := 0.0
@@ -91,11 +99,16 @@ func _on_spoke(speaker: Node, text: String) -> void:
 	if speaker is Node3D and (speaker as Node3D).global_position.distance_to(player.global_position) < 45.0:
 		var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody else "Someone"
 		# Up as long as he takes to say it (his mouth, FaceSpeech), and a moment more.
-		say("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
+		_show("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
 
 
 ## Show a line; `hold` keeps people's talk from writing over it while it shows.
 func say(text: String, seconds := 3.0, hold := false) -> void:
+	_show(text, seconds, hold)
+	shown.emit(text)
+
+
+func _show(text: String, seconds: float, hold := false) -> void:
 	_message.text = text
 	_message_time = seconds
 	_held = seconds if hold else 0.0
@@ -301,6 +314,30 @@ func _physics_process(delta: float) -> void:
 	Prof.stop(&"player", t)
 
 
+## The gun in your hand can't be used (a broken gun arm, your hands on a wound): say why when it
+## first goes, and again when you try it (draw, fire, aim, reload), at most every few seconds.
+func _tell_gun() -> void:
+	var w := player.weapon
+	if w == null or not w.selected or not physiology.is_conscious():
+		_gun_why = ""
+		return
+	var why := w.why_not_usable() if w.armed else ""
+	if why == "" or why == "your hands are pressing on a wound":
+		_gun_why = ""  # (that one you're doing yourself: nothing to tell)
+		return
+	var now := _throb_t  # (game time)
+	var tried := false
+	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
+		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+			tried = true
+	if why != _gun_why or (tried and now - _gun_told > 2.0):
+		_gun_why = why
+		_gun_told = now
+		var line := "You can't hold the gun: %s." % why
+		# What hit you (said the tick before) stays on with it.
+		say(line if _message_time <= 0.0 or _message.text.contains(line) else "%s\n%s" % [_message.text, line], 4.0)
+
+
 ## Arm's reach of a man who's given himself up (or one you've arrested), in front of you: the
 ## nearest. Shouting then is "hands behind your back" (and after it, "come on" or "wait here").
 const ARREST_REACH := 3.0
@@ -378,9 +415,11 @@ func _physics_step(delta: float) -> void:
 		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
 		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - steadiness) * 4.0
+		gun.arm_why = "" if not gun.arm_disabled else p.why_cant_hold("r") if p.why_cant_hold("r") != "" else p.why_cant_hold("l")
+	_tell_gun()
 	if not p.is_conscious():
 		out_cold += delta
-		if out_cold > 4.0:
+		if out_cold > 4.0 and not stays_down:
 			_come_round()
 	else:
 		out_cold = 0.0

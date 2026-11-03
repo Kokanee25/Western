@@ -720,6 +720,23 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 			stay.shots = int(stay.get("shots", 0)) + 1
 			if b.stepped_out():
 				stay.shots_out = int(stay.get("shots_out", 0)) + 1
+		# Where his ball started against him (#595): what's first on the line to it from his eye, his
+		# chest and his gun shoulder ("" nothing), and how far from his eye. Lying with his gun hand
+		# through the floor, or up against a wall, his ball used to leave from the far side.
+		var ex: Array[RID] = []
+		for sid: StringName in (shooter as HumanBody).parts:
+			ex.append(((shooter as HumanBody).parts[sid] as CollisionObject3D).get_rid())
+		var hb := shooter as HumanBody
+		var pr := [snappedf(t, 0.01)]
+		for from: Vector3 in [b.senses.eye(), (hb.parts[&"chest"] as Node3D).global_position, (hb.parts[&"upper_arm_r"] as Node3D).global_position if hb.parts.has(&"upper_arm_r") else b.senses.eye()]:
+			var q := PhysicsRayQueryParameters3D.create(from, _origin, Layers.BULLETS)
+			q.exclude = ex
+			var h := World.space(hb).intersect_ray(q)
+			pr.append("" if h.is_empty() else ("%s:%s" % [(h.collider as StructureMember).kind, (h.collider as StructureMember).member_id] if h.collider is StructureMember else String((h.collider as Node).name)))
+		pr.append(snappedf(b.senses.eye().distance_to(_origin), 0.01))
+		if not m.has("muzzle_probe"):
+			m["muzzle_probe"] = []
+		(m.muzzle_probe as Array).append(pr)
 		if b.covering > 0.0 or not b.senses.sees(player):
 			m.suppressing_shots += 1
 		elif t - float(m.get("_line_t", 0.0)) > NO_LINE and not _in_sight(b, player):
@@ -1010,6 +1027,10 @@ func _exit_tree() -> void:
 
 func _finish(why: String) -> void:
 	done = true
+	if why in ["you_dead", "you_down"]:
+		# The fight's over with you down: you stay as you are (the game would bring you round at the
+		# doctor's 4 s on, "alive" after "Dead (brain)": #595).
+		player.wounds.stays_down = true
 	if bot:
 		bot.teardown()
 	_unhook()
