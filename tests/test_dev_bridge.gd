@@ -120,6 +120,39 @@ func test_a_gun_you_cant_hold_says_why() -> void:
 			"and the screen's line is in the events (%s)" % str(replies[2].events))
 
 
+## `look PERSON [PART]` faces that part of him and says what's in the line and what of him you can
+## see (#595: the D+ playtest's sights were on posts while the gang aimed at its head).
+func test_look_at_a_man_says_what_you_can_see_of_him() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"looked_at"
+	street.add_child(man)
+	var player: Player = street.get_node(^"Player")
+	var spot := bridge._places().at(&"street_mid")
+	man.global_position = spot + Vector3(6.0, 0.0, 0.0)
+	await process_frames(3)
+	var replies := await _ask(["goto street_mid", "look looked_at head", "look looked_at elbow"])
+	check(replies[1].has("clear_to") and "head" in replies[1].clear_to, "his head's in plain view (%s)" % str(replies[1]))
+	check(not replies[1].has("in_the_way"), "nothing in the way")
+	check(player.camera.global_basis.z.dot(((man.parts[&"head"] as Node3D).global_position - player.camera.global_position).normalized()) < -0.99,
+			"facing his head")
+	check(not replies[2].ok, "a part he hasn't says so")
+	# What's in the line says whether a ball gets through it, as Ballistics charges it: a board yes,
+	# a post no (the third playtest's balls went through batwings `look` called "in the way").
+	var says := {}
+	for m: StructureMember in street.find_children("*", "StructureMember", true, false):
+		if m.kind == &"glass" or says.size() >= 40:
+			continue
+		var c := (m as Node3D).global_position
+		var from := c + Vector3(0.0, 0.0, 3.0)
+		var q := PhysicsRayQueryParameters3D.create(from, c)
+		q.exclude = [player.get_rid()]
+		var hit := street.get_world_3d().direct_space_state.intersect_ray(q)
+		if not hit.is_empty() and hit.collider == m:
+			var line := bridge._ball_through(m, hit.position, Vector3(0, 0, -1))
+			says[line.begins_with("a ball goes through")] = line
+	check(says.has(true) and says.has(false), "some it goes through, some stop it: %s" % str(says))
+
+
 ## Your "Drop it!" goes in the log (the D+ playtest's shouts read as doing nothing).
 func test_a_shout_is_in_the_log() -> void:
 	var replies := await _ask(["weapon revolver", "press shout", "events 5"])

@@ -15,7 +15,7 @@ const HELP := {
 	"screenshot": "screenshot PATH -> the window as you see it, PNG",
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
-	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line and which of him you can see",
+	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
@@ -1097,19 +1097,36 @@ func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man
 			return ""
 		var c: Object = hit.collider
 		var d := snappedf((hit.position as Vector3).distance_to(from), 0.1)
-		if c.get_meta(&"human_body", null) == man or c.get_meta(&"hat_of", null) == man:
+		var who: Variant = c.get_meta(&"human_body") if c.has_meta(&"human_body") else null
+		if who == man or (c.has_meta(&"hat_of") and c.get_meta(&"hat_of") == man):
 			return ""
 		if c is StructureMember:
 			var m := c as StructureMember
 			if m.kind == &"glass":
 				ex.append(m.get_rid())  # (a ball goes through a pane)
 				continue
-			return "%s %s at %.1f m" % [m.wood, m.kind, d]
-		var who: Variant = c.get_meta(&"human_body", null)
+			return "%s %s at %.1f m (%s)" % [m.wood, m.kind, d, _ball_through(m, hit.position, (to - from).normalized())]
 		if who is HumanBody:
 			return "%s at %.1f m" % [(who as HumanBody).person_id, d]
 		return "%s at %.1f m" % [String((c as Node).name) if c is Node else "something", d]
 	return ""
+
+
+## Whether a revolver ball goes through `m` on this line, as Ballistics charges it (each solid stretch
+## its thickness times the wood's resistance, against the ball's energy at the muzzle): the third
+## playtest's `look` called a batwing "in the way" and its balls went through it.
+func _ball_through(m: StructureMember, at: Vector3, dir: Vector3) -> String:
+	var bt: BallisticsTuning = load("res://config/ballistics.tres")
+	var rt: RevolverTuning = load("res://config/revolver.tres")
+	var runs := m.solid_runs(at, dir)
+	var thick := 0.0
+	for i in range(0, runs.size(), 2):
+		thick += runs[i + 1] - runs[i]
+	if runs.is_empty():
+		thick = m.exit_distance(at, dir)
+	var cost := thick * 100.0 * float(bt.resistance_by_wood.get(m.wood, bt.default_resistance))
+	var energy := 0.5 * rt.bullet_mass * rt.muzzle_velocity * rt.muzzle_velocity
+	return "a ball goes through its %.0f cm" % (thick * 100.0) if cost < energy * 0.8 else "stops a ball: %.0f cm of it" % (thick * 100.0)
 
 
 func _chest(man: HumanBody) -> Vector3:
