@@ -2,12 +2,14 @@ name: Test and build
 
 # What builds (Sean, 2026-10-29, #504: ~800 branch-push builds a week were most of ~21,000 Actions
 # minutes):
-# - every push to main: tests, then Windows, macOS, Linux and Web exported, the desktop builds
+# - every push to main: tests, then Windows, Linux and Web exported, the desktop builds
 #   released and the web build published to Pages, so each merge gets its build number;
 # - a pull request, when it opens and on every push to it after: tests and the native plugin;
 # - a branch push whose last commit's message says [build]: the same, for a session that wants CI
 #   before its PR;
 # - by hand (workflow_dispatch).
+# No macOS: Sean tests only the Windows build (2026-11-03), and a macOS runner bills 10x. The
+# native-build action and the export preset still know macOS, to bring it back.
 # Any other branch push starts a run whose jobs are all skipped (no runner, no minutes): sessions
 # run the tests locally before pushing.
 
@@ -92,7 +94,7 @@ jobs:
             python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('| Feel | Measured | Agreed |\n|---|---|---|'); [print(f'| {k} | {v[\"value\"]} | {v[\"min\"]} to {v[\"max\"]} |') for k,v in sorted(d.items())]" "$f" >> "$GITHUB_STEP_SUMMARY"
           fi
 
-  # The native plugin (addons/saltcreek_native, Rust) for the three desktop platforms. Each runner
+  # The native plugin (addons/saltcreek_native, Rust) for the desktop platforms. Each runner
   # builds its own; the export job collects them. The web export runs without the plugin.
   native:
     # Builds unless it's a plain branch push (see the top).
@@ -109,9 +111,6 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             file: saltcreek_native.dll
-          - os: macos-latest
-            target: universal-apple-darwin
-            file: libsaltcreek_native.dylib
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -157,7 +156,7 @@ jobs:
           dest=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           mkdir -p "$dest"
           unzip -q -j "Godot_v${GODOT_VERSION}-stable_export_templates.tpz" \
-            'templates/linux_*x86_64' 'templates/windows_*x86_64*' 'templates/macos.zip' \
+            'templates/linux_*x86_64' 'templates/windows_*x86_64*' \
             'templates/web_nothreads_*' 'templates/version.txt' -d "$dest"
           rm ./*.zip ./*.tpz
 
@@ -178,19 +177,16 @@ jobs:
 
       - name: Export
         run: |
-          mkdir -p build/windows build/macos build/linux build/web
+          mkdir -p build/windows build/linux build/web
           ~/godot/godot --headless --export-release "Windows" build/windows/SaltCreek.exe
-          ~/godot/godot --headless --export-release "macOS" build/macos/SaltCreek.zip
           ~/godot/godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64
           ~/godot/godot --headless --export-release "Web" build/web/index.html
           test -s build/windows/SaltCreek.exe
-          test -s build/macos/SaltCreek.zip
           test -s build/linux/SaltCreek.x86_64
-          # The native plugin goes beside the game (Windows, Linux) or into the app (macOS): an
+          # The native plugin goes beside the game (Windows, Linux): an
           # export without it runs with no voxel damage, so make sure it's there.
           test -s build/windows/saltcreek_native.dll
           test -s build/linux/libsaltcreek_native.so
-          unzip -l build/macos/SaltCreek.zip | grep -q libsaltcreek_native.dylib
           ls -la build/windows build/linux
           test -s build/web/index.wasm
           ls -la addons/saltcreek_native/bin
@@ -212,7 +208,6 @@ jobs:
           mkdir -p dist
           # Everything the export wrote, the native plugin's library beside the game included.
           (cd build/windows && zip -q -9 -r ../../dist/SaltCreek-windows.zip .)
-          cp build/macos/SaltCreek.zip dist/SaltCreek-macos.zip
           (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz .)
           ls -la dist
 
@@ -251,8 +246,6 @@ jobs:
             how: drawn
           - os: windows-latest
             how: headless
-          - os: macos-latest
-            how: headless
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     name: smoke (${{ matrix.os }}, ${{ matrix.how }})
@@ -275,7 +268,6 @@ jobs:
             Linux-headless) tar -xzf dist/SaltCreek-linux.tar.gz; game=(./SaltCreek.x86_64 --headless) ;;
             Linux-drawn) tar -xzf dist/SaltCreek-linux.tar.gz; game=(xvfb-run -a -s "-screen 0 640x360x24" ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360) ;;
             Windows-headless) unzip -q dist/SaltCreek-windows.zip; game=(./SaltCreek.exe --headless) ;;
-            macOS-headless) unzip -q dist/SaltCreek-macos.zip; app=$(ls -d *.app | head -1); game=("$app/Contents/MacOS/$(ls "$app/Contents/MacOS" | head -1)" --headless) ;;
           esac
           out="$(pwd -W 2>/dev/null || pwd)/smoke.out"  # a Windows path on Windows
           limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
