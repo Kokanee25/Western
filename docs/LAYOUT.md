@@ -709,6 +709,21 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `rest_body` (its body: `StructureMember.world_aabb`, FireSystem's `_lying_still` read it);
   a resting body carries `resting_in`. Glowing pieces don't join. `counts`/`refused` for the
   bench (`perf_bench --census-by`: `rubble_rest`, and what's on loose bodies by state).
+  **Restless rubble held still** (`RubbleSleep`, `src/structures/rubble_sleep.gd`, #585;
+  `-- --no-rubble-sleep` off): Jolt sleeps a pile (an island) only when every body in it is
+  still, and after dynamite one restless piece (wedged and spinning, a jittering fitting or
+  glass prop, a bone fragment twirling) kept hundreds awake for minutes. One per world (made by
+  `for_node` from `Structure._enter_rubble`). Every `EVERY` (0.5 s, the look spread over the
+  ticks between) it looks at the awake bodies in `GROUPS` (rubble, fallen fittings, bone
+  fragments, shards, chips, spent cases) and loose glass props' bodies: one whose middle has
+  stayed within `STILL_M` for `STILL_S`, with no break within `QUIET_M` of it for `QUIET_S`
+  (`disturbed`, from Structure's `_wake_near`/`_wake_near_all`), still moving faster than
+  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta). Let go
+  (unfrozen, awake): `RubbleRest.let_go` (ball, blast, shove), `RubbleRest.touch`, a break near
+  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig. Putting whole piles to
+  sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
+  islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
+  touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
   **Particles**: a new GPUParticles3D starts emitting, so setting `emitting = true` on it again
   cancelled `finished` and one-shot bursts never freed (225 alive in a blaze, #459): every
   one-shot sets `emitting = false` first (ImpactEffects, Blood, BlastCloud, FireFX.steam, the

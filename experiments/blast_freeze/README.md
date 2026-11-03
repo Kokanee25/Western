@@ -18,9 +18,13 @@ python3 experiments/blast_freeze/summary.py build/blast_freeze/run.json [more.js
 python3 experiments/blast_freeze/summary.py --same A.json B.json                             # the same twice? (the broken set, each frame's counts)
 ```
 
-`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [out=FILE.json]`:
+`bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street|farm] [walls=W,..] [mission=1] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json]`:
 `in=street` puts the sticks on Main Street instead (perf_bench `--scene=blast`'s spots: a third of
-the way through the first buildings' members); `sticks`/`gap` set off several, `gap` s apart (in the
+the way through the first buildings' members); `in=farm` throws them round the farmhouse (#584's:
+`walls=`, `mission=1`, below); `awake=S` takes a census of the awake rubble every S s into `awake_log`
+(each piece's speed at its far end, what it touches, the piles by contact, wakes and sleeps, the
+awake bodies that aren't rubble, RubbleSleep's counts and spells; it walks every piece each tick,
+so leave it off when timing); `sticks`/`gap` set off several, `gap` s apart (in the
 saloon `spread` m along its front); `census=1` takes the tree census (`stick_added`), off by default
 since #538 (a walk of ~26,000 nodes, ~40 ms, landed on the stick's frame). The spec
 saloon (the building lab's, out in the desert; built if it isn't), `fire=N` floor and wall boards
@@ -111,6 +115,14 @@ stick; `--brief`, a line a run), `farm_runs.sh` (N runs two at a time: outcomes)
 (frames ~100 ms here, Jolt's step ~85): RubbleRest woke every pile as it fell asleep, and pieces
 pressed under the dug ground spun or were thrown out. Fixed both; 4 of 6 runs settle within 30 s
 (main 1 of 4).
+**Rubble that won't sleep (#585, `results/2026-11-02_rubble_sleep/`):** after the sticks, one
+restless piece (wedged and spinning, a jiggling fitting or glass prop, a bone fragment twirling)
+kept its whole pile awake, hundreds of pieces still to a centimetre a second: at the farmhouse
+~1,000 for the whole minute after a ring of six sticks, frames ~150 ms here (Sean's slow motion,
+#584). `RubbleSleep` freezes the restless piece once nothing near it has moved or broken for a
+couple of seconds, and Jolt sleeps the rest. With #590 (what woke the piles) the farmhouse
+settles 14-15 s after the last stick (#590 alone 29-33 s), the street's three sticks 8-10 s (#590
+alone 18 s, or never); ~15-20 ms frames after; broken counts in main's spread.
 
 ## Files
 

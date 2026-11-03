@@ -1654,6 +1654,7 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 
 ## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
 func _wake_near(at: Vector3, radius: float) -> void:
+	RubbleSleep.disturbed(self, at, radius)
 	for rb in rubble:
 		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
 			rb.sleeping = false
@@ -1665,6 +1666,8 @@ func _wake_near(at: Vector3, radius: float) -> void:
 func _wake_near_all(spheres: Array) -> void:
 	if spheres.is_empty():
 		return
+	for sp: Array in spheres:
+		RubbleSleep.disturbed(self, sp[0], float(sp[1]))
 	for rb in rubble:
 		if is_instance_valid(rb) and _near_any(rb.global_position, spheres):
 			rb.sleeping = false
@@ -1741,6 +1744,7 @@ func _enter_rubble(rb: RigidBody3D) -> void:
 	rb.body_entered.connect(_on_rubble_hit.bind(rb))
 	rubble.append(rb)
 	RubbleRest.watch(rb)
+	RubbleSleep.for_node(rb)  # (the piles it lands in put to sleep once they've stopped, #585)
 
 
 func _physics_process(delta: float) -> void:
@@ -1791,6 +1795,8 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 	var speed := v.length()
 	if speed < tuning.harmless_speed:
 		return
+	if other is RigidBody3D:
+		RubbleSleep.let_go(other)  # (a piece held still that this lands on: its own again, #585)
 	var energy := 0.5 * rb.mass * speed * speed
 	if other.has_meta(&"human_body") and energy > 5.0:
 		# Timber coming down on someone: once per piece per person.
