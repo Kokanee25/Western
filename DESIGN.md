@@ -279,7 +279,10 @@ painterly squares. Where this section says otherwise below, this wins. The town'
   goes looking for someone to blame.
 
 ### Cast (each has goals, secrets, relationships, and acts whether or not the player does)
-- **The sheriff** — dying on day 1. What he knows and who he trusts drives the opening.
+- **The sheriff** — dying on day 1. What he knows and who he trusts drives the opening. He was
+  murdered over his family's land and its water rights, and he dies of it; Harlan gets his revolver
+  (**decided**, Sean 2026-11-03; who shot him and who ordered it are open). *Whether he can still be
+  saved (§11's spine) is for Sean: `docs/briefs/widow-farmhouse.md` §0.*
 - **The cattle baron** — wants every drop of water in the valley, and is patient.
 - **The railroad land agent** — buying claims with forged deeds.
 - **The Colter gang** — hired to scare homesteaders off, with plans of their own. One of them
@@ -287,7 +290,10 @@ painterly squares. Where this section says otherwise below, this wins. The town'
 - **The doctor** — knows more about the sheriff's wound than he says. The most important
   character in the town, given the wound system.
 - **The saloon owner** — hears everything, sells it to whoever pays.
-- **The widow** — refuses to sell her claim, alone.
+- **The widow** — the murdered sheriff's wife; refuses to sell the family's claim; she lives on it
+  with their **two young sons** (**decided**, Sean 2026-11-03). The Baron wants her land for its water rights, and his gunmen
+  occupy it to make her give it up: the farmhouse rescue, then her sons (`docs/briefs/widow-farmhouse.md`).
+  **The boys are protected actors: never hurt, never a target, by how they're built** (that brief, §3).
 - Plus ordinary townsfolk (barber, blacksmith, storekeeper, preacher, children, dogs) with routines,
   feuds, debts, friendships and affairs among themselves.
 

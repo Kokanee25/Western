@@ -108,6 +108,9 @@ the history in `docs/status/`.
   likely to break. It reports before changing anything. This is the only Fable review: PRs are
   not sent to Fable one by one (Sean, 2026-10-31, too many tokens). A session merges its PR once
   "Test and build" is green, and its issues don't add a Fable review step.
+- **The widow's sons are protected actors** (Sean, 2026-11-03, absolute): `ProtectedChild`, never a
+  HumanBody, never in `people`, never a target or damageable, by construction and by tests
+  (`docs/briefs/widow-farmhouse.md` §3). Their raw footage and photos never go in this public repo.
 - **Motion:** people move by mocap; breathing, idles, flinches, aim and recoil are procedural,
   driven by dials (tunable numbers), not keyframes.
 
