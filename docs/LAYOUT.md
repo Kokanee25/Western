@@ -1442,6 +1442,11 @@ train is heard. Prof timer
   street shot in `cheap_probes/`, ranked in `ranking.json`) then `cheap-probes OUT --check`;
   `cheap-probes --numbers` checks the measures alone (`cheap_probes/README.md`: the numbers and the
   probes, kept out of the rubric the agent reads). Every art status entry carries its verdicts.
+  `--refs=DIR` (on `cheap` and `cheap-probes`, #613): official AAA screenshots (RDR2, KCD2, Hunt
+  1896, Dishonored 2) from the private Studio's `references/` (its `manifest.yaml`: scene, game, what
+  to look at) listed beside the targets as what "AA" / "AAA-feeling" look like; read in place, never
+  copied into OUT (`refs.txt` names them), refused if DIR is inside this checkout. `--film` also takes
+  a strip already made (a round's `f.png`). Without `--refs` the prompt is unchanged.
   **Golden images** (`tools/golden_check.py`, the rule in How we work): every view in
   `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
   `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean

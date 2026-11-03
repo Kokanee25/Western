@@ -48,9 +48,12 @@ horizon). Every FAIL names a crop.
 | **AA** | "A real studio's game." Light with shape, air, wear and life; tells only if you hunt. |
 | **AAA-feeling** | "Expensive." Every corner reads as made and lived in; the light tells a story. |
 
-The top of the scale is the concept targets (`docs/concept/targets/*_target.jpg`) and this text.
-**No screenshots of commercial games** are in the repo or shown to the judge (the repo is public:
-CLAUDE.md's licence rule).
+The top of the scale is the concept targets (`docs/concept/targets/*_target.jpg`) and this text,
+and, when the judge is run with them, official screenshots of shipped AAA games as a yardstick for
+"AA" and "AAA-feeling": a yardstick for care (light with shape, air, wear, dressing, life), not for
+style. They are shown only from the private Character Studio (`--refs`), read where they are, and
+**never stored in this repo**, not even as a crop (it is public: CLAUDE.md's licence rule); crops
+are of the game's own pictures only.
 
 ## The five biggest reasons (one list per picture)
 
