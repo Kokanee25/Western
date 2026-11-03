@@ -431,7 +431,12 @@ frozen until Sean names one.
 - **The cheap judge** (#609, branch `claude/art-cheap-judge`): `critic.py cheap` (rubric
   `docs/concept/judge/CHEAP.md`, self-test `cheap-probes`, LAYOUT "src/render"); its verdict goes in
   every art status entry and #608's before/after. Baseline `2026-11-03_cheap_r1`: saloon views cheap
-  indie, street noon/golden and the film good indie. Waiting on Sean: does it agree with his eye.
+  indie, street noon/golden and the film good indie. Waiting on Sean: does it agree with his eye (#612).
+  **`--refs=DIR`** (#613, PR #614): 32 official AAA screenshots (RDR2, KCD2, Hunt 1896, Dishonored 2)
+  in the private Studio's `references/` (its PR #10, `refs.yml` fetches on GitHub) as the scale's top,
+  read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
+  `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
+  painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
