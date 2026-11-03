@@ -57,6 +57,11 @@ the history in `docs/status/`.
   of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
   running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
   status logs merge by union (`.gitattributes`), so two sessions' entries both land.
+- **CI builds PRs, not branch pushes** (Sean, #504: Actions minutes): run the tests locally
+  before every push. A plain push to your branch builds nothing; opening the PR builds it, and
+  so does every push to it after. Need CI before the PR? Put `[build]` in the commit message.
+  Merge on the PR's own "Test and build" run (the `pull_request` one) being green. Tour, visual
+  checks and soak run once a night, only if main changed.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your
@@ -689,6 +694,9 @@ frozen until Sean names one.
   --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
   `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
   (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
+- **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
+  and `[build]` do); tour, visual and soak once a night only if main changed. Next if wanted: the
+  PRs' macOS/Windows native jobs only when `addons/saltcreek_native` changes.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
