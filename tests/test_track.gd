@@ -150,3 +150,37 @@ func test_damage_saved_by_section_lands_on_a_relaid_route() -> void:
 	for x: Dictionary in d:
 		check_eq(String(x.key.section), "p0", "in its same section (%s)" % [x.key])
 		check(float(x.from_s) > 80.0, "past the new approach (at %.1f)" % float(x.from_s))
+
+
+## A train on the line in the world, standing with its front at `s`.
+func _train(line: TrackLine, s: float) -> Train:
+	var train := Train.new()
+	train.name = "Train"
+	line.add_child(train)
+	train.setup(line, tuning)
+	train.place(s)
+	return train
+
+
+func test_the_wheels_run_over_a_man_down_between_the_rails() -> void:
+	var line := _line()
+	var train := _train(line, 300.0)
+	# A man lying across the rails 30 m ahead.
+	var f := line.global_transform * line.transform_at(330.0)
+	var man := HumanBody.new()
+	man.person_id = &"on_the_line"
+	man.rng_seed = 616
+	man.has_gun = false
+	man.enter(world, f * Vector3(0.0, -tuning.rail_size.y + 0.05, 0.0), f.basis.get_euler().y + PI * 0.5)
+	await physics_frames(5)
+	man.go_limp()
+	await physics_frames(60)
+	# The train comes on at 18 km/h, coasting.
+	train.sim.set_speed(5.0)
+	var ok := await wait_until(func() -> bool: return train.sim.s > 330.0 + train.sim.length + 2.0, 60 * 30)
+	check(ok, "the train passes the spot")
+	var over: Array = train.struck.filter(func(x: Dictionary) -> bool: return String(x.who) == "on_the_line" and String(x.how).begins_with("run over"))
+	check(not over.is_empty(), "he's run over, not passed over: %s" % [train.struck])
+	var off: Array = over.filter(func(x: Dictionary) -> bool: return String(x.how).contains(" off"))
+	check(Settings.reduced_gore or not off.is_empty(), "a limb on the rail is cut off (gore on): %s" % [over])
+	check(man.limp, "he's limp")
