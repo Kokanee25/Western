@@ -186,3 +186,34 @@ both ourselves, on the cowboy only (`hg_real_cowboy3`: round 2's face and clothe
 - His face is still Human Generator's Julius (younger and softer than the brief); round 3 didn't
   touch it.
 - $0 spent.
+
+## Round 4 (#547): a new face
+
+Sean on round 3's cowboy: "He sucks"; he picked trying a new face. This round works on the face
+alone, in Blender, with round 3's hat, groom and clothes; only the face Sean picks goes into the game.
+
+**How** (Studio `hg_real.face_from`, README "Round 4"):
+- A recipe takes another Human Generator preset's face: its base variations, ethnicity, age shapes,
+  every face slider and its skin. The cowboy's body, clothes, hat and groom stay.
+- The age is set to 48-55, with its aged shapes and wrinkles following.
+- In the "hard" versions, its own face keys are pushed past the sliders' ±1. Its live keys add to
+  the face linearly with no clamp, so this is its own shapes at more strength, not a warp. The
+  push: jaw and chin wider, brow ridge heavier and lower, cheekbones up, cheeks leaner, nose bridge
+  higher, eyes deeper.
+
+**Sheets:**
+- `round4/all_twelve_quick.jpg`: the survey, six faces (Enzo, John, George, Jack, Cole, Julius)
+  plain and hard, at 16 samples.
+- **`round4/round4_faces.jpg`**: the six best at 64 samples (A Enzo hard, B George hard, C John
+  hard, D Cole hard, E Enzo, F George) beside the painted bold cowboy and round 3's man, face on
+  and his left three-quarter.
+
+**Honest result:**
+- All six read as weathered men of about fifty, much closer to the type than round 3's soft young
+  face. A and D are the most rugged.
+- Jack and Julius stay pale and soft even aged; they're out of the six.
+- The moustache and chops render grey-brown, lighter than the painted cowboy's dark moustache. That
+  is the groom's colour, to darken once a face is picked.
+- Fault fixed on the way: two of its presets (Enzo, Jack) give their skin texture with Windows
+  separators, and the skin fell back pale.
+- Blender only, no game shots yet; $0.
