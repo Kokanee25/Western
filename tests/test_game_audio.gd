@@ -180,3 +180,17 @@ func test_a_crowd_keeps_its_loudest() -> void:
 	for p: AudioStreamPlayer3D in panes:
 		furthest = maxf(furthest, p.global_position.x)
 	check(furthest < 14.0, "the four nearest (furthest at %.0f m)" % furthest)
+
+
+## The game's sets of recordings (assets/audio/blast/sets.json, #596): every file each names
+## loads, and each set has at least its boom and roll.
+func test_every_recorded_set_loads() -> void:
+	var sets := BlastSounds.sets()
+	for n: String in sets:
+		if not int(n) in [1, 2, 3]:
+			continue
+		for layer: StringName in BlastSounds.LAYERS:
+			for i in BlastSounds.files(int(n), layer).size():
+				check(BlastSounds.stream(int(n), layer, i) != null, "set %s's %s %d loads" % [n, layer, i])
+		check(BlastSounds.stream(int(n), &"boom") != null and BlastSounds.stream(int(n), &"roll") != null,
+				"set %s has a boom and a roll" % n)

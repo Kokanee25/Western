@@ -1,0 +1,56 @@
+{
+ "_doc": "BlastSounds' sets (#596): each layer's recordings, under assets/audio/blast/. Cut by experiments/train_lab/recordings.py from experiments/sound_lab/blast_recordings.json.",
+ "sets": {
+  "1": {
+   "name": "the mountain (felixblume)",
+   "layers": {
+    "crack": [
+     "s1/crack.wav"
+    ],
+    "boom": [
+     "s1/boom.wav"
+    ],
+    "sub": [
+     "s1/sub.wav"
+    ],
+    "roll": [
+     "s1/roll.wav"
+    ]
+   }
+  },
+  "2": {
+   "name": "cydon 001, distant roll",
+   "layers": {
+    "crack": [
+     "s2/crack.wav"
+    ],
+    "boom": [
+     "s2/boom.wav"
+    ],
+    "sub": [
+     "s2/sub.wav"
+    ],
+    "roll": [
+     "s2/roll.wav"
+    ]
+   }
+  },
+  "3": {
+   "name": "cydon 004, far roll",
+   "layers": {
+    "crack": [
+     "s3/crack.wav"
+    ],
+    "boom": [
+     "s3/boom.wav"
+    ],
+    "sub": [
+     "s3/sub.wav"
+    ],
+    "roll": [
+     "s3/roll.wav"
+    ]
+   }
+  }
+ }
+}
