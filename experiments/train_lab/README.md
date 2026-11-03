@@ -184,3 +184,65 @@ stay synthesised); `SynthSounds` plays a recording where there is one (`TrainSyn
 or by hand: Wikimedia refused this workspace's address); the loudness each is set to comes from
 `tools/train_synth_dump.gd`. Dials set for them in `config/train_sound.tres`. Film and levels:
 `results/2026-11-03_sound2/`.
+
+## Step 5 (#616): breakable track, derails, the repair crew
+
+**What's new in `src/train/`** (docs/LAYOUT.md "src/train"; every number a proposed dial in
+`config/train.tres`, group "Breakable track", "The lookout", "The derail", "The repair crew"):
+
+- **The track as members** (`TrackChunk`, a `Structure` a ~100 m of whole rails): wooden ties
+  (`tie`, tier 0, on the bed: a charge splinters them, `Blast._bedded` leaves them out) and iron
+  rails (`rail`, tier 1, on the ties under them, touching the next at the joint). A rail never
+  snaps: what would break it tears it loose whole (`tear_loose`); a charge short of that bows it
+  (`bend`, `Blast.rail_share`). At rest in the chunk's batches like any building's members: the
+  1.5 km line adds 2,933 nodes and costs nothing measurable idle (`results/2026-11-03_step5/idle_*`).
+  `-- --track-drawn` is step 1's drawn track.
+- **The track's state** (`TrackState`, `line.state`): stretches **broken** (a rail gone, three ties
+  gone in a row), **bent** (a rail bowed past `bent_passable`) and **blocked** (anything on the
+  line found by a box scan over the rails, a few cells a tick ahead of the train), each keyed by
+  the route's **section id** and the distance along it (`TrainRoute.sections`, `TrackLine.key_of`
+  / `s_of`; plan items take an `"id"`). `to_dict`/`from_dict` put the damage back on any line built
+  from a route with the same sections (the test lays it on a re-laid one).
+- **Solid wheels** (`TrainCars.axles`, a disc a wheel on each rail): a man down across the rails is
+  run over (`Train._run_over`: each axle over a part of him on a rail crushes it, `take_blow`, and a
+  limb under it comes off, `sever_limb`, unless reduced gore).
+- **The engineer's eyes** (`TrainLookout`, `train.lookout`): the first thing wrong ahead, seen from
+  his eye leaning out of the cab's right side (`Sight.see`: the boiler hides the inside of a
+  left-hand bend), in the light on it (`SightLight.sky_lux`, the headlight's beam at night), by
+  `see_break`/`see_block` between their night and day reach, a seeded reaction later. Alarmed,
+  `TrainEngineer` shuts off, throws the brake on full and whistles; the 1D stopping distance says
+  whether it's enough.
+- **The derail** (`Train._check_rails`/`leave_rails`, `derailed`): the leading wheels on a break
+  (bent: faster than `bent_pass_speed`; a block over `block_derail_kg`). Off screen
+  (`train.physical` off) it ploughs to a stand in numbers (`TrainSim.plough`); near, `TrainWreck`:
+  each car a RigidBody3D with its shapes, model and riders, at the speed the 1D train had it
+  (momentum handed over), couplers as joints with their slack (yaw free to 75 degrees: the
+  jackknife; torn past `coupler_tears`), the engine's leading wheels thrown off to the broken side,
+  rolling over the ties (`roll_g`) and ploughing off the bed (`plough_g`); a car stopped by more
+  than `car_break_dv` breaks into its front, back and roof (`TrainModels.car_section`); riders go
+  limp (thrown on by their own momentum) when their car jolts past `thrown_g` or tips. The bodies
+  are rubble (`rubble` group: RubbleSleep freezes them once still).
+- **The save** (`TrackState.to_dict`, `TrainWreck.to_dict`/`restore`): the wreck's bodies kept in
+  the line's frame at their section and distance, laid again asleep.
+- **The repair crew** (`TrackRepair`, `line.repair`): sent for when the line's damaged, it comes
+  `repair_delay_h` game hours later (the next day): four men walk in along the line, drag what's on
+  it aside (`clear_s_per_t` a tonne), lay each damaged chunk again as new members (`tie_s`,
+  `rail_s` a piece), and walk off (`mended`). The wreck stays beside the line.
+
+**Running it**
+
+```sh
+# The table: breaks at three speeds by day and night, one on the bend, nobody driving, a stick, a
+# bent rail, a crate and a 2 t block (one fresh headless game each, --fixed-fps 60: ~1 min a run)
+python3 experiments/train_lab/derail_runs.py --out=build/train_lab/derail [--only=a,b]
+python3 experiments/train_lab/derail_runs.py --table=build/train_lab/derail
+# One run in a game
+python3 tools/bridge.py "train_lab" "train_derail kmh=40 at=380 how=rail hour=23 out=/tmp/d.json"
+# The films (each a game under xvfb, lavapipe)
+python3 tools/bridge.py run experiments/train_lab/films/step5/wreck_speed.txt --size=960x540 --movie=build/films/wreck.avi
+# Save, load (on the same route, or the re-laid one), the crew, the next train
+python3 tools/bridge.py "train_save /tmp/s.json" "train_load /tmp/s.json relaid" "train_repair now" "train_next run"
+```
+
+New bridge commands: `train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`.
+Tests `tests/test_track.gd`. Results: `results/2026-11-03_step5/` (its `summary.md`).

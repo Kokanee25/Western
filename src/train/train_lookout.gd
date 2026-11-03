@@ -74,11 +74,13 @@ func _dir() -> int:
 	return train.sim.reverser
 
 
-## His eye, in the world: on the engine's right, leaning out past the cab side, at a man's eye height.
-func eye() -> Vector3:
+## An eye in the world: the engineer's on the engine's right (side +1), leaning out past the cab
+## side, at a man's eye height; the fireman's on the left (side -1), where he watches between
+## firing (on a left-hand bend the boiler, dome and stack hide the line from the engineer).
+func eye(side := 1) -> Vector3:
 	var c: Dictionary = train.sim.cars[0]
 	var mid: float = (c.trucks.x + c.trucks.y) * 0.5
-	var at := Vector3(tuning.lookout_eye.x, TrainCars.DECK + tuning.lookout_eye.y, float(c.length) - mid - 1.1)
+	var at := Vector3(tuning.lookout_eye.x * side, TrainCars.DECK + tuning.lookout_eye.y, float(c.length) - mid - 1.1)
 	return train.track.global_transform * train.view.car_transform(0) * at
 
 
@@ -143,14 +145,23 @@ func tick() -> void:
 	var r := reach(st.kind, lux)
 	if d > r:
 		return
-	if world:
-		var e := eye()
-		# The train itself counts (the boiler on a left-hand bend, the tender backing up).
-		if Sight.see(train, e, p, [] as Array[RID], 0.3) < 0.3:
-			return
+	# The engineer first; the fireman (watching less: `fireman_watch` of the reach, and a shout
+	# later) where the engineer can't see it.
+	var who := ""
+	for side in [1, -1]:
+		var reach_m := r if side > 0 else r * tuning.fireman_watch
+		if d > reach_m:
+			continue
+		# The train itself counts (the boiler on a bend, the tender backing up).
+		if world and Sight.see(train, eye(side), p, [] as Array[RID], 0.3) < 0.3:
+			continue
+		who = "engineer" if side > 0 else "fireman"
+		break
+	if who == "":
+		return
 	seen = st
 	seen_t = sim.time
 	seen_d = d
-	alarm_t = sim.time + _rng.randf_range(tuning.reaction.x, tuning.reaction.y)
+	alarm_t = sim.time + _rng.randf_range(tuning.reaction.x, tuning.reaction.y) + (tuning.fireman_shout if who == "fireman" else 0.0)
 	log.append({"t": sim.time, "kind": String(st.kind), "what": String(st.what), "distance": d, "s": front,
-		"kmh": absf(sim.v) * 3.6, "lux": lux, "range": r, "daylight": day})
+		"kmh": absf(sim.v) * 3.6, "lux": lux, "range": r, "daylight": day, "who": who})

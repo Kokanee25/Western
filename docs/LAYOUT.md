@@ -1278,6 +1278,21 @@ train is heard. Prof timer
 `train_sound`. The lab: `train_whistle`, `train_bell`, `train_valve`, `train_sound`,
 `train_caption`, `train_cam side S OFF`; the cab's H (whistle) and B (bell).
 
+Step 5 (#616): the track breaks. `TrackLine.chunks` are `TrackChunk`s (a `Structure` a ~100 m of
+whole rails; member kinds `tie`, tier 0, and `rail`, tier 1, in `StructureMember.TIERS`; links set
+from the line, not searched: `infer_supports`; a rail tears loose whole or bends, never snaps:
+`break_members`/`tear_loose`/`bend`, `Blast.rail_share`; ties left out of `Blast._bedded`),
+`TrackLine.state` a `TrackState` (broken / bent / blocked stretches keyed by the route's section id
+and distance: `TrainRoute.sections`, `TrackLine.sections`, `key_of`, `s_of`; `scan` for blocks;
+`to_dict`/`from_dict`), `TrackLine.repair` a `TrackRepair` (the crew: `repair_delay_h`, clears,
+relays chunks, `mended`). `Train`: solid wheels (`TrainCars.axles`) and `_run_over`, `lookout` (a
+`TrainLookout`: `Sight.see` from the cab, `SightLight` light and the headlight, a seeded reaction;
+`TrainEngineer.lookout` brakes on its alarm), `_check_rails`/`leave_rails`/`derailed` (numeric
+off screen: `physical`, `TrainSim.plough`), `wreck` a `TrainWreck` (cars as rigid bodies, coupler
+joints, riders thrown by their car's jolt, cars broken into sections by `TrainModels.car_section`;
+`to_dict`/`restore`). Prof timer `train` includes the lookout (`cost.lookout_us`). The lab:
+`train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`; `derail_runs.py`.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;

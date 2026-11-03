@@ -109,3 +109,31 @@ All in `config/train.tres`, all *proposed*; the timetable's in `experiments/trai
   track): at 25 km/h ~9.4 a second; the cocks open below 2.5 m/s.
 - **The cars:** 26 in wheels on arch-bar trucks, 1.2 m between axles; floors at 1.1 m (step 2's);
   the coach's benches 0.85 m apart, seats 0.45 m high, the aisle 0.66 m.
+
+## Numbers and where they're from (step 5, #616)
+
+All in `config/train.tres`, all *proposed*.
+
+- **The track:** 35 lb/yd iron rails of 30 ft on pine ties at 0.6 m (step 1's sizes); a rail's box
+  is solid iron, about twice the real rail's weight: what the spikes and joint bars add to tearing
+  it out is in that. One stick (0.2 kg) planted on a tie splinters a tie or two and bows the rail
+  over it ~8 cm (`rail_bend_share` 0.15 of what tears it loose bends it at all, `rail_bend_max`
+  0.25 m); three there break the line. A rail bowed past `bent_passable` (3 cm) derails a train
+  over it faster than `bent_pass_speed` (2 m/s, a fast walk); three ties gone in a row (1.8 m of
+  rail hanging) are a break.
+- **The lookout:** by day an engineer watching the line picks out a broken rail at ~220 m and a
+  crate at ~450 m (`see_break`, `see_block`; his reach goes with the light's logarithm between
+  starlight and day, as a man's does in `SightLight`). At night the oil headlight (2,500 cd in an
+  8 degree beam: an 1880s oil lamp in a big parabolic reflector) shows a break at ~60 m; on a
+  bend its beam lights the outside of the curve, not the line. He leans out of the cab's right
+  side, so the boiler hides the inside of a left-hand bend. Reaction 0.8-1.6 s, seeded.
+- **The derail:** off the rails, cars roll on over the ties (`roll_g` 0.03 of their weight) and
+  plough once off the bed (`plough_g` 0.35, the same a stand in numbers off screen); their grip on
+  what they meet 0.04 (wheels still turning); the engine's leading wheels thrown off toward the
+  broken side at 0.12 m/s a m/s it was going (at least 0.6). A car stopped by more than 6 m/s
+  inside 0.15 s breaks into big sections; men riding are thrown (go limp, moving on) when their
+  car jolts past 0.8 g or tips past 35 degrees; a coupler strained 0.35 m from where it holds lets
+  go.
+- **The crew:** the next day (`repair_delay_h` 24 game hours), four men; a tie 40 s of a man's
+  work, a rail 120 s, clearing 30 s a tonne: a torn-out rail and its ties are about ten minutes of
+  the crew's work, a wrecked train beside the line about half an hour.

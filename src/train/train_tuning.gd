@@ -163,6 +163,10 @@ extends Resource
 @export var lookout_eye := Vector2(1.25, 1.65)
 ## How long between seeing it and his hands moving, s (seeded, between these).
 @export var reaction := Vector2(0.8, 1.6)
+## The fireman on the left watches the line between firing: his reach a share of the engineer's,
+## and his shout to the engineer this much later. PROPOSED.
+@export var fireman_watch := 0.6
+@export var fireman_shout := 0.6
 ## The line ahead looked along for blocks this many cells (4 m each) a tick.
 @export var scan_cells := 6
 

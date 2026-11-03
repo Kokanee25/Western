@@ -28,11 +28,12 @@ for kmh in [20, 40]:
     for hour, when in [(12, "day"), (23, "night")]:
         RUNS[f"bend_{kmh}_{when}"] = {"kmh": kmh, "at": 560, "how": "rail", "hour": hour, "run_up": 320}
 RUNS["nobody_walk"] = {"kmh": 5, "at": 380, "how": "rail", "hour": 12, "driver": "none", "run_up": 20}
-RUNS["nobody_20"] = {"kmh": 20, "at": 380, "how": "rail", "hour": 12, "driver": "none"}
-RUNS["nobody_40"] = {"kmh": 40, "at": 380, "how": "rail", "hour": 12, "driver": "none"}
+RUNS["nobody_20"] = {"kmh": 20, "at": 380, "how": "rail", "hour": 12, "driver": "none", "run_up": 150}
+RUNS["nobody_40"] = {"kmh": 40, "at": 380, "how": "rail", "hour": 12, "driver": "none", "run_up": 150}
 RUNS["stick_40_night"] = {"kmh": 40, "at": 380, "how": "stick", "hour": 23}
 RUNS["bent_40_night"] = {"kmh": 40, "at": 380, "how": "bent", "hour": 23}
 RUNS["crate_20_nobody"] = {"kmh": 20, "at": 380, "how": "crate", "hour": 12, "driver": "none", "run_up": 80}
+RUNS["man_20_nobody"] = {"kmh": 20, "at": 380, "how": "man", "hour": 12, "driver": "none", "run_up": 80, "riders": 0}
 RUNS["wagon_20_nobody"] = {"kmh": 20, "at": 380, "how": "wagon", "hour": 12, "driver": "none", "run_up": 80}
 
 
@@ -63,25 +64,30 @@ def table(out):
         d = json.load(open(p))
         s = d["spec"]
         seen = d["seen"][0] if d["seen"] else None
+        who = f" ({seen.get('who', 'engineer')})" if seen else ""
         fr = d["frames"]
         where = ""
         if d["outcome"] == "derailed":
             w = d.get("wreck", {})
-            where = f"left the rails at {d['derail']['s']:.0f} m at {d['derail']['kmh']:.0f} km/h; {w.get('furthest_past_m', 0):.0f} m on, {w.get('most_off_m', 0):.1f} m off, {w.get('tipped', 0)} tipped"
+            e = d.get("engine", {})
+            where = (f"off the rails at {d['derail']['s']:.0f} m at {d['derail']['kmh']:.0f} km/h; the engine's front "
+                     f"{e.get('front_past_break_m', 0):.0f} m past the break, {e.get('off_m', 0):.1f} m off the line, "
+                     f"leaning {e.get('tilt_deg', 0):.0f} deg; {w.get('tipped', 0)} of {w.get('bodies', 0)} over 30 deg")
         elif d["outcome"] == "stopped":
             where = f"stopped {d['short_by']:.0f} m short"
         else:
-            where = "ran on"
+            struck = [x for x in d.get("struck", [])]
+            where = "ran through" + (f"; struck: {', '.join(sorted(set(str(x.get('how')) for x in struck)))}" if struck else "")
         ev = d.get("wreck", {}).get("events", [])
         torn = sum(1 for e in ev if e["what"] == "coupler torn")
         broke = sum(1 for e in ev if e["what"] == "car broken")
         rows.append([name, f"{s['kmh']}", "day" if float(s["hour"]) < 18 else "night", s["how"], s.get("driver", "engineer"),
-                     f"{seen['distance']:.0f} m" if seen else "-", d["outcome"], where,
+                     f"{seen['distance']:.0f} m{who}" if seen else "-", d["outcome"], where,
                      f"{d['thrown']}", f"{torn}/{broke}",
                      f"{fr['worst_ms']:.0f} ({fr['sean_worst_ms']:.0f})", f"{fr['over_50']}",
-                     f"{fr['last_under_50fps_s']:.2f}" if fr["last_under_50fps_s"] >= 0 else "-", fr["gate"]])
+                     f"{fr.get('slow_spell_s', 0):.2f}", fr["gate"]])
     head = ["run", "km/h", "light", "break", "driver", "seen at", "outcome", "where", "thrown", "couplers torn / cars broken",
-            "worst frame ms here (Sean's)", "frames > 50 ms", "slow till s", "#492 gate"]
+            "worst frame ms here (Sean's)", "frames > 50 ms", "longest spell under 50 fps at Sean's, s", "#492 gate"]
     lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for r in rows:
         lines.append("| " + " | ".join(r) + " |")

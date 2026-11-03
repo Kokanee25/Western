@@ -315,7 +315,7 @@ func test_the_wreck_and_the_damage_stay_after_a_save_and_load() -> void:
 	var where := []
 	for b: Dictionary in train.wreck.bodies:
 		if is_instance_valid(b.body) and b.part != "broken":
-			where.append((b.body as RigidBody3D).global_position)
+			where.append((b.body as Node3D).global_position)
 	var damage: Array = lab_line.state.damage().map(func(x: Dictionary) -> String: return "%s %s %.1f" % [x.kind, x.key.section, x.key.at])
 	for b: Dictionary in train.wreck.bodies:
 		if is_instance_valid(b.body):
@@ -369,3 +369,26 @@ func test_the_crew_mends_the_line_and_the_next_train_runs_through() -> void:
 	train.sim.set_speed(5.0)
 	await wait_until(func() -> bool: return train.sim.s > 450.0 or not train.derail.is_empty(), 60 * 60)
 	check(train.derail.is_empty(), "the next train runs through")
+
+
+func test_a_car_stopped_hard_breaks_into_big_sections() -> void:
+	var train: Train = await _derail_run(30.0, 400.0, 0.5)
+	check(train.wreck != null, "a wreck")
+	var coach := -1
+	for i in train.wreck.bodies.size():
+		if train.wreck.bodies[i].kind == &"coach":
+			coach = i
+	var before := train.wreck.bodies.size()
+	train.wreck._break_car(coach, 9.0)
+	await physics_frames(2)
+	var parts: Array = train.wreck.bodies.slice(before).map(func(b: Dictionary) -> String: return String(b.part))
+	check_eq(parts, ["front", "back", "roof"], "the coach in its front, back and roof")
+	var shapes := 0
+	for b: Dictionary in train.wreck.bodies.slice(before):
+		var rb := b.body as RigidBody3D
+		var n := rb.get_children().filter(func(c: Node) -> bool: return c is CollisionShape3D).size()
+		check(n > 0, "the %s has shapes of its own (%d)" % [b.part, n])
+		shapes += n
+		check(rb.find_children("*", "MeshInstance3D", true, false).size() > 0, "and its boards drawn")
+	check(train.wreck.body(coach) == null, "the whole coach's body gone")
+	check(shapes >= 10, "every shape went to a section (%d)" % shapes)

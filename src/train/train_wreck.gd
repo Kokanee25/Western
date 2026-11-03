@@ -32,6 +32,12 @@ const THROWN_TILT := 35.0
 ## The first moments of the hand-off are the bodies settling onto the track (a few cm): no jolt
 ## is read before this, s.
 const SETTLE_S := 0.15
+## Body i as a RigidBody3D, or null once it's gone (a car broken into sections).
+func body(i: int) -> RigidBody3D:
+	var o: Variant = bodies[i].body
+	return o as RigidBody3D if is_instance_valid(o) and not (o as Node).is_queued_for_deletion() else null
+
+
 ## A wreck body: a train car's, or a section of one.
 const GROUP := &"train_wreck"
 
@@ -49,6 +55,9 @@ var time := 0.0
 ## Each body's speed a little while ago, for its jolt: body index -> [[t, velocity], ...].
 var _hist := {}
 var _rng := RandomNumberGenerator.new()
+var _limp_tick := -1
+## Bodies whose riders the jolt has thrown (index -> [g, tilt] when it did): the rest go a tick apart.
+var _jolted := {}
 
 
 func _init(t: Train) -> void:
@@ -107,7 +116,7 @@ func start(what: Dictionary) -> void:
 	for j in sim.cars.size() - 1:
 		_couple(j, j + 1)
 	# The engine's leading wheels off the end of the broken rail: across toward that side, its nose down.
-	var e := bodies[0].body as RigidBody3D
+	var e := body(0)
 	var side := float(what.get("side", 0))
 	if side == 0.0:
 		side = -1.0 if _rng.randf() < 0.5 else 1.0
@@ -184,8 +193,8 @@ func tick(delta: float) -> void:
 	time += delta
 	_couplers()
 	for i in bodies.size():
-		var rb := bodies[i].body as RigidBody3D
-		if not is_instance_valid(rb):
+		var rb := body(i)
+		if rb == null:
 			continue
 		_plough(rb)
 		var h: Array = _hist.get_or_add(i, [])
@@ -233,9 +242,9 @@ func get_physics_dt() -> float:
 func _couplers() -> void:
 	for k in range(couplers.size() - 1, -1, -1):
 		var c: Dictionary = couplers[k]
-		var ra := bodies[c.a].body as RigidBody3D
-		var rbb := bodies[c.b].body as RigidBody3D
-		var gone := not is_instance_valid(ra) or not is_instance_valid(rbb) or not is_instance_valid(c.joint)
+		var ra := body(c.a)
+		var rbb := body(c.b)
+		var gone := ra == null or rbb == null or not is_instance_valid(c.joint)
 		if not gone:
 			var pa: Vector3 = ra.global_transform * (c.at_a as Vector3)
 			var pb: Vector3 = rbb.global_transform * (c.at_b as Vector3)
@@ -261,19 +270,32 @@ func _ride(man: HumanBody, rb: RigidBody3D, on: bool) -> void:
 
 
 func _throw_riders(i: int, jolt: float, tilt: float) -> void:
-	if time < SETTLE_S or (jolt < tuning.thrown_g and tilt < THROWN_TILT):
+	if time < SETTLE_S:
 		return
+	if jolt >= tuning.thrown_g or tilt >= THROWN_TILT:
+		if not _jolted.has(i):
+			_jolted[i] = [jolt, tilt]
+	if not _jolted.has(i):
+		return
+	jolt = _jolted[i][0]
+	tilt = _jolted[i][1]
 	for k in range(riders.size() - 1, -1, -1):
 		var r: Dictionary = riders[k]
 		if int(r.body) != i:
 			continue
 		var man := r.man as HumanBody
-		riders.remove_at(k)
 		if not is_instance_valid(man):
+			riders.remove_at(k)
 			continue
+		# One man a tick goes limp (a ragdoll made is ~30 ms here: seven at once were a 215 ms
+		# frame); the rest a tick or two later, as their car keeps jolting them.
+		if _limp_tick == Engine.get_physics_frames():
+			continue
+		_limp_tick = Engine.get_physics_frames()
+		riders.remove_at(k)
 		man.remove_meta(&"train_rides")
-		var rb := bodies[i].body as RigidBody3D
-		if is_instance_valid(rb):
+		var rb := body(i)
+		if rb:
 			_ride(man, rb, false)
 		man.go_limp()
 		man.reparent(_host(), true)
@@ -284,7 +306,9 @@ func _throw_riders(i: int, jolt: float, tilt: float) -> void:
 ## A car stopped hard breaks into its front half, back half and (a shell's) roof: each a body of
 ## its own with the shapes and the boards in it, the car's speed and spin, its share of the mass.
 func _break_car(i: int, dv: float) -> void:
-	var rb := bodies[i].body as RigidBody3D
+	var rb := body(i)
+	if rb == null:
+		return
 	var ci: int = bodies[i].car
 	var car: Dictionary = train.sim.cars[ci]
 	var mid: float = (car.trucks.x + car.trucks.y) * 0.5
@@ -351,9 +375,10 @@ func _break_car(i: int, dv: float) -> void:
 func to_dict() -> Dictionary:
 	var out := []
 	var line := train.track
-	for b: Dictionary in bodies:
-		var rb := b.body as RigidBody3D
-		if not is_instance_valid(rb) or b.part == "broken":
+	for i in bodies.size():
+		var b: Dictionary = bodies[i]
+		var rb := body(i)
+		if rb == null or b.part == "broken":
 			continue
 		var in_line := line.global_transform.affine_inverse() * rb.global_transform
 		var s := _nearest_s(in_line.origin)

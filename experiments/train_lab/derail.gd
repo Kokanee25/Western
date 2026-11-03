@@ -9,13 +9,14 @@ extends Node
 ##   kmh     the speed it's coming on at (held till he sees it)       20
 ##   at      where the break is, m along the line                      380
 ##   how     rail (the left rail torn out) | stick (three sticks on the ties) | bent (a rail bowed 12 cm)
-##           | crate (a heavy crate on the line) | wagon (a 2 t block)  rail
+##           | crate (a crate on the line) | wagon (a 2 t block) | man (a man down across the rails)  rail
 ##   hour    the clock (12 noon, 23 night)                             12
 ##   driver  engineer (he watches and brakes) | none (nobody looks)    engineer
 ##   run_up  how far back it starts, m                                 300
 ##   riders  passengers in the coach                                   6
 ##   secs    how long it's watched after it stops or derails, s       8
 ##   seed    the engineer's reaction's dice                            616
+##   past    a run that doesn't stop or derail ends this far past the break, m   120
 ##   out     write the summary here (JSON)
 
 var lab: Node
@@ -45,7 +46,7 @@ func _now() -> float:
 
 static func parse(a: Array) -> Dictionary:
 	var spec := {"kmh": 20.0, "at": 380.0, "how": "rail", "hour": 12.0, "driver": "engineer", "run_up": 300.0,
-		"riders": 6, "secs": 8.0, "seed": 616, "out": ""}
+		"riders": 6, "secs": 8.0, "seed": 616, "out": "", "past": 120.0}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() != 2:
@@ -71,6 +72,15 @@ func make_break(line: TrackLine, at: float, how: String) -> void:
 				await lab.get_tree().physics_frame
 		"crate":
 			lab.place_crate(at, 0.0)
+		"man":
+			# A man down across the rails (knocked out, or worse): the wheels' work.
+			var man: HumanBody = lab.place_man(at, 0.0)
+			man.global_rotation.y += PI * 0.5
+			for k in 20:
+				await lab.get_tree().physics_frame
+			man.go_limp(f.basis.x * 0.3)
+			for k in 90:
+				await lab.get_tree().physics_frame
 		"wagon":
 			var rb := RigidBody3D.new()
 			rb.name = "Block"
@@ -129,7 +139,7 @@ func run(spec: Dictionary) -> Dictionary:
 			break
 		if train.lookout.alarmed() and absf(train.sim.v) < 0.02:
 			break
-		if train.sim.s > at + 120.0 or train.sim.time - t0 > 240.0:
+		if train.sim.s > at + float(spec.past) or train.sim.time - t0 > 240.0:
 			break
 	var end_t := train.sim.time
 	for k in int(float(spec.secs) * Engine.physics_ticks_per_second):
@@ -141,7 +151,7 @@ func run(spec: Dictionary) -> Dictionary:
 func summary(spec: Dictionary, line: TrackLine, train: Train, end_t: float) -> Dictionary:
 	var at := float(spec.at)
 	var out := {"spec": spec, "seen": train.lookout.log.duplicate(), "derail": train.derail.duplicate()}
-	out["outcome"] = "derailed" if not train.derail.is_empty() else ("stopped" if train.lookout.alarmed() else "ran on")
+	out["outcome"] = "derailed" if not train.derail.is_empty() else ("stopped" if absf(train.sim.v) < 0.05 and train.sim.s < at else "ran through")
 	if train.derail.is_empty():
 		out["stopped_at"] = train.sim.s
 		out["short_by"] = at - train.sim.s
@@ -149,9 +159,9 @@ func summary(spec: Dictionary, line: TrackLine, train: Train, end_t: float) -> D
 		var off := 0.0
 		var far := 0.0
 		var tipped := 0
-		for b: Dictionary in train.wreck.bodies:
-			var rb := b.body as RigidBody3D
-			if not is_instance_valid(rb):
+		for bi in train.wreck.bodies.size():
+			var rb := train.wreck.body(bi)
+			if rb == null:
 				continue
 			var local := line.global_transform.affine_inverse() * rb.global_position
 			var s := line.curve.get_closest_offset(local)
@@ -159,7 +169,7 @@ func summary(spec: Dictionary, line: TrackLine, train: Train, end_t: float) -> D
 			far = maxf(far, s - at)
 			if rad_to_deg(rb.global_basis.y.angle_to(Vector3.UP)) > 30.0:
 				tipped += 1
-		var e0 := train.wreck.bodies[0].body as RigidBody3D
+		var e0 := train.wreck.body(0)
 		var el := line.global_transform.affine_inverse() * e0.global_position
 		var es := line.curve.get_closest_offset(el)
 		var c0: Dictionary = train.sim.cars[0]
@@ -173,15 +183,16 @@ func summary(spec: Dictionary, line: TrackLine, train: Train, end_t: float) -> D
 			if e.what == "thrown":
 				thrown += 1
 	out["thrown"] = thrown
+	out["struck"] = train.struck.duplicate()
 	out["frames"] = frame_report(float(train.derail.get("t", end_t)))
 	return out
 
 
 func _asleep(w: TrainWreck) -> int:
 	var n := 0
-	for b: Dictionary in w.bodies:
-		var rb := b.body as RigidBody3D
-		if is_instance_valid(rb) and (rb.sleeping or rb.freeze):
+	for bi in w.bodies.size():
+		var rb := w.body(bi)
+		if rb and (rb.sleeping or rb.freeze):
 			n += 1
 	return n
 
@@ -194,6 +205,9 @@ func frame_report(from_t: float) -> Dictionary:
 	var over50 := 0
 	var over100 := 0
 	var last_slow := -1.0
+	var spell := 0.0  # the longest slow spell (frames under 50 fps at Sean's, gaps under 0.1 s joined)
+	var spell_from := -1.0
+	var spell_to := -1.0
 	var n := 0
 	var sum := 0.0
 	var before := 0.0
@@ -218,8 +232,12 @@ func frame_report(from_t: float) -> Dictionary:
 			over100 += 1
 		if ms * 0.65 > 20.0:  # under 50 fps at Sean's
 			last_slow = t - from_t
+			if spell_to < 0.0 or t - spell_to > 0.1:
+				spell_from = t - ms / 1000.0
+			spell_to = t
+			spell = maxf(spell, spell_to - spell_from)
 	var k := 0.65
 	return {"frames": n, "mean_ms": sum / maxf(n, 1), "before_mean_ms": before / maxf(nb, 1), "worst_ms": worst, "second_ms": second,
 		"over_50": over50, "over_100": over100, "last_under_50fps_s": last_slow,
-		"sean_worst_ms": worst * k,
-		"gate": "pass" if worst * k < 100.0 and last_slow < 0.5 else "fail"}
+		"sean_worst_ms": worst * k, "slow_spell_s": spell,
+		"gate": "pass" if worst * k < 100.0 and spell < 0.5 else "fail"}
