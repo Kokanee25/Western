@@ -39,3 +39,7 @@ bounces follow it and go; `film_lamp_on_strip.jpg`) and `wall_on.mp4` (a stick o
 wall: the gable blown open, the moonlit sky through it and the hole's spot of moonlight; RoomLight
 found it from the breaks: a 9.75 m2 hole in the back wall and 0.83 m2 in the right-hand one;
 `film_wall_on_strip.jpg`). At this size the bounce's change is hard to see; the mechanism works.
+
+**Faces** (`tools/face_light.py` on `shot_match_close --face-probe`, off / on): face light median
+0.90 / 0.87, p90 1.09 / 1.05, clipped 46.1 % / 44.2 %, L* 61 / 60 (paint 64): as readable as
+before (the clipping is the view's own, off as much as on).
