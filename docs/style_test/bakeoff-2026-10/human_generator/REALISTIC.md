@@ -217,3 +217,31 @@ alone, in Blender, with round 3's hat, groom and clothes; only the face Sean pic
 - Fault fixed on the way: two of its presets (Enzo, Jack) give their skin texture with Windows
   separators, and the skin fell back pale.
 - Blender only, no game shots yet; $0.
+
+## Round 5 (#547): the one last test
+
+Sean on round 4: "They all look like young women cosplaying a cowboy lol". My reading of why (in
+#547): Human Generator's neat, plucked brows and long lashes; smooth, rosy skin with no stubble or
+sun; a clean moustache on bare skin (a costume piece); and one soft base head under every preset.
+Sean picked one last test: face A (`hg_r5_weathered`), changed only in those cues. Sheet
+**`round5/round5_test.jpg`**: the painted cowboy, round 4's A, the test face on and three-quarter.
+
+**What changed, and only this:**
+- No lashes.
+- Its brows replaced by heavy, untidy ones grown by `groom.py`: its brow group spread 3 mm, combed
+  out toward the temples.
+- Stubble on the chin, cheeks and neck: 40,000 short strands standing off the skin, plus its own
+  stubble shadows at full.
+- Tanned, weathered skin: darker tone, its splotches and freckles, age colour and wrinkles at full,
+  rougher.
+- The moustache and chops near-black.
+- The hair dark brown, grey at the temples.
+
+**Fault found on the way:** "grey" strands at melanin 0.3 render strawberry-blond, not grey. Grey
+hair is dark strands mixed with near-white ones (melanin 0.02).
+
+**Honest result:**
+- He reads as a man now: the brows, stubble and dark walrus took most of the "young woman" off.
+- What's left: the skin is still smooth and rosy rather than sun-beaten, the jaw is still Human
+  Generator's soft base head, and the hat and shirt are pristine.
+- Blender only; $0.
