@@ -17,7 +17,7 @@ const HELP := {
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON | look PLACE -> turn to face a point, a person or a place (eye height)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (routes round buildings to a place)",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s)",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -327,7 +327,10 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var p := _person(a[0])
 		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
 	elif a.size() >= 2 and a[0].is_valid_float():
-		points = [Vector3(float(a[0]), player.global_position.y, float(a[1]))]
+		# Round what's in the way as a place's route is (the places' links, then on to the point):
+		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
+		var point := Vector3(float(a[0]), player.global_position.y, float(a[1]))
+		points = _places().route_to_point(World.space(player), player.global_position, point, [player.get_rid()])
 	if points.is_empty():
 		return {"ok": false, "error": "no way there"}
 	var start := player.global_position
@@ -338,19 +341,31 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var limit := _game_seconds() + Vector2(target.x - player.global_position.x, target.z - player.global_position.z).length() / 0.8 + 4.0
 		var stuck_since := _game_seconds()
 		var last := player.global_position
+		# Caught on a chair's leg or a post's corner: step off to one side for a moment, then the
+		# other, before giving up (the D+ playtest's walks stopped there after 0 m).
+		var side_until := -1.0
+		var side := 1.0
+		var next_side := 0.8
 		while true:
 			var flat := Vector2(target.x - player.global_position.x, target.z - player.global_position.z)
 			if flat.length() < 0.5:
 				break
-			if _game_seconds() > limit or _game_seconds() - stuck_since > 3.0 or _knocked_out():
+			var now := _game_seconds()
+			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
 				break
-			_set_view(atan2(-flat.x, -flat.y), player.get_pitch_degrees())
+			if now - stuck_since > next_side and side_until < now:
+				side_until = now + 0.5
+				side = -side
+				next_side += 1.0
+			var yaw := atan2(-flat.x, -flat.y) + (deg_to_rad(70.0) * side if now < side_until else 0.0)
+			_set_view(yaw, player.get_pitch_degrees())
 			_act(true, &"move_forward")
 			await get_tree().physics_frame
 			if player.global_position.distance_to(last) > 0.3:
 				last = player.global_position
 				stuck_since = _game_seconds()
+				next_side = 0.8
 		if not arrived:
 			break
 	_act(false, &"move_forward")
@@ -359,7 +374,7 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing()}
+			"facing": _facing(), "legs": points.size()}
 
 
 func _cmd_press(a: Array) -> Dictionary:
