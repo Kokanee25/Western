@@ -695,8 +695,8 @@ frozen until Sean names one.
   `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
   (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
-  and `[build]` do); tour, visual and soak once a night only if main changed. Next if wanted: the
-  PRs' macOS/Windows native jobs only when `addons/saltcreek_native` changes.
+  and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
+  No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
