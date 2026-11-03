@@ -1,0 +1,8 @@
+{
+  "name": "fog_off",
+  "about": "The cheap judge's probe (#609): broken_look.json's fog off alone (for the numbers' self-test).",
+  "values": {
+    "day.fog_density": 0.0,
+    "day.volumetric_fog_density": 0.0
+  }
+}

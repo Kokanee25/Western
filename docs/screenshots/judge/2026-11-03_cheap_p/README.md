@@ -1,0 +1,1 @@
+The first eye run of the self-test, kept as the record of what failed (cheap_probes/README.md): a too_cheap, b broken, c now, d early (sources.txt). Its pictures were the probes (removed here: copies; too_cheap was 2026-10-22_r1/shot_match_street.png). It failed 3 of 4 of that set's rules; the set and the judge's ranking were changed after it.
