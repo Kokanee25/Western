@@ -678,9 +678,11 @@ frozen until Sean names one.
   `TrainModels.painted`; `results/2026-11-02_bake/`): the critic still fails the views on light and
   ground first, then E's realism; PR #587, build 3003; Sean: keep E (an art direction change may come; #577 closed). **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
   `TrainSound` (one-shots timed from the sim to the sub-tick, late by distance, Doppler; loops held
-  by the frame), `TrainSynth` (all synthesised: the recording sites are blocked here), dials
-  `config/train_sound.tres`; GameAudio's wall test looks past the train's own cars. Waiting on
-  Sean's ears (the film); step 5 waits on #492/#538.
+  by the frame), `TrainSynth`, dials `config/train_sound.tres`; GameAudio's wall test looks past
+  the train's own cars. **Train sound 2** (#586, `results/2026-11-03_sound2/`): 18 of 20 sounds
+  real recordings (`assets/audio/train/`, cut by `experiments/train_lab/recordings.py`; Commons
+  CC0/CC BY, `CREDITS.md`; Wikimedia refuses downloads here, Sean uploads them), the brakes still
+  synthesised, `-- --train-synth` the before. Waiting on Sean's ears (the film); step 5 waits on #492/#538.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

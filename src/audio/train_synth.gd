@@ -1,8 +1,9 @@
 class_name TrainSynth
-## The train's sounds made in code (train step 4, issue #571; TrainSound plays them). The recording
-## sites (Wikimedia Commons, Freesound, OpenGameArt, archive.org) are outside this workspace's
-## network policy, so every one is synthesised here until recordings can be had. SynthSounds makes
-## and caches them (`train_*` ids come here); the ideas, not code, are from the usual sources:
+## The train's sounds made in code (train step 4, issue #571; TrainSound plays them). Since train
+## sound 2 (#586) most are real recordings (`recording`, below: assets/audio/train/, cut from
+## Wikimedia Commons, CREDITS.md) and these are the fallback, the before (`-- --train-synth`) and
+## the brakes' squeal and grind, which no recording had. SynthSounds makes and caches them
+## (`train_*` ids come here); the ideas, not code, are from the usual sources:
 ## noise through resonant filters for the exhaust and the hiss (R. Bristow-Johnson's biquads),
 ## decaying partials for struck iron and the bell (modal synthesis; a bell's hum, prime, tierce,
 ## quint and nominal), three detuned pipes for a chime whistle.
@@ -28,6 +29,34 @@ const WARM := [&"train_simmer", &"train_bell", &"train_whistle", &"train_chuff_l
 	&"train_cocks", &"train_cocks_loop", &"train_bang", &"train_bump", &"train_clack_0", &"train_clack_1",
 	&"train_clack_2", &"train_rumble", &"train_chuff_mid_0", &"train_chuff_mid_1", &"train_chuff_short_0",
 	&"train_chuff_short_1", &"train_grind", &"train_squeal", &"train_safety"]
+
+
+## Recordings (train sound 2, #586): a train sound cut from a real recording by
+## experiments/train_lab/recordings.py (sources and licences in CREDITS.md) is used in place of the
+## synthesis when its file is there; what has none stays synthesised. Mono, 16-bit, at RATE, with
+## the same rules as the synthesis: a one-shot led by LEAD of silence, a loop seamless.
+const RECORDED := "res://assets/audio/train/%s.wav"
+## Off with `-- --train-synth`: every train sound synthesised (step 4's, the before).
+static var use_recordings := not OS.get_cmdline_user_args().has("--train-synth")
+
+
+## The recording for `id` as the game plays it (its loop set), or null (none, or off).
+static func recording(id: StringName) -> AudioStreamWAV:
+	var path := RECORDED % id
+	if not use_recordings or not ResourceLoader.exists(path):
+		return null
+	var wav := load(path) as AudioStreamWAV
+	if wav == null or wav.format != AudioStreamWAV.FORMAT_16_BITS or wav.stereo or wav.mix_rate != RATE:
+		push_warning("TrainSynth: %s isn't mono 16-bit PCM at %d Hz (its import), synthesised instead" % [path, RATE])
+		return null
+	wav = wav.duplicate()
+	if is_loop(id):
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = wav.data.size() / 2
+	else:
+		wav.loop_mode = AudioStreamWAV.LOOP_DISABLED
+	return wav
 
 
 static func is_train(id: StringName) -> bool:

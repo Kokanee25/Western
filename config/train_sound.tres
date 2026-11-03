@@ -4,3 +4,17 @@
 
 [resource]
 script = ExtResource("1_tsound")
+; Train sound 2 (#586): set for the recordings (by the film's levels against step 4's,
+; experiments/train_lab/results/2026-11-03_sound2/); the script's defaults are step 4's, for the synthesis.
+chuff_db = 9.0
+chuff_max_db = 12.0
+mid_db = 1.0
+short_db = 1.0
+cocks_db = 3.0
+cocks_loop_db = -5.0
+clack_db = 0.0
+clack_max_db = 6.0
+rumble_db = -3.0
+simmer_db = -12.0
+valve_db = 4.0
+bell_db = 5.0
