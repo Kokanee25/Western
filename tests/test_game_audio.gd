@@ -101,6 +101,7 @@ func test_it_slaps_back_off_a_front() -> void:
 
 
 func test_a_charge_thumps_rolls_and_rains_down() -> void:
+	BlastSounds.use(0)  # the synthesised blast (the fallback)
 	ears.global_position = Vector3(0, 1.6, 0)
 	var made: Array[AudioStreamPlayer3D] = []
 	var note := func(n: Node) -> void:
@@ -118,6 +119,41 @@ func test_a_charge_thumps_rolls_and_rains_down() -> void:
 	await physics_frames(int(3.0 * Engine.physics_ticks_per_second))
 	check(debris.all(func(p: AudioStreamPlayer3D) -> bool: return not is_instance_valid(p) or p.playing),
 			"all of it down within 3 s (landed and done, or landing)")
+	BlastSounds.use(-1)
+
+
+## The recorded blast (#596): each layer of the set plays, placed like any sound; the crack is
+## full only close, the sub further than the boom; dirt rains down after; with no building near,
+## no boards, glass or groan.
+func test_a_recorded_charge_plays_its_layers() -> void:
+	var rec := {}
+	for layer: StringName in BlastSounds.LAYERS:
+		rec[layer] = SynthSounds.get_sound(&"thump").duplicate()
+	BlastSounds.inject(99, rec)
+	BlastSounds.use(99)
+	check_eq(BlastSounds.active(), 99, "set 99 in play")
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			made.append(n)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	var of := func(layer: StringName) -> Array:
+		return made.filter(func(p: AudioStreamPlayer3D) -> bool: return p.stream == rec[layer])
+	for layer: StringName in [&"crack", &"boom", &"sub", &"roll"]:
+		check(of.call(layer).size() >= 1, "the %s plays" % layer)
+	check(not made.any(func(p: AudioStreamPlayer3D) -> bool: return p.stream == SynthSounds.get_sound(&"blast")),
+			"nothing synthesised for the blast itself")
+	var crack: AudioStreamPlayer3D = of.call(&"crack")[0]
+	var boom: AudioStreamPlayer3D = of.call(&"boom")[0]
+	var sub: AudioStreamPlayer3D = of.call(&"sub")[0]
+	check(crack.unit_size < boom.unit_size and boom.unit_size < sub.unit_size, "crack close, boom, sub furthest")
+	check_eq(of.call(&"debris_dirt").size(), 2, "dirt raining down")
+	check(of.call(&"debris_wood").is_empty() and of.call(&"groan").is_empty(), "no building near: no boards, no groan")
+	check(not crack.playing, "30 m off: not heard yet (sound's 0.09 s)")
 
 
 ## A wall coming down was 108 sounds at once: of one breaking sound only `limit` play, the

@@ -1,0 +1,37 @@
+# Recorded sounds (issue #596): Freesound and the Sonniss bundles can't be reached from the
+# workspace, so their pages and files are fetched here. Runs on a push to a gameplay sound branch
+# that changes tools/sounds/, or by hand. What it fetched goes to the branch
+# claude/gameplay-dynamite-sound-pool (one orphan commit, [skip ci]; the workspace can't reach the
+# artifacts' storage); only Freesound's CC0 files, never anything that can't be redistributed.
+name: Sounds fetch
+
+on:
+  push:
+    branches: ["claude/gameplay-dynamite-sound*"]
+    paths: ["tools/sounds/**", ".github/workflows/sounds.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: if [ -f tools/sounds/needs_ffmpeg ]; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null; fi
+      - name: Fetch
+        env:
+          FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
+        run: python3 tools/sounds/fetch.py --out=build/sounds 2>&1 | tee build-sounds.log
+      - if: always()
+        run: mkdir -p build/sounds && cp build-sounds.log build/sounds/ || true
+      - name: Commit to the pool branch
+        if: always()
+        run: |
+          cd build/sounds
+          git init -q -b pool
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Sounds fetched by run ${{ github.run_number }} [skip ci]"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" pool:claude/gameplay-dynamite-sound-pool

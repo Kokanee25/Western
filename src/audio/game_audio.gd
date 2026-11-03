@@ -59,6 +59,10 @@ static func gunshot(host: Node, at: Vector3, big := false) -> void:
 static func blast(host: Node, at: Vector3, kg: float) -> void:
 	var k := t()
 	var size := pow(maxf(kg, 0.01) / 0.2, 1.0 / 3.0)
+	var rec_set := BlastSounds.active()
+	if rec_set > 0:
+		_blast_recorded(host, at, size, rec_set)
+		return
 	var heard := play(host, &"blast", at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0, "max_db": 6.0})
 	play(host, &"blast_roll", at, {"unit_size": k.blast_roll_unit_size * size, "volume_db": k.blast_roll_db,
 			"max_db": k.blast_roll_max_db, "panning": 0.4})
@@ -80,8 +84,69 @@ static func blast(host: Node, at: Vector3, kg: float) -> void:
 		play(holder, id, where, {"volume_db": db, "normal": Vector3.UP, "after": rng.randf_range(0.5, 2.8)})
 
 
+## The blast from a set of recordings (BlastSounds): crack, boom and sub at the charge, the roll
+## off the hills, outdoors the boom slapping back off the fronts; then what it threw pattering down
+## round it (dirt always; boards and glass with a building near), and the nearest building's
+## timbers groaning as it settles. Which take of each layer plays is by where it went off, so a
+## seeded run sounds the same twice.
+static func _blast_recorded(host: Node, at: Vector3, size: float, rec_set: int) -> void:
+	var k := t()
+	var take := absi(hash(Vector3i(at.round())))
+	var rec := func(layer: StringName, i := 0) -> AudioStream: return BlastSounds.stream(rec_set, layer, take + i)
+	var boom: AudioStream = rec.call(&"boom")
+	var heard := play(host, &"blast", at, {"stream": boom, "unit_size": k.blast_unit_size * size,
+			"volume_db": k.rec_boom_db, "max_db": k.rec_boom_db})
+	if rec.call(&"crack"):
+		play(host, &"blast", at, {"stream": rec.call(&"crack"), "unit_size": k.rec_crack_unit_size * size,
+				"volume_db": k.rec_crack_db, "max_db": k.rec_crack_db})
+	if rec.call(&"sub"):
+		play(host, &"blast", at, {"stream": rec.call(&"sub"), "unit_size": k.rec_sub_unit_size * size,
+				"volume_db": k.rec_sub_db, "max_db": k.rec_sub_db, "panning": 0.2})
+	play(host, &"blast_roll", at, {"stream": rec.call(&"roll"), "unit_size": k.blast_roll_unit_size * size,
+			"volume_db": k.rec_roll_db, "max_db": k.rec_roll_max_db, "panning": 0.4})
+	if heard and not heard.get_meta(&"inside", false):
+		for s: Dictionary in slaps(host, at):
+			play(host, &"blast", s.at, {"stream": boom, "unit_size": k.blast_unit_size * size,
+					"volume_db": k.rec_boom_db + k.slap_db, "max_db": k.rec_boom_db + k.slap_db, "walls": false})
+	var holder := _holder(host)
+	if holder == null:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = take
+	var near := _nearest_structure(holder, at, k.rec_groan_reach)
+	var layers: Array[StringName] = [&"debris_dirt", &"debris_dirt"]
+	if near.size() > 0 and near.d < k.rec_wood_reach:
+		layers.append_array([&"debris_wood", &"debris_glass"])
+	for i in layers.size():
+		var s: AudioStream = rec.call(layers[i], i)
+		if s == null:
+			continue
+		var a := rng.randf() * TAU
+		var where := at + Vector3(cos(a), 0.0, sin(a)) * rng.randf_range(1.0, 5.0) * size
+		play(holder, layers[i], where, {"stream": s, "volume_db": k.rec_debris_db + rng.randf_range(-3.0, 0.0),
+				"unit_size": 6.0, "normal": Vector3.UP, "after": rng.randf_range(0.25, 0.7)})
+	if near.size() > 0 and rec.call(&"groan"):
+		play(holder, &"groan", near.at, {"stream": rec.call(&"groan"), "unit_size": 10.0 * size,
+				"volume_db": k.rec_groan_db, "max_db": k.rec_groan_db, "after": rng.randf_range(0.8, 1.6)})
+
+
+## The structure nearest `at` within `reach` (by its bounds): {at: its nearest point, d}, else {}.
+static func _nearest_structure(holder: Node, at: Vector3, reach: float) -> Dictionary:
+	var best := {}
+	for n: Node in holder.get_tree().get_nodes_in_group(&"structures"):
+		var st := n as Structure
+		if st == null or not st.is_inside_tree():
+			continue
+		var b := st.bounds()
+		var p := at.clamp(b.position, b.end)
+		var d := p.distance_to(at)
+		if d < reach and (best.is_empty() or d < float(best.d)):
+			best = {"at": p, "d": d}
+	return best
+
+
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
-## panning (1), delay (true: distance / the speed of sound; an image source is already the reflected
+## panning (1), stream (a recording to play in place of the synthesised `id`), delay (true: distance / the speed of sound; an image source is already the reflected
 ## path's length away), after (seconds more before it starts), walls (true: the room and the walls by
 ## where it is), normal (the face a sound made on a surface came off).
 static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStreamPlayer3D:
@@ -94,7 +159,8 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	var ears := ears_of(host)
 	var d := ears.global_position.distance_to(at) if ears else 0.0
 	var p := AudioStreamPlayer3D.new()
-	p.stream = SynthSounds.get_sound(id)
+	var rec: AudioStream = o.get("stream")
+	p.stream = rec if rec else SynthSounds.get_sound(id)
 	p.unit_size = float(o.get("unit_size", 6.0))
 	p.volume_db = float(o.get("volume_db", 0.0))
 	p.max_db = float(o.get("max_db", 3.0))

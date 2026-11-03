@@ -83,3 +83,9 @@ unchanged. The brakes' squeal and grind are still synthesised (`src/audio/train_
   CC BY 4.0 (https://creativecommons.org/licenses/by/4.0;
   https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-018Steamrelease.ogg): the
   cylinder cocks and the safety valve.
+
+- The dynamite's recorded layers (issue #596; `assets/audio/blast/`, `BlastSounds`): only
+  Freesound sounds under **Creative Commons 0**, fetched through Freesound's API by
+  `tools/sounds/fetch.py` (each file's id, title, author and page in `assets/audio/blast/sets.json`;
+  listed here as they come in, though CC0 asks for no credit). The Sonniss GDC bundles are not
+  used while this repo is public: their licence forbids publishing the files as sound effects.
