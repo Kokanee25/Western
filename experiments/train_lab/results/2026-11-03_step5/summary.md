@@ -90,12 +90,19 @@ budget's `clock_scale`.
 - **The repair crew** (with short work times) clears a crate off the line, lays the chunk again
   and walks off. The line is whole again and the next train runs through.
 
-## Films (`films/`)
+## Films (`films/`, 960x540 under lavapipe; scripts in `experiments/train_lab/films/step5/`)
 
-The scripts are in `experiments/train_lab/films/step5/`; each was rendered in a game under xvfb
-with the software renderer. **Stop short** (noon, 20 km/h). **The slow derail** (walking pace,
-nobody watching). **The wreck at speed** (40 km/h, six in the coach; lineside, then alongside the
-coach). **A crate struck**. **A man run over** (gore on).
+- `stop_short.mp4` (45 s): noon, 20 km/h, the left rail torn out at 380 m; from the lineside at
+  250 m the train comes on, the brakes go on ~220 m out and it stands 171 m short.
+- `slow_derail.mp4` (19 s): walking pace, nobody watching: the engine drops off the broken rail
+  onto the ties and leans.
+- `wreck_speed.mp4` (19 s): 40 km/h, nobody watching, six in the coach: the engine leaves the
+  rails and rolls, the cars run in behind it. From the lineside into the sun at 4 pm, so it's
+  dark and small in the frame: a better camera is a cheap re-take.
+- `wreck_coach.mp4` (17 s): the same wreck, riding alongside the coach as it goes over (the men
+  inside show only through the windows).
+- `crate_struck.mp4` (25 s): a crate on the line at 20 km/h, thrown off by the pilot.
+- `run_over.mp4` (27 s): a man down across the rails at 20 km/h: run over, both shins and an arm off.
 
 ## Not done, or not as asked
 
