@@ -15,9 +15,9 @@ const HELP := {
 	"screenshot": "screenshot PATH -> the window as you see it, PNG",
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
-	"look": "look TX TY TZ | look PERSON | look PLACE -> turn to face a point, a person or a place (eye height)",
+	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line and which of him you can see",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s)",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -293,8 +293,19 @@ func _cmd_look(a: Array) -> Dictionary:
 	var target: Vector3
 	if a.size() >= 3:
 		target = _vec(a, 0)
-	elif a.size() == 1 and _person(a[0]) != null:
-		target = _chest(_person(a[0]))
+	elif a.size() <= 2 and _person(a[0]) != null:
+		var man := _person(a[0])
+		if a.size() == 2 and not man.parts.has(StringName(a[1])):
+			return {"ok": false, "error": "no part %s (head, neck, chest, abdomen, pelvis, upper_arm_l, thigh_r...)" % a[1]}
+		target = (man.parts[StringName(a[1])] as Node3D).global_position if a.size() == 2 else _chest(man)
+		if _free_camera:
+			_free_camera.look_at(target)
+		else:
+			_face(target)
+		await _physics_frames(1)
+		var out := {"facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1)}
+		out.merge(_line_to(man, target))
+		return out
 	elif a.size() == 1 and _places().has(StringName(a[0])):
 		target = _places().at(StringName(a[0])) + Vector3.UP * 1.5
 	else:
@@ -338,6 +349,7 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if run:
 		_act(true, &"run")
 	for target in points:
+		var last_leg: bool = target == points[-1]
 		var limit := _game_seconds() + Vector2(target.x - player.global_position.x, target.z - player.global_position.z).length() / 0.8 + 4.0
 		var stuck_since := _game_seconds()
 		var last := player.global_position
@@ -348,7 +360,11 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var next_side := 0.8
 		while true:
 			var flat := Vector2(target.x - player.global_position.x, target.z - player.global_position.z)
-			if flat.length() < 0.5:
+			# On the last leg let go in time to stop there: running, you carry on ~1.3 m after
+			# letting go (the D+ playtest slid on past "arrived").
+			var v := player.get_horizontal_speed()
+			var stop := maxf(0.5, v * v / (2.0 * maxf(player.tuning.ground_decel, 0.1))) if last_leg else 0.5
+			if flat.length() < stop:
 				break
 			var now := _game_seconds()
 			if now > limit or now - stuck_since > 4.0 or _knocked_out():
@@ -371,10 +387,13 @@ func _cmd_walk(a: Array) -> Dictionary:
 	_act(false, &"move_forward")
 	_act(false, &"run")
 	await _physics_frames(10)
+	var settle := _game_seconds() + 3.0
+	while player.get_horizontal_speed() > 0.1 and _game_seconds() < settle and not _knocked_out():
+		await get_tree().physics_frame  # answered once you've stopped, where you've stopped
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing(), "legs": points.size()}
+			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
 
 
 func _cmd_press(a: Array) -> Dictionary:
@@ -490,7 +509,12 @@ func _cmd_shoot(a: Array) -> Dictionary:
 		else:
 			clicked += 1
 		await _seconds(0.4)
-	return {"fired": fired, "clicked": clicked, "weapon": _weapon_line()}
+	var out := {"fired": fired, "clicked": clicked, "weapon": _weapon_line()}
+	if fired == 0 and w.why_not_usable() != "":
+		out["why"] = "you can't hold the gun: %s" % w.why_not_usable()
+	elif fired == 0 and not w.drawn:
+		out["why"] = "the gun's put away (weapon revolver)"
+	return out
 
 
 func _knocked_out() -> bool:
@@ -520,7 +544,11 @@ func _cmd_weapon(a: Array) -> Dictionary:
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
 		await get_tree().physics_frame
 	await _seconds(0.5)
-	return {"ok": player.weapon == w and w.drawn, "weapon": _weapon_line()}
+	var ok := player.weapon == w and w.drawn
+	var out := {"ok": ok, "weapon": _weapon_line()}
+	if not ok and w.why_not_usable() != "":
+		out["why"] = "you can't hold it: %s" % w.why_not_usable()
+	return out
 
 
 func _cmd_wait(a: Array) -> Dictionary:
@@ -801,6 +829,8 @@ func _listen_to_events() -> void:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	# What the screen told you (a wound, the gun you can't hold, coming round): #595's gun lost without a word.
+	_hook_screen.call_deferred()
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
 		if info.get("kind") == &"blast":  # what the blast did to him, not a "hit" in the chest (#488)
 			_log("hit", "%s caught by the blast: %s" % [_who(info.get("person")), ", ".join(info.get("harm", []))])
@@ -828,6 +858,11 @@ func _listen_to_events() -> void:
 	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
+
+
+func _hook_screen() -> void:
+	if player != null and is_instance_valid(player) and player.wounds != null:
+		_hook(player.wounds.shown, func(text: String) -> void: _log("screen", text.replace("\n", " / ")))
 
 
 func _log(kind: String, text: String) -> void:
@@ -959,6 +994,9 @@ func _weapon_line() -> String:
 			loads += ", hammer %s" % ["down", "half cock", "cocked"][int(st.hammer)]
 	if w is BucketViewmodel:
 		loads = ", %.0f l of water%s" % [(w as BucketViewmodel).litres, ", filling" if (w as BucketViewmodel).filling > 0.0 else ""]
+	var why := w.why_not_usable()
+	if why != "" and why != "your hands are pressing on a wound":
+		loads += " (you can't hold it: %s)" % why
 	return "%s %s%s" % [kind, "in hand" if drawn else "put away", loads]
 
 
@@ -1027,6 +1065,51 @@ func _look_hit() -> Dictionary:
 	q.exclude = [player.get_rid()]
 	q.collide_with_areas = false
 	return World.space(cam).intersect_ray(q)
+
+
+## What a real player would see along the sights: what's first in the line to `aim` on him (a post,
+## a batwing: his ball stops there as yours does) and which of his parts there's a clear line to
+## (#595: the D+ playtest aimed at men's middles behind posts while they shot at its head).
+func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
+	var cam := _view_camera()
+	var from := cam.global_position
+	var space := World.space(cam)
+	var first := _first_on(space, from, aim, man)
+	var out := {}
+	if first != "":
+		out["in_the_way"] = first
+	var clear: Array = []
+	for sid: StringName in [&"head", &"neck", &"chest", &"abdomen", &"pelvis", &"upper_arm_r", &"upper_arm_l", &"thigh_r", &"thigh_l"]:
+		if man.parts.has(sid) and _first_on(space, from, (man.parts[sid] as Node3D).global_position, man) == "":
+			clear.append(String(sid))
+	out["clear_to"] = clear
+	return out
+
+
+## The first thing a ball would meet from `from` to `to` short of `man` ("" if it's him or nothing).
+func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man: HumanBody) -> String:
+	var ex: Array[RID] = [player.get_rid()]
+	for _i in 6:
+		var q := PhysicsRayQueryParameters3D.create(from, to + (to - from).normalized() * 0.3, Layers.BULLETS)
+		q.exclude = ex
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			return ""
+		var c: Object = hit.collider
+		var d := snappedf((hit.position as Vector3).distance_to(from), 0.1)
+		if c.get_meta(&"human_body", null) == man or c.get_meta(&"hat_of", null) == man:
+			return ""
+		if c is StructureMember:
+			var m := c as StructureMember
+			if m.kind == &"glass":
+				ex.append(m.get_rid())  # (a ball goes through a pane)
+				continue
+			return "%s %s at %.1f m" % [m.wood, m.kind, d]
+		var who: Variant = c.get_meta(&"human_body", null)
+		if who is HumanBody:
+			return "%s at %.1f m" % [(who as HumanBody).person_id, d]
+		return "%s at %.1f m" % [String((c as Node).name) if c is Node else "something", d]
+	return ""
 
 
 func _chest(man: HumanBody) -> Vector3:

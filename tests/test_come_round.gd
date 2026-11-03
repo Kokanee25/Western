@@ -70,6 +70,17 @@ func test_you_come_round_hours_later_still_hurt() -> void:
 	check(player.wounds.out_cold == 0.0, "not out again")
 
 
+## The gunfight lab, its played fight over with you down: you stay as you are (#595: "Dead (brain)",
+## then 4 s later "you came round" at the doctor's).
+func test_held_down_you_stay_down() -> void:
+	var at := player.global_position
+	player.wounds.stays_down = true
+	player.wounds.physiology.blood_ml = 2800.0
+	await physics_frames(60 * 6)
+	check(not player.wounds.physiology.is_conscious(), "still out cold after 6 s")
+	check(player.global_position.distance_to(at) < 0.5, "where you fell")
+
+
 func test_killed_you_still_wake() -> void:
 	var p := player.wounds.physiology
 	p.blood_ml = 2000.0

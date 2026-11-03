@@ -499,8 +499,10 @@ func _cmd_gf_result(_a: Array) -> Dictionary:
 					else "down" if man.limp and m.outcome == "standing" else String(m.outcome)
 			if now != m.outcome:
 				men[id] = "%s, then %s" % [m.outcome, now]
+	var ph: Physiology = _played.player.wounds.physiology
+	var you := ("dead (%s)" % String(ph.cause_of_death).replace("_", " ")) if not ph.alive else "out cold" if not ph.is_conscious() else "up"
 	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),
-		"men": men}
+		"you": you, "men": men}
 
 
 func _cmd_gf_aim(a: Array) -> Dictionary:

@@ -93,6 +93,33 @@ func test_walk_to_a_point_routes_round_what_is_in_the_way() -> void:
 	check(int(replies[1].get("legs", 0)) > 1, "by a route, not straight (%s legs)" % replies[1].get("legs"))
 
 
+## A run ends where it was sent, not 1.1-1.4 m on (the second D+ playtest slid on after "arrived"),
+## and it answers once you've stopped.
+func test_a_run_stops_where_it_was_sent() -> void:
+	var to := bridge._places().at(&"street_mid") + Vector3(9.0, 0.0, 0.0)
+	var replies := await _ask(["goto street_mid", "walk %.2f %.2f run" % [to.x, to.z], "wait 1", "read player"], 60 * 60)
+	check(replies[1].arrived, "ran there (%s)" % str(replies[1]))
+	var at := Vector3(float(replies[1].at[0]), 0.0, float(replies[1].at[2]))
+	var flat := Vector2(at.x - to.x, at.z - to.z).length()
+	check(flat < 0.7, "and stopped there (%.2f m off)" % flat)
+	var player: Player = street.get_node(^"Player")
+	check(player.global_position.distance_to(Vector3(at.x, player.global_position.y, at.z)) < 0.1, "and stays (%s)" % player.global_position)
+	check(replies[1].has("crouching"), "it says whether you're crouched")
+
+
+## A broken gun arm: the gun won't come out, and you're told why (the second D+ playtest's `weapon
+## revolver` answered ok: false and nothing more).
+func test_a_gun_you_cant_hold_says_why() -> void:
+	var player: Player = street.get_node(^"Player")
+	player.wounds.physiology.broken[&"humerus_r"] = true
+	var replies := await _ask(["weapon revolver", "shoot 1", "events 10"])
+	check(not replies[0].ok, "it doesn't come out")
+	check(String(replies[0].get("why", "")).contains("broken upper arm"), "and says why (%s)" % str(replies[0]))
+	check(String(replies[1].get("why", "")).contains("broken upper arm"), "shoot says why too (%s)" % str(replies[1]))
+	check(replies[2].events.any(func(e: Dictionary) -> bool: return e.kind == "screen" and "can't hold the gun" in String(e.text)),
+			"and the screen's line is in the events (%s)" % str(replies[2].events))
+
+
 ## Your "Drop it!" goes in the log (the D+ playtest's shouts read as doing nothing).
 func test_a_shout_is_in_the_log() -> void:
 	var replies := await _ask(["weapon revolver", "press shout", "events 5"])
