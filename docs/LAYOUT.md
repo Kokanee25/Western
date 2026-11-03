@@ -2003,7 +2003,8 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   plugin; any other branch push gets a run with every job skipped (no minutes). Pushes to `main`
   also export Windows/Mac/Linux to a Release (notes from `docs/BUILD_NOTES.md` — update it each
   milestone) and the web build to GitHub Pages. A `[build]` push and its open PR share a
-  concurrency group, so only one of them builds.
+  concurrency group, so only one of them builds. Trap: `[build]` anywhere in the last commit's
+  message counts, its body too (so a message that only mentions it builds).
 - The nightlies (tour 05:11, visual 06:43, soak 09:17 UTC) each start with a one-minute `pick` or
   `changed` job and skip when main hasn't changed since their last finished run (the tour: when
   the latest green build's video is already on the `tour` release). A skipped night shows green
