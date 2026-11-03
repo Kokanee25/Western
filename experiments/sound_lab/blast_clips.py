@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Blind clips of the recorded dynamite sets (issue #596, step 1) for Sean to pick by ear.
 
-Each set in assets/sounds/blast/sets.json is played through the game itself (the sound lab's runs:
+Each set in assets/audio/blast/sets.json is played through the game itself (the sound lab's runs:
 GameAudio's placement, late by distance, the air, rooms, walls, slaps), one stick each, heard from
 5 m, 30 m and 150 m in the street and 5 m inside the saloon. The sets are shuffled to the labels
 1, 2, 3 (the key in OUT/key.json, not for Sean); OUT/clips/<label>_<where>.mp3 a clip each and
@@ -33,7 +33,7 @@ def _opt(name, default=None):
 
 def main():
     out = os.path.abspath(_opt("out", os.path.join(ROOT, "build", "sound_lab", "blast")))
-    sets = json.load(open(os.path.join(ROOT, "assets", "sounds", "blast", "sets.json")))["sets"]
+    sets = json.load(open(os.path.join(ROOT, "assets", "audio", "blast", "sets.json")))["sets"]
     ids = _opt("sets", ",".join(sorted(sets, key=int))).split(",")
     os.makedirs(out, exist_ok=True)
     key_path = os.path.join(out, "key.json")

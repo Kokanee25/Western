@@ -63,8 +63,29 @@ adds its own lines.
 
 ## Sounds (the gameplay session)
 
-- The dynamite's recorded layers (issue #596; `assets/sounds/blast/`, `BlastSounds`): only
+The train's recorded sounds (train sound 2, #586): cut from these Wikimedia Commons recordings
+by `experiments/train_lab/recordings.py` (which part of which file each sound is: its
+`recordings.json`) into `assets/audio/train/`; trimmed, filtered and set in level, otherwise
+unchanged. The brakes' squeal and grind are still synthesised (`src/audio/train_synth.gd`).
+
+- **"South Australian Railways Garratt 406 starts off"** by SCHolar44, CC0 1.0
+  (https://commons.wikimedia.org/wiki/File:South_Australian_Railways_Garratt_406_starts_off.ogg):
+  the long and mid exhaust beats, rolling, the engine standing.
+- **"Train sounds from Iowa"** by Glaneur de sons, CC BY 3.0
+  (https://creativecommons.org/licenses/by/3.0;
+  https://commons.wikimedia.org/wiki/File:Train_sounds_from_Iowa_-_Glaneur_de_sons.ogg): the
+  chime whistle, the bell, the rail joints, the couplers.
+- **"Prussian passenger steam locomotive P-8"** by Work With Sounds / Konrad Gutkowski, CC BY 4.0
+  (https://creativecommons.org/licenses/by/4.0;
+  https://commons.wikimedia.org/wiki/File:WWS_PrussianpassengersteamlocomotiveP-8.ogg): the short
+  exhaust beats at speed.
+- **"Steam locomotive S06-018, steam release"** by Work With Sounds / Technical Museum of Slovenia,
+  CC BY 4.0 (https://creativecommons.org/licenses/by/4.0;
+  https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-018Steamrelease.ogg): the
+  cylinder cocks and the safety valve.
+
+- The dynamite's recorded layers (issue #596; `assets/audio/blast/`, `BlastSounds`): only
   Freesound sounds under **Creative Commons 0**, fetched through Freesound's API by
-  `tools/sounds/fetch.py` (each file's id, title, author and page in `assets/sounds/blast/sets.json`;
+  `tools/sounds/fetch.py` (each file's id, title, author and page in `assets/audio/blast/sets.json`;
   listed here as they come in, though CC0 asks for no credit). The Sonniss GDC bundles are not
   used while this repo is public: their licence forbids publishing the files as sound effects.

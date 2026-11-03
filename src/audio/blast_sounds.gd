@@ -8,11 +8,11 @@ class_name BlastSounds
 ##   roll    its thunder coming back off the fronts and the hills (what's heard far off);
 ##   debris_dirt / debris_wood / debris_glass   what it threw, pattering down for 1-3 s after;
 ##   groan   a building's timbers groaning as it settles.
-## The recordings are sets (`assets/sounds/blast/sets.json`; every file's source and licence in
+## The recordings are sets (`assets/audio/blast/sets.json`; every file's source and licence in
 ## CREDITS.md); `SoundTuning.blast_set` picks one (0: the synthesised blast, the fallback), and
 ## `-- --blast-set=N` overrides it (the sound lab's blind clips).
 
-const DIR := "res://assets/sounds/blast/"
+const DIR := "res://assets/audio/blast/"
 const LAYERS: Array[StringName] = [&"crack", &"boom", &"sub", &"roll", &"debris_dirt", &"debris_wood",
 	&"debris_glass", &"groan"]
 

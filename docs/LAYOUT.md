@@ -1149,7 +1149,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
   before the lab (its "before" from one build). Measured by `experiments/sound_lab/`.
 - `src/audio/blast_sounds.gd` — `BlastSounds` (#596): dynamite from recordings, sets of layers
-  (crack, boom, sub, roll, debris_dirt/wood/glass, groan) in `assets/sounds/blast/sets.json`;
+  (crack, boom, sub, roll, debris_dirt/wood/glass, groan) in `assets/audio/blast/sets.json`;
   `SoundTuning.blast_set` picks one (0, or a set with no files: the synthesised blast), `-- --blast-set=N`
   overrides it. `GameAudio._blast_recorded` places each layer (the crack full only close, the sub
   furthest; boards, glass and a groan only with a building near). Recordings are Freesound CC0 only,
@@ -1260,8 +1260,12 @@ clank, bell; the oldest gives way). Loops held by the drawn frame on their car: 
 squeal and grind (by `car_brake` and speed), the cocks' hiss, simmer, the safety valve (lifts after
 `valve_after` s standing with the regulator shut), the whistle (`blow("--o-")`, `whistle(held)`).
 Its bus (walls) from GameAudio a few times a second. Without ears nothing is made or played. The
-sounds: `src/audio/train_synth.gd` (`TrainSynth`, all synthesised; SynthSounds makes `train_*`,
-loops seamless, `SynthSounds.warm(TrainSynth.WARM)` the first time a train is heard). Prof timer
+sounds: recordings in `assets/audio/train/<id>.wav` where there is one (#586: cut from Wikimedia
+Commons by `experiments/train_lab/recordings.py` and its `recordings.json`, mono 16-bit PCM at
+44.1 kHz, imported uncompressed; `TrainSynth.recording`), else `src/audio/train_synth.gd`
+(`TrainSynth`, synthesised; the brakes' squeal and grind, and every one with `-- --train-synth`);
+SynthSounds makes `train_*`, loops seamless, `SynthSounds.warm(TrainSynth.WARM)` the first time a
+train is heard. Prof timer
 `train_sound`. The lab: `train_whistle`, `train_bell`, `train_valve`, `train_sound`,
 `train_caption`, `train_cam side S OFF`; the cab's H (whistle) and B (bell).
 
