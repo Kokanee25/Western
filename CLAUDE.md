@@ -428,6 +428,10 @@ frozen until Sean names one.
 - **The dusk stall** (#491, branch `claude/art-dusk-stall`): the light blend's lamps and buildings found by
   their groups, the grade steps built at the pick: ~500 ms here every ~2.4 s at dusk -> ~3 ms
   (`tools/dusk_frame.gd`); the look unchanged. Gameplay's dusk frames left: `civilian_brain`/`fire_route`.
+- **The cheap judge** (#609, branch `claude/art-cheap-judge`): `critic.py cheap` (rubric
+  `docs/concept/judge/CHEAP.md`, self-test `cheap-probes`, LAYOUT "src/render"); its verdict goes in
+  every art status entry and #608's before/after. Baseline `2026-11-03_cheap_r1`: saloon views cheap
+  indie, street noon/golden and the film good indie. Waiting on Sean: does it agree with his eye.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

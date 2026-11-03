@@ -1433,6 +1433,17 @@ train is heard. Prof timer
   `<round>/critic/critic.md`: the five biggest differences a viewer would notice, biggest
   first, with crops; `critic.py top <round>` prints the top three for the status entry. The
   judge measures style; the critic says what a person sees; both choose what's next.
+  **The cheap judge** (`critic.py cheap`, #609, rubric `docs/concept/judge/CHEAP.md`): "does this
+  look like a cheap indie or AI-made game, and why?" `cheap OUT VIEW... --from=DIR [--film=DIR]`
+  lays the renders (and a film strip of a folder's frames) out as a, b, c... with the concept
+  targets and prints a fresh Agent's prompt; it writes `OUT/cheap.md` (ten tells PASS/FAIL/N/A with
+  crops via `critic.py cut`, a verdict AI slop / cheap indie / good indie / AA / AAA-feeling, the
+  five biggest reasons with cause and cheapest fix). `OUT/numbers.md` (deep shadow, L* spread, black
+  floor, contrast and chroma far/near, texture repeat) is not shown to the agent. `cheap-log OUT`
+  adds a verdict line per view to `history.md`. Self-test: `cheap-probes OUT` (four renders of the
+  street shot in `cheap_probes/`, ranked in `ranking.json`) then `cheap-probes OUT --check`;
+  `cheap-probes --numbers` checks the measures alone (`cheap_probes/README.md`: the numbers and the
+  probes, kept out of the rubric the agent reads). Every art status entry carries its verdicts.
   **Golden images** (`tools/golden_check.py`, the rule in How we work): every view in
   `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
   `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
