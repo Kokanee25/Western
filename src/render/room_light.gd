@@ -85,6 +85,9 @@ class Room:
 	var colour_was := Color()
 	var probe: ReflectionProbe
 	var haze: FogVolume
+	## The share of its lamps lit (by energy), and the sky last lit its openings by.
+	var share := 1.0
+	var sky_was := Vector2(-1.0, -1.0)
 
 
 static func tune() -> RoomLightTuning:
@@ -130,10 +133,7 @@ func _process(delta: float) -> void:
 		_since = 0.0
 		_refresh()
 	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
-	for b: FalseFrontBuilding in _rooms.keys():
-		if not is_instance_valid(b):
-			_rooms.erase(b)
-			continue
+	for b: FalseFrontBuilding in _live_rooms():
 		var r: Room = _rooms[b]
 		if r.merge_due and _lamps_ready(r):
 			_merge(r)
@@ -149,12 +149,12 @@ func _physics_process(delta: float) -> void:
 		return
 	var t := Prof.start()
 	var budget := tune().lamps_per_tick
-	for lamp: OilLamp in _lamps.keys():
+	for key: Variant in _lamps.keys():
 		if budget <= 0:
 			break
-		var l: Lamp = _lamps[lamp]
-		if l.dirty and is_instance_valid(lamp):
-			_cast(lamp, l)
+		var l: Lamp = _lamps[key]
+		if l.dirty and is_instance_valid(key) and is_instance_valid(l.room):
+			_cast(key as OilLamp, l)
 			budget -= 1
 	var rays := tune().hole_rays_per_tick
 	for r: Room in _rooms.values():
@@ -207,6 +207,20 @@ func _stop() -> void:
 	_lamps.clear()
 
 
+## The rooms whose buildings are still here (a freed one's dropped, with its lamps).
+func _live_rooms() -> Array[FalseFrontBuilding]:
+	var out: Array[FalseFrontBuilding] = []
+	for key: Variant in _rooms.keys():
+		if is_instance_valid(key):
+			out.append(key as FalseFrontBuilding)
+		else:
+			_rooms.erase(key)
+	for key: Variant in _lamps.keys():
+		if not is_instance_valid(key) or ((_lamps[key] as Lamp).room != null and not is_instance_valid((_lamps[key] as Lamp).room)):
+			_lamps.erase(key)
+	return out
+
+
 func _room_for(b: FalseFrontBuilding) -> Room:
 	if _rooms.has(b):
 		return _rooms[b]
@@ -249,7 +263,7 @@ func _refresh() -> void:
 		var changed := shines != l.shines or not is_equal_approx(light.omni_range, l.range_) \
 				or not is_equal_approx(light.omni_attenuation, l.falloff) or not is_equal_approx(lamp.energy, l.energy)
 		if moved or changed:
-			var was := l.room
+			var was: Variant = l.room if is_instance_valid(l.room) else null
 			l.room = _building_at(pos) if moved else l.room
 			l.pos = pos
 			l.shines = shines
@@ -268,13 +282,12 @@ func _refresh() -> void:
 			if l.room and _rooms.has(l.room):
 				(_rooms[l.room] as Room).merge_due = true
 			_lamps.erase(lamp)
+	_shares()
 
 
 ## The building whose room holds `at` (inside its walls, floor to ridge), or null.
 func _building_at(at: Vector3) -> FalseFrontBuilding:
-	for b: FalseFrontBuilding in _rooms.keys():
-		if not is_instance_valid(b):
-			continue
+	for b: FalseFrontBuilding in _live_rooms():
 		var local := b.global_transform.affine_inverse() * at
 		var ridge := b.wall_height + b.width * 0.5 * tan(deg_to_rad(b.roof_pitch_degrees))
 		if local.x > 0.0 and local.x < b.width and local.z > 0.0 and local.z < b.depth and local.y > -0.5 and local.y < ridge:
@@ -283,8 +296,7 @@ func _building_at(at: Vector3) -> FalseFrontBuilding:
 
 
 func _lamps_ready(r: Room) -> bool:
-	for lamp: OilLamp in _lamps.keys():
-		var l: Lamp = _lamps[lamp]
+	for l: Lamp in _lamps.values():
 		if l.room == r.building and l.dirty:
 			return false
 	return true
@@ -392,10 +404,11 @@ func _merge(r: Room) -> void:
 	r.merge_due = false
 	var tn := tune()
 	var clusters: Array = []  # {pos, normal, weight, colour, feeds}
-	for lamp: OilLamp in _lamps.keys():
-		var l: Lamp = _lamps[lamp]
-		if l.room != r.building or not l.shines:
+	for key: Variant in _lamps.keys():
+		var l: Lamp = _lamps[key]
+		if l.room != r.building or not l.shines or not is_instance_valid(key):
 			continue
+		var lamp := key as OilLamp
 		for h: Dictionary in l.hits:
 			var w: float = h.gain * lamp.energy
 			if w <= 0.0:
@@ -449,9 +462,8 @@ func _merge(r: Room) -> void:
 func _reach_of(feeds: Array) -> float:
 	var most := 0.0
 	for f: Array in feeds:
-		var lamp: OilLamp = f[0]
-		if is_instance_valid(lamp) and _lamps.has(lamp):
-			most = maxf(most, (_lamps[lamp] as Lamp).range_)
+		if is_instance_valid(f[0]) and _lamps.has(f[0]):
+			most = maxf(most, (_lamps[f[0]] as Lamp).range_)
 	return most
 
 
@@ -461,8 +473,10 @@ func _flicker(r: Room, force := false) -> void:
 	for i in r.spots.size():
 		var e := 0.0
 		for f: Array in r.feeds[i]:
-			var lamp: OilLamp = f[0]
-			if is_instance_valid(lamp) and lamp._light and lamp._light.visible and not lamp.broken:
+			if not is_instance_valid(f[0]):
+				continue  # freed (a staged scene rebuilt): gone at the next refresh
+			var lamp := f[0] as OilLamp
+			if lamp._light and lamp._light.visible and not lamp.broken:
 				e += float(f[1]) * lamp._light.light_energy
 		var s := r.spots[i]
 		if force or absf(s.light_energy - e) > 0.005 * maxf(e, 0.01):
@@ -473,21 +487,28 @@ func _flicker(r: Room, force := false) -> void:
 
 # --- the room's own fill -------------------------------------------------------------------------
 
+## Each room's share of its lamps lit (on a refresh: lamps only change then).
+func _shares() -> void:
+	var all := {}
+	var lit := {}
+	for key: Variant in _lamps.keys():
+		var l: Lamp = _lamps[key]
+		if l.room == null or not is_instance_valid(l.room):
+			continue
+		all[l.room] = float(all.get(l.room, 0.0)) + l.energy
+		if l.shines:
+			lit[l.room] = float(lit.get(l.room, 0.0)) + l.energy
+	for b: FalseFrontBuilding in _live_rooms():
+		var a: float = all.get(b, 0.0)
+		(_rooms[b] as Room).share = float(lit.get(b, 0.0)) / a if a > 0.0 else 1.0
+
+
 func _fill(r: Room) -> void:
 	if not is_instance_valid(r.probe):
 		return
-	var share := 1.0
-	if tune().ambient_follows_lamps:
-		var all := 0.0
-		var lit := 0.0
-		for lamp: OilLamp in _lamps.keys():
-			var l: Lamp = _lamps[lamp]
-			if l.room == r.building:
-				all += lamp.energy
-				if l.shines and l.room == r.building:
-					lit += lamp.energy
-		share = lit / all if all > 0.0 else 1.0
-	r.probe.set_meta(&"room_light_scale", tune().ambient_scale * share)
+	var scale := tune().ambient_scale * (r.share if tune().ambient_follows_lamps else 1.0)
+	if not is_equal_approx(float(r.probe.get_meta(&"room_light_scale", -1.0)), scale):
+		r.probe.set_meta(&"room_light_scale", scale)
 	if r.probe.ambient_color != tune().ambient_colour:
 		r.probe.ambient_color = tune().ambient_colour
 
@@ -513,6 +534,7 @@ func _add_opening(r: Room, wall: StringName, rect: Rect2, kind: StringName) -> D
 	s.transform = Transform3D(Basis.looking_at(dir, Vector3.UP), at)
 	var o := {"wall": wall, "rect": rect, "kind": kind, "spot": s}
 	r.openings.append(o)
+	r.sky_was = Vector2(-1.0, -1.0)  # lit on the next frame
 	return o
 
 
@@ -538,6 +560,11 @@ func _openings_light(r: Room, clock: DayCycle) -> void:
 	if clock.moon and cfg.moon_max_energy > 0.0 and clock.moon.visible:
 		moon = clock.moon.light_energy / cfg.moon_max_energy
 	var day := clock.get_daylight()
+	# Only when the sky has moved on, or an opening is new (a hole).
+	var sky := Vector2(moon, day)
+	if sky.distance_to(r.sky_was) < 0.002:
+		return
+	r.sky_was = sky
 	for o: Dictionary in r.openings:
 		var s := o.spot as SpotLight3D
 		if not is_instance_valid(s):
@@ -571,8 +598,8 @@ func _on_member_broken(id: StringName) -> void:
 	if not active:
 		return
 	var sid := StringName(String(id).get_slice("/", 0))
-	for b: FalseFrontBuilding in _rooms.keys():
-		if not is_instance_valid(b) or b.structure_id != sid:
+	for b: FalseFrontBuilding in _live_rooms():
+		if b.structure_id != sid:
 			continue
 		var m := b.get_member(id)
 		if m == null:
@@ -740,4 +767,6 @@ func busy() -> bool:
 func redo() -> void:
 	for l: Lamp in _lamps.values():
 		l.pos = Vector3.INF
+	for r: Room in _rooms.values():
+		r.sky_was = Vector2(-1.0, -1.0)
 	_since = tune().refresh_seconds

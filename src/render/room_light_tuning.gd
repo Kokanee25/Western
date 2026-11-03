@@ -7,13 +7,14 @@ extends Resource
 @export_group("Bounce")
 ## A bounce light's energy over what its patch is given back (the lamp's energy x the patch's
 ## share x the surface's lightness): over 1 is art's (the painting's warm rooms), 1 the physics.
-@export var bounce_gain := 4.5
+@export var bounce_gain := 1.5
 ## The bounce's half angle (degrees): under 90, so it never lights the surface it comes off (that
 ## surface has the lamp's own light: no double counting).
 @export var bounce_spread := 78.0
-## Its reach, over the lamp's range (never under bounce_reach_min metres).
-@export var bounce_reach := 0.9
-@export var bounce_reach_min := 2.5
+## Its reach, over the lamp's range (never under bounce_reach_min metres): short, so a floor's
+## bounce stays low and the roof stays dark (round 1's 0.9 lit the roof as bright as the floor).
+@export var bounce_reach := 0.6
+@export var bounce_reach_min := 2.0
 ## Off the surface into the room (metres): far enough that a wall beside a floor bounce isn't
 ## burnt by it (trial 1's red blotches at 0.08; the lab's results/2026-11-03_r1/).
 @export var bounce_offset := 0.25
@@ -29,13 +30,13 @@ extends Resource
 @export var min_bounce_energy := 0.01
 ## How much of the surface's own hue the bounce takes (0 the lamp's colour, 1 lamp x surface: the
 ## saloon's red-brown walls bounced a hot red at 1).
-@export var tint := 0.4
+@export var tint := 0.0
 ## A surface with no texture to read (props, the ground): this colour.
 @export var default_albedo := Color(0.42, 0.3, 0.2)
 
 @export_group("Room fill")
 ## The room's flat fill at night with the bounces on, over what it was (they do its work now).
-@export var ambient_scale := 0.7
+@export var ambient_scale := 0.5
 ## And its colour: dark amber, not the flat gold.
 @export var ambient_colour := Color(0.95, 0.6, 0.32)
 ## The fill follows the room's lamps: put half out and the night fill halves.

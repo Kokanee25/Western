@@ -203,3 +203,17 @@ func test_the_pure_parts() -> void:
 	check_eq(RoomLight.wall_patch(b, AABB(Vector3(5.95, 1, 3), Vector3(0.02, 2, 0.3))).get("wall"), &"right", "a right-hand board")
 	check(RoomLight.wall_patch(b, AABB(Vector3(1, 0.3, 2), Vector3(0.15, 0.03, 4))).is_empty(), "a floor board is in no wall")
 	b.free()
+
+
+func test_a_building_and_its_lamps_freed_under_it_are_dropped_quietly() -> void:
+	var parts: Array = await _room()
+	var b: FalseFrontBuilding = parts[0]
+	var rl: RoomLight = parts[2]
+	Settings.room_light = true
+	await _settle(rl)
+	check(not rl.bounces_of(b).is_empty(), "lit")
+	var rooms := rl._rooms.size()
+	b.free()  # a staged scene rebuilt (the screenshots' shot_match): its lamps go with it
+	await _settle(rl)
+	check_eq(rl._rooms.size(), rooms - 1, "the room dropped (and no script error on the way)")
+	await _tidy([rl])

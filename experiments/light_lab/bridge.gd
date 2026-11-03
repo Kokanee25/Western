@@ -11,7 +11,7 @@ const HELP := {
 	"rl_knock": "rl_knock INDEX [SECONDS] -> lamp INDEX knocked over: it tips onto its side to the floor, then breaks",
 	"rl_blast": "rl_blast LX LY LZ [FUSE] -> a lit stick at the saloon point",
 	"rl_state": "rl_state -> RoomLight in the saloon: on, its bounces, openings (kind, wall, area), the haze",
-	"rl_record": "rl_record DIR [EVERY] | rl_record stop -> save every EVERYth drawn frame (default 1) to DIR/NNNN.png while the next commands run (start the bridge with --fps=30: a frame is 1/30 s of game time)",
+	"rl_record": "rl_record DIR [EVERY] | rl_record stop -> save every EVERYth drawn frame (default 1) to DIR/NNNN.png while the next commands run (start the bridge with --fps=N: a frame is 1/N s of game time)",
 }
 
 var _record_dir := ""
