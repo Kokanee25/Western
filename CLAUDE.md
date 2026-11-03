@@ -437,6 +437,11 @@ frozen until Sean names one.
   read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
   `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
   painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
+- **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
+  lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
+  **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
+  `experiments/light_lab/results/2026-11-03_r1/`). Waiting on Sean: turn it on? Part 2 (the street
+  by day) after his word.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,

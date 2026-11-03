@@ -27,9 +27,12 @@ class_name LookPreset
 ## - `paint.<key>`: HumanBody.paint_look on every painted person
 ## - `grade.<dial>`: the colour grade (LightGrade: split tone, orange pull, saturation, contrast)
 ## - `finish.<dial>`: vignette, grain, heat shimmer (LightFinish)
+## - `room.<dial>`: RoomLight's dials (RoomLightTuning: the lamps' bounce, the room's fill, the
+##   openings, the haze; art, #608), every lamp looked at again; `settings.room_light` turns it on
 
 const DIR := "user://looks"
 const LAMP_PROPS := ["energy", "light_range", "haze", "attenuation"]
+const ROOM_LIGHT := "res://src/render/room_light.gd"
 
 ## What every address read before anything set it this run (the panel's Reset goes back to it).
 static var defaults := {}
@@ -92,6 +95,12 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 				elif prop == "room_haze" and c is FogVolume and (c as FogVolume).material is FogMaterial:
 					((c as FogVolume).material as FogMaterial).density = v
 			_clock(tree).apply_visuals()
+		"room":
+			# (By path: naming RoomLight here would compile it, and the autoloads it uses, into the -s tools.)
+			load(ROOM_LIGHT).tune().set(key, v)
+			var rl := tree.get_first_node_in_group(&"room_light")
+			if rl:
+				rl.redo()
 		"mosaic":
 			DepthMosaic.tuning[key] = v
 			for m in tree.root.find_children("DepthMosaic", "", true, false):
@@ -171,6 +180,9 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 			return LightGrade.dials.get(key)
 		"finish":
 			return LightFinish.dials.get(key)
+		"room":
+			var tn: Resource = load(ROOM_LIGHT).tune()
+			return tn.get(key) if key in tn else null
 	return null
 
 

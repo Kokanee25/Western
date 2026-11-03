@@ -412,6 +412,20 @@ carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0),
 by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
 back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
 
+**Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
+dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
+`experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
+main adds the node. On: each lit `OilLamp` in a `FalseFrontBuilding` casts three rays (down, up, the
+nearest wall) and a shadowless spot under 90 degrees faces into the room from each surface (the
+patch's share of the lamp x its wood's sRGB lightness x `bounce_gain`, tinted by the wood's texture
+averaged once), merged and capped per room, following the flicker; lamps looked at every 0.2 s
+(moved, out, smashed: re-cast). The interior probe at night dark amber at `ambient_scale` x the
+share of its lamps lit (DayCycle multiplies the probe's `room_light_scale` meta). Openings: the door
+and front windows and holes found from `Events.member_broken` (`RoomLight.wall_patch`, then a ray
+grid through that patch, again after `hole_settle`) each a spot of moon or sky (MoonWindows stands
+down while it's on). `Events.shot_fired`/`exploded` inside thicken `RoomHaze` (`haze_*`). Off takes
+it all away and puts the probe and haze back.
+
 ## The look panel
 
 - **The look panel** (`src/debug/look_panel.gd`, `LookPanel`, in every build; **N**, controller
