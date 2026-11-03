@@ -23,18 +23,21 @@ a person sees. Use both to choose what's next.
       trait PASS / FAIL / N/A and the three biggest problems with their cause and a fix
   python3 tools/critic.py cut OUT NAME X Y W H SLUG
       the judge's tool: a box of image NAME (a, b, ...) at 3x into OUT/<slug>.png
-  python3 tools/critic.py cheap OUT VIEW [VIEW...] [--from=DIR] [--film=DIR]
+  python3 tools/critic.py cheap OUT VIEW [VIEW...] [--from=DIR] [--film=DIR|STRIP.png] [--refs=DIR]
       the "this looks cheap" judge (docs/concept/judge/CHEAP.md, #609): each VIEW (a render
       DIR/VIEW.png, or a path to a PNG) laid out as a, b, c... in OUT/, a film strip of DIR's
       frames as the last letter, the concept targets for the verdict's top end; prints the prompt
       for a fresh sub-agent, which writes OUT/cheap.md (each tell PASS/FAIL/N/A with a crop, a
       verdict on the scale, the five biggest reasons with cause and cheapest fix). The measures
       (light, atmosphere, repetition) go in OUT/numbers.md, not shown to the agent. Its tool is
-      `cut` above.
+      `cut` above. --refs=DIR (the private Studio's references/, #613) lists DIR/manifest.yaml's
+      AAA games' screenshots, each with what to look at, beside the targets as what "AA" and
+      "AAA-feeling" look like: read in place, never copied into OUT (crops are of our renders
+      only); refused if DIR is inside this checkout. --film may be a strip already made (a PNG).
   python3 tools/critic.py cheap-log OUT [--round=NAME] [--note=...]
       reads OUT/cheap.md, prints each view's verdict beside its numbers, and adds one line per
       view to docs/screenshots/judge/history.md ("cheap -> good indie -> AA" down the page)
-  python3 tools/critic.py cheap-probes OUT [--check | --numbers]
+  python3 tools/critic.py cheap-probes OUT [--check | --numbers] [--refs=DIR]
       the judge's self-test: the game's own old renders of one shot (cheap_probes/, ranked by
       Sean in ranking.json) shuffled under letters, the same prompt; --check fails unless the
       agent's cheap.md ranks them as Sean did; --numbers checks the measures alone (no agent)
@@ -264,7 +267,8 @@ def cut(out, name, x, y, w, h, slug):
 CHEAP_RUBRIC = os.path.join(JUDGE_DIR, "CHEAP.md")
 CHEAP_PROBES = os.path.join(JUDGE_DIR, "cheap_probes")
 TARGETS_DIR = os.path.join(ROOT, "docs", "concept", "targets")
-# The top of the scale (CHEAP.md): the concept targets, never commercial games' screenshots.
+# The top of the scale (CHEAP.md): the concept targets; commercial games' screenshots only with
+# --refs, read in place from the private Studio (never stored in this repo).
 CHEAP_TARGETS = ["3_street_golden_target.jpg", "2_saloon_night_target.jpg", "1_man_at_table_target.jpg",
                  "6_road_target.jpg"]
 SCALE_WORDS = ["AI slop", "cheap indie", "good indie", "AA", "AAA-feeling"]
@@ -290,7 +294,7 @@ The pictures to judge (each on its own; judge each against the rubric, not again
 
 For the verdict's top end only ("AA" and "AAA-feeling"), these concept targets show what the game
 is aiming at; do not judge the pictures by how closely they match them:
-{targets}
+{targets}{refs}
 
 For every FAIL, cut its box to look closely and to cite as evidence (x y w h in the picture's own
 pixels; it prints the path; look at it):
@@ -417,9 +421,52 @@ def film_strip(frames_dir):
     return out
 
 
-def cheap(out, views, src_dir=None, film=None, name=None):
+REFS_PROMPT = """
+
+For the same top end, these screenshots of shipped commercial games (official ones, from their
+publishers) show what "AA" and "AAA-feeling" look like in practice. They are a yardstick for care
+(light with shape, air, wear, dressing, life), not for style: a painted look can feel AAA too, and
+these games are not the look this game is after. Open them where they are and look at least at the
+ones of the same kind of scene as each picture you judge; never cut them (cut only the pictures to
+judge), and do not judge the pictures by how closely they resemble them:
+{listed}"""
+
+
+def read_refs(refs_dir):
+    """The private Studio's reference pictures (#613): DIR/manifest.yaml's pictures as (path, line).
+    Refuses a DIR inside this checkout: commercial screenshots never enter the public repo."""
+    import yaml
+    d = os.path.realpath(refs_dir)
+    if os.path.commonpath([d, os.path.realpath(ROOT)]) == os.path.realpath(ROOT):
+        print("--refs=%s is inside the game's checkout: the references live only in the private Studio "
+              "(never in this public repo)" % refs_dir, file=sys.stderr)
+        sys.exit(1)
+    man = os.path.join(d, "manifest.yaml")
+    if not os.path.exists(man):
+        print("no %s" % man, file=sys.stderr)
+        sys.exit(1)
+    with open(man) as f:
+        pics = (yaml.safe_load(f) or {}).get("pictures", [])
+    order = {s: i for i, s in enumerate(["street_noon", "street_golden", "saloon_night", "face", "horizon", "moving"])}
+    refs = []
+    for p in sorted(pics, key=lambda p: (order.get(p.get("scene"), 99), p.get("game", ""), p.get("file", ""))):
+        path = os.path.join(d, p["file"])
+        if not os.path.exists(path):
+            print("no reference %s" % path, file=sys.stderr)
+            sys.exit(1)
+        refs.append((path, "- %s (%s, %s): %s; look at: %s" % (
+            path, p.get("scene", "?").replace("_", " "), p.get("title", p.get("game", "?")),
+            "a still" if p.get("scene") != "moving" else "one of a moving sequence", p.get("look", "").strip())))
+    if not refs:
+        print("no pictures in %s" % man, file=sys.stderr)
+        sys.exit(1)
+    return refs
+
+
+def cheap(out, views, src_dir=None, film=None, name=None, refs_dir=None):
     """Lay the pictures out under letters, measure them, print the prompt."""
     out = os.path.abspath(out)
+    refs = read_refs(refs_dir) if refs_dir else []
     os.makedirs(out, exist_ok=True)
     listed, sources, rows = [], [], []
     for i, view in enumerate(views):
@@ -438,10 +485,12 @@ def cheap(out, views, src_dir=None, film=None, name=None):
         rows.append((letter, label, cheap_numbers(img, depth)))
     if film:
         letter = chr(ord("a") + len(views))
-        strip = film_strip(film)
+        # A folder of frames, or a strip already made (a round's own film strip, re-judged).
+        strip = Image.open(film).convert("RGB") if os.path.isfile(film) else film_strip(film)
         strip.save(os.path.join(out, letter + ".png"))
+        frames = "eight" if os.path.isfile(film) or len(os.listdir(film)) >= 8 else "its"
         listed.append("- %s: %s (a film strip: %s frames of the game moving, in time order)" % (
-            letter, os.path.join(out, letter + ".png"), "eight" if len(os.listdir(film)) >= 8 else "its"))
+            letter, os.path.join(out, letter + ".png"), frames))
         sources.append("%s film %s" % (letter, film))
         rows.append((letter, "film", None))
     targets = ["- %s" % os.path.join(TARGETS_DIR, f) for f in CHEAP_TARGETS]
@@ -452,7 +501,14 @@ def cheap(out, views, src_dir=None, film=None, name=None):
         json.dump(numbers, f, indent=1)
     with open(os.path.join(out, "numbers.md"), "w") as f:
         f.write(_numbers_md(rows))
+    if refs:
+        # Where they were read from, by path only: the pictures themselves stay in the Studio.
+        with open(os.path.join(out, "refs.txt"), "w") as f:
+            f.write("read in place from %s (never copied here)\n" % os.path.realpath(refs_dir))
+            f.write("\n".join(os.path.relpath(p, os.path.realpath(refs_dir)) for p, _ in refs) + "\n")
+    refs_text = REFS_PROMPT.format(listed="\n".join(line for _, line in refs)) if refs else ""
     print(CHEAP_PROMPT.format(rubric=CHEAP_RUBRIC, images="\n".join(listed), targets="\n".join(targets), root=ROOT,
+                              refs=refs_text,
                               out=os.path.relpath(out, ROOT), md=os.path.join(out, "cheap.md"),
                               name=name or os.path.basename(out)))
 
@@ -547,13 +603,14 @@ def _probe_set():
         return json.load(f)
 
 
-def cheap_probes(out):
+def cheap_probes(out, refs_dir=None):
     """The self-test's layout: the probes in a fixed shuffled order (no order gives the ranking away)."""
     import random
     probes = _probe_set()["probes"]
     order = [p["file"] for p in probes if p.get("eye", True)]
     random.Random(609).shuffle(order)
-    cheap(out, [os.path.join(CHEAP_PROBES, f) for f in order], name=os.path.basename(os.path.abspath(out)))
+    cheap(out, [os.path.join(CHEAP_PROBES, f) for f in order], name=os.path.basename(os.path.abspath(out)),
+          refs_dir=refs_dir)
 
 
 def cheap_probes_check(out):
@@ -640,6 +697,7 @@ def main():
     ch.add_argument("views", nargs="+")
     ch.add_argument("--from", dest="src", default=None)
     ch.add_argument("--film", default=None)
+    ch.add_argument("--refs", default=None)
     cl = sub.add_parser("cheap-log")
     cl.add_argument("out")
     cl.add_argument("--round", default=None)
@@ -648,9 +706,10 @@ def main():
     cp.add_argument("out", nargs="?", default=None)
     cp.add_argument("--check", action="store_true")
     cp.add_argument("--numbers", action="store_true")
+    cp.add_argument("--refs", default=None)
     args = ap.parse_args()
     if args.cmd == "cheap":
-        cheap(args.out, args.views, args.src, args.film)
+        cheap(args.out, args.views, args.src, args.film, refs_dir=args.refs)
     elif args.cmd == "cheap-log":
         cheap_log(args.out, args.round, args.note)
     elif args.cmd == "cheap-probes":
@@ -660,7 +719,7 @@ def main():
             ap.error("cheap-probes needs OUT (or --numbers)")
         if args.check:
             sys.exit(0 if cheap_probes_check(args.out) else 1)
-        cheap_probes(args.out)
+        cheap_probes(args.out, args.refs)
     elif args.cmd == "judge":
         judge(args.out, args.images)
     elif args.cmd == "cut":
