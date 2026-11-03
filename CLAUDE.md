@@ -504,6 +504,8 @@ frozen until Sean names one.
   stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
   Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
   `theorangeduck.com` allowed.
+- **Human Generator test 1** (2026-11-03, #597, waiting on Sean): stopped at step 1; the release's
+  add-on is 4.0.29, which can't run the `HG_Export` pack's Godot recipe (the early-access build can).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
