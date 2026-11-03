@@ -644,7 +644,20 @@ frozen until Sean names one.
   up over you a balustrade is a screen (`Cover._screen_spot`). 34 climbs in 200 fights (was 0),
   stays up 268 -> 415, hits on you from up unchanged; shooting and hits seed for seed inside the
   noise, the medians lower. Film `spec_hall_s3_kid.mp4`. Trap: a drawn film is the headless fight at
-  `--fixed-fps 30` with the same script. Next: #583 (the last drops on arrival, a blind playtest).
+  `--fixed-fps 30` with the same script. **Your own cover isn't his** (#583, branch
+  `claude/gameplay-drops-on-arrival-8bm2c4`, `results/2026-11-02_own_cover/`): `own_cover` in D (a
+  line stopped far from him asks a short ray from his end, `Cover._near_him`): drops on arrival
+  within 2 s 168 -> 87 and 84 -> 30, stays 5.0 -> 7.6 s; fights as long, hits the same seed for seed,
+  you down less (72 -> 61%); fewer posts, more climbs. The blind playtest of D+
+  (`docs/playtests/2026-11-02-gunfight-d-plus.md`) found men stuck reloading from the floor and a
+  cornered man's shout every tick: both fixed. **Your side's bugs** (#591, PR #594, branch
+  `claude/gameplay-gunfight-d-plus-bugs-5bgpu9`): the clicks after a part load were the game's (the
+  gate shut with the empties next; `RevolverState.line_up`), a held reload no longer reopens the
+  gate; bridge `walk X Z` routes by the places (`route_to_point`) and steps aside when caught;
+  "Drop it!" reaches men mid-fight (in `events` now); `gf_result`/`read all` agree. Second blind
+  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's). Next: #595 (the
+  Kid's rescue loop, your gun lost without a word, dead then up, whether their shots pass what
+  stops yours); D+'s difficulty is Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
@@ -663,7 +676,7 @@ frozen until Sean names one.
   realistic ones (Sean: "closer to Red Dead Redemption 2"; $0.73, ledger $64.09 of $65); `engine.py`'s face materials fixed (half the jacket was brass). Sean picked **E**
   (realistic, working-dirty; #569 closed), **baked** (`paint_bake.py`, `assets/train/*_paint.png`,
   `TrainModels.painted`; `results/2026-11-02_bake/`): the critic still fails the views on light and
-  ground first, then E's realism; PR #587, build 3003; waiting on Sean's look on #577. **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
+  ground first, then E's realism; PR #587, build 3003; Sean: keep E (an art direction change may come; #577 closed). **Step 4, the sound** (#571, `results/2026-11-02_step4/`):
   `TrainSound` (one-shots timed from the sim to the sub-tick, late by distance, Doppler; loops held
   by the frame), `TrainSynth`, dials `config/train_sound.tres`; GameAudio's wall test looks past
   the train's own cars. **Train sound 2** (#586, `results/2026-11-03_sound2/`): 18 of 20 sounds
@@ -702,6 +715,19 @@ frozen until Sean names one.
   hangs on the order structures break in (Jolt's, kept: other orders broke 919-1,043 to main's ~950).
   Left: the cuts, the response, Jolt's step with ~700 awake. Traps: compare alternately; the
   `--deterministic` saloon three-stick pair isn't repeatable on main either here (#560's kind).
+- **The farmhouse's slow motion** (#584, branch `claude/gameplay-farmhouse-slowmo-cyqo2p`;
+  `experiments/blast_freeze/results/2026-11-02_farm_slowmo/`): `bf_blast in=farm` (six sticks round
+  the house, `mission=1`), a census of awake bodies, `farm_runs.sh`/`farm_pairs.sh`. ~900 pieces kept
+  awake: RubbleRest woke each pile as it slept (shapes aside now only when frozen), earth laid up
+  through pieces (`Ground._lift_out`), pieces pressed under a dug tile (`Ground.rescue`). 6 of 8 runs
+  settle within 30 s (main 1 of 6). Next: #585 (what's left: crater-wall spin, the gang in the pile).
+- **Rubble that won't sleep** (#585, branch `claude/gameplay-rubble-sleep-9n8wlb`; results
+  `experiments/blast_freeze/results/2026-11-02_rubble_sleep/`): one restless piece kept a whole pile
+  awake (Jolt sleeps islands whole); `RubbleSleep` freezes it once nothing near has moved or broken,
+  let go on any blow or break near. On top of #590 (what woke the piles): the farmhouse ring settles
+  14-15 s after the last stick (#590 alone 29-33, before it never), the street 8-10 s (#590 alone 18
+  s or never). Lab: `bf_blast awake=S` (the awake rubble's census).
+  Tried, not kept: whole piles put to sleep (the contact monitor doesn't see Jolt's islands), damping.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

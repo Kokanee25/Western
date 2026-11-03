@@ -5,9 +5,9 @@ extends Node3D
 ## in every shadow pass. A piece that hasn't moved for REST_AFTER joins its patch of town (CELL):
 ## its meshes are drawn in the cell's mesh for its material (a new chunk of the cell, joined on a
 ## worker, at most every BUILD_GAP; past MAX_CHUNKS the cell's chunks are made one again), and its
-## own mesh nodes are taken out of the tree once that shows; its shape nodes too while it's asleep,
-## the shapes held on its body as shape owners (as StructureMember.rest), so it still lies there to
-## be walked on, hit and pushed. The moment it moves (hit, shot, pushed, a blast, what it lay on
+## own mesh nodes are taken out of the tree once that shows (a frozen one's shape nodes too, the
+## shapes held on its body as shape owners, as StructureMember.rest); it still lies there to be
+## walked on, hit and pushed. The moment it moves (hit, shot, pushed, a blast, what it lay on
 ## gone) or something touches one of its pieces (the fire, a break: `touch`), its nodes go back
 ## where they were and its stretch of the cell's mesh is zeroed in place (non-indexed: its
 ## triangles collapse to a point; no rebuild, no hitch).
@@ -58,6 +58,8 @@ enum { JOINED, LATER, NEVER }
 
 ## Off (`-- --no-rubble-rest`: the before): every piece draws its own.
 static var enabled := not "--no-rubble-rest" in OS.get_cmdline_user_args()
+## `-- --rr-shapes-asleep`: a sleeping piece's shapes set aside too (the before of #584, a lab switch).
+static var shapes_aside_asleep := "--rr-shapes-asleep" in OS.get_cmdline_user_args()
 
 ## RigidBody3D -> [still since (or held till), where it was at the last look]: waiting to join.
 var _waiting := {}
@@ -129,7 +131,10 @@ static func watch(rb: RigidBody3D) -> void:
 static func touch(m: StructureMember) -> void:
 	for p: Array in m.pieces:
 		for o: Variant in p:
+			if is_instance_valid(o) and (o as Node).get_parent() is RigidBody3D:
+				RubbleSleep.let_go((o as Node).get_parent())  # (held still by RubbleSleep: its own again, #585)
 			if is_instance_valid(o) and (o as Node).has_meta(&"rest_body"):
+				RubbleSleep.let_go((o as Node).get_meta(&"rest_body"))
 				var rb: Variant = (o as Node).get_meta(&"rest_body")
 				if is_instance_valid(rb) and (rb as Node).has_meta(&"resting_in"):
 					((rb as Node).get_meta(&"resting_in") as RubbleRest)._count("let go: touched")
@@ -139,6 +144,7 @@ static func touch(m: StructureMember) -> void:
 ## A body about to be moved (shot, blasted, shoved, struck): if it's lying in a cell, its own again
 ## first. Anything else: nothing.
 static func let_go(body: Object) -> void:
+	RubbleSleep.let_go(body)  # (held still by RubbleSleep, #585: its own again, awake)
 	if body is RigidBody3D and (body as Node).has_meta(&"resting_in"):
 		var r: Variant = (body as Node).get_meta(&"resting_in")
 		if is_instance_valid(r):
@@ -172,13 +178,15 @@ func _wait(rb: RigidBody3D, since: float) -> void:
 
 
 ## Its shape nodes out of the tree, held on the body as owners, in the order they were. Only while
-## it's asleep: a body's shapes changed wakes it and resets its contacts, and done to bodies still
-## awake in a pile it kept the pile awake for seconds longer (the physics' step 1.4x main's, #459).
+## it's frozen: a body's shapes changed wakes it and resets its contacts. Done to bodies still awake
+## in a pile it kept the pile awake for seconds longer (the physics' step 1.4x main's, #459); done
+## as a pile fell asleep it woke the whole pile on the next tick, every time it slept (#584: after
+## a ring of sticks round the farmhouse ~900 pieces were woken so for most of a minute).
 func _shapes_aside(o: Variant) -> void:
 	if not is_instance_valid(o) or not (o as Node).is_inside_tree():
 		return  # (untyped: called deferred, it may be freed by then)
 	var rb := o as RigidBody3D
-	if not (rb.sleeping or rb.freeze):
+	if not (rb.freeze or (shapes_aside_asleep and rb.sleeping)):
 		return
 	var e: Dictionary = _rest.get(rb.get_instance_id(), {})
 	if e.is_empty() or not (e.owners as Array).is_empty():

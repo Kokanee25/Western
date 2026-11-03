@@ -595,7 +595,9 @@ func _watch_men(_delta: float) -> void:
 				_note("back", "%s is back in it" % m.id)
 			elif m.outcome == "down" and not man.physiology.alive:
 				m.outcome = "dead"
-			elif m.outcome == "down" and b.mood == OutlawBrain.Mood.SURRENDERED:
+			elif m.outcome in ["down", "fled", "broke_off"] and b.mood == OutlawBrain.Mood.SURRENDERED:
+				# Down, run or broken off and then given himself up: he surrendered (the D+ playtest's
+				# Kid read "fled" here and "surrendered" in the bridge's read all).
 				m.outcome = "surrendered"
 
 

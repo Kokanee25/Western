@@ -504,7 +504,14 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   b depth below the authored ground.
   Under a dug tile the earth is solid: boxes a column of 8 cells (`GroundTile.COLUMN`), each topped
   1 cm under the lowest surface over it, down through the hardpan (a height field has no
-  thickness: a 2 cm bone fragment at 6 m/s went through it). What stands and walks there (step 4),
+  thickness: a 2 cm bone fragment at 6 m/s went through it). A piece pressed through the field is
+  held between it and a column, spins there or is thrown out at 100+ m/s, and its pile never
+  sleeps (#584). So an edit sets any loose body the earth has come up through back on top
+  (`_lift_out`, from `_wake`; people's parts left), and a `Structure` looks at its awake rubble
+  every `RESCUE_TICKS` (a share each tick) for one touching a field from below or with its middle
+  under the surface (`Ground.rescue`). Not by touching a column: a piece resting on a slope sinks
+  2 cm into the field (the physics' slop) and can touch it legitimately. `-- --no-ground-lift`:
+  neither (the lab's before). What stands and walks there (step 4),
   on `Events.ground_changed`: a `Structure`'s grounded member whose bottom has lost the earth by
   `undercut` (5 cm) at its corners and middle is grounded no more and the structure settles;
   a `KitProp` looks for its feet again (its own `_on_ground_changed`); `Fittings` drops a prop
@@ -690,9 +697,11 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   non-indexed) are drawn as a new **chunk** of the cell (per material and char overlay; joined
   on a worker, its meshes made `MESH_MS` a frame, shown when all are), at most every `BUILD_GAP`;
   past `MAX_CHUNKS` the cell's chunks are made one. Its own mesh nodes leave the tree once its
-  chunk shows (`_tidy`, a share a frame); its shape nodes only while it's asleep (`_shapes_aside`:
-  held on the body as shape owners; a body's shapes changed resets its contacts and woke awake
-  piles, 1.4x the physics step). Its sleep is never forced. Let go (nodes back, its stretch of
+  chunk shows (`_tidy`, a share a frame); its shape nodes only while it's frozen (`_shapes_aside`:
+  held on the body as shape owners). A body's shapes changed wakes it: done to awake piles it was
+  1.4x the physics step; done as a pile fell asleep, it woke the whole pile on the next tick, every
+  time it slept (#584: ~900 pieces awake most of a minute; `-- --rr-shapes-asleep` the before, a
+  lab switch). Its sleep is never forced. Let go (nodes back, its stretch of
   the chunk zeroed in place, `_zero`): moving or moved (`_look_at_stirring`, woken pieces every
   `STIR_TICKS`), shot/blasted/shoved (`let_go`: Ballistics, Blast, PlayerShove), the fire or a
   break touching its member (`touch`: `Structure.unbatch`, `_own_fire_look`; then held `HOLD`),
@@ -700,6 +709,21 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `rest_body` (its body: `StructureMember.world_aabb`, FireSystem's `_lying_still` read it);
   a resting body carries `resting_in`. Glowing pieces don't join. `counts`/`refused` for the
   bench (`perf_bench --census-by`: `rubble_rest`, and what's on loose bodies by state).
+  **Restless rubble held still** (`RubbleSleep`, `src/structures/rubble_sleep.gd`, #585;
+  `-- --no-rubble-sleep` off): Jolt sleeps a pile (an island) only when every body in it is
+  still, and after dynamite one restless piece (wedged and spinning, a jittering fitting or
+  glass prop, a bone fragment twirling) kept hundreds awake for minutes. One per world (made by
+  `for_node` from `Structure._enter_rubble`). Every `EVERY` (0.5 s, the look spread over the
+  ticks between) it looks at the awake bodies in `GROUPS` (rubble, fallen fittings, bone
+  fragments, shards, chips, spent cases) and loose glass props' bodies: one whose middle has
+  stayed within `STILL_M` for `STILL_S`, with no break within `QUIET_M` of it for `QUIET_S`
+  (`disturbed`, from Structure's `_wake_near`/`_wake_near_all`), still moving faster than
+  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta). Let go
+  (unfrozen, awake): `RubbleRest.let_go` (ball, blast, shove), `RubbleRest.touch`, a break near
+  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig. Putting whole piles to
+  sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
+  islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
+  touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
   **Particles**: a new GPUParticles3D starts emitting, so setting `emitting = true` on it again
   cancelled `finished` and one-shot bursts never freed (225 alive in a blaze, #459): every
   one-shot sets `emitting = false` first (ImpactEffects, Blood, BlastCloud, FireFX.steam, the
@@ -872,7 +896,9 @@ back to what LookPreset read first. Not saved; the goldens are today's until Sea
   `hidden_narrow`; with `climb` (#572), his cover stale and you below a floor he can reach, a
   search over the floor above: `Cover.climb_search` samples its places' walks, `_best_up` routes
   each by the places up the stair, spots carry `climb`/`way_m`; `OutlawBrain._climb_choose`,
-  `ClimbTuning`, `config/climb.tres`),
+  `ClimbTuning`, `config/climb.tres`; with `own_cover` (#583), `own` in `_blocked`/`hidden_at`/
+  `evaluate`/`screen_share`: a line stopped first far from him is asked again from his end
+  (`_near_him`), so the threat's own cover doesn't make his read as seen),
   `Layers` (physics/render layer bits; `WALK` is a surface only walkers use, the saloon stair's
   ramp: the player, people's footing and the waypoints use `STAND` = WORLD | WALK, a falling man,
   debris, balls and sight WORLD alone),
