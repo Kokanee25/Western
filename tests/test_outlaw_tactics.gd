@@ -903,3 +903,23 @@ func test_the_step_chance_by_range_nerve_and_fire() -> void:
 	var a := tune.dials(1)
 	check_eq(a, tune.dials(1), "his own numbers are his seed's")
 	check(a != tune.dials(2), "and another man's differ")
+
+
+## #595: his gun hand through a board from his eye (lying on the floor with it through the boards,
+## up against a wall), his ball left from the far side and wasn't stopped by it, as yours would be.
+func test_his_ball_meets_what_his_gun_hand_is_through() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var eye := brain.senses.eye()
+	var muzzle := eye + Vector3(0, -0.3, 0.6)  # toward you, past the board
+	var ex: Array[RID] = []
+	for sid: StringName in outlaw.parts:
+		ex.append((outlaw.parts[sid] as CollisionObject3D).get_rid())
+	check(brain.shot_origin(muzzle, ex).is_equal_approx(muzzle), "nothing in the way: from the muzzle")
+	_box(eye + Vector3(0, -0.15, 0.3), Vector3(1.0, 1.0, 0.06))  # a board between his eye and his gun
+	await physics_frames(2)
+	var from := brain.shot_origin(muzzle, ex)
+	check(from.z < eye.z + 0.27, "the ball starts on his side of the board (%.2f, the board from %.2f)" % [from.z - eye.z, 0.27])
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, Vector3(0, 0, 1), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
+	await wait_until(func() -> bool: return not b.alive, 30)
+	check(not b.hits.is_empty() and (b.hits[0].position as Vector3).z < eye.z + 0.4, "and meets the board (%s)" % str(b.path.slice(0, 3)))
