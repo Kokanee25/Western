@@ -11,8 +11,10 @@ printf 'bf_blast fire=0 fuse=1 seconds=40 in=farm sticks=6 gap=1.5 awake=2 out=b
 python3 tools/bridge.py run /tmp/st.txt --headless --fps=60
 ```
 
-`in=farm` (new): a stick thrown at each of the farmhouse's walls 1.5 s apart (front, west, east,
-back, lean-to west and east), the player 20 m out front, the mission not started. `awake=S`
+`in=farm`: a stick thrown at each of the farmhouse's walls 1.5 s apart, the mission not started.
+The tables below the first used this branch's own (front, west, east, back, lean-to west and east,
+0.4 m out, the player 20 m out front); since #590 merged the lab's is #590's (its `walls=` order,
+0.6 m out, the player 12 m off the front), so the last table's broken counts are another scene's. `awake=S`
 (new): a census of the awake rubble every S s (`awake_log`).
 
 ## Why they stay awake
@@ -95,3 +97,20 @@ differed by one west stud of 713.
 
 RubbleSleep's own cost: under 2.3 ms on its worst frame, ~0.2 ms a frame mean while there's
 rubble (`rubble_sleep` timer); nothing once all is asleep.
+
+## With #590 on main (the farmhouse's slow motion, merged 2026-11-02 before this)
+
+#590 took out three things that *woke* the piles (RubbleRest's shapes set aside as a pile slept,
+earth laid up through resting pieces, pieces pressed under a dug tile); this takes out what keeps
+them *from sleeping*. Main with #590 against this branch merged with it, alternately, #590's
+`in=farm` with `sticks=6 gap=1.5`, two pairs each:
+
+| | broken | settled (s after the last stick) | < 50 awake (s) | frame median, 10-60 s | Jolt's step |
+|---|---|---|---|---|---|
+| farmhouse, main (#590) | 619, 744 | 29, 33 | 29, 32 | 18.7, 25.9 | 2.5, 2.9 |
+| farmhouse, branch | 619, 619 | 14, 15 | 14, 14 | 14.7, 15.4 | 2.1, 2.2 |
+| street, main (#590) | 930, 934 | 18, never (748 awake at 60 s) | 18, never | 21.3, 54.7 | 2.7, 32.6 |
+| street, branch | 929, 932 | 8, 10 | 8, 9 | 19.9, 21.6 | 2.4, 2.6 |
+
+Together they settle in half the time #590 does alone at the farmhouse, and the street's piles
+that #590 leaves awake for the minute (one run in two) sleep 8-10 s after the last stick.

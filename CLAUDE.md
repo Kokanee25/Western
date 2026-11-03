@@ -709,8 +709,9 @@ frozen until Sean names one.
 - **Rubble that won't sleep** (#585, branch `claude/gameplay-rubble-sleep-9n8wlb`; results
   `experiments/blast_freeze/results/2026-11-02_rubble_sleep/`): one restless piece kept a whole pile
   awake (Jolt sleeps islands whole); `RubbleSleep` freezes it once nothing near has moved or broken,
-  let go on any blow or break near. The farmhouse ring settles 8-16 s after the last stick (main
-  never, ~150 ms frames: #584's slow motion), the street 7-9 s. Lab: `bf_blast in=farm`, `awake=S`.
+  let go on any blow or break near. On top of #590 (what woke the piles): the farmhouse ring settles
+  14-15 s after the last stick (#590 alone 29-33, before it never), the street 8-10 s (#590 alone 18
+  s or never). Lab: `bf_blast awake=S` (the awake rubble's census).
   Tried, not kept: whole piles put to sleep (the contact monitor doesn't see Jolt's islands), damping.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,

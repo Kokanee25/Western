@@ -120,8 +120,9 @@ restless piece (wedged and spinning, a jiggling fitting or glass prop, a bone fr
 kept its whole pile awake, hundreds of pieces still to a centimetre a second: at the farmhouse
 ~1,000 for the whole minute after a ring of six sticks, frames ~150 ms here (Sean's slow motion,
 #584). `RubbleSleep` freezes the restless piece once nothing near it has moved or broken for a
-couple of seconds, and Jolt sleeps the rest: the farmhouse settles 8-16 s after the last stick
-(~17 ms frames after), the street's three sticks 7-9 s; broken counts in main's spread.
+couple of seconds, and Jolt sleeps the rest. With #590 (what woke the piles) the farmhouse
+settles 14-15 s after the last stick (#590 alone 29-33 s), the street's three sticks 8-10 s (#590
+alone 18 s, or never); ~15-20 ms frames after; broken counts in main's spread.
 
 ## Files
 
