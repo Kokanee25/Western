@@ -8,15 +8,17 @@ Creative Commons 0 sounds only, keeps the most downloaded few of each query insi
 length, and downloads each one's high-quality OGG preview (no login needed for previews) with its
 record: id, name, author, licence, page, length, rating, downloads, tags, description.
 
-Out (--out): pool.json and <layer>/<id>.ogg. The Sonniss GDC bundles are not fetched: their
+Out (--out): pool.json, <layer>/<id>.ogg, and terms/ (Freesound's terms as text, as of the fetch). The Sonniss GDC bundles are not fetched: their
 licence (restriction c) forbids publishing the files as sound effects, which a public repo does.
 
     FREESOUND_API_KEY=... python3 tools/sounds/fetch.py --out=build/sounds
 """
 import argparse
+import html
 import json
 import os
 import pathlib
+import re
 import sys
 import time
 import urllib.parse
@@ -35,6 +37,29 @@ def get(url: str, timeout=60) -> bytes:
         return r.read()
 
 
+# Freesound's terms as they stand on the day of the fetch, kept with the pool as text (the raw
+# pages carry a map token that push protection stops).
+TERMS = {"tos_api.txt": "https://freesound.org/help/tos_api/", "tos_web.txt": "https://freesound.org/help/tos_web/",
+         "faq.txt": "https://freesound.org/help/faq/"}
+
+
+def text_of(page: bytes) -> str:
+    s = page.decode("utf-8", "replace")
+    s = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", s)
+    s = re.sub(r"(?s)<[^>]+>", " ", s)
+    return re.sub(r"[ \t]*\n\s*", "\n", html.unescape(s))
+
+
+def save_terms(out: pathlib.Path) -> None:
+    (out / "terms").mkdir(exist_ok=True)
+    for name, url in TERMS.items():
+        try:
+            (out / "terms" / name).write_text(f"{url}\nfetched {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime())}\n\n"
+                                              + text_of(get(url)))
+        except Exception as e:
+            print(f"terms failed: {name}: {e}")
+
+
 def search(key: str, query: str, lo: float, hi: float, n: int) -> list:
     q = {"query": query, "filter": f'license:"{CC0}" duration:[{lo} TO {hi}]', "fields": FIELDS,
          "sort": "downloads_desc", "page_size": str(n), "token": key}
@@ -49,6 +74,7 @@ def main() -> int:
     a = ap.parse_args()
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    save_terms(out)
     key = os.environ.get("FREESOUND_API_KEY", "")
     if not key:
         print("No FREESOUND_API_KEY: add the repo secret (a free key, https://freesound.org/apiv2/apply).")
