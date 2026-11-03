@@ -669,9 +669,15 @@ frozen until Sean names one.
   gate shut with the empties next; `RevolverState.line_up`), a held reload no longer reopens the
   gate; bridge `walk X Z` routes by the places (`route_to_point`) and steps aside when caught;
   "Drop it!" reaches men mid-fight (in `events` now); `gf_result`/`read all` agree. Second blind
-  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's). Next: #595 (the
-  Kid's rescue loop, your gun lost without a word, dead then up, whether their shots pass what
-  stops yours); D+'s difficulty is Sean's (#349).
+  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's).
+  **The second playtest's bugs** (#595, PR #603, `results/2026-11-03_d_plus_bugs/`): the gang's ball
+  starts where his eye's line meets what his gun hand is through (`OutlawBrain.shot_origin`; on main
+  16% of their shots left from past a board or pane); a rescue he can't make isn't repeated
+  (`_unreachable`); the gun you can't hold says why (`Physiology.why_cant_hold`); the lab holds you
+  as you fell (`PlayerWounds.stays_down`); bridge `look NAME [PART]` (`in_the_way`, `clear_to`), a
+  run stops where sent. Third blind playtest `docs/playtests/2026-11-03-gunfight-d-plus-3.md`: won
+  1 of 10. Next: #607 (what you're told when hit, hands through walls, words that don't fit); D+'s
+  difficulty is Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
@@ -704,8 +710,8 @@ frozen until Sean names one.
   `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
   (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
-  and `[build]` do); tour, visual and soak once a night only if main changed. Next if wanted: the
-  PRs' macOS/Windows native jobs only when `addons/saltcreek_native` changes.
+  and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
+  No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

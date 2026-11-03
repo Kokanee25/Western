@@ -1,0 +1,2 @@
+shooting n 200 mean diff 1.90 se 2.22 longer 39 shorter 27 same 134
+hits on you n 200 mean diff -0.09 se 0.07 longer 16 shorter 26 same 158

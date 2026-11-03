@@ -57,8 +57,9 @@ the Vulkan renderer so screenshots work (`--size=960x540`, `--headless` for no d
 for a fixed step, `--movie=OUT.avi` records it all with sound through Godot's Movie Maker, 30 fps on game
 time; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
 file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
-(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON|PLACE`,
-`turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round buildings to a place), `press
+(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
+person: `in_the_way`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
+buildings to a place; lets go in time to stop there, answers once stopped), `press
 ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
@@ -192,7 +193,9 @@ member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` a
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
-Windows, macOS, all headless), and only then `release` (the GitHub Release) and `pages`.
+Windows headless), and only then `release` (the GitHub Release) and `pages`. No macOS build since
+2026-11-03 (Sean tests only on Windows; a macOS runner bills 10x): the `native-build` action and
+the export preset still know it.
 
 ## The visual checks in CI
 

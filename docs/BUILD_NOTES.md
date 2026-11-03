@@ -817,8 +817,6 @@ to nothing; fallen timber keeps burning where it lands. Char stays on what survi
 
 - **Windows:** `SaltCreek-windows.zip` → unzip → run `SaltCreek.exe`. SmartScreen may warn about
   an unknown publisher: *More info → Run anyway*.
-- **Mac:** `SaltCreek-macos.zip` → unzip → right-click `Salt Creek.app` → *Open* → *Open*. (It's
-  not notarised yet, so a plain double-click is refused the first time.)
 - **Linux:** `SaltCreek-linux.tar.gz` → extract → run `./SaltCreek.x86_64`.
 - **Phone / browser:** the web build is on the project's GitHub Pages site. It uses the simpler web
   renderer, so no volumetric light shafts, softer lighting overall, and wounds and blood don't
