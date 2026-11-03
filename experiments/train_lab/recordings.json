@@ -62,7 +62,7 @@
    "id": "train_chuff_mid_0",
    "src": "garratt_start",
    "kind": "shot",
-   "at": 19.435,
+   "at": 22.375,
    "len": 0.55,
    "tail": 0.25
   },
@@ -76,19 +76,33 @@
   },
   {
    "id": "train_chuff_short_0",
-   "src": "wws_p8",
+   "src": "garratt_start",
    "kind": "shot",
-   "at": 10.49,
-   "len": 0.19,
-   "tail": 0.08
+   "at": 43.965,
+   "len": 0.2,
+   "tail": 0.08,
+   "denoise": {
+    "from": [
+     38.0,
+     49.0
+    ],
+    "amount": 1.0
+   }
   },
   {
    "id": "train_chuff_short_1",
-   "src": "wws_p8",
+   "src": "garratt_start",
    "kind": "shot",
-   "at": 11.655,
-   "len": 0.19,
-   "tail": 0.08
+   "at": 39.965,
+   "len": 0.2,
+   "tail": 0.08,
+   "denoise": {
+    "from": [
+     38.0,
+     49.0
+    ],
+    "amount": 1.0
+   }
   },
   {
    "id": "train_cocks",

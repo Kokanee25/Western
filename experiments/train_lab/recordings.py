@@ -162,6 +162,38 @@ def lowpass(x, hz, circular=False):
     return np.fft.irfft(f * g, len(y))[:n]
 
 
+def stft(x, n=2048, hop=512):
+    w = np.hanning(n)
+    pad = np.concatenate([np.zeros(n), x, np.zeros(n)])
+    frames = [np.fft.rfft(pad[i:i + n] * w) for i in range(0, len(pad) - n, hop)]
+    return np.array(frames)
+
+
+def istft(F, length, n=2048, hop=512):
+    w = np.hanning(n)
+    out = np.zeros(hop * len(F) + n)
+    norm = np.zeros_like(out)
+    for k, f in enumerate(F):
+        out[k * hop:k * hop + n] += np.fft.irfft(f, n) * w
+        norm[k * hop:k * hop + n] += w * w
+    out /= np.maximum(norm, 1e-6)
+    return out[n:n + length]
+
+
+def denoise(x, profile_from, amount):
+    """The recording's steady background taken out (spectral subtraction, after S. Boll 1979): its
+    level in each frequency is the median over `profile_from` (a stretch of the same source: the
+    steady part, a machine's hum, stays under every frame; a beat is over the median), and
+    `amount` times that comes off each frame's magnitude, never below a tenth of it (a floor
+    against the warble bare subtraction leaves). Phases kept."""
+    a, b = int(profile_from[0] * RATE), int(profile_from[1] * RATE)
+    prof = np.median(np.abs(stft(x[a:b])), axis=0)
+    F = stft(x)
+    mag = np.abs(F)
+    keep = np.maximum(mag - amount * prof, 0.1 * mag)
+    return istft(F * (keep / np.maximum(mag, 1e-12)), len(x))
+
+
 def fade(n, kind):
     t = np.linspace(0.0, 1.0, n)
     return np.sin(t * np.pi / 2) if kind == "in" else np.cos(t * np.pi / 2)
@@ -237,6 +269,12 @@ def cut(only):
         if key not in cache:
             cache[key] = decode(src_path(c["src"], m), c.get("channel"))
         x = cache[key]
+        if c.get("denoise"):  # only the stretch around the cut, worked on its own
+            d = c["denoise"]
+            lo = int(min(d["from"][0], c["at"] - c.get("xfade", 0.0) - 0.2) * RATE)
+            hi = int(max(d["from"][1], c["at"] + c["len"] + 0.2) * RATE)
+            x = x.copy()
+            x[lo:hi] = denoise(x[lo:hi], (d["from"][0] - lo / RATE, d["from"][1] - lo / RATE), d.get("amount", 1.5))
         is_loop = c["kind"] == "loop"
         s = loop(x, c) if is_loop else one_shot(x, c)
         s = shape(s, c, is_loop)
