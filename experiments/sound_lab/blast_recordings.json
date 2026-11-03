@@ -1,0 +1,194 @@
+{
+ "_doc": "The dynamite's recorded layers (#596): Freesound CC0 sources Sean downloaded (#599), cut by experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json into assets/audio/blast/<set>/<layer>.wav; the sets are assets/audio/blast/sets.json (BlastSounds). Sources go in build/blast_rec/src/ (not in the repo).",
+ "src_dir": "build/blast_rec/src",
+ "out": "assets/audio/blast",
+ "report": "build/blast_rec/cuts.json",
+ "sources": {
+  "fs49711": {
+   "file": "fs49711.wav",
+   "title": "m-150-020927-24-bit",
+   "author": "boilingsand",
+   "page": "https://freesound.org/s/49711/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs251401": {
+   "file": "fs251401.wav",
+   "title": "dynamite explosion in the mountain",
+   "author": "felixblume",
+   "page": "https://freesound.org/s/251401/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs268557": {
+   "file": "fs268557.mp3",
+   "title": "explosion_001",
+   "author": "cydon",
+   "page": "https://freesound.org/s/268557/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs268554": {
+   "file": "fs268554.mp3",
+   "title": "explosion_004",
+   "author": "cydon",
+   "page": "https://freesound.org/s/268554/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs398799": {
+   "file": "fs398799.wav",
+   "title": "huge cinematic explosion mixed",
+   "author": "evanboyerman",
+   "page": "https://freesound.org/s/398799/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs108640": {
+   "file": "fs108640.wav",
+   "title": "distant explosion",
+   "author": "juskiddink",
+   "page": "https://freesound.org/s/108640/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs147584": {
+   "file": "fs147584.wav",
+   "title": "far_off_boom",
+   "author": "cactus2003",
+   "page": "https://freesound.org/s/147584/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs751818": {
+   "file": "fs751818.wav",
+   "title": "explosion far away",
+   "author": "nightdrawr",
+   "page": "https://freesound.org/s/751818/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  }
+ },
+ "cuts": [
+  {
+   "id": "s1/crack",
+   "src": "fs49711",
+   "kind": "shot",
+   "at": 0.88,
+   "len": 0.4,
+   "hp": 800,
+   "tail": 0.25
+  },
+  {
+   "id": "s1/boom",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 2.4,
+   "hp": 50,
+   "tail": 0.9
+  },
+  {
+   "id": "s1/sub",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 1.6,
+   "hp": 40,
+   "lp": 140,
+   "tail": 0.8
+  },
+  {
+   "id": "s1/roll",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 9.5,
+   "hp": 50,
+   "lp": 2500,
+   "tail": 3.0
+  },
+  {
+   "id": "s2/crack",
+   "src": "fs49711",
+   "kind": "shot",
+   "at": 0.88,
+   "len": 0.4,
+   "hp": 800,
+   "tail": 0.25
+  },
+  {
+   "id": "s2/boom",
+   "src": "fs268557",
+   "kind": "shot",
+   "at": 0.0,
+   "len": 3.6,
+   "hp": 50,
+   "tail": 1.2
+  },
+  {
+   "id": "s2/sub",
+   "src": "fs398799",
+   "kind": "shot",
+   "at": 0.0,
+   "len": 3.0,
+   "hp": 40,
+   "lp": 120,
+   "tail": 1.2
+  },
+  {
+   "id": "s2/roll",
+   "src": "fs108640",
+   "kind": "shot",
+   "at": 0.19,
+   "len": 3.6,
+   "hp": 45,
+   "tail": 1.5
+  },
+  {
+   "id": "s3/crack",
+   "src": "fs268554",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 0.15,
+   "hp": 2000,
+   "tail": 0.08
+  },
+  {
+   "id": "s3/boom",
+   "src": "fs268554",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 3.6,
+   "hp": 50,
+   "tail": 1.2
+  },
+  {
+   "id": "s3/sub",
+   "src": "fs147584",
+   "kind": "shot",
+   "at": 0.06,
+   "len": 2.6,
+   "hp": 40,
+   "lp": 150,
+   "tail": 1.0
+  },
+  {
+   "id": "s3/roll",
+   "src": "fs751818",
+   "kind": "shot",
+   "at": 0.02,
+   "len": 2.6,
+   "hp": 45,
+   "tail": 1.0
+  }
+ ]
+}
