@@ -162,9 +162,9 @@
    "id": "train_bell",
    "src": "iowa",
    "kind": "shot",
-   "at": 52.335,
-   "len": 0.72,
-   "tail": 0.4,
+   "at": 58.655,
+   "len": 1.15,
+   "tail": 0.35,
    "hp": 800
   },
   {
