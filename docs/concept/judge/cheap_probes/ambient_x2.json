@@ -1,0 +1,8 @@
+{
+  "name": "ambient_x2",
+  "about": "The cheap judge's probe (#609): broken_look.json's ambient doubling alone (for the numbers' self-test).",
+  "values": {
+    "day.ambient_energy_day": 0.6,
+    "day.ambient_energy_night": 1.4
+  }
+}
