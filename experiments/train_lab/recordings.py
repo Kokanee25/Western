@@ -175,6 +175,8 @@ def one_shot(x, c):
     fo = int(RATE * c.get("tail", min(0.25, c["len"] * 0.4)))
     s[:fi] *= fade(fi, "in")
     s[-fo:] *= fade(fo, "out") ** 2
+    if c.get("decay"):  # a burst made from a steady sound: up in `fade_in`, then down by `decay` s
+        s *= np.exp(-np.arange(len(s)) / (RATE * c["decay"]))
     return s
 
 

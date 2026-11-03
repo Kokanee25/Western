@@ -1,8 +1,9 @@
 class_name TrainSynth
-## The train's sounds made in code (train step 4, issue #571; TrainSound plays them). The recording
-## sites (Wikimedia Commons, Freesound, OpenGameArt, archive.org) are outside this workspace's
-## network policy, so every one is synthesised here until recordings can be had. SynthSounds makes
-## and caches them (`train_*` ids come here); the ideas, not code, are from the usual sources:
+## The train's sounds made in code (train step 4, issue #571; TrainSound plays them). Since train
+## sound 2 (#586) most are real recordings (`recording`, below: assets/audio/train/, cut from
+## Wikimedia Commons, CREDITS.md) and these are the fallback, the before (`-- --train-synth`) and
+## the brakes' squeal and grind, which no recording had. SynthSounds makes and caches them
+## (`train_*` ids come here); the ideas, not code, are from the usual sources:
 ## noise through resonant filters for the exhaust and the hiss (R. Bristow-Johnson's biquads),
 ## decaying partials for struck iron and the bell (modal synthesis; a bell's hum, prime, tierce,
 ## quint and nominal), three detuned pipes for a chime whistle.

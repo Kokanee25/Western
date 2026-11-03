@@ -10,15 +10,15 @@
    "seconds": 203.49469387755101,
    "description": "This audio file, 3 minutes 23 seconds in length, conveys the sound of an articulated narrow-gauge 400 class \"Beyer-Garratt\" steam locomotive of the South Australian Railways at close quarters starting off, then its train of ore-carrying gondola cars predominating, then the sounds of the hard-working locomotive reverberating in the distance. Throughout, the characteristic paired beats from the Garr"
   },
-  "wws_s06_start": {
-   "title": "WWS SteamlocomotiveS06-0188211starting.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-0188211starting.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/9/92/WWS_SteamlocomotiveS06-0188211starting.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Technical Museum of Slovenia",
+  "wws_p8": {
+   "title": "WWS PrussianpassengersteamlocomotiveP-8.ogg",
+   "page": "https://commons.wikimedia.org/wiki/File:WWS_PrussianpassengersteamlocomotiveP-8.ogg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/be/WWS_PrussianpassengersteamlocomotiveP-8.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "author": "Work With Sounds / Konrad Gutkowski",
    "licence": "CC BY 4.0",
    "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 57.32533333333333,
-   "description": "In line with the concept of German standardised locomotives set out in 1920, Borsig designed in 1930 three types of modern standard locomotives for the Kingdom of SHS, for express, local passenger and freight trains. The class 06 was intended for passenger trains and was especially adapted to meet the characteristics of mountain lines and poor quality coal. However, due to its weight, the bridges "
+   "seconds": 26.991746031746032,
+   "description": "The prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918. Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Bochum and is used"
   },
   "iowa": {
    "title": "Train sounds from Iowa - Glaneur de sons.ogg",
@@ -30,16 +30,6 @@
    "seconds": 93.90149659863945,
    "description": "Glaneur de sons: An old train for tourists, somewhere in Iowa (don't remember exactly where). You can here some voices in the background. A steam train far away, a bell, and then it comes to us."
   },
-  "wws_whistle": {
-   "title": "WWS SteamWhistle.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_SteamWhistle.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/WWS_SteamWhistle.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 11.019319727891157,
-   "description": "The Prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918.  Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt in Thuringia. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Boch"
-  },
   "wws_s06_release": {
    "title": "WWS SteamlocomotiveS06-018Steamrelease.ogg",
    "page": "https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-018Steamrelease.ogg",
@@ -49,87 +39,167 @@
    "licence_url": "https://creativecommons.org/licenses/by/4.0",
    "seconds": 54.394666666666666,
    "description": "In line with the concept of German standardised locomotives set out in 1920, Borsig designed in 1930 three types of modern standard locomotives for the Kingdom of SHS, for express, local passenger and freight trains. The class 06 was intended for passenger trains and was especially adapted to meet the characteristics of mountain lines and poor quality coal. However, due to its weight, the bridges "
-  },
-  "wws_p8": {
-   "title": "WWS PrussianpassengersteamlocomotiveP-8.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_PrussianpassengersteamlocomotiveP-8.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/b/be/WWS_PrussianpassengersteamlocomotiveP-8.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 26.991746031746032,
-   "description": "The prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918. Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Bochum and is used"
-  },
-  "wws_anna6": {
-   "title": "WWS Steamlocomotive.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_Steamlocomotive.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/WWS_Steamlocomotive.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 35.4292970521542,
-   "description": "The steam locomotive “Anna No. 6” was built in 1940 in the Friedrich Krupp factories in Essen. Up until World War II it transported freight for the ammunition factory “Friedland” in Hessen. Between 1959 and 1986 it was used as a shunting and mainline-locomotive by the Ruhr mining industry as well as the pit “Anna” (which gave it its name), which is at the colliery “ Alsdorf” in the Aachen area. To"
-  },
-  "wws_s06_turning": {
-   "title": "WWS SteamlocomotiveS06-0188211Turning.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-0188211Turning.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/WWS_SteamlocomotiveS06-0188211Turning.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Technical Museum of Slovenia",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 81.832,
-   "description": "In line with the concept of German standardised locomotives set out in 1920, Borsig designed in 1930 three types of modern standard locomotives for the Kingdom of SHS, for express, local passenger and freight trains. The class 06 was intended for passenger trains and was especially adapted to meet the characteristics of mountain lines and poor quality coal. However, due to its weight, the bridges "
-  },
-  "wws_airpump": {
-   "title": "WWS Airpumpsteamlocomotive.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_Airpumpsteamlocomotive.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/WWS_Airpumpsteamlocomotive.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 71.93977324263038,
-   "description": "The Prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918.  Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt in Thuringia. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Boch"
-  },
-  "rigi": {
-   "title": "Cogwheel loco Rigi vsb.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:Cogwheel_loco_Rigi_vsb.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Cogwheel_loco_Rigi_vsb.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Audrius Meskauskas",
-   "licence": "Public domain",
-   "licence_url": "",
-   "seconds": 21.716291666666667,
-   "description": "The sound of the Rigi Bahnen rack railway steam locomotive. Wintage ride on Rigi Culm, using 1858 year locomotive with vertical boiler. As of 2009, it is the oldest Swiss loco surviving, and it is fully operational"
-  },
-  "parovoz": {
-   "title": "Parovoz sound.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:Parovoz_sound.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Parovoz_sound.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Alex Alex Lep",
-   "licence": "Public domain",
-   "licence_url": "",
-   "seconds": 3.4106122448979592,
-   "description": "Сигнал паровоза"
-  },
-  "wws_turntable": {
-   "title": "WWS Railwayturntable.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_Railwayturntable.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/WWS_Railwayturntable.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 112.17124716553288,
-   "description": "The 20 meter long railway turntable from the year 1918 was used to turn railway vehicles in the desired direction (forwards/backwards) and also to save space when changing the vehicle over to a neighbouring rail. The turntable is a steel construction which supports a bridge with rails in order to accommodate the vehicles. The turntable was in use at the locomotive depot in Bochum-Dahlhausen until "
-  },
-  "wws_stoker": {
-   "title": "WWS Firemanstokeratworkinasteamlocomotive.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_Firemanstokeratworkinasteamlocomotive.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/1/19/WWS_Firemanstokeratworkinasteamlocomotive.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 28.495238095238093,
-   "description": "The Prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918. Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Bochum and is used"
   }
  },
- "cuts": []
+ "cuts": [
+  {
+   "id": "train_chuff_long_0",
+   "src": "garratt_start",
+   "kind": "shot",
+   "at": 10.54,
+   "len": 0.95,
+   "tail": 0.45
+  },
+  {
+   "id": "train_chuff_long_1",
+   "src": "garratt_start",
+   "kind": "shot",
+   "at": 12.295,
+   "len": 0.95,
+   "tail": 0.45
+  },
+  {
+   "id": "train_chuff_mid_0",
+   "src": "garratt_start",
+   "kind": "shot",
+   "at": 19.435,
+   "len": 0.55,
+   "tail": 0.25
+  },
+  {
+   "id": "train_chuff_mid_1",
+   "src": "garratt_start",
+   "kind": "shot",
+   "at": 20.685,
+   "len": 0.55,
+   "tail": 0.25
+  },
+  {
+   "id": "train_chuff_short_0",
+   "src": "wws_p8",
+   "kind": "shot",
+   "at": 10.49,
+   "len": 0.19,
+   "tail": 0.08
+  },
+  {
+   "id": "train_chuff_short_1",
+   "src": "wws_p8",
+   "kind": "shot",
+   "at": 11.655,
+   "len": 0.19,
+   "tail": 0.08
+  },
+  {
+   "id": "train_cocks",
+   "src": "wws_s06_release",
+   "kind": "shot",
+   "at": 20.0,
+   "len": 0.6,
+   "tail": 0.2,
+   "fade_in": 0.02,
+   "decay": 0.18,
+   "hp": 900
+  },
+  {
+   "id": "train_cocks_loop",
+   "src": "wws_s06_release",
+   "kind": "loop",
+   "at": 30.0,
+   "len": 3.0,
+   "xfade": 0.6,
+   "hp": 900
+  },
+  {
+   "id": "train_clack_0",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 76.936,
+   "len": 0.2,
+   "tail": 0.11,
+   "lp": 2500,
+   "hp": 80
+  },
+  {
+   "id": "train_clack_1",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 77.361,
+   "len": 0.2,
+   "tail": 0.11,
+   "lp": 2500,
+   "hp": 80
+  },
+  {
+   "id": "train_clack_2",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 75.21,
+   "len": 0.2,
+   "tail": 0.11,
+   "lp": 2500,
+   "hp": 80
+  },
+  {
+   "id": "train_bang",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 77.79,
+   "len": 0.45,
+   "tail": 0.25,
+   "hp": 80
+  },
+  {
+   "id": "train_bump",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 75.925,
+   "len": 0.35,
+   "tail": 0.2,
+   "hp": 80
+  },
+  {
+   "id": "train_bell",
+   "src": "iowa",
+   "kind": "shot",
+   "at": 52.335,
+   "len": 0.72,
+   "tail": 0.4,
+   "hp": 800
+  },
+  {
+   "id": "train_rumble",
+   "src": "garratt_start",
+   "kind": "loop",
+   "at": 151.0,
+   "len": 4.0,
+   "xfade": 0.8
+  },
+  {
+   "id": "train_simmer",
+   "src": "garratt_start",
+   "kind": "loop",
+   "at": 2.0,
+   "len": 4.0,
+   "xfade": 0.8
+  },
+  {
+   "id": "train_safety",
+   "src": "wws_s06_release",
+   "kind": "loop",
+   "at": 12.0,
+   "len": 4.0,
+   "xfade": 0.8,
+   "hp": 150
+  },
+  {
+   "id": "train_whistle",
+   "src": "iowa",
+   "kind": "loop",
+   "at": 2.4,
+   "len": 1.8,
+   "xfade": 0.4,
+   "hp": 250
+  }
+ ]
 }
