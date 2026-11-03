@@ -810,6 +810,10 @@ func _listen_to_events() -> void:
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
 	_hook(Events.person_surrendered, func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))
+	# Your "Drop it!" (or calling a man out) was only on the screen: the D+ playtest's shouts read as
+	# doing nothing. It's a threat that frightens, not an order (OutlawBrain._on_shouted).
+	_hook(Events.shouted, func(who: Node, kind: StringName) -> void:
+		_log("shout", "%s shouted %s" % [_who(who), "\"Drop it!\"" if kind == &"drop_it" else "a man out" if kind == &"call_out" else String(kind)]))
 	_hook(Events.hat_shot, func(p: Node, s: Node, _at: Vector3) -> void: _log("hat", "%s shot %s's hat off" % [_who(s), _who(p)]))
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
 	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
@@ -884,6 +888,8 @@ func _people() -> Array:
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
+			if man.physiology.alive and not man.physiology.is_conscious() and brain.mood != OutlawBrain.Mood.DEAD:
+				e["mood"] += ", out cold"  # a man who gave up and then fainted (the D+ playtest's Brody)
 			e["tactic"] = OutlawBrain.Tactic.keys()[brain.tactic].to_lower()
 			if brain.arrested_by != null:
 				e["arrested"] = "following" if brain.follow else "waiting"

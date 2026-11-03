@@ -93,6 +93,13 @@ func test_walk_to_a_point_routes_round_what_is_in_the_way() -> void:
 	check(int(replies[1].get("legs", 0)) > 1, "by a route, not straight (%s legs)" % replies[1].get("legs"))
 
 
+## Your "Drop it!" goes in the log (the D+ playtest's shouts read as doing nothing).
+func test_a_shout_is_in_the_log() -> void:
+	var replies := await _ask(["weapon revolver", "press shout", "events 5"])
+	check(replies[2].events.any(func(e: Dictionary) -> bool: return e.kind == "shout" and "Drop it" in String(e.text)),
+			"the shout is in the events (%s)" % str(replies[2].events))
+
+
 func test_a_look_value_set_and_read_back() -> void:
 	var replies := await _ask(["set env.glow_intensity 0.5", "get env.glow_intensity", "set day.exposure_night 0.6", "set settings.no_such_thing 1"])
 	check(replies[0].ok and is_equal_approx(float(replies[1].value), 0.5), "an environment value set and read back")
