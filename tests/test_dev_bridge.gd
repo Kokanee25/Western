@@ -82,6 +82,24 @@ func test_walk_draw_and_shoot() -> void:
 	check(replies[5].events.any(func(e: Dictionary) -> bool: return e.text == "you fired"), "and the log has it")
 
 
+## `walk X Z` routes as `walk PLACE` does: from the street into the store's aisle, up its steps and
+## through its door (straight at it, it walked into the store's front; the D+ playtest's walks
+## stopped on chairs and posts).
+func test_walk_to_a_point_routes_round_what_is_in_the_way() -> void:
+	# Inside the store, between its door and its aisle: straight from the street is its front wall.
+	var inside := bridge._places().at(&"store_door").lerp(bridge._places().at(&"store_aisle"), 0.45)
+	var replies := await _ask(["goto street_mid", "walk %.2f %.2f" % [inside.x, inside.z]], 60 * 60)
+	check(replies[1].arrived, "walked into the store (%s)" % str(replies[1]))
+	check(int(replies[1].get("legs", 0)) > 1, "by a route, not straight (%s legs)" % replies[1].get("legs"))
+
+
+## Your "Drop it!" goes in the log (the D+ playtest's shouts read as doing nothing).
+func test_a_shout_is_in_the_log() -> void:
+	var replies := await _ask(["weapon revolver", "press shout", "events 5"])
+	check(replies[2].events.any(func(e: Dictionary) -> bool: return e.kind == "shout" and "Drop it" in String(e.text)),
+			"the shout is in the events (%s)" % str(replies[2].events))
+
+
 func test_a_look_value_set_and_read_back() -> void:
 	var replies := await _ask(["set env.glow_intensity 0.5", "get env.glow_intensity", "set day.exposure_night 0.6", "set settings.no_such_thing 1"])
 	check(replies[0].ok and is_equal_approx(float(replies[1].value), 0.5), "an environment value set and read back")

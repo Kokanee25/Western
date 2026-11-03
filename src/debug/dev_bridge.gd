@@ -17,7 +17,7 @@ const HELP := {
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON | look PLACE -> turn to face a point, a person or a place (eye height)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (routes round buildings to a place)",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s)",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -327,7 +327,10 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var p := _person(a[0])
 		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
 	elif a.size() >= 2 and a[0].is_valid_float():
-		points = [Vector3(float(a[0]), player.global_position.y, float(a[1]))]
+		# Round what's in the way as a place's route is (the places' links, then on to the point):
+		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
+		var point := Vector3(float(a[0]), player.global_position.y, float(a[1]))
+		points = _places().route_to_point(World.space(player), player.global_position, point, [player.get_rid()])
 	if points.is_empty():
 		return {"ok": false, "error": "no way there"}
 	var start := player.global_position
@@ -338,19 +341,31 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var limit := _game_seconds() + Vector2(target.x - player.global_position.x, target.z - player.global_position.z).length() / 0.8 + 4.0
 		var stuck_since := _game_seconds()
 		var last := player.global_position
+		# Caught on a chair's leg or a post's corner: step off to one side for a moment, then the
+		# other, before giving up (the D+ playtest's walks stopped there after 0 m).
+		var side_until := -1.0
+		var side := 1.0
+		var next_side := 0.8
 		while true:
 			var flat := Vector2(target.x - player.global_position.x, target.z - player.global_position.z)
 			if flat.length() < 0.5:
 				break
-			if _game_seconds() > limit or _game_seconds() - stuck_since > 3.0 or _knocked_out():
+			var now := _game_seconds()
+			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
 				break
-			_set_view(atan2(-flat.x, -flat.y), player.get_pitch_degrees())
+			if now - stuck_since > next_side and side_until < now:
+				side_until = now + 0.5
+				side = -side
+				next_side += 1.0
+			var yaw := atan2(-flat.x, -flat.y) + (deg_to_rad(70.0) * side if now < side_until else 0.0)
+			_set_view(yaw, player.get_pitch_degrees())
 			_act(true, &"move_forward")
 			await get_tree().physics_frame
 			if player.global_position.distance_to(last) > 0.3:
 				last = player.global_position
 				stuck_since = _game_seconds()
+				next_side = 0.8
 		if not arrived:
 			break
 	_act(false, &"move_forward")
@@ -359,7 +374,7 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing()}
+			"facing": _facing(), "legs": points.size()}
 
 
 func _cmd_press(a: Array) -> Dictionary:
@@ -795,6 +810,10 @@ func _listen_to_events() -> void:
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _log("died", "%s died (%s)" % [_who(p), cause]))
 	_hook(Events.person_surrendered, func(p: Node) -> void: _log("surrendered", "%s gave up" % _who(p)))
+	# Your "Drop it!" (or calling a man out) was only on the screen: the D+ playtest's shouts read as
+	# doing nothing. It's a threat that frightens, not an order (OutlawBrain._on_shouted).
+	_hook(Events.shouted, func(who: Node, kind: StringName) -> void:
+		_log("shout", "%s shouted %s" % [_who(who), "\"Drop it!\"" if kind == &"drop_it" else "a man out" if kind == &"call_out" else String(kind)]))
 	_hook(Events.hat_shot, func(p: Node, s: Node, _at: Vector3) -> void: _log("hat", "%s shot %s's hat off" % [_who(s), _who(p)]))
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
 	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
@@ -869,6 +888,8 @@ func _people() -> Array:
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
+			if man.physiology.alive and not man.physiology.is_conscious() and brain.mood != OutlawBrain.Mood.DEAD:
+				e["mood"] += ", out cold"  # a man who gave up and then fainted (the D+ playtest's Brody)
 			e["tactic"] = OutlawBrain.Tactic.keys()[brain.tactic].to_lower()
 			if brain.arrested_by != null:
 				e["arrested"] = "following" if brain.follow else "waiting"

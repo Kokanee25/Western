@@ -650,8 +650,14 @@ frozen until Sean names one.
   within 2 s 168 -> 87 and 84 -> 30, stays 5.0 -> 7.6 s; fights as long, hits the same seed for seed,
   you down less (72 -> 61%); fewer posts, more climbs. The blind playtest of D+
   (`docs/playtests/2026-11-02-gunfight-d-plus.md`) found men stuck reloading from the floor and a
-  cornered man's shout every tick: both fixed. Next: #591 (the clicks after your reload, `walk`, a
-  second playtest); D+'s difficulty is Sean's (#349).
+  cornered man's shout every tick: both fixed. **Your side's bugs** (#591, PR #594, branch
+  `claude/gameplay-gunfight-d-plus-bugs-5bgpu9`): the clicks after a part load were the game's (the
+  gate shut with the empties next; `RevolverState.line_up`), a held reload no longer reopens the
+  gate; bridge `walk X Z` routes by the places (`route_to_point`) and steps aside when caught;
+  "Drop it!" reaches men mid-fight (in `events` now); `gf_result`/`read all` agree. Second blind
+  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's). Next: #595 (the
+  Kid's rescue loop, your gun lost without a word, dead then up, whether their shots pass what
+  stops yours); D+'s difficulty is Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line

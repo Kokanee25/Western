@@ -6,7 +6,8 @@ player would and report what you find.
 
 The game is a first-person Western, Salt Creek, 1882. Three gunmen, Brody, Lyle and the Kid, are
 in a saloon with you. You have a single-action revolver (cock, then fire; `shoot N` does both) and
-five rounds; reloading is one cartridge at a time (`press reload 3`). Nobody's an enemy until it
+five rounds; reloading is one cartridge at a time (`press reload 3` holds the key 3 s: about a
+round a second, and the gate shuts by itself once all six are in). Nobody's an enemy until it
 comes to shooting: you can start it with your first shot, or wait and they'll go for their guns
 after about six seconds.
 
@@ -34,7 +35,7 @@ with the ordinary commands:
   (what was said and done: **their words are your best clue**).
 - `look NAME` (turn to face a man), `turn DEGREES [PITCH]`, `shoot N`, `press aim 1`,
   `press crouch_toggle`, `walk X Z` / `walk X Z run` (metres; `read all` gives yours),
-  `press reload 3`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).
+  `press reload SECONDS`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).
 - `weapon revolver` draws (your gun starts away).
 
 ## What to do
