@@ -1154,7 +1154,10 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   overrides it. `GameAudio._blast_recorded` places each layer (the crack full only close, the sub
   furthest; boards, glass and a groan only with a building near). Recordings are Freesound CC0 only,
   fetched on Actions by `tools/sounds/fetch.py` (`.github/workflows/sounds.yml`, the repo secret
-  `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`).
+  `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`, encrypted to
+  `tools/sounds/pool_key.pub` by `tools/sounds/pool_key.sh`: Freesound's API terms allow
+  intermediate copies only and no publishing of its content outside the game; deleted once the sets
+  are chosen).
   Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
 
 ## src/creatures (the horse)

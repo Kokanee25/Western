@@ -1,8 +1,10 @@
-# Recorded sounds (issue #596): Freesound and the Sonniss bundles can't be reached from the
-# workspace, so their pages and files are fetched here. Runs on a push to a gameplay sound branch
-# that changes tools/sounds/, or by hand. What it fetched goes to the branch
+# Recorded sounds (issue #596): Freesound can't be reached from the workspace, so its API is called
+# here (tools/sounds/fetch.py; CC0 only; the Sonniss bundles not at all). Runs on a push to a
+# gameplay sound branch that changes tools/sounds/, or by hand. The pool goes to the branch
 # claude/gameplay-dynamite-sound-pool (one orphan commit, [skip ci]; the workspace can't reach the
-# artifacts' storage); only Freesound's CC0 files, never anything that can't be redistributed.
+# artifacts' storage) ENCRYPTED to tools/sounds/pool_key.pub (tools/sounds/pool_key.sh): Freesound's
+# API terms allow intermediate copies only and no publishing of its content outside the game
+# (1b, 4a). With no public key only the run's log is pushed.
 name: Sounds fetch
 
 on:
@@ -25,12 +27,20 @@ jobs:
         env:
           FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
         run: python3 tools/sounds/fetch.py --out=build/sounds 2>&1 | tee build-sounds.log
-      - if: always()
-        run: mkdir -p build/sounds && cp build-sounds.log build/sounds/ || true
+      - name: Seal the pool
+        if: always()
+        run: |
+          mkdir -p build/push
+          cp build-sounds.log build/push/ || true
+          if [ -f tools/sounds/pool_key.pub ] && [ -d build/sounds ]; then
+            tools/sounds/pool_key.sh seal build/sounds build/push
+          else
+            echo "no tools/sounds/pool_key.pub: the pool is not pushed" | tee -a build/push/build-sounds.log
+          fi
       - name: Commit to the pool branch
         if: always()
         run: |
-          cd build/sounds
+          cd build/push
           git init -q -b pool
           git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
           git add -A && git commit -qm "Sounds fetched by run ${{ github.run_number }} [skip ci]"
