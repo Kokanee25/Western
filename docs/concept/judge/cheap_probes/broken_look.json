@@ -1,0 +1,10 @@
+{
+  "name": "broken",
+  "about": "The cheap judge's deliberately broken probe (#609): the game's light with its ambient doubled (day and night, over light B's day 0.3 and the night's own) and its fog and volumetric fog off. Applied as a screenshots.gd --variants= file over the game's light.",
+  "values": {
+    "day.ambient_energy_day": 0.6,
+    "day.ambient_energy_night": 1.4,
+    "day.fog_density": 0.0,
+    "day.volumetric_fog_density": 0.0
+  }
+}
