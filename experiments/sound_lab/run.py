@@ -10,6 +10,7 @@ nothing drawn but the view's one frame), the heard WAVs measured by measure.py, 
     python3 experiments/sound_lab/run.py --clips=ROOT                        # mp3 clips of every scenario
     --jobs=N (3), --seed=N, --picture (draw every frame: slow, the movie kept as ROOT/<s>/movie.avi),
     --old-sound (the game's sounds as before the lab's changes, GameAudio: the "before" from this build)
+    --blast-set=N (dynamite from recording set N, BlastSounds; 0 the synthesised blast; #596)
 """
 import fnmatch
 import json
@@ -93,6 +94,8 @@ def main():
     open(os.path.join(out, ".gdignore"), "w").close()
     seed = int(_opt("seed", 1))
     extra = ["--old-sound"] if _opt("old-sound") else []
+    if _opt("blast-set") is not None:
+        extra.append(f"--blast-set={_opt('blast-set')}")
     jobs = [(n, os.path.join(out, n), 8820 + i, seed, bool(_opt("picture")), extra) for i, n in enumerate(todo)]
     with ThreadPoolExecutor(int(_opt("jobs", 3))) as ex:
         results = list(ex.map(run_one, jobs))

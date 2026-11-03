@@ -25,6 +25,23 @@ extends Resource
 @export var blast_roll_max_db := -4.0
 ## Clods and splinters landing round it after (one stick's worth; more by the cube root).
 @export var debris_count := 10
+## The recorded blast (BlastSounds, #596): which set of recordings plays (0: the synthesised blast
+## above, the fallback). Each layer's level and how far it's full (the blast_unit_size above is the
+## boom's; the roll keeps blast_roll_unit_size).
+@export var blast_set := 1
+@export var rec_boom_db := 6.0
+@export var rec_crack_unit_size := 2.0
+@export var rec_crack_db := 3.0
+@export var rec_sub_unit_size := 30.0
+@export var rec_sub_db := -2.0
+@export var rec_roll_db := -12.0
+@export var rec_roll_max_db := -4.0
+@export var rec_debris_db := -10.0
+@export var rec_groan_db := -6.0
+## Boards and glass come down when a building is this near the charge; its timbers groan within
+## rec_groan_reach.
+@export var rec_wood_reach := 8.0
+@export var rec_groan_reach := 15.0
 
 @export_group("Passes and strikes")
 ## A ball going by snaps only if it's faster than sound (buckshot near the muzzle; a black-powder

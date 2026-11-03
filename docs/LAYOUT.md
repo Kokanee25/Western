@@ -1148,6 +1148,14 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   a glance (`glance_<surface>`) through it, one per charge. Dials in `config/sound.tres`
   (`SoundTuning`); the buses are made in code beside Master. `--old-sound` puts the gunshots back as
   before the lab (its "before" from one build). Measured by `experiments/sound_lab/`.
+- `src/audio/blast_sounds.gd` — `BlastSounds` (#596): dynamite from recordings, sets of layers
+  (crack, boom, sub, roll, debris_dirt/wood/glass, groan) in `assets/sounds/blast/sets.json`;
+  `SoundTuning.blast_set` picks one (0, or a set with no files: the synthesised blast), `-- --blast-set=N`
+  overrides it. `GameAudio._blast_recorded` places each layer (the crack full only close, the sub
+  furthest; boards, glass and a groan only with a building near). Recordings are Freesound CC0 only,
+  fetched on Actions by `tools/sounds/fetch.py` (`.github/workflows/sounds.yml`, the repo secret
+  `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`).
+  Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
 
 ## src/creatures (the horse)
 

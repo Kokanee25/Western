@@ -681,6 +681,11 @@ frozen until Sean names one.
   by the frame), `TrainSynth` (all synthesised: the recording sites are blocked here), dials
   `config/train_sound.tres`; GameAudio's wall test looks past the train's own cars. Waiting on
   Sean's ears (the film); step 5 waits on #492/#538.
+- **The dynamite's sound** (#596 step 1, branch `claude/gameplay-dynamite-sound`): `BlastSounds`
+  (recorded sets of layers, `assets/sounds/blast/sets.json`; none yet, so the synthesised blast
+  plays), `tools/sounds/fetch.py` + `sounds.yml` (Freesound CC0 through its API, to the branch
+  `claude/gameplay-dynamite-sound-pool`), the lab's `blast_clips.py`. Waiting on Sean: a Freesound
+  API key (#599); Sonniss can't go in the public repo. Handover on #596.
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
