@@ -78,13 +78,13 @@
    "id": "train_chuff_short_0",
    "src": "garratt_start",
    "kind": "shot",
-   "at": 43.965,
+   "at": 48.195,
    "len": 0.2,
    "tail": 0.08,
    "denoise": {
     "from": [
-     38.0,
-     49.0
+     45.5,
+     50.5
     ],
     "amount": 1.0
    }
@@ -93,13 +93,13 @@
    "id": "train_chuff_short_1",
    "src": "garratt_start",
    "kind": "shot",
-   "at": 39.965,
+   "at": 49.975,
    "len": 0.2,
    "tail": 0.08,
    "denoise": {
     "from": [
-     38.0,
-     49.0
+     45.5,
+     50.5
     ],
     "amount": 1.0
    }
