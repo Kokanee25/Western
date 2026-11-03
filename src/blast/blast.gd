@@ -461,6 +461,25 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	return {"break": broke, "push": (dir + Vector3.UP * 0.25).normalized() * speed, "distance": dist}
 
 
+## How much of what would break a member a charge puts into it (0 nothing .. 1 it breaks; more
+## past that): the same reckoning as _member_response's, for what bends rather than breaks (a rail
+## bowed by a charge it isn't torn loose by: TrackChunk).
+static func rail_share(m: StructureMember, at: Vector3, kg: float, timber: TimberTuning) -> float:
+	var tn := t()
+	if timber == null:
+		timber = load("res://config/timber.tres")
+	var length := m.length()
+	var cs := m.cross_section()
+	var mass := maxf(m.weight(timber) / 9.81, 0.05)
+	var wood: Dictionary = timber.woods.get(m.wood, timber.default_wood)
+	var capacity: float = float(wood.bending) * float(wood.bending) / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor
+	var span := minf(tn.local_span, length)
+	var share := span / maxf(length, 1e-4)
+	var total := face_impulse(m, at, kg)
+	var near_j := face_impulse(m, at, kg, span)
+	return maxf(total * total / (2.0 * mass) / capacity, near_j * near_j / (2.0 * mass * share) / (capacity * share))
+
+
 ## Where face_impulse samples a member, about its point nearest the charge (m along it).
 const FACE_OFFSETS: Array[float] = [0.0, 0.03, -0.03, 0.08, -0.08, 0.15, -0.15, 0.3, -0.3, 0.6, -0.6, 1.2, -1.2, 2.4, -2.4, 4.8, -4.8]
 
@@ -598,7 +617,8 @@ static func _last_over(over: Callable, inside: float, outside: float) -> float:
 ## still lie where they were and carry what stood on them, so it stays in the wall. (Snapped, the
 ## whole length would fall as rubble and take the wall and roof with it.)
 static func _bedded(m: StructureMember) -> bool:
-	return m.grounded and absf(m.axis().y) < 0.5
+	# A railroad tie lies in loose ballast, its top bare: a charge on it splinters it (TrackChunk).
+	return m.grounded and absf(m.axis().y) < 0.5 and m.kind != &"tie"
 
 
 ## How far `at` stands out from the long face of a member it's beyond (m; at least 2 cm, nothing

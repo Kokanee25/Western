@@ -25,6 +25,19 @@ var ground_y: Callable = func(_x: float, _z: float) -> float: return 0.0
 var start_height := 1.0
 ## Named distances along the line (stop marks): name -> s. Drawn as white boards.
 var marks: Dictionary = {}
+## The route's sections along the curve (TrainRoute.sections): [{id, from_s, to_s}]. Damage and
+## the wreck are kept by section id and distance along it (`key_of`, `s_of`), so a re-laid route
+## keeps them where its same section is. A line with none is one section, "line".
+var sections: Array = []
+## The track as members (step 5, #616): ties and rails a TrackChunk each CHUNK-ish metres (a whole
+## number of rails), breakable as any building's members, at rest till something touches them.
+## Off: step 1's drawn ties and rails (a MultiMesh and swept rails), unbreakable.
+var track_members := members_default
+## `-- --track-drawn`: every line drawn as step 1's (the before, for the idle cost).
+static var members_default := not "--track-drawn" in OS.get_cmdline_user_args()
+var chunks: Array[TrackChunk] = []
+## What's wrong with the line (TrackState): broken, bent and blocked stretches.
+var state: TrackState
 ## Chunks of the drawn track, m.
 const CHUNK := 100.0
 const STEP := 1.0  # the alignment's sampling, m
@@ -113,6 +126,29 @@ func along(laid: float) -> float:
 	return laid * _scale
 
 
+## Where `s` is on the route: {section: id, at: m along that section}.
+func key_of(s: float) -> Dictionary:
+	if sections.is_empty():
+		return {"section": "line", "at": s}
+	for sec: Dictionary in sections:
+		if s < float(sec.to_s) or sec == sections.back():
+			return {"section": String(sec.id), "at": s - float(sec.from_s)}
+	return {"section": "line", "at": s}
+
+
+## The distance along the curve of a place on the route (`key_of`'s), or NAN if this route has no
+## such section. Past the section's end it's clamped to it.
+func s_of(key: Dictionary) -> float:
+	var id := String(key.get("section", "line"))
+	var at := float(key.get("at", 0.0))
+	if sections.is_empty():
+		return at if id == "line" else NAN
+	for sec: Dictionary in sections:
+		if String(sec.id) == id:
+			return clampf(float(sec.from_s) + at, float(sec.from_s), float(sec.to_s))
+	return NAN
+
+
 ## A named mark's distance along the curve (`marks`), or NAN if there's no such mark.
 func mark_s(mark_name: String) -> float:
 	return float(marks[mark_name]) if marks.has(mark_name) else NAN
@@ -165,18 +201,43 @@ func _mat(kind: String, colour: Color, rough := 0.95, metal := 0.0) -> StandardM
 	return _mats[kind]
 
 
-## Lay the line out and draw it: rails, ties, ballast, fill, the marks. Fill and ballast collide.
+## Lay the line out and draw it: ballast, fill, the marks, and the ties and rails (as members,
+## TrackChunk, or drawn: `track_members`). Fill and ballast collide.
 func build() -> void:
 	if curve.point_count == 0:
 		lay_out()
 	for c in get_children():
 		c.free()
 	var t := tuning if tuning else TrainTuning.new()
-	var chunks := int(ceil(length / CHUNK))
-	for n in chunks:
+	var n_drawn := int(ceil(length / CHUNK))
+	for n in n_drawn:
 		_build_chunk(n * CHUNK, minf((n + 1) * CHUNK, length), t, n)
 	for mark_name in marks:
 		_build_mark(String(mark_name), float(marks[mark_name]))
+	chunks.clear()
+	if track_members:
+		# A whole number of rails a chunk (the joints at its ends), about CHUNK long.
+		var per := maxf(1.0, roundf(CHUNK / t.rail_length)) * t.rail_length
+		var n := 0
+		var a := 0.0
+		while a < length - 0.01:
+			var c := TrackChunk.new()
+			c.setup(self, t, n, a, minf(a + per, length))
+			add_child(c)
+			chunks.append(c)
+			a += per
+			n += 1
+	if state == null:
+		state = TrackState.new(self)
+	state.line_built()
+
+
+## The TrackChunk holding distance s, or null.
+func chunk_at(s: float) -> TrackChunk:
+	for c in chunks:
+		if s >= c.from_s and s < c.to_s + 0.001:
+			return c
+	return null
 
 
 func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
@@ -214,8 +275,9 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		var f0 := frames[j]
 		var f1 := frames[j + 1]
 		_sweep(st_bal, bal, f0, f1)
-		for r in rails:
-			_sweep(st_rail, r, f0, f1)
+		if not track_members:
+			for r in rails:
+				_sweep(st_rail, r, f0, f1)
 		# The fill: from the ballast's foot down to the ground, sides at 1.5:1.
 		var fill0 := _fill_profile(f0, half_bot, bal_bot)
 		var fill1 := _fill_profile(f1, half_bot, bal_bot)
@@ -240,6 +302,8 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		tri.backface_collision = true
 		cs.shape = tri
 		body.add_child(cs)
+	if track_members:
+		return  # the ties and rails are members (TrackChunk)
 	st_rail.generate_normals()
 	var rail_mi := MeshInstance3D.new()
 	rail_mi.name = "Rails"

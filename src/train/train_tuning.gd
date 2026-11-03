@@ -131,6 +131,20 @@ extends Resource
 ## Rails are 30 ft (9.1 m): the clack timing in step 4.
 @export var rail_length := 9.14
 
+@export_group("Breakable track (step 5)")
+## A charge that puts this share of what would tear a rail loose into it bends it (less: nothing
+## shows); at the whole share it's torn loose. PROPOSED.
+@export var rail_bend_share := 0.15
+## The most a rail is bowed out at its middle, m. PROPOSED.
+@export var rail_bend_max := 0.25
+## A rail bowed less than this is passed over (the flanges ride it); more, it derails a train going
+## faster than `bent_pass_speed` (m/s). PROPOSED.
+@export var bent_passable := 0.03
+@export var bent_pass_speed := 2.0
+## A run of this many ties gone under a rail is a break (the rail hangs over ~1.8 m: a wheel drops
+## through it). PROPOSED.
+@export var ties_gone_break := 3
+
 @export_group("Feel (what the lab reports)")
 ## The proposed ranges Sean is asked about (km/h, s, m).
 @export var start_to_25_range := Vector2(20.0, 45.0)
