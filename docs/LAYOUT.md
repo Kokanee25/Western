@@ -111,7 +111,8 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
 **The tour video** (`tools/tour.gd`, `.github/workflows/tour.yml`, `tools/tour_page.py`): a fixed
 30-second camera path (the street at golden hour from the east end, past the store's side of the
 street, into the saloon, the card table, the bar while night falls, out of the door at night),
-`PATH` in the script. `tour.yml` runs after every green build on main (and by hand): Movie Maker
+`PATH` in the script. `tour.yml` runs once a day at 05:11 UTC (and by hand) on the latest green
+build on main, unless that build's video is already kept (#504; it ran after every build): Movie Maker
 under xvfb and lavapipe (`--render=854x480 --light`: 3D at 854x480 scaled to 1280x720, no
 volumetric haze or SSAO; ~15 minutes of rendering on a 4-core runner), ffmpeg (from frame 3, CRF
 30, ~10 MB), the video kept on the `tour` release as `build-<N>.mp4`, and Pages redeployed with
@@ -153,8 +154,8 @@ F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
 
 ## The soak
 
-**The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC and by
-hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
+**The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC if main
+changed since the last soak, and by hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
 runs the street for hours of game time flat out (~3.4x real time here) with the clock at 30x: the
 gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a fire and a stick
 twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
@@ -196,8 +197,8 @@ Windows, macOS, all headless), and only then `release` (the GitHub Release) and 
 
 ## The visual checks in CI
 
-**The visual checks in CI** (`.github/workflows/visual.yml`, every night at 06:43 UTC and by
-hand): every fixed view rendered twice under xvfb and lavapipe on two runners at once (~1–2 h
+**The visual checks in CI** (`.github/workflows/visual.yml`, every night at 06:43 UTC if main
+changed since the last check, and by hand): every fixed view rendered twice under xvfb and lavapipe on two runners at once (~1–2 h
 each), then `tools/scene_probe.gd`, `tools/golden_check.py --from=A` and `tools/visual_checks.py
 --from=A --twin=B --probe=P` (the art session's tools, layout notes above). Red on any failure;
 the run's summary lists what failed and the artifact `visual-report` holds golden | render |
@@ -1157,6 +1158,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   fetched on Actions by `tools/sounds/fetch.py` (`.github/workflows/sounds.yml`, the repo secret
   `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`).
   Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
+  The sets (2026-11-03): three, from eight Freesound CC0 recordings Sean downloaded (#599), cut by
+  `experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json` into
+  `assets/audio/blast/s1..s3/` (crack, boom, sub, roll; no debris, glass or groan yet).
 
 ## src/creatures (the horse)
 
@@ -1998,7 +2002,17 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
 
 ## CI
 
-- CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
-  `docs/BUILD_NOTES.md` — update it each milestone) and the web build to GitHub Pages.
+- CI (`build.yml`, since #504): every push to `main`, every pull request (opened and each push
+  to it) and a branch push whose last commit message says `[build]` run the tests and the native
+  plugin; any other branch push gets a run with every job skipped (no minutes). Pushes to `main`
+  also export Windows/Mac/Linux to a Release (notes from `docs/BUILD_NOTES.md` — update it each
+  milestone) and the web build to GitHub Pages. A `[build]` push and its open PR share a
+  concurrency group, so only one of them builds. Trap: `[build]` anywhere in the last commit's
+  message counts, its body too (so a message that only mentions it builds).
+- The nightlies (tour 05:11, visual 06:43, soak 09:17 UTC) each start with a one-minute `pick` or
+  `changed` job and skip when main hasn't changed since their last finished run (the tour: when
+  the latest green build's video is already on the `tour` release). A skipped night shows green
+  with "unchanged" in its summary; the last real result is the run before it. By hand they always
+  run.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
