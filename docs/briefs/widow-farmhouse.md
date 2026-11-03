@@ -1,6 +1,7 @@
 # The widow's farmhouse: two rescues, and her sons (brief)
 
-Source: Sean's design lock of 2026-11-03 ("Salt Creek — November 3 Design Lock & Claude Handoff").
+Source: Sean's design lock of 2026-11-03 ("Salt Creek — November 3 Design Lock & Claude Handoff"),
+second version (adds §0, the sheriff's family).
 It supersedes the farmhouse mission's story identity (the Mexican rancher as hostage, #520) and
 extends the mission; the mission's systems (#520, #537, #565) are kept. Status words as in the lock:
 **DECIDED** (Sean's, not reopened without asking), **PROPOSED** (an option, not canon), **OPEN**
@@ -8,6 +9,45 @@ extends the mission; the mission's systems (#520, #537, #565) are kept. Status w
 
 Read with: `src/missions/` (LAYOUT.md "src/missions (the farmhouse)"), `experiments/farmhouse/`
 README, `docs/briefs/valley.md` (where the homestead is), `docs/briefs/town-economy.md`.
+
+## 0. The sheriff, his widow and his sons (DECIDED, new canon)
+
+Supersedes any version where the widow is an unrelated landowner or the sheriff's death is random.
+
+- **The widow is the wife of the sheriff** Harlan finds shot in the opening. The sheriff dies of
+  the attack; that is how she becomes the widow.
+- **The two boys are the sheriff's sons**: the same protected children as in §3.
+- **He was murdered over his family's land and its water rights.** The Baron wants that property.
+  The murder and the later occupation of the homestead are one conflict, not two incidents.
+- **Harlan receives the sheriff's revolver** and takes on his duty as the law. Protecting the widow
+  and the boys continues the opening; it is not a generic side mission.
+- **Timing:** she must not be met as a widow before the opening attack. The peaceful visit comes
+  after the sheriff's death, and the hostage crisis after that.
+- **The player's choice carries:** the opening lets Harlan help the wounded sheriff or leave him.
+  Whatever the family says later about it follows what he actually did: no grateful lines if he
+  rode on. (The opening must record it as a deed, `PlayerDeeds`, for the lines to read.)
+- The boys are never shown wounded, killed, graphically threatened or used as damageable hostages.
+
+OPEN (don't invent or reveal): who shot him; who ordered or arranged it, and whether the Baron did
+directly; what the sheriff knew or had done against the takeover; how much the widow knows, what
+Harlan suspects first, when evidence ties the murder to the Baron, and whether the inquest or the
+investigation reveals it; the title history, the family's surname; the first words between Harlan
+and the family.
+
+Narrative constraint: the player should be able to *discover* that the opening death, the
+threatened homestead, the Baron's water ambitions and the papers in the Baron's Shipment are
+linked. How and when that's proved is designed with Sean, not assumed in code.
+
+### The encounter flow (PROPOSED)
+
+| Beat | What happens | What the code keeps |
+|---|---|---|
+| The opening | Harlan finds the sheriff shot; helps him or leaves him; the sheriff dies; Harlan gets his revolver. | The deed: helped / left (and how well). The revolver as the sheriff's. |
+| The visit | After the death, at the homestead: the widow and her sons at their day; the land dispute. The property's ways in are seen. | Visited (yes/no); her first words chosen by the deed. |
+| Phase A | The house, as §2. | As built, the widow as hostage. |
+| Phase B | The yard to the boys, as §2. | The yard group's own awareness. |
+| The reunion | The boys back with their mother; WON. | Done. |
+| Lost | Harlan down, or the widow killed (OPEN: in Phase B too). The boys never enter it. | Retry, as now. |
 
 ## 1. Story and place (DECIDED)
 
@@ -121,7 +161,7 @@ Reuse first (PARTS.md): `FarmhouseMission`, `HouseDefence`, `OutlawBrain.hold`, 
 | A3 | **Phases in the mission:** `State.ON` gets a phase (HOUSE, YARD, REUNION). Widow clear of the house no longer wins: it starts YARD. WON only at the reunion. Lost stays: Harlan down, or the widow dead. | A test walks HOUSE → YARD → REUNION → WON. |
 | A4 | **The second group:** men from a new `tuning.yard_men` list, placed at `begin()` round the outbuilding (posts and beats, as the rovers), with their own `HouseDefence`-style group. **The alarm becomes per group** (today `_alarm` provokes every man and tells them where you are: fine inside one small house, omniscient across a yard): the yard group learns only by its own Senses or a report (a man from the house who saw you running to them, or a shout within earshot). | Scripted runs: a quiet Phase A leaves the yard group unaware ≥ 6 of 8; a loud one alerts them by hearing, not by the mission. |
 | A5 | **The boys at the outbuilding and the reunion:** two ProtectedChild at the hold spot (cower/sit clips, no harm states); reached and the yard clear (or Harlan beside them), they go to their mother by the checked route or the fallback. | Reunion tests incl. blocked route; no mission path reads a boy's state. |
-| A6 | **The peaceful visit:** the farm outside the mission: the widow and boys at everyday routines (`CivilianBrain.chores` at the farm's use points; the boys' idle clips), the land-dispute talk as the mission's offer (instead of the blacksmith). | You can walk round the property and meet them with no mission running. |
+| A6 | **The peaceful visit:** after the sheriff's death, the farm outside the mission: the widow and boys at everyday routines (`CivilianBrain.chores` at the farm's use points; the boys' idle clips), the land-dispute talk as the mission's offer (instead of the blacksmith); her first words picked by the opening's deed (helped / left). | You can walk round the property and meet them with no mission running; both deeds give the right lines (placeholders until Sean writes them). |
 | A7 | **Measure:** the farm bot's runs over both phases (wins, which way, the yard's awareness at the switch, time); a blind playtest; Sean's play. | Report in `experiments/farmhouse/results/`. |
 
 A1 before anything else; A2-A3 one session; A4-A5 one; A6 after the valley outline places the
@@ -153,6 +193,11 @@ proportions from the start.
 ## 6. Conflicts with what's built (for Sean)
 
 - DESIGN.md §5 and docs/TOWN.md had the widow "alone": updated to the lock.
+- **The sheriff always dies (the lock) vs. DESIGN.md §11's decided spine** ("how well you treat him
+  decides whether he lives"; §5: he "might be saved by the doctor"). Not changed in DESIGN.md:
+  OPEN for Sean. Does the doctor's save go, or does good care only change his last hours and words?
+- DESIGN.md §5's courtship line ("marrying the widow is a path to holding the valley") now means the
+  murdered sheriff's widow. Left as is; Sean's call whether it stays.
 - The occupiers: the code's are the Colter gang (Brody, Lyle, Dutch, the Kid, Hollis) held out of
   town by `TownLife.take_riders`; the lock says the Baron's gunmen. DESIGN.md has the Colters
   "hired to scare homesteaders off". OPEN: the Colters on the Baron's pay, or the Baron's own men.
