@@ -3,7 +3,7 @@
 
 Probe stage: the sites' terms and robots, one search page, so we know how a fetch may be made.
 """
-import argparse, os, pathlib, urllib.request
+import argparse, html, os, pathlib, re, urllib.request
 
 UA = "SaltCreek-sound-fetch/0.1 (game audio research; github.com/Kokanee25/Western)"
 
@@ -12,6 +12,14 @@ def get(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=60) as r:
         return r.read()
+
+
+def text_of(page: bytes) -> str:
+    """A page's words, without its scripts (Freesound's pages carry a map token push protection stops)."""
+    s = page.decode("utf-8", "replace")
+    s = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", s)
+    s = re.sub(r"(?s)<[^>]+>", " ", s)
+    return re.sub(r"[ \t]*\n[\s]*", "\n", html.unescape(s))
 
 
 def main() -> None:
@@ -31,7 +39,14 @@ def main() -> None:
     }
     for name, url in probes.items():
         try:
-            (out / name).write_bytes(get(url)); print("ok", name)
+            b = get(url)
+            if name.endswith(".html"):
+                (out / (name[:-5] + ".txt")).write_text(text_of(b))
+                links = sorted(set(re.findall(rb'(?:href|src|data-[a-z-]+)="([^"]+)"', b)))
+                (out / (name[:-5] + "_links.txt")).write_bytes(b"\n".join(l for l in links if b"mapbox" not in l.lower()))
+            else:
+                (out / name).write_bytes(b)
+            print("ok", name)
         except Exception as e:
             print("fail", name, e)
 
