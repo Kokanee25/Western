@@ -23,7 +23,7 @@ without asking Sean.
   under review (proposed 2026-10-15: ten days of about an hour, the saloon table as the prologue,
   the side missions placed on days; see "Story shape")**; the story flow
   (decided: the sheriff opening, three acts on the railroad clock), reasons to fight (decided),
-  story missions (proposed, frozen), a day in Salt Creek, romance (proposed), history handled with
+  story missions (proposed, frozen), a day in Salt Creek, romance (removed 2026-11-03: none in the game), history handled with
   care.
 - **§6 The player character and paths** — a homesteader, former hospital steward (proposed);
   no class menu: sheriff, gang, hired gun, rancher and undercover paths open and close by what
@@ -275,14 +275,15 @@ painterly squares. Where this section says otherwise below, this wins. The town'
 - **Water is the stakes.** The player's claim holds the best spring.
 - **Day 1:** the sheriff is found **gut-shot** on the road. By the wound rules he has hours, not
   minutes. He's conscious, knows who shot him, is frightened and unsure who to trust. He might tell
-  you, pin his badge on you, be saved by the doctor, or die while you're elsewhere — and the town
-  goes looking for someone to blame.
+  you or pin his badge on you. **He dies whatever you do** (**decided**, Sean 2026-11-03): you can get
+  him to the doctor, but he doesn't survive; what you do changes his last hours, not whether he lives.
+  The town goes looking for someone to blame.
 
 ### Cast (each has goals, secrets, relationships, and acts whether or not the player does)
 - **The sheriff** — dying on day 1. What he knows and who he trusts drives the opening. He was
   murdered over his family's land and its water rights, and he dies of it; Harlan gets his revolver
-  (**decided**, Sean 2026-11-03; who shot him and who ordered it are open). *Whether he can still be
-  saved (§11's spine) is for Sean: `docs/briefs/widow-farmhouse.md` §0.*
+  (**decided**, Sean 2026-11-03; who shot him and who ordered it are open). He dies whatever you do:
+  you can get him to the doctor, but he doesn't survive (Sean, 2026-11-03).
 - **The cattle baron** — wants every drop of water in the valley, and is patient.
 - **The railroad land agent** — buying claims with forged deeds.
 - **The Colter gang** — hired to scare homesteaders off, with plans of their own. One of them
@@ -307,7 +308,7 @@ painterly squares. Where this section says otherwise below, this wins. The town'
   gives someone a reason to act when it goes quiet, and lets survivors react instead of forcing the
   plot back when the player breaks it.
 - **Many endings, none written in full:** become sheriff and hang the gang, sell the spring and get
-  rich, marry the widow and hold the valley, ride with the Colters, leave with the baron's money…
+  rich, ride with the Colters, leave with the baron's money…
 
 ### Story flow (**decided**, 2026-10-01; its 30-day clock and three acts under review: see "Story shape" below)
 The danger in a systemic game is a sandbox with nothing pulling you along. The flow comes from a
@@ -491,29 +492,9 @@ systems (opinions, rumours, factions' plans), not cutscenes. The truth comes out
   (the day's main job) → evening (the saloon fills, the day's rumours, trouble) → night (raids,
   sneaking, or sleep; darker as the moon wanes).
 
-### Romance (**proposed**, 2026-10-01)
-Everyone will try it, usually crudely, in the first five minutes. That's fine: the people are people,
-so it plays out the way it would in 1882, and the crude attempt is a source of humour, not reward.
-- **Women in the town are people, not prizes.** Each has her own life, opinions, situation and
-  wants (the widow fighting for her claim, a married woman, the hotel landlady, a working girl
-  upstairs at the saloon), and most of them aren't looking for anything from you.
-- **The crude approach goes badly, in character:** a cold look, a slap, a drink in your face, her
-  husband or brother looking for you, the barkeep throwing you out, the whole town hearing about
-  it by evening. Reputation drops. Being a pig is allowed; it's just remembered.
-- **Courtship is slow and earned:** days, not minutes, built on what you actually do (keeping her
-  claim safe, honesty, showing up, standing by her when it costs you). She can say no, change her
-  mind, or lose interest if you turn out to be someone else. Some people may court you.
-- **1882 rules apply:** propriety, chaperones, gossip, reputations (hers more than yours, which she
-  knows), marriage as a real, binding thing with property consequences (marrying the widow is a
-  path to holding the valley).
-- **Fade to black.** Nothing explicit, ever. The conversation AI keeps characters in character and
-  steers away from sexual content; intimacy is implied (a door closing, the morning after, the
-  town talking).
-- **Men too** (Sean, 2026-10-01). Same rules as any courtship: slow, earned, the other man's own
-  choice. A few men in the valley are open to it as part of who they are (written as people, not
-  a gimmick); most aren't. 1882 makes it a secret: discretion matters, being found out has real
-  social cost for both of you, and that risk is what gives it weight (the Brokeback Mountain
-  register, not a joke). A crude pass at a man who isn't interested goes as badly as one at a woman.
+### Romance (**removed**, Sean 2026-11-03: "there's no romance in the game")
+None: no courtship, marriage or intimacy with anyone. The heading stays so the sections keep their
+place; what was proposed here (2026-10-01) is in git history.
 
 ### History, handled with care
 An honest 1880s West includes Indigenous nations, Chinese railroad workers and Mexican ranchers and
@@ -991,8 +972,9 @@ should care too much to do it.
 
 ### Signature features (**decided**, Sean 2026-10-01: "Ya!" to all)
 What nobody else does, made from joining systems we already have. **1–3 together are the game's
-spine:** you find the sheriff, how well you treat him decides whether he lives, his last words
-depend on his blood loss, the ball in him is the evidence, and it all comes out at a trial driven by
+spine:** you find the sheriff; he dies whatever you do (Sean, 2026-11-03: you can get him to the
+doctor, but he doesn't survive), and how well you treat him decides how long he lasts and what he
+can say; his last words depend on his blood loss, the ball in him is the evidence, and it all comes out at a trial driven by
 what really happened.
 1. **The body changes how people talk.** The conversation AI is given the speaker's body state
    (blood loss, shock, pain, concussion, drink, a broken jaw or windpipe, fear). The dying sheriff

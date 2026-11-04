@@ -193,11 +193,9 @@ proportions from the start.
 ## 6. Conflicts with what's built (for Sean)
 
 - DESIGN.md §5 and docs/TOWN.md had the widow "alone": updated to the lock.
-- **The sheriff always dies (the lock) vs. DESIGN.md §11's decided spine** ("how well you treat him
-  decides whether he lives"; §5: he "might be saved by the doctor"). Not changed in DESIGN.md:
-  OPEN for Sean. Does the doctor's save go, or does good care only change his last hours and words?
-- DESIGN.md §5's courtship line ("marrying the widow is a path to holding the valley") now means the
-  murdered sheriff's widow. Left as is; Sean's call whether it stays.
+- Settled (Sean, 2026-11-03): **the sheriff dies whatever you do**; you can get him to the doctor,
+  but he doesn't survive. DESIGN.md §5 and §11 updated. **No romance in the game**: §5's romance
+  section and "marry the widow" ending removed.
 - The occupiers: the code's are the Colter gang (Brody, Lyle, Dutch, the Kid, Hollis) held out of
   town by `TownLife.take_riders`; the lock says the Baron's gunmen. DESIGN.md has the Colters
   "hired to scare homesteaders off". OPEN: the Colters on the Baron's pay, or the Baron's own men.
