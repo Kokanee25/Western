@@ -52,6 +52,8 @@ var steam := 0.0  # the cylinders' share of full effort
 var brake := 0.0  # the engine's brakes as applied (the cab's gauge), 0..1
 var time := 0.0
 var at_end := false  # run into the end of the line
+## Off the rails (step 5, #616), unseen: every car ploughs along at this share of g to a stand (0 on the rails).
+var plough := 0.0
 
 ## Each coupler (between car i and i+1): -1 bunched (pushing), 0 in its slack, +1 stretched (pulling).
 var coupler_state := PackedInt32Array()
@@ -249,7 +251,7 @@ func step(dt: float) -> void:
 			var hold := w * (t.davis_a + t.davis_b * sp + t.curve_resistance * curve[i]) + air * vel[i] * vel[i]
 			if sp < t.breakaway_speed:
 				hold += w * t.breakaway * (1.0 - sp / t.breakaway_speed)
-			var fbk := car_brake[i] * t.brake_g * w * (1.0 + t.brake_low_speed_gain * exp(-sp / t.brake_low_speed))
+			var fbk := car_brake[i] * t.brake_g * w * (1.0 + t.brake_low_speed_gain * exp(-sp / t.brake_low_speed)) + plough * w
 			fr += hold
 			fb += fbk
 			fg += -w * grade[i]
@@ -319,7 +321,7 @@ func take_events() -> Array[Dictionary]:
 ## The state as numbers (for the lab's log and later the save).
 func to_dict() -> Dictionary:
 	return {"s": s, "v": v, "throttle": throttle, "brake_lever": brake_lever, "reverser": reverser,
-		"regulator": regulator, "steam": steam, "brake": brake, "time": time,
+		"regulator": regulator, "steam": steam, "brake": brake, "time": time, "plough": plough,
 		"x": Array(x), "vel": Array(vel), "car_brake": Array(car_brake), "coupler_state": Array(coupler_state)}
 
 

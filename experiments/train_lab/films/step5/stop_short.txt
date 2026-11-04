@@ -1,0 +1,6 @@
+# Step 5 film 1 (#616): a stop short of the break. Noon, 20 km/h, the left rail torn out at 380 m;
+# the engineer (starting 230 m back) sees it at ~220 m, throws the brake on and stands well short. The lineside at 250 m.
+train_lab
+train_caption The left rail torn out at 380 m. Noon, 20 km/h: the engineer sees it at ~220 m and stops.
+train_cam side 250 9
+train_derail kmh=20 at=380 how=rail hour=12 run_up=230 riders=0 secs=5

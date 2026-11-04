@@ -5,6 +5,11 @@ extends BridgeLab
 const LAB := preload("res://experiments/train_lab/lab.gd")
 
 const HELP := {
+	"train_derail": "train_derail kmh=K at=S how=rail|stick|bent|crate|wagon hour=H driver=engineer|none run_up=M riders=N secs=S seed=N out=PATH -> a break on the line, the train coming on: stopped short or derailed, where, and the frames (step 5)",
+	"train_save": "train_save PATH -> the track's damage and the wreck, by the route's places, as JSON (step 5)",
+	"train_load": "train_load PATH [ROUTE] -> the line built again (from its route, or ROUTE: test_line|relaid|res://...) and the save put back on it",
+	"train_repair": "train_repair now|status -> send the crew now (as if the next day had come), or what it's doing",
+	"train_next": "train_next [run] -> the railroad's next train at the depot (the wreck left); run: the engineer runs the timetable",
 	"train_lab": "train_lab -> build the test line and its train (at mark A), the line's numbers",
 	"train": "train -> the train now: s, km/h, levers, regulator, steam, brake, what limits it",
 	"throttle": "throttle X -> the engineer's hand on the regulator, 0..1",
@@ -89,6 +94,69 @@ func _cmd_train_lab(_a: Array) -> Dictionary:
 	return {"length": line.length, "marks": line.marks, "origin": arr(line.global_position),
 		"depot": arr(line.to_global(line.point_at(line.mark_s("depot")))), "mass_t": lab.train.sim.mass / 1000.0,
 		"train_length": lab.train.sim.length, "cars": lab.train.sim.cars.map(func(c: Dictionary) -> String: return String(c.name))}
+
+
+func _cmd_train_derail(a: Array) -> Dictionary:
+	var lab := _built()
+	var d: Node = lab.get_node_or_null(^"Derail")
+	if d == null:
+		d = load("res://experiments/train_lab/derail.gd").new()
+		d.name = "Derail"
+		d.lab = lab
+		lab.add_child(d)
+	var spec: Dictionary = d.parse(a)
+	var out: Dictionary = await d.run(spec)
+	if String(spec.out) != "":
+		DirAccess.make_dir_recursive_absolute(String(spec.out).get_base_dir())
+		var f := FileAccess.open(String(spec.out), FileAccess.WRITE)
+		f.store_string(JSON.stringify(out, "  "))
+	return {"outcome": out.outcome, "derail": out.derail, "short_by": out.get("short_by", null),
+		"seen": out.seen, "thrown": out.thrown, "frames": out.frames, "wreck": out.get("wreck", {}).get("events", []).size()}
+
+
+func _cmd_train_save(a: Array) -> Dictionary:
+	var lab := _built()
+	var d: Dictionary = lab.save_state()
+	var path: String = a[0] if a.size() > 0 else "user://train_save.json"
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	FileAccess.open(path, FileAccess.WRITE).store_string(JSON.stringify(d, "  "))
+	return {"path": path, "rails": d.track.rails.size(), "ties": d.track.ties.size(), "bent": d.track.bent.size(),
+		"wreck_bodies": d.get("wreck", {}).get("bodies", []).size()}
+
+
+func _cmd_train_load(a: Array) -> Dictionary:
+	var lab := _lab()
+	var path: String = a[0] if a.size() > 0 else "user://train_save.json"
+	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not d is Dictionary:
+		return {"ok": false, "error": "can't read %s" % path}
+	var file := ""
+	if a.size() > 1:
+		file = a[1] if String(a[1]).begins_with("res://") else "res://experiments/train_lab/routes/%s.json" % a[1]
+	var r: Dictionary = await lab.load_state(d, file)
+	_built()
+	r["damage"] = lab.line.state.damage().map(func(x: Dictionary) -> String: return "%s %s@%.1f" % [x.kind, x.key.section, x.key.at])
+	return r
+
+
+func _cmd_train_repair(a: Array) -> Dictionary:
+	var lab := _built()
+	var rep: TrackRepair = lab.line.repair
+	if a.size() > 0 and a[0] == "now":
+		rep.call_now()
+	return {"state": ["idle", "waiting", "coming", "clearing", "mending", "leaving"][rep.state], "from": rep.from_s,
+		"to": rep.to_s, "to_clear": rep.to_clear.size(), "to_mend": rep.to_mend.size(), "log": rep.log,
+		"damage": lab.line.state.damage().size()}
+
+
+func _cmd_train_next(a: Array) -> Dictionary:
+	var lab := _built()
+	lab.next_train()
+	_built()
+	if a.size() > 0 and a[0] == "run":
+		lab.start_engineer(0.0)
+		lab.engineer.lookout = lab.train.lookout
+	return {"s": lab.train.sim.s}
 
 
 func _cmd_train(_a: Array) -> Dictionary:
