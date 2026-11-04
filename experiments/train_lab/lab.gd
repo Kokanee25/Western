@@ -69,7 +69,9 @@ func ensure_built() -> TrackLine:
 		street = get_tree().root.find_child("TestStreet", true, false) as Node3D
 		player = get_tree().root.find_child("Player", true, false) as Player
 	tuning = load("res://config/train.tres")
+	CrashReports.loading(true, "the train lab's line")  # (a load: the freeze watchdog waits, #624)
 	line = LINE.build(street, tuning, route_file)
+	CrashReports.loading(false, "")
 	train = line.get_node(^"Train")
 	train.rider = player
 	return line

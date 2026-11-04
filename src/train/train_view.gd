@@ -199,7 +199,22 @@ func _process(_delta: float) -> void:
 		TrainModels.set_night(self, night)
 
 
-## The solids where the cars are now (on the physics tick).
-func place_solids() -> void:
+## The solids where the cars are now (on the physics tick). `teleport` (the train put somewhere
+## else, Train.place): moved there, not driven there. A kinematic body moved by its transform is
+## driven to it over the next tick, so a car put back 70 m "moved" at 4,300 m/s for one tick and
+## threw whoever stood on it with that speed as he left it (#624, the lab's 8 at the engine): so
+## the body is made static for the move (Jolt sets a static body's place outright) and kinematic
+## again after, with no speed.
+func place_solids(teleport := false) -> void:
 	for i in solids.size():
-		solids[i].transform = car_transform(i, 1.0)
+		var b := solids[i]
+		if not teleport:
+			b.transform = car_transform(i, 1.0)
+			continue
+		var rid := b.get_rid()
+		PhysicsServer3D.body_set_mode(rid, PhysicsServer3D.BODY_MODE_STATIC)
+		b.sync_to_physics = false
+		b.transform = car_transform(i, 1.0)
+		PhysicsServer3D.body_set_state(rid, PhysicsServer3D.BODY_STATE_TRANSFORM, b.global_transform)
+		PhysicsServer3D.body_set_mode(rid, PhysicsServer3D.BODY_MODE_KINEMATIC)
+		b.sync_to_physics = true

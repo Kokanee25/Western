@@ -222,9 +222,21 @@ static func _tangents(normals: PackedVector3Array) -> PackedFloat32Array:
 	return out
 
 
+## The arrays it was made of as they are (no tangents added): pure data a worker can place
+## (RubbleRest's join, #642). Anything not made by `made` (or a primitive) is `arrays_of`'s.
+static func made_arrays(mesh: Mesh) -> Array:
+	if mesh.has_meta(&"arrays"):
+		return mesh.get_meta(&"arrays")
+	return arrays_of(mesh)
+
+
 ## The arrays' triangles one by one (no index), placed by `xf`: what SurfaceTool's append_from,
-## deindex and commit_to_arrays make of them, without the read back (`arrays_of`).
+## deindex and commit_to_arrays make of them, without the read back (`arrays_of`). Normals with no
+## tangents get the renderer's (`_tangents`). Pure: safe on a worker.
 static func placed(arrays: Array, xf: Transform3D) -> Array:
+	if arrays[Mesh.ARRAY_NORMAL] != null and arrays[Mesh.ARRAY_TANGENT] == null:
+		arrays = arrays.duplicate()
+		arrays[Mesh.ARRAY_TANGENT] = _tangents(arrays[Mesh.ARRAY_NORMAL])
 	var out := []
 	out.resize(Mesh.ARRAY_MAX)
 	var index: Variant = arrays[Mesh.ARRAY_INDEX]

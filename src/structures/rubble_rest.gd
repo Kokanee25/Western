@@ -382,7 +382,8 @@ func _join(rb: RigidBody3D) -> int:
 	return JOINED
 
 
-## [key, arrays in this node's space, non-indexed], or why not.
+## [key, the arrays it was made of, where they go in this node's space] (`placed` by the worker
+## that joins its cell), or why not.
 func _part(mi: MeshInstance3D, inv: Transform3D) -> Variant:
 	var mesh := mi.mesh
 	if mesh == null or mesh.get_surface_count() != 1 or mi.skin != null:
@@ -398,8 +399,10 @@ func _part(mi: MeshInstance3D, inv: Transform3D) -> Variant:
 			return _no(NEVER, "overlay")
 		if float((over as ShaderMaterial).get_shader_parameter(&"glow")) > 0.0:
 			return _no(LATER, "alight")
-	# (from the arrays it was made of: reading them back from the renderer waits on the GPU, #626)
-	var arrays := MemberMesh.placed(MemberMesh.arrays_of(mesh), inv * mi.global_transform)
+	# From the arrays it was made of (reading them back from the renderer waits on the GPU, #626),
+	# placed on the worker that joins its cell (`_group_and_concat`): a carved member's thousands of
+	# triangles placed one by one here were 10-15 ms of a frame on Sean's F12s (#642).
+	var arrays := MemberMesh.made_arrays(mesh)
 	if arrays.is_empty() or arrays[Mesh.ARRAY_VERTEX] == null:
 		return _no(NEVER, "no vertices")
 	for slot: int in NOT_CHANNELS:
@@ -407,12 +410,12 @@ func _part(mi: MeshInstance3D, inv: Transform3D) -> Variant:
 			return _no(NEVER, "channel %d" % slot)
 	var has := 0
 	for slot: int in CHANNELS:
-		if arrays[slot] != null:
-			has |= 1 << slot
+		if arrays[slot] != null or (slot == Mesh.ARRAY_TANGENT and arrays[Mesh.ARRAY_NORMAL] != null):
+			has |= 1 << slot  # (tangents: `placed` gives normals with none the renderer's)
 	var key := "%d|%d|%d|%d|%d" % [mat.get_instance_id(), over.get_instance_id() if over else 0, mi.cast_shadow, mi.layers, has]
 	if not _keys.has(key):
 		_keys[key] = [mat, over, mi.cast_shadow, mi.layers]
-	return [key, arrays]
+	return [key, arrays, inv * mi.global_transform]
 
 
 func _no(why: int, what: String) -> int:
@@ -617,12 +620,12 @@ func _build(cell: Vector3i) -> void:
 		_built.call_deferred(cell), true, "rubble cell")  # high priority: a low one can hang the quit (#392, #435)
 
 
-## The pieces' arrays by key, each key's joined (on a worker: pure data).
+## The pieces' arrays placed, by key, each key's joined (on a worker: pure data).
 static func _group_and_concat(items: Array) -> Dictionary:
 	var joined := {}  # key -> [[id, arrays]]
 	for it: Array in items:
 		for p: Array in it[1]:
-			(joined.get_or_add(p[0], []) as Array).append([it[0], p[1]])
+			(joined.get_or_add(p[0], []) as Array).append([it[0], MemberMesh.placed(p[1], p[2])])
 	return _concat_all(joined)
 
 
