@@ -709,6 +709,21 @@ func test_hold_it_too_long() -> void:
 	check(not p.can_hold("r"), "you can't hold anything in it")
 
 
+## The bang comes through before your ears give (#596: the crack was lost under the muffle): just
+## after a near blast the world is still clear, then it dulls and rings.
+func test_you_hear_the_crack_before_your_ears_give() -> void:
+	var player := await _player()
+	var w := player.wounds
+	w.take_blast(player.global_position + Vector3(4, 0.3, 0), 0.2)
+	check(w.ringing > 1.0, "your ears will ring (%.1f s)" % w.ringing)
+	await physics_frames(6)  # 0.1 s
+	check(w._ear_filter == null or w._ear_filter.cutoff_hz > 15000.0,
+			"0.1 s on you still hear it clear (%.0f Hz)" % (w._ear_filter.cutoff_hz if w._ear_filter else 20000.0))
+	await physics_frames(60)  # 1.1 s
+	check(w._ear_filter != null and w._ear_filter.cutoff_hz < 8000.0,
+			"a second on it's muffled (%.0f Hz)" % (w._ear_filter.cutoff_hz if w._ear_filter else 20000.0))
+
+
 # --- Planted at a wall's foot (#506: hold E by a wall, lit when you let go) -------------------------
 
 ## The player in the store, `off` m in from its side wall, facing it and looking `pitch` degrees

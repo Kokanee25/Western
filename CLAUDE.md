@@ -748,19 +748,12 @@ frozen until Sean names one.
   three bents blown take the train over 3 of 3. Waiting on Sean: #638. Traps: Sight takes a new
   structure in at its first look (look once at the build); never measure two games at once; a run's
   steps on the game's clock, its frames on the wall's.
-- **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
-  (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
-  Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
-  --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
-  `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
-  (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
-- **Men thrown through the air** (#596 step 3b, branch `claude/issue-596-step-3b-vespwt`;
-  `experiments/physics_lab/results/2026-11-04_thrown/`): `BlastTuning.blast_lift` (0 in the game;
-  proposed 0.8 / 1.1), `Blast.lift_share`, `HumanBody._blast_lift`/`_thrown`/`_step_thrown` (tumble,
-  arms out and knees up in flight, landing blows); 1 m off at 0.8 thrown 3.4 m (top 1.1), at 1.1
-  5.3 m (top 1.8); 3 m off his feet, 6 m unchanged. The throw costs nothing measurable; three men by
-  a stick already fail #492's hitch line on main (their going limp, ~120 ms here). Lab group Z,
-  `--lift`, `thrown.py`, `thrown_films.py`; `bf_blast men=N lift=F`. Waiting on Sean: the setting.
+- **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
+  felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
+  the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
+  0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
+  (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
+  glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
