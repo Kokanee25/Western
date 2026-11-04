@@ -20,6 +20,11 @@ extends RefCounted
 ##     "height": 0.78                                     the rail top above the ground at the start (optional)
 ##   }
 ##
+## Each plan item is a **section** of the route, with an id (`"id": "..."` on the item; `p0`, `p1`...
+## by its place if it has none). Saved damage to the track and the wreck beside it are kept by
+## section id and the distance along that section (step 5, #616), never world positions, so a
+## re-laid route keeps them on the line where its same section is.
+##
 ## Distances in the file are along the line as laid (the plan's metres); `TrackLine.mark_s()` gives
 ## them along the drawn curve (they differ by well under a part in a thousand).
 
@@ -90,6 +95,28 @@ func segments() -> Array:
 	return segs
 
 
+## The plan's sections, in order: [{id, from (m along the line as laid), length}].
+func sections() -> Array:
+	var out := []
+	var so_far := 0.0
+	var i := 0
+	for item: Dictionary in data.get("plan", []):
+		var l := 0.0
+		if item.has("straight"):
+			l = float(item.straight)
+		elif item.has("straight_to"):
+			l = maxf(0.0, float(item.straight_to) - so_far)
+		elif item.has("bend"):
+			var b: Dictionary = item.bend
+			var k := 1.0 / float(b.radius)
+			var sp := float(b.get("spirals", 0.0))
+			l = maxf(0.0, (deg_to_rad(float(b.turn)) - sp * k) / k) + 2.0 * sp
+		out.append({"id": str(item.get("id", "p%d" % i)), "from": so_far, "length": l})
+		so_far += l
+		i += 1
+	return out
+
+
 ## The profile as TrackLine grades ([[s, rise over run], ...]).
 func grades() -> Array:
 	var p: Dictionary = data.get("profile", {})
@@ -127,4 +154,8 @@ func make_line(t: TrainTuning) -> TrackLine:
 	for k in m:
 		ms[k] = line.along(float(m[k]))
 	line.marks = ms
+	var secs := []
+	for sec: Dictionary in sections():
+		secs.append({"id": sec.id, "from_s": line.along(float(sec.from)), "to_s": line.along(float(sec.from) + float(sec.length))})
+	line.sections = secs
 	return line

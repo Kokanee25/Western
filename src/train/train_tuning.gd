@@ -131,6 +131,80 @@ extends Resource
 ## Rails are 30 ft (9.1 m): the clack timing in step 4.
 @export var rail_length := 9.14
 
+@export_group("Breakable track (step 5)")
+## A charge that puts this share of what would tear a rail loose into it bends it (less: nothing
+## shows); at the whole share it's torn loose. PROPOSED.
+@export var rail_bend_share := 0.15
+## The most a rail is bowed out at its middle, m. PROPOSED.
+@export var rail_bend_max := 0.25
+## A rail bowed less than this is passed over (the flanges ride it); more, it derails a train going
+## faster than `bent_pass_speed` (m/s). PROPOSED.
+@export var bent_passable := 0.03
+@export var bent_pass_speed := 2.0
+## A run of this many ties gone under a rail is a break (the rail hangs over ~1.8 m: a wheel drops
+## through it). PROPOSED.
+@export var ties_gone_break := 3
+
+@export_group("The lookout (step 5)")
+## How far the engineer picks out a block on the line (a crate, a man, rubble) and a break (a gap in
+## a rail, a bowed rail, ties gone), m: (in starlight, in full day); between, by the light's
+## logarithm (SightLight.level), as a man is picked out. PROPOSED: by day a crate at ~450 m, a
+## broken rail at ~220 m (an engineer watching the line; his own people's 60 m is a man noticed in
+## passing).
+@export var see_block := Vector2(15.0, 450.0)
+@export var see_break := Vector2(8.0, 220.0)
+## The headlight (an oil lamp in a big reflector): its light on the line ahead, cd, its beam's half
+## angle, degrees, and how dark it is before it counts (daylight). PROPOSED: 2,500 cd shows a break
+## at ~60 m and a crate at ~110 m on a starlit night.
+@export var headlight_cd := 2500.0
+@export var headlight_beam_deg := 8.0
+@export var headlight_below_daylight := 0.35
+## His eye on the engine (across, up from the deck), m: leaning out of the cab's right side.
+@export var lookout_eye := Vector2(1.25, 1.65)
+## How long between seeing it and his hands moving, s (seeded, between these).
+@export var reaction := Vector2(0.8, 1.6)
+## The fireman on the left watches the line between firing: his reach a share of the engineer's,
+## and his shout to the engineer this much later. PROPOSED.
+@export var fireman_watch := 0.6
+@export var fireman_shout := 0.6
+## The line ahead looked along for blocks this many cells (4 m each) a tick.
+@export var scan_cells := 6
+
+@export_group("The derail (step 5)")
+## The wheels on a break faster than this (m/s) leave the rails; slower, they stop on it.
+@export var derail_speed := 0.3
+## Off the rails, unseen (the 1D train alone: no player near), the train ploughs to a stand at this
+## share of g.
+@export var plough_g := 0.35
+## A block this heavy (kg: a loaded wagon, a pile of rubble, a big timber) struck faster than
+## `bent_pass_speed` derails the engine; lighter, the pilot throws it aside. PROPOSED.
+@export var block_derail_kg := 1500.0
+## The hand-off to rigid bodies (TrainWreck), all PROPOSED:
+## the cars' grip on what they slide over off the rails (wheels on ties and ballast, frames ploughing);
+@export var wreck_friction := 0.04
+## rolling on over the ties off the rails (wheels still turning), and ploughing off the bed
+## (`plough_g`, the same as the 1D's), as a share of the car's weight;
+@export var roll_g := 0.03
+## the engine's leading wheels thrown off across toward the broken side, m/s a m/s it was going;
+@export var derail_kick := 0.12
+@export var derail_kick_min := 0.6
+## a car stopped by more than this (m/s, within 0.15 s) breaks into big sections;
+@export var car_break_dv := 6.0
+## men riding go limp (thrown) when their car jolts past this (g) or tips past 35 degrees;
+@export var thrown_g := 0.8
+## a coupler strained this far from where it holds (m) lets go (its pin sheared).
+@export var coupler_tears := 0.35
+
+@export_group("The repair crew (step 5)")
+## The railroad's men come this many game hours after the line's damaged (the next day). PROPOSED.
+@export var repair_delay_h := 24.0
+## How many come, and how long each piece of work takes a man, s: a tie laid, a rail laid (or a
+## bent one changed), and clearing what's on the line, a tonne. PROPOSED.
+@export var crew_size := 4
+@export var tie_s := 40.0
+@export var rail_s := 120.0
+@export var clear_s_per_t := 30.0
+
 @export_group("Feel (what the lab reports)")
 ## The proposed ranges Sean is asked about (km/h, s, m).
 @export var start_to_25_range := Vector2(20.0, 45.0)

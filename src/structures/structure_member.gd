@@ -8,6 +8,11 @@ extends StaticBody3D
 ## on the ground itself.
 const TIERS := {
 	&"sill": 0,
+	## A railroad tie in its ballast (TrackChunk, the train's track): it rests on the bed, and a
+	## blast can splinter it (it's not bedded on a footing as a sill is: Blast._bedded).
+	&"tie": 0,
+	## An iron rail spiked to the ties: it bends or tears loose whole, never snaps (TrackChunk).
+	&"rail": 1,
 	&"post": 1,
 	&"joist": 1,
 	&"stud": 2,
