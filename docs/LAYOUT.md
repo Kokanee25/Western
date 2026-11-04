@@ -425,7 +425,8 @@ until R2's scanned maps, people lit by the engine's own light (no painted light 
 globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport
 anti-aliased by FSR2 at native scale (sharper than Godot's TAA + MSAA, which read soft), 16x
 anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`; `view.scaling_3d_scale` under 1 upscales); the environment's dials
-from `config/looks/real_dials.json` (AgX, SSIL, SDFGI, the fog taking GI), every one put back off;
+from `config/looks/real_dials.json` (AgX, SSIL, the fog taking GI; SDFGI off since #643, its cascades
+scrolling as you walk a long frame every ~0.8 m, N's switch turns it on), every one put back off;
 exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
 own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
@@ -500,6 +501,11 @@ it all away and puts the probe and haze back.
   `pace()`/`slipped()` slow you after a kick or a slip on a stair. `landed` (and `last`) report each
   one; the lab and tests set `wants`. Lab: the ragdoll lab's group O via `experiments/kick_shove/`
   (`run.py` 20 seeds, `tally.py`, `fp_view.gd` first-person frames).
+
+Even steps (#643): `tests/test_walk_steps.gd` walks 30 steps down Main Street headless (each step's
+length to `build/walk_steps.csv`; none over 1.15x the median, no tick's travel over 1.15x). A
+hitch from the renderer isn't drawn headless: `tools/walk_frames.gd` walks it drawn, every frame
+timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes' spacing in metres.
 
 ## src/world
 

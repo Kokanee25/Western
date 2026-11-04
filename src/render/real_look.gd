@@ -16,10 +16,11 @@ extends Node
 ## - anti-aliases the game viewport (FSR2 at native scale: sharper than Godot's TAA, which left the
 ##   frame soft in R0's renders; 16x anisotropic; `view.*` dials) and draws it to the window filtered
 ##   when it isn't native;
-## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, SDFGI,
-##   volumetric fog) through LookPreset, every one put back when it goes off;
+## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, volumetric
+##   fog; SDFGI off since #643: its cascades scrolling as you walk were a long frame every metre or
+##   so) through LookPreset, every one put back when it goes off;
 ## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own);
-## - SDFGI outdoors only: a ray up from the camera four times a second, its energy eased to
+## - SDFGI, when the look panel turns it on, outdoors only: a ray up from the camera four times a second, its energy eased to
 ##   `sdfgi_indoor` under a roof (the saloon's indoor light is RoomLight's) and `sdfgi_outdoor` out;
 ## - StandardMaterial3Ds' and decals' nearest filtering made linear (and back), including what's
 ##   added while it's on.
