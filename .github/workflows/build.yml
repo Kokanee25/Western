@@ -283,11 +283,7 @@ jobs:
           out="$(pwd -W 2>/dev/null || pwd)/smoke.out"  # a Windows path on Windows
           limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
           set +e
-          # --crash-watch=5,0: #650's freeze watchdog reports a stall but never ends the run. Under
-          # CI's software Vulkan a frame can take a minute (frames average ~3 s, the first ~50),
-          # and its 60 s end killed the drawn build mid-run (main's build 3230, three times).
-          # The job's timeout still catches a real hang.
-          "${limit[@]}" "${game[@]}" -- --smoke-test --smoke-out="$out" --crash-watch=5,0 > smoke.log 2>&1
+          "${limit[@]}" "${game[@]}" -- --smoke-test --smoke-out="$out" > smoke.log 2>&1
           code=$?
           set -e
           cat smoke.log
@@ -321,7 +317,7 @@ jobs:
           timeout 900 xvfb-run -a -s "-screen 0 640x360x24" gdb -q -batch \
             -ex "handle SIGSEGV stop print" -ex "handle SIGABRT stop print" -ex "handle SIGUSR1 nostop noprint" \
             -ex run -ex "info threads" -ex "thread apply all bt 25" \
-            --args ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360 -- --smoke-test --smoke-out="$(pwd)/smoke.out" --crash-watch=5,0 \
+            --args ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360 -- --smoke-test --smoke-out="$(pwd)/smoke.out" \
             > gdb.log 2>&1 || true
           grep -n -E "^Thread|signal SIG|^#[0-9]+ " gdb.log | head -300
           echo "--- verdict:"; cat smoke.out 2>/dev/null || echo "(no verdict written)"
