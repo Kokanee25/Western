@@ -815,6 +815,19 @@ func test_a_far_stick_after_a_near_one_doesnt_clear_your_ears() -> void:
 		if w._ear_filter.cutoff_hz >= before * 1.05 + 1.0:
 			break
 	check(w.ringing > ring - 1.0, "and still ringing (%.1f s)" % w.ringing)
+## A second charge while you're still deafened by the first (bundles a moment apart, #647) doesn't
+## open your ears again for its bang.
+func test_a_second_bang_while_deafened_stays_muffled() -> void:
+	var player := await _player()
+	var w := player.wounds
+	w.take_blast(player.global_position + Vector3(4, 0.3, 0), 0.2)
+	await physics_frames(90)  # 1.5 s: muffled
+	var before := w._ear_filter.cutoff_hz
+	check(before < 8000.0, "muffled by the first (%.0f Hz)" % before)
+	w.take_blast(player.global_position + Vector3(-6, 0.3, 0), 0.2)
+	await physics_frames(6)
+	check(w._ear_filter.cutoff_hz < 8000.0, "still muffled at the second's bang (%.0f Hz)" % w._ear_filter.cutoff_hz)
+
 
 # --- Planted at a wall's foot (#506: hold E by a wall, lit when you let go) -------------------------
 

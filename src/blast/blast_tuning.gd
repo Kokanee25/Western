@@ -125,6 +125,8 @@ extends Resource
 ## ringing starts with the dulling.
 @export var ear_hold_s := 0.3
 @export var ear_ease_s := 0.5
+## A blast while your ears still ring longer than this (s) doesn't open them again for its bang.
+@export var ear_rehold_ringing := 2.0
 ## Blast lung: bruised from the first, both holed and bleeding from the second, by the reflected
 ## pressure at his chest (since 2026-10-28, issue #220; was 250 / 700 against the side-on). Bowen,
 ## Fletcher and Richmond's curves for a 70 kg man ("Estimate of Man's Tolerance to the Direct

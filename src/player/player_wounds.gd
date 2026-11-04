@@ -325,13 +325,16 @@ func _feel(at: Vector3, ear_kpa: float) -> void:
 	var bt := Blast.t()
 	var head := player.camera.global_position
 	var arrive := head.distance_to(at) / GameAudio.SPEED_OF_SOUND
+	# Your ears hold clear for a bang only if they've come back: a second charge while you're still
+	# deafened by the first (bundles a moment apart, #647) stays muffled (ear_rehold_ringing).
+	var deafened := ringing >= bt.ear_rehold_ringing
 	var m := blast_share(ear_kpa, bt.muffle_from_kpa, bt.muffle_full_kpa)
 	var deep := 20000.0 * pow(bt.muffle_floor_hz / 20000.0, m)
 	if m > 0.0 and deep <= muffle_hz:
 		_muffle_from = muffle_hz
 		_muffle_deep = deep
 		_muffle_len = bt.muffle_s * m
-		_muffle_t = -arrive
+		_muffle_t = -arrive + (bt.ear_hold_s if deafened else 0.0)
 	var r := blast_share(ear_kpa, bt.ring_from_kpa, bt.ring_full_kpa)
 	var ring_len := bt.ringing_max * r
 	if ring_len > ringing:

@@ -763,6 +763,9 @@ frozen until Sean names one.
   0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
   (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
   glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
+  For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
+  volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
+  one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
 - **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
   you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
   gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
