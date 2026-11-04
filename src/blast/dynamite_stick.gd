@@ -3,7 +3,8 @@ extends RigidBody3D
 ## A stick of dynamite loose in the world: thrown, dropped or set against a wall. Lit, its fuse
 ## burns down (you can see it shorten, spitting sparks) and then it goes off (Blast.detonate).
 ## A bundle (#647) is one of these with `sticks` tied together: their kg, one fuse, drawn as the
-## sticks tied with two wraps of cord; planted, it waits unlit to be lit (DynamiteViewmodel).
+## sticks tied with two wraps of cord; planted, it's wired to the plunger box and waits
+## (DynamiteViewmodel, PlungerViewmodel; or a match to its fuse).
 ## A bullet through it may set it off; a blast close by will; so will a fire it's lying in (the
 ## fuse catches). Small loose thing: on the debris layer.
 
@@ -27,6 +28,8 @@ var owner_node: Node
 ## is cut or goes, or a ball hits it; then it falls as any loose stick.
 var planted := false
 var stuck_to: Node
+## Capped and wired to the player's plunger box (a bundle planted, #647): `fire_wired` sets it off.
+var wired := false
 
 var _fuse: Node3D
 var _sparks: GPUParticles3D
@@ -279,6 +282,44 @@ func detonate() -> void:
 	Blast.detonate(world, at, kg, null)
 
 
+## Capped and wired to the plunger box: drawn with the cap in its far end and a wire's tail off it.
+func wire() -> void:
+	wired = true
+	if is_inside_tree() and get_node_or_null(^"Cap") == null:
+		var brass := GunParts.material("blasting_cap", PixelArt.skin("blasting_cap", Color(0.72, 0.55, 0.28), 139), 0.6, 0.5)
+		var lead := GunParts.material("blasting_wire", PixelArt.skin("blasting_wire", Color(0.12, 0.1, 0.08), 141), 0.0, 0.9)
+		var cap := GunParts.pivot(self, "Cap", Vector3(0, 0, LENGTH * 0.5))
+		GunParts.tube(cap, "Shell", 0.0035, 0.03, Vector3(0, 0, 0.0), brass, 6)
+		# Two leads out of it, curling off the face it's set on (+X) as a short tail.
+		for k in 2:
+			var w := GunParts.pivot(cap, "Lead%d" % k, Vector3(0.004, (k - 0.5) * 0.004, 0.015))
+			w.rotation_degrees = Vector3(0, 35.0 + 20.0 * k, 0)
+			GunParts.tube(w, "Wire", 0.0012, 0.18, Vector3(0, 0, 0.09), lead, 4)
+
+
+## Every wired bundle set off, one each `spread` physics ticks (0: all on one tick), nearest the
+## plunger first (`from`). Returns how many go. (#647: Sean's plunger, "it doesn't need to be messy".)
+static func fire_wired(tree: SceneTree, from: Vector3, spread := -1) -> int:
+	if spread < 0:
+		spread = Blast.t().fire_spread_ticks
+	var list: Array[DynamiteStick] = []
+	for s in bundles_set(tree):
+		if s.wired:
+			list.append(s)
+	list.sort_custom(func(a: DynamiteStick, b: DynamiteStick) -> bool: return a.global_position.distance_squared_to(from) < b.global_position.distance_squared_to(from))
+	_fire_in_turn(tree, list, spread)
+	return list.size()
+
+
+static func _fire_in_turn(tree: SceneTree, list: Array[DynamiteStick], spread: int) -> void:
+	for i in list.size():
+		if is_instance_valid(list[i]) and not list[i]._done:
+			list[i].detonate()
+		if spread > 0 and i < list.size() - 1:
+			for k in spread:
+				await tree.physics_frame
+
+
 ## A bundle, not a lone stick.
 func is_bundle() -> bool:
 	return sticks > 1
@@ -296,13 +337,13 @@ static func bundles_set(tree: SceneTree) -> Array[DynamiteStick]:
 
 # --- Saving -------------------------------------------------------------------------------------------
 
-## What a save keeps of it: where it lies, how many sticks, lit and how much fuse, and what it's
-## planted on (by its node path; it's dropped loose if that's gone when it's loaded).
+## What a save keeps of it: where it lies, how many sticks, lit and how much fuse, wired to the
+## plunger or not, and what it's planted on (by its node path; it's dropped loose if that's gone when it's loaded).
 func to_dict() -> Dictionary:
 	var b := global_basis
 	var d := {"sticks": sticks, "at": [global_position.x, global_position.y, global_position.z],
 		"basis": [b.x.x, b.x.y, b.x.z, b.y.x, b.y.y, b.y.z, b.z.x, b.z.y, b.z.z],
-		"lit": lit, "fuse_left": fuse_left, "planted": planted}
+		"lit": lit, "fuse_left": fuse_left, "planted": planted, "wired": wired}
 	if planted and is_instance_valid(stuck_to) and stuck_to.is_inside_tree():
 		d["on"] = String(stuck_to.get_path())
 	return d
@@ -320,6 +361,8 @@ static func from_dict(parent: Node, d: Dictionary) -> DynamiteStick:
 		s.stick_to(on)
 		if on == null:
 			s.loosen()
+	if bool(d.get("wired", false)):
+		s.wire()
 	if bool(d.get("lit", false)):
 		s.light()
 	return s

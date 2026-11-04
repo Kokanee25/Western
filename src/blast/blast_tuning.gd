@@ -9,8 +9,9 @@ extends Resource
 ## An 8" stick of dynamite weighs about half a pound (0.2–0.23 kg) and hits about as hard as its
 ## weight of TNT.
 @export var tnt_per_stick := 0.2
-## Sticks carried, and how long the cut fuse burns (seconds).
-@export var sticks_carried := 6
+## Sticks carried (12 since #647, PROPOSED: three bundles of four), and how long the cut fuse
+## burns (seconds).
+@export var sticks_carried := 12
 @export var fuse_seconds := 5.0
 ## A thrown stick leaves the hand at this speed (a quick lob .. a full throw, by how long you
 ## wind up), plus this much upward.
@@ -24,13 +25,22 @@ extends Resource
 @export var plant_reach := 2.2
 @export var plant_time := 0.6
 @export var plant_fuse_seconds := 5.0
-## Bundles (#647, brief docs/briefs/dynamite-bundles.md; all PROPOSED, Sean's calls on #648): with
-## dynamite in hand R ties another stick on, taking `tie_time` s, up to `bundle_max_sticks` (one
-## fuse, one charge of all their kg). A bundle (two sticks or more) planted with E is left unlit
-## (Q aimed at it lights it), and no more than `max_bundles` can be planted and waiting at once.
-@export var bundle_max_sticks := 8
-@export var tie_time := 1.5
+## Bundles (#647, brief docs/briefs/dynamite-bundles.md; Sean on #648: "you need to prep them
+## first ... 10-15 seconds of holding down a key", fired together from one plunger with no fuss).
+## With dynamite in hand, R held `make_time` s ties `bundle_sticks` loose sticks into a bundle (let
+## go early and the work's kept); R tapped switches a stick or a bundle into your hand. A bundle
+## planted with E is wired to your plunger box (5) and waits unlit; no more than `max_bundles` wait
+## at once. PROPOSED: the size, the time, the cap.
+@export var bundle_sticks := 4
+@export var make_time := 12.0
 @export var max_bundles := 3
+## R held this long (s) is making a bundle; let go sooner, it's a tap (stick or bundle in hand).
+@export var r_tap := 0.25
+## The plunger (5): held fire pushes its handle down over `push_time` s and every wired bundle goes
+## off, one each `fire_spread_ticks` physics ticks (1: a sixtieth of a second apart, the same moment
+## to anyone watching, and each blast's work on its own tick; 0: all on one tick).
+@export var push_time := 0.35
+@export var fire_spread_ticks := 1
 ## How far (m from your eye) a planted bundle can be lit by aiming at it with a match (Q), and how
 ## near your eye line it must lie (m).
 @export var light_reach := 2.2

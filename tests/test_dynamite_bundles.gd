@@ -1,8 +1,10 @@
 extends TestCase
-## Dynamite bundles (#647, brief docs/briefs/dynamite-bundles.md): a bundle is its sticks' kg, tied
-## one stick at a time in your hand up to the most a bundle holds and what you carry; planted it waits
-## unlit and a match aimed at it lights it; no more than `max_bundles` wait at once; a save keeps a
-## planted, unlit one; on the trestle a bundle cuts the 12x12 post it's on, and not the one beside it.
+## Dynamite bundles (#647, brief docs/briefs/dynamite-bundles.md; Sean's calls on #648): a bundle is
+## its sticks' kg; R held ~12 s makes one from your loose sticks (the work kept if you let go), a tap
+## switches stick and bundle in hand; planted it's wired to the plunger and waits unlit (a match aimed
+## at it lights its fuse); no more than `max_bundles` wait at once; the plunger (5) sets every wired
+## bundle off together; a save keeps a planted, wired one; on the trestle a charge cuts the 12x12
+## post it's on, and not the one beside it.
 
 const LAB_LINE := preload("res://experiments/trestle_lab/lab_line.gd")
 
@@ -29,14 +31,18 @@ func before_each() -> void:
 
 func after_each() -> void:
 	Events.exploded.disconnect(_on_boom)
-	for a in [&"fire", &"cock", &"aim", &"reload", &"shove"]:
+	for a in [&"fire", &"cock", &"aim", &"reload", &"shove", &"weapon_plunger"]:
 		Input.action_release(a)
 	world.queue_free()
 	await physics_frames(2)
 
 
+var frames: Array = []
+
+
 func _on_boom(at: Vector3, kg: float) -> void:
 	booms.append([at, kg])
+	frames.append(Engine.get_physics_frames())
 
 
 func _store() -> FalseFrontBuilding:
@@ -117,49 +123,67 @@ func test_a_bundle_is_its_sticks_kg() -> void:
 	check_near(one.kg, bt.tnt_per_stick, 1e-6, "of one stick's kg")
 
 
-func test_tied_one_stick_at_a_time_to_what_you_carry() -> void:
+## Sean (#648): "you need to prep them first ... 10-15 seconds of holding down a key". R held makes
+## one whole bundle from your loose sticks at `make_time`; let go early and the work's kept; a tap
+## puts a stick or a bundle in your hand; too few sticks, none's made.
+func test_r_held_makes_a_bundle_and_a_tap_switches() -> void:
 	var bt := Blast.t()
+	check(bt.make_time >= 10.0 and bt.make_time <= 15.0, "10-15 s to make one (%.0f)" % bt.make_time)
 	var player := await _player()
 	var d := player.dynamite()
-	d.sticks = 3
-	check_eq(d.bundle, 1, "a lone stick in hand")
+	d.sticks = bt.bundle_sticks + 2
+	check_eq(d.in_hand(), 1, "a lone stick in hand")
+	_key(&"reload", true)
+	await physics_frames(int(bt.make_time * 30.0))
+	check(d.is_making(), "R held: tying one")
+	check_eq(d.bundles, 0, "not made at half the time")
+	_key(&"reload", false)
+	await physics_frames(5)
+	var kept := d.making
+	check(kept > bt.make_time * 0.4, "let go, the work's kept (%.1f s)" % kept)
+	check_eq(d.in_hand(), 1, "and the tap didn't count (it was a hold)")
+	_key(&"reload", true)
+	await wait_until(func() -> bool: return d.bundles == 1, int(bt.make_time * 60.0))
+	var left_frames := int((bt.make_time - kept) * 60.0)
+	check_eq(d.bundles, 1, "made")
+	check_eq(d.sticks, 2, "of %d loose sticks" % bt.bundle_sticks)
+	check(d.hold_bundle and d.in_hand() == bt.bundle_sticks, "in your hand")
+	_key(&"reload", false)
+	await physics_frames(5)
+	check_eq(d.making, 0.0, "nothing more started (two sticks aren't enough) (%d frames to finish)" % left_frames)
+	check(d.stick_node.find_child("Paper%d" % (bt.bundle_sticks - 1), false, false) != null, "the hand holds the bundle")
 	await _tap(&"reload")
-	check(d.tying >= 0.0, "R starts tying one on")
-	await physics_frames(int(bt.tie_time * 30.0))
-	check_eq(d.bundle, 1, "not before it's tied")
-	await wait_until(func() -> bool: return d.bundle == 2, int(bt.tie_time * 60.0) + 20)
-	check_eq(d.bundle, 2, "two tied")
-	check(d.stick_node.find_child("Paper1", false, false) != null, "the hand holds two")
-	d.tie()
-	await wait_until(func() -> bool: return d.tying < 0.0, int(bt.tie_time * 60.0) + 20)
-	check_eq(d.bundle, 3, "three")
-	d.tie()
-	check(d.tying < 0.0, "no fourth: you carry three")
-	d.sticks = bt.bundle_max_sticks + 4
-	for k in bt.bundle_max_sticks + 2:
-		d.tie()
-		if d.tying >= 0.0:
-			d.tying = bt.tie_time  # (tied at once)
-		await physics_frames(2)
-	check_eq(d.bundle, bt.bundle_max_sticks, "no more than a bundle holds (%d)" % bt.bundle_max_sticks)
-	# Thrown, its sticks go off what you carry and a lone stick comes out.
-	var carried := d.sticks
+	await physics_frames(2)
+	check_eq(d.in_hand(), 1, "a tap: a stick in hand")
+	await _tap(&"reload")
+	await physics_frames(2)
+	check_eq(d.in_hand(), bt.bundle_sticks, "again: the bundle")
+	_key(&"reload", true)
+	await physics_frames(int(bt.make_time * 20.0))
+	check_eq(d.making, 0.0, "too few loose sticks: nothing's made")
+	_key(&"reload", false)
+	await physics_frames(3)
+	# Thrown, the bundle goes off what you carry and a stick comes out.
+	await physics_frames(40)
+	d.hold_bundle = true
 	d.windup = 0.5
 	var s := d.throw()
-	check(s != null and s.sticks == bt.bundle_max_sticks, "the bundle's thrown whole")
-	check_eq(d.sticks, carried - bt.bundle_max_sticks, "its sticks gone from what you carry")
-	check_eq(d.bundle, 1, "a lone stick next")
+	check(s != null and s.sticks == bt.bundle_sticks, "the bundle's thrown whole")
+	check_eq(d.bundles, 0, "gone from what you carry")
+	check_eq(d.in_hand(), 1, "a stick next")
 	check(s.linear_velocity.length() < bt.throw_speed_max * 0.75, "and not as far as a stick (%.1f m/s)" % s.linear_velocity.length())
 	s.queue_free()
 
 
+## A planted bundle's fuse is still there to light by hand: a match aimed at it (Q).
 func test_planted_it_waits_unlit_and_a_match_lights_it() -> void:
 	var bt := Blast.t()
 	var r := await _facing_wall(0.9, -35.0)
 	var player: Player = r[1]
 	var d := player.dynamite()
-	d.sticks = 6
-	d.bundle = 3
+	d.sticks = 3
+	d.bundles = 1
+	d.hold_bundle = true
 	await physics_frames(3)
 	check(d.claims_use(), "a wall in reach")
 	_key(&"shove", true)
@@ -171,10 +195,12 @@ func test_planted_it_waits_unlit_and_a_match_lights_it() -> void:
 	if set_down.size() != 1:
 		return
 	var s: DynamiteStick = set_down[0]
-	check_eq(s.sticks, 3, "all three")
+	check_eq(s.sticks, Blast.t().bundle_sticks, "the whole bundle")
 	check(s.planted and s.freeze, "planted, held")
+	check(s.wired, "wired to the plunger as it's set")
 	check(not s.lit, "left unlit when you let go")
-	check_eq(d.sticks, 3, "three left in hand")
+	check_eq(d.bundles, 0, "off what you carry")
+	check_eq(d.in_hand(), 1, "a stick in hand next")
 	check(d.aimed_charge() == s, "aimed at it, in reach")
 	await _tap(&"cock")
 	check(d.lighting > 0.0 and d.lighting_planted == s, "a match struck for it")
@@ -192,23 +218,24 @@ func test_no_more_than_the_cap_wait_at_once() -> void:
 	var r := await _facing_wall(0.9, -35.0)
 	var player: Player = r[1]
 	var d := player.dynamite()
-	d.sticks = 4 * (bt.max_bundles + 1) + 2
+	d.sticks = 2
+	d.bundles = bt.max_bundles + 1
 	var space := World.space(d)
 	var cam := player.camera
 	for k in bt.max_bundles + 1:
-		d.bundle = 4
+		d.hold_bundle = true
 		var look := -cam.global_basis.z + cam.global_basis.x * (0.25 * float(k) - 0.4)
 		var spot := DynamiteViewmodel.plant_spot(space, cam.global_position, look, bt.plant_reach, [player.get_rid()], DynamiteStick.radius_of(4))
 		check(not spot.is_empty(), "a spot for bundle %d" % (k + 1))
 		var s := d.plant(spot)
 		d.planted = null
 		if k < bt.max_bundles:
-			check(s != null and s.sticks == 4, "bundle %d set" % (k + 1))
+			check(s != null and s.sticks == bt.bundle_sticks, "bundle %d set" % (k + 1))
 		else:
 			check(s == null, "no bundle past the cap (%d)" % bt.max_bundles)
 			check(d.at_cap(), "at the cap")
 	check_eq(DynamiteStick.bundles_set(get_tree()).size(), bt.max_bundles, "%d waiting" % bt.max_bundles)
-	d.bundle = 1
+	d.hold_bundle = false
 	check(not d.at_cap(), "a lone stick isn't held back")
 	var one := d.plant(DynamiteViewmodel.plant_spot(space, cam.global_position, -cam.global_basis.z, bt.plant_reach, [player.get_rid()]))
 	check(one != null and one.sticks == 1, "and still plants")
@@ -216,7 +243,7 @@ func test_no_more_than_the_cap_wait_at_once() -> void:
 	# One goes off: room for another.
 	DynamiteStick.bundles_set(get_tree())[0].detonate()
 	await physics_frames(3)
-	d.bundle = 4
+	d.hold_bundle = true
 	check(not d.at_cap(), "one gone, one more may go")
 
 
@@ -228,6 +255,7 @@ func test_a_save_keeps_a_planted_unlit_bundle() -> void:
 	var basis := Basis(Vector3.UP, 0.7)
 	s.global_basis = basis
 	s.stick_to(board)
+	s.wire()
 	var lone := DynamiteStick.make(world, Vector3(4, 0.3, 4))
 	await physics_frames(3)
 	var saved := DynamiteStick.save_all(get_tree())
@@ -247,11 +275,61 @@ func test_a_save_keeps_a_planted_unlit_bundle() -> void:
 	check(b.global_basis.z.distance_to(basis.z) < 0.01, "lying as it was")
 	check(b.planted and b.stuck_to == board and b.freeze, "planted on the same board")
 	check(not b.lit, "unlit")
+	check(b.wired and b.get_node_or_null(^"Cap") != null, "still on the wire")
+	var l: DynamiteStick = back[1] if b == back[0] else back[0]
+	check(not l.wired and not l.is_bundle(), "the loose stick isn't")
 	await physics_frames(30)
 	check(b.global_position.distance_to(at) < 0.005, "held there")
 	store.break_member(board)
 	await physics_frames(5)
 	check(not b.freeze, "let go when its board goes, as before the save")
+
+
+## Sean (#648): fired together from one plunger, and "it doesn't need to be messy": planted
+## bundles are on the wire with no more to it; 5 brings out the box; fire held pushes the handle home
+## and every wired bundle goes, on consecutive ticks (`fire_spread_ticks`); let go short, nothing;
+## a loose stick and a bundle that isn't wired stay.
+func test_the_plunger_sets_off_every_wired_bundle_at_once() -> void:
+	var bt := Blast.t()
+	var player := await _player()
+	player.global_position = Vector3(0, 0.05, 0)
+	var spots := [Vector3(18, 0.1, 0), Vector3(-18, 0.1, 6), Vector3(0, 0.1, 22)]
+	var wired: Array[DynamiteStick] = []
+	for at: Vector3 in spots:
+		var b := DynamiteStick.make(world, at, Vector3.ZERO, bt.plant_fuse_seconds, bt.bundle_sticks)
+		b.planted = true
+		b.wire()
+		wired.append(b)
+	var lone := DynamiteStick.make(world, Vector3(-30, 0.1, -30))
+	var unwired := DynamiteStick.make(world, Vector3(30, 0.1, -30), Vector3.ZERO, bt.plant_fuse_seconds, bt.bundle_sticks)
+	unwired.planted = true
+	var p := player.plunger()
+	check(p != null, "a plunger box on you")
+	player.select_weapon(p)
+	await wait_until(func() -> bool: return p.is_ready_in_hand(), 180)
+	p.needs_captured_mouse = false
+	check(p.is_ready_in_hand(), "the box in your hands")
+	booms.clear()
+	frames.clear()
+	_key(&"fire", true)
+	await physics_frames(int(bt.push_time * 30.0))
+	_key(&"fire", false)
+	await physics_frames(10)
+	check(booms.is_empty(), "let go half way: nothing")
+	check(p.push == 0.0, "the handle back up")
+	_key(&"fire", true)
+	await wait_until(func() -> bool: return booms.size() >= spots.size(), int(bt.push_time * 60.0) + 30)
+	_key(&"fire", false)
+	await physics_frames(10)
+	check_eq(booms.size(), spots.size(), "all %d bundles went" % spots.size())
+	if frames.size() == spots.size():
+		var span: int = frames.max() - frames.min()
+		check(span <= (spots.size() - 1) * maxi(bt.fire_spread_ticks, 1), "together: within %d ticks (%d)" % [(spots.size() - 1) * maxi(bt.fire_spread_ticks, 1), span])
+	for b in wired:
+		check(not is_instance_valid(b), "a wired bundle gone")
+	check(is_instance_valid(lone) and not lone.is_queued_for_deletion(), "the loose stick stays")
+	check(is_instance_valid(unwired) and not unwired.is_queued_for_deletion(), "the unwired bundle stays")
+	check(player.wounds.physiology.severed_segments.is_empty(), "and you're whole, 18 m off")
 
 
 ## On the trestle (the lab's viaduct, #623): a charge on a bottom-story post's inner face cuts that
