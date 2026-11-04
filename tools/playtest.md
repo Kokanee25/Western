@@ -37,8 +37,12 @@ whenever something is worth showing: good or bad.
 - `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run.
 - `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`. `look NAME`
   faces his chest; `look NAME head` (or `abdomen`, `upper_arm_l`, `thigh_r`...) a part of him. At a
-  man it also says what stands in the line (`in_the_way`) and which of him you can see (`clear_to`),
-  as your eyes would.
+  man it also says what stands in the line and stops a ball (`in_the_way`), what's in it a ball
+  goes through (`a_ball_goes_through`: a batwing, a gallery board), what the barrel's own line
+  meets when it differs from your eye's (`from_the_barrel`: from the hip it's a hand's width off;
+  aim and it's at your eye) and which of him you can see (`clear_to`), as your eyes would.
+- `press reload` / `press fire` that won't do anything says why (`why`: out of cartridges, the gun
+  put away), as the screen does.
 - `goto PLACE` — jump straight there (use it to save time, not instead of walking everywhere).
 - `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.
@@ -47,6 +51,8 @@ whenever something is worth showing: good or bad.
   (E held and let go). Arm's length is about 0.75 m, a kick's reach about 1 m. The answer and
   `events` say what it did, a miss included. (Not `press shove`: drawn this slowly, a press is
   held long enough to be a kick every time.)
+- `hold ACTION` / `release ACTION` — keep a key down across commands: `hold aim`, then `shoot N`
+  fires with the sights up (the weapon line says "aimed"), `release aim`.
 - `press ACTION [SECONDS]` — a key: `aim` (raise the sights; hold it with a duration), `reload`
   (hold ~3 s to load the revolver a round at a time), `holster`, `shout` (shout "Drop it!" with a
   gun out; with your gun holstered and facing an armed man, call him out to a duel), `crouch_toggle`,

@@ -392,3 +392,26 @@ func test_a_car_stopped_hard_breaks_into_big_sections() -> void:
 		check(rb.find_children("*", "MeshInstance3D", true, false).size() > 0, "and its boards drawn")
 	check(train.wreck.body(coach) == null, "the whole coach's body gone")
 	check(shapes >= 10, "every shape went to a section (%d)" % shapes)
+
+
+func test_cars_that_jackknife_come_apart() -> void:
+	var train: Train = await _derail_run(30.0, 400.0, 0.5)
+	var w := train.wreck
+	var coach := -1
+	for i in w.bodies.size():
+		if w.bodies[i].kind == &"coach" and w.bodies[i].part == "whole":
+			coach = i
+	check(coach >= 0, "a whole coach in the wreck")
+	if coach < 0:
+		return
+	# Fold the coach 60 degrees against the express car ahead of it.
+	var rb := w.body(coach)
+	var ahead := w.body(coach - 1)
+	check(TrainWreck._fold(rb, ahead) < tuning.jackknife_deg, "not folded yet (%.0f deg)" % TrainWreck._fold(rb, ahead))
+	rb.global_basis = Basis(Vector3.UP, deg_to_rad(60.0)) * rb.global_basis
+	await physics_frames(6)
+	var torn: Array = w.events.filter(func(e: Dictionary) -> bool: return e.what == "coupler torn" and e.get("why", "") == "jackknife")
+	check(not torn.is_empty(), "the jackknifed coupler shears: %s" % [w.events])
+	var broke: Array = w.events.filter(func(e: Dictionary) -> bool: return e.what == "car broken" and e.get("why", "") == "jackknife")
+	check_eq(broke.size(), 2, "both cars at it break up: %s" % [broke])
+	check(w.body(coach) == null, "the coach is in its sections now")

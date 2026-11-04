@@ -923,3 +923,107 @@ func test_his_ball_meets_what_his_gun_hand_is_through() -> void:
 	var b := ballistics.fire(from, Vector3(0, 0, 1), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
 	await wait_until(func() -> bool: return not b.alive, 30)
 	check(not b.hits.is_empty() and (b.hits[0].position as Vector3).z < eye.z + 0.4, "and meets the board (%s)" % str(b.path.slice(0, 3)))
+
+
+## #607: his gun hand through a pane (at a window), his own ball broke it and its glass came back
+## at him ("Lyle's own shot wounded Lyle"). The pane breaks with his hand, its shards go on with his
+## arm, and his ball leaves from the muzzle.
+func test_a_pane_his_gun_hand_is_through_breaks_without_cutting_him() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var eye := brain.senses.eye()
+	var muzzle := eye + Vector3(0, -0.3, 0.6)
+	var ex: Array[RID] = []
+	for sid: StringName in outlaw.parts:
+		ex.append((outlaw.parts[sid] as CollisionObject3D).get_rid())
+	var s := Structure.new()
+	s.structure_id = &"window"
+	s.collapses = false
+	world.add_child(s)
+	var pane := s.add_member("pane", &"glass", &"glass", Vector3(1.0, 1.0, 0.004), eye + Vector3(0, -0.15, 0.3))
+	await physics_frames(2)
+	var cuts := []
+	var on_cut := func(info: Dictionary) -> void:
+		if info.get("person") == outlaw and info.get("kind", &"") == &"cut":
+			cuts.append(info.segment)
+	Events.body_hit.connect(on_cut)
+	var from := brain.shot_origin(muzzle, ex)
+	await physics_frames(3)
+	Events.body_hit.disconnect(on_cut)
+	check(pane.broken, "the pane his hand's through is broken")
+	check(from.is_equal_approx(muzzle), "and his ball leaves from the muzzle (%s)" % str(from - eye))
+	check(cuts.is_empty(), "its glass doesn't cut him: %s" % str(cuts))
+
+
+## #607: a man says one thing at a time ("Lord, get me out of this one.", "He's got me pinned!" and
+## "That all you got?" in one breath); a shout to his friends is always said.
+func test_one_line_at_a_time_but_shouts_get_through() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	brain.say(&"shaken")
+	brain.say(&"taunt")
+	brain.callout(&"shaken", player)
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 2, "the second line isn't said, the shout is: %s" % str(said))
+	await physics_frames(60 * 2)
+	said.clear()
+	Events.spoke.connect(on_spoke)
+	brain.say(&"taunt")
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 1, "a moment on he talks again: %s" % str(said))
+
+
+## #607: the lab's count ran out and they turned on you with "You damn fool!": their own idea,
+## their own words.
+func test_turning_on_you_himself_isnt_being_provoked() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	brain.turn_on(player)
+	await physics_frames(10)
+	Events.spoke.disconnect(on_spoke)
+	check(brain.mood == OutlawBrain.Mood.FIGHTING, "he's fighting")
+	check(not said.is_empty() and said[0] in OutlawBrain.LINES[&"jump"], "and says it's on: %s" % str(said))
+	for p: String in OutlawBrain.LINES[&"provoked"]:
+		check(not said.has(p), "not as if you'd crossed him: %s" % str(said))
+
+
+## #607: "Walk on, mister." as he shot you: just out of a fight, the ladder's words aren't his.
+func test_no_warning_straight_out_of_a_fight() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	brain._fought_at = brain._now
+	Events.spoke.connect(on_spoke)
+	brain._on_rung(Relations.Stance.WARY, Relations.Stance.WARNING)
+	Events.spoke.disconnect(on_spoke)
+	check(said.is_empty(), "no warning: %s" % str(said))
+	brain._fought_at = brain._now - 60.0
+	Events.spoke.connect(on_spoke)
+	brain._on_rung(Relations.Stance.WARY, Relations.Stance.WARNING)
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 1, "long after, he warns as ever: %s" % str(said))
+
+
+## #607: "Can't... get up..." from Brody, who got up: not said by a man who'll be up in a moment.
+func test_knocked_down_unhurt_he_doesnt_say_he_cant_get_up() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	outlaw.go_limp()
+	outlaw.brace()
+	await physics_frames(3)
+	Events.spoke.disconnect(on_spoke)
+	for l: String in OutlawBrain.LINES[&"down"]:
+		check(not said.has(l), "not \"%s\": %s" % [l, str(said)])
