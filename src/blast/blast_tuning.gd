@@ -24,6 +24,17 @@ extends Resource
 @export var plant_reach := 2.2
 @export var plant_time := 0.6
 @export var plant_fuse_seconds := 5.0
+## Bundles (#647, brief docs/briefs/dynamite-bundles.md; all PROPOSED, Sean's calls on #648): with
+## dynamite in hand R ties another stick on, taking `tie_time` s, up to `bundle_max_sticks` (one
+## fuse, one charge of all their kg). A bundle (two sticks or more) planted with E is left unlit
+## (Q aimed at it lights it), and no more than `max_bundles` can be planted and waiting at once.
+@export var bundle_max_sticks := 8
+@export var tie_time := 1.5
+@export var max_bundles := 3
+## How far (m from your eye) a planted bundle can be lit by aiming at it with a match (Q), and how
+## near your eye line it must lie (m).
+@export var light_reach := 2.2
+@export var light_aim := 0.2
 ## How far a burning planted stick's hiss carries (m): men that near on its side of the wall hear
 ## it (Senses, `fuse`: a wall stops it). Sean, issue #537: only really close, so a stick set on a
 ## wall is a surprise to the men inside.

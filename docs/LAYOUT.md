@@ -1390,7 +1390,12 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
   its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
-  OutlawBrain hears; `experiments/plant_dynamite/`). `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  OutlawBrain hears; `experiments/plant_dynamite/`). Bundles (#647, brief `docs/briefs/dynamite-bundles.md`):
+  R ties another stick on (`bundle`, `tie()`); a bundle is a `DynamiteStick` of `sticks` (their kg,
+  `layout`/`radius_of`), thrown shorter, planted unlit (`_light_planted` leaves it), lit by Q aimed at
+  it (`aimed_charge`, `light_planted`); `max_bundles` waiting at once (`at_cap`, `bundles_set`);
+  `DynamiteStick.save_all`/`restore_all` keep them; `BlastTuning` bundle_*/tie_time/light_*; bridge
+  `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 

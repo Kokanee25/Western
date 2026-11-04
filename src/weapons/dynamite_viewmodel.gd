@@ -14,6 +14,12 @@ extends WeaponViewmodel
 ## go (`plant_fuse_seconds`). Let go before it's set and nothing is. Lit, there's no picking it back
 ## up. Aiming at a man (or at nothing in reach), E is the shove and kick as before (PlayerShove asks
 ## `claims_use()`).
+##
+## Bundles (#647, brief docs/briefs/dynamite-bundles.md): R ties another stick onto the one in your
+## hand (`tie_time` each, up to `bundle_max_sticks` and what you carry): one charge of all their kg,
+## one fuse. A bundle is lit, thrown (shorter: it's heavier) or set down like a stick; planted with E
+## it's left unlit (you'll want several set before any goes), at most `max_bundles` waiting at once,
+## and lit by aiming at it within reach and striking a match (Q).
 
 const HIP_POS := Vector3(0.16, -0.2, -0.3)
 const HIP_ROT := Vector3(10.0, -20.0, 60.0)
@@ -24,10 +30,20 @@ const LIGHT_TIME := 0.9
 ## The hand reaching down to the wall's foot as you set it.
 const PLANT_POS := Vector3(0.05, -0.5, -0.4)
 const PLANT_ROT := Vector3(-50.0, 0.0, 90.0)
+## Both hands in front of you, tying another stick on.
+const TIE_POS := Vector3(0.06, -0.24, -0.3)
+const TIE_ROT := Vector3(-10.0, -60.0, 20.0)
 
 signal thrown(stick: DynamiteStick)
 
+## Sticks carried, the bundle in your hand's among them.
 var sticks := 6
+## Sticks tied in the bundle in your hand (1: a lone stick).
+var bundle := 1
+## s spent tying the next stick on (-1 not tying).
+var tying := -1.0
+## The planted bundle the match you're striking is for (null: the one in your hand).
+var lighting_planted: DynamiteStick
 var lit := false
 var fuse_left := 0.0
 ## 0 = not winding up; counts up while fire is held.
@@ -50,6 +66,7 @@ var _match_light: OmniLight3D
 var _hiss: AudioStreamPlayer3D
 var _next_stick := 0.0
 var _bt: BlastTuning
+var _shown_bundle := 1
 
 
 func _ready() -> void:
@@ -114,9 +131,18 @@ func _read_controls(delta: float) -> void:
 		return
 	if Input.is_action_just_pressed(&"holster") and not lit:
 		drawn = not drawn
+	if drawn and _draw >= 0.9 and planting < 0.0 and planted == null and not lit and lighting <= 0.0 \
+			and Input.is_action_just_pressed(&"cock"):
+		# A match to a bundle you set (aimed at, in reach) before the one in your hand.
+		var aimed := aimed_charge()
+		if aimed:
+			light_planted(aimed)
+			return
 	if not drawn or _draw < 0.9 or not has_stick() or planting >= 0.0 or planted != null:
 		windup = 0.0
 		return
+	if Input.is_action_just_pressed(&"reload"):
+		tie()
 	if Input.is_action_just_pressed(&"cock"):
 		strike_match()
 	if Input.is_action_just_pressed(&"aim") and _action_ok(&"aim"):
@@ -150,13 +176,13 @@ func _plant_tick(delta: float) -> void:
 			_light_planted()
 		return
 	var free := _can_act() and drawn and _draw >= 0.9 and has_stick() and not lit and lighting <= 0.0 \
-			and windup <= 0.0 and not hands_busy and not arm_disabled
+			and windup <= 0.0 and tying < 0.0 and not hands_busy and not arm_disabled and not at_cap()
 	if not free or _player == null or _player.camera == null:
 		plant_at = {}
 		planting = -1.0
 		return
 	var cam := _player.camera
-	plant_at = plant_spot(World.space(self), cam.global_position, -cam.global_basis.z, _bt.plant_reach, [_player.get_rid()])
+	plant_at = plant_spot(World.space(self), cam.global_position, -cam.global_basis.z, _bt.plant_reach, [_player.get_rid()], DynamiteStick.radius_of(bundle))
 	if planting >= 0.0:
 		if plant_at.is_empty() or not Input.is_action_pressed(&"shove"):
 			planting = -1.0  # let go too soon, or turned away: nothing set
@@ -177,7 +203,7 @@ func _plant_tick(delta: float) -> void:
 ## fuck up the placement in game that's the player's fault").
 ## {at: the stick's centre, basis: its long axis (Z) along the face, X out of it, wall: the face's
 ## normal, collider: what it's on}.
-static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vector3, reach: float, exclude: Array = []) -> Dictionary:
+static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vector3, reach: float, exclude: Array = [], radius := DynamiteStick.RADIUS) -> Dictionary:
 	if space == null or look.length() < 0.01:
 		return {}
 	var dir := look.normalized()
@@ -204,30 +230,84 @@ static func plant_spot(space: PhysicsDirectSpaceState3D, eye: Vector3, look: Vec
 			if along.length() < 0.05:
 				along = n.cross(Vector3.RIGHT)
 		along = along.normalized()
-	var at: Vector3 = (hit.position as Vector3) + n * (DynamiteStick.RADIUS + 0.003)
+	var at: Vector3 = (hit.position as Vector3) + n * (radius + 0.003)
 	return {"at": at, "basis": Basis(n, along.cross(n), along).orthonormalized(), "wall": n, "collider": c}
 
 
-## Set a stick down at `spot` (`plant_spot()`), unlit: it's lit when E comes up. Returns it.
+## Set a stick (or the bundle) down at `spot` (`plant_spot()`), unlit: a stick's lit when E comes
+## up, a bundle's left waiting. Returns it.
 func plant(spot: Dictionary) -> DynamiteStick:
 	planting = -1.0
-	if spot.is_empty() or sticks <= 0:
+	if spot.is_empty() or sticks <= 0 or (bundle > 1 and at_cap()):
 		return null
-	var s := DynamiteStick.make(_ballistics().get_parent(), spot.at, Vector3.ZERO, _bt.plant_fuse_seconds)
+	var s := DynamiteStick.make(_ballistics().get_parent(), spot.at, Vector3.ZERO, _bt.plant_fuse_seconds, bundle)
 	s.owner_node = _player
 	s.global_basis = spot.basis
 	s.stick_to(spot.collider)
-	sticks -= 1
-	_next_stick = 0.6
+	_used()
 	planted = s
 	return s
 
 
 func _light_planted() -> void:
+	if planted.is_bundle():
+		planted = null  # waits for a match (Q aimed at it)
+		return
 	planted.fuse_left = _bt.plant_fuse_seconds
 	planted.light()
 	_play(&"match")
 	planted = null
+
+
+## As many bundles set and waiting as you may have (`max_bundles`): no more till one's gone off.
+func at_cap() -> bool:
+	return bundle > 1 and is_inside_tree() and DynamiteStick.bundles_set(get_tree()).size() >= _bt.max_bundles
+
+
+## The planted bundle, unlit, you're aiming at within reach (`light_reach`; within `light_aim` of
+## your eye line), nearest first; null with none.
+func aimed_charge() -> DynamiteStick:
+	if _player == null or _player.camera == null or not is_inside_tree():
+		return null
+	var eye := _player.camera.global_position
+	var look := -_player.camera.global_basis.z
+	var best: DynamiteStick = null
+	var best_along := INF
+	for s in DynamiteStick.bundles_set(get_tree()):
+		if s.lit:
+			continue
+		var along := (s.global_position - eye).dot(look)
+		if along < 0.0 or along > _bt.light_reach:
+			continue
+		var off := (s.global_position - (eye + look * along)).length()
+		if off <= _bt.light_aim + DynamiteStick.radius_of(s.sticks) and along < best_along:
+			best = s
+			best_along = along
+	return best
+
+
+## Strike a match and put it to a planted bundle's fuse (it gets `plant_fuse_seconds`).
+func light_planted(s: DynamiteStick) -> void:
+	if s == null or s.lit or lighting > 0.0:
+		return
+	lighting_planted = s
+	lighting = LIGHT_TIME
+	_play(&"match")
+
+
+## Tie another stick onto the one in your hand (takes `tie_time`).
+func tie() -> void:
+	if tying >= 0.0 or lit or lighting > 0.0 or windup > 0.0 or bundle >= mini(_bt.bundle_max_sticks, sticks):
+		return
+	tying = 0.0
+
+
+## The stick or bundle in your hand is gone (thrown, set, gone off): its sticks off what you carry.
+func _used() -> void:
+	sticks = maxi(sticks - bundle, 0)
+	bundle = 1
+	tying = -1.0
+	_next_stick = 0.6
 
 
 func has_stick() -> bool:
@@ -245,9 +325,22 @@ func strike_match() -> void:
 func _tick(delta: float) -> void:
 	if _next_stick > 0.0:
 		_next_stick -= delta
+	if tying >= 0.0:
+		if lit or lighting > 0.0 or windup > 0.0 or planting >= 0.0 or not drawn:
+			tying = -1.0  # put off
+		else:
+			tying += delta
+			if tying >= _bt.tie_time:
+				tying = -1.0
+				bundle = mini(bundle + 1, mini(_bt.bundle_max_sticks, sticks))
 	if lighting > 0.0:
 		lighting -= delta
-		if lighting <= 0.0:
+		if lighting <= 0.0 and lighting_planted != null:
+			if is_instance_valid(lighting_planted) and not lighting_planted.lit:
+				lighting_planted.fuse_left = _bt.plant_fuse_seconds
+				lighting_planted.light()
+			lighting_planted = null
+		elif lighting <= 0.0:
 			lit = true
 			fuse_left = _bt.fuse_seconds
 			if is_inside_tree():
@@ -262,7 +355,8 @@ func _tick(delta: float) -> void:
 func throw() -> DynamiteStick:
 	var k := clampf(windup / _bt.throw_windup, 0.0, 1.0)
 	windup = 0.0
-	var speed := lerpf(_bt.throw_speed_min, _bt.throw_speed_max, k)
+	# A bundle's heavier: thrown shorter (as the square root of its weight, the arm's work the same).
+	var speed := lerpf(_bt.throw_speed_min, _bt.throw_speed_max, k) * clampf(1.0 / sqrt(float(bundle)), 0.4, 1.0)
 	var cam := get_parent() as Node3D
 	var fwd := -cam.global_transform.basis.z if cam else -global_transform.basis.z
 	var v := fwd * speed + Vector3.UP * _bt.throw_lift
@@ -292,7 +386,7 @@ func _release(velocity: Vector3) -> DynamiteStick:
 		q.exclude = [_player.get_rid()]
 		var hit := World.space(self).intersect_ray(q)
 		at = want if hit.is_empty() else hit.position + (from - hit.position).normalized() * 0.05
-	var s := DynamiteStick.make(world, at, velocity, fuse_left if lit else _bt.fuse_seconds)
+	var s := DynamiteStick.make(world, at, velocity, fuse_left if lit else _bt.fuse_seconds, bundle)
 	s.owner_node = _player
 	s.global_basis = global_basis
 	s.angular_velocity = Vector3(_rng.randf_range(-6, 6), _rng.randf_range(-3, 3), _rng.randf_range(-6, 6))
@@ -301,8 +395,7 @@ func _release(velocity: Vector3) -> DynamiteStick:
 	lit = false
 	lighting = 0.0
 	_hiss.stop()
-	sticks -= 1
-	_next_stick = 0.6
+	_used()
 	thrown.emit(s)
 	return s
 
@@ -311,11 +404,11 @@ func _release(velocity: Vector3) -> DynamiteStick:
 func _goes_off_in_hand() -> void:
 	lit = false
 	_hiss.stop()
-	sticks -= 1
-	_next_stick = 0.6
+	var kg := _bt.tnt_per_stick * bundle
+	_used()
 	var world := _ballistics().get_parent() as Node3D
 	var at := stick_node.global_position
-	_in_tick(func() -> void: Blast.detonate(world, at, _bt.tnt_per_stick, _player))  # (the fuse burns in _process)
+	_in_tick(func() -> void: Blast.detonate(world, at, kg, _player))  # (the fuse burns in _process)
 
 
 func put_away() -> void:
@@ -336,14 +429,28 @@ func _animate(delta: float) -> void:
 	var winding := clampf(windup / _bt.throw_windup, 0.0, 1.0)
 	var k := 1.0 - exp(-delta * 12.0)
 	var setting := clampf(planting / maxf(_bt.plant_time, 0.01), 0.0, 1.0) if planting >= 0.0 else (1.0 if planted != null else 0.0)
-	_pose_pos = _pose_pos.lerp(HIP_POS.lerp(WINDUP_POS, winding).lerp(PLANT_POS, setting), k)
-	_pose_rot = _pose_rot.lerp(HIP_ROT.lerp(WINDUP_ROT, winding).lerp(PLANT_ROT, setting), k)
+	var tie_k := sin(clampf(tying / maxf(_bt.tie_time, 0.01), 0.0, 1.0) * PI) if tying >= 0.0 else 0.0
+	_pose_pos = _pose_pos.lerp(HIP_POS.lerp(WINDUP_POS, winding).lerp(PLANT_POS, setting).lerp(TIE_POS, tie_k), k)
+	_pose_rot = _pose_rot.lerp(HIP_ROT.lerp(WINDUP_ROT, winding).lerp(PLANT_ROT, setting).lerp(TIE_ROT, tie_k), k)
+	if bundle != _shown_bundle:
+		_show_bundle(bundle)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * 10.0))
 	_apply_pose(_draw)
 	match_node.visible = lighting > 0.0
 	_match_light.light_energy = 1.2 if lighting > 0.0 and lighting < LIGHT_TIME - 0.12 else 0.0
 	DynamiteStick.show_fuse(_fuse, _sparks, fuse_left if lit else _bt.fuse_seconds, _bt.fuse_seconds, lit and stick_node.visible)
 	_animate_camera(delta, _base_fov)
+
+
+## The stick in your hand drawn as a bundle of `n`.
+func _show_bundle(n: int) -> void:
+	_shown_bundle = n
+	for c in stick_node.get_children():
+		stick_node.remove_child(c)
+		c.queue_free()
+	var parts := DynamiteStick.build_model(stick_node, 0.15, n)
+	_fuse = parts.fuse
+	_sparks = parts.sparks
 
 
 func _apply_pose(drawn_amount: float) -> void:

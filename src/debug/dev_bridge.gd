@@ -35,7 +35,7 @@ const HELP := {
 	"spawn": "spawn outlaw|townsman X Y Z [YAW] -> a person there",
 	"gang": "gang -> the three riders come in from the west on their day",
 	"fight": "fight [NAME] -> the gang (or one man) turn on you, as if you'd shot at them",
-	"dynamite": "dynamite X Y Z [FUSE] -> a lit stick there",
+	"dynamite": "dynamite X Y Z [FUSE] [STICKS] -> a lit stick there (a bundle of STICKS)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
@@ -709,10 +709,10 @@ func _cmd_fight(a: Array) -> Dictionary:
 
 func _cmd_dynamite(a: Array) -> Dictionary:
 	if a.size() < 3:
-		return {"ok": false, "error": "dynamite X Y Z [FUSE]"}
-	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0)
+		return {"ok": false, "error": "dynamite X Y Z [FUSE] [STICKS]"}
+	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0, int(a[4]) if a.size() > 4 else 1)
 	s.light()
-	return {"fuse": snappedf(s.fuse_left, 0.1)}
+	return {"fuse": snappedf(s.fuse_left, 0.1), "sticks": s.sticks, "kg": snappedf(s.kg, 0.01)}
 
 
 func _cmd_smoke(a: Array) -> Dictionary:

@@ -24,27 +24,31 @@ on. Tested on Main Street first, then on the trestle.
 
 ## What a bundle does (measured 2026-11-04, main's 66 m viaduct)
 
-A probe (one bundle a bent, the bottom story's two inner posts, 1.2 m apart, faces 0.9 m apart;
-the blast's own rules):
+Probes on the bottom story's posts (12x12 in; the two inner ones 1.2 m apart, faces 0.9 m apart),
+by the blast's own rules (`tests/test_dynamite_bundles.gd` holds the last table):
 
 | Where | Sticks | Cut |
 |---|---|---|
 | midway between the two inner posts (0.45 m off each face) | 2, 3, 4, 5, 6, 8 | **neither** |
-| on one inner post's inner face | 3, 4, 6, 8 | **that post only** |
-| on a post's outer face | 1 | none |
-| on a post's outer face | 2 | that post |
+| centre 6 cm off one inner post's inner face | 3, 4, 6, 8 | **that post only** |
+| centre 5 cm off a post's face (the trestle lab's spot) | 1 / 2 | stands / cut |
+| **touching a post, as E plants it** (any face, 0.3, 0.6 or 1.2 m up) | **1** | **cut, 12 of 12** |
 
-So **a bundle takes the post it's on, and no more**, however big. That's how timber cutting
-works: the US Army's timber-cutting rules (FM 5-25, *Explosives and Demolitions*, 1967; FM 5-250
-later) are for charges **in contact** (external, P = D²/40 lb of TNT, D the least dimension in
-inches; internal, in bored holes, D²/250); a charge off the face does far less.
+So **a charge takes the post it's on, and no more**, however big; and **one stick planted on a
+post cuts it**. The trestle lab's "one doesn't, two do" (#638) was 5 cm off the face: the cut
+falls away that fast with the gap. That locality is how timber cutting works: the US Army's
+timber-cutting rules (FM 5-25, *Explosives and Demolitions*, 1967; FM 5-250 later) are for charges
+**in contact** (external, P = D²/40 lb of TNT, D the least dimension in inches; internal, in bored
+holes, D²/250); a charge off the face does far less.
 
-**But our posts cut easily by that rule:** for a 12 in post the external rule is 3.6 lb, ~1.6 kg
-of TNT, **eight sticks**; our blast cuts it with two (0.4 kg). The manual's figure is written to
-make sure of the cut every time, so the real least is lower, but by its numbers the game's timber
-gives way about four times too easily. (Sean's call 4 on #638 asks the same: keep, or tougher.)
-Making timber tougher changes every wall in town too (a stick's crawl hole, three a doorway), so
-it's proposed as its own call, not done here.
+**But our posts cut far too easily by that rule:** for a 12 in post the external rule is 3.6 lb,
+~1.6 kg of TNT, **eight sticks**; our blast cuts it with **one** in contact (0.2 kg). The manual's
+figure is written to make sure of the cut every time, so the real least is lower, but by its
+numbers the game's timber gives way several times too easily. **With timber as it is, bundles
+aren't needed on the trestle at all** (three single sticks and the engine bring a bent down), so
+the timber call decides what a bundle is for. Making timber tougher changes every wall in town
+too (a stick's crawl hole, three a doorway: Sean's feel calls), so it's its own call (#638's call 4
+asks the same), measured in the breakage lab, not done here.
 
 What that means for 2-3 bundles on the trestle (from the trestle lab's round 1, #638):
 
@@ -56,9 +60,10 @@ What that means for 2-3 bundles on the trestle (from the trestle lab's round 1, 
 - Bringing a bent down with no train on it takes every bottom post (8 on the tallest): more than
   the cap. The cap makes the train the finisher; that's the moment.
 
-Bigger bundles still matter: more margin when it's set badly (higher on the post, on an edge,
-on a sill), a bigger hole in a wall (three sticks a doorway, `test_dynamite`), a bigger crater,
-and men further off thrown (3b).
+With today's timber a bundle only buys margin (set a few cm off, on an edge or a sill), a bigger
+hole in a wall (three sticks a doorway, `test_dynamite`), a bigger crater and men thrown further
+(3b). **If posts are made as tough as the manual says, a 12x12 needs a bundle of ~8**: one bundle
+a post, three posts the cap, which is the game Sean described.
 
 ## Proposed (for Sean)
 
@@ -66,7 +71,7 @@ and men further off thrown (3b).
    wrap of cord; the bundle in your hand grows 1, 2, 3, ...), up to `bundle_max_sticks`. A bundle
    is then lit, thrown (shorter: it's heavier), set down or planted (E held) like a stick. Untying
    isn't needed. Proposed: **up to 8 sticks** (the Army's charge for a 12 in post, if timber is
-   made tougher); with today's timber **4 is plenty** (twice what cuts a post).
+   made tougher); with today's timber one stick on a post is enough.
 2. **The cap:** 3 bundles armed at once (`max_bundles`; wired to the machine, or with matched
    fuses running). A count of bundles, not sticks: a bundle is one charge to place and fire.
 3. **How many you carry:** today 6 sticks. Three bundles of four is 12. Proposed: `sticks_carried`
@@ -108,4 +113,6 @@ rope (the wire is drawn, not simulated), buying dynamite.
 
 ## Log
 
-- 2026-11-04: brief; the probe above (a bundle takes the post it's on). Questions to Sean.
+- 2026-11-04: brief; the probes above (a charge takes the post it's on; one stick in contact cuts
+  a 12x12). Questions to Sean (#648). Built: the bundle (tied with R, its kg, the model), planted
+  unlit and lit with a match aimed at it, the cap, the save; the firing waits for #648.
