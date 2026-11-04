@@ -12,6 +12,7 @@ extends Node
 func _ready() -> void:
 	get_tree().auto_accept_quit = false  # the window's close quits through GameQuit (#435)
 	SynthSounds.warm_all()  # every sound made ahead on a worker, so the first shot doesn't freeze
+	BlastSounds.warm()  # the dynamite's recordings loaded on a worker too (#596)
 	screen.texture = game_viewport.get_texture()
 	screen.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	screen.stretch_mode = TextureRect.STRETCH_SCALE
@@ -46,6 +47,9 @@ func _ready() -> void:
 	var looks := LightLooks.new()  # 8: the light pass's looks, today / A / B / C
 	looks.name = "LightLooks"
 	add_child(looks)
+	var room := RoomLight.new()  # indoor light that knows the building (Settings.room_light; off)
+	room.name = "RoomLight"
+	add_child(room)
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

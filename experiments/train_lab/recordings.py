@@ -6,6 +6,9 @@ Commons, every cut, in recordings.json beside this script; the game's files in a
     python3 -I experiments/train_lab/recordings.py onsets KEY [FROM TO]   # beats found in a source
     python3 -I experiments/train_lab/recordings.py cut [ID ...]  # assets/audio/train/<id>.wav
     python3 -I experiments/train_lab/recordings.py credits       # CREDITS.md lines for the sources
+    ... --manifest=PATH   another manifest (the dynamite's: experiments/sound_lab/blast_recordings.json,
+                          #596): its "src_dir", "out" and "report" in place of the train's, a source's
+                          "file" in place of its url's name
 
 Every file is mono 16-bit at 44.1 kHz, as TrainSynth's (src/audio/train_synth.gd) and with its
 rules (tests/test_train_sound.gd): a one-shot starts with LEAD (50 ms) of silence, then its onset;
@@ -34,6 +37,7 @@ MANIFEST = os.path.join(HERE, "recordings.json")
 SRC = os.path.join(ROOT, "build", "train_rec", "src")
 SYNTH = os.path.join(ROOT, "build", "train_rec", "synth")
 OUT = os.path.join(ROOT, "assets", "audio", "train")
+REPORT = os.path.join(ROOT, "build", "train_rec", "cuts.json")
 RATE = 44100
 LEAD = 0.05
 UA = "SaltCreekGame/0.1 (https://github.com/Kokanee25/western; sound research)"
@@ -64,8 +68,21 @@ def manifest():
     return json.load(open(MANIFEST))
 
 
+def _use_manifest(path):
+    """Point the cutter at another manifest: its own sources, output folder and report."""
+    global MANIFEST, SRC, OUT, REPORT
+    MANIFEST = os.path.abspath(path)
+    m = manifest()
+    SRC = os.path.join(ROOT, m.get("src_dir", os.path.relpath(SRC, ROOT)))
+    OUT = os.path.join(ROOT, m.get("out", os.path.relpath(OUT, ROOT)))
+    REPORT = os.path.join(ROOT, m.get("report", os.path.relpath(REPORT, ROOT)))
+
+
 def src_path(key, m):
-    ext = os.path.splitext(urllib.parse.urlparse(m["sources"][key]["url"]).path)[1].lower()
+    s = m["sources"][key]
+    if s.get("file"):
+        return os.path.join(SRC, s["file"])
+    ext = os.path.splitext(urllib.parse.urlparse(s["url"]).path)[1].lower()
     return os.path.join(SRC, key + ext)
 
 
@@ -295,8 +312,10 @@ def cut(only):
         if not is_loop:
             s = np.concatenate([np.zeros(int(RATE * LEAD)), s])
             s[int(RATE * LEAD)] = s[int(RATE * LEAD)] or 1e-4
-        write_wav(os.path.join(OUT, c["id"] + ".wav"), s)
-        imp = os.path.join(OUT, c["id"] + ".wav.import")
+        dest = os.path.join(OUT, c["id"] + ".wav")
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        write_wav(dest, s)
+        imp = dest + ".import"
         if not os.path.exists(imp):  # PCM, as it is: Godot's default squeezes it (QOA)
             open(imp, "w").write(IMPORT)
         report[c["id"]] = {"s": round(len(s) / RATE, 3), "rms_db": round(20 * np.log10(rms_loud(s) + 1e-9), 1),
@@ -306,7 +325,8 @@ def cut(only):
             c["id"], report[c["id"]]["s"], report[c["id"]]["rms_db"], report[c["id"]]["synth_rms_db"],
             report[c["id"]]["peak_db"]))
     if not only:
-        json.dump(report, open(os.path.join(ROOT, "build", "train_rec", "cuts.json"), "w"), indent=1)
+        os.makedirs(os.path.dirname(REPORT), exist_ok=True)
+        json.dump(report, open(REPORT, "w"), indent=1)
 
 
 def credits():
@@ -318,6 +338,9 @@ def credits():
 
 
 if __name__ == "__main__":
+    for a in [a for a in sys.argv[1:] if a.startswith("--manifest=")]:
+        _use_manifest(a.split("=", 1)[1])
+        sys.argv.remove(a)
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "fetch":
         fetch(sys.argv[2] if len(sys.argv) > 2 else None)

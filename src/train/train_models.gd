@@ -166,6 +166,13 @@ static func dress(mi: MeshInstance3D, paint: Material = null) -> void:
 ## Parts gathered a material each, then drawn as one mesh a material.
 class Build:
 	var mid := 0.0
+	## Only what's in here is built (u from the car's front, y up): a section of a broken car
+	## (step 5, TrainWreck). Everything's still drawn for (the dice), so a section is the car's own.
+	var keep_u := Vector2(-INF, INF)
+	var keep_y := Vector2(-INF, INF)
+
+	func _kept(u: float, y: float) -> bool:
+		return u >= keep_u.x and u < keep_u.y and y >= keep_y.x and y < keep_y.y
 	var tools := {}  # key -> SurfaceTool
 	var mats := {}  # key -> Material
 	var rng := RandomNumberGenerator.new()
@@ -189,6 +196,8 @@ class Build:
 		var variant := v if v >= 0 else rng.randi_range(0, 7)
 		var n := WoodMaterials.strip_count(wood)
 		variant = posmod(variant, mini(n, 2)) if n > 0 else posmod(variant, 2)  # two a wood: draws
+		if not _kept((u0 + u1) * 0.5, (y0 + y1) * 0.5):
+			return
 		var mat := WoodMaterials.get_material(wood, variant)
 		var size := Vector3(absf(x1 - x0), absf(y1 - y0), absf(u1 - u0))
 		var at := Vector3((x0 + x1) * 0.5, (y0 + y1) * 0.5, z((u0 + u1) * 0.5))
@@ -197,6 +206,8 @@ class Build:
 	## A box of a mapped-in-its-own-space material (iron, paint, ore).
 	func block(key: String, mat: Material, u0: float, u1: float, x0: float, x1: float, y0: float, y1: float,
 			basis := Basis.IDENTITY) -> void:
+		if not _kept((u0 + u1) * 0.5, (y0 + y1) * 0.5):
+			return
 		if _box == null:
 			_box = BoxMesh.new()
 		var size := Vector3(absf(x1 - x0), absf(y1 - y0), absf(u1 - u0))
@@ -205,6 +216,9 @@ class Build:
 
 	## A round bar from a to b (game points in the car's frame), radius r.
 	func rod(key: String, mat: Material, a: Vector3, b: Vector3, r: float, sides := 8) -> void:
+		var centre := (a + b) * 0.5
+		if not _kept(centre.z + mid, centre.y):
+			return
 		if not _cyls.has(sides):
 			var c := CylinderMesh.new()
 			c.radial_segments = sides
@@ -232,8 +246,14 @@ class Build:
 		return root
 
 
+## A section of a car of boards (a broken car's: TrainWreck), what lies u0..u1 behind its front
+## and y0..y1 up, built as the whole car is.
+static func car_section(of: Dictionary, t: TrainTuning, u0: float, u1: float, y0 := -INF, y1 := INF) -> Node3D:
+	return TrainModels.car(of, t, Vector2(u0, u1), Vector2(y0, y1))
+
+
 ## The model of car `car` (TrainSim.cars[i]).
-static func car(car: Dictionary, t: TrainTuning) -> Node3D:
+static func car(car: Dictionary, t: TrainTuning, keep_u := Vector2(-INF, INF), keep_y := Vector2(-INF, INF)) -> Node3D:
 	var kind: StringName = car.kind
 	if kind == &"engine":
 		var e := EngineModel.new()
@@ -246,6 +266,8 @@ static func car(car: Dictionary, t: TrainTuning) -> Node3D:
 			dress(mi as MeshInstance3D, painted("tender"))
 		return root
 	var b := Build.new()
+	b.keep_u = keep_u
+	b.keep_y = keep_y
 	var tr: Vector2 = car.trucks
 	b.mid = (tr.x + tr.y) * 0.5
 	b.rng.seed = hash(String(car.name))
@@ -258,7 +280,7 @@ static func car(car: Dictionary, t: TrainTuning) -> Node3D:
 		&"express": _shell(b, l, w, &"painted_green", false)
 		&"coach": _shell(b, l, w, &"dark_oak", true)
 	var m := b.done("Model")
-	if kind == &"coach":
+	if kind == &"coach" and keep_u.x == -INF and keep_y.x == -INF:
 		_coach_lamps(m, b, l)
 	return m
 

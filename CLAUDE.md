@@ -57,6 +57,11 @@ the history in `docs/status/`.
   of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
   running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
   status logs merge by union (`.gitattributes`), so two sessions' entries both land.
+- **CI builds PRs, not branch pushes** (Sean, #504: Actions minutes): run the tests locally
+  before every push. A plain push to your branch builds nothing; opening the PR builds it, and
+  so does every push to it after. Need CI before the PR? Put `[build]` in the commit message.
+  Merge on the PR's own "Test and build" run (the `pull_request` one) being green. Tour, visual
+  checks and soak run once a night, only if main changed.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your
@@ -423,6 +428,20 @@ frozen until Sean names one.
 - **The dusk stall** (#491, branch `claude/art-dusk-stall`): the light blend's lamps and buildings found by
   their groups, the grade steps built at the pick: ~500 ms here every ~2.4 s at dusk -> ~3 ms
   (`tools/dusk_frame.gd`); the look unchanged. Gameplay's dusk frames left: `civilian_brain`/`fire_route`.
+- **The cheap judge** (#609, branch `claude/art-cheap-judge`): `critic.py cheap` (rubric
+  `docs/concept/judge/CHEAP.md`, self-test `cheap-probes`, LAYOUT "src/render"); its verdict goes in
+  every art status entry and #608's before/after. Baseline `2026-11-03_cheap_r1`: saloon views cheap
+  indie, street noon/golden and the film good indie. Waiting on Sean: does it agree with his eye (#612).
+  **`--refs=DIR`** (#613, PR #614): 32 official AAA screenshots (RDR2, KCD2, Hunt 1896, Dishonored 2)
+  in the private Studio's `references/` (its PR #10, `refs.yml` fetches on GitHub) as the scale's top,
+  read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
+  `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
+  painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
+- **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
+  lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
+  **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
+  `experiments/light_lab/results/2026-11-03_r1/`). Waiting on Sean: turn it on? Part 2 (the street
+  by day) after his word.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
@@ -655,9 +674,15 @@ frozen until Sean names one.
   gate shut with the empties next; `RevolverState.line_up`), a held reload no longer reopens the
   gate; bridge `walk X Z` routes by the places (`route_to_point`) and steps aside when caught;
   "Drop it!" reaches men mid-fight (in `events` now); `gf_result`/`read all` agree. Second blind
-  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's). Next: #595 (the
-  Kid's rescue loop, your gun lost without a word, dead then up, whether their shots pass what
-  stops yours); D+'s difficulty is Sean's (#349).
+  playtest `docs/playtests/2026-11-03-gunfight-d-plus-2.md`: lost 10 of 10 (#349's).
+  **The second playtest's bugs** (#595, PR #603, `results/2026-11-03_d_plus_bugs/`): the gang's ball
+  starts where his eye's line meets what his gun hand is through (`OutlawBrain.shot_origin`; on main
+  16% of their shots left from past a board or pane); a rescue he can't make isn't repeated
+  (`_unreachable`); the gun you can't hold says why (`Physiology.why_cant_hold`); the lab holds you
+  as you fell (`PlayerWounds.stays_down`); bridge `look NAME [PART]` (`in_the_way`, `clear_to`), a
+  run stops where sent. Third blind playtest `docs/playtests/2026-11-03-gunfight-d-plus-3.md`: won
+  1 of 10. Next: #607 (what you're told when hit, hands through walls, words that don't fit); D+'s
+  difficulty is Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
@@ -682,12 +707,24 @@ frozen until Sean names one.
   the train's own cars. **Train sound 2** (#586, `results/2026-11-03_sound2/`): 18 of 20 sounds
   real recordings (`assets/audio/train/`, cut by `experiments/train_lab/recordings.py`; Commons
   CC0/CC BY, `CREDITS.md`; Wikimedia refuses downloads here, Sean uploads them), the brakes still
-  synthesised, `-- --train-synth` the before. Waiting on Sean's ears (the film); step 5 waits on #492/#538.
-- **The dynamite's sound** (#596 step 1, branch `claude/gameplay-dynamite-sound`): `BlastSounds`
-  (recorded sets of layers, `assets/audio/blast/sets.json`; none yet, so the synthesised blast
-  plays), `tools/sounds/fetch.py` + `sounds.yml` (Freesound CC0 through its API, to the branch
-  `claude/gameplay-dynamite-sound-pool`), the lab's `blast_clips.py`. Waiting on Sean: a Freesound
-  API key (#599); Sonniss can't go in the public repo. Handover on #596.
+  synthesised, `-- --train-synth` the before. Waiting on Sean's ears (the film).
+  **Step 5, breakable track and derails** (#616, branch `claude/issue-616-6y7qmm`;
+  `results/2026-11-03_step5/`): ties and iron rails as members (`TrackChunk`, at rest: idle cost
+  within noise), `TrackState` (broken/bent/blocked by route section, saved), solid wheels (a man
+  run over), the engineer's and fireman's lookout (`TrainLookout`), the hand-off to rigid bodies
+  (`TrainWreck`), the wreck saved by route place, the crew (`TrackRepair`). 18 runs: by day he
+  stops short on the straight at every speed, at night 40 km/h derails; the left bend is the
+  fireman's; every derail inside #492's gate (worst 44 ms at Sean's, once seven men going limp on
+  one tick made 140). Waiting on Sean: the dials and films (its issue).
+- **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
+  (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
+  Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
+  --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
+  `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
+  (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
+- **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
+  and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
+  No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,

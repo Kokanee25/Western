@@ -57,8 +57,9 @@ the Vulkan renderer so screenshots work (`--size=960x540`, `--headless` for no d
 for a fixed step, `--movie=OUT.avi` records it all with sound through Godot's Movie Maker, 30 fps on game
 time; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
 file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
-(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON|PLACE`,
-`turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round buildings to a place), `press
+(a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
+person: `in_the_way`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
+buildings to a place; lets go in time to stop there, answers once stopped), `press
 ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
@@ -110,7 +111,8 @@ Start it with the Agent tool: "read tools/playtest.md and follow it; don't read 
 **The tour video** (`tools/tour.gd`, `.github/workflows/tour.yml`, `tools/tour_page.py`): a fixed
 30-second camera path (the street at golden hour from the east end, past the store's side of the
 street, into the saloon, the card table, the bar while night falls, out of the door at night),
-`PATH` in the script. `tour.yml` runs after every green build on main (and by hand): Movie Maker
+`PATH` in the script. `tour.yml` runs once a day at 05:11 UTC (and by hand) on the latest green
+build on main, unless that build's video is already kept (#504; it ran after every build): Movie Maker
 under xvfb and lavapipe (`--render=854x480 --light`: 3D at 854x480 scaled to 1280x720, no
 volumetric haze or SSAO; ~15 minutes of rendering on a 4-core runner), ffmpeg (from frame 3, CRF
 30, ~10 MB), the video kept on the `tour` release as `build-<N>.mp4`, and Pages redeployed with
@@ -152,8 +154,8 @@ F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
 
 ## The soak
 
-**The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC and by
-hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
+**The soak** (`tools/soak.gd`, `.github/workflows/nightly.yml`, every night at 09:17 UTC if main
+changed since the last soak, and by hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
 runs the street for hours of game time flat out (~3.4x real time here) with the clock at 30x: the
 gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a fire and a stick
 twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
@@ -191,12 +193,14 @@ member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` a
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
-Windows, macOS, all headless), and only then `release` (the GitHub Release) and `pages`.
+Windows headless), and only then `release` (the GitHub Release) and `pages`. No macOS build since
+2026-11-03 (Sean tests only on Windows; a macOS runner bills 10x): the `native-build` action and
+the export preset still know it.
 
 ## The visual checks in CI
 
-**The visual checks in CI** (`.github/workflows/visual.yml`, every night at 06:43 UTC and by
-hand): every fixed view rendered twice under xvfb and lavapipe on two runners at once (~1–2 h
+**The visual checks in CI** (`.github/workflows/visual.yml`, every night at 06:43 UTC if main
+changed since the last check, and by hand): every fixed view rendered twice under xvfb and lavapipe on two runners at once (~1–2 h
 each), then `tools/scene_probe.gd`, `tools/golden_check.py --from=A` and `tools/visual_checks.py
 --from=A --twin=B --probe=P` (the art session's tools, layout notes above). Red on any failure;
 the run's summary lists what failed and the artifact `visual-report` holds golden | render |
@@ -407,6 +411,20 @@ environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the 
 carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
 by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
 back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
+
+**Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
+dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
+`experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
+main adds the node. On: each lit `OilLamp` in a `FalseFrontBuilding` casts three rays (down, up, the
+nearest wall) and a shadowless spot under 90 degrees faces into the room from each surface (the
+patch's share of the lamp x its wood's sRGB lightness x `bounce_gain`, tinted by the wood's texture
+averaged once), merged and capped per room, following the flicker; lamps looked at every 0.2 s
+(moved, out, smashed: re-cast). The interior probe at night dark amber at `ambient_scale` x the
+share of its lamps lit (DayCycle multiplies the probe's `room_light_scale` meta). Openings: the door
+and front windows and holes found from `Events.member_broken` (`RoomLight.wall_patch`, then a ray
+grid through that patch, again after `hole_settle`) each a spot of moon or sky (MoonWindows stands
+down while it's on). `Events.shot_fired`/`exploded` inside thicken `RoomHaze` (`haze_*`). Off takes
+it all away and puts the probe and haze back.
 
 ## The look panel
 
@@ -1154,8 +1172,14 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   overrides it. `GameAudio._blast_recorded` places each layer (the crack full only close, the sub
   furthest; boards, glass and a groan only with a building near). Recordings are Freesound CC0 only,
   fetched on Actions by `tools/sounds/fetch.py` (`.github/workflows/sounds.yml`, the repo secret
-  `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`).
+  `FREESOUND_API_KEY`; what it fetched goes to the branch `claude/gameplay-dynamite-sound-pool`, encrypted to
+  `tools/sounds/pool_key.pub` by `tools/sounds/pool_key.sh`: Freesound's API terms allow
+  intermediate copies only and no publishing of its content outside the game; deleted once the sets
+  are chosen).
   Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
+  The sets (2026-11-03): three, from eight Freesound CC0 recordings Sean downloaded (#599), cut by
+  `experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json` into
+  `assets/audio/blast/s1..s3/` (crack, boom, sub, roll; no debris, glass or groan yet).
 
 ## src/creatures (the horse)
 
@@ -1268,6 +1292,21 @@ SynthSounds makes `train_*`, loops seamless, `SynthSounds.warm(TrainSynth.WARM)`
 train is heard. Prof timer
 `train_sound`. The lab: `train_whistle`, `train_bell`, `train_valve`, `train_sound`,
 `train_caption`, `train_cam side S OFF`; the cab's H (whistle) and B (bell).
+
+Step 5 (#616): the track breaks. `TrackLine.chunks` are `TrackChunk`s (a `Structure` a ~100 m of
+whole rails; member kinds `tie`, tier 0, and `rail`, tier 1, in `StructureMember.TIERS`; links set
+from the line, not searched: `infer_supports`; a rail tears loose whole or bends, never snaps:
+`break_members`/`tear_loose`/`bend`, `Blast.rail_share`; ties left out of `Blast._bedded`),
+`TrackLine.state` a `TrackState` (broken / bent / blocked stretches keyed by the route's section id
+and distance: `TrainRoute.sections`, `TrackLine.sections`, `key_of`, `s_of`; `scan` for blocks;
+`to_dict`/`from_dict`), `TrackLine.repair` a `TrackRepair` (the crew: `repair_delay_h`, clears,
+relays chunks, `mended`). `Train`: solid wheels (`TrainCars.axles`) and `_run_over`, `lookout` (a
+`TrainLookout`: `Sight.see` from the cab, `SightLight` light and the headlight, a seeded reaction;
+`TrainEngineer.lookout` brakes on its alarm), `_check_rails`/`leave_rails`/`derailed` (numeric
+off screen: `physical`, `TrainSim.plough`), `wreck` a `TrainWreck` (cars as rigid bodies, coupler
+joints, riders thrown by their car's jolt, cars broken into sections by `TrainModels.car_section`;
+`to_dict`/`restore`). Prof timer `train` includes the lookout (`cost.lookout_us`). The lab:
+`train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`; `derail_runs.py`.
 
 ## src/weapons
 
@@ -1424,6 +1463,22 @@ train is heard. Prof timer
   `<round>/critic/critic.md`: the five biggest differences a viewer would notice, biggest
   first, with crops; `critic.py top <round>` prints the top three for the status entry. The
   judge measures style; the critic says what a person sees; both choose what's next.
+  **The cheap judge** (`critic.py cheap`, #609, rubric `docs/concept/judge/CHEAP.md`): "does this
+  look like a cheap indie or AI-made game, and why?" `cheap OUT VIEW... --from=DIR [--film=DIR]`
+  lays the renders (and a film strip of a folder's frames) out as a, b, c... with the concept
+  targets and prints a fresh Agent's prompt; it writes `OUT/cheap.md` (ten tells PASS/FAIL/N/A with
+  crops via `critic.py cut`, a verdict AI slop / cheap indie / good indie / AA / AAA-feeling, the
+  five biggest reasons with cause and cheapest fix). `OUT/numbers.md` (deep shadow, L* spread, black
+  floor, contrast and chroma far/near, texture repeat) is not shown to the agent. `cheap-log OUT`
+  adds a verdict line per view to `history.md`. Self-test: `cheap-probes OUT` (four renders of the
+  street shot in `cheap_probes/`, ranked in `ranking.json`) then `cheap-probes OUT --check`;
+  `cheap-probes --numbers` checks the measures alone (`cheap_probes/README.md`: the numbers and the
+  probes, kept out of the rubric the agent reads). Every art status entry carries its verdicts.
+  `--refs=DIR` (on `cheap` and `cheap-probes`, #613): official AAA screenshots (RDR2, KCD2, Hunt
+  1896, Dishonored 2) from the private Studio's `references/` (its `manifest.yaml`: scene, game, what
+  to look at) listed beside the targets as what "AA" / "AAA-feeling" look like; read in place, never
+  copied into OUT (`refs.txt` names them), refused if DIR is inside this checkout. `--film` also takes
+  a strip already made (a round's `f.png`). Without `--refs` the prompt is unchanged.
   **Golden images** (`tools/golden_check.py`, the rule in How we work): every view in
   `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
   `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
@@ -1997,7 +2052,17 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
 
 ## CI
 
-- CI: every push runs tests; pushes to `main` export Windows/Mac/Linux to a Release (notes from
-  `docs/BUILD_NOTES.md` — update it each milestone) and the web build to GitHub Pages.
+- CI (`build.yml`, since #504): every push to `main`, every pull request (opened and each push
+  to it) and a branch push whose last commit message says `[build]` run the tests and the native
+  plugin; any other branch push gets a run with every job skipped (no minutes). Pushes to `main`
+  also export Windows/Mac/Linux to a Release (notes from `docs/BUILD_NOTES.md` — update it each
+  milestone) and the web build to GitHub Pages. A `[build]` push and its open PR share a
+  concurrency group, so only one of them builds. Trap: `[build]` anywhere in the last commit's
+  message counts, its body too (so a message that only mentions it builds).
+- The nightlies (tour 05:11, visual 06:43, soak 09:17 UTC) each start with a one-minute `pick` or
+  `changed` job and skip when main hasn't changed since their last finished run (the tour: when
+  the latest green build's video is already on the `tour` release). A skipped night shows green
+  with "unchanged" in its summary; the last real result is the run before it. By hand they always
+  run.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.

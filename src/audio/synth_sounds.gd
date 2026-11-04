@@ -44,6 +44,12 @@ static func warm_all() -> void:
 				_lock.unlock(), true, "SynthSounds.warm_all")  # high priority: a low one can hang the quit (#392, #435)
 
 
+## Another warm-up's pool task (BlastSounds' recordings), so `warming` and `finish_warm` (and so
+## GameQuit) wait for it as for this one's.
+static func track(task: int) -> void:
+	_more_tasks.append(task)
+
+
 ## `warm_all`'s thread still making sounds (GameQuit waits for it).
 static func warming() -> bool:
 	for task in _more_tasks:

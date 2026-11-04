@@ -16,6 +16,10 @@ extends Node3D
 ## `record` keeps a row a tick (time, s, v, forces, levers) for the lab's graphs.
 
 signal coupler(event: Dictionary)
+## The train's left the rails (step 5, #616): {t, s (the leading wheels' place), kmh, kind (what it
+## ran onto: broken, bent, blocked), what, key (the route's place), numeric (no rigid bodies: the
+## 1D train ploughed to a stand, unseen)}.
+signal derailed(info: Dictionary)
 
 var tuning: TrainTuning
 var track: TrackLine
@@ -35,13 +39,32 @@ var drawn_frac := 1.0
 var cost := {}
 ## Men struck and props knocked loose (for the lab's checks): {t, who, speed, car}.
 var struck: Array[Dictionary] = []
+## The engineer's eyes on the line (step 5): what's wrong ahead, seen when the light and the line let
+## him. His hands are TrainEngineer's.
+var lookout: TrainLookout
+## Near the player a derail hands the train to rigid bodies (TrainWreck); off (far, unseen: the 1D
+## train's numbers alone) it ploughs to a stand where it left the rails, in numbers.
+var physical := true
+## Its derail ({} till then; see `derailed`), and the wreck it made.
+var derail := {}
+var wreck: TrainWreck
 
+## Each car's axles (TrainCars.axles): [[z in its frame, r], ...] a car.
+var _axles: Array = []
+## The leading axle's place behind its car's front: the engine's first, the last car's last.
+var _lead: Array = [1.0, 1.0]
 var _near_props: Array = []
 var _near_men: Array = []
 var _near_until := 0.0
 
 const STRIKE_MARGIN := 0.15  # m round a car's ends and sides a man counts as in its way
 const STRIKE_DOWN_SPEED := 2.0  # m/s: slower a car shoves a man (he may stagger clear), faster it strikes him
+## A wheel crushing what lies on the rail under it (step 5, #616), J: a car's few tons on a wheel
+## over a limb (far past what breaks bone: Physiology.blow's worst).
+const RUN_OVER_JOULES := 30000.0
+## A part counts as under a wheel this near its tread across (m) and this low (a share of its radius).
+const UNDER_WHEEL_X := 0.14
+const UNDER_WHEEL_LOW := 0.9
 
 
 func setup(on_track: TrackLine, t: TrainTuning) -> void:
@@ -54,6 +77,18 @@ func setup(on_track: TrackLine, t: TrainTuning) -> void:
 		view.name = "Cars"
 		add_child(view)
 	view.setup(track, sim)
+	_axles.clear()
+	for c: Dictionary in sim.cars:
+		var mid: float = (c.trucks.x + c.trucks.y) * 0.5
+		var list := []
+		for ax: Dictionary in TrainCars.axles(c):
+			list.append([float(ax.z) - mid, float(ax.r)])
+		_axles.append(list)
+	lookout = TrainLookout.new(self)
+	_lead = []
+	for i in [0, sim.cars.size() - 1]:
+		var zs: Array = TrainCars.axles(sim.cars[i]).map(func(a: Dictionary) -> float: return float(a.z))
+		_lead.append(zs.min() if i == 0 else zs.max())
 	if sound == null:
 		sound = TrainSound.new()
 		sound.name = "Sound"
@@ -75,6 +110,10 @@ func _physics_process(delta: float) -> void:
 		return
 	var t0 := Prof.start()
 	var u := Time.get_ticks_usec()
+	if wreck:
+		wreck.tick(delta)
+		Prof.stop(&"train", t0)
+		return
 	sim.step(delta)
 	var u1 := Time.get_ticks_usec()
 	cost.sim_us = cost.get("sim_us", 0) + u1 - u
@@ -88,6 +127,11 @@ func _physics_process(delta: float) -> void:
 	for e in events:
 		coupler.emit(e)
 	riding = _riding()
+	if derail.is_empty():
+		var ul := Time.get_ticks_usec()
+		lookout.tick()
+		_check_rails()
+		cost.lookout_us = cost.get("lookout_us", 0) + Time.get_ticks_usec() - ul
 	if record:
 		rows.append(row())
 	cost.tick_us = cost.get("tick_us", 0) + Time.get_ticks_usec() - u
@@ -98,7 +142,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
-	if sim == null:
+	if sim == null or wreck:
 		return
 	var t0 := Prof.start()
 	var u := Time.get_ticks_usec()
@@ -109,6 +153,43 @@ func _process(_delta: float) -> void:
 	cost.draw_us = cost.get("draw_us", 0) + Time.get_ticks_usec() - u
 	cost.draws = cost.get("draws", 0) + 1
 	Prof.stop(&"train_view", t0)
+
+
+## The leading wheels on what the line's state says is wrong there: a break (any speed past
+## `derail_speed`), a bent rail or a heavy block (past `bent_pass_speed`) and it's off the rails.
+func _check_rails() -> void:
+	var st := track.state
+	if st == null or absf(sim.v) < tuning.derail_speed:
+		return
+	var dir := 1 if sim.v > 0.0 else -1
+	var lead := (sim.x[0] - float(_lead[0])) if dir > 0 else (sim.x[sim.cars.size() - 1] - float(_lead[1]))
+	for w: Dictionary in st.at(lead):
+		var go := false
+		match w.kind:
+			&"broken":
+				go = true
+			&"bent":
+				go = absf(sim.v) > tuning.bent_pass_speed
+			&"blocked":
+				go = float(w.get("kg", 0.0)) >= tuning.block_derail_kg and absf(sim.v) > tuning.bent_pass_speed
+		if go:
+			leave_rails(w, lead)
+			return
+
+
+## Off the rails at `at` (the leading wheels' place), over `what` (a TrackState stretch).
+func leave_rails(what: Dictionary, at: float) -> void:
+	if not derail.is_empty():
+		return
+	derail = {"t": sim.time, "s": at, "kmh": absf(sim.v) * 3.6, "kind": String(what.get("kind", "")),
+		"what": String(what.get("what", "")), "side": int(what.get("side", 0)), "key": track.key_of(at),
+		"numeric": not (physical and view.with_solids and is_inside_tree())}
+	if derail.numeric:
+		sim.plough = tuning.plough_g
+	else:
+		wreck = TrainWreck.new(self)
+		wreck.start(what)
+	derailed.emit(derail)
 
 
 ## Is the rider standing on a car?
@@ -179,6 +260,7 @@ func _strike() -> void:
 		var go := -b.global_basis.z * speed * 0.5 + b.global_basis.x * aside * absf(speed) * 0.85 + Vector3.UP * 0.4
 		prop.go_loose(go)
 		struck.append({"t": sim.time, "who": String(prop.name), "speed": absf(float(sim.vel[j])), "car": j, "how": "loose"})
+	_run_over()
 	for man: Node in _near_men:
 		var hb := man as HumanBody
 		if hb == null or not is_instance_valid(hb) or hb.limp or hb.has_meta(&"train_rides") or hb.global_position.distance_to(centre) > reach:
@@ -205,6 +287,54 @@ func _strike() -> void:
 		else:
 			hb.take_blow(null, 0.5 * body_mass * speed * speed, at, dir, body_mass * speed * 1.6)
 		struck.append({"t": sim.time, "who": String(hb.person_id), "speed": speed, "car": i, "how": String(how)})
+
+
+## A man down on the line (lying, or limp) under a wheel: each axle that comes over a part of him
+## lying on a rail crushes it (`take_blow`, RUN_OVER_JOULES), and a limb under it is cut off there
+## (`sever_limb`; not with reduced gore, Settings). The wheels are solid too (TrainCars), so what
+## isn't on the rail is shoved by them and by the pilot as anything loose is.
+func _run_over() -> void:
+	var half := tuning.gauge * 0.5
+	for node: Node in _near_men:
+		var hb := node as HumanBody
+		if hb == null or not is_instance_valid(hb) or hb.has_meta(&"train_rides") or hb.parts.is_empty():
+			continue
+		for seg: StringName in hb.parts:
+			var part := hb.parts[seg] as Node3D
+			if part == null or not is_instance_valid(part):
+				continue
+			var p := part.global_position
+			for i in view.solids.size():
+				if absf(float(sim.vel[i])) < 0.05:
+					continue
+				var local := view.solids[i].global_transform.affine_inverse() * p
+				if absf(absf(local.x) - half) > UNDER_WHEEL_X or local.y > 0.5 or local.y < -0.4:
+					continue
+				for ax: Array in _axles[i]:
+					var r: float = ax[1]
+					if absf(local.z - float(ax[0])) > r * 0.6 or local.y > r * UNDER_WHEEL_LOW:
+						continue
+					var key := StringName("train_crushed_%s" % seg)
+					if sim.time - float(hb.get_meta(key, -99.0)) < 1.0:
+						continue
+					hb.set_meta(key, sim.time)
+					_crush(hb, seg, part, i)
+					break
+
+
+func _crush(hb: HumanBody, seg: StringName, part: Node3D, car: int) -> void:
+	var fwd := -view.solids[car].global_basis.z * signf(float(sim.vel[car]))
+	hb.take_blow(part, RUN_OVER_JOULES, part.global_position, Vector3.DOWN, 75.0 * absf(float(sim.vel[car])) * 0.3)
+	var how := "run over"
+	var limb := String(seg)
+	var is_limb := limb.begins_with("thigh") or limb.begins_with("shin") or limb.begins_with("foot") \
+			or limb.begins_with("upper_arm") or limb.begins_with("forearm") or limb.begins_with("hand")
+	if is_limb and not Settings.reduced_gore and not hb.physiology.severed_segments.has(seg):
+		hb.sever_limb(seg, fwd * absf(float(sim.vel[car])) * 0.3)
+		how = "run over, %s off" % limb
+	elif not hb.limp:
+		hb.go_limp(fwd * absf(float(sim.vel[car])) * 0.3)
+	struck.append({"t": sim.time, "who": String(hb.person_id), "speed": absf(float(sim.vel[car])), "car": car, "how": how, "part": limb})
 
 
 ## The car whose box (plus `half_width` either side, STRIKE_MARGIN at its ends) holds `p`, or -1.

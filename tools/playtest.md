@@ -35,7 +35,10 @@ whenever something is worth showing: good or bad.
 - `events 20` — the last things that happened: who said what, shots, hits, falls, deaths,
   timber breaking, explosions. People talk: their words are the best clue to what they think.
 - `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run.
-- `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`.
+- `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`. `look NAME`
+  faces his chest; `look NAME head` (or `abdomen`, `upper_arm_l`, `thigh_r`...) a part of him. At a
+  man it also says what stands in the line (`in_the_way`) and which of him you can see (`clear_to`),
+  as your eyes would.
 - `goto PLACE` — jump straight there (use it to save time, not instead of walking everywhere).
 - `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.

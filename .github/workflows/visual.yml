@@ -27,7 +27,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Whether main has changed since the last visual checks that ran to the end (a minute, no checkout):
+  # an unchanged main is skipped (#504). By hand it always runs.
+  changed:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(gh api "repos/${{ github.repository }}/actions/workflows/visual.yml/runs?branch=main&status=completed&per_page=30" \
+            -q '[.workflow_runs[] | select(.conclusion == "success" or .conclusion == "failure")][0].head_sha // ""')
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$last" != "$GITHUB_SHA" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "main ($GITHUB_SHA) is unchanged since the last visual checks: skipped." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   render:
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
     strategy:
       fail-fast: false
       matrix:

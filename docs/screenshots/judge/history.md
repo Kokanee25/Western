@@ -322,3 +322,34 @@ Scores before this line are the old judge's and don't compare. Score: mean sever
 | 2026-10-27_r5 | street | 0.240 | 40/12/74 vs 43/15/76 | 3%/2.5% vs 2%/2.5% | 33/0.36 vs 31/0.35 | 0.14/5.5/0.44 vs 0.15/5.8/0.39 | 3.9/5.0 vs 5.7/6.2 | 2.1 | near tiles finer than the painting's (3.9 vs 5.7 px) | light pass round 5: the back bar's mirrors painted (they were a metal finish on a probe taken at noon: black at night), the table top drawn smooth and polished, the lamp's brass gold, the token brass; street render reused from r4 |  |
 | 2026-10-27_r6 | saloon | 0.354 | 31/8/76 vs 33/12/66 | 8%/2.4% vs 3%/1.3% | 40/0.81 vs 36/0.71 | 0.20/4.1/0.33 vs 0.19/4.7/0.34 | 7.3/7.2 vs 7.6/6.5 | 4.4 | bright things too bright (76 vs 66) | light pass round 5 final: r5 plus the table's green held against the lamps (honey, not red), its grain calmer, the mirrors' room nearer (gold glass); street render reused from r4 |  |
 | 2026-10-27_r6 | street | 0.240 | 40/12/74 vs 43/15/76 | 3%/2.5% vs 2%/2.5% | 33/0.36 vs 31/0.35 | 0.14/5.5/0.44 vs 0.15/5.8/0.39 | 3.9/5.0 vs 5.7/6.2 | 2.1 | near tiles finer than the painting's (3.9 vs 5.7 px) | light pass round 5 final: r5 plus the table's green held against the lamps (honey, not red), its grain calmer, the mirrors' room nearer (gold glass); street render reused from r4 |  |
+
+## The cheap judge (from 2026-11-03): does it look cheap? (tools/critic.py cheap, docs/concept/judge/CHEAP.md)
+
+Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it failed (CHEAP.md's numbers); its biggest reason; the numbers beside it (deep shadow, black floor, contrast far/near, repeat).
+
+| round | view | verdict | tells failed | biggest reason | shadow / floor / far-near / repeat | note |
+|---|---|---|---|---|---|---|
+| 2026-11-03_cheap_r1 | saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | A cavernous empty barn | 4% / 6.1 / 0.95 / 0.05 | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r1 | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | The player's hand | 6% / 5.0 / 1.00 / 0.07 | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r1 | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Empty barn of a room | 3% / 7.6 / 0.99 / 0.05 | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r1 | road_low_noon | **good indie** | 3, 5, 6, 8, 9 | Blue pebbles strewn like confetti | 19% / 0.0 / 1.71 / 0.05 | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r1 | street_golden_hour | **good indie** | 8 | The rubber hand | 7% / 1.5 / 0.76 / 0.03 | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r1 | film | **good indie** | 9, 10 | Frozen people | (film) | baseline: main on 2026-11-03 (after #606) |
+| 2026-11-03_cheap_r2 | saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Everything the same orange | 4% / 6.1 / 0.95 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | The player's hand | 6% / 5.0 / 1.00 / 0.07 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Flat orange wash | 3% / 7.6 / 0.99 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | road_low_noon | **good indie** | 3, 4, 6 | Plastic pebbles | 19% / 0.0 / 1.71 / 0.05 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | street_golden_hour | **good indie** | 3, 6 | The hand again | 7% / 1.5 / 0.76 / 0.03 | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_cheap_r2 | film | **good indie** | 6, 10 | Frozen horses | (film) | with --refs (32 AAA screenshots, the Studio) |
+| 2026-11-03_room_light_r2 | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 7% / 6.0 / 1.06 / 0.06 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_toward_door_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 10% / 4.0 / 1.32 / 0.08 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 4% / 6.1 / 0.95 / 0.05 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_back_wall_night_r2b | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 12% / 3.9 / 1.16 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_night_r2a | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 3% / 6.5 / 0.99 / 0.04 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | man_saloon_night_r2b | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 5% / 6.7 / 1.11 / 0.06 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_back_wall_night_r2a | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 17% / 3.5 / 1.25 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_toward_door_night_r2b | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 8% / 4.4 / 1.26 / 0.08 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_toward_door_night_r2a | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 11% / 3.9 / 1.36 / 0.08 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 16% / 3.5 / 1.24 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | man_saloon_night_r2a | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 7% / 6.1 / 1.11 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-03_room_light_r2 | saloon_night_r2b | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 5% / 5.7 / 1.08 / 0.05 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |

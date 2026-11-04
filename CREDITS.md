@@ -89,3 +89,19 @@ unchanged. The brakes' squeal and grind are still synthesised (`src/audio/train_
   `tools/sounds/fetch.py` (each file's id, title, author and page in `assets/audio/blast/sets.json`;
   listed here as they come in, though CC0 asks for no credit). The Sonniss GDC bundles are not
   used while this repo is public: their licence forbids publishing the files as sound effects.
+  Freesound's API terms (https://freesound.org/help/tos_api/, read 2026-11-03): the API only, no
+  scraping; the fetched pool is an intermediate copy, kept encrypted and deleted once the sets are
+  chosen; only the files the game uses are in this repo, under their own CC0.
+
+The dynamite's recordings (#596), Freesound, cut by `experiments/train_lab/recordings.py
+--manifest=experiments/sound_lab/blast_recordings.json` (trimmed, filtered, levelled):
+
+- **m-150-020927-24-bit** by boilingsand, CC0 (https://freesound.org/s/49711/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s1/crack`, `s2/crack`.
+- **dynamite explosion in the mountain** by felixblume, CC0 (https://freesound.org/s/251401/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s1/boom`, `s1/sub`, `s1/roll`.
+- **explosion_001** by cydon, CC0 (https://freesound.org/s/268557/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s2/boom`.
+- **explosion_004** by cydon, CC0 (https://freesound.org/s/268554/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s3/crack`, `s3/boom`.
+- **huge cinematic explosion mixed** by evanboyerman, CC0 (https://freesound.org/s/398799/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s2/sub`.
+- **distant explosion** by juskiddink, CC0 (https://freesound.org/s/108640/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s2/roll`.
+- **far_off_boom** by cactus2003, CC0 (https://freesound.org/s/147584/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s3/sub`.
+- **explosion far away** by nightdrawr, CC0 (https://freesound.org/s/751818/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s3/roll`.
+

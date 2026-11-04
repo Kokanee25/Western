@@ -76,6 +76,13 @@ static func shapes(car: Dictionary, t: TrainTuning) -> Array[Dictionary]:
 		out.append({"size": Vector3(x1 - x0, thick, along), "at": Vector3((x0 + x1) * 0.5, centre.y, centre.x - mid),
 			"basis": Basis(Vector3.RIGHT, atan2(-run.y, run.x)), "colour": colour, "solid": true, "drawn": false,
 			"surface": wood})
+	# The wheels (step 5, #616: solid, so what lies on the rails is run over, not passed over): a
+	# disc a wheel on each rail, its tread on the rail top, drawn by the models.
+	for ax: Dictionary in axles(car):
+		for side in [-1.0, 1.0]:
+			out.append({"cylinder": true, "axis": "x", "radius": float(ax.r), "height": 0.12,
+				"at": Vector3(side * (t.gauge * 0.5 - 0.02), float(ax.r), float(ax.z) - mid), "colour": Color(0.1, 0.1, 0.1),
+				"solid": true, "drawn": false, "surface": &"metal", "wheel": true})
 	# The floor and its frame, every car, a lip past each end.
 	var deck_w := w if kind != &"engine" else 0.95
 	box.call(-LIP, l + LIP, -deck_w, deck_w, FRAME_BOTTOM, DECK, colour.darkened(0.35))
@@ -128,6 +135,32 @@ static func shapes(car: Dictionary, t: TrainTuning) -> Array[Dictionary]:
 				box.call(z, z + 0.08, door, w, DECK, DECK + h)
 				box.call(z, z + 0.08, -door, door, DECK + 2.0, DECK + h)
 	return out
+
+
+## A car's axles: [{z (m behind its front), r (the wheel's radius)}]: the engine's pony and four
+## drivers from its rig (`assets/train/engine_rig.json`), two a truck under the rest.
+static func axles(car: Dictionary) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if car.kind == &"engine":
+		var rig: Dictionary = _rig()
+		out.append({"z": float(rig.mid) + float(rig.pony_z), "r": float(rig.pony_r)})
+		for z: float in rig.drivers_z:
+			out.append({"z": float(rig.mid) + z, "r": float(rig.driver_r)})
+		return out
+	var tr: Vector2 = car.trucks
+	for at: float in [tr.x, tr.y]:
+		for dz in [-TrainModels.WHEELBASE * 0.5, TrainModels.WHEELBASE * 0.5]:
+			out.append({"z": at + dz, "r": TrainModels.WHEEL_R})
+	return out
+
+
+static var _rig_data := {}
+
+
+static func _rig() -> Dictionary:
+	if _rig_data.is_empty():
+		_rig_data = JSON.parse_string(FileAccess.get_file_as_string(EngineModel.RIG))
+	return _rig_data
 
 
 ## The trucks' box (drawn only: the wheels are under the deck).

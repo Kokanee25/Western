@@ -323,6 +323,39 @@ func test_a_friend_down_in_the_open_gets_dragged_to_cover() -> void:
 	check_eq(b.mood, OutlawBrain.Mood.FIGHTING, "and b's back in the fight")
 
 
+## #595: the Kid, on the gallery over Brody, called "Hold on, I got you!" every 20 s for 100 s and
+## never got down to him. A friend he ran for and couldn't reach, he doesn't run for again while
+## the friend lies there.
+func test_a_friend_he_cant_get_to_he_gives_up_on() -> void:
+	_crate(Vector3(4.0, 0, -9.0))
+	var places := Waypoints.new()
+	places.add(&"w", Vector3(-1.0, 0, -9.0))
+	places.add(&"e", Vector3(4.0, 0, -9.5), [&"w"])
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	for id: StringName in [&"a", &"b"]:
+		_brain(id).variant = OutlawBrain.Variant.D
+		_brain(id).places = places
+	var b := _brain(&"b")
+	b.run_speed = 0.02  # his legs won't take him there
+	await physics_frames(5)
+	_shoot_past(men[&"a"])
+	var a := men[&"a"] as HumanBody
+	await wait_until(func() -> bool: return _brain(&"a").target == player, 30)
+	a.physiology.broken[&"femur_r"] = true
+	await wait_until(func() -> bool: return a.prone, 60)
+	var going := await wait_until(func() -> bool: return b.rescuing == a, 60 * 3)
+	check(going, "b goes to get him (%s)" % b.describe().substr(0, 60))
+	var gave_up := await wait_until(func() -> bool: return b.rescuing == null, 60 * 12)
+	check(gave_up, "and gives it up when he can't get there (%s)" % b.describe().substr(0, 60))
+	check(b._unreachable.has(a), "and remembers he couldn't")
+	var drags := calls.filter(func(c: Dictionary) -> bool: return c.who == &"b" and c.kind == &"drag").size()
+	await physics_frames(60 * 20)
+	var after := calls.filter(func(c: Dictionary) -> bool: return c.who == &"b" and c.kind == &"drag").size()
+	check_eq(after, drags, "no more \"Hold on, I got you!\" in the 20 s after (was again every 20 s)")
+	check(b.rescuing == null, "nor goes for him again")
+
+
 func test_an_unconscious_friend_gets_hauled_out_too() -> void:
 	_crate(Vector3(4.0, 0, -9.0))
 	_man(&"a", Vector3(-2.0, 0, -13.0), {"gang": [&"a", &"b"]})

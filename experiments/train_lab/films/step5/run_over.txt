@@ -1,0 +1,5 @@
+# Step 5 film 5 (#616): a man down across the rails, the train at 20 km/h (nobody braking). Gore on.
+train_lab
+train_caption A man down across the rails, 20 km/h: run over (gore on).
+train_cam side 384 6
+train_derail kmh=20 at=380 how=man hour=16 driver=none run_up=80 riders=0 secs=3 past=40

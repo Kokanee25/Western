@@ -1,0 +1,123 @@
+{
+ "about": "The cheap judge's self-test (#609; README.md here). The game's own renders, ranked from Sean's words and picks. now, broken, ambient_x2 and fog_off: the street at golden hour (shot_match_street) in one run of main on 2026-11-03 (screenshots.gd --only=shot_match_street --variants=ambient_x2.json,fog_off.json,broken_look.json), so their numbers compare. noon_before: the store front at noon before the light pass, the 'today' panel of docs/screenshots/light_pass/2026-10-23/2_noon_front.jpg (its label covered), the look Sean called 'too cheap, too indie' ('the day time outside looks the worst', 2026-10-23, #318); noon_now: store_front_noon on main 2026-11-03, put through the same 480x270 JPEG so resolution isn't the difference. early: round 0 (2026-10-01_r1). A first set (2026-11-03_cheap_p) used the 2026-10-22 street at golden hour as the 'too cheap' one; #318 says golden hour 'holds up better', so it didn't carry his words and was dropped.",
+ "by": "proposed from Sean's words (#318) and the rounds he kept; awaiting his confirmation",
+ "probes": [
+  {
+   "file": "now.png",
+   "what": "main on 2026-11-03, the street at golden hour",
+   "eye": true
+  },
+  {
+   "file": "broken.png",
+   "what": "now with ambient doubled and fog off (broken_look.json)",
+   "eye": true
+  },
+  {
+   "file": "early.png",
+   "what": "round 0, 2026-10-01_r1, the street at golden hour",
+   "eye": true
+  },
+  {
+   "file": "noon_before.png",
+   "what": "the store front at noon on 2026-10-23, before the light pass (#318: 'too cheap')",
+   "eye": true
+  },
+  {
+   "file": "noon_now.png",
+   "what": "the store front at noon on main 2026-11-03",
+   "eye": true
+  },
+  {
+   "file": "ambient_x2.png",
+   "what": "now with ambient doubled only",
+   "eye": false
+  },
+  {
+   "file": "fog_off.png",
+   "what": "now with fog and volumetric fog off only",
+   "eye": false
+  }
+ ],
+ "rules": [
+  {
+   "kind": "above",
+   "better": "now",
+   "worse": "broken",
+   "words": "today's street above itself with ambient doubled and fog off"
+  },
+  {
+   "kind": "above",
+   "better": "now",
+   "worse": "early",
+   "words": "today's street above round 0"
+  },
+  {
+   "kind": "above",
+   "better": "noon_now",
+   "worse": "noon_before",
+   "words": "today's noon above the noon Sean called too cheap"
+  },
+  {
+   "kind": "fails_any",
+   "probe": "broken",
+   "tells": [
+    1,
+    2
+   ],
+   "words": "the broken one fails flat light or no atmosphere",
+   "gate": false,
+   "why_not_gating": "Beyond #609's ask (the ranking). In 2026-11-03_cheap_p2 the judge ranked broken below now but called its far end 'soft and warm into haze' (the painted backdrop keeps a haze with the fog off) and passed its light; two fixes were already spent, so it is reported, not gated, until Sean says whether broken should read as broken to his eye."
+  }
+ ],
+ "number_rules": [
+  {
+   "measure": "floor",
+   "op": ">",
+   "a": "ambient_x2",
+   "b": "now",
+   "words": "ambient doubled lifts the black floor"
+  },
+  {
+   "measure": "L5",
+   "op": ">",
+   "a": "ambient_x2",
+   "b": "now",
+   "words": "ambient doubled lifts the 5th percentile"
+  },
+  {
+   "measure": "shadow",
+   "op": "<",
+   "a": "ambient_x2",
+   "b": "now",
+   "words": "ambient doubled leaves less deep shadow"
+  },
+  {
+   "measure": "spread",
+   "op": "<",
+   "a": "ambient_x2",
+   "b": "now",
+   "words": "ambient doubled narrows the L* spread"
+  },
+  {
+   "measure": "contrast_far_near",
+   "op": ">",
+   "a": "fog_off",
+   "b": "now",
+   "words": "fog off: the far keeps more contrast against the near"
+  },
+  {
+   "measure": "contrast_far_near",
+   "op": ">",
+   "a": "broken",
+   "b": "now",
+   "words": "broken: the far keeps more contrast (no haze)"
+  },
+  {
+   "measure": "L50",
+   "op": ">",
+   "a": "broken",
+   "b": "now",
+   "words": "broken: the middle tones lifted"
+  }
+ ]
+}

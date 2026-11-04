@@ -1,0 +1,5 @@
+# Step 5 film 2 (#616): the slow derail. Nobody watching, walking pace onto the torn-out rail.
+train_lab
+train_caption Walking pace, nobody watching: the engine drops off the broken rail onto the ties.
+train_cam side 384 7
+train_derail kmh=5 at=380 how=rail hour=16 driver=none run_up=20 riders=0 secs=8

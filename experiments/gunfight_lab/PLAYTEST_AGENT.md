@@ -26,14 +26,18 @@ python3 tools/bridge.py stop
 `gf_play SETUP seed=N fixes=all+pain_fight+floor_fight+odds+flinch` sets one up (the `fixes=`
 part is the build being tested, "D+": always give it) and answers once they're in (it can take ~20 s: the saloon is
 being built). **One fight a game**: your wounds and rounds carry over, so stop and start the game
-before each fight (`gf_play` says so if you forget). The seed changes the men's dice, not where
+before each fight (`gf_play` says so if you forget). Once you're down (or dead) the fight is over and you stay where
+you fell; `gf_result` says how you are (`you`). The seed changes the men's dice, not where
 anyone starts. Setups: `spec_hall`, `spec_stair`, `spec_gallery`, `spec_back`,
 `spec_front`. `gf_result` says whether it's over, how long it's run and each man's state. Play it
 with the ordinary commands:
 
 - `read all` (where you are, who's near: distance, side, armed, mood), `read people`, `events 20`
   (what was said and done: **their words are your best clue**).
-- `look NAME` (turn to face a man), `turn DEGREES [PITCH]`, `shoot N`, `press aim 1`,
+- `look NAME` (turn to face a man's chest; `look NAME head`, or `abdomen`, `upper_arm_l`,
+  `thigh_r`..., a part of him). It says what's in your line of fire (`in_the_way`: a post, a stud,
+  a batwing) and which parts of him you have a clear line to (`clear_to`), as your eyes would.
+- `turn DEGREES [PITCH]`, `shoot N`, `press aim 1`,
   `press crouch_toggle`, `walk X Z` / `walk X Z run` (metres; `read all` gives yours),
   `press reload SECONDS`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).
 - `weapon revolver` draws (your gun starts away).

@@ -1,0 +1,9 @@
+{"cars": ["engine", "tender", "ore1", "ore2", "box1", "express1", "coach1"], "cmd": "train_lab", "depot": [60.0, 0.78, 200.01], "length": 1500.14086914062, "marks": {"climb_foot": 750.070434570312, "crest": 1050.09860839844, "depot": 120.01126953125, "descent_foot": 1350.12678222656, "mine": 1440.135234375}, "mass_t": 119.5, "ok": true, "origin": [60.0, 0.0, 80.0], "t": 1.35, "train_length": 66.3}
+{"cmd": "wait 5", "ok": true, "t": 6.8}
+{"cmd": "read frame", "frame": {"clock": "12:00", "draw_calls": 0.0, "fps": 144.0, "frame_ms": 6.9, "nodes": 18217.0, "physics_ms": 4.07, "process_ms": 0.64, "ticks": 0.41}, "ok": true, "t": 6.82}
+{"cmd": "wait 3", "ok": true, "t": 9.83}
+{"cmd": "read frame", "frame": {"clock": "12:00", "draw_calls": 0.0, "fps": 144.0, "frame_ms": 6.9, "nodes": 18217.0, "physics_ms": 4.15, "process_ms": 0.67, "ticks": 0.42}, "ok": true, "t": 9.85}
+{"cmd": "wait 3", "ok": true, "t": 12.87}
+{"cmd": "read frame", "frame": {"clock": "12:00", "draw_calls": 0.0, "fps": 140.0, "frame_ms": 7.1, "nodes": 18217.0, "physics_ms": 4.29, "process_ms": 0.67, "ticks": 0.43}, "ok": true, "t": 12.88}
+{"cmd": "wait 3", "ok": true, "t": 15.9}
+{"cmd": "read frame", "frame": {"clock": "12:00", "draw_calls": 0.0, "fps": 145.0, "frame_ms": 6.9, "nodes": 18217.0, "physics_ms": 3.93, "process_ms": 0.62, "ticks": 0.41}, "ok": true, "t": 15.92}
