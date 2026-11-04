@@ -647,7 +647,7 @@ func apply_voxel_mesh(m: Array) -> void:
 	var mi := pieces[0][0] as MeshInstance3D
 	var mesh := ArrayMesh.new()
 	if not (m[0] as Array).is_empty():
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, m[0])
+		mesh = MemberMesh.made(m[0])  # (its arrays kept: RubbleRest joins it without a read back)
 	mi.mesh = mesh
 	var inner := mi.get_node_or_null(^"Carved") as MeshInstance3D
 	if inner == null:

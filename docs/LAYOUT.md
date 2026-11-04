@@ -762,6 +762,17 @@ it all away and puts the probe and haze back.
   sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
   islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
   touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
+  **What rubble reports** (#626): a piece reports its contacts (`max_contacts_reported`
+  `REPORTED`, its `body_entered` to `_on_rubble_hit`) only while it's faster than `REPORT_ON` x
+  the harmless speed (off under `REPORT_OFF` x; `Structure._report`, from `_physics_step`), or
+  over a dug tile (`Ground.rescue` reads its contacts). Godot's JoltBody3D turns Jolt's manifold
+  reduction off for any body that reports, and changing it wakes the body (so only awake pieces
+  are changed); turned on, its first reports are what it already touched (`reports_from`).
+  `-- --rubble-contacts=always|off` the lab's before and none. **No read back**: a mesh's arrays
+  come from `MemberMesh.arrays_of` (kept on the meshes `MemberMesh.made` makes, a primitive's made
+  again, any other read once and kept) and `MemberMesh.placed` (append_from + deindex without the
+  renderer): `surface_get_arrays` on Vulkan stalls for every frame in flight
+  (`tools/readback_cost.gd`); RubbleRest's `_part` and `Structure._member_inputs` use them.
   **Particles**: a new GPUParticles3D starts emitting, so setting `emitting = true` on it again
   cancelled `finished` and one-shot bursts never freed (225 alive in a blaze, #459): every
   one-shot sets `emitting = false` first (ImpactEffects, Blood, BlastCloud, FireFX.steam, the

@@ -161,3 +161,47 @@ func test_a_clump_whose_shape_is_going_isnt_rubble() -> void:
 	var ids: Array[StringName] = [&"rig/post"]
 	s._drop(ids)
 	check_eq(s.rubble.size(), before, "no body kept that would fall through the ground")
+
+
+## A piece reports what it touches only while it's fast enough to break or hurt (#626: a body that
+## reports loses Jolt's manifold reduction, the farmhouse's settling pile cost ~26 ms a tick):
+## falling, it reports; lying still, it doesn't.
+func test_rubble_reports_its_contacts_only_while_falling() -> void:
+	var post := s.get_member(&"rig/post")
+	s._snap(post, 0.0)
+	check(not s.rubble.is_empty(), "the post falls")
+	if s.rubble.is_empty():
+		return
+	var rb: RigidBody3D = s.rubble[-1]
+	var reported_fast := false
+	var reported_slow_awake := false
+	for i in 400:
+		await physics_frames(1)
+		if not is_instance_valid(rb):
+			break
+		var v := rb.linear_velocity.length()
+		if v > s.tuning.harmless_speed and rb.max_contacts_reported > 0:
+			reported_fast = true
+		if i > 240 and not rb.sleeping and v < s.tuning.harmless_speed * Structure.REPORT_OFF * 0.5 and rb.max_contacts_reported > 0:
+			reported_slow_awake = true
+	check(reported_fast, "falling fast, it reports its contacts")
+	check(not reported_slow_awake, "lying still, it doesn't")
+	check(is_instance_valid(rb) and rb.max_contacts_reported == 0, "and it's left not reporting")
+
+
+## Turned on again, a piece's first reports are what it was already lying against, not a landing.
+func test_a_piece_turned_back_on_doesnt_land_on_what_it_lay_on() -> void:
+	var player: Player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	player.global_position = Vector3(3, 0, 0)
+	await physics_frames(2)
+	var hits := []
+	var on_hit := func(info: Dictionary) -> void: hits.append(info)
+	Events.body_hit.connect(on_hit)
+	var rb := s._new_rubble([&"rig/post"])
+	rb.set_meta(&"v", Vector3(0, -6.0, 0))
+	rb.set_meta(&"reports_from", Engine.get_physics_frames() - 1)
+	s._on_rubble_hit(player, rb)
+	await physics_frames(2)
+	Events.body_hit.disconnect(on_hit)
+	check_eq(hits.filter(func(h: Dictionary) -> bool: return h.get("person") == player).size(), 0, "no blow from what it already touched")
