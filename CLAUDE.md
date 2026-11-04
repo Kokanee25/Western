@@ -813,8 +813,12 @@ frozen until Sean names one.
   rubble reports contacts only while fast (`Structure._report`: Godot's Jolt drops manifold reduction for
   a body that reports), Jolt's step over the collapse -1/3 (25.5 -> 17 ms here), frames 44 -> 40: not
   halved; RubbleRest joins without a GPU read back (`MemberMesh.arrays_of`); lower solver steps worsen the
-  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`. Next: Sean's
-  F12 with F3 up (the GPU's 35-50 ms), the next-step issue.
+  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`.
+  **Sean's F12s** (#642, branch `claude/gameplay-collapse-cost-2`; `results/2026-11-04_collapse_cost_2/`):
+  Jolt's step ~18 ms a tick at his, GPU not the frame; the crater's pieces reported for good. Now slow
+  rubble never reports, `Ground.rescue` by points (`CAUGHT_DEEP`): step 20.9 -> 11.9 here, frames 38.9
+  -> 32.1; RubbleRest places on its worker. At Sean's ~40-45 ms, not under 33. The ~500 ms untimed
+  frames are F12 saves. Lab: `world=A;B gap=`, `holes=N shots=N`. Next: the next-step issue.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
