@@ -29,9 +29,9 @@ extends Resource
 ## above, the fallback). Each layer's level and how far it's full (the blast_unit_size above is the
 ## boom's; the roll keeps blast_roll_unit_size).
 @export var blast_set := 1
-@export var rec_boom_db := 6.0
-@export var rec_crack_unit_size := 2.0
-@export var rec_crack_db := 3.0
+@export var rec_boom_db := 3.0
+@export var rec_crack_unit_size := 6.0
+@export var rec_crack_db := 6.0
 @export var rec_sub_unit_size := 30.0
 @export var rec_sub_db := -2.0
 @export var rec_roll_db := -12.0
