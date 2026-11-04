@@ -1,0 +1,88 @@
+{
+  "derail": {
+    "key": {
+      "at": 376.075708397364,
+      "section": "p0"
+    },
+    "kind": "blocked",
+    "kmh": 20.1632873676959,
+    "numeric": false,
+    "s": 376.075708397364,
+    "side": 0,
+    "t": 13.8333333333336,
+    "what": "TestStreet Block"
+  },
+  "engine": {
+    "front_past_break_m": 4.85461419820786,
+    "off_m": 1.90974104404449,
+    "tilt_deg": 87.7516886448176
+  },
+  "frames": {
+    "before_mean_ms": 12.0425254854369,
+    "frames": 483,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 11.9425113871636,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 16.22205,
+    "second_ms": 22.625,
+    "slow_spell_s": 0.0,
+    "worst_ms": 24.957
+  },
+  "outcome": "derailed",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 75.6296722062459,
+      "kind": "blocked",
+      "kmh": 19.9955935939797,
+      "lux": 10000.0,
+      "range": 450.0,
+      "s": 300.370327793754,
+      "t": 0.1,
+      "what": "TestStreet Block",
+      "who": "engineer"
+    }
+  ],
+  "spec": {
+    "at": 380.0,
+    "driver": "none",
+    "hour": 12.0,
+    "how": "wagon",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/wagon_20_nobody.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 80.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "struck": [],
+  "thrown": 0,
+  "wreck": {
+    "asleep": 7,
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 20.1632873676959,
+        "side": -1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 1.08333333333333,
+        "what": "coupler torn",
+        "why": "jackknife"
+      }
+    ],
+    "furthest_past_m": 0.8546142578125,
+    "max_fold_deg": 20.0278546371684,
+    "most_off_m": 1.90974104404449,
+    "tipped": 1
+  }
+}
