@@ -129,7 +129,11 @@ jobs:
 
   export:
     needs: [test, native]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # main; or a branch push whose message says [smoke] (the exports and smoke tests run, nothing
+    # is released or published: release and pages are main's alone).
+    if: >-
+      github.event_name == 'push' && (github.ref == 'refs/heads/main'
+      || contains(github.event.head_commit.message, '[smoke]'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -320,6 +324,7 @@ jobs:
 
   release:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -343,6 +348,7 @@ jobs:
 
   pages:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write
