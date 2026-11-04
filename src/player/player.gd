@@ -98,8 +98,8 @@ func _footsteps() -> void:
 				"volume_db": -14.0 if is_crouching else (-4.0 if is_running else -9.0)})
 
 
-## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite and a water
-## bucket are added beside it, put away.
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite, a water
+## bucket and the plunger box (the bundles' blasting machine, #647) are added beside it, put away.
 func _arm() -> void:
 	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
 	if revolver:
@@ -125,6 +125,13 @@ func _arm() -> void:
 	bucket._draw = 0.0
 	camera.add_child(bucket)
 	weapons.append(bucket)
+	var plunger := PlungerViewmodel.new()
+	plunger.name = "Plunger"
+	plunger.selected = false
+	plunger.drawn = false
+	plunger._draw = 0.0
+	camera.add_child(plunger)
+	weapons.append(plunger)
 	weapon = weapons[0]
 	# You walk about with the gun in its holster; drawing it is something people notice (H).
 	if revolver:
@@ -158,6 +165,10 @@ func bucket() -> BucketViewmodel:
 	return camera.get_node_or_null(^"Bucket") as BucketViewmodel
 
 
+func plunger() -> PlungerViewmodel:
+	return camera.get_node_or_null(^"Plunger") as PlungerViewmodel
+
+
 ## Put the gun in your hands away and bring out another once it is.
 func select_weapon(w: WeaponViewmodel) -> void:
 	if w == null:
@@ -181,6 +192,8 @@ func _update_weapon_switch() -> void:
 			select_weapon(dynamite())
 		elif Input.is_action_just_pressed(&"weapon_bucket"):
 			select_weapon(bucket())
+		elif Input.is_action_just_pressed(&"weapon_plunger"):
+			select_weapon(plunger())
 		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
 			var current := _switch_to if _switch_to else weapon
 			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])

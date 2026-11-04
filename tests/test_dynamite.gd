@@ -731,6 +731,27 @@ func test_put_away_while_lighting_it_stays_unlit() -> void:
 	check(booms.is_empty(), "nothing went off")
 
 
+## #668 with a set stick: put away while the match is at its fuse, the next match in hand lights
+## the stick in your hand, not the one you'd set.
+func test_put_away_while_lighting_a_set_one() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	var set_one := DynamiteStick.make(world, player.global_position + Vector3(1, 0.1, 0), Vector3.ZERO, 5.0, 1)
+	d.light_planted(set_one)
+	await physics_frames(10)
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not set_one.lit, "put away, the set one didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	d.strike_match()
+	await wait_until(func() -> bool: return d.lit, 120)
+	check(d.lit, "the match lit the stick in hand")
+	check(not set_one.lit, "not the set one")
+	d.windup = 1.0
+	d.throw()
+
+
 func test_hold_it_too_long() -> void:
 	var player := await _player()
 	var d := player.dynamite()
