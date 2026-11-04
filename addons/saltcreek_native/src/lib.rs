@@ -10,6 +10,7 @@
 //! The fire's member tick (more-cores step 8): `FireCore` (fire.rs).
 //! The quit's last layer (issue #435): `QuitWatchdog` (watchdog.rs).
 //! The blast's face sums (issue #538): `BlastCore` (blast.rs).
+//! Crash and freeze reports (issue #624): `CrashGuard` (crash_guard.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
@@ -18,6 +19,7 @@ use std::thread::JoinHandle;
 
 pub mod blast;
 pub mod carve;
+pub mod crash_guard;
 pub mod fire;
 pub mod member;
 pub mod mesh;
@@ -38,6 +40,7 @@ unsafe impl ExtensionLibrary for SaltCreekNative {
         // library unloads.
         if stage == InitStage::Scene {
             watchdog::stand_down();
+            crash_guard::stand_down();  // (its thread ends before the library goes, #624)
         }
     }
 }

@@ -80,12 +80,20 @@ class Clock:
 		process_physics_priority = PhysicsWindow.FIRST - 1
 		process_priority = PhysicsWindow.FIRST - 1
 
+	## The crash guard (CrashReports, #624): told which part of the frame the main thread is in, so
+	## a freeze report can say.
+	var guard: Object
+
 	func _physics_process(_delta: float) -> void:
 		if first_tick == 0:
 			first_tick = Time.get_ticks_usec()
+		if guard:
+			guard.phase(1)
 
 	func _process(_delta: float) -> void:
 		idle = Time.get_ticks_usec()
+		if guard:
+			guard.phase(2)
 
 
 func _init() -> void:
@@ -266,6 +274,31 @@ func to_dict() -> Dictionary:
 		"recorder_us": _costs(),
 		"render_time_every_frame": _render_every_frame,
 	}
+
+
+## A copy of the rings as they are now, for `to_dict` and `summary` on another thread (the black
+## box, CrashReports): the packed arrays are copied (a memcpy), nothing of the original is read
+## after.
+func copy() -> PerfRing:
+	var c := PerfRing.new()
+	c._frames = _frames.duplicate()
+	c._fn = _fn
+	c._secs = _secs.duplicate()
+	c._sn = _sn
+	c._names = _names.duplicate()
+	c._is_cost = _is_cost.duplicate()
+	c._start = _start
+	c._sec_start = _sec_start
+	c._sec_n = _sec_n
+	c._sec_sum = _sec_sum.duplicate()
+	c._sec_max = _sec_max.duplicate()
+	c._sec_prof = _sec_prof
+	c._sec_sys = _sec_sys.duplicate()
+	c.cost_sum = cost_sum.duplicate()
+	c.cost_n = cost_n.duplicate()
+	c.cost_worst = cost_worst.duplicate()
+	c._render_every_frame = _render_every_frame
+	return c
 
 
 func _costs() -> Dictionary:

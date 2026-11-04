@@ -27,6 +27,7 @@ func _ready() -> void:
 	var recorder := BugRecorder.new()  # F12: a bug report with a replayable recording
 	recorder.name = "BugRecorder"
 	add_child(recorder)
+	CrashReports.start(self, recorder)  # the black box, the crash and freeze reports (#624)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
 	Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
