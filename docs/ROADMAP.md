@@ -4,7 +4,7 @@ Sean, 2026-10-14: one plan for every session. **This file says what's being work
 else is.** DESIGN.md says what the game is; CLAUDE.md says how we work; this says in what order.
 
 **The target: a demo.** A stable 20–30 minute piece of Salt Creek that a stranger can play
-without help: ride into a small, finished block of town that looks like the paintings, meet
+without help: ride into a small, finished block of town that looks real, in Red Dead's direction (DESIGN.md §4, 2026-11-04), meet
 people who notice what you do, and find that what you did is still true the next morning. It
 isn't the whole game; it's the proof of it, and the base the rest is built on.
 
@@ -211,6 +211,17 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+**Sean, 2026-11-04: the look goes realistic, in Red Dead Redemption 2's direction** (DESIGN.md §4;
+the plan `docs/briefs/red-dead.md`; "not that level, just that direction"). The painted look is
+retired. Its steps, by lane, each judged by the cheap judge with the AAA references:
+- **Art R0** the realistic renderer (behind a look first, then the default) ▶; **R1** light with
+  shape (the saloon at night, then the street by day: #608, #618); **R2** sets (scanned CC0
+  materials, wear, imperfect boards); **R3** dressing and variety.
+- **Prop lab P1** realistic props and variety; **P2** the horse (coat, mane and tail, gait).
+- **Characters C1** the Studio's men drawn realistically (the light route); MetaHuman (#558) only
+  if that falls short.
+- **Gameplay M1** motion polish (planted feet, idles, no popping in).
+
 **Sean, 2026-10-22: the labs are parked** (each where it stands, with how to pick it up:
 `docs/briefs/parked-labs-2026-10-22.md`). **Focus: the card cheat playable in the saloon, and
 whether the shooting is fun** (Sean plays the gunfight lab's nine runs, #257). One gameplay session
@@ -248,9 +259,9 @@ Sean, 2026-10-21: the look is good enough to test with. Phase 1 is parked (Gate 
 
 ## Decisions Sean can change
 
-- The look is painted illustration (Sean, 2026-10-16; DESIGN.md §4): smooth painted surfaces,
-  the squares retired surface by surface (road and wood done, the men's clothes in 1.3). Gate A
-  (1.5) is judged on it, its street target brought into line.
+- The look is realistic, in Red Dead Redemption 2's direction (Sean, 2026-11-04; DESIGN.md §4;
+  `docs/briefs/red-dead.md`); the painted illustration (2026-10-16) is retired. Gate A (1.5) is
+  judged by the cheap judge with the AAA references, not the paintings.
 
 - The story's shape is a rough idea (DESIGN.md §5 "Story shape", 2026-10-15): ten days of about
   an hour, opening at the saloon table, then the sheriff on day 1. The demo is the prologue and

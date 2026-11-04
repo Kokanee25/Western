@@ -16,9 +16,10 @@ without asking Sean.
   and gritty with humour; a small world, deep.
 - **§3 Platform, view, time, saving** (decided) — PC first, Godot 4, first person only, a
   45-minute day on a 30-day railroad clock, save only in a bed, death wakes you at the doctor's.
-- **§4 The look** (decided; changed 2026-10-16: painted illustration; 2026-10-17: not completely smooth, a bit of square is part of it) — the bold squares style everywhere
-  (`docs/concept/saloon-blocks.png`, the street painting), the per-texel light, materials, the
-  concept art references, what's built in code vs Blender; the style test is Prompt 07.
+- **§4 The look** (decided; **changed 2026-11-04: realistic, in Red Dead Redemption 2's direction**;
+  the painted illustration and its squares are retired; plan `docs/briefs/red-dead.md`) — the
+  direction and its yardstick, then the older looks kept as history, materials, what's built in
+  code vs Blender.
 - **§5 Setting and story** — Salt Creek 1882, the cast, how the story works; **the story's shape
   under review (proposed 2026-10-15: ten days of about an hour, the saloon table as the prologue,
   the side missions placed on days; see "Story shape")**; the story flow
@@ -90,7 +91,30 @@ when you push on it.
 
 ## 4. The look (**decided**)
 
-**Painted illustration (Sean, 2026-10-16; this wins over the bold squares below).** The look is
+**Realistic, in Red Dead Redemption 2's direction (Sean, 2026-11-04; this wins over everything
+below).** "We can toss the old painting style since that's just not happening anymore." Red Dead is
+the compass, not the bar: "I'm not actually expecting that level - just that direction." So:
+- **Realistic rendering:** native resolution, smooth (anti-aliased), realistic materials (colour,
+  relief, roughness and shadowing maps), ambient occlusion, bounce light, volumetric haze, a filmic
+  tone curve. No texel squares, mosaic or posterised colour.
+- **Light with shape:** dark between the lamps at night, pools of lamplight, haze in the light, real
+  shade by day; the warm wash laid over the saloon for the painting (light pass round 3) goes.
+- **Worn, used, real surfaces:** scanned materials (CC0) and our wear systems (building age, stains,
+  floor marks) driving dirt and wear; boards that warp, gap and sag.
+- **Variety:** nothing visibly copied (bottles, fixtures, stones, horses, people).
+- **People and horses** read as real men and animals, not painted or toy-like: the light route first
+  (the Studio's men drawn realistically), heavier tools (MetaHuman, #558) only if that falls short.
+- **How it's judged:** the cheap judge (`tools/critic.py cheap`, `docs/concept/judge/CHEAP.md`) with
+  the AAA references (`--refs`, the private Studio's RDR2, KCD2 and Hunt 1896 screenshots). Each step
+  should move views up its scale (cheap indie, good indie, AA); matching Rockstar isn't the goal.
+- **What stays:** everything below that isn't about painting or squares (people detailed enough to
+  lose a finger, mocap motion, warm lamps against blue night, the palette's dust and rust, what's
+  built in code vs Blender, the gore setting).
+
+The plan, in order and by lane: `docs/briefs/red-dead.md`. What follows is kept as history; where
+it says painted, squares, mosaic or pixels, the paragraph above wins.
+
+**Painted illustration (Sean, 2026-10-16; superseded 2026-11-04).** The look is
 smooth painted illustration, not squares: surfaces painted smooth with real detail (the painterly
 cowboy's face, the road, the wood), and light, shadow and haze doing the work, as Sean's newest
 targets are (`docs/concept/targets/`: the portrait, `6_road_target.jpg`, `7_sky_target.jpg`, the
