@@ -66,9 +66,7 @@ static func _from_template(size: Vector3) -> ArrayMesh:
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = face_sizes
 	arrays[Mesh.ARRAY_INDEX] = tpl[2]
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
+	return made(arrays)
 
 
 ## The box the long way (a BoxMesh's faces, each laid out), its kind's template kept.
@@ -114,9 +112,7 @@ static func _built(size: Vector3) -> ArrayMesh:
 	arrays[Mesh.ARRAY_TANGENT] = null
 	if size.x > 0.0 and size.y > 0.0 and size.z > 0.0 and not _templates.has(_kind_of(size)):
 		_templates[_kind_of(size)] = [corners, arrays[Mesh.ARRAY_NORMAL], arrays[Mesh.ARRAY_INDEX], axes]
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
+	return made(arrays)
 
 
 ## A member's box drawn bent (BuildingAge: a sagging beam, a hollow tread): the box in `segments`
@@ -176,6 +172,63 @@ static func warped(size: Vector3, segments: int, warp: Callable) -> ArrayMesh:
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = face_sizes
 	arrays[Mesh.ARRAY_INDEX] = indices
+	return made(arrays)
+
+
+## A mesh of these arrays, with them kept on it (`arrays_of`).
+static func made(arrays: Array) -> ArrayMesh:
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.set_meta(&"arrays", arrays)
 	return mesh
+
+
+## A mesh's first surface as arrays, without asking the renderer for them where it can (#626).
+## `surface_get_arrays` on Vulkan reads each buffer back from the GPU and waits for every frame in
+## flight first (RenderingDevice.buffer_get_data): with the GPU busy, a frame's worth for each
+## piece RubbleRest joined (Sean's F12s: its join at ~40 ms a frame as the farmhouse's rubble
+## settled; headless, where the lab runs, it costs nothing). The arrays a mesh was made from are
+## kept on it (`made`); a primitive's are made again on the CPU; any other mesh is read back once
+## and kept.
+static func arrays_of(mesh: Mesh) -> Array:
+	if mesh.has_meta(&"arrays"):
+		return mesh.get_meta(&"arrays")
+	var arrays: Array = (mesh as PrimitiveMesh).get_mesh_arrays() if mesh is PrimitiveMesh else mesh.surface_get_arrays(0)
+	mesh.set_meta(&"arrays", arrays)
+	return arrays
+
+
+## The arrays' triangles one by one (no index), placed by `xf`: what SurfaceTool's append_from,
+## deindex and commit_to_arrays make of them, without the read back (`arrays_of`).
+static func placed(arrays: Array, xf: Transform3D) -> Array:
+	var out := []
+	out.resize(Mesh.ARRAY_MAX)
+	var index: Variant = arrays[Mesh.ARRAY_INDEX]
+	var idx: PackedInt32Array = index if index != null else PackedInt32Array()
+	for slot: int in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2]:
+		var src: Variant = arrays[slot]
+		if src == null:
+			continue
+		if idx.is_empty():
+			out[slot] = src.duplicate()
+			continue
+		var width := 4 if slot == Mesh.ARRAY_TANGENT else 1
+		var dst: Variant = src.duplicate()
+		dst.resize(idx.size() * width)
+		for i in idx.size():
+			for k in width:
+				dst[i * width + k] = src[idx[i] * width + k]
+		out[slot] = dst
+	out[Mesh.ARRAY_VERTEX] = xf * (out[Mesh.ARRAY_VERTEX] as PackedVector3Array)
+	var turn := Transform3D(xf.basis, Vector3.ZERO)
+	if out[Mesh.ARRAY_NORMAL] != null:
+		out[Mesh.ARRAY_NORMAL] = turn * (out[Mesh.ARRAY_NORMAL] as PackedVector3Array)
+	if out[Mesh.ARRAY_TANGENT] != null:
+		var tan: PackedFloat32Array = out[Mesh.ARRAY_TANGENT]
+		for i in tan.size() / 4:
+			var t := xf.basis * Vector3(tan[i * 4], tan[i * 4 + 1], tan[i * 4 + 2])
+			tan[i * 4] = t.x
+			tan[i * 4 + 1] = t.y
+			tan[i * 4 + 2] = t.z
+		out[Mesh.ARRAY_TANGENT] = tan
+	return out
