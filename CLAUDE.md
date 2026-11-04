@@ -772,6 +772,12 @@ frozen until Sean names one.
   14-15 s after the last stick (#590 alone 29-33, before it never), the street 8-10 s (#590 alone 18
   s or never). Lab: `bf_blast awake=S` (the awake rubble's census).
   Tried, not kept: whole piles put to sleep (the contact monitor doesn't see Jolt's islands), damping.
+- **The farmhouse collapsing** (#626, PR #634; `experiments/blast_freeze/results/2026-11-04_collapse_cost/`):
+  rubble reports contacts only while fast (`Structure._report`: Godot's Jolt drops manifold reduction for
+  a body that reports), Jolt's step over the collapse -1/3 (25.5 -> 17 ms here), frames 44 -> 40: not
+  halved; RubbleRest joins without a GPU read back (`MemberMesh.arrays_of`); lower solver steps worsen the
+  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`. Next: Sean's
+  F12 with F3 up (the GPU's 35-50 ms), the next-step issue.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
