@@ -1391,11 +1391,14 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
   its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
   OutlawBrain hears; `experiments/plant_dynamite/`). Bundles (#647, brief `docs/briefs/dynamite-bundles.md`):
-  R ties another stick on (`bundle`, `tie()`); a bundle is a `DynamiteStick` of `sticks` (their kg,
-  `layout`/`radius_of`), thrown shorter, planted unlit (`_light_planted` leaves it), lit by Q aimed at
-  it (`aimed_charge`, `light_planted`); `max_bundles` waiting at once (`at_cap`, `bundles_set`);
-  `DynamiteStick.save_all`/`restore_all` keep them; `BlastTuning` bundle_*/tie_time/light_*; bridge
-  `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  R held `make_time` ties `bundle_sticks` loose sticks into one (`making` kept; `bundles`,
+  `hold_bundle`, a tap switches: `_read_r`); a bundle is a `DynamiteStick` of `sticks` (their kg,
+  `layout`/`radius_of`), thrown shorter; planted it's wired (`DynamiteStick.wire`) and waits unlit,
+  `max_bundles` at once (`at_cap`, `bundles_set`); Q aimed lights its fuse (`aimed_charge`).
+  `PlungerViewmodel` (5): fire held pushes the handle home, `DynamiteStick.fire_wired` sets every
+  wired bundle off a tick apart (`fire_spread_ticks`); `save_all`/`restore_all` keep them;
+  `BlastTuning` bundle_sticks/make_time/max_bundles/push_time; bridge `weapon plunger`, `bundle X Y Z
+  [STICKS]`, `plunge [SPREAD]`, `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 

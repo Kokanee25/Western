@@ -11,7 +11,7 @@ const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const FarmLab := preload("res://experiments/farmhouse/bridge.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [world=X,Y,Z] [stand=X,Y,Z] [men=N] [men_r=M] [lift=F] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585); in=farm `world` one stick at that world point instead of the ring, `stand` the player there (world; #626); `men` standing men `men_r` m round the first stick, `lift` BlastTuning.blast_lift (#596 step 3b)",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [world=X,Y,Z] [stand=X,Y,Z] [men=N] [men_r=M] [lift=F] [bundle=N] [plunger=1] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585); in=farm `world` one stick at that world point instead of the ring, `stand` the player there (world; #626); `men` standing men `men_r` m round the first stick, `lift` BlastTuning.blast_lift (#596 step 3b); `bundle` sticks a charge (#647), `plunger=1` the charges wired and fired by the plunger at `fuse` s (a tick apart, the game's) instead of fuses `gap` apart",
 	"bf_movers": "bf_movers [N] -> the N awake bodies moving most, each with every contact (what, where, normal, impulse) (#584)",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
 	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
@@ -48,7 +48,7 @@ var _was_asleep := {}
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
 	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0, "awake": 0.0,
-			"men": 0, "men_r": 1.0, "lift": -1.0}
+			"men": 0, "men_r": 1.0, "lift": -1.0, "bundle": 1, "plunger": 0}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() == 2:
@@ -196,10 +196,22 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 		get_tree().physics_frame.connect(_track_sleep)
 	_recording = true
 	await seconds(1.0)
-	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse))
-	stick.light()
+	var n_per := maxi(int(opts.bundle), 1)
+	var by_plunger := int(opts.plunger) != 0
+	var stick := DynamiteStick.make(street, at, Vector3.ZERO, float(opts.fuse), n_per)
+	var charges: Array[DynamiteStick] = [stick]
 	for k in range(1, spots.size()):
-		DynamiteStick.make(street, spots[k], Vector3.ZERO, float(opts.fuse) + float(opts.gap) * k).light()
+		charges.append(DynamiteStick.make(street, spots[k], Vector3.ZERO, float(opts.fuse) + float(opts.gap) * k, n_per))
+	if by_plunger:
+		# Wired and fired as the plunger does it (#647), at `fuse` s.
+		for c in charges:
+			c.planted = true
+			c.wire()
+		get_tree().create_timer(float(opts.fuse), true, true).timeout.connect(func() -> void:
+			DynamiteStick.fire_wired(get_tree(), at))
+	else:
+		for c in charges:
+			c.light()
 	# The census walks the whole tree (~26,000 nodes, ~0.1 s): only when asked, as it lands on the
 	# frames measured (#538: it was the stick's frame's deferred calls and the one before).
 	var take_census := int(opts.census) != 0

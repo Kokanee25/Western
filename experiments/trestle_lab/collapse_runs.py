@@ -33,9 +33,11 @@ RUNS = {
     "three_under_40": ("three bents blown as the engine comes on (60 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 2, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40}),
     "three_under_40_coach": ("the same, twelve men seated in the coach", {"how": "stick", "posts": "all", "sticks": 2, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40, "riders": 12}),
     # Bundles (#647): two bundles of four sticks on the tallest bent's two inner posts (the light
-    # charge), fired on one tick (a blasting machine), as the engine comes on; and with no train.
-    "bundles_two": ("two bundles of four on the inner posts, one tick, no train", {"how": "stick", "posts": "inner", "sticks": 4, "stagger": 0}),
-    "bundles_two_under_40": ("two bundles of four on the inner posts, one tick, as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "inner", "sticks": 4, "stagger": 0, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
+    # charge), fired by the plunger (a tick apart, the game's fire_spread_ticks), as the engine comes
+    # on; with no train; and the same on one tick for comparison.
+    "bundles_two": ("two bundles of four on the inner posts, the plunger, no train", {"how": "stick", "posts": "inner", "sticks": 4, "stagger": 1}),
+    "bundles_two_one_tick": ("the same, both on one tick", {"how": "stick", "posts": "inner", "sticks": 4, "stagger": 0}),
+    "bundles_two_under_40": ("two bundles of four on the inner posts, the plunger as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "inner", "sticks": 4, "stagger": 1, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
 }
 
 

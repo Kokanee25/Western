@@ -65,40 +65,36 @@ hole in a wall (three sticks a doorway, `test_dynamite`), a bigger crater and me
 (3b). **If posts are made as tough as the manual says, a 12x12 needs a bundle of ~8**: one bundle
 a post, three posts the cap, which is the game Sean described.
 
-## Proposed (for Sean)
+## What Sean picked (#648, 2026-11-04)
 
-1. **How a bundle is made:** with dynamite in hand, **R ties another stick on** (~1.5 s each, a
-   wrap of cord; the bundle in your hand grows 1, 2, 3, ...), up to `bundle_max_sticks`. A bundle
-   is then lit, thrown (shorter: it's heavier), set down or planted (E held) like a stick. Untying
-   isn't needed. Proposed: **up to 8 sticks** (the Army's charge for a 12 in post, if timber is
-   made tougher); with today's timber one stick on a post is enough.
-2. **The cap:** 3 bundles armed at once (`max_bundles`; wired to the machine, or with matched
-   fuses running). A count of bundles, not sticks: a bundle is one charge to place and fire.
-3. **How many you carry:** today 6 sticks. Three bundles of four is 12. Proposed: `sticks_carried`
-   12 for the end game (the mission hands them over); 6 elsewhere until there's a store to buy them.
-4. **How they fire together**, the main call:
-   - **(A) Matched fuses.** The first bundle's fuse lit starts a clock (`fuse_window`, proposed
-     30 s); each bundle lit after it has its fuse cut to finish at the same moment, as a blaster
-     cuts fuses to length. Safety fuse burns to within about ±10% of its rate, so they go off
-     within a few tenths of a second of each other, not on one tick (which also spreads the
-     frame's work). Cheap to build; but you must be at the charges to light them, 30 s or so
-     before they go, so timing it to a moving train is a guess.
-   - **(B) A blasting machine** (a plunger box and a reel of wire). Period-correct for 1882: H.
-     Julius Smith's magneto-electric blasting machine was patented 12 March 1878 (US 201,296),
-     sold by Laflin & Rand; electric caps fired together from a battery were used on the Hoosac
-     Tunnel (1860s-1875). Each planted bundle gets a cap and is wired as you walk away from it
-     (the wire lies on the ground behind you, up to `wire_length`, proposed 150 m); set the box down
-     (E) and push the plunger (E held 0.3 s): **every wired bundle goes off at once**. You watch
-     the train from the box and pick the moment. More to build (the box, the wire drawn on the
-     ground, cut by a blast or a man's spur), and the box and wire are things to carry.
-   - **Recommended: (B), with fuses still on every bundle** (light one by hand as now when you
-     don't need the box). The end game is timing to the train; only the plunger lets you.
+"Can we make it a mini game to actually build bundles - you need to prep them first - doesn't need
+to be a big ordeal - but maybe it takes 10-15 seconds of holding down a key to bundle it - I don't
+want the tying bundles together to the same plunger to explode at the same time to be an ordeal
+though - it doesn't need to be messy". So:
+
+1. **Making a bundle:** with dynamite in hand, **R held `make_time` (12 s)** ties `bundle_sticks`
+   (4) of your loose sticks into a bundle; the sticks gather into your hand as you go. Let go early
+   and the work's kept. **R tapped** puts a stick or a bundle in your hand. A bundle is lit, thrown
+   (shorter: it's heavier) or set down like a stick.
+2. **Firing: a plunger box (B), with no wiring to do.** A bundle planted with E is capped and wired
+   to your box as it's set (a cap and a wire's tail drawn on it); it waits unlit. **5** brings out
+   the box; **fire held** pushes the handle home over `push_time` (0.35 s) and every wired bundle
+   goes, one a physics tick (`fire_spread_ticks` 1: the same moment to the eye, each blast's work on
+   its own tick). Let go short and nothing goes. Period: H. Julius Smith's magneto-electric blasting
+   machine, patented 12 March 1878 (US 201,296), sold by Laflin & Rand; electric caps fired together
+   from a battery on the Hoosac Tunnel (1860s-1875). A match aimed at a planted bundle (Q) lights its
+   fuse instead.
+
+Still open (#648), set to proposed values: the bundle's size (4), the cap (`max_bundles` 3
+waiting at once), what you carry (`sticks_carried` 6 -> 12: three bundles of four), and the timber
+(call 5: tougher toward the manual makes a bundle a post).
 
 ## How it's judged
 
-- Tests: a bundle is its sticks' kg; tied one stick at a time to the cap; planted, it cuts a 12x12
-  post; 2-3 fire on the same moment (or within the fuses' spread for A); the cap holds; a save keeps
-  a planted, unfired bundle (where, how many sticks, what it's on, its wiring or fuse).
+- Tests (`tests/test_dynamite_bundles.gd`): a bundle is its sticks' kg; R held makes one (the work
+  kept), a tap switches; planted it's wired and unlit, a match lights it; the cap holds; the plunger
+  sets every wired bundle off within a tick each and leaves loose sticks; a save keeps a planted,
+  wired bundle; on the trestle a charge cuts the 12x12 post it's on and not its neighbour.
 - **#492's gate** with 2-3 bundles together, on Main Street and on the trestle: one hitch under
   ~100 ms at Sean's (x0.65), back above 50 fps within 0.5 s. The trestle lab's slow spell was 8-24
   bundles inside 0.4 s; 2-3 are fewer. If they go off on one tick, their work is spread (a tick
@@ -115,4 +111,5 @@ rope (the wire is drawn, not simulated), buying dynamite.
 
 - 2026-11-04: brief; the probes above (a charge takes the post it's on; one stick in contact cuts
   a 12x12). Questions to Sean (#648). Built: the bundle (tied with R, its kg, the model), planted
-  unlit and lit with a match aimed at it, the cap, the save; the firing waits for #648.
+  unlit and lit with a match aimed at it, the cap, the save. Sean's answer (same day): R held ~12 s
+  makes a bundle; a plunger box (5) fires every planted bundle, wired as it's planted.
