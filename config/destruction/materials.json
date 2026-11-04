@@ -1,7 +1,7 @@
 {
 	"_doc": "How each masonry material behaves, as numbers: engine-neutral (the portability rule, destruction-spec.md section 1). Salt Creek's code reads these; nothing here is Godot's. Every number is a FIRST GUESS (step 1 of the masonry lab) until a step tunes it against the reference library and Sean's eye; 'status' says which. Strengths are failure values (what breaks it), not the cautious design values an engineer sizes by, as TimberTuning's are. Field meanings are in destruction-spec.md section 3. Units: SI throughout (kg, m, Pa, J, s); sizes are [length along the wall, height, depth through the wall].",
 	"format": 1,
-	"status": "first guess, 2026-11-04 (masonry lab step 1); waiting on Sean's approval of the material list",
+	"status": "first guess, 2026-11-04 (masonry lab step 1); material list approved by Sean (#666, 2026-11-04)",
 
 	"solver": {
 		"_doc": "Dials for the rules in destruction-spec.md sections 5 and 6, the same for every material.",
