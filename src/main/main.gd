@@ -50,6 +50,9 @@ func _ready() -> void:
 	var room := RoomLight.new()  # indoor light that knows the building (Settings.room_light; off)
 	room.name = "RoomLight"
 	add_child(room)
+	var real := RealLook.new()  # the real look (Settings.real_look, docs/briefs/red-dead.md R0; off)
+	real.name = "RealLook"
+	add_child(real)
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -57,8 +60,8 @@ func _ready() -> void:
 func _apply_settings() -> void:
 	game_viewport.size = Settings.render_size(get_viewport().get_visible_rect().size)
 	var post := screen.material as ShaderMaterial
-	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
-	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
+	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading and not Settings.real_look)
+	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish and not Settings.real_look else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
 	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic_active(), Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
 	ProbeMosaic.apply(game_viewport.get_camera_3d(), Settings.probe_active(), Settings.probe_texels, Settings.probe_cell, Settings.probe_bands)

@@ -1,0 +1,9 @@
+{
+ "name": "real",
+ "about": "The real look on (docs/briefs/red-dead.md R0): --look=res://config/looks/real.json for a run, or a screenshots.gd --variants= file (one run renders both looks; frames: how long it settles, for TAA and SDFGI). Its renderer's dials are real_dials.json; its own are the look addresses real.* (RealLook.dials) and view.* (the game viewport), set here to their defaults so a variant before it can't leave its own.",
+ "frames": 40,
+ "values": {
+  "settings.real_look": true,
+  "real.exposure": 1.4
+ }
+}

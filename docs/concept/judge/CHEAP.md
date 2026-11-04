@@ -10,10 +10,13 @@ the concept targets for the one question that needs them (the verdict's top end)
 the code, the briefs or anyone's reasoning. Its pictures are named a, b, c... so a filename can't
 give a render away.
 
-**The painted look is not a tell.** Salt Creek is meant to look like a painted illustration with a
-bit of square to the paint (DESIGN.md §4). Squares that follow the forms, broad painted patches and
-a stylised palette are the art direction, not cheapness. Judge whether it looks *made with care*,
-not whether it looks like a photograph.
+**Realistic, in Red Dead's direction (Sean, 2026-11-04; DESIGN.md §4).** The game now aims at a
+realistic look in the direction of Red Dead Redemption 2: real materials, light with shape, air,
+wear. Red Dead is the compass, not the bar ("not that level, just that direction"), so judge
+whether it looks *made with care*, not whether it is photorealistic or as rich as a AAA game:
+a smaller game's honest realism with care in it is good indie or better. Leftover squares,
+posterised colour or a painted, toy-like finish are now part of what reads as cheap. (Until
+2026-11-04 the game was a painted illustration with a bit of square, and that style was not a tell.)
 
 ## The tells (each PASS / FAIL / N/A, with a crop as evidence)
 

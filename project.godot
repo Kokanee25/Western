@@ -41,6 +41,18 @@ jolt_physics_3d/limits/max_bodies=32768
 
 [shader_globals]
 
+real_relief={
+"type": "float",
+"value": 0.004
+}
+real_groove={
+"type": "float",
+"value": 0.003
+}
+real_specular={
+"type": "float",
+"value": 0.35
+}
 tile_light={
 "type": "float",
 "value": 1.0
