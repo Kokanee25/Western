@@ -24,7 +24,8 @@ changes: the lab's line is laid 2.6 km east of town, past the town's ground (it 
 ## The lab
 
 - `routes/gorge.json`: the line (1.3 km east, a 900 m bend over the gorge), its crossing `gorge`
-  (480-780 m: 300 m) and the gorge's numbers (66 m deep, a 44 m floor, its walls, its wander).
+  (560-690 m: 130 m) and the gorge's numbers (26 m deep, a 28 m floor, its walls, its wander, the
+  river on its floor).
 - `gorge.gd`: the gorge cut to fit the crossing (it moves with the route): the ground's height for
   the line (`TrackLine.ground_y`: the fill and the bents reach down to it), drawn and solid.
 - `lab_line.gd`: the line laid out with its gorge, built, a train on it.
@@ -67,5 +68,7 @@ floor|rim|deck|under`, `trestle_where`. The train lab's commands work on the gor
 
 ## Results
 
-`results/` (one folder a round). Round 1: `results/2026-11-04_r1/` (`summary.md`; the frame
-table `runs/table.md`; the cut matrix; the idle cost; the sheet; the films).
+`results/` (one folder a round): `2026-11-04_r1/` (the 66 m, 300 m viaduct) and
+`2026-11-04_r2_kwai/` (Sean's River Kwai size, 130 m and ~27 m over a river: today's route). Each
+has `summary.md`, the frame table `runs/table.md`, the cut matrix, the idle cost, the sheet and
+the films.

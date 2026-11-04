@@ -1,6 +1,6 @@
 {
   "name": "The trestle lab's gorge line",
-  "_doc": "The trestle lab's line (#623): 1.3 km laid east, 2.6 km east of town (past the town's ground, which collides out to 2 km): a 450 m straight, a slight left-hand bend of 900 m radius (18 degrees, 40 m spirals) over the gorge, then straight on. The viaduct is the route's crossing 'gorge' (480-780 m: 300 m long), named on the route so it moves with the line; the lab's gorge is cut to fit it (gorge.gd). Level: a 66 m deep canyon under a level deck. 'approach' and 'far_rim' are marks for the cameras and the scenarios.",
+  "_doc": "The trestle lab's line (#623): 1.3 km laid east, 2.6 km east of town (past the town's ground, which collides out to 2 km): a 450 m straight, a slight left-hand bend of 900 m radius (18 degrees, 40 m spirals) over the gorge, then straight on. The trestle is the route's crossing 'gorge' (560-690 m: 130 m long), named on the route so it moves with the line; the lab's gorge is cut to fit it (gorge.gd). Level: a river valley 26 m deep under a level deck (Sean, 2026-11-04: the Bridge on the River Kwai's size, 425 ft long and ~90 ft over the water, not round 1's 66 m viaduct). 'approach' and 'far_rim' are marks for the cameras and the scenarios.",
   "origin": [2600.0, 0.0, 40.0],
   "heading": 90.0,
   "plan": [
@@ -9,7 +9,7 @@
     {"id": "beyond", "straight_to": 1300}
   ],
   "profile": {"vertical_curve": 60, "grades": [[0, 0]]},
-  "marks": {"start": 40, "approach": 300, "near_rim": 480, "middle": 630, "far_rim": 780, "beyond": 1000},
-  "crossings": [{"id": "gorge", "kind": "trestle", "from": 480, "to": 780}],
-  "gorge": {"depth": 66.0, "floor_half": 22.0, "wall_power": 1.7, "meander": 8.0}
+  "marks": {"start": 40, "approach": 380, "near_rim": 560, "middle": 625, "far_rim": 690, "beyond": 1000},
+  "crossings": [{"id": "gorge", "kind": "trestle", "from": 560, "to": 690}],
+  "gorge": {"depth": 26.0, "floor_half": 14.0, "wall_power": 1.3, "meander": 4.0, "river": {"half_width": 9.0, "depth": 0.8}}
 }

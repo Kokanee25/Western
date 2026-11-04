@@ -1729,7 +1729,9 @@ static var _rubble_material: PhysicsMaterial
 ## REPORT_OFF of it, off (#626). Jolt's bodies that report contacts lose its manifold reduction
 ## (Godot's JoltBody3D), so every face against a face is a contact of its own: the farmhouse's
 ## collapse spent ~26 ms of Jolt's step a tick on ~500 pieces settling, and its piles jostled longer
-## before they slept. Over a dug tile a piece reports anyway (Ground.rescue reads its contacts).
+## before they slept. Over a dug tile too (#642: a crater's ~150 pieces reporting for good were ~30
+## ms of the step a tick under Sean's two sticks): Ground.rescue finds a slow piece caught under the
+## field by its points, not its contacts.
 const REPORT_ON := 0.5
 const REPORT_OFF := 0.35
 const REPORTED := 4
@@ -1802,7 +1804,7 @@ func _physics_step(delta: float) -> void:
 				v = _runaway(rb, v, lost)
 			rb.set_meta(&"v", v)
 			if gated and not rb.freeze:
-				_report(rb, v.length_squared(), on2, off2, ground, tick)
+				_report(rb, v.length_squared(), on2, off2, tick)
 			if rb.global_position.y < lost_below:
 				lost.append(rb)
 			elif ground and (tick + rb.get_instance_id()) % RESCUE_TICKS == 0:
@@ -1832,20 +1834,17 @@ func _runaway(rb: RigidBody3D, v: Vector3, lost: Array[RigidBody3D]) -> Vector3:
 	return v
 
 
-## Its contacts reported while it's fast (or over dug ground), not while it settles (REPORT_ON).
+## Its contacts reported while it's fast, not while it settles (REPORT_ON).
 ## Changing it wakes the body (Godot's JoltBody3D), so it's only changed on an awake one, and with
 ## a gap between on and off so a piece at the line doesn't flicker. Turned on, its first reports
 ## are what it already touched: `_on_rubble_hit` lets them pass (`reports_from`).
-func _report(rb: RigidBody3D, speed2: float, on2: float, off2: float, ground: Ground, tick: int) -> void:
+func _report(rb: RigidBody3D, speed2: float, on2: float, off2: float, tick: int) -> void:
 	var reporting := rb.max_contacts_reported > 0
 	var want := reporting
 	if speed2 > on2:
 		want = true
 	elif speed2 < off2:
 		want = false
-	if not want and ground:
-		var p := rb.global_position
-		want = ground.tiles.has(ground.key_at(p.x, p.z))
 	if want == reporting:
 		return
 	rb.max_contacts_reported = REPORTED if want else 0

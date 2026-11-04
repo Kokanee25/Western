@@ -32,8 +32,9 @@ func test_the_viaduct_is_built_and_stands() -> void:
 	var tr: Trestle = line.trestles[0]
 	var rep := tr.report()
 	print("  trestle: %s" % [rep])
-	check(float(rep.tallest) > 60.0 and float(rep.tallest) < 76.0, "60-75 m at the middle (%.1f)" % float(rep.tallest))
-	check(float(rep.length) > 250.0, "250-350 m long (%.0f)" % float(rep.length))
+	# The Bridge on the River Kwai's size (Sean, 2026-11-04): 425 ft long, ~90 ft over the water.
+	check(float(rep.tallest) > 22.0 and float(rep.tallest) < 32.0, "~27 m at the middle (%.1f)" % float(rep.tallest))
+	check(float(rep.length) > 110.0 and float(rep.length) < 150.0, "~130 m long (%.0f)" % float(rep.length))
 	check(tr.members_without_load_path().is_empty(), "every member has a load path to the ground")
 	var a := StructuralAnalysis.new(tr.tuning).analyse(tr)
 	var worst := ""

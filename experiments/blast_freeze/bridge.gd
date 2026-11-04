@@ -11,7 +11,7 @@ const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const FarmLab := preload("res://experiments/farmhouse/bridge.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [world=X,Y,Z] [stand=X,Y,Z] [men=N] [men_r=M] [lift=F] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585); in=farm `world` one stick at that world point instead of the ring, `stand` the player there (world; #626); `men` standing men `men_r` m round the first stick, `lift` BlastTuning.blast_lift (#596 step 3b)",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [world=X,Y,Z] [stand=X,Y,Z] [men=N] [men_r=M] [lift=F] [holes=N] [shots=N] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585); in=farm `world` one stick at that world point instead of the ring, `stand` the player there (world; #626); `men` standing men `men_r` m round the first stick, `lift` BlastTuning.blast_lift (#596 step 3b); `holes` boards nearest the stick shot through `shots` times each first (#642)",
 	"bf_movers": "bf_movers [N] -> the N awake bodies moving most, each with every contact (what, where, normal, impulse) (#584)",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
 	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
@@ -83,8 +83,11 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			spots.append(Farmhouse.on_ground(on.x + out.x * 0.6, on.z + out.z * 0.6) + Vector3.UP * 0.1)
 		if String(opts.get("world", "")) != "":
 			# #626: Sean's one stick inside the house (world X,Y,Z; his F12s: 97.8,2.34,-48.94), not the ring.
-			var wp := String(opts.world).split(",")
-			spots = [Vector3(float(wp[0]), float(wp[1]), float(wp[2]))]
+			# #642: several, `;` between them, `gap` s apart (Sean's two: 91.34,1.81,-49.14;94.48,2.34,-48.47 gap=2.3).
+			spots = []
+			for w: String in String(opts.world).split(";"):
+				var wp := w.split(",")
+				spots.append(Vector3(float(wp[0]), float(wp[1]), float(wp[2])))
 		n_sticks = spots.size()
 		if String(opts.get("stand", "")) != "" and player:
 			# #626: where Sean stood (world X,Y,Z; his F12s: 96.3,1.1,-33.6), looking at the stick.
@@ -144,6 +147,39 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 		men.append(man)
 	if not men.is_empty():
 		await physics_frames(10)
+	# #642: `holes` boards nearest the first stick shot through `shots` times each first (Sean's fight:
+	# a carved member's mesh is thousands of triangles, what RubbleRest joins when it comes down).
+	var holed := 0
+	if int(opts.get("holes", 0)) > 0:
+		var near: Array = []
+		for st: Node in get_tree().get_nodes_in_group(&"structures"):
+			if not st is Structure:
+				continue
+			for m: StructureMember in (st as Structure).get_members():
+				var sz := m.size
+				if m.broken or minf(sz.x, minf(sz.y, sz.z)) > 0.1 or not m._use_voxels():
+					continue
+				var d := m.global_position.distance_to(at)
+				if d < 6.0:
+					near.append([d, m])
+		near.sort_custom(func(x: Array, y: Array) -> bool: return x[0] < y[0])
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 642
+		for i in mini(int(opts.holes), near.size()):
+			var m: StructureMember = near[i][1]
+			var sz := m.size
+			var thin := 0 if sz.x <= sz.y and sz.x <= sz.z else (1 if sz.y <= sz.z else 2)
+			var b := m.global_transform.basis.orthonormalized()
+			var dir := b[thin]
+			for k in int(opts.get("shots", 6)):
+				var off := Vector3.ZERO
+				for ax in 3:
+					if ax != thin:
+						off += b[ax] * rng.randf_range(-0.4, 0.4) * sz[ax]
+				var entry := m.global_position + off - dir * (sz[thin] * 0.5 + 0.01)
+				m.carve_hit(entry, entry + dir * (sz[thin] + 0.02), true, dir, 0.0057, 300.0, 0.0)
+			holed += 1
+		await seconds(2.0)
 	var fire := FireSystem.find(get_tree())
 	var lit: Array = []
 	var n_fire := int(opts.fire)
@@ -225,7 +261,7 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			"in": String(opts["in"]), "spots": spots.map(func(v: Vector3) -> Array: return arr(v)), "gap": float(opts.gap),
 			"burning_before": burning_before, "members_before": members_before, "rubble_before": rubble_before,
 			"members_after": saloon.member_count() if saloon else 0, "rubble_after": saloon.rubble.size() if saloon else 0,
-			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut,
+			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut, "holed": holed,
 			"rubble_end": _rubble_count(false), "awake_end": _rubble_count(true),
 			"mission": int(opts.get("mission", 0)), "blast_lift": Blast.t().blast_lift,
 			"men": men.map(func(m: HumanBody) -> Dictionary: return {"limp": m.limp, "from_stick": m.global_position.distance_to(at),

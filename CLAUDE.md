@@ -735,19 +735,19 @@ frozen until Sean names one.
   one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
   apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
   `results/2026-11-04_jackknife/`). Next: #542 (step 7).
-- **The trestle lab** (#623, PR #637, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
-  `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
+- **The trestle lab** (#623, PR #637 merged, build 3194; round 2 on branch `claude/issue-623-oge4jv`;
+  brief `docs/briefs/trestle.md`, `experiments/trestle_lab/` README): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
-  crossing over a gorge cut to fit: 300 m, 66 m high, 7,692 members at rest (idle within noise;
-  a sound crossing 0.02 ms a tick: the train's weight only goes into weakened panels,
-  `StructureMember.extra_points`). Cuts fall by the load paths (one bent: the deck holds empty, the
-  engine finishes it; the two inner posts: the engine brings the bent down); the train hands off
-  as `fell` (couplers loose in pitch); tall falling towers tipped over across the line (`fold`, a
-  model); `save_dict`/`restore_dict`. #492's gate: no frame over 100 ms at Sean's (worst 77), but
-  the slow spell fails in 12 of 19 runs (0.55-1.1 s, 1.6-3.8 s with the coach full); the train goes
-  over in 5 of 15 (chaotic run to run). Waiting on Sean: #638 (the gate, the scale, sizes,
-  charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
-  measure two games at once; a run's steps on the game's clock, its frames on the wall's.
+  crossing over a gorge cut to fit. Round 1 a 66 m, 300 m viaduct (`results/2026-11-04_r1/`); Sean:
+  "toooo big", the Bridge on the River Kwai's size: round 2 (`results/2026-11-04_r2_kwai/`) 130 m,
+  ~27 m over a river, 1,467 members at rest (idle within noise; a crossing 0.05 ms a tick, the
+  train's weight only into weakened panels, `StructureMember.extra_points`). Cuts fall by the load
+  paths (one bent or the two inner posts: holds empty, the engine finishes it); the train hands off
+  as `fell` (couplers loose in pitch); falling bents tipped over across the line (`fold`, a model).
+  #492's gate: no frame over 100 ms at Sean's, the slow spell fails in most collapses (0.5-2.4 s);
+  three bents blown take the train over 3 of 3. Waiting on Sean: #638. Traps: Sight takes a new
+  structure in at its first look (look once at the build); never measure two games at once; a run's
+  steps on the game's clock, its frames on the wall's.
 - **Crash and freeze reports** (#624, PR #650, branch `claude/gameplay-crash-reports`; LAYOUT "Bug reports"):
   the black box (`CrashReports`, every 3 s on a worker), the running marker, the next start's
   `crash_<date-time>.saltbug.zip` in the desktop's `Salt Creek crash reports` (F12's too) and its
@@ -815,8 +815,12 @@ frozen until Sean names one.
   rubble reports contacts only while fast (`Structure._report`: Godot's Jolt drops manifold reduction for
   a body that reports), Jolt's step over the collapse -1/3 (25.5 -> 17 ms here), frames 44 -> 40: not
   halved; RubbleRest joins without a GPU read back (`MemberMesh.arrays_of`); lower solver steps worsen the
-  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`. Next: Sean's
-  F12 with F3 up (the GPU's 35-50 ms), the next-step issue.
+  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`.
+  **Sean's F12s** (#642, branch `claude/gameplay-collapse-cost-2`; `results/2026-11-04_collapse_cost_2/`):
+  Jolt's step ~18 ms a tick at his, GPU not the frame; the crater's pieces reported for good. Now slow
+  rubble never reports, `Ground.rescue` by points (`CAUGHT_DEEP`): step 20.9 -> 11.9 here, frames 38.9
+  -> 32.1; RubbleRest places on its worker. At Sean's ~40-45 ms, not under 33. The ~500 ms untimed
+  frames are F12 saves. Lab: `world=A;B gap=`, `holes=N shots=N`. Next: the next-step issue.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast
