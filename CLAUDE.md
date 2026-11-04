@@ -748,7 +748,7 @@ frozen until Sean names one.
   over in 5 of 15 (chaotic run to run). Waiting on Sean: #638 (the gate, the scale, sizes,
   charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
   measure two games at once; a run's steps on the game's clock, its frames on the wall's.
-- **Crash and freeze reports** (#624, branch `claude/gameplay-crash-reports`; LAYOUT "Bug reports"):
+- **Crash and freeze reports** (#624, PR #650, branch `claude/gameplay-crash-reports`; LAYOUT "Bug reports"):
   the black box (`CrashReports`, every 3 s on a worker), the running marker, the next start's
   `crash_<date-time>.saltbug.zip` in the desktop's `Salt Creek crash reports` (F12's too) and its
   line on screen; `CrashGuard` (native: crash notes, Windows minidumps, the freeze watchdog, 5 s
