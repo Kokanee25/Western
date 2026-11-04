@@ -452,7 +452,8 @@ frozen until Sean names one.
   (`real.hung_*`), interior probes re-taken. Judge: saloon cheap indie in three rounds (darks and
   contact shadows in; "orange wash, roof lit" left: the wood and 14 even sconces, R2/R3); street day
   values made noon worse, taken back. PR #654 green, its merge held for main's red drawn smoke
-  (gameplay's, #650/#657). Waiting on Sean: #659 (R2 or another light round). Next: #660 (R2).
+  (gameplay's, #650/#657). Sean (#659): rework the wood and rebuild the saloon realistic and
+  less barren before more light trials. Next: #660 (brief first: the wood, the room, which saloon).
   Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
