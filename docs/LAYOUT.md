@@ -866,7 +866,9 @@ it all away and puts the probe and haze back.
   `rests_on`, `touching` from the joints (`MasonryWall`: arrays, each joint bonded or broken).
   `Blast.detonate` hands a masonry structure in reach to `take_blast` (its members skip
   `_member_response`): `MasonryBlast.strike` (spec section 5) breaks joints, frees and cracks stones,
-  `_fling` throws them, then the settle. The analysis checks masonry by `_masonry` (S1 bearing, S2
+  `_fling` throws them (far leaf first, through the standing stones near it till it's clear), then
+  the settle `free_before_settle_s` later. A loose stone's box sheds its mortar (`_loose_shape`, a
+  hook in `Structure._drop`); rubble falls a stone at a time (`falls_as` `units`). The analysis checks masonry by `_masonry` (S1 bearing, S2
   bond; never the timber checks); overloaded masonry falls whole (`Structure._gives_way`), with
   what it's still mortared to (`_clump_with`). Numbers only from `config/destruction/materials.json`
   (`MasonryMaterials`); `StructureMember.is_masonry()` is the one "is it stone?" test.

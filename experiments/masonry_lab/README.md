@@ -42,6 +42,9 @@ The parts (promoted to `src/structures/`, `docs/PARTS.md` "Masonry"):
   `infer_supports`), what falls with what by the mortar still bonding them.
 - `MasonryBlast`: the spec's section 5 (the push, joints first, units crack only far harder, what's
   freed flies), with friction on the beds holding a stone in (S4's friction x N).
+- `MasonryStructure.take_blast`/`_fling`: the far leaf thrown first, each stone along the face's
+  normal at `blast_throw_factor` x its impulse / its mass, passing through the standing stones
+  near it till it's clear, and the settle (what else falls) `free_before_settle_s` later.
 - `StructuralAnalysis._masonry`: S1 bearing and S2 bond for masonry members (never the timber
   checks); the arch rule (S3) is step 3's.
 
@@ -52,7 +55,7 @@ The parts (promoted to `src/structures/`, `docs/PARTS.md` "Masonry"):
 | 1 | 20 | 0 | 22 (to course 9) | 1.35-2.82, 0-2.13 | 252 of 294 |
 | 2 | 15 | 2 | 37 (to course 9) | 1.25-3.02, 0-1.99 | 260 |
 | 3 | 14 | 0 | 57 (to course 12) | 1.15-2.88, 0-2.62 | 243 |
-| 1, three sticks | 30 | 2 | 92 (to the top) | 0.95-3.39, 0-3.0 | 172 |
+| 1, three sticks | 30 | 2 | 106 (to the top) | 0.59-3.59, 0-3.0 | 158 |
 
 Every breach goes through both leaves, the wall's ends stand, and the stones are blown out whole
 (0-2 of 14-20 cracked). Without the arch rule what's over the hole falls as a slot until a course
@@ -66,10 +69,27 @@ stick is ~100 MPa for a millisecond or so; taken as a static push it frees stone
 formula, FM 5-250, P = R³KC) puts a breach of 0.55 m of masonry at several sticks: how many sticks
 a jail wall takes is Sean's call (step 3's issue).
 
-Frame times (headless, `--fps=60`, 6 s; this VM's 2.1 GHz core, ×0.65 for Sean's): the town alone
-runs a worst frame of 47 ms and p95 26 ms here; with one stick at the panel the worst was 45-60 ms,
-p95 20-28 ms, the blast's own call 19-24 ms (three sticks: 57 ms). The panel's cost is inside the
-VM's noise; Sean's F3 on Shadow (the 45 fps target) is still to come (`docs/destruction/benchmarks.md`).
+**Getting the stones out of the wall** (three dials and a rule, each found by a film that showed
+the wall still standing): Kinney-Graham's impulse is a far-field fit and threw the nearest stone at
+~1 m/s (`blast_throw_factor` 4: the detonation products' momentum by a contact charge); thrown along
+the line from the charge they went up inside the wall (now along the face's normal); packed face to
+face a box sliding out snags on every edge it passes (a thrown stone passes through the standing
+stones within a wall's thickness of it till it's clear); and the settle on the blast's own tick
+dropped the stones over the hole onto the ones on their way out (`free_before_settle_s` 0.1).
+Then what fell over the hole: dropped as mortared clumps (16 stones one rigid body) it sat back
+in the hole, so rubble falls one stone at a time (`big_hit.falls_as` `units`, as the data said),
+and a loose stone's box is the stone without its share of the mortar (`joint_thickness`): face to
+face it had snagged on its neighbours. Stones over the hole now sag, tip and wedge as they drop
+(some hang tilted: the start of the arching step 3 makes a rule). `tests/test_masonry.gd` checks
+that the freed stones leave the wall's footprint and that rays pass through the hole.
+Film and stills: `results/2026-11-04_step2/` (`breach.mp4`, `stills.jpg`).
+
+Frame times (headless, `--fps=60`, 6 s; this VM's 2.1 GHz core, x0.65 for Sean's): the town alone
+runs worst 43 ms, p95 25 here. One stick at the panel: worst 58-98, p95 26-28; the blast's frame
+~59 ms (the call 27-43 ms), the next ~49 (the thrown stones and the cloud entering), the settle's
+~35; three sticks: worst 122, the call 71 ms. At Sean's that's about two frames under 45 fps per
+stick: the benchmark's first row fails as it stands; Sean's F3 on Shadow is still to come
+(`docs/destruction/benchmarks.md`).
 
 ## Traps
 

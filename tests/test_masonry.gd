@@ -125,7 +125,7 @@ func test_a_stick_at_the_foot_blows_a_hole_and_the_stone_above_falls() -> void:
 	var at := s.to_global(Vector3(2.0, 0.12, -0.12))
 	var report := Blast.detonate(world, at, Blast.t().tnt_per_stick)
 	var freed: Dictionary = s.last_blast.freed
-	await physics_frames(90)
+	await physics_frames(120)
 	var fallen_above := 0
 	var hole_through := 0
 	var ends_standing := true
@@ -151,6 +151,28 @@ func test_a_stick_at_the_foot_blows_a_hole_and_the_stone_above_falls() -> void:
 			leaves[0] = true
 			leaves[1] = true
 	check(leaves.size() == 2, "both leaves blown: a hole through")
+	# What it freed left the wall: out of its footprint (in front, or behind it), not standing in
+	# its own shape on what was under it.
+	var out := 0
+	for i: int in freed:
+		var p := s.to_local(s.element(i).global_position)
+		for rb in s.rubble:
+			if is_instance_valid(rb) and (rb.get_meta(&"members", []) as Array).has(s.element(i).member_id):
+				p = s.to_local(rb.global_position)
+		if p.z < -0.15 or p.z > 0.55 + 0.15 or p.y < -0.1:
+			out += 1
+	check(out * 3 >= freed.size() * 2, "the stones it freed left the wall (%d of %d)" % [out, freed.size()])
+	# A way through: rays straight through the wall at the hole's foot, some clear.
+	var space := World.space(world)
+	var clear := 0
+	var rays := 0
+	for x: float in [1.7, 1.9, 2.1, 2.3]:
+		for y: float in [0.15, 0.35, 0.6]:
+			rays += 1
+			var q := PhysicsRayQueryParameters3D.create(s.to_global(Vector3(x, y, -0.8)), s.to_global(Vector3(x, y, 1.4)), Layers.WORLD)
+			if space.intersect_ray(q).is_empty():
+				clear += 1
+	check(clear >= 3, "a way through the hole (%d of %d rays clear)" % [clear, rays])
 
 
 func _build() -> MasonryStructure:

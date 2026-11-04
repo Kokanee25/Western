@@ -33,6 +33,6 @@ masonry adds, never whether 45 fps holds. That's Shadow's row (Sean's F3, to com
 
 | Date | Step | Build | Scene | Machine | Result | Pass? | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 | 2 | PR (step 2) | Wall panel breach, one stick at the foot, seeds 1-3 | Workspace, headless, 60 fps | blast's own call 19-24 ms (x0.65: 12-16 at Sean's); worst frame over 6 s 45-60 ms against the town alone's 47; p95 20-28 against 26; the hole 1.5-1.8 m wide, 2.0-2.6 m high, through both leaves | n/a (not a frame-rate pass) | the masonry within the VM's noise; three sticks: the call 57 ms (~37 at Sean's) |
-| | 2 | | Wall panel breach | Shadow | Sean's F3 (`masonry_lab` in a debug build's bridge, or a build's lab stop: step 3's issue) | to come | target: never below 45 fps, normal within 3 s |
+| 2026-11-04 | 2 | PR (step 2) | Wall panel breach, one stick at the foot, seeds 1-3 | Workspace, headless, 60 fps | the blast's frame ~59 ms (its call 27-43), the next ~49, the settle's ~35; worst over 6 s 58-98 against the town alone's 43, p95 26-28 against 25 (x0.65 at Sean's: ~38, ~32, ~23); the hole 1.5-1.8 m wide, 2.0-2.6 m high, through both leaves | likely fails at Sean's: ~2 frames under 45 fps | three sticks: worst 122 ms, the call 71; what costs: the blast's own work, the thrown stones entering the physics, the settle |
+| | 2 | | Wall panel breach | Shadow | Sean's F3 (to come) | to come | target: never below 45 fps, normal within 3 s |
 

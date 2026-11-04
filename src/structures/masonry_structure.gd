@@ -143,16 +143,33 @@ func _gives_way(over: Array[StringName], changed: Array[StringName]) -> bool:
 	return true
 
 
-## What falls with it: what it's still mortared to (a clump), not everything it touches.
+## What falls with it: what it's still mortared to (a clump), not everything it touches; nothing,
+## for a material whose `big_hit.falls_as` is `units` (rubble: its lime lets go as it falls).
 func _clump_with(id: StringName) -> Array[StringName]:
 	var i: int = _index_of.get(id, -1)
 	if i < 0:
 		return super(id)
 	var out: Array[StringName] = []
+	if String(MasonryMaterials.material(wall.materials[i]).get("big_hit", {}).get("falls_as", "")) == "units":
+		return out
 	for j in wall.of[i]:
 		if wall.bonded[j] == 1:
 			out.append(_members[wall.other(j, i)].member_id)
 	return out
+
+
+## A loose element's shape: the stone itself, its share of the mortar (`joint_thickness`) gone. Laid
+## face to face with no gap, a box falling or thrown past its neighbours snagged on their edges.
+func _loose_shape(m: StructureMember, cs: CollisionShape3D) -> void:
+	var i: int = _index_of.get(m.member_id, -1)
+	if i < 0 or not cs.shape is BoxShape3D:
+		return
+	cs.shape = _box_shape(_stone_size((cs.shape as BoxShape3D).size, wall.materials[i]))
+
+
+static func _stone_size(box: Vector3, material: StringName) -> Vector3:
+	var j := float(MasonryMaterials.material(material).get("joint_thickness", 0.0))
+	return (box - Vector3.ONE * j).max(box * 0.5)
 
 
 ## Its joints all broken (it's leaving the wall): what it was bonded to is worked out again.
@@ -187,8 +204,13 @@ func take_blast(at: Vector3, kg: float) -> Array[StringName]:
 	var cracked := {}
 	for i in res.cracked:
 		cracked[i] = true
+	# The far leaf first (it goes first: MasonryBlast's rule 4), then by id.
 	var freed: Array = res.freed.keys()
-	freed.sort()
+	var far: bool = local.z < float(wall.walls[0].thick) * 0.5 if not wall.walls.is_empty() else true
+	freed.sort_custom(func(a: int, b: int) -> bool:
+		if wall.wythe[a] != wall.wythe[b]:
+			return wall.wythe[a] > wall.wythe[b] if far else wall.wythe[a] < wall.wythe[b]
+		return a < b)
 	_wakes = []
 	for i: int in freed:
 		var m := _members[i]
@@ -201,10 +223,32 @@ func take_blast(at: Vector3, kg: float) -> Array[StringName]:
 	_wakes = null
 	Prof.stop(&"masonry_blast", t_s)
 	if not res.broke.is_empty() or not out.is_empty():
-		var t_set := Prof.start()
-		out.append_array(settle(SETTLE_FRAME_MS, true))
-		Prof.stop(&"blast_settle", t_set)
+		# What else falls, once what it threw has cleared the wall (`free_before_settle_s`).
+		var ticks := ceili(MasonryMaterials.dial("free_before_settle_s", 0.1) * Engine.physics_ticks_per_second)
+		_settle_at = Engine.get_physics_frames() + maxi(ticks, 1)
 	return out
+
+
+## The physics tick the settle after a blast is due on (-1: none waiting).
+var _settle_at := -1
+## Thrown elements and the standing ones they pass through till then: [[body, [members]], ...].
+var _clearing: Array = []
+
+
+func _physics_process(delta: float) -> void:
+	super(delta)
+	if _settle_at >= 0 and Engine.get_physics_frames() >= _settle_at:
+		_settle_at = -1
+		for c: Array in _clearing:
+			var rb: RigidBody3D = c[0]
+			if is_instance_valid(rb):
+				for o: StructureMember in c[1]:
+					if is_instance_valid(o):
+						rb.remove_collision_exception_with(o)
+		_clearing.clear()
+		var t_set := Prof.start()
+		settle(SETTLE_FRAME_MS, true)
+		Prof.stop(&"blast_settle", t_set)
 
 
 ## The last blast's result (MasonryBlast.strike's), for the lab.
@@ -217,6 +261,10 @@ func _fling(m: StructureMember, v: Vector3, split: bool) -> void:
 	m.broken = true
 	mark_dirty(m.member_id)
 	var at_m := m.global_transform
+	var box := m.structure_aabb()
+	var wall_reach := 0.6
+	if not wall.walls.is_empty():
+		wall_reach = float(wall.walls[wall.wall_of[_index_of[m.member_id]]].thick)
 	var mass := m.weight(tuning) / 9.81
 	var parts := m.take_parts()
 	var bodies: Array[RigidBody3D] = []
@@ -225,6 +273,8 @@ func _fling(m: StructureMember, v: Vector3, split: bool) -> void:
 		rb.transform = _rubble_host_space(at_m)
 		for c in parts:
 			rb.add_child(c)  # (their places on the member are their places on the body)
+			if c is CollisionShape3D:
+				_loose_shape(m, c as CollisionShape3D)
 		rb.mass = maxf(mass, 0.3)
 		bodies.append(rb)
 	else:
@@ -241,7 +291,7 @@ func _fling(m: StructureMember, v: Vector3, split: bool) -> void:
 			mi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id))
 			rb.add_child(mi)
 			var cs := CollisionShape3D.new()
-			cs.shape = _box_shape(half)
+			cs.shape = _box_shape(_stone_size(half, m.wood))
 			rb.add_child(cs)
 			rb.mass = maxf(mass * 0.5, 0.2)
 			bodies.append(rb)
@@ -249,7 +299,25 @@ func _fling(m: StructureMember, v: Vector3, split: bool) -> void:
 		_enter_rubble(rb)
 		var spread := Vector3(_blast_rng.randf_range(-1, 1), _blast_rng.randf_range(-0.5, 1), _blast_rng.randf_range(-1, 1)) * 0.15
 		rb.linear_velocity = v * (1.0 + spread.y * 0.3) + spread * v.length()
-		rb.angular_velocity = Vector3(_blast_rng.randf_range(-1, 1), _blast_rng.randf_range(-1, 1), _blast_rng.randf_range(-1, 1)) * minf(v.length(), 12.0)
+		rb.angular_velocity = Vector3(_blast_rng.randf_range(-1, 1), _blast_rng.randf_range(-1, 1), _blast_rng.randf_range(-1, 1)) * minf(v.length(), 12.0) * 0.25
+		# Clear of the stones round it till it's out (`free_before_settle_s`): laid face to face at
+		# no gap, a box sliding out snags on every edge it passes (its own joints' stones and the
+		# next leaf's above and below it), and it stopped in its own place. Every standing element
+		# within a wall's thickness of it.
+		var near: Array = []
+		var reach := box.grow(wall_reach)
+		for o in _members:
+			if not o.broken and reach.intersects(o.structure_aabb()):
+				rb.add_collision_exception_with(o)
+				near.append(o)
+		_clearing.append([rb, near])
+		# A velocity set on the tick a body's made can be lost: the wake puts it back (Structure._rewake).
+		rb.set_meta(&"start_v", rb.linear_velocity)
+		if lab_contacts and rb.linear_velocity.length() > tuning.harmless_speed * REPORT_ON:
+			# Flying: reporting from the start (_report turning it on next tick resets the body's
+			# state in Godot's Jolt, its velocity with it).
+			rb.max_contacts_reported = REPORTED
+			rb.set_meta(&"reports_from", Engine.get_physics_frames())
 	if _wakes is Array:
 		_wakes.append([m.global_position, 1.0])
 	else:

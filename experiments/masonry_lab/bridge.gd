@@ -10,6 +10,8 @@ const HELP := {
 	"masonry_blast": "masonry_blast [x=2] [y=0.12] [z=-0.12] [sticks=1] [wait=6] [out=PATH] -> (sticks=0: none, the frames alone) a charge at x,y,z of the piece (its space: x along, y up, z in from the face; z<0 in front): what it broke, freed and dropped, the hole, every frame's ms over `wait` s (out: them as JSON)",
 	"masonry_cam": "masonry_cam front|back|side|close|high [D] -> a camera on the piece from D m (default 6)",
 	"masonry": "masonry -> the piece now: standing, fallen, joints broken, rubble awake",
+	"masonry_vis": "masonry_vis [hide] -> what draws under the lab (hide: the piece's batches hidden)",
+	"masonry_debug": "masonry_debug -> its batches (vertices, dirty, a job running), some rubble (where, drawn)",
 }
 
 var _frames := PackedFloat32Array()
@@ -158,3 +160,42 @@ func _cmd_masonry(_a: Array) -> Dictionary:
 	var rep: Dictionary = lab.piece.report()
 	rep["awake_rubble"] = _awake(lab.piece)
 	return rep
+
+
+func _cmd_masonry_debug(_a: Array) -> Dictionary:
+	var lab := _lab()
+	var s: MasonryStructure = lab.piece
+	if s == null:
+		return {"ok": false, "error": "masonry_lab first"}
+	var verts := 0
+	for mi: Node in s._batches.values():
+		var m := (mi as MeshInstance3D).mesh
+		if m and m.get_surface_count() > 0:
+			verts += m.surface_get_array_len(0)
+	var rb_out := []
+	for rb in s.rubble:
+		if is_instance_valid(rb) and rb_out.size() < 4:
+			var vis := []
+			for c in rb.get_children():
+				if c is MeshInstance3D:
+					vis.append([(c as MeshInstance3D).visible, (c as MeshInstance3D).is_visible_in_tree()])
+			rb_out.append({"at": arr(rb.global_position), "meshes": vis, "in_tree": rb.is_inside_tree(), "kids": rb.get_child_count()})
+	return {"batches": s._batches.size(), "verts": verts, "batched": s._batched.size(), "dirty": s._batch_dirty.size(),
+		"queued": s._rebuild_queued, "task": s._batch_task, "rubble": s.rubble.size(), "some_rubble": rb_out,
+		"deterministic": World.deterministic}
+
+
+func _cmd_masonry_vis(a: Array) -> Dictionary:
+	var lab := _lab()
+	var out := []
+	var walk := func(n: Node, f: Callable) -> void:
+		if n is VisualInstance3D and (n as VisualInstance3D).is_visible_in_tree():
+			var vi := n as VisualInstance3D
+			out.append([String(lab.get_path_to(n)), n.get_class(), arr(vi.global_transform * vi.get_aabb().get_center()), arr(vi.get_aabb().size)])
+		for c in n.get_children(true):
+			f.call(c, f)
+	walk.call(lab, walk)
+	if a.size() > 0 and a[0] == "hide":
+		for mi: Node in (lab.piece as MasonryStructure)._batches.values():
+			(mi as MeshInstance3D).visible = false
+	return {"visual": out.slice(0, 40), "count": out.size()}

@@ -1344,6 +1344,12 @@ func _gives_way(_over: Array[StringName], _changed: Array[StringName]) -> bool:
 	return false
 
 
+## A falling member's shape as it goes loose (`cs`, already on its body): as built here; masonry
+## sheds its share of the mortar (MasonryStructure).
+func _loose_shape(_m: StructureMember, _cs: CollisionShape3D) -> void:
+	pass
+
+
 ## What falls with a member that falls: what it touches (a building's timbers, nailed). Masonry:
 ## what it's still mortared to (MasonryStructure).
 func _clump_with(id: StringName) -> Array[StringName]:
@@ -1660,6 +1666,8 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			for c in m.take_parts():
 				c.transform = to_rb * (at_m * c.transform)
 				rb.add_child(c)
+				if c is CollisionShape3D:
+					_loose_shape(m, c as CollisionShape3D)  # (masonry: the stone without its mortar)
 				if c is CollisionShape3D and not (c as CollisionShape3D).shape is BoxShape3D:
 					# Carved (concave): a moving body takes its box, as in _snap, or it falls
 					# through the ground (a blasted sign, the nightly soak, 2026-10-13).

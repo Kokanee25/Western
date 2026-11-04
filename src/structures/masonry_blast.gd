@@ -17,8 +17,8 @@ extends RefCounted
 ## 4. What's freed flies. An element whose far side is free (the far leaf, a through-stone, or one
 ##    whose leaf behind has gone) and whose push beats its bonded joints' bond and the friction on
 ##    its beds (friction x the wall over it pressing them, S4's) loses them all and
-##    takes off at v = I / m (the reflected impulse on its face, or what its front leaf passed
-##    on). Again until nothing more is freed: the far leaf goes first, then the near one.
+##    takes off at v = `blast_throw_factor` x I / m (the reflected impulse on its face, or what its
+##    front leaf passed on; the factor: Kinney-Graham's impulse is a far-field fit). Again until nothing more is freed: the far leaf goes first, then the near one.
 ## 5. Then the solver (StructuralAnalysis's masonry check) decides what else falls.
 ##
 ## The pressure and impulse are Blast's (`overpressure_kpa`, `reflection`, `impulse`); everything
@@ -26,6 +26,10 @@ extends RefCounted
 
 ## Pressures under this (Pa) aren't worked through (nothing in masonry gives to them).
 const FLOOR_PA := 2000.0
+## How a freed element's throw leans off the face's normal: away from the charge's line (per metre
+## it's off it) and up. Directions only (the speeds are the impulse's): the look of the burst.
+const SPREAD := 0.6
+const LEAN := 0.15
 
 
 ## The result: {"broke": joints broken (PackedInt32Array), "freed": element -> velocity (the file's
@@ -72,8 +76,13 @@ static func strike(wall: MasonryWall, at: Vector3, kg: float, standing: Dictiona
 		push[i] = p * face
 		imp[i] = Blast.impulse(kg, r) * Blast.reflection(side) * face
 		pressure[i] = p
-		var d := (q - c).normalized()  # (from the charge through the face, either side)
-		dir[i] = (wall.from_wall_dir(k, d) + Vector3.UP * 0.25).normalized()
+		# Along the face's normal, into the wall (rule 1), spread a little away from the charge's
+		# line and leaning up a little: thrown out through the wall, not up inside it.
+		var normal := Vector3(0.0, 0.0, 1.0 if outside else -1.0)
+		var spread := q - c
+		spread.z = 0.0
+		var d := (normal + spread * SPREAD).normalized()
+		dir[i] = (wall.from_wall_dir(k, d) + Vector3.UP * LEAN).normalized()
 		# 3. Units crack only under far more.
 		var mat := MasonryMaterials.material(wall.materials[i])
 		var t := float(mat.get("unit", {}).get("tension", INF))
@@ -146,8 +155,9 @@ static func strike(wall: MasonryWall, at: Vector3, kg: float, standing: Dictiona
 				for j in wall.of[i]:
 					broke[j] = true
 	var out_freed := {}
+	var throw := MasonryMaterials.dial("blast_throw_factor", 1.0)
 	for i: int in freed:
-		var v := float(imp.get(i, 0.0)) / maxf(wall.mass[i], 0.1)
+		var v := throw * float(imp.get(i, 0.0)) / maxf(wall.mass[i], 0.1)
 		out_freed[i] = (dir.get(i, Vector3.UP) as Vector3) * minf(v, max_throw)
 	var out_broke := PackedInt32Array()
 	for j: int in broke:
