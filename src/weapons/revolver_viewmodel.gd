@@ -123,6 +123,21 @@ func reload_press() -> void:
 		state.close_gate()
 
 
+## Empty (a shot that's a click: reload), or out of cartridges: none on the belt, and none left in
+## the cylinder (or some, but none to load).
+func _why_not(action: StringName) -> String:
+	if state == null:
+		return ""
+	var loaded := state.chambers.count(RevolverState.Chamber.LOADED)
+	if state.belt > 0:
+		return "it's empty: reload" if loaded == 0 and action in [&"fire", &"cock"] else ""
+	if loaded == 0 and action in [&"fire", &"reload", &"cock"]:
+		return "you're out of cartridges"
+	if action == &"reload" and not state.chambers.has(RevolverState.Chamber.SPENT) and not state.chambers.has(RevolverState.Chamber.DUD):
+		return "you've no cartridges left to load (%d in the gun)" % loaded
+	return ""
+
+
 func pull_trigger() -> RevolverState.Shot:
 	_trigger = 1.0
 	return state.pull_trigger()

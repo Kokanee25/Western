@@ -68,7 +68,7 @@ func test_commands_answer_in_order_and_move_you() -> void:
 	var player: Player = street.get_node(^"Player")
 	check(player.global_position.distance_to(Vector3(3, 0, -9)) < 0.3, "goto put you there (%s)" % player.global_position)
 	check_eq(int(replies[1].facing), 90, "facing east")
-	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, hammer down", "read player says what's in your hands")
+	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, 24 on the belt, hammer down", "read player says what's in your hands")
 	check(not replies[3].ok and "no such command" in String(replies[3].error), "a bad command says so")
 	check_eq(replies[4].clock, "17:30", "time sets the clock")
 	check(float(replies[5].t) - float(replies[4].t) >= 0.49, "wait lets game time pass (%.2f s)" % (float(replies[5].t) - float(replies[4].t)))
@@ -193,3 +193,46 @@ func test_the_real_labs_load() -> void:
 	await process_frames(2)
 	for lab: String in b._labs:
 		check(b._labs[lab] is Array, "%s's commands all added (%s)" % [lab, b._labs[lab]])
+
+
+## #607: `press reload` with no cartridges left answered fine and left "0 loaded", and with the gun
+## put away too: now it says why, as the screen does.
+func test_a_reload_that_does_nothing_says_why() -> void:
+	var player: Player = street.get_node(^"Player")
+	var replies := await _ask(["weapon revolver", "wait 1"])
+	var gun := player.revolver()
+	gun.state.belt = 0
+	for i in gun.state.chambers.size():
+		gun.state.chambers[i] = RevolverState.Chamber.EMPTY
+	replies = await _ask(["press reload", "press holster", "wait 1", "press reload"])
+	check(String(replies[0].get("why", "")).contains("out of cartridges"), "out of cartridges (%s)" % str(replies[0]))
+	check(String(replies[3].get("why", "")).contains("put away"), "the gun put away (%s)" % str(replies[3]))
+
+
+## #607: crouched behind the bar `look` said the line was clear and the shots went into its frieze:
+## the ball leaves the barrel, a hand's width under your eye from the hip. `look` says what the
+## barrel's line meets when it isn't what your eye's does.
+func test_look_says_what_the_barrels_line_meets() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"looked_at"
+	street.add_child(man)
+	var player: Player = street.get_node(^"Player")
+	var spot := bridge._places().at(&"street_mid")
+	man.global_position = spot + Vector3(6.0, 0.0, 0.0)
+	await process_frames(3)
+	var replies := await _ask(["goto street_mid", "weapon revolver", "wait 1", "look looked_at head"])
+	var eye := player.camera.global_position
+	# A rail across the line, its top just under your eye: the eye clears it, the barrel doesn't.
+	var rail := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(0.1, 0.2, 3.0)
+	cs.shape = bs
+	rail.add_child(cs)
+	street.add_child(rail)
+	rail.global_position = eye + (Vector3(man.global_position.x, eye.y, man.global_position.z) - eye).normalized() * 1.0 + Vector3(0, -0.13, 0)
+	await process_frames(3)
+	replies = await _ask(["look looked_at head"])
+	check(not replies[0].has("in_the_way"), "your eye's line is clear (%s)" % str(replies[0]))
+	check(replies[0].has("from_the_barrel") and not String(replies[0].from_the_barrel).begins_with("clear"),
+			"and the barrel's isn't (%s)" % str(replies[0]))

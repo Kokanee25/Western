@@ -172,6 +172,25 @@ func why_not_usable() -> String:
 	return ""
 
 
+## Why `action` (fire, reload, aim) won't do what you meant, in plain words ("" when it will):
+## the gun you can't hold first (`why_not_usable`), then one that's put away, then the gun's own
+## (`_why_not`: out of cartridges). #607: `press reload` with none left, or with the gun put away,
+## did nothing without a word.
+func why_not(action: StringName) -> String:
+	var why := why_not_usable()
+	if why != "":
+		return why
+	if not selected:
+		return ""
+	if not drawn and action in [&"fire", &"reload", &"aim", &"cock"]:
+		return "your gun's put away"
+	return _why_not(action)
+
+
+func _why_not(_action: StringName) -> String:
+	return ""
+
+
 ## Fully put away (switching guns waits for this).
 func is_put_away() -> bool:
 	return _draw <= 0.02
