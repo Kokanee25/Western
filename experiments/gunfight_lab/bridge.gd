@@ -493,12 +493,12 @@ func _cmd_gf_result(_a: Array) -> Dictionary:
 		# The record stops at the fight's end; what's happened to him since is said after it, so it
 		# agrees with read all (the D+ playtest: the Kid "fled" here, "surrendered" there).
 		var b = _played.brains.get(id)
-		if _played.done and is_instance_valid(b):
+		if is_instance_valid(b):  # (mid-fight too: #607, men who'd gone down read "standing")
 			var man := (b as OutlawBrain).body
 			var now := "dead" if not man.physiology.alive else "surrendered" if (b as OutlawBrain).mood == OutlawBrain.Mood.SURRENDERED \
-					else "down" if man.limp and m.outcome == "standing" else String(m.outcome)
+					else "down" if (man.limp or man.prone) and m.outcome == "standing" else String(m.outcome)
 			if now != m.outcome:
-				men[id] = "%s, then %s" % [m.outcome, now]
+				men[id] = "%s, then %s" % [m.outcome, now] if _played.done else now
 	var ph: Physiology = _played.player.wounds.physiology
 	var you := ("dead (%s)" % String(ph.cause_of_death).replace("_", " ")) if not ph.alive else "out cold" if not ph.is_conscious() else "up"
 	return {"started": _played.started, "over": _played.done, "t": snappedf(_played.t, 0.1), "ending": _played.record.get("ending", ""),

@@ -10,16 +10,6 @@
    "seconds": 203.49469387755101,
    "description": "This audio file, 3 minutes 23 seconds in length, conveys the sound of an articulated narrow-gauge 400 class \"Beyer-Garratt\" steam locomotive of the South Australian Railways at close quarters starting off, then its train of ore-carrying gondola cars predominating, then the sounds of the hard-working locomotive reverberating in the distance. Throughout, the characteristic paired beats from the Garr"
   },
-  "wws_p8": {
-   "title": "WWS PrussianpassengersteamlocomotiveP-8.ogg",
-   "page": "https://commons.wikimedia.org/wiki/File:WWS_PrussianpassengersteamlocomotiveP-8.ogg",
-   "url": "https://upload.wikimedia.org/wikipedia/commons/b/be/WWS_PrussianpassengersteamlocomotiveP-8.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "author": "Work With Sounds / Konrad Gutkowski",
-   "licence": "CC BY 4.0",
-   "licence_url": "https://creativecommons.org/licenses/by/4.0",
-   "seconds": 26.991746031746032,
-   "description": "The prussian passenger steam locomotive P-8 (production series 38 2267) with tender was built by the Berliner Maschinenbau AG in 1918. Up until the Second World War it had been on duty for the Reichsbahn Directorate of Erfurt. After the Second World War the locomotive carried passengers and freight in Saxony until the 1970s. Today it is in the possession of the railway museum in Bochum and is used"
-  },
   "iowa": {
    "title": "Train sounds from Iowa - Glaneur de sons.ogg",
    "page": "https://commons.wikimedia.org/wiki/File:Train_sounds_from_Iowa_-_Glaneur_de_sons.ogg",
@@ -62,7 +52,7 @@
    "id": "train_chuff_mid_0",
    "src": "garratt_start",
    "kind": "shot",
-   "at": 19.435,
+   "at": 22.375,
    "len": 0.55,
    "tail": 0.25
   },
@@ -76,19 +66,33 @@
   },
   {
    "id": "train_chuff_short_0",
-   "src": "wws_p8",
+   "src": "garratt_start",
    "kind": "shot",
-   "at": 10.49,
-   "len": 0.19,
-   "tail": 0.08
+   "at": 48.195,
+   "len": 0.2,
+   "tail": 0.08,
+   "denoise": {
+    "from": [
+     45.5,
+     50.5
+    ],
+    "amount": 1.0
+   }
   },
   {
    "id": "train_chuff_short_1",
-   "src": "wws_p8",
+   "src": "garratt_start",
    "kind": "shot",
-   "at": 11.655,
-   "len": 0.19,
-   "tail": 0.08
+   "at": 49.975,
+   "len": 0.2,
+   "tail": 0.08,
+   "denoise": {
+    "from": [
+     45.5,
+     50.5
+    ],
+    "amount": 1.0
+   }
   },
   {
    "id": "train_cocks",
@@ -162,9 +166,9 @@
    "id": "train_bell",
    "src": "iowa",
    "kind": "shot",
-   "at": 52.335,
-   "len": 0.72,
-   "tail": 0.4,
+   "at": 58.655,
+   "len": 1.15,
+   "tail": 0.35,
    "hp": 800
   },
   {
