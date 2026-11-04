@@ -473,6 +473,22 @@ own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four ti
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
 what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
 assume ACES under AgX.
+**The real look's light** (docs/briefs/red-dead.md R1, light with shape; `config/looks/real_light.json`):
+while `Settings.real_look` is on, LightLooks lays the file's `night_values` over the game's night
+and its `day_values` over the game's day (light_game.json's stay the painted look's; switching the
+look re-picks the light at once, `LightLooks._on_settings`), and RoomLight is on whatever
+`Settings.room_light` says (its bounce carries the lamps' pools). The saloon at night: light pass
+round 3's warm wash taken back (the room's fill, the wall lamps' reach and falloff, the grade's
+blacks and its cool shadow tint), RoomLight's bounce up and its moonlight down, the room's fill
+neutral, the lamps' haze in a thin room haze.
+RealLook's own part of it: the four lamps hung over the saloon (OilLamp meta `lamp_group` "hung";
+the `saloon_hanging` dials reach only the porch lantern) shaded, their tin shade casting a shadow
+and the lamp casting shadows with the camera within 14 m, their light x `real.hung_energy` (after
+OilLamp's flicker, read back) and reach x `real.hung_reach`: a pool on the floor with the chairs'
+shadows in it, the ceiling over each dark; every building's interior probe (`interior_ambient`,
+taken once at noon) taken again when the room's light changes. By day nothing yet (`day_values`
+empty: R1's haze and shade read as washed noon to the cheap judge, round 2).
+Trials: `screenshots.gd --variants=` files that set `settings.real_look` first, then the dials.
 
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab

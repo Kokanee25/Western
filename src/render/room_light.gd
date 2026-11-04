@@ -119,7 +119,9 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
-	var on: bool = Settings.room_light
+	# Always on under the real look (docs/briefs/red-dead.md R1: its bounce carries the saloon's
+	# pools of lamplight; config/looks/real_light.json).
+	var on: bool = Settings.room_light or Settings.real_look
 	if on != active:
 		if on:
 			_start()
