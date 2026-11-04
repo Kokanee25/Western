@@ -267,6 +267,20 @@ mod sys {
         unsafe { write_file(name, text.as_bytes(), append) }
     }
 
+    /// The handlers that were there put back (the library is about to unload: a signal after
+    /// that would jump into nothing).
+    pub fn disarm() {
+        if !ARMED.swap(false, Ordering::SeqCst) {
+            return;
+        }
+        // SAFETY: OLD holds what arm() replaced.
+        unsafe {
+            for (i, &sig) in SIGNALS.iter().enumerate() {
+                libc::sigaction(sig, OLD[i].as_ptr(), std::ptr::null_mut());
+            }
+        }
+    }
+
     /// Every thread: its name, state and wait channel, then gdb's backtraces if gdb is here.
     pub fn freeze_detail() -> String {
         let mut out = String::from("\n## Threads (/proc)\n");
@@ -356,7 +370,7 @@ mod sys {
         CreateFileW, WriteFile, CREATE_ALWAYS, FILE_APPEND_DATA, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ, OPEN_ALWAYS,
     };
     use windows_sys::Win32::System::Diagnostics::Debug::{
-        AddVectoredExceptionHandler, GetThreadContext, MiniDumpWithIndirectlyReferencedMemory, MiniDumpWithThreadInfo,
+        AddVectoredExceptionHandler, GetThreadContext, RemoveVectoredExceptionHandler, MiniDumpWithIndirectlyReferencedMemory, MiniDumpWithThreadInfo,
         MiniDumpWithUnloadedModules, MiniDumpWriteDump, SetThreadContext, CONTEXT, CONTEXT_CONTROL_AMD64,
         EXCEPTION_POINTERS, MINIDUMP_EXCEPTION_INFORMATION,
     };
@@ -367,6 +381,7 @@ mod sys {
     };
 
     static ARMED: AtomicBool = AtomicBool::new(false);
+    static VEH: AtomicPtr<core::ffi::c_void> = AtomicPtr::new(std::ptr::null_mut());
     static CRASH_EVENT: AtomicPtr<core::ffi::c_void> = AtomicPtr::new(std::ptr::null_mut());
     static DONE_EVENT: AtomicPtr<core::ffi::c_void> = AtomicPtr::new(std::ptr::null_mut());
     static CRASH_PTRS: AtomicPtr<EXCEPTION_POINTERS> = AtomicPtr::new(std::ptr::null_mut());
@@ -496,7 +511,21 @@ mod sys {
         unsafe {
             CRASH_EVENT.store(CreateEventW(std::ptr::null(), 0, 0, std::ptr::null()), Ordering::SeqCst);
             DONE_EVENT.store(CreateEventW(std::ptr::null(), 0, 0, std::ptr::null()), Ordering::SeqCst);
-            AddVectoredExceptionHandler(1, Some(handler));
+            VEH.store(AddVectoredExceptionHandler(1, Some(handler)), Ordering::SeqCst);
+        }
+    }
+
+    /// The handler taken out (the library is about to unload).
+    pub fn disarm() {
+        if !ARMED.swap(false, Ordering::SeqCst) {
+            return;
+        }
+        let h = VEH.swap(std::ptr::null_mut(), Ordering::SeqCst);
+        if !h.is_null() {
+            // SAFETY: the handle AddVectoredExceptionHandler gave.
+            unsafe {
+                RemoveVectoredExceptionHandler(h);
+            }
         }
     }
 
@@ -588,6 +617,7 @@ mod sys {
         0
     }
     pub fn arm() {}
+    pub fn disarm() {}
     pub fn write_note(name: &str, text: &str, append: bool) {
         use std::io::Write;
         if let Some(d) = SHARED.lock().ok().and_then(|s| s.dir.clone()) {
@@ -902,10 +932,11 @@ fn stop_thread() {
     }
 }
 
-/// The library unloads (lib.rs): the watchdog's thread ends first.
+/// The library unloads (lib.rs): the watchdog's thread ends and the handlers go first.
 pub fn stand_down() {
     ON.store(false, Ordering::SeqCst);
     stop_thread();
+    sys::disarm();
 }
 
 #[cfg(test)]

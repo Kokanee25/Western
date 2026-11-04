@@ -164,6 +164,11 @@ static func clean_quit() -> void:
 		_task = -1
 	if guard:
 		guard.uninstall()
+		# (held in a static, it would be let go after the plugin has unloaded: a crash at exit)
+		guard = null
+	if lines:
+		OS.remove_logger(lines)  # (a script's logger called after the script language has gone aborts the exit)
+		lines = null
 	clear(box_dir, true)
 
 
@@ -230,6 +235,12 @@ func write_box(now := false) -> void:
 	_copies += 1
 	var path := box_dir.path_join("box_%d.json" % (_box_n % 2))
 	_box_n += 1
+	if _task >= 0:
+		# The pool keeps a task (its callable and the copy bound to it) till it's waited for: one
+		# never waited for lives to the exit and is let go after the script language has gone (the
+		# smoke test's exit crashed so). It's done here (`writing()` was false), so this doesn't wait.
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
 	if now:
 		_write(snap, path)
 		return
