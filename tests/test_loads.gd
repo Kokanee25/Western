@@ -6,11 +6,22 @@ extends TestCase
 
 var world: Node3D
 var store: FalseFrontBuilding
+## Each test's world in a physics space of its own: the falls here (a porch's rubble, a wall's) are
+## chaotic, and in the test run's shared space they hung on every body the tests before had made
+## (Jolt's ids and broadphase): #653's new tests, run earlier, landed the porch's pile on 78% down,
+## the same to the centimetre every run, where it was 97%+ alone (as #604's and train-sound-2's
+## CI flake). The rules tested are the same; only the history is gone.
+var _space: SubViewport
 
 
 func before_each() -> void:
+	_space = SubViewport.new()
+	_space.own_world_3d = true
+	_space.disable_3d = false
+	_space.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_space)
 	world = Node3D.new()
-	add_child(world)
+	_space.add_child(world)
 	var ground := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -27,7 +38,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	world.queue_free()
+	_space.queue_free()
 	await physics_frames(1)
 
 

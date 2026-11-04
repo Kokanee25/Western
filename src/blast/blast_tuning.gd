@@ -9,8 +9,9 @@ extends Resource
 ## An 8" stick of dynamite weighs about half a pound (0.2–0.23 kg) and hits about as hard as its
 ## weight of TNT.
 @export var tnt_per_stick := 0.2
-## Sticks carried, and how long the cut fuse burns (seconds).
-@export var sticks_carried := 6
+## Sticks carried (12 since #647, Sean's pick on #648: three bundles of four), and how long the
+## cut fuse burns (seconds).
+@export var sticks_carried := 12
 @export var fuse_seconds := 5.0
 ## A thrown stick leaves the hand at this speed (a quick lob .. a full throw, by how long you
 ## wind up), plus this much upward.
@@ -24,6 +25,26 @@ extends Resource
 @export var plant_reach := 2.2
 @export var plant_time := 0.6
 @export var plant_fuse_seconds := 5.0
+## Bundles (#647, brief docs/briefs/dynamite-bundles.md; Sean on #648: "you need to prep them
+## first ... 10-15 seconds of holding down a key", fired together from one plunger with no fuss).
+## With dynamite in hand, R held `make_time` s ties `bundle_sticks` loose sticks into a bundle (let
+## go early and the work's kept); R tapped switches a stick or a bundle into your hand. A bundle
+## planted with E is wired to your plunger box (5) and waits unlit; no more than `max_bundles` wait
+## at once. Sean's picks (#648): four sticks, three bundles, twelve sticks carried.
+@export var bundle_sticks := 4
+@export var make_time := 12.0
+@export var max_bundles := 3
+## R held this long (s) is making a bundle; let go sooner, it's a tap (stick or bundle in hand).
+@export var r_tap := 0.25
+## The plunger (5): held fire pushes its handle down over `push_time` s and every wired bundle goes
+## off, one each `fire_spread_ticks` physics ticks (1: a sixtieth of a second apart, the same moment
+## to anyone watching, and each blast's work on its own tick; 0: all on one tick).
+@export var push_time := 0.35
+@export var fire_spread_ticks := 1
+## How far (m from your eye) a planted bundle can be lit by aiming at it with a match (Q), and how
+## near your eye line it must lie (m).
+@export var light_reach := 2.2
+@export var light_aim := 0.2
 ## How far a burning planted stick's hiss carries (m): men that near on its side of the wall hear
 ## it (Senses, `fuse`: a wall stops it). Sean, issue #537: only really close, so a stick set on a
 ## wall is a surprise to the men inside.
