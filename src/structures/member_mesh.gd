@@ -189,13 +189,37 @@ static func made(arrays: Array) -> ArrayMesh:
 ## piece RubbleRest joined (Sean's F12s: its join at ~40 ms a frame as the farmhouse's rubble
 ## settled; headless, where the lab runs, it costs nothing). The arrays a mesh was made from are
 ## kept on it (`made`); a primitive's are made again on the CPU; any other mesh is read back once
-## and kept.
+## and kept. They carry the channels the renderer's would: a mesh with normals and no tangents is
+## given the tangents the renderer gives it (`_tangents`), so a batch or cell merged from them is
+## drawn as before.
 static func arrays_of(mesh: Mesh) -> Array:
+	var arrays: Array
 	if mesh.has_meta(&"arrays"):
-		return mesh.get_meta(&"arrays")
-	var arrays: Array = (mesh as PrimitiveMesh).get_mesh_arrays() if mesh is PrimitiveMesh else mesh.surface_get_arrays(0)
+		arrays = mesh.get_meta(&"arrays")
+		if arrays[Mesh.ARRAY_NORMAL] == null or arrays[Mesh.ARRAY_TANGENT] != null:
+			return arrays
+	else:
+		arrays = (mesh as PrimitiveMesh).get_mesh_arrays() if mesh is PrimitiveMesh else mesh.surface_get_arrays(0)
+	if arrays[Mesh.ARRAY_NORMAL] != null and arrays[Mesh.ARRAY_TANGENT] == null:
+		arrays = arrays.duplicate()
+		arrays[Mesh.ARRAY_TANGENT] = _tangents(arrays[Mesh.ARRAY_NORMAL])
 	mesh.set_meta(&"arrays", arrays)
 	return arrays
+
+
+## The tangent the renderer stores for a normal given none (its rule, Godot 4.7's
+## RenderingServer: a vector turned off the normal, crossed with it; handedness +1).
+static func _tangents(normals: PackedVector3Array) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	out.resize(normals.size() * 4)
+	for i in normals.size():
+		var n := normals[i]
+		var t := Vector3(n.z, -n.x, n.y).cross(n.normalized()).normalized()
+		out[i * 4] = t.x
+		out[i * 4 + 1] = t.y
+		out[i * 4 + 2] = t.z
+		out[i * 4 + 3] = 1.0
+	return out
 
 
 ## The arrays' triangles one by one (no index), placed by `xf`: what SurfaceTool's append_from,

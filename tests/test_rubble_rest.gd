@@ -236,14 +236,15 @@ func test_a_piece_joins_without_reading_its_mesh_back() -> void:
 	st.deindex()
 	var want := st.commit_to_arrays()
 	var got := MemberMesh.placed(MemberMesh.arrays_of(mesh), xf)
-	for slot: int in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2]:
+	for slot: int in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2]:
 		check_eq(got[slot] != null, want[slot] != null, "channel %d the same" % slot)
 		if got[slot] == null or want[slot] == null:
 			continue
 		check_eq(got[slot].size(), want[slot].size(), "channel %d as long" % slot)
 		var worst := 0.0
 		for i in mini(got[slot].size(), want[slot].size()):
-			worst = maxf(worst, (got[slot][i] - want[slot][i]).length())
+			var d: Variant = got[slot][i] - want[slot][i]
+			worst = maxf(worst, absf(d) if d is float else d.length())
 		check(worst < 0.01, "channel %d the same within 1 cm (worst %.4f)" % [slot, worst])
 	var shard := BoxMesh.new()
 	shard.size = Vector3(0.05, 0.08, 0.004)
