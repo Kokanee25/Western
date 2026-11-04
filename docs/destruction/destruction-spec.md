@@ -217,10 +217,12 @@ decals.
   step 2 tunes it against the reference library.
 - **Water**: mortars carry `decay_when_wet` (rain, the bucket line); nothing reads it yet.
 - **Fire** in timber-in-masonry buildings (fire is out of play since 2026-10-31): later.
-- Which buildings are masonry, where the reference library lives, the Baron's house: Sean's
-  (`docs/briefs/masonry-lab.md`).
+- Which buildings are masonry and where the reference library lives: Sean's, later. (The Baron's
+  house is brick or cut stone, Italianate: #666.)
 
 ## 12. Changes
 
 - 2026-11-04, step 1: first draft: the model, the five materials, S1-S6, the arch rule, two
   scales, the debris lifecycle.
+- 2026-11-04, #666: Sean approved the materials and their first numbers, rubble stone first, the
+  frame-rate targets; the Baron's house brick or cut stone.

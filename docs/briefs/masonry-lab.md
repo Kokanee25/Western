@@ -69,16 +69,17 @@ step, in the order the missions need them.
 - The finale: after the train is destroyed, the player raids the Baron's barricaded masonry house,
   blows open a wall and arrests him. His house is the lab's last and toughest test piece.
 
-## Waiting on Sean (the step 1 issue)
+## Sean's answers (#666, 2026-11-04)
 
-1. The material list and its first numbers (`materials.json`; the spec's sections 3 and 5).
-2. Proposed: rubble stone first; the frame-rate targets (`benchmarks.md`); the Baron's house brick
-   or cut stone (Italianate) or a thick-walled hacienda; a separate destruction-lab session or the
-   explosions coordinator's.
-3. Open: which Salt Creek buildings are masonry beyond the jail and bank (today every building in
-   `config/town.json` is timber, the jail and the bank included); where the reference library
-   lives (`docs/destruction/references/README.md` proposes the private Studio repo); fire in
-   timber-in-masonry buildings later (fire is out of play).
+- The material list and its first numbers: **approved** as written (`materials.json`; the spec's
+  sections 3 and 5). Step 2 on tunes the numbers.
+- **Rubble stone first.** The frame-rate targets in `benchmarks.md` (45 / 40 / 30 fps) **approved**.
+- The Baron's house: **brick or cut stone, Italianate** (not the hacienda).
+- A **separate destruction-lab session** (not folded into the explosions coordinator's work).
+- Left open (decide later): which Salt Creek buildings are masonry beyond the jail and bank (today
+  every building in `config/town.json` is timber); where the reference library lives
+  (`docs/destruction/references/README.md` proposes the private Studio repo); fire in
+  timber-in-masonry buildings later (fire is out of play).
 
 ## Traps (for step 2 on)
 

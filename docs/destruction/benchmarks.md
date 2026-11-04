@@ -15,7 +15,7 @@ in Unreal are compared against later.
 Salt Creek's own frame budget applies as well: the structures system's share is 1.0 ms of the
 14 ms frame at Sean's (`config/frame_budget.tres`; `tools/perf_bench.gd` prints it).
 
-## The scenes and their targets (proposed: Sean to confirm)
+## The scenes and their targets (Sean approved, #666, 2026-11-04)
 
 | Scene | What happens | Pass target |
 | --- | --- | --- |
