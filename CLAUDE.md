@@ -768,6 +768,10 @@ frozen until Sean names one.
   For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
   volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
   one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
+- **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
+  you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
+  gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
+  `2026-11-04_on_you/`. Waiting on Sean: #656 (the films). Next on #596: step 3 (the first instant).
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
