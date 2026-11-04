@@ -446,7 +446,12 @@ frozen until Sean names one.
   FSR2 at native scale, AgX 1.5, SSIL, SDFGI outdoors only, exposure x1.4. Judge (self-test 3/3 with
   the new style line): no view moves a band (saloon cheap indie, street good indie both ways; rounds
   `2026-11-04_cheap_r0_before|real`); the saloon's orange wash is the top reason (R1). Waiting on
-  Sean (#641): his F3 and "real" as the default (then the goldens), or another round. Next: R1 (#640).
+  Sean (#641): his F3 and "real" as the default (then the goldens), or another round.
+  **R1 light with shape** (#640, branch `claude/art-light-shape-mwwwpb`): `config/looks/real_light.json`
+  (night/day values over the game's, real look only), RoomLight on under it, hung lamps shaded
+  (`real.hung_*`), interior probes re-taken. Judge: saloon cheap indie in three rounds (darks and
+  contact shadows in; "orange wash, roof lit" left: the wood and 14 even sconces, R2/R3); street day
+  values made noon worse, taken back. Next: R2 (materials), after Sean's word (the R1 issue).
   Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
