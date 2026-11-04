@@ -8,7 +8,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a godot --path . --rendering-driver vulkan --resolution 640x360 \
 ##       -s res://tools/walk_frames.gd -- [--real|--painted] [--sdfgi=on|off] [--ticks=600] \
-##       [--out=build/walk_frames.csv] [--limit-ms=25]
+##       [--out=user://walk_frames.csv] [--limit-ms=25]
 ##
 ## --limit-ms: exit 1 if any walking frame is over it (for a real GPU; under lavapipe every frame is
 ## a second or more, so read the ratios). #643's numbers (lavapipe, 640x360, 600 ticks, 28 m):
@@ -26,7 +26,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var ticks_to_walk := 600
-	var out := "res://build/walk_frames.csv"
+	var out := "user://walk_frames.csv"  # (a .csv under res:// imports as a translation)
 	var limit_ms := 0.0
 	var sdfgi := ""
 	for a in OS.get_cmdline_user_args():

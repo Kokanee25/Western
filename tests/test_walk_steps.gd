@@ -2,7 +2,8 @@ extends TestCase
 ## Walking is even (#643, Sean: "takes like 3–4 steps then it's like it jerks forward for a step
 ## and goes further than a normal step"): the game's street, a scripted walk of 30 steps down the
 ## middle of Main Street, every step's length (the eyes' travel between footfalls, PlayerMotion's)
-## logged to build/walk_steps.csv; none more than 15% longer than the median, and no tick's travel
+## logged to user://walk_steps.csv (a .csv under res:// imports as a translation) and summed up
+## in the test's output; none more than 15% longer than the median, and no tick's travel
 ## more than 15% over the walk's own.
 ##
 ## What this catches is the walk itself (a step up out of nothing, a push, a speed that surges).
@@ -33,7 +34,7 @@ func test_thirty_even_steps_down_the_street() -> void:
 	player.rotation = Vector3(0.0, PI / 2.0, 0.0)
 	await physics_frames(30)
 	var cam: Camera3D = player.get_node(^"Head/Camera3D")
-	var log := FileAccess.open("res://build/walk_steps.csv", FileAccess.WRITE) if DirAccess.dir_exists_absolute("res://build") else null
+	var log := FileAccess.open("user://walk_steps.csv", FileAccess.WRITE)
 	if log:
 		log.store_line("step,tick,length_m,x,z")
 	var steps: Array[float] = []
@@ -69,6 +70,8 @@ func test_thirty_even_steps_down_the_street() -> void:
 	check(longest <= med * LONGEST, "every step within %d%% of the median %.3f m (longest %.3f m: %s)"
 			% [roundi((LONGEST - 1.0) * 100.0), med, longest, steps])
 	check(med > 0.7 and med < 1.3, "a walking step is about a metre (median %.3f m)" % med)
+	print("  walk: %d steps, median %.3f m, longest %.3f m, shortest %.3f m (%s)" % [steps.size(), med, longest,
+			steps.min(), ProjectSettings.globalize_path("user://walk_steps.csv")])
 	var tick_med := _median(ticks)
 	var tick_max := ticks.max() as float
 	check(tick_max <= tick_med * LONGEST, "no tick's travel jumps (median %.4f m, most %.4f m)" % [tick_med, tick_max])

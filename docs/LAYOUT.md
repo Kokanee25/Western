@@ -503,7 +503,7 @@ it all away and puts the probe and haze back.
   (`run.py` 20 seeds, `tally.py`, `fp_view.gd` first-person frames).
 
 Even steps (#643): `tests/test_walk_steps.gd` walks 30 steps down Main Street headless (each step's
-length to `build/walk_steps.csv`; none over 1.15x the median, no tick's travel over 1.15x). A
+length to `user://walk_steps.csv`; none over 1.15x the median, no tick's travel over 1.15x). A
 hitch from the renderer isn't drawn headless: `tools/walk_frames.gd` walks it drawn, every frame
 timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes' spacing in metres.
 
