@@ -204,11 +204,11 @@ func test_a_light_charge_holds_empty_and_the_engine_finishes_it() -> void:
 	check((mid.cap as StructureMember).broken, "the engine's weight brought the bent down")
 
 
-## Three bents side by side cut: the deck over them falls empty (two leave a bare panel ~5-9 m long,
-## cantilevers either side, that the 9.4 m engine can bridge at speed; the lab's runs have it); the
-## train coming on at 30 km/h goes off the end, handed to its bodies at its speed (momentum kept),
-## and its engine goes down into the gorge.
-func test_the_train_goes_down_with_its_momentum() -> void:
+## Three bents side by side cut: the deck over them falls empty; the train coming on at 30 km/h
+## goes off the end there, handed to its bodies as the bridge does it (kind `fell`) at its speed
+## (momentum kept). Whether it then goes down into the gorge or stops on what's left is chaotic run
+## to run (Jolt's threads): the lab's table measures it (5 of 15 in round 1), not this test.
+func test_the_train_hands_off_at_the_gap_with_its_momentum() -> void:
 	var line := _line()
 	var tr: Trestle = line.trestles[0]
 	tr.settle()
@@ -235,14 +235,6 @@ func test_the_train_goes_down_with_its_momentum() -> void:
 		return
 	check_eq(String(train.derail.kind), "fell", "the bridge's hand-off")
 	check_near(float(p1d[0]), float(train.derail.kmh) / 3.6, 0.6, "handed over at its speed (%.2f m/s of %.2f)" % [float(p1d[0]), float(train.derail.kmh) / 3.6])
-	await physics_frames(60 * 6)
-	var deck_y := line.point_at(float(mid.s)).y
-	var down := 0
-	for k in train.wreck.bodies.size():
-		var rb := train.wreck.body(k)
-		if rb != null and (line.global_transform.affine_inverse() * rb.global_position).y < deck_y - 20.0:
-			down += 1
-	check(down >= 1, "the engine's gone down into the gorge (%d bodies below the deck)" % down)
 
 
 ## A save keeps the wreck: the bridge built again and the save put back has the same members broken,
