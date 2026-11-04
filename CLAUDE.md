@@ -740,32 +740,25 @@ frozen until Sean names one.
   a switch); the walk itself was even. `tests/test_walk_steps.gd`, `tools/walk_frames.gd`; results
   `experiments/movement_feel/results/2026-11-04_lurch/`. Open: Sean's F3 with the fix; physics
   interpolation (none today: any frame that misses vsync shows as a jump).
-- **The trestle lab** (#623, PR #637, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
-  `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
+- **The trestle lab** (#623, PR #637 merged, build 3194; round 2 on branch `claude/issue-623-oge4jv`;
+  brief `docs/briefs/trestle.md`, `experiments/trestle_lab/` README): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
-  crossing over a gorge cut to fit: 300 m, 66 m high, 7,692 members at rest (idle within noise;
-  a sound crossing 0.02 ms a tick: the train's weight only goes into weakened panels,
-  `StructureMember.extra_points`). Cuts fall by the load paths (one bent: the deck holds empty, the
-  engine finishes it; the two inner posts: the engine brings the bent down); the train hands off
-  as `fell` (couplers loose in pitch); tall falling towers tipped over across the line (`fold`, a
-  model); `save_dict`/`restore_dict`. #492's gate: no frame over 100 ms at Sean's (worst 77), but
-  the slow spell fails in 12 of 19 runs (0.55-1.1 s, 1.6-3.8 s with the coach full); the train goes
-  over in 5 of 15 (chaotic run to run). Waiting on Sean: #638 (the gate, the scale, sizes,
-  charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
-  measure two games at once; a run's steps on the game's clock, its frames on the wall's.
-- **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
-  (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
-  Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
-  --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
-  `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
-  (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
-- **Men thrown through the air** (#596 step 3b, branch `claude/issue-596-step-3b-vespwt`;
-  `experiments/physics_lab/results/2026-11-04_thrown/`): `BlastTuning.blast_lift` (0 in the game;
-  proposed 0.8 / 1.1), `Blast.lift_share`, `HumanBody._blast_lift`/`_thrown`/`_step_thrown` (tumble,
-  arms out and knees up in flight, landing blows); 1 m off at 0.8 thrown 3.4 m (top 1.1), at 1.1
-  5.3 m (top 1.8); 3 m off his feet, 6 m unchanged. The throw costs nothing measurable; three men by
-  a stick already fail #492's hitch line on main (their going limp, ~120 ms here). Lab group Z,
-  `--lift`, `thrown.py`, `thrown_films.py`; `bf_blast men=N lift=F`. Waiting on Sean: the setting.
+  crossing over a gorge cut to fit. Round 1 a 66 m, 300 m viaduct (`results/2026-11-04_r1/`); Sean:
+  "toooo big", the Bridge on the River Kwai's size: round 2 (`results/2026-11-04_r2_kwai/`) 130 m,
+  ~27 m over a river, 1,467 members at rest (idle within noise; a crossing 0.05 ms a tick, the
+  train's weight only into weakened panels, `StructureMember.extra_points`). Cuts fall by the load
+  paths (one bent or the two inner posts: holds empty, the engine finishes it); the train hands off
+  as `fell` (couplers loose in pitch); falling bents tipped over across the line (`fold`, a model).
+  #492's gate: no frame over 100 ms at Sean's, the slow spell fails in most collapses (0.5-2.4 s);
+  three bents blown take the train over 3 of 3. Waiting on Sean: #638. Traps: Sight takes a new
+  structure in at its first look (look once at the build); never measure two games at once; a run's
+  steps on the game's clock, its frames on the wall's.
+- **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
+  felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
+  the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
+  0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
+  (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
+  glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).

@@ -1,0 +1,1371 @@
+{
+  "after": {
+    "bents_down": 3,
+    "broken": 240,
+    "by_kind": {
+      "bent_sill": 9,
+      "brace": 90,
+      "cap": 3,
+      "girt": 32,
+      "guard": 8,
+      "post": 49,
+      "rail": 6,
+      "stringer": 10,
+      "tie": 33
+    },
+    "deck_damage": 9,
+    "rails_gone": 6
+  },
+  "derail": {
+    "key": {
+      "at": 162.01692821529,
+      "section": "gorge_bend"
+    },
+    "kind": "fell",
+    "kmh": 39.347416309638,
+    "numeric": false,
+    "s": 612.030449849905,
+    "side": -1,
+    "t": 28.3499999999997,
+    "what": "rail gone"
+  },
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.4,
+    "ms": 697.955,
+    "posts": 12,
+    "stagger_ticks": 1,
+    "worst_one_ms": 21.0
+  },
+  "frames": {
+    "before_mean_ms": 20.65,
+    "frames": 1028,
+    "gate": "fail",
+    "last_under_50fps_s": 28.89,
+    "mean_ms": 28.58,
+    "over_100": 2,
+    "over_50": 17,
+    "sean_worst_ms": 82.2,
+    "second_ms": 106.1,
+    "slow_spell_s": 2.2,
+    "worst_at_s": 0.98,
+    "worst_ms": 126.4
+  },
+  "frames_fall": {
+    "before_mean_ms": 22.15,
+    "frames": 722,
+    "gate": "fail",
+    "last_under_50fps_s": 20.1,
+    "mean_ms": 28.5,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 32.3,
+    "second_ms": 49.0,
+    "slow_spell_s": 2.2,
+    "worst_at_s": 1.33,
+    "worst_ms": 49.7
+  },
+  "load_cost": {
+    "seeds": 12,
+    "set": 115,
+    "settles": 0,
+    "updates": 186,
+    "us": 1356650
+  },
+  "outcome": "fell",
+  "prof_ms_a_frame": {
+    "ballistics": 0.49,
+    "civilian_brain": 0.7,
+    "day_cycle": 0.15,
+    "fire": 0.11,
+    "fire_analyse": 0.05,
+    "fire_loads": 0.09,
+    "floor_marks": 0.1,
+    "horses": 0.18,
+    "kit_balance": 0.08,
+    "lamps": 0.14,
+    "lines_senses": 0.91,
+    "mop": 0.08,
+    "outlaw_brain": 0.09,
+    "people_bands": 0.31,
+    "people_body": 5.16,
+    "people_prep": 1.16,
+    "people_prep_sum": 2.7,
+    "people_skeleton": 1.3,
+    "player": 0.55,
+    "rubble_rest": 0.05,
+    "senses": 2.37,
+    "sight_sync": 0.18,
+    "structures": 0.69,
+    "train": 1.26,
+    "train_bridge": 0.06,
+    "train_carry": 0.14,
+    "train_lookout": 0.09,
+    "train_sound": 0.25,
+    "train_view": 0.19,
+    "trestle_advance": 0.31,
+    "trestle_analyse": 0.4,
+    "trestle_start": 0.08,
+    "trestle_want": 0.15
+  },
+  "rubble": {
+    "awake_at_end": 0,
+    "pieces": 134
+  },
+  "slow_frames": [
+    {
+      "awake": 0,
+      "ms": 41.9,
+      "physics_ms": 23.1,
+      "process_ms": 3.2,
+      "rubble": 0,
+      "t": 0.27,
+      "top": {
+        "horses": 1.0,
+        "lines_senses": 1.3,
+        "people_body": 5.9,
+        "people_prep": 2.0,
+        "people_prep_sum": 2.8,
+        "people_skeleton": 1.4,
+        "senses": 3.6,
+        "train": 0.8
+      }
+    },
+    {
+      "awake": 13,
+      "ms": 68.6,
+      "physics_ms": 26.8,
+      "process_ms": 3.4,
+      "rubble": 13,
+      "t": 22.48,
+      "top": {
+        "ballistics": 21.9,
+        "blast_break": 11.3,
+        "blast_fx": 5.1,
+        "blast_settle": 7.2,
+        "blast_snap": 3.7,
+        "people_body": 3.8,
+        "settle_analyse": 5.9,
+        "train": 3.7
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 55.0,
+      "physics_ms": 26.8,
+      "process_ms": 3.4,
+      "rubble": 17,
+      "t": 22.5,
+      "top": {
+        "ballistics": 3.4,
+        "batches": 1.5,
+        "people_body": 4.0,
+        "people_prep": 1.9,
+        "people_prep_sum": 2.5,
+        "senses": 2.0,
+        "train": 3.6,
+        "train_rails": 2.9
+      }
+    },
+    {
+      "awake": 29,
+      "ms": 52.8,
+      "physics_ms": 26.8,
+      "process_ms": 3.4,
+      "rubble": 29,
+      "t": 22.53,
+      "top": {
+        "ballistics": 13.7,
+        "blast_break": 2.5,
+        "blast_snap": 2.2,
+        "people_body": 4.2,
+        "people_prep_sum": 2.8,
+        "senses": 2.5,
+        "train": 3.7,
+        "train_rails": 2.8
+      }
+    },
+    {
+      "awake": 45,
+      "ms": 69.9,
+      "physics_ms": 26.8,
+      "process_ms": 3.4,
+      "rubble": 45,
+      "t": 22.55,
+      "top": {
+        "ballistics": 19.2,
+        "batches": 2.6,
+        "blast_break": 4.2,
+        "blast_snap": 3.8,
+        "people_body": 5.7,
+        "senses": 2.7,
+        "train": 3.8,
+        "train_rails": 2.9
+      }
+    },
+    {
+      "awake": 51,
+      "ms": 59.7,
+      "physics_ms": 26.8,
+      "process_ms": 3.4,
+      "rubble": 51,
+      "t": 22.57,
+      "top": {
+        "ballistics": 10.8,
+        "blast_break": 2.2,
+        "blast_snap": 2.0,
+        "people_body": 6.5,
+        "people_prep_sum": 2.1,
+        "senses": 3.2,
+        "train": 4.0,
+        "train_rails": 3.1
+      }
+    },
+    {
+      "awake": 53,
+      "ms": 66.6,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 53,
+      "t": 22.58,
+      "top": {
+        "ballistics": 15.8,
+        "batches": 2.8,
+        "blast_break": 3.0,
+        "blast_snap": 2.8,
+        "people_body": 3.8,
+        "senses": 2.3,
+        "train": 3.9,
+        "train_lookout": 3.2
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 63.4,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 22.6,
+      "top": {
+        "ballistics": 19.0,
+        "batches": 2.2,
+        "blast_break": 2.9,
+        "blast_snap": 2.5,
+        "people_body": 4.3,
+        "people_prep_sum": 2.5,
+        "train": 3.8,
+        "train_rails": 3.1
+      }
+    },
+    {
+      "awake": 75,
+      "ms": 70.0,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 75,
+      "t": 22.62,
+      "top": {
+        "ballistics": 22.7,
+        "batches": 2.5,
+        "blast_break": 2.3,
+        "people_body": 4.0,
+        "people_prep_sum": 2.2,
+        "senses": 2.3,
+        "train": 3.8,
+        "train_rails": 3.1
+      }
+    },
+    {
+      "awake": 81,
+      "ms": 60.1,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 81,
+      "t": 22.63,
+      "top": {
+        "ballistics": 13.5,
+        "blast_break": 2.3,
+        "blast_snap": 2.1,
+        "people_body": 4.5,
+        "people_prep_sum": 2.6,
+        "senses": 2.5,
+        "train": 4.2,
+        "train_rails": 3.1
+      }
+    },
+    {
+      "awake": 83,
+      "ms": 65.9,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 83,
+      "t": 22.65,
+      "top": {
+        "ballistics": 14.0,
+        "blast_break": 2.3,
+        "blast_snap": 2.1,
+        "people_body": 4.8,
+        "people_prep_sum": 2.1,
+        "train": 3.7,
+        "train_rails": 3.0,
+        "voxels": 2.5
+      }
+    },
+    {
+      "awake": 93,
+      "ms": 106.1,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 93,
+      "t": 22.67,
+      "top": {
+        "ballistics": 37.9,
+        "blast_break": 4.8,
+        "blast_snap": 4.1,
+        "people_body": 6.9,
+        "people_prep": 2.2,
+        "senses": 4.5,
+        "train": 4.9,
+        "train_rails": 3.8
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 78.8,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 99,
+      "t": 22.68,
+      "top": {
+        "ballistics": 22.4,
+        "batches": 2.2,
+        "lines_senses": 1.5,
+        "people_body": 6.3,
+        "people_prep": 7.5,
+        "people_prep_sum": 6.6,
+        "senses": 3.0,
+        "voxels": 1.9
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 126.4,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 99,
+      "t": 22.7,
+      "top": {
+        "ballistics": 23.9,
+        "fire": 62.3,
+        "fire_analyse": 56.9,
+        "fire_loads": 62.2,
+        "people_body": 6.5,
+        "senses": 4.5,
+        "train": 4.7,
+        "train_rails": 3.8
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 74.3,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 99,
+      "t": 22.72,
+      "top": {
+        "ballistics": 26.1,
+        "batches": 3.5,
+        "fire": 8.7,
+        "fire_analyse": 5.8,
+        "fire_loads": 8.6,
+        "people_body": 6.3,
+        "senses": 4.0,
+        "structures": 4.6
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 55.6,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 99,
+      "t": 22.73,
+      "top": {
+        "ballistics": 14.6,
+        "fire": 15.3,
+        "fire_analyse": 13.5,
+        "fire_loads": 15.3,
+        "people_body": 4.3,
+        "people_prep": 2.7,
+        "people_prep_sum": 3.6,
+        "senses": 1.9
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 45.3,
+      "physics_ms": 66.6,
+      "process_ms": 4.6,
+      "rubble": 99,
+      "t": 22.8,
+      "top": {
+        "ballistics": 11.0,
+        "fire": 2.5,
+        "fire_analyse": 1.8,
+        "fire_loads": 2.5,
+        "people_body": 6.8,
+        "people_prep": 1.7,
+        "people_prep_sum": 3.0,
+        "senses": 3.8
+      }
+    },
+    {
+      "awake": 100,
+      "ms": 43.7,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 100,
+      "t": 22.85,
+      "top": {
+        "ballistics": 10.0,
+        "fire": 2.5,
+        "fire_analyse": 2.0,
+        "fire_loads": 2.5,
+        "people_body": 5.9,
+        "senses": 3.8,
+        "train": 4.0,
+        "train_bridge": 3.2
+      }
+    },
+    {
+      "awake": 101,
+      "ms": 49.4,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 101,
+      "t": 22.9,
+      "top": {
+        "ballistics": 13.0,
+        "fire": 4.3,
+        "fire_analyse": 3.5,
+        "fire_loads": 4.1,
+        "lines_senses": 1.6,
+        "people_body": 7.9,
+        "people_prep_sum": 3.6,
+        "senses": 3.9
+      }
+    },
+    {
+      "awake": 102,
+      "ms": 41.5,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 102,
+      "t": 22.92,
+      "top": {
+        "ballistics": 10.0,
+        "fire": 3.3,
+        "fire_analyse": 1.7,
+        "fire_apply": 1.5,
+        "fire_loads": 3.3,
+        "people_body": 5.9,
+        "people_prep_sum": 2.5,
+        "senses": 1.7
+      }
+    },
+    {
+      "awake": 102,
+      "ms": 51.8,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 102,
+      "t": 22.93,
+      "top": {
+        "ballistics": 12.3,
+        "fire": 2.9,
+        "fire_loads": 2.9,
+        "people_body": 6.6,
+        "people_prep_sum": 2.4,
+        "senses": 4.1,
+        "train": 4.9,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 115,
+      "ms": 43.0,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 115,
+      "t": 23.15,
+      "top": {
+        "ballistics": 9.2,
+        "fire": 2.0,
+        "fire_loads": 1.9,
+        "people_body": 4.0,
+        "people_prep_sum": 3.5,
+        "senses": 2.4,
+        "train": 7.4,
+        "train_bridge": 4.4
+      }
+    },
+    {
+      "awake": 117,
+      "ms": 44.7,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 117,
+      "t": 23.17,
+      "top": {
+        "ballistics": 6.1,
+        "fire": 2.8,
+        "fire_loads": 2.8,
+        "people_body": 6.5,
+        "people_prep_sum": 5.4,
+        "senses": 3.7,
+        "train": 4.7,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 119,
+      "ms": 48.9,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 119,
+      "t": 23.18,
+      "top": {
+        "ballistics": 8.7,
+        "fire": 5.8,
+        "fire_analyse": 3.9,
+        "fire_loads": 5.7,
+        "people_body": 6.0,
+        "people_prep_sum": 2.5,
+        "train": 5.2,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 121,
+      "ms": 56.9,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 121,
+      "t": 23.2,
+      "top": {
+        "ballistics": 9.6,
+        "fire": 3.7,
+        "fire_loads": 3.7,
+        "people_body": 6.5,
+        "people_prep_sum": 3.1,
+        "senses": 6.4,
+        "train": 4.7,
+        "train_bridge": 3.6
+      }
+    },
+    {
+      "awake": 124,
+      "ms": 44.2,
+      "physics_ms": 120.5,
+      "process_ms": 6.4,
+      "rubble": 124,
+      "t": 23.23,
+      "top": {
+        "ballistics": 5.2,
+        "fire": 9.5,
+        "fire_apply": 7.3,
+        "fire_loads": 9.5,
+        "people_body": 4.3,
+        "people_prep_sum": 3.1,
+        "senses": 3.4,
+        "train": 3.5
+      }
+    },
+    {
+      "awake": 126,
+      "ms": 42.3,
+      "physics_ms": 52.8,
+      "process_ms": 4.3,
+      "rubble": 126,
+      "t": 23.43,
+      "top": {
+        "ballistics": 8.7,
+        "lines_senses": 2.1,
+        "people_body": 7.8,
+        "people_prep": 1.2,
+        "people_prep_sum": 2.7,
+        "people_skeleton": 1.8,
+        "senses": 4.5,
+        "train": 1.4
+      }
+    },
+    {
+      "awake": 126,
+      "ms": 41.2,
+      "physics_ms": 52.8,
+      "process_ms": 4.3,
+      "rubble": 126,
+      "t": 23.77,
+      "top": {
+        "ballistics": 8.1,
+        "floor_marks": 1.3,
+        "lines_senses": 1.9,
+        "people_body": 6.7,
+        "people_prep": 1.3,
+        "people_prep_sum": 2.9,
+        "people_skeleton": 1.6,
+        "senses": 4.8
+      }
+    },
+    {
+      "awake": 49,
+      "ms": 49.0,
+      "physics_ms": 34.5,
+      "process_ms": 4.2,
+      "rubble": 128,
+      "t": 27.53,
+      "top": {
+        "bu_forget": 1.6,
+        "settle_analyse": 13.2,
+        "train": 39.9,
+        "train_bridge": 18.2,
+        "train_carry": 21.2,
+        "trestle_advance": 3.7,
+        "trestle_analyse": 4.9,
+        "trestle_want": 16.0
+      }
+    },
+    {
+      "awake": 32,
+      "ms": 49.7,
+      "physics_ms": 46.8,
+      "process_ms": 4.4,
+      "rubble": 128,
+      "t": 28.33,
+      "top": {
+        "lines_senses": 2.2,
+        "people_body": 11.0,
+        "people_prep_sum": 2.2,
+        "people_skeleton": 2.0,
+        "senses": 5.5,
+        "train": 11.9,
+        "trestle_advance": 7.5,
+        "trestle_analyse": 9.3
+      }
+    },
+    {
+      "awake": 32,
+      "ms": 40.8,
+      "physics_ms": 45.5,
+      "process_ms": 4.2,
+      "rubble": 128,
+      "t": 28.43,
+      "top": {
+        "lines_senses": 2.6,
+        "people_body": 10.2,
+        "people_prep_sum": 2.8,
+        "people_skeleton": 1.9,
+        "senses": 5.2,
+        "train": 6.8,
+        "trestle_advance": 4.1,
+        "trestle_analyse": 5.2
+      }
+    },
+    {
+      "awake": 32,
+      "ms": 45.6,
+      "physics_ms": 45.5,
+      "process_ms": 4.2,
+      "rubble": 128,
+      "t": 28.48,
+      "top": {
+        "lines_senses": 2.1,
+        "people_body": 9.5,
+        "people_prep_sum": 2.0,
+        "people_skeleton": 2.1,
+        "senses": 4.9,
+        "train": 11.1,
+        "trestle_advance": 6.8,
+        "trestle_analyse": 8.6
+      }
+    },
+    {
+      "awake": 23,
+      "ms": 46.2,
+      "physics_ms": 45.5,
+      "process_ms": 4.2,
+      "rubble": 128,
+      "t": 28.68,
+      "top": {
+        "people_body": 9.9,
+        "people_prep_sum": 2.2,
+        "people_skeleton": 2.0,
+        "senses": 1.9,
+        "train": 11.1,
+        "trestle_advance": 6.9,
+        "trestle_analyse": 8.5,
+        "trestle_start": 1.7
+      }
+    },
+    {
+      "awake": 26,
+      "ms": 47.5,
+      "physics_ms": 45.5,
+      "process_ms": 4.2,
+      "rubble": 130,
+      "t": 28.93,
+      "top": {
+        "people_body": 6.6,
+        "people_prep_sum": 2.2,
+        "senses": 2.5,
+        "settle_analyse": 10.4,
+        "train": 20.3,
+        "trestle_advance": 4.4,
+        "trestle_analyse": 5.5,
+        "trestle_want": 14.0
+      }
+    },
+    {
+      "awake": 26,
+      "ms": 40.6,
+      "physics_ms": 44.1,
+      "process_ms": 3.9,
+      "rubble": 130,
+      "t": 29.03,
+      "top": {
+        "people_body": 9.7,
+        "people_prep_sum": 2.4,
+        "people_skeleton": 2.0,
+        "train": 10.6,
+        "trestle_advance": 6.3,
+        "trestle_analyse": 8.0,
+        "trestle_start": 1.8,
+        "trestle_want": 1.4
+      }
+    },
+    {
+      "awake": 26,
+      "ms": 41.3,
+      "physics_ms": 44.1,
+      "process_ms": 3.9,
+      "rubble": 130,
+      "t": 29.18,
+      "top": {
+        "people_body": 8.9,
+        "people_prep_sum": 1.9,
+        "people_skeleton": 1.9,
+        "senses": 3.1,
+        "train": 11.1,
+        "trestle_advance": 6.6,
+        "trestle_analyse": 8.4,
+        "trestle_start": 1.7
+      }
+    },
+    {
+      "awake": 26,
+      "ms": 41.6,
+      "physics_ms": 38.3,
+      "process_ms": 3.9,
+      "rubble": 130,
+      "t": 29.53,
+      "top": {
+        "people_body": 7.0,
+        "people_prep_sum": 2.7,
+        "people_skeleton": 1.8,
+        "senses": 3.3,
+        "train": 10.1,
+        "trestle_advance": 5.9,
+        "trestle_analyse": 7.7,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 26,
+      "ms": 41.8,
+      "physics_ms": 38.3,
+      "process_ms": 3.9,
+      "rubble": 130,
+      "t": 29.73,
+      "top": {
+        "lines_senses": 1.8,
+        "people_body": 6.5,
+        "people_prep_sum": 3.4,
+        "people_skeleton": 1.8,
+        "senses": 3.4,
+        "train": 10.6,
+        "trestle_advance": 6.3,
+        "trestle_analyse": 8.0
+      }
+    },
+    {
+      "awake": 19,
+      "ms": 46.9,
+      "physics_ms": 38.3,
+      "process_ms": 3.9,
+      "rubble": 130,
+      "t": 29.93,
+      "top": {
+        "lines_senses": 2.2,
+        "people_body": 7.4,
+        "people_prep_sum": 2.5,
+        "senses": 4.9,
+        "train": 11.4,
+        "trestle_advance": 6.5,
+        "trestle_analyse": 8.4,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 44.9,
+      "physics_ms": 43.8,
+      "process_ms": 3.7,
+      "rubble": 132,
+      "t": 30.03,
+      "top": {
+        "lines_senses": 2.5,
+        "people_body": 7.4,
+        "people_prep_sum": 2.1,
+        "people_skeleton": 1.9,
+        "senses": 5.1,
+        "train": 10.8,
+        "trestle_advance": 6.5,
+        "trestle_analyse": 8.2
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 42.3,
+      "physics_ms": 43.8,
+      "process_ms": 3.7,
+      "rubble": 132,
+      "t": 30.38,
+      "top": {
+        "people_body": 6.1,
+        "people_prep_sum": 2.2,
+        "people_skeleton": 1.9,
+        "senses": 3.5,
+        "train": 11.0,
+        "trestle_advance": 6.4,
+        "trestle_analyse": 8.3,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 40.1,
+      "physics_ms": 43.8,
+      "process_ms": 3.7,
+      "rubble": 132,
+      "t": 30.53,
+      "top": {
+        "lines_senses": 1.5,
+        "people_body": 6.0,
+        "people_prep_sum": 2.5,
+        "people_skeleton": 1.7,
+        "senses": 2.9,
+        "train": 8.7,
+        "trestle_advance": 5.6,
+        "trestle_analyse": 6.7
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 48.1,
+      "physics_ms": 41.8,
+      "process_ms": 5.1,
+      "rubble": 132,
+      "t": 30.58,
+      "top": {
+        "people_body": 7.9,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 2.2,
+        "senses": 3.5,
+        "train": 13.0,
+        "trestle_advance": 7.6,
+        "trestle_analyse": 9.6,
+        "trestle_start": 2.0
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 42.0,
+      "physics_ms": 41.8,
+      "process_ms": 5.1,
+      "rubble": 132,
+      "t": 30.73,
+      "top": {
+        "lines_senses": 1.9,
+        "people_body": 7.5,
+        "people_prep_sum": 3.2,
+        "people_skeleton": 1.8,
+        "senses": 5.3,
+        "train": 7.0,
+        "trestle_advance": 4.2,
+        "trestle_analyse": 5.3
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 40.1,
+      "physics_ms": 41.8,
+      "process_ms": 5.1,
+      "rubble": 132,
+      "t": 31.03,
+      "top": {
+        "people_body": 7.2,
+        "people_prep_sum": 2.7,
+        "people_skeleton": 1.8,
+        "senses": 2.2,
+        "train": 9.3,
+        "trestle_advance": 5.3,
+        "trestle_analyse": 7.1,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 41.0,
+      "physics_ms": 41.8,
+      "process_ms": 5.1,
+      "rubble": 132,
+      "t": 31.08,
+      "top": {
+        "people_body": 6.8,
+        "people_prep_sum": 2.4,
+        "people_skeleton": 1.9,
+        "senses": 1.9,
+        "train": 10.6,
+        "trestle_advance": 6.6,
+        "trestle_analyse": 8.5,
+        "trestle_start": 1.9
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 41.3,
+      "physics_ms": 44.6,
+      "process_ms": 4.9,
+      "rubble": 132,
+      "t": 31.23,
+      "top": {
+        "lines_senses": 1.5,
+        "people_body": 6.2,
+        "people_prep_sum": 3.3,
+        "senses": 4.0,
+        "train": 10.4,
+        "trestle_advance": 6.4,
+        "trestle_analyse": 8.2,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 40.1,
+      "physics_ms": 44.6,
+      "process_ms": 4.9,
+      "rubble": 132,
+      "t": 31.28,
+      "top": {
+        "lines_senses": 1.5,
+        "people_body": 5.6,
+        "people_prep_sum": 2.2,
+        "senses": 3.2,
+        "train": 10.8,
+        "trestle_advance": 6.8,
+        "trestle_analyse": 8.6,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 20,
+      "ms": 40.2,
+      "physics_ms": 38.7,
+      "process_ms": 4.2,
+      "rubble": 132,
+      "t": 32.03,
+      "top": {
+        "lines_senses": 2.0,
+        "people_body": 7.8,
+        "people_prep_sum": 2.2,
+        "people_skeleton": 2.2,
+        "senses": 4.5,
+        "train": 7.4,
+        "trestle_advance": 4.1,
+        "trestle_analyse": 5.3
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 41.4,
+      "physics_ms": 38.7,
+      "process_ms": 4.2,
+      "rubble": 132,
+      "t": 32.08,
+      "top": {
+        "lines_senses": 2.2,
+        "people_body": 6.5,
+        "people_prep_sum": 2.1,
+        "people_skeleton": 2.0,
+        "senses": 4.5,
+        "train": 10.4,
+        "trestle_advance": 6.5,
+        "trestle_analyse": 8.3
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 49.0,
+      "physics_ms": 38.7,
+      "process_ms": 4.2,
+      "rubble": 132,
+      "t": 32.13,
+      "top": {
+        "lines_senses": 3.0,
+        "people_body": 8.6,
+        "people_prep_sum": 2.9,
+        "people_skeleton": 2.1,
+        "senses": 5.0,
+        "train": 11.7,
+        "trestle_advance": 7.7,
+        "trestle_analyse": 9.5
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 44.0,
+      "physics_ms": 38.7,
+      "process_ms": 4.2,
+      "rubble": 132,
+      "t": 32.18,
+      "top": {
+        "lines_senses": 2.0,
+        "people_body": 7.4,
+        "people_prep_sum": 2.8,
+        "senses": 3.8,
+        "train": 11.4,
+        "trestle_advance": 7.1,
+        "trestle_analyse": 9.4,
+        "trestle_start": 2.3
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 40.1,
+      "physics_ms": 45.1,
+      "process_ms": 4.6,
+      "rubble": 132,
+      "t": 32.23,
+      "top": {
+        "people_body": 7.0,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 2.0,
+        "train": 10.5,
+        "trestle_advance": 6.6,
+        "trestle_analyse": 8.4,
+        "trestle_start": 1.8,
+        "trestle_want": 1.5
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 43.1,
+      "physics_ms": 45.1,
+      "process_ms": 4.6,
+      "rubble": 132,
+      "t": 32.43,
+      "top": {
+        "lines_senses": 2.1,
+        "people_body": 7.3,
+        "people_prep_sum": 2.5,
+        "people_skeleton": 2.1,
+        "senses": 4.4,
+        "train": 8.0,
+        "trestle_advance": 4.1,
+        "trestle_analyse": 5.3
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 42.6,
+      "physics_ms": 45.1,
+      "process_ms": 4.6,
+      "rubble": 132,
+      "t": 32.58,
+      "top": {
+        "people_body": 5.9,
+        "people_prep_sum": 2.9,
+        "people_skeleton": 2.0,
+        "senses": 2.9,
+        "structures": 4.6,
+        "train": 10.1,
+        "trestle_advance": 6.2,
+        "trestle_analyse": 8.0
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 43.6,
+      "physics_ms": 39.7,
+      "process_ms": 4.5,
+      "rubble": 132,
+      "t": 32.83,
+      "top": {
+        "lines_senses": 1.9,
+        "people_body": 6.9,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 2.0,
+        "senses": 4.5,
+        "train": 7.5,
+        "trestle_advance": 4.2,
+        "trestle_analyse": 5.2
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 41.7,
+      "physics_ms": 39.7,
+      "process_ms": 4.5,
+      "rubble": 132,
+      "t": 32.93,
+      "top": {
+        "lines_senses": 1.9,
+        "people_body": 7.3,
+        "people_prep_sum": 2.8,
+        "people_skeleton": 2.0,
+        "senses": 3.9,
+        "train": 9.9,
+        "trestle_advance": 6.7,
+        "trestle_analyse": 8.2
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 43.3,
+      "physics_ms": 39.7,
+      "process_ms": 4.5,
+      "rubble": 132,
+      "t": 33.13,
+      "top": {
+        "lines_senses": 2.1,
+        "people_body": 7.4,
+        "people_prep_sum": 2.8,
+        "people_skeleton": 2.2,
+        "senses": 4.6,
+        "train": 8.5,
+        "trestle_advance": 5.1,
+        "trestle_analyse": 6.5
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 40.3,
+      "physics_ms": 39.7,
+      "process_ms": 4.5,
+      "rubble": 132,
+      "t": 33.18,
+      "top": {
+        "lines_senses": 1.7,
+        "people_body": 6.8,
+        "people_prep_sum": 3.8,
+        "people_skeleton": 2.1,
+        "senses": 3.5,
+        "train": 8.4,
+        "trestle_advance": 4.9,
+        "trestle_analyse": 6.3
+      }
+    },
+    {
+      "awake": 16,
+      "ms": 41.0,
+      "physics_ms": 40.3,
+      "process_ms": 4.4,
+      "rubble": 132,
+      "t": 33.33,
+      "top": {
+        "lines_senses": 2.0,
+        "people_body": 7.6,
+        "people_prep_sum": 2.0,
+        "people_skeleton": 2.2,
+        "senses": 4.6,
+        "train": 4.7,
+        "trestle_advance": 2.0,
+        "trestle_analyse": 2.4
+      }
+    },
+    {
+      "awake": 11,
+      "ms": 40.4,
+      "physics_ms": 34.6,
+      "process_ms": 3.9,
+      "rubble": 132,
+      "t": 34.45,
+      "top": {
+        "kit_balance": 1.7,
+        "lines_senses": 1.3,
+        "people_body": 8.0,
+        "people_prep": 2.9,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 4.9,
+        "senses": 3.1,
+        "structures": 4.5
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 3,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 40.0,
+    "lead": 60.0,
+    "out": "/home/user/Western/build/r2/runs/three_under_40_coach.json",
+    "posts": "all",
+    "riders": 12,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 2,
+    "story": "bottom",
+    "train": "cross",
+    "wait": 6.0,
+    "when": "under"
+  },
+  "t_fire": 22.4833333333333,
+  "t_off": 27.55,
+  "wreck": {
+    "bents_s": [
+      617.8,
+      622.6,
+      627.4
+    ],
+    "bodies": 7,
+    "events": [
+      {
+        "car": 0,
+        "kmh": 39.347416309638,
+        "t": 0.0,
+        "what": "fell"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.15,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_11"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.166666666666667,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_10"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.183333333333333,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_9"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.2,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_8"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.216666666666667,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_7"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.233333333333333,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_6"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.25,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_5"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.266666666666667,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_4"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.283333333333333,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_3"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.3,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_2"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.316666666666667,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_1"
+      },
+      {
+        "car": 6,
+        "g": 1.6586197261052,
+        "t": 0.333333333333333,
+        "tilt": 1.21076746376577,
+        "what": "thrown",
+        "who": "passenger_0"
+      }
+    ],
+    "fell_into_gorge": 0,
+    "gaps": [
+      "broken 605.7-614.9",
+      "broken 605.7-614.9",
+      "broken 612.9-632.1",
+      "broken 614.9-624.0",
+      "broken 614.9-624.0",
+      "broken 624.0-633.1",
+      "broken 624.0-633.1",
+      "blocked 628.0-632.0",
+      "blocked 632.0-636.0"
+    ],
+    "where": [
+      "0/whole s629.0 dy-0.2 v0.0 F",
+      "1/whole s619.8 dy-0.3 v0.0 on @RigidBody3D@38880 [&\"track06/bent012/s02/post-3.1\", &\"track06/girt012/s02/xl1\"] (153) S",
+      "2/whole s612.3 dy-0.2 v0.0 F on @RigidBody3D@38972 [&\"track06/rail/r/05\"] (1) F",
+      "3/whole s604.4 dy-0.1 v0.0 F",
+      "4/whole s595.6 dy-0.1 v0.0 F",
+      "5/whole s585.2 dy-0.1 v0.1 F",
+      "6/whole s573.0 dy-0.0 v0.0 F on tie_00955"
+    ]
+  }
+}

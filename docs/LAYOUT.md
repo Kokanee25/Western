@@ -1214,9 +1214,11 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   intermediate copies only and no publishing of its content outside the game; deleted once the sets
   are chosen).
   Blind clips per set: `experiments/sound_lab/blast_clips.py` (5, 30, 150 m and the saloon).
-  The sets (2026-11-03): three, from eight Freesound CC0 recordings Sean downloaded (#599), cut by
-  `experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json` into
-  `assets/audio/blast/s1..s3/` (crack, boom, sub, roll; no debris, glass or groan yet).
+  The set (Sean's pick of three, 2026-11-04): felixblume's mountain dynamite with boilingsand's
+  M-150 as the crack, Freesound CC0 (#599), cut by `experiments/train_lab/recordings.py
+  --manifest=experiments/sound_lab/blast_recordings.json` into `assets/audio/blast/s1/` (crack,
+  boom, sub, roll; no debris, glass or groan yet). Your ears hold clear `BlastTuning.ear_hold_s`
+  after a blast reaches you, then dull over `ear_ease_s` (the crack comes through first).
 
 ## src/creatures (the horse)
 
