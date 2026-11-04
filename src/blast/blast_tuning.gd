@@ -9,8 +9,8 @@ extends Resource
 ## An 8" stick of dynamite weighs about half a pound (0.2–0.23 kg) and hits about as hard as its
 ## weight of TNT.
 @export var tnt_per_stick := 0.2
-## Sticks carried (12 since #647, PROPOSED: three bundles of four), and how long the cut fuse
-## burns (seconds).
+## Sticks carried (12 since #647, Sean's pick on #648: three bundles of four), and how long the
+## cut fuse burns (seconds).
 @export var sticks_carried := 12
 @export var fuse_seconds := 5.0
 ## A thrown stick leaves the hand at this speed (a quick lob .. a full throw, by how long you
@@ -30,7 +30,7 @@ extends Resource
 ## With dynamite in hand, R held `make_time` s ties `bundle_sticks` loose sticks into a bundle (let
 ## go early and the work's kept); R tapped switches a stick or a bundle into your hand. A bundle
 ## planted with E is wired to your plunger box (5) and waits unlit; no more than `max_bundles` wait
-## at once. PROPOSED: the size, the time, the cap.
+## at once. Sean's picks (#648): four sticks, three bundles, twelve sticks carried.
 @export var bundle_sticks := 4
 @export var make_time := 12.0
 @export var max_bundles := 3

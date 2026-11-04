@@ -85,9 +85,11 @@ though - it doesn't need to be messy". So:
    from a battery on the Hoosac Tunnel (1860s-1875). A match aimed at a planted bundle (Q) lights its
    fuse instead.
 
-Still open (#648), set to proposed values: the bundle's size (4), the cap (`max_bundles` 3
-waiting at once), what you carry (`sticks_carried` 6 -> 12: three bundles of four), and the timber
-(call 5: tougher toward the manual makes a bundle a post).
+The rest (#648, answered the same day): **four sticks a bundle, three bundles waiting at once,
+twelve sticks carried**; **timber tougher**, so that a bundle of four cuts a 12x12 post and fewer
+sticks don't (one bundle a post), in a breakage-lab step of its own with the town's wall holes
+re-measured (one stick a crawl hole, three a doorway kept); and **merge now**, the cost of a big
+blast cut in the next session.
 
 ## How it's judged
 

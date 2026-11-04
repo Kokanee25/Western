@@ -758,9 +758,9 @@ frozen until Sean names one.
   `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
   wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
   (`experiments/blast_freeze/results/2026-11-04_bundles/`): the trestle's two bundles pass, Main
-  Street's one bundle (~300 ms at Sean's) and three (rubble awake 8 s+) fail. Waiting on Sean (#648):
-  size, cap, sticks carried, the timber (one stick in contact cuts a 12x12; the manual says ~8).
-  Next: slice a bundle's tick, the rubble asleep sooner, the films (#647).
+  Street's one bundle (~300 ms at Sean's) and three (rubble awake 8 s+) fail. Sean's picks (#648,
+  closed): 4 sticks, 3 bundles, 12 carried, merge now, timber tougher (a bundle of four cuts a 12x12,
+  fewer don't). Next (#647): the timber, then a bundle's tick sliced and its rubble asleep sooner, films.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
