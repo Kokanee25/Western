@@ -994,6 +994,12 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The masonry lab** (Sean's brief 2026-11-04, `docs/briefs/masonry-lab.md`; engine-neutral rules in
+`docs/destruction/`, data in `config/destruction/`): step 1 (the spec, the five materials, the
+structures format, benchmarks; branch `claude/new-session-g6cvr9`) waits on Sean's approval of the
+material list; next step 2, one rubble-stone wall panel in `experiments/masonry_lab/`, built on
+`Structure`/`StructuralAnalysis`/`Blast` (no second solver).
+
 **The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
 - Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
   Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
