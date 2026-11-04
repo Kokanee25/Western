@@ -194,6 +194,10 @@ extends Resource
 @export var thrown_g := 0.8
 ## a coupler strained this far from where it holds (m) lets go (its pin sheared).
 @export var coupler_tears := 0.35
+## Two coupled cars folded past this at their coupler (degrees, seen from above) come apart: the
+## coupler shears and both cars break into sections (Sean, #620). PROPOSED: the wrecks at 20-40 km/h
+## fold 21-28 degrees at their worst coupler; a car on the 120 m bend folds ~5.
+@export var jackknife_deg := 20.0
 
 @export_group("The repair crew (step 5)")
 ## The railroad's men come this many game hours after the line's damaged (the next day). PROPOSED.

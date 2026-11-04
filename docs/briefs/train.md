@@ -133,7 +133,9 @@ All in `config/train.tres`, all *proposed*.
   broken side at 0.12 m/s a m/s it was going (at least 0.6). A car stopped by more than 6 m/s
   inside 0.15 s breaks into big sections; men riding are thrown (go limp, moving on) when their
   car jolts past 0.8 g or tips past 35 degrees; a coupler strained 0.35 m from where it holds lets
-  go.
+  go. **Jackknifing cars come apart** (Sean, #620): two cars folded past 20 degrees at their coupler
+  (the wrecks fold 21-28; a car on the 120 m bend ~5) shear it, and a car of boards in the fold
+  breaks into sections (`results/2026-11-04_jackknife/`).
 - **The crew:** the next day (`repair_delay_h` 24 game hours), four men; a tie 40 s of a man's
   work, a rail 120 s, clearing 30 s a tonne: a torn-out rail and its ties are about ten minutes of
   the crew's work, a wrecked train beside the line about half an hour.

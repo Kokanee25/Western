@@ -176,7 +176,8 @@ func summary(spec: Dictionary, line: TrackLine, train: Train, end_t: float) -> D
 		out["engine"] = {"front_past_break_m": es + (c0.trucks.x + c0.trucks.y) * 0.5 - at, "off_m": el.distance_to(line.point_at(es)),
 			"tilt_deg": rad_to_deg(e0.global_basis.y.angle_to(Vector3.UP))}
 		out["wreck"] = {"bodies": train.wreck.bodies.size(), "most_off_m": off, "furthest_past_m": far, "tipped": tipped,
-			"events": train.wreck.events.duplicate(), "asleep": _asleep(train.wreck)}
+			"events": train.wreck.events.duplicate(), "asleep": _asleep(train.wreck),
+			"max_fold_deg": train.wreck.max_fold.values().max() if not train.wreck.max_fold.is_empty() else 0.0}
 	var thrown := 0
 	if train.wreck:
 		for e: Dictionary in train.wreck.events:
