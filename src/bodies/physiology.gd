@@ -673,7 +673,9 @@ func describe() -> String:
 			inside += bleed_rate(b)
 	var r := total_bleed_rate() - inside
 	if inside > 0.5 and s > 0.2:
-		parts.append("going pale with no wound to show for it")
+		# "No wound to show" only when there's none (#607: said of men with a hole in them).
+		var shows := bleeds.any(func(b: Dictionary) -> bool: return b.get("kind", &"ooze") != &"internal")
+		parts.append("going pale, bleeding inside" if shows else "going pale with no wound to show for it")
 	if concussion > 0.0:
 		parts.append("knocked senseless")
 	if r > 6.0:
