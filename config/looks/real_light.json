@@ -1,13 +1,13 @@
 {
  "name": "the real look's light",
- "about": "docs/briefs/red-dead.md R1 (light with shape), DESIGN.md section 4: under the real look only, LightLooks lays night_values over the game's night (light_game.json's, which stay the painted look's) and day_values over its day, and RoomLight is on (its bounce carries the lamps' pools). The saloon at night (2026-11-04 trials, build/r1): light pass round 3's warm wash taken back (the room's fill 0.7 -> 0.25 and neutral, not the lamps' gold; the wall lamps' reach 0.7 -> 0.55, so the sconces' pools part), the grade's lifted blacks gone and light C's cool shadow tint warm (under AgX it turned the floor purple), RoomLight's bounce up (1.5 -> 2.6) and its moonlight in the door and windows down to 0.1 (it washed the floor and the bar lilac); the four lamps hung over the room shaded (RealLook: their tin shade casts a shadow, real.hung_*) and brighter and reaching the floor, a pool under each with the chairs' shadows in it and the ceiling over them dark (the saloon_hanging dials reach only the porch lantern); the lamps' haze at light C's (0.6: at 1-2.5 every sconce was a blot) in a thin room haze (0.08). The street by day: haze down the street (fog x2.2, a little of the sky's colour in it), the shade's bounce from SDFGI and the sky's fill down, ambient occlusion in the sun (contact shadows).",
+ "about": "docs/briefs/red-dead.md R1 (light with shape), DESIGN.md section 4: under the real look only, LightLooks lays night_values over the game's night (light_game.json's, which stay the painted look's) and day_values over its day, and RoomLight is on (its bounce carries the lamps' pools). The saloon at night (2026-11-04 trials, build/r1): light pass round 3's warm wash taken back (the room's fill 0.7 -> 0.18 and neutral, not the lamps' gold; the wall lamps' reach 0.7 -> 0.6, so the sconces' pools part), the grade's lifted blacks gone and light C's cool shadow tint warm (under AgX it turned the floor purple), RoomLight's bounce up (1.5 -> 2.6) and its moonlight in the door and windows down to 0.1 (it washed the floor and the bar lilac); the four lamps hung over the room shaded (RealLook: their tin shade casts a shadow, real.hung_*) and brighter and reaching the floor, a pool under each with the chairs' shadows in it and the ceiling over them dark (the saloon_hanging dials reach only the porch lantern); the lamps' haze at light C's (0.6: at 1-2.5 every sconce was a blot) in a thin room haze (0.08). The street by day keeps R0's light: haze down the street (fog x2.2, aerial perspective 0.2), SDFGI's and the sky's fill in the shade down and SSAO in the sun read as washed, flat noon to the cheap judge (round 2: road_low_noon good indie -> cheap indie), so day_values is empty. Judged in two tries (docs/screenshots/judge/2026-11-04_cheap_r1_saloon, _r1_real2) and a third between them (_r1_try3): the hung lamps at x2.5 energy, x1.8 reach lifted the whole room (deep shadow 24-41% -> 8-10%), so x1.4 and x1.4.",
  "night_values": {
-  "building.saloon.night_ambient": 0.25,
+  "building.saloon.night_ambient": 0.18,
   "building.saloon.room_haze": 0.08,
   "room.bounce_gain": 2.6,
   "lamps.saloon_wall.energy": 1.0,
   "lamps.saloon_wall.attenuation": 1.0,
-  "lamps.saloon_wall.light_range": 0.55,
+  "lamps.saloon_wall.light_range": 0.6,
   "lamps.saloon_wall.haze": 0.6,
   "grade.contrast": 0.12,
   "grade.black": 0.0,
@@ -21,8 +21,8 @@
   ],
   "finish.vignette": 0.35,
   "room.opening_night_gain": 0.1,
-  "real.hung_energy": 2.5,
-  "real.hung_reach": 1.8,
+  "real.hung_energy": 1.4,
+  "real.hung_reach": 1.4,
   "room.ambient_colour": [
    0.55,
    0.55,
@@ -30,12 +30,5 @@
    1.0
   ]
  },
- "day_values": {
-  "day.fog_high_sun": 2.2,
-  "env.fog_aerial_perspective": 0.2,
-  "real.sdfgi_outdoor": 0.6,
-  "day.ambient_energy_day": 0.22,
-  "env.ssao_light_affect": 0.5,
-  "env.ssao_intensity": 4.0
- }
+ "day_values": {}
 }

@@ -486,8 +486,8 @@ the `saloon_hanging` dials reach only the porch lantern) shaded, their tin shade
 and the lamp casting shadows with the camera within 14 m, their light x `real.hung_energy` (after
 OilLamp's flicker, read back) and reach x `real.hung_reach`: a pool on the floor with the chairs'
 shadows in it, the ceiling over each dark; every building's interior probe (`interior_ambient`,
-taken once at noon) taken again when the room's light changes. By day: the haze down the street,
-SDFGI's and the sky's fill in the shade down, SSAO in the sun.
+taken once at noon) taken again when the room's light changes. By day nothing yet (`day_values`
+empty: R1's haze and shade read as washed noon to the cheap judge, round 2).
 Trials: `screenshots.gd --variants=` files that set `settings.real_look` first, then the dials.
 
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
