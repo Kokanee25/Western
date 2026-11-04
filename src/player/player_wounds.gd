@@ -226,8 +226,11 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 			if take != &"":
 				physiology.sever(take)
 				harm.append("your %s is gone" % _place(take))
+	# Your ears hold clear for a bang only if they've come back: a second charge while you're still
+	# deafened by the first (bundles a moment apart) stays muffled.
+	if ringing < bt.ear_rehold_ringing:
+		_since_blast = 0.0
 	ringing = clampf(maxf(ringing, ear_kpa * bt.ringing_per_kpa), 0.0, bt.ringing_max)
-	_since_blast = 0.0
 	var dir := (chest - at).normalized()
 	var speed := minf(Blast.impulse(kg, maxf(chest.distance_to(at), 0.05)) * shield * 0.7 * bt.throw_factor / 80.0, bt.max_throw)
 	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
