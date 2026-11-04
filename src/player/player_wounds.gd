@@ -14,6 +14,11 @@ signal knocked_out
 signal shown(text: String)
 
 const OVERLAY_SHADER := preload("res://src/player/wound_overlay.gdshader")
+const GRIT_SHADER := preload("res://src/player/blast_grit.gdshader")
+## The whine of ringing ears (SynthSounds' `ringing`), Hz.
+const RING_HZ := 3800.0
+## What's between a blast and you is asked from this far over the charge (m).
+const SHIELD_FROM := 0.3
 const CLOTHES_RESISTANCE := 3.0
 const TEND_TOURNIQUET_SECONDS := 4.0
 ## Out cold, you come round this many game hours later, with this share of your blood still
@@ -45,12 +50,47 @@ var _message: Label
 var _message_time := 0.0
 var _held := 0.0
 var _day_cycle: Node
-## Seconds of ringing ears left, and how hard the view is shaking (from a blast).
+## What a blast does to you that isn't a wound (#596 step 2; BlastTuning's "On you"), each by the
+## pressure at your ear: the world dulled, ringing ears, the view shaken, grit in your eyes.
+## Seconds of ringing ears left, of `_ring_len` when it began, its whine `_ring_top` loud (linear).
 var ringing := 0.0
+var _ring_len := 0.0
+var _ring_top := 0.0
+## What you hear through now (Hz: the ears' low-pass), and the dulling's way: from what you heard
+## through when it hit, down to its deepest, for `_muffle_len` s after it settles in.
+var muffle_hz := 20000.0
+var _muffle_from := 20000.0
+var _muffle_deep := 20000.0
+var _muffle_len := 0.0
+var _muffle_t := INF
+## The whine's clock: from when its blast reached you (it comes in as your ears give).
+var _ring_t := INF
+## Burst eardrums' muffle as it's come in (it comes in as your ears give, after the blast).
+var _deaf := 0.0
+## How far the view is shaken now (degrees), and the shake's way: its top, its length, its clock
+## (less than 0 while the blast is still on its way), the kick away from it (pitch, yaw: degrees),
+## its wobble's phases, and the turn it gives the camera now (degrees: pitch, yaw, roll; the gun in
+## your hands puts it on with its kick, WeaponViewmodel._animate_camera).
+var view_shake := Vector3.ZERO
 var shake := 0.0
+var _shake_top := 0.0
+var _shake_len := 0.0
+var _shake_t := INF
+var _jolt := Vector2.ZERO
+var _shake_phase := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
+## Grit on your eyes: how much is left (0-1), how much it threw (0-1), its dust wash, the seconds it
+## takes to clear and to arrive.
+var grit := 0.0
+var _grit_top := 0.0
+var _dust := 0.0
+var _grit_len := 1.0
+var _grit_wait := 0.0
+var _grit_rect: ColorRect
 var _ear_filter: AudioEffectLowPassFilter
 var _ring: AudioStreamPlayer
-## Since the last blast reached you (s): your ears hold, then give (BlastTuning.ear_hold_s).
+## Since the last blast reached you (s; less than 0 while it's on its way): your ears hold, then
+## give (BlastTuning.ear_hold_s). The dulling and the whine keep clocks of their own (a weaker
+## blast on top of them doesn't start them again).
 var _since_blast := INF
 
 
@@ -72,6 +112,16 @@ func _ready() -> void:
 	mat.shader = OVERLAY_SHADER
 	_overlay.material = mat
 	layer.add_child(_overlay)
+	_grit_rect = ColorRect.new()
+	_grit_rect.name = "BlastGrit"
+	_grit_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_grit_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var grit_mat := ShaderMaterial.new()
+	grit_mat.shader = GRIT_SHADER
+	_grit_rect.material = grit_mat
+	_grit_rect.visible = false
+	layer.add_child(_grit_rect)
+	layer.move_child(_grit_rect, 0)  # under the wounds' red and the black
 	_message = Label.new()
 	_message.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_message.position.y -= 60
@@ -198,7 +248,9 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	var kpa := {}
 	var chest := xf * Vector3(0, 1.3 * squash, 0)
 	var head := player.camera.global_position
-	var shield := 1.0 if held else Blast.shielding(player.get_parent() as Node3D, at, chest, [player.get_rid()])
+	# (Asked from the blast's air just over the charge: from the dirt it lay on, the lip of its own
+	# crater, dug a moment before, stopped the line to you from 15 m or more.)
+	var shield := 1.0 if held else Blast.shielding(player.get_parent() as Node3D, at + Vector3.UP * SHIELD_FROM, chest, [player.get_rid()])
 	for sid: StringName in anatomy.segments:
 		if physiology.severed_segments.has(sid):
 			continue
@@ -226,16 +278,14 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 			if take != &"":
 				physiology.sever(take)
 				harm.append("your %s is gone" % _place(take))
-	# Your ears hold clear for a bang only if they've come back: a second charge while you're still
-	# deafened by the first (bundles a moment apart) stays muffled.
-	if ringing < bt.ear_rehold_ringing:
-		_since_blast = 0.0
-	ringing = clampf(maxf(ringing, ear_kpa * bt.ringing_per_kpa), 0.0, bt.ringing_max)
+	_feel(at, ear_kpa)
 	var dir := (chest - at).normalized()
 	var speed := minf(Blast.impulse(kg, maxf(chest.distance_to(at), 0.05)) * shield * 0.7 * bt.throw_factor / 80.0, bt.max_throw)
 	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
-	_flash = 1.0
-	shake = maxf(shake, clampf(ear_kpa / 40.0, 0.2, 3.0))
+	# The red is for a wound (it flashed for every blast in reach: a stick across the street that
+	# did nothing to you flashed you red); the dust and grit are the rest (_feel).
+	if not harm.is_empty():
+		_flash = 1.0
 	var info := {"person": player, "person_id": &"player", "segment": &"chest", "hits": [], "position": chest,
 			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm, "kpa": kpa.get(&"chest", 0.0)}
 	# Only what it did to you is a wound and a hit (as HumanBody.take_blast, #488): the ringing,
@@ -251,18 +301,111 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	return info
 
 
+## A blast past its reach for anything else (Blast.detonate, out to BlastTuning.felt_reach_x times
+## it): only what it does to you by the pressure at your ear (_feel), most of all the shake.
+func feel_blast(at: Vector3, kg: float) -> void:
+	var head := player.camera.global_position
+	var shield := Blast.shielding(player.get_parent() as Node3D, at + Vector3.UP * SHIELD_FROM, head, [player.get_rid()])
+	_feel(at, Blast.reflected_kpa(Blast.overpressure_kpa(kg, head.distance_to(at)) * shield))
+
+
+## How much of something a blast does to you at `kpa` at your ear: none at `from`, all at `full`,
+## by the log of the pressure between (the ear's own scale).
+static func blast_share(kpa: float, from: float, full: float) -> float:
+	if kpa <= from:
+		return 0.0
+	return clampf(log(kpa / from) / log(maxf(full / from, 1.0001)), 0.0, 1.0)
+
+
+## A blast reaching your ears at `ear_kpa` (reflected): it dulls the world, rings, shakes the view
+## and throws grit in your eyes, each by its share (BlastTuning "On you"), each from when its wave
+## gets to you (the sound's speed: 0.09 s from 30 m). A weaker blast on top of a stronger one adds
+## nothing the stronger one isn't already doing.
+func _feel(at: Vector3, ear_kpa: float) -> void:
+	var bt := Blast.t()
+	var head := player.camera.global_position
+	var arrive := head.distance_to(at) / GameAudio.SPEED_OF_SOUND
+	# Your ears hold clear for a bang only if they've come back: a second charge while you're still
+	# deafened by the first (bundles a moment apart, #647) stays muffled (ear_rehold_ringing).
+	var deafened := ringing >= bt.ear_rehold_ringing
+	var m := blast_share(ear_kpa, bt.muffle_from_kpa, bt.muffle_full_kpa)
+	var deep := 20000.0 * pow(bt.muffle_floor_hz / 20000.0, m)
+	if m > 0.0 and deep <= muffle_hz:
+		_muffle_from = muffle_hz
+		_muffle_deep = deep
+		_muffle_len = bt.muffle_s * m
+		_muffle_t = -arrive + (bt.ear_hold_s if deafened else 0.0)
+	var r := blast_share(ear_kpa, bt.ring_from_kpa, bt.ring_full_kpa)
+	var ring_len := bt.ringing_max * r
+	if ring_len > ringing:
+		# One already sounding goes on, louder and longer; else it comes in as this one's bang passes.
+		if ring_level(clampf((_ring_t - bt.ear_hold_s) / maxf(bt.ear_ease_s, 0.01), 0.0, 1.0)) <= 0.0:
+			_ring_t = -arrive
+		ringing = ring_len
+		_ring_len = ring_len
+		_ring_top = bt.ring_level * r * r
+	_since_blast = -arrive
+	var sh := blast_share(ear_kpa, bt.shake_from_kpa, bt.shake_full_kpa)
+	var top := bt.shake_deg * pow(sh, 1.5)
+	# (the shake left of an earlier one, at this one's start)
+	var left := _shake_top * pow(clampf(1.0 - _shake_t / maxf(_shake_len, 0.01), 0.0, 1.0), 2.0) if _shake_len > 0.0 else 0.0
+	var local := player.camera.global_basis.inverse() * (at - head)
+	var toward := local.normalized() if local.length() > 0.01 else Vector3.FORWARD
+	if sh > 0.0 and top >= left:
+		_shake_top = top
+		_shake_len = bt.shake_s * (0.35 + 0.65 * sh)
+		_shake_t = -arrive
+		for i in _shake_phase.size():
+			_shake_phase[i] = _rng.randf() * TAU
+		# The kick: your head snapped back from it (up, and more from in front) and turned off it.
+		var j := bt.shake_jolt_deg * pow(sh, 1.5)
+		_jolt = Vector2(j * (0.5 + 0.5 * maxf(-toward.z, 0.0)), j * 0.7 * toward.x)
+	var g := blast_share(ear_kpa, bt.grit_from_kpa, bt.grit_full_kpa) * (0.6 + 0.4 * maxf(-toward.z, 0.0))
+	if g > 0.0 and g >= _grit_top * grit:
+		_grit_top = g
+		grit = 1.0
+		_dust = g
+		_grit_len = bt.grit_clear_s * (0.5 + 0.5 * g)
+		_grit_wait = arrive
+		var mat := _grit_rect.material as ShaderMaterial
+		var side := Vector2(toward.x, -toward.y)
+		mat.set_shader_parameter(&"from_dir", side.normalized() * minf(side.length() * 1.5, 1.0) if side.length() > 0.01 else Vector2.ZERO)
+		mat.set_shader_parameter(&"seed", _rng.randf() * 100.0)
+		mat.set_shader_parameter(&"strength", g)
+
+
 ## Ears: after a blast you hear the world through a pillow under a high whine, fading; a burst
 ## eardrum keeps it muffled for good (until the doctor, one day).
 func _update_ears(delta: float) -> void:
 	_since_blast += delta
+	_muffle_t += delta
+	_ring_t += delta
 	var bt := Blast.t()
-	# How far your ears have given since the bang: not at all for ear_hold_s, then all of it.
-	var give := clampf((_since_blast - bt.ear_hold_s) / maxf(bt.ear_ease_s, 0.01), 0.0, 1.0)
+	var hold := bt.ear_hold_s
+	var ease := maxf(bt.ear_ease_s, 0.01)
+	# How far your ears have given since its bang: not at all for ear_hold_s, then all of it.
+	var give := clampf((_ring_t - hold) / ease, 0.0, 1.0)
 	if give > 0.0:
 		ringing = maxf(ringing - delta, 0.0)
-	var muffle := clampf(ringing / 12.0, 0.0, 1.0) * give
-	var deaf := physiology.deaf_ears() * 0.3 * give
-	var cutoff := lerpf(20000.0, 500.0, maxf(muffle, deaf))
+	# The dulling: held at what you heard through for ear_hold_s, down to its deepest over ear_ease_s,
+	# held there, then given back over its last muffle_recover (on the log of the cutoff: as heard).
+	muffle_hz = 20000.0
+	if _muffle_len > 0.0:
+		var settle := clampf((_muffle_t - hold) / ease, 0.0, 1.0)
+		var back_len := maxf(_muffle_len * bt.muffle_recover, 0.01)
+		var back := clampf((_muffle_t - hold - ease - (_muffle_len - back_len)) / back_len, 0.0, 1.0)
+		if back <= 0.0:
+			muffle_hz = exp(lerpf(log(_muffle_from), log(_muffle_deep), smoothstep(0.0, 1.0, settle)))
+		else:
+			muffle_hz = exp(lerpf(log(_muffle_deep), log(20000.0), smoothstep(0.0, 1.0, back)))
+		if back >= 1.0:
+			_muffle_len = 0.0
+			muffle_hz = 20000.0
+	# A burst eardrum: the world stays dull (comes in after the bang, as the rest).
+	var deaf_to := physiology.deaf_ears() * 0.3
+	if _since_blast > hold or deaf_to < _deaf:
+		_deaf = move_toward(_deaf, deaf_to, delta / ease)
+	var cutoff := minf(muffle_hz, lerpf(20000.0, 500.0, _deaf))
 	if _ear_filter == null:
 		var master := AudioServer.get_bus_index(&"Master")
 		for i in AudioServer.get_bus_effect_count(master):
@@ -276,12 +419,99 @@ func _update_ears(delta: float) -> void:
 		_ring = AudioStreamPlayer.new()
 		_ring.stream = SynthSounds.get_sound(&"ringing")
 		add_child(_ring)
-	if ringing > 0.05 and give > 0.0:
-		_ring.volume_db = linear_to_db(clampf(ringing / 20.0, 0.02, 0.5) * give)
+	var level := ring_level(give)
+	if level > 0.0:
+		# The whine is in your head, not the world: it plays through the ears' filter (Master's;
+		# a stream can't skip its bus's effects), so it's raised by just what the filter takes off
+		# at its pitch.
+		_ring.volume_db = linear_to_db(level) - lowpass_db(cutoff, RING_HZ, _ear_filter.resonance)
 		if not _ring.playing:
 			_ring.play()
 	elif _ring.playing:
 		_ring.stop()
+
+
+## The whine's loudness now (linear; 0 when there's none): its top, fading as the square of the
+## time left, coming in as your ears give (`give`).
+func ring_level(give := 1.0) -> float:
+	if ringing <= 0.05 or _ring_len <= 0.0 or give <= 0.0:
+		return 0.0
+	return maxf(_ring_top * pow(ringing / _ring_len, 2.0) * give, 0.001)
+
+
+## What Godot's low-pass at `cutoff` (Hz) does to a tone at `hz` (dB, 0 or less): its filter is the
+## Audio EQ Cookbook's biquad (Robert Bristow-Johnson) with Q its resonance, one stage at 6 dB.
+static func lowpass_db(cutoff: float, hz: float, q := 0.5) -> float:
+	var rate := AudioServer.get_mix_rate()
+	var fc := minf(cutoff, rate * 0.5 - 1.0)
+	var w0 := TAU * fc / rate
+	var alpha := sin(w0) / (2.0 * maxf(q, 0.0001))
+	var c := cos(w0)
+	var b0 := (1.0 - c) * 0.5
+	var b1 := 1.0 - c
+	var a0 := 1.0 + alpha
+	var a1 := -2.0 * c
+	var a2 := 1.0 - alpha
+	var w := TAU * hz / rate
+	var nr := b0 + b1 * cos(w) + b0 * cos(2.0 * w)
+	var ni := -(b1 * sin(w) + b0 * sin(2.0 * w))
+	var dr := a0 + a1 * cos(w) + a2 * cos(2.0 * w)
+	var di := -(a1 * sin(w) + a2 * sin(2.0 * w))
+	return minf(linear_to_db(sqrt((nr * nr + ni * ni) / maxf(dr * dr + di * di, 1e-30))), 0.0)
+
+
+## The view shaken and the grit on it, a drawn frame at a time. The shake is the camera's only (on
+## top of the gun's kick, which owns the camera's turn: WeaponViewmodel._animate_camera), so your
+## aim stays where it was.
+func _process(delta: float) -> void:
+	_shake_view(delta)
+	_grit_view(delta)
+
+
+func _shake_view(delta: float) -> void:
+	if _shake_len <= 0.0 or player == null or player.camera == null:
+		return
+	_shake_t += delta
+	view_shake = Vector3.ZERO
+	shake = 0.0
+	if _shake_t >= 0.0:
+		var k := clampf(1.0 - _shake_t / _shake_len, 0.0, 1.0)
+		if k <= 0.0:
+			_shake_len = 0.0
+		else:
+			shake = _shake_top * k * k
+			var w := TAU * Blast.t().shake_hz * _shake_t
+			var p := _shake_phase
+			var kick := exp(-_shake_t / 0.09)
+			view_shake = Vector3(
+					shake * (0.7 * sin(w + p[0]) + 0.3 * sin(2.3 * w + p[1])) + _jolt.x * kick,
+					shake * (0.7 * sin(0.9 * w + p[2]) + 0.3 * sin(2.1 * w + p[3])) + _jolt.y * kick,
+					shake * 1.4 * sin(0.6 * w + p[4]))
+	# With no gun in your hands to put it on (none selected), on the camera here; its roll always.
+	var cam := player.camera
+	if player.weapon == null or not player.weapon.selected:
+		cam.rotation.x = deg_to_rad(view_shake.x)
+		cam.rotation.y = deg_to_rad(view_shake.y)
+	cam.rotation.z = deg_to_rad(view_shake.z)
+
+
+func _grit_view(delta: float) -> void:
+	if grit <= 0.0 and _dust <= 0.0:
+		if _grit_rect.visible:
+			_grit_rect.visible = false
+		return
+	if _grit_wait > 0.0:
+		_grit_wait -= delta
+		return
+	grit = maxf(grit - delta / maxf(_grit_len, 0.01), 0.0)
+	_dust = maxf(_dust - delta / 1.2, 0.0)
+	var mat := _grit_rect.material as ShaderMaterial
+	var size := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(16, 9)
+	mat.set_shader_parameter(&"aspect", size.x / maxf(size.y, 1.0))
+	# The last of it goes faster (a blink, a wipe): what's left as the square.
+	mat.set_shader_parameter(&"amount", grit * (0.5 + 0.5 * grit))
+	mat.set_shader_parameter(&"dust", _dust * Blast.t().dust_wash)
+	_grit_rect.visible = true
 
 
 ## Which part of you is at a world point (standing, or crouched and squashed down).
@@ -541,9 +771,6 @@ func _physics_step(delta: float) -> void:
 			Events.shouted.emit(player, &"call_out")
 	_tend(delta)
 	_update_ears(delta)
-	if shake > 0.0:
-		player.add_look(Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-1.0, 1.0)) * shake)
-		shake = maxf(shake - delta * 4.0, 0.0)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
 	var p := physiology

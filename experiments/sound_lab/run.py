@@ -63,7 +63,7 @@ def run_one(job):
     t = time.time()
     with open(os.path.join(out_dir, "godot.log"), "w") as log:
         try:
-            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=900, start_new_session=True)
+            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=2400 if picture else 900, start_new_session=True)  # (a drawn run is ~20 min under lavapipe)
         except subprocess.TimeoutExpired:
             pass
     if not picture and os.path.exists(movie):

@@ -9,8 +9,9 @@ extends Resource
 ## An 8" stick of dynamite weighs about half a pound (0.2–0.23 kg) and hits about as hard as its
 ## weight of TNT.
 @export var tnt_per_stick := 0.2
-## Sticks carried, and how long the cut fuse burns (seconds).
-@export var sticks_carried := 6
+## Sticks carried (12 since #647, Sean's pick on #648: three bundles of four), and how long the
+## cut fuse burns (seconds).
+@export var sticks_carried := 12
 @export var fuse_seconds := 5.0
 ## A thrown stick leaves the hand at this speed (a quick lob .. a full throw, by how long you
 ## wind up), plus this much upward.
@@ -24,6 +25,26 @@ extends Resource
 @export var plant_reach := 2.2
 @export var plant_time := 0.6
 @export var plant_fuse_seconds := 5.0
+## Bundles (#647, brief docs/briefs/dynamite-bundles.md; Sean on #648: "you need to prep them
+## first ... 10-15 seconds of holding down a key", fired together from one plunger with no fuss).
+## With dynamite in hand, R held `make_time` s ties `bundle_sticks` loose sticks into a bundle (let
+## go early and the work's kept); R tapped switches a stick or a bundle into your hand. A bundle
+## planted with E is wired to your plunger box (5) and waits unlit; no more than `max_bundles` wait
+## at once. Sean's picks (#648): four sticks, three bundles, twelve sticks carried.
+@export var bundle_sticks := 4
+@export var make_time := 12.0
+@export var max_bundles := 3
+## R held this long (s) is making a bundle; let go sooner, it's a tap (stick or bundle in hand).
+@export var r_tap := 0.25
+## The plunger (5): held fire pushes its handle down over `push_time` s and every wired bundle goes
+## off, one each `fire_spread_ticks` physics ticks (1: a sixtieth of a second apart, the same moment
+## to anyone watching, and each blast's work on its own tick; 0: all on one tick).
+@export var push_time := 0.35
+@export var fire_spread_ticks := 1
+## How far (m from your eye) a planted bundle can be lit by aiming at it with a match (Q), and how
+## near your eye line it must lie (m).
+@export var light_reach := 2.2
+@export var light_aim := 0.2
 ## How far a burning planted stick's hiss carries (m): men that near on its side of the wall hear
 ## it (Senses, `fuse`: a wall stops it). Sean, issue #537: only really close, so a stick set on a
 ## wall is a surprise to the men inside.
@@ -120,9 +141,6 @@ extends Resource
 ## Eardrums: none burst below the first, all by the second (kPa).
 @export var eardrum_kpa := 35.0
 @export var eardrum_all_kpa := 140.0
-## Ringing ears: seconds per kPa at the ear, most.
-@export var ringing_per_kpa := 0.5
-@export var ringing_max := 40.0
 ## The bang comes through before your ears give (#596: the crack was lost under the muffle): the
 ## world stays clear this long after a blast reaches you, then dulls over `ear_ease_s`; the
 ## ringing starts with the dulling.
@@ -148,6 +166,47 @@ extends Resource
 @export var knockdown_speed := 0.8
 ## The blast wind pushes a body with this share of impulse × its frontal area (0.7 m²).
 @export var throw_factor := 2.5
+
+@export_group("On you")
+## What a blast does to you that isn't a wound (#596 step 2), each by the pressure at your ear
+## (reflected kPa), on a log scale: nothing at `*_from_kpa`, all of it at `*_full_kpa` (150: both
+## eardrums burst, knocked senseless, 2.5 m from a stick on the ground). A stick on the ground
+## gives ~150 kPa at 2 m, ~34 at 5 m, ~11 at 12 m, ~4 at 30 m. PROPOSED: Sean sets them by ear and
+## eye from the films. Noise-induced temporary threshold shift (the dull world) and tinnitus (the
+## whine) after impulse noise last seconds to hours in life; these are a game's few seconds.
+##
+## The world dulled (a low-pass on what you hear): the cutoff falls to `muffle_floor_hz` at full,
+## less far off (20 kHz x (floor / 20 kHz)^share), held, then given back over the last
+## `muffle_recover` of `muffle_s` x share seconds.
+@export var muffle_from_kpa := 3.0
+@export var muffle_full_kpa := 150.0
+@export var muffle_s := 9.0
+@export var muffle_floor_hz := 300.0
+@export var muffle_recover := 0.6
+## Ringing ears: `ringing_max` x share seconds of a high whine, its top `ring_level` (linear) x
+## share², fading as the square of the time left. On its own bus, past the ears' filter: it's in
+## your head.
+@export var ring_from_kpa := 3.0
+@export var ring_full_kpa := 150.0
+@export var ringing_max := 24.0
+@export var ring_level := 0.35
+## The view shaken (the camera only: your aim stays where it was): `shake_deg` x share^1.5 at its
+## start, a kick away from the blast of `shake_jolt_deg` x share^1.5 springing back, over
+## `shake_s` x (0.35 + 0.65 share) seconds, its wobble at `shake_hz`. Felt out to
+## `felt_reach_x` x the blast's reach (a stick's 17.8 m: x2.5 is ~45 m), past where it touches you.
+@export var shake_from_kpa := 2.0
+@export var shake_full_kpa := 150.0
+@export var shake_deg := 3.0
+@export var shake_jolt_deg := 4.0
+@export var shake_s := 1.6
+@export var shake_hz := 11.0
+@export var felt_reach_x := 2.5
+## Dirt and grit on the screen up close (an overlay: specks and smudges, more on the blast's side,
+## a brown wash of dust over it), cleared speck by speck over `grit_clear_s` x (0.5 + 0.5 share).
+@export var grit_from_kpa := 25.0
+@export var grit_full_kpa := 150.0
+@export var grit_clear_s := 4.0
+@export var dust_wash := 0.6
 
 @export_group("Thrown through the air")
 ## Men close to a stick thrown up and back in an arc (issue #596 step 3b, Sean 2026-11-03: his

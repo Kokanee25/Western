@@ -534,6 +534,14 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
+  pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
+  on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
+  `lowpass_db`, as a stream can't skip its bus), the view shaken (`view_shake`, put on the camera with
+  the gun's kick in `WeaponViewmodel._animate_camera`: your aim stays), grit (`blast_grit.gdshader`,
+  a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
+  `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
+  `dynamite_you_*` and `on_you.py`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -1445,7 +1453,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
   its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
-  OutlawBrain hears; `experiments/plant_dynamite/`). `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  OutlawBrain hears; `experiments/plant_dynamite/`). Bundles (#647, brief `docs/briefs/dynamite-bundles.md`):
+  R held `make_time` ties `bundle_sticks` loose sticks into one (`making` kept; `bundles`,
+  `hold_bundle`, a tap switches: `_read_r`); a bundle is a `DynamiteStick` of `sticks` (their kg,
+  `layout`/`radius_of`), thrown shorter; planted it's wired (`DynamiteStick.wire`) and waits unlit,
+  `max_bundles` at once (`at_cap`, `bundles_set`); Q aimed lights its fuse (`aimed_charge`).
+  `PlungerViewmodel` (5): fire held pushes the handle home, `DynamiteStick.fire_wired` sets every
+  wired bundle off a tick apart (`fire_spread_ticks`); `save_all`/`restore_all` keep them;
+  `BlastTuning` bundle_sticks/make_time/max_bundles/push_time; bridge `weapon plunger`, `bundle X Y Z
+  [STICKS]`, `plunge [SPREAD]`, `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 
