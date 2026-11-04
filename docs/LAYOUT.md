@@ -1325,9 +1325,12 @@ the engine: `test_a_sound_deck_carries_the_train_anywhere`), settled at once rou
 down into intact bents (`Structure.closure_stop`, `StructuralAnalysis.begin_update(..., stop)`);
 the wreck's cars on the deck weigh on it too. `Train._check_bridge`: any truck over a broken
 stretch on a bridge leaves the rails (kind `fell`: `TrainWreck` gives no derail kick, and doesn't
-plough in the air or off the deck). Falling pieces of it break up into sections of at most
-`section_members` (`_break_up`); its rubble isn't "lost" till 10 m under the gorge's floor
-(`Structure.lost_below`). `save_dict`/`restore_dict` keep its wreck by member path and the
+plough in the air or off the deck), its couplers loose in pitch (a car hangs from its coupler).
+A rail with no tie under it for `rail_span` under a wheel tears off (`_rails_give`). Falling pieces
+of it fall 2 cm smaller (framed face to face they wedged), a tall one is tipped over across the line
+`fold_after` s after it starts to fall (`_topple`, a model: it would stand on its stubs), and they
+break up into sections of at most `section_members` (`_break_up`); its rubble isn't "lost" till 10
+m under the gorge's floor (`Structure.lost_below`). `save_dict`/`restore_dict` keep its wreck by member path and the
 crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`, `trestle_matrix`.
 
 ## src/weapons

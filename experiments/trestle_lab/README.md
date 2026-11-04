@@ -60,9 +60,12 @@ floor|rim|deck|under`, `trestle_where`. The train lab's commands work on the gor
   viaduct's 7,700 members were ~300 ms on the engineer's first look after a charge. `lab_line.gd`
   looks once at the build; anything that builds a viaduct in the world must too.
 - A run compares frames: never run two games (or the tests) at once while one is measured.
+- A run's own steps (waits, when the charge goes off) are on the game's clock, its frames on the
+  wall's: under the movie writer a frame takes seconds, and on the wall's clock the films ran 2.6 s.
 - The runs place the train and hold its speed with the lab's `hold` driver: nobody's watching the
   line (it's the trap), so the engineer doesn't brake for the gap.
 
 ## Results
 
-`results/` (one folder a round).
+`results/` (one folder a round). Round 1: `results/2026-11-04_r1/` (`summary.md`; the frame
+table `runs/table.md`; the cut matrix; the idle cost; the sheet; the films).

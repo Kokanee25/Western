@@ -716,6 +716,19 @@ frozen until Sean names one.
   stops short on the straight at every speed, at night 40 km/h derails; the left bend is the
   fireman's; every derail inside #492's gate (worst 44 ms at Sean's, once seven men going limp on
   one tick made 140). Waiting on Sean: the dials and films (its issue).
+- **The trestle lab** (#623, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
+  `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
+  trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
+  crossing over a gorge cut to fit: 300 m, 66 m high, 7,692 members at rest (idle within noise;
+  a sound crossing 0.02 ms a tick: the train's weight only goes into weakened panels,
+  `StructureMember.extra_points`). Cuts fall by the load paths (one bent: the deck holds empty, the
+  engine finishes it; the two inner posts: the engine brings the bent down); the train hands off
+  as `fell` (couplers loose in pitch); tall falling towers tipped over across the line (`fold`, a
+  model); `save_dict`/`restore_dict`. #492's gate: no frame over 100 ms at Sean's (worst 77), but
+  the slow spell fails in 12 of 19 runs (0.55-1.1 s, 1.6-3.8 s with the coach full); the train goes
+  over in 5 of 15 (chaotic run to run). Waiting on Sean: its issue (the gate, the scale, sizes,
+  charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
+  measure two games at once; a run's steps on the game's clock, its frames on the wall's.
 - **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
   (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
   Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
