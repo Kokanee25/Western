@@ -2,5 +2,5 @@
 # standing empty; then the train at 30 km/h, and the engine's weight finishes it. From the far rim.
 trestle_lab
 train_caption A light charge: the two inner posts. It stands empty. Then the train comes on at 30 km/h.
-trestle_cam rim 150
+trestle_cam rim 90
 trestle_collapse how=stick posts=inner sticks=2 train=cross when=before wait=5 kmh=30 run_up=-60 secs=10

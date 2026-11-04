@@ -1,0 +1,572 @@
+{
+  "after": {
+    "bents_down": 2,
+    "broken": 162,
+    "by_kind": {
+      "bent_sill": 6,
+      "brace": 54,
+      "cap": 2,
+      "girt": 24,
+      "guard": 6,
+      "post": 32,
+      "rail": 6,
+      "stringer": 8,
+      "tie": 24
+    },
+    "deck_damage": 11,
+    "rails_gone": 6
+  },
+  "derail": {
+    "key": {
+      "at": 162.084763392953,
+      "section": "gorge_bend"
+    },
+    "kind": "blocked",
+    "kmh": 39.3478487266225,
+    "numeric": false,
+    "s": 612.098285027568,
+    "side": 0,
+    "t": 28.333333333333,
+    "what": "TrestleLabLine @RigidBody3D@38203"
+  },
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.4,
+    "ms": 446.471,
+    "posts": 8,
+    "stagger_ticks": 1,
+    "worst_one_ms": 21.6
+  },
+  "frames": {
+    "before_mean_ms": 18.92,
+    "frames": 918,
+    "gate": "fail",
+    "last_under_50fps_s": 19.55,
+    "mean_ms": 23.48,
+    "over_100": 0,
+    "over_50": 11,
+    "sean_worst_ms": 50.8,
+    "second_ms": 76.6,
+    "slow_spell_s": 1.07,
+    "worst_at_s": 0.42,
+    "worst_ms": 78.1
+  },
+  "frames_fall": {
+    "before_mean_ms": 20.21,
+    "frames": 723,
+    "gate": "fail",
+    "last_under_50fps_s": 13.74,
+    "mean_ms": 21.77,
+    "over_100": 0,
+    "over_50": 2,
+    "sean_worst_ms": 39.8,
+    "second_ms": 59.6,
+    "slow_spell_s": 0.53,
+    "worst_at_s": 0.35,
+    "worst_ms": 61.3
+  },
+  "load_cost": {
+    "seeds": 14,
+    "set": 146,
+    "settles": 0,
+    "updates": 151,
+    "us": 1338679
+  },
+  "outcome": "fell",
+  "prof_ms_a_frame": {
+    "ballistics": 0.31,
+    "civilian_brain": 0.74,
+    "day_cycle": 0.16,
+    "fire": 0.1,
+    "fire_loads": 0.07,
+    "floor_marks": 0.09,
+    "horses": 0.18,
+    "kit_balance": 0.09,
+    "lamps": 0.15,
+    "lines_senses": 0.88,
+    "mop": 0.09,
+    "outlaw_brain": 0.1,
+    "people_bands": 0.26,
+    "people_body": 4.65,
+    "people_prep": 1.19,
+    "people_prep_sum": 2.63,
+    "people_skeleton": 1.14,
+    "player": 0.57,
+    "senses": 2.25,
+    "sight_sync": 0.15,
+    "structures": 0.72,
+    "train": 1.1,
+    "train_bridge": 0.07,
+    "train_carry": 0.11,
+    "train_lookout": 0.09,
+    "train_sound": 0.27,
+    "train_view": 0.2,
+    "trestle_advance": 0.3,
+    "trestle_analyse": 0.38,
+    "trestle_start": 0.08,
+    "trestle_want": 0.16
+  },
+  "rubble": {
+    "awake_at_end": 0,
+    "pieces": 93
+  },
+  "slow_frames": [
+    {
+      "awake": 0,
+      "ms": 54.4,
+      "physics_ms": 21.6,
+      "process_ms": 4.4,
+      "rubble": 0,
+      "t": 19.83,
+      "top": {
+        "people_body": 5.8,
+        "people_prep": 2.8,
+        "people_prep_sum": 2.3,
+        "people_skeleton": 1.4,
+        "senses": 2.6,
+        "structures": 29.8,
+        "train": 3.3,
+        "train_lookout": 2.7
+      }
+    },
+    {
+      "awake": 13,
+      "ms": 68.5,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 13,
+      "t": 24.3,
+      "top": {
+        "ballistics": 19.7,
+        "blast_break": 11.6,
+        "blast_fx": 5.2,
+        "blast_settle": 7.7,
+        "blast_snap": 3.4,
+        "people_body": 3.8,
+        "settle_analyse": 6.3,
+        "train": 3.3
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 62.0,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 17,
+      "t": 24.32,
+      "top": {
+        "ballistics": 4.2,
+        "blast_fx": 2.2,
+        "people_body": 3.8,
+        "people_prep_sum": 3.0,
+        "senses": 2.6,
+        "structures": 3.8,
+        "train": 3.9,
+        "train_bridge": 3.3
+      }
+    },
+    {
+      "awake": 19,
+      "ms": 47.5,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 19,
+      "t": 24.33,
+      "top": {
+        "ballistics": 5.6,
+        "batches": 1.3,
+        "people_body": 5.6,
+        "people_prep": 3.0,
+        "people_prep_sum": 2.8,
+        "senses": 2.1,
+        "train": 3.4,
+        "train_bridge": 3.1
+      }
+    },
+    {
+      "awake": 29,
+      "ms": 53.9,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 29,
+      "t": 24.35,
+      "top": {
+        "ballistics": 14.7,
+        "blast_break": 3.2,
+        "blast_snap": 2.9,
+        "people_body": 3.9,
+        "people_prep_sum": 2.6,
+        "senses": 2.1,
+        "train": 3.8,
+        "train_bridge": 3.4
+      }
+    },
+    {
+      "awake": 45,
+      "ms": 61.4,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 45,
+      "t": 24.37,
+      "top": {
+        "ballistics": 17.4,
+        "batches": 1.8,
+        "blast_break": 4.2,
+        "blast_snap": 3.8,
+        "people_body": 3.6,
+        "senses": 2.2,
+        "train": 3.3,
+        "train_bridge": 3.0
+      }
+    },
+    {
+      "awake": 53,
+      "ms": 51.8,
+      "physics_ms": 32.5,
+      "process_ms": 8.7,
+      "rubble": 53,
+      "t": 24.38,
+      "top": {
+        "ballistics": 6.4,
+        "blast_break": 2.6,
+        "blast_snap": 2.4,
+        "people_body": 5.6,
+        "people_prep_sum": 3.8,
+        "senses": 2.0,
+        "train": 3.4,
+        "train_bridge": 3.0
+      }
+    },
+    {
+      "awake": 55,
+      "ms": 78.1,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 55,
+      "t": 24.4,
+      "top": {
+        "ballistics": 19.6,
+        "batches": 3.3,
+        "blast_break": 3.3,
+        "people_body": 5.9,
+        "people_prep_sum": 3.8,
+        "senses": 3.8,
+        "train": 4.5,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 69.8,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 24.42,
+      "top": {
+        "ballistics": 17.3,
+        "blast_break": 3.9,
+        "blast_fx": 2.1,
+        "blast_snap": 3.3,
+        "people_body": 3.5,
+        "people_prep_sum": 2.8,
+        "train": 5.1,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 43.5,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 24.43,
+      "top": {
+        "ballistics": 9.9,
+        "batches": 3.3,
+        "lines_senses": 1.1,
+        "people_body": 3.7,
+        "people_prep": 1.1,
+        "people_prep_sum": 2.5,
+        "senses": 2.1,
+        "voxels": 1.6
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 76.6,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 24.45,
+      "top": {
+        "ballistics": 14.5,
+        "batches": 2.2,
+        "fire": 37.1,
+        "fire_analyse": 35.0,
+        "fire_loads": 37.1,
+        "people_body": 4.3,
+        "senses": 2.8,
+        "voxels": 2.2
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 60.7,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 24.47,
+      "top": {
+        "ballistics": 15.6,
+        "batches": 2.5,
+        "fire": 14.2,
+        "fire_analyse": 13.3,
+        "fire_loads": 14.1,
+        "people_body": 6.3,
+        "people_prep_sum": 3.2,
+        "voxels": 1.9
+      }
+    },
+    {
+      "awake": 63,
+      "ms": 44.2,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 63,
+      "t": 24.53,
+      "top": {
+        "ballistics": 11.2,
+        "fire": 5.4,
+        "fire_analyse": 4.8,
+        "fire_loads": 5.4,
+        "people_body": 5.3,
+        "people_prep": 2.7,
+        "people_prep_sum": 2.5,
+        "senses": 2.9
+      }
+    },
+    {
+      "awake": 67,
+      "ms": 40.8,
+      "physics_ms": 65.5,
+      "process_ms": 4.6,
+      "rubble": 67,
+      "t": 24.67,
+      "top": {
+        "ballistics": 5.7,
+        "fire": 3.7,
+        "fire_loads": 3.7,
+        "people_body": 6.7,
+        "people_prep_sum": 3.2,
+        "senses": 4.0,
+        "train": 4.3,
+        "train_bridge": 3.8
+      }
+    },
+    {
+      "awake": 90,
+      "ms": 44.5,
+      "physics_ms": 35.5,
+      "process_ms": 8.4,
+      "rubble": 90,
+      "t": 25.65,
+      "top": {
+        "ballistics": 2.1,
+        "kit_balance": 1.9,
+        "people_body": 9.7,
+        "people_prep_sum": 2.3,
+        "player": 6.3,
+        "senses": 3.9,
+        "structures": 4.6,
+        "train_view": 4.5
+      }
+    },
+    {
+      "awake": 55,
+      "ms": 40.9,
+      "physics_ms": 34.2,
+      "process_ms": 4.1,
+      "rubble": 90,
+      "t": 26.98,
+      "top": {
+        "ballistics": 3.4,
+        "people_body": 5.5,
+        "senses": 4.0,
+        "structures": 4.8,
+        "train": 8.3,
+        "train_carry": 7.4,
+        "trestle_advance": 5.0,
+        "trestle_analyse": 6.2
+      }
+    },
+    {
+      "awake": 60,
+      "ms": 61.3,
+      "physics_ms": 37.8,
+      "process_ms": 5.8,
+      "rubble": 92,
+      "t": 27.73,
+      "top": {
+        "people_body": 5.9,
+        "people_prep_sum": 3.0,
+        "senses": 3.9,
+        "settle_analyse": 20.1,
+        "train": 31.3,
+        "trestle_advance": 4.7,
+        "trestle_analyse": 5.8,
+        "trestle_want": 24.4
+      }
+    },
+    {
+      "awake": 47,
+      "ms": 59.6,
+      "physics_ms": 31.9,
+      "process_ms": 7.3,
+      "rubble": 94,
+      "t": 28.93,
+      "top": {
+        "bu_forget": 3.4,
+        "people_body": 5.9,
+        "senses": 3.2,
+        "settle_analyse": 21.8,
+        "train": 33.9,
+        "trestle_advance": 3.9,
+        "trestle_analyse": 5.2,
+        "trestle_want": 27.6
+      }
+    },
+    {
+      "awake": 23,
+      "ms": 41.9,
+      "physics_ms": 56.7,
+      "process_ms": 3.3,
+      "rubble": 94,
+      "t": 29.38,
+      "top": {
+        "lines_senses": 2.4,
+        "people_body": 6.6,
+        "people_prep_sum": 2.0,
+        "senses": 5.5,
+        "structures": 5.0,
+        "train": 9.5,
+        "trestle_advance": 5.4,
+        "trestle_analyse": 6.6
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 41.6,
+      "physics_ms": 36.6,
+      "process_ms": 3.1,
+      "rubble": 93,
+      "t": 31.12,
+      "top": {
+        "floor_marks": 13.2,
+        "lines_senses": 1.4,
+        "people_bands": 2.5,
+        "people_body": 3.9,
+        "people_prep": 1.1,
+        "people_prep_sum": 2.3,
+        "senses": 2.8,
+        "train": 3.1
+      }
+    },
+    {
+      "awake": 12,
+      "ms": 49.6,
+      "physics_ms": 32.7,
+      "process_ms": 3.1,
+      "rubble": 93,
+      "t": 32.13,
+      "top": {
+        "bu_closure": 5.7,
+        "people_body": 6.4,
+        "people_prep_sum": 2.5,
+        "senses": 4.1,
+        "train": 23.5,
+        "trestle_advance": 11.7,
+        "trestle_analyse": 19.1,
+        "trestle_start": 7.3
+      }
+    },
+    {
+      "awake": 0,
+      "ms": 44.2,
+      "physics_ms": 26.8,
+      "process_ms": 3.2,
+      "rubble": 93,
+      "t": 36.65,
+      "top": {
+        "civilian_brain": 2.4,
+        "lines_senses": 3.3,
+        "people_body": 17.1,
+        "people_prep": 1.3,
+        "people_prep_sum": 3.1,
+        "people_skeleton": 1.1,
+        "player": 0.7,
+        "senses": 4.0
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 2,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 40.0,
+    "lead": 40.0,
+    "out": "/home/user/Western/build/r2/runs/two_under_40_r2.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 2,
+    "story": "bottom",
+    "train": "cross",
+    "wait": 6.0,
+    "when": "under"
+  },
+  "t_fire": 24.3,
+  "t_off": 27.5333333333333,
+  "wreck": {
+    "bents_s": [
+      617.8,
+      622.6
+    ],
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 39.3478487266225,
+        "side": 1.0,
+        "t": 0.0,
+        "what": "derailed"
+      }
+    ],
+    "fell_into_gorge": 0,
+    "gaps": [
+      "broken 605.7-614.9",
+      "broken 605.7-614.9",
+      "blocked 612.0-616.0",
+      "broken 612.9-627.3",
+      "broken 614.9-624.0",
+      "broken 614.9-624.0",
+      "blocked 616.0-620.0",
+      "blocked 620.0-624.0",
+      "broken 624.0-633.1",
+      "broken 624.0-633.1",
+      "blocked 624.0-628.0"
+    ],
+    "where": [
+      "0/whole s630.6 dy0.0 v0.0 on tie_01051",
+      "1/whole s621.5 dy-0.1 v0.0",
+      "2/whole s613.9 dy-0.1 v0.0 on @RigidBody3D@38121 [&\"track06/str/1/011\"] (1) S",
+      "3/whole s606.0 dy-0.1 v0.0 on @RigidBody3D@38271 [&\"track06/rail/l/05\"] (1) S",
+      "4/whole s597.1 dy0.0 v0.0 on str_3_007",
+      "5/whole s586.7 dy-0.0 v0.0 on tie_00978",
+      "6/whole s574.5 dy-0.1 v0.0 on bent003_cap"
+    ]
+  }
+}

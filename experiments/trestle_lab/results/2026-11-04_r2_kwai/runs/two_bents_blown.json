@@ -1,0 +1,269 @@
+{
+  "after": {
+    "bents_down": 2,
+    "broken": 157,
+    "by_kind": {
+      "bent_sill": 6,
+      "brace": 52,
+      "cap": 2,
+      "girt": 25,
+      "guard": 6,
+      "post": 32,
+      "rail": 2,
+      "stringer": 8,
+      "tie": 24
+    },
+    "deck_damage": 3,
+    "rails_gone": 2
+  },
+  "derail": {},
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.4,
+    "ms": 437.513,
+    "posts": 8,
+    "stagger_ticks": 1,
+    "worst_one_ms": 27.8
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 721,
+    "gate": "fail",
+    "last_under_50fps_s": 12.12,
+    "mean_ms": 19.95,
+    "over_100": 0,
+    "over_50": 7,
+    "sean_worst_ms": 59.0,
+    "second_ms": 74.9,
+    "slow_spell_s": 0.86,
+    "worst_at_s": 0.09,
+    "worst_ms": 90.7
+  },
+  "load_cost": {
+    "settles": 0,
+    "updates": 0,
+    "us": 14177
+  },
+  "outcome": "no train",
+  "prof_ms_a_frame": {
+    "ballistics": 0.96,
+    "batches": 0.07,
+    "civilian_brain": 0.6,
+    "day_cycle": 0.15,
+    "fire": 0.23,
+    "fire_analyse": 0.13,
+    "fire_loads": 0.2,
+    "horses": 0.17,
+    "kit_balance": 0.09,
+    "lamps": 0.14,
+    "lines_senses": 1.02,
+    "mop": 0.07,
+    "outlaw_brain": 0.09,
+    "people_bands": 0.24,
+    "people_body": 4.26,
+    "people_prep": 1.1,
+    "people_prep_sum": 2.43,
+    "people_skeleton": 1.05,
+    "player": 0.52,
+    "rr_join": 0.07,
+    "rubble_rest": 0.11,
+    "senses": 2.29,
+    "sight_sync": 0.24,
+    "structures": 0.75,
+    "train": 0.49,
+    "train_lookout": 0.12,
+    "train_sound": 0.19,
+    "train_view": 0.26
+  },
+  "rubble": {
+    "awake_at_end": 4,
+    "pieces": 88
+  },
+  "slow_frames": [
+    {
+      "awake": 13,
+      "ms": 90.7,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 13,
+      "t": 0.02,
+      "top": {
+        "ballistics": 30.8,
+        "batches": 3.6,
+        "blast_break": 13.5,
+        "blast_fx": 8.8,
+        "blast_settle": 9.5,
+        "blast_snap": 3.6,
+        "people_body": 5.0,
+        "settle_analyse": 8.0
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 74.0,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 17,
+      "t": 0.03,
+      "top": {
+        "ballistics": 4.5,
+        "batches": 1.4,
+        "kit_balance": 1.7,
+        "lines_senses": 1.7,
+        "people_body": 4.5,
+        "people_prep_sum": 1.9,
+        "senses": 3.6,
+        "structures": 4.1
+      }
+    },
+    {
+      "awake": 29,
+      "ms": 65.3,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 29,
+      "t": 0.07,
+      "top": {
+        "ballistics": 19.0,
+        "blast_break": 3.5,
+        "blast_snap": 3.0,
+        "people_body": 4.4,
+        "people_prep_sum": 2.1,
+        "senses": 2.7,
+        "train": 4.2,
+        "train_lookout": 3.8
+      }
+    },
+    {
+      "awake": 43,
+      "ms": 58.0,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 43,
+      "t": 0.08,
+      "top": {
+        "ballistics": 15.8,
+        "batches": 2.1,
+        "blast_break": 4.3,
+        "blast_snap": 4.0,
+        "people_body": 3.3,
+        "people_prep": 1.8,
+        "people_prep_sum": 1.7,
+        "senses": 2.0
+      }
+    },
+    {
+      "awake": 51,
+      "ms": 59.7,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 51,
+      "t": 0.12,
+      "top": {
+        "ballistics": 12.5,
+        "batches": 2.6,
+        "blast_break": 2.1,
+        "people_body": 8.7,
+        "people_prep": 4.4,
+        "people_prep_sum": 4.8,
+        "senses": 5.0,
+        "voxels": 2.0
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 50.6,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 61,
+      "t": 0.13,
+      "top": {
+        "ballistics": 16.4,
+        "batches": 2.2,
+        "blast_break": 3.0,
+        "blast_snap": 2.6,
+        "people_body": 3.1,
+        "people_prep": 1.6,
+        "people_prep_sum": 1.5,
+        "senses": 1.8
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 49.8,
+      "physics_ms": 27.1,
+      "process_ms": 4.0,
+      "rubble": 61,
+      "t": 0.15,
+      "top": {
+        "ballistics": 10.8,
+        "batches": 1.7,
+        "lines_senses": 2.2,
+        "people_body": 5.5,
+        "people_prep": 2.7,
+        "people_prep_sum": 1.9,
+        "senses": 3.3,
+        "voxels": 1.5
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 74.9,
+      "physics_ms": 87.4,
+      "process_ms": 8.1,
+      "rubble": 61,
+      "t": 0.17,
+      "top": {
+        "ballistics": 11.0,
+        "fire": 37.0,
+        "fire_analyse": 33.8,
+        "fire_loads": 36.9,
+        "people_body": 3.7,
+        "people_prep_sum": 3.4,
+        "train": 3.2,
+        "train_lookout": 2.9
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 41.2,
+      "physics_ms": 87.4,
+      "process_ms": 8.1,
+      "rubble": 61,
+      "t": 0.18,
+      "top": {
+        "ballistics": 10.3,
+        "batches": 1.7,
+        "fire": 6.6,
+        "fire_analyse": 6.0,
+        "fire_loads": 6.5,
+        "people_body": 3.5,
+        "people_prep_sum": 3.0,
+        "senses": 1.2
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 2,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/r2/runs/two_bents_blown.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 2,
+    "story": "bottom",
+    "train": "none",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": -1.0
+}
