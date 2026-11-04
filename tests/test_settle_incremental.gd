@@ -246,5 +246,9 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 	print("  worker / main thread: %d / %d broken, settled after %d / %d frames" % [results[0].broken.size(),
 			results[1].broken.size(), results[0].settled_at, results[1].settled_at])
 	check(results[0].broken.size() > 10, "the stick brings something down (%d)" % results[0].broken.size())
+	if results[0].broken != results[1].broken:
+		var only_w: Array = (results[0].broken as Array).filter(func(x: String) -> bool: return not (results[1].broken as Array).has(x))
+		var only_m: Array = (results[1].broken as Array).filter(func(x: String) -> bool: return not (results[0].broken as Array).has(x))
+		print("  broken with the worker only: %s; on the main thread only: %s" % [only_w, only_m])
 	check(results[0].broken == results[1].broken, "the same members broken with the worker as without")
 	check_eq(results[0].settled_at, results[1].settled_at, "and done on the same frame")

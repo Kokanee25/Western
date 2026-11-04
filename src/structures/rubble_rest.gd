@@ -398,10 +398,8 @@ func _part(mi: MeshInstance3D, inv: Transform3D) -> Variant:
 			return _no(NEVER, "overlay")
 		if float((over as ShaderMaterial).get_shader_parameter(&"glow")) > 0.0:
 			return _no(LATER, "alight")
-	var st := SurfaceTool.new()
-	st.append_from(mesh, 0, inv * mi.global_transform)
-	st.deindex()
-	var arrays := st.commit_to_arrays()
+	# (from the arrays it was made of: reading them back from the renderer waits on the GPU, #626)
+	var arrays := MemberMesh.placed(MemberMesh.arrays_of(mesh), inv * mi.global_transform)
 	if arrays.is_empty() or arrays[Mesh.ARRAY_VERTEX] == null:
 		return _no(NEVER, "no vertices")
 	for slot: int in NOT_CHANNELS:
