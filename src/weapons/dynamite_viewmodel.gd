@@ -343,6 +343,9 @@ func _goes_off_in_hand() -> void:
 
 
 func put_away() -> void:
+	# A match still being struck is shaken out: the fuse never catches with the stick put away
+	# (#668: it did, and the next 3 brought out a lit stick; left long enough, it went off unseen).
+	lighting = 0.0
 	if lit:
 		place()
 	drawn = false
