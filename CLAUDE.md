@@ -438,9 +438,16 @@ frozen until Sean names one.
   `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
   painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
 - **Toward Red Dead** (Sean, 2026-11-04; DESIGN.md §4, plan `docs/briefs/red-dead.md`, roadmap ▶ Now):
-  the look goes realistic in RDR2's direction ("not that level, just that direction"); the painted
-  look and its squares are retired. Art's next: **R0 the realistic renderer** (issue in the brief's
-  handover); then light (R1), sets (R2), dressing (R3). "Look" under Tech decisions changes with R0.
+  the look goes realistic in RDR2's direction ("not that level, just that direction").
+  **R0 the real look** (#632, PR #639; `RealLook`, LAYOUT "src/render"): behind
+  `Settings.real_look` (off; look panel N's first group, `--real`, `--look=res://config/looks/real.json`,
+  `screenshots.gd --variants=` the same file renders both looks in one run): world shaders recompiled
+  with `REAL_LOOK` (smooth anisotropic textures, no squares, groove seams, relief from the albedo),
+  FSR2 at native scale, AgX 1.5, SSIL, SDFGI outdoors only, exposure x1.4. Judge (self-test 3/3 with
+  the new style line): no view moves a band (saloon cheap indie, street good indie both ways; rounds
+  `2026-11-04_cheap_r0_before|real`); the saloon's orange wash is the top reason (R1). Waiting on
+  Sean (#641): his F3 and "real" as the default (then the goldens), or another round. Next: R1 (#640).
+  Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results

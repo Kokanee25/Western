@@ -353,3 +353,17 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-03_room_light_r2 | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | A pink plastic hand fills the bottom right | 16% / 3.5 / 1.24 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
 | 2026-11-03_room_light_r2 | man_saloon_night_r2a | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 7% / 6.1 / 1.11 / 0.07 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
 | 2026-11-03_room_light_r2 | saloon_night_r2b | **cheap indie** | 1, 2, 3, 4, 6, 7 | The whole room is one orange at one brightness | 5% / 5.7 / 1.08 / 0.05 | #608 part 1: RoomLight off (before) vs r2a / r2b, saloon at night |
+| 2026-11-04_cheap_r0_before | saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Flat orange light everywhere | 4% / 6.1 / 0.95 / 0.05 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | The player's hand is pink plastic | 6% / 5.0 / 1.00 / 0.07 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | saloon_toward_door_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8, 9 | Flat orange light | 5% / 5.1 / 1.17 / 0.07 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 8 | Flat orange light | 3% / 7.5 / 1.04 / 0.06 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | road_low_noon | **good indie** | 3, 5, 6, 9 | Faceted, untextured horses | 2% / 6.9 / 1.24 / 0.03 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | street_golden_hour | **good indie** | 3, 6, 9 | The pink plastic hand | 7% / 1.5 / 0.76 / 0.03 | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_before | film | **good indie** | 6, 9, 10 | Horses frozen in place | (film) | R0 before: the painted look (main), --refs |
+| 2026-11-04_cheap_r0_real | saloon_night | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | Everything the same orange | 3% / 6.8 / 0.87 / 0.04 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | saloon_back_wall_night | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | The hand and gun | 6% / 5.0 / 0.94 / 0.07 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | saloon_toward_door_night | **cheap indie** | 1, 2, 3, 4, 6, 7 | Flat orange room | 5% / 5.2 / 0.92 / 0.06 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | man_saloon_night | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | One orange everywhere | 2% / 8.2 / 0.91 / 0.06 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | road_low_noon | **good indie** | 1, 4, 6, 7, 9 | Stones sprinkled by a script | 1% / 10.0 / 1.19 / 0.03 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | street_golden_hour | **good indie** | 6, 8, 9 | A painted sky | 13% / 0.9 / 0.63 / 0.03 | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
+| 2026-11-04_cheap_r0_real | film | **cheap indie** | 6, 9, 10 | Nothing moves | (film) | R0 after: the real look (FSR2, AgX 1.5, exposure 1.4), same run, --refs |
