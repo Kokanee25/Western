@@ -44,6 +44,9 @@ static var packed := {}
 static var lines: Lines
 static var _started := false
 static var _task := -1
+## Set by the clean quit: no box is written after it (#624: one posted in the quit's last frames was
+## never waited for, and freed after the script language had gone: build 3230's drawn smoke crashed so).
+static var _closed := false
 static var _box_n := 0
 static var _stalls := 0
 static var _first_frame := 0
@@ -159,6 +162,7 @@ static func write_marker(dir: String) -> void:
 static func clean_quit() -> void:
 	if not _started:
 		return
+	_closed = true
 	if _task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_task)
 		_task = -1
@@ -195,7 +199,16 @@ func _ready() -> void:
 	_next_box = Time.get_ticks_msec() + 1000
 
 
+## Leaving the tree (a reset, the quit): a write in flight is waited for, so the pool lets its task go now.
+func _exit_tree() -> void:
+	if _task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
+
+
 func _process(_delta: float) -> void:
+	if _closed:
+		return
 	var now := Time.get_ticks_msec()
 	if _first_frame == 0:
 		_first_frame = now
@@ -228,6 +241,8 @@ func _process(_delta: float) -> void:
 
 ## Copy what the black box keeps (here, the main thread) and write it on a worker.
 func write_box(now := false) -> void:
+	if _closed:
+		return
 	var t0 := Time.get_ticks_usec()
 	var snap := snapshot()
 	snap["copy_us"] = Time.get_ticks_usec() - t0  # what it cost the main thread (#624: well under 0.1 ms a frame)
