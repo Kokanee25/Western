@@ -189,7 +189,8 @@ leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash 
 (`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
 backtrace there too; the official release templates have no symbols, so Godot's own frames are
 addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
-(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`, `-- --crash-box=DIR` (a
+black box of its own, for games run side by side).
 `tests/test_crash_reports.gd`.
 
 ## The soak
@@ -1454,6 +1455,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## src/blast
 
+- **The first instant** (#596 step 3): `BlastCloud._flash` (one OmniLight, no shadows, white-hot to
+  orange and out in `flash_s`, 0.1 s; `flash_sprites`, unlit glows that go with it, their clock the
+  frame's), `_ring`/`ring_at` (dust kicked out flat along the ground or floor under the charge, its
+  speed and reach setting the drag; none past `ring_height` up) and `_spray` (loose dirt or splinters
+  thrown up out of the vent as streaks, falling back; `speed_cap` keeps it and the chunks under a
+  ceiling). Dials in BlastTuning's "The first instant" (proposed). The ring and dirt start on the
+  tick after the blast with the dust; all three warmed at load (`warm_up`). GPU particles only.
+  Films: the sound lab's `instant_*` scenarios with `--picture` (`--crash-watch=600,0` and a crash box
+  each: no notices over a drawn film); tests `test_blast_first_instant.gd`.
 - **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
   the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
   `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`

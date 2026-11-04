@@ -245,3 +245,40 @@ extends Resource
 @export var sever_kpa := {
 	"hand": 1500.0, "foot": 1500.0, "forearm": 2600.0, "shin": 2600.0, "upper_arm": 4500.0, "thigh": 4500.0,
 }
+
+@export_group("The first instant")
+## What you see the instant a stick goes off (issue #596 step 3, measured against RDR2's dynamite):
+## a white-orange flash, a low ring of dust kicked out along the ground, a blast of loose dirt thrown
+## up. GPU particles and one light; nothing for the physics. Sizes go as the cube root of the charge
+## (a stick 1.1, a bundle of four 1.7). PROPOSED: Sean judges by eye from the films.
+## The flash: one light, no shadows, white-hot fading to orange and out over `flash_s`, its energy
+## and reach (m) a stick's x size; and a burst of `flash_sprites` unlit glows `flash_sprite_m`
+## across at the charge, thrown out along the vent at up to `flash_sprite_speed` m/s, gone with it.
+@export var flash_s := 0.1
+@export var flash_energy := 12.0
+@export var flash_range := 16.0
+@export var flash_hot := Color(1.0, 0.93, 0.8)
+@export var flash_cool := Color(1.0, 0.55, 0.2)
+@export var flash_sprites := 12
+@export var flash_sprite_m := 2.2
+@export var flash_sprite_speed := 6.0
+## The ring: `ring_puffs` puffs of dust kicked out flat along the ground all round at `ring_speed`
+## m/s (+-15%), stopping within `ring_reach` m in a fraction of a second, then lingering and fading
+## over `ring_s`; puffs `ring_puff_m` across. On the ground or a floor under the charge, weaker as
+## the charge is higher over it, none past `ring_height` m up.
+@export var ring_puffs := 80
+@export var ring_speed := 22.0
+@export var ring_reach := 6.0
+@export var ring_s := 3.0
+@export var ring_puff_m := 1.3
+@export var ring_height := 1.5
+## The dirt: `spray_bits` bits of loose dirt (or splinters, on boards) thrown up out of the vent within
+## `spray_spread` degrees at `spray_speed_min`..`spray_speed_max` m/s (x sqrt size), falling back
+## under gravity for `spray_s`; streaks `spray_bit_m` long along their flight. Under a ceiling they
+## stay under it.
+@export var spray_bits := 220
+@export var spray_spread := 22.0
+@export var spray_speed_min := 5.0
+@export var spray_speed_max := 16.0
+@export var spray_s := 4.0
+@export var spray_bit_m := 0.09
