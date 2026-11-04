@@ -422,8 +422,9 @@ shaders (`RealLook.SHADERS`: texel grid, holes, ground, skin, insides) with `REA
 no drawn squares, no light per texel, members' seams a soft groove `real_groove` m wide with a
 rounded arris, relief from the albedo's lightness (`real_bump`, Mikkelsen 2010: `real_relief` m)
 until R2's scanned maps, people lit by the engine's own light (no painted light or glow); the tile
-globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport TAA,
-MSAA 2x, 16x anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`); the environment's dials
+globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport
+anti-aliased by FSR2 at native scale (sharper than Godot's TAA + MSAA, which read soft), 16x
+anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`; `view.scaling_3d_scale` under 1 upscales); the environment's dials
 from `config/looks/real_dials.json` (AgX, SSIL, SDFGI, the fog taking GI), every one put back off;
 exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
 own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),

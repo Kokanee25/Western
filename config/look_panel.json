@@ -10,7 +10,8 @@
       {"key": "real.sdfgi_indoor", "label": "Bounce under a roof", "min": 0, "max": 2, "what": "SDFGI's bounce light under a roof (0: indoors is RoomLight's)."},
       {"key": "env.ssil_intensity", "label": "Screen bounce (SSIL)", "min": 0, "max": 2, "what": "Bounce light from what's on screen."},
       {"key": "env.tonemap_agx_contrast", "label": "AgX contrast", "min": 0.8, "max": 2, "what": "The filmic curve's contrast."},
-      {"key": "view.use_taa", "label": "TAA", "kind": "bool", "what": "Temporal anti-aliasing."},
+      {"key": "view.scaling_3d_mode", "label": "Scaler (0 bilinear, 2 FSR2)", "min": 0, "max": 2, "step": 1, "what": "FSR2 (the real look's) anti-aliases over time and upscales below scale 1; bilinear with TAA is the other way."},
+      {"key": "view.use_taa", "label": "TAA (with bilinear)", "kind": "bool", "what": "Godot's temporal anti-aliasing (FSR2 has its own)."},
       {"key": "view.msaa_3d", "label": "MSAA (0 off, 1 2x, 2 4x)", "min": 0, "max": 2, "step": 1, "what": "Multisampled edges."},
       {"key": "view.scaling_3d_scale", "label": "Render scale", "min": 0.5, "max": 1, "step": 0.05, "what": "The 3D drawn at this share of the window, scaled up filtered."}
     ]},

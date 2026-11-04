@@ -13,8 +13,9 @@ extends Node
 ##   members' seams as soft grooves with rounded edges, relief from the textures (until R2's maps),
 ##   people lit by the engine's own light rather than painted;
 ## - turns the texel grid's globals off (Settings.tile_globals: squares, ragged, mosaic, seams);
-## - anti-aliases the game viewport (TAA, MSAA 2x, 16x anisotropic; `view.*` dials) and draws it to
-##   the window filtered when it isn't native;
+## - anti-aliases the game viewport (FSR2 at native scale: sharper than Godot's TAA, which left the
+##   frame soft in R0's renders; 16x anisotropic; `view.*` dials) and draws it to the window filtered
+##   when it isn't native;
 ## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, SDFGI,
 ##   volumetric fog) through LookPreset, every one put back when it goes off;
 ## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own);
@@ -39,7 +40,7 @@ const ROOF_REACH := 30.0
 ## relief / groove / specular (the shaders' globals, real_look.gdshaderinc), SDFGI's energy
 ## outdoors and under a roof.
 static var dials := {
-	"exposure": 1.6, "relief": 0.004, "groove": 0.003, "specular": 0.35,
+	"exposure": 1.4, "relief": 0.004, "groove": 0.003, "specular": 0.35,
 	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0,
 }
 ## Whether the world's shaders are compiled for the real look now.
@@ -167,10 +168,12 @@ func _globals(on: bool) -> void:
 
 
 ## The viewport's anti-aliasing and filtering (view.* dials), and the window's blow-up filtered.
+## FSR2 at scale 1 is its temporal anti-aliasing alone (no upscale); a lower `view.scaling_3d_scale`
+## makes it upscale. It takes the place of TAA and MSAA (R0's renders: TAA + MSAA 2x read soft).
 const VIEW_REAL := {
-	"msaa_3d": Viewport.MSAA_2X, "use_taa": true, "screen_space_aa": Viewport.SCREEN_SPACE_AA_DISABLED,
+	"msaa_3d": Viewport.MSAA_DISABLED, "use_taa": false, "screen_space_aa": Viewport.SCREEN_SPACE_AA_DISABLED,
 	"anisotropic_filtering_level": Viewport.ANISOTROPY_16X, "use_debanding": true,
-	"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "scaling_3d_scale": 1.0,
+	"scaling_3d_mode": Viewport.SCALING_3D_MODE_FSR2, "scaling_3d_scale": 1.0, "fsr_sharpness": 0.2,
 }
 
 
