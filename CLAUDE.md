@@ -754,6 +754,9 @@ frozen until Sean names one.
   0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
   (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
   glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
+  For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
+  volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
+  one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
