@@ -11,6 +11,7 @@ extends SceneTree
 ## the fixture's (all but the ground).
 ## --tone=STYLE: HumanBody.tone_style for every scenario (off, fade, dying), over each one's own `tone` field.
 ## --momentum=on|off: HumanBody.keep_stride (issue #446), the game's without it.
+## --lift=F: BlastTuning.blast_lift (issue #596 step 3b), over each scenario's own `lift`.
 ## --seed=N (HumanBody.rng_seed). --model=ID (the body: outlaw, the MakeHuman man, by default).
 ## --repeat=K (each scenario K times in this one process, compared tick by tick with the first).
 ## --perf (1, 5 and 10 men going limp on the same tick; frame times).
@@ -158,6 +159,8 @@ func _run() -> void:
 				runner.tone = StringName(args.tone)
 			if args.has("momentum"):
 				runner.momentum = String(args.momentum)
+			if args.has("lift"):
+				runner.lift = float(args.lift)
 			root.add_child(runner)
 			while not runner.done:
 				await physics_frame

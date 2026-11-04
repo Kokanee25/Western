@@ -49,6 +49,9 @@ var tone := &""
 ## --momentum=on: HumanBody.keep_stride (issue #446: the stumble keeps his speed and he falls into
 ## what's in his way); off or none: the game's.
 var momentum := ""
+## --lift=F: BlastTuning.blast_lift (issue #596 step 3b: men thrown up and back by a blast; 0 the
+## real push alone), over a scenario's own "lift"; < 0 keeps the game's.
+var lift := -1.0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -109,6 +112,9 @@ func _ready() -> void:
 		HumanBody.tone_style = &"" if style == &"off" else style
 	if momentum != "":
 		HumanBody.keep_stride = momentum == "on"
+	var lift_now := lift if lift >= 0.0 else float(scenario.get("lift", -1.0))
+	if lift_now >= 0.0:
+		Blast.t().blast_lift = lift_now
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
 	# stop instead, so a run never claims a man it didn't use.
@@ -121,6 +127,11 @@ func _ready() -> void:
 	_world.name = "LabWorld"
 	add_child(_world)
 	_build_fixture(String(scenario.get("fixture", "ground")))
+	# A blow he takes once down (a thrown man's landing, issue #596 step 3b: HumanBody._step_thrown).
+	Events.body_hit.connect(func(info: Dictionary) -> void:
+		if info.get("kind", &"") == &"blow" and not _men.is_empty() and info.get("person") == _men[0]:
+			_events.append({"tick": _tick, "kind": "blow", "segment": String(info.get("segment", "")),
+					"joules": snappedf(float(info.get("joules", 0.0)), 0.1), "harm": Array(info.get("harm", []))}))
 	Events.member_broken.connect(func(id: StringName) -> void:
 		_events.append({"tick": _tick, "kind": "member_broken", "member": String(id), "source": "the structure (BodyImpacts, a blow, a fall)"}))
 	if surface_friction >= 0.0:
@@ -604,15 +615,18 @@ func _physics_process(delta: float) -> void:
 		var cause: Dictionary = scenario.get("cause", {})
 		if not cause.is_empty() and _hit_tick < 0:
 			_hit_tick = _tick
+			# "one": a single charge for all the men ("from" in the first man's frame), not one each.
+			var one_at: Vector3 = _men[0].global_transform * _arr3(cause.get("from", [0, 0, -1]))
 			for man in _men:
 				match String(cause.kind):
 					"blast":
 						var f: Array = cause.get("from", [0, 0, -1])
-						var at := man.global_transform * Vector3(f[0], f[1], f[2])
+						var at := one_at if bool(cause.get("one", false)) else man.global_transform * Vector3(f[0], f[1], f[2])
 						var info: Dictionary = man.take_blast(at, float(cause.get("kg", 0.15)))
 						if man == _men[0]:
 							_events.append({"tick": _tick, "kind": "blast", "source": "HumanBody.take_blast", "at": _v(at),
-									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false)})
+									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false),
+									"lift": info.get("lift", 0.0), "blast_lift": Blast.t().blast_lift})
 					"chair_legs":
 						# The kit chair's legs: "remove" breaks each one and knocks it clear (shot out),
 						# "kick" gives each the chair's own blow (KitProp.take_blow, "impulse" N*s in
@@ -1394,3 +1408,7 @@ static func _stats(ms: Array[float]) -> Dictionary:
 	for m in s:
 		total += m
 	return {"mean": total / s.size(), "p50": s[s.size() / 2], "p99": s[mini(s.size() - 1, int(s.size() * 0.99))], "max": s[-1], "n": s.size()}
+
+
+static func _arr3(a: Array) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2]))

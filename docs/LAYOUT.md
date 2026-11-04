@@ -1394,6 +1394,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## src/blast
 
+- **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
+  the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
+  `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`
+  from a charge under his chest; `HumanBody._blast_lift` (its own dice: his seed and the blast's
+  place) gives a tumble about his weight's centre (`_turn_whole`), `_thrown` holds his arms out and
+  knees up for the flight (the brace's tone, `THROWN_TUCK`; out cold at half), and `_step_thrown`
+  hurts what lands hard (`take_blow`, `land_*`). No new bodies. Lab: the ragdoll lab's group Z,
+  `--lift=F`, `thrown.py`; the blast-freeze lab's `bf_blast men=N men_r=M lift=F`; tests
+  `test_blast_thrown.gd`.
 - **Native sums** (#538): `Blast.native` (the plugin's `BlastCore`, made by ClassDB; null on the web
   or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
   `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the

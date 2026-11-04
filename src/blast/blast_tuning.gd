@@ -141,6 +141,36 @@ extends Resource
 @export var knockdown_speed := 0.8
 ## The blast wind pushes a body with this share of impulse × its frontal area (0.7 m²).
 @export var throw_factor := 2.5
+
+@export_group("Thrown through the air")
+## Men close to a stick thrown up and back in an arc (issue #596 step 3b, Sean 2026-11-03: his
+## taste for fun physics over the real push, which only knocks a man over). 0 is the real blast
+## alone (the game before 3b); 1 the proposed targets: from a stick on the floor 1 m off he's
+## thrown 3-6 m with the arc's top 1-2 m up, 3 m off he's off his feet a metre or two, 6 m off he's
+## knocked down as before. PROPOSED: Sean picks the setting by eye from the films.
+@export var blast_lift := 0.0
+## The lift's speed (m/s) at blast_lift 1 right by the charge, before it falls away with distance.
+@export var lift_speed := 7.5
+## ... halved at this scaled distance (m per cube root of kg: a stick on the ground, 0.36 kg as it
+## hits, at ~2.4 m from his chest), and falling away as the scaled distance to this power (steep:
+## close in it's nearly all of it, two or three times out nearly none).
+@export var lift_reach := 3.4
+@export var lift_falloff := 4.0
+## Degrees above level he's thrown at, from a charge well below his chest (one at his chest
+## throws him level; one over him, no lift up).
+@export var lift_angle := 55.0
+## His turn in the air (rad/s at the full lift): head back and feet up (the tumble), with this much
+## either side drawn by his seed, and a little twist about the up axis. Half a turn or so over the
+## flight, not a pinwheel.
+@export var lift_tumble := 2.4
+@export var lift_tumble_spread := 0.3
+@export var lift_twist := 0.8
+## The landing hurts: a part that stops this much faster than gravity would (m/s in a tick) takes a
+## blow (HumanBody.take_blow, the bruises and broken bones of a fall) of this share of its own
+## kinetic energy, watched for this long (s) after he's thrown, once a part.
+@export var land_dv := 3.0
+@export var land_share := 0.5
+@export var land_watch := 3.0
 ## A body part torn open: past this (reflected) pressure at the part, this many joules per kPa more.
 @export var open_kpa := 800.0
 @export var open_joules_per_kpa := 1.2
