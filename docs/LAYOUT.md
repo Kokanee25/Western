@@ -1339,6 +1339,31 @@ joints, riders thrown by their car's jolt, cars broken into sections by `TrainMo
 `to_dict`/`restore`). Prof timer `train` includes the lookout (`cost.lookout_us`). The lab:
 `train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`; `derail_runs.py`.
 
+The trestle lab (#623; `experiments/trestle_lab/` README, brief `docs/briefs/trestle.md`): a route's
+`"crossings"` (`TrainRoute.crossings`, `TrackLine.crossings`) are built as `Trestle`s (`src/train/
+trestle.gd`, a `TrackChunk`: its ties and rails the line's; `TrackLine.trestles`, `trestle_at`,
+`on_crossing`: no ballast or fill under it), a timber viaduct from the ground under each panel
+point (`line.ground_y`): stone piers, mud sills, stories of posts counted down from the cap (outer
+posts battered, plumb inner and middle lines), intermediate sills, X sway braces, girts and
+longitudinal braces bent to bent, two-panel stringers in two chords a rail (joints broken), stone
+abutments, guard timbers; dials `TrestleTuning` (`config/trestle.tres`, proposed). Links set as
+framed (`_framed`, `infer_supports`; stack order by depth to the ground). The train's weight
+(`carry`, every `load_every` ticks): each axle's share straight onto the stringer chords under its
+rail (`StructureMember.extra_points`), only in the weakened panels (`only_weak`, `_weak_panels`:
+next to a bent with anything damaged, or over a damaged stringer; a sound deck can't fail under
+the engine: `test_a_sound_deck_carries_the_train_anywhere`), settled at once round by round
+(`_settle_load`; through the fire's queue it would throw its job away every update), not going
+down into intact bents (`Structure.closure_stop`, `StructuralAnalysis.begin_update(..., stop)`);
+the wreck's cars on the deck weigh on it too. `Train._check_bridge`: any truck over a broken
+stretch on a bridge leaves the rails (kind `fell`: `TrainWreck` gives no derail kick, and doesn't
+plough in the air or off the deck), its couplers loose in pitch (a car hangs from its coupler).
+A rail with no tie under it for `rail_span` under a wheel tears off (`_rails_give`). Falling pieces
+of it fall 2 cm smaller (framed face to face they wedged), a tall one is tipped over across the line
+`fold_after` s after it starts to fall (`_topple`, a model: it would stand on its stubs), and they
+break up into sections of at most `section_members` (`_break_up`); its rubble isn't "lost" till 10
+m under the gorge's floor (`Structure.lost_below`). `save_dict`/`restore_dict` keep its wreck by member path and the
+crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`, `trestle_matrix`.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;

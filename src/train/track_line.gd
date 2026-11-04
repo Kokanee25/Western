@@ -36,6 +36,14 @@ var track_members := members_default
 ## `-- --track-drawn`: every line drawn as step 1's (the before, for the idle cost).
 static var members_default := not "--track-drawn" in OS.get_cmdline_user_args()
 var chunks: Array[TrackChunk] = []
+## Bridges on the line (TrainRoute.crossings: {id, kind, from_s, to_s}; the trestle lab, #623): each
+## built as a Trestle (a TrackChunk of its own, the bents under its ties) with no ballast or fill
+## under it. Only with `track_members`.
+var crossings: Array = []
+## The Trestles built for them.
+var trestles: Array[Trestle] = []
+## Their dials (config/trestle.tres unless set).
+var trestle_tuning: TrestleTuning
 ## What's wrong with the line (TrackState): broken, bent and blocked stretches.
 var state: TrackState
 ## The railroad's repair crew for this line (TrackRepair): sent for when it's damaged.
@@ -46,6 +54,9 @@ const STEP := 1.0  # the alignment's sampling, m
 
 var curve := Curve3D.new()
 var length := 0.0
+## The line's lowest rail top (its own space): anything well under it isn't on the line (asked
+## before the curve's nearest point, which is ~1-2 ms on a long line).
+var lowest := 0.0
 var _grade := PackedFloat32Array()  # by metre
 var _curv := PackedFloat32Array()
 var _scale := 1.0  # baked length / the alignment's own length
@@ -102,6 +113,9 @@ func lay_out() -> void:
 		_add_point(pts, tans, pts.size() - 1, (pts.size() - 1) % every)
 	length = curve.get_baked_length()
 	_scale = length / maxf(total, 0.001)
+	lowest = INF
+	for p in pts:
+		lowest = minf(lowest, p.y)
 
 
 func _add_point(pts: PackedVector3Array, tans: PackedVector3Array, j: int, gap: int) -> void:
@@ -217,17 +231,36 @@ func build() -> void:
 	for mark_name in marks:
 		_build_mark(String(mark_name), float(marks[mark_name]))
 	chunks.clear()
+	trestles.clear()
 	if track_members:
-		# A whole number of rails a chunk (the joints at its ends), about CHUNK long.
+		# A whole number of rails a chunk (the joints at its ends), about CHUNK long; a crossing is a
+		# chunk of its own (a Trestle), the chunk before it ending where it starts.
 		var per := maxf(1.0, roundf(CHUNK / t.rail_length)) * t.rail_length
+		var cross := _crossings_sorted()
+		var ci := 0
 		var n := 0
 		var a := 0.0
 		while a < length - 0.01:
+			if ci < cross.size() and a >= float(cross[ci].from_s) - 0.01:
+				var tr := Trestle.new()
+				if trestle_tuning == null:
+					trestle_tuning = load("res://config/trestle.tres")
+				tr.setup_crossing(self, t, trestle_tuning, n, a, minf(float(cross[ci].to_s), length), str(cross[ci].id))
+				add_child(tr)
+				chunks.append(tr)
+				trestles.append(tr)
+				a = minf(float(cross[ci].to_s), length)
+				ci += 1
+				n += 1
+				continue
+			var b := minf(a + per, length)
+			if ci < cross.size():
+				b = minf(b, float(cross[ci].from_s))
 			var c := TrackChunk.new()
-			c.setup(self, t, n, a, minf(a + per, length))
+			c.setup(self, t, n, a, b)
 			add_child(c)
 			chunks.append(c)
-			a += per
+			a = b
 			n += 1
 	if state == null:
 		state = TrackState.new(self)
@@ -236,6 +269,30 @@ func build() -> void:
 		repair = TrackRepair.new()
 		repair.setup(self)
 		add_child(repair)
+
+
+func _crossings_sorted() -> Array:
+	var out := crossings.duplicate()
+	out.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return float(x.from_s) < float(y.from_s))
+	return out
+
+
+## Is s on a crossing (a bridge: no ballast or fill under it)?
+func on_crossing(s: float) -> bool:
+	if not track_members:
+		return false
+	for c: Dictionary in crossings:
+		if s > float(c.from_s) and s < float(c.to_s):
+			return true
+	return false
+
+
+## The Trestle over s, or null.
+func trestle_at(s: float) -> Trestle:
+	for tr in trestles:
+		if s >= tr.from_s and s <= tr.to_s:
+			return tr
+	return null
 
 
 ## The TrackChunk holding distance s, or null.
@@ -277,9 +334,13 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		if s >= b:
 			break
 		s = minf(s + step, b)
+	var swept := 0
 	for j in frames.size() - 1:
 		var f0 := frames[j]
 		var f1 := frames[j + 1]
+		if on_crossing(minf(a + (j + 0.5) * step, b)):
+			continue  # a bridge: nothing under the ties but the bridge
+		swept += 1
 		_sweep(st_bal, bal, f0, f1)
 		if not track_members:
 			for r in rails:
@@ -294,6 +355,8 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 	body.collision_layer = Layers.WORLD
 	chunk.add_child(body)
 	for pair in [[st_fill, _mat("fill", Color(0.42, 0.33, 0.23))], [st_bal, _mat("ballast", Color(0.36, 0.34, 0.31))]]:
+		if swept == 0:
+			break  # all of it on a bridge
 		var st: SurfaceTool = pair[0]
 		st.generate_normals()
 		var mesh := st.commit()

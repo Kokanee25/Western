@@ -40,6 +40,8 @@ var members := {}
 var _order: Array[StructureMember] = []
 ## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
 const LOST_BELOW := -5.0
+## Rubble below this (world y) has gone through the ground (a viaduct over a gorge lowers it).
+var lost_below := LOST_BELOW
 ## Each awake piece of rubble is looked at every this many ticks for having gone under the dug
 ## ground (Ground.rescue, #584).
 const RESCUE_TICKS := 15
@@ -56,6 +58,9 @@ var last_analysis: StructuralAnalysis
 ## Members changed since last_analysis (id -> true): broken, holed, charred, loaded, added, or the
 ## ground gone from under them. `start_analysis` works these out again, and what their loads reach.
 var _dirty := {}
+## Members an update works out again without going down to their supports (StructuralAnalysis.
+## begin_update's `stop`): empty but while a Trestle's train loads move along its deck.
+var closure_stop := {}
 ## last_analysis is of this support graph (false once the graph is worked out anew).
 var _analysis_valid := false
 ## Analyses carried over and brought up to date (StructuralAnalysis.begin_update); off, every one
@@ -1229,7 +1234,7 @@ func start_analysis(full := false) -> StructuralAnalysis:
 	wait_analysis()
 	analysis_epoch += 1
 	if not full and incremental and _analysis_valid and last_analysis != null \
-			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty):
+			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty, closure_stop):
 		_dirty.clear()
 		return last_analysis
 	var t := Prof.start()
@@ -1790,7 +1795,7 @@ func _physics_step(delta: float) -> void:
 			rb.set_meta(&"v", v)
 			if gated and not rb.freeze:
 				_report(rb, v.length_squared(), on2, off2, ground, tick)
-			if rb.global_position.y < LOST_BELOW:
+			if rb.global_position.y < lost_below:
 				lost.append(rb)
 			elif ground and (tick + rb.get_instance_id()) % RESCUE_TICKS == 0:
 				ground.rescue(rb)

@@ -1,0 +1,232 @@
+{
+  "after": {
+    "bents_down": 1,
+    "broken": 193,
+    "by_kind": {
+      "bent_sill": 9,
+      "brace": 88,
+      "cap": 1,
+      "girt": 43,
+      "post": 52
+    },
+    "deck_damage": 0,
+    "rails_gone": 0
+  },
+  "derail": {},
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.4,
+    "ms": 58.031,
+    "posts": 8,
+    "stagger_ticks": 0,
+    "worst_one_ms": 36.3
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 721,
+    "gate": "pass",
+    "last_under_50fps_s": 15.17,
+    "mean_ms": 21.36,
+    "over_100": 1,
+    "over_50": 1,
+    "sean_worst_ms": 72.6,
+    "second_ms": 48.9,
+    "slow_spell_s": 0.16,
+    "worst_at_s": 0.11,
+    "worst_ms": 111.8
+  },
+  "load_cost": {
+    "settles": 0,
+    "updates": 0,
+    "us": 14165
+  },
+  "outcome": "no train",
+  "prof_ms_a_frame": {
+    "batches": 0.09,
+    "civilian_brain": 0.6,
+    "day_cycle": 0.15,
+    "fire": 0.26,
+    "fire_analyse": 0.05,
+    "fire_apply": 0.16,
+    "fire_loads": 0.24,
+    "horses": 0.17,
+    "kit_balance": 0.09,
+    "lamps": 0.14,
+    "lines_senses": 1.09,
+    "mop": 0.06,
+    "outlaw_brain": 0.09,
+    "people_bands": 0.24,
+    "people_body": 4.25,
+    "people_prep": 1.09,
+    "people_prep_sum": 2.45,
+    "people_skeleton": 1.05,
+    "player": 0.53,
+    "rr_join": 0.11,
+    "rubble_rest": 0.16,
+    "senses": 2.33,
+    "settle_analyse": 0.11,
+    "settle_apply": 0.11,
+    "shadow_set": 0.19,
+    "sight_sync": 0.34,
+    "structures": 0.8,
+    "train": 0.62,
+    "train_lookout": 0.26,
+    "train_sound": 0.18,
+    "train_view": 0.25
+  },
+  "rubble": {
+    "awake_at_end": 79,
+    "pieces": 171
+  },
+  "slow_frames": [
+    {
+      "awake": 35,
+      "ms": 111.8,
+      "physics_ms": 26.9,
+      "process_ms": 3.2,
+      "rubble": 35,
+      "t": 0.02,
+      "top": {
+        "ballistics": 31.2,
+        "blast_break": 27.1,
+        "blast_fx": 11.5,
+        "blast_gather": 9.1,
+        "blast_settle": 19.9,
+        "blast_snap": 6.0,
+        "gather_panes": 7.3,
+        "settle_analyse": 15.5
+      }
+    },
+    {
+      "awake": 47,
+      "ms": 48.9,
+      "physics_ms": 26.9,
+      "process_ms": 3.2,
+      "rubble": 47,
+      "t": 0.03,
+      "top": {
+        "batches": 2.9,
+        "lines_senses": 0.7,
+        "people_body": 3.2,
+        "people_prep": 1.3,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 0.8,
+        "player": 0.5,
+        "senses": 1.2
+      }
+    },
+    {
+      "awake": 66,
+      "ms": 44.4,
+      "physics_ms": 109.2,
+      "process_ms": 9.4,
+      "rubble": 66,
+      "t": 0.37,
+      "top": {
+        "fire": 3.7,
+        "fire_loads": 3.7,
+        "people_body": 3.4,
+        "people_prep_sum": 3.1,
+        "shadow_set": 15.4,
+        "structures": 3.3,
+        "train": 4.3,
+        "train_lookout": 4.0
+      }
+    },
+    {
+      "awake": 84,
+      "ms": 45.8,
+      "physics_ms": 109.2,
+      "process_ms": 9.4,
+      "rubble": 84,
+      "t": 0.67,
+      "top": {
+        "batches": 3.7,
+        "fire": 15.0,
+        "fire_analyse": 5.5,
+        "fire_apply": 9.4,
+        "fire_loads": 14.9,
+        "people_body": 5.1,
+        "train": 4.8,
+        "train_lookout": 4.3
+      }
+    },
+    {
+      "awake": 113,
+      "ms": 43.9,
+      "physics_ms": 30.0,
+      "process_ms": 3.8,
+      "rubble": 116,
+      "t": 2.12,
+      "top": {
+        "batches": 2.4,
+        "bu_forget": 1.0,
+        "people_body": 3.7,
+        "people_prep": 1.0,
+        "people_prep_sum": 2.1,
+        "people_skeleton": 1.0,
+        "settle_analyse": 8.6,
+        "settle_apply": 8.8
+      }
+    },
+    {
+      "awake": 116,
+      "ms": 48.7,
+      "physics_ms": 41.3,
+      "process_ms": 3.5,
+      "rubble": 120,
+      "t": 2.2,
+      "top": {
+        "civilian_brain": 0.6,
+        "lines_senses": 4.1,
+        "people_body": 14.5,
+        "people_prep": 1.1,
+        "people_prep_sum": 1.7,
+        "people_skeleton": 1.0,
+        "senses": 5.2,
+        "shadow_set": 14.6
+      }
+    },
+    {
+      "awake": 114,
+      "ms": 45.5,
+      "physics_ms": 28.0,
+      "process_ms": 3.8,
+      "rubble": 171,
+      "t": 10.18,
+      "top": {
+        "civilian_brain": 0.6,
+        "lines_senses": 1.5,
+        "people_body": 5.7,
+        "people_prep": 0.8,
+        "people_prep_sum": 1.9,
+        "people_skeleton": 1.2,
+        "senses": 3.6,
+        "structures": 0.7
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 1,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/trestle/final2/bent_blown_one_tick.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 0,
+    "sticks": 2,
+    "story": "bottom",
+    "train": "none",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": -1.0
+}
