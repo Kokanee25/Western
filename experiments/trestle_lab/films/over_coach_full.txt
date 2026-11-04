@@ -1,5 +1,5 @@
 # Trestle lab film 6 (#623): the coach full (twelve men seated), alongside it as it goes.
 trestle_lab
-train_caption The coach full: twelve men seated. The tallest bent blown as the engine comes on at 40 km/h.
+train_caption The coach full: twelve men seated. Three bents blown as the engine comes on at 40 km/h.
 train_watch coach 6 7 2.4 -4 follow
-trestle_collapse how=stick posts=all sticks=2 bents=1 train=cross when=under lead=40 kmh=40 run_up=120 riders=12 secs=10
+trestle_collapse how=stick posts=all sticks=2 bents=3 train=cross when=under lead=60 kmh=40 run_up=120 riders=12 secs=10

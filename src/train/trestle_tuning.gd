@@ -17,9 +17,9 @@ extends Resource
 ##     "A Treatise on Wooden Trestle Bridges", 1891, which was not reachable from this session);
 ##   - bents 10-16 ft apart (16 ft here: the far end of the usual range, for the fewest members);
 ##     stories split by intermediate sills once a bent passes 16-20 ft (20 ft here).
-## The scale is Sean's (#623): Portage-scale, ~71 m high at the middle (the Erie's Portage Viaduct
-## over the Genesee, 1852: ~234 ft high, 800-900 ft long, all timber on stone piers), taller than
-## the Union Pacific's Dale Creek trestle (1868, ~126 ft high, 650 ft long).
+## The scale comes from the route's crossing and the ground under it, not from here: Sean's (2026-11-04)
+## is the Bridge on the River Kwai's, 425 ft long and ~90 ft over the water (the trestle lab's
+## gorge.json: 130 m, ~27 m). At that height these dials make four-post bents in four stories.
 
 @export_group("The bents")
 ## Centre to centre of the bents along the line, m (16 ft). The crossing is split into whole panels
