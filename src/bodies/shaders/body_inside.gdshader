@@ -4,8 +4,9 @@ shader_type spatial;
 render_mode cull_front;
 
 #include "res://src/bodies/shaders/wounds.gdshaderinc"
+#include "res://src/render/real_look.gdshaderinc"
 
-uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D albedo_tex : source_color, GRID_FILTER, repeat_enable;
 uniform float uv_scale = 5.0;
 
 // Seen only through an opening: the line of sight within this many of its radii of one.

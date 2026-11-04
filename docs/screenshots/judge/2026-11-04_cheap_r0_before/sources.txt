@@ -1,0 +1,7 @@
+a saloon_night build/r0/before/saloon_night.png
+b saloon_back_wall_night build/r0/before/saloon_back_wall_night.png
+c saloon_toward_door_night build/r0/before/saloon_toward_door_night.png
+d man_saloon_night build/r0/before/man_saloon_night.png
+e road_low_noon build/r0/before/road_low_noon.png
+f street_golden_hour build/r0/before/street_golden_hour.png
+g film build/r0/film_painted
