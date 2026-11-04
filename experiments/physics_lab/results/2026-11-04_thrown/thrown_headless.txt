@@ -1,0 +1,73 @@
+## build/physics_lab/final_l0
+Z_thrown_1m              lift  0.00  top  0.03  land 0.5 m at 0.83 s  end  0.78  broke  0  rest None  frame p99 39.328 max 59.548
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, hand (right) torn off, foot (right) torn off, hand (left) torn off, foot (left) torn off
+Z_thrown_1m_behind       lift  0.00  top  0.02  land 0.68 m at 0.9 s  end  0.84  broke  0  rest None  frame p99 26.707 max 67.777
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+Z_thrown_3m              lift  0.00  top  0.00  land 0.79 m at 1.07 s  end  1.34  broke  0  rest None  frame p99 28.309 max 31.452
+    harm: right eardrum burst, left eardrum burst, thrown off his feet
+Z_thrown_6m              lift  0.00  top  0.00  land None m at None s  end  0.02  broke  0  rest None  frame p99 29.161 max 33.785
+    harm: 
+Z_thrown_balcony_rail    lift  0.00  top  0.02  land None m at None s  end  0.53  broke  3  rest None  frame p99 31.763 max 121.8
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+Z_thrown_hitch           lift  0.00  top  0.02  land 0.8 m at 1.0 s  end  0.99  broke  0  rest None  frame p99 28.845 max 54.829
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, foot (right) torn off, foot (left) torn off
+Z_thrown_porch           lift  0.00  top  0.02  land 1.0 m at 1.0 s  end  1.18  broke  0  rest None  frame p99 29.668 max 58.152
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+Z_thrown_table           lift  0.00  top  0.02  land 0.68 m at 0.9 s  end  0.83  broke  0  rest None  frame p99 26.097 max 62.805
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+Z_thrown_three           lift  0.00  top  0.01  land 0.78 m at 0.85 s  end  1.23  broke  0  rest None  frame p99 27.545 max 35.271
+    harm: right eardrum burst, left eardrum burst, knocked senseless, thrown off his feet
+## build/physics_lab/final_l0.8
+Z_thrown_1m              lift  5.14  top  1.08  land 3.43 m at 1.1 s  end  3.79  broke  0  rest None  frame p99 25.496 max 29.547
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, hand (right) torn off, foot (right) torn off, hand (left) torn off, foot (left) torn off
+    landing: pelvis 95 J: bruised; abdomen 48 J: bruised; thigh_r 51 J: bruised; shin_r 23 J: bruised; thigh_l 52 J: bruised; shin_l 23 J: bruised; chest 56 J: bruised
+Z_thrown_1m_behind       lift  5.07  top  0.92  land 3.16 m at 1.08 s  end  3.40  broke  0  rest None  frame p99 27.378 max 38.131
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: thigh_r 22 J: bruised; pelvis 86 J: bruised; abdomen 64 J: bruised; head 21 J: bruised
+Z_thrown_3m              lift  1.47  top  0.06  land 0.84 m at 0.57 s  end  0.81  broke  0  rest None  frame p99 27.685 max 37.098
+    harm: right eardrum burst, left eardrum burst, thrown off his feet
+    landing: head 38 J: bruised
+Z_thrown_6m              lift  0.15  top  0.00  land None m at None s  end  0.02  broke  0  rest None  frame p99 25.34 max 30.156
+    harm: 
+Z_thrown_balcony_rail    lift  5.07  top  0.33  land None m at None s  end  1.44  broke  3  rest None  frame p99 32.119 max 259.181
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: head 38 J: bruised; chest 65 J: bruised; shin_r 6 J: bruised; pelvis 134 J: bruised; abdomen 62 J: bruised; thigh_r 25 J: bruised; thigh_l 37 J: bruised
+Z_thrown_hitch           lift  4.77  top  0.89  land 3.05 m at 1.02 s  end  3.44  broke  0  rest None  frame p99 22.924 max 29.597
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, foot (right) torn off, foot (left) torn off
+    landing: shin_l 20 J: bruised; pelvis 76 J: bruised; abdomen 43 J: bruised; head 30 J: bruised
+Z_thrown_porch           lift  5.07  top  0.90  land 3.33 m at 1.15 s  end  3.72  broke  0  rest None  frame p99 28.858 max 57.181
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: thigh_r 26 J: bruised; thigh_l 29 J: bruised; pelvis 91 J: bruised; abdomen 53 J: bruised; head 21 J: bruised
+Z_thrown_table           lift  5.07  top  0.92  land None m at None s  end  3.14  broke 20  rest None  frame p99 25.577 max 49.625
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: thigh_l 30 J: bruised; thigh_r 59 J: bruised; pelvis 26 J: bruised; abdomen 28 J: bruised; head 27 J: bruised
+Z_thrown_three           lift  4.24  top  0.70  land 2.64 m at 0.93 s  end  3.07  broke  0  rest None  frame p99 16.145 max 22.909
+    harm: right eardrum burst, left eardrum burst, knocked senseless, thrown off his feet
+    landing: pelvis 74 J: bruised; abdomen 36 J: bruised; thigh_l 26 J: bruised; head 32 J: bruised
+## build/physics_lab/final_l1.1
+Z_thrown_1m              lift  7.07  top  1.82  land 5.29 m at 1.37 s  end  5.22  broke  0  rest None  frame p99 19.406 max 34.05
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, hand (right) torn off, foot (right) torn off, hand (left) torn off, foot (left) torn off
+    landing: head 42 J: bruised; pelvis 92 J: bruised; abdomen 122 J: bruised; chest 246 J: ribs broken; thigh_r 41 J: bruised; thigh_l 26 J: bruised
+Z_thrown_1m_behind       lift  6.97  top  1.57  land 4.89 m at 1.35 s  end  5.05  broke  0  rest None  frame p99 52.814 max 58.136
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: head 37 J: bruised; pelvis 128 J: bruised; abdomen 107 J: bruised; chest 63 J: bruised; thigh_r 57 J: bruised; thigh_l 55 J: bruised
+Z_thrown_3m              lift  2.02  top  0.11  land 1.11 m at 0.62 s  end  2.03  broke  0  rest None  frame p99 27.85 max 37.831
+    harm: right eardrum burst, left eardrum burst, thrown off his feet
+    landing: head 51 J: concussion
+Z_thrown_6m              lift  0.20  top  0.00  land None m at None s  end  0.02  broke  0  rest None  frame p99 30.107 max 32.125
+    harm: 
+Z_thrown_balcony_rail    lift  6.97  top  0.36  land None m at None s  end  1.72  broke  4  rest None  frame p99 60.808 max 243.605
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: abdomen 33 J: bruised; chest 63 J: bruised; thigh_r 32 J: bruised; pelvis 172 J: bruised; head 43 J: bruised; forearm_l 25 J: bruised
+Z_thrown_hitch           lift  6.57  top  1.54  land 4.78 m at 1.28 s  end  4.83  broke  0  rest None  frame p99 22.578 max 27.679
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, foot (right) torn off, foot (left) torn off
+    landing: head 46 J: concussion; abdomen 41 J: bruised; pelvis 59 J: bruised; thigh_r 27 J: bruised; shin_r 51 J: bruised; thigh_l 27 J: bruised; shin_l 52 J: bruised
+Z_thrown_porch           lift  6.97  top  1.55  land 5.05 m at 1.42 s  end  5.15  broke  0  rest None  frame p99 30.965 max 32.898
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: head 44 J: bruised; pelvis 168 J: bruised; abdomen 142 J: bruised; chest 196 J: ribs broken; thigh_r 124 J: bruised; thigh_l 137 J: bruised
+Z_thrown_table           lift  6.97  top  1.57  land 4.91 m at 1.35 s  end  5.08  broke  0  rest None  frame p99 27.746 max 51.591
+    harm: right eardrum burst, left eardrum burst, lungs bruised by the blast, knocked senseless, thrown off his feet, shin (right) torn off, shin (left) torn off
+    landing: head 48 J: concussion; chest 43 J: bruised; abdomen 40 J: bruised; pelvis 37 J: bruised; thigh_r 77 J: bruised; thigh_l 66 J: bruised
+Z_thrown_three           lift  5.83  top  1.22  land 3.98 m at 1.13 s  end  4.32  broke  0  rest None  frame p99 18.358 max 25.592
+    harm: right eardrum burst, left eardrum burst, knocked senseless, thrown off his feet
+    landing: pelvis 102 J: bruised; abdomen 50 J: bruised; thigh_l 28 J: bruised; chest 52 J: bruised; head 56 J: concussion
