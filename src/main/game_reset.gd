@@ -12,7 +12,7 @@ static var just_reset := false
 
 
 static func reset(tree: SceneTree) -> void:
-	CrashReports.loading(true, "the game reset")  # (the watchdog waits for the load: CrashReports.start ends it)
+	CrashReports.begin_load("the game reset")  # (the watchdog waits for the load: its first frames drawn end it)
 	clear_statics()
 	just_reset = true
 	tree.reload_current_scene.call_deferred()

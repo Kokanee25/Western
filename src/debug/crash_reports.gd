@@ -44,6 +44,9 @@ static var packed := {}
 static var lines: Lines
 static var _started := false
 static var _task := -1
+## Set by the clean quit: no box is written after it (#624: one posted in the quit's last frames was
+## never waited for, and freed after the script language had gone: build 3230's drawn smoke crashed so).
+static var _closed := false
 static var _box_n := 0
 static var _stalls := 0
 static var _first_frame := 0
@@ -108,9 +111,16 @@ static func start(main: Node, rec: BugRecorder) -> void:
 			if watch != "":
 				var w := watch.split(",")
 				guard.configure(float(w[0]), float(w[1]) if w.size() > 1 else 60.0, 300.0)
+			elif "--smoke-test" in OS.get_cmdline_user_args():
+				# The smoke test runs on CI's software Vulkan, ~6 s a frame (build 3222: 15 frames in
+				# 85 s): there a frame over 5 s isn't a freeze, and each report's gdb stalls it more
+				# till one gap passes 60 s (#624: builds 3230, 3244). Reports at 30 s, never ended.
+				guard.configure(30.0, 0.0, 300.0)
 			guard.install(ProjectSettings.globalize_path(box_dir), _info())
-	elif guard and guard.is_loading():
-		guard.loading(false, "")  # (the reset's load is over)
+	# The start is a load until FIRST_FRAMES frames have been drawn (the node ends it): the first
+	# frame's draw compiles the shaders, over 60 s under CI's software Vulkan, and the watchdog
+	# ended a game that wasn't frozen (#624: main's builds 3230 and 3244, the drawn smoke).
+	begin_load("the first frames (the shaders)")
 	var node := CrashReports.new()
 	node.name = "CrashReports"
 	node.recorder = rec
@@ -129,6 +139,23 @@ static func tool_run() -> bool:
 static func loading(on: bool, what: String) -> void:
 	if guard:
 		guard.loading(on, what)
+
+
+## The scene's load (the start, a reset), open till its first frames are drawn: once, however
+## often it's begun (a reset during the first frames doesn't count it twice).
+static var _load_open := false
+
+
+static func begin_load(what: String) -> void:
+	if not _load_open:
+		_load_open = true
+		loading(true, what)
+
+
+static func end_load() -> void:
+	if _load_open:
+		_load_open = false
+		loading(false, "")
 
 
 ## Where the reports go: the desktop's `Salt Creek crash reports` (made if need be), else
@@ -159,6 +186,7 @@ static func write_marker(dir: String) -> void:
 static func clean_quit() -> void:
 	if not _started:
 		return
+	_closed = true
 	if _task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_task)
 		_task = -1
@@ -189,13 +217,40 @@ static func writing() -> bool:
 
 # -- Each frame -------------------------------------------------------------------------------------
 
+## Frames drawn before the scene's load counts as over (the first draw compiles the shaders).
+const FIRST_FRAMES := 3
+var _drawn := 0
+
+
+func _count_draw() -> void:
+	_drawn += 1
+	if _drawn >= FIRST_FRAMES:
+		end_load()
+		if RenderingServer.frame_post_draw.is_connected(_count_draw):
+			RenderingServer.frame_post_draw.disconnect(_count_draw)
+
+
 func _ready() -> void:
+	# Headless nothing is drawn (and no frame is posted): frames counted in _process instead.
+	if DisplayServer.get_name() != "headless":
+		RenderingServer.frame_post_draw.connect(_count_draw)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = 1001  # the last of the frame's scripts, after the bug recorder: its beat is the frame done
 	_next_box = Time.get_ticks_msec() + 1000
 
 
+## Leaving the tree (a reset, the quit): a write in flight is waited for, so the pool lets its task go now.
+func _exit_tree() -> void:
+	if RenderingServer.frame_post_draw.is_connected(_count_draw):
+		RenderingServer.frame_post_draw.disconnect(_count_draw)
+	if _task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
+
+
 func _process(_delta: float) -> void:
+	if _closed:
+		return
 	var now := Time.get_ticks_msec()
 	if _first_frame == 0:
 		_first_frame = now
@@ -210,6 +265,8 @@ func _process(_delta: float) -> void:
 		_crash_at = -1.0
 		print("[crash reports] --crash-at: a crash now, on purpose (%s)" % _crash_how)
 		_crash(_crash_how)
+	if _drawn < FIRST_FRAMES and DisplayServer.get_name() == "headless":
+		_count_draw()
 	if guard:
 		guard.beat()  # (after the tries above: a hang there is the frame's _process, as a real one would be)
 	if now >= _next_box and not writing():
@@ -228,6 +285,8 @@ func _process(_delta: float) -> void:
 
 ## Copy what the black box keeps (here, the main thread) and write it on a worker.
 func write_box(now := false) -> void:
+	if _closed:
+		return
 	var t0 := Time.get_ticks_usec()
 	var snap := snapshot()
 	snap["copy_us"] = Time.get_ticks_usec() - t0  # what it cost the main thread (#624: well under 0.1 ms a frame)
