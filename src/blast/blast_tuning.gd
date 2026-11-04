@@ -120,9 +120,6 @@ extends Resource
 ## Eardrums: none burst below the first, all by the second (kPa).
 @export var eardrum_kpa := 35.0
 @export var eardrum_all_kpa := 140.0
-## Ringing ears: seconds per kPa at the ear, most.
-@export var ringing_per_kpa := 0.5
-@export var ringing_max := 40.0
 ## The bang comes through before your ears give (#596: the crack was lost under the muffle): the
 ## world stays clear this long after a blast reaches you, then dulls over `ear_ease_s`; the
 ## ringing starts with the dulling.
@@ -146,6 +143,47 @@ extends Resource
 @export var knockdown_speed := 0.8
 ## The blast wind pushes a body with this share of impulse × its frontal area (0.7 m²).
 @export var throw_factor := 2.5
+
+@export_group("On you")
+## What a blast does to you that isn't a wound (#596 step 2), each by the pressure at your ear
+## (reflected kPa), on a log scale: nothing at `*_from_kpa`, all of it at `*_full_kpa` (150: both
+## eardrums burst, knocked senseless, 2.5 m from a stick on the ground). A stick on the ground
+## gives ~150 kPa at 2 m, ~34 at 5 m, ~11 at 12 m, ~4 at 30 m. PROPOSED: Sean sets them by ear and
+## eye from the films. Noise-induced temporary threshold shift (the dull world) and tinnitus (the
+## whine) after impulse noise last seconds to hours in life; these are a game's few seconds.
+##
+## The world dulled (a low-pass on what you hear): the cutoff falls to `muffle_floor_hz` at full,
+## less far off (20 kHz x (floor / 20 kHz)^share), held, then given back over the last
+## `muffle_recover` of `muffle_s` x share seconds.
+@export var muffle_from_kpa := 3.0
+@export var muffle_full_kpa := 150.0
+@export var muffle_s := 9.0
+@export var muffle_floor_hz := 300.0
+@export var muffle_recover := 0.6
+## Ringing ears: `ringing_max` x share seconds of a high whine, its top `ring_level` (linear) x
+## share², fading as the square of the time left. On its own bus, past the ears' filter: it's in
+## your head.
+@export var ring_from_kpa := 3.0
+@export var ring_full_kpa := 150.0
+@export var ringing_max := 24.0
+@export var ring_level := 0.35
+## The view shaken (the camera only: your aim stays where it was): `shake_deg` x share^1.5 at its
+## start, a kick away from the blast of `shake_jolt_deg` x share^1.5 springing back, over
+## `shake_s` x (0.35 + 0.65 share) seconds, its wobble at `shake_hz`. Felt out to
+## `felt_reach_x` x the blast's reach (a stick's 17.8 m: x2.5 is ~45 m), past where it touches you.
+@export var shake_from_kpa := 2.0
+@export var shake_full_kpa := 150.0
+@export var shake_deg := 3.0
+@export var shake_jolt_deg := 4.0
+@export var shake_s := 1.6
+@export var shake_hz := 11.0
+@export var felt_reach_x := 2.5
+## Dirt and grit on the screen up close (an overlay: specks and smudges, more on the blast's side,
+## a brown wash of dust over it), cleared speck by speck over `grit_clear_s` x (0.5 + 0.5 share).
+@export var grit_from_kpa := 25.0
+@export var grit_full_kpa := 150.0
+@export var grit_clear_s := 4.0
+@export var dust_wash := 0.6
 
 @export_group("Thrown through the air")
 ## Men close to a stick thrown up and back in an arc (issue #596 step 3b, Sean 2026-11-03: his
