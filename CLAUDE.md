@@ -451,7 +451,8 @@ frozen until Sean names one.
   (night/day values over the game's, real look only), RoomLight on under it, hung lamps shaded
   (`real.hung_*`), interior probes re-taken. Judge: saloon cheap indie in three rounds (darks and
   contact shadows in; "orange wash, roof lit" left: the wood and 14 even sconces, R2/R3); street day
-  values made noon worse, taken back. Next: R2 (materials), after Sean's word (the R1 issue).
+  values made noon worse, taken back. PR #654 green, its merge held for main's red drawn smoke
+  (gameplay's, #650/#657). Waiting on Sean: #659 (R2 or another light round). Next: #660 (R2).
   Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
