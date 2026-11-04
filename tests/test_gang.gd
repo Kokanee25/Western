@@ -555,3 +555,19 @@ func test_a_duel_is_his_own() -> void:
 	b._join(player, men[&"a"])  # (as his shout that he's down, or that you got him, has it)
 	var joined := await wait_until(func() -> bool: return b.relations.stance(player) == Relations.Stance.FIGHT, 60 * 3)
 	check(joined, "once he's down, b takes it up")
+
+
+## The fourth playtest: "My leg! Get me out of here!" from Brody, shot in the chest. Down with his legs
+## his own he calls for help without them; the press says why he's going ("He's loading!", not
+## "He's empty!" at a man with two rounds left).
+func test_what_they_shout_fits_why() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	var lines: Array[String] = []
+	var hear := func(who: Node, text: String) -> void: if who == men[&"a"]: lines.append(text)
+	Events.spoke.connect(hear)
+	_brain(&"a").callout(&"help", player)
+	_brain(&"a").callout(&"press", player, Vector3.INF, &"call_press_reload")
+	Events.spoke.disconnect(hear)
+	check(lines.size() == 2 and lines[0] in OutlawBrain.LINES[&"call_help_hurt"], "help without his legs in it: %s" % str(lines))
+	check(lines.size() == 2 and lines[1] in OutlawBrain.LINES[&"call_press_reload"], "the press by why: %s" % str(lines))

@@ -71,6 +71,30 @@ func test_an_ear_is_an_ear() -> void:
 	check(w.contains("Your ear's shot off."), "your ear: %s" % w)
 	w = _words([_trace(&"hand_r", [[&"index_r", &"severed"]])])
 	check(w.contains("Your index finger's gone."), "a finger's a finger: %s" % w)
+	# Fight 9 of the fourth playtest: four gone, told of two.
+	w = _words([_trace(&"hand_l", [[&"thumb_l", &"severed"], [&"middle_l", &"severed"], [&"ring_l", &"severed"], [&"little_l", &"severed"]])])
+	check(w.contains("Your thumb and middle, ring and little fingers are gone."), "every finger it took: %s" % w)
+
+
+func test_a_neck_hit_isnt_gut_shot() -> void:
+	var w := _words([_trace(&"neck", [[&"esophagus", &"torn"]])])
+	check(not w.contains("gut-shot"), "the gullet isn't the gut: %s" % w)
+	check(w.contains("Your throat's torn."), "your throat: %s" % w)
+
+
+func test_the_bone_that_takes_your_gun_is_said() -> void:
+	# The fourth playtest's fight 10: "It's pumping. A lung's holed." and then the gun went for "a
+	# broken collarbone" never told of.
+	var w := _words([_trace(&"chest", [[&"clavicle_r", &"broken"], [&"subclavian_r", &"cut"], [&"lung_r", &"torn"]])])
+	check(player.wounds.physiology.why_cant_hold("r").contains("collarbone"), "the collarbone takes the gun")
+	check(w.contains("Your collarbone's broken."), "and you're told of it: %s" % w)
+
+
+func test_your_state_is_yours() -> void:
+	_words([_trace(&"head", [[&"nose", &"severed"]])])
+	var d := player.wounds.describe()
+	check(not d.contains(" his "), "not his: %s" % d)
+	check(d.contains("your nose shot off"), "yours: %s" % d)
 
 
 func test_pumping_only_when_it_pumps_out() -> void:
@@ -111,6 +135,7 @@ func test_out_of_cartridges_is_said() -> void:
 	check(shown.has("You're out of cartridges."), "said on the screen: %s" % str(shown))
 	gun.state.belt = 6
 	check_eq(gun.why_not(&"reload"), "", "with cartridges on the belt it loads")
+	check_eq(gun.why_not(&"fire"), "it's empty: reload", "and a shot with none in it says so")
 	gun.put_away()
 	await physics_frames(2)
 	check_eq(gun.why_not(&"reload"), "your gun's put away", "put away")
@@ -144,3 +169,18 @@ func test_a_hit_isnt_a_near_miss_too() -> void:
 	Events.bullet_hit.disconnect(on_hit)
 	check(not hit.is_empty(), "the ball hit you")
 	check(near.is_empty(), "and didn't also pass you: %s" % str(near))
+
+
+## Out cold you can't press on a wound (the fourth playtest: "Pressing on the wound..." on the screen
+## of a man blacked out).
+func test_out_cold_you_dont_tend() -> void:
+	var p := player.wounds.physiology
+	_words([_trace(&"thigh_l", [[&"femoral_l", &"cut"]])])
+	p.concussion = 30.0
+	await physics_frames(2)
+	shown.clear()
+	Input.action_press(&"tend_wounds")
+	await physics_frames(10)
+	Input.action_release(&"tend_wounds")
+	check(not shown.has("Pressing on the wound..."), "nothing pressed: %s" % str(shown))
+	check_eq(player.wounds.tending, 0.0, "not tending")

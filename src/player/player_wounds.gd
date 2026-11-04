@@ -342,6 +342,23 @@ func hit_words(traces: Array, bleed_ids: Array) -> String:
 				seg_in = physiology.bleeds[i].segment
 				break
 		found.append([8, seg_in, "You're bleeding inside."])
+	# Every finger it took in one line (#607: four gone and told of two, the rest past the second line).
+	var fingers: PackedStringArray = []
+	var finger_seg := &""
+	for f: Array in found.duplicate():
+		if String(f[2]).begins_with("finger:"):
+			fingers.append(String(f[2]).get_slice(":", 1))
+			finger_seg = f[1]
+			found.erase(f)
+	if not fingers.is_empty():
+		found.append([4, finger_seg, _fingers_words(fingers)])
+	# The bone that takes your gun is said, whatever else it did (#607: disarmed by "a broken
+	# collarbone" never told of).
+	var gun_why := physiology.why_cant_hold("r")
+	var disarms := ""
+	for f: Array in found:
+		if String(f[2]).begins_with("Your ") and String(f[2]).ends_with("'s broken.") and gun_why.contains(String(f[2]).trim_prefix("Your ").trim_suffix("'s broken.")):
+			disarms = f[2]
 	found.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
 	var places: PackedStringArray = []
 	if not found.is_empty():
@@ -357,7 +374,25 @@ func hit_words(traces: Array, bleed_ids: Array) -> String:
 			break
 		if not said.has(f[2]):
 			said.append(f[2])
+	if disarms != "" and not said.has(disarms):
+		said.append(disarms)
 	return text if said.is_empty() else "%s %s" % [text, " ".join(said)]
+
+
+## "Your thumb's gone.", "Your ring and little fingers are gone.", "Your thumb and index finger are gone."
+static func _fingers_words(fingers: PackedStringArray) -> String:
+	var thumb := fingers.has("thumb")
+	var rest: PackedStringArray = []
+	for f in fingers:
+		if f != "thumb" and not rest.has(f):
+			rest.append(f)
+	var named := " and ".join(rest) if rest.size() <= 2 else ", ".join(rest.slice(0, -1)) + " and " + rest[-1]
+	if rest.is_empty():
+		return "Your thumb's gone."
+	var what := "%s finger%s" % [named, "s" if rest.size() > 1 else ""]
+	if thumb:
+		return "Your thumb and %s are gone." % what
+	return "Your %s are gone." % what if rest.size() > 1 else "Your %s's gone." % what
 
 
 ## One thing a ball did inside you, as [rank, words] (none: [] ).
@@ -370,7 +405,8 @@ func _wound_words(h: Dictionary, seg: StringName) -> Array:
 				"heart": return [10, "It's your heart."]
 				"brain": return [10, "It's in your head."]
 				"lung": return [7, "A lung's holed."]
-				"gut", "gullet": return [7, "You're gut-shot."]
+				"gut": return [7, "You're gut-shot."]
+				"gullet": return [7, "Your throat's torn."]  # (#607: a neck hit called "gut-shot")
 				"airway": return [7, "There's blood in your throat."]
 				"eye": return [7, "An eye's gone."]
 				"liver", "spleen", "kidney": return [6, "Something inside's torn."]
@@ -388,8 +424,7 @@ func _wound_words(h: Dictionary, seg: StringName) -> Array:
 						return [6, "Your ribs are broken." if w == "ribs" else "Your %s's broken." % w]
 				return [6, "Something broke."]
 		&"finger":
-			var f := id.get_slice("_", 0)
-			return [4, "Your thumb's gone." if f == "thumb" else "Your %s finger's gone." % f]
+			return [4, "finger:" + id.get_slice("_", 0)]  # (all of a ball's fingers said as one: hit_words)
 		&"appendage":
 			return [4, "Your nose is shot off." if id == "nose" else "Your ear's shot off."]
 	return []
@@ -548,7 +583,8 @@ func _drip(dt: float) -> void:
 
 ## Hold the tend button: press on the worst bleeding; hold on and a belt goes round a limb.
 func _tend(delta: float) -> void:
-	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds")
+	# (Out cold you can't: #607, "Pressing on the wound..." on the screen of a man blacked out.)
+	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds") and physiology.is_conscious()
 	if not held or physiology.bleeds.is_empty():
 		if tending > 0.0:
 			for b in physiology.bleeds:
@@ -723,4 +759,10 @@ func _name_of(who: Node) -> String:
 func describe() -> String:
 	return "You: blood %d%%, bleeding %.1f ml/s, pain %.2f, adrenaline %.2f, breath %.2f. %s" % [
 			roundi((1.0 - physiology.blood_loss()) * 100.0), physiology.total_bleed_rate(),
-			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), physiology.describe()]
+			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), _yours(physiology.describe())]
+
+
+## The physiology's words are a man's from outside ("blood in his throat"): yours are yours (#607).
+static func _yours(text: String) -> String:
+	var re := RegEx.create_from_string("\\bhis\\b")
+	return re.sub(text, "your", true)

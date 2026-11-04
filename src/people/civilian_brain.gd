@@ -15,6 +15,8 @@ extends Node
 ## Child of a HumanBody (with no gun).
 
 enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
+## "...They gone?" only after this long without a shot heard (s).
+const RELIEF_QUIET := 8.0
 
 const LINES := {
 	&"shoved": ["Hey—! There's no call for that.", "Please, I don't want any trouble.", "Easy! Easy..."],
@@ -563,8 +565,8 @@ func _physics_step(delta: float) -> void:
 		return
 	if mood in [Mood.HANDS_UP, Mood.COWERING]:
 		mood = Mood.SHAKEN
-		if not _still_over_me():
-			say(&"relief")
+		if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
+			say(&"relief")  # (only once it's gone quiet: #607, "...They gone?" with shots still flying)
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM

@@ -75,12 +75,18 @@ const LINES := {
 	&"call_flank": ["Keep him busy, I'm going round!", "Cover me, I'll get round him!"],
 	&"call_covering": ["Go! I got him!", "Covering!", "Go on, I got you!"],
 	&"call_help": ["I can't walk! Help me!", "My leg! Get me out of here!"],
+	## Down with his legs his own (shock, the chest, the gut): not "My leg!" (#607).
+	&"call_help_hurt": ["I'm hit bad! Help me!", "Get me out of here!"],
 	&"call_drag": ["Hold on, I got you!", "Easy, I got you. Come on!"],
 	&"call_down": ["{name}'s down!", "They got {name}!"],
 	&"call_dead": ["{name}'s dead!", "Oh God, {name}..."],
 	&"call_quit": ["{name}'s quit on us!", "{name}'s giving up!"],
 	&"call_fall_back": ["Get out! Fall back!", "That's it, we're done here! Run!"],
 	&"call_press": ["He's empty! Get him!", "He's hit! Go, go!", "Now! Rush him!"],
+	## The press by why (#607: "He's empty!" at a man with two rounds left who'd just opened the
+	## gate, "He's hit!" at a man not hit).
+	&"call_press_reload": ["He's loading! Get him!", "Now! Rush him!"],
+	&"call_press_hit": ["He's hit! Go, go!", "Now! Rush him!"],
 	&"call_shaken": ["He's got me pinned!", "I can't get my head up!"],
 	&"call_hold": ["Hold, damn it! Stay in it!", "{name}! Stay in it, you hear?", "Nobody runs! Hold!"],
 	&"call_give_up": ["That's it, boys. Throw 'em down.", "Enough! We're done. Drop 'em."],
@@ -494,8 +500,9 @@ func _ready() -> void:
 ## got me pinned!" and "That all you got?" in one breath).
 const SAY_GAP := 1.5
 var _said_at := -99.0
-## What he does is said whatever he said just before: giving up, running, cursing a friend who quits.
-const SAY_ALWAYS := [&"surrender", &"flee", &"scorn", &"back_off", &"give_up"]
+## What he does is said whatever he said just before: giving up, running, cursing a friend who quits,
+## his gun on the man he holds, backing down, calling a man out and facing him.
+const SAY_ALWAYS := [&"surrender", &"flee", &"scorn", &"back_off", &"give_up", &"menace", &"back_down", &"duel", &"call_out"]
 
 
 ## Would a line be said now (not straight on top of his last)?
@@ -2923,13 +2930,15 @@ const FEAR_MATE_OUT := {&"down": 0.12, &"dead": 0.15, &"quit": 0.1, &"fled": 0.0
 
 ## Shout to his friends: `about` the man they're fighting or the friend it concerns, `at` where.
 ## Everyone in earshot hears the words; his friends act on them.
-func callout(kind: StringName, about: Node = null, at := Vector3.INF) -> void:
+func callout(kind: StringName, about: Node = null, at := Vector3.INF, line := &"") -> void:
 	var p := body.physiology
 	if not p.is_conscious():
 		return
 	if CALL_EVERY.has(kind) and not crew.may_say(kind, _now, CALL_EVERY[kind]):
 		return
-	say(StringName("call_" + String(kind)), Crew.name_of(about), true)
+	if line == &"" and kind == &"help" and p.leg_ok("r") and p.leg_ok("l") and not p.legs_paralysed():
+		line = &"call_help_hurt"
+	say(line if line != &"" else StringName("call_" + String(kind)), Crew.name_of(about), true)
 	if p.jaw_broken or p.airway_blood:
 		return  # nobody can make out what he's trying to say
 	Events.callout.emit(body, kind, about, at)
@@ -3064,7 +3073,7 @@ func _gang(delta: float, t: Node3D) -> void:
 		_press = PRESS_SECONDS
 		_decide("come at you", why)
 		if crew.any_in_earshot(_now):
-			callout(&"press", t)
+			callout(&"press", t, Vector3.INF, &"call_press_reload" if why == "you're reloading" else &"call_press_hit" if why == "you're hit" else &"")
 		return
 	if tactic != Tactic.RESCUING and mood == Mood.FIGHTING and rage <= 0.0:
 		var w := _wounded_mate(t)

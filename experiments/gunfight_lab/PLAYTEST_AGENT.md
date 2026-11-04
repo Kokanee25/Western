@@ -41,7 +41,8 @@ with the ordinary commands:
   hand's width off your eye line; aiming, `press aim`, it's at your eye) and which parts of him
   you have a clear line to (`clear_to`), as your eyes would. `press reload`/`press fire` that does
   nothing says why (`why`: out of cartridges, gun put away).
-- `turn DEGREES [PITCH]`, `shoot N`, `press aim 1`,
+- `hold aim` raises the sights and keeps them up (`shoot N` then fires aimed; `release aim` lowers
+  them; the weapon line says "aimed"). `turn DEGREES [PITCH]`, `shoot N`,
   `press crouch_toggle`, `walk X Z` / `walk X Z run` (metres; `read all` gives yours),
   `press reload SECONDS`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).
 - `weapon revolver` draws (your gun starts away).

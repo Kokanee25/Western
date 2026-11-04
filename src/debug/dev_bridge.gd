@@ -997,7 +997,7 @@ func _weapon_line() -> String:
 	if "state" in w and w.state and w.state.has_method("to_dict"):
 		var st: Dictionary = w.state.to_dict()
 		if st.has("chambers"):
-			loads = ", %d loaded" % (st.chambers as Array).count(1)
+			loads = ", %d loaded, %d on the belt" % [(st.chambers as Array).count(1), int(st.get("belt", 0))]
 		elif st.has("barrels"):
 			loads = ", %d loaded, %d cocked%s" % [(st.barrels as Array).count(1), (st.cocked as Array).count(true), ", open" if st.open else ""]
 		if st.has("hammer"):
@@ -1007,7 +1007,8 @@ func _weapon_line() -> String:
 	var why := w.why_not_usable()
 	if why != "" and why != "your hands are pressing on a wound":
 		loads += " (you can't hold it: %s)" % why
-	return "%s %s%s" % [kind, "in hand" if drawn else "put away", loads]
+	# Whether the sights are up (#607: nothing said so; `hold aim` holds them, `release aim` lets go).
+	return "%s %s%s" % [kind, ("in hand, aimed" if w.aiming else "in hand") if drawn else "put away", loads]
 
 
 # -- Helpers -------------------------------------------------------------------------------------
@@ -1085,7 +1086,7 @@ func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
 	var from := cam.global_position
 	var space := World.space(cam)
 	var passed: Array = []
-	var first := _first_on(space, from, aim, man, passed)
+	var first := _first_on(space, from, aim, man, passed, true)
 	var out := {}
 	if first != "":
 		out["in_the_way"] = first
@@ -1097,7 +1098,7 @@ func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
 	var w := player.weapon
 	if w != null and w.drawn and w.get(&"model") != null and (w.get(&"model") as Node).get(&"muzzle") != null:
 		var mz: Vector3 = ((w.get(&"model") as Node).get(&"muzzle") as Node3D).global_position
-		var from_barrel := _first_on(space, mz, aim, man)
+		var from_barrel := _first_on(space, mz, aim, man, [], true)
 		if from_barrel != first:
 			var sight := (aim - from).normalized()
 			var off := (mz - from) - sight * (mz - from).dot(sight)
@@ -1112,7 +1113,9 @@ func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
 
 
 ## The first thing a ball would meet from `from` to `to` short of `man` ("" if it's him or nothing).
-func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man: HumanBody, passed: Array = []) -> String:
+## `through`: carry on past what a ball goes through (listing it in `passed`); otherwise it's what
+## your eyes meet (`clear_to`: #607, a part behind a wall board a ball goes through isn't "clear").
+func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man: HumanBody, passed: Array = [], skip := false) -> String:
 	var ex: Array[RID] = [player.get_rid()]
 	for _i in 8:
 		var q := PhysicsRayQueryParameters3D.create(from, to + (to - from).normalized() * 0.3, Layers.BULLETS)
@@ -1132,7 +1135,7 @@ func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man
 				continue
 			var through := _ball_through(m, hit.position, (to - from).normalized())
 			var what := "%s %s at %.1f m (%s)" % [m.wood, m.kind, d, through]
-			if through.begins_with("a ball goes through"):
+			if skip and through.begins_with("a ball goes through"):
 				passed.append(what)
 				ex.append(m.get_rid())
 				continue

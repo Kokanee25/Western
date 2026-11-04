@@ -68,7 +68,7 @@ func test_commands_answer_in_order_and_move_you() -> void:
 	var player: Player = street.get_node(^"Player")
 	check(player.global_position.distance_to(Vector3(3, 0, -9)) < 0.3, "goto put you there (%s)" % player.global_position)
 	check_eq(int(replies[1].facing), 90, "facing east")
-	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, hammer down", "read player says what's in your hands")
+	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, 24 on the belt, hammer down", "read player says what's in your hands")
 	check(not replies[3].ok and "no such command" in String(replies[3].error), "a bad command says so")
 	check_eq(replies[4].clock, "17:30", "time sets the clock")
 	check(float(replies[5].t) - float(replies[4].t) >= 0.49, "wait lets game time pass (%.2f s)" % (float(replies[5].t) - float(replies[4].t)))
