@@ -29,10 +29,14 @@ class_name LookPreset
 ## - `finish.<dial>`: vignette, grain, heat shimmer (LightFinish)
 ## - `room.<dial>`: RoomLight's dials (RoomLightTuning: the lamps' bounce, the room's fill, the
 ##   openings, the haze; art, #608), every lamp looked at again; `settings.room_light` turns it on
+## - `real.<dial>`: the real look's own dials (RealLook.dials: exposure, relief, groove, specular,
+##   sdfgi_outdoor, sdfgi_indoor); `settings.real_look` turns it on (docs/briefs/red-dead.md R0)
+## - `view.<prop>`: the game viewport's own (msaa_3d, use_taa, scaling_3d_mode, scaling_3d_scale...)
 
 const DIR := "user://looks"
 const LAMP_PROPS := ["energy", "light_range", "haze", "attenuation"]
 const ROOM_LIGHT := "res://src/render/room_light.gd"
+const REAL_LOOK := "res://src/render/real_look.gd"
 
 ## What every address read before anything set it this run (the panel's Reset goes back to it).
 static var defaults := {}
@@ -114,6 +118,11 @@ static func set_value(tree: SceneTree, address: String, value: Variant) -> bool:
 			HumanBody.paint_look[StringName(key)] = v
 			for m in _paint_materials(tree):
 				m.set_shader_parameter(StringName(key), v)
+		"real":
+			return load(REAL_LOOK).set_dial(tree, key, v)
+		"view":
+			var vp: Viewport = load(REAL_LOOK).view(tree)
+			vp.set(key, v)
 		"grade":
 			return LightGrade.set_dial(tree, key, v)
 		"finish":
@@ -183,6 +192,11 @@ static func get_value(tree: SceneTree, address: String) -> Variant:
 		"room":
 			var tn: Resource = load(ROOM_LIGHT).tune()
 			return tn.get(key) if key in tn else null
+		"real":
+			return load(REAL_LOOK).get_dial(key)
+		"view":
+			var vp: Viewport = load(REAL_LOOK).view(tree)
+			return vp.get(key) if vp and key in vp else null
 	return null
 
 

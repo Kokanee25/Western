@@ -412,6 +412,25 @@ carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0),
 by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
 back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
 
+**The real look** (docs/briefs/red-dead.md R0, Sean 2026-11-04: realistic, in Red Dead's
+direction; `RealLook`, `src/render/real_look.gd(shaderinc)`; `Settings.real_look`, off by default
+and saved; the look panel N's first group, `--real` / `--painted` for a run,
+`--look=res://config/looks/real.json`, `screenshots.gd --variants=res://config/looks/real.json`
+renders both looks in one run; `tests/test_real_look.gd`). No reload: on, it recompiles the world's
+shaders (`RealLook.SHADERS`: texel grid, holes, ground, skin, insides) with `REAL_LOOK` defined after
+`shader_type` (`Shader.code`), so their `GRID_FILTER` samplers are linear, mipmapped and anisotropic,
+no drawn squares, no light per texel, members' seams a soft groove `real_groove` m wide with a
+rounded arris, relief from the albedo's lightness (`real_bump`, Mikkelsen 2010: `real_relief` m)
+until R2's scanned maps, people lit by the engine's own light (no painted light or glow); the tile
+globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport TAA,
+MSAA 2x, 16x anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`); the environment's dials
+from `config/looks/real_dials.json` (AgX, SSIL, SDFGI, the fog taking GI), every one put back off;
+exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
+own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
+`real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
+what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
+assume ACES under AgX.
+
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
 `experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);

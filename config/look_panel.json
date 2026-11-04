@@ -1,6 +1,19 @@
 {
   "_about": "The live look panel's sliders (LookPanel, N in game). From the art session's list, docs/briefs/look_settings.md: address (LookPreset), label, range, and what it does. kind: float (default), color, bool, or choice with options. Lamps are multipliers over each lamp's own value.",
   "groups": [
+    {"name": "Real look (R0, Red Dead's direction)", "items": [
+      {"key": "settings.real_look", "label": "Real look", "kind": "bool", "what": "The game drawn realistically (docs/briefs/red-dead.md R0): smooth filtered textures, no squares or mosaic, anti-aliased, AgX, SSIL, SDFGI outdoors, relief. Off = the painted look."},
+      {"key": "real.exposure", "label": "Exposure", "min": 0.5, "max": 3, "what": "A multiplier on the day's exposure (AgX sits darker than the old ACES)."},
+      {"key": "real.relief", "label": "Relief (m)", "min": 0, "max": 0.02, "step": 0.0005, "what": "How deep the textures' light and dark stand out as relief (grain, cracks)."},
+      {"key": "real.groove", "label": "Board gap (m)", "min": 0, "max": 0.01, "step": 0.0005, "what": "The dark gap and rounded edge between boards."},
+      {"key": "real.sdfgi_outdoor", "label": "Bounce outdoors (SDFGI)", "min": 0, "max": 2, "what": "SDFGI's bounce light in the open."},
+      {"key": "real.sdfgi_indoor", "label": "Bounce under a roof", "min": 0, "max": 2, "what": "SDFGI's bounce light under a roof (0: indoors is RoomLight's)."},
+      {"key": "env.ssil_intensity", "label": "Screen bounce (SSIL)", "min": 0, "max": 2, "what": "Bounce light from what's on screen."},
+      {"key": "env.tonemap_agx_contrast", "label": "AgX contrast", "min": 0.8, "max": 2, "what": "The filmic curve's contrast."},
+      {"key": "view.use_taa", "label": "TAA", "kind": "bool", "what": "Temporal anti-aliasing."},
+      {"key": "view.msaa_3d", "label": "MSAA (0 off, 1 2x, 2 4x)", "min": 0, "max": 2, "step": 1, "what": "Multisampled edges."},
+      {"key": "view.scaling_3d_scale", "label": "Render scale", "min": 0.5, "max": 1, "step": 0.05, "what": "The 3D drawn at this share of the window, scaled up filtered."}
+    ]},
     {"name": "Light pass (8: A/B/C)", "items": [
       {"key": "day.exposure_day", "label": "Noon exposure", "min": 0.4, "max": 1.2, "what": "Exposure with the sun high (the ground went white at 1)."},
       {"key": "day.ambient_energy_day", "label": "Shade fill (day)", "min": 0, "max": 1.2, "what": "The sky's fill in the shade by day: lower = blacker shade under the porches."},

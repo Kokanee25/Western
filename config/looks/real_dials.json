@@ -1,0 +1,22 @@
+{
+ "name": "the real look's renderer",
+ "about": "What RealLook (src/render/real_look.gd) sets on the street's environment while the real look is on (docs/briefs/red-dead.md R0), each put back when it goes off. LookPreset addresses. The realistic renderer's own dials: AgX (the filmic curve), SSIL (bounce light in screen space), SDFGI (bounce light from the world's distance field; RealLook eases its energy to real.sdfgi_indoor under a roof, so indoors stays RoomLight's), the volumetric fog taking bounce light, the glow only for what's over white. Exposure is real.exposure (a camera-attributes multiplier: DayCycle keeps setting the tonemap's own).",
+ "values": {
+  "env.tonemap_mode": 4,
+  "env.tonemap_agx_contrast": 1.25,
+  "env.ssao_enabled": true,
+  "env.ssil_enabled": true,
+  "env.ssil_radius": 3.0,
+  "env.ssil_intensity": 0.8,
+  "env.ssil_normal_rejection": 1.0,
+  "env.sdfgi_enabled": true,
+  "env.sdfgi_use_occlusion": true,
+  "env.sdfgi_read_sky_light": true,
+  "env.sdfgi_cascades": 4,
+  "env.sdfgi_min_cell_size": 0.2,
+  "env.sdfgi_bounce_feedback": 0.4,
+  "env.volumetric_fog_enabled": true,
+  "env.volumetric_fog_gi_inject": 1.0,
+  "env.volumetric_fog_temporal_reprojection_enabled": true
+ }
+}

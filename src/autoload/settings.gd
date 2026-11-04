@@ -88,6 +88,11 @@ var mosaic := false
 var fire_flipbooks := true
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
+## The real look (docs/briefs/red-dead.md R0; RealLook, src/render/real_look.gd): the game drawn
+## realistically (smooth filtered textures, no texel squares, mosaic or quantising, anti-aliased,
+## AgX, SSIL, SDFGI outdoors, relief). Off by default until Sean makes it the default; the look
+## panel (N) turns it on, saved. `--real` / `--painted` on the command line for one run, unsaved.
+var real_look := false
 var surface_blocks := false
 ## The probe mosaic (src/render/probe_mosaic.gdshader, ProbeMosaic; a trial, V toggles, not saved):
 ## the frame in blocks fixed to the world by direction from an origin snapped to a grid (texel
@@ -191,6 +196,11 @@ func _ready() -> void:
 		if "--probe-squares" in args:
 			quantise_once = false
 	load_from_disk()
+	if "--real" in args or "--painted" in args:
+		real_look = "--real" in args
+		autosave = false
+		_apply_quantise()
+		_apply_tiles()
 	for a in args:
 		if a.begins_with("--people-threads="):
 			people_threads = a.substr(17) == "on"
@@ -278,6 +288,7 @@ func reset_to_defaults() -> void:
 	tile_look = &"square"
 	quantise_once = false
 	surface_blocks = false
+	real_look = false
 	probe_mosaic = false
 	probe_texels = 384.0
 	probe_cell = 0.5
@@ -341,6 +352,7 @@ func load_from_disk() -> void:
 	if not ("--blocks" in asked or "--quantise-once" in asked or "--probe-mosaic" in asked):
 		quantise_once = cfg.get_value("video", "quantise_once", quantise_once)
 		surface_blocks = cfg.get_value("video", "surface_blocks", surface_blocks)
+	real_look = bool(cfg.get_value("video", "real_look", real_look))
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
@@ -360,6 +372,7 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "tile_look", String(tile_look))
 	cfg.set_value("video", "quantise_once", quantise_once)
 	cfg.set_value("video", "surface_blocks", surface_blocks)
+	cfg.set_value("video", "real_look", real_look)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
@@ -400,6 +413,16 @@ func set_finish(on: bool) -> void:
 
 func set_mosaic(on: bool) -> void:
 	mosaic = on
+	_changed()
+
+
+## The real look on or off (RealLook follows on its next frame, no reload: the world's shaders are
+## recompiled, the viewport and environment changed and put back). The texel grid's squares,
+## ragged tiles, seams and the screen mosaic are off under it.
+func set_real_look(on: bool) -> void:
+	real_look = on
+	_apply_quantise()
+	_apply_tiles()
 	_changed()
 
 
@@ -445,13 +468,13 @@ func set_probe_mosaic(on: bool) -> void:
 
 ## Whether the probe mosaic is drawn: the trial's setting, unless the surface-blocks look is on.
 func probe_active() -> bool:
-	return probe_mosaic and not surface_blocks
+	return probe_mosaic and not surface_blocks and not real_look
 
 
 ## Whether the screen mosaic is drawn: the setting, unless the surface-blocks look is on (it has
 ## no screen pass) or the probe mosaic trial is (it takes the screen mosaic's place).
 func mosaic_active() -> bool:
-	return mosaic and not surface_blocks and not probe_active()
+	return mosaic and not surface_blocks and not probe_active() and not real_look
 
 
 func cycle_texel_density() -> void:
@@ -470,7 +493,8 @@ func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
 	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s%s" % [res, int(texels_per_meter),
 			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic_active() else "off", "on" if finish else "off",
-			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")] \
+			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")
+			+ (" · real" if real_look else "")] \
 			+ (" · probe mosaic %d texels, %.2f m" % [int(probe_texels), probe_cell] if probe_active() else "")
 
 
@@ -486,6 +510,10 @@ func cycle_tile_look() -> void:
 
 ## The shader globals every tiled material reads (src/render/tiles.gdshaderinc) for this look.
 func tile_globals() -> Dictionary:
+	if real_look:
+		# The real look: none of the texel grid's own drawing (the shaders' REAL_LOOK paths do the rest).
+		return {&"tile_light": 0.0, &"tile_ragged": 0.0, &"tile_gradient": 0.0, &"min_square_px": 0.0,
+				&"block_soft": 0.0, &"light_bands": 0.0, &"seam_px": 0.0}
 	return {&"tile_light": 1.0 if surface_blocks else (0.0 if tile_look == &"off" or quantise_once else 1.0),
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
@@ -493,6 +521,11 @@ func tile_globals() -> Dictionary:
 			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else 0.0),
 			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
 			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
+
+
+## The tile globals for the look in force, set now (RealLook, as it turns on and off).
+func apply_tile_globals() -> void:
+	_apply_tiles()
 
 
 func _apply_tiles() -> void:
@@ -545,6 +578,7 @@ func _apply_quantise() -> void:
 	PixelArt.blocks = surface_blocks
 	PixelArt.bold = surface_blocks
 	PixelArt.smooth = quantise_once
+	PixelArt.real = real_look
 	PeopleBodies.smooth_paint = quantise_once
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}
 

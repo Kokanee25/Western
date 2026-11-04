@@ -1,0 +1,16 @@
+{
+ "name": "real, FSR2 and more contrast",
+ "about": "A trial over the real look (R0): FSR2 at native scale as the anti-aliasing (sharper than Godot's TAA), the AgX curve steeper, the exposure and screen bounce down.",
+ "frames": 40,
+ "values": {
+  "settings.real_look": true,
+  "view.use_taa": false,
+  "view.msaa_3d": 0,
+  "view.scaling_3d_mode": 2,
+  "view.scaling_3d_scale": 1.0,
+  "view.fsr_sharpness": 0.2,
+  "env.tonemap_agx_contrast": 1.5,
+  "env.ssil_intensity": 0.6,
+  "real.exposure": 1.4
+ }
+}
