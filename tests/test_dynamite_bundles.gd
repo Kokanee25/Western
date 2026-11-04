@@ -342,10 +342,15 @@ func test_on_the_trestle_a_bundle_cuts_the_post_its_on() -> void:
 	tr.settle()
 	# [sticks, gap off the face (m), cut]
 	var cases := [[1, 0.003, true], [1, 0.035, false], [4, 0.035, true], [8, 0.003, true]]
-	var bi := 16
-	for c: Array in cases:
-		var bent: Dictionary = tr.bents[bi]
-		bi += 5
+	# Bents about the tallest, three apart (no charge reaches the next one tried).
+	var mid := 0
+	for i in tr.bents.size():
+		if float(tr.bents[i].height) > float(tr.bents[mid].height):
+			mid = i
+	var picks := [mid, mid - 3, mid + 3, mid - 6]
+	for ci in cases.size():
+		var c: Array = cases[ci]
+		var bent: Dictionary = tr.bents[clampi(picks[ci], 1, tr.bents.size() - 2)]
 		var posts: Array = (bent.stories as Array).back().posts
 		var n := posts.size()
 		var p: StructureMember = posts[n / 2 - 1]

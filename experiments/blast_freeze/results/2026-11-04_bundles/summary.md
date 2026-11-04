@@ -21,7 +21,7 @@ tick (the break and the cuts, unsliced) and (2) the rubble of three buildings bl
 
 ## The trestle (`collapse_runs.py --only=bundles_*`; `trestle_table.md`)
 
-Two bundles of four on the tallest bent's two inner posts (the light charge):
+Two bundles of four on the tallest bent's two inner posts (the light charge), on round 1's 66 m viaduct (measured before #646, the River Kwai size, merged; the bent's posts are the same timber):
 
 - no train, the plunger a tick apart: the bent stands empty; worst 72 ms at Sean's, slow 0.33 s:
   **passes**; on one tick: worst 52, 0.27 s: passes.

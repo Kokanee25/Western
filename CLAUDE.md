@@ -754,6 +754,13 @@ frozen until Sean names one.
   0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
   (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
   glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
+- **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`, branch
+  `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
+  wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
+  (`experiments/blast_freeze/results/2026-11-04_bundles/`): the trestle's two bundles pass, Main
+  Street's one bundle (~300 ms at Sean's) and three (rubble awake 8 s+) fail. Waiting on Sean (#648):
+  size, cap, sticks carried, the timber (one stick in contact cuts a 12x12; the manual says ~8).
+  Next: slice a bundle's tick, the rubble asleep sooner, the films (#647).
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
