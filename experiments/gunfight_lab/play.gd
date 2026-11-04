@@ -113,7 +113,7 @@ func _queue(run: Dictionary) -> void:
 	_queued = true
 	_state().pending = run.duplicate()
 	_state().last = run.duplicate()
-	get_tree().reload_current_scene.call_deferred()
+	GameReset.reload_scene(get_tree(), "the gunfight lab's setup")  # statics put back, the watchdog waiting (#671)
 
 
 func _start() -> void:

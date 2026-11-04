@@ -757,6 +757,10 @@ frozen until Sean names one.
   Train's near list; a placed train threw you); the farmhouse one not reproduced (4 tries), runaway
   rubble now slowed and logged (`Structure.RUNAWAY_SPEED`). Untested here: the Windows half (CI
   builds it; Sean's first crash proves it). Bridge `key NAME`.
+  The saloon-fight quit (#671): not reproduced (his build predated #650); every scene reload goes
+  through `GameReset.reload_scene` (the lab's Y/X/Z skipped the statics and the watchdog's load).
+  Trap: the lab's `run.py` passes `--deterministic`, which keeps the workers' merges off: crashes
+  in threaded paths need runs without it.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`

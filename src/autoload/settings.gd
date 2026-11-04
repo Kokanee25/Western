@@ -557,7 +557,7 @@ func set_quantise_once(on: bool) -> void:
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
-		get_tree().reload_current_scene.call_deferred()
+		GameReset.reload_scene(get_tree(), "the look's reload")  # (#671)
 
 
 ## M: the surface-blocks look on or off; the scene reloads (the materials take their shader when
@@ -569,7 +569,7 @@ func set_surface_blocks(on: bool) -> void:
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
-		get_tree().reload_current_scene.call_deferred()
+		GameReset.reload_scene(get_tree(), "the look's reload")  # (#671)
 
 
 ## What the look sets before any material is built: the smooth texture sets and the mosaic's knobs.

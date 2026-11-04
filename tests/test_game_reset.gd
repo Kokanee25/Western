@@ -58,3 +58,35 @@ func test_backspace_is_bound() -> void:
 	var keys := InputMap.action_get_events(&"reset_game").filter(func(e: InputEvent) -> bool:
 		return e is InputEventKey and (e as InputEventKey).physical_keycode == KEY_BACKSPACE)
 	check_eq(keys.size(), 1, "Backspace")
+
+
+## Every reload of the running scene goes through GameReset.reload_scene (issue #671): the gunfight lab's
+## Y/X/Z and the look's I and M reloaded on their own, leaving the props' counters (another town)
+## and the freeze watchdog counting the load as a stall.
+func test_every_reload_comes_through_game_reset() -> void:
+	var found := 0
+	for path in _scripts("res://src") + _scripts("res://experiments"):
+		if path == "res://src/main/game_reset.gd":
+			continue
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			var code := lines[i].get_slice("#", 0)
+			if "reload_current_scene" in code:
+				found += 1
+				check(false, "%s:%d reloads the scene itself (use GameReset.reload_scene)" % [path, i + 1])
+	check_eq(found, 0, "no reload but GameReset's")
+	check("reload_current_scene" in FileAccess.get_file_as_string("res://src/main/game_reset.gd"), "(the check reads the source)")
+
+
+func _scripts(dir: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var d := DirAccess.open(dir)
+	if d == null:
+		return out
+	for f in d.get_files():
+		if f.ends_with(".gd"):
+			out.append(dir.path_join(f))
+	for sub in d.get_directories():
+		if sub != "results":
+			out.append_array(_scripts(dir.path_join(sub)))
+	return out
