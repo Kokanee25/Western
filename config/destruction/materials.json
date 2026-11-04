@@ -10,7 +10,7 @@
 		"crack_wide": 0.85,
 		"delayed_fail_from": 0.95,
 		"delayed_fail_s": [1.0, 8.0],
-		"blast_dynamic_factor": 1.0,
+		"blast_dynamic_factor": 0.01,
 		"debris_min_size": 0.04
 	},
 

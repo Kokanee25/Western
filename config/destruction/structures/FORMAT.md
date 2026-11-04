@@ -13,8 +13,9 @@ A file has two forms of the same thing:
   doesn't depend on any engine's random numbers. An engine reads `elements`; it needs the expander
   only to change a wall.
 
-Step 1 defines the format; the expander is step 2's (a script in this repo, its rules written here
-as it's built). Until a file is expanded its `elements` is empty.
+Step 1 defined the format; step 2 wrote the expander (`src/structures/masonry_expander.gd`, run by
+`tools/masonry_expand.gd`; its rules are under "The expander" below). Until a file is expanded its
+`elements` is empty.
 
 ## Space
 
@@ -85,3 +86,39 @@ A lintel lies along its wall over `x`, its underside at `y`, `section` `[high, d
 
 `type`: `bed` (a on b), `head` (side by side), `collar` (wythe to wythe). `area` in m². A file's
 saved state (broken joints, fallen elements) is never written here: a save holds the difference.
+
+## The expander (format 1, masonry lab step 2)
+
+`godot --headless -s res://tools/masonry_expand.gd -- res://config/destruction/structures/<file>.json`
+writes the expanded form back into the file (`--check`: says whether it's current; a test holds
+the committed panel to it). The rules, so another engine can lay the same kind of wall (it can't
+reproduce Godot's random numbers, so it reads the committed `elements` instead):
+
+- **One random stream per file**, seeded by `seed`, drawn in this order: each wall in file order:
+  its footing's stones along it, then course by course: the course's height, its first leaf's
+  stones, which of them are through-stones, then each other leaf's stones.
+- **Element size** from `materials.json`: `unit.size` × `element.units_along`/`units_high`
+  (`a` along, `h` high); `size_jitter` `j`.
+- **The footing** (`footing`): one course under the wall from `bottom - deep` to `bottom`, from
+  `-wider` to `thick + wider` through it, of stones about `2a` long; resting on the ground; head
+  joints between them. Course 0.
+- **Courses**: from `bottom` up, each `h × U(1 - j/2, 1 + j/2)` high; a course that would leave less
+  than `0.6 h` to the top is stretched to the top. Courses 1, 2, ...
+- **Leaves** (wythes): `wall.wythes` of them, each `thick / wythes` deep, wythe 0 at the outer face.
+- **Stones along a course** (each leaf): from x = 0, each `a × U(1 - j, 1 + j)` long; an end within
+  `0.25 a` of a head joint in the course below (in that leaf) is moved `0.25 a` off it (up to three
+  times); never shorter than `0.5 a`; a remainder under `0.5 a` goes into the stone before it. Openings
+  this course crosses, and through-stones, cut a course into stretches laid the same way.
+- **Through-stones**: each of the first leaf's stones becomes one (the wall's full depth) with
+  probability `through_stones_per_m2 × its face area`; the other leaves are laid between them.
+- **`rests_on`** and **bed joints**: every element of the course below whose box overlaps it in plan
+  by more than 1 mm both ways; the bed joint's `area` is that overlap. The first course rests on the
+  footing (or the ground, `["ground"]`).
+- **Head joints**: two elements of a course whose ends meet (within 1 mm) and whose depths overlap;
+  area = the course's height × the depth overlap. **Collar joints**: two elements of a course in
+  touching leaves whose lengths overlap; area = the height × the length overlap.
+- **Boxes tile the wall**: an element's box includes half the mortar joint all round (the joint is
+  drawn as a groove, `joint_thickness`); `at` and `size` in the file's space, `turn` the wall's angle.
+- `shape`: `<unit.shape>/<0..3>` (`footing/<0..3>`): the variant the engine draws.
+- Numbers rounded to 4 decimals. Not yet: timbers (lintels are test piece 2's, step 3), quoins,
+  `swap_materials` (step 4).

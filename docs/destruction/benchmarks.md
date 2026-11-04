@@ -27,8 +27,12 @@ Salt Creek's own frame budget applies as well: the structures system's share is 
 
 ## Results
 
-No results yet: step 1 wrote the spec and the data. The first row comes with step 2 (the wall
-panel breach).
+Step 1 wrote the spec and the data; step 2 (#667) the first row. The headless rows count the CPU
+only (no drawing), on a VM whose town alone already runs over 22 ms some frames: they say what the
+masonry adds, never whether 45 fps holds. That's Shadow's row (Sean's F3, to come).
 
 | Date | Step | Build | Scene | Machine | Result | Pass? | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | 2 | PR (step 2) | Wall panel breach, one stick at the foot, seeds 1-3 | Workspace, headless, 60 fps | blast's own call 19-24 ms (x0.65: 12-16 at Sean's); worst frame over 6 s 45-60 ms against the town alone's 47; p95 20-28 against 26; the hole 1.5-1.8 m wide, 2.0-2.6 m high, through both leaves | n/a (not a frame-rate pass) | the masonry within the VM's noise; three sticks: the call 57 ms (~37 at Sean's) |
+| | 2 | | Wall panel breach | Shadow | Sean's F3 (`masonry_lab` in a debug build's bridge, or a build's lab stop: step 3's issue) | to come | target: never below 45 fps, normal within 3 s |
+

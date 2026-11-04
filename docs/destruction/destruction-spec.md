@@ -103,7 +103,8 @@ The engine says, for each element the blast reaches, the peak pressure `p` on it
    - sliding along the joint: the same difference against `cohesion · A_joint + friction · N`
      (`N` the weight pressing the joint);
    - an element pushed out of a wall whose other side is free: its whole push against the sum of
-     its bonded joints' bond.
+     its bonded joints' bond and the friction on its beds (`friction · N`, N the wall over it pressing
+     them; step 2: without it a stone whose mortar had all cracked flew at any push).
 3. **Units crack only when pressed far harder.** A unit cracks through when its face pressure passes
    `1.33 · unit.tension · (deep / along)²` (a block bent between its joints). For rubble that is ~2
    MPa against its joints' ~0.16 MPa, so stones crack only right at the charge; adobe's units and
@@ -226,3 +227,12 @@ decals.
   scales, the debris lifecycle.
 - 2026-11-04, #666: Sean approved the materials and their first numbers, rubble stone first, the
   frame-rate targets; the Baron's house brick or cut stone.
+- 2026-11-04, step 2 (#667): the expander's rules (structures/FORMAT.md "The expander"); section 5
+  as built (MasonryBlast): the push on the face toward the charge, the far leaf pushed by the near
+  one through their collar joints (compression: they don't open), a stone freed only when its push
+  beats its bonded joints **and the friction on its beds** (friction x the wall over it pressing
+  them, S4's: without it a stone whose mortar had cracked all round flew at any push);
+  `blast_dynamic_factor` 1.0 -> 0.01 (one stick holes a 0.55 m rubble wall ~1.5 m wide; the
+  stick count a jail wall takes is Sean's). S1 and S2 in Salt Creek's StructuralAnalysis; S3-S5
+  are step 3's.
+
