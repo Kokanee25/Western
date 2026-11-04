@@ -199,6 +199,13 @@ func reload_press() -> void:
 		state.close_action()
 
 
+## Out of shells: none in the pocket and none in the barrels (#607, as the revolver's).
+func _why_not(action: StringName) -> String:
+	if state == null or state.pocket > 0 or state.barrels.has(ShotgunState.Barrel.LOADED):
+		return ""
+	return "you're out of shells" if action in [&"fire", &"reload", &"cock"] else ""
+
+
 func pull_trigger() -> ShotgunState.Shot:
 	var shot := state.pull_trigger()
 	if state.last_barrel >= 0:

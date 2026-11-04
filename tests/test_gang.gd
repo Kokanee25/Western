@@ -258,6 +258,7 @@ func test_a_friends_stray_round_is_cursed_not_fought() -> void:
 	await physics_frames(5)
 	await _shoot_past(men[&"a"])
 	await wait_until(func() -> bool: return _all_fighting_you([&"a", &"b"]), 60 * 6)
+	await physics_frames(60 * 2)  # (past what he said as it started: one line at a time, #607)
 	var lines: Array[String] = []
 	var hear := func(who: Node, text: String) -> void: if who == men[&"a"]: lines.append(text)
 	Events.spoke.connect(hear)
@@ -514,3 +515,43 @@ func test_a_hunter_takes_steps_where_you_could_be_for_yours() -> void:
 	var before := b.senses.last_known(player)
 	Events.noise.emit(Vector3(0, 0, -40.0), 13.0, &"footsteps", null)
 	check(b.senses.last_known(player).distance_to(before) < 0.01, "steps far off where you couldn't be: not yours")
+
+
+## #607: Lyle's "Easy, I got you. Come on!" twice to the Kid, who was knocked off his feet and got
+## up again. A friend down but not hurt past it is getting up himself: nobody goes to drag him.
+func test_a_friend_getting_up_himself_isnt_dragged() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	_shoot_past(men[&"a"])
+	var a := men[&"a"] as HumanBody
+	await wait_until(func() -> bool: return _brain(&"a").target == player and _brain(&"b").target == player, 60 * 3)
+	a.go_limp()
+	a.brace()  # knocked down, not hurt: he'll get up
+	await physics_frames(60 * 2)
+	check(a.rise_ok or a.rising or not a.limp, "a's getting up himself")
+	check(_brain(&"b").rescuing == null and not _called(&"b", &"drag"), "and b doesn't go to drag him (%s)" % _brain(&"b").describe().substr(0, 60))
+
+
+## #607: you called Brody out, and he and both his friends shot it out with you. A duel is his:
+## while he's on his feet in it, his friends don't take it up, from his shouts or your shots at him.
+func test_a_duel_is_his_own() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	var a := _brain(&"a")
+	var b := _brain(&"b")
+	a.duel_with = player
+	a.relations.provoke(player)
+	await wait_until(func() -> bool: return a.target == player, 60)
+	a.callout(&"spotted", player, player.global_position)
+	Events.deed.emit(player, &"shoot_at", men[&"a"], player.global_position)
+	await physics_frames(30)
+	check(b.relations.stance(player) < Relations.Stance.FIGHT, "b keeps out of it (%s)" % str(b.relations.to_dict()))
+	check(b.target != player, "and isn't fighting you")
+	# He's down: then it's all of them.
+	(men[&"a"] as HumanBody).go_limp()
+	await physics_frames(5)
+	b._join(player, men[&"a"])  # (as his shout that he's down, or that you got him, has it)
+	var joined := await wait_until(func() -> bool: return b.relations.stance(player) == Relations.Stance.FIGHT, 60 * 3)
+	check(joined, "once he's down, b takes it up")

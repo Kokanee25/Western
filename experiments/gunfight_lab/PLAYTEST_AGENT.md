@@ -35,8 +35,12 @@ with the ordinary commands:
 - `read all` (where you are, who's near: distance, side, armed, mood), `read people`, `events 20`
   (what was said and done: **their words are your best clue**).
 - `look NAME` (turn to face a man's chest; `look NAME head`, or `abdomen`, `upper_arm_l`,
-  `thigh_r`..., a part of him). It says what's in your line of fire (`in_the_way`: a post, a stud,
-  a batwing) and which parts of him you have a clear line to (`clear_to`), as your eyes would.
+  `thigh_r`..., a part of him). It says what's in your line of fire and stops a ball (`in_the_way`:
+  a post, a stud), what's in it a ball goes through (`a_ball_goes_through`: a batwing), what the
+  barrel's own line meets when it isn't your eye's (`from_the_barrel`: from the hip the gun's a
+  hand's width off your eye line; aiming, `press aim`, it's at your eye) and which parts of him
+  you have a clear line to (`clear_to`), as your eyes would. `press reload`/`press fire` that does
+  nothing says why (`why`: out of cartridges, gun put away).
 - `turn DEGREES [PITCH]`, `shoot N`, `press aim 1`,
   `press crouch_toggle`, `walk X Z` / `walk X Z run` (metres; `read all` gives yours),
   `press reload SECONDS`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).

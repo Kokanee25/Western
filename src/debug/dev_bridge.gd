@@ -400,12 +400,18 @@ func _cmd_press(a: Array) -> Dictionary:
 	if a.is_empty() or not InputMap.has_action(StringName(a[0])):
 		return {"ok": false, "error": "no action %s" % (a[0] if a.size() > 0 else "")}
 	var action := StringName(a[0])
+	# Why it won't do anything, as the screen says it (#607: out of cartridges, the gun put away).
+	var w := player.weapon if player else null
+	var why := w.why_not(action) if w != null and w.armed and action in [&"reload", &"fire", &"aim", &"cock"] else ""
 	_act(true, action)
 	await _settle()
 	await _seconds(float(a[1]) if a.size() > 1 else 0.1)
 	_act(false, action)
 	await _settle()
-	return {"action": String(action), "weapon": _weapon_line()}
+	var out := {"action": String(action), "weapon": _weapon_line()}
+	if why != "":
+		out["why"] = why
+	return out
 
 
 func _cmd_hold(a: Array) -> Dictionary:
@@ -514,6 +520,8 @@ func _cmd_shoot(a: Array) -> Dictionary:
 		out["why"] = "you can't hold the gun: %s" % w.why_not_usable()
 	elif fired == 0 and not w.drawn:
 		out["why"] = "the gun's put away (weapon revolver)"
+	elif fired == 0 and w.why_not(&"fire") != "":
+		out["why"] = w.why_not(&"fire")
 	return out
 
 
@@ -919,7 +927,9 @@ func _people() -> Array:
 		var rel := man.global_position - player.global_position
 		var e := {"name": String(man.person_id), "at": _arr(man.global_position), "distance_m": snappedf(rel.length(), 0.1),
 			"bearing": _bearing(rel), "alive": man.physiology.alive, "conscious": man.physiology.is_conscious(),
-			"armed": man.has_gun, "wounds": man.wounds.size()}
+			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
+			# one, so men who'd dropped theirs to give up still read armed).
+			"armed": man.held_gun != null, "wounds": man.wounds.size()}
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
@@ -1074,10 +1084,25 @@ func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
 	var cam := _view_camera()
 	var from := cam.global_position
 	var space := World.space(cam)
-	var first := _first_on(space, from, aim, man)
+	var passed: Array = []
+	var first := _first_on(space, from, aim, man, passed)
 	var out := {}
 	if first != "":
 		out["in_the_way"] = first
+	if not passed.is_empty():
+		out["a_ball_goes_through"] = passed  # (#607: a batwing called "in the way", and balls went through it)
+	# The ball leaves the barrel, not your eye: from the hip it's a hand's width under it, and a bar
+	# your eye clears it may not (#607: crouched behind the bar, "clear", and a dozen shots into its
+	# frieze). Aimed, the barrel's at your eye.
+	var w := player.weapon
+	if w != null and w.drawn and w.get(&"model") != null and (w.get(&"model") as Node).get(&"muzzle") != null:
+		var mz: Vector3 = ((w.get(&"model") as Node).get(&"muzzle") as Node3D).global_position
+		var from_barrel := _first_on(space, mz, aim, man)
+		if from_barrel != first:
+			var sight := (aim - from).normalized()
+			var off := (mz - from) - sight * (mz - from).dot(sight)
+			out["from_the_barrel"] = "%s (the barrel %.0f cm off your line of sight%s)" % [from_barrel if from_barrel != "" else "clear",
+					off.length() * 100.0, ", aimed" if w.aiming else ", from the hip: aim and it's at your eye"]
 	var clear: Array = []
 	for sid: StringName in [&"head", &"neck", &"chest", &"abdomen", &"pelvis", &"upper_arm_r", &"upper_arm_l", &"thigh_r", &"thigh_l"]:
 		if man.parts.has(sid) and _first_on(space, from, (man.parts[sid] as Node3D).global_position, man) == "":
@@ -1087,9 +1112,9 @@ func _line_to(man: HumanBody, aim: Vector3) -> Dictionary:
 
 
 ## The first thing a ball would meet from `from` to `to` short of `man` ("" if it's him or nothing).
-func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man: HumanBody) -> String:
+func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man: HumanBody, passed: Array = []) -> String:
 	var ex: Array[RID] = [player.get_rid()]
-	for _i in 6:
+	for _i in 8:
 		var q := PhysicsRayQueryParameters3D.create(from, to + (to - from).normalized() * 0.3, Layers.BULLETS)
 		q.exclude = ex
 		var hit := space.intersect_ray(q)
@@ -1105,7 +1130,13 @@ func _first_on(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, man
 			if m.kind == &"glass":
 				ex.append(m.get_rid())  # (a ball goes through a pane)
 				continue
-			return "%s %s at %.1f m (%s)" % [m.wood, m.kind, d, _ball_through(m, hit.position, (to - from).normalized())]
+			var through := _ball_through(m, hit.position, (to - from).normalized())
+			var what := "%s %s at %.1f m (%s)" % [m.wood, m.kind, d, through]
+			if through.begins_with("a ball goes through"):
+				passed.append(what)
+				ex.append(m.get_rid())
+				continue
+			return what
 		if who is HumanBody:
 			return "%s at %.1f m" % [(who as HumanBody).person_id, d]
 		return "%s at %.1f m" % [String((c as Node).name) if c is Node else "something", d]

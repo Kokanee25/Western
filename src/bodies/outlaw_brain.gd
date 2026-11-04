@@ -27,6 +27,9 @@ enum Tactic { OPEN, MOVING, HIDDEN, PEEKING, SEARCHING, RESCUING }
 
 const LINES := {
 	&"provoked": ["You damn fool!", "Your funeral, friend.", "That's how it is? Fine!"],
+	## Starting it himself, on nothing you did (the lab's count running out; #607: "You damn fool!"
+	## to a man who'd done nothing).
+	&"jump": ["Now, boys!", "Take him!", "Let's have him!"],
 	&"hat": ["My hat!", "That was a good hat, you son of a—", "Close. Real damn close."],
 	&"hit": ["Agh—!", "Son of a—!", "I'm hit, damn it!"],
 	&"menace": ["Back off! Back off or he's dead!", "One more step and I kill him, I swear to God!", "You hear me? He's dead if you come in here!"],
@@ -222,6 +225,11 @@ var _post_way: Array[Vector3] = []
 var _fled_said := -99.0
 ## Into the fight without a word of his own (one of them's already called it: FarmhouseMission's alarm).
 var quiet_start := false
+## The man he's called out and is facing (from the draw till the fight's over): his friends keep
+## out of it while he's up (`_their_duel`).
+var duel_with: Node
+## The fight's his own idea, not anything the man did (`turn_on`): no "You damn fool!".
+var _own_idea := false
 ## A spot he's been told to hold (HouseDefence, the farmhouse: a window, a door to cover, a hole):
 ## {id, at, look (what he watches from it), low (cover he crouches behind, up to shoot), window
 ## (stand to shoot, below the sill under fire), why}. Empty: he picks his own (Cover).
@@ -481,11 +489,28 @@ func _ready() -> void:
 	body.add_child.call_deferred(_gun_sound)
 
 
-func say(kind: StringName, about_name := "") -> void:
+## A man says one thing at a time: a line this soon after his last (s) isn't said, but a shout to
+## his friends (`callout`, `force`) always is (#607: the Kid's "Lord, get me out of this one.", "He's
+## got me pinned!" and "That all you got?" in one breath).
+const SAY_GAP := 1.5
+var _said_at := -99.0
+## What he does is said whatever he said just before: giving up, running, cursing a friend who quits.
+const SAY_ALWAYS := [&"surrender", &"flee", &"scorn", &"back_off", &"give_up"]
+
+
+## Would a line be said now (not straight on top of his last)?
+func can_say() -> bool:
+	return _now - _said_at >= SAY_GAP
+
+
+func say(kind: StringName, about_name := "", force := false) -> void:
 	var lines: Array = LINES.get(kind, [])
 	var p := body.physiology
 	if lines.is_empty() or not p.is_conscious():
 		return
+	if not force and not kind in SAY_ALWAYS and not can_say():
+		return
+	_said_at = _now
 	if p.airway_blood:
 		Events.spoke.emit(body, "Hhhk— hhk—")  # blood in his windpipe: no words left
 	elif p.jaw_broken:
@@ -616,6 +641,8 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 	if kind in [&"draw", &"holster"] and deed_target == null and actor is Node3D \
 			and (actor as Node3D).global_position.distance_to(body.global_position) < NEAR:
 		deed_target = body  # a gun drawn a few yards off is about him
+	if not to_me and _their_duel(deed_target, actor):
+		return  # a friend's duel is his own (#607: you called Brody out, and all three shot it out)
 	relations.perceive(actor, kind, deed_target, dt)
 	if to_me and kind == &"aim_at" and not relations.entry(actor).cowed and not (_has(&"aim_fight") and mood != Mood.CALM):
 		_scare(0.045 * dt * (1.5 if _facing_shotgun else 1.0), &"aimed at")
@@ -625,16 +652,29 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, _at: Vector3) ->
 
 # --- What frightens him ------------------------------------------------------------------------
 
+## A friend's stray round is cussed this seldom at most, by any of them (s; #607: one in five of
+## their shots, "after nearly every friend's shot", at 6 s).
+const WATCH_IT_EVERY := 20.0
+
+
 func _provoked(by: Node) -> void:
 	if by == null or by == body or not (by is Player or by is HumanBody):
 		return
 	if crew.is_mate(by):
 		# A friend's stray round: he cusses him, he doesn't fight him.
-		if crew.may_say(&"watch_it", _now, 6.0):
+		if can_say() and crew.may_say(&"watch_it", _now, WATCH_IT_EVERY):
 			say(&"watch_it")
 		return
 	relations.provoke(by)
 	_start_fight(by)
+
+
+## He turns on that man of his own accord (the gunfight lab's count running out): as `provoke`,
+## and what he says is his ("Take him!"), not a man's who's been crossed.
+func turn_on(who: Node) -> void:
+	if mood == Mood.CALM:
+		_own_idea = true
+	relations.provoke(who)
 
 
 ## `his_idea`: he started it (the duel's draw), so there's no moment of taking it in.
@@ -642,9 +682,10 @@ func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
 	if mood == Mood.CALM:
-		if not quiet_start:
-			say(&"provoked")
+		if not quiet_start and not his_idea:
+			say(&"jump" if _own_idea else &"provoked")
 		quiet_start = false
+		_own_idea = false
 		_set_mood(Mood.FIGHTING)
 		_fight_from = _now
 		_next_shot = _rng.randf_range(0.6, 1.1)
@@ -884,6 +925,13 @@ func _on_fell(conscious: bool) -> void:
 	if conscious and body.prone and mood in [Mood.FIGHTING, Mood.RELOADING] and crew.any_in_earshot(_now):
 		callout(&"help", _find_target())
 	elif conscious:
+		_say_down.call_deferred()
+
+
+## "Can't... get up...", once his fall's been read: not from a man who'll be up in a moment (a fall
+## he braces for, `HumanBody.brace`, comes just after he goes limp; #607: Brody said it and got up).
+func _say_down() -> void:
+	if is_instance_valid(body) and not body.rise_ok and not body.rising and (body.limp or body.prone):
 		say(&"down")
 
 
@@ -1077,6 +1125,7 @@ func _physics_step(delta: float) -> void:
 			else:
 				_social(delta)
 		Mood.FIGHTING, Mood.RELOADING:
+			_fought_at = _now
 			_combat(delta)
 
 
@@ -1189,8 +1238,15 @@ func _reload_quietly(delta: float) -> void:
 			rounds = rounds_per_load
 
 
+## Stepping onto a new rung: say so, unless he was fighting this lately (s).
+const RUNG_AFTER_FIGHT := 10.0
+var _fought_at := -99.0
+
+
 ## Stepping onto a new rung: say so.
 func _on_rung(from: Relations.Stance, to: Relations.Stance) -> void:
+	if _now - _fought_at < RUNG_AFTER_FIGHT:
+		return  # just out of a fight, it isn't "Walk on, mister." (#607: said as he shot you)
 	if to > from:
 		match to:
 			Relations.Stance.WARY:
@@ -1473,6 +1529,7 @@ func _duel(step: Dictionary) -> bool:
 	body.set_pose(&"wary")
 	if _armed(who) or _step_time >= float(step.draw_at):
 		_stand_and_fight = true
+		duel_with = who
 		relations.provoke(who)
 		_start_fight(who, true)
 		return true
@@ -1577,6 +1634,7 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 ## A fight's over and he's still standing: he's done with this town for today.
 func _after_fight() -> void:
 	_stand_and_fight = false
+	duel_with = null
 	_stop_rescue()
 	covering = 0.0
 	rage = 0.0
@@ -2087,6 +2145,9 @@ func _step_search() -> void:
 	if tactic == Tactic.PEEKING or tactic == Tactic.RESCUING:
 		_flanking = false
 		return  # he'll go next time he's down
+	if _flanking and (body.limp or body.prone or body.rising):
+		_flanking = false
+		return  # down, or getting up: nobody goes round from the floor (#607: Brody, 3 s after he went down)
 	var going_round := _flanking
 	if _flanking:
 		_flanking = false
@@ -2618,6 +2679,16 @@ func shot_origin(muzzle: Vector3, exclude: Array[RID]) -> Vector3:
 	q.exclude = ex
 	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
+	if not hit.is_empty() and hit.collider is StructureMember and (hit.collider as StructureMember).kind == &"glass":
+		# His gun hand's through a pane: it breaks with his hand (#607: his own ball broke it and
+		# its glass came back at him, "Lyle's own shot wounded Lyle"); its shards go on with his
+		# arm, and his ball leaves from the muzzle past it.
+		var pane := hit.collider as StructureMember
+		pane.shatter(hit.position, (muzzle - eye).normalized(), 0, ex)
+		ex.append(pane.get_rid())
+		q.exclude = ex
+		Prof.count(&"q_brain")
+		hit = World.space(body).intersect_ray(q)
 	if hit.is_empty():
 		return muzzle
 	return (hit.position as Vector3) + (eye - (hit.position as Vector3)).normalized() * 0.01
@@ -2858,7 +2929,7 @@ func callout(kind: StringName, about: Node = null, at := Vector3.INF) -> void:
 		return
 	if CALL_EVERY.has(kind) and not crew.may_say(kind, _now, CALL_EVERY[kind]):
 		return
-	say(StringName("call_" + String(kind)), Crew.name_of(about))
+	say(StringName("call_" + String(kind)), Crew.name_of(about), true)
 	if p.jaw_broken or p.airway_blood:
 		return  # nobody can make out what he's trying to say
 	Events.callout.emit(body, kind, about, at)
@@ -2935,10 +3006,22 @@ func _join(about: Node, mate: Node) -> void:
 	if about == null or not is_instance_valid(about) or about == body or crew.is_mate(about) \
 			or not (about is Player or about is HumanBody) or mood == Mood.SURRENDERED:
 		return
+	if _their_duel(mate, about) and not (body.has_meta(&"last_hit_by") and body.get_meta(&"last_hit_by") == about):
+		return  # his duel: he's on his feet and it's between the two of them
 	if relations.stance(about) < Relations.Stance.FIGHT:
 		relations.side_with(about)
 	if not senses.knows(about):
 		senses.note(about, (about as Node3D).global_position, 3.0)
+
+
+## Is `mate` a friend in a duel with `who`, and still on his feet in it? (Then it's theirs.)
+func _their_duel(mate: Node, who: Node) -> bool:
+	if mate == null or who == null or not is_instance_valid(mate) or not crew.is_mate(mate):
+		return false
+	var mb := Crew.brain_of(mate)
+	var m := mate as HumanBody
+	return mb != null and mb.duel_with == who and m != null and m.physiology.is_conscious() and not (m.limp or m.prone) \
+			and mb.mood in [Mood.CALM, Mood.FIGHTING, Mood.RELOADING]
 
 
 ## Keep the man busy for a friend (reloading, hit, going round, dragging someone).
@@ -3008,6 +3091,8 @@ func _wounded_mate(t: Node3D) -> HumanBody:
 	for m in crew.mates(_now):
 		if not (m.prone or m.limp) or not m.physiology.alive or m.dragged_by != null:
 			continue
+		if m.rise_ok or m.rising:
+			continue  # knocked off his feet, not hurt: he's getting up himself (#607: "Easy, I got you" to the Kid as he stood)
 		if crew.out.get(m, &"") != &"down":
 			continue  # he doesn't know he's down (or he's quit, or dead)
 		if _now - float(_tried_rescue.get(m, -INF)) < 12.0:
@@ -3060,7 +3145,7 @@ func _rescue(delta: float, t: Node3D) -> void:
 	var m := rescuing
 	var mb := Crew.brain_of(m)
 	if m == null or not is_instance_valid(m) or not m.physiology.alive or body.prone or _rescue_time > 25.0 \
-			or (mb != null and mb.mood == Mood.SURRENDERED) or not (m.prone or m.limp):
+			or (mb != null and mb.mood == Mood.SURRENDERED) or not (m.prone or m.limp) or m.rising:
 		_stop_rescue()
 		return
 	var at := _lying_at(m)
@@ -3340,10 +3425,11 @@ func _shaken_holds(delta: float) -> bool:
 		return false
 	if _shaken < 0.0:
 		_shaken = 0.0
-		say(&"shaken")
 		_decide("go to ground", "past his nerve (fear %.2f / %.2f), behind cover" % [dread(), nerve_now()])
 		if _has(&"leader") and crew.any_in_earshot(_now):
-			callout(&"shaken", _find_target())
+			callout(&"shaken", _find_target())  # (said for his friends to hear, not twice over, #607)
+		else:
+			say(&"shaken")
 	_shaken += delta
 	_flanking = false
 	if tactic == Tactic.PEEKING:
@@ -3574,7 +3660,11 @@ func _break_odds(t: Node3D, d: float, caught: bool, why: String) -> bool:
 
 func _start_fleeing() -> void:
 	_stop_rescue()
-	if crew.any_in_earshot(_now) and crew.since(&"fall_back", _now) > 3.0 and crew.may_say(&"fall_back", _now, 30.0):
+	# He says he's going only with a way to go (#607: the Kid's "I'm gone!" in a room he couldn't
+	# get out of, and he gave up there 14 s on).
+	if not _pick_flight():
+		pass
+	elif crew.any_in_earshot(_now) and crew.since(&"fall_back", _now) > 3.0 and crew.may_say(&"fall_back", _now, 30.0):
 		callout(&"fall_back", _find_target())
 	elif _now - _fled_said > 6.0:
 		_fled_said = _now
@@ -3582,11 +3672,11 @@ func _start_fleeing() -> void:
 	_set_mood(Mood.FLEEING)
 	tactic = Tactic.OPEN
 	_flee_time = 0.0
-	_pick_flight()
 
 
-## Somewhere well away from the gun that he can run to in a straight line.
-func _pick_flight() -> void:
+## Somewhere well away from the gun that he can run to in a straight line (false: nowhere clear,
+## and he heads straight away from it anyway).
+func _pick_flight() -> bool:
 	var t: Node3D = _find_target()
 	if t == null:
 		t = _player()
@@ -3601,8 +3691,9 @@ func _pick_flight() -> void:
 			_flee_to = body.global_position + dir * 30.0
 			_stuck = 0.0
 			_last_pos = body.global_position
-			return
+			return true
 	_flee_to = body.global_position + away * 30.0
+	return false
 
 
 func _flee(delta: float) -> void:

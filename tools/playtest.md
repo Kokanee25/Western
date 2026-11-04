@@ -37,8 +37,12 @@ whenever something is worth showing: good or bad.
 - `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run.
 - `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`. `look NAME`
   faces his chest; `look NAME head` (or `abdomen`, `upper_arm_l`, `thigh_r`...) a part of him. At a
-  man it also says what stands in the line (`in_the_way`) and which of him you can see (`clear_to`),
-  as your eyes would.
+  man it also says what stands in the line and stops a ball (`in_the_way`), what's in it a ball
+  goes through (`a_ball_goes_through`: a batwing, a gallery board), what the barrel's own line
+  meets when it differs from your eye's (`from_the_barrel`: from the hip it's a hand's width off;
+  aim and it's at your eye) and which of him you can see (`clear_to`), as your eyes would.
+- `press reload` / `press fire` that won't do anything says why (`why`: out of cartridges, the gun
+  put away), as the screen does.
 - `goto PLACE` — jump straight there (use it to save time, not instead of walking everywhere).
 - `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.

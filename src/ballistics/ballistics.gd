@@ -180,6 +180,8 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		info.segment = res.segment
 		info.shooter = b.shooter
 		var victim: Node = person.get(&"player") if person is PlayerWounds else person
+		if victim:
+			b.passed[victim] = true  # a ball that hit him didn't pass him (#607: "passed 0.0 m")
 		if b.shooter and victim:
 			victim.set_meta(&"last_hit_by", b.shooter)
 			Events.deed.emit(b.shooter, &"hit", victim, hit.position)
