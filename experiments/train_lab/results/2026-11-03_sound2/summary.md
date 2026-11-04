@@ -11,9 +11,8 @@ Four sources, all licences that allow it in a public repo (credited in `CREDITS.
 
 | Source | Licence | Cut into |
 |---|---|---|
-| South Australian Railways Garratt 406 starts off (SCHolar44) | CC0 | long and mid exhaust beats, rolling, standing (simmer) |
+| South Australian Railways Garratt 406 starts off (SCHolar44) | CC0 | every exhaust beat (long, mid, quick), rolling, standing (simmer) |
 | Train sounds from Iowa (Glaneur de sons) | CC BY 3.0 | the three-chime whistle (355/452/560 Hz), the bell, rail joints, couplers |
-| Prussian passenger steam locomotive P-8 (Work With Sounds) | CC BY 4.0 | short exhaust beats at speed |
 | Steam locomotive S06-018, steam release (Work With Sounds) | CC BY 4.0 | the cylinder cocks (bursts and hiss), the safety valve |
 
 **Still synthesised:** the brakes' squeal and grind (no recording had them).
@@ -76,3 +75,20 @@ it's Sean's call (#581's B).
 `tests/test_train_sound.gd` holds the recordings to the synthesis's rules (loops seamless, one-shots
 led by silence, nothing clipped, under 3% of the energy below 40 Hz): 9 of 9. The whole suite:
 909 passed, 0 failed.
+
+## Sean's ears (#601) and the fixes
+
+Sean: "way better". Two fixes from his listening, each with a short film:
+
+- **The bell ended abruptly before the next ring** (`films/bell_start.mp4`). The cut stopped at
+  0.72 s (the Iowa recording's next strike came 0.73 s later) and faded fast. Now the strike at
+  58.7 s, with 1.19 s clear after it: 1.15 s, ringing down to the recording's own floor (its
+  partials fall 15-30 dB a second), so each strike rings on under the next. `bell_db` 5 -> 2 (the
+  cut sets 2.5 dB louder, the strikes overlap). Sean: "sounds great".
+- **A computerised "doo doo doo" through the 10 m pass** (`films/pass10.mp4`). The quick beats
+  (from the P-8) were 64-72% a low resonant bark at 140-190 Hz, two clips alternating at the beat
+  rate. Now from the Garratt getting going (48.2 and 50.0 s, clear of a tone that sweeps through
+  its recording from 27 to 45 s), its steady roar taken out under them (`recordings.py`'s
+  `denoise`: spectral subtraction of the stretch's median, after Boll 1979, a floor of a tenth);
+  `mid_0` from 22.375 s. The pass: 140-190 Hz 66% -> 7% of its energy, the exhaust's bark
+  (300 Hz-3 kHz) 10% -> 51%, the level the same. Sean: "sounds great". The P-8 is no longer used.
