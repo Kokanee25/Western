@@ -123,6 +123,11 @@ extends Resource
 ## Ringing ears: seconds per kPa at the ear, most.
 @export var ringing_per_kpa := 0.5
 @export var ringing_max := 40.0
+## The bang comes through before your ears give (#596: the crack was lost under the muffle): the
+## world stays clear this long after a blast reaches you, then dulls over `ear_ease_s`; the
+## ringing starts with the dulling.
+@export var ear_hold_s := 0.3
+@export var ear_ease_s := 0.5
 ## Blast lung: bruised from the first, both holed and bleeding from the second, by the reflected
 ## pressure at his chest (since 2026-10-28, issue #220; was 250 / 700 against the side-on). Bowen,
 ## Fletcher and Richmond's curves for a 70 kg man ("Estimate of Man's Tolerance to the Direct

@@ -50,6 +50,8 @@ var ringing := 0.0
 var shake := 0.0
 var _ear_filter: AudioEffectLowPassFilter
 var _ring: AudioStreamPlayer
+## Since the last blast reached you (s): your ears hold, then give (BlastTuning.ear_hold_s).
+var _since_blast := INF
 
 
 func _ready() -> void:
@@ -224,6 +226,7 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 				physiology.sever(take)
 				harm.append("your %s is gone" % _place(take))
 	ringing = clampf(maxf(ringing, ear_kpa * bt.ringing_per_kpa), 0.0, bt.ringing_max)
+	_since_blast = 0.0
 	var dir := (chest - at).normalized()
 	var speed := minf(Blast.impulse(kg, maxf(chest.distance_to(at), 0.05)) * shield * 0.7 * bt.throw_factor / 80.0, bt.max_throw)
 	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
@@ -247,9 +250,14 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 ## Ears: after a blast you hear the world through a pillow under a high whine, fading; a burst
 ## eardrum keeps it muffled for good (until the doctor, one day).
 func _update_ears(delta: float) -> void:
-	ringing = maxf(ringing - delta, 0.0)
-	var muffle := clampf(ringing / 12.0, 0.0, 1.0)
-	var deaf := physiology.deaf_ears() * 0.3
+	_since_blast += delta
+	var bt := Blast.t()
+	# How far your ears have given since the bang: not at all for ear_hold_s, then all of it.
+	var give := clampf((_since_blast - bt.ear_hold_s) / maxf(bt.ear_ease_s, 0.01), 0.0, 1.0)
+	if give > 0.0:
+		ringing = maxf(ringing - delta, 0.0)
+	var muffle := clampf(ringing / 12.0, 0.0, 1.0) * give
+	var deaf := physiology.deaf_ears() * 0.3 * give
 	var cutoff := lerpf(20000.0, 500.0, maxf(muffle, deaf))
 	if _ear_filter == null:
 		var master := AudioServer.get_bus_index(&"Master")
@@ -264,8 +272,8 @@ func _update_ears(delta: float) -> void:
 		_ring = AudioStreamPlayer.new()
 		_ring.stream = SynthSounds.get_sound(&"ringing")
 		add_child(_ring)
-	if ringing > 0.05:
-		_ring.volume_db = linear_to_db(clampf(ringing / 20.0, 0.02, 0.5))
+	if ringing > 0.05 and give > 0.0:
+		_ring.volume_db = linear_to_db(clampf(ringing / 20.0, 0.02, 0.5) * give)
 		if not _ring.playing:
 			_ring.play()
 	elif _ring.playing:
