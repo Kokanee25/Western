@@ -1,0 +1,5 @@
+# Trestle lab film 1 (#623): the six-car train crossing the sound viaduct at 30 km/h, from the far rim.
+trestle_lab
+train_caption The six-car train crossing the viaduct at 40 km/h: 66 m up, 300 m long. Nothing fails.
+trestle_cam rim 260
+trestle_collapse how=none train=cross kmh=40 run_up=0 secs=2

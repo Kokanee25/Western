@@ -32,6 +32,8 @@ const THROWN_TILT := 35.0
 ## The first moments of the hand-off are the bodies settling onto the track (a few cm): no jolt
 ## is read before this, s.
 const SETTLE_S := 0.15
+## A wreck body this far under its line has gone through the ground (the deepest gorge is ~70 m).
+const LOST_BELOW := 150.0
 ## Body i as a RigidBody3D, or null once it's gone (a car broken into sections).
 func body(i: int) -> RigidBody3D:
 	var o: Variant = bodies[i].body
@@ -115,6 +117,11 @@ func start(what: Dictionary) -> void:
 	view.solids.clear()
 	for j in sim.cars.size() - 1:
 		_couple(j, j + 1)
+	if StringName(what.get("kind", "")) == &"fell":
+		# The deck gone from under it (a bridge): nothing throws it across; what's over the gap falls.
+		events.append({"t": 0.0, "what": "fell", "kmh": absf(float(sim.vel[0])) * 3.6, "car": int(what.get("car", -1))})
+		sim.set_speed(0.0)
+		return
 	# The engine's leading wheels off the end of the broken rail: across toward that side, its nose down.
 	var e := body(0)
 	var side := float(what.get("side", 0))
@@ -196,6 +203,13 @@ func tick(delta: float) -> void:
 		var rb := body(i)
 		if rb == null:
 			continue
+		if not rb.freeze and rb.global_position.y < train.track.to_global(Vector3(0.0, train.track.lowest - LOST_BELOW, 0.0)).y:
+			# Through the ground somehow (a thin section at speed): falling for ever costs the
+			# physics every tick (Structure's rubble the same).
+			rb.freeze = true
+			rb.visible = false
+			events.append({"t": time, "what": "lost", "body": i})
+			continue
 		_plough(rb)
 		var h: Array = _hist.get_or_add(i, [])
 		h.append([time, rb.linear_velocity])
@@ -224,14 +238,24 @@ func _plough(rb: RigidBody3D) -> void:
 		return
 	var line := train.track
 	var local := line.global_transform.affine_inverse() * rb.global_position
+	if local.y < line.lowest - 2.5:
+		return  # well under the line (fallen off a bridge): nothing to plough
 	var s := line.curve.get_closest_offset(local)
 	var p := line.point_at(s)
+	if local.y < p.y - 2.5 or (line.on_crossing(s) and local.y < p.y + 4.0 and _off_deck(line, s, local)):
+		return  # falling, or off a bridge's deck: nothing under its wheels to plough
 	var off := Vector2(local.x - p.x, local.z - p.z).length()
 	var out := clampf((off - tuning.ballast_top * 0.5 + 0.6) / 1.0, 0.0, 1.0)
 	var g := tuning.roll_g + (tuning.plough_g - tuning.roll_g) * out
 	var f := -v / speed * minf(g * rb.mass * 9.81, rb.mass * speed / get_physics_dt())
 	# (At its wheels' height under its middle: offset from the body's origin, the world's way round.)
 	rb.apply_force(f, rb.global_basis * Vector3(rb.center_of_mass.x, 0.2, rb.center_of_mass.z))
+
+
+## Off the sides of a bridge's deck (past its ties' ends).
+func _off_deck(line: TrackLine, s: float, local: Vector3) -> bool:
+	var p := line.point_at(s)
+	return Vector2(local.x - p.x, local.z - p.z).length() > tuning.tie_size.x * 0.5 + 0.3
 
 
 func get_physics_dt() -> float:

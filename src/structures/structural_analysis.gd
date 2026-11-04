@@ -17,7 +17,7 @@ extends RefCounted
 ## Utilisation = demand / capacity; over 1 it breaks.
 
 const BENDING_KINDS := [&"joist", &"floor_board", &"plate", &"beam", &"header", &"ledger", &"rafter",
-		&"roof_board", &"ridge", &"furniture_top"]
+		&"roof_board", &"ridge", &"furniture_top", &"cap", &"bent_sill", &"stringer", &"girt"]
 const COMPRESSION_KINDS := [&"post", &"stud", &"cripple"]
 const BRACED_KINDS := [&"stud", &"cripple"]
 ## Supports closer than this along a member count as one.
@@ -166,7 +166,11 @@ func begin(structure: Structure, extra_broken := {}) -> void:
 ## keeps last time's loads. (A blast in the spec saloon settled in 64 rounds of all 5,150 members,
 ## 10 s on one frame, 2026-10-25; a round of this is the few dozen near the damage.) False when it
 ## can't: no run of this structure yet, or a dirty member has been freed.
-func begin_update(structure: Structure, dirty: Dictionary) -> bool:
+##
+## `stop` (id -> true): members worked out again whose supports aren't, for this update's sake
+## (the trestle's caps over bents with nothing broken in them, while a train's weight moves along
+## its deck: a load-only change; the bents' loads catch up the next time they're reached).
+func begin_update(structure: Structure, dirty: Dictionary, stop := {}) -> bool:
 	if _structure != structure or _structure == null:
 		return false
 	var t_seeds := Prof.start()
@@ -229,6 +233,8 @@ func begin_update(structure: Structure, dirty: Dictionary) -> bool:
 		if m == null or m.broken:
 			continue
 		set[id] = true
+		if stop.has(id):
+			continue
 		for sup in m.supported_by:
 			if not _gone.has(sup) and not set.has(sup):
 				stack.append(sup)
@@ -318,6 +324,8 @@ func _advance(count: int) -> bool:
 				if not gone.has(c):  # a gone member's last loads are still listed; they don't count
 					loads.append_array((from_above as Dictionary)[c])
 		var total := m.weight + m.extra_load
+		for ep: Vector2 in m.extra_points:
+			total += ep.y
 		for pl: Array in loads:
 			total += float(pl[1])
 		load[m.member_id] = total
@@ -451,6 +459,8 @@ func _bend(m: LoadRecord, loads: Array, supports: Array[StringName], gone: Dicti
 		points.append([clampf(((pl[0] as Vector3) - origin).dot(axis), -half, half), float(pl[1])])
 	if m.extra_load > 0.0:
 		points.append([0.0, m.extra_load])
+	for ep: Vector2 in m.extra_points:
+		points.append([clampf(ep.x, -half, half), ep.y])
 	# Supports grouped by where they are along the member: the same every time while none has
 	# gone (kept with its geometry), worked out afresh when one has.
 	var groups: Array

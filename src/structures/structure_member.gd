@@ -33,6 +33,17 @@ const TIERS := {
 	&"baluster": 5,
 	&"glass": 6,
 	&"door": 6,
+	## The timber viaduct's (Trestle, the trestle lab #623): the stone pier a bent stands on, the
+	## mud and intermediate sills, the cap, sway and longitudinal braces, girts, stringers, guard
+	## timbers. Its links are set from the bents, not searched: these tiers are for anything that
+	## asks (a cut piece relinked).
+	&"pier": 0,
+	&"bent_sill": 1,
+	&"cap": 2,
+	&"girt": 2,
+	&"brace": 2,
+	&"stringer": 3,
+	&"guard": 5,
 }
 
 @export var member_id: StringName
@@ -56,6 +67,10 @@ signal damaged
 
 ## Weight resting on this member that isn't a member (goods on a shelf, a man on the porch), N.
 @export var extra_load := 0.0
+## Weights resting on it at points along it (a train's axles on a rail: the trestle lab, #623):
+## Vector2(t along its length from its middle, N) each. Counted with `extra_load`; a lying member
+## bends under each where it is (`extra_load` bears at its middle).
+var extra_points := PackedVector2Array()
 
 var supported_by: Array[StringName] = []
 ## The members resting on it (the other way up; set with supported_by by Structure._link), for

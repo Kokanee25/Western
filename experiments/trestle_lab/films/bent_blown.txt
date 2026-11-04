@@ -1,0 +1,6 @@
+# Trestle lab film 2 (#623): one bent blown, no train (two sticks at each of its eight bottom posts),
+# from the gorge's floor.
+trestle_lab
+train_caption The tallest bent blown at its foot, no train: what's above the cut comes down; the deck holds.
+trestle_cam floor
+trestle_collapse how=stick posts=all sticks=2 secs=12
