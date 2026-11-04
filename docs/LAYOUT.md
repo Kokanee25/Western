@@ -534,6 +534,14 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
+  pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
+  on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
+  `lowpass_db`, as a stream can't skip its bus), the view shaken (`view_shake`, put on the camera with
+  the gun's kick in `WeaponViewmodel._animate_camera`: your aim stays), grit (`blast_grit.gdshader`,
+  a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
+  `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
+  `dynamite_you_*` and `on_you.py`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands

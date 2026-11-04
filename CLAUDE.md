@@ -766,6 +766,10 @@ frozen until Sean names one.
   For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
   volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
   one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
+- **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
+  you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
+  gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
+  `2026-11-04_on_you/`. Waiting on Sean: #656 (the films). Next on #596: step 3 (the first instant).
 - **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`, branch
   `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
   wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
