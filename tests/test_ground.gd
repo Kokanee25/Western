@@ -282,6 +282,44 @@ func test_rubble_pressed_through_a_dug_tile_is_set_back_on_it() -> void:
 	check(rb.global_position.distance_to(Vector3(x, h, 5.0)) < 0.5, "where it was, not thrown out (%.2f m off)" % rb.global_position.distance_to(Vector3(x, h, 5.0)))
 
 
+## #642: slow rubble doesn't report what it touches (Jolt's manifold reduction), so a piece through
+## the field with its middle still over it is found by its points; one lying on the crater isn't.
+func test_a_quiet_piece_through_a_dug_tile_by_its_end_is_set_back_but_one_lying_there_isn_t() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var s := Structure.new()
+	s.structure_id = &"rig"
+	world.add_child(s)
+	s.add_member("a", &"board", &"framing", Vector3(0.6, 0.04, 0.12), Vector3(9.0, 0.3, 9.0))
+	s.add_member("b", &"board", &"framing", Vector3(0.6, 0.04, 0.12), Vector3(9.0, 0.3, 11.0))
+	await physics_frames(2)
+	s._drop([&"rig/a"] as Array[StringName])
+	s._drop([&"rig/b"] as Array[StringName])
+	var through: RigidBody3D = s.rubble[0]
+	var lying: RigidBody3D = s.rubble[1]
+	# Tilted 25 degrees, its middle 6 cm over the crater's floor, one end ~8 cm under it.
+	var h := ground.height_at(5.0, 5.0)
+	through.global_transform = Transform3D(Basis(Vector3.BACK, deg_to_rad(25.0)), Vector3(5.0, h + 0.06, 5.0))
+	lying.global_transform = Transform3D(Basis(), Vector3(5.0, ground.height_at(5.0, 4.6) + 0.5, 4.6))
+	for rb in [through, lying]:
+		rb.linear_velocity = Vector3.ZERO
+		rb.sleeping = false
+	check(ground._deepest(through, true) > Ground.CAUGHT_DEEP, "one end under the field (%.3f m)" % ground._deepest(through, true))
+	# Its reports off as a slow piece's, held there till rescue looks (the pile on it, as it were).
+	through.freeze = true
+	await physics_frames(2)
+	through.max_contacts_reported = 0
+	through.freeze = false
+	through.sleeping = false
+	var before := Ground.rescued
+	check(ground.rescue(through), "rescued without its contacts")
+	check(Ground.rescued == before + 1, "counted")
+	check(ground._deepest(through, true) <= Ground.LIFT_OVER, "and set on top (%.3f m under)" % ground._deepest(through, true))
+	await wait_until(func() -> bool: return lying.sleeping, 600)
+	lying.sleeping = false
+	lying.max_contacts_reported = 0
+	check(not ground.rescue(lying), "the one lying on the crater stays where it is (%.3f m in)" % ground._deepest(lying, true))
+
+
 func test_an_edit_is_cheap() -> void:
 	var t0 := Time.get_ticks_usec()
 	ground.take(Vector3(1.6, 0, 1.6), 0.25, 0.13)

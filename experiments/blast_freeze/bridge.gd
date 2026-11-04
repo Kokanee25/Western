@@ -83,8 +83,11 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			spots.append(Farmhouse.on_ground(on.x + out.x * 0.6, on.z + out.z * 0.6) + Vector3.UP * 0.1)
 		if String(opts.get("world", "")) != "":
 			# #626: Sean's one stick inside the house (world X,Y,Z; his F12s: 97.8,2.34,-48.94), not the ring.
-			var wp := String(opts.world).split(",")
-			spots = [Vector3(float(wp[0]), float(wp[1]), float(wp[2]))]
+			# #642: several, `;` between them, `gap` s apart (Sean's two: 91.34,1.81,-49.14;94.48,2.34,-48.47 gap=2.3).
+			spots = []
+			for w: String in String(opts.world).split(";"):
+				var wp := w.split(",")
+				spots.append(Vector3(float(wp[0]), float(wp[1]), float(wp[2])))
 		n_sticks = spots.size()
 		if String(opts.get("stand", "")) != "" and player:
 			# #626: where Sean stood (world X,Y,Z; his F12s: 96.3,1.1,-33.6), looking at the stick.
