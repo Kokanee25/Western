@@ -87,6 +87,15 @@ Not halved. Turning reports off altogether is only a little better again (frames
 and would lose the landings; what's left of the step is the solver's 20 velocity / 8 position
 steps on the moving pile.
 
+## How men fall: unchanged
+
+The ragdoll lab, main against the branch (all 191 scenarios, one process each): 157 bit for bit
+the same; the 34 that differ are the ones where a man breaks timber or furniture (O, Q, T, U, X, Y:
+chairs, tables, railings, the stair's top), whose rubble now lands a little differently. Their
+flags (lingering motion aside) total 1,300 on main and 1,301 on the branch; over all the falls
+joint gap sum 2.88 / 2.90, joints pulled apart 5 / 7, launches 690 / 652, swing past limit 2,131 /
+1,995, the same endings (face down 68 / 67, back 55 / 57, side 46 / 45).
+
 ## Lower solver steps: not kept (the falls lab)
 
 Jolt's steps are global in Godot (no per-body override exposed: Jolt's own
