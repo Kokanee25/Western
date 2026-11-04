@@ -1,6 +1,6 @@
-# Trestle lab film 4 (#623): three bents blown as the engine comes on (60 m short) at 40 km/h: the
+# Trestle lab film 4 (#623): two bents blown as the engine comes on (40 m short) at 40 km/h: the
 # train goes over. From the rim.
 trestle_lab
-train_caption Three bents blown as the engine comes on at 40 km/h: the train goes over.
+train_caption Two bents blown as the engine comes on at 40 km/h: the train goes over.
 trestle_cam rim
-trestle_collapse how=stick posts=all sticks=2 bents=3 train=cross when=under lead=60 kmh=40 run_up=-40 secs=10
+trestle_collapse how=stick posts=all sticks=2 bents=2 train=cross when=under lead=40 kmh=40 run_up=-40 secs=10

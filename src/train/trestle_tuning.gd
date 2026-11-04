@@ -90,12 +90,11 @@ extends Resource
 ## A falling piece of the viaduct (a bent's tower, a span) breaks up on landing into pieces of at
 ## most this many members, never every timber (sections, not splinters: #623).
 @export var section_members := 24
-## A tall piece (over a story and a half) landing hard folds over to one side: its top section is
-## thrown that way at this share of the speed it landed at, the rest by how high up they are, and
-## each turns as the tower would about its foot. A model of the joints giving unevenly (a perfect
-## landing would leave a 60 m tower of sections standing on its base); 0 stacks them.
-@export var fold := 0.3
-## A tall piece comes apart this long after it starts to fall (a story's drop, ~1 s for 6 m: a bit
-## under), s, and folds as if it had landed at least this fast, m/s.
+## A tall piece (a bent's tower over a cut: more than `section_members` members, a story and a
+## half high) can't stand on the stubs under it: `fold_after` s after it starts to fall it goes over
+## as a unit, across the line (a seeded side), turning about the edge of its foot with `fold` times
+## the turn it needs to tip past it, and breaks into sections where it lands. A model of the joints
+## at its foot giving unevenly; 0 leaves it to land square and stand (a 60 m stack of sections).
+## (Along the line it would lean on the next bent, which stands: a chain of bents is for later.)
+@export var fold := 1.3
 @export var fold_after := 0.6
-@export var fold_speed := 6.0

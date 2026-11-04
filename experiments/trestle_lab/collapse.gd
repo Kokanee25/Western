@@ -68,21 +68,37 @@ func _process(_delta: float) -> void:
 	if _last_us > 0:
 		var ms := float(now - _last_us) / 1000.0
 		frames.append(ms)
-		frame_t.append(float(now - _t0_us) / 1e6)
+		# (wall time: the gate's half second is the player's, and the game's clock falls behind it
+		# when frames are slow; the run's own steps, `_now`, are the game's)
+		frame_t.append(_wall())
 		if ms > 40.0:
 			var top := {}
 			for i in Prof.TOP:
 				if Prof.frame_top_names[i] != &"":
 					top[String(Prof.frame_top_names[i])] = snappedf(Prof.frame_top_ms[i], 0.1)
-			slow.append({"t": snappedf(float(now - _t0_us) / 1e6, 0.01), "ms": snappedf(ms, 0.1), "top": top,
+			slow.append({"t": snappedf(_now(), 0.01), "ms": snappedf(ms, 0.1), "top": top,
 				"physics_ms": snappedf(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, 0.1),
 				"process_ms": snappedf(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0, 0.1),
 				"rubble": _alive(), "awake": RubbleSleep_awake()})
 	_last_us = now
 
 
+## The run's clock: the game's (its physics ticks), so a film drawn slowly under the movie writer
+## runs as long as a headless run does; the frames' costs are the wall clock's.
 func _now() -> float:
+	return float(Engine.get_physics_frames() - _p0) / float(Engine.physics_ticks_per_second)
+
+
+var _p0 := 0
+
+
+## Wall seconds since the run began (the frames' times, and the marks the report counts from).
+func _wall() -> float:
 	return float(Time.get_ticks_usec() - _t0_us) / 1e6
+
+
+var _fire_wall := -1.0
+var _off_wall := -1.0
 
 
 static func parse(a: Array) -> Dictionary:
@@ -220,6 +236,9 @@ func run(spec: Dictionary) -> Dictionary:
 	_tr = tr
 	_last_us = 0
 	_t0_us = Time.get_ticks_usec()
+	_p0 = Engine.get_physics_frames()
+	_fire_wall = -1.0
+	_off_wall = -1.0
 	_on = true
 	var fired := {}
 	var t_fire := -1.0
@@ -233,6 +252,7 @@ func run(spec: Dictionary) -> Dictionary:
 			train.sim.brake_lever = 1.0
 		await tree.physics_frame
 		t_fire = _now()
+		_fire_wall = _wall()
 		fired = await fire(tr, spec)
 		hold_until = t_fire + float(spec.wait)
 	var t_off := -1.0
@@ -246,9 +266,11 @@ func run(spec: Dictionary) -> Dictionary:
 			train.sim.brake_lever = 0.0
 		if t_fire < 0.0 and train.sim.s >= bent_s - float(spec.lead):
 			t_fire = now
+			_fire_wall = _wall()
 			fired = await fire(tr, spec)
 		if t_off < 0.0 and not train.derail.is_empty():
 			t_off = now
+			_off_wall = _wall()
 		var last := maxf(t_fire, t_off)
 		if not crossing and t_fire >= 0.0 and now - t_fire > float(spec.secs):
 			break
@@ -332,7 +354,14 @@ func summary(spec: Dictionary, tr: Trestle, train: Train, t_fire: float, t_off: 
 				continue
 			var l := tr.line.global_transform.affine_inverse() * rb.global_position
 			var ss := tr.line.curve.get_closest_offset(l)
-			where.append("%s/%s s%.1f dy%.1f v%.1f%s" % [train.wreck.bodies[bi].car, train.wreck.bodies[bi].part, ss, l.y - tr.line.point_at(ss).y, rb.linear_velocity.length(), " F" if rb.freeze else ""])
+			var under := ""
+			var q := PhysicsRayQueryParameters3D.create(rb.global_position + Vector3.UP * 0.5, rb.global_position + Vector3.DOWN * 4.0, Layers.WORLD | Layers.DEBRIS, [rb.get_rid()])
+			var hit := rb.get_world_3d().direct_space_state.intersect_ray(q)
+			if hit:
+				var c: Node = hit.collider
+				var ms: Array = c.get_meta(&"members", []) if c.has_meta(&"members") else []
+				under = " on %s%s%s" % [c.name, (" " + str(ms.slice(0, 2)) + " (%d)" % ms.size()) if not ms.is_empty() else "", " F" if c is RigidBody3D and (c as RigidBody3D).freeze else (" S" if c is RigidBody3D and (c as RigidBody3D).sleeping else "")]
+			where.append("%s/%s s%.1f dy%.1f v%.1f%s%s" % [train.wreck.bodies[bi].car, train.wreck.bodies[bi].part, ss, l.y - tr.line.point_at(ss).y, rb.linear_velocity.length(), " F" if rb.freeze else "", under])
 		var gaps := []
 		for st: Dictionary in tr.line.state.damage():
 			if float(st.from_s) >= tr.from_s and float(st.to_s) <= tr.to_s:
@@ -340,9 +369,9 @@ func summary(spec: Dictionary, tr: Trestle, train: Train, t_fire: float, t_off: 
 		out["wreck"] = {"bodies": train.wreck.bodies.size(), "fell_into_gorge": fell, "events": train.wreck.events.duplicate(), "where": where, "gaps": gaps,
 			"bents_s": pick_bents(tr, spec).map(func(b: Dictionary) -> float: return snappedf(float(b.s), 0.1))}
 	out["load_cost"] = tr.load_cost.duplicate()
-	var from := t_fire if t_fire >= 0.0 else 0.0
+	var from := _fire_wall if _fire_wall >= 0.0 else 0.0
 	out["frames"] = frame_report(from)
-	var t2 := t_off if t_off >= 0.0 else -1.0
+	var t2 := _off_wall if _off_wall >= 0.0 else -1.0
 	if t2 >= 0.0:
 		out["frames_fall"] = frame_report(t2)
 	out["prof_ms_a_frame"] = _prof(frames.size())

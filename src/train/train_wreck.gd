@@ -58,6 +58,8 @@ var time := 0.0
 var _hist := {}
 var _rng := RandomNumberGenerator.new()
 var _limp_tick := -1
+## The couplers' play in pitch, degrees (loose off a bridge: `start`).
+var _pitch := 15.0
 ## Bodies whose riders the jolt has thrown (index -> [g, tilt] when it did): the rest go a tick apart.
 var _jolted := {}
 
@@ -115,6 +117,11 @@ func start(what: Dictionary) -> void:
 		solid.collision_layer = 0
 		solid.queue_free()
 	view.solids.clear()
+	# Off a bridge (the deck gone from under it) a car hangs from its coupler: link and pin takes a
+	# pull, not a bending moment, so it swings free in pitch and its weight drags the rest over the
+	# edge (held at step 5's 15 degrees, the cars on the deck held a 31 t engine out over a 19 m
+	# hole like a beam: the trestle lab, #623).
+	_pitch = 70.0 if StringName(what.get("kind", "")) == &"fell" else 15.0
 	for j in sim.cars.size() - 1:
 		_couple(j, j + 1)
 	if StringName(what.get("kind", "")) == &"fell":
@@ -185,7 +192,7 @@ func _couple(a: int, b: int) -> void:
 	j.set_param_z(Generic6DOFJoint3D.PARAM_LINEAR_LOWER_LIMIT, -half)
 	j.set_param_z(Generic6DOFJoint3D.PARAM_LINEAR_UPPER_LIMIT, half)
 	# Link and pin: it turns freely in yaw (the jackknife), a little in pitch and roll.
-	for ax in [[j.set_flag_x, j.set_param_x, 15.0], [j.set_flag_y, j.set_param_y, 75.0], [j.set_flag_z, j.set_param_z, 25.0]]:
+	for ax in [[j.set_flag_x, j.set_param_x, _pitch], [j.set_flag_y, j.set_param_y, 75.0], [j.set_flag_z, j.set_param_z, 25.0]]:
 		(ax[0] as Callable).call(Generic6DOFJoint3D.FLAG_ENABLE_ANGULAR_LIMIT, true)
 		(ax[1] as Callable).call(Generic6DOFJoint3D.PARAM_ANGULAR_LOWER_LIMIT, deg_to_rad(-float(ax[2])))
 		(ax[1] as Callable).call(Generic6DOFJoint3D.PARAM_ANGULAR_UPPER_LIMIT, deg_to_rad(float(ax[2])))

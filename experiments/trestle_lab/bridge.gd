@@ -287,8 +287,8 @@ func _cmd_trestle_cam(a: Array) -> Dictionary:
 			# back across at the whole span.
 			var half := (tr.to_s - tr.from_s) * 0.5
 			var side := float(a[1]) if a.size() > 1 else 260.0
-			eye = deck + f.basis.x * side + (-f.basis.z) * (half + 40.0)
-			eye.y = line.global_position.y + 1.7
+			eye = deck + f.basis.x * side + (-f.basis.z) * (half + 6.0)
+			eye.y = line.global_position.y + 6.0  # (on a rock at the edge, looking down across)
 			look = deck + Vector3.DOWN * 25.0
 		"deck":
 			var s := float(a[1]) if a.size() > 1 else tr.from_s + 20.0

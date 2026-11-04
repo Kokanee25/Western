@@ -759,9 +759,21 @@ func gone_under(s: float) -> Dictionary:
 # --- Falling in sections -------------------------------------------------------------------------
 
 ## A tall piece (a bent's tower above a cut) can't stand on what's left under it: `fold_after` s
-## after it starts to fall (about a story's drop) it comes apart in sections and goes over, however
-## gently it met the stubs and rubble under its feet (it would sleep there standing, a 60 m stack).
+## after it starts to fall (about a story's drop) it goes over as a unit, its bracing holding it
+## together as it falls, turning about its foot one way (seeded by what it is) and gravity doing the
+## rest; it comes apart in sections when it lands lying (or hits the next bent, and breaks that).
+## Left alone, it would land on the stubs and rubble under its feet and sleep there standing, a 60 m
+## stack of sections with the deck on it.
 func _enter_rubble(rb: RigidBody3D) -> void:
+	# A piece falls a hair smaller than it was framed (each box 2 cm less each way): framed face to
+	# face with what still stands beside it, it wedged there at deck height, was held still by
+	# RubbleSleep, and the engine came to rest on it over a 19 m hole.
+	for c in rb.get_children():
+		if c is CollisionShape3D and (c as CollisionShape3D).shape is BoxShape3D:
+			var box := BoxShape3D.new()
+			box.size = ((c as CollisionShape3D).shape as BoxShape3D).size - Vector3(0.02, 0.02, 0.02)
+			box.size = box.size.max(Vector3(0.01, 0.01, 0.01))
+			(c as CollisionShape3D).shape = box
 	super._enter_rubble(rb)
 	if tt == null:
 		return
@@ -776,7 +788,63 @@ func _enter_rubble(rb: RigidBody3D) -> void:
 			lo = minf(lo, m.global_position.y)
 			hi = maxf(hi, m.global_position.y)
 	if hi - lo > tt.story * 1.5 and is_inside_tree():
-		get_tree().create_timer(tt.fold_after, false, true).timeout.connect(_break_up.bind(rb))
+		get_tree().create_timer(tt.fold_after, false, true).timeout.connect(_topple.bind(rb))
+
+
+## The piece's shapes' lowest and highest points, world y, and their middle.
+static func _extent(rb: RigidBody3D) -> Array:
+	var lo := INF
+	var hi := -INF
+	var mid := Vector3.ZERO
+	var n := 0
+	for c in rb.get_children():
+		if c is CollisionShape3D:
+			var p := (c as CollisionShape3D).global_position
+			lo = minf(lo, p.y)
+			hi = maxf(hi, p.y)
+			mid += p
+			n += 1
+	return [lo, hi, mid / maxf(n, 1)]
+
+
+## Over it goes (once), across the line, one way or the other by a seed: turning about the edge of
+## its foot with `fold` times the turn it needs to tip past it (a tower 60 m high and ~20 m wide at
+## its foot stands on its stumps without; along the line it would lean on the next bent, which
+## stands: a falling tower pushing its neighbours over is for later). Gravity does the rest.
+func _topple(o: Variant) -> void:
+	# (Untyped: the timer can fire after the piece has broken up and been freed.)
+	if not is_instance_valid(o) or not o is RigidBody3D:
+		return
+	var rb := o as RigidBody3D
+	if rb.is_queued_for_deletion() or rb.get_meta(&"toppled", false) or rb.get_meta(&"broken_up", false):
+		return
+	rb.set_meta(&"toppled", true)
+	var e := _extent(rb)
+	var mid: Vector3 = e[2]
+	var local := line.global_transform.affine_inverse() * mid
+	var f := line.global_transform.basis * line.transform_at(line.curve.get_closest_offset(local)).basis
+	var across := Vector3(f.x.x, 0.0, f.x.z).normalized()
+	var ids: Array = rb.get_meta(&"members", [])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(String(ids[0]) if not ids.is_empty() else "piece")
+	var side := 1.0 if rng.randf() < 0.5 else -1.0
+	var d := across * side
+	# Its half width across (to the shapes' middles) and its middle's height over its foot.
+	var b := 0.5
+	for c in rb.get_children():
+		if c is CollisionShape3D:
+			b = maxf(b, absf(((c as CollisionShape3D).global_position - mid).dot(across)))
+	var hc := maxf(mid.y - float(e[0]), 0.5)
+	var pivot := Vector3(mid.x, float(e[0]), mid.z) + d * b
+	# Just enough to bring its middle over the edge: the rise sqrt(b^2 + hc^2) - hc, against its
+	# turning about the edge (a block's: k^2 = (4 hc^2 + 4 b^2) / 3).
+	var rise := sqrt(b * b + hc * hc) - hc
+	var k2 := (4.0 * hc * hc + 4.0 * b * b) / 3.0
+	var w_min := sqrt(2.0 * 9.81 * rise / k2)
+	var w := Vector3.UP.cross(d) * (w_min * tt.fold)
+	rb.sleeping = false
+	rb.angular_velocity += w
+	rb.linear_velocity += w.cross(mid - pivot)
 
 
 ## A falling piece of it that lands hard comes apart into sections of at most `section_members`
@@ -784,6 +852,11 @@ func _enter_rubble(rb: RigidBody3D) -> void:
 func _break_up(rb: RigidBody3D) -> void:
 	if not is_instance_valid(rb) or rb.get_meta(&"broken_up", false):
 		return
+	if tt and not rb.get_meta(&"toppled", false):
+		var ex := _extent(rb)
+		if float(ex[1]) - float(ex[0]) > tt.story * 1.5 and (rb.get_meta(&"members", []) as Array).size() > tt.section_members:
+			_topple(rb)  # standing: it goes over first, and breaks up where it lands lying
+			return
 	var ids: Array = rb.get_meta(&"members", [])
 	var limit := maxi(1, tt.section_members if tt else 24)
 	if ids.size() <= limit:
@@ -803,22 +876,6 @@ func _break_up(rb: RigidBody3D) -> void:
 		elif c is CollisionShape3D:
 			shapes.append(c)
 	var n := mini(meshes.size(), shapes.size())
-	# A tall piece landing hard doesn't stand: its joints give unevenly and it folds over to one
-	# side (seeded by what it is), each section thrown that way by how high up it is, as the tower
-	# turning about its foot would throw it (`fold`: the share of the landing speed at its top).
-	var base := INF
-	var top := -INF
-	for i in n:
-		var y := shapes[i].global_position.y
-		base = minf(base, y)
-		top = maxf(top, y)
-	var height := maxf(top - base, 0.1)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(String(ids[0]) if not ids.is_empty() else "piece")
-	var ang := rng.randf() * TAU
-	var fold_dir := Vector3(cos(ang), 0.0, sin(ang))
-	var speed := maxf(maxf(float((rb.get_meta(&"v", v) as Vector3).length()), v.length()), tt.fold_speed if tt else 6.0)
-	var fold := (tt.fold if tt else 0.3) * speed if height > tt.story * 1.5 else 0.0
 	# Cells of a story by a panel, in the piece's own space, members kept together in each.
 	var cell := Vector3(maxf(tt.bent_spacing, 4.0), maxf(tt.story, 4.0), maxf(tt.bent_spacing, 4.0))
 	var groups := {}
@@ -847,9 +904,8 @@ func _break_up(rb: RigidBody3D) -> void:
 				var m := get_member(ids[i] if i < ids.size() else &"")
 				mass += maxf(m.weight(tuning) / 9.81, 0.3) if m else 1.0
 			piece.mass = maxf(mass, 0.3)
-			var up := clampf((piece.global_position.y - base) / height, 0.0, 1.0)
-			piece.linear_velocity = v + w.cross(piece.global_position - rb.global_position) + fold_dir * fold * up
-			piece.angular_velocity = w + fold_dir.cross(Vector3.DOWN) * (fold / height)
+			piece.linear_velocity = v + w.cross(piece.global_position - rb.global_position)
+			piece.angular_velocity = w
 	rubble.erase(rb)
 	rb.queue_free()
 

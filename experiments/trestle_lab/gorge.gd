@@ -74,6 +74,9 @@ func build() -> Node3D:
 		s += 20.0
 	lo -= Vector2(80.0, 140.0)
 	hi += Vector2(80.0, 140.0)
+	# Along the gorge at least 400 m either way (the far rim's cameras stand out there).
+	lo.y = minf(lo.y, -400.0)
+	hi.y = maxf(hi.y, 400.0)
 	var rows_a: Array[float] = []
 	var a := lo.x
 	while a < hi.x:
@@ -85,7 +88,7 @@ func build() -> Node3D:
 	var b := lo.y
 	while b < hi.y:
 		rows_b.append(b)
-		b += 8.0
+		b += 8.0 if absf(b) < 200.0 else 25.0
 	rows_b.append(hi.y)
 	var verts := PackedVector3Array()
 	var cols := PackedColorArray()

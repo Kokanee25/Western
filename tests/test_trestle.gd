@@ -217,7 +217,7 @@ func test_the_train_goes_down_with_its_momentum() -> void:
 	for k in 3:
 		_cut_bottom(tr, tr.bents[i + k])
 	tr.settle()
-	await physics_frames(30)
+	await physics_frames(60 * 5)
 	check(not line.state.first_ahead(tr.from_s, 1, tr.to_s - tr.from_s).is_empty(), "the deck over them is gone (empty)")
 	var train := _coming(line, float(mid.s), 70.0, 30.0)
 	var p1d := [0.0]
