@@ -715,7 +715,9 @@ frozen until Sean names one.
   (`TrainWreck`), the wreck saved by route place, the crew (`TrackRepair`). 18 runs: by day he
   stops short on the straight at every speed, at night 40 km/h derails; the left bend is the
   fireman's; every derail inside #492's gate (worst 44 ms at Sean's, once seven men going limp on
-  one tick made 140). Waiting on Sean: the dials and films (its issue).
+  one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
+  apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
+  `results/2026-11-04_jackknife/`). Next: #542 (step 7).
 - **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
   (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
   Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
