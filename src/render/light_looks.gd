@@ -11,6 +11,9 @@ extends Node
 ## one for a run (the screenshots). Not saved.
 
 const GAME := "res://config/looks/light_game.json"
+## The real look's own light (docs/briefs/red-dead.md R1): its night_values and day_values go over
+## the game's while Settings.real_look is on, so the painted look's numbers stay as they are.
+const REAL := "res://config/looks/real_light.json"
 const FILES := ["res://config/looks/light_a.json", "res://config/looks/light_b.json", "res://config/looks/light_c.json"]
 const NAMES := ["the game's (B by day, C at night)", "today's old light", "A (subtle)", "B (middle)", "C (strong)"]
 const ARG_NAMES := ["game", "today", "a", "b", "c"]
@@ -28,6 +31,8 @@ static var _files := {}
 
 var _blend := -1.0  # the day-to-night blend last applied (the game's light), -1 none yet
 var _since := 0.0
+## Whether the blend last applied was the real look's (Settings.real_look).
+static var _real := false
 
 
 func _ready() -> void:
@@ -39,6 +44,24 @@ func _ready() -> void:
 	pick.call_deferred(get_tree(), current)
 	# A jump of the clock (7, the bridge's `time`, the screenshots' views) re-blends on the next frame.
 	Events.hour_changed.connect(func(_h: int) -> void: _since = CHECK_SECONDS)
+	# The real look switched: its own light (REAL) on or off at once, before a preset's later
+	# values go over it (the screenshots' variants set settings.real_look first).
+	_real = Settings.real_look
+	Settings.changed.connect(_on_settings)
+
+
+func _exit_tree() -> void:
+	if Settings.changed.is_connected(_on_settings):
+		Settings.changed.disconnect(_on_settings)
+
+
+func _on_settings() -> void:
+	if Settings.real_look == _real or not is_inside_tree():
+		return
+	_real = Settings.real_look
+	if current == 0:
+		pick(get_tree(), 0)
+		_blend = night_share(get_tree())
 
 
 func _process(delta: float) -> void:
@@ -70,6 +93,8 @@ static func addresses() -> PackedStringArray:
 		sets.append(LookPreset.load_file(f).get("values", {}))
 	sets.append(LookPreset.load_file(GAME).get("night_values", {}))
 	sets.append(LookPreset.load_file(GAME).get("day_values", {}))
+	sets.append(LookPreset.load_file(REAL).get("night_values", {}))
+	sets.append(LookPreset.load_file(REAL).get("day_values", {}))
 	for values: Dictionary in sets:
 		for a: String in values:
 			if not a in out:
@@ -131,6 +156,12 @@ static func blended(tree: SceneTree, t: float, prefix := "") -> Dictionary:
 	# only while the sun is up, so they are day's at every share, not blended toward the night's.
 	var day_values: Dictionary = game.get("day_values", {})
 	day.merge(day_values, true)
+	# The real look's own light over both (R1: the saloon dark between its lamps, the street's
+	# shade), only while it's on. Its day values blend toward the night's like the day look's.
+	if Settings.real_look:
+		var real := _file(REAL)
+		night.merge(real.get("night_values", {}), true)
+		day.merge(real.get("day_values", {}), true)
 	var day_only: Array = game.get("day_only", [])
 	var steps := grade_steps()
 	var out := {}
