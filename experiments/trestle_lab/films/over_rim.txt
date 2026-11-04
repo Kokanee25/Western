@@ -3,4 +3,4 @@
 trestle_lab
 train_caption The tallest bent blown as the engine comes on at 40 km/h.
 trestle_cam rim
-trestle_collapse how=stick posts=all sticks=2 bents=1 train=cross when=under lead=40 kmh=40 run_up=-40 secs=10
+trestle_collapse how=stick posts=all sticks=2 bents=1 train=cross when=under lead=40 kmh=40 run_up=120 secs=10

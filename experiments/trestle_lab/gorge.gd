@@ -17,6 +17,9 @@ var depth := 66.0
 var floor_half := 22.0
 var wall_power := 1.7
 var meander := 8.0
+## The river on its floor: {half_width, depth} (m; none if empty). Drawn only: what falls in lands on
+## the floor under it.
+var river := {}
 var mid_s := 0.0
 var half_rim := 150.0
 ## The gorge's frame: the crossing's middle on the ground, `a` along the line there, `b` across it
@@ -32,6 +35,7 @@ func _init(on_line: TrackLine, spec: Dictionary) -> void:
 	floor_half = float(spec.get("floor_half", floor_half))
 	wall_power = float(spec.get("wall_power", wall_power))
 	meander = float(spec.get("meander", meander))
+	river = spec.get("river", {})
 	var c: Dictionary = line.crossings[0] if not line.crossings.is_empty() else {"from_s": line.length * 0.4, "to_s": line.length * 0.6}
 	mid_s = (float(c.from_s) + float(c.to_s)) * 0.5
 	half_rim = (float(c.to_s) - float(c.from_s)) * 0.5
@@ -134,4 +138,34 @@ func build() -> Node3D:
 	tri.backface_collision = true
 	cs.shape = tri
 	body.add_child(cs)
+	if not river.is_empty():
+		body.add_child(_river(rows_b))
 	return body
+
+
+## The river: a strip of water along the gorge's axis (following its wander), `depth` over the floor.
+func _river(rows_b: Array[float]) -> MeshInstance3D:
+	var hw := float(river.get("half_width", 8.0))
+	var y := -depth + float(river.get("depth", 0.8))
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in rows_b.size() - 1:
+		var q := []
+		for bv: float in [rows_b[i], rows_b[i + 1]]:
+			var a0 := meander * sin(bv / 70.0)
+			for side in [-1.0, 1.0]:
+				var p: Vector3 = origin + dir_a * (a0 + float(side) * hw) + dir_b * bv
+				q.append(Vector3(p.x, y, p.z))
+		st.add_vertex(q[0]); st.add_vertex(q[2]); st.add_vertex(q[1])
+		st.add_vertex(q[1]); st.add_vertex(q[2]); st.add_vertex(q[3])
+	st.generate_normals()
+	var mi := MeshInstance3D.new()
+	mi.name = "River"
+	mi.mesh = st.commit()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.22, 0.30, 0.28)
+	mat.roughness = 0.15
+	mat.metallic = 0.1
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = mat
+	return mi
