@@ -1,0 +1,144 @@
+{
+  "derail": {
+    "key": {
+      "at": 374.778869809934,
+      "section": "p0"
+    },
+    "kind": "bent",
+    "kmh": 35.3343137776528,
+    "numeric": false,
+    "s": 374.778869809934,
+    "side": -1,
+    "t": 27.2499999999997,
+    "what": "rail bent"
+  },
+  "engine": {
+    "front_past_break_m": 14.109039247036,
+    "off_m": 3.19089674949646,
+    "tilt_deg": 87.7475905313156
+  },
+  "frames": {
+    "before_mean_ms": 12.0304477886978,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 13.719708677686,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 17.7177,
+    "second_ms": 26.678,
+    "slow_spell_s": 0.0,
+    "worst_ms": 27.258
+  },
+  "outcome": "derailed",
+  "seen": [
+    {
+      "daylight": 0.0,
+      "distance": 63.7768618629157,
+      "kind": "bent",
+      "kmh": 39.1211141453189,
+      "lux": 0.633617619982332,
+      "range": 63.8292141907166,
+      "s": 310.963138137084,
+      "t": 21.1000000000001,
+      "what": "rail bent",
+      "who": "engineer"
+    }
+  ],
+  "spec": {
+    "at": 380.0,
+    "driver": "engineer",
+    "hour": 23.0,
+    "how": "bent",
+    "kmh": 40.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/bent_40_night.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 300.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "struck": [],
+  "thrown": 7,
+  "wreck": {
+    "asleep": 1,
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 35.3343137776528,
+        "side": -1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "car": 0,
+        "g": 0.824520873893818,
+        "t": 0.266666666666667,
+        "tilt": 7.74546610841937,
+        "what": "thrown",
+        "who": "engineer"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.883333333333334,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_5"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.900000000000001,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_4"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.916666666666668,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_3"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.933333333333335,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_2"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.950000000000001,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_1"
+      },
+      {
+        "car": 6,
+        "g": 1.06871853140475,
+        "t": 0.966666666666668,
+        "tilt": 0.196478835830387,
+        "what": "thrown",
+        "who": "passenger_0"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 1.08333333333333,
+        "what": "coupler torn",
+        "why": "jackknife"
+      }
+    ],
+    "furthest_past_m": 10.1090393066406,
+    "max_fold_deg": 20.281068532721,
+    "most_off_m": 3.19089674949646,
+    "tipped": 1
+  }
+}
