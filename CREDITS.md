@@ -75,10 +75,6 @@ unchanged. The brakes' squeal and grind are still synthesised (`src/audio/train_
   (https://creativecommons.org/licenses/by/3.0;
   https://commons.wikimedia.org/wiki/File:Train_sounds_from_Iowa_-_Glaneur_de_sons.ogg): the
   chime whistle, the bell, the rail joints, the couplers.
-- **"Prussian passenger steam locomotive P-8"** by Work With Sounds / Konrad Gutkowski, CC BY 4.0
-  (https://creativecommons.org/licenses/by/4.0;
-  https://commons.wikimedia.org/wiki/File:WWS_PrussianpassengersteamlocomotiveP-8.ogg): the short
-  exhaust beats at speed.
 - **"Steam locomotive S06-018, steam release"** by Work With Sounds / Technical Museum of Slovenia,
   CC BY 4.0 (https://creativecommons.org/licenses/by/4.0;
   https://commons.wikimedia.org/wiki/File:WWS_SteamlocomotiveS06-018Steamrelease.ogg): the

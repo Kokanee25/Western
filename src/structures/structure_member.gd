@@ -480,8 +480,9 @@ func _draw_holes() -> void:
 
 
 ## Glass: the pane breaks into shards that fall (and stay), with the sound of it. The member is
-## then broken: no longer drawn or solid.
-func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
+## then broken: no longer drawn or solid. `spare`: bodies the shards don't cut (a man whose own gun
+## hand broke it, #607: they go on with his arm, away from him).
+func shatter(at: Vector3, direction: Vector3, seed := 0, spare: Array[RID] = []) -> void:
 	if broken:
 		return
 	realise()
@@ -503,6 +504,7 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	SpawnQueue.run(self, _make_shards.bind(at, direction, seed, host), shard_count(), SpawnQueue.LATER)
 	# The shards cut whoever's close.
 	var excl: Array[RID] = [get_rid()]
+	excl.append_array(spare)
 	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
 	# (As many panes a tick a building as can sound at once: the rest weren't heard anyway, #538.)
 	var sounds := not get_parent() is Structure or (get_parent() as Structure).under_this_tick(&"glass", GameAudio.t().breaking_limit)
