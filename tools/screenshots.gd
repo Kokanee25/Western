@@ -164,6 +164,7 @@ func _run() -> void:
 	# --variants=A.json,B.json: after the view's own render, each LookPreset file applied in turn
 	# (over the game's light put back first) and the view saved again as <view>_<file's name>.png.
 	var variants := PackedStringArray()
+	var real_at_start: bool = root.get_node(^"Settings").real_look
 	var screen_squares := 0.0
 	var mosaic_steps := 14.0
 	var view_tune := {}
@@ -624,8 +625,10 @@ func _run() -> void:
 			var looks: Variant = load("res://src/render/light_looks.gd")
 			var preset: Variant = load("res://src/debug/look_preset.gd")
 			looks.blend(self, looks.night_share(self))
-			var missed: PackedStringArray = preset.apply(self, preset.load_file(path))
-			for i in 8:
+			var file: Dictionary = preset.load_file(path)
+			var missed: PackedStringArray = preset.apply(self, file)
+			# A file may ask for more frames to settle (the real look's TAA and SDFGI: "frames").
+			for i in int(file.get("frames", 8)):
 				await process_frame
 			# RoomLight (settings.room_light, art #608) casts its lamps' rays over a few ticks.
 			var room = root.find_child("RoomLight", true, false)
@@ -639,6 +642,11 @@ func _run() -> void:
 			viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out, v[0], path.get_file().get_basename()])
 			print("saved ", v[0], " ", path, "" if missed.is_empty() else " (not here: %s)" % ", ".join(missed))
 		if not variants.is_empty():
+			# The real look off again if a variant turned it on (it puts back what it set).
+			if not real_at_start and root.get_node(^"Settings").real_look:
+				root.get_node(^"Settings").set_real_look(false)
+				for i in 4:
+					await process_frame
 			# The game's light back for the next view (a dial no look sets keeps the last variant's).
 			var looks: Variant = load("res://src/render/light_looks.gd")
 			looks.blend(self, looks.night_share(self))

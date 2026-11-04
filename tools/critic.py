@@ -286,14 +286,16 @@ specific; flattery is useless here, and so is harshness for its own sake.
 
 Read the rubric first (its ten tells, the verdict scale and what each answer needs): {rubric}
 
-The game is meant to look like a painted illustration with a bit of square to the paint: that style
-is not itself a tell. Judge whether it looks made with care.
+The game aims at a realistic look, in the direction of Red Dead Redemption 2 (the direction, not
+that level): judge whether it looks made with care, not whether it is photorealistic. Leftover
+squares, posterised colour or a painted, toy-like finish count against it.
 
 The pictures to judge (each on its own; judge each against the rubric, not against each other):
 {images}
 
-For the verdict's top end only ("AA" and "AAA-feeling"), these concept targets show what the game
-is aiming at; do not judge the pictures by how closely they match them:
+For the verdict's top end only ("AA" and "AAA-feeling"), these concept targets show the mood the game
+is aiming at (they were painted before the look went realistic); do not judge the pictures by how
+closely they match them:
 {targets}{refs}
 
 For every FAIL, cut its box to look closely and to cite as evidence (x y w h in the picture's own
@@ -425,11 +427,14 @@ REFS_PROMPT = """
 
 For the same top end, these screenshots of shipped commercial games (official ones, from their
 publishers) show what "AA" and "AAA-feeling" look like in practice. They are a yardstick for care
-(light with shape, air, wear, dressing, life), not for style: a painted look can feel AAA too, and
-these games are not the look this game is after. Open them where they are and look at least at the
+(light with shape, air, wear, dressing, life): the game is headed in their direction but is not
+expected to reach their level, so do not mark a picture down only for being less rich than them. Open them where they are and look at least at the
 ones of the same kind of scene as each picture you judge; never cut them (cut only the pictures to
 judge), and do not judge the pictures by how closely they resemble them:
 {listed}"""
+
+
+RETIRED_REFS = {"dishonored2"}
 
 
 def read_refs(refs_dir):
@@ -448,6 +453,9 @@ def read_refs(refs_dir):
     with open(man) as f:
         pics = (yaml.safe_load(f) or {}).get("pictures", [])
     order = {s: i for i, s in enumerate(["street_noon", "street_golden", "saloon_night", "face", "horizon", "moving"])}
+    # Dishonored 2 out since #615 (realistic over painterly; docs/briefs/red-dead.md): its painterly
+    # look is no longer the direction, so it isn't shown as the top of the scale.
+    pics = [p for p in pics if p.get("game") not in RETIRED_REFS]
     refs = []
     for p in sorted(pics, key=lambda p: (order.get(p.get("scene"), 99), p.get("game", ""), p.get("file", ""))):
         path = os.path.join(d, p["file"])

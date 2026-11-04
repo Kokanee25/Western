@@ -6,8 +6,9 @@
 
 #include "res://src/bodies/shaders/wounds.gdshaderinc"
 #include "res://src/render/tiles.gdshaderinc"
+#include "res://src/render/real_look.gdshaderinc"
 
-uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D albedo_tex : source_color, GRID_FILTER, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
 uniform float uv_scale = 5.0;
 uniform float roughness_value = 0.8;
@@ -206,15 +207,24 @@ void fragment() {
 	vec2 centre = soft ? tile_soft_point(t) : tile_centre(t);
 	vec2 tuv_dx = dFdx(tuv);
 	vec2 tuv_dy = dFdy(tuv);
+#ifndef REAL_LOOK
 	tile_light_at(t, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.05);
+#endif
 	vec3 base;
+#ifdef REAL_LOOK
+	// The real look: the texture as it is, filtered (no tile a colour), lit by the scene's
+	// lights as any surface is (the engine's own light: no painted light, no glow, no steps).
+	bool real = true;
+#else
+	bool real = false;
+#endif
 	if (!use_uv) {
 		base = triplanar(local_pos, local_normal);
 	} else if (soft) {
 		// Soft block edges: the texture's own texels (the face's finer eyes included) blended
 		// only across their edges.
 		base = tile_sample_soft(albedo_tex, tile_soft_point(tuv * tsize), tsize, tuv_dx, tuv_dy).rgb;
-	} else if (per_tile > 1.0) {
+	} else if (per_tile > 1.0 || real) {
 		base = texture(albedo_tex, tuv).rgb;
 	} else {
 		// One colour a tile: its own texel's (ragged tiles move only the edges between them).
@@ -222,7 +232,7 @@ void fragment() {
 	}
 	base *= tint.rgb;
 	float glow = 0.0;
-	if (painted) {
+	if (painted && !real) {
 		base = painted_to_scene(base);
 		glow = self_lit;
 	}
@@ -256,19 +266,26 @@ void fragment() {
 	} else if (reach < 2.2) {
 		base = mix(base * vec3(0.45, 0.12, 0.1), base, (reach - 1.4) / 0.8);
 	}
-	ALBEDO = base * (1.0 - glow) * (painted ? paint_gain : 1.0) * eye_boost;
+	ALBEDO = base * (1.0 - glow) * (painted && !real ? paint_gain : 1.0) * eye_boost;
 	EMISSION = base * glow;
 	if (paint_probe != 0.0) {
 		ALBEDO = vec3(0.0);
 		EMISSION = paint_probe > 0.0 ? base / paint_probe : vec3(0.0);
 	}
-	if (painted) {
+	if (painted && real) {
+		// Skin and cloth: a soft sheen, no painted ambient (the wet eyes keep theirs).
+		if (ROUGHNESS > 0.3) {
+			SPECULAR = 0.3;
+			ROUGHNESS = max(ROUGHNESS, 0.55);
+		}
+	} else if (painted) {
 		AO = paint_ambient;
 		// Painted matt: no sheen of the sky or the room on him (a night sky turned his shirt blue).
 		SPECULAR = 0.0;
 	}
 }
 
+#ifndef REAL_LOOK
 void light() {
 	// Lambert, stepped in gamma space so the steps look even; shadows are in ATTENUATION.
 	float w = uv_rect.z > 0.0 ? paint_wrap : 0.0;
@@ -320,3 +337,4 @@ void light() {
 		SPECULAR_LIGHT += step(0.5, s) * LIGHT_COLOR * 0.35;
 	}
 }
+#endif

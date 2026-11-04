@@ -437,6 +437,17 @@ frozen until Sean names one.
   read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
   `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
   painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
+- **Toward Red Dead** (Sean, 2026-11-04; DESIGN.md §4, plan `docs/briefs/red-dead.md`, roadmap ▶ Now):
+  the look goes realistic in RDR2's direction ("not that level, just that direction").
+  **R0 the real look** (#632, PR #639; `RealLook`, LAYOUT "src/render"): behind
+  `Settings.real_look` (off; look panel N's first group, `--real`, `--look=res://config/looks/real.json`,
+  `screenshots.gd --variants=` the same file renders both looks in one run): world shaders recompiled
+  with `REAL_LOOK` (smooth anisotropic textures, no squares, groove seams, relief from the albedo),
+  FSR2 at native scale, AgX 1.5, SSIL, SDFGI outdoors only, exposure x1.4. Judge (self-test 3/3 with
+  the new style line): no view moves a band (saloon cheap indie, street good indie both ways; rounds
+  `2026-11-04_cheap_r0_before|real`); the saloon's orange wash is the top reason (R1). Waiting on
+  Sean (#641): his F3 and "real" as the default (then the goldens), or another round. Next: R1 (#640).
+  Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
@@ -681,8 +692,14 @@ frozen until Sean names one.
   (`_unreachable`); the gun you can't hold says why (`Physiology.why_cant_hold`); the lab holds you
   as you fell (`PlayerWounds.stays_down`); bridge `look NAME [PART]` (`in_the_way`, `clear_to`), a
   run stops where sent. Third blind playtest `docs/playtests/2026-11-03-gunfight-d-plus-3.md`: won
-  1 of 10. Next: #607 (what you're told when hit, hands through walls, words that don't fit); D+'s
-  difficulty is Sean's (#349).
+  1 of 10. **The third playtest's bugs** (#607, PR #628, `results/2026-11-04_d_plus_bugs_2/`): the
+  wound that matters said first (`PlayerWounds.hit_words`), why the gun won't
+  (`WeaponViewmodel.why_not`), your hit no near miss, a hand through a pane breaks it, one line a
+  man every 1.5 s (`SAY_GAP`, `SAY_ALWAYS`), words that fit (`turn_on`, `duel_with`, `_pick_flight`);
+  200 fights: the fights the same, the bugs down (`bugs.py`). Fourth blind playtest
+  `docs/playtests/2026-11-04-gunfight-d-plus-4.md`: won 1 of 10. Next: #633 (which arm, `look`
+  agreeing with the ball, lines that fit the moment, hands through walls); D+'s difficulty is
+  Sean's (#349).
 - **The train lab, step 1** (2026-11-01, #543, branch `claude/gameplay-train-lab-1`; brief
   `docs/briefs/train.md`, plan #542; `experiments/train_lab/`): `src/train/` (the 1D `TrainSim`,
   `TrackLine` from a curve, boxes on trucks; dials `config/train.tres`, proposed), a 1.5 km test line
@@ -718,12 +735,32 @@ frozen until Sean names one.
   one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
   apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
   `results/2026-11-04_jackknife/`). Next: #542 (step 7).
+- **The trestle lab** (#623, PR #637, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
+  `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
+  trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
+  crossing over a gorge cut to fit: 300 m, 66 m high, 7,692 members at rest (idle within noise;
+  a sound crossing 0.02 ms a tick: the train's weight only goes into weakened panels,
+  `StructureMember.extra_points`). Cuts fall by the load paths (one bent: the deck holds empty, the
+  engine finishes it; the two inner posts: the engine brings the bent down); the train hands off
+  as `fell` (couplers loose in pitch); tall falling towers tipped over across the line (`fold`, a
+  model); `save_dict`/`restore_dict`. #492's gate: no frame over 100 ms at Sean's (worst 77), but
+  the slow spell fails in 12 of 19 runs (0.55-1.1 s, 1.6-3.8 s with the coach full); the train goes
+  over in 5 of 15 (chaotic run to run). Waiting on Sean: #638 (the gate, the scale, sizes,
+  charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
+  measure two games at once; a run's steps on the game's clock, its frames on the wall's.
 - **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
   (recorded sets of layers, `assets/audio/blast/sets.json`), three sets cut from Sean's eight
   Freesound CC0 blasts (`experiments/sound_lab/blast_recordings.json`, the train's `recordings.py
   --manifest=`); set 1 the default; no debris, glass or groan recordings yet. Blind clips
   `experiments/sound_lab/results/2026-11-03_blast_sets/`. Waiting on Sean: his pick and the licences
   (#605). The API fetch (`tools/sounds/`, PR #602) unused: Sean downloads by hand.
+- **Men thrown through the air** (#596 step 3b, branch `claude/issue-596-step-3b-vespwt`;
+  `experiments/physics_lab/results/2026-11-04_thrown/`): `BlastTuning.blast_lift` (0 in the game;
+  proposed 0.8 / 1.1), `Blast.lift_share`, `HumanBody._blast_lift`/`_thrown`/`_step_thrown` (tumble,
+  arms out and knees up in flight, landing blows); 1 m off at 0.8 thrown 3.4 m (top 1.1), at 1.1
+  5.3 m (top 1.8); 3 m off his feet, 6 m unchanged. The throw costs nothing measurable; three men by
+  a stick already fail #492's hitch line on main (their going limp, ~120 ms here). Lab group Z,
+  `--lift`, `thrown.py`, `thrown_films.py`; `bf_blast men=N lift=F`. Waiting on Sean: the setting.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
@@ -772,6 +809,12 @@ frozen until Sean names one.
   14-15 s after the last stick (#590 alone 29-33, before it never), the street 8-10 s (#590 alone 18
   s or never). Lab: `bf_blast awake=S` (the awake rubble's census).
   Tried, not kept: whole piles put to sleep (the contact monitor doesn't see Jolt's islands), damping.
+- **The farmhouse collapsing** (#626, PR #634; `experiments/blast_freeze/results/2026-11-04_collapse_cost/`):
+  rubble reports contacts only while fast (`Structure._report`: Godot's Jolt drops manifold reduction for
+  a body that reports), Jolt's step over the collapse -1/3 (25.5 -> 17 ms here), frames 44 -> 40: not
+  halved; RubbleRest joins without a GPU read back (`MemberMesh.arrays_of`); lower solver steps worsen the
+  falls (not kept). Lab: `bf_blast in=farm world= stand=`, `collapse_runs.sh`, `collapse.py`. Next: Sean's
+  F12 with F3 up (the GPU's 35-50 ms), the next-step issue.
 - **The gang's ride-in frame** (#488, PR #509, build 2789; #510): the riders built at load, waiting
   out of the tree (`TownLife._waiting`); a route asks only the places it needs (`Waypoints.route`,
   a ray before each sweep): the frame 2,942 -> 30 ms here (`tools/gang_frame.gd`); a harmless blast

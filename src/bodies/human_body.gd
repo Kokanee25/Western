@@ -1446,6 +1446,7 @@ func _physics_step(delta: float) -> void:
 		if hat_body != null:
 			_hat_meets_ground()
 		_step_brace(delta)
+		_step_thrown(delta)
 		_rise_watch(delta)
 		_step_tone(delta)
 		_step_dying(delta)
@@ -5143,6 +5144,9 @@ const BRACE_AFTER := 0.05
 const BRACE_SPEED := 0.15
 const BRACE_WAIT := 0.4
 var _brace_t := -1.0
+var _brace_k := BRACE_TONE  ## this brace's hold (thrown out cold: less, `_thrown`)
+var _brace_fade := BRACE_FADE  ## ... and how long it holds (thrown: his time in the air too)
+var _brace_tuck := false  ## thrown: his knees come up too (THROWN_TUCK)
 
 
 ## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
@@ -5151,6 +5155,9 @@ func brace() -> void:
 	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
 		return
 	_brace_t = 0.0
+	_brace_k = BRACE_TONE
+	_brace_fade = BRACE_FADE
+	_brace_tuck = false
 	# Not hurt past knowing it: he'll get up again once he's still (`get_up`).
 	rise_ok = true
 
@@ -5191,11 +5198,14 @@ func _step_brace(delta: float) -> void:
 		elif back and BRACE_CURL.has(key):
 			d = BRACE_CURL[key]
 			j[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (j[2] as Quaternion)
+		elif _brace_tuck and THROWN_TUCK.has(key):
+			d = THROWN_TUCK[key]
+			j[2] = Basis.from_euler(d * (PI / 180.0)).get_rotation_quaternion() * (j[2] as Quaternion)
 		else:
 			continue
-		j[3] = float(j[3]) * BRACE_TONE
+		j[3] = float(j[3]) * _brace_k
 		if j.size() < 6:
-			j.append(BRACE_FADE)
+			j.append(_brace_fade)
 
 
 # --- Going down (tone_style &"dying") -----------------------------------------------------------
@@ -5509,7 +5519,11 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 	# Along the blast's own way out from the charge: no lift added (near the ground the reflected
 	# wave runs along it, and a charge lower than his chest already pushes him up and away).
 	var push := dir * minf(speed, bt.max_throw)
-	var down: bool = wind > bt.knockdown_kpa or speed > bt.knockdown_speed or not torn_off.is_empty()
+	# Thrown up and back (issue #596 step 3b; none at blast_lift 0): the arc and his turn in it.
+	var throw := _blast_lift(at, kg, chest, dir, shield, bt)
+	var lift: Vector3 = throw[1]
+	push = (push + lift).limit_length(bt.max_throw)
+	var down: bool = wind > bt.knockdown_kpa or push.length() > bt.knockdown_speed or not torn_off.is_empty()
 	if down:
 		harm.append("thrown off his feet")
 		# The blast that throws a man takes his hat: a light thing with a wide brim, it goes faster
@@ -5517,11 +5531,15 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 		knock_hat_off(push * 1.5 + Vector3.UP * 1.5)
 	if down and not limp:
 		go_limp(push)
+		if lift.length() > bt.knockdown_speed:
+			_thrown(throw[0], lift)
 	elif limp:
 		for sid: StringName in parts:
 			var rb := parts[sid] as RigidBody3D
 			if rb:
-				rb.linear_velocity += push * clampf(kpa.get(sid, 0.0) / maxf(kpa.get(&"chest", 1.0), 1.0), 0.3, 3.0)
+				rb.linear_velocity += (push - lift) * clampf(kpa.get(sid, 0.0) / maxf(kpa.get(&"chest", 1.0), 1.0), 0.3, 3.0) + lift
+		if lift.length() > bt.knockdown_speed:
+			_turn_whole(throw[0])
 	else:
 		_flinch_from(&"chest", chest, dir, speed * 2.0)
 	for sid in torn_off:
@@ -5529,7 +5547,7 @@ func take_blast(at: Vector3, kg: float, _held := false) -> Dictionary:
 		harm.append("%s torn off" % _place(sid))
 	var info := {"person": self, "person_id": person_id, "segment": &"chest", "hits": [], "position": chest,
 			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm,
-			"kpa": kpa.get(&"chest", 0.0), "knocked_down": down}
+			"kpa": kpa.get(&"chest", 0.0), "knocked_down": down, "lift": lift.length()}
 	# Only what it did to him is a wound and a hit: a blast that only rattles him (everyone in its
 	# reach, ~18 m for a stick on the ground) leaves none, and his fright is OutlawBrain's own
 	# (Events.exploded). Each was logged "hit (chest)" for every townsperson in the street (#488).
@@ -5566,6 +5584,130 @@ func _limb_throw(segment: StringName, at: Vector3, kg: float, shield: float, bt:
 	var r := maxf(centre.distance_to(at), 0.05)
 	var speed := Blast.impulse(kg, r) * shield * area * bt.throw_factor / mass
 	return (centre - at).normalized() * minf(speed, bt.max_throw)
+
+
+# --- Thrown through the air (issue #596 step 3b) ------------------------------------------------
+
+## A blast close to him throws him up and back in an arc, on top of the real push (Sean's taste:
+## BlastTuning.blast_lift, 0 the real push alone). Returns [his turn in the air (rad/s), the lift
+## (m/s, the same on all of him)]. Away from the charge along the ground, and up by lift_angle
+## when the charge is well under his chest (none up from one over him); straight under him, back
+## the way he faces. His turn is drawn from his own seed and where the blast was, on dice of its
+## own: the same blast throws him the same way, and nothing else he draws moves.
+func _blast_lift(at: Vector3, kg: float, chest: Vector3, dir: Vector3, shield: float, bt: BlastTuning) -> Array:
+	if bt.blast_lift <= 0.0:
+		return [Vector3.ZERO, Vector3.ZERO]
+	var r := maxf(chest.distance_to(at), 0.05)
+	var share := Blast.lift_share(kg, r) * shield * bt.blast_lift
+	var speed := share * bt.lift_speed
+	if speed < 0.05:
+		return [Vector3.ZERO, Vector3.ZERO]
+	var flat := Vector3(dir.x, 0.0, dir.z)
+	if flat.length() < 0.2:
+		var c := parts.get(&"chest") as Node3D
+		flat = c.global_basis.z if c else Vector3.BACK  # his back (his front is -z)
+		flat.y = 0.0
+	flat = flat.normalized() if flat.length() > 1e-4 else Vector3.BACK
+	var below := clampf((chest.y - at.y) / r, -1.0, 1.0)
+	var up := clampf(0.25 + 1.5 * below, 0.0, 1.0)
+	var a := deg_to_rad(bt.lift_angle)
+	var way := (flat * cos(a) + Vector3.UP * sin(a) * up).normalized()
+	var dice := RandomNumberGenerator.new()
+	dice.seed = hash(["thrown", rng_seed, Vector3i((at * 1000.0).round())])
+	# Head going away from the charge, feet coming up after it: (up x flat) x up = flat.
+	var tumble := bt.lift_tumble * minf(share, 1.0) * dice.randf_range(1.0 - bt.lift_tumble_spread, 1.0 + bt.lift_tumble_spread)
+	var twist := bt.lift_twist * minf(share, 1.0) * dice.randf_range(-1.0, 1.0)
+	return [Vector3.UP.cross(flat) * tumble + Vector3.UP * twist, way * speed]
+
+
+## Thrown (as he goes limp, `take_blast`): his turn in the air, his arms out and knees up for as
+## long as he's flying (an active ragdoll, not a sack: his own tone, `_step_brace`), and his
+## landing watched (`_step_thrown`).
+const THROWN_TUCK := {&"thigh": Vector3(35, 0, 0), &"shin": Vector3(-55, 0, 0)}
+## Out cold or knocked senseless he still stiffens as he goes (the startle of the blast): this
+## share of the brace's hold. Sean's taste: a limp sack in the air read as a doll.
+const THROWN_OUT_COLD := 0.5
+var _thrown_t := -1.0  ## s since he was thrown (-1: not flying)
+var _thrown_v := {}  ## RigidBody3D -> its velocity last tick
+var _thrown_hit := {}  ## parts already hurt landing
+
+
+func _thrown(spin: Vector3, lift: Vector3) -> void:
+	_turn_whole(spin)
+	_thrown_t = 0.0
+	_thrown_v.clear()
+	_thrown_hit.clear()
+	for sid: StringName in parts:
+		var rb := parts[sid] as RigidBody3D
+		if rb:
+			_thrown_v[rb] = rb.linear_velocity
+	if not physiology.alive or _tone.is_empty():
+		return  # dead, he goes as a dead man does
+	# His time in the air, about: up and back down to where he started.
+	var flight := clampf(2.0 * maxf(lift.y, 0.0) / 9.8, 0.0, 1.2)
+	_brace_t = 0.0
+	_brace_k = BRACE_TONE * (1.0 if physiology.is_conscious() else THROWN_OUT_COLD)
+	_brace_fade = BRACE_FADE + flight
+	_brace_tuck = true
+	_tone_until = maxf(_tone_until, BRACE_AFTER + 2.0 * _brace_fade)
+	if physiology.is_conscious():
+		rise_ok = true  # not hurt past knowing it: he gets up once he's still (`get_up`)
+
+
+## His whole body turning at `spin` (rad/s) about where his weight is: each part's velocity as a
+## rigid body's at that point, so where his weight goes is the throw's alone.
+func _turn_whole(spin: Vector3) -> void:
+	if spin.length() < 1e-3:
+		return
+	var com := Vector3.ZERO
+	var m := 0.0
+	for sid: StringName in parts:
+		var rb := parts[sid] as RigidBody3D
+		if rb:
+			com += rb.global_position * rb.mass
+			m += rb.mass
+	if m <= 0.0:
+		return
+	com /= m
+	for sid: StringName in parts:
+		var rb := parts[sid] as RigidBody3D
+		if rb:
+			rb.linear_velocity += spin.cross(rb.global_position - com)
+			rb.angular_velocity += spin
+
+
+## While he's flying and landing: a part that stops much harder than gravity would takes the blow
+## of it, once (BlastTuning land_*).
+func _step_thrown(delta: float) -> void:
+	if _thrown_t < 0.0:
+		return
+	var bt := Blast.t()
+	_thrown_t += delta
+	if _thrown_t > bt.land_watch:
+		_thrown_t = -1.0
+		_thrown_v.clear()
+		_thrown_hit.clear()
+		return
+	var g := 9.8 * delta
+	for rb: RigidBody3D in _thrown_v.keys():
+		if not is_instance_valid(rb):
+			_thrown_v.erase(rb)
+			continue
+		var was: Vector3 = _thrown_v[rb]
+		var now := rb.linear_velocity
+		_thrown_v[rb] = now
+		if _thrown_hit.has(rb) or _thrown_t < 0.1:
+			continue
+		var dv := ((was + Vector3.DOWN * g) - now).length()
+		if dv < bt.land_dv:
+			continue
+		var joules := 0.5 * rb.mass * dv * dv * bt.land_share
+		if joules < 20.0:
+			continue
+		_thrown_hit[rb] = true
+		if physiology.severed_segments.has(rb.get_meta(&"segment", &"")):
+			continue  # a limb the blast took: not his to feel
+		take_blow(rb, joules, rb.global_position, was.normalized() if was.length() > 0.01 else Vector3.DOWN, rb.mass * dv)
 
 
 func _body_mass() -> float:

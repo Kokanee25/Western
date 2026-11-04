@@ -58,9 +58,9 @@ for a fixed step, `--movie=OUT.avi` records it all with sound through Godot's Mo
 time; its log in `build/bridge/godot.log`); `stop` quits it; `run FILE` does start, the
 file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y Z TX TY TZ [FOV]`
 (a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
-person: `in_the_way`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
+person: `in_the_way`, `a_ball_goes_through`, `from_the_barrel`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
 buildings to a place; lets go in time to stop there, answers once stopped), `press
-ACTION [S]`, `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
@@ -412,6 +412,26 @@ carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0),
 by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
 back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
 
+**The real look** (docs/briefs/red-dead.md R0, Sean 2026-11-04: realistic, in Red Dead's
+direction; `RealLook`, `src/render/real_look.gd(shaderinc)`; `Settings.real_look`, off by default
+and saved; the look panel N's first group, `--real` / `--painted` for a run,
+`--look=res://config/looks/real.json`, `screenshots.gd --variants=res://config/looks/real.json`
+renders both looks in one run; `tests/test_real_look.gd`). No reload: on, it recompiles the world's
+shaders (`RealLook.SHADERS`: texel grid, holes, ground, skin, insides) with `REAL_LOOK` defined after
+`shader_type` (`Shader.code`), so their `GRID_FILTER` samplers are linear, mipmapped and anisotropic,
+no drawn squares, no light per texel, members' seams a soft groove `real_groove` m wide with a
+rounded arris, relief from the albedo's lightness (`real_bump`, Mikkelsen 2010: `real_relief` m)
+until R2's scanned maps, people lit by the engine's own light (no painted light or glow); the tile
+globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport
+anti-aliased by FSR2 at native scale (sharper than Godot's TAA + MSAA, which read soft), 16x
+anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`; `view.scaling_3d_scale` under 1 upscales); the environment's dials
+from `config/looks/real_dials.json` (AgX, SSIL, SDFGI, the fog taking GI), every one put back off;
+exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
+own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
+`real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
+what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
+assume ACES under AgX.
+
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
 `experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
@@ -742,6 +762,17 @@ it all away and puts the probe and haze back.
   sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
   islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
   touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
+  **What rubble reports** (#626): a piece reports its contacts (`max_contacts_reported`
+  `REPORTED`, its `body_entered` to `_on_rubble_hit`) only while it's faster than `REPORT_ON` x
+  the harmless speed (off under `REPORT_OFF` x; `Structure._report`, from `_physics_step`), or
+  over a dug tile (`Ground.rescue` reads its contacts). Godot's JoltBody3D turns Jolt's manifold
+  reduction off for any body that reports, and changing it wakes the body (so only awake pieces
+  are changed); turned on, its first reports are what it already touched (`reports_from`).
+  `-- --rubble-contacts=always|off` the lab's before and none. **No read back**: a mesh's arrays
+  come from `MemberMesh.arrays_of` (kept on the meshes `MemberMesh.made` makes, a primitive's made
+  again, any other read once and kept) and `MemberMesh.placed` (append_from + deindex without the
+  renderer): `surface_get_arrays` on Vulkan stalls for every frame in flight
+  (`tools/readback_cost.gd`); RubbleRest's `_part` and `Structure._member_inputs` use them.
   **Particles**: a new GPUParticles3D starts emitting, so setting `emitting = true` on it again
   cancelled `finished` and one-shot bursts never freed (225 alive in a blaze, #459): every
   one-shot sets `emitting = false` first (ImpactEffects, Blood, BlastCloud, FireFX.steam, the
@@ -1308,6 +1339,31 @@ joints, riders thrown by their car's jolt, cars broken into sections by `TrainMo
 `to_dict`/`restore`). Prof timer `train` includes the lookout (`cost.lookout_us`). The lab:
 `train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`; `derail_runs.py`.
 
+The trestle lab (#623; `experiments/trestle_lab/` README, brief `docs/briefs/trestle.md`): a route's
+`"crossings"` (`TrainRoute.crossings`, `TrackLine.crossings`) are built as `Trestle`s (`src/train/
+trestle.gd`, a `TrackChunk`: its ties and rails the line's; `TrackLine.trestles`, `trestle_at`,
+`on_crossing`: no ballast or fill under it), a timber viaduct from the ground under each panel
+point (`line.ground_y`): stone piers, mud sills, stories of posts counted down from the cap (outer
+posts battered, plumb inner and middle lines), intermediate sills, X sway braces, girts and
+longitudinal braces bent to bent, two-panel stringers in two chords a rail (joints broken), stone
+abutments, guard timbers; dials `TrestleTuning` (`config/trestle.tres`, proposed). Links set as
+framed (`_framed`, `infer_supports`; stack order by depth to the ground). The train's weight
+(`carry`, every `load_every` ticks): each axle's share straight onto the stringer chords under its
+rail (`StructureMember.extra_points`), only in the weakened panels (`only_weak`, `_weak_panels`:
+next to a bent with anything damaged, or over a damaged stringer; a sound deck can't fail under
+the engine: `test_a_sound_deck_carries_the_train_anywhere`), settled at once round by round
+(`_settle_load`; through the fire's queue it would throw its job away every update), not going
+down into intact bents (`Structure.closure_stop`, `StructuralAnalysis.begin_update(..., stop)`);
+the wreck's cars on the deck weigh on it too. `Train._check_bridge`: any truck over a broken
+stretch on a bridge leaves the rails (kind `fell`: `TrainWreck` gives no derail kick, and doesn't
+plough in the air or off the deck), its couplers loose in pitch (a car hangs from its coupler).
+A rail with no tie under it for `rail_span` under a wheel tears off (`_rails_give`). Falling pieces
+of it fall 2 cm smaller (framed face to face they wedged), a tall one is tipped over across the line
+`fold_after` s after it starts to fall (`_topple`, a model: it would stand on its stubs), and they
+break up into sections of at most `section_members` (`_break_up`); its rubble isn't "lost" till 10
+m under the gorge's floor (`Structure.lost_below`). `save_dict`/`restore_dict` keep its wreck by member path and the
+crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`, `trestle_matrix`.
+
 ## src/weapons
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
@@ -1338,6 +1394,15 @@ joints, riders thrown by their car's jolt, cars broken into sections by `TrainMo
 
 ## src/blast
 
+- **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
+  the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
+  `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`
+  from a charge under his chest; `HumanBody._blast_lift` (its own dice: his seed and the blast's
+  place) gives a tumble about his weight's centre (`_turn_whole`), `_thrown` holds his arms out and
+  knees up for the flight (the brace's tone, `THROWN_TUCK`; out cold at half), and `_step_thrown`
+  hurts what lands hard (`take_blow`, `land_*`). No new bodies. Lab: the ragdoll lab's group Z,
+  `--lift=F`, `thrown.py`; the blast-freeze lab's `bf_blast men=N men_r=M lift=F`; tests
+  `test_blast_thrown.gd`.
 - **Native sums** (#538): `Blast.native` (the plugin's `BlastCore`, made by ClassDB; null on the web
   or with `-- --blast-core=script`) takes `face_impulse`'s loop over the samples and
   `torn_stretch`'s halving search; the member's measures stay the script's. The same sums in the

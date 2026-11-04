@@ -275,10 +275,15 @@ func _physics_process(_delta: float) -> void:
 			break
 	Prof.stop(&"rr_join", t_j)
 	var t_b := Prof.start()
-	for cell: Vector3i in _pending.keys():
-		if now - float(_built_at.get(cell, -INF)) >= BUILD_GAP:
-			_build(cell)
-			_built_at[cell] = now
+	# One cell's join set going at a time, one started a tick: a collapse lands rubble in a dozen
+	# cells at once, and their joins all on the pool together held the people's tick (PeopleTick
+	# waits for its own tasks on the same pool) up to 300 ms on one frame (the trestle lab, #623).
+	if _jobs.is_empty():
+		for cell: Vector3i in _pending.keys():
+			if now - float(_built_at.get(cell, -INF)) >= BUILD_GAP:
+				_build(cell)
+				_built_at[cell] = now
+				break
 	Prof.stop(&"rr_build", t_b)
 	for cell: Vector3i in _spread.keys():
 		_built(cell)
@@ -393,10 +398,8 @@ func _part(mi: MeshInstance3D, inv: Transform3D) -> Variant:
 			return _no(NEVER, "overlay")
 		if float((over as ShaderMaterial).get_shader_parameter(&"glow")) > 0.0:
 			return _no(LATER, "alight")
-	var st := SurfaceTool.new()
-	st.append_from(mesh, 0, inv * mi.global_transform)
-	st.deindex()
-	var arrays := st.commit_to_arrays()
+	# (from the arrays it was made of: reading them back from the renderer waits on the GPU, #626)
+	var arrays := MemberMesh.placed(MemberMesh.arrays_of(mesh), inv * mi.global_transform)
 	if arrays.is_empty() or arrays[Mesh.ARRAY_VERTEX] == null:
 		return _no(NEVER, "no vertices")
 	for slot: int in NOT_CHANNELS:

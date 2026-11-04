@@ -40,6 +40,8 @@ var members := {}
 var _order: Array[StructureMember] = []
 ## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
 const LOST_BELOW := -5.0
+## Rubble below this (world y) has gone through the ground (a viaduct over a gorge lowers it).
+var lost_below := LOST_BELOW
 ## Each awake piece of rubble is looked at every this many ticks for having gone under the dug
 ## ground (Ground.rescue, #584).
 const RESCUE_TICKS := 15
@@ -56,6 +58,9 @@ var last_analysis: StructuralAnalysis
 ## Members changed since last_analysis (id -> true): broken, holed, charred, loaded, added, or the
 ## ground gone from under them. `start_analysis` works these out again, and what their loads reach.
 var _dirty := {}
+## Members an update works out again without going down to their supports (StructuralAnalysis.
+## begin_update's `stop`): empty but while a Trestle's train loads move along its deck.
+var closure_stop := {}
 ## last_analysis is of this support graph (false once the graph is worked out anew).
 var _analysis_valid := false
 ## Analyses carried over and brought up to date (StructuralAnalysis.begin_update); off, every one
@@ -855,7 +860,7 @@ func _member_inputs(list: Array) -> Variant:
 		if arrays == null:
 			if _mesh_arrays.size() > MESH_ARRAYS_KEPT:
 				_mesh_arrays.clear()
-			arrays = mi.mesh.surface_get_arrays(0)
+			arrays = MemberMesh.arrays_of(mi.mesh)  # (kept from its making: no read back, #626)
 			_mesh_arrays[mi.mesh] = arrays
 		var has := _channels(arrays)
 		if has < 0 or (shape >= 0 and has != shape):
@@ -1229,7 +1234,7 @@ func start_analysis(full := false) -> StructuralAnalysis:
 	wait_analysis()
 	analysis_epoch += 1
 	if not full and incremental and _analysis_valid and last_analysis != null \
-			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty):
+			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty, closure_stop):
 		_dirty.clear()
 		return last_analysis
 	var t := Prof.start()
@@ -1713,14 +1718,33 @@ static func has_solid_shape(body: Node) -> bool:
 static var _rubble_material: PhysicsMaterial
 
 
+## A piece reports what it touches (its `body_entered`: _on_rubble_hit) only while it's moving fast
+## enough to matter: faster than this share of the tuning's harmless_speed, on; slower than
+## REPORT_OFF of it, off (#626). Jolt's bodies that report contacts lose its manifold reduction
+## (Godot's JoltBody3D), so every face against a face is a contact of its own: the farmhouse's
+## collapse spent ~26 ms of Jolt's step a tick on ~500 pieces settling, and its piles jostled longer
+## before they slept. Over a dug tile a piece reports anyway (Ground.rescue reads its contacts).
+const REPORT_ON := 0.5
+const REPORT_OFF := 0.35
+const REPORTED := 4
+
+## The collapse-cost lab's switches (#626; measuring only): `-- --rubble-ccd=off` no piece swept,
+## `-- --rubble-contacts=off` no piece reports what it touches, `-- --rubble-contacts=always` every
+## piece does, as before #626.
+static var _lab_args := OS.get_cmdline_user_args()
+static var lab_ccd := not "--rubble-ccd=off" in _lab_args
+static var lab_contacts := not "--rubble-contacts=off" in _lab_args
+static var lab_contacts_always := "--rubble-contacts=always" in _lab_args
+
+
 func _new_rubble(ids: Array[StringName], enter := true) -> RigidBody3D:
 	var rb := RigidBody3D.new()
 	rb.name = "Rubble"
 	rb.collision_layer = Layers.WORLD
 	rb.collision_mask = Layers.WORLD | Layers.PEOPLE | Layers.BODY_PARTS
-	rb.contact_monitor = true
-	rb.max_contacts_reported = 4
-	rb.continuous_cd = true
+	rb.contact_monitor = lab_contacts
+	rb.max_contacts_reported = REPORTED if lab_contacts else 0  # (a new piece is falling: _report)
+	rb.continuous_cd = lab_ccd
 	rb.set_meta(&"members", ids)
 	if _rubble_material == null:
 		_rubble_material = PhysicsMaterial.new()
@@ -1760,10 +1784,18 @@ func _physics_step(delta: float) -> void:
 	var lost: Array[RigidBody3D] = []
 	var ground := _dug_ground()
 	var tick := Engine.get_physics_frames()
+	var on2 := tuning.harmless_speed * REPORT_ON
+	on2 *= on2
+	var off2 := tuning.harmless_speed * REPORT_OFF
+	off2 *= off2
+	var gated := lab_contacts and not lab_contacts_always
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:
-			rb.set_meta(&"v", rb.linear_velocity)
-			if rb.global_position.y < LOST_BELOW:
+			var v := rb.linear_velocity
+			rb.set_meta(&"v", v)
+			if gated and not rb.freeze:
+				_report(rb, v.length_squared(), on2, off2, ground, tick)
+			if rb.global_position.y < lost_below:
 				lost.append(rb)
 			elif ground and (tick + rb.get_instance_id()) % RESCUE_TICKS == 0:
 				ground.rescue(rb)
@@ -1772,6 +1804,27 @@ func _physics_step(delta: float) -> void:
 		push_warning("rubble %s fell through the ground at %s; removed" % [rb.get_meta(&"members", []), rb.global_position])
 		rubble.erase(rb)
 		rb.queue_free()
+
+
+## Its contacts reported while it's fast (or over dug ground), not while it settles (REPORT_ON).
+## Changing it wakes the body (Godot's JoltBody3D), so it's only changed on an awake one, and with
+## a gap between on and off so a piece at the line doesn't flicker. Turned on, its first reports
+## are what it already touched: `_on_rubble_hit` lets them pass (`reports_from`).
+func _report(rb: RigidBody3D, speed2: float, on2: float, off2: float, ground: Ground, tick: int) -> void:
+	var reporting := rb.max_contacts_reported > 0
+	var want := reporting
+	if speed2 > on2:
+		want = true
+	elif speed2 < off2:
+		want = false
+	if not want and ground:
+		var p := rb.global_position
+		want = ground.tiles.has(ground.key_at(p.x, p.z))
+	if want == reporting:
+		return
+	rb.max_contacts_reported = REPORTED if want else 0
+	if want:
+		rb.set_meta(&"reports_from", tick)
 
 
 ## The ground, if any of it's been dug (its dug tiles are a height field a piece can be pressed
@@ -1795,6 +1848,8 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 	var speed := v.length()
 	if speed < tuning.harmless_speed:
 		return
+	if Engine.get_physics_frames() - int(rb.get_meta(&"reports_from", -10)) <= 1:
+		return  # (just turned on: what it was already touching, not a landing: _report)
 	if other is RigidBody3D:
 		RubbleSleep.let_go(other)  # (a piece held still that this lands on: its own again, #585)
 	var energy := 0.5 * rb.mass * speed * speed

@@ -17,6 +17,9 @@ extends RefCounted
 ##     "profile": {"vertical_curve": 60,                  (grades in %, + rising toward the end)
 ##                 "grades": [[0, 0], [750, 2.5], [1050, -2.5], [1350, 0]]},
 ##     "marks": {"depot": 120, "mine": 1440},             named points, m along the line
+##     "crossings": [{"id": "gorge", "kind": "trestle", "from": 600, "to": 900}],
+##                                                        bridges, m along the line (the trestle lab, #623):
+##                                                        the line's Trestle over that stretch, no fill under it
 ##     "height": 0.78                                     the rail top above the ground at the start (optional)
 ##   }
 ##
@@ -139,6 +142,15 @@ func marks() -> Dictionary:
 	return out
 
 
+## Named crossings (bridges): [{id, kind, from, to}] in metres along the line as laid.
+func crossings() -> Array:
+	var out := []
+	for c: Dictionary in data.get("crossings", []):
+		out.append({"id": str(c.get("id", "crossing%d" % out.size())), "kind": str(c.get("kind", "trestle")),
+			"from": float(c.from), "to": float(c.to)})
+	return out
+
+
 ## The line laid out (not drawn): a TrackLine with its marks along the drawn curve.
 func make_line(t: TrainTuning) -> TrackLine:
 	var line := TrackLine.new()
@@ -158,4 +170,8 @@ func make_line(t: TrainTuning) -> TrackLine:
 	for sec: Dictionary in sections():
 		secs.append({"id": sec.id, "from_s": line.along(float(sec.from)), "to_s": line.along(float(sec.from) + float(sec.length))})
 	line.sections = secs
+	var cs := []
+	for c: Dictionary in crossings():
+		cs.append({"id": c.id, "kind": c.kind, "from_s": line.along(float(c.from)), "to_s": line.along(float(c.to))})
+	line.crossings = cs
 	return line

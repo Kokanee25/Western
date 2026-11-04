@@ -133,8 +133,9 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 		return {"segment": &"", "exit": null, "energy_out": energy}
 	var hits: Array = []
 	var segs: Array = []
+	var new_bleeds: Array = []
 	for tr: Dictionary in res.traces:
-		physiology.apply_trace(tr)
+		new_bleeds.append_array(physiology.apply_trace(tr))
 		segs.append(tr.segment)
 		for h: Dictionary in tr.hits:
 			hits.append({"id": h.id, "effect": h.effect})
@@ -152,7 +153,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var info := {"person": player, "person_id": &"player", "segment": first.segment, "hits": hits,
 			"position": xf * entry_local, "direction": dir, "exit": exit_world, "lodged": res.exit == null}
 	Events.body_hit.emit(info)
-	say(_hit_words(segs, hits), 3.5)
+	say(hit_words(res.traces, new_bleeds), 3.5)
 	return {"segment": first.segment, "exit": exit_world, "energy_out": res.energy_out, "hits": hits}
 
 
@@ -304,16 +305,137 @@ func _place(seg: StringName) -> String:
 	return String(seg).replace("_r", "").replace("_l", "").replace("_", " ")
 
 
-func _hit_words(segs: Array, hits: Array) -> String:
-	var where := String(segs[0]).replace("_r", "").replace("_l", "").replace("_", " ")
-	for h: Dictionary in hits:
-		if h.effect == &"broken":
-			return "Hit in the %s. Something broke." % where
-		if h.effect == &"cut":
-			return "Hit in the %s. It's pumping." % where
-		if h.effect == &"severed":
-			return "Your %s finger's gone." % String(h.id).get_slice("_", 0)
-	return "Hit in the %s." % where
+## Bones by what you'd call them ("Your upper arm's broken", as `Physiology.why_cant_hold` says it).
+const BONE_WORDS := {"humerus": "upper arm", "radius": "forearm", "ulna": "forearm", "hand_bones": "hand",
+		"femur": "thigh", "tibia": "shin", "fibula": "shin", "patella": "kneecap", "foot_bones": "foot",
+		"pelvis_bone": "hip", "sacrum": "hip", "clavicle": "collarbone", "scapula": "shoulder blade",
+		"sternum": "breastbone", "skull": "skull", "jaw": "jaw", "ribs": "ribs",
+		"cervical_spine": "neck", "thoracic_spine": "back", "lumbar_spine": "back"}
+## An artery or vein outside him this fast or more pumps (ml/s; as `Physiology.describe`'s
+## "blood pumping out bright").
+const PUMPING := 6.0
+
+
+## What you're told when a ball goes into you (#607): the wound that matters, not only the first
+## part it went through. Each thing it did is ranked (a killing wound, a bleed pumping out, inside,
+## the gut, a lung, a broken bone, the cord, a lost part); the worst two are said, the worst's part
+## named first. How it bleeds is read from the bleeds it made (`bleed_ids`, the physiology's).
+func hit_words(traces: Array, bleed_ids: Array) -> String:
+	var found: Array = []  # [rank, segment, words]
+	for tr: Dictionary in traces:
+		var seg: StringName = tr.segment
+		for h: Dictionary in tr.hits:
+			var w := _wound_words(h, seg)
+			if not w.is_empty():
+				found.append([w[0], seg, w[1]])
+	# The bleeds as the physiology has them: outside or inside, and how fast.
+	var out_rate := {}
+	var inside := false
+	for i: int in bleed_ids:
+		if i >= physiology.bleeds.size():
+			continue
+		var b: Dictionary = physiology.bleeds[i]
+		if b.kind == &"internal":
+			# (a broken bone bleeding into the flesh round it is the bone's, said with it)
+			inside = inside or not physiology.broken.has(b.source)
+		elif b.kind == &"artery" or b.kind == &"vein":
+			out_rate[b.segment] = maxf(float(out_rate.get(b.segment, 0.0)), float(b.rate))
+	for seg: StringName in out_rate:
+		var r: float = out_rate[seg]
+		found.append([9 if r >= PUMPING else 5, seg, "It's pumping." if r >= PUMPING else "It's bleeding steady."])
+	if inside and not found.any(func(f: Array) -> bool: return f[0] >= 10):
+		var seg_in: StringName = traces[0].segment
+		for i: int in bleed_ids:
+			if i < physiology.bleeds.size() and physiology.bleeds[i].kind == &"internal" and not physiology.broken.has(physiology.bleeds[i].source):
+				seg_in = physiology.bleeds[i].segment
+				break
+		found.append([8, seg_in, "You're bleeding inside."])
+	# Every finger it took in one line (#607: four gone and told of two, the rest past the second line).
+	var fingers: PackedStringArray = []
+	var finger_seg := &""
+	for f: Array in found.duplicate():
+		if String(f[2]).begins_with("finger:"):
+			fingers.append(String(f[2]).get_slice(":", 1))
+			finger_seg = f[1]
+			found.erase(f)
+	if not fingers.is_empty():
+		found.append([4, finger_seg, _fingers_words(fingers)])
+	# The bone that takes your gun is said, whatever else it did (#607: disarmed by "a broken
+	# collarbone" never told of).
+	var gun_why := physiology.why_cant_hold("r")
+	var disarms := ""
+	for f: Array in found:
+		if String(f[2]).begins_with("Your ") and String(f[2]).ends_with("'s broken.") and gun_why.contains(String(f[2]).trim_prefix("Your ").trim_suffix("'s broken.")):
+			disarms = f[2]
+	found.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+	var places: PackedStringArray = []
+	if not found.is_empty():
+		places.append(_place(found[0][1]))
+	for tr: Dictionary in traces:
+		var p := _place(tr.segment)
+		if not places.has(p) and places.size() < 2:
+			places.append(p)
+	var text := "Hit in the %s." % " and the ".join(places)
+	var said: PackedStringArray = []
+	for f: Array in found:
+		if said.size() >= 2:
+			break
+		if not said.has(f[2]):
+			said.append(f[2])
+	if disarms != "" and not said.has(disarms):
+		said.append(disarms)
+	return text if said.is_empty() else "%s %s" % [text, " ".join(said)]
+
+
+## "Your thumb's gone.", "Your ring and little fingers are gone.", "Your thumb and index finger are gone."
+static func _fingers_words(fingers: PackedStringArray) -> String:
+	var thumb := fingers.has("thumb")
+	var rest: PackedStringArray = []
+	for f in fingers:
+		if f != "thumb" and not rest.has(f):
+			rest.append(f)
+	var named := " and ".join(rest) if rest.size() <= 2 else ", ".join(rest.slice(0, -1)) + " and " + rest[-1]
+	if rest.is_empty():
+		return "Your thumb's gone."
+	var what := "%s finger%s" % [named, "s" if rest.size() > 1 else ""]
+	if thumb:
+		return "Your thumb and %s are gone." % what
+	return "Your %s are gone." % what if rest.size() > 1 else "Your %s's gone." % what
+
+
+## One thing a ball did inside you, as [rank, words] (none: [] ).
+func _wound_words(h: Dictionary, seg: StringName) -> Array:
+	var id := String(h.id)
+	var st := anatomy.structure(h.id)
+	match h.kind:
+		&"organ":
+			match String(st.get(&"organ", "")):
+				"heart": return [10, "It's your heart."]
+				"brain": return [10, "It's in your head."]
+				"lung": return [7, "A lung's holed."]
+				"gut": return [7, "You're gut-shot."]
+				"gullet": return [7, "Your throat's torn."]  # (#607: a neck hit called "gut-shot")
+				"airway": return [7, "There's blood in your throat."]
+				"eye": return [7, "An eye's gone."]
+				"liver", "spleen", "kidney": return [6, "Something inside's torn."]
+		&"artery", &"vein":
+			if id in ["aorta", "vena_cava", "abdominal_aorta", "abdominal_vena_cava"]:
+				return [10, "You're bleeding inside, bad."]
+		&"nerve":
+			if st.has(&"cord"):
+				return [8, "You can't feel your legs." if String(st.get(&"cord", "")) != "cervical" else "You can't move."]
+		&"bone":
+			if h.effect == &"broken":
+				for k: String in BONE_WORDS:
+					if id.begins_with(k):
+						var w: String = BONE_WORDS[k]
+						return [6, "Your ribs are broken." if w == "ribs" else "Your %s's broken." % w]
+				return [6, "Something broke."]
+		&"finger":
+			return [4, "finger:" + id.get_slice("_", 0)]  # (all of a ball's fingers said as one: hit_words)
+		&"appendage":
+			return [4, "Your nose is shot off." if id == "nose" else "Your ear's shot off."]
+	return []
 
 
 func _physics_process(delta: float) -> void:
@@ -330,10 +452,20 @@ func _tell_gun() -> void:
 		_gun_why = ""
 		return
 	var why := w.why_not_usable() if w.armed else ""
+	var now := _throb_t  # (game time)
+	if why == "" and w.armed and player.input_enabled:
+		# A reload or a shot that does nothing: out of cartridges, the gun put away (#607).
+		for a: StringName in [&"reload", &"fire"]:
+			if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+				var not_now := w.why_not(a)
+				if not_now != "" and (not_now != _gun_why or now - _gun_told > 1.0):
+					_gun_why = not_now
+					_gun_told = now
+					say(not_now.substr(0, 1).to_upper() + not_now.substr(1) + ".", 2.5)
+				return
 	if why == "" or why == "your hands are pressing on a wound":
 		_gun_why = ""  # (that one you're doing yourself: nothing to tell)
 		return
-	var now := _throb_t  # (game time)
 	var tried := false
 	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
 		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
@@ -459,7 +591,8 @@ func _drip(dt: float) -> void:
 
 ## Hold the tend button: press on the worst bleeding; hold on and a belt goes round a limb.
 func _tend(delta: float) -> void:
-	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds")
+	# (Out cold you can't: #607, "Pressing on the wound..." on the screen of a man blacked out.)
+	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds") and physiology.is_conscious()
 	if not held or physiology.bleeds.is_empty():
 		if tending > 0.0:
 			for b in physiology.bleeds:
@@ -634,4 +767,10 @@ func _name_of(who: Node) -> String:
 func describe() -> String:
 	return "You: blood %d%%, bleeding %.1f ml/s, pain %.2f, adrenaline %.2f, breath %.2f. %s" % [
 			roundi((1.0 - physiology.blood_loss()) * 100.0), physiology.total_bleed_rate(),
-			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), physiology.describe()]
+			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), _yours(physiology.describe())]
+
+
+## The physiology's words are a man's from outside ("blood in his throat"): yours are yours (#607).
+static func _yours(text: String) -> String:
+	var re := RegEx.create_from_string("\\bhis\\b")
+	return re.sub(text, "your", true)

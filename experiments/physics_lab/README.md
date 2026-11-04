@@ -304,6 +304,15 @@ Frame time is the whole frame (his body's script, physiology and pools included)
   measure.
 
 
+**Since 2026-11-04, group Z** (issue #596 step 3b, men thrown through the air;
+`results/2026-11-04_thrown/`): a stick on the floor (0.36 kg as it hits, the ground counted) 1, 3
+and 6 m in front of him, 1 m behind, off the porch, over the hitching rail, onto a saloon table,
+through the game saloon's balcony rail, and three men from one stick (`cause` `"one": true`: one
+charge for all the men, `from` in the first man's frame). `--lift=F` (or a scenario's `lift`) sets
+`BlastTuning.blast_lift`; `thrown.py ROOT...` prints each one's lift, the arc's top, where he first
+lies and ends, what broke, the blast's harm and the landing's blows (`blow` events, the first man's).
+
+
 ## Limitations
 
 - Headless numbers aren't visual verification: the footage is what counts. Lavapipe renders only

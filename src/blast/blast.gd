@@ -46,6 +46,15 @@ static func impulse(kg: float, r: float) -> float:
 	return scaled * w3 * 100.0  # bar·ms -> Pa·s
 
 
+## The share of BlastTuning.lift_speed a man `r` m from `kg` is thrown with (issue #596 step 3b):
+## 1 right by it, a half at lift_reach x cbrt(kg), nearly none two or three times further. Not a
+## physical law: the dial Sean asked for, over the real push (`impulse`).
+static func lift_share(kg: float, r: float) -> float:
+	var tn := t()
+	var z := maxf(r, 0.02) / pow(maxf(kg, 1e-4), 1.0 / 3.0)
+	return 1.0 / (1.0 + pow(z / maxf(tn.lift_reach, 0.01), tn.lift_falloff))
+
+
 ## How much harder a shock hits a face square to it than it passes by (the reflection
 ## coefficient): 2 for a weak shock, rising toward 8 for a strong one, as the gas piles up against
 ## the face (normal reflection of an ideal-gas shock, Rankine-Hugoniot with gamma 1.4:

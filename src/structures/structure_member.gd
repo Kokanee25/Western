@@ -33,6 +33,17 @@ const TIERS := {
 	&"baluster": 5,
 	&"glass": 6,
 	&"door": 6,
+	## The timber viaduct's (Trestle, the trestle lab #623): the stone pier a bent stands on, the
+	## mud and intermediate sills, the cap, sway and longitudinal braces, girts, stringers, guard
+	## timbers. Its links are set from the bents, not searched: these tiers are for anything that
+	## asks (a cut piece relinked).
+	&"pier": 0,
+	&"bent_sill": 1,
+	&"cap": 2,
+	&"girt": 2,
+	&"brace": 2,
+	&"stringer": 3,
+	&"guard": 5,
 }
 
 @export var member_id: StringName
@@ -56,6 +67,10 @@ signal damaged
 
 ## Weight resting on this member that isn't a member (goods on a shelf, a man on the porch), N.
 @export var extra_load := 0.0
+## Weights resting on it at points along it (a train's axles on a rail: the trestle lab, #623):
+## Vector2(t along its length from its middle, N) each. Counted with `extra_load`; a lying member
+## bends under each where it is (`extra_load` bears at its middle).
+var extra_points := PackedVector2Array()
 
 var supported_by: Array[StringName] = []
 ## The members resting on it (the other way up; set with supported_by by Structure._link), for
@@ -465,8 +480,9 @@ func _draw_holes() -> void:
 
 
 ## Glass: the pane breaks into shards that fall (and stay), with the sound of it. The member is
-## then broken: no longer drawn or solid.
-func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
+## then broken: no longer drawn or solid. `spare`: bodies the shards don't cut (a man whose own gun
+## hand broke it, #607: they go on with his arm, away from him).
+func shatter(at: Vector3, direction: Vector3, seed := 0, spare: Array[RID] = []) -> void:
 	if broken:
 		return
 	realise()
@@ -488,6 +504,7 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 	SpawnQueue.run(self, _make_shards.bind(at, direction, seed, host), shard_count(), SpawnQueue.LATER)
 	# The shards cut whoever's close.
 	var excl: Array[RID] = [get_rid()]
+	excl.append_array(spare)
 	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
 	# (As many panes a tick a building as can sound at once: the rest weren't heard anyway, #538.)
 	var sounds := not get_parent() is Structure or (get_parent() as Structure).under_this_tick(&"glass", GameAudio.t().breaking_limit)
@@ -645,7 +662,7 @@ func apply_voxel_mesh(m: Array) -> void:
 	var mi := pieces[0][0] as MeshInstance3D
 	var mesh := ArrayMesh.new()
 	if not (m[0] as Array).is_empty():
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, m[0])
+		mesh = MemberMesh.made(m[0])  # (its arrays kept: RubbleRest joins it without a read back)
 	mi.mesh = mesh
 	var inner := mi.get_node_or_null(^"Carved") as MeshInstance3D
 	if inner == null:

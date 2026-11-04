@@ -112,6 +112,8 @@ func _physics_process(delta: float) -> void:
 	var u := Time.get_ticks_usec()
 	if wreck:
 		wreck.tick(delta)
+		for tr in track.trestles:
+			tr.carry(self)  # (the wreck's cars still on the deck weigh on it)
 		Prof.stop(&"train", t0)
 		return
 	sim.step(delta)
@@ -121,16 +123,32 @@ func _physics_process(delta: float) -> void:
 	var u2 := Time.get_ticks_usec()
 	cost.solids_us = cost.get("solids_us", 0) + u2 - u1
 	if absf(sim.v) > 0.05:
+		var t_s := Prof.start()
 		_strike()
+		Prof.stop(&"train_strike", t_s)
 	cost.strike_us = cost.get("strike_us", 0) + Time.get_ticks_usec() - u2
 	var events := sim.take_events()
 	for e in events:
 		coupler.emit(e)
 	riding = _riding()
+	if not track.trestles.is_empty() and derail.is_empty():
+		var ub := Time.get_ticks_usec()
+		var t_b := Prof.start()
+		for tr in track.trestles:
+			tr.carry(self)
+		Prof.stop(&"train_carry", t_b)
+		var t_c := Prof.start()
+		_check_bridge()
+		Prof.stop(&"train_bridge", t_c)
+		cost.bridge_us = cost.get("bridge_us", 0) + Time.get_ticks_usec() - ub
 	if derail.is_empty():
 		var ul := Time.get_ticks_usec()
+		var t_l := Prof.start()
 		lookout.tick()
+		Prof.stop(&"train_lookout", t_l)
+		var t_r := Prof.start()
 		_check_rails()
+		Prof.stop(&"train_rails", t_r)
 		cost.lookout_us = cost.get("lookout_us", 0) + Time.get_ticks_usec() - ul
 	if record:
 		rows.append(row())
@@ -173,8 +191,30 @@ func _check_rails() -> void:
 			&"blocked":
 				go = float(w.get("kg", 0.0)) >= tuning.block_derail_kg and absf(sim.v) > tuning.bent_pass_speed
 		if go:
+			if w.kind == &"broken" and track.trestle_at(lead) != null:
+				w = w.duplicate()
+				w.kind = &"fell"  # the deck gone from under it on a bridge: no derail kick
 			leave_rails(w, lead)
 			return
+
+
+## On a bridge (a Trestle, the trestle lab #623) the deck can go from under any truck, not just
+## the leading wheels: the first truck over a broken stretch there takes the train off the rails
+## (kind `fell`: no derail kick, the cars over the gap go down, the couplers pull the rest after).
+func _check_bridge() -> void:
+	for i in sim.cars.size():
+		for w in 2:
+			var s := sim.truck_s(i, w)
+			var tr := track.trestle_at(s)
+			if tr == null:
+				continue
+			var st := tr.gone_under(s)
+			if not st.is_empty():
+				var what := st.duplicate()
+				what.kind = &"fell"
+				what.car = i
+				leave_rails(what, s)
+				return
 
 
 ## Off the rails at `at` (the leading wheels' place), over `what` (a TrackState stretch).

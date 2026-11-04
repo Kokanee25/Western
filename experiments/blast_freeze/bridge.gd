@@ -11,7 +11,7 @@ const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
 const FarmLab := preload("res://experiments/farmhouse/bridge.gd")
 
 const HELP := {
-	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585)",
+	"bf_blast": "bf_blast [at=X,Y,Z] [fire=N] [burn=S] [fuse=S] [seconds=S] [stall=MS] [player=X,Y,Z] [census=1] [in=street] [sticks=N] [gap=S] [spread=M] [awake=S] [world=X,Y,Z] [stand=X,Y,Z] [men=N] [men_r=M] [lift=F] [out=FILE.json] -> the spec saloon (or Main Street's first buildings, in=street; `sticks` of them `gap` s apart, `spread` m along the saloon's front) (built if it isn't), the player put at `player` (the saloon's own space; left where he is if not given), N members alight near `at` (the saloon's own space) and left to burn S s, then a stick there and every frame recorded for S s after: the worst frame, frames over the stall line, where the time went; `awake=S` a census of the awake rubble every S s (`awake_log`: speeds, contacts, piles, wakes and sleeps since the last, RubbleSleep's counts; #585); in=farm `world` one stick at that world point instead of the ring, `stand` the player there (world; #626); `men` standing men `men_r` m round the first stick, `lift` BlastTuning.blast_lift (#596 step 3b)",
 	"bf_movers": "bf_movers [N] -> the N awake bodies moving most, each with every contact (what, where, normal, impulse) (#584)",
 	"bf_frames": "bf_frames [N] -> the last N recorded frames (bf_blast), newest last",
 	"bf_analyse": "bf_analyse -> the spec saloon (built if it isn't) analysed from the top, a member at a time, timed: µs a member by kind (count, mean, worst) and the ten slowest (more-cores step 5: the load check's slices)",
@@ -47,7 +47,8 @@ var _was_asleep := {}
 
 
 func _cmd_bf_blast(a: Array) -> Dictionary:
-	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0, "awake": 0.0}
+	var opts := {"at": "6.0,0.8,6.0", "fire": 0, "burn": 20.0, "fuse": 1.0, "seconds": 8.0, "stall": STALL_MS, "out": "", "player": "", "census": 0, "in": "saloon", "sticks": 1, "gap": 0.4, "spread": 3.0, "awake": 0.0,
+			"men": 0, "men_r": 1.0, "lift": -1.0}
 	for w: String in a:
 		var kv := w.split("=", true, 1)
 		if kv.size() == 2:
@@ -80,8 +81,18 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			var on: Vector3 = w[0]
 			var out: Vector3 = w[1]
 			spots.append(Farmhouse.on_ground(on.x + out.x * 0.6, on.z + out.z * 0.6) + Vector3.UP * 0.1)
+		if String(opts.get("world", "")) != "":
+			# #626: Sean's one stick inside the house (world X,Y,Z; his F12s: 97.8,2.34,-48.94), not the ring.
+			var wp := String(opts.world).split(",")
+			spots = [Vector3(float(wp[0]), float(wp[1]), float(wp[2]))]
 		n_sticks = spots.size()
-		if String(opts.player) == "" and player:
+		if String(opts.get("stand", "")) != "" and player:
+			# #626: where Sean stood (world X,Y,Z; his F12s: 96.3,1.1,-33.6), looking at the stick.
+			var sp := String(opts.stand).split(",")
+			player.global_position = Vector3(float(sp[0]), float(sp[1]), float(sp[2]))
+			player.velocity = Vector3.ZERO
+			await physics_frames(2)
+		elif String(opts.player) == "" and player:
 			# In the yard 12 m off the front, as a man throwing round the house would be.
 			player.global_position = Farmhouse.on_ground(4.5, -12.0) + Vector3.UP * 0.1
 			player.velocity = Vector3.ZERO
@@ -112,6 +123,27 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 		player.global_position = SpecSaloon.at(Vector3(float(pp[0]), float(pp[1]), float(pp[2])))
 		player.velocity = Vector3.ZERO
 		await physics_frames(2)
+	# Issue #596 step 3b: `men` standing men (no brain: they don't run from the fuse) round the
+	# first stick, `men_r` m from it, on the floor under each; `lift` BlastTuning.blast_lift.
+	if float(opts.lift) >= 0.0:
+		Blast.t().blast_lift = float(opts.lift)
+	var men: Array[HumanBody] = []
+	for k in int(opts.men):
+		var ang := TAU * k / maxf(float(opts.men), 1.0)
+		var p := at + Vector3(cos(ang), 0.0, sin(ang)) * float(opts.men_r)
+		var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 0.5, p + Vector3.DOWN * 3.0, Layers.WORLD)
+		var hit := World.space(street).intersect_ray(q)
+		if not hit.is_empty():
+			p = hit.position
+		var man := HumanBody.new()
+		man.rng_seed = 700 + k
+		man.person_id = StringName("bf_man%d" % k)
+		man.name = String(man.person_id)
+		man.has_gun = false
+		man.enter(street, p, ang + PI * 0.5)
+		men.append(man)
+	if not men.is_empty():
+		await physics_frames(10)
 	var fire := FireSystem.find(get_tree())
 	var lit: Array = []
 	var n_fire := int(opts.fire)
@@ -195,7 +227,9 @@ func _cmd_bf_blast(a: Array) -> Dictionary:
 			"members_after": saloon.member_count() if saloon else 0, "rubble_after": saloon.rubble.size() if saloon else 0,
 			"burning_after": fire.burning_members().size() if fire else 0, "broken": _broken, "cut": _cut,
 			"rubble_end": _rubble_count(false), "awake_end": _rubble_count(true),
-			"mission": int(opts.get("mission", 0)),
+			"mission": int(opts.get("mission", 0)), "blast_lift": Blast.t().blast_lift,
+			"men": men.map(func(m: HumanBody) -> Dictionary: return {"limp": m.limp, "from_stick": m.global_position.distance_to(at),
+					"thrown_to": (m.parts[&"pelvis"] as Node3D).global_position.distance_to(at) if m.parts.has(&"pelvis") else -1.0}),
 			"people": get_tree().get_nodes_in_group(&"people").size(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 			"player": arr(player.global_position) if player else [], "player_from_stick": player.global_position.distance_to(at) if player else -1.0,
 			"fire_bands": (load("res://src/fire/fire_system.gd") as Script).get(&"bands")}  # null before step 5
@@ -666,6 +700,15 @@ func _rubble_count(awake: bool) -> int:
 	return n
 
 
+## The awake rubble reporting its contacts (#626: only while it's fast; the rest settle unreported).
+func _reporting() -> int:
+	var n := 0
+	for rb: Node in get_tree().get_nodes_in_group(&"rubble"):
+		if not (rb as RigidBody3D).sleeping and (rb as RigidBody3D).max_contacts_reported > 0:
+			n += 1
+	return n
+
+
 func _process(_delta: float) -> void:
 	if not _recording:
 		return
@@ -684,8 +727,11 @@ func _process(_delta: float) -> void:
 			"left": fire._check.left() if fire and fire._check else -1,
 			"queue": fire._to_settle.size() if fire else -1,
 			"active": PhysicsServer3D.get_process_info(PhysicsServer3D.INFO_ACTIVE_OBJECTS),
-			"rubble": _rubble_count(false), "awake": _rubble_count(true),
-			"objects": Performance.get_monitor(Performance.OBJECT_COUNT)})
+			"rubble": _rubble_count(false), "awake": _rubble_count(true), "reporting": _reporting(),
+			"objects": Performance.get_monitor(Performance.OBJECT_COUNT),
+			# #626: what's drawn (0 headless): the rubble not yet in RubbleRest's cells, the cloud.
+			"draws": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+			"prims": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)})
 	Prof._sum.clear()
 	_phys_us = 0
 	# #584: twice a second, what the awake bodies are doing (outside the frame's time: the next

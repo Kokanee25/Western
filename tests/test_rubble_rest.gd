@@ -223,3 +223,29 @@ func test_a_chunk_made_over_many_ticks_is_finished() -> void:
 		if _rest() and _rest().drawn_by_cell(rb):
 			drawn += 1
 	check_eq(drawn, bodies.size(), "all of them drawn by their cell")
+
+
+## A piece's arrays are the ones its mesh was made from, placed as SurfaceTool's append_from places
+## a mesh read back from the renderer (#626: on Vulkan that read waits for the GPU, a frame a piece).
+func test_a_piece_joins_without_reading_its_mesh_back() -> void:
+	var mesh := MemberMesh.box(Vector3(1.37, 0.05, 0.21))
+	check(mesh.has_meta(&"arrays"), "a member's mesh keeps the arrays it was made of")
+	var xf := Transform3D(Basis(Vector3(0.3, 1, 0.2).normalized(), 0.7), Vector3(2, 0.5, -1))
+	var st := SurfaceTool.new()
+	st.append_from(mesh, 0, xf)
+	st.deindex()
+	var want := st.commit_to_arrays()
+	var got := MemberMesh.placed(MemberMesh.arrays_of(mesh), xf)
+	for slot: int in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2]:
+		check_eq(got[slot] != null, want[slot] != null, "channel %d the same" % slot)
+		if got[slot] == null or want[slot] == null:
+			continue
+		check_eq(got[slot].size(), want[slot].size(), "channel %d as long" % slot)
+		var worst := 0.0
+		for i in mini(got[slot].size(), want[slot].size()):
+			var d: Variant = got[slot][i] - want[slot][i]
+			worst = maxf(worst, absf(d) if d is float else d.length())
+		check(worst < 0.01, "channel %d the same within 1 cm (worst %.4f)" % [slot, worst])
+	var shard := BoxMesh.new()
+	shard.size = Vector3(0.05, 0.08, 0.004)
+	check_eq((MemberMesh.arrays_of(shard)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size(), (shard.get_mesh_arrays()[Mesh.ARRAY_VERTEX] as PackedVector3Array).size(), "a primitive's made again, not read back")
