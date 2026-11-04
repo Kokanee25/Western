@@ -33,8 +33,9 @@ the look Sean called "too cheap, too indie", #318) and `noon_now` (the same view
 same 480x270 JPEG); for the numbers only, `ambient_x2` and `fog_off` (broken's two causes apart).
 `now`, `broken`, `ambient_x2` and `fog_off` are one run (`screenshots.gd --only=shot_match_street
 --variants=...`): the same view in two runs differs by more than the probes do (people and horses
-move), so number rules compare within a run only. The ranking is proposed from Sean's words until he
-confirms it.
+move), so number rules compare within a run only. Sean confirmed the ranking on 2026-11-04 (#612), and
+said the broken probe looks about the same as `now` to him, as the judge saw it: the rule that the judge
+must name broken's flat light or lost haze (a warning on the second run) was dropped.
 
 The first eye run (`docs/screenshots/judge/2026-11-03_cheap_p/`) failed 3 of 4 rules: it put three
 pictures in "good indie" with nothing to order them, and its "too cheap" probe (the street at golden
