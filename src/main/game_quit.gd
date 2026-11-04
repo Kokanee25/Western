@@ -37,6 +37,7 @@ static func quit(tree: SceneTree, code := 0) -> void:
 	if quitting:
 		return
 	quitting = true
+	CrashReports.begin_load("the quit")  # (its last frames can be long: no freeze report for them, #624)
 	var t0 := Time.get_ticks_msec()
 	var busy := in_flight(tree)
 	if not busy.is_empty():

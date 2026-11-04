@@ -42,6 +42,13 @@ extends Resource
 ## rec_groan_reach.
 @export var rec_wood_reach := 8.0
 @export var rec_groan_reach := 15.0
+## Charges going off together (#647's bundles on one plunger): within volley_s of the first and
+## volley_m of it they're one volley; each after the first grows its sub and roll by volley_db
+## (up to volley_grow_max charges) instead of playing its own.
+@export var volley_s := 0.25
+@export var volley_m := 60.0
+@export var volley_db := 2.5
+@export var volley_grow_max := 3
 
 @export_group("Passes and strikes")
 ## A ball going by snaps only if it's faster than sound (buckshot near the muzzle; a black-powder
