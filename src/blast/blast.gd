@@ -257,6 +257,11 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 		if target and target.has_method(&"take_blast"):
 			target.call(&"take_blast", at, kg, p == held_by)
 			report.people.append(p)
+	# You, past its reach for anything else: the view shaken, the ears a little (#596 step 2).
+	for p: Node in world.get_tree().get_nodes_in_group(&"player"):
+		if p is Player and not report.people.has(p) and (p as Player).wounds \
+				and (p as Player).global_position.distance_to(at) <= r_max * tn.felt_reach_x:
+			(p as Player).wounds.feel_blast(at, kg)
 	# Other sticks close by.
 	for st in sticks:
 		if is_instance_valid(st) and overpressure_kpa(kg, st.global_position.distance_to(at)) > tn.sympathetic_kpa:

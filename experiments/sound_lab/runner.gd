@@ -480,7 +480,11 @@ func _process(_delta: float) -> void:
 		_was_playing[key] = playing
 		_last_pos[key] = pos
 		voices += 1 if playing else 0
-	_voice_rows.append([snappedf(_now(), 0.001), voices, snappedf((now - _last_usec) / 1000.0, 0.001)])
+	# What a blast is doing to you (#596 step 2): the ears' cutoff, the whine, the shake, the grit.
+	var w: PlayerWounds = lab.player.wounds if lab.player else null
+	_voice_rows.append([snappedf(_now(), 0.001), voices, snappedf((now - _last_usec) / 1000.0, 0.001),
+			snappedf(w._ear_filter.cutoff_hz if w and w._ear_filter else 20000.0, 1.0), snappedf(w.ring_level() if w else 0.0, 0.0001),
+			snappedf(w.shake if w else 0.0, 0.001), snappedf(w.grit if w else 0.0, 0.001)])
 	_last_usec = now
 
 
@@ -582,9 +586,9 @@ func _write() -> Dictionary:
 	wav.data = bytes
 	wav.save_to_wav(out_dir.path_join("heard.wav"))
 	var csv := FileAccess.open(out_dir.path_join("voices.csv"), FileAccess.WRITE)
-	csv.store_line("t,voices,frame_ms")
+	csv.store_line("t,voices,frame_ms,ear_hz,ring,shake_deg,grit")
 	for row: Array in _voice_rows:
-		csv.store_line("%s,%d,%s" % row)
+		csv.store_line("%s,%d,%s,%s,%s,%s,%s" % row)
 	csv.close()
 	var most := 0
 	for row: Array in _voice_rows:
