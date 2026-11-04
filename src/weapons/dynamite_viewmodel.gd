@@ -128,10 +128,26 @@ func _process(delta: float) -> void:
 	_animate(delta)
 
 
+## A throw or a set-down asked in the drawn frame (the keys), done on the next physics tick: its
+## ray for where the stick leaves your hand is a query, and queries are the physics frame's
+## (World.space; #624: Sean's throw in the farmhouse asked it from the drawn frame).
+var _pending := &""
+var _pending_windup := 0.0
+
+
+func _ask(what: StringName) -> void:
+	if _pending == &"":
+		_pending_windup = windup
+	_pending = what
+	windup = 0.0
+
+
 func _read_controls(delta: float) -> void:
+	if _pending != &"":
+		return
 	if hands_busy or arm_disabled:
 		if lit:
-			place()  # drop it and deal with the bleeding
+			_ask(&"place")  # drop it and deal with the bleeding
 		if drawn:
 			drawn = false
 		return
@@ -155,18 +171,26 @@ func _read_controls(delta: float) -> void:
 	if Input.is_action_just_pressed(&"cock"):
 		strike_match()
 	if Input.is_action_just_pressed(&"aim") and _action_ok(&"aim"):
-		place()
+		_ask(&"place")
 	if Input.is_action_pressed(&"fire") and _action_ok(&"fire"):
 		if not lit and lighting <= 0.0:
 			strike_match()
 		elif lit:
 			windup += delta
 	elif windup > 0.0:
-		throw()
+		_ask(&"throw")
 
 
 func _physics_process(delta: float) -> void:
 	super(delta)
+	if _pending != &"":
+		var what := _pending
+		_pending = &""
+		if what == &"throw":
+			windup = _pending_windup
+			throw()
+		else:
+			place()
 	_plant_tick(delta)
 
 
