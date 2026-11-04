@@ -437,6 +437,10 @@ frozen until Sean names one.
   read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
   `2026-11-03_cheap_r2`: r1's verdicts and order, reasons moved to light. Waiting on Sean: realistic or
   painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
+- **Toward Red Dead** (Sean, 2026-11-04; DESIGN.md §4, plan `docs/briefs/red-dead.md`, roadmap ▶ Now):
+  the look goes realistic in RDR2's direction ("not that level, just that direction"); the painted
+  look and its squares are retired. Art's next: **R0 the realistic renderer** (issue in the brief's
+  handover); then light (R1), sets (R2), dressing (R3). "Look" under Tech decisions changes with R0.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
