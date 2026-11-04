@@ -219,3 +219,35 @@ func test_cars_are_solids_where_drawn() -> void:
 		check(b.transform.origin.distance_to(view.bodies[i].transform.origin) < 0.001, "car %d's solid where it's drawn" % i)
 	view.free()
 	line.free()
+
+
+## You aren't thrown when the train is put somewhere else (`Train.place`, the lab's 8 pressed at
+## the engine, #624): the cars' solids are moved there, not driven there in one tick (the engine
+## "moved" at 4,300 m/s and threw you 14 km); and the train's list of who's near is looked at again
+## when the run starts over, not kept holding the engineer the new run freed.
+func test_placed_train_throws_nobody() -> void:
+	var world := Node3D.new()
+	add_child(world)
+	var player: Player = (load("res://scenes/player.tscn") as PackedScene).instantiate()
+	world.add_child(player)
+	var lab: Node = (load("res://experiments/train_lab/lab.gd") as GDScript).new()
+	lab.street = world
+	lab.player = player
+	world.add_child(lab)
+	lab.start_engineer()
+	lab.board(0, "back")  # in the cab, where the lab's walk to the engine ends
+	await physics_frames(600)
+	var train: Train = lab.train
+	check(train.sim.v > 1.5 and train.car_under(player) == 0, "you ride the engine at %.0f km/h" % (train.sim.v * 3.6))
+	var errors_before := failures.size()
+	await process_frames(1)  # the key, in the drawn frame: as 8 does
+	lab.start_engineer()
+	lab.board(train.sim.cars.size() - 1, "back")
+	var fastest := 0.0
+	for i in 60:
+		await get_tree().physics_frame
+		fastest = maxf(fastest, player.velocity.length())
+	check(fastest < 20.0, "not thrown (%.0f m/s at most)" % fastest)
+	check_eq(train.car_under(player), train.sim.cars.size() - 1, "on the back car")
+	check_eq(failures.size(), errors_before, "no script errors")
+	world.free()
