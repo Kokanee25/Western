@@ -1126,7 +1126,7 @@ func _kit_result(r: Dictionary, timber: TimberTuning, charge: Vector3) -> Dictio
 
 ## Blast._member_response's sums for one member (src/blast/blast.gd), without its side effects:
 ## glass by reflected pressure against BlastTuning.glass_kpa; timber by the kick the blast gives it
-## (impulse² / 2m) against what it soaks up bending (fb² / 2E × volume × absorb_factor), over the
+## (impulse² / 2m) against what it soaks up bending (fb² / 2E × volume × absorb_factor × Blast.toughness), over the
 ## whole length and over the hand-span nearest the charge. Over 1 breaks.
 static func blast_demand(m: StructureMember, at: Vector3, kg: float, timber: TimberTuning) -> Dictionary:
 	var tn := Blast.t()
@@ -1145,7 +1145,7 @@ static func blast_demand(m: StructureMember, at: Vector3, kg: float, timber: Tim
 	var wood := timber.wood(m.wood)
 	var fb: float = wood.bending
 	var e: float = wood.stiffness
-	var capacity := fb * fb / (2.0 * e) * cs.x * cs.y * length * tn.absorb_factor
+	var capacity := fb * fb / (2.0 * e) * cs.x * cs.y * length * tn.absorb_factor * Blast.toughness(cs, wood)
 	var span := minf(tn.local_span, length)
 	var near_j := Blast.face_impulse(m, at, kg, span)
 	var share := span / maxf(length, 1e-4)

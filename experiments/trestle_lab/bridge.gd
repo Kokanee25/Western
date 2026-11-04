@@ -10,7 +10,7 @@ const HELP := {
 	"trestle_lab": "trestle_lab -> build the gorge line, the viaduct and the train (as the train lab's lab): the viaduct's numbers, nodes, the build's ms",
 	"trestle": "trestle -> the viaduct now: members by kind, bents, what's broken, its rubble, the train's loads' cost",
 	"trestle_cost": "trestle_cost [S] [train=KMH] -> over S s (default 10): ms a frame, the systems (Prof), nodes, draws; train=KMH: the train crossing at KMH from before the bridge",
-	"trestle_collapse": "trestle_collapse bent=mid|N bents=1 story=bottom|K posts=all|inner|outer|left|N how=stick|cut|none sticks=2 at=0.6 train=none|cross when=before|under wait=6 lead=0 kmh=30 run_up=250 riders=0 secs=10 out=PATH -> a charge on a bent's posts (with or without the train): what falls, the train, every frame against #492's gate",
+	"trestle_collapse": "trestle_collapse bent=mid|N bents=1 story=bottom|K posts=all|inner|outer|left|N how=stick|cut|none sticks=4 at=0.6 train=none|cross when=before|under wait=6 lead=0 kmh=30 run_up=250 riders=0 secs=10 out=PATH -> a charge on a bent's posts (with or without the train): what falls, the train, every frame against #492's gate",
 	"trestle_cam": "trestle_cam floor|rim [SIDE]|deck [S]|under -> a camera on the gorge's floor looking up at the middle, on the far rim SIDE m along the gorge (90), on the deck (S along), or under the deck",
 	"trestle_matrix": "trestle_matrix [out=PATH] [only=A,B] -> each cut of the matrix on a fresh viaduct (posts cut outright, no train), then the engine standing over it: holds empty? fails under the engine? what fell",
 	"trestle_where": "trestle_where BENT [STORY] [post|cap] -> a point on the viaduct (for look/shoot/plant): bent N's story K post foot, or its cap",

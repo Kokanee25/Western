@@ -451,7 +451,7 @@ static func _member_response(m: StructureMember, at: Vector3, kg: float, s: Stru
 	var fb: float = wood.bending
 	var e: float = wood.stiffness
 	var sound := cs.x * cs.y * length
-	var capacity := fb * fb / (2.0 * e) * sound * tn.absorb_factor
+	var capacity := fb * fb / (2.0 * e) * sound * tn.absorb_factor * toughness(cs, wood)
 	var span := minf(tn.local_span, length)
 	var share := span / maxf(length, 1e-4)
 	# Most of what a charge reaches it can't break: the most the face could take, were every
@@ -486,12 +486,22 @@ static func rail_share(m: StructureMember, at: Vector3, kg: float, timber: Timbe
 	var cs := m.cross_section()
 	var mass := maxf(m.weight(timber) / 9.81, 0.05)
 	var wood: Dictionary = timber.woods.get(m.wood, timber.default_wood)
-	var capacity: float = float(wood.bending) * float(wood.bending) / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor
+	var capacity: float = float(wood.bending) * float(wood.bending) / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor * toughness(cs, wood)
 	var span := minf(tn.local_span, length)
 	var share := span / maxf(length, 1e-4)
 	var total := face_impulse(m, at, kg)
 	var near_j := face_impulse(m, at, kg, span)
 	return maxf(total * total / (2.0 * mass) / capacity, near_j * near_j / (2.0 * mass * share) / (capacity * share))
+
+
+## How much tougher a timber of this cross-section is than its bulk alone (1 for a stud or a board;
+## BlastTuning.heavy_from/heavy_power: the field manual's D² for a cut in contact). Iron as it was.
+static func toughness(cs: Vector2, wood: Dictionary) -> float:
+	var tn := t()
+	if float(wood.get("stiffness", 0.0)) > 1e11:
+		return 1.0
+	var d := minf(cs.x, cs.y)
+	return pow(d / tn.heavy_from, tn.heavy_power) if d > tn.heavy_from else 1.0
 
 
 ## Where face_impulse samples a member, about its point nearest the charge (m along it).
@@ -591,7 +601,7 @@ static func torn_stretch(m: StructureMember, at: Vector3, kg: float, timber: Tim
 	var cs := m.cross_section()
 	var wood: Dictionary = timber.woods.get(m.wood, timber.default_wood)
 	var fb: float = wood.bending
-	var capacity := fb * fb / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor * share
+	var capacity := fb * fb / (2.0 * float(wood.stiffness)) * cs.x * cs.y * length * tn.absorb_factor * share * toughness(cs, wood)
 	var near := clampf((at - m.global_position).dot(m.axis()), -half, half)
 	if native:
 		# (face_impulse's measures of the member, the search over them natively: a dozen windows.)
