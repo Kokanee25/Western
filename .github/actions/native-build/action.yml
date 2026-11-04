@@ -32,5 +32,7 @@ runs:
           fi
           cargo build --release --target "${{ inputs.target }}"
           cp target/"${{ inputs.target }}"/release/*saltcreek_native.{so,dll,dylib} bin/ 2>/dev/null || true
+          # The DLL's symbols, shipped beside it so a crash's minidump names its functions (#624).
+          cp target/"${{ inputs.target }}"/release/saltcreek_native.pdb bin/ 2>/dev/null || true
         fi
         ls -la bin

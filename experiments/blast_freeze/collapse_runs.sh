@@ -8,6 +8,8 @@
 out=$1; secs=$2; shift 2
 dir=${DIR:-$(cd "$(dirname "$0")/../.." && pwd)}
 extra=${EXTRA:-}
+# #642: WORLD (sticks, `;` between), STAND and GAP override #626's one stick and where Sean stood.
+world=${WORLD:-97.8,2.34,-48.94}; stand=${STAND:-96.3,1.1,-33.6}; gap=${GAP:-0.4}
 mkdir -p "$out"
 for v in "$@"; do
 	steps=""; [[ $v == *@* ]] && { steps=${v#*@}; v=${v%@*}; }
@@ -17,7 +19,7 @@ for v in "$@"; do
 	if [ -n "$steps" ]; then
 		printf '[physics]\njolt_physics_3d/simulation/velocity_steps=%s\njolt_physics_3d/simulation/position_steps=%s\n' "${steps%/*}" "${steps#*/}" > override.cfg
 	fi
-	printf 'bf_blast in=farm mission=1 world=97.8,2.34,-48.94 stand=96.3,1.1,-33.6 fire=0 fuse=1 seconds=%s %s out=%s/%s.json\nquit\n' "$secs" "$extra" "$out" "$name" > "$out/$name.txt"
+	printf 'bf_blast in=farm mission=1 world=%s stand=%s gap=%s fire=0 fuse=1 seconds=%s %s out=%s/%s.json\nquit\n' "$world" "$stand" "$gap" "$secs" "$extra" "$out" "$name" > "$out/$name.txt"
 	ga=""; [ -n "$args" ] && ga="--game-args=$args"
 	python3 tools/bridge.py run "$out/$name.txt" --headless --fps=60 $ga > "$out/$name.log" 2>&1
 	rm -f override.cfg)

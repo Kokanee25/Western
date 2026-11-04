@@ -18,6 +18,7 @@ const HELP := {
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
+	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -394,6 +395,24 @@ func _cmd_walk(a: Array) -> Dictionary:
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
 			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
+
+
+func _cmd_key(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": "key NAME"}
+	var code := OS.find_keycode_from_string(String(a[0]))
+	if code == KEY_NONE:
+		return {"ok": false, "error": "no key %s" % a[0]}
+	for down in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = code
+		ev.physical_keycode = code
+		ev.pressed = down
+		Input.parse_input_event(ev)
+		await _settle()
+		if down:
+			await _seconds(float(a[1]) if a.size() > 1 else 0.1)
+	return {"key": OS.get_keycode_string(code)}
 
 
 func _cmd_press(a: Array) -> Dictionary:

@@ -108,9 +108,11 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             file: libsaltcreek_native.so
+            symbols: ""
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             file: saltcreek_native.dll
+            symbols: saltcreek_native.pdb
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -120,7 +122,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: native-${{ matrix.target }}
-          path: addons/saltcreek_native/bin/${{ matrix.file }}
+          path: |
+            addons/saltcreek_native/bin/${{ matrix.file }}
+            ${{ matrix.symbols && format('addons/saltcreek_native/bin/{0}', matrix.symbols) || '' }}
           if-no-files-found: error
 
   export:
@@ -187,6 +191,9 @@ jobs:
           # export without it runs with no voxel damage, so make sure it's there.
           test -s build/windows/saltcreek_native.dll
           test -s build/linux/libsaltcreek_native.so
+          # The plugin's symbols beside its DLL: crash dumps read with them (tools/crash_report.py, #624).
+          cp addons/saltcreek_native/bin/saltcreek_native.pdb build/windows/
+          test -s build/windows/saltcreek_native.pdb
           ls -la build/windows build/linux
           test -s build/web/index.wasm
           ls -la addons/saltcreek_native/bin

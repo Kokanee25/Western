@@ -6,9 +6,9 @@ act). The lab is `experiments/trestle_lab/`; the part is `src/train/trestle.gd` 
 
 ## Goal
 
-The game's biggest moment (Sean: "the one *oh my god that's awesome* moment"): a towering timber
-viaduct across a deep gorge, the tallest and longest structure in the game, that the player can
-bring down under the train. Systems, not a script: the bridge is members in one support graph
+The game's biggest moment (Sean: "the one *oh my god that's awesome* moment"): a timber trestle
+over a river valley, the Bridge on the River Kwai's size, high enough that the train really falls,
+that the player can bring down under the train. Systems, not a script: the bridge is members in one support graph
 (`Structure`/`StructureMember`, never a second system), the train's weight goes into it as it
 crosses, charges cut posts and the load paths decide what falls, a light charge leaves it standing
 empty and the engine finishes it, and when the deck goes from under a truck the train hands off to
@@ -17,11 +17,12 @@ a collapse is measured against #492's gate.
 
 ## References (period practice; each number a proposed dial)
 
-- **Scale** (Sean's, #623: 60-75 m high, 250-350 m long, curving slightly): the Erie's **Portage
-  Viaduct** over the Genesee (1852; ~234 ft / 71 m high, 800-900 ft long, all timber on stone
-  piers; burned 1875), and the Union Pacific's **Dale Creek** trestle (1868; ~126 ft high, 650 ft
-  long). Wikipedia "Portage Viaduct"; structurae.net's entries. The lab's: 66 m from the gorge
-  floor to the rail at the middle, 300 m long, on a 900 m curve.
+- **Scale** (Sean, 2026-11-04, after round 1's 66 m, 300 m viaduct: "toooo big", no town that size
+  would build it): **the Bridge on the River Kwai's** bridge, high enough that the train really falls,
+  and not looking like it cost $10 million. The film's bridge at Kitulgala, Sri Lanka (1957) was 425 ft
+  long and ~90 ft over the water (movie-locations.com, Wikipedia "Kitulgala"). The lab's: **130 m long,
+  the rail ~27 m over a river** in a 26 m valley, on a 900 m curve; 26 four-post bents. Round 1's
+  Portage scale (the Erie's Portage Viaduct, 1852, ~71 m high) is in `results/2026-11-04_r1/`.
 - **Framed bents:** posts and sills 12 x 12 in, caps 12 x 14 in, sway and longitudinal braces
   3 x 10 in (the NMRA's data sheet D6b3, framed trestles, compiled from railroad standard plans);
   bents 10-16 ft apart (16 ft here, the fewest members); a bent split into stories by
