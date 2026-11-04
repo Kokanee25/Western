@@ -345,7 +345,12 @@ func _turn() -> void:
 	_turned = true
 	_turned_at = t
 	for man: HumanBody in _live():
-		(brains[_mid(man)] as OutlawBrain).relations.provoke(player)
+		var b := brains[_mid(man)] as OutlawBrain
+		# (#607: the count's out, nothing you did: their own idea, "Take him!", where the brain has it)
+		if b.has_method(&"turn_on"):
+			b.call(&"turn_on", player)
+		else:
+			b.relations.provoke(player)
 		if scen.start == "ambush":
 			(brains[_mid(man)] as OutlawBrain).senses.note(player, player.global_position, 0.5)
 
@@ -527,6 +532,12 @@ func _watch_men(_delta: float) -> void:
 			var decs: Array = m.get_or_add("decisions", [])
 			decs.append([snappedf(t, 0.01), dec])
 			_note("decision", "%s: %s" % [m.id, dec])
+			var rb := b as OutlawBrain
+			if dec.begins_with("drag ") and rb.rescuing != null and is_instance_valid(rb.rescuing):
+				# #607: the friend he's going for, as he is (a man getting up isn't one to drag).
+				var mate := rb.rescuing
+				_note("drag_of", "%s drags %s: %s" % [m.id, _who(mate), "rising" if mate.rising else "will rise" if mate.rise_ok \
+						else "limp" if mate.limp else "prone" if mate.prone else "up"])
 			if dec.begins_with("give that cover up: stuck"):
 				# Where he stuck, where he was going and by which way (Experiment B).
 				var bb := b as OutlawBrain
@@ -656,12 +667,23 @@ func _check_end() -> void:
 		why = "you_dead" if not ph.alive else "you_down"
 	elif gang_ids.all(func(id: String) -> bool: return float(_men[id].out_at) >= 0.0):
 		why = "gang_out"
-	elif t - (float(_shots[-1]) if not _shots.is_empty() else 0.0) > LULL:
+	elif t - (float(_shots[-1]) if not _shots.is_empty() else 0.0) > LULL and not (human and _still_after_you()):
 		why = "lull"
 	elif t >= float(opts.max):
 		why = "timeout"
 	if why != "":
 		_finish(why)
+
+
+## You playing: one of them still in it and after you (fighting, and you known to him in the last
+## LULL seconds) isn't a lull (#607: called one while the Kid shot again 10 s on).
+func _still_after_you() -> bool:
+	for man: HumanBody in _live():
+		var b := brains[_mid(man)] as OutlawBrain
+		if man.physiology.is_conscious() and b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING] \
+				and b.senses.since_known(player) < LULL:
+			return true
+	return false
 
 
 # -- What happened (the game's own events) --------------------------------------------------------
@@ -681,6 +703,12 @@ func _hook_events() -> void:
 			_sit_add("surrenders", "%s gives up" % _who(p)))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: _note("died", "%s died (%s)" % [_who(p), cause]))
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _note("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))
+	# #607: flying glass, and whether it was off the pane his own shot (or hand) broke.
+	_hook(Events.body_hit, func(info: Dictionary) -> void:
+		if started and not done and info.get("kind", &"") == &"cut":
+			var who: Node = info.get("person")
+			var own := who in gang and _men.has(_mid(who)) and not _shots.is_empty() and float(_men[_mid(who)].get("_shot_t", -99.0)) >= t - 0.3
+			_note("cut", "%s cut by glass in the %s%s" % [_who(who) if who is HumanBody else "you", info.get("segment", "?"), " (just after his own shot)" if own else ""]))
 	_hook(Events.spoke, func(p: Node, text: String) -> void:
 		if p in gang:
 			_note("said", "%s: \"%s\"" % [_who(p), text]))
@@ -712,6 +740,7 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 	elif shooter in gang:
 		var m: Dictionary = _men[_mid(shooter)]
 		m.shots += 1
+		m._shot_t = t
 		var b := brains[_mid(shooter)] as OutlawBrain
 		var stay: Dictionary = m.get("_stay", {})
 		if b.stepped_out():
@@ -734,6 +763,16 @@ func _on_shot(_origin: Vector3, _dir: Vector3, shooter: Node) -> void:
 			var h := World.space(hb).intersect_ray(q)
 			pr.append("" if h.is_empty() else ("%s:%s" % [(h.collider as StructureMember).kind, (h.collider as StructureMember).member_id] if h.collider is StructureMember else String((h.collider as Node).name)))
 		pr.append(snappedf(b.senses.eye().distance_to(_origin), 0.01))
+		# #607: and to the gun's drawn muzzle (his pose: the hand through a pane, the boards), which
+		# the ball no longer starts from when something's between.
+		var drawn := ""
+		var gm := hb.held_gun as RevolverModel
+		if gm != null and gm.muzzle != null:
+			var q2 := PhysicsRayQueryParameters3D.create(b.senses.eye(), gm.muzzle.global_position, Layers.BULLETS)
+			q2.exclude = ex
+			var h2 := World.space(hb).intersect_ray(q2)
+			drawn = "" if h2.is_empty() else ("%s:%s" % [(h2.collider as StructureMember).kind, (h2.collider as StructureMember).member_id] if h2.collider is StructureMember else String((h2.collider as Node).name))
+		pr.append(drawn)
 		if not m.has("muzzle_probe"):
 			m["muzzle_probe"] = []
 		(m.muzzle_probe as Array).append(pr)
@@ -961,7 +1000,8 @@ func _on_callout(speaker: Node, kind: StringName, _about: Node, _at: Vector3) ->
 		_unfair(m, "%s called he'd spotted you with no line to you for %.1f s" % [m.id, t - float(m.get("_line_t", 0.0))])
 	if kind == &"flank":
 		m.flanks += 1
-	_note("callout", "%s called %s" % [m.id, kind])
+	var sh := speaker as HumanBody
+	_note("callout", "%s called %s%s" % [m.id, kind, " (down)" if sh.limp or sh.prone or sh.rising else ""])
 
 
 func _on_member_broken(id: StringName) -> void:
