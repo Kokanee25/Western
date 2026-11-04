@@ -96,7 +96,9 @@ class Clock:
 			guard.phase(2)
 
 
-func _init() -> void:
+func _init(bare := false) -> void:
+	if bare:  # (copy() fills it)
+		return
 	_frames.resize(FRAMES * FSTRIDE)
 	_secs.resize(SECONDS * SSTRIDE)
 	_row.resize(NF)
@@ -280,7 +282,7 @@ func to_dict() -> Dictionary:
 ## box, CrashReports): the packed arrays are copied (a memcpy), nothing of the original is read
 ## after.
 func copy() -> PerfRing:
-	var c := PerfRing.new()
+	var c := PerfRing.new(true)
 	c._frames = _frames.duplicate()
 	c._fn = _fn
 	c._secs = _secs.duplicate()

@@ -20,7 +20,7 @@ extends Node
 ## - **The reports folder** (`folder()`): `Salt Creek crash reports` on the desktop (F12's reports
 ##   go there too), else `user://crash_reports`; `-- --crash-dir=DIR` for one run.
 ## - A stall (no frame for 5 s, then it came back) is packed at once as `stall_<date-time>`
-##   (STALLS_KEPT a run at most).
+##   (STALLS_KEPT a run at most; none in the first QUIET_START seconds: the shaders compiling).
 ## - Trying it (hidden): `-- --hang-at=S` hangs the main thread S s after the first frame, `-- --crash-at=S`
 ##   crashes it (`--crash-at=S:thread` a native thread, `:abort`, `:panic`, `:script` a call on a
 ##   freed object, as a release build makes of one); `-- --crash-watch=FREEZE,END` the watchdog's
@@ -32,6 +32,7 @@ const BOX_EVERY := 3.0
 const BOX_SECONDS := 60.0
 const LOG_LINES := 300
 const STALLS_KEPT := 3
+const QUIET_START := 30.0  # s after the first frame when a stall isn't packed (the shaders compiling)
 const NOTES: PackedStringArray = ["crash.txt", "freeze.txt", "panic.txt"]
 const DUMPS: PackedStringArray = ["crash.dmp", "freeze.dmp"]
 
@@ -49,7 +50,9 @@ static var _first_frame := 0
 static var _hang_at := -1.0
 static var _crash_at := -1.0
 static var _crash_how := "segv"
-static var _video := ""
+static var _copy_us_sum := 0
+static var _copies := 0
+static var _write_us := 0  # the last write's time on the worker
 
 var recorder: BugRecorder
 var _next_box := 0  # ms (the wall's: a frame's delta crawls while the game starts)
@@ -207,14 +210,24 @@ func _process(_delta: float) -> void:
 	if now >= _next_box and not writing():
 		_next_box = now + int(BOX_EVERY * 1000.0)
 		write_box()
-	if guard and Engine.get_process_frames() % 30 == 0 and guard.take_recovered() and _stalls < STALLS_KEPT:
-		_stalls += 1
-		_pack_stall()
+	if guard and Engine.get_process_frames() % 30 == 0 and guard.take_recovered():
+		if t < QUIET_START or _stalls >= STALLS_KEPT:
+			# The first seconds' stalls are the shaders compiling: not packed.
+			for n in NOTES + DUMPS:
+				if FileAccess.file_exists(box_dir.path_join(n)):
+					DirAccess.remove_absolute(box_dir.path_join(n))
+		else:
+			_stalls += 1
+			_pack_stall()
 
 
 ## Copy what the black box keeps (here, the main thread) and write it on a worker.
 func write_box(now := false) -> void:
+	var t0 := Time.get_ticks_usec()
 	var snap := snapshot()
+	snap["copy_us"] = Time.get_ticks_usec() - t0  # what it cost the main thread (#624: well under 0.1 ms a frame)
+	_copy_us_sum += int(snap.copy_us)
+	_copies += 1
 	var path := box_dir.path_join("box_%d.json" % (_box_n % 2))
 	_box_n += 1
 	if now:
@@ -238,6 +251,7 @@ func snapshot() -> Dictionary:
 
 ## On a worker: the copy as JSON, to a temporary file renamed over the box.
 static func _write(snap: Dictionary, path: String) -> void:
+	var t0 := Time.get_ticks_usec()
 	var perf: PerfRing = snap.get("perf")
 	var out := snap.duplicate()
 	out.erase("perf")
@@ -248,8 +262,10 @@ static func _write(snap: Dictionary, path: String) -> void:
 	var f := FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	if f == null:
 		return
+	out["write_us_before"] = _write_us
 	f.store_string(JSON.stringify(out, "", false))
 	f.close()
+	_write_us = Time.get_ticks_usec() - t0
 	DirAccess.rename_absolute(path + ".tmp", path)
 
 

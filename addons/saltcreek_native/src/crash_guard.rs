@@ -46,6 +46,8 @@ static FREEZE_MS: AtomicU64 = AtomicU64::new(5000);
 static END_MS: AtomicU64 = AtomicU64::new(60000);
 static LOAD_MS: AtomicU64 = AtomicU64::new(300000);
 static MAIN_TID: AtomicU64 = AtomicU64::new(0);
+/// Whether a freeze report asks gdb for the stacks (Linux; the tests leave it out: seconds each).
+static STACKS: AtomicBool = AtomicBool::new(true);
 
 /// The report folder as bytes (a C path on Linux, UTF-16 on Windows), set before the handlers are
 /// armed and never moved after: the handlers read it with no lock.
@@ -631,6 +633,9 @@ fn watch() {
         if !ON.load(Ordering::Relaxed) || CRASHED.load(Ordering::Relaxed) {
             continue;
         }
+        // The load first, then the frame: a load's end stamps the frame before it lowers the count,
+        // so a count read as 0 comes with the end's stamp.
+        let loading = LOADING.load(Ordering::SeqCst) > 0;
         let beat = LAST_BEAT.load(Ordering::SeqCst);
         if beat == 0 {
             continue; // the game's own start: nothing counts till its first frame
@@ -649,14 +654,12 @@ fn watch() {
                 continue;
             }
             let end = END_MS.load(Ordering::Relaxed);
-            let loading = LOADING.load(Ordering::Relaxed) > 0;
             let limit = if loading { LOAD_MS.load(Ordering::Relaxed) + end } else { end };
             if end > 0 && since >= limit {
                 end_freeze(since);
             }
             continue;
         }
-        let loading = LOADING.load(Ordering::Relaxed) > 0;
         let limit = if loading { LOAD_MS.load(Ordering::Relaxed) } else { FREEZE_MS.load(Ordering::Relaxed) };
         if since >= limit {
             report_freeze(since, loading);
@@ -686,7 +689,9 @@ fn report_freeze(since: u64, loading: bool) {
     );
     sys::write_note("freeze.txt", &t, false);
     let mut more = sys::freeze_dump();
-    more += &sys::freeze_detail();
+    if STACKS.load(Ordering::Relaxed) {
+        more += &sys::freeze_detail();
+    }
     sys::write_note("freeze.txt", &more, true);
 }
 
@@ -786,6 +791,12 @@ impl CrashGuard {
         LOAD_MS.store((load_s.max(0.0) * 1000.0) as u64, Ordering::SeqCst);
     }
 
+    /// Whether a freeze report takes every thread's stack (gdb on Linux: seconds; the tests don't).
+    #[func]
+    fn set_stacks(on: bool) {
+        STACKS.store(on, Ordering::SeqCst);
+    }
+
     /// Stop watching (the handlers stay but only hand on); the thread is joined.
     #[func]
     fn uninstall() {
@@ -821,12 +832,14 @@ impl CrashGuard {
             }
             PHASE.store(4, Ordering::Relaxed);
         } else {
+            // The frame stamped first: between the two the watchdog would see no load and a long
+            // gap since the last frame.
+            if LAST_BEAT.load(Ordering::SeqCst) > 0 {
+                LAST_BEAT.store(ms().max(1), Ordering::SeqCst);
+            }
             let left = LOADING.fetch_sub(1, Ordering::SeqCst) - 1;
             if left <= 0 {
                 LOADING.store(0, Ordering::SeqCst);
-            }
-            if LAST_BEAT.load(Ordering::SeqCst) > 0 {
-                LAST_BEAT.store(ms().max(1), Ordering::SeqCst);
             }
         }
     }
