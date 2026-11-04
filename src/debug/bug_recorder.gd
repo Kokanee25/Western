@@ -3,7 +3,8 @@ extends Node
 ## The bug-report key (docs/briefs/automated-checks.md, item 1). Always listening, cheaply: every
 ## physics tick it notes which actions changed (keys, buttons, sticks, as strengths) and how far the
 ## mouse turned the view, and every second where everyone is. F12 writes one file,
-## user://bug_reports/<date-time>.saltbug.zip (a zip; named so GitHub takes it): the screenshot, the recording, the game's log,
+## <date-time>.saltbug.zip in the reports folder (CrashReports.folder(): `Salt Creek crash reports` on
+## the desktop, else user://crash_reports; a zip, named so GitHub takes it): the screenshot, the recording, the game's log,
 ## the build, where you are and what you're holding, the settings, what's been happening.
 ## `tools/replay.gd FILE` plays the recording back and says where the game went differently.
 ## The frame's numbers go in it too (PerfRing, #433): `perf.json`, and `perf_summary` at the top of
@@ -13,12 +14,13 @@ extends Node
 ## same scene, the same seeds, every input since); a longer one from a snapshot of where everyone
 ## was 30 s before the report (people put back where they stood, which is close but not exact).
 
-const DIR := "user://bug_reports"
 const REPLAY_FROM_START := 20.0
 const KEEP_SECONDS := 30.0
 const CHECK_EVERY := 60  # ticks between position checkpoints
 ## Actions that aren't play (menus) aren't recorded.
 const SKIP_PREFIX := ["ui_"]
+## The last things that happened, kept for the reports (F12's and the black box's).
+const EVENTS_KEPT := 300
 
 var _actions: Array[StringName] = []
 var _strength := PackedFloat32Array()
@@ -129,12 +131,12 @@ func _trim(tick: int) -> void:
 
 ## Write the report. Returns its path.
 func save() -> String:
-	DirAccess.make_dir_recursive_absolute(DIR)
+	var dir := CrashReports.folder()
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
-	var path := "%s/%s.saltbug.zip" % [DIR, stamp]
+	var path := "%s/%s.saltbug.zip" % [dir, stamp]
 	var n := 2
 	while FileAccess.file_exists(path):  # two in one second: the second its own file
-		path = "%s/%s-%d.saltbug.zip" % [DIR, stamp, n]
+		path = "%s/%s-%d.saltbug.zip" % [dir, stamp, n]
 		n += 1
 	var shot: Image = null
 	if DisplayServer.get_name() != "headless":  # headless, nothing is drawn (and no frame is posted)
@@ -174,7 +176,43 @@ func save() -> String:
 	return path
 
 
-## The path as the desktop writes it (backslashes on Windows: %APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\).
+## The physics tick the recording counts from.
+func start_tick() -> int:
+	return _start_tick
+
+
+## What's been happening (a copy).
+func events() -> Array:
+	return _events.duplicate()
+
+
+## The recording as replay.gd reads it, for the black box (CrashReports): the last `seconds` of it,
+## from the snapshot before them (a session shorter than that from the start). The entries are
+## shared, not copied (they're never changed once made).
+func recording(seconds: float) -> Dictionary:
+	var tps := Engine.physics_ticks_per_second
+	var tick := Engine.get_physics_frames() - _start_tick
+	var snap: Dictionary = {}
+	var from := 0
+	if tick > seconds * tps and not _snapshots.is_empty():
+		snap = _snapshots[0]
+		from = int(snap[&"tick"])
+	return {
+		"tick": tick, "ticks_per_second": tps,
+		"actions": _actions.map(func(a: StringName) -> String: return String(a)),
+		"from": "snapshot" if not snap.is_empty() else "start", "snapshot": snap,
+		"inputs": _since(_inputs, from), "looks": _since(_looks, from), "checks": _since(_checks, from),
+	}
+
+
+static func _since(rows: Array, tick: int) -> Array:
+	if tick <= 0 or rows.is_empty():
+		return rows.duplicate()
+	var i := rows.bsearch_custom(tick, func(row: Array, t: int) -> bool: return row[0] < t)
+	return rows.slice(i)
+
+
+## The path as the desktop writes it (backslashes on Windows).
 static func shown_path(p: String) -> String:
 	return p.replace("/", "\\") if OS.get_name() == "Windows" else p
 
@@ -183,6 +221,11 @@ static func _put(zip: ZIPPacker, name: String, text: String) -> void:
 	zip.start_file(name)
 	zip.write_file(text.to_utf8_buffer())
 	zip.close_file()
+
+
+## A line at the foot of the screen for `seconds` (CrashReports' too).
+func say(text: String, seconds := 6.0) -> void:
+	_say(text, seconds)
 
 
 func _say(text: String, seconds := 6.0) -> void:
@@ -201,8 +244,9 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 	var out := {
 		"build": load("res://src/debug/debug_overlay.gd").build_label(), "engine": Engine.get_version_info().string,
 		"os": OS.get_name(), "renderer": RenderingServer.get_current_rendering_method(),
-		"video": RenderingServer.get_video_adapter_name(), "game_seconds": snappedf(float(tick) / Engine.physics_ticks_per_second, 0.01),
+		"video": _video_name(), "game_seconds": snappedf(float(tick) / Engine.physics_ticks_per_second, 0.01),
 		"clock": clock.get_clock_text() if clock else "", "fps": Engine.get_frames_per_second(),
+		"scene": tree.current_scene.scene_file_path if tree.current_scene else "",
 		"events": events,
 	}
 	if player:
@@ -226,6 +270,16 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 				"alive": man.physiology.alive, "how": man.physiology.describe()})
 	out["people"] = people
 	return out
+
+
+## The graphics card's name, asked once (with the render thread each ask waits for its frame).
+static var _video := ""
+
+
+static func _video_name() -> String:
+	if _video == "":
+		_video = RenderingServer.get_video_adapter_name()
+	return _video
 
 
 ## Where everyone is (the player and each person by their path in the street): [x, y, z, yaw].
@@ -266,7 +320,7 @@ func _listen() -> void:
 	var note := func(kind: String, text: String) -> void:
 		_events.append({"t": snappedf(float(Engine.get_physics_frames() - _start_tick) / Engine.physics_ticks_per_second, 0.1),
 			"kind": kind, "text": text})
-		if _events.size() > 80:
+		if _events.size() > EVENTS_KEPT:
 			_events.pop_front()
 	var who := func(n: Variant) -> String:
 		if n == null or not is_instance_valid(n):

@@ -127,7 +127,9 @@ Back + Y; debug ignite is L only now): the recorder notes every action's changes
 turns by physics tick, everyone's place each second and a snapshot every 30 s; F12 writes
 `user://bug_reports/<date-time>.saltbug.zip` (a zip, named so GitHub takes it: `report.json` with
 the build, clock, you, everyone, settings (with which threads the run had and the physics cap) and
-the last things that happened; `recording.json`; `godot.log`; `screenshot.png`).
+the last things that happened; `recording.json`; `godot.log`; `screenshot.png`) into the reports
+folder (`CrashReports.folder()`: `Salt Creek crash reports` on the desktop, else
+`user://crash_reports`; since #624).
 `godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug.zip [--out=DIR]` plays it back
 (from the start for a session under 20 minutes, else from the snapshot 30 s before) and says where
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
@@ -148,9 +150,47 @@ rings, columns and rows) and `perf_summary` at the top of `report.json` (the wor
 last 15 s with its split and systems, mean, p95, the three biggest costs, the worst second); the
 log, the replay and `python3 tools/perf_report.py FILE.saltbug.zip [--seconds=N|--all] [--over=MS]`
 print it (the last also the 15 s's per-system table and the per-second table). The path shows at
-the foot of the screen for 12 s (on Windows `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`).
+the foot of the screen for 12 s.
 Costs here: the recorder ~12 µs a frame with F3 closed, ~38 µs open; the profiler on ~0.2 ms.
 F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
+
+**Crash and freeze reports** (#624; `src/debug/crash_reports.gd`, `CrashReports`; the plugin's
+`crash_guard.rs`, `CrashGuard`): what F12 can't, with the game dead. Only for the game (not `-s`
+runs). **The black box**: every 3 s the bug recorder's last 60 s (its recording from the snapshot
+before, as replay.gd reads it), its events (300 kept), `BugRecorder.report`, a copy of PerfRing
+(`PerfRing.copy()`) and the log's last 300 lines (a Logger, `CrashReports.Lines`) are copied on the
+main thread (~0.5 ms here once in 3 s: ~3 µs a frame) and written by a worker into
+`user://blackbox/box_0|1.json` in turn (~13 ms off the main thread). **The marker**
+`user://blackbox/running.json`, written at the start and removed by a clean quit (`GameQuit` calls
+`CrashReports.clean_quit()`, which waits for a write; `in_flight` lists "the black box"). **At the
+next start** with the marker still there, the folder (the newer box, the guard's notes and dumps, the
+crashed run's own log: Godot moved it to `logs/godot<date>.log`) is packed into
+`crash_<date-time>.saltbug.zip` in the reports folder (report.json with a `crash` section: kind
+crash | freeze | unknown, what, the notes) and a line at the foot of the screen says what happened
+and where it is. **CrashGuard** (native, its own thread, nothing of Godot's touched): crash handlers
+(Linux: SIGSEGV/BUS/ILL/FPE/ABRT write `crash.txt`, which thread, then hand on to Godot's handler,
+whose backtrace and GDScript backtrace go into the log; Windows: a vectored handler for the fatal
+codes writes `crash.txt` and `crash.dmp`, MiniDumpWriteDump from the watchdog's thread, then hands
+on; a Rust panic writes `panic.txt`); **the freeze watchdog**: no frame for 5 s (the beat: last in
+the frame's scripts; `PerfRing.Clock` marks the physics tick and the process so the report says
+which part) writes `freeze.txt` (Linux: every thread's state and gdb's stacks; Windows:
+`freeze.dmp`); a frame that comes back is a stall (`freeze.txt` says after how long; packed at once
+as `stall_<date-time>`, 3 a run, none in the first 30 s: the shaders compiling); still frozen at
+60 s the main thread is made to crash (Linux a SIGSEGV sent to it, Windows its instruction pointer
+moved to a bad write) so Godot's handler prints where it was, then the process ends 10 s later.
+**Loads stand it down**: `CrashReports.loading(on, what)` (GameReset, the train lab's line) gives a
+load 300 s; nothing counts before the first frame. `python3 tools/crash_report.py FILE` prints the
+build and scene, what happened and the notes, the dead or stuck thread's stack (gdb's main thread,
+Godot's handler's block, a minidump's exception and a scan of its stack as module+offset, walked by
+`minidump-stackwalk` with `--symbols=DIR` if it's installed), the last 30 s of events, the frames
+leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash zip as an F12 one.
+`saltcreek_native.pdb` ships beside the DLL in every Windows build (release profile
+`debug = "line-tables-only"`). GDScript call stacks are tracked in release builds
+(`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
+backtrace there too; the official release templates have no symbols, so Godot's own frames are
+addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+`tests/test_crash_reports.gd`.
 
 ## The soak
 
@@ -169,8 +209,10 @@ nothing, so it writes the game clock to `build/soak/clock.txt` every 600 frames;
 it in the background into `build/soak/soak.log`, and with that log quiet 10 minutes writes
 `frozen.md` (the clock a minute apart, every thread's state, wait channel and gdb backtrace, five
 samples of the main thread) to the log and the summary, sends SIGSEGV for the GDScript backtrace
-and fails. `--hang-at=S` hangs it on purpose to try that. (An in-process watchdog thread was tried
-and never started on the CI runner: the workflow does it.)
+and fails. `--hang-at=S` hangs it on purpose to try that. (A GDScript watchdog thread was tried and
+went silent with the game: a GDScript thread runs through the engine, its calls, prints and the
+script language's locks, so a main thread stuck in the engine can hold it too. The game's own
+watchdog since #624 is native, `CrashGuard`, and touches only the system; "Bug reports".)
 
 ## Feel ranges
 
@@ -2093,7 +2135,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
   `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
   (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
-  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast").
+  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast"),
+  `crash_guard.rs` (`CrashGuard`: crash handlers, minidumps, the freeze watchdog: "Bug reports"),
+  `watchdog.rs` (`QuitWatchdog`, the quit's last layer).
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
   world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,

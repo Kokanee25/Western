@@ -288,7 +288,7 @@ python3 tools/bridge.py stop
 - **The dev bridge** — every bridge command, facing and places.
 - **The playtest** — the fresh sub-agent that plays a build (`tools/playtest.md`).
 - **The tour video** — `tools/tour.gd`, `tour.yml`, the `/tour/` page.
-- **Bug reports** — F12 `.saltbug` recordings and `tools/replay.gd`.
+- **Bug reports** — F12 `.saltbug` recordings and `tools/replay.gd`; crash and freeze reports (the black box, `CrashGuard`, `tools/crash_report.py`).
 - **The soak** — `tools/soak.gd`, the nightly hours-long run and what fails it.
 - **Feel ranges** — `config/feel_ranges.json`, `tests/feel.gd`, numbers held to Sean's ranges.
 - **The smoke test** — `--smoke-test` on every export, the CI jobs around it.
@@ -748,6 +748,15 @@ frozen until Sean names one.
   three bents blown take the train over 3 of 3. Waiting on Sean: #638. Traps: Sight takes a new
   structure in at its first look (look once at the build); never measure two games at once; a run's
   steps on the game's clock, its frames on the wall's.
+- **Crash and freeze reports** (#624, PR #650, branch `claude/gameplay-crash-reports`; LAYOUT "Bug reports"):
+  the black box (`CrashReports`, every 3 s on a worker), the running marker, the next start's
+  `crash_<date-time>.saltbug.zip` in the desktop's `Salt Creek crash reports` (F12's too) and its
+  line on screen; `CrashGuard` (native: crash notes, Windows minidumps, the freeze watchdog, 5 s
+  report / 60 s end, loads stand it down); `tools/crash_report.py`; the pdb ships with Windows
+  builds; GDScript stacks tracked in release. Sean's train crash fixed (a freed engineer in
+  Train's near list; a placed train threw you); the farmhouse one not reproduced (4 tries), runaway
+  rubble now slowed and logged (`Structure.RUNAWAY_SPEED`). Untested here: the Windows half (CI
+  builds it; Sean's first crash proves it). Bridge `key NAME`.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
