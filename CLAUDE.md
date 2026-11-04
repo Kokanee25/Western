@@ -718,7 +718,7 @@ frozen until Sean names one.
   one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
   apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
   `results/2026-11-04_jackknife/`). Next: #542 (step 7).
-- **The trestle lab** (#623, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
+- **The trestle lab** (#623, PR #637, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
   `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
   crossing over a gorge cut to fit: 300 m, 66 m high, 7,692 members at rest (idle within noise;
@@ -728,7 +728,7 @@ frozen until Sean names one.
   as `fell` (couplers loose in pitch); tall falling towers tipped over across the line (`fold`, a
   model); `save_dict`/`restore_dict`. #492's gate: no frame over 100 ms at Sean's (worst 77), but
   the slow spell fails in 12 of 19 runs (0.55-1.1 s, 1.6-3.8 s with the coach full); the train goes
-  over in 5 of 15 (chaotic run to run). Waiting on Sean: its issue (the gate, the scale, sizes,
+  over in 5 of 15 (chaotic run to run). Waiting on Sean: #638 (the gate, the scale, sizes,
   charges). Traps: Sight takes a new structure in at its first look (look once at the build); never
   measure two games at once; a run's steps on the game's clock, its frames on the wall's.
 - **The dynamite's sound** (#596 step 1, branches `claude/gameplay-dynamite-sound`, `-2`): `BlastSounds`
