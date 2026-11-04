@@ -13,6 +13,8 @@ extends RefCounted
 ##     `derail_kick` m/s a m/s it was going, across): past that it's the physics, the ballast's
 ##     shoulder and the fill. At walking pace it lurches off and tips into the ballast; at speed, a
 ##     wreck.
+##   - Two cars folded past `jackknife_deg` at their coupler come apart (Sean, #620): the coupler
+##     shears and both break into sections, a tick apart.
 ##   - A car stopped harder than `car_break_dv` (m/s inside BREAK_WINDOW) breaks into big sections:
 ##     its front half, its back half and its roof (a shell's), each its own body with its share of
 ##     the shapes and the model (TrainModels.car_section), never every board.
@@ -58,6 +60,12 @@ var _rng := RandomNumberGenerator.new()
 var _limp_tick := -1
 ## Bodies whose riders the jolt has thrown (index -> [g, tilt] when it did): the rest go a tick apart.
 var _jolted := {}
+## The most each coupler (by the body in front of it) has folded, degrees (for the lab).
+var max_fold := {}
+## Cars waiting to break up (indices into bodies): a jackknife's two, a tick apart.
+var _to_break: Array[int] = []
+## The cars of boards, which break into sections (the engine and tender are iron: they don't).
+const BREAKS: Array[StringName] = [&"ore", &"box", &"express", &"coach"]
 
 
 func _init(t: Train) -> void:
@@ -206,8 +214,14 @@ func tick(delta: float) -> void:
 		var jolt := dv.length() / span / 9.81
 		var tilt := rad_to_deg(rb.global_basis.y.angle_to(Vector3.UP))
 		_throw_riders(i, jolt, tilt)
-		if bodies[i].part == "whole" and dv.length() > tuning.car_break_dv and bodies[i].kind in [&"ore", &"box", &"express", &"coach"]:
+		if bodies[i].part == "whole" and dv.length() > tuning.car_break_dv and bodies[i].kind in BREAKS:
 			_break_car(i, dv.length())
+	# Cars a jackknife broke, one a tick (a car's sections are three models built: ~a frame's share).
+	while not _to_break.is_empty():
+		var j: int = _to_break.pop_front()
+		if j < bodies.size() and bodies[j].part == "whole" and bodies[j].kind in BREAKS and body(j) != null:
+			_break_car(j, 0.0, "jackknife")
+			break
 
 
 ## Off the rails a car's wheels still roll over the ties (its grip, `wreck_friction`, is the
@@ -245,15 +259,39 @@ func _couplers() -> void:
 		var ra := body(c.a)
 		var rbb := body(c.b)
 		var gone := ra == null or rbb == null or not is_instance_valid(c.joint)
+		var why := "gone"
 		if not gone:
-			var pa: Vector3 = ra.global_transform * (c.at_a as Vector3)
-			var pb: Vector3 = rbb.global_transform * (c.at_b as Vector3)
-			gone = pa.distance_to(pb) > tuning.coupler_tears
+			# Jackknifed (Sean, #620: "if they're jackknifing make them come apart"): folded past
+			# `jackknife_deg` at the coupler, its pin shears and both cars break up there.
+			var fold := _fold(ra, rbb)
+			max_fold[c.a] = maxf(float(max_fold.get(c.a, 0.0)), fold)
+			if fold > tuning.jackknife_deg:
+				gone = true
+				why = "jackknife"
+				for side in [c.a, c.b]:
+					if not _to_break.has(side):
+						_to_break.append(side)
+			else:
+				var pa: Vector3 = ra.global_transform * (c.at_a as Vector3)
+				var pb: Vector3 = rbb.global_transform * (c.at_b as Vector3)
+				gone = pa.distance_to(pb) > tuning.coupler_tears
+				why = "strained"
 		if gone:
 			if is_instance_valid(c.joint):
 				(c.joint as Node).queue_free()
 			couplers.remove_at(k)
-			events.append({"t": time, "what": "coupler torn", "between": [bodies[c.a].car, bodies[c.b].car]})
+			events.append({"t": time, "what": "coupler torn", "why": why, "between": [bodies[c.a].car, bodies[c.b].car]})
+
+
+## How far two cars are folded at their coupler, degrees: the angle between their lines seen from above.
+static func _fold(a: RigidBody3D, b: RigidBody3D) -> float:
+	var fa := -a.global_basis.z
+	var fb := -b.global_basis.z
+	fa.y = 0.0
+	fb.y = 0.0
+	if fa.length() < 0.1 or fb.length() < 0.1:
+		return 0.0  # one stood on its end: not a fold
+	return rad_to_deg(fa.angle_to(fb))
 
 
 ## A rider's parts (posed, kinematic: his seat holds him) don't push his own car about while he
@@ -305,7 +343,7 @@ func _throw_riders(i: int, jolt: float, tilt: float) -> void:
 
 ## A car stopped hard breaks into its front half, back half and (a shell's) roof: each a body of
 ## its own with the shapes and the boards in it, the car's speed and spin, its share of the mass.
-func _break_car(i: int, dv: float) -> void:
+func _break_car(i: int, dv: float, why := "stopped hard") -> void:
 	var rb := body(i)
 	if rb == null:
 		return
@@ -367,7 +405,7 @@ func _break_car(i: int, dv: float) -> void:
 	bodies[i].part = "broken"
 	rb.remove_from_group(&"rubble")
 	rb.queue_free()
-	events.append({"t": time, "what": "car broken", "car": ci, "dv": dv})
+	events.append({"t": time, "what": "car broken", "car": ci, "dv": dv, "why": why})
 
 
 ## Every wreck body as the route's places: {car, part, key (its section and distance), local (its
