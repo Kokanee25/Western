@@ -454,7 +454,11 @@ mod sys {
             Some(w) => w,
             None => return CONTINUE_SEARCH,
         };
-        if !ON.load(Ordering::Relaxed) || CRASHED.swap(true, Ordering::SeqCst) {
+        // A vectored handler sees an exception before anything handles it (first chance), and a
+        // driver may take one and carry on: so up to three are noted, each over the one before
+        // (the last before the process dies is the crash), and the watchdog isn't stopped by one.
+        static NOTED: AtomicU32 = AtomicU32::new(0);
+        if !ON.load(Ordering::Relaxed) || NOTED.fetch_add(1, Ordering::SeqCst) >= 3 {
             return CONTINUE_SEARCH;
         }
         let t = GetCurrentThreadId();
@@ -467,6 +471,7 @@ mod sys {
         b.s(if t as u64 == MAIN_TID.load(Ordering::Relaxed) { " (the main thread)\n" } else { " (not the main thread)\n" });
         note_head(&mut b);
         b.s("crash.dmp has every thread's stack (python3 tools/crash_report.py FILE reads it); Godot's own handler's backtrace is in godot.log\n");
+        b.s("(noted as it was raised: had the game gone on, something handled it and it wasn't the crash)\n");
         write_file("crash.txt", b.bytes(), false);
         // The dump from the watchdog's thread (this stack may be the one that overflowed); this one
         // waits for it. With no watchdog, from here.

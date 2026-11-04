@@ -45,6 +45,12 @@ var lost_below := LOST_BELOW
 ## Each awake piece of rubble is looked at every this many ticks for having gone under the dug
 ## ground (Ground.rescue, #584).
 const RESCUE_TICKS := 15
+## A piece of rubble faster than this has been thrown by the physics, not by anything in the game
+## (a blast throws at most BlastTuning.max_throw, 25 m/s; a fall from the roof ~12): Sean's
+## farmhouse log (#624) had pieces 2.7 km away. It's slowed to this and said once; one gone to a
+## non-number is removed (Jolt in a release build doesn't check them).
+const RUNAWAY_SPEED := 60.0
+static var runaways := 0
 ## A cut leaves no end shorter than this (m): it goes with the stretch.
 const CUT_MIN_PIECE := 0.15
 ## The stretch a cut tears out flies in pieces about this long (m).
@@ -1792,6 +1798,8 @@ func _physics_step(delta: float) -> void:
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:
 			var v := rb.linear_velocity
+			if v.length_squared() > RUNAWAY_SPEED * RUNAWAY_SPEED:
+				v = _runaway(rb, v, lost)
 			rb.set_meta(&"v", v)
 			if gated and not rb.freeze:
 				_report(rb, v.length_squared(), on2, off2, ground, tick)
@@ -1804,6 +1812,24 @@ func _physics_step(delta: float) -> void:
 		push_warning("rubble %s fell through the ground at %s; removed" % [rb.get_meta(&"members", []), rb.global_position])
 		rubble.erase(rb)
 		rb.queue_free()
+
+
+## A piece thrown by the physics (RUNAWAY_SPEED): slowed, or lost if it's gone to a non-number.
+func _runaway(rb: RigidBody3D, v: Vector3, lost: Array[RigidBody3D]) -> Vector3:
+	runaways += 1
+	var p := rb.global_position
+	var bad := not (is_finite(v.x) and is_finite(v.y) and is_finite(v.z) and is_finite(p.x) and is_finite(p.y) and is_finite(p.z))
+	if runaways <= 5:
+		push_warning("rubble %s thrown at %.0f m/s at %s by the physics: %s (#624)" % [rb.get_meta(&"members", []),
+				v.length(), p, "removed (not a number)" if bad else "slowed to %.0f" % RUNAWAY_SPEED])
+	if bad:
+		if not lost.has(rb):
+			lost.append(rb)
+		return Vector3.ZERO
+	v = v.normalized() * RUNAWAY_SPEED
+	rb.linear_velocity = v
+	rb.angular_velocity = rb.angular_velocity.limit_length(50.0)
+	return v
 
 
 ## Its contacts reported while it's fast (or over dug ground), not while it settles (REPORT_ON).
