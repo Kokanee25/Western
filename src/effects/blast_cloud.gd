@@ -115,7 +115,7 @@ static func flash_sprites(world: Node3D, at: Vector3, vent: Vector3, size: float
 	p.interpolate = false
 	p.randomness = 0.3
 	p.layers = Layers.VIS_AIR
-	var pm := ParticleProcessMaterial.new()
+	var pm := _pm(&"flash")
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	pm.emission_sphere_radius = 0.15 * size
 	pm.direction = vent
@@ -181,7 +181,7 @@ static func ring_at(world: Node3D, ground: Vector3, dust: Color, size: float, k:
 	p.name = "BlastRing"
 	p.randomness = 0.4
 	p.layers = Layers.VIS_AIR
-	var pm := ParticleProcessMaterial.new()
+	var pm := _pm(&"ring")
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_RING
 	pm.emission_ring_axis = Vector3.UP
 	pm.emission_ring_radius = 0.35 * size
@@ -226,7 +226,7 @@ static func _spray(world: Node3D, at: Vector3, vent: Vector3, dust: Color, size:
 	var p := _particles(world, int(tn.spray_bits * size), tn.spray_s, seed_value + 7)
 	p.name = "BlastDirt"
 	p.randomness = 0.5
-	var pm := ParticleProcessMaterial.new()
+	var pm := _pm(&"spray")
 	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	pm.emission_sphere_radius = 0.12 * size
 	pm.direction = vent
@@ -268,7 +268,7 @@ static func speed_cap(world: Node3D, at: Vector3, vent: Vector3) -> float:
 static func _chunks(world: Node3D, at: Vector3, vent: Vector3, dust: Color, size: float, seed_value: int, cap := INF) -> void:
 	var p := _particles(world, int(46 * size), 1.8, seed_value + 2)
 	p.randomness = 0.6
-	var pm := ParticleProcessMaterial.new()
+	var pm := _pm(&"chunks")
 	pm.direction = vent
 	pm.spread = 55.0
 	pm.initial_velocity_max = minf(15.0 * sqrt(size), cap)
@@ -323,7 +323,7 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	var pale := dust.lerp(Color(0.92, 0.9, 0.86), 0.5)
 	pale.a = 0.0
 	# The jet: dense and dark, fast out of the open side, stopping within a few metres.
-	var jet := _dust(int(40 * size), 7.0, seed_value + 3)
+	var jet := _dust(&"jet", int(40 * size), 7.0, seed_value + 3)
 	var jm := jet.process_material as ParticleProcessMaterial
 	jm.direction = vent
 	jm.spread = 24.0
@@ -336,7 +336,7 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	jm.color_ramp = _ramp([[0.0, root], [0.35, mid], [1.0, pale]])
 	jet.draw_pass_1 = _quad(1.3 * size)
 	# The billow: slower, wider, climbing, darker at its root, paling as it rises and spreads.
-	var billow := _dust(int(44 * size), LIFETIME * 0.8, seed_value + 4)
+	var billow := _dust(&"billow", int(44 * size), LIFETIME * 0.8, seed_value + 4)
 	var bm := billow.process_material as ParticleProcessMaterial
 	bm.direction = vent
 	bm.spread = 50.0
@@ -349,7 +349,7 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 	bm.color_ramp = _ramp([[0.0, root], [0.2, mid], [1.0, pale]])
 	billow.draw_pass_1 = _quad(1.6 * size)
 	# The surge: dust thrown out low and rolling along the ground all round.
-	var surge := _dust(int(30 * size), LIFETIME * 0.6, seed_value + 5)
+	var surge := _dust(&"surge", int(30 * size), LIFETIME * 0.6, seed_value + 5)
 	var sm := surge.process_material as ParticleProcessMaterial
 	sm.direction = Vector3.RIGHT
 	sm.spread = 180.0
@@ -383,7 +383,7 @@ func _start(vent: Vector3, dust: Color, size: float, seed_value: int, indoors: b
 
 ## Lit dust particles riding this node (it drifts on the breeze): GunSmoke's puffs, shaded by the
 ## world's light so the cloud's top catches the sun and its root is dark.
-func _dust(amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
+func _dust(kind: StringName, amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 	var p := GPUParticles3D.new()
 	p.one_shot = true
 	p.amount = maxi(amount, 1)
@@ -397,7 +397,7 @@ func _dust(amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 	p.visibility_aabb = AABB(Vector3(-20, -4, -20), Vector3(40, 24, 40))
 	# The scorch decal (0.3 m up) painted a dark band across the cloud's foot.
 	p.layers = Layers.VIS_AIR
-	var pm := ParticleProcessMaterial.new()
+	var pm := _pm(kind)
 	pm.turbulence_enabled = true
 	pm.turbulence_noise_strength = 1.0
 	pm.turbulence_noise_scale = 3.5
@@ -473,26 +473,59 @@ static func _chunk() -> StandardMaterial3D:
 	return _chunk_material
 
 
+## The curves and ramps made once and shared (they never change once made): a material given new
+## ones built them on the spot, ~2 ms each, on the blast's own tick (#596 step 3).
+static var _textures := {}
+
+
 static func _curve(points: Array) -> CurveTexture:
+	var key := var_to_str(points)
+	if _textures.has(key):
+		return _textures[key]
 	var c := Curve.new()
 	c.max_value = 4.0
 	for pt: Vector2 in points:
 		c.add_point(pt)
 	var tex := CurveTexture.new()
 	tex.curve = c
+	_textures[key] = tex
 	return tex
 
 
 static func _ramp(stops: Array) -> GradientTexture1D:
+	var key := var_to_str(stops)
+	if _textures.has(key):
+		return _textures[key]
 	var g := Gradient.new()
 	g.offsets = PackedFloat32Array(stops.map(func(s: Array) -> float: return s[0]))
 	g.colors = PackedColorArray(stops.map(func(s: Array) -> Color: return s[1]))
 	var tex := GradientTexture1D.new()
 	tex.gradient = g
+	_textures[key] = tex
 	return tex
 
 
 static var _warmed := false
+## Each kind of particle's materials, a few made once and taken in turn (`_pm`).
+const POOL := 2
+static var _pools := {}
+static var _next := {}
+
+
+## A particle material for `kind` (its caller sets every field it uses, every time): one of `POOL`
+## made once and taken in turn. A new one cost ~4 ms when it was first given to its particles, every
+## material every blast (the dust's three were #538's 5-8 ms on the tick after); a pool of two, so
+## two blasts drawn in one frame (a bundle volley, two ticks a frame) aren't given one's settings.
+static func _pm(kind: StringName) -> ParticleProcessMaterial:
+	if not _pools.has(kind):
+		_pools[kind] = []
+		_next[kind] = 0
+	var pool: Array = _pools[kind]
+	var i: int = _next[kind]
+	_next[kind] = (i + 1) % POOL
+	if i >= pool.size():
+		pool.append(ParticleProcessMaterial.new())
+	return pool[i]
 
 
 ## The first stick in the world warms the first instant's materials and particle shaders where it
@@ -515,10 +548,16 @@ static func warm_up(parent: Node3D, at: Vector3) -> Array[Node]:
 	_warmed = true
 	var out: Array[Node] = []
 	var dust := Color(0.56, 0.45, 0.34)
-	out.append(flash_sprites(parent, at, Vector3.UP, 0.001, 0))
-	out.append(ring_at(parent, at, dust, 0.001, 1.0, 0))
-	out.append(_spray(parent, at, Vector3.UP, dust, 0.001, 0, INF))
-	_chunks(parent, at, Vector3.UP, dust, 0.001, 0)  # (frees itself)
+	for i in POOL:  # every material of every pool, set as a blast sets it
+		out.append(flash_sprites(parent, at, Vector3.UP, 0.001, 0))
+		out.append(ring_at(parent, at, dust, 0.001, 1.0, 0))
+		out.append(_spray(parent, at, Vector3.UP, dust, 0.001, 0, INF))
+		_chunks(parent, at, Vector3.UP, dust, 0.001, 0)  # (frees itself)
+		var c := BlastCloud.new()
+		parent.add_child(c)
+		c.global_position = at
+		c._start(Vector3.UP, dust, 0.001, 0, false)
+		out.append(c)
 	for mat: Material in [_chunk(), _dust_mat(), _glow()]:
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
