@@ -1,0 +1,15 @@
+{
+  "name": "The trestle lab's gorge line",
+  "_doc": "The trestle lab's line (#623): 1.3 km laid east, 2.6 km east of town (past the town's ground, which collides out to 2 km): a 450 m straight, a slight left-hand bend of 900 m radius (18 degrees, 40 m spirals) over the gorge, then straight on. The viaduct is the route's crossing 'gorge' (480-780 m: 300 m long), named on the route so it moves with the line; the lab's gorge is cut to fit it (gorge.gd). Level: a 66 m deep canyon under a level deck. 'approach' and 'far_rim' are marks for the cameras and the scenarios.",
+  "origin": [2600.0, 0.0, 40.0],
+  "heading": 90.0,
+  "plan": [
+    {"id": "approach", "straight": 450},
+    {"id": "gorge_bend", "bend": {"radius": 900, "turn": 18, "spirals": 40, "side": "left"}},
+    {"id": "beyond", "straight_to": 1300}
+  ],
+  "profile": {"vertical_curve": 60, "grades": [[0, 0]]},
+  "marks": {"start": 40, "approach": 300, "near_rim": 480, "middle": 630, "far_rim": 780, "beyond": 1000},
+  "crossings": [{"id": "gorge", "kind": "trestle", "from": 480, "to": 780}],
+  "gorge": {"depth": 66.0, "floor_half": 22.0, "wall_power": 1.7, "meander": 8.0}
+}

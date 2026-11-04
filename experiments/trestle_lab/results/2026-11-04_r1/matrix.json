@@ -1,0 +1,649 @@
+{
+  "A_one_bent_bottom": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 19.48,
+      "posts": 8
+    },
+    "empty": {
+      "bents_down": 1,
+      "broken": 142,
+      "by_kind": {
+        "bent_sill": 9,
+        "brace": 40,
+        "cap": 1,
+        "girt": 40,
+        "post": 52
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": true,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 1,
+        "broken": 144,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 52,
+          "stringer": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.4
+      },
+      {
+        "bents_down": 1,
+        "broken": 146,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 52,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.86
+      },
+      {
+        "bents_down": 1,
+        "broken": 146,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 52,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.9
+      },
+      {
+        "bents_down": 1,
+        "broken": 170,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "guard": 4,
+          "post": 52,
+          "rail": 2,
+          "stringer": 6,
+          "tie": 16
+        },
+        "deck_damage": 3,
+        "engine_at": 3.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.3
+      }
+    ]
+  },
+  "B_one_bent_top": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 14.247,
+      "posts": 4
+    },
+    "empty": {
+      "bents_down": 1,
+      "broken": 13,
+      "by_kind": {
+        "brace": 4,
+        "cap": 1,
+        "girt": 4,
+        "post": 4
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": true,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 1,
+        "broken": 15,
+        "by_kind": {
+          "brace": 4,
+          "cap": 1,
+          "girt": 4,
+          "post": 4,
+          "stringer": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.4
+      },
+      {
+        "bents_down": 1,
+        "broken": 17,
+        "by_kind": {
+          "brace": 4,
+          "cap": 1,
+          "girt": 4,
+          "post": 4,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.86
+      },
+      {
+        "bents_down": 1,
+        "broken": 17,
+        "by_kind": {
+          "brace": 4,
+          "cap": 1,
+          "girt": 4,
+          "post": 4,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.9
+      },
+      {
+        "bents_down": 1,
+        "broken": 41,
+        "by_kind": {
+          "brace": 4,
+          "cap": 1,
+          "girt": 4,
+          "guard": 4,
+          "post": 4,
+          "rail": 2,
+          "stringer": 6,
+          "tie": 16
+        },
+        "deck_damage": 3,
+        "engine_at": 3.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.29
+      }
+    ]
+  },
+  "C_two_bents_bottom": {
+    "bent_heights": [
+      66.1,
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 19.561,
+      "posts": 16
+    },
+    "empty": {
+      "bents_down": 2,
+      "broken": 344,
+      "by_kind": {
+        "bent_sill": 18,
+        "brace": 120,
+        "cap": 2,
+        "girt": 60,
+        "guard": 6,
+        "post": 104,
+        "rail": 2,
+        "stringer": 8,
+        "tie": 24
+      },
+      "deck_damage": 3,
+      "rails_gone": 2
+    },
+    "fails_under_engine": null,
+    "holds_empty": false,
+    "under_engine": [
+      {
+        "bents_down": 2,
+        "broken": 344,
+        "by_kind": {
+          "bent_sill": 18,
+          "brace": 120,
+          "cap": 2,
+          "girt": 60,
+          "guard": 6,
+          "post": 104,
+          "rail": 2,
+          "stringer": 8,
+          "tie": 24
+        },
+        "deck_damage": 3,
+        "engine_at": -6.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.02
+      }
+    ]
+  },
+  "D_bottom_inner": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 3.544,
+      "posts": 2
+    },
+    "empty": {
+      "bents_down": 0,
+      "broken": 2,
+      "by_kind": {
+        "post": 2
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": true,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 1,
+        "broken": 130,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 36,
+          "post": 46,
+          "stringer": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.4
+      },
+      {
+        "bents_down": 1,
+        "broken": 132,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 36,
+          "post": 46,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.86
+      },
+      {
+        "bents_down": 1,
+        "broken": 132,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 36,
+          "post": 46,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.9
+      },
+      {
+        "bents_down": 1,
+        "broken": 156,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 36,
+          "guard": 4,
+          "post": 46,
+          "rail": 2,
+          "stringer": 6,
+          "tie": 16
+        },
+        "deck_damage": 3,
+        "engine_at": 3.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.3
+      }
+    ]
+  },
+  "E_bottom_left_half": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 17.772,
+      "posts": 4
+    },
+    "empty": {
+      "bents_down": 1,
+      "broken": 132,
+      "by_kind": {
+        "bent_sill": 9,
+        "brace": 36,
+        "cap": 1,
+        "girt": 38,
+        "post": 48
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": true,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 1,
+        "broken": 134,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 38,
+          "post": 48,
+          "stringer": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.4
+      },
+      {
+        "bents_down": 1,
+        "broken": 136,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 38,
+          "post": 48,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.86
+      },
+      {
+        "bents_down": 1,
+        "broken": 136,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 38,
+          "post": 48,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.9
+      },
+      {
+        "bents_down": 1,
+        "broken": 160,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 36,
+          "cap": 1,
+          "girt": 38,
+          "guard": 4,
+          "post": 48,
+          "rail": 2,
+          "stringer": 6,
+          "tie": 16
+        },
+        "deck_damage": 3,
+        "engine_at": 3.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.28
+      }
+    ]
+  },
+  "F_bottom_outer": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 17.179,
+      "posts": 2
+    },
+    "empty": {
+      "bents_down": 1,
+      "broken": 136,
+      "by_kind": {
+        "bent_sill": 9,
+        "brace": 40,
+        "cap": 1,
+        "girt": 40,
+        "post": 46
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": true,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 1,
+        "broken": 138,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 46,
+          "stringer": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.4
+      },
+      {
+        "bents_down": 1,
+        "broken": 140,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 46,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.86
+      },
+      {
+        "bents_down": 1,
+        "broken": 140,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "post": 46,
+          "stringer": 4
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.9
+      },
+      {
+        "bents_down": 1,
+        "broken": 164,
+        "by_kind": {
+          "bent_sill": 9,
+          "brace": 40,
+          "cap": 1,
+          "girt": 40,
+          "guard": 4,
+          "post": 46,
+          "rail": 2,
+          "stringer": 6,
+          "tie": 16
+        },
+        "deck_damage": 3,
+        "engine_at": 3.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.3
+      }
+    ]
+  },
+  "G_top_inner": {
+    "bent_heights": [
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 5.005,
+      "posts": 2
+    },
+    "empty": {
+      "bents_down": 0,
+      "broken": 2,
+      "by_kind": {
+        "post": 2
+      },
+      "deck_damage": 0,
+      "rails_gone": 0
+    },
+    "fails_under_engine": false,
+    "holds_empty": true,
+    "under_engine": [
+      {
+        "bents_down": 0,
+        "broken": 2,
+        "by_kind": {
+          "post": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.13
+      },
+      {
+        "bents_down": 0,
+        "broken": 2,
+        "by_kind": {
+          "post": 2
+        },
+        "deck_damage": 0,
+        "engine_at": -3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.18
+      },
+      {
+        "bents_down": 0,
+        "broken": 2,
+        "by_kind": {
+          "post": 2
+        },
+        "deck_damage": 0,
+        "engine_at": 0.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.09
+      },
+      {
+        "bents_down": 0,
+        "broken": 2,
+        "by_kind": {
+          "post": 2
+        },
+        "deck_damage": 0,
+        "engine_at": 3.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.18
+      },
+      {
+        "bents_down": 0,
+        "broken": 2,
+        "by_kind": {
+          "post": 2
+        },
+        "deck_damage": 0,
+        "engine_at": 6.0,
+        "rails_gone": 0,
+        "stringers_worst": 0.16
+      }
+    ]
+  },
+  "H_two_bents_top": {
+    "bent_heights": [
+      66.1,
+      66.1
+    ],
+    "cut": {
+      "how": "cut",
+      "kg_each": 0.0,
+      "ms": 24.004,
+      "posts": 8
+    },
+    "empty": {
+      "bents_down": 2,
+      "broken": 68,
+      "by_kind": {
+        "brace": 12,
+        "cap": 2,
+        "girt": 6,
+        "guard": 6,
+        "post": 8,
+        "rail": 2,
+        "stringer": 8,
+        "tie": 24
+      },
+      "deck_damage": 3,
+      "rails_gone": 2
+    },
+    "fails_under_engine": null,
+    "holds_empty": false,
+    "under_engine": [
+      {
+        "bents_down": 2,
+        "broken": 68,
+        "by_kind": {
+          "brace": 12,
+          "cap": 2,
+          "girt": 6,
+          "guard": 6,
+          "post": 8,
+          "rail": 2,
+          "stringer": 8,
+          "tie": 24
+        },
+        "deck_damage": 3,
+        "engine_at": -6.0,
+        "rails_gone": 2,
+        "stringers_worst": 0.02
+      }
+    ]
+  }
+}

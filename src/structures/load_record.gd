@@ -12,6 +12,7 @@ var member_id: StringName
 var taken_in := -1
 var weight := 0.0
 var extra_load := 0.0
+var extra_points := PackedVector2Array()
 var supported_by: Array[StringName] = []
 var support_points := {}
 var grounded := false
@@ -38,6 +39,7 @@ func take(m: StructureMember, tuning: TimberTuning, structure: Structure) -> voi
 	member_id = m.member_id
 	weight = m.weight(tuning)
 	extra_load = m.extra_load
+	extra_points = m.extra_points.duplicate()
 	supported_by = m.supported_by.duplicate()
 	support_points = m.support_points.duplicate()
 	grounded = m.grounded
