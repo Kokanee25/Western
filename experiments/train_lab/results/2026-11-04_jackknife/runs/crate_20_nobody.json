@@ -1,0 +1,56 @@
+{
+  "derail": {},
+  "frames": {
+    "before_mean_ms": 12.5774795348837,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 11.3905082644628,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 12.84595,
+    "second_ms": 19.455,
+    "slow_spell_s": 0.0,
+    "worst_ms": 19.763
+  },
+  "outcome": "ran through",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 75.6296722062459,
+      "kind": "blocked",
+      "kmh": 19.9955935939797,
+      "lux": 10000.0,
+      "range": 450.0,
+      "s": 300.370327793754,
+      "t": 0.1,
+      "what": "Crate11",
+      "who": "engineer"
+    }
+  ],
+  "short_by": -164.393208258981,
+  "spec": {
+    "at": 380.0,
+    "driver": "none",
+    "hour": 12.0,
+    "how": "crate",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/crate_20_nobody.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 80.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "stopped_at": 544.393208258981,
+  "struck": [
+    {
+      "car": 0,
+      "how": "loose",
+      "speed": 5.5924023289436,
+      "t": 14.3000000000003,
+      "who": "Crate11"
+    }
+  ],
+  "thrown": 0
+}

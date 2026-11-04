@@ -431,7 +431,7 @@ frozen until Sean names one.
 - **The cheap judge** (#609, branch `claude/art-cheap-judge`): `critic.py cheap` (rubric
   `docs/concept/judge/CHEAP.md`, self-test `cheap-probes`, LAYOUT "src/render"); its verdict goes in
   every art status entry and #608's before/after. Baseline `2026-11-03_cheap_r1`: saloon views cheap
-  indie, street noon/golden and the film good indie. Waiting on Sean: does it agree with his eye (#612).
+  indie, street noon/golden and the film good indie. Sean agrees with its verdicts and its probe ranking (#612, 2026-11-04).
   **`--refs=DIR`** (#613, PR #614): 32 official AAA screenshots (RDR2, KCD2, Hunt 1896, Dishonored 2)
   in the private Studio's `references/` (its PR #10, `refs.yml` fetches on GitHub) as the scale's top,
   read in place, never in this repo; self-test 3/3 with them (now fails flat light on today's street);
@@ -715,7 +715,9 @@ frozen until Sean names one.
   (`TrainWreck`), the wreck saved by route place, the crew (`TrackRepair`). 18 runs: by day he
   stops short on the straight at every speed, at night 40 km/h derails; the left bend is the
   fireman's; every derail inside #492's gate (worst 44 ms at Sean's, once seven men going limp on
-  one tick made 140). Waiting on Sean: the dials and films (its issue).
+  one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
+  apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
+  `results/2026-11-04_jackknife/`). Next: #542 (step 7).
 - **The trestle lab** (#623, branch `claude/issue-623-oge4jv`; brief `docs/briefs/trestle.md`,
   `experiments/trestle_lab/` README, results `results/2026-11-04_r1/`): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
