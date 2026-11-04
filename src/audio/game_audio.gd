@@ -93,18 +93,31 @@ static func _blast_recorded(host: Node, at: Vector3, size: float, rec_set: int) 
 	var k := t()
 	var take := absi(hash(Vector3i(at.round())))
 	var rec := func(layer: StringName, i := 0) -> AudioStream: return BlastSounds.stream(rec_set, layer, take + i)
+	# Charges fired together (bundles on one plunger, #647) are one volley: the same recording from
+	# a few metres apart lands a few ms apart and combs into a hollow flange, not a bigger bang. So
+	# each charge keeps its own crack and boom, each pitched apart (a stick never sounds the same
+	# twice either), while the sub and the roll play once and grow (one bigger thunder).
+	var join := _join_volley(at)
+	var pitch: float = [1.0, 0.93, 1.07, 0.88, 1.12][mini(join, 4)] * (0.97 + 0.06 * float(take % 101) / 100.0)
 	var boom: AudioStream = rec.call(&"boom")
 	var heard := play(host, &"blast", at, {"stream": boom, "unit_size": k.blast_unit_size * size,
-			"volume_db": k.rec_boom_db, "max_db": k.rec_boom_db})
+			"volume_db": k.rec_boom_db, "max_db": k.rec_boom_db, "pitch": pitch})
 	if rec.call(&"crack"):
 		play(host, &"blast", at, {"stream": rec.call(&"crack"), "unit_size": k.rec_crack_unit_size * size,
-				"volume_db": k.rec_crack_db, "max_db": k.rec_crack_db})
-	if rec.call(&"sub"):
-		play(host, &"blast", at, {"stream": rec.call(&"sub"), "unit_size": k.rec_sub_unit_size * size,
-				"volume_db": k.rec_sub_db, "max_db": k.rec_sub_db, "panning": 0.2})
-	play(host, &"blast_roll", at, {"stream": rec.call(&"roll"), "unit_size": k.blast_roll_unit_size * size,
-			"volume_db": k.rec_roll_db, "max_db": k.rec_roll_max_db, "panning": 0.4})
-	if heard and not heard.get_meta(&"inside", false):
+				"volume_db": k.rec_crack_db, "max_db": k.rec_crack_db, "pitch": pitch})
+	if join > 0:
+		for key: String in ["sub", "roll"]:
+			var p: Variant = _volley.get(key)
+			if is_instance_valid(p) and int(_volley.n) <= k.volley_grow_max:
+				(p as AudioStreamPlayer3D).volume_db += k.volley_db
+				(p as AudioStreamPlayer3D).max_db += k.volley_db
+	else:
+		if rec.call(&"sub"):
+			_volley.sub = play(host, &"blast", at, {"stream": rec.call(&"sub"), "unit_size": k.rec_sub_unit_size * size,
+					"volume_db": k.rec_sub_db, "max_db": k.rec_sub_db, "panning": 0.2, "pitch": pitch})
+		_volley.roll = play(host, &"blast_roll", at, {"stream": rec.call(&"roll"), "unit_size": k.blast_roll_unit_size * size,
+				"volume_db": k.rec_roll_db, "max_db": k.rec_roll_max_db, "panning": 0.4, "pitch": pitch})
+	if heard and join == 0 and not heard.get_meta(&"inside", false):
 		for s: Dictionary in slaps(host, at):
 			play(host, &"blast", s.at, {"stream": boom, "unit_size": k.blast_unit_size * size,
 					"volume_db": k.rec_boom_db + k.slap_db, "max_db": k.rec_boom_db + k.slap_db, "walls": false})
@@ -125,9 +138,30 @@ static func _blast_recorded(host: Node, at: Vector3, size: float, rec_set: int) 
 		var where := at + Vector3(cos(a), 0.0, sin(a)) * rng.randf_range(1.0, 5.0) * size
 		play(holder, layers[i], where, {"stream": s, "volume_db": k.rec_debris_db + rng.randf_range(-3.0, 0.0),
 				"unit_size": 6.0, "normal": Vector3.UP, "after": rng.randf_range(0.25, 0.7)})
-	if near.size() > 0 and rec.call(&"groan"):
+	if near.size() > 0 and join == 0 and rec.call(&"groan"):
 		play(holder, &"groan", near.at, {"stream": rec.call(&"groan"), "unit_size": 10.0 * size,
 				"volume_db": k.rec_groan_db, "max_db": k.rec_groan_db, "after": rng.randf_range(0.8, 1.6)})
+
+
+## The volley a charge going off at `at` now belongs to: 0 if it starts one, else how many went
+## before it (within SoundTuning.volley_s of the first, on the physics clock, and volley_m of it).
+static var _volley := {}
+
+
+## For tests: the next charge starts a volley of its own.
+static func forget_volley() -> void:
+	_volley = {}
+
+
+static func _join_volley(at: Vector3) -> int:
+	var k := t()
+	var now := Engine.get_physics_frames()
+	if not _volley.is_empty() and now - int(_volley.frame) <= int(round(k.volley_s * Engine.physics_ticks_per_second)) \
+			and (_volley.at as Vector3).distance_to(at) <= k.volley_m:
+		_volley.n = int(_volley.n) + 1
+		return int(_volley.n) - 1
+	_volley = {"frame": now, "at": at, "n": 1}
+	return 0
 
 
 ## The structure nearest `at` within `reach` (by its bounds): {at: its nearest point, d}, else {}.
@@ -146,7 +180,7 @@ static func _nearest_structure(holder: Node, at: Vector3, reach: float) -> Dicti
 
 
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
-## panning (1), stream (a recording to play in place of the synthesised `id`), delay (true: distance / the speed of sound; an image source is already the reflected
+## panning (1), pitch (1: its pitch_scale), stream (a recording to play in place of the synthesised `id`), delay (true: distance / the speed of sound; an image source is already the reflected
 ## path's length away), after (seconds more before it starts), walls (true: the room and the walls by
 ## where it is), normal (the face a sound made on a surface came off).
 static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStreamPlayer3D:
@@ -168,6 +202,7 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 		p.free()
 		return null
 	p.panning_strength = float(o.get("panning", 1.0))
+	p.pitch_scale = float(o.get("pitch", 1.0))
 	p.attenuation_filter_cutoff_hz = air_cutoff(d)
 	if bool(o.get("walls", true)) and ears:
 		place(p, holder, at, ears.global_position, o.get("normal", Vector3.ZERO))

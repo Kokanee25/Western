@@ -763,6 +763,9 @@ frozen until Sean names one.
   0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
   (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
   glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
+  For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
+  volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
+  one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
 - **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`, branch
   `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
   wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
