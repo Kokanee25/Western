@@ -336,7 +336,20 @@ func weight(tuning: TimberTuning) -> float:
 	var c := char_depth * 2.0
 	var sound := maxf(size.x - c, 0.0) * maxf(size.y - c, 0.0) * maxf(size.z - c, 0.0) * solid_share
 	# Char weighs about a fifth of the wood it was.
-	return (sound + (volume() - sound) * 0.2) * float(tuning.wood(wood).density) * 9.81
+	return (sound + (volume() - sound) * 0.2) * density(tuning) * 9.81
+
+
+## kg/m³: masonry's from materials.json (MasonryMaterials), the rest TimberTuning's.
+func density(tuning: TimberTuning) -> float:
+	if wood != MasonryMaterials.OLD_STONE and MasonryMaterials.is_masonry(wood):
+		return MasonryMaterials.density(wood)
+	return float(tuning.wood(wood).density)
+
+
+## Stone, brick or adobe (MasonryMaterials.is_masonry): never burns, carves as stone, rings and
+## throws stone dust. The one test the game asks.
+func is_masonry() -> bool:
+	return MasonryMaterials.is_masonry(wood)
 
 
 ## Where it is in the world now (it may be lying in the street as rubble).
@@ -611,7 +624,7 @@ func _make_voxels() -> bool:
 		return false
 	var t := voxel_damage_tuning()
 	voxels = ClassDB.instantiate(&"VoxelMember")
-	voxels.setup(size, t.cells_per_metre, t.max_voxels, wood == &"stone")
+	voxels.setup(size, t.cells_per_metre, t.max_voxels, is_masonry())
 	return true
 
 
@@ -643,7 +656,7 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 	var seed := hash(member_id) + holes.size() * 7919
 	holes.append({"entry": local_entry, "exit": local_to, "through": through, "radius": radius, "spall": spall})
 	var removed: int = voxels.carve(local_entry, local_to, radius * t.channel_scale, spall, seed, t.ragged, t.flare,
-			-1 if wood == &"stone" else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
+			-1 if is_masonry() else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
 	if removed > 0:
 		_section_stale = true
 		solid_share = float(voxels.solid()) / maxf(float(voxels.total()), 1.0)
@@ -687,7 +700,7 @@ func _fresh_material() -> Material:
 	var key := wood
 	if not _fresh.has(key):
 		var t := voxel_damage_tuning()
-		var stone := wood == &"stone"
+		var stone := is_masonry()
 		var base := t.fresh_stone if stone else t.fresh_wood
 		if wood == &"dark_trim":
 			base = base.darkened(0.25)
@@ -733,13 +746,13 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 	rng.seed = seed
 	var cell: float = voxels.cell_volume()
 	var ai := axis_index()
-	var density := 2300.0 if wood == &"stone" else 480.0
+	var rho := MasonryMaterials.density(wood) if is_masonry() else 480.0
 	for c: Vector4 in voxels.chunks():
 		if c.w < t.chip_min_voxels:
 			continue
 		var side := pow(c.w * cell, 1.0 / 3.0)
 		var dims := Vector3.ONE * side * 0.7
-		if wood != &"stone":
+		if not is_masonry():
 			dims[ai] = side * 2.2  # splinters run along the grain
 		dims = dims.clampf(0.004, 0.12)
 		var chip := RigidBody3D.new()
@@ -747,7 +760,7 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.add_to_group(&"wood_chips")
 		chip.collision_layer = Layers.DEBRIS
 		chip.collision_mask = Layers.DEBRIS_MASK
-		chip.mass = maxf(dims.x * dims.y * dims.z * density, 0.002)
+		chip.mass = maxf(dims.x * dims.y * dims.z * rho, 0.002)
 		# It starts inside this member's box (the hole it came out of): free of it, or the physics
 		# shoves it out of the solid it's in, now and then at hundreds of m/s, off the map.
 		chip.add_collision_exception_with(self)

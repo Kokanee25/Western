@@ -10,7 +10,11 @@
 		"crack_wide": 0.85,
 		"delayed_fail_from": 0.95,
 		"delayed_fail_s": [1.0, 8.0],
-		"blast_dynamic_factor": 1.0,
+		"blast_dynamic_factor": 0.01,
+		"blast_throw_factor": 4.0,
+		"free_before_settle_s": 0.1,
+		"_free_before_settle_s": "Seconds between a charge freeing elements and the solver deciding what else falls (spec section 5, rule 5): what a charge throws leaves in the first milliseconds, before anything over it starts to fall. Step 2: settled on the same tick, what fell over the hole landed on the stones on their way out and pinned them in the wall.",
+		"_blast_throw_factor": "What a freed element is thrown with, x the reflected impulse on its face over its mass (spec section 5, rule 4). Kinney-Graham's impulse fit is a far-field one: right by a contact charge the detonation products' momentum (sqrt(2 x energy x charge mass), 4.6 MJ/kg of TNT, spread over the hemisphere) is about 4x it. Masonry lab step 2: at 1 the stones a stick freed left the wall at ~1 m/s and stayed standing in their own shape.",
 		"debris_min_size": 0.04
 	},
 
