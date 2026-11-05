@@ -761,6 +761,8 @@ frozen until Sean names one.
   through `GameReset.reload_scene` (the lab's Y/X/Z skipped the statics and the watchdog's load).
   Trap: the lab's `run.py` passes `--deterministic`, which keeps the workers' merges off: crashes
   in threaded paths need runs without it.
+- **#668** (branch `claude/gameplay-issue-668`): a lost mission tries again on Enter/Start only
+  (`mission_retry`; `ui_accept` was Space, the jump); a match put away never lights the stick.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
