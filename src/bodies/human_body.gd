@@ -4401,7 +4401,7 @@ func mop_pool(share: float) -> void:
 		_pool_ml = 0.0
 		return
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
-	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+	_pool.size = Vector3(r * 2.0, POOL_DEPTH, r * 2.0)
 
 
 func _update_pool() -> void:
@@ -4422,10 +4422,38 @@ func _update_pool() -> void:
 		_pool.add_to_group(&"blood_drying")
 		add_child(_pool)
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
-	_pool.global_position = Vector3(chest.global_position.x, chest.global_position.y, chest.global_position.z)
+	var at := chest.global_position
+	_pool.global_position = Vector3(at.x, _pool_floor(at) + POOL_DEPTH * 0.25, at.z)
 	_pool.global_rotation = Vector3.ZERO
-	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+	_pool.size = Vector3(r * 2.0, POOL_DEPTH, r * 2.0)
 	_soak_in_pool(r, get_physics_process_delta_time())
+
+
+## The pool's box (m tall), laid on the floor under him (#669): it paints what lies within 15 cm
+## above the floor or tread he's on and 5 cm into it, not the air round him (a 1 m box centred on
+## his belly painted a stair's risers and rail, and the gun in your hands as you stood by him).
+const POOL_DEPTH := 0.2
+const POOL_FLOOR_EVERY := 0.5  ## s between looks for the floor while he lies still
+const POOL_FLOOR_MOVED := 0.1  ## m: moved this far, the floor is looked for again at once
+var _pool_floor_y := NAN
+var _pool_floor_from := Vector3.INF
+var _pool_floor_in := 0.0
+
+
+## The floor under his belly (world y): the first of the world's surfaces down from it, looked for
+## every POOL_FLOOR_EVERY s or when he's moved; not found, 15 cm under his belly (a man lies so).
+func _pool_floor(at: Vector3) -> float:
+	_pool_floor_in -= get_physics_process_delta_time()
+	if not is_nan(_pool_floor_y) and _pool_floor_in > 0.0 and at.distance_to(_pool_floor_from) < POOL_FLOOR_MOVED:
+		return _pool_floor_y
+	_pool_floor_in = POOL_FLOOR_EVERY
+	_pool_floor_from = at
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.1, at + Vector3.DOWN * 1.2, Layers.WORLD)
+	q.exclude = _own_rids()
+	Prof.count(&"q_pool")
+	var hit := World.space(self).intersect_ray(q)
+	_pool_floor_y = (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
+	return _pool_floor_y
 
 
 ## Lying in his blood, his clothes take it up from below: each part of him resting in the pool gets

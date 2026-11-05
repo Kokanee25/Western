@@ -296,6 +296,42 @@ func test_a_conscious_man_down_bleeds_into_a_pool() -> void:
 	check(man._pool != null, "a pool under a man who's down, limp or not")
 
 
+## #669: the pool's box lies on the floor under him, thin, not a metre tall round his belly (on a
+## stair it painted the risers, the rail and the gun in your hands).
+func test_his_pool_lies_thin_on_the_floor() -> void:
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[0].rate = 6.0
+	man.go_limp()
+	man.time_scale = 20.0
+	await physics_frames(120)
+	man.time_scale = 1.0
+	check(man._pool != null, "a pool under him")
+	var pool := man._pool
+	check(pool.size.y <= 0.25, "thin (%.2f m)" % pool.size.y)
+	var bottom := pool.global_position.y - pool.size.y * 0.5
+	var top := pool.global_position.y + pool.size.y * 0.5
+	check(bottom < 0.0 and bottom > -0.15, "its foot just into the floor (%.2f)" % bottom)
+	check(top > 0.05 and top < 0.25, "its top a hand over it (%.2f)" % top)
+
+
+func test_his_pool_finds_the_tread_under_him() -> void:
+	# A tread 0.6 m up, off to one side (a man lying on a stair).
+	var tread := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.0, 0.04, 0.3)
+	shape.shape = box
+	tread.add_child(shape)
+	tread.position = Vector3(5.0, 0.58, 0.0)
+	world.add_child(tread)
+	await physics_frames(2)
+	man._pool_floor_y = NAN
+	var y := man._pool_floor(Vector3(5.0, 0.85, 0.0))
+	check(absf(y - 0.6) < 0.01, "the tread's top (%.2f)" % y)
+	man._pool_floor_y = NAN
+	check(absf(man._pool_floor(Vector3(8.0, 0.25, 0.0))) < 0.01, "and the floor where there's no tread")
+
+
 func test_a_broken_jaw_spits_teeth() -> void:
 	man.physiology.jaw_broken = true
 	man.signs._spit_in = 0.1
