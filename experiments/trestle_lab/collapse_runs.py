@@ -18,20 +18,21 @@ print = functools.partial(print, flush=True)
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BRIDGE = [sys.executable, os.path.join(ROOT, "tools", "bridge.py")]
 
-# name: (what it is, collapse.gd's spec). Charges are bundles of two sticks a post (0.4 kg: one
-# stick doesn't cut a 12 x 12 in post), at the foot of the tallest bent's bottom story unless said.
+# name: (what it is, collapse.gd's spec). Charges are bundles of four sticks a post (0.8 kg, touching
+# it: since heavy timber was made tough, #647, three sticks don't cut a 12 x 12 in post; these were
+# two sticks 5 cm off before), at the foot of the tallest bent's bottom story unless said.
 RUNS = {
-    "bent_blown": ("one bent blown, no train", {"how": "stick", "posts": "all", "sticks": 2}),
-    "bent_blown_one_tick": ("the same, all eight on one tick", {"how": "stick", "posts": "all", "sticks": 2, "stagger": 0}),
-    "rim_bent_blown": ("a short bent near the rim (the 8th) blown, no train", {"bent": 8, "how": "stick", "posts": "all", "sticks": 2}),
-    "two_bents_blown": ("two bents side by side blown, no train", {"how": "stick", "posts": "all", "sticks": 2, "bents": 2}),
-    "light_then_engine_30": ("a light charge (the two inner posts), then the train at 30 km/h", {"how": "stick", "posts": "inner", "sticks": 2, "train": "cross", "when": "before", "kmh": 30}),
-    "light_then_engine_15": ("the same at 15 km/h", {"how": "stick", "posts": "inner", "sticks": 2, "train": "cross", "when": "before", "kmh": 15}),
-    "one_under_40": ("one bent blown as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 2, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
-    "two_under_40": ("two bents blown as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 2, "bents": 2, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
-    "two_under_40_coach": ("the same, twelve men seated in the coach", {"how": "stick", "posts": "all", "sticks": 2, "bents": 2, "train": "cross", "when": "under", "lead": 40, "kmh": 40, "riders": 12}),
-    "three_under_40": ("three bents blown as the engine comes on (60 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 2, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40}),
-    "three_under_40_coach": ("the same, twelve men seated in the coach", {"how": "stick", "posts": "all", "sticks": 2, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40, "riders": 12}),
+    "bent_blown": ("one bent blown, no train", {"how": "stick", "posts": "all", "sticks": 4}),
+    "bent_blown_one_tick": ("the same, all eight on one tick", {"how": "stick", "posts": "all", "sticks": 4, "stagger": 0}),
+    "rim_bent_blown": ("a short bent near the rim (the 8th) blown, no train", {"bent": 8, "how": "stick", "posts": "all", "sticks": 4}),
+    "two_bents_blown": ("two bents side by side blown, no train", {"how": "stick", "posts": "all", "sticks": 4, "bents": 2}),
+    "light_then_engine_30": ("a light charge (the two inner posts), then the train at 30 km/h", {"how": "stick", "posts": "inner", "sticks": 4, "train": "cross", "when": "before", "kmh": 30}),
+    "light_then_engine_15": ("the same at 15 km/h", {"how": "stick", "posts": "inner", "sticks": 4, "train": "cross", "when": "before", "kmh": 15}),
+    "one_under_40": ("one bent blown as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 4, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
+    "two_under_40": ("two bents blown as the engine comes on (40 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 4, "bents": 2, "train": "cross", "when": "under", "lead": 40, "kmh": 40}),
+    "two_under_40_coach": ("the same, twelve men seated in the coach", {"how": "stick", "posts": "all", "sticks": 4, "bents": 2, "train": "cross", "when": "under", "lead": 40, "kmh": 40, "riders": 12}),
+    "three_under_40": ("three bents blown as the engine comes on (60 m short) at 40 km/h", {"how": "stick", "posts": "all", "sticks": 4, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40}),
+    "three_under_40_coach": ("the same, twelve men seated in the coach", {"how": "stick", "posts": "all", "sticks": 4, "bents": 3, "train": "cross", "when": "under", "lead": 60, "kmh": 40, "riders": 12}),
     # Bundles (#647): two bundles of four sticks on the tallest bent's two inner posts (the light
     # charge), fired by the plunger (a tick apart, the game's fire_spread_ticks), as the engine comes
     # on; with no train; and the same on one tick for comparison.

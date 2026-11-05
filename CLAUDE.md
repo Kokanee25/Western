@@ -774,13 +774,17 @@ frozen until Sean names one.
   you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
   gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
   `2026-11-04_on_you/`. Waiting on Sean: #656 (the films). Next on #596: step 3 (the first instant).
-- **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`, branch
-  `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
-  wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
-  (`experiments/blast_freeze/results/2026-11-04_bundles/`): the trestle's two bundles pass, Main
-  Street's one bundle (~300 ms at Sean's) and three (rubble awake 8 s+) fail. Sean's picks (#648,
-  closed): 4 sticks, 3 bundles, 12 carried, merge now, timber tougher (a bundle of four cuts a 12x12,
-  fewer don't). Next (#647): the timber, then a bundle's tick sliced and its rubble asleep sooner, films.
+- **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`): R held 12 s
+  ties four sticks, planted ones wired to the plunger box (5), fired a tick apart (Sean's picks,
+  #648). Round 2 (branch `claude/gameplay-dynamite-bundles-l8u7ou`): heavy timber tough
+  (`Blast.toughness`, FM 5-25's D²): a bundle of four cuts a 12x12, three sticks don't, the town's
+  walls the same (`experiments/breakage_lab/results/2026-11-04_tough_timber/`); a blast's breaking
+  sliced nearest first over its tick and the next few (`Structure.break_members`' budget), quiet
+  rubble kept awake held (`RubbleSleep.QUIET_AWAKE_S`, `_lying_on`). Gate
+  (`experiments/blast_freeze/results/2026-11-04_bundles/r2/`): the trestle's two bundles as the
+  engine comes on pass; Main Street's one bundle ~125 ms on its tick here (main 196), calm by 5 s;
+  three bundles still fail (Jolt with ~7,000 pieces moving). Sean's call: chips not on chips
+  (`--lab-debris-solo`).
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).

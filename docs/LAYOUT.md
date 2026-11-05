@@ -806,9 +806,12 @@ it all away and puts the probe and haze back.
   fragments, shards, chips, spent cases) and loose glass props' bodies: one whose middle has
   stayed within `STILL_M` for `STILL_S`, with no break within `QUIET_M` of it for `QUIET_S`
   (`disturbed`, from Structure's `_wake_near`/`_wake_near_all`), still moving faster than
-  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta). Let go
+  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta); so is a quiet
+  one still awake `QUIET_AWAKE_S` past its spell (#647: kept awake by a ragdoll or bone chips in
+  its pile, which aren't looked at). Held pieces are kept by 1 m cell (`_held_within`). Let go
   (unfrozen, awake): `RubbleRest.let_go` (ball, blast, shove), `RubbleRest.touch`, a break near
-  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig. Putting whole piles to
+  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig; one let go so lets go
+  what's held lying on it (`_lying_on`, a shape query, three deep). Putting whole piles to
   sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
   islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
   touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
@@ -1504,7 +1507,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   on people; what it acts on comes from `gather()`: every member where timber can break,
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
-  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole; heavy timber
+  is tougher by its least side, `toughness()`, BlastTuning `heavy_from`/`heavy_power`, #647: a
+  bundle of four cuts a 12x12, three sticks don't; what breaks is decided on its tick and broken
+  nearest first, `BREAK_TICK_MS` on it and `Structure.BREAK_FRAME_MS` a tick after, the settle after
+  the last, `Structure.break_members`' budget, `-- --blast-break=whole` the before), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
   (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
   taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie

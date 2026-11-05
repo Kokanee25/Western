@@ -1,0 +1,6 @@
+# Dynamite bundles (#647): three bundles of four against Main Street's first buildings, wired to the
+# plunger and fired a tick apart (bf_blast's spots), seen from across the street by day.
+time 15.0
+camera -1.5 2.4 -13.0 -1.5 2.4 0.0 75
+wait 3
+bf_blast in=street sticks=3 bundle=4 plunger=1 fuse=1 seconds=7 out=build/films/street_bundles.json
