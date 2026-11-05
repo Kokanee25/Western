@@ -372,7 +372,7 @@ static func surface_of(collider: Object, normal: Vector3) -> StringName:
 		var m := collider as StructureMember
 		if m.kind == &"glass":
 			return &""
-		return &"stone" if m.wood == &"stone" else (&"metal" if m.wood == &"iron" else &"wood")
+		return &"stone" if m.is_masonry() else (&"metal" if m.wood == &"iron" else &"wood")
 	if collider is StaticBody3D:
 		return &"ground" if normal.y > 0.7 else &"wood"
 	return &""

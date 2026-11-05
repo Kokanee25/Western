@@ -337,6 +337,12 @@ func _advance(count: int) -> bool:
 				var onto: Variant = _received.get(s)
 				if onto != null:
 					(onto as Dictionary).erase(m.member_id)
+		if m.masonry:
+			if m.grounded:
+				ground_load += total
+			elif not supports.is_empty():
+				_masonry(m, loads, supports, gone, total)
+			continue
 		if m.grounded:
 			ground_load += total
 			if m.compression and m.upright:
@@ -392,6 +398,51 @@ func overloaded() -> Array[StringName]:
 		var ub := roundi(float(utilisation[b]) * 1e9)
 		return ua > ub if ua != ub else String(a) < String(b))
 	return out
+
+
+## A masonry element (destruction-spec.md section 6; MasonryStructure): its load handed down to its
+## supports by how much of its bed each carries, then checked.
+## - S1 bearing: held if the standing supports carry at least `min_share` of its bed and the line of
+##   its load (its own weight at its middle, and what rests on it where it rests) comes down inside
+##   that bearing; utilisation = how far the line is from the bearing's middle / half its width.
+## - S2 bond: else it hangs by its bonded bed and head joints if they hold the overturning moment
+##   (its load x how far its line falls outside the bearing): utilisation = moment / what they hold.
+## Mode &"bearing" or &"bond". Never the timber checks (TimberTuning's `stone` bending would break
+## stones the mortar holds). The arch rule (S3) is the masonry lab's step 3.
+func _masonry(m: LoadRecord, loads: Array, supports: Array[StringName], gone: Dictionary, total: float) -> void:
+	var lo := INF
+	var hi := -INF
+	var bearing := 0.0
+	for s in supports:
+		var b: Vector2 = m.beds.get(s, Vector2.ZERO)
+		bearing += maxf(b.y - b.x, 0.0)
+		lo = minf(lo, b.x)
+		hi = maxf(hi, b.y)
+	for s in supports:
+		var b: Vector2 = m.beds.get(s, Vector2.ZERO)
+		var share := maxf(b.y - b.x, 0.0) / bearing if bearing > 1e-6 else 1.0 / supports.size()
+		_deliver(m, s, m.support_points.get(s, m.origin), total * share)
+	var moment := 0.0  # about its middle, along it
+	for pl: Array in loads:
+		moment += ((pl[0] as Vector3) - m.origin).dot(m.axis) * float(pl[1])
+	for ep: Vector2 in m.extra_points:
+		moment += ep.x * ep.y
+	var line := moment / maxf(total, 1e-6)
+	var share := bearing / maxf(2.0 * m.half, 1e-6)
+	var outside := maxf(lo - line, line - hi)
+	if share >= m.min_share and outside <= 0.0:
+		utilisation[m.member_id] = absf(line - (lo + hi) * 0.5) / maxf((hi - lo) * 0.5, 1e-6)
+		mode[m.member_id] = &"bearing"
+		return
+	var lever := maxf(outside, 0.0)
+	if share < m.min_share:
+		lever = maxf(lever, (m.min_share - share) * m.half)
+	var holds := 0.0
+	for bj: Array in m.bond:
+		if not gone.has(bj[0]):
+			holds += float(bj[1])
+	utilisation[m.member_id] = total * lever / maxf(holds, 1e-6)
+	mode[m.member_id] = &"bond"
 
 
 ## (Its capacity, crushing or buckling, worked out with its record: LoadRecord.take.)
