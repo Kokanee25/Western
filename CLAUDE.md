@@ -735,6 +735,11 @@ frozen until Sean names one.
   one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
   apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
   `results/2026-11-04_jackknife/`). Next: #542 (step 7).
+- **The lurch every few steps** (#643, branch `claude/gameplay-walk-lurch`): the real look's SDFGI
+  (its cascades scroll as you walk: a long frame every 0.84 m) turned off in `real_dials.json` (N has
+  a switch); the walk itself was even. `tests/test_walk_steps.gd`, `tools/walk_frames.gd`; results
+  `experiments/movement_feel/results/2026-11-04_lurch/`. Open: Sean's F3 with the fix; physics
+  interpolation (none today: any frame that misses vsync shows as a jump).
 - **The trestle lab** (#623, PR #637 merged, build 3194; round 2 on branch `claude/issue-623-oge4jv`;
   brief `docs/briefs/trestle.md`, `experiments/trestle_lab/` README): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
