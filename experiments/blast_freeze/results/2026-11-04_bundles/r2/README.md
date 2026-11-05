@@ -50,3 +50,14 @@ layer you walk through, no longer land on one another, only on the ground, timbe
 one bundle 80/68/63 -> 53/41/31 ms in its first three seconds, three bundles 121/133/134 ->
 98/90/73 and calm by 6 s. It changes what's seen (a heap of chips lies as a flatter scatter), so
 it's Sean's call, not taken.
+
+## Films (`films/`, Movie Maker at 30 fps under lavapipe, the freeze watchdog off: `--crash-watch=900,0`)
+
+- `street_bundles.mp4`: three bundles of four against Main Street's first buildings (the store,
+  the saloon's side, the telegraph), the plunger, from across the street by day
+  (`../../films/street_bundles.txt`).
+- `trestle_bundles_floor.mp4`, `trestle_bundles_rim.mp4`: two bundles on the tallest bent's inner
+  posts, fired as the engine comes on at 40 km/h, from the gorge's floor and the far rim
+  (`experiments/trestle_lab/films/bundles_*.txt`). In both filmed runs the bent comes down under the
+  engine, which drops into the gap and wedges there (no cars in the river); the headless run put 15
+  of 20 cars in the gorge. Which way it goes is chaotic run to run, as #638's one-bent runs were.
