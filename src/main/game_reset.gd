@@ -12,9 +12,16 @@ static var just_reset := false
 
 
 static func reset(tree: SceneTree) -> void:
-	CrashReports.begin_load("the game reset")  # (the watchdog waits for the load: its first frames drawn end it)
-	clear_statics()
 	just_reset = true
+	reload_scene(tree, "the game reset")
+
+
+## Every reload of the running scene comes through here (Backspace, the gunfight lab's Y/X/Z, the
+## look's I and M; issue #671): what lives outside the scene is put back first, and the freeze
+## watchdog waits for the load (its first frames drawn end it), as at the start.
+static func reload_scene(tree: SceneTree, what := "the scene's reload") -> void:
+	CrashReports.begin_load(what)
+	clear_statics()
 	tree.reload_current_scene.call_deferred()
 
 
