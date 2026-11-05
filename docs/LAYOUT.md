@@ -127,7 +127,9 @@ Back + Y; debug ignite is L only now): the recorder notes every action's changes
 turns by physics tick, everyone's place each second and a snapshot every 30 s; F12 writes
 `user://bug_reports/<date-time>.saltbug.zip` (a zip, named so GitHub takes it: `report.json` with
 the build, clock, you, everyone, settings (with which threads the run had and the physics cap) and
-the last things that happened; `recording.json`; `godot.log`; `screenshot.png`).
+the last things that happened; `recording.json`; `godot.log`; `screenshot.png`) into the reports
+folder (`CrashReports.folder()`: `Salt Creek crash reports` on the desktop, else
+`user://crash_reports`; since #624).
 `godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug.zip [--out=DIR]` plays it back
 (from the start for a session under 20 minutes, else from the snapshot 30 s before) and says where
 anyone went more than 0.25 m from the recording; exit 1 if anyone did. Drawn (xvfb), `--out` saves
@@ -148,9 +150,47 @@ rings, columns and rows) and `perf_summary` at the top of `report.json` (the wor
 last 15 s with its split and systems, mean, p95, the three biggest costs, the worst second); the
 log, the replay and `python3 tools/perf_report.py FILE.saltbug.zip [--seconds=N|--all] [--over=MS]`
 print it (the last also the 15 s's per-system table and the per-second table). The path shows at
-the foot of the screen for 12 s (on Windows `%APPDATA%\Godot\app_userdata\Salt Creek\bug_reports\`).
+the foot of the screen for 12 s.
 Costs here: the recorder ~12 µs a frame with F3 closed, ~38 µs open; the profiler on ~0.2 ms.
 F3's "ms a frame" line rolls every 60 frames or 1 s, whichever first.
+
+**Crash and freeze reports** (#624; `src/debug/crash_reports.gd`, `CrashReports`; the plugin's
+`crash_guard.rs`, `CrashGuard`): what F12 can't, with the game dead. Only for the game (not `-s`
+runs). **The black box**: every 3 s the bug recorder's last 60 s (its recording from the snapshot
+before, as replay.gd reads it), its events (300 kept), `BugRecorder.report`, a copy of PerfRing
+(`PerfRing.copy()`) and the log's last 300 lines (a Logger, `CrashReports.Lines`) are copied on the
+main thread (~0.5 ms here once in 3 s: ~3 µs a frame) and written by a worker into
+`user://blackbox/box_0|1.json` in turn (~13 ms off the main thread). **The marker**
+`user://blackbox/running.json`, written at the start and removed by a clean quit (`GameQuit` calls
+`CrashReports.clean_quit()`, which waits for a write; `in_flight` lists "the black box"). **At the
+next start** with the marker still there, the folder (the newer box, the guard's notes and dumps, the
+crashed run's own log: Godot moved it to `logs/godot<date>.log`) is packed into
+`crash_<date-time>.saltbug.zip` in the reports folder (report.json with a `crash` section: kind
+crash | freeze | unknown, what, the notes) and a line at the foot of the screen says what happened
+and where it is. **CrashGuard** (native, its own thread, nothing of Godot's touched): crash handlers
+(Linux: SIGSEGV/BUS/ILL/FPE/ABRT write `crash.txt`, which thread, then hand on to Godot's handler,
+whose backtrace and GDScript backtrace go into the log; Windows: a vectored handler for the fatal
+codes writes `crash.txt` and `crash.dmp`, MiniDumpWriteDump from the watchdog's thread, then hands
+on; a Rust panic writes `panic.txt`); **the freeze watchdog**: no frame for 5 s (the beat: last in
+the frame's scripts; `PerfRing.Clock` marks the physics tick and the process so the report says
+which part) writes `freeze.txt` (Linux: every thread's state and gdb's stacks; Windows:
+`freeze.dmp`); a frame that comes back is a stall (`freeze.txt` says after how long; packed at once
+as `stall_<date-time>`, 3 a run, none in the first 30 s: the shaders compiling); still frozen at
+60 s the main thread is made to crash (Linux a SIGSEGV sent to it, Windows its instruction pointer
+moved to a bad write) so Godot's handler prints where it was, then the process ends 10 s later.
+**Loads stand it down**: `CrashReports.loading(on, what)` (GameReset, the train lab's line) gives a
+load 300 s; nothing counts before the first frame. `python3 tools/crash_report.py FILE` prints the
+build and scene, what happened and the notes, the dead or stuck thread's stack (gdb's main thread,
+Godot's handler's block, a minidump's exception and a scan of its stack as module+offset, walked by
+`minidump-stackwalk` with `--symbols=DIR` if it's installed), the last 30 s of events, the frames
+leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash zip as an F12 one.
+`saltcreek_native.pdb` ships beside the DLL in every Windows build (release profile
+`debug = "line-tables-only"`). GDScript call stacks are tracked in release builds
+(`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
+backtrace there too; the official release templates have no symbols, so Godot's own frames are
+addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+`tests/test_crash_reports.gd`.
 
 ## The soak
 
@@ -169,8 +209,10 @@ nothing, so it writes the game clock to `build/soak/clock.txt` every 600 frames;
 it in the background into `build/soak/soak.log`, and with that log quiet 10 minutes writes
 `frozen.md` (the clock a minute apart, every thread's state, wait channel and gdb backtrace, five
 samples of the main thread) to the log and the summary, sends SIGSEGV for the GDScript backtrace
-and fails. `--hang-at=S` hangs it on purpose to try that. (An in-process watchdog thread was tried
-and never started on the CI runner: the workflow does it.)
+and fails. `--hang-at=S` hangs it on purpose to try that. (A GDScript watchdog thread was tried and
+went silent with the game: a GDScript thread runs through the engine, its calls, prints and the
+script language's locks, so a main thread stuck in the engine can hold it too. The game's own
+watchdog since #624 is native, `CrashGuard`, and touches only the system; "Bug reports".)
 
 ## Feel ranges
 
@@ -493,6 +535,14 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
+  pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
+  on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
+  `lowpass_db`, as a stream can't skip its bus), the view shaken (`view_shake`, put on the camera with
+  the gun's kick in `WeaponViewmodel._animate_camera`: your aim stays), grit (`blast_grit.gdshader`,
+  a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
+  `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
+  `dynamite_you_*` and `on_you.py`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -762,9 +812,12 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   fragments, shards, chips, spent cases) and loose glass props' bodies: one whose middle has
   stayed within `STILL_M` for `STILL_S`, with no break within `QUIET_M` of it for `QUIET_S`
   (`disturbed`, from Structure's `_wake_near`/`_wake_near_all`), still moving faster than
-  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta). Let go
+  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta); so is a quiet
+  one still awake `QUIET_AWAKE_S` past its spell (#647: kept awake by a ragdoll or bone chips in
+  its pile, which aren't looked at). Held pieces are kept by 1 m cell (`_held_within`). Let go
   (unfrozen, awake): `RubbleRest.let_go` (ball, blast, shove), `RubbleRest.touch`, a break near
-  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig. Putting whole piles to
+  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig; one let go so lets go
+  what's held lying on it (`_lying_on`, a shape query, three deep). Putting whole piles to
   sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
   islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
   touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
@@ -823,6 +876,19 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
   framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
   untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
+  **Masonry** (the masonry lab, step 2; `docs/briefs/masonry-lab.md`, `experiments/masonry_lab/`):
+  `MasonryStructure` (a Structure) builds a structure file's expanded elements
+  (`config/destruction/structures/*.json`, laid by `MasonryExpander`/`tools/masonry_expand.gd`) as
+  members (`wood` the material id, drawn in `stone`, `stone_mesh` chamfered); supports from
+  `rests_on`, `touching` from the joints (`MasonryWall`: arrays, each joint bonded or broken).
+  `Blast.detonate` hands a masonry structure in reach to `take_blast` (its members skip
+  `_member_response`): `MasonryBlast.strike` (spec section 5) breaks joints, frees and cracks stones,
+  `_fling` throws them (far leaf first, through the standing stones near it till it's clear), then
+  the settle `free_before_settle_s` later. A loose stone's box sheds its mortar (`_loose_shape`, a
+  hook in `Structure._drop`); rubble falls a stone at a time (`falls_as` `units`). The analysis checks masonry by `_masonry` (S1 bearing, S2
+  bond; never the timber checks); overloaded masonry falls whole (`Structure._gives_way`), with
+  what it's still mortared to (`_clump_with`). Numbers only from `config/destruction/materials.json`
+  (`MasonryMaterials`); `StructureMember.is_masonry()` is the one "is it stone?" test.
 
 ## src/fire
 
@@ -1396,7 +1462,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
   its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
-  OutlawBrain hears; `experiments/plant_dynamite/`). `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  OutlawBrain hears; `experiments/plant_dynamite/`). Bundles (#647, brief `docs/briefs/dynamite-bundles.md`):
+  R held `make_time` ties `bundle_sticks` loose sticks into one (`making` kept; `bundles`,
+  `hold_bundle`, a tap switches: `_read_r`); a bundle is a `DynamiteStick` of `sticks` (their kg,
+  `layout`/`radius_of`), thrown shorter; planted it's wired (`DynamiteStick.wire`) and waits unlit,
+  `max_bundles` at once (`at_cap`, `bundles_set`); Q aimed lights its fuse (`aimed_charge`).
+  `PlungerViewmodel` (5): fire held pushes the handle home, `DynamiteStick.fire_wired` sets every
+  wired bundle off a tick apart (`fire_spread_ticks`); `save_all`/`restore_all` keep them;
+  `BlastTuning` bundle_sticks/make_time/max_bundles/push_time; bridge `weapon plunger`, `bundle X Y Z
+  [STICKS]`, `plunge [SPREAD]`, `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 
@@ -1439,7 +1513,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   on people; what it acts on comes from `gather()`: every member where timber can break,
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
-  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole; heavy timber
+  is tougher by its least side, `toughness()`, BlastTuning `heavy_from`/`heavy_power`, #647: a
+  bundle of four cuts a 12x12, three sticks don't; what breaks is decided on its tick and broken
+  nearest first, `BREAK_TICK_MS` on it and `Structure.BREAK_FRAME_MS` a tick after, the settle after
+  the last, `Structure.break_members`' budget, `-- --blast-break=whole` the before), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
   (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
   taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie
@@ -2099,7 +2177,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `carve.rs`, `mesh.rs` (greedy, two surfaces + collision), `pool.rs` (worker threads),
   `member.rs` (`VoxelMember`), `lib.rs` (`NativeBench`), `sight.rs` + `sight_geo.rs`
   (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
-  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast").
+  `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast"),
+  `crash_guard.rs` (`CrashGuard`: crash handlers, minidumps, the freeze watchdog: "Bug reports"),
+  `watchdog.rs` (`QuitWatchdog`, the quit's last layer).
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
   world and walk layers copied from the physics server into `SightWorld` (boxes, spheres,

@@ -46,7 +46,7 @@ python3 experiments/trestle_lab/collapse_runs.py --table=build/trestle/runs
 python3 tools/bridge.py start --headless --fps=60
 python3 tools/bridge.py "trestle_lab" "trestle_cost 10" "trestle_cost 10 train=30"
 python3 tools/bridge.py "trestle_matrix out=$PWD/build/trestle/matrix.json"
-python3 tools/bridge.py "trestle_collapse how=stick posts=all sticks=2 bents=2 train=cross when=under lead=40 kmh=40"
+python3 tools/bridge.py "trestle_collapse how=stick posts=all sticks=4 bents=2 train=cross when=under lead=40 kmh=40"
 python3 tools/bridge.py "train_save /tmp/s.json" "train_load /tmp/s.json"
 ```
 

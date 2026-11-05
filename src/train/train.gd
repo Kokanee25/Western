@@ -100,7 +100,7 @@ func place(s: float, slack := -1.0) -> void:
 	sim.place(s, slack)
 	drawn_s = s
 	view.place(1.0)
-	view.place_solids()
+	view.place_solids(true)
 	if sound:
 		sound.reset()
 
@@ -272,7 +272,9 @@ func _strike() -> void:
 	var z := view.solids[view.solids.size() - 1].global_position
 	var centre := (a + z) * 0.5
 	var reach := a.distance_to(z) * 0.5 + 15.0
-	if sim.time >= _near_until:
+	# (The clock put back, a new run from the depot (the lab's 8, #624), looks again at once: the lists
+	# would have been kept that long and held men freed since.)
+	if sim.time >= _near_until or sim.time < _near_until - 0.5:
 		_near_until = sim.time + 0.5
 		_near_props.clear()
 		_near_men.clear()
@@ -283,9 +285,15 @@ func _strike() -> void:
 		for node: Node in tree.get_nodes_in_group(&"people"):
 			if (node as Node3D).global_position.distance_to(centre) < wide:
 				_near_men.append(node)
-	for node: Node in _near_props:
+	# Untyped, and checked before the cast: a prop or man freed since the look (#624). A typed loop
+	# variable takes a freed one with only a script error in a debug build; in a release build
+	# nothing checks it and the next call goes into freed memory (Sean's crash pressing 8 at the
+	# engine: the engineer from the run before, freed, still in the list).
+	for node: Variant in _near_props:
+		if not is_instance_valid(node):
+			continue
 		var prop := node as KitProp
-		if not is_instance_valid(prop) or prop.loose or prop.global_position.distance_to(centre) > reach:
+		if prop == null or prop.loose or prop.global_position.distance_to(centre) > reach:
 			continue
 		var j := _car_at(prop.global_position + Vector3.UP * 0.3, w + 0.2)
 		if j < 0:
@@ -301,9 +309,11 @@ func _strike() -> void:
 		prop.go_loose(go)
 		struck.append({"t": sim.time, "who": String(prop.name), "speed": absf(float(sim.vel[j])), "car": j, "how": "loose"})
 	_run_over()
-	for man: Node in _near_men:
+	for man: Variant in _near_men:
+		if not is_instance_valid(man):
+			continue
 		var hb := man as HumanBody
-		if hb == null or not is_instance_valid(hb) or hb.limp or hb.has_meta(&"train_rides") or hb.global_position.distance_to(centre) > reach:
+		if hb == null or hb.limp or hb.has_meta(&"train_rides") or hb.global_position.distance_to(centre) > reach:
 			continue
 		var i := _car_at(hb.global_position + Vector3.UP * 0.9, w)
 		if i < 0:
@@ -335,9 +345,11 @@ func _strike() -> void:
 ## isn't on the rail is shoved by them and by the pilot as anything loose is.
 func _run_over() -> void:
 	var half := tuning.gauge * 0.5
-	for node: Node in _near_men:
+	for node: Variant in _near_men:
+		if not is_instance_valid(node):
+			continue
 		var hb := node as HumanBody
-		if hb == null or not is_instance_valid(hb) or hb.has_meta(&"train_rides") or hb.parts.is_empty():
+		if hb == null or hb.has_meta(&"train_rides") or hb.parts.is_empty():
 			continue
 		for seg: StringName in hb.parts:
 			var part := hb.parts[seg] as Node3D

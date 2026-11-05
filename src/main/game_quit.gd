@@ -10,7 +10,7 @@ class_name GameQuit
 ##
 ## 1. `quitting` goes up: no shadow merge is posted after it (Structure looks).
 ## 2. If a pool task of ours is running (the structures' shadow merges and analyses, the fire's
-##    check, the sound warm-up, the smoke grids' steps), the tree pauses (no people's prepare,
+##    check, the sound warm-up, the smoke grids' steps, the black box's write), the tree pauses (no people's prepare,
 ##    smoke step, fire check or batch rebuild posted) and they're waited for, a frame at a time and
 ##    at most WAIT_MS; past that it quits anyway and says what was still running. With none
 ##    running it quits in the frame it was asked in: every frame drawn on the way out can leave
@@ -37,6 +37,7 @@ static func quit(tree: SceneTree, code := 0) -> void:
 	if quitting:
 		return
 	quitting = true
+	CrashReports.begin_load("the quit")  # (its last frames can be long: no freeze report for them, #624)
 	var t0 := Time.get_ticks_msec()
 	var busy := in_flight(tree)
 	if not busy.is_empty():
@@ -50,6 +51,7 @@ static func quit(tree: SceneTree, code := 0) -> void:
 		else:
 			print("[quit] still running after %d ms, quitting anyway: %s" % [WAIT_MS, ", ".join(busy)])
 	SynthSounds.finish_warm()
+	CrashReports.clean_quit()  # a clean quit: no crash report at the next start (#624)
 	var wait_s := WATCHDOG_S
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--quit-watchdog="):
@@ -67,6 +69,8 @@ static func in_flight(tree: SceneTree) -> PackedStringArray:
 	var out := PackedStringArray()
 	if SynthSounds.warming():
 		out.append("the sound warm-up")
+	if CrashReports.writing():
+		out.append("the black box")
 	var shadows := 0
 	var analyses := 0
 	var batches := 0

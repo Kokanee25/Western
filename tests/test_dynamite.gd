@@ -599,8 +599,12 @@ func test_at_his_feet_it_takes_a_leg() -> void:
 func test_the_blast_pushes_him_along_its_line() -> void:
 	var man := await _man(Vector3.ZERO)
 	var chest := (man.parts[&"chest"] as Node3D).global_position
-	# Level with his chest, a metre and a bit in front: the wind is level.
+	# Level with his chest, a metre and a bit in front: the wind is level. The real push alone: the
+	# game's lift (blast_lift 0.8, #636) throws him up on purpose (test_blast_thrown has that).
+	var lift := Blast.t().blast_lift
+	Blast.t().blast_lift = 0.0
 	man.take_blast(chest + Vector3(0, 0, -1.1), 0.15)
+	Blast.t().blast_lift = lift
 	check(man.limp, "thrown down")
 	var v := (man.parts[&"chest"] as RigidBody3D).linear_velocity
 	print("  chest thrown at (%.2f, %.2f, %.2f) m/s" % [v.x, v.y, v.z])
@@ -696,6 +700,62 @@ func test_light_and_throw() -> void:
 	check(player.wounds.physiology.severed_segments.is_empty(), "you're whole")
 
 
+## #668: 3 brings the stick out unlit, and it stays so till you light it.
+func test_three_brings_it_out_unlit() -> void:
+	var player: Player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	await physics_frames(3)
+	var d := player.dynamite()
+	d.needs_captured_mouse = false
+	Input.action_press(&"weapon_dynamite")
+	await physics_frames(2)
+	Input.action_release(&"weapon_dynamite")
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	check(d.is_ready_in_hand(), "3: the dynamite in hand")
+	await physics_frames(120)
+	check(not d.lit and d.lighting <= 0.0, "not lit (lit %s, lighting %.2f)" % [d.lit, d.lighting])
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668: a match struck and the stick put away before the fuse caught: the fuse never catches in
+## your pocket, and the stick comes back out unlit.
+func test_put_away_while_lighting_it_stays_unlit() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	d.strike_match()
+	await physics_frames(10)
+	check(d.lighting > 0.0, "the match is at the fuse")
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not d.lit, "put away, the fuse didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	await physics_frames(60)
+	check(not d.lit and d.lighting <= 0.0, "out again, unlit")
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668 with a set stick: put away while the match is at its fuse, the next match in hand lights
+## the stick in your hand, not the one you'd set.
+func test_put_away_while_lighting_a_set_one() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	var set_one := DynamiteStick.make(world, player.global_position + Vector3(1, 0.1, 0), Vector3.ZERO, 5.0, 1)
+	d.light_planted(set_one)
+	await physics_frames(10)
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not set_one.lit, "put away, the set one didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	d.strike_match()
+	await wait_until(func() -> bool: return d.lit, 120)
+	check(d.lit, "the match lit the stick in hand")
+	check(not set_one.lit, "not the set one")
+	d.windup = 1.0
+	d.throw()
+
+
 func test_hold_it_too_long() -> void:
 	var player := await _player()
 	var d := player.dynamite()
@@ -722,6 +782,111 @@ func test_you_hear_the_crack_before_your_ears_give() -> void:
 	await physics_frames(60)  # 1.1 s
 	check(w._ear_filter != null and w._ear_filter.cutoff_hz < 8000.0,
 			"a second on it's muffled (%.0f Hz)" % (w._ear_filter.cutoff_hz if w._ear_filter else 20000.0))
+
+
+
+# --- On you (#596 step 2: the ears, the dull world, the shake, the grit) --------------------------
+
+## One stick on the ground `d` m to your right; then `seconds` of game time, sampling what it does
+## to you each tick: {muffle_s (cutoff under 15 kHz), deepest_hz, ring_s (the whine heard),
+## ring_top (its loudest, linear), shake_top (deg), grit (its top), grit_s}.
+func _on_you(d: float, seconds: float) -> Dictionary:
+	var player := await _player()
+	var w := player.wounds
+	var view := player.camera.transform
+	Blast.detonate(world, player.global_position + Vector3(d, 0.05, 0.0), Blast.t().tnt_per_stick)
+	var out := {"muffle_s": 0.0, "deepest_hz": 20000.0, "ring_s": 0.0, "ring_top": 0.0, "shake_top": 0.0,
+			"grit": 0.0, "grit_s": 0.0, "view": view, "player": player}
+	for i in int(seconds * 60.0):
+		await physics_frames(1)
+		var hz := w.muffle_hz  # (the blast's dulling; burst eardrums' is for good)
+		out.deepest_hz = minf(out.deepest_hz, hz)
+		if hz < 15000.0:
+			out.muffle_s += 1.0 / 60.0
+		if w._ring and w._ring.playing:
+			out.ring_s += 1.0 / 60.0
+			out.ring_top = maxf(out.ring_top, w.ring_level())
+		out.shake_top = maxf(out.shake_top, w.shake)
+		out.grit = maxf(out.grit, w._grit_top if w._grit_rect.visible else 0.0)
+		if w._grit_rect.visible:
+			out.grit_s += 1.0 / 60.0
+	return out
+
+
+## Closer is worse, for every part of it, and each is over by the end; 30 m off (past the blast's
+## reach for anything else) you still feel it shake you, and nothing more than a moment's dulling.
+func test_on_you_by_distance() -> void:
+	var at := {}
+	for d: float in [2.0, 5.0, 12.0, 30.0]:
+		at[d] = await _on_you(d, 26.0)
+		var r: Dictionary = at[d]
+		var player: Player = r.player
+		print("    %2.0f m: muffled %.1f s (to %.0f Hz), ringing %.1f s (top %.3f), shake %.2f deg, grit %.2f for %.1f s" % [
+				d, r.muffle_s, r.deepest_hz, r.ring_s, r.ring_top, r.shake_top, r.grit, r.grit_s])
+		check(player.camera.transform.is_equal_approx(r.view), "%.0f m: the view's back where it was on the head (%s, was %s)" % [d, player.camera.transform, r.view])
+		check(not player.wounds._grit_rect.visible, "%.0f m: the grit's gone" % d)
+		player.queue_free()
+		await physics_frames(2)
+	for pair in [[2.0, 5.0], [5.0, 12.0], [12.0, 30.0]]:
+		var near: Dictionary = at[pair[0]]
+		var far: Dictionary = at[pair[1]]
+		check(near.shake_top > far.shake_top, "shaken more at %.0f m than %.0f (%.2f, %.2f)" % [pair[0], pair[1], near.shake_top, far.shake_top])
+		check(near.ring_s > far.ring_s, "rings longer at %.0f m than %.0f (%.1f, %.1f s)" % [pair[0], pair[1], near.ring_s, far.ring_s])
+		check(near.deepest_hz < far.deepest_hz, "duller at %.0f m than %.0f (%.0f, %.0f Hz)" % [pair[0], pair[1], near.deepest_hz, far.deepest_hz])
+	check(at[2.0].muffle_s > 4.0 and at[2.0].deepest_hz < 800.0, "2 m: the world dull for seconds (%.1f s, %.0f Hz)" % [at[2.0].muffle_s, at[2.0].deepest_hz])
+	check(at[5.0].muffle_s > 2.0 and at[5.0].muffle_s < at[2.0].muffle_s, "5 m: dull for less (%.1f s)" % at[5.0].muffle_s)
+	check(at[30.0].muffle_s < 1.0, "30 m: barely dulled (%.1f s)" % at[30.0].muffle_s)
+	check(at[30.0].shake_top > 0.05, "30 m: still felt (%.2f deg)" % at[30.0].shake_top)
+	check(at[2.0].grit > 0.5 and at[2.0].grit_s > 1.5, "2 m: grit in your eyes (%.2f for %.1f s)" % [at[2.0].grit, at[2.0].grit_s])
+	check(at[12.0].grit == 0.0 and at[30.0].grit == 0.0, "none from 12 m or 30 m")
+	check(at[12.0].ring_s < 15.0, "12 m: the ringing is short (%.1f s)" % at[12.0].ring_s)
+
+
+## The whine is in your head: the ears' filter would take it off with the world's highs, so it's
+## raised by just that (Godot's low-pass, the Cookbook's biquad, at the whine's pitch).
+func test_the_ringing_is_heard_through_the_dull_world() -> void:
+	check(PlayerWounds.lowpass_db(20000.0, 3800.0) > -0.5, "wide open, the whine's untouched (%.2f dB)" % PlayerWounds.lowpass_db(20000.0, 3800.0))
+	var deep := PlayerWounds.lowpass_db(300.0, 3800.0)
+	check(deep < -40.0 and deep > -50.0, "at 300 Hz the filter takes ~44 dB off it (%.1f)" % deep)
+	check(absf(PlayerWounds.lowpass_db(1000.0, 1000.0) + 6.02) < 0.2, "-6 dB at its cutoff with Q 0.5 (%.2f)" % PlayerWounds.lowpass_db(1000.0, 1000.0))
+	var player := await _player()
+	var w := player.wounds
+	Blast.detonate(world, player.global_position + Vector3(3.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	await physics_frames(120)
+	var hz := w._ear_filter.cutoff_hz
+	check(hz < 2000.0, "2 s on, the world's dull (%.0f Hz)" % hz)
+	check(w._ring.playing, "and your ears ring")
+	var heard := w._ring.volume_db + PlayerWounds.lowpass_db(hz, PlayerWounds.RING_HZ)
+	check(absf(heard - linear_to_db(w.ring_level())) < 0.5, "heard at its own level through the filter (%.1f dB, %.1f)" % [heard, linear_to_db(w.ring_level())])
+
+
+## A weaker blast on top of a stronger one doesn't clear your ears or start the dulling again.
+func test_a_far_stick_after_a_near_one_doesnt_clear_your_ears() -> void:
+	var player := await _player()
+	var w := player.wounds
+	Blast.detonate(world, player.global_position + Vector3(3.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	await physics_frames(90)
+	var before := w._ear_filter.cutoff_hz
+	var ring := w.ringing
+	Blast.detonate(world, player.global_position + Vector3(0.0, 0.05, 25.0), Blast.t().tnt_per_stick)
+	for i in 30:
+		await physics_frames(1)
+		check(w._ear_filter.cutoff_hz < before * 1.05 + 1.0, "still dull %d ticks after (%.0f Hz, was %.0f)" % [i, w._ear_filter.cutoff_hz, before])
+		if w._ear_filter.cutoff_hz >= before * 1.05 + 1.0:
+			break
+	check(w.ringing > ring - 1.0, "and still ringing (%.1f s)" % w.ringing)
+## A second charge while you're still deafened by the first (bundles a moment apart, #647) doesn't
+## open your ears again for its bang.
+func test_a_second_bang_while_deafened_stays_muffled() -> void:
+	var player := await _player()
+	var w := player.wounds
+	w.take_blast(player.global_position + Vector3(4, 0.3, 0), 0.2)
+	await physics_frames(90)  # 1.5 s: muffled
+	var before := w._ear_filter.cutoff_hz
+	check(before < 8000.0, "muffled by the first (%.0f Hz)" % before)
+	w.take_blast(player.global_position + Vector3(-6, 0.3, 0), 0.2)
+	await physics_frames(6)
+	check(w._ear_filter.cutoff_hz < 8000.0, "still muffled at the second's bang (%.0f Hz)" % w._ear_filter.cutoff_hz)
 
 
 # --- Planted at a wall's foot (#506: hold E by a wall, lit when you let go) -------------------------

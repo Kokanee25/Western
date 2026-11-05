@@ -5,3 +5,4 @@
 [resource]
 script = ExtResource("1_tuning")
 ignite_chance = 0.0
+blast_lift = 0.8

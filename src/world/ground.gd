@@ -763,7 +763,7 @@ func _wake(area: Rect2) -> void:
 	q.exclude = ex
 	for hit in World.space(self).intersect_shape(q, 512):
 		if hit.collider is RigidBody3D:
-			RubbleSleep.let_go(hit.collider)  # (rubble held still: its own again first, #585)
+			RubbleSleep.let_go(hit.collider, " (earth)")  # (rubble held still: its own again first, #585)
 			_lift_out(hit.collider as RigidBody3D)
 			(hit.collider as RigidBody3D).sleeping = false
 
@@ -776,6 +776,17 @@ func _wake(area: Rect2) -> void:
 func _lift_out(rb: RigidBody3D, over := LIFT_OVER) -> bool:
 	if not lift or rb.freeze or rb.has_meta(&"human_body"):
 		return false
+	var deepest := _deepest(rb, false)
+	if deepest <= over:
+		return false
+	rb.global_position += Vector3.UP * (deepest + 0.005)
+	lifted += 1
+	return true
+
+
+## How far (m) its lowest point is under the ground's surface (its shapes' points, `_low_points`;
+## `dug_only`: only points over a dug tile). Under nothing: 0.
+func _deepest(rb: RigidBody3D, dug_only: bool) -> float:
 	var deepest := 0.0
 	var xf := rb.global_transform
 	for o: int in rb.get_shape_owners():
@@ -785,12 +796,10 @@ func _lift_out(rb: RigidBody3D, over := LIFT_OVER) -> bool:
 		for k in rb.shape_owner_get_shape_count(o):
 			for p: Vector3 in _low_points(rb.shape_owner_get_shape(o, k)):
 				var w := sxf * p
+				if dug_only and not tiles.has(key_at(w.x, w.z)):
+					continue
 				deepest = maxf(deepest, height_at(w.x, w.z) - w.y)
-	if deepest <= over:
-		return false
-	rb.global_position += Vector3.UP * (deepest + 0.005)
-	lifted += 1
-	return true
+	return deepest
 
 
 ## A loose body caught under a dug tile's surface is set back on top of it (Structure looks at its
@@ -802,7 +811,9 @@ func _lift_out(rb: RigidBody3D, over := LIFT_OVER) -> bool:
 ## touching the field from below (it pushes the piece down), or its middle under the surface. (Not
 ## by touching a column: a piece resting on a sloping stretch sinks into the field as far as the
 ## physics allows, 2 cm, and can touch the column top 1 cm under; lifted, it fell back, woke its
-## pile and was lifted again, for good.) Whether it was lifted.
+## pile and was lifted again, for good.) Or, for a piece not reporting what it touches (slow
+## rubble doesn't, #642: Jolt's manifold reduction), a point of it deeper under a dug tile's surface
+## than CAUGHT_DEEP, where nothing lying on the field gets. Whether it was lifted.
 func rescue(rb: RigidBody3D) -> bool:
 	var caught := false
 	var st := PhysicsServer3D.body_get_direct_state(rb.get_rid())
@@ -815,6 +826,8 @@ func rescue(rb: RigidBody3D) -> bool:
 	if not caught:
 		var p := rb.global_position
 		caught = tiles.has(key_at(p.x, p.z)) and height_at(p.x, p.z) > p.y
+	if not caught and rb.max_contacts_reported == 0:
+		caught = _deepest(rb, true) > CAUGHT_DEEP
 	if not caught:
 		return false
 	rescued += 1
@@ -823,6 +836,10 @@ func rescue(rb: RigidBody3D) -> bool:
 
 ## How far (m) a body may be in the earth before it's lifted out: the physics' own slop.
 const LIFT_OVER := 0.02
+## How deep (m) a point of a piece may be under a dug tile's surface lying on it: the physics lets
+## it sink 2 cm, measured upright (on a crater's wall at the earth's slide angle a little more); a
+## point deeper than this is through the field (`rescue`, for a piece not reporting its contacts).
+const CAUGHT_DEEP := 0.05
 ## How many bodies have been lifted out (the blast-freeze lab's count); `-- --no-ground-lift` the
 ## before (the lab's).
 static var lifted := 0

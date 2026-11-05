@@ -18,11 +18,12 @@ const HELP := {
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
+	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
-	"weapon": "weapon revolver|shotgun|dynamite|bucket|none -> take that out (none: put it away)",
+	"weapon": "weapon revolver|shotgun|dynamite|bucket|plunger|none -> take that out (none: put it away)",
 	"shove": "shove -> a shove, as a tap of its key (E) does; answers what it did (a man, a prop, a wall, a miss)",
 	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
@@ -35,7 +36,9 @@ const HELP := {
 	"spawn": "spawn outlaw|townsman X Y Z [YAW] -> a person there",
 	"gang": "gang -> the three riders come in from the west on their day",
 	"fight": "fight [NAME] -> the gang (or one man) turn on you, as if you'd shot at them",
-	"dynamite": "dynamite X Y Z [FUSE] -> a lit stick there",
+	"dynamite": "dynamite X Y Z [FUSE] [STICKS] -> a lit stick there (a bundle of STICKS)",
+	"bundle": "bundle X Y Z [STICKS] -> a bundle set there, wired to the plunger (held by the piece within 0.4 m, else on the ground)",
+	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
@@ -396,6 +399,24 @@ func _cmd_walk(a: Array) -> Dictionary:
 			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
 
 
+func _cmd_key(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": "key NAME"}
+	var code := OS.find_keycode_from_string(String(a[0]))
+	if code == KEY_NONE:
+		return {"ok": false, "error": "no key %s" % a[0]}
+	for down in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = code
+		ev.physical_keycode = code
+		ev.pressed = down
+		Input.parse_input_event(ev)
+		await _settle()
+		if down:
+			await _seconds(float(a[1]) if a.size() > 1 else 0.1)
+	return {"key": OS.get_keycode_string(code)}
+
+
 func _cmd_press(a: Array) -> Dictionary:
 	if a.is_empty() or not InputMap.has_action(StringName(a[0])):
 		return {"ok": false, "error": "no action %s" % (a[0] if a.size() > 0 else "")}
@@ -544,9 +565,9 @@ func _cmd_weapon(a: Array) -> Dictionary:
 			player.weapon.put_away()
 		await _seconds(0.8)
 		return {"weapon": _weapon_line()}
-	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket()}.get(want)
+	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
 	if w == null:
-		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|none"}
+		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|plunger|none"}
 	player.select_weapon(w)
 	var until := _game_seconds() + 4.0
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
@@ -709,10 +730,45 @@ func _cmd_fight(a: Array) -> Dictionary:
 
 func _cmd_dynamite(a: Array) -> Dictionary:
 	if a.size() < 3:
-		return {"ok": false, "error": "dynamite X Y Z [FUSE]"}
-	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0)
+		return {"ok": false, "error": "dynamite X Y Z [FUSE] [STICKS]"}
+	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0, int(a[4]) if a.size() > 4 else 1)
 	s.light()
-	return {"fuse": snappedf(s.fuse_left, 0.1)}
+	return {"fuse": snappedf(s.fuse_left, 0.1), "sticks": s.sticks, "kg": snappedf(s.kg, 0.01)}
+
+
+func _cmd_bundle(a: Array) -> Dictionary:
+	if a.size() < 3:
+		return {"ok": false, "error": "bundle X Y Z [STICKS]"}
+	var at := _vec(a, 0)
+	var s := DynamiteStick.make(street, at, Vector3.ZERO, Blast.t().plant_fuse_seconds, int(a[3]) if a.size() > 3 else Blast.t().bundle_sticks)
+	var on: Object = null
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = 0.4
+	q.shape = ball
+	q.transform = Transform3D(Basis(), at)
+	q.collision_mask = Layers.WORLD
+	var best := INF
+	for h in World.space(street).intersect_shape(q, 16):
+		var c: Object = h.collider
+		if c is StructureMember and (c as StructureMember).global_position.distance_to(at) < best:
+			best = (c as StructureMember).global_position.distance_to(at)
+			on = c
+	if on:
+		s.stick_to(on)
+	else:
+		s.planted = true  # set on the ground: it lies there
+	s.wire()
+	return {"sticks": s.sticks, "kg": snappedf(s.kg, 0.01), "on": String((on as Node).name) if on else "ground",
+		"wired": DynamiteStick.bundles_set(get_tree()).size()}
+
+
+func _cmd_plunge(a: Array) -> Dictionary:
+	var spread := int(a[0]) if a.size() > 0 else -1
+	var at := player.global_position if player else Vector3.ZERO
+	var n := DynamiteStick.fire_wired(get_tree(), at, spread)
+	await _physics_frames(maxi(n * maxi(spread, 1), 1) + 2)
+	return {"fired": n}
 
 
 func _cmd_smoke(a: Array) -> Dictionary:
@@ -991,7 +1047,7 @@ func _weapon_line() -> String:
 	var w := player.weapon
 	if w == null:
 		return "none"
-	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "?"
+	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
 	var drawn := w.drawn
 	var loads := ""
 	if "state" in w and w.state and w.state.has_method("to_dict"):

@@ -60,6 +60,7 @@ func _ready() -> void:
 	_bind(&"weapon_shotgun", [KEY_2], [])
 	_bind(&"weapon_dynamite", [KEY_3], [])
 	_bind(&"weapon_bucket", [KEY_4], [])  # a water bucket (BucketViewmodel): R fills it at a trough
+	_bind(&"weapon_plunger", [KEY_5], [])  # the plunger box (PlungerViewmodel): sets off the wired bundles (#647)
 	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])
@@ -73,6 +74,9 @@ func _ready() -> void:
 	_bind(&"gunfight_free", [KEY_Z], [])
 	# The player's movement presets, light / middle / heavy (Player.next_movement).
 	_bind(&"movement_preset", [KEY_F], [])
+	# A lost mission's "try again" (FarmhouseMission): Enter or Start only. Not ui_accept, which is
+	# Space and A as well, the jump (issue #668: a jump after the rancher died reset the game).
+	_bind(&"mission_retry", [KEY_ENTER, KEY_KP_ENTER], [JOY_BUTTON_START])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:
