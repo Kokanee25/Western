@@ -757,6 +757,8 @@ frozen until Sean names one.
   Train's near list; a placed train threw you); the farmhouse one not reproduced (4 tries), runaway
   rubble now slowed and logged (`Structure.RUNAWAY_SPEED`). Untested here: the Windows half (CI
   builds it; Sean's first crash proves it). Bridge `key NAME`.
+- **#668** (branch `claude/gameplay-issue-668`): a lost mission tries again on Enter/Start only
+  (`mission_retry`; `ui_accept` was Space, the jump); a match put away never lights the stick.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
