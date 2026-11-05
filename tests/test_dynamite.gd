@@ -599,8 +599,12 @@ func test_at_his_feet_it_takes_a_leg() -> void:
 func test_the_blast_pushes_him_along_its_line() -> void:
 	var man := await _man(Vector3.ZERO)
 	var chest := (man.parts[&"chest"] as Node3D).global_position
-	# Level with his chest, a metre and a bit in front: the wind is level.
+	# Level with his chest, a metre and a bit in front: the wind is level. The real push alone: the
+	# game's lift (blast_lift 0.8, #636) throws him up on purpose (test_blast_thrown has that).
+	var lift := Blast.t().blast_lift
+	Blast.t().blast_lift = 0.0
 	man.take_blast(chest + Vector3(0, 0, -1.1), 0.15)
+	Blast.t().blast_lift = lift
 	check(man.limp, "thrown down")
 	var v := (man.parts[&"chest"] as RigidBody3D).linear_velocity
 	print("  chest thrown at (%.2f, %.2f, %.2f) m/s" % [v.x, v.y, v.z])
