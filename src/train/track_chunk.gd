@@ -201,7 +201,7 @@ func infer_supports() -> void:
 
 ## Rails don't snap: a blast (or anything) that would break one tears it loose whole; the rest
 ## break as any timber does.
-func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = []) -> Array[StringName]:
+func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = [], budget: WorkBudget = null) -> Array[StringName]:
 	var keep: Array[StructureMember] = []
 	var keep_push: Array[Vector3] = []
 	var keep_cut := []
@@ -216,7 +216,7 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 			keep_push.append(push)
 			keep_cut.append(cuts[i] if i < cuts.size() else null)
 	if not keep.is_empty():
-		out.append_array(super.break_members(keep, keep_push, keep_cut))
+		out.append_array(super.break_members(keep, keep_push, keep_cut, budget))
 	return out
 
 

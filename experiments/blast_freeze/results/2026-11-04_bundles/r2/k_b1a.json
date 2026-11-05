@@ -1,0 +1,279 @@
+{
+ "after_mean_ms": 45.4,
+ "awake_end": 4,
+ "rubble_sleep": {
+  "held still": 180,
+  "held still: quiet": 1505,
+  "let go: moved (landed on)": 1
+ },
+ "setup": {
+  "at": [
+   2.25,
+   2.63,
+   -0.02
+  ],
+  "at_local": [
+   6.0,
+   0.800000011920929,
+   6.0
+  ],
+  "awake_end": 4,
+  "blast_lift": 0.0,
+  "broken": 1099,
+  "broken_ids_hash": 2191851831,
+  "broken_now": 1099,
+  "burn_s": 20.0,
+  "burning_after": 0,
+  "burning_before": 0,
+  "cut": 306,
+  "fire_bands": true,
+  "gap": 0.4,
+  "holed": 0,
+  "in": "street",
+  "lit": [],
+  "members_after": 0,
+  "members_before": 0,
+  "men": [],
+  "mission": 0,
+  "nodes": 27563.0,
+  "people": 19,
+  "player": [
+   24.01,
+   0.0,
+   -9.0
+  ],
+  "player_from_stick": 23.6867637634277,
+  "rubble_after": 0,
+  "rubble_before": 0,
+  "rubble_end": 3329,
+  "spots": [
+   [
+    2.25,
+    2.63,
+    -0.02
+   ]
+  ]
+ },
+ "stall_frames": [
+  {
+   "after": -1,
+   "ms": 209.2,
+   "tick": 4,
+   "top": [
+    "q_writes 553.0",
+    "q_senses 89.0",
+    "structures 70.3",
+    "n_people_ticked 19.0",
+    "n_full_near_player 12.0"
+   ]
+  },
+  {
+   "after": 0,
+   "ms": 124.5,
+   "tick": 122,
+   "top": [
+    "n_blast_members 965.0",
+    "q_writes 289.0",
+    "q_senses 172.0",
+    "blast_response 28.6",
+    "blast_break 21.5"
+   ]
+  },
+  {
+   "after": 1,
+   "ms": 88.0,
+   "tick": 123,
+   "top": [
+    "q_writes 231.0",
+    "q_balls 120.0",
+    "step 116.4",
+    "q_senses 71.0",
+    "rest 31.2"
+   ]
+  },
+  {
+   "after": 2,
+   "ms": 72.4,
+   "tick": 124,
+   "top": [
+    "q_writes 450.0",
+    "q_senses 74.0",
+    "q_balls 56.0",
+    "window 50.1",
+    "step 25.2"
+   ]
+  },
+  {
+   "after": 3,
+   "ms": 68.9,
+   "tick": 125,
+   "top": [
+    "q_writes 404.0",
+    "q_senses 150.0",
+    "window 42.3",
+    "q_balls 41.0",
+    "step 23.2"
+   ]
+  },
+  {
+   "after": 4,
+   "ms": 76.7,
+   "tick": 126,
+   "top": [
+    "q_writes 450.0",
+    "q_senses 87.0",
+    "q_balls 39.0",
+    "window 38.2",
+    "step 24.7"
+   ]
+  },
+  {
+   "after": 5,
+   "ms": 92.5,
+   "tick": 127,
+   "top": [
+    "q_writes 450.0",
+    "q_senses 110.0",
+    "window 44.8",
+    "q_balls 30.0",
+    "step 23.7"
+   ]
+  },
+  {
+   "after": 6,
+   "ms": 68.5,
+   "tick": 128,
+   "top": [
+    "q_writes 451.0",
+    "q_senses 239.0",
+    "window 44.1",
+    "step 39.9",
+    "q_balls 27.0"
+   ]
+  },
+  {
+   "after": 7,
+   "ms": 79.2,
+   "tick": 129,
+   "top": [
+    "q_writes 437.0",
+    "q_senses 234.0",
+    "window 30.4",
+    "step 30.2",
+    "q_balls 26.0"
+   ]
+  },
+  {
+   "after": 8,
+   "ms": 121.3,
+   "tick": 130,
+   "top": [
+    "q_writes 452.0",
+    "q_senses 158.0",
+    "q_lamps 108.0",
+    "rest 77.8",
+    "rest_after 74.6"
+   ]
+  },
+  {
+   "after": 9,
+   "ms": 59.0,
+   "tick": 131,
+   "top": [
+    "q_writes 406.0",
+    "q_senses 83.0",
+    "step 24.8",
+    "q_balls 23.0",
+    "window 20.2"
+   ]
+  },
+  {
+   "after": 10,
+   "ms": 76.3,
+   "tick": 132,
+   "top": [
+    "q_writes 452.0",
+    "q_senses 47.0",
+    "step 29.4",
+    "q_balls 23.0",
+    "n_people_ticked 19.0"
+   ]
+  }
+ ],
+ "stall_s": 16.4,
+ "stalls": 243,
+ "stick_added": [],
+ "totals_ms": {
+  "n_full_down": 1920.0,
+  "n_full_near_player": 5413.0,
+  "n_full_seen": 1824.0,
+  "n_people_ticked": 10587.0,
+  "n_slow": 1625.0,
+  "people_body": 1397.9,
+  "q_balls": 2640.0,
+  "q_lamps": 1322.0,
+  "q_senses": 46469.0,
+  "q_writes": 91898.0,
+  "rest": 4859.1,
+  "rest_after": 1743.4,
+  "rest_idle": 3115.8,
+  "step": 11981.3,
+  "structures": 1477.5,
+  "window": 7010.3
+ },
+ "worst_after": -1,
+ "worst_ms": 209.2,
+ "worst_top": [
+  "q_writes 553.0",
+  "q_senses 89.0",
+  "structures 70.3",
+  "n_people_ticked 19.0",
+  "n_full_near_player 12.0",
+  "step 12.0",
+  "window 7.4",
+  "n_full_seen 4.0"
+ ],
+ "seconds_after": [
+  "80/3284",
+  "68/3184",
+  "63/2811",
+  "56/2419",
+  "28/158",
+  "12/44",
+  "11/6",
+  "10/5",
+  "12/5"
+ ],
+ "first_frames_ms": [
+  124.53,
+  88.0,
+  72.44,
+  68.93,
+  76.66,
+  92.48,
+  68.51,
+  79.15,
+  121.34,
+  58.96,
+  76.26,
+  76.05,
+  76.54,
+  76.88,
+  77.82,
+  93.28,
+  79.31,
+  75.78,
+  74.76,
+  78.15,
+  80.44,
+  84.69,
+  84.53,
+  96.94,
+  94.91,
+  83.68,
+  129.22,
+  96.61,
+  118.5,
+  107.83
+ ]
+}

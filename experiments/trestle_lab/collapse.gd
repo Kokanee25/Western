@@ -11,7 +11,7 @@ extends Node
 ##   story   which story, from the top (0) or "bottom"                                    bottom
 ##   posts   all | inner | outer | left | N (the N leftmost)                              all
 ##   how     stick (charges planted on the posts) | cut (the posts cut outright) | none   stick
-##   sticks  sticks of dynamite at each post (a bundle; BlastTuning.tnt_per_stick each)   2
+##   sticks  sticks of dynamite at each post (a bundle; BlastTuning.tnt_per_stick each)   4
 ##   at      where up the post the charge sits, m above its foot                          0.6
 ##   train   none | cross (the train comes on)                                            none
 ##   when    before (the charge, `wait` s, then the train) | under (the charge as the engine's front
@@ -102,7 +102,7 @@ var _off_wall := -1.0
 
 
 static func parse(a: Array) -> Dictionary:
-	var spec := {"bent": "mid", "bents": 1, "story": "bottom", "posts": "all", "how": "stick", "sticks": 2, "at": 0.6,
+	var spec := {"bent": "mid", "bents": 1, "story": "bottom", "posts": "all", "how": "stick", "sticks": 4, "at": 0.6,
 		"train": "none", "when": "before", "wait": 6.0, "lead": 0.0, "kmh": 30.0, "run_up": 250.0, "riders": 0,
 		"secs": 10.0, "out": "", "fresh": 1, "stagger": 1, "board": -1}
 	for w: String in a:
@@ -182,8 +182,9 @@ func fire(tr: Trestle, spec: Dictionary) -> Dictionary:
 		for p in posts:
 			var foot := p.global_transform * Vector3(0.0, 0.0, -p.size.z * 0.5)
 			var up := (p.global_transform.basis.z).normalized()
-			# On the post's face toward the line's start (where a man planting it would stand).
-			var face := p.global_transform.basis.y.normalized() * (p.size.y * 0.5 + 0.05)
+			# On the post's face toward the line's start (where a man planting it would stand), touching
+			# it as E sets it (was 5 cm off, before heavy timber was made tough, #647).
+			var face := p.global_transform.basis.y.normalized() * (p.size.y * 0.5 + DynamiteStick.radius_of(int(spec.sticks)) + 0.003)
 			spots.append(foot + up * float(spec.at) + face)
 		var worst := 0.0
 		for i in spots.size():
