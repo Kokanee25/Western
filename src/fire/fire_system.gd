@@ -201,7 +201,7 @@ static func find(tree: SceneTree) -> FireSystem:
 
 
 func flammable(m: StructureMember) -> bool:
-	return not m.wood in tuning.fireproof
+	return not m.wood in tuning.fireproof and not m.is_masonry()
 
 
 ## Set a member alight (a match, a torch, the debug key).

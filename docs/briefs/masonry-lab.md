@@ -49,7 +49,7 @@ by a small loader in `src/structures/`, and a test holds `timber_in_masonry` to 
 | Step | Done when | Judged by |
 | --- | --- | --- |
 | 1. The spec and data skeleton | Sean has read the spec and approved the material list | his word on the `waiting on Sean` issue |
-| 2. One rubble-stone wall panel (test piece 1): stones and mortar joints, hits break joints | a charge at the base blows a ragged hole and the stone above it falls | film and stills; the "never" column; benchmarks row |
+| 2. One rubble-stone wall panel (test piece 1): stones and mortar joints, hits break joints | a charge at the base blows a ragged hole and the stone above it falls | film and stills; the "never" column; benchmarks row (**done** 2026-11-04, #667: `experiments/masonry_lab/` README) |
 | 3. The solver (S1-S6, the arch rule) | a hole low in the wall drops what's above it; a hole with stone arching over it stays | headless tests (each rule a test), the panel films |
 | 4. All five materials on the panel | side-by-side clips of all five, Sean approves | Sean; a blind critic against the reference library |
 | 5. Two scales of damage | 50 rifle hits pockmark a wall without collapsing it; one charge breaches it | test + film; benchmarks "wall stress" |

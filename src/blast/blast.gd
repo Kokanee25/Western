@@ -158,6 +158,8 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 				continue
 			Prof.count(&"n_blast_members")
 			var s := m.get_parent() as Structure
+			if s is MasonryStructure:
+				continue  # its joints, not its members, by MasonryBlast (below)
 			var hitres := _member_response(m, at, kg, s)
 			if hitres.break and not _bedded(m):
 				var cut: Variant = null
@@ -239,6 +241,11 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 				for m: StructureMember in catching:
 					if is_instance_valid(m) and fire.flammable(m) and near[i] < fireball and _rng.randf() < tn.ignite_chance:
 						fire.ignite_after(m, _rng.randf_range(tn.ignite_delay.x, tn.ignite_delay.y))
+	# Masonry in reach: its joints by the spec's stress rule (MasonryBlast), its freed stones thrown.
+	for s: Node in world.get_tree().get_nodes_in_group(&"masonry"):
+		var ms := s as MasonryStructure
+		if ms != null and ms.is_inside_tree() and ms.may_reach(at, r_max):
+			report.broken.append_array(ms.take_blast(at, kg))
 	Prof.stop(&"blast_break", t_break)
 	# A crater, if it went off on (or just over) the dirt.
 	var t_crater := Prof.start()
