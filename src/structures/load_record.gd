@@ -32,6 +32,15 @@ var weak_t := 0.0
 ## A lying member's geometry (StructuralAnalysis._geometry, its own copy: the analysis adds its
 ## support groups to it as it goes).
 var geo := {}
+## Masonry (MasonryStructure.masonry_record; the spec's S1 and S2): its axis along the wall, its
+## half-length, its bed on each support (id -> Vector2(t0, t1) along it), the share of its bed it
+## needs, and its bonded bed and head joints [[the element across it, the moment it holds], ...].
+var masonry := false
+var axis := Vector3.RIGHT
+var half := 0.0
+var beds := {}
+var min_share := 0.25
+var bond: Array = []
 
 
 ## Copied (again) from `m` as it stands now.
@@ -69,6 +78,12 @@ func take(m: StructureMember, tuning: TimberTuning, structure: Structure) -> voi
 		var w := tuning.wood(m.wood)
 		var dims := m.cross_section()
 		b_capacity = float(w.bending) * dims.x * dims.y * dims.y / 6.0 * m.section_left(tuning)
+	masonry = false
+	if structure is MasonryStructure:
+		(structure as MasonryStructure).masonry_record(m, self)
+	if masonry:
+		geo = {}
+		return
 	geo = StructuralAnalysis.geometry_of(m, structure).duplicate() if not upright else {}
 
 
