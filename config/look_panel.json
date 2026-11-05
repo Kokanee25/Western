@@ -2,10 +2,11 @@
   "_about": "The live look panel's sliders (LookPanel, N in game). From the art session's list, docs/briefs/look_settings.md: address (LookPreset), label, range, and what it does. kind: float (default), color, bool, or choice with options. Lamps are multipliers over each lamp's own value.",
   "groups": [
     {"name": "Real look (R0, Red Dead's direction)", "items": [
-      {"key": "settings.real_look", "label": "Real look", "kind": "bool", "what": "The game drawn realistically (docs/briefs/red-dead.md R0): smooth filtered textures, no squares or mosaic, anti-aliased, AgX, SSIL, SDFGI outdoors, relief. Off = the painted look."},
+      {"key": "settings.real_look", "label": "Real look", "kind": "bool", "what": "The game drawn realistically (docs/briefs/red-dead.md R0): smooth filtered textures, no squares or mosaic, anti-aliased, AgX, SSIL, relief. Off = the painted look."},
       {"key": "real.exposure", "label": "Exposure", "min": 0.5, "max": 3, "what": "A multiplier on the day's exposure (AgX sits darker than the old ACES)."},
       {"key": "real.relief", "label": "Relief (m)", "min": 0, "max": 0.02, "step": 0.0005, "what": "How deep the textures' light and dark stand out as relief (grain, cracks)."},
       {"key": "real.groove", "label": "Board gap (m)", "min": 0, "max": 0.01, "step": 0.0005, "what": "The dark gap and rounded edge between boards."},
+      {"key": "env.sdfgi_enabled", "label": "SDFGI (hitches walking, #643)", "kind": "bool", "what": "Bounce light from the world's distance field. Off in the real look: its cascades re-voxelise as you walk, a long frame every metre or so (the lurch, #643)."},
       {"key": "real.sdfgi_outdoor", "label": "Bounce outdoors (SDFGI)", "min": 0, "max": 2, "what": "SDFGI's bounce light in the open."},
       {"key": "real.sdfgi_indoor", "label": "Bounce under a roof", "min": 0, "max": 2, "what": "SDFGI's bounce light under a roof (0: indoors is RoomLight's)."},
       {"key": "env.ssil_intensity", "label": "Screen bounce (SSIL)", "min": 0, "max": 2, "what": "Bounce light from what's on screen."},
