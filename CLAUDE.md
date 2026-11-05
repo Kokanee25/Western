@@ -761,8 +761,14 @@ frozen until Sean names one.
   through `GameReset.reload_scene` (the lab's Y/X/Z skipped the statics and the watchdog's load).
   Trap: the lab's `run.py` passes `--deterministic`, which keeps the workers' merges off: crashes
   in threaded paths need runs without it.
-- **#668** (branch `claude/gameplay-issue-668`): a lost mission tries again on Enter/Start only
-  (`mission_retry`; `ui_accept` was Space, the jump); a match put away never lights the stick.
+- **Close-out week, gameplay** (#673, 2026-11-05, branch `claude/salt-creek-closeout-yl455a`): merged
+  #672 (#668: `mission_retry` on Enter/Start, not the jump; a match put away never lights the stick;
+  build 3349), #684 (#636: `blast_lift` 0.8 in `config/blast.tres`; three men thrown, worst 76-79 ms
+  at Sean's; build 3356), #685 (#669: held meshes on `VIS_HELD` alone via `Layers.hold`, the blood
+  pool 0.2 m tall on the floor under him), #686 (#643: the real look's SDFGI off, `test_walk_steps`).
+  #670 (white patches) not reproduced: what's ruled out is on the issue, waiting on Sean's F12.
+  Next: #562 (its handover comment). Trap: lavapipe needs `mesa-vulkan-drivers` (apt), and the real
+  look switched on at runtime crashes it: start with `--game-args=--real`.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
