@@ -19,11 +19,13 @@ extends Node
 ## STILL_M of where it was for STILL_S, with nothing given way within QUIET_M of it for QUIET_S
 ## (`disturbed`: Structure's wakes after a break; a blast, within BLAST_M), and still moving faster
 ## than RESTLESS at some point of it (spinning or jiggling in place: going nowhere), is frozen
-## where it lies (static: it holds what's on it). Jolt then sleeps the rest of its pile itself. A
-## frozen piece is let go (its own body again, awake) the moment anything happens to it or near
+## where it lies (static: it holds what's on it). Jolt then sleeps the rest of its pile itself. And
+## (#647) a quiet piece still awake QUIET_AWAKE_S past its still spell is held too: something its
+## pile touches that isn't looked at here keeps it awake (a dead man's ragdoll, bone chips, a hat).
+## A frozen piece is let go (its own body again, awake) the moment anything happens to it or near
 ## it: struck, shot, blasted, shoved (`let_go`, from RubbleRest.let_go), its member touched
 ## (RubbleRest.touch), rubble landing on it, the ground dug under it, or something within its wake
-## radius gives way (`disturbed`).
+## radius gives way (`disturbed`); one let go so lets go what's held lying on it (`_lying_on`).
 ##
 ## It only touches pieces after they've stopped mattering: nothing whose middle is moving, nothing
 ## near a break or within a blast's reach for QUIET_S, so what breaks next is decided as before
@@ -38,6 +40,14 @@ const STILL_S := 1.5
 ## Restless: some point of it (its middle's speed + its spin x its reach) faster than this (m/s);
 ## Jolt's sleep line is 0.03.
 const RESTLESS := 0.01
+## Quiet (under RESTLESS) yet still awake this long (s) past its still spell: something else in its
+## pile keeps Jolt from sleeping it (Jolt sleeps a quiet island in 0.5 s, its sleep time), so it's
+## held too (#647:
+## after a bundle on Main Street ~2,100 still pieces lay awake round a dead man's ragdoll and the
+## bone chips by him for 6 s to the end of the run, ~35 ms of the physics' step a frame).
+const QUIET_AWAKE_S := 0.5
+## Pieces held lie in cells this big (m), so what's held near a spot is found without a walk of all.
+const CELL := 1.0
 ## Nothing gave way within this (m, plus the wake's own radius) of it for this long (s).
 const QUIET_M := 2.0
 const QUIET_S := 2.0
@@ -58,6 +68,8 @@ var _still := {}
 var _disturbed := {}
 ## The pieces frozen here (instance id -> body).
 var _frozen := {}
+## The held pieces by CELL: Vector3i -> {instance id: body}.
+var _cells := {}
 var _next := 0.0
 ## The look under way: the bodies still to be looked at, how many a tick, the spells seen so far.
 var _queue: Array = []  # (untyped: a body may be freed in it)
@@ -94,23 +106,17 @@ static func disturbed(n: Node, at: Vector3, radius: float) -> void:
 	if d != null:
 		reach = maxf(reach, float(d[1]) + at.distance_to(d[0]))
 	r._disturbed[key] = [at, reach, _time()]
-	if r._frozen.is_empty():
-		return
-	for id: int in r._frozen.keys():
-		var b: Variant = r._frozen[id]
-		if not is_instance_valid(b):
-			r._frozen.erase(id)
-		elif (b as Node3D).global_position.distance_to(at) < radius:
-			r._release(b as RigidBody3D, "let go: gave way near")
+	for b: RigidBody3D in r._held_within(at, radius):
+		r._release(b, "let go: gave way near")
 
 
 ## A body about to be moved (struck, shot, blasted, shoved, its member touched): if it's held still
 ## here, its own again, awake.
-static func let_go(body: Object) -> void:
+static func let_go(body: Object, tag := "") -> void:
 	if body is RigidBody3D and (body as Node).has_meta(&"held_still"):
 		var r: Variant = (body as Node).get_meta(&"held_still")
 		if is_instance_valid(r):
-			(r as RubbleSleep)._release(body as RigidBody3D, "let go: moved")
+			(r as RubbleSleep)._release(body as RigidBody3D, "let go: moved", 3, "let go: moved" + tag)
 
 
 func _ready() -> void:
@@ -193,30 +199,116 @@ func _look_at(o: Variant, now: float) -> void:
 	if now - float(s[1]) < STILL_S or _near_disturbed(at):
 		return
 	if rb.linear_velocity.length() + rb.angular_velocity.length() * _reach(rb) < RESTLESS:
-		return  # (quiet: Jolt puts it to sleep with its pile)
+		if now - float(s[1]) < STILL_S + QUIET_AWAKE_S:
+			return  # (quiet: Jolt puts it to sleep with its pile, if nothing in it keeps it awake)
+		_hold(rb, "held still: quiet")
+		return
 	_hold(rb)
 
 
 ## Frozen where it lies (static), until something happens to it or near it. (Damping it to a stop
 ## instead, its type unchanged, kept its pile awake: tried, `results/2026-11-02_rubble_sleep/`.)
-func _hold(rb: RigidBody3D) -> void:
+func _hold(rb: RigidBody3D, why := "held still") -> void:
 	rb.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 	rb.freeze = true
 	rb.set_meta(&"held_still", self)
-	_frozen[rb.get_instance_id()] = rb
-	_count("held still")
+	var id := rb.get_instance_id()
+	_frozen[id] = rb
+	var key := _cell(rb.global_position)
+	rb.set_meta(&"held_cell", key)
+	(_cells.get_or_add(key, {}) as Dictionary)[id] = rb
+	_count(why)
 
 
-func _release(rb: RigidBody3D, why: String) -> void:
-	_frozen.erase(rb.get_instance_id())
+## Let go: its own body again, awake. Moved (struck, shot, pushed, landed on), what's held lying on
+## it or against it is let go with it, and what lies on those (up to `depth` deep): a pile held
+## whole doesn't hang in the air round a piece knocked out of it.
+func _release(rb: RigidBody3D, why: String, depth := 3, counted := "") -> void:
+	var id := rb.get_instance_id() if is_instance_valid(rb) else 0
+	var b: Variant = _frozen.get(id)
+	_frozen.erase(id)
 	if not is_instance_valid(rb):
 		return
+	var key: Variant = rb.get_meta(&"held_cell", null)
+	if key != null and _cells.has(key):
+		(_cells[key] as Dictionary).erase(id)
+		if (_cells[key] as Dictionary).is_empty():
+			_cells.erase(key)
+	rb.remove_meta(&"held_cell")
 	rb.remove_meta(&"held_still")
 	if rb.collision_layer == 0 or rb.is_queued_for_deletion():
 		return  # (gone meanwhile: a glass prop smashed holds its own body frozen, out of the world)
 	rb.freeze = false
 	rb.sleeping = false
-	_count(why)
+	_count(counted if counted != "" else why)
+	if why == "let go: moved" and depth > 0 and b != null and not _frozen.is_empty():
+		for o: RigidBody3D in _lying_on(rb):
+			if _frozen.has(o.get_instance_id()):
+				_release(o, "let go: moved", depth - 1, "let go: with one moved")
+
+
+## What's held touching `rb` (within a couple of cm of its shapes) whose middle isn't below its own:
+## what lies on it or leans on it. (What it lay on still holds, static.)
+func _lying_on(rb: RigidBody3D) -> Array[RigidBody3D]:
+	var out: Array[RigidBody3D] = []
+	if not rb.is_inside_tree():
+		return out
+	var space := rb.get_world_3d().direct_space_state
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.collision_mask = Layers.WORLD | Layers.DEBRIS
+	q.margin = 0.02
+	q.exclude = [rb.get_rid()]
+	for owner_id: int in rb.get_shape_owners():
+		if rb.is_shape_owner_disabled(owner_id):
+			continue
+		var xf := rb.global_transform * rb.shape_owner_get_transform(owner_id)
+		for k in rb.shape_owner_get_shape_count(owner_id):
+			q.shape = rb.shape_owner_get_shape(owner_id, k)
+			q.transform = xf
+			for hit: Dictionary in space.intersect_shape(q, 32):
+				var o: Variant = hit.collider
+				if o is RigidBody3D and (o as Node).has_meta(&"held_still") and not out.has(o) \
+						and (o as Node3D).global_position.y > rb.global_position.y - 0.05:
+					out.append(o as RigidBody3D)
+	return out
+
+
+static func _cell(p: Vector3) -> Vector3i:
+	return Vector3i((p / CELL).floor())
+
+
+## What's held within `radius` of `at` (by its middle), freed ones forgotten.
+func _held_within(at: Vector3, radius: float) -> Array[RigidBody3D]:
+	var out: Array[RigidBody3D] = []
+	if _frozen.is_empty():
+		return out
+	var lo := _cell(at - Vector3.ONE * radius)
+	var hi := _cell(at + Vector3.ONE * radius)
+	var span := hi - lo + Vector3i.ONE
+	if span.x * span.y * span.z > _cells.size():
+		for key: Vector3i in _cells.keys():
+			_gather(key, at, radius, out)
+	else:
+		for x in range(lo.x, hi.x + 1):
+			for y in range(lo.y, hi.y + 1):
+				for z in range(lo.z, hi.z + 1):
+					_gather(Vector3i(x, y, z), at, radius, out)
+	return out
+
+
+func _gather(key: Vector3i, at: Vector3, radius: float, out: Array[RigidBody3D]) -> void:
+	var c: Variant = _cells.get(key)
+	if c == null:
+		return
+	for id: int in (c as Dictionary).keys():
+		var b: Variant = (c as Dictionary)[id]
+		if not is_instance_valid(b):
+			(c as Dictionary).erase(id)
+			_frozen.erase(id)
+		elif (b as Node3D).global_position.distance_to(at) < radius:
+			out.append(b as RigidBody3D)
+	if (c as Dictionary).is_empty():
+		_cells.erase(key)
 
 
 ## Is it held still here (tests, the lab)?

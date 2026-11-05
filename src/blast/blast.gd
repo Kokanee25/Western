@@ -24,6 +24,13 @@ static var native: Object = ClassDB.instantiate(&"BlastCore") \
 static var _rng := RandomNumberGenerator.new()
 
 
+## A blast's breaking on its own tick (ms; under World.deterministic, Structure.BROKEN_A_MS members
+## a millisecond of it): what's left the ticks after (Structure.break_members).
+const BREAK_TICK_MS := 20.0
+## `-- --blast-break=whole`: all of it on the blast's tick (the before, for the blast-freeze lab).
+static var break_whole := "--blast-break=whole" in OS.get_cmdline_user_args()
+
+
 static func t() -> BlastTuning:
 	if tuning == null:
 		tuning = load("res://config/blast.tres")
@@ -173,7 +180,19 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 	var splinters := 0
 	var ballistics := world.get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	var passed := {}
-	for s: Structure in by_structure:
+	# What breaks is decided; breaking it is spread (#647: a bundle on Main Street was ~100 ms of
+	# cuts on its tick): nearest first, the buildings nearest first, BREAK_TICK_MS on this tick and
+	# the rest Structure.BREAK_FRAME_MS a tick after (the same members, the furthest a few ticks on).
+	var budget: WorkBudget = null if break_whole else WorkBudget.new(BREAK_TICK_MS, int(BREAK_TICK_MS * Structure.BROKEN_A_MS))
+	var order: Array = by_structure.keys()
+	var nearest := {}
+	for s: Structure in order:
+		var d := INF
+		for pair: Array in by_structure[s]:
+			d = minf(d, float(pair[2]))
+		nearest[s] = d
+	order.sort_custom(func(a: Structure, b: Structure) -> bool: return nearest[a] < nearest[b])
+	for s: Structure in order:
 		var list: Array[StructureMember] = []
 		var ps: Array[Vector3] = []
 		var near: Array[float] = []
@@ -202,7 +221,16 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 				b.passed = passed
 				splinters += 1
 		Prof.stop(&"blast_splinters", t_spl)
-		report.broken.append_array(s.break_members(list, ps, cuts))
+		var by_near: Array = range(list.size())
+		by_near.sort_custom(func(a: int, b: int) -> bool: return near[a] < near[b])
+		var l2: Array[StructureMember] = []
+		var p2: Array[Vector3] = []
+		var c2 := []
+		for i: int in by_near:
+			l2.append(list[i])
+			p2.append(ps[i])
+			c2.append(cuts[i])
+		report.broken.append_array(s.break_members(l2, p2, c2, budget))
 		if fire:
 			# By how near the fireball came to it, as for what it didn't break (a tall board's middle
 			# can be well outside it while its foot is in it). A board it holed: the ends left.
