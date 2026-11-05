@@ -769,7 +769,12 @@ frozen until Sean names one.
 - **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
   you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
   gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
-  `2026-11-04_on_you/`. Waiting on Sean: #656 (the films). Next on #596: step 3 (the first instant).
+  `2026-11-04_on_you/`. Waiting on Sean: #656 (the films).
+- **The first instant** (#596 step 3, branch `claude/gameplay-dynamite-first-instant-4z7vzb`):
+  `BlastCloud` flash (one light, glows), dust ring (`room_reach`), dirt thrown up (`speed_cap`);
+  BlastTuning "The first instant", proposed; particle materials pooled (`_pm`: a new one was ~4 ms a
+  blast); sound lab `instant_*`, results `2026-11-05_first_instant/`. Waiting on Sean: #679 (the films).
+  Next on #596: step 4 (debris you see).
 - **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`, branch
   `claude/gameplay-dynamite-bundles-vqq4hh`): R held 12 s ties four sticks into a bundle, planted ones
   wired to the plunger box (5) and fired together, a tick apart (Sean's picks, #648); saved. Gate
