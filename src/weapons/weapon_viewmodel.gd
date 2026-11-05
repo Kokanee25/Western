@@ -111,7 +111,7 @@ func _add_fill() -> void:
 
 func _mark_held() -> void:
 	for mi in find_children("*", "MeshInstance3D", true, false):
-		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+		Layers.hold(mi as MeshInstance3D)
 
 
 func _update_fill() -> void:
