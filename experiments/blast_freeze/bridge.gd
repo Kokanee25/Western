@@ -713,8 +713,10 @@ func _other_awake() -> Dictionary:
 		if n is RigidBody3D and not n.is_in_group(&"rubble") and not (n as RigidBody3D).sleeping and not (n as RigidBody3D).freeze:
 			var rb := n as RigidBody3D
 			var key := "%s<%s> %s inner=%d" % [n.name.left(16), (n.get_script() as Script).resource_path.get_file() if n.get_script() else "", str(n.get_groups().filter(func(g: StringName) -> bool: return not String(g).begins_with("_"))), n.find_children("*", "CollisionObject3D", true, false).size()]
-			var row: Dictionary = out.get(key, {"n": 0, "v": 0.0, "w": 0.0})
+			var row: Dictionary = out.get(key, {"n": 0, "v": 0.0, "w": 0.0, "at": []})
 			row.n = int(row.n) + 1
+			if (row.at as Array).size() < 3:
+				(row.at as Array).append([arr(rb.global_position), snappedf(rb.linear_velocity.length(), 0.001), snappedf(rb.angular_velocity.length(), 0.001), rb.can_sleep])
 			row.v = maxf(float(row.v), snappedf(rb.linear_velocity.length(), 0.001))
 			row.w = maxf(float(row.w), snappedf(rb.angular_velocity.length(), 0.001))
 			out[key] = row

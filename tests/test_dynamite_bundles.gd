@@ -3,7 +3,7 @@ extends TestCase
 ## its sticks' kg; R held ~12 s makes one from your loose sticks (the work kept if you let go), a tap
 ## switches stick and bundle in hand; planted it's wired to the plunger and waits unlit (a match aimed
 ## at it lights its fuse); no more than `max_bundles` wait at once; the plunger (5) sets every wired
-## bundle off together; a save keeps a planted, wired one; on the trestle a charge cuts the 12x12
+## bundle off together; a save keeps a planted, wired one; on the trestle a bundle of four cuts the 12x12
 ## post it's on, and not the one beside it.
 
 const LAB_LINE := preload("res://experiments/trestle_lab/lab_line.gd")
@@ -334,14 +334,14 @@ func test_the_plunger_sets_off_every_wired_bundle_at_once() -> void:
 
 ## On the trestle (the lab's viaduct, #623): a charge on a bottom-story post's inner face cuts that
 ## 12x12 post and never the one beside it, 0.9 m off (a bundle takes the post it's on, at any size;
-## brief). Set on it as E sets it (touching), one stick cuts it; 3.5 cm off the face one doesn't and a
-## bundle of four does (the trestle lab's "one doesn't, two do" was 5 cm off, #638).
+## brief). Heavy timber is tough (Sean, #648; BlastTuning.heavy_*): set on it as E sets it
+## (touching), a bundle of four cuts it and three sticks, or one, don't.
 func test_on_the_trestle_a_bundle_cuts_the_post_its_on() -> void:
 	var line: TrackLine = LAB_LINE.build(world, load("res://config/train.tres"), LAB_LINE.ROUTE, null, "start", false)
 	var tr: Trestle = line.trestles[0]
 	tr.settle()
 	# [sticks, gap off the face (m), cut]
-	var cases := [[1, 0.003, true], [1, 0.035, false], [4, 0.035, true], [8, 0.003, true]]
+	var cases := [[1, 0.003, false], [3, 0.003, false], [4, 0.003, true], [8, 0.003, true]]
 	# Bents about the tallest, three apart (no charge reaches the next one tried).
 	var mid := 0
 	for i in tr.bents.size():

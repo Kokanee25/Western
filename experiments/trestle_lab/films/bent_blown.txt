@@ -3,4 +3,4 @@
 trestle_lab
 train_caption The tallest bent blown at its foot, no train: what's above the cut comes down; the deck holds.
 trestle_cam floor
-trestle_collapse how=stick posts=all sticks=2 secs=12
+trestle_collapse how=stick posts=all sticks=4 secs=12

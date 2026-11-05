@@ -1,0 +1,217 @@
+{
+ "after_mean_ms": 14.6,
+ "awake_end": 2,
+ "rubble_sleep": {
+  "held still": 21
+ },
+ "setup": {
+  "at": [
+   2.25,
+   2.63,
+   -0.02
+  ],
+  "at_local": [
+   6.0,
+   0.800000011920929,
+   6.0
+  ],
+  "awake_end": 2,
+  "blast_lift": 0.0,
+  "broken": 358,
+  "broken_ids_hash": 1368872959,
+  "broken_now": 358,
+  "burn_s": 20.0,
+  "burning_after": 0,
+  "burning_before": 0,
+  "cut": 48,
+  "fire_bands": true,
+  "gap": 0.4,
+  "holed": 0,
+  "in": "street",
+  "lit": [],
+  "members_after": 0,
+  "members_before": 0,
+  "men": [],
+  "mission": 0,
+  "nodes": 20539.0,
+  "people": 19,
+  "player": [
+   24.0,
+   0.0,
+   -9.0
+  ],
+  "player_from_stick": 23.6792488098145,
+  "rubble_after": 0,
+  "rubble_before": 0,
+  "rubble_end": 547,
+  "spots": [
+   [
+    2.25,
+    2.63,
+    -0.02
+   ]
+  ]
+ },
+ "stall_frames": [
+  {
+   "after": -1,
+   "ms": 217.9,
+   "tick": 4,
+   "top": [
+    "q_writes 553.0",
+    "q_senses 89.0",
+    "structures 77.4",
+    "n_people_ticked 19.0",
+    "n_full_near_player 12.0"
+   ]
+  },
+  {
+   "after": 0,
+   "ms": 125.4,
+   "tick": 122,
+   "top": [
+    "n_blast_members 466.0",
+    "q_writes 289.0",
+    "q_senses 267.0",
+    "dynamite 96.2",
+    "blast_break 62.6"
+   ]
+  },
+  {
+   "after": 1,
+   "ms": 105.5,
+   "tick": 123,
+   "top": [
+    "q_writes 280.0",
+    "q_balls 121.0",
+    "window 103.8",
+    "q_senses 71.0",
+    "rest 67.4"
+   ]
+  },
+  {
+   "after": 2,
+   "ms": 89.3,
+   "tick": 124,
+   "top": [
+    "q_writes 529.0",
+    "q_balls 52.0",
+    "window 39.4",
+    "q_senses 38.0",
+    "step 22.8"
+   ]
+  },
+  {
+   "after": 3,
+   "ms": 62.8,
+   "tick": 125,
+   "top": [
+    "q_writes 514.0",
+    "q_senses 119.0",
+    "window 50.0",
+    "q_balls 36.0",
+    "step 31.1"
+   ]
+  },
+  {
+   "after": 4,
+   "ms": 58.5,
+   "tick": 126,
+   "top": [
+    "q_writes 529.0",
+    "window 38.3",
+    "q_balls 26.0",
+    "n_people_ticked 19.0",
+    "step 18.5"
+   ]
+  },
+  {
+   "after": 6,
+   "ms": 57.2,
+   "tick": 128,
+   "top": [
+    "q_writes 529.0",
+    "q_senses 80.0",
+    "window 29.2",
+    "q_lamps 23.0",
+    "n_people_ticked 19.0"
+   ]
+  }
+ ],
+ "stall_s": 0.8,
+ "stalls": 7,
+ "stick_added": [],
+ "totals_ms": {
+  "n_full_near_player": 5932.0,
+  "n_full_seen": 2304.0,
+  "n_people_ticked": 10805.0,
+  "n_slow": 1187.0,
+  "people_body": 1434.0,
+  "people_prep_sum": 770.4,
+  "q_balls": 1502.0,
+  "q_lamps": 1393.0,
+  "q_senses": 49159.0,
+  "q_signs": 738.0,
+  "q_writes": 104600.0,
+  "rest": 1515.2,
+  "rest_idle": 1152.5,
+  "senses": 1174.6,
+  "step": 2832.1,
+  "window": 5508.2
+ },
+ "worst_after": -1,
+ "worst_ms": 217.9,
+ "worst_top": [
+  "q_writes 553.0",
+  "q_senses 89.0",
+  "structures 77.4",
+  "n_people_ticked 19.0",
+  "n_full_near_player 12.0",
+  "step 11.9",
+  "window 7.8",
+  "n_full_seen 4.0"
+ ],
+ "seconds_after": [
+  "32/526",
+  "19/480",
+  "17/380",
+  "16/292",
+  "11/1",
+  "10/42",
+  "10/1",
+  "9/2",
+  "11/2"
+ ],
+ "first_frames_ms": [
+  125.37,
+  105.51,
+  89.27,
+  62.76,
+  58.54,
+  46.31,
+  57.19,
+  28.8,
+  35.13,
+  21.02,
+  25.59,
+  31.11,
+  46.75,
+  38.26,
+  36.88,
+  40.63,
+  28.91,
+  21.0,
+  20.99,
+  33.86,
+  31.87,
+  31.93,
+  29.01,
+  19.84,
+  22.92,
+  19.09,
+  18.82,
+  25.3,
+  19.12,
+  21.85
+ ]
+}
