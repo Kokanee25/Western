@@ -1,0 +1,25 @@
+{
+	"format": 1,
+	"id": "wall_panel",
+	"piece": 1,
+	"_doc": "Test piece 1: a free-standing wall panel about 4 x 3 m, one per material, in an empty lab scene. Proves cracks, holes, chunk sizes and mortar-joint failure. Step 2 builds it in rubble stone; step 4 runs the same wall in every material. The ends are free (no return walls), so a hole near an end has one abutment only.",
+	"seed": 1,
+	"ground": {"y": 0.0},
+	"swap_materials": ["rubble_stone", "adobe", "cut_stone", "fired_brick"],
+	"walls": [
+		{
+			"id": "panel",
+			"material": "rubble_stone",
+			"from": [0.0, 0.0],
+			"to": [4.0, 0.0],
+			"bottom": 0.0,
+			"top": 3.0,
+			"footing": {"material": "rubble_stone", "deep": 0.3, "wider": 0.1},
+			"openings": []
+		}
+	],
+	"timbers": [],
+	"loads": [],
+	"elements": [],
+	"joints": []
+}
