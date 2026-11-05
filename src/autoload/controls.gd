@@ -74,6 +74,9 @@ func _ready() -> void:
 	_bind(&"gunfight_free", [KEY_Z], [])
 	# The player's movement presets, light / middle / heavy (Player.next_movement).
 	_bind(&"movement_preset", [KEY_F], [])
+	# A lost mission's "try again" (FarmhouseMission): Enter or Start only. Not ui_accept, which is
+	# Space and A as well, the jump (issue #668: a jump after the rancher died reset the game).
+	_bind(&"mission_retry", [KEY_ENTER, KEY_KP_ENTER], [JOY_BUTTON_START])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:

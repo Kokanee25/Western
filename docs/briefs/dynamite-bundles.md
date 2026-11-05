@@ -115,3 +115,13 @@ rope (the wire is drawn, not simulated), buying dynamite.
   a 12x12). Questions to Sean (#648). Built: the bundle (tied with R, its kg, the model), planted
   unlit and lit with a match aimed at it, the cap, the save. Sean's answer (same day): R held ~12 s
   makes a bundle; a plunger box (5) fires every planted bundle, wired as it's planted.
+- 2026-11-04/05 (round 2): **heavy timber tough** (`Blast.toughness`: what a timber soaks up x
+  (D/0.038 m)^0.82 past a 2x4's least side, toward FM 5-25's D²): a bundle of four set on a 12x12
+  cuts it (1.2x), three sticks don't (0.8x), one stick still cuts a 6x6; the town's walls the same
+  in every count (breakage lab `results/2026-11-04_tough_timber/`). The cost
+  (`experiments/blast_freeze/results/2026-11-04_bundles/r2/`): a blast's breaking sliced nearest first
+  over its tick and the next few, quiet rubble kept awake held: on the trestle two bundles as the
+  engine comes on **pass** the gate (38 ms here, 15 of 20 cars in the gorge); one bundle on Main
+  Street is ~125 ms on its tick here (main 196) and the calm street by 5 s (main never in 8 s); three
+  bundles still fail (Jolt with ~7,000 pieces moving for 5 s). Left for Sean: chips not landing on
+  chips (`--lab-debris-solo`, a look change) for the street's big blasts.

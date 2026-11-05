@@ -723,6 +723,11 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
 	await get_tree().physics_frame  # after the blast's own breaking has settled
+	# (Its breaking spread over the ticks after, #647: once it's done, as before it was on one.)
+	for k in 12:
+		if not Structure.any_breaking():
+			break
+		await get_tree().physics_frame
 	# (Every prop in the town hears every blast: out of reach, done. This runs as `physics_frame`
 	# is emitted, before any system's tick, so it's timed here: `kit_blast`.)
 	if loose or not is_inside_tree() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:

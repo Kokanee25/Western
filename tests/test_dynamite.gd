@@ -700,6 +700,62 @@ func test_light_and_throw() -> void:
 	check(player.wounds.physiology.severed_segments.is_empty(), "you're whole")
 
 
+## #668: 3 brings the stick out unlit, and it stays so till you light it.
+func test_three_brings_it_out_unlit() -> void:
+	var player: Player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	await physics_frames(3)
+	var d := player.dynamite()
+	d.needs_captured_mouse = false
+	Input.action_press(&"weapon_dynamite")
+	await physics_frames(2)
+	Input.action_release(&"weapon_dynamite")
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	check(d.is_ready_in_hand(), "3: the dynamite in hand")
+	await physics_frames(120)
+	check(not d.lit and d.lighting <= 0.0, "not lit (lit %s, lighting %.2f)" % [d.lit, d.lighting])
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668: a match struck and the stick put away before the fuse caught: the fuse never catches in
+## your pocket, and the stick comes back out unlit.
+func test_put_away_while_lighting_it_stays_unlit() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	d.strike_match()
+	await physics_frames(10)
+	check(d.lighting > 0.0, "the match is at the fuse")
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not d.lit, "put away, the fuse didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	await physics_frames(60)
+	check(not d.lit and d.lighting <= 0.0, "out again, unlit")
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668 with a set stick: put away while the match is at its fuse, the next match in hand lights
+## the stick in your hand, not the one you'd set.
+func test_put_away_while_lighting_a_set_one() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	var set_one := DynamiteStick.make(world, player.global_position + Vector3(1, 0.1, 0), Vector3.ZERO, 5.0, 1)
+	d.light_planted(set_one)
+	await physics_frames(10)
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not set_one.lit, "put away, the set one didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	d.strike_match()
+	await wait_until(func() -> bool: return d.lit, 120)
+	check(d.lit, "the match lit the stick in hand")
+	check(not set_one.lit, "not the set one")
+	d.windup = 1.0
+	d.throw()
+
+
 func test_hold_it_too_long() -> void:
 	var player := await _player()
 	var d := player.dynamite()

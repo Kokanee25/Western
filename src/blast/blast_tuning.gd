@@ -67,6 +67,15 @@ extends Resource
 ## Timber breaks when the kick the blast gives it (impulse² / 2m) passes the energy it can soak
 ## up bending: this share of f²/2E over its volume.
 @export var absorb_factor := 0.2
+## Heavy timber is tougher than its bulk alone makes it (Sean, #648: a bundle of four cuts a 12x12
+## post, three sticks don't). By the reckoning above the least charge that cuts a timber in contact
+## goes about as its least side D; the US Army's (FM 5-25, 1967: P = D²/40 lb of TNT, external,
+## in contact) goes as D². So what a timber soaks up is multiplied by (D / heavy_from)^heavy_power
+## past heavy_from (m), where the two agree: a 2x4 stud, siding and boards are as before; a bundle
+## of four set on a 12x12 cuts it (1.2x what it takes), three sticks don't (0.8x): ~0.7 kg, the
+## manual's 1.6 kg being written to make sure of it. One stick still cuts a 6x6. Not iron.
+@export var heavy_from := 0.038
+@export var heavy_power := 0.82
 ## The length of a member (m) that can break on its own where a close charge hits it.
 @export var local_span := 0.3
 ## Panes crack at this pressure (kPa).

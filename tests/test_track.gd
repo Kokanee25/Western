@@ -80,13 +80,13 @@ func test_a_charge_on_the_line_breaks_it_and_rails_never_snap() -> void:
 	var d := line.state.damage()
 	var here := func(x: Dictionary) -> bool: return float(x.from_s) < s + 5.0 and float(x.to_s) > s - 5.0
 	check(d.any(func(x: Dictionary) -> bool: return here.call(x) and x.kind in [&"broken", &"bent"]), "one stick on a tie bends or breaks the line there: %s" % [d])
-	# Two more there: broken.
-	for k in 2:
-		Blast.detonate(world, at + f.basis.z * (0.6 * (k * 2 - 1)), 0.2)
-		await physics_frames(3)
+	# A bundle of four there: broken (heavy timber is tough since #647: three single sticks spread
+	# along it bow the rail and leave the ties).
+	Blast.detonate(world, at + f.basis.z * 0.3, 0.8)
+	await physics_frames(3)
 	d = line.state.damage()
 	var broken := d.filter(func(x: Dictionary) -> bool: return here.call(x) and x.kind == &"broken")
-	check(not broken.is_empty(), "three sticks there break it: %s" % [d])
+	check(not broken.is_empty(), "a bundle there breaks it: %s" % [d])
 	var c := line.chunk_at(s)
 	var snapped := 0
 	for m in c.get_members():
