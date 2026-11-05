@@ -107,7 +107,8 @@ func _physics_process(delta: float) -> void:
 					gone = false
 			if gone or _t > 600.0:
 				for m in men:
-					if is_instance_valid(m):
+					# The dead and the down stay where they lie (#562: they were freed with the crew).
+					if is_instance_valid(m) and not m.limp:
 						m.queue_free()
 				men.clear()
 				state = IDLE

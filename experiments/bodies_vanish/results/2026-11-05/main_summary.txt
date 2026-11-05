@@ -1,0 +1,12 @@
+  12  left_tree: queue_free (not his brain's leaving)
+         {"run": "farm_back_1", "name": "outlaw", "alive": true, "limp": false, "in_view": false, "dist_m": 40.4, "from_west_edge_m": null, "mood": "CALM", "before": null}
+         {"run": "farm_back_1", "name": "rancher", "alive": true, "limp": false, "in_view": false, "dist_m": 40.4, "from_west_edge_m": null, "mood": null, "before": null}
+         {"run": "farm_back_2", "name": "outlaw", "alive": true, "limp": false, "in_view": false, "dist_m": 40.4, "from_west_edge_m": null, "mood": "CALM", "before": null}
+         {"run": "farm_back_2", "name": "rancher", "alive": true, "limp": false, "in_view": false, "dist_m": 40.4, "from_west_edge_m": null, "mood": null, "before": null}
+   4  left_tree: left town: hours passed (out_cold), freed where he stood
+         {"run": "gf_spec_hall_2", "name": "brody", "alive": true, "limp": false, "in_view": false, "dist_m": 26.0, "from_west_edge_m": 56.0, "mood": "CALM", "before": {"mood": "FIGHTING", "step": "", "route_n": 0}}
+         {"run": "gf_spec_hall_2", "name": "kid", "alive": true, "limp": false, "in_view": false, "dist_m": 26.0, "from_west_edge_m": 52.4, "mood": "CALM", "before": {"mood": "RELOADING", "step": "", "route_n": 2}}
+         {"run": "gf_street_3", "name": "lyle", "alive": true, "limp": false, "in_view": false, "dist_m": 26.0, "from_west_edge_m": 64.0, "mood": "CALM", "before": {"mood": "FIGHTING", "step": "", "route_n": 0}}
+         {"run": "gf_street_3", "name": "kid", "alive": true, "limp": false, "in_view": false, "dist_m": 26.0, "from_west_edge_m": 63.7, "mood": "CALM", "before": {"mood": "FIGHTING", "step": "", "route_n": 0}}
+   1  not_drawn: parts 2.2 m outside the skin's culling box
+         {"run": "gf_spec_front_2", "name": "brody", "alive": true, "limp": true, "in_view": true, "dist_m": 5.5, "from_west_edge_m": null, "mood": "DOWN", "before": null}

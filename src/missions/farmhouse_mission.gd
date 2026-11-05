@@ -170,7 +170,8 @@ func begin(place_player := false) -> void:
 	# The range's man stands by the road east, between the town and the farm: he'd have it out with
 	# you on the way (a man walking by with his gun out). Not while the gang's at the farm.
 	var range_spawn := street.get_node_or_null(^"OutlawSpawn") as OutlawSpawner
-	if range_spawn and range_spawn.outlaw and is_instance_valid(range_spawn.outlaw):
+	# (Standing: a man you've already put down stays where he lies, #562.)
+	if range_spawn and range_spawn.outlaw and is_instance_valid(range_spawn.outlaw) and not range_spawn.outlaw.limp:
 		range_spawn.outlaw.queue_free()
 	var riders := town.take_riders()
 	var ids: Array[StringName] = []
