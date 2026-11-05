@@ -867,6 +867,19 @@ it all away and puts the probe and haze back.
   `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
   framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
   untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
+  **Masonry** (the masonry lab, step 2; `docs/briefs/masonry-lab.md`, `experiments/masonry_lab/`):
+  `MasonryStructure` (a Structure) builds a structure file's expanded elements
+  (`config/destruction/structures/*.json`, laid by `MasonryExpander`/`tools/masonry_expand.gd`) as
+  members (`wood` the material id, drawn in `stone`, `stone_mesh` chamfered); supports from
+  `rests_on`, `touching` from the joints (`MasonryWall`: arrays, each joint bonded or broken).
+  `Blast.detonate` hands a masonry structure in reach to `take_blast` (its members skip
+  `_member_response`): `MasonryBlast.strike` (spec section 5) breaks joints, frees and cracks stones,
+  `_fling` throws them (far leaf first, through the standing stones near it till it's clear), then
+  the settle `free_before_settle_s` later. A loose stone's box sheds its mortar (`_loose_shape`, a
+  hook in `Structure._drop`); rubble falls a stone at a time (`falls_as` `units`). The analysis checks masonry by `_masonry` (S1 bearing, S2
+  bond; never the timber checks); overloaded masonry falls whole (`Structure._gives_way`), with
+  what it's still mortared to (`_clump_with`). Numbers only from `config/destruction/materials.json`
+  (`MasonryMaterials`); `StructureMember.is_masonry()` is the one "is it stone?" test.
 
 ## src/fire
 

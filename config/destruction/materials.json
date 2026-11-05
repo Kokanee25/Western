@@ -1,0 +1,268 @@
+{
+	"_doc": "How each masonry material behaves, as numbers: engine-neutral (the portability rule, destruction-spec.md section 1). Salt Creek's code reads these; nothing here is Godot's. Every number is a FIRST GUESS (step 1 of the masonry lab) until a step tunes it against the reference library and Sean's eye; 'status' says which. Strengths are failure values (what breaks it), not the cautious design values an engineer sizes by, as TimberTuning's are. Field meanings are in destruction-spec.md section 3. Units: SI throughout (kg, m, Pa, J, s); sizes are [length along the wall, height, depth through the wall].",
+	"format": 1,
+	"status": "first guess, 2026-11-04 (masonry lab step 1); material list approved by Sean (#666, 2026-11-04)",
+
+	"solver": {
+		"_doc": "Dials for the rules in destruction-spec.md sections 5 and 6, the same for every material.",
+		"min_bearing_share": 0.25,
+		"crack_warn": 0.6,
+		"crack_wide": 0.85,
+		"delayed_fail_from": 0.95,
+		"delayed_fail_s": [1.0, 8.0],
+		"blast_dynamic_factor": 0.01,
+		"blast_throw_factor": 4.0,
+		"free_before_settle_s": 0.1,
+		"_free_before_settle_s": "Seconds between a charge freeing elements and the solver deciding what else falls (spec section 5, rule 5): what a charge throws leaves in the first milliseconds, before anything over it starts to fall. Step 2: settled on the same tick, what fell over the hole landed on the stones on their way out and pinned them in the wall.",
+		"_blast_throw_factor": "What a freed element is thrown with, x the reflected impulse on its face over its mass (spec section 5, rule 4). Kinney-Graham's impulse fit is a far-field one: right by a contact charge the detonation products' momentum (sqrt(2 x energy x charge mass), 4.6 MJ/kg of TNT, spread over the hemisphere) is about 4x it. Masonry lab step 2: at 1 the stones a stick freed left the wall at ~1 m/s and stayed standing in their own shape.",
+		"debris_min_size": 0.04
+	},
+
+	"mortars": {
+		"lime": {
+			"_doc": "Non-hydraulic lime putty and sand, 1:3, as laid in the 1880s West (Portland cement was imported and dear until the 1890s). Weak and soft on purpose: the joint is the weak link, which is what makes masonry break along its mortar.",
+			"compression": 1.0e6,
+			"tension": 0.08e6,
+			"cohesion": 0.12e6,
+			"friction": 0.65,
+			"decay_when_wet": 0.5,
+			"sources": ["gillmore_1863", "lourenco_1996", "en1996"]
+		},
+		"mud": {
+			"_doc": "The adobe's own soil, laid wet as mortar: bond barely more than the dried mud's grip.",
+			"compression": 1.0e6,
+			"tension": 0.03e6,
+			"cohesion": 0.04e6,
+			"friction": 0.6,
+			"decay_when_wet": 0.2,
+			"sources": ["getty_gsap", "nm_earthen_code"]
+		}
+	},
+
+	"materials": {
+		"adobe": {
+			"name": "Adobe (sun-dried mud brick)",
+			"status": "first guess",
+			"where": "Older houses, outbuildings, yard walls. Normandy: cob and mud infill.",
+			"unit": {
+				"_doc": "Sun-dried, straw-tempered soil brick, the New Mexico size (10 x 14 x 4 in).",
+				"density": 1700.0,
+				"compression": 1.5e6,
+				"tension": 0.15e6,
+				"stiffness": 0.3e9,
+				"size": [0.36, 0.10, 0.25],
+				"size_jitter": 0.05,
+				"shape": "box_soft"
+			},
+			"mortar": "mud",
+			"wall_k": 0.55,
+			"joint_thickness": 0.02,
+			"bond": "running",
+			"wall": {"thick_min": 0.45, "thick_typical": 0.6, "thick_max": 0.9, "wythes": 2},
+			"element": {
+				"_doc": "The solver's piece: one adobe. A 4 x 3 m panel 0.6 thick is ~550 of them.",
+				"units_along": 1, "units_high": 1
+			},
+			"small_hit": {
+				"j_per_cm3": 15.0,
+				"crater_max_depth": 0.08,
+				"chips": [0.01, 0.04],
+				"dust": 0.9,
+				"decal": "pock_earth"
+			},
+			"big_hit": {
+				"breaks": "units_and_joints",
+				"falls_as": "crumbs",
+				"land_break_speed": 1.5,
+				"chunk_size": [0.03, 0.2],
+				"dust": 1.0
+			},
+			"arch": {"angle_deg": 60.0, "cover_courses": 4, "abutment_units": 2},
+			"never": "Clean, sharp-edged chunks.",
+			"dust_colour": [0.62, 0.5, 0.38],
+			"sound_set": "masonry_adobe",
+			"burns": false,
+			"sources": ["getty_gsap", "nm_earthen_code", "baker_1889"]
+		},
+
+		"rubble_stone": {
+			"name": "Rubble stone in lime mortar",
+			"status": "first guess",
+			"where": "The jail, the powder magazine, retaining walls, the back walls of stores. Normandy: farmhouses, barns, field walls.",
+			"unit": {
+				"_doc": "Field or quarry stone roughly squared with a hammer (coursed rubble), local sandstone. The wall as a whole is far weaker than its stones: the joints are thick and irregular.",
+				"density": 2350.0,
+				"compression": 40e6,
+				"tension": 2.5e6,
+				"stiffness": 15e9,
+				"size": [0.35, 0.22, 0.28],
+				"size_jitter": 0.35,
+				"shape": "rough"
+			},
+			"mortar": "lime",
+			"wall_k": 0.3,
+			"joint_thickness": 0.03,
+			"bond": "coursed_rubble",
+			"wall": {"thick_min": 0.45, "thick_typical": 0.55, "thick_max": 0.75, "wythes": 2, "through_stones_per_m2": 0.5},
+			"element": {
+				"_doc": "One stone. A 4 x 3 m panel 0.55 thick is ~300.",
+				"units_along": 1, "units_high": 1
+			},
+			"small_hit": {
+				"j_per_cm3": 150.0, "mortar_j_per_cm3": 40.0,
+				"crater_max_depth": 0.04,
+				"chips": [0.01, 0.05],
+				"dust": 0.4,
+				"decal": "pock_mortar",
+				"mortar_first": true
+			},
+			"big_hit": {
+				"breaks": "joints",
+				"falls_as": "units",
+				"land_break_speed": 9.0,
+				"chunk_size": [0.1, 0.45],
+				"dust": 0.6
+			},
+			"arch": {"angle_deg": 60.0, "cover_courses": 3, "abutment_units": 2},
+			"never": "Stones splitting into neat cubes.",
+			"dust_colour": [0.66, 0.6, 0.5],
+			"sound_set": "masonry_stone",
+			"burns": false,
+			"game_wood": "stone",
+			"sources": ["baker_1889", "heyman_1995", "lourenco_1996", "en1996"]
+		},
+
+		"cut_stone": {
+			"name": "Cut (dressed) stone, ashlar",
+			"status": "first guess",
+			"where": "The bank's front, bridge piers, quoins, lintels and sills. Normandy: church walls, chateaux, door surrounds.",
+			"unit": {
+				"_doc": "Sandstone dressed square, 2 x 1 x 1 ft, laid in thin lime joints.",
+				"density": 2300.0,
+				"compression": 50e6,
+				"tension": 3.0e6,
+				"stiffness": 15e9,
+				"size": [0.6, 0.3, 0.3],
+				"size_jitter": 0.0,
+				"shape": "dressed"
+			},
+			"mortar": "lime",
+			"wall_k": 0.45,
+			"joint_thickness": 0.008,
+			"bond": "ashlar",
+			"wall": {"thick_min": 0.3, "thick_typical": 0.45, "thick_max": 0.9, "wythes": 1, "backing": "rubble_stone"},
+			"element": {
+				"_doc": "One block. A 4 x 3 m panel is ~70 blocks (with a rubble backing behind if thick).",
+				"units_along": 1, "units_high": 1
+			},
+			"small_hit": {
+				"j_per_cm3": 200.0,
+				"crater_max_depth": 0.03,
+				"chips": [0.01, 0.06],
+				"dust": 0.25,
+				"decal": "chip_face",
+				"corners_first": true
+			},
+			"big_hit": {
+				"breaks": "joints",
+				"falls_as": "units",
+				"land_break_speed": 7.0,
+				"chunk_size": [0.15, 0.6],
+				"dust": 0.3
+			},
+			"arch": {"angle_deg": 60.0, "cover_courses": 2, "abutment_units": 1},
+			"never": "A dressed wall shattering like glass.",
+			"dust_colour": [0.74, 0.66, 0.54],
+			"sound_set": "masonry_stone",
+			"burns": false,
+			"sources": ["baker_1889", "heyman_1995"]
+		},
+
+		"fired_brick": {
+			"name": "Fired brick in lime mortar",
+			"status": "first guess",
+			"where": "The bank's front, better commercial buildings, chimneys. Normandy: brick houses, chimneys, infill.",
+			"unit": {
+				"_doc": "Soft-to-medium fired common brick, 8 x 3 3/4 x 2 1/4 in, the 1880s American size.",
+				"density": 1800.0,
+				"compression": 15e6,
+				"tension": 1.5e6,
+				"stiffness": 5e9,
+				"size": [0.203, 0.057, 0.095],
+				"size_jitter": 0.02,
+				"shape": "brick"
+			},
+			"mortar": "lime",
+			"wall_k": 0.45,
+			"joint_thickness": 0.01,
+			"bond": "common",
+			"wall": {"thick_min": 0.2, "thick_typical": 0.32, "thick_max": 0.45, "wythes": 3, "header_course_every": 6},
+			"element": {
+				"_doc": "The solver's piece is a clump, not a brick: 2 bricks along x 4 courses high (8 a wythe) breaks off as one, still mortared, and comes apart into its bricks when it lands hard (the 'How it should break' table). A brick each would be ~3,000 elements a panel.",
+				"units_along": 2, "units_high": 4
+			},
+			"small_hit": {
+				"j_per_cm3": 100.0, "mortar_j_per_cm3": 40.0,
+				"crater_max_depth": 0.03,
+				"chips": [0.01, 0.04],
+				"dust": 0.35,
+				"decal": "spall_brick"
+			},
+			"big_hit": {
+				"breaks": "joints",
+				"falls_as": "clumps",
+				"land_break_speed": 3.0,
+				"chunk_size": [0.1, 0.45],
+				"dust": 0.4
+			},
+			"arch": {"angle_deg": 45.0, "cover_courses": 8, "abutment_units": 4},
+			"never": "Every brick flying individually.",
+			"dust_colour": [0.62, 0.36, 0.26],
+			"sound_set": "masonry_brick",
+			"burns": false,
+			"sources": ["bia_tn10", "bia_tn31b", "lourenco_1996", "en1996"]
+		},
+
+		"timber_in_masonry": {
+			"name": "Timber in masonry (lintels, joists, beams, plates)",
+			"status": "first guess",
+			"where": "Lintels over openings, floor joists and roof beams bearing on stone walls. Normandy: colombage (half-timbering), floors and roofs.",
+			"timber": {
+				"_doc": "Rough-sawn, air-dried western softwood: the same numbers as Salt Creek's 'framing' wood (config/timber.tres, from the USDA Wood Handbook). The game's TimberTuning is its source while the lab runs; a test holds the two the same.",
+				"density": 500.0,
+				"bending": 45e6,
+				"compression": 34e6,
+				"stiffness": 11e9
+			},
+			"bearing_min": 0.2,
+			"bearing_typical": 0.3,
+			"small_hit": {
+				"_doc": "Splinters and gouges: the game's voxel carving of wood, unchanged.",
+				"decal": "gouge_wood"
+			},
+			"big_hit": {
+				"_doc": "Snaps along the grain with long splinters (the game's timber cut and break, unchanged); the masonry above loses its support and the arch rule decides what falls.",
+				"breaks": "timber",
+				"falls_as": "timber"
+			},
+			"never": "A beam vanishing, or snapping cleanly.",
+			"sound_set": "timber",
+			"burns": true,
+			"game_wood": "framing",
+			"sources": ["usda_wood_handbook", "baker_1889"]
+		}
+	},
+
+	"sources": {
+		"baker_1889": "Ira O. Baker, A Treatise on Masonry Construction (1889): period US practice: rubble, ashlar and brick walls, wall thicknesses, lintels and their bearing, arches.",
+		"heyman_1995": "Jacques Heyman, The Stone Skeleton (1995): masonry has no useful tension, ample compression, and doesn't slide; stability is geometry (the thrust line inside the masonry).",
+		"lourenco_1996": "Paulo B. Lourenco, Computational Strategies for Masonry Structures (TU Delft thesis, 1996): unit and joint failure, joint tension, cohesion and friction (~0.6-0.75).",
+		"en1996": "EN 1996-1-1 (Eurocode 6): masonry's initial shear strength (~0.1-0.3 MPa by mortar) and joint friction; used for ranges only.",
+		"gillmore_1863": "Q. A. Gillmore, A Practical Treatise on Limes, Hydraulic Cements and Mortars (1863): what lime mortars of the period were and how strong they got.",
+		"getty_gsap": "Tolles, Kimbro, Webster and Ginell, the Getty Seismic Adobe Project reports (Getty Conservation Institute, 2000-2002): how historic adobe walls crack and fail.",
+		"nm_earthen_code": "New Mexico Earthen Building Materials Code (14.7.4 NMAC): adobe at least 300 psi (2.1 MPa) in compression and 50 psi (0.34 MPa) modulus of rupture; old adobe often less.",
+		"bia_tn10": "Brick Industry Association, Technical Note 10 (dimensioning brick masonry); historic US brick sizes.",
+		"bia_tn31b": "Brick Industry Association, Technical Note 31B (lintels): arching action over an opening and the 45-degree load triangle.",
+		"usda_wood_handbook": "USDA Forest Products Laboratory, Wood Handbook: clear-wood strengths, cut down for rough stock (as config/timber.tres)."
+	}
+}

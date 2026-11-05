@@ -1014,6 +1014,17 @@ frozen until Sean names one.
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
 
+**The masonry lab** (Sean's brief 2026-11-04, `docs/briefs/masonry-lab.md`; engine-neutral rules in
+`docs/destruction/`, data in `config/destruction/`): step 1 merged (Sean approved the materials,
+rubble first, the fps targets, the Baron's house brick or cut stone: #666). **Step 2** (#667, branch
+`claude/masonry-wall-panel-breach-e85yho`; `experiments/masonry_lab/` README): the rubble-stone panel
+(294 stones, 1,087 joints, `MasonryExpander`) as `MasonryStructure` members, `MasonryBlast` (spec §5,
+friction on the beds), S1/S2 in `StructuralAnalysis._masonry`, `is_masonry` the one stone test;
+`blast_dynamic_factor` 0.01, `blast_throw_factor` 4, `free_before_settle_s` 0.1, rubble falls a stone at
+a time with its mortar shed: one stick throws ~15-20 stones out the back of the 0.55 m wall, a ragged
+hole ~1.5 m wide, the stone over it sags and wedges (film `results/2026-11-04_step2/`). The blast is ~2
+frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a jail wall takes is Sean's.
+
 **The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
 - Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
   Sean approved (the Studio's `claude/studio-horse`, $2.02; `tools/blender/horse.py --shape`,
