@@ -782,6 +782,8 @@ frozen until Sean names one.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
+  `[build] [smoke]` on a branch push also runs the exports and smoke tests; a failed smoke prints
+  the crash guard's notes and reruns the drawn build under gdb (#662, build 3306).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
