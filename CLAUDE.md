@@ -784,6 +784,8 @@ frozen until Sean names one.
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
+  `[build] [smoke]` on a branch push also runs the exports and smoke tests; a failed smoke prints
+  the crash guard's notes and reruns the drawn build under gdb (#662, build 3306).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -1011,6 +1013,12 @@ frozen until Sean names one.
   and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
+
+**The masonry lab** (Sean's brief 2026-11-04, `docs/briefs/masonry-lab.md`; engine-neutral rules in
+`docs/destruction/`, data in `config/destruction/`): step 1 (the spec, the five materials, the
+structures format, benchmarks; branch `claude/new-session-g6cvr9`) waits on Sean's approval of the
+material list; next step 2, one rubble-stone wall panel in `experiments/masonry_lab/`, built on
+`Structure`/`StructuralAnalysis`/`Blast` (no second solver).
 
 **The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
 - Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set
