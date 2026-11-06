@@ -371,6 +371,25 @@ func test_the_crew_mends_the_line_and_the_next_train_runs_through() -> void:
 	check(train.derail.is_empty(), "the next train runs through")
 
 
+## #562: the crew walking off takes its living; a man of it lying dead or down stays where he lies.
+func test_the_crews_dead_stay_when_it_leaves() -> void:
+	var line := _line()
+	var r := line.repair
+	r.from_s = 380.0
+	r.to_s = 390.0
+	r._come()
+	await physics_frames(10)
+	var down := r.men[0]
+	var walker := r.men[1]
+	down.go_limp()
+	r.state = TrackRepair.LEAVING
+	r._t = 601.0  # past the time it waits for its men to walk off
+	await physics_frames(3)
+	check(is_instance_valid(down) and down.is_inside_tree(), "the man lying down is still there")
+	check(not is_instance_valid(walker), "the crew's living have gone")
+	check_eq(r.state, TrackRepair.IDLE, "the crew's done")
+
+
 func test_a_car_stopped_hard_breaks_into_big_sections() -> void:
 	var train: Train = await _derail_run(30.0, 400.0, 0.5)
 	check(train.wreck != null, "a wreck")

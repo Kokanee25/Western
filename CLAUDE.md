@@ -775,6 +775,11 @@ frozen until Sean names one.
   #670 (white patches) not reproduced: what's ruled out is on the issue, waiting on Sean's F12.
   Next: #562 (its handover comment). Trap: lavapipe needs `mesa-vulkan-drivers` (apt), and the real
   look switched on at runtime crashes it: start with `--game-args=--real`.
+- **Bodies disappearing** (#562, branch `claude/gameplay-bodies-vanish-qv6jdg`, PR #688; lab
+  `experiments/bodies_vanish/`, `bv_watch`): a limp man's skin culling box follows his parts
+  (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
+  drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
+  start). Waiting on Sean: #689 (taken away only out of sight?).
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`

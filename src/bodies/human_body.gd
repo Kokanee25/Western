@@ -890,7 +890,7 @@ func _build_skin() -> void:
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
 			mi.layers = Layers.VIS_BODY
-			mi.custom_aabb = AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
+			mi.custom_aabb = _cull_box
 			skeleton.add_child(mi)
 			mi.skin = skin
 			mi.skeleton = NodePath("..")
@@ -986,6 +986,7 @@ func _unmerge() -> void:
 	_merged.clear()
 	for mi: MeshInstance3D in skin_meshes.values():
 		mi.visible = true
+		mi.custom_aabb = _cull_box
 
 
 ## The wound shader for a generated piece: textured by its UVs, opened by rest positions (CUSTOM0).
@@ -1088,6 +1089,47 @@ func _update_skeleton(placed := {}) -> void:
 			skeleton.set_bone_pose(i, inv * part.global_transform)
 	PeopleBodies.pose_shoulders(skeleton, _shoulders)
 	_pose_fingers()
+	_keep_in_cull_box(inv)
+
+
+## His skin's culling box (each skin mesh's custom_aabb, in the skeleton's space, which is his
+## root's): the renderer draws the skin only while this box is on screen. Standing, his parts are
+## posed about his root and CULL_BOX holds them; limp, the ragdoll takes them where it goes (a
+## blast's throw, his stride carried on, down a slope or a stair, dragged off) while the root stays
+## where he fell, so the box follows them (#562: a body thrown 14 m wasn't drawn looking straight at
+## it with where he fell behind the camera).
+const CULL_BOX := AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
+## Past his parts' centres (a limb's half, a hat), and the room the box is given each time it's moved.
+const CULL_MARGIN := 0.6
+const CULL_ROOM := 2.0
+var _cull_box := CULL_BOX
+
+
+## Moves the box when a part is outside it: every part while he's limp (each frame), else his
+## pelvis (each tick: a man got up away from where he fell, a crawl).
+func _keep_in_cull_box(inv: Transform3D) -> void:
+	var inside := _cull_box.grow(-CULL_MARGIN)
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	var out := false
+	for sid: StringName in (parts.keys() if limp else [&"pelvis"]):
+		var part: Node3D = parts.get(sid)
+		if part == null or not is_instance_valid(part) or not part.is_inside_tree():
+			continue
+		var p := inv * part.global_position
+		out = out or not inside.has_point(p)
+		lo = lo.min(p)
+		hi = hi.max(p)
+	if not out:
+		return
+	if not limp:
+		# Only the pelvis was asked: the box goes back round him as he stands, about it.
+		lo = Vector3(lo.x, 0.0, lo.z) + CULL_BOX.position
+		hi = lo + CULL_BOX.size
+	_cull_box = AABB(lo, hi - lo).grow(CULL_MARGIN + CULL_ROOM)
+	for mi: Node in skeleton.get_children():
+		if mi is MeshInstance3D and (mi as MeshInstance3D).custom_aabb.size != Vector3.ZERO:
+			(mi as MeshInstance3D).custom_aabb = _cull_box
 
 
 ## A skinned hand's finger bones (the characters session's skinned hands,

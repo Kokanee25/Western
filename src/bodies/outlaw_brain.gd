@@ -1340,11 +1340,19 @@ func _go_about(delta: float) -> void:
 		&"harass":
 			done = _harass(delta, step)
 		&"leave":
-			if _walk_route(delta, walk_speed):
-				left_town.emit()
-				body.queue_free()
-				agenda.clear()
-				return
+			if _step_time >= 0.0 and _walk_route(delta, walk_speed):
+				if _at_way_out():
+					left_town.emit()
+					body.queue_free()
+					agenda.clear()
+					return
+				# No way out from here, or stuck short of it (#562: freed where he stood, in a
+				# room or in the street): he stays, and works the way out again in a while.
+				body.set_pose(&"stand")
+				_step_started = false
+				_leave_retry = LEAVE_RETRY_S
+			elif _step_time < 0.0:
+				body.set_pose(&"stand")
 			_ease_off(delta)
 		&"call_out":
 			done = _call_out(delta, step)
@@ -1377,7 +1385,9 @@ func _get_up_from_chair() -> void:
 ## Starting on a step: work out the way there.
 func _begin_step(step: Dictionary) -> void:
 	_step_started = true
-	_step_time = 0.0
+	# (A leave that found no way out waits LEAVE_RETRY_S, its step time below 0, before it looks again.)
+	_step_time = -_leave_retry if step.do == &"leave" else 0.0
+	_leave_retry = 0.0
 	_route = []
 	_stuck = 0.0
 	_last_pos = body.global_position
@@ -1392,6 +1402,22 @@ func _begin_step(step: Dictionary) -> void:
 		&"drink":
 			if step.get("first", true):
 				_say_again = _think.randf_range(1.0, 4.0)
+
+
+## Where a man leaving town is gone from it (`west_edge`, the town's road out): within this of it.
+const WAY_OUT_M := 3.0
+## A man who couldn't get out looks for the way again after this long (s).
+const LEAVE_RETRY_S := 5.0
+var _leave_retry := 0.0
+
+
+## Is he at the road out of town (the leave step's end)? Only there is he gone (#562).
+func _at_way_out() -> bool:
+	if places == null or not places.has(&"west_edge"):
+		return false
+	var d := places.at(&"west_edge") - body.global_position
+	d.y = 0.0
+	return d.length() <= WAY_OUT_M
 
 
 ## Along the way he worked out; true when he's there. Stuck on something, he tries the next point.

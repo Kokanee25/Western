@@ -60,6 +60,16 @@ func test_it_starts_with_the_men_at_their_posts_and_the_rancher_tied() -> void:
 	check(not FarmhouseMission.inside(player.global_position), "outside the house")
 
 
+## #562: the range's man by the road east is taken away as it starts, but not once he's been put
+## down: his body stays where it lies.
+func test_the_range_mans_body_stays_when_it_starts() -> void:
+	var range_man := (street.get_node(^"OutlawSpawn") as OutlawSpawner).spawn()
+	await physics_frames(10)
+	range_man.go_limp()
+	await _begin()
+	check(is_instance_valid(range_man) and range_man.is_inside_tree(), "the man you put down is still lying there")
+
+
 func test_a_shot_raises_the_alarm_and_they_keep_to_the_house() -> void:
 	await _begin()
 	# A shot from the yard, by the house.

@@ -907,3 +907,25 @@ func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
 	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
 	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
 	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")
+
+
+## #562: his skin is drawn only while its culling box (each skin mesh's custom_aabb, about his
+## root) is on screen; thrown well clear of where he went limp, the box goes with him (it stayed
+## at his root: looking straight at the body from 5 m, nothing drawn but his hat).
+func test_a_thrown_body_keeps_its_skin_drawn() -> void:
+	man.go_limp(Vector3(9.0, 3.0, 0.0))  # (the ground is 40 m: he stays on it)
+	await physics_frames(150)
+	var pelvis := man.parts[&"pelvis"] as Node3D
+	check(pelvis.global_position.distance_to(man.global_position) > 5.0,
+			"thrown clear of where he went limp (%.1f m)" % pelvis.global_position.distance_to(man.global_position))
+	var meshes := man.skeleton.get_children().filter(func(c: Node) -> bool:
+		return c is MeshInstance3D and (c as MeshInstance3D).is_visible_in_tree())
+	check(not meshes.is_empty(), "his skin drawn")
+	for mi: MeshInstance3D in meshes:
+		var box := mi.global_transform * mi.custom_aabb
+		for sid: StringName in man.parts:
+			var p := (man.parts[sid] as Node3D).global_position
+			check(box.has_point(p), "%s's %s inside its culling box" % [mi.name, sid])
+			if not box.has_point(p):
+				return
+

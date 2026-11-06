@@ -328,6 +328,30 @@ func test_they_ride_out() -> void:
 	check(not is_instance_valid(kid), "out of the world")
 
 
+## #562: a man leaving town with no way out from where he is (or stuck short of it) isn't freed
+## where he stands; he stays, and looks for the way again.
+func test_with_no_way_out_he_stays() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	var nowhere := Waypoints.new()
+	nowhere.add(&"somewhere", kid.global_position + Vector3(4.0, 0.0, 0.0))
+	b.places = nowhere  # no road out of town on it
+	b.agenda = [{"do": &"leave"}]
+	b._step_started = false
+	var gone := [false]
+	b.left_town.connect(func() -> void: gone[0] = true)
+	await physics_frames(60 * 8)
+	check(not gone[0] and is_instance_valid(kid) and kid.is_inside_tree(), "still in the world, not freed where he stood")
+	check(not b.agenda.is_empty() and b.agenda[0].do == &"leave", "still meaning to leave")
+	# The way out back (the town's places): he walks it and is gone at its end.
+	b.places = town.places
+	b.walk_speed = 3.0
+	kid.global_position = town.places.at(&"street_west")
+	var left := await wait_until(func() -> bool: return gone[0], 60 * 20)
+	check(left, "with a way, he walks out")
+
+
 func test_in_a_fight_they_work_together() -> void:
 	town.bring_gang()
 	for g in town.gang:

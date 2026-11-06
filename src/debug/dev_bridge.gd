@@ -338,8 +338,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 	elif _person(a[0]) != null:
-		var p := _person(a[0])
-		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
+		var p := _lies(_person(a[0]))
+		points = [p + (player.global_position - p).normalized() * 1.5]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -980,8 +980,9 @@ func _people() -> Array:
 		var man := n as HumanBody
 		if man == null or not is_instance_valid(man) or man.physiology == null:
 			continue
-		var rel := man.global_position - player.global_position
-		var e := {"name": String(man.person_id), "at": _arr(man.global_position), "distance_m": snappedf(rel.length(), 0.1),
+		var at := _lies(man)
+		var rel := at - player.global_position
+		var e := {"name": String(man.person_id), "at": _arr(at), "distance_m": snappedf(rel.length(), 0.1),
 			"bearing": _bearing(rel), "alive": man.physiology.alive, "conscious": man.physiology.is_conscious(),
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
@@ -1229,6 +1230,15 @@ func _person(name: String) -> HumanBody:
 		if n is HumanBody and String((n as HumanBody).person_id).to_lower() == name.to_lower():
 			return n
 	return null
+
+
+## Where a man is: his root while he stands; limp, his pelvis (the root stays where he went limp,
+## #562: `read people` gave a dead man's spawn point for where he lay).
+static func _lies(man: HumanBody) -> Vector3:
+	var pelvis := man.parts.get(&"pelvis") as Node3D
+	if man.limp and pelvis != null and is_instance_valid(pelvis):
+		return pelvis.global_position
+	return man.global_position
 
 
 func _town() -> TownLife:
