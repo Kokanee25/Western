@@ -54,6 +54,33 @@ check's 8 poses, `arm_poses.gd`). The pass: loops round the eyes and mouth, the 
 without tearing, head turn (the neck seam), shoulders and the waistcoat; and his works-check failures
 above (the fit's weights about the shoulders and hips: compare with the blacksmith's, PLAYBOOK §6).
 
+## ChatGPT's audit, folded in (Sean pasted it, 2026-11-06)
+
+Its numbers agree with ours (re-measured: 74,996 positions, 150k triangles, one closed connected
+surface; `texture_pbr.png` R = 255, G = roughness, B = metallic; `shaded.png` light-baked, never his
+colour). The source is kept untouched in the Studio's `inputs/sean/rodin_2026-11-06/source_rodin/`.
+
+**Adopted:**
+- Pass 1: a separate head texture at 2K, his existing colour transferred, before any added detail
+  (a bigger image doesn't restore detail Rodin never captured); the face patch already has its own
+  texture (`stranger_s2_talking_head.png`), so start there. Modest subsurface scattering on skin in
+  the shader. Fabric: weave normals, high roughness, seam accents; leather a directional sheen. Never
+  a uniformly glossy man. Keep only changes that measurably read better.
+- Pass 1 evidence: his asset hierarchy, materials, triangle count, head UV coverage, four fixed views.
+- Pass 2: real eyeballs (sclera, iris, pupil, glossy cornea) if the patch has none, not shine on the
+  old polygons; a few hair cards at the hairline, temples and sideburns and moustache edges (alpha
+  scissor or hash; measure overdraw); the waistcoat as its own garment where it has to move.
+- Pass 3: wireframe of the eyes and mouth; a 5-10 s film (blink, talk, head turn, seated, revolver
+  stance) in Godot; the decision gate: if his body can't be made to bend cleanly at sane cost, keep
+  him as the look's reference and bake his sculpt and colour onto a proven body (MakeHuman's).
+
+**Already done here, not to redo:** he is rigged to the game's skeleton (the Studio's fit) and has a
+face that moves: MakeHuman's face grafted on with lids, teeth, tongue, a jaw and 20 blend shapes
+(talking, blinking, smiling; 0 holes in the face lab, 2026-11-06), in Godot now. The zip has none of
+that; the game man does. The game's budget is per man (60k triangles, `config/budgets.yaml`) with a
+frame budget per system (CLAUDE.md): measure him against those, not new thresholds. Blender renders
+are for the working; judging is in Godot under the game's own light (the game owns the look).
+
 ## Setting up a fresh container (what this session needed)
 
 `tools/setup.sh`; `STUDIO_GAME_REF=/home/user/Western tools/game_checkout.sh`; `godot --headless
