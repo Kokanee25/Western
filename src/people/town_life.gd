@@ -24,6 +24,7 @@ var miner: HumanBody
 var working_girl: HumanBody
 var rancher: HumanBody
 var blacksmith: HumanBody
+var stranger: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
@@ -116,6 +117,11 @@ func _spawn_townsfolk() -> void:
 	# this size the smith shod at the livery, so he stands along its front at the east end, looking in.
 	blacksmith = _civilian(&"blacksmith", &"livery_east", TownLayout.point(&"StreetDressing/Livery", Vector3(1.5, 1.4, 2.0)), 110,
 			Color(0.55, 0.5, 0.42), Color(0, 0, 0, 0), &"blacksmith_s1_talking")
+
+	# The stranger (the Studio's stranger_s2, from Sean's own Rodin model; Sean, 2026-11-06: "he's
+	# just no body"): a nobody standing in the street just ahead of where you start, facing you.
+	stranger = _civilian(&"stranger", &"stranger_spot", Vector3(24.0, 1.4, -9.0), 111,
+			Color(0.85, 0.8, 0.68), Color(0.4, 0.25, 0.15), &"stranger_s2_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,

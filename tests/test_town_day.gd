@@ -550,10 +550,13 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.blacksmith != null and town.blacksmith.held_gun == null, "the blacksmith is in town, unarmed")
 	check_eq(town.blacksmith.body_model, &"blacksmith_s1_talking", "he is the Studio's blacksmith_s1, talking")
 	check(town.blacksmith.global_position.distance_to(town.places.at(&"livery_east")) < 0.6, "along the livery's front, its east end")
+	check(town.stranger != null and town.stranger.held_gun == null, "the stranger is in town, unarmed")
+	check_eq(town.stranger.body_model, &"stranger_s2_talking", "he is the Studio's stranger_s2 (Sean's own Rodin model), talking")
+	check(town.stranger.global_position.distance_to(town.places.at(&"stranger_spot")) < 0.6, "just ahead of where you start")
 	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl, town.rancher, town.blacksmith, town.stranger]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
 
 
