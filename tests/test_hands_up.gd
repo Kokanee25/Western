@@ -130,3 +130,26 @@ func test_a_snapped_pose_is_there_at_once() -> void:
 	man._apply_pose(0.0, true)
 	var a := _arm(man, "r")
 	check(_bend(a) > 85.0, "bent at once (%.0f)" % _bend(a))
+
+
+func test_a_gang_man_giving_up_is_still_seen_to_give_up() -> void:
+	# What the AI and the witnesses go by is his brain's mood and the event (DeedWatch makes it a
+	# "surrender" deed where he stands), never how high his arms are: the new pose changes neither.
+	var deeds: Array = []
+	var on_deed := func(actor: Node, kind: StringName, _t: Node, _at: Vector3) -> void: deeds.append([actor, kind])
+	Events.deed.connect(on_deed)
+	var man := HumanBody.new()
+	var brain := OutlawBrain.new()
+	brain.name = "Brain"
+	man.add_child(brain)
+	world.add_child(man)
+	await physics_frames(10)
+	brain._surrender()
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "surrendered, by his brain")
+	check(deeds.any(func(d: Array) -> bool: return d[0] == man and d[1] == &"surrender"), "a surrender deed for the witnesses")
+	check_eq(man.pose, &"hands_up", "his hands up")
+	await physics_frames(45)
+	var a := _arm(man, "r")
+	var head := (man.pivots[&"head"] as Node3D).global_position.y - man.global_position.y
+	check((a[3] as Vector3).y > head - 0.05, "and up at head height (%.2f)" % (a[3] as Vector3).y)
+	Events.deed.disconnect(on_deed)

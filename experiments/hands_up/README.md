@@ -44,3 +44,15 @@ python3 tools/bridge.py stop
 
 Results: `results/2026-11-07/` (films old | new, front, side and three-quarter, the saloon at
 night with the bold cowboy, the street at golden hour with Brody; each real time then half speed).
+
+## Still a surrender to the AI and the witnesses
+
+Nothing reads hands-up by arm height: the gang go by the brain's mood (`OutlawBrain.Mood.SURRENDERED`)
+and `Events.person_surrendered` (mates' `_saw_mate_out`), the witnesses by the deed DeedWatch makes
+of it (`surrender`, `relations.gd`), townsfolk by their own brain's mood. D+ fights on the branch
+(`run.py --scenarios=street,spec_hall --hours=golden --weapons=revolver --styles=cover,push
+--seeds=1-6 --bodies=studio --variant=D --fixes=all+pain_fight+floor_fight+odds+flinch`): 24 fights,
+28 men gave up, every one also counted by the event (`situations.surrenders`), the chains (a leader's
+surrender taking his mates) as before. `test_hands_up`'s last test: `_surrender()` makes the deed
+and his hands reach head height; `test_gang`, `test_gunfight`, `test_town_day` (arrested from hands
+up to hands bound behind his back) pass.
