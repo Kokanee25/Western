@@ -38,12 +38,15 @@ Euler blend: the stand pose's goal plus offsets), so old and new share the light
 
 ```sh
 python3 tools/bridge.py start --size=720x720 --fps=60
-python3 tools/bridge.py -f build/hu_saloon.txt     # the script is in results/2026-11-07/films.txt
+python3 tools/bridge.py -f results/2026-11-07/films.txt   # films_street.txt the same (long films:
+                                                    # a client with a longer timeout, as bridge.py gives up at 600 s)
 python3 tools/bridge.py stop
 ```
 
 Results: `results/2026-11-07/` (films old | new, front, side and three-quarter, the saloon at
-night with the bold cowboy, the street at golden hour with Brody; each real time then half speed).
+night with the bold cowboy (a Studio man), the street at 16:12 with the game's default outlaw body;
+each real time then half speed; `sheet.jpg` the last frames: old, then new from the front, side and
+three-quarter). Put the man clear of the townsfolk's posts (the sheriff stands at 1.3, -12.6).
 
 ## Still a surrender to the AI and the witnesses
 
