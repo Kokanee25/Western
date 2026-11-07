@@ -35,8 +35,12 @@ func _cmd_hu_man(a: Array) -> Dictionary:
 	var model: String = a[0]
 	if model.begins_with("gang:"):
 		var town = main.find_child("TownLife", true, false)
-		town.bring_gang([StringName(model.substr(5))])
-		man = town.gang[-1]
+		var who := StringName(model.substr(5))
+		if not town.gang.any(func(g: Node) -> bool: return g.person_id == who):
+			town.bring_gang([who])
+		for g: HumanBody in town.gang:
+			if g.person_id == who:
+				man = g
 		man.get_node("Brain").set_physics_process(false)
 		man.get_node("Brain").set_process(false)
 		man.global_position = at
