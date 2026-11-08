@@ -458,6 +458,11 @@ frozen until Sean names one.
   The four changed `_real` goldens re-approved. Queued for later: the shade fill (#711). Next: #660.
   Traps: a lavapipe render run is ~10 GB (two at once OOM here, even one ending as the next starts);
   a real-look view is ~10 min under lavapipe; `pgrep -f` waiters match themselves.
+- **The material library** (#701, brief `docs/briefs/material-library.md`, branch
+  `claude/salt-creek-material-panels-tjivo2`, not merged): scanned CC0 woods (`scans.yml`) on sample panels
+  (`SamplePanel`, `scan_wood.gdshader`, `config/material_library.json`, `material_lab.gd --panels=`); woods
+  R1-R2, C1-C2, F1-F4 new / a few years / old, parts 1 and 5; cheap judge mostly cheap indie. Waiting on Sean:
+  #718 (yes / change per swatch), then the faults listed there; MetaHuman beside them once on the Studio's main.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
