@@ -28,6 +28,14 @@ const PART_OF := {&"clavicle_r": &"chest", &"clavicle_l": &"chest",
 		&"forearm_twist_l_0": &"forearm_l", &"forearm_twist_l_1": &"forearm_l"}
 
 
+## Whether the anatomy has what the rig hangs on (an anatomy not loaded, `Anatomy.new()`, doesn't).
+static func can_rig(anatomy: Anatomy) -> bool:
+	for sid: StringName in [&"chest", &"upper_arm_r", &"upper_arm_l", &"forearm_r", &"forearm_l", &"hand_r", &"hand_l"]:
+		if not anatomy.segments.has(sid):
+			return false
+	return true
+
+
 ## Where the deform bones' binds start: after the anatomy's bones and the finger bones.
 static func first_bind(anatomy: Anatomy) -> int:
 	return anatomy.segment_order().size() + PeopleBodies.finger_bone_names().size()
@@ -86,6 +94,8 @@ static func has_own(bones: PackedInt32Array, weights: PackedFloat32Array, anatom
 ## Keeps the four strongest of each vertex, renormalised.
 static func spread(verts: PackedVector3Array, bones: PackedInt32Array, weights: PackedFloat32Array,
 		anatomy: Anatomy, clavicle := true, twist := true, tuning: SkeletonTuning = null) -> void:
+	if not can_rig(anatomy):
+		return
 	var t := tuning if tuning != null else SkeletonTuning.shared()
 	var order := anatomy.segment_order()
 	var at := {}
@@ -201,6 +211,8 @@ static func add(skeleton: Skeleton3D, skin: Skin, anatomy: Anatomy, bone_parts: 
 		tuning: SkeletonTuning = null) -> Array[Bone]:
 	var t := tuning if tuning != null else SkeletonTuning.shared()
 	var out: Array[Bone] = []
+	if not can_rig(anatomy):
+		return out
 	if skeleton.get_bone_count() != first_bind(anatomy):
 		push_error("DeformRig: expected the deform bones at bind %d, the skeleton has %d" % [first_bind(anatomy), skeleton.get_bone_count()])
 		return out
