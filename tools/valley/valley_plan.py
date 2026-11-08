@@ -348,7 +348,7 @@ class Plan:
 		rl = t["rear_lane"]
 		return [
 			{"id": "main_street", "class": "street", "line": [[ms["x"][0], 0], [0, 0], [ms["x"][1], 0]]},
-			{"id": "ns_street", "class": "street", "line": [[0, ns["z"][0] + 14], [0, 0], [0, 124]]},
+			{"id": "ns_street", "class": "street", "line": [[0, ns["z"][0] + 14], [0, 0], [0, ns["z"][1] + 12]]},
 			{"id": "back_street", "class": "street", "line": [[bs["x"][0], -51.2], [0, -51.2], [bs["x"][1], -51.2]]},
 			{"id": "rear_lane", "class": "street", "line": [[rl["x"][0], 51.2], [0, 51.2], [rl["x"][1], 51.2]]},
 		]
@@ -742,7 +742,8 @@ def write_tables(plan, res, jr, vis, path):
 	for p in d["places"]:
 		pr = res["places"][p["id"]]
 		pd = p.get("pad")
-		fp = "%d x %d" % (pd["w"], pd["d"]) if pd else "-"
+		ar = p.get("area")
+		fp = "%d x %d" % (pd["w"], pd["d"]) if pd else ("%d x %d (area)" % (ar["w"], ar["d"]) if ar else "-")
 		w("| `%s` | %s | %d | %d | %.1f | %.1f | %s | %s | %s | %s |" % (p["id"], p["name"], p["at"][0], p["at"][1], pr["y"], pr["natural"], fp,
 			", ".join(p.get("access", [])) or "-", ", ".join(p.get("missions", [])) or "-", p["status"]))
 	for b in d["bridges"]:
@@ -1007,6 +1008,12 @@ def draw_master(plan, res, jr, vis, path):
 			continue
 		u, v = V.uv(*p["at"])
 		cat = p["cat"]
+		ar = p.get("area")
+		if ar:
+			ax.add_patch(Rectangle((u - ar["d"] / 2, v - ar["w"] / 2), ar["d"], ar["w"], fill=False, ec=CAT.get(cat, INK), lw=1.4, ls=(0, (8, 4)), zorder=6))
+			ax.text(u, v - ar["w"] / 2 + 40, p["name"], ha="center", fontsize=10, color=CAT.get(cat, INK), zorder=13,
+				bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.7))
+			continue
 		pd = p.get("pad")
 		if pd and pd["w"] >= 60:
 			ax.add_patch(Rectangle((u - pd["d"] / 2, v - pd["w"] / 2), pd["d"], pd["w"], fill=False, ec=CAT.get(cat, INK), lw=1.2, zorder=6))
@@ -1120,7 +1127,13 @@ def draw_town(plan, path):
 	W = ms["width_between_fronts"]
 	ax.add_patch(Rectangle((ms["x"][0] - 40, -W / 2), ms["x"][1] - ms["x"][0] + 80, W, fc="#d8c9a4", ec="none", zorder=2))
 	ns = t["ns_street"]
-	ax.add_patch(Rectangle((-ns["width"] / 2, -112), ns["width"], 112 + 74.5, fc="#d8c9a4", ec="none", zorder=2))
+	ax.add_patch(Rectangle((-ns["width"] / 2, -ns["z"][1]), ns["width"], ns["z"][1] - ns["z"][0], fc="#d8c9a4", ec="none", zorder=2))
+	for ex in t["extras"]:
+		for row in ex.get("rows", []):
+			z0, z1 = row["z"]
+			ax.add_patch(Rectangle((-125, -z1), 255, z1 - z0, fc="#e2d5b4" if row.get("street") else "#1baf7a", alpha=1 if row.get("street") else 0.3,
+				ec="none" if row.get("street") else INK2, lw=0.4, zorder=2))
+			ax.text(-122, -(z0 + z1) / 2, row["name"].split(" (")[0], fontsize=8.5, va="center", zorder=6)
 	for key in ("back_street", "rear_lane"):
 		s = t[key]
 		ax.add_patch(Rectangle((s["x"][0], -s["z"][1]), s["x"][1] - s["x"][0], s["z"][1] - s["z"][0], fc="#e2d5b4", ec="none", zorder=2))
@@ -1200,10 +1213,10 @@ def draw_town(plan, path):
 	ax.set_ylabel("world Z (north, -Z, at the top: as Sean's November 7 picture)", fontsize=11)
 	ax.grid(color=INK2, lw=0.3, alpha=0.3)
 	ax.set_title("Salt Creek town, enlarged (north up, as the November 7 picture). Lots measured off the picture at 5 px a metre along Main Street.\n"
-		"Solid: as drawn. Dashed outline: PROPOSED story buildings. Red slivers: the 1-1.5 m gameplay alleys. Contours every 1 m.", fontsize=13, loc="left")
+		"Solid: as drawn. Dashed outline: the story buildings added to the picture (Sean, 2026-11-08). Red slivers: the 1-1.5 m gameplay alleys. Contours every 1 m.", fontsize=13, loc="left")
 	lax = fig.add_axes([0.78, 0.35, 0.21, 0.55])
 	lax.axis("off")
-	H = [Rectangle((0, 0), 1, 1, fc=CAT["town"], alpha=0.85, label="building (as drawn)"), Rectangle((0, 0), 1, 1, fc=CAT["town"], alpha=0.6, ec=INK, ls="--", label="PROPOSED story building"),
+	H = [Rectangle((0, 0), 1, 1, fc=CAT["town"], alpha=0.85, label="building (as drawn)"), Rectangle((0, 0), 1, 1, fc=CAT["town"], alpha=0.6, ec=INK, ls="--", label="story building added (Sean's yes)"),
 		Rectangle((0, 0), 1, 1, fc="#c9b98f", label="yard"), Rectangle((0, 0), 1, 1, fc="#f2e9d0", ec=INK2, label="lane / vacant lot"),
 		Rectangle((0, 0), 1, 1, fc="#e34948", label="gameplay alley (1.2 m)"), Rectangle((0, 0), 1, 1, fc=INK, label="shoulder to shoulder"),
 		Rectangle((0, 0), 1, 1, fc="#1baf7a", alpha=0.35, label="houses and gardens"), Line2D([], [], color=RAIL, lw=2.5, label="main line, passing siding, team track"),
@@ -1213,9 +1226,12 @@ def draw_town(plan, path):
 	nax = fig.add_axes([0.78, 0.06, 0.21, 0.27])
 	nax.axis("off")
 	front = max(l["x1"] for l in t["north"] + t["south"]) - min(l["x0"] for l in t["north"] + t["south"])
+	rail_z = float(np.mean(r["z"][(r["x"] > -100) & (r["x"] < 100)]))
+	_, crow = nearest_on_polyline(np.array([0.0]), np.array([100.0]), d["water"]["creek"]["line"])
+	creek_z = float(crow[0, 1])
 	notes = ["Main Street: %d m of frontage, %.1f m" % (front, W), "  between fronts (66 ft), due west.",
 		"Lots %.1f m deep; Back Street and the" % t["lot_depth"], "  rear lane 6.1 m (20 ft).",
-		"Main line z %.1f; creek z +112:" % float(np.mean(r["z"][(r["x"] > -100) & (r["x"] < 100)])), "  %.0f m rail to creek (the picture's" % (112 + 74.5), "  notes say 300: OPEN).",
+		"Main line z %.1f; creek z +%.0f:" % (rail_z, creek_z), "  %.0f m rail to creek (two rows of" % (creek_z - rail_z), "  houses: Sean, 2026-11-08).",
 		"Saloon on the north corner, the stone", "  jail opposite (DECIDED).", "Lanes and alleys where the picture", "  draws them (Sean, 2026-11-07)."]
 	nax.text(0, 1, "\n".join(notes), va="top", fontsize=11, family="monospace")
 	fig.savefig(path, dpi=100)
@@ -1373,7 +1389,7 @@ def draw_decisions(plan, res, jr, path):
 	u, v = V.uv(hx, hz)
 	ax.plot(u, v, "o", ms=14, color="#1baf7a")
 	ax.text(u, v + 70, "Harlan", ha="center", fontsize=11)
-	ax.set_title("Decision 1, option A (Nov 2 baseline, RECOMMENDED):\nHarlan's daily ride stays south of the creek: %.0f m, %s at a canter, %s at a trot.\nHe crosses the overpass only on the early missions (the widow's road)." % (
+	ax.set_title("Decision 1, option A (Nov 2 baseline): SEAN'S PICK, 2026-11-08.\nHarlan's daily ride stays south of the creek: %.0f m, %s at a canter, %s at a trot.\nHe crosses the overpass only on the early missions (the widow's road)." % (
 		jh["road"], fmt_min(jh["canter"]), fmt_min(jh["trot"])), loc="left", fontsize=12)
 	# H1 b: Nov 7 alternative
 	ax = axs[0, 1]
@@ -1407,14 +1423,14 @@ def draw_decisions(plan, res, jr, path):
 	ax.text(-250, 0.4, "Track kept from the overpass to the trestle (%d m) in both, for boarding and the fight back to the cab.\n"
 		"At %.1f km the train is seen crossing every day from the East Road, Bridge A and the widow's; the valley stays 4.4 km wide.\n"
 		"At 3.5 km the overpass and the widow's fall off a 4 km map." % (m["trestle_east"] - m["overpass"], res["trestle"]["x"] / 1000), fontsize=11, va="top")
-	ax.set_title("Decision 2: where the trestle stands (east of the depot, along the line)", loc="left", fontsize=12)
+	ax.set_title("Decision 2 (answered: kept as drawn): where the trestle stands", loc="left", fontsize=12)
 	# town depth
 	ax = axs[1, 1]
 	ax.set_xlim(0, 10)
 	ax.set_ylim(-45, 330)
 	ax.axis("off")
 	cols = [("picture as drawn\n(its own 5 px/m)", [("rail", 0), ("depot", 15), ("Back St", 31), ("Main St", 68), ("creek", 129)]),
-		("PROPOSED\n(period lots)", [("main line", 0), ("depot", 15), ("Back St", 23), ("Main St", 74.5), ("rear lane", 125), ("creek", 186.5)]),
+		("DECIDED: two rows\n(Sean, 2026-11-08)", [("main line", 0), ("depot", 15), ("Back St", 23), ("Main St", 74.5), ("rear lane", 125), ("Creek St", 167), ("creek", 234.5)]),
 		("picture's notes\n(300 m)", [("rail", 0), ("Main St", 120), ("creek", 300)])]
 	for i, (lab, items) in enumerate(cols):
 		xx = 1.5 + i * 3.2
@@ -1425,7 +1441,7 @@ def draw_decisions(plan, res, jr, path):
 			ax.text(xx + 0.55, v, "%s %d" % (name, v), va="center", fontsize=10)
 		ax.text(xx, -8, lab, ha="center", va="bottom", fontsize=11, fontweight="bold")
 	ax.invert_yaxis()
-	ax.set_title("Decision 3: the town's depth, rail to creek (metres)", loc="left", fontsize=12)
+	ax.set_title("Decision 3 (answered): the town's depth, rail to creek (metres)", loc="left", fontsize=12)
 	fig.tight_layout()
 	fig.savefig(path, dpi=100)
 	plt.close(fig)

@@ -786,7 +786,8 @@ frozen until Sean names one.
   start). Waiting on Sean: #689 (taken away only out of sight?).
 - **The valley master plan** (#467 Phase 1, 2026-11-08, branch `claude/salt-creek-valley-plan-yd2ujv`):
   `config/valley.json` (inert) + `tools/valley/valley_plan.py` (maps, tables, checks); the plan
-  `docs/briefs/valley-plan.md`. Waiting on Sean (its `waiting on Sean` issue); no greybox before his yes.
+  `docs/briefs/valley-plan.md`. Sean answered #700 (2026-11-08: Harlan route A, trestle kept, two rows of
+  houses, cows maybe); next G1, the world switch and an empty valley scene, after the plan's PR merges.
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:

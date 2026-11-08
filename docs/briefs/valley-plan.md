@@ -39,7 +39,8 @@ unless its entry says DECIDED.
   still holds: deepest and narrowest at the trestle, carrying on south, widening and shallowing
   to a crossing, and not ending just past the bridge.
 - **The town's depth:** the picture's notes say 300 m from rail to creek. Its drawing, measured at
-  its own 250 m street, gives about 130 m. Period lot sizes give 186 m. Decision 3.
+  its own 250 m street, gives about 130 m. Period lot sizes with Sean's two rows of houses give
+  235 m (decision 3).
 
 ## 2. The frame and the envelope (PROPOSED)
 
@@ -83,8 +84,10 @@ squeezed, so its rows keep their order and take period sizes (PROPOSED):
 - Back Street and the rear lane are 6.1 m (20 ft).
 - The North–South Street is 15.2 m (50 ft).
 - The main line runs at z −74.5, with the passing siding and team track north of it.
-- The creek runs at z +112. Rail to creek is 186 m (decision 3).
-- The ground falls about 4 % from the rail bench (+2.8) to the creek bank (−4), and 1.5 m along
+- South of the rear lane, **two rows of houses** (Sean, 2026-11-08): the first row faces the rear
+  lane, then Creek Street (12.2 m, 40 ft), then the second row with gardens down to the creek.
+- The creek runs at z +160. Rail to creek is 235 m (decision 3).
+- The ground falls about 3 % from the rail bench (+2.4) to the creek bank (−4.6), and 1.5 m along
   the street eastward.
 
 **The lanes and alleys** (Sean: keep the lanes the picture shows; the narrowest become the
@@ -207,7 +210,7 @@ the brief's order, so distances count from the east entrance:
   to 1.3 km off, with its smoke and whistle. The bents stand inside the canyon, below the bench
   the town stands on, so no point in town sees them. Seeing them from Main Street would mean
   turning the canyon to open toward town (running south-west to the town's east end, not south),
-  or a town much higher than the bench. Decision 2 asks.
+  or a town much higher than the bench. Sean kept it as drawn (decision 2).
 
 ## 6. The east: the widow, the East Road, Bridges A and B
 
@@ -271,21 +274,23 @@ overpass cutting and the descent to the widow's. The ambush itself is OPEN and n
 - **Harlan's homestead** (432, 470), Y +2 (DECIDED south-east, about two minutes):
   - On the slope south of the creek: cabin, small barn and shelter, fencing, a garden, the work
     area.
-  - **His spring** (480, 420) is on the slope above, its run going down to the creek (kept;
+  - **His spring** (480, 420) is on the slope above, its run going down to the creek (DECIDED,
     decision 4).
   - **His daily ride:** his lane west along the south bank to the town bridge, up the
-    North–South Street: **692 m, 2:06 at a canter, 2:57 at a trot**, no overpass (November 2
-    baseline).
+    North–South Street: **713 m, 2:10 at a canter, 3:03 at a trot**, no overpass (route A,
+    Sean's pick).
   - His ford path is his way east without going through town.
-- **The town bridge** (0, +116) is the picture's own, a 14 m timber wagon bridge. It isn't one of
+- **The town bridge** (0, +164) is the picture's own, a 14 m timber wagon bridge. It isn't one of
   the three named bridges, and is never called A.
 - **The Baron's ranch** (1320, 1260), Y +20, on the open south-east grazing upland (DECIDED):
   - 2.0 km by the South Road: **6:03** at a canter.
   - A 120 × 90 m headquarters: the painted house, bunkhouse, barns, horse corrals, a windpump and
     tanks.
   - A draw to the west and a low ridge to the east for covert approaches (and horse theft).
-  - **Horses only:** the herds are off the map (decision 5). Inside the valley his wealth shows in
-    fences, brands on the tack and freight, the tanks, the hands and the shipments.
+  - **His range is reserved inside the valley** (Sean turned down the off-map herds, decision 5:
+    cows may be made). An area of about 1.2 x 1.6 km of open upland round and east of the ranch
+    (`baron_range`), fenced along the canyon road and the South Road, with nothing placed in it
+    yet. The depot's stock pens stay stock pens, empty until there are cattle to load.
 - **The Southern Ute community** (−1350, 1230), Y +41 (DECIDED, south-west):
   - On a sheltered bench by the creek's upper reach, above everything that could foul the water,
     with a spring (−1420, 1180), cottonwoods and juniper.
@@ -409,7 +414,8 @@ Everyday reuse:
   - the horse tracks stay under 15 %.
 - **Impossibilities found and not hidden:**
   1. The canyon's passable end must be upstream (above).
-  2. The picture's 300 m town depth doesn't match its own drawing (decision 3).
+  2. The picture's 300 m town depth doesn't match its own drawing: 235 m with Sean's two rows of
+     houses (decision 3).
   3. Harlan's two-minute ride and a daily overpass crossing can't both be true while the overpass
      is east of the trestle (decision 1).
   4. The trestle's bents can't be seen from town while the canyon runs south below the bench
@@ -417,7 +423,7 @@ Everyday reuse:
   5. The picture's 3.5 km to the trestle and to the widow's doesn't fit a 4 km valley with the
      town near its western foothills.
   6. The picture's saloon is drawn about 27 m long, but the built spec saloon is 15.2 m: the lot's
-     east part is its yard (or an annex: OPEN).
+     east part is its yard (Sean's yes).
 
 ## 12. Migration plan (G): the new valley beside the old town
 
@@ -464,48 +470,32 @@ places keeps running on the old town until its subject moves).
 - Lab coordinates collide only if the two worlds ever load together. They mustn't, which is the
   switch's job.
 
-## Decisions (H): only what's Sean's
+## Decisions (H): Sean's answers (2026-11-08, #700)
 
 `docs/concept/valley-decisions.png` draws the first three.
 
-1. **Harlan's daily ride: A (Nov 2 baseline, recommended) or B (Nov 7).**
-   - **A:** he rides his lane over the town bridge, 692 m and 2:06 at a canter. He crosses the
-     overpass only on the early missions (the widow's road). The opening finds the sheriff where
-     his ford path meets the East Road.
-   - **B:** his ride crosses the overpass every day. The overpass must stay east of the trestle
-     (hard rule), so his house moves near it, north of the rail: 2.3 km and 6:52 at a canter. The
-     two-minute ride is lost.
-   - No layout gives both. Pick A, B, or say which rule bends.
-2. **The trestle's place: as drawn, 1.18 km east of the crossroads (recommended), or another.**
-   - It sits 1.05 km past Main Street's east end, 1.12 km of track from the depot, and 679 m west
-     of the overpass. The tables give the train's times and stops.
-   - From town you see the deck and the train crossing every day. The whole bridge shows from the
-     overlook, Bridge A, the east rim, the canyon floor and the mouth.
-   - If the bents must be seen from Main Street, the canyon has to run south-west toward town's
-     east end instead of south: say so and it's redrawn.
-3. **The town's depth, rail to creek: 186 m (recommended), or 300 m as the picture's notes say?**
-   - 186 m keeps the picture's rows with period lots: depot, Back Street, 38 m lots, a 20 m Main
-     Street, the rear lane, one row of houses and gardens, the creek bank.
-   - 300 m would add a second residential street and a wider creek-side.
-   - The picture's own drawing is about 130 m.
-4. **The water story: Harlan's spring and the widow's water rights.** PROPOSED (the brief's):
-   - Harlan keeps a small spring for his homestead (placed, kept).
-   - The widow holds the valuable right: the creek frontage and the bottomland ditch at the canyon
-     mouth.
-   - The Baron wants both, but hers is the immediate reason for the murder. Yes, or another split?
-5. **The Baron's herds: off the map** (PROPOSED). He stays a cattle baron. His range and herds lie
-   beyond the south-east fence, and inside the valley his wealth shows in the ranch, the tanks,
-   brands, freight and his men. Yes or no?
-6. **Places still PROPOSED** (a yes to each, or move it):
-   - the timber camp in the north-west pines;
-   - the hideout in the south rimrock (OPEN in the brief);
-   - the Baron's town house on the rise west of town;
-   - the bank and land office on the two house lots east of the jail;
-   - the second saloon across the tracks;
-   - the telegraph in the depot;
-   - the assay office at the west end;
-   - the saloon lot's east part as yard (or an annex: the picture draws the saloon about 27 m long,
-     the spec is 15.2 m).
+1. **Harlan's daily ride: A.** His lane over the town bridge, 713 m and 2:10 at a canter. He
+   crosses the overpass only on the early missions (the widow's road). The opening finds the
+   sheriff where his ford path meets the East Road.
+2. **The trestle: kept as drawn,** 1.18 km east of the crossroads, 1.12 km of track from the depot
+   and 679 m west of the overpass. The canyon keeps running south, so town sees the deck and the
+   train crossing it, and the overlook, Bridge A, the east rim, the canyon floor and the mouth see
+   the whole bridge.
+3. **The town's depth: a second row of houses.** Creek Street and the second row put the creek at
+   z +160: 235 m from rail to creek (the picture's notes said 300; its drawing about 130).
+4. **The water: yes.** Harlan keeps a small spring for his homestead. The widow holds the valuable
+   right (the creek frontage and the bottomland ditch at the canyon mouth), and it's the reason for
+   the murder.
+5. **No off-map herds.** Sean: the horses-only rule may go, "maybe we will make cows". The Baron's
+   range is reserved in the valley (`baron_range`) and the stock pens kept. **Still OPEN:** whether
+   cattle are made (a creature like the horse, its own lab and cost).
+6. **The places: yes to all.** The timber camp, the hideout, the Baron's town house, the bank and
+   land office, the second saloon, the telegraph in the depot, the assay office and the saloon's
+   yard are DECIDED where they're drawn.
+
+Still OPEN and not this plan's to settle: cattle (5), who shot the sheriff and where, the Baron's
+Shipment's direction and ambush, the Joe-on-the-rope overlook, the Southern Ute community's look
+(research with care), and the timber camp's sawmill site and crew.
 
 ## What was read (so the next session can skip it)
 
