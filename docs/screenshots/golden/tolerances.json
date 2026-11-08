@@ -95,6 +95,11 @@
   },
   "share": 0.01
  },
+ "inside_store_afternoon_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
+ },
  "inside_store_night": {
   "mean": 1.5,
   "noise": {
@@ -343,6 +348,11 @@
   },
   "share": 0.01
  },
+ "porch_dusk_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
+ },
  "portrait_day": {
   "mean": 1.5,
   "noise": {
@@ -350,6 +360,11 @@
    "share": 0.0
   },
   "share": 0.01
+ },
+ "road_low_noon_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
  },
  "saloon_back_wall_night": {
   "mean": 1.5,
@@ -382,6 +397,11 @@
    "share": 0.0
   },
   "share": 0.01
+ },
+ "saloon_night_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
  },
  "saloon_toward_door_night": {
   "mean": 1.5,
@@ -487,6 +507,11 @@
   },
   "share": 0.01
  },
+ "store_front_noon_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
+ },
  "street_golden_hour": {
   "mean": 1.5,
   "noise": {
@@ -494,6 +519,11 @@
    "share": 0.0001
   },
   "share": 0.01
+ },
+ "street_golden_hour_real": {
+  "mean": 3.0,
+  "provisional": "real look (#641): FSR2 and fog; not yet measured from two renders",
+  "share": 0.03
  },
  "street_morning": {
   "mean": 1.5,

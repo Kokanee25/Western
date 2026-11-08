@@ -14,6 +14,8 @@ signal died(cause: StringName)
 
 ## Joint rotations per pose (degrees). A hanging limb swings forward with +X; the trunk and head
 ## lean back with +X (forward with -X). The rig drops so the lower foot stays on the ground.
+## `clavicle_r`/`clavicle_l` (not joints: the deform rig's, DeformRig): the pose's own shoulder lift
+## over what the arms drive, [rise, forward, unused] degrees.
 const POSES := {
 	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
@@ -26,7 +28,10 @@ const POSES := {
 	# wrist, the hand bent back a little). He gets there by HANDS_UP_KEYS, not a blend.
 	&"hands_up": {&"upper_arm_r": Vector3(80, 22, 90), &"forearm_r": Vector3(98, 0, 0), &"hand_r": Vector3(0, 19, 15),
 			&"upper_arm_l": Vector3(80, -22, -90), &"forearm_l": Vector3(98, 0, 0), &"hand_l": Vector3(0, -19, -15),
-			&"chest": Vector3(4, 0, 0), &"head": Vector3(6, 0, 0)},
+			&"chest": Vector3(4, 0, 0), &"head": Vector3(6, 0, 0),
+			# The shoulders up a little more than the raised arms alone take them (#696; Sean, #692:
+			# "clavicles lifted a little"): [rise, forward] degrees over DeformRig's drive.
+			&"clavicle_r": Vector3(5, 0, 0), &"clavicle_l": Vector3(5, 0, 0)},
 	# Under arrest: hands bound behind his back, head down a little.
 	&"hands_bound": {&"upper_arm_r": Vector3(-35, 0, 0), &"forearm_r": Vector3(40, 40, 0),
 			&"upper_arm_l": Vector3(-35, 0, 0), &"forearm_l": Vector3(40, -40, 0), &"head": Vector3(-6, 0, 0)},
@@ -516,7 +521,9 @@ func _ready() -> void:
 	add_to_group(&"people")
 	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
-	anatomy = Anatomy.shared()
+	# His own proportions if his model has them (#696: the Studio's men with their own bone lengths;
+	# the hitboxes, the ragdoll and what's inside go with him), else everyone's.
+	anatomy = Anatomy.for_model(body_model)
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
 	physiology.treated.connect(_bind_wound)
@@ -857,6 +864,7 @@ func _build_skin() -> void:
 		skin.add_bind(i, rests[i].affine_inverse())
 		_bone_parts.append(sid)
 	_add_finger_bones(data, skin, rests)
+	_deform = DeformRig.add(skeleton, skin, anatomy, _bone_parts)
 	_shoulders = PeopleBodies.add_shoulders(skeleton, skin, data, _bone_parts)
 	skeleton.reset_bone_poses()
 	var f := look.duplicate()
@@ -929,7 +937,7 @@ func _build_skin() -> void:
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
 	_own_fingers(data)
-	if not _finger_rig.is_empty() or (bool(data.get("whole", false)) and not data.has("fingers")):
+	if skinned_fingers or (bool(data.get("whole", false)) and not data.has("fingers")):
 		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off. A whole
 		# man's own hands are in his skin (the Character Studio's men): the drawn fingers would be
 		# a second hand on his, so they're hidden too (until the Studio skins his fingers).
@@ -1107,7 +1115,7 @@ func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -
 
 ## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp). `placed`: the
 ## parts' global transforms already read this tick (segment -> Transform3D; _track_carry's).
-func _update_skeleton(placed := {}) -> void:
+func _update_skeleton(placed := {}, dt := 0.0) -> void:
 	if skeleton == null:
 		return
 	var inv := skeleton.global_transform.affine_inverse()
@@ -1119,6 +1127,7 @@ func _update_skeleton(placed := {}) -> void:
 		var part: Node3D = parts.get(sid)
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
+	_pose_deform(dt)
 	PeopleBodies.pose_shoulders(skeleton, _shoulders)
 	_pose_fingers()
 	_keep_in_cull_box(inv)
@@ -1173,6 +1182,35 @@ func _keep_in_cull_box(inv: Transform3D) -> void:
 var _finger_rig: Array[FingerBone] = []
 ## A Studio man's shoulder helpers (PeopleBodies.shoulder_share), posed after his bones.
 var _shoulders: Array[PeopleBodies.ShoulderBone] = []
+## The fuller skeleton's deform bones (DeformRig, #696): clavicles and twist bones, posed after his
+## 17 bones from them, before the shoulder helpers. Shape the skin only.
+var _deform: Array[DeformRig.Bone] = []
+## Whether his skin is weighted to his finger bones (a skinned hand: the Studio's men's report
+## `finger_bones`, or his model's own weights): then the drawn fingers are hidden. Every man has the
+## finger bones in his skeleton (#696); without skinned hands nothing of his skin follows them.
+var skinned_fingers := false
+
+
+## The deform bones from his 17 as posed: the pose's own clavicle lift (POSES' clavicle_r/l keys,
+## [rise, forward, -] degrees) and a played clip's clavicle channel, if it has one, over the drive
+## from his arms; none of it while he's limp (the arms' drive still is).
+func _pose_deform(dt: float) -> void:
+	if _deform.is_empty():
+		return
+	var target: Dictionary = POSES.get(pose, {}) if not limp else {}
+	var extra := [Vector2.ZERO, Vector2.ZERO]
+	for k in 2:
+		var v: Variant = target.get(DeformRig.CLAVICLES[k])
+		if v is Vector3:
+			extra[k] = Vector2((v as Vector3).x, (v as Vector3).y)
+	var clip := [null, null]
+	var w := 0.0
+	if not limp and _clip_w > 0.0:
+		for k in 2:
+			clip[k] = _pose_played.get(DeformRig.CLAVICLES[k])
+			if clip[k] != null:
+				w = _clip_w
+	DeformRig.pose(skeleton, _deform, extra, clip, w, dt)
 
 
 ## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a
@@ -1189,18 +1227,27 @@ class FingerBone:
 	var rest: float  ## the relaxed bend (radians)
 	var gain: float  ## the fist's gain on the node's angle
 	var z := NAN  ## the finger node's angle it was last set for (INF: shot off)
+	var open := false  ## whether it was last set for open hands (hands up)
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
 	var fb: Dictionary = data.get("finger_bones", {})
+	skinned_fingers = not fb.is_empty() or bool((data.get("skeleton", {}) as Dictionary).get("fingers", false))
+	if fb.is_empty():
+		# Every man's skeleton has them (#696): at the anatomy's fingers, for a skin not weighted to them.
+		fb = PeopleBodies.anatomy_finger_bones(anatomy)
 	if fb.is_empty():
 		return
 	var last := {}
 	var rest_of := {}  ## bone -> its rest in the skeleton's space
-	for name: String in data.get("finger_bone_names", []):
-		if not fb.has(name):
+	var anat_fb := PeopleBodies.anatomy_finger_bones(anatomy)
+	# A model whose hands are already curled at rest (a MetaHuman's) takes less of the relaxed curl
+	# (its report's `finger_rest_curl`, 0..1; the Rodin men's straight fingers all of it).
+	var relax := float(PeopleBodies.report(body_model).get("finger_rest_curl", 1.0))
+	for name: String in data.get("finger_bone_names", PeopleBodies.finger_bone_names()):
+		if not fb.has(name) and not anat_fb.has(name):
 			return
-		var r: Dictionary = fb[name]
+		var r: Dictionary = fb[name] if fb.has(name) else anat_fb[name]
 		var o: Array = r.origin
 		var b: Array = r.basis
 		var rest := Transform3D(Basis(Vector3(b[0][0], b[0][1], b[0][2]), Vector3(b[1][0], b[1][1], b[1][2]),
@@ -1224,7 +1271,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 		e.k = k
 		e.thumb = bits[1] == "thumb"
 		e.sx = -1.0 if bits[2] == "r" else 1.0
-		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k])
+		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k]) * relax
 		e.gain = (FIST_GAIN_THUMB if e.thumb else FIST_GAIN)[k]
 		_finger_rig.append(e)
 		last[fid] = i
@@ -1245,27 +1292,34 @@ const THUMB_ACROSS := 45.0
 const THUMB_ACROSS_SIGN := -1.0
 
 
+## Hands up, the relaxed curl is only this share of itself: the hands open, fingers loose (Sean,
+## #692: "palms forward, fingers loose and slightly spread"), not a claw.
+const OPEN_HANDS_CURL := 0.2
+
+
 func _pose_fingers() -> void:
+	var open := pose == &"hands_up" and not limp
 	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
 		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
-		if z == e.z:
+		if z == e.z and open == e.open:
 			continue
 		e.z = z
+		e.open = open
 		var pose: Transform3D = e.local
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
 		else:
-			pose = pose * Transform3D(_finger_bend(e, z), Vector3.ZERO)
+			pose = pose * Transform3D(_finger_bend(e, z, OPEN_HANDS_CURL if open else 1.0), Vector3.ZERO)
 		skeleton.set_bone_pose(e.bone, pose)
 
 
 ## A finger bone's bend for its node's angle `z`: the fist's gain, at least the relaxed curl, a
 ## thumb's leaning across the fist.
-static func _finger_bend(e: FingerBone, z: float) -> Basis:
+static func _finger_bend(e: FingerBone, z: float, relaxed := 1.0) -> Basis:
 	var angle := z * e.gain
-	if absf(angle) < e.rest:
-		angle = e.sx * e.rest
+	if absf(angle) < e.rest * relaxed:
+		angle = e.sx * e.rest * relaxed
 	if e.thumb:
 		var lean := deg_to_rad(THUMB_ACROSS)
 		return Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
@@ -1282,7 +1336,7 @@ func _process(delta: float) -> void:
 
 func _process_step(_delta: float) -> void:
 	if limp:
-		_update_skeleton()
+		_update_skeleton({}, _delta)
 
 
 ## The hand: palm, then each finger as three bones from its knuckle, following the anatomy.
@@ -1382,7 +1436,7 @@ func _give_gun() -> void:
 	gun.name = "Revolver"
 	var vis: Node3D = visuals[&"hand_r"]
 	vis.add_child(gun)
-	gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
+	gun.position = anatomy.rest_point(&"hand_r", Vector3(0.232, 0.765, -0.05)) - anatomy.segment_center(&"hand_r")
 	gun.rotation_degrees = Vector3(-90, 0, 0)
 	held_gun = gun
 	curl_hand("r", 0.85)
@@ -1398,7 +1452,7 @@ func holster_gun(now := false) -> void:
 	_draw_left = 0.0 if now else DRAW_TIME
 	var vis: Node3D = visuals[&"pelvis"]
 	held_gun.reparent(vis, false)
-	held_gun.position = Vector3(0.2, 0.9, 0.02) - anatomy.segment_center(&"pelvis")
+	held_gun.position = anatomy.rest_point(&"pelvis", Vector3(0.2, 0.9, 0.02)) - anatomy.segment_center(&"pelvis")
 	held_gun.rotation_degrees = Vector3(-96, 0, 0)
 	_gun_shadow(false)
 	curl_hand("r", 0.25)
@@ -1421,7 +1475,7 @@ func draw_gun() -> void:
 	_draw_left = DRAW_TIME
 	var vis: Node3D = visuals[&"hand_r"]
 	held_gun.reparent(vis, false)
-	held_gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
+	held_gun.position = anatomy.rest_point(&"hand_r", Vector3(0.232, 0.765, -0.05)) - anatomy.segment_center(&"hand_r")
 	held_gun.rotation_degrees = Vector3(-90, 0, 0)
 	_gun_shadow(true)
 	curl_hand("r", 0.85)
@@ -1466,7 +1520,7 @@ func _tick(delta: float) -> void:
 	if not limp:
 		# His bones after his pose, from the parts' places _track_carry has just read.
 		t = Prof.start()
-		_update_skeleton(_carry_new if delta > 0.0 else {})
+		_update_skeleton(_carry_new if delta > 0.0 else {}, delta)
 		Prof.stop(&"people_skeleton", t)
 
 
@@ -3199,7 +3253,7 @@ func _cough(delta: float) -> void:
 		return
 	_cough_in = _rng.randf_range(2.5, 6.0) if p.airway_blood else _rng.randf_range(5.0, 11.0)
 	var head: Node3D = parts[&"head"]
-	var mouth := head.global_transform * (Vector3(0, 1.58, -0.1) - anatomy.segment_center(&"head"))
+	var mouth := head.global_transform * (anatomy.rest_point(&"head", Vector3(0, 1.58, -0.1)) - anatomy.segment_center(&"head"))
 	var fwd := -head.global_basis.z
 	# From a holed lung it comes up frothy and bright, pink with air (ATLS).
 	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6, WoundSigns.FROTH if not p.lung_damage.is_empty() else Blood.ARTERIAL)
