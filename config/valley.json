@@ -1,0 +1,289 @@
+{
+	"_doc": "Salt Creek Valley master plan, Phase 1 (planning only; Sean's brief of 2026-11-07, issue #467, PR #621's valley inputs). INERT: nothing in the game reads this file until Sean approves the geometry. The maps, profiles and tables are generated from it by tools/valley/valley_plan.py (never drawn by hand), so moving a point here moves it everywhere. Read with docs/briefs/valley-plan.md (the reasons, the DECIDED/PROPOSED/OPEN calls, the migration) and docs/briefs/valley-tables.md (generated: the coordinate schedule, travel times, grades, checks).",
+	"format": 1,
+	"status_words": {
+		"DECIDED": "Sean's; not reopened without asking him.",
+		"PROPOSED": "this plan's recommendation; a working value, never canon until Sean says so.",
+		"OPEN": "needs Sean's call (listed in docs/briefs/valley-plan.md 'Decisions')."
+	},
+	"units": {
+		"length": "metres",
+		"xz": "world [x, z]: x east (+X), z south (+Z); north is -Z (CLAUDE.md, config/town.json)",
+		"y": "elevation in metres above the new Main Street crossroads' ground (Y 0). PROPOSED absolute: about 2,070 m above sea level (Durango 1,988 m; the La Plata foothills west of it 2,050-2,300 m)",
+		"heading": "compass degrees, 0 north (-Z), 90 east (+X), as TrainRoute's heading",
+		"grade": "percent; + rising"
+	},
+	"frame": {
+		"status": "PROPOSED",
+		"origin": "the new town's crossroads: Main Street x North-South Street, at ground level. The new valley is a separate scene behind a switch (Sean, 2026-11-07 on #467), so it may reuse the old town's numbers without colliding with it.",
+		"main_street_axis": "Main Street runs due west (heading 270) along z 0, so the setting sun (DayCycle sun_azimuth 0) shines straight down it (DECIDED).",
+		"precision": "the playable valley stays within about 2.5 km of the origin: 32-bit positions keep better than a millimetre there."
+	},
+	"envelope": {
+		"status": "PROPOSED",
+		"playable": {"x": [-2000, 2400], "z": [-1400, 2200]},
+		"_doc": "4.4 x 3.6 km, 15.8 km2 (the DECIDED 'about 4 x 4 km' area). The town sits west of the middle, near the base of the western foothills (DECIDED, valley.md); the east holds the canyon, the trestle, the overpass and the widow; the south the open homestead and ranch country. Selective boundaries, never a wall of cliffs all round.",
+		"boundaries": [
+			{"side": "west", "how": "the La Plata front: the foothills steepen past x -2000 into timbered slopes and broken mesas (climbable a little way, then too steep for a horse); the rail goes into its tunnel there."},
+			{"side": "north", "how": "past z -1400 the arroyo's headwater ridges and broken mesa country; the timber thins out; scenery beyond."},
+			{"side": "east", "how": "Salt Creek leaves through a narrowing gorge at the north-east (too rough to follow far); the rail leaves in a rock cut; the east road runs on toward Durango as a track whose far end is distance and the land's fold, not a wall."},
+			{"side": "south", "how": "rimrock mesas and broken canyon country (the outlaw hideout's mesa); the Baron's range continues off the map behind his fence line."}
+		],
+		"scenery": [
+			{"what": "the La Plata Mountains, NW to W, about 20-30 km off, about 4,000 m (real)", "where_bearing_from_town": [285, 330]},
+			{"what": "the sunset notch: a low saddle in the western skyline due west of Main Street (bearing 270), kept clear of the rail line, which leaves 12 degrees north of it", "where_bearing_from_town": [265, 275]},
+			{"what": "the San Juan peaks and mesas, far north and north-east", "where_bearing_from_town": [330, 60]},
+			{"what": "Mesa country falling away south toward the San Juan River", "where_bearing_from_town": [150, 230]}
+		]
+	},
+	"speeds": {
+		"_doc": "Travel times use these. The player's are the game's (config/movement/middle.tres). The horse isn't ridden yet (#341, #478): its gaits are PROPOSED from period horse numbers.",
+		"player_walk": 2.8,
+		"player_run": 6.0,
+		"horse_walk": 1.8,
+		"horse_trot": 3.9,
+		"horse_canter": 5.5,
+		"horse_gallop": 12.0,
+		"wagon_loaded": 1.5,
+		"train_planned_kmh": 22,
+		"train_max_kmh": 32,
+		"train_top_kmh": 43,
+		"train_brake_g": 0.042,
+		"train_brake_setup_s": 3.0
+	},
+	"terrain": {
+		"status": "PROPOSED",
+		"_doc": "How the generator makes the ground (the same function will bake Phase 2's height map): (1) a smooth surface through the control points [x, z, y] (thin-plate spline); (2) the creek, its canyon and the arroyo cut into it by their bed profiles and cross-sections (water.*); (3) level pads for the places (places.*.pad) and the town's plane (town.ground). Control points are the landform skeleton: the western foothills, the rail bench, the canyon rims, the lower north-east basin, the south-east upland, the southern mesas.",
+		"grid": 10,
+		"control": [
+			[-2000, -1400, 150], [-2000, -1000, 118], [-2000, -600, 92], [-2000, -370, 72], [-2000, -150, 74], [-2000, 0, 66], [-2000, 300, 80], [-2000, 700, 98], [-2000, 1100, 88], [-2000, 1400, 62], [-2000, 1800, 120], [-2000, 2200, 165],
+			[-1880, -325, 44], [-1962, -357, 56],
+			[-1720, -800, 80], [-1600, -950, 98], [-1800, -560, 60], [-1500, -1300, 112], [-1250, -1180, 72], [-900, -1350, 58], [-600, -1050, 34], [-1100, -820, 46],
+			[-1630, -246, 24.3], [-1430, -218, 24.3], [-1250, -192, 20.8], [-950, -150, 15.3], [-522, -90, 7.5],
+			[-1250, -450, 22], [-950, -420, 14], [-600, -440, 9], [-1600, -480, 34],
+			[-1400, 0, 38], [-1000, 60, 22], [-700, 100, 14], [-400, 60, 5], [-300, -15, 3.2], [-600, -60, 7], [-1250, -110, 24],
+			[-215, 75, 4.5], [-190, 10, 1.8], [-280, 150, 5],
+			[-62, -135, 7.5], [-95, -195, 10.5], [-200, -215, 10], [-150, -420, 4], [-500, -620, 14], [-200, -650, 8], [200, -700, 1], [600, -820, -6],
+			[-1300, 950, 42], [-1000, 1050, 36], [-1350, 1230, 41], [-1600, 1100, 52], [-700, 470, 22], [-1000, 1000, 33], [-700, 760, 24], [-430, 520, 13], [-400, 220, 8], [-260, 140, 5.5],
+			[-1000, 1600, 62], [-450, 2020, 88], [-650, 1800, 80], [-300, 1200, 27], [0, 2200, 62], [-150, 1350, 26], [-1500, 1700, 90], [-1500, 2200, 140],
+			[0, 800, 10], [400, 1200, 15], [1000, 1700, 30], [350, 1700, 38], [1000, 2200, 46], [1900, 1800, 27], [2400, 2200, 35],
+			[500, 350, -2], [430, 470, 2], [800, 450, 0], [1000, 520, 4], [1300, 800, 12], [1320, 1260, 20], [1800, 1000, 16], [2400, 700, 12], [2400, 1400, 22], [2050, 1550, 30],
+			[377, -74.5, 3.3], [677, -74.5, 4.6], [977, -74.5, 5.9], [1118, -60, 6.1], [1248, -75, 6.1], [1118, -100, 6.1], [1248, -105, 6.1],
+			[1325, -104, 6.0], [1618, -167, 5.8], [2157, -282, 1.0], [2450, -344, -3.5],
+			[1912, -229, 11.2], [1880, -150, 10], [1950, -320, 9.5], [1912, -420, 1], [2150, -200, 4],
+			[0, 215, -3.5], [150, 230, -5], [-150, 235, -1.5], [400, 0, -1], [650, 120, -6], [800, 200, -8], [870, 380, -8.5], [1050, 360, -8], [1000, 150, -2], [1300, 150, 4], [1500, 0, 7], [1800, -50, 8], [2200, -100, 4], [2400, -200, 0], [1350, 330, 2],
+			[1000, -300, 2], [800, -350, -4], [1350, -300, 2], [1300, -450, -8], [1100, -480, -9], [1500, -400, -3],
+			[1200, -700, -17], [1500, -800, -19], [1900, -900, -23], [2400, -1100, -26], [1700, -560, -10], [1850, -650, -18], [1600, -650, -19], [2200, -500, -8], [2400, -600, -15],
+			[1000, -1100, -14], [1100, -880, -13], [950, -700, -9], [1400, -1300, -18], [1800, -1350, -20], [2400, -1400, -24], [-200, -1400, 40], [400, -1400, 12]
+		]
+	},
+	"water": {
+		"_doc": "Water flows downhill everywhere (the generator checks every bed profile falls). Clean Salt Creek rises in the south-west and passes the Southern Ute community and then the town's south edge before anything else touches it; the town's ditch takes water above town. The mine and Ore Works drain to the dry arroyo, which runs north of town and joins Salt Creek only at the north-east, below the widow's place (valley.md DECIDED: the mines' drainage bypasses town and joins downstream). Creek vertices: [x, z, bed_y, half_width, floor_half, wall_power]: the channel's rim half-width, its flat floor, the wall's curve (1 straight, 1.3 the trestle lab's gorge).",
+		"creek": {
+			"id": "salt_creek",
+			"name": "Salt Creek",
+			"status": "DECIDED course (south of town, then to the trestle canyon); PROPOSED line and levels",
+			"flow": "about 2-4 m wide and ankle to knee deep in a gravel bed (low water); a sandy wash with pools in late summer; cottonwoods and willow only along it",
+			"line": [
+				[-2000, 1400, 55, 14, 4, 1.0], [-1650, 1270, 44, 16, 4, 1.0], [-1300, 1110, 34, 18, 5, 1.0], [-1000, 880, 25, 16, 5, 1.0], [-700, 620, 16, 14, 4, 1.0],
+				[-430, 380, 7, 12, 4, 1.0], [-240, 250, -1.0, 10, 3, 1.0], [0, 160, -7.0, 9, 3, 1.0], [250, 185, -8.3, 10, 3, 1.0], [520, 230, -9.6, 12, 3.5, 1.0],
+				[760, 300, -11.4, 16, 4, 1.0], [930, 315, -12.6, 22, 5, 1.0], [1030, 230, -14.3, 38, 8, 1.15], [1110, 100, -16.6, 52, 11, 1.25], [1160, 0, -18.6, 60, 13, 1.3],
+				[1183, -80, -20.1, 65, 14, 1.3], [1198, -250, -21.1, 72, 15, 1.3], [1215, -420, -22.0, 85, 18, 1.2], [1350, -600, -23.0, 30, 8, 1.0], [1600, -690, -24.6, 22, 6, 1.0],
+				[1850, -740, -26.0, 20, 6, 1.0], [2100, -860, -28.0, 22, 6, 1.0], [2250, -950, -29.0, 24, 7, 1.0], [2400, -1040, -30.0, 26, 8, 1.0]
+			]
+		},
+		"canyon": {
+			"id": "great_canyon",
+			"name": "Salt Creek Canyon (the great canyon)",
+			"status": "DECIDED shape (deep and narrow at the trestle, carrying on south, widening and shallowing to a passable crossing); PROPOSED line",
+			"_doc": "The canyon is Salt Creek's own lower course, cut down through the rail bench where the creek drops toward the lower north-east basin. It runs about 520 m south (upstream) from the trestle to its head by Bridge A, shallowing from 27 m to about 3 m, and about 350 m north (downstream) of the trestle before it opens onto the widow's bottomland. Because water runs downhill, the shallow southern end is the UPSTREAM end: the brief's 'more passable farther downstream' is read as 'farther south'.",
+			"from_vertex": 11,
+			"to_vertex": 17,
+			"at_trestle": {"rim_to_rim": 130, "creek_floor_y": -20.1, "rail_y": 7.1, "depth_rail_to_floor": 27.2}
+		},
+		"arroyo": {
+			"id": "dry_arroyo",
+			"name": "the dry arroyo",
+			"status": "PROPOSED",
+			"flow": "dry most of the year; flash floods after summer storms; steep cut banks 2-5 m; sand and cobble floor",
+			"line": [
+				[-2000, -760, 62, 10, 2, 1.0], [-1820, -640, 48, 10, 2, 1.0], [-1530, -385, 17, 12, 3, 1.0], [-1250, -360, 12, 12, 3, 1.0], [-950, -330, 8.5, 12, 3, 1.0],
+				[-650, -320, 5, 12, 3, 1.0], [-350, -320, 2, 12, 3, 1.0], [-100, -330, -0.5, 12, 3, 1.0], [200, -360, -3.5, 12, 3, 1.0], [500, -440, -7, 12, 3, 1.0],
+				[780, -580, -11, 12, 3, 1.0], [1000, -800, -16.5, 12, 3, 1.0], [1300, -960, -21, 12, 3, 1.0], [1650, -1040, -25, 12, 3, 1.0], [2000, -1010, -28, 12, 3, 1.0],
+				[2250, -950, -29, 14, 4, 1.0]
+			]
+		},
+		"ditch": {
+			"id": "town_ditch",
+			"name": "the town ditch",
+			"status": "PROPOSED",
+			"_doc": "A period water ditch taking clean creek water above town along the contour to a cistern behind the jail (the town's supply and the bucket line's source); its head is upstream of every mine and works.",
+			"line": [[-620, 540], [-500, 420], [-380, 290], [-260, 180], [-160, 95], [-60, 70], [30, 62]]
+		},
+		"springs": [
+			{"id": "harlan_spring", "name": "Harlan's spring", "at": [480, 420], "status": "DECIDED (Sean, 2026-11-08 on #700: Harlan keeps a small spring for his homestead; the widow's creek right is the valuable one, the reason for the murder)", "_doc": "A small spring on the slope above his cabin; its run goes down to the creek."},
+			{"id": "ute_spring", "name": "the spring by the Southern Ute community", "at": [-1420, 1180], "status": "PROPOSED"}
+		]
+	},
+	"railway": {
+		"_doc": "One continuous main line through the valley, already running (DECIDED, #552 call 1 A). The route is in TrainRoute's own format (src/train/train_route.gd: plan, profile, marks, crossings), so train step 6 can lay it as it stands; it runs EAST to WEST, the brief's order, so its distances count from the east entrance. Everything on the line hangs off its marks by name (#542 'The route can move').",
+		"status": "DECIDED order (east entrance, overpass, great trestle, depot, Ore Works, west, exit); PROPOSED geometry",
+		"right_of_way_m": 30,
+		"route": {
+			"name": "Salt Creek Valley main line (east to west)",
+			"origin": [2450.0, -2.5, -344.0],
+			"heading": 258.0,
+			"plan": [
+				{"id": "east_entry", "straight": 1180},
+				{"id": "trestle_bend", "bend": {"radius": 900, "turn": 12, "spirals": 40, "side": "right"}},
+				{"id": "town_straight", "straight": 1430},
+				{"id": "west_bend", "bend": {"radius": 500, "turn": 8, "spirals": 30, "side": "right"}},
+				{"id": "ore_straight", "straight": 1180},
+				{"id": "portal_bend", "bend": {"radius": 300, "turn": 12, "spirals": 30, "side": "right"}},
+				{"id": "tunnel", "straight_to": 4600}
+			],
+			"profile": {"vertical_curve": 60, "grades": [[0, 1.5], [600, 0.1], [1180, 0], [1420, -0.43], [2227, 0], [2727, 1.8], [3930, 0], [4130, 2.5]]},
+			"marks": {"east_portal": 50, "overpass": 550, "slow_board": 1000, "trestle_east": 1229, "trestle_mid": 1294, "trestle_west": 1359, "depot_east_switch": 2230, "depot": 2416, "depot_west_switch": 2720, "ore_works_east": 3930, "ore_works": 4030, "ore_works_west": 4130, "west_portal": 4480},
+			"crossings": [{"id": "great_trestle", "kind": "trestle", "from": 1229, "to": 1359}]
+		},
+		"tracks": [
+			{"id": "depot_passing", "name": "the depot's passing siding", "from_mark": "depot_east_switch", "to_mark": "depot_west_switch", "offset": 4.5, "side": "north", "status": "PROPOSED", "_doc": "lets the daily train stand clear while freight is switched; 490 m, room for the six-car train (66 m) many times"},
+			{"id": "team_track", "name": "the team track (freight house and stock pens)", "from": 2300, "to": 2560, "offset": 9.0, "side": "north", "status": "PROPOSED"},
+			{"id": "ore_siding", "name": "the Ore Works siding under the ore bins", "from_mark": "ore_works_east", "to_mark": "ore_works_west", "offset": 5.0, "side": "north", "status": "PROPOSED"}
+		],
+		"stops": [
+			{"id": "depot", "mark": "depot", "name": "Salt Creek Depot", "status": "DECIDED (north of town; the telegraph inside it, Sean #700)"},
+			{"id": "ore_works", "mark": "ore_works", "name": "Salt Creek Ore Works", "status": "DECIDED (an industrial yard west of town, apart from the depot; the line carries on past it)"}
+		],
+		"limits": {"ruling_grade": 2.5, "min_radius": 120, "station_grade": 0.0, "_doc": "PROPOSED from period narrow-gauge practice (the D&RG's Silverton branch ruled at 2.5 %; 4 % only on passes) and the train lab's own test line (120 m curves)."},
+		"clearance": {"overpass_deck_over_rail": 5.45, "deck_structure": 0.5, "engine_top_over_rail": 3.9, "boxcar_roof": 3.1, "coach_roof": 3.5, "ore_car_side": 1.7, "_doc": "TrainCars (DECK 1.1; box roof DECK+2.0; coach DECK+2.3+0.1) and the engine rig's stack."}
+	},
+	"bridges": [
+		{"id": "bridge_c", "name": "Bridge C: the great trestle", "kind": "timber railway trestle", "status": "DECIDED (east of the depot, west of the overpass; 130 m, rail about 27 m over the creek; built by Trestle from the route's crossing, never redesigned here); DECIDED place (Sean, #700: kept as drawn, 1.12 km of track east of the depot; the canyon runs south, so town sees the deck and the train, not the bents)", "route_crossing": "great_trestle", "length": 130, "height": 27.2},
+		{"id": "bridge_b", "name": "Bridge B: the wagon-road overpass", "kind": "small timber road bridge over a railway cutting", "status": "DECIDED (east of the trestle; the wagon road over, the train under; kept from the older through-road); PROPOSED place: 680 m east of the trestle", "route_mark": "overpass", "road": "east_road", "span": 14, "deck_over_rail": 5.45, "cut_depth": 6.5},
+		{"id": "bridge_a", "name": "Bridge A: the Salt Creek wagon crossing", "kind": "modest timber stringer wagon bridge, two spans on a log crib", "status": "DECIDED (on the eastern road at the canyon's shallow southern end; real water; not a trestle); PROPOSED place", "at": [965, 288], "heading": 72, "span": 16, "deck_y": -9.8, "road": "east_road"},
+		{"id": "bridge_t", "name": "the town bridge", "kind": "timber wagon bridge", "status": "DECIDED (in Sean's November 7 town picture: the North-South Street's south end, 'To Residential, Creek & South Road')", "at": [0, 164], "heading": 0, "span": 14, "deck_y": -4.4, "road": "south_road"}
+	],
+	"roads": [
+		{"id": "west_road", "name": "the West Road (to the Ore Works)", "class": "wagon", "width": 6, "status": "DECIDED (Main Street's west exit toward the Ore Works and the foothills); PROPOSED line", "line": [[-125, 0], [-300, -12], [-600, -60], [-950, -125], [-1250, -170], [-1420, -195], [-1470, -232], [-1500, -262]], "crosses": [{"what": "the main line at grade", "at": [-1462, -224]}]},
+		{"id": "mine_road", "name": "the mine road", "class": "wagon", "width": 4.5, "status": "DECIDED (a practical winding wagon road from the Ore Works up to the mine); PROPOSED line", "line": [[-1500, -262], [-1525, -320], [-1555, -395], [-1440, -560], [-1325, -723], [-1600, -718], [-1845, -714], [-1790, -770], [-1720, -790]], "crosses": [{"what": "the arroyo on a log-cribbed fill over a culvert (a flash flood can take it out)", "at": [-1555, -395], "fill_y": 23.5, "span": 40}]},
+		{"id": "timber_road", "name": "the timber road", "class": "wagon", "width": 4.5, "status": "DECIDED (with the camp, Sean #700); PROPOSED line", "line": [[-125, -51], [-165, -66], [-190, -74.5], [-230, -150], [-300, -260], [-340, -320], [-450, -470], [-650, -660], [-850, -840], [-1050, -1020], [-1120, -1090], [-1150, -1135]], "crosses": [{"what": "the main line at grade", "at": [-190, -74.5]}, {"what": "the arroyo at a ford", "at": [-345, -322]}]},
+		{"id": "church_lane", "name": "Church Lane", "class": "lane", "width": 4, "status": "DECIDED (church and cemetery on higher ground north-west, in the picture); PROPOSED line", "line": [[0, -60], [0, -95], [-30, -120], [-62, -128], [-85, -165], [-95, -185]], "crosses": [{"what": "the tracks at grade, by the depot", "at": [0, -74.5]}]},
+		{"id": "east_road", "name": "the East Road (the old through-road)", "class": "wagon", "width": 5, "status": "DECIDED (town east, round the canyon's shallow southern end, over Bridge A, east, over the railroad by Bridge B, past the widow's, on to the eastern exit); PROPOSED line", "line": [[130, 0], [300, 40], [520, 120], [720, 210], [880, 270], [955, 285], [975, 291], [1060, 310], [1200, 270], [1400, 150], [1600, 20], [1780, -110], [1880, -200], [1912, -229], [1940, -270], [1975, -330], [1960, -400], [1880, -455], [1790, -505], [1900, -560], [2150, -620], [2400, -680]], "bridges": ["bridge_a", "bridge_b"]},
+		{"id": "widow_lane", "name": "the widow's lane", "class": "lane", "width": 3.5, "status": "PROPOSED", "line": [[1790, -505], [1745, -535], [1712, -552]]},
+		{"id": "harlan_lane", "name": "Harlan's lane", "class": "lane", "width": 3.5, "status": "DECIDED (a regular horse and wagon way to town; the picture's 'To Harlan's Homestead, about a 2 min ride'); PROPOSED line", "line": [[0, 172], [90, 200], [200, 250], [330, 340], [420, 440], [432, 458]]},
+		{"id": "harlan_ford_path", "name": "Harlan's ford path", "class": "track", "width": 2, "status": "PROPOSED", "_doc": "A horse track from his place down to a ford and up to the East Road: his way east (the widow, the canyon) without going through town; the opening's encounter site is where it meets the East Road.", "line": [[432, 458], [460, 360], [478, 270], [484, 222], [500, 170], [530, 128]], "crosses": [{"what": "Salt Creek at a gravel ford", "at": [484, 222]}]},
+		{"id": "south_road", "name": "the South Road (to the Baron's)", "class": "wagon", "width": 5, "status": "DECIDED (the Baron's ranch south-east, with roads to it); PROPOSED line", "line": [[0, 172], [-20, 270], [40, 430], [230, 690], [580, 920], [940, 1110], [1240, 1235]], "bridges": ["bridge_t"]},
+		{"id": "ranch_canyon_road", "name": "the ranch's canyon road", "class": "wagon", "width": 4.5, "status": "PROPOSED", "_doc": "The ranch's own way north to the East Road at Bridge A: the Baron's freight east and to the widow's without passing through town (an alternative route, and interception ground, for the Baron's Shipment).", "line": [[1240, 1235], [1170, 980], [1110, 720], [1070, 480], [1060, 310]]},
+		{"id": "baron_drive", "name": "the Baron's town-house drive", "class": "lane", "width": 4, "status": "DECIDED (with the house, Sean #700); PROPOSED line", "line": [[-125, 0], [-160, 18], [-190, 42], [-205, 62]]},
+		{"id": "ute_trail", "name": "the trail to the Southern Ute community", "class": "track", "width": 2, "status": "DECIDED (footpaths toward the community, south-west); PROPOSED line", "line": [[0, 172], [-140, 235], [-300, 320], [-500, 460], [-720, 680], [-1000, 950], [-1200, 1110], [-1330, 1215]]},
+		{"id": "hideout_trail", "name": "the hideout trail (the front way)", "class": "track", "width": 1.5, "status": "DECIDED (Sean, #700); PROPOSED line", "line": [[40, 430], [-60, 640], [-160, 900], [-180, 1150], [-260, 1420], [-360, 1680], [-420, 1880], [-450, 2000]]},
+		{"id": "mesa_back_trail", "name": "the mesa back way (unseen approach)", "class": "path", "width": 1, "status": "DECIDED (Sean, #700); PROPOSED line", "line": [[-1000, 950], [-1050, 1250], [-950, 1550], [-760, 1800], [-560, 1980], [-470, 2020]]}
+	],
+	"places": [
+		{"id": "town", "name": "Salt Creek (town)", "cat": "town", "at": [0, 0], "status": "DECIDED", "_doc": "Main Street 250 m east-west, the railroad along the north edge, the creek along the south; detail in town.*", "access": ["west_road", "east_road", "south_road", "timber_road", "church_lane"], "missions": ["opening", "jailbreak", "bank_job", "payday"]},
+		{"id": "depot", "name": "Salt Creek Depot (+ telegraph, PROPOSED)", "cat": "rail", "at": [61, -63], "pad": {"w": 25, "d": 10, "y": 2.6}, "status": "DECIDED (north of town); PROPOSED telegraph inside (the agent-telegrapher, period practice)", "access": ["church_lane"], "missions": ["runaway_payroll", "payday", "trestle_finale"]},
+		{"id": "freight_warehouse", "name": "Freight warehouse and platform", "cat": "rail", "at": [104, -63], "pad": {"w": 25, "d": 12, "y": 2.3}, "status": "DECIDED", "access": ["church_lane"], "missions": []},
+		{"id": "water_tank", "name": "Railroad water tank", "cat": "rail", "at": [81, -66], "status": "DECIDED", "access": [], "missions": []},
+		{"id": "rail_yard", "name": "Rail yard (service)", "cat": "rail", "at": [22, -63], "pad": {"w": 29, "d": 12, "y": 2.7}, "status": "DECIDED", "access": ["church_lane"], "missions": []},
+		{"id": "stock_pens", "name": "Old stock pens (empty, weathered; the teamsters' horse corrals)", "cat": "rail", "at": [-29, -100], "pad": {"w": 38, "d": 28, "y": 3.9}, "status": "DECIDED place; kept as stock pens, empty unless cattle come (Sean, #700: the horses-only rule may go, cows maybe: OPEN)", "access": ["church_lane"], "missions": []},
+		{"id": "church", "name": "Church", "cat": "town", "at": [-62, -135], "pad": {"w": 12, "d": 20, "y": 7.5}, "status": "DECIDED (higher ground north-west)", "access": ["church_lane"], "missions": []},
+		{"id": "cemetery", "name": "Cemetery", "cat": "town", "at": [-95, -195], "pad": {"w": 40, "d": 30, "y": 10.5}, "status": "DECIDED (higher ground north-west)", "access": ["church_lane"], "missions": []},
+		{"id": "baron_town_house", "name": "The Baron's town house (masonry)", "cat": "baron", "at": [-215, 75], "pad": {"w": 18, "d": 14, "y": 4.5}, "status": "DECIDED (Sean, #700: on the rise west of town above the creek bend)", "access": ["baron_drive"], "missions": ["barons_shipment"]},
+		{"id": "ore_works", "name": "Salt Creek Ore Works", "cat": "industry", "at": [-1530, -275], "pad": {"w": 200, "d": 70, "y": 24.3, "heading": 278}, "status": "DECIDED (west of town on the line; apart from the mine); PROPOSED layout", "_doc": "North of the track: ore bins built into the slope over the ore siding (wagons from the mine tip in from above), a sampling and crushing house, sheds, timber stores, a wagon yard; tailings and wash water to the arroyo just north (never to the creek). Silver ore by the carload to a smelter (#552 call 3 B).", "access": ["west_road", "mine_road"], "missions": ["buried_alive", "runaway_payroll"]},
+		{"id": "mine", "name": "The silver mine", "cat": "industry", "at": [-1720, -790], "pad": {"w": 70, "d": 45, "y": 79.0}, "status": "DECIDED (a separate uphill property on a reachable foothill bench; no branch railway); PROPOSED place", "_doc": "Timbered adit into the hill north-west, a hoist-less adit mine (no head frame needed), the powder magazine set apart up the gulch, a blacksmith shop, ore house, bunkhouse, waste-rock dumps down the slope toward the arroyo.", "access": ["mine_road"], "missions": ["buried_alive"]},
+		{"id": "powder_magazine", "name": "Mine powder magazine", "cat": "industry", "at": [-1800, -850], "status": "PROPOSED (set apart from the works, as period practice)", "access": ["mine_road"], "missions": ["buried_alive"]},
+		{"id": "timber_camp", "name": "Timber camp and saw pit", "cat": "industry", "at": [-1150, -1150], "pad": {"w": 80, "d": 50, "y": 61.0}, "status": "DECIDED (Sean, #700: north-west foothills, a modest pine stand on north-facing slopes, reachable by wagon)", "_doc": "A saw pit and a small horse-powered sawmill at the felling (OPEN: or nearer town), log decks, a lumber yard, a bunk shack; lumber hauled to the town's lumber yard by the timber road.", "access": ["timber_road"], "missions": []},
+		{"id": "widow_homestead", "name": "The widow's homestead (the sheriff's family)", "cat": "homestead", "at": [1712, -560], "pad": {"w": 34, "d": 30, "y": -10.0}, "status": "DECIDED (east of town, north of the railway, near Salt Creek with creek frontage, on the eastern wagon road past the overpass; the farmhouse hostage rescue; Sean #700: her water right is the valuable one and the reason for the murder); PROPOSED exact place", "_doc": "The farmhouse on a knoll, its front to the lane (south), the yard and outbuildings round it; fields and garden on the bottomland down to the creek 130 m north (her water right: a ditch heading in the canyon mouth); the rear approach up from the creek and the canyon mouth; the rail bench and the overpass road look down on it from the south.", "access": ["widow_lane", "east_road"], "missions": ["farmhouse_rescue", "opening"]},
+		{"id": "harlan_homestead", "name": "Thomas Harlan's homestead", "cat": "homestead", "at": [432, 470], "pad": {"w": 30, "d": 24, "y": 2.0}, "status": "DECIDED (south-east, about a two-minute ride; Sean, 2026-11-08 on #700: route A, his lane over the town bridge, no overpass on his daily ride)", "_doc": "Cabin, a small barn and shelter, fencing, garden and work area; the spring on the slope above; his lane to the town bridge.", "access": ["harlan_lane", "harlan_ford_path"], "missions": ["opening"]},
+		{"id": "baron_ranch", "name": "The Baron's ranch headquarters", "cat": "baron", "at": [1320, 1260], "pad": {"w": 120, "d": 90, "y": 20.0}, "status": "DECIDED (south-east, open grazing country); PROPOSED place. Sean, #700: no off-map herds; cows may be made (OPEN), so his range is reserved in the valley (baron_range)", "_doc": "A big painted two-storey house, bunkhouse, barns, horse corrals, a windpump and water tanks, a wagon yard; fenced range; the herds are off the map (PROPOSED). A draw to the west and a low ridge to the east give covert approaches.", "access": ["south_road", "ranch_canyon_road"], "missions": ["barons_shipment", "vaqueros_horses"]},
+		{"id": "baron_range", "name": "The Baron's range (reserved grazing)", "cat": "baron", "at": [1750, 1250], "area": {"w": 1200, "d": 1600}, "status": "PROPOSED reservation (Sean, #700: no off-map herds; cows may be made: OPEN). Open grazing upland round and east of the ranch, fenced along the canyon road and the South Road; nothing placed in it yet", "access": ["south_road", "ranch_canyon_road"], "missions": ["vaqueros_horses"]},
+		{"id": "ute_community", "name": "Southern Ute community", "cat": "community", "at": [-1350, 1230], "pad": {"w": 140, "d": 90, "y": 41.0}, "status": "DECIDED (a nearby Southern Ute community in the sheltered south-west); PROPOSED place; its look is research done with care (docs/briefs/valley-plan.md)", "access": ["ute_trail"], "missions": ["the_camp"]},
+		{"id": "hideout", "name": "Outlaw hideout", "cat": "outlaw", "at": [-450, 2020], "pad": {"w": 30, "d": 20, "y": 86.0}, "status": "DECIDED (Sean, #700: a line shack in a box canyon under the southern rimrock; a hard trail in front, an unseen way off the mesa top)", "access": ["hideout_trail", "mesa_back_trail"], "missions": []},
+		{"id": "opening_site", "name": "Where Harlan finds the sheriff (the opening)", "cat": "mission", "at": [530, 128], "status": "PROPOSED (on the East Road, where Harlan's ford path meets it: route A, Sean #700)", "access": ["east_road", "harlan_ford_path"], "missions": ["opening"]},
+		{"id": "east_exit", "name": "East Road's exit (toward Durango)", "cat": "edge", "at": [2400, -680], "status": "DECIDED (the eastern road continues off the map)", "access": ["east_road"], "missions": []},
+		{"id": "abandoned_homestead", "name": "Abandoned homestead (burned out)", "cat": "wild", "at": [-860, 330], "pad": {"w": 20, "d": 16, "y": 24.0}, "status": "PROPOSED (a wilderness pocket)", "access": ["ute_trail"], "missions": []},
+		{"id": "prospect_shack", "name": "Prospector's shack and old diggings", "cat": "wild", "at": [-1560, -1150], "status": "PROPOSED (a wilderness pocket)", "access": [], "missions": []},
+		{"id": "rock_camp", "name": "Rock shelter camp on the south-east rim", "cat": "wild", "at": [2050, 1550], "status": "PROPOSED (a wilderness pocket)", "access": [], "missions": []},
+		{"id": "mesa_overlook", "name": "Mesa overlook (sees the ranch, the South Road and the canyon head)", "cat": "wild", "at": [350, 1700], "status": "PROPOSED (a wilderness pocket)", "access": [], "missions": ["barons_shipment"]}
+	],
+	"viewpoints": [
+		{"id": "vp_depot", "name": "Depot platform", "at": [80, -70], "eye": 1.7, "status": "PROPOSED"},
+		{"id": "vp_main_east", "name": "Main Street's east end (the boardwalk)", "at": [128, -12], "eye": 2.4, "status": "PROPOSED"},
+		{"id": "vp_saloon_balcony", "name": "The saloon's upstairs balcony", "at": [20, -12], "eye": 5.6, "status": "PROPOSED"},
+		{"id": "vp_cemetery", "name": "The cemetery hill", "at": [-95, -205], "eye": 1.7, "status": "PROPOSED"},
+		{"id": "vp_bridge_a", "name": "Bridge A, looking down the canyon", "at": [975, 291], "eye": 2.4, "status": "PROPOSED"},
+		{"id": "vp_trestle_overlook", "name": "Trestle overlook (the canyon's west rim, up-canyon)", "at": [1120, 180], "eye": 1.7, "status": "PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view"},
+		{"id": "vp_east_rim_north", "name": "East rim, north of the trestle", "at": [1280, -300], "eye": 1.7, "status": "PROPOSED: a second vantage point, above the widow's side"},
+		{"id": "vp_canyon_floor", "name": "Canyon floor below the trestle", "at": [1163, 15], "eye": 1.7, "status": "PROPOSED"},
+		{"id": "vp_widow", "name": "The widow's farmhouse porch", "at": [1712, -560], "eye": 2.4, "status": "PROPOSED"},
+		{"id": "vp_canyon_mouth", "name": "The canyon mouth (the bottomland)", "at": [1250, -560], "eye": 1.7, "status": "PROPOSED"},
+		{"id": "vp_harlan", "name": "Harlan's doorstep", "at": [432, 470], "eye": 1.7, "status": "PROPOSED"},
+		{"id": "vp_east_road_rim", "name": "East Road on the east rim", "at": [1400, 150], "eye": 2.4, "status": "PROPOSED"}
+	],
+	"missions": [
+		{"id": "opening", "name": "Opening: the wounded sheriff", "status": "DECIDED (Harlan finds him on the road; he can bring him to the doctor)", "places": ["harlan_homestead", "opening_site", "town"], "route": [["harlan_ford_path", "east_road"], "doctor"]},
+		{"id": "farmhouse_rescue", "name": "Farmhouse hostage rescue (Phase A house, Phase B yard to the boys)", "status": "DECIDED (PR #621 widow-farmhouse.md)", "places": ["widow_homestead"]},
+		{"id": "buried_alive", "name": "Buried Alive (the cave-in; teaches dynamite)", "status": "DECIDED (the mine supports it)", "places": ["mine", "ore_works"]},
+		{"id": "barons_shipment", "name": "The Baron's Shipment (deeds, ledgers, evidence)", "status": "DECIDED (a guarded wagon on a real route, more than one interception point); OPEN: its direction and the ambush", "places": ["baron_ranch", "baron_town_house"]},
+		{"id": "runaway_payroll", "name": "Runaway Payroll Train", "status": "DECIDED (board by the overpass, fight back to front, stop before the broken track)", "places": ["bridge_b", "bridge_c", "depot"]},
+		{"id": "trestle_finale", "name": "The trestle finale (#466)", "status": "DECIDED (structural damage and train loads, never scripted)", "places": ["bridge_c", "vp_trestle_overlook"]},
+		{"id": "tied_to_tracks", "name": "Tied to the tracks (train step 8)", "status": "PROPOSED by #542; place OPEN", "places": []},
+		{"id": "jailbreak", "name": "Jailbreak (the masonry back wall, #663, #676)", "status": "DECIDED (the jail is stone; a rubble jail wall takes about three sticks, #676)", "places": ["town"]},
+		{"id": "bank_job", "name": "The bank break-in (destructible rear wall)", "status": "PROPOSED footprint", "places": ["town"]},
+		{"id": "payday", "name": "Payday (the payroll by train, the rowdy saloons)", "status": "DECIDED (#542, #276)", "places": ["depot", "town"]},
+		{"id": "the_camp", "name": "The camp (story mission 1, DESIGN.md §5)", "status": "PROPOSED mission (frozen); the community's place reserved", "places": ["ute_community"]},
+		{"id": "vaqueros_horses", "name": "The vaquero's horses (story mission 4)", "status": "PROPOSED mission (frozen)", "places": ["baron_ranch"]}
+	],
+	"town": {
+		"_doc": "The town to Sean's November 7 picture (DECIDED: its arrangement and spacing as drawn, Sean on #467 2026-11-07). Measured off the picture: Main Street's frontage, drawn 1,250 px long, is the DECIDED 250 m, so 5 px a metre along x; x = (picture px - 808) / 5 (808 is the North-South Street's middle). Across (z) the picture is a bird's-eye view, squeezed; its rows are kept in order and given period sizes (lots 125 ft deep, Main Street one surveyor's chain, 66 ft, wide; the rear alleys 20 ft). Lots are reservations ('x0', 'x1' along Main Street); what stands on them comes from the building lab's specs.",
+		"status": "DECIDED arrangement; PROPOSED metres",
+		"ground": {"plane": {"y0": 0.0, "gx": -0.006, "gz": -0.032}, "rect": {"x": [-175, 190], "z": [-125, 150]}, "blend": 60, "_doc": "The town stands on a gentle slope: down 1.5 m along Main Street's 250 m to the east, and down from the rail bench (+2.8) to the creek bank (-4): about 4 % across, as a creek-side town on its terrace."},
+		"main_street": {"z": 0, "width_between_fronts": 20.1, "boardwalk_depth": 2.4, "x": [-125, 130], "status": "DECIDED 250 m; PROPOSED width (66 ft; the old street is 16.8 m)"},
+		"ns_street": {"x": 0, "width": 15.2, "z": [-74.5, 160], "status": "DECIDED (one principal crossing); PROPOSED width (50 ft)"},
+		"back_street": {"z": [-54.25, -48.15], "x": [-125, 130], "status": "DECIDED (deliveries and access behind the north side)"},
+		"rear_lane": {"z": [48.15, 54.25], "x": [-125, 130], "status": "PROPOSED (behind the south side; the picture shows a lane there)"},
+		"lot_depth": 38.1,
+		"north": [
+			{"id": "lumber_yard", "name": "19 Lumber Yard", "x0": -119.2, "x1": -90.4, "kind": "yard", "px": [212, 356]},
+			{"id": "lane_n1", "name": "lane", "x0": -90.4, "x1": -87.6, "kind": "lane"},
+			{"id": "carpenter", "name": "18 Carpenter & Joiner", "x0": -87.6, "x1": -72.0, "kind": "building", "depth": 16, "px": [370, 448]},
+			{"id": "lane_n2", "name": "lane", "x0": -72.0, "x1": -69.6, "kind": "lane"},
+			{"id": "hardware", "name": "7 Hardware & Supply", "x0": -69.6, "x1": -54.6, "kind": "building", "depth": 18, "px": [460, 536]},
+			{"id": "gap_n3", "name": "shoulder to shoulder", "x0": -54.6, "x1": -54.3, "kind": "tight"},
+			{"id": "general_store", "name": "6 General Store / Grocer", "x0": -54.3, "x1": -37.4, "kind": "building", "depth": 20, "px": [544, 624]},
+			{"id": "alley_n4", "name": "Store alley", "x0": -37.4, "x1": -36.2, "kind": "alley"},
+			{"id": "bakery", "name": "8 Bakery", "x0": -36.2, "x1": -24.2, "kind": "building", "depth": 14, "px": [632, 688]},
+			{"id": "gap_n5", "name": "shoulder to shoulder", "x0": -24.2, "x1": -23.9, "kind": "tight"},
+			{"id": "butcher", "name": "9 Butcher", "x0": -23.9, "x1": -7.6, "kind": "building", "depth": 16, "px": [696, 772]},
+			{"id": "saloon", "name": "5 Saloon (The Salt Creek): the spec saloon on the corner", "x0": 7.6, "x1": 24.0, "kind": "building", "depth": 17.1, "px": [844, 926], "_doc": "experiments/building_lab/saloon.json: 15.24 x 17.07 m, its outside stair to 16.4 m; DECIDED: placed on its new lot unchanged"},
+			{"id": "saloon_annex", "name": "Saloon yard and annex (the picture draws the saloon about 27 m long)", "x0": 24.0, "x1": 34.4, "kind": "yard", "px": [926, 980], "status": "DECIDED (Sean, #700: the lot's east part is the saloon's yard)"},
+			{"id": "lane_saloon", "name": "Saloon lane (wagon width)", "x0": 34.4, "x1": 42.0, "kind": "lane"},
+			{"id": "hotel", "name": "10 Hotel (Salt Creek Hotel)", "x0": 42.0, "x1": 67.2, "kind": "building", "depth": 20, "px": [1018, 1144]},
+			{"id": "lane_n6", "name": "lane", "x0": 67.2, "x1": 70.8, "kind": "lane"},
+			{"id": "doctor", "name": "12 Doctor / Dispensary", "x0": 70.8, "x1": 87.2, "kind": "building", "depth": 16, "px": [1162, 1244]},
+			{"id": "alley_n7", "name": "Doctor's alley", "x0": 87.2, "x1": 88.4, "kind": "alley"},
+			{"id": "barber", "name": "13 Barber & Bathhouse", "x0": 88.4, "x1": 104.8, "kind": "building", "depth": 16, "px": [1250, 1332]},
+			{"id": "alley_n8", "name": "Undertaker's alley (junk: climb over)", "x0": 104.8, "x1": 106.0, "kind": "alley"},
+			{"id": "undertaker", "name": "14 Undertaker", "x0": 106.0, "x1": 128.0, "kind": "building", "depth": 18, "px": [1338, 1448]}
+		],
+		"south": [
+			{"id": "assay_office", "name": "Assay office (PROPOSED: the small building the picture draws at the west end, on the ore road)", "x0": -110.4, "x1": -101.2, "kind": "building", "depth": 9, "px": [256, 302], "status": "DECIDED (Sean, #700)"},
+			{"id": "yards_s0", "name": "yards and sheds", "x0": -101.2, "x1": -96.8, "kind": "yard"},
+			{"id": "blacksmith", "name": "15 Blacksmith & Farrier", "x0": -96.8, "x1": -72.0, "kind": "building", "depth": 16, "px": [324, 448]},
+			{"id": "lane_s1", "name": "Blacksmith's yard lane (wagon width)", "x0": -72.0, "x1": -64.8, "kind": "lane"},
+			{"id": "wagonwright", "name": "16 Wagonwright & Repair", "x0": -64.8, "x1": -43.6, "kind": "building", "depth": 16, "px": [484, 590]},
+			{"id": "vacant_s2", "name": "vacant lot (a shed at the back)", "x0": -43.6, "x1": -34.0, "kind": "vacant"},
+			{"id": "livery", "name": "17 Livery & Feed Stable", "x0": -34.0, "x1": -7.6, "kind": "building", "depth": 22, "px": [638, 770]},
+			{"id": "jail", "name": "11 Sheriff's Office & Jail (stone)", "x0": 7.6, "x1": 38.4, "kind": "building", "depth": 14, "px": [852, 1000], "status": "DECIDED stone (masonry lab #663; a rubble wall takes a bundle, #676)", "_doc": "The picture's office (+7.6..+32.8) and its cell wing (+32.8..+38.4); the back wall onto the rear lane is the jailbreak's."},
+			{"id": "bank", "name": "Bank (PROPOSED: brick, on the first house lot east of the jail; its rear wall on the rear lane)", "x0": 42.0, "x1": 52.0, "kind": "building", "depth": 14, "status": "DECIDED (Sean, #700)"},
+			{"id": "land_office", "name": "Land office (PROPOSED: the second house east of the jail as an office)", "x0": 60.0, "x1": 69.0, "kind": "building", "depth": 10, "status": "DECIDED (Sean, #700)"},
+			{"id": "houses_s", "name": "houses with gardens (as drawn)", "x0": 72.0, "x1": 128.0, "kind": "houses"}
+		],
+		"extras": [
+			{"id": "second_saloon", "name": "The Railroad Saloon (second, cheap; payday)", "at": [-42, -62], "w": 12, "d": 9, "status": "DECIDED (Sean, #700: between Back Street and the tracks, by the stock pens and team track)"},
+			{"id": "residential_s", "name": "the residential rows to the creek", "rows": [{"name": "first row (faces the rear lane)", "z": [54.25, 92.35]}, {"name": "Creek Street", "z": [92.35, 104.55], "street": true}, {"name": "second row (faces Creek Street, gardens down to the creek)", "z": [104.55, 142.65]}], "status": "DECIDED (Sean, 2026-11-08 on #700: a second row of housing); PROPOSED metres (Creek Street 40 ft, lots 125 ft)"},
+			{"id": "cistern", "name": "town cistern (the ditch's end)", "at": [30, 62], "status": "PROPOSED"}
+		]
+	}
+}
