@@ -34,7 +34,7 @@
    "id": "common_fir_drop", "code": "C2", "family": "wood", "class": "common", "approved": [],
    "name": "Planed fir drop siding",
    "layout": "horizontal", "board_w": 0.15, "board_t": 0.019, "nails": 2, "nail_at": 0.6,
-   "scans": {"a": {"id": "Wood063", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood058", "grain": "v", "metres": [1.2, 1.2]},
+   "scans": {"a": {"id": "Wood063", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood058", "grain": "u", "metres": [1.2, 1.2]},
              "b": {"id": "Wood062", "grain": "u", "metres": [1.6, 1.6]}},
    "tint_new": [1.0, 0.96, 0.9], "tint_mid": [0.86, 0.7, 0.52], "tint_old": [1.0, 1.0, 1.0],
    "grime": 0.75, "layer_new": 0.35, "sun_fade": 0.5, "streaks": 0.5, "joint_dirt": 0.5, "normal_strength": 0.7, "value_jitter": 0.11, "hue_jitter": 0.05
