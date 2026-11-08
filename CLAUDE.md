@@ -806,10 +806,12 @@ frozen until Sean names one.
   (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
   drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
   start). Waiting on Sean: #689 (taken away only out of sight?).
-- **The valley master plan** (#467 Phase 1, 2026-11-08, branch `claude/salt-creek-valley-plan-yd2ujv`):
-  `config/valley.json` (inert) + `tools/valley/valley_plan.py` (maps, tables, checks); the plan
-  `docs/briefs/valley-plan.md`. Sean answered #700 (2026-11-08: Harlan route A, trestle kept, two rows of
-  houses, cows maybe); next G1, the world switch and an empty valley scene, after the plan's PR merges.
+- **The valley** (#467; plan `docs/briefs/valley-plan.md`, data `config/valley.json`, tool
+  `tools/valley/valley_plan.py`; Sean's answers #700). **G1 merged** (#705, build 3440): `Settings.world`
+  town (default) | valley (`-- --world=valley`, the bridge's `world`), `ValleyLayout` (the file's reader),
+  `ValleyWorld` (an empty valley: a flat slab the envelope's size, the player at the crossroads facing
+  the sunset down Main Street); LAYOUT "src/world/town_layout.gd + config/town.json". Next: G2, the
+  baked ground (#709), waiting on Sean's pick of the ground technology (#706).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
