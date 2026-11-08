@@ -198,7 +198,11 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 			var rb := man.parts[sid] as RigidBody3D
 			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
 		await physics_frames(1)
-	await physics_frames(90)  # let go: the swipe ends
+	# Let go: the swipe ends once he's lain still for WoundSigns.SMEAR_STILL. How long he slides on
+	# after the drag moves with the tests before this one (in the full suite with the valley's ahead
+	# of it, ~0.7 s, and 90 frames ended 0.2 s short of it, #713): waited for, not counted.
+	await physics_frames(90)
+	await wait_until(func() -> bool: return not is_instance_valid(man.signs._smear_tail), 180)
 	var smears := _smears().slice(before)
 	check(smears.size() >= 2, "smears along where he was dragged (%d)" % smears.size())
 	if smears.size() < 2:
