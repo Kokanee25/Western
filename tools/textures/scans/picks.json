@@ -95,6 +95,21 @@
    "id": "sapele_veneer",
    "source": "polyhaven",
    "why": "sapele (African mahogany), variant"
+  },
+  {
+   "id": "Wood073",
+   "source": "ambientcg",
+   "why": "rough grey-brown, plain grain"
+  },
+  {
+   "id": "Wood079",
+   "source": "ambientcg",
+   "why": "rough pale, plain grain"
+  },
+  {
+   "id": "Wood089",
+   "source": "ambientcg",
+   "why": "rough grey weathered, plain grain"
   }
  ]
 }
