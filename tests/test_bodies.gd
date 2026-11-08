@@ -606,7 +606,10 @@ func _joint_bend(man: HumanBody, upper: StringName, lower: StringName) -> float:
 	return rad_to_deg((-a_part.global_basis.y).signed_angle_to(-b_part.global_basis.y, right))
 func test_skin_and_clothes_are_one_skinned_body() -> void:
 	check(man.skeleton != null, "a skeleton")
-	check_eq(man.skeleton.get_bone_count(), 17, "a bone per segment")
+	# A bone per segment first, then the fuller skeleton's 30 finger and 10 deform bones (#696).
+	check_eq(man.skeleton.get_bone_count(), 17 + 30 + DeformRig.NAMES.size(), "a bone per segment, fingers, clavicles, twists")
+	for i in 17:
+		check_eq(man.skeleton.get_bone_name(i), String(man.anatomy.segment_order()[i]), "bone %d is a segment's" % i)
 	for key in ["skin/chest", "skin/thigh_l", "skin/forearm_r", "skin/hand_r", "head/head", "shirt/chest", "vest/chest",
 			"trousers/pelvis", "boots/foot_r", "gun_belt/pelvis", "holster/pelvis", "hat/head", "hat_brim/head"]:
 		var mi: MeshInstance3D = man.skin_meshes.get(key)

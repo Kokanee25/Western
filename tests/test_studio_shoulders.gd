@@ -45,8 +45,9 @@ func test_with_his_hands_up_the_helper_takes_its_share_of_the_turn() -> void:
 	studio._apply_pose(0.0, true)
 	await physics_frames(40)
 	var sk: Skeleton3D = studio.skeleton
-	var chest := _move(sk, sk.find_bone("chest"))
 	for side in ["r", "l"]:
+		# From his clavicle (the fuller skeleton, #696: the helper turns from the shoulder girdle).
+		var chest := _move(sk, sk.find_bone("clavicle_" + side))
 		var arm := (chest.affine_inverse() * _move(sk, sk.find_bone("upper_arm_" + side))).basis
 		var helper := (chest.affine_inverse() * _move(sk, sk.find_bone("shoulder_" + side))).basis
 		# Each the shorter way round (a turn past 180 degrees reads the long way about the other axis).

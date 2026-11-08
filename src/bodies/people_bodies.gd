@@ -57,14 +57,18 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	var data := BodyMesh.build(anatomy, outfit, _hat_fits.get(model, {}))
 	var shapes: Dictionary = (data.shapes as Dictionary).duplicate()
 	var whole := _is_whole(model)
-	if whole:
+	# BodyMesh's lofts are the shared anatomy's shape: a man with his own proportions (#696) wears
+	# only what his model has.
+	if not anatomy.maps.is_empty() and not whole:
+		push_warning("PeopleBodies: %s has his own proportions but isn't whole: BodyMesh's clothes left off" % model)
+	if whole or not anatomy.maps.is_empty():
 		shapes.clear()
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
 	var textures := {}
 	for k: String in generated:
-		if k == "fingers":
+		if k == "fingers" or k.begins_with("_"):
 			continue
 		# His bandanas (tools/faces/bandana.py): the one over his face when he's masked, else the one
 		# at his neck if he wears a bandana; never both.
@@ -120,9 +124,12 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	# His skin tone, measured from his painted face, so body and painted sides match it.
 	var info := report(model)
 	# His skinned hands' finger bones (tools/blender/fit_tripo.py skinned_hands): each one's rest.
+	# Every man has the finger bones in his skeleton (#696); a man whose skin isn't weighted to them
+	# has them at the anatomy's fingers (HumanBody._add_finger_bones), drawn fingers on his hands.
+	out["finger_bone_names"] = finger_bone_names()
 	if info.has("finger_bones"):
 		out["finger_bones"] = info.finger_bones
-		out["finger_bone_names"] = finger_bone_names()
+	out["skeleton"] = generated.get("_skeleton", {})
 	if info.has("skin_tone"):
 		var t: Array = info.skin_tone
 		out["skin_tone"] = Color(t[0], t[1], t[2])
@@ -133,16 +140,19 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	return out
 
 
-## Where his shoulder helpers' binds are (after the anatomy's bones and his finger bones), or -1
-## for a man without them (shoulder_share 0, not the Studio's, or an anatomy not loaded).
+## Where his shoulder helpers' binds are (after the anatomy's bones, the finger bones and the
+## deform bones, DeformRig), or -1 for a man without them (shoulder_share 0, not the Studio's, his
+## model weighted to its own clavicles, or an anatomy not loaded).
 static func _shoulder_bind(model: StringName, anatomy: Anatomy) -> int:
 	var info := report(model)
 	if shoulder_share <= 0.0 or not String(info.get("made_by", "")).contains("Character Studio"):
 		return -1
+	if bool((info.get("skeleton", {}) as Dictionary).get("clavicle", false)) if info.get("skeleton") is Dictionary else false:
+		return -1
 	for sid: StringName in [&"chest", &"upper_arm_r", &"upper_arm_l"]:
 		if not anatomy.segments.has(sid):
 			return -1
-	return anatomy.segment_order().size() + (finger_bone_names().size() if info.has("finger_bones") else 0)
+	return DeformRig.first_bind(anatomy) + DeformRig.NAMES.size()
 
 
 ## Each vertex blended between his chest and an upper arm (f of the way to the arm) blended instead
@@ -205,13 +215,16 @@ static func add_shoulders(skeleton: Skeleton3D, skin: Skin, data: Dictionary, bo
 	var chest := bone_parts.find(&"chest")
 	for k in 2:
 		var e := ShoulderBone.new()
+		# From his clavicle (DeformRig, posed before these) where his skeleton has one: the helper
+		# then carries the shoulder girdle's rise into the blend, not his chest's.
+		var clav := skeleton.find_bone("clavicle_" + ("r" if k == 0 else "l"))
 		e.pivot = sh.pivots[k]
 		e.rest = Transform3D(Basis.IDENTITY, e.pivot)
 		e.bone = skeleton.get_bone_count()
 		skeleton.add_bone("shoulder_" + ("r" if k == 0 else "l"))
 		skeleton.set_bone_rest(e.bone, e.rest)
 		skin.add_bind(e.bone, e.rest.affine_inverse())
-		e.chest = chest
+		e.chest = clav if clav >= 0 else chest
 		e.arm = bone_parts.find(&"upper_arm_r" if k == 0 else &"upper_arm_l")
 		e.chest_unrest = skeleton.get_bone_rest(e.chest).affine_inverse()
 		e.arm_unrest = skeleton.get_bone_rest(e.arm).affine_inverse()
@@ -220,8 +233,9 @@ static func add_shoulders(skeleton: Skeleton3D, skin: Skin, data: Dictionary, bo
 	return out
 
 
-## Each helper turned its share of the way from his chest's move to his upper arm's, about the
-## shoulder joint (his chest and arms are root bones: their poses are in the skeleton's space).
+## Each helper turned its share of the way from his chest's (or clavicle's) move to his upper arm's,
+## about the shoulder joint (his chest, clavicles and arms are root bones: their poses are in the
+## skeleton's space).
 static func pose_shoulders(skeleton: Skeleton3D, rig: Array[ShoulderBone]) -> void:
 	for e in rig:
 		var mc := skeleton.get_bone_pose(e.chest) * e.chest_unrest
@@ -277,10 +291,19 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	for k in names.size():
 		index[StringName(names[k])] = order.size() + k
 		piece_of[order.size() + k] = index.get(StringName("hand_" + String(names[k]).split("_")[2]), 0)
+	# The deform bones (DeformRig, #696) after them, each cut into its segment's piece.
+	var deform := DeformRig.bind_index(anatomy)
+	for n: StringName in deform:
+		index[n] = deform[n]
+		piece_of[deform[n]] = index.get(DeformRig.PART_OF[n], 0)
 	var centres := {}
 	for i in order.size():
 		centres[i] = anatomy.segment_center(order[i])
 	var helper_bind := _shoulder_bind(model, anatomy)
+	# Read every mesh first: whether his model has weights of its own for the deform bones (and his
+	# fingers) is the whole model's, not a mesh's.
+	var meshes := []
+	var own := {"clavicle": false, "twist": false, "fingers": false}
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
 		var shape := String(mi.name).to_lower().trim_prefix("body_").trim_prefix("cloth_")
 		if mi.mesh == null:
@@ -332,6 +355,24 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 					bones[v * 4 + k] = pairs[k][0]
 					weights[v * 4 + k] = float(pairs[k][1]) / total
 		var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		var has := DeformRig.has_own(bones, weights, anatomy)
+		own.clavicle = own.clavicle or has.clavicle
+		own.twist = own.twist or has.twist
+		for i in bones.size():
+			if weights[i] > 0.0 and bones[i] >= order.size() and bones[i] < order.size() + names.size():
+				own.fingers = true
+				break
+		meshes.append([mi, shape, verts, normals, uvs, bones, weights, tris, xf])
+	for m: Array in meshes:
+		var mi: MeshInstance3D = m[0]
+		var shape: String = m[1]
+		var verts: PackedVector3Array = m[2]
+		var normals: PackedVector3Array = m[3]
+		var uvs: PackedVector2Array = m[4]
+		var bones: PackedInt32Array = m[5]
+		var weights: PackedFloat32Array = m[6]
+		var tris: PackedInt32Array = m[7]
+		var xf: Transform3D = m[8]
 		# His face's expressions (tools/faces/talking_face.py), carried into his pieces: each the
 		# whole mesh's vertices in that expression.
 		var blends := {}
@@ -343,17 +384,20 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 				for i in bv.size():
 					bv[i] = xf * bv[i]
 				blends[am.get_blend_shape_name(k)] = bv
-		# His shoulder blends spread over his shoulder helpers; his pieces still cut by his own weights.
+		# His shoulder blends spread over his shoulder helpers, his chest's over his clavicles and his
+		# limbs' along their twist bones where his model has none of its own (DeformRig.spread); his
+		# pieces still cut by his own weights.
+		var sb := bones.duplicate()
+		var sw := weights.duplicate()
 		if helper_bind >= 0:
-			var sb := bones.duplicate()
-			var sw := weights.duplicate()
 			_spread_shoulders(sb, sw, index, helper_bind)
-			out[shape] = BodyMesh.split_pieces(verts, normals, uvs, sb, sw, tris, centres, piece_of, blends, bones, weights)
-		else:
-			out[shape] = BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres, piece_of, blends)
+		if not own.clavicle or not own.twist:
+			DeformRig.spread(verts, sb, sw, anatomy, not own.clavicle, not own.twist)
+		out[shape] = BodyMesh.split_pieces(verts, normals, uvs, sb, sw, tris, centres, piece_of, blends, bones, weights)
 		if shape == "head":
 			_hat_fits[model] = hat_fit(verts)
 	root.free()
+	out["_skeleton"] = own
 	_cache[key] = out
 	return out
 
@@ -366,6 +410,30 @@ static func finger_bone_names() -> Array:
 		for f in ["thumb", "index", "middle", "ring", "little"]:
 			for b in 3:
 				out.append("finger_%s_%s_%d" % [f, side, b])
+	return out
+
+
+## The finger bones' rests at the anatomy's fingers (a man whose model has none of its own: the
+## drawn fingers' joints, HumanBody._build_hand's bones), in the report's form: name -> {origin,
+## basis (rows: the bone's x, y, z; +Y back up the finger, as HumanBody._along)}.
+static func anatomy_finger_bones(anatomy: Anatomy) -> Dictionary:
+	var out := {}
+	var lengths := [0.0, 0.42, 0.75]
+	for name: String in finger_bone_names():
+		var bits := name.split("_")   # finger, <finger>, <side>, <bone>
+		var st := anatomy.structure(StringName("%s_%s" % [bits[1], bits[2]]))
+		if st.is_empty():
+			return {}
+		var a: Vector3 = st.a
+		var b: Vector3 = st.b
+		var o := a + (b - a) * float(lengths[int(bits[3])])
+		# HumanBody._along (not named: a `-s` script compiles this before the autoloads it needs).
+		var y := (a - b).normalized()
+		var ref := Vector3.FORWARD if absf(y.dot(Vector3.FORWARD)) < 0.9 else Vector3.RIGHT
+		var x := ref.cross(y).normalized()
+		var basis := Basis(x, y, x.cross(y).normalized())
+		out[name] = {"origin": [o.x, o.y, o.z], "basis": [[basis.x.x, basis.x.y, basis.x.z],
+				[basis.y.x, basis.y.y, basis.y.z], [basis.z.x, basis.z.y, basis.z.z]]}
 	return out
 
 
