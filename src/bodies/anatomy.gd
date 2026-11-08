@@ -32,6 +32,113 @@ static func shared() -> Anatomy:
 	return _shared
 
 
+## A man's own proportions (#696): segment -> the rest-space map from the shared anatomy's to his
+## (his joints where his model has them; empty for the shared anatomy and anyone made to it).
+var maps := {}
+## What fitting him did: per segment its length ratio, its ends' shifts (cm) and what was held to
+## SkeletonTuning's limits.
+var fit_report := {}
+static var _fitted := {}
+
+
+## The anatomy for a man's model: the shared one, or (his report's `proportions`, the Character
+## Studio's men with their own bone lengths) the shared one fitted to his joints, once a model.
+static func for_model(model: StringName) -> Anatomy:
+	if model == &"":
+		return shared()
+	if _fitted.has(model):
+		return _fitted[model]
+	var ends: Variant = PeopleBodies.report(model).get("proportions", {})
+	var out := shared() if not ends is Dictionary or (ends as Dictionary).is_empty() else shared().fitted(ends)
+	_fitted[model] = out
+	return out
+
+
+## A copy fitted to one man's proportions. `ends`: segment -> {"a": [x, y, z], "b": [x, y, z]}, his
+## segment's ends in the same rest pose and frame (a segment not given stays as it is). Each
+## segment's map takes its shared ends a, b to his: moved, turned and stretched along its length
+## (not across: its girth stays, as its capsules' radii do), each held within SkeletonTuning's
+## limits (length ratio, ends' shift, turn). Its capsules (the hitboxes) and the structures in it
+## (bones, arteries, organs, fingers) move with it, so a man is never stretched to fit the game.
+func fitted(ends: Dictionary, tuning: SkeletonTuning = null) -> Anatomy:
+	var t := tuning if tuning != null else SkeletonTuning.shared()
+	var out := Anatomy.new()
+	out.height = height
+	out.flesh_resistance = flesh_resistance
+	for sid: StringName in segments:
+		var s: Dictionary = segments[sid]
+		var m := Transform3D.IDENTITY
+		if ends.has(String(sid)) or ends.has(sid):
+			var e: Dictionary = ends.get(String(sid), ends.get(sid))
+			m = _segment_map(sid, s.a, s.b, _v(e.a), _v(e.b), t, out.fit_report)
+		out.maps[sid] = m
+		var caps: Array = []
+		for c: Array in s.capsules:
+			caps.append([m * (c[0] as Vector3), m * (c[1] as Vector3), float(c[2])])
+		out.segments[sid] = {"a": caps[0][0], "b": caps[0][1], "radius": caps[0][2], "capsules": caps,
+				"parent": s.parent}
+		out.by_segment[sid] = []
+	for st: Dictionary in structures:
+		var c := st.duplicate()
+		var m: Transform3D = out.maps.get(st.segment, Transform3D.IDENTITY)
+		c.a = m * (st.a as Vector3)
+		c.b = m * (st.b as Vector3)
+		out.structures.append(c)
+		if out.by_segment.has(c.segment):
+			out.by_segment[c.segment].append(c)
+	# His height: the top of his head as it maps.
+	if out.maps.has(&"head"):
+		out.height = (out.maps[&"head"] as Transform3D * Vector3(0.0, height, 0.0)).y
+	return out
+
+
+## One segment's map, shared ends (a0, b0) to his (a1, b1), within the limits; what was held is
+## noted in `rep`.
+static func _segment_map(sid: StringName, a0: Vector3, b0: Vector3, a1: Vector3, b1: Vector3, t: SkeletonTuning,
+		rep: Dictionary) -> Transform3D:
+	var held: Array = []
+	var shift := a1 - a0
+	if shift.length() > t.end_shift_max:
+		shift = shift.normalized() * t.end_shift_max
+		held.append("shift")
+	var d0 := b0 - a0
+	var d1 := b1 - a1
+	var k := d1.length() / maxf(d0.length(), 1e-6)
+	var kc := clampf(k, t.length_min, t.length_max)
+	if kc != k:
+		held.append("length")
+	var turn := Quaternion.IDENTITY
+	if d0.length() > 1e-6 and d1.length() > 1e-6:
+		var angle := d0.angle_to(d1)
+		var axis := d0.cross(d1)
+		if axis.length() > 1e-9 and angle > 1e-6:
+			var limit := deg_to_rad(t.turn_max)
+			if angle > limit:
+				held.append("turn")
+				angle = limit
+			turn = Quaternion(axis.normalized(), angle)
+	# Stretch along the shared axis (by kc), turn, then move a0 to its new place.
+	var u := d0.normalized() if d0.length() > 1e-6 else Vector3.UP
+	var stretch := Basis.IDENTITY
+	for i in 3:
+		var e := Vector3.ZERO
+		e[i] = 1.0
+		stretch[i] = e + u * (u.dot(e) * (kc - 1.0))
+	var basis := Basis(turn) * stretch
+	var a_new := a0 + shift
+	rep[String(sid)] = {"length": snappedf(kc, 0.001), "shift_cm": snappedf((a_new - a0).length() * 100.0, 0.1),
+			"end_cm": snappedf(((a_new + basis * d0) - b0).length() * 100.0, 0.1), "held": held}
+	return Transform3D(basis, a_new - basis * a0)
+
+
+## A point given in the shared anatomy's rest pose (a gun's grip, a mouth) where it is on this man:
+## moved with its segment's map (the shared anatomy: as it is).
+func rest_point(segment: StringName, p: Vector3) -> Vector3:
+	if maps.is_empty():
+		return p
+	return (maps.get(segment, Transform3D.IDENTITY) as Transform3D) * p
+
+
 func load_file(path: String) -> void:
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary:
