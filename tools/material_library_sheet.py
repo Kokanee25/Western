@@ -19,6 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AGE = {"new": ("N", "new"), "few": ("F", "a few years"), "old": ("O", "old")}
 COL_NAMES = {"noon_far": "noon, 5 m", "noon_near": "noon, 1 m", "golden_far": "golden hour, 5 m",
              "golden_near": "golden hour, 1 m", "saloon_far": "night inside, 5 m", "saloon_near": "night inside, 1 m",
+             "noon_rail": "the bar rail, noon", "golden_rail": "the bar rail, golden", "saloon_rail": "the bar rail, night",
              "long_angle": "6 m, at an angle", "long_square": "7.5 m, square on", "rake": "raking, along the wall",
              "near": "1 m"}
 
@@ -41,7 +42,8 @@ def sheet(src, family, out, cols=None, cell=(384, 216), title=None):
     lib = codes()
     panels = nums["panels"]
     if cols is None:
-        cols = ["noon_far", "noon_near", "golden_far", "golden_near", "saloon_far", "saloon_near"]
+        cols = ["noon_far", "noon_near", "golden_far", "golden_near", "saloon_far", "saloon_near",
+                "noon_rail", "saloon_rail"]
         cols = [c for c in cols if any(os.path.exists(os.path.join(fam, p["name"], c + ".png")) for p in panels)]
     label_w, head_h, row_gap = 230, 74, 6
     W = label_w + len(cols) * cell[0]

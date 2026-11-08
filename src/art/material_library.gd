@@ -19,7 +19,7 @@ const PATH := "res://config/material_library.json"
 const SCANS := "res://assets/textures/scans/"
 const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "roughness_add",
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
-		"specular_wood", "saw_marks"]
+		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D

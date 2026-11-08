@@ -18,16 +18,17 @@ const FLOOR_Y := 0.03
 const SHADER := preload("res://src/render/scan_wood.gdshader")
 const SCANS := "res://assets/textures/scans/"
 
-## The class's numbers (#695's classes; part 5's warp and gaps by class and age). Gaps in metres
+## The class's numbers (#695's classes; part 5's warp and gaps by class and age; Sean, #718:
+## more warp and gaps on old boards, fine and new boards nearly true). Gaps in metres
 ## at new / a few years / old; size variance as a share of the width; thickness in metres.
 const CLASSES := {
-	&"rough": {"warp": [0.35, 0.7, 1.0], "gap": [0.002, 0.006, 0.011], "width_var": 0.08, "thick_var": 0.002,
-			"ends": 0.04, "floor": {"w": 0.25, "t": 0.04, "gap": [0.006, 0.009, 0.014]},
+	&"rough": {"warp": [0.3, 0.85, 1.6], "gap": [0.002, 0.007, 0.017], "width_var": 0.08, "thick_var": 0.002,
+			"ends": 0.04, "floor": {"w": 0.25, "t": 0.04, "gap": [0.006, 0.01, 0.019]},
 			"rail": {"post": Vector2(0.1, 0.1), "rail": Vector2(0.1, 0.05), "h": 0.95}},
-	&"common": {"warp": [0.2, 0.45, 0.75], "gap": [0.0008, 0.002, 0.004], "width_var": 0.05, "thick_var": 0.0012,
-			"ends": 0.0, "floor": {"w": 0.14, "t": 0.03, "gap": [0.003, 0.005, 0.008]},
+	&"common": {"warp": [0.12, 0.55, 1.2], "gap": [0.0006, 0.0025, 0.007], "width_var": 0.05, "thick_var": 0.0012,
+			"ends": 0.0, "floor": {"w": 0.14, "t": 0.03, "gap": [0.003, 0.006, 0.011]},
 			"rail": {"post": Vector2(0.14, 0.14), "rail": Vector2(0.14, 0.045), "h": 0.95}},
-	&"fine": {"warp": [0.04, 0.1, 0.22], "gap": [0.0003, 0.0007, 0.0015], "width_var": 0.015, "thick_var": 0.0003,
+	&"fine": {"warp": [0.03, 0.08, 0.22], "gap": [0.0003, 0.0006, 0.0015], "width_var": 0.015, "thick_var": 0.0003,
 			"ends": 0.0, "floor": {"w": 0.075, "t": 0.02, "gap": [0.0004, 0.001, 0.002]},
 			"rail": {"post": Vector2(0.1, 0.1), "rail": Vector2(0.075, 0.06), "h": 1.07}},
 }
@@ -172,12 +173,13 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 		_board(r, Transform3D(up, Vector3(px, 0.0, -FLOOR_D + 0.05)), h - rail.y, post.x, post.y, warp * 0.5, Vector2.ZERO, &"rail")
 	# The rail flat on the posts: along X, its face up.
 	var flat := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
-	_board(r, Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05)), wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail")
+	# (its role 1: a bar's rail top, where varnished: glass rings and elbows)
+	_board(r, Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05)), wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
 
 
-func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName) -> void:
+func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0) -> void:
 	var mi := MeshInstance3D.new()
-	mi.mesh = board_mesh(length, width, thick, _rng.randf(), warp, nails, global_position.y if is_inside_tree() else 0.0)
+	mi.mesh = board_mesh(length, width, thick, _rng.randf(), warp, nails, global_position.y if is_inside_tree() else 0.0, kind)
 	mi.material_override = _material(role)
 	mi.transform = xf
 	parent.add_child(mi)
@@ -199,7 +201,7 @@ func _material(role: StringName) -> ShaderMaterial:
 ## One board's mesh: a box in its own frame (X along 0..length, Y across, Z through, the shown face
 ## +Z), its long faces cut in a grid fine enough for the vertex shader's warp, every vertex carrying
 ## the board's seed and where it is on the board (scan_wood.gdshader's CUSTOM0-2).
-static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails := Vector2.ZERO, ground_y := 0.0) -> ArrayMesh:
+static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails := Vector2.ZERO, ground_y := 0.0, kind := 0.0) -> ArrayMesh:
 	var nx := clampi(ceili(length / 0.1), 4, 40)
 	var ny := 4
 	var v := PackedVector3Array()
@@ -229,7 +231,7 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 					uv.append(Vector2(p.x, p.y))
 				c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / hw, -1.0, 1.0), face])
 				c1.append_array([length, width, thick, warp])
-				c2.append_array([nails.x, nails.y, ground_y, 0.0])
+				c2.append_array([nails.x, nails.y, ground_y, kind])
 		for j in nv:
 			for i in nu:
 				var a := base + j * (nu + 1) + i

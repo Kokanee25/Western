@@ -46,7 +46,7 @@
    "scans": {"a": {"id": "oak_veneer_01", "grain": "v"}, "a2": {"id": "red_oak_veneer", "grain": "u"}},
    "tint_new": [0.89, 0.76, 0.57], "tint_mid": [0.82, 0.68, 0.5], "tint_old": [1.0, 1.0, 1.0],
    "weathering": 0.0, "varnish": 0.85, "varnish_amber": [0.88, 0.74, 0.56], "specular_wood": 0.45,
-   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.07, "normal_strength": 0.8,
+   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.55, "value_jitter": 0.07, "normal_strength": 0.8,
    "floor": {"varnish": 0.5}
   },
   {
@@ -54,9 +54,9 @@
    "name": "Black walnut, narrow tongue and groove, varnished",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0,
    "scans": {"a": {"id": "Wood051", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "black_walnut_veneer_02", "grain": "u"}},
-   "tint_new": [2.2, 1.8, 1.35], "tint_mid": [2.0, 1.6, 1.2], "tint_old": [1.0, 1.0, 1.0],
+   "tint_new": [1.37, 1.04, 0.77], "tint_mid": [1.25, 0.94, 0.7], "tint_old": [1.0, 1.0, 1.0],
    "weathering": 0.0, "varnish": 0.9, "varnish_amber": [0.9, 0.8, 0.66], "specular_wood": 0.45,
-   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.07, "normal_strength": 0.8,
+   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.55, "value_jitter": 0.07, "normal_strength": 0.8,
    "floor": {"varnish": 0.5}
   },
   {
@@ -64,9 +64,9 @@
    "name": "Cherry, narrow tongue and groove, varnished",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0,
    "scans": {"a": {"id": "Wood081", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood015", "grain": "u", "metres": [1.2, 1.2]}},
-   "tint_new": [0.86, 0.66, 0.52], "tint_mid": [0.78, 0.56, 0.42], "tint_old": [1.0, 1.0, 1.0],
-   "weathering": 0.0, "varnish": 0.9, "varnish_amber": [0.84, 0.6, 0.4], "specular_wood": 0.45,
-   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.07, "normal_strength": 0.8,
+   "tint_new": [0.7, 0.61, 0.63], "tint_mid": [0.64, 0.54, 0.54], "tint_old": [1.0, 1.0, 1.0],
+   "weathering": 0.0, "varnish": 0.9, "varnish_amber": [0.9, 0.8, 0.68], "specular_wood": 0.45,
+   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.55, "value_jitter": 0.07, "normal_strength": 0.8,
    "floor": {"varnish": 0.5}
   },
   {
@@ -74,9 +74,9 @@
    "name": "Mahogany, narrow tongue and groove, varnished (the richest bar)",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0,
    "scans": {"a": {"id": "sapele_veneer", "grain": "v"}, "a2": {"id": "Wood009", "grain": "v", "metres": [1.2, 1.2]}},
-   "tint_new": [0.55, 0.4, 0.34], "tint_mid": [0.5, 0.36, 0.3], "tint_old": [1.0, 1.0, 1.0],
-   "weathering": 0.0, "varnish": 0.95, "varnish_amber": [0.86, 0.64, 0.46], "specular_wood": 0.5,
-   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.07, "normal_strength": 0.8,
+   "tint_new": [0.36, 0.24, 0.27], "tint_mid": [0.33, 0.21, 0.23], "tint_old": [1.0, 1.0, 1.0],
+   "weathering": 0.0, "varnish": 0.95, "varnish_amber": [0.9, 0.78, 0.66], "specular_wood": 0.5,
+   "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.55, "value_jitter": 0.07, "normal_strength": 0.8,
    "floor": {"varnish": 0.5}
   }
  ]

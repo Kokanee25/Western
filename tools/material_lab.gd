@@ -507,6 +507,8 @@ const PANEL_VIEWS := {
 	"far": [Vector3(1.35, 1.6, -5.0), Vector3(1.25, 1.0, 0.0), 42.0],
 	"near": [Vector3(1.05, 1.35, -1.05), Vector3(1.0, 0.85, 0.0), 50.0],
 }
+## The fine woods add the bar's rail from above, where hands and glasses go (Sean, #718).
+const RAIL_VIEW := [Vector3(1.0, 1.6, -1.9), Vector3(1.05, 1.07, -1.15), 45.0]
 ## The long wall (part 1): from 6 m at an angle, and square on.
 const LONG_VIEWS := {
 	"long_angle": [Vector3(-1.5, 1.6, -5.0), Vector3(6.0, 1.0, 0.0), 50.0],
@@ -680,7 +682,12 @@ func _panel_specs(ml, family: String) -> Array:
 		if not _panel_entries.is_empty() and not _panel_entries.has(e["id"]):
 			continue
 		for age in _panel_ages:
-			out.append({"entry": e, "age": age, "name": "%s_%s" % [e["id"], age], "seed": i})
+			var spec := {"entry": e, "age": age, "name": "%s_%s" % [e["id"], age], "seed": i}
+			if String(e.get("class", "")) == "fine":
+				var v := PANEL_VIEWS.duplicate()
+				v["rail"] = RAIL_VIEW
+				spec["views"] = v
+			out.append(spec)
 			i += 1
 	return out
 

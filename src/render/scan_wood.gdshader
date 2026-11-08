@@ -6,7 +6,8 @@ shader_type spatial;
 // [0, L], Y across its face [-W/2, W/2], Z through it (the face it shows is +Z). Its vertices carry
 //   CUSTOM0 = (seed in [0, 1), x / L, 2y / W, face: 0 a long face, 1 an end (end grain), 2 an edge)
 //   CUSTOM1 = (L, W, T, warp: how far this board twists, cups, bows and crooks, 0 true .. 1 an old shed's)
-//   CUSTOM2 = (nail rows: 0, 1 or 2; their place across the face, 0..1 of the half width; ground y; unused)
+//   CUSTOM2 = (nail rows: 0, 1 or 2; their place across the face, 0..1 of the half width; ground y;
+//              role: 0 a board, 1 a bar's rail top: glass rings and elbow wear where it's varnished)
 // so a batch of boards draws the same as the boards one by one (part 5: in the vertex shader, from a
 // seed, not unique meshes). Its collision is still its plain box.
 //
@@ -86,6 +87,7 @@ varying vec3 v_world;
 varying vec3 v_wnormal;
 varying float v_ground;
 varying vec2 v_nails;
+varying float v_role;
 varying float v_width;
 varying vec3 v_axis;   // the board's length in the world
 varying vec3 v_yaxis;  // across its face in the world
@@ -118,7 +120,7 @@ void vertex() {
 	float lift_on = step(0.55, rnd(seed, 5.0)) * warp;
 	float lift_end = sign(rnd(seed, 6.0) + 0.001);
 	float lift_side = sign(rnd(seed, 7.0) + 0.001);
-	float lift = 0.006 * lift_on;
+	float lift = 0.009 * lift_on;
 	float corner = smoothstep(0.6, 1.0, a * lift_end) * smoothstep(0.0, 1.0, w * lift_side);
 	float dz = bow * (1.0 - a * a) + cup * (w * w) + twist * a * w + lift * corner;
 	float dy = crook * (1.0 - a * a);
@@ -144,6 +146,7 @@ void vertex() {
 	v_wnormal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	v_ground = CUSTOM2.z;
 	v_nails = CUSTOM2.xy;
+	v_role = CUSTOM2.w;
 }
 
 // A scan sampled at metres `m` (along the grain, across it) with this board's offset and flips;
@@ -158,6 +161,10 @@ vec2 scan_uv(vec2 m, vec2 tile, bool grain_v, float seed, float k, out vec2 flip
 // Fine relief and roughness sampled a mip softer: at a metre, full-detail scan normals came out as
 // single-pixel speckle (the cheap judge, 2026-11-08: "digital noise rather than wood fibre").
 uniform float detail_bias = 1.0;
+// The weathered scan's colour a mip softer too: its fine fleck read as burlap and tweed at a metre
+// (the judge, 2026-11-08); long silvered grain and checks along the board take its place.
+uniform float weathered_bias = 1.0;
+uniform float weathered_grain = 1.0;
 
 vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
 	vec3 n = texture(tex, uv, detail_bias).rgb * 2.0 - 1.0;
@@ -204,11 +211,11 @@ void fragment() {
 		float d = length(dv);
 		float pitch = 0.0055 + 0.001 * rnd(seed, 62.0);
 		float fw = fwidth(d) / pitch;
-		float amp = saw_marks * (1.0 - smoothstep(0.25, 0.7, fw)) * (1.0 - 0.6 * ag);
+		float amp = saw_marks * (1.0 - smoothstep(0.2, 0.55, fw)) * (1.0 - 0.9 * ag);
 		float ph = d / pitch * 6.2831853;
-		col *= 1.0 + 0.07 * amp * sin(ph);
+		col *= 1.0 + 0.035 * amp * sin(ph);
 		vec2 g = dv / max(d, 1e-4);
-		nrm.xy += g * cos(ph) * 0.18 * amp;
+		nrm.xy += g * cos(ph) * 0.08 * amp;
 	}
 	col *= mix(tint_new, tint_mid, smoothstep(0.0, 0.5, ag));
 	// Per board: value and a warm-cool shift.
@@ -232,12 +239,20 @@ void fragment() {
 		if (wx > 0.001) {
 			vec2 fb;
 			vec2 uvb = scan_uv(m, tile_b, grain_v_b, seed, 2.0, fb);
-			vec3 colb = texture(albedo_b, uvb).rgb * tint_old;
+			vec3 colb = texture(albedo_b, uvb, weathered_bias).rgb * tint_old;
+			// Long grain lines and checks (drying cracks) along the board, faded before they alias.
+			if (face < 0.5 && weathered_grain > 0.0) {
+				float fade = 1.0 - smoothstep(0.3, 1.0, fwidth(v_m.y) / 0.003);
+				float gl = texture(big_noise, vec2(v_m.x / 0.9 + seed * 7.0, v_m.y / 0.006)).r;
+				colb *= mix(1.0, 0.82 + 0.36 * gl, weathered_grain * fade);
+				float ck = smoothstep(0.86, 0.93, texture(big_noise, vec2(v_m.x / 0.5 + seed * 3.0, v_m.y / 0.0025) + 0.5).r);
+				colb *= 1.0 - 0.45 * ck * weathered_grain * fade * wx;
+			}
 			colb *= 1.0 + value_jitter * variety * rnd(seed, 34.0);
 			vec3 nb = scan_normal(normal_b, uvb, fb, grain_v_b);
 			float rb = texture(rough_b, uvb, detail_bias).r;
 			col = mix(col, colb, wx);
-			nrm = normalize(mix(nrm, nb, wx * 0.7));
+			nrm = normalize(mix(nrm, nb, wx * 0.5));
 			rough = mix(rough, rb, wx);
 		}
 	}
@@ -269,15 +284,44 @@ void fragment() {
 		rough = max(rough, 0.85);
 	}
 
-	// Varnish: amber deepening with ag, worn dull and then through where hands rub and at edges.
+	// Varnish: amber deepening with age, worn dull and then through where hands rub (the hand band,
+	// its edges most); old varnish darkened and crazed. A board's edge faces sit inside a tight joint:
+	// dark, no coat (they caught the sky as pale dashes, the judge 2026-11-08).
 	float wear = 0.0;
+	bool edge_face = face > 1.5;
+	float rings = 0.0;
 	if (varnish > 0.0) {
 		float band = smoothstep(wear_band.x - 0.1, wear_band.x, hgt) * (1.0 - smoothstep(wear_band.y, wear_band.y + 0.1, hgt));
-		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 1.0;
-		wear = clamp(ag * (0.6 * band * (0.6 + 0.4 * n2) + 0.5 * edge * band + 0.25 * edge), 0.0, 1.0);
+		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 0.0;
+		wear = ag * band * (0.6 * (0.6 + 0.4 * n2) + 0.5 * edge);
+		// The bar's rail top: elbows every stool's width, and glass rings.
+		if (v_role > 0.5 && face < 0.5 && v_wnormal.y > 0.7) {
+			float ek = fract(v_m.x / 0.75 + hash11(seed * 91.0));
+			float elbow = (1.0 - smoothstep(0.0, 0.3, abs(ek - 0.5))) * (0.7 + 0.3 * n2);
+			wear += elbow * (0.15 + 0.85 * ag);
+			float kr = floor(v_m.x / 0.3);
+			vec2 cr = vec2((kr + 0.5) * 0.3 + rnd(seed, 80.0 + kr) * 0.09, rnd(seed, 81.0 + kr) * 0.01);
+			vec2 dr = v_m - cr;
+			float rr = 0.03 + 0.008 * rnd(seed, 82.0 + kr);
+			float arc = smoothstep(-0.4, 0.5, sin(atan(dr.y, dr.x) + rnd(seed, 83.0 + kr) * 3.0));
+			float here = step(-0.2, rnd(seed, 84.0 + kr));
+			rings = here * arc * (1.0 - smoothstep(0.0012, 0.003, abs(length(dr) - rr))) * (0.25 + 0.75 * ag);
+		}
+		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
-		// Worn through: paler raw wood.
+		// Old varnish darkens, and crazes into fine cracks.
+		col *= mix(1.0, 0.72, varnish * smoothstep(0.5, 1.0, ag));
+		float cz = abs(texture(big_noise, v_m * 2.2 + seed * 5.0).r - 0.5);
+		float czw = fwidth(texture(big_noise, v_m * 2.2 + seed * 5.0).r);
+		float craze = (1.0 - smoothstep(0.0, 0.012 + czw, cz)) * smoothstep(0.6, 1.0, ag) * (1.0 - smoothstep(0.02, 0.08, czw));
+		col *= 1.0 - 0.3 * craze * varnish;
+		// Worn through: paler raw wood; glass rings a pale haze in the coat.
 		col = mix(col, col * 1.35 + 0.02, varnish * smoothstep(0.55, 0.95, wear) * 0.6);
+		col = mix(col, col * 1.45 + 0.03, rings * 0.55);
+		wear = max(wear, craze * 0.5);
+		if (edge_face) {
+			col *= 0.55;
+		}
 	}
 
 	// Nails: heads not quite in a line (the studs' 16 in), rusting and streaking with ag.
@@ -315,9 +359,9 @@ void fragment() {
 
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = clamp(rough + roughness_add + 0.18 * ag * (1.0 - varnish) - nail * 0.2, 0.05, 1.0);
-	SPECULAR = mix(specular_wood, 0.5, varnish);
+	SPECULAR = edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
-	CLEARCOAT = varnish * (1.0 - smoothstep(0.5, 1.0, wear));
-	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25, 0.0, 1.0));
+	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear));
+	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings, 0.0, 1.0));
 }
