@@ -93,6 +93,8 @@ const VIEWS := [
 	# Roadmap 1.2's street half (art, 2026-10-15): the seated man's model (--model=) standing in
 	# the street at golden hour, the low sun behind you, framed on his face; --face-probe finds him.
 	["face_street_golden", 17.6, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
+	# The same at noon (art, #641: the real look's day exposure judged on a face under a high sun).
+	["face_street_noon", 12.5, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
 	# The road (art, 2026-10-15, docs/briefs/road.md): low and down the ruts toward the low sun, as
 	# Sean's road target is (docs/concept/targets/6_road_target.jpg), at golden hour and at noon.
 	["road_low_golden", 17.6, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
