@@ -217,7 +217,10 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	check(first.global_basis.z.normalized().dot(Vector3.BACK) > 0.8, "laid lengthwise along the drag")
 	check(first.size.x > 0.12 and first.size.x < 0.4, "about as wide as his trunk (%.2f m)" % first.size.x)
 	check(first.texture_albedo.resource_path.ends_with("smear_start.png"), "heavy where it starts")
-	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends")
+	var kinds := smears.map(func(d: Decal) -> String: return d.texture_albedo.resource_path.get_file().get_basename())
+	var speeds := [&"chest", &"abdomen", &"pelvis"].map(func(sid: StringName) -> String: return "%.2f" % (man.parts[sid] as RigidBody3D).linear_velocity.length())
+	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends (%s; swipe %s, still %.2f s, trunk %s m/s)" % [
+			kinds, "on" if is_instance_valid(man.signs._smear_tail) else "ended", man.signs._smear_still, speeds])
 
 
 func test_a_smear_runs_out_as_the_blood_on_him_does() -> void:
