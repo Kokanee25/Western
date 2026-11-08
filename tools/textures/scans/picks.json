@@ -47,11 +47,6 @@
    "why": "planed pine, variant"
   },
   {
-   "id": "Wood043",
-   "source": "ambientcg",
-   "why": "planed, weathered grey-brown"
-  },
-  {
    "id": "Wood063",
    "source": "ambientcg",
    "why": "fir, honey"
@@ -60,11 +55,6 @@
    "id": "Wood058",
    "source": "ambientcg",
    "why": "fir, variant"
-  },
-  {
-   "id": "Wood045",
-   "source": "ambientcg",
-   "why": "fir, weathered"
   },
   {
    "id": "Wood051",

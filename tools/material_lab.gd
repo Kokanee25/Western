@@ -21,6 +21,13 @@ extends SceneTree
 ## (<view>_mask0-2.png: each man alone; <view>_mask3.png: the parts under test; white on black; the
 ## same in every light and every set, so drawn once; --no-masks to reuse another run's), and DIR/<material>/numbers.json (boards, thicknesses, strips,
 ## draws, triangles, texture memory, the men's texel density). tools/material_measure.py reads it.
+## --panels=FAMILY[,FAMILY]: the material library's sample panels instead of the stand (#701;
+## SamplePanel, config/material_library.json, docs/briefs/material-library.md): every entry of the
+## family (a class: rough, common, fine; or `long`: one wood on a long wall, part 1's before and
+## after; or `shape`: part 5's warp before and after) at each age, side by side, a man beside the
+## one in view; views `far` (5 m) and `near` (1 m), lights noon, golden and `saloon` (night, a room
+## round the panel, the saloon's lamps). --man=MODEL (default bold_cowboy_s0), --entries=a,b,
+## --ages=new,few,old. Writes DIR/<family>/<entry>_<age>/<light>_<view>.png and DIR/<family>/numbers.json.
 ## --repeats: no stand; how often two boards side by side on Main Street draw the same strip
 ## (WoodMaterials picks a strip by hash(member_id)), per wood -> DIR/repeats.json.
 
@@ -96,6 +103,9 @@ const MASK_MEN := [1 << 16, 1 << 17, 1 << 18]
 
 var _out := "user://material_lab"
 var _masks := true
+var _panel_man: StringName = &"bold_cowboy_s0"
+var _panel_entries: Array = []
+var _panel_ages: Array = ["new", "few", "old"]
 
 
 func _initialize() -> void:
@@ -109,7 +119,16 @@ func _run() -> void:
 	var set := ""
 	var repeats := false
 	var stains := true
+	var panels := ""
 	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--panels="):
+			panels = arg.substr(9)
+		elif arg.begins_with("--man="):
+			_panel_man = StringName(arg.substr(6))
+		elif arg.begins_with("--entries="):
+			_panel_entries = Array(arg.substr(10).split(","))
+		elif arg.begins_with("--ages="):
+			_panel_ages = Array(arg.substr(7).split(","))
 		if arg.begins_with("--out="):
 			_out = arg.substr(6)
 		elif arg.begins_with("--material="):
@@ -156,6 +175,10 @@ func _run() -> void:
 			await physics_frame
 		DirAccess.make_dir_recursive_absolute(_out)
 		_repeats(street)
+		quit()
+		return
+	if panels != "":
+		await _panels(street, viewport, clock, settings, panels, lights)
 		quit()
 		return
 	var place := Node3D.new()
@@ -471,3 +494,224 @@ func _stand_men(place: Node3D, men: Array, where: Array) -> void:
 			at.y = float(load("res://src/world/town_layout.gd").ground_height(at.x, at.z))
 		men[i].global_position = at
 		men[i].face(place.global_transform * (where[i][2] as Vector3))
+
+
+# --- the material library's sample panels (#701) ---------------------------------------------
+
+## The panels in a row along -X, each PANEL_STEP apart, out in the desert; facing south-west, so
+## the noon sun (high, to the south: DayCycle) lights their face and golden hour's (low, west) rakes it.
+const PANEL_STEP := 3.4
+const PANEL_YAW := 45.0
+## [eye, look at, fov] in a panel's space (SamplePanel: wall x 0..2, y 0..2 at z 0, floor to -1.2).
+const PANEL_VIEWS := {
+	"far": [Vector3(1.35, 1.6, -5.0), Vector3(1.25, 1.0, 0.0), 42.0],
+	"near": [Vector3(1.05, 1.35, -1.05), Vector3(1.0, 0.85, 0.0), 50.0],
+}
+## The long wall (part 1): from 6 m at an angle, and square on.
+const LONG_VIEWS := {
+	"long_angle": [Vector3(-1.5, 1.6, -5.0), Vector3(6.0, 1.0, 0.0), 50.0],
+	"long_square": [Vector3(6.0, 1.3, -7.5), Vector3(6.0, 1.0, 0.0), 55.0],
+}
+## Part 5 under raking light: along the wall's face, low.
+const SHAPE_VIEWS := {
+	"rake": [Vector3(-0.6, 1.2, -0.9), Vector3(2.0, 0.9, -0.05), 40.0],
+	"near": [Vector3(0.75, 1.45, -1.0), Vector3(1.0, 0.75, 0.0), 50.0],
+}
+## The man beside a panel: right of the wall, on the floor patch's corner, turned to the camera.
+const PANEL_MAN := [Vector3(2.45, 0.0, -0.55), Vector3(0.0, 1.5, -6.0)]
+## Night: the saloon's lamps round the panel (two sconces off the wall, one hung, one behind the camera).
+const PANEL_LAMPS := [Vector3(-0.15, 1.9, -0.35), Vector3(2.2, 1.9, -0.35), Vector3(1.0, 2.55, -1.8), Vector3(1.2, 2.3, -5.4)]
+
+
+func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: String, lights: Array) -> void:
+	var ml = load("res://src/art/material_library.gd")
+	var sp = load("res://src/art/sample_panel.gd")
+	var tl = load("res://src/world/town_layout.gd")
+	var place := Node3D.new()
+	place.name = "MaterialLibraryLab"
+	street.add_child(place)
+	place.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(PANEL_YAW)),
+			ORIGIN + Vector3.UP * float(tl.ground_height(ORIGIN.x, ORIGIN.z)))
+	var cam := Camera3D.new()
+	cam.name = "LabCamera"
+	street.add_child(cam)
+	cam.current = true
+	var man = load("res://src/bodies/human_body.gd").new()
+	man.name = "LabMan"
+	man.body_model = _panel_man
+	man.has_gun = false
+	place.add_child(man)
+	man.set_pose(&"stand")
+	# The saloon's lamps, placed round each panel for the night.
+	var lamps := []
+	var sd = load("res://src/art/saloon_dressing.gd")
+	for i in PANEL_LAMPS.size():
+		var lamp = load("res://src/world/oil_lamp.gd").new()
+		lamp.name = "PanelLamp%d" % i
+		lamp.show_mesh = false
+		lamp.lit_from_hour = 17
+		lamp.lit_until_hour = 4
+		var hung: bool = i == 2
+		lamp.energy = (0.6 if hung else sd.SCONCE_ENERGY) * sd.LAMP_GAIN
+		lamp.light_range = (5.0 if hung else sd.SCONCE_REACH) * sd.LAMP_REACH
+		lamp.haze = 1.2 * sd.LAMP_HAZE
+		lamp.casts_shadows = true
+		place.add_child(lamp)
+		if not hung:
+			lamp.attenuation = sd.SCONCE_FALLOFF
+		lamp._light.shadow_enabled = true
+		lamps.append(lamp)
+	var room := _night_room()
+	place.add_child(room)
+	for i in 30:
+		await physics_frame
+	for family in families.split(","):
+		var specs := _panel_specs(ml, family)
+		var dir := "%s/%s" % [_out, family]
+		DirAccess.make_dir_recursive_absolute(dir)
+		var built := []
+		var x := 0.0
+		for spec in specs:
+			var p = sp.new()
+			p.entry = spec["entry"]
+			p.age_name = StringName(spec["age"])
+			p.seed_base = int(spec.get("seed", 0))
+			place.add_child(p)
+			var at: Vector3 = place.global_transform * Vector3(-x, 0.0, 0.0)
+			p.global_position = Vector3(at.x, float(tl.ground_height(at.x, at.z)), at.z)
+			p.global_basis = place.global_basis
+			if spec.has("long"):
+				p.wall_size = Vector2(spec["long"], 2.0)
+			p.build()
+			for m in p.find_children("*", "MeshInstance3D", true, false):
+				var mat: ShaderMaterial = m.material_override
+				if spec.has("variety"):
+					mat.set_shader_parameter("variety", spec["variety"])
+				if spec.has("warp_gain"):
+					mat.set_shader_parameter("warp_gain", spec["warp_gain"])
+			p.visible = false
+			built.append([spec, p, x])
+			x += PANEL_STEP + (float(spec["long"]) - 2.0 if spec.has("long") else 0.0)
+		var numbers := {"family": family, "man": String(_panel_man), "panels": []}
+		for b in built:
+			var spec: Dictionary = b[0]
+			var p: Node3D = b[1]
+			var px: float = b[2]
+			# Only this panel and its neighbours drawn (a long row is many boards).
+			for o in built:
+				(o[1] as Node3D).visible = absf(float(o[2]) - px) < PANEL_STEP * 1.5 or o[1] == p
+			var name: String = spec["name"]
+			var pdir := "%s/%s" % [dir, name]
+			DirAccess.make_dir_recursive_absolute(pdir)
+			var views: Dictionary = spec.get("views", PANEL_VIEWS)
+			var pt: Transform3D = p.global_transform
+			var extra := Vector3(float(spec.get("long", 2.0)) - 2.0, 0.0, 0.0)
+			var man_at: Vector3 = pt * ((PANEL_MAN[0] as Vector3) + extra)
+			man.global_position = Vector3(man_at.x, float(tl.ground_height(man_at.x, man_at.z)), man_at.z)
+			man.face(pt * (PANEL_MAN[1] as Vector3))
+			room.global_transform = pt
+			for i in lamps.size():
+				lamps[i].global_position = pt * (PANEL_LAMPS[i] as Vector3)
+			numbers["panels"].append({"name": name, "entry": spec["entry"].get("id", ""), "age": spec["age"],
+					"boards": p.boards, "triangles": _triangles(p), "man_height": _man_height(man),
+					"rail_height": float(sp.CLASSES[StringName(spec["entry"].get("class", "common"))]["rail"]["h"]),
+					"wall_height": 2.0})
+			for light in lights:
+				clock.set_time(HOURS[light])
+				var night: bool = light == "saloon"
+				for l in lamps:
+					l.visible = night
+				room.visible = night
+				for i in 20:
+					await process_frame
+				for v in views:
+					var view: Array = views[v]
+					cam.global_position = pt * (view[0] as Vector3)
+					cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
+					cam.fov = view[2]
+					for i in 8:
+						await process_frame
+					# Nothing over the picture (the blacksmith's subtitles, the wound words).
+					for c in viewport.find_children("*", "CanvasLayer", true, false):
+						(c as CanvasLayer).visible = false
+					await process_frame
+					var path := "%s/%s_%s.png" % [pdir, light, v]
+					viewport.get_texture().get_image().save_png(path)
+					print("saved %s/%s/%s_%s" % [family, name, light, v])
+		var f := FileAccess.open(dir + "/numbers.json", FileAccess.WRITE)
+		f.store_string(JSON.stringify(numbers, "  "))
+		f.close()
+		for b in built:
+			(b[1] as Node).queue_free()
+		await process_frame
+
+
+## What a family puts on panels: [{entry, age, name, ...}].
+func _panel_specs(ml, family: String) -> Array:
+	var out := []
+	if family == "long" or family == "shape":
+		# Part 1 on a long wall, part 5 on a rough wall: before (off) and after, each age.
+		var id: String = "common_pine_lap" if family == "long" else "rough_pine_batten"
+		if not _panel_entries.is_empty():
+			id = _panel_entries[0]
+		var e: Dictionary = ml.entry(id)
+		for age in (["few"] if family == "long" else _panel_ages):
+			if family == "long":
+				out.append({"entry": e, "age": age, "name": "%s_%s_before" % [id, age], "variety": 0.0, "long": 12.0, "views": LONG_VIEWS})
+				out.append({"entry": e, "age": age, "name": "%s_%s_after" % [id, age], "variety": 1.0, "long": 12.0, "views": LONG_VIEWS})
+			else:
+				out.append({"entry": e, "age": age, "name": "%s_%s_true" % [id, age], "warp_gain": 0.0, "views": SHAPE_VIEWS})
+				out.append({"entry": e, "age": age, "name": "%s_%s_warped" % [id, age], "warp_gain": 1.0, "views": SHAPE_VIEWS})
+		return out
+	var i := 0
+	for e in ml.entries(family):
+		if not _panel_entries.is_empty() and not _panel_entries.has(e["id"]):
+			continue
+		for age in _panel_ages:
+			out.append({"entry": e, "age": age, "name": "%s_%s" % [e["id"], age], "seed": i})
+			i += 1
+	return out
+
+
+## A plain room round a panel for the night (the saloon's): side walls, a ceiling, a wall behind
+## the camera, dark painted boards; the panel is its far wall.
+func _night_room() -> Node3D:
+	var room := Node3D.new()
+	room.name = "NightRoom"
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.16, 0.11, 0.075)
+	mat.roughness = 0.8
+	for b in [[Vector3(-0.45, 1.6, -3.3), Vector3(0.1, 3.4, 6.8)], [Vector3(3.15, 1.6, -3.3), Vector3(0.1, 3.4, 6.8)],
+			[Vector3(1.35, 3.25, -3.3), Vector3(3.7, 0.1, 6.8)], [Vector3(1.35, 1.6, -6.6), Vector3(3.7, 3.4, 0.1)],
+			[Vector3(1.35, 1.6, 0.06), Vector3(3.7, 3.4, 0.04)], [Vector3(1.35, -0.03, -3.3), Vector3(3.7, 0.04, 6.8)]]:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = b[1]
+		mi.mesh = bm
+		mi.material_override = mat
+		mi.position = b[0]
+		room.add_child(mi)
+	room.visible = false
+	return room
+
+
+func _triangles(n: Node) -> int:
+	var t := 0
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var m: Mesh = (mi as MeshInstance3D).mesh
+		for s in m.get_surface_count():
+			t += (m.surface_get_arrays(s)[Mesh.ARRAY_INDEX] as PackedInt32Array).size() / 3
+	return t
+
+
+## The man's height in metres (his skin's box, standing).
+func _man_height(man: Node3D) -> float:
+	var top := -INF
+	var bottom := INF
+	for mi in man.find_children("*", "MeshInstance3D", true, false):
+		if not (mi as MeshInstance3D).visible:
+			continue
+		var bb: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
+		top = maxf(top, bb.end.y)
+		bottom = minf(bottom, bb.position.y)
+	return snappedf(top - bottom, 0.01) if top > bottom else 0.0
