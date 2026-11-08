@@ -1134,7 +1134,10 @@ marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
 FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
 (`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
 the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
-name; glTF of our rig beside each for the record.
+name; glTF of our rig beside each for the record. Since #708 a source that turns its clavicles
+(Uthana's/Mixamo's LeftShoulder) gives `clavicle_r`/`clavicle_l` channels (the turn relative to the
+source's chest, through the chest's fixed turn; held to SkeletonTuning's limits, no roll); CMU's
+(zeroed in its BVH), KayKit's and Quaternius' give none (`assets/animations/README.md`).
 
 **Library clips** (`src/bodies/library_motion.gd`, `LibraryMotion`; issue #529): generic movement
 from Quaternius' and KayKit's CC0 libraries (`assets/animations/library/`, its README and

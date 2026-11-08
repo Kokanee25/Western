@@ -103,3 +103,21 @@ fault from s1: its arm weights; both takes); the revolver sits a little high in 
 point is the shared anatomy's, mapped by his hand); the fingers don't spread (the finger bones bend
 only); his GLB's own materials in the films (the people shaders don't take a PBR man yet: #692).
 No real capture of an aim or a reach was at hand: those two have none beside them.
+
+## Clips with clavicle channels (#708, `results/2026-11-08_clips/`)
+
+The bold cowboy (`bold_cowboy_s3_talking`, the deform rig on) plays a clip in place (`sk_film
+DIR clip=NAME`, no travel); "before" is the same clip with its `clavicle_r`/`clavicle_l` channels
+taken out (`clip0=NAME`: the drive from his arms), "after" the clip as exported. `films.txt` has
+the commands (one `bridge.py` call a line; a long film outlasts the client's 600 s, so wait for the
+frames before stopping the game), then
+`OLD_LABEL="before - the drive from his arms" NEW_LABEL="after - the clips own clavicles" films.sh`.
+
+- `kick_back.mp4` (front): the backward kick; his left clavicle up to 22 degrees as he leans back
+  over the kick (the drive gives it ~0: his arms hang).
+- `stand_over.mp4` (three-quarter): he goes down to look over a man on the floor; his right clavicle
+  rises and comes forward to the limits (26 up, 18 forward) as he reaches down. Played without its
+  travel he ends down on the ground in both takes (the clip's lean with his root held).
+
+At this distance the difference is a few centimetres at the shoulder's top: visible side by side,
+not something a player would name.
