@@ -106,3 +106,45 @@ func test_its_dials_are_look_addresses() -> void:
 	check(LookPreset.set_value(get_tree(), "real.relief", 0.008), "real.relief settable")
 	check(is_equal_approx(float(RealLook.dials.relief), 0.008), "and set")
 	RealLook.dials.relief = 0.004
+
+
+## R1: a lamp hung over a room (meta lamp_group "hung") is shaded under the real look: its tin
+## shade casts a shadow and the lamp casts shadows (with the camera near), its light multiplied by
+## real.hung_energy after OilLamp's flicker; off, all as it was.
+func test_hung_lamps_are_shaded_and_put_back() -> void:
+	var root := Node3D.new()
+	holder.add_child(root)
+	var lamp := OilLamp.new()
+	lamp.set_meta(&"lamp_group", &"hung")
+	lamp.casts_shadows = false
+	lamp.lit_from_hour = 0
+	lamp.lit_until_hour = 24
+	root.add_child(lamp)
+	var shade := MeshInstance3D.new()
+	shade.name = "Shade"
+	shade.mesh = BoxMesh.new()
+	shade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(shade)
+	var cam := Camera3D.new()
+	holder.add_child(cam)
+	cam.current = true
+	await process_frames(2)
+	var light: OmniLight3D = lamp._light
+	check(not light.shadow_enabled, "no shadow in the painted look")
+	var was := float(RealLook.dials.hung_energy)
+	RealLook.dials.hung_energy = 2.0
+	Settings.set_real_look(true)
+	await process_frames(3)
+	check(light.shadow_enabled, "the lamp casts shadows, the camera near")
+	check(shade.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "and its shade casts one")
+	var ratio := light.light_energy / maxf(lamp.energy, 0.0001)
+	check(ratio > 1.8 and ratio < 2.2, "its light x hung_energy over the flicker (%.2f)" % ratio)
+	await process_frames(3)
+	ratio = light.light_energy / maxf(lamp.energy, 0.0001)
+	check(ratio < 2.2, "not compounding frame on frame (%.2f)" % ratio)
+	Settings.set_real_look(false)
+	await process_frames(2)
+	RealLook.dials.hung_energy = was
+	check(not light.shadow_enabled, "no shadow again")
+	check(shade.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "the shade casts none")
+	check(light.light_energy < lamp.energy * 1.2, "its own energy back")
