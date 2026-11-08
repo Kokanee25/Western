@@ -19,7 +19,8 @@ extends Node
 ## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, volumetric
 ##   fog; SDFGI off since #643: its cascades scrolling as you walk were a long frame every metre or
 ##   so) through LookPreset, every one put back when it goes off;
-## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own);
+## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own), lower by
+##   day than at night (real.exposure, blended by LightLooks);
 ## - SDFGI, when the look panel turns it on, outdoors only: a ray up from the camera four times a second, its energy eased to
 ##   `sdfgi_indoor` under a roof (the saloon's indoor light is RoomLight's) and `sdfgi_outdoor` out;
 ## - StandardMaterial3Ds' and decals' nearest filtering made linear (and back), including what's
@@ -46,11 +47,12 @@ const DEFINE := "#define REAL_LOOK"
 const ROOF_CHECK := 0.25
 const ROOF_REACH := 30.0
 
-## The real look's own dials (look addresses `real.<dial>`): exposure (a multiplier on DayCycle's),
+## The real look's own dials (look addresses `real.<dial>`): exposure (a multiplier on DayCycle's;
+## LightLooks blends it by the sun from real_light.json, x1.05 by day to x1.4 at night, #641),
 ## relief / groove / specular (the shaders' globals, real_look.gdshaderinc), SDFGI's energy
 ## outdoors and under a roof.
 static var dials := {
-	"exposure": 1.4, "relief": 0.004, "groove": 0.003, "specular": 0.35,
+	"exposure": 1.05, "relief": 0.004, "groove": 0.003, "specular": 0.35,
 	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0, "hung_energy": 1.0, "hung_reach": 1.0,
 }
 ## The hung lamps' meshes that cast a shadow under the real look (the tin shade over the flame).
