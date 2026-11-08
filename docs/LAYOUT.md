@@ -1657,7 +1657,10 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
   `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
   absolute difference per channel and the share of pixels moved by more than 24/255) against
-  `tolerances.json` (per view: a still's floor is mean 1.5 / share 1%; scenario views with
+  `tolerances.json` (two looks since the real look became the default, #641: every view in the
+  painted look, `--painted`, guarding layout, people and effects, and `REAL_VIEWS` again in the real
+  look as `<view>_real`, its light and exposure; all of them real would be ~13 h under lavapipe;
+  per view: a still's floor is mean 1.5 / share 1%; scenario views with
   physics, particles or brains have theirs set from two renders of the same build, `--approve
   --noise=A,B`, three times the measured noise) and writes golden | render | difference ×6 for
   each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge
