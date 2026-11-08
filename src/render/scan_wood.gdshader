@@ -31,6 +31,8 @@ uniform sampler2D albedo_a2 : source_color, filter_linear_mipmap_anisotropic, re
 uniform sampler2D normal_a2 : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rough_a2 : hint_roughness_gray, filter_linear_mipmap, repeat_enable;
 uniform vec2 tile_a2 = vec2(2.0, 2.0);
+// The variant brought to the fresh scan's mean colour (MaterialLibrary, from the scans' meta).
+uniform vec3 a2_gain = vec3(1.0);
 uniform bool grain_v_a2 = false;
 uniform bool has_b = false;
 uniform sampler2D albedo_b : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -71,6 +73,8 @@ uniform vec2 wear_band = vec2(0.85, 1.15);
 // flips, no shifts, no large-scale layer) or part 5 (every board true).
 uniform float variety : hint_range(0.0, 1.0) = 1.0;
 uniform float warp_gain = 1.0;
+// Rough-sawn: a circular saw's arcs across the face (a 48 in blade, ~5 mm a tooth), worn down by age.
+uniform float saw_marks = 0.0;
 // Planed wood takes a little sheen; rough-sawn none.
 uniform float specular_wood = 0.35;
 
@@ -179,9 +183,23 @@ void fragment() {
 	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
-		col = texture(albedo_a2, uv2).rgb;
+		col = texture(albedo_a2, uv2).rgb * a2_gain;
 		nrm = scan_normal(normal_a2, uv2, f2, grain_v_a2);
 		rough = texture(rough_a2, uv2).r;
+	}
+	// Saw arcs: centred off one edge every ~0.9 m along the board, rings 5 mm apart.
+	if (saw_marks > 0.0 && face < 0.5) {
+		float kseg = floor(v_m.x / 0.9);
+		vec2 c = vec2((kseg + 0.5) * 0.9 + rnd(seed, 60.0 + kseg) * 0.15, -0.55 * sign(rnd(seed, 61.0) + 0.01));
+		vec2 dv = vec2(v_m.x, v_m.y) - c;
+		float d = length(dv);
+		float pitch = 0.0055 + 0.001 * rnd(seed, 62.0);
+		float fw = fwidth(d) / pitch;
+		float amp = saw_marks * (1.0 - smoothstep(0.25, 0.7, fw)) * (1.0 - 0.6 * age);
+		float ph = d / pitch * 6.2831853;
+		col *= 1.0 + 0.07 * amp * sin(ph);
+		vec2 g = dv / max(d, 1e-4);
+		nrm.xy += g * cos(ph) * 0.18 * amp;
 	}
 	col *= mix(tint_new, tint_mid, smoothstep(0.0, 0.5, age));
 	// Per board: value and a warm-cool shift.

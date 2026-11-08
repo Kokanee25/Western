@@ -622,14 +622,14 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				for l in lamps:
 					l.visible = night
 				room.visible = night
-				for i in 20:
+				for i in 12:
 					await process_frame
 				for v in views:
 					var view: Array = views[v]
 					cam.global_position = pt * (view[0] as Vector3)
 					cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
 					cam.fov = view[2]
-					for i in 8:
+					for i in 6:
 						await process_frame
 					# Nothing over the picture (the blacksmith's subtitles, the wound words).
 					for c in viewport.find_children("*", "CanvasLayer", true, false):

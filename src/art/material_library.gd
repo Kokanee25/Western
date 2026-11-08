@@ -19,7 +19,7 @@ const PATH := "res://config/material_library.json"
 const SCANS := "res://assets/textures/scans/"
 const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "roughness_add",
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
-		"specular_wood"]
+		"specular_wood", "saw_marks"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D
@@ -76,6 +76,12 @@ static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName
 			m.set_shader_parameter("rough_" + slot, load(dir + "rough.jpg"))
 		m.set_shader_parameter("grain_v_" + slot, String(s.get("grain", "u")) == "v")
 		m.set_shader_parameter("tile_" + slot, _tile(dir, s))
+	# The variant at the fresh scan's mean colour, so a wall's boards differ by a board's worth,
+	# not by two woods (the scans' meta.json `mean_linear`; `match_variants: false` keeps them apart).
+	if scans.has("a") and scans.has("a2") and bool(r.get("match_variants", true)):
+		var ma := _mean(SCANS + String(scans["a"]["id"]) + "/")
+		var m2 := _mean(SCANS + String(scans["a2"]["id"]) + "/")
+		m.set_shader_parameter("a2_gain", Vector3(ma.x / maxf(m2.x, 1e-4), ma.y / maxf(m2.y, 1e-4), ma.z / maxf(m2.z, 1e-4)))
 	for t in ["tint_new", "tint_mid", "tint_old", "varnish_amber"]:
 		if r.has(t):
 			var c: Array = r[t]
@@ -102,6 +108,15 @@ static func _tile(dir: String, s: Dictionary) -> Vector2:
 	var v := Vector2(float(mt[0]), float(mt[1]))
 	# meta's metres are the image's (width, height); along the grain first.
 	return v if String(s.get("grain", "u")) == "u" else Vector2(v.y, v.x)
+
+
+static func _mean(dir: String) -> Vector3:
+	var f := FileAccess.open(dir + "meta.json", FileAccess.READ)
+	if f:
+		var mt = (JSON.parse_string(f.get_as_text()) as Dictionary).get("mean_linear", null)
+		if mt is Array and (mt as Array).size() == 3:
+			return Vector3(mt[0], mt[1], mt[2])
+	return Vector3.ONE
 
 
 ## The large-scale layer's noise (seamless, the same every run).
