@@ -80,3 +80,26 @@ python3 experiments/skeleton/sheet.py build/sk_films experiments/skeleton/result
   the rig's own pose 11.7 µs. Thirty men in town: ~0.13 ms of the people's 4 ms at Sean's.
 - **Tests**: the whole suite passes (1,059; `tests/test_skeleton.gd` new, `test_bodies` counts the
   new bones, `test_studio_shoulders` measures the helpers from the clavicle).
+
+**The films** (before | after, each real time then half speed; `sheet.jpg` the stills beside his
+MetaHuman thumbnail and CMU 79_74, a real capture of the arms coming up):
+`handsup_front/side/three.mp4`, `aim_front/three.mp4`, `reach_three/side.mp4`, `wrist.mp4` (his
+hand rolled 80 degrees each way), `grip.mp4` (drawing and aiming the revolver).
+
+- **At rest**: his shoulders slope down from a longer neck (his own; before, his chest was lifted to
+  the game's shoulder joints and his arms stretched 1.11 to its elbows).
+- **Hands up**: the clavicles rise with the arms (+5 the pose's own), his own shorter upper arms put
+  his hands a little under the old height; the fingers open (a fifth of the relaxed curl hands up;
+  his report's `finger_rest_curl` 0: MetaHuman's bind hand is already curled, the game's relaxed
+  curl on top of it made a claw, fixed after the first take).
+- **Aim and reach**: the clavicle forward with the arm; the shoulder's top stays round.
+- **Wrist**: before, the rolled hand wrings the wrist thin; after, the forearm twists along its
+  length and keeps its volume.
+- **Grip**: before, his fingers stay as modelled (summed into his hand); after, they close round the
+  revolver's grip (the game's curl through his own finger weights).
+
+**Left, seen in the films**: the vest's armholes still spike in the hands-up (the Studio's open
+fault from s1: its arm weights; both takes); the revolver sits a little high in his fist (the grip
+point is the shared anatomy's, mapped by his hand); the fingers don't spread (the finger bones bend
+only); his GLB's own materials in the films (the people shaders don't take a PBR man yet: #692).
+No real capture of an aim or a reach was at hand: those two have none beside them.

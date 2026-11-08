@@ -26,7 +26,7 @@ def opt(name, default=None):
 
 def frame(src, shot, which, k=-1):
     d = os.path.join(src, "%s_%s" % (shot, which))
-    names = sorted(os.listdir(d))
+    names = sorted(n for n in os.listdir(d) if n.endswith(".png"))
     return Image.open(os.path.join(d, names[k])).convert("RGB")
 
 
