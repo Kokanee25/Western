@@ -110,7 +110,12 @@ func test_a_piece_woken_that_doesnt_stir_stays_in_its_cell() -> void:
 ## time after time: hundreds of pieces awake for most of a minute after a ring of sticks).
 func test_a_pile_asleep_in_its_cell_isnt_woken_by_it() -> void:
 	# A pile: four boards crosswise on each other, one of them kept from sleeping (and so the pile:
-	# the physics puts a pile to sleep whole) till they've all joined their cell awake.
+	# the physics puts a pile to sleep whole) till they've all joined their cell awake. (RubbleSleep
+	# off: it would hold the quiet ones kept awake so, #647; this is Jolt's sleep in the cell.)
+	var sleep_was := RubbleSleep.enabled
+	RubbleSleep.enabled = false
+	for n in get_tree().root.find_children("RubbleSleep", "RubbleSleep", true, false):
+		n.set_physics_process(false)
 	var ids: Array[StringName] = []
 	for k in 4:
 		var size := Vector3(0.1, 0.05, 1.0) if k % 2 == 0 else Vector3(1.0, 0.05, 0.1)
@@ -134,6 +139,9 @@ func test_a_pile_asleep_in_its_cell_isnt_woken_by_it() -> void:
 	check_eq(woken[0], 0, "and wasn't woken again")
 	for rb: RigidBody3D in bodies:
 		check(rb.sleeping and RubbleRest.resting(rb), "asleep in its cell")
+	RubbleSleep.enabled = sleep_was
+	for n in get_tree().root.find_children("RubbleSleep", "RubbleSleep", true, false):
+		n.set_physics_process(true)
 
 
 func test_the_fire_on_a_piece_lets_it_go() -> void:

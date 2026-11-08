@@ -57,4 +57,6 @@ extends Resource
 
 
 func spall_cost(wood: StringName) -> float:
+	if not spall_j_per_cm3.has(wood) and MasonryMaterials.is_masonry(wood):
+		return MasonryMaterials.carve_j_per_cm3(wood, float(spall_j_per_cm3.get(&"stone", 150.0)))  # (materials.json's small_hit)
 	return float(spall_j_per_cm3.get(wood, default_spall_j_per_cm3))

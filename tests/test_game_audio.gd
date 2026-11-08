@@ -131,6 +131,7 @@ func test_a_recorded_charge_plays_its_layers() -> void:
 		rec[layer] = SynthSounds.get_sound(&"thump").duplicate()
 	BlastSounds.inject(99, rec)
 	BlastSounds.use(99)
+	GameAudio.forget_volley()
 	check_eq(BlastSounds.active(), 99, "set 99 in play")
 	ears.global_position = Vector3(0, 1.6, 0)
 	var made: Array[AudioStreamPlayer3D] = []
@@ -194,3 +195,45 @@ func test_every_recorded_set_loads() -> void:
 				check(BlastSounds.stream(int(n), layer, i) != null, "set %s's %s %d loads" % [n, layer, i])
 		check(BlastSounds.stream(int(n), &"boom") != null and BlastSounds.stream(int(n), &"roll") != null,
 				"set %s has a boom and a roll" % n)
+
+
+## Charges fired together (#647's bundles on one plunger) are one volley: each its own crack and
+## boom, pitched apart so they don't comb into a flange; the sub and the roll once, grown.
+func test_charges_fired_together_are_one_volley() -> void:
+	var rec := {}
+	for layer: StringName in [&"crack", &"boom", &"sub", &"roll"]:
+		rec[layer] = SynthSounds.get_sound(&"thump").duplicate()
+	BlastSounds.inject(98, rec)
+	BlastSounds.use(98)
+	GameAudio.forget_volley()
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			made.append(n)
+	get_tree().node_added.connect(note)
+	for x: float in [30.0, 36.0, 42.0]:
+		GameAudio.blast(world, Vector3(x, 0.2, 0), 1.6)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	var of := func(layer: StringName) -> Array:
+		return made.filter(func(p: AudioStreamPlayer3D) -> bool: return p.stream == rec[layer])
+	check_eq(of.call(&"crack").size(), 3, "three cracks, one a charge")
+	check_eq(of.call(&"boom").size(), 3, "three booms")
+	check_eq(of.call(&"sub").size(), 1, "one sub for the volley")
+	check_eq(of.call(&"roll").size(), 1, "one roll for the volley")
+	var pitches := {}
+	for p: AudioStreamPlayer3D in of.call(&"boom"):
+		pitches[snappedf(p.pitch_scale, 0.001)] = true
+	check_eq(pitches.size(), 3, "each boom pitched its own (%s)" % str(pitches.keys()))
+	var sub: AudioStreamPlayer3D = of.call(&"sub")[0]
+	check(sub.volume_db > GameAudio.t().rec_sub_db + 4.0, "the sub grown by the two that joined (%.1f dB)" % sub.volume_db)
+	# A charge well after the volley starts its own.
+	await physics_frames(int(GameAudio.t().volley_s * Engine.physics_ticks_per_second) + 5)
+	made.clear()
+	BlastSounds.use(98)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	check_eq(of.call(&"sub").size(), 1, "a later charge has its own sub")

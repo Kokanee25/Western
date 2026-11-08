@@ -129,7 +129,11 @@ jobs:
 
   export:
     needs: [test, native]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # main; or a branch push whose message says [smoke] (the exports and smoke tests run, nothing
+    # is released or published: release and pages are main's alone).
+    if: >-
+      github.event_name == 'push' && (github.ref == 'refs/heads/main'
+      || contains(github.event.head_commit.message, '[smoke]'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -290,8 +294,37 @@ jobs:
             exit 1
           fi
 
+      - name: What the crash guard wrote (on a failure)
+        # #650's CrashGuard notes a crash (crash.txt) or a freeze (freeze_*.txt) in user://blackbox,
+        # and Godot logs to user://logs: printed here, since a failed runner keeps nothing.
+        if: failure() && runner.os == 'Linux'
+        shell: bash
+        run: |
+          d="$HOME/.local/share/godot/app_userdata/Salt Creek"
+          find "$d" -maxdepth 3 -type f -newer dist 2>/dev/null | head -50
+          for f in "$d"/blackbox/*.txt "$d"/blackbox/*.json; do [ -f "$f" ] && { echo "=== $f"; head -c 20000 "$f"; echo; }; done
+          for f in "$d"/logs/*.log; do [ -f "$f" ] && { echo "=== $f (tail)"; tail -n 80 "$f"; }; done
+          ls -la "$HOME/Desktop/Salt Creek crash reports" 2>/dev/null || true
+
+      - name: The same run under gdb (on a failure, the drawn build)
+        # Where the crash is: every thread's backtrace at the signal. The watchdog's own SIGSEGV
+        # (a freeze it ends) shows as tgkill from 'saltcreek-crash-watchdog'.
+        if: failure() && matrix.how == 'drawn'
+        shell: bash
+        run: |
+          sudo apt-get install -y -q gdb > /dev/null
+          rm -f smoke.out
+          timeout 900 xvfb-run -a -s "-screen 0 640x360x24" gdb -q -batch \
+            -ex "handle SIGSEGV stop print" -ex "handle SIGABRT stop print" -ex "handle SIGUSR1 nostop noprint" \
+            -ex run -ex "info threads" -ex "thread apply all bt 25" \
+            --args ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360 -- --smoke-test --smoke-out="$(pwd)/smoke.out" \
+            > gdb.log 2>&1 || true
+          grep -n -E "^Thread|signal SIG|^#[0-9]+ " gdb.log | head -300
+          echo "--- verdict:"; cat smoke.out 2>/dev/null || echo "(no verdict written)"
+
   release:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -315,6 +348,7 @@ jobs:
 
   pages:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write

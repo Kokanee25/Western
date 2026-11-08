@@ -23,7 +23,7 @@ const HELP := {
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
-	"weapon": "weapon revolver|shotgun|dynamite|bucket|none -> take that out (none: put it away)",
+	"weapon": "weapon revolver|shotgun|dynamite|bucket|plunger|none -> take that out (none: put it away)",
 	"shove": "shove -> a shove, as a tap of its key (E) does; answers what it did (a man, a prop, a wall, a miss)",
 	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
@@ -36,7 +36,9 @@ const HELP := {
 	"spawn": "spawn outlaw|townsman X Y Z [YAW] -> a person there",
 	"gang": "gang -> the three riders come in from the west on their day",
 	"fight": "fight [NAME] -> the gang (or one man) turn on you, as if you'd shot at them",
-	"dynamite": "dynamite X Y Z [FUSE] -> a lit stick there",
+	"dynamite": "dynamite X Y Z [FUSE] [STICKS] -> a lit stick there (a bundle of STICKS)",
+	"bundle": "bundle X Y Z [STICKS] -> a bundle set there, wired to the plunger (held by the piece within 0.4 m, else on the ground)",
+	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
@@ -336,8 +338,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 	elif _person(a[0]) != null:
-		var p := _person(a[0])
-		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
+		var p := _lies(_person(a[0]))
+		points = [p + (player.global_position - p).normalized() * 1.5]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -563,9 +565,9 @@ func _cmd_weapon(a: Array) -> Dictionary:
 			player.weapon.put_away()
 		await _seconds(0.8)
 		return {"weapon": _weapon_line()}
-	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket()}.get(want)
+	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
 	if w == null:
-		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|none"}
+		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|plunger|none"}
 	player.select_weapon(w)
 	var until := _game_seconds() + 4.0
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
@@ -728,10 +730,45 @@ func _cmd_fight(a: Array) -> Dictionary:
 
 func _cmd_dynamite(a: Array) -> Dictionary:
 	if a.size() < 3:
-		return {"ok": false, "error": "dynamite X Y Z [FUSE]"}
-	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0)
+		return {"ok": false, "error": "dynamite X Y Z [FUSE] [STICKS]"}
+	var s := DynamiteStick.make(street, _vec(a, 0), Vector3.ZERO, float(a[3]) if a.size() > 3 else -1.0, int(a[4]) if a.size() > 4 else 1)
 	s.light()
-	return {"fuse": snappedf(s.fuse_left, 0.1)}
+	return {"fuse": snappedf(s.fuse_left, 0.1), "sticks": s.sticks, "kg": snappedf(s.kg, 0.01)}
+
+
+func _cmd_bundle(a: Array) -> Dictionary:
+	if a.size() < 3:
+		return {"ok": false, "error": "bundle X Y Z [STICKS]"}
+	var at := _vec(a, 0)
+	var s := DynamiteStick.make(street, at, Vector3.ZERO, Blast.t().plant_fuse_seconds, int(a[3]) if a.size() > 3 else Blast.t().bundle_sticks)
+	var on: Object = null
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = 0.4
+	q.shape = ball
+	q.transform = Transform3D(Basis(), at)
+	q.collision_mask = Layers.WORLD
+	var best := INF
+	for h in World.space(street).intersect_shape(q, 16):
+		var c: Object = h.collider
+		if c is StructureMember and (c as StructureMember).global_position.distance_to(at) < best:
+			best = (c as StructureMember).global_position.distance_to(at)
+			on = c
+	if on:
+		s.stick_to(on)
+	else:
+		s.planted = true  # set on the ground: it lies there
+	s.wire()
+	return {"sticks": s.sticks, "kg": snappedf(s.kg, 0.01), "on": String((on as Node).name) if on else "ground",
+		"wired": DynamiteStick.bundles_set(get_tree()).size()}
+
+
+func _cmd_plunge(a: Array) -> Dictionary:
+	var spread := int(a[0]) if a.size() > 0 else -1
+	var at := player.global_position if player else Vector3.ZERO
+	var n := DynamiteStick.fire_wired(get_tree(), at, spread)
+	await _physics_frames(maxi(n * maxi(spread, 1), 1) + 2)
+	return {"fired": n}
 
 
 func _cmd_smoke(a: Array) -> Dictionary:
@@ -943,8 +980,9 @@ func _people() -> Array:
 		var man := n as HumanBody
 		if man == null or not is_instance_valid(man) or man.physiology == null:
 			continue
-		var rel := man.global_position - player.global_position
-		var e := {"name": String(man.person_id), "at": _arr(man.global_position), "distance_m": snappedf(rel.length(), 0.1),
+		var at := _lies(man)
+		var rel := at - player.global_position
+		var e := {"name": String(man.person_id), "at": _arr(at), "distance_m": snappedf(rel.length(), 0.1),
 			"bearing": _bearing(rel), "alive": man.physiology.alive, "conscious": man.physiology.is_conscious(),
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
@@ -1010,7 +1048,7 @@ func _weapon_line() -> String:
 	var w := player.weapon
 	if w == null:
 		return "none"
-	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "?"
+	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
 	var drawn := w.drawn
 	var loads := ""
 	if "state" in w and w.state and w.state.has_method("to_dict"):
@@ -1192,6 +1230,15 @@ func _person(name: String) -> HumanBody:
 		if n is HumanBody and String((n as HumanBody).person_id).to_lower() == name.to_lower():
 			return n
 	return null
+
+
+## Where a man is: his root while he stands; limp, his pelvis (the root stays where he went limp,
+## #562: `read people` gave a dead man's spawn point for where he lay).
+static func _lies(man: HumanBody) -> Vector3:
+	var pelvis := man.parts.get(&"pelvis") as Node3D
+	if man.limp and pelvis != null and is_instance_valid(pelvis):
+		return pelvis.global_position
+	return man.global_position
 
 
 func _town() -> TownLife:

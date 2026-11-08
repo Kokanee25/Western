@@ -60,6 +60,16 @@ func test_it_starts_with_the_men_at_their_posts_and_the_rancher_tied() -> void:
 	check(not FarmhouseMission.inside(player.global_position), "outside the house")
 
 
+## #562: the range's man by the road east is taken away as it starts, but not once he's been put
+## down: his body stays where it lies.
+func test_the_range_mans_body_stays_when_it_starts() -> void:
+	var range_man := (street.get_node(^"OutlawSpawn") as OutlawSpawner).spawn()
+	await physics_frames(10)
+	range_man.go_limp()
+	await _begin()
+	check(is_instance_valid(range_man) and range_man.is_inside_tree(), "the man you put down is still lying there")
+
+
 func test_a_shot_raises_the_alarm_and_they_keep_to_the_house() -> void:
 	await _begin()
 	# A shot from the yard, by the house.
@@ -312,3 +322,29 @@ func test_a_rover_sees_you_and_calls_it_in() -> void:
 	check(mission.alarm_t >= 0.0, "the alarm's up (%s)" % [mission.timeline])
 	var known := mission.brains.filter(func(b: OutlawBrain) -> bool: return not b in mission.rovers and b.senses.since_known(player) < 5.0)
 	check(known.size() >= 3, "the house knows where you are (%d)" % known.size())
+
+
+## #668: lost (the rancher dead), Space and A jump; they don't start it all again. Only Enter (or
+## Start) does: ui_accept is Space and A as well, and a jump after he died reset the game.
+func test_lost_a_jump_does_not_start_it_again() -> void:
+	mission.state = FarmhouseMission.State.LOST
+	FarmhouseMission.start_on_load = false
+	for action: StringName in [&"jump", &"ui_accept"]:
+		Input.action_press(action)
+		await physics_frames(2)
+		Input.action_release(action)
+		await physics_frames(1)
+	check(not FarmhouseMission.start_on_load, "a jump doesn't try again")
+	check_eq(mission.state, FarmhouseMission.State.LOST, "still lost")
+	for ev in InputMap.action_get_events(&"mission_retry"):
+		var k := ev as InputEventKey
+		var b := ev as InputEventJoypadButton
+		check(k == null or k.physical_keycode != KEY_SPACE, "Space isn't try again")
+		check(b == null or b.button_index != JOY_BUTTON_A, "A isn't try again")
+	check(InputMap.action_has_event(&"mission_retry", _key(KEY_ENTER)), "Enter is")
+
+
+func _key(code: Key) -> InputEventKey:
+	var e := InputEventKey.new()
+	e.physical_keycode = code
+	return e

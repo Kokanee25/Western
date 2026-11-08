@@ -405,4 +405,4 @@ func _build_hands() -> void:
 			h.grasp(f, 0.1, 0.2)
 		_hands.append(h)
 	for mi in _arms.find_children("*", "MeshInstance3D", true, false):
-		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+		Layers.hold(mi as MeshInstance3D)

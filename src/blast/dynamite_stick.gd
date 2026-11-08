@@ -2,6 +2,9 @@ class_name DynamiteStick
 extends RigidBody3D
 ## A stick of dynamite loose in the world: thrown, dropped or set against a wall. Lit, its fuse
 ## burns down (you can see it shorten, spitting sparks) and then it goes off (Blast.detonate).
+## A bundle (#647) is one of these with `sticks` tied together: their kg, one fuse, drawn as the
+## sticks tied with two wraps of cord; planted, it's wired to the plunger box and waits
+## (DynamiteViewmodel, PlungerViewmodel; or a match to its fuse).
 ## A bullet through it may set it off; a blast close by will; so will a fire it's lying in (the
 ## fuse catches). Small loose thing: on the debris layer.
 
@@ -13,8 +16,10 @@ signal went_off
 
 var lit := false
 var fuse_left := 5.0
-## Kilograms of TNT it's worth (one stick; a bundle is more).
+## Kilograms of TNT it's worth (one stick; a bundle is more: `sticks` x tnt_per_stick).
 var kg := 0.15
+## Sticks tied together in it (1: a lone stick).
+var sticks := 1
 ## Who threw or dropped it (for the record).
 var owner_node: Node
 ## Set at a wall's foot by hand (DynamiteViewmodel.plant, #506), not thrown or dropped. Lit, its
@@ -23,6 +28,8 @@ var owner_node: Node
 ## is cut or goes, or a ball hits it; then it falls as any loose stick.
 var planted := false
 var stuck_to: Node
+## Capped and wired to the player's plunger box (a bundle planted, #647): `fire_wired` sets it off.
+var wired := false
 
 var _fuse: Node3D
 var _sparks: GPUParticles3D
@@ -33,10 +40,11 @@ var _hiss_heard := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
-static func make(parent: Node, at: Vector3, velocity := Vector3.ZERO, fuse := -1.0) -> DynamiteStick:
+static func make(parent: Node, at: Vector3, velocity := Vector3.ZERO, fuse := -1.0, n := 1) -> DynamiteStick:
 	var s := DynamiteStick.new()
 	var bt := Blast.t()
-	s.kg = bt.tnt_per_stick
+	s.sticks = maxi(1, n)
+	s.kg = bt.tnt_per_stick * s.sticks
 	s.fuse_left = bt.fuse_seconds if fuse < 0.0 else fuse
 	parent.add_child(s)
 	s.global_position = at
@@ -47,7 +55,7 @@ static func make(parent: Node, at: Vector3, velocity := Vector3.ZERO, fuse := -1
 func _ready() -> void:
 	name = "Dynamite"
 	add_to_group(&"dynamite")
-	mass = 0.23
+	mass = 0.23 * sticks
 	collision_layer = Layers.DEBRIS
 	collision_mask = Layers.DEBRIS_MASK
 	continuous_cd = true
@@ -62,12 +70,12 @@ func _ready() -> void:
 	angular_damp = 4.0
 	var shape := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
-	cyl.radius = RADIUS
+	cyl.radius = radius_of(sticks)
 	cyl.height = LENGTH
 	shape.shape = cyl
 	shape.rotation_degrees.x = 90.0
 	add_child(shape)
-	var parts := build_model(self)
+	var parts := build_model(self, 1.0, sticks)
 	_fuse = parts.fuse
 	_sparks = parts.sparks
 	_hiss = AudioStreamPlayer3D.new()
@@ -80,15 +88,53 @@ func _ready() -> void:
 		light()
 
 
-## The stick (red paper, lying along Z) with its fuse out of one end and the sparks at its tip.
-static func build_model(parent: Node3D, spark_scale := 1.0) -> Dictionary:
+## Where each of `n` sticks lies across a bundle (x, y off its axis): one alone in the middle; up to
+## six in a ring touching; seven or eight round one in the middle.
+static func layout(n: int) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	if n <= 1:
+		out.append(Vector2.ZERO)
+		return out
+	var ring := n if n <= 6 else n - 1
+	if n > 6:
+		out.append(Vector2.ZERO)
+	var r := RADIUS / sin(PI / ring) if ring > 2 else RADIUS
+	if n > 6:
+		r = maxf(r, RADIUS * 2.0)
+	for i in ring:
+		var a := TAU * float(i) / float(ring)
+		out.append(Vector2(cos(a), sin(a)) * r)
+	return out
+
+
+## A bundle's radius across (m): round all its sticks.
+static func radius_of(n: int) -> float:
+	var r := 0.0
+	for p in layout(n):
+		r = maxf(r, p.length())
+	return r + RADIUS
+
+
+## The stick (red paper, lying along Z) with its fuse out of one end and the sparks at its tip; `n`
+## sticks tied in a bundle (two wraps of cord), the fuse out of one stick's end (the middle one's
+## when there's one in the middle).
+static func build_model(parent: Node3D, spark_scale := 1.0, n := 1) -> Dictionary:
 	var paper := GunParts.material("dynamite_paper", PixelArt.skin("dynamite_paper", Color(0.62, 0.12, 0.08), 131), 0.0, 0.8)
 	var ends := GunParts.material("dynamite_ends", PixelArt.skin("dynamite_ends", Color(0.78, 0.68, 0.5), 133), 0.0, 0.9)
-	GunParts.tube(parent, "Paper", RADIUS, LENGTH - 0.01, Vector3.ZERO, paper, 10)
-	GunParts.tube(parent, "EndA", RADIUS * 0.96, 0.005, Vector3(0, 0, LENGTH * 0.5 - 0.0025), ends, 10)
-	GunParts.tube(parent, "EndB", RADIUS * 0.96, 0.005, Vector3(0, 0, -LENGTH * 0.5 + 0.0025), ends, 10)
-	var fuse := GunParts.pivot(parent, "Fuse", Vector3(0, 0, -LENGTH * 0.5))
+	var spots := layout(n)
+	for i in spots.size():
+		var o := Vector3(spots[i].x, spots[i].y, 0.0)
+		var tag := "" if i == 0 else str(i)
+		GunParts.tube(parent, "Paper" + tag, RADIUS, LENGTH - 0.01, o, paper, 10)
+		GunParts.tube(parent, "EndA" + tag, RADIUS * 0.96, 0.005, o + Vector3(0, 0, LENGTH * 0.5 - 0.0025), ends, 10)
+		GunParts.tube(parent, "EndB" + tag, RADIUS * 0.96, 0.005, o + Vector3(0, 0, -LENGTH * 0.5 + 0.0025), ends, 10)
 	var cord := GunParts.material("fuse_cord", PixelArt.skin("fuse_cord", Color(0.2, 0.17, 0.12), 135), 0.0, 1.0)
+	if n > 1:
+		var wrap := radius_of(n) + 0.002
+		for z in [-LENGTH * 0.25, LENGTH * 0.25]:
+			GunParts.tube(parent, "Wrap%d" % int(signf(z)), wrap, 0.008, Vector3(0, 0, z), cord, 12)
+	var mid := Vector3(spots[0].x, spots[0].y, 0.0) if n <= 6 else Vector3.ZERO
+	var fuse := GunParts.pivot(parent, "Fuse", mid + Vector3(0, 0, -LENGTH * 0.5))
 	GunParts.tube(fuse, "Cord", 0.0025, FUSE_LENGTH, Vector3(0, 0, -FUSE_LENGTH * 0.5), cord, 5)
 	var sparks := GPUParticles3D.new()
 	sparks.name = "Sparks"
@@ -234,3 +280,107 @@ func detonate() -> void:
 	went_off.emit()
 	queue_free()
 	Blast.detonate(world, at, kg, null)
+
+
+## Capped and wired to the plunger box: drawn with the cap in its far end and a wire's tail off it.
+func wire() -> void:
+	wired = true
+	if is_inside_tree() and get_node_or_null(^"Cap") == null:
+		var brass := GunParts.material("blasting_cap", PixelArt.skin("blasting_cap", Color(0.72, 0.55, 0.28), 139), 0.6, 0.5)
+		var lead := GunParts.material("blasting_wire", PixelArt.skin("blasting_wire", Color(0.12, 0.1, 0.08), 141), 0.0, 0.9)
+		var cap := GunParts.pivot(self, "Cap", Vector3(0, 0, LENGTH * 0.5))
+		GunParts.tube(cap, "Shell", 0.0035, 0.03, Vector3(0, 0, 0.0), brass, 6)
+		# Two leads out of it, curling off the face it's set on (+X) as a short tail.
+		for k in 2:
+			var w := GunParts.pivot(cap, "Lead%d" % k, Vector3(0.004, (k - 0.5) * 0.004, 0.015))
+			w.rotation_degrees = Vector3(0, 35.0 + 20.0 * k, 0)
+			GunParts.tube(w, "Wire", 0.0012, 0.18, Vector3(0, 0, 0.09), lead, 4)
+
+
+## Every wired bundle set off, one each `spread` physics ticks (0: all on one tick), nearest the
+## plunger first (`from`). Returns how many go. (#647: Sean's plunger, "it doesn't need to be messy".)
+static func fire_wired(tree: SceneTree, from: Vector3, spread := -1) -> int:
+	if spread < 0:
+		spread = Blast.t().fire_spread_ticks
+	var list: Array[DynamiteStick] = []
+	for s in bundles_set(tree):
+		if s.wired:
+			list.append(s)
+	list.sort_custom(func(a: DynamiteStick, b: DynamiteStick) -> bool: return a.global_position.distance_squared_to(from) < b.global_position.distance_squared_to(from))
+	_fire_in_turn(tree, list, spread)
+	return list.size()
+
+
+static func _fire_in_turn(tree: SceneTree, list: Array[DynamiteStick], spread: int) -> void:
+	for i in list.size():
+		if is_instance_valid(list[i]) and not list[i]._done:
+			list[i].detonate()
+		if spread > 0 and i < list.size() - 1:
+			for k in spread:
+				await tree.physics_frame
+
+
+## A bundle, not a lone stick.
+func is_bundle() -> bool:
+	return sticks > 1
+
+
+## Planted bundles not yet gone off (lit or waiting): what `max_bundles` counts.
+static func bundles_set(tree: SceneTree) -> Array[DynamiteStick]:
+	var out: Array[DynamiteStick] = []
+	for n in tree.get_nodes_in_group(&"dynamite"):
+		var s := n as DynamiteStick
+		if s and s.planted and s.is_bundle() and not s._done and not s.is_queued_for_deletion():
+			out.append(s)
+	return out
+
+
+# --- Saving -------------------------------------------------------------------------------------------
+
+## What a save keeps of it: where it lies, how many sticks, lit and how much fuse, wired to the
+## plunger or not, and what it's planted on (by its node path; it's dropped loose if that's gone when it's loaded).
+func to_dict() -> Dictionary:
+	var b := global_basis
+	var d := {"sticks": sticks, "at": [global_position.x, global_position.y, global_position.z],
+		"basis": [b.x.x, b.x.y, b.x.z, b.y.x, b.y.y, b.y.z, b.z.x, b.z.y, b.z.z],
+		"lit": lit, "fuse_left": fuse_left, "planted": planted, "wired": wired}
+	if planted and is_instance_valid(stuck_to) and stuck_to.is_inside_tree():
+		d["on"] = String(stuck_to.get_path())
+	return d
+
+
+## One back from `to_dict()` under `parent`.
+static func from_dict(parent: Node, d: Dictionary) -> DynamiteStick:
+	var a: Array = d.get("at", [0, 0, 0])
+	var s := make(parent, Vector3(a[0], a[1], a[2]), Vector3.ZERO, float(d.get("fuse_left", Blast.t().fuse_seconds)), int(d.get("sticks", 1)))
+	var m: Array = d.get("basis", [])
+	if m.size() == 9:
+		s.global_basis = Basis(Vector3(m[0], m[1], m[2]), Vector3(m[3], m[4], m[5]), Vector3(m[6], m[7], m[8]))
+	if bool(d.get("planted", false)):
+		var on: Node = parent.get_node_or_null(NodePath(str(d.get("on", "")))) if d.has("on") else null
+		s.stick_to(on)
+		if on == null:
+			s.loosen()
+	if bool(d.get("wired", false)):
+		s.wire()
+	if bool(d.get("lit", false)):
+		s.light()
+	return s
+
+
+## Every stick and bundle lying in the world (not gone off), for a save.
+static func save_all(tree: SceneTree) -> Array:
+	var out := []
+	for n in tree.get_nodes_in_group(&"dynamite"):
+		var s := n as DynamiteStick
+		if s and not s._done and not s.is_queued_for_deletion() and s.is_inside_tree():
+			out.append(s.to_dict())
+	return out
+
+
+## Them back, under `parent` (the world).
+static func restore_all(parent: Node, list: Array) -> Array[DynamiteStick]:
+	var out: Array[DynamiteStick] = []
+	for d: Dictionary in list:
+		out.append(from_dict(parent, d))
+	return out

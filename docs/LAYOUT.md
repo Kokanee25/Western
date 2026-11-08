@@ -467,7 +467,8 @@ until R2's scanned maps, people lit by the engine's own light (no painted light 
 globals off (`Settings.tile_globals`), no screen mosaic, shading or finish; the game viewport
 anti-aliased by FSR2 at native scale (sharper than Godot's TAA + MSAA, which read soft), 16x
 anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`; `view.scaling_3d_scale` under 1 upscales); the environment's dials
-from `config/looks/real_dials.json` (AgX, SSIL, SDFGI, the fog taking GI), every one put back off;
+from `config/looks/real_dials.json` (AgX, SSIL, the fog taking GI; SDFGI off since #643, its cascades
+scrolling as you walk a long frame every ~0.8 m, N's switch turns it on), every one put back off;
 exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
 own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
@@ -550,6 +551,14 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
+  pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
+  on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
+  `lowpass_db`, as a stream can't skip its bus), the view shaken (`view_shake`, put on the camera with
+  the gun's kick in `WeaponViewmodel._animate_camera`: your aim stays), grit (`blast_grit.gdshader`,
+  a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
+  `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
+  `dynamite_you_*` and `on_you.py`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -558,6 +567,11 @@ it all away and puts the probe and haze back.
   `pace()`/`slipped()` slow you after a kick or a slip on a stair. `landed` (and `last`) report each
   one; the lab and tests set `wants`. Lab: the ragdoll lab's group O via `experiments/kick_shove/`
   (`run.py` 20 seeds, `tally.py`, `fp_view.gd` first-person frames).
+
+Even steps (#643): `tests/test_walk_steps.gd` walks 30 steps down Main Street headless (each step's
+length to `user://walk_steps.csv`; none over 1.15x the median, no tick's travel over 1.15x). A
+hitch from the renderer isn't drawn headless: `tools/walk_frames.gd` walks it drawn, every frame
+timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes' spacing in metres.
 
 ## src/world
 
@@ -814,9 +828,12 @@ it all away and puts the probe and haze back.
   fragments, shards, chips, spent cases) and loose glass props' bodies: one whose middle has
   stayed within `STILL_M` for `STILL_S`, with no break within `QUIET_M` of it for `QUIET_S`
   (`disturbed`, from Structure's `_wake_near`/`_wake_near_all`), still moving faster than
-  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta). Let go
+  `RESTLESS` at some point (turning in place), is frozen static (`held_still` meta); so is a quiet
+  one still awake `QUIET_AWAKE_S` past its spell (#647: kept awake by a ragdoll or bone chips in
+  its pile, which aren't looked at). Held pieces are kept by 1 m cell (`_held_within`). Let go
   (unfrozen, awake): `RubbleRest.let_go` (ball, blast, shove), `RubbleRest.touch`, a break near
-  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig. Putting whole piles to
+  it (`disturbed`), rubble landing on it (`_on_rubble_hit`), Ground's dig; one let go so lets go
+  what's held lying on it (`_lying_on`, a shape query, three deep). Putting whole piles to
   sleep from here doesn't hold (the contact monitor's 4 contacts a body don't show Jolt's
   islands), nor damping the restless one to a stop; freezing one wakes the sleeping pile it
   touches once. `counts` for the lab (`bf_blast`'s `rubble_sleep`).
@@ -875,6 +892,19 @@ it all away and puts the probe and haze back.
   `pivot`s: a post kicked out at the foot, boards pulled off their nails, a lap board drooped, the
   framed or gable sign tilted, planks rocked, treads dished. The graph is the as-built one. Interiors
   untouched. `-- --young-town` builds the town new (the before shots: `experiments/old_buildings/`).
+  **Masonry** (the masonry lab, step 2; `docs/briefs/masonry-lab.md`, `experiments/masonry_lab/`):
+  `MasonryStructure` (a Structure) builds a structure file's expanded elements
+  (`config/destruction/structures/*.json`, laid by `MasonryExpander`/`tools/masonry_expand.gd`) as
+  members (`wood` the material id, drawn in `stone`, `stone_mesh` chamfered); supports from
+  `rests_on`, `touching` from the joints (`MasonryWall`: arrays, each joint bonded or broken).
+  `Blast.detonate` hands a masonry structure in reach to `take_blast` (its members skip
+  `_member_response`): `MasonryBlast.strike` (spec section 5) breaks joints, frees and cracks stones,
+  `_fling` throws them (far leaf first, through the standing stones near it till it's clear), then
+  the settle `free_before_settle_s` later. A loose stone's box sheds its mortar (`_loose_shape`, a
+  hook in `Structure._drop`); rubble falls a stone at a time (`falls_as` `units`). The analysis checks masonry by `_masonry` (S1 bearing, S2
+  bond; never the timber checks); overloaded masonry falls whole (`Structure._gives_way`), with
+  what it's still mortared to (`_clump_with`). Numbers only from `config/destruction/materials.json`
+  (`MasonryMaterials`); `StructureMember.is_masonry()` is the one "is it stone?" test.
 
 ## src/fire
 
@@ -972,7 +1002,9 @@ it all away and puts the probe and haze back.
   its push (`take_blow`, `knockdown_speed`), a blast throws along its line, a torn limb takes its
   own push (`_limb_throw`); hit and still up, he favours the wound as it comes on (`_favour_step`:
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
-  steps in project.godot; the lab is `experiments/physics_lab/`, `tally.py` sums a run;
+  steps in project.godot; his skin's culling box (each skin mesh's `custom_aabb`, about his root)
+  follows his parts when he's limp or away from his root (`_keep_in_cull_box`, #562: a fixed box
+  hid a body thrown past it); the lab is `experiments/physics_lab/`, `tally.py` sums a run;
   wounds, bleed-out and treatment are measured by the body lab, `experiments/body_lab/`; hit and
   still standing, a free hand goes to the wound by two-bone IK after the pose, `_grab`, `GRAB_*`;
   a deed puts a hand anywhere by the same IK, `reach_to(side, at, normal, weight)` renewed each tick,
@@ -1448,7 +1480,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
   its piece breaks; `BlastTuning` plant_*; a planted stick's hiss is `Events.noise` `fuse`, which
-  OutlawBrain hears; `experiments/plant_dynamite/`). `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
+  OutlawBrain hears; `experiments/plant_dynamite/`). Bundles (#647, brief `docs/briefs/dynamite-bundles.md`):
+  R held `make_time` ties `bundle_sticks` loose sticks into one (`making` kept; `bundles`,
+  `hold_bundle`, a tap switches: `_read_r`); a bundle is a `DynamiteStick` of `sticks` (their kg,
+  `layout`/`radius_of`), thrown shorter; planted it's wired (`DynamiteStick.wire`) and waits unlit,
+  `max_bundles` at once (`at_cap`, `bundles_set`); Q aimed lights its fuse (`aimed_charge`).
+  `PlungerViewmodel` (5): fire held pushes the handle home, `DynamiteStick.fire_wired` sets every
+  wired bundle off a tick apart (`fire_spread_ticks`); `save_all`/`restore_all` keep them;
+  `BlastTuning` bundle_sticks/make_time/max_bundles/push_time; bridge `weapon plunger`, `bundle X Y Z
+  [STICKS]`, `plunge [SPREAD]`, `dynamite X Y Z [FUSE] [STICKS]`. `BucketViewmodel` (4) is a water bucket: R fills it at a `water_source` (troughs),
   LMB throws it as drops on their own arcs, each handed to `FireSystem.douse()`; `armed` false (a
   held thing people don't take for a weapon: PlayerDeeds, the shout, OutlawBrain).
 
@@ -1491,7 +1531,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   on people; what it acts on comes from `gather()`: every member where timber can break,
   `break_reach_per_cbrt_kg`, by a query of its own, and out to the reach debris, ragdolls, sticks,
   every pane, loose rubble; boards, floor and roof boards it breaks are cut over `torn_stretch()`,
-  the run where the kick over a hand-span beats what it soaks up, not broken whole), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
+  the run where the kick over a hand-span beats what it soaks up, not broken whole; heavy timber
+  is tougher by its least side, `toughness()`, BlastTuning `heavy_from`/`heavy_power`, #647: a
+  bundle of four cuts a 12x12, three sticks don't; what breaks is decided on its tick and broken
+  nearest first, `BREAK_TICK_MS` on it and `Structure.BREAK_FRAME_MS` a tick after, the settle after
+  the last, `Structure.break_members`' budget, `-- --blast-break=whole` the before), `BlastTuning` (`config/blast.tres`), `DynamiteStick` (the stick in the world: fuse,
   sparks, shot/fire/sympathetic detonation), `BlastEffects` (the cloud, scorch, sound). A charge on (or just over) the dirt digs a crater
   (`Blast.crater`, `crater_size`: 0.8 x cbrt(kg) across, 0.27 of it deep, less higher up; the earth
   taken partly packed, the rest a lip via `Ground.put` and 16 `Clod`s, `src/world/clod.gd`, that lie

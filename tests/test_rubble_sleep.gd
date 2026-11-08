@@ -71,7 +71,7 @@ func test_a_piece_turning_in_place_is_held_still() -> void:
 	check(rb.global_position.distance_to(at) < 0.001, "and it stays put")
 
 
-func test_moving_and_quiet_pieces_are_left_to_jolt() -> void:
+func test_moving_and_quiet_pieces_are_left_to_jolt_till_kept_awake() -> void:
 	var bodies := await _down()
 	var rb: RigidBody3D = bodies[0]
 	_looks(null, rb)
@@ -80,10 +80,17 @@ func test_moving_and_quiet_pieces_are_left_to_jolt() -> void:
 	quiet.sleeping = false
 	quiet.linear_velocity = Vector3.ZERO
 	quiet.angular_velocity = Vector3.ZERO
-	_sleeper().look(RubbleSleep._time() + 10.0)
-	_sleeper().look(RubbleSleep._time() + 12.0)
+	quiet.global_position += Vector3(0, 0, 0.1)  # (its still spell begins now)
+	var t := RubbleSleep._time() + 10.0
+	_sleeper().look(t)
+	_sleeper().look(t + RubbleSleep.STILL_S)
 	check(not _sleeper().held(quiet), "awake but not moving: left to sleep with its pile")
 	check(not quiet.freeze, "not frozen")
+	# Still awake long past that (something in its pile keeps Jolt from sleeping it, #647): held.
+	quiet.sleeping = false
+	_sleeper().look(t + RubbleSleep.STILL_S + RubbleSleep.QUIET_AWAKE_S + 0.1)
+	check(_sleeper().held(quiet), "kept awake quiet past its spell: held")
+	check(quiet.freeze, "frozen")
 
 
 func test_nothing_is_held_near_a_break() -> void:
@@ -141,3 +148,25 @@ func test_rubble_landing_on_a_held_piece_lets_it_go() -> void:
 	other.set_meta(&"v", Vector3(0, -6.0, 0))
 	s._on_rubble_hit(rb, other)
 	check(not _sleeper().held(rb), "a piece coming down on it lets it go")
+
+
+## A piece knocked out of a pile held still lets go what's held lying on it or against it (#647:
+## quiet pieces are held too now, so whole piles are; one shot out mustn't leave the rest hanging).
+func test_a_held_piece_knocked_loose_lets_go_what_lies_against_it() -> void:
+	var bodies := await _down()
+	var rb: RigidBody3D = bodies[0]
+	var other: RigidBody3D = bodies[1]
+	# The two lying together, as in a pile (the plank against the stud's side).
+	other.global_position = rb.global_position + Vector3(0, 0.12, 0)
+	await physics_frames(30)
+	var t := RubbleSleep._time() + RubbleSleep.QUIET_S + 1.0
+	for i in 4:
+		rb.sleeping = false
+		rb.angular_velocity = Vector3(0, 3.0, 0)
+		other.sleeping = false
+		_sleeper().look(t + i * RubbleSleep.STILL_S)
+	check(_sleeper().held(rb) and _sleeper().held(other), "both held (%s, %s)" % [_sleeper().held(rb), _sleeper().held(other)])
+	RubbleRest.let_go(rb)
+	check(not _sleeper().held(rb), "the one struck let go")
+	check(not _sleeper().held(other), "and the one against it (%.2f m apart)" % rb.global_position.distance_to(other.global_position))
+	check(not other.freeze, "a body again")

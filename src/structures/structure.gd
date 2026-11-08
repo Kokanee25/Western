@@ -108,6 +108,15 @@ var _heard := {}  # what -> the tick it was last heard (first_this_tick)
 var _heard_n := {}  # what -> Vector2i(tick, how many so far that tick) (under_this_tick)
 ## While break_members runs: the cuts' wakes, done together at its end (else null).
 var _wakes: Variant = null
+## A blast's breaking past its tick's budget (#647: a bundle on Main Street was ~100 ms of cuts on
+## its own tick here): what's left, nearest first, broken BREAK_FRAME_MS a tick after, then the
+## one settle. [[member, push, cut], ...]; empty when none waits.
+var _breaking: Array = []
+var _broke_some := false  # (timber among what's broken since the last settle of a blast's)
+## Each tick after a blast's: this long (ms) of its breaking (under World.deterministic,
+## BROKEN_A_MS members a millisecond of it: a cut is ~0.25 ms here).
+const BREAK_FRAME_MS := 12.0
+const BROKEN_A_MS := 4
 var _rng := RandomNumberGenerator.new()
 var _shape_cache := {}
 ## A batch is one material's members, or a piece of them ([Material, piece]: see BATCH_PIECE).
@@ -1323,6 +1332,8 @@ func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool
 	wait_analysis()
 	last_analysis = a
 	var over := a.overloaded()
+	if not over.is_empty() and _gives_way(over, changed):
+		return true  # (masonry: MasonryStructure)
 	if not over.is_empty():
 		# The worst goes first; the rest may be fine once the loads find new paths.
 		var m := get_member(over[0])
@@ -1334,6 +1345,24 @@ func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool
 	var dropped := _drop(a.falling, DROP_PER_ROUND)
 	changed.append_array(dropped)
 	return true
+
+
+## Overloaded members that give way other than by snapping (masonry falls whole, all at once:
+## MasonryStructure). True if some did; `changed` gets what fell.
+func _gives_way(_over: Array[StringName], _changed: Array[StringName]) -> bool:
+	return false
+
+
+## A falling member's shape as it goes loose (`cs`, already on its body): as built here; masonry
+## sheds its share of the mortar (MasonryStructure).
+func _loose_shape(_m: StructureMember, _cs: CollisionShape3D) -> void:
+	pass
+
+
+## What falls with a member that falls: what it touches (a building's timbers, nailed). Masonry:
+## what it's still mortared to (MasonryStructure).
+func _clump_with(id: StringName) -> Array[StringName]:
+	return get_member(id).touching
 
 
 ## Break a member outright (an axe, dynamite, the debug key): it falls and the rest settles.
@@ -1351,18 +1380,78 @@ func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]
 
 ## Break several members at once (a blast), each thrown by its own push, then settle once. A
 ## member with a stretch in `cuts` (Vector2(t0, t1), or null) has that stretch cut out instead.
-func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = []) -> Array[StringName]:
+##
+## With a `budget` (a blast's tick), what doesn't fit in it waits, in the order given (the blast's:
+## nearest first), and is broken BREAK_FRAME_MS a tick on the ticks after, the settle after the
+## last (`breaking()`): the same members, what's furthest a few ticks later (its shock is there
+## ~60 ms after a 20 m reach anyway). Returns what broke now.
+func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = [], budget: WorkBudget = null) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if not collapses:
 		return out
+	var todo := []
+	for i in list.size():
+		todo.append([list[i], pushes[i] if i < pushes.size() else Vector3.ZERO, cuts[i] if i < cuts.size() else null])
+	if not _breaking.is_empty() or (budget and budget.over()):
+		_breaking.append_array(todo)  # (behind what already waits: one settle at the end of it all)
+		_now_breaking[self] = true
+		return out
+	return _break_some(todo, budget)
+
+
+## Is a blast's breaking still under way (a slice a tick)?
+func breaking() -> bool:
+	return not _breaking.is_empty()
+
+
+## Is any building's? (A kit prop's push waits for it: what shields it is what's still standing.)
+static func any_breaking() -> bool:
+	for st: Variant in _now_breaking.keys():
+		if is_instance_valid(st) and not (st as Structure)._breaking.is_empty():
+			return true
+		_now_breaking.erase(st)
+	return false
+
+
+static var _now_breaking := {}
+
+
+## The next tick's share of what a blast left.
+func _break_waiting() -> void:
+	# One budget a tick for every building's (a bundle's breaking is in three or four).
+	var tick := Engine.get_physics_frames()
+	if _tick_budget == null or _tick_budget_at != tick:
+		_tick_budget = WorkBudget.new(BREAK_FRAME_MS, int(BREAK_FRAME_MS * BROKEN_A_MS))
+		_tick_budget_at = tick
+	if _tick_budget.over():
+		return
+	var todo := _breaking
+	_breaking = []
+	var t := Prof.start()
+	_break_some(todo, _tick_budget)
+	Prof.stop(&"blast_break_after", t)
+
+
+static var _tick_budget: WorkBudget
+static var _tick_budget_at := -1
+
+
+func _break_some(todo: Array, budget: WorkBudget) -> Array[StringName]:
+	var out: Array[StringName] = []
 	var structural := false
 	_wakes = []
-	for i in list.size():
-		var m := list[i]
+	for i in todo.size():
+		if budget and i > 0 and budget.over():
+			_breaking = todo.slice(i)
+			_now_breaking[self] = true
+			break
+		var m: StructureMember = todo[i][0]
 		if m == null or not is_instance_valid(m) or m.broken:
 			continue
-		var push: Vector3 = pushes[i] if i < pushes.size() else Vector3.ZERO
-		var cut: Variant = cuts[i] if i < cuts.size() else null
+		if budget:
+			budget.spend()
+		var push: Vector3 = todo[i][1]
+		var cut: Variant = todo[i][2]
 		var t_b := Prof.start()
 		if m.kind == &"glass":
 			m.shatter(m.global_position, push.normalized() if push.length() > 0.01 else Vector3.DOWN)
@@ -1378,6 +1467,12 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 		structural = structural or m.kind != &"glass"
 	_wake_near_all(_wakes)
 	_wakes = null
+	if structural:
+		_broke_some = true
+	if not _breaking.is_empty():
+		return out
+	structural = _broke_some
+	_broke_some = false
 	# Panes carry nothing: a building that only lost glass doesn't need its loads worked out again
 	# (a whole building's analysis, ~0.1 s for the saloon, for a window across the street).
 	if structural:
@@ -1496,7 +1591,7 @@ func _make_chunks(m: StructureMember, place: Transform3D, t0: float, t1: float, 
 		# Short pieces are small debris (you walk through them), as wood chips are.
 		if maxf(size.x, maxf(size.y, size.z)) < Fittings.SMALL:
 			rb.collision_layer = Layers.DEBRIS
-			rb.collision_mask = Layers.DEBRIS_MASK
+			rb.collision_mask = Layers.WORLD if "--lab-debris-solo" in _lab_args else Layers.DEBRIS_MASK
 		rb.linear_velocity = throws[k][0]
 		rb.angular_velocity = throws[k][1]
 		rb.set_meta(&"start_v", rb.linear_velocity)
@@ -1621,7 +1716,7 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 		while not stack.is_empty():
 			var id: StringName = stack.pop_back()
 			clump.append(id)
-			for n in get_member(id).touching:
+			for n in _clump_with(id):
 				if left.has(n):
 					left.erase(n)
 					stack.append(n)
@@ -1646,6 +1741,8 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			for c in m.take_parts():
 				c.transform = to_rb * (at_m * c.transform)
 				rb.add_child(c)
+				if c is CollisionShape3D:
+					_loose_shape(m, c as CollisionShape3D)  # (masonry: the stone without its mortar)
 				if c is CollisionShape3D and not (c as CollisionShape3D).shape is BoxShape3D:
 					# Carved (concave): a moving body takes its box, as in _snap, or it falls
 					# through the ground (a blasted sign, the nightly soak, 2026-10-13).
@@ -1788,6 +1885,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _physics_step(delta: float) -> void:
+	if not _breaking.is_empty():
+		_break_waiting()
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
 	var lost: Array[RigidBody3D] = []
 	var ground := _dug_ground()
@@ -1876,7 +1975,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 	if Engine.get_physics_frames() - int(rb.get_meta(&"reports_from", -10)) <= 1:
 		return  # (just turned on: what it was already touching, not a landing: _report)
 	if other is RigidBody3D:
-		RubbleSleep.let_go(other)  # (a piece held still that this lands on: its own again, #585)
+		RubbleSleep.let_go(other, " (landed on)")  # (a piece held still that this lands on: its own again, #585)
 	var energy := 0.5 * rb.mass * speed * speed
 	if other.has_meta(&"human_body") and energy > 5.0:
 		# Timber coming down on someone: once per piece per person.

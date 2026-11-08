@@ -72,8 +72,8 @@ static func dust_of(world: Node3D, at: Vector3) -> Color:
 	var hit := World.space(world).intersect_ray(q)
 	if not hit.is_empty() and hit.collider is StructureMember:
 		var m := hit.collider as StructureMember
-		if m.wood == &"stone":
-			return Color(0.58, 0.56, 0.52)
+		if m.is_masonry():
+			return MasonryMaterials.dust_colour(m.wood, Color(0.58, 0.56, 0.52))
 		return Color(0.6, 0.5, 0.38)
 	return Color(0.56, 0.45, 0.34)
 

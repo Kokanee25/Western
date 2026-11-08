@@ -37,8 +37,10 @@ const SIGHT_GLASS := 1 << 20
 const VIS_BODY := 2
 ## Render: what's inside a body, seen through a wound (decals don't paint it).
 const VIS_INSIDE := 4
-## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite), on the world's
-## layer too: its own fill light reaches only this (WeaponViewmodel).
+## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite): its own fill
+## light reaches only this (WeaponViewmodel). Off the world's layer (`hold`), so no world decal (a
+## blood pool, floor marks, a splat, a blast's scorch) paints it (#669); lights and cameras see
+## every layer.
 const VIS_HELD := 8
 ## Render: what a far lamp's shadow is cast by (OilLamp): each structure's shadow mesh (on this
 ## alone) and its members' own meshes (on this and 1). The sun, the moon and near lamps leave the
@@ -48,3 +50,8 @@ const ALL_BUT_WALLS := 0xFFFFFFFF & ~VIS_WALLS
 ## Render: dust and smoke in the air, off the world's layer so the ground's decals (a blast's scorch)
 ## don't paint it; cameras and lights see it as any other.
 const VIS_AIR := 32
+
+
+## A mesh in your hands: on VIS_HELD alone, off the world's layer that world decals paint (#669).
+static func hold(mi: MeshInstance3D) -> void:
+	mi.layers = (mi.layers & ~WORLD) | VIS_HELD

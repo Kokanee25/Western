@@ -15,7 +15,8 @@ extends Node
 ## to it and one goes to cover it. The guard puts his gun on the rancher when it goes badly, and
 ## kills him if you're in the house and he's had enough (the dials: config/farmhouse.tres). E held
 ## by the rancher cuts him loose; he follows you. Won: he's out and safe and nobody's still
-## fighting. Lost: he's dead, or you're down. Either way a line on screen; lost, Enter tries again.
+## fighting. Lost: he's dead, or you're down. Either way a line on screen; lost, Enter (Start on a
+## controller) tries again, never Space or A, the jump (#668).
 
 enum State {IDLE, TELLING, ON, WON, LOST}
 
@@ -169,7 +170,8 @@ func begin(place_player := false) -> void:
 	# The range's man stands by the road east, between the town and the farm: he'd have it out with
 	# you on the way (a man walking by with his gun out). Not while the gang's at the farm.
 	var range_spawn := street.get_node_or_null(^"OutlawSpawn") as OutlawSpawner
-	if range_spawn and range_spawn.outlaw and is_instance_valid(range_spawn.outlaw):
+	# (Standing: a man you've already put down stays where he lies, #562.)
+	if range_spawn and range_spawn.outlaw and is_instance_valid(range_spawn.outlaw) and not range_spawn.outlaw.limp:
 		range_spawn.outlaw.queue_free()
 	var riders := town.take_riders()
 	var ids: Array[StringName] = []
@@ -833,7 +835,8 @@ func _physics_process(delta: float) -> void:
 			_rescue_step(delta)
 			_check_end()
 		State.LOST:
-			if Input.is_action_just_pressed(&"ui_accept"):
+			# Enter or Start (not ui_accept: Space and A are the jump, #668; Back + Start is the look panel)
+			if Input.is_action_just_pressed(&"mission_retry") and not Input.is_action_pressed(&"debug_overlay"):
 				retry()
 
 

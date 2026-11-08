@@ -742,6 +742,11 @@ frozen until Sean names one.
   one tick made 140). Merged, build 3117. Sean's #620: the dials kept, and jackknifing cars come
   apart (`jackknife_deg` 20: the coupler shears, a car of boards in the fold breaks up;
   `results/2026-11-04_jackknife/`). Next: #542 (step 7).
+- **The lurch every few steps** (#643, branch `claude/gameplay-walk-lurch`): the real look's SDFGI
+  (its cascades scroll as you walk: a long frame every 0.84 m) turned off in `real_dials.json` (N has
+  a switch); the walk itself was even. `tests/test_walk_steps.gd`, `tools/walk_frames.gd`; results
+  `experiments/movement_feel/results/2026-11-04_lurch/`. Open: Sean's F3 with the fix; physics
+  interpolation (none today: any frame that misses vsync shows as a jump).
 - **The trestle lab** (#623, PR #637 merged, build 3194; round 2 on branch `claude/issue-623-oge4jv`;
   brief `docs/briefs/trestle.md`, `experiments/trestle_lab/` README): `Trestle` (`src/train/
   trestle.gd`, a `TrackChunk`; dials `config/trestle.tres`, proposed) built from a route's named
@@ -764,15 +769,59 @@ frozen until Sean names one.
   Train's near list; a placed train threw you); the farmhouse one not reproduced (4 tries), runaway
   rubble now slowed and logged (`Structure.RUNAWAY_SPEED`). Untested here: the Windows half (CI
   builds it; Sean's first crash proves it). Bridge `key NAME`.
+  The saloon-fight quit (#671): not reproduced (his build predated #650); every scene reload goes
+  through `GameReset.reload_scene` (the lab's Y/X/Z skipped the statics and the watchdog's load).
+  Trap: the lab's `run.py` passes `--deterministic`, which keeps the workers' merges off: crashes
+  in threaded paths need runs without it.
+- **Close-out week, gameplay** (#673, 2026-11-05, branch `claude/salt-creek-closeout-yl455a`): merged
+  #672 (#668: `mission_retry` on Enter/Start, not the jump; a match put away never lights the stick;
+  build 3349), #684 (#636: `blast_lift` 0.8 in `config/blast.tres`; three men thrown, worst 76-79 ms
+  at Sean's; build 3356), #685 (#669: held meshes on `VIS_HELD` alone via `Layers.hold`, the blood
+  pool 0.2 m tall on the floor under him; build 3364), #686 (#643: the real look's SDFGI off,
+  `test_walk_steps`).
+  #670 (white patches) not reproduced: what's ruled out is on the issue, waiting on Sean's F12.
+  Next: #562 (its handover comment). Trap: lavapipe needs `mesa-vulkan-drivers` (apt), and the real
+  look switched on at runtime crashes it: start with `--game-args=--real`.
+- **Hands up** (#694, branch `claude/gameplay-hands-up-qhn1oz`; lab `experiments/hands_up/`): the
+  surrender pose solved (elbows ~98, hands at head height, palms forward) and keyed on the way up
+  (`HumanBody.HANDS_UP_KEYS`), slerped down; films old | new in its `results/2026-11-07/`. Waiting on
+  Sean's OK (#694); the hands-up goldens re-approved in the merge.
+- **Bodies disappearing** (#562, branch `claude/gameplay-bodies-vanish-qv6jdg`, PR #688; lab
+  `experiments/bodies_vanish/`, `bv_watch`): a limp man's skin culling box follows his parts
+  (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
+  drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
+  start). Waiting on Sean: #689 (taken away only out of sight?).
+- **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
+  `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`
   0 the synth. Sean: "it needs more of a crack": your ears hold clear 0.3 s before the muffle
   (`BlastTuning.ear_hold_s`/`ear_ease_s`), the crack full to 6 m and over the boom. No debris,
   glass or groan recordings yet. The API fetch (`tools/sounds/`) unused: Sean downloads by hand.
+  For #647's bundles (branch `claude/gameplay-dynamite-volley`): charges fired together are one
+  volley (`GameAudio._join_volley`, `SoundTuning.volley_*`: each its crack and boom pitched apart,
+  one grown sub and roll), and a bang while you're deafened stays muffled (`ear_rehold_ringing`).
+- **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
+  you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
+  gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
+  `2026-11-04_on_you/`. Waiting on Sean: #656 (the films). Next on #596: step 3 (the first instant).
+- **Dynamite bundles** (#647, #596 step 7; brief `docs/briefs/dynamite-bundles.md`): R held 12 s
+  ties four sticks, planted ones wired to the plunger box (5), fired a tick apart (Sean's picks,
+  #648). Round 2 (branch `claude/gameplay-dynamite-bundles-l8u7ou`): heavy timber tough
+  (`Blast.toughness`, FM 5-25's D²): a bundle of four cuts a 12x12, three sticks don't, the town's
+  walls the same (`experiments/breakage_lab/results/2026-11-04_tough_timber/`); a blast's breaking
+  sliced nearest first over its tick and the next few (`Structure.break_members`' budget), quiet
+  rubble kept awake held (`RubbleSleep.QUIET_AWAKE_S`, `_lying_on`). Gate
+  (`experiments/blast_freeze/results/2026-11-04_bundles/r2/`): the trestle's two bundles as the
+  engine comes on pass; Main Street's one bundle ~125 ms on its tick here (main 196), calm by 5 s;
+  three bundles still fail (Jolt with ~7,000 pieces moving). Sean's call: chips not on chips
+  (`--lab-debris-solo`).
 - **CI minutes** (#504, branch `claude/ci-build-minutes`): branch pushes build nothing (PRs, main
   and `[build]` do); tour, visual and soak once a night only if main changed (#604, build 3064).
   No macOS build (Sean tests only on Windows, branch `claude/ci-windows-only`).
+  `[build] [smoke]` on a branch push also runs the exports and smoke tests; a failed smoke prints
+  the crash guard's notes and reruns the drawn build under gdb (#662, build 3306).
 - The nightly visual check made repeatable (the pain throb on game time, gun smoke seeded); the
   fire-smoke test steps synchronously.
 - Experiment (off): walking and running by CMU motion capture (`experiments/mocap_walk/`,
@@ -1000,6 +1049,17 @@ frozen until Sean names one.
   and walks round a hole (step 4, #255). Crater papers' hosts blocked (issue #227). Next: step 5,
   a tile's mesh and shape built natively (an edit is ~15–24 ms in GDScript); art's ground look
   (the brief's "What art needs"). Then 3.3.
+
+**The masonry lab** (Sean's brief 2026-11-04, `docs/briefs/masonry-lab.md`; engine-neutral rules in
+`docs/destruction/`, data in `config/destruction/`): step 1 merged (Sean approved the materials,
+rubble first, the fps targets, the Baron's house brick or cut stone: #666). **Step 2** (#667, branch
+`claude/masonry-wall-panel-breach-e85yho`; `experiments/masonry_lab/` README): the rubble-stone panel
+(294 stones, 1,087 joints, `MasonryExpander`) as `MasonryStructure` members, `MasonryBlast` (spec §5,
+friction on the beds), S1/S2 in `StructuralAnalysis._masonry`, `is_masonry` the one stone test;
+`blast_dynamic_factor` 0.01, `blast_throw_factor` 4, `free_before_settle_s` 0.1, rubble falls a stone at
+a time with its mortar shed: one stick throws ~15-20 stones out the back of the 0.55 m wall, a ragged
+hole ~1.5 m wide, the stone over it sags and wedges (film `results/2026-11-04_step2/`). The blast is ~2
+frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a jail wall takes is Sean's.
 
 **The horse** (brief `docs/briefs/horse.md`; branch `claude/saltcreek-horse-model-fxzbuw`, PR #339):
 - Step 1 merged (Sean: "Merge the new horse", PR #339): the bay on Rodin's model from a picture set

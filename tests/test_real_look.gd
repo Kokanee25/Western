@@ -64,7 +64,8 @@ func test_the_environment_takes_the_dials_and_gets_them_back() -> void:
 	Settings.set_real_look(true)
 	await process_frames(2)
 	check(env.tonemap_mode == Environment.TONE_MAPPER_AGX, "AgX under the real look")
-	check(env.ssil_enabled and env.sdfgi_enabled, "SSIL and SDFGI on")
+	check(env.ssil_enabled, "SSIL on")
+	check(not env.sdfgi_enabled, "SDFGI off (#643: its cascades scrolling as you walk hitch the frame)")
 	var we := get_tree().root.find_child("WorldEnvironment", true, false) as WorldEnvironment
 	check(we.camera_attributes is CameraAttributesPractical, "an exposure multiplier")
 	Settings.set_real_look(false)

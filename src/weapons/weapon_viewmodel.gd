@@ -111,7 +111,7 @@ func _add_fill() -> void:
 
 func _mark_held() -> void:
 	for mi in find_children("*", "MeshInstance3D", true, false):
-		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+		Layers.hold(mi as MeshInstance3D)
 
 
 func _update_fill() -> void:
@@ -423,8 +423,10 @@ func _animate_camera(delta: float, aim_fov: float) -> void:
 	if cam == null or not selected:
 		return
 	view_kick.step(delta)
-	cam.rotation.x = deg_to_rad(view_kick.pitch)
-	cam.rotation.y = deg_to_rad(-view_kick.yaw)
+	# And a blast's shake on top (PlayerWounds.view_shake, #596 step 2: the view, not your aim).
+	var shook: Vector3 = _player.wounds.view_shake if _player and _player.wounds else Vector3.ZERO
+	cam.rotation.x = deg_to_rad(view_kick.pitch + shook.x)
+	cam.rotation.y = deg_to_rad(-view_kick.yaw + shook.y)
 	cam.position = _cam_base + Vector3(0.0, 0.0, view_kick.back)
 	# What doesn't come back: handed to your own pitch over a moment, not in one jump.
 	if _climb_left > 0.0 and _player:

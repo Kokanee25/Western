@@ -49,12 +49,13 @@ func test_with_his_hands_up_the_helper_takes_its_share_of_the_turn() -> void:
 	for side in ["r", "l"]:
 		var arm := (chest.affine_inverse() * _move(sk, sk.find_bone("upper_arm_" + side))).basis
 		var helper := (chest.affine_inverse() * _move(sk, sk.find_bone("shoulder_" + side))).basis
-		# Each the shorter way round (the left arm's 150 degrees about -z reads 210 about +z).
+		# Each the shorter way round (a turn past 180 degrees reads the long way about the other axis).
 		var a := arm.get_rotation_quaternion().get_angle()
 		a = minf(a, TAU - a)
 		var h := helper.get_rotation_quaternion().get_angle()
 		h = minf(h, TAU - h)
-		check(a > deg_to_rad(120.0), "his %s arm is raised (%.0f degrees)" % [side, rad_to_deg(a)])
+		# (#694's surrender: out at shoulder height, turned for the bent elbow, ~104 degrees in all.)
+		check(a > deg_to_rad(90.0), "his %s arm is raised (%.0f degrees)" % [side, rad_to_deg(a)])
 		check_near(h / a, PeopleBodies.shoulder_share, 0.02, "his %s helper turned its share of the arm's turn" % side)
 
 
