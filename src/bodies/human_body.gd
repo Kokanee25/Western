@@ -19,8 +19,14 @@ const POSES := {
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
 	&"aim": {&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
-	&"hands_up": {&"upper_arm_r": Vector3(0, 0, 150), &"forearm_r": Vector3(0, 0, 25),
-			&"upper_arm_l": Vector3(0, 0, -150), &"forearm_l": Vector3(0, 0, -25), &"head": Vector3(8, 0, 0)},
+	# Giving up (#694, Sean): upper arms out at shoulder height a little forward of his sides,
+	# elbows bent ~100 degrees, hands at head height with the palms to you, chest and head a touch
+	# back. Each arm's three turns solved from those directions (the upper arm's YXZ turn so the
+	# elbow's hinge lies across the arm and forearm; the forearm a pure bend; the palm turned at the
+	# wrist, the hand bent back a little). He gets there by HANDS_UP_KEYS, not a blend.
+	&"hands_up": {&"upper_arm_r": Vector3(80, 22, 90), &"forearm_r": Vector3(98, 0, 0), &"hand_r": Vector3(0, 19, 15),
+			&"upper_arm_l": Vector3(80, -22, -90), &"forearm_l": Vector3(98, 0, 0), &"hand_l": Vector3(0, -19, -15),
+			&"chest": Vector3(4, 0, 0), &"head": Vector3(6, 0, 0)},
 	# Under arrest: hands bound behind his back, head down a little.
 	&"hands_bound": {&"upper_arm_r": Vector3(-35, 0, 0), &"forearm_r": Vector3(40, 40, 0),
 			&"upper_arm_l": Vector3(-35, 0, 0), &"forearm_l": Vector3(40, -40, 0), &"head": Vector3(-6, 0, 0)},
@@ -152,6 +158,26 @@ const POSES := {
 	# from his dials (PostPose, `take_post`), in `post_pose`; this entry only names it.
 	&"post": {},
 }
+## How his hands come up (#694, Sean: "forward and out together, elbows bending early, hands
+## leading; quick, with a small overshoot and settle; not one joint turning in a flat plane"):
+## [seconds, the arms' turns] from wherever they were, each joint slerped key to key, then the
+## pose's own turns (POSES hands_up) at HANDS_UP_TIME. Keys solved as the pose was: early, forearms
+## already bent and up in front; mid, upper arms forward and out halfway, hands at his chin;
+## over, a little higher and wider than the pose. Time runs on an ease-out to the overshoot.
+const HANDS_UP_KEYS := [
+	[0.11, {&"upper_arm_r": Vector3(19, 0, 7), &"forearm_r": Vector3(88, 0, 0), &"hand_r": Vector3(0, -7, 0),
+			&"upper_arm_l": Vector3(19, 0, -7), &"forearm_l": Vector3(88, 0, 0), &"hand_l": Vector3(0, 7, 0)}],
+	[0.24, {&"upper_arm_r": Vector3(42, -8, 25), &"forearm_r": Vector3(107, 0, 0), &"hand_r": Vector3(0, 33, 5),
+			&"upper_arm_l": Vector3(42, 8, -25), &"forearm_l": Vector3(107, 0, 0), &"hand_l": Vector3(0, -33, -5)}],
+	[0.40, {&"upper_arm_r": Vector3(81, 90, 163), &"forearm_r": Vector3(86, 0, 0), &"hand_r": Vector3(0, 13, 18),
+			&"upper_arm_l": Vector3(81, -90, -163), &"forearm_l": Vector3(86, 0, 0), &"hand_l": Vector3(0, -13, -18)}],
+]
+const HANDS_UP_TIME := 0.58
+## Letting them down again (any pose after hands_up): the arms slerped to the new pose this long,
+## so the down path is the shortest turn, not the Euler numbers' (which swing them out and over).
+const HANDS_DOWN_TIME := 0.5
+const _HANDS_UP_JOINTS: Array[StringName] = [&"upper_arm_r", &"forearm_r", &"hand_r",
+		&"upper_arm_l", &"forearm_l", &"hand_l"]
 ## Poses lying down (the rig is turned face-down). "lie" is lying flat by choice (behind something
 ## low), and he can get up again; "prone" is down because his legs have gone.
 const PRONE_POSES := [&"prone", &"prone_aim"]
@@ -299,6 +325,12 @@ var _legs_gone := false  ## the stumble ended because his legs gave: no column, 
 var _favour := {}  ## region ("leg_r", "arm_l", "body"...) -> [how much he favours it 0..1, its rate]
 var _favour_lean := {}  ## segment -> degrees the wounds' consequence bends him by (on top of the pose)
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
+## His arms on their way up or down (HANDS_UP_KEYS): 0 none, 1 up, 2 down; its time; the arms'
+## turns it started from (segment -> Quaternion); the pose last tick (to see him enter or leave it).
+var _hands_track := 0
+var _hands_t := 0.0
+var _hands_from := {}
+var _hands_was := &"stand"
 var _breath := 0.0
 ## What his wounds show round him as time goes (blood from his ears, mouth, nose, drips, prints).
 var signs: WoundSigns
@@ -2192,10 +2224,12 @@ func _pose_maths(delta: float, snap: bool) -> void:
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
 	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
+	var track := _hands_goals(delta, snap, target)
 	_rots.resize(pivots.size())
 	var i := 0
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO)
+		var tracked := track.has(sid)
+		var goal: Vector3 = track[sid] if tracked else target.get(sid, Vector3.ZERO)
 		if leans:
 			goal += overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
 					+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
@@ -2204,7 +2238,10 @@ func _pose_maths(delta: float, snap: bool) -> void:
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
-		now = now.lerp(goal, blend) if not rising else (_rise_pose_from.get(sid, now) as Vector3).lerp(goal, _rise_k)
+		if tracked:
+			now = goal  # the track is the path: followed, not blended to
+		else:
+			now = now.lerp(goal, blend) if not rising else (_rise_pose_from.get(sid, now) as Vector3).lerp(goal, _rise_k)
 		_pose_now[sid] = now
 		var f: Array = _flinch.get(sid, [Vector3.ZERO, Vector3.ZERO])
 		if delta > 0.0:
@@ -2219,6 +2256,71 @@ func _pose_maths(delta: float, snap: bool) -> void:
 			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		_rots[i] = rot
 		i += 1
+
+
+## The arms' goals this tick while his hands go up or come down (HANDS_UP_KEYS), segment -> turn
+## (degrees), or {} (the pose's own goals then, blended as any pose's). Entering hands_up starts the
+## way up from where his arms are; leaving it, the way down to the new pose. His own data only
+## (runs in `_pose_maths`, on a worker under PeopleTick).
+func _hands_goals(delta: float, snap: bool, target: Dictionary) -> Dictionary:
+	if pose != _hands_was:
+		var up := pose == &"hands_up"
+		_hands_track = 0
+		if not snap and not rising and (up or _hands_was == &"hands_up"):
+			_hands_track = 1 if up else 2
+			_hands_t = 0.0
+			_hands_from.clear()
+			for sid in _HANDS_UP_JOINTS:
+				var was: Vector3 = _pose_now.get(sid, (POSES[_hands_was] as Dictionary).get(sid, Vector3.ZERO)
+						if POSES.has(_hands_was) else Vector3.ZERO)
+				_hands_from[sid] = _quat_deg(was)
+		_hands_was = pose
+	if _hands_track == 0 or snap or rising:
+		_hands_track = 0
+		return {}
+	_hands_t += delta
+	var end := HANDS_UP_TIME if _hands_track == 1 else HANDS_DOWN_TIME
+	if _hands_t >= end:
+		_hands_track = 0
+		return {}  # the pose's own turns from here (their numbers, not a quaternion's other branch)
+	var out := {}
+	if _hands_track == 2:
+		var k := smoothstep(0.0, 1.0, _hands_t / end)
+		for sid in _HANDS_UP_JOINTS:
+			var to := _quat_deg(target.get(sid, Vector3.ZERO))
+			out[sid] = _deg_quat((_hands_from[sid] as Quaternion).slerp(to, k))
+		return out
+	# Up: an ease-out to the overshoot (quick off the mark, slowing into it), then a smooth settle.
+	var over_t: float = HANDS_UP_KEYS[-1][0]
+	var t := _hands_t
+	if t < over_t:
+		var x := t / over_t
+		t = over_t * (1.0 - (1.0 - x) * (1.0 - x))
+	var a_t := 0.0
+	var b_t := end
+	var b_i := HANDS_UP_KEYS.size()
+	for j in HANDS_UP_KEYS.size():
+		if t < float(HANDS_UP_KEYS[j][0]):
+			b_i = j
+			b_t = HANDS_UP_KEYS[j][0]
+			break
+		a_t = HANDS_UP_KEYS[j][0]
+	var f := clampf((t - a_t) / maxf(b_t - a_t, 1e-4), 0.0, 1.0)
+	if b_i == HANDS_UP_KEYS.size():
+		f = smoothstep(0.0, 1.0, f)
+	for sid in _HANDS_UP_JOINTS:
+		var qa: Quaternion = _hands_from[sid] if b_i == 0 else _quat_deg(HANDS_UP_KEYS[b_i - 1][1][sid])
+		var qb := _quat_deg(target.get(sid, Vector3.ZERO) if b_i == HANDS_UP_KEYS.size() else HANDS_UP_KEYS[b_i][1][sid])
+		out[sid] = _deg_quat(qa.slerp(qb, f))
+	return out
+
+
+static func _quat_deg(d: Vector3) -> Quaternion:
+	return Quaternion.from_euler(d * (PI / 180.0))
+
+
+static func _deg_quat(q: Quaternion) -> Vector3:
+	return q.get_euler() * (180.0 / PI)
 
 
 ## The pose's writes, on the main thread: each joint turned to its `_rots` (or its clip's turn),
