@@ -1,0 +1,16 @@
+{
+ "id": "black_walnut_veneer_02",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/black_walnut_veneer_02",
+ "metres": [
+  1.0,
+  1.0
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-08"
+}
