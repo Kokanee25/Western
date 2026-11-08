@@ -46,7 +46,11 @@ func _cmd_trestle_lab(_a: Array) -> Dictionary:
 	rep["trestle_nodes"] = _count(tr)
 	rep["line_length"] = line.length
 	rep["marks"] = line.marks
-	rep["middle"] = arr(line.to_global(line.point_at(line.mark_s("middle"))))
+	var mid_s := line.mark_s("middle")
+	if is_nan(mid_s):
+		mid_s = (tr.from_s + tr.to_s) * 0.5  # (the valley's line: trestle_mid)
+	rep["middle"] = arr(line.to_global(line.point_at(mid_s)))
+	rep["world"] = String(Settings.world)
 	return rep
 
 
@@ -280,7 +284,7 @@ func _cmd_trestle_cam(a: Array) -> Dictionary:
 		"floor":
 			# On the gorge floor (the river's bank) 35 m downstream, looking up at the deck's middle.
 			eye = deck + f.basis.x * 35.0 + (-f.basis.z) * 12.0
-			eye.y = line.global_position.y - float(g.depth) + 1.7
+			eye.y = (line.global_position.y - float(g.depth) if g else ValleyTerrain.main().height(eye.x, eye.z)) + 1.7
 			look = deck + Vector3.DOWN * 8.0
 		"rim":
 			# On the far rim (past the crossing's end, on the flat), 260 m along the gorge, looking
@@ -289,6 +293,11 @@ func _cmd_trestle_cam(a: Array) -> Dictionary:
 			var side := float(a[1]) if a.size() > 1 else 90.0
 			eye = deck + f.basis.x * side + (-f.basis.z) * (half + 6.0)
 			eye.y = line.global_position.y + 6.0  # (on a rock at the edge, looking down across)
+			if g == null:
+				# The valley (G3): the trestle overlook on the canyon's west rim, the finale's vantage.
+				var vp := ValleyLayout.main().viewpoint("vp_trestle_overlook")
+				eye = Vector3(float(vp.at[0]), 0.0, float(vp.at[1]))
+				eye.y = ValleyTerrain.main().height(eye.x, eye.z) + float(vp.get("eye", 1.7))
 			look = deck + Vector3.DOWN * 10.0
 		"deck":
 			var s := float(a[1]) if a.size() > 1 else tr.from_s + 20.0

@@ -11,6 +11,10 @@ extends SceneTree
 ## --ride: no spots; a ride at a gallop (15 m/s) from the crossroads east past the trestle and on to
 ## the far corner and back, the ground's own frame (Prof `valley_ground`: choosing and building its
 ## blocks) each frame, its mean and worst (the levels' streaming as you travel).
+## The main line and its train (G3, #716) are in the valley: at each spot the train is put running
+## its timetable at the end of the line far from you (from east_start, or from the Ore Works for a
+## spot east of the depot), and the train's own systems (Prof `train*`, `people_*` for its engineer)
+## are averaged too. `--no-railway` (a game arg, ValleyWorld) is the valley without it: the before.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -95,18 +99,22 @@ func _run() -> void:
 		if ground and ground.valley:
 			ground.valley.prime(at + Vector3.UP * 1.6)
 		var prime_ms := (Time.get_ticks_usec() - tp) / 1000.0
+		var far := _train_far(world_root, at)
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
+		if far != "":
+			m["train_from"] = far
+			m["train_s"] = snappedf(float(world_root.get_node(^"Railway").train.sim.s), 0.1)
 		m["prime_ms"] = prime_ms
 		if ground and ground.valley:
 			m["blocks"] = ground.valley.census()
 		m["sean_render_cpu_ms"] = snappedf(float(m.render_cpu_ms) * scale, 0.01)
 		m["at"] = [at.x, at.y, at.z, s[2]]
 		report.spots[s[0]] = m
-		print("%-17s frame %.1f ms (p99 %.1f)  render CPU %.2f ms (Sean's %.2f)  draws %d  prims %dk  blocks %s  prime %.0f ms" % [
+		print("%-17s frame %.1f ms (p99 %.1f)  render CPU %.2f ms (Sean's %.2f)  draws %d  prims %dk  blocks %s  prime %.0f ms  train %.3f ms  people %.3f ms  nodes %d" % [
 				s[0], m.avg_ms, m.p99_ms, m.render_cpu_ms, m.sean_render_cpu_ms, m.draw_calls, m.primitives / 1000.0,
-				m.get("blocks", {}).get("by_level", {}), prime_ms])
+				m.get("blocks", {}).get("by_level", {}), prime_ms, m.train_ms, m.people_ms, m.nodes])
 	_write(report)
 	quit(0)
 
@@ -150,7 +158,25 @@ func _ride(player: Node3D, ground: Node) -> Dictionary:
 	return out
 
 
+## The train running its timetable at the end of the line far from `at`: from east_start (moving
+## off), or from the Ore Works for a spot east of the depot. "" with no railway.
+func _train_far(world_root: Node, at: Vector3) -> String:
+	var rw = world_root.get_node_or_null(^"Railway")
+	if rw == null or rw.train == null:
+		return ""
+	var from := "east_start" if at.x < 600.0 else "ore_works"
+	var k := 0 if from == "east_start" else 2
+	rw.driving = true
+	rw.start_run(float(rw.timetable.stops[k].get("depart", 0.0)) + 30.0, rw.run_day)
+	return from
+
+
 func _measure(rid: RID) -> Dictionary:
+	var prof = load("res://src/debug/prof.gd")
+	prof.on = true
+	var before := {}
+	for k in prof._sum:
+		before[k] = int(prof._sum[k])
 	var times := PackedFloat32Array()
 	var render := 0.0
 	var draws := 0.0
@@ -170,5 +196,15 @@ func _measure(rid: RID) -> Dictionary:
 	var avg := 0.0
 	for t in times:
 		avg += t / times.size()
+	var train_us := 0
+	var people_us := 0
+	for k in prof._sum:
+		var d := int(prof._sum[k]) - int(before.get(k, 0))
+		if String(k).begins_with("train"):
+			train_us += d
+		elif String(k).begins_with("people") or String(k) == "senses":
+			people_us += d
 	return {"avg_ms": snappedf(avg, 0.01), "p99_ms": snappedf(sorted[int(sorted.size() * 0.99) - 1], 0.01),
-			"render_cpu_ms": snappedf(render, 0.01), "draw_calls": roundi(draws), "primitives": roundi(prims)}
+			"render_cpu_ms": snappedf(render, 0.01), "draw_calls": roundi(draws), "primitives": roundi(prims),
+			"train_ms": snappedf(train_us / 1000.0 / frames, 0.001), "people_ms": snappedf(people_us / 1000.0 / frames, 0.001),
+			"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))}

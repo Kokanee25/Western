@@ -143,7 +143,7 @@
 				{"id": "tunnel", "straight_to": 4600}
 			],
 			"profile": {"vertical_curve": 60, "grades": [[0, 1.5], [600, 0.1], [1180, 0], [1420, -0.43], [2227, 0], [2727, 1.8], [3930, 0], [4130, 2.5]]},
-			"marks": {"east_portal": 50, "overpass": 550, "slow_board": 1000, "trestle_east": 1229, "trestle_mid": 1294, "trestle_west": 1359, "depot_east_switch": 2230, "depot": 2416, "depot_west_switch": 2720, "ore_works_east": 3930, "ore_works": 4030, "ore_works_west": 4130, "west_portal": 4480},
+			"marks": {"east_portal": 50, "east_start": 90, "overpass": 550, "slow_board": 1000, "trestle_east": 1229, "trestle_mid": 1294, "trestle_west": 1359, "depot_east_switch": 2230, "depot": 2416, "depot_west_switch": 2720, "ore_works_east": 3930, "ore_works": 4030, "ore_works_west": 4130, "west_portal": 4480, "tunnel": 4590},
 			"crossings": [{"id": "great_trestle", "kind": "trestle", "from": 1229, "to": 1359}]
 		},
 		"tracks": [
