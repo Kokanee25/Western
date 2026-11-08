@@ -775,6 +775,10 @@ frozen until Sean names one.
   #670 (white patches) not reproduced: what's ruled out is on the issue, waiting on Sean's F12.
   Next: #562 (its handover comment). Trap: lavapipe needs `mesa-vulkan-drivers` (apt), and the real
   look switched on at runtime crashes it: start with `--game-args=--real`.
+- **Hands up** (#694, branch `claude/gameplay-hands-up-qhn1oz`; lab `experiments/hands_up/`): the
+  surrender pose solved (elbows ~98, hands at head height, palms forward) and keyed on the way up
+  (`HumanBody.HANDS_UP_KEYS`), slerped down; films old | new in its `results/2026-11-07/`. Waiting on
+  Sean's OK (#694); the hands-up goldens re-approved in the merge.
 - **Bodies disappearing** (#562, branch `claude/gameplay-bodies-vanish-qv6jdg`, PR #688; lab
   `experiments/bodies_vanish/`, `bv_watch`): a limp man's skin culling box follows his parts
   (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
