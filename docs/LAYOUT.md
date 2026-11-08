@@ -1811,6 +1811,16 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   `texels_per_metre`; `median` false keeps small things (stones); the reference may be Sean's road
   picture (`PAINTINGS["road"]`); every call prints OpenRouter's cost.
 
+**The material library** (#701, `docs/briefs/material-library.md`): scanned CC0 woods fetched on
+GitHub (`tools/textures/scans/fetch_scans.py`, `.github/workflows/scans.yml`: the catalogue's sheets
+while `tools/textures/scans/catalogue/` is absent, then `picks.json` -> `assets/textures/scans/<id>/`,
+each with `meta.json`: source, licence, metres, `mean_linear`). Entries in
+`config/material_library.json` (`MaterialLibrary.apply` sets `scan_wood.gdshader` from one at an age);
+`SamplePanel` builds a panel; `tools/material_lab.gd --panels=rough|common|fine|long|shape`
+renders them (south-west facing, noon / golden / night in a room with the saloon's lamps, `far` 5 m
+and `near` 1 m, `--man=MODEL`); `tools/material_library_sheet.py` makes a family's sheet.
+Trap: a copied `.import` keeps its source's `uid` and `path.*` lines: delete them and re-import.
+
 ## src/props/prop_models.gd
 
 - `src/props/prop_models.gd` (`PropModels`): every manifest prop modelled in code (lathe, loft +
