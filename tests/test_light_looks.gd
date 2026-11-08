@@ -174,3 +174,22 @@ func test_the_dusk_blend_is_quick() -> void:
 	street.free()
 	LookPreset.defaults.clear()
 	await process_frames(1)
+
+
+## The real look's exposure (#641, Sean 2026-11-08: daytime washed out under a high sun): R0's x1.4
+## kept for the night, lower by day for the whole scene, blended by the sun between.
+func test_the_real_looks_exposure_is_lower_by_day() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var day: float = (real.get("day_values", {}) as Dictionary).get("real.exposure", -1.0)
+	var night: float = (real.get("night_values", {}) as Dictionary).get("real.exposure", -1.0)
+	check(day >= 1.0 and day <= 1.1, "by day x1.0-1.1 (%.2f)" % day)
+	check_near(night, 1.4, 0.001, "at night R0's x1.4: the saloon unchanged")
+	var was := Settings.real_look
+	Settings.real_look = true
+	check_near(LightLooks.blended(get_tree(), 0.0, "real.")["real.exposure"], day, 0.001, "noon")
+	var dusk: float = LightLooks.blended(get_tree(), 0.5, "real.")["real.exposure"]
+	check(dusk > day and dusk < night, "between at dusk (%.2f)" % dusk)
+	check_near(LightLooks.blended(get_tree(), 1.0, "real.")["real.exposure"], night, 0.001, "night")
+	Settings.real_look = false
+	check(not LightLooks.blended(get_tree(), 0.0, "real.").has("real.exposure"), "the painted look doesn't set it")
+	Settings.real_look = was

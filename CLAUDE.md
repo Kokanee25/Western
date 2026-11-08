@@ -439,22 +439,25 @@ frozen until Sean names one.
   painterly as the yardstick (#615); run the judge with `--refs=<Studio>/references`.
 - **Toward Red Dead** (Sean, 2026-11-04; DESIGN.md §4, plan `docs/briefs/red-dead.md`, roadmap ▶ Now):
   the look goes realistic in RDR2's direction ("not that level, just that direction").
-  **R0 the real look** (#632, PR #639; `RealLook`, LAYOUT "src/render"): behind
-  `Settings.real_look` (off; look panel N's first group, `--real`, `--look=res://config/looks/real.json`,
-  `screenshots.gd --variants=` the same file renders both looks in one run): world shaders recompiled
-  with `REAL_LOOK` (smooth anisotropic textures, no squares, groove seams, relief from the albedo),
-  FSR2 at native scale, AgX 1.5, SSIL, SDFGI outdoors only, exposure x1.4. Judge (self-test 3/3 with
-  the new style line): no view moves a band (saloon cheap indie, street good indie both ways; rounds
-  `2026-11-04_cheap_r0_before|real`); the saloon's orange wash is the top reason (R1). Waiting on
-  Sean (#641): his F3 and "real" as the default (then the goldens), or another round.
-  **R1 light with shape** (#640, branch `claude/art-light-shape-mwwwpb`): `config/looks/real_light.json`
-  (night/day values over the game's, real look only), RoomLight on under it, hung lamps shaded
-  (`real.hung_*`), interior probes re-taken. Judge: saloon cheap indie in three rounds (darks and
-  contact shadows in; "orange wash, roof lit" left: the wood and 14 even sconces, R2/R3); street day
-  values made noon worse, taken back. PR #654 green, its merge held for main's red drawn smoke
-  (gameplay's, #650/#657). Sean (#659): rework the wood and rebuild the saloon realistic and
-  less barren before more light trials. Next: #660 (brief first: the wood, the room, which saloon).
-  Traps: a lavapipe render run is ~10 GB (two at once OOM here); `pgrep -f` waiters match themselves.
+  **R0 the real look** (#632, PR #639; `RealLook`, LAYOUT "src/render"): world shaders with `REAL_LOOK`
+  (smooth anisotropic textures, groove seams, relief), FSR2, AgX 1.5, SSIL, SDFGI off (#643). **R1**
+  (#640, PR #654, build 3425): `config/looks/real_light.json` (night/day values over the game's, real
+  look only), RoomLight on under it, hung lamps shaded (`real.hung_*`); the saloon still cheap indie
+  ("orange wash": the wood and 14 even sconces; Sean #659: the wood and a rebuilt saloon first, #660).
+  **The real look is the default** (Sean's A, #641; PR #707): `Settings.real_look` true, a settings
+  file from before moved once (`LOOK_VERSION` 7), N turns it off; goldens in two looks
+  (`golden_check.py`: every view `--painted`, `REAL_VIEWS` again as `<view>_real`, tolerances
+  provisional; all 77 real would be ~13 h here); tests of the painted look pin it.
+  **Day exposure** (#641, Sean's A 2026-11-08; PR #710):
+  `real.exposure` blended by the sun in `real_light.json`, x1.05 by day, x1.4 at night (~x1.13 at
+  golden hour, ~x1.26 at 18:00); the face probe divides out the camera's multiplier; view
+  `face_street_noon`. Cheap judge (`2026-11-08_cheap_exp_before|after`): noon cheap -> good indie
+  (flat light FAIL -> PASS), golden good, saloon cheap both; faces: lit p90 1.83 -> 1.56 (rule ~1.3),
+  the noon face in shade L* 23 -> 13. Sheets `docs/screenshots/real_look/2026-11-08_exposure/`.
+  Road at noon mean 148 -> 131, near-white 0.62 -> 0.02%; the saloon at night the same picture.
+  The four changed `_real` goldens re-approved. Queued for later: the shade fill (#711). Next: #660.
+  Traps: a lavapipe render run is ~10 GB (two at once OOM here, even one ending as the next starts);
+  a real-look view is ~10 min under lavapipe; `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
