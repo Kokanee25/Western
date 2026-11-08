@@ -93,6 +93,45 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	await process_frames(1)
 
 
+## The real look's own light (docs/briefs/red-dead.md R1): config/looks/real_light.json goes over
+## the game's night and day only while Settings.real_look is on; the painted look's numbers stay.
+func test_the_real_look_has_its_own_light() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var real_night: Dictionary = real.get("night_values", {})
+	check(not real_night.is_empty(), "the real look's night reads")
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global", "room", "real"]
+	for a: String in real_night.keys() + (real.get("day_values", {}) as Dictionary).keys():
+		check(a.get_slice(".", 0) in groups, "real_light.json: %s is a look address" % a)
+		check(a in LightLooks.addresses(), "and today's puts %s back" % a)
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var was := Settings.real_look
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	(street.get_node(^"DayCycle") as DayCycle).set_time(21.5)
+	var game_night: Dictionary = LookPreset.load_file(LightLooks.GAME).get("night_values", {})
+	const A := "building.saloon.night_ambient"
+	check(real_night.has(A) and game_night.has(A), "both say the saloon's night fill")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted: light pass round 3's fill")
+	Settings.real_look = true
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), real_night[A], 0.001, "real: its own")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted again: put back")
+	Settings.real_look = was
+	LightLooks.pick(get_tree(), 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
+	await process_frames(1)
+
+
 ## #491: the dusk blend stalled the game ~160 ms at Sean's each step (every ~2.4 s): each of its
 ## dials searched the whole tree for the lamps and buildings, and each grade step built a lookup.
 ## Now they're found by their groups and every step's lookup is built when the look is picked.
