@@ -296,7 +296,7 @@ static func positions(tree: SceneTree) -> Dictionary:
 
 
 static func street_of(tree: SceneTree) -> Node:
-	return tree.root.find_child("TestStreet", true, false)
+	return World.root(tree.root)  # the old town's street, or the valley (Settings.world)
 
 
 ## Enough to put the world back roughly as it was: the clock and everyone's place.

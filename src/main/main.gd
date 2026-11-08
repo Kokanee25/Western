@@ -5,8 +5,26 @@ extends Node
 ## pixels big. Also turns mouse motion into
 ## look input and handles capturing the mouse.
 
+const VALLEY_SCENE := "res://scenes/valley.tscn"
+
 @onready var game_viewport: SubViewport = $GameViewport
 @onready var screen: TextureRect = $Screen
+
+
+## The world switch (Settings.world, docs/briefs/valley-plan.md §12 G1): main.tscn holds the old
+## town's street; for the valley it's taken out and freed before it enters the tree (nothing of it
+## builds), and the valley's scene goes in its place. The two never load together.
+func _enter_tree() -> void:
+	if Settings.world != &"valley":
+		return
+	var viewport := get_node(^"GameViewport")
+	var street := viewport.get_node_or_null(^"TestStreet")
+	if street:
+		viewport.remove_child(street)
+		street.free()
+	var valley: Node = (load(VALLEY_SCENE) as PackedScene).instantiate()
+	viewport.add_child(valley)
+	viewport.move_child(valley, 0)
 
 
 func _ready() -> void:
@@ -29,15 +47,17 @@ func _ready() -> void:
 	add_child(recorder)
 	CrashReports.start(self, recorder)  # the black box, the crash and freeze reports (#624)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
-	Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
+	var town := Settings.world == &"town"  # the moments and the labs' keys need the old town
+	if town:
+		Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var play := "res://experiments/gunfight_lab/play.gd"  # Y/X/Z: the three gunmen, played (if the lab's here)
-	if ResourceLoader.exists(play):
+	if town and ResourceLoader.exists(play):
 		var node: Node = (load(play) as GDScript).new()
 		node.name = "GunfightPlay"
 		add_child(node)
 	var trains := "res://experiments/train_lab/play.gd"  # 9/0: the train lab's line and cab (if the lab's here)
-	if ResourceLoader.exists(trains):
+	if town and ResourceLoader.exists(trains):
 		var node: Node = (load(trains) as GDScript).new()
 		node.name = "TrainLabPlay"
 		add_child(node)

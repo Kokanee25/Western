@@ -45,6 +45,7 @@ const HELP := {
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40)",
+	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
 	"quit": "quit -> close the game",
 }
 
@@ -90,7 +91,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	if main == null:
 		main = get_parent()
-	street = main.find_child("TestStreet", true, false)
+	street = World.root(main)  # the old town's street, or the valley (Settings.world)
 	player = main.find_child("Player", true, false) as Player
 	Settings.autosave = false  # a bridge run never writes the player's settings file
 	# Drawn slowly (lavapipe: about a frame a second), the game would only get 8 physics steps a
@@ -231,6 +232,25 @@ func _cmd_help(_a: Array) -> Dictionary:
 func _cmd_quit(_a: Array) -> Dictionary:
 	(func() -> void: GameQuit.quit(get_tree())).call_deferred()  # its work waited for first (#435)
 	return {"ok": true}
+
+
+func _cmd_world(a: Array) -> Dictionary:
+	var here := {"world": String(Settings.world), "loaded": String(street.name) if street else "",
+			"worlds": Array(Settings.WORLDS).map(func(w: StringName) -> String: return String(w))}
+	if player:
+		here["at"] = _arr(player.global_position)
+	if a.is_empty():
+		return here
+	var want := StringName(String(a[0]).to_lower())
+	if not want in Settings.WORLDS:
+		return {"ok": false, "error": "no world %s (town or valley)" % want}
+	if want == Settings.world:
+		return here
+	Settings.set_world(want)
+	# Answered first: the reload frees this bridge with the scene, and the new one listens once the
+	# new world is in.
+	(func() -> void: GameReset.reload_scene(get_tree(), "the bridge's world")).call_deferred()
+	return {"world": String(want), "was": here.world, "reloading": true}
 
 
 func _cmd_screenshot(a: Array) -> Dictionary:
