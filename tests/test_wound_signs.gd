@@ -198,7 +198,11 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 			var rb := man.parts[sid] as RigidBody3D
 			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
 		await physics_frames(1)
-	await physics_frames(90)  # let go: the swipe ends
+	# Let go: the swipe ends once he's lain still for WoundSigns.SMEAR_STILL. How long he slides on
+	# after the drag moves with the tests before this one (in the full suite with the valley's ahead
+	# of it, ~0.7 s, and 90 frames ended 0.2 s short of it, #713): waited for, not counted.
+	await physics_frames(90)
+	await wait_until(func() -> bool: return not is_instance_valid(man.signs._smear_tail), 180)
 	var smears := _smears().slice(before)
 	check(smears.size() >= 2, "smears along where he was dragged (%d)" % smears.size())
 	if smears.size() < 2:
@@ -217,7 +221,10 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	check(first.global_basis.z.normalized().dot(Vector3.BACK) > 0.8, "laid lengthwise along the drag")
 	check(first.size.x > 0.12 and first.size.x < 0.4, "about as wide as his trunk (%.2f m)" % first.size.x)
 	check(first.texture_albedo.resource_path.ends_with("smear_start.png"), "heavy where it starts")
-	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends")
+	var kinds := smears.map(func(d: Decal) -> String: return d.texture_albedo.resource_path.get_file().get_basename())
+	var speeds := [&"chest", &"abdomen", &"pelvis"].map(func(sid: StringName) -> String: return "%.2f" % (man.parts[sid] as RigidBody3D).linear_velocity.length())
+	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends (%s; swipe %s, still %.2f s, trunk %s m/s)" % [
+			kinds, "on" if is_instance_valid(man.signs._smear_tail) else "ended", man.signs._smear_still, speeds])
 
 
 func test_a_smear_runs_out_as_the_blood_on_him_does() -> void:

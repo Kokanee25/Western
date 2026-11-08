@@ -237,6 +237,10 @@ func test_a_derail_hands_the_train_over_with_its_momentum() -> void:
 	await physics_frames(60 * 8)
 	var off := 0.0
 	for b: Dictionary in train.wreck.bodies:
+		# A car that jackknifed past `jackknife_deg` broke up (#620): its body's freed and its
+		# sections are bodies of their own further down the list.
+		if not is_instance_valid(b.body):
+			continue
 		var rb := b.body as RigidBody3D
 		var local := line.global_transform.affine_inverse() * rb.global_position
 		var s := line.curve.get_closest_offset(local)
