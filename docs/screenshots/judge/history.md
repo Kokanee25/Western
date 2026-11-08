@@ -382,3 +382,27 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-04_cheap_r1_try3 | saloon_back_wall_night_real | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | Empty hall, nothing happening | 25% / 1.0 / 1.14 / 0.10 | R1 kept (try 3): hung lamps shaded x1.4, fill 0.18 neutral, haze 0.08 |
 | 2026-11-04_cheap_r1_try3 | saloon_toward_door_night_real | **cheap indie** | 1, 2, 3, 4, 6, 7, 8, 9 | Orange wash with no darkness | 25% / 0.5 / 1.08 / 0.07 | R1 kept (try 3): hung lamps shaded x1.4, fill 0.18 neutral, haze 0.08 |
 | 2026-11-04_cheap_r1_try3 | man_saloon_night_real | **cheap indie** | 1, 2, 3, 4, 6, 7, 8 | One orange wash, no dark | 16% / 3.6 / 1.01 / 0.08 | R1 kept (try 3): hung lamps shaded x1.4, fill 0.18 neutral, haze 0.08 |
+| 2026-11-08_cheap_matlib_rough_r1 | noon_far | **good indie** | 2, 3, 6 | Embossed laminate grain | 2% / 7.5 / 1.07 / 0.15 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r1 | golden_near | **cheap indie** | 3, 6 | Noise, not wood | 4% / 3.0 / 1.08 / 0.09 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r1 | saloon_far | **cheap indie** | 1, 2, 3, 6 | Veneer, not old boards | 63% / 0.0 / 1.16 / 0.27 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r1 | golden_far | **cheap indie** | 2, 3, 4, 6 | Cork, not wood | 2% / 5.0 / 1.34 / 0.14 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r1 | noon_near | **cheap indie** | 3, 5, 6 | Posterised speckle | 19% / 0.1 / 1.45 / 0.21 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r1 | saloon_far | **cheap indie** | 1, 2, 3, 4, 6 | Cork board under lamplight | 67% / 0.0 / 1.76 / 0.20 | #701 material library sample panels (rough_r1) |
+| 2026-11-08_cheap_matlib_rough_r2 | noon_far | **cheap indie** | 2, 3, 4, 6 | The wood is a clean texture on flat boxes | 2% / 7.5 / 0.95 / 0.17 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_rough_r2 | golden_near | **cheap indie** | 3, 4, 6, 8 | Boards that look like burlap | 3% / 4.0 / 1.03 / 0.15 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_rough_r2 | saloon_far | **cheap indie** | 2, 3, 4, 6 | Brand-new plywood, not old boards | 63% / 0.0 / 1.06 / 0.31 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_rough_r2 | golden_far | **cheap indie** | 2, 3, 4, 6 | The wall looks like painted MDF | 2% / 4.8 / 1.17 / 0.16 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_rough_r2 | noon_near | **cheap indie** | 3, 6, 8 | Wood that reads as tweed | 8% / 1.1 / 1.58 / 0.58 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_rough_r2 | saloon_far | **good indie** | 2, 3 | The man stands outside the light | 69% / 0.0 / 1.31 / 0.31 | #701 material library sample panels (rough_r2) |
+| 2026-11-08_cheap_matlib_common | noon_far | **cheap indie** | 1, 2, 3, 4, 6 | The wood is a pale, washed-out decal | 1% / 8.8 / 1.17 / 0.25 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_common | golden_near | **cheap indie** | 1, 3, 4 | Furniture veneer, not outdoor boards | 1% / 9.0 / 0.91 / 0.17 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_common | saloon_far | **cheap indie** | 2, 4 | The grain reads as static, not wood | 65% / 0.0 / 1.39 / 0.31 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_common | golden_far | **?** | 2, 3, 4, 6 | The top board's grain runs the wrong way | 2% / 5.0 / 1.17 / 0.17 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_common | noon_near | **cheap indie** | 1, 4, 6 | Patchwork stain with hard geometric edges | 18% / 0.0 / 1.31 / 0.19 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_common | saloon_far | **cheap indie** | 2, 3, 4 | Glowing, over-saturated red wood | 70% / 0.0 / 1.08 / 0.32 | #701 material library sample panels (common) |
+| 2026-11-08_cheap_matlib_fine | saloon_far | **good indie** | 2, 3, 4 | Varnish with no use on it | 67% / 0.0 / 1.21 / 0.30 | #701 material library sample panels (fine) |
+| 2026-11-08_cheap_matlib_fine | saloon_near | **cheap indie** | 1, 3 | Monochrome red murk | 55% / 0.0 / 1.70 / 0.06 | #701 material library sample panels (fine) |
+| 2026-11-08_cheap_matlib_fine | golden_far | **cheap indie** | 2, 3, 4, 6 | Light leaking through the board seams | 3% / 2.9 / 1.52 / 0.22 | #701 material library sample panels (fine) |
+| 2026-11-08_cheap_matlib_fine | saloon_far | **cheap indie** | 2, 3, 4 | Reads as one sheet of red veneer | 74% / 0.0 / 1.08 / 0.23 | #701 material library sample panels (fine) |
+| 2026-11-08_cheap_matlib_fine | noon_near | **cheap indie** | 3, 6 | Identical sheen stripes on every board | 81% / 0.1 / 1.41 / 0.24 | #701 material library sample panels (fine) |
+| 2026-11-08_cheap_matlib_fine | noon_far | **cheap indie** | 2, 3, 4, 6 | Pale dashes scattered over the panel | 2% / 6.1 / 0.99 / 0.23 | #701 material library sample panels (fine) |
