@@ -1227,6 +1227,7 @@ class FingerBone:
 	var rest: float  ## the relaxed bend (radians)
 	var gain: float  ## the fist's gain on the node's angle
 	var z := NAN  ## the finger node's angle it was last set for (INF: shot off)
+	var open := false  ## whether it was last set for open hands (hands up)
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
@@ -1240,6 +1241,9 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 	var last := {}
 	var rest_of := {}  ## bone -> its rest in the skeleton's space
 	var anat_fb := PeopleBodies.anatomy_finger_bones(anatomy)
+	# A model whose hands are already curled at rest (a MetaHuman's) takes less of the relaxed curl
+	# (its report's `finger_rest_curl`, 0..1; the Rodin men's straight fingers all of it).
+	var relax := float(PeopleBodies.report(body_model).get("finger_rest_curl", 1.0))
 	for name: String in data.get("finger_bone_names", PeopleBodies.finger_bone_names()):
 		if not fb.has(name) and not anat_fb.has(name):
 			return
@@ -1267,7 +1271,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 		e.k = k
 		e.thumb = bits[1] == "thumb"
 		e.sx = -1.0 if bits[2] == "r" else 1.0
-		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k])
+		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k]) * relax
 		e.gain = (FIST_GAIN_THUMB if e.thumb else FIST_GAIN)[k]
 		_finger_rig.append(e)
 		last[fid] = i
@@ -1288,27 +1292,34 @@ const THUMB_ACROSS := 45.0
 const THUMB_ACROSS_SIGN := -1.0
 
 
+## Hands up, the relaxed curl is only this share of itself: the hands open, fingers loose (Sean,
+## #692: "palms forward, fingers loose and slightly spread"), not a claw.
+const OPEN_HANDS_CURL := 0.2
+
+
 func _pose_fingers() -> void:
+	var open := pose == &"hands_up" and not limp
 	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
 		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
-		if z == e.z:
+		if z == e.z and open == e.open:
 			continue
 		e.z = z
+		e.open = open
 		var pose: Transform3D = e.local
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
 		else:
-			pose = pose * Transform3D(_finger_bend(e, z), Vector3.ZERO)
+			pose = pose * Transform3D(_finger_bend(e, z, OPEN_HANDS_CURL if open else 1.0), Vector3.ZERO)
 		skeleton.set_bone_pose(e.bone, pose)
 
 
 ## A finger bone's bend for its node's angle `z`: the fist's gain, at least the relaxed curl, a
 ## thumb's leaning across the fist.
-static func _finger_bend(e: FingerBone, z: float) -> Basis:
+static func _finger_bend(e: FingerBone, z: float, relaxed := 1.0) -> Basis:
 	var angle := z * e.gain
-	if absf(angle) < e.rest:
-		angle = e.sx * e.rest
+	if absf(angle) < e.rest * relaxed:
+		angle = e.sx * e.rest * relaxed
 	if e.thumb:
 		var lean := deg_to_rad(THUMB_ACROSS)
 		return Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
