@@ -54,7 +54,10 @@ func test_renders_at_internal_resolution() -> void:
 	var vp: SubViewport = main.get_node(^"GameViewport")
 	check_eq(vp.size, Settings.render_size(main.get_viewport().get_visible_rect().size), "default: native, the window's own size")
 	var screen: TextureRect = main.get_node(^"Screen")
-	check_eq(screen.texture_filter, CanvasItem.TEXTURE_FILTER_NEAREST, "nearest-neighbour upscale")
+	# The painted look's chunky pixels scale by nearest neighbour; the real look (the default since
+	# #641) draws the viewport to the window filtered (RealLook._view).
+	var want := CanvasItem.TEXTURE_FILTER_LINEAR if Settings.real_look else CanvasItem.TEXTURE_FILTER_NEAREST
+	check_eq(screen.texture_filter, want, "upscaled the look's way")
 	check(screen.texture == vp.get_texture(), "screen shows the game viewport")
 	var camera := vp.get_camera_3d()
 	check(camera != null and camera.get_parent().get_parent() is Player, "player camera renders the viewport")
