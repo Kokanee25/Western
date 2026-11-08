@@ -1,0 +1,94 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/world/valley_world.gd" id="1_valley"]
+[ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
+[ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
+[ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="10_player"]
+[ext_resource type="Script" path="res://src/ballistics/ballistics.gd" id="13_ballistics"]
+[ext_resource type="Script" path="res://src/effects/impact_effects.gd" id="14_impacts"]
+[ext_resource type="Script" path="res://src/debug/bullet_traces.gd" id="15_traces"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("3_sky")
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ShaderMaterial_sky")
+process_mode = 2
+radiance_size = 3
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+ambient_light_sky_contribution = 1.0
+reflected_light_source = 2
+tonemap_mode = 3
+tonemap_exposure = 1.0
+ssao_enabled = true
+ssao_radius = 0.8
+ssao_intensity = 1.6
+glow_enabled = true
+glow_levels/3 = 1.0
+glow_levels/5 = 0.8
+glow_intensity = 0.8
+glow_bloom = 0.0
+glow_blend_mode = 1
+glow_hdr_threshold = 1.7
+fog_enabled = true
+fog_light_color = Color(0.8, 0.75, 0.7, 1)
+fog_density = 0.0035
+fog_sun_scatter = 0.05
+fog_aerial_perspective = 0.7
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.006
+volumetric_fog_albedo = Color(0.8, 0.75, 0.68, 1)
+volumetric_fog_length = 48.0
+volumetric_fog_ambient_inject = 0.15
+volumetric_adjustment_enabled = true
+adjustment_contrast = 1.15
+adjustment_saturation = 1.12
+
+[node name="Valley" type="Node3D"]
+script = ExtResource("1_valley")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+light_color = Color(1, 0.9, 0.8, 1)
+light_energy = 1.6
+light_volumetric_fog_energy = 0.35
+shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.2
+directional_shadow_mode = 2
+directional_shadow_max_distance = 90.0
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+light_color = Color(0.55, 0.65, 1, 1)
+light_energy = 0.0
+shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.2
+directional_shadow_mode = 2
+directional_shadow_max_distance = 60.0
+sky_mode = 1
+
+[node name="DayCycle" type="Node" parent="." node_paths=PackedStringArray("sun", "moon", "world_environment")]
+script = ExtResource("1_day")
+config = ExtResource("2_daycfg")
+sun = NodePath("../Sun")
+moon = NodePath("../Moon")
+world_environment = NodePath("../WorldEnvironment")
+
+[node name="Ballistics" type="Node" parent="."]
+script = ExtResource("13_ballistics")
+
+[node name="ImpactEffects" type="Node3D" parent="."]
+script = ExtResource("14_impacts")
+
+[node name="BulletTraces" type="MeshInstance3D" parent="."]
+script = ExtResource("15_traces")
+
+[node name="Player" parent="." instance=ExtResource("10_player")]

@@ -152,6 +152,15 @@ var library_motion := true
 ## has looked; not saved. For one run `-- --room-light=on|off`; the look address
 ## `settings.room_light` (the screenshots' --variants, the bridge's `set`).
 var room_light := false
+## Which world the game loads (docs/briefs/valley-plan.md §12, G1): `town`, the old Main Street
+## (scenes/test_street.tscn, the default), or `valley`, the new valley being built beside it from
+## config/valley.json (scenes/valley.tscn; ValleyLayout). Only one is ever loaded: main.tscn
+## swaps its street for the valley before either is in the tree (`main.gd`). Not saved: for one
+## run `-- --world=valley`; the bridge's `world` switches and reloads. G8 flips the default.
+const WORLDS: Array[StringName] = [&"town", &"valley"]
+## Read from the command line as Settings is made, not in `_ready`: the main scene enters the tree
+## (and main.gd picks its world) before the autoloads' `_ready`.
+var world: StringName = _world_asked()
 ## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
 ## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
 ## (project.godot's `application/config/project_settings_override`), so this is what this run has
@@ -218,6 +227,26 @@ func _ready() -> void:
 	_refuse_render_thread()
 	if physics_thread and DisplayServer.get_name() != "headless":
 		add_child(SoftBodyDraw.new())
+
+
+## `-- --world=NAME`, or the town.
+static func _world_asked() -> StringName:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--world="):
+			var w := StringName(a.substr(8))
+			if w in WORLDS:
+				return w
+			push_error("Settings: no world %s (town or valley)" % w)
+	return &"town"
+
+
+## The world the next load builds (the running scene keeps what it has: reload it to change).
+## False, and nothing changed, for a name that isn't one.
+func set_world(w: StringName) -> bool:
+	if not w in WORLDS:
+		return false
+	world = w
+	return true
 
 
 ## Physics on its own thread from the next start on (`ENGINE_PATH`); this run keeps what it has.

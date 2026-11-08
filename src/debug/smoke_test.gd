@@ -74,7 +74,7 @@ func _process(_delta: float) -> void:
 		return
 	_frames += 1
 	var t := (Time.get_ticks_msec() - _start) / 1000.0
-	var street := main.find_child("TestStreet", true, false)
+	var street := World.root(main)  # the town's street, or the valley (Settings.world)
 	if street == null:
 		return
 	var settled := _frames - _last_event_frame >= FRAMES_BETWEEN
@@ -92,7 +92,7 @@ func _process(_delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	if _due.is_empty():
 		return
-	var street := main.find_child("TestStreet", true, false)
+	var street := World.root(main)  # the town's street, or the valley (Settings.world)
 	for what in _due:
 		_event(street, what)
 	_due.clear()
@@ -122,7 +122,7 @@ func _finish(street: Node, t: float) -> void:
 	OS.remove_logger(_catcher)
 	var people := get_tree().get_nodes_in_group(&"people").size()
 	var problems := PackedStringArray(_catcher.errors)
-	if people < 3:
+	if people < 3 and Settings.world == &"town":  # the valley has nobody in it yet (G1)
 		problems.append("only %d people in the street" % people)
 	if street.get_node_or_null(^"Player") == null:
 		problems.append("no player")
@@ -134,7 +134,8 @@ func _finish(street: Node, t: float) -> void:
 	if problems.is_empty():
 		lines.append("[smoke] ok: %.0f s, %d frames, %d people, %d nodes, native plugin %s%s" % [t, _frames, people,
 				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), "loaded" if ClassDB.class_exists(&"VoxelMember") else "none (web)",
-				", first frame after %.0f s" % _first_frame_s if _first_frame_s > 0.0 else ""])
+				", first frame after %.0f s" % _first_frame_s if _first_frame_s > 0.0 else ""]
+				+ (", world %s" % Settings.world if Settings.world != &"town" else ""))
 	else:
 		lines.append("[smoke] FAILED:")
 		for p in problems:

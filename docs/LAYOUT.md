@@ -65,7 +65,8 @@ ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|sho
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
-Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `quit`. Facing is degrees
+Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `world [town|valley]` (which world; with a name it answers and the scene reloads in
+that world, and `bridge.py` waits for the new bridge and goes on), `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -231,7 +232,8 @@ spread (`test_gun_feel`). CI prints every number against its range in the test r
 **The smoke test** (`src/debug/smoke_test.gd`, `SmokeTest`; `-- --smoke-test [--smoke-out=FILE]`
 on any build, a release export included): 30 s of the street (the gang in, a stick on the range, a
 member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` and exit 0, or
-`[smoke] FAILED` with the errors and exit 1. Drawn, its clock starts at the first frame on
+`[smoke] FAILED` with the errors and exit 1. With `--world=valley` it runs in the valley (nobody
+there yet: the people count isn't asked; its line ends `world valley`). Drawn, its clock starts at the first frame on
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
@@ -631,9 +633,20 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 - `config/valley.json` + `tools/valley/valley_plan.py` — **the valley master plan** (#467, Phase 1, planning):
   the whole valley as data (places, roads, bridges, creek/canyon/arroyo, the main line in `TrainRoute`'s
-  format, the new town's lots, terrain control points). **Inert: nothing in the game reads it** until Sean
-  approves; the tool draws `docs/concept/valley-*.png` and writes `docs/briefs/valley-tables.md` from it
-  and checks it (`--check`). Reasons and migration: `docs/briefs/valley-plan.md`.
+  format, the new town's lots, terrain control points). The tool draws `docs/concept/valley-*.png` and
+  writes `docs/briefs/valley-tables.md` from it and checks it (`--check`). Reasons and migration:
+  `docs/briefs/valley-plan.md`.
+- **The world switch** (G1, #702): `Settings.world`, `town` (the default: everything as before) or
+  `valley`, for one run `-- --world=valley` (read as Settings is made: main.tscn enters the tree before
+  the autoloads' `_ready`), not saved; the bridge's `world [town|valley]` switches and reloads.
+  `main.gd._enter_tree` frees main.tscn's `TestStreet` before it enters the tree and puts
+  `scenes/valley.tscn` in its place, so the two never load together; `World.root(main)` is whichever
+  is there (the bridge, the smoke test, F12). `ValleyLayout` (`src/world/valley_layout.gd`) is the
+  file's pure reader (`ValleyLayout.main()`; places, roads, bridges, water, lots, `route()` a
+  `TrainRoute`); `ValleyWorld` (the valley scene, empty for now): the town's sky and day, a flat
+  placeholder slab the envelope's size (`FlatGround`, top at Y 0; not a `Ground`), the shot's systems,
+  the player at the crossroads facing west down Main Street. No TownLife, gang, farmhouse, moments or
+  the labs' keys. `tests/test_valley.gd`.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
