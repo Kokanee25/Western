@@ -645,6 +645,11 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/world/town_layout.gd + config/town.json (the town's layout)
 
+- `config/valley.json` + `tools/valley/valley_plan.py` — **the valley master plan** (#467, Phase 1, planning):
+  the whole valley as data (places, roads, bridges, creek/canyon/arroyo, the main line in `TrainRoute`'s
+  format, the new town's lots, terrain control points). **Inert: nothing in the game reads it** until Sean
+  approves; the tool draws `docs/concept/valley-*.png` and writes `docs/briefs/valley-tables.md` from it
+  and checks it (`--check`). Reasons and migration: `docs/briefs/valley-plan.md`.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
