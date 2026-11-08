@@ -17,6 +17,9 @@ extends RefCounted
 ## MetaHuman route: his own clavicle and finger weights) keeps its own.
 
 const CLAVICLES: Array[StringName] = [&"clavicle_r", &"clavicle_l"]
+## Off: every deform bone moves exactly as the bone it's part of (the clavicles as the chest, the
+## twists as their limb), so his skin deforms as the 17-bone skeleton did (the labs' "before").
+static var on := true
 const NAMES: Array[StringName] = [&"clavicle_r", &"clavicle_l",
 		&"upper_arm_twist_r_0", &"upper_arm_twist_r_1", &"upper_arm_twist_l_0", &"upper_arm_twist_l_1",
 		&"forearm_twist_r_0", &"forearm_twist_r_1", &"forearm_twist_l_0", &"forearm_twist_l_1"]
@@ -275,6 +278,9 @@ static func pose(skeleton: Skeleton3D, rig: Array[Bone], extra: Array, clip: Arr
 		var mc := skeleton.get_bone_pose(e.child) * e.child_unrest
 		var rel := (mp.basis.inverse() * mc.basis).get_rotation_quaternion()
 		var turn: Quaternion
+		if not on:
+			skeleton.set_bone_pose(e.bone, (mc if e.kind == 1 else mp) * e.rest)
+			continue
 		if e.kind == 0:
 			var want: Vector2 = extra[e.side] if e.side < extra.size() else Vector2.ZERO
 			if delta <= 0.0:
