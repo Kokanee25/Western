@@ -12,6 +12,9 @@ func before_each() -> void:
 	Settings.autosave = false
 	was_real = Settings.real_look
 	Settings.real_look = false
+	# A main scene an earlier test freed with the real look on (the default) left the shared shaders
+	# real, as a scene reload in the game does for the next scene's RealLook: start from the painted.
+	RealLook.swap_shaders(false)
 	holder = Node.new()
 	add_child(holder)
 	holder.add_child(load("res://scenes/test_street.tscn").instantiate())

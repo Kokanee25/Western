@@ -3,6 +3,21 @@ extends TestCase
 ## the same size on every member, and the grain runs along each board's length.
 
 
+## The painted look's squares and settings (the real look, the default since #641, turns the texel
+## grid's globals off): each test here starts in the painted look; the default comes back after.
+func before_each() -> void:
+	_painted_defaults()
+
+
+func after_each() -> void:
+	Settings.reset_to_defaults()
+
+
+func _painted_defaults() -> void:
+	Settings.reset_to_defaults()
+	Settings.set_real_look(false)
+
+
 func test_textures_are_deterministic_small_and_few_coloured() -> void:
 	PixelArt._cache.clear()
 	var a := PixelArt.wood("t1", Color(0.5, 0.4, 0.3), 9).get_image()
@@ -117,7 +132,7 @@ func test_texel_size_is_a_setting() -> void:
 	Settings.cycle_texel_density()
 	check_near(PixelArt.texels_per_meter, 32.0, 0.001, "four presses come back to 32")
 	check(PixelArt.use_mipmaps, "smoothed again")
-	Settings.reset_to_defaults()
+	_painted_defaults()
 
 
 func test_pixel_shading_is_a_setting() -> void:
@@ -128,7 +143,7 @@ func test_pixel_shading_is_a_setting() -> void:
 	check(not post.get_shader_parameter(&"shading_enabled"), "off by default")
 	Settings.set_pixel_shading(true)
 	check(post.get_shader_parameter(&"shading_enabled"), "F6 turns it on")
-	Settings.reset_to_defaults()
+	_painted_defaults()
 	main.queue_free()
 	await process_frames(2)
 
@@ -143,7 +158,7 @@ func test_tile_look_is_a_setting() -> void:
 	check_eq(Settings.tile_look, &"off", "P again: off")
 	check_near(Settings.tile_globals()[&"tile_light"], 0.0, 0.001, "smooth light")
 	check(Settings.look_description().contains("tiles off"), "described: %s" % Settings.look_description())
-	Settings.reset_to_defaults()
+	_painted_defaults()
 	check_near(Settings.tile_globals()[&"tile_ragged"], 0.0, 0.001, "square again")
 
 
@@ -179,7 +194,7 @@ func test_quantise_once_is_a_setting() -> void:
 	check(not PixelArt.smooth and not PeopleBodies.smooth_paint, "the squares back")
 	check_near(PixelArt.texels_per_meter, 32.0, 0.001, "32 texels again")
 	camera.queue_free()
-	Settings.reset_to_defaults()
+	_painted_defaults()
 
 
 ## The surface-blocks look (docs/briefs/renderer.md; art's test in this file, said in its entry).
@@ -207,7 +222,7 @@ func test_surface_blocks_is_a_setting() -> void:
 	check(not PixelArt.blocks and not Settings.mosaic_active(), "M again: the look as before")
 	check(not PixelArt.bold, "the usual texture set again")
 	check_near(PixelArt.texels_per_meter, Settings.texels_per_meter, 0.001, "and the world's grid")
-	Settings.reset_to_defaults()
+	_painted_defaults()
 
 
 func test_tiled_materials_follow_the_texel_grid() -> void:
