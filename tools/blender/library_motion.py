@@ -89,7 +89,8 @@ def _angle(a, b):
 
 def seam_error(frames):
     """The turn (deg, summed over the joints) between the last frame and the first."""
-    return round(math.degrees(sum(_angle(frames[-1][s], frames[0][s]) for s in frames[0] if s in frames[-1])), 2)
+    return round(math.degrees(sum(_angle(frames[-1][s], frames[0][s]) for s in frames[0]
+                                  if s in frames[-1] and s not in rm.CLAVICLES)), 2)
 
 
 def make_seamless(clip):
@@ -227,7 +228,7 @@ def find_cycle(clip, lo_s, hi_s, skip=0.2, min_speed=0.0):
     fps = clip["fps"]
     lo, hi = max(2, int(lo_s * fps)), int(hi_s * fps)
     a, b = int(n * skip), int(n * (1 - skip))
-    segs = [s for s in fr[0]]
+    segs = [s for s in fr[0] if s not in rm.CLAVICLES]  # the loop is his segments' (the clavicles follow)
 
     def d(x, y):
         return sum(_angle(fr[x][s], fr[y][s]) for s in segs if s in fr[x] and s in fr[y])
@@ -292,7 +293,8 @@ def run_take(lib, part, anim, move, kind, sources, rig, out_dir, opts=None):
     names, rest, frames, _ = rm.read_source(path, rest_path=rest_path, anim=anim, work=os.path.join(WORK, "converted"))
     clip, notes = rm.retarget(names, rest, frames, rig, move)
     j = {"lib": lib, "file": os.path.basename(path), "anim": anim, "frames_in": len(frames),
-         "missing": notes.get("missing", []), "scale": notes.get("scale")}
+         "missing": notes.get("missing", []), "scale": notes.get("scale"),
+         "clavicle": notes.get("clavicle", {}), "no_clavicles": notes.get("no_clavicles", [])}
     if opts.get("cycle"):
         # A long take (CMU's): one loop cut from its steady middle, facing ahead.
         lo, hi = opts["cycle"]
@@ -359,7 +361,7 @@ def write_clip(clip, j, move, kind, out_dir, rig, glb=True):
 def main(argv):
     what = argv[0] if argv else "takes"
     picks = json.load(open(PICKS))
-    rig = json.load(open(rm.RIG_REST))
+    rig = rm.load_rig()
     sources = picks["sources"]
     only = rm.opt("only", "", argv)
     only = set(only.split(",")) if only else None

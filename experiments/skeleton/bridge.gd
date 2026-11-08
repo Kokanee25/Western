@@ -9,13 +9,15 @@ extends BridgeLab
 ##                                    (the 17-bone skeleton's skin: the "before")
 ##   sk_cam front|side|three|hand [DIST] [HEIGHT] [AT]   the free camera on him
 ##   sk_film DIR ACTION [FRAMES] [LEAD]   every frame drawn to DIR; ACTION: rest, hands_up, aim,
-##                                    reach, wrist, draw (from LEAD on)
+##                                    reach, wrist, draw (from LEAD on); clip=NAME plays that
+##                                    MotionClip in place (no travel), clip0=NAME the same with its
+##                                    clavicle channels taken out (#708's before: the drive's)
 
 const HELP := {
 	"sk_man": "sk_man MODEL X Y Z [YAW] [gun] -> a man there, no brain (#696's films)",
 	"sk_rig": "sk_rig on|off -> the deform bones on, or following their segments (the 17-bone skin)",
 	"sk_cam": "sk_cam front|side|three|hand [DIST=3] [HEIGHT=1.35] [AT=1.2] -> the free camera on the sk_man",
-	"sk_film": "sk_film DIR rest|hands_up|aim|reach|wrist|draw [FRAMES=120] [LEAD=15] -> each frame to DIR",
+	"sk_film": "sk_film DIR rest|hands_up|aim|reach|wrist|draw|clip=NAME|clip0=NAME [FRAMES=120] [LEAD=15] -> each frame to DIR",
 	"sk_cost": "sk_cost [N=2000] -> the sk_man's bones posed N times, the deform rig on and off (microseconds a pose)",
 }
 
@@ -130,6 +132,9 @@ func _cmd_sk_film(a: Array) -> Dictionary:
 				"draw":
 					man.set_pose(&"aim")
 					man.draw_gun()
+				_:
+					if action.begins_with("clip"):
+						man.play_clip(_film_clip(action), 1.0, false, {"travel": false})
 		if f >= lead:
 			match action:
 				"reach":
@@ -146,6 +151,35 @@ func _cmd_sk_film(a: Array) -> Dictionary:
 		if is_instance_valid(c):
 			c.visible = true
 	return {"frames": frames, "dir": dir, "action": action, "deform": DeformRig.on}
+
+
+## The clip a `clip=NAME` / `clip0=NAME` action plays: clip0 a copy without its clavicle channels.
+func _film_clip(action: String) -> StringName:
+	var n := StringName(action.get_slice("=", 1))
+	if not action.begins_with("clip0"):
+		return n
+	var src := MotionClip.load_clip(n)
+	var key := StringName(String(n) + "__no_clavicles")
+	if src == null or MotionClip._cache.has(key):
+		return key
+	var c := MotionClip.new()
+	c.name = key
+	c.fps = src.fps
+	c.root = src.root
+	c.yaw = src.yaw
+	c.hips = src.hips
+	c.events = src.events
+	c.strikes = src.strikes
+	c.kind = src.kind
+	c.loop = src.loop
+	c.stride = src.stride
+	for fr: Dictionary in src.frames:
+		var q := fr.duplicate()
+		for k: StringName in DeformRig.CLAVICLES:
+			q.erase(k)
+		c.frames.append(q)
+	MotionClip._cache[key] = c
+	return key
 
 
 ## The screen's words off while filming: every CanvasLayer but the game picture's.
