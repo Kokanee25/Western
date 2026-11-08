@@ -593,6 +593,16 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 			built.append([spec, p, x])
 			x += PANEL_STEP + (float(spec["long"]) - 2.0 if spec.has("long") else 0.0)
 		var numbers := {"family": family, "man": String(_panel_man), "panels": []}
+		# A family rendered in parts (--entries=) keeps the other parts' panels.
+		if FileAccess.file_exists(dir + "/numbers.json"):
+			var had = JSON.parse_string(FileAccess.get_file_as_string(dir + "/numbers.json"))
+			if had is Dictionary:
+				var mine := {}
+				for spec in specs:
+					mine[spec["name"]] = true
+				for q in had.get("panels", []):
+					if not mine.has(q.get("name", "")):
+						numbers["panels"].append(q)
 		for b in built:
 			var spec: Dictionary = b[0]
 			var p: Node3D = b[1]

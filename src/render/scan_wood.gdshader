@@ -155,8 +155,12 @@ vec2 scan_uv(vec2 m, vec2 tile, bool grain_v, float seed, float k, out vec2 flip
 	return grain_v ? uv.yx : uv;
 }
 
+// Fine relief and roughness sampled a mip softer: at a metre, full-detail scan normals came out as
+// single-pixel speckle (the cheap judge, 2026-11-08: "digital noise rather than wood fibre").
+uniform float detail_bias = 1.0;
+
 vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
-	vec3 n = texture(tex, uv).rgb * 2.0 - 1.0;
+	vec3 n = texture(tex, uv, detail_bias).rgb * 2.0 - 1.0;
 	if (grain_v) {
 		n.xy = n.yx;
 	}
@@ -168,6 +172,11 @@ vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
 
 void fragment() {
 	float seed = v_seed;
+	// Part 5: on an old wall now and then a board replaced, years newer than the rest.
+	float ag = age;
+	if (age > 0.6 && rnd(seed, 70.0) > 0.85) {
+		ag = age * 0.3;
+	}
 	float face = v_face;
 	vec2 m = v_m;
 	// End grain: the scan squeezed along the grain to the ends' tight rings, darker and dry.
@@ -179,13 +188,13 @@ void fragment() {
 	vec2 uva = scan_uv(m, tile_a, grain_v_a, seed, 0.0, fa);
 	vec3 col = texture(albedo_a, uva).rgb;
 	vec3 nrm = scan_normal(normal_a, uva, fa, grain_v_a);
-	float rough = texture(rough_a, uva).r;
+	float rough = texture(rough_a, uva, detail_bias).r;
 	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
 		col = texture(albedo_a2, uv2).rgb * a2_gain;
 		nrm = scan_normal(normal_a2, uv2, f2, grain_v_a2);
-		rough = texture(rough_a2, uv2).r;
+		rough = texture(rough_a2, uv2, detail_bias).r;
 	}
 	// Saw arcs: centred off one edge every ~0.9 m along the board, rings 5 mm apart.
 	if (saw_marks > 0.0 && face < 0.5) {
@@ -195,13 +204,13 @@ void fragment() {
 		float d = length(dv);
 		float pitch = 0.0055 + 0.001 * rnd(seed, 62.0);
 		float fw = fwidth(d) / pitch;
-		float amp = saw_marks * (1.0 - smoothstep(0.25, 0.7, fw)) * (1.0 - 0.6 * age);
+		float amp = saw_marks * (1.0 - smoothstep(0.25, 0.7, fw)) * (1.0 - 0.6 * ag);
 		float ph = d / pitch * 6.2831853;
 		col *= 1.0 + 0.07 * amp * sin(ph);
 		vec2 g = dv / max(d, 1e-4);
 		nrm.xy += g * cos(ph) * 0.18 * amp;
 	}
-	col *= mix(tint_new, tint_mid, smoothstep(0.0, 0.5, age));
+	col *= mix(tint_new, tint_mid, smoothstep(0.0, 0.5, ag));
 	// Per board: value and a warm-cool shift.
 	col *= 1.0 + value_jitter * variety * rnd(seed, 31.0);
 	float h = hue_jitter * variety * rnd(seed, 32.0);
@@ -213,22 +222,22 @@ void fragment() {
 	vec2 q = floor_face ? v_world.xz : vec2(v_world.x + v_world.z, v_world.y);
 	float n1 = mix(0.5, texture(big_noise, q / 7.0).r, variety);
 	float n2 = mix(0.5, texture(big_noise, q / 1.7 + 0.37).r, variety);
-	float age_layer = mix(layer_new, 1.0, age);
+	float age_layer = mix(layer_new, 1.0, ag);
 
 	// Weathering: toward the grey scan, first where the sun and rain reach (patchy, the top and the
 	// sun faces), all of it when old.
 	if (has_b && weathering > 0.0) {
 		float up = floor_face ? 0.0 : smoothstep(0.3, 2.0, v_world.y - v_ground);
-		float wx = clamp(age * 1.35 - 0.35 + (n1 - 0.5) * 0.7 + (n2 - 0.5) * 0.3 + up * 0.15, 0.0, 1.0) * weathering;
+		float wx = clamp(ag * 1.35 - 0.35 + (n1 - 0.5) * 0.7 + (n2 - 0.5) * 0.3 + up * 0.15, 0.0, 1.0) * weathering;
 		if (wx > 0.001) {
 			vec2 fb;
 			vec2 uvb = scan_uv(m, tile_b, grain_v_b, seed, 2.0, fb);
 			vec3 colb = texture(albedo_b, uvb).rgb * tint_old;
 			colb *= 1.0 + value_jitter * variety * rnd(seed, 34.0);
 			vec3 nb = scan_normal(normal_b, uvb, fb, grain_v_b);
-			float rb = texture(rough_b, uvb).r;
+			float rb = texture(rough_b, uvb, detail_bias).r;
 			col = mix(col, colb, wx);
-			nrm = normalize(mix(nrm, nb, wx));
+			nrm = normalize(mix(nrm, nb, wx * 0.7));
 			rough = mix(rough, rb, wx);
 		}
 	}
@@ -260,18 +269,18 @@ void fragment() {
 		rough = max(rough, 0.85);
 	}
 
-	// Varnish: amber deepening with age, worn dull and then through where hands rub and at edges.
+	// Varnish: amber deepening with ag, worn dull and then through where hands rub and at edges.
 	float wear = 0.0;
 	if (varnish > 0.0) {
 		float band = smoothstep(wear_band.x - 0.1, wear_band.x, hgt) * (1.0 - smoothstep(wear_band.y, wear_band.y + 0.1, hgt));
 		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 1.0;
-		wear = clamp(age * (0.6 * band * (0.6 + 0.4 * n2) + 0.5 * edge * band + 0.25 * edge), 0.0, 1.0);
-		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * age) * (1.0 - wear * 0.6));
+		wear = clamp(ag * (0.6 * band * (0.6 + 0.4 * n2) + 0.5 * edge * band + 0.25 * edge), 0.0, 1.0);
+		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Worn through: paler raw wood.
 		col = mix(col, col * 1.35 + 0.02, varnish * smoothstep(0.55, 0.95, wear) * 0.6);
 	}
 
-	// Nails: heads not quite in a line (the studs' 16 in), rusting and streaking with age.
+	// Nails: heads not quite in a line (the studs' 16 in), rusting and streaking with ag.
 	float nail = 0.0;
 	float rust = 0.0;
 	if (v_nails.x > 0.5 && face < 0.5) {
@@ -296,19 +305,19 @@ void fragment() {
 				float t = dot(o, dn);
 				float off = abs(dot(o, vec2(-dn.y, dn.x)));
 				float run = 0.03 + 0.05 * hash11(k + seed * 13.0);
-				rust = max(rust, age * age * (1.0 - smoothstep(0.0012, 0.0035, off)) * step(0.0, t) * (1.0 - smoothstep(0.0, run, t)));
+				rust = max(rust, ag * ag * (1.0 - smoothstep(0.0012, 0.0035, off)) * step(0.0, t) * (1.0 - smoothstep(0.0, run, t)));
 			}
 		}
 	}
 	col = mix(col, col * vec3(0.72, 0.5, 0.36), rust * 0.6);
-	vec3 head = mix(vec3(0.16, 0.15, 0.14), vec3(0.28, 0.14, 0.07), age);
+	vec3 head = mix(vec3(0.16, 0.15, 0.14), vec3(0.28, 0.14, 0.07), ag);
 	col = mix(col, head, nail);
 
 	ALBEDO = clamp(col, 0.0, 1.0);
-	ROUGHNESS = clamp(rough + roughness_add + 0.18 * age * (1.0 - varnish) - nail * 0.2, 0.05, 1.0);
+	ROUGHNESS = clamp(rough + roughness_add + 0.18 * ag * (1.0 - varnish) - nail * 0.2, 0.05, 1.0);
 	SPECULAR = mix(specular_wood, 0.5, varnish);
-	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * age * (1.0 - varnish)), max(nrm.z, 0.2)));
+	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
 	CLEARCOAT = varnish * (1.0 - smoothstep(0.5, 1.0, wear));
-	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + age * 0.25, 0.0, 1.0));
+	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25, 0.0, 1.0));
 }
