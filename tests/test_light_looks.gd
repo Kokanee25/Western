@@ -44,6 +44,9 @@ func test_each_look_sets_known_addresses() -> void:
 
 func test_the_key_cycles_and_today_puts_back() -> void:
 	check(InputMap.has_action(&"light_look"), "8 is bound")
+	# The painted look's light (the real look's own is test_the_real_look_has_its_own_light).
+	var was_real := Settings.real_look
+	Settings.real_look = false
 	# A test that ran the main scene leaves the game's light in the statics: start from none.
 	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
 	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
@@ -90,6 +93,7 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	LightLooks.current = 0
 	street.free()
 	LookPreset.defaults.clear()
+	Settings.real_look = was_real
 	await process_frames(1)
 
 
