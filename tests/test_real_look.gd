@@ -1,7 +1,7 @@
 extends TestCase
 ## The real look (RealLook, Settings.real_look; docs/briefs/red-dead.md R0): on, the world's shaders
 ## are recompiled with REAL_LOOK, the texel grid's globals are off and the environment takes the
-## realistic dials; off, every one of them is as it was. The painted look is the default.
+## realistic dials; off, every one of them is as it was. The real look is the default (#641).
 
 var holder: Node
 var real: RealLook
@@ -23,16 +23,24 @@ func before_each() -> void:
 func after_each() -> void:
 	Settings.set_real_look(false)
 	await process_frames(2)
-	Settings.real_look = was_real
-	Settings.apply_tile_globals()
 	LookPreset.defaults.clear()
 	holder.queue_free()
 	await process_frames(2)
+	# Put back only once this test's RealLook is gone: with the real look the default, it would
+	# turn the shaders on again as it went.
+	Settings.real_look = was_real
+	Settings.apply_tile_globals()
 
 
-func test_the_painted_look_is_the_default() -> void:
+func test_the_real_look_is_the_default() -> void:
+	var fresh: Object = load("res://src/autoload/settings.gd").new()
+	check(fresh.real_look, "a first run starts in the real look")
+	check(fresh.LOOK_VERSION >= 7, "a settings file from before the default moved is moved to it once")
+	fresh.free()
+
+
+func test_off_the_shaders_are_the_painted_looks() -> void:
 	check(not RealLook.shaders_real, "the world's shaders are the painted look's while it's off")
-	check(not Settings.real_look, "off unless asked for")
 	var code: String = (load("res://src/render/texel_grid.gdshader") as Shader).code
 	check(not code.contains(RealLook.DEFINE), "the texel grid's code as written")
 
