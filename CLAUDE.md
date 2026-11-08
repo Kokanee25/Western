@@ -448,14 +448,14 @@ frozen until Sean names one.
   file from before moved once (`LOOK_VERSION` 7), N turns it off; goldens in two looks
   (`golden_check.py`: every view `--painted`, `REAL_VIEWS` again as `<view>_real`, tolerances
   provisional; all 77 real would be ~13 h here); tests of the painted look pin it.
-  **Day exposure** (#641, Sean 2026-11-08; branch `claude/salt-creek-real-look-exposure-tv3jg4`):
+  **Day exposure** (#641, Sean's A 2026-11-08; PR #710):
   `real.exposure` blended by the sun in `real_light.json`, x1.05 by day, x1.4 at night (~x1.13 at
   golden hour, ~x1.26 at 18:00); the face probe divides out the camera's multiplier; view
   `face_street_noon`. Cheap judge (`2026-11-08_cheap_exp_before|after`): noon cheap -> good indie
   (flat light FAIL -> PASS), golden good, saloon cheap both; faces: lit p90 1.83 -> 1.56 (rule ~1.3),
   the noon face in shade L* 23 -> 13. Sheets `docs/screenshots/real_look/2026-11-08_exposure/`.
   Road at noon mean 148 -> 131, near-white 0.62 -> 0.02%; the saloon at night the same picture.
-  The four changed `_real` goldens re-approved on the branch; waiting on Sean's OK (#641), then merge.
+  The four changed `_real` goldens re-approved. Queued for later: the shade fill (#711). Next: #660.
   Traps: a lavapipe render run is ~10 GB (two at once OOM here, even one ending as the next starts);
   a real-look view is ~10 min under lavapipe; `pgrep -f` waiters match themselves.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
