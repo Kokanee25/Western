@@ -784,6 +784,8 @@ frozen until Sean names one.
   (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
   drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
   start). Waiting on Sean: #689 (taken away only out of sight?).
+- **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
+  `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
   felixblume's mountain dynamite, boilingsand's M-150 the crack; `assets/audio/blast/s1/`, cut by
   the train's `recordings.py --manifest=experiments/sound_lab/blast_recordings.json`); `blast_set`

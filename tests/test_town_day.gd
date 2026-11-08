@@ -541,9 +541,7 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.miner != null and town.miner.held_gun == null, "the miner is in town, unarmed")
 	check_eq(town.miner.body_model, &"miner_s4_talking", "he is the Studio's miner_s4, talking")
 	check(town.miner.global_position.distance_to(town.places.at(&"assay_front")) < 0.6, "in front of the assay office")
-	check(town.working_girl != null and town.working_girl.held_gun == null, "the working girl is in the saloon, unarmed")
-	check_eq(town.working_girl.body_model, &"working_girl_s3_talking", "she is the Studio's working_girl_s3, talking")
-	check(town.working_girl.global_position.distance_to(town.places.at(&"saloon_window")) < 0.6, "by the saloon's front windows")
+	check(not "working_girl" in town, "no working girl for now (#698)")
 	check(town.rancher != null and town.rancher.held_gun == null, "the Mexican rancher is in town, unarmed")
 	check_eq(town.rancher.body_model, &"mexican_rancher_s1_talking", "he is the Studio's mexican_rancher_s1, talking")
 	check(town.rancher.global_position.distance_to(town.places.at(&"livery_side")) < 0.6, "along the livery's front")
@@ -553,7 +551,7 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.rancher, town.blacksmith]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
 
 
@@ -628,7 +626,7 @@ func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> voi
 	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
 	await physics_frames(30)
 	var cowering: Array[HumanBody] = []
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.rancher, town.blacksmith]:
 		var b := p.get_node_or_null(^"Brain") as CivilianBrain
 		if b != null and b.mood == CivilianBrain.Mood.COWERING:
 			cowering.append(p)
