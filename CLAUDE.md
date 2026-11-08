@@ -786,6 +786,13 @@ frozen until Sean names one.
   surrender pose solved (elbows ~98, hands at head height, palms forward) and keyed on the way up
   (`HumanBody.HANDS_UP_KEYS`), slerped down; films old | new in its `results/2026-11-07/`. Waiting on
   Sean's OK (#694); the hands-up goldens re-approved in the merge.
+- **The fuller skeleton** (#696, PR #704 merged; lab `experiments/skeleton/`, LAYOUT "src/bodies"):
+  every man's skin has 30 finger and 10 deform bones after his 17 (`DeformRig`: clavicles by the arms'
+  raise and reach plus a pose's lift, twists by the limbs' roll; `spread` gives weights to models
+  without; `config/skeleton.tres`, Sean kept the dials); ragdoll, hitboxes, anatomy, wounds stay on the
+  17. A report's `proportions` fits his anatomy (`Anatomy.for_model`); `finger_rest_curl`. MetaHuman
+  Sean on it (Studio `sean_metahuman_s2`, with #692). D+ 20/20, body lab 244/244 as main; ~4 µs a man.
+  Follow-ups: #693 (grip point, finger spread), #692 (Studio), characters (clip clavicle channels).
 - **Bodies disappearing** (#562, branch `claude/gameplay-bodies-vanish-qv6jdg`, PR #688; lab
   `experiments/bodies_vanish/`, `bv_watch`): a limp man's skin culling box follows his parts
   (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't

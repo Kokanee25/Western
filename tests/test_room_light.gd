@@ -5,13 +5,20 @@ extends TestCase
 ## puts back everything it changed.
 
 
+var was_real := false
+
+
 func before_each() -> void:
+	# Its own switch tested over the painted look: the real look (the default since #641) turns it on.
+	was_real = Settings.real_look
+	Settings.real_look = false
 	Settings.room_light = false
 	RoomLight.active = false
 
 
 func after_each() -> void:
 	Settings.room_light = false
+	Settings.real_look = was_real
 
 
 func _room(lamp_at := Vector3(3.0, 1.9, 4.5), haze := 0.0) -> Array:

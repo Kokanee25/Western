@@ -1069,6 +1069,29 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   starts easing), painted or not; `tools/face_light.py` (with `screenshots.gd --face-probe`)
   measures a face's light ÷ its paint.
 
+**The fuller skeleton** (issue #696; `src/bodies/deform_rig.gd`, `DeformRig`; dials
+`config/skeleton.tres`, `SkeletonTuning`): every man's skin skeleton is his 17 segment bones, then
+30 finger bones (`finger_<finger>_<side>_<0..2>`, at his model's own joints or the anatomy's
+fingers), then 10 deform bones (`clavicle_r/l`, `upper_arm_twist_<side>_0/1`,
+`forearm_twist_<side>_0/1`), then a Studio man's shoulder helpers. The deform bones only shape the
+skin: the parts, hitboxes, ragdoll, anatomy, wounds, gore and the pieces a limb comes off in stay on
+the 17. Posed in `_update_skeleton` after the 17 (`_pose_deform`): the clavicles from the upper
+arm's raise and reach in the chest's frame within a girdle's limits, plus a pose's own lift (POSES'
+`clavicle_r`/`clavicle_l` keys, [rise, forward] degrees; hands_up +5) or a played clip's
+`clavicle_r`/`clavicle_l` channel (a quaternion in the chest's frame); the twists take shares of the
+limb's roll (a swing-twist split: the upper arm's of its roll from the chest, the forearm's of the
+hand's). A model without weights of its own for them gets them at load (`DeformRig.spread`: the
+chest's over each shoulder to the clavicle, each arm segment's along its length to its twists;
+BodyMesh's lofts and `PeopleBodies._load`); the Studio's shoulder helpers turn from the clavicle.
+`DeformRig.on = false` moves each deform bone as its segment (the 17-bone skin: labs' "before").
+**A man's own proportions**: his report's `proportions` (segment -> {a, b}, and structure ids such
+as his clavicles) give him `Anatomy.for_model(model)` = the shared anatomy `fitted` to his joints
+(each segment moved, turned and stretched along its length within SkeletonTuning's limits; its
+capsules and the structures in it go with it; `maps`, `fit_report`, `rest_point` for points given
+in the shared rest pose); everyone else keeps `Anatomy.shared()`. Such a man wears only what his
+model has (BodyMesh's lofts are the shared shape). Lab `experiments/skeleton/` (films, `sk_cost`);
+`tests/test_skeleton.gd`.
+
 **HumanBody's tick** (more-cores step 2): standing, `_apply_pose` sets a pivot only when the pose
 turned it more than `POSE_EPS` (0.01°; `q_writes` counts the sets), `_track_carry` keeps the
 parts' global transforms for two ticks (`_carry_velocities` turns them into the fall's velocities
@@ -1670,7 +1693,10 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   `tools/screenshots.gd` has an approved render in `docs/screenshots/golden/<view>.png`;
   `--render` (or `--from=DIR`) compares each render to its golden on two measures (the mean
   absolute difference per channel and the share of pixels moved by more than 24/255) against
-  `tolerances.json` (per view: a still's floor is mean 1.5 / share 1%; scenario views with
+  `tolerances.json` (two looks since the real look became the default, #641: every view in the
+  painted look, `--painted`, guarding layout, people and effects, and `REAL_VIEWS` again in the real
+  look as `<view>_real`, its light and exposure; all of them real would be ~13 h under lavapipe;
+  per view: a still's floor is mean 1.5 / share 1%; scenario views with
   physics, particles or brains have theirs set from two renders of the same build, `--approve
   --noise=A,B`, three times the measured noise) and writes golden | render | difference ×6 for
   each failure; exit 1 on any. Approving a new look re-approves its goldens in the same merge

@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 6
+const LOOK_VERSION := 7
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
 ## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
@@ -90,9 +90,10 @@ var fire_flipbooks := true
 var quantise_once := false
 ## The real look (docs/briefs/red-dead.md R0; RealLook, src/render/real_look.gd): the game drawn
 ## realistically (smooth filtered textures, no texel squares, mosaic or quantising, anti-aliased,
-## AgX, SSIL, SDFGI outdoors, relief). Off by default until Sean makes it the default; the look
-## panel (N) turns it on, saved. `--real` / `--painted` on the command line for one run, unsaved.
-var real_look := false
+## AgX, SSIL, SDFGI outdoors, relief). The default since Sean's pick (#641, 2026-11-08; a settings
+## file from before is moved to it once, look_version 7); the look panel (N) turns it off, saved.
+## `--real` / `--painted` on the command line for one run, unsaved.
+var real_look := true
 var surface_blocks := false
 ## The probe mosaic (src/render/probe_mosaic.gdshader, ProbeMosaic; a trial, V toggles, not saved):
 ## the frame in blocks fixed to the world by direction from an origin snapped to a grid (texel
@@ -317,7 +318,7 @@ func reset_to_defaults() -> void:
 	tile_look = &"square"
 	quantise_once = false
 	surface_blocks = false
-	real_look = false
+	real_look = true
 	probe_mosaic = false
 	probe_texels = 384.0
 	probe_cell = 0.5
@@ -382,6 +383,9 @@ func load_from_disk() -> void:
 		quantise_once = cfg.get_value("video", "quantise_once", quantise_once)
 		surface_blocks = cfg.get_value("video", "surface_blocks", surface_blocks)
 	real_look = bool(cfg.get_value("video", "real_look", real_look))
+	# 7: the real look the default (#641): saved off while the painted look was the default.
+	if look_version < 7:
+		real_look = true
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
