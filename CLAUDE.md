@@ -544,12 +544,11 @@ frozen until Sean names one.
   stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
   Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
   `theorangeduck.com` allowed.
-- **Clips carry the clavicles** (#708, branch `claude/characters-clavicle-channels-euwkn7`):
-  `retarget_motion.py` writes `clavicle_r`/`clavicle_l` (the turn relative to the source's chest
-  through the chest's fixed turn, held to SkeletonTuning's limits, no roll); every Uthana clip
-  re-exported (segments identical), CMU's left to the drive (its BVH zeroes them); stand_over and
-  the gun walk are held most. Films in `experiments/skeleton/results/2026-11-08_clips/`. Waiting on
-  Sean's OK (#708).
+- **Clips carry the clavicles** (#708, PR #714, Sean approved as is): `retarget_motion.py` writes
+  `clavicle_r`/`clavicle_l` (the turn relative to the source's chest through the chest's fixed turn,
+  held to SkeletonTuning's limits, no roll); every Uthana clip re-exported (segments identical), CMU's
+  left to the drive (its BVH zeroes them). Films `experiments/skeleton/results/2026-11-08_clips/`.
+  Next (gameplay's): #715, LibraryMotion plays the library clips' channels.
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
