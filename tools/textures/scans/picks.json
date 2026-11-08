@@ -1,0 +1,110 @@
+{
+ "note": "The material library's scans (#701): fetched on GitHub by .github/workflows/scans.yml into assets/textures/scans/<id>/. All CC0.",
+ "picks": [
+  {
+   "id": "Wood047",
+   "source": "ambientcg",
+   "why": "rough pine, rough-sawn, fresh"
+  },
+  {
+   "id": "Wood048",
+   "source": "ambientcg",
+   "why": "rough pine, fresh, variant"
+  },
+  {
+   "id": "Wood086",
+   "source": "ambientcg",
+   "why": "rough-sawn, weathered grey"
+  },
+  {
+   "id": "Wood062",
+   "source": "ambientcg",
+   "why": "weathered dark grey"
+  },
+  {
+   "id": "Wood087",
+   "source": "ambientcg",
+   "why": "cottonwood-like pale, fresh"
+  },
+  {
+   "id": "Wood061",
+   "source": "ambientcg",
+   "why": "cottonwood-like pale, variant"
+  },
+  {
+   "id": "Wood059",
+   "source": "ambientcg",
+   "why": "pale grey weathered"
+  },
+  {
+   "id": "Wood050",
+   "source": "ambientcg",
+   "why": "planed pine"
+  },
+  {
+   "id": "Wood014",
+   "source": "ambientcg",
+   "why": "planed pine, variant"
+  },
+  {
+   "id": "Wood043",
+   "source": "ambientcg",
+   "why": "planed, weathered grey-brown"
+  },
+  {
+   "id": "Wood063",
+   "source": "ambientcg",
+   "why": "fir, honey"
+  },
+  {
+   "id": "Wood058",
+   "source": "ambientcg",
+   "why": "fir, variant"
+  },
+  {
+   "id": "Wood045",
+   "source": "ambientcg",
+   "why": "fir, weathered"
+  },
+  {
+   "id": "Wood051",
+   "source": "ambientcg",
+   "why": "walnut"
+  },
+  {
+   "id": "black_walnut_veneer_02",
+   "source": "polyhaven",
+   "why": "walnut, variant"
+  },
+  {
+   "id": "Wood081",
+   "source": "ambientcg",
+   "why": "cherry"
+  },
+  {
+   "id": "Wood015",
+   "source": "ambientcg",
+   "why": "cherry, variant"
+  },
+  {
+   "id": "oak_veneer_01",
+   "source": "polyhaven",
+   "why": "quartersawn oak"
+  },
+  {
+   "id": "red_oak_veneer",
+   "source": "polyhaven",
+   "why": "oak, variant"
+  },
+  {
+   "id": "Wood009",
+   "source": "ambientcg",
+   "why": "mahogany"
+  },
+  {
+   "id": "sapele_veneer",
+   "source": "polyhaven",
+   "why": "sapele (African mahogany), variant"
+  }
+ ]
+}
