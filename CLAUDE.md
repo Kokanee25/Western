@@ -802,7 +802,7 @@ frozen until Sean names one.
   drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
   start). Waiting on Sean: #689 (taken away only out of sight?).
 - **The valley** (#467; plan `docs/briefs/valley-plan.md` §12, `config/valley.json`, `tools/valley/valley_plan.py`;
-  LAYOUT "src/world/town_layout.gd"): G1 the world switch (`Settings.world`, `--world=valley`, PR #705);
+  LAYOUT "src/world/town_layout.gd"): G1 the world switch (`Settings.world`, `--world=valley`, PR #705, build 3440);
   **G2 the ground** (#709, Sean's A on #706: our own chunks; branch `claude/gameplay-valley-g2-c0j5a9`):
   the bake (`valley_plan.py --bake` -> `config/valley_ground/`, 2 m, 16-bit), `ValleyTerrain`,
   `ValleyGround` (128 m Jolt height fields over boxes, a quadtree of levels by visibility ranges),
