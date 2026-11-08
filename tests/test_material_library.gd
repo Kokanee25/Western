@@ -65,3 +65,19 @@ func test_old_rough_boards_warp_more_than_new_fine_ones() -> void:
 	check(rough["warp"][2] > fine["warp"][2] * 3.0, "an old shed's boards warp far more than a fine room's")
 	check(rough["gap"][2] > rough["gap"][0], "gaps open with age")
 	check(fine["width_var"] < rough["width_var"], "planed fine boards are truer to size")
+
+
+func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
+	var p := SamplePanel.new()
+	p.entry = MaterialLibrary.entry("fine_walnut_tg")
+	p.age_name = &"old"
+	add_child(p)
+	p.build()
+	var rail: Node = p.part_nodes[&"rail"]
+	var top := rail.get_child(rail.get_child_count() - 1) as MeshInstance3D
+	var c2: PackedFloat32Array = top.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM2]
+	check(is_equal_approx(c2[3], 1.0), "the rail's top board carries the bar rail's role (rings, elbows)")
+	var post := rail.get_child(0) as MeshInstance3D
+	var p2: PackedFloat32Array = post.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM2]
+	check(is_equal_approx(p2[3], 0.0), "a post is a plain board")
+	p.free()
