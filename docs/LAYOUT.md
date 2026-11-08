@@ -659,10 +659,30 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `scenes/valley.tscn` in its place, so the two never load together; `World.root(main)` is whichever
   is there (the bridge, the smoke test, F12). `ValleyLayout` (`src/world/valley_layout.gd`) is the
   file's pure reader (`ValleyLayout.main()`; places, roads, bridges, water, lots, `route()` a
-  `TrainRoute`); `ValleyWorld` (the valley scene, empty for now): the town's sky and day, a flat
-  placeholder slab the envelope's size (`FlatGround`, top at Y 0; not a `Ground`), the shot's systems,
+  `TrainRoute`); `ValleyWorld` (the valley scene, empty for now): the town's sky and day, the
+  valley's ground (G2, below; G1's flat `FlatGround` slab is gone), the shot's systems,
   the player at the crossroads facing west down Main Street. No TownLife, gang, farmhouse, moments or
   the labs' keys. `tests/test_valley.gd`.
+- **The valley's ground** (G2, #709): `python3 tools/valley/valley_plan.py --bake` samples the plan's
+  terrain function (the same, point by point, as its 10 m maps) every 2 m over the envelope rounded up
+  to 128 m chunks into `config/valley_ground/heights.r16.gz` (gzip of uint16, 2241 x 1857) and
+  `heights.json` (grid, `offset + scale x value`, the valley.json it came from: `test_valley_ground`
+  fails when they differ; re-bake). Not imported (`*.r16.gz` in the export filter). `ValleyTerrain`
+  reads it once (~0.3 s) and answers `height(x, z)` as Jolt's height field has it (quads split
+  (i+1, j) to (i, j+1): measured; the town's `Ground.height_at`/tiles assume the other diagonal).
+  The valley's `Ground` has `terrain` set: `authored_height` is the bake's everywhere and its own
+  slabs/slope/hills give way to `ValleyGround` (child `Chunks`): each 128 m chunk a StaticBody3D with
+  one 65x65 height field and 16 m boxes under it (`column_cells`); a chunk with dug tiles is made
+  again as 16 m squares, 9x9 fields and, where a tile is, a mesh less its quads (a NaN point holes a
+  Jolt field by triangles, not quads). Tiles are 4 m in the valley (`config/ground_valley.tres`,
+  `tile_cells` 80: two bake cells). Drawn as a quadtree (`config/valley_terrain.tres`): level 0 a
+  chunk at 2 m, each level twice the side at half the points, 5 levels; a block's children replace it
+  nearer than `split` (1.5) x its side by Godot's visibility ranges (`visibility_parent`), built on a
+  budget within (split + prepare) and freed past (split + evict); skirts hide the level seams; a dug
+  tile's mesh shows exactly with its chunk's level 0 (whose mesh leaves the tile out). Greybox colours
+  by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
+  (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
+  `--world=valley` tours it with sticks and digs.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is

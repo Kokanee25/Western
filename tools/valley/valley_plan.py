@@ -163,16 +163,21 @@ def nearest_on_polyline(px, pz, line):
 
 
 class Terrain:
-	def __init__(self, data, rail):
+	def __init__(self, data, rail, grid=None, bounds=None):
+		"""The terrain sampled every `grid` m (valley.json's terrain.grid by default) over `bounds`
+		(x0, x1, z0, z1; by default the envelope and 300 m round it). The function is the same at
+		every grid: each step works point by point (the spline, the pads, the formation, the
+		channels), so the 2 m bake and the 10 m map agree at their shared points."""
 		self.data = data
 		self.rail = rail
 		env = data["envelope"]["playable"]
-		self.g = float(data["terrain"].get("grid", 10))
-		pad = 300.0
-		self.x0, self.x1 = env["x"][0] - pad, env["x"][1] + pad
-		self.z0, self.z1 = env["z"][0] - pad, env["z"][1] + pad
-		self.xs = np.arange(self.x0, self.x1 + 0.1, self.g)
-		self.zs = np.arange(self.z0, self.z1 + 0.1, self.g)
+		self.g = float(grid if grid is not None else data["terrain"].get("grid", 10))
+		if bounds is None:
+			pad = 300.0
+			bounds = (env["x"][0] - pad, env["x"][1] + pad, env["z"][0] - pad, env["z"][1] + pad)
+		self.x0, self.x1, self.z0, self.z1 = (float(b) for b in bounds)
+		self.xs = self.x0 + self.g * np.arange(int(round((self.x1 - self.x0) / self.g)) + 1)
+		self.zs = self.z0 + self.g * np.arange(int(round((self.z1 - self.z0) / self.g)) + 1)
 		self.XX, self.ZZ = np.meshgrid(self.xs, self.zs)  # [z, x]
 		self._fit()
 		self.natural = self._tps(self.XX, self.ZZ)
@@ -1447,13 +1452,82 @@ def draw_decisions(plan, res, jr, path):
 	plt.close(fig)
 
 
+# ---------------------------------------------------------------- the bake (G2)
+
+# The game's valley ground (src/world/valley_terrain.gd) reads the terrain from this bake, never
+# from the spline: a 16-bit height map every BAKE_SPACING m from the envelope's north-west corner,
+# its size rounded up to whole BAKE_ALIGN m chunks (the game's collision chunks), and a JSON beside
+# it with the grid and the height = offset + scale * value. The offset is a whole number of steps
+# below zero, so the crossroads' Y 0 is a value exactly.
+BAKE_SPACING = 2.0
+BAKE_ALIGN = 128.0
+BAKE_DIR = os.path.join(ROOT, "config", "valley_ground")
+
+
+def bake(plan, out_dir=BAKE_DIR):
+	import gzip
+	import hashlib
+	env = plan.data["envelope"]["playable"]
+	x0, z0 = float(env["x"][0]), float(env["z"][0])
+	x1 = x0 + math.ceil((env["x"][1] - x0) / BAKE_ALIGN) * BAKE_ALIGN
+	z1 = z0 + math.ceil((env["z"][1] - z0) / BAKE_ALIGN) * BAKE_ALIGN
+	t = Terrain(plan.data, plan.rail, grid=BAKE_SPACING, bounds=(x0, x1, z0, z1))
+	h = t.h
+	lo, hi = float(h.min()), float(h.max())
+	# The smallest step (in whole tenths of a millimetre) that covers the range with a margin.
+	scale = math.ceil((hi - lo + 2.0) / 65535.0 * 1e4) / 1e4
+	zero = int(math.ceil((-(lo - 1.0)) / scale))
+	offset = -zero * scale
+	q = np.clip(np.rint((h - offset) / scale), 0, 65535).astype("<u2")
+	err = float(np.abs(offset + scale * q.astype(float) - h).max())
+	os.makedirs(out_dir, exist_ok=True)
+	raw = q.tobytes()
+	path = os.path.join(out_dir, "heights.r16.gz")
+	with open(path, "wb") as f:
+		# mtime 0: the same terrain bakes to the same bytes.
+		f.write(gzip.compress(raw, compresslevel=9, mtime=0))
+	with open(CONFIG, "rb") as f:
+		src = hashlib.sha256(f.read()).hexdigest()[:16]
+	meta = {
+		"_doc": "Baked by tools/valley/valley_plan.py --bake from config/valley.json (never edit by hand). "
+			"heights.r16.gz: gzip of little-endian uint16, `width` per row, rows north to south (z0 first), "
+			"columns west to east (x0 first); point (i, j) is at x = x0 + i * spacing, z = z0 + j * spacing; "
+			"its height is offset + scale * value.",
+		"file": "heights.r16.gz",
+		"width": int(q.shape[1]),
+		"depth": int(q.shape[0]),
+		"spacing": BAKE_SPACING,
+		"x0": x0,
+		"z0": z0,
+		"offset": offset,
+		"scale": scale,
+		"min": round(lo, 3),
+		"max": round(hi, 3),
+		"quantise_error_m": round(err, 5),
+		"valley_json_sha256": src,
+		"bytes": len(raw),
+	}
+	with open(os.path.join(out_dir, "heights.json"), "w") as f:
+		json.dump(meta, f, indent="\t")
+		f.write("\n")
+	# A few points for the game's test to hold its reader to (the bake's own heights there).
+	return meta, t
+
+
 def main():
 	ap = argparse.ArgumentParser()
 	ap.add_argument("--check", action="store_true", help="the checks only")
+	ap.add_argument("--bake", action="store_true", help="bake the game's height map (config/valley_ground/) only")
 	ap.add_argument("--out", default=os.path.join(ROOT, "docs", "concept"))
 	ap.add_argument("--tables", default=os.path.join(ROOT, "docs", "briefs", "valley-tables.md"))
 	args = ap.parse_args()
 	plan = Plan()
+	if args.bake:
+		meta, _ = bake(plan)
+		print("baked %d x %d at %.0f m: %.2f..%.2f m, step %.4f m, worst %.4f m, %d bytes" % (
+			meta["width"], meta["depth"], meta["spacing"], meta["min"], meta["max"], meta["scale"],
+			meta["quantise_error_m"], os.path.getsize(os.path.join(BAKE_DIR, meta["file"]))))
+		return 0
 	res = run_checks(plan)
 	jr = journeys(plan)
 	vis = visibility(plan, res)
