@@ -1,4 +1,4 @@
-# Cheap judge, 2026-11-08_cheap_matlib_rough
+# Cheap judge, 2026-11-08_cheap_matlib_rough_r1
 
 ## a
 - 1 Flat light: PASS (`460 400 500 230`: a hard sun from the left-front, the rail and the floor patch throw clean shadows, the board faces step in tone)
