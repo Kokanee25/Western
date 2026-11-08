@@ -13,6 +13,13 @@ static var deterministic: bool = bool(ProjectSettings.get_setting("application/r
 		or "--deterministic" in OS.get_cmdline_user_args()
 
 
+## The world this run loaded under `main` (Settings.world, main.gd): the old town's street
+## (TestStreet) or the valley (Valley), whichever is there; null if neither is.
+static func root(main: Node) -> Node3D:
+	var w := main.find_child("TestStreet", true, false) as Node3D
+	return w if w else main.find_child("Valley", true, false) as Node3D
+
+
 ## Seconds, for the gaps between spread-out work: the wall clock, or under `deterministic` the
 ## physics frames so far.
 static func now() -> float:

@@ -106,6 +106,30 @@ def _connect(port, quiet=False):
         return None
 
 
+def _reconnect(port, timeout):
+    """After a scene reload: wait for the old bridge to go and the new one to listen."""
+    time.sleep(1.0)
+    deadline = time.time() + 180
+    while time.time() < deadline:
+        s = _connect(port, quiet=True)
+        if s:
+            # A ping answered on this connection: the old bridge, still closing, would drop it.
+            try:
+                s.settimeout(timeout)
+                s.sendall(b"ping\n")
+                buf = b""
+                while b"\n" not in buf:
+                    chunk = s.recv(65536)
+                    if not chunk:
+                        raise ConnectionError
+                    buf += chunk
+                return s
+            except (OSError, ConnectionError):
+                s.close()
+        time.sleep(0.5)
+    return None
+
+
 def send(lines, port=PORT, timeout=600):
     """Send commands one at a time; return their answers (dicts)."""
     s = _connect(port)
@@ -130,6 +154,14 @@ def send(lines, port=PORT, timeout=600):
             out.append(answer)
             print(json.dumps(answer))
             sys.stdout.flush()
+            if answer.get("reloading"):
+                # `world NAME`: the game reloads its scene and its bridge with it; go on once the
+                # new one is listening.
+                s.close()
+                s = _reconnect(port, timeout)
+                if s is None:
+                    raise ConnectionError("the game didn't come back after the reload")
+                buf = b""
     except (ConnectionError, socket.timeout) as e:
         if not (lines and lines[-1].strip() == "quit"):
             print(f"lost the game: {e}")
