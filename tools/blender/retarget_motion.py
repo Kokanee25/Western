@@ -5,7 +5,7 @@ written as the clip HumanBody plays (assets/animations/<name>.json, MotionClip) 
 the record (assets/animations/<name>.glb). Headless Blender (docs/MOCAP.md "Pipeline"):
 
     ~/.venvs/bpy/bin/python tools/blender/retarget_motion.py IN.glb --name=kick_back [--rest=REST.glb] [--out=assets/animations]
-        [--trim=0.03] [--strike=foot_r] [--event=strike:auto] [--no-feet] [--report=DIR]
+        [--trim=0.03] [--strike=foot_r] [--event=strike:auto] [--no-feet] [--report=DIR] [--take=N]
     ~/.venvs/bpy/bin/python tools/blender/retarget_motion.py --set=DIR --rest=REST.glb --report=DIR   # every take in a folder; a report that ranks them
 (--rest: a file of the same character with its mesh, for the rig's rest pose; Uthana's
 animation-only files are a hierarchy of empties with no armature.)
@@ -18,6 +18,17 @@ Quaternions throughout, our rest from experiments/mocap_walk/rig_rest.json (the 
 builds it). The root's travel is the hips' path in the first frame's heading, scaled to our leg;
 his heading is the hips' yaw. A foot that stands (low and slow) pins the root's travel to it for
 those frames (no sliding). Written for this project.
+
+The clavicles (#708): a source rig that turns its clavicles (Mixamo's and Uthana's
+LeftShoulder/RightShoulder; SMPL's collars, CMU's ASF lclavicle by name) gives each frame a
+`clavicle_r`/`clavicle_l` channel, the clavicle's turn from rest in the chest's frame (DeformRig
+plays it over its drive from the arms). It rides the chest's fixed turn: what the source's clavicle
+turned relative to the source's chest, not a fixed turn of its own (the source's rest line differs
+from ours: from CMU's a shortest turn made a still clavicle a fixed shrug). Its rise and forward
+are held to SkeletonTuning's limits and rebuilt as DeformRig.clavicle_turn builds its own (no roll
+about its length). A clavicle the source never turns (B. Hahne's CMU BVH holds them at zero) and
+rigs without (KayKit) or with an unsound rest (Quaternius) get none: the drive stays. The notes
+give each clavicle's range before the limits and the frames they held (`clavicle`).
 """
 import json
 import math
@@ -62,13 +73,25 @@ BONES = {
     "upper_arm_r": [r"^(mixamorig:?)?rightarm$", r"^(r|right)[_.]?(shoulder_joint|upperarm|upper_arm|arm|uparm)$", r"right.*(upperarm|upper_arm|uparm)", r"^upper_?arm[_.]?r$", r"upper_?arm.*[_.]r$"],
     "forearm_r": [r"^(mixamorig:?)?rightforearm$", r"^(r|right)[_.]?(elbow|forearm|fore_arm|lowerarm|lower_arm)$", r"right.*(forearm|fore_arm|lowerarm|lower_arm|elbow)", r"^fore_?arm[_.]?r$", r"fore_?arm.*[_.]r$"],
     "hand_r": [r"^(mixamorig:?)?righthand$", r"^(r|right)[_.]?(wrist|hand)$", r"right.*(hand|wrist)$", r"^hand[_.]?r$", r"hand.*[_.]r$"],
+    # The clavicles (#708; not segments: the deform rig's, DeformRig): Mixamo's and Uthana's
+    # LeftShoulder, B. Hahne's CMU BVH the same, CMU's own ASF lclavicle, SMPL's left_collar.
+    # Last, so no segment's pattern loses its bone to them.
+    "clavicle_l": [r"^(mixamorig:?)?leftshoulder$", r"^(l|left)[_.]?(shoulder|clavicle|collar)$", r"^lclavicle$", r"left.*(clavicle|collar)",
+                   r"^(clavicle|collar)[_.]?l$", r"(clavicle|collar).*[_.]l$"],
+    "clavicle_r": [r"^(mixamorig:?)?rightshoulder$", r"^(r|right)[_.]?(shoulder|clavicle|collar)$", r"^rclavicle$", r"right.*(clavicle|collar)",
+                   r"^(clavicle|collar)[_.]?r$", r"(clavicle|collar).*[_.]r$"],
 }
+# The clavicles: carried as segments under the chest (their tip the upper arm's head), but they
+# are the deform rig's, not the ragdoll's: a clip's `clavicle_r`/`clavicle_l` channel is the
+# clavicle's turn from rest in the chest's frame, which HumanBody hands to DeformRig.pose.
+CLAVICLES = ("clavicle_r", "clavicle_l")
 # The bone at each segment's far end (its tip), for the rest direction: the child bone that is
 # the next segment down, else the bone's own tail.
 TIP = {"pelvis": None, "abdomen": "chest", "chest": "neck", "neck": "head", "head": None,
        "thigh_l": "shin_l", "shin_l": "foot_l", "foot_l": None, "thigh_r": "shin_r", "shin_r": "foot_r", "foot_r": None,
        "upper_arm_l": "forearm_l", "forearm_l": "hand_l", "hand_l": None,
-       "upper_arm_r": "forearm_r", "forearm_r": "hand_r", "hand_r": None}
+       "upper_arm_r": "forearm_r", "forearm_r": "hand_r", "hand_r": None,
+       "clavicle_l": "upper_arm_l", "clavicle_r": "upper_arm_r"}
 # For the ends (feet, head, hands), the source's own tip joint when it has one (Mixamo's ToeBase,
 # HeadTop_End, HandMiddle1): the importer gives a childless bone a made-up tail.
 TIP_SRC = {"foot_l": [r"lefttoebase", r"lefttoe_end", r"left.*toe"], "foot_r": [r"righttoebase", r"righttoe_end", r"right.*toe"],
@@ -78,7 +101,8 @@ TIP_SRC = {"foot_l": [r"lefttoebase", r"lefttoe_end", r"left.*toe"], "foot_r": [
 PARENT = {"pelvis": None, "abdomen": "pelvis", "chest": "abdomen", "neck": "chest", "head": "neck",
           "thigh_l": "pelvis", "shin_l": "thigh_l", "foot_l": "shin_l", "thigh_r": "pelvis", "shin_r": "thigh_r", "foot_r": "shin_r",
           "upper_arm_l": "chest", "forearm_l": "upper_arm_l", "hand_l": "forearm_l",
-          "upper_arm_r": "chest", "forearm_r": "upper_arm_r", "hand_r": "forearm_r"}
+          "upper_arm_r": "chest", "forearm_r": "upper_arm_r", "hand_r": "forearm_r",
+          "clavicle_l": "chest", "clavicle_r": "chest"}
 FPS = 30
 
 # Rigs read by their own names, not the patterns above (their names fool them: Quaternius' rigify
@@ -95,9 +119,13 @@ RIGS = {
         "thigh_r": "DEF-thigh.R", "shin_r": "DEF-shin.R", "foot_r": "DEF-foot.R",
         "upper_arm_l": "DEF-upper_arm.L", "forearm_l": "DEF-forearm.L", "hand_l": "DEF-hand.L",
         "upper_arm_r": "DEF-upper_arm.R", "forearm_r": "DEF-forearm.R", "hand_r": "DEF-hand.R"},
+        # Its DEF-shoulder.L/R are left to the deform rig's drive (#708): its rest isn't the
+        # shoulders' (from it, its own Idle_Loop's clavicles sit a fixed 31 and 19 degrees back,
+        # one side unlike the other), and no library clip is picked from it.
         "tips": {"foot_l": "DEF-toe.L", "foot_r": "DEF-toe.R", "hand_l": "DEF-f_middle.01.L", "hand_r": "DEF-f_middle.01.R"}},
     # KayKit's Rig_Medium (Character Animations 1.1): no neck bone (the head hangs from the chest:
-    # our neck stays the pose's); wrist.* is the hand's joint, hand.* its middle.
+    # our neck stays the pose's) and no clavicles (the upper arms hang from the chest: the deform
+    # rig's drive from the arms stays); wrist.* is the hand's joint, hand.* its middle.
     "kaykit": {"detect": "upperleg.l", "bones": {
         "pelvis": "hips", "abdomen": "spine", "chest": "chest", "head": "head",
         "thigh_l": "upperleg.l", "shin_l": "lowerleg.l", "foot_l": "foot.l",
@@ -106,6 +134,36 @@ RIGS = {
         "upper_arm_r": "upperarm.r", "forearm_r": "lowerarm.r", "hand_r": "wrist.r"},
         "tips": {"foot_l": "toes.l", "foot_r": "toes.r", "hand_l": "hand.l", "hand_r": "hand.r"}},
 }
+
+
+ANATOMY = os.path.join(ROOT, "config", "anatomy.json")
+SKELETON_TUNING = (os.path.join(ROOT, "src", "bodies", "skeleton_tuning.gd"), os.path.join(ROOT, "config", "skeleton.tres"))
+
+
+def load_rig():
+    """Our rig (rig_rest.json, as HumanBody builds it) and the two clavicles: each from the sternal
+    end to the acromial end of the anatomy's clavicle (config/anatomy.json `clavicle_r`/`_l`, as
+    DeformRig.clavicle_ends reads them), its pivot the sternal end, under the chest."""
+    rig = json.load(open(RIG_REST))
+    for st in json.load(open(ANATOMY))["structures"]:
+        if st.get("id") in CLAVICLES:
+            a, b = st["capsule"][0], st["capsule"][1]
+            rig[st["id"]] = {"a": list(a), "b": list(b), "parent": "chest", "pivot": list(a)}
+    return rig
+
+
+def clavicle_limits():
+    """The girdle's limits the game holds its own drive to (SkeletonTuning's clav_rise_max,
+    clav_drop_max, clav_forward_max, clav_back_max, degrees): the script's defaults, then
+    config/skeleton.tres where it sets one."""
+    lim = {}
+    for path in SKELETON_TUNING:
+        if not os.path.exists(path):
+            continue
+        for m in re.finditer(r"(clav_(?:rise|drop|forward|back)_max)\s*:?=\s*([-0-9.]+)", open(path).read()):
+            lim[m.group(1)] = float(m.group(2))
+    return {"rise": lim.get("clav_rise_max", 26.0), "drop": lim.get("clav_drop_max", 6.0),
+            "forward": lim.get("clav_forward_max", 18.0), "back": lim.get("clav_back_max", 14.0)}
 
 
 def rig_of(names):
@@ -178,6 +236,54 @@ def yaw_of(R):
     """The heading of a rotation's forward (-z) axis, as Godot reads it (rotation.y)."""
     f = R @ np.array([0.0, 0.0, -1.0])
     return math.atan2(-f[0], -f[2])
+
+
+def axis_turn(axis, deg):
+    """The rotation (3x3) of `deg` degrees about a unit axis."""
+    k = np.asarray(axis, dtype=float) / np.linalg.norm(axis)
+    K = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+    a = math.radians(deg)
+    return np.eye(3) + math.sin(a) * K + (1 - math.cos(a)) * K @ K
+
+
+def clavicle_parts(R, axis):
+    """A clavicle's turn in the chest's frame (3x3) read as DeformRig.clavicle_turn builds one:
+    `rise` (degrees its acromial end goes up from rest), `forward` (degrees it swings ahead, - back),
+    and `roll` (degrees it turns about its own length, which the game's drive never does)."""
+    axis = np.asarray(axis, dtype=float) / np.linalg.norm(axis)
+    up = np.array([0.0, 1.0, 0.0])
+    a1 = R @ axis
+    rise = math.degrees(math.asin(max(-1.0, min(1.0, float(a1[1]))))) - math.degrees(math.asin(max(-1.0, min(1.0, float(axis[1])))))
+    fwd_axis = np.cross(axis, np.array([0.0, 0.0, -1.0]))
+    fwd_axis /= np.linalg.norm(fwd_axis)
+    h0 = np.array([axis[0], 0.0, axis[2]])
+    h1 = np.array([a1[0], 0.0, a1[2]])
+    fwd = math.degrees(math.atan2(float(np.dot(np.cross(h0, h1), fwd_axis)), float(np.dot(h0, h1)))) if np.linalg.norm(h1) > 1e-6 else 0.0
+    # The roll: what's left once the swing taking the axis to where it is now is taken out.
+    rest_of = arc(a1, axis) @ R
+    x, y, z, w = quat(rest_of)
+    roll = math.degrees(2 * math.atan2(float(np.dot([x, y, z], axis)), w))
+    return rise, fwd, math.remainder(roll, 360.0)
+
+
+def clavicle_turn(rise, fwd, axis):
+    """The turn DeformRig.clavicle_turn makes of a rise and a forward (degrees): about the axis
+    square to the clavicle and up, then about the one square to it and ahead (Godot's
+    Quaternion(fwd_axis, fwd) * Quaternion(up_axis, rise))."""
+    axis = np.asarray(axis, dtype=float) / np.linalg.norm(axis)
+    up_axis = np.cross(axis, np.array([0.0, 1.0, 0.0]))
+    fwd_axis = np.cross(axis, np.array([0.0, 0.0, -1.0]))
+    return axis_turn(fwd_axis, fwd) @ axis_turn(up_axis, rise)
+
+
+def clavicle_channel(R, axis, lim):
+    """A clavicle's channel for a frame (Godot's [x, y, z, w]) from its retargeted turn: its rise
+    and forward held to the girdle's limits and rebuilt as the game builds its own (its roll left
+    out). Returns (channel, rise, forward, roll, clamped)."""
+    rise, fwd, roll = clavicle_parts(R, axis)
+    r = max(-lim["drop"], min(lim["rise"], rise))
+    f = max(-lim["back"], min(lim["forward"], fwd))
+    return quat(clavicle_turn(r, f, axis)), rise, fwd, roll, (r != rise or f != fwd)
 
 
 # --- Reading the source with Blender --------------------------------------------------------------
@@ -330,7 +436,7 @@ def retarget(names, rest, frames, rig, source_name=""):
     W = yaw_m(-yaw_of_dir(facing(rest_pose)))
     q_off = {}
     for seg in rig:
-        if seg not in bones:
+        if seg not in bones or seg in CLAVICLES:
             continue
         if seg == "pelvis":
             q_off[seg] = W
@@ -341,7 +447,7 @@ def retarget(names, rest, frames, rig, source_name=""):
     def globals_at(pose):
         g = {}
         for seg in rig:
-            if seg not in bones:
+            if seg not in bones or seg in CLAVICLES:
                 continue
             R = to_godot_m(pose[bones[seg]])[0]
             g[seg] = H @ R @ rest_R[seg].T @ q_off[seg].T
@@ -362,6 +468,15 @@ def retarget(names, rest, frames, rig, source_name=""):
     out_frames, root, yaw, hips = [], [], [], []
     feet_l, feet_r, hips_path, hands_path = [], [], [], []
     hip0 = None
+    # The clavicles (#708) ride the chest's fixed turn, not one of their own: a clavicle's channel
+    # is what the source's clavicle turned from its rest relative to the source's chest (C' K,
+    # each bone's world turn from its rest), seen through the turn that takes the source's chest
+    # onto ours. A clavicle still in the source is still in the clip, whatever line it lies along
+    # at rest (a shortest turn from the source's rest line onto ours, as the segments get, made a
+    # fixed shrug of up to 29 degrees from CMU's, whose clavicles never move).
+    lim = clavicle_limits()
+    clav = {c: {"rise": [], "forward": [], "roll": [], "clamped": 0, "q": [], "turn": 0.0}
+            for c in CLAVICLES if c in rig and c in bones and "chest" in q_off}
     for pose in frames:
         g = globals_at(pose)
         local = {}
@@ -371,6 +486,19 @@ def retarget(names, rest, frames, rig, source_name=""):
             parent = PARENT[seg]
             gp = g[parent] if parent and parent in g else np.eye(3)
             local[seg] = quat(gp.T @ g[seg])
+        if clav:
+            C = to_godot_m(pose[bones["chest"]])[0] @ rest_R["chest"].T
+            for seg in clav:
+                K = to_godot_m(pose[bones[seg]])[0] @ rest_R[seg].T
+                D = q_off["chest"] @ C.T @ K @ q_off["chest"].T
+                axis = np.array(rig[seg]["b"]) - np.array(rig[seg]["a"])
+                q, r, f, ro, cut = clavicle_channel(D, axis, lim)
+                clav[seg]["q"].append(q)
+                for k, v in (("rise", r), ("forward", f), ("roll", ro)):
+                    clav[seg][k].append(v)
+                clav[seg]["clamped"] += int(cut)
+                x, y, z, w = quat(D)
+                clav[seg]["turn"] = max(clav[seg]["turn"], math.degrees(2 * math.acos(min(1.0, abs(w)))))
         out_frames.append(local)
         hp = H @ to_godot_m(pose[bones["pelvis"]])[1]
         if hip0 is None:
@@ -388,10 +516,28 @@ def retarget(names, rest, frames, rig, source_name=""):
             hands_path.append([round(float(c), 4) for c in hm])
         for seg, lst in (("foot_l", feet_l), ("foot_r", feet_r)):
             lst.append(H @ to_godot_m(pose[bones[seg]])[1] if seg in bones else hp)
+    # A clavicle the source never turns (CMU's, zeroed by its BVH conversion) is no motion: left
+    # out, so the deform rig's drive from the arms stays.
+    still = [c for c, v in clav.items() if v["turn"] < 0.5]
+    for c, v in clav.items():
+        if c in still:
+            continue
+        for fr, q in zip(out_frames, v["q"]):
+            fr[c] = q
     # The ground: the lowest the feet get over the clip; hips over it in leg lengths.
     feet = np.array(feet_l + feet_r)
     ground = float(np.percentile(feet[:, 1], 3)) if len(feet) else 0.0
     hip_height = [round((h - ground) / leg_src, 4) if leg_src > 1e-3 else -1.0 for h in hips]
+    # Each clavicle's turn over the clip as retargeted, before the limits (degrees), and how many
+    # frames the limits held.
+    notes["clavicle"] = {c: {"rise": [round(min(v["rise"]), 1), round(max(v["rise"]), 1)],
+                             "forward": [round(min(v["forward"]), 1), round(max(v["forward"]), 1)],
+                             "roll_max": round(max(abs(x) for x in v["roll"]), 1), "clamped_frames": v["clamped"]}
+                         for c, v in clav.items() if v["rise"] and c not in still}
+    notes["clavicle_limits"] = lim
+    notes["missing"] = [s for s in missing if s not in CLAVICLES]
+    notes["no_clavicles"] = {c: ("still in the source" if c in still else "none in the source")
+                             for c in CLAVICLES if c in rig and (c not in clav or c in still)}
     clip = {"name": source_name, "fps": FPS, "frames": out_frames, "root": root, "yaw": yaw, "hip_height": hip_height,
             "feet": {"l": [[round(float(c), 4) for c in p] for p in feet_l], "r": [[round(float(c), 4) for c in p] for p in feet_r]},
             "hips_path": hips_path, "hands_path": hands_path, "ground": round(ground, 4), "scale": round(scale, 4)}
@@ -407,6 +553,8 @@ def energy(clip):
     for i in range(1, len(fr)):
         s = 0.0
         for seg, q in fr[i].items():
+            if seg in CLAVICLES:  # the deform rig's: how much he moves is his segments'
+                continue
             p = fr[i - 1].get(seg, q)
             d = abs(sum(a * b for a, b in zip(p, q)))
             s += 2 * math.acos(min(1.0, d))
@@ -554,7 +702,8 @@ def write_gltf(clip, rig, path):
     bpy.ops.object.mode_set(mode="EDIT")
     G2B = np.array([[1.0, 0, 0], [0, 0, -1.0], [0, 1.0, 0]])  # Godot (y up) -> Blender (z up)
     order = [s for s in ("pelvis", "abdomen", "chest", "neck", "head", "thigh_l", "shin_l", "foot_l", "thigh_r", "shin_r",
-                         "foot_r", "upper_arm_l", "forearm_l", "hand_l", "upper_arm_r", "forearm_r", "hand_r") if s in rig]
+                         "foot_r", "upper_arm_l", "forearm_l", "hand_l", "upper_arm_r", "forearm_r", "hand_r",
+                         "clavicle_l", "clavicle_r") if s in rig]
     eb = {}
     for seg in order:
         b = arm_data.edit_bones.new(seg)
@@ -682,7 +831,7 @@ def process(path, name, out_dir, rig, trim_th=0.03, strikes=(), events_spec=None
 
 
 def main(argv):
-    rig = json.load(open(RIG_REST))
+    rig = load_rig()
     out_dir = opt("out", os.path.join(ROOT, "assets", "animations"), argv)
     report_dir = opt("report", None, argv)
     credit = opt("credit", "", argv)
@@ -734,6 +883,12 @@ def main(argv):
     path = [a for a in argv if not a.startswith("--")][0]
     name = opt("name", os.path.splitext(os.path.basename(path))[0], argv)
     clip, notes = process(path, name, out_dir, rig, trim_th, strikes, events_spec, feet, credit, rest_path)
+    if opt("take", None, argv):
+        # Which take of its set it is, as the --set run records it.
+        jp = os.path.join(out_dir, name + ".json")
+        d = json.load(open(jp))
+        d["take"] = int(opt("take", None, argv))
+        json.dump(d, open(jp, "w"), separators=(",", ":"))
     print(json.dumps({"name": name, "frames": len(clip["frames"]), "notes": {k: v for k, v in notes.items() if k != "bones"}}))
 
 
