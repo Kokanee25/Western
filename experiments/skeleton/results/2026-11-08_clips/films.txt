@@ -3,9 +3,9 @@ clock off
 goto -3 0 -1 180
 sk_rig on
 sk_man bold_cowboy_s3_talking -3 0 -6 0
-sk_cam front 2.8
+sk_cam front 3.4 1.45 1.1
 sk_film build/sk_clip_films/kick_back_old clip0=kick_back 195 15
 sk_film build/sk_clip_films/kick_back_new clip=kick_back 195 15
-sk_cam three 2.8
+sk_cam three 3.2 1.45 1.1
 sk_film build/sk_clip_films/stand_over_old clip0=stand_over 315 15
 sk_film build/sk_clip_films/stand_over_new clip=stand_over 315 15
