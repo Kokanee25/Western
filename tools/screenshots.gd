@@ -715,6 +715,12 @@ func _save_face_probe(viewport: SubViewport, player, base: String) -> void:
 		var we := viewport.find_child("WorldEnvironment", true, false) as WorldEnvironment
 		env = we.environment if we else null
 	var exposure: float = env.tonemap_exposure if env else 1.0
+	# The real look's exposure is a camera-attributes multiplier on top (RealLook, #641): divided
+	# out too, so the paint pass shows the paint at the frame's exposure whichever look is on.
+	var we_attr := viewport.find_child("WorldEnvironment", true, false) as WorldEnvironment
+	var attrs: CameraAttributes = cam.attributes if cam.attributes else (we_attr.camera_attributes if we_attr else null)
+	if attrs:
+		exposure *= attrs.exposure_multiplier
 	var heads: Array = []
 	for mi: MeshInstance3D in man.find_children("Head_*", "MeshInstance3D", true, false):
 		if mi.material_override is ShaderMaterial:
