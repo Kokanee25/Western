@@ -584,7 +584,9 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				p.wall_size = Vector2(spec["long"], 2.0)
 			p.build()
 			for m in p.find_children("*", "MeshInstance3D", true, false):
-				var mat: ShaderMaterial = m.material_override
+				var mat := (m as MeshInstance3D).material_override as ShaderMaterial
+				if mat == null:
+					continue
 				if spec.has("variety"):
 					mat.set_shader_parameter("variety", spec["variety"])
 				if spec.has("warp_gain"):
