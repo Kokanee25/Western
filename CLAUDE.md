@@ -808,12 +808,12 @@ frozen until Sean names one.
   start). Waiting on Sean: #689 (taken away only out of sight?).
 - **The valley** (#467; plan `docs/briefs/valley-plan.md` §12, `config/valley.json`, `tools/valley/valley_plan.py`;
   LAYOUT "src/world/town_layout.gd"): G1 the world switch (`Settings.world`, `--world=valley`, PR #705, build 3440);
-  **G2 the ground** (#709, Sean's A on #706: our own chunks; branch `claude/gameplay-valley-g2-c0j5a9`):
+  **G2 the ground** (#709, Sean's A on #706: our own chunks; PR #713, build 3487):
   the bake (`valley_plan.py --bake` -> `config/valley_ground/`, 2 m, 16-bit), `ValleyTerrain`,
   `ValleyGround` (128 m Jolt height fields over boxes, a quadtree of levels by visibility ranges),
   `Ground.terrain` (digging, craters, saves as the town's; 4 m tiles); render CPU 0.35-0.44 ms at Sean's
   at the crossroads, corners, overlook; soak `--world=valley` passed (results `experiments/valley/`).
-  Next: G3, the rail corridor (its issue). For art: the valley's fog (the town's 0.0035) hides the
+  Next: G3, the rail corridor (#716). For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
