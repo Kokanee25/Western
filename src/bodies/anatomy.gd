@@ -48,7 +48,14 @@ static func for_model(model: StringName) -> Anatomy:
 		return shared()
 	if _fitted.has(model):
 		return _fitted[model]
-	var ends: Variant = PeopleBodies.report(model).get("proportions", {})
+	# His report read here, not through PeopleBodies: a `-s` script (the body lab) compiles Anatomy
+	# before the autoloads HumanBody needs.
+	var ends: Variant = {}
+	var path := "res://assets/people/%s.json" % model
+	if FileAccess.file_exists(path):
+		var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if info is Dictionary:
+			ends = (info as Dictionary).get("proportions", {})
 	var out := shared() if not ends is Dictionary or (ends as Dictionary).is_empty() else shared().fitted(ends)
 	_fitted[model] = out
 	return out

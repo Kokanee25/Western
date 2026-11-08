@@ -427,7 +427,11 @@ static func anatomy_finger_bones(anatomy: Anatomy) -> Dictionary:
 		var a: Vector3 = st.a
 		var b: Vector3 = st.b
 		var o := a + (b - a) * float(lengths[int(bits[3])])
-		var basis := HumanBody._along(a - b)
+		# HumanBody._along (not named: a `-s` script compiles this before the autoloads it needs).
+		var y := (a - b).normalized()
+		var ref := Vector3.FORWARD if absf(y.dot(Vector3.FORWARD)) < 0.9 else Vector3.RIGHT
+		var x := ref.cross(y).normalized()
+		var basis := Basis(x, y, x.cross(y).normalized())
 		out[name] = {"origin": [o.x, o.y, o.z], "basis": [[basis.x.x, basis.x.y, basis.x.z],
 				[basis.y.x, basis.y.y, basis.y.z], [basis.z.x, basis.z.y, basis.z.z]]}
 	return out
