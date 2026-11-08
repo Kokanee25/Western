@@ -55,7 +55,8 @@ static func for_model(model: StringName) -> Anatomy:
 
 
 ## A copy fitted to one man's proportions. `ends`: segment -> {"a": [x, y, z], "b": [x, y, z]}, his
-## segment's ends in the same rest pose and frame (a segment not given stays as it is). Each
+## segment's ends in the same rest pose and frame (a segment not given stays as it is; a structure's
+## id, his clavicles', sets that structure's own ends). Each
 ## segment's map takes its shared ends a, b to his: moved, turned and stretched along its length
 ## (not across: its girth stays, as its capsules' radii do), each held within SkeletonTuning's
 ## limits (length ratio, ends' shift, turn). Its capsules (the hitboxes) and the structures in it
@@ -83,6 +84,15 @@ func fitted(ends: Dictionary, tuning: SkeletonTuning = null) -> Anatomy:
 		var m: Transform3D = out.maps.get(st.segment, Transform3D.IDENTITY)
 		c.a = m * (st.a as Vector3)
 		c.b = m * (st.b as Vector3)
+		# A structure his model has its own place for (his clavicles: where his rig's are), set
+		# there, each end held within the limits' shift of where his segment's map puts it.
+		var own: Variant = ends.get(String(st.id))
+		if own is Dictionary:
+			for k: String in ["a", "b"]:
+				var want := _v((own as Dictionary)[k])
+				var off := want - (c[StringName(k)] as Vector3)
+				c[StringName(k)] = (c[StringName(k)] as Vector3) + off.limit_length(t.end_shift_max)
+			out.fit_report[String(st.id)] = {"own": true}
 		out.structures.append(c)
 		if out.by_segment.has(c.segment):
 			out.by_segment[c.segment].append(c)
