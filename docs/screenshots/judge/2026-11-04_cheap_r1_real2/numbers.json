@@ -1,0 +1,102 @@
+{
+ "a": {
+  "source": "saloon_night_real",
+  "numbers": {
+   "shadow": 0.10356336805555555,
+   "spread": 55.373862403735444,
+   "floor": 2.734547951561286,
+   "L5": 6.713808554965073,
+   "L50": 23.50692674697703,
+   "L95": 62.087670958700514,
+   "depth": "frame bands",
+   "contrast_far_near": 0.9115256440846928,
+   "chroma_far_near": 1.3987855736686903,
+   "repeat": 0.04574884801944141,
+   "repeat_quarter": 0.18520471295880417
+  }
+ },
+ "b": {
+  "source": "saloon_back_wall_night_real",
+  "numbers": {
+   "shadow": 0.08972439236111111,
+   "spread": 51.410597518164394,
+   "floor": 2.6166465138353985,
+   "L5": 6.658651824203261,
+   "L50": 24.137388384920584,
+   "L95": 58.069249342367655,
+   "depth": "frame bands",
+   "contrast_far_near": 0.8962288086190996,
+   "chroma_far_near": 1.4958048339714245,
+   "repeat": 0.11088772016309177,
+   "repeat_quarter": 0.25058592374293404
+  }
+ },
+ "c": {
+  "source": "saloon_toward_door_night_real",
+  "numbers": {
+   "shadow": 0.07721354166666666,
+   "spread": 58.97707401934957,
+   "floor": 1.931664380385552,
+   "L5": 6.634456115354342,
+   "L50": 25.7604794885032,
+   "L95": 65.61153013470391,
+   "depth": "frame bands",
+   "contrast_far_near": 0.8196668671994392,
+   "chroma_far_near": 1.2683814347204565,
+   "repeat": 0.06936097253395904,
+   "repeat_quarter": 0.11880237294851628
+  }
+ },
+ "d": {
+  "source": "man_saloon_night_real",
+  "numbers": {
+   "shadow": 0.3425336371527778,
+   "spread": 39.8769312978957,
+   "floor": 0.6426683238376718,
+   "L5": 2.930636835917504,
+   "L50": 17.40116334023729,
+   "L95": 42.807568133813206,
+   "depth": "frame bands",
+   "contrast_far_near": 1.0203406357120477,
+   "chroma_far_near": 1.274569108299642,
+   "repeat": 0.4414974350023694,
+   "repeat_quarter": 0.6977300062068167
+  }
+ },
+ "e": {
+  "source": "road_low_noon_real",
+  "numbers": {
+   "shadow": 0.0018272569444444445,
+   "spread": 63.29112167796158,
+   "floor": 16.137276158830552,
+   "L5": 23.093927724761137,
+   "L50": 67.50066282296817,
+   "L95": 86.38504940272271,
+   "depth": "frame bands",
+   "contrast_far_near": 1.0979015898760676,
+   "chroma_far_near": 0.5433652730621472,
+   "repeat": 0.032388755247104876,
+   "repeat_quarter": 0.1160578584525585
+  }
+ },
+ "f": {
+  "source": "street_golden_hour_real",
+  "numbers": {
+   "shadow": 0.14680555555555555,
+   "spread": 67.50283184796605,
+   "floor": 0.5246035672919334,
+   "L5": 3.847545569830533,
+   "L50": 38.35836779559071,
+   "L95": 71.35037741779658,
+   "depth": "frame bands",
+   "contrast_far_near": 0.6160398486243445,
+   "chroma_far_near": 0.738353212978612,
+   "repeat": 0.028657673263462337,
+   "repeat_quarter": 0.11463850764649303
+  }
+ },
+ "g": {
+  "source": "film",
+  "numbers": null
+ }
+}

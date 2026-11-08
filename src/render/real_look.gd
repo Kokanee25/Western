@@ -23,7 +23,16 @@ extends Node
 ## - SDFGI, when the look panel turns it on, outdoors only: a ray up from the camera four times a second, its energy eased to
 ##   `sdfgi_indoor` under a roof (the saloon's indoor light is RoomLight's) and `sdfgi_outdoor` out;
 ## - StandardMaterial3Ds' and decals' nearest filtering made linear (and back), including what's
-##   added while it's on.
+##   added while it's on;
+## - every building's interior probe (`interior_ambient`) taken again when the room's light changes
+##   (RoomReflections.state: lamps lit or out, the sun up or down) and when it comes on: taken once
+##   at the build (noon), its reflections put a grey-blue daylight sheen on the floor and bar at
+##   night under the real look's specular (R1);
+## - the lamps hung over a room (OilLamp meta `lamp_group` "hung") lit as a shaded lamp is (R1):
+##   their tin shade casts a shadow and the lamp casts shadows, so the shade darkens the ceiling
+##   over it and the light falls in a pool on the floor, the chairs and tables shadowed in it;
+##   their energy and reach multiplied by `hung_energy` and `hung_reach` (each frame, after
+##   OilLamp's flicker has set it: the flicker read back from the light).
 
 const SHADERS := [
 	"res://src/render/texel_grid.gdshader", "res://src/render/texel_grid_blocks.gdshader",
@@ -42,8 +51,13 @@ const ROOF_REACH := 30.0
 ## outdoors and under a roof.
 static var dials := {
 	"exposure": 1.4, "relief": 0.004, "groove": 0.003, "specular": 0.35,
-	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0,
+	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0, "hung_energy": 1.0, "hung_reach": 1.0,
 }
+## The hung lamps' meshes that cast a shadow under the real look (the tin shade over the flame).
+const HUNG_CASTERS := [&"Shade", &"ShadeUnder"]
+## A hung lamp's shadow only with the camera this near (from the street a room's lamps' shadows were
+## most of the frame's draws: OilLamp's own far rule).
+const HUNG_SHADOW_REACH := 14.0
 ## Whether the world's shaders are compiled for the real look now.
 static var shaders_real := false
 static var _original_code := {}
@@ -58,6 +72,9 @@ var _since_roof := 1.0
 var _under_roof := false
 var _sdfgi := 1.0
 var _pending: Array[Node] = []
+var _room_state := -1
+## The hung lamps made shaded: lamp -> the light energy this last wrote.
+var _hung := {}
 
 
 func _ready() -> void:
@@ -89,6 +106,8 @@ func _process(delta: float) -> void:
 			if is_instance_valid(n):
 				_filters(n, true)
 	_ease_sdfgi(delta)
+	_retake_probes()
+	_hung_lamps()
 
 
 func _physics_process(delta: float) -> void:
@@ -134,6 +153,9 @@ func _set_applied(on: bool) -> void:
 		tree.node_added.disconnect(_added)
 		_pending.clear()
 	_sdfgi = -1.0  # snap to where the camera is, not ease from the last value
+	_room_state = -1  # the interior probes taken again in the light they're in now
+	if not on:
+		_unshade_hung()
 	print("[real look] %s" % ("on" if on else "off"))
 
 
@@ -232,6 +254,84 @@ func _ease_sdfgi(delta: float) -> void:
 	_sdfgi = want if _sdfgi < 0.0 else move_toward(_sdfgi, want, delta * 2.0)
 	if not is_equal_approx(env.sdfgi_energy, _sdfgi):
 		env.sdfgi_energy = _sdfgi
+
+
+## The interior probes taken again when the room's light changes (and when the look comes on).
+func _retake_probes() -> void:
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	if clock == null:
+		return
+	var s := RoomReflections.state(clock.get_hour())
+	if s == _room_state:
+		return
+	_room_state = s
+	for p in get_tree().get_nodes_in_group(&"interior_ambient"):
+		if p is ReflectionProbe:
+			_retake(p as ReflectionProbe)
+
+
+## UPDATE_ONCE takes a probe again when it changes: always for two frames and back, a frame after
+## the lamps' own hour_changed has lit them (as RoomReflections.retake).
+func _retake(p: ReflectionProbe) -> void:
+	await get_tree().process_frame
+	if not is_instance_valid(p) or not p.is_inside_tree():
+		return
+	p.update_mode = ReflectionProbe.UPDATE_ALWAYS
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if is_instance_valid(p) and p.is_inside_tree():
+		p.update_mode = ReflectionProbe.UPDATE_ONCE
+
+
+## The hung lamps shaded (shadows from their tin shade) and their light multiplied, every frame
+## after OilLamp's flicker. New lamps are found in the `oil_lamps` group.
+func _hung_lamps() -> void:
+	var cam := _camera()
+	for n in get_tree().get_nodes_in_group(&"oil_lamps"):
+		var lamp := n as OilLamp
+		if lamp == null or lamp.get_meta(&"lamp_group", &"") != &"hung" or lamp._light == null:
+			continue
+		var light := lamp._light
+		if not _hung.has(lamp):
+			_hung[lamp] = -1.0
+			light.set_meta(&"real_shadow_before", light.shadow_enabled)
+			var root := lamp.get_parent()
+			for c: StringName in HUNG_CASTERS:
+				var mi := root.get_node_or_null(NodePath(String(c))) as MeshInstance3D if root else null
+				if mi:
+					mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		var near := cam != null and cam.global_position.distance_to(light.global_position) < HUNG_SHADOW_REACH
+		if light.shadow_enabled != near:
+			light.shadow_enabled = near
+		light.omni_range = lamp.light_range * float(dials.hung_reach)
+		# OilLamp sets energy x flicker (not every frame under the render thread): what it set is
+		# read back only when it isn't what this wrote last.
+		var e := light.light_energy
+		if e != float(_hung[lamp]) and lamp.energy > 0.0:
+			var w := e * float(dials.hung_energy)
+			light.light_energy = w
+			_hung[lamp] = w
+	for lamp: Variant in _hung.keys():
+		if not is_instance_valid(lamp):
+			_hung.erase(lamp)
+
+
+func _unshade_hung() -> void:
+	for lamp: Variant in _hung.keys():
+		if not is_instance_valid(lamp):
+			continue
+		var l := lamp as OilLamp
+		var light := l._light
+		if light:
+			light.shadow_enabled = bool(light.get_meta(&"real_shadow_before", false))
+			light.omni_range = l.light_range
+			light.light_energy = l.energy
+		var root := l.get_parent()
+		for c: StringName in HUNG_CASTERS:
+			var mi := root.get_node_or_null(NodePath(String(c))) as MeshInstance3D if root else null
+			if mi:
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_hung.clear()
 
 
 ## A look address `real.<dial>`: set and read (LookPreset).
