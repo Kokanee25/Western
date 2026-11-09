@@ -6,6 +6,12 @@ Sources: #542 body (Sean, 2026-11-01); `config/valley.json` `tied_to_tracks`.
   is coming on its timetable and the player has to get them off in time. Systems, not a script".
 - PROPOSED (#542): "step 8, after steps 5 and 6". `valley.json`: "PROPOSED by #542; place OPEN".
 
+## CUT (Sean, 2026-11-09)
+
+- CUT (Sean, 2026-11-09): "let's cut the woman on the tracks mission? Is it too repetitive". This session
+  agreed: stopping the timetabled train in time is Hell on Wheels' core, now with its brake wheels and
+  air, and the judge scored the overlap (unique 2). The card stays for the record.
+
 ## In Sean's inventory (2026-11-09)
 
 From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").

@@ -44,6 +44,67 @@ hasn't confirmed in words.)
 - OPEN: if Harlan saves the payroll, is the outrage the attack itself (an attack on the railroad is
   reason enough to send troops)? The story judge's wording ("the payroll's loss") assumes it's lost.
 
+## Version 2: Sean's pick (2026-11-09)
+
+Sean, 2026-11-09: "Yes fold it in with all the ticks". Version 2 is `proposals/hell-on-wheels_v2.md`
+(judged 26/35, from 17), taken with all four of the judge's ticks (the siding cut) and the three
+corrections to the history. All DECIDED (Sean, 2026-11-09) unless marked; it settles the OPEN lines
+below where they differ.
+
+**How you hear of it**, four ways, none needing the others: the saloon owner sells that the payroll's
+on Thursday's train and the miners talk of it; the stick-up man seen practising alone (#276) is in Gang
+A; the section foreman runs into town about pulled spikes and two riders out west; on the day the train
+blows through the depot at speed, whistle silent, the agent shouting.
+
+**Each way has a window:** where and when Harlan hears decides what's left. The foreman early leaves
+time to reach the overpass ahead of the train; the train through the depot leaves only the chase on
+horseback and the cars themselves.
+
+**The situation:** the mine's payroll rides west in the express car's safe with the express messenger.
+Two gangs, one double-cross: Gang A boards to rob the express car at a lonely stretch west of town; Gang
+B, two men paid by the Baron's foreman, pulls a rail west of the depot, not to stop the train but to
+wreck it (a wreck with dead passengers is a bigger outrage, and an outrage is what brings soldiers).
+Gang A doesn't know. Pulling spikes and loosening a rail is the period's method (the James–Younger gang
+at Adair, Iowa, 1873). The fight at the break is small (two men, or the break found already done) so
+the race to the train starts fast.
+
+**The coach fills from the town's calendar:** who rides Thursday's train comes from people's own
+schedules, so the cost lands on people the player knows.
+
+**The ways to stop it**, each decided by physics, distance and nerve:
+1. Fight to the cab, rear to front, and brake. The express messenger is bleeding in the express car:
+   every minute Harlan (a hospital steward) spends on him is ground covered toward the break.
+2. The brake wheels: wind the cars' hand brakes down from the roof walk, under fire.
+3. The air: the coach and express car carry automatic air brakes, and Gang A has closed the valves (the
+   angle cocks) so parting the train won't stop it. Opening them, or the messenger telling Harlan
+   they're shut, stops the train from the brake model, not a script.
+4. Pull the pin: uncouple behind the express car so the coach drifts free. A link-and-pin coupler can't
+   be pulled under pull, so it needs a moment of slack (a dip, the engine easing), and the coach only
+   drifts to a stop where the grade lets it.
+5. Tell them: show Gang A a spike from the break, or shout that the rail's out, and their nerve decides.
+   Believed, they stop the train themselves and run with the money.
+
+**The big choice:** no clean answer. The payroll, the passengers, the messenger, the robbers: every way
+saves some and spends others, and what he keeps alive decides what Payday Night is (a celebration, a
+hungry night, or a funeral).
+
+**After, by systems:** Payday Night follows whatever happened, and Rourke steps off the train either
+way. The wreck stays where it fell until the repair crew clears it; the line is out for days. Gang A, if
+they ran with the money, go on wanted posters (`the-bounty`); taken alive, they fill the jail
+(`hold-him`). Gang B's man, taken alive, names the foreman who paid him (a lead to the Baron and the
+Kid, carried by a person). The messenger, if he lives, owes Harlan.
+
+**Where:** the overpass `bridge_b`, the westbound order overpass → trestle → depot → Ore Works, the break
+west of the depot; the great trestle is crossed safely here.
+
+**Systems:** the train (steps 1–5) exists; fighting on moving cars and cab controls (step 7) planned;
+new: per-car hand brakes and air with angle cocks in the 1D brake model, the faction plan (the foreman
+pays Gang B), Payday Night's mood from the payroll's fate, the coach's riders from people's schedules.
+
+**To check before building:** what brakes the Denver & Rio Grande's narrow-gauge cars had in 1882.
+
+**Cut (Sean's tick):** the siding at the depot.
+
 ## How you hear of it
 
 - PROPOSED (#546 P9, Sean's example, 2026-11-07): "you've dealt with the men who blew the track, you

@@ -105,7 +105,7 @@ that come back). Status is the mission as a whole; each card has the details.
 | [`vaqueros-horses`](vaqueros-horses.md) | The Vaquero's Horses | side | PROPOSED (2026-10-06) | `baron_ranch` |
 | [`kid-wants-out`](kid-wants-out.md) | The Kid Wants Out | side | PROPOSED (2026-10-06) | OPEN |
 | [`fever-house`](fever-house.md) | The Fever House | side | PROPOSED (2026-10-06) | OPEN |
-| [`tied-to-the-tracks`](tied-to-the-tracks.md) | Tied to the Tracks | side | DECIDED as an idea (2026-11-01); PROPOSED step 8 | OPEN |
+| [`tied-to-the-tracks`](tied-to-the-tracks.md) | ~~Tied to the Tracks~~ **CUT** (Sean, 2026-11-09: repeats Hell on Wheels) | side | CUT | |
 | [`night-meeting-trap`](night-meeting-trap.md) | The Night Meeting That's a Trap | side | PROPOSED (2026-10-21) | the feed store |
 | [`store-robbery`](store-robbery.md) | The Store Robbery | side | PROPOSED (ROADMAP 3.6) | the store |
 | [`bank-robbery`](bank-robbery.md) | The Bank Robbery (the land money) | set piece | DECIDED (2026-10-01) as a moment; PROPOSED backlog | the bank |

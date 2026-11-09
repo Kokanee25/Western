@@ -34,6 +34,12 @@ Harlan's friend and (proposed) the man with plans who pitches ideas for the big 
 miner who teaches dynamite. A Southern Ute community, a Mexican rancher, Chinese workers: written with
 research and care, never props.
 
+**The spine's 1882 correction** (PROPOSED by this session with Hell on Wheels v2; Sean: "Yes fold it in
+with all the ticks"; confirm it applies to the spine): after the Posse Comitatus Act (1878) the Army
+couldn't simply be sent to keep order in a town. In the Johnson County War (1892) the governor called it
+an insurrection and the President sent troops. So the Baron needs Salt Creek to look like a town in
+revolt, not only a lawless one.
+
 **The spine** (Sean's picks, 2026-11-09): the Baron wins if Salt Creek looks lawless enough that
 soldiers are sent to restore order; Rourke is the officer he pays to bring them. The red shirt is the
 Baron's hired gun and shot the sheriff; the Baron offers the widow a price at the sheriff's funeral;

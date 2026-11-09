@@ -92,6 +92,12 @@ OPEN (Sean: "gotta be flagged"): where and when Harlan meets Joe →
 **The evidence and the trial are a maybe** (Sean, 2026-11-09: "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe"): the edges into
 `the-trial` and the papers' role as evidence hang on it.
 
+**The spine's 1882 correction** (PROPOSED by this session with Hell on Wheels v2; Sean: "Yes fold it in
+with all the ticks"; confirm it applies to the spine): after the Posse Comitatus Act (1878) the Army
+couldn't simply be sent to keep order in a town. In the Johnson County War (1892) the governor called it
+an insurrection and the President sent troops. So the Baron needs Salt Creek to look like a town in
+revolt, not only a lawless one.
+
 **The spine** (the story judge's frame; Sean took its three changes, 2026-11-09: "Yes I like the
 ticks"): the Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order;
 Rourke is the officer he pays to bring them. Every crime serves that plan; Harlan's badge stands in its
