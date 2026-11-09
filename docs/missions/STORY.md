@@ -83,7 +83,7 @@ evidence and the trial are "a maybe" (Sean, 2026-11-09).
 - The Vaquero's Horses: a Mexican rancher's horses rebranded in the Baron's corral.
 - The Kid Wants Out: the gang's youngest wants to leave; the gang doesn't let men leave.
 - The Fever House: a sick family; a night ride for medicine, or the town drives them out.
-- Tied to the Tracks: a woman bound on the line as an outlaw trap; stop the train in time while they ambush you from above.
+- (Cut, Sean 2026-11-09: Tied to the Tracks, a woman bound on the line; it repeated Hell on Wheels.)
 - The Night Meeting That's a Trap: an ambush in the feed store at night; burn, or blow out the back wall.
 - The Store Robbery: the gang leans on the storekeeper; pay, talk, threaten, fight, arrest.
 - The Bank Robbery: the gang's plan for the land money; the alarm, a posse; pick a side.
