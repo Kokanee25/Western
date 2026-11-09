@@ -12,6 +12,13 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var crouch_height := 1.3
 @export var stand_eye_height := 1.64
 @export var crouch_eye_height := 1.15
+## Crawling (#737: under the boardwalks): flat on your belly, the capsule this tall and this
+## thin (m), the eyes this high. Hold crouch's toggle (C, B) this long (s) to go down; tap it to
+## come up to a crouch, jump or run to stand (each only with room over you).
+@export var crawl_height := 0.5
+@export var crawl_radius := 0.24
+@export var crawl_eye_height := 0.36
+@export var crawl_hold_s := 0.4
 ## Crouching and standing are a spring: how quick (Hz) and how much it overshoots (damping: 1 =
 ## not at all, lower sinks past and comes back).
 @export var crouch_hz := 2.0
@@ -21,6 +28,7 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var walk_speed := 2.8
 @export var run_speed := 6.0
 @export var crouch_speed := 1.4
+@export var crawl_speed := 0.6
 ## Momentum (m/s²): getting going up to walking pace, building from a walk to a full run, slowing
 ## when you let go, and when you push against the way you're going (turning back, a hard strafe).
 @export var ground_accel := 9.0
@@ -47,6 +55,7 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var step_walk := 1.0
 @export var step_run := 1.7
 @export var step_crouch := 0.55
+@export var step_crawl := 0.4
 
 @export_group("Head bob")
 ## How far the head rises and falls over a step (m, half the travel): walking, at a full run, and

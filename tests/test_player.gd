@@ -156,6 +156,63 @@ func test_cannot_stand_under_low_ceiling() -> void:
 	check(not player.is_crouching, "stands once there is headroom")
 
 
+func test_held_crouch_toggle_crawls_and_a_tap_comes_up() -> void:
+	Input.action_press(&"crouch_toggle")
+	await physics_frames(int(player.tuning.crawl_hold_s * 60.0) + 6)
+	Input.action_release(&"crouch_toggle")
+	Input.action_press(&"move_forward")
+	await physics_frames(90)
+	check(player.is_crawling and player.is_crouching, "held, down flat")
+	check_near(player.get_eye_height(), player.tuning.crawl_eye_height, 0.02, "eyes near the ground")
+	check_near(player.get_horizontal_speed(), player.tuning.crawl_speed, 0.05, "crawl speed")
+	check(not player.body.visible, "the body you see put away")
+	Input.action_release(&"move_forward")
+	await _hold(&"crouch_toggle", 1)
+	await physics_frames(20)
+	check(not player.is_crawling and player.is_crouching, "a tap: up to a crouch")
+	await _hold(&"crouch_toggle", 1)
+	await physics_frames(20)
+	check(not player.is_crouching, "another: standing")
+
+
+## A slab 0.65 m over the floor (a high boardwalk's underside): crouched you can't go under, flat
+## you crawl through and can't rise till you're out.
+func test_crawls_under_a_low_walk() -> void:
+	var walk := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6, 0.2, 2.4)
+	shape.shape = box
+	walk.add_child(shape)
+	walk.position = player.global_position + Vector3(0, 0.75, -3.0)
+	arena.add_child(walk)
+	await physics_frames(2)
+	player.force_crouch = true
+	Input.action_press(&"move_forward")
+	await physics_frames(120)
+	check(player.global_position.z > walk.position.z + 1.2 + player.tuning.radius - 0.05, "crouched, stopped at its edge (z %.2f)" % player.global_position.z)
+	player.force_crawl = true
+	await physics_frames(150)
+	var under := absf(player.global_position.z - walk.position.z) < 1.2
+	check(player.is_crawling and (under or player.global_position.z < walk.position.z), "flat, he goes in under it")
+	# Under it, he stays down even let go.
+	while player.global_position.z > walk.position.z:
+		await physics_frames(5)
+	Input.action_release(&"move_forward")
+	player.force_crawl = false
+	player.force_crouch = false
+	await physics_frames(20)
+	check(player.is_crawling, "no room to rise under it")
+	Input.action_press(&"move_forward")
+	player.force_crawl = true
+	await physics_frames(200)
+	Input.action_release(&"move_forward")
+	player.force_crawl = false
+	await physics_frames(30)
+	check(player.global_position.z < walk.position.z - 1.3, "out the far side (z %.2f)" % player.global_position.z)
+	check(not player.is_crouching, "and up")
+
+
 func test_jump_and_land() -> void:
 	Input.action_press(&"jump")
 	await physics_frames(2)

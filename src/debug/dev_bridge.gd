@@ -19,6 +19,7 @@ const HELP := {
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
+	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -435,6 +436,12 @@ func _cmd_key(a: Array) -> Dictionary:
 		if down:
 			await _seconds(float(a[1]) if a.size() > 1 else 0.1)
 	return {"key": OS.get_keycode_string(code)}
+
+
+func _cmd_crawl(a: Array) -> Dictionary:
+	player.force_crawl = a.is_empty() or String(a[0]) != "off"
+	await _seconds(0.6)
+	return {"crawling": player.is_crawling, "crouching": player.is_crouching, "at": _arr(player.global_position)}
 
 
 func _cmd_press(a: Array) -> Dictionary:
@@ -983,7 +990,7 @@ func _frame() -> Dictionary:
 func _player_state() -> Dictionary:
 	var w := player.wounds
 	var out := {"at": _arr(player.global_position), "facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1),
-		"crouching": player.is_crouching, "weapon": _weapon_line(), "movement": String(player.movement),
+		"crouching": player.is_crouching, "crawling": player.is_crawling, "weapon": _weapon_line(), "movement": String(player.movement),
 		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
