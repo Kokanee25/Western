@@ -86,6 +86,13 @@ being built, decided (not built), or new).
 graph, the paths without Joe, the informant's three sources, and the continuity gaps. Update its rows in
 the same commit as any card change. It's also the spec for the story state the game doesn't have yet.
 
+## The build order
+
+`BUILD_ORDER.md` (PROPOSED, 2026-11-09): the missions built one by one in story order, after a foundation
+step (acts, story state and saves, people in the valley, the nod, carrying and doors, long memory); each
+mission's loop (card settled, build check, labs, rough in acts, played, gated); the labs started a step
+ahead of their mission; three calls for Sean about the roadmap.
+
 ## The index
 
 34 cards (seven added from Sean's inventory of 2026-11-09, `sources/inventory_2026-11-09.md`). "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that

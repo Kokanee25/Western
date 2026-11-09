@@ -1144,5 +1144,5 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
 
 **Planning** (missions; branch `claude/planning-missions-…`; `docs/missions/README.md`): every mission a
 card, the story map, the AAA shelf and the judge with a build check (#739, PR #743). Sean reviews
-missions one at a time; next #744 (the Shipment v2's calls, then Buried Alive). Found: consequences need
+missions one at a time; next #744 (the Shipment v2's calls, then Buried Alive). The build order: `BUILD_ORDER.md` (story order after a foundations step; three roadmap calls for Sean). Found: consequences need
 people in the valley and a save/story state first.
