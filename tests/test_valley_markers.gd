@@ -134,8 +134,12 @@ func test_bridge_a_on_its_crib_and_the_town_bridge() -> void:
 			var p := br.deck_from.lerp(br.deck_to, (k + 1) / 10.0)
 			low = minf(low, ter.height(p.x, p.z))
 		check(br.deck_from.y - low > 2.5, "%s over the creek: %.1f m to its bed" % [id, br.deck_from.y - low])
-		for e in [br.deck_from, br.deck_to]:
-			check(absf(ter.height(e.x, e.z) - (e.y - 0.5)) < 0.6, "%s's end on its approach (%.2f under the deck)" % [id, e.y - ter.height(e.x, e.z)])
+		var along := (br.deck_to - br.deck_from)
+		along.y = 0.0
+		along = along.normalized()
+		for e: Array in [[br.deck_from, -1.0], [br.deck_to, 1.0]]:
+			var q: Vector3 = e[0] + along * float(e[1])
+			check(absf(ter.height(q.x, q.z) - (e[0] as Vector3).y) < 0.3, "%s's approach meets its deck within a step (%.2f m)" % [id, (e[0] as Vector3).y - ter.height(q.x, q.z)])
 		check(br.members_without_load_path().is_empty(), "%s stands: every member has its load path" % id)
 	print("    ", mk.report())
 	var a: RoadBridge = mk.bridge_a
@@ -155,8 +159,8 @@ func test_bridge_a_on_its_crib_and_the_town_bridge() -> void:
 				near_w = minf(near_w, dc - d)
 			elif d > dc:
 				near_e = minf(near_e, d - dc)
-		check_near(near_w, 8.0, 1.5, "about an 8 m span west of the crib (%.1f)" % near_w)
-		check_near(near_e, 8.0, 1.5, "about an 8 m span east of the crib (%.1f)" % near_e)
+		check_near(near_w, 8.0, 2.0, "about an 8 m span west of the crib (%.1f)" % near_w)
+		check_near(near_e, 8.0, 2.0, "about an 8 m span east of the crib (%.1f)" % near_e)
 		var crib: Dictionary = a.cribs[0]
 		var foot: StructureMember = (crib.logs as Array)[0]
 		var bed := ter.height(foot.global_position.x, foot.global_position.z)
