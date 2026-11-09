@@ -106,3 +106,39 @@ seeing a fight, and Joe is the man the Baron's men want him to see.
 - Colorado was a state from 1876, with a governor to ask.
 - Prejudice against a Ute man in southern Colorado in 1882 (after the Ute removal of 1881) is real
   history: handled with research and care, never spectacle.
+
+## The judge on this proposal (2026-11-09): 26/35
+
+| Criterion | Score | Nearest reference | Why |
+|---|---|---|---|
+| Choices | 4 | Liberty Island | Five ways that differ, and a big choice with a real cost (hide Joe or keep him by you). Not 5: the Joe choice isn't stated as irreversible; the ways are listed. |
+| Systems over scripts | 4 | Lady Boyle | An observer whose report is only the tally of what his senses caught, provocateurs on agendas; authored: his arrival, the overheard lines, the plan as data; nothing said if he's hurt or killed. |
+| Consequences | 4 | Lady Boyle | The tally carries into the finale the way chaos does (a system, not a branch); Joe, the jail and the town remember. Not 5: the finale outcome is two-way and nothing visible stays. |
+| Unique | 4 | Lady Boyle | Rarely done: keeping the peace in front of a watcher whose own senses write the verdict; familiar parts: steering a VIP, staying unseen. |
+| True to 1882 | 3 | Lady Boyle | Real law behind it, but the core mechanism is "to check". |
+| Discoverable | 4 | the Showstopper | Four ways in (the train, the telegraph, town talk, Joe); the captain with his notebook reads from the street. |
+| Cost to build | 3 | Lady Boyle | New but shared: the observer's log, faction agendas, the goadable companion, drink, story state. |
+| **Total** | **26/35** | | |
+
+**What the references do that this doesn't:** the Bloody Baron and Lady Boyle make the person at the
+centre someone the player decides about; this captain is "a camera with legs", no stake, price or fate.
+A Crack in the Slab lets the player see the result; here the report stays invisible until the finale.
+
+**Beef it up:** 1. The captain a person under pressure: the Baron's man courts him over supper at the
+hotel; he can be offered money or shown things; Harlan can read the wire he sends from the depot that
+evening, so the tally is a sentence the player sees the same day (and hears again at the finale). 2. Let
+the town testify: the captain asks the storekeeper, the barkeep and the doctor about the law here, and
+their opinions of Harlan go into his report, so Acts I–II count, not only this day. 3. A physical plant
+the place shows: an "Indian outbreak" staged with a stolen Ute saddle and a torn-down fence on the East
+Road for the captain to find (the 1879–81 fear of Ute outbreaks); Harlan can find it first, move it, or
+show who put it there.
+
+**Cut or simplify:** cut "Get him drunk" (a new NPC body state for a way steering already does, and it
+makes the captain comic in a mission whose weight is Joe).
+
+**Doubtful about 1882:** statehood, Posse Comitatus and the 1881 removal are right, but the 1881 removal
+was of the White River and Uncompahgre Utes; the Southern Utes stayed in southwest Colorado, so "after
+the removal" frames Joe's people slightly wrongly. A governor wouldn't have a federal captain report: he'd
+call out the state militia first; federal troops came on a request to the President through the War
+Department, and an officer would be sent by his department commander. Lincoln County (a territory, troops
+already at Fort Stanton) is a poor precedent.
