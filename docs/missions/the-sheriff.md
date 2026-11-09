@@ -82,6 +82,14 @@ _PROPOSED: this session's reading of what the ways above need. Each line ends wi
 
 ## Where the sources disagree
 
+- DECIDED (Sean, 2026-11-09): "Yes you are deputized": on day 2 the dying sheriff swears Harlan in as
+  his deputy and gives him his revolver; a shake of the head gets "that's not the way this works" and
+  the revolver all the same (`no-law`).
+- OPEN: **the ball as evidence.** DESIGN.md's spine (signature 2, decided 2026-10-01): "the ball in him
+  is the evidence"; DESIGN.md "Story shape": "the ball the doctor digs out may match the stranger's
+  gun". Sean, 2026-11-09, on No Law's saloon: "we aren't pulling bullets out to examine that idea isn't
+  happening". Only the saloon's ball, or no ball examined anywhere?
+
 - OPEN: whether he can live. DESIGN.md (2026-10-01 spine): "how well you treat him decides whether he
   lives"; §5: "be saved by the doctor". Lock (Sean, 2026-11-03, PR #621, not merged): "**He dies
   whatever you do**: you can get him to the doctor, but he doesn't survive".

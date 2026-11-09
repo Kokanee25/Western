@@ -23,6 +23,32 @@ and his chat answers the same day; DESIGN.md §5; `docs/briefs/showcase-moments.
   showcase." "The sheriff's death should be quiet and personal." "The mission can finish without a
   formal completion screen, as normal town life resumes."
 
+## Sean's answers after the judge (2026-11-09)
+
+All DECIDED (Sean, 2026-11-09), in his words; each settles a line marked OPEN or PROPOSED below.
+
+- How Harlan gets there: "You're told to go to the saloon by someone or you're met by the stranger who
+  brings you there so I don't think you can miss it unless player deliberately doesn't go then just
+  hears about it".
+- The murder: "He can maybe try to help but card cheat shot in the head" (Harlan can try to help the
+  card player afterwards; the head shot kills him).
+- After it: "Maybe try and follow but I'd say if we have horses working the murderer takes off and you
+  can't stop him in time". OPEN: what stops the follow if horses aren't working yet.
+- "There's no talking about the red shirt by Harlan" (the judge's idea 2, not taken).
+- "Saloon keeps the evidence but we aren't pulling bullets out to examine that idea isn't happening"
+  (the judge's idea 3, without the ball). OPEN: whether "that idea isn't happening" means only this
+  saloon's ball or no ball examined anywhere (see `the-sheriff`: DESIGN.md's spine has the doctor
+  digging the ball out of the sheriff as evidence).
+- "Yeah you can choose to attend the funeral" (the funeral stays in the mission; the judge's cut not
+  taken).
+- "Yes you are deputized" (the sheriff swears Harlan in as his deputy). PROPOSED (this session, not
+  confirmed): the town or the county confirms him later, which is what "temporarily" means.
+- "Yeah joes wife is killed after the murder of the cheat".
+- "Hmmm yeah I dunno about Joe yet that's gotta be flagged" (Joe on day 2 at the doctor's: flagged
+  OPEN).
+- "Yeah the name works": the player is Thomas Harlan.
+- "Yes the children are the sheriffs / widows kids".
+
 ## How you hear of it
 
 - PROPOSED (Sean's draft): "This mission follows the opening sequence in which Harlan encounters the
@@ -162,28 +188,19 @@ PROPOSED (Sean's draft), its lists, with each one's state:
 
 ## Where the sources disagree
 
-- OPEN: **can the player act in the saloon?** Sean (chat, 2026-11-09): "sitting at a table and has no
-  gun yet so he can't do anything at all". His draft: choices "Attempt to intervene physically, at
-  significant risk", "Take cover or retreat", "Try to assist the victim afterward", and "Do not create
-  an artificial invulnerable murderer or disable all player action"; section 8 plans for "If Harlan
-  manages to kill the red-shirted man". Seated and unable to act during the murder, free to act after?
-- OPEN: **can the player miss it?** Draft: "The player can avoid the saloon." Chat: "the first night in
-  the saloon", "sitting at a table".
-- OPEN: **when Joe's wife is killed.** Chat (Sean, "maybe"): the same night, after the card cheat.
-  Draft: "Recommended: Before, so killing the murderer unexpectedly during No Law doesn't erase the
-  established crime." If the player can't act during the murder (chat), the draft's reason goes away.
-- OPEN: **Joe on day 2.** Sean's No Justice card: "Harlan meets Joe at the doctor's office". This draft's
-  day 2 at the doctor's has the sheriff, his wife and the children, and no Joe. Same day, same room?
-- OPEN: **the player's name.** The draft calls him "Thomas Harlan"; no other source gives a first name.
-- OPEN: **the children.** Draft: "PROPOSED", "Their family relationships must be confirmed", "Are they
-  based on the user's two sons?" The lock (2026-11-03, PR #621, unmerged): the widow lives "with their
-  **two young sons**" (the sheriff's), protected actors, Sean's own boys' likenesses.
-- OPEN: **how Harlan becomes the law.** Chat: "temporarily appointed by the dead sheriff". Draft: "How
-  does Harlan legally become sheriff after the death?" (needs research).
-- OPEN (draft's list): who hands over the gun (the sheriff, or the doctor afterward); the stranger's
-  identity and return; whether the card player was cheating; whether the red shirt knows Harlan saw
-  it; whether the funeral is part of No Law or its own event; the card player's own burial; whether
-  this is the first witnessed murder in the game.
+- Settled (Sean, 2026-11-09, above): the player can't act during the murder, can try to help after
+  (head shot), can try to follow (the murderer rides off); the draft's "intervene physically" and
+  "If Harlan manages to kill the red-shirted man" no longer apply. The saloon can't be missed unless
+  the player deliberately doesn't go. Joe's wife is killed after the card cheat. The name: Thomas
+  Harlan. The children: the sheriff's and the widow's. Harlan is deputized. The funeral is the
+  player's choice to attend.
+- OPEN, flagged by Sean: **Joe on day 2.** Sean's No Justice card: "Harlan meets Joe at the doctor's
+  office". This draft's day 2 at the doctor's has the sheriff, his wife and the children, and no Joe.
+- OPEN: the ball as evidence (above): only this saloon, or everywhere?
+- OPEN (draft's list, still): who hands over the gun (the sheriff, or the doctor afterward); the
+  stranger's identity and return; whether the card player was cheating; whether the red shirt knows
+  Harlan saw it; the card player's own burial; whether this is the first witnessed murder in the
+  game.
 - Superseded: DESIGN.md (2026-10-15) had the saloon table "the evening before day 1", the shooting
   "plays out however you handle it", and the card cheat's showcase ways (shove, bottle, shoot his gun
   hand). Sean's version: the first night, after the sheriff, unarmed.

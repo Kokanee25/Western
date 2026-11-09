@@ -37,12 +37,14 @@ section below too.
   words.
 - Not picked (stays as it was): cutting "the bold cowboy" from the doctor's office.
 
-- PROPOSED (Sean, 2026-11-09): the man in the red shirt is first seen on the first night in the
+- DECIDED (Sean, 2026-11-09, `no-law`): the man in the red shirt is first seen on the first night in the
   saloon, where he kicks out the card cheat's chair and murders him (`no-law`). Harlan isn't the law
-  yet that night; the sheriff appoints him on day 2 (DECIDED, Sean 2026-11-09).
-- PROPOSED (Sean, 2026-11-09): "maybe day 2 the murder of the woman occurs that night after then
-  murder of the cheat": the raid on Joe's camp is night one, after the red shirt kills the card cheat
-  in the saloon; Harlan meets Joe at the doctor's on day 2, the day the sheriff appoints him.
+  yet that night; the sheriff deputizes him on day 2 ("Yes you are deputized", Sean 2026-11-09).
+- DECIDED (Sean, 2026-11-09): "Yeah joes wife is killed after the murder of the cheat": the raid on
+  Joe's camp is night one, after the red shirt kills the card cheat in the saloon.
+- OPEN, flagged (Sean, 2026-11-09: "Hmmm yeah I dunno about Joe yet that's gotta be flagged"): when and
+  where Harlan meets Joe. This card says the doctor's office; No Law's day 2 at the doctor's (the
+  sheriff's death, his family) has no Joe.
 
 ## How you hear of it
 

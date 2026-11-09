@@ -16,7 +16,7 @@ that derails for real, and a timber trestle that falls by its load paths. Fire i
 play for now. People see by light and hear through walls, remember what they saw, and hold opinions
 of you; arrests, witnesses and a real trial are in the design.
 
-**Who you are.** Harlan, a homesteader with a spring on his claim; a former army hospital steward
+**Who you are.** Thomas Harlan, a homesteader with a spring on his claim; a former army hospital steward
 with a past he doesn't talk about. No classes: sheriff, gang, hired gun or rancher paths open and
 close by what you do. Save only by sleeping in a bed; some deaths are for good.
 
