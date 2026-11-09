@@ -103,7 +103,7 @@ def lay_out(data, g):
 				"ground": y, "h": h, "top": y + h, "door": door, "door_kind": w.get("door", "steps"),
 				"door_w": float(w.get("door_w", FLIGHT_W)), "awning": float(w.get("awning", 0)),
 				"end_w": w.get("w", "steps"), "end_e": w.get("e", "steps"), "join_w": join_w["id"] if join_w else "",
-				"join_e": join_e["id"] if join_e else "", "why": w.get("why", "")})
+				"join_e": join_e["id"] if join_e else "", "why": w.get("why", ""), "cellar": b.get("cellar")})
 		by_id = {w["id"]: w for w in walks}
 		for w in walks:
 			if w.get("none"):
@@ -196,7 +196,7 @@ def draw(lay, rules, g, path):
 		edge = sgn * (front - depth)
 		xs = np.linspace(xa - 2, xb + 2, 400)
 		gy = np.array([g(x, edge) for x in xs])
-		ax.fill_between(xs, gy, -2.0, color=C["dirt"], zorder=0)
+		ax.fill_between(xs, gy, -3.0, color=C["dirt"], zorder=0)
 		ax.plot(xs, gy, color=C["ground"], lw=1.5, zorder=1)
 		# The lots that aren't buildings: their names on the dirt.
 		for l in t[side]:
@@ -231,6 +231,18 @@ def draw(lay, rules, g, path):
 			hgt = TWO_STOREY.get(w["id"], STOREY)
 			gb = min(g(x0, sgn * front), g(bx1, sgn * front))
 			ax.add_patch(Rectangle((w["x0"], gb), bx1 - w["x0"], top + hgt - gb, facecolor=C["block"], edgecolor=C["edge"], lw=0.8, zorder=2))
+			# Its cellar: a dashed pit under the floor, its floor `below_floor` down; its door if outside.
+			c = w.get("cellar")
+			if c:
+				cy = top - float(c["below_floor"])
+				ax.add_patch(Rectangle((c["rect"][0], cy), c["rect"][2] - c["rect"][0], top - cy, facecolor="#5b463233",
+					edgecolor="#3b2a1a", lw=1.4, ls="--", zorder=2.5))
+				ax.text((c["rect"][0] + c["rect"][2]) * 0.5, cy + 0.15, "cellar, floor Y %+.1f\n(%.1f m under the street)" % (cy, gb - cy),
+					ha="center", va="bottom", fontsize=8, color="#3b2a1a", zorder=7)
+				if c.get("door") == "under_walk":
+					dx_c = w["door"] - 3.2
+					ax.add_patch(Rectangle((dx_c, gb - 0.05), 1.6, 0.75, facecolor="#3b2a1a", edgecolor="none", zorder=3.5))
+					ax.text(dx_c + 0.8, gb + 0.8, "cellar doors\n(crawl under)", ha="center", va="bottom", fontsize=7.5, color="#3b2a1a", zorder=7)
 			# The walk: its deck, then posts open underneath or a skirting to the ground.
 			lo = w["ends"]["w"]["run"] if w["ends"]["w"].get("flight") in ("steps", "ramp") else 0.0
 			hi = w["ends"]["e"]["run"] if w["ends"]["e"].get("flight") in ("steps", "ramp") else 0.0
@@ -303,9 +315,9 @@ def draw(lay, rules, g, path):
 			ax.text((w["x0"] + bx1) * 0.5, top + hgt - 0.35, txt, ha="center", va="top", fontsize=9, zorder=7,
 				fontweight="bold" if w["h"] >= 1.0 else "normal")
 		ax.set_xlim(xa - 2, xb + 2)
-		ax.set_ylim(-2.0, 11.5)
+		ax.set_ylim(-3.0, 11.5)
 		ax.set_aspect(VE)
-		ax.set_yticks(range(-1, 12, 1))
+		ax.set_yticks(range(-2, 12, 1))
 		ax.set_xticks(range(int(math.ceil(xa / 10) * 10), int(xb) + 1, 10))
 		ax.grid(axis="y", color="#00000014", lw=0.5)
 		ax.set_ylabel("Y (m, the crossroads 0)")
@@ -391,6 +403,16 @@ def write_table(lay, rules, path):
 				short(w["name"]), w["x0"], w["lot_x1"], w["ground"], w["h"], w["top"], door,
 				end_words(w["ends"]["w"]), end_words(w["ends"]["e"]), under, aw, w["why"]))
 		lines.append("")
+		cs = [w for w in lay[side] if w.get("cellar")]
+		if cs:
+			lines += ["Cellars on the %s side:" % side, ""]
+			for w in cs:
+				c = w["cellar"]
+				fy = w["top"] - float(c["below_floor"])
+				lines.append("- **%s**: x %.1f..%.1f, %.1f..%.1f m back from the front; its floor at Y %+.2f, %.2f m under its floor and %.2f m under the street; door %s. %s" % (
+					short(w["name"]), c["rect"][0], c["rect"][2], c["rect"][1], c["rect"][3], fy, float(c["below_floor"]), w["ground"] - fy,
+					"under the walk at the street" if c.get("door") == "under_walk" else "inside", c.get("why", "")))
+			lines.append("")
 	open(path, "w").write("\n".join(lines) + "\n")
 
 
