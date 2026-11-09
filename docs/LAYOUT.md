@@ -683,6 +683,26 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
   (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
   `--world=valley` tours it with sticks and digs.
+- **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
+  ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
+  own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
+  lays it) and the bake as `ground_y`; the line sits on the bake's formation within 4 mm
+  (`ground_check`). The great trestle is the route's crossing, its bents footed on the bake's canyon.
+  Bridge B is a `RoadBridge` (`src/structures/road_bridge.gd`: deck line, bents parallel to the
+  track, stringers, planks, guards) over the overpass cutting; the west portal a `TunnelPortal`
+  (`src/structures/tunnel_portal.gd`, a dark `Mouth` behind it: the height field can't hold a hole).
+  Both are `FramedStructure`s (`src/structures/framed_structure.gd`: links as framed, grounded by
+  kind). The daily train: `config/valley_timetable.json` (east_start, the depot, the Ore Works, the
+  tunnel; `start_hour` 8, the depot ~12:30), its times worked out on a worker after load (`timed`;
+  ~4-7 s, the train standing at east_start till then), `start_run(elapsed)` puts it where the
+  timetable has it by the clock, standing at a stop or running mid-leg (`sync_to_clock` once timed;
+  each day as the clock passes `start_hour`), the engineer's body in the cab; `driving` false while
+  a lab drives it (the trestle lab's `ensure_built` takes the valley's line and train in the valley
+  world). Past `far_m` (800 m) from the camera `Train.far`: no cars drawn or sound ticked, solids,
+  lookout and bridge loads every 10 ticks, the engineer's body disabled. A `TrackChunk` at rest skips
+  its tick. `-- --no-valley-train`: the line alone (the bench). Valley lab bridge (`experiments/valley/bridge.gd`):
+  `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`.
+  `TrainEngineer.run(tt, late, from_stop)`; his creep up a climb steams up against the brake first.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is

@@ -45,6 +45,21 @@ var lookout: TrainLookout
 ## Near the player a derail hands the train to rigid bodies (TrainWreck); off (far, unseen: the 1D
 ## train's numbers alone) it ploughs to a stand where it left the rails, in numbers.
 var physical := true
+## Far from anyone to see or hear it (set by its world: the valley's railway, G3; never by the labs):
+## its cars aren't drawn, its sound isn't ticked, and its solids are placed, its lookout looks and
+## its weight goes on a bridge only every FAR_EVERY ticks. The 1D train runs on as ever. Back near, its cars are put where it is.
+var far := false:
+	set(v):
+		if v == far:
+			return
+		far = v
+		if view:
+			view.visible = not v
+			if not v and sim:
+				view.place(1.0)
+				view.place_solids(true)
+const FAR_EVERY := 10
+var _far_tick := 0
 ## Its derail ({} till then; see `derailed`), and the wreck it made.
 var derail := {}
 var wreck: TrainWreck
@@ -119,7 +134,12 @@ func _physics_process(delta: float) -> void:
 	sim.step(delta)
 	var u1 := Time.get_ticks_usec()
 	cost.sim_us = cost.get("sim_us", 0) + u1 - u
-	view.place_solids()
+	_far_tick += 1
+	var look_now := not far or _far_tick % FAR_EVERY == 0
+	if not far:
+		view.place_solids()
+	elif look_now:
+		view.place_solids(true)
 	var u2 := Time.get_ticks_usec()
 	cost.solids_us = cost.get("solids_us", 0) + u2 - u1
 	if absf(sim.v) > 0.05:
@@ -131,7 +151,7 @@ func _physics_process(delta: float) -> void:
 	for e in events:
 		coupler.emit(e)
 	riding = _riding()
-	if not track.trestles.is_empty() and derail.is_empty():
+	if not track.trestles.is_empty() and derail.is_empty() and look_now:
 		var ub := Time.get_ticks_usec()
 		var t_b := Prof.start()
 		for tr in track.trestles:
@@ -141,7 +161,7 @@ func _physics_process(delta: float) -> void:
 		_check_bridge()
 		Prof.stop(&"train_bridge", t_c)
 		cost.bridge_us = cost.get("bridge_us", 0) + Time.get_ticks_usec() - ub
-	if derail.is_empty():
+	if derail.is_empty() and look_now:
 		var ul := Time.get_ticks_usec()
 		var t_l := Prof.start()
 		lookout.tick()
@@ -155,12 +175,12 @@ func _physics_process(delta: float) -> void:
 	cost.tick_us = cost.get("tick_us", 0) + Time.get_ticks_usec() - u
 	cost.ticks = cost.get("ticks", 0) + 1
 	Prof.stop(&"train", t0)
-	if sound:
+	if sound and not far:
 		sound.tick(delta, events)
 
 
 func _process(_delta: float) -> void:
-	if sim == null or wreck:
+	if sim == null or wreck or far:
 		return
 	var t0 := Prof.start()
 	var u := Time.get_ticks_usec()

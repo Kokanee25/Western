@@ -124,6 +124,7 @@ x = (picture px - 808) / 5 along Main Street (the 250 m street drawn 1,250 px). 
 | Mark | Along (m) | X | Z | Rail Y | Ground (natural) | Heading |
 |---|---|---|---|---|---|---|
 | east_portal | 50 | 2401 | -334 | -1.7 | -3.0 | 258.0 |
+| east_start | 90 | 2362 | -325 | -1.2 | -2.7 | 258.0 |
 | overpass | 550 | 1912 | -230 | 5.7 | 11.2 | 258.0 |
 | slow_board | 1000 | 1472 | -136 | 6.9 | 5.9 | 258.0 |
 | trestle_east | 1229 | 1248 | -89 | 7.1 | 6.1 | 259.8 |
@@ -136,6 +137,7 @@ x = (picture px - 808) / 5 along Main Street (the 250 m street drawn 1,250 px). 
 | ore_works | 4030 | -1542 | -234 | 25.3 | 24.2 | 278.0 |
 | ore_works_west | 4130 | -1641 | -248 | 25.5 | 24.4 | 278.5 |
 | west_portal | 4480 | -1971 | -360 | 34.0 | 59.6 | 290.0 |
+| tunnel | 4590 | -2075 | -398 | 36.8 | 93.2 | 290.0 |
 
 Sections (TrainRoute ids):
 

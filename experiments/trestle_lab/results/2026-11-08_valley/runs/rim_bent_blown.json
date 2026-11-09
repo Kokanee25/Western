@@ -1,0 +1,105 @@
+{
+  "after": {
+    "bents_down": 1,
+    "broken": 57,
+    "by_kind": {
+      "bent_sill": 3,
+      "brace": 23,
+      "cap": 1,
+      "girt": 14,
+      "post": 16
+    },
+    "deck_damage": 0,
+    "rails_gone": 0
+  },
+  "derail": {},
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.8,
+    "ms": 159.936,
+    "posts": 4,
+    "stagger_ticks": 1,
+    "worst_one_ms": 84.2
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 721,
+    "gate": "pass",
+    "last_under_50fps_s": 0.1,
+    "mean_ms": 3.04,
+    "over_100": 1,
+    "over_50": 1,
+    "sean_worst_ms": 67.4,
+    "second_ms": 29.5,
+    "slow_spell_s": 0.1,
+    "worst_at_s": 0.1,
+    "worst_ms": 103.8
+  },
+  "load_cost": {
+    "settles": 0,
+    "updates": 0,
+    "us": 18408
+  },
+  "outcome": "no train",
+  "prof_ms_a_frame": {
+    "ballistics": 0.27,
+    "blast_break": 0.11,
+    "blast_settle": 0.1,
+    "day_cycle": 0.05,
+    "player": 0.31,
+    "settle_analyse": 0.18,
+    "structures": 0.12,
+    "train": 0.3,
+    "train_lookout": 0.09,
+    "train_sound": 0.1,
+    "train_view": 0.12,
+    "valley_ground": 0.08
+  },
+  "rubble": {
+    "awake_at_end": 0,
+    "pieces": 47
+  },
+  "slow_frames": [
+    {
+      "awake": 30,
+      "ms": 103.8,
+      "physics_ms": 5.0,
+      "process_ms": 3.0,
+      "rubble": 30,
+      "t": 0.02,
+      "top": {
+        "analysis_full_begin": 7.0,
+        "ballistics": 10.2,
+        "batches": 2.6,
+        "blast_break": 76.1,
+        "blast_fx": 4.1,
+        "blast_settle": 73.6,
+        "settle_analyse": 71.0,
+        "settle_apply": 4.5
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "8",
+    "bents": 1,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/trestle_valley/runs/rim_bent_blown.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 4,
+    "story": "bottom",
+    "train": "none",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": -1.0
+}

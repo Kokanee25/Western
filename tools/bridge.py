@@ -11,7 +11,10 @@ Start the game with the bridge, send it commands, stop it:
 
 or all at once (start, the script, stop), the way a session collects screenshots:
 
-    python3 tools/bridge.py run script.txt [--size=...]
+    python3 tools/bridge.py run script.txt [--size=...] [--timeout=S]
+
+--timeout: the seconds (wall) one command may take before the game counts as lost (600; a film's
+long command under the movie writer at lavapipe's pace needs more).
 
 --movie records every frame drawn, with the game's sound, to an AVI (Godot's Movie Maker; it
 runs on a fixed step, 30 fps unless --fps says otherwise, so slow rendering doesn't slow the game's
@@ -211,7 +214,7 @@ def main(argv):
         if start(argv[2:]) != 0:
             return 1
         try:
-            send(open(script).read().splitlines(), port)
+            send(open(script).read().splitlines(), port, int(_opt(argv, "timeout", 600)))
         finally:
             stop(port)
         return 0

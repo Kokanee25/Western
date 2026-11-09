@@ -16,6 +16,22 @@ func ensure_built() -> TrackLine:
 		street = get_tree().root.find_child("TestStreet", true, false) as Node3D
 		player = get_tree().root.find_child("Player", true, false) as Player
 	tuning = load("res://config/train.tres")
+	# In the valley (G3, #716): the valley's own main line and its daily train, the great trestle
+	# standing in the bake's canyon; the lab drives the train (the railway's engineer stood down).
+	var rw := street.get_node_or_null(^"Railway") as ValleyRailway if street else null
+	if rw:
+		if rw.line == null or not is_instance_valid(rw.line):
+			rw.rebuild()
+		rw.driving = false
+		line = rw.line
+		route_file = ""
+		train = rw.train
+		train.rider = player
+		if engineer_body == null and rw.engineer_body and is_instance_valid(rw.engineer_body):
+			rw.engineer_body.queue_free()  # (the lab puts its own in the cab when it drives)
+			rw.engineer_body = null
+		train.place(line.mark_s("depot"))
+		return line
 	line = LAB_LINE.build(street, tuning, route_file if route_file.begins_with("res://experiments/trestle_lab") else LAB_LINE.ROUTE, trestle_tuning, "start")
 	route_file = LAB_LINE.ROUTE
 	train = line.get_node(^"Train")

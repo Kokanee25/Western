@@ -1,8 +1,9 @@
 extends TestCase
 ## The world switch and the new valley (docs/briefs/valley-plan.md §12, G1): ValleyLayout reads
 ## config/valley.json as written, the valley's scene is empty but for the sky, the baked ground (G2:
-## tests/test_valley_ground.gd) and the player at the crossroads looking down Main Street, and the old town is
-## what loads unless the valley is asked for.
+## tests/test_valley_ground.gd), the main line and its train (G3: tests/test_valley_railway.gd) and
+## the player at the crossroads looking down Main Street, and the old town is what loads unless the
+## valley is asked for.
 
 
 func _valley() -> ValleyLayout:
@@ -159,7 +160,10 @@ func test_the_valley_scene_is_empty() -> void:
 		check(ground.valley != null and ground.valley.bodies.size() > 0, "its chunks")
 	for name in ["TownLife", "TownLayout", "Farmhouse", "FarmhouseMission", "StreetDressing", "FireSystem"]:
 		check(valley.find_child(name, true, false) == null, "no %s in the valley" % name)
-	check(get_tree().get_nodes_in_group(&"people").is_empty(), "nobody in it")
+	var people := get_tree().get_nodes_in_group(&"people")
+	check(people.size() <= 1 and people.all(func(p: Node) -> bool: return p.name == "Engineer"), "nobody in it but the train's engineer (G3) (%s)" % [people.map(func(p: Node) -> String: return p.name)])
+	var rail := valley.get_node_or_null(^"Railway") as ValleyRailway
+	check(rail != null and rail.line != null and rail.train != null, "the main line and its train (G3: tests/test_valley_railway.gd)")
 	# The sun sets due west, straight down Main Street (heading 270, -X).
 	var day := valley.get_node(^"DayCycle") as DayCycle
 	var low := day.get_sun_direction(18.0)

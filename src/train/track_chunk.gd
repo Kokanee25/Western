@@ -52,6 +52,15 @@ func _ready() -> void:
 	Events.exploded.connect(_on_exploded)
 
 
+## A chunk at rest (no rubble of it, nothing breaking, no batch to rebuild) has nothing to tick: the
+## valley's 4.6 km of line is ~50 of them (G3, #716: ~0.09 ms a tick of nothing here).
+func _physics_process(delta: float) -> void:
+	if rubble.is_empty() and _breaking.is_empty() and not _rebuild_queued:
+		_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
+		return
+	super._physics_process(delta)
+
+
 ## The ballast holds the ties, not the ground under it (a crater dug beside the line isn't under them).
 func _on_ground_changed(_area: Rect2) -> void:
 	pass
