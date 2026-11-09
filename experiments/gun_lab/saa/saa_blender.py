@@ -54,10 +54,10 @@ D = {
     "rim": 0.512, "rim_t": 0.060,
     "case_len": 1.285, "oal": 1.600, "bullet": 0.454,
     "headspace": 0.062,       # the recoil shield's face behind the cylinder: rim + clearance
-    "frame_front_len": 0.555, # frame ahead of the cylinder, round the barrel's shank
-    "top_strap": (0.33, 0.52),
-    "frame_bottom": -1.56,
-    "eject_od": 0.42, "eject_rod": 0.22, "eject_len": 4.10, "eject_stroke": 1.78,
+    "frame_front_len": 0.686, # frame ahead of the cylinder, round the barrel's shank (the Met gun's face at 2.30)
+    "top_strap": (0.33, 0.48),  # Met 59.143.4: the strap's top 0.48 over the bore
+    "frame_bottom": -1.62,      # at the frame front; it slopes down to the guard (FRAME_BOTTOM)
+    "eject_od": 0.44, "eject_rod": 0.22, "eject_len": 4.05, "eject_stroke": 1.78,
     "base_pin": 0.21,
 }
 CA = -D["bolt_circle"]                       # the cylinder's axis, under the bore
@@ -68,12 +68,30 @@ F_FRONT = F_BARREL + D["frame_front_len"]     # frame's front face
 MUZZLE = F_BARREL + BARREL
 F_SHIELD = -D["headspace"]                    # recoil shield's front face
 F_SHIELD_BACK = -0.33                         # where the hammer's face sits
-GATE_DEG = 70.0                               # the chamber at the loading gate, clockwise from the top seen from behind
-LOS = 0.47                                    # the line of sight: the rear groove's bottom, the front blade's top
-ORIGIN = Vector((0.0, -0.62 * IN, -1.56 * IN))  # the frame's underside at the trigger: "where the grip meets the frame"
-HAMMER_PIVOT = (-0.80, -0.40)
-TRIGGER_PIVOT = (-0.54, -1.31)
-BOLT_PIVOT = (-0.16, -1.40)
+GATE_DEG = 75.0                               # the chamber at the loading gate, clockwise from the top seen from behind
+LOS = 0.43                                    # the rear groove's bottom; the front blade stands to 0.63 (the Met gun)
+FRONT_BLADE_TOP = 0.63
+ORIGIN = Vector((0.0, -0.62 * IN, -2.12 * IN))  # the frame's underside at the trigger: "where the grip meets the frame"
+# The three screws on the left of the Met gun (59.143.4), measured off its side photo.
+HAMMER_PIVOT = (-0.72, -1.47)
+TRIGGER_PIVOT = (-0.15, -1.79)
+BOLT_PIVOT = (0.12, -1.68)
+# The lower edge, measured: from the frame front's foot sloping down to the guard and on, along the
+# underside of the guard's tang (the top of the guard's opening), to where the tang meets the front strap.
+FRAME_BOTTOM = [(1.98, -1.60), (1.80, -1.68), (1.40, -1.81), (1.00, -1.90), (0.80, -1.96), (0.0, -2.08), (-0.98, -2.27)]
+# The guard's tang is 0.2" of that, under the frame, from the bow's front to the front strap.
+TANG = 0.20
+TANG_FRONT = 0.92
+
+
+def frame_bottom_at(f):
+    pts = FRAME_BOTTOM
+    if f >= pts[0][0]:
+        return pts[0][1]
+    for (fa, ua), (fb_, ub) in zip(pts[:-1], pts[1:]):
+        if fb_ <= f <= fa:
+            return ua + (ub - ua) * (fa - f) / (fa - fb_)
+    return pts[-1][1]
 SEG = 64
 
 
@@ -369,27 +387,39 @@ def make_frame():
     loading channel and gate."""
     fb = D["frame_bottom"]
     ts0, ts1 = D["top_strap"]
-    # Frame front: side outline, then rounded across by intersecting with a rounded section.
-    front = prism("Frame", [(F_BARREL - 0.01, ts1), (F_FRONT - 0.06, ts1 - 0.02), (F_FRONT, 0.30), (F_FRONT, -0.85),
-                            (F_FRONT - 0.10, -1.20), (F_FRONT - 0.30, fb + 0.02), (F_BARREL - 0.01, fb)], 0.45,
-                  MAT["case"], corners=(0, 6))
+    # Frame front: side outline (its foot rounding into the lower edge, as on the Met gun), then
+    # rounded across by intersecting with a rounded section.
+    front = prism("Frame", [(F_BARREL - 0.01, ts1), (F_FRONT - 0.25, ts1 - 0.01), (F_FRONT - 0.10, ts1 - 0.04), (F_FRONT, 0.40),
+                            (F_FRONT, -0.85), (F_FRONT - 0.10, -0.98), (F_FRONT - 0.19, -1.10), (F_FRONT - 0.24, -1.40),
+                            (F_FRONT - 0.29, -1.58), (F_FRONT - 0.36, -1.66), (F_BARREL - 0.01, -1.72)], 0.45,
+                  MAT["case"], corners=(0, 3, 4, 10))
     front_round = lathe("fr", [(F_BARREL - 0.05, 0.0), (F_BARREL - 0.05, 0.47), (F_FRONT + 0.05, 0.47), (F_FRONT + 0.05, 0.0)],
                         (0.0, 0.0, 0.0), "f", None, 64)
-    below = box("fb", -0.40, 0.40, F_BARREL - 0.05, F_FRONT + 0.05, fb - 0.05, -0.05)
+    below = box("fb", -0.40, 0.40, F_BARREL - 0.05, F_FRONT + 0.05, fb - 0.3, -0.05)
     union(front_round, below)
     boolean(front, front_round, "INTERSECT")
-    # The bottom under the window, the top strap.
-    bottom = prism("bot", [(-0.2, fb), (F_BARREL + 0.02, fb), (F_BARREL + 0.02, -1.37), (-0.2, -1.37)], 0.36, smooth=False)
-    strap = prism("strap", [(-0.42, ts1), (F_BARREL + 0.05, ts1), (F_BARREL + 0.05, ts0), (-0.10, ts0 - 0.04), (-0.42, ts0 - 0.08)],
-                  0.27, smooth=False)
+    # The top strap.
+    # The top strap, carried back to the hammer's face at 0.46 (the Met gun's line).
+    strap = prism("strap", [(F_SHIELD_BACK, ts1 - 0.02), (-0.17, ts1), (F_BARREL + 0.05, ts1), (F_BARREL + 0.05, ts0),
+                            (-0.10, ts0 - 0.04), (F_SHIELD_BACK, ts0 - 0.10)], 0.27, smooth=False)
     # The recoil shield: turned about the cylinder's axis, its back rounded into the rear frame.
     shield = lathe("shield", [(F_SHIELD_BACK - 0.14, 0.0), (F_SHIELD_BACK - 0.14, 0.50), (F_SHIELD_BACK - 0.05, 0.66),
                               (F_SHIELD_BACK + 0.04, 0.76), (F_SHIELD - 0.06, 0.80), (F_SHIELD, 0.80), (F_SHIELD, 0.0)],
                    (0.0, 0.0, CA), "f", None, 96)
-    # The rear frame (side outline) round the hammer and lockwork, to where the grip frame meets it.
-    rear = prism("rear", [(0.0, ts1), (-0.40, ts1), (-0.47, 0.30), (-0.56, 0.06), (-0.72, -0.10), (-0.92, -0.22), (-1.10, -0.40),
-                          (-1.24, -0.56), (-1.13, -1.10), (-1.03, fb), (0.0, fb)], 0.44, corners=(0, 9, 8))
-    union(front, bottom, strap, shield, rear)
+    # The lower frame under the window and the rear frame round the lockwork, one side outline: its
+    # lower edge measured off the Met gun (FRAME_BOTTOM); its back behind the shield where the
+    # hammer stands out of it, down the backstrap's front, to where the walnut meets it.
+    # Its lower edge from the back forward: over the guard's tang (TANG above FRAME_BOTTOM) as far as
+    # the bow's front, then down onto the measured edge.
+    edge = []
+    for f, u in reversed(FRAME_BOTTOM):
+        if f >= TANG_FRONT and not any(q[0] >= TANG_FRONT for q in edge):
+            edge += [(TANG_FRONT - 0.04, frame_bottom_at(TANG_FRONT) + TANG), (TANG_FRONT, frame_bottom_at(TANG_FRONT))]
+        edge.append((f, u + (TANG if f < TANG_FRONT else 0.0)))
+    lower = [(F_BARREL + 0.02, -1.37), (-0.10, -1.37), (-0.10, 0.40), (-0.17, 0.42), (-0.36, 0.30), (-0.52, 0.10),
+             (-0.68, -0.10), (-0.84, -0.26), (-0.86, -1.15), (-1.00, -1.32)] + edge + [(F_BARREL + 0.02, -1.70)]
+    rear = prism("rear", lower, 0.44, corners=(0, 1, 2, 9, 10, len(lower) - 1))
+    union(front, strap, shield, rear)
     # The cylinder's window; the barrel's thread; the base pin; the ejector rod's channel.
     cut(front, cyl("win", RC + 0.012, F_SHIELD, F_BARREL, 0.0, CA, 96))
     cut(front, box("win2", -1.0, 1.0, F_SHIELD, F_BARREL, -1.37, CA), )
@@ -401,10 +431,10 @@ def make_frame():
     cut(front, cyl("bush", 0.20, F_BARREL - 0.02, F_BARREL + 0.04, 0.0, CA, 32))
     cut(front, cyl("ratch", 0.33, F_SHIELD - 0.07, F_SHIELD + 0.01, 0.0, CA, 48))
     # The hammer's slot and the firing pin's hole; the trigger's slot underneath; the bolt's.
-    cut(front, box("hslot", -0.165, 0.165, -1.25, F_SHIELD_BACK, -0.95, 1.2))
+    cut(front, box("hslot", -0.165, 0.165, -1.30, F_SHIELD_BACK, -1.95, 1.2))
     cut(front, cyl("fpin", 0.06, F_SHIELD - 0.4, F_SHIELD + 0.01, 0.0, 0.0, 20))
-    cut(front, box("tslot", -0.09, 0.09, -0.70, -0.30, fb - 0.2, -1.05))
-    cut(front, box("bslot", -0.07, 0.07, 0.04, 0.34, fb - 0.2, -1.30))
+    cut(front, box("tslot", -0.09, 0.09, -0.56, 0.04, -2.5, -1.62))
+    cut(front, box("bslot", -0.07, 0.07, 0.02, 0.34, -1.85, -1.30))
     # The rear sight: a groove along the top strap's back.
     groove = prism("groove", [(-0.60, ts1 - 0.05), (0.30, ts1 - 0.05), (0.45, ts1 + 0.05), (-0.60, ts1 + 0.05)], 0.045, smooth=False)
     cut(front, groove)
@@ -457,9 +487,11 @@ def make_barrel():
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     barrel = obj_from_bm("Barrel", bm, MAT["blued"])
     # The front sight: a half-moon blade, part of the barrel.
-    blade = prism("blade", [(MUZZLE - 0.50, 0.25), (MUZZLE - 0.48, ro1 + 0.01), (MUZZLE - 0.34, LOS - 0.02), (MUZZLE - 0.22, LOS),
-                            (MUZZLE - 0.12, LOS - 0.01), (MUZZLE - 0.07, ro1 + 0.04), (MUZZLE - 0.06, 0.25)], 0.032,
-                  corners=(0, 6))
+    # The front sight: a tall half-moon blade 0.40-0.92" back from the muzzle (the Met gun's).
+    T = FRONT_BLADE_TOP
+    blade = prism("blade", [(MUZZLE - 0.95, 0.25), (MUZZLE - 0.93, ro1 + 0.03), (MUZZLE - 0.84, T - 0.11), (MUZZLE - 0.72, T - 0.01),
+                            (MUZZLE - 0.62, T), (MUZZLE - 0.52, T - 0.03), (MUZZLE - 0.44, T - 0.13), (MUZZLE - 0.40, ro1 + 0.03),
+                            (MUZZLE - 0.39, 0.25)], 0.035, corners=(0, 8))
     bevel(blade, 0.008, 2, 40)
     union(barrel, blade)
     # Six grooves in the bore (rifling): seen at the muzzle.
@@ -496,9 +528,9 @@ def make_ejector():
     union(house, web)
     cut(house, cyl("rodbore", D["eject_rod"] / 2 + 0.01, f0 - 0.1, f1 - 0.12, gl, gu, 24))
     # The slot along its lower outer side, the head's stem riding in it.
-    dirn = Vector((math.cos(math.radians(-35)), math.sin(math.radians(-35))))  # (l, u) outward, low
+    dirn = Vector((math.cos(math.radians(-62)), math.sin(math.radians(-62))))  # (l, u) outward and down: it hangs under the housing
     slot_len = D["eject_stroke"] + 0.20
-    s1 = f1 - 0.22
+    s1 = f1 - 0.52  # the head rests ~0.6" behind the housing's front (the Met gun's at 5.65" from the cylinder)
     s0 = s1 - slot_len
     sl = box("slot", -0.05, 0.05, s0, s1, 0.0, ro + 0.1)
     # orient: the box's +u along dirn
@@ -609,47 +641,52 @@ def make_rounds():
 
 
 def make_hammer():
-    hf, hu = HAMMER_PIVOT
-    body = prism("Hammer", [(-0.335, 0.14), (-0.335, -0.10), (-0.44, -0.32), (-0.58, -0.60), (-0.80, -0.70), (-0.98, -0.56),
-                            (-1.04, -0.30), (-0.98, 0.0), (-0.92, 0.22), (-0.62, 0.36), (-0.45, 0.26)], 0.155, MAT["case"],
+    """The hammer at rest, its outline off the Met gun: the face at the shield, the top dipping behind
+    it and the slim spur curling up and back over the grip; its lower body (inside the frame) down
+    round its screw, low on the frame."""
+    body = prism("Hammer", [(-0.335, 0.40), (-0.335, -0.12), (-0.42, -0.45), (-0.48, -0.95), (-0.50, -1.35), (-0.56, -1.66),
+                            (-0.72, -1.78), (-0.88, -1.70), (-0.95, -1.45), (-0.92, -1.0), (-0.92, -0.55), (-0.96, -0.32),
+                            (-1.10, -0.20), (-0.90, 0.13), (-0.70, 0.235), (-0.55, 0.36), (-0.40, 0.47)], 0.155, MAT["case"],
                  corners=(0, 1))
-    spur = prism("spur", [(-0.86, 0.10), (-1.04, 0.38), (-1.26, 0.55), (-1.46, 0.64), (-1.57, 0.70), (-1.57, 0.80), (-1.42, 0.87),
-                          (-1.20, 0.85), (-0.98, 0.75), (-0.76, 0.58), (-0.58, 0.40), (-0.70, 0.18)], 0.21, corners=())
-    # The spur's top checkered: grooves across and along (a diamond knurl, cut shallow).
+    spur = prism("spur", [(-0.96, -0.32), (-1.10, -0.20), (-1.27, -0.08), (-1.40, 0.09), (-1.52, 0.26), (-1.63, 0.39),
+                          (-1.71, 0.48), (-1.67, 0.525), (-1.50, 0.515), (-1.35, 0.435), (-1.20, 0.325), (-1.05, 0.24),
+                          (-0.88, 0.20), (-0.80, 0.0)], 0.165, corners=(6,))
     union(body, spur)
     # The spur's checkering is the surface's (a normal map in the surfaces pass): cut as geometry
     # the exact solver dropped a third of the grooves.
-    bevel(body, 0.03, 3, 30)
+    bevel(body, 0.025, 3, 30)
     fp = lathe("fp", [(-0.40, 0.0), (-0.40, 0.065), (-0.30, 0.055), (F_SHIELD - 0.01, 0.035), (F_SHIELD + 0.002, 0.0)],
                (0.0, 0.0, 0.0), "f", None, 20)
     union(body, fp)
-    # The pivot's hole (the hammer screw goes through it).
     return body
 
 
 def make_trigger():
-    blade = prism("Trigger", [(-0.42, -1.18), (-0.66, -1.18), (-0.66, -1.50), (-0.62, -1.72), (-0.60, -1.95), (-0.63, -2.12),
-                              (-0.58, -2.24), (-0.50, -2.22), (-0.47, -2.05), (-0.46, -1.85), (-0.45, -1.62)], 0.075, MAT["blued"],
-                  corners=(0, 1))
+    """A slim blade curving down and back in the guard, on its screw (the Met gun's)."""
+    blade = prism("Trigger", [(-0.04, -1.66), (-0.48, -1.70), (-0.50, -2.05), (-0.47, -2.35), (-0.42, -2.62), (-0.34, -2.80),
+                              (-0.26, -2.85), (-0.22, -2.78), (-0.29, -2.60), (-0.34, -2.35), (-0.36, -2.10), (-0.20, -1.95),
+                              (-0.08, -1.88)], 0.07, MAT["blued"], corners=(0, 1))
     bevel(blade, 0.02, 3, 30)
-    # grooves across the finger face
     return blade
 
 
 def make_bolt():
-    b = prism("Bolt", [(-0.24, -1.46), (0.10, -1.46), (0.24, -1.33), (0.20, -1.29), (0.12, -1.33), (-0.20, -1.36)], 0.055,
-              MAT["blued"], corners=(1, 2, 3))
+    """The cylinder stop: a lever from its screw up into the notch under the cylinder."""
+    b = prism("Bolt", [(0.02, -1.76), (0.20, -1.76), (0.30, -1.40), (0.27, -1.30), (0.19, -1.30), (0.10, -1.48)], 0.055,
+              MAT["blued"], corners=(2, 3, 4))
     bevel(b, 0.01, 2, 30)
     return b
 
 
 # The grip: a loft of rounded sections between its front and back curves.
-# The "plow handle": the backstrap humped behind the hammer where the web of the hand sits, steep,
-# then flaring back to the heel; the front strap nearly straight under the guard, raking to the toe.
-GRIP_FRONT = [(-1.03, -1.62), (-1.04, -2.00), (-1.08, -2.40), (-1.16, -2.90), (-1.28, -3.45), (-1.44, -4.00), (-1.60, -4.45),
-              (-1.72, -4.64)]
-GRIP_BACK = [(-0.98, 0.22), (-1.14, -0.10), (-1.34, -0.45), (-1.56, -0.95), (-1.76, -1.55), (-1.96, -2.20), (-2.20, -2.85),
-             (-2.52, -3.50), (-2.95, -4.05), (-3.30, -4.30)]
+# The "plowhandle", measured off the Met gun's side photo (59.143.4; README "The reference"): the
+# backstrap one curve from under the hammer, sweeping back to the heel; the front strap from the guard
+# nearly upright to the toe; the butt flat at -4.66, its heel and toe rounded.
+GRIP_FRONT = [(-0.98, -2.40), (-1.28, -2.55), (-1.56, -2.74), (-1.68, -2.92), (-1.77, -3.11), (-1.81, -3.30), (-1.82, -3.55),
+              (-1.80, -3.86), (-1.77, -4.10), (-1.74, -4.38), (-1.72, -4.68)]
+GRIP_BACK = [(-1.00, -0.30), (-1.01, -0.60), (-1.02, -0.90), (-1.07, -1.06), (-1.14, -1.20), (-1.24, -1.30), (-1.42, -1.345),
+             (-1.65, -1.37), (-1.83, -1.42), (-2.035, -1.48), (-2.235, -1.57), (-2.435, -1.71), (-2.635, -1.89), (-2.835, -2.12),
+             (-3.035, -2.44), (-3.235, -2.87), (-3.435, -3.38), (-3.615, -3.86), (-3.765, -4.20), (-3.87, -4.45), (-3.89, -4.68)]
 
 
 def resample(pts, n):
@@ -678,7 +715,7 @@ def grip_loft(name, grow=0.0, mat=None, n=40, ring=48):
     back = resample(GRIP_BACK, n)
     # The front curve, carried up above the grip's top along the frame (the sections above the walnut
     # only feed the backstrap's tang).
-    fr_ext = [(-0.62, 0.40), (-0.78, -0.30), (-0.92, -0.95)] + GRIP_FRONT
+    fr_ext = [(-0.40, 0.30), (-0.60, -0.60), (-0.80, -1.50)] + GRIP_FRONT
     front = resample(fr_ext, n)
     bm = bmesh.new()
     rings = []
@@ -752,10 +789,12 @@ def make_grip_frame():
     backstrap = dup(outer, "Backstrap")
     boolean(backstrap, bs_band, "INTERSECT", keep=True)
     # The hammer's channel through the tang.
-    cut(backstrap, box("hch", -0.17, 0.17, -1.3, -0.3, -0.7, 1.0))
+    cut(backstrap, box("hch", -0.17, 0.17, -1.4, -0.3, -1.95, 1.0))
     # Not into the frame: the frame's rear outline.
-    rear = prism("rr", [(0.5, 1.0), (-0.40, 1.0), (-0.40, 0.52), (-0.47, 0.30), (-0.56, 0.06), (-0.72, -0.10), (-0.92, -0.22), (-1.10, -0.40),
-                        (-1.24, -0.56), (-1.13, -1.10), (-1.03, -1.62), (0.5, -1.62)], 1.0, corners=(0, 10))
+    # The frame's place (the walnut and straps stop at it): its rear outline (make_frame's) and below.
+    rear = prism("rr", [(0.5, 1.2), (-0.10, 1.2), (-0.10, 0.40), (-0.17, 0.42), (-0.36, 0.30), (-0.52, 0.10), (-0.68, -0.10),
+                        (-0.84, -0.26), (-0.86, -1.15), (-1.00, -1.32)] + [(f, u) for f, u in reversed(FRAME_BOTTOM)] + [(0.5, -1.6)],
+                 1.0, corners=(0, 1, 2, 9, 10))
     cut(backstrap, rear, keep=True)
     backstrap.data.materials.append(MAT["blued"])
     bevel(backstrap, 0.015, 2, 35)
@@ -766,10 +805,12 @@ def make_grip_frame():
     cut(guard, rear, keep=True)
     cut(guard, prism("bp3", [(p[0], p[1]) for p in butt_poly], 1.0, smooth=False))
     # The bow and the tang under the frame.
-    bow_path = [(0.30, -1.62), (0.28, -1.80), (0.18, -2.08), (0.00, -2.32), (-0.30, -2.47), (-0.62, -2.46), (-0.88, -2.30),
-                (-1.02, -2.05), (-1.08, -1.80)]
-    bow = sweep("bow", [(p.x, p.y) for p in resample(bow_path, 40)], 0.15, 0.085, None, 24)
-    tang = prism("tang", [(0.36, -1.56), (-1.04, -1.56), (-1.06, -1.66), (0.30, -1.665), (0.38, -1.63)], 0.30, corners=(0, 1))
+    # The bow (its centre line; the Met gun's outline is 0.085 outside it) and the tang under the frame.
+    bow_path = [(0.80, -1.96), (0.79, -2.30), (0.72, -2.58), (0.56, -2.80), (0.32, -2.93), (0.05, -2.995), (-0.20, -3.005),
+                (-0.38, -2.95), (-0.52, -2.80), (-0.60, -2.62), (-0.72, -2.50), (-0.92, -2.43)]
+    bow = sweep("bow", [(p.x, p.y) for p in resample(bow_path, 48)], 0.14, 0.058, None, 24)
+    under = [(TANG_FRONT, frame_bottom_at(TANG_FRONT))] + [(f, u) for f, u in FRAME_BOTTOM if f < TANG_FRONT]
+    tang = prism("tang", [(f, u + TANG + 0.01) for f, u in under] + list(reversed(under)), 0.30, smooth=False)
     union(guard, bow, tang)
     guard.data.materials.append(MAT["blued"])
     bevel(guard, 0.012, 2, 35)
@@ -851,14 +892,14 @@ def build():
         ("Screw_Trigger", (-0.452, tf, tu), (-1, 0, 0), 0.085, 115),
         ("Screw_TriggerR", (0.448, tf, tu), (1, 0, 0), 0.08, 0, False),
         ("Screw_BasePin", (-0.20, F_FRONT + 0.0, -0.80), (0, 1, 0), 0.075, 40),
-        ("Screw_GateCatch", (0.0, 0.48, D["frame_bottom"] - 0.002), (0, 0, -1), 0.075, 10),
-        ("Screw_GuardFront", (0.0, 0.16, -1.665), (0, 0, -1), 0.075, 80),
-        ("Screw_GuardRear", (0.0, -0.86, -1.665), (0, 0, -1), 0.075, 160),
+        ("Screw_GateCatch", (0.0, 1.30, frame_bottom_at(1.30) - 0.002), (0, 0, -1), 0.075, 10),
+        ("Screw_GuardFront", (0.0, 0.70, frame_bottom_at(0.70) - 0.092), (0, 0, -1), 0.075, 80),
+        ("Screw_GuardRear", (0.0, -0.70, frame_bottom_at(-0.70) - 0.092), (0, 0, -1), 0.075, 160),
         ("Screw_Ejector", (gl + D["eject_od"] / 2 + 0.002, ej[2] - 0.32, gu), (1, 0, 0), 0.07, 60),
     ]
     # Backstrap's two at the tang, and one through the butt.
     bt = Vector(GRIP_BACK[1])
-    nrm = (Vector(GRIP_BACK[1]) - Vector(GRIP_BACK[2])).normalized()
+    nrm = (Vector(GRIP_BACK[0]) - Vector(GRIP_BACK[2])).normalized()
     nb = Vector((nrm.y, -nrm.x))
     if nb.x > 0:
         nb = -nb
@@ -900,8 +941,8 @@ def build():
             ob.location = Vector((0, 0, 0))
             ob.parent = parts["Cylinder"]
     markers = {
-        "Muzzle": (0.0, MUZZLE, 0.0), "SightRear": (0.0, -0.38, LOS), "SightFront": (0.0, MUZZLE - 0.22, LOS),
-        "GripWeb": (0.0, -1.18, -0.30), "TriggerFace": (0.0, -0.47, -1.95), "GatePoint": (gl, F_SHIELD - 0.4, gu),
+        "Muzzle": (0.0, MUZZLE, 0.0), "SightRear": (0.0, -0.10, LOS), "SightFront": (0.0, MUZZLE - 0.62, FRONT_BLADE_TOP),
+        "GripWeb": (0.0, -1.05, -0.45), "TriggerFace": (0.0, -0.30, -2.40), "GatePoint": (gl, F_SHIELD - 0.4, gu),
         "BoreBreech": (0.0, F_BARREL, 0.0),
     }
     for name, c in markers.items():
@@ -913,7 +954,7 @@ def build():
     spur = bpy.data.objects.new("HammerSpur", None)
     bpy.context.collection.objects.link(spur)
     spur.parent = parts["Hammer"]
-    spur.location = P(0.0, -1.36, 0.86) - P(0.0, hf, hu)
+    spur.location = P(0.0, -1.50, 0.54) - P(0.0, hf, hu)
     head = bpy.data.objects.new("EjectorHead", None)
     bpy.context.collection.objects.link(head)
     head.parent = parts["Ejector"]
@@ -946,8 +987,8 @@ def rig_json(parts, markers, hinge, ej, path):
                                  "Turned by the hand while cocking from half to full cock.",
                          "gate_chamber_deg": GATE_DEG},
             "Hammer": {"pivot": g(P(0, hf, hu) - ORIGIN), "axis": [1, 0, 0],
-                       "notches_deg": {"rest": 0.0, "safety": 9.0, "half": 21.0, "full": 47.0},
-                       "note": "est: the four clicks (C-O-L-T); full cock leaves the nose 0.45 in behind the shield"},
+                       "notches_deg": {"rest": 0.0, "safety": 4.0, "half": 10.0, "full": 24.0},
+                       "note": "est: the four clicks (C-O-L-T); the pivot is low (the Met gun's hammer screw), so 24 deg takes the face ~0.6 in back"},
             "Trigger": {"pivot": g(P(0, tf, tu) - ORIGIN), "axis": [1, 0, 0], "pull_deg": -6.0, "cocked_deg": -3.0,
                         "note": "est: the trigger comes back with the hammer as it cocks, a short pull lets it go"},
             "Bolt": {"pivot": g(P(0, bf, bu) - ORIGIN), "axis": [1, 0, 0], "down_deg": -5.0,
@@ -985,7 +1026,9 @@ def preview(outdir):
     cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
     sc.collection.objects.link(cam)
     sc.camera = cam
-    center = P(0, (MUZZLE - 3.8) / 2, -1.9) - ORIGIN
+    sc.render.film_transparent = arg("alpha", "") == "1"
+    cf, cu = (MUZZLE - 3.8) / 2, -1.9
+    center = P(0, cf, cu) - ORIGIN
     views = {"right": (90, 0, 90), "left": (90, 0, -90), "front34": (75, 0, 140), "rear34": (70, 0, -30), "top": (0, 0, 90),
              "under34": (115, 0, 60)}
     only = arg("views", "")
@@ -999,6 +1042,13 @@ def preview(outdir):
         cam.location = center + rot @ Vector((0, 0, 1.0))
         sc.render.filepath = os.path.join(outdir, name + ".png")
         bpy.ops.render.render(write_still=True)
+        if name in ("right", "left"):
+            # Where the design's inches land in the picture (overlay.py lays it over a photo).
+            ppi = sc.render.resolution_x / ((MUZZLE + 4.2) * 1.02)
+            with open(os.path.join(outdir, name + ".json"), "w") as f:
+                json.dump({"px_per_in": ppi, "centre_f": cf, "centre_u": cu, "muzzle_f": MUZZLE, "barrel_in": BARREL,
+                           "size": [sc.render.resolution_x, sc.render.resolution_y],
+                           "muzzle_right": name == "right"}, f, indent=1)
 
 
 def main():

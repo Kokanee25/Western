@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --path . --rendering-driver vulkan --resolution 1600x900 \
 ##       -s res://experiments/gun_lab/saa/saa_views.gd -- --real --out=build/saa/views [--gun=75] [--hour=16] \
-##       [--only=turntable,close,mech] [--steps=24]
+##       [--only=turntable,side,close,mech] [--steps=24]
 ##
 ## Untyped on purpose (a -s script compiles before the autoloads exist).
 
@@ -25,7 +25,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var tag := "75"
 	var hour := 16.0
-	var only := "turntable,close,mech"
+	var only := "turntable,side,close,mech"
 	var steps := 24
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
@@ -62,7 +62,8 @@ func _run() -> void:
 	# The place: over the road east of the store, the sun behind the camera at 16:00 (the gun lab's).
 	var base := Vector3(13.0, 1.35, -8.4)
 	base.y += TownLayout.ground_height(base.x)
-	player.global_position = Vector3(base.x + 6.0, TownLayout.ground_height(base.x + 6.0), base.z)
+	player.global_position = Vector3(base.x + 6.0, TownLayout.ground_height(base.x + 6.0), base.z + 30.0)
+	player.visible = false
 	cam = Camera3D.new()
 	cam.near = 0.01
 	cam.fov = 32.0
@@ -87,6 +88,23 @@ func _run() -> void:
 			gun.global_transform = Transform3D(Basis(Vector3.UP, TAU * i / steps), centre) * offset
 			await _shot("turntable_%02d" % i)
 		gun.global_transform = Transform3D(Basis.IDENTITY, base)
+	if "side" in only:
+		# Straight side views from far off with a narrow lens (near orthographic), for setting beside
+		# the Met gun's photo (overlay.py does the exact overlay from Blender's side render).
+		var g := gun.global_transform
+		var mid: Vector3 = g * Vector3(0.0, 0.0, -0.09)
+		cam.fov = 7.0
+		for side in [["side_left", -1.0], ["side_right", 1.0]]:
+			_look(mid + g.basis.x * 2.6 * side[1], mid)
+			await _shot(side[0])
+			# Where the bore's two points land in the frame (overlay.py --plain lays it on the photo).
+			var pts := {}
+			for n in ["Muzzle", "BoreBreech"]:
+				var px := cam.unproject_position(g * _marker(n))
+				pts[n] = [px.x * viewport.size.x / viewport.get_visible_rect().size.x, px.y * viewport.size.y / viewport.get_visible_rect().size.y]
+			var f := FileAccess.open("%s/%s.json" % [out, side[0]], FileAccess.WRITE)
+			f.store_string(JSON.stringify(pts))
+		cam.fov = 32.0
 	if "close" in only:
 		# The gun's own frame: barrel along -Z, right +X, up +Y.
 		var g := gun.global_transform

@@ -40,7 +40,7 @@
   "Cylinder": {
    "pivot": [
     0.0,
-    0.026416,
+    0.04064,
     -0.015748
    ],
    "axis": [
@@ -50,13 +50,13 @@
    ],
    "index_deg": 60.0,
    "note": "chamber k sits at 60k deg clockwise from the top seen from behind; +60 about the axis turns the next chamber up under the hammer (Colt's way, clockwise from behind). Turned by the hand while cocking from half to full cock.",
-   "gate_chamber_deg": 70.0
+   "gate_chamber_deg": 75.0
   },
   "Hammer": {
    "pivot": [
     0.0,
-    0.029464,
-    0.004572
+    0.01651,
+    0.00254
    ],
    "axis": [
     1,
@@ -65,17 +65,17 @@
    ],
    "notches_deg": {
     "rest": 0.0,
-    "safety": 9.0,
-    "half": 21.0,
-    "full": 47.0
+    "safety": 4.0,
+    "half": 10.0,
+    "full": 24.0
    },
-   "note": "est: the four clicks (C-O-L-T); full cock leaves the nose 0.45 in behind the shield"
+   "note": "est: the four clicks (C-O-L-T); the pivot is low (the Met gun's hammer screw), so 24 deg takes the face ~0.6 in back"
   },
   "Trigger": {
    "pivot": [
     0.0,
-    0.00635,
-    -0.002032
+    0.008382,
+    -0.011938
    ],
    "axis": [
     1,
@@ -89,8 +89,8 @@
   "Bolt": {
    "pivot": [
     0.0,
-    0.004064,
-    -0.011684
+    0.011176,
+    -0.018796
    ],
    "axis": [
     1,
@@ -102,8 +102,8 @@
   },
   "Gate": {
    "pivot": [
-    0.019084,
-    0.020215,
+    0.018471,
+    0.0328,
     -0.010363
    ],
    "axis": [
@@ -116,8 +116,8 @@
   },
   "Ejector": {
    "pivot": [
-    0.012411,
-    0.030933,
+    0.012758,
+    0.044058,
     -0.057353
    ],
    "axis": [
@@ -132,37 +132,37 @@
  "markers": {
   "Muzzle": [
    0.0,
-   0.039624,
+   0.053848,
    -0.247244
   ],
   "SightRear": [
    0.0,
-   0.051562,
-   -0.006096
+   0.06477,
+   -0.013208
   ],
   "SightFront": [
    0.0,
-   0.051562,
-   -0.241656
+   0.06985,
+   -0.231496
   ],
   "GripWeb": [
    0.0,
-   0.032004,
-   0.014224
+   0.042418,
+   0.010922
   ],
   "TriggerFace": [
    0.0,
-   -0.009906,
-   -0.00381
+   -0.007112,
+   -0.008128
   ],
   "GatePoint": [
-   0.012411,
-   0.030933,
+   0.012758,
+   0.044058,
    -0.004013
   ],
   "BoreBreech": [
    0.0,
-   0.039624,
+   0.053848,
    -0.056744
   ]
  },
@@ -182,15 +182,15 @@
   "oal": 1.6,
   "bullet": 0.454,
   "headspace": 0.062,
-  "frame_front_len": 0.555,
+  "frame_front_len": 0.686,
   "top_strap": [
    0.33,
-   0.52
+   0.48
   ],
-  "frame_bottom": -1.56,
-  "eject_od": 0.42,
+  "frame_bottom": -1.62,
+  "eject_od": 0.44,
   "eject_rod": 0.22,
-  "eject_len": 4.1,
+  "eject_len": 4.05,
   "eject_stroke": 1.78,
   "base_pin": 0.21
  }

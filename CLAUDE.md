@@ -1046,9 +1046,9 @@ frozen until Sean names one.
   `experiments/gun_lab/saa/` README): the 1873 Colt built in Blender from its real dimensions
   (`saa_blender.py --barrel=7.5|5.5|4.75`, ~8 s), 39 parts the game can drive (cylinder indexing,
   hammer notches, trigger, bolt, gate, ejector; rounds per chamber), `saa_<barrel>_rig.json`,
-  `saa_rig.gd` drives them; `saa_views.gd` shows it under the real look. Placeholder materials:
-  the cheap judge says cheap indie (materials first, then the spur, guard and frame's slab sides).
-  Nothing in the game changed. Waiting on Sean: the surfaces' paid call and the shape.
+  `saa_rig.gd` drives them; `saa_views.gd` shows it under the real look. Sean's review: refitted to
+  the Met's 1874 Colt (CC0 photo, `docs/concept/guns/ref/`; `overlay.py`, overlap 0.666 -> 0.952).
+  Placeholder materials. Nothing in the game changed. Waiting on Sean (#740): the surfaces' paid call.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

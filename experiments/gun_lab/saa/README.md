@@ -32,6 +32,7 @@ set ~45 min.
   a 24-step turntable, close shots (right, left, muzzle, hammer from above, loading, cocked, down
   the sights) and the mechanism strip driven through `saa_rig.gd`.
 - `sheets.py`: the contact sheets and the turntable film from a views folder.
+- `overlay.py`: the side render over the reference photo at the same scale (README "The reference").
 
 ## The parts
 
@@ -61,6 +62,38 @@ Not modelled (inside the frame): the hand, the mainspring, the springs, the reco
 checkering is for the surfaces pass (a normal map): cut as geometry the exact boolean dropped a
 third of the grooves.
 
+## The reference
+
+The shape is fitted to a real Colt (Sean's review, 2026-11-09: "the shapes aren't a Single Action
+Army yet"): the Met's serial no. 4519, an 1874 7½" (CC0; `docs/concept/guns/ref/saa_met_59-143-4_left.jpg`,
+its source in that folder's `SOURCES.md`), side on. Its silhouette was cut from the plain ground
+and put in the model's inches by three numbers that agree: 13" overall and 7½" from the muzzle to
+the cylinder's face (the Met's figures), and the barrel 0.685" across (the published 0.686"), all at
+132.8 px an inch. Every outline behind the barrel was then read off it: the frame's front face and
+foot, its lower edge sloping to the guard, the guard's tang, bow and opening, the trigger, the three
+screws on the left (the hammer's low on the frame), the hammer's top and slim spur, the backstrap's
+one curve from under the hammer to the heel, the front strap, the flat butt, the tall front blade,
+the ejector housing and its button.
+
+```sh
+~/bpyenv/bin/python experiments/gun_lab/saa/saa_blender.py --preview=build/saa/ov/r --views=left --px=2000 --alpha=1
+python3 experiments/gun_lab/saa/overlay.py docs/concept/guns/ref/saa_met_59-143-4_left.jpg build/saa/ov/r/left.png \
+    build/saa/ov --points=86,467.5,9.114:1080,467.5,1.608 --name=r --mask=MASK.png
+```
+
+`--points` are the muzzle and the cylinder's front face on the bore's axis in the photo's pixels;
+MASK is the photo's gun cut from its ground (dark under the ground's median less 45, the largest
+piece, holes under 3,000 px filled: the guard's opening kept). Overlap (intersection over union of
+the two silhouettes): **0.666 before the fit, 0.952 after**; what's left is mostly the photo's glare
+on the frame's lower edge (holes in its mask) and the thin gap round the cylinder.
+`results/2026-11-09_overlay/`: `before_overlay.jpg`, `after_overlay.jpg` (the render's outline in red
+over the photo), `before_after.jpg`, `after_side.jpg` (side by side, the same scale and crop),
+`before_diff.jpg`/`after_diff.jpg` (red: the photo's gun only; blue: the render's only);
+`after_side_real_look.jpg` (the game's render under the real look beside the photo, put to its scale
+by where the muzzle and breech landed: `saa_views.gd --only=side`, `overlay.py --plain=1`),
+`side_right_real_look.jpg`, and the refitted gun's `turntable.mp4`/`.jpg` and `close.jpg`.
+Placeholder materials still: no paint, no paid call.
+
 ## The dimensions
 
 Inches; f along the bore from the cylinder's rear face, u up from the bore's axis.
@@ -68,24 +101,19 @@ Inches; f along the bore from the cylinder's rear face, u up from the bore's axi
 | What | Value | Source |
 |---|---|---|
 | Barrel lengths | 7½" Cavalry (built first), 5½" Artillery, 4¾" Civilian; `--barrel=` | Wikipedia, "Colt Single Action Army" |
-| Overall length | 11" with the 5½" (279 mm); 12½–13" with the 7½" | Wikipedia; Gunsopedia; dealers' listings |
-| Height, width | 137 mm, 38 mm (a third party's measured model) | Sketchfab, "Colt SAA" disassembly model's listing |
-| Weight | 2.31 lb with the 7½" (not used: no density yet) | Wikipedia |
+| Overall length | 13" with the 7½" | the Met, 59.143.4 |
 | Cylinder length | 1.608" | The Firing Line forum, SAA blueprints thread |
 | .45 Colt cartridge | bullet .454", case 1.285", rim .512" × .060", mouth .480", overall 1.600" | the cartridge's published (SAAMI) dimensions |
 | Bore | .445" lands, .454" grooves, six grooves | as the cartridge |
-| Cylinder diameter 1.650", chambers on a .520" circle | est. | sized round the chamber walls and the bolt notches; the bore over the top chamber |
-| Barrel OD .700" at the frame, .686" at the muzzle | est. | |
-| Frame front .555" ahead of the cylinder, top strap .33–.52" over the bore, frame bottom −1.56" | est. | fitted to the cylinder and the height |
-| Grip: plow handle, toe −4.64", heel −3.30" behind the cylinder face | est. | fitted to the height and overall length above |
-| Ejector housing 4.10" long, rod .22", stroke 1.78" | est. | the stroke clears a case from a 1.608" chamber |
-| Loading gate at 70° clockwise from the top (seen from behind) | est. | where the ejector rod meets the barrel's side |
+| Barrel .700" at the frame, .686" at the muzzle | the photo: .685" | |
+| Every side outline behind the barrel (frame, hammer, trigger, guard, grip, front blade, ejector), the three screws | measured | the Met gun's photo (above) |
+| Cylinder diameter 1.650", chambers on a .520" circle | est. | sized round the chamber walls and the bolt notches |
+| Widths across the gun (frame .90", top strap .54", grip 0.72"–1.32", hammer .31") | est. | no top view of the Met gun |
+| Loading gate at 75° clockwise from the top (seen from behind) | est. | where the ejector rod sits beside the barrel (its housing's bottom measured) |
 
-The model against the published sizes: overall length 12.4" with the 7½" (0.315 m; 13" quoted,
-12½" by some), height 5.5" with the hammer down (5.4" measured on a 5½" by the third party), width
-1.72" at the ejector head (the cylinder 1.65"). **Estimates are marked est.:** the travel numbers too
-(hammer notches 9/21/47°, trigger 3–6°, gate 95°) in the rig file. A Colt in the hand or a measured
-drawing would settle them; none was found free online.
+The model's size (its bounds in Godot): 13.0" overall with the 7½" (the Met: 13"), 5.4" tall with
+the butt screw's head (the photo: 5.3"), 1.65" across at the cylinder. **Estimates are marked est.:** the travel numbers too (hammer notches 4/10/24° about the low
+hammer screw, trigger 3–6°, gate 95°) in the rig file.
 
 ## The surfaces (waiting on Sean: no paid call made)
 
@@ -110,8 +138,5 @@ The parts carry placeholder materials (`saa_case`, `saa_blued`, `saa_fire_blue`,
   horn, the guard a thin wire, the frame a slab, the cylinder big against the frame". The rest is
   the street's (pebbles alike, the canyon backdrop's squares, twin horses).
 
-What's off in the shape, from these and the judge (for the next round, after Sean's word): the
-spur too tall and hooked; the guard's bow thin; the frame's sides flat slabs (no swell at the
-recoil shield's back, no flats and radii where the frame steps); the gate reads as a short round
-boss; the backstrap's top a squared fin from above; the walnut's top shows behind the hammer from
-the shooter's eye.
+Sean's review of round 1's side view (2026-11-09): "the shapes aren't a Single Action Army yet" (the
+grip, hammer, cylinder and frame, guard, ejector, front sight): refitted to the Met gun (above).
