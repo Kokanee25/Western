@@ -1,0 +1,325 @@
+{
+ "alarm": 159.58,
+ "blocking": [
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Valley/Player",
+  "1.0:Valley/Player",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": 159.08,
+  "freed": 178.55,
+  "froze": 15.166666666667,
+  "gate_left": 106.12,
+  "gate_wait": 54.9666666666648,
+  "hid": 156.83,
+  "phase_at": {
+   "lit": 154.15,
+   "out": 178.55,
+   "plant": 152.07,
+   "rescue": 176.15,
+   "through": 160.58
+  },
+  "planted": 154.15
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 159.58,
+ "end": 193.27,
+ "executed": -1.0,
+ "found": 161.87,
+ "frames": {
+  "blast_ms": 371.17,
+  "fight_ticks": 2021,
+  "max_ms": 371.17,
+  "mean_ms": 13.38,
+  "p95_ms": 26.88
+ },
+ "freed": 179.05,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   3.24,
+   1.3,
+   14.25
+  ],
+  "limp": false,
+  "pelvis": [
+   3.27,
+   0.67,
+   13.86
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  3.26,
+  0.98,
+  14.05
+ ],
+ "men": 7,
+ "men_out": 6,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "give up: still shaken after 0 s, covered close",
+   "id": "brody",
+   "inside": true,
+   "knows": 12.8,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "tend his wound: bleeding 166.8 ml/s, 3 s since your last shot",
+   "id": "lyle",
+   "inside": true,
+   "knows": 15.3,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.56 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 20.4,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom corner: bedroom corner (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 12.5,
+   "mood": "CALM",
+   "order": "bedroom_corner",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 3.8,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "",
+   "id": "pike",
+   "inside": false,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 1.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.88 / 0.88)",
+   "id": "wes",
+   "inside": true,
+   "knows": 10.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, grey and cold, pulse thready, going pale, bleeding inside, bleeding steady, gut-shot, bone broken.",
+ "player_local": [
+  4.03,
+  -0.19,
+  14.48
+ ],
+ "quits": [
+  [
+   159.58,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   163.3,
+   "pike",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   169.63,
+   "wes",
+   "gives up",
+   "give up: past his nerve (fear 0.88 / 0.88)",
+   false
+  ],
+  [
+   180.92,
+   "brody",
+   "gives up",
+   "give up: still shaken after 0 s, covered close",
+   false
+  ],
+  [
+   181.98,
+   "lyle",
+   "gives up",
+   "tend his wound: bleeding 166.8 ml/s, 3 s since your last shot",
+   true
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 4,
+ "shots_men": 7,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": 159.58,
+ "t": 193.27,
+ "threat": 162.28,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   159.58,
+   "Hollis down"
+  ],
+  [
+   159.58,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   159.58,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 11 m off)"
+  ],
+  [
+   159.58,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   159.58,
+   "Hollis gives up ()"
+  ],
+  [
+   161.25,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.27,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.38,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.87,
+   "found: Pike sees you"
+  ],
+  [
+   162.27,
+   "Pike down"
+  ],
+  [
+   162.28,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   163.3,
+   "Pike gives up ()"
+  ],
+  [
+   169.63,
+   "Wes gives up (give up: past his nerve (fear 0.88 / 0.88))"
+  ],
+  [
+   170.78,
+   "Dutch down"
+  ],
+  [
+   172.32,
+   "Dutch down, out"
+  ],
+  [
+   172.9,
+   "Lyle down"
+  ],
+  [
+   179.05,
+   "the rancher cut loose"
+  ],
+  [
+   179.58,
+   "the guard's last word"
+  ],
+  [
+   180.92,
+   "Brody gives up (give up: still shaken after 0 s, covered close)"
+  ],
+  [
+   181.48,
+   "Lyle down"
+  ],
+  [
+   181.98,
+   "Lyle gives up (tend his wound: bleeding 166.8 ml/s, 3 s since your last shot)"
+  ],
+  [
+   185.65,
+   "Dutch dead"
+  ],
+  [
+   187.25,
+   "Lyle dead"
+  ],
+  [
+   193.27,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

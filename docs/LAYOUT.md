@@ -734,6 +734,25 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **The farmhouse on the widow's pad** (G6, #731; `tests/test_valley_farmhouse.gd`): ValleyWorld
+  builds the old town's `Farmhouse` (spec unchanged) with `layout` given (`-- --no-farmhouse` leaves it
+  out): its middle (own x 4.5, z 3.8) on `widow_homestead`'s `at`, `farmhouse.facing` 180, on the
+  ground under its low corner (`Farmhouse.valley_site`); the mission's hills are the place's `hills`
+  in valley.json (town.json's bumps about the old house, baked over the pad by `valley_plan.py`), so
+  within 15 m the ground relative to the house is the old town's to ~0.1 m. While it's in the tree
+  `Farmhouse`'s statics answer for it (`in_valley`, `origin`, `ground_at`, `carried(x, z)`: an old
+  town point round the house where it is now; `start_place`/`below_place`: `farm_start`, `farm_road`).
+  A `Fittings` scoped to it (`only`, `ground_relative`). **The roads as ways**
+  (`ValleyMarkers.WAY_ROADS`: the East Road and the widow's lane, `<road>@<m>`, links within 12 m and
+  0.3 m of rise, a place at every bend, `ways`, `way_end(id)`, `join(a, b)`), so `walk farm_porch` from
+  the crossroads goes by Main Street, the East Road and the lane; `Farmhouse.add_valley_places` joins
+  the house's places to the lane's end. `FarmhouseMission` there: no TownLife; it starts when you come
+  within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
+  loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
+  own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The overview** (`tools/valley/valley_overview.gd` + `.py`): the greybox from overhead, north up,
+  plain and with the plan over it, and close views of the town, canyon and west; run after each G
+  step (experiments/valley/README.md).
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
@@ -1290,6 +1309,7 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `--farm-rovers=0`, `--farm-cornered=off` (the befores).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
+- In the valley (G6): see "src/world/town_layout.gd" (the farmhouse on the widow's pad).
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
   playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,

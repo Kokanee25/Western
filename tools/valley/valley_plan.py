@@ -272,6 +272,13 @@ class Terrain:
 				continue
 			y = float(pd["y"])
 			self._blend(X, Z, H, p["at"][0], p["at"][1], pd["w"], pd["d"], pd.get("heading", 90), pd.get("blend", 30), lambda X, Z, y=y: np.full(X.shape, y))
+		# A place's hills (G6: the farmhouse's, carried from the old town) over its levelled pad and
+		# the ground round it: each bump a smoothstep of the distance, summed (TownLayout.hills_height).
+		for p in self.data["places"]:
+			for b in p.get("hills", {}).get("bumps", []):
+				d = np.hypot(X - (p["at"][0] + b["at"][0]), Z - (p["at"][1] + b["at"][1]))
+				t = np.clip(1.0 - d / float(b["r"]), 0.0, 1.0)
+				H += float(b["h"]) * t * t * (3.0 - 2.0 * t)
 
 	def _rail_runs(self):
 		"""The formation's line (rail top less 1 m) as [x, z, y, s] rows every 5 m, in runs that don't

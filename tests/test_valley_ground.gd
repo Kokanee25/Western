@@ -47,7 +47,13 @@ func test_the_bake_reads_as_written() -> void:
 	var v := ValleyLayout.main()
 	for id in ["widow_homestead", "ore_works", "mine", "harlan_homestead", "baron_ranch", "church"]:
 		var at := v.place_at(id)
-		check_near(t.height(at.x, at.y), float(v.place_pad(id).y), 0.03, "%s on its pad" % id)
+		# (A place's hills over its pad: G6's farmhouse knoll on the widow's.)
+		var hills := 0.0
+		for b: Dictionary in (v.place(id).get("hills", {}) as Dictionary).get("bumps", []):
+			var d := Vector2(float(b.at[0]), float(b.at[1])).length()
+			var k := clampf(1.0 - d / float(b.r), 0.0, 1.0)
+			hills += float(b.h) * k * k * (3.0 - 2.0 * k)
+		check_near(t.height(at.x, at.y), float(v.place_pad(id).y) + hills, 0.03, "%s on its pad" % id)
 	check(t.meta.get("valley_json_sha256", "") != "", "it says which valley.json it was baked from")
 
 

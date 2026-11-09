@@ -8,9 +8,10 @@ extends Node3D
 ## (ballistics, impacts, traces), the main line with its bridges and the daily train (G3:
 ## ValleyRailway), the greybox markers (G4: every place's pad, road, ford and bed drawn on the ground,
 ## ValleyMarks; blocks, posts, Bridge A and the town bridge, the places by name, ValleyMarkers), the
-## town's greybox (G5: boardwalks, the lanes and alleys open to the back, the town's ways, ValleyTown)
-## and the player at the crossroads looking down Main Street. No TownLife, gang, farmhouse or labs: they
-## need the old town.
+## town's greybox (G5: boardwalks, the lanes and alleys open to the back, the town's ways, ValleyTown),
+## the farmhouse on the widow's pad and its hostage rescue (G6: Farmhouse, FarmhouseMission; its places
+## joined to the valley's by the East Road and the widow's lane) and the player at the crossroads
+## looking down Main Street. No TownLife, gang or labs: they need the old town.
 
 ## The ground's colour where a tile's been dug (the greybox's dirt; the undug ground's colours are
 ## config/valley_terrain.tres's).
@@ -19,10 +20,16 @@ const DUG_COLOUR := Color(0.62, 0.52, 0.40)
 var layout: ValleyLayout
 var railway: ValleyRailway
 var markers: ValleyMarkers
+var farmhouse: Farmhouse
+var mission: FarmhouseMission
 ## The main line and its train (G3); `-- --no-railway`: the valley without them (the bench's before).
 static var railway_default := not "--no-railway" in OS.get_cmdline_user_args()
 ## The greybox markers (G4); `-- --no-markers`: the valley without them (the bench's before).
 static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
+## The farmhouse and its mission on the widow's pad (G6); `-- --no-farmhouse`: without (the bench's before).
+static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
+## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
+static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 
 
 func _ready() -> void:
@@ -33,11 +40,15 @@ func _ready() -> void:
 		railway = ValleyRailway.new()
 		railway.layout = layout
 		add_child(railway)
+	if farmhouse_default:
+		_make_farmhouse()
 	if markers_default:
 		markers = ValleyMarkers.new()
 		markers.layout = layout
 		markers.railway = railway
 		add_child(markers)
+		if farmhouse:
+			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
@@ -51,6 +62,26 @@ static func start_transform(l: ValleyLayout) -> Transform3D:
 ## A compass heading (0 north, -Z; 90 east, +X) as a turn round +Y from facing -Z.
 static func yaw_of(heading_deg: float) -> float:
 	return -deg_to_rad(heading_deg)
+
+
+## The farmhouse on the widow's pad (G6, #731: Farmhouse with the valley's plan and ground), what's
+## fixed in it coming down with its walls (Fittings, as in the street) and its hostage rescue
+## (FarmhouseMission: started by `farm_start`, `-- --mission=farmhouse`, Enter after a lost try, or
+## walking up to the widow's place: FarmhouseMission's valley start).
+func _make_farmhouse() -> void:
+	farmhouse = Farmhouse.new()
+	farmhouse.name = "Farmhouse"
+	farmhouse.layout = layout
+	add_child(farmhouse)
+	var fittings := Fittings.new()
+	fittings.name = "Fittings"
+	fittings.only = farmhouse
+	fittings.ground_relative = true
+	add_child(fittings)
+	if farm_mission_default:
+		mission = FarmhouseMission.new()
+		mission.name = "FarmhouseMission"
+		add_child(mission)
 
 
 ## The ground, from the bake (ValleyTerrain, config/valley_ground/): a Ground over it, so a crater,
