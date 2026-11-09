@@ -8,6 +8,8 @@ Poly Haven and ambientCG can't be reached from the workspace, so this runs on Gi
       every wood-like texture of both sources: DIR/catalogue.json (id, source, name, tags,
       size in metres where the source gives it) and contact sheets DIR/sheet_<source>_<n>.jpg
       (thumbnails with their ids), for choosing.
+  python3 tools/textures/scans/fetch_scans.py fetch --picks=... --out=DIR --hi=1   (4K: albedo 4096,
+      normal 2048, roughness 1024; the lab's sharp close-ups, kept off the repo)
   python3 tools/textures/scans/fetch_scans.py fetch --picks=tools/textures/scans/picks.json \
       --out=assets/textures/scans
       each pick's albedo, normal (OpenGL) and roughness maps, cut to the sizes the library draws
@@ -32,6 +34,9 @@ ACG_API = "https://ambientcg.com/api/v2/full_json"
 # What counts as a wood on each source (names and tags matched, case blind).
 WOODY = re.compile(r"wood|plank|board|timber|siding|parquet|veneer|bark|walnut|oak|cherry|mahogany|pine|fir|barn", re.I)
 SIZES = {"albedo": 2048, "normal": 1024, "rough": 512}
+# --hi (4K): for the lab's sharp close-ups only; too heavy for the repo, so the workflow pushes them
+# to a pool branch (Sean, 2026-11-09) and the lab reads them from a git-ignored folder.
+SIZES_HI = {"albedo": 4096, "normal": 2048, "rough": 1024}
 
 
 def get(url: str, tries: int = 4) -> bytes:
@@ -158,7 +163,7 @@ def _cut(data: bytes, size: int, mode: str) -> bytes:
     return buf.getvalue()
 
 
-def ph_maps(aid: str) -> dict:
+def ph_maps(aid: str, hi: bool = False) -> dict:
     files = get_json(f"{PH_API}/files/{aid}")
     want = {"albedo": ["Diffuse", "diff", "Color"], "normal": ["nor_gl", "Normal"], "rough": ["Rough", "rough"]}
     out = {}
@@ -166,7 +171,7 @@ def ph_maps(aid: str) -> dict:
         for k in keys:
             if k in files:
                 res = files[k]
-                for r in ["2k", "4k", "1k"]:
+                for r in (["4k", "8k", "2k"] if hi else ["2k", "4k", "1k"]):
                     if r in res:
                         fmt = res[r].get("jpg") or res[r].get("png")
                         if fmt:
@@ -176,8 +181,8 @@ def ph_maps(aid: str) -> dict:
     return out
 
 
-def acg_maps(aid: str) -> dict:
-    z = zipfile.ZipFile(io.BytesIO(get(f"https://ambientcg.com/get?file={aid}_2K-JPG.zip")))
+def acg_maps(aid: str, hi: bool = False) -> dict:
+    z = zipfile.ZipFile(io.BytesIO(get(f"https://ambientcg.com/get?file={aid}_{'4K' if hi else '2K'}-JPG.zip")))
     out = {}
     for n in z.namelist():
         low = n.lower()
@@ -190,8 +195,9 @@ def acg_maps(aid: str) -> dict:
     return out
 
 
-def fetch(picks_path: str, out: str) -> None:
+def fetch(picks_path: str, out: str, hi: bool = False) -> None:
     picks = json.load(open(picks_path))
+    sizes = SIZES_HI if hi else SIZES
     for p in picks["picks"]:
         aid, src = p["id"], p["source"]
         d = os.path.join(out, aid)
@@ -200,14 +206,14 @@ def fetch(picks_path: str, out: str) -> None:
             continue
         print("fetch", src, aid, flush=True)
         try:
-            maps = ph_maps(aid) if src == "polyhaven" else acg_maps(aid)
+            maps = ph_maps(aid, hi) if src == "polyhaven" else acg_maps(aid, hi)
         except Exception as e:  # noqa: BLE001: report and go on to the next pick
             print(f"  FAILED {aid}: {e}", flush=True)
             continue
         os.makedirs(d, exist_ok=True)
         for role, data in maps.items():
             with open(os.path.join(d, f"{role}.jpg"), "wb") as f:
-                f.write(_cut(data, SIZES[role], "RGB" if role != "rough" else "L"))
+                f.write(_cut(data, sizes[role], "RGB" if role != "rough" else "L"))
         meta = {
             "id": aid, "source": src, "licence": "CC0 1.0",
             "page": f"https://polyhaven.com/a/{aid}" if src == "polyhaven" else f"https://ambientcg.com/view?id={aid}",
@@ -229,7 +235,8 @@ def main() -> int:
     if mode == "catalogue":
         catalogue(args.get("out", "build/scans"))
     elif mode == "fetch":
-        fetch(args.get("picks", "tools/textures/scans/picks.json"), args.get("out", "assets/textures/scans"))
+        fetch(args.get("picks", "tools/textures/scans/picks.json"), args.get("out", "assets/textures/scans"),
+              "hi" in sys.argv[2:] or args.get("hi") == "1")
     else:
         print(__doc__)
         return 2
