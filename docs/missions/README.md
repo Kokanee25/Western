@@ -120,7 +120,7 @@ that come back). Status is the mission as a whole; each card has the details.
 | [`payday-inquest`](payday-inquest.md) | Payday Night and the Inquest (four proposed missions) | story | PROPOSED (inventory); evidence a maybe | the saloons, the cemetery |
 | [`dry-creek`](dry-creek.md) | Dry Creek (water) | side | PROPOSED, brainstorm (inventory) | the creek, OPEN |
 | [`dig-him-up`](dig-him-up.md) | Dig Him Up | side | DECIDED: kept, a sneaking mission (Sean, 2026-11-09); whose grave OPEN | the cemetery |
-| [`nothing-to-report`](nothing-to-report.md) | Nothing to Report (the captain's day) | story | DECIDED (Sean, 2026-11-09: "I like it, add all the ticks!"); proposed by the planning session | the town |
+| [`i-am-the-law`](i-am-the-law.md) | I Am the Law (the captain's day; first "Nothing to Report") | story | DECIDED (Sean, 2026-11-09: "I like it, add all the ticks!"); proposed by the planning session | the town |
 
 ### Folded into a card (another source for the same mission)
 

@@ -1,6 +1,8 @@
-# Nothing to Report (`nothing-to-report`)
+# I Am the Law (`i-am-the-law`)
 
-A new mission, proposed by the planning session (`proposals/nothing-to-report.md`: the full proposal,
+- DECIDED (Sean, 2026-11-09): the name: "the last mission you proposed has to be called \"I am the law\"" (read as this one; it was first called "Nothing to Report").
+
+A new mission, proposed by the planning session (`proposals/i-am-the-law.md`: the full proposal,
 its judge (26/35) and its build check). Sources: that proposal; Sean, 2026-11-09.
 
 - DECIDED (Sean, 2026-11-09): "I like it, add all the ticks!" The mission as proposed, with the judge's
@@ -86,7 +88,7 @@ _PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines 
 
 _PROPOSED: this session's reading of what the ways above need. Each line ends with its state on main, 2026-11-09: exists, partly, being built, decided (not built) or new._
 
-From the build check (`proposals/nothing-to-report.md`):
+From the build check (`proposals/i-am-the-law.md`):
 - The captain's own brain on an agenda (townsfolk cower at shots): new, small.
 - His log of the deeds he sees and the shots he hears (`Events.deed`, `Senses.heard`): new, small.
 - The provocateurs' plan (go near him, shove, draw, fire in the air): new, small.
@@ -115,4 +117,4 @@ From the build check (`proposals/nothing-to-report.md`):
 
 ## Sources
 
-`proposals/nothing-to-report.md` (the proposal, its judge and build check); Sean, 2026-11-09.
+`proposals/i-am-the-law.md` (the proposal, its judge and build check); Sean, 2026-11-09.

@@ -72,7 +72,7 @@ flowchart TD
   bridge -.P5 the Inquest.-> trial
   nojustice -->|arrest: Rourke at the platform| payday[payday-night]
   hell -->|the outrage| payday
-  payday -->|the next day| report[nothing-to-report]
+  payday -->|the next day| report[i-am-the-law]
   report -->|the tally: hired guns or soldiers| bridge
   payday -->|Rourke arrives| bridge
   sheriff -->|the Baron at the funeral| farm

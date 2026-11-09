@@ -1,4 +1,4 @@
-# Nothing to Report: a proposal (`nothing-to-report`)
+# I Am the Law (first called "Nothing to Report"): a proposal (`i-am-the-law`)
 
 **A new mission, this planning session's own idea (2026-11-09), at Sean's ask: "come up with your own
 mission idea".** Everything here is PROPOSED. It's built on the spine Sean picked (the Baron wins if Salt

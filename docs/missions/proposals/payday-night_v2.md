@@ -92,7 +92,7 @@ All carried by systems (persistence, opinions, memory, wounds), none by a writte
 - **The building.** The broken floor and the rubble stay; the Railroad Saloon is shut until it's
   rebuilt (over days, if at all).
 - **Rourke's foothold.** Accepted, soldiers are billeted in town and seen on the street; refused, he camps
-  at the depot and waits. Either way the captain who comes the next day (`nothing-to-report`) sees the
+  at the depot and waits. Either way the captain who comes the next day (`i-am-the-law`) sees the
   aftermath, and what he sees goes in his tally.
 - **The Kid.** Alive, he talks, in his own time (the informant thread); dead, that thread loses its
   voice.
