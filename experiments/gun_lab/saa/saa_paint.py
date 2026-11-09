@@ -32,6 +32,7 @@ WALNUT = os.path.join(SURF, arg("walnut", "walnut_1") + ".png")
 # Per material: how it is made, its wear and roughness, metal or not.
 LOOK = {
     "saa_case":      {"kind": "case", "rough": 0.22, "metal": 1.0, "wear": 0.5},
+    "saa_checker":   {"kind": "case", "rough": 0.26, "metal": 1.0, "wear": 0.7, "knurl": True},
     "saa_blued":     {"kind": "blued", "rough": 0.16, "metal": 1.0, "wear": 0.9},
     "saa_fire_blue": {"kind": "fire", "rough": 0.14, "metal": 1.0, "wear": 0.5},
     "saa_bright":    {"kind": "solid", "color": (0.56, 0.56, 0.57), "rough": 0.25, "metal": 1.0, "wear": 0.3},
@@ -166,6 +167,20 @@ def node_tree(mat, look, img, mode):
         base = g.mix(amount, (0.14, 0.14, 0.15), oxide)
         worn = g.mix(wear, base, (0.62, 0.62, 0.63))
         r_var = g.math("MULTIPLY", g.noise(obj, 300.0, 3.0), 0.08)
+        if look.get("knurl"):
+            # A diamond knurl, 1.2 mm a line, cut at 45 degrees across the pad (its top faces up and back):
+            # two sine rows on (x + y) and (x - y) in the hammer's own space, dark and rough in the grooves.
+            sep = g.N.new("ShaderNodeSeparateXYZ")
+            g.L.new(obj, sep.inputs[0])
+            k = 2 * math.pi / 0.0012
+            rows = []
+            for op in ("ADD", "SUBTRACT"):
+                d = g.math(op, sep.outputs["X"], sep.outputs["Y"])
+                wave = g.math("ABSOLUTE", g.math("SINE", g.math("MULTIPLY", d, k), 0.0), 0.0)
+                rows.append(g.maprange(wave, 0.35, 0.10))
+            groove = g.math("MAXIMUM", rows[0], rows[1], True)
+            worn = g.mix(g.math("MULTIPLY", groove, 0.75), worn, (0.03, 0.03, 0.035))
+            r_var = g.math("ADD", r_var, g.math("MULTIPLY", groove, 0.25))
     elif kind in ("blued", "fire"):
         # Deep blue-black, its fine polish lines along the gun (the noise stretched along the bore: the
         # part's local Y is the gun's forward in Blender for every part).

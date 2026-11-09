@@ -234,6 +234,28 @@ three-quarter views are under the real look on Main Street at 16:00, with the ga
 3. **The guard read as wire:** its bow is now a flat strap, 0.32" across by 0.11" thick. The section
    is a superellipse (`sweep(..., square=6)`), blued.
 
+## Sean's fourth review (2026-11-09): the spur
+
+"The horn is still there... the 0.951 is whole-gun overlap; the hammer is a few pixels of it."
+The hammer is judged on its own now: `overlay.py --crop=0.3,-2.0,-0.9,0.75` (the hammer and the
+frame's back, design inches) gives photo | render | outline over the photo and the crop's own
+overlap. `--plain=1 --crop=` does the same for the game's render. In `results/2026-11-09_review4/`:
+- `hammer_crop_before.jpg`, `hammer_crop.jpg`, `hammer_crop_game_light.jpg`;
+- `spur_before_after.jpg` (the three-quarter view, cropped);
+- `four_views.jpg`.
+
+The outline was never the fault: the crop's overlap was 0.956 before and after. The 3D shape was.
+- **Before:** a flat plate the same thin width all the way up, its top-back point kept as a hard
+  corner. From three-quarter angles that read as a horn.
+- **Now:**
+  - **Outline:** the spur's outline is the Met gun's, its end blunt and round (no corners).
+  - **Thumb rest:** along its top, a broad crowned thumb rest swept as a rounded strap, 0.42"
+    across against the spur's 0.20". It flares out past the spur's sides and leans back toward the
+    grip.
+  - **Checkering:** the pad keeps its own material through the union (`boolean(..., transfer=True)`,
+    `saa_checker`). The bake cuts a 1.2 mm diamond knurl into it. Close up it shows; at the game
+    views' distance it's faint, dark on dark.
+
 ## Results
 
 `results/2026-11-09/` (round 1, placeholder materials, 7½", Main Street at 16:00, real look):

@@ -262,7 +262,7 @@ def realise(ob):
 WARN = []
 
 
-def boolean(ob, other, op="DIFFERENCE", keep=False):
+def boolean(ob, other, op="DIFFERENCE", keep=False, transfer=False):
     """An exact boolean, baked. If it loses the mesh (the solver gives up on a bad input, usually
     faces exactly touching) it is tried once more with the other part nudged 10 microns, self-intersection and hole-tolerant on; failing
     that the original is kept and the failure listed (printed at the end)."""
@@ -273,6 +273,8 @@ def boolean(ob, other, op="DIFFERENCE", keep=False):
         m.operation = op
         m.solver = "EXACT"
         m.object = other
+        if transfer:
+            m.material_mode = "TRANSFER"   # the other part's faces keep its material (the spur's checkered pad)
         if attempt:
             m.use_self = True
             m.use_hole_tolerant = True
@@ -378,6 +380,7 @@ def mats():
     # reflectance, so it is read through what it reflects (the game's sky); bluing a dark blue-grey
     # that still mirrors, not black paint; walnut a dielectric.
     MAT["case"] = material("saa_case", (0.40, 0.39, 0.40), 1.0, 0.22)     # colour case-hardened (frame, hammer, gate)
+    MAT["checker"] = material("saa_checker", (0.36, 0.35, 0.36), 1.0, 0.30)  # the spur's checkered thumb pad
     MAT["blued"] = material("saa_blued", (0.17, 0.19, 0.25), 1.0, 0.18)    # blued steel
     MAT["fire"] = material("saa_fire_blue", (0.10, 0.17, 0.38), 1.0, 0.14)  # fire-blued screws, pins
     MAT["bright"] = material("saa_bright", (0.56, 0.56, 0.57), 1.0, 0.25)  # bright steel (firing pin, ejector rod)
@@ -676,10 +679,20 @@ def make_hammer():
                             (-0.72, -1.78), (-0.88, -1.70), (-0.95, -1.45), (-0.92, -1.0), (-0.92, -0.55), (-0.96, -0.32),
                             (-1.10, -0.20), (-0.95, 0.16), (-0.85, 0.185), (-0.74, 0.215), (-0.62, 0.28), (-0.52, 0.35), (-0.42, 0.42)], 0.155, MAT["case"],
                  corners=(0, 1))
-    spur = prism("spur", [(-0.96, -0.32), (-1.10, -0.20), (-1.27, -0.08), (-1.40, 0.09), (-1.52, 0.26), (-1.63, 0.39),
-                          (-1.70, 0.455), (-1.65, 0.495), (-1.50, 0.485), (-1.35, 0.415), (-1.20, 0.315), (-1.05, 0.235),
-                          (-0.88, 0.20), (-0.80, 0.0)], 0.115, corners=(6,))
+    # The spur, its outline the Met gun's (crown 0.52 near f -1.5, the end at -1.66), its end round
+    # and blunt, not a point (Sean's fourth review: "a sharp point leaning up and forward").
+    spur = prism("spur", [(-0.96, -0.32), (-1.10, -0.20), (-1.25, -0.04), (-1.32, 0.09), (-1.38, 0.18), (-1.44, 0.27),
+                          (-1.52, 0.34), (-1.60, 0.40), (-1.645, 0.415), (-1.66, 0.44), (-1.655, 0.465), (-1.62, 0.49),
+                          (-1.57, 0.505), (-1.50, 0.51), (-1.40, 0.48), (-1.30, 0.42), (-1.20, 0.31), (-1.10, 0.25),
+                          (-1.00, 0.215), (-0.88, 0.20), (-0.80, 0.0)], 0.10)
     union(body, spur)
+    # The thumb rest: a broad, crowned pad along the spur's top (0.42" across against the spur's
+    # 0.20"), flaring out past its sides as on the real Colt; checkered (its own material, the bake's
+    # diamond knurl).
+    pad_path = [(-1.12, 0.235), (-1.21, 0.285), (-1.30, 0.375), (-1.39, 0.44), (-1.49, 0.47), (-1.57, 0.465),
+                (-1.625, 0.44), (-1.64, 0.415)]
+    pad = sweep("pad", [(q.x, q.y) for q in resample(pad_path, 28)], 0.21, 0.042, MAT["checker"], 28, square=3.0)
+    boolean(body, pad, "UNION", transfer=True)
     # The spur's checkering is the surface's (a normal map in the surfaces pass): cut as geometry
     # the exact solver dropped a third of the grooves.
     bevel(body, 0.025, 3, 30)

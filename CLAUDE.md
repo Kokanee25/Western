@@ -1055,7 +1055,8 @@ frozen until Sean names one.
   Painted (Sean's yes, #740; `gun_surfaces.yml`, $1.12 of $2.50); then Sean's second review in four
   steps (`results/2026-11-09_review2/`): the shield a dome, the spur alone; metal as metal; the metals'
   finishes from 3D noise in the bake (no UV stretch), walnut painted; third review: the ears flush
-  under the hammer's top, the guard a flat strap (`results/2026-11-09_review3/`). Nothing in the game changed.
+  under the hammer's top, the guard a flat strap; fourth: the spur a broad blunt thumb rest, judged by
+  `overlay.py --crop` (`results/2026-11-09_review4/`). Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

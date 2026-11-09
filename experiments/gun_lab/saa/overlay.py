@@ -64,6 +64,20 @@ def side_plain(photo_p, render_p, out, name):
     side.paste(ra, (pa.width + 12, 0))
     side.save(os.path.join(out, name + "_side.jpg"), quality=90)
     print("%s_side.jpg (the render %s)" % (os.path.join(out, name), "mirrored to face as the photo" if flip else "as rendered"))
+    if arg("crop"):
+        # The same box (design inches) from the photo and the game's render, side by side.
+        f0, f1c, u0, u1 = (float(v) for v in arg("crop").split(","))
+        ap = (complex(x2, y2) - complex(x1, y1)) / (f2 - f1)
+        bp = complex(x1, y1) - ap * f1
+        zs = [ap * complex(f, u) + bp for f in (f0, f1c) for u in (u0, u1)]
+        box = (int(min(z.real for z in zs)), int(min(z.imag for z in zs)), int(max(z.real for z in zs)), int(max(z.imag for z in zs)))
+        zoom = int(arg("zoom", "3"))
+        pa = photo.crop(box).resize(((box[2] - box[0]) * zoom, (box[3] - box[1]) * zoom), Image.LANCZOS)
+        ra = warped.crop(box).resize(pa.size, Image.LANCZOS)
+        sheet = Image.new("RGB", (pa.width * 2 + 12, pa.height), (20, 20, 20))
+        sheet.paste(pa, (0, 0))
+        sheet.paste(ra, (pa.width + 12, 0))
+        sheet.save(os.path.join(out, name + "_crop.jpg"), quality=90)
 
 
 def main():
@@ -126,6 +140,29 @@ def main():
     side.paste(a_, (0, 0))
     side.paste(b_, (a_.width + 12, 0))
     side.save(os.path.join(out, name + "_side.jpg"), quality=90)
+    # A crop in the design's inches (--crop=f0,f1,u0,u1: one part judged on its own, its pixels too few
+    # in the whole gun's overlap): the photo, the render, the outline over the photo, side by side.
+    if arg("crop"):
+        f0, f1, u0, u1 = (float(v) for v in arg("crop").split(","))
+        corners = [a * w_of(f, u) + b for f in (f0, f1) for u in (u0, u1)]
+        box = (int(min(z.real for z in corners)), int(min(z.imag for z in corners)),
+               int(max(z.real for z in corners)), int(max(z.imag for z in corners)))
+        zoom = int(arg("zoom", "3"))
+        plain_r = Image.new("RGB", photo.size, (128, 128, 128))
+        plain_r.paste(warped.convert("RGB"), mask=warped.split()[3])
+        outl = photo.copy()
+        outl.paste((255, 30, 30), mask=edge)
+        panels = [im.crop(box).resize(((box[2] - box[0]) * zoom, (box[3] - box[1]) * zoom), Image.LANCZOS)
+                  for im in (photo, plain_r, outl)]
+        cw, ch = panels[0].size
+        sheet = Image.new("RGB", (cw * 3 + 24, ch), (20, 20, 20))
+        for i, pnl in enumerate(panels):
+            sheet.paste(pnl, (i * (cw + 12), 0))
+        sheet.save(os.path.join(out, name + "_crop.jpg"), quality=90)
+        if arg("mask"):
+            ph = np.array(Image.open(arg("mask")).convert("L").crop(box)) > 127
+            rn = np.array(alpha.crop(box)) > 127
+            print("crop overlap (IoU) %.3f over %s" % ((ph & rn).sum() / max(1, (ph | rn).sum()), arg("crop")))
     # The difference, a number to drive by: the photo's gun (dark on its light ground, holes filled)
     # against the render's. Red: the photo's gun only; blue: the render's only.
     mask_p = arg("mask")
