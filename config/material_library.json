@@ -3,27 +3,27 @@
  "entries": [
   {
    "id": "rough_pine_batten", "code": "R1", "family": "wood", "class": "rough", "approved": [],
-   "name": "Rough-sawn pine, board and batten",
+   "name": "Rough-sawn pine, board and batten", "grain_contrast": 0.55, "edge_shelter": 1.0,
    "layout": "board_batten", "board_w": 0.28, "board_t": 0.022, "nails": 1, "nail_at": 0.0,
    "scans": {"a": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]}, "a2": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]},
-             "b": {"id": "rough_wood", "grain": "v"}},
+             "b": {"id": "rough_wood", "grain": "v", "metres": [0.8, 0.8]}},
    "tint_new": [1.0, 0.97, 0.9], "tint_mid": [0.8, 0.64, 0.48], "tint_old": [1.0, 1.0, 1.0],
    "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 0.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
    "normal_strength": 0.6, "value_jitter": 0.14, "hue_jitter": 0.06
   },
   {
    "id": "rough_cottonwood_boards", "code": "R2", "family": "wood", "class": "rough", "approved": [],
-   "name": "Rough-sawn cottonwood, wide boards, ends untrimmed",
+   "name": "Rough-sawn cottonwood, wide boards, ends untrimmed", "grain_contrast": 0.7, "edge_shelter": 0.5,
    "layout": "horizontal", "board_w": 0.3, "board_t": 0.025, "nails": 2, "nail_at": 0.6, "warp_scale": 1.3,
    "scans": {"a": {"id": "Wood079", "grain": "u", "metres": [1.6, 1.6]}, "a2": {"id": "Wood073", "grain": "u", "metres": [1.6, 1.6]},
-             "b": {"id": "rough_wood", "grain": "v"}},
+             "b": {"id": "rough_wood", "grain": "v", "metres": [0.8, 0.8]}},
    "tint_new": [1.25, 1.17, 1.02], "tint_mid": [1.0, 0.88, 0.72], "tint_old": [1.12, 1.1, 1.06],
    "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 0.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
    "normal_strength": 0.6, "value_jitter": 0.14, "hue_jitter": 0.06
   },
   {
    "id": "common_pine_lap", "code": "C1", "family": "wood", "class": "common", "approved": [],
-   "name": "Planed pine lap siding",
+   "name": "Planed pine lap siding", "grain_contrast": 0.75, "edge_shelter": 0.6,
    "layout": "lap", "board_w": 0.15, "board_t": 0.018, "expose": 0.115, "nails": 1, "nail_at": -0.55,
    "scans": {"a": {"id": "Wood050", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "Wood014", "grain": "u", "metres": [1.2, 1.2]},
              "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
@@ -32,7 +32,7 @@
   },
   {
    "id": "common_fir_drop", "code": "C2", "family": "wood", "class": "common", "approved": [],
-   "name": "Planed fir drop siding",
+   "name": "Planed fir drop siding", "grain_contrast": 0.8, "edge_shelter": 0.5,
    "layout": "horizontal", "board_w": 0.15, "board_t": 0.019, "nails": 2, "nail_at": 0.6,
    "scans": {"a": {"id": "Wood063", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "Wood058", "grain": "v", "metres": [1.2, 1.2]},
              "b": {"id": "Wood016", "grain": "u", "metres": [1.4, 1.4]}},

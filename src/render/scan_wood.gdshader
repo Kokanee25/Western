@@ -76,6 +76,20 @@ uniform float variety : hint_range(0.0, 1.0) = 1.0;
 uniform float warp_gain = 1.0;
 // Rough-sawn: a circular saw's arcs across the face (a 48 in blade, ~5 mm a tooth), worn down by age.
 uniform float saw_marks = 0.0;
+// The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
+// figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
+uniform float grain_contrast = 1.0;
+// Weathering's shelter (Sean, #721: bare pine in desert sun goes silver-grey in a year or two; the
+// orange survives only where sheltered): under the eaves (the top `eaves_m` of a wall `wall_top` m
+// high) and beside battens and joints (`edge_shelter`), less of it as the years go on.
+uniform float wall_top = 2.0;
+uniform float eaves_m = 0.45;
+uniform float edge_shelter = 0.8;
+// The weathered scan sampled twice, the second turned half round and moved, blended along the board
+// by noise, so no stretch of a board shows the scan's repeat (a short scan's knot came three times
+// down one board). After Heitz and Neyret's stochastic texturing (HPG 2018): two decorrelated
+// samples under a smooth blend, here without their histogram step (it's the same scan).
+uniform float b_stochastic = 1.0;
 // Planed wood takes a little sheen; rough-sawn none.
 uniform float specular_wood = 0.35;
 
@@ -200,12 +214,18 @@ void fragment() {
 	vec2 fa;
 	vec2 uva = scan_uv(m, tile_a, grain_v_a, seed, 0.0, fa);
 	vec3 col = texture(albedo_a, uva, albedo_bias).rgb;
+	if (grain_contrast < 0.999) {
+		col = mix(textureLod(albedo_a, uva, 7.0).rgb, col, grain_contrast);
+	}
 	vec3 nrm = scan_normal(normal_a, uva, fa, grain_v_a);
 	float rough = texture(rough_a, uva, detail_bias).r;
 	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
 		col = texture(albedo_a2, uv2, albedo_bias).rgb * a2_gain;
+		if (grain_contrast < 0.999) {
+			col = mix(textureLod(albedo_a2, uv2, 7.0).rgb * a2_gain, col, grain_contrast);
+		}
 		nrm = scan_normal(normal_a2, uv2, f2, grain_v_a2);
 		rough = texture(rough_a2, uv2, detail_bias).r;
 	}
@@ -240,12 +260,28 @@ void fragment() {
 	// Weathering: toward the grey scan, first where the sun and rain reach (patchy, the top and the
 	// sun faces), all of it when old.
 	if (has_b && weathering > 0.0) {
-		float up = floor_face ? 0.0 : smoothstep(0.3, 2.0, v_world.y - v_ground);
-		float wx = clamp(ag * 1.35 - 0.35 + (n1 - 0.5) * 0.7 + (n2 - 0.5) * 0.3 + up * 0.15, 0.0, 1.0) * weathering;
+		// Exposed wood is mostly grey by a few years; sheltered wood keeps its colour longer.
+		float hw = v_world.y - v_ground;
+		float eaves = floor_face ? 0.0 : smoothstep(wall_top - eaves_m, wall_top - 0.08, hw);
+		float by_edge = face < 0.5 ? smoothstep(0.55, 0.95, abs(v_across)) * edge_shelter : 0.0;
+		float shelter = clamp(max(eaves, by_edge), 0.0, 1.0) * (1.0 - 0.6 * smoothstep(0.5, 1.0, ag));
+		float exposed_age = smoothstep(0.0, 0.42, ag);
+		float wx = clamp(exposed_age * (1.0 - 0.85 * shelter) + (n1 - 0.5) * 0.35 + (n2 - 0.5) * 0.2, 0.0, 1.0) * weathering;
 		if (wx > 0.001) {
 			vec2 fb;
 			vec2 uvb = scan_uv(m, tile_b, grain_v_b, seed, 2.0, fb);
 			vec3 colb = texture(albedo_b, uvb, weathered_bias).rgb * tint_old;
+			vec3 nb2 = vec3(0.0);
+			float rb2 = 0.0;
+			float sw = 0.0;
+			if (b_stochastic > 0.0) {
+				// The second sample: turned half round and moved by the board's seed.
+				vec2 uvb2 = -uvb + vec2(hash11(seed * 71.0 + 0.3), hash11(seed * 53.0 + 0.7)) * 7.0;
+				sw = smoothstep(0.3, 0.7, texture(big_noise, vec2(v_m.x / 0.9 + seed * 3.7, v_m.y / 0.5 + seed)).r) * b_stochastic;
+				colb = mix(colb, texture(albedo_b, uvb2, weathered_bias).rgb * tint_old, sw);
+				nb2 = scan_normal(normal_b, uvb2, -fb, grain_v_b);
+				rb2 = texture(rough_b, uvb2, detail_bias).r;
+			}
 			// Long grain lines and checks (drying cracks) along the board, faded before they alias.
 			if (face < 0.5 && weathered_grain > 0.0) {
 				float fade = 1.0 - smoothstep(0.3, 1.0, fwidth(v_m.y) / 0.003);
@@ -257,6 +293,10 @@ void fragment() {
 			colb *= 1.0 + value_jitter * variety * rnd(seed, 34.0);
 			vec3 nb = scan_normal(normal_b, uvb, fb, grain_v_b);
 			float rb = texture(rough_b, uvb, detail_bias).r;
+			if (sw > 0.0) {
+				nb = normalize(mix(nb, nb2, sw));
+				rb = mix(rb, rb2, sw);
+			}
 			col = mix(col, colb, wx);
 			nrm = normalize(mix(nrm, nb, wx * 0.5));
 			rough = mix(rough, rb, wx);

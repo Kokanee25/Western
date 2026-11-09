@@ -113,6 +113,7 @@ var _review := false
 ## Frames a panel shot waits after the camera moves (--settle=N).
 var _settle := 40
 var _probe_aa := false
+var _probe_ss := false
 ## --aa=taa: the review renders through Godot's TAA instead of the real look's FSR2. Under lavapipe
 ## FSR2 at native scale anti-aliases almost nothing (the probe, #721: a 1 m board's pixel noise FSR2
 ## 11.8, no upscaler 10.5, MSAA 4x 10.4, TAA 3.1): its crawl was the "burlap". Lab only; the game's
@@ -143,6 +144,8 @@ func _run() -> void:
 			_review = true
 		elif arg == "--aa=taa":
 			_aa_taa = true
+		elif arg == "--probe-ss":
+			_probe_ss = true
 		elif arg == "--probe-aa":
 			_probe_aa = true
 		elif arg.begins_with("--settle="):
@@ -661,6 +664,14 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 			for k in spec.get("view", {}):
 				view_was[k] = viewport.get(k)
 				viewport.set(k, spec["view"][k])
+			# A probe's environment settings and SSIL quality for this panel's shots (put back after).
+			var env: Environment = load("res://src/debug/look_preset.gd").environment(self)
+			var env_was := {}
+			for k in spec.get("env", {}):
+				env_was[k] = env.get(k)
+				env.set(k, spec["env"][k])
+			if spec.get("ssil_full", false):
+				RenderingServer.environment_set_ssil_quality(RenderingServer.ENV_SSIL_QUALITY_HIGH, false, 0.5, 4, 50.0, 300.0)
 			# Each light with its views, or (--review) just the shots Sean reviews by.
 			var shots := []
 			for light in lights:
@@ -704,6 +715,10 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				print("saved %s/%s/%s_%s" % [family, name, light, v])
 			for k in view_was:
 				viewport.set(k, view_was[k])
+			for k in env_was:
+				env.set(k, env_was[k])
+			if spec.get("ssil_full", false):
+				RenderingServer.environment_set_ssil_quality(RenderingServer.ENV_SSIL_QUALITY_MEDIUM, true, 0.5, 4, 50.0, 300.0)
 		var f := FileAccess.open(dir + "/numbers.json", FileAccess.WRITE)
 		f.store_string(JSON.stringify(numbers, "  "))
 		f.close()
@@ -724,7 +739,16 @@ func _panel_specs(ml, family: String) -> Array:
 			"base": {}, "no_relief": {"normal_strength": 0.0}, "soft_relief": {"detail_bias": 2.0},
 			"no_sheen": {"roughness_add": 0.6, "specular_wood": 0.0}, "albedo_soft": {"detail_bias": 2.0, "albedo_bias": 1.0},
 		}
-		# --probe=aa: the same shot under the viewport's upscalers and antialiasing instead.
+		# --probe-ss: the same shot with the real look's screen-space effects varied (the 1 m patches).
+		if _probe_ss:
+			variants = {
+				"ss_base": {"env": {}},
+				"no_ssil": {"env": {"ssil_enabled": false}},
+				"no_ssao": {"env": {"ssao_enabled": false}},
+				"no_ssil_ssao": {"env": {"ssil_enabled": false, "ssao_enabled": false}},
+				"ssil_full": {"env": {}, "ssil_full": true},
+			}
+		# --probe-aa: the same shot under the viewport's upscalers and antialiasing instead.
 		if _probe_aa:
 			variants = {
 				"fsr2": {"view": {}},
@@ -734,8 +758,10 @@ func _panel_specs(ml, family: String) -> Array:
 			}
 		for vn in variants:
 			var d: Dictionary = variants[vn]
-			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": d if not d.has("view") else {},
-					"view": d.get("view", {}), "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+			var dials: Dictionary = {} if (d.has("view") or d.has("env")) else d
+			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": dials,
+					"view": d.get("view", {}), "env": d.get("env", {}), "ssil_full": d.get("ssil_full", false),
+					"views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
 		return out
 	if family == "long" or family == "shape":
 		# Part 1 on a long wall, part 5 on a rough wall: before (off) and after, each age.

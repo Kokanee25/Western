@@ -23,7 +23,8 @@ const SCANS_HI := "res://assets/textures/scans4k/"
 static var hi_res := false
 const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "roughness_add",
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
-		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain"]
+		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain", "albedo_bias",
+		"grain_contrast", "eaves_m", "edge_shelter", "b_stochastic"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D
