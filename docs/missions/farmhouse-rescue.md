@@ -50,6 +50,9 @@ Sean, 2026-11-09: "Sounds good but make sure our ideas are actually implementabl
 `proposals/farmhouse-rescue_v2.md` (judged 26/35, from 19), with its build check. DECIDED (Sean,
 2026-11-09) as below, in build order; the judge's three ticks were not picked (PROPOSED at the end).
 
+Note (2026-11-09, later): G6 merged the same day (PR #741, build 3574): with the valley switch on, the
+farmhouse and its mission now stand on the widow's pad. The build check read main before that merge.
+
 **Build now, on the built mission** (about 2 medium, 4 small):
 - The hostage is the widow (the lock); the Colters on the Baron's pay hold the house, the Kid on the
   porch.
