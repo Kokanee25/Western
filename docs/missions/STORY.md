@@ -98,3 +98,4 @@ evidence and the trial are "a maybe" (Sean, 2026-11-09).
 - Payday Night and the Inquest: payday's party interrupted; an inquiry, a ball that doesn't match, a grave dug up (proposed).
 - Dry Creek: a fight or an emergency over the valley's water; gates, channels, sluices (brainstorm).
 - Dig Him Up: a grave opened at night, by stealth, to find something on the body (whose grave open).
+- Nothing to Report: an Army captain's one day in town to report on revolt; the Baron's men stage one; keep the peace unseen, and Joe is their target.

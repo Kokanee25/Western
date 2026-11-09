@@ -82,7 +82,7 @@ being built, decided (not built), or new).
 
 ## The index
 
-32 cards (five added from Sean's inventory of 2026-11-09, `sources/inventory_2026-11-09.md`). "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that
+33 cards (six added from Sean's inventory of 2026-11-09, `sources/inventory_2026-11-09.md`). "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that
 can land any time), **set piece** (a town event built from systems), **repeatable** (fights or jobs
 that come back). Status is the mission as a whole; each card has the details.
 
@@ -120,6 +120,7 @@ that come back). Status is the mission as a whole; each card has the details.
 | [`payday-inquest`](payday-inquest.md) | Payday Night and the Inquest (four proposed missions) | story | PROPOSED (inventory); evidence a maybe | the saloons, the cemetery |
 | [`dry-creek`](dry-creek.md) | Dry Creek (water) | side | PROPOSED, brainstorm (inventory) | the creek, OPEN |
 | [`dig-him-up`](dig-him-up.md) | Dig Him Up | side | DECIDED: kept, a sneaking mission (Sean, 2026-11-09); whose grave OPEN | the cemetery |
+| [`nothing-to-report`](nothing-to-report.md) | Nothing to Report (the captain's day) | story | DECIDED (Sean, 2026-11-09: "I like it, add all the ticks!"); proposed by the planning session | the town |
 
 ### Folded into a card (another source for the same mission)
 
