@@ -11,7 +11,18 @@ Quiet Drink" (`docs/briefs/three-gunmen.md` §10, possibly the same). Sources: D
 - PROPOSED (ROADMAP 3.6): one of the three rough missions: "**the saloon table** (the stranger talks, a
   shooting at the bar)".
 
-## How you hear of it
+## Sean's idea, 2026-11-09 (under review)
+
+- PROPOSED (Sean, 2026-11-09): "the mission no law is at the start of the game the first night in the
+  saloon after bringing in the sheriff - it's more of a cut scene than anything - but maybe red shirt
+  can be the one that comes into the saloon and kicks out the chair and murders the card cheat"
+- OPEN: whether "No Law" is this mission's name (it reads as the saloon night).
+- OPEN: the order. DESIGN.md (2026-10-15) has the saloon table the evening *before* the sheriff;
+  Sean's idea has it the first night *after* Harlan brings the sheriff in.
+- OPEN: "more of a cut scene" vs DESIGN.md "Little acts in the world, not cutscenes" (Sean,
+  2026-10-15: acts "that hand back to the systems the moment you interfere").
+- OPEN: whether the stranger (too curious about the sheriff and the spring) stays in the scene.
+
 
 - PROPOSED: it is where the game starts; no lead needed.
 

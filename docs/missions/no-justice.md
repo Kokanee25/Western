@@ -37,6 +37,9 @@ section below too.
   words.
 - Not picked (stays as it was): cutting "the bold cowboy" from the doctor's office.
 
+- PROPOSED (Sean, 2026-11-09, under review): the man in the red shirt is first seen on the first night
+  in the saloon, where he kicks out the card cheat's chair and murders him (`saloon-table`).
+
 ## How you hear of it
 
 - DECIDED (Sean, 2026-11-09): "Harlan meets Joe at **the doctor's office in Salt Creek**. There's no
