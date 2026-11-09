@@ -133,3 +133,27 @@ PROPOSED, to be confirmed by the build check:
 - Army post surgeons often treated civilians in frontier towns.
 - Upper floors of halls giving way under a crowd were a known hazard of the period's frame buildings;
   check a documented case before relying on it.
+
+## The judge on version 2 (2026-11-09): 27/35
+
+A strict fresh judge. Choices 4 (A Crack in the Slab: clearing the floor in time is a clean best answer;
+after the crash every way is one kind of action, treating men); Systems 4 (Lady Boyle: the load paths and
+the physiology decide; the doctor's runner, the amputation ask and Rourke's offer are authored);
+Consequences 4 (A Crack in the Slab: the town visibly keeps it; Rourke's foothold is a written two-way
+branch; persistence partly there); Unique 4 (rarely done; overlaps Buried Alive and the Fire Night);
+True to 1882 4 (documented medical practice; the floor collapse has no case yet; billeting doubtful);
+Discoverable 4 (several ways; nothing reaches Harlan if he's out in the valley and the runner's dead; the
+Kid's worth not readable on the night); Cost 3. **Total 27/35.**
+
+**Beef it up:** 1. The Kid's worth readable: two of the gang slip into the dark street while everyone
+tends the wounded, to finish the man who could name their paymaster: a gunfight in the middle of the
+treating. 2. Split Rourke's offer with a paper: the surgeon but not the soldiers, if Harlan signs a
+request for Army aid; the paper exists, the captain can read it, the Baron can use it. 3. The broken
+floor as evidence: a rotten joist and one sawn half-through break differently; if someone wanted a
+disaster on payday, it links to the spine.
+
+**Cut:** the amputation (a one-off authored beat; the mission is triage, not surgery).
+
+**1882 doubts:** no quartering soldiers in houses in peacetime (the Third Amendment) and Posse Comitatus
+limits; triage by need was Larrey's, not "the Letterman system" (Letterman organised ambulances);
+Esmarch's first-aid teaching began only around 1881–82; the floor collapse needs a documented case.
