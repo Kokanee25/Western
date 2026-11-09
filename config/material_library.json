@@ -25,7 +25,7 @@
    "id": "common_pine_lap", "code": "C1", "family": "wood", "class": "common", "approved": [],
    "name": "Planed pine lap siding", "grain_contrast": 0.75, "edge_shelter": 0.6,
    "layout": "lap", "board_w": 0.15, "board_t": 0.018, "expose": 0.115, "nails": 1, "nail_at": -0.55,
-   "scans": {"a": {"id": "Wood050", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "Wood014", "grain": "u", "metres": [1.2, 1.2]},
+   "scans": {"a": {"id": "Wood050", "grain": "u", "metres": [1.2, 1.2]},
              "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
    "tint_new": [1.0, 0.97, 0.92], "tint_mid": [0.84, 0.7, 0.54], "tint_old": [1.0, 1.0, 1.0],
    "grime": 0.75, "layer_new": 0.35, "sun_fade": 0.5, "streaks": 0.5, "joint_dirt": 0.5, "normal_strength": 0.7, "value_jitter": 0.11, "hue_jitter": 0.05
@@ -35,8 +35,8 @@
    "name": "Planed fir drop siding", "grain_contrast": 0.8, "edge_shelter": 0.5,
    "layout": "horizontal", "board_w": 0.15, "board_t": 0.019, "nails": 2, "nail_at": 0.6,
    "scans": {"a": {"id": "Wood063", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "Wood058", "grain": "v", "metres": [1.2, 1.2]},
-             "b": {"id": "Wood016", "grain": "u", "metres": [1.4, 1.4]}},
-   "tint_new": [1.0, 0.96, 0.9], "tint_mid": [0.86, 0.7, 0.52], "tint_old": [1.0, 1.0, 1.0],
+             "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
+   "tint_new": [1.0, 0.96, 0.9], "tint_mid": [0.86, 0.7, 0.52], "tint_old": [0.82, 0.78, 0.74],
    "grime": 0.75, "layer_new": 0.35, "sun_fade": 0.5, "streaks": 0.5, "joint_dirt": 0.5, "normal_strength": 0.7, "value_jitter": 0.11, "hue_jitter": 0.05
   },
   {
@@ -63,7 +63,7 @@
    "id": "fine_cherry_tg", "code": "F3", "family": "wood", "class": "fine", "approved": [],
    "name": "Cherry, narrow tongue and groove, varnished",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0,
-   "scans": {"a": {"id": "Wood081", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood015", "grain": "u", "metres": [1.2, 1.2]}},
+   "scans": {"a": {"id": "Wood081", "grain": "v", "metres": [1.2, 1.2]}},
    "tint_new": [0.7, 0.61, 0.63], "tint_mid": [0.64, 0.54, 0.54], "tint_old": [1.0, 1.0, 1.0],
    "weathering": 0.0, "varnish": 0.9, "varnish_amber": [0.9, 0.8, 0.68], "specular_wood": 0.45,
    "grime": 0.25, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.55, "value_jitter": 0.07, "normal_strength": 0.8,
