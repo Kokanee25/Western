@@ -173,6 +173,17 @@ has to be earned on the card, not assumed.
    repeating the limit (design to design, not polish).
 4. Sean reads them and picks. Only his picks go on a card, as his, with the date.
 
+### The build check (Sean, 2026-11-09: "make sure our ideas are actually implementable")
+
+Every proposal also gets a **build check** before Sean is asked to adopt it: a fresh agent that reads the
+proposal and the game's code (`docs/LAYOUT.md`, `docs/PARTS.md`, `src/`, the frame budget) and, for
+each idea, gives a verdict (works today / small / medium / large / not feasible now), the code it builds
+on (file:line), its risks (frame budget, Jolt, determinism, AI), and the simplest version that keeps the
+idea's point. Ideas marked not feasible are changed or dropped before the proposal goes to Sean; the
+check goes in the proposal file under the judge's verdict. The judge scores the design; the build check
+says whether it can be made. Its instructions are kept with the session's prompts (the judge's prompt
+below plus: "check every idea against the code that exists today; cite file:line; be sceptical").
+
 ### The prompt (paste with the four files)
 
 ```text
