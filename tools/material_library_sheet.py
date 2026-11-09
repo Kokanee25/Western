@@ -5,6 +5,7 @@ the material lab's panel renders (tools/material_lab.gd --panels=FAMILY --out=DI
   python3 tools/material_library_sheet.py DIR FAMILY OUT.jpg [--cols=noon_far,noon_near,...]
       a row per panel (its swatch code, the wood, its age), the lights and views across;
       the scale (the man's height, the rail's, the wall's) in the header from DIR/FAMILY/numbers.json.
+      --entries=a,b: only those entries' rows (e.g. a review sheet of two woods).
 
 Swatch codes are the entry's `code` in config/material_library.json plus N / F / O (new, a few
 years, old): what Sean answers yes or change to on the waiting-on-Sean issue.
@@ -36,11 +37,11 @@ def codes():
     return {e["id"]: e for e in lib["entries"]}
 
 
-def sheet(src, family, out, cols=None, cell=(384, 216), title=None):
+def sheet(src, family, out, cols=None, cell=(384, 216), title=None, entries=None):
     fam = os.path.join(src, family)
     nums = json.load(open(os.path.join(fam, "numbers.json")))
     lib = codes()
-    panels = nums["panels"]
+    panels = [p for p in nums["panels"] if not entries or p["entry"] in entries]
     if cols is None:
         cols = ["noon_far", "noon_near", "golden_far", "golden_near", "saloon_far", "saloon_near",
                 "noon_rail", "saloon_rail"]
@@ -89,7 +90,8 @@ def main():
         print(__doc__)
         return 2
     cols = opts["cols"].split(",") if "cols" in opts else None
-    sheet(args[0], args[1], args[2], cols, title=opts.get("title"))
+    sheet(args[0], args[1], args[2], cols, title=opts.get("title"),
+          entries=opts["entries"].split(",") if "entries" in opts else None)
     return 0
 
 
