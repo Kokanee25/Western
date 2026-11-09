@@ -112,3 +112,40 @@ PROPOSED, each built on what exists (to be confirmed by the build check):
 - OPEN: who proposes it: Joe or the miner (#546) / Joe (#738); the place shows it either way.
 - OPEN: "impersonation, disguises" (inventory): no disguise system exists; this proposal leaves them for
   when one does.
+
+## The judge on this proposal (2026-11-09): 25/35
+
+A fresh judge, the same rubric and shelf, scored the proposal as if it were the card (the card scored 20).
+
+| Criterion | Score | Nearest reference | Why |
+|---|---|---|---|
+| Choices | 4 | the Clockwork Mansion | Ways that really differ and the bookkeeper as a big choice with cost on both sides. Not 5: three ways are timings of one log; the choice can be partly undone (the ledger again at the raid). |
+| Systems over scripts | 4 | Liberty Island | A coach on its route, a rigid log held by stakes that break, riflemen on the gunfight AI; the route, the bend and the run-day talk authored. |
+| Consequences | 3 | Leviticus Cornwall | The wreck stays, the riflemen remember, the driver's fate shows; the later half needs story state and is vague. |
+| Unique | 3 | Liberty Island | The armoured stage hold-up with a log that dents the plates; overlaps The Stage Held Up; the strongbox shared with Hell on Wheels. |
+| True to 1882 | 4 | Leviticus Cornwall | The plated treasure coach, log decks released by their stakes, a cipher ledger, the bookkeeper as the key. |
+| Discoverable | 4 | above the Showstopper | Seen on the road, Joe, the blacksmith, the driver's talk; the log deck shows the showpiece. Not 5: what it carries is learned only from talk. |
+| Cost to build | 3 | Lady Boyle | Mostly adapts what exists; new: the coach and team as a mover, dents on a vehicle, civilian follow, carrying papers, the valley's people. |
+| **Total** | **25/35** | | |
+
+**What the references do that this doesn't:** Lady Boyle's central person has a fate that shifts the
+world's state by how violent the player was; here the bookkeeper's fate feeds nothing defined. The
+inventory's social way in (impersonation, disguises) has dropped out: every way is violence or following.
+
+**Beef it up:** 1. Tie it to the spine: a daylight attack on a coach is the "town in revolt" the Baron
+wants; the riflemen who saw Harlan report it to the Baron and Rourke, so a quiet way (no witnesses, the
+driver alive) is worth more than a loud one, and taking the ledger can hand the Baron his case. 2. Give
+back the social way without disguises: the driver, a townsman who drinks in town the night before, can be
+talked, paid or frightened into slowing, stopping at the bend, or "losing" a wheel; the bookkeeper is a
+clerk afraid of the Baron who tells the truth or lies by how Harlan treated him in the wreck. 3. The
+timber choice costs in the water thread: logs used on the coach slow the Baron's flume (`dry-creek`);
+logs left let it go up.
+
+**Cut or simplify:** drop way 3 ("the log too late") as a listed way: it's the failure the physics makes
+when way 1 is mistimed.
+
+**Doubtful about 1882:** the *Monitor* was (as the judge recalls) a treasure coach of the Cheyenne and
+Black Hills Stage line between Deadwood and Cheyenne, not private; a rancher's own plated coach is an
+invention. Deeds were recorded at the county recorder, so the ledger is the stronger prize. Stake-and-chain
+log decks are documented mostly from northern river logging, and a flume is sawn planks, so decked logs for
+one imply a sawmill nearby.
