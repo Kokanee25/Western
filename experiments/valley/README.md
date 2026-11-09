@@ -169,3 +169,28 @@ Results of the G steps that build the new valley beside the old town.
     Street), `results/g5_doctors_alley.jpg` (the doctor's alley from Main Street, open to the back),
     `results/g5_hotel_walk.jpg` (west along the hotel's walk), `results/g5_junk.jpg` (the undertaker's
     alley and its junk).
+- **G6** (#731, the farmhouse on the widow's pad):
+  - **The house** (`Farmhouse`, its spec unchanged) built by ValleyWorld with the valley's plan: its
+    middle on `widow_homestead` (1712, -560), facing the lane (south), on the ground under its low
+    corner (y -8.24). **Its hills**: the place's `hills` in valley.json, town.json's five bumps about
+    the old house (the knoll, the west rise and the draw, the east hill, the ridge behind), baked over
+    the levelled pad: within 15 m of the house the ground relative to it is the old town's to 0.2 m
+    (`test_valley_farmhouse`); farther out the valley's own fall to the creek shows (the ridge behind
+    stands ~7 m over the floor, ~11-13 in town). Re-baked; the plain run 22/22.
+  - **The way there**: the East Road and the widow's lane as places (`ValleyMarkers.WAY_ROADS`, a
+    place every bend and as the 12 m / 0.3 m rise rule allows), the farm's places joined to the lane's
+    end. `walk farm_porch` from the crossroads (headless): **arrived**, 275 legs, 939 game s, on the
+    porch at (1713.7, -7.7, -555.8).
+  - **The mission** (no TownLife): on as you come within 300 m (`FarmhouseMission.VALLEY_REACH`), or
+    `farm_start`, `--mission=farmhouse`, Enter after a loss (you at `farm_start`, the old town's start
+    carried); the gang made as the riders; the men route by the farm's own places.
+  - **The farm bot** (`experiments/farmhouse/results/2026-11-09_valley/`): 8 seeds a way, town and
+    valley: won 1/24 and 1/24, the rancher alive 19/24 and 19/24, the alarm at the same second each
+    way, no rover found the quiet ways (0/16 each), the surprise 8/8 each. Found on the way: rubble
+    below Y -5 was removed as fallen through the ground (`Structure.lost_below` now relative to where a
+    structure stands below 0).
+  - **The frame** (`valley_bench.gd --spots=farm_lane,farm_start`, lavapipe, noon, the mission on),
+    render CPU at Sean's: from the try's start (78 m) 0.42 bare pad -> 0.66 the house -> 1.18 with
+    the men; at the lane's foot (13 m) 0.44 -> 0.64 -> 4.65 over 60 frames, **3.82 over 240** (a
+    warm-up in the first); the old town's same view 4.63 (60 frames). The men close up are the cost,
+    in both worlds; the house alone 0.2 ms.

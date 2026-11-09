@@ -28,6 +28,8 @@ static var railway_default := not "--no-railway" in OS.get_cmdline_user_args()
 static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
 ## The farmhouse and its mission on the widow's pad (G6); `-- --no-farmhouse`: without (the bench's before).
 static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
+## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
+static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 
 
 func _ready() -> void:
@@ -76,9 +78,10 @@ func _make_farmhouse() -> void:
 	fittings.only = farmhouse
 	fittings.ground_relative = true
 	add_child(fittings)
-	mission = FarmhouseMission.new()
-	mission.name = "FarmhouseMission"
-	add_child(mission)
+	if farm_mission_default:
+		mission = FarmhouseMission.new()
+		mission.name = "FarmhouseMission"
+		add_child(mission)
 
 
 ## The ground, from the bake (ValleyTerrain, config/valley_ground/): a Ground over it, so a crater,

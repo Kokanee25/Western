@@ -1,0 +1,260 @@
+{
+ "alarm": 12.9,
+ "blocking": [
+  "0.3:House/floor_ground_joist_040",
+  "0.3:House/floor_ground_joist_042",
+  "0.3:House/floor_ground_joist_039",
+  "0.3:House/floor_ground_joist_041",
+  "0.3:House/floor_ground_board_016_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_017_1",
+  "0.3:House/floor_ground_board_020_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_021_1",
+  "0.3:House/floor_ground_board_022_1",
+  "0.3:House/floor_ground_joist_043",
+  "1.0:Brody/Blocker",
+  "1.0:Valley/Player",
+  "1.0:chest/Part",
+  "1.0:chest/Part",
+  "1.0:chest/Part",
+  "1.0:upper_arm_l/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:forearm_l/Part",
+  "1.0:pelvis/Part",
+  "1.0:thigh_l/Part",
+  "1.6:Brody/Blocker",
+  "1.6:Valley/Player",
+  "1.6:neck/Part",
+  "1.6:head/Part",
+  "1.6:chest/Part",
+  "1.6:chest/Part",
+  "1.6:upper_arm_l/Part"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "rescue": 37.3
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "bot_target": "Pike",
+ "breach": -1.0,
+ "end": 38.75,
+ "executed": 38.53,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1551,
+  "max_ms": 182.77,
+  "mean_ms": 10.44,
+  "p95_ms": 20.19
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   7.26,
+   1.85,
+   2.46
+  ],
+  "limp": true,
+  "pelvis": [
+   7.31,
+   1.15,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.35,
+  1.52,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARNING",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "come at you: you're reloading",
+   "id": "lyle",
+   "inside": true,
+   "knows": 2.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to loft stair: loft stair (you're front room)",
+   "id": "dutch",
+   "inside": false,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "run for cover: in the open, 1 m",
+   "id": "kid",
+   "inside": true,
+   "knows": 2.3,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 2 m",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "run for cover: in the open, 7 m",
+   "id": "wes",
+   "inside": false,
+   "knows": 22.6,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "player_local": [
+  6.45,
+  0.56,
+  3.03
+ ],
+ "quits": [],
+ "rover_found": "Pike saw you at 12.7 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 5,
+ "shots_men": 29,
+ "shots_out": 27,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 38.75,
+ "threat": 33.52,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.65,
+   "Pike saw you at 12.7 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.65,
+   "Pike warns you off"
+  ],
+  [
+   12.9,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.9,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.9,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   13.87,
+   "Wes down"
+  ],
+  [
+   33.52,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   33.52,
+   "the guard's last word"
+  ],
+  [
+   38.53,
+   "the guard shoots the rancher"
+  ],
+  [
+   38.75,
+   "lost: you_down"
+  ],
+  [
+   38.75,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   38.75,
+   "the rancher dead (brain)"
+  ]
+ ],
+ "way": "front",
+ "where": "bedroom"
+}
