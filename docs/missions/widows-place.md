@@ -49,11 +49,12 @@ rifle, and the stakes), the question about the end, and what happens while he's 
 Quiet: no fight. DECIDED (Sean, 2026-11-09: "Yes I like all the ideas about what happens when you're
 there"), all of these:
 
-- Ride the sheriff's horse out (about 2 km by the East Road), hand him over, and go back. OPEN: how he gets
-  back (on foot, his own horse led out beside, or she lends the mule).
+- Ride the sheriff's horse out (about 2 km by the East Road), hand him over, and go back. PROPOSED (Sean,
+  2026-11-09, a "maybe"): **she gives him the horse as well as the rifle**, so he rides the sheriff's horse
+  back, and it's his from then on (a horse he didn't buy, that people in town know as the sheriff's).
 - Stay: coffee in her kitchen (he sees the back door), a chore she's behind on since the funeral (split
   the wood, mend the gate, water the stock: `CivilianBrain.chores`), the boys and Blue around him.
-- Walk the property with her: the yard, the outbuildings, the ditch and the stakes (if B). This is where
+- Walk the property with her: the yard, the outbuildings, the ditch and the stakes. This is where
   he learns the ways in that the farmhouse rescue uses (the lock).
 - Be short with her and go. That's a way too, and it's remembered.
 
@@ -63,13 +64,13 @@ there"), all of these:
   or "Did he suffer?", and Harlan answers with the nod or the shake. Her lines already follow
   `sheriff.care` (lock). If he left him and lies, the truth can reach her later through the witnesses
   and the rumour system; the kind lie costs more when it's found out.
-- PROPOSED: take the rifle or leave it with her. OPEN: whether she still gives it if he left the sheriff
-  to die and she knows it (the rope needs the Winchester: if not from her, from where).
+- PROPOSED: take the rifle (and the horse, if she gives it) or leave them with her. OPEN: whether she
+  still gives them if he left the sheriff to die and she knows it (the rope needs the Winchester: if not
+  from her, from where).
 
 ## What happens after, in the world
 
-PROPOSED (this session, all; Sean's "all the ideas about what happens when you're there" may cover these:
-to confirm):
+DECIDED (Sean, 2026-11-09: "Yes the after effects too"), all of these:
 
 - **Blue knows him.** Met and made friends with, Blue doesn't bark at Harlan at the farmhouse rescue;
   he barks at the gang and gives *them* away (#728: "he gives the gang's position away, or the

@@ -58,8 +58,9 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `red_shirt.fate` | released / killed by Joe / murdered by Harlan / killed outside | `no-justice` | `joe-on-the-rope`, the town | Released: he walks Main Street, and Joe kills him there (the rope's cause, DECIDED). Killed by Joe: the kin come (DECIDED). Murdered by Harlan: witnesses, rumour (DECIDED); the rope's cause **OPEN** |
 | `joe.disguise_held` | yes / no | `no-justice` (witnesses, DECIDED pick) | `joe-on-the-rope` | Held: the kin come for Joe. Broken: they go to the Ute camp (DECIDED) |
 | `camp.trust` | trusts Harlan / cooled | `no-justice` | the camp, Joe | Revenge: trusts; arrest: cools (DECIDED) |
-| `widow.visited` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (PROPOSED) |
-| `blue.knows_harlan`, `boys.know_harlan` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Blue barks at the gang, not him; the boys follow a voice they know in Phase B (PROPOSED) |
+| `widow.visited` | yes / no | `widows-place` (DECIDED, Sean 2026-11-09) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (DECIDED) |
+| `blue.knows_harlan`, `boys.know_harlan` | yes / no | `widows-place` (DECIDED, Sean 2026-11-09) | `farmhouse-rescue` | Blue barks at the gang, not him; the boys follow a voice they know in Phase B (DECIDED) |
+| `harlan.has_sheriffs_horse` | yes / no | `widows-place` (PROPOSED, Sean's "maybe") | every ride after; the town | She gives him the horse with the rifle; people know it as the sheriff's |
 | `widow.told_end` | the truth / a kind lie / not asked | `widows-place` (DECIDED, Sean 2026-11-09; the nod) | the widow's lines; the rumour | A lie about `sheriff.care = left him` found out later costs her trust (PROPOSED) |
 | `joe.alive` | yes / no | `joe-on-the-rope` (DECIDED: "If Harlan can't save Joe on the rope, Joe dies") | every later mission with Joe | See "Without Joe" below |
 

@@ -97,9 +97,9 @@ lock's order), and the Winchester in hand before the rope (she gives Harlan the 
   needs it); the boys and Blue are characters' and prop-lab work, asked early (#728). Meeting them here,
   where nothing's at stake, is the cheap place to tune them before the farmhouse puts them in a fight.
 - **Facts set:** `widow.visited`, `blue.knows_harlan`, `boys.know_harlan`, `widow.told_end`,
-  `harlan.has_winchester`.
+  `harlan.has_winchester`, `harlan.has_sheriffs_horse` (if she gives it).
 - **Calls first:** answered (Sean, 2026-11-09: the horse, the stakes and the rifle; the question; the visit).
-  Left: how he gets back; the rifle if he left the sheriff.
+  Sean's maybe: she gives him the horse too (he rides it back). Left: the rifle and horse if he left the sheriff.
 
 ### Step 3: `joe-on-the-rope`
 
