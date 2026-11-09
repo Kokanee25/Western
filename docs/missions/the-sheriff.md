@@ -82,6 +82,10 @@ _PROPOSED: this session's reading of what the ways above need. Each line ends wi
 
 ## Where the sources disagree
 
+- DECIDED (Sean, 2026-11-09, picked for `no-law`): his last words on day 2 depend on how Harlan treated
+  him on day 1: well cared for, he's clear (his family, the town, maybe who shot him and why); badly
+  cared for, confused and fading, a name or half a sentence. He deputizes Harlan either way.
+
 - DECIDED (Sean, 2026-11-09): "Yes you are deputized": on day 2 the dying sheriff swears Harlan in as
   his deputy and gives him his revolver; a shake of the head gets "that's not the way this works" and
   the revolver all the same (`no-law`).

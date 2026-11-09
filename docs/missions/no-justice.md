@@ -40,6 +40,8 @@ section below too.
 - DECIDED (Sean, 2026-11-09, `no-law`): the man in the red shirt is first seen on the first night in the
   saloon, where he kicks out the card cheat's chair and murders him (`no-law`). Harlan isn't the law
   yet that night; the sheriff deputizes him on day 2 ("Yes you are deputized", Sean 2026-11-09).
+- DECIDED (Sean, 2026-11-09, picked for `no-law`): a player who follows the red shirt out of the saloon
+  sees him ride toward the foothills, so he already knows the way when the survivors tell it.
 - DECIDED (Sean, 2026-11-09): "Yeah joes wife is killed after the murder of the cheat": the raid on
   Joe's camp is night one, after the red shirt kills the card cheat in the saloon.
 - OPEN, flagged (Sean, 2026-11-09: "Hmmm yeah I dunno about Joe yet that's gotta be flagged"): when and

@@ -23,6 +23,26 @@ and his chat answers the same day; DESIGN.md §5; `docs/briefs/showcase-moments.
   showcase." "The sheriff's death should be quiet and personal." "The mission can finish without a
   formal completion screen, as normal town life resumes."
 
+## Sean's picks from this session's recommendations (2026-11-09)
+
+Sean, 2026-11-09: "1, 3 and 4 yes, put them on the card". His, from now on; each is placed below too.
+(Not picked: idea 2, the town's gun law that nobody enforces.)
+
+- DECIDED (Sean's pick, 2026-11-09): **the sheriff's last words depend on how Harlan treated him on day
+  1.** How well Harlan dresses the wound on the road and how fast he gets him to the doctor decide how
+  much blood the sheriff has left on day 2. Well cared for: he's clear, says what he wants for his
+  family and the town, and maybe something about who shot him and why. Badly cared for: confused and
+  fading, a name or half a sentence. Either way he deputizes Harlan, and the shake still gets "that's
+  not the way this works". (DESIGN.md signature 1, "the body changes how people talk"; it doesn't hang
+  on the trial.)
+- DECIDED (Sean's pick, 2026-11-09): **the barman's first words are about his chair.** A man dead on the
+  floor, and the barman: "Jesus, Cody, my chair!" (Sean's punchline from the card cheat moment, and
+  his rule: "owners care about their own things first"). The broken chair stays as part of the
+  evidence the saloon keeps.
+- DECIDED (Sean's pick, 2026-11-09): **following him shows which way he rode.** Harlan can't catch him,
+  but a player who runs out after him sees the direction he rides, toward the foothills. In No Justice,
+  when the survivors say which way the raiders fled, that player already knows.
+
 ## Sean's answers after the judge (2026-11-09)
 
 All DECIDED (Sean, 2026-11-09), in his words; each settles a line marked OPEN or PROPOSED below.
@@ -153,6 +173,11 @@ _PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines 
   ("The red-shirted man's role in the sheriff's shooting is not established").
 
 ## Which systems it needs
+
+DECIDED (Sean's picks, 2026-11-09): the sheriff's physiology carried overnight from day 1's care to
+day 2, his words chosen by his blood loss (physiology exists; words by body state partly); the
+barman reacting to his own broken property (new, a rule shared by every owner); the red shirt's ride
+out of town visible to a player who follows (horses partly).
 
 _PROPOSED: this session's reading of what the ways above need. Each line ends with its state on main, 2026-11-09: exists, partly, being built, decided (not built) or new._
 
