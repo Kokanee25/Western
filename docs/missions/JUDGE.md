@@ -105,6 +105,29 @@ own shared systems (how much was bespoke for this one mission); it's the least c
 | 4 | Mostly existing systems, one or two shared new ones. |
 | 5 | Almost everything exists; the mission is placement and data. |
 
+### 8. The set piece (only when a mission has one; Sean, 2026-11-09)
+
+Sean: "What about set pieces? ... can we include a set piece portion of the judge? But only include it
+when a mission has a set piece? Examples of the train bridge blowing up and the horse carriage being hit?"
+
+A **set piece** is the mission's big physical moment: the trestle going down under the train, the log
+hitting the iron coach, the floor giving way, the fight along a moving train. Scored 1–5 **only if the
+mission has one**, and reported **beside** the total out of 35, not added to it, so missions with and
+without one stay comparable.
+
+| | |
+|---|---|
+| 1 | A cutscene or canned animation: it plays the same whatever the player did. |
+| 2 | Scripted spectacle the player triggers; the outcome is fixed. |
+| 3 | Systems carry parts of it, but it plays out much the same each time, or it's pass or fail. |
+| 4 | The systems make the spectacle and the player's setup or timing shapes it; readable before and after. |
+| 5 | Everything at 4, and: a poor job gives a partial, believable result (not pass/fail); it reads from the place before it happens; it leaves a mark the world keeps; and it can run inside the frame budget. |
+
+Judge five things, one line each: **systemic** (made by the simulation, not canned), **player-authored**
+(the player causes or shapes it: placement, timing, skill), **readable** (seen coming, understood after),
+**varies** (different each time; can partly succeed or fail), **leaves a mark** (rubble, a wreck, the
+dead stay). Note the build risk (frame budget, physics) in a sixth line, unscored.
+
 ## Calibration (the reference shelf scored)
 
 Scored before any of ours, by a fresh agent that saw only the rubric and `references.md` (2026-11-09).
