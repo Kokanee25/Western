@@ -144,3 +144,23 @@ Carried by the systems (persistence, opinions, memory, wounds):
 - A dancing crowd loads a floor more than standing men (check the factor); a joist sawn half through loses
   most of its strength.
 
+
+## The judge on version 5 (2026-11-09): 28/35
+
+Choices 4 (arresting the two men early on the sawdust is close to a clean best answer); **Systems 5** (the
+Showstopper: people, props and a reason placed, the systems decide the rest; Rourke's offer a rule; the
+night runs without Harlan); Consequences 4 (the letter matters only as a flag another mission reads; "people
+bring him their wounds" has no system behind it); Unique 4 (overlaps the Balcony Ambush, brushes the
+Fever House); True to 1882 4 (Rourke's reason doubtful); Discoverable 4 (the signs are subtle in a loud
+dance; the witnesses speak only when asked); Cost 3. **28/35.** (Version 4's judge gave 29 with different
+5s: judges vary by about a point.)
+
+**Beef it up:** 1. Prevention costs: arresting men for sawdust, before they've done anything chargeable,
+costs the deputy his standing with the payday crowd; their friends push back; if the case won't hold
+they walk free next morning. 2. The letter shows the same night: men saved by Rourke's surgeon owe the
+Army, not Harlan (opinions credit whoever treated them), and some speak for the soldiers to the captain
+next day. 3. The place pushes the sign: as the load climbs, plaster dust sifts from the ceiling onto the
+bar and into the drinks, where the Kid sits. **Cut:** the company surgeon (his dilemma repeats Rourke's).
+**1882:** an Army department wouldn't send an officer and a post surgeon about a private railroad's
+payroll (the marshal's, the express company's or the railroad's own detectives' job); post surgeons were
+tied to their posts.
