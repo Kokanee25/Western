@@ -18,7 +18,16 @@ judge (`judged/2026-11-09_story.md`); `payday-inquest` (where it began).
 ## The situation
 
 - DECIDED (Sean): a grave dug up, by stealth, to find something on the body.
-- OPEN: **whose grave** and **what's found on him**. Candidates in the cards (none chosen): the sheriff
+- DECIDED (Sean, 2026-11-09): "Yeah soemthing with the sheriff but it needs to be hidden where no one
+  would have looked first? His boot?" The grave is **the sheriff's**; what's found is hidden where no one
+  would have looked first. PROPOSED (Sean's question): **in his boot**.
+- PROPOSED (this session, not picked): why it's there: the sheriff hid it when he knew he was in danger,
+  so the red shirt, searching his coat and pockets on the road, missed it; the doctor and the undertaker
+  buried him in his boots ("died with his boots on"). What it is stays OPEN (e.g. the Baron's written
+  offer for his water right, with the sheriff's note of who brought it).
+- PROPOSED (this session, not picked): the lead comes from his last words on day 2 (Sean's pick: they
+  depend on day 1's care): well cared for, he can say it plainly; badly cared for, only "...boot".
+- OPEN (replaced by the above for the sheriff): **what's found on him**. Candidates in the cards (none chosen): the sheriff
   (`the-sheriff`; buried at his funeral in `no-law`), the card cheat (`no-law`: "a recorded death,
   burial"), the red shirt if he died (`no-justice`), a man killed in the Baron's service.
 - OPEN: why it has to be secret: who guards the grave, or who mustn't know (the widow, the preacher,
