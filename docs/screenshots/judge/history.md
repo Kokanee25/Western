@@ -406,3 +406,9 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-08_cheap_matlib_fine | saloon_far | **cheap indie** | 2, 3, 4 | Reads as one sheet of red veneer | 74% / 0.0 / 1.08 / 0.23 | #701 material library sample panels (fine) |
 | 2026-11-08_cheap_matlib_fine | noon_near | **cheap indie** | 3, 6 | Identical sheen stripes on every board | 81% / 0.1 / 1.41 / 0.24 | #701 material library sample panels (fine) |
 | 2026-11-08_cheap_matlib_fine | noon_far | **cheap indie** | 2, 3, 4, 6 | Pale dashes scattered over the panel | 2% / 6.1 / 0.99 / 0.23 | #701 material library sample panels (fine) |
+| 2026-11-09_cheap_matlib_rough_r3 | noon_far | **cheap indie** | 2, 3, 4, 6 | The left wood looks like a printed veneer | 2% / 7.4 / 0.94 / 0.18 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_rough_r3 | golden_near | **cheap indie** | 3, 4, 6, 8 | Wood that reads as burlap | 3% / 4.3 / 0.99 / 0.19 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_rough_r3 | saloon_far | **cheap indie** | 2, 3, 6 | Glossy new-flooring look | 63% / 0.0 / 1.07 / 0.31 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_rough_r3 | golden_far | **cheap indie** | 2, 3, 4, 6 | The centre wall reads as cardboard | 2% / 4.4 / 1.18 / 0.19 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_rough_r3 | noon_near | **cheap indie** | 3, 6, 8 | Felt, not wood | 13% / 0.3 / 1.35 / 0.45 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_rough_r3 | saloon_far | **cheap indie** | 2, 3, 4, 6 | Same streaks on every board | 69% / 0.0 / 1.34 / 0.31 | #718 round 2 (Sean's five faults fixed), rough |
