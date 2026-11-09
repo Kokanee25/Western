@@ -432,3 +432,7 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-09_cheap_matlib_common_r3 | golden_far | **cheap indie** | 2, 3, 4, 5, 6 | Clean, uniform orange wood | 2% / 5.4 / 1.46 / 0.17 | #718 round 2, common with C2's grain fixed |
 | 2026-11-09_cheap_matlib_common_r3 | noon_near | **cheap indie** | 4, 6 | Grain that reads as digital noise | 23% / 0.1 / 0.94 / 0.09 | #718 round 2, common with C2's grain fixed |
 | 2026-11-09_cheap_matlib_common_r3 | saloon_far | **cheap indie** | 2, 3, 4, 6 | Red-orange wood with banded static | 69% / 0.0 / 1.30 / 0.29 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_r3_metahuman | golden_far | **cheap indie** | 2, 3, 4, 5, 6 | New lumberyard pine with drawn-on grain | 2% / 7.1 / 1.82 / 0.32 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
+| 2026-11-09_cheap_matlib_r3_metahuman | golden_far | **cheap indie** | 2, 3, 4, 5, 6 | Oiled, uniform boards | 3% / 5.7 / 1.58 / 0.31 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
+| 2026-11-09_cheap_matlib_r3_metahuman | golden_far | **good indie** | 2, 4, 5, 6 | The knot that repeats | 3% / 5.0 / 1.44 / 0.25 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
+| 2026-11-09_cheap_matlib_r3_metahuman | noon_near | **cheap indie** | 1, 6 | The screen-door squares | 6% / 1.1 / 1.07 / 0.13 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
