@@ -128,6 +128,14 @@ Judge five things, one line each: **systemic** (made by the simulation, not cann
 **varies** (different each time; can partly succeed or fail), **leaves a mark** (rubble, a wreck, the
 dead stay). Note the build risk (frame budget, physics) in a sixth line, unscored.
 
+**The set piece's calibration** (2026-11-09, a fresh agent, §8 and the shelf only): the Showstopper's
+lighting rig **3** (the AI brings her under it, but the drop is a canned hook, pass or fail); Leviticus
+Cornwall's train boarding **2** (scripted; outcome fixed); A Crack in the Slab's changing present **2**
+(authored states, but a strong mark); the Clockwork Mansion's turning rooms **2** (deterministic, no
+mark). The Bloody Baron, Lady Boyle, Liberty Island, Peacemakers: no set piece. **The AAA shelf's set
+pieces are authored spectacle; a 4 or 5 here means systemic, player-shaped and partial, which the shelf
+doesn't attempt** (and a paper score can't show polish).
+
 ## Calibration (the reference shelf scored)
 
 Scored before any of ours, by a fresh agent that saw only the rubric and `references.md` (2026-11-09).
