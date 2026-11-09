@@ -4,7 +4,14 @@ Sean, 2026-11-09: "So once the map's complete should we start building the missi
 starting from the beginning?" Answer, and his "yes write the build order" the same day: **yes, in story
 order**, with the riskiest set pieces proved in labs ahead of their turn, and one foundation step first.
 
-**Status:** PROPOSED as a whole (this session's plan). The roadmap (`docs/ROADMAP.md`) is Sean's: only he
+**Sean, 2026-11-09, on the three calls:** "Yeah let's just start our missions - we'll experiment as we go
+until we have a system in place" · "Yeah we can have missions going at the same time as the art work is
+being done? If that works?" · "The opening is built in our new map and town just so we don't need to
+duplicate work". So, DECIDED: **the missions start now, in story order, beside the art work** (the
+gameplay lane builds them; art keeps its own lane and files), **in the valley**, and the foundations below
+**grow out of the missions** as each one needs them, rather than being built first.
+
+**Status:** PROPOSED as a whole (this session's plan), but for the decisions above. The roadmap (`docs/ROADMAP.md`) is Sean's: only he
 adds, removes or reorders its steps, so where this plan touches it, the change is listed under "Calls for
 Sean" and nothing moves until he picks. The map needn't be finished first: Act I is settled enough to
 start; the planning lane keeps the later cards and `DECISIONS.md` ahead of the builders.
@@ -29,7 +36,9 @@ The same seven steps for every mission, one issue each, handed over as now:
 ## Step 0: the foundations
 
 Every mission needs these, and the build checks found them missing (`MAP.md`, "What the build checks
-found missing everywhere"). Built first, in this order, each as a gameplay step with its own issue:
+found missing everywhere"). **Not built first** (Sean, 2026-11-09: "experiment as we go until we have a
+system in place"): each is started, as small as it can be, by the first mission that needs it, and grown
+by the next ones. When two missions have used one, it's tidied into a system:
 
 | # | Foundation | Why first | State on main | Roadmap |
 |---|---|---|---|---|
@@ -40,9 +49,10 @@ found missing everywhere"). Built first, in this order, each as a gameplay step 
 | 0.5 | **Carrying things and doors** (pick up, carry, drop; doors that open and shut) | The badge, the revolver handed over, the boot's find, papers, barricades | new | 4.7 |
 | 0.6 | **Long memory** (gratitude and grudges that last days, not an hour) | The widow, Joe, the camp, "owes Harlan" | new (`Relations` fades in about an hour) | 5.3 |
 
-0.1 and 0.4 are small and can start now; 0.2 is the big one and starts beside them. 0.3 is the valley's
-own work: if it isn't ready, the opening is built in the town world (`--world=town`, people and saloon
-exist) and moved when the valley has people (OPEN, Sean's call, below).
+The sheriff on the road starts 0.1 (his scene as data) and 0.2 (one fact, `sheriff.care`, kept for day 2;
+saving to disk can wait). No Law needs 0.3 (the saloon and its people in the valley's town) and 0.4.
+DECIDED (Sean, 2026-11-09): the opening is built in the valley, not the old town ("so we don't need to
+duplicate work").
 
 ## The order
 
@@ -50,6 +60,8 @@ Each step names only what's **new** for it (what earlier steps built is reused),
 and the calls to settle before it starts. "Facts" are `DECISIONS.md`'s.
 
 ### Step 1: the opening (the demo's prologue and day 1; roadmap 5.6, Gate D)
+
+First issue: **#746** (the sheriff on the road, rough, in the valley; the first cut of acts and story state).
 
 `the-sheriff` → `no-law` (night 1) → day 2, deputized → the funeral.
 
@@ -162,7 +174,10 @@ A lab takes longest to get right, so each starts about one step before its missi
 | The Sap (a masonry wall on props) | `barons-house` | after masonry S3 | after #663 |
 | The coach and the log | `barons-shipment` | during Step 5 | to open |
 
-## Calls for Sean
+## Sean's calls (answered 2026-11-09)
+
+The three calls as they were put, each answered at the top of this page: missions now, beside the art,
+in the valley, experimenting as we go.
 
 1. **The roadmap:** Phase 3's 3.6 builds three rough missions (the saloon table, the store robbery, a
    bounty) for Gate C. Proposed: 3.6 becomes **the opening in story order** (Step 1: the saloon table is
