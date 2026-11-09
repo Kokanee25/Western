@@ -160,7 +160,10 @@ vec2 scan_uv(vec2 m, vec2 tile, bool grain_v, float seed, float k, out vec2 flip
 
 // Fine relief and roughness sampled a little softer: at a metre, full-detail scan normals came out as
 // single-pixel speckle (the cheap judge, 2026-11-08); a whole mip blurred the grain (Sean, #721), so 0.4.
-uniform float detail_bias = 0.4;
+uniform float detail_bias = 1.2;
+// The fresh scans' colour sampled softer by this many mips (0: sharp). The probe (#721, round 3):
+// pixel noise at 1 m 10.6 with both sharp, 6.8 with relief 2.0 and colour 1.0; 1.2 / 0.6 between.
+uniform float albedo_bias = 0.6;
 // The weathered scan's colour: was a mip softer against round 2's burlap (the judge, 2026-11-08), which
 // blurred it (Sean, #721); round 3 replaced the scans instead, so sharp again. Long silvered grain and
 // checks along the board on top.
@@ -196,13 +199,13 @@ void fragment() {
 	}
 	vec2 fa;
 	vec2 uva = scan_uv(m, tile_a, grain_v_a, seed, 0.0, fa);
-	vec3 col = texture(albedo_a, uva).rgb;
+	vec3 col = texture(albedo_a, uva, albedo_bias).rgb;
 	vec3 nrm = scan_normal(normal_a, uva, fa, grain_v_a);
 	float rough = texture(rough_a, uva, detail_bias).r;
 	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
-		col = texture(albedo_a2, uv2).rgb * a2_gain;
+		col = texture(albedo_a2, uv2, albedo_bias).rgb * a2_gain;
 		nrm = scan_normal(normal_a2, uv2, f2, grain_v_a2);
 		rough = texture(rough_a2, uv2, detail_bias).r;
 	}

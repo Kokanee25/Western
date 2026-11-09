@@ -607,6 +607,8 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 					mat.set_shader_parameter("variety", spec["variety"])
 				if spec.has("warp_gain"):
 					mat.set_shader_parameter("warp_gain", spec["warp_gain"])
+				for d in spec.get("dials", {}):
+					mat.set_shader_parameter(d, spec["dials"][d])
 			p.visible = false
 			built.append([spec, p, x])
 			x += PANEL_STEP + (float(spec["long"]) - 2.0 if spec.has("long") else 0.0)
@@ -693,6 +695,19 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 ## What a family puts on panels: [{entry, age, name, ...}].
 func _panel_specs(ml, family: String) -> Array:
 	var out := []
+	if family == "probe":
+		# One panel, the same shot, dials varied: what makes the 1 m picture noisy (#721).
+		var pid: String = _panel_entries[0] if not _panel_entries.is_empty() else "rough_pine_batten"
+		var pe: Dictionary = ml.entry(pid)
+		var age: String = _panel_ages[0] if _panel_ages.size() < 3 else "few"
+		var variants := {
+			"base": {}, "no_relief": {"normal_strength": 0.0}, "soft_relief": {"detail_bias": 2.0},
+			"no_sheen": {"roughness_add": 0.6, "specular_wood": 0.0}, "albedo_soft": {"detail_bias": 2.0, "albedo_bias": 1.0},
+		}
+		for vn in variants:
+			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": variants[vn],
+					"views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+		return out
 	if family == "long" or family == "shape":
 		# Part 1 on a long wall, part 5 on a rough wall: before (off) and after, each age.
 		var id: String = "common_pine_lap" if family == "long" else "rough_pine_batten"
