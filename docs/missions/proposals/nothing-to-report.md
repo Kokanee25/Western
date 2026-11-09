@@ -142,3 +142,35 @@ the removal" frames Joe's people slightly wrongly. A governor wouldn't have a fe
 call out the state militia first; federal troops came on a request to the President through the War
 Department, and an officer would be sent by his department commander. Lincoln County (a territory, troops
 already at Fort Stanton) is a poor precedent.
+
+## The build check (2026-11-09)
+
+A fresh agent read the code (nothing run). **The core claim holds:** an observer's log of what he
+perceives is small work on the deeds and Senses that exist.
+
+- **Small:** the captain on an agenda (a new `ObserverBrain`, since townsfolk cower at a shot within 25
+  m, `civilian_brain.gd:445`); his log (listen to `Events.deed` and keep what he sees, as
+  `CivilianBrain._on_deed` does, plus `Senses.heard` for shots out of sight; deeds already sent between
+  NPCs: shove, draw, aim_at, call_out, back_down, shoot_at, hit, kill); "who started it" (each entry has
+  its actor); a provocateur's shot in the air; trouble timed near him. **Works today:** sight by the
+  light, sound halved by a wall; arresting a man with "Drop it!" in the dark (he gives up within 12 m and
+  follows; no jail yet).
+- **Medium:** a townsman pushed until he draws (townsfolk are unarmed; fights between two non-players
+  are untested); overhearing the plan (the old saloon has no back room, there are no voice recordings,
+  and today's subtitles reach 45 m through walls); steering the captain (no way to talk to him: he could
+  follow the deputy, a shot overriding it).
+- **Large or not now:** saloon brawls (no fist fights: use shoves and drawn guns); drink (not a body
+  state at all; Senses has nothing to impair); "the town talks" (no rumours); Joe as a companion and
+  asking him to ride out (no companion, no way to ask); the report reaching the finale and Joe's and the
+  town's memory (story state and saves); the captain off the train (the valley has the depot but no
+  people yet).
+- **Prototype in the old town:** yes, with gaps: the townsfolk, the gang's agendas, the saloon, the store,
+  lamps and the jail's front are there; no depot, church, back room or rear lane. The captain walks in
+  from the west road the way the gang does.
+- **The cheapest strong version:** in the old town, a captain on an agenda with a log of the deeds he
+  sees and the shots he hears; the Baron's men on a scripted plan (go near him, shove, draw, fire in the
+  air); the player's tools as they are (arrests in the dark, staying out of his sight); then a moment to
+  overhear through a wall and one armed townsman (Joe later) who can be goaded. Defer drink, talk, the
+  train arrival, Joe as a companion and the report's effect on the finale.
+- **Size:** about 4 small and 3 medium, plus the large pieces every mission shares (a companion and talk,
+  story state and saves, drink, brawls). **Frame budget:** fine (one more man, a log that costs nothing).
