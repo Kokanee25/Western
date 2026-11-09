@@ -1,0 +1,14 @@
+{
+ "id": "Wood015",
+ "source": "ambientcg",
+ "licence": "CC0 1.0",
+ "page": "https://ambientcg.com/view?id=Wood015",
+ "metres": null,
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-09",
+ "lossless": 2
+}

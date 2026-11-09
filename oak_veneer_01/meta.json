@@ -1,0 +1,17 @@
+{
+ "id": "oak_veneer_01",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/oak_veneer_01",
+ "metres": [
+  1.83,
+  1.83
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-09",
+ "lossless": 2
+}
