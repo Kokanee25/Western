@@ -80,6 +80,12 @@ being built, decided (not built), or new).
 - The "planning doc" #546 cites ("the planning doc's mission 9") is Sean's own claude.ai document and
   isn't in the repo. Its other numbered missions may hold more than these cards do.
 
+## The decision tree
+
+`DECISIONS.md`: what each choice sets and who reads it (the facts the world carries), the main line as a
+graph, the paths without Joe, the informant's three sources, and the continuity gaps. Update its rows in
+the same commit as any card change. It's also the spec for the story state the game doesn't have yet.
+
 ## The index
 
 34 cards (seven added from Sean's inventory of 2026-11-09, `sources/inventory_2026-11-09.md`). "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that
