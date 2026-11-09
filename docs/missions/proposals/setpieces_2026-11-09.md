@@ -218,3 +218,53 @@ the judge knows none.
   over a trench (small, members); rock vs earth by area (small–medium); the `dig` noise (small); a tamped
   charge (small–medium on the blast); the masonry house with cracks and arches (masonry steps 3 and the
   Baron's house: the dependency).
+
+**The judge on version 2:** the Water Tower **4 (close to 5)**: the best readability in the set and a low
+build risk, but the motive doesn't hold (the men who came to free him would kill him with a full tank);
+*raise:* split the aims between two groups; *cut:* the surge knocking men down (no flood system), and
+"shoot a hoop" (a pistol ball won't part a wrought-iron band: strike off the hoop's lug). The Sap **4 (high
+risk)**: the strongest player-authoring, readable (the rock and earth, the bowl, the cracks), but every
+load-bearing piece is unbuilt; *raise:* shore the gallery under the footing with timber props so the wall's
+weight sits on members, then pull or blow the props (the load path is timber; masonry only has to fall, S1/S2;
+a badly propped gallery caves in on him); *cut:* the arched hole (needs S3); dig only the last 3–5 m in play.
+
+---
+
+## Version 3 of both (2026-11-09)
+
+### The Water Tower, version 3: two aims for one tank
+
+Everything in version 2, with these changes:
+- **Two groups want the tank, for opposite ends.** The red shirt's friends come to **free** him: they need
+  the freight room's far wall stoved in, so they want the tank **half-drained and aimed at the far end**, and
+  they open the valve and set to the far legs. **The Baron's men** want him **dead** before he leaves on the
+  morning train (he's the Baron's hired gun, DECIDED, and he knows who paid him): they want it **full and on
+  the room**, and they set to the near legs. Both groups are in the yard the same night; each can see what
+  the other is doing.
+- **The player's levers now help one side and spoil the other:** open the valve and the spout (the friends'
+  half-drained fall), close it or stop their man at the valve (the Baron's full fall), knock a hoop's lug off
+  (a use action at the hoop: the staves spring and it empties in ~30 s, spoiling both), stop the near axemen,
+  stop the far axemen, or cut the far legs himself and bring it down on the yard where both wait.
+- **Read after:** what fell, how full, and on whom says plainly whose plan won.
+- **Cut:** the surge knocking men down; shooting a hoop (a ball won't part a wrought-iron band).
+- **Needs** (on version 2's): a use action on a hoop's lug (small, as E on a strongbox); two groups' agendas
+  in one yard (the gang's agendas; small–medium).
+
+### The Sap, version 3: the props are the load path
+
+Everything in version 2, with these changes:
+- **Shore the gallery.** The last stretch under the footing is dug out and the wall's weight is carried on
+  **timber props** the player sets (members on the support graph, as Buried Alive's sets): the house now
+  stands on them.
+- **Then take them out:** pull a prop (a kick breaks a 10 cm prop; members break today), blow them with a
+  stick, or burn them out (the old way; fire is out of play for now). The wall's stones drop when their
+  support goes (masonry only has to fall: S1/S2, which exist); with fewer props pulled, a smaller section
+  drops.
+- **A badly propped gallery caves in** on whoever's in it: too few props, or one pulled too soon.
+- **Partial:** each prop is a step: one out, the wall groans and holds; two, a section drops; all, the wall
+  comes down into the trench. The Baron's room is where he is: the player sees it before he pulls.
+- **Dig only the last 3–5 m in play** (the approach is the nights between).
+- **Cut:** the arched hole (needs S3); the tamped mine as the main way (it stays as a choice).
+- **Needs** (on version 2's): props as members the player places (medium: placing a member is new; the
+  structure code builds members); the masonry house to sit on them (masonry S1/S2 exist; the Baron's house
+  as a test piece is still the dependency).
