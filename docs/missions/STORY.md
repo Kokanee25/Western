@@ -29,7 +29,7 @@ running whatever you do.
 and is patient. The sheriff was murdered over his family's water right (who shot him and who ordered
 it are open); his widow, with two young sons, refuses to sell. The Colter gang works the valley (who
 they answer to is open). The railroad already runs; a special train of hired guns and soldiers comes
-for the town at the end. Joe, a Southern Ute man whose wife was murdered by scalp hunters, becomes
+for the town at the end. Joe, a Southern Ute man whose wife was raped, murdered and scalped by a gang of raiders, becomes
 Harlan's friend and (proposed) the man with plans who pitches ideas for the big jobs. The town: a doctor, a saloon owner who sells what he hears, a storekeeper, a blacksmith, a
 miner who teaches dynamite. A Southern Ute community, a Mexican rancher, Chinese workers: written with
 research and care, never props.
@@ -43,7 +43,7 @@ Baron's masonry house to arrest him.
 **Every mission, one line each** (to judge "unique among ours"):
 - The Saloon Table: the prologue; a stranger too curious; a card cheat with a gun in his mouth.
 - The Sheriff on the Road: you find him gut-shot at dawn; first aid, the doctor, the ball as evidence.
-- No Justice: scalp hunters killed Joe's wife; ride with him; the man in the red shirt; stop Joe or not.
+- No Justice: raiders killed Joe's wife; ride with him; the man in the red shirt hides in a cabin; nod to stop Joe, or not.
 - Joe on the Rope: a mob hangs Joe; shoot the rope from an overlook, or he dies for good.
 - The Farmhouse Rescue: gunmen hold the widow's house; front, back, or a planted stick; then her boys.
 - Buried Alive: miners trapped after a blast; dig, shore or blast in; learn dynamite.
