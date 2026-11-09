@@ -81,3 +81,26 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 	var p2: PackedFloat32Array = post.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM2]
 	check(is_equal_approx(p2[3], 0.0), "a post is a plain board")
 	p.free()
+
+
+## Each scan's grain runs the way the library says: the albedo changes most across its grain.
+## (C2's fir boards drew their grain across the board, two rounds running, from a guessed direction.)
+func test_every_scan_grain_runs_the_way_the_library_says() -> void:
+	for e in MaterialLibrary.entries():
+		for slot in (e["scans"] as Dictionary):
+			var sc: Dictionary = e["scans"][slot]
+			var path := ProjectSettings.globalize_path(MaterialLibrary.SCANS + String(sc["id"]) + "/albedo.jpg")
+			var img := Image.load_from_file(path)
+			if img == null:
+				check(false, "%s's scan loads" % sc["id"])
+				continue
+			img.resize(256, 256)
+			var dx := 0.0
+			var dy := 0.0
+			for y in range(0, 255, 3):
+				for x in range(0, 255, 3):
+					var c := img.get_pixel(x, y).get_luminance()
+					dx += absf(img.get_pixel(x + 1, y).get_luminance() - c)
+					dy += absf(img.get_pixel(x, y + 1).get_luminance() - c)
+			var measured := "u" if dy > dx else "v"
+			check_eq(measured, String(sc.get("grain", "u")), "%s (%s's %s): grain along %s" % [sc["id"], e["id"], slot, measured])
