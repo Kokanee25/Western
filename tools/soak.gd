@@ -18,6 +18,12 @@ extends SceneTree
 ## (soak #10 sat silent four hours at game minute 95, 2026-10-13). `--hang-at=S` hangs it on purpose
 ## to try that.
 ##
+## In the valley (`-- --world=valley`, docs/briefs/valley-plan.md G2): nobody lives there yet, so
+## the player is carried round the valley at a gallop (the ground's levels built and freed as he
+## goes), and when the town has a stick a stick goes off on the dirt near him, and when it has a
+## fire a hole is dug and filled (`--every=S`: both every S seconds, the craters' stress run);
+## "under the ground" is under the valley's ground there, "off the map" outside its envelope.
+##
 ## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
 ## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
 ##
@@ -65,6 +71,14 @@ var _happened: Array[String] = []
 var _runaway := false
 var _frames := 0
 var _hang_at := -1.0
+## The valley (Settings.world): its Ground and envelope, the tour's legs and how far along it is.
+var _valley := false
+var _ground
+var _envelope := Rect2()
+var _tour: Array[Vector2] = []
+var _tour_s := 0.0
+const TOUR_SPEED := 15.0  # m/s, a gallop
+var _every := 0.0
 
 
 func _initialize() -> void:
@@ -73,6 +87,8 @@ func _initialize() -> void:
 			_minutes = float(a.substr(10))
 		elif a.begins_with("--out="):
 			_out = a.substr(6)
+		elif a.begins_with("--every="):
+			_every = float(a.substr(8))
 		elif a.begins_with("--hang-at="):  # hang on purpose at this game second (for trying it)
 			_hang_at = float(a.substr(10))
 	OS.add_logger(_catcher)
@@ -83,9 +99,16 @@ func _initialize() -> void:
 	await process_frame
 	await process_frame
 	OB = load("res://src/bodies/outlaw_brain.gd")
-	_street = _main.find_child("TestStreet", true, false)
-	_town = _street.get_node(^"TownLife")
+	_valley = root.get_node(^"Settings").world == &"valley"
+	_street = _main.find_child("Valley" if _valley else "TestStreet", true, false)
+	_town = null if _valley else _street.get_node(^"TownLife")
 	_player = _street.get_node(^"Player")
+	if _valley:
+		_ground = _street.get_node(^"Ground")
+		_envelope = load("res://src/world/valley_layout.gd").main().envelope()
+		var e := _envelope.grow(-60.0)
+		_tour = [Vector2.ZERO, Vector2(1300, 200), Vector2(e.end.x, e.end.y), Vector2(e.position.x, e.end.y),
+				Vector2(e.position.x, e.position.y), Vector2(e.end.x, e.position.y), Vector2.ZERO]
 	_player.input_enabled = false
 	_street.get_node(^"DayCycle").set_time_scale(30.0)
 	print("soak: %.0f minutes of game time" % _minutes)
@@ -102,10 +125,17 @@ func _run() -> void:
 	# Every 100 minutes: a fire at 20 and 70, a stick at 30 and 80.
 	var events := []
 	var cycle := 0.0
+	# (in the valley a hole dug where the town has a fire; `--every=S`: a stick and a hole every S
+	# seconds instead, the craters' stress run)
+	var cycle_events := [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]
+	var cycle_len := 6000.0
+	if _valley and _every > 0.0:
+		cycle_events = [[_every * 0.5, "blast"], [_every, "dig"]]
+		cycle_len = _every
 	while cycle < _minutes * 60.0:
-		for e in [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]:
+		for e in cycle_events:
 			events.append([cycle + float(e[0]), e[1]])
-		cycle += 6000.0
+		cycle += cycle_len
 	var last := Time.get_ticks_usec()
 	while _t < _minutes * 60.0 and not _runaway:
 		await physics_frame
@@ -123,12 +153,14 @@ func _run() -> void:
 		_frame_ms.append((now - last) / 1000.0)
 		last = now
 		_t += dt
-		if _t >= next_gang:
+		if _valley:
+			_ride(dt)
+		if _town and _t >= next_gang:
 			next_gang += 240.0
 			if _town.gang.is_empty() or _town.gang.all(func(g): return not is_instance_valid(g)):
 				_town.bring_gang()
 				_happened.append("%s the gang rides in" % _clock())
-		if _t >= next_fight:
+		if _town and _t >= next_fight:
 			next_fight += 300.0
 			var live: Array = _town.gang.filter(func(g): return is_instance_valid(g))
 			if not live.is_empty():
@@ -153,6 +185,9 @@ func _clock() -> String:
 
 
 func _event(kind: String) -> void:
+	if _valley:
+		_valley_event(kind)
+		return
 	var members: Array = _street.find_children("*", "StructureMember", true, false).filter(
 			func(m): return not m.broken and not m.burning)
 	if members.is_empty():
@@ -163,6 +198,44 @@ func _event(kind: String) -> void:
 	else:
 		load("res://src/blast/blast.gd").detonate(_street, m.global_position + Vector3(0, 0.3, 0.5), 0.2)
 	_happened.append("%s %s at %s" % [_clock(), kind, m.member_id])
+
+
+## The valley's tour: the player carried along its legs, on the ground.
+func _ride(dt: float) -> void:
+	_tour_s += TOUR_SPEED * dt
+	var s := _tour_s
+	var k := 0
+	while true:
+		var leg := _tour[k].distance_to(_tour[k + 1])
+		if s <= leg:
+			var p := _tour[k].lerp(_tour[k + 1], s / leg)
+			_player.global_position = Vector3(p.x, _ground.height_at(p.x, p.y) + 0.05, p.y)
+			_player.velocity = Vector3.ZERO
+			return
+		s -= leg
+		k += 1
+		if k >= _tour.size() - 1:
+			_tour_s = 0.0
+			k = 0
+			s = 0.0
+
+
+## In the valley: a stick on the dirt near the player ("blast"), or a hole dug and filled back in
+## (the town's "fire", or "dig").
+func _valley_event(kind: String) -> void:
+	var a := _rng.randf() * TAU
+	var r := _rng.randf_range(8.0, 30.0)
+	var x: float = _player.global_position.x + cos(a) * r
+	var z: float = _player.global_position.z + sin(a) * r
+	var y: float = _ground.height_at(x, z)
+	if kind == "blast":
+		load("res://src/blast/blast.gd").detonate(_street, Vector3(x, y + 0.03, z), 0.2)
+		_happened.append("%s a stick on the dirt at (%.0f, %.1f, %.0f)" % [_clock(), x, y, z])
+	else:  # "fire" or "dig": a hole
+		var at := Vector3(x, y, z)
+		var bank: float = _ground.take(at, 0.9, 0.7)
+		_ground.put(at, bank, 0.9)
+		_happened.append("%s a hole dug and filled at (%.0f, %.1f, %.0f)" % [_clock(), x, y, z])
 
 
 func _problem(kind: String, text: String) -> void:
@@ -213,9 +286,9 @@ func _check() -> void:
 		var p := (n as Node3D).global_position
 		if not (is_finite(p.x) and is_finite(p.y) and is_finite(p.z)):
 			_problem("lost", "%s isn't anywhere" % _describe(n))
-		elif p.y < FLOOR_Y:
+		elif p.y < (_ground.height_at(p.x, p.z) + FLOOR_Y if _valley else FLOOR_Y):
 			_problem("under the ground", "%s at y %.1f" % [_describe(n), p.y])
-		elif Vector2(p.x, p.z).length() > MAP_RADIUS:
+		elif not _envelope.grow(300.0).has_point(Vector2(p.x, p.z)) if _valley else Vector2(p.x, p.z).length() > MAP_RADIUS:
 			_problem("off the map", "%s at %s" % [_describe(n), p])
 	# Men gone (left town, freed): a new one of the same name takes his path and, riding in where
 	# the last one rode out, would inherit his "not a metre in minutes" (the soak, 2026-10-13).

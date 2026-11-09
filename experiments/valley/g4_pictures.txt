@@ -1,0 +1,24 @@
+# Valley G4 (#720): the greybox markers. Main Street from the crossroads, the town from the cemetery
+# hill, Bridge A on its crib, the town from 160 m up (the marks read from above; at eye level the
+# real look washes the greybox ground to one tone: for art). Real look, lavapipe:
+# python3 tools/bridge.py run experiments/valley/g4_pictures.txt --size=960x540 --game-args=--world=valley --timeout=1200
+wait 20
+time 10.5
+goto 3 0.5 0 270
+look -100 1.5 0
+wait 10
+screenshot /tmp/g4_main_street.png
+goto -95 12 -205 0
+look 20 0 0
+wait 15
+screenshot /tmp/g4_town_from_cemetery.png
+goto 948 -5 296 0
+look 965 -11 288
+wait 15
+screenshot /tmp/g4_bridge_a.png
+camera 0 160 60 0 0 -10
+wait 10
+screenshot /tmp/g4_top_town.png
+camera 965 60 330 965 -10 288
+wait 10
+screenshot /tmp/g4_top_bridge_a.png

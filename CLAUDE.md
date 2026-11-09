@@ -545,11 +545,17 @@ frozen until Sean names one.
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
 - **Library clips** (2026-11-01, #529, #539; branch `claude/characters-cmu-basics`; lab
   `experiments/library_motion/`): played by `LibraryMotion` by the body's own state behind
-  `Settings.library_motion` (off in the game; Sean: "good enough as a placeholder"). CMU motion
+  `Settings.library_motion` (on in the game since 2026-11-02, stand-ins). CMU motion
   capture for the basics (the free packs' clips were cartoon), each man his own walk and run,
   stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
   Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
   `theorangeduck.com` allowed.
+- **Clips carry the clavicles** (#708, PR #714, Sean approved as is): `retarget_motion.py` writes
+  `clavicle_r`/`clavicle_l` (the turn relative to the source's chest through the chest's fixed turn,
+  held to SkeletonTuning's limits, no roll); every Uthana clip re-exported (segments identical), CMU's
+  left to the drive (its BVH zeroes them). Films `experiments/skeleton/results/2026-11-08_clips/`.
+  **The library layer plays them** (#715, gameplay's files, Sean's ask to this session): see LAYOUT
+  "src/bodies" (LibraryMotion); `tests/test_clip_clavicles.gd` (7).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
@@ -807,10 +813,25 @@ frozen until Sean names one.
   (`HumanBody._keep_in_cull_box`; it was fixed about where he went limp: bodies carried 3 m+ weren't
   drawn); nobody's freed where he stands or lies (the leave step, the track crew, the farmhouse
   start). Waiting on Sean: #689 (taken away only out of sight?).
-- **The valley master plan** (#467 Phase 1, 2026-11-08, branch `claude/salt-creek-valley-plan-yd2ujv`):
-  `config/valley.json` (inert) + `tools/valley/valley_plan.py` (maps, tables, checks); the plan
-  `docs/briefs/valley-plan.md`. Sean answered #700 (2026-11-08: Harlan route A, trestle kept, two rows of
-  houses, cows maybe); next G1, the world switch and an empty valley scene, after the plan's PR merges.
+- **The valley** (#467; plan `docs/briefs/valley-plan.md` §12, `config/valley.json`, `tools/valley/valley_plan.py`;
+  LAYOUT "src/world/town_layout.gd"): G1 the world switch (`Settings.world`, `--world=valley`, PR #705, build 3440);
+  **G2 the ground** (#709, Sean's A on #706: our own chunks; PR #713, build 3487):
+  the bake (`valley_plan.py --bake` -> `config/valley_ground/`, 2 m, 16-bit), `ValleyTerrain`,
+  `ValleyGround` (128 m Jolt height fields over boxes, a quadtree of levels by visibility ranges),
+  `Ground.terrain` (digging, craters, saves as the town's; 4 m tiles); render CPU 0.35-0.44 ms at Sean's
+  at the crossroads, corners, overlook; soak `--world=valley` passed (results `experiments/valley/`).
+  **G3 the rail corridor** (#716, PR #719, build 3506): `ValleyRailway` (the route on the bake, the great
+  trestle in its canyon, Bridge B a `RoadBridge`, the west portal a `TunnelPortal`, the daily westbound
+  by the clock, `config/valley_timetable.json`); `Train.far`; results `experiments/valley/README.md`.
+  **G4 the greybox markers** (#720, PR #723, build 3521): the roads graded into the bake (`Terrain._roads`),
+  `ValleyMarks` (roads, pads, fords, beds on the ground), `ValleyMarkers` (blocks, posts, Bridges A and T,
+  `places` for goto), `ValleyRoads`, the lab's `valley_walk`; all 16 of table F walked within 7 s of the
+  plan. **G5 the town greybox** (#724, PR #730, build 3541): `ValleyTown` (boardwalks from the `Boardwalk`
+  part, the lanes and 1.2 m alleys open to Back Street and the rear lane, the undertaker's junk, the
+  town's ways in `places`); `Waypoints.route` one search back from the goal (1 s -> 10 ms there).
+  Next: G6, the farmhouse to the widow's pad (#731); the saloon onto its lot waits on #695. For art: the valley's fog (the town's 0.0035) hides the
+  foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
+  diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:

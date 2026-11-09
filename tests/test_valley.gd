@@ -1,8 +1,9 @@
 extends TestCase
 ## The world switch and the new valley (docs/briefs/valley-plan.md §12, G1): ValleyLayout reads
-## config/valley.json as written, the valley's scene is empty but for the sky, a flat ground the
-## envelope's size and the player at the crossroads looking down Main Street, and the old town is
-## what loads unless the valley is asked for.
+## config/valley.json as written, the valley's scene is empty but for the sky, the baked ground (G2:
+## tests/test_valley_ground.gd), the main line and its train (G3: tests/test_valley_railway.gd) and
+## the player at the crossroads looking down Main Street, and the old town is what loads unless the
+## valley is asked for.
 
 
 func _valley() -> ValleyLayout:
@@ -149,19 +150,20 @@ func test_the_valley_scene_is_empty() -> void:
 		check(absf(player.global_position.y) < 0.3, "on the ground (%.2f)" % player.global_position.y)
 		var facing := -player.global_transform.basis.z
 		check(facing.dot(Vector3.LEFT) > 0.999, "looking down Main Street, west (%s)" % facing)
-	var ground := valley.get_node_or_null(^"FlatGround") as StaticBody3D
-	check(ground != null, "the flat placeholder ground")
+	# The ground (G2): the valley's own, a Ground over the bake, the crossroads at Y 0.
+	var ground := valley.get_node_or_null(^"Ground") as Ground
+	check(ground != null and ground.terrain != null, "the baked ground")
+	check(valley.get_node_or_null(^"FlatGround") == null, "G1's flat placeholder gone")
 	if ground:
-		var box := (ground.get_child(0) as CollisionShape3D).shape as BoxShape3D
-		check_eq(Vector2(box.size.x, box.size.z), Vector2(4400, 3600), "the envelope's size")
-		var top := ground.global_position.y + (ground.get_child(0) as Node3D).position.y + box.size.y * 0.5
-		check_near(top, 0.0, 1e-4, "its top at Y 0")
-		check_near(ground.global_position.x, 200.0, 1e-3, "centred on the envelope (x)")
-		check_near(ground.global_position.z, 400.0, 1e-3, "centred on the envelope (z)")
-	for name in ["TownLife", "TownLayout", "Farmhouse", "FarmhouseMission", "Ground", "StreetDressing", "FireSystem"]:
+		check_eq(Ground.of(get_tree()), ground, "it's the ground (Ground.of)")
+		check_near(ground.height_at(0.0, 0.0), 0.0, 1e-4, "the crossroads at Y 0")
+		check(ground.valley != null and ground.valley.bodies.size() > 0, "its chunks")
+	for name in ["TownLife", "TownLayout", "Farmhouse", "FarmhouseMission", "StreetDressing", "FireSystem"]:
 		check(valley.find_child(name, true, false) == null, "no %s in the valley" % name)
-	check(get_tree().get_nodes_in_group(&"people").is_empty(), "nobody in it")
-	check(Ground.of(get_tree()) == null, "no old-town ground")
+	var people := get_tree().get_nodes_in_group(&"people")
+	check(people.size() <= 1 and people.all(func(p: Node) -> bool: return p.name == "Engineer"), "nobody in it but the train's engineer (G3) (%s)" % [people.map(func(p: Node) -> String: return p.name)])
+	var rail := valley.get_node_or_null(^"Railway") as ValleyRailway
+	check(rail != null and rail.line != null and rail.train != null, "the main line and its train (G3: tests/test_valley_railway.gd)")
 	# The sun sets due west, straight down Main Street (heading 270, -X).
 	var day := valley.get_node(^"DayCycle") as DayCycle
 	var low := day.get_sun_direction(18.0)

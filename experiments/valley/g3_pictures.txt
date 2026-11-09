@@ -1,0 +1,16 @@
+# Valley G3 (#716): the train on the great trestle from the trestle overlook and from the canyon's
+# floor, and at the depot from Main Street's east end. Real look, lavapipe:
+# python3 tools/bridge.py run experiments/valley/g3_pictures.txt --size=960x540 --game-args=--world=valley
+wait 20
+time 12.5
+valley_train at trestle_west
+valley_view vp_trestle_overlook trestle_mid
+wait 15
+screenshot /tmp/g3_trestle_overlook.png
+valley_view vp_canyon_floor trestle_mid
+wait 15
+screenshot /tmp/g3_trestle_floor.png
+valley_train at depot
+valley_view vp_main_east depot
+wait 15
+screenshot /tmp/g3_depot.png

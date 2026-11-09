@@ -1,0 +1,243 @@
+{
+  "after": {
+    "bents_down": 1,
+    "broken": 76,
+    "by_kind": {
+      "bent_sill": 3,
+      "brace": 16,
+      "cap": 1,
+      "girt": 12,
+      "guard": 4,
+      "post": 14,
+      "rail": 4,
+      "stringer": 6,
+      "tie": 16
+    },
+    "deck_damage": 5,
+    "rails_gone": 4
+  },
+  "derail": {
+    "key": {
+      "at": 105.893344604848,
+      "section": "trestle_bend"
+    },
+    "kind": "fell",
+    "kmh": 30.8656463826265,
+    "numeric": false,
+    "s": 1286.25921374547,
+    "side": 0,
+    "t": 507.049999999948,
+    "what": "16 ties gone"
+  },
+  "empty": {
+    "bents_down": 0,
+    "broken": 4,
+    "by_kind": {
+      "brace": 2,
+      "post": 2
+    },
+    "deck_damage": 0,
+    "rails_gone": 0
+  },
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.8,
+    "ms": 81.865,
+    "posts": 2,
+    "stagger_ticks": 1,
+    "worst_one_ms": 62.6
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 3213,
+    "gate": "pass",
+    "last_under_50fps_s": 0.07,
+    "mean_ms": 2.12,
+    "over_100": 0,
+    "over_50": 1,
+    "sean_worst_ms": 47.0,
+    "second_ms": 30.2,
+    "slow_spell_s": 0.07,
+    "worst_at_s": 0.07,
+    "worst_ms": 72.4
+  },
+  "frames_fall": {
+    "before_mean_ms": 1.81,
+    "frames": 734,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 3.18,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 19.6,
+    "second_ms": 20.7,
+    "slow_spell_s": 0.0,
+    "worst_at_s": 0.04,
+    "worst_ms": 30.2
+  },
+  "load_cost": {
+    "seeds": 44,
+    "set": 88,
+    "settles": 3,
+    "updates": 174,
+    "us": 437065
+  },
+  "outcome": "fell",
+  "prof_ms_a_frame": {
+    "player": 0.25,
+    "structures": 0.08,
+    "train": 0.49,
+    "train_sound": 0.1,
+    "train_view": 0.08,
+    "trestle_analyse": 0.05,
+    "trestle_want": 0.07
+  },
+  "rubble": {
+    "awake_at_end": 2,
+    "pieces": 45
+  },
+  "slow_frames": [
+    {
+      "awake": 2,
+      "ms": 72.4,
+      "physics_ms": 2.9,
+      "process_ms": 1.6,
+      "rubble": 2,
+      "t": 0.02,
+      "top": {
+        "analysis_full_begin": 5.8,
+        "blast_break": 56.1,
+        "blast_fx": 3.9,
+        "blast_gather": 1.6,
+        "blast_settle": 55.4,
+        "settle_analyse": 55.3,
+        "train": 6.3,
+        "train_rails": 6.0
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 1,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/trestle_valley/runs/light_then_engine_30.json",
+    "posts": "inner",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 4,
+    "story": "bottom",
+    "train": "cross",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": 41.55,
+  "wreck": {
+    "bents_s": [
+      1282.4
+    ],
+    "bodies": 20,
+    "events": [
+      {
+        "car": 0,
+        "kmh": 30.8656463826265,
+        "t": 0.0,
+        "what": "fell"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 7.53333333333331,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "between": [
+          1,
+          2
+        ],
+        "t": 7.64999999999998,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "car": 2,
+        "dv": 0.0,
+        "t": 7.64999999999998,
+        "what": "car broken",
+        "why": "jackknife"
+      },
+      {
+        "car": 3,
+        "dv": 6.42871046066284,
+        "t": 8.63333333333334,
+        "what": "car broken",
+        "why": "stopped hard"
+      },
+      {
+        "between": [
+          4,
+          5
+        ],
+        "t": 8.66666666666668,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "car": 4,
+        "dv": 0.0,
+        "t": 8.66666666666668,
+        "what": "car broken",
+        "why": "jackknife"
+      },
+      {
+        "car": 5,
+        "dv": 0.0,
+        "t": 8.68333333333334,
+        "what": "car broken",
+        "why": "jackknife"
+      },
+      {
+        "car": 6,
+        "dv": 6.42270517349243,
+        "t": 9.55000000000005,
+        "what": "car broken",
+        "why": "stopped hard"
+      }
+    ],
+    "fell_into_gorge": 15,
+    "gaps": [
+      "broken 1275.1-1284.2",
+      "broken 1275.1-1284.2",
+      "broken 1277.7-1287.3",
+      "broken 1284.2-1293.4",
+      "broken 1284.2-1293.4"
+    ],
+    "where": [
+      "0/whole s1287.3 dy-26.3 v1.6 on Chunk_24_10",
+      "1/whole s1281.0 dy-26.0 v2.3 on Chunk_24_10",
+      "2/front s1281.8 dy-26.5 v1.8 on Chunk_24_10",
+      "2/back s1283.0 dy-25.5 v4.4 on Chunk_24_10",
+      "3/front s1278.1 dy-26.5 v4.6 on Chunk_24_10",
+      "3/back s1279.5 dy-24.9 v4.9 on Chunk_24_10",
+      "4/front s1274.4 dy-27.0 v1.4 on Chunk_25_10",
+      "4/back s1281.2 dy-26.2 v9.0 on Chunk_24_10",
+      "4/roof s1241.9 dy-118.9 v40.4",
+      "5/front s1273.0 dy-24.2 v8.8 on Chunk_25_10",
+      "5/back s1274.0 dy-23.1 v7.0 on Chunk_25_10",
+      "5/roof s1272.9 dy-23.0 v5.4 on Chunk_25_10",
+      "6/front s1260.0 dy-20.9 v15.8 on Chunk_25_10",
+      "6/back s1253.5 dy-22.1 v12.3",
+      "6/roof s1263.1 dy-19.8 v13.2 on Chunk_25_10"
+    ]
+  }
+}

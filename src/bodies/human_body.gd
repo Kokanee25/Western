@@ -1192,8 +1192,10 @@ var skinned_fingers := false
 
 
 ## The deform bones from his 17 as posed: the pose's own clavicle lift (POSES' clavicle_r/l keys,
-## [rise, forward, -] degrees) and a played clip's clavicle channel, if it has one, over the drive
-## from his arms; none of it while he's limp (the arms' drive still is).
+## [rise, forward, -] degrees) and a clip's clavicle channel, if it has one, over the drive from his
+## arms: the library layer's (#715; with its weight, the side's crossing share and his upper arm's
+## injury hold, as his arm takes it) under a played clip's (with its weight, as the joints); none of
+## it while he's limp (the arms' drive still is).
 func _pose_deform(dt: float) -> void:
 	if _deform.is_empty():
 		return
@@ -1204,13 +1206,30 @@ func _pose_deform(dt: float) -> void:
 		if v is Vector3:
 			extra[k] = Vector2((v as Vector3).x, (v as Vector3).y)
 	var clip := [null, null]
-	var w := 0.0
-	if not limp and _clip_w > 0.0:
+	var ws := [0.0, 0.0]
+	if not limp:
+		var cw := clampf(_clip_w, 0.0, 1.0)
+		var lw := _lib.w if _lib != null and not _pose_lib.is_empty() else 0.0
 		for k in 2:
-			clip[k] = _pose_played.get(DeformRig.CLAVICLES[k])
-			if clip[k] != null:
-				w = _clip_w
-	DeformRig.pose(skeleton, _deform, extra, clip, w, dt)
+			var cid: StringName = DeformRig.CLAVICLES[k]
+			var pq: Variant = _pose_played.get(cid) if cw > 0.0 else null
+			var lq: Variant = _pose_lib.get(cid) if lw > 0.0 else null
+			var lk := 0.0
+			if lq != null:
+				var arm := StringName("upper_arm_" + String(cid).right(1))
+				lk = lw * float(_lib.clav_k.get(cid, 1.0)) * (1.0 - clampf(float(_injury_w.get(arm, 0.0)), 0.0, 1.0))
+			if pq != null and lk > 0.0:
+				# Both: the library's under the played clip's, as the joints are layered.
+				clip[k] = (lq as Quaternion).slerp(pq, cw)
+				ws[k] = lk + (1.0 - lk) * cw
+			elif pq != null:
+				clip[k] = pq
+				ws[k] = cw
+			elif lk > 0.0:
+				# The played clip leads his arm without a channel: the drive takes it back as it comes on.
+				clip[k] = lq
+				ws[k] = lk * (1.0 - cw)
+	DeformRig.pose(skeleton, _deform, extra, clip, 0.0, dt, null, ws)
 
 
 ## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a

@@ -659,10 +659,81 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `scenes/valley.tscn` in its place, so the two never load together; `World.root(main)` is whichever
   is there (the bridge, the smoke test, F12). `ValleyLayout` (`src/world/valley_layout.gd`) is the
   file's pure reader (`ValleyLayout.main()`; places, roads, bridges, water, lots, `route()` a
-  `TrainRoute`); `ValleyWorld` (the valley scene, empty for now): the town's sky and day, a flat
-  placeholder slab the envelope's size (`FlatGround`, top at Y 0; not a `Ground`), the shot's systems,
+  `TrainRoute`); `ValleyWorld` (the valley scene, empty for now): the town's sky and day, the
+  valley's ground (G2, below; G1's flat `FlatGround` slab is gone), the shot's systems,
   the player at the crossroads facing west down Main Street. No TownLife, gang, farmhouse, moments or
   the labs' keys. `tests/test_valley.gd`.
+- **The valley's ground** (G2, #709): `python3 tools/valley/valley_plan.py --bake` samples the plan's
+  terrain function (the same, point by point, as its 10 m maps) every 2 m over the envelope rounded up
+  to 128 m chunks into `config/valley_ground/heights.r16.gz` (gzip of uint16, 2241 x 1857) and
+  `heights.json` (grid, `offset + scale x value`, the valley.json it came from: `test_valley_ground`
+  fails when they differ; re-bake). Not imported (`*.r16.gz` in the export filter). `ValleyTerrain`
+  reads it once (~0.3 s) and answers `height(x, z)` as Jolt's height field has it (quads split
+  (i+1, j) to (i, j+1): measured; the town's `Ground.height_at`/tiles assume the other diagonal).
+  The valley's `Ground` has `terrain` set: `authored_height` is the bake's everywhere and its own
+  slabs/slope/hills give way to `ValleyGround` (child `Chunks`): each 128 m chunk a StaticBody3D with
+  one 65x65 height field and 16 m boxes under it (`column_cells`); a chunk with dug tiles is made
+  again as 16 m squares, 9x9 fields and, where a tile is, a mesh less its quads (a NaN point holes a
+  Jolt field by triangles, not quads). Tiles are 4 m in the valley (`config/ground_valley.tres`,
+  `tile_cells` 80: two bake cells). Drawn as a quadtree (`config/valley_terrain.tres`): level 0 a
+  chunk at 2 m, each level twice the side at half the points, 5 levels; a block's children replace it
+  nearer than `split` (1.5) x its side by Godot's visibility ranges (`visibility_parent`), built on a
+  budget within (split + prepare) and freed past (split + evict); skirts hide the level seams; a dug
+  tile's mesh shows exactly with its chunk's level 0 (whose mesh leaves the tile out). Greybox colours
+  by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
+  (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
+  `--world=valley` tours it with sticks and digs.
+- **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
+  ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
+  own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
+  lays it) and the bake as `ground_y`; the line sits on the bake's formation within 4 mm
+  (`ground_check`). The great trestle is the route's crossing, its bents footed on the bake's canyon.
+  Bridge B is a `RoadBridge` (`src/structures/road_bridge.gd`: deck line, bents parallel to the
+  track, stringers, planks, guards) over the overpass cutting; the west portal a `TunnelPortal`
+  (`src/structures/tunnel_portal.gd`, a dark `Mouth` behind it: the height field can't hold a hole).
+  Both are `FramedStructure`s (`src/structures/framed_structure.gd`: links as framed, grounded by
+  kind). The daily train: `config/valley_timetable.json` (east_start, the depot, the Ore Works, the
+  tunnel; `start_hour` 8, the depot ~12:30), its times worked out on a worker after load (`timed`;
+  ~4-7 s, the train standing at east_start till then), `start_run(elapsed)` puts it where the
+  timetable has it by the clock, standing at a stop or running mid-leg (`sync_to_clock` once timed;
+  each day as the clock passes `start_hour`), the engineer's body in the cab; `driving` false while
+  a lab drives it (the trestle lab's `ensure_built` takes the valley's line and train in the valley
+  world). Past `far_m` (800 m) from the camera `Train.far`: no cars drawn or sound ticked, solids,
+  lookout and bridge loads every 10 ticks, the engineer's body disabled. A `TrackChunk` at rest skips
+  its tick. `-- --no-valley-train`: the line alone (the bench). Valley lab bridge (`experiments/valley/bridge.gd`):
+  `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`.
+  `TrainEngineer.run(tt, late, from_stop)`; his creep up a climb steams up against the brake first.
+- **The valley's greybox markers** (G4, #720): the plan's places on the ground, from valley.json alone.
+  **The roads graded** (`valley_plan.py`'s `Terrain._roads`, in the bake): each road's profile (the
+  ground averaged over its class's run, bridge decks over their approaches, the mine road's crib fill,
+  a ford's banks cut to 8 % (12 % a track)) laid across its width and a 1 m shoulder, eased out at
+  1:1.5; a town street keeps the plane's fall across it; never on a pad, within 5-10 m of the rail's
+  bed or under a bridge's span; profiles from the ground at their own points, so the 10 m map and the
+  2 m bake still agree to 1.6 mm. **`ValleyMarks`** (`src/world/valley_marks.gd`): a byte a bake point
+  (pad, water, street, wagon, lane, track, path, ford, outline), painted at load (~0.3 s), tinting
+  ValleyGround's vertex colours (`valley_terrain.tres` "Marks"; `Ground.valley_marks`): no meshes of
+  its own. **`ValleyMarkers`** (`valley_markers.gd`, ValleyWorld's child `Markers`; `-- --no-markers`
+  leaves it and the marks out): a solid block for each building volume (lots of kind `building` from
+  the fronts back by their `depth`, extras with a size, places with a `block`; LOT_H 6 m), a post and
+  a Label3D name for every place, ford and bridge (one MultiMesh), Bridge A (`RoadBridge.spanning`,
+  two spans on a log crib: `cribs_at`) and the town bridge; `places` (Waypoints: every place, bridge,
+  viewpoint and town lot by id, stepped out of any block) is what the dev bridge's `goto`/`look`/`read
+  places` use in the valley (`ValleyWorld.places()`); `road_grades()` each road over the ground and
+  decks against the plan's limits. **`ValleyRoads`** (`valley_roads.gd`): the plan's road network
+  (valley.json's roads and the town's streets, a node every 5 m, junctions within 6 m), `journey(a, b)`
+  the shortest way. Valley lab: `valley_walk PLACE [run]` walks it and times it.
+- **The valley's town greybox** (G5, #724): **`ValleyTown`** (`src/world/valley_town.gd`, the
+  Markers' child `Town`; `-- --no-town` leaves it out): a `Boardwalk` along every building lot's
+  front (17; `main_street.boardwalk_depth`, 0.38 m up from the ground at its street edge's middle,
+  so they step with the street), joined over shoulder-to-shoulder gaps (< 1 m), end steps down to
+  every lane, alley, yard and street, a flight before each door; the passages (`passages`: the
+  lanes, the 1.2 m alleys, yards, the vacant lot, house lots, unnamed gaps `gap_<side>@x`) open to
+  Back Street and the rear lane; a lot's `junk` piled across it (the undertaker's alley: tiers of
+  0.5 m, jumped, not walked). `add_ways` puts the town's places and links in the Markers' `places`:
+  `main@x`, each door (the lot's id) and `<id>_steps`, each passage's mouth (its id) and
+  `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
+  0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
+  walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
@@ -1114,7 +1185,10 @@ marks; `stop_clip` eases him back to his pose over a fifth of a second. Made by
 FBX/BVH through Blender first) onto our 17 segments by the CMU walk's method made general
 (`gltf_motion.py` reads the glTF itself: Blender's bone frames hide the joints' axes), trimmed,
 the planted foot held, judged (`takes.json`), the best take of each move copied under the move's
-name; glTF of our rig beside each for the record.
+name; glTF of our rig beside each for the record. Since #708 a source that turns its clavicles
+(Uthana's/Mixamo's LeftShoulder) gives `clavicle_r`/`clavicle_l` channels (the turn relative to the
+source's chest, through the chest's fixed turn; held to SkeletonTuning's limits, no roll); CMU's
+(zeroed in its BVH), KayKit's and Quaternius' give none (`assets/animations/README.md`).
 
 **Library clips** (`src/bodies/library_motion.gd`, `LibraryMotion`; issue #529): generic movement
 from Quaternius' and KayKit's CC0 libraries (`assets/animations/library/`, its README and
@@ -1128,6 +1202,10 @@ strafe_l/r by which way his feet go, `lib_travel`; crouch_idle/crouch_walk; pist
 phase by the ground he covers (`stride_m` scaled to his legs: the planted foot stays put), what it
 has of him by his pose (`mask_for`: aiming, his legs and free arm only, since the shot leaves down
 the gun's barrel); under a played clip, over the pose; the hips' height as the capture's;
+a clip's `clavicle_r`/`clavicle_l` channels (the Uthana ones: reload, walk_gun, run_gun, stagger;
+CMU's have none) passed on with their side's upper arm, scaled with his arm swing, faded in and out
+across a change of clip (`clav_k`), and given to DeformRig under a played clip's per side
+(`HumanBody._pose_deform`, `DeformRig.pose`'s `clip_ws`; #715);
 `go_limp` lets go at once. A hit from in front he stays up from plays `hit_front`/`hit_head` on
 top as turns from the clip's first frame (`LibraryMotion.hits`). Tools: `tools/library_lineup.gd`
 (`--film`, `--sheet` each clip's worst frame, `--takes` every candidate), `experiments/library_motion/film.sh`.
@@ -1263,7 +1341,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
   saloon; `route` asks only the first place of the shortest way and a ray down the middle before
-  each sweep, the same ways as asking every place, #510), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
+  each sweep, the same ways as asking every place, #510; since G5 one search back from the goal
+  (`_ways_to`, a heap) and the places asked in order of straight line plus way on: ~1 s -> 10 ms in
+  the valley's town; `_no_step_up` asks a foot's width round a ray that fell between planks), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
   test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in;
   the riders' bodies are built while the street loads and wait out of the tree in `_waiting`, so
   `bring_gang` only adds them with their brains, #488; `tools/gang_frame.gd` holds its frame).

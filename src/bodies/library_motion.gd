@@ -59,7 +59,11 @@ static var _loaded := false
 static var _pool := {}
 ## Each gait's and idle's mean turn a joint (clip -> {segment: Quaternion}), for his arm swing.
 static var _means := {}
-const ARMS := [&"upper_arm_l", &"forearm_l", &"upper_arm_r", &"forearm_r"]
+## The joints his arm swing scales: the arms, and the clavicles that ride with them (a clip's
+## `clavicle_r`/`clavicle_l` channels, #715: a man who swings his arms more moves his shoulders more).
+const ARMS := [&"upper_arm_l", &"forearm_l", &"upper_arm_r", &"forearm_r", &"clavicle_l", &"clavicle_r"]
+## A side's clavicle channel goes with its upper arm: in the frame when the mask has that arm.
+const CLAVICLE_ARM := {&"clavicle_r": &"upper_arm_r", &"clavicle_l": &"upper_arm_l"}
 ## A man's own: how much longer his stride than the clip's (his cadence), how much more his arms
 ## swing (both about 1, set by his seed: `choose`).
 const STRIDE_SPREAD := 0.06
@@ -82,6 +86,11 @@ var stride_k := 1.0
 var arm_k := 1.0
 var _hit: MotionClip
 var _hit_t := 0.0
+## How much of each clavicle channel in his last frame is the clip's (0..1; clavicle -> share): a
+## crossing to or from a clip without channels fades the clip's in or out over the crossing (the
+## other end is the deform rig's drive from his arms, which no frame holds). HumanBody._pose_deform
+## takes it with the layer's weight.
+var clav_k := {}
 
 
 ## The clips, once, on the main thread (MotionClip's cache isn't for workers).
@@ -252,6 +261,34 @@ func now(body: HumanBody, delta: float) -> Dictionary:
 		if _xf < 1.0 and _from.has(sid):
 			q = (_from[sid] as Quaternion).slerp(q, smoothstep(0.0, 1.0, _xf))
 		out[sid] = q
+	# The clavicles (#715): a side's channel when the mask has its upper arm, scaled about the
+	# clip's mean with his arm swing; crossing to or from a clip without one, its share fades.
+	var s := smoothstep(0.0, 1.0, _xf) if _xf < 1.0 else 1.0
+	var k := {}
+	for cid: StringName in CLAVICLE_ARM:
+		var has_new: bool = f.has(cid) and (CLAVICLE_ARM[cid] in mask)
+		var has_old: bool = s < 1.0 and _from.has(cid)
+		if not has_new and not has_old:
+			continue
+		var q := Quaternion.IDENTITY
+		if has_new:
+			q = f[cid]
+			if means.has(cid):
+				var mean: Quaternion = means[cid]
+				var d := (mean.inverse() * q).normalized()
+				var ang := d.get_angle()
+				if ang > 1e-4:
+					q = (mean * Quaternion(d.get_axis().normalized(), ang * arm_k)).normalized()
+		if has_new and has_old:
+			q = (_from[cid] as Quaternion).slerp(q, s)
+			k[cid] = 1.0
+		elif has_new:
+			k[cid] = s
+		else:
+			q = _from[cid]
+			k[cid] = 1.0 - s
+		out[cid] = q
+	clav_k = k
 	_last = out
 	return out
 

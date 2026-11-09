@@ -269,9 +269,10 @@ static func add(skeleton: Skeleton3D, skin: Skin, anatomy: Anatomy, bone_parts: 
 ## The rig posed from the 17 bones as they are now (all root bones: their poses are in the
 ## skeleton's space). `extra`: the pose's own clavicle lift per side ([rise, forward] degrees,
 ## Vector2), `clip`: a clip's clavicle turn per side (Quaternion in the chest's frame) and its
-## weight; `delta` blends the extra lift in (0: at once).
+## weight; `delta` blends the extra lift in (0: at once). `clip_ws`: a weight per side in place of
+## `clip_w` (a played clip's and the library layer's channels blended per side, #715).
 static func pose(skeleton: Skeleton3D, rig: Array[Bone], extra: Array, clip: Array, clip_w: float, delta: float,
-		tuning: SkeletonTuning = null) -> void:
+		tuning: SkeletonTuning = null, clip_ws: Array = []) -> void:
 	var t := tuning if tuning != null else SkeletonTuning.shared()
 	for e in rig:
 		var mp := skeleton.get_bone_pose(e.parent) * e.parent_unrest
@@ -288,8 +289,9 @@ static func pose(skeleton: Skeleton3D, rig: Array[Bone], extra: Array, clip: Arr
 			else:
 				e.lift = e.lift.lerp(want, clampf(delta * t.clav_blend, 0.0, 1.0))
 			turn = clavicle_turn(rel, e.hang, e.axis, e.lift, t)
-			if clip_w > 0.0 and e.side < clip.size() and clip[e.side] is Quaternion:
-				turn = turn.slerp(clip[e.side], clamp(clip_w, 0.0, 1.0))
+			var cw: float = float(clip_ws[e.side]) if e.side < clip_ws.size() else clip_w
+			if cw > 0.0 and e.side < clip.size() and clip[e.side] is Quaternion:
+				turn = turn.slerp(clip[e.side], clampf(cw, 0.0, 1.0))
 		else:
 			var tw := twist_of(rel, e.axis)
 			# The upper arm's twist bones keep its swing (they hang where the arm does) and take a share

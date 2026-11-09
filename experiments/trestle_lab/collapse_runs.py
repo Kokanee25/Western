@@ -7,6 +7,10 @@ here's frames x0.65 for his clock, as step 5's derail runs), with what fell and 
     python3 experiments/trestle_lab/collapse_runs.py --out=build/trestle/runs
     python3 experiments/trestle_lab/collapse_runs.py --out=... --only=bent_blown,two_under_40
     python3 experiments/trestle_lab/collapse_runs.py --table=build/trestle/runs   # the table again
+    python3 experiments/trestle_lab/collapse_runs.py --world=valley --out=...    # on the valley's canyon (G3)
+
+--world=valley: each run in the valley world (the main line's great trestle, its bents footed on the
+baked canyon; ValleyRailway), not the lab's gorge line.
 """
 import functools
 import json
@@ -60,7 +64,10 @@ def opt(name, default=None):
 def run_one(name, spec, out):
     path = os.path.abspath(os.path.join(out, f"{name}.json"))
     args = " ".join(f"{k}={v}" for k, v in spec.items())
-    subprocess.run(BRIDGE + ["start", "--headless", "--fps=60"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    start = BRIDGE + ["start", "--headless", "--fps=60"]
+    if opt("world"):
+        start.append(f"--game-args=--world={opt('world')}")
+    subprocess.run(start, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         r = subprocess.run(BRIDGE + ["trestle_lab", f"trestle_collapse {args} secs=12 out={path}"], cwd=ROOT,
                            capture_output=True, text=True, timeout=1200)

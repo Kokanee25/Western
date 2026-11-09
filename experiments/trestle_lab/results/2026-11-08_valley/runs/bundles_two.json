@@ -1,0 +1,101 @@
+{
+  "after": {
+    "bents_down": 0,
+    "broken": 4,
+    "by_kind": {
+      "brace": 2,
+      "post": 2
+    },
+    "deck_damage": 0,
+    "rails_gone": 0
+  },
+  "derail": {},
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.8,
+    "ms": 82.558,
+    "posts": 2,
+    "stagger_ticks": 1,
+    "worst_one_ms": 68.4
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 721,
+    "gate": "pass",
+    "last_under_50fps_s": 0.07,
+    "mean_ms": 2.18,
+    "over_100": 0,
+    "over_50": 1,
+    "sean_worst_ms": 47.1,
+    "second_ms": 22.6,
+    "slow_spell_s": 0.07,
+    "worst_at_s": 0.07,
+    "worst_ms": 72.4
+  },
+  "load_cost": {
+    "settles": 0,
+    "updates": 0,
+    "us": 18431
+  },
+  "outcome": "no train",
+  "prof_ms_a_frame": {
+    "blast_break": 0.09,
+    "blast_settle": 0.08,
+    "day_cycle": 0.05,
+    "player": 0.29,
+    "settle_analyse": 0.09,
+    "structures": 0.09,
+    "train": 0.26,
+    "train_lookout": 0.06,
+    "train_sound": 0.1,
+    "train_view": 0.12,
+    "valley_ground": 0.06
+  },
+  "rubble": {
+    "awake_at_end": 0,
+    "pieces": 8
+  },
+  "slow_frames": [
+    {
+      "awake": 2,
+      "ms": 72.4,
+      "physics_ms": 6.3,
+      "process_ms": 3.0,
+      "rubble": 2,
+      "t": 0.02,
+      "top": {
+        "analysis_full_begin": 6.4,
+        "blast_break": 61.5,
+        "blast_fx": 4.2,
+        "blast_gather": 1.5,
+        "blast_response": 0.8,
+        "blast_settle": 60.7,
+        "gather_panes": 1.0,
+        "settle_analyse": 60.5
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 1,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/trestle_valley/runs/bundles_two.json",
+    "posts": "inner",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 4,
+    "story": "bottom",
+    "train": "none",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": -1.0
+}
