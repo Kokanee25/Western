@@ -426,3 +426,9 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-09_cheap_matlib_fine_r2 | noon_far | **cheap indie** | 2, 3, 4 | Matte, not varnished | 4% / 5.6 / 1.01 / 0.26 | #718 round 2, fine (mahogany before its in-between tint) |
 | 2026-11-09_cheap_matlib_fine_r2 | saloon_rail | **cheap indie** | 3, 4, 6 | Stamped glass rings | 92% / 0.0 / 1.76 / 0.32 | #718 round 2, fine (mahogany before its in-between tint) |
 | 2026-11-09_cheap_matlib_fine_r2 | noon_rail | **good indie** | 4 | Speckled grain on the floor | 18% / 0.1 / 0.92 / 0.37 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_common_r3 | noon_far | **cheap indie** | 2, 3, 4, 6 | Pale, uniform, new-looking boards | 1% / 8.4 / 1.18 / 0.24 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_common_r3 | golden_near | **cheap indie** | 1, 3, 4, 6 | Stair-stepped shadow | 1% / 10.0 / 0.83 / 0.22 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_common_r3 | saloon_far | **cheap indie** | 2, 4, 6 | One bright new board that doesn't match | 64% / 0.0 / 1.27 / 0.36 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_common_r3 | golden_far | **cheap indie** | 2, 3, 4, 5, 6 | Clean, uniform orange wood | 2% / 5.4 / 1.46 / 0.17 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_common_r3 | noon_near | **cheap indie** | 4, 6 | Grain that reads as digital noise | 23% / 0.1 / 0.94 / 0.09 | #718 round 2, common with C2's grain fixed |
+| 2026-11-09_cheap_matlib_common_r3 | saloon_far | **cheap indie** | 2, 3, 4, 6 | Red-orange wood with banded static | 69% / 0.0 / 1.30 / 0.29 | #718 round 2, common with C2's grain fixed |
