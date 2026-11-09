@@ -157,3 +157,23 @@ disaster on payday, it links to the spine.
 **1882 doubts:** no quartering soldiers in houses in peacetime (the Third Amendment) and Posse Comitatus
 limits; triage by need was Larrey's, not "the Letterman system" (Letterman organised ambulances);
 Esmarch's first-aid teaching began only around 1881–82; the floor collapse needs a documented case.
+
+## The build check of version 2 (2026-11-09)
+
+- **Small:** the crowd's weight on floor members (`extra_points`, the trestle's pattern, throttled to once
+  a second); a stamp factor while the fiddle plays; a floor built light in data; the creak and bend from
+  each member's utilisation; the fall itself hurting (reuse the blast-thrown landing); a splint flag; the
+  amputation itself (`HumanBody.amputate` exists, nothing calls it); a second payday train.
+- **Works today:** men going limp when their floor goes; rubble hitting men (`_on_rubble_hit`); internal
+  bleeding, fractures, burst spleen and liver from blows; glass cuts from panes.
+- **Medium:** first aid on another man (self only today; roadmap 3.1c); lifting the pinned piece with
+  helpers; a pinned state; a shout-to-help chore; men running to a loud event; passengers stepping off.
+- **Large:** the doctor's brain (treatment lab part 2); leading people by talk; Rourke (no character, no
+  accept/refuse); consequences (story state).
+- **Not feasible now:** the old town saloon (its "balcony" is a stair landing; use the building lab's
+  spec saloon, which has real upper floors); forty dancers (mass go-limp is ~20 ms a man on one tick:
+  about twelve, staggered, measured against #492's gate); a lever or cutting a fallen joist (fallen pieces
+  are rubble outside the support graph); the wound spread is dice (a lab must measure what a collapse
+  produces before the design relies on a thigh bleeder and a quiet spleen).
+- **Size:** about 4 small + 2 medium for a playable prototype; the full mission adds 3 large and story
+  state.
