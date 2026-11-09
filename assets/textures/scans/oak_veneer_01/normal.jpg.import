@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1x64yqnecl02"
-path.s3tc="res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.s3tc.ctex"
-path.etc2="res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.etc2.ctex"
+path="res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/textures/scans/oak_veneer_01/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.s3tc.ctex", "res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.etc2.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-5ee1599c4b89724c12b943a971dda290.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

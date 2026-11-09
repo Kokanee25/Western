@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bv5fguoo5oe1p"
-path.s3tc="res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.s3tc.ctex"
-path.etc2="res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.etc2.ctex"
+path="res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/textures/scans/sapele_veneer/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.s3tc.ctex", "res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.etc2.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-4d8e969180a2ae18cc5169e6cbc4844c.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

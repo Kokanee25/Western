@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cc8drdbrn5dq8"
-path.s3tc="res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.s3tc.ctex"
-path.etc2="res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.etc2.ctex"
+path="res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/textures/scans/Wood015/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.s3tc.ctex", "res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.etc2.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-df739711ac13333179da64eb87b13941.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

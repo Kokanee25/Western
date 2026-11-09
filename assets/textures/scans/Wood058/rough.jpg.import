@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dn3libilxmv4p"
-path.s3tc="res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.s3tc.ctex"
-path.etc2="res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.etc2.ctex"
+path="res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/textures/scans/Wood058/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.s3tc.ctex", "res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.etc2.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-528edf748ec1b3c9f9905f190bef7332.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

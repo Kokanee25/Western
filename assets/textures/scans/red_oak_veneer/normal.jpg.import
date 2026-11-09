@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1x0mhj1cp2yb"
-path.s3tc="res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.s3tc.ctex"
-path.etc2="res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.etc2.ctex"
+path="res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/textures/scans/red_oak_veneer/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.s3tc.ctex", "res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.etc2.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-ee9ed7418dc458aad22c606679064aaa.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
