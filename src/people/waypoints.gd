@@ -53,68 +53,104 @@ func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: StringName, excl
 		return [goal]
 	# The shortest way: straight to a point he can walk to, then along the links. Whether he can walk
 	# straight to a point (a sphere cast and a ray every 0.3 m) is most of a route's cost, and was
-	# asked of every point first (the three riders' first routes, 30-37 ms each; #510). Now the
-	# shortest way is found as if he could walk straight to any point, and only its first point is
-	# asked; one he can't is crossed off and the way found again (the searches cost nothing next to
-	# one ask). The same way as asking every point first (test_places holds it to that).
-	var blocked := {}
-	var asked := {}
-	while true:
-		var names := _shortest(from, to, blocked)
-		if names.is_empty():
-			break
-		var first: StringName = names[0]
-		if not asked.has(first):
-			asked[first] = _walkable(space, from, points[first], exclude)
-		if asked[first]:
+	# asked of every point first (the three riders' first routes, 30-37 ms each; #510). Then the
+	# shortest way was found as if he could walk straight to any point and only its first point
+	# asked, one he couldn't crossed off and the way found again: a search a point asked, ~1 s from a
+	# back yard in the valley's town (G5: ~360 points, ~140 asked). Now one search back from `to`
+	# gives every point's way there; the points are asked in order of the straight line to them and
+	# their way on, the first he can walk to starts it: the same way (test_places holds it to that).
+	var back := _ways_to(to)
+	var dist: Dictionary = back[0]
+	var next: Dictionary = back[1]
+	var order: Array = []
+	var seq := 0
+	for n: StringName in dist:
+		order.append([from.distance_to(points[n]) + float(dist[n]), seq, n])
+		seq += 1
+	order.sort_custom(_heap_less)
+	for e: Array in order:
+		var first: StringName = e[2]
+		if _walkable(space, from, points[first], exclude):
 			var path: Array[Vector3] = []
-			for n: StringName in names:
+			var n := first
+			while true:
 				path.append(points[n])
+				if n == to:
+					break
+				n = next[n]
 			return path
-		blocked[first] = true
-	# No way from the points left: none, if he can walk straight to any of them (as before, when the
-	# starts were all asked first); nothing in a straight line, head for the nearest anyway.
+	# No way from any point: none, if he can walk straight to a point with no way to `to` (as before,
+	# when the starts were all asked first); nothing in a straight line, head for the nearest anyway.
 	for n: StringName in points:
-		if not blocked.has(n) and (asked.get(n, false) or (not asked.has(n) and _walkable(space, from, points[n], exclude))):
+		if not dist.has(n) and _walkable(space, from, points[n], exclude):
 			return []
 	return _route_from_nearest(from, to)
 
 
-## The shortest way to `to` (point names, from where he'd start) as if he could walk straight from
-## `from` to any point but the `blocked`; [] if there's none.
-func _shortest(from: Vector3, to: StringName, blocked: Dictionary) -> Array[StringName]:
-	var dist := {}
-	var prev := {}
-	var open: Array[StringName] = []
-	for n: StringName in points:
-		if not blocked.has(n):
-			dist[n] = from.distance_to(points[n])
-			open.append(n)
-	while not open.is_empty():
-		var cur: StringName = open[0]
-		for n in open:
-			if dist[n] < dist[cur]:
-				cur = n
-		open.erase(cur)
-		if cur == to:
-			break
+## Every point's way to `to` along the links (Dijkstra's by a binary heap, ties to the point found
+## first): [{name: distance}, {name: the next point on}].
+func _ways_to(to: StringName) -> Array:
+	var dist := {to: 0.0}
+	var next := {}
+	var heap: Array = [[0.0, 0, to]]
+	var seq := 1
+	var done := {}
+	while not heap.is_empty():
+		var e: Array = _heap_pop(heap)
+		var cur: StringName = e[2]
+		if done.has(cur):
+			continue
+		done[cur] = true
 		for nb: StringName in links.get(cur, []):
 			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
 			if d < dist.get(nb, INF):
 				dist[nb] = d
-				prev[nb] = cur
-				if not open.has(nb):
-					open.append(nb)
-	var names: Array[StringName] = []
-	if not dist.has(to):
-		return names
-	var n := to
-	while true:
-		names.push_front(n)
-		if not prev.has(n):
+				next[nb] = cur
+				_heap_push(heap, [d, seq, nb])
+				seq += 1
+	return [dist, next]
+
+
+## A heap of [distance, order, name]: the least distance first, then the earliest.
+static func _heap_less(a: Array, b: Array) -> bool:
+	return float(a[0]) < float(b[0]) or (float(a[0]) == float(b[0]) and int(a[1]) < int(b[1]))
+
+
+static func _heap_push(h: Array, e: Array) -> void:
+	h.append(e)
+	var i := h.size() - 1
+	while i > 0:
+		var p := (i - 1) >> 1
+		if not _heap_less(h[i], h[p]):
 			break
-		n = prev[n]
-	return names
+		var t: Variant = h[p]
+		h[p] = h[i]
+		h[i] = t
+		i = p
+
+
+static func _heap_pop(h: Array) -> Array:
+	var top: Array = h[0]
+	var last: Array = h.pop_back()
+	if h.is_empty():
+		return top
+	h[0] = last
+	var i := 0
+	while true:
+		var l := i * 2 + 1
+		var r := l + 1
+		var m := i
+		if l < h.size() and _heap_less(h[l], h[m]):
+			m = l
+		if r < h.size() and _heap_less(h[r], h[m]):
+			m = r
+		if m == i:
+			break
+		var t: Variant = h[m]
+		h[m] = h[i]
+		h[i] = t
+		i = m
+	return top
 
 
 ## No point he can walk straight to: the way from the nearest point, along the links.
@@ -269,9 +305,29 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 			continue
 		var h := (hit.position as Vector3).y
 		if absf(h - prev) > STEP_UP:
-			return false
+			# A foot is wider than a ray: one that fell between two boards (a boardwalk's planks are
+			# 18 mm apart) is asked again a foot's width round, and the highest taken.
+			h = maxf(h, _foot_height(space, p, top, bottom, exclude))
+			if absf(h - prev) > STEP_UP:
+				return false
 		prev = h
 	return true
+
+
+## The highest of four rays FOOT round `p` (top to bottom), or -INF.
+static func _foot_height(space: PhysicsDirectSpaceState3D, p: Vector3, top: float, bottom: float, exclude: Array[RID]) -> float:
+	var best := -INF
+	for o: Vector2 in [Vector2(FOOT, 0.0), Vector2(-FOOT, 0.0), Vector2(0.0, FOOT), Vector2(0.0, -FOOT)]:
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x + o.x, top, p.z + o.y), Vector3(p.x + o.x, bottom, p.z + o.y), Layers.STAND, exclude)
+		Prof.count(&"q_walk")
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			best = maxf(best, (hit.position as Vector3).y)
+	return best
+
+
+## How far round a ray that found a drop the foot is asked again (m): past a board's gap.
+const FOOT := 0.06
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.

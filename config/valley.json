@@ -209,8 +209,8 @@
 	],
 	"viewpoints": [
 		{"id": "vp_depot", "name": "Depot platform", "at": [80, -70], "eye": 1.7, "status": "PROPOSED"},
-		{"id": "vp_main_east", "name": "Main Street's east end (the boardwalk)", "at": [128, -12], "eye": 2.4, "status": "PROPOSED"},
-		{"id": "vp_saloon_balcony", "name": "The saloon's upstairs balcony", "at": [20, -12], "eye": 5.6, "status": "PROPOSED"},
+		{"id": "vp_main_east", "name": "Main Street's east end (the boardwalk)", "at": [126, -8.9], "eye": 2.4, "status": "PROPOSED (G5: on the undertaker's boardwalk, was z -12 inside his lot)"},
+		{"id": "vp_saloon_balcony", "name": "The saloon's upstairs balcony", "at": [20, -8.9], "eye": 5.6, "status": "PROPOSED (G5: over the saloon's boardwalk, was z -12 inside its lot; the height waits on the saloon)"},
 		{"id": "vp_cemetery", "name": "The cemetery hill", "at": [-95, -205], "eye": 1.7, "status": "PROPOSED"},
 		{"id": "vp_bridge_a", "name": "Bridge A, looking down the canyon", "at": [975, 291], "eye": 2.4, "status": "PROPOSED"},
 		{"id": "vp_trestle_overlook", "name": "Trestle overlook (the canyon's west rim, up-canyon)", "at": [1120, 180], "eye": 1.7, "status": "PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view"},
@@ -264,7 +264,7 @@
 			{"id": "doctor", "name": "12 Doctor / Dispensary", "x0": 70.8, "x1": 87.2, "kind": "building", "depth": 16, "px": [1162, 1244]},
 			{"id": "alley_n7", "name": "Doctor's alley", "x0": 87.2, "x1": 88.4, "kind": "alley"},
 			{"id": "barber", "name": "13 Barber & Bathhouse", "x0": 88.4, "x1": 104.8, "kind": "building", "depth": 16, "px": [1250, 1332]},
-			{"id": "alley_n8", "name": "Undertaker's alley (junk: climb over)", "x0": 104.8, "x1": 106.0, "kind": "alley"},
+			{"id": "alley_n8", "name": "Undertaker's alley (junk: climb over)", "x0": 104.8, "x1": 106.0, "kind": "alley", "junk": {"from": 6.0, "to": 9.0, "_doc": "PROPOSED (G5, plan §3): a pile of crates and boards across the alley, metres back from the fronts; climbed by jumping (tiers of 0.5 m), not walked"}},
 			{"id": "undertaker", "name": "14 Undertaker", "x0": 106.0, "x1": 128.0, "kind": "building", "depth": 18, "px": [1338, 1448]}
 		],
 		"south": [

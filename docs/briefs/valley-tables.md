@@ -66,8 +66,8 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 | `bridge_a` | Bridge A: the Salt Creek wagon crossing | 965 | 288 | -9.8 (deck) | - | 16 span | east_road | - | DECIDED (on the eastern road at the canyon's shallow southern end; real water; not a trestle); PROPOSED place |
 | `bridge_t` | the town bridge | 0 | 164 | -4.4 (deck) | - | 14 span | south_road | - | DECIDED (in Sean's November 7 town picture: the North-South Street's south end, 'To Residential, Creek & South Road') |
 | `vp_depot` | Depot platform (viewpoint) | 80 | -70 | 2.4 | - | - | - | - | PROPOSED |
-| `vp_main_east` | Main Street's east end (the boardwalk) (viewpoint) | 128 | -12 | -0.4 | - | - | - | - | PROPOSED |
-| `vp_saloon_balcony` | The saloon's upstairs balcony (viewpoint) | 20 | -12 | 0.3 | - | - | - | - | PROPOSED |
+| `vp_main_east` | Main Street's east end (the boardwalk) (viewpoint) | 126 | -8 | -0.5 | - | - | - | - | PROPOSED (G5: on the undertaker's boardwalk, was z -12 inside his lot) |
+| `vp_saloon_balcony` | The saloon's upstairs balcony (viewpoint) | 20 | -8 | 0.2 | - | - | - | - | PROPOSED (G5: over the saloon's boardwalk, was z -12 inside its lot; the height waits on the saloon) |
 | `vp_cemetery` | The cemetery hill (viewpoint) | -95 | -205 | 10.5 | - | - | - | - | PROPOSED |
 | `vp_bridge_a` | Bridge A, looking down the canyon (viewpoint) | 975 | 291 | -11.5 | - | - | - | - | PROPOSED |
 | `vp_trestle_overlook` | Trestle overlook (the canyon's west rim, up-canyon) (viewpoint) | 1120 | 180 | -1.2 | - | - | - | - | PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view |
@@ -251,7 +251,7 @@ Stopping distance with the brakes full on (brake_g 0.042, set along the train ov
 | Viewpoint | Distance (m) | Deck seen (share of the span) | Of the whole bridge | Deepest seen below the rail |
 |---|---|---|---|---|
 | Depot platform | 1103 | 100 % | 16 % | 0 m |
-| Main Street's east end (the boardwalk) | 1057 | 100 % | 14 % | 0 m |
+| Main Street's east end (the boardwalk) | 1060 | 100 % | 14 % | 0 m |
 | The saloon's upstairs balcony | 1165 | 100 % | 18 % | 0 m |
 | The cemetery hill | 1284 | 100 % | 20 % | 1 m |
 | Bridge A, looking down the canyon | 425 | 85 % | 65 % | 24 m |

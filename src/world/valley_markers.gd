@@ -61,6 +61,10 @@ var posts: Array[Dictionary] = []
 var places := Waypoints.new()
 var bridge_a: RoadBridge
 var bridge_t: RoadBridge
+## The town's greybox (G5): boardwalks, passages, junk and the town's ways (ValleyTown).
+var town: ValleyTown
+## The town's greybox (G5); `-- --no-town`: the markers without it (the bench's before).
+static var town_default := not "--no-town" in OS.get_cmdline_user_args()
 var body: StaticBody3D
 var build_ms := {}
 
@@ -82,6 +86,13 @@ func _ready() -> void:
 	bridge_a = _build_bridge("bridge_a", "BridgeA")
 	bridge_t = _build_bridge("bridge_t", "BridgeT")
 	build_ms["bridges"] = (Time.get_ticks_usec() - u) / 1000.0
+	u = Time.get_ticks_usec()
+	if town_default:
+		town = ValleyTown.new()
+		town.layout = layout
+		town.terrain = terrain
+		add_child(town)
+	build_ms["town"] = (Time.get_ticks_usec() - u) / 1000.0
 	u = Time.get_ticks_usec()
 	_find_places()
 	_build_posts()
@@ -268,6 +279,15 @@ func _find_places() -> void:
 		places.add(&"bridge_c", railway.mark_point("trestle_mid") + Vector3.UP * 0.05)
 	for vp: Dictionary in layout.viewpoints():
 		places.add(StringName(vp.id), _on_ground(ValleyLayout.xz(vp.at)))
+	# The town's ways (G5): doors, steps, passages, the streets, linked; a viewpoint on a walk is
+	# linked to its door.
+	if town:
+		town.add_ways(places)
+		for vp: Dictionary in layout.viewpoints():
+			var c := ValleyLayout.xz(vp.at)
+			var w := town.walk_at(c.x, c.y)
+			if not w.is_empty():
+				places.link(StringName(vp.id), StringName(String(w.id)))
 	var front := float((layout.town().get("main_street", {}) as Dictionary).get("width_between_fronts", 20.1)) * 0.5
 	for side in ["north", "south"]:
 		var sgn := -1.0 if side == "north" else 1.0
@@ -294,12 +314,16 @@ func _beside(b: Dictionary) -> Vector2:
 	return c + to * (reach + POST_OFF)
 
 
-## A map point on the ground there, stepped out of any block it falls in (to the block's nearest
-## side, POST_OFF past it): a viewpoint the plan put just behind a lot's front (vp_main_east,
-## vp_saloon_balcony at z -12, the fronts at -10.05) stands in the street in front of it.
+## A map point on the ground there (or a town walk's planks: G5), stepped out of any block it falls
+## in (to the block's nearest side, POST_OFF past it).
 func _on_ground(c: Vector2) -> Vector3:
 	c = out_of_blocks(c)
-	return Vector3(c.x, ground(c.x, c.y) + 0.05, c.y)
+	return Vector3(c.x, surface(c.x, c.y) + 0.05, c.y)
+
+
+## What a man stands on at a map point: a town walk's planks, else the ground.
+func surface(x: float, z: float) -> float:
+	return town.surface(x, z) if town else ground(x, z)
 
 
 ## `c`, or if it's inside a block (or within 0.3 m of it), the nearest point POST_OFF outside that
@@ -448,4 +472,5 @@ func report() -> Dictionary:
 		var b: RoadBridge = road_bridges()[id]
 		br[id] = {"length": snappedf(b.length(), 0.1), "bents": b.bents.size(), "cribs": b.cribs.size(), "members": b.get_members().size(),
 			"deck": snappedf(b.to_global(b.deck_from).y, 0.01)}
-	return {"blocks": blocks.size(), "posts": posts.size(), "places": places.points.size(), "bridges": br, "build_ms": build_ms}
+	return {"blocks": blocks.size(), "posts": posts.size(), "places": places.points.size(), "bridges": br, "build_ms": build_ms,
+		"town": town.report() if town else {}}
