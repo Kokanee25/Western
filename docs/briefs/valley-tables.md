@@ -36,7 +36,7 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 
 | ID | Name | X | Z | Y | natural | Footprint (m) | Access | Missions | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| `town` | Salt Creek (town) | 0 | 0 | 0.0 | 0.0 | - | west_road, east_road, south_road, timber_road, church_lane | opening, jailbreak, bank_job, payday | DECIDED |
+| `town` | Salt Creek (town) | 0 | 0 | -0.0 | 0.0 | - | west_road, east_road, south_road, timber_road, church_lane | opening, jailbreak, bank_job, payday | DECIDED |
 | `depot` | Salt Creek Depot (+ telegraph, PROPOSED) | 61 | -63 | 2.6 | 3.5 | 25 x 10 | church_lane | runaway_payroll, payday, trestle_finale | DECIDED (north of town); PROPOSED telegraph inside (the agent-telegrapher, period practice) |
 | `freight_warehouse` | Freight warehouse and platform | 104 | -63 | 2.3 | 3.2 | 25 x 12 | church_lane | - | DECIDED |
 | `water_tank` | Railroad water tank | 81 | -66 | 2.4 | 2.4 | - | - | - | DECIDED |
@@ -69,7 +69,7 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 | `vp_main_east` | Main Street's east end (the boardwalk) (viewpoint) | 128 | -12 | -0.4 | - | - | - | - | PROPOSED |
 | `vp_saloon_balcony` | The saloon's upstairs balcony (viewpoint) | 20 | -12 | 0.3 | - | - | - | - | PROPOSED |
 | `vp_cemetery` | The cemetery hill (viewpoint) | -95 | -205 | 10.5 | - | - | - | - | PROPOSED |
-| `vp_bridge_a` | Bridge A, looking down the canyon (viewpoint) | 975 | 291 | -12.5 | - | - | - | - | PROPOSED |
+| `vp_bridge_a` | Bridge A, looking down the canyon (viewpoint) | 975 | 291 | -11.6 | - | - | - | - | PROPOSED |
 | `vp_trestle_overlook` | Trestle overlook (the canyon's west rim, up-canyon) (viewpoint) | 1120 | 180 | -1.2 | - | - | - | - | PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view |
 | `vp_east_rim_north` | East rim, north of the trestle (viewpoint) | 1280 | -300 | 1.5 | - | - | - | - | PROPOSED: a second vantage point, above the widow's side |
 | `vp_canyon_floor` | Canyon floor below the trestle (viewpoint) | 1163 | 15 | -18.2 | - | - | - | - | PROPOSED |
@@ -195,19 +195,19 @@ Grades over 20 m windows on the shaped ground; bridges at their decks. Period pr
 
 | Road | Class | Length (m) | Low Y | High Y | Steepest | Over 6 % | Over 10 % | Status |
 |---|---|---|---|---|---|---|---|---|
-| the West Road (to the Ore Works) | wagon | 1415 | 0.8 | 25.1 | 2.8 % | 0 m | 0 m | ok |
-| the mine road | wagon | 1216 | 23.5 | 81.3 | 10.6 % | 432 m | 10 m | a short pitch (5 m over 10 %) |
-| the timber road | wagon | 1510 | 2.4 | 61.0 | 9.9 % | 535 m | 0 m | ok |
-| Church Lane | lane | 173 | 2.7 | 10.4 | 10.0 % | 63 m | 10 m | ok |
-| the East Road (the old through-road) | wagon | 3028 | -18.0 | 11.2 | 8.1 % | 84 m | 0 m | ok |
-| the widow's lane | lane | 91 | -10.0 | -6.0 | 7.5 % | 29 m | 0 m | ok |
-| Harlan's lane | lane | 529 | -5.0 | 1.9 | 4.7 % | 0 m | 0 m | ok |
-| Harlan's ford path | track | 348 | -8.2 | 2.0 | 14.2 % | 40 m | 20 m | ok |
+| the West Road (to the Ore Works) | wagon | 1415 | 0.7 | 25.0 | 3.1 % | 0 m | 0 m | ok |
+| the mine road | wagon | 1216 | 23.5 | 81.2 | 10.7 % | 457 m | 15 m | a short pitch (5 m over 10 %) |
+| the timber road | wagon | 1510 | 2.5 | 60.9 | 8.5 % | 569 m | 0 m | ok |
+| Church Lane | lane | 173 | 2.7 | 10.4 | 9.4 % | 58 m | 0 m | ok |
+| the East Road (the old through-road) | wagon | 3028 | -18.0 | 11.2 | 7.9 % | 89 m | 0 m | ok |
+| the widow's lane | lane | 91 | -10.0 | -6.0 | 6.8 % | 23 m | 0 m | ok |
+| Harlan's lane | lane | 529 | -5.0 | 1.9 | 4.6 % | 0 m | 0 m | ok |
+| Harlan's ford path | track | 348 | -8.4 | 2.0 | 10.0 % | 66 m | 0 m | ok |
 | the South Road (to the Baron's) | wagon | 1744 | -4.3 | 19.7 | 2.6 % | 0 m | 0 m | ok |
-| the ranch's canyon road | wagon | 945 | -8.0 | 19.7 | 7.9 % | 151 m | 0 m | ok |
-| the Baron's town-house drive | lane | 103 | 0.1 | 3.2 | 11.7 % | 27 m | 16 m | a short pitch (16 m over 10 %) |
-| the trail to the Southern Ute community | track | 1702 | -4.6 | 41.0 | 4.9 % | 0 m | 0 m | ok |
-| the hideout trail (the front way) | track | 1655 | -1.8 | 86.2 | 9.2 % | 655 m | 0 m | ok |
+| the ranch's canyon road | wagon | 945 | -7.9 | 19.7 | 7.8 % | 146 m | 0 m | ok |
+| the Baron's town-house drive | lane | 103 | 0.2 | 3.0 | 10.7 % | 27 m | 11 m | a short pitch (5 m over 10 %) |
+| the trail to the Southern Ute community | track | 1702 | -4.5 | 41.0 | 4.8 % | 0 m | 0 m | ok |
+| the hideout trail (the front way) | track | 1655 | -1.8 | 86.1 | 9.3 % | 655 m | 0 m | ok |
 | the mesa back way (unseen approach) | path | 1302 | 31.5 | 90.9 | 14.0 % | 442 m | 15 m | ok |
 
 ## F. Travel from the crossroads
@@ -218,20 +218,20 @@ By the road network (shortest way), the game's walk (2.8 m/s) and the PROPOSED h
 |---|---|---|---|---|---|---|---|---|
 | Harlan's homestead | 638 | 713 | 4:15 | 3:03 | 2:10 | +7 / -5 | the town bridge | main_street > ns_street > harlan_lane |
 | The opening's encounter site | 545 | 553 | 3:17 | 2:22 | 1:40 | +1 / -6 | - | main_street > east_road > harlan_ford_path |
-| The widow's homestead | 1801 | 2620 | 15:36 | 11:12 | 7:56 | +24 / -34 | Bridge B; Bridge A | main_street > east_road > widow_lane |
+| The widow's homestead | 1801 | 2620 | 15:36 | 11:12 | 7:56 | +23 / -33 | Bridge B; Bridge A | main_street > east_road > widow_lane |
 | Bridge A (creek crossing) | 1007 | 1016 | 6:03 | 4:20 | 3:05 | +1 / -11 | Bridge A | main_street > east_road |
-| Bridge B (the overpass) | 1926 | 2131 | 12:41 | 9:06 | 6:27 | +24 / -13 | Bridge B; Bridge A | main_street > east_road |
-| Trestle overlook | 1134 | 1314 | 7:49 | 5:37 | 3:59 | +8 / -12 | Bridge A | main_street > east_road |
+| Bridge B (the overpass) | 1926 | 2131 | 12:41 | 9:06 | 6:27 | +23 / -12 | Bridge B; Bridge A | main_street > east_road |
+| Trestle overlook | 1134 | 1314 | 7:49 | 5:37 | 3:59 | +7 / -11 | Bridge A | main_street > east_road |
 | Ore Works | 1555 | 1587 | 9:27 | 6:47 | 4:48 | +25 / -1 | the main line at grade | main_street > west_road > mine_road |
 | The mine | 1893 | 2756 | 16:24 | 11:47 | 8:21 | +83 / -4 | the main line at grade; the arroyo on a log-cribbed fill over a culvert (a flash flood can take it out) | main_street > west_road > mine_road |
-| Timber camp | 1626 | 1701 | 10:08 | 7:16 | 5:09 | +65 / -4 | the main line at grade; the arroyo at a ford | main_street > ns_street > back_street > timber_road |
-| The Baron's ranch | 1825 | 2000 | 11:54 | 8:33 | 6:04 | +25 / -5 | the town bridge | main_street > ns_street > harlan_lane > south_road |
+| Timber camp | 1626 | 1701 | 10:08 | 7:16 | 5:09 | +67 / -6 | the main line at grade; the arroyo at a ford | main_street > ns_street > back_street > timber_road |
+| The Baron's ranch | 1825 | 2000 | 11:54 | 8:33 | 6:04 | +24 / -5 | the town bridge | main_street > ns_street > harlan_lane > south_road |
 | The Baron's town house | 228 | 244 | 1:27 | 1:03 | 0:44 | +4 / -1 | - | main_street > west_road > baron_drive |
 | Southern Ute community | 1826 | 1899 | 11:18 | 8:07 | 5:45 | +46 / -5 | the town bridge | main_street > ns_street > harlan_lane > ute_trail |
 | Outlaw hideout (OPEN) | 2070 | 2118 | 12:36 | 9:03 | 6:25 | +91 / -5 | the town bridge | main_street > ns_street > harlan_lane > south_road > hideout_trail |
 | Cemetery | 217 | 243 | 1:27 | 1:02 | 0:44 | +10 / -0 | the tracks at grade, by the depot | main_street > ns_street > church_lane |
 | Depot | 88 | 123 | 0:44 | 0:32 | 0:22 | +3 / -0 | - | main_street > ns_street > back_street |
-| East exit | 2494 | 3158 | 18:48 | 13:30 | 9:34 | +24 / -42 | Bridge B; Bridge A | main_street > east_road |
+| East exit | 2494 | 3158 | 18:48 | 13:30 | 9:34 | +23 / -41 | Bridge B; Bridge A | main_street > east_road |
 
 ### The train
 

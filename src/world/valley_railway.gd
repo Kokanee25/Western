@@ -190,42 +190,14 @@ func _build_overpass(span := 14.0, approach := 7.0) -> void:
 		if q.distance_to(p2) < best:
 			best = q.distance_to(p2)
 			dir = (road[i + 1] - road[i]).normalized()
-	var along := Vector3(dir.x, 0.0, dir.y)
-	var ends := []
-	for side in [-1.0, 1.0]:
-		var d := 0.0
-		while d < 60.0:
-			d += 0.5
-			var q: Vector3 = rail + along * side * d
-			if terrain.height(q.x, q.z) >= deck_top - depth - 0.05:
-				break
-		ends.append(d)
-	var a: Vector3 = rail - along * float(ends[0])
-	var z: Vector3 = rail + along * float(ends[1])
-	a.y = deck_top
-	z.y = deck_top
-	var total: float = float(ends[0]) + float(ends[1])
-	var at: Array[float] = []
-	var mid := float(ends[0])
-	for side in [-1.0, 1.0]:
-		var main: float = mid + side * span * 0.5
-		at.append(main)
-		var end_d: float = 0.0 if side < 0.0 else total
-		var gap := absf(end_d - main)
-		var n := int(ceil(gap / approach))
-		for k in range(1, n):
-			at.append(main + (end_d - main) * float(k) / n)
+	var ter := terrain
+	var br := RoadBridge.spanning(rail, Vector3(dir.x, 0.0, dir.y), deck_top,
+			func(x: float, zz: float) -> float: return ter.height(x, zz), span, approach, depth)
 	var f := line.global_transform * line.transform_at(s)
-	var br := RoadBridge.new()
 	br.name = "BridgeB"
 	br.structure_id = &"bridge_b"
-	br.deck_from = a
-	br.deck_to = z
 	br.width = 5.0
-	br.bents_at = at
 	br.bent_dir = -f.basis.z
-	var ter := terrain
-	br.ground = func(x: float, zz: float) -> float: return ter.height(x, zz)
 	add_child(br)
 	overpass = br
 

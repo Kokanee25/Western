@@ -703,6 +703,25 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   its tick. `-- --no-valley-train`: the line alone (the bench). Valley lab bridge (`experiments/valley/bridge.gd`):
   `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`.
   `TrainEngineer.run(tt, late, from_stop)`; his creep up a climb steams up against the brake first.
+- **The valley's greybox markers** (G4, #720): the plan's places on the ground, from valley.json alone.
+  **The roads graded** (`valley_plan.py`'s `Terrain._roads`, in the bake): each road's profile (the
+  ground averaged over its class's run, bridge decks over their approaches, the mine road's crib fill,
+  a ford's banks cut to 8 % (12 % a track)) laid across its width and a 1 m shoulder, eased out at
+  1:1.5; a town street keeps the plane's fall across it; never on a pad, within 5-10 m of the rail's
+  bed or under a bridge's span; profiles from the ground at their own points, so the 10 m map and the
+  2 m bake still agree to 1.6 mm. **`ValleyMarks`** (`src/world/valley_marks.gd`): a byte a bake point
+  (pad, water, street, wagon, lane, track, path, ford, outline), painted at load (~0.3 s), tinting
+  ValleyGround's vertex colours (`valley_terrain.tres` "Marks"; `Ground.valley_marks`): no meshes of
+  its own. **`ValleyMarkers`** (`valley_markers.gd`, ValleyWorld's child `Markers`; `-- --no-markers`
+  leaves it and the marks out): a solid block for each building volume (lots of kind `building` from
+  the fronts back by their `depth`, extras with a size, places with a `block`; LOT_H 6 m), a post and
+  a Label3D name for every place, ford and bridge (one MultiMesh), Bridge A (`RoadBridge.spanning`,
+  two spans on a log crib: `cribs_at`) and the town bridge; `places` (Waypoints: every place, bridge,
+  viewpoint and town lot by id, stepped out of any block) is what the dev bridge's `goto`/`look`/`read
+  places` use in the valley (`ValleyWorld.places()`); `road_grades()` each road over the ground and
+  decks against the plan's limits. **`ValleyRoads`** (`valley_roads.gd`): the plan's road network
+  (valley.json's roads and the town's streets, a node every 5 m, junctions within 6 m), `journey(a, b)`
+  the shortest way. Valley lab: `valley_walk PLACE [run]` walks it and times it.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is

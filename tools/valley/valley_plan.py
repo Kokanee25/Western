@@ -162,12 +162,28 @@ def nearest_on_polyline(px, pz, line):
 # ---------------------------------------------------------------- the terrain
 
 
+def town_roads(data):
+	"""The town's own streets, as roads (for the network and the grading)."""
+	t = data["town"]
+	ms = t["main_street"]
+	ns = t["ns_street"]
+	bs = t["back_street"]
+	rl = t["rear_lane"]
+	return [
+		{"id": "main_street", "class": "street", "width": ms["width_between_fronts"], "line": [[ms["x"][0], 0], [0, 0], [ms["x"][1], 0]]},
+		{"id": "ns_street", "class": "street", "width": ns["width"], "line": [[0, ns["z"][0] + 14], [0, 0], [0, ns["z"][1] + 12]]},
+		{"id": "back_street", "class": "street", "width": bs["z"][1] - bs["z"][0], "line": [[bs["x"][0], -51.2], [0, -51.2], [bs["x"][1], -51.2]]},
+		{"id": "rear_lane", "class": "street", "width": rl["z"][1] - rl["z"][0], "line": [[rl["x"][0], 51.2], [0, 51.2], [rl["x"][1], 51.2]]},
+	]
+
+
 class Terrain:
 	def __init__(self, data, rail, grid=None, bounds=None):
 		"""The terrain sampled every `grid` m (valley.json's terrain.grid by default) over `bounds`
 		(x0, x1, z0, z1; by default the envelope and 300 m round it). The function is the same at
 		every grid: each step works point by point (the spline, the pads, the formation, the
-		channels), so the 2 m bake and the 10 m map agree at their shared points."""
+		channels, then the roads graded from their own profiles), so the 2 m bake and the 10 m map
+		agree at their shared points."""
 		self.data = data
 		self.rail = rail
 		env = data["envelope"]["playable"]
@@ -181,14 +197,27 @@ class Terrain:
 		self.XX, self.ZZ = np.meshgrid(self.xs, self.zs)  # [z, x]
 		self._fit()
 		self.natural = self._tps(self.XX, self.ZZ)
-		self.h = self.natural.copy()
-		self._pads()
-		self.shaped = self.h.copy()  # natural ground with the pads, before the rail's formation and the channels
-		self._formation()
-		self.before_channels = self.h.copy()
 		self.channels = {}
+		self.h = self._shape(self.XX, self.ZZ, self.natural.copy(), keep=True)
+		self.before_roads = self.h.copy()
+		self.road_profiles = self._road_profiles()
+		self._roads(self.XX, self.ZZ, self.h)
+
+	def _shape(self, X, Z, H=None, keep=False):
+		"""The ground before the roads at the points (X, Z), any shape: the spline, the pads, the
+		rail's formation and the channels, each point by point. `keep`: the grid's own stages kept
+		(shaped, before_channels, channels) for the checks and maps."""
+		if H is None:
+			H = self._tps(X, Z)
+		self._pads(X, Z, H)
+		if keep:
+			self.shaped = H.copy()  # natural ground with the pads, before the rail's formation and the channels
+		self._formation(X, Z, H, keep)
+		if keep:
+			self.before_channels = H.copy()
 		for key in ("creek", "arroyo"):
-			self._carve(key)
+			self._carve(X, Z, H, key, keep)
+		return H
 
 	# thin-plate spline through the control points
 	def _fit(self):
@@ -217,36 +246,36 @@ class Terrain:
 				out = out + w * np.where(d2 > 0, 0.5 * d2 * np.log(d2), 0.0)
 		return out
 
-	def _blend(self, cx, cz, w, d, heading, blend, y_fn):
+	def _blend(self, X, Z, H, cx, cz, w, d, heading, blend, y_fn):
 		hd = math.radians(heading)
 		ux, uz = math.sin(hd), -math.cos(hd)  # along the heading
 		vx, vz = -uz, ux
-		rx = (self.XX - cx) * ux + (self.ZZ - cz) * uz
-		rz = (self.XX - cx) * vx + (self.ZZ - cz) * vz
+		rx = (X - cx) * ux + (Z - cz) * uz
+		rz = (X - cx) * vx + (Z - cz) * vz
 		ex = np.maximum(np.abs(rx) - w * 0.5, 0.0)
 		ez = np.maximum(np.abs(rz) - d * 0.5, 0.0)
 		dist = np.hypot(ex, ez)
 		t = np.clip(1.0 - dist / blend, 0.0, 1.0)
 		wgt = t * t * (3 - 2 * t)
 		m = wgt > 0
-		self.h[m] = self.h[m] * (1 - wgt[m]) + y_fn(self.XX[m], self.ZZ[m]) * wgt[m]
+		H[m] = H[m] * (1 - wgt[m]) + y_fn(X[m], Z[m]) * wgt[m]
 
-	def _pads(self):
+	def _pads(self, X, Z, H):
 		tg = self.data["town"]["ground"]
 		pl = tg["plane"]
 		rx, rz = tg["rect"]["x"], tg["rect"]["z"]
-		self._blend((rx[0] + rx[1]) / 2, (rz[0] + rz[1]) / 2, rx[1] - rx[0], rz[1] - rz[0], 90, tg["blend"],
+		self._blend(X, Z, H, (rx[0] + rx[1]) / 2, (rz[0] + rz[1]) / 2, rx[1] - rx[0], rz[1] - rz[0], 90, tg["blend"],
 			lambda X, Z: pl["y0"] + pl["gx"] * X + pl["gz"] * Z)
 		for p in self.data["places"]:
 			pd = p.get("pad")
 			if not pd:
 				continue
 			y = float(pd["y"])
-			self._blend(p["at"][0], p["at"][1], pd["w"], pd["d"], pd.get("heading", 90), pd.get("blend", 30), lambda X, Z, y=y: np.full(X.shape, y))
+			self._blend(X, Z, H, p["at"][0], p["at"][1], pd["w"], pd["d"], pd.get("heading", 90), pd.get("blend", 30), lambda X, Z, y=y: np.full(X.shape, y))
 
-	def _formation(self):
-		"""The rail's bed: rail top less 1 m within 4 m of the line, eased out over its cut or fill;
-		none on the trestle's span or past the west portal (the tunnel)."""
+	def _rail_runs(self):
+		"""The formation's line (rail top less 1 m) as [x, z, y, s] rows every 5 m, in runs that don't
+		jump the trestle's gap; none on the trestle's span or past the west portal (the tunnel)."""
 		r = self.rail
 		marks = self.data["railway"]["route"]["marks"]
 		cross = self.data["railway"]["route"]["crossings"]
@@ -255,37 +284,176 @@ class Terrain:
 			keep &= ~((r["s"] > c["from"] - 2) & (r["s"] < c["to"] + 2))
 		idx = np.where(keep)[0][::5]
 		line = np.column_stack([r["x"][idx], r["z"][idx], r["y"][idx] - 1.0, r["s"][idx]])
-		# split into runs so the line doesn't jump the trestle gap
 		runs, cur = [], [line[0]]
 		for a, b in zip(line[:-1], line[1:]):
 			if b[3] - a[3] > 10:
 				runs.append(np.array(cur)); cur = []
 			cur.append(b)
 		runs.append(np.array(cur))
-		for run in runs:
-			if len(run) < 2:
-				continue
+		return [run for run in runs if len(run) >= 2]
+
+	def _formation(self, X, Z, H, keep=False):
+		"""The rail's bed: rail top less 1 m within 4 m of the line, eased out over its cut or fill;
+		none on the trestle's span or past the west portal (the tunnel). `keep`: each point's distance
+		from the line kept (`rail_d`, inf past 60 m of it) for the roads, which leave the bed alone."""
+		if keep:
+			self.rail_d = np.full(X.shape, np.inf)
+		for run in self._rail_runs():
 			bx = (run[:, 0].min() - 60, run[:, 0].max() + 60)
 			bz = (run[:, 1].min() - 60, run[:, 1].max() + 60)
-			m = (self.XX > bx[0]) & (self.XX < bx[1]) & (self.ZZ > bz[0]) & (self.ZZ < bz[1])
-			d, rows = nearest_on_polyline(self.XX[m], self.ZZ[m], run)
+			m = (X > bx[0]) & (X < bx[1]) & (Z > bz[0]) & (Z < bz[1])
+			if not np.any(m):
+				continue
+			d, rows = nearest_on_polyline(X[m], Z[m], run)
+			if keep:
+				self.rail_d[m] = np.minimum(self.rail_d[m], d)
 			form = rows[:, 2]
-			hh = self.h[m]
+			hh = H[m]
 			reach = 4.0 + 1.5 * np.abs(hh - form)
 			t = np.clip((d - 4.0) / np.maximum(reach - 4.0, 1e-3), 0.0, 1.0)
 			wgt = np.where(d <= 4.0, 1.0, 1.0 - t)
-			self.h[m] = hh * (1 - wgt) + form * wgt
+			H[m] = hh * (1 - wgt) + form * wgt
 
-	def _carve(self, key):
+	def _carve(self, X, Z, H, key, keep=False):
 		w = self.data["water"][key]
 		L = np.array(w["line"], float)
-		d, rows = nearest_on_polyline(self.XX, self.ZZ, L)
-		bed, half, floor, pw = rows[:, :, 2], rows[:, :, 3], rows[:, :, 4], rows[:, :, 5]
+		d, rows = nearest_on_polyline(X, Z, L)
+		bed, half, floor, pw = rows[..., 2], rows[..., 3], rows[..., 4], rows[..., 5]
 		f = np.clip((d - floor) / np.maximum(half - floor, 1e-3), 0.0, 1.0)
-		carve = bed + (self.h - bed) * f ** pw
+		carve = bed + (H - bed) * f ** pw
 		m = d < half
-		self.h[m] = np.minimum(self.h[m], carve[m])
-		self.channels[key] = (d, rows)
+		H[m] = np.minimum(H[m], carve[m])
+		if keep:
+			self.channels[key] = (d, rows)
+
+	# ---- the roads, graded as built (the plan's road_profile, laid into the ground; G4, #720)
+	# How far each class's surface is averaged (a road crew's cuts and fills through bumps, pad edges
+	# and banks), and the grade a ford's approaches are cut down to. A class not here (a foot path)
+	# keeps the ground as it is.
+	GRADED = {"wagon": 40.0, "lane": 30.0, "street": 30.0, "track": 20.0}
+	FORD_GRADE = {"wagon": 0.08, "lane": 0.08, "street": 0.08, "track": 0.12}
+	# A bridge over the railway (Bridge B): no grading under its main span, eased in over this (m)
+	# past it (its approaches; the formation's own clear keeps the cutting by the track).
+	OVER_RAIL_EASE = 6.0
+	# Within RAIL_CLEAR[0] m of the formation's line the formation stands (a crossing at grade, and
+	# a road's cut or fill easing out toward the track); full grading from RAIL_CLEAR[1] out.
+	RAIL_CLEAR = (5.0, 10.0)
+	# A place's pad stands as levelled: no grading on it, full grading this far (m) off its edge.
+	PAD_CLEAR = 6.0
+	# The road's surface carried this far past its edges before the cut or fill eases out.
+	SHOULDER = 1.0
+
+	def bridge_points(self):
+		"""Each road bridge: (id, x, z, deck, span, over_rail)."""
+		out = []
+		marks = self.data["railway"]["route"]["marks"]
+		for b in self.data["bridges"]:
+			if "route_crossing" in b:
+				continue
+			if "route_mark" in b:
+				x, z, y, _ = along(self.rail, marks[b["route_mark"]])
+				out.append((b["id"], x, z, y + b["deck_over_rail"], b.get("span", 14), True))
+			else:
+				out.append((b["id"], b["at"][0], b["at"][1], b["deck_y"], b.get("span", 14), False))
+		return out
+
+	def _road_profiles(self):
+		"""Each graded road's profile every 2 m along its line, from the ground before the roads at
+		those points (so it's the same at every grid): {id: (line [x, z, s], s, y, weight, half,
+		along_only: a street's change along its line, else None)}. The
+		surface is the ground averaged over the class's run, a bridge's deck over its approaches
+		(as Plan.road_profile), a crib fill's level over its span, a ford's banks cut down to the
+		class's ford grade; the weight is 0 under a bridge's span (the gap stays), on a place's pad,
+		by the railway's formation and round a bridge over the railway."""
+		out = {}
+		bridges = self.bridge_points()
+		rail = self._rail_runs()
+		for r in list(self.data["roads"]) + town_roads(self.data):
+			cls = r.get("class", "wagon")
+			if cls not in self.GRADED:
+				continue
+			line = np.asarray(r["line"], float)[:, :2]
+			# Evenly every 2 m along the whole line (so the average below is centred on each point).
+			ls = np.concatenate([[0], np.cumsum(np.hypot(*(line[1:] - line[:-1]).T))])
+			s = np.linspace(0.0, ls[-1], max(2, int(math.ceil(ls[-1] / 2.0)) + 1))
+			x, z = np.interp(s, ls, line[:, 0]), np.interp(s, ls, line[:, 1])
+			step = s[1] - s[0]
+			y0 = self._shape(x.copy(), z.copy())
+			y = y0.copy()
+			wt = np.ones_like(y)
+			decks = []
+			for _bid, bx, bz, deck, span, over_rail in bridges:
+				d = np.hypot(x - bx, z - bz)
+				if over_rail:
+					# Its approaches graded up to the deck from its main span's ends out (the plan's
+					# road_profile), the cutting under the span left: the formation's clear stands.
+					wt = np.minimum(wt, np.clip((d - span * 0.5) / self.OVER_RAIL_EASE, 0.0, 1.0))
+					y[d < span * 0.5 + 6] = deck
+					decks.append((d < span * 0.5 + 1, deck))
+					continue
+				m = d < span * 0.5 + 6
+				if np.any(m):
+					y[m] = deck
+					decks.append((d < span * 0.5 + 1, deck))
+					wt[d < span * 0.5] = 0.0
+			for f in r.get("crosses", ()):
+				if "fill_y" in f:
+					m = np.hypot(x - f["at"][0], z - f["at"][1]) < f.get("span", 30) * 0.5
+					y[m] = f["fill_y"]
+			n = max(1, int(round(self.GRADED[cls] / step))) | 1  # (odd: centred)
+			if n > 1 and len(y) > n:
+				k = np.ones(n) / n
+				pad = np.concatenate([np.full(n, y[0]), y, np.full(n, y[-1])])
+				y = np.convolve(pad, k, mode="same")[n:-n]
+			for m, deck in decks:
+				y[m] = deck
+			for f in r.get("crosses", ()):
+				if "ford" not in f.get("what", ""):
+					continue
+				df = np.hypot(x - f["at"][0], z - f["at"][1])
+				sf = s[int(np.argmin(df))]
+				bed = float(y0[df < 6.0].min()) if np.any(df < 6.0) else float(y0[int(np.argmin(df))])
+				y = np.minimum(y, bed + self.FORD_GRADE[cls] * np.maximum(np.abs(s - sf) - 2.0, 0.0))
+			for p in self.data["places"]:
+				pd = p.get("pad")
+				if not pd:
+					continue
+				hd = math.radians(pd.get("heading", 90))
+				ux, uz = math.sin(hd), -math.cos(hd)
+				rx = np.abs((x - p["at"][0]) * ux + (z - p["at"][1]) * uz) - pd["w"] * 0.5
+				rz = np.abs((x - p["at"][0]) * -uz + (z - p["at"][1]) * ux) - pd["d"] * 0.5
+				out_by = np.hypot(np.maximum(rx, 0.0), np.maximum(rz, 0.0))
+				wt = np.minimum(wt, np.clip(out_by / self.PAD_CLEAR, 0.0, 1.0))
+			for run in rail:
+				dr, _ = nearest_on_polyline(x, z, run)
+				wt = np.minimum(wt, np.clip((dr - self.RAIL_CLEAR[0]) / (self.RAIL_CLEAR[1] - self.RAIL_CLEAR[0]), 0.0, 1.0))
+			L = np.column_stack([line, ls])
+			out[r["id"]] = (L, s, y, wt, float(r.get("width", 4.0)) * 0.5, y - y0 if cls == "street" else None)
+		return out
+
+	def _roads(self, X, Z, H):
+		"""Each road's profile laid into the ground: its surface level across its width and a
+		shoulder (a town street keeps the plane's fall across it), eased out over its cut or fill at
+		1:1.5 (as the formation is)."""
+		for L, s, y, wt, half, along_only in self.road_profiles.values():
+			full = half + self.SHOULDER
+			bx = (L[:, 0].min() - full - 40, L[:, 0].max() + full + 40)
+			bz = (L[:, 1].min() - full - 40, L[:, 1].max() + full + 40)
+			m = (X > bx[0]) & (X < bx[1]) & (Z > bz[0]) & (Z < bz[1])
+			if not np.any(m):
+				continue
+			d, rows = nearest_on_polyline(X[m], Z[m], L)
+			sn = rows[:, 2]
+			w_line = np.interp(sn, s, wt)
+			hh = H[m]
+			# A town street keeps the town plane's fall across it: only its profile along is graded.
+			target = np.interp(sn, s, y) if along_only is None else hh + np.interp(sn, s, along_only)
+			reach = full + 1.5 * np.abs(hh - target)
+			t = np.clip((d - full) / np.maximum(reach - full, 1e-3), 0.0, 1.0)
+			wgt = np.where(d <= full, 1.0, 1.0 - t) * w_line
+			# The rail's bed stands: no cut or fill of a road's within RAIL_CLEAR of the line.
+			wgt *= np.clip((self.rail_d[m] - self.RAIL_CLEAR[0]) / (self.RAIL_CLEAR[1] - self.RAIL_CLEAR[0]), 0.0, 1.0)
+			H[m] = hh * (1 - wgt) + target * wgt
 
 	def at(self, x, z, field=None):
 		F = self.h if field is None else field
@@ -346,17 +514,7 @@ class Plan:
 
 	# the town's own streets, as roads for the network
 	def town_roads(self):
-		t = self.data["town"]
-		ms = t["main_street"]
-		ns = t["ns_street"]
-		bs = t["back_street"]
-		rl = t["rear_lane"]
-		return [
-			{"id": "main_street", "class": "street", "line": [[ms["x"][0], 0], [0, 0], [ms["x"][1], 0]]},
-			{"id": "ns_street", "class": "street", "line": [[0, ns["z"][0] + 14], [0, 0], [0, ns["z"][1] + 12]]},
-			{"id": "back_street", "class": "street", "line": [[bs["x"][0], -51.2], [0, -51.2], [bs["x"][1], -51.2]]},
-			{"id": "rear_lane", "class": "street", "line": [[rl["x"][0], 51.2], [0, 51.2], [rl["x"][1], 51.2]]},
-		]
+		return town_roads(self.data)
 
 	GRADED = {"wagon": 40.0, "lane": 30.0, "street": 30.0, "track": 20.0, "path": 10.0}
 
