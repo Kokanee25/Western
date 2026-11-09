@@ -135,3 +135,9 @@ Results of the G steps that build the new valley beside the old town.
   - **The frame** (`valley_bench.gd`, lavapipe, real look; `-- --no-markers` the before), render CPU
     at Sean's: crossroads 0.53 -> 0.57 ms (draws 199 -> 209), corners 0.46-0.47 -> 0.48-0.50,
     overlook 0.55 -> 0.53 (noise); nodes +180; load the same (~8 s drawn). Budget 4 ms.
+  - **Pictures** (real look, lavapipe, 10:30; `g4_pictures.txt`): `results/g4_top_town.jpg` (the town
+    from 160 m up: the streets, lots' blocks, the depot's pad outlined), `results/g4_top_bridge_a.jpg`
+    (the East Road over Bridge A and the creek, taken before the roads were darkened),
+    `results/g4_main_street.jpg` (west down Main Street between the lots' blocks, the `town` post at
+    the crossroads), `results/g4_bridge_a.jpg` (Bridge A on its crib from the west bank). The marks
+    read from above; at eye level the real look washes the greybox ground to one pale tone (for art).
