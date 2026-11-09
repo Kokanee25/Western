@@ -49,7 +49,9 @@ func _player() -> Player:
 func test_a_boardwalk_along_every_building_s_front() -> void:
 	var t := _town()
 	var lay := ValleyLayout.main()
-	check_eq(t.walks.size(), lay.town_buildings().size(), "a walk for each building lot")
+	var with_walk := lay.town_buildings().filter(func(l: Dictionary) -> bool: return not (l.get("walk", {}) as Dictionary).get("none", false))
+	check_eq(t.walks.size(), with_walk.size(), "a walk for each building lot but the livery's yard")
+	check(_walk("livery").is_empty(), "no walk before the livery's dirt yard")
 	var space := World.space(valley)
 	for w: Dictionary in t.walks:
 		var bw := w.node as Boardwalk
@@ -57,25 +59,82 @@ func test_a_boardwalk_along_every_building_s_front() -> void:
 		var l := lay.lot(String(w.id))
 		check_near(float(w.x0), float(l.x0), 0.01, "%s's walk starts at its lot" % w.id)
 		check(float(w.x1) >= float(l.x1) - 0.01, "%s's walk runs its frontage" % w.id)
-		# Its planks there, at its top, the town's boardwalk depth out from the front.
+		# At its owner's height (G7, #737): the lot's walk.h over the ground at its street edge.
 		var sgn := ValleyTown.sign_of(String(w.side))
+		var edge := t.ground((float(w.x0) + float(w.x1)) * 0.5, sgn * (t.front - t.walk_depth))
+		check_near(float(w.top) - edge, float((l.walk as Dictionary).h), 0.01, "%s's walk at its height" % w.id)
+		# Its planks there, at its top, the town's boardwalk depth out from the front.
 		for d in [0.3, t.walk_depth - 0.3]:
 			# (A foot's width of rays: one can fall between two planks.)
 			var p := Vector3(float(w.door) + 2.0, float(w.top) + 1.0, sgn * (t.front - d))
 			var h := Waypoints._foot_height(space, p, p.y, p.y - 3.0, [])
 			check(absf(h - float(w.top)) < 0.03, "%s's planks %.1f m out (%.2f)" % [w.id, d, h - float(w.top)])
-		# Up on steps: the walk's street edge is a step too high but at its flight.
-		check(float(w.top) - t.ground(float(w.door), sgn * (t.front - t.walk_depth)) > Waypoints.STEP_UP,
-				"%s's walk a step too high at its edge" % w.id)
-		check_eq(bw.steps.size(), 1, "%s: a flight before its door" % w.id)
-	# Shoulder to shoulder walks join (the hardware and the store; the bakery and the butcher).
-	for pair: Array in [["hardware", "general_store"], ["bakery", "butcher"]]:
-		var a := _walk(String(pair[0]))
-		check_eq(String(a.joined_e), String(pair[1]), "%s's walk meets %s's" % pair)
-		check(absf(float(a.top) - float(_walk(String(pair[1])).top)) < Waypoints.STEP_UP, "a step between them, not a climb")
-	# Every other end steps down to the ground.
-	check_eq((_walk("butcher").node as Boardwalk).end_steps.size(), 1, "the butcher's walk steps down to the North-South Street")
+		# Up on steps: a walk's street edge is a step too high but at its flight (a shack's isn't).
+		if float(w.h) > Waypoints.STEP_UP + 0.05:
+			check(float(w.top) - t.ground(float(w.door), sgn * (t.front - t.walk_depth)) > Waypoints.STEP_UP,
+					"%s's walk a step too high at its edge" % w.id)
+		check_eq(bw.steps.size() + bw.ramps.size(), 1, "%s: a flight (or a ramp) before its door" % w.id)
+		check_eq(bw.ramps.size(), 1 if (l.walk as Dictionary).get("door", "") == "ramp" else 0, "%s: a ramp where its lot says" % w.id)
+		# No riser over the town's rule, at its door or its ends.
+		var door_h := bw.top + bw.street_below
+		check(door_h / bw._rises(door_h) <= t.riser_max + 0.001, "%s: its door's risers (%.2f m in %d)" % [w.id, door_h, bw._rises(door_h)])
+		for e: Vector2 in bw.end_steps:
+			check((bw.top - e.y) / bw._end_rises(e.y) <= t.riser_max + 0.001, "%s: its end's risers" % w.id)
+		check(bw._end_rises(0.0) >= 1, "counted")
+		# Posts, open underneath, from posts_at; a rail along it from rail_at; its awning.
+		check_eq(bw.on_posts, float(w.h) >= t.posts_at - 0.001, "%s on posts by its height" % w.id)
+		check_eq(bw.rail, float(w.h) >= t.rail_at - 0.001, "%s railed by its height" % w.id)
+		var aw := 0
+		var rails := 0
+		for m: StructureMember in bw.get_members():
+			aw += 1 if String(m.member_id).contains("/awning/") else 0
+			rails += 1 if String(m.member_id).contains("/rail/") else 0
+		check_eq(aw > 0, float((l.walk as Dictionary).get("awning", 0)) > 0.0, "%s's awning as its lot says" % w.id)
+		check_eq(rails > 0, bw.rail, "%s's rail built" % w.id)
+	# Shoulder to shoulder walks join, the higher carrying the flight down: the store two treads to
+	# the hardware's, the butcher a barrow ramp to the bakery's.
+	check_eq(String(_walk("hardware").joined_e), "general_store", "the hardware's walk meets the store's")
+	check_eq(String(_walk("bakery").joined_e), "butcher", "the bakery's meets the butcher's")
+	var store := _walk("general_store").node as Boardwalk
+	check(store.end_steps.any(func(e: Vector2) -> bool: return absf(e.y - (float(_walk("hardware").top) - float(_walk("general_store").y))) < 0.01),
+			"the store steps down to the hardware's walk")
+	var butcher := _walk("butcher").node as Boardwalk
+	check_eq(butcher.end_ramps.size(), 1, "the butcher ramps down to the bakery's walk")
+	# The drops: no flight at the store's east end (into its alley) or the bank's.
+	check_eq(store.end_steps.size() + store.end_ramps.size(), 1, "the store's alley end a drop")
+	var bank := _walk("bank").node as Boardwalk
+	check_eq(bank.end_steps.size() + bank.end_ramps.size(), 1, "the bank's east end a drop")
 	check_eq((_walk("hardware").node as Boardwalk).end_steps.size(), 1, "the hardware's down to its lane")
+	# Under the high walks: room to crawl (the player flat is crawl_height).
+	var crawl := PlayerTuning.new().crawl_height
+	for id in ["undertaker", "bank"]:
+		var w := _walk(id)
+		var sgn := ValleyTown.sign_of(String(w.side))
+		var x := float(w.door) + 3.0
+		var under := float(w.top) - Boardwalk.PLANK_T - Boardwalk.JOIST_D - t.ground(x, sgn * (t.front - t.walk_depth + 0.4))
+		check(under > crawl + 0.1, "%s: %.2f m under its street edge to crawl in" % [id, under])
+
+
+## The ways use the steps (#737): from one door to the next over a join, or down an end's flight
+## into an alley or a lane and up the next, never straight off a walk's edge.
+func test_the_ways_go_by_the_steps() -> void:
+	var places := valley.places()
+	var space := World.space(valley)
+	for pair: Array in [["doctor", "barber", true], ["general_store", "hardware", false], ["hotel", "doctor", true]]:
+		var r := places.route(space, places.at(StringName(pair[0])), StringName(pair[1]))
+		check(r.size() >= 1, "%s to %s routed" % [pair[0], pair[1]])
+		var low := INF
+		for q: Vector3 in r:
+			low = minf(low, q.y)
+		var doors := minf(places.at(StringName(pair[0])).y, places.at(StringName(pair[1])).y)
+		if pair[2]:
+			check(low < doors - 0.5, "%s to %s: down the steps into the gap and up (lowest %.2f, doors %.2f)" % [pair[0], pair[1], low, doors])
+		else:
+			check(low > doors - 0.3, "%s to %s: along the joined walks (lowest %.2f)" % [pair[0], pair[1], low])
+		var worst := 0.0
+		for i in range(1, r.size()):
+			worst = maxf(worst, absf(r[i].y - r[i - 1].y) / maxf(Vector2(r[i].x - r[i - 1].x, r[i].z - r[i - 1].z).length(), 0.05))
+		check(worst < 1.0, "%s to %s: no leg steeper than a stair (%.2f)" % [pair[0], pair[1], worst])
 
 
 func _walk(id: String) -> Dictionary:

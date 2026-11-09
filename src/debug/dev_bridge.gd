@@ -389,7 +389,12 @@ func _cmd_walk(a: Array) -> Dictionary:
 			var v := player.get_horizontal_speed()
 			var stop := maxf(0.5, v * v / (2.0 * maxf(player.tuning.ground_decel, 0.1))) if last_leg else 0.5
 			if flat.length() < stop:
-				break
+				# A short last leg after a run (down a walk's end flight into an alley, #737): ease off
+				# to a walk and steer on in, not let go and slide on past.
+				if last_leg and run and flat.length() > 0.5 and v > player.tuning.walk_speed + 0.3:
+					_act(false, &"run")
+				else:
+					break
 			var now := _game_seconds()
 			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
