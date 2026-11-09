@@ -112,6 +112,12 @@ var _panel_ages: Array = ["new", "few", "old"]
 var _review := false
 ## Frames a panel shot waits after the camera moves (--settle=N).
 var _settle := 40
+var _probe_aa := false
+## --aa=taa: the review renders through Godot's TAA instead of the real look's FSR2. Under lavapipe
+## FSR2 at native scale anti-aliases almost nothing (the probe, #721: a 1 m board's pixel noise FSR2
+## 11.8, no upscaler 10.5, MSAA 4x 10.4, TAA 3.1): its crawl was the "burlap". Lab only; the game's
+## own setting is Sean's call.
+var _aa_taa := false
 const REVIEW_SHOTS := [["noon", "near"], ["golden", "far"]]
 const REVIEW_FINE := [["saloon", "near"], ["noon", "rail"]]
 
@@ -135,6 +141,10 @@ func _run() -> void:
 			load("res://src/art/material_library.gd").hi_res = true
 		elif arg == "--review":
 			_review = true
+		elif arg == "--aa=taa":
+			_aa_taa = true
+		elif arg == "--probe-aa":
+			_probe_aa = true
 		elif arg.begins_with("--settle="):
 			_settle = int(arg.substr(9))
 		elif arg.begins_with("--man="):
@@ -646,6 +656,11 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 					"boards": p.boards, "triangles": _triangles(p), "man_height": _man_height(man),
 					"rail_height": float(sp.CLASSES[StringName(spec["entry"].get("class", "common"))]["rail"]["h"]),
 					"wall_height": 2.0})
+			# A probe's viewport settings for this panel's shots (put back after).
+			var view_was := {}
+			for k in spec.get("view", {}):
+				view_was[k] = viewport.get(k)
+				viewport.set(k, spec["view"][k])
 			# Each light with its views, or (--review) just the shots Sean reviews by.
 			var shots := []
 			for light in lights:
@@ -672,6 +687,9 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				cam.global_position = pt * (view[0] as Vector3)
 				cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
 				cam.fov = view[2]
+				if _aa_taa:
+					viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+					viewport.use_taa = true
 				# The real look's temporal upscaler (FSR2) settles over ~40 frames after a cut
 				# (config/looks/real.json "frames"); at 6 the unsettled jitter read as a woven
 				# crosshatch on fine grain: round 1 and 2's "burlap" was partly that.
@@ -684,6 +702,8 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				var path := "%s/%s_%s.png" % [pdir, light, v]
 				viewport.get_texture().get_image().save_png(path)
 				print("saved %s/%s/%s_%s" % [family, name, light, v])
+			for k in view_was:
+				viewport.set(k, view_was[k])
 		var f := FileAccess.open(dir + "/numbers.json", FileAccess.WRITE)
 		f.store_string(JSON.stringify(numbers, "  "))
 		f.close()
@@ -704,9 +724,18 @@ func _panel_specs(ml, family: String) -> Array:
 			"base": {}, "no_relief": {"normal_strength": 0.0}, "soft_relief": {"detail_bias": 2.0},
 			"no_sheen": {"roughness_add": 0.6, "specular_wood": 0.0}, "albedo_soft": {"detail_bias": 2.0, "albedo_bias": 1.0},
 		}
+		# --probe=aa: the same shot under the viewport's upscalers and antialiasing instead.
+		if _probe_aa:
+			variants = {
+				"fsr2": {"view": {}},
+				"bilinear": {"view": {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR}},
+				"taa": {"view": {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "use_taa": true}},
+				"msaa4": {"view": {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "msaa_3d": Viewport.MSAA_4X}},
+			}
 		for vn in variants:
-			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": variants[vn],
-					"views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+			var d: Dictionary = variants[vn]
+			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": d if not d.has("view") else {},
+					"view": d.get("view", {}), "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
 		return out
 	if family == "long" or family == "shape":
 		# Part 1 on a long wall, part 5 on a rough wall: before (off) and after, each age.
