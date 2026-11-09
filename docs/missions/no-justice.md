@@ -1,144 +1,190 @@
 # No Justice (`no-justice`)
 
-Other names: "The camp" (DESIGN.md §5 "Story missions", mission 1; `config/valley.json`
-`the_camp`). Sources: DESIGN.md §5 (Sean, 2026-10-06); #738 and its comments (Sean, 2026-11-09);
-#546 comments (2026-11-04); `config/valley.json`; `docs/prompts/16_Investigation_Law_Justice.md`,
-`docs/prompts/18_Emergent_Missions.md`.
+Other names: "The camp" (DESIGN.md §5 story mission 1, which this replaces). Sources: **Sean's mission
+card of 2026-11-09** (kept word for word in `sources/no-justice_sean_2026-11-09.md`); #738 and its
+comments (2026-11-09); `config/valley.json`.
 
-- PROPOSED as a whole: DESIGN.md §5 "Story missions (**proposed**, Sean 2026-10-06; features are
-  frozen until the look is right)". `config/valley.json`: "PROPOSED mission (frozen); the
-  community's place reserved".
-- DECIDED (Sean, 2026-11-09, #738 comment): "Joe is the husband in No Justice".
+- DECIDED (Sean, 2026-11-09, his card): "DECIDED by Sean, 2026-11-09 (his mission write-up plus the
+  master chat's changes, which he accepted that day). Lines marked **OPEN** are not settled."
+- DECIDED (Sean, 2026-11-09): "**Replaces:** DESIGN.md story mission 1, 'The camp'. Its third ending
+  (take the man past the town to a marshal or circuit judge) is **dropped on purpose**: two endings,
+  not three."
+- DECIDED (Sean, 2026-11-09): "**Estimated length:** 25–35 minutes."
+- DECIDED (Sean, 2026-11-09), the premise: "Harlan rides with Joe, a Southern Ute widower, to hunt down
+  the gang that raped, murdered and scalped his wife. The mission ends in a choice: let Joe take his
+  revenge, or enforce a law that almost certainly won't punish the murderer."
+- DECIDED (Sean, 2026-11-09, design note): "**Linear until the cabin, on purpose.** No detective work,
+  no several hideouts, no subplots. The strength is the moral choice, not the manhunt. (A judge should
+  score 'choices' knowing this was chosen.)"
 
 ## How you hear of it
 
-- PROPOSED (DESIGN.md §5, 2026-10-06): "Word reaches town that bandits killed and violated women at
-  a camp of a real nation outside town".
-- DECIDED (Sean, 2026-11-09, #738 comment): "The player is **sent to Joe's camp after his wife is
-  killed**."
-- OPEN: who sends him (DESIGN says word reaches town; #738 says he is "sent"). A nudge, if he
-  doesn't go: PROPOSED (#546 comment, Sean 2026-11-01, "yes to nudges"): "Joe comes looking for you
-  if you haven't been to the camp" (the session's example).
+- DECIDED (Sean, 2026-11-09): "Harlan meets Joe at **the doctor's office in Salt Creek**. There's no
+  quest marker: it's a man in grief in a room you walk into."
 
 ## The situation
 
-- DECIDED (Sean, 2026-11-09, #738): "Bandits raid Joe's camp while he's away hunting; his wife is
-  raped and murdered."
-- PROPOSED (DESIGN.md, 2026-10-06): "the men were away hunting when it happened. Their people are
-  not of one mind: a war leader wants every bandit dead, an elder fears the army will come down on
-  the camp if white men die (it usually did), a husband wants only the man who did it. They send
-  trackers. The town's leaders want an arrest and quietly let you know nothing will come of it."
-- PROPOSED (DESIGN.md, Sean 2026-10-06): "**The bandits are scalp hunters**": "their camp has
-  scalps drying on a line, Mexican as well as Native, to be sold south for the bounty as 'Apache'
-  (the Glanton gang did exactly this). They scalped the women they killed at the camp: that's what
-  they came for."
-- PROPOSED (DESIGN.md): "When you reach the camp the women's own people have already covered them
-  for burial; you learn what was done from them, you aren't shown it." "The violation itself is
-  never shown, only what it leaves behind."
-- DECIDED (Sean, 2026-11-09, #738): "Before you ride out, **the others in Joe's group describe the
-  man who did it**: he wears something nobody else does, **like a red shirt**".
-- DECIDED (valley plan, Sean #700, as `config/valley.json` records it): the community is "a nearby
-  Southern Ute community in the sheltered south-west". #546 (2026-11-04) calls Joe "a Ute man".
+Beats 1–3 (Sean, 2026-11-09, all DECIDED):
+
+- DECIDED, 1. Learning about the murder (town): "Harlan meets Joe at the doctor's." "Joe's wife was
+  murdered and scalped in a raid on their camp while the men were away hunting. Joe wants the men who
+  did it." "**The doctor warns Harlan:** even if the killers are arrested, they're unlikely to be
+  punished." "**The bold cowboy agrees:** the law won't give justice for an Indigenous woman." "Harlan
+  agrees to ride with Joe." (*Purpose: the crime, Joe's reason, and the expectation that the law will
+  fail.*)
+- DECIDED, 2. Visiting Joe's camp: "Harlan and Joe ride to the camp. The raid's damage is still there:
+  burned belongings, bullet holes." "The survivors tell what happened to Joe's wife." "**They name the
+  main murderer by one thing: a faded red shirt.**" "They know roughly which way the raiders fled. Joe
+  gets ready to follow." (*Purpose: make it personal, introduce the man in the red shirt, and give the
+  gang's direction without a long investigation.*)
+- DECIDED, 3. Hunting the gang: "**Joe changes into ordinary cowboy clothes** (a hat and a neckerchief)
+  so no one can tell he's from the camp. He says why: he doesn't want the gang's friends taking revenge
+  on his people." "They ride through the foothills. Joe leads, reading the ground and the raiders'
+  trail." "They talk a little on the way, about his wife and his want for revenge, without long stops."
+  "They find the gang's camp in the woods." (*Purpose: build Joe as a character, then move naturally
+  into the fight.*)
 
 ## The ways to do it
 
-- DECIDED (Sean, 2026-11-09, #738): "**You and Joe go together** to the bandits' camp and fight
-  them." "**The man in the red shirt hides in a building.** After the rest are finished, you go in."
-- PROPOSED (DESIGN.md, 2026-10-06), the three ways out:
-  - "**Kill them all.**" The husband scalps the man in the hat, "and only him (Sean 2026-10-06). It
-    happens in the world on the wound system, not as a cutscene: you can stay and watch or walk
-    away, and the camera never moves in."
-  - "**Arrest them.** You bring them in alive, often against the warriors' will (a standoff on the
-    way). The leaders fine them and run them out of town: no justice."
-  - "**Take them past the town:** to the circuit judge or a US Marshal by letter or wire. It's slow,
-    the bandits' friends try to break them out on the way, and in 1882 the camp's own witnesses may
-    not be heard in court. Usually it fails; when it doesn't, it's the hardest-won ending in the
-    game."
-- PROPOSED (DESIGN.md): "Mixed moments make it personal: a bandit surrenders with his hands up and a
-  young warrior moves first; one of the bandits wasn't there that night; the man in the hat may be
-  the one who surrenders."
-- PROPOSED (session, #738 comment 2026-11-09): "The building is one of the places in #736: an
-  abandoned house or a shack at the bandits' camp, with a way in that makes entering tense (a door,
-  a window, the man armed or not)."
+- DECIDED, 4. Assault on the bandit camp: "Harlan and Joe watch the camp from the hillside: **five or
+  six armed bandits**, the man in the red shirt among them." "**The player chooses how it starts:**
+  creep in quietly, or open fire." "Joe fights beside Harlan, taking cover and shooting." "Destructible
+  wooden cover, barrels and furniture keep the fight moving." "**The man in the red shirt is a
+  coward.** At the first shots (or as the fight turns) he runs for the main cabin and barricades
+  himself in. It happens in the world, with no cutscene, and the red shirt must be plain to see as he
+  runs." "The rest of the bandits are beaten."
+- DECIDED, when it goes wrong ("the mission bends, it doesn't break"):
+  - "**The player kills the man in the red shirt outside.** Joe is furious ('that was mine to take').
+    He goes to the body, and the scalping happens there. There's no nod moment: the player took the
+    choice away by shooting. Joe's trust drops, but he still respects that Harlan came."
+  - "**Joe is hit.** He goes down wounded, not dead (a companion who is down, not killed, at this
+    point). He can be helped up, and the wound stays with him afterwards."
+  - OPEN (Sean, 2026-11-09): "whether Joe can truly die here, which would mean his later role needs a
+    fallback (#738 rule 2)."
+  - DECIDED: "**The player flees or abandons Joe.** Joe finishes it alone or dies trying." OPEN (Sean):
+    "what follows."
+- DECIDED, 5. The confrontation inside: "Harlan enters the cabin with Joe close behind." "The man in the
+  red shirt is cornered, frightened and unarmed. He surrenders and begs to be taken into custody."
+  "**The player can still shoot him.** Nothing stops it. But killing a man with his hands up is murder:
+  Joe sees it, and the world can learn of it (#738: witnesses and rumour)." "Joe walks to the prisoner
+  and draws his knife. He makes it plain he means to kill and scalp the man who did the same to his
+  wife." "**Joe turns to Harlan and asks if he's going to stop him.**"
 
 ## The big choice and its cost
 
-- DECIDED (Sean, 2026-11-09, #738): "**Joe asks you: will you stop him from killing the man who raped
-  and murdered his wife?** That question is the mission's choice, asked by a person, not a menu."
-- DECIDED (Sean, 2026-11-09, #738): "**Joe's question is a head-shake moment.** The player answers
-  with the nod and shake system ... look at Joe, nod for yes (stop him) or shake for no (step
-  aside). No menu, no prompt. Joe reads a slow or small one as reluctant, and asks again if it's
-  unclear. Doing something (stepping between them, drawing on the man) still counts as an answer."
-- OPEN: the nod's meaning in #546 (2026-11-04, proposed) reads the other way round: "if Harlan
-  **shook his head and the killer was released**, that man leads the lynching; if Harlan **nodded and
-  Joe killed him**, the killer's friends come for Joe." #738 has nod = stop Joe. Which is it?
-- PROPOSED (DESIGN.md): the cost of each way: kill them all ("the camp trusts you; the town splits
-  on it ('a white man rode with Indians against white men'); the bandits' kin or friends come for
-  you; maybe the army or the agent comes asking"); arrest ("the camp stops trusting you; the bandits
-  may come back"); past the town ("usually it fails").
+- DECIDED (Sean, 2026-11-09): "**The answer is given with the nod** (DESIGN.md 'Answering with a nod'):
+  the player has to look Joe in the eye."
+  - "**Nod (yes, I'll stop you):** Joe is held back. Harlan arrests the murderer and takes him to Salt
+    Creek."
+  - "**Shake (no, I won't stop you):** Harlan stands aside. Joe kills and scalps the murderer."
+  - "**Acting counts as an answer too:** stepping between them, drawing on the man, or walking out."
+  - "A small, slow nod reads as a reluctant yes. An unclear one gets 'Is that a yes?'"
+  - "No dialogue menu, no morality meter, nothing on screen saying which answer is right."
+  - "The killing and scalping play out on the wound system, not as a cutscene. The player can stay or
+    walk away, and the camera never moves in (DESIGN.md)."
 
 ## What happens after, in the world
 
-- PROPOSED (DESIGN.md): "The body stays where it fell, and whoever finds it carries the story to
-  town. The tribe's men say why, and not all of them agree with it."
-- PROPOSED (DESIGN.md): "Among the scalps on the bandits' line are the women's; the husband or a
-  relative knows them, and bringing them home for burial matters to the camp as much as what
-  happens to the men." The scalps are "evidence any court or marshal can't wave away, and ties in
-  the Mexican rancher's people (mission 4): whoever learns of the Mexican scalps wants a say in what
-  happens to the bandits."
-- PROPOSED (#738 comment, 2026-11-09): "**The hanging could grow out of No Justice:** the bandits' kin
-  or the town's anger at how that mission ended" (see `joe-on-the-rope`).
-- PROPOSED (#738 comment, 2026-11-09): "**Joe's reason to help** is then personal (his wife, the
-  town's 'no justice'), and the Baron and his papers (#736) become Joe's way to get the justice the
-  town refused him."
+- DECIDED (Sean, 2026-11-09), **if Harlan lets Joe take his revenge:** "Joe finishes it in the cabin,
+  and they ride back together." "Joe is quieter. Revenge hasn't magically mended his grief." "**It
+  doesn't stay a secret:** the gang's bodies are found, and whoever finds them carries the story to
+  town." "The town splits: some say good riddance, some say a white man rode with Indians against white
+  men." "The camp trusts Harlan." "**The bandits' kin or friends hear and come looking.** That's the
+  trigger for the hanging".
+- DECIDED (Sean, 2026-11-09), **if Harlan arrests the murderer:** "Harlan takes the prisoner to the Salt
+  Creek jail. Joe comes along, plainly unhappy." "The prisoner is handed on to the proper authorities."
+  "**Later, Harlan learns the murderer was released without real punishment.** Joe learns it too, and
+  the doctor's and the cowboy's warnings come true. That's the mission's title." "The camp's trust in
+  Harlan cools. They didn't expect the law to help, and it didn't." "**The released man comes back.**
+  He walks free through Salt Creek, and Harlan can run into him. No new mission is needed, just a man
+  on the street (Sean's open question, now decided: yes)."
+- DECIDED (Sean, 2026-11-09), **if the player shot the surrendered man:** "it's murder. Joe saw it. Who
+  else learns of it, and the law's response, run through the witness and rumour systems."
+- DECIDED (Sean, 2026-11-09), where it leads: "Both main endings lead to the same big moment, for
+  different reasons. **Someone tries to hang Joe, and Harlan shoots the rope with the Winchester**
+  (#734, #738)": "**The arrest ending:** the released murderer is in town. Joe kills him there, in front
+  of witnesses, and the town tries to hang Joe." "**The revenge ending:** the bandits' kin learn who
+  rode with Harlan, come for Joe, and try to lynch him." (See `joe-on-the-rope`.)
+- DECIDED (Sean, 2026-11-09), the end: "Either way, Joe respects Harlan for helping when the law
+  wouldn't." "**Joe becomes Harlan's main companion** for the rest of the game, and later the man with
+  plans (#738, PROPOSED). How Joe treats Harlan reflects the choice, but the main story isn't changed
+  at its root."
 
 ## Where on the map
 
-- DECIDED place / PROPOSED position: `ute_community` (-1350, 1230), pad 140 × 90 at y 41, by the
-  `ute_trail` ("its look is research done with care").
-- OPEN: the bandits' camp and its building. Candidates on the map today (PROPOSED wilderness
-  pockets): `abandoned_homestead` (-860, 330, y 24, "burned out", on the `ute_trail`), `rock_camp`
-  (2050, 1550), `prospect_shack` (-1560, -1150); #736 B's abandoned houses on hills (not placed).
+- DECIDED (Sean, 2026-11-09): "**Salt Creek:** the doctor's office, the jail, Main Street."
+- DECIDED (Sean, 2026-11-09): "**Joe's camp:** the Southern Ute community, north-west of town
+  (`config/valley.json`)." See the disagreement below: `valley.json` has it south-west.
+- DECIDED (Sean, 2026-11-09): "**The bandits' hideout:** a secluded wooded spot in the foothills, with a
+  main cabin on rising ground and a hillside above it to watch from. It's one of the places with height
+  (#736)." OPEN: its place (no such spot in `valley.json` yet).
 
 ## Which threads it moves
 
 _PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines without a status word are that mapping._
 
-- Joe and the revenge (#546's threads); the town's law ("no justice"); the Mexican rancher's people
-  (the scalps, PROPOSED); the Baron (PROPOSED, through Joe's motive, #738).
-- DECIDED order (Sean, 2026-11-09, #738): "No Justice (meet Joe) → later, someone tries to hang Joe
-  (the rope shot, Winchester #734) → if he lives, he's the man with plans."
+- T2 Joe and the revenge (it starts it); T7 the town's law (the warnings, the release); T1 the doctor.
+- DECIDED (Sean, 2026-11-09): leads to `joe-on-the-rope` by either ending; Joe becomes the main
+  companion.
 
 ## Which systems it needs
 
-_PROPOSED: this session's reading of what the ways above need. Each line ends with its state on main, 2026-11-09: exists, partly, being built, decided (not built) or new._
+DECIDED (Sean, 2026-11-09), his list, with each one's state on main (this session's reading):
 
-- The nod and shake (DESIGN.md §9, proposed 2026-10-21): not built. Sean, 2026-11-09: "it should be
-  in place before No Justice is built."
-- A unique wardrobe piece readable at range (the red shirt): Studio wardrobe, new.
-- Companion fighting beside you (Joe): partly (the gang's `Crew`, signature 6 "Leading people"
-  decided, not built for the player's side).
-- Gunfight AI, cover, a man holed up in a building: exists (D+, `HouseDefence`).
-- Arrest and escort a prisoner past armed men: new (DESIGN §10 the law as a process).
-- Scalping on the wound system ("only him"): new; handled with research and care.
-- Letters/wire to a Marshal (signature 5): decided, not built.
-- Witnesses, rumours, opinions per faction: partly (Senses, deeds, opinions).
-- The scalps as evidence and objects to carry home: new.
+- "**The nod** (to build first; this is its first real use)." decided in outline, not built.
+- "**Surrender:** hands up, begging, and being taken prisoner and escorted." partly (surrender and the
+  shout key arrest exist; begging and escort new).
+- "**A companion who fights:** takes cover, can be wounded and down, and is helped up." partly (the
+  gang's crew AI, rescue of the wounded exist; a companion on the player's side new).
+- "**The knife and scalping** on the wound system (the knife is not in the game yet; PR #167 has a
+  start)." new (the knife is #733's sixth weapon).
+- "**Destructible wooden cover**, barrels and furniture." exists (members, kit props, barrels).
+- "**A barricaded cabin:** a door that's blocked and a way to force it." partly (kick and shove #479,
+  dynamite, members; a barricade new).
+- "**The bodies stay, are found, and carry the story** (#483 bodies; the rumour and witness systems)."
+  partly.
+- "**The wardrobe:** the faded red shirt (unique, and readable at range); Joe's own clothes and his
+  cowboy disguise (Studio)." new.
+- "**The jail and the prisoner's transfer**, and a news item later." new.
+- "**The released man** as a living-world man in town." partly (town life; the living world #695/#663).
+- "**Joe's memory of the choice**, which shapes his talk and trust later." partly (memory, opinions).
+- PROPOSED (this session): creeping in quietly with Joe means a companion who keeps quiet with you, and
+  his trail-reading means the bandits' tracks on the ground: neither is on Sean's list. new.
+
+## Keep these three details
+
+- DECIDED (Sean, 2026-11-09): "**The red shirt:** plain to see in the gunfight, so the final prisoner's
+  identity is never in doubt."
+- DECIDED: "**Joe's cowboy disguise:** it gives him personality and shows he's protecting his surviving
+  people, not only chasing revenge."
+- DECIDED: "**The prisoner's release:** it makes the arrest ending true to the warnings and gives the
+  mission its name."
 
 ## Where the sources disagree
 
-- OPEN: the unique item: "a hat nobody else wears" (DESIGN.md, 2026-10-06) vs "like a red shirt"
-  (Sean, 2026-11-09: "the one unique item is what matters").
-- OPEN: the nod's meaning (above).
-- OPEN: the shape: DESIGN's three ways (kill all, arrest, past the town) with trackers and a war
-  leader vs #738's ride with Joe, a fight, the man in the building and Joe's question. #738 doesn't
-  say whether the trackers, the war leader and the elder remain.
-- OPEN: whether DESIGN's "violated women" (plural) and #738's one wife are the same raid.
-- OPEN: Prompts 16 and 18 ask that this mission get "historical/cultural review and robust
-  law/persistence mechanics before production mission writing".
+- OPEN: **where Joe's camp is.** Sean's card (2026-11-09): "north-west of town". `config/valley.json`
+  (`ute_community`, -1350, 1230; x is east, z is south): "DECIDED (a nearby Southern Ute community in
+  the sheltered south-west)", from the November 3 lock and #700. Which is it?
+- OPEN: **who "the bold cowboy" is.** The Studio's bold cowboy (`bold_cowboy_s3_talking`) plays Brody,
+  the Colter gang's guard, in the farmhouse (#520), and the saloon table's man. Here he's a man in the
+  doctor's office who sides with Joe. A townsman, or Brody?
+- OPEN: **the woods.** "A secluded wooded spot in the foothills": the valley is "dry and largely open:
+  not a forest" (lock, 2026-11-03); the one pine stand is at the timber camp in the north-west
+  foothills (`timber_camp`, -1150, -1150). The outlaw `hideout` (-450, 2020) is the Colters', in a box
+  canyon in the south.
+- OPEN: **the scalp hunters' trade.** DESIGN.md's version had the bandits as scalp hunters with a line
+  of scalps, Mexican as well as Native, sold south for bounty; the women's scalps brought home for
+  burial; and a tie to the Mexican rancher's people (`vaqueros-horses`). Sean's card doesn't mention
+  it. Kept, or dropped with the third ending?
+- OPEN: **by what right Harlan arrests.** With the sheriff dead, who takes the prisoner at the jail, and
+  who are "the proper authorities" (a deputy, the circuit judge, a marshal)? It depends on where the
+  mission sits against T1 (the badge).
+- Settled by this card (were OPEN): the nod's meaning (nod = stop Joe; #546's reading superseded); the
+  unique item (the red shirt); the trackers, war leader and elder (not in this version); how you hear
+  of it (the doctor's office, not "sent to Joe's camp", #738).
 
 ## Sources
 
-DESIGN.md §5 "Story missions" 1 and "History, handled with care"; #738 body and comments
-(2026-11-09); #546 comments (2026-11-04); `config/valley.json` (`ute_community`, missions
-`the_camp`); `docs/briefs/valley-plan.md` §10.
+`sources/no-justice_sean_2026-11-09.md` (Sean's card, 2026-11-09); #738 and comments; #546 comments
+(2026-11-04, superseded on the nod); DESIGN.md §5 story mission 1 (replaced); `config/valley.json`;
+PR #621 `docs/briefs/valley.md`.

@@ -90,7 +90,7 @@ that come back). Status is the mission as a whole; each card has the details.
 |---|---|---|---|---|
 | [`saloon-table`](saloon-table.md) | The Saloon Table (prologue, the card cheat) | story | PROPOSED (2026-10-15; ROADMAP 3.6) | the saloon |
 | [`the-sheriff`](the-sheriff.md) | The Sheriff on the Road (the opening) | story | DECIDED (2026-10-01); his survival OPEN | `opening_site`, the doctor's |
-| [`no-justice`](no-justice.md) | No Justice (the camp) | story | PROPOSED (2026-10-06); Joe its husband DECIDED (2026-11-09) | `ute_community`; bandits' camp OPEN |
+| [`no-justice`](no-justice.md) | No Justice (the camp) | story | DECIDED (Sean's card, 2026-11-09) | the doctor's, Joe's camp, the bandits' hideout (OPEN) |
 | [`joe-on-the-rope`](joe-on-the-rope.md) | Joe on the Rope (the rope shot) | story | DECIDED (2026-11-04) | OPEN |
 | [`farmhouse-rescue`](farmhouse-rescue.md) | The Farmhouse Rescue (the widow's) | story | built (rancher); widow version DECIDED in the lock (PR #621, unmerged) | `widow_homestead` |
 | [`buried-alive`](buried-alive.md) | Buried Alive (the cave-in) | story | PROPOSED (2026-10-06); `valley.json` DECIDED | `mine`, `ore_works` |

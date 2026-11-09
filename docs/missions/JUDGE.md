@@ -110,7 +110,52 @@ own shared systems (how much was bespoke for this one mission); it's the least c
 Scored before any of ours, by a fresh agent that saw only the rubric and `references.md` (2026-11-09).
 Every later run is anchored on these: a 4 means "as good as the references that scored 4".
 
-CALIBRATION
+| Reference | Choices | Systems | Consequences | Unique | True to setting | Discoverable | Cost | Total |
+|---|---|---|---|---|---|---|---|---|
+| R1 The Bloody Baron | 3 | 2 | 4 | 4 | 4 | 3 | 4 | 24 |
+| R2 Lady Boyle's Last Party | **5** | 4 | 4 | 4 | 3 | 3 | 3 | **26** |
+| R3 The Showstopper | 3 | **5** | 1 | 3 | 2 | 3 | **5** | 22 |
+| R4 Liberty Island | 4 | 4 | 2 | 3 | 3 | 3 | 4 | 23 |
+| R5 Blessed Are the Peacemakers | 1 | 1 | 2 | 2 | 2 | 1 | 2 | 11 |
+| R6 Who the Hell is Leviticus Cornwall? | 2 | 2 | 3 | 2 | 4 | 2 | 3 | 18 |
+| R7 A Crack in the Slab | 4 | 3 | 4 | **5** | 4 | 3 | 1 | 24 |
+| R8 The Clockwork Mansion | 4 | 4 | 3 | 4 | 3 | 3 | 2 | 23 |
+
+**The anchors** (say "about X"):
+- **Top (5):** choices, Lady Boyle (many systemic ways plus a no-win, irreversible choice); systems
+  over scripts, the Showstopper; unique, A Crack in the Slab; cost, the Showstopper (placement and
+  data on shared systems).
+- **No reference reaches 5** on three criteria, so their best is the anchor: consequences 4, A Crack in
+  the Slab (the world visibly holds it) and Lady Boyle (carried by a system, chaos); true to setting
+  4, Leviticus Cornwall (documented practice), with the Bloody Baron and A Crack in the Slab;
+  discoverable, nothing passes 3 (each is heard of one way); the Showstopper is the strongest 3 (the
+  showpiece plainly placed).
+- **Floor (1):** Peacemakers for choices, systems and discoverable; the Showstopper for consequences;
+  A Crack in the Slab for cost.
+
+**Why, in a line each** (the calibrating agent's reasons, kept so later judges read the scale the same
+way):
+- R1: choices 3 (one chain, one no-clean-answer choice: the scale gives 4 only with both); systems 2
+  ("mostly authored, branching scripts"); consequences 4 (people and places carry it, hand-written so
+  not 5); discoverable 3 (the burial-rite option found only by those who look).
+- R2: choices 5 (many systemic ways, three endings for her, no clean answer); systems 4 (the admirer's
+  boat is authored); true to setting 3 (nothing specific to its practice shown); cost 3 (the guest
+  layer is its own).
+- R3: choices 3 (dozens of ways, but no big choice: the targets die either way); systems 5;
+  consequences 1 ("beyond it, almost nothing"); true to setting 2 (genre dressing); cost 5.
+- R4: choices 4 (sparing is a fairly clean answer, so not 5); consequences 2 (comments only; the
+  return to the island is plot, not consequence).
+- R5: 1s on choices, systems, discoverable ("one person tells you exactly what to do").
+- R6: choices 2 (the guards' fate is a tick on a meter); true to setting 4 (a magnate's private train,
+  bonds, detectives hired against robbers); unique 2 (the Western's most stock mission).
+- R7: choices 4 (knocking him out is the clean best answer, so not 5); systems 3 (three hand-built
+  presents); unique 5; cost 1 (a device and a level built twice, for one mission).
+- R8: choices 4 (fewer, narrower ways than Lady Boyle); cost 2 (the moving house is one-off).
+
+**What the shelf says about the scale:** no AAA reference here is heard of more than one way
+(discoverable ≤ 3), and none carries its consequences by systems rather than written branches
+(consequences ≤ 4). Those are the two places Salt Creek's design aims past the shelf, so a 5 there
+has to be earned on the card, not assumed.
 
 ## How a run works
 
