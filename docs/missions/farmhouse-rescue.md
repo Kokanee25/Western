@@ -89,6 +89,9 @@ saves); the foreman's errand visible in town (small); the deed travelling to the
   visit, then the hostage crisis." "Her lines follow the help-or-leave deed from the opening."
 - PROPOSED (PR #621, step A6): "the peaceful visit with `CivilianBrain.chores`; the offer replaces the
   blacksmith start."
+- DECIDED (Sean, 2026-11-09): the peaceful visit is its own quiet mission, `widows-place` ("this is when
+  we meet blue and the kids playing"); what it carries into this one (Blue and the boys knowing Harlan,
+  the ways in) is PROPOSED there.
 - PROPOSED (#546, 2026-11-01): "Arrivals by rail" and nudges can bring a thread's beat.
 
 ## The situation

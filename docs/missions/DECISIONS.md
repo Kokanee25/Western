@@ -24,8 +24,9 @@ flowchart TD
   funeral --> nojustice[no-justice<br/>Joe's question at the cabin]
   nojustice -->|nod: arrest| released[released on the train<br/>Rourke at the platform]
   nojustice -->|shake: Joe kills him| kin[the kin come<br/>disguise held? Joe or the camp]
-  released --> rope[joe-on-the-rope]
-  kin --> rope
+  released --> widow[widows-place<br/>the quiet ride: Blue, the boys<br/>place PROPOSED]
+  kin --> widow
+  widow --> rope[joe-on-the-rope]
   rope -->|saved| joeAlive((Joe alive: the man with plans))
   rope -->|missed| joeDead((Joe dead, for good))
   joeAlive --> act2
@@ -57,13 +58,16 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `red_shirt.fate` | released / killed by Joe / murdered by Harlan / killed outside | `no-justice` | `joe-on-the-rope`, the town | Released: he walks Main Street, and Joe kills him there (the rope's cause, DECIDED). Killed by Joe: the kin come (DECIDED). Murdered by Harlan: witnesses, rumour (DECIDED); the rope's cause **OPEN** |
 | `joe.disguise_held` | yes / no | `no-justice` (witnesses, DECIDED pick) | `joe-on-the-rope` | Held: the kin come for Joe. Broken: they go to the Ute camp (DECIDED) |
 | `camp.trust` | trusts Harlan / cooled | `no-justice` | the camp, Joe | Revenge: trusts; arrest: cools (DECIDED) |
+| `widow.visited` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (PROPOSED) |
+| `blue.knows_harlan`, `boys.know_harlan` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Blue barks at the gang, not him; the boys follow a voice they know in Phase B (PROPOSED) |
+| `widow.told_end` | the truth / a kind lie / not asked | `widows-place` (PROPOSED, the nod) | the widow's lines; the rumour | A lie about `sheriff.care = left him` found out later costs her trust (PROPOSED) |
 | `joe.alive` | yes / no | `joe-on-the-rope` (DECIDED: "If Harlan can't save Joe on the rope, Joe dies") | every later mission with Joe | See "Without Joe" below |
 
 ### Act II
 
 | Fact | Values | Set by | Read by | What it does |
 |---|---|---|---|---|
-| `harlan.has_winchester` | yes | before `joe-on-the-rope` (DECIDED) | the rope shot | **OPEN: when and from whom** |
+| `harlan.has_winchester` | yes | before `joe-on-the-rope` (DECIDED) | the rope shot | **OPEN: when and from whom**; PROPOSED: the sheriff's rifle, from the widow at `widows-place` (its option A) |
 | `dynamite.level` | none / single sticks / bundles | `buried-alive`, `demolition-mentor` (DECIDED progression) | `farmhouse-rescue` (the breach), `balcony-ambush`, `the-bridge-is-out`, `barons-house` | The breach only once taught (DECIDED lock); the balcony later, with dynamite (DECIDED) |
 | `miner.alive` | yes / no | `buried-alive` | `demolition-mentor` | **OPEN: who teaches if he dies** |
 | `widow.signed` | yes / no | `farmhouse-rescue` (DECIDED v2) | `dry-creek`, the Baron's thread, the ending | Signed: the Baron has the water and starts his ditch (PROPOSED v2) |
@@ -118,7 +122,8 @@ If all three are lost, **OPEN**: what's left (the day-book, the sawn joist, the 
 
 1. **The rope's cause if Harlan murdered the surrendered man** (`red_shirt.fate = murdered by Harlan`): neither
    DECIDED cause applies. OPEN.
-2. **The Winchester:** given "before the Joe hanging", from whom and when: OPEN.
+2. **The Winchester:** given "before the Joe hanging", from whom and when: OPEN. PROPOSED: the sheriff's rifle,
+   from the widow at `widows-place` (option A); if he left the sheriff to die, OPEN whether she still gives it.
 3. **I Am the Law without Joe:** who the Baron's men goad. OPEN.
 4. **The miner dead in Buried Alive:** who teaches dynamite. OPEN.
 5. **Harlan's title:** a deputy throughout (DECIDED); missions that say "sheriff" (the inventory's "A New
@@ -126,7 +131,7 @@ If all three are lost, **OPEN**: what's left (the day-book, the sawn joist, the 
 6. **Evidence "a maybe":** the ledger, the papers, the day-book and the proof feed the captain and the
    Baron's arrest; if the trial stays out, they matter through people who see them (the captain, the
    town), not a court. Check each card says so.
-7. **Cards outside the main line** (`hold-him`, `vaqueros-horses`, `dry-creek`, `the-bounty`, `kid-wants-out`,
+7. **Cards outside the main line** (`widows-place`'s exact place: after No Justice, PROPOSED; `hold-him`, `vaqueros-horses`, `dry-creek`, `the-bounty`, `kid-wants-out`,
    `dig-him-up`, `balcony-ambush`): they read facts above (prisoners, `widow.signed`, `gang_a.fate`,
    `kid.state`, `sheriff.care`) but their place in the order is OPEN; place them when Sean reviews them.
 

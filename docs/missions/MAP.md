@@ -16,7 +16,7 @@ about days.
 | **T1 The sheriff and the badge** | Who shot him, the town without law, the badge | `the-sheriff` → `no-law` → (the badge, day 2) → `the-trial` | PROPOSED (#546 names "the sheriff and the badge") |
 | **T2 Joe and the revenge** | His wife's killer, the town's "no justice", his life on the rope | `no-justice` → (the Winchester) → `joe-on-the-rope` → Joe's plans | order DECIDED (Sean, 2026-11-09, #738) |
 | **T3 The mine and the miner** | The rescue, dynamite learned, sticks then bundles | `buried-alive` → single sticks → bundles | PROPOSED (#546); progression DECIDED (2026-11-04) |
-| **T4 The Baron and the water** | The widow's water, his papers, his arrest | `farmhouse-rescue` → `barons-shipment` / `bank-break-in` → `barons-house` | the finale DECIDED (2026-11-04); the rest PROPOSED |
+| **T4 The Baron and the water** | The widow's water, his papers, his arrest | `widows-place` → `farmhouse-rescue` → `barons-shipment` / `bank-break-in` → `barons-house` | the finale DECIDED (2026-11-04); the rest PROPOSED |
 | **T5 Rourke and the train** | The train of hired guns and soldiers, Harlan's old commander | `hell-on-wheels` → `the-bridge-is-out` | the finale DECIDED; Rourke PROPOSED (#546 P4) |
 | **T6 The gang** | The Colters' jobs, the men who want out | `store-robbery`, `bank-robbery`, `stage-held-up` → `hold-him`; `kid-wants-out` | PROPOSED |
 | **T7 The town's law** | Mobs, lynching, a trial: "What do you do when the law is wrong?" | `hold-him`, `railhead-lynching`, `joe-on-the-rope`, `the-trial` | PROPOSED (#546 P1, not accepted) |
@@ -47,7 +47,7 @@ flowchart TD
     buried[buried-alive]
   end
   subgraph T4[T4 the Baron]
-    farm[farmhouse-rescue]
+    widow[widows-place] -->|the boys, Blue, the ways in| farm[farmhouse-rescue]
     ship[barons-shipment]
     bank[bank-break-in]
     house[barons-house]
@@ -57,6 +57,7 @@ flowchart TD
     bridge[the-bridge-is-out]
   end
   winchester((the Winchester)) -->|given before| rope
+  widow -.A: the sheriff's rifle?.-> winchester
   sheriff -.help-or-leave deed.-> farm
   sheriff -->|appoints Harlan| nojustice
   nojustice -->|release on the train| rope
@@ -140,7 +141,7 @@ The DECIDED edges and where Sean's words are:
 | **The Southern Ute community** | Joe, the war leader, the elder (DESIGN.md; OPEN whether kept) | `no-justice`, `joe-on-the-rope` | handled with research and care |
 | **The Mexican rancher's people** | the rancher (#430) | `vaqueros-horses`; `no-justice` (the scalps) | |
 | **The Chinese workers** | | `railhead-lynching` | premise OPEN |
-| **The widow's family** | the widow, her two sons (protected), Blue (protected) | `farmhouse-rescue` | lock 2026-11-03 |
+| **The widow's family** | the widow, her two sons (protected), Blue (protected) | `widows-place`, `farmhouse-rescue` | lock 2026-11-03 |
 | **The miners** | the miner (teaches dynamite), the mine's owner | `buried-alive` | the miner may propose the coach trap (#546) |
 | **Outlaws of the valley** | road agents, rustlers, claim jumpers, horse thieves, wanted men | `small-fights`, `the-bounty`, `stage-held-up` | "fights that have nothing to do with the story" (#736) |
 
@@ -154,7 +155,7 @@ Coordinates and heights from `config/valley.json` (x east, z south, metres from 
 | `church` (-62, -135) | 7.5 | `the-trial` (or the saloon) | |
 | `opening_site` (530, 128) | -5.3 | `the-sheriff` | PROPOSED |
 | `harlan_homestead` (432, 470) | 2 | `the-sheriff` (his dawn ride) | |
-| `widow_homestead` (1712, -560) | -10 | `farmhouse-rescue` | |
+| `widow_homestead` (1712, -560) | -10 | `widows-place`, `farmhouse-rescue` | |
 | `baron_town_house` (-215, 75) | 4.5 | `barons-house` (OPEN which house) | masonry |
 | `baron_ranch` (1320, 1260) | 20 | `barons-shipment` (start), `vaqueros-horses`, `barons-house` (OPEN) | |
 | a road off the ranch | | `barons-shipment` | five candidate points, none chosen |
@@ -190,7 +191,7 @@ many missions need it; the build order should read down this table.
 | Arrest, binding, escorting a prisoner | `no-justice`, `hold-him`, `the-bounty`, `store-robbery`, `barons-house`, `small-fights`, `bank-robbery` | 7 | partly (the shout key arrests, #128) |
 | A crowd or mob with a purpose (a rope, a hanging, driving people out) | `joe-on-the-rope`, `hold-him`, `railhead-lynching`, `the-trial`, `fever-house`, `fire-night` | 6 | new |
 | Gang and faction plans as data, events that refill (Prompt 18) | `store-robbery`, `bank-robbery`, `small-fights`, `vaqueros-horses`, `fire-night`, `stage-held-up` | 6 | new |
-| Horses as creatures: riding, leading, teams that bolt | `vaqueros-horses`, `fever-house`, `stage-held-up`, `barons-shipment`, `the-bounty`, `joe-on-the-rope` | 6 | partly (one horse, #341; riding #478) |
+| Horses as creatures: riding, leading, teams that bolt | `widows-place`, `vaqueros-horses`, `fever-house`, `stage-held-up`, `barons-shipment`, `the-bounty`, `joe-on-the-rope` | 7 | partly (one horse, #341; riding #478) |
 | Masonry walls that breach | `hold-him` (jail), `bank-break-in`, `bank-robbery`, `barons-house`, (`buried-alive`'s magazine) | 5 | being built (#663, step 2 of 8) |
 | Rope: cut by a ball or knife, a binding, pulling | `joe-on-the-rope`, `tied-to-the-tracks`, `fire-night`, `hold-him`, `barons-shipment` (#546's version) | 5 | new (a DESIGN §8 must-have) |
 | Money: coins, bribes, buying, rewards | `hold-him`, `vaqueros-horses`, `store-robbery`, `the-bounty`, `kid-wants-out` | 5 | partly |
@@ -214,7 +215,7 @@ many missions need it; the build order should read down this table.
 | Teaching (signature 8) | `kid-wants-out`, `buried-alive` | 2 | decided, not built |
 | Telegraph and letters | `no-justice`, `hold-him` | 2 | decided (signature 5), not built |
 | Cattle | `cattle-drive`, `small-fights` (rustlers) | 2 | new; OPEN whether at all (#728) |
-| Protected actors (the boys, Blue) | `farmhouse-rescue` | 1 | new (PR #621 A1) |
+| Protected actors (the boys, Blue) | `widows-place`, `farmhouse-rescue` | 2 | new (PR #621 A1) |
 | A jury and a courtroom | `the-trial` | 1 | new (signature 3); **a maybe** (Sean, 2026-11-09) |
 | The trestle's collapse | `the-bridge-is-out` | 1 | exists / being built (#658) |
 | A heavy log as a rigid body | `barons-shipment` | 1 | new |

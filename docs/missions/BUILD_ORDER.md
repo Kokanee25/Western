@@ -73,6 +73,21 @@ and the calls to settle before it starts. "Facts" are `DECISIONS.md`'s.
 - **Facts set:** `joe.question`, `red_shirt.fate`, `joe.disguise_held`, `camp.trust`.
 - **Calls first:** DECISIONS gap 1 (the rope's cause if Harlan murders the surrendered man).
 
+### Step 2b: `widows-place` (the quiet ride; Sean, 2026-11-09)
+
+Placed here PROPOSED: a quiet mission after No Justice's fight, the widow met before the farmhouse (the
+lock's order), and the Winchester in hand before the rope (if she gives Harlan the sheriff's rifle).
+
+- **New:** riding a horse and leading one (horse lab P2, #478), the first long ride with nothing at stake;
+  the two boys (child bodies, `ProtectedChild`) and Blue (a dog never hurt, who learns a man); the boys'
+  play; chores with a helper (partly).
+- **Labs ahead:** riding is the horse lab's own next step (start it during Step 1: every later chase
+  needs it); the boys and Blue are characters' and prop-lab work, asked early (#728). Meeting them here,
+  where nothing's at stake, is the cheap place to tune them before the farmhouse puts them in a fight.
+- **Facts set:** `widow.visited`, `blue.knows_harlan`, `boys.know_harlan`, `widow.told_end`,
+  `harlan.has_winchester` (if option A).
+- **Calls first:** why he rides out (the card's A, B or C).
+
 ### Step 3: `joe-on-the-rope`
 
 - **New:** the Winchester (#734, next in the arsenal anyway); rope a ball can cut at 30–60 m; a hanging
@@ -80,7 +95,7 @@ and the calls to settle before it starts. "Facts" are `DECISIONS.md`'s.
 - **Labs ahead:** the rope lab (a ball against a thin target at range, the hanging body); start it during
   Step 2. The mob reuses the crowd from Payday's floor lab (#745) where it can.
 - **Facts set:** `joe.alive` (and the "Without Joe" paths from here on).
-- **Calls first:** DECISIONS gap 2 (who gives Harlan the Winchester, and when).
+- **Calls first:** DECISIONS gap 2 (who gives Harlan the Winchester, and when; Step 2b's option A answers it).
 
 ### Step 4: Act II
 
@@ -139,6 +154,8 @@ A lab takes longest to get right, so each starts about one step before its missi
 |---|---|---|---|
 | The Payday floor (crowd load, a sawn joist, falls that hurt) | `payday-night`; its crowd for `joe-on-the-rope`'s mob | now | #745 open |
 | The companion (Joe beside the player) | `no-justice` on | during Step 1 | to open |
+| Riding (and leading a horse) | `widows-place` and every chase | during Step 1 | horse lab P2 (#478) |
+| The boys and Blue (protected, at play, learning a man) | `widows-place`, `farmhouse-rescue` | during Step 1 | characters, #728 |
 | The rope (cut by a ball; the hanging body) | `joe-on-the-rope` | during Step 2 | to open |
 | Underground (the adit's sets, gas, digging rock) | `buried-alive` | during Step 3 | to open |
 | The Water Tower (a stave tank on four legs, axe strokes, the hoop lug) | `hold-him` | when Sean places it | to open |
