@@ -127,3 +127,21 @@ Carried by the systems (persistence, opinions, memory, wounds):
   is political, not legal.
 - A dancing crowd loads a floor more than standing men (check the factor); a joist sawn half through loses
   most of its strength.
+
+## The judge on version 4 (2026-11-09): 29/35
+
+Choices 4 (Clockwork Mansion: seven ways and a no-clean-answer, irreversible choice; but prevention is
+listed levers on one quantity in one room, through authored chores); Systems 4 (Lady Boyle: Rourke's
+threshold offer and the Baron's men's fallback shooting are scripted turns); **Consequences 5** (past A
+Crack in the Slab: the world visibly holds it, carried by persistence, memory and wounds); Unique 4
+(overlaps the Balcony Ambush and I Am the Law); True to 1882 4; **Discoverable 5** (past the Showstopper:
+several ways, and the showpiece reads from the place even if every hint-giver is dead); Cost 3.
+**29/35.**
+
+**Beef it up:** 1. The Baron's two men with a routine to read and break: they keep buying the fiddler
+drinks to call stamping reels as the crowd peaks. 2. Rourke's letter already written when he offers it
+(the ink dry, the hotel's paper, dated that afternoon): he expected the night. 3. A third source of help
+with its own cost: the railroad's company surgeon at the depot. **Cut:** lifting the timber with a group
+of helpers. **1882:** RS §§5298–5299 let the President send troops without a request in some cases; a
+handsaw, not a bucksaw; Rourke needs a stated reason to travel with a surgeon; carbolic was used unevenly;
+the dancing-load factor unchecked.
