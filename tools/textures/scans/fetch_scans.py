@@ -150,6 +150,13 @@ def catalogue(out: str) -> None:
 
 # ---------------------------------------------------------------- fetch
 
+# The sources' own JPEGs carry 8x8 block artifacts (an albedo's change across block edges up to 2.5x its
+# change inside them), and saving them again as JPEG doubled it: up close they read as squares of
+# dots (#721, round 3). So the maps come from the sources' lossless PNGs and are encoded once, at
+# quality 95 with no chroma subsampling. LOSSLESS marks a scan fetched that way.
+LOSSLESS = 2
+
+
 def _cut(data: bytes, size: int, mode: str) -> bytes:
     from PIL import Image
     im = Image.open(io.BytesIO(data))
@@ -159,7 +166,7 @@ def _cut(data: bytes, size: int, mode: str) -> bytes:
     if im.width > size:
         im = im.resize((size, round(im.height * size / im.width)), Image.LANCZOS)
     buf = io.BytesIO()
-    im.save(buf, "JPEG", quality=90 if mode == "RGB" else 88, optimize=True)
+    im.save(buf, "JPEG", quality=95, subsampling=0, optimize=True)
     return buf.getvalue()
 
 
@@ -173,7 +180,7 @@ def ph_maps(aid: str, hi: bool = False) -> dict:
                 res = files[k]
                 for r in (["4k", "8k", "2k"] if hi else ["2k", "4k", "1k"]):
                     if r in res:
-                        fmt = res[r].get("jpg") or res[r].get("png")
+                        fmt = res[r].get("png") or res[r].get("jpg")
                         if fmt:
                             out[role] = get(fmt["url"])
                             break
@@ -182,15 +189,19 @@ def ph_maps(aid: str, hi: bool = False) -> dict:
 
 
 def acg_maps(aid: str, hi: bool = False) -> dict:
-    z = zipfile.ZipFile(io.BytesIO(get(f"https://ambientcg.com/get?file={aid}_{'4K' if hi else '2K'}-JPG.zip")))
+    res = "4K" if hi else "2K"
+    try:
+        z = zipfile.ZipFile(io.BytesIO(get(f"https://ambientcg.com/get?file={aid}_{res}-PNG.zip")))
+    except Exception:  # noqa: BLE001: no PNG set: the JPEG one
+        z = zipfile.ZipFile(io.BytesIO(get(f"https://ambientcg.com/get?file={aid}_{res}-JPG.zip")))
     out = {}
     for n in z.namelist():
         low = n.lower()
-        if low.endswith("_color.jpg"):
+        if low.endswith(("_color.png", "_color.jpg")):
             out["albedo"] = z.read(n)
-        elif low.endswith("_normalgl.jpg"):
+        elif low.endswith(("_normalgl.png", "_normalgl.jpg")):
             out["normal"] = z.read(n)
-        elif low.endswith("_roughness.jpg"):
+        elif low.endswith(("_roughness.png", "_roughness.jpg")):
             out["rough"] = z.read(n)
     return out
 
@@ -202,8 +213,10 @@ def fetch(picks_path: str, out: str, hi: bool = False) -> None:
         aid, src = p["id"], p["source"]
         d = os.path.join(out, aid)
         if os.path.exists(os.path.join(d, "meta.json")):
-            print("have", aid, flush=True)
-            continue
+            had = json.load(open(os.path.join(d, "meta.json")))
+            if had.get("lossless", 0) >= LOSSLESS:
+                print("have", aid, flush=True)
+                continue
         print("fetch", src, aid, flush=True)
         try:
             maps = ph_maps(aid, hi) if src == "polyhaven" else acg_maps(aid, hi)
@@ -218,6 +231,7 @@ def fetch(picks_path: str, out: str, hi: bool = False) -> None:
             "id": aid, "source": src, "licence": "CC0 1.0",
             "page": f"https://polyhaven.com/a/{aid}" if src == "polyhaven" else f"https://ambientcg.com/view?id={aid}",
             "metres": p.get("metres"), "maps": sorted(maps.keys()), "fetched": time.strftime("%Y-%m-%d"),
+            "lossless": LOSSLESS,
         }
         if src == "polyhaven" and not meta["metres"]:
             a = get_json(f"{PH_API}/info/{aid}")
