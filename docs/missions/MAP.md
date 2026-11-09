@@ -85,6 +85,9 @@ red shirt murders the card cheat and rides off) → the same night, the red shir
 OPEN (Sean: "gotta be flagged"): where and when Harlan meets Joe →
 `no-justice` (now he's the law, and the law fails anyway).
 
+**The evidence and the trial are a maybe** (Sean, 2026-11-09: "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe"): the edges into
+`the-trial` and the papers' role as evidence hang on it.
+
 The DECIDED edges and where Sean's words are:
 - `no-justice` → `joe-on-the-rope`: #738 (2026-11-09). The Winchester before the rope: #546 (2026-11-04,
   "after Harlan has been given the rifle"), #733/#734 (2026-11-09, which rifle OPEN).
@@ -158,7 +161,7 @@ many missions need it; the build order should read down this table.
 | Witnesses, perception, memory, rumours, opinions | almost all | 20+ | partly (Senses, deeds, opinions; rumours that change: decided) |
 | Gunfight AI, cover, men holding a building (`HouseDefence`, posts, climb) | `farmhouse-rescue`, `no-justice`, `barons-house`, `hold-him`, `the-bounty`, `small-fights`, `store-robbery`, `bank-robbery`, `stage-held-up`, `hell-on-wheels` | 10 | exists |
 | Dynamite: single sticks, planted, bundles, plunger | `farmhouse-rescue`, `buried-alive`, `bank-break-in`, `bank-robbery`, `hold-him`, `night-meeting-trap`, `the-bridge-is-out`, `barons-house` | 8 | exists |
-| Evidence as objects (the ball, papers, brands, scalps, an oil can) | `the-sheriff`, `the-trial`, `barons-shipment`, `bank-break-in`, `barons-house`, `no-justice`, `vaqueros-horses`, `fire-night` | 8 | new (roadmap 5.6) |
+| Evidence as objects (the ball, papers, brands, scalps, an oil can) | `the-sheriff`, `the-trial`, `barons-shipment`, `bank-break-in`, `barons-house`, `no-justice`, `vaqueros-horses`, `fire-night` | 8 | new (roadmap 5.6); **a maybe** (Sean, 2026-11-09: "not sold on the whole evidence and trial stuff yet") |
 | Arrest, binding, escorting a prisoner | `no-justice`, `hold-him`, `the-bounty`, `store-robbery`, `barons-house`, `small-fights`, `bank-robbery` | 7 | partly (the shout key arrests, #128) |
 | A crowd or mob with a purpose (a rope, a hanging, driving people out) | `joe-on-the-rope`, `hold-him`, `railhead-lynching`, `the-trial`, `fever-house`, `fire-night` | 6 | new |
 | Gang and faction plans as data, events that refill (Prompt 18) | `store-robbery`, `bank-robbery`, `small-fights`, `vaqueros-horses`, `fire-night`, `stage-held-up` | 6 | new |
@@ -187,7 +190,7 @@ many missions need it; the build order should read down this table.
 | Telegraph and letters | `no-justice`, `hold-him` | 2 | decided (signature 5), not built |
 | Cattle | `cattle-drive`, `small-fights` (rustlers) | 2 | new; OPEN whether at all (#728) |
 | Protected actors (the boys, Blue) | `farmhouse-rescue` | 1 | new (PR #621 A1) |
-| A jury and a courtroom | `the-trial` | 1 | new (signature 3) |
+| A jury and a courtroom | `the-trial` | 1 | new (signature 3); **a maybe** (Sean, 2026-11-09) |
 | The trestle's collapse | `the-bridge-is-out` | 1 | exists / being built (#658) |
 | A heavy log as a rigid body | `barons-shipment` | 1 | new |
 | A hanging body (airway) | `joe-on-the-rope` (and `the-trial`'s hanging) | 1–2 | new |

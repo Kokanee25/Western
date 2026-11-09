@@ -25,6 +25,8 @@ Sources: #736 comment (Sean, 2026-11-09); #546 comment (Sean, 2026-11-04); #738 
 - DECIDED (Sean, 2026-11-09, #736): the Baron's iron-plated coach carries his documents.
 - OPEN (Sean, 2026-11-09, #736): "only the mission idea is decided, not what the papers are".
   (`valley.json` names "deeds, ledgers, evidence"; PROPOSED.)
+- OPEN (Sean, 2026-11-09, later the same day): "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe". Whether the papers' role as evidence
+  survives that is for Sean.
 - DECIDED (Sean, 2026-11-09, #736): "**they can also be the evidence after you arrest the Baron**, so
   if you hold them, the case against him stands; if they were lost or sold, it is harder."
 - PROPOSED (#546): the period precedent: "the Deadwood stage line's steel-lined *Monitor* coach,

@@ -85,6 +85,8 @@ _PROPOSED: this session's reading of what the ways above need. Each line ends wi
 - DECIDED (Sean, 2026-11-09): "Yes you are deputized": on day 2 the dying sheriff swears Harlan in as
   his deputy and gives him his revolver; a shake of the head gets "that's not the way this works" and
   the revolver all the same (`no-law`).
+- OPEN (Sean, 2026-11-09): "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe". The ball, the forensics and the trial in DESIGN.md's spine
+  (signature features 1–3) are a maybe.
 - OPEN: **the ball as evidence.** DESIGN.md's spine (signature 2, decided 2026-10-01): "the ball in him
   is the evidence"; DESIGN.md "Story shape": "the ball the doctor digs out may match the stranger's
   gun". Sean, 2026-11-09, on No Law's saloon: "we aren't pulling bullets out to examine that idea isn't

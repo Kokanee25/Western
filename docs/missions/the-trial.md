@@ -4,6 +4,8 @@ Other names: "the reckoning" (DESIGN.md "Story shape", day 9), "a real trial" (s
 hanging" (backlog set piece 4), "the Inquest" (#546 P5). Sources: DESIGN.md §5, §10, §11 (signature
 3, backlog 4, period details); #546 P1, P5; Prompt 16.
 
+- OPEN (Sean, 2026-11-09): "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe". The whole mission is in doubt; the lines below are what
+  DESIGN.md still says.
 - DECIDED (DESIGN.md §11, Sean 2026-10-01, "Ya!" to all): "**A real trial.** The circuit judge sits in
   the saloon or church. You testify by speaking; AI witnesses tell what they actually remember
   (including what they got wrong in the dark); the evidence is shown; you can cross-examine; a jury of

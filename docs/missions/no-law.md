@@ -196,7 +196,7 @@ PROPOSED (Sean's draft), its lists, with each one's state:
   player's choice to attend.
 - OPEN, flagged by Sean: **Joe on day 2.** Sean's No Justice card: "Harlan meets Joe at the doctor's
   office". This draft's day 2 at the doctor's has the sheriff, his wife and the children, and no Joe.
-- OPEN: the ball as evidence (above): only this saloon, or everywhere?
+- OPEN (Sean, 2026-11-09): "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe" (the ball as evidence, everywhere).
 - OPEN (draft's list, still): who hands over the gun (the sheriff, or the doctor afterward); the
   stranger's identity and return; whether the card player was cheating; whether the red shirt knows
   Harlan saw it; the card player's own burial; whether this is the first witnessed murder in the
