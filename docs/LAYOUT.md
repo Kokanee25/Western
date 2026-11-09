@@ -476,6 +476,11 @@ own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four ti
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
 what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
 assume ACES under AgX.
+**Its anti-aliasing** (#721, Sean's test): FSR2 at native scale by default (`VIEW_REAL`); **key 0**
+(`debug_aa`) switches FSR2 <-> Godot's TAA live, `--aa=fsr2|taa` for a run (`RealLook.aa`, `set_aa`,
+not saved). Under lavapipe FSR2 anti-aliases almost nothing (a 1 m old board's pixel noise 11.8, TAA
+3.1): the material lab renders through TAA (`--aa=taa`). The game's default waits on Sean's PC.
+
 **The real look's light** (docs/briefs/red-dead.md R1, light with shape; `config/looks/real_light.json`):
 while `Settings.real_look` is on, LightLooks lays the file's `night_values` over the game's night
 and its `day_values` over the game's day (light_game.json's stay the painted look's; switching the
@@ -1900,6 +1905,13 @@ each with `meta.json`: source, licence, metres, `mean_linear`). Entries in
 renders them (south-west facing, noon / golden / night in a room with the saloon's lamps, `far` 5 m
 and `near` 1 m, `--man=MODEL`); `tools/material_library_sheet.py` makes a family's sheet.
 Trap: a copied `.import` keeps its source's `uid` and `path.*` lines: delete them and re-import.
+Round 3 (#721): the 4K copies (`scans4k.yml` -> pool branch `claude/salt-creek-material-panels-tjivo2-scans4k`
+-> git-ignored `assets/textures/scans4k/`, `MaterialLibrary.hi_res`); the lab's `--hires`, `--review`
+(Sean's shots only), `--settle=N` (frames after a cut; 16-40), `--aa=taa`, `--panels=probe` (one shot,
+dials varied; `--probe-aa` the viewport's AA instead); review renders at `--resolution 1920x1080`
+(~5 min a shot here; 2560x1440 ~20). MetaHuman Sean beside the panels: lab only, never committed
+(the Studio's build laid into `assets/people/`, `studio_in/` with its shaders and a wrapper,
+`.git/info/exclude`).
 
 ## src/props/prop_models.gd
 
