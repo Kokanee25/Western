@@ -66,7 +66,23 @@ Results of the G steps that build the new valley beside the old town.
     the trestle from vp_trestle_overlook, 267 m: the whole bridge, small, the fog's grey past it),
     `results/g3_trestle_floor_1230.jpg` (from the canyon's floor), `results/g3_depot_1230.jpg` (the
     train at the depot from Main Street's east end). `g3_pictures.txt`.
-  - **Films** (`films/`, from the canyon's floor): `results/g3_trestle_crossing.mp4`,
-    `results/g3_trestle_over.mp4`.
+  - **Films** (`films/`, from the canyon's floor 35 m downstream; the rim and the overlook show it
+    too small): `results/g3_trestle_crossing.mp4` (40 km/h across, nothing fails),
+    `results/g3_trestle_over.mp4` (three bents blown as the engine comes on: it goes over). The
+    crossing film carries a "didn't quit cleanly" line from a game killed before it (not the game's).
+    A film's long command needs `bridge.py run ... --timeout=5400` under lavapipe.
+  - **The frame** (`tools/valley/valley_bench.gd`, the train running its timetable at the line's
+    far end from each spot; `--no-railway` the before):
+    - headless, a tick (`train`, `train_view`, `train_sound`): **0.15-0.18 ms here, ~0.1 at Sean's**
+      with the train far (`Train.far`: was 0.45-0.6 here before it); the engineer's body ~0.02;
+      the track chunks at rest 0.009 (was 0.09: a chunk at rest skips its tick). The frame against
+      the before: +0.2-0.3 ms here for the line alone (untimed: ~11,500 resting members' bodies),
+      the VM's own noise run to run 0.3 ms.
+    - drawn (lavapipe, real look), render CPU at Sean's, before -> with the railway: crossroads 0.42
+      -> 0.53 (draws 100 -> 199: the line 75 m north and its chunks' batches), corners 0.40-0.44 ->
+      0.43-0.50, the overlook 0.46 -> 0.47. Budget 4 ms.
+    - load: the scene 2.7 -> 3.9 s headless (3.1 -> 6.7 s drawn); the line's build ~1 s, the
+      timetable's times ~4-7 s more on a worker after it (the train stands at east_start till then).
+    - nodes 2,154 -> 13,656 (the track's members at rest, a body each).
   - Bridge (`bridge.gd`): `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`;
     the trestle lab's commands take the valley's line in the valley world (`trestle_cam overlook`).
