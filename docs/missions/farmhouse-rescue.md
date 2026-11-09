@@ -44,6 +44,41 @@ hasn't confirmed in words.)
   offering to buy the widow's claim. He gets a face in Act I, and the farmhouse becomes his answer to
   her refusal.
 
+## Version 2: Sean's pick (2026-11-09)
+
+Sean, 2026-11-09: "Sounds good but make sure our ideas are actually implementable". Version 2 is
+`proposals/farmhouse-rescue_v2.md` (judged 26/35, from 19), with its build check. DECIDED (Sean,
+2026-11-09) as below, in build order; the judge's three ticks were not picked (PROPOSED at the end).
+
+**Build now, on the built mission** (about 2 medium, 4 small):
+- The hostage is the widow (the lock); the Colters on the Baron's pay hold the house, the Kid on the
+  porch.
+- The Baron's foreman walks up the lane at a set time to have her sign her water right over (the
+  Baron's answer to her refusal at the funeral). In 1882 Colorado the first to use water owns it
+  (*Coffin v. Left Hand Ditch Co.*, 1882): the sheriff's family dug first, so the Baron needs her name.
+  The paper is a deed, signed before an officer and recorded (not a "bill of sale").
+- The ways: the front, the back, the wall (built); stop the foreman on the lane; walk him in at
+  gunpoint (the men hold fire while he's near you); let her sign (the foreman reaches her table, the gang
+  leaves, nobody hurt, the Baron has the water).
+- How you hear: she isn't at the store on her day (the storekeeper says so); a rover drinks in town and
+  talks; the men's own talk about the foreman can be overheard on site.
+- Fight now and her life is at risk (the guard's clock); let her sign and everyone lives.
+- No phase machinery: the yard men are placed from the start; it ends when the family is together and
+  no captor stands.
+
+**Later, when the game can carry it:**
+- The Kid talked down with a nod (needs the nod and a deed); prisoners to the jail as witnesses (needs
+  the jail); the blown wall staying, her memory of how you came, the town hearing it, the paper's later
+  effects (need saves and story state); the boys held in the yard (need child bodies and
+  `ProtectedChild`); Blue (needs animals); the train crew seeing it (needs G6 and news passing).
+
+**Changed by the build check:** "sells" is "tells" (no money in the game); "the door opens" is "they
+hold fire" (doors have no leaves); Blue as a way to hear of it is cut (Blue stays in the design, #728).
+
+PROPOSED (the judge's ideas, not picked): a notary riding with the foreman (medium; his witness needs
+saves); the foreman's errand visible in town (small); the deed travelling to the county seat by train
+(large, after G6 and train step 7).
+
 ## How you hear of it
 
 - DECIDED, built: walk up to the blacksmith by the livery before the gang rides in (#520).

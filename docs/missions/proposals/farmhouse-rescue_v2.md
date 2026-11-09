@@ -151,3 +151,34 @@ rule just so he always arrives); her absence, the train crew and the saloon alre
 The "bill of sale" isn't: a Colorado water right was real property, conveyed by a deed acknowledged
 before an officer and recorded; and the priority would normally rest on a court decree under the
 1879/1881 adjudication acts. Check both.
+
+## The build check (2026-11-09)
+
+A fresh agent checked the proposal (and the judge's three ideas) against main's code (read only).
+
+- **What the proposal assumed that isn't true:** the mission is built in the old test street, not the
+  valley (G6, #731, moves it); the hostage is coded as the rancher (`farmhouse_mission.gd:428`); and
+  **nothing carries over** between missions or tries: no save writer, `GameReset` rebuilds the scene,
+  `Relations` fades in about an hour, and there's no story state for "met the Kid" or "the peaceful
+  visit".
+- **Works today:** the front, the back, the wall; the guard's clock; the rovers placed from the start
+  (the phase machinery's cut costs nothing); the Colters named.
+- **Small:** her absence from the store (one line); the rover drinking and talking ("tells", not
+  "sells": there's no money in the game); stopping the foreman on the lane; the foreman's errand seen
+  (an idle line to overhear, a horse tied at the lane's foot).
+- **Medium:** the foreman as a timed walker who joins the men's `hold.spare` (they hold fire while he's
+  near you; doors have no leaves, so "the door opens" is "they hold fire"); the Kid's turn (a new deed;
+  there's no nod yet); letting her sign (a timer, then everyone `leave`s); prisoners walked to the jail's
+  door (the jail is a facade); the paper as a flag on whoever carries it (the player can't pick things
+  up); the notary as a second walker with an overdue clock.
+- **Large:** Blue (no animals); the boys (no child bodies yet, `ProtectedChild` not built, a barn or
+  cellar not in the spec); her long memory and the town hearing it; the paper's later effects; the deed
+  travelling by train (needs G6, train step 7, a courier and saves).
+- **Not feasible now:** the train crew seeing it from the line (needs G6 and news passing between
+  people).
+- **The cheapest strong version:** swap the hostage to the widow; the foreman as a timed walker in
+  `hold.spare`; three endings (stopped, escorted, let her sign); the overdue clock and a line to
+  overhear. Defer the boys, Blue, the notary's witness, the paper's journey and every after-effect until
+  saves, story state and G6 exist.
+- **Size:** about 2 medium and 4 small on the built mission; the rest rides on G6, a save and
+  story-state system, child bodies with `ProtectedChild`, a barn spec and the train courier.

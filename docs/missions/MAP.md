@@ -226,6 +226,21 @@ many missions need it; the build order should read down this table.
 | A stampede | `cattle-drive` | 1 | new |
 | Harlan's rare lines | `hell-on-wheels` (Sean's example) | 1 | PROPOSED (P9) |
 
+**What the build checks found missing everywhere** (2026-11-09, read against main's code). These come
+before most missions' "after" sections can be built, and they weren't on this table:
+
+| Missing | What it blocks | State |
+|---|---|---|
+| **People in the valley** (`valley_world.gd:12`: no townsfolk, gang or saloon yet) | every mission set in the valley | new (the valley's next G-steps) |
+| **A save and story state** (nothing writes `user://`; `GameReset` rebuilds the scene; no flags for "met the Kid", "the peaceful visit") | every consequence that outlasts a session; mission order; nudges | new, LARGE |
+| **Long memory** (`Relations` holds threat, grudge and fear, fading in about an hour; no gratitude) | the widow's memory, Joe's, the camp's trust, "owes Harlan" | new |
+| **Carrying things** (the player can't pick up items) | papers, the boot's find, scalps, a spike from the break | new |
+| **Speech** (two shouts: `drop_it`, `call_out`; no nod yet) | "tell them", the Kid, Joe's question | partly |
+| **Riding a horse** (the horse idles and is tied) | chases, the fever ride, bringing a man in | new (horse lab P2) |
+| **Money** (no economy in `src/`) | bribes, rewards, "sells what he hears" | new |
+| **Doors that open and shut** (doorways are open) | "the door opens for him", barricades | new |
+| **Children and animals** (no child bodies, no dog) | the boys, Blue | new (characters; #728) |
+
 **Systems only one mission uses** (cut, share, or accept as that mission's own cost): protected
 actors, a jury, the trestle's collapse, the heavy log, the hanging body, illness, weather,
 underground workings, scalping and the wardrobe piece, brands, timed messages, a stampede. Some are

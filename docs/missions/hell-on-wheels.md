@@ -105,6 +105,18 @@ pays Gang B), Payday Night's mood from the payroll's fate, the coach's riders fr
 
 **Cut (Sean's tick):** the siding at the depot.
 
+**The build check's changes** (PROPOSED, 2026-11-09, for Sean; the full check is at the end of
+`proposals/hell-on-wheels_v2.md`):
+- Gang A holds the engineer off the levers, since his lookout would stop the train at the break by
+  itself; **freeing the engineer is a sixth way**.
+- The air cocks matter once the regulator is shut or the train is parted (air on two cars alone won't
+  stop it under steam).
+- The pin comes out when the coupler's force is low for a moment (6.5 cm of slack is too brief).
+- The freed coach rolls back east on the grade unless someone winds its hand brake.
+- The late window is boarding from the depot platform as it passes, until horses can be ridden.
+- Built in this order: the break found done, the warning, the blow-through; the brakes and cocks; step 7
+  at its narrowest; then the pin and "tell them"; the rest as flags and lines until the valley has people.
+
 ## How you hear of it
 
 - PROPOSED (#546 P9, Sean's example, 2026-11-07): "you've dealt with the men who blew the track, you

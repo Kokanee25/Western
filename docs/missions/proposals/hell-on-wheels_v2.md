@@ -162,3 +162,40 @@ coupler's pin under pull is very hard; by 1882 most passenger cars had automatic
 parted train brakes both halves unless the angle cocks are closed; the coach drifting to a stop needs
 an uphill grade. And soldiers "sent to restore order" in 1882 run into the Posse Comitatus Act (1878):
 the spine's problem, not only this card's.
+
+## The build check (2026-11-09)
+
+A fresh agent checked the adopted version against main's code (read only, file:line cited). Its
+findings, short; the full table is in the session's record and summarised here.
+
+- **Works today:** the break itself (`TrackChunk.tear_loose`, `track_state.gd`); dead passengers thrown
+  by physics (`TrainWreck`); the wreck staying and the repair crew (`TrackRepair`).
+- **Small:** the hand brake wheels (each car already has its own brake in `train_sim.gd`; one lever drives
+  them all today); cab controls (the lab's throttle, brake, reverser); tending the messenger (point the
+  player's `_tend` at another man); the foreman arriving at a set hour; the train blowing through the
+  depot; Gang B's two men posted; authored lines.
+- **Medium:** pulling the pin (`TrainSim` can't uncouple today; everything assumes one train); "tell
+  them" (only two shout kinds exist, `drop_it` and `call_out`; a third, "rail's out!", is the way); the
+  payroll in a strongbox; the stick-up man; jail and posters; gratitude (`Relations` has threat, grudge
+  and fear only).
+- **Large:** fighting on moving cars (train step 7: NPCs don't walk or take cover on moving bodies);
+  people in the valley at all (`valley_world.gd:12`: no townsfolk, gang or saloon yet); the coach filled
+  from townspeople's schedules (no schedules exist); the faction plan and Payday Night's mood.
+- **Not feasible now / should change:**
+  - **The engineer's lookout stops the train at the break by itself** (`train_lookout.gd:53`). Gang A has
+    to hold him off the levers, so **freeing the engineer is a sixth way**.
+  - **Air on the coach and express car alone (20% of the train) won't stop it under steam.** The cocks
+    matter once the regulator is shut or the train is parted.
+  - **"Only on slack":** the couplers have 6.5 cm of play, so slack lasts instants. Use "the coupler's
+    force low for a moment".
+  - **The freed coach rolls back east** on the +1.8% grade west of the depot unless its hand brake is
+    wound: a consequence, or another job for the player.
+  - **The chase on horseback can't be played** (the horse only idles and is tied); the late window is
+    "board from the depot platform as it passes", at a speed the gang keeps low.
+  - **There is no save system** (nothing writes `user://`), so "the line out for days" lasts one session.
+- **The cheapest strong version:** the break found done, the foreman's warning and the blow-through; the
+  hand brakes and air cocks as one change to the 1D brake model, cab controls and tending the messenger;
+  step 7 at its narrowest (the gang at posts on the cars, the player moving); then the pin and "tell
+  them"; the rest as flags and written lines until the valley has people and saves exist.
+- **Size:** about 4 large (step 7's fighting, people in the valley and their schedules, horse riding,
+  the faction plan and Payday's mood), 6 medium, 8 small, on top of train step 7.
