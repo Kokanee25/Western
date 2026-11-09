@@ -1,107 +1,194 @@
 # No Law (`no-law`)
 
-Other names: "the saloon table" (this card's old name), "the prologue" (DESIGN.md §5 "Story shape"), "the card cheat" (showcase moments), "A
-Quiet Drink" (`docs/briefs/three-gunmen.md` §10, possibly the same). Sources: DESIGN.md §5 (Sean,
-2026-10-15); `docs/briefs/showcase-moments.md` (Sean, 2026-10-21); ROADMAP 3.6;
-`docs/briefs/three-gunmen.md` (Sean's brief, 2026-10-17).
+Other names: "the saloon table" (this card's old name; DESIGN.md §5 "Story shape" prologue), "the
+card cheat" (showcase moments), "A Quiet Drink" (Sean's brief 2026-10-17, provisional; OPEN whether
+the same). Sources: **Sean's draft of 2026-11-09** (word for word in `sources/no-law_draft_2026-11-09.md`)
+and his chat answers the same day; DESIGN.md §5; `docs/briefs/showcase-moments.md`; PR #621 (the lock).
 
-- PROPOSED (DESIGN.md "Story shape", Sean 2026-10-15: "nothing set in stone, just a rough idea, all
-  may change"): "**It opens at the saloon table** ... the evening before day 1, the concept painting's
-  shot."
-- PROPOSED (ROADMAP 3.6): one of the three rough missions: "**the saloon table** (the stranger talks, a
-  shooting at the bar)".
-
-## Sean's version, 2026-11-09
-
-- DECIDED (Sean, 2026-11-09): the name, "the mission no law".
-- DECIDED (Sean, 2026-11-09): "the mission no law is at the start of the game the first night in the
-  saloon after bringing in the sheriff".
-- DECIDED (Sean, 2026-11-09): "you haven't been appointed to anything yet the first night - it's not
-  until the second day so you aren't any law when this murder happens - that's why there's no law
+- PROPOSED (Sean's draft, 2026-11-09): "Status: DRAFT — based on established story decisions, with
+  proposed details identified." "Length: 20–30 minutes of active play, spread over the opening
+  days." "Type: Opening town introduction, witnessed murder, character development and funeral."
+- DECIDED (Sean, 2026-11-09, chat): the name, "the mission no law"; "at the start of the game the first
+  night in the saloon after bringing in the sheriff".
+- DECIDED (Sean, 2026-11-09, chat): "you haven't been appointed to anything yet the first night - it's
+  not until the second day so you aren't any law when this murder happens - that's why there's no law
   around to do anything about the cold blooded murder".
-- PROPOSED (Sean, 2026-11-09): "it's more of a cut scene than anything - but maybe red shirt can be the
-  one that comes into the saloon and kicks out the chair and murders the card cheat".
-- PROPOSED (this session, under review): play it as a short act, not a cutscene; the red shirt is a
-  coward (Sean's No Justice card) and runs at the first shot, his gang covering him; if a player still
-  kills him on night one, No Justice bends as in Sean's "kills the man in the red shirt outside" case.
-- DECIDED (Sean, 2026-11-09): "it's played in game while player is sitting at a table and has no gun
-  yet so he can't do anything at all". (Settles cutscene vs act: in the game, the player seated and
-  unarmed. The proposal above, the red shirt's cowardice as a safety net, is no longer needed.)
-- DECIDED (Sean, 2026-11-09): "the stranger sits there and tells the character not to do anything".
-- PROPOSED (Sean, 2026-11-09): "maybe day 2 the murder of the woman occurs that night after then murder
-  of the cheat": the red shirt leaves town after the killing and the raid on Joe's camp is that same
-  night; Harlan meets Joe on day 2.
-- Superseded: DESIGN.md (2026-10-15) had the saloon table "the evening before day 1"; Sean's version
-  puts it the first night, after the sheriff.
+- PROPOSED (Sean's draft), the premise: "The sheriff has been shot, leaving Salt Creek without effective
+  law enforcement. Harlan, still unarmed, witnesses a brutal saloon murder committed by a man in a red
+  shirt who believes nobody can stop him. The following day, the sheriff dies and passes his revolver
+  to Harlan. His death brings Harlan into the lives of the sheriff's family and introduces the
+  responsibility that will define the game. The red-shirted murderer is also responsible for the rape
+  and murder of Joe's wife. Harlan does not yet know this."
+- PROPOSED (Sean's draft, design notes): "This is an introduction to people and place, not an action
+  showcase." "The sheriff's death should be quiet and personal." "The mission can finish without a
+  formal completion screen, as normal town life resumes."
 
 ## How you hear of it
 
-- DECIDED (Sean, 2026-11-09): no lead: it's the first night in town, after Harlan brings the sheriff
-  in.
+- PROPOSED (Sean's draft): "This mission follows the opening sequence in which Harlan encounters the
+  wounded sheriff." "Harlan arrives in Salt Creek and can explore the main street, meet residents and
+  enter businesses." "The next day's events come through the doctor or someone sent to find Harlan."
+  "The funeral is announced by townspeople, the church or the sheriff's family." "The story does not
+  depend on a countdown or quest marker."
+- PROPOSED (Sean's draft): "If ignored: The player can avoid the saloon. The shooting still happens and
+  becomes town news, but Harlan misses witnessing it firsthand. The sheriff's death still occurs;
+  Harlan learns about it when he next encounters the doctor or townspeople."
 
 ## The situation
 
-- PROPOSED (DESIGN.md, 2026-10-15): "The stranger sits down across from you and talks (friendly, too
-  curious about the sheriff and your spring); a shooting breaks out at the bar and plays out however
-  you handle it."
-- PROPOSED (showcase, Sean 2026-10-21), the card cheat: "A man at the saloon table playing cards; he
-  cheated someone the day before. The victim walks in angry, kicks the back legs out of his chair and
-  he goes over backwards; the victim draws, shouts, and puts the gun in his mouth. You have seconds."
-  "**Fits:** Phase 3's 'saloon table' mission and the story's saloon-table prologue".
-- PROPOSED (showcase): "Some days the victim was cheated; some days he's lying."
+- PROPOSED (Sean's draft), Beat 1, Salt Creek without a sheriff: "Townspeople discuss what happened.
+  Some are worried. Others behave more boldly because the sheriff is incapacitated." Choices: explore
+  first, speak with people, go straight to the saloon. (*Purpose: "Introduce the town as a place with
+  ordinary people, routines and problems before the player becomes responsible for it."*)
+- PROPOSED (Sean's draft), Beat 2, a stranger in the saloon: "Harlan begins talking with a stranger. The
+  saloon is operating normally, with drinking, conversation and a card game." "The red-shirted man
+  enters. He notices a card player he believes has been cheating."
+- DECIDED (Sean, 2026-11-09, chat): "it's played in game while player is sitting at a table and has no
+  gun yet so he can't do anything at all". "the stranger sits there and tells the character not to do
+  anything".
+- PROPOSED (Sean's draft), Beat 3, the murder: "He suddenly kicks the chair out from beneath him. The
+  player falls to the floor. The red-shirted man draws his revolver and shoots him. He makes a remark
+  about there being no law to save him now. The room falls quiet. Nobody immediately challenges him.
+  The murderer leaves the saloon." "The scene should be extremely quick. It is not designed as a fair
+  fight."
+- PROPOSED (Sean's draft), Beat 4, the aftermath: "The card player's body remains. Patrons react
+  differently: some leave, some attend to the victim and others act as though nothing unusual
+  happened. The stranger reacts to what Harlan witnessed. News spreads through town. The murderer is
+  not immediately arrested."
+- PROPOSED (Sean, 2026-11-09, chat): "maybe day 2 the murder of the woman occurs that night after then
+  murder of the cheat" (the red shirt's gang raids Joe's camp that night).
 
 ## The ways to do it
 
-- PROPOSED (showcase): "shoot the victim (a ball through him may hit the man on the floor); shout or
-  draw so he turns on you; shove him; throw a bottle; shoot his gun hand so the gun drops; answer his
-  'Tell me I'm wrong' with a nod or a shake; or let it happen."
-- PROPOSED (DESIGN.md "Little acts in the world", Sean 2026-10-15): "the table scene ... written as
-  acts ... that the systems carry out and that hand back to the systems the moment you interfere."
+- PROPOSED (Sean's draft): "This mission is mostly observational on purpose." "Approach A — Become
+  involved": explore, witness, help the victim, visit the dying sheriff, attend the funeral and speak
+  with the family. "Approach B — Remain distant": avoid or flee the saloon, hear of it from others,
+  limit contact with the family, miss the funeral, "Begin Harlan's story as someone reluctant to become
+  involved." "The major events remain, but relationships and what Harlan personally witnesses differ."
+- PROPOSED (Sean's draft), Beat 5, the sheriff's final day: "The following day, Harlan learns that the
+  sheriff is dying. He visits the doctor's office. The sheriff's wife is present." "PROPOSED: Their
+  children are also present". "The sheriff gives Harlan his revolver. The sheriff dies."
+- PROPOSED (Sean's draft), Beat 6, the funeral: "Town residents gather for a funeral. His wife and
+  possibly children attend." "The service is quiet rather than a major cinematic spectacle. Harlan sees
+  how many people depended on the sheriff. After the burial, people return to their ordinary lives."
+  Choices: attend, speak with the family, watch from a distance, miss it. Design note: "ordinary
+  details: residents arriving, removing hats, a child standing beside a parent, and the town slowly
+  returning to work." "Avoid turning the funeral into another gunfight."
 
 ## The big choice and its cost
 
-- PROPOSED (showcase): "the cheater owes you his life, or the victim's friends want you, or a witness
-  tells the deputy you shot a man defending his money."
+- PROPOSED (Sean's draft): "Its central question is whether Harlan accepts the responsibility left by
+  the dying sheriff." "Nod yes: Harlan accepts the responsibility. The family and doctor see his
+  willingness to step forward." "Shake no: Harlan expresses reluctance. The sheriff still gives him the
+  revolver, but the family and doctor remember his refusal." "No morality meter or displayed
+  judgment."
+- DECIDED (Sean, 2026-11-09, chat): "when the sheriff is dying of the player shakes head no the sheriff
+  says something like 'that's not the way this works' or something so you get it either way and maybe
+  a kinda humour moment".
+- DECIDED (Sean, 2026-11-09, chat): by day 2 Harlan is "temporarily appointed by the dead sheriff".
+- PROPOSED (Sean's draft): "Cost either way: Accepting draws Harlan into the town's problems; refusing
+  leaves those problems unresolved and risks losing people's trust."
 
 ## What happens after, in the world
 
-- PROPOSED (showcase, Sean): "whatever happens, dead man on the floor or not, the barman's first words
-  are about his furniture: 'Jesus, Cody, my chair!' Make it a rule, not a line for this scene: **owners
-  care about their own things first.**"
-- PROPOSED (DESIGN.md): at dawn the sheriff; "the ball the doctor digs out may match the stranger's
-  gun, or clear him" (`the-sheriff`).
+- PROPOSED (Sean's draft): watching the murder: "Saloon patrons remember his presence. The murderer
+  remains free and becomes a source of fear." "Later, the revelation about Joe's wife changes how the
+  player understands this scene." Avoiding it: "Townspeople recount inconsistent versions of what
+  happened."
+- PROPOSED (Sean's draft): the funeral attended: "The sheriff's family recognizes his support." "This
+  provides an early foundation for later relationships with the widow and children." Skipped: "The
+  family remembers his absence. Some townspeople may question whether he cares about Salt Creek.
+  Relationships remain repairable through later actions."
+- PROPOSED (Sean's draft), factions: "Baron: His men may consider the town easier to influence; no
+  direct involvement is established." "Outlaws: The absence of a sheriff may embolden them."
+  "Southern Ute community: No direct involvement yet."
+- PROPOSED (Sean's draft): "The murdered card player should receive a recorded death, burial or obituary
+  instead of disappearing from the world." "The sheriff's grave becomes a persistent world location."
+  "Harlan receives his first revolver. Townspeople begin looking to him for protection."
 
 ## Where on the map
 
-- PROPOSED: the saloon in `town`; `vp_saloon_balcony` (20, -8.9). The valley's saloon lot (north side
-  x 7.6..24.0).
+- PROPOSED (Sean's draft): Main Street ("No new location required"); the main saloon ("The player can
+  observe from the bar, another table or near the entrance. The upper floor, if accessible, could
+  offer another viewing position."); the doctor's office; the church and cemetery.
+- DECIDED (`config/valley.json`, Sean #700): `church` (-62, -135), pad y 7.5, and `cemetery` (-95,
+  -195), pad y 10.5, "higher ground north-west"; viewpoint `vp_cemetery`. (The draft lists the
+  cemetery's place as open; the valley plan has it.)
 
 ## Which threads it moves
 
 _PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines without a status word are that mapping._
 
-- The sheriff (the stranger as a suspect); the town's opinion of you from the first night.
+- T1 the sheriff and the badge (the appointment, the revolver, the funeral); T2 Joe (the red shirt
+  planted, unrevealed); T4 the widow (met before the farmhouse; the lock's order "the peaceful visit,
+  then the hostage crisis").
+- PROPOSED (Sean's draft), where it leads: No Justice ("The player recognizes him from the saloon");
+  the Farmhouse ("Harlan meets the sheriff's widow before she later becomes a hostage"); the Inquest
+  ("The red-shirted man's role in the sheriff's shooting is not established").
 
 ## Which systems it needs
 
 _PROPOSED: this session's reading of what the ways above need. Each line ends with its state on main, 2026-11-09: exists, partly, being built, decided (not built) or new._
 
-- The kit chair that tips, the fall backwards (`sit_back`, `kick`): exists (#204).
-- Confrontation and escalation, the nod: partly (the nod not built).
-- Shove (#479), dropped guns, ballistics through a man: exists.
-- Owners naming who broke their things: new (ownership, DESIGN §10).
-- Acts (roadmap 3.5): new.
-- The stranger's talk (written, voiced lines; the AI only reads): partly.
+PROPOSED (Sean's draft), its lists, with each one's state:
+- Existing or planned: conversations and routines (partly); gun drawing and firing (exists); bullet
+  impacts and wounds (exists); ragdolls and persistent deaths (exists, #562); chair-kicking physics
+  (exists: `sit_back`, `kick`, #204); witnesses and rumours (partly); the nod (decided in outline, not
+  built); NPC relationships (partly); crowd reactions (partly).
+- New or requiring expansion: "Saloon card-game activity and interruption" (new); "NPC fear and
+  reactions to public murder" (partly: fear, fleeing exist); "Funeral gathering and burial" (new);
+  "Persistent graves and obituary records" (new; coffins #259); "Remembered attendance and
+  participation at social events" (new); "Deathbed transfer of an important item" (new); "Recognition
+  of a recurring character across missions" (partly: recognition by description, DESIGN §10, new).
+- The seated, unarmed player who can't act (Sean's chat): a held, seated player view (new, small).
+
+## Keep these details
+
+- PROPOSED (Sean's draft): "The chair kick. The red-shirted man kicks the chair from beneath the card
+  player before shooting him. It should feel sudden and physical."
+- PROPOSED (Sean's draft): "The absence of law. His remark about there being no law to save the victim
+  directly connects the murder to the wounded sheriff."
+- PROPOSED (Sean's draft): "The funeral. Harlan sees the dead sheriff's family grieving and the town
+  paying its respects before fully taking on the role of lawman." "The red-shirted man's return in No
+  Justice is an essential continuity payoff."
+
+## True to 1882 (the draft's notes)
+
+- PROPOSED (Sean's draft): "The response to a murder should reflect the settlement's actual legal
+  arrangements, not assume all Western towns lacked functioning law." "A sheriff's death would not
+  automatically grant his office to whoever inherited his gun. The legal process for a replacement
+  needs research and an in-story explanation." "Funeral customs, burial arrangements and the presence
+  of an undertaker should reflect the town's size and local traditions."
 
 ## Where the sources disagree
 
-- OPEN: "A Quiet Drink" (Sean's brief, 2026-10-17: "A saloon confrontation that tests conversation,
-  escalation, intimidation, close-range combat, furniture destruction, and civilian reactions";
-  "provisional concepts, not finalized story missions") may be this mission or a separate one.
-- OPEN: the prologue is the evening "before day 1" of a ten-day shape that #546 (Sean, 2026-11-01)
-  replaces with no day count; #546 proposes "The demo is unchanged: the prologue and day 1."
+- OPEN: **can the player act in the saloon?** Sean (chat, 2026-11-09): "sitting at a table and has no
+  gun yet so he can't do anything at all". His draft: choices "Attempt to intervene physically, at
+  significant risk", "Take cover or retreat", "Try to assist the victim afterward", and "Do not create
+  an artificial invulnerable murderer or disable all player action"; section 8 plans for "If Harlan
+  manages to kill the red-shirted man". Seated and unable to act during the murder, free to act after?
+- OPEN: **can the player miss it?** Draft: "The player can avoid the saloon." Chat: "the first night in
+  the saloon", "sitting at a table".
+- OPEN: **when Joe's wife is killed.** Chat (Sean, "maybe"): the same night, after the card cheat.
+  Draft: "Recommended: Before, so killing the murderer unexpectedly during No Law doesn't erase the
+  established crime." If the player can't act during the murder (chat), the draft's reason goes away.
+- OPEN: **Joe on day 2.** Sean's No Justice card: "Harlan meets Joe at the doctor's office". This draft's
+  day 2 at the doctor's has the sheriff, his wife and the children, and no Joe. Same day, same room?
+- OPEN: **the player's name.** The draft calls him "Thomas Harlan"; no other source gives a first name.
+- OPEN: **the children.** Draft: "PROPOSED", "Their family relationships must be confirmed", "Are they
+  based on the user's two sons?" The lock (2026-11-03, PR #621, unmerged): the widow lives "with their
+  **two young sons**" (the sheriff's), protected actors, Sean's own boys' likenesses.
+- OPEN: **how Harlan becomes the law.** Chat: "temporarily appointed by the dead sheriff". Draft: "How
+  does Harlan legally become sheriff after the death?" (needs research).
+- OPEN (draft's list): who hands over the gun (the sheriff, or the doctor afterward); the stranger's
+  identity and return; whether the card player was cheating; whether the red shirt knows Harlan saw
+  it; whether the funeral is part of No Law or its own event; the card player's own burial; whether
+  this is the first witnessed murder in the game.
+- Superseded: DESIGN.md (2026-10-15) had the saloon table "the evening before day 1", the shooting
+  "plays out however you handle it", and the card cheat's showcase ways (shove, bottle, shoot his gun
+  hand). Sean's version: the first night, after the sheriff, unarmed.
 
 ## Sources
 
-DESIGN.md §5 "Story shape"; `docs/briefs/showcase-moments.md`; `docs/ROADMAP.md` 3.6;
-`docs/briefs/three-gunmen.md` §10; #546.
+`sources/no-law_draft_2026-11-09.md` (Sean's draft); Sean's chat answers, 2026-11-09; DESIGN.md §5
+"Story shape"; `docs/briefs/showcase-moments.md` ("The card cheat"); PR #621; `config/valley.json`.
