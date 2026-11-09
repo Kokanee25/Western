@@ -141,3 +141,30 @@ Results of the G steps that build the new valley beside the old town.
     `results/g4_main_street.jpg` (west down Main Street between the lots' blocks, the `town` post at
     the crossroads), `results/g4_bridge_a.jpg` (Bridge A on its crib from the west bank). The marks
     read from above; at eye level the real look washes the greybox ground to one pale tone (for art).
+- **G5** (#724, the town greybox, first half; the buildings moving over is its second, after #695):
+  - **Built** (`ValleyTown`; LAYOUT "src/world/town_layout.gd"): the game's `Boardwalk` along all 17
+    building fronts (1,766 members, ~0.45 s to build), each its own level from the ground at its street
+    edge, joined over the two shoulder-to-shoulder gaps, end steps to every lane, alley and street, a
+    flight at each door; 15 passages to Back Street and the rear lane (5 lanes, the 1.2 m store's,
+    doctor's and undertaker's alleys, 2 yards, the vacant lot, the house lots, the 2 gaps between the
+    jail, bank and land office); the undertaker's alley filled by junk in 0.5 m tiers (jumped over, not
+    walked); the town's ways from valley.json: 362 places and 337 links in the valley's `places`.
+  - **valley.json**: `vp_main_east` and `vp_saloon_balcony` onto their lots' walks (z -8.9; were -12,
+    inside the lots); `alley_n8`'s `junk`. Re-baked (the heights the same), the plain run 22/22.
+  - **The gate** (`tests/test_valley_town.gd`): `walk` (running) from the crossroads to every door,
+    and to every passage's mouth and on through it to the back, all arrive; the three alleys measure
+    1.20 m between the blocks, a man's sweep clears them, two abreast don't; every town link walkable
+    (a man's sweep and the steps under it). The old town's suite unchanged (1,104 pass).
+  - **Waypoints** (shared): `route` searches once back from the goal and asks the places in order
+    (the same ways): from a back yard 1,082 -> 10 ms, to the junk alley's back 235 -> 5 ms; a step
+    probe that fell between two planks (18 mm) is asked again a foot's width round.
+  - **On foot from the crossroads** (`valley_walk`, `g4_walks.txt`, headless): the same as G4's table
+    to the second at every place (`build/g5_walks.log` here).
+  - **The frame** (`valley_bench.gd`, lavapipe, real look; `-- --no-town` the before), render CPU at
+    Sean's: crossroads 0.57 -> 0.88 ms (draws 209 -> 474: the walks), corners 0.47-0.53 -> 0.55-0.59,
+    overlook 0.85 -> 0.70 (noise); load 7.6 -> 9.1 s drawn here. Budget 4 ms.
+  - **Pictures** (real look, lavapipe, 10:30; `g5_pictures.txt`): `results/g5_top_north_east.jpg`,
+    `results/g5_top_north_west.jpg` (the north side from 45 m up: the walks, lanes and alleys to Back
+    Street), `results/g5_doctors_alley.jpg` (the doctor's alley from Main Street, open to the back),
+    `results/g5_hotel_walk.jpg` (west along the hotel's walk), `results/g5_junk.jpg` (the undertaker's
+    alley and its junk).
