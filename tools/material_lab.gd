@@ -27,7 +27,8 @@ extends SceneTree
 ## after; or `shape`: part 5's warp before and after) at each age, side by side, a man beside the
 ## one in view; views `far` (5 m) and `near` (1 m), lights noon, golden and `saloon` (night, a room
 ## round the panel, the saloon's lamps). --man=MODEL (default bold_cowboy_s0), --entries=a,b,
-## --ages=new,few,old. Writes DIR/<family>/<entry>_<age>/<light>_<view>.png and DIR/<family>/numbers.json.
+## --ages=new,few,old, --hires (the 4K scans where pulled), --review (Sean's shots only; run the
+## window at 2560x1440: `--resolution 2560x1440` under an xvfb screen that size). Writes DIR/<family>/<entry>_<age>/<light>_<view>.png and DIR/<family>/numbers.json.
 ## --repeats: no stand; how often two boards side by side on Main Street draw the same strip
 ## (WoodMaterials picks a strip by hash(member_id)), per wood -> DIR/repeats.json.
 
@@ -106,6 +107,11 @@ var _masks := true
 var _panel_man: StringName = &"bold_cowboy_s0"
 var _panel_entries: Array = []
 var _panel_ages: Array = ["new", "few", "old"]
+## --review: only the shots Sean reviews by (#721; run at 2560x1440 with --hires): 1 m at noon, 5 m
+## at golden hour, and for the fine woods 1 m at night and the bar rail at noon.
+var _review := false
+const REVIEW_SHOTS := [["noon", "near"], ["golden", "far"]]
+const REVIEW_FINE := [["saloon", "near"], ["noon", "rail"]]
 
 
 func _initialize() -> void:
@@ -123,6 +129,10 @@ func _run() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--panels="):
 			panels = arg.substr(9)
+		elif arg == "--hires":
+			load("res://src/art/material_library.gd").hi_res = true
+		elif arg == "--review":
+			_review = true
 		elif arg.begins_with("--man="):
 			_panel_man = StringName(arg.substr(6))
 		elif arg.begins_with("--entries="):
@@ -630,28 +640,41 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 					"boards": p.boards, "triangles": _triangles(p), "man_height": _man_height(man),
 					"rail_height": float(sp.CLASSES[StringName(spec["entry"].get("class", "common"))]["rail"]["h"]),
 					"wall_height": 2.0})
+			# Each light with its views, or (--review) just the shots Sean reviews by.
+			var shots := []
 			for light in lights:
-				clock.set_time(HOURS[light])
-				var night: bool = light == "saloon"
-				for l in lamps:
-					l.visible = night
-				room.visible = night
-				for i in 12:
-					await process_frame
 				for v in views:
-					var view: Array = views[v]
-					cam.global_position = pt * (view[0] as Vector3)
-					cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
-					cam.fov = view[2]
-					for i in 6:
+					shots.append([light, v])
+			if _review:
+				shots = REVIEW_SHOTS.duplicate()
+				if views.has("rail"):
+					shots += REVIEW_FINE
+			var lit := ""
+			for shot in shots:
+				var light: String = shot[0]
+				var v: String = shot[1]
+				if light != lit:
+					lit = light
+					clock.set_time(HOURS[light])
+					var night: bool = light == "saloon"
+					for l in lamps:
+						l.visible = night
+					room.visible = night
+					for i in 12:
 						await process_frame
-					# Nothing over the picture (the blacksmith's subtitles, the wound words).
-					for c in viewport.find_children("*", "CanvasLayer", true, false):
-						(c as CanvasLayer).visible = false
+				var view: Array = views[v]
+				cam.global_position = pt * (view[0] as Vector3)
+				cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
+				cam.fov = view[2]
+				for i in 6:
 					await process_frame
-					var path := "%s/%s_%s.png" % [pdir, light, v]
-					viewport.get_texture().get_image().save_png(path)
-					print("saved %s/%s/%s_%s" % [family, name, light, v])
+				# Nothing over the picture (the blacksmith's subtitles, the wound words).
+				for c in viewport.find_children("*", "CanvasLayer", true, false):
+					(c as CanvasLayer).visible = false
+				await process_frame
+				var path := "%s/%s_%s.png" % [pdir, light, v]
+				viewport.get_texture().get_image().save_png(path)
+				print("saved %s/%s/%s_%s" % [family, name, light, v])
 		var f := FileAccess.open(dir + "/numbers.json", FileAccess.WRITE)
 		f.store_string(JSON.stringify(numbers, "  "))
 		f.close()

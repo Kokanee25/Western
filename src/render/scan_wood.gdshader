@@ -158,12 +158,13 @@ vec2 scan_uv(vec2 m, vec2 tile, bool grain_v, float seed, float k, out vec2 flip
 	return grain_v ? uv.yx : uv;
 }
 
-// Fine relief and roughness sampled a mip softer: at a metre, full-detail scan normals came out as
-// single-pixel speckle (the cheap judge, 2026-11-08: "digital noise rather than wood fibre").
-uniform float detail_bias = 1.0;
-// The weathered scan's colour a mip softer too: its fine fleck read as burlap and tweed at a metre
-// (the judge, 2026-11-08); long silvered grain and checks along the board take its place.
-uniform float weathered_bias = 1.0;
+// Fine relief and roughness sampled a little softer: at a metre, full-detail scan normals came out as
+// single-pixel speckle (the cheap judge, 2026-11-08); a whole mip blurred the grain (Sean, #721), so 0.4.
+uniform float detail_bias = 0.4;
+// The weathered scan's colour: was a mip softer against round 2's burlap (the judge, 2026-11-08), which
+// blurred it (Sean, #721); round 3 replaced the scans instead, so sharp again. Long silvered grain and
+// checks along the board on top.
+uniform float weathered_bias = 0.0;
 uniform float weathered_grain = 1.0;
 
 vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {

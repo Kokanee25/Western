@@ -17,6 +17,10 @@ extends RefCounted
 
 const PATH := "res://config/material_library.json"
 const SCANS := "res://assets/textures/scans/"
+## 4K copies for the lab's sharp close-ups (git-ignored; pulled from the pool branch
+## claude/salt-creek-material-panels-tjivo2-scans4k, #721). Used when `hi_res` and the scan is there.
+const SCANS_HI := "res://assets/textures/scans4k/"
+static var hi_res := false
 const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "roughness_add",
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
 		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain"]
@@ -68,7 +72,7 @@ static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName
 		if not has:
 			continue
 		var s: Dictionary = scans[slot]
-		var dir: String = SCANS + String(s["id"]) + "/"
+		var dir: String = scan_dir(String(s["id"]))
 		m.set_shader_parameter("albedo_" + slot, load(dir + "albedo.jpg"))
 		if ResourceLoader.exists(dir + "normal.jpg"):
 			m.set_shader_parameter("normal_" + slot, load(dir + "normal.jpg"))
@@ -108,6 +112,13 @@ static func _tile(dir: String, s: Dictionary) -> Vector2:
 	var v := Vector2(float(mt[0]), float(mt[1]))
 	# meta's metres are the image's (width, height); along the grain first.
 	return v if String(s.get("grain", "u")) == "u" else Vector2(v.y, v.x)
+
+
+## A scan's folder: the 4K copy when `hi_res` and it's there, else the repo's.
+static func scan_dir(id: String) -> String:
+	if hi_res and FileAccess.file_exists(SCANS_HI + id + "/albedo.jpg"):
+		return SCANS_HI + id + "/"
+	return SCANS + id + "/"
 
 
 static func _mean(dir: String) -> Vector3:
