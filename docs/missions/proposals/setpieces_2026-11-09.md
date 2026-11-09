@@ -138,3 +138,83 @@ Pennsylvania's miners, 30 July 1864) and Vicksburg's 3rd Louisiana Redan (1863) 
 house is a stretch a veteran makes believable. *New:* undermining exists in sandbox games (Stronghold,
 Dwarf Fortress, 7 Days to Die); first-person and narrative, with a charge sized so a named man survives,
 the judge knows none.
+
+---
+
+## The build check (2026-11-09)
+
+- **Both rest on masonry that doesn't exist yet** (masonry lab step 3, S3–S6, isn't built; the jail is
+  step 8; the Baron's house comes after the jail, bank, magazine and pier).
+- **The Water Tower:** a tower as members is small (`Windpump` already builds four legs, girts and a
+  platform); the water's weight as load on the platform is small (`extra_load`, updated on a level step, as
+  the trestle does). **Bullet holes can't drain it in a fight** (by `PropContents`' own law ~0.5 L/s a hole:
+  hours); **a stave broken out drains it in ~30 s** (the slot law). The support graph never tips a
+  structure: the fall's direction must be a model (the trestle's `_topple`, aimed by the cut legs). No lean
+  state (a creak by load, yes); no wind; no NPC climbing; no flood (water soaks into dirt: a burst and a wet
+  decal). A falling tank breaking **timber** works today (rubble hits by energy); breaking **stone** needs a
+  masonry impact rule. The gang chopping a leg: a scripted moment (N swings, then `break_member`, unless
+  he's shot).
+- **The Sap:** **no tunnel** ("a height field, which can't have a hole", `tunnel_portal.gd`); digging stops at
+  2 m; **an open trench roofed with planks** is the historical sap and works. Ground taken from under a
+  footing lets the stones over it fall (all or nothing per stone); settling and leaning aren't possible;
+  cracks need the spec's §8 (medium); arching needs S3. No dig action for the player yet (medium; a hitch
+  per stroke until the native step); the creek is ~175 m from the house pad, too far: dig only the last
+  10–20 m in play. A `dig` noise the house can hear: small. Counter-mining AI: large. A tamped charge
+  isn't modelled.
+
+---
+
+## Version 2 of both (2026-11-09)
+
+### The Water Tower, version 2: the depot tank (for `hold-him`)
+
+- **The railroad's tank at the depot** (`water_tank`, beside the depot and the freight warehouse; the
+  judge: railroad tanks were standard by 1882, a town's own tower rare). A timber frame on four legs, a
+  stave tank held by iron hoops, a spout swung over the tender, an outlet valve.
+- **The night:** Harlan's prisoner waits for the morning train in the depot's freight room (No Justice's
+  arrest ending sends him off by train, DECIDED pick; the story judge put Hold the Jail on that night). The
+  kin or the gang come to free him. **The freight room is timber**, so the tank coming down on it breaks it
+  by the rules that exist today, with no masonry needed.
+- **Their plan shows:** two men with axes at the legs on the freight room's side, swinging; each stroke
+  carries across the yard; a half-cut leg groans by its load. It takes them minutes a leg: **the axes are the
+  clock**, and stopping the axemen is the timing skill.
+- **Draining, honestly:** bullet holes are the slow tell (the jets show the level). The real levers: **the
+  outlet valve and the spout** (open them and it drains in minutes, into the yard and the cut under the
+  track), and **the hoops**: shoot or cut an iron hoop and the staves spring, the tank bursts in seconds,
+  and the surge knocks men off their feet. A drained tank is a light load: the cut legs may hold it, or it
+  falls without the weight to break the freight room.
+- **Where it falls:** which legs are cut aims the fall (a modelled topple toward the cut side, as the
+  trestle's bents fall): cut the far legs and it comes down on the yard where the men wait, or across the
+  track.
+- **Partial:** one leg cut, it groans and holds; a half-drained tank falls short and only stoves in the
+  freight room's wall.
+- **Leaves a mark:** the wrecked tower and the broken freight room stay; the yard is wet; **the daily train
+  can't take water at Salt Creek**, so it stands at the depot or runs short until the tank is rebuilt (the
+  timetable holding it: medium).
+- **Cut:** the wind; the man climbing it; the flood (a burst and wet ground instead).
+- **Needs:** a `WaterTower` from Windpump's build (small); the tank's kg as the platform's load on a level
+  step (small); `PropContents` scaled to a stave tank with hoops and a valve (small–medium); the modelled
+  topple (small, the trestle's); the axemen as a moment (small); the timetable holding the train (medium).
+
+### The Sap, version 2: a covered trench and a short mine (for `barons-house`)
+
+- **A sap, not a tunnel:** an open trench dug toward the house, roofed with planks and covered with earth
+  as it goes (the period's sap: a covered trench), from a cut bank 15–20 m from the footings. The approach
+  from the creek is done in the nights between (a time skip); only the last stretch is dug in play.
+- **Reading the house:** from the rise you see where it stands on earth and where on rock (the west end
+  sits on an outcrop: the sap must find earth). Through a window, **a bowl of water on the floor**: the
+  defenders' siege listener; it ripples when you dig close. Plaster cracks open in the wall as the ground
+  goes (the spec's crack warnings).
+- **The defenders hear it** (a `dig` noise through earth and walls) and **sally out** to the trench: a fight
+  at the sap's mouth, at night (no counter-mining).
+- **Undermine:** take the ground from under the footing: the stones over the gap fall, a section of wall
+  comes down into the trench, or (with the arch rule) an arched hole stays.
+- **Or fire the mine:** a bundle at the sap's end, **tamped** (earth put back over it) or not: tamped, it
+  lifts the wall; open, it blows back down the trench. **The Baron must survive** (DECIDED): find him first
+  (his voice, his lamp at a window) and choose the wall and the charge.
+- **Leaves a mark:** the trench and its crater stay; the house with its wall down stays on its rise.
+- **Cut:** the counter-gallery; settling and leaning (stones hold or fall); the Petersburg-scale mine.
+- **Needs:** a dig action for the player on `Ground.take` (medium; native editing planned); a plank roof
+  over a trench (small, members); rock vs earth by area (small–medium); the `dig` noise (small); a tamped
+  charge (small–medium on the blast); the masonry house with cracks and arches (masonry steps 3 and the
+  Baron's house: the dependency).
