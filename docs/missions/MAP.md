@@ -13,7 +13,7 @@ about days.
 
 | Thread | What it's about | Its missions, in the order they lean | Status |
 |---|---|---|---|
-| **T1 The sheriff and the badge** | Who shot him, the town without law, the badge | `saloon-table` → `the-sheriff` → (the badge) → `the-trial` | PROPOSED (#546 names "the sheriff and the badge") |
+| **T1 The sheriff and the badge** | Who shot him, the town without law, the badge | `the-sheriff` → `no-law` → (the badge, day 2) → `the-trial` | PROPOSED (#546 names "the sheriff and the badge") |
 | **T2 Joe and the revenge** | His wife's killer, the town's "no justice", his life on the rope | `no-justice` → (the Winchester) → `joe-on-the-rope` → Joe's plans | order DECIDED (Sean, 2026-11-09, #738) |
 | **T3 The mine and the miner** | The rescue, dynamite learned, sticks then bundles | `buried-alive` → single sticks → bundles | PROPOSED (#546); progression DECIDED (2026-11-04) |
 | **T4 The Baron and the water** | The widow's water, his papers, his arrest | `farmhouse-rescue` → `barons-shipment` / `bank-break-in` → `barons-house` | the finale DECIDED (2026-11-04); the rest PROPOSED |
@@ -37,7 +37,7 @@ Solid arrows are DECIDED (the card quotes Sean); dotted are PROPOSED or OPEN.
 ```mermaid
 flowchart TD
   subgraph T1[T1 sheriff and badge]
-    saloon[saloon-table] -.stranger's gun.-> sheriff[the-sheriff]
+    sheriff[the-sheriff] -->|night one| saloon[no-law]
     sheriff -->|the ball as evidence| trial[the-trial]
   end
   subgraph T2[T2 Joe]
@@ -78,6 +78,10 @@ flowchart TD
   kid[kid-wants-out] -.comes back.-> bridge
 ```
 
+**The opening, in order** (Sean, 2026-11-09): day 1 dawn, the sheriff on the road → the doctor's →
+night 1, `no-law` (Harlan is no law yet: a murder nobody answers for) → day 2, the sheriff appoints
+Harlan and dies → `no-justice` (now he's the law, and the law fails anyway).
+
 The DECIDED edges and where Sean's words are:
 - `no-justice` → `joe-on-the-rope`: #738 (2026-11-09). The Winchester before the rope: #546 (2026-11-04,
   "after Harlan has been given the rifle"), #733/#734 (2026-11-09, which rifle OPEN).
@@ -115,7 +119,7 @@ Coordinates and heights from `config/valley.json` (x east, z south, metres from 
 
 | Place | Height | Missions | Note |
 |---|---|---|---|
-| `town` (0, 0): the saloon, jail, bank, store, doctor | 0 | `saloon-table`, `the-sheriff` (the doctor), `hold-him`, `bank-break-in`, `bank-robbery`, `store-robbery`, `the-trial`, `dust-storm`, `fire-night`, `night-meeting-trap`, `cattle-drive` | most of the side missions sit in town |
+| `town` (0, 0): the saloon, jail, bank, store, doctor | 0 | `no-law`, `the-sheriff` (the doctor), `hold-him`, `bank-break-in`, `bank-robbery`, `store-robbery`, `the-trial`, `dust-storm`, `fire-night`, `night-meeting-trap`, `cattle-drive` | most of the side missions sit in town |
 | `church` (-62, -135) | 7.5 | `the-trial` (or the saloon) | |
 | `opening_site` (530, 128) | -5.3 | `the-sheriff` | PROPOSED |
 | `harlan_homestead` (432, 470) | 2 | `the-sheriff` (his dawn ride) | |
@@ -167,15 +171,15 @@ many missions need it; the build order should read down this table.
 | Fire and smoke | `fire-night`, `night-meeting-trap`, `hold-him` | 3 | exists, **out of play** (#458) |
 | Joe as companion with plans (#738) | `no-justice`, `joe-on-the-rope`, `barons-shipment` | 3 | new (PROPOSED) |
 | The stage on the town's calendar | `stage-held-up`, `kid-wants-out`, `the-trial` (the judge's arrival) | 3 | partly (#276) |
-| The nod and shake | `no-justice`, `saloon-table` | 2 | decided in outline (2026-10-21), not built; Sean: before No Justice |
+| The nod and shake | `no-justice`, `no-law` | 2 | decided in outline (2026-10-21), not built; Sean: before No Justice |
 | Wanted posters, likeness, disguise and recognition | `the-bounty`, `stage-held-up` | 2 | new (§10) |
 | Falls from height through roofs; enemies on high ground | `small-fights`, `the-bounty` | 2 | new (#736 D); climbing partly |
 | Fighting on a moving train; cab controls | `hell-on-wheels`, `the-bridge-is-out` | 2 | new (train step 7) |
 | Coaches and wagons as rigid bodies that tip | `barons-shipment`, `stage-held-up` | 2 | new |
 | Dented steel | `barons-shipment` (and the train, #542) | 1 (+train) | new; "one dent system for both" (#736) |
-| Cards (poker, faro, cheats) | `dust-storm`, `saloon-table` | 2 | new (backlog) |
-| Owners care about their things | `saloon-table`, `store-robbery` | 2 | new (a rule, showcase) |
-| Acts (scenes as data) | `saloon-table`, `barons-shipment` (the fade) | 2 | new (roadmap 3.5) |
+| Cards (poker, faro, cheats) | `dust-storm`, `no-law` | 2 | new (backlog) |
+| Owners care about their things | `no-law`, `store-robbery` | 2 | new (a rule, showcase) |
+| Acts (scenes as data) | `no-law`, `barons-shipment` (the fade) | 2 | new (roadmap 3.5) |
 | Teaching (signature 8) | `kid-wants-out`, `buried-alive` | 2 | decided, not built |
 | Telegraph and letters | `no-justice`, `hold-him` | 2 | decided (signature 5), not built |
 | Cattle | `cattle-drive`, `small-fights` (rustlers) | 2 | new; OPEN whether at all (#728) |

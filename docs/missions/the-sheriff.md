@@ -37,6 +37,8 @@ ROADMAP.
   the ball while you hold the lamp; the ball matches a gun you've seen". "**The gut shot who talks**:
   Dying slowly: get him to the doctor, or let him say where the money is first".
 - PROPOSED (DESIGN.md §5): "He might tell you, pin his badge on you".
+- DECIDED (Sean, 2026-11-09): "you haven't been appointed to anything yet the first night - it's not
+  until the second day". So the sheriff is still alive the first night and appoints Harlan on day 2.
 - DECIDED (Sean, 2026-11-09, answering the No Justice review): by the time of No Justice Harlan has
   "been temporarily appointed by the dead sheriff". OPEN: how the appointment happens (on the road,
   at the doctor's, his last words), and what "temporarily" ends with.

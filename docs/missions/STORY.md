@@ -41,7 +41,7 @@ T8 Harlan's past (proposed). The finale: the trestle blown under the train, then
 Baron's masonry house to arrest him.
 
 **Every mission, one line each** (to judge "unique among ours"):
-- The Saloon Table: the prologue; a stranger too curious; a card cheat with a gun in his mouth.
+- No Law: night one in the saloon, Harlan not yet the law; the man in the red shirt murders a card cheat.
 - The Sheriff on the Road: you find him gut-shot at dawn; first aid, the doctor, the ball as evidence.
 - No Justice: raiders killed Joe's wife; ride with him; the man in the red shirt hides in a cabin; nod to stop Joe, or not.
 - Joe on the Rope: a mob hangs Joe; shoot the rope from an overlook, or he dies for good.

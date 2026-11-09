@@ -88,7 +88,7 @@ that come back). Status is the mission as a whole; each card has the details.
 
 | Card | Name | Shape | Status as a whole | Where |
 |---|---|---|---|---|
-| [`saloon-table`](saloon-table.md) | The Saloon Table (prologue, the card cheat) | story | PROPOSED (2026-10-15; ROADMAP 3.6) | the saloon |
+| [`no-law`](no-law.md) | No Law (the saloon, the first night; the card cheat) | story | DECIDED (Sean, 2026-11-09): night one, before Harlan is appointed | the saloon |
 | [`the-sheriff`](the-sheriff.md) | The Sheriff on the Road (the opening) | story | DECIDED (2026-10-01); his survival OPEN | `opening_site`, the doctor's |
 | [`no-justice`](no-justice.md) | No Justice (the camp) | story | DECIDED (Sean's card, 2026-11-09) | the doctor's, Joe's camp, the bandits' hideout (OPEN) |
 | [`joe-on-the-rope`](joe-on-the-rope.md) | Joe on the Rope (the rope shot) | story | DECIDED (2026-11-04) | OPEN |
@@ -118,7 +118,7 @@ that come back). Status is the mission as a whole; each card has the details.
 
 ### Folded into a card (another source for the same mission)
 
-- "The camp" → `no-justice`. "The card cheat", "A Quiet Drink" (OPEN) → `saloon-table`. "The gut shot
+- "The camp" → `no-justice`. "The card cheat", "A Quiet Drink" (OPEN) → `no-law`. "The gut shot
   who talks", "the doctor's table" → `the-sheriff`. "The jailbreak", the water tower on the jail →
   `hold-him`. "The hanging" (backlog 4), "the Inquest" (P5) → `the-trial`. "The robbery of the land
   money" → `bank-robbery`. "The widow's burn-out night" (DESIGN.md §5) → `farmhouse-rescue` (OPEN,

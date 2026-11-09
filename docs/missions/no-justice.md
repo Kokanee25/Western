@@ -37,8 +37,10 @@ section below too.
   words.
 - Not picked (stays as it was): cutting "the bold cowboy" from the doctor's office.
 
-- PROPOSED (Sean, 2026-11-09, under review): the man in the red shirt is first seen on the first night
-  in the saloon, where he kicks out the card cheat's chair and murders him (`saloon-table`).
+- PROPOSED (Sean, 2026-11-09): the man in the red shirt is first seen on the first night in the
+  saloon, where he kicks out the card cheat's chair and murders him (`no-law`). Harlan isn't the law
+  yet that night; the sheriff appoints him on day 2 (DECIDED, Sean 2026-11-09).
+- OPEN: when Harlan first meets Joe at the doctor's: day 1, carrying the sheriff in, or day 2.
 
 ## How you hear of it
 

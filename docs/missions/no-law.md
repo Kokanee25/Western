@@ -1,6 +1,6 @@
-# The Saloon Table (`saloon-table`)
+# No Law (`no-law`)
 
-Other names: "the prologue" (DESIGN.md §5 "Story shape"), "the card cheat" (showcase moments), "A
+Other names: "the saloon table" (this card's old name), "the prologue" (DESIGN.md §5 "Story shape"), "the card cheat" (showcase moments), "A
 Quiet Drink" (`docs/briefs/three-gunmen.md` §10, possibly the same). Sources: DESIGN.md §5 (Sean,
 2026-10-15); `docs/briefs/showcase-moments.md` (Sean, 2026-10-21); ROADMAP 3.6;
 `docs/briefs/three-gunmen.md` (Sean's brief, 2026-10-17).
@@ -11,20 +11,29 @@ Quiet Drink" (`docs/briefs/three-gunmen.md` §10, possibly the same). Sources: D
 - PROPOSED (ROADMAP 3.6): one of the three rough missions: "**the saloon table** (the stranger talks, a
   shooting at the bar)".
 
-## Sean's idea, 2026-11-09 (under review)
+## Sean's version, 2026-11-09
 
-- PROPOSED (Sean, 2026-11-09): "the mission no law is at the start of the game the first night in the
-  saloon after bringing in the sheriff - it's more of a cut scene than anything - but maybe red shirt
-  can be the one that comes into the saloon and kicks out the chair and murders the card cheat"
-- OPEN: whether "No Law" is this mission's name (it reads as the saloon night).
-- OPEN: the order. DESIGN.md (2026-10-15) has the saloon table the evening *before* the sheriff;
-  Sean's idea has it the first night *after* Harlan brings the sheriff in.
-- OPEN: "more of a cut scene" vs DESIGN.md "Little acts in the world, not cutscenes" (Sean,
-  2026-10-15: acts "that hand back to the systems the moment you interfere").
+- DECIDED (Sean, 2026-11-09): the name, "the mission no law".
+- DECIDED (Sean, 2026-11-09): "the mission no law is at the start of the game the first night in the
+  saloon after bringing in the sheriff".
+- DECIDED (Sean, 2026-11-09): "you haven't been appointed to anything yet the first night - it's not
+  until the second day so you aren't any law when this murder happens - that's why there's no law
+  around to do anything about the cold blooded murder".
+- PROPOSED (Sean, 2026-11-09): "it's more of a cut scene than anything - but maybe red shirt can be the
+  one that comes into the saloon and kicks out the chair and murders the card cheat".
+- PROPOSED (this session, under review): play it as a short act, not a cutscene; the red shirt is a
+  coward (Sean's No Justice card) and runs at the first shot, his gang covering him; if a player still
+  kills him on night one, No Justice bends as in Sean's "kills the man in the red shirt outside" case.
+- OPEN: cutscene or an act the player can break into (DESIGN.md "Little acts in the world, not
+  cutscenes", Sean 2026-10-15).
 - OPEN: whether the stranger (too curious about the sheriff and the spring) stays in the scene.
+- Superseded: DESIGN.md (2026-10-15) had the saloon table "the evening before day 1"; Sean's version
+  puts it the first night, after the sheriff.
 
+## How you hear of it
 
-- PROPOSED: it is where the game starts; no lead needed.
+- DECIDED (Sean, 2026-11-09): no lead: it's the first night in town, after Harlan brings the sheriff
+  in.
 
 ## The situation
 
