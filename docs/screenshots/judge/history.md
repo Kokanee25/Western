@@ -412,3 +412,9 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-09_cheap_matlib_rough_r3 | golden_far | **cheap indie** | 2, 3, 4, 6 | The centre wall reads as cardboard | 2% / 4.4 / 1.18 / 0.19 | #718 round 2 (Sean's five faults fixed), rough |
 | 2026-11-09_cheap_matlib_rough_r3 | noon_near | **cheap indie** | 3, 6, 8 | Felt, not wood | 13% / 0.3 / 1.35 / 0.45 | #718 round 2 (Sean's five faults fixed), rough |
 | 2026-11-09_cheap_matlib_rough_r3 | saloon_far | **cheap indie** | 2, 3, 4, 6 | Same streaks on every board | 69% / 0.0 / 1.34 / 0.31 | #718 round 2 (Sean's five faults fixed), rough |
+| 2026-11-09_cheap_matlib_common_r2 | noon_far | **good indie** | 2, 3, 4, 6 | Nail holes in a grid | 1% / 8.4 / 1.18 / 0.24 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_common_r2 | golden_near | **cheap indie** | 1, 3, 4, 6 | Shadow in stair steps | 1% / 10.0 / 0.83 / 0.22 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_common_r2 | saloon_far | **good indie** | 4, 6 | Streaky, stretched grain | 64% / 0.0 / 1.27 / 0.36 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_common_r2 | golden_far | **cheap indie** | 2, 3, 4, 6 | Grain running the wrong way | 2% / 4.5 / 1.22 / 0.18 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_common_r2 | noon_near | **cheap indie** | 1, 4, 6 | Rust zig-zags on the top boards | 18% / 0.2 / 1.30 / 0.16 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_common_r2 | saloon_far | **cheap indie** | 3, 4 | Orange wash on the wood | 70% / 0.0 / 1.03 / 0.32 | #718 round 2, common (C2 still with the fir grain bug) |
