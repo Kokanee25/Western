@@ -823,7 +823,11 @@ frozen until Sean names one.
   plan. **G5 the town greybox** (#724, PR #730, build 3541): `ValleyTown` (boardwalks from the `Boardwalk`
   part, the lanes and 1.2 m alleys open to Back Street and the rear lane, the undertaker's junk, the
   town's ways in `places`); `Waypoints.route` one search back from the goal (1 s -> 10 ms there).
-  Next: G6, the farmhouse to the widow's pad (#731); the saloon onto its lot waits on #695. For art: the valley's fog (the town's 0.0035) hides the
+  **G6 the farmhouse on the widow's pad** (#731, PR #741, build 3574): the house (spec unchanged) and its
+  hills carried into the bake, the East Road and the widow's lane as places, `FarmhouseMission` without
+  TownLife (on within 300 m); farm bot town = valley (1/24 won, 19/24 alive each). The overview
+  (`tools/valley/valley_overview.gd`): re-run after each G step. Next: waits on #695's week (the saloon
+  onto its lot) and the horse ridden (G7). For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
