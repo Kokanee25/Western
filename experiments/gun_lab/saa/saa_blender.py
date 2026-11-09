@@ -348,9 +348,11 @@ def box_uv(ob, tile=0.05):
             elif ax == 1:
                 loop[uv].uv = (c.x / tile, c.z / tile)
             else:
-                loop[uv].uv = (c.x / tile, c.y / tile)
+                # top and bottom faces: u along the bore too (polish lines and grain run with the gun)
+                loop[uv].uv = (c.y / tile, c.x / tile)
     bm.to_mesh(me)
     bm.free()
+    me.uv_layers[0].name = "UVMap"  # bmesh names a new layer "Float2"; the paint bake asks for "UVMap"
 
 
 # --- Materials (placeholders until the surfaces: README "The surfaces") --------------------------

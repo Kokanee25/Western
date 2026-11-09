@@ -33,6 +33,7 @@ set ~45 min.
   the sights) and the mechanism strip driven through `saa_rig.gd`.
 - `sheets.py`: the contact sheets and the turntable film from a views folder.
 - `overlay.py`: the side render over the reference photo at the same scale (README "The reference").
+- `surfaces.py`, `surfaces/`, `saa_paint.py`, `.github/workflows/gun_surfaces.yml`: the painted surfaces ("The surfaces").
 
 ## The parts
 
@@ -115,11 +116,58 @@ The model's size (its bounds in Godot): 13.0" overall with the 7½" (the Met: 13
 the butt screw's head (the photo: 5.3"), 1.65" across at the cylinder. **Estimates are marked est.:** the travel numbers too (hammer notches 4/10/24° about the low
 hammer screw, trigger 3–6°, gate 95°) in the rig file.
 
-## The surfaces (waiting on Sean: no paid call made)
+## The surfaces
 
-The parts carry placeholder materials (`saa_case`, `saa_blued`, `saa_fire_blue`, `saa_bright`,
-`saa_walnut`, `saa_bore`, `saa_brass`, `saa_lead`, `saa_primer`) and box-projected UVs, a tile every
-40 mm, so tiling surfaces drop straight on. The proposal is in #693.
+Sean's yes on #740 (2026-11-09): paint them, cap $2.50; the grip frame blued steel (as built).
+The image model paints only flat tiling surfaces, never the shape:
+
+```sh
+# GitHub Actions (gun_surfaces.yml, the key a secret there): runs when a claude/colt-* branch pushes a
+# changed surfaces/request.json; commits surfaces/raw/ and spent.json back
+python3 experiments/gun_lab/saa/surfaces.py --paint
+python3 experiments/gun_lab/saa/surfaces.py --cut              # here, free: seamless, 1024, 2x2 checks
+~/bpyenv/bin/python experiments/gun_lab/saa/saa_paint.py --pick=case_2,blued_1,walnut_1 [--size=2048]
+```
+
+- **The calls:** FLUX.2 [max] on OpenRouter through the texture factory's own call
+  (`tools/textures/paint_textures.ask`, used, not changed). Seven 2048 px paintings: case colours ×3,
+  worn bluing ×2, walnut ×2, **$0.16 each, $1.12 of the $2.50 cap** (`surfaces/spent.json`; the run
+  holds $0.35 back before each call). Raw paintings in `surfaces/raw/`; the seamless cuts, checks and
+  atlases are made here, free, and not kept (`surfaces/.gitignore`).
+- **The picks:**
+  - **case_2:** blue, violet and straw iridescence over grey;
+  - **blued_1:** even, with fine polish lines. It came back grey and is tinted to blue-black in the
+    bake;
+  - **walnut_1:** clean straight grain.
+  - The others: case_0 is too beige, case_1 reads as marbled stone, blued_0 has bright streaks, and
+    walnut_0 is blotchy across its seams.
+- **The bake** (`saa_paint.py`, Cycles on the CPU, a few minutes at 2048):
+  - Every part is on one smart-projected atlas (UV `bake`).
+  - The tiling paintings sit on the box UVs (one every 50–70 mm; polish lines and grain run along
+    the gun).
+  - **Wear:** edges rub to grey steel, the case colours silver and the walnut lightens, wherever the
+    Bevel node's rounded normal parts from the face (0.6 mm, broken up by noise).
+  - **Grime:** dark and rough in the hollows (ambient occlusion within 4 mm).
+  - Baked as emission into `saa_albedo` and `saa_orm` (glTF's occlusion, roughness and metal),
+    exported as JPEG in the glb (3.8 MB); Godot extracts `saa_75_saa_albedo.jpg` and
+    `saa_75_saa_orm.jpg` beside it.
+  - The rounds keep their solid brass and lead.
+  - The fire-blued screws and base pin are the bluing tinted blue.
+- **Not yet:** the spur's checkering and the screws' slots as normal maps; a game LOD.
+
+`results/2026-11-09_painted/`:
+- `turntable.mp4` / `.jpg`, `close.jpg`, `mech.jpg`: under the real look, Main Street at 16:00.
+- `side_by_side_real_look.jpg`: beside the Met gun at its scale.
+- `side_right_real_look.jpg`.
+- `surfaces_tiled.jpg`: all seven paintings tiled 2×2, the picks marked.
+- `cheap_judge/`: the cheap judge on the same five close shots as round 1.
+  - **Two good indie, three cheap indie** (round 1: five cheap indie), ranked d, a, b, c, e.
+  - The gun's faults left:
+    - the case colours read as camouflage or lichen: one even mottle at one scale, no bright edges;
+    - the bluing too clean and chrome-like, with a blown sun glint on the barrel;
+    - the hammer spur a flat slab;
+    - the muzzle a plain tube end-on.
+  - The rest are the street's: identical pebbles, twin horses, the backdrop's squares.
 
 ## Results
 

@@ -1048,7 +1048,8 @@ frozen until Sean names one.
   hammer notches, trigger, bolt, gate, ejector; rounds per chamber), `saa_<barrel>_rig.json`,
   `saa_rig.gd` drives them; `saa_views.gd` shows it under the real look. Sean's review: refitted to
   the Met's 1874 Colt (CC0 photo, `docs/concept/guns/ref/`; `overlay.py`, overlap 0.666 -> 0.952).
-  Placeholder materials. Nothing in the game changed. Waiting on Sean (#740): the surfaces' paid call.
+  Painted (Sean's yes, #740): FLUX.2 [max] surfaces on Actions (`gun_surfaces.yml`, $1.12 of $2.50),
+  baked with free wear and grime (`saa_paint.py`). Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
