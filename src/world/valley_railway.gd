@@ -19,7 +19,7 @@ extends Node3D
 ##     cab driving it (TrainEngineer: his hands on the levers, the lookout watching the line). It
 ##     leaves `east_start` as the game's clock passes `start_hour` each day; at load it's put where
 ##     the timetable has it by the clock (standing at a stop, or running between two at the planned
-##     run's place and speed). Its run is in real seconds: about eight game hours of the 45
+##     run's place and speed). Its run is in real seconds: about fifteen game hours of the 45
 ##     minute day. A lab can take it over (`driving` false).
 ##
 ## Built by ValleyWorld after the ground. Nothing in the old town uses it.
@@ -36,8 +36,10 @@ var train: Train
 var engineer: TrainEngineer
 var engineer_body: HumanBody
 var timetable: TrainTimetable
-## Put a train on the line (off: the line alone, for tests of the track).
-var with_train := true
+## Put a train on the line (off: the line alone, for tests of the track; `-- --no-valley-train`, the
+## bench's line-alone).
+var with_train := train_default
+static var train_default := not "--no-valley-train" in OS.get_cmdline_user_args()
 ## Its engineer drives (false while a lab drives the train).
 var driving := true
 ## The hour the day's train leaves east_start (the timetable's `start_hour`).
@@ -77,7 +79,6 @@ func _ready() -> void:
 	if with_train:
 		u = Time.get_ticks_usec()
 		_make_train()
-		sync_to_clock()
 		build_ms["train"] = (Time.get_ticks_usec() - u) / 1000.0
 	Events.hour_changed.connect(_on_hour)
 
@@ -85,6 +86,9 @@ func _ready() -> void:
 ## The line built again (its trestle and track as new) with a new train on it: the trestle lab's
 ## fresh viaduct (its collapse runs free the line they broke).
 func rebuild() -> void:
+	if _fill_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_fill_task)  # (it reads the line)
+		_fill_task = -1
 	if line and is_instance_valid(line):
 		line.free()
 	engineer = null
@@ -97,7 +101,6 @@ func rebuild() -> void:
 	Sight.see(line, mid + Vector3.UP * 3.0, mid + Vector3.UP * 4.0)
 	if with_train:
 		_make_train()
-		sync_to_clock()
 
 
 ## The route laid out (not built) in the valley: the TrackLine at the route's origin, turned to its
@@ -246,15 +249,53 @@ func _build_portal() -> void:
 
 # --- The daily train ---------------------------------------------------------------------------
 
+## The timetable's times are worked out from the line by driving each leg once (TrainTimetable.fill:
+## ~4 s here for the valley's three legs), on a worker: the valley loads without waiting for it, the
+## train stands at east_start, and it's put where the clock has it when they're ready (`timed`).
+var timed := false
+var _fill_task := -1
+
+
 func _make_train() -> void:
 	timetable = TrainTimetable.load_file(TIMETABLE)
 	start_hour = float(timetable.data.get("start_hour", 8.0))
-	timetable.fill(line, tuning)
+	timed = false
 	train = Train.new()
 	train.name = "Train"
 	line.add_child(train)
 	train.setup(line, tuning)
 	train.rider = get_parent().get_node_or_null(^"Player") as CharacterBody3D if get_parent() else null
+	train.place(line.mark_s("east_start"))
+	train.sim.brake_lever = 1.0
+	var tt := timetable
+	var tl := line
+	var tu := tuning
+	var ms := build_ms
+	_fill_task = WorkerThreadPool.add_task(func() -> void:
+		var u := Time.get_ticks_usec()
+		tt.fill(tl, tu)
+		ms["timetable"] = (Time.get_ticks_usec() - u) / 1000.0, true, "valley timetable")
+
+
+## The timetable's fill finished: the train put where the clock has it. True once it's timed.
+func _take_timetable() -> bool:
+	if timed:
+		return true
+	if _fill_task < 0 or not WorkerThreadPool.is_task_completed(_fill_task):
+		return false
+	WorkerThreadPool.wait_for_task_completion(_fill_task)
+	_fill_task = -1
+	timed = true
+	if driving:
+		sync_to_clock()
+	return true
+
+
+func _notification(what: int) -> void:
+	# (Every task of ours waited for before it's freed: issue #392.)
+	if what == NOTIFICATION_PREDELETE and _fill_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_fill_task)
+		_fill_task = -1
 
 
 ## Real seconds in a game hour (the day cycle's day is 45 minutes: 112.5).
@@ -282,7 +323,7 @@ func sync_to_clock() -> void:
 ## where the timetable has it then, standing at a stop (the engineer leaves when the timetable says)
 ## or running between two at the planned run's place and speed (he drives on from there).
 func start_run(elapsed: float, day := -1) -> void:
-	if train == null:
+	if train == null or not timed:
 		return
 	run_day = day
 	var k := 0
@@ -350,10 +391,12 @@ func _put_engineer_in_cab() -> void:
 	man.set_meta(&"train_rides", true)
 	man.enter(engine, engine.global_transform * at, engine.global_rotation.y)
 	engineer_body = man
+	if train.far:
+		man.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _on_hour(hour: int) -> void:
-	if train == null or not driving:
+	if train == null or not driving or not timed:
 		return
 	var dc := _day_cycle()
 	if dc == null or hour != int(floor(start_hour)) or dc.day == run_day:
@@ -364,8 +407,35 @@ func _on_hour(hour: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if train and not timed and _take_timetable():
+		return
 	if driving and engineer and train and not train.wreck:
 		engineer.drive(delta)
+	_check_far()
+
+
+## The train far from the eye (the camera, else the player): past `far_m` its cars aren't drawn or
+## heard and its engineer's body stands still (Train.far); back inside `far_m - 50` it's all as ever.
+## The fog hides anything past ~500 m.
+var far_m := 800.0
+
+
+func _check_far() -> void:
+	if train == null or train.wreck:
+		return
+	var eye: Node3D = get_viewport().get_camera_3d() if is_inside_tree() else null
+	if eye == null:
+		eye = get_parent().get_node_or_null(^"Player") as Node3D if get_parent() else null
+	if eye == null:
+		return
+	var sim := train.sim
+	var mid := line.to_global(line.point_at(sim.s - sim.length * 0.5))
+	var d := mid.distance_to(eye.global_position) - sim.length * 0.5
+	var far := d > far_m if not train.far else d > far_m - 50.0
+	if far != train.far:
+		train.far = far
+		if engineer_body and is_instance_valid(engineer_body):
+			engineer_body.process_mode = Node.PROCESS_MODE_DISABLED if far else Node.PROCESS_MODE_INHERIT
 
 
 ## Where the train is and what the engineer's doing.

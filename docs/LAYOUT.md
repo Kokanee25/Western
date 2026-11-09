@@ -693,10 +693,14 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   (`src/structures/tunnel_portal.gd`, a dark `Mouth` behind it: the height field can't hold a hole).
   Both are `FramedStructure`s (`src/structures/framed_structure.gd`: links as framed, grounded by
   kind). The daily train: `config/valley_timetable.json` (east_start, the depot, the Ore Works, the
-  tunnel; `start_hour` 8, the depot ~12:30), `start_run(elapsed)` puts it where the timetable has it
-  by the clock (`sync_to_clock` at load; each day as the clock passes `start_hour`), the engineer's
-  body in the cab; `driving` false while a lab drives it (the trestle lab's `ensure_built` takes the
-  valley's line and train in the valley world). Valley lab bridge (`experiments/valley/bridge.gd`):
+  tunnel; `start_hour` 8, the depot ~12:30), its times worked out on a worker after load (`timed`;
+  ~4-7 s, the train standing at east_start till then), `start_run(elapsed)` puts it where the
+  timetable has it by the clock, standing at a stop or running mid-leg (`sync_to_clock` once timed;
+  each day as the clock passes `start_hour`), the engineer's body in the cab; `driving` false while
+  a lab drives it (the trestle lab's `ensure_built` takes the valley's line and train in the valley
+  world). Past `far_m` (800 m) from the camera `Train.far`: no cars drawn or sound ticked, solids,
+  lookout and bridge loads every 10 ticks, the engineer's body disabled. A `TrackChunk` at rest skips
+  its tick. `-- --no-valley-train`: the line alone (the bench). Valley lab bridge (`experiments/valley/bridge.gd`):
   `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`.
   `TrainEngineer.run(tt, late, from_stop)`; his creep up a climb steams up against the brake first.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):

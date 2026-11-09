@@ -177,7 +177,14 @@ func test_the_daily_timetable_runs_the_valley_line() -> void:
 func test_the_train_by_the_clock() -> void:
 	var rw := _built(true)
 	await physics_frames(2)
-	check(rw.train != null and rw.engineer != null, "the train and its engineer")
+	check(rw.train != null and not rw.timed, "the train, standing while its timetable's worked out (on a worker)")
+	var t0 := Time.get_ticks_msec()
+	while not rw.timed and Time.get_ticks_msec() - t0 < 60000:  # (a worker's seconds, not ticks)
+		await physics_frames(1)
+	check(rw.timed, "its timetable worked out (%.1f s)" % ((Time.get_ticks_msec() - t0) / 1000.0))
+	await physics_frames(2)
+	check(rw.engineer != null, "its engineer")
+	print("    the railway's build (ms): %s" % rw.build_ms)
 	if rw.train == null:
 		return
 	var line := rw.line

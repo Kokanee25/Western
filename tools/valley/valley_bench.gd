@@ -88,6 +88,12 @@ func _run() -> void:
 		_write(report)
 		quit(0)
 		return
+	var rw = world_root.get_node_or_null(^"Railway")
+	if rw and rw.train:
+		var tw := Time.get_ticks_usec()
+		while not rw.timed and Time.get_ticks_usec() - tw < 30000000:
+			await process_frame
+		report.load_ms["timetable_after"] = (Time.get_ticks_usec() - tw) / 1000.0
 	for s: Array in _spots(settings.world):
 		var at: Vector3 = s[1]
 		if ground:
@@ -180,6 +186,8 @@ func _measure(rid: RID) -> Dictionary:
 	var times := PackedFloat32Array()
 	var render := 0.0
 	var draws := 0.0
+	var phys := 0.0
+	var proc := 0.0
 	var prims := 0.0
 	var last := Time.get_ticks_usec()
 	for i in frames:
@@ -190,6 +198,8 @@ func _measure(rid: RID) -> Dictionary:
 		if rid.is_valid():
 			render += RenderingServer.viewport_get_measured_render_time_cpu(rid) / frames
 		draws += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / frames
+		phys += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0 / frames
+		proc += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 / frames
 		prims += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / frames
 	var sorted := times.duplicate()
 	sorted.sort()
@@ -198,13 +208,16 @@ func _measure(rid: RID) -> Dictionary:
 		avg += t / times.size()
 	var train_us := 0
 	var people_us := 0
+	var parts := {}
 	for k in prof._sum:
 		var d := int(prof._sum[k]) - int(before.get(k, 0))
-		if String(k).begins_with("train"):
-			train_us += d
-		elif String(k).begins_with("people") or String(k) == "senses":
+		if String(k) in ["train", "train_view", "train_sound"]:
+			train_us += d  # (`train` holds the lookout, the strike, the bridge's carry: not added twice)
+		if d / 1000.0 / frames >= 0.005:
+			parts[String(k)] = snappedf(d / 1000.0 / frames, 0.003)
+		if String(k).begins_with("people") or String(k) == "senses":
 			people_us += d
 	return {"avg_ms": snappedf(avg, 0.01), "p99_ms": snappedf(sorted[int(sorted.size() * 0.99) - 1], 0.01),
-			"render_cpu_ms": snappedf(render, 0.01), "draw_calls": roundi(draws), "primitives": roundi(prims),
-			"train_ms": snappedf(train_us / 1000.0 / frames, 0.001), "people_ms": snappedf(people_us / 1000.0 / frames, 0.001),
+			"render_cpu_ms": snappedf(render, 0.01), "physics_ms": snappedf(phys, 0.01), "process_ms": snappedf(proc, 0.01), "draw_calls": roundi(draws), "primitives": roundi(prims),
+			"train_ms": snappedf(train_us / 1000.0 / frames, 0.001), "systems": parts, "people_ms": snappedf(people_us / 1000.0 / frames, 0.001),
 			"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))}
