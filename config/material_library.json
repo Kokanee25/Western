@@ -8,7 +8,7 @@
    "scans": {"a": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]}, "a2": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]},
              "b": {"id": "rough_wood", "grain": "v"}},
    "tint_new": [1.0, 0.97, 0.9], "tint_mid": [0.8, 0.64, 0.48], "tint_old": [1.0, 1.0, 1.0],
-   "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 1.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
+   "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 0.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
    "normal_strength": 0.6, "value_jitter": 0.14, "hue_jitter": 0.06
   },
   {
@@ -18,7 +18,7 @@
    "scans": {"a": {"id": "Wood079", "grain": "u", "metres": [1.6, 1.6]}, "a2": {"id": "Wood073", "grain": "u", "metres": [1.6, 1.6]},
              "b": {"id": "rough_wood", "grain": "v"}},
    "tint_new": [1.25, 1.17, 1.02], "tint_mid": [1.0, 0.88, 0.72], "tint_old": [1.12, 1.1, 1.06],
-   "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 1.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
+   "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 0.0, "grime": 0.9, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.6, "joint_dirt": 0.6,
    "normal_strength": 0.6, "value_jitter": 0.14, "hue_jitter": 0.06
   },
   {
