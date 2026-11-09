@@ -3,6 +3,7 @@
 the mechanism strip.
 
     python3 experiments/gun_lab/saa/sheets.py VIEWS_DIR OUT_DIR
+    python3 experiments/gun_lab/saa/sheets.py VIEWS_DIR SHEET.jpg     # side + three-quarter views, one sheet
 """
 import glob
 import os
@@ -38,8 +39,32 @@ def grid(paths, cols, w, out, names=True, crop=None):
     print(out, sheet.size)
 
 
+def step_sheet(src, out):
+    """The side views over the three-quarter views, as one sheet (Sean's review: side and three-quarter
+    after each step, in game light)."""
+    def fit(im, w):
+        return im.resize((w, int(im.height * w / im.width)), Image.LANCZOS)
+    side = Image.open(src + "/side_left.png").convert("RGB").crop((250, 200, 1350, 700))
+    right = Image.open(src + "/side_right.png").convert("RGB").crop((250, 200, 1350, 700))
+    a = Image.open(src + "/threeq_rear_left.png").convert("RGB").crop((150, 0, 1450, 900))
+    b = Image.open(src + "/threeq_front_right.png").convert("RGB").crop((150, 0, 1450, 900))
+    top = Image.new("RGB", (1600, fit(side, 800).height), (20, 20, 20))
+    top.paste(fit(side, 800), (0, 0))
+    top.paste(fit(right, 800), (800, 0))
+    bot = Image.new("RGB", (1600, fit(a, 800).height), (20, 20, 20))
+    bot.paste(fit(a, 800), (0, 0))
+    bot.paste(fit(b, 800), (800, 0))
+    m = Image.new("RGB", (1600, top.height + bot.height + 6), (20, 20, 20))
+    m.paste(top, (0, 0))
+    m.paste(bot, (0, top.height + 6))
+    m.save(out, quality=87)
+    print(out, m.size)
+
+
 def main():
     src, out = sys.argv[1], sys.argv[2]
+    if out.endswith(".jpg"):
+        return step_sheet(src, out)
     os.makedirs(out, exist_ok=True)
     tt = sorted(glob.glob(os.path.join(src, "turntable_*.png")))
     if tt:

@@ -1,15 +1,19 @@
-"""The SAA painted (#693 step 1, Sean's yes on #740): saa_blender.py's gun with its surfaces baked into
-one atlas. The tiling paintings (surfaces.py: colour case-hardening, worn bluing, oiled walnut) are laid
-on each part by its box UVs, then mixed with the gun's own wear and grime, free, from its shape:
-- wear: where an edge is sharp (Cycles' Bevel node against the face's normal, broken by noise), the
-  bluing rubbed to grey steel, the case colours silvered, the walnut's finish worn lighter;
-- grime: in the hollows (Cycles' ambient occlusion within a few millimetres), dark and duller.
-Baked by Cycles as emission (no light in it) into saa_albedo (sRGB) and saa_orm (glTF's
-occlusion/roughness/metal), every part on one smart-projected atlas; the rounds keep their own solid
-brass and lead. Out: the painted saa_<barrel>.glb (the parts, pivots and rig exactly as saa_blender.py's).
+"""The SAA's surfaces baked (#693 step 1). Sean's review after the first paint (2026-11-09): another
+paint run isn't the fix; metal must behave like metal, no stretched UVs or stripes, then the surfaces:
+case hardening as fine, subtle blue/straw/purple swirls on a dark base; barrel and cylinder a deep
+blue-black worn on the edges.
 
-    ~/bpyenv/bin/python experiments/gun_lab/saa/saa_paint.py --pick=case_0,blued_0,walnut_0 [--size=2048]
-        [--barrel=7.5] [--out=DIR] [--preview=DIR --views=right,front34 --px=1200]
+So the metals are made here, free, from 3D noise in each part's own space (no UVs in their pattern, so
+nothing stretches or repeats along the barrel); only the walnut keeps a painting (surfaces/raw,
+walnut_1, laid by Cycles' box projection with its seams blended). On every material the gun's own wear
+and grime, from its shape: edges (the Bevel node's rounded normal parting from the face) rubbed to
+bare steel, the case colours silvered, the walnut lighter; the hollows (ambient occlusion within
+4 mm) dark and duller. Baked by Cycles as emission into one atlas (UV "bake", smart-projected at 45
+degrees: under 8% stretch across a strip), albedo (sRGB) and ORM (glTF's occlusion, roughness,
+metal), exported in the glb.
+
+    ~/bpyenv/bin/python experiments/gun_lab/saa/saa_paint.py [--size=2048] [--barrel=7.5] [--out=DIR]
+        [--checker]       # the atlas proof instead: a checker on the bake UVs, as saa_<barrel>checker.glb
 """
 import math
 import os
@@ -20,147 +24,203 @@ _src = open(os.path.join(HERE, "saa_blender.py")).read().replace("\nmain()\n", "
 exec(compile(_src, os.path.join(HERE, "saa_blender.py"), "exec"))  # build(), mats, arg, ... (no export)
 
 import bpy  # noqa: E402  (already imported by saa_blender's code)
-import numpy as np  # noqa: E402
 
 SURF = arg("surfaces", os.path.join(HERE, "surfaces"))
 SIZE = int(arg("size", "2048"))
-PICK = dict(p.split("_", 1)[0:1] + [p] for p in arg("pick", "case_0,blued_0,walnut_0").split(","))
-# Each placeholder material's painting, tint, and its wear and grime (wear colour, roughness, metal).
+CHECKER = "--checker" in sys.argv
+WALNUT = os.path.join(SURF, arg("walnut", "walnut_1") + ".png")
+# Per material: how it is made, its wear and roughness, metal or not.
 LOOK = {
-    # tile: metres a painting covers (the box UVs are a tile every 40 mm). The bluing came back grey
-    # from the painter: its tint takes it to blue-black, keeping the polish lines and wear in it. The
-    # walnut came back light, oak-like beside the Met gun's grip: darkened to old chocolate; the case
-    # colours toned down a little (round 1 in the game read bright and green).
-    "saa_case":      {"tex": "case", "tint": (0.72, 0.70, 0.74), "tile": 0.05, "wear_to": "lighter", "wear": 0.45, "rough": 0.30, "metal": 1.0},
-    "saa_blued":     {"tex": "blued", "tint": (0.17, 0.20, 0.29), "tile": 0.07, "wear_to": (0.36, 0.36, 0.37), "wear": 0.85, "rough": 0.32, "metal": 1.0},
-    "saa_fire_blue": {"tex": "blued", "tint": (0.16, 0.30, 0.75), "tile": 0.07, "wear_to": (0.36, 0.36, 0.38), "wear": 0.6, "rough": 0.26, "metal": 1.0},
-    "saa_bright":    {"tex": None, "color": (0.50, 0.50, 0.51), "wear_to": (0.62, 0.62, 0.63), "wear": 0.5, "rough": 0.36, "metal": 1.0},
-    "saa_walnut":    {"tex": "walnut", "tint": (0.48, 0.40, 0.34), "tile": 0.06, "wear_to": "lighter", "wear": 0.55, "rough": 0.48, "metal": 0.0},
-    "saa_bore":      {"tex": None, "color": (0.035, 0.033, 0.033), "wear_to": (0.06, 0.06, 0.06), "wear": 0.0, "rough": 0.55, "metal": 1.0},
+    "saa_case":      {"kind": "case", "rough": 0.22, "metal": 1.0, "wear": 0.5},
+    "saa_blued":     {"kind": "blued", "rough": 0.16, "metal": 1.0, "wear": 0.9},
+    "saa_fire_blue": {"kind": "fire", "rough": 0.14, "metal": 1.0, "wear": 0.5},
+    "saa_bright":    {"kind": "solid", "color": (0.56, 0.56, 0.57), "rough": 0.25, "metal": 1.0, "wear": 0.3},
+    "saa_walnut":    {"kind": "walnut", "rough": 0.40, "metal": 0.0, "wear": 0.55},
+    "saa_bore":      {"kind": "solid", "color": (0.04, 0.04, 0.045), "rough": 0.6, "metal": 1.0, "wear": 0.0},
 }
-KEEP = ("saa_brass", "saa_lead", "saa_primer")  # the rounds: solid, not baked
+BARE_STEEL = (0.50, 0.50, 0.51)
+
+
+class G:
+    """A small node-graph builder (the nodes of one material)."""
+    def __init__(self, mat):
+        self.nt = mat.node_tree
+        self.nt.nodes.clear()
+        self.N, self.L = self.nt.nodes, self.nt.links
+
+    def node(self, kind, **inputs):
+        n = self.N.new(kind)
+        for k, v in inputs.items():
+            if hasattr(v, "is_linked") or hasattr(v, "links"):
+                self.L.new(v, n.inputs[k])
+            else:
+                n.inputs[k].default_value = v
+        return n
+
+    def math(self, op, a, b, clamp=False):
+        n = self.N.new("ShaderNodeMath")
+        n.operation = op
+        n.use_clamp = clamp
+        for i, v in enumerate((a, b)):
+            if isinstance(v, (int, float)):
+                n.inputs[i].default_value = v
+            else:
+                self.L.new(v, n.inputs[i])
+        return n.outputs[0]
+
+    def mix(self, fac, a, b, blend="MIX"):
+        n = self.N.new("ShaderNodeMix")
+        n.data_type = "RGBA"
+        n.blend_type = blend
+        for name, v in (("Factor", fac), ("A", a), ("B", b)):
+            if isinstance(v, (int, float)):
+                n.inputs[name].default_value = v
+            elif isinstance(v, tuple):
+                n.inputs[name].default_value = (*v, 1.0) if len(v) == 3 else v
+            else:
+                self.L.new(v, n.inputs[name])
+        return n.outputs["Result"]
+
+    def noise(self, vec, scale, detail=6.0, rough=0.55, distort=0.0):
+        n = self.N.new("ShaderNodeTexNoise")
+        n.inputs["Scale"].default_value = scale
+        n.inputs["Detail"].default_value = detail
+        n.inputs["Roughness"].default_value = rough
+        n.inputs["Distortion"].default_value = distort
+        self.L.new(vec, n.inputs["Vector"])
+        return n.outputs["Fac"]
+
+    def ramp(self, fac, stops):
+        n = self.N.new("ShaderNodeValToRGB")
+        cr = n.color_ramp
+        cr.interpolation = "EASE"
+        while len(cr.elements) < len(stops):
+            cr.elements.new(0.5)
+        for el, (pos, col) in zip(cr.elements, stops):
+            el.position = pos
+            el.color = (*col, 1.0)
+        self.L.new(fac, n.inputs["Fac"])
+        return n.outputs["Color"]
+
+    def maprange(self, v, a, b, c=0.0, d=1.0):
+        n = self.N.new("ShaderNodeMapRange")
+        n.inputs["From Min"].default_value = a
+        n.inputs["From Max"].default_value = b
+        n.inputs["To Min"].default_value = c
+        n.inputs["To Max"].default_value = d
+        self.L.new(v, n.inputs["Value"])
+        return n.outputs["Result"]
 
 
 def node_tree(mat, look, img, mode):
-    """Rebuild mat's nodes: the computed colour (mode "albedo") or (1, rough, metal) (mode "orm") into
-    an Emission shader, and the target image as the active node (what Cycles bakes into)."""
-    nt = mat.node_tree
-    nt.nodes.clear()
-    N, L = nt.nodes, nt.links
-    out = N.new("ShaderNodeOutputMaterial")
-    emit = N.new("ShaderNodeEmission")
-    L.new(emit.outputs[0], out.inputs[0])
-    # Wear: an edge's rounded normal (Bevel) parts from its true one; broken up by noise.
-    geo = N.new("ShaderNodeNewGeometry")
-    bev = N.new("ShaderNodeBevel")
-    bev.inputs["Radius"].default_value = 0.0006
+    """mat's nodes rebuilt for one bake: the albedo, or (1, roughness, metal), into an Emission shader;
+    the target image the active node (what Cycles bakes into)."""
+    g = G(mat)
+    out = g.node("ShaderNodeOutputMaterial")
+    emit = g.node("ShaderNodeEmission")
+    g.L.new(emit.outputs[0], out.inputs[0])
+    obj = g.node("ShaderNodeTexCoord").outputs["Object"]           # metres, the part's own space
+    if CHECKER:
+        uvb = g.node("ShaderNodeUVMap")
+        uvb.uv_map = "bake"
+        chk = g.node("ShaderNodeTexChecker", Scale=96.0)
+        chk.inputs["Color1"].default_value = (0.85, 0.85, 0.85, 1.0)
+        chk.inputs["Color2"].default_value = (0.08, 0.08, 0.08, 1.0)
+        g.L.new(uvb.outputs["UV"], chk.inputs["Vector"])
+        col = chk.outputs["Color"] if mode == "albedo" else None
+        if mode == "albedo":
+            g.L.new(col, emit.inputs["Color"])
+        else:
+            comb = g.node("ShaderNodeCombineColor", Red=1.0, Green=0.6, Blue=0.0)
+            g.L.new(comb.outputs[0], emit.inputs["Color"])
+        _target(g, img)
+        return
+    # Wear: the edge (Bevel's rounded normal against the true one), broken up by noise.
+    geo = g.node("ShaderNodeNewGeometry")
+    bev = g.node("ShaderNodeBevel", Radius=0.0006)
     bev.samples = 8
-    dot = N.new("ShaderNodeVectorMath")
+    dot = g.N.new("ShaderNodeVectorMath")
     dot.operation = "DOT_PRODUCT"
-    L.new(geo.outputs["Normal"], dot.inputs[0])
-    L.new(bev.outputs[0], dot.inputs[1])
-    edge = N.new("ShaderNodeMapRange")
-    edge.inputs["From Min"].default_value = 0.999
-    edge.inputs["From Max"].default_value = 0.94
-    L.new(dot.outputs["Value"], edge.inputs["Value"])
-    noise = N.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 900.0
-    noise.inputs["Detail"].default_value = 6.0
-    tc = N.new("ShaderNodeTexCoord")
-    L.new(tc.outputs["Object"], noise.inputs["Vector"])
-    nr = N.new("ShaderNodeMapRange")
-    nr.inputs["From Min"].default_value = 0.35
-    nr.inputs["From Max"].default_value = 0.65
-    L.new(noise.outputs["Fac"], nr.inputs["Value"])
-    wear = N.new("ShaderNodeMath")
-    wear.operation = "MULTIPLY"
-    wear.use_clamp = True
-    L.new(edge.outputs["Result"], wear.inputs[0])
-    L.new(nr.outputs["Result"], wear.inputs[1])
-    wear_k = N.new("ShaderNodeMath")
-    wear_k.operation = "MULTIPLY"
-    wear_k.inputs[1].default_value = look["wear"]
-    L.new(wear.outputs[0], wear_k.inputs[0])
-    # Grime: the hollows (ambient occlusion within 4 mm).
-    ao = N.new("ShaderNodeAmbientOcclusion")
+    g.L.new(geo.outputs["Normal"], dot.inputs[0])
+    g.L.new(bev.outputs[0], dot.inputs[1])
+    edge = g.maprange(dot.outputs["Value"], 0.999, 0.94)
+    brk = g.maprange(g.noise(obj, 700.0, 6.0), 0.35, 0.65)
+    wear = g.math("MULTIPLY", g.math("MULTIPLY", edge, brk, True), look["wear"])
+    # Grime: the hollows.
+    ao = g.N.new("ShaderNodeAmbientOcclusion")
     ao.inputs["Distance"].default_value = 0.004
     ao.samples = 16
-    cav = N.new("ShaderNodeMapRange")
-    cav.inputs["From Min"].default_value = 1.0
-    cav.inputs["From Max"].default_value = 0.35
-    L.new(ao.outputs["AO"], cav.inputs["Value"])
-    # The surface: the tiling painting on the box UVs, tinted; or a solid colour.
-    if look.get("tex"):
-        uv = N.new("ShaderNodeUVMap")
-        uv.uv_map = "UVMap"
-        tex = N.new("ShaderNodeTexImage")
-        tex.image = bpy.data.images.load(os.path.join(SURF, PICK[look["tex"]] + ".png"), check_existing=True)
-        tex.interpolation = "Cubic"
-        scale = N.new("ShaderNodeVectorMath")
-        scale.operation = "SCALE"
-        scale.inputs["Scale"].default_value = 0.04 / look["tile"]
-        L.new(uv.outputs["UV"], scale.inputs[0])
-        L.new(scale.outputs[0], tex.inputs["Vector"])
-        tint = N.new("ShaderNodeMix")
-        tint.data_type = "RGBA"
-        tint.blend_type = "MULTIPLY"
-        tint.inputs["Factor"].default_value = 1.0
-        L.new(tex.outputs["Color"], tint.inputs["A"])
-        tint.inputs["B"].default_value = (*look["tint"], 1.0)
-        base = tint.outputs["Result"]
-    else:
-        rgb = N.new("ShaderNodeRGB")
-        rgb.outputs[0].default_value = (*look["color"], 1.0)
-        base = rgb.outputs[0]
-    if mode == "albedo":
-        worn = N.new("ShaderNodeMix")
-        worn.data_type = "RGBA"
-        L.new(wear_k.outputs[0], worn.inputs["Factor"])
-        L.new(base, worn.inputs["A"])
-        if look["wear_to"] == "lighter":
-            light = N.new("ShaderNodeMix")
-            light.data_type = "RGBA"
-            light.blend_type = "SCREEN"
-            light.inputs["Factor"].default_value = 0.45
-            L.new(base, light.inputs["A"])
-            light.inputs["B"].default_value = (0.55, 0.50, 0.45, 1.0)
-            L.new(light.outputs["Result"], worn.inputs["B"])
+    cav = g.maprange(ao.outputs["AO"], 1.0, 0.35)
+    kind = look["kind"]
+    rough = look["rough"]
+    if kind == "case":
+        # Fine, subtle swirls of blue, violet and straw on a dark steel base: two layers of distorted
+        # noise (~3-8 mm), through a ramp of the oxide colours, mostly left at the base.
+        swirl = g.math("ADD", g.noise(obj, 120.0, 8.0, 0.6, 3.2), g.math("MULTIPLY", g.noise(obj, 380.0, 4.0, 0.5, 1.6), 0.35))
+        swirl = g.maprange(swirl, 0.55, 1.05)
+        # Mostly blues and violets; straw only in thin, dim bands (round 4a read as rust spots).
+        oxide = g.ramp(swirl, [(0.00, (0.12, 0.12, 0.13)), (0.22, (0.09, 0.12, 0.27)), (0.36, (0.17, 0.11, 0.25)),
+                               (0.47, (0.11, 0.15, 0.32)), (0.56, (0.27, 0.22, 0.12)), (0.62, (0.13, 0.13, 0.15)),
+                               (0.80, (0.10, 0.14, 0.29)), (1.00, (0.21, 0.23, 0.31))])
+        amount = g.maprange(g.noise(obj, 45.0, 3.0), 0.35, 0.70, 0.35, 0.85)
+        base = g.mix(amount, (0.14, 0.14, 0.15), oxide)
+        worn = g.mix(wear, base, (0.62, 0.62, 0.63))
+        r_var = g.math("MULTIPLY", g.noise(obj, 300.0, 3.0), 0.08)
+    elif kind in ("blued", "fire"):
+        # Deep blue-black, its fine polish lines along the gun (the noise stretched along the bore: the
+        # part's local Y is the gun's forward in Blender for every part).
+        stretch = g.N.new("ShaderNodeVectorMath")
+        stretch.operation = "MULTIPLY"
+        g.L.new(obj, stretch.inputs[0])
+        stretch.inputs[1].default_value = (1.0, 0.012, 1.0)
+        lines = g.noise(stretch.outputs[0], 2600.0, 2.0, 0.5)
+        tone = g.noise(obj, 30.0, 3.0)                    # slow, faint unevenness of the blue
+        if kind == "blued":
+            dark, light = (0.10, 0.115, 0.165), (0.17, 0.19, 0.26)
         else:
-            worn.inputs["B"].default_value = (*look["wear_to"], 1.0)
-        grime = N.new("ShaderNodeMix")
-        grime.data_type = "RGBA"
-        gk = N.new("ShaderNodeMath")
-        gk.operation = "MULTIPLY"
-        gk.inputs[1].default_value = 0.65
-        L.new(cav.outputs["Result"], gk.inputs[0])
-        L.new(gk.outputs[0], grime.inputs["Factor"])
-        L.new(worn.outputs["Result"], grime.inputs["A"])
-        grime.inputs["B"].default_value = (0.035, 0.030, 0.025, 1.0)
-        L.new(grime.outputs["Result"], emit.inputs["Color"])
+            dark, light = (0.05, 0.08, 0.20), (0.08, 0.13, 0.28)   # fire blue: deep, not royal
+        base = g.mix(g.math("ADD", g.math("MULTIPLY", lines, 0.6), g.math("MULTIPLY", tone, 0.4)), dark, light)
+        # Edge wear: bluing gone to bare steel, a little browned where thin.
+        worn = g.mix(wear, base, BARE_STEEL)
+        thin = g.math("MULTIPLY", g.maprange(g.noise(obj, 90.0, 4.0), 0.55, 0.75), 0.35)
+        worn = g.mix(g.math("MULTIPLY", thin, edge), worn, (0.24, 0.20, 0.18))
+        r_var = g.math("MULTIPLY", lines, 0.06)
+    elif kind == "walnut":
+        tex = g.N.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(WALNUT, check_existing=True)
+        tex.projection = "BOX"
+        tex.projection_blend = 0.35
+        tex.interpolation = "Cubic"
+        sc = g.N.new("ShaderNodeVectorMath")
+        sc.operation = "SCALE"
+        sc.inputs["Scale"].default_value = 1.0 / 0.06
+        g.L.new(obj, sc.inputs[0])
+        g.L.new(sc.outputs[0], tex.inputs["Vector"])
+        base = g.mix(1.0, tex.outputs["Color"], (0.48, 0.40, 0.34), "MULTIPLY")
+        worn = g.mix(wear, base, g.mix(0.45, base, (0.55, 0.50, 0.45), "SCREEN"))
+        r_var = g.math("MULTIPLY", g.noise(obj, 200.0, 3.0), 0.06)
     else:
-        # roughness: a touch smoother where rubbed, much rougher in the grime.
-        r1 = N.new("ShaderNodeMath")
-        r1.operation = "MULTIPLY_ADD"
-        L.new(wear_k.outputs[0], r1.inputs[0])
-        r1.inputs[1].default_value = -0.10
-        r1.inputs[2].default_value = look["rough"]
-        r2 = N.new("ShaderNodeMath")
-        r2.operation = "MULTIPLY_ADD"
-        r2.use_clamp = True
-        L.new(cav.outputs["Result"], r2.inputs[0])
-        r2.inputs[1].default_value = 0.35
-        L.new(r1.outputs[0], r2.inputs[2])
-        comb = N.new("ShaderNodeCombineColor")
-        comb.inputs["Red"].default_value = 1.0
-        L.new(r2.outputs[0], comb.inputs["Green"])
-        comb.inputs["Blue"].default_value = look["metal"]
-        L.new(comb.outputs[0], emit.inputs["Color"])
-    target = N.new("ShaderNodeTexImage")
+        worn = g.mix(0.0, look["color"], look["color"])
+        r_var = g.math("MULTIPLY", g.noise(obj, 200.0, 3.0), 0.04)
+    if mode == "albedo":
+        col = g.mix(g.math("MULTIPLY", cav, 0.6), worn, (0.035, 0.030, 0.025))
+        g.L.new(col, emit.inputs["Color"])
+    else:
+        r = g.math("ADD", g.math("ADD", rough, r_var), g.math("MULTIPLY", wear, 0.08))
+        r = g.math("ADD", r, g.math("MULTIPLY", cav, 0.35), True)
+        comb = g.node("ShaderNodeCombineColor", Red=1.0, Blue=look["metal"])
+        g.L.new(r, comb.inputs["Green"])
+        g.L.new(comb.outputs[0], emit.inputs["Color"])
+    _target(g, img)
+
+
+def _target(g, img):
+    target = g.N.new("ShaderNodeTexImage")
     target.image = img
-    uvb = N.new("ShaderNodeUVMap")
+    uvb = g.N.new("ShaderNodeUVMap")
     uvb.uv_map = "bake"
-    L.new(uvb.outputs["UV"], target.inputs["Vector"])
-    N.active = target
+    g.L.new(uvb.outputs["UV"], target.inputs["Vector"])
+    g.N.active = target
     target.select = True
 
 
@@ -176,7 +236,7 @@ def unwrap(objs):
     bpy.context.view_layer.objects.active = objs[0]
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=0.004, area_weight=0.0, correct_aspect=True)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(45), island_margin=0.004, area_weight=0.0, correct_aspect=True)
     bpy.ops.uv.pack_islands(margin=0.004, rotate=True)
     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -228,10 +288,11 @@ def main_paint():
         for i, slot in enumerate(ob.material_slots):
             if slot.material and slot.material.name.split(".")[0] in LOOK:
                 slot.material = mat
-        ob.data.uv_layers.remove(ob.data.uv_layers["UVMap"])
+        if "UVMap" in ob.data.uv_layers:
+            ob.data.uv_layers.remove(ob.data.uv_layers["UVMap"])
     # The atlases kept beside the glb (to look at; the glb carries its own copies).
     out_dir = arg("out", HERE)
-    for img in (albedo, orm):
+    for img in (albedo, orm) if not CHECKER else ():
         os.makedirs(os.path.join(out_dir, "surfaces"), exist_ok=True)
         img.filepath_raw = os.path.join(out_dir, "surfaces", img.name + ".png")
         img.file_format = "PNG"
@@ -250,7 +311,7 @@ def export(parts, rounds, markers, hinge, ej):
     for o in list(bpy.data.objects):
         if o.name not in keep:
             bpy.data.objects.remove(o, do_unlink=True)
-    tag = ("%g" % BARREL).replace(".", "")
+    tag = ("%g" % BARREL).replace(".", "") + ("checker" if CHECKER else "")
     out = arg("out", HERE)
     glb = os.path.join(out, "saa_%s.glb" % tag)
     bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", export_apply=True, export_yup=True,

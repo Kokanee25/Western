@@ -119,7 +119,8 @@ hammer screw, trigger 3–6°, gate 95°) in the rig file.
 ## The surfaces
 
 Sean's yes on #740 (2026-11-09): paint them, cap $2.50; the grip frame blued steel (as built).
-The image model paints only flat tiling surfaces, never the shape:
+The image model paints only flat tiling surfaces, never the shape. **Since Sean's second review the
+metals are made in the bake from noise (below, step 4); of the seven paintings only walnut_1 is used.**
 
 ```sh
 # GitHub Actions (gun_surfaces.yml, the key a secret there): runs when a claude/colt-* branch pushes a
@@ -168,6 +169,51 @@ python3 experiments/gun_lab/saa/surfaces.py --cut              # here, free: sea
     - the hammer spur a flat slab;
     - the muzzle a plain tube end-on.
   - The rest are the street's: identical pebbles, twin horses, the backdrop's squares.
+
+## Sean's second review (2026-11-09): four steps, each judged in game light
+
+"It still doesn't read as real, and another paint run isn't the fix." Each step's side and
+three-quarter views are under the real look on Main Street at 16:00, with the game's sky to reflect
+(`saa_views.gd --only=side,threeq`; `sheets.py VIEWS SHEET.jpg`). In `results/2026-11-09_review2/`:
+
+1. **Shape, against the photos** (`step1_overlay.jpg`, `step1_diff.jpg`, `step1_side_by_side.jpg`,
+   `step1_views.jpg`). Two things made the box and the fin:
+   - **The box:** the side plate ran up over the recoil shield.
+   - **The fin:** the hammer's front stood up as a second prong beside the spur.
+
+   The Smithsonian's three-quarter photos (CC0, looked at) show the real arrangement:
+   - **Recoil shield:** a near half-ellipsoid dome (`dome_profile`: 0.80" radius, 0.62" deep)
+     bulging past the frame's flat sides.
+   - **Side plate:** cut back to below and behind the dome.
+   - **Ears:** behind the top strap, two thin ears either side of the hammer slot carry the Met
+     gun's measured top line.
+   - **Hammer:** its front sits low inside the ears, so only the slim spur rises (0.23" across,
+     was 0.33").
+   - **Strap and edges:** the strap is narrowed to 0.48", and the frame's edges rounded (0.045").
+
+   Overlap with the Met gun's silhouette stays at 0.951.
+2. **Metal as metal** (`step2_metal.jpg`). Metallic 1, with the base colour the metal's own
+   reflectance:
+   - **Bluing:** a dark blue-grey that still mirrors (0.17–0.25, roughness 0.16–0.18);
+   - **Case colours:** 0.40 at roughness 0.22;
+   - **Walnut:** a dielectric at 0.40;
+   - **Rounds:** brass, lead and copper as metals.
+
+   The game's sky is the reflection (its environment reflects the sky shader).
+3. **UVs and the grip's outline** (`step3_uv_checker.jpg`):
+   - **The stripes:** the bluing painting repeating every 70 mm along the barrel.
+   - **The fix:** the metal finishes are now made from 3D noise in each part's own space, so nothing
+     stretches or repeats.
+   - **The atlas:** smart-projected at 45° (under 8% stretch across a strip). A checker baked
+     through it is square and even on every part.
+   - **The straps:** thin metal, 0.06" deep (were 0.13" and 0.12"); the butt 0.06".
+4. **The surfaces** (`step4_surfaces.jpg`), in `saa_paint.py`; no paid call:
+   - **Case hardening:** fine swirls (two layers of distorted noise, ~3–8 mm) of blue and violet
+     with thin straw bands on a dark steel base. Round 4a read as rust spots, so straw was thinned.
+   - **Bluing:** deep blue-black with fine polish lines along the gun and slow unevenness; edges worn
+     to bare steel, browned where thin.
+   - **Walnut:** the walnut painting by box projection, its seams blended.
+   - **Wear and grime:** as before.
 
 ## Results
 

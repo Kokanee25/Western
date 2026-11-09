@@ -370,18 +370,36 @@ MAT = {}
 
 
 def mats():
-    MAT["case"] = material("saa_case", (0.20, 0.185, 0.17), 1.0, 0.34)     # colour case-hardened (frame, hammer, gate)
-    MAT["blued"] = material("saa_blued", (0.055, 0.06, 0.075), 1.0, 0.30)  # blued steel
-    MAT["fire"] = material("saa_fire_blue", (0.04, 0.06, 0.12), 1.0, 0.25)  # fire-blued screws, pins
-    MAT["bright"] = material("saa_bright", (0.55, 0.55, 0.56), 1.0, 0.35)  # bright steel (firing pin, ejector rod)
-    MAT["walnut"] = material("saa_walnut", (0.20, 0.10, 0.05), 0.0, 0.45)
-    MAT["bore"] = material("saa_bore", (0.03, 0.03, 0.035), 1.0, 0.6)
-    MAT["brass"] = material("saa_brass", (0.78, 0.58, 0.30), 1.0, 0.35)
-    MAT["lead"] = material("saa_lead", (0.30, 0.30, 0.31), 0.6, 0.55)
-    MAT["primer"] = material("saa_primer", (0.66, 0.40, 0.25), 1.0, 0.4)
+    # Metal as metal (Sean's review, step 2): metallic 1 and the base colour the metal's own
+    # reflectance, so it is read through what it reflects (the game's sky); bluing a dark blue-grey
+    # that still mirrors, not black paint; walnut a dielectric.
+    MAT["case"] = material("saa_case", (0.40, 0.39, 0.40), 1.0, 0.22)     # colour case-hardened (frame, hammer, gate)
+    MAT["blued"] = material("saa_blued", (0.17, 0.19, 0.25), 1.0, 0.18)    # blued steel
+    MAT["fire"] = material("saa_fire_blue", (0.10, 0.17, 0.38), 1.0, 0.14)  # fire-blued screws, pins
+    MAT["bright"] = material("saa_bright", (0.56, 0.56, 0.57), 1.0, 0.25)  # bright steel (firing pin, ejector rod)
+    MAT["walnut"] = material("saa_walnut", (0.12, 0.06, 0.03), 0.0, 0.40)  # oiled walnut
+    MAT["bore"] = material("saa_bore", (0.04, 0.04, 0.045), 1.0, 0.6)
+    MAT["brass"] = material("saa_brass", (0.85, 0.68, 0.38), 1.0, 0.30)
+    MAT["lead"] = material("saa_lead", (0.45, 0.45, 0.47), 1.0, 0.50)
+    MAT["primer"] = material("saa_primer", (0.85, 0.55, 0.42), 1.0, 0.30)
 
 
 # --- The parts ------------------------------------------------------------------------------------
+DOME_R = 0.80      # the recoil shield's radius about the cylinder's axis (the cylinder's 0.825, less its chamfer)
+DOME_DEPTH = 0.62  # how far back its dome runs: a half-ellipsoid, as the Smithsonian's three-quarter photos show it
+
+
+def dome_profile(shrink=0.0, back=0.60, steps=14):
+    """The recoil shield's turned profile [(f, r)]: flat at the cylinder, rounding back as an ellipse."""
+    R = DOME_R - shrink
+    pts = [(F_SHIELD - shrink, 0.0), (F_SHIELD - shrink, R)]
+    for k in range(1, steps + 1):
+        d = back * k / steps
+        pts.append((F_SHIELD - d, R * math.sqrt(max(0.0, 1.0 - (d / DOME_DEPTH) ** 2))))
+    pts.append((F_SHIELD - back, 0.0))
+    return pts
+
+
 def make_frame():
     """The main frame: frame front round the barrel's shank and base pin, the bottom under the
     cylinder's window, the top strap with its rear-sight groove, the round recoil shield, the rear
@@ -403,11 +421,13 @@ def make_frame():
     # The top strap.
     # The top strap, carried back to the hammer's face at 0.46 (the Met gun's line).
     strap = prism("strap", [(F_SHIELD_BACK, ts1 - 0.02), (-0.17, ts1), (F_BARREL + 0.05, ts1), (F_BARREL + 0.05, ts0),
-                            (-0.10, ts0 - 0.04), (F_SHIELD_BACK, ts0 - 0.10)], 0.27, smooth=False)
-    # The recoil shield: turned about the cylinder's axis, its back rounded into the rear frame.
-    shield = lathe("shield", [(F_SHIELD_BACK - 0.14, 0.0), (F_SHIELD_BACK - 0.14, 0.50), (F_SHIELD_BACK - 0.05, 0.66),
-                              (F_SHIELD_BACK + 0.04, 0.76), (F_SHIELD - 0.06, 0.80), (F_SHIELD, 0.80), (F_SHIELD, 0.0)],
-                   (0.0, 0.0, CA), "f", None, 96)
+                            (-0.10, ts0 - 0.04), (F_SHIELD_BACK, ts0 - 0.10)], 0.24, smooth=False)
+    # The recoil shield: a dome turned about the cylinder's axis, standing out past the side plate.
+    shield = lathe("shield", dome_profile(), (0.0, 0.0, CA), "f", None, 96)
+    # Behind the top strap, the frame's two ears either side of the hammer's slot, their top the Met
+    # gun's line falling to the spur's root (the slot cuts their middle out).
+    ears = prism("ears", [(-0.30, 0.46), (-0.40, 0.45), (-0.50, 0.36), (-0.60, 0.28), (-0.70, 0.22), (-0.80, 0.18),
+                          (-0.92, 0.15), (-0.97, 0.05), (-0.97, -0.30), (-0.30, -0.30)], 0.24, corners=(0, 7, 8, 9))
     # The lower frame under the window and the rear frame round the lockwork, one side outline: its
     # lower edge measured off the Met gun (FRAME_BOTTOM); its back behind the shield where the
     # hammer stands out of it, down the backstrap's front, to where the walnut meets it.
@@ -418,10 +438,11 @@ def make_frame():
         if f >= TANG_FRONT and not any(q[0] >= TANG_FRONT for q in edge):
             edge += [(TANG_FRONT - 0.04, frame_bottom_at(TANG_FRONT) + TANG), (TANG_FRONT, frame_bottom_at(TANG_FRONT))]
         edge.append((f, u + (TANG if f < TANG_FRONT else 0.0)))
-    lower = [(F_BARREL + 0.02, -1.37), (-0.10, -1.37), (-0.10, 0.40), (-0.17, 0.42), (-0.36, 0.30), (-0.52, 0.10),
-             (-0.68, -0.10), (-0.84, -0.26), (-0.86, -1.15), (-1.00, -1.32)] + edge + [(F_BARREL + 0.02, -1.70)]
-    rear = prism("rear", lower, 0.44, corners=(0, 1, 2, 9, 10, len(lower) - 1))
-    union(front, strap, shield, rear)
+    # The side plate stays below and behind the dome (round its back), so the dome stands out of it.
+    lower = [(F_BARREL + 0.02, -1.37), (-0.10, -1.37), (-0.30, -1.30), (-0.48, -1.12), (-0.60, -0.86), (-0.66, -0.56),
+             (-0.68, -0.30), (-0.76, -0.24), (-0.84, -0.26), (-0.86, -1.15), (-1.00, -1.32)] + edge + [(F_BARREL + 0.02, -1.70)]
+    rear = prism("rear", lower, 0.44, corners=(0, 1, 9, 10, len(lower) - 1))
+    union(front, strap, shield, ears, rear)
     # The cylinder's window; the barrel's thread; the base pin; the ejector rod's channel.
     cut(front, cyl("win", RC + 0.012, F_SHIELD, F_BARREL, 0.0, CA, 96))
     cut(front, box("win2", -1.0, 1.0, F_SHIELD, F_BARREL, -1.37, CA), )
@@ -443,10 +464,11 @@ def make_frame():
     # The loading channel: the gate's chamber, out through the shield to the rear frame's side.
     cut(front, cyl("chan", D["rim"] / 2 + 0.012, F_SHIELD_BACK - 0.20, F_SHIELD + 0.02, gl, gu, 40))
     # The gate's place in the shield (make_gate makes the gate from the same volume, a hair smaller).
-    c2 = cyl("gc2", D["rim"] / 2 + 0.064, F_SHIELD - 0.5, F_SHIELD + 0.1, gl, gu, 40)
+    c2 = cyl("gc2", D["rim"] / 2 + 0.064, F_SHIELD - 0.31, F_SHIELD + 0.1, gl, gu, 40)
     cut(c2, cyl("hub2", 0.396, F_SHIELD - 0.6, F_SHIELD + 0.2, 0.0, CA, 48))
     cut(front, c2)
-    bevel(front, 0.028, 3, 30)
+    # The frame's edges rounded as on the real guns (the Smithsonian's photos), not machined square.
+    bevel(front, 0.045, 4, 30)
     return front
 
 
@@ -454,10 +476,8 @@ def make_gate(frame_ob):
     """The loading gate: the part of the recoil shield over the gate's chamber, hinged at its lower
     outer edge on an axis along the bore; it swings out and down to open."""
     gl, gu = gate_chamber()
-    shield = lathe("Gate", [(F_SHIELD_BACK - 0.0, 0.0), (F_SHIELD_BACK, 0.66), (F_SHIELD_BACK + 0.04, 0.76),
-                            (F_SHIELD - 0.06, 0.80), (F_SHIELD - 0.005, 0.80), (F_SHIELD - 0.005, 0.0)],
-                   (0.0, 0.0, CA), "f", MAT["case"], 96)
-    c = cyl("gc", D["rim"] / 2 + 0.06, F_SHIELD - 0.5, F_SHIELD + 0.1, gl, gu, 40)
+    shield = lathe("Gate", dome_profile(0.004, 0.30), (0.0, 0.0, CA), "f", MAT["case"], 96)
+    c = cyl("gc", D["rim"] / 2 + 0.06, F_SHIELD - 0.30, F_SHIELD + 0.1, gl, gu, 40)
     boolean(shield, c, "INTERSECT")
     # Not into the hub: the gate is the outer flap.
     cut(shield, cyl("hub", 0.40, F_SHIELD - 0.5, F_SHIELD + 0.1, 0.0, CA, 48))
@@ -646,13 +666,13 @@ def make_hammer():
     """The hammer at rest, its outline off the Met gun: the face at the shield, the top dipping behind
     it and the slim spur curling up and back over the grip; its lower body (inside the frame) down
     round its screw, low on the frame."""
-    body = prism("Hammer", [(-0.335, 0.40), (-0.335, -0.12), (-0.42, -0.45), (-0.48, -0.95), (-0.50, -1.35), (-0.56, -1.66),
+    body = prism("Hammer", [(-0.335, 0.10), (-0.335, -0.12), (-0.42, -0.45), (-0.48, -0.95), (-0.50, -1.35), (-0.56, -1.66),
                             (-0.72, -1.78), (-0.88, -1.70), (-0.95, -1.45), (-0.92, -1.0), (-0.92, -0.55), (-0.96, -0.32),
-                            (-1.10, -0.20), (-0.90, 0.13), (-0.70, 0.235), (-0.55, 0.36), (-0.40, 0.47)], 0.155, MAT["case"],
+                            (-1.10, -0.20), (-0.90, 0.15), (-0.70, 0.16), (-0.55, 0.15), (-0.40, 0.13)], 0.155, MAT["case"],
                  corners=(0, 1))
     spur = prism("spur", [(-0.96, -0.32), (-1.10, -0.20), (-1.27, -0.08), (-1.40, 0.09), (-1.52, 0.26), (-1.63, 0.39),
                           (-1.71, 0.48), (-1.67, 0.525), (-1.50, 0.515), (-1.35, 0.435), (-1.20, 0.325), (-1.05, 0.24),
-                          (-0.88, 0.20), (-0.80, 0.0)], 0.165, corners=(6,))
+                          (-0.88, 0.20), (-0.80, 0.0)], 0.115, corners=(6,))
     union(body, spur)
     # The spur's checkering is the surface's (a normal map in the surfaces pass): cut as geometry
     # the exact solver dropped a third of the grooves.
@@ -777,7 +797,7 @@ def make_grip_frame():
     loft so they wrap it; the walnut is what's between them."""
     outer = grip_loft("outer", 0.0)
     # Backstrap: along the back curve and under the butt to the toe.
-    bs_band = band("bsb", GRIP_BACK, 0.13, 0.3, 1.0)
+    bs_band = band("bsb", GRIP_BACK, 0.06, 0.3, 1.0)
     # The butt: the loft's bottom 0.10" (a cut along the butt chord).
     bv = Vector(GRIP_FRONT[-1]) - Vector(GRIP_BACK[-1])
     bn = Vector((bv.y, -bv.x)).normalized()  # pointing up into the grip
@@ -785,7 +805,7 @@ def make_grip_frame():
         bn = -bn
     h0 = Vector(GRIP_BACK[-1]) - bv.normalized() * 0.4
     h1 = Vector(GRIP_FRONT[-1]) + bv.normalized() * 0.4
-    butt_poly = [(h0 - bn * 0.3).to_tuple(), (h1 - bn * 0.3).to_tuple(), (h1 + bn * 0.11).to_tuple(), (h0 + bn * 0.11).to_tuple()]
+    butt_poly = [(h0 - bn * 0.3).to_tuple(), (h1 - bn * 0.3).to_tuple(), (h1 + bn * 0.06).to_tuple(), (h0 + bn * 0.06).to_tuple()]
     butt_pr = prism("bp", [(p[0], p[1]) for p in butt_poly], 1.0, smooth=False)
     union(bs_band, butt_pr)
     backstrap = dup(outer, "Backstrap")
@@ -801,7 +821,7 @@ def make_grip_frame():
     backstrap.data.materials.append(MAT["blued"])
     bevel(backstrap, 0.015, 2, 35)
     # Front strap (part of the guard).
-    fs_band = band("fsb", list(reversed(GRIP_FRONT)), 0.12, 0.3, 1.0)
+    fs_band = band("fsb", list(reversed(GRIP_FRONT)), 0.06, 0.3, 1.0)
     guard = dup(outer, "TriggerGuard")
     boolean(guard, fs_band, "INTERSECT")
     cut(guard, rear, keep=True)
@@ -820,7 +840,7 @@ def make_grip_frame():
     walnut = grip_loft("Grip", -0.012, MAT["walnut"])
     cut(walnut, rear)
     cut(walnut, bs_band)
-    fs2 = band("fsb2", list(reversed(GRIP_FRONT)), 0.12, 0.3, 1.0)
+    fs2 = band("fsb2", list(reversed(GRIP_FRONT)), 0.06, 0.3, 1.0)
     cut(walnut, fs2)
     bevel(walnut, 0.02, 2, 30)
     bpy.data.objects.remove(outer, do_unlink=True)

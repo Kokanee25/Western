@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --path . --rendering-driver vulkan --resolution 1600x900 \
 ##       -s res://experiments/gun_lab/saa/saa_views.gd -- --real --out=build/saa/views [--gun=75] [--hour=16] \
-##       [--only=turntable,side,close,mech] [--steps=24]
+##       [--only=turntable,side,threeq,close,mech] [--steps=24]
 ##
 ## Untyped on purpose (a -s script compiles before the autoloads exist).
 
@@ -25,7 +25,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var tag := "75"
 	var hour := 16.0
-	var only := "turntable,side,close,mech"
+	var only := "turntable,side,threeq,close,mech"
 	var steps := 24
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
@@ -105,6 +105,14 @@ func _run() -> void:
 			var f := FileAccess.open("%s/%s.json" % [out, side[0]], FileAccess.WRITE)
 			f.store_string(JSON.stringify(pts))
 		cam.fov = 32.0
+	if "threeq" in only:
+		# Three-quarter views: from behind on the left (as the Smithsonian's photos of the Colt are taken)
+		# and from in front on the right.
+		var g := gun.global_transform
+		_look(g * Vector3(-0.27, 0.13, 0.20), g * Vector3(0.0, 0.02, -0.03))
+		await _shot("threeq_rear_left")
+		_look(g * Vector3(0.27, 0.12, -0.30), g * Vector3(0.0, 0.02, -0.07))
+		await _shot("threeq_front_right")
 	if "close" in only:
 		# The gun's own frame: barrel along -Z, right +X, up +Y.
 		var g := gun.global_transform
