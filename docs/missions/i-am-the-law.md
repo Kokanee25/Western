@@ -42,6 +42,10 @@ its judge (26/35) and its build check). Sources: that proposal; Sean, 2026-11-09
 
 ## The ways to do it
 
+- DECIDED (Sean, 2026-11-09, from Payday Night's judge): **the proof fights the letter**: walk the
+  captain to the sawn joist (in the floor or the rubble) or bring him to the witness or the storekeeper's
+  day-book; what he sees for himself weighs against Rourke's letter in his tally.
+
 - DECIDED: **head trouble off quietly**: overhear the plan through a wall, find the men first, and arrest
   them out of his sight (in the dark between lamps, behind the livery: "Drop it!" in the dark works
   today).

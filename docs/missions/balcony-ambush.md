@@ -10,6 +10,17 @@ Sean's favourites, 2026-10-21). Sources: Sean's inventory (2026-11-09,
   destruction creating a tactical alternative to ordinary gunplay."
 - OPEN (inventory): "The precise story setup, antagonist and location have not been finalized."
 
+## Sean's call (2026-11-09)
+
+- DECIDED (Sean, 2026-11-09): "keep the one where we ambush and blow up the balcony that some people were
+  on later. We still have to find a reason for that." Kept, later in the story (after dynamite: the
+  Demolition Mentor), so the balcony comes down by a charge. OPEN: the reason.
+- PROPOSED (Sean, 2026-11-09): "this could be kind of like the idea now that you kind of have the idea of,
+  I could take out these bad guys by doing what they did to innocent people": the Baron's men brought a
+  floor down on the town at Payday Night (`payday-night`); here Harlan can bring one down on them. The
+  mission's question is that mirror: is it justice, or is he becoming them?
+- Settled (was OPEN): its placement and dynamite: later, with dynamite.
+
 ## How you hear of it
 
 - OPEN: no source says.

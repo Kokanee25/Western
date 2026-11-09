@@ -1,5 +1,8 @@
 # Payday Night and the Inquest (`payday-inquest`)
 
+**Payday Night now has its own card: `payday-night.md`** (Sean, 2026-11-09). This card keeps the
+Inquest and the Wrong Ball (Dig Him Up has its own card too).
+
 Four proposed missions carded together, as Sean suggested: "I think Payday Night, The Inquest, The Wrong
 Ball and Dig Him Up are worth reviewing together because they may form a single connected story arc
 rather than four independent missions." Sources: Sean's inventory (2026-11-09); `config/valley.json`

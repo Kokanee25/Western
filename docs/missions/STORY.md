@@ -93,9 +93,10 @@ evidence and the trial are "a maybe" (Sean, 2026-11-09).
 - The Stage Held Up: the stage robbed on the road; ride shotgun, chase, or rob it yourself.
 - The Bounty: a wanted man holed up in a house on a hill; alive pays more.
 - Small Fights: road agents, rustlers, claim jumpers, horse thieves, a feud, out in the valley.
-- The Balcony Ambush: armed men on a wooden balcony; shoot them, or bring the balcony down by its posts.
+- The Balcony Ambush: later, with dynamite: bring a balcony down on the Baron's men, as they did to the town (the reason open).
 - The Demolition Mentor: the miner teaches half-sticks, linked charges and bundles; maybe optional lessons.
-- Payday Night and the Inquest: payday's party interrupted; an inquiry, a ball that doesn't match, a grave dug up (proposed).
+- Payday Night: the Baron's men saw the dance floor's joists; read the signs and prevent it, or a night of triage for the steward and Rourke's surgeon for a signature.
+- The Inquest and the Wrong Ball: an inquiry, a ball that doesn't match (proposed; evidence a maybe).
 - Dry Creek: a fight or an emergency over the valley's water; gates, channels, sluices (brainstorm).
 - Dig Him Up: a grave opened at night, by stealth, to find something on the body (whose grave open).
 - I Am the Law: an Army captain's one day in town to report on revolt; the Baron's men stage one; keep the peace unseen, and Joe is their target.

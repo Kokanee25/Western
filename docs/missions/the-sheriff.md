@@ -38,6 +38,9 @@ hasn't confirmed in words.)
   offering to buy the widow's claim. He gets a face in Act I, and the farmhouse becomes his answer to
   her refusal.
 
+- DECIDED (Sean, 2026-11-09): "we're still keeping as deputy. I don't know if we become sheriff ever in
+  the game." OPEN: whether Harlan is ever sheriff.
+
 ## How you hear of it
 
 - DECIDED: you find him yourself, on the road at dawn.

@@ -99,6 +99,9 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 - PROPOSED (inventory): "These first three are currently story beats. They could become one larger
   opening mission rather than three separate missions." (The opening, the saloon, a new sheriff.)
 
+- DECIDED (Sean, 2026-11-09): "we're still keeping as deputy. I don't know if we become sheriff ever in
+  the game." OPEN: whether Harlan is ever sheriff.
+
 ## How you hear of it
 
 - PROPOSED (Sean's draft): "This mission follows the opening sequence in which Harlan encounters the
