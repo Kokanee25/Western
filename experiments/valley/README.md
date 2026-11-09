@@ -86,3 +86,58 @@ Results of the G steps that build the new valley beside the old town.
     - nodes 2,154 -> 13,656 (the track's members at rest, a body each).
   - Bridge (`bridge.gd`): `valley_train [run [S] | at MARK [KMH] | sync]`, `valley_view VP|MARK [LOOK]`;
     the trestle lab's commands take the valley's line in the valley world (`trestle_cam overlook`).
+- **G4** (#720, the greybox markers):
+  - **The roads graded** into the bake (`valley_plan.py` `Terrain._roads`): on G3's bake they ran over
+    the natural banks (36 % up the mine road's arroyo bank, 27 % at the timber road's ford, 21 % on
+    Harlan's ford path, 14 % at Bridge A's banks, 12 % on the North-South Street at the creek). Now
+    each road's graded profile is cut and filled across its width: fords' banks cut to 8 % (12 % a
+    track), the mine road's crib fill, the bridges' approaches at their decks 3 m past their spans
+    and eased into the road. Measured in the game over the bake and the decks (`road_grades`):
+    every road within the plan's limits but Church Lane (11.8 % for ~30 m by the stock pens' pad)
+    and the Baron's drive (12.4 %, its pitch). The tables moved a little (Church Lane 10.0 -> 9.3 %,
+    Harlan's ford path 14.2 -> 9.9 %); 22 checks pass; the 10 m map and the 2 m bake agree to
+    1.6 mm; the formation under the line within 2 mm.
+  - **Two changes to valley.json**: `block`s for the depot, freight warehouse, water tank, church
+    and the Baron's house (the church's its own 8 x 12 m in the churchyard: Church Lane runs
+    through the yard to the cemetery), Bridge A's `cribs`; and the East Road straight over Bridge
+    B (its 14 deg bend at the bridge split into two 7 deg bends 20 m either side: the deck hung off
+    the road at one end).
+  - **Built** (`ValleyMarks`, `ValleyMarkers`, `ValleyRoads`; LAYOUT "src/world/town_layout.gd"):
+    the marks on the ground (a byte a bake point, ~0.3 s to paint), 23 blocks, 31 posts and names,
+    73 places for `goto`; Bridge A 17.5 m on its log crib (spans 8.5 and 9.5 m), the town bridge
+    13 m, Bridge B now 40.5 m (G3's 44; its approaches graded); every deck meets its approaches
+    within a step (0.3 m) across its width. Two viewpoints the plan put just inside their lots
+    (`vp_main_east`, `vp_saloon_balcony` at z -12; the fronts at -10.05) stand in the street in
+    front for now.
+  - **On foot from the crossroads** (`valley_walk`, headless, the road network's shortest way,
+    the game's walk 2.8 m/s): every place arrives, within 7 s of the plan's time (the walk cuts the
+    corners; `g4_walks.txt`). The horse isn't ridden yet (#341): no times on it.
+
+    | To | By road (m) | Walked (m) | In the game | The plan's walk | Climb / descent (m) |
+    |---|---|---|---|---|---|
+    | Depot | 123 | 111 | 0:40 | 0:43 | +3 / -0 |
+    | Cemetery | 243 | 240 | 1:25 | 1:26 | +12 / -2 |
+    | The Baron's town house | 244 | 235 | 1:23 | 1:27 | +5 / -1 |
+    | The opening's encounter site | 553 | 551 | 3:17 | 3:17 | +1 / -6 |
+    | Harlan's homestead | 713 | 710 | 4:13 | 4:14 | +8 / -6 |
+    | Bridge A | 1016 | 1015 | 6:02 | 6:02 | +1 / -11 |
+    | Trestle overlook | 1314 | 1310 | 7:48 | 7:49 | +10 / -11 |
+    | Ore Works | 1587 | 1583 | 9:25 | 9:26 | +27 / -2 |
+    | Timber camp | 1701 | 1697 | 10:06 | 10:07 | +70 / -9 |
+    | Southern Ute community | 1899 | 1897 | 11:18 | 11:18 | +46 / -5 |
+    | The Baron's ranch | 2000 | 1998 | 11:53 | 11:54 | +25 / -5 |
+    | Outlaw hideout | 2118 | 2115 | 12:37 | 12:36 | +91 / -5 |
+    | Bridge B | 2132 | 2130 | 12:41 | 12:41 | +23 / -11 |
+    | The widow's homestead | 2621 | 2617 | 15:35 | 15:36 | +23 / -33 |
+    | The mine | 2756 | 2735 | 16:17 | 16:24 | +85 / -6 |
+    | East exit | 3159 | 3148 | 18:44 | 18:48 | +23 / -41 |
+
+  - **The frame** (`valley_bench.gd`, lavapipe, real look; `-- --no-markers` the before), render CPU
+    at Sean's: crossroads 0.53 -> 0.57 ms (draws 199 -> 209), corners 0.46-0.47 -> 0.48-0.50,
+    overlook 0.55 -> 0.53 (noise); nodes +180; load the same (~8 s drawn). Budget 4 ms.
+  - **Pictures** (real look, lavapipe, 10:30; `g4_pictures.txt`): `results/g4_top_town.jpg` (the town
+    from 160 m up: the streets, lots' blocks, the depot's pad outlined), `results/g4_top_bridge_a.jpg`
+    (the East Road over Bridge A and the creek, taken before the roads were darkened),
+    `results/g4_main_street.jpg` (west down Main Street between the lots' blocks, the `town` post at
+    the crossroads), `results/g4_bridge_a.jpg` (Bridge A on its crib from the west bank). The marks
+    read from above; at eye level the real look washes the greybox ground to one pale tone (for art).

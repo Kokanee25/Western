@@ -21,6 +21,9 @@ var terrain: ValleyTerrain
 var valley: ValleyGround
 var valley_tuning: ValleyGroundTuning
 var valley_material: Material
+## What the valley's ground is where (roads, pads, fords, beds: G4's greybox), tinting its colours;
+## none: the ground's own colours alone.
+var valley_marks: ValleyMarks
 ## The ground's material (art's ground.gdshader): the scene's Mesh child's, kept for the tiles.
 var material: Material
 ## Vector2i (the tile's corner, in tiles) -> GroundTile.
@@ -85,6 +88,7 @@ func _ready_valley() -> void:
 	valley = ValleyGround.new()
 	valley.name = "Chunks"
 	valley.setup(self, terrain, valley_tuning, valley_material)
+	valley.marks = valley_marks
 	add_child(valley)
 	valley.build_collision()
 	valley.build_drawing()

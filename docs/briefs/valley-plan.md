@@ -412,6 +412,13 @@ Everyday reuse:
   - every wagon road keeps to 10 % except the mine road's one 5 m pitch;
   - the Baron's drive has a 16 m pitch onto its rise;
   - the horse tracks stay under 15 %.
+  - **In the bake** (G4, #720): each road's graded profile is cut and filled into the ground
+    (`Terrain._roads`: the fords' banks cut to 8 %, Bridge A's and the town bridge's approaches
+    filled to their decks, the mine road's crib fill); before, the bake had the pads and the
+    formation only, and the roads ran over the natural banks at up to 36 %. Measured in the game
+    over the bake and the bridges' decks (`ValleyMarkers.road_grades`): only Church Lane (11.8 %
+    for ~30 m where it climbs past the stock pens' pad, which the grading leaves level) and the
+    Baron's drive (12.4 %, its pitch onto the rise) go over 10 %.
 - **Impossibilities found and not hidden:**
   1. The canyon's passable end must be upstream (above).
   2. The picture's 300 m town depth doesn't match its own drawing: 235 m with Sean's two rows of

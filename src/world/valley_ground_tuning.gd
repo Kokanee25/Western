@@ -42,3 +42,23 @@ extends Resource
 ## Below this height (m, the crossroads 0) the bottomland: a touch darker and greener.
 @export var bottom := Color(0.52, 0.48, 0.36)
 @export var bottom_below := -8.0
+
+@export_group("Marks")
+## The greybox's marks over the ground (ValleyMarks, G4), each kind's colour, and how far the
+## ground's own colour goes toward it (1: the mark's colour alone).
+@export var mark_mix := 0.85
+@export var pad := Color(0.70, 0.63, 0.52)
+@export var water := Color(0.30, 0.40, 0.48)
+## The roads darker than the ground (packed and rutted earth): lighter roads wash out under the
+## real look's noon (G4's pictures).
+@export var street := Color(0.46, 0.38, 0.29)
+@export var wagon_road := Color(0.46, 0.38, 0.29)
+@export var lane := Color(0.50, 0.42, 0.32)
+@export var track := Color(0.54, 0.46, 0.35)
+@export var path := Color(0.57, 0.49, 0.38)
+@export var ford := Color(0.40, 0.42, 0.42)
+@export var outline := Color(0.28, 0.26, 0.24)
+
+## The colours by ValleyMarks kind (index 0, none, unused).
+func mark_colours() -> Array[Color]:
+	return [Color.BLACK, pad, water, street, wagon_road, lane, track, path, ford, outline]

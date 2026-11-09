@@ -1266,6 +1266,8 @@ func _town() -> TownLife:
 
 
 func _places() -> Waypoints:
+	if street is ValleyWorld:
+		return (street as ValleyWorld).places()  # the valley's places (G4: ValleyMarkers)
 	var t := _town()
 	return t.places if t else Waypoints.test_street()
 

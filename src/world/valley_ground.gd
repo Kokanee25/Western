@@ -25,6 +25,9 @@ var terrain: ValleyTerrain
 var tuning: ValleyGroundTuning
 ## The drawn ground's material (vertex colours: the greybox's dirt and rock).
 var material: Material
+## The greybox's marks (roads, pads, fords, beds: ValleyMarks), tinting the vertex colours; none:
+## the ground's own colours alone.
+var marks: ValleyMarks
 ## Chunks along x and z.
 var chunks := Vector2i.ZERO
 ## Vector2i (chunk) -> StaticBody3D.
@@ -557,6 +560,9 @@ func _block_mesh(b: Block) -> ArrayMesh:
 	var rock_hi := tan(deg_to_rad(tuning.rock_full))
 	var inv := 1.0 / (2.0 * step)
 	var dirt := tuning.dirt
+	var tint: Array = tuning.mark_colours() if marks else []
+	var kinds := marks.kinds if marks else PackedByteArray()
+	var mix := tuning.mark_mix
 	var k := 0
 	for jj in nz + 1:
 		var at := (jj + 1) * en + 1
@@ -573,6 +579,10 @@ func _block_mesh(b: Block) -> ArrayMesh:
 			var slope2 := gx * gx + gz * gz
 			if slope2 > rock_lo * rock_lo:
 				c = c.lerp(tuning.rock, clampf((sqrt(slope2) - rock_lo) / (rock_hi - rock_lo), 0.0, 1.0))
+			if marks:
+				var mk := kinds[(j0 + jj * s) * w + i0 + ii * s]
+				if mk:
+					c = c.lerp(tint[mk], mix)
 			colors[k] = c
 			k += 1
 	for p in perimeter.size():
