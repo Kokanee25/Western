@@ -159,7 +159,8 @@ Results of the G steps that build the new valley beside the old town.
     (the same ways): from a back yard 1,082 -> 10 ms, to the junk alley's back 235 -> 5 ms; a step
     probe that fell between two planks (18 mm) is asked again a foot's width round.
   - **On foot from the crossroads** (`valley_walk`, `g4_walks.txt`, headless): the same as G4's table
-    to the second at every place (`build/g5_walks.log` here).
+    to the second at all 16 places (the mine and the east exit re-run alone: a background command
+    stops at 2 hours).
   - **The frame** (`valley_bench.gd`, lavapipe, real look; `-- --no-town` the before), render CPU at
     Sean's: crossroads 0.57 -> 0.88 ms (draws 209 -> 474: the walks), corners 0.47-0.53 -> 0.55-0.59,
     overlook 0.85 -> 0.70 (noise); load 7.6 -> 9.1 s drawn here. Budget 4 ms.
