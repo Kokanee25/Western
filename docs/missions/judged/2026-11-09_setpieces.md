@@ -15,6 +15,8 @@ paper score can't show the polish the AAA set pieces have.
 | The Balcony Ambush | the posts blown, the men brought down | 3 | about the Showstopper |
 | Buried Alive | the cave-in, blasting a way in | 3 (low) | about the Showstopper |
 | Joe on the Rope | the rope shot | 3 | about the Showstopper (pass/fail) |
+| *New:* the Water Tower (v3, for Hold the Jail) | the depot tank, two groups' aims, drained or full | **5** (low) | beside Hell on Wheels |
+| *New:* the Sap (v3, for the Baron's house) | the wall on the player's props, pulled one by one | 4 (close to 5) | beside the Shipment |
 
 ## Each, with two ways to raise it and one cut
 
@@ -73,3 +75,7 @@ the rope parts under his weight seconds later, or not; cut down, Joe falls with 
 answers the first shot: heard late by distance, some scatter, the man on the rope's end hauls or runs; the
 first shot changes the second. *Cut:* "ride under Joe and lift him" (needs ridden horses and carrying a
 man).
+
+
+The two new set pieces (the Water Tower, the Sap) and their versions, judges and build check are in
+`proposals/setpieces_2026-11-09.md`.

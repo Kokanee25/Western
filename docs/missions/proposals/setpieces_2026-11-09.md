@@ -268,3 +268,14 @@ Everything in version 2, with these changes:
 - **Needs** (on version 2's): props as members the player places (medium: placing a member is new; the
   structure code builds members); the masonry house to sit on them (masonry S1/S2 exist; the Baron's house
   as a test piece is still the dependency).
+
+**The judge on version 3:** the Water Tower **5 (low)**, beside Hell on Wheels, just under Payday Night:
+the strongest player-authoring in the set, readable before and after ("what fell, how full and on whom says
+whose plan won"), graded results, no masonry needed. What keeps it low: the fall's direction is a model
+(tune it so a poor cut can tip it the wrong way, as the trestle's bents fold); the axe cuts are canned (make
+them strokes against the leg's section, so a wounded axeman cuts slower); and what the two groups do when
+they meet is unsaid (it could become a three-way gunfight with no rules). The Sap **4 (close to 5)**: the
+props as the load path are systemic and the cave-in comes from a weak load path, not a trigger. What stands
+between it and a 5: a frame test of a wall dropping off props (the existing masonry panel on props, props
+pulled); without the arch rule (S3) a pulled prop drops nothing or a whole column; readability needs the
+cracks (§8) or the props' creak and bow made obvious; tamped charges aren't modelled.
