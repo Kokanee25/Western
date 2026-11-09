@@ -103,3 +103,38 @@ earth and walls (exists for walls).
   budget (three bundles already fail it).
 - **Lamps out**: a night fight where shooting out the street lamps one by one blinds the gang (sight by
   light exists): strong, but not a physical set piece.
+
+---
+
+## The set-piece judge (2026-11-09)
+
+| Set piece | Score | Nearest |
+|---|---|---|
+| The Water Tower | **4 (high, close to 5)** | between the Shipment (4) and Payday (5) |
+| The Sap | **4 (low)**: "the design is a 5, the build risk pulls it down" | above the Bridge on design, Buried Alive's risk |
+
+**The Water Tower.** Systemic, player-authored, readable, varies, leaves a mark: all good. **But the core
+lever fails the physics:** a .45 hole (~1 cm²) under 3 m of water leaks ~0.5 L/s; ten holes take ~2.5 h to
+empty 40,000 L. *Raise:* 1. Honest draining: bullets are the slow cue; the real levers are the outlet valve
+and spout pipe (a 15 cm pipe empties it in ~8 min) and **the iron hoops** (a stave tank is held by its
+hoops: shoot or cut one and the staves spring, the tank empties in seconds, the surge knocks men down). 2.
+The axes on a clock: two men take minutes a 12x12 leg, their strokes carry; a half-cut leg groans. *Cut:*
+the wind as a trigger. *1882:* railroad water tanks were standard (timber frame, stave tank, iron hoops, a
+spout); a town's own tower was rare: **make it the railroad's tank by the depot**, and "no water for the
+train" is the true consequence. *New:* collapse isn't new (Red Faction Guerrilla, Just Cause,
+Battlefield); removing the load that decides the collapse, the judge knows in no game.
+
+**The Sap.** The strongest player-authoring and the best mark of any set piece; varies excellently (the
+charge a moral dial). **Readable is weak** (underground; cracks only once the damage is done). **Build
+risk very high:** `Ground` is a height field and can't hold a tunnel; sound through earth isn't built;
+counter-gallery AI; a masonry corner collapse likely breaks the frame. Time: two or three men dig 2–3 m a
+night, so the creek bank must be ~15 m from the footings. *Raise:* 1. A real sap, then a short mine: a
+covered trench (the height field can dig that, behind a sap-roller), then only the last ~10 m a timbered
+gallery from Buried Alive's sets and the railway's `TunnelPortal`. 2. Tamping and listening: an untamped
+charge vents back down the gallery, a tamped one lifts; the defenders keep a bowl of water on the floor
+(the siege listener), the player sees it ripple through a window, and his miner hears their picks. *Cut:*
+the counter-gallery: they hear the digging and sally to the creek bank. *1882:* Petersburg (the 48th
+Pennsylvania's miners, 30 July 1864) and Vicksburg's 3rd Louisiana Redan (1863) are true; a posse sapping a
+house is a stretch a veteran makes believable. *New:* undermining exists in sandbox games (Stronghold,
+Dwarf Fortress, 7 Days to Die); first-person and narrative, with a charge sized so a named man survives,
+the judge knows none.
