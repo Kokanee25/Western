@@ -1,0 +1,108 @@
+# Nothing to Report: a proposal (`nothing-to-report`)
+
+**A new mission, this planning session's own idea (2026-11-09), at Sean's ask: "come up with your own
+mission idea".** Everything here is PROPOSED. It's built on the spine Sean picked (the Baron wins if Salt
+Creek looks lawless enough for soldiers; Rourke is the officer he pays), on the Posse Comitatus correction
+(PROPOSED: the Army needs the governor to call it an insurrection), and on the story judge's gaps: the
+sheriff's role is thin, Rourke appears too late, Joe has no beat in Acts II–III, and there are no quiet
+missions.
+
+**In one line:** an Army officer spends one day in Salt Creek to report whether the town is in revolt;
+the Baron's men spend that day making sure he sees one; Harlan has to keep the peace without the officer
+seeing a fight, and Joe is the man the Baron's men want him to see.
+
+## How you hear of it
+
+- **He steps off the train.** The day after Payday Night (DECIDED: Rourke arrives on the train), a
+  captain gets down at the depot with a notebook and an orderly, in front of whoever's on the platform.
+  Rourke stays aboard or rides on: he needs a report, and this man writes it.
+- **The telegraph.** The depot agent has the wire: the governor's office wants "a report on the state of
+  order at Salt Creek". He tells the deputy, and the saloon by noon.
+- **The town talks.** By the afternoon everyone knows a soldier is walking Main Street writing things
+  down; people behave for him, or perform for him.
+- **Joe hears it too**, and asks Harlan what it means for his people.
+
+## The situation
+
+- The captain has a day. He walks the town on his own errands: the depot, the store, the saloon at
+  noon and at night, the jail, the church, the street. He sees by the light and hears through walls like
+  anyone (the perception systems), and he writes down what he actually sees and hears: a fight, a shot, a
+  man drawn on, a crowd, a body. **His report is the tally of what he witnessed**, nothing else.
+- The Baron's men (the Colters on his pay, or his own hands) have the same day to give him a revolt: a
+  brawl started in the saloon, a shot fired on the street at dusk, a townsman pushed until he draws, and
+  above all **an Indian seen fighting white men**: they'll goad Joe.
+- Harlan is the deputy. Everything he does in the open, the captain may see too.
+
+## The ways to do it
+
+1. **Head trouble off quietly.** Overhear the plan (men talking in the saloon's back room, heard through
+   the wall), find the men before they start, and take them out of the captain's sight: an arrest round
+   the back of the livery, at night, in the dark between lamps. Quiet law work is the point.
+2. **Steer the captain.** Walk with him and choose where he looks: offer to show him the church while
+   the saloon boils over, keep him on the far side of the street. He's a man with his own agenda, so he
+   may not follow; if he hears a shot, he goes to it.
+3. **Let him see the truth.** Put him where he can watch who starts it: if he sees the Baron's man throw
+   the first punch, his report says "provocateurs". But a fight is still a fight in his tally, and the
+   Baron will say his man was defending himself.
+4. **Get him drunk.** A round on the house in the saloon (DESIGN's drink: memory gaps, slower eyes). He
+   sees less and remembers it wrong; if he works out what you did, that goes in the report too.
+5. **Do nothing.** The Baron's men put on their show; the captain writes it down.
+
+## The big choice and its cost
+
+- **Joe.** The surest way to keep the report clean is to ask Joe to stay out of town for the day. Ask him
+  (the nod: "Will you ride out till he's gone?") and he goes, and remembers that the deputy hid him the
+  way the law hid his wife's killer. Keep him beside you and he's the target the Baron's men want; if
+  they goad him and he answers, the captain sees exactly what the Baron paid for. Let him choose and he
+  stays, proudly, in plain sight.
+- **The truth or the quiet.** Quiet arrests out of sight keep the report clean but are their own kind of
+  lie, and the men you lock up are a grievance; letting the captain see the provocation is honest and
+  still counts against the town.
+
+## What happens after, in the world
+
+- **The report shapes the finale** (the spine's lever, by the tally, not a branch): a quiet day and the
+  governor has no insurrection to call, so Rourke's men come on the last train as hired guns with no
+  orders (#466: "perhaps a bought officer to make it look lawful"); a violent day and they come as
+  soldiers under orders. **The Bridge Is Out weighs differently**: blowing a train of hired guns, or a
+  train of soldiers sent by the government on a report Harlan couldn't keep clean.
+- **Joe** remembers how he was asked or protected; it shows in how he plans the Shipment and the finale.
+- **The men arrested** fill the jail (`hold-him`): the Baron wants them out before the next train.
+- **The town** remembers the day the soldier came and who kept the peace: the barkeep his chairs, the
+  storekeeper his window.
+
+## Where on the map
+
+- The town: the depot platform (`depot`, the train), Main Street, the saloon (its back room, the
+  balcony), the livery and the rear lane (the dark places), the jail, the church. No new location.
+- It can be built first in the old town, which already has its people.
+
+## Which threads it moves
+
+- T5 Rourke (on screen before the finale, through his captain); T4 the Baron (his provocateurs); T1 the
+  badge (Harlan as the law, not a gunfighter); T2 Joe (asked to hide, or not); T7 the town's law.
+- Placed in Act III, after Payday Night, before the Shipment.
+
+## Which systems it needs
+
+- An NPC observer on an agenda (go, wait, look) with a written log of what his senses perceive (a
+  fight, a shot, a drawn gun, a crowd), counted by kind: built on Senses, SightLight, hearing through
+  walls and the deeds; the log is new and small.
+- The provocateurs: gang men on an agenda who start trouble near the captain (the escalation ladder,
+  shoves, `OutlawBrain` agendas); the plan as data (shared with the faction plans).
+- Quiet arrests: arrest and follow exist; out of sight is perception.
+- Overhearing through walls: sound placed through walls exists; the lines are written.
+- Joe as a companion who can be goaded and answer (the companion, new and shared; his opinion and
+  memory need story state).
+- The captain drunk: drink as a body state (DESIGN §10, decided, partly built).
+- The report's tally carried to the finale: story state (the save system, shared and large).
+
+## True to 1882 (to check)
+
+- The Posse Comitatus Act (1878) kept the Army from acting as a posse to enforce the law; troops could
+  be sent into a state on the governor's or the legislature's request in an insurrection. A report on the
+  "state of order" before a request is plausible; check how it was really done (e.g. the Lincoln County
+  troubles, 1878; Johnson County, 1892).
+- Colorado was a state from 1876, with a governor to ask.
+- Prejudice against a Ute man in southern Colorado in 1882 (after the Ute removal of 1881) is real
+  history: handled with research and care, never spectacle.
