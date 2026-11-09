@@ -820,7 +820,10 @@ frozen until Sean names one.
   **G4 the greybox markers** (#720, PR #723, build 3521): the roads graded into the bake (`Terrain._roads`),
   `ValleyMarks` (roads, pads, fords, beds on the ground), `ValleyMarkers` (blocks, posts, Bridges A and T,
   `places` for goto), `ValleyRoads`, the lab's `valley_walk`; all 16 of table F walked within 7 s of the
-  plan. Next: G5, the town greybox (#724). For art: the valley's fog (the town's 0.0035) hides the
+  plan. **G5 the town greybox** (#724, PR #730, build 3541): `ValleyTown` (boardwalks from the `Boardwalk`
+  part, the lanes and 1.2 m alleys open to Back Street and the rear lane, the undertaker's junk, the
+  town's ways in `places`); `Waypoints.route` one search back from the goal (1 s -> 10 ms there).
+  Next: G6, the farmhouse to the widow's pad (#731); the saloon onto its lot waits on #695. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
