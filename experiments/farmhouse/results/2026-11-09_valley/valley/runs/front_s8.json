@@ -1,0 +1,261 @@
+{
+ "alarm": 12.9,
+ "blocking": [
+  "0.3:Valley/@RigidBody3D@31157",
+  "RB RigidBody3D at [6.59, 1.27, 2.67] mass 0.01200000010431 kids [&\"@CollisionShape3D@31156\", &\"Brass\"] meta []",
+  "0.3:Valley/Player",
+  "0.3:Furnishings/Rubble",
+  "RB RigidBody3D at [7.36, 0.97, 2.34] mass 8.86672496795654 kids [&\"@MeshInstance3D@23917\", &\"@CollisionShape3D@23918\", &\"@MeshInstance3D@23927\", &\"@CollisionShape3D@23928\", &\"@MeshInstance3D@23921\", &\"@CollisionShape3D@23922\", &\"@MeshInstance3D@23931\", &\"@CollisionShape3D@23932\", &\"@MeshInstance3D@23941\", &\"@CollisionShape3D@23942\", &\"@MeshInstance3D@23939\", &\"@CollisionShape3D@23940\", &\"@MeshInstance3D@23937\", &\"@CollisionShape3D@23938\", &\"@MeshInstance3D@23935\", &\"@CollisionShape3D@23936\", &\"@MeshInstance3D@23933\", &\"@CollisionShape3D@23934\", &\"@MeshInstance3D@23923\", &\"@CollisionShape3D@23924\", &\"@MeshInstance3D@23929\", &\"@CollisionShape3D@23930\", &\"@MeshInstance3D@23919\", &\"@CollisionShape3D@23920\", &\"@MeshInstance3D@23925\", &\"@CollisionShape3D@23926\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"hurt\"]",
+  "0.3:Furnishings/Rubble",
+  "RB RigidBody3D at [7.36, 0.97, 2.34] mass 8.86672496795654 kids [&\"@MeshInstance3D@23917\", &\"@CollisionShape3D@23918\", &\"@MeshInstance3D@23927\", &\"@CollisionShape3D@23928\", &\"@MeshInstance3D@23921\", &\"@CollisionShape3D@23922\", &\"@MeshInstance3D@23931\", &\"@CollisionShape3D@23932\", &\"@MeshInstance3D@23941\", &\"@CollisionShape3D@23942\", &\"@MeshInstance3D@23939\", &\"@CollisionShape3D@23940\", &\"@MeshInstance3D@23937\", &\"@CollisionShape3D@23938\", &\"@MeshInstance3D@23935\", &\"@CollisionShape3D@23936\", &\"@MeshInstance3D@23933\", &\"@CollisionShape3D@23934\", &\"@MeshInstance3D@23923\", &\"@CollisionShape3D@23924\", &\"@MeshInstance3D@23929\", &\"@CollisionShape3D@23930\", &\"@MeshInstance3D@23919\", &\"@CollisionShape3D@23920\", &\"@MeshInstance3D@23925\", &\"@CollisionShape3D@23926\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"hurt\"]",
+  "0.3:Furnishings/Rubble",
+  "RB RigidBody3D at [7.36, 0.97, 2.34] mass 8.86672496795654 kids [&\"@MeshInstance3D@23917\", &\"@CollisionShape3D@23918\", &\"@MeshInstance3D@23927\", &\"@CollisionShape3D@23928\", &\"@MeshInstance3D@23921\", &\"@CollisionShape3D@23922\", &\"@MeshInstance3D@23931\", &\"@CollisionShape3D@23932\", &\"@MeshInstance3D@23941\", &\"@CollisionShape3D@23942\", &\"@MeshInstance3D@23939\", &\"@CollisionShape3D@23940\", &\"@MeshInstance3D@23937\", &\"@CollisionShape3D@23938\", &\"@MeshInstance3D@23935\", &\"@CollisionShape3D@23936\", &\"@MeshInstance3D@23933\", &\"@CollisionShape3D@23934\", &\"@MeshInstance3D@23923\", &\"@CollisionShape3D@23924\", &\"@MeshInstance3D@23929\", &\"@CollisionShape3D@23930\", &\"@MeshInstance3D@23919\", &\"@CollisionShape3D@23920\", &\"@MeshInstance3D@23925\", &\"@CollisionShape3D@23926\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"hurt\"]",
+  "0.3:Furnishings/Rubble",
+  "RB RigidBody3D at [7.36, 0.97, 2.34] mass 8.86672496795654 kids [&\"@MeshInstance3D@23917\", &\"@CollisionShape3D@23918\", &\"@MeshInstance3D@23927\", &\"@CollisionShape3D@23928\", &\"@MeshInstance3D@23921\", &\"@CollisionShape3D@23922\", &\"@MeshInstance3D@23931\", &\"@CollisionShape3D@23932\", &\"@MeshInstance3D@23941\", &\"@CollisionShape3D@23942\", &\"@MeshInstance3D@23939\", &\"@CollisionShape3D@23940\", &\"@MeshInstance3D@23937\", &\"@CollisionShape3D@23938\", &\"@MeshInstance3D@23935\", &\"@CollisionShape3D@23936\", &\"@MeshInstance3D@23933\", &\"@CollisionShape3D@23934\", &\"@MeshInstance3D@23923\", &\"@CollisionShape3D@23924\", &\"@MeshInstance3D@23929\", &\"@CollisionShape3D@23930\", &\"@MeshInstance3D@23919\", &\"@CollisionShape3D@23920\", &\"@MeshInstance3D@23925\", &\"@CollisionShape3D@23926\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"hurt\"]",
+  "0.3:Rancher/Rag_shin_l",
+  "RB RigidBody3D at [7.52, 1.05, 2.56] mass 3.72000002861023 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "0.3:Rancher/Rag_foot_l",
+  "RB RigidBody3D at [7.34, 1.08, 2.67] mass 1.1599999666214 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Valley/Player",
+  "1.6:House/floor_loft_board_046_0",
+  "1.6:House/floor_loft_board_045_0",
+  "1.6:House/floor_loft_board_047_0",
+  "1.6:House/floor_loft_joist_015",
+  "1.6:House/floor_loft_joist_017",
+  "1.6:House/floor_loft_joist_019",
+  "1.6:House/floor_loft_joist_021",
+  "1.6:House/floor_loft_board_044_1",
+  "1.6:House/floor_loft_board_046_1",
+  "1.6:House/floor_loft_board_045_1",
+  "1.6:House/floor_loft_board_047_1",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "rescue": 42.37
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "bot_target": "Brody",
+ "breach": -1.0,
+ "end": 42.87,
+ "executed": 38.53,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1799,
+  "max_ms": 142.78,
+  "mean_ms": 12.27,
+  "p95_ms": 25.68
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   8.69,
+   0.68,
+   2.01
+  ],
+  "limp": true,
+  "pelvis": [
+   8.01,
+   0.84,
+   2.25
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  8.35,
+  0.75,
+  2.13
+ ],
+ "men": 7,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "drag Kid to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "RESCUING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're bedroom)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "behind_table",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're bedroom)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "inside_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "tend his wound: bleeding 41.9 ml/s, 3 s since your last shot",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.2,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.2,
+   "mood": "RELOADING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're bedroom)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "by_stove",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to kitchen door: kitchen door (you're bedroom)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Blood pumping out bright.",
+ "player_local": [
+  7.04,
+  0.93,
+  2.72
+ ],
+ "quits": [],
+ "rover_found": "Pike saw you at 12.7 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 8,
+ "shots_men": 27,
+ "shots_out": 23,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 42.87,
+ "threat": 33.52,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.65,
+   "Pike saw you at 12.7 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.65,
+   "Pike warns you off"
+  ],
+  [
+   12.9,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.9,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.9,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   22.3,
+   "Kid down"
+  ],
+  [
+   33.52,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   33.52,
+   "the guard's last word"
+  ],
+  [
+   38.53,
+   "the guard shoots the rancher"
+  ],
+  [
+   42.87,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   42.87,
+   "the rancher dead (brain)"
+  ],
+  [
+   42.87,
+   "lost: hostage_dead"
+  ],
+  [
+   42.87,
+   "the rancher hit (blow, by Brody)"
+  ]
+ ],
+ "way": "front",
+ "where": "bedroom"
+}

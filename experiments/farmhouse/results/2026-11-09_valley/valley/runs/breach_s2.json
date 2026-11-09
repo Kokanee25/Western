@@ -1,0 +1,324 @@
+{
+ "alarm": 159.58,
+ "blocking": [
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Valley/Player",
+  "1.0:Valley/Player",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": 159.08,
+  "freed": 176.5,
+  "froze": 15.166666666667,
+  "gate_left": 106.12,
+  "gate_wait": 54.9666666666648,
+  "hid": 156.83,
+  "phase_at": {
+   "lit": 154.15,
+   "out": 176.5,
+   "plant": 152.07,
+   "rescue": 174.23,
+   "through": 160.58
+  },
+  "planted": 154.15
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 159.58,
+ "end": 188.43,
+ "executed": -1.0,
+ "found": 161.87,
+ "frames": {
+  "blast_ms": 244.22,
+  "fight_ticks": 1731,
+  "max_ms": 244.22,
+  "mean_ms": 12.09,
+  "p95_ms": 24.06
+ },
+ "freed": 177.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   0.91,
+   1.36,
+   14.93
+  ],
+  "limp": false,
+  "pelvis": [
+   0.91,
+   0.62,
+   14.82
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  0.91,
+  0.99,
+  14.88
+ ],
+ "men": 7,
+ "men_out": 6,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "give up: still shaken after 0 s, covered close",
+   "id": "brody",
+   "inside": true,
+   "knows": 10.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 10.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 17.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "back in it: his fear's settled (0.55 / 0.55)",
+   "id": "kid",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_corner",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "",
+   "id": "pike",
+   "inside": false,
+   "knows": 3.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.7,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.88 / 0.88)",
+   "id": "wes",
+   "inside": true,
+   "knows": 9.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, gut-shot, bone broken.",
+ "player_local": [
+  4.37,
+  0.08,
+  27.54
+ ],
+ "quits": [
+  [
+   159.58,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   163.65,
+   "pike",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   169.6,
+   "wes",
+   "gives up",
+   "give up: past his nerve (fear 0.88 / 0.88)",
+   false
+  ],
+  [
+   169.67,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)",
+   true
+  ],
+  [
+   171.88,
+   "lyle",
+   "gives up",
+   "go for you: Dutch down (a hothead's rage)",
+   true
+  ],
+  [
+   177.7,
+   "brody",
+   "gives up",
+   "give up: still shaken after 0 s, covered close",
+   false
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 2,
+ "shots_men": 6,
+ "shots_out": 1,
+ "state": "WON",
+ "surprise": 159.58,
+ "t": 188.43,
+ "threat": 162.63,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   159.58,
+   "Hollis down"
+  ],
+  [
+   159.58,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   159.58,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 11 m off)"
+  ],
+  [
+   159.58,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   159.58,
+   "Hollis gives up ()"
+  ],
+  [
+   161.25,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.27,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.38,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.87,
+   "found: Pike sees you"
+  ],
+  [
+   162.62,
+   "Pike down"
+  ],
+  [
+   162.63,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   163.52,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   163.65,
+   "Pike gives up ()"
+  ],
+  [
+   169.6,
+   "Wes gives up (give up: past his nerve (fear 0.88 / 0.88))"
+  ],
+  [
+   169.67,
+   "Dutch down"
+  ],
+  [
+   169.67,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   171.88,
+   "Lyle down"
+  ],
+  [
+   171.88,
+   "Lyle gives up (go for you: Dutch down (a hothead's rage))"
+  ],
+  [
+   177.0,
+   "the rancher cut loose"
+  ],
+  [
+   177.7,
+   "Brody gives up (give up: still shaken after 0 s, covered close)"
+  ],
+  [
+   188.43,
+   "won"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

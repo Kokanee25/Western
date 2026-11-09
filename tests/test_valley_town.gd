@@ -184,6 +184,8 @@ func test_every_town_link_is_walkable() -> void:
 		for b: StringName in places.links[a]:
 			if String(a) > String(b):
 				continue
+			if String(a).begins_with("farm_") and String(b).begins_with("farm_"):
+				continue  # (the farmhouse's own, G6: the old town's house, its stair and porch steps; test_farmhouse)
 			n += 1
 			if not Waypoints._walkable(space, places.at(a), places.at(b), []):
 				bad.append("%s-%s" % [a, b])
