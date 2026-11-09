@@ -37,6 +37,9 @@ ROADMAP.
   the ball while you hold the lamp; the ball matches a gun you've seen". "**The gut shot who talks**:
   Dying slowly: get him to the doctor, or let him say where the money is first".
 - PROPOSED (DESIGN.md §5): "He might tell you, pin his badge on you".
+- DECIDED (Sean, 2026-11-09, answering the No Justice review): by the time of No Justice Harlan has
+  "been temporarily appointed by the dead sheriff". OPEN: how the appointment happens (on the road,
+  at the doctor's, his last words), and what "temporarily" ends with.
 - DECIDED (lock): help or leave him is a deed the widow's lines follow ("the help-or-leave deed from
   the opening").
 

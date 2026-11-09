@@ -17,6 +17,26 @@ comments (2026-11-09); `config/valley.json`.
   no several hideouts, no subplots. The strength is the moral choice, not the manhunt. (A judge should
   score 'choices' knowing this was chosen.)"
 
+## Sean's picks from the judge (2026-11-09)
+
+From `judged/2026-11-09.md`, Sean's answers the same day. These are his; each is placed in its
+section below too.
+
+- DECIDED (Sean, 2026-11-09: "Disguise matters, yes"): the judge's idea 1. Joe's disguise works or
+  fails by what the player does: if a bandit escapes, or someone sees Joe's face in the fight, the kin
+  go to the Ute camp rather than to Joe.
+- DECIDED (Sean, 2026-11-09: "release to the train"): the judge's idea 2. The release happens on the
+  town's calendar: the prisoner leaves on the train under escort and comes back the same way, so the
+  player can be on the platform, see who lets him go, and act then.
+- DECIDED (Sean, 2026-11-09: "at this point you've been temporarily appointed by the dead sheriff"):
+  Harlan's authority to arrest.
+- DECIDED (Sean, 2026-11-09: "no dynamite yet that comes in a later mission"): no dynamite in this
+  mission. The judge's idea 3 (open the cabin to the structure system: a kick, through a wall of
+  members; his flight his nerve breaking, a horse if the cabin is cut off) is taken without its planted
+  stick. OPEN: this session read Sean's answer as taking the rest of idea 3; he hasn't said so in
+  words.
+- Not picked (stays as it was): cutting "the bold cowboy" from the doctor's office.
+
 ## How you hear of it
 
 - DECIDED (Sean, 2026-11-09): "Harlan meets Joe at **the doctor's office in Salt Creek**. There's no
@@ -93,6 +113,9 @@ Beats 1–3 (Sean, 2026-11-09, all DECIDED):
   trigger for the hanging".
 - DECIDED (Sean, 2026-11-09), **if Harlan arrests the murderer:** "Harlan takes the prisoner to the Salt
   Creek jail. Joe comes along, plainly unhappy." "The prisoner is handed on to the proper authorities."
+  DECIDED (Sean, 2026-11-09, picked from the judge): he is sent off on the train under escort and is
+  released; he comes back by the train, and the player can be on the platform, see who lets him go,
+  and act then.
   "**Later, Harlan learns the murderer was released without real punishment.** Joe learns it too, and
   the doctor's and the cowboy's warnings come true. That's the mission's title." "The camp's trust in
   Harlan cools. They didn't expect the law to help, and it didn't." "**The released man comes back.**
@@ -128,6 +151,11 @@ _PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines 
   companion.
 
 ## Which systems it needs
+
+DECIDED (Sean's picks, 2026-11-09), adding to the list below: the witness system decides whether the
+kin learn it was Joe (the disguise); the prisoner's transfer and return ride the daily train; the
+cabin is a structure that can be kicked or broken through (no dynamite); the red shirt's nerve and a
+horse if he breaks.
 
 DECIDED (Sean, 2026-11-09), his list, with each one's state on main (this session's reading):
 
@@ -176,9 +204,8 @@ DECIDED (Sean, 2026-11-09), his list, with each one's state on main (this sessio
   of scalps, Mexican as well as Native, sold south for bounty; the women's scalps brought home for
   burial; and a tie to the Mexican rancher's people (`vaqueros-horses`). Sean's card doesn't mention
   it. Kept, or dropped with the third ending?
-- OPEN: **by what right Harlan arrests.** With the sheriff dead, who takes the prisoner at the jail, and
-  who are "the proper authorities" (a deputy, the circuit judge, a marshal)? It depends on where the
-  mission sits against T1 (the badge).
+- Settled (Sean, 2026-11-09): **by what right Harlan arrests**: "at this point you've been temporarily
+  appointed by the dead sheriff". OPEN still: who "the proper authorities" are that release him.
 - Settled by this card (were OPEN): the nod's meaning (nod = stop Joe; #546's reading superseded); the
   unique item (the red shirt); the trackers, war leader and elder (not in this version); how you hear
   of it (the doctor's office, not "sent to Joe's camp", #738).

@@ -58,6 +58,8 @@ flowchart TD
   end
   winchester((the Winchester)) -->|given before| rope
   sheriff -.help-or-leave deed.-> farm
+  sheriff -->|appoints Harlan| nojustice
+  nojustice -->|release on the train| rope
   rope -.Joe alive pitches the plan.-> ship
   buried -->|single sticks| farm
   buried -.sticks.-> bank
@@ -79,6 +81,8 @@ flowchart TD
 The DECIDED edges and where Sean's words are:
 - `no-justice` → `joe-on-the-rope`: #738 (2026-11-09). The Winchester before the rope: #546 (2026-11-04,
   "after Harlan has been given the rifle"), #733/#734 (2026-11-09, which rifle OPEN).
+- `the-sheriff` → `no-justice`: by No Justice Harlan has "been temporarily appointed by the dead
+  sheriff" (Sean, 2026-11-09). The prisoner's release rides the train (Sean, 2026-11-09).
 - `the-sheriff` → `the-trial`: DESIGN.md §11 signature features 1–3 (2026-10-01, "the game's spine").
 - `buried-alive` → sticks → bundles: #546 (2026-11-04, "charge sizes as progression").
 - `barons-shipment` → `barons-house`: #736 (2026-11-09, the papers "can also be the evidence after you
