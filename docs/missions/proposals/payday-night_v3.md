@@ -119,3 +119,22 @@ From the build check of version 2, adjusted:
   Army keeps to its camp unless called; a deputy's written request is the kind of paper that matters.
 - A dancing crowd loads a floor more than standing men (check a source for the factor); a joist sawn half
   through loses most of its strength: the collapse rests on the cut, not on a period case.
+
+## The judge on version 3 (2026-11-09): 27/35
+
+Choices 4 (the signature only comes up if the floor falls; prevent + expose is close to a clean best
+answer); Systems 4 (the street shooting, Rourke's entrance and the street triage are authored beats);
+Consequences 4 (the paper's links hand-written; story state large); Unique 4 (overlaps the Balcony Ambush:
+an upper floor brought down with men on it); True to 1882 4 (the sabotage isn't from the record; the
+paper's legal weight shaky); Discoverable 4 (the cut is one pale mark seen only by looking up; a creak is
+ordinary); Cost 3. **27/35.**
+
+**Beef it up:** 1. Prevention as a range of partial ways from the structure system: prop the joist, the
+barkeep's free round downstairs to thin the dancers, stop the fiddler; each only partly works. 2. The
+sabotage has witnesses: two men seen going up with a saw, sawdust on the stair, the store sold a saw. 3.
+Rourke's offer as a rule: whenever the wounded outnumber the doctor's hands, from the floor or the street
+shooting, so the signature is on every path, its size following the night. **Cut:** the two killers
+hunting the Kid (put the Kid among the possible wounded instead). **1882:** a deputy's paper has no legal
+force (troops come by the President's order on a governor's or legislature's request): it's political
+ammunition; Union practice was Letterman's ambulance and field-hospital chain, sorting by need was
+Larrey's (Napoleonic); lint was giving way to carbolic dressings in Army practice by 1882.
