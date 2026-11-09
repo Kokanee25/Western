@@ -816,7 +816,10 @@ frozen until Sean names one.
   **G3 the rail corridor** (#716, PR #719, build 3506): `ValleyRailway` (the route on the bake, the great
   trestle in its canyon, Bridge B a `RoadBridge`, the west portal a `TunnelPortal`, the daily westbound
   by the clock, `config/valley_timetable.json`); `Train.far`; results `experiments/valley/README.md`.
-  Next: G4, the greybox markers (#720). For art: the valley's fog (the town's 0.0035) hides the
+  **G4 the greybox markers** (#720, PR #723, build 3521): the roads graded into the bake (`Terrain._roads`),
+  `ValleyMarks` (roads, pads, fords, beds on the ground), `ValleyMarkers` (blocks, posts, Bridges A and T,
+  `places` for goto), `ValleyRoads`, the lab's `valley_walk`; all 16 of table F walked within 7 s of the
+  plan. Next: G5, the town greybox (#724). For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
