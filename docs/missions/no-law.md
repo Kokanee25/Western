@@ -69,6 +69,19 @@ All DECIDED (Sean, 2026-11-09), in his words; each settles a line marked OPEN or
 - "Yeah the name works": the player is Thomas Harlan.
 - "Yes the children are the sheriffs / widows kids".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Established story direction"; there "The Saloon Shooting"): "Harlan visits the
+  saloon while the sheriff is incapacitated." "He kicks a chair aside and creates a confrontation." "He
+  declares that there is no law in Salt Creek and shoots the accused cheater."
+- OPEN: who shoots: "A bold cowboy accuses another man of cheating" (inventory) vs the red shirt
+  (Sean's No Law draft and chat, 2026-11-09). And "Introduces ... our environmental combat systems"
+  (inventory) vs "sitting at a table and has no gun yet so he can't do anything at all" (Sean, chat).
+- PROPOSED (inventory): "These first three are currently story beats. They could become one larger
+  opening mission rather than three separate missions." (The opening, the saloon, a new sheriff.)
+
 ## How you hear of it
 
 - PROPOSED (Sean's draft): "This mission follows the opening sequence in which Harlan encounters the

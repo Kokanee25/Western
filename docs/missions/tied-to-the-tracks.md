@@ -6,6 +6,19 @@ Sources: #542 body (Sean, 2026-11-01); `config/valley.json` `tied_to_tracks`.
   is coming on its timetable and the player has to get them off in time. Systems, not a script".
 - PROPOSED (#542): "step 8, after steps 5 and 6". `valley.json`: "PROPOSED by #542; place OPEN".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved direction"; there "Woman Tied to the Tracks"): "A woman is tied to the
+  railway as part of an outlaw trap." "The approaching train creates a time-sensitive rescue." "Harlan
+  must stop or divert the train before it reaches her." "Boarding the train and applying the brakes is
+  one planned solution." "The attackers use the situation to ambush Harlan, potentially from elevated
+  positions." "Builds on the railway mechanics established during the payroll train mission."
+- OPEN (inventory): "The exact method of stopping the train, the woman's identity and the reason she
+  was targeted remain open."
+- PROPOSED (inventory, Part 4): Act III, after the payroll train and Payday Night.
+
 ## How you hear of it
 
 - OPEN: no source says.

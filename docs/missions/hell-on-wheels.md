@@ -13,6 +13,24 @@ Other names: "the runaway" (#542 step 7), "Runaway Payroll Train" (`config/valle
   the broken track".
 - PROPOSED (#542): step 7, "After the trestle lab".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved · Version A selected"; there called "Runaway Payroll Train"): "Two
+  outlaw gangs are involved in an attempted payroll train robbery." "Gang B sabotages a stretch of track
+  to the west." "Harlan fights the saboteurs, then races east to catch the approaching train." "Gang A
+  has boarded the train and taken control." "The preferred boarding method is jumping from the small
+  wagon-road overpass onto the train roof, with horseback boarding as an alternative." "The player
+  fights through six walkable railcars, progressing from the rear toward the locomotive." "The player
+  must reach the controls and stop the train before it reaches the destroyed track." "The mission
+  makes use of moving-train physics, couplers, destructible objects and combat in confined spaces."
+- DECIDED (inventory): "The small wooden overpass is the boarding location. It is not the large canyon
+  trestle destroyed in the finale."
+- DECIDED (inventory): settles the OPEN robbery question below: the train robbery and the runaway are one mission (Gang A
+  aboard, Gang B at the track). Sean's P9 line ("Now what the hell is going on here?") fits it.
+- PROPOSED (inventory, Part 4): Act III, first; Payday Night follows it.
+
 ## How you hear of it
 
 - PROPOSED (#546 P9, Sean's example, 2026-11-07): "you've dealt with the men who blew the track, you

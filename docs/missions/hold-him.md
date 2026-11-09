@@ -9,6 +9,13 @@ set piece 5; `config/valley.json` `jailbreak`), "the jail break" (#678). Sources
 - DECIDED as `config/valley.json` records the jailbreak: "the jail is stone; a rubble jail wall takes
   about three sticks, #676".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- PROPOSED (inventory, Part 2, "Brainstorm"): "17. Hold the Jail: Harlan must defend the jail against people
+  attempting to free or kill a prisoner."
+
 ## How you hear of it
 
 - OPEN: no source says; it follows from having a Colter in a cell (an arrest elsewhere).

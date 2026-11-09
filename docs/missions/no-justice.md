@@ -48,6 +48,17 @@ section below too.
   where Harlan meets Joe. This card says the doctor's office; No Law's day 2 at the doctor's (the
   sheriff's death, his family) has no Joe.
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved · Refined November 9"): matches Sean's card; "Establishes Joe as
+  Harlan's principal companion". Continuity: "Joe is the only full companion".
+- OPEN: "the bold cowboy" warns with the doctor here (and in Sean's card), while the inventory's "Saloon
+  Shooting" has "A bold cowboy" as the man who shoots the card cheat; the No Law card (Sean, 2026-11-09)
+  has the red shirt as the shooter. Same man, or two?
+- PROPOSED (inventory, Part 4): Act I, after the opening.
+
 ## How you hear of it
 
 - DECIDED (Sean, 2026-11-09): "Harlan meets Joe at **the doctor's office in Salt Creek**. There's no

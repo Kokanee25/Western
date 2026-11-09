@@ -38,18 +38,31 @@ research and care, never props.
 (single sticks of dynamite early, bundles at the end) · T4 the Baron and the water · T5 the train and
 Rourke (Harlan's old commander, proposed) · T6 the gang · T7 the town's law (mobs, lynching, a trial) ·
 T8 Harlan's past (proposed). The finale: the trestle blown under the train, then the raid on the
-Baron's masonry house to arrest him.
+Baron's masonry house to arrest him (the raid decided 2026-11-04; Sean's inventory of 2026-11-09 ends at
+the trestle, so OPEN).
+
+**Sean's working order** (his inventory, 2026-11-09: "a working sequence, not a locked mission
+order"): Act I, becoming the sheriff: the opening (the sheriff, the saloon, a new sheriff), No Justice,
+the Balcony Ambush (placement open). Act II, learning the valley: Buried Alive, the Demolition Mentor,
+the Farmhouse. Act III, the conspiracy emerges: the Runaway Payroll Train, Payday Night / the Inquest
+(proposed), the Woman Tied to the Tracks. Act IV, the Baron and Rourke: the Baron's Shipment, more
+confrontations (not designed), the Trestle Finale. Rourke is an Army officer the Baron pays.
+
+**Constraints Sean set** (inventory, 2026-11-09): Joe is the only full companion; gunfights are small
+numbers of lethal enemies; dynamite arrives in Buried Alive, not the opening; the small wagon-road
+overpass is for early train encounters and boarding; the great trestle is kept for the finale. The
+evidence and the trial are "a maybe" (Sean, 2026-11-09).
 
 **Every mission, one line each** (to judge "unique among ours"):
 - No Law: night one in the saloon, Harlan not yet the law; the man in the red shirt murders a card cheat.
-- The Sheriff on the Road: you find him gut-shot at dawn; first aid, the doctor, the ball as evidence.
+- The Sheriff on the Road: you find him gut-shot at dawn; carry him to the doctor or leave him; on day 2 he deputizes you and dies.
 - No Justice: raiders killed Joe's wife; ride with him; the man in the red shirt hides in a cabin; nod to stop Joe, or not.
 - Joe on the Rope: a mob hangs Joe; shoot the rope from an overlook, or he dies for good.
 - The Farmhouse Rescue: gunmen hold the widow's house; front, back, or a planted stick; then her boys.
 - Buried Alive: miners trapped after a blast; dig, shore or blast in; learn dynamite.
-- The Baron's Shipment: his papers in an iron coach; drop a log on it, or take it another way.
+- The Baron's Shipment: his deeds and ledgers in a guarded convoy (an iron coach); a log trap, disguises, impersonation or a straight interception.
 - The Bank Break-in: at night through the back wall for a document in the safe; too much powder burns it.
-- Hell on Wheels: the payroll train runs at a broken track; fight to the cab and brake in time.
+- Hell on Wheels (the Runaway Payroll Train): fight one gang at the sabotaged track, jump from the overpass onto the train another gang holds, fight through six cars to the cab, brake in time.
 - The Bridge Is Out: the train of hired guns and soldiers; blow the trestle, or stop it another way.
 - The Raid on the Baron's House: breach his barricaded stone house and arrest him alive.
 - The Trial, the Hanging and the Inquest: the circuit judge, witnesses who remember, a jury; you may hang.
@@ -58,7 +71,7 @@ Baron's masonry house to arrest him.
 - The Vaquero's Horses: a Mexican rancher's horses rebranded in the Baron's corral.
 - The Kid Wants Out: the gang's youngest wants to leave; the gang doesn't let men leave.
 - The Fever House: a sick family; a night ride for medicine, or the town drives them out.
-- Tied to the Tracks: someone bound on the line ahead of the timetabled train.
+- Tied to the Tracks: a woman bound on the line as an outlaw trap; stop the train in time while they ambush you from above.
 - The Night Meeting That's a Trap: an ambush in the feed store at night; burn, or blow out the back wall.
 - The Store Robbery: the gang leans on the storekeeper; pay, talk, threaten, fight, arrest.
 - The Bank Robbery: the gang's plan for the land money; the alarm, a posse; pick a side.
@@ -68,3 +81,7 @@ Baron's masonry house to arrest him.
 - The Stage Held Up: the stage robbed on the road; ride shotgun, chase, or rob it yourself.
 - The Bounty: a wanted man holed up in a house on a hill; alive pays more.
 - Small Fights: road agents, rustlers, claim jumpers, horse thieves, a feud, out in the valley.
+- The Balcony Ambush: armed men on a wooden balcony; shoot them, or bring the balcony down by its posts.
+- The Demolition Mentor: the miner teaches half-sticks, linked charges and bundles; maybe optional lessons.
+- Payday Night and the Inquest: payday's party interrupted; an inquiry, a ball that doesn't match, a grave dug up (proposed).
+- Dry Creek: a fight or an emergency over the valley's water; gates, channels, sluices (brainstorm).

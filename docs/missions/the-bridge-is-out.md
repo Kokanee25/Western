@@ -13,6 +13,22 @@ and the trestle (the last act)" (#466), "the near end game with the army train" 
   house comes after it; `barons-house`).
 - PROPOSED: #466 carries the label `idea` and "**After the demo.**"
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Established finale"; there "The Trestle Finale"): "The conflict with Army officer
+  Rourke and the Baron culminates at the large canyon railway trestle." "Harlan must destroy the bridge
+  while a train is crossing." "The player applies demolition techniques learned earlier." "Explosives
+  damage the timber structure, triggering structural failure and progressive collapse." "The crossing
+  train contributes dynamic loads to the weakened bridge."
+- OPEN (inventory): "The full approach to the bridge, the precise train contents, Joe's involvement and
+  the final confrontation with Rourke."
+- OPEN: the inventory ends the game at the trestle and doesn't list the raid on the Baron's house,
+  which #546 records as DECIDED (Sean, 2026-11-04: "the finale goes past the trestle").
+- OPEN: "Harlan must destroy the bridge" (inventory) vs #546 P4 (proposed, not accepted): "blow the
+  bridge, or use the Baron's evidence to turn the soldiers and stop the train another way".
+
 ## How you hear of it
 
 - OPEN: no source says how Harlan learns the train is coming or what it carries.

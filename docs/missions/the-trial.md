@@ -16,6 +16,13 @@ hanging" (backlog set piece 4), "the Inquest" (#546 P5). Sources: DESIGN.md §5,
 - PROPOSED (#546 P5, 2026-11-04, not accepted): "**The Inquest as the bookend.** After the trestle, the
   town holds an inquest into the deaths, **with Harlan the one judged.**"
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- PROPOSED (inventory, Part 2): "14. The Inquest: A formal inquiry into a suspicious death." See
+  `payday-inquest`. "The Hanging" is in Part 3 (older concepts, "should not be treated as canon").
+
 ## How you hear of it
 
 - PROPOSED (DESIGN.md "Story shape", 2026-10-15): "the circuit judge, coming on the stage to settle the

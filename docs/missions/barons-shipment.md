@@ -12,6 +12,23 @@ Sources: #736 comment (Sean, 2026-11-09); #546 comment (Sean, 2026-11-04); #738 
 - PROPOSED (#546, 2026-11-04): "Sean: he likes it" (the iron-lined coach and log trap); the session
   marked the details "proposed unless he said so".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Locked mission"): "Harlan learns that the Baron is moving a guarded convoy
+  through the valley." "The shipment contains deeds, financial ledgers and evidence of the Baron's land
+  theft and payments to Army officer Rourke." "Harlan and Joe plan a disguised robbery to obtain the
+  evidence." "Potential approaches include impersonation, disguises, a prepared ambush or direct
+  interception." "The objective is to recover the documents, not simply eliminate the guards." "The
+  operation can succeed cleanly, create substantial trouble, or result in only partial evidence being
+  recovered." "Connects the Baron's criminal operations to Rourke and the larger conspiracy."
+- OPEN: the inventory says "a guarded convoy" and doesn't name the iron-plated coach or the log, which
+  Sean called "a must-have" the same day (#736 comment, 2026-11-09). Both stand until Sean says.
+- OPEN: "evidence" here vs Sean in chat the same day: "not sold on the whole evidence and trial stuff
+  yet - that's a maybe".
+- PROPOSED (inventory, Part 4): Act IV, first.
+
 ## How you hear of it
 
 - PROPOSED (#546, 2026-11-04): "Someone (Joe, or the miner) proposes it."

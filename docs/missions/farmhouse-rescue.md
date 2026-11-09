@@ -11,6 +11,28 @@ merged); `experiments/farmhouse/README.md`; `docs/briefs/valley-plan.md` §6.
   widow's farmhouse, Phase A the house, Phase B the yard to her boys. `config/valley.json`: "DECIDED
   (PR #621 widow-farmhouse.md)".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved · Prototype developed"): "Bandits take the widow hostage at her
+  homestead east of Salt Creek." "The property sits beside the creek, north of the railway."
+  "Approximately four or five enemies occupy the farmhouse." "The front approach is dangerous and
+  heavily covered." "The player can assault the front or circle around the property." "A preferred
+  creative solution is placing dynamite against the rear wall, blowing a hole in the building and
+  entering through it." "A stealth approach remains possible if the gang hasn't spotted Harlan." "The
+  player must defeat the captors and rescue the widow." "The environment should react to the damage
+  rather than relying on a single scripted breach."
+- OPEN (inventory): "The widow's children may also feature, alongside Blue, the family animal, but the
+  precise family setup remains unresolved." And (continuity): "We established that the widow is the
+  murdered sheriff's wife and that his murder is connected to her. We subsequently considered making
+  her and the children Harlan's own family instead. That potential change must be resolved".
+- DECIDED (Sean, 2026-11-09, in chat on No Law, the same day): "Yes the children are the sheriffs /
+  widows kids". (Answers the inventory's question unless Sean says otherwise.)
+- OPEN: "Bandits" (inventory) / the Colters / the Baron's own gunmen (the lock, #622 item 7).
+- OPEN: Phase B (the boys held in the yard, the lock) isn't in the inventory's version.
+- PROPOSED (inventory, Part 4): Act II, after Buried Alive and the Demolition Mentor.
+
 ## How you hear of it
 
 - DECIDED, built: walk up to the blacksmith by the livery before the gang rides in (#520).

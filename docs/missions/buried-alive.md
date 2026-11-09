@@ -9,6 +9,21 @@ Sources: DESIGN.md §5 (Sean, 2026-10-06); `config/valley.json` `buried_alive`; 
   "DECIDED (the mine supports it)".
 - PROPOSED (#546 body): a thread, "the mine rescue and the miner".
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved"): "A collapse traps miners underground." "Harlan enters the mine to
+  rescue survivors." "Introduces an underground rescue sequence with failing supports, blocked
+  passages and environmental danger." "A knowledgeable miner becomes important to the mission."
+  "Introduces the player to dynamite through a practical rescue problem." "Creates an opportunity to
+  show the human cost of Salt Creek's mining industry."
+- OPEN (inventory): "Earlier proposals included the mine owner knowingly removing supports, but that
+  particular conspiracy has not been approved."
+- DECIDED (inventory, continuity): "dynamite is introduced in Buried Alive, not the opening".
+- PROPOSED (inventory, Part 4, "a working sequence, not a locked mission order"): Act II, after No
+  Justice, before the Demolition Mentor and the farmhouse.
+
 ## How you hear of it
 
 - OPEN: no source says (the mine's whistle, #276's calendar, is a candidate the sources don't tie to it).

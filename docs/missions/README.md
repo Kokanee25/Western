@@ -82,7 +82,7 @@ being built, decided (not built), or new).
 
 ## The index
 
-27 cards. "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that
+31 cards (four added from Sean's inventory of 2026-11-09, `sources/inventory_2026-11-09.md`). "Shape" is how the mission is made: **story** (a thread's beat), **side** (a situation that
 can land any time), **set piece** (a town event built from systems), **repeatable** (fights or jobs
 that come back). Status is the mission as a whole; each card has the details.
 
@@ -115,6 +115,10 @@ that come back). Status is the mission as a whole; each card has the details.
 | [`stage-held-up`](stage-held-up.md) | The Stage Held Up | repeatable | DECIDED (2026-10-01) as a reason to fight | OPEN |
 | [`the-bounty`](the-bounty.md) | The Bounty | repeatable | DECIDED (2026-10-01); ROADMAP 3.6 | `abandoned_homestead`, OPEN |
 | [`small-fights`](small-fights.md) | Small Fights Out in the Valley (a family) | repeatable | DECIDED (2026-11-09) as an ask | #736's places |
+| [`balcony-ambush`](balcony-ambush.md) | The Balcony Ambush | story | DECIDED as a concept (inventory, 2026-11-09) | OPEN |
+| [`demolition-mentor`](demolition-mentor.md) | The Demolition Mentor | story / activities | DECIDED progression (inventory; #546) | the mine, OPEN |
+| [`payday-inquest`](payday-inquest.md) | Payday Night and the Inquest (four proposed missions) | story | PROPOSED (inventory); evidence a maybe | the saloons, the cemetery |
+| [`dry-creek`](dry-creek.md) | Dry Creek (water) | side | PROPOSED, brainstorm (inventory) | the creek, OPEN |
 
 ### Folded into a card (another source for the same mission)
 
@@ -128,6 +132,24 @@ that come back). Status is the mission as a whole; each card has the details.
   Main Street" (OPEN) → `bank-robbery`. "A wanted man holed up" → `the-bounty`. Road agents, claim
   jumpers, rustlers, horse thieves, the feud, the drunk, outlaws camped, clearing the hideout, night
   riders at your spring, #463's fight sites → `small-fights`.
+
+### Sean's inventory (2026-11-09)
+
+Sean's own list of what's approved, proposed and archived, word for word in
+`sources/inventory_2026-11-09.md`. Its approved missions map to cards: the opening's three beats →
+`the-sheriff` and `no-law`; No Justice; Buried Alive; Demolition Mentor; Hostage at the Farmhouse →
+`farmhouse-rescue`; Balcony Ambush; Runaway Payroll Train → `hell-on-wheels`; Woman Tied to the Tracks
+→ `tied-to-the-tracks`; the Baron's Shipment; the Trestle Finale → `the-bridge-is-out`. Proposed:
+Payday Night, the Inquest, the Wrong Ball, Dig Him Up → `payday-inquest`; Hold the Jail → `hold-him`;
+Bring Him In Breathing → `the-bounty`; The Fire → `fire-night`; Dry Creek → `dry-creek`. Its Part 3
+(older concepts, "should not be treated as canon"): A Quiet Drink, The Missing Ranch Hand, Dead Man's
+Crossing, Blood on Main Street, The Last Telegraph, Mill of Teeth, Runaway Coach, The Night Salt Creek
+Burned, Stolen Creek, High Wire, The Hanging, and the early pitches.
+
+OPEN: cards not in the inventory at all: `joe-on-the-rope` (DECIDED 2026-11-04 and in Sean's No Justice
+card), `barons-house` (DECIDED 2026-11-04), `bank-break-in`, `bank-robbery`, `railhead-lynching`,
+`vaqueros-horses`, `kid-wants-out`, `fever-house`, `dust-storm`, `cattle-drive`, `night-meeting-trap`,
+`store-robbery`, `stage-held-up`, `small-fights`. Kept, or dropped?
 
 ### Not carded (seeds, activities, moments)
 

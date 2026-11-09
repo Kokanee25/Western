@@ -12,6 +12,19 @@ ROADMAP.
   blood loss, the ball in him is the evidence, and it all comes out at a trial".
 - PROPOSED (ROADMAP): "The demo is the prologue and day 1."
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Established story direction"): "Thomas Harlan wakes at his homestead." "He
+  discovers the sheriff has been shot." "The player decides whether to help transport him to the
+  doctor or leave him, using head-shake controls."
+- DECIDED (inventory, "A New Sheriff"): "The doctor informs Harlan that the wounded sheriff will die."
+  "Harlan inherits the sheriff's gun and becomes the town's new lawman." "Establishes Harlan's
+  responsibility for the town and the central tension between law and personal morality."
+- OPEN: "becomes the town's new lawman" (inventory) vs "Yes you are deputized" and "temporarily
+  appointed" (Sean, chat, 2026-11-09).
+
 ## How you hear of it
 
 - DECIDED: you find him yourself, on the road at dawn.

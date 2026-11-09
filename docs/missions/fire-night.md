@@ -8,6 +8,14 @@ DESIGN.md §11 backlog set piece 1 (Sean, 2026-10-06); `docs/briefs/showcase-mom
 - DECIDED (Sean, 2026-10-31, #458): "explosions first, fire later": fire is out of play
   (`FireSystem.in_play` off).
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- PROPOSED (inventory, Part 2, "Brainstorm"): "19. The Fire: A town fire creates a rescue and environmental
+  destruction scenario." Also "Burning livery" (other set pieces) and "The Night Salt Creek Burned"
+  (Part 3, not canon).
+
 ## How you hear of it
 
 - PROPOSED (backlog 1): "Someone sees it and shouts, the fire bell or church bell rings, and the town

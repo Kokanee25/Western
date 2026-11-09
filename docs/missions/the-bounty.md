@@ -9,6 +9,13 @@ Other names: "A wanted man holed up" (#736 C). Sources: ROADMAP 3.6; DESIGN.md Â
 - PROPOSED (#736 C, a session's list under the issue's "(Sean, decided)" title): "**A wanted man
   holed up** in an abandoned house on a hill. Take the bounty dead or alive."
 
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- PROPOSED (inventory, Part 2, "Brainstorm"): "18. Bring Him In Breathing: A law-enforcement mission focused
+  on capturing a dangerous suspect alive rather than killing him."
+
 ## How you hear of it
 
 - DECIDED (DESIGN.md): "the wanted posters".
