@@ -149,3 +149,37 @@ Carried by the systems (persistence, opinions, memory, wounds):
   most of its strength.
 
 
+
+## Two judges on version 6 (2026-11-09): 30/35 and 28/35 (mean 29)
+
+Two fresh judges, run side by side, neither seeing the other or any earlier version.
+
+| Criterion | Judge A | Judge B |
+|---|---|---|
+| Choices | 4 (ways 2–4 all lower the load; a clean night never brings the letter) | **5** (Lady Boyle: ways from systems, anything that moves weight works; the letter irreversible with no clean answer) |
+| Systems over scripts | 4 (the fallback shooting, the letter written in advance, the placed traces) | 4 (the fallback shooting, the letter written in advance) |
+| Consequences | **5** (past the shelf: the world holds it, carried by opinions, memory and a real letter) | **5** (beyond A Crack in the Slab) |
+| Unique | 4 (overlaps the Balcony Ambush and I Am the Law) | 4 (overlaps the Balcony Ambush) |
+| True to 1882 | 4 (could happen in any decade; the dance load "check") | 4 (the sabotage invented) |
+| Discoverable | 4 (before the fall the danger reaches only those already in the saloon) | **5** (several ways; the building gives itself away; the crash reaches anyone) |
+| Cost to build | 3 | 3 |
+| **Total** | **28** | **30** |
+
+**Judge A's ideas:** 1. The proof of sabotage counts against the letter: in I Am the Law the captain can
+be walked to the sawn joist or brought to the witness, and what he sees weighs against Rourke's letter. 2.
+A face on the choice: the overrun doctor is the one who asks the deputy to sign, and his opinion of Harlan
+follows whatever he does. 3. Joe as a second pair of eyes on the stair or the two men (a drunk crowd's
+hostility to a Ute man makes where you put him a cost). **Cut:** the storekeeper's saw-sale trace.
+
+**Judge B's ideas:** 1. Prepare for it: shout townsfolk to the doctor's before the crowd peaks; raising the
+doctor's capacity can deny Rourke his offer, and the readiness is proof to the town. 2. Witnesses remember
+the signing (or the refusal), and the town splits by what it saw. 3. The storekeeper's day-book records the
+saw sale, readable where it lies: a second piece of evidence that outlasts the night. **Cut:** the Baron's
+men's street shooting if the floor holds: they leave town and the outrage waits ("the story doesn't
+advance until it should").
+
+**1882:** in 1882 a surgeon's attendants were a hospital steward and privates detailed (the Hospital Corps
+came in 1887); requests for troops went to the governor from the sheriff, the county or the legislature
+(the request-based section is RS §5297). **Continuity:** the card says the payroll came safely on the noon
+train, but Payday Night follows Hell on Wheels, whose payroll may be lost; and it calls Harlan "the deputy"
+(Sean: deputized, temporarily; whether he's sheriff by Act III is OPEN).
