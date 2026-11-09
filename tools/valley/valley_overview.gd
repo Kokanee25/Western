@@ -4,7 +4,8 @@ extends SceneTree
 ## NORTH UP (-Z at the top, east to the right; the plan's maps are west-up), fog and haze off, the
 ## sun at `--hour` (noon), the ground at its finest level everywhere; and close views of the town,
 ## the canyon (the great trestle, Bridges A and B) and the west (the mine and the Ore Works) at more
-## pixels a metre. Each is drawn in tiles (one game, its own viewport) and written as PNG with a
+## pixels a metre. Each is drawn in tiles (the game's main scene in the valley, its viewport sized
+## to a tile, our orthographic camera current in it) and written as PNG with a
 ## manifest of what metre each pixel is; then tools/valley/valley_overview.py stitches them, lays the
 ## plan's lines and names over a copy (valley_plan.py's: roads, rail, creek, places) and writes the
 ## JPGs to experiments/valley/results/overview_*.jpg.
@@ -27,8 +28,9 @@ const TILE_PX := 2048
 const CAM_Y := 600.0
 const CAM_FAR := 1200.0
 ## Frames drawn before a tile is read (the ground's blocks shown, shadows and exposure settled).
-const SETTLE_FRAMES := 6
+const SETTLE_FRAMES := 10
 
+var main: Node
 var vp: SubViewport
 var cam: Camera3D
 var valley: Node3D
@@ -56,13 +58,14 @@ func _run() -> void:
 	# the resource isn't saved).
 	var vt = load("res://config/valley_terrain.tres")
 	vt.split = 1000.0
-	vp = SubViewport.new()
-	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	vp.own_world_3d = true
-	root.add_child(vp)
-	valley = load("res://scenes/valley.tscn").instantiate()
-	vp.add_child(valley)
+	# The game itself in the valley (main.tscn: its look, exposure and grade, as you'd see it), drawn
+	# by its own viewport from our camera instead of the player's.
+	settings.set_world(&"valley")
+	main = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
 	await process_frame
+	vp = main.get_node(^"GameViewport")
+	valley = main.find_child("Valley", true, false)
 	var player = valley.get_node_or_null(^"Player")
 	if player:
 		player.input_enabled = false
@@ -85,6 +88,8 @@ func _run() -> void:
 	if sun:
 		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 		sun.directional_shadow_max_distance = CAM_FAR
+		if "--no-shadow" in OS.get_cmdline_user_args():
+			sun.shadow_enabled = false
 	var ground = valley.get_node_or_null(^"Ground")
 	var t0 := Time.get_ticks_msec()
 	if ground and ground.valley:
@@ -176,9 +181,27 @@ func _draw(v: Dictionary) -> Dictionary:
 	return {"name": v.name, "x0": rect.position.x, "z0": rect.position.y, "ppm": p, "width": w_px, "height": h_px, "tiles": tiles}
 
 
-## Fog and haze off (the day's look may set them again as the sun moves: every frame).
+## Fog and haze off (the day's look may set them again as the sun moves: every frame), the
+## screen-space effects off; and nothing
+## the look hangs on a camera, ours or the player's (the light pass's finish, LightFinish, drawn
+## full-screen whichever camera's current: its vignette darkens every tile's
+## edges, a seam where they meet; the mosaics, the outline: full-screen quads made for a perspective
+## camera).
 func _no_fog() -> void:
+	var player = valley.get_node_or_null(^"Player")
+	for holder in [cam, player.get(&"camera") if player else null]:
+		if holder == null:
+			continue
+		for c in (holder as Node).get_children():
+			if c is GeometryInstance3D:
+				(c as GeometryInstance3D).visible = false
 	var we := valley.get_node_or_null(^"WorldEnvironment") as WorldEnvironment
 	if we and we.environment:
 		we.environment.fog_enabled = false
 		we.environment.volumetric_fog_enabled = false
+		# Screen-space light (occlusion, bounce, reflections, glow) falls off at a frame's edges: a
+		# seam between every two tiles. A map has none.
+		we.environment.ssao_enabled = false
+		we.environment.ssil_enabled = false
+		we.environment.ssr_enabled = false
+		we.environment.glow_enabled = false

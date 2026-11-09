@@ -750,6 +750,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
   loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
   own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The overview** (`tools/valley/valley_overview.gd` + `.py`): the greybox from overhead, north up,
+  plain and with the plan over it, and close views of the town, canyon and west; run after each G
+  step (experiments/valley/README.md).
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is

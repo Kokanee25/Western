@@ -194,3 +194,12 @@ Results of the G steps that build the new valley beside the old town.
     the men; at the lane's foot (13 m) 0.44 -> 0.64 -> 4.65 over 60 frames, **3.82 over 240** (a
     warm-up in the first); the old town's same view 4.63 (60 frames). The men close up are the cost,
     in both worlds; the house alone 0.2 ms.
+- **The overview** (Sean, 2026-11-09: a fresh one after every G step): `tools/valley/valley_overview.gd`
+  (`xvfb-run -a godot --rendering-driver vulkan -s res://tools/valley/valley_overview.gd`, ~3 min
+  here) draws the greybox straight down, orthographic, north up, noon, fog and screen-space effects
+  off, the ground at its finest level, in tiles through the game's own look; `valley_overview.py`
+  stitches them and lays valley_plan.py's roads, rail, water, pads and names over a copy:
+  `results/overview_whole.jpg` (4400 x 3600, 1 px/m), `overview_whole_plan.jpg`, and the close
+  views with the plan over them, `overview_town.jpg` (4 px/m), `overview_canyon.jpg` (2 px/m),
+  `overview_west.jpg` (2.5 px/m). Traps: the light pass's vignette hangs on the player's camera and
+  draws full-screen whichever camera is current (hidden); SSAO/SSIL/glow fall off at a tile's edges.
