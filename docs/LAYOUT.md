@@ -722,6 +722,18 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   decks against the plan's limits. **`ValleyRoads`** (`valley_roads.gd`): the plan's road network
   (valley.json's roads and the town's streets, a node every 5 m, junctions within 6 m), `journey(a, b)`
   the shortest way. Valley lab: `valley_walk PLACE [run]` walks it and times it.
+- **The valley's town greybox** (G5, #724): **`ValleyTown`** (`src/world/valley_town.gd`, the
+  Markers' child `Town`; `-- --no-town` leaves it out): a `Boardwalk` along every building lot's
+  front (17; `main_street.boardwalk_depth`, 0.38 m up from the ground at its street edge's middle,
+  so they step with the street), joined over shoulder-to-shoulder gaps (< 1 m), end steps down to
+  every lane, alley, yard and street, a flight before each door; the passages (`passages`: the
+  lanes, the 1.2 m alleys, yards, the vacant lot, house lots, unnamed gaps `gap_<side>@x`) open to
+  Back Street and the rear lane; a lot's `junk` piled across it (the undertaker's alley: tiers of
+  0.5 m, jumped, not walked). `add_ways` puts the town's places and links in the Markers' `places`:
+  `main@x`, each door (the lot's id) and `<id>_steps`, each passage's mouth (its id) and
+  `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
+  0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
+  walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
@@ -1329,7 +1341,9 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `PlayerDeeds` (your draw/holster/aim_at/crowd/stare/shout/call_out deeds), `Waypoints` (named
   places + links, `route()` / `route_to_point()`; `test_street()` defines the street, store and
   saloon; `route` asks only the first place of the shortest way and a ray down the middle before
-  each sweep, the same ways as asking every place, #510), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
+  each sweep, the same ways as asking every place, #510; since G5 one search back from the goal
+  (`_ways_to`, a heap) and the places asked in order of straight line plus way on: ~1 s -> 10 ms in
+  the valley's town; `_no_step_up` asks a foot's width round a ray that fell between planks), `CivilianBrain` (unarmed townsfolk at a post: hands up, cower, thanks), `TownLife` (the
   test street's people: storekeeper, barkeep, and the gang with a day's `agenda`; U brings them in;
   the riders' bodies are built while the street loads and wait out of the tree in `_waiting`, so
   `bring_gang` only adds them with their brains, #488; `tools/gang_frame.gd` holds its frame).

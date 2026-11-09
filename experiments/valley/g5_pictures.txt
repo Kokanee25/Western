@@ -1,0 +1,25 @@
+# Valley G5 (#724): the town greybox. The north side from above (the walks along the fronts, the lanes
+# and alleys to Back Street), the doctor's alley from Main Street, along the hotel's walk west, the
+# undertaker's junk. Real look, lavapipe:
+# python3 tools/bridge.py run experiments/valley/g5_pictures.txt --size=960x540 --game-args=--world=valley --timeout=1200
+wait 20
+time 10.5
+camera 75 45 25 75 0 -25
+wait 10
+screenshot /tmp/g5_top_north_east.png
+camera -45 45 25 -45 0 -25
+wait 10
+screenshot /tmp/g5_top_north_west.png
+camera player
+goto main@87.8
+look 87.8 1.5 -30
+wait 10
+screenshot /tmp/g5_doctors_alley.png
+goto hotel
+look 20 1.5 -8.9
+wait 10
+screenshot /tmp/g5_hotel_walk.png
+goto alley_n8
+look 105.4 1 -20
+wait 10
+screenshot /tmp/g5_junk.png

@@ -225,8 +225,8 @@ func test_every_place_has_a_point_to_stand_at() -> void:
 			var local := ValleyMarkers._block_basis(float(b.heading)).inverse() * (p - (b.centre as Vector3))
 			var size: Vector3 = b.size
 			check(absf(local.x) > size.x * 0.5 or absf(local.z) > size.z * 0.5, "%s isn't inside %s's block" % [id, b.id])
-		# On the ground there, or on a bridge's deck.
-		var g := ValleyTerrain.main().height(p.x, p.z)
+		# On the ground there (or a town walk's planks: G5), or on a bridge's deck.
+		var g := mk.surface(p.x, p.z)
 		check(absf(p.y - 0.05 - g) < 0.01 or id.begins_with("bridge_"), "%s on the ground (%.2f over it)" % [id, p.y - g])
 
 

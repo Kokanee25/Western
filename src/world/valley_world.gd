@@ -7,8 +7,9 @@ extends Node3D
 ## config/valley.json, ValleyTerrain, drawn and collided by ValleyGround), the shot's systems
 ## (ballistics, impacts, traces), the main line with its bridges and the daily train (G3:
 ## ValleyRailway), the greybox markers (G4: every place's pad, road, ford and bed drawn on the ground,
-## ValleyMarks; blocks, posts, Bridge A and the town bridge, the places by name, ValleyMarkers) and
-## the player at the crossroads looking down Main Street. No TownLife, gang, farmhouse or labs: they
+## ValleyMarks; blocks, posts, Bridge A and the town bridge, the places by name, ValleyMarkers), the
+## town's greybox (G5: boardwalks, the lanes and alleys open to the back, the town's ways, ValleyTown)
+## and the player at the crossroads looking down Main Street. No TownLife, gang, farmhouse or labs: they
 ## need the old town.
 
 ## The ground's colour where a tile's been dug (the greybox's dirt; the undug ground's colours are
