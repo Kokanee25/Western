@@ -149,3 +149,50 @@ Black Hills Stage line between Deadwood and Cheyenne, not private; a rancher's o
 invention. Deeds were recorded at the county recorder, so the ledger is the stronger prize. Stake-and-chain
 log decks are documented mostly from northern river logging, and a flume is sawn planks, so decked logs for
 one imply a sawmill nearby.
+
+## The build check (2026-11-09)
+
+A fresh agent checked the proposal against main's code (read only, file:line cited).
+
+- **The coach as a one-car train on the road:** MEDIUM. `TrainSim` runs with one car; the road needs a
+  `RoadLine` (the road today is a straight polyline with corners, no curves), a "stagecoach" car kind, and
+  the train's sound and lookout switched off.
+- **The four horses drawn with it:** LARGE, the biggest item: the horse has only an idle and no gait or
+  harness. Cheapest first version: **the coach is standing at the bend when you arrive** (watered, a wheel
+  being seen to), so no gait is needed; a trot comes later.
+- **The log strike handing the coach to rigid bodies:** MEDIUM, new code. `TrainWreck` starts only on a
+  derail, and to Jolt the moving coach is kinematic (infinite mass), so the strike needs a contact-
+  triggered hand-off carrying the log's momentum; a log hitting low slides the coach more than it tips
+  it, so the bank must send it in above the coach's middle. The tip is physics, so it won't happen every
+  time (tests count the share that tip over seeds).
+- **The log held by stakes:** a kick breaks a stake of about 10 cm (SMALL); **one ball doesn't sever a
+  stake** (it carves a channel), and the load analysis doesn't see the log's sideways push. Fix: the log
+  is its own cylinder body with "keeper" stakes that let go when any one breaks (a ball or a kick). No
+  chain (rope comes after the demo).
+- **The dents:** SMALL: `LooseProp`'s dent works on any mesh; promote it to a shared `MeshDent` and give
+  the plates enough vertices to dent.
+- **The kit freight wagon as the moving coach: not feasible** (its members are static bodies, its wheels
+  don't turn); it can lend geometry and break apart after the wreck.
+- **The riflemen:** there are no rifles in the game (the revolver and the coach gun); **they ride
+  shotgun**, which is also the period's phrase. They ride passive and fight once down on the ground
+  (MEDIUM); fighting from a moving roof doesn't exist.
+- **The log across the road, the coach stopping:** SMALL on top of the coach (the lookout and brakes
+  exist). **The bookkeeper walking with Harlan:** SMALL (`HostageBrain` already follows you). **The
+  strongbox:** SMALL drawn, MEDIUM to open. **The ledger:** a flag until the game can carry things. **The
+  wreck in the ditch:** SMALL (`TrainWreck.to_dict`). **The bend, the bank and the outcrop:** MEDIUM
+  (authored into `valley.json` and baked).
+- **Not feasible now:** disguises; the hold-up from the road against men on the roof (no roof-fighting
+  AI); following it home and the Baron's men coming for the bookkeeper (need story state).
+- **A design trap:** "the log catches the team" would hurt the horses. DESIGN.md (2026-10-01): animals
+  are "never as things to fight"; #546 (2026-11-04) records "Sean's horse rule applies: hurtable, but the
+  trap is aimed at the coach box". Sean's call; the check suggests the log never hits the team.
+- **Frame budget:** fits (one coach, a log, four horses); watch contact reports (#626).
+- **The cheapest strong version:** the road line and a one-car coach; the log as a body held by kickable
+  keeper stakes; the strike hand-off; the dents from LooseProp; the log across the road; the bookkeeper
+  following; the guards riding shotgun, fighting on foot; the coach standing at the bend at first. Defer
+  the run-day talk, Joe's pitch, the pursuit, following it home and the consequences.
+- **Size:** 1 large (horse gait and harness, or skip it with a standing coach), 6 medium, 8 small; it
+  rests on two things outside the mission: people in the valley, and story state.
+- **The 1882 corrections** (the judge's): the *Monitor* was the Cheyenne and Black Hills Stage line's
+  treasure coach (Deadwood to Cheyenne), not private: the Baron's own plated coach is our invention,
+  modelled on it. The deck's timber is sawn (flume timbers from the timber camp's sawmill), not raw logs.
