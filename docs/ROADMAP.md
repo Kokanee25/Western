@@ -211,6 +211,12 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+**Sean, 2026-11-09: the missions start now, beside the art work** ("let's just start our missions -
+we'll experiment as we go until we have a system in place"): in story order from the opening
+(`docs/missions/BUILD_ORDER.md`), built in the valley's town ("so we don't need to duplicate work") by the
+gameplay lane, rough first (stand-ins, typed lines); acts, story state and the rest grow out of the
+missions as they need them. Each mission is its own issue with its handover.
+
 **Sean, 2026-11-04: the look goes realistic, in Red Dead Redemption 2's direction** (DESIGN.md §4;
 the plan `docs/briefs/red-dead.md`; "not that level, just that direction"). The painted look is
 retired. Its steps, by lane, each judged by the cheap judge with the AAA references:

@@ -1141,3 +1141,8 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
   StandardMaterial3D. Sean picked C1f (#526, "for now": an art style change is being tried):
   `model_paint` mipmapped and a texel a square, the deer and steer skull paints imported with mipmaps.
+
+**Planning** (missions; branch `claude/planning-missions-…`; `docs/missions/README.md`): every mission a
+card, the story map, the AAA shelf and the judge with a build check (#739, PR #743). Sean reviews
+missions one at a time; next #744 (the Shipment v2's calls, then Buried Alive). The build order: `BUILD_ORDER.md` (story order after a foundations step; three roadmap calls for Sean). Found: consequences need
+people in the valley and a save/story state first.

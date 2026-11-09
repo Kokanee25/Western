@@ -1,0 +1,196 @@
+# Hell on Wheels (`hell-on-wheels`)
+
+Other names: "the runaway" (#542 step 7), "Runaway Payroll Train" (`config/valley.json`
+`runaway_payroll`). Sources: #542 body and comments (Sean, 2026-11-01; name 2026-11-09);
+`docs/briefs/valley-plan.md` §4; #546 P9 (Sean, 2026-11-07); #276 (2026-11-07); PR #621 `valley.md`.
+
+- DECIDED (Sean, 2026-11-09, #542 comment): "the runaway train mission (step 7: tracks out, fight
+  through the cars, stop it before it derails) is named 'Hell on Wheels'."
+- DECIDED as #542 records "What Sean wants" (2026-11-01): "**A mission: the runaway, with the tracks
+  out.** The player fights his way through the moving train to the cab and stops it before it
+  derails. Physics decides, not a script".
+- DECIDED as `config/valley.json` records it: "board by the overpass, fight back to front, stop before
+  the broken track".
+- PROPOSED (#542): step 7, "After the trestle lab".
+
+## In Sean's inventory (2026-11-09)
+
+From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
+
+- DECIDED (inventory, "Approved · Version A selected"; there called "Runaway Payroll Train"): "Two
+  outlaw gangs are involved in an attempted payroll train robbery." "Gang B sabotages a stretch of track
+  to the west." "Harlan fights the saboteurs, then races east to catch the approaching train." "Gang A
+  has boarded the train and taken control." "The preferred boarding method is jumping from the small
+  wagon-road overpass onto the train roof, with horseback boarding as an alternative." "The player
+  fights through six walkable railcars, progressing from the rear toward the locomotive." "The player
+  must reach the controls and stop the train before it reaches the destroyed track." "The mission
+  makes use of moving-train physics, couplers, destructible objects and combat in confined spaces."
+- DECIDED (inventory): "The small wooden overpass is the boarding location. It is not the large canyon
+  trestle destroyed in the finale."
+- DECIDED (inventory): settles the OPEN robbery question below: the train robbery and the runaway are one mission (Gang A
+  aboard, Gang B at the track). Sean's P9 line ("Now what the hell is going on here?") fits it.
+- PROPOSED (inventory, Part 4): Act III, first; Payday Night follows it.
+
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09: "Yes to payday night"): **Payday Night is the middle's turning point.** The attack on
+  the payroll is the outrage that brings Rourke in on the train, offering "order". The Kid is the
+  informant who knows who pays the gang (`kid-wants-out`).
+- OPEN: if Harlan saves the payroll, is the outrage the attack itself (an attack on the railroad is
+  reason enough to send troops)? The story judge's wording ("the payroll's loss") assumes it's lost.
+
+## Version 2: Sean's pick (2026-11-09)
+
+Sean, 2026-11-09: "Yes fold it in with all the ticks". Version 2 is `proposals/hell-on-wheels_v2.md`
+(judged 26/35, from 17), taken with all four of the judge's ticks (the siding cut) and the three
+corrections to the history. All DECIDED (Sean, 2026-11-09) unless marked; it settles the OPEN lines
+below where they differ.
+
+**How you hear of it**, four ways, none needing the others: the saloon owner sells that the payroll's
+on Thursday's train and the miners talk of it; the stick-up man seen practising alone (#276) is in Gang
+A; the section foreman runs into town about pulled spikes and two riders out west; on the day the train
+blows through the depot at speed, whistle silent, the agent shouting.
+
+**Each way has a window:** where and when Harlan hears decides what's left. The foreman early leaves
+time to reach the overpass ahead of the train; the train through the depot leaves only the chase on
+horseback and the cars themselves.
+
+**The situation:** the mine's payroll rides west in the express car's safe with the express messenger.
+Two gangs, one double-cross: Gang A boards to rob the express car at a lonely stretch west of town; Gang
+B, two men paid by the Baron's foreman, pulls a rail west of the depot, not to stop the train but to
+wreck it (a wreck with dead passengers is a bigger outrage, and an outrage is what brings soldiers).
+Gang A doesn't know. Pulling spikes and loosening a rail is the period's method (the James–Younger gang
+at Adair, Iowa, 1873). The fight at the break is small (two men, or the break found already done) so
+the race to the train starts fast.
+
+**The coach fills from the town's calendar:** who rides Thursday's train comes from people's own
+schedules, so the cost lands on people the player knows.
+
+**The ways to stop it**, each decided by physics, distance and nerve:
+1. Fight to the cab, rear to front, and brake. The express messenger is bleeding in the express car:
+   every minute Harlan (a hospital steward) spends on him is ground covered toward the break.
+2. The brake wheels: wind the cars' hand brakes down from the roof walk, under fire.
+3. The air: the coach and express car carry automatic air brakes, and Gang A has closed the valves (the
+   angle cocks) so parting the train won't stop it. Opening them, or the messenger telling Harlan
+   they're shut, stops the train from the brake model, not a script.
+4. Pull the pin: uncouple behind the express car so the coach drifts free. A link-and-pin coupler can't
+   be pulled under pull, so it needs a moment of slack (a dip, the engine easing), and the coach only
+   drifts to a stop where the grade lets it.
+5. Tell them: show Gang A a spike from the break, or shout that the rail's out, and their nerve decides.
+   Believed, they stop the train themselves and run with the money.
+
+**The big choice:** no clean answer. The payroll, the passengers, the messenger, the robbers: every way
+saves some and spends others, and what he keeps alive decides what Payday Night is (a celebration, a
+hungry night, or a funeral).
+
+**After, by systems:** Payday Night follows whatever happened, and Rourke steps off the train either
+way. The wreck stays where it fell until the repair crew clears it; the line is out for days. Gang A, if
+they ran with the money, go on wanted posters (`the-bounty`); taken alive, they fill the jail
+(`hold-him`). Gang B's man, taken alive, names the foreman who paid him (a lead to the Baron and the
+Kid, carried by a person). The messenger, if he lives, owes Harlan.
+
+**Where:** the overpass `bridge_b`, the westbound order overpass → trestle → depot → Ore Works, the break
+west of the depot; the great trestle is crossed safely here.
+
+**Systems:** the train (steps 1–5) exists; fighting on moving cars and cab controls (step 7) planned;
+new: per-car hand brakes and air with angle cocks in the 1D brake model, the faction plan (the foreman
+pays Gang B), Payday Night's mood from the payroll's fate, the coach's riders from people's schedules.
+
+**To check before building:** what brakes the Denver & Rio Grande's narrow-gauge cars had in 1882.
+
+**Cut (Sean's tick):** the siding at the depot.
+
+**The build check's changes** (PROPOSED, 2026-11-09, for Sean; the full check is at the end of
+`proposals/hell-on-wheels_v2.md`):
+- Gang A holds the engineer off the levers, since his lookout would stop the train at the break by
+  itself; **freeing the engineer is a sixth way**.
+- The air cocks matter once the regulator is shut or the train is parted (air on two cars alone won't
+  stop it under steam).
+- The pin comes out when the coupler's force is low for a moment (6.5 cm of slack is too brief).
+- The freed coach rolls back east on the grade unless someone winds its hand brake.
+- The late window is boarding from the depot platform as it passes, until horses can be ridden.
+- Built in this order: the break found done, the warning, the blow-through; the brakes and cocks; step 7
+  at its narrowest; then the pin and "tell them"; the rest as flags and lines until the valley has people.
+
+## How you hear of it
+
+- PROPOSED (#546 P9, Sean's example, 2026-11-07): "you've dealt with the men who blew the track, you
+  race to the train, climb aboard and find it being robbed: *'Now what the hell is going on here?'*"
+- OPEN: how Harlan learns the track is out or the train taken.
+
+## The situation
+
+- DECIDED (#542): the tracks are out ahead and the train is running toward the break.
+- DECIDED (Sean, 2026-11-01, #552): the train is "engine and tender, two ore cars, a boxcar, an express
+  car (payroll and guard), a coach".
+- PROPOSED (#542): "the **payroll comes on the train** (an express or payroll car) ... A car worth
+  robbing is a ready-made target and mission."
+- PROPOSED (#276 comment, 2026-11-07): "a man alone practising his stick-up ... Later he's in the train
+  robbery" (arrest him and the gang is a man short; follow him to the gang's camp; or recognise him on
+  the train).
+- OPEN: who started the runaway and why (robbers, the gang, the Baron's men).
+
+## The ways to do it
+
+- DECIDED (#542, valley.json): fight back to front through the moving train to the cab and brake.
+- DECIDED (Sean, 2026-11-01, #542): "**The whole train is walkable, back to front** ... through the
+  coach and express car by their end doors and platforms, over the boxcar's roof by its ladders and
+  roof walk, across or along the ore cars, over the tender to the cab".
+- PROPOSED (valley-plan §4): board from the overpass deck (2.0 m to the coach roof, 2.4 m to the
+  boxcar, 3.8 m into an ore car); 679 m to the trestle, "1:51 at 22 km/h"; a full stop "54 m from 22
+  km/h, 109 m from 32 and 166 m from 40".
+- PROPOSED (valley-plan §4): "Where the gang breaks the track is the mission's choice (the trestle's
+  approach, or past it toward town)."
+- OPEN: a second way that really differs from fighting through (e.g. uncoupling, getting ahead of it,
+  stopping it from the ground). No source names one.
+
+## The big choice and its cost
+
+- DECIDED (#542): "brake far enough before the break and it stops; too late and it derails for real."
+- OPEN: no source names a choice beyond succeeding or failing (e.g. the payroll or the passengers).
+
+## What happens after, in the world
+
+- PROPOSED (#542 step 5, built): "the wreck persists; the repair crew comes and fixes it."
+- OPEN: the payroll (saved, stolen) and payday (#276); the robbers caught, dead or gone.
+
+## Where on the map
+
+- PROPOSED (`valley.json`): `bridge_b` the overpass (1912, -229), deck 11.2, the rail cut under it at
+  5.7; `bridge_c` the trestle; `depot` (61, -63).
+- DECIDED (PR #621 `valley.md`, Sean's lock 2026-11-03): the overpass is "later ... a possible boarding
+  point in the Payroll Train mission".
+
+## Which threads it moves
+
+_PROPOSED: this session's mapping from the sources (threads in `MAP.md`); lines without a status word are that mapping._
+
+- Rourke and the train (PROPOSED); the gang (the stick-up man, PROPOSED); payday and the town's money.
+
+## Which systems it needs
+
+_PROPOSED: this session's reading of what the ways above need. Each line ends with its state on main, 2026-11-09: exists, partly, being built, decided (not built) or new._
+
+- The 1D train, couplers, timetable, engineer (steps 1–2): exists.
+- Walkable moving cars, ladders, roof walk (`TrainCars`, `Ladder`): exists.
+- Breakable track, derail, `TrainWreck` (step 5): exists.
+- Men fighting and taking cover on a moving car, crossing between cars: new (step 7).
+- Cab controls the player can use (regulator, brake, reverser): new (step 7).
+- A man thrown off at speed: partly (ragdoll, `keep_stride`).
+- The express car's strongbox and guard: models exist (step 3); the robbery as a gang plan: new.
+- Harlan's rare lines (P9, PROPOSED): new.
+
+## Where the sources disagree
+
+- OPEN: whether the train robbery (P9, #276's stick-up man, the express car "worth robbing") is this
+  mission or a separate one. The sources place them on the same train; none says they are one mission.
+
+## Sources
+
+#542 body and comments; #552; #546 P9 (2026-11-07); #276 comment 2026-11-07; `config/valley.json`;
+`docs/briefs/valley-plan.md` §4; PR #621 `docs/briefs/valley.md`.
