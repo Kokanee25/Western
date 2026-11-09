@@ -215,6 +215,25 @@ three-quarter views are under the real look on Main Street at 16:00, with the ga
    - **Walnut:** the walnut painting by box projection, its seams blended.
    - **Wear and grime:** as before.
 
+## Sean's third review (2026-11-09)
+
+"The metal reads as metal now. Keep the subtle case colours." In `results/2026-11-09_review3/`:
+- `four_views.jpg`: the side and three-quarter views in game light.
+- `sunlit_sides.jpg`: each side of the gun turned to the sun.
+
+1. **The ears were horns:** the frame's sides behind the strap stood up beside the hammer. The Met
+   photo shows the strap running level back to the hammer, the hammer's own top falling from strap
+   height to the spur's root, and the frame's sides a band below that.
+   - The ears now sit under the hammer's top line.
+   - The hammer's top front is back at strap height (0.44) and falls smoothly into the spur.
+   - The spur's tip is at strap height (0.46–0.50).
+   - Overlap with the Met gun's silhouette: 0.951.
+2. **The dark grip panel:** it was the shadow side. Turned to the sun (`saa_views.gd --only=sunlit`),
+   each panel is walnut brown with grain. Wood doesn't mirror the sky the way the steel does, so in
+   shade it goes dark. No change.
+3. **The guard read as wire:** its bow is now a flat strap, 0.32" across by 0.11" thick. The section
+   is a superellipse (`sweep(..., square=6)`), blued.
+
 ## Results
 
 `results/2026-11-09/` (round 1, placeholder materials, 7½", Main Street at 16:00, real look):

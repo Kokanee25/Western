@@ -216,8 +216,9 @@ def box(name, l0, l1, f0, f1, u0, u1, mat=None):
     return obj_from_bm(name, bm, mat)
 
 
-def sweep(name, path, rad_lat, rad_in, mat=None, seg=20, closed_ends=True):
-    """An oval tube along a path in the (f, u) plane at l = 0: rad_lat across the gun, rad_in in the plane."""
+def sweep(name, path, rad_lat, rad_in, mat=None, seg=20, closed_ends=True, square=2.0):
+    """A tube along a path in the (f, u) plane at l = 0: rad_lat across the gun, rad_in in the plane; its
+    section a superellipse (square 2: an oval; 4 and up: a flat strap with rounded edges)."""
     pts = [Vector(p) for p in path]
     bm = bmesh.new()
     rings = []
@@ -229,8 +230,11 @@ def sweep(name, path, rad_lat, rad_in, mat=None, seg=20, closed_ends=True):
         ring = []
         for k in range(seg):
             th = 2 * math.pi * k / seg
-            q = p + nrm * (rad_in * math.cos(th))
-            ring.append(bm.verts.new(P(rad_lat * math.sin(th), q.x, q.y)))
+            c, s_ = math.cos(th), math.sin(th)
+            c = math.copysign(abs(c) ** (2.0 / square), c)
+            s_ = math.copysign(abs(s_) ** (2.0 / square), s_)
+            q = p + nrm * (rad_in * c)
+            ring.append(bm.verts.new(P(rad_lat * s_, q.x, q.y)))
         rings.append(ring)
     for a, b in zip(rings[:-1], rings[1:]):
         for k in range(seg):
@@ -424,10 +428,12 @@ def make_frame():
                             (-0.10, ts0 - 0.04), (F_SHIELD_BACK, ts0 - 0.10)], 0.24, smooth=False)
     # The recoil shield: a dome turned about the cylinder's axis, standing out past the side plate.
     shield = lathe("shield", dome_profile(), (0.0, 0.0, CA), "f", None, 96)
-    # Behind the top strap, the frame's two ears either side of the hammer's slot, their top the Met
-    # gun's line falling to the spur's root (the slot cuts their middle out).
-    ears = prism("ears", [(-0.30, 0.46), (-0.40, 0.45), (-0.50, 0.36), (-0.60, 0.28), (-0.70, 0.22), (-0.80, 0.18),
-                          (-0.92, 0.15), (-0.97, 0.05), (-0.97, -0.30), (-0.30, -0.30)], 0.24, corners=(0, 7, 8, 9))
+    # Behind the top strap, the frame's sides either side of the hammer's slot, held a band below the
+    # hammer's top (Sean, 2026-11-09: "the back of the frame is level with the top strap and only the
+    # spur rises"; the Met gun's photo: the strap runs level to the hammer, whose own top falls from it
+    # to the spur; the frame's sides are the darker band under that).
+    ears = prism("ears", [(-0.30, 0.36), (-0.42, 0.31), (-0.54, 0.23), (-0.66, 0.15), (-0.80, 0.08), (-0.95, 0.02),
+                          (-0.97, -0.30), (-0.30, -0.30)], 0.24, corners=(5, 6, 7))
     # The lower frame under the window and the rear frame round the lockwork, one side outline: its
     # lower edge measured off the Met gun (FRAME_BOTTOM); its back behind the shield where the
     # hammer stands out of it, down the backstrap's front, to where the walnut meets it.
@@ -666,12 +672,12 @@ def make_hammer():
     """The hammer at rest, its outline off the Met gun: the face at the shield, the top dipping behind
     it and the slim spur curling up and back over the grip; its lower body (inside the frame) down
     round its screw, low on the frame."""
-    body = prism("Hammer", [(-0.335, 0.10), (-0.335, -0.12), (-0.42, -0.45), (-0.48, -0.95), (-0.50, -1.35), (-0.56, -1.66),
+    body = prism("Hammer", [(-0.335, 0.44), (-0.335, -0.12), (-0.42, -0.45), (-0.48, -0.95), (-0.50, -1.35), (-0.56, -1.66),
                             (-0.72, -1.78), (-0.88, -1.70), (-0.95, -1.45), (-0.92, -1.0), (-0.92, -0.55), (-0.96, -0.32),
-                            (-1.10, -0.20), (-0.90, 0.15), (-0.70, 0.16), (-0.55, 0.15), (-0.40, 0.13)], 0.155, MAT["case"],
+                            (-1.10, -0.20), (-0.95, 0.16), (-0.85, 0.185), (-0.74, 0.215), (-0.62, 0.28), (-0.52, 0.35), (-0.42, 0.42)], 0.155, MAT["case"],
                  corners=(0, 1))
     spur = prism("spur", [(-0.96, -0.32), (-1.10, -0.20), (-1.27, -0.08), (-1.40, 0.09), (-1.52, 0.26), (-1.63, 0.39),
-                          (-1.71, 0.48), (-1.67, 0.525), (-1.50, 0.515), (-1.35, 0.435), (-1.20, 0.325), (-1.05, 0.24),
+                          (-1.70, 0.455), (-1.65, 0.495), (-1.50, 0.485), (-1.35, 0.415), (-1.20, 0.315), (-1.05, 0.235),
                           (-0.88, 0.20), (-0.80, 0.0)], 0.115, corners=(6,))
     union(body, spur)
     # The spur's checkering is the surface's (a normal map in the surfaces pass): cut as geometry
@@ -830,7 +836,8 @@ def make_grip_frame():
     # The bow (its centre line; the Met gun's outline is 0.085 outside it) and the tang under the frame.
     bow_path = [(0.80, -1.96), (0.79, -2.30), (0.72, -2.58), (0.56, -2.80), (0.32, -2.93), (0.05, -2.995), (-0.20, -3.005),
                 (-0.38, -2.95), (-0.52, -2.80), (-0.60, -2.62), (-0.72, -2.50), (-0.92, -2.43)]
-    bow = sweep("bow", [(p.x, p.y) for p in resample(bow_path, 48)], 0.14, 0.058, None, 24)
+    # A flat strap as on the Met gun (0.32" across, 0.11" thick), blued (Sean: blued, per the Cavalry).
+    bow = sweep("bow", [(p.x, p.y) for p in resample(bow_path, 48)], 0.16, 0.055, None, 32, square=6.0)
     under = [(TANG_FRONT, frame_bottom_at(TANG_FRONT))] + [(f, u) for f, u in FRAME_BOTTOM if f < TANG_FRONT]
     tang = prism("tang", [(f, u + TANG + 0.01) for f, u in under] + list(reversed(under)), 0.30, smooth=False)
     union(guard, bow, tang)

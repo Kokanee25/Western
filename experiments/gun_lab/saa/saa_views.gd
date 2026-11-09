@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --path . --rendering-driver vulkan --resolution 1600x900 \
 ##       -s res://experiments/gun_lab/saa/saa_views.gd -- --real --out=build/saa/views [--gun=75] [--hour=16] \
-##       [--only=turntable,side,threeq,close,mech] [--steps=24]
+##       [--only=turntable,side,threeq,sunlit,close,mech] [--steps=24]
 ##
 ## Untyped on purpose (a -s script compiles before the autoloads exist).
 
@@ -25,7 +25,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var tag := "75"
 	var hour := 16.0
-	var only := "turntable,side,threeq,close,mech"
+	var only := "turntable,side,threeq,sunlit,close,mech"
 	var steps := 24
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
@@ -113,6 +113,19 @@ func _run() -> void:
 		await _shot("threeq_rear_left")
 		_look(g * Vector3(0.27, 0.12, -0.30), g * Vector3(0.0, 0.02, -0.07))
 		await _shot("threeq_front_right")
+	if "sunlit" in only:
+		# Each side of the gun turned to face the sun (Sean's question: is the dark grip panel in the
+		# other views walnut in shadow, or black?), the camera on the sun's side.
+		var sun: Vector3 = clock.get_sun_direction()
+		var sh := Vector3(sun.x, 0.0, sun.z).normalized()
+		for side in [["sunlit_left", -1.0], ["sunlit_right", 1.0]]:
+			# The gun's local X turned so its chosen side (-X left, +X right) faces the sun.
+			var want: Vector3 = sh * side[1]
+			var yaw := atan2(-want.z, want.x)
+			gun.global_transform = Transform3D(Basis(Vector3.UP, yaw), centre) * Transform3D(Basis.IDENTITY, base - centre)
+			_look(centre + sh * 0.62 + Vector3(0, 0.12, 0), centre)
+			await _shot(side[0])
+		gun.global_transform = Transform3D(Basis.IDENTITY, base)
 	if "close" in only:
 		# The gun's own frame: barrel along -Z, right +X, up +Y.
 		var g := gun.global_transform
