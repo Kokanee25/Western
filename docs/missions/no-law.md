@@ -23,6 +23,23 @@ and his chat answers the same day; DESIGN.md §5; `docs/briefs/showcase-moments.
   showcase." "The sheriff's death should be quiet and personal." "The mission can finish without a
   formal completion screen, as normal town life resumes."
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09, picked from the story judge): **the red shirt is the Baron's hired gun, and the man who
+  shot the sheriff.** His "no law to save him now" in the saloon is a boast.
+- DECIDED (Sean, 2026-11-09: "I like the baron offering to buy"): **the Baron at the sheriff's funeral**, quietly
+  offering to buy the widow's claim. He gets a face in Act I, and the farmhouse becomes his answer to
+  her refusal.
+- DECIDED (Sean, 2026-11-09): "we need rourke to come no matter what because if Joe kills him we should still meet
+  him": Rourke is met whatever No Justice's ending. In the arrest ending (picked from the story judge)
+  the man on the platform who lets the red shirt go is Rourke, or his officer: Rourke's first sighting.
+  OPEN: how he's met in the revenge ending (see `MAP.md`).
+
 ## Sean's picks from this session's recommendations (2026-11-09)
 
 Sean, 2026-11-09: "1, 3 and 4 yes, put them on the card". His, from now on; each is placed below too.

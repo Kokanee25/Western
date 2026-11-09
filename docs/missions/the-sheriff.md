@@ -25,6 +25,19 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 - OPEN: "becomes the town's new lawman" (inventory) vs "Yes you are deputized" and "temporarily
   appointed" (Sean, chat, 2026-11-09).
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09, picked from the story judge): **the red shirt is the Baron's hired gun, and the man who
+  shot the sheriff.** His "no law to save him now" in the saloon is a boast.
+- DECIDED (Sean, 2026-11-09: "I like the baron offering to buy"): **the Baron at the sheriff's funeral**, quietly
+  offering to buy the widow's claim. He gets a face in Act I, and the farmhouse becomes his answer to
+  her refusal.
+
 ## How you hear of it
 
 - DECIDED: you find him yourself, on the road at dawn.

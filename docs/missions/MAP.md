@@ -70,6 +70,10 @@ flowchart TD
   hell -->|the same train| bridge
   bridge -->|then| house
   bridge -.P5 the Inquest.-> trial
+  nojustice -->|arrest: Rourke at the platform| payday[payday-night]
+  hell -->|the outrage| payday
+  payday -->|Rourke arrives| bridge
+  sheriff -->|the Baron at the funeral| farm
   house -.the Baron's trial.-> trial
   nojustice -.the scalps.-> vaquero[vaqueros-horses]
   stickup((the stick-up man)) -.-> hell
@@ -87,6 +91,19 @@ OPEN (Sean: "gotta be flagged"): where and when Harlan meets Joe →
 
 **The evidence and the trial are a maybe** (Sean, 2026-11-09: "Yeah I'm not sold on the whole evidence and trial stuff yet - that's a maybe"): the edges into
 `the-trial` and the papers' role as evidence hang on it.
+
+**The spine** (the story judge's frame; Sean took its three changes, 2026-11-09: "Yes I like the
+ticks"): the Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order;
+Rourke is the officer he pays to bring them. Every crime serves that plan; Harlan's badge stands in its
+way.
+- DECIDED: the red shirt is the Baron's hired gun and shot the sheriff (T1 + T2 + T4 joined).
+- DECIDED: the Baron at the sheriff's funeral, offering to buy the widow's claim (the farmhouse is his
+  answer to her refusal).
+- DECIDED: Payday Night is the hinge: the attack on the payroll brings Rourke in on the train; the Kid
+  knows who pays the gang.
+- DECIDED (Sean): "we need rourke to come no matter what because if Joe kills him we should still meet
+  him". The arrest ending shows Rourke at the platform; OPEN how the revenge ending meets him (Payday
+  Night meets him in both).
 
 The DECIDED edges and where Sean's words are:
 - `no-justice` → `joe-on-the-rope`: #738 (2026-11-09). The Winchester before the rope: #546 (2026-11-04,

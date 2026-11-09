@@ -33,6 +33,17 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 - OPEN: Phase B (the boys held in the yard, the lock) isn't in the inventory's version.
 - PROPOSED (inventory, Part 4): Act II, after Buried Alive and the Demolition Mentor.
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09: "I like the baron offering to buy"): **the Baron at the sheriff's funeral**, quietly
+  offering to buy the widow's claim. He gets a face in Act I, and the farmhouse becomes his answer to
+  her refusal.
+
 ## How you hear of it
 
 - DECIDED, built: walk up to the blacksmith by the livery before the gang rides in (#520).

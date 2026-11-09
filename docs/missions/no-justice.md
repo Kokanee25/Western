@@ -17,6 +17,20 @@ comments (2026-11-09); `config/valley.json`.
   no several hideouts, no subplots. The strength is the moral choice, not the manhunt. (A judge should
   score 'choices' knowing this was chosen.)"
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09, picked from the story judge): **the red shirt is the Baron's hired gun, and the man who
+  shot the sheriff.** His "no law to save him now" in the saloon is a boast.
+- DECIDED (Sean, 2026-11-09): "we need rourke to come no matter what because if Joe kills him we should still meet
+  him": Rourke is met whatever No Justice's ending. In the arrest ending (picked from the story judge)
+  the man on the platform who lets the red shirt go is Rourke, or his officer: Rourke's first sighting.
+  OPEN: how he's met in the revenge ending (see `MAP.md`).
+
 ## Sean's picks from the judge (2026-11-09)
 
 From `judged/2026-11-09.md`, Sean's answers the same day. These are his; each is placed in its

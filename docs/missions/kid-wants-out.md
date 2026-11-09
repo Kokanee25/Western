@@ -5,6 +5,17 @@ Kid (`docs/briefs/three-gunmen.md`).
 
 - PROPOSED (DESIGN.md §5, "**proposed**, Sean 2026-10-06; features are frozen").
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09: "Yes to payday night"): **Payday Night is the middle's turning point.** The attack on
+  the payroll is the outrage that brings Rourke in on the train, offering "order". The Kid is the
+  informant who knows who pays the gang (`kid-wants-out`).
+
 ## How you hear of it
 
 - PROPOSED (DESIGN.md): "The Kid comes to you quietly".

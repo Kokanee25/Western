@@ -19,6 +19,25 @@ rather than four independent missions." Sources: Sean's inventory (2026-11-09); 
   that's a maybe", and on No Law: "we aren't pulling bullets out to examine that idea isn't happening".
   Three of the four (the Inquest, the Wrong Ball, Dig Him Up) are evidence missions.
 
+## The story's spine: Sean's picks (Sean, 2026-11-09)
+
+From the story judge (`judged/2026-11-09_story.md` §2), Sean: "Yes I like the ticks". Its frame: the
+Baron wins if Salt Creek looks lawless enough that soldiers are sent to restore order; Rourke is the
+officer he pays to bring them. (OPEN: Sean took the three changes below; the frame sentence itself he
+hasn't confirmed in words.)
+
+- DECIDED (Sean, 2026-11-09: "Yes to payday night"): **Payday Night is the middle's turning point.** The attack on
+  the payroll is the outrage that brings Rourke in on the train, offering "order". The Kid is the
+  informant who knows who pays the gang (`kid-wants-out`).
+- DECIDED (Sean, 2026-11-09): "we need rourke to come no matter what because if Joe kills him we should still meet
+  him": Rourke is met whatever No Justice's ending. In the arrest ending (picked from the story judge)
+  the man on the platform who lets the red shirt go is Rourke, or his officer: Rourke's first sighting.
+  OPEN: how he's met in the revenge ending (see `MAP.md`).
+- DECIDED (Sean, 2026-11-09): "Let's keep dig him up - maybe there's something else we can find on him - i think it
+  would just be an interesting mission with sneaking". Dig Him Up now has its own card, `dig-him-up`.
+- OPEN: the story judge's other verdicts on this card (the Inquest: park with the trial's maybe; the
+  Wrong Ball: drop, it examines a bullet). Sean hasn't answered them.
+
 ## How you hear of it
 
 - PROPOSED (inventory): Payday Night follows the payroll train ("After the payroll train incident").

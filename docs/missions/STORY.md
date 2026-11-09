@@ -34,6 +34,12 @@ Harlan's friend and (proposed) the man with plans who pitches ideas for the big 
 miner who teaches dynamite. A Southern Ute community, a Mexican rancher, Chinese workers: written with
 research and care, never props.
 
+**The spine** (Sean's picks, 2026-11-09): the Baron wins if Salt Creek looks lawless enough that
+soldiers are sent to restore order; Rourke is the officer he pays to bring them. The red shirt is the
+Baron's hired gun and shot the sheriff; the Baron offers the widow a price at the sheriff's funeral;
+Payday Night (after the train's payroll is attacked) brings Rourke in on the train. Rourke is met
+whatever the player chose in No Justice.
+
 **The threads.** T1 the sheriff and the badge · T2 Joe and the revenge · T3 the mine and the miner
 (single sticks of dynamite early, bundles at the end) · T4 the Baron and the water · T5 the train and
 Rourke (Harlan's old commander, proposed) · T6 the gang · T7 the town's law (mobs, lynching, a trial) ·
@@ -85,3 +91,4 @@ evidence and the trial are "a maybe" (Sean, 2026-11-09).
 - The Demolition Mentor: the miner teaches half-sticks, linked charges and bundles; maybe optional lessons.
 - Payday Night and the Inquest: payday's party interrupted; an inquiry, a ball that doesn't match, a grave dug up (proposed).
 - Dry Creek: a fight or an emergency over the valley's water; gates, channels, sluices (brainstorm).
+- Dig Him Up: a grave opened at night, by stealth, to find something on the body (whose grave open).
