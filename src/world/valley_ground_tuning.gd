@@ -47,16 +47,17 @@ extends Resource
 ## The greybox's marks over the ground (ValleyMarks, G4), each kind's colour, and how far the
 ## ground's own colour goes toward it (1: the mark's colour alone).
 @export var mark_mix := 0.85
-@export var pad := Color(0.70, 0.62, 0.50)
-@export var water := Color(0.36, 0.44, 0.50)
-@export var street := Color(0.78, 0.70, 0.56)
-@export var wagon_road := Color(0.80, 0.72, 0.58)
-@export var lane := Color(0.76, 0.69, 0.56)
-@export var track := Color(0.72, 0.64, 0.52)
-@export var path := Color(0.70, 0.62, 0.50)
-@export var ford := Color(0.55, 0.58, 0.58)
-@export var outline := Color(0.92, 0.90, 0.84)
-
+@export var pad := Color(0.70, 0.63, 0.52)
+@export var water := Color(0.30, 0.40, 0.48)
+## The roads darker than the ground (packed and rutted earth): lighter roads wash out under the
+## real look's noon (G4's pictures).
+@export var street := Color(0.46, 0.38, 0.29)
+@export var wagon_road := Color(0.46, 0.38, 0.29)
+@export var lane := Color(0.50, 0.42, 0.32)
+@export var track := Color(0.54, 0.46, 0.35)
+@export var path := Color(0.57, 0.49, 0.38)
+@export var ford := Color(0.40, 0.42, 0.42)
+@export var outline := Color(0.28, 0.26, 0.24)
 
 ## The colours by ValleyMarks kind (index 0, none, unused).
 func mark_colours() -> Array[Color]:
