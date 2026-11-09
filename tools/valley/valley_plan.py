@@ -390,15 +390,18 @@ class Terrain:
 				if over_rail:
 					# Its approaches graded up to the deck from its main span's ends out (the plan's
 					# road_profile), the cutting under the span left: the formation's clear stands.
-					wt = np.minimum(wt, np.clip((d - span * 0.5) / self.OVER_RAIL_EASE, 0.0, 1.0))
+					wt = np.minimum(wt, np.clip((d - (span * 0.5 - 1.0)) / self.OVER_RAIL_EASE, 0.0, 1.0))
 					y[d < span * 0.5 + 6] = deck
-					decks.append((d < span * 0.5 + self.ABUTMENT, deck))
+					# (held further: by the cutting the formation's clear keeps the road off the
+					# first metres past the span, so the deck's level is held to the plan's 6 m approach
+					# and an abutment past it)
+					decks.append((d, span * 0.5 + 6 + self.ABUTMENT, deck))
 					continue
 				m = d < span * 0.5 + 6
 				if np.any(m):
 					y[m] = deck
-					decks.append((d < span * 0.5 + self.ABUTMENT, deck))
-					wt[d < span * 0.5] = 0.0
+					decks.append((d, span * 0.5 + self.ABUTMENT, deck))
+					wt[d < span * 0.5 - 1.0] = 0.0  # (the abutment's fill reaches a metre under the deck's end)
 			for f in r.get("crosses", ()):
 				if "fill_y" in f:
 					m = np.hypot(x - f["at"][0], z - f["at"][1]) < f.get("span", 30) * 0.5
@@ -408,8 +411,11 @@ class Terrain:
 				k = np.ones(n) / n
 				pad = np.concatenate([np.full(n, y[0]), y, np.full(n, y[-1])])
 				y = np.convolve(pad, k, mode="same")[n:-n]
-			for m, deck in decks:
-				y[m] = deck
+			# The deck's level held to its abutment's end, then eased into the averaged road over half
+			# its run: one ramp, no step where the hold ends.
+			for d, hold, deck in decks:
+				t = np.clip((d - hold) / (self.GRADED[cls] * 0.5), 0.0, 1.0)
+				y = deck * (1 - t) + y * t
 			for f in r.get("crosses", ()):
 				if "ford" not in f.get("what", ""):
 					continue

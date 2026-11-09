@@ -218,10 +218,10 @@ func _build_bridge(id: String, node_name: String) -> RoadBridge:
 	var deck := float(b.get("deck_y", 0.0))
 	var ter := terrain
 	var br := RoadBridge.spanning(Vector3(at.x, deck, at.y), Vector3(dir.x, 0.0, dir.y), deck,
-			func(x: float, z: float) -> float: return ter.height(x, z), float(b.get("span", 14.0)), 7.0, 0.5, b.get("cribs", []))
+			func(x: float, z: float) -> float: return ter.height(x, z), float(b.get("span", 14.0)), 7.0, 0.5, b.get("cribs", []),
+			1.5, 0.25, float((layout.road(String(b.get("road", ""))) as Dictionary).get("width", 5.0)))
 	br.name = node_name
 	br.structure_id = StringName(id)
-	br.width = float((layout.road(String(b.get("road", ""))) as Dictionary).get("width", 5.0))
 	add_child(br)
 	return br
 

@@ -254,23 +254,30 @@ func _crib(d: float, under: float) -> StructureMember:
 
 
 ## A road bridge over a gap: the deck level at `deck_top` through `centre` (a point on the road over
-## the gap) along `along`, out each way to where the ground meets its underside (`depth` under the
-## deck); a bent each side of the middle `span` apart, approach bents between them and the ends no
+## the gap) along `along`, `deck_width` wide, out each way to where the ground comes within
+## `end_step` of its top across its width (a step a man takes onto the planks; never past its
+## underside, `depth` under it); a bent each side of the middle `span` apart, approach bents between them and the ends no
 ## further apart than `approach`, a log crib at each of `cribs` (distances from the middle) instead.
 ## A main bent within `end_clear` of an end is left out (the sill takes it, and there's no approach
 ## that side). Bridge B over the railway's
 ## cutting (G3), Bridge A and the town bridge over the creek (G4).
 static func spanning(centre: Vector3, along: Vector3, deck_top: float, ground_fn: Callable, span: float,
-		approach := 7.0, depth := 0.5, cribs: Array = [], end_clear := 1.5) -> RoadBridge:
+		approach := 7.0, depth := 0.5, cribs: Array = [], end_clear := 1.5, end_step := 0.25, deck_width := 5.0) -> RoadBridge:
 	along.y = 0.0
 	along = along.normalized()
+	var across := along.cross(Vector3.UP).normalized()
 	var ends := []
 	for side in [-1.0, 1.0]:
 		var d := 0.0
 		while d < 60.0:
 			d += 0.5
-			var q: Vector3 = centre + along * side * d
-			if float(ground_fn.call(q.x, q.z)) >= deck_top - depth - 0.05:
+			# Within a step of the deck across its whole width (a skew bridge's square end has one
+			# corner nearer what it crosses than its middle).
+			var on := true
+			for x in [-deck_width * 0.5 + 0.3, 0.0, deck_width * 0.5 - 0.3]:
+				var q: Vector3 = centre + along * side * d + across * x
+				on = on and float(ground_fn.call(q.x, q.z)) >= deck_top - minf(depth, end_step)
+			if on:
 				break
 		ends.append(d)
 	var a: Vector3 = centre - along * float(ends[0])
@@ -293,6 +300,7 @@ static func spanning(centre: Vector3, along: Vector3, deck_top: float, ground_fn
 			if dd > end_clear and dd < total - end_clear:
 				at_d.append(dd)
 	var br := RoadBridge.new()
+	br.width = deck_width
 	br.deck_from = a
 	br.deck_to = z
 	for c: Variant in cribs:

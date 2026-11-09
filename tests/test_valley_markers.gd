@@ -137,11 +137,22 @@ func test_bridge_a_on_its_crib_and_the_town_bridge() -> void:
 		var along := (br.deck_to - br.deck_from)
 		along.y = 0.0
 		along = along.normalized()
-		for e: Array in [[br.deck_from, -1.0], [br.deck_to, 1.0]]:
-			var q: Vector3 = e[0] + along * float(e[1])
-			check(absf(ter.height(q.x, q.z) - (e[0] as Vector3).y) < 0.3, "%s's approach meets its deck within a step (%.2f m)" % [id, (e[0] as Vector3).y - ter.height(q.x, q.z)])
+
 		check(br.members_without_load_path().is_empty(), "%s stands: every member has its load path" % id)
 	print("    ", mk.report())
+	# Every road bridge (Bridge B's too) meets its approaches within a step at both ends, across its
+	# width: a man walks onto the planks (Player steps 0.3 m at most).
+	for id: String in mk.road_bridges():
+		var br: RoadBridge = mk.road_bridges()[id]
+		var along := br.deck_to - br.deck_from
+		along.y = 0.0
+		along = along.normalized()
+		var across := along.cross(Vector3.UP)
+		for e: Array in [[br.deck_from, -1.0], [br.deck_to, 1.0]]:
+			for x in [-1.5, 0.0, 1.5]:
+				var q: Vector3 = (e[0] as Vector3) + along * float(e[1]) * 0.75 + across * x
+				var step := (e[0] as Vector3).y - ter.height(q.x, q.z)
+				check(absf(step) < 0.3, "%s's approach meets its deck within a step (%.2f m, %+.1f across)" % [id, step, x])
 	var a: RoadBridge = mk.bridge_a
 	check_eq(a.cribs.size(), 1, "Bridge A's two spans on one log crib")
 	if not a.cribs.is_empty():
