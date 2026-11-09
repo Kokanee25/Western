@@ -45,6 +45,14 @@ hasn't confirmed in words.)
 
 - DECIDED: you find him yourself, on the road at dawn.
 - PROPOSED (valley-plan §6): Harlan's "dawn ride by the ford ... brings him onto the East Road there".
+- PROPOSED (Sean, 2026-11-09, a "maybe", on the Widow's Place): **Harlan has no horse at the start.** He
+  walks: the ford path to the East Road is about 350 m from his place.
+- PROPOSED (this session, not picked), following from it: **the sheriff's horse is there,** standing off
+  the road with its reins down, the saddle and the rifle still on it. Harlan gets the sheriff up across
+  it and leads it the ~480 m into town (a man led on a horse, not dragged), so the opening needs leading
+  a horse, not riding one. The horse stands at the livery after; in `widows-place` he rides it out to the
+  widow and she gives it to him with the rifle. OPEN: why he has no horse (sold for the claim, lame, or
+  new to the valley).
 
 ## The situation
 
@@ -129,7 +137,7 @@ _PROPOSED: this session's reading of what the ways above need. Each line ends wi
   lives"; §5: "be saved by the doctor". Lock (Sean, 2026-11-03, PR #621, not merged): "**He dies
   whatever you do**: you can get him to the doctor, but he doesn't survive".
 - OPEN: dawn ride "into town" (DESIGN.md) / Harlan's dawn ride from his own homestead by the ford
-  (valley-plan).
+  (valley-plan) / no horse at the start, on foot (Sean's maybe, 2026-11-09).
 
 ## Sources
 

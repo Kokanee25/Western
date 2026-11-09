@@ -60,7 +60,7 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `camp.trust` | trusts Harlan / cooled | `no-justice` | the camp, Joe | Revenge: trusts; arrest: cools (DECIDED) |
 | `widow.visited` | yes / no | `widows-place` (DECIDED, Sean 2026-11-09) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (DECIDED) |
 | `blue.knows_harlan`, `boys.know_harlan` | yes / no | `widows-place` (DECIDED, Sean 2026-11-09) | `farmhouse-rescue` | Blue barks at the gang, not him; the boys follow a voice they know in Phase B (DECIDED) |
-| `harlan.has_sheriffs_horse` | yes / no | `widows-place` (PROPOSED, Sean's "maybe") | every ride after; the town | She gives him the horse with the rifle; people know it as the sheriff's |
+| `harlan.has_sheriffs_horse` | yes / no | `widows-place` (PROPOSED, Sean's "maybe") | every ride after; the town | She gives him the horse with the rifle; people know it as the sheriff's. With "no horse at the start" (Sean's maybe, `the-sheriff`), his first horse: until then he walks |
 | `widow.told_end` | the truth / a kind lie / not asked | `widows-place` (DECIDED, Sean 2026-11-09; the nod) | the widow's lines; the rumour | A lie about `sheriff.care = left him` found out later costs her trust (PROPOSED) |
 | `joe.alive` | yes / no | `joe-on-the-rope` (DECIDED: "If Harlan can't save Joe on the rope, Joe dies") | every later mission with Joe | See "Without Joe" below |
 

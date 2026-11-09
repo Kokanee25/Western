@@ -52,6 +52,8 @@ there"), all of these:
 - Ride the sheriff's horse out (about 2 km by the East Road), hand him over, and go back. PROPOSED (Sean,
   2026-11-09, a "maybe"): **she gives him the horse as well as the rifle**, so he rides the sheriff's horse
   back, and it's his from then on (a horse he didn't buy, that people in town know as the sheriff's).
+  With Sean's other maybe (Harlan has no horse at the start, `the-sheriff`), it's **his first horse**:
+  the opening has him lead it into town with the sheriff across it, and this is the first time he rides.
 - Stay: coffee in her kitchen (he sees the back door), a chore she's behind on since the funeral (split
   the wood, mend the gate, water the stock: `CivilianBrain.chores`), the boys and Blue around him.
 - Walk the property with her: the yard, the outbuildings, the ditch and the stakes. This is where

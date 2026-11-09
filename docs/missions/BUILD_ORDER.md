@@ -62,6 +62,8 @@ and the calls to settle before it starts. "Facts" are `DECISIONS.md`'s.
 ### Step 1: the opening (the demo's prologue and day 1; roadmap 5.6, Gate D)
 
 First issue: **#746** (the sheriff on the road, rough, in the valley; the first cut of acts and story state).
+Sean's maybe (2026-11-09): Harlan has no horse at the start; the sheriff's own horse carries him in, led
+(see the card).
 
 `the-sheriff` → `no-law` (night 1) → day 2, deputized → the funeral.
 
