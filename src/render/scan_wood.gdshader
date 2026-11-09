@@ -165,7 +165,9 @@ uniform float detail_bias = 0.4;
 // blurred it (Sean, #721); round 3 replaced the scans instead, so sharp again. Long silvered grain and
 // checks along the board on top.
 uniform float weathered_bias = 0.0;
-uniform float weathered_grain = 1.0;
+// Off since round 3: stretched over a board the 512 noise showed its grid as a woven crosshatch at
+// 2560x1440 (the burlap); the new weathered scans carry real grain and checks.
+uniform float weathered_grain = 0.0;
 
 vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
 	vec3 n = texture(tex, uv, detail_bias).rgb * 2.0 - 1.0;
