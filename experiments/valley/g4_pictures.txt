@@ -1,0 +1,18 @@
+# Valley G4 (#720): the greybox markers. Main Street from the crossroads (the lots' blocks, the
+# streets on the ground), the town from the cemetery hill, Bridge A on its crib from beside it.
+# Real look, lavapipe:
+# python3 tools/bridge.py run experiments/valley/g4_pictures.txt --size=960x540 --game-args=--world=valley --timeout=1800
+wait 20
+time 10.5
+goto 0 1 22 0
+look -60 3 0
+wait 15
+screenshot /tmp/g4_main_street.png
+goto -95 12 -205 0
+look 20 0 0
+wait 15
+screenshot /tmp/g4_town_from_cemetery.png
+goto 948 -5 296 0
+look 965 -11 288
+wait 15
+screenshot /tmp/g4_bridge_a.png
