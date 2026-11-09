@@ -1,0 +1,185 @@
+{
+  "after": {
+    "bents_down": 1,
+    "broken": 77,
+    "by_kind": {
+      "bent_sill": 3,
+      "brace": 16,
+      "cap": 1,
+      "girt": 12,
+      "guard": 4,
+      "post": 14,
+      "rail": 4,
+      "stringer": 6,
+      "tie": 17
+    },
+    "deck_damage": 5,
+    "rails_gone": 4
+  },
+  "derail": {
+    "key": {
+      "at": 106.117324255958,
+      "section": "trestle_bend"
+    },
+    "kind": "fell",
+    "kmh": 39.0053630447389,
+    "numeric": false,
+    "s": 1286.48319339658,
+    "side": 0,
+    "t": 493.74999999996,
+    "what": "16 ties gone"
+  },
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.8,
+    "ms": 105.539,
+    "posts": 2,
+    "stagger_ticks": 1,
+    "worst_one_ms": 77.7
+  },
+  "frames": {
+    "before_mean_ms": 1.56,
+    "frames": 990,
+    "gate": "pass",
+    "last_under_50fps_s": 1.17,
+    "mean_ms": 4.18,
+    "over_100": 0,
+    "over_50": 2,
+    "sean_worst_ms": 60.5,
+    "second_ms": 59.5,
+    "slow_spell_s": 0.13,
+    "worst_at_s": 0.09,
+    "worst_ms": 93.1
+  },
+  "frames_fall": {
+    "before_mean_ms": 1.96,
+    "frames": 726,
+    "gate": "pass",
+    "last_under_50fps_s": 0.07,
+    "mean_ms": 4.19,
+    "over_100": 0,
+    "over_50": 1,
+    "sean_worst_ms": 38.6,
+    "second_ms": 32.2,
+    "slow_spell_s": 0.1,
+    "worst_at_s": 0.07,
+    "worst_ms": 59.5
+  },
+  "load_cost": {
+    "seeds": 44,
+    "set": 88,
+    "settles": 4,
+    "updates": 171,
+    "us": 739145
+  },
+  "outcome": "fell",
+  "prof_ms_a_frame": {
+    "day_cycle": 0.05,
+    "player": 0.28,
+    "settle_analyse": 0.05,
+    "structures": 0.09,
+    "train": 0.66,
+    "train_sound": 0.12,
+    "train_view": 0.08,
+    "trestle_advance": 0.09,
+    "trestle_analyse": 0.11,
+    "trestle_want": 0.16,
+    "valley_ground": 0.07
+  },
+  "rubble": {
+    "awake_at_end": 0,
+    "pieces": 47
+  },
+  "slow_frames": [
+    {
+      "awake": 2,
+      "ms": 93.1,
+      "physics_ms": 4.9,
+      "process_ms": 0.9,
+      "rubble": 2,
+      "t": 24.05,
+      "top": {
+        "analysis_full_begin": 8.1,
+        "blast_break": 69.4,
+        "blast_fx": 4.2,
+        "blast_gather": 2.0,
+        "blast_settle": 68.4,
+        "settle_analyse": 68.1,
+        "train": 10.1,
+        "train_bridge": 9.7
+      }
+    },
+    {
+      "awake": 35,
+      "ms": 59.5,
+      "physics_ms": 91.3,
+      "process_ms": 7.7,
+      "rubble": 41,
+      "t": 28.28,
+      "top": {
+        "bu_closure": 2.5,
+        "bu_forget": 3.8,
+        "settle_analyse": 39.2,
+        "settle_apply": 1.1,
+        "train": 51.6,
+        "trestle_advance": 1.5,
+        "trestle_analyse": 1.7,
+        "trestle_want": 48.7
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 1,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 40.0,
+    "lead": 40.0,
+    "out": "/home/user/Western/build/trestle_valley/runs/bundles_two_under_40_r3.json",
+    "posts": "inner",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 4,
+    "story": "bottom",
+    "train": "cross",
+    "wait": 6.0,
+    "when": "under"
+  },
+  "t_fire": 24.05,
+  "t_off": 28.25,
+  "wreck": {
+    "bents_s": [
+      1282.4
+    ],
+    "bodies": 7,
+    "events": [
+      {
+        "car": 0,
+        "kmh": 39.0053630447389,
+        "t": 0.0,
+        "what": "fell"
+      }
+    ],
+    "fell_into_gorge": 0,
+    "gaps": [
+      "broken 1275.1-1284.2",
+      "broken 1275.1-1284.2",
+      "broken 1277.7-1287.9",
+      "broken 1284.2-1293.4",
+      "broken 1284.2-1293.4"
+    ],
+    "where": [
+      "0/whole s1303.8 dy-0.0 v0.0 F on tie_02173",
+      "1/whole s1294.6 dy-0.1 v0.0 F",
+      "2/whole s1287.1 dy-0.2 v0.0 on @RigidBody3D@42424 [&\"track13/tie/02138\", &\"track13/guard/r/011\"] (10) F",
+      "3/whole s1279.1 dy-0.1 v0.0",
+      "4/whole s1270.3 dy-0.1 v0.0 on tie_02117",
+      "5/whole s1259.9 dy-0.0 v0.0 on tie_02100",
+      "6/whole s1247.7 dy-0.1 v0.0"
+    ]
+  }
+}

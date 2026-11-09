@@ -385,4 +385,4 @@ func report() -> Dictionary:
 		"at": [snappedf(at.x, 0.1), snappedf(at.y, 0.01), snappedf(at.z, 0.1)],
 		"state": ["wait", "run", "done"][engineer.state] if engineer else "none",
 		"stop": engineer.stop if engineer else -1, "delay": snappedf(engineer.delay(), 0.1) if engineer else 0.0,
-		"day": run_day, "derail": train.derail, "driving": driving}
+		"day": run_day, "derail": train.derail, "driving": driving, "build_ms": build_ms}

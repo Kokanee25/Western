@@ -11,7 +11,7 @@ const HELP := {
 	"trestle": "trestle -> the viaduct now: members by kind, bents, what's broken, its rubble, the train's loads' cost",
 	"trestle_cost": "trestle_cost [S] [train=KMH] -> over S s (default 10): ms a frame, the systems (Prof), nodes, draws; train=KMH: the train crossing at KMH from before the bridge",
 	"trestle_collapse": "trestle_collapse bent=mid|N bents=1 story=bottom|K posts=all|inner|outer|left|N how=stick|cut|none sticks=4 at=0.6 train=none|cross when=before|under wait=6 lead=0 kmh=30 run_up=250 riders=0 secs=10 out=PATH -> a charge on a bent's posts (with or without the train): what falls, the train, every frame against #492's gate",
-	"trestle_cam": "trestle_cam floor|rim [SIDE]|deck [S]|under -> a camera on the gorge's floor looking up at the middle, on the far rim SIDE m along the gorge (90), on the deck (S along), or under the deck",
+	"trestle_cam": "trestle_cam floor|rim [SIDE]|deck [S]|under|overlook -> a camera on the gorge's floor looking up at the middle, on the far rim SIDE m along the gorge (90), on the deck (S along), under the deck, or (the valley) at the trestle overlook",
 	"trestle_matrix": "trestle_matrix [out=PATH] [only=A,B] -> each cut of the matrix on a fresh viaduct (posts cut outright, no train), then the engine standing over it: holds empty? fails under the engine? what fell",
 	"trestle_where": "trestle_where BENT [STORY] [post|cap] -> a point on the viaduct (for look/shoot/plant): bent N's story K post foot, or its cap",
 }
@@ -294,10 +294,15 @@ func _cmd_trestle_cam(a: Array) -> Dictionary:
 			eye = deck + f.basis.x * side + (-f.basis.z) * (half + 6.0)
 			eye.y = line.global_position.y + 6.0  # (on a rock at the edge, looking down across)
 			if g == null:
-				# The valley (G3): the trestle overlook on the canyon's west rim, the finale's vantage.
-				var vp := ValleyLayout.main().viewpoint("vp_trestle_overlook")
-				eye = Vector3(float(vp.at[0]), 0.0, float(vp.at[1]))
-				eye.y = ValleyTerrain.main().height(eye.x, eye.z) + float(vp.get("eye", 1.7))
+				# The valley's canyon (G3): on a rock 6 m over its ground there.
+				eye.y = ValleyTerrain.main().height(eye.x, eye.z) + 6.0
+		"overlook":
+			# The valley (G3): the trestle overlook on the canyon's west rim, the finale's vantage
+			# (267 m off: the whole bridge, small).
+			var vp := ValleyLayout.main().viewpoint("vp_trestle_overlook")
+			eye = Vector3(float(vp.at[0]), 0.0, float(vp.at[1]))
+			eye.y = ValleyTerrain.main().height(eye.x, eye.z) + float(vp.get("eye", 1.7))
+			look = deck + Vector3.DOWN * 10.0
 			look = deck + Vector3.DOWN * 10.0
 		"deck":
 			var s := float(a[1]) if a.size() > 1 else tr.from_s + 20.0
