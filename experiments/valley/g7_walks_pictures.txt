@@ -1,0 +1,59 @@
+# Valley G7 walks (#737): Main Street's two sides, looked along from the street's middle (the walks'
+# ups and downs in profile, as the old town's street view), and a few close views. Real look, lavapipe:
+# python3 tools/bridge.py run experiments/valley/g7_walks_pictures.txt --size=960x540 --game-args=--world=valley --timeout=3600
+wait 30
+time 10.5
+camera -125 1.8 6.0 -85 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_075.png
+camera -90 1.8 6.0 -50 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_110.png
+camera -55 1.8 6.0 -15 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_145.png
+camera -20 1.8 6.0 20 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_180.png
+camera 15 1.8 6.0 55 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_215.png
+camera 50 1.8 6.0 90 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_250.png
+camera 85 1.8 6.0 125 1.0 -6.0
+wait 8
+screenshot /tmp/g7w_north_285.png
+camera -125 1.8 -6.0 -85 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_075.png
+camera -90 1.8 -6.0 -50 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_110.png
+camera -55 1.8 -6.0 -15 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_145.png
+camera -20 1.8 -6.0 20 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_180.png
+camera 15 1.8 -6.0 55 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_215.png
+camera 50 1.8 -6.0 90 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_250.png
+camera 85 1.8 -6.0 125 1.0 6.0
+wait 8
+screenshot /tmp/g7w_south_285.png
+camera -32 2.0 -4 -44 1.0 -9
+wait 8
+screenshot /tmp/g7w_store_drop.png
+camera 132 1.6 -3 110 0.6 -9
+wait 8
+screenshot /tmp/g7w_undertaker_posts.png
+camera 56 1.7 5 46 1.0 9
+wait 8
+screenshot /tmp/g7w_bank.png
+camera 72 1.0 -6.5 62 0.7 -9
+wait 8
+screenshot /tmp/g7w_hotel_doctor_lane.png
