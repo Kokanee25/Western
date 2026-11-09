@@ -215,6 +215,10 @@ const GLOW_STEPS := 8
 
 func _ready() -> void:
 	add_to_group(&"structures")
+	# Lost that far below where it stands, if it stands below the town's ground (the valley's widow's
+	# pad is 8 m down, G6): the town's, all at or over Y 0, keep LOST_BELOW.
+	if lost_below == LOST_BELOW:
+		lost_below = minf(LOST_BELOW, global_position.y + LOST_BELOW)
 	tuning = StructuralAnalysis.load_tuning()
 	rebuild()
 	Events.ground_changed.connect(_on_ground_changed)

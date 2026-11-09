@@ -208,6 +208,12 @@ func take_riders() -> Dictionary:
 
 ## Rider `i` of GANG, his body only, not yet in the world.
 func _rider(i: int) -> HumanBody:
+	return make_rider(i)
+
+
+## Rider `i` of GANG's body (the valley's farmhouse makes its gang's men so too, G6: there's no
+## TownLife there).
+static func make_rider(i: int) -> HumanBody:
 	var g: Dictionary = GANG[i]
 	var man := HumanBody.new()
 	man.name = String(g.id).capitalize()
