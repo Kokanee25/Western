@@ -9,10 +9,6 @@
   "normal",
   "rough"
  ],
- "fetched": "2026-11-08",
- "mean_linear": [
-  0.14232,
-  0.09024,
-  0.05513
- ]
+ "fetched": "2026-11-09",
+ "lossless": 2
 }
