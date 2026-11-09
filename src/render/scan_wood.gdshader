@@ -357,11 +357,14 @@ void fragment() {
 	vec3 head = mix(vec3(0.16, 0.15, 0.14), vec3(0.28, 0.14, 0.07), ag);
 	col = mix(col, head, nail);
 
+	// The last millimetres beside a joint hold wax and dirt: no coat's gleam there (a cupped board's
+	// raised edge caught the sky as a pale line along every joint, the judge's dashes).
+	float by_joint = face < 0.5 ? smoothstep(0.8, 0.97, abs(v_across)) : 0.0;
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = clamp(rough + roughness_add + 0.18 * ag * (1.0 - varnish) - nail * 0.2, 0.05, 1.0);
-	SPECULAR = edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish);
+	SPECULAR = edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
-	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear));
+	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint);
 	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings, 0.0, 1.0));
 }

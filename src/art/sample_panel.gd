@@ -151,6 +151,8 @@ func _backing(wall: Node3D) -> void:
 ## The floor patch: planks along X, gapped by class and age; nailed two to a joist.
 func _floor(fl: Node3D, cls: Dictionary, ai: int, warp: float) -> void:
 	var f: Dictionary = cls["floor"]
+	# Face-nailed, two to a joist; a fine floor's strips are blind-nailed through the tongue.
+	var floor_nails := Vector2(0, 0) if StringName(entry.get("class", "")) == &"fine" else Vector2(2, 0.6)
 	var z := -0.01
 	var basis := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
 	while z > -FLOOR_D:
@@ -158,7 +160,7 @@ func _floor(fl: Node3D, cls: Dictionary, ai: int, warp: float) -> void:
 		var t: float = float(f["t"]) + _rng.randf_range(-1.0, 1.0) * cls["thick_var"]
 		var x0: float = -_rng.randf_range(0.0, cls["ends"])
 		var l: float = wall_size.x - x0 + _rng.randf_range(0.0, cls["ends"])
-		_board(fl, Transform3D(basis, Vector3(x0, FLOOR_Y + t * 0.5, z - w * 0.5)), l, w, t, warp, Vector2(2, 0.6), &"floor")
+		_board(fl, Transform3D(basis, Vector3(x0, FLOOR_Y + t * 0.5, z - w * 0.5)), l, w, t, warp, floor_nails, &"floor")
 		z -= w + float(f["gap"][ai]) * _rng.randf_range(0.6, 1.4)
 
 
