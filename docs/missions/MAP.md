@@ -57,7 +57,7 @@ flowchart TD
     bridge[the-bridge-is-out]
   end
   winchester((the Winchester)) -->|given before| rope
-  widow -.A: the sheriff's rifle?.-> winchester
+  widow -->|the sheriff's rifle| winchester
   sheriff -.help-or-leave deed.-> farm
   sheriff -->|appoints Harlan| nojustice
   nojustice -->|release on the train| rope

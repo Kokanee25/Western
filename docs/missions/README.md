@@ -105,7 +105,7 @@ that come back). Status is the mission as a whole; each card has the details.
 | [`the-sheriff`](the-sheriff.md) | The Sheriff on the Road (the opening) | story | DECIDED (2026-10-01); his survival OPEN | `opening_site`, the doctor's |
 | [`no-justice`](no-justice.md) | No Justice (the camp) | story | DECIDED (Sean's card, 2026-11-09) | the doctor's, Joe's camp, the bandits' hideout (OPEN) |
 | [`joe-on-the-rope`](joe-on-the-rope.md) | Joe on the Rope (the rope shot) | story | DECIDED (2026-11-04) | OPEN |
-| [`widows-place`](widows-place.md) | The Widow's Place (the quiet visit; Blue and the boys met) | story | DECIDED (Sean, 2026-11-09: "the quiet mission of riding out to the widows property"); why he goes OPEN | `widow_homestead` |
+| [`widows-place`](widows-place.md) | The Widow's Place (the quiet visit; Blue and the boys met) | story | DECIDED (Sean, 2026-11-09: "the quiet mission of riding out to the widows property"; the horse, the rifle and the visit picked) | `widow_homestead` |
 | [`farmhouse-rescue`](farmhouse-rescue.md) | The Farmhouse Rescue (the widow's) | story | built (rancher); widow version DECIDED in the lock (PR #621, unmerged) | `widow_homestead` |
 | [`buried-alive`](buried-alive.md) | Buried Alive (the cave-in) | story | PROPOSED (2026-10-06); `valley.json` DECIDED | `mine`, `ore_works` |
 | [`barons-shipment`](barons-shipment.md) | The Baron's Shipment (the iron coach) | story | DECIDED (2026-11-09) as an idea; the spot and the trap OPEN | a road off `baron_ranch`, OPEN |

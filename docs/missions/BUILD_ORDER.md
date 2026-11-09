@@ -88,7 +88,7 @@ First issue: **#746** (the sheriff on the road, rough, in the valley; the first 
 ### Step 2b: `widows-place` (the quiet ride; Sean, 2026-11-09)
 
 Placed here PROPOSED: a quiet mission after No Justice's fight, the widow met before the farmhouse (the
-lock's order), and the Winchester in hand before the rope (if she gives Harlan the sheriff's rifle).
+lock's order), and the Winchester in hand before the rope (she gives Harlan the sheriff's rifle: Sean, 2026-11-09).
 
 - **New:** riding a horse and leading one (horse lab P2, #478), the first long ride with nothing at stake;
   the two boys (child bodies, `ProtectedChild`) and Blue (a dog never hurt, who learns a man); the boys'
@@ -97,8 +97,9 @@ lock's order), and the Winchester in hand before the rope (if she gives Harlan t
   needs it); the boys and Blue are characters' and prop-lab work, asked early (#728). Meeting them here,
   where nothing's at stake, is the cheap place to tune them before the farmhouse puts them in a fight.
 - **Facts set:** `widow.visited`, `blue.knows_harlan`, `boys.know_harlan`, `widow.told_end`,
-  `harlan.has_winchester` (if option A).
-- **Calls first:** why he rides out (the card's A, B or C).
+  `harlan.has_winchester`.
+- **Calls first:** answered (Sean, 2026-11-09: the horse, the stakes and the rifle; the question; the visit).
+  Left: how he gets back; the rifle if he left the sheriff.
 
 ### Step 3: `joe-on-the-rope`
 
@@ -107,7 +108,7 @@ lock's order), and the Winchester in hand before the rope (if she gives Harlan t
 - **Labs ahead:** the rope lab (a ball against a thin target at range, the hanging body); start it during
   Step 2. The mob reuses the crowd from Payday's floor lab (#745) where it can.
 - **Facts set:** `joe.alive` (and the "Without Joe" paths from here on).
-- **Calls first:** DECISIONS gap 2 (who gives Harlan the Winchester, and when; Step 2b's option A answers it).
+- **Calls first:** DECISIONS gap 2 (answered: the widow gives him the sheriff's rifle at Step 2b; left: if he left the sheriff to die).
 
 ### Step 4: Act II
 

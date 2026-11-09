@@ -60,14 +60,14 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `camp.trust` | trusts Harlan / cooled | `no-justice` | the camp, Joe | Revenge: trusts; arrest: cools (DECIDED) |
 | `widow.visited` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (PROPOSED) |
 | `blue.knows_harlan`, `boys.know_harlan` | yes / no | `widows-place` (PROPOSED) | `farmhouse-rescue` | Blue barks at the gang, not him; the boys follow a voice they know in Phase B (PROPOSED) |
-| `widow.told_end` | the truth / a kind lie / not asked | `widows-place` (PROPOSED, the nod) | the widow's lines; the rumour | A lie about `sheriff.care = left him` found out later costs her trust (PROPOSED) |
+| `widow.told_end` | the truth / a kind lie / not asked | `widows-place` (DECIDED, Sean 2026-11-09; the nod) | the widow's lines; the rumour | A lie about `sheriff.care = left him` found out later costs her trust (PROPOSED) |
 | `joe.alive` | yes / no | `joe-on-the-rope` (DECIDED: "If Harlan can't save Joe on the rope, Joe dies") | every later mission with Joe | See "Without Joe" below |
 
 ### Act II
 
 | Fact | Values | Set by | Read by | What it does |
 |---|---|---|---|---|
-| `harlan.has_winchester` | yes | before `joe-on-the-rope` (DECIDED) | the rope shot | **OPEN: when and from whom**; PROPOSED: the sheriff's rifle, from the widow at `widows-place` (its option A) |
+| `harlan.has_winchester` | yes | before `joe-on-the-rope` (DECIDED) | the rope shot | DECIDED (Sean, 2026-11-09): the sheriff's rifle, given by the widow at `widows-place`; OPEN if he left the sheriff to die |
 | `dynamite.level` | none / single sticks / bundles | `buried-alive`, `demolition-mentor` (DECIDED progression) | `farmhouse-rescue` (the breach), `balcony-ambush`, `the-bridge-is-out`, `barons-house` | The breach only once taught (DECIDED lock); the balcony later, with dynamite (DECIDED) |
 | `miner.alive` | yes / no | `buried-alive` | `demolition-mentor` | **OPEN: who teaches if he dies** |
 | `widow.signed` | yes / no | `farmhouse-rescue` (DECIDED v2) | `dry-creek`, the Baron's thread, the ending | Signed: the Baron has the water and starts his ditch (PROPOSED v2) |
@@ -122,8 +122,8 @@ If all three are lost, **OPEN**: what's left (the day-book, the sawn joist, the 
 
 1. **The rope's cause if Harlan murdered the surrendered man** (`red_shirt.fate = murdered by Harlan`): neither
    DECIDED cause applies. OPEN.
-2. **The Winchester:** given "before the Joe hanging", from whom and when: OPEN. PROPOSED: the sheriff's rifle,
-   from the widow at `widows-place` (option A); if he left the sheriff to die, OPEN whether she still gives it.
+2. **The Winchester:** answered (Sean, 2026-11-09): the sheriff's rifle, from the widow at `widows-place`. Still
+   OPEN: whether she gives it if he left the sheriff to die and she knows it; if not, where it comes from.
 3. **I Am the Law without Joe:** who the Baron's men goad. OPEN.
 4. **The miner dead in Buried Alive:** who teaches dynamite. OPEN.
 5. **Harlan's title:** a deputy throughout (DECIDED); missions that say "sheriff" (the inventory's "A New

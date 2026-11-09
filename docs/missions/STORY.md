@@ -70,7 +70,7 @@ evidence and the trial are "a maybe" (Sean, 2026-11-09).
 - The Sheriff on the Road: you find him gut-shot at dawn; carry him to the doctor or leave him; on day 2 he deputizes you and dies.
 - No Justice: raiders killed Joe's wife; ride with him; the man in the red shirt hides in a cabin; nod to stop Joe, or not.
 - Joe on the Rope: a mob hangs Joe; shoot the rope from an overlook, or he dies for good.
-- The Widow's Place: a quiet ride out to the sheriff's widow; the boys at play and Blue met; why he goes OPEN (his horse and rifle home, or stakes at her ditch).
+- The Widow's Place: a quiet ride out to the sheriff's widow; the boys at play and Blue met; he rides the sheriff's horse home, she shows him the stakes at her ditch, asks if he was with him at the end, and gives him the sheriff's rifle.
 - The Farmhouse Rescue: gunmen hold the widow's house; front, back, or a planted stick; then her boys.
 - Buried Alive: miners trapped after a blast; dig, shore or blast in; learn dynamite.
 - The Baron's Shipment: his deeds and ledgers in a guarded convoy (an iron coach); a log trap, disguises, impersonation or a straight interception.

@@ -1,7 +1,8 @@
 # The Widow's Place (`widows-place`)
 
 Other names: "the peaceful visit" (the farmhouse lock, PR #621 step A6). The name is this session's
-(PROPOSED); Sean called it "the quiet mission". Sources: Sean in chat, 2026-11-09; the farmhouse lock
+(PROPOSED); Sean called it "the quiet mission". Sean's picks, 2026-11-09: why he goes (the horse and the
+rifle, and the stakes), the question about the end, and what happens while he's there. Sources: Sean in chat, 2026-11-09; the farmhouse lock
 (2026-11-03, PR #621); #728 (Blue); #700 (her water right); `config/valley.json`.
 
 - DECIDED (Sean, 2026-11-09): "Oh we forgot the quiet mission of riding out to the widows property where
@@ -13,8 +14,7 @@ Other names: "the peaceful visit" (the farmhouse lock, PR #621 step A6). The nam
 
 ## How you hear of it
 
-- OPEN: no source says.
-- PROPOSED (this session, not picked): **the sheriff's horse.** It has stood at the livery since day 1;
+- DECIDED (Sean, 2026-11-09: "you ride the sheriffs horse out and she gives you his rifle"): **the sheriff's horse.** It has stood at the livery since day 1;
   the livery man says it eats his oats and someone should take it home to her. Anyone in town can say it,
   so it isn't missed; a player who never goes hears it again (the horse is still there).
 
@@ -26,7 +26,10 @@ Other names: "the peaceful visit" (the farmhouse lock, PR #621 step A6). The nam
 - DECIDED (Sean, 2026-11-09): you meet **Blue** and **the boys playing** here, for the first time.
 - DECIDED (#728): Blue "can never be hurt or killed"; "He barks at strangers, follows the boys".
 - DECIDED (no-law, Sean 2026-11-09): the Baron offered to buy her claim at the funeral.
-- OPEN: **why Harlan rides out** ("for some reason"). This session's candidates, none picked:
+- DECIDED (Sean, 2026-11-09: "Yes I like both, you ride the sheriffs horse out and she gives you his rifle"):
+  **C, both.** Harlan rides the sheriff's horse home to her; she shows him the stakes at her ditch; she
+  gives him the sheriff's rifle, the **Winchester** (`DECISIONS.md` gap 2 answered). The candidates as they
+  were put:
   - **A. Bringing the sheriff home:** his horse, his saddle, and the rifle in its scabbard. She gives
     Harlan the rifle ("he'd want it used", or she can't stand to look at it). That's the **Winchester**,
     which `joe-on-the-rope` needs and nobody gives yet (`DECISIONS.md` gap 2).
@@ -34,18 +37,20 @@ Other names: "the peaceful visit" (the farmhouse lock, PR #621 step A6). The nam
     the Baron's man back twice since the funeral. She wants the new deputy to see it. It shows the water,
     the motive, and the threat the farmhouse turns into.
   - **C. Both** (recommended): the horse is the errand, and what she shows him is the stakes.
-- PROPOSED (this session, not picked): **the boys at play,** around the woodpile and the wagon, playing
+- DECIDED (Sean, 2026-11-09: "Yes I like all the ideas about what happens when you're there"): **the boys at play,** around the woodpile and the wagon, playing
   sheriff and outlaws with sticks for guns, Blue in the middle of it. They "hold up" the rider coming up
   the lane. Funny on its face; underneath, it's their father's game.
-- PROPOSED (this session, not picked): **the ride out passes the place** where Harlan found the sheriff
+- DECIDED (Sean, 2026-11-09, the same answer): **the ride out passes the place** where Harlan found the sheriff
   on day 1 (`valley.json`: the opening's site is on the East Road, his way home). Nothing marks it but
   what's left on the ground.
 
 ## The ways to do it
 
-Quiet: no fight. PROPOSED (this session, all):
+Quiet: no fight. DECIDED (Sean, 2026-11-09: "Yes I like all the ideas about what happens when you're
+there"), all of these:
 
-- Ride out (or lead the sheriff's horse on foot: it's about 2 km), hand him over, and ride back.
+- Ride the sheriff's horse out (about 2 km by the East Road), hand him over, and go back. OPEN: how he gets
+  back (on foot, his own horse led out beside, or she lends the mule).
 - Stay: coffee in her kitchen (he sees the back door), a chore she's behind on since the funeral (split
   the wood, mend the gate, water the stock: `CivilianBrain.chores`), the boys and Blue around him.
 - Walk the property with her: the yard, the outbuildings, the ditch and the stakes (if B). This is where
@@ -54,15 +59,17 @@ Quiet: no fight. PROPOSED (this session, all):
 
 ## The big choice and its cost
 
-- PROPOSED (this session, not picked): **what he tells her about the end.** She asks, "Were you with him?"
+- DECIDED (Sean, 2026-11-09: "Yes I like the answering question"): **what he tells her about the end.** She asks, "Were you with him?"
   or "Did he suffer?", and Harlan answers with the nod or the shake. Her lines already follow
   `sheriff.care` (lock). If he left him and lies, the truth can reach her later through the witnesses
   and the rumour system; the kind lie costs more when it's found out.
-- PROPOSED: the rifle (if A): take it or leave it with her.
+- PROPOSED: take the rifle or leave it with her. OPEN: whether she still gives it if he left the sheriff
+  to die and she knows it (the rope needs the Winchester: if not from her, from where).
 
 ## What happens after, in the world
 
-PROPOSED (this session, all):
+PROPOSED (this session, all; Sean's "all the ideas about what happens when you're there" may cover these:
+to confirm):
 
 - **Blue knows him.** Met and made friends with, Blue doesn't bark at Harlan at the farmhouse rescue;
   he barks at the gang and gives *them* away (#728: "he gives the gang's position away, or the
@@ -99,7 +106,7 @@ _PROPOSED: this session's reading of what the ways above need. Each line ends wi
 - Chores with a helper: partly (`CivilianBrain.chores`).
 - Talk and the nod: decided, not built (Step 0 of `BUILD_ORDER.md`).
 - Memory that lasts (the widow, Blue, the boys): new (Step 0).
-- The Winchester (if A): next in the arsenal (#734).
+- The Winchester (the sheriff's rifle): next in the arsenal (#734).
 - Story state: new (Step 0).
 
 ## Where the sources disagree
