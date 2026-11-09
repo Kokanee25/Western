@@ -110,6 +110,8 @@ var _panel_ages: Array = ["new", "few", "old"]
 ## --review: only the shots Sean reviews by (#721; run at 2560x1440 with --hires): 1 m at noon, 5 m
 ## at golden hour, and for the fine woods 1 m at night and the bar rail at noon.
 var _review := false
+## Frames a panel shot waits after the camera moves (--settle=N).
+var _settle := 40
 const REVIEW_SHOTS := [["noon", "near"], ["golden", "far"]]
 const REVIEW_FINE := [["saloon", "near"], ["noon", "rail"]]
 
@@ -133,6 +135,8 @@ func _run() -> void:
 			load("res://src/art/material_library.gd").hi_res = true
 		elif arg == "--review":
 			_review = true
+		elif arg.begins_with("--settle="):
+			_settle = int(arg.substr(9))
 		elif arg.begins_with("--man="):
 			_panel_man = StringName(arg.substr(6))
 		elif arg.begins_with("--entries="):
@@ -666,7 +670,10 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				cam.global_position = pt * (view[0] as Vector3)
 				cam.look_at(pt * (view[1] as Vector3), Vector3.UP)
 				cam.fov = view[2]
-				for i in 6:
+				# The real look's temporal upscaler (FSR2) settles over ~40 frames after a cut
+				# (config/looks/real.json "frames"); at 6 the unsettled jitter read as a woven
+				# crosshatch on fine grain: round 1 and 2's "burlap" was partly that.
+				for i in _settle:
 					await process_frame
 				# Nothing over the picture (the blacksmith's subtitles, the wound words).
 				for c in viewport.find_children("*", "CanvasLayer", true, false):
