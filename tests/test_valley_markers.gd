@@ -90,6 +90,24 @@ func test_a_block_for_every_building_volume() -> void:
 			# Off Main Street and the North-South Street: fronts on the street's edge.
 			check(absf(c.z) - size.z * 0.5 >= front - 0.01, "%s behind the fronts" % b.id)
 			check(absf(c.x) - size.x * 0.5 >= 7.6 - 0.01, "%s off the North-South Street" % b.id)
+	# None stands on a road: every road's strip (its width, the town's streets too) clear of them.
+	var roads: Array = lay.roads().duplicate()
+	roads.append_array(ValleyMarks.town_streets(lay))
+	for r: Dictionary in roads:
+		var half := float(r.get("width", 2.0)) * 0.5
+		var line := ValleyLayout.xz_line(r.line)
+		for b: Dictionary in mk.blocks:
+			var inv := ValleyMarkers._block_basis(float(b.heading)).inverse()
+			var size: Vector3 = b.size
+			var hit := ""
+			for i in range(1, line.size()):
+				var n := ceili(line[i - 1].distance_to(line[i]))
+				for k in n + 1:
+					var q := line[i - 1].lerp(line[i], float(k) / maxi(n, 1))
+					var l := inv * (Vector3(q.x, 0.0, q.y) - (b.centre as Vector3))
+					if absf(l.x) < size.x * 0.5 + half - 0.05 and absf(l.z) < size.z * 0.5 + half - 0.05:
+						hit = "(%.0f, %.0f)" % [q.x, q.y]
+			check(hit == "", "%s's block is off %s (crossed at %s)" % [b.id, r.id, hit])
 	# A ray down onto a block meets its roof.
 	var saloon: Dictionary = mk.blocks.filter(func(b: Dictionary) -> bool: return b.id == "saloon")[0]
 	var top: Vector3 = saloon.centre + Vector3(0.0, saloon.size.y, 0.0)

@@ -7,7 +7,7 @@ extends Node3D
 ##     lots of kind `building` (their frontage on Main Street, their `depth` back from the front),
 ##     the town's extras with a size (the second saloon), and each place with a `block` (the depot,
 ##     the freight warehouse, the water tank, the church, the Baron's town house: its pad's size
-##     unless the block gives its own). Each stands from under its lowest corner to `h` over its
+##     and middle unless the block gives its own `w`, `d`, `at`). Each stands from under its lowest corner to `h` over its
 ##     highest (LOT_H for a lot). One mesh, one body (Layers.WORLD), a box shape each.
 ##   - **Posts** (`posts`): a tall coloured post and the place's name where each place, ford and
 ##     bridge is (beside a block, on its side toward the crossroads), so a place can be found by
@@ -119,7 +119,8 @@ func _find_blocks() -> void:
 		var pad: Dictionary = p.get("pad", {})
 		var w := float(b.get("w", pad.get("w", 6.0)))
 		var d := float(b.get("d", pad.get("d", 6.0)))
-		_add_block(String(p.id), "place", ValleyLayout.xz(p.at), Vector2(w, d), float(pad.get("heading", 90.0)), float(b.get("h", BLOCK_H)))
+		var c := ValleyLayout.xz(b.at) if b.has("at") else ValleyLayout.xz(p.at)
+		_add_block(String(p.id), "place", c, Vector2(w, d), float(pad.get("heading", 90.0)), float(b.get("h", BLOCK_H)))
 
 
 ## A block w (along its heading) x d about c: from 0.3 m under the lowest of the ground at its corners

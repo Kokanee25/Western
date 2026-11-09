@@ -162,6 +162,10 @@ func _cmd_valley_walk(a: Array) -> Dictionary:
 	var side_until := -1.0
 	var climb := 0.0
 	var drop := 0.0
+	var plan_s := float(j.length) / speed
+	var limit := t0 + plan_s * 2.0 + 60.0  # (never past twice the plan's time and a minute)
+	var trace := []
+	var trace_at := t0
 	while true:
 		var here := Vector2(player.global_position.x, player.global_position.z)
 		while k < pts.size() - 1 and (here.distance_to(pts[k]) < 3.0 or here.distance_to(pts[k + 1]) < here.distance_to(pts[k]) and k + 1 < pts.size() - 1):
@@ -170,9 +174,12 @@ func _cmd_valley_walk(a: Array) -> Dictionary:
 			arrived = true
 			break
 		var now := bridge._game_seconds()
-		if now - progress_at > 20.0:
+		if now - progress_at > 20.0 or now > limit:
 			stuck = true
 			break
+		if now - trace_at >= 10.0:
+			trace_at = now
+			trace.append([snappedf(now - t0, 1.0), k, roundi(player.global_position.x), roundi(player.global_position.z)])
 		if now - progress_at > 2.0 and side_until < now:
 			side_until = now + 0.7
 			side = -side
@@ -194,8 +201,7 @@ func _cmd_valley_walk(a: Array) -> Dictionary:
 	bridge._act(false, &"move_forward")
 	bridge._act(false, &"run")
 	var secs := bridge._game_seconds() - t0
-	var plan_s := float(j.length) / speed
-	return {"to": id, "arrived": arrived, "stuck_at": arr(player.global_position) if stuck else [], "seconds": snappedf(secs, 0.1),
+	return {"trace": trace if stuck else [], "points": pts.size(), "k": k, "to": id, "arrived": arrived, "stuck_at": arr(player.global_position) if stuck else [], "seconds": snappedf(secs, 0.1),
 		"time": "%d:%02d" % [int(secs) / 60, int(secs) % 60], "plan_seconds": snappedf(plan_s, 0.1),
 		"plan_time": "%d:%02d" % [int(plan_s) / 60, int(plan_s) % 60], "road_m": snappedf(float(j.length), 1.0),
 		"walked_m": snappedf(walked, 1.0), "climb_m": snappedf(climb, 1.0), "descent_m": snappedf(drop, 1.0), "roads": j.roads}
