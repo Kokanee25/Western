@@ -16,6 +16,28 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 - PROPOSED (inventory, Part 2, "Brainstorm"): "17. Hold the Jail: Harlan must defend the jail against people
   attempting to free or kill a prisoner."
 
+## The set piece: the Water Tower (Sean's pick, 2026-11-09)
+
+- DECIDED (Sean, 2026-11-09: "yes add yours"): the Water Tower, version 3 (`proposals/setpieces_2026-11-09.md`;
+  set-piece judge 5, low). In short:
+  - **The night:** Harlan's prisoner (the red shirt, on No Justice's arrest ending) waits in the depot's
+    timber freight room for the morning train. The railroad's water tank stands over it: a timber frame on
+    four legs, a stave tank held by iron hoops, a spout, an outlet valve.
+  - **Two groups, opposite aims:** his friends want him **freed** (the tank half-drained, dropped on the
+    room's far end); the Baron's men want him **dead** before the train (full, on the room). Both are in the
+    yard; their axemen are at the legs; each stroke carries; a half-cut leg groans by its load.
+  - **The player's levers help one side and spoil the other:** the valve and spout, a hoop's lug knocked
+    off (the staves spring, it empties in ~30 s), which axemen he stops, or cutting the far legs himself to
+    drop it on the yard. Bullet holes only show the level.
+  - **Graded results:** one leg cut, it holds; half-drained, it stoves in the far wall; full, it crushes the
+    room; or it lands in the yard. The prisoner freed, dead, or still held.
+  - **The mark:** the wrecked tower and freight room stay; the yard is wet; the daily train can't take water
+    at Salt Creek until the tank is rebuilt.
+- OPEN (the judge, to make it a steady 5): a poor cut can tip it the wrong way; the axe strokes real (a
+  wounded axeman cuts slower); what the two groups do when they see each other.
+- Settles (were OPEN on this card): the fire ("burning you out" isn't needed); this card's setting moves
+  from the town jail to the depot's freight room for this night (the town jail stays for other prisoners).
+
 ## How you hear of it
 
 - OPEN: no source says; it follows from having a Colter in a cell (an arrest elsewhere).

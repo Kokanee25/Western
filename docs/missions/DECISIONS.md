@@ -83,6 +83,9 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `law.tally` | quiet / mixed / violent | `i-am-the-law` | `the-bridge-is-out` | Quiet: hired guns with no orders; violent: soldiers under orders (DECIDED) |
 | `law.joe` | rode out / stayed beside / stayed by his choice | `i-am-the-law` | Joe's trust | Asked to hide: he remembers it (DECIDED) |
 
+| `prisoner.fate` (the Water Tower night) | freed / dead / still held for the train | `hold-him` (the Water Tower) | the gang, the Baron, `joe-on-the-rope` (the released man's walk) | Freed: back on the street, as the arrest ending's released man; dead: the Baron's loose end tied (DECIDED pick) |
+| `depot.tank` | standing / wrecked | `hold-him` | the daily train | Wrecked: the train can't take water at Salt Creek until rebuilt (DECIDED pick) |
+
 ### Act IV
 
 | Fact | Values | Set by | Read by | What it does |
@@ -90,6 +93,7 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `ledger.held`, `bookkeeper.state` | taken / half / lost; alive with Harlan / dead / gone | `barons-shipment` (v2, waiting on Sean) | `barons-house` | **OPEN** (evidence is "a maybe") |
 | `trestle.state` | blown with the train / stopped another way | `the-bridge-is-out` | `barons-house`, the ending | The finale goes past the trestle to the Baron's house (DECIDED); Rourke's fate **OPEN** |
 | `baron.fate` | arrested / dead / fled | `barons-house` | the ending | He must survive the breach (DECIDED) |
+| `baron_house.wall` | standing / a section down / the wall down | `barons-house` (the Sap, or a charge) | the town, the ending | The house leaning with its wall down stays on the rise (DECIDED pick) |
 
 ## Without Joe (`joe.alive = no`)
 

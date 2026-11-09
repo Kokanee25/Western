@@ -10,6 +10,30 @@ and his answers on #666); #663; #467 comment (2026-11-07); `config/valley.json`.
   player raids the Baron's barricaded masonry house, blows open a wall and arrests him. His house is
   the lab's last and toughest test piece."
 
+## The set piece: the Sap (Sean's pick, 2026-11-09)
+
+- DECIDED (Sean, 2026-11-09: "yes add yours"): the Sap, version 3 (`proposals/setpieces_2026-11-09.md`;
+  set-piece judge 4, close to 5). In short:
+  - **The old siege way:** Harlan knows it from the war (at Petersburg in 1864 Union miners dug under the
+    Confederate line); the miner from Buried Alive knows how to dig and prop. A covered trench (the period's
+    sap) dug from a cut bank toward the house, the approach done in the nights between, the last 3–5 m in
+    play.
+  - **Reading the house:** where it stands on earth and where on rock (the west end on an outcrop); the
+    defenders' bowl of water rippling at a window when he digs close; the Baron's lamp and voice show his
+    room. The defenders hear the digging and sally out to the trench: a fight at its mouth, at night.
+  - **The props are the load path:** he digs under the footing and sets timber props, so the wall stands on
+    them; then pulls them one by one (a kick, a stick): one out, it groans and holds; two, a section drops;
+    all, the wall comes down into the trench. Too few props, or one pulled too soon, and it caves in on
+    whoever's under it.
+  - **The Baron must survive** (DECIDED): which wall, and how much comes down, is the player's to judge
+    from where the Baron is.
+  - **The mark:** the trench and the house with its wall down stay on the rise for the rest of the game.
+- OPEN (between it and a 5, all build questions): a frame test of a stone wall dropping off props (the
+  masonry lab's panel, on props, props pulled); a partial span without the arch rule (S3); the props'
+  creak and bow made obvious; a tamped mine isn't modelled.
+- It's one way in among others (the door, a wall blown the ordinary way); the Baron's house as a masonry
+  test piece is still the dependency (#663).
+
 ## How you hear of it
 
 - OPEN: no source says. It follows `the-bridge-is-out`.
