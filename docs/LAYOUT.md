@@ -1202,6 +1202,10 @@ strafe_l/r by which way his feet go, `lib_travel`; crouch_idle/crouch_walk; pist
 phase by the ground he covers (`stride_m` scaled to his legs: the planted foot stays put), what it
 has of him by his pose (`mask_for`: aiming, his legs and free arm only, since the shot leaves down
 the gun's barrel); under a played clip, over the pose; the hips' height as the capture's;
+a clip's `clavicle_r`/`clavicle_l` channels (the Uthana ones: reload, walk_gun, run_gun, stagger;
+CMU's have none) passed on with their side's upper arm, scaled with his arm swing, faded in and out
+across a change of clip (`clav_k`), and given to DeformRig under a played clip's per side
+(`HumanBody._pose_deform`, `DeformRig.pose`'s `clip_ws`; #715);
 `go_limp` lets go at once. A hit from in front he stays up from plays `hit_front`/`hit_head` on
 top as turns from the clip's first frame (`LibraryMotion.hits`). Tools: `tools/library_lineup.gd`
 (`--film`, `--sheet` each clip's worst frame, `--takes` every candidate), `experiments/library_motion/film.sh`.

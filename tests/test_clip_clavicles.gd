@@ -2,8 +2,9 @@ extends TestCase
 ## The clips carry the clavicles (#708): tools/blender/retarget_motion.py writes a `clavicle_r` and
 ## `clavicle_l` channel (the clavicle's turn from rest in the chest's frame) from every source rig
 ## that turns its clavicles (Uthana's and Mixamo's LeftShoulder), held to the girdle's limits the
-## game holds its own drive to; a clip whose source never turns them (the CMU takes) has none; and
-## a man playing a clip with them has his clavicles follow it.
+## game holds its own drive to; a clip whose source never turns them (the CMU takes) has none; a
+## man playing a clip with them has his clavicles follow it; and the library layer passes them on
+## too (#715), with its arms, fading across a change of clip.
 
 const ANIM := "res://assets/animations/"
 
@@ -127,3 +128,92 @@ func test_a_man_playing_a_clip_has_his_clavicles_follow_it() -> void:
 	man.stop_clip()
 	await physics_frames(30)
 	check_near(man._clip_w, 0.0, 1e-3, "the clip let go")
+
+
+# --- The library layer's clavicles (#715) -------------------------------------------------------
+
+## A man with the gun out, walking (the library's walk_gun, which carries both channels).
+func _gun_walker() -> HumanBody:
+	var m := HumanBody.new()
+	m.has_gun = true
+	world.add_child(m)
+	m.global_position = Vector3(8, 0, 10)
+	await physics_frames(3)
+	m.draw_gun()
+	await physics_frames(30)
+	var target := m.global_position + Vector3(0, 0, -20)
+	for i in 50:
+		m.walk_to(target, 1.4, 1.0 / 60.0)
+		await physics_frames(1)
+	return m
+
+
+func _rel(sk: Skeleton3D, cid: String) -> Quaternion:
+	return (_move(sk, "chest").basis.inverse() * _move(sk, cid).basis).get_rotation_quaternion()
+
+
+func test_walking_with_the_gun_his_clavicles_follow_the_library_clip() -> void:
+	var was: bool = Settings.library_motion
+	Settings.library_motion = true
+	var m: HumanBody = await _gun_walker()
+	check_eq(m._lib.move, &"walk_gun", "the gun walk")
+	check_near(m._lib.w, 1.0, 1e-3, "the layer has him")
+	var seen := 0
+	for cid: StringName in [&"clavicle_r", &"clavicle_l"]:
+		var arm := StringName("upper_arm_" + String(cid).right(1))
+		if not m._pose_lib.has(arm):
+			check(not m._pose_lib.has(cid), "%s: no channel without its arm" % cid)
+			continue
+		if not check(m._pose_lib.has(cid), "%s: the layer passes the channel with its arm" % cid):
+			continue
+		seen += 1
+		check_near(float(m._lib.clav_k.get(cid, 0.0)), 1.0, 1e-3, "%s: wholly the clip's after the crossing" % cid)
+		var off := rad_to_deg(_rel(m.skeleton, String(cid)).angle_to(m._pose_lib[cid]))
+		check(off < 1.0, "%s: his clavicle is the clip's (%.2f degrees off)" % [cid, off])
+	check(seen >= 1, "at least one side's clavicle led by the clip (%d)" % seen)
+	Settings.library_motion = was
+
+
+func test_aiming_the_gun_arms_clavicle_stays_the_drives() -> void:
+	var was: bool = Settings.library_motion
+	Settings.library_motion = true
+	var m: HumanBody = await _gun_walker()
+	m.set_pose(&"aim")
+	await physics_frames(30)
+	check(not m._pose_lib.has(&"upper_arm_r") and not m._pose_lib.has(&"clavicle_r"),
+			"aiming, the gun arm and its clavicle aren't the clip's")
+	Settings.library_motion = was
+
+
+func test_the_cmu_walk_has_no_channel_and_a_crossing_fades_it_in() -> void:
+	var was: bool = Settings.library_motion
+	Settings.library_motion = true
+	var m := HumanBody.new()
+	m.has_gun = false
+	world.add_child(m)
+	await physics_frames(3)
+	m._lib.force = &"walk"
+	await physics_frames(40)
+	check(not m._pose_lib.has(&"clavicle_r") and not m._pose_lib.has(&"clavicle_l"), "the CMU walk: no channel")
+	m._lib.force = &"walk_gun"
+	await physics_frames(3)
+	var early := float(m._lib.clav_k.get(&"clavicle_r", 0.0))
+	check(m._pose_lib.has(&"clavicle_r"), "crossing to the gun walk, its channel comes in")
+	check(early > 0.0 and early < 0.5, "faded in over the crossing, not at once (%.2f)" % early)
+	await physics_frames(30)
+	check_near(float(m._lib.clav_k.get(&"clavicle_r", 0.0)), 1.0, 1e-3, "after the crossing, wholly the clip's")
+	m._lib.force = &"walk"
+	await physics_frames(3)
+	var leaving := float(m._lib.clav_k.get(&"clavicle_r", 0.0))
+	check(leaving > 0.5 and leaving < 1.0, "back to the CMU walk, it fades out (%.2f)" % leaving)
+	await physics_frames(30)
+	check(not m._pose_lib.has(&"clavicle_r"), "and is gone")
+	Settings.library_motion = was
+
+
+func test_with_library_motion_off_no_library_channel_reaches_him() -> void:
+	var was: bool = Settings.library_motion
+	Settings.library_motion = false
+	var m: HumanBody = await _gun_walker()
+	check(m._lib == null and m._pose_lib.is_empty(), "no library layer")
+	Settings.library_motion = was
