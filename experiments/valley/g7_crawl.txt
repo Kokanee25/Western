@@ -1,0 +1,20 @@
+# Valley G7 walks (#737): down flat (the crawl, hold C) and in under the undertaker's walk on its
+# posts. Real look, lavapipe, a film:
+# python3 tools/bridge.py run experiments/valley/g7_crawl.txt --size=960x540 --movie=build/g7_crawl.avi --game-args=--world=valley --timeout=3000
+wait 30
+time 10.5
+goto 125 -0.5 -4.0
+look 125 0.6 -9
+wait 2
+walk 125 -6.6
+look 125 0.4 -9
+wait 1
+crawl on
+look 125 0.2 -14
+wait 1
+press move_forward 4.5
+wait 1
+look 117 0.3 -9.6
+wait 2
+look 133 0.3 -9.6
+wait 2
