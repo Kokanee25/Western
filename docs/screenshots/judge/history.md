@@ -418,3 +418,11 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-09_cheap_matlib_common_r2 | golden_far | **cheap indie** | 2, 3, 4, 6 | Grain running the wrong way | 2% / 4.5 / 1.22 / 0.18 | #718 round 2, common (C2 still with the fir grain bug) |
 | 2026-11-09_cheap_matlib_common_r2 | noon_near | **cheap indie** | 1, 4, 6 | Rust zig-zags on the top boards | 18% / 0.2 / 1.30 / 0.16 | #718 round 2, common (C2 still with the fir grain bug) |
 | 2026-11-09_cheap_matlib_common_r2 | saloon_far | **cheap indie** | 3, 4 | Orange wash on the wood | 70% / 0.0 / 1.03 / 0.32 | #718 round 2, common (C2 still with the fir grain bug) |
+| 2026-11-09_cheap_matlib_fine_r2 | saloon_far | **cheap indie** | 3, 4 | The panel glows evenly orange like a lit sign | 67% / 0.0 / 1.23 / 0.31 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | saloon_near | **cheap indie** | 1, 3 | Underexposed to mush | 100% / 0.0 / 1.37 / 0.37 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | golden_far | **cheap indie** | 2, 3, 4 | Fire-engine red wood | 5% / 1.5 / 1.51 / 0.24 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | saloon_far | **cheap indie** | 3, 4, 6 | The panel reads as a red velvet curtain | 79% / 0.0 / 0.92 / 0.21 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | noon_near | **good indie** | 3, 4 | Very dark, little to read | 96% / 0.0 / 0.63 / 0.52 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | noon_far | **cheap indie** | 2, 3, 4 | Matte, not varnished | 4% / 5.6 / 1.01 / 0.26 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | saloon_rail | **cheap indie** | 3, 4, 6 | Stamped glass rings | 92% / 0.0 / 1.76 / 0.32 | #718 round 2, fine (mahogany before its in-between tint) |
+| 2026-11-09_cheap_matlib_fine_r2 | noon_rail | **good indie** | 4 | Speckled grain on the floor | 18% / 0.1 / 0.92 / 0.37 | #718 round 2, fine (mahogany before its in-between tint) |
