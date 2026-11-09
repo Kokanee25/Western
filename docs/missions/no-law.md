@@ -24,9 +24,13 @@ Quiet Drink" (`docs/briefs/three-gunmen.md` §10, possibly the same). Sources: D
 - PROPOSED (this session, under review): play it as a short act, not a cutscene; the red shirt is a
   coward (Sean's No Justice card) and runs at the first shot, his gang covering him; if a player still
   kills him on night one, No Justice bends as in Sean's "kills the man in the red shirt outside" case.
-- OPEN: cutscene or an act the player can break into (DESIGN.md "Little acts in the world, not
-  cutscenes", Sean 2026-10-15).
-- OPEN: whether the stranger (too curious about the sheriff and the spring) stays in the scene.
+- DECIDED (Sean, 2026-11-09): "it's played in game while player is sitting at a table and has no gun
+  yet so he can't do anything at all". (Settles cutscene vs act: in the game, the player seated and
+  unarmed. The proposal above, the red shirt's cowardice as a safety net, is no longer needed.)
+- DECIDED (Sean, 2026-11-09): "the stranger sits there and tells the character not to do anything".
+- PROPOSED (Sean, 2026-11-09): "maybe day 2 the murder of the woman occurs that night after then murder
+  of the cheat": the red shirt leaves town after the killing and the raid on Joe's camp is that same
+  night; Harlan meets Joe on day 2.
 - Superseded: DESIGN.md (2026-10-15) had the saloon table "the evening before day 1"; Sean's version
   puts it the first night, after the sheriff.
 

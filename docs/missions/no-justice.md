@@ -40,7 +40,9 @@ section below too.
 - PROPOSED (Sean, 2026-11-09): the man in the red shirt is first seen on the first night in the
   saloon, where he kicks out the card cheat's chair and murders him (`no-law`). Harlan isn't the law
   yet that night; the sheriff appoints him on day 2 (DECIDED, Sean 2026-11-09).
-- OPEN: when Harlan first meets Joe at the doctor's: day 1, carrying the sheriff in, or day 2.
+- PROPOSED (Sean, 2026-11-09): "maybe day 2 the murder of the woman occurs that night after then
+  murder of the cheat": the raid on Joe's camp is night one, after the red shirt kills the card cheat
+  in the saloon; Harlan meets Joe at the doctor's on day 2, the day the sheriff appoints him.
 
 ## How you hear of it
 

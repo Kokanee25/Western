@@ -79,8 +79,10 @@ flowchart TD
 ```
 
 **The opening, in order** (Sean, 2026-11-09): day 1 dawn, the sheriff on the road → the doctor's →
-night 1, `no-law` (Harlan is no law yet: a murder nobody answers for) → day 2, the sheriff appoints
-Harlan and dies → `no-justice` (now he's the law, and the law fails anyway).
+night 1, `no-law` (Harlan seated, unarmed, no law yet; the stranger tells him not to do anything; the
+red shirt murders the card cheat) → (PROPOSED, Sean's "maybe": the same night the red shirt's gang
+raids Joe's camp) → day 2, the sheriff appoints Harlan and dies; Harlan meets Joe at the doctor's →
+`no-justice` (now he's the law, and the law fails anyway).
 
 The DECIDED edges and where Sean's words are:
 - `no-justice` → `joe-on-the-rope`: #738 (2026-11-09). The Winchester before the rope: #546 (2026-11-04,
