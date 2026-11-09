@@ -539,7 +539,7 @@ frozen until Sean names one.
   `docs/style_test/raised-arms-2026-10-26/`. Sean's call: the look, and the Studio's shoulder blend.
 - **Library clips** (2026-11-01, #529, #539; branch `claude/characters-cmu-basics`; lab
   `experiments/library_motion/`): played by `LibraryMotion` by the body's own state behind
-  `Settings.library_motion` (off in the game; Sean: "good enough as a placeholder"). CMU motion
+  `Settings.library_motion` (on in the game since 2026-11-02, stand-ins). CMU motion
   capture for the basics (the free packs' clips were cartoon), each man his own walk and run,
   stride and arm swing; Uthana's gun walk and run ($7.50, the Studio's `claude/studio-gun-moves`).
   Open: the run's planting foot drifts (foot IK); 100STYLE (100 walk styles, CC-BY) needs
@@ -548,7 +548,8 @@ frozen until Sean names one.
   `clavicle_r`/`clavicle_l` (the turn relative to the source's chest through the chest's fixed turn,
   held to SkeletonTuning's limits, no roll); every Uthana clip re-exported (segments identical), CMU's
   left to the drive (its BVH zeroes them). Films `experiments/skeleton/results/2026-11-08_clips/`.
-  Next (gameplay's): #715, LibraryMotion plays the library clips' channels.
+  **The library layer plays them** (#715, gameplay's files, Sean's ask to this session): see LAYOUT
+  "src/bodies" (LibraryMotion); `tests/test_clip_clavicles.gd` (7).
 - For art: the vest and trousers render darker and flatter than their textures (the vest keeps
   0.88 of his picture's edge strength in the texture, 0.59 in the lab's render); faces' chroma in
   the saloon once he's painted; `test_street.tscn`'s `volumetric_adjustment_enabled` typo.
