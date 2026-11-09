@@ -49,7 +49,7 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 | `mine` | The silver mine | -1720 | -790 | 79.0 | 78.7 | 70 x 45 | mine_road | buried_alive | DECIDED (a separate uphill property on a reachable foothill bench; no branch railway); PROPOSED place |
 | `powder_magazine` | Mine powder magazine | -1800 | -850 | 91.5 | 91.5 | - | mine_road | buried_alive | PROPOSED (set apart from the works, as period practice) |
 | `timber_camp` | Timber camp and saw pit | -1150 | -1150 | 61.0 | 62.1 | 80 x 50 | timber_road | - | DECIDED (Sean, #700: north-west foothills, a modest pine stand on north-facing slopes, reachable by wagon) |
-| `widow_homestead` | The widow's homestead (the sheriff's family) | 1712 | -560 | -10.0 | -9.9 | 34 x 30 | widow_lane, east_road | farmhouse_rescue, opening | DECIDED (east of town, north of the railway, near Salt Creek with creek frontage, on the eastern wagon road past the overpass; the farmhouse hostage rescue; Sean #700: her water right is the valuable one and the reason for the murder); PROPOSED exact place |
+| `widow_homestead` | The widow's homestead (the sheriff's family) | 1712 | -560 | -8.1 | -9.9 | 34 x 30 | widow_lane, east_road | farmhouse_rescue, opening | DECIDED (east of town, north of the railway, near Salt Creek with creek frontage, on the eastern wagon road past the overpass; the farmhouse hostage rescue; Sean #700: her water right is the valuable one and the reason for the murder); PROPOSED exact place |
 | `harlan_homestead` | Thomas Harlan's homestead | 432 | 470 | 2.0 | 2.0 | 30 x 24 | harlan_lane, harlan_ford_path | opening | DECIDED (south-east, about a two-minute ride; Sean, 2026-11-08 on #700: route A, his lane over the town bridge, no overpass on his daily ride) |
 | `baron_ranch` | The Baron's ranch headquarters | 1320 | 1260 | 20.0 | 20.0 | 120 x 90 | south_road, ranch_canyon_road | barons_shipment, vaqueros_horses | DECIDED (south-east, open grazing country); PROPOSED place. Sean, #700: no off-map herds; cows may be made (OPEN), so his range is reserved in the valley (baron_range) |
 | `baron_range` | The Baron's range (reserved grazing) | 1750 | 1250 | 21.4 | 21.4 | 1200 x 1600 (area) | south_road, ranch_canyon_road | vaqueros_horses | PROPOSED reservation (Sean, #700: no off-map herds; cows may be made: OPEN). Open grazing upland round and east of the ranch, fenced along the canyon road and the South Road; nothing placed in it yet |
@@ -73,7 +73,7 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 | `vp_trestle_overlook` | Trestle overlook (the canyon's west rim, up-canyon) (viewpoint) | 1120 | 180 | -1.2 | - | - | - | - | PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view |
 | `vp_east_rim_north` | East rim, north of the trestle (viewpoint) | 1280 | -300 | 1.5 | - | - | - | - | PROPOSED: a second vantage point, above the widow's side |
 | `vp_canyon_floor` | Canyon floor below the trestle (viewpoint) | 1163 | 15 | -18.2 | - | - | - | - | PROPOSED |
-| `vp_widow` | The widow's farmhouse porch (viewpoint) | 1712 | -560 | -10.0 | - | - | - | - | PROPOSED |
+| `vp_widow` | The widow's farmhouse porch (viewpoint) | 1712 | -560 | -8.1 | - | - | - | - | PROPOSED |
 | `vp_canyon_mouth` | The canyon mouth (the bottomland) (viewpoint) | 1250 | -560 | -13.9 | - | - | - | - | PROPOSED |
 | `vp_harlan` | Harlan's doorstep (viewpoint) | 432 | 470 | 2.0 | - | - | - | - | PROPOSED |
 | `vp_east_road_rim` | East Road on the east rim (viewpoint) | 1400 | 150 | 5.3 | - | - | - | - | PROPOSED |
@@ -200,7 +200,7 @@ Grades over 20 m windows on the shaped ground; bridges at their decks. Period pr
 | the timber road | wagon | 1510 | 2.5 | 60.9 | 8.5 % | 569 m | 0 m | ok |
 | Church Lane | lane | 173 | 2.7 | 10.4 | 9.4 % | 58 m | 0 m | ok |
 | the East Road (the old through-road) | wagon | 3029 | -18.0 | 11.2 | 7.9 % | 89 m | 0 m | ok |
-| the widow's lane | lane | 91 | -10.0 | -6.0 | 6.8 % | 23 m | 0 m | ok |
+| the widow's lane | lane | 91 | -9.0 | -6.0 | 5.8 % | 0 m | 0 m | ok |
 | Harlan's lane | lane | 529 | -5.0 | 1.9 | 4.6 % | 0 m | 0 m | ok |
 | Harlan's ford path | track | 348 | -8.4 | 2.0 | 10.0 % | 66 m | 0 m | ok |
 | the South Road (to the Baron's) | wagon | 1744 | -4.3 | 19.7 | 2.6 % | 0 m | 0 m | ok |
@@ -218,7 +218,7 @@ By the road network (shortest way), the game's walk (2.8 m/s) and the PROPOSED h
 |---|---|---|---|---|---|---|---|---|
 | Harlan's homestead | 638 | 713 | 4:15 | 3:03 | 2:10 | +7 / -5 | the town bridge | main_street > ns_street > harlan_lane |
 | The opening's encounter site | 545 | 553 | 3:17 | 2:22 | 1:40 | +1 / -6 | - | main_street > east_road > harlan_ford_path |
-| The widow's homestead | 1801 | 2621 | 15:36 | 11:12 | 7:57 | +23 / -33 | Bridge B; Bridge A | main_street > east_road > widow_lane |
+| The widow's homestead | 1801 | 2621 | 15:36 | 11:12 | 7:57 | +24 / -32 | Bridge B; Bridge A | main_street > east_road > widow_lane |
 | Bridge A (creek crossing) | 1007 | 1016 | 6:03 | 4:20 | 3:05 | +1 / -11 | Bridge A | main_street > east_road |
 | Bridge B (the overpass) | 1926 | 2131 | 12:41 | 9:07 | 6:28 | +23 / -11 | Bridge B; Bridge A | main_street > east_road |
 | Trestle overlook | 1134 | 1314 | 7:49 | 5:37 | 3:59 | +7 / -11 | Bridge A | main_street > east_road |

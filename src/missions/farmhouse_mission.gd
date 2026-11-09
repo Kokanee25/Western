@@ -8,6 +8,13 @@ extends Node
 ## Enter starts it again from the edge of town (`start_on_load`, GameReset). Dev ways in: the
 ## bridge's `farm_start`, `-- --mission=farmhouse`.
 ##
+## In the valley (G6, #731: the farmhouse on the widow's pad; no TownLife, so no blacksmith and no
+## riders to take): it starts when you first come within `VALLEY_REACH` of the house (the gang's
+## there, holding the rancher, when you get there), by `farm_start` or `-- --mission=farmhouse`
+## (you on the slope before the house: Farmhouse.start_place), or Enter after a lost try. The gang's
+## men are made as TownLife makes its riders (TownLife.make_rider) and find their way by the farm's
+## own places (`places()`).
+##
 ## Started, the gang's riders (TownLife.take_riders: they don't ride into town) and two more are
 ## at their posts in the house (OutlawBrain.hold: they keep to it), the rancher tied to a chair in
 ## the bedroom (HostageBrain). The alarm (a man sees you, hears a shot or glass or timber go, a
@@ -21,6 +28,9 @@ extends Node
 enum State {IDLE, TELLING, ON, WON, LOST}
 
 const START_ARG := "--mission=farmhouse"
+## In the valley it starts when you come this near the house (m): the widow's lane's foot is ~95 m
+## off, the East Road's descent from Bridge B ~200 m.
+const VALLEY_REACH := 300.0
 ## A failed try's Enter: the game started again (GameReset) with the mission on from the edge of town.
 static var start_on_load := false
 
@@ -97,6 +107,8 @@ var _last_shot_t := -9.0
 var _free_hold := 0.0
 var _prompt := 0.0
 var _player: Player
+## The farm's own places in the valley (G6; `places()`).
+var _farm_places: Waypoints
 
 
 func _ready() -> void:
@@ -140,8 +152,32 @@ func _begin_when_ready(place_player: bool) -> void:
 	begin(place_player)
 
 
+## The gang's riders as TownLife would have them waiting (their bodies, seeds and colours), for the
+## valley's farmhouse (G6): there's no TownLife there. {id: HumanBody}
+func _valley_riders() -> Dictionary:
+	var out := {}
+	for i in TownLife.GANG.size():
+		var man := TownLife.make_rider(i)
+		out[StringName(TownLife.GANG[i].id)] = man
+	return out
+
+
 func _town() -> TownLife:
 	return get_tree().get_first_node_in_group(&"town_life") as TownLife
+
+
+## Where the men (and the rancher, and the scripted player) find their way: the town's places; in
+## the valley the farm's own (Farmhouse.add_valley_places on a Waypoints of their own: the valley's
+## run to a thousand across 4 km, and every route searches them all; the men keep to the house and
+## its yard).
+func places() -> Waypoints:
+	var town := _town()
+	if town:
+		return town.places
+	if _farm_places == null:
+		_farm_places = Waypoints.new()
+		Farmhouse.add_valley_places(_farm_places, &"", Callable())
+	return _farm_places
 
 
 func player() -> Player:
@@ -159,7 +195,7 @@ func begin(place_player := false) -> void:
 		return
 	var house := Farmhouse.of(get_tree())
 	var town := _town()
-	if house == null or town == null:
+	if house == null or (town == null and not Farmhouse.in_valley()):
 		push_warning("FarmhouseMission: no farmhouse or no town")
 		return
 	state = State.ON
@@ -173,7 +209,7 @@ func begin(place_player := false) -> void:
 	# (Standing: a man you've already put down stays where he lies, #562.)
 	if range_spawn and range_spawn.outlaw and is_instance_valid(range_spawn.outlaw) and not range_spawn.outlaw.limp:
 		range_spawn.outlaw.queue_free()
-	var riders := town.take_riders()
+	var riders := town.take_riders() if town else _valley_riders()
 	var ids: Array[StringName] = []
 	for m: Dictionary in tuning.men:
 		ids.append(StringName(m.id))
@@ -201,7 +237,7 @@ func begin(place_player := false) -> void:
 			if other != id:
 				friends.append(other)
 		brain.friends = friends
-		brain.places = town.places
+		brain.places = places()
 		var post := Farmhouse.use_point(String(m.post))
 		var room := String(m.get("hold", "house"))
 		brain.hold = {"inside": inside_bedroom if room == "bedroom" else inside, "post": post[0], "look": post[1], "cornered": cornered,
@@ -215,7 +251,7 @@ func begin(place_player := false) -> void:
 		if room == "bedroom":
 			guard = brain
 		_watch(man, brain)
-	_rovers_out(street, town, ids)
+	_rovers_out(street, ids)
 	for left: HumanBody in riders.values():
 		if is_instance_valid(left) and not left.is_inside_tree():
 			left.free()
@@ -232,7 +268,7 @@ func begin(place_player := false) -> void:
 	if place_player:
 		var p := player()
 		if p:
-			var at := town.places.at(&"road_east")
+			var at := places().at(Farmhouse.start_place())
 			p.global_position = at + Vector3.UP * 0.05
 			var to := Farmhouse.at(Vector3(4.5, 0.0, 2.6)) - at
 			p.rotation.y = atan2(-to.x, -to.z)
@@ -242,7 +278,7 @@ func begin(place_player := false) -> void:
 ## The rovers (FarmhouseTuning.rovers): outlaws held to the yard (OutlawBrain.hold, its `inside`
 ## the yard round the house), at the first stop of their beats; the mission walks them round it
 ## (`_beat_step`) by moving the post they keep.
-func _rovers_out(street: Node, town: TownLife, ids: Array[StringName]) -> void:
+func _rovers_out(street: Node, ids: Array[StringName]) -> void:
 	var all := ids.duplicate()
 	if "--farm-rovers=0" in OS.get_cmdline_user_args():
 		return  # the lab's before (issue #565)
@@ -253,9 +289,9 @@ func _rovers_out(street: Node, town: TownLife, ids: Array[StringName]) -> void:
 		var id := StringName(r.id)
 		var stops: Array = []
 		for st: Dictionary in tuning.beats.get(String(r.get("beat", "")), []):
-			if not town.places.has(StringName(st.at)):
+			if not places().has(StringName(st.at)):
 				continue
-			var at := town.places.at(StringName(st.at))
+			var at := places().at(StringName(st.at))
 			var lk: Array = st.get("look", [4.5, -30.0])
 			stops.append([at, float(st.get("pause", 4.0)), Farmhouse.on_ground(float(lk[0]), float(lk[1])) + Vector3.UP * 1.5, st.get("quiet", [])])
 		if stops.is_empty():
@@ -277,7 +313,7 @@ func _rovers_out(street: Node, town: TownLife, ids: Array[StringName]) -> void:
 			if other != id:
 				friends.append(other)
 		brain.friends = friends
-		brain.places = town.places
+		brain.places = places()
 		var k := int(r.get("start", 0)) % stops.size()
 		brain.hold = {"inside": in_yard, "post": stops[k][0], "look": stops[k][2]}
 		brain.agenda = [{"do": &"post"}]
@@ -368,8 +404,8 @@ func _rover_alarm(b: OutlawBrain) -> void:
 
 ## The nearer of the house's two doors to `at`: [the doorway, the use point inside he holds].
 func _nearest_door(at: Vector3) -> Array:
-	var front := _town().places.at(&"farm_door")
-	var back := _town().places.at(&"farm_back_door")
+	var front := places().at(&"farm_door")
+	var back := places().at(&"farm_back_door")
 	return [front, "inside_door"] if at.distance_to(front) <= at.distance_to(back) else [back, "kitchen"]
 
 
@@ -426,7 +462,7 @@ func tuning_line(kind: String) -> String:
 
 ## The rancher (the town's, taken from in front of the livery) tied into the bedroom's chair.
 func _hostage(street: Node, town: TownLife) -> void:
-	if town.rancher != null and is_instance_valid(town.rancher):
+	if town != null and town.rancher != null and is_instance_valid(town.rancher):
 		town.rancher.queue_free()
 	var seat := Farmhouse.use_point("hostage")
 	var chair := Seating.free_chair_near(get_tree(), seat[0], 1.2)
@@ -1050,12 +1086,17 @@ func retry() -> void:
 
 # --- The blacksmith tells you -------------------------------------------------------------------
 
-## Walk up to the blacksmith by the livery before the gang's come into town, and he tells you.
+## Walk up to the blacksmith by the livery before the gang's come into town, and he tells you. In
+## the valley: come within VALLEY_REACH of the widow's and it's on (the gang's there before you).
 func _offer(_delta: float) -> void:
 	if Engine.get_physics_frames() % 15 != 0:
 		return
 	var town := _town()
 	var p := player()
+	if town == null and p != null and Farmhouse.in_valley():
+		if p.global_position.distance_to(Farmhouse.at(Farmhouse.MIDDLE)) < VALLEY_REACH:
+			begin(false)
+		return
 	if town == null or p == null or town.blacksmith == null or not is_instance_valid(town.blacksmith):
 		return
 	var b := town.blacksmith

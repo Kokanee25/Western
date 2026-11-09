@@ -50,6 +50,21 @@ func _spots(world: StringName) -> Array:
 	var vp: Dictionary = lay.viewpoint("vp_trestle_overlook")
 	var o := Vector2(vp.at[0], vp.at[1])
 	out.append(["trestle_overlook", Vector3(o.x, 0.0, o.y), _heading(o, mid)])
+	# The widow's pad (G6, #731): from the lane's foot and from the mission's start on the slope,
+	# looking at the house (its mission comes on as you're there: you're within its reach). With
+	# `--no-farmhouse` (a game arg) the same spots, the pad bare: the before.
+	var pad: Dictionary = lay.place("widow_homestead")
+	var house := Vector2(pad.at[0], pad.at[1])
+	var fh = load("res://src/missions/farmhouse.gd")
+	var lane := house + Vector2(-1.7, 12.8)  # (the farm's lane foot: its own (2.8, -9), turned to face south)
+	var start := house + Vector2(-58.0, 55.6)  # (the try's start: the old town's road_east, carried)
+	if fh.in_valley():
+		var l: Vector3 = fh.at(Vector3(2.8, 0.0, -9.0))
+		lane = Vector2(l.x, l.z)
+		var st: Vector3 = fh.carried(40.0, TownLayout.street_z(40.0) + 3.0)
+		start = Vector2(st.x, st.z)
+	out.append(["widow_lane", Vector3(lane.x, 0.0, lane.y), _heading(lane, house)])
+	out.append(["widow_start", Vector3(start.x, 0.0, start.y), _heading(start, house)])
 	return out
 
 
@@ -118,6 +133,9 @@ func _run() -> void:
 		m["sean_render_cpu_ms"] = snappedf(float(m.render_cpu_ms) * scale, 0.01)
 		m["at"] = [at.x, at.y, at.z, s[2]]
 		report.spots[s[0]] = m
+		var fm = world_root.get_node_or_null(^"FarmhouseMission")
+		if fm:
+			m["farm_men"] = fm.brains.size()
 		print("%-17s frame %.1f ms (p99 %.1f)  render CPU %.2f ms (Sean's %.2f)  draws %d  prims %dk  blocks %s  prime %.0f ms  train %.3f ms  people %.3f ms  nodes %d" % [
 				s[0], m.avg_ms, m.p99_ms, m.render_cpu_ms, m.sean_render_cpu_ms, m.draw_calls, m.primitives / 1000.0,
 				m.get("blocks", {}).get("by_level", {}), prime_ms, m.train_ms, m.people_ms, m.nodes])
