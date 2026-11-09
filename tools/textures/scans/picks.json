@@ -110,6 +110,26 @@
    "id": "Wood089",
    "source": "ambientcg",
    "why": "rough grey weathered, plain grain"
+  },
+  {
+   "id": "rough_wood",
+   "source": "polyhaven",
+   "why": "old rough board: silver-grey, checks and cracks"
+  },
+  {
+   "id": "Wood011",
+   "source": "ambientcg",
+   "why": "pale weathered grey, clear grain"
+  },
+  {
+   "id": "Wood016",
+   "source": "ambientcg",
+   "why": "weathered pine"
+  },
+  {
+   "id": "Wood076",
+   "source": "ambientcg",
+   "why": "dark rough brown, spare"
   }
  ]
 }
