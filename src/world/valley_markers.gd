@@ -637,7 +637,13 @@ func _build_posts() -> void:
 	for hp: Dictionary in layout.heights():
 		var hid := StringName(String(hp.id))
 		if places.has(hid):
-			posts.append({"id": String(hp.id), "at": places.at(hid) - Vector3.UP * 0.05, "name": String(hp.get("short", hp.name)), "cat": "height"})
+			# Beside its place, not on it (a post on a high spot stands in the shooter's view):
+			# POST_OFF to the right of the way to its first target.
+			var at := places.at(hid)
+			var t := ValleyLayout.xz((hp.targets[0] as Dictionary).at) if not (hp.get("targets", []) as Array).is_empty() else Vector2(at.x, at.z + 1.0)
+			var d := (t - Vector2(at.x, at.z)).normalized()
+			var c := Vector2(at.x, at.z) + Vector2(-d.y, d.x) * POST_OFF
+			posts.append({"id": String(hp.id), "at": _on_ground(c) - Vector3.UP * 0.05, "name": String(hp.get("short", hp.name)), "cat": "height"})
 	for b: Dictionary in layout.bridges():
 		var id := StringName(String(b.id))
 		if places.has(id):

@@ -78,10 +78,10 @@ def script():
 		hy = high_y(at, d, hp)
 		tx, tz = hp["targets"][0]["at"]
 		ty = at(tx, tz)
-		# From the high spot: the eye 1.7 m up, a step back from the lip, looking at the target.
+		# From the high spot: the eye 1.7 m up, a step toward the target (over the lip), looking at it.
 		dx, dz = tx - hx, tz - hz
 		n = math.hypot(dx, dz)
-		ex, ez = hx - dx / n * 1.0, hz - dz / n * 1.0
+		ex, ez = hx + dx / n * 1.5, hz + dz / n * 1.5
 		L.append("camera %.1f %.2f %.1f %.1f %.2f %.1f" % (ex, hy + 1.7, ez, tx, ty + 1.0, tz))
 		L.append("wait 8")
 		L.append("screenshot %s/%s_above.png" % (SHOTS, hp["id"]))
