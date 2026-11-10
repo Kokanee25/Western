@@ -14,13 +14,14 @@ extends SceneTree
 ## name -> [camera, look at (the building's space: y over the street edge's ground; the ground
 ## floor is at 0.95), fov, hour].
 const VIEWS := {
-	# The surgery from the doctor's side of the table (`operate`), by morning light from the east.
-	"surgery": [Vector3(3.35, 2.45, 4.15), Vector3(1.6, 1.45, 5.9), 64.0, 9.5],
+	# The surgery from its back by the sick room's door (the hall door at z 4.6 and the side door at
+	# z 7.3 swing in: clear of both), the table end on, the east windows left, by morning light.
+	"surgery": [Vector3(1.55, 2.45, 7.95), Vector3(2.1, 1.3, 4.9), 66.0, 9.5],
 	# The same at night: the reflector lamp lit on the instrument table.
-	"surgery_night": [Vector3(3.35, 2.45, 4.15), Vector3(1.6, 1.45, 5.9), 64.0, 21.5],
+	"surgery_night": [Vector3(1.55, 2.45, 7.95), Vector3(2.1, 1.3, 4.9), 66.0, 21.5],
 	# The washstand and the instrument table, close.
-	"wash": [Vector3(2.3, 2.3, 6.3), Vector3(3.7, 1.55, 7.7), 58.0, 10.0],
-	"instruments": [Vector3(1.35, 2.25, 6.05), Vector3(0.42, 1.72, 6.55), 50.0, 10.0],
+	"wash": [Vector3(2.4, 2.3, 6.2), Vector3(3.75, 1.55, 7.6), 58.0, 10.0],
+	"instruments": [Vector3(1.45, 2.25, 6.0), Vector3(0.42, 1.72, 5.25), 50.0, 10.0],
 	# The sick room, its two cots, in the afternoon.
 	"sick_room": [Vector3(3.85, 2.45, 11.2), Vector3(1.4, 1.2, 9.2), 66.0, 15.0],
 }
@@ -90,8 +91,9 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 			lamp.show_mesh = false
 			lamp.lit_from_hour = 17
 			lamp.lit_until_hour = 4
-			lamp.energy = 1.1
-			lamp.light_range = 6.0
+			# (a reflector lamp throws more of its light one way: a little over the sconces' 1.1)
+			lamp.energy = 1.6
+			lamp.light_range = 7.0
 			lamp.position = Vector3(0, float(e.light), 0)
 			node.add_child(lamp)
 		placed[e.id] = node
