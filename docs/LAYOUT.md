@@ -2129,6 +2129,12 @@ the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `t
   loose prop's `"model": "glb:<id>"` + `looks`. Lathes and sweeps take `"at"`/`"rot"` (onto any axis).
   Contact sheets: `python3 experiments/prop_lab/factory_sheet.py --ids=a,b --out=DIR` (the lab's
   bridge `prop ID X Y Z [YAW]`: before the saloon, a townsman beside, noon and 21:30).
+  `tools/props/coach.py` (#782): the Baron's coach (`baron_coach`) and its `strongbox`, on wagons.py's
+  wheels. The kit keys it brought, in KitProp: `"hinges"` (`open_hinge(name, amount)`,
+  `hinge_open`, `is_locked`/`unlock`; its members turned about the line, hung on its `"on"` members in
+  `_hang_hinged`), `"shot_breaks"` (J: a member a ball breaks, which iron never splits: a padlock, a
+  trace hook; `_any_bullet_hit`), `"carries"` (kit props put in as children on their floor:
+  `carried(name)`), and data for the heist (`"seats_at"`, a member's `"plate": true`).
 
 - **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
   `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over

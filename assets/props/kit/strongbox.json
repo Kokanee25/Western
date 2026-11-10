@@ -1,0 +1,512 @@
+{
+ "_doc": "The Baron's strongbox (#782): an iron box 60 x 35 x 33 cm, 5 mm walls, two straps round it, drop handles on its ends; the lid on two hinges along its back (`open_hinge(\"lid\")`), shut while the padlock and the hasp are whole and no key's turned (`unlock(\"lid\")`); the padlock breaks to a ball (`shot_breaks`), the hasp to a bar (break it); a ball doesn't go through its walls. His papers inside (`papers`: paper, they burn). ~45 kg. Under the coach's rear bench, its chain drawn on the floor.",
+ "id": "strongbox",
+ "kind": "members",
+ "in_game": true,
+ "factory": "tools/props/coach.py",
+ "wood": "iron",
+ "look": "prop:iron",
+ "splits_below": 0.4,
+ "blow_wood_share": 0.5,
+ "hinges": {
+  "lid": {
+   "members": [
+    "lid",
+    "hasp"
+   ],
+   "axis": [
+    [
+     -0.3,
+     0.327,
+     -0.175
+    ],
+    [
+     0.3,
+     0.327,
+     -0.175
+    ]
+   ],
+   "open": -105.0,
+   "on": [
+    "back"
+   ],
+   "locked_by": [
+    "padlock",
+    "hasp"
+   ]
+  }
+ },
+ "members": [
+  {
+   "id": "bottom",
+   "kind": "post",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.6,
+    0.005,
+    0.365
+   ],
+   "at": [
+    0.0,
+    0.0025,
+    0.0075
+   ]
+  },
+  {
+   "id": "front",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.6,
+    0.319,
+    0.005
+   ],
+   "at": [
+    0.0,
+    0.1645,
+    0.1725
+   ],
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.035,
+         0.319,
+         0.006
+        ],
+        "at": [
+         -0.2,
+         0.1645,
+         0.178
+        ]
+       },
+       {
+        "size": [
+         0.035,
+         0.319,
+         0.006
+        ],
+        "at": [
+         0.2,
+         0.1645,
+         0.178
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "back",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.6,
+    0.319,
+    0.005
+   ],
+   "at": [
+    0.0,
+    0.1645,
+    -0.1725
+   ],
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.035,
+         0.319,
+         0.006
+        ],
+        "at": [
+         -0.2,
+         0.1645,
+         -0.178
+        ]
+       },
+       {
+        "size": [
+         0.035,
+         0.319,
+         0.006
+        ],
+        "at": [
+         0.2,
+         0.1645,
+         -0.178
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "end_l",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.005,
+    0.319,
+    0.34
+   ],
+   "at": [
+    -0.2975,
+    0.1645,
+    0.0
+   ],
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.012,
+         0.012,
+         0.14
+        ],
+        "at": [
+         -0.32,
+         0.2046,
+         0.0
+        ]
+       },
+       {
+        "size": [
+         0.02,
+         0.04,
+         0.012
+        ],
+        "at": [
+         -0.31,
+         0.2178,
+         -0.065
+        ]
+       },
+       {
+        "size": [
+         0.02,
+         0.04,
+         0.012
+        ],
+        "at": [
+         -0.31,
+         0.2178,
+         0.065
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "end_r",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.005,
+    0.319,
+    0.34
+   ],
+   "at": [
+    0.2975,
+    0.1645,
+    0.0
+   ],
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.012,
+         0.012,
+         0.14
+        ],
+        "at": [
+         0.32,
+         0.2046,
+         0.0
+        ]
+       },
+       {
+        "size": [
+         0.02,
+         0.04,
+         0.012
+        ],
+        "at": [
+         0.31,
+         0.2178,
+         -0.065
+        ]
+       },
+       {
+        "size": [
+         0.02,
+         0.04,
+         0.012
+        ],
+        "at": [
+         0.31,
+         0.2178,
+         0.065
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "lid",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.61,
+    0.006,
+    0.36
+   ],
+   "at": [
+    0.0,
+    0.327,
+    0.0
+   ],
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.035,
+         0.006,
+         0.36
+        ],
+        "at": [
+         -0.2,
+         0.333,
+         0.0
+        ]
+       },
+       {
+        "size": [
+         0.035,
+         0.006,
+         0.36
+        ],
+        "at": [
+         0.2,
+         0.333,
+         0.0
+        ]
+       },
+       {
+        "size": [
+         0.05,
+         0.02,
+         0.02
+        ],
+        "at": [
+         -0.18,
+         0.324,
+         -0.183
+        ]
+       },
+       {
+        "size": [
+         0.05,
+         0.02,
+         0.02
+        ],
+        "at": [
+         0.18,
+         0.324,
+         -0.183
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "staple",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.025,
+    0.25,
+    0.008
+   ],
+   "at": [
+    0.0,
+    0.13,
+    0.181
+   ]
+  },
+  {
+   "id": "padlock",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.06,
+    0.065,
+    0.025
+   ],
+   "at": [
+    0.0,
+    0.2875,
+    0.1975
+   ],
+   "shot_breaks": 300.0,
+   "dress": [
+    {
+     "look": "prop:iron",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.008,
+         0.035,
+         0.008
+        ],
+        "at": [
+         -0.02,
+         0.335,
+         0.1975
+        ]
+       },
+       {
+        "size": [
+         0.008,
+         0.035,
+         0.008
+        ],
+        "at": [
+         0.02,
+         0.335,
+         0.1975
+        ]
+       },
+       {
+        "size": [
+         0.048,
+         0.008,
+         0.008
+        ],
+        "at": [
+         0.0,
+         0.351,
+         0.1975
+        ]
+       },
+       {
+        "size": [
+         0.008,
+         0.016,
+         0.004
+        ],
+        "at": [
+         0.0,
+         0.28,
+         0.212
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "hasp",
+   "kind": "trim",
+   "wood": "iron",
+   "look": "prop:iron",
+   "size": [
+    0.05,
+    0.1,
+    0.006
+   ],
+   "at": [
+    0.0,
+    0.28,
+    0.1785
+   ]
+  },
+  {
+   "id": "papers",
+   "kind": "trim",
+   "wood": "paper",
+   "look": "prop:ivory",
+   "size": [
+    0.3,
+    0.04,
+    0.22
+   ],
+   "at": [
+    -0.08,
+    0.025,
+    -0.02
+   ],
+   "dress": [
+    {
+     "look": "prop:felt",
+     "draw": {
+      "shape": "boxes",
+      "boxes": [
+       {
+        "size": [
+         0.012,
+         0.042,
+         0.222
+        ],
+        "at": [
+         -0.08,
+         0.025,
+         -0.02
+        ]
+       },
+       {
+        "size": [
+         0.302,
+         0.042,
+         0.012
+        ],
+        "at": [
+         -0.08,
+         0.025,
+         -0.02
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

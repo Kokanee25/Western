@@ -13,6 +13,8 @@ class_name PropKit
 ##    "contents": what's in it, {"liquid", "litres" | "full": true, "flammable", "colour"}
 ##    (PropContents: its weight, level, leaks),
 ##    "like": another kit file's id, its keys taken and these laid over them,
+##    "hinges": doors and lids that open, "carries": kit props inside it (KitProp, its "Hinges" and
+##    "What it carries"), a member's "shot_breaks" (J: a ball that hard breaks it),
 ##    "members": [{"id", "kind", "size", "at", "rot" (degrees, XYZ), "wood", "look",
 ##                 "splits_below", "blow_span" (the length of it a blow bends), "draw", "repeat"}]}
 ##
