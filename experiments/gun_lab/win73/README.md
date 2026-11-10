@@ -217,6 +217,72 @@ What was reachable: Wikipedia, and photographs of original 1873s on Commons.
 **Also checked:** Wikipedia's ".44-40 Winchester" confirms the cartridge figures used in "The
 dimensions", except the bullet: .429" there, against the .427" used; .429" now.
 
+### The paint rounds, judged in game light and first person
+
+```sh
+~/bpyenv/bin/python experiments/gun_lab/win73/win73_paint.py      # ~6 min; writes the glb, the rig json, surfaces/*.png
+godot --headless --import
+xvfb-run ... win73_views.gd -- --real --out=build/win73/views --only=turntable,side,threeq,sunlit,fp,close,mech
+```
+
+`win73_views.gd --only=fp` is first person in the hands: the rifle under the lab's camera at the
+game's field of view (75°, 62° aiming), held by two of the game's own `HeldHand`s (the painted
+Studio arms the coach gun is held in, used, not changed): the right round the wrist, the left under
+the forend. Three holds (shouldered, the low ready, the action turned to you), each with the sun
+behind you and to your right.
+
+**Round 1:** fixed in game light:
+- **The seams:** the side plates' seams wore bright both sides and read as a dotted white line. Wear
+  now stops inside hollows (by the ambient occlusion).
+
+**Round 3:** the cheap judge (`results/2026-11-10_painted/cheap_judge/`, blind, with the AAA
+references read in place):
+- **Verdicts:** one good indie (the action from behind, in sun), four cheap indie.
+- **The rifle's own faults:**
+  - the bluing too clean and too blue (royal blue in close-up);
+  - little wear;
+  - the walnut near black in shade.
+- **The rest:** the street's (the posterised sky, cloned grass, faceted rocks) and the placeholder
+  hands'.
+
+**Round 4:** each of the rifle's faults fixed from the reference rifle, not by taste:
+- **Bluing:** blue-black, near neutral; the reference's aged bluing measures RGB 38/38/35 on the
+  receiver and 30/27/30 on the barrel.
+- **Patina:** the bluing thinned in broad patches toward grey-brown, as the reference's receiver is.
+- **Case colours:** the hammer, lever and trigger faded to a warm grey-brown, as the reference's are.
+- **Wear:** the edges wear wider.
+- **Walnut:** mid brown.
+
+**Round 5:** the white blob on the receiver's front corner (rounds 1–4).
+- **What it wasn't:** it didn't move with roughness. The exported normals are clean (read from the
+  glb).
+- **What it was:** the sun, behind the camera, mirrored in a sliver of the barrel's flat end face,
+  peeping over the receiver's rounded front.
+- **The fix:**
+  - the receiver's top met the barrel's at 0.50"; the photo's profile has the front collar standing
+    to 0.60" from f 1.8, fitted now;
+  - the barrel starts 0.4" inside the receiver;
+  - zero-area slivers from the booleans are dissolved (64k → 49k triangles);
+  - overlap unchanged at 0.961.
+
+`results/2026-11-10_painted_final/` (round 5):
+- `turntable.mp4`/`.jpg`;
+- `game_light.jpg`: three-quarters, whole, each side turned to the sun, the lever thrown;
+- `close.jpg`, `mech.jpg`, `fp_sights.jpg`;
+- `first_person.jpg` (and each hold alone);
+- `side_by_side_real_look.jpg`, `action_side_by_side_real_look.jpg`: the game's side render beside
+  the photo at its scale;
+- `evidence_reference_rifle.jpg` is in round 3's folder;
+- `cheap_judge/`: the second verdict on the same five shots.
+
+**Known, left for Sean's look:**
+- **The shouldered hold:** the arms are placed by the coach gun's rules, not fitted to this rifle, so
+  both come in over the action. The view down the sights works: `fp_sights` shows the front blade in
+  the buckhorn's notch.
+- **The barrel's glint:** in full sun the octagon's top edge throws a long glint (real geometry, not a
+  broken face).
+- **The checkering:** the hammer spur's is faint at the game's distances.
+
 ## Game light
 
 `results/2026-11-10_views/` (placeholder materials, the 24" rifle, over Main Street's road at 16:00
