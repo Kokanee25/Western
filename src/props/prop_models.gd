@@ -577,6 +577,38 @@ static func model_paint(model: String) -> ShaderMaterial:
 	return _materials[key]
 
 
+## Metal the gun way (docs/briefs/prop-factory.md, #788; the Colt #740, the Winchester #776): a model
+## baked in Blender by tools/blender/props/metal.py into an albedo and an ORM (glTF's occlusion,
+## roughness, metal: assets/props/models/<model>_albedo.png, _orm.png) on its own atlas UVs, drawn
+## physically (metallic from the ORM: it mirrors the game's sky and lamps). One material a model,
+## shared by every prop that wears it.
+static func pbr(model: String) -> StandardMaterial3D:
+	var key := "pbr_" + model
+	if not _materials.has(key):
+		var m := StandardMaterial3D.new()
+		var dir := "res://assets/props/models/%s_" % model
+		var albedo: Texture2D = load(dir + "albedo.png") if ResourceLoader.exists(dir + "albedo.png") else null
+		var orm: Texture2D = load(dir + "orm.png") if ResourceLoader.exists(dir + "orm.png") else null
+		if albedo == null:
+			push_warning("PropModels: no baked albedo for %s" % model)
+		m.albedo_texture = albedo
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		if orm:
+			m.ao_enabled = true
+			m.ao_texture = orm
+			m.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+			m.ao_light_affect = 0.6
+			m.roughness = 1.0
+			m.roughness_texture = orm
+			m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+			m.metallic = 1.0
+			m.metallic_texture = orm
+			m.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
+
+
 ## A mount's hide, its dark (nose, eyes), its antlers' bone; a frame's gilt.
 static func hide() -> ShaderMaterial:
 	return _mat("hide", PixelArt.dirt("prop_hide", Color(0.45, 0.32, 0.2), 237))

@@ -1,0 +1,350 @@
+{
+  "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): a plain walnut table 6 ft by 2 ft at a standing doctor's working height (29 in), a shelf under it for the basin and dressings, a horsehair pad in black oilcloth (\"American cloth\") along it and a raised head of the same at its +x end. Walnut from the material library (F2 a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
+  "id": "examining_table",
+  "kind": "members",
+  "fixture": true,
+  "wood": "walnut",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "pad",
+    "at": [
+      -0.15,
+      0.8,
+      0.0
+    ],
+    "share": 1.0,
+    "hold": 0.1,
+    "sway": 0.0
+  },
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.065,
+        0.714,
+        0.065
+      ],
+      "at": [
+        -0.855,
+        0.357,
+        -0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.065,
+        0.714,
+        0.065
+      ],
+      "at": [
+        0.855,
+        0.357,
+        -0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.065,
+        0.714,
+        0.065
+      ],
+      "at": [
+        -0.855,
+        0.357,
+        0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.065,
+        0.714,
+        0.065
+      ],
+      "at": [
+        0.855,
+        0.357,
+        0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "apron_long_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.645,
+        0.11,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.659,
+        -0.2765
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "apron_end_foot",
+      "kind": "furniture_frame",
+      "size": [
+        0.022,
+        0.11,
+        0.445
+      ],
+      "at": [
+        -0.8765,
+        0.659,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "stretcher_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.645,
+        0.05,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.14,
+        -0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "apron_long_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.645,
+        0.11,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.659,
+        0.2765
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "apron_end_head",
+      "kind": "furniture_frame",
+      "size": [
+        0.022,
+        0.11,
+        0.445
+      ],
+      "at": [
+        0.8765,
+        0.659,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "stretcher_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.645,
+        0.05,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.14,
+        0.255
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "top0",
+      "kind": "furniture_top",
+      "size": [
+        1.83,
+        0.026,
+        0.2033
+      ],
+      "at": [
+        0.0,
+        0.727,
+        -0.2033
+      ],
+      "look": "lib:fine_walnut_tg/few/top"
+    },
+    {
+      "id": "top1",
+      "kind": "furniture_top",
+      "size": [
+        1.83,
+        0.026,
+        0.2033
+      ],
+      "at": [
+        0.0,
+        0.727,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few/top"
+    },
+    {
+      "id": "top2",
+      "kind": "furniture_top",
+      "size": [
+        1.83,
+        0.026,
+        0.2033
+      ],
+      "at": [
+        0.0,
+        0.727,
+        0.2033
+      ],
+      "look": "lib:fine_walnut_tg/few/top"
+    },
+    {
+      "id": "shelf0",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        -0.6854,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "shelf1",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        -0.4113,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "shelf2",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        -0.1371,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "shelf3",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        0.1371,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "shelf4",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        0.4113,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "shelf5",
+      "kind": "furniture_top",
+      "size": [
+        0.2742,
+        0.018,
+        0.545
+      ],
+      "at": [
+        0.6854,
+        0.174,
+        0.0
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "pad",
+      "kind": "trim",
+      "size": [
+        1.28,
+        0.06,
+        0.56
+      ],
+      "at": [
+        -0.21,
+        0.77,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "pbr:examining_table",
+      "draw": {
+        "shape": "mesh",
+        "model": "examining_table",
+        "part": "Pad"
+      }
+    },
+    {
+      "id": "head",
+      "kind": "trim",
+      "size": [
+        0.5,
+        0.22,
+        0.56
+      ],
+      "at": [
+        0.635,
+        0.85,
+        0.0
+      ],
+      "wood": "straw",
+      "look": "pbr:examining_table",
+      "draw": {
+        "shape": "mesh",
+        "model": "examining_table",
+        "part": "HeadPad"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

@@ -55,6 +55,71 @@ can take it at once.
 7. **Not placed here:** the factory never dresses the town; #327 does. A prop that replaces an old
    drawn one in place (the wagons) is the one exception, said in the commit.
 
+## The recipe brought up to date (Sean, 2026-11-10, #788)
+
+What the guns (#740, #776) and the material library (#721) taught us, laid over the recipe above.
+Where it and the steps above disagree, this wins.
+
+1. **Woods come from the material library** (#721, `config/material_library.json`), not the
+   painted-hand stand-ins (`wood:<name>`, `prop:dark_wood`...). A prop's wood is one of the library's
+   entries at one of its ages, by the kit look **`lib:<entry>/<age>`** (`new`, `few`, `old`; and
+   `/floor` for a top that's walked or worked on): the member is drawn as a library board
+   (`PropKit.board_mesh`, the doctor's builder's, #765, shared now) by the library's shader, indoors
+   (no sun-fade, streaks or ground grime), a tenth of a wall board's warp (furniture is joined true);
+   carved by a ball, the member falls back to its own wood's texel material in its own space. Only an age the
+   materials judge passed is used (R1 new, C1 old, F2 new and a few years, 2026-11-10); a prop that
+   wants another takes the nearest passing one, as the buildings do, and says which it wants in its
+   `_doc`. So a table matches the floor it stands on. **Paint** comes when the library has it (the
+   next material round, #721: `painted_*`); until then the prop is unpainted on a passing wood.
+   Library boards are boxes: a turned leg or a carved crest stays on a passing look of its own
+   (the kit's lathes keep `wood:`) or is made square, as country furniture mostly was.
+2. **Metal is made the gun way** (the Colt `experiments/gun_lab/saa/saa_paint.py`, the Winchester
+   `win73_paint.py`): modelled in Blender, its finish made from 3D noise in each part's own space
+   (no UV stretch), worn by its own shape (edges rubbed bright, hollows dark and duller), baked by
+   Cycles into an albedo and an ORM (occlusion, roughness, metal), exported in the `.glb`; drawn by
+   the kit look **`pbr:<model>`** (`PropModels.pbr`: metallic from the ORM, so it mirrors the game's
+   sky and lamps), judged in the game's light. The finishes and their recipes are one shared script,
+   `tools/blender/props/metal.py` (japanned iron, nickel-plated steel, polished steel, brass, tin,
+   white enamel and china), each finish's evidence in its comment. No flat painted metal.
+3. **Natural things from CC0 scans** (Poly Haven, ambientCG): rocks, logs, stumps, bark. Fetched on
+   GitHub as the woods' are (`.github/workflows/scans.yml`), the licence recorded in `CREDITS.md`
+   before it's used, the scan cut to the kit's body rules (a member's box carries it; a few thousand
+   triangles; UVs in metres).
+4. **Rodin stays for the soft, organic hero props** (sacks, hides, saddles, tack, food, animals, a
+   doctor's leather bag), through the Character Studio's **pay-per-call** route (its `prop3d`
+   request on GitHub; Sean is cancelling the Rodin subscription), **the cost asked first**, each call
+   in the Studio's ledger. Code-built Blender stays for cheap lumps where the shape barely matters
+   (a mattress tick, a folded blanket).
+5. **Every prop is checked** before it's merged:
+   - **a period reference**: a photograph (or a catalogue engraving) of the real thing from about
+     1870-1890, in `experiments/prop_lab/refs/<batch>/` with its source and licence, and the prop
+     set beside it on the sheet;
+   - **judged blind in game light, beside the building it lives in**: the batch is dressed into its
+     building's rooms on its valley lot (`experiments/prop_lab/doctor/dress.gd` and `dress.json`: each
+     prop at the spec's use points, in the game's main scene and real look), rendered at the hours the
+     rooms are used, and a fresh critic gets only those renders, the building's target sheet and the
+     references ("does it belong in this room?", the five biggest differences);
+   - **a cost limit**: triangles (a small prop ~1-3 k, a big one ~6 k), and **draw calls batched**
+     (the doctor's 1,400-draw lesson: one material a look, shared across props; a room's props
+     counted in the batch's test, `tests/test_prop_factory.gd`).
+
+### The doctor's office batch (#788; the rooms in `experiments/building_lab/doctor/doctor.json`)
+
+An 1882 country doctor. Made in batches of about five, each judged in his rooms and merged before
+the next; the table and the cot first (the sheriff mission ends there, #746). Glass and china
+shatter, wood breaks and burns, metal dents (the kit's bodies).
+
+| Batch | Item | Route | Notes |
+| --- | --- | --- | --- |
+| D1 | Examining table | K (`lib:` walnut) + B tick | the surgery's `on_table`; a padded top on a plain frame, a raised head |
+| D1 | Patient's iron cot | K (`pbr:` japanned iron) + B tick and blanket | the sick room's `cot_1`/`cot_2` (where you wake after you die) |
+| D1 | Washstand with basin and pitcher | K (`lib:` pine) + G (china) | `wash_surgery`; the basin and pitcher shatter, the pitcher holds water |
+| D1 | Instrument tray | L (`pbr:` nickel steel) | bone saw, forceps, probes on an enamelled tray; dents |
+| D1 | Lamp with a reflector | G (`like` the oil lamp) + `pbr:` tin | the surgery's lamp held over the table at night |
+| D2 | Medicine bottles (a shelf's worth, labelled), mortar and pestle, scales | G / L / L + K | the dispensary |
+| D2 | Desk, his chair | K (`lib:`) | the front office's `desk`; the kit chair if it passes beside it |
+| D3 | His bag, books, coat stand, chamber pot, blankets | R / K / K / G / cloth or B | the bag the one Rodin call |
+
 ## Kinds of member the kit uses (so a prop stands and falls right)
 
 The support graph (`Structure`): a member rests only on a lower tier (or the same kind stacked

@@ -1,0 +1,304 @@
+{
+  "_doc": "The patient's cot (#788; refs experiments/prop_lab/refs/doctor/): a single japanned iron cot of the 1870s-80s, tube posts with ball finials, the head end higher, filler rods between its rails, angle-iron side rails carrying a woven wire spring; a straw tick in blue-and-white ticking, a grey wool blanket with a dark band at its ends, a pillow. Its iron members' boxes are the metal's own section (a 28 mm tube's wall is a 13 mm square of iron) so it weighs ~18 kg of iron; drawn full size, baked the gun way (tools/blender/props/doctor_d1.py; japanned, worn to the iron at its edges). The tick, blanket and pillow burn; the iron doesn't. The head at -z: a man lies looking +z. Written by tools/props/doctor.py.",
+  "id": "iron_cot",
+  "kind": "members",
+  "fixture": true,
+  "wood": "iron",
+  "look": "pbr:iron_cot",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "tick",
+    "at": [
+      0.0,
+      0.55,
+      0.1
+    ],
+    "share": 1.0,
+    "hold": 0.1,
+    "sway": 0.0
+  },
+  "members": [
+    {
+      "id": "post0",
+      "kind": "post",
+      "size": [
+        0.013,
+        1.05,
+        0.013
+      ],
+      "at": [
+        -0.416,
+        0.525,
+        -0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Post0"
+      }
+    },
+    {
+      "id": "post1",
+      "kind": "post",
+      "size": [
+        0.013,
+        1.05,
+        0.013
+      ],
+      "at": [
+        0.416,
+        0.525,
+        -0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Post1"
+      }
+    },
+    {
+      "id": "post2",
+      "kind": "post",
+      "size": [
+        0.013,
+        0.86,
+        0.013
+      ],
+      "at": [
+        -0.416,
+        0.43,
+        0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Post2"
+      }
+    },
+    {
+      "id": "post3",
+      "kind": "post",
+      "size": [
+        0.013,
+        0.86,
+        0.013
+      ],
+      "at": [
+        0.416,
+        0.43,
+        0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Post3"
+      }
+    },
+    {
+      "id": "head_rail0",
+      "kind": "furniture_frame",
+      "size": [
+        0.819,
+        0.011,
+        0.011
+      ],
+      "at": [
+        0.0,
+        0.42,
+        -0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "HeadRail0"
+      },
+      "dress": [
+        {
+          "look": "pbr:iron_cot",
+          "draw": {
+            "shape": "mesh",
+            "model": "iron_cot",
+            "part": "HeadFill"
+          }
+        }
+      ]
+    },
+    {
+      "id": "head_rail1",
+      "kind": "furniture_frame",
+      "size": [
+        0.819,
+        0.011,
+        0.011
+      ],
+      "at": [
+        0.0,
+        0.99,
+        -0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "HeadRail1"
+      }
+    },
+    {
+      "id": "foot_rail0",
+      "kind": "furniture_frame",
+      "size": [
+        0.819,
+        0.011,
+        0.011
+      ],
+      "at": [
+        0.0,
+        0.42,
+        0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "FootRail0"
+      },
+      "dress": [
+        {
+          "look": "pbr:iron_cot",
+          "draw": {
+            "shape": "mesh",
+            "model": "iron_cot",
+            "part": "FootFill"
+          }
+        }
+      ]
+    },
+    {
+      "id": "foot_rail1",
+      "kind": "furniture_frame",
+      "size": [
+        0.819,
+        0.011,
+        0.011
+      ],
+      "at": [
+        0.0,
+        0.8,
+        0.951
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "FootRail1"
+      }
+    },
+    {
+      "id": "side_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.019,
+        0.019,
+        1.889
+      ],
+      "at": [
+        -0.412,
+        0.4105,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "SideL"
+      },
+      "dress": [
+        {
+          "look": "pbr:iron_cot",
+          "draw": {
+            "shape": "mesh",
+            "model": "iron_cot",
+            "part": "Spring"
+          }
+        }
+      ]
+    },
+    {
+      "id": "side_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.019,
+        0.019,
+        1.889
+      ],
+      "at": [
+        0.412,
+        0.4105,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "SideR"
+      }
+    },
+    {
+      "id": "tick",
+      "kind": "trim",
+      "size": [
+        0.82,
+        0.13,
+        1.86
+      ],
+      "at": [
+        0.0,
+        0.485,
+        0.0
+      ],
+      "wood": "straw",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Tick"
+      }
+    },
+    {
+      "id": "blanket",
+      "kind": "trim",
+      "size": [
+        0.82,
+        0.02,
+        1.3
+      ],
+      "at": [
+        0.0,
+        0.56,
+        0.28
+      ],
+      "wood": "canvas",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Blanket"
+      }
+    },
+    {
+      "id": "pillow",
+      "kind": "trim",
+      "size": [
+        0.56,
+        0.11,
+        0.32
+      ],
+      "at": [
+        0.0,
+        0.605,
+        -0.74
+      ],
+      "wood": "straw",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Pillow"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

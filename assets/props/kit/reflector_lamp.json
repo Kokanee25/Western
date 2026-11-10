@@ -1,0 +1,34 @@
+{
+  "_doc": "A kerosene lamp with a reflector (#788; refs experiments/prop_lab/refs/doctor/): the oil lamp's (`like`) brass foot and font, burner and glass chimney, with a dished tinplate reflector on an arm behind the chimney to throw its light forward (+z) onto the table, the surgery's lamp at night. A prop that shatters (GlassProp): the chimney breaks, the brass and tin come through whole. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
+  "id": "reflector_lamp",
+  "like": "oil_lamp",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:reflector_lamp",
+  "looks": {
+    "Chimney": "prop:chimney_glass",
+    "Foot": "pbr:reflector_lamp",
+    "Font": "pbr:reflector_lamp",
+    "Burner": "pbr:reflector_lamp",
+    "Reflector": "pbr:reflector_lamp"
+  },
+  "size": [
+    0.2,
+    0.44,
+    0.2
+  ],
+  "mass": 1.1,
+  "glass": [
+    "Chimney"
+  ],
+  "whole": [
+    [
+      "Foot",
+      "Font",
+      "Burner",
+      "Reflector"
+    ]
+  ],
+  "factory": "tools/props/doctor.py"
+}
