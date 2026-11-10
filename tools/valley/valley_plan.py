@@ -228,7 +228,7 @@ def landforms_height(data, X, Z):
 		f = t if L.get("profile") == "cliff" else t * t * (3.0 - 2.0 * t)
 		if "notch" in L:
 			nt = L["notch"]
-			tn = np.clip((np.abs(X - float(nt["x"])) - float(nt["w"]) * 0.5) / float(L.get("face", L["run"])), 0.0, 1.0)
+			tn = np.clip((np.abs(X - float(nt["x"])) - float(nt["w"]) * 0.5) / float(nt.get("run", L.get("face", L["run"]))), 0.0, 1.0)
 			f = f * tn
 		out += float(L["h"]) * f
 		if "ramp" in hp:
@@ -1891,10 +1891,10 @@ def write_heights(plan, hm, path):
 		if hp.get("landform"):
 			Lf = hp["landform"]
 			bits.append("%s%s" % (Lf["kind"], (" %g m" % Lf["h"]) if "h" in Lf else (" to Y %+.1f" % Lf["y"])))
-		if hp.get("block"):
-			bits.append("greybox: " + hp["block"]["what"])
-		if hp.get("also"):
-			bits.append(hp["also"]["what"])
+		for b in hp.get("blocks", ()):
+			bits.append("greybox: " + b["what"])
+		if hp.get("ladder_on"):
+			bits.append("a ladder up %s's block" % hp["ladder_on"])
 		if hp.get("ramp"):
 			bits.append(hp["ramp"]["_doc"])
 		w("- **Built as:** %s." % "; ".join(bits))

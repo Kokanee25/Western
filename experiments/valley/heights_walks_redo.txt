@@ -1,0 +1,13 @@
+goto town
+valley_walk sentinel_butte
+goto town
+valley_walk south_rim
+goto town
+valley_walk stage_station
+goto town
+valley_walk dead_homestead
+valley_sight south_rim
+valley_sight ore_chute
+valley_sight bell_tower
+valley_climb ore_chute
+valley_climb bell_tower

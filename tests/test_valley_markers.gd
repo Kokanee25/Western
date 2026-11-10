@@ -77,7 +77,9 @@ func test_a_block_for_every_building_volume() -> void:
 	for p: Dictionary in lay.places():
 		if p.has("block"):
 			want += 1
-	check_eq(mk.blocks.size(), want, "a block each (the town's buildings, the extras with a size, the places with a block)")
+	for hp: Dictionary in lay.heights():
+		want += (hp.get("blocks", []) as Array).size()
+	check_eq(mk.blocks.size(), want, "a block each (the town's buildings, the extras with a size, the places with a block, the heights' blocks)")
 	check_eq(mk.body.get_child_count(), want, "each a box in the blocks' body")
 	var front := 20.1 * 0.5
 	for b: Dictionary in mk.blocks:
@@ -85,7 +87,8 @@ func test_a_block_for_every_building_volume() -> void:
 		var size: Vector3 = b.size
 		for p in ValleyMarkers._footprint(b.map, b.wd, float(b.heading)):
 			var g := ValleyTerrain.main().height(p.x, p.y)
-			check(c.y < g and c.y + size.y > g + 4.0, "%s stands from under the ground to over it at its corner (%.1f..%.1f, ground %.1f)" % [b.id, c.y, c.y + size.y, g])
+			# (A height's low blocks, a log deck or a stock tank, stand their own `h` over it: #736 B.)
+			check(c.y < g and c.y + size.y > g + (0.5 if b.kind == "height" else 4.0), "%s stands from under the ground to over it at its corner (%.1f..%.1f, ground %.1f)" % [b.id, c.y, c.y + size.y, g])
 		if b.kind == "lot":
 			# Off Main Street and the North-South Street: fronts on the street's edge.
 			check(absf(c.z) - size.z * 0.5 >= front - 0.01, "%s behind the fronts" % b.id)

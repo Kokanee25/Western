@@ -215,12 +215,12 @@ Grades over 20 m windows on the shaped ground; bridges at their decks. Period pr
 | the hideout trail (the front way) | track | 1655 | -1.8 | 86.1 | 9.3 % | 655 m | 0 m | ok |
 | the mesa back way (unseen approach) | path | 1302 | 31.5 | 90.9 | 14.0 % | 442 m | 15 m | ok |
 | the Dry Fork track | track | 764 | 10.6 | 40.0 | 14.6 % | 187 m | 103 m | ok |
-| the Dry Fork track's ford | track | 517 | 21.1 | 32.5 | 15.7 % | 164 m | 85 m | a short pitch (5 m over 15 %) |
+| the Dry Fork track's ford | track | 512 | 21.1 | 32.3 | 15.8 % | 167 m | 84 m | a short pitch (5 m over 15 %) |
 | the basin track | track | 870 | -4.9 | 6.0 | 16.2 % | 173 m | 94 m | a short pitch (20 m over 15 %) |
 | the rimrock trail | track | 1384 | 10.1 | 53.4 | 5.3 % | 0 m | 0 m | ok |
 | the line shack track | track | 987 | 19.5 | 36.0 | 15.2 % | 70 m | 55 m | ok |
 | the rim path to the Jump-off | path | 240 | -1.3 | 4.9 | 3.7 % | 0 m | 0 m | ok |
-| the butte path | path | 468 | 49.6 | 143.6 | 72.2 % | 234 m | 214 m | Sentinel Butte's talus: a climb on foot, about 37 degrees |
+| the butte path | path | 468 | 49.6 | 143.6 | 72.2 % | 239 m | 224 m | Sentinel Butte's talus: a climb on foot, about 37 degrees |
 | the headframe path | path | 60 | 79.0 | 82.7 | 16.8 % | 24 m | 18 m | ok |
 
 ## F. Travel from the crossroads

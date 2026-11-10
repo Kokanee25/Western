@@ -16,6 +16,9 @@ extends Node3D
 ##     deck level at the plan's `deck_y` out to where the ground (the bake: its approaches graded
 ##     to the deck by valley_plan.py) meets its underside; Bridge A's two spans on a log crib (its
 ##     `cribs`). Bridge B (the overpass) and the trestle are the railway's (ValleyRailway).
+##   - **Places with height** (#736 B, valley.json `heights`): their `blocks` as above, a Ladder up
+##     the one each climbs (`ladders`), places `<id>` (the ladder's foot, or the high spot on the
+##     ground) and `<id>_top`; `high_spot(id)` where its shooter stands. The landforms are in the bake.
 ##   - **Places** (`places`, a Waypoints): every place, bridge, viewpoint and town lot by its id, a
 ##     point on the ground (or a bridge's deck) a man can stand at: the dev bridge's `goto PLACE`,
 ##     `look PLACE`, `read places` in the valley.
@@ -45,6 +48,7 @@ const CAT_COLOUR := {
 	"industry": Color(0.45, 0.40, 0.30), "homestead": Color(0.30, 0.55, 0.30), "community": Color(0.55, 0.45, 0.70),
 	"outlaw": Color(0.20, 0.20, 0.20), "mission": Color(0.90, 0.20, 0.20), "edge": Color(0.95, 0.95, 0.95),
 	"wild": Color(0.55, 0.65, 0.40), "ford": Color(0.35, 0.55, 0.70), "bridge": Color(0.60, 0.45, 0.25),
+	"height": Color(0.49, 0.18, 0.07),
 }
 const BLOCK_COLOUR := Color(0.72, 0.72, 0.70)
 
@@ -81,6 +85,7 @@ func _ready() -> void:
 	var u := Time.get_ticks_usec()
 	_find_blocks()
 	_build_blocks()
+	_build_ladders()
 	build_ms["blocks"] = (Time.get_ticks_usec() - u) / 1000.0
 	u = Time.get_ticks_usec()
 	bridge_a = _build_bridge("bridge_a", "BridgeA")
@@ -135,6 +140,16 @@ func _find_blocks() -> void:
 		var d := float(b.get("d", pad.get("d", 6.0)))
 		var c := ValleyLayout.xz(b.at) if b.has("at") else ValleyLayout.xz(p.at)
 		_add_block(String(p.id), "place", c, Vector2(w, d), float(pad.get("heading", 90.0)), float(b.get("h", BLOCK_H)))
+	# The places with height (#736 B): each `blocks` entry, the one climbed by a ladder named as
+	# the height (`<id>`), the others `<id>/<k>`.
+	for hp: Dictionary in layout.heights():
+		var k := 0
+		for b: Dictionary in hp.get("blocks", []):
+			var bid := String(hp.id) if b.get("ladder", false) else "%s/%d" % [hp.id, k]
+			var c := ValleyLayout.xz(b.at) if b.has("at") else ValleyLayout.xz(hp.at)
+			_add_block(bid, "height", c, Vector2(float(b.w), float(b.d)), float(b.get("heading", 90.0)), float(b.h))
+			blocks[-1]["stand"] = String(b.get("stand", ""))
+			k += 1
 
 
 ## A block w (along its heading) x d about c: from 0.3 m under the lowest of the ground at its corners
@@ -208,6 +223,139 @@ static func _vertex_material() -> StandardMaterial3D:
 	m.vertex_color_use_as_albedo = true
 	m.roughness = 1.0
 	return m
+
+
+# --- The places with height's ladders (#736 B) -------------------------------------------------
+
+## {id (the height's), ladder (Ladder), foot (Vector3: where a man stands to climb, in front of it),
+## top (Vector3: on the block behind its top)} each laddered height.
+var ladders: Array[Dictionary] = []
+## How far in front of a ladder its foot place stands, and behind its top the top place (m).
+const LADDER_FOOT := 0.6
+const LADDER_TOP_IN := 0.6
+
+
+## A block by id, or {}.
+func block(id: String) -> Dictionary:
+	for b: Dictionary in blocks:
+		if String(b.id) == id:
+			return b
+	return {}
+
+
+## A Ladder up the side of each laddered height's block (its `ladder` block, or the place's block it
+## names in `ladder_on`) that faces the crossroads, from the ground there to the block's top.
+func _build_ladders() -> void:
+	ladders.clear()
+	for hp: Dictionary in layout.heights():
+		var bid := String(hp.get("ladder_on", ""))
+		if bid == "":
+			for b: Dictionary in hp.get("blocks", []):
+				if b.get("ladder", false):
+					bid = String(hp.id)
+		var b := block(bid)
+		if b.is_empty():
+			continue
+		var c: Vector2 = b.map
+		var ax := _axes(float(b.heading))
+		var wd: Vector2 = b.wd
+		# The side toward the crossroads: its outward normal and half-depth.
+		var to := (Vector2.ZERO - c).normalized()
+		var n: Vector2
+		var half: float
+		if absf(to.dot(ax[0])) * wd.y >= absf(to.dot(ax[1])) * wd.x:
+			n = ax[0] * signf(to.dot(ax[0]))
+			half = wd.x * 0.5
+		else:
+			n = ax[1] * signf(to.dot(ax[1]))
+			half = wd.y * 0.5
+		var face := c + n * half
+		var foot_y := ground(face.x + n.x * 0.3, face.y + n.y * 0.3)
+		var top_y: float = (b.centre as Vector3).y + (b.size as Vector3).y
+		var l := Ladder.new()
+		l.name = "Ladder_%s" % hp.id
+		l.height = top_y - foot_y
+		var out := Vector3(n.x, 0.0, n.y)
+		l.transform = Transform3D(Basis.looking_at(-out, Vector3.UP), Vector3(face.x, foot_y, face.y))
+		# Drawn (greybox): its stiles and rungs as one dark board a hand's breadth off the face.
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(l.width, l.height, 0.06)
+		mi.mesh = bm
+		mi.position = Vector3(0.0, l.height * 0.5, 0.05)
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.33, 0.22, 0.12)
+		mat.roughness = 1.0
+		mi.material_override = mat
+		l.add_child(mi)
+		add_child(l)
+		ladders.append({"id": String(hp.id), "ladder": l, "foot": Vector3(face.x + n.x * LADDER_FOOT, foot_y + 0.05, face.y + n.y * LADDER_FOOT),
+			"top": Vector3(face.x - n.x * LADDER_TOP_IN, top_y + 0.05, face.y - n.y * LADDER_TOP_IN)})
+
+
+## The places with height as places (#736 B): `<id>` where a man goes to it (a laddered one's
+## ladder foot, else its high spot on the ground), `<id>_top` the top a ladder gets him onto, and a
+## block's `stand` on its top.
+func _add_height_places() -> void:
+	var by_ladder := {}
+	for l: Dictionary in ladders:
+		by_ladder[l.id] = l
+	for hp: Dictionary in layout.heights():
+		var id := String(hp.id)
+		if by_ladder.has(id):
+			places.add(StringName(id), by_ladder[id].foot)
+			places.add(StringName(id + "_top"), by_ladder[id].top)
+		else:
+			places.add(StringName(id), _on_ground(ValleyLayout.xz((hp.high as Dictionary).at)))
+	for b: Dictionary in blocks:
+		if String(b.get("stand", "")) != "":
+			var c: Vector2 = b.map
+			places.add(StringName(String(b.stand)), Vector3(c.x, (b.centre as Vector3).y + (b.size as Vector3).y + 0.05, c.y))
+
+
+## The block a map point is in (the tallest, if more than one), or {}.
+func block_at(c: Vector2) -> Dictionary:
+	var best := {}
+	for b: Dictionary in blocks:
+		var r: Vector2 = c - (b.map as Vector2)
+		var ax := _axes(float(b.heading))
+		var wd: Vector2 = b.wd
+		if absf(r.dot(ax[0])) <= wd.x * 0.5 and absf(r.dot(ax[1])) <= wd.y * 0.5:
+			if best.is_empty() or (b.size as Vector3).y + (b.centre as Vector3).y > (best.size as Vector3).y + (best.centre as Vector3).y:
+				best = b
+	return best
+
+
+## How far from `c` (inside block `b`) along `dir` (unit) its footprint's edge is.
+static func block_exit(b: Dictionary, c: Vector2, dir: Vector2) -> float:
+	var ax := _axes(float(b.heading))
+	var wd: Vector2 = b.wd
+	var r: Vector2 = c - (b.map as Vector2)
+	var t := INF
+	for k in 2:
+		var u := r.dot(ax[k])
+		var du := dir.dot(ax[k])
+		var half := (wd.x if k == 0 else wd.y) * 0.5
+		if absf(du) > 1e-6:
+			t = minf(t, ((half if du > 0.0 else -half) - u) / du)
+	return maxf(t, 0.0)
+
+
+## A height's high spot (#736 B): where its shooter's feet are, on whatever is there (a block's top,
+## the ground), from its `high.at`.
+func high_spot(id: String) -> Vector3:
+	var hp := layout.height(id)
+	if hp.is_empty():
+		return Vector3(NAN, NAN, NAN)
+	var c := ValleyLayout.xz((hp.high as Dictionary).at)
+	var y := surface(c.x, c.y)
+	for b: Dictionary in blocks:
+		var r: Vector2 = c - (b.map as Vector2)
+		var ax := _axes(float(b.heading))
+		var wd: Vector2 = b.wd
+		if absf(r.dot(ax[0])) <= wd.x * 0.5 and absf(r.dot(ax[1])) <= wd.y * 0.5:
+			y = maxf(y, (b.centre as Vector3).y + (b.size as Vector3).y)
+	return Vector3(c.x, y, c.y)
 
 
 # --- Bridges A and the town bridge -------------------------------------------------------------
@@ -299,6 +447,7 @@ func _find_places() -> void:
 			if places.has(StringName(id)):
 				continue
 			places.add(StringName(id), _on_ground(Vector2((float(l.x0) + float(l.x1)) * 0.5, sgn * (front - 1.5))))
+	_add_height_places()
 	# The roads out of town a man is sent along by name (G6): the East Road and the widow's lane.
 	for id: String in WAY_ROADS:
 		if not layout.road(id).is_empty():
@@ -485,6 +634,10 @@ func _build_posts() -> void:
 	for f: Dictionary in ValleyMarks.fords(layout):
 		var c: Vector2 = f.at
 		posts.append({"id": "ford_%s" % f.road, "at": _on_ground(c) - Vector3.UP * 0.05, "name": "ford: %s" % f.what, "cat": "ford"})
+	for hp: Dictionary in layout.heights():
+		var hid := StringName(String(hp.id))
+		if places.has(hid):
+			posts.append({"id": String(hp.id), "at": places.at(hid) - Vector3.UP * 0.05, "name": String(hp.get("short", hp.name)), "cat": "height"})
 	for b: Dictionary in layout.bridges():
 		var id := StringName(String(b.id))
 		if places.has(id):

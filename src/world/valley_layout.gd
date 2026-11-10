@@ -128,9 +128,19 @@ func mission(id: String) -> Dictionary:
 	return _by_id(missions(), id)
 
 
-## A place, bridge or viewpoint by id (what a mission's `places` name), or {}.
+## The places with height (#736 B): each with its `why`, `above`, `below`, its `landform` (in the
+## bake), `block` (the greybox), `high` (where the shooter stands) and `targets`.
+func heights() -> Array:
+	return data.get("heights", [])
+
+
+func height(id: String) -> Dictionary:
+	return _by_id(heights(), id)
+
+
+## A place, bridge, viewpoint or place with height by id (what a mission's `places` name), or {}.
 func entry(id: String) -> Dictionary:
-	for list: Array in [places(), bridges(), viewpoints()]:
+	for list: Array in [places(), bridges(), viewpoints(), heights()]:
 		var e := _by_id(list, id)
 		if not e.is_empty():
 			return e

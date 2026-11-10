@@ -768,6 +768,18 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
   loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
   own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The places with height** (#736 A+B, #752; `heights` in valley.json, `docs/briefs/valley-heights.md`,
+  `docs/concept/valley-heights.png`; `tests/test_valley_heights.gd`): each a `landform` that
+  `valley_plan.py` adds to the natural ground before the pads (`landforms_height`: knoll, ridge,
+  bluff, butte, rim with a `notch`, a talus `ramp`; `face` the steep side's run, `profile` cliff or
+  round) or sets after the channels (`ledge` up, `undercut` down: the Jump-off), a `road_cut` held
+  through a road (the coach cut), `blocks` (ValleyMarkers: kind `height`; the `ladder` one gets a
+  `Ladder` on its side toward the crossroads, `ladders`; `ladder_on` a place's own block; `stand` a
+  place on a block's top), places `<id>` (the ladder's foot, or the high spot) and `<id>_top`,
+  `high_spot(id)`, `block_at(c)`. The plan measures each high spot's lines over the ground
+  (`heights_measure`, its checks); the valley lab's `valley_sight HEIGHT` measures them in the game
+  (blocks and buildings too: a man on a roof steps to its edge, a target in a building is beside
+  it), `valley_climb HEIGHT` climbs its ladder.
 - **The overview** (`tools/valley/valley_overview.gd` + `.py`): the greybox from overhead, north up,
   plain and with the plan over it, and close views of the town, canyon and west; run after each G
   step (experiments/valley/README.md).
