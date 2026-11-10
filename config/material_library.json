@@ -4,7 +4,6 @@
   {
    "id": "rough_pine_batten", "code": "R1", "family": "wood", "class": "rough", "approved": [],
    "name": "Rough-sawn pine, board and batten", "grain_contrast": 0.55, "edge_shelter": 0.0, "contact": 1.0, "arris": 0.6,
-   "age_split": 1.0, "checks": 0.8, "end_rot": 1.0,
    "layout": "board_batten", "board_w": 0.28, "board_t": 0.022, "nails": 1, "nail_at": 0.0,
    "scans": {"a": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]}, "a2": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]},
              "b": {"id": "rough_wood", "grain": "v", "metres": [0.8, 0.8]}},
@@ -27,7 +26,7 @@
    "name": "Planed pine lap siding", "grain_contrast": 0.85, "edge_shelter": 0.0, "contact": 1.0, "arris": 0.6,
    "age_split": 1.0, "checks": 0.6, "end_rot": 1.0,
    "layout": "lap", "board_w": 0.15, "board_t": 0.018, "expose": 0.115, "nails": 1, "nail_at": -0.55,
-   "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]}, "a2": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]},
+   "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.0, 1.0]}, "a2": {"id": "Wood047", "grain": "u", "metres": [1.2, 0.6]},
              "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
    "tint_new": [1.0, 0.97, 0.92], "tint_mid": [0.84, 0.7, 0.54], "tint_old": [1.07, 1.0, 0.91],
    "grime": 0.75, "layer_new": 0.35, "sun_fade": 0.5, "streaks": 0.5, "joint_dirt": 0.5, "normal_strength": 0.7, "value_jitter": 0.11, "hue_jitter": 0.05
@@ -53,7 +52,7 @@
   },
   {
    "id": "fine_walnut_tg", "code": "F2", "family": "wood", "class": "fine", "approved": [],
-   "name": "Black walnut, narrow tongue and groove, varnished", "arris": 1.0, "handling": 1.0, "craze_patch": 1.0,
+   "name": "Black walnut, narrow tongue and groove, varnished", "arris": 1.0,
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0,
    "scans": {"a": {"id": "Wood051", "grain": "u", "metres": [1.2, 1.2]}, "a2": {"id": "black_walnut_veneer_02", "grain": "u"}},
    "tint_new": [2.0, 1.72, 1.5], "tint_mid": [1.9, 1.6, 1.36], "tint_old": [1.0, 1.0, 1.0],

@@ -92,11 +92,6 @@ uniform float end_rot = 0.0;
 // millimetres rounded over, as a handled, weathered edge is.
 uniform float contact = 0.0;
 uniform float arris = 0.0;
-// Varnish's years (the judge: "nothing says a few years"; "a uniform crackle web like an overlay"):
-// `handling` dulls and rubs the coat in broad patches from a few years on; `craze_patch` keeps the
-// old coat's crazing to patches and to some boards.
-uniform float handling = 0.0;
-uniform float craze_patch = 0.0;
 // The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
 // figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
 uniform float grain_contrast = 1.0;
@@ -461,7 +456,6 @@ void fragment() {
 			float here = step(-0.2, rnd(seed, 84.0 + kr));
 			rings = here * arc * (1.0 - smoothstep(0.0012, 0.003, abs(length(dr) - rr))) * (0.25 + 0.75 * ag);
 		}
-		wear = max(wear, handling * smoothstep(0.2, 0.6, ag) * 0.75 * smoothstep(0.52, 0.78, texture(big_noise, q / 1.1 + 0.6).r));
 		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Old varnish darkens, and crazes into fine cracks.
@@ -469,7 +463,6 @@ void fragment() {
 		float cz = abs(texture(big_noise, v_m * 2.2 + seed * 5.0).r - 0.5);
 		float czw = fwidth(texture(big_noise, v_m * 2.2 + seed * 5.0).r);
 		float craze = (1.0 - smoothstep(0.0, 0.012 + czw, cz)) * smoothstep(0.6, 1.0, ag) * (1.0 - smoothstep(0.02, 0.08, czw));
-		craze *= mix(1.0, smoothstep(0.42, 0.7, texture(big_noise, q / 0.9 + 0.2).r) * step(-0.3, rnd(seed, 85.0)), craze_patch);
 		col *= 1.0 - 0.3 * craze * varnish;
 		// Worn through: paler raw wood; glass rings a pale haze in the coat.
 		col = mix(col, col * 1.35 + 0.02, varnish * smoothstep(0.55, 0.95, wear) * 0.6);

@@ -25,7 +25,7 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
 		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain", "albedo_bias",
 		"grain_contrast", "eaves_m", "edge_shelter", "b_stochastic", "varnish_dark",
-		"age_split", "checks", "end_rot", "contact", "arris", "handling", "craze_patch"]
+		"age_split", "checks", "end_rot", "contact", "arris"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D

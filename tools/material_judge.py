@@ -2,7 +2,7 @@
 """The materials judge's crops and prompt (#721; rubric docs/concept/judge/MATERIAL.md).
 
   python3 tools/material_judge.py prepare --from=DIR --out=docs/screenshots/judge/<round> --refs=REFS
-      [--before=DIR0] [--only=R1_old,C1_new,...]
+      [--before=DIR0] [--same] [--only=R1_old,C1_new,...]
 
 DIR is a material lab review run (tools/material_lab.gd --panels=... --review --hires --aa=taa at
 1920x1080): DIR/<class>/<entry>_<age>/<light>_<view>.png. Cuts the wood out of each shot (1 m at
@@ -81,7 +81,8 @@ def prepare(args):
         if before:
             if sw not in before:
                 continue
-            flip = rng.random() < 0.5
+            # --same: one shuffle for the whole run, so a set's ages belong together (for 'Age reads').
+            flip = rng.random() < 0.5 if not (args.get("same") is not None and key) else list(key.values())[0]["P"] == "before"
             key[sw] = {"P": "before" if flip else "after", "Q": "after" if flip else "before"}
             for letter in ("P", "Q"):
                 dd = (before if key[sw][letter] == "before" else after)[sw][0]
@@ -108,6 +109,8 @@ def prepare(args):
                   "set on its own against the yardstick (the same six checks, one grade each), then say which set",
                   "is better and whether the difference is a full grade or only within a grade. P and Q mean",
                   "nothing across swatches."]
+        if args.get("same") is not None:
+            lines[-1] = "Within this run P is one version and Q the other at every age: compare ages within a set."
     lines += ["", "For 'Age reads', compare a swatch's ages with each other where more than one age is given.",
               "The saw-toothed edge of the sun's shadow along battens and laps is a known fault of the light,",
               "not of the material: note it once if you see it, and do not let it fail a check or lower a grade.",
