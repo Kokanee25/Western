@@ -1201,3 +1201,9 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
   StandardMaterial3D. Sean picked C1f (#526, "for now": an art style change is being tried):
   `model_paint` mipmapped and a texel a square, the deer and steer skull paints imported with mipmaps.
+- **The Baron's coach** (#782, branch `claude/prop-lab-coach-xl8t64`; for the heist, #736's comment, with
+  gameplay's #770): the plan, nothing built yet. `baron_coach` (Concord-style, body 2.6 x 1.5 x 1.55 m, wheels
+  1.12/1.52 m, ~20 separate 8 mm iron plate members, 6 slits, roof unplated; ~1,530 kg empty) and `strongbox`
+  (iron, ~42 kg, padlock member, hinged lid), both by a generator like `wagons.py`; doors and lids that open are
+  new kit code. Waiting on Sean: #783 (the plan, paint A free or B ~$1, references). The interface proposed to
+  #770 in its comments (ids, kit space, plate ids, the dent mesh's question).
