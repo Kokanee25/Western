@@ -47,6 +47,9 @@ const HELP := {
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
 	"story": "story [clear] -> the story's facts so far (StoryState: sheriff.care ...); clear forgets them",
+	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
+	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
+	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
 	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
 	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
 	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
@@ -725,6 +728,51 @@ func _cmd_story(a: Array) -> Dictionary:
 	return StoryState.to_dict()
 
 
+## E by a free chair (PlayerSeat.use, as the key); `sit n`: by the valley's card table's north chair
+## first, facing it.
+func _cmd_sit(a: Array) -> Dictionary:
+	var folk := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+	if a.size() > 0:
+		var chair: KitProp = folk.props.get("chair_" + String(a[0])) if folk else null
+		if chair == null:
+			return {"ok": false, "error": "no chair_%s (the valley's card table: n, e, s, w)" % a[0]}
+		var behind := Seating.spot(chair) - chair.global_basis.z * 0.5
+		player.global_position = behind
+		player.velocity = Vector3.ZERO
+		var to := chair.global_basis.z
+		player.rotation.y = atan2(-to.x, -to.z)
+		await _physics_frames(2)
+	var did := player.seat.use()
+	await _settle()
+	var out := player.seat.report()
+	out["did"] = String(did) if did != &"" else "nothing: no free chair by you"
+	return out
+
+
+func _cmd_stand(_a: Array) -> Dictionary:
+	if not player.seat.seated():
+		return {"ok": false, "error": "you're not sat down"}
+	player.seat.use()
+	await _settle()
+	var out := player.seat.report()
+	out["did"] = String(player.seat.last)
+	out["at"] = _arr(player.global_position)
+	return out
+
+
+func _cmd_cards(a: Array) -> Dictionary:
+	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
+	if g == null:
+		return {"ok": false, "error": "no card game (the valley: -- --world=valley, at night)"}
+	if a.size() > 1 and a[0] == "wait":
+		var want := g.hands + int(a[1])
+		var ticks := 0
+		while g.hands < want and g.state != &"stopped" and ticks < 180 * Engine.physics_ticks_per_second:
+			await get_tree().physics_frame
+			ticks += 1
+	return g.report()
+
+
 ## A nod (pitch) or a shake (yaw): three swings of 12 degrees, a tenth of a second each, back level.
 func _cmd_nod(_a: Array) -> Dictionary:
 	return await _head(Vector2(0.0, -1.0))
@@ -1029,6 +1077,8 @@ func _player_state() -> Dictionary:
 	var out := {"at": _arr(player.global_position), "facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1),
 		"crouching": player.is_crouching, "crawling": player.is_crawling, "weapon": _weapon_line(), "movement": String(player.movement),
 		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
+	if player.seat:
+		out["seat"] = player.seat.report()
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive

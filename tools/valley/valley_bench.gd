@@ -19,7 +19,11 @@ extends SceneTree
 ## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
 ## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
 ## (`--mission=sheriff`: the sheriff and his horse there). The places with height (#736 B):
-## `height_<id>` on each high spot looking at its first target. `--spots=a,b`: only those.
+## `height_<id>` on each high spot looking at its first target. The valley's folk (#756):
+## `saloon_yard`, Main Street before the saloon's yard at nine at night, looking at its bar and card
+## table with the barkeep, two drinkers and two card players there (ValleyFolk; `--no-folk`, a game
+## arg: the yard empty, the before). `card_seat` (#766): sat in the card table's north chair, the
+## card game going (CardGame; Prof `card_game`). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -96,6 +100,14 @@ func _spots(world: StringName) -> Array:
 		var h := Vector2(hp.high.at[0], hp.high.at[1])
 		var t := Vector2(hp.targets[0].at[0], hp.targets[0].at[1])
 		out.append(["height_%s" % hp.id, Vector3(h.x, 0.0, h.y), _heading(h, t), String(hp.id)])
+	# The valley's folk at night (#756): from Main Street's north edge before the saloon's yard,
+	# looking up the yard at the bar and the card table (the clock set to nine, then back).
+	var yard: Dictionary = lay.lot("saloon_annex")
+	var mouth := Vector2((float(yard.x0) + float(yard.x1)) * 0.5, -8.0)
+	out.append(["saloon_yard", Vector3(mouth.x, 0.0, mouth.y), _heading(mouth, mouth + Vector2(-0.6, -7.0))])
+	# Sat at its card table (#766): in the north chair, the game going with you dealt in (where you
+	# stand is the chair's, set once the folk are in).
+	out.append(["card_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
 	return out
 
 
@@ -161,9 +173,32 @@ func _run() -> void:
 		var fmn = world_root.get_node_or_null(^"FarmhouseMission")
 		if String(s[0]).begins_with("farm_") and fmn and fmn.state == 0 and not "--no-farm-mission" in OS.get_cmdline_user_args():
 			fmn.begin(false)
+		var clock = world_root.get_node_or_null(^"DayCycle")
+		var was_hour: float = clock.time_of_day if clock else 12.0
+		var folk = world_root.get("folk")
+		var at_table := String(s[0]) == "card_seat"
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			clock.set_time(21.0)
+			if folk:
+				folk._look = 0.0
+		if at_table and folk:
+			for i in 30:
+				await process_frame
+			player.seat.sit(folk.props.chair_n)
+			player.rotation.y += deg_to_rad(20.0)  # the table and Earl past it
+			var g = folk.cards
+			while g.state in [&"idle", &"shuffle", &"ante"]:
+				await process_frame
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			m["folk"] = folk.people.size() if folk else 0
+			if at_table:
+				m["cards"] = folk.cards.report().state
+				m["card_game_ms"] = snappedf(m.get("systems", {}).get("card_game", 0.0), 0.001)
+				player.seat.stand()
+			clock.set_time(was_hour)
 		if far != "":
 			m["train_from"] = far
 			m["train_s"] = snappedf(float(world_root.get_node(^"Railway").train.sim.s), 0.1)

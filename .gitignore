@@ -43,3 +43,6 @@ __pycache__/
 /assets/textures/mlab_cint/
 /assets/textures/mlab_r1dark_*/
 /assets/textures/weather/stains_r1dark*
+
+# The material library's 4K scans (lab only; pulled from the pool branch, #721)
+/assets/textures/scans4k/

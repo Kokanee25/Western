@@ -458,6 +458,17 @@ frozen until Sean names one.
   The four changed `_real` goldens re-approved. Queued for later: the shade fill (#711). Next: #660.
   Traps: a lavapipe render run is ~10 GB (two at once OOM here, even one ending as the next starts);
   a real-look view is ~10 min under lavapipe; `pgrep -f` waiters match themselves.
+- **The material library** (#701, brief `docs/briefs/material-library.md`, branch
+  `claude/salt-creek-material-panels-tjivo2`, PR below): scanned CC0 woods (`scans.yml`; 4K for the lab on the
+  `-scans4k` branch) on sample panels (`SamplePanel`, `scan_wood.gdshader`, `config/material_library.json`,
+  `material_lab.gd --panels=`); the AA switch (`RealLook`, key 0, `--aa=fsr2|taa`; the lab renders with TAA).
+  Round 3, then the materials judge (`docs/concept/judge/MATERIAL.md`: crops of the wood only; the cheap
+  judge can't grade swatches). The weave (blocks/smudge in the weathered grey at 1 m) bisected to the weathering
+  layer (`--panels=bisect`, `tools/weave_measure.py`); three fixes there failed: its own session (#763,
+  the weave). **The judge decides** (Sean, #721): a swatch passes at the materials judge's "game" or better with no
+  tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
+  few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
+  grain with the test, not by eye; one render at a time.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
@@ -848,8 +859,18 @@ frozen until Sean names one.
   isn't built) run on his body, a stand-in doctor; `sheriff.care` good/poor/left him in `StoryState`
   (memory only; bridge `story`). `Act` (src/moments) is the first cut of acts. Blind playtest
   `docs/playtests/2026-11-10-sheriff.md`. Waiting on Sean: #755 (his play; the saloon onto its valley
-  lot now or in #695's week). Next: #756 (No Law's town: people in the valley, the saloon). The card's
-  systems lines and BUILD_ORDER's Step 1 are on PR #743 (unmerged): update them when it lands.
+  lot now or in #695's week). The card's systems lines and BUILD_ORDER's Step 1 are on PR #743
+  (unmerged): update them when it lands.
+- **No Law, the valley's townsfolk and the card table** (step 1 #756, PR #764, build 3725; step 2 #766, PR #771,
+  build 3784; `experiments/valley_folk/README.md`, LAYOUT "src/people", "src/player"): `ValleyFolk` from
+  `config/valley_folk.json` (`-- --no-folk` without); on #755's B (unanswered) the set is in the saloon's yard:
+  the barkeep, two drinkers, Earl and the drifter at the card table (`SitChore`; a broken chair, he takes a free one).
+  **The seated player** (`PlayerSeat`): E by a free kit chair sits you (look round 110 degrees, no walk, no gun,
+  E stands you clear, `hold(reason, why)` keeps you; the chair kicked out drops you flat). **The card game**
+  (`CardGame`, `Poker`, `config/card_game.json`): five-card draw, you dealt in from the next hand, nod calls and
+  shake folds, Earl deals off the bottom; stops for a shot, a man out of his chair or an act's `interrupt`.
+  Bridge `sit [n|e|s|w]`, `stand`, `cards`. `card_seat` bench: render CPU 1.14 ms at Sean's, people ~2.0.
+  Blind playtest `docs/playtests/2026-11-10-cards.md`. Next: #773 (the red shirt, the kick and the murder).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:

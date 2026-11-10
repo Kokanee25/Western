@@ -477,6 +477,11 @@ own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four ti
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
 what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
 assume ACES under AgX.
+**Its anti-aliasing** (#721, Sean's test): FSR2 at native scale by default (`VIEW_REAL`); **key 0**
+(`debug_aa`) switches FSR2 <-> Godot's TAA live, `--aa=fsr2|taa` for a run (`RealLook.aa`, `set_aa`,
+not saved). Under lavapipe FSR2 anti-aliases almost nothing (a 1 m old board's pixel noise 11.8, TAA
+3.1): the material lab renders through TAA (`--aa=taa`). The game's default waits on Sean's PC.
+
 **The real look's light** (docs/briefs/red-dead.md R1, light with shape; `config/looks/real_light.json`):
 while `Settings.real_look` is on, LightLooks lays the file's `night_values` over the game's night
 and its `day_values` over the game's day (light_game.json's stay the painted look's; switching the
@@ -567,6 +572,16 @@ it all away and puts the probe and haze back.
   a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
   `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
   `dynamite_you_*` and `on_you.py`.
+- `PlayerSeat` (`player_seat.gd`, #766, No Law step 2; dials PlayerTuning `seat_*`): E by a free kit
+  chair (its seat within `seat_reach`, in `seat_view_deg` of your view; in the group `claims_use`, so
+  it isn't a shove) sits you in it: `KitProp.sit(player)` (80 kg: the player has no `total_mass`), eyes
+  to `seat_eye_height` (`PlayerMotion.seated`), the legs sat (`PlayerBody.seated`), the crouch's capsule.
+  Sat: the walk skipped (`step`), the view held within `seat_turn_deg` of the chair (`clamp_turn`, on
+  each look too), no gun (PlayerWounds sets `hands_busy`, `busy_why`: "you're sat at the table"). E
+  stands you a step clear (`_clear_spot`) unless `hold(reason, why)` (an act; E says `why`). The chair's
+  `went_loose` (kicked, broken, blown) drops you flat (the crawl) and still for `seat_fall_s`
+  (`dumped`); `Player.fell` exists only so a kit chair can listen for it. Bridge `sit [n|e|s|w]`,
+  `stand`; `read player`'s `seat`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -769,6 +784,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
   loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
   own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The valley's townsfolk** (#756, No Law step 1; BUILD_ORDER 0.3): see "src/people" (`ValleyFolk`):
+  ValleyWorld's `Folk`, from `config/valley_folk.json` (`-- --no-folk` leaves them out). On Sean's B
+  (#755: the saloon waits for #695's week) the set is in the saloon's yard (`saloon_annex`): a kit bar
+  (its customers east), the card table and its four chairs, two lit oil lamps, tin cups.
 - **The places with height** (#736 A+B, #752; `heights` in valley.json, `docs/briefs/valley-heights.md`,
   `docs/concept/valley-heights.png`; `tests/test_valley_heights.gd`): each a `landform` that
   `valley_plan.py` adds to the natural ground before the pads (`landforms_height`: knoll, ridge,
@@ -1470,6 +1489,40 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   door, emptied in the street, filled at the trough) → PUT_BACK. Trouble: the mop let go, the
   bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
   him both chores (`[mopping, wipe]`).
+- **`ValleyFolk`** (`src/people/valley_folk.gd`, #756; data `config/valley_folk.json`;
+  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). Each man in the data has
+  a model, `hours` [from, to] (past midnight when to < from), a `from` place (his way in and out) and
+  a `post`: `behind`/`at_bar` the set's bar (`along` it, + north) or a `chair` of the card table (n, e,
+  s, w). A CivilianBrain at his post (`go_to` gives him a new one and drops his old route), finding
+  his way by the folk's own `places` (ValleyTown.add_ways onto a new Waypoints, ~560 places, plus the
+  data's `nolaw_*`; a route ~6 ms); the card players held in their chairs by **`SitChore`**
+  (`src/people/sit_chore.gd`: within 2 m of a free chair, free, wanted: Seating.sit_step; trouble or
+  sent off: up out of it). The clock read every 0.5 s: run into a man's hours (within `walk_in_h`,
+  0.5 h) and he walks in from `from`; jumped past (7, a bridge `time`, a load at night) he's at his
+  post; past his hours he walks back out to `from` and is freed (`GONE_AT` 1.6 m; `GONE_ANYWAY` 240
+  s), or at once on a jump. Built while the valley loads and kept out of the tree (TownLife's riders,
+  #488): ~4.3 s the first time a process builds these five models, ~12 ms a man after. Tonight: the
+  barkeep 17-3 (from the saloon's door), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the
+  rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
+  seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
+  valley_bench spot `saloon_yard`.
+- **`CardGame`** (`src/people/card_game.gd`, #766, No Law step 2; data `config/card_game.json`, rules
+  **`Poker`** `src/people/poker.gd`: cards 0..51, `score`/`compare`/`name`/`discards`;
+  `tests/test_card_game.gd`): ValleyFolk makes one at the set's table with its four chairs. Five-card
+  draw among whoever's sat and fit in them (`sat()`: a conscious HumanBody, or the player), two or more
+  with a man among them: shuffle, ante, deal (the men deal in turn; Earl the cheat deals himself one
+  off the bottom `cheat.odds` of his deals, `cheated`), a betting round, the draw, a second round, the
+  showdown (`hand_done`), between; the men bet by `Poker.strength` and the data's `play`, say lines
+  (`lines`, `by` a man; `say_chance`, `say_gap_s`; Events.spoke), reach for the deck and the pot
+  (`reach_to`) and watch whoever's turn it is (`FaceLife.attend_to`). You're dealt in from the next
+  hand after you sit at it: your cards face up before you, on your turn a nod calls/checks and a shake
+  folds (HeadGesture), waited on `you_wait_s` you check or fold to a bet; prompts by PlayerWounds.say (what a call costs, the pot, your chips). Stops
+  (`interrupted(reason)`, the cards left lying, the pot riding): a shot within `stop_on.shot_m`, a blast
+  within `blast_m`, any man of the hand out of his chair (`up`: kicked, his brain's trouble), an act's
+  `interrupt(reason, hold)`; deals again after `resume_after_s` calm with two sat, unless `hold`; you
+  standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
+  drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
+  valley_bench spot `card_seat` (you sat in the north chair, the game going).
 
 ## src/audio
 
@@ -1971,6 +2024,27 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   its fine grain off); `smooth` cuts it with no palette or pushed mosaic; its own
   `texels_per_metre`; `median` false keeps small things (stones); the reference may be Sean's road
   picture (`PAINTINGS["road"]`); every call prints OpenRouter's cost.
+
+**The material library** (#701, `docs/briefs/material-library.md`): scanned CC0 woods fetched on
+GitHub (`tools/textures/scans/fetch_scans.py`, `.github/workflows/scans.yml`: the catalogue's sheets
+while `tools/textures/scans/catalogue/` is absent, then `picks.json` -> `assets/textures/scans/<id>/`,
+each with `meta.json`: source, licence, metres, `mean_linear`). Entries in
+`config/material_library.json` (`MaterialLibrary.apply` sets `scan_wood.gdshader` from one at an age);
+`SamplePanel` builds a panel; `tools/material_lab.gd --panels=rough|common|fine|long|shape`
+renders them (south-west facing, noon / golden / night in a room with the saloon's lamps, `far` 5 m
+and `near` 1 m, `--man=MODEL`); `tools/material_library_sheet.py` makes a family's sheet.
+Trap: a copied `.import` keeps its source's `uid` and `path.*` lines: delete them and re-import.
+Round 3 (#721): the 4K copies (`scans4k.yml` -> pool branch `claude/salt-creek-material-panels-tjivo2-scans4k`
+-> git-ignored `assets/textures/scans4k/`, `MaterialLibrary.hi_res`); the lab's `--hires`, `--review`
+(Sean's shots only), `--settle=N` (frames after a cut; 16-40), `--aa=taa`, `--panels=probe` (one shot,
+dials varied; `--probe-aa` the viewport's AA instead); review renders at `--resolution 1920x1080`
+(~5 min a shot here; 2560x1440 ~20). MetaHuman Sean beside the panels: lab only, never committed
+(the Studio's build laid into `assets/people/`, `studio_in/` with its shaders and a wrapper,
+`.git/info/exclude`).
+The weave's bisect (2026-11-10): `--panels=bisect` (one flat panel, `scan_wood`'s `bisect` dial turning
+the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `tools/weave_measure.py`
+(a 2x2 checker's response per 100 of brightness). The materials judge: `docs/concept/judge/MATERIAL.md`
+(a blind agent on crops of the wood only, against the Studio's AAA references read in place).
 
 ## src/props/prop_models.gd
 

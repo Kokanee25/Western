@@ -1,0 +1,105 @@
+{
+ "note": "4K copies for the lab's close-ups (#721): pushed by scans.yml to the pool branch, never into the repo. Re-fetched from the sources' lossless PNGs, 2026-11-09 (the JPEG blocks).",
+ "picks": [
+  {
+   "id": "Wood047",
+   "source": "ambientcg",
+   "why": "rough pine, rough-sawn, fresh"
+  },
+  {
+   "id": "Wood048",
+   "source": "ambientcg",
+   "why": "rough pine, fresh, variant"
+  },
+  {
+   "id": "Wood050",
+   "source": "ambientcg",
+   "why": "planed pine"
+  },
+  {
+   "id": "Wood014",
+   "source": "ambientcg",
+   "why": "planed pine, variant"
+  },
+  {
+   "id": "Wood063",
+   "source": "ambientcg",
+   "why": "fir, honey"
+  },
+  {
+   "id": "Wood058",
+   "source": "ambientcg",
+   "why": "fir, variant"
+  },
+  {
+   "id": "Wood051",
+   "source": "ambientcg",
+   "why": "walnut"
+  },
+  {
+   "id": "black_walnut_veneer_02",
+   "source": "polyhaven",
+   "why": "walnut, variant"
+  },
+  {
+   "id": "Wood081",
+   "source": "ambientcg",
+   "why": "cherry"
+  },
+  {
+   "id": "Wood015",
+   "source": "ambientcg",
+   "why": "cherry, variant"
+  },
+  {
+   "id": "oak_veneer_01",
+   "source": "polyhaven",
+   "why": "quartersawn oak"
+  },
+  {
+   "id": "red_oak_veneer",
+   "source": "polyhaven",
+   "why": "oak, variant"
+  },
+  {
+   "id": "Wood009",
+   "source": "ambientcg",
+   "why": "mahogany"
+  },
+  {
+   "id": "sapele_veneer",
+   "source": "polyhaven",
+   "why": "sapele (African mahogany), variant"
+  },
+  {
+   "id": "Wood073",
+   "source": "ambientcg",
+   "why": "rough grey-brown, plain grain"
+  },
+  {
+   "id": "Wood079",
+   "source": "ambientcg",
+   "why": "rough pale, plain grain"
+  },
+  {
+   "id": "rough_wood",
+   "source": "polyhaven",
+   "why": "old rough board: silver-grey, checks and cracks"
+  },
+  {
+   "id": "Wood011",
+   "source": "ambientcg",
+   "why": "pale weathered grey, clear grain"
+  },
+  {
+   "id": "Wood016",
+   "source": "ambientcg",
+   "why": "weathered pine"
+  },
+  {
+   "id": "Wood076",
+   "source": "ambientcg",
+   "why": "dark rough brown, spare"
+  }
+ ]
+}
