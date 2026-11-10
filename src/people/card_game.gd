@@ -512,6 +512,7 @@ func _bet_step(dt: float) -> void:
 		elif _t <= 3.0 and to_call > 0 and not _you_warned:
 			_you_warned = true
 			_prompt(String(data.you.get("hurry", "Nod to call, shake to fold: 3 s")), 3.0)
+			return  # still your turn
 		elif _t <= 0.0:
 			# Waited on with a bet to you: you're out of it (it doesn't spend your money for you).
 			_you_turn = false
