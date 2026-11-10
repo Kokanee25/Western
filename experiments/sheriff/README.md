@@ -61,4 +61,18 @@ in the bridge runs it held (0.155 at the doctor's after a `goto`).
 
 ## The frame at the opening site
 
-See "Frame" below (valley_bench's `harlan_home`, `sheriff_site`, with and without `--mission=sheriff`).
+`tools/valley/valley_bench.gd --spots=harlan_home,sheriff_site` drawn under lavapipe (real look, 60
+frames), without and with `--mission=sheriff` (the sheriff, his body ticking, and his horse); render CPU
+scaled to Sean's (x0.65); the budget is 4.0 ms of render CPU and 4.0 ms of people:
+
+| Spot | render CPU at Sean's | draws | people (ms, here) |
+|---|---|---|---|
+| `harlan_home`, before | 0.81 | 390 | 0.09 |
+| `harlan_home`, the mission on | 0.92 | 426 | 0.73 |
+| `sheriff_site` (4 m from him), before | 0.65 | 247 | 0.10 |
+| `sheriff_site`, the mission on | 0.73 | 302 | 0.71 |
+
+Inside the budget: +0.08-0.11 ms of render CPU at Sean's and ~0.6 ms of people (one wounded man's
+body; the train's engineer is the rest). (The mission run's `crossroads` row isn't the crossroads:
+the mission put you at Harlan's place after the bench had placed you, so it's left out.) Logs:
+`build/vb_before.log`, `build/vb_sheriff.log` (not kept).
