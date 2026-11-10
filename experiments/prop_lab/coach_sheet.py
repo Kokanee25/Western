@@ -43,10 +43,13 @@ def main():
         shoot("coach_front", 12.0, cam((-6.5, 2.4, -3.2), (-0.8, 1.3, 0)))
         print(bridge("prop_open door_l"))
         shoot("coach_door_open", 12.0, cam((-1.0, 1.9, -3.4), (0.4, 1.5, 0.2), 55))
-        print(bridge("props_clear", "prop strongbox %.2f %.2f %.2f %.1f" % (SPOT[0], SPOT[1], SPOT[2] + 1.6, YAW)))
-        shoot("strongbox_shut", 12.0, cam((0.7, 0.75, 0.5), (0, 0.15, 1.6), 45))
+        # Out in the street (its middle toward -Z), clear of the horses at the rail, seen toward the store.
+        bx, bz = SPOT[0] - 1.5, SPOT[2] - 3.0
+        print(bridge("props_clear", "prop strongbox %.2f %.2f %.2f %.1f" % (bx, SPOT[1], bz, 205.0)))
+        box = (bx - SPOT[0], 0.15, bz - SPOT[2])
+        shoot("strongbox_shut", 12.0, cam((box[0] + 0.5, 0.75, box[2] - 0.9), box, 45))
         print(bridge("prop_open lid"))
-        shoot("strongbox_open", 12.0, cam((0.7, 0.9, 0.6), (0, 0.15, 1.6), 45))
+        shoot("strongbox_open", 12.0, cam((box[0] + 0.5, 0.95, box[2] - 0.9), box, 45))
     finally:
         subprocess.run(BRIDGE + ["stop"], cwd=ROOT)
     from PIL import Image, ImageDraw

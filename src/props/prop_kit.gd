@@ -23,7 +23,7 @@ class_name PropKit
 ## round the Y axis (each turned with its place); "%d" in the id takes the copy's number.
 ## "look": "prop:<name>" (PropModels' materials: dark_wood, mid_wood, felt, staves, barrel_head,
 ## weathered, hide, hide_dark, hide_pale, antler, gilt, picture (a landscape, one of two), burl, ivory,
-## ebony, brass, iron, mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
+## ebony, brass, iron, plate_iron (the coach's armour), mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials), or "model:<name>" (a model's own
 ## painted texture on its UVs: assets/props/models/<name>_paint.png, PropModels.model_paint; the deer
 ## head from Rodin). Without it, the member's wood's.
@@ -315,6 +315,8 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.brass()
 		"iron":
 			return PropModels.iron()
+		"plate_iron":
+			return PropModels.plate_iron()
 		"mirror":
 			return PropModels.mirror()
 		"straw":

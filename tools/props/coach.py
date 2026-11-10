@@ -35,6 +35,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wagons import HUB_LOOK, IRON, GEAR_LOOK, GEAR_WOOD, r4, standing_wheel, vec, write  # noqa: E402
 
 LEATHER = "prop:leather"
+PLATE_LOOK = "prop:plate_iron"   # the armour's sheet (the props' iron mottles like camouflage on a plate)
 PINE = "weathered_pine"
 WOOD_LOOK = "wood:dark_oak"
 
@@ -58,8 +59,9 @@ PLATE = 0.008                 # 5/16 in
 PLATE_Z = 0.70 + PLATE * 0.5  # the plates (0.70-0.708)
 PLATE_X = 1.30 + PLATE * 0.5  # the end plates
 DOOR = 0.372                  # the door's plates' half width (the hinge on its fore edge)
-SLIT = 0.04                   # a slit's width
-SLIT_FROM = 2.12              # a slit's bottom (its top the roof rail, 2.40): 4 x 28 cm
+SLIT = 0.05                   # a slit's width
+SLIT_FROM = 2.12              # a slit's bottom (its top the roof rail, 2.40): 5 x 28 cm
+FRONT_SLIT_FROM = 2.24        # the front's, over the driver's seat back: 5 x 16 cm
 SHOT_BREAKS = 300.0           # J: a ball that breaks a padlock or a trace hook
 
 
@@ -96,7 +98,7 @@ def side_plate(id_, sign, x0, x1, y0, y1):
     or the plate under it."""
     z = sign * PLATE_Z
     out_z = sign * (0.708 + 0.003)
-    return box(id_, "trim", (x1 - x0, y1 - y0, PLATE), ((x0 + x1) * 0.5, (y0 + y1) * 0.5, z), wood="iron", look=IRON,
+    return box(id_, "trim", (x1 - x0, y1 - y0, PLATE), ((x0 + x1) * 0.5, (y0 + y1) * 0.5, z), wood="iron", look=PLATE_LOOK,
                plate=True, dress=rivets(x0, x1, y0, y1, out_z))
 
 
@@ -104,8 +106,23 @@ def end_plate(id_, sign, z0, z1, y0, y1):
     """A plate on an end (sign -1 the front, +1 the back), z0..z1, y0..y1."""
     x = sign * PLATE_X
     out_x = sign * (1.308 + 0.003)
-    return box(id_, "trim", (PLATE, y1 - y0, z1 - z0), (x, (y0 + y1) * 0.5, (z0 + z1) * 0.5), wood="iron", look=IRON,
+    return box(id_, "trim", (PLATE, y1 - y0, z1 - z0), (x, (y0 + y1) * 0.5, (z0 + z1) * 0.5), wood="iron", look=PLATE_LOOK,
                plate=True, dress=rivets(z0, z1, y0, y1, out_x, plane="x"))
+
+
+def slit_frame(plate, along, mid, out, plane="z"):
+    """A slit's frame drawn on its filler plate: iron strips proud either side of the opening and a
+    sill under it, lighter than the plate so the slit reads from the street (the critic, round 1)."""
+    y0 = plate["at"][1] + plate["size"][1] * 0.5
+    def b(a0, a1, y_lo, y_hi):
+        size = (a1 - a0, y_hi - y_lo, 0.01) if plane == "z" else (0.01, y_hi - y_lo, a1 - a0)
+        at = ((a0 + a1) * 0.5, (y_lo + y_hi) * 0.5, out) if plane == "z" else (out, (y_lo + y_hi) * 0.5, (a0 + a1) * 0.5)
+        return {"size": vec(*size), "at": vec(*at)}
+    w = SLIT * 0.5
+    boxes = [b(mid - w - 0.03, mid - w, y0 - 0.03, TOP - 0.01), b(mid + w, mid + w + 0.03, y0 - 0.03, TOP - 0.01),
+             b(mid - w - 0.03, mid + w + 0.03, y0 - 0.03, y0)]
+    plate["dress"] = plate.get("dress", []) + [{"look": IRON, "draw": {"shape": "boxes", "boxes": boxes}}]
+    return plate
 
 
 def running_gear():
@@ -128,10 +145,21 @@ def running_gear():
         for side, s in (("l", -1), ("r", 1)):
             h = BRACE_TOP - 0.08 - y0
             # Drawn as the iron C of a Concord's jack: up the axle's face and over toward the body.
+            # Drawn as a Concord's jack: an iron C up from the bolster past the body's end, the brace's
+            # leather hung from its hook and down under the sill (the critic, round 1: "no braces").
+            inward = 1 if end == "front" else -1
+            cz = s * 0.675
+            hook = (x, 1.22)
+            under = (x + inward * 0.42, BRACE_TOP - 0.02)
             m.append(box("%s_jack_%s" % (end, side), "trim", (0.10, h, 0.09), (x, y0 + h * 0.5, s * JACK_Z), look=HUB_LOOK,
                          dress=[{"look": IRON, "draw": {"shape": "boxes", "boxes": [
-                             {"size": vec(0.03, h + 0.12, 0.05), "at": vec(x + (0.065 if end == "front" else -0.065), y0 + h * 0.5 + 0.02, s * JACK_Z)},
-                             {"size": vec(0.10, 0.025, 0.05), "at": vec(x, BRACE_TOP - 0.06, s * JACK_Z)}]}}]))
+                             {"from": vec(x, y0, cz), "to": vec(x - inward * 0.06, 0.95, cz), "thick": 0.035},
+                             {"from": vec(x - inward * 0.06, 0.95, cz), "to": vec(hook[0] - inward * 0.02, hook[1], cz), "thick": 0.035},
+                             {"from": vec(hook[0] - inward * 0.02, hook[1], cz), "to": vec(hook[0] + inward * 0.07, hook[1] - 0.03, cz), "thick": 0.03},
+                             {"size": vec(0.10, 0.025, 0.05), "at": vec(x, BRACE_TOP - 0.06, s * JACK_Z)}]}},
+                                {"look": LEATHER, "draw": {"shape": "boxes", "boxes": [
+                                    {"from": vec(hook[0] + inward * 0.06, hook[1] - 0.04, cz), "to": vec(under[0], under[1], cz), "thick": 0.06},
+                                    {"from": vec(hook[0] + inward * 0.05, hook[1] - 0.06, cz - s * 0.03), "to": vec(under[0], under[1] - 0.03, cz - s * 0.03), "thick": 0.05}]}}]))
     # The thoroughbraces: layered leather, jack to jack; the body rides on them.
     bx0, bx1 = FX - 0.12, RX + 0.12
     for side, s in (("l", -1), ("r", 1)):
@@ -210,12 +238,14 @@ def body():
             m.append(side_plate("plate_%s_%s_low" % (side, part), s, x0, x1, Y0, BELT))
             mid = (x0 + x1) * 0.5
             m.append(side_plate("plate_%s_%s_up_a" % (side, part), s, x0, mid - SLIT * 0.5, BELT, TOP))
-            m.append(side_plate("plate_%s_%s_slit" % (side, part), s, mid - SLIT * 0.5, mid + SLIT * 0.5, BELT, SLIT_FROM))
+            m.append(slit_frame(side_plate("plate_%s_%s_slit" % (side, part), s, mid - SLIT * 0.5, mid + SLIT * 0.5, BELT, SLIT_FROM),
+                                "x", mid, s * 0.715))
             m.append(side_plate("plate_%s_%s_up_b" % (side, part), s, mid + SLIT * 0.5, x1, BELT, TOP))
     for end, sx in (("front", -1), ("back", 1)):
         m.append(end_plate("plate_%s_low" % end, sx, -0.70, 0.70, Y0, BELT))
         m.append(end_plate("plate_%s_up_a" % end, sx, -0.70, -SLIT * 0.5, BELT, TOP))
-        m.append(end_plate("plate_%s_slit" % end, sx, -SLIT * 0.5, SLIT * 0.5, BELT, SLIT_FROM))
+        m.append(slit_frame(end_plate("plate_%s_slit" % end, sx, -SLIT * 0.5, SLIT * 0.5, BELT, FRONT_SLIT_FROM if end == "front" else SLIT_FROM),
+                            "z", 0.0, sx * 1.315, plane="x"))
         m.append(end_plate("plate_%s_up_b" % end, sx, SLIT * 0.5, 0.70, BELT, TOP))
     # The doors: a board door in the panels' plane and its two plates, hung on the fore door post.
     for side, s in (("l", -1), ("r", 1)):
@@ -283,7 +313,7 @@ def boots():
     p0, p1 = -2.25, -XL - 0.005
     m.append(box("front_platform", "trim", (p1 - p0, 0.025, 1.24), ((p0 + p1) * 0.5, BRACE_TOP + 0.0125, 0)))
     pt = BRACE_TOP + 0.025
-    lid_y = 1.80
+    lid_y = 2.02          # the driver up at the roof's line (the critic, round 1: "a low crate")
     bx0 = -1.85
     for side, s in (("l", -1), ("r", 1)):
         m.append(box("front_boot_%s" % side, "trim", (p1 - bx0, lid_y - pt, 0.025), ((bx0 + p1) * 0.5, (pt + lid_y) * 0.5, s * 0.6075), wood=PINE))
@@ -297,10 +327,10 @@ def boots():
                  dress=[{"look": IRON, "draw": {"shape": "boxes", "boxes": [
                      {"size": vec(0.40, 0.02, 0.02), "at": vec(-1.56, cush_y + 0.22, s * 0.62)} for s in (-1, 1)] + [
                      {"size": vec(0.02, 0.22, 0.02), "at": vec(x, cush_y + 0.11, s * 0.62)} for x in (-1.74, -1.38) for s in (-1, 1)] + [
-                     {"from": vec(-2.02, 1.58, 0.66), "to": vec(-1.92, 2.32, 0.68), "thick": 0.035}]}}]))
-    m.append(box("driver_back", "trim", (0.025, 0.28, 1.10), (-XL - 0.0175, cush_y + 0.14, 0), wood="leather", look=LEATHER))
+                     {"from": vec(-2.02, 1.78, 0.66), "to": vec(-1.90, 2.55, 0.68), "thick": 0.035}]}}]))
+    m.append(box("driver_back", "trim", (0.025, 0.16, 1.10), (-XL - 0.0175, cush_y + 0.08, 0), wood="leather", look=LEATHER))
     # The footboard on two iron stays from the platform.
-    stay_top = 1.55
+    stay_top = 1.75
     for side, s in (("l", -1), ("r", 1)):
         m.append(box("footboard_stay_%s" % side, "trim", (0.03, stay_top - pt, 0.03), (-2.18, (pt + stay_top) * 0.5, s * 0.45), wood="iron", look=IRON))
     m.append(box("footboard", "trim", (0.40, 0.025, 1.20), (-2.10, stay_top + 0.0125, 0), rot=vec(0, 0, 0)))
@@ -315,7 +345,11 @@ def boots():
     m.append(box("back_boot_cover", "trim", (q1 - q0 + 0.02, 0.012, 1.28), ((q0 + q1) * 0.5 + 0.01, bt + 0.006, 0), wood="leather", look=LEATHER,
                  dress=[{"look": LEATHER, "draw": {"shape": "boxes", "boxes": [
                      {"size": vec(0.012, bt - pt + 0.05, 1.26), "at": vec(q1 + 0.012, (pt + bt) * 0.5, 0)},
-                     {"size": vec(0.05, 0.03, 1.30), "at": vec(q0 + 0.03, bt + 0.02, 0)}]}}]))
+                     {"size": vec(0.05, 0.03, 1.30), "at": vec(q0 + 0.03, bt + 0.02, 0)},
+                     # The apron: from the back's top over the boot (a Concord's leather boot, the critic).
+                     {"size": vec(0.68, 0.014, 1.30), "at": vec((q0 + q1) * 0.5 + 0.01, (1.80 + bt) * 0.5 + 0.02, 0), "rot": vec(0, 0, -19.0)}]}},
+                        {"look": IRON, "draw": {"shape": "boxes", "boxes": [
+                            {"size": vec(0.66, 0.02, 0.04), "at": vec((q0 + q1) * 0.5 + 0.01, (1.80 + bt) * 0.5 + 0.03, z), "rot": vec(0, 0, -19.0)} for z in (-0.4, 0.4)]}}]))
     return m
 
 
@@ -333,7 +367,7 @@ def coach():
         }
     seat_y = Y0 + 0.025 + 0.37 + 0.035
     return {
-        "_doc": "The Baron's iron-plated coach (#782, for the heist, #736/#770): a Concord-style road coach armoured. Its body 2.62 x 1.42 x 1.42 m (to its roof ~2.5 m off the road) of oak framing, pine panels and roof, 28 iron plates 8 mm thick over its sides, doors, back and front (each its own member, `plate`: the dent system's), six slits 4 x 28 cm at a seated guard's eye; hung on two leather thoroughbraces from the jacks on its axles; wheels 3 ft 8 in and 5 ft (the factory's, heavy hubs), track 1.6 m; a driver's box with its seat and footboard, a boot at the back; two doors on hinges (`open_hinge`); two benches for four guards (`seats_at`); the strongbox under the rear bench (`carries`). The pole, splinter bar, two singletrees and four trace hooks (`trace_hook_*`, shot apart by a ball) for the team. ~1,500 kg empty.",
+        "_doc": "The Baron's iron-plated coach (#782, for the heist, #736/#770): a Concord-style road coach armoured. Its body 2.62 x 1.42 x 1.42 m (to its roof ~2.5 m off the road) of oak framing, pine panels and roof, 28 iron plates 8 mm thick over its sides, doors, back and front (each its own member, `plate`: the dent system's), six slits 5 x 28 cm at a seated guard's eye (the front's 5 x 16 over the driver's seat back); hung on two leather thoroughbraces from the jacks on its axles; wheels 3 ft 8 in and 5 ft (the factory's, heavy hubs), track 1.6 m; a driver's box with its seat and footboard, a boot at the back; two doors on hinges (`open_hinge`); two benches for four guards (`seats_at`); the strongbox under the rear bench (`carries`). The pole, splinter bar, two singletrees and four trace hooks (`trace_hook_*`, shot apart by a ball) for the team. ~1,500 kg empty.",
         "id": "baron_coach", "kind": "members", "in_game": True, "factory": "tools/props/coach.py",
         "wood": GEAR_WOOD, "look": WOOD_LOOK, "splits_below": 0.4, "blow_wood_share": 0.5,
         "hinges": hinges,
@@ -342,7 +376,7 @@ def coach():
         "seats_at": [
             {"at": vec(-1.04, seat_y, -0.28), "yaw": -90}, {"at": vec(-1.04, seat_y, 0.28), "yaw": -90},
             {"at": vec(1.04, seat_y, -0.28), "yaw": 90}, {"at": vec(1.04, seat_y, 0.28), "yaw": 90},
-            {"at": vec(-1.56, 1.90, 0.30), "yaw": 90, "who": "driver"}, {"at": vec(-1.56, 1.90, -0.30), "yaw": 90, "who": "messenger"}],
+            {"at": vec(-1.56, 2.12, 0.30), "yaw": 90, "who": "driver"}, {"at": vec(-1.56, 2.12, -0.30), "yaw": 90, "who": "messenger"}],
         "members": members,
     }
 
@@ -357,22 +391,23 @@ def strongbox():
     band = lambda z0, z1, y0, y1, x: {"size": vec(0.03, y1 - y0, z1 - z0), "at": vec(x, (y0 + y1) * 0.5, (z0 + z1) * 0.5)}
     m = []
     # The bottom, a lip proud at the front for the staple: its foot.
-    m.append(box("bottom", "post", (L, t, D + 0.015), (0, t * 0.5, 0.0075), wood="iron", look=IRON))
+    m.append(box("bottom", "post", (L, t, D + 0.015), (0, t * 0.5, 0.0075), wood="iron", look=PLATE_LOOK))
     straps = {"look": IRON, "draw": {"shape": "boxes", "boxes": [
         {"size": vec(0.035, wall, 0.006), "at": vec(x, t + wall * 0.5, D * 0.5 + 0.003)} for x in (-0.2, 0.2)]}}
-    m.append(box("front", "trim", (L, wall, t), (0, t + wall * 0.5, D * 0.5 - t * 0.5), wood="iron", look=IRON, dress=[straps]))
-    m.append(box("back", "trim", (L, wall, t), (0, t + wall * 0.5, -D * 0.5 + t * 0.5), wood="iron", look=IRON,
+    m.append(box("front", "trim", (L, wall, t), (0, t + wall * 0.5, D * 0.5 - t * 0.5), wood="iron", look=PLATE_LOOK,
+                 dress=[straps] + rivets(-L * 0.5, L * 0.5, t, t + wall, D * 0.5 + 0.002, step=0.09, inset=0.014)))
+    m.append(box("back", "trim", (L, wall, t), (0, t + wall * 0.5, -D * 0.5 + t * 0.5), wood="iron", look=PLATE_LOOK,
                  dress=[{"look": IRON, "draw": {"shape": "boxes", "boxes": [
                      {"size": vec(0.035, wall, 0.006), "at": vec(x, t + wall * 0.5, -D * 0.5 - 0.003)} for x in (-0.2, 0.2)]}}]))
     for side, s in (("l", -1), ("r", 1)):
-        m.append(box("end_%s" % side, "trim", (t, wall, D - 2 * t), (s * (L * 0.5 - t * 0.5), t + wall * 0.5, 0), wood="iron", look=IRON,
+        m.append(box("end_%s" % side, "trim", (t, wall, D - 2 * t), (s * (L * 0.5 - t * 0.5), t + wall * 0.5, 0), wood="iron", look=PLATE_LOOK,
                      # A drop handle on each end.
                      dress=[{"look": IRON, "draw": {"shape": "boxes", "boxes": [
                          {"size": vec(0.012, 0.012, 0.14), "at": vec(s * (L * 0.5 + 0.02), H * 0.62, 0)},
                          {"size": vec(0.02, 0.04, 0.012), "at": vec(s * (L * 0.5 + 0.01), H * 0.66, -0.065)},
                          {"size": vec(0.02, 0.04, 0.012), "at": vec(s * (L * 0.5 + 0.01), H * 0.66, 0.065)}]}}]))
     lid_y = t + wall
-    m.append(box("lid", "trim", (L + 0.01, 0.006, D + 0.01), (0, lid_y + 0.003, 0), wood="iron", look=IRON,
+    m.append(box("lid", "trim", (L + 0.01, 0.006, D + 0.01), (0, lid_y + 0.003, 0), wood="iron", look=PLATE_LOOK,
                  dress=[{"look": IRON, "draw": {"shape": "boxes", "boxes": [
                      {"size": vec(0.035, 0.006, D + 0.01), "at": vec(x, lid_y + 0.009, 0)} for x in (-0.2, 0.2)] + [
                      {"size": vec(0.05, 0.02, 0.02), "at": vec(x, lid_y, -D * 0.5 - 0.008)} for x in (-0.18, 0.18)]}}]))

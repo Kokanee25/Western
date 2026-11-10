@@ -59,7 +59,8 @@ func test_the_coach_stands_and_weighs_an_armoured_concords_weight() -> void:
 	# A Concord ~1,000-1,130 kg empty; 28 plates of 8 mm iron ~640 kg more.
 	var kg := c.mass()
 	check(kg >= 1300.0 and kg <= 1800.0, "it weighs %.0f kg empty" % kg)
-	check(c.batch_count() <= 8, "untouched it draws in a few batches (%d)" % c.batch_count())
+	# A batch a look and its dress (oak, pine, plate iron, iron, leather): one coach, not a street of them.
+	check(c.batch_count() <= 10, "untouched it draws in a few batches (%d)" % c.batch_count())
 	check(PropLibrary.spawn(&"baron_coach") is KitProp, "PropLibrary hands it out by name")
 	var box := c.carried("strongbox")
 	check(box != null and not box.loose, "its strongbox stands under the rear bench")
