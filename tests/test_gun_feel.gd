@@ -259,10 +259,14 @@ func test_winchester_handling() -> void:
 	w.state.tube = 5
 	var t0: float = clock.t
 	Input.action_press(&"reload")
-	while (w.state.tube < 10 or not w.state.ready()) and clock.t - t0 < 15.0:
+	while w.state.tube < 10 and clock.t - t0 < 15.0:
 		await process_frames(1)
 		clock.t += 1.0 / 60.0
 	Input.action_release(&"reload")
+	# The fifth round's push done.
+	while not w.state.ready() and clock.t - t0 < 15.0:
+		await process_frames(1)
+		clock.t += 1.0 / 60.0
 	Feel.within(self, "winchester_gate_round_s", (clock.t - t0) / 5.0)
 
 
