@@ -411,6 +411,8 @@ func _on_ejected(round_state: int) -> void:
 	var b := model.global_transform.basis
 	var push := b.y * 1.6 + b.x * 0.7 + b.z * 0.4
 	var live := round_state == Winchester73State.Round.LOADED or round_state == Winchester73State.Round.DUD
+	if round_state == Winchester73State.Round.LOADED and _player and _player.wounds:
+		_player.wounds.say("Out goes a live round.", 2.0)
 	var world := _ballistics().get_parent()
 	get_tree().create_timer(tuning.lever_open_time * 0.6).timeout.connect(func() -> void:
 		if is_instance_valid(world):

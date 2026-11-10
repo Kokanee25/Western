@@ -13,6 +13,8 @@ extends Node3D
 ## rope and the true ball.
 
 signal parted(at: Vector3)
+## A ball touched it: the share it took, and what's left at that place.
+signal nicked(cut: float, left: float)
 
 ## A .44's half-width: the collision shape's pad round the rope.
 const BALL_PAD := 0.0056
@@ -39,8 +41,12 @@ var is_parted := false
 var parted_at := Vector3.ZERO
 ## The piece that fell (a RigidBody3D), once parted.
 var fallen: RigidBody3D
+## What hangs on it, drawn (a sack standing in for the weight: you can see where the rope ends at
+## range, and it drops when the rope parts). None when `load_kg` is light.
+var weight: MeshInstance3D
 
 var _mat: StandardMaterial3D
+var _sack_mat: StandardMaterial3D
 
 
 func _ready() -> void:
@@ -72,6 +78,27 @@ func _build(hang: float) -> void:
 	mesh.material_override = _mat
 	body.add_child(mesh)
 	add_child(body)
+	if weight == null and load_kg > 20.0 and hang >= length - 0.001:
+		weight = _sack()
+		weight.position = Vector3.DOWN * (length + 0.3)
+		add_child(weight)
+	if weight:
+		weight.visible = not is_parted
+
+
+func _sack() -> MeshInstance3D:
+	if _sack_mat == null:
+		_sack_mat = StandardMaterial3D.new()
+		_sack_mat.albedo_color = Color(0.55, 0.47, 0.34)
+		_sack_mat.roughness = 1.0
+	var m := MeshInstance3D.new()
+	m.name = "Weight"
+	var c := CapsuleMesh.new()
+	c.radius = 0.2
+	c.height = 0.6
+	m.mesh = c
+	m.material_override = _sack_mat
+	return m
 
 
 func _rope_mesh(hang: float) -> CylinderMesh:
@@ -114,6 +141,7 @@ func take_ball(at: Vector3, dir: Vector3, ball_r: float) -> float:
 		cuts[key] = 0.0
 	cuts[key] = minf(float(cuts[key]) + cut, 1.0)
 	var left := 1.0 - float(cuts[key])
+	nicked.emit(cut, left)
 	if left < (part_left if load_kg > 20.0 else part_left_empty):
 		_part(key)
 	return cut
@@ -154,6 +182,10 @@ func _part(down: float) -> void:
 		m.mesh = _rope_mesh(below)
 		m.material_override = _mat
 		fallen.add_child(m)
+		if load_kg > 20.0:
+			var sack := _sack()
+			sack.position = Vector3.DOWN * (below * 0.5 + 0.3)
+			fallen.add_child(sack)
 		get_parent().add_child(fallen)
 		fallen.global_position = to_global(Vector3.DOWN * (down + below * 0.5))
 	parted.emit(parted_at)

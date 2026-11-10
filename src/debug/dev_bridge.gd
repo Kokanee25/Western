@@ -625,6 +625,10 @@ func _cmd_rifle(a: Array) -> Dictionary:
 	if what == "load":
 		await _seconds(0.3)
 		w.state.stop_loading()
+	# Answer once the stroke's done (the lever comes home by itself).
+	var settle := _game_seconds() + 3.0
+	while not w.state.ready() and _game_seconds() < settle:
+		await get_tree().physics_frame
 	await _seconds(0.5)
 	var out := {"ok": ok, "weapon": _weapon_line(), "state": w.state.to_dict(), "shouldered": w.is_shouldered()}
 	if not ok and w.why_not(&"reload" if what == "load" else &"cock") != "":

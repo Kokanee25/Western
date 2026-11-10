@@ -50,7 +50,12 @@ func hang_rope(metres: float) -> HangingRope:
 	player.get_parent().add_child(_rope)
 	_rope.global_position = cam.origin + ahead * metres + Vector3.UP * 1.0
 	if player.wounds:
-		player.wounds.say("A rope hung %d m off." % int(metres), 2.5)
+		player.wounds.say("A rope hung %d m off, a sack's weight on it." % int(metres), 2.5)
+		var w := player.wounds
+		_rope.nicked.connect(func(_cut: float, left: float) -> void:
+			if left >= _rope.part_left:
+				w.say("The rope's nicked: %d%% of it left there." % int(round(left * 100.0)), 2.5))
+		_rope.parted.connect(func(_at: Vector3) -> void: w.say("The rope parts!", 2.5))
 	return _rope
 
 
