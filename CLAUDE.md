@@ -1114,7 +1114,8 @@ frozen until Sean names one.
   rifle, museum photos on Commons; the receiver blued, case-hardened receivers made to order; the hammer and
   lever faded case colours, the weakest call); five rounds in game light and first person in the game's
   HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
-  cheap indie, its rifle faults listed in the README. Waiting on Sean: the surfaces (#776). Traps:
+  cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
+  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
   Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
   (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
   run is ~70 min here. Nothing in the game changed.
