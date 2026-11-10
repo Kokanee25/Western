@@ -730,6 +730,21 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 ## What a family puts on panels: [{entry, age, name, ...}].
 func _panel_specs(ml, family: String) -> Array:
 	var out := []
+	if family == "bisect":
+		# The weave's bisect (#721, Sean 2026-11-10): one flat panel, the same 1 m shot, the shader's
+		# layers on one at a time (scan_wood.gdshader `bisect`), then all of them without round 4's dials.
+		var bid: String = _panel_entries[0] if not _panel_entries.is_empty() else "rough_pine_batten"
+		var be: Dictionary = ml.entry(bid)
+		var bage: String = _panel_ages[0] if _panel_ages.size() < 3 else "old"
+		var names := ["0_flat", "1_colour", "2_contrast", "3_normal", "4_rough", "5_boards", "6_weathering",
+				"7_shelter", "8_edge_dirt", "9_all"]
+		for k in names.size():
+			out.append({"entry": be, "age": bage, "name": "%s_%s_%s" % [bid, bage, names[k]], "warp_gain": 0.0,
+					"dials": {"bisect": k}, "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+		out.append({"entry": be, "age": bage, "name": "%s_%s_9_all_no_r4" % [bid, bage], "warp_gain": 0.0,
+				"dials": {"bisect": 99, "shelter_dark": 0.0, "old_dark": 0.0, "lap_shade": 0.0,
+				"tint_old": Color(1, 1, 1)}, "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+		return out
 	if family == "probe":
 		# One panel, the same shot, dials varied: what makes the 1 m picture noisy (#721).
 		var pid: String = _panel_entries[0] if not _panel_entries.is_empty() else "rough_pine_batten"

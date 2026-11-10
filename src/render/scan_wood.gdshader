@@ -103,6 +103,11 @@ uniform float old_dark = 0.22;
 uniform float b_stochastic = 1.0;
 // Planed wood takes a little sheen; rough-sawn none.
 uniform float specular_wood = 0.35;
+// The weave's bisect (#721, Sean 2026-11-10): the layers switched on one at a time, in order; 99 all.
+// 0 a flat colour (the scan's mean), 1 the scan's colour, 2 + its grain contrast, 3 + the normal
+// map, 4 + the roughness map, 5 + per-board variation, 6 + weathering, 7 + shelter, 8 + edge dirt
+// (joints, splash), 9 + the rest (sun-fade, streaks, nails, varnish, end grain, lap shade).
+uniform int bisect = 99;
 
 varying float v_seed;
 varying float v_face;
@@ -225,12 +230,15 @@ void fragment() {
 	vec2 fa;
 	vec2 uva = scan_uv(m, tile_a, grain_v_a, seed, 0.0, fa);
 	vec3 col = texture(albedo_a, uva, albedo_bias).rgb;
-	if (grain_contrast < 0.999) {
+	if (bisect < 1) {
+		col = textureLod(albedo_a, vec2(0.5), 12.0).rgb;
+	}
+	if (grain_contrast < 0.999 && bisect >= 2) {
 		col = mix(textureLod(albedo_a, uva, 7.0).rgb, col, grain_contrast);
 	}
-	vec3 nrm = scan_normal(normal_a, uva, fa, grain_v_a);
-	float rough = texture(rough_a, uva, detail_bias).r;
-	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5) {
+	vec3 nrm = bisect >= 3 ? scan_normal(normal_a, uva, fa, grain_v_a) : vec3(0.0, 0.0, 1.0);
+	float rough = bisect >= 4 ? texture(rough_a, uva, detail_bias).r : 0.6;
+	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5 && bisect >= 5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
 		col = texture(albedo_a2, uv2, albedo_bias).rgb * a2_gain;
@@ -241,7 +249,7 @@ void fragment() {
 		rough = texture(rough_a2, uv2, detail_bias).r;
 	}
 	// Saw arcs: centred off one edge every ~0.9 m along the board, rings 5 mm apart.
-	if (saw_marks > 0.0 && face < 0.5) {
+	if (saw_marks > 0.0 && face < 0.5 && bisect >= 5) {
 		float kseg = floor(v_m.x / 0.9);
 		vec2 c = vec2((kseg + 0.5) * 0.9 + rnd(seed, 60.0 + kseg) * 0.15, -0.55 * sign(rnd(seed, 61.0) + 0.01));
 		vec2 dv = vec2(v_m.x, v_m.y) - c;
@@ -256,10 +264,12 @@ void fragment() {
 	}
 	col *= mix(tint_new, tint_mid, smoothstep(0.0, 0.5, ag));
 	// Per board: value and a warm-cool shift.
-	col *= 1.0 + value_jitter * variety * rnd(seed, 31.0);
-	float h = hue_jitter * variety * rnd(seed, 32.0);
-	col *= vec3(1.0 + h, 1.0, 1.0 - h);
-	rough *= 1.0 + rough_jitter * variety * rnd(seed, 33.0);
+	if (bisect >= 5) {
+		col *= 1.0 + value_jitter * variety * rnd(seed, 31.0);
+		float h = hue_jitter * variety * rnd(seed, 32.0);
+		col *= vec3(1.0 + h, 1.0, 1.0 - h);
+		rough *= 1.0 + rough_jitter * variety * rnd(seed, 33.0);
+	}
 
 	// The large-scale layer, in the world's space: a wall's (along it, up) or a floor's plane.
 	bool floor_face = abs(v_wnormal.y) > 0.7;
@@ -270,7 +280,7 @@ void fragment() {
 
 	// Weathering: toward the grey scan, first where the sun and rain reach (patchy, the top and the
 	// sun faces), all of it when old.
-	if (has_b && weathering > 0.0) {
+	if (has_b && weathering > 0.0 && bisect >= 6) {
 		// Exposed wood is mostly grey by a few years; sheltered wood keeps its colour longer.
 		float hw = v_world.y - v_ground;
 		float eaves = floor_face ? 0.0 : smoothstep(wall_top - eaves_m, wall_top - 0.08, hw);
@@ -280,6 +290,9 @@ void fragment() {
 		float edge_d = abs(v_yaxis.y) > 0.5 ? max(up_across, 0.0) : abs(v_across);
 		float by_edge = face < 0.5 ? smoothstep(0.25, 1.0, edge_d) * edge_shelter : 0.0;
 		float shelter = clamp(max(eaves, by_edge), 0.0, 1.0) * (1.0 - 0.6 * smoothstep(0.5, 1.0, ag));
+		if (bisect < 7) {
+			shelter = 0.0;
+		}
 		float exposed_age = smoothstep(0.0, 0.42, ag);
 		float wx = clamp(exposed_age * (1.0 - 0.5 * shelter) + (n1 - 0.5) * 0.35 + (n2 - 0.5) * 0.2, 0.0, 1.0) * weathering;
 		// The sheltered wood's own colour: darker, its orange gone brown.
@@ -325,33 +338,33 @@ void fragment() {
 	}
 
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
-	if (!floor_face) {
+	if (!floor_face && bisect >= 9) {
 		// Sun-fade: paler and greyer in broad patches.
 		float f = sun_fade * age_layer * smoothstep(0.35, 0.85, n1);
 		col = mix(col, vec3(luma) * 1.12, f * 0.45);
 		// Water streaks: long dark runs down the wall.
 		float s = mix(0.5, texture(big_noise, vec2(q.x / 0.3, q.y / 6.0) + 0.71).r, variety);
 		col *= 1.0 - streaks * age_layer * smoothstep(0.58, 0.8, s) * 0.3;
-	} else {
+	} else if (bisect >= 9) {
 		// A floor's traffic: dirt in blotches, dulled.
 		col *= 1.0 - grime * age_layer * smoothstep(0.45, 0.85, n2) * 0.25;
 	}
 	// Grime from the ground up (splash and dust), patchy.
 	float hgt = v_world.y - v_ground;
 	float g = grime * age_layer * (1.0 - smoothstep(0.0, 0.55, hgt)) * (0.55 + 0.45 * n2);
-	if (!floor_face) {
+	if (!floor_face && bisect >= 8) {
 		col = mix(col, col * vec3(0.62, 0.55, 0.47), g);
 	}
 	// The lap's soft shadow: the board above shades the top of this one's face.
-	if (lap_shade > 0.0 && face < 0.5 && abs(v_yaxis.y) > 0.5) {
+	if (lap_shade > 0.0 && face < 0.5 && abs(v_yaxis.y) > 0.5 && bisect >= 9) {
 		float top = v_across * sign(v_yaxis.y);
 		col *= 1.0 - lap_shade * smoothstep(0.15, 0.6, top);
 	}
 	// Dirt in the joints (the long faces' edges).
-	if (face < 0.5) {
+	if (face < 0.5 && bisect >= 8) {
 		col *= 1.0 - joint_dirt * age_layer * smoothstep(0.72, 1.0, abs(v_across)) * 0.45;
 	}
-	if (end_grain) {
+	if (end_grain && bisect >= 9) {
 		col *= 0.62;
 		rough = max(rough, 0.85);
 	}
@@ -362,7 +375,7 @@ void fragment() {
 	float wear = 0.0;
 	bool edge_face = face > 1.5;
 	float rings = 0.0;
-	if (varnish > 0.0) {
+	if (varnish > 0.0 && bisect >= 9) {
 		float band = smoothstep(wear_band.x - 0.1, wear_band.x, hgt) * (1.0 - smoothstep(wear_band.y, wear_band.y + 0.1, hgt));
 		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 0.0;
 		wear = ag * band * (0.6 * (0.6 + 0.4 * n2) + 0.5 * edge);
@@ -399,7 +412,7 @@ void fragment() {
 	// Nails: heads not quite in a line (the studs' 16 in), rusting and streaking with ag.
 	float nail = 0.0;
 	float rust = 0.0;
-	if (v_nails.x > 0.5 && face < 0.5) {
+	if (v_nails.x > 0.5 && face < 0.5 && bisect >= 9) {
 		// Along the board in the world, so a wall's nails fall on its studs or girts (16 in).
 		float sp = 0.406;
 		float along = dot(v_world, v_axis);
