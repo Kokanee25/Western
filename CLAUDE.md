@@ -1088,7 +1088,7 @@ frozen until Sean names one.
   (`docs/concept/guns/ref/w73_hmaag_right.jpg`; the barrel measured from the receiver's face, as collectors
   do): overlap 0.930 -> 0.961, part crops 0.875-0.970 (`overlay.py --crop`, `--profile`; the rear sight 0.785,
   the photo's is a leaf). The lab picked the 24" rifle (sight radius for the rope shot). Game-light views
-  `win73_views.gd`. Waiting on Sean: the shape (its issue), then the surfaces. Traps: Commons answers 429
+  `win73_views.gd`. Waiting on Sean: the shape (#767), then the surfaces. Traps: Commons answers 429
   (space requests); the Met and Smithsonian hosts and Wikipedia are blocked here; a big flat face needs
   face-area weighted normals or it streaks in the game. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
