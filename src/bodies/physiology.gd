@@ -423,7 +423,13 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 			if joules > float(b.concussion):
 				concussion = maxf(concussion, maxf(3.0, (joules - float(b.concussion)) / 10.0 * tuning.concussion_seconds_per_10j))
 				out.append("concussion")
-			if past.call("skull"):
+			if past.call("skull_crush"):
+				# Crushed (a fall onto his head from height): dead where he lands.
+				broken[&"skull"] = true
+				brain_dead = true
+				_die(&"brain")
+				out.append("skull crushed")
+			elif past.call("skull"):
 				broken[&"skull"] = true
 				wound_pain += tuning.pain_bone
 				_add_bleed(&"skull", segment, 0.4, &"internal")
@@ -464,6 +470,41 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 				out.append("%s broken" % region.replace("_", " "))
 	if out.is_empty():
 		out.append("bruised")
+	return out
+
+
+## What a landing does deep inside (issue #759, HumanBody._step_fall), by `joules` against
+## PhysiologyTuning.blunt's `<kind>` (where it starts) and `<kind>_all` (where it always does), the
+## chance rising evenly between (the papers' death rates rise about evenly with height):
+## &"neck" (head first: the neck broken, the cord cut, as a ball through it does), &"spine" (feet
+## first: the low back broken, the cord cut there, his legs gone), &"aorta" (the whole body's sudden
+## stop: torn where it's tethered, it bleeds inside at the artery's rate, dead in under a minute).
+func axial(kind: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if not alive or joules <= 0.0:
+		return out
+	var from := float(tuning.blunt.get(String(kind), INF))
+	var all := float(tuning.blunt.get(String(kind) + "_all", from * 2.0))
+	if joules <= from or rng.randf() >= clampf((joules - from) / maxf(all - from, 1.0), 0.0, 1.0):
+		return out
+	match kind:
+		&"neck":
+			wound_pain += tuning.pain_bone
+			broken[&"cervical_spine"] = true
+			cut[&"cord_cervical"] = true
+			if neck_seconds < 0.0:
+				neck_seconds = 0.0
+			out.append("neck broken")
+		&"spine":
+			wound_pain += tuning.pain_bone
+			broken[&"lumbar_spine"] = true
+			cut[&"cord_lumbar"] = true
+			out.append("back broken")
+		&"aorta":
+			if not cut.has(&"aorta"):
+				cut[&"aorta"] = true
+				_add_bleed(&"aorta", &"chest", float(anatomy.structure(&"aorta").get(&"bleed", 90.0)), &"internal")
+				out.append("aorta torn")
 	return out
 
 
