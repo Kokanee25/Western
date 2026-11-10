@@ -265,7 +265,7 @@ func test_the_road_network_is_the_plan_s() -> void:
 	# docs/briefs/valley-tables.md "F. Travel from the crossroads", "By road (m)": the plan's own
 	# shortest ways, which ValleyRoads builds the same network for.
 	var table := {"harlan_homestead": 713, "opening_site": 553, "widow_homestead": 2620, "bridge_a": 1016,
-		"vp_trestle_overlook": 1314, "ore_works": 1587, "mine": 2756, "timber_camp": 1701, "baron_ranch": 2000,
+		"vp_trestle_overlook": 1314, "ore_works": 1587, "mine": 2756, "timber_camp": 1701, "baron_ranch": 2023,
 		"baron_town_house": 244, "ute_community": 1899, "hideout": 2118, "cemetery": 243, "depot": 123, "east_exit": 3158}
 	var lay := ValleyLayout.main()
 	var roads := ValleyRoads.make(lay)

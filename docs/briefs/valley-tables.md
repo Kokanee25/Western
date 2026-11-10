@@ -77,7 +77,7 @@ Y is the planned ground (a place's pad, or the shaped ground); 'natural' is the 
 | `vp_bridge_a` | Bridge A, looking down the canyon (viewpoint) | 975 | 291 | -11.5 | - | - | - | - | PROPOSED |
 | `vp_trestle_overlook` | Trestle overlook (the canyon's west rim, up-canyon) (viewpoint) | 1120 | 180 | -1.2 | - | - | - | - | PROPOSED: the finale's vantage point, 140 m off the East Road by Bridge A; the whole bridge in view |
 | `vp_east_rim_north` | East rim, north of the trestle (viewpoint) | 1280 | -300 | 1.5 | - | - | - | - | PROPOSED: a second vantage point, above the widow's side |
-| `vp_canyon_floor` | Canyon floor below the trestle (viewpoint) | 1163 | 15 | -18.2 | - | - | - | - | PROPOSED |
+| `vp_canyon_floor` | Canyon floor below the trestle (viewpoint) | 1163 | 15 | -18.4 | - | - | - | - | PROPOSED |
 | `vp_widow` | The widow's farmhouse porch (viewpoint) | 1712 | -560 | -8.1 | - | - | - | - | PROPOSED |
 | `vp_canyon_mouth` | The canyon mouth (the bottomland) (viewpoint) | 1250 | -560 | -13.9 | - | - | - | - | PROPOSED |
 | `vp_harlan` | Harlan's doorstep (viewpoint) | 432 | 470 | 2.0 | - | - | - | - | PROPOSED |
@@ -214,12 +214,12 @@ Grades over 20 m windows on the shaped ground; bridges at their decks. Period pr
 | the trail to the Southern Ute community | track | 1702 | -4.5 | 41.0 | 4.8 % | 0 m | 0 m | ok |
 | the hideout trail (the front way) | track | 1655 | -1.8 | 86.1 | 9.3 % | 655 m | 0 m | ok |
 | the mesa back way (unseen approach) | path | 1302 | 31.5 | 90.9 | 14.0 % | 442 m | 15 m | ok |
-| the Dry Fork track | track | 742 | 10.6 | 40.0 | 17.0 % | 163 m | 114 m | a short pitch (30 m over 15 %) |
-| the Dry Fork track's ford | track | 517 | 21.1 | 32.5 | 15.7 % | 159 m | 114 m | a short pitch (5 m over 15 %) |
+| the Dry Fork track | track | 764 | 10.6 | 40.0 | 14.6 % | 187 m | 103 m | ok |
+| the Dry Fork track's ford | track | 517 | 21.1 | 32.5 | 15.7 % | 164 m | 85 m | a short pitch (5 m over 15 %) |
 | the basin track | track | 870 | -4.9 | 6.0 | 16.2 % | 173 m | 94 m | a short pitch (20 m over 15 %) |
 | the rimrock trail | track | 1384 | 10.1 | 53.4 | 5.3 % | 0 m | 0 m | ok |
 | the line shack track | track | 987 | 19.5 | 36.0 | 15.2 % | 70 m | 55 m | ok |
-| the rim path to the Jump-off | path | 239 | -1.3 | 4.7 | 25.7 % | 16 m | 16 m | ok |
+| the rim path to the Jump-off | path | 240 | -1.3 | 4.9 | 3.7 % | 0 m | 0 m | ok |
 | the butte path | path | 468 | 49.6 | 143.6 | 72.2 % | 234 m | 214 m | Sentinel Butte's talus: a climb on foot, about 37 degrees |
 | the headframe path | path | 60 | 79.0 | 82.7 | 16.8 % | 24 m | 18 m | ok |
 
@@ -234,7 +234,7 @@ By the road network (shortest way), the game's walk (2.8 m/s) and the PROPOSED h
 | The widow's homestead | 1801 | 2621 | 15:36 | 11:12 | 7:57 | +24 / -32 | Bridge B; Bridge A | main_street > east_road > widow_lane |
 | Bridge A (creek crossing) | 1007 | 1016 | 6:03 | 4:20 | 3:05 | +1 / -11 | Bridge A | main_street > east_road |
 | Bridge B (the overpass) | 1926 | 2131 | 12:41 | 9:07 | 6:28 | +23 / -11 | Bridge B; Bridge A | main_street > east_road |
-| Trestle overlook | 1134 | 1441 | 8:35 | 6:10 | 4:22 | +12 / -11 | Bridge A | main_street > east_road > jump_off_path |
+| Trestle overlook | 1134 | 1314 | 7:49 | 5:37 | 3:59 | +7 / -11 | Bridge A | main_street > east_road |
 | Ore Works | 1555 | 1587 | 9:27 | 6:47 | 4:48 | +25 / -1 | the main line at grade | main_street > west_road > mine_road |
 | The mine | 1893 | 2756 | 16:24 | 11:47 | 8:21 | +83 / -4 | the main line at grade; the arroyo on a log-cribbed fill over a culvert (a flash flood can take it out) | main_street > west_road > mine_road |
 | Timber camp | 1626 | 1701 | 10:08 | 7:16 | 5:09 | +67 / -6 | the main line at grade; the arroyo at a ford | main_street > ns_street > back_street > timber_road |
@@ -268,7 +268,7 @@ Stopping distance with the brakes full on (brake_g 0.042, set along the train ov
 | The saloon's upstairs balcony | 1165 | 100 % | 18 % | 0 m |
 | The cemetery hill | 1284 | 100 % | 20 % | 1 m |
 | Bridge A, looking down the canyon | 425 | 85 % | 65 % | 24 m |
-| Trestle overlook (the canyon's west rim, up-canyon) | 267 | 85 % | 73 % | 26 m |
+| Trestle overlook (the canyon's west rim, up-canyon) | 267 | 100 % | 100 % | 26 m |
 | East rim, north of the trestle | 241 | 100 % | 85 % | 26 m |
 | Canyon floor below the trestle | 97 | 100 % | 100 % | 26 m |
 | The widow's farmhouse porch | 714 | 0 % | 0 % | 0 m |

@@ -222,7 +222,7 @@ def landforms_height(data, X, Z):
 	ramps = []
 	for hp in data.get("heights", ()):
 		L = hp.get("landform")
-		if not L or L["kind"] == "ledge":
+		if not L or L["kind"] in ("ledge", "undercut"):
 			continue
 		t = np.clip(1.0 - _box_dist(X, Z, L.get("at", hp["at"]), L), 0.0, 1.0)
 		f = t if L.get("profile") == "cliff" else t * t * (3.0 - 2.0 * t)
@@ -301,14 +301,15 @@ class Terrain:
 
 	def _ledges(self, X, Z, H):
 		"""A `ledge` landform: the ground raised to its level `y` (never lowered), after the
-		channels, so a rock point stands out over a canyon's wall with a sheer face."""
+		channels, so a rock point stands out over a canyon's wall with a sheer face; an `undercut`
+		the ground lowered to `y` (never raised): a canyon's floor carried in under its rim."""
 		for hp in self.data.get("heights", ()):
 			L = hp.get("landform")
-			if not L or L["kind"] != "ledge":
+			if not L or L["kind"] not in ("ledge", "undercut"):
 				continue
 			n = _box_dist(X, Z, L.get("at", hp["at"]), L)
 			w = np.clip(1.0 - n, 0.0, 1.0)
-			np.maximum(H, H * (1 - w) + float(L["y"]) * w, out=H)
+			(np.maximum if L["kind"] == "ledge" else np.minimum)(H, H * (1 - w) + float(L["y"]) * w, out=H)
 
 	# thin-plate spline through the control points
 	def _fit(self):
@@ -1836,7 +1837,7 @@ def heights_checks(plan, hm):
 	pads = [(p["id"], p) for p in plan.data["places"] if p.get("pad")]
 	for hp in plan.data["heights"]:
 		L = hp.get("landform")
-		if not L or L["kind"] == "ledge":
+		if not L or L["kind"] in ("ledge", "undercut"):
 			continue
 		lift = landforms_height({"heights": [hp]}, T.XX, T.ZZ)
 		m = lift > 0.5
