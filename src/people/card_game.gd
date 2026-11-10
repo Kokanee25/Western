@@ -6,7 +6,7 @@ extends Node3D
 ## draw and show by the data's rules, a line now and then (Events.spoke: their mouths, subtitles),
 ## their hands to the deck and the pot (HumanBody.reach_to), their eyes on the table; the cards
 ## and chips lie on the table (stand-ins: boxes and discs, the faces as text). On your turn a nod
-## calls or checks and a shake folds (HeadGesture), and waited on you check or call.
+## calls or checks and a shake folds (HeadGesture), and waited on you check, or fold to a bet.
 ##
 ## It runs till something stops it: a shot or a blast near, a man in the hand out of his chair
 ## (kicked, up and running), or an act's `interrupt` (No Law's next step: the red shirt walks up).
@@ -484,7 +484,9 @@ func _bet_step(dt: float) -> void:
 	if s.id == YOU:
 		if not _you_told:
 			_you_told = true
-			_prompt(String(data.you.turn if to_call > 0 else data.you.turn_check), _beat("you_wait_s"))
+			# What it costs and what you've got: the playtest couldn't tell the stakes.
+			var t := String(data.you.turn if to_call > 0 else data.you.turn_check).replace("{call}", str(to_call))
+			_prompt(t + String(data.you.stakes).replace("{pot}", str(pot)).replace("{stack}", str(stacks.get(YOU, 0))), _beat("you_wait_s"))
 			var asker := _seat(dealer_id)
 			if not asker.is_empty() and asker.id != YOU:
 				_say(asker.who, "your_turn")
@@ -494,10 +496,15 @@ func _bet_step(dt: float) -> void:
 			_you_turn = false
 			_fold(s, true)
 			_prompt(String(data.you.you_fold), 1.5)
-		elif g == &"nod" or _t <= 0.0:
+		elif g == &"nod" or (_t <= 0.0 and to_call <= 0):
 			_you_turn = false
 			_call(s)
 			_prompt(String(data.you.you_call if to_call > 0 else data.you.you_check), 1.5)
+		elif _t <= 0.0:
+			# Waited on with a bet to you: you're out of it (it doesn't spend your money for you).
+			_you_turn = false
+			_fold(s, false)
+			_prompt(String(data.you.you_fold), 1.5)
 		else:
 			return
 		_next_turn()
@@ -531,6 +538,8 @@ func _bet_step(dt: float) -> void:
 func _did(s: Dictionary, move: String) -> void:
 	_acted[s.id] = true
 	last_move[s.id] = move
+	if move in ["bet", "raise"] and you_in():
+		_prompt(String(data.you.they_bet).replace("{who}", String((s.who as Node).name)).replace("{n}", str(_round_bet)), 2.0)
 	if move in ["bet", "raise", "call"]:
 		_reach_for(s.id, "r", _pot_at() + Vector3.UP * 0.03, _beat("chip_fly_s") * 2.5)
 	_say(s.who, move)
@@ -637,7 +646,7 @@ func _showdown() -> void:
 			_prompt(String(data.you.you_win).replace("{hand}", last_hand) if shown else String(data.you.you_win).replace(" with {hand}", ""), 3.0)
 			for o in seats:
 				if o.id != YOU:
-					_say(o.who, "you_win", {}, true)
+					_say(o.who, "you_win")
 					break
 		else:
 			_say(w0.who, "win" if shown else "win_quiet", {"hand": last_hand[0].to_upper() + last_hand.substr(1)}, true)

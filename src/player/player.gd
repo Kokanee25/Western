@@ -326,6 +326,11 @@ func _physics_step(delta: float) -> void:
 		wants_jump = false
 		wants_run = false
 	if seat and seat.step(delta):
+		# Sat, the crouch keys do nothing (and leave nothing behind for when you stand: the
+		# playtest stood up into a crawl).
+		_crouch_toggled = false
+		_crawl_toggled = false
+		_crouch_toggle_held = 0.0
 		_update_head(delta, 0.0)
 		Sight.moved(self)
 		return

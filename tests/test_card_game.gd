@@ -157,10 +157,17 @@ func test_an_act_holds_you_in_your_seat() -> void:
 	check_eq(p.seat.use(), &"held", "E doesn't stand you while it holds you")
 	await physics_frames(5)
 	check(p.seat.seated(), "still sat")
+	# The crouch key pressed while sat does nothing, and leaves nothing for when you stand (the
+	# playtest stood up into a crawl).
+	Input.action_press(&"crouch_toggle")
+	await physics_frames(2)
+	Input.action_release(&"crouch_toggle")
+	await physics_frames(5)
 	p.seat.let_go(&"act")
 	p.seat.use()
-	await physics_frames(5)
+	await physics_frames(20)
 	check(not p.seat.seated(), "let go, E stands you")
+	check(not p.is_crawling and not p.is_crouching, "on your feet, not crawling (crouching %s, crawling %s)" % [p.is_crouching, p.is_crawling])
 
 
 func test_a_man_out_of_his_chair_stops_the_hand() -> void:
@@ -249,3 +256,18 @@ func test_the_chair_kicked_out_from_under_you() -> void:
 	await physics_frames(45)
 	Input.action_release(&"move_forward")
 	check(p.global_position.distance_to(at) > 0.08, "then you can crawl off (%.3f m)" % p.global_position.distance_to(at))
+
+
+func test_his_chair_broken_he_takes_a_free_one() -> void:
+	await _night()
+	var p := _player()
+	if p.seat.seated():
+		p.seat.stand()
+		await physics_frames(3)
+	var earl: HumanBody = valley.folk.people[&"earl"]
+	var ch := _chair("w")
+	check(ch.seated == earl, "Earl in the west chair")
+	ch.go_loose(Vector3.ZERO, ch.global_basis.z * -80.0)
+	# Down with it, up again, and into the free north chair (the south one's broken above).
+	var sat := await wait_until(func() -> bool: return _chair("n").seated == earl, 60 * 90)
+	check(sat, "Earl sat in the free north chair within 90 s (at %s, limp %s)" % [earl.global_position, earl.limp])

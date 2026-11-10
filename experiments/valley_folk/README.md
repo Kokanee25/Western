@@ -48,3 +48,44 @@ for the folk's places and ~0.09 s for the set.
 
 A sitting man can now tick slowly far from you (`SitChore.lets_slow`; a busy chore kept every man
 at it on every tick, PeopleTick's bands).
+
+## Step 2 (#766): sat at the card table, the game going
+
+The code: `src/player/player_seat.gd` (`PlayerSeat`), `src/people/card_game.gd` (`CardGame`),
+`src/people/poker.gd` (`Poker`); data `config/card_game.json`; tests `tests/test_card_game.gd`;
+LAYOUT "src/player" and "src/people". Still B on #755: the table is in the saloon's yard.
+
+```sh
+godot -- --world=valley        # 7 three times (21:30); walk to the yard; by a free chair, facing it, E
+python3 tools/bridge.py start --game-args=--world=valley
+python3 tools/bridge.py "time 21" "wait 3" "sit n" "cards wait 1" "nod" "stand"
+```
+
+Sat: you look round (110 degrees either way of the chair), can't walk, crouch, jump or draw (the gun
+says "you're sat at the table" when you try); E stands you a step clear. The men deal you in from the
+next hand: five-card draw, a dollar ante, bets of one then two chips, two raises a round; your cards
+face up before you; on your turn the screen asks, a nod calls or checks and a shake folds, and if you
+do neither for 7 s you check, or fold to a bet. Earl deals himself one off the bottom 30% of his deals
+(`cheat`). A shot within 40 m stops the hand where it lies (the men, townsfolk, get up out of their
+chairs anyway); a man out of his chair stops it; it deals again 25 s after it's calm with two sat.
+An act can `interrupt(reason, hold)` the game and `hold` you in your seat (`PlayerSeat.hold`): the
+next step's red shirt walks up. The chair kicked out from under you drops you flat for 1.4 s.
+
+### The frame
+
+`tools/valley/valley_bench.gd --spots=saloon_yard,card_seat` drawn under lavapipe (real look, 60
+frames, 21:00); `card_seat` is you sat in the north chair, the game going (a betting round), looking
+at the table and Earl past it:
+
+| Spot | render CPU at Sean's | draws | primitives | people (ms a frame, here) | card game (ms a frame, here) |
+|---|---|---|---|---|---|
+| `saloon_yard` (step 1) | 1.01 | 823 | 4,889k | 5.84 | - |
+| `saloon_yard`, the game going | 0.95 | 827 | 4,895k | 6.20 | 0.77 |
+| `card_seat` | 1.14 | 1,067 | 4,660k | 7.93 | 0.51 |
+
+Inside the budget: render CPU 1.14 of 4.0 at Sean's; the people at the table ~3.1 ms a tick here
+(7.93 less `people_prep_sum` 1.77, two ticks a drawn frame) = ~2.0 ms at Sean's of 4.0 (three men
+within arm's length look at you closely: `lines_senses` and `sight_sync` ~2 ms a frame here, 0.2 from
+the street). The card game drawn ~0.25-0.4 ms a tick here while cards and chips move; headless
+(`build`-style Prof sums, 600 ticks) 0.05-0.07 ms a tick, and sat or stood by the chair the same.
+The cards and chips are two MultiMeshes (+4 draws; the faces up are text, a draw each).

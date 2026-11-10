@@ -1,5 +1,5 @@
 {
-  "_doc": "The card game at the saloon yard's table (#766, No Law step 2; CardGame, src/people/card_game.gd): five-card draw among whoever is sat at it (two or more), the player dealt in when he sits in a free chair there. A scene, not a minigame (Sean, #766): the men deal, ante, bet, draw and show by these rules and numbers, saying a line now and then; on your turn a nod calls (or checks) and a shake folds, and if you do neither for `you_wait_s` you check or call. It runs until something stops it (`stop_on`, a man out of his chair, an act's `interrupt`); the cards stay where they lie. Chips are a stake each, no money yet.",
+  "_doc": "The card game at the saloon yard's table (#766, No Law step 2; CardGame, src/people/card_game.gd): five-card draw among whoever is sat at it (two or more), the player dealt in when he sits in a free chair there. A scene, not a minigame (Sean, #766): the men deal, ante, bet, draw and show by these rules and numbers, saying a line now and then; on your turn a nod calls (or checks) and a shake folds, and if you do neither for `you_wait_s` you check, or fold to a bet. It runs until something stops it (`stop_on`, a man out of his chair, an act's `interrupt`); the cards stay where they lie. Chips are a stake each, no money yet.",
   "status": "PROPOSED (#766): the game, the stakes, the timings and the lines are this session's; No Law (docs/missions/no-law.md) asks only for 'a card game' that's interrupted.",
   "ante": 1,
   "bets": [1, 2],
@@ -28,8 +28,10 @@
     "cards_in": 0.33, "card_gap": 0.072, "chips_in": 0.4, "chips_side": 0.2, "deck_in": 0.22, "pot_off": [0.0, 0.0]
   },
   "you": {
-    "turn": "Your bet. Nod: call · shake: fold",
+    "turn": "Your bet: {call} to call. Nod: call · shake: fold",
     "turn_check": "Your bet. Nod: check · shake: fold",
+    "stakes": "\n(pot {pot} · you have {stack})",
+    "they_bet": "{who} makes it {n}",
     "dealt": "You're dealt in: {hand}",
     "next_hand": "You're in from the next hand",
     "you_call": "You call", "you_check": "You check", "you_fold": "You fold",

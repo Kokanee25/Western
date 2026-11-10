@@ -1511,7 +1511,7 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   (`lines`, `by` a man; `say_chance`, `say_gap_s`; Events.spoke), reach for the deck and the pot
   (`reach_to`) and watch whoever's turn it is (`FaceLife.attend_to`). You're dealt in from the next
   hand after you sit at it: your cards face up before you, on your turn a nod calls/checks and a shake
-  folds (HeadGesture), waited on `you_wait_s` you check or call; prompts by PlayerWounds.say. Stops
+  folds (HeadGesture), waited on `you_wait_s` you check or fold to a bet; prompts by PlayerWounds.say (what a call costs, the pot, your chips). Stops
   (`interrupted(reason)`, the cards left lying, the pot riding): a shot within `stop_on.shot_m`, a blast
   within `blast_m`, any man of the hand out of his chair (`up`: kicked, his brain's trouble), an act's
   `interrupt(reason, hold)`; deals again after `resume_after_s` calm with two sat, unless `hold`; you
