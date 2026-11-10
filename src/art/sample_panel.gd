@@ -62,7 +62,7 @@ func build() -> void:
 	var nails := Vector2(float(entry.get("nails", 1)), float(entry.get("nail_at", 0.6)))
 	match layout:
 		"board_batten":
-			_vertical(wall, bw, bt, gap, warp, cls, nails, &"wall", 0.0345)
+			_vertical(wall, bw, bt, gap, warp, cls, nails, &"wall", 0.03)
 			# The battens over the joints (2.5 in), nailed down their middle.
 			var bx: Array = wall.get_meta("joints", [])
 			for jx in bx:
