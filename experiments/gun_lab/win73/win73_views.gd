@@ -7,7 +7,7 @@ extends SceneTree
 ##
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --path . --rendering-driver vulkan --resolution 1600x900 \
 ##       -s res://experiments/gun_lab/win73/win73_views.gd -- --real --out=build/win73/views [--gun=24] [--hour=16] \
-##       [--only=turntable,side,threeq,sunlit,close,mech] [--steps=24]
+##       [--only=turntable,side,threeq,sunlit,close,mech,fp] [--steps=24]
 ##
 ## Untyped on purpose (a -s script compiles before the autoloads exist).
 
@@ -27,7 +27,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var tag := "24"
 	var hour := 16.0
-	var only := "turntable,side,threeq,sunlit,close,mech"
+	var only := "turntable,side,threeq,sunlit,close,mech,fp"
 	var steps := 24
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
@@ -130,6 +130,8 @@ func _run() -> void:
 			_look(centre + sh * 1.45 + Vector3(0, 0.22, 0), centre)
 			await _shot(side[0])
 		gun.global_transform = Transform3D(Basis.IDENTITY, base)
+	if "fp" in only:
+		await _first_person(clock)
 	if "close" in only:
 		# The gun's own frame: barrel along -Z, right +X, up +Y.
 		var g := gun.global_transform
@@ -208,6 +210,86 @@ func _run() -> void:
 		rig.gate(0.0)
 	print("Win73 views done -> ", out)
 	quit()
+
+
+## First person, in the hands (Sean on #767: judge the surfaces in game light and in first person in
+## the hands, as the Colt is). The rifle hangs under the lab's camera at the game's field of view (the
+## player's 75 degrees, 62 aiming, as the coach gun), held by two of the game's own HeldHands (the
+## painted Studio arms the coach gun is held in, used here, not changed): the right round the wrist
+## with its fingers through the lever's loop and the index on the trigger, the left under the forend.
+## Shouldered (down the sights), at the low ready, and turned to look at the action; each with the sun
+## behind you and with it to your right.
+func _first_person(clock) -> void:
+	var sun: Vector3 = clock.get_sun_direction()
+	var sh := Vector3(sun.x, 0.0, sun.z).normalized()
+	var eye := cam.global_position
+	var street_eye := Vector3(gun.global_position.x, TownLayout.ground_height(gun.global_position.x) + 1.62, gun.global_position.z)
+	var held := Node3D.new()
+	cam.add_child(held)
+	var keep := gun.global_transform
+	gun.get_parent().remove_child(gun)
+	held.add_child(gun)
+	var r = _hand(true, gun, _d(-5.0, -1.95, 0.72), Vector3(0.12, -0.75, 0.65), Vector3(-1.0, 0.15, 0.0), Vector3(0.45, -0.55, 0.70))
+	for f in {"middle": 72.0, "ring": 66.0, "little": 60.0}:
+		r.grasp(f, {"middle": 72.0, "ring": 66.0, "little": 60.0}[f])
+	r.grasp("index", 12.0, 28.0)
+	r.shoulder = Vector3(0.19, -0.2, 0.07)
+	r.elbow_pole = Vector3(0.5, -1.0, 0.2)
+	var l = _hand(false, gun, _d(8.2, -1.50, 0.0), Vector3(-0.7, -0.35, 0.6), Vector3(0.3, 1.0, 0.0), Vector3(-0.7, -0.5, 0.6))
+	for f in {"index": 12.0, "middle": 50.0, "ring": 56.0, "little": 64.0}:
+		l.grasp(f, {"index": 12.0, "middle": 50.0, "ring": 56.0, "little": 64.0}[f])
+	l.shoulder = Vector3(-0.19, -0.2, 0.07)
+	l.elbow_pole = Vector3(-0.5, -1.0, 0.2)
+	rig.hammer("full")
+	var rear := _marker("SightRear")
+	var front := _marker("SightFront")
+	for heading in [["sunbehind", -sh], ["sunright", sh.cross(Vector3.UP)]]:
+		cam.global_position = street_eye
+		cam.look_at(street_eye + heading[1], Vector3.UP)
+		# Shouldered: the rear notch 30 cm before the eye on the sight line, the front blade in it.
+		cam.fov = 62.0
+		var los := (front - rear).normalized()
+		var b := Basis.looking_at(los, Vector3.UP).inverse()
+		held.transform = Transform3D(b, -(b * rear) + Vector3(0.0, 0.0, -0.30))
+		await _shot("fp_aim_%s" % heading[0])
+		# The low ready: the wrist at the right hip's height out front, the muzzle down and in.
+		cam.fov = 75.0
+		var bl := Basis.from_euler(Vector3(deg_to_rad(-9.0), deg_to_rad(11.0), deg_to_rad(-6.0)))
+		held.transform = Transform3D(bl, Vector3(0.20, -0.30, -0.30) - bl * _d(-4.6, -1.8, 0.0))
+		await _shot("fp_ready_%s" % heading[0])
+		# Looking at the action: brought up and turned so its right side (the gate) faces you.
+		var bi := Basis.from_euler(Vector3(deg_to_rad(8.0), deg_to_rad(62.0), deg_to_rad(10.0)))
+		held.transform = Transform3D(bi, Vector3(0.02, -0.12, -0.36) - bi * _d(-1.2, -0.9, 0.0))
+		await _shot("fp_action_%s" % heading[0])
+	rig.hammer("rest")
+	cam.fov = 32.0
+	r.queue_free()
+	l.queue_free()
+	held.remove_child(gun)
+	cam.get_parent().add_child(gun)
+	gun.global_transform = keep
+	held.queue_free()
+	cam.global_position = eye
+
+
+## A design point (f along the bore from the breech, u up from the bore, l to the right; inches) in the
+## gun's own space (win73_blender.py: the origin under the trigger at f -4.4, u -2.1).
+func _d(f: float, u: float, l: float) -> Vector3:
+	return Vector3(l, u + 2.1, -(f + 4.4)) * 0.0254
+
+
+## A HeldHand at `pos` in `parent`'s space laid along `wrist_dir` (knuckles back towards its wrist),
+## its palm towards `palm_dir`, its forearm aimed `forearm` (the coach gun's way of placing one).
+func _hand(is_right: bool, parent: Node3D, pos: Vector3, wrist_dir: Vector3, palm_dir: Vector3, forearm: Vector3):
+	var h = load("res://src/weapons/held_hand.gd").new(is_right)
+	h.position = pos
+	var z := wrist_dir.normalized()
+	var x := (palm_dir - z * palm_dir.dot(z)).normalized() * (-1.0 if is_right else 1.0)
+	h.basis = Basis(x, z.cross(x), z)
+	parent.add_child(h)
+	h.build()
+	h.aim_forearm(forearm)
+	return h
 
 
 func _marker(n: String) -> Vector3:

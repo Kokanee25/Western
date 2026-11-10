@@ -50,9 +50,9 @@ CARBINE = BARREL < 22.0
 # --- The dimensions (inches). README.md "The dimensions" gives each one's source. ---------------
 D = {
     # .44-40 WCF (.44 Winchester Centre Fire), the cartridge's published dimensions
-    "bore": 0.417, "groove": 0.427,
+    "bore": 0.417, "groove": 0.429,
     "rim": 0.525, "rim_t": 0.065, "base": 0.471, "neck": 0.443, "case_len": 1.305, "oal": 1.592,
-    "bullet": 0.427,
+    "bullet": 0.429,         # Wikipedia, ".44-40 Winchester" (its infobox)
     "f_recv": 2.25,           # the receiver's front face ahead of the breech (the photo: the side plate's front edge to the face)
     "flats_breech": 1.00,     # the octagon barrel across its flats (the photo, measured)
     "flats_muzzle": 0.88,

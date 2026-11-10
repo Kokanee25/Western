@@ -160,8 +160,8 @@ Inches; f along the bore from the breech face, u up from the bore's axis. Source
 | Barrel | 24" rifle (octagon), 20" carbine (round), from the receiver's face | published (the gun) |
 | Overall | 43¼" with the 24" | published; the model 43.3" |
 | Magazine | 15 rounds (rifle), 12 (carbine) | published |
-| .44-40 cartridge | bullet .427", neck .443", base .471", rim .525" × .065", case 1.305", overall 1.592" | published (the cartridge's SAAMI figures) |
-| Bore | .417" lands, .427" grooves, six grooves | as the cartridge |
+| .44-40 cartridge | bullet .429", neck .443", base .471", rim .525" × .065", case 1.305", overall 1.592" | published: Wikipedia, ".44-40 Winchester" (its infobox), checked 2026-11-10 |
+| Bore | .417" lands (est.), .429" grooves, six grooves | as the cartridge |
 | Octagon barrel | 1.00" across the flats at the receiver, 0.88" at the muzzle | photo |
 | Magazine tube | 0.60" across, its axis 0.75" under the bore | photo |
 | Receiver | 2.25" ahead of the breech to its face; top 0.55" over the bore, the front section's bottom 1.56" under; the frame's rear and the tangs | photo |
@@ -173,6 +173,49 @@ Inches; f along the bore from the breech face, u up from the bore's axis. Source
 | Widths across: the receiver 1.12", the wrist 1.12", the butt 1.56", the forend 1.0", the lever 0.32", the hammer 0.30" | | est. (no top view) |
 | The buckhorn: 0.90" across the horns, its notch 0.72" over the bore | | est. (a buckhorn's usual shape; the photo's sight is a leaf) |
 | Travel: the lever's 52°, the bolt's 1.85", the carrier's 0.75" (= the tube's drop, measured), the hammer's 13°/34°, the cover's 1.45", the gate's 16° | | est. |
+
+## The surfaces (Sean's A on #767, 2026-11-10)
+
+"Do the surfaces the way the Colt's were done (generated in Blender, no paid call, metal that reflects
+the game's sky), with the finishes taken from period references, not memory." `win73_paint.py` (~6 min
+at 2048): the Colt's recipes (`../saa/saa_paint.py`, copied):
+- **Metals:** made from 3D noise in each part's own space, so nothing stretches along 43".
+- **Walnut:** the Colt's free walnut painting (`../saa/surfaces/raw/walnut_1.jpg`), cut seamless here,
+  by box projection.
+- **Wear and grime:** edges rubbed to bare steel, hollows dark and duller.
+- **Atlases:** two, each albedo + ORM: the action's parts (seen close in first person) and the long ones.
+- **Metal as metal:** metallic 1, mirroring the game's sky.
+- **The hammer's spur:** checkered, a 1.0 mm knurl, a touch lighter than the Colt's (Sean's note).
+
+**The barrel (Sean's first note):**
+- The photo's rifle has an octagonal barrel: its flats show at the muzzle and along it, 1.00" across at
+  the receiver to 0.88" at the muzzle.
+- The model was built octagonal from the start, so nothing changed.
+- Wikipedia's "Winchester rifle" lists octagonal barrels among what Winchester made to order. Round was
+  the plainer catalogue barrel, and octagon the iconic one: this gun's.
+
+**The finishes and their evidence.** The written period sources are mostly out of reach here:
+- the Met, the Smithsonian (it refuses automated requests), the Library of Congress, HathiTrust and
+  Google Books are blocked;
+- the Internet Archive's catalogue scans sit on storage hosts that are blocked;
+- Rock Island Auction's lot pages sit behind a bot check.
+
+What was reachable: Wikipedia, and photographs of original 1873s on Commons.
+
+| Part | Finish | Evidence |
+|---|---|---|
+| Receiver, side plates | blued | Wikipedia, "Winchester rifle", Model 1873: colour case-hardened receivers were among what Winchester made to order, so the standard receiver was blued. The reference rifle's receiver is blued, worn to grey at the edges. |
+| Barrel, magazine tube, forend cap, band | blued | the reference rifle (blue-black); the Buffalo Bill Center of the West's 1873 carbine on Commons (Gabon100's photos): its barrel blued |
+| Loading gate | blued | the same carbine: its gate blued even on a plated, engraved gun; the reference rifle's matches its receiver |
+| Dust cover | blued | the reference rifle's matches its receiver |
+| Buttplate | blued | the reference rifle's crescent plate is grey-blue like its worn receiver, not warm like its lever |
+| Hammer, lever, trigger | colour case-hardened, faded | **weakest:** the reference rifle's lever and hammer are a warmer grey-brown than its blued receiver, as faded case colours go; at the photo's 41 px an inch they're too thin to measure cleanly. No text source was reachable. |
+| Stock and forend | plain walnut, oiled | Wikipedia, "Lever action": "fancy walnut stocks" marked the One of One Thousand grade, so the standard was plain; the Koblenz military collection's original carbine (Commons): red-brown walnut, low sheen, dark stains |
+| Bolt, carrier | steel in the white | **not found:** inside the action, seen only with it open |
+| Screws | fire blue | **not found** (as the Colt's) |
+
+**Also checked:** Wikipedia's ".44-40 Winchester" confirms the cartridge figures used in "The
+dimensions", except the bullet: .429" there, against the .427" used; .429" now.
 
 ## Game light
 
