@@ -1,0 +1,37 @@
+name: Gun surfaces
+# The SAA's painted surfaces (#693; experiments/gun_lab/saa/surfaces.py): runs only when a gun lab
+# branch pushes a changed request file, with the key from the secrets; commits the paintings and
+# the spend back to that branch. Every call checks the request's cap before it is made.
+on:
+  push:
+    branches: ["claude/colt-*"]
+    paths: ["experiments/gun_lab/saa/surfaces/request.json"]
+concurrency:
+  group: gun-surfaces-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  paint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pillow numpy scipy
+      - name: Paint
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TEXTURE_MODEL: black-forest-labs/flux.2-max   # what the cap was quoted for (#740)
+        run: python3 experiments/gun_lab/saa/surfaces.py --paint
+      - name: Commit the paintings and the spend
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/gun_lab/saa/surfaces
+          git diff --cached --quiet && exit 0
+          git commit -m "Gun lab: the SAA's painted surfaces (run ${{ github.run_number }})"
+          git push
