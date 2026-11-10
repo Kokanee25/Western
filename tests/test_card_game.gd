@@ -237,21 +237,18 @@ func test_the_chair_kicked_out_from_under_you() -> void:
 	check(p.seat.down_t > 0.0, "and still a moment")
 	await physics_frames(20)
 	check(p.get_eye_height() < 0.8, "eyes down by the floor (%.2f)" % p.get_eye_height())
-	# Pressing on doesn't crawl you anywhere till you've come to (the chair's pieces shift under you
-	# either way: that much is theirs).
-	var fwd := p.get_forward()
-	var at := p.global_position
-	await physics_frames(15)
-	var still := absf((p.global_position - at).dot(fwd))
-	at = p.global_position
+	# Pressing on doesn't crawl you anywhere till you've come to: your own speed stays nil (where you
+	# lie the chair's pieces may shift under you: that's theirs, not a crawl).
+	var most := 0.0
 	Input.action_press(&"move_forward")
-	await physics_frames(15)
+	for i in 15:
+		await physics_frames(1)
+		most = maxf(most, Vector2(p.velocity.x, p.velocity.z).length())
 	Input.action_release(&"move_forward")
-	var pressed := absf((p.global_position - at).dot(fwd))
-	check(pressed < still + 0.03, "not crawling off yet (%.3f m pressing, %.3f lying still)" % [pressed, still])
+	check(most < 0.05, "not crawling off yet (your speed at most %.3f m/s)" % most)
 	check(p.seat.down_t > 0.0, "still down")
 	await wait_until(func() -> bool: return p.seat.down_t <= 0.0, 120)
-	at = p.global_position
+	var at := p.global_position
 	Input.action_press(&"move_forward")
 	await physics_frames(45)
 	Input.action_release(&"move_forward")
