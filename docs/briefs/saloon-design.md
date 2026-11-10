@@ -27,6 +27,137 @@ All DECIDED, Sean on PR #772:
 8. **A boardwalk down the North-South Street** under B's wrapping balcony.
 9. (C's brick front: moot with B. It's on the corner lot, as all four were.)
 
+The props B needs, room by room: the next section.
+
+## The props B needs (2026-11-10)
+
+Room by room for concept B, from its plans and the period research (§6). **In the kit** means the prop
+kit already has it as a breakable, burnable kit prop (`assets/props/kit/`, `docs/PARTS.md` "Props").
+**New** means it has to be made, by the prop lab or its factory. Counts are first guesses for the
+spec to settle. The building itself (walls, floors, stairs, the well's rail, the balcony, posts, the
+trapdoor, the corner column) is the spec's members, not props.
+
+**Summary:** roughly 150-200 pieces (bottles and glasses are most of them) in about 60 kinds. **21 kinds
+are already in the kit; about 38 are new**, and the twelve in the last list are the ones the missions or
+the look need first.
+
+### The bar room (54 x 44 ft)
+
+| Prop | How many, where | Status |
+| --- | --- | --- |
+| Bar, with its brass foot rail | 34 ft down the east wall: four 3 m sections, fitted | in the kit (`bar`) |
+| Arm rail along the bar's top edge (2½ in round, on brass brackets) | the bar's length | new: an addition to `bar` |
+| Towel hooks and towels on the bar front | one every few feet | new (small; towels are cloth) |
+| Back bar with its mirrors | 30 ft on the east wall: four 2.5 m sections | in the kit (`back_bar`) |
+| The bartender's work board: zinc drip board, sinks, ice box, beer taps | under the bar's top, behind | **new** |
+| Slat mats behind the bar (2 ft wide) | the aisle's length | new (small) |
+| Till drawer and gold scales (no cash register in 1882 Colorado) | on the back bar | new (small) |
+| Whiskey bottles | ~40 on the back bar, some on tables | in the kit (`whiskey_bottle`); more kinds of bottle wanted |
+| **Glasses**: shot glasses, beer schooners, a decanter | ~40 | **new** (they shatter, as the bottle does) |
+| Tin cups | a few | in the kit (`tin_cup`) |
+| Spittoons | ~6 along the foot rail, ~4 by the tables | in the kit (`spittoon`) |
+| Card tables (round, baize), one of them ① No Law's | 4 in the bar room | in the kit (`card_table`) |
+| Chairs (the murder chair kicked out) | ~20 | in the kit (`chair`; `sit_back` and `kick` exist) |
+| Cards and chips | on every table in play | stand-ins in the card game (`CardGame`); a real deck and chips new |
+| **Faro table**: oval, baize, the banker's cutout, the 13-spade layout, dealing box, case-keeper | 1 | **new** |
+| Lookout's high stool for the faro game | 1 | new |
+| Upright piano and its stool | 1, on the back wall | piano in the kit (`upright_piano`); stool new |
+| **Box stove**: long cast iron on a sand box, its pipe to a flue | 1, mid-room | **new** (a heat source; knocked over, its coals) |
+| **Hanging kerosene lamps**, hung from the joists on chains | two rows of three over the bar room | **new**: they hang from the dance floor, so they swing when it bounces and fall with it |
+| Wall lamps | 4-6 (fewer than the old saloon's 14) | in the kit (`wall_sconce`) |
+| Table lamps | 2-3 on the back bar | in the kit (`oil_lamp`) |
+| Mounted heads: deer, steer skull | 2-3 high on the walls | in the kit (`deer_head`, `steer_skull`); an elk head new |
+| Framed paintings, hung high and tilted | 3-4 | in the kit (`framed_painting`) |
+| Calendar, price board, notices, bottle advertisements | a few | new (flat, painted) |
+| Coat hooks with hats and coats | along the west wall | new |
+| Sawdust on the floor | everywhere | not a prop: `FloorMarks` |
+
+### The gaming room (behind the arch)
+
+| Prop | How many | Status |
+| --- | --- | --- |
+| Poker table (6 chairs) | 1 | in the kit (`card_table`, `chair`) |
+| Faro table | 1 more | **new** (as above) |
+| **Wheel of fortune** on the wall | 1 | **new** |
+| Shaded lamp over each table | 2-3 | new (the hanging lamp with a shade) |
+| Spittoons, chairs | as needed | in the kit |
+
+### The kitchen and lunch counter
+
+| Prop | How many | Status |
+| --- | --- | --- |
+| Lunch counter | 1 | in the kit (`counter`, fitted) |
+| **Cast-iron cookstove** (a range) | 1 | **new**; the doctor's office needs one too |
+| Free-lunch platters: crackers, cheese, a pickle jar, cold meat | on the counter | new (small) |
+| Shelves with crockery, a kettle, a coffee pot | 1 set | shelves in the kit (`shelves`); crockery and pots new |
+
+### The store room and cellar
+
+| Prop | How many | Status |
+| --- | --- | --- |
+| Whiskey and water barrels | 4-6 | in the kit (`whiskey_barrel`, `water_barrel`) |
+| **Beer kegs** (smaller than barrels) and a keg rack | ~12 kegs, 2 racks | **new**: the keg a `like` of the barrel; the rack new |
+| Crates, cases of bottles | 6-8 | in the kit (`crate`) |
+| Ice blocks in sawdust | a few | new (small) |
+| Mop, mop bucket, broom | 1 each | mop and bucket in the kit; broom new |
+| Hand lantern for the cellar | 1 | new (a lantern; the street's is drawn only) |
+
+### Upstairs
+
+| Prop | How many, where | Status |
+| --- | --- | --- |
+| **Benches round the dance hall's walls** | ~6 | **new**: a kit bench (the porch bench is drawn only), also wanted on the walk |
+| Fiddler's chair | 1, on the platform | in the kit (`chair`) |
+| **Fiddle and bow**, played and held | 1 | **new** |
+| Wall lamps and hanging lamps in the hall | 4 and 2 | sconces in the kit; hanging lamps new (as above) |
+| Bunting and flags (the hurdy-gurdy engraving) | over the hall | new (cloth) |
+| Water bucket and dipper | 1 | the mop bucket's kind, a dipper new |
+| **Owner's desk**, his chair, a strongbox, ledgers and papers, a cigar box | the office | **desk new**; chair in the kit; the rest new (small) |
+| **Beds** (iron or plain wood) | 4 rented rooms | **new**; the doctor's sick room needs cots too |
+| **Washstand with basin and pitcher**, chamber pot | one set a room | **new**; shared with the doctor's office |
+| Chair, peg rail with clothes, small mirror, oil lamp | a room each | chair and lamp in the kit; peg rail and mirror new |
+
+### The balcony, walk and yard
+
+| Prop | How many | Status |
+| --- | --- | --- |
+| Chairs and a bench on the balcony (the men in Balcony Ambush need somewhere to be) | 4 and 1 | chair in the kit; bench new |
+| Hitching rails on Main Street and the side street | 2-3 | in the game (`HitchingRail`) |
+| Water trough | 1 | in the kit (`trough`) |
+| Spittoons on the walk | 2 | in the kit |
+| Privy | 1, in the yard | new (a small building; the doctor's office needs one too) |
+| Woodpile for the stove | 1 | new |
+| Empties: barrels, crates, kegs | a pile | in the kit, with the new keg |
+
+### Props the missions need
+
+- **No Law:** card table, chairs, cards and chips, glasses, a lamp on the table; the broken chair stays
+  as evidence (a kit chair breaks and stays broken).
+- **Payday Night:** the **handsaw** (new: carried up the outside stair), sawdust on the landing (a
+  `FloorMarks` kind, new), the fiddle and fiddler, the hanging lamps swaying, glasses on the bar for the
+  dust to fall into.
+- **Balcony Ambush:** chairs or a bench on the balcony; the dynamite exists.
+- **Falls from height:** the tables and chairs under the open well, to land on and break.
+
+### The new props in order
+
+1. **Hanging lamp** (and a shaded one): the bar room's light, and Payday's warning.
+2. **Glasses**: everywhere, and they break.
+3. **Faro table**: the period's main game.
+4. **Box stove**: the room's centre and a fire source.
+5. **Wall bench**: the dance hall, the balcony, the walk.
+6. **Handsaw**: Payday Night.
+7. **Fiddle and bow**: Payday Night.
+8. **Beer keg and rack**: the cellar and the store room.
+9. **Bartender's work board**: behind the bar, seen from every bar view.
+10. **Beds, washstand set**: with the doctor's office.
+11. **Owner's desk**: the office.
+12. **Cookstove**: with the doctor's office.
+
+Then the small ones: the bar's arm rail, towels, mats, till and scales, piano stool, lookout's stool,
+wheel of fortune, bunting, crockery and lunch, ice, broom, lantern, dipper, peg rails, mirrors, the
+calendar and notices, an elk head, coat hooks, privy, woodpile.
+
 ## 1. Costs
 
 | What | Spent | Cap |
