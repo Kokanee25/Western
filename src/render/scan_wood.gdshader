@@ -299,7 +299,12 @@ void fragment() {
 		float sh = shelter * exposed_age * weathering;
 		float cl = dot(col, vec3(0.299, 0.587, 0.114));
 		col = mix(col, mix(vec3(cl), col, 0.55) * (1.0 - shelter_dark), sh);
-		if (wx > 0.001) {
+		// Sampled for every pixel, never inside `wx > 0`: a texture read in a branch that varies pixel
+		// to pixel has no defined derivatives, so each 2x2 quad took its own mip (often far too soft):
+		// the weave, the blocks and the smudge in the weathered grey at 1 m (#721, the bisect,
+		// 2026-11-10: a flat panel clean, the scan's colour clean, the blocks only from this layer;
+		// not the scan, its compression or the stochastic sample).
+		{
 			vec2 fb;
 			vec2 uvb = scan_uv(m, tile_b, grain_v_b, seed, 2.0, fb);
 			vec3 colb = texture(albedo_b, uvb, weathered_bias).rgb * tint_old;
