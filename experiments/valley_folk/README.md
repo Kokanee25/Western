@@ -122,3 +122,26 @@ least (fire, thanks and his chair aside); a shot's cries spread 0.15-1.1 s, kept
 cried, never a line another man said in the last 4 s; a gun drawn within 9 m that a man sees: a line
 ("Whoa, now. Easy with that iron.") and his eye on the gunman; a man whose chair went from under him
 says so once he's up.
+
+### The frame and the films
+
+`tools/valley/valley_bench.gd --spots=saloon_yard,card_seat,murder_seat` drawn under lavapipe (real look,
+60 frames, 21:00); `murder_seat` is you sat in the north chair as it plays, measured from Cody's arrival at
+Earl (the kick, Earl going over, the draw; seven men in the yard):
+
+| Spot | render CPU at Sean's | draws | primitives | people a tick at Sean's | card game (ms a frame, here) |
+|---|---|---|---|---|---|
+| `saloon_yard` | 1.13 | 827 | 4,895k | ~1.6 | - |
+| `card_seat` | 1.33 | 1,067 | 4,660k | ~2.3 | 0.13 |
+| `murder_seat` | 1.42 | 1,138 | 6,116k | ~3.2 | 0.07 |
+
+People a tick as step 2 counted them: (people less `people_prep_sum`) over two ticks a drawn frame, x0.65.
+This VM ran `saloon_yard` and `card_seat` ~17% slower than step 2's did (its 5.84 and 7.93 ms of people a
+frame then are 6.85 and 9.08 now, with nothing changed there but when the brains speak), so `card_seat`
+is as it was. The murder is in budget: render CPU 1.42 of 4.0, people ~3.2 of 4.0.
+
+Films (`film_murder.sh`, Movie Maker under lavapipe; the crash guard's "stalled over 5 s" note on screen is
+the movie writer's slow frames, not the game): `results/2026-11-10_murder/murder_from_the_chair.mp4` (sat in
+the north chair, turned to Earl; the view turned down at 12 s), `murder_from_the_yard.mp4` (a camera by the
+table's south-west corner). In both runs the kick's first touch stopped on the crest rail, the second broke a
+spindle and the chair went (12.5 s), Earl pitched forward over the table's edge, one shot, "Dead (brain)".
