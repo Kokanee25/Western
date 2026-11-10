@@ -103,7 +103,16 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
 
 ## Step 5: the judge
 
-(Filled in when the doctor's round is judged: see `doctor/README.md`.)
+- **Place the interior cameras in each room's far corner, clear of every door's leaf.** Round 1 put
+  three behind open leaves: the blind critic could only say DIFFERENT (3 CLOSE -> 5 CLOSE in round 2).
+- **Render interiors by day until the lamps are in** (an evening room without a lamp is black).
+- **What the judges see before paint and props:** the cheap judge calls every view cheap indie for
+  the empty rooms, the grey-box neighbours, windows onto a grey void and dark unlit rooms; judge the
+  building by the blind critic's form grades, and the look again once paint, lamps and props are in.
+- **Name only woods the game draws:** a wood it doesn't know (the chimneys' "brick") is drawn as
+  timber.
+- Bare dark walnut everywhere inside reads near black: a building's inside finishes want a pale wall
+  as soon as the library has one.
 
 ## The valley
 

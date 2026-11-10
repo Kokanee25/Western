@@ -87,3 +87,17 @@ him (bridge, 2026-11-10: packed, taken in 484 m, laid at his steps, `sheriff.car
   storey-and-a-half, no ell" (the sheet's rear had an ell the plan didn't: settled as one rectangle).
   The cheap judge (`2026-11-10_doctor_cheap/`, with the Studio's AAA references): all eight cheap
   indie; its reasons: the grey-box neighbours, the empty rooms, light with no fixture.
+- **Round 2** (`2026-11-10_doctor_r2/`: the interior cameras in each room's far corner, clear of the
+  doors; the sick room by day): the blind critic **5 CLOSE** (front, side yard, surgery, dispensary,
+  quarters) / 3 DIFFERENT (the rear: the sheet's ell, and the ladder, loft door and stair that are
+  Sean's loft; the front office and sick room: near black). Its top three: the rooms near black and
+  red (the bare walnut, no lamps: "a pale stand-in would settle it"); the inside unfinished (posts,
+  the summer beam, wide boards whose grain reads as plywood; no casings shown); the rear. The cheap
+  judge (`2026-11-10_doctor_r2_cheap/`): all eight cheap indie, best the side in sun and the surgery's
+  sun on the floor; its reasons: empty rooms (props later), the grey-box neighbours and the windows'
+  grey void, the dark interiors with no lamp. Fixed after it: the chimneys (an unknown "brick" drawn
+  as timber: the game's stone now).
+
+## Step 6: the recipe
+
+`../RECIPE.md`.
