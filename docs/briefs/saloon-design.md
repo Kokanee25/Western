@@ -37,7 +37,165 @@ seen from, and the balcony that wraps both streets gives Balcony Ambush two fron
 smaller, simpler to build and to fight in. (The paintings were judged by me only: the blind critic hasn't
 seen them.)
 
-SHEETS_GO_HERE
+### Concept A: the boom-town false front (1880)
+
+![Concept A target sheet](../../experiments/building_lab/saloon_a/sheet/sheet_small.jpg)
+
+![Concept A plans](../../experiments/building_lab/saloon_a/sheet/panels/plans.jpg)
+
+**What it is.** The saloon a two-year-old camp builds in a hurry: a two-storey frame box 40 x 84 ft behind
+a 36 ft false front, raw shiplap and board-and-batten painted once in ochre, the name painted across the
+front. Beside it a rough lean-to (kitchen and ice house) and a 14 ft wagon way to the yard.
+
+**Based on:** the false-fronted two-storey saloons of Leadville, Creede and Deadwood, 1879-81; the Grecian
+Bend (HABS WY-37: the bar and mirrored back bar along the side wall from just inside the door); Content
+Corner (HABS MT-2: the upper floor reached by an outside stair up the side street).
+
+**Floor by floor.**
+- *Cellar* (30 x 32 ft, 8 ft deep) under the back rooms: dry stone walls, an earth floor, kegs, barrels,
+  ice; a steep stair up to the trap in the store room; a sloping bulkhead up to the yard (⑤).
+- *Ground:* one bar room 40 x 52 ft. The bar (36 ft) down the east wall to the right of the door, the back
+  bar and mirror behind it; three posts down the middle under the girder; the stove mid-room; the card
+  tables, the faro table and the piano on the west side; an **open stair up the west wall** to the dance
+  hall. Behind: the club room (private games), the store room with the cellar's trap, the empties and the
+  swamper's cot, a back hall to the back door.
+- *Upper:* the dance hall 40 x 48 ft over the bar room (the fiddler's platform at the back, three pairs of
+  doors onto the balcony); a cross hall with the outside stair's door; five rented rooms and the owner's
+  office over the club room, with a grate in its floor over the club room's table (⑥).
+- *Balcony* the full 40 ft front, five 6x6 posts at the walk's edge (④). *Outside stair* up the west wall
+  on the North-South Street, to a landing and the upper hall's door (③).
+
+**How the missions play.**
+- *No Law:* Harlan sits at a west-side table facing the door; the cheat has his back to it (①). The red shirt
+  comes through the front doors, crosses the open room, kicks the chair and shoots; the room has no walls to
+  hide it. He goes out the front to his horse at the rail (⑦); a player who runs after him is on the walk in
+  four strides and sees him ride.
+- *Payday Night:* the two men go up the outside stair on the side street, in full view of the butcher's across
+  it (the witness). From the bar the open joists and the girder are right overhead; the cut (②) is over the
+  bar and the Kid. A free round brings the dancers down the open stair in plain sight. The fall comes down on
+  the bar and the east tables.
+- *Balcony Ambush:* five posts over the walk; dynamite against two of them and the 40 ft balcony folds onto
+  the boardwalk and the hitching rail. The dance hall's doors behind it are the men's way on and off.
+- *Fire:* frame throughout, the false front the last to go.
+
+### Concept B: the corner saloon (1881)
+
+![Concept B target sheet](../../experiments/building_lab/saloon_b/sheet/sheet_small.jpg)
+
+![Concept B plans](../../experiments/building_lab/saloon_b/sheet/panels/plans.jpg)
+
+**What it is.** Built in 1881 by a man who meant to stay: the whole corner, 54 x 72 ft, two storeys, a low
+hipped roof behind a bracketed cornice on both streets, dark red with cream trim. The south-west corner cut
+off on the diagonal at the ground floor for the entrance, the upper floor carried over it on one cast-iron
+column. The balcony wraps the corner over both streets' boardwalks.
+
+**Based on:** the corner saloons of Tombstone, the Oriental and the Crystal Palace (HABS AZ-7: a corner
+saloon under its porch; the first building there a two-storey brewery, 1880); Piper's Old Corner Bar,
+Virginia City NV (a two-storey corner building, the bar below, rooms above; the figures unverified); History
+Colorado on corner entrances with an iron column.
+
+**Floor by floor.**
+- *Cellar* (20 x 46 ft) under the bar's back half and the store room: stone walls, kegs, a stair up to the
+  trap behind the bar's end, a bulkhead up to the yard (⑤).
+- *Ground:* one bar room 54 x 44 ft entered at the corner; the bar (34 ft) down the east wall, ahead and to
+  the right; two rows of three posts under two girders; the card tables by the side-street windows. Behind:
+  through a wide arch the gaming room (faro, a wheel, poker); a **stair hall with its own door on the side
+  street**; the kitchen and lunch counter; the store room with the trap and the back door to the yard.
+- *Upper:* the dance hall 36 x 44 ft over the bar's half of the room; the owner's office in the corner over
+  the entrance, windows and a door onto both streets' balcony, a grate in its floor over the card tables
+  (⑥); six rented rooms off the back hall.
+- *Balcony* wraps the corner: 54 ft on Main Street and 44 ft down the side street, ten posts (④). *Outside
+  stair* up the east wall in the yard to the back hall (③).
+
+**How the missions play.**
+- *No Law:* the card table by the side-street windows (①), the cheat's back to the corner door. The red
+  shirt comes in at the corner, which faces the crossroads, and leaves the same way (⑦): out of the door he's
+  in the crossroads with every road in view, so the follower sees which way he rides.
+- *Payday Night:* the stair is in the yard, seen from Main Street across the yard's gate (the witness on the
+  far walk). The dancers come down through the stair hall into the bar room. The cut (②) is over the bar.
+- *Balcony Ambush:* the best of the four: men on two sides of the corner, ten posts, the corner column the
+  key one; blow the corner and both arms sag toward it.
+- *Fire:* frame throughout.
+
+**Faults in the sheet** (settled by the spec, not repainted): the rear view painted the plan's red markers
+onto the wall; the front view shows the corner door only from the side.
+
+### Concept C: the brick front, after the Board of Trade (1882)
+
+![Concept C target sheet](../../experiments/building_lab/saloon_c/sheet/sheet_small.jpg)
+
+![Concept C plans](../../experiments/building_lab/saloon_c/sheet/panels/plans.jpg)
+
+**What it is.** The town's best building, put up in 1882 once the town had money: a red-brick "fireproof"
+front with segmental arches, a bracketed cornice and the name and date on the parapet, a frame body behind
+(white clapboard), 50 x 100 ft, a 4 ft passage to the yard. The wooden balcony on four turned posts. The
+dance hall is the town's hall, with its own door on Main Street.
+
+**Based on:** the Board of Trade, Leadville (1883: an antechamber behind an oak partition, the barroom, the
+club room, back rooms: reported, unverified here); the Miners' Union Hall at Granite MT (HABS, 1890: a hall
+over club and game rooms reached by its own street door and stair); Kidder and Birkmire on brick fronts.
+
+**Floor by floor.**
+- *Cellar* (42 x 44 ft) under the front: brick and stone walls, kegs, a coal bin, the stair up behind the bar,
+  and a vault under the boardwalk with **iron sidewalk doors** for the brewery wagon (⑤: a way out onto the
+  street).
+- *Ground:* the hall stair's door at the west end of the front; the antechamber (cigar stand) behind a carved
+  partition; the barroom 42-50 x 44 ft (a tile floor, the bar 36 ft down the east wall, two rows of three
+  posts); the club room two steps up at the back (faro, stud, a wheel); the lunch counter; a billiard room; the
+  store room; the back door.
+- *Upper:* the dance hall 50 x 42 ft; three front rooms with doors onto the balcony; the owner's office over
+  the club room with a grate over the faro table (⑥); seven rented rooms.
+- *Balcony* 50 ft on four turned posts (④). *Outside stair* along the back wall to the upper hall (③).
+
+**How the missions play.**
+- *No Law:* the table on the west side behind the antechamber (①); the red shirt leaves by the side door on
+  the North-South Street (⑦) to his horse in the side street, so the follower comes round the corner.
+- *Payday Night:* the two men go up the back stair from the back street (the witness is across the back
+  street, not Main Street: a change to the card). The dance crowd comes and goes by its own street door
+  without crossing the bar, so "thin it" means the barkeep sending a round up, or the crowd down the hall
+  stair and in. The cut (②) over the bar.
+- *Balcony Ambush:* four posts, the shortest spans to blow but the heaviest balcony.
+- *Fire:* the frame body burns and falls in; the brick front can stand afterwards as a shell (a masonry
+  wall: the masonry lab's work).
+
+**Faults in the sheet:** the rear view made the whole building brick (only the front and its return are)
+and put the outside stair on the east side instead of the back wall.
+
+### Concept D: the variety hall, after the Bird Cage (1882)
+
+![Concept D target sheet](../../experiments/building_lab/saloon_d/sheet/sheet_small.jpg)
+
+![Concept D plans](../../experiments/building_lab/saloon_d/sheet/panels/plans.jpg)
+
+**What it is.** A saloon and variety theatre: a two-storey front block with a white false front ("THE SALT
+CREEK VARIETIES"), behind it a theatre hall two storeys high with curtained boxes down both sides and a small
+stage, 54 x 110 ft. The house band plays on the balcony at dusk to draw the crowd.
+
+**Based on:** the Bird Cage, Tombstone (HABS AZ-10: the bar room across the front, the hall, about seven
+boxes a side, a stage 31 ft deep, a room under it; stone and one storey there, wood and two storeys here); the
+Leadville variety theatre of December 1881 ("down stairs ... chairs and tables and up stairs ... a row of boxes
+on both sides").
+
+**Floor by floor.**
+- *Cellars:* a keg cellar under the bar (the trap behind it), and under the stage the poker room and a store,
+  reached from the stage's wing, with a bulkhead up to the back street (⑤).
+- *Ground:* the bar room 54 x 40 ft across the front (the bar 31 ft down the east wall, two rows of two posts,
+  the open stair up the west wall, the card tables); through a wide opening the theatre 54 x 56 ft (tables,
+  two faro banks under the boxes); the stage 38 x 14 ft, 3 ft up, with its wings.
+- *Upper:* the dance hall 40 x 40 ft over the bar room; the owner's office over the card tables (a grate, ⑥);
+  the landing; a front room; twelve curtained boxes on the two side galleries; two rooms over the wings.
+- *Balcony* the full 54 ft, five posts (④). *Outside stair* up the west wall to the west gallery of boxes (③).
+
+**How the missions play.**
+- *No Law:* the table near the open stair (①); the red shirt leaves by the side door on the North-South
+  Street (⑦).
+- *Payday Night:* the outside stair reaches the dance hall through the boxes' gallery: the two men walk past
+  the boxes with a saw, which someone in a box sees. The cut (②) over the bar.
+- *Balcony Ambush:* the band's balcony: the men are on it because the band is (a reason for them to be there).
+- *Fire:* the most to burn: the drop, the curtains and the boxes.
+
+D is the one concept with more than the must-haves: the theatre is a second big room to build, light and
+fill with people.
 
 ## 3. Questions only you can answer
 
@@ -160,7 +318,73 @@ drawing below is HABS, Library of Congress, public domain.
 | ![Fort Laramie plan](saloon-design/refs/fort-laramie-sutlers-store_HABS-WY-2_sheet2_first-floor-plan-bars.jpg) | ![Miners' Exchange](saloon-design/refs/idaho-city-miners-exchange_1865_HABS-ID-14_sheet2_floor-plan.jpg) |
 | Fort Laramie's post trader's (HABS WY-2): two bar rooms, a club room | Miners' Exchange, Idaho City (HABS ID-14): the saloon and its game-room strip |
 
-INTERIORS_GO_HERE
+## 6. Inside: what period saloons had (from photographs and the trade catalogues)
+
+Most numbers come from catalogues read in full on archive.org: B. A. Stevens' *Billiard and Bar Supplies,
+Saloon Fittings* (Toledo, 1894), Brunswick-Balke-Collender's billiard catalogues (1894, 1898), Gibson, Parish
+& Co.'s hardware (1887). These are a decade late, but bar furniture was sold by catalogue and changed slowly;
+the gadgets in them may be newer. Eyewitnesses: a Leadville letter of 9 December 1881 (*The Editor's Run in
+New Mexico and Colorado*), Ingersoll on Leadville in 1879 (*The Crest of the Continent*), Richardson on a
+Montana hurdy-gurdy house in 1865 (*Beyond the Mississippi*). "Estimate" means read off photographs.
+
+- **The bar:** stock counters 9-18 ft (longer to order, with returns), panelled fronts standing on iron feet
+  clear of the floor, walnut or mahogany, or softwood grained to look like them. **Top ~42 in high** (the ice
+  box made to fit under it is 36½ in tall, 22 in deep), ~24-30 in deep. A 2½ in round wooden arm rail on brass
+  brackets; an iron or brass **foot rail** ~1½ in across, about 6-9 in up and 8-12 in out (estimate). Brass
+  spittoons 9 in across and 6 in high, one every 4-6 ft (estimate). Towels on hooks along the front. Behind:
+  slat or wire mats 2 ft wide, zinc drip boards, sinks, an ice box with beer coils to the taps.
+- **The back bar:** a counter-high cupboard, a shelf of bottles and glasses, and a mirror frame up to **~9 ft**
+  tall, often a cornice on 2-4 turned columns; 10-20 ft long. The mirror is **one bevelled plate or three in
+  wooden frames** (30 x 50 in for a cheap 8 ft one, up to 48 x 98 in), never a seamless wall of glass. Steer
+  horns or a mounted head on top (Long Branch photograph).
+- **No cash register in 1882 Colorado** (patented 1879, National Cash Register from 1884): a till drawer, and
+  gold scales where dust was still taken.
+- **Light:** Leadville, 1879: "sooty oil lamps ... burned with a weak and yellow flame". Hanging kerosene lamps
+  and chandeliers **down the room's centre line**, 15-20 ft apart, 7½-9 ft up; lamps at the back bar doubled
+  by the mirror, the brightest place in the room; a billiard table's own two-lamp fixture 6 ft 1 in off the
+  floor (Brunswick). A 25 x 80 ft room wants 4-5 hanging lamps; a 50 x 50 ft hall two rows of three (estimate).
+  The corners and ceiling stay dim.
+- **Floor, walls, ceiling:** wide planks, sawdust ("the sawdust floors of these reeking bar-rooms", Leadville
+  1879); carpet or oilcloth with a runner only in fancy places. Walls of boards, or muslin papered over; the
+  ceiling **exposed joists** (the Diana, Sacramento: 3x12s) or boards; **pressed tin is later** (widespread from
+  the late 1880s: wrong for 1882). Rooms 11-14 ft high.
+- **The stove:** a long cast-iron box stove mid-room near the back wall (the Grecian Bend's is a Willson,
+  Estes & Fairchild No. 38, patented 1867), its pipe 7-8 ft up to a flue hung on a braced shelf; a stove in
+  each room.
+- **Games:** New Mexico, 1881: "each saloon contained a bar, from four to a dozen gambling tables". Faro: an
+  oval baize table ~3½-4 x 6-7 ft (estimate) with a cutout for the banker, the spade layout, a dealing box, a
+  case-keeper and a lookout on a high stool. Billiards: 4½ x 9 ft the common public table (5 x 10 the match
+  size), the rail 34 in high, a room 14½ x 18½ ft for one. Poker at small round or square tables, plain
+  wooden chairs (bentwood later).
+- **On the walls:** framed paintings hung high and tilted out, steer horns, mounted deer and elk heads, a
+  calendar, bottle advertisements; rifles on racks in a hunters' saloon (Table Bluff, 1889); walls solid with
+  pictures in a rich one (the Crystal, Virginia City). Nudes and "no credit" signs are commonly claimed and
+  not found in these sources: plausible, unverified.
+- **Dancing:** the Virginia City (MT) hurdy-gurdy, 1865: "At one end of the long hall, a well-stocked bar, and a
+  monte bank in full blast; at the other, a platform occupied by three musicians"; $1 a dance, half to the
+  girl, then to the bar for a drink. The Leadville variety theatre, 1881: tables downstairs, "a row of boxes on
+  both sides" upstairs. **Where the stair ran isn't in these sources**; an inside stair along a side wall, or
+  the outside stairs HABS recorded (§5).
+- **Doors:** glazed double doors between six-light windows (Grecian Bend, 1889); Stevens sold slatted **"blind
+  screens" 6 ft high to stand inside the door**. Batwings appear in an 1897 photograph and in 1902-04
+  catalogues, in none of the pre-1890 interiors found.
+- **The cellar:** "a trap-door behind the bar down which drunken men might be shunted" (*Daily Colonist*,
+  Victoria BC, 22 December 1876). Kegs kept on racks in the back room or below, the lines run up to the taps.
+
+| | |
+| --- | --- |
+| ![Hurdy-gurdy house](saloon-design/period/1865_virginia_city_montana_hurdy_gurdy_house.jpg) | ![Long Branch](saloon-design/period/1870s-80s_dodge_city_long_branch_saloon_interior.jpg) |
+| The hurdy-gurdy house, Virginia City MT, 1865: the bar on one wall, the band on a box, dancing between (H. W. Herrick in Richardson, 1867; LOC, no known restrictions) | Dodge City, traditionally the Long Branch, 1870s-80s: the long room, the bar down one side, lamps on the centre line, horns on the back bar (public domain) |
+| ![Black Hawk](saloon-design/period/1897_black_hawk_colorado_toll_gate_saloon_bar.jpg) | ![Grecian Bend bar](saloon-design/period/1973_habs_grecian_bend_saloon_south_pass_wy_bar_and_back_bar.jpg) |
+| Black Hawk, Colorado, 1897: panelled bar, towels, foot rail, back bar, mounted heads (Denver Public Library; public domain) | The Grecian Bend's 1889 bar and back bar, restored (Jack E. Boucher, HABS WY-37, 1973) |
+| ![Grecian Bend stove](saloon-design/period/1973_habs_grecian_bend_saloon_box_stove_1867_pattern.jpg) | ![Gem, Deadwood](saloon-design/period/1890s_deadwood_gem_theater_bar_board_ceiling.jpg) |
+| The Grecian Bend's box stove, 1867 pattern (HABS WY-37, 1973) | The Gem, Deadwood, 1890s: the long bar, the board ceiling (public domain) |
+| ![Kinman's saloon](saloon-design/period/1889_table_bluff_california_kinman_saloon_horns_guns_on_wall.jpg) | ![Telluride front](saloon-design/period/c1900_telluride_colorado_brunswick_saloon_front_window_lettering.jpg) |
+| Table Bluff, California, 1889: rifles, antlers and skins on the wall (public domain) | Telluride, c. 1900: a false front, lettered windows, a glazed recessed door (public domain) |
+| ![Bisbee faro](saloon-design/period/c1900_bisbee_arizona_orient_saloon_faro_table.jpg) | ![Reno faro](saloon-design/period/1910_reno_faro_game_layout_and_dealing_box.jpg) |
+| A faro bank, Bisbee, c. 1900 (C. S. Fly; National Archives 530986) | Faro in Reno, 1910: layout, dealing box, case-keeper (L. Levitch; LOC) |
+| ![Crystal Saloon](saloon-design/period/1940_habs_crystal_saloon_virginia_city_chandeliers_pictures_tin_ceiling.jpg) | ![Crystal Saloon wall](saloon-design/period/1940_habs_crystal_saloon_virginia_city_wall_of_pictures.jpg) |
+| The Crystal, Virginia City NV (HABS NV-15-29, 1940): prism chandeliers; its tin ceiling is later | Its wall of pictures |
 
 ## 7. Framing the dance floor, the balcony and the stair (period numbers)
 
