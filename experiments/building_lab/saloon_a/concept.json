@@ -1,0 +1,794 @@
+{
+ "title": "A. The boom-town false front (1880): plans",
+ "legend": {
+  "1": "No Law: the card table (the chair kicked out)",
+  "2": "Payday Night: the sawn joist, over the bar",
+  "3": "Payday Night: the outside stair (two men, a saw)",
+  "4": "Balcony Ambush: the balcony's posts",
+  "5": "The cellar's way out",
+  "6": "The owner's office and his ear",
+  "7": "The red shirt's way out (follow him)"
+ },
+ "walk": {
+  "main": [
+   -8,
+   62
+  ]
+ },
+ "floors": {
+  "cellar": {
+   "outline": [
+    [
+     10,
+     52
+    ],
+    [
+     40,
+     52
+    ],
+    [
+     40,
+     84
+    ],
+    [
+     10,
+     84
+    ]
+   ],
+   "rooms": [
+    {
+     "name": "Cellar: dry stone walls, earth floor",
+     "x": 10,
+     "y": 52,
+     "w": 30,
+     "d": 32,
+     "kind": "cellar",
+     "lx": 22,
+     "ly": 68,
+     "size": "30 x 32 ft, 8 ft deep"
+    }
+   ],
+   "items": [
+    {
+     "type": "kegs",
+     "x": 12,
+     "y": 75,
+     "w": 12,
+     "d": 7,
+     "label": ""
+    },
+    {
+     "type": "kegs",
+     "x": 12,
+     "y": 54,
+     "w": 8,
+     "d": 6
+    },
+    {
+     "type": "counter",
+     "x": 30,
+     "y": 76,
+     "w": 8,
+     "d": 6,
+     "label": "ICE"
+    }
+   ],
+   "stairs": [
+    {
+     "x": 33,
+     "y": 56,
+     "w": 3,
+     "d": 7,
+     "up": "S",
+     "label": "UP TO THE TRAP",
+     "label_side": "E"
+    },
+    {
+     "x": 26,
+     "y": 84,
+     "w": 4,
+     "d": 6,
+     "up": "N",
+     "label": "BULKHEAD TO THE YARD",
+     "label_side": "E"
+    }
+   ],
+   "doors": [
+    {
+     "x": 26,
+     "y": 84,
+     "w": 4,
+     "o": "h",
+     "arch": true
+    }
+   ],
+   "marks": [
+    {
+     "n": 5,
+     "x": 22,
+     "y": 88
+    }
+   ]
+  },
+  "ground": {
+   "outline": [
+    [
+     0,
+     0
+    ],
+    [
+     40,
+     0
+    ],
+    [
+     40,
+     30
+    ],
+    [
+     54,
+     30
+    ],
+    [
+     54,
+     76
+    ],
+    [
+     40,
+     76
+    ],
+    [
+     40,
+     84
+    ],
+    [
+     0,
+     84
+    ]
+   ],
+   "rooms": [
+    {
+     "name": "Bar room",
+     "x": 0,
+     "y": 0,
+     "w": 40,
+     "d": 52,
+     "kind": "bar",
+     "lx": 12,
+     "ly": 4.5
+    },
+    {
+     "name": "Back hall",
+     "x": 0,
+     "y": 52,
+     "w": 10,
+     "d": 32,
+     "kind": "hall"
+    },
+    {
+     "name": "Club room: private games",
+     "x": 10,
+     "y": 52,
+     "w": 18,
+     "d": 20,
+     "kind": "games",
+     "ly": 67
+    },
+    {
+     "name": "Empties, swamper's cot",
+     "x": 10,
+     "y": 72,
+     "w": 18,
+     "d": 12,
+     "kind": "store"
+    },
+    {
+     "name": "Store room",
+     "x": 28,
+     "y": 52,
+     "w": 12,
+     "d": 32,
+     "kind": "store",
+     "ly": 72
+    },
+    {
+     "name": "Lean-to: kitchen, ice house",
+     "x": 40,
+     "y": 30,
+     "w": 14,
+     "d": 46,
+     "kind": "kitchen"
+    },
+    {
+     "name": "Wagon way to the yard",
+     "x": 40,
+     "y": 0,
+     "w": 14,
+     "d": 30,
+     "kind": "yard",
+     "size": ""
+    }
+   ],
+   "items": [
+    {
+     "type": "bar",
+     "x": 28.5,
+     "y": 8,
+     "w": 2.5,
+     "d": 36,
+     "label": "BAR 36 FT"
+    },
+    {
+     "type": "backbar",
+     "x": 38,
+     "y": 10,
+     "w": 2,
+     "d": 32,
+     "label": "BACK BAR, MIRROR"
+    },
+    {
+     "type": "post",
+     "x": 20,
+     "y": 13
+    },
+    {
+     "type": "post",
+     "x": 20,
+     "y": 26
+    },
+    {
+     "type": "post",
+     "x": 20,
+     "y": 39
+    },
+    {
+     "type": "stove",
+     "x": 21.5,
+     "y": 19.5
+    },
+    {
+     "type": "table",
+     "x": 8,
+     "y": 10,
+     "r": 2.0,
+     "key": false,
+     "chairs": 4
+    },
+    {
+     "type": "table",
+     "x": 8,
+     "y": 22,
+     "r": 2.0,
+     "key": true,
+     "chairs": 4
+    },
+    {
+     "type": "table",
+     "x": 14,
+     "y": 33,
+     "r": 2.0,
+     "key": false,
+     "chairs": 4
+    },
+    {
+     "type": "table",
+     "x": 13,
+     "y": 15,
+     "r": 2.0,
+     "key": false,
+     "chairs": 4
+    },
+    {
+     "type": "counter",
+     "x": 9,
+     "y": 42,
+     "w": 6,
+     "d": 4,
+     "label": "FARO"
+    },
+    {
+     "type": "piano",
+     "x": 0.5,
+     "y": 13,
+     "w": 2,
+     "d": 5
+    },
+    {
+     "type": "table",
+     "x": 19,
+     "y": 62,
+     "r": 2.5,
+     "key": false,
+     "chairs": 6
+    },
+    {
+     "type": "trap",
+     "x": 33,
+     "y": 56,
+     "w": 3,
+     "d": 3,
+     "label": ""
+    }
+   ],
+   "lines": [
+    {
+     "type": "girder",
+     "x0": 20,
+     "y0": 0,
+     "x1": 20,
+     "y1": 52,
+     "label": "girder over"
+    }
+   ],
+   "stairs": [
+    {
+     "x": 0,
+     "y": 31,
+     "w": 4,
+     "d": 18,
+     "up": "N",
+     "label": "STAIR UP",
+     "label_side": "E"
+    },
+    {
+     "x": -4,
+     "y": 54,
+     "w": 4,
+     "d": 19,
+     "up": "S",
+     "label": "OUTSIDE STAIR UP",
+     "label_side": "W"
+    }
+   ],
+   "doors": [
+    {
+     "x": 17.5,
+     "y": 0,
+     "w": 5,
+     "o": "h"
+    },
+    {
+     "x": 0,
+     "y": 25,
+     "w": 3.5,
+     "o": "v"
+    },
+    {
+     "x": 3,
+     "y": 52,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 14,
+     "y": 52,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 33.5,
+     "y": 52,
+     "w": 3,
+     "o": "h"
+    },
+    {
+     "x": 3,
+     "y": 84,
+     "w": 3.5,
+     "o": "h"
+    },
+    {
+     "x": 40,
+     "y": 60,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 54,
+     "y": 40,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 12,
+     "y": 72,
+     "w": 3,
+     "o": "h"
+    }
+   ],
+   "windows": [
+    {
+     "x": 3,
+     "y": 0,
+     "w": 10,
+     "o": "h"
+    },
+    {
+     "x": 26,
+     "y": 0,
+     "w": 10,
+     "o": "h"
+    },
+    {
+     "x": 0,
+     "y": 6,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 15,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 60,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 72,
+     "w": 3,
+     "o": "v"
+    }
+   ],
+   "marks": [
+    {
+     "n": 1,
+     "x": 11,
+     "y": 25
+    },
+    {
+     "n": 3,
+     "x": -2,
+     "y": 64
+    },
+    {
+     "n": 4,
+     "x": 25,
+     "y": -6
+    },
+    {
+     "n": 7,
+     "x": 20,
+     "y": -3
+    },
+    {
+     "n": 5,
+     "x": 34.5,
+     "y": 57.5
+    }
+   ]
+  },
+  "upper": {
+   "outline": [
+    [
+     0,
+     0
+    ],
+    [
+     40,
+     0
+    ],
+    [
+     40,
+     84
+    ],
+    [
+     0,
+     84
+    ]
+   ],
+   "rooms": [
+    {
+     "name": "Dance hall",
+     "x": 0,
+     "y": 0,
+     "w": 40,
+     "d": 48,
+     "kind": "dance",
+     "lx": 11,
+     "ly": 24
+    },
+    {
+     "name": "Hall",
+     "x": 0,
+     "y": 48,
+     "w": 40,
+     "d": 6,
+     "kind": "hall",
+     "size": "",
+     "nolabel": true
+    },
+    {
+     "name": "Room 1",
+     "x": 0,
+     "y": 54,
+     "w": 18,
+     "d": 10,
+     "kind": "room"
+    },
+    {
+     "name": "Room 2",
+     "x": 0,
+     "y": 64,
+     "w": 18,
+     "d": 10,
+     "kind": "room"
+    },
+    {
+     "name": "Room 3",
+     "x": 0,
+     "y": 74,
+     "w": 18,
+     "d": 10,
+     "kind": "room"
+    },
+    {
+     "name": "",
+     "x": 18,
+     "y": 54,
+     "w": 4,
+     "d": 30,
+     "kind": "hall",
+     "nolabel": true
+    },
+    {
+     "name": "Owner's office",
+     "x": 22,
+     "y": 54,
+     "w": 18,
+     "d": 14,
+     "kind": "office"
+    },
+    {
+     "name": "Room 4",
+     "x": 22,
+     "y": 68,
+     "w": 18,
+     "d": 8,
+     "kind": "room"
+    },
+    {
+     "name": "Room 5",
+     "x": 22,
+     "y": 76,
+     "w": 18,
+     "d": 8,
+     "kind": "room"
+    }
+   ],
+   "balcony": [
+    {
+     "x": 0,
+     "y": -8,
+     "w": 40,
+     "d": 8,
+     "label": "BALCONY OVER THE WALK"
+    }
+   ],
+   "items": [
+    {
+     "type": "platform",
+     "x": 16,
+     "y": 44,
+     "w": 8,
+     "d": 4,
+     "label": "FIDDLER"
+    },
+    {
+     "type": "trap",
+     "x": 24.5,
+     "y": 57,
+     "w": 2,
+     "d": 2,
+     "label": ""
+    },
+    {
+     "type": "platform",
+     "x": -4,
+     "y": 48,
+     "w": 4,
+     "d": 6
+    }
+   ],
+   "lines": [
+    {
+     "type": "joists",
+     "x0": 0,
+     "y0": 2,
+     "x1": 40,
+     "y1": 2,
+     "n": 15,
+     "spread": 44
+    },
+    {
+     "type": "girder",
+     "x0": 20,
+     "y0": 0,
+     "x1": 20,
+     "y1": 48,
+     "label": "girder below"
+    },
+    {
+     "type": "cut",
+     "x0": 20.5,
+     "y0": 30,
+     "x1": 39.5,
+     "y1": 30,
+     "label": "SAWN JOIST"
+    }
+   ],
+   "stairs": [
+    {
+     "x": 0,
+     "y": 31,
+     "w": 4,
+     "d": 17,
+     "up": "N",
+     "label": "STAIR DOWN",
+     "label_side": "E"
+    }
+   ],
+   "doors": [
+    {
+     "x": 5,
+     "y": 0,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 18,
+     "y": 0,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 31,
+     "y": 0,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 8,
+     "y": 48,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 28,
+     "y": 48,
+     "w": 4,
+     "o": "h"
+    },
+    {
+     "x": 0,
+     "y": 49,
+     "w": 3.5,
+     "o": "v"
+    },
+    {
+     "x": 18,
+     "y": 58,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 18,
+     "y": 67,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 18,
+     "y": 77,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 22,
+     "y": 60,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 22,
+     "y": 70,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 22,
+     "y": 78,
+     "w": 3,
+     "o": "v"
+    }
+   ],
+   "windows": [
+    {
+     "x": 0,
+     "y": 8,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 20,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 40,
+     "y": 10,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 40,
+     "y": 30,
+     "w": 4,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 58,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 0,
+     "y": 78,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 40,
+     "y": 60,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 40,
+     "y": 78,
+     "w": 3,
+     "o": "v"
+    },
+    {
+     "x": 8,
+     "y": 84,
+     "w": 3,
+     "o": "h"
+    },
+    {
+     "x": 30,
+     "y": 84,
+     "w": 3,
+     "o": "h"
+    }
+   ],
+   "marks": [
+    {
+     "n": 2,
+     "x": 24,
+     "y": 33
+    },
+    {
+     "n": 6,
+     "x": 37.5,
+     "y": 57
+    },
+    {
+     "n": 3,
+     "x": -2,
+     "y": 51
+    },
+    {
+     "n": 4,
+     "x": 36,
+     "y": -4
+    }
+   ]
+  }
+ }
+}
