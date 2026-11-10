@@ -848,10 +848,16 @@ frozen until Sean names one.
   homesteads, the windmill's water, Cottonwood Bluff, the line shack, water tower, headframe, ore chute,
   bell tower, the Jump-off); landforms in the bake (`landforms_height`, `undercut`), blocks and `Ladder`s
   (ValleyMarkers), the lab's `valley_sight`/`valley_climb`; plan `docs/briefs/valley-heights.md`. All 68
-  lines clear, 15 walks within 20 s of the plan. Next: #759 (#736 D, falls from height); the
+  lines clear, 15 walks within 20 s of the plan. Falls from height: below; the
   saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
+- **Falls from height** (#759, Sean's table on #762, PR #769; `experiments/falls_lab/` README): a
+  limp man's landing from over ~1.5 m (`Falls`, `config/falls.tres`, `HumanBody._step_fall`) and the
+  player's (`PlayerWounds.take_fall`) hurt by the height and how he lands; the neck, low back and aorta
+  by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
+  TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
+  feet first he goes through. Next: #770 (the heist's log, coach and dents, or #736 C).
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
@@ -1100,6 +1106,25 @@ frozen until Sean names one.
   `overlay.py --crop` (`results/2026-11-09_review4/`). **Sean approved step 1** (2026-11-10): the shape
   stays. Later: the checkering a touch lighter in the next surfaces pass; he judges it in first person
   in the hand. The Winchester (#734) copies this method. Nothing in the game changed.
+- **The Winchester 1873 by script** (#734 step 1, branch `claude/winchester-1873-rig-i4y7gt`;
+  `experiments/gun_lab/win73/` README): `win73_blender.py --barrel=24|20` (~8 s), every driven part its own
+  object on its pivot (receiver, barrel, tube, lever, hammer, trigger, carrier, bolt, dust cover, gate,
+  buckhorn and blade sights, forend, cap, band, stock, crescent plate, screws, rounds in the chamber, on the
+  carrier, in the tube), `win73_<barrel>_rig.json`, `win73_rig.gd` (`lever(t, closing)` takes the bolt back,
+  cocks and holds the hammer, lifts the carrier; half cock, cover, gate). Fitted to Hmaag's CC0 Commons photo
+  (`docs/concept/guns/ref/w73_hmaag_right.jpg`; the barrel measured from the receiver's face, as collectors
+  do): overlap 0.930 -> 0.961, part crops 0.875-0.970 (`overlay.py --crop`, `--profile`; the rear sight 0.785,
+  the photo's is a leaf). The lab picked the 24" rifle (sight radius for the rope shot). Game-light views
+  `win73_views.gd`. Sean OK'd the shape (#767, A). **Surfaces** (`win73_paint.py`, the Colt's way, no paid
+  call): each part's finish from the evidence reachable (README "The surfaces": Wikipedia, the reference
+  rifle, museum photos on Commons; the receiver blued, case-hardened receivers made to order; the hammer and
+  lever faded case colours, the weakest call); five rounds in game light and first person in the game's
+  HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
+  cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
+  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
+  Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
+  (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
+  run is ~70 min here. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

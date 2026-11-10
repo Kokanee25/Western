@@ -11,6 +11,8 @@ extends Node3D
 signal hit(info: Dictionary)
 signal fell(conscious: bool)
 signal died(cause: StringName)
+## A landing from height that counted (issue #759): `last_fall`'s {kind, speed, joules, blows, harm}.
+signal fell_from(fall: Dictionary)
 
 ## Joint rotations per pose (degrees). A hanging limb swings forward with +X; the trunk and head
 ## lean back with +X (forward with -X). The rig drops so the lower foot stays on the ground.
@@ -1594,6 +1596,7 @@ func _physics_step(delta: float) -> void:
 			_hat_meets_ground()
 		_step_brace(delta)
 		_step_thrown(delta)
+		_step_fall(delta)
 		_rise_watch(delta)
 		_step_tone(delta)
 		_step_dying(delta)
@@ -5953,6 +5956,133 @@ func _step_thrown(delta: float) -> void:
 		if physiology.severed_segments.has(rb.get_meta(&"segment", &"")):
 			continue  # a limb the blast took: not his to feel
 		take_blow(rb, joules, rb.global_position, was.normalized() if was.length() > 0.01 else Vector3.DOWN, rb.mass * dv)
+
+
+## A fall from height (issue #759; Sean's table on #762; Falls, config/falls.tres): watched while
+## his middle comes down faster than a man falling over where he stands; the landing, once a part
+## stops hard and his middle was coming down past `min_speed`, lasts `window`, and its energy (his
+## weight and that speed, less what he still has after: through a roof he keeps most of it) is
+## shared out over the parts that stopped (Falls.share_out) as blows (`take_blow`), with the load
+## up his spine from the first parts down (Physiology.axial). Any limp man, whatever put him over
+## the edge. How he falls is the ragdoll's own: only the landing's harm is added here.
+var _fall_v := {}  ## RigidBody3D -> its velocity last tick, while he's coming down fast
+var _fall_t := -1.0  ## s into a landing (-1: none)
+var _fall_in := 0.0  ## his middle's speed down as the landing began (m/s)
+var _fall_kind := &""
+## The parts down first: those that stopped with their undersides within this (m) of the lowest.
+const FALL_FIRST_BAND := 0.15
+var _fall_top := -INF  ## the height his middle would reach from where it last went slow (m)
+var _fall_stop := {}  ## RigidBody3D -> momentum it lost in the landing (N*s)
+var _fall_first := {}  ## RigidBody3D -> momentum it lost on the landing's first tick (N*s): down first
+## The last landing that counted, for the labs and tests: {kind, speed, joules, harm, blows}.
+var last_fall := {}
+
+
+func _step_fall(delta: float) -> void:
+	var pelvis := parts.get(&"pelvis") as RigidBody3D
+	if pelvis == null:
+		return
+	var ft := Falls.t()
+	var vy := pelvis.linear_velocity.y
+	var down := -vy
+	if _fall_t < 0.0 and down < ft.min_speed * 0.8 and not _fall_v.has(pelvis):
+		# Not coming down fast: where his fall would start from (the top of his arc going up).
+		_fall_top = pelvis.global_position.y + (vy * vy / 19.6 if vy > 0.0 else 0.0)
+		return
+	var g := Vector3.DOWN * 9.8 * delta
+	var was_down := -(_fall_v.get(pelvis, pelvis.linear_velocity) as Vector3).y
+	var stopped := {}  ## RigidBody3D -> how much it stopped this tick (m/s)
+	for sid: StringName in parts:
+		var rb := parts[sid] as RigidBody3D
+		if rb == null:
+			continue
+		var now := rb.linear_velocity
+		if _fall_v.has(rb):
+			var stop := ((_fall_v[rb] as Vector3) + g - now).length()
+			if stop >= ft.land_dv:
+				stopped[rb] = stop
+				if _fall_t >= 0.0:
+					_fall_stop[rb] = float(_fall_stop.get(rb, 0.0)) + rb.mass * stop
+		_fall_v[rb] = now
+	if _fall_t < 0.0:
+		if stopped.is_empty():
+			if down < ft.min_speed * 0.8:
+				_fall_v.clear()  # slowed without landing hard (slid to a stop): done
+			return
+		var drop := _fall_top - pelvis.global_position.y
+		var v_in := maxf(was_down, sqrt(maxf(2.0 * 9.8 * drop, 0.0)) if drop > 0.0 and drop < 1e4 else 0.0)
+		if v_in < ft.min_speed:
+			if down < ft.min_speed * 0.8:
+				_fall_v.clear()
+			return  # a touch on the way down, too slow to count: still watching
+		# The landing begins.
+		_fall_t = 0.0
+		_fall_in = v_in
+		_fall_stop.clear()
+		_fall_first.clear()
+		var first: Array = []
+		var heights := {}
+		# Down first: the lowest of those that stopped (the joints pass a stop up the whole chain
+		# in the same tick, so at speed every part stops at once; only the ones near the ground hit it).
+		var low := INF
+		var under := {}
+		for rb: RigidBody3D in stopped:
+			under[rb] = rb.global_position.y - float(anatomy.segments[rb.get_meta(&"segment", &"pelvis")].radius)
+			low = minf(low, under[rb])
+		for rb: RigidBody3D in stopped:
+			var sid: StringName = rb.get_meta(&"segment", &"")
+			_fall_stop[rb] = rb.mass * float(stopped[rb])
+			if float(under[rb]) > low + FALL_FIRST_BAND:
+				continue
+			_fall_first[rb] = rb.mass * float(stopped[rb])
+			first.append(sid)
+			heights[sid] = rb.global_position.y
+		_fall_kind = Falls.landing_kind(first, pelvis.global_position.y, heights)
+		return
+	_fall_t += delta
+	if _fall_t < ft.window:
+		return
+	# Over: the blows.
+	var joules := Falls.hurt_energy(_body_mass(), _fall_in, down, ft) * (ft.feet_soften if _fall_kind == &"feet" else 1.0)
+	var blows := Falls.share_out(joules, _fall_stop, _fall_first, ft, _fall_kind)
+	var harm: PackedStringArray = []
+	var given := {}
+	var lead_j := 0.0
+	for rb: RigidBody3D in blows:
+		var j := float(blows[rb])
+		var sid := String(rb.get_meta(&"segment", &""))
+		if _fall_first.has(rb) and (sid == "head" or sid == "neck"):
+			lead_j += j
+		if j < ft.least_blow or not is_instance_valid(rb):
+			continue
+		if physiology.severed_segments.has(StringName(sid)):
+			continue
+		given[sid] = snappedf(j, 0.1)
+		harm.append_array(take_blow(rb, j, rb.global_position, Vector3.DOWN, rb.mass * _fall_in))
+	if _fall_kind == &"feet":
+		# Up the legs into the pelvis and the low back.
+		var pelvis_j := joules * ft.spine_share
+		if pelvis_j >= ft.least_blow:
+			given["pelvis_load"] = snappedf(pelvis_j, 0.1)
+			harm.append_array(take_blow(pelvis, pelvis_j, pelvis.global_position, Vector3.DOWN, pelvis.mass * _fall_in))
+		harm.append_array(physiology.axial(&"spine", pelvis_j, _rng))
+	elif _fall_kind == &"head":
+		harm.append_array(physiology.axial(&"neck", lead_j * ft.neck_share, _rng))
+	var whole := joules / maxf(ft.injury_share, 1e-6)  # (feet first, softened already)
+	harm.append_array(physiology.axial(&"aorta", whole, _rng))
+	last_fall = {"kind": _fall_kind, "speed": snappedf(_fall_in, 0.01), "out": snappedf(down, 0.01),
+			"joules": snappedf(joules, 0.1), "blows": given, "harm": harm, "alive": physiology.alive}
+	fell_from.emit(last_fall)
+	# The blast's landing watch is done with too: this landing was it.
+	_thrown_t = -1.0
+	_thrown_v.clear()
+	_thrown_hit.clear()
+	_fall_t = -1.0
+	_fall_v.clear()
+	_fall_stop.clear()
+	_fall_first.clear()
+	# Going on (through a roof): his next fall is from here, at the speed he still has.
+	_fall_top = pelvis.global_position.y + down * down / 19.6
 
 
 func _body_mass() -> float:

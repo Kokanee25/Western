@@ -238,6 +238,47 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 	return harm
 
 
+## You land from a fall (issue #759; Falls, config/falls.tres): you always land on your feet, so the
+## feet-first rules a falling man's landing has (HumanBody._step_fall): your weight and `speed`
+## (m/s down as you landed), your feet first, the rest up your legs as the falls lab measured, the
+## load into your pelvis and low back, and the whole body's stop on the aorta. Under `min_speed`
+## (about 1.5 m) nothing. Returns what it did.
+func take_fall(speed: float) -> PackedStringArray:
+	var ft := Falls.t()
+	var harm: PackedStringArray = []
+	if speed < ft.min_speed or not physiology.alive:
+		return harm
+	var joules := Falls.hurt_energy(ft.player_mass, speed, 0.0, ft) * ft.feet_soften
+	var blows := {}
+	blows[&"foot_r"] = joules * ft.feet_lead_share * 0.5
+	blows[&"foot_l"] = joules * ft.feet_lead_share * 0.5
+	var weights := 0.0
+	for region: String in ft.player_rest:
+		weights += float(ft.player_rest[region])
+	for region: String in ft.player_rest:
+		var j := joules * (1.0 - ft.feet_lead_share) * float(ft.player_rest[region]) / maxf(weights, 1e-6)
+		if region in ["thigh", "shin", "foot", "upper_arm", "forearm", "hand"]:
+			blows[StringName(region + "_r")] = float(blows.get(StringName(region + "_r"), 0.0)) + j * 0.5
+			blows[StringName(region + "_l")] = float(blows.get(StringName(region + "_l"), 0.0)) + j * 0.5
+		else:
+			blows[StringName(region)] = float(blows.get(StringName(region), 0.0)) + j
+	blows[&"pelvis"] = float(blows.get(&"pelvis", 0.0)) + joules * ft.spine_share
+	for seg: StringName in blows:
+		if float(blows[seg]) >= ft.least_blow:
+			for h in physiology.blow(seg, float(blows[seg]), _rng):
+				if h != "bruised" and not harm.has(h):
+					harm.append(h)
+	harm.append_array(physiology.axial(&"spine", joules * ft.spine_share, _rng))
+	harm.append_array(physiology.axial(&"aorta", joules / maxf(ft.injury_share, 1e-6), _rng))
+	_flash = 1.0
+	player.add_look(Vector2(_rng.randf_range(-3.0, 3.0), _rng.randf_range(-10.0, -4.0)))
+	say("You land hard%s." % (": " + ", ".join(harm) if not harm.is_empty() else ""), 3.0)
+	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": &"foot_r", "hits": [],
+			"position": player.global_position, "direction": Vector3.DOWN, "exit": null, "lodged": false,
+			"kind": &"blow", "harm": harm, "joules": joules, "fall": true})
+	return harm
+
+
 ## Caught by a charge going off at `at` (`held`: it went off in your own right hand). The same
 ## rules as anyone: ears, lungs, head, burns, a hand or more torn off; and you hear nothing but
 ## ringing for a while (for good, muffled, if an eardrum went).
