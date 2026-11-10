@@ -835,6 +835,15 @@ frozen until Sean names one.
   saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
+- **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
+  `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
+  sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
+  horse; nod/shake by your view (`HeadGesture`), E on the wound packs it, E by his horse a card (leading
+  isn't built) run on his body, a stand-in doctor; `sheriff.care` good/poor/left him in `StoryState`
+  (memory only; bridge `story`). `Act` (src/moments) is the first cut of acts. Blind playtest
+  `docs/playtests/2026-11-10-sheriff.md`. Waiting on Sean: #755 (his play; the saloon onto its valley
+  lot now or in #695's week). Next: #756 (No Law's town: people in the valley, the saloon). The card's
+  systems lines and BUILD_ORDER's Step 1 are on PR #743 (unmerged): update them when it lands.
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
