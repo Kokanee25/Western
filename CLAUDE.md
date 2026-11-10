@@ -1088,9 +1088,15 @@ frozen until Sean names one.
   (`docs/concept/guns/ref/w73_hmaag_right.jpg`; the barrel measured from the receiver's face, as collectors
   do): overlap 0.930 -> 0.961, part crops 0.875-0.970 (`overlay.py --crop`, `--profile`; the rear sight 0.785,
   the photo's is a leaf). The lab picked the 24" rifle (sight radius for the rope shot). Game-light views
-  `win73_views.gd`. Waiting on Sean: the shape (#767), then the surfaces. Traps: Commons answers 429
-  (space requests); the Met and Smithsonian hosts and Wikipedia are blocked here; a big flat face needs
-  face-area weighted normals or it streaks in the game. Nothing in the game changed.
+  `win73_views.gd`. Sean OK'd the shape (#767, A). **Surfaces** (`win73_paint.py`, the Colt's way, no paid
+  call): each part's finish from the evidence reachable (README "The surfaces": Wikipedia, the reference
+  rifle, museum photos on Commons; the receiver blued, case-hardened receivers made to order; the hammer and
+  lever faded case colours, the weakest call); five rounds in game light and first person in the game's
+  HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
+  cheap indie, its rifle faults listed in the README. Waiting on Sean: the surfaces (#776). Traps:
+  Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
+  (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
+  run is ~70 min here. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

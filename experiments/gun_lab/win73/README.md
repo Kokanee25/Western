@@ -273,7 +273,16 @@ references read in place):
 - `side_by_side_real_look.jpg`, `action_side_by_side_real_look.jpg`: the game's side render beside
   the photo at its scale;
 - `evidence_reference_rifle.jpg` is in round 3's folder;
-- `cheap_judge/`: the second verdict on the same five shots.
+- `cheap_judge/`: the second verdict on the same five shots:
+  - **All five cheap indie** (round 3: one good indie, four cheap; the judge varies run to run).
+  - **The rifle's faults it still names:**
+    - the side plates' seams pale like stitching;
+    - the screws too saturated a blue;
+    - a mirror streak on the lever's inner edge;
+    - no wear visible on the side in shade;
+    - the walnut near black in shade.
+  - **The rest:** the street's (the posterised sky, cloned grass, faceted rocks and pebbles, the
+    canyon backdrop) and the placeholder hands'.
 
 **Known, left for Sean's look:**
 - **The shouldered hold:** the arms are placed by the coach gun's rules, not fitted to this rifle, so
