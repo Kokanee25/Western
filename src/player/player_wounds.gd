@@ -780,7 +780,10 @@ func _physics_step(delta: float) -> void:
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
 	for gun in player.weapons:
-		gun.hands_busy = tending > 0.0
+		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
+		var sat := player.seat != null and player.seat.seated()
+		gun.hands_busy = tending > 0.0 or sat
+		gun.busy_why = "you're sat at the table" if sat and tending <= 0.0 else ""
 		# The shotgun takes both hands; the revolver only the right.
 		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
