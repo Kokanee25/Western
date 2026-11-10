@@ -39,7 +39,7 @@ NEXT_CALL = 0.25
 
 ASK = ("{look}\n\nTHE BUILDING (the same in every view): {building}\n\nTHIS VIEW: {view}")
 WITH_REFS = ("The pictures given show this same building from other views: keep it exactly the same "
-             "building (its size, proportions, roof, false front, siding, colours, sign, doors and windows "
+             "building (its size, proportions, roof, siding, colours, sign, doors and windows "
              "in the same places, its rooms where the plan puts them). ")
 
 
