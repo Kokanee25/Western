@@ -853,10 +853,16 @@ frozen until Sean names one.
   homesteads, the windmill's water, Cottonwood Bluff, the line shack, water tower, headframe, ore chute,
   bell tower, the Jump-off); landforms in the bake (`landforms_height`, `undercut`), blocks and `Ladder`s
   (ValleyMarkers), the lab's `valley_sight`/`valley_climb`; plan `docs/briefs/valley-heights.md`. All 68
-  lines clear, 15 walks within 20 s of the plan. Next: #759 (#736 D, falls from height); the
+  lines clear, 15 walks within 20 s of the plan. Falls from height: below; the
   saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
+- **Falls from height** (#759, Sean's table on #762, PR #769; `experiments/falls_lab/` README): a
+  limp man's landing from over ~1.5 m (`Falls`, `config/falls.tres`, `HumanBody._step_fall`) and the
+  player's (`PlayerWounds.take_fall`) hurt by the height and how he lands; the neck, low back and aorta
+  by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
+  TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
+  feet first he goes through. Next: #770 (the heist's log, coach and dents, or #736 C).
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
