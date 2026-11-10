@@ -45,7 +45,7 @@ SCREW = "fire"
 # Per finish: how it is made, its wear and roughness, metal or not.
 LOOK = {
     "case":   {"kind": "case", "rough": 0.24, "metal": 1.0, "wear": 0.55},
-    "blued":  {"kind": "blued", "rough": 0.17, "metal": 1.0, "wear": 0.9},
+    "blued":  {"kind": "blued", "rough": 0.21, "metal": 1.0, "wear": 0.9},   # 0.17 blew the sun to a white point (round 1)
     "fire":   {"kind": "fire", "rough": 0.15, "metal": 1.0, "wear": 0.5},
     "bright": {"kind": "bright", "rough": 0.24, "metal": 1.0, "wear": 0.3},
     "walnut": {"kind": "walnut", "rough": 0.42, "metal": 0.0, "wear": 0.55},
@@ -165,6 +165,9 @@ def node_tree(mat, look, img, mode, knurl=False):
     ao.inputs["Distance"].default_value = 0.004
     ao.samples = 16
     cav = g.maprange(ao.outputs["AO"], 1.0, 0.35)
+    # Nothing rubs inside a hollow: the side plates' seams and the screws' slots keep their finish (the
+    # first round's seams wore bright both sides and read as a dotted white line).
+    wear = g.math("MULTIPLY", wear, g.maprange(ao.outputs["AO"], 0.80, 0.95))
     kind = look["kind"]
     rough = look["rough"]
     if kind == "case":
