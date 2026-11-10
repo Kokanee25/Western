@@ -769,6 +769,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
   loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
   own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The valley's townsfolk** (#756, No Law step 1; BUILD_ORDER 0.3): see "src/people" (`ValleyFolk`):
+  ValleyWorld's `Folk`, from `config/valley_folk.json` (`-- --no-folk` leaves them out). On Sean's B
+  (#755: the saloon waits for #695's week) the set is in the saloon's yard (`saloon_annex`): a kit bar
+  (its customers east), the card table and its four chairs, two lit oil lamps, tin cups.
 - **The places with height** (#736 A+B, #752; `heights` in valley.json, `docs/briefs/valley-heights.md`,
   `docs/concept/valley-heights.png`; `tests/test_valley_heights.gd`): each a `landform` that
   `valley_plan.py` adds to the natural ground before the pads (`landforms_height`: knoll, ridge,
@@ -1470,6 +1474,23 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   door, emptied in the street, filled at the trough) → PUT_BACK. Trouble: the mop let go, the
   bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
   him both chores (`[mopping, wipe]`).
+- **`ValleyFolk`** (`src/people/valley_folk.gd`, #756; data `config/valley_folk.json`;
+  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). Each man in the data has
+  a model, `hours` [from, to] (past midnight when to < from), a `from` place (his way in and out) and
+  a `post`: `behind`/`at_bar` the set's bar (`along` it, + north) or a `chair` of the card table (n, e,
+  s, w). A CivilianBrain at his post (`go_to` gives him a new one and drops his old route), finding
+  his way by the folk's own `places` (ValleyTown.add_ways onto a new Waypoints, ~560 places, plus the
+  data's `nolaw_*`; a route ~6 ms); the card players held in their chairs by **`SitChore`**
+  (`src/people/sit_chore.gd`: within 2 m of a free chair, free, wanted: Seating.sit_step; trouble or
+  sent off: up out of it). The clock read every 0.5 s: run into a man's hours (within `walk_in_h`,
+  0.5 h) and he walks in from `from`; jumped past (7, a bridge `time`, a load at night) he's at his
+  post; past his hours he walks back out to `from` and is freed (`GONE_AT` 1.6 m; `GONE_ANYWAY` 240
+  s), or at once on a jump. Built while the valley loads and kept out of the tree (TownLife's riders,
+  #488): ~4.3 s the first time a process builds these five models, ~12 ms a man after. Tonight: the
+  barkeep 17-3 (from the saloon's door), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the
+  rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
+  seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
+  valley_bench spot `saloon_yard`.
 
 ## src/audio
 
