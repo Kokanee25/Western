@@ -175,7 +175,8 @@ func _run() -> void:
 		# dropping), cocked, fired, the cover back, the gate pressed.
 		var g := gun.global_transform
 		var act: Vector3 = g * _marker("Port")
-		_look(act + g.basis * Vector3(0.42, 0.03, -0.02), act + g.basis * Vector3(0.0, -0.05, 0.0))
+		# wide enough for the lever's open loop and the bolt out over the wrist
+		_look(act + g.basis * Vector3(0.60, 0.0, 0.03), act + g.basis * Vector3(0.0, -0.075, 0.035))
 		var frames := [["rest"], ["half"], ["open_035", 0.35], ["open_070", 0.70], ["open_100", 1.0], ["close_050", 0.5],
 				["closed_cocked", 0.0], ["fired"], ["cover_open"], ["gate_in"]]
 		for i in frames.size():
