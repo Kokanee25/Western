@@ -1,0 +1,8 @@
+a saloon_far build/ml_r2/fine/fine_oak_tg_new/saloon_far.png
+b saloon_near build/ml_r2/fine/fine_walnut_tg_few/saloon_near.png
+c golden_far build/ml_r2/fine/fine_cherry_tg_old/golden_far.png
+d saloon_far build/ml_r2/fine/fine_mahogany_tg_new/saloon_far.png
+e noon_near build/ml_r2/fine/fine_mahogany_tg_old/noon_near.png
+f noon_far build/ml_r2/fine/fine_cherry_tg_few/noon_far.png
+g saloon_rail build/ml_r2/fine/fine_walnut_tg_old/saloon_rail.png
+h noon_rail build/ml_r2/fine/fine_oak_tg_old/noon_rail.png

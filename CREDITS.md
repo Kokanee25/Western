@@ -36,6 +36,14 @@ adds its own lines.
 - `barkeep_s1`, `widow_s1`, `sean_s2`, `doctor_s1`, `colter_rider_s1`: made by the Character Studio the same way, their pictures by Sean
   (ChatGPT) or OpenAI's GPT-5.4 Image 2 (through OpenRouter), `sean_s2` from Sean's own photo.
 
+## Materials (the art session)
+
+- **Scanned woods for the material library** (#701; `assets/textures/scans/<id>/`, fetched on GitHub
+  by `.github/workflows/scans.yml`, cut to 2048 albedo / 1024 normal / 512 roughness JPEGs): CC0 1.0,
+  no credit asked; credited all the same.
+  - **Poly Haven** (polyhaven.com, CC0): `black_walnut_veneer_02` (https://polyhaven.com/a/black_walnut_veneer_02), `oak_veneer_01` (https://polyhaven.com/a/oak_veneer_01), `red_oak_veneer` (https://polyhaven.com/a/red_oak_veneer), `sapele_veneer` (https://polyhaven.com/a/sapele_veneer).
+  - **ambientCG** (ambientcg.com, by Lennart Demes, CC0): `Wood009` (https://ambientcg.com/view?id=Wood009), `Wood014` (https://ambientcg.com/view?id=Wood014), `Wood015` (https://ambientcg.com/view?id=Wood015), `Wood047` (https://ambientcg.com/view?id=Wood047), `Wood048` (https://ambientcg.com/view?id=Wood048), `Wood050` (https://ambientcg.com/view?id=Wood050), `Wood051` (https://ambientcg.com/view?id=Wood051), `Wood058` (https://ambientcg.com/view?id=Wood058), `Wood059` (https://ambientcg.com/view?id=Wood059), `Wood061` (https://ambientcg.com/view?id=Wood061), `Wood062` (https://ambientcg.com/view?id=Wood062), `Wood063` (https://ambientcg.com/view?id=Wood063), `Wood081` (https://ambientcg.com/view?id=Wood081), `Wood086` (https://ambientcg.com/view?id=Wood086), `Wood087` (https://ambientcg.com/view?id=Wood087).
+
 ## Motion (the gameplay session)
 
 - **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu): "free for use in research and
