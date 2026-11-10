@@ -44,8 +44,8 @@ FINISH = {
 SCREW = "fire"
 # Per finish: how it is made, its wear and roughness, metal or not.
 LOOK = {
-    "case":   {"kind": "case", "rough": 0.24, "metal": 1.0, "wear": 0.55},
-    "blued":  {"kind": "blued", "rough": 0.21, "metal": 1.0, "wear": 0.9},   # 0.17 blew the sun to a white point (round 1)
+    "case":   {"kind": "case", "rough": 0.24, "metal": 1.0, "wear": 0.7, "faded": 0.5},  # faded to warm grey-brown (the reference rifle)
+    "blued":  {"kind": "blued", "rough": 0.21, "metal": 1.0, "wear": 1.0, "patina": 0.45},   # 0.17 blew the sun to a white point (round 1)
     "fire":   {"kind": "fire", "rough": 0.15, "metal": 1.0, "wear": 0.5},
     "bright": {"kind": "bright", "rough": 0.24, "metal": 1.0, "wear": 0.3},
     "walnut": {"kind": "walnut", "rough": 0.42, "metal": 0.0, "wear": 0.55},
@@ -152,7 +152,7 @@ def node_tree(mat, look, img, mode, knurl=False):
     g.L.new(emit.outputs[0], out.inputs[0])
     obj = g.node("ShaderNodeTexCoord").outputs["Object"]           # metres, the part's own space
     geo = g.node("ShaderNodeNewGeometry")
-    bev = g.node("ShaderNodeBevel", Radius=0.0006)
+    bev = g.node("ShaderNodeBevel", Radius=0.0009)   # wider than the Colt's 0.6 mm: a rifle's edges, seen further off
     bev.samples = 8
     dot = g.N.new("ShaderNodeVectorMath")
     dot.operation = "DOT_PRODUCT"
@@ -179,6 +179,10 @@ def node_tree(mat, look, img, mode, knurl=False):
                                (0.80, (0.10, 0.14, 0.29)), (1.00, (0.21, 0.23, 0.31))])
         amount = g.maprange(g.noise(obj, 45.0, 3.0), 0.35, 0.70, 0.35, 0.85)
         base = g.mix(amount, (0.14, 0.14, 0.15), oxide)
+        # Faded with age toward a warm grey-brown (the reference rifle's lever and hammer are warmer than
+        # its blued receiver, the colours mostly gone): the oxide colours kept only in patches.
+        fade = g.math("MULTIPLY", g.maprange(g.noise(obj, 25.0, 3.0), 0.30, 0.70, 0.6, 1.0), look.get("faded", 0.0))
+        base = g.mix(fade, base, (0.27, 0.24, 0.21))
         worn = g.mix(wear, base, (0.62, 0.62, 0.63))
         r_var = g.math("MULTIPLY", g.noise(obj, 300.0, 3.0), 0.08)
     elif kind in ("blued", "fire"):
@@ -191,10 +195,16 @@ def node_tree(mat, look, img, mode, knurl=False):
         lines = g.noise(stretch.outputs[0], 2600.0, 2.0, 0.5)
         tone = g.noise(obj, 30.0, 3.0)
         if kind == "blued":
-            dark, light = (0.10, 0.115, 0.165), (0.17, 0.19, 0.26)
+            # Blue-black, barely blue: the reference rifle's aged bluing measures near neutral (its
+            # receiver RGB 38/38/35, barrel 30/27/30); round 3's (0.17, 0.19, 0.26) read royal blue.
+            dark, light = (0.085, 0.092, 0.115), (0.135, 0.145, 0.175)
         else:
             dark, light = (0.05, 0.08, 0.20), (0.08, 0.13, 0.28)
         base = g.mix(g.math("ADD", g.math("MULTIPLY", lines, 0.6), g.math("MULTIPLY", tone, 0.4)), dark, light)
+        if look.get("patina"):
+            # Old bluing thinned in broad patches toward a grey-brown (the reference rifle's receiver).
+            pat = g.math("MULTIPLY", g.maprange(g.noise(obj, 14.0, 4.0, 0.6), 0.52, 0.78), look["patina"])
+            base = g.mix(pat, base, (0.20, 0.185, 0.17))
         worn = g.mix(wear, base, BARE_STEEL)
         thin = g.math("MULTIPLY", g.maprange(g.noise(obj, 90.0, 4.0), 0.55, 0.75), 0.35)
         worn = g.mix(g.math("MULTIPLY", thin, edge), worn, (0.24, 0.20, 0.18))
@@ -220,7 +230,8 @@ def node_tree(mat, look, img, mode, knurl=False):
         sc.inputs["Scale"].default_value = 1.0 / 0.06
         g.L.new(obj, sc.inputs[0])
         g.L.new(sc.outputs[0], tex.inputs["Vector"])
-        base = g.mix(1.0, tex.outputs["Color"], (0.48, 0.40, 0.34), "MULTIPLY")
+        # Oiled walnut, mid brown (round 3's went near black in shade: the cheap judge's "dark plastic").
+        base = g.mix(1.0, tex.outputs["Color"], (0.64, 0.52, 0.42), "MULTIPLY")
         worn = g.mix(wear, base, g.mix(0.45, base, (0.55, 0.50, 0.45), "SCREEN"))
         r_var = g.math("MULTIPLY", g.noise(obj, 200.0, 3.0), 0.06)
     else:
