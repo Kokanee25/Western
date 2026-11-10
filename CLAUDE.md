@@ -469,6 +469,11 @@ frozen until Sean names one.
   tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
   few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
   grain with the test, not by eye; one render at a time.
+- **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
+  README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
+  lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from
+  the library by name (paints wanted: white clapboard, green trim, pale inside boards, the sign's
+  lettering); `Checks.built_right` and the X-ray (`tools/buildings/`). Next: the jail, after the paints.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
