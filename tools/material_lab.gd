@@ -114,6 +114,8 @@ var _review := false
 var _settle := 40
 var _probe_aa := false
 var _probe_ss := false
+var _bisect_only: Array = []  # --bisect-only=6_weathering,6b_no_stochastic: just these steps
+var _bisect_from := 0  # --bisect-from=N: start the bisect at step N (a cut-off run picked up)
 ## --aa=taa: the review renders through Godot's TAA instead of the real look's FSR2. Under lavapipe
 ## FSR2 at native scale anti-aliases almost nothing (the probe, #721: a 1 m board's pixel noise FSR2
 ## 11.8, no upscaler 10.5, MSAA 4x 10.4, TAA 3.1): its crawl was the "burlap". Lab only; the game's
@@ -144,6 +146,10 @@ func _run() -> void:
 			_review = true
 		elif arg == "--aa=taa":
 			_aa_taa = true
+		elif arg.begins_with("--bisect-only="):
+			_bisect_only = Array(arg.substr(14).split(","))
+		elif arg.begins_with("--bisect-from="):
+			_bisect_from = int(arg.substr(14))
 		elif arg == "--probe-ss":
 			_probe_ss = true
 		elif arg == "--probe-aa":
@@ -738,12 +744,17 @@ func _panel_specs(ml, family: String) -> Array:
 		var bage: String = _panel_ages[0] if _panel_ages.size() < 3 else "old"
 		var names := ["0_flat", "1_colour", "2_contrast", "3_normal", "4_rough", "5_boards", "6_weathering",
 				"7_shelter", "8_edge_dirt", "9_all"]
-		for k in names.size():
+		for k in range(_bisect_from, names.size()):
 			out.append({"entry": be, "age": bage, "name": "%s_%s_%s" % [bid, bage, names[k]], "warp_gain": 0.0,
 					"dials": {"bisect": k}, "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
 		out.append({"entry": be, "age": bage, "name": "%s_%s_9_all_no_r4" % [bid, bage], "warp_gain": 0.0,
 				"dials": {"bisect": 99, "shelter_dark": 0.0, "old_dark": 0.0, "lap_shade": 0.0,
 				"tint_old": Color(1, 1, 1)}, "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+		# Inside step 6: the weathered scan without its stochastic second sample.
+		out.append({"entry": be, "age": bage, "name": "%s_%s_6b_no_stochastic" % [bid, bage], "warp_gain": 0.0,
+				"dials": {"bisect": 6, "b_stochastic": 0.0}, "views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+		if not _bisect_only.is_empty():
+			out = out.filter(func(o): return _bisect_only.any(func(k): return String(o["name"]).ends_with("_" + k)))
 		return out
 	if family == "probe":
 		# One panel, the same shot, dials varied: what makes the 1 m picture noisy (#721).
