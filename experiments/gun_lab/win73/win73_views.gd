@@ -247,16 +247,18 @@ func _first_person(clock) -> void:
 	for heading in [["sunbehind", -sh], ["sunright", sh.cross(Vector3.UP)]]:
 		cam.global_position = street_eye
 		cam.look_at(street_eye + heading[1], Vector3.UP)
-		# Shouldered: the rear notch 30 cm before the eye on the sight line, the front blade in it.
+		# Shouldered: the cheek on the comb puts the eye ~15" (38 cm) behind the rear notch, on the sight
+		# line, the front blade in the notch (round 2's 30 cm put the eye over the cocked hammer).
 		cam.fov = 62.0
 		var los := (front - rear).normalized()
 		var b := Basis.looking_at(los, Vector3.UP).inverse()
-		held.transform = Transform3D(b, -(b * rear) + Vector3(0.0, 0.0, -0.30))
+		held.transform = Transform3D(b, -(b * rear) + Vector3(0.0, 0.0, -0.38))
 		await _shot("fp_aim_%s" % heading[0])
-		# The low ready: the wrist at the right hip's height out front, the muzzle down and in.
+		# The low ready: the wrist low on the right out front (the coach gun's hip pose), the muzzle down
+		# and in toward the middle of the view (round 2's sat below the frame).
 		cam.fov = 75.0
-		var bl := Basis.from_euler(Vector3(deg_to_rad(-9.0), deg_to_rad(11.0), deg_to_rad(-6.0)))
-		held.transform = Transform3D(bl, Vector3(0.20, -0.30, -0.30) - bl * _d(-4.6, -1.8, 0.0))
+		var bl := Basis.from_euler(Vector3(deg_to_rad(-7.0), deg_to_rad(14.0), deg_to_rad(-8.0)))
+		held.transform = Transform3D(bl, Vector3(0.17, -0.17, -0.33) - bl * _d(-4.6, -1.8, 0.0))
 		await _shot("fp_ready_%s" % heading[0])
 		# Looking at the action: brought up and turned so its right side (the gate) faces you.
 		var bi := Basis.from_euler(Vector3(deg_to_rad(8.0), deg_to_rad(62.0), deg_to_rad(10.0)))

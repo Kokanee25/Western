@@ -245,7 +245,9 @@ def node_tree(mat, look, img, mode, knurl=False):
         col = g.mix(g.math("MULTIPLY", cav, 0.6), worn, (0.035, 0.030, 0.025))
         g.L.new(col, emit.inputs["Color"])
     else:
-        r = g.math("ADD", g.math("ADD", rough, r_var), g.math("MULTIPLY", wear, 0.08))
+        # Worn edges a little rougher than the polished face: round 2's bluing still blew the sun to a
+        # white point on the receiver's rounded front corner.
+        r = g.math("ADD", g.math("ADD", rough, r_var), g.math("MULTIPLY", wear, 0.22))
         r = g.math("ADD", r, g.math("MULTIPLY", cav, 0.35), True)
         comb = g.node("ShaderNodeCombineColor", Red=1.0, Blue=look["metal"])
         g.L.new(r, comb.inputs["Green"])
