@@ -73,7 +73,9 @@ def side_plain(photo_p, render_p, out, name):
         f0, f1c, u0, u1 = (float(v) for v in arg("crop").split(","))
         ap = (complex(x2, y2) - complex(x1, y1)) / (f2 - f1)
         bp = complex(x1, y1) - ap * f1
-        zs = [ap * complex(f, u) + bp for f in (f0, f1c) for u in (u0, u1)]
+        # u up is the photo's up either way: with the muzzle to the right (ap forward along +x) the
+        # design plane is mirrored (the Colt's copy assumed a muzzle-left photo)
+        zs = [ap * (complex(f, -u) if ap.real > 0 else complex(f, u)) + bp for f in (f0, f1c) for u in (u0, u1)]
         box = (int(min(z.real for z in zs)), int(min(z.imag for z in zs)), int(max(z.real for z in zs)), int(max(z.imag for z in zs)))
         zoom = int(arg("zoom", "3"))
         pa = photo.crop(box).resize(((box[2] - box[0]) * zoom, (box[3] - box[1]) * zoom), Image.LANCZOS)
