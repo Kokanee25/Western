@@ -58,3 +58,32 @@ What the checks caught on the way (each fixed in the builder or the spec):
 - boards cantilevered past their joists at the chimney holes (the holes snap to the joist lines);
 - the porch's joists couldn't rest on its ledger (the order members stack in);
 - 2x8 loft joists at their limit over 13 ft with a crowd (2x10 now).
+
+## Step 4: the look (unpainted, from the library by name)
+
+Sean, 2026-11-10: B, unpainted for now on swatches the materials judge passed (#721), no unjudged
+woods; each surface takes its finish from the library by name (`materials.finishes`: `want` the
+paint, `use` until it passes). Outside C1 old, inside F2 a few years, what's rough R1 a few years;
+stone, brick, glass and the sign stay the game's. **The paints he needs** (the next material round):
+white lead on narrow planed clapboard (`painted_white_lap`), bottle-green trim, corner boards, sash
+and doors (`painted_green_trim`), pale painted beaded boards inside, cream and grey-green
+(`painted_pale_tg`); and the sign's lettering, PHYSICIAN & SURGEON (the factory's `lettering`, paid).
+Library boards are batched by `Structure` by the way they face (Sean's OK to edit it): 109 draws.
+
+## The valley
+
+`config/valley.json`'s doctor lot: `spec` (this file), `pad` (the lot dug level at the walk's street
+edge, -0.23, a 3 m bank: re-baked, only those 144 points changed), the walk's `span` (to the building)
+and `door_x`. `ValleyWorld` builds him in place of his block; the side yard opens on Main Street by
+the wagon gate; a board fence keeps the doctor's alley an alley. The sheriff mission plays through to
+him (bridge, 2026-11-10: packed, taken in 484 m, laid at his steps, `sheriff.care` good).
+
+## Step 5: the judge
+
+`render_valley.gd` draws him on his lot in the game's light from the sheet's views;
+`tools/buildings/judge_pairs.py` sets each beside its target.
+- **Round 1** (`docs/screenshots/judge/2026-11-10_doctor/`): the blind critic 3 CLOSE (front, side
+  yard, surgery) / 5 DIFFERENT, three of those my cameras behind door leaves; the rear "a tall
+  storey-and-a-half, no ell" (the sheet's rear had an ell the plan didn't: settled as one rectangle).
+  The cheap judge (`2026-11-10_doctor_cheap/`, with the Studio's AAA references): all eight cheap
+  indie; its reasons: the grey-box neighbours, the empty rooms, light with no fixture.
