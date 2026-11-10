@@ -98,7 +98,11 @@ uniform float specular_wood = 0.35;
 // (joints, splash), 9 + the rest (sun-fade, streaks, nails, varnish, end grain, lap shade).
 uniform int bisect = 99;
 
-varying float v_seed;
+// Flat: the seed is one number a board, and the fragment shader hashes it into the board's place in
+// each scan. Interpolated, its last bits differed from pixel to pixel (a perspective-interpolated
+// constant isn't exact), and the hash turned that into jumps of many texels in the rasteriser's
+// triangles and blocks: the "weave", blocks and smudge of #721/#763 (the fresh scans' too).
+varying flat float v_seed;
 varying float v_face;
 varying vec2 v_m;        // metres along and across the face it shows
 varying float v_across;  // -1..1 across a long face
