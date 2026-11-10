@@ -2,7 +2,7 @@
  "title": "B. The corner saloon (1881): plans",
  "legend": {
   "1": "No Law: the card table (the chair kicked out)",
-  "2": "Payday Night: the sawn joist, over the bar",
+  "2": "Payday Night: the sawn girder, beside the bar (Sean)",
   "3": "Payday Night: the outside stair (two men, a saw)",
   "4": "Balcony Ambush: the balcony's posts",
   "5": "The cellar's way out",
@@ -687,11 +687,11 @@
     },
     {
      "type": "cut",
-     "x0": 36.5,
-     "y0": 24,
-     "x1": 53.5,
-     "y1": 24,
-     "label": "SAWN JOIST"
+     "x0": 36,
+     "y0": 22.5,
+     "x1": 36,
+     "y1": 32.5,
+     "label": "SAWN GIRDER"
     }
    ],
    "stairs": [
@@ -845,8 +845,8 @@
    "marks": [
     {
      "n": 2,
-     "x": 45,
-     "y": 26
+     "x": 39,
+     "y": 27.5
     },
     {
      "n": 6,

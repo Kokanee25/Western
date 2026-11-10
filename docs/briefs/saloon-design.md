@@ -262,7 +262,7 @@ Numbers ① to ⑦ match the red marks on every plan.
 | Must-have (mission) | A | B | C | D |
 | --- | --- | --- | --- | --- |
 | Dance hall over the bar, its floor real framing (Payday Night) | 40 x 48 ft over the bar room, one girder on 3 posts | 36 x 44 ft over the bar's half, two girders on 6 posts | 50 x 42 ft over the barroom, two girders on 6 posts | 40 x 40 ft over the bar room, two girders on 4 posts |
-| ② The cut, over the bar | east bay, over the bar | east bay, over the bar | east bay, over the bar | east bay, over the bar |
+| ② The cut, over the bar | east bay, over the bar | **the girder beside the bar** (Sean): its two bays drop, the bar under one | east bay, over the bar | east bay, over the bar |
 | ③ Outside stair (Payday Night) | west wall, on the side street (seen from across it) | east wall, in the yard (seen from Main Street across the yard) | back wall, over the back street | west wall, up to the boxes |
 | Rooms upstairs; ⑥ the owner's office and his ear | 5 rooms; office over the club room, a grate in its floor | 4 rooms; office in the corner over the entrance, a grate over the card tables; the open well over the tables | 10 rooms; office over the club room, a grate over the faro table | the boxes, 3 rooms; office over the card tables, a grate |
 | ④ Balcony over the walk on posts (Balcony Ambush; falls #736/#759) | 40 ft, 5 posts | wraps the corner: 54 + 44 ft, 10 posts | 50 ft, 4 turned posts | 54 ft, 5 posts; the band plays on it |
