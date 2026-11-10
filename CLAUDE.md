@@ -458,6 +458,17 @@ frozen until Sean names one.
   The four changed `_real` goldens re-approved. Queued for later: the shade fill (#711). Next: #660.
   Traps: a lavapipe render run is ~10 GB (two at once OOM here, even one ending as the next starts);
   a real-look view is ~10 min under lavapipe; `pgrep -f` waiters match themselves.
+- **The material library** (#701, brief `docs/briefs/material-library.md`, branch
+  `claude/salt-creek-material-panels-tjivo2`, PR below): scanned CC0 woods (`scans.yml`; 4K for the lab on the
+  `-scans4k` branch) on sample panels (`SamplePanel`, `scan_wood.gdshader`, `config/material_library.json`,
+  `material_lab.gd --panels=`); the AA switch (`RealLook`, key 0, `--aa=fsr2|taa`; the lab renders with TAA).
+  Round 3, then the materials judge (`docs/concept/judge/MATERIAL.md`: crops of the wood only; the cheap
+  judge can't grade swatches). The weave (blocks/smudge in the weathered grey at 1 m) bisected to the weathering
+  layer (`--panels=bisect`, `tools/weave_measure.py`); three fixes there failed: its own session (#763,
+  the weave). **The judge decides** (Sean, #721): a swatch passes at the materials judge's "game" or better with no
+  tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
+  few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
+  grain with the test, not by eye; one render at a time.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results

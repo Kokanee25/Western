@@ -28,6 +28,7 @@ func _ready() -> void:
 	_bind(&"debug_help", [KEY_F1], [])
 	_bind(&"debug_resolution", [KEY_F2], [])
 	_bind(&"debug_pixel_shading", [KEY_F6], [])
+	_bind(&"debug_aa", [KEY_0], [])  # the real look's anti-aliasing, FSR2 <-> TAA (RealLook, #721)
 	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_tiles", [KEY_P], [])
 	_bind(&"debug_mosaic", [KEY_O], [])  # the screen mosaic on/off (Settings.mosaic)

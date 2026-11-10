@@ -1,0 +1,52 @@
+fetch ambientcg Wood047
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood048
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood086
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood062
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood087
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood061
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood059
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood050
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood014
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood063
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood058
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood051
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch polyhaven black_walnut_veneer_02
+  maps ['albedo', 'normal', 'rough'] metres [1.0, 1.0]
+fetch ambientcg Wood081
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood015
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch polyhaven oak_veneer_01
+  maps ['albedo', 'normal', 'rough'] metres [1.83, 1.83]
+fetch polyhaven red_oak_veneer
+  maps ['albedo', 'normal', 'rough'] metres [1.0, 1.0]
+fetch ambientcg Wood009
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch polyhaven sapele_veneer
+  maps ['albedo', 'normal', 'rough'] metres [0.5, 0.5]
+fetch ambientcg Wood073
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood079
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood089
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch polyhaven rough_wood
+  maps ['albedo', 'normal', 'rough'] metres [0.5, 0.5]
+fetch ambientcg Wood011
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood016
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Wood076
+  maps ['albedo', 'normal', 'rough'] metres None
