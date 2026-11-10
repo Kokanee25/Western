@@ -1981,6 +1981,10 @@ dials varied; `--probe-aa` the viewport's AA instead); review renders at `--reso
 (~5 min a shot here; 2560x1440 ~20). MetaHuman Sean beside the panels: lab only, never committed
 (the Studio's build laid into `assets/people/`, `studio_in/` with its shaders and a wrapper,
 `.git/info/exclude`).
+The weave's bisect (2026-11-10): `--panels=bisect` (one flat panel, `scan_wood`'s `bisect` dial turning
+the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `tools/weave_measure.py`
+(a 2x2 checker's response per 100 of brightness). The materials judge: `docs/concept/judge/MATERIAL.md`
+(a blind agent on crops of the wood only, against the Studio's AAA references read in place).
 
 ## src/props/prop_models.gd
 
