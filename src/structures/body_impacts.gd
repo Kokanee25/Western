@@ -8,10 +8,17 @@ extends RefCounted
 ## and the body fall").
 ##
 ## The energy is the work of the contact's impulse over the closing speed it takes away, summed
-## over every part of him on that member while he's on it (the stop takes a few ticks). Only the
-## level part counts: a railing gives way to a body thrown into it from the side, where a floor or
-## a tread, struck from above, bears on its joists and posts (a man dropped onto boards doesn't go
-## through them).
+## over every part of him on that member while he's on it (the stop takes a few ticks). From the
+## side, against `capacity`: a railing gives way to a body thrown into it. From above (issue #759,
+## a body falling onto it), only boards (`ABOVE_KINDS`) and a railing's members, and only parts
+## coming down faster than TimberTuning.body_above_speed, against `capacity_above`: what a board
+## takes is its breaking load where he lands on it, over its span between rafters or joists, times
+## the give of his flesh (`body_stop`). The span between the supports either side of him drops
+## out (Structure.cut_member) and the rest stays nailed. A man dropped onto a floor, lying or
+## walking on a roof, never comes near it (roof boards go at ~3-3.5 m of fall, a porch roof's
+## ~2.5-3, floors ~6 feet first: Sean's #762; experiments/falls_lab/); joists, rafters and beams are
+## never broken by a body from above, so he mostly lodges in the hole he makes, between rafters
+## 0.61 m apart, and goes through when he lands between them feet first or lying along them.
 ##
 ## And an upright member whose top nothing holds any more (a baluster whose cap rail he broke) is
 ## held at its foot only by its nails (`nailed_moment`; a post set in the ground isn't):
@@ -93,9 +100,15 @@ func step(delta: float) -> Array[StructureMember]:
 		e[1] += delta
 		if e[1] > FORGET_AFTER or not is_instance_valid(m) or m.broken:
 			_tally.erase(m)
-	if _ticks % NEAR_EVERY == 0:
+	# Falling fast he'd be through the near sphere between looks: it reaches as far as he'll go.
+	var fast := 0.0
+	if _pelvis != null and is_instance_valid(_pelvis):
+		fast = _pelvis.linear_velocity.length()
+		_drop_was = _drop_v
+		_drop_v = maxf(-_pelvis.linear_velocity.y, 0.0)
+	if _ticks % NEAR_EVERY == 0 or (fast > 6.0 and not _near):
 		var was := _near
-		_near = _timber_near()
+		_near = _timber_near(fast * float(NEAR_EVERY) / 60.0)
 		if _near != was:
 			_listen(_near)
 		if _near and not was:
@@ -153,8 +166,13 @@ func step(delta: float) -> Array[StructureMember]:
 					s.break_member.call_deferred(m, away.normalized() * maxf(before.length(), 0.3) if away.length() > 0.01 else before)
 					continue
 			var nl := Vector3(n.x, 0.0, n.z)
-			if nl.length() < 0.2:
-				continue  # struck from above or below: it bears on its supports
+			# A board lying flat (a roof's, a floor's) is only ever landed on from above: a part on the
+			# seam between two meets an edge at a slant, near level, and that's no blow from the side.
+			var flat_board := m.kind in ABOVE_KINDS
+			if nl.length() < 0.2 or flat_board:
+				if (n.y > 0.8 or (flat_board and n.y > 0.0)) and (flat_board or m.kind == &"trim" or m.kind == &"baluster"):
+					_from_above(s, m, rb, j, before, now, st.get_contact_collider_position(i), broke)
+				continue  # struck from below, or a member a body never breaks from above
 			nl = nl.normalized()
 			if not moving:
 				continue
@@ -175,6 +193,100 @@ func step(delta: float) -> Array[StructureMember]:
 				_give_back(given, e[0], can_take)
 	_kit_blows(kit, broke)
 	return broke
+
+
+## Boards a body landing from above can break (issue #759).
+const ABOVE_KINDS := [&"roof_board", &"floor_board"]
+## The labs' measure (issue #759): the most of TimberTuning.body_stop a board he landed on would
+## have needed to hold him (m; it broke if that's over the dial).
+var peak_need := 0.0
+## The speed his middle is coming down at, this tick and the last (m/s).
+var _drop_v := 0.0
+var _drop_was := 0.0
+
+
+## A part of him landing on `m` from above: its work tallied as the level case's, against
+## `capacity_above` (a railing's members: their nails, `capacity`).
+func _from_above(s: Structure, m: StructureMember, rb: RigidBody3D, j: Vector3, before: Vector3, now: Vector3,
+		at: Vector3, broke: Array[StructureMember]) -> void:
+	# What stops on it is all of him behind the part, through his joints over the next few ticks
+	# (a foot stops at once, the leg and body come down on it after): each tick's push on it counts
+	# at the speed it took away, the part's own or his middle's, whichever is more (the mean of this
+	# tick's and the last). Lying still on it, his weight puts in nothing.
+	var into := maxf(-before.y, _drop_was)
+	if into < s.tuning.body_above_speed:
+		return
+	var closing := maxf((maxf(-before.y, 0.0) + maxf(-now.y, 0.0)) * 0.5, (_drop_was + _drop_v) * 0.5)
+	var work := absf(j.y) * closing
+	# Landing on his feet, his body comes down on that foot or shin (TimberTuning.body_feet_share of
+	# it): his limp ragdoll's knees fold at once where a man's take some of his weight.
+	var seg := String(rb.get_meta(&"segment", &""))
+	if (seg.begins_with("foot") or seg.begins_with("shin")) and _pelvis != null and is_instance_valid(_pelvis) \
+			and _pelvis.global_position.y > at.y + 0.6:
+		work *= clampf(_mass() * s.tuning.body_feet_share / maxf(rb.mass, 0.5), 1.0, 50.0)
+	var e: Array = _tally.get(m, [0.0, 0.0, {}])
+	e[0] += work
+	e[1] = 0.0
+	var given: Dictionary = e[2]
+	given[rb] = (given.get(rb, Vector3.ZERO) as Vector3) + Vector3.UP * j.y
+	_tally[m] = e
+	var can_take := capacity_above(s, m, at) if m.kind in ABOVE_KINDS else capacity(s, m)
+	if m.kind in ABOVE_KINDS:
+		peak_need = maxf(peak_need, e[0] / maxf(can_take / maxf(s.tuning.body_stop, 1e-6), 1e-6))
+	if e[0] > can_take:
+		broke.append(m)
+		_tally.erase(m)
+		# A board goes between the rafters or joists either side of him: that span drops out under
+		# him and the rest stays nailed down (Structure.cut_member, as a charge's hole).
+		var span := span_at(s, m, at) if m.kind in ABOVE_KINDS else Vector2.INF
+		if span.x > -INF and span.y < INF:
+			s.cut_member.call_deferred(m, span.x, span.y, Vector3(before.x * 0.3, minf(before.y, 0.0) * 0.5, before.z * 0.3))
+		else:
+			s.break_member.call_deferred(m, before * 0.3)
+		_give_back(given, e[0], can_take)
+
+
+## What a board takes from a body landing on it at `at` (world) before it breaks (J): the point
+## load that breaks it there (simply supported between the supports either side: P = M L / (a b),
+## M its bending strength times its section, as StructuralAnalysis has it; held at one end only,
+## M over the reach), times TimberTuning.body_stop. A saloon roof board (1x8 weathered pine, rafters
+## at 0.61 m) ~4.3 kN at mid-span, ~1,700 J at body_stop 0.4; a porch roof's (rafters 0.75) ~1,400;
+## a floor board (1x6 on joists at 0.406) ~2,700. Nearer a support it takes more.
+static func capacity_above(s: Structure, m: StructureMember, at: Vector3) -> float:
+	if m.supported_by.is_empty():
+		return INF  # on no timber: bedded on the ground (or whatever's solid) its whole length
+	var w := s.tuning.wood(m.wood)
+	var dims := m.cross_section()
+	var moment := float(w.get("bending", 40e6)) * dims.x * dims.y * dims.y / 6.0 * m.section_left(s.tuning)
+	var geo := StructuralAnalysis.geometry_of(m, s)
+	var t := ((s.global_transform.affine_inverse() * at) - (geo.origin as Vector3)).dot(geo.axis as Vector3)
+	var span := span_at(s, m, at)
+	var left := span.x
+	var right := span.y
+	var load: float
+	if left > -INF and right < INF and right - left > 0.05:
+		var a := maxf(t - left, 0.05)
+		var b := maxf(right - t, 0.05)
+		load = moment * (a + b) / (a * b)
+	else:
+		load = moment / maxf(minf(absf(t - left), absf(right - t)), 0.05)
+	return load * s.tuning.body_stop
+
+
+## The supports either side of `at` (world) along a member: Vector2(t before, t after) from its
+## middle along its axis (-INF / INF where there's none that side).
+static func span_at(s: Structure, m: StructureMember, at: Vector3) -> Vector2:
+	var geo := StructuralAnalysis.geometry_of(m, s)
+	var t := ((s.global_transform.affine_inverse() * at) - (geo.origin as Vector3)).dot(geo.axis as Vector3)
+	var left := -INF
+	var right := INF
+	for ts: Array in (geo.support_t as Dictionary).values():
+		for x: float in ts:
+			if x <= t:
+				left = maxf(left, x)
+			if x >= t:
+				right = minf(right, x)
+	return Vector2(left, right)
 
 
 ## A kit prop (KitProp: a chair, a table; the prop lab's) takes him as a blow on its own terms
@@ -354,16 +466,15 @@ static func nailed_moment(tuning: TimberTuning, m: StructureMember) -> float:
 	return tuning.joint_moment * clampf(cs.x * cs.y / FRAMING_SECTION, 0.1, 3.0)
 
 
-## Any member within NEAR_RADIUS of his pelvis.
-func _timber_near() -> bool:
+## Any member within NEAR_RADIUS of his pelvis (and `reach` more, falling fast).
+func _timber_near(reach := 0.0) -> bool:
 	if _pelvis == null or not is_instance_valid(_pelvis) or not _pelvis.is_inside_tree():
 		return false
 	if _probe == null:
 		_probe = PhysicsShapeQueryParameters3D.new()
-		var ball := SphereShape3D.new()
-		ball.radius = NEAR_RADIUS
-		_probe.shape = ball
+		_probe.shape = SphereShape3D.new()
 		_probe.collision_mask = Layers.WORLD
+	(_probe.shape as SphereShape3D).radius = NEAR_RADIUS + minf(reach, 6.0)
 	_probe.transform = Transform3D(Basis(), _pelvis.global_position)
 	for hit: Dictionary in World.space(_pelvis).intersect_shape(_probe, 24):
 		if hit.collider is StructureMember:
