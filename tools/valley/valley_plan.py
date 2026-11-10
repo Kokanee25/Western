@@ -177,6 +177,77 @@ def town_roads(data):
 	]
 
 
+def road_cuts(terrain, road_id):
+	"""A height's `road_cut` on this road (the coach cut, #736): the road's surface held at the
+	natural ground (before the landform) plus `over_natural` over its `span`, as a crib fill's
+	`fill_y` (the averaging then grades into it)."""
+	out = []
+	for hp in terrain.data.get("heights", ()):
+		rc = hp.get("road_cut")
+		if rc and rc["road"] == road_id:
+			y = float(terrain._tps(np.atleast_1d(float(rc["at"][0])), np.atleast_1d(float(rc["at"][1])))[0]) + float(rc["over_natural"])
+			out.append({"at": rc["at"], "span": float(rc.get("span", 40)), "fill_y": y})
+	return out
+
+
+def _box_dist(X, Z, at, L):
+	"""The distance outside a landform's top, in runs (0 on its top, 1 at its foot): a rectangle
+	`w` across its `heading` by `d` along it, `run` m to its foot (`face` on the side opposite the
+	heading); a `butte` is round, `w` across its top."""
+	X = np.asarray(X, float)
+	Z = np.asarray(Z, float)
+	cx, cz = float(at[0]), float(at[1])
+	run = float(L.get("run", 20.0))
+	if L["kind"] == "butte":
+		return np.maximum(np.hypot(X - cx, Z - cz) - float(L["w"]) * 0.5, 0.0) / run
+	hd = math.radians(L.get("heading", 0.0))
+	ux, uz = math.sin(hd), -math.cos(hd)
+	vx, vz = -uz, ux
+	ra = (X - cx) * ux + (Z - cz) * uz
+	rb = (X - cx) * vx + (Z - cz) * vz
+	ea = np.maximum(np.abs(ra) - float(L.get("d", 0.0)) * 0.5, 0.0)
+	eb = np.maximum(np.abs(rb) - float(L.get("w", 0.0)) * 0.5, 0.0)
+	ra_run = np.where(ra < 0, float(L.get("face", run)), run)
+	return np.hypot(ea / ra_run, eb / run)
+
+
+def landforms_height(data, X, Z):
+	"""What the heights' landforms add to the natural ground at (X, Z) (valley.json `heights`,
+	#736 B): each a bump `h` m high over its top falling to nothing at its foot (straight for a
+	`cliff` profile, else a smoothstep), summed; a `notch` cuts a gap through a rim; a `ramp` (a
+	talus slope) is a wedge from a top edge to its foot, the higher of it and the rest."""
+	X = np.asarray(X, float)
+	Z = np.asarray(Z, float)
+	out = np.zeros(X.shape)
+	ramps = []
+	for hp in data.get("heights", ()):
+		L = hp.get("landform")
+		if not L or L["kind"] == "ledge":
+			continue
+		t = np.clip(1.0 - _box_dist(X, Z, L.get("at", hp["at"]), L), 0.0, 1.0)
+		f = t if L.get("profile") == "cliff" else t * t * (3.0 - 2.0 * t)
+		if "notch" in L:
+			nt = L["notch"]
+			tn = np.clip((np.abs(X - float(nt["x"])) - float(nt["w"]) * 0.5) / float(L.get("face", L["run"])), 0.0, 1.0)
+			f = f * tn
+		out += float(L["h"]) * f
+		if "ramp" in hp:
+			ramps.append((hp, L))
+	for hp, L in ramps:
+		r = hp["ramp"]
+		a = np.array(r["from"], float)
+		b = np.array(r["to"], float)
+		ab = b - a
+		ln = float(np.hypot(*ab))
+		u = ab / ln
+		s_ = (X - a[0]) * u[0] + (Z - a[1]) * u[1]
+		c = np.abs((X - a[0]) * -u[1] + (Z - a[1]) * u[0])
+		side = np.clip(1.0 - (c - float(r["w"]) * 0.5) / 4.0, 0.0, 1.0)
+		along_ = np.clip(1.0 - s_ / ln, 0.0, 1.0) * (s_ >= -2.0)
+		out = np.maximum(out, float(L["h"]) * along_ * side)
+	return out
+
+
 class Terrain:
 	def __init__(self, data, rail, grid=None, bounds=None):
 		"""The terrain sampled every `grid` m (valley.json's terrain.grid by default) over `bounds`
@@ -196,7 +267,7 @@ class Terrain:
 		self.zs = self.z0 + self.g * np.arange(int(round((self.z1 - self.z0) / self.g)) + 1)
 		self.XX, self.ZZ = np.meshgrid(self.xs, self.zs)  # [z, x]
 		self._fit()
-		self.natural = self._tps(self.XX, self.ZZ)
+		self.natural = self._natural(self.XX, self.ZZ)
 		self.channels = {}
 		self.h = self._shape(self.XX, self.ZZ, self.natural.copy(), keep=True)
 		self.before_roads = self.h.copy()
@@ -208,7 +279,7 @@ class Terrain:
 		rail's formation and the channels, each point by point. `keep`: the grid's own stages kept
 		(shaped, before_channels, channels) for the checks and maps."""
 		if H is None:
-			H = self._tps(X, Z)
+			H = self._natural(X, Z)
 		self._pads(X, Z, H)
 		if keep:
 			self.shaped = H.copy()  # natural ground with the pads, before the rail's formation and the channels
@@ -217,7 +288,27 @@ class Terrain:
 			self.before_channels = H.copy()
 		for key in ("creek", "arroyo"):
 			self._carve(X, Z, H, key, keep)
+		self._ledges(X, Z, H)
 		return H
+
+	# ---- the places with height (#736 B): landforms over the spline, before the pads
+	def _natural(self, X, Z):
+		"""The natural ground: the spline through the control points with the heights' landforms
+		(knolls, ridges, bluffs, the butte, the rim) added, so a place's pad levels on its hill and
+		the creek and arroyo cut their banks into it."""
+		H = self._tps(X, Z)
+		return H + landforms_height(self.data, X, Z)
+
+	def _ledges(self, X, Z, H):
+		"""A `ledge` landform: the ground raised to its level `y` (never lowered), after the
+		channels, so a rock point stands out over a canyon's wall with a sheer face."""
+		for hp in self.data.get("heights", ()):
+			L = hp.get("landform")
+			if not L or L["kind"] != "ledge":
+				continue
+			n = _box_dist(X, Z, L.get("at", hp["at"]), L)
+			w = np.clip(1.0 - n, 0.0, 1.0)
+			np.maximum(H, H * (1 - w) + float(L["y"]) * w, out=H)
 
 	# thin-plate spline through the control points
 	def _fit(self):
@@ -413,6 +504,9 @@ class Terrain:
 				if "fill_y" in f:
 					m = np.hypot(x - f["at"][0], z - f["at"][1]) < f.get("span", 30) * 0.5
 					y[m] = f["fill_y"]
+			for f in road_cuts(self, r["id"]):
+				m = np.hypot(x - f["at"][0], z - f["at"][1]) < f["span"] * 0.5
+				y[m] = f["fill_y"]
 			n = max(1, int(round(self.GRADED[cls] / step))) | 1  # (odd: centred)
 			if n > 1 and len(y) > n:
 				k = np.ones(n) / n
@@ -483,7 +577,7 @@ class Terrain:
 		return a * (1 - tz) + b * tz
 
 	def natural_at(self, x, z):
-		return self._tps(np.atleast_1d(x), np.atleast_1d(z))
+		return self._natural(np.atleast_1d(x), np.atleast_1d(z))
 
 
 # ---------------------------------------------------------------- the plan
@@ -994,7 +1088,7 @@ def write_tables(plan, res, jr, vis, path):
 		lim = {"wagon": 10, "lane": 10, "track": 15, "path": 30}[rd["class"]]
 		over = (g > lim + 0.5).mean() * s[-1]
 		w("| %s | %s | %.0f | %.1f | %.1f | %.1f %% | %.0f m | %.0f m | %s |" % (rd["name"], rd["class"], s[-1], y.min(), y.max(), g.max(), over6, over10,
-			"ok" if over == 0 else ("a short pitch (%.0f m over %d %%)" % (over, lim) if over <= 30 else "TOO STEEP")))
+			rd["climb"] if rd.get("climb") else ("ok" if over == 0 else ("a short pitch (%.0f m over %d %%)" % (over, lim) if over <= 30 else "TOO STEEP"))))
 	w("")
 	w("## F. Travel from the crossroads")
 	w("")
@@ -1638,6 +1732,284 @@ BAKE_ALIGN = 128.0
 BAKE_DIR = os.path.join(ROOT, "config", "valley_ground")
 
 
+# ---------------------------------------------------------------- the places with height (#736 B)
+
+EYE = 1.6  # a standing man's eye over his feet
+CHEST = 1.2  # what's aimed at: a man's chest over his feet
+RANGES = ((30.0, "revolver"), (60.0, "rope"), (400.0, "rifle"), (1e9, "far"))
+
+
+def range_word(d):
+	for lim, word in RANGES:
+		if d <= lim:
+			return word
+
+
+def sight(T, a, ay, b, by, skip=3.0, clear=0.3):
+	"""The line from (a, ay) to (b, by) over the ground: (clear, the least gap in m), sampled every
+	2 m; the first and last `skip` m are the men's own footing (the lip they stand at)."""
+	d = math.hypot(b[0] - a[0], b[1] - a[1])
+	n = max(int(d / 2.0), 3)
+	t = np.linspace(0.0, 1.0, n + 1)[1:-1]
+	t = t[(t * d > skip) & ((1 - t) * d > skip)]
+	if len(t) == 0:
+		return True, 9.9
+	g = T.at(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+	gap = ay + (by - ay) * t - g
+	return bool(np.all(gap > clear)), float(gap.min())
+
+
+def heights_measure(plan):
+	"""Each height (valley.json `heights`): its high spot's height and each target's distance, drop
+	and whether the line is clear over the ground (the buildings aren't in it: the game's `look`
+	measures those), and the way there from the crossroads by the road network."""
+	T = plan.terrain
+	out = []
+	for hp in plan.data.get("heights", ()):
+		hx, hz = hp["high"]["at"]
+		g = float(T.at(hx, hz))
+		top = g + float(hp["high"].get("over", 0.0))
+		eye = top + EYE
+		rows = []
+		for t in hp["targets"]:
+			tx, tz = t["at"]
+			ty = float(T.at(tx, tz)) + CHEST
+			ok, gap = sight(T, (hx, hz), eye, (tx, tz), ty)
+			dist = math.hypot(tx - hx, tz - hz)
+			rows.append({"name": t["name"], "dist": dist, "range": range_word(dist), "drop": eye - ty, "clear": ok, "gap": gap})
+		j = plan.journey((0.0, 0.0), (hx, hz))
+		out.append({"hp": hp, "ground": g, "natural": float(T._tps(np.atleast_1d(hx), np.atleast_1d(hz))[0]), "top": top,
+			"targets": rows, "road": j["length"], "off": j["off"], "roads": j["roads"]})
+	return out
+
+
+def landmark_seen(plan, hp, step=150.0):
+	"""The share of the valley (a man's eye every `step` m, outside 200 m of it) that sees the
+	upper 12 m of a butte's face, and which named places do."""
+	T = plan.terrain
+	L = hp["landform"]
+	cx, cz = L.get("at", hp["at"])
+	rr = float(L["w"]) * 0.5 + float(L["run"]) * 12.0 / float(L["h"])
+	env = plan.data["envelope"]["playable"]
+
+	def sees(x, z):
+		d = math.hypot(x - cx, z - cz)
+		bx, bz = cx + (x - cx) / d * rr, cz + (z - cz) / d * rr
+		return sight(T, (x, z), float(T.at(x, z)) + EYE, (bx, bz), float(T.at(bx, bz)) + 0.5, skip=1.0, clear=0.0)[0]
+
+	seen = tot = 0
+	for x in np.arange(env["x"][0] + step / 2, env["x"][1], step):
+		for z in np.arange(env["z"][0] + step / 2, env["z"][1], step):
+			if math.hypot(x - cx, z - cz) < 200:
+				continue
+			tot += 1
+			seen += sees(x, z)
+	named = []
+	for pid in ("town", "depot", "cemetery", "harlan_homestead", "widow_homestead", "baron_ranch", "ute_community", "ore_works", "mine", "timber_camp", "coach_cut"):
+		at = plan.places[pid]["at"] if pid in plan.places else [h for h in plan.data["heights"] if h["id"] == pid][0]["at"]
+		named.append((pid, sees(*at)))
+	return seen / max(tot, 1), named
+
+
+def heights_checks(plan, hm):
+	if not hm:
+		return
+	near = []
+	blocked = []
+	for m in hm:
+		for t in m["targets"]:
+			if not t["clear"]:
+				(near if t["range"] != "far" else blocked).append("%s to %s (%.0f m)" % (m["hp"]["id"], t["name"], t["dist"]))
+	plan.check(not near, "Heights: lines from each high spot to its targets (within a rifle's 400 m)",
+		"%d of %d clear%s" % (sum(t["clear"] for m in hm for t in m["targets"] if t["range"] != "far"),
+		sum(1 for m in hm for t in m["targets"] if t["range"] != "far"), ("; blocked: " + "; ".join(near)) if near else ""))
+	far = [t for m in hm for t in m["targets"] if t["range"] == "far"]
+	if far:
+		plan.check(not blocked, "Heights: the far lines (over 400 m)", "%d of %d clear%s" % (len(far) - len(blocked), len(far),
+			("; hidden: " + "; ".join(blocked)) if blocked else ""), warn=True)
+	off = ["%s %.0f m" % (m["hp"]["id"], m["off"]) for m in hm if m["off"] > 60]
+	plan.check(not off, "Heights: each reached by a road or trail (its high spot within 60 m of one)",
+		"farthest %s" % max(("%s %.0f m" % (m["hp"]["id"], m["off"]) for m in hm), key=lambda s: float(s.split()[-2])) if not off else "; ".join(off))
+	# Landforms clear of the railway's bed and of other places' pads.
+	T = plan.terrain
+	bad = []
+	pads = [(p["id"], p) for p in plan.data["places"] if p.get("pad")]
+	for hp in plan.data["heights"]:
+		L = hp.get("landform")
+		if not L or L["kind"] == "ledge":
+			continue
+		lift = landforms_height({"heights": [hp]}, T.XX, T.ZZ)
+		m = lift > 0.5
+		if np.any(m & (T.rail_d < 12.0)):
+			bad.append("%s on the railway" % hp["id"])
+		for pid, p in pads:
+			if pid == hp.get("place"):
+				continue
+			pd = p["pad"]
+			if np.any(m & (np.abs(T.XX - p["at"][0]) < pd["w"] / 2 + 5) & (np.abs(T.ZZ - p["at"][1]) < pd["d"] / 2 + 5)):
+				bad.append("%s on %s's pad" % (hp["id"], pid))
+	plan.check(not bad, "Heights: landforms clear of the railway and the places' pads", "; ".join(bad) or "all clear")
+	lm = [h for h in plan.data["heights"] if h.get("kind") == "landmark"]
+	for hp in lm:
+		share, named = landmark_seen(plan, hp)
+		plan.landmark = (hp, share, named)
+		plan.check(share >= 0.8 and dict(named)["town"], "Landmark: %s seen across the valley" % hp["name"].split(" (")[0],
+			"its upper face from %.0f %% of the valley (a man every 150 m); from %s" % (100 * share, ", ".join(k for k, v in named if v) or "nowhere named"))
+
+
+def write_heights(plan, hm, path):
+	L = []
+	w = L.append
+	w("# The valley's places with height (#736 A and B)")
+	w("")
+	w("Generated by `tools/valley/valley_plan.py` from `config/valley.json` (`heights`, and the new tracks in `roads`); "
+		"the drawing is `docs/concept/valley-heights.png`. **PROPOSED, for Sean to change.** Never edit by hand: change valley.json and re-run.")
+	w("")
+	w("- **High spot** is where the shooter stands: Y from the crossroads (0), and how far that is over the natural ground there.")
+	w("- **Lines** are measured from his eye (1.6 m over his feet) to a man's chest (1.2 m) at each target, over the planned ground "
+		"(the landforms, pads, channels and roads; not the buildings, which the game's `look` measures). "
+		"Ranges: revolver to 30 m, the Winchester's rope 30-60 m, rifle to 400 m, far beyond.")
+	w("- **Way** is the road network from the crossroads to the nearest road point, then the last metres on foot.")
+	w("")
+	w("| # | Place | X, Z | High spot Y | over natural | Climb | Way from the crossroads |")
+	w("|---|---|---|---|---|---|---|")
+	for i, m in enumerate(hm, 1):
+		hp = m["hp"]
+		w("| %d | **%s** | %d, %d | %+.1f | %.1f m | %s | %.0f m by %s, then %.0f m |" % (i, hp["name"], hp["at"][0], hp["at"][1], m["top"],
+			m["top"] - m["natural"], hp.get("climb", "-"), m["road"], " > ".join(m["roads"]), m["off"]))
+	w("")
+	for i, m in enumerate(hm, 1):
+		hp = m["hp"]
+		w("## %d. %s" % (i, hp["name"]))
+		w("")
+		w("%s" % hp["why"])
+		w("")
+		w("- **Above:** %s" % hp["above"])
+		w("- **Below:** %s" % hp["below"])
+		bits = []
+		if hp.get("landform"):
+			Lf = hp["landform"]
+			bits.append("%s%s" % (Lf["kind"], (" %g m" % Lf["h"]) if "h" in Lf else (" to Y %+.1f" % Lf["y"])))
+		if hp.get("block"):
+			bits.append("greybox: " + hp["block"]["what"])
+		if hp.get("also"):
+			bits.append(hp["also"]["what"])
+		if hp.get("ramp"):
+			bits.append(hp["ramp"]["_doc"])
+		w("- **Built as:** %s." % "; ".join(bits))
+		w("")
+		w("| From the high spot (Y %+.1f) to | Distance | Range | Below him by | Line |" % m["top"])
+		w("|---|---|---|---|---|")
+		for t in m["targets"]:
+			w("| %s | %.0f m | %s | %.1f m | %s |" % (t["name"], t["dist"], t["range"], t["drop"], "clear" if t["clear"] else "**blocked** (%.1f m short)" % -t["gap"]))
+		w("")
+	lmk = getattr(plan, "landmark", None)
+	if lmk:
+		hp, share, named = lmk
+		w("## The landmark seen")
+		w("")
+		w("%s: its upper 12 m seen from %.0f %% of the valley (a man's eye every 150 m), and from: %s. Not seen from: %s." % (
+			hp["name"], 100 * share, ", ".join(k for k, v in named if v), ", ".join(k for k, v in named if not v) or "none of them"))
+		w("")
+	with open(path, "w") as f:
+		f.write("\n".join(L) + "\n")
+
+
+# Where each height's label sits on the map (points from its marker), clear of its neighbours.
+LABEL_AT = {"robbers_rock": (12, -16), "windmill_homestead": (-120, -20), "burned_homestead": (12, 10), "cottonwood_bluff": (-150, 12),
+	"stage_station": (14, 4), "bell_tower": (14, 6), "water_tower": (14, -14), "headframe": (-150, -16), "ore_chute": (12, 4),
+	"dead_homestead": (-60, 18), "jump_off": (12, -12), "sentinel_butte": (12, 10), "south_rim": (12, -6)}
+
+
+def draw_heights(plan, hm, path):
+	plt = _plt()
+	d = plan.data
+	T = plan.terrain
+	V = View(True)
+	fig = plt.figure(figsize=(24, 19), dpi=100)
+	ax = fig.add_axes([0.03, 0.04, 0.55, 0.88])
+	h = T.h
+	img = tint(h) * (0.55 + 0.45 * hillshade(h, T.g))[..., None]
+	img = np.transpose(img, (1, 0, 2))[:, ::-1]
+	ax.imshow(img, extent=[-T.zs[-1], -T.zs[0], T.xs[-1], T.xs[0]], interpolation="bilinear", zorder=0)
+	U, Vv = V.uv(T.XX, T.ZZ)
+	ax.contour(U, Vv, h, levels=np.arange(-40, 260, 5), colors=INK2, linewidths=0.25, alpha=0.4, zorder=1)
+	ci = ax.contour(U, Vv, h, levels=np.arange(-25, 260, 25), colors=INK2, linewidths=0.7, alpha=0.7, zorder=1)
+	ax.clabel(ci, fmt="%d", fontsize=7, inline=True)
+	for key, col, lw in (("creek", WATER, 2.2), ("arroyo", "#b08850", 1.5)):
+		Lw = np.array(d["water"][key]["line"])
+		u, v = V.uv(Lw[:, 0], Lw[:, 1])
+		ax.plot(u, v, color=col, lw=lw, zorder=4)
+	new = {r["id"] for r in d["roads"] if "#736" in r.get("status", "")}
+	for rd in d["roads"]:
+		Lr = np.array(rd["line"])
+		u, v = V.uv(Lr[:, 0], Lr[:, 1])
+		ls = {"wagon": "-", "lane": "-", "track": (0, (5, 2)), "path": (0, (1.5, 2))}[rd["class"]]
+		ax.plot(u, v, color="#c2410c" if rd["id"] in new else ROAD, lw=2.2 if rd["id"] in new else 1.6, ls=ls, zorder=5)
+		if rd["id"] in new:
+			k = len(Lr) // 2
+			ax.text(*V.uv(Lr[k, 0], Lr[k, 1]), rd["name"], fontsize=9, color="#c2410c", style="italic", zorder=9,
+				bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.7))
+	r = plan.rail
+	sel = r["s"] <= plan.marks["west_portal"]
+	u, v = V.uv(r["x"][sel], r["z"][sel])
+	ax.plot(u, v, color=RAIL, lw=2.4, zorder=6)
+	tg = d["town"]["ground"]["rect"]
+	from matplotlib.patches import Rectangle
+	u0, v0 = V.uv(tg["x"][0], tg["z"][1])
+	ax.add_patch(Rectangle((u0, v0), tg["z"][1] - tg["z"][0], tg["x"][1] - tg["x"][0], fc=CAT["town"], alpha=0.25, ec=CAT["town"], lw=1.2, zorder=6))
+	for p in d["places"]:
+		if p.get("area") or p["id"] == "town":
+			continue
+		u, v = V.uv(*p["at"])
+		ax.plot(u, v, marker=MARK.get(p["cat"], "o"), ms=6, mfc=CAT.get(p["cat"], INK), mec="white", mew=0.8, alpha=0.7, zorder=7)
+		if p["id"] in ("baron_ranch", "widow_homestead", "harlan_homestead", "ore_works", "mine", "ute_community", "hideout", "timber_camp", "mesa_overlook"):
+			ax.annotate(p["name"].split(" (")[0], (u, v), xytext=(6, -10), textcoords="offset points", fontsize=8, color=INK2, zorder=8)
+	ax.annotate("SALT CREEK", V.uv(0, 0), xytext=(-40, 30), textcoords="offset points", fontsize=11, fontweight="bold", color=INK, zorder=12)
+	for i, m in enumerate(hm, 1):
+		hp = m["hp"]
+		hx, hz = hp["high"]["at"]
+		for t in m["targets"]:
+			if t["range"] == "far":
+				continue
+			tx, tz = [q["at"] for q in hp["targets"] if q["name"] == t["name"]][0]
+			col = "#15803d" if t["clear"] else "#dc2626"
+			ax.plot(*zip(V.uv(hx, hz), V.uv(tx, tz)), color=col, lw=1.0, alpha=0.9, zorder=10)
+			ax.plot(*V.uv(tx, tz), "o", ms=2.5, color=col, zorder=10)
+		u, v = V.uv(*hp["at"])
+		ax.plot(u, v, marker="^", ms=15, mfc="#7c2d12", mec="white", mew=1.4, zorder=11)
+		ax.text(u, v, str(i), ha="center", va="center", fontsize=8, fontweight="bold", color="white", zorder=12)
+		ax.annotate("%d %s" % (i, hp.get("short", hp["name"].split(" (")[0])), (u, v), xytext=LABEL_AT.get(hp["id"], (10, 8)), textcoords="offset points", fontsize=10, fontweight="bold",
+			color="#7c2d12", bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="#7c2d12", lw=0.8, alpha=0.9), zorder=13)
+	env = d["envelope"]["playable"]
+	ax.set_xlim(-env["z"][1] - 50, -env["z"][0] + 50)
+	ax.set_ylim(env["x"][1] + 50, env["x"][0] - 50)
+	ax.set_xlabel("world Z (m), north (-Z) to the right")
+	ax.set_ylabel("world X (m), west (-X) at the top, as the master map")
+	ax.set_title("Salt Creek Valley: places with height (#736 A and B), PROPOSED for Sean's changes\n"
+		"brown triangles: the places; lines from each high spot to its targets within 400 m (green clear, red blocked); orange: new tracks",
+		fontsize=13, loc="left")
+	import textwrap
+	tx = fig.add_axes([0.60, 0.02, 0.39, 0.93])
+	tx.axis("off")
+	y = 1.0
+	for i, m in enumerate(hm, 1):
+		hp = m["hp"]
+		near = [t for t in m["targets"] if t["range"] != "far"]
+		over = max((t["drop"] + CHEST - EYE for t in near), default=0.0)
+		line = "%d. %s  (Y %+.0f; up to %.0f m over his targets)" % (i, hp["name"].split(" (")[0], m["top"], over)
+		tx.text(0, y, line, fontsize=10, fontweight="bold", color="#7c2d12", va="top", transform=tx.transAxes)
+		y -= 0.0145
+		for part in textwrap.wrap("Above: " + hp["above"], 118)[:2] + textwrap.wrap("Below: " + hp["below"], 118)[:2]:
+			tx.text(0.01, y, part, fontsize=8.2, color=INK, va="top", transform=tx.transAxes)
+			y -= 0.0115
+		tx.text(0.01, y, "lines: " + ", ".join("%.0f m %s" % (t["dist"], "ok" if t["clear"] else "BLOCKED") for t in near), fontsize=8,
+			color="#15803d" if all(t["clear"] for t in near) else "#dc2626", va="top", transform=tx.transAxes)
+		y -= 0.0155
+	fig.savefig(path)
+	plt.close(fig)
+
+
 def bake(plan, out_dir=BAKE_DIR):
 	import gzip
 	import hashlib
@@ -1706,6 +2078,8 @@ def main():
 	jr = journeys(plan)
 	vis = visibility(plan, res)
 	extra_checks(plan, res, jr, vis)
+	hm = heights_measure(plan)
+	heights_checks(plan, hm)
 	for st, what, det in plan.checks:
 		print("%-4s %s: %s" % (st, what, det))
 	if not args.check:
@@ -1714,6 +2088,8 @@ def main():
 		draw_town(plan, os.path.join(args.out, "valley-town.png"))
 		draw_profiles(plan, res, os.path.join(args.out, "valley-profiles.png"))
 		draw_decisions(plan, res, jr, os.path.join(args.out, "valley-decisions.png"))
+		write_heights(plan, hm, os.path.join(os.path.dirname(args.tables), "valley-heights.md"))
+		draw_heights(plan, hm, os.path.join(args.out, "valley-heights.png"))
 		print("wrote", args.tables, "and docs/concept/valley-{map,town,profiles,decisions}.png")
 	return 1 if any(c[0] == "FAIL" for c in plan.checks) else 0
 
