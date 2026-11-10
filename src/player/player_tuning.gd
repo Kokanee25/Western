@@ -19,6 +19,15 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var crawl_radius := 0.24
 @export var crawl_eye_height := 0.36
 @export var crawl_hold_s := 0.4
+## Sat in a kit chair (PlayerSeat, #766): the eyes this high over the floor, the view turned at
+## most this far either way from the way the chair faces (degrees), a free chair's seat this near
+## (m, flat) and within this much of your view (degrees) for E to sit you in it; the chair kicked or
+## knocked out from under you, on the floor this long (s) before you can move.
+@export var seat_eye_height := 1.2
+@export var seat_turn_deg := 110.0
+@export var seat_reach := 1.3
+@export var seat_view_deg := 70.0
+@export var seat_fall_s := 1.4
 ## Crouching and standing are a spring: how quick (Hz) and how much it overshoots (damping: 1 =
 ## not at all, lower sinks past and comes back).
 @export var crouch_hz := 2.0

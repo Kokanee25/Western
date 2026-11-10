@@ -36,6 +36,8 @@ var places: Waypoints
 var people := {}
 ## The set's props: "bar", "table", "chair_<n|e|s|w>", "lamp_<i>", "cup_<i>".
 var props := {}
+## The card game at the set's table (CardGame, #766).
+var cards: CardGame
 ## Built and out of the world till wanted (id -> HumanBody).
 var _waiting := {}
 ## id -> &"out", &"coming", &"in", &"going".
@@ -155,6 +157,13 @@ func _build_set() -> void:
 		chair.transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
 		add_child(chair)
 		props["chair_" + c] = chair
+	# The card game at the table (#766): whoever's sat in its chairs, the player dealt in.
+	cards = CardGame.new()
+	cards.table = table
+	for c: String in s.get("chairs", []):
+		cards.chairs.append(props["chair_" + c])
+	cards.rng.seed = int(s.get("cards_seed", 766))
+	add_child(cards)
 	var i := 0
 	for l: Dictionary in s.get("lamps", []):
 		var lamp := OilLamp.new()
