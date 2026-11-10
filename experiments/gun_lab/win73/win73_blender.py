@@ -354,6 +354,14 @@ def finish(ob, sharp_deg=38.0):
     me.validate()
     me.shade_smooth()
     me.set_sharp_from_angle(angle=math.radians(sharp_deg))
+    # Normals weighted by face area (the flat faces keep their own, the bevels take the bend): without
+    # it a big flat face shares its corner normals with the bevel beside it and its long triangles
+    # shade in dark diagonal streaks in the game (the first views' receiver).
+    m = ob.modifiers.new("wn", "WEIGHTED_NORMAL")
+    m.mode = "FACE_AREA"
+    m.weight = 50
+    m.keep_sharp = True
+    realise(ob)
     return ob
 
 
