@@ -229,6 +229,7 @@ func _first_person(clock) -> void:
 	var keep := gun.global_transform
 	gun.get_parent().remove_child(gun)
 	held.add_child(gun)
+	gun.transform = Transform3D.IDENTITY  # the gun's own space is the held node's (it kept its street place)
 	var r = _hand(true, gun, _d(-5.0, -1.95, 0.72), Vector3(0.12, -0.75, 0.65), Vector3(-1.0, 0.15, 0.0), Vector3(0.45, -0.55, 0.70))
 	for f in {"middle": 72.0, "ring": 66.0, "little": 60.0}:
 		r.grasp(f, {"middle": 72.0, "ring": 66.0, "little": 60.0}[f])
