@@ -68,6 +68,19 @@ extends Resource
 @export var break_up_speed := 2.5
 ## Falls slower than this don't damage what they land on.
 @export var harmless_speed := 1.5
+## A body landing on boards from above (issue #759, BodyImpacts): the work a board takes before it
+## breaks is its breaking load at that spot (its bending strength over its span between rafters or
+## joists) times this (m: his flesh's and the board's give together), set in the falls lab
+## (experiments/falls_lab/, `--body-stop`) so a man landing flat breaks roof boards from ~3-3.5 m, a
+## porch roof's from ~2.5-3, floors from ~6 feet first (Sean's #762). A man lying or walking on it
+## puts in nothing like it.
+## Landing on his feet, a foot or shin with his middle over it carries this share of his weight
+## (his ragdoll's knees fold at once where a man's take some of it).
+@export var body_feet_share := 0.25
+@export var body_stop := 0.4
+## ... and only a part coming down this fast (m/s) counts (a fall of ~0.5 m; a man slumping or
+## rolling on it, nothing).
+@export var body_above_speed := 3.0
 
 
 func wood(id: StringName) -> Dictionary:

@@ -377,6 +377,8 @@ func _physics_step(delta: float) -> void:
 		velocity = keep
 	else:
 		move_and_slide()
+	if not on_floor and is_on_floor() and wounds:
+		wounds.take_fall(falling)  # a fall from height hurts (issue #759): nothing under ~1.5 m
 	_update_head(delta, falling)
 	Sight.moved(self)  # where he is now, for the lines asked after him this tick
 	_footsteps()

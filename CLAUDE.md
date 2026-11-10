@@ -855,10 +855,16 @@ frozen until Sean names one.
   homesteads, the windmill's water, Cottonwood Bluff, the line shack, water tower, headframe, ore chute,
   bell tower, the Jump-off); landforms in the bake (`landforms_height`, `undercut`), blocks and `Ladder`s
   (ValleyMarkers), the lab's `valley_sight`/`valley_climb`; plan `docs/briefs/valley-heights.md`. All 68
-  lines clear, 15 walks within 20 s of the plan. Next: #759 (#736 D, falls from height); the
+  lines clear, 15 walks within 20 s of the plan. Falls from height: below; the
   saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
+- **Falls from height** (#759, Sean's table on #762, PR #769; `experiments/falls_lab/` README): a
+  limp man's landing from over ~1.5 m (`Falls`, `config/falls.tres`, `HumanBody._step_fall`) and the
+  player's (`PlayerWounds.take_fall`) hurt by the height and how he lands; the neck, low back and aorta
+  by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
+  TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
+  feet first he goes through. Next: #770 (the heist's log, coach and dents, or #736 C).
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
@@ -868,13 +874,16 @@ frozen until Sean names one.
   `docs/playtests/2026-11-10-sheriff.md`. Waiting on Sean: #755 (his play; the saloon onto its valley
   lot now or in #695's week). The card's systems lines and BUILD_ORDER's Step 1 are on PR #743
   (unmerged): update them when it lands.
-- **No Law step 1, the valley's townsfolk** (#756, PR #764, build 3725; `experiments/valley_folk/README.md`,
-  LAYOUT "src/people"): `ValleyFolk` from `config/valley_folk.json` (`-- --no-folk` without). On #755's B
-  (unanswered) the set is in the saloon's yard: the barkeep behind a kit bar, two drinkers, Earl and the
-  drifter sat at the card table (`SitChore`), north and south chairs free, two lamps; each a CivilianBrain
-  routed by the folk's own Waypoints (~560 places); in by their hours (walk in as the clock runs, placed on
-  a jump), out after. `saloon_yard` bench: render CPU 0.59 -> 1.01 ms at Sean's, people ~1.4 ms a tick.
-  Next: #766 (the seated player and the card game).
+- **No Law, the valley's townsfolk and the card table** (step 1 #756, PR #764, build 3725; step 2 #766, PR #771,
+  build 3784; `experiments/valley_folk/README.md`, LAYOUT "src/people", "src/player"): `ValleyFolk` from
+  `config/valley_folk.json` (`-- --no-folk` without); on #755's B (unanswered) the set is in the saloon's yard:
+  the barkeep, two drinkers, Earl and the drifter at the card table (`SitChore`; a broken chair, he takes a free one).
+  **The seated player** (`PlayerSeat`): E by a free kit chair sits you (look round 110 degrees, no walk, no gun,
+  E stands you clear, `hold(reason, why)` keeps you; the chair kicked out drops you flat). **The card game**
+  (`CardGame`, `Poker`, `config/card_game.json`): five-card draw, you dealt in from the next hand, nod calls and
+  shake folds, Earl deals off the bottom; stops for a shot, a man out of his chair or an act's `interrupt`.
+  Bridge `sit [n|e|s|w]`, `stand`, `cards`. `card_seat` bench: render CPU 1.14 ms at Sean's, people ~2.0.
+  Blind playtest `docs/playtests/2026-11-10-cards.md`. Next: #773 (the red shirt, the kick and the murder).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
