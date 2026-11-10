@@ -464,9 +464,11 @@ frozen until Sean names one.
   `material_lab.gd --panels=`); the AA switch (`RealLook`, key 0, `--aa=fsr2|taa`; the lab renders with TAA).
   Round 3, then the materials judge (`docs/concept/judge/MATERIAL.md`: crops of the wood only; the cheap
   judge can't grade swatches). The weave (blocks/smudge in the weathered grey at 1 m) bisected to the weathering
-  layer (`--panels=bisect`, `tools/weave_measure.py`); three fixes there failed, open. Waiting on Sean: his
-  pick per swatch (#721, `docs/screenshots/material_library/2026-11-10/pick_sheet.jpg`): passed go to buildings
-  as they are, the rest parked. Traps: check a scan's grain with the test, not by eye; one render at a time.
+  layer (`--panels=bisect`, `tools/weave_measure.py`); three fixes there failed: its own session (#763,
+  the weave). **The judge decides** (Sean, #721): a swatch passes at the materials judge's "game" or better with no
+  tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
+  few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
+  grain with the test, not by eye; one render at a time.
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
