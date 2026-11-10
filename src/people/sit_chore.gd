@@ -8,6 +8,8 @@ extends RefCounted
 
 ## Near his chair's spot (m): from here the chore has him (walked straight in and sat).
 const REACH := 2.0
+## His own chair gone, a free one this near (m) is his.
+const ANOTHER := 2.0
 
 var man: HumanBody
 var chair: KitProp
@@ -31,8 +33,17 @@ func lets_slow() -> bool:
 
 
 func step_chore(delta: float, free: bool) -> bool:
-	if chair == null or not is_instance_valid(chair) or chair.loose or not is_instance_valid(man):
+	if not is_instance_valid(man):
 		return false
+	if chair == null or not is_instance_valid(chair) or chair.loose:
+		# His chair's gone (kicked to pieces): another free one near takes its place (the playtest's
+		# Earl stood on the wreck for minutes).
+		if not free or not wanted or man.limp:
+			return false
+		var other := Seating.free_chair_near(man.get_tree(), man.global_position + Vector3.UP * 0.47, ANOTHER)
+		if other == null:
+			return false
+		chair = other
 	if not free or not wanted or man.limp:
 		if chair.seated == man:
 			Seating.stand_up(man, chair)

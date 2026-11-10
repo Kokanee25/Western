@@ -7,6 +7,9 @@ extends CharacterBody3D
 ## (light, middle, heavy) are presets of its dials, switched on F (`set_movement`).
 
 signal movement_changed(preset: StringName)
+## Down off your feet as a man is (HumanBody's): what a kit chair you're sat in listens for
+## (KitProp.sit) to take your weight off its seat.
+signal fell(conscious: bool)
 
 ## The movement presets (config/movement/): only the movement dials are taken from them.
 const MOVEMENT_PRESETS := {&"light": "res://config/movement/light.tres",
@@ -42,6 +45,8 @@ var _switch_to: WeaponViewmodel
 var deeds: PlayerDeeds
 ## Your shove and kick (E).
 var shove: PlayerShove
+## Sitting in a kit chair (E by a free one; #766).
+var seat: PlayerSeat
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -154,6 +159,10 @@ func _arm() -> void:
 	shove.name = "Shove"
 	shove.player = self
 	add_child(shove)
+	seat = PlayerSeat.new()
+	seat.name = "Seat"
+	seat.player = self
+	add_child(seat)
 
 
 func revolver() -> RevolverViewmodel:
@@ -190,7 +199,8 @@ func select_weapon(w: WeaponViewmodel) -> void:
 
 
 func _update_weapon_switch() -> void:
-	if input_enabled:
+	# Sat at a table no gun comes out (PlayerSeat; PlayerWounds keeps your hands busy).
+	if input_enabled and not (seat and seat.seated()):
 		if Input.is_action_just_pressed(&"weapon_revolver"):
 			select_weapon(revolver())
 		elif Input.is_action_just_pressed(&"weapon_shotgun"):
@@ -217,6 +227,8 @@ func add_look(delta_degrees: Vector2, lags := true) -> void:
 	if not input_enabled:
 		return
 	rotate_y(deg_to_rad(-delta_degrees.x))
+	if seat:
+		seat.clamp_turn()
 	var was := _pitch
 	_pitch = clampf(_pitch + delta_degrees.y, -tuning.max_pitch_degrees, tuning.max_pitch_degrees)
 	head.rotation.x = deg_to_rad(_pitch + _tilt)
@@ -308,6 +320,20 @@ func _physics_step(delta: float) -> void:
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
 	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
+	# On the floor where your chair went from under you: still a moment (PlayerSeat).
+	if seat and seat.down_t > 0.0:
+		move = Vector2.ZERO
+		wants_jump = false
+		wants_run = false
+	if seat and seat.step(delta):
+		# Sat, the crouch keys do nothing (and leave nothing behind for when you stand: the
+		# playtest stood up into a crawl).
+		_crouch_toggled = false
+		_crawl_toggled = false
+		_crouch_toggle_held = 0.0
+		_update_head(delta, 0.0)
+		Sight.moved(self)
+		return
 	_update_crouch(wants_crouch, wants_crawl)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
 	if _ladder_step(move, wants_jump, delta):
@@ -507,9 +533,44 @@ func _update_crouch(wants_crouch: bool, wants_crawl := false) -> void:
 ## Your height now over your feet as a share of standing (crouched or crawling less): the wounds
 ## squash your body's parts down by it.
 func height_share() -> float:
+	if motion.seated:
+		return tuning.crouch_height / tuning.stand_height
 	if is_crawling:
 		return tuning.crawl_height / tuning.stand_height
 	return tuning.crouch_height / tuning.stand_height if is_crouching else 1.0
+
+
+## Down into a chair (PlayerSeat.sit has put you at its seat): sat height, no crouch or crawl.
+func sit_down() -> void:
+	_crouch_toggled = false
+	_crawl_toggled = false
+	_run_latched = false
+	is_crouching = false
+	is_crawling = false
+	is_running = false
+	motion.seated = true
+	body.seated = true
+	_set_collision_height(tuning.crouch_height)
+
+
+## Up out of it (PlayerSeat.stand has put you clear of it).
+func stand_up_from_seat() -> void:
+	motion.seated = false
+	body.seated = false
+	_set_collision_height(tuning.stand_height)
+
+
+## The chair went from under you: down flat on the floor (the crawl: a tap of crouch, jump or run
+## gets you up once PlayerSeat lets you move), your head thrown back a little as you go.
+func dumped_from_seat() -> void:
+	motion.seated = false
+	body.seated = false
+	_crawl_toggled = true
+	_crouch_toggled = true
+	is_crouching = false
+	_set_collision_height(tuning.stand_height)
+	_update_crouch(true, true)
+	add_look(Vector2(0.0, 8.0), false)
 
 
 ## True when there is headroom to stand up from a crouch (or to come up to `height`).
