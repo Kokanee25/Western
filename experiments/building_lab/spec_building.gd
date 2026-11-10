@@ -76,6 +76,10 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 	var grown := box.grow(CONTACT_EPSILON)
 	if not grown.intersects(other_box):
 		return
+	# In a common-rafter roof a tilted member's box is far bigger than it is (a rafter's spans the
+	# loft): it touches only what its oriented box truly meets.
+	if _tilted_test and (_tilted(m) or _tilted(other)) and not _boxes_meet(m, other):
+		return
 	m.touching.append(other.member_id)
 	var tier := _tier(m)
 	var other_tier := _tier(other)
@@ -89,9 +93,39 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 		m.support_boxes[other.member_id] = contact
 
 
+var _tilted_test := false
+
+
+static func _tilted(m: StructureMember) -> bool:
+	var b := m.transform.basis
+	return absf(b.x.y) > 0.01 or absf(b.y.x) > 0.01 or absf(b.y.z) > 0.01 or absf(b.z.y) > 0.01
+
+
+## Whether two members' oriented boxes overlap (within the contact distance), by the separating
+## axes of both boxes' faces (6 of the 15: enough for timber meeting timber).
+static func _boxes_meet(a: StructureMember, b: StructureMember) -> bool:
+	var ta := a.transform
+	var tb := b.transform
+	var ha := a.size * 0.5 + Vector3.ONE * CONTACT_EPSILON
+	var hb := b.size * 0.5
+	var d := tb.origin - ta.origin
+	for pair in [[ta.basis, ha, tb.basis, hb], [tb.basis, hb + Vector3.ONE * CONTACT_EPSILON, ta.basis, a.size * 0.5]]:
+		var ba: Basis = pair[0]
+		var h1: Vector3 = pair[1]
+		var bb: Basis = pair[2]
+		var h2: Vector3 = pair[3]
+		for i in 3:
+			var ax := ba[i].normalized()
+			var r2 := absf(ax.dot(bb[0].normalized())) * h2.x + absf(ax.dot(bb[1].normalized())) * h2.y + absf(ax.dot(bb[2].normalized())) * h2.z
+			if absf(ax.dot(d)) > h1[i] + r2:
+				return false
+	return true
+
+
 ## Structure.infer_supports with a grid: the same links in the same order, from the pairs that
 ## share a cell.
 func infer_supports() -> void:
+	_tilted_test = _fr.has("rafters")
 	invalidate_analysis()
 	_by_stack.clear()
 	var boxes := {}
@@ -156,10 +190,15 @@ func build() -> void:
 	sign_text = String(front.get("sign", ""))
 	sign_from = float(front.get("sign_from", -1.0))
 	var joist: Array = _fr.joist.section
+	# An upper floor may name its own joists (the doctor's loft on 2x8 ceiling joists, frame.ceiling_joist).
+	var up_joist: Array = joist
+	for f: Dictionary in spec.floors:
+		if f.level == "upper" and f.has("joist"):
+			up_joist = (_fr[f.joist] as Dictionary).section
 	_lv = {
 		"cellar": float((lv.get("cellar", {}) as Dictionary).get("floor", floor_top - 2.4)), "ground": floor_top, "upper": float(lv.upper.top),
 		"ground_joist_bottom": floor_top - float(_fr.floor_board.thick) - float(joist[1]),
-		"upper_joist_bottom": float(lv.upper.top) - float(_fr.floor_board.thick) - float(joist[1]),
+		"upper_joist_bottom": float(lv.upper.top) - float(_fr.floor_board.thick) - float(up_joist[1]),
 	}
 	ramps.clear()
 	lamps.clear()
@@ -173,6 +212,7 @@ func build() -> void:
 	_furnish.name = "Furnishings"
 	add_child(_furnish)
 
+	_chimney_openings()
 	band = 0
 	_foundation()
 	_cellar()
@@ -183,6 +223,7 @@ func build() -> void:
 	band = 2
 	_partitions("ground", 2)
 	_stairs_inside()
+	_summer_beams()
 	band = 3
 	_upper_floors()
 	_balconies()
@@ -195,10 +236,28 @@ func build() -> void:
 		_false_front()
 	if spec.has("porch"):
 		_porch()
-	band = 5
-	_trusses()
-	band = 6
-	_roof_cover()
+	if _fr.has("rafters"):
+		# A common-rafter roof tied by the loft's joists (the doctor's), then what a small building has.
+		band = 1
+		_braces()
+		band = 6
+		_rafter_roof()
+		band = 4
+		_ceilings()
+		band = 0
+		_chimneys()
+		band = 1
+		_gable_sign()
+		_back_porch()
+		_stoops()
+		band = 0
+		_yard_front()
+		_ladders()
+	else:
+		band = 5
+		_trusses()
+		band = 6
+		_roof_cover()
 	if (spec.get("lamps", {}) as Dictionary).has("chandelier"):
 		_chandelier()
 	band = 2
@@ -426,8 +485,19 @@ func _ground_floor() -> void:
 	var pier := float(_fr.pier.size)
 	var every := float(_fr.girder.pier_every)
 	var cel: Array = (spec.get("cellar", {}) as Dictionary).get("rect", [-9, -9, -9, -9])
-	var gz: Array = spec.girders.z
+	var gz: Array = spec.girders.get("z", [])
 	band = 1
+	# Girders running front to back (`girders.x`: the doctor's, under the hall's walls), on piers.
+	for gx: float in spec.girders.get("x", []):
+		var z := every
+		var k := 0
+		while z < depth - 0.4:
+			band = 0
+			add_member("pier/gx%d_%02d" % [int(gx * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(gx, (top - 0.3) * 0.5, z))
+			band = 1
+			z += every
+			k += 1
+		_pieces("girder/x%d" % int(gx * 100), Vector3(gx, top + float(g[1]) * 0.5, 0.2), Vector3.BACK, depth - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
 	for z: float in gz:
 		# Piers under it outside the cellar; inside, the cellar's posts (or its front wall).
 		var x := every
@@ -443,7 +513,7 @@ func _ground_floor() -> void:
 		_pieces("girder/%d" % int(z * 100), Vector3(0.2, top + float(g[1]) * 0.5, z), Vector3.RIGHT, width - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
 	for f: Dictionary in spec.floors:
 		if f.level == "ground":
-			_floor(f, gz)
+			_floor(f, spec.girders.get("x", []) if spec.girders.has("x") else gz)
 
 
 func _upper_floors() -> void:
@@ -462,8 +532,9 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 	var z0 := float(r[1])
 	var x1 := float(r[2])
 	var z1 := float(r[3])
-	var js: Array = _fr.joist.section
-	var spacing := float(_fr.joist.spacing)
+	var jf: Dictionary = _fr[f.get("joist", "joist")]
+	var js: Array = jf.section
+	var spacing := float(jf.spacing)
 	var top := _lv[f.level] as float
 	var bt := float(_fr.floor_board.thick)
 	var jt := top - bt
@@ -703,14 +774,17 @@ func _outer_walls() -> void:
 			if o.kind == "lean_to" and o.get("wall", "") == w.id:
 				cut.append(Rect2(float(o.rect[0]) - 0.01, float(o.high) - 0.16, float(o.rect[2]) - float(o.rect[0]) + 0.02, 0.17))
 		var wood := StringName(w.outside.wood)
-		if w.outside.siding == "lap":
+		if w.outside.siding == "lap" and w.outside.has("exposure"):
+			_lap_courses(wall, board_top, cut, wood, float(w.outside.exposure))
+			_corner_boards(wall, board_top)
+		elif w.outside.siding == "lap":
 			_lap_siding(wall, float(w.top) if w.top is float else wall_height, cut, wood)
 		else:
 			_vertical_siding(wall, board_top, cut, -BOARD_T, length + BOARD_T if absf((wall.along as Vector3).x) > 0.5 else length, wood)
 		for o in ops:
 			var spec_o: Dictionary = o[1]
 			var window: bool = spec_o.type == "window"
-			_opening_trim(wall, o[0], window)
+			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
 			if window:
 				_glass(wall, o[0])
 		# Inside: the finish on its inner face, level by level.
@@ -720,6 +794,8 @@ func _outer_walls() -> void:
 			# The ground floor's finish on up to the upper floor (where no floor meets the wall, the
 			# hall's open well, the joist band would show).
 			var y1 := (_lv.upper as float) if lvl == "ground" else (wall_height - PLATE_H)
+			if lvl == "ground" and spec.has("ceilings"):
+				y1 = _lv.upper_joist_bottom as float
 			if lvl == "upper" and top_kind == "gable":
 				y1 = wall_height - PLATE_H
 			y1 = minf(y1, float(fin.get("to_y", y1)))
@@ -730,7 +806,15 @@ func _outer_walls() -> void:
 			var so: Dictionary = o[1]
 			if so.type == "door":
 				band = 4 if o[2] == "upper" else 1  # a leaf stands on the floor it opens on
-				_leaf(wall, o[0], String(so.get("leaf", "inward")) == "outward", -STUD_D)
+				var lr: Rect2 = o[0]
+				var tr := float(so.get("transom", 0.0))
+				if tr > 0.0:
+					# A transom light over the leaf: its bar and its glass in the one opening.
+					lr.size.y -= tr
+					var bar := Rect2(lr.position.x, lr.end.y, lr.size.x, 0.05)
+					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, bar.position.x, bar.end.x, bar.position.y, bar.end.y, -STUD_D, BOARD_T)
+					_glass(wall, Rect2(lr.position.x, lr.end.y + 0.05, lr.size.x, tr - 0.05))
+				_leaf(wall, lr, String(so.get("leaf", "inward")) == "outward", -STUD_D)
 				band = 1
 			elif so.type == "batwings":
 				door_rect = o[0]
@@ -787,6 +871,18 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 		x += spacing
 	if x_end - sw * 0.5 - xs.back() > 0.1:
 		xs.append(x_end - sw * 0.5)
+	# An opening stacked over another (a loft window over the street door): one of its kings stands
+	# on the lower one's header, so its header, rough sill and what's over it go a band up (a header
+	# can't rest on a cripple in the same band).
+	var lifted := {}
+	# (The doctor's rules, #765: the saloon's and farmhouse's frames are as they were until their turn.)
+	var stacked := _fr.has("rafters")
+	for j in openings.size() if stacked else 0:
+		var o := openings[j]
+		for q in openings:
+			if q != o and q.end.y <= o.position.y + 0.001 and q.position.x < o.end.x + sw * 2.0 and q.end.x > o.position.x - sw * 2.0:
+				lifted[j] = true
+	var b0 := band
 	var count := 0
 	for sx in xs:
 		var inside := -1
@@ -818,20 +914,40 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 			for sp: Array in spans:
 				if float(sp[1]) - float(sp[0]) > 0.05:
 					var kind := &"stud" if float(sp[0]) <= foot + 0.001 else &"cripple"
+					band = b0
+					for jj: int in lifted:
+						var lo := openings[jj]
+						if sx > lo.position.x and sx < lo.end.x and float(sp[0]) >= lo.end.y + HEADER_H - 0.001:
+							band = b0 + 1
 					_wall_member("%s/stud/%03d_%d" % [n, count, k], kind, &"framing", wall, sx - sw * 0.5, sx + sw * 0.5, sp[0], sp[1], d0, d1)
 					k += 1
 		count += 1
+	band = b0
 	# King studs doubled (two nailed together, as period framing doubles them at an opening: they
 	# carry the header and what's over it, a balcony's ledger among it).
 	for j in openings.size():
 		var o := openings[j]
 		for side in 2:
 			var kx := o.position.x - sw if side == 0 else o.end.x + sw
-			_wall_member("%s/opening%d/king%d" % [n, j, side], &"stud", &"framing", wall, kx - sw, kx + sw,
-					foot, top_at.call(kx), d0, d1)
+			# Between the openings stacked over and under this one (a door under a loft window): a
+			# king runs from under the header of what's below it to under the rough sill of what's over.
+			var k0 := foot
+			var k1: float = top_at.call(kx)
+			for q in openings if stacked else []:
+				if q == o or kx + sw < q.position.x - 0.001 or kx - sw > q.end.x + 0.001:
+					continue
+				if q.position.y >= o.end.y - 0.001:
+					k1 = minf(k1, q.position.y - PLATE_H)
+				elif q.end.y <= o.position.y + 0.001:
+					k0 = maxf(k0, q.end.y + HEADER_H)
+			band = b0
+			_wall_member("%s/opening%d/king%d" % [n, j, side], &"stud" if k0 <= foot + 0.001 else &"cripple", &"framing", wall, kx - sw, kx + sw,
+					k0, k1, d0, d1)
+		band = b0 + (1 if lifted.has(j) else 0)
 		_wall_member("%s/opening%d/header" % [n, j], &"header", &"framing", wall, o.position.x, o.end.x, o.end.y, o.end.y + HEADER_H, d0, d1)
 		if o.position.y > foot + 0.4:
 			_wall_member("%s/opening%d/sill" % [n, j], &"header", &"framing", wall, o.position.x, o.end.x, o.position.y - PLATE_H, o.position.y, d0, d1)
+	band = b0
 
 
 ## A face of a wall to finish: its origin, the way along it, the way into the room (`normal`) and the
@@ -1063,7 +1179,7 @@ func _stairs_inside() -> void:
 func _outside_stair() -> void:
 	for st: Dictionary in spec.stairs:
 		if not (st.from is String):
-			_stair(st, float(st.from), _lv[st.to])
+			_stair(st, float(st.from), float(st.to) if not (st.to is String) else (_lv[st.to] as float))
 
 
 func _balconies() -> void:
@@ -1142,6 +1258,8 @@ func _false_front() -> void:
 
 ## The height of the common rafters' underside over the wall's outer face.
 func _roof_under() -> float:
+	if _fr.has("rafters"):
+		return wall_height
 	var t: Dictionary = _fr.truss
 	var ang := deg_to_rad(roof_pitch_degrees)
 	return wall_height + float(t.tie[1]) + (float(t.principal[1]) + float(t.purlin[1])) / cos(ang)
@@ -1598,3 +1716,564 @@ func _physics_process(delta: float) -> void:
 				standing = true
 		if not standing:
 			ramp.queue_free()
+
+
+# --- a small gable-fronted building (the doctor's, #765): what the saloon and farmhouse don't have ---
+
+## Lap siding in courses of `exposure` from just under the foundation's top up to the wall's own
+## top at each course (`board_top`: the gable's rake, the plate), cut round the openings: the
+## narrow planed clapboard of a fine building (FalseFrontBuilding's lap is 0.2 m from the ground).
+func _lap_courses(wall: Dictionary, board_top: Callable, openings: Array[Rect2], wood: StringName, exposure: float) -> void:
+	var n: String = wall.name
+	var length: float = wall.length
+	var y := float(_fr.foundation.top) - 0.04
+	var row := 0
+	while true:
+		var y1 := y + exposure
+		# Where along the wall this course fits under the top (a gable narrows it).
+		var spans: Array[Vector2] = []
+		var a := -1.0
+		var x := 0.0
+		while x <= length + 0.001:
+			var ok: bool = (board_top.call(x) as float) >= y1 - 0.01
+			if ok and a < 0.0:
+				a = x
+			if (not ok or x + 0.02 > length) and a >= 0.0:
+				spans.append(Vector2(a, x if not ok else length))
+				a = -1.0
+			x += 0.02
+		if spans.is_empty():
+			break
+		var cuts: Array[Vector2] = []
+		for o in openings:
+			if o.position.y < y1 and o.end.y > y:
+				cuts.append(Vector2(o.position.x, o.end.x))
+		var seg := 0
+		for sp in spans:
+			for piece in _subtract_spans(sp, cuts):
+				if piece.y - piece.x > 0.04:
+					_wall_member("%s/siding/r%02d_%d" % [n, row, seg], &"board", wood, wall, piece.x, piece.y, y, y1 - 0.003, 0.0, BOARD_T)
+					seg += 1
+		y = y1
+		row += 1
+
+
+## Corner boards (1x4 each side of the corner, the trim's colour) up each end of a lapped wall.
+func _corner_boards(wall: Dictionary, board_top: Callable) -> void:
+	var n: String = wall.name
+	var length: float = wall.length
+	var y0 := float(_fr.foundation.top) - 0.04
+	var trim := StringName(spec.materials.get("trim_outside", "dark_trim"))
+	for e in 2:
+		var x0 := -BOARD_T if e == 0 else length - 0.09
+		var x1 := 0.09 if e == 0 else length + BOARD_T
+		var top: float = minf(board_top.call(0.05 if e == 0 else length - 0.05), board_top.call(maxf(x0, 0.0)))
+		_wall_member("%s/corner_%d" % [n, e], &"trim", trim, wall, x0, x1, y0, top, BOARD_T, BOARD_T + TRIM_T)
+
+
+## Each chimney (spec.chimneys) cut out of every floor it passes through: an opening a little wider
+## than its stack, so the floor's joists are headered round it and its boards stop short (nothing
+## of the floor rests on the brick; a chimney carries only itself).
+func _chimney_openings() -> void:
+	for c: Dictionary in (spec.get("chimneys", {}) as Dictionary).get("list", []):
+		var h := float(c.size) * 0.5 + 0.05
+		for f: Dictionary in spec.floors:
+			# Across the joists the hole runs from trimmer to trimmer: out to the joist lines either side.
+			var jf: Dictionary = _fr[f.get("joist", "joist")]
+			var jw := float(jf.section[0])
+			var along_z: bool = f.joists == "z"
+			var fr: Array = f.rect
+			var a0 := float(fr[0]) if along_z else float(fr[1])
+			var cc := float(c.at[0]) if along_z else float(c.at[1])
+			var line0 := a0 + jw * 0.5 + 0.02
+			var sp := float(jf.spacing)
+			var lo := line0 + floorf((cc - h - line0) / sp) * sp + jw * 0.5
+			var hi := line0 + ceilf((cc + h - line0) / sp) * sp - jw * 0.5
+			var r := [float(c.at[0]) - h, lo, float(c.at[0]) + h, hi] if not along_z else [lo, float(c.at[1]) - h, hi, float(c.at[1]) + h]
+			var ops: Array = f.get("openings", [])
+			var have := false
+			for o: Dictionary in ops:
+				if o.id == "chimney_" + String(c.id):
+					have = true
+			if not have:
+				ops.append({"id": "chimney_" + String(c.id), "rect": r})
+				f.openings = ops
+
+
+## The rafters' lines along the building: one over each gable wall, and one beside each of the
+## loft's joists (so every rafter's foot is spiked to a joist: the joists are the roof's ties).
+func _rafter_lines() -> Array[float]:
+	var rf: Array = _fr.rafters.rafter
+	var out: Array[float] = [float(rf[0]) * 0.5 + 0.025]
+	var cj: Dictionary = _fr.get("ceiling_joist", _fr.joist)
+	var js: Array = cj.section
+	for f: Dictionary in spec.floors:
+		if f.level != "upper":
+			continue
+		var r: Array = f.rect
+		var p := float(r[1]) + float(js[0]) * 0.5 + 0.02
+		while p < float(r[3]) - float(js[0]) * 0.5:
+			var z := p + (float(js[0]) + float(rf[0])) * 0.5
+			if z > out.back() + float(rf[0]) + 0.05 and z < depth - float(rf[0]) - 0.1:
+				out.append(z)
+			p += float(cj.spacing)
+		break
+	out.append(depth - float(rf[0]) * 0.5 - 0.025)
+	return out
+
+
+## The roof (Hodgson 1883): common rafters from the plates (their feet spiked to the loft's joists)
+## to a ridge board, collar ties high on every few pairs, the rafters headered round each chimney,
+## boards across them in stock lengths, a ridge cap. The rafters' underside meets the walls' outer
+## face at the plate's top (`_roof_under`), as the gable walls' studs and boards are cut to it.
+func _rafter_roof() -> void:
+	var r: Dictionary = _fr.rafters
+	var rf: Array = r.rafter
+	var rd: Array = r.ridge
+	var ang := deg_to_rad(roof_pitch_degrees)
+	var half := width * 0.5
+	var over := float(r.eave) / cos(ang)
+	var top_end := half / cos(ang)
+	var holes := _roof_holes()
+	band = 5
+	var zs := _rafter_lines()
+	for side in 2:
+		var sl := _slope(side)
+		var dir: Vector3 = sl.dir
+		var normal: Vector3 = sl.normal
+		var base: Vector3 = (sl.eave as Vector3) + Vector3(0, wall_height, 0)
+		for i in zs.size():
+			var z := zs[i]
+			# Its stretch along the slope, less where a chimney comes through (headers either side).
+			var parts: Array = [[-over, top_end]]
+			for hl: Dictionary in holes:
+				if hl.side == side and z > float(hl.z0) - float(rf[0]) * 0.5 and z < float(hl.z1) + float(rf[0]) * 0.5:
+					parts = [[-over, float(hl.s0) - 0.1], [float(hl.s1) + 0.1, top_end]]
+			for k in parts.size():
+				var a := float(parts[k][0])
+				var b := float(parts[k][1])
+				if b - a < 0.15:
+					continue
+				# A rafter cut by a chimney: its upper length hangs on the header (over the rafters' band).
+				band = 7 if k > 0 else 5
+				var c := base + dir * ((a + b) * 0.5) + normal * (float(rf[1]) * 0.5)
+				c.z = z
+				add_member("roof/rafter_%d/%02d_%d" % [side, i, k], &"rafter", &"framing", Vector3(b - a, rf[1], rf[0]), c, sl.basis)
+		# Doubled headers across each chimney's hole, from trimmer to trimmer.
+		band = 6
+		for hl: Dictionary in holes:
+			if hl.side != side:
+				continue
+			var t0 := 0.0
+			var t1 := depth
+			for z in zs:
+				if z < float(hl.z0) - float(rf[0]) * 0.5 and z > t0:
+					t0 = z
+				if z > float(hl.z1) + float(rf[0]) * 0.5 and z < t1:
+					t1 = z
+			for e in 2:
+				var s := (float(hl.s0) - 0.1 + 0.05) if e == 0 else (float(hl.s1) + 0.1 - 0.05)
+				var c := base + dir * s + normal * (float(rf[1]) * 0.5)
+				c.z = (t0 + t1) * 0.5
+				add_member("roof/%s/header_%d" % [hl.id, e], &"rafter", &"framing", Vector3(0.1, rf[1], t1 - t0 + float(rf[0])), c, sl.basis)
+	# The ridge board, plumb, between the rafters' heads (held by them).
+	band = 6
+	var top_y := wall_height + half * tan(ang) + float(rf[1]) / cos(ang)
+	_pieces("roof/ridge", Vector3(half, top_y - float(rd[1]) * 0.5, 0.0), Vector3.BACK, depth, Vector2(rd[1], rd[0]), &"ridge", &"framing")
+	# Collar ties: a quarter of the rise down from the ridge on every `collar_every` pair, inside the gables.
+	var rise := half * tan(ang)
+	var yc := wall_height + rise * (1.0 - float(r.collar_down))
+	var xc := half * (1.0 - float(r.collar_down))
+	var ct: Array = r.collar
+	for i in range(1, zs.size() - 1):
+		if i % int(r.collar_every) != 0:
+			continue
+		add_member("roof/collar/%02d" % i, &"rafter", &"framing", Vector3(width - 2.0 * xc, ct[1], ct[0]),
+				Vector3(half, yc + float(ct[1]) * 0.5, zs[i] + (float(rf[0]) + float(ct[0])) * 0.5))
+	# Boards across the rafters, rows up each slope, cut round the chimneys.
+	band = 8
+	var r0 := float(spec.levels.get("roof_from", 0.0))
+	var r1 := float(spec.levels.get("roof_to", depth))
+	var slope := top_end + over
+	for side in 2:
+		var sl := _slope(side)
+		var dir: Vector3 = sl.dir
+		var normal: Vector3 = sl.normal
+		var base: Vector3 = (sl.eave as Vector3) + Vector3(0, wall_height, 0) - dir * over
+		var row := 0
+		var s := 0.0
+		while s < slope - 0.02:
+			var bw := minf(0.145, slope - s)
+			var sa := s - over  # along the slope from the wall's face
+			var spans: Array = [[r0, r1]]
+			for hl: Dictionary in holes:
+				if hl.side == side and sa + bw > float(hl.s0) and sa < float(hl.s1):
+					var nxt: Array = []
+					for sp: Array in spans:
+						if float(sp[0]) < float(hl.z0):
+							nxt.append([sp[0], minf(float(hl.z0), sp[1])])
+						if float(sp[1]) > float(hl.z1):
+							nxt.append([maxf(float(hl.z1), sp[0]), sp[1]])
+					spans = nxt
+			var k := 0
+			for sp: Array in spans:
+				var at := float(sp[0])
+				var cut := at + 4.9 + 0.6 * (row % 2)
+				while at < float(sp[1]) - 0.05:
+					var nx := minf(cut, float(sp[1])) if float(sp[1]) - cut > 1.0 else float(sp[1])
+					var c := base + dir * (s + bw * 0.5) + normal * (float(rf[1]) + BOARD_T * 0.5)
+					c.z = (at + nx) * 0.5
+					add_member("roof/board_%d/%02d_%d" % [side, row, k], &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(bw - 0.003, BOARD_T, nx - at - 0.004), c, sl.basis)
+					k += 1
+					at = nx
+					cut += 4.9
+			s += 0.15
+			row += 1
+	var ridge_y := top_y + BOARD_T / cos(ang)
+	var cap_drop := 0.17 * tan(ang) * 0.5
+	band = 9
+	add_member("roof/ridge_cap", &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), Vector3(0.34, BOARD_T, r1 - r0), Vector3(half, ridge_y + BOARD_T * 0.5 - 0.005 - cap_drop, (r0 + r1) * 0.5))
+
+
+## Where each chimney comes through the roof: its slope (0 the -x side), its stretch along the slope
+## from the wall's face (`s0`..`s1`), and along the building (`z0`..`z1`), with a little clearance.
+func _roof_holes() -> Array:
+	var out := []
+	var ang := deg_to_rad(roof_pitch_degrees)
+	var half := width * 0.5
+	for c: Dictionary in (spec.get("chimneys", {}) as Dictionary).get("list", []):
+		var h := float(c.size) * 0.5 + 0.05
+		var cx := float(c.at[0])
+		var side := 0 if cx < half else 1
+		var d0 := (cx - h) if side == 0 else (width - cx - h)
+		var d1 := minf((cx + h) if side == 0 else (width - cx + h), half)
+		out.append({"id": "chimney_" + String(c.id), "side": side, "s0": d0 / cos(ang), "s1": d1 / cos(ang) + 0.05,
+				"z0": float(c.at[1]) - h, "z1": float(c.at[1]) + h})
+	return out
+
+
+## Brick chimneys on their own footings from under the foundation to over the ridge, in lengths
+## (a blast breaks a length; each length rests on the one below).
+func _chimneys() -> void:
+	var ch: Dictionary = spec.get("chimneys", {})
+	var ang := deg_to_rad(roof_pitch_degrees)
+	var ridge := wall_height + width * 0.5 * tan(ang) + float(_fr.rafters.rafter[1]) / cos(ang)
+	for c: Dictionary in ch.get("list", []):
+		var sz := float(c.size)
+		var y0 := float(_fr.foundation.bottom)
+		var y1 := ridge + float(c.get("over_ridge", 0.6))
+		var n := maxi(1, ceili((y1 - y0) / 1.2))
+		for k in n:
+			var a := y0 + (y1 - y0) * k / n
+			var b := y0 + (y1 - y0) * (k + 1) / n
+			add_member("chimney/%s/%d" % [c.id, k], &"post", StringName(ch.get("wood", "stone")), Vector3(sz, b - a - 0.002, sz), Vector3(c.at[0], (a + b) * 0.5, c.at[1]))
+
+
+## Ceilings: beaded boards nailed up under the loft's joists across every ground-floor room, run
+## along z (across the joists), cut round the floor's openings above (the scuttle, the chimneys).
+func _ceilings() -> void:
+	var y1: float = _lv.upper_joist_bottom
+	var t := 0.016
+	var bw := 0.14
+	var holes: Array = []
+	for f: Dictionary in spec.floors:
+		if f.level == "upper":
+			holes.append_array(f.get("openings", []))
+	for sb: Dictionary in spec.get("summer_beams", []):
+		var hw := float(sb.section[0]) * 0.5
+		holes.append({"rect": [float(sb.x) - hw, float(sb.z[0]), float(sb.x) + hw, float(sb.z[1])]})
+	var look := StringName(spec.materials.wall_boards)
+	for rm: Dictionary in spec.rooms:
+		if rm.level != "ground":
+			continue
+		var r: Array = rm.rect
+		var x := float(r[0])
+		var i := 0
+		while x < float(r[2]) - 0.02:
+			var x1 := minf(x + bw, float(r[2]))
+			var spans: Array = [[float(r[1]), float(r[3])]]
+			for o: Dictionary in holes:
+				var orr: Array = o.rect
+				if x1 > float(orr[0]) and x < float(orr[2]):
+					var nxt: Array = []
+					for sp: Array in spans:
+						if float(sp[0]) < float(orr[1]):
+							nxt.append([sp[0], minf(float(orr[1]), sp[1])])
+						if float(sp[1]) > float(orr[3]):
+							nxt.append([maxf(float(orr[3]), sp[0]), sp[1]])
+					spans = nxt
+			var k := 0
+			for sp: Array in spans:
+				var a := float(sp[0])
+				while a < float(sp[1]) - 0.05:
+					var b := minf(a + 4.9, float(sp[1]))
+					var m := add_member("ceiling/%s/%03d_%d" % [rm.id, i, k], &"board", &"framing", Vector3(x1 - x - 0.003, t, b - a - 0.003), Vector3((x + x1) * 0.5, y1 - t * 0.5, (a + b) * 0.5))
+					(m.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(look, hash(m.member_id))
+					k += 1
+					a = b
+			x = x1
+			i += 1
+
+
+## The sign across a gable's foot (spec.gable_sign: its height and width), on the siding over the
+## walk's porch roof, its lettering SignArt's.
+func _gable_sign() -> void:
+	var gs: Dictionary = (spec.get("front", {}) as Dictionary).get("gable_sign", {})
+	if gs.is_empty() or not walls.has("front"):
+		return
+	var front: Dictionary = walls["front"].dict
+	var w := float(gs.width)
+	var x0 := (width - w) * 0.5
+	var sign := _wall_member("front/sign", &"trim", &"sign", front, x0, x0 + w, float(gs.y[0]), float(gs.y[1]), BOARD_T, BOARD_T + 0.03)
+	SignArt.hang(self, sign, String(spec.front.sign_text))
+
+
+## A deck of members: a ledger on the wall it's against (`ledger`: the wall's id, or none), a beam
+## on posts at its outer edge, joists across, boards on them. Its top at `top`.
+func _deck(id: String, r: Array, top: float, against: String, posts: Array) -> void:
+	var x0 := float(r[0])
+	var z0 := float(r[1])
+	var x1 := float(r[2])
+	var z1 := float(r[3])
+	var bt := 0.025
+	var jd := 0.14
+	var jt := top - bt
+	var jb := jt - jd
+	var along_z := against == "yard" or against == "lane"  # joists run out from the wall
+	# The beam on its posts along the outer edge, the posts on stone blocks.
+	for k in posts.size():
+		var p: Array = posts[k]
+		band = 0
+		add_member("%s/block_%d" % [id, k], &"sill", &"stone", Vector3(0.25, 0.25, 0.25), Vector3(p[0], 0.05, p[1]))
+		add_member("%s/post_%d" % [id, k], &"post", &"framing", Vector3(0.09, jb - 0.12 - 0.175, 0.09), Vector3(p[0], (0.175 + jb - 0.12) * 0.5, p[1]))
+	band = 1
+	if along_z:
+		var bx := x0 + 0.05
+		add_member("%s/beam" % id, &"beam", &"framing", Vector3(0.1, 0.12, z1 - z0), Vector3(bx, jb - 0.06, (z0 + z1) * 0.5))
+	else:
+		var bz := z1 - 0.05
+		add_member("%s/beam" % id, &"beam", &"framing", Vector3(x1 - x0, 0.12, 0.1), Vector3((x0 + x1) * 0.5, jb - 0.06, bz))
+	# The ledger on the wall's studs, through its siding.
+	if along_z:
+		add_member("%s/ledger" % id, &"ledger", &"framing", Vector3(0.05, jd, z1 - z0), Vector3(x1 - 0.025, (jt + jb) * 0.5, (z0 + z1) * 0.5))
+	else:
+		add_member("%s/ledger" % id, &"ledger", &"framing", Vector3(x1 - x0, jd, 0.05), Vector3((x0 + x1) * 0.5, (jt + jb) * 0.5, z0 + 0.025))
+	band += 1
+	var n := 0
+	if along_z:
+		var z := z0 + 0.03
+		while z < z1 - 0.02:
+			add_member("%s/joist_%d" % [id, n], &"joist", &"framing", Vector3(x1 - x0 - 0.05, jd, 0.05), Vector3((x0 + x1 - 0.05) * 0.5, (jt + jb) * 0.5, z))
+			z = minf(z + 0.406, z1 - 0.03) if z < z1 - 0.06 else z1
+			n += 1
+	else:
+		var x := x0 + 0.03
+		while x < x1 - 0.02:
+			add_member("%s/joist_%d" % [id, n], &"joist", &"framing", Vector3(0.05, jd, z1 - z0 - 0.05), Vector3(x, (jt + jb) * 0.5, (z0 + z1 + 0.05) * 0.5))
+			x = minf(x + 0.406, x1 - 0.03) if x < x1 - 0.06 else x1
+			n += 1
+	# Boards along the wall.
+	var i := 0
+	if along_z:
+		var x := x0
+		while x < x1 - 0.02:
+			var xb := minf(x + 0.14, x1)
+			add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(xb - x - 0.004, bt, z1 - z0), Vector3((x + xb) * 0.5, top - bt * 0.5, (z0 + z1) * 0.5))
+			x = xb
+			i += 1
+	else:
+		var z := z0
+		while z < z1 - 0.02:
+			var zb := minf(z + 0.14, z1)
+			add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(x1 - x0, bt, zb - z - 0.004), Vector3((x0 + x1) * 0.5, top - bt * 0.5, (z + zb) * 0.5))
+			z = zb
+			i += 1
+
+
+## The back porch (spec.back_porch): its deck one step down from the floor, and a shed roof over it
+## on two posts, its rafters from a ledger on the back wall's studs down to a beam on the posts.
+func _back_porch() -> void:
+	var bp: Dictionary = spec.get("back_porch", {})
+	if bp.is_empty():
+		return
+	var r: Array = bp.rect
+	var top := float(bp.deck_top)
+	band = 1
+	_deck("back_porch", r, top, "back", bp.posts)
+	band = 3
+	var rh := top + float(bp.roof_height)
+	var hi := rh + 0.45
+	var x0 := float(r[0])
+	var x1 := float(r[2])
+	var z0 := float(r[1])
+	var z1 := float(r[3])
+	for k in (bp.posts as Array).size():
+		var p: Array = bp.posts[k]
+		add_member("back_porch/roof_post_%d" % k, &"post", &"framing", Vector3(0.09, rh - 0.12 - top, 0.09), Vector3(p[0], (top + rh - 0.12) * 0.5, p[1]))
+	add_member("back_porch/roof_beam", &"beam", &"framing", Vector3(x1 - x0 + 0.3, 0.12, 0.1), Vector3((x0 + x1) * 0.5, rh - 0.06, float(bp.posts[0][1])))
+	add_member("back_porch/roof_ledger", &"ledger", &"framing", Vector3(x1 - x0 + 0.3, 0.14, 0.05), Vector3((x0 + x1) * 0.5, hi - 0.07, z0 + 0.025))
+	# The rafters' underside from the ledger's top at the wall down over the beam's top, 0.3 m past it.
+	var zb := float(bp.posts[0][1])
+	var p0 := Vector2(z0 + 0.05, hi)
+	var p1 := Vector2(zb, rh)
+	var dv := (p1 - p0).normalized()
+	var ang := atan2(hi - rh, zb - z0 - 0.05)
+	var run := p0.distance_to(p1) + 0.3
+	var bas := Basis(Vector3.RIGHT, ang)
+	var nrm := Vector2(-dv.y, dv.x) if dv.x > 0.0 else Vector2(dv.y, -dv.x)  # up from the slope
+	if nrm.y < 0.0:
+		nrm = -nrm
+	band = 4
+	var x := x0 - 0.1
+	var i := 0
+	while x <= x1 + 0.15:
+		var mid := p0 + dv * (run * 0.5) + nrm * 0.05
+		add_member("back_porch/rafter_%d" % i, &"rafter", &"framing", Vector3(0.05, 0.1, run), Vector3(x, mid.y, mid.x), bas)
+		x += 0.61
+		i += 1
+	band = 5
+	var s := 0.0
+	var j := 0
+	while s < run:
+		var w := minf(0.145, run - s)
+		var q := p0 + dv * (s + w * 0.5) + nrm * (0.1 + BOARD_T * 0.5)
+		add_member("back_porch/roof_board_%d" % j, &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(x1 - x0 + 0.5, BOARD_T, w - 0.003), Vector3((x0 + x1) * 0.5, q.y, q.x), bas)
+		s += 0.15
+		j += 1
+
+
+## Each stair's stoop (`stoop`: a small deck at the floor's top by its door, against the wall).
+func _stoops() -> void:
+	for st: Dictionary in spec.get("stairs", []):
+		if not st.has("stoop"):
+			continue
+		var r: Array = st.stoop
+		var against := "yard" if float(r[2]) <= 0.01 else ("lane" if float(r[0]) >= width - 0.01 else "back")
+		var out_x := float(r[0]) if against == "yard" else float(r[2])
+		band = 1
+		_deck("stoop/" + String(st.id), r, floor_top, against, [[out_x + (0.06 if against == "yard" else -0.06), float(r[1]) + 0.06], [out_x + (0.06 if against == "yard" else -0.06), float(r[3]) - 0.06]])
+
+
+## The side yard's front (lot.yard_front): a picket fence on the front line from the building to the
+## lot's edge, a wagon gate in it (two leaves standing open into the yard), on 4x4 posts.
+func _yard_front() -> void:
+	var yf: Dictionary = (spec.lot as Dictionary).get("yard_front", {})
+	if yf.is_empty():
+		return
+	var yard: Array = spec.lot.yard
+	var z := float(yf.fence_z) - 0.3
+	var xa := minf(float(yard[0]), float(yard[2]))
+	var xb := maxf(float(yard[0]), float(yard[2])) - 0.05
+	var g0 := minf(float(yf.gate[0]), float(yf.gate[1]))
+	var g1 := maxf(float(yf.gate[0]), float(yf.gate[1]))
+	var wood := StringName(spec.materials.get("fence", "painted_white"))
+	var runs := [[xa, g0], [g1, xb]]
+	var k := 0
+	for rr: Array in runs:
+		var a := float(rr[0])
+		var b := float(rr[1])
+		var n := maxi(1, ceili((b - a) / 2.4))
+		for i in n + 1:
+			var px := a + (b - a) * i / n
+			add_member("fence/post_%d" % k, &"post", &"framing", Vector3(0.09, 1.5, 0.09), Vector3(px, 0.5, z))
+			k += 1
+		for h in [0.35, 1.0]:
+			add_member("fence/rail_%d_%d" % [int(a * 100), int(h * 100)], &"beam", &"framing", Vector3(b - a, 0.09, 0.04), Vector3((a + b) * 0.5, h, z + 0.065))
+		var px := a + 0.1
+		var j := 0
+		while px < b - 0.08:
+			add_member("fence/picket_%d_%d" % [int(a * 100), j], &"board", wood, Vector3(0.07, 1.1, 0.02), Vector3(px, 0.6, z + 0.095))
+			px += 0.15
+			j += 1
+	# The gate's leaves, standing open into the yard.
+	var lw := (g1 - g0) * 0.5 - 0.03
+	for e in 2:
+		var hx := g0 + 0.03 if e == 0 else g1 - 0.03
+		add_member("fence/gate_%d" % e, &"door", wood, Vector3(0.05, 1.1, lw), Vector3(hx, 0.65, z + lw * 0.5 + 0.06))
+
+
+## Ladders (the game's Ladder part) fixed to a wall: its foot on the ground by the wall's face, up
+## to `to` (a loft door's sill), with stiles and rungs as members on the wall's studs.
+func _ladders() -> void:
+	for l: Dictionary in spec.get("ladders", []):
+		if not walls.has(l.wall):
+			continue
+		var wall: Dictionary = walls[l.wall].dict
+		var out: Vector3 = wall.out
+		var along: Vector3 = wall.along
+		var foot: Vector3 = wall.origin + along * float(l.at) + out * (BOARD_T + 0.08)
+		foot.y = float(l.from)
+		var h := float(l.to) - float(l.from)
+		var lw := float(l.width)
+		band = 1
+		for e in 2:
+			var c := foot + along * (lw * 0.5 * (1 if e == 0 else -1)) + Vector3.UP * (h * 0.5 + 0.45)
+			add_member("ladder/%s/stile_%d" % [l.id, e], &"post", &"framing", along.abs() * 0.05 + Vector3.UP * (h + 0.9) + out.abs() * 0.07, c)
+		var y := 0.3
+		var k := 0
+		while y < h + 0.8:
+			add_member("ladder/%s/rung_%d" % [l.id, k], &"trim", &"framing", along.abs() * lw + Vector3.UP * 0.035 + out.abs() * 0.035, foot + Vector3.UP * y)
+			y += 0.3
+			k += 1
+		var ld := Ladder.new()
+		ld.name = "Ladder_" + String(l.id)
+		ld.height = h
+		ld.width = lw
+		ld.transform = Transform3D(Basis.looking_at(-out, Vector3.UP), foot)
+		_furnish.add_child(ld)
+
+
+## Summer beams (spec.summer_beams): where the loft's joists break over a room with no bearing wall
+## under them (the doctor's front office, across the hall's lines), a beam on two posts standing on
+## the floor over the girders, its top at the joists' underside, the posts let into the walls at its ends.
+func _summer_beams() -> void:
+	var y1: float = _lv.upper_joist_bottom
+	for sb: Dictionary in spec.get("summer_beams", []):
+		var sec: Array = sb.section
+		var x := float(sb.x)
+		var z0 := float(sb.z[0])
+		var z1 := float(sb.z[1])
+		var yb := y1 - float(sec[1])
+		for k in (sb.posts as Array).size():
+			var pz := float(sb.posts[k])
+			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, sec[0]), Vector3(x, (floor_top + yb) * 0.5, pz))
+		var m := add_member("summer/%s/beam" % sb.id, &"beam", &"framing", Vector3(sec[0], sec[1], z1 - z0), Vector3(x, (yb + y1) * 0.5, (z0 + z1) * 0.5))
+		if spec.materials.has("timber"):
+			PropKit.dress_member(m, {}, String(spec.materials.timber))
+
+
+## Let-in corner braces (Bell 1858, Woodward 1865: a balloon frame braced at each corner): a 1x4 let
+## into the studs' outer faces from the sill near each end of an outer wall up toward the plate,
+## as steep as it needs to be to clear the wall's openings (none if no line clears them).
+func _braces() -> void:
+	var sill_top := float(_fr.foundation.top) + float(_fr.sill.section[1])
+	for w: Dictionary in spec.walls:
+		if w.get("partition", false) or not walls.has(w.id):
+			continue
+		var wall: Dictionary = walls[w.id].dict
+		var length: float = wall.length
+		var rects := _rects_on(_openings(w), "ground") + _rects_on(_openings(w), "upper")
+		var y1 := wall_height - PLATE_H - 0.02
+		for e in 2:
+			for run: float in [2.0, 1.6, 1.2, 0.9, 0.6]:
+				var a := Vector2(0.15 if e == 0 else length - 0.15, sill_top + 0.02)
+				var b := Vector2(a.x + run * (1 if e == 0 else -1), y1)
+				var clear := true
+				for o in rects:
+					var g := o.grow(0.06)
+					for k in 21:
+						var p := a.lerp(b, k / 20.0)
+						if g.has_point(p):
+							clear = false
+				if not clear:
+					continue
+				var mid := (a + b) * 0.5
+				var len := a.distance_to(b)
+				var along: Vector3 = wall.along
+				var out: Vector3 = wall.out
+				var dir := (along * (b.x - a.x) + Vector3.UP * (b.y - a.y)).normalized()
+				var c: Vector3 = wall.origin + along * mid.x + Vector3.UP * mid.y + out * (-0.0125)
+				var bas := Basis(dir, out.cross(dir).normalized() if out.cross(dir).dot(Vector3.UP) >= 0.0 else -out.cross(dir).normalized(), out)
+				bas = Basis(dir, bas.y, dir.cross(bas.y).normalized())
+				add_member("%s/brace_%d" % [w.id, e], &"ledger", &"framing", Vector3(len, 0.09, 0.025), c, bas.orthonormalized())
+				break

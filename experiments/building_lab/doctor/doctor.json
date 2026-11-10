@@ -37,27 +37,41 @@
    16.0
   ],
   "pad": {
-   "_doc": "PROPOSED (conflict 4): the ground dug level enough that the foundation shows 0.3 m at the back: from the natural ground at the front wall (+0.09 here) to +0.25 at the back wall, a metre round the building, sloping back up to the natural ground over 2 m behind (the bank a carpenter leaves on a rising lot, the water led round it).",
-   "front": 0.09,
-   "back": 0.25,
-   "margin": 1.0,
-   "bank": 2.0
+   "_doc": "Sean, 2026-11-10 (conflict 2, a): the ground dug level at the street edge's height (the building's y 0) under the building, its side yard and 2 m round them: a cut of 0.1 m at the front wall and 0.6 m at the back, sloping back up to the natural ground over 3 m behind (the bank a carpenter leaves on a rising lot); the foundation shows 0.54 m all round.",
+   "y": 0.0,
+   "rect": [
+    -7.87,
+    -0.3,
+    8.53,
+    16.6
+   ],
+   "margin": 2.0,
+   "bank": 3.0
   },
   "footprint_with_stair": [
    -2.5,
-   0.0,
+   -0.3,
    8.53,
-   16.6
-  ]
+   16.8
+  ],
+  "_sean": "Sean, 2026-11-10: 28 x 48 ft (conflict 1); the pad (2a); the yard's front as works best (3: the walk stops at the building, steps down at its east end, the yard open to Main Street by a wagon gate in a picket fence: a wagon or his buggy backs to the surgery's side door); the attic made usable (4).",
+  "yard_front": {
+   "_doc": "the walk ends at the building (valley.json doctor walk.span); a picket fence on the front line with a wagon gate 10 ft wide, its posts 4x4",
+   "fence_z": 0.0,
+   "gate": [
+    -4.6,
+    -1.55
+   ]
+  }
  },
  "levels": {
-  "_doc": "One storey: the floor 3 ft up (the walk's top); 11 ft from floor to ceiling (a fine building's; Palliser 1878's cottages give 9-11 ft for the first storey); the ceiling joists on the plates are the attic's floor (unfloored but for a walk of boards to the scuttle); a 9/12 roof (36.9 degrees) gabled front to back, its gables to the street and the back lot.",
+  "_doc": "One storey: the floor 3 ft up (the walk's top); 11 ft from floor to ceiling (a fine building's; Palliser 1878's cottages give 9-11 ft for the first storey); the loft's 2x8 joists on the plates carry its boarded floor and the ceiling under them (Sean, 2026-11-10: a usable loft, a place to shoot from); a 9/12 roof (36.9 degrees) gabled front to back, its gables to the street and the back lot.",
   "ground": {
    "top": 0.95
   },
   "upper": {
-   "top": 4.49,
-   "_doc": "the attic: the ceiling joists' top (2x6 on the plate at 4.35)"
+   "top": 4.61,
+   "_doc": "the loft's floor: 2x10 joists on the plates (4.35) and 1 in boards (Sean: usable)"
   },
   "plate": 4.35,
   "false_front": 0.0,
@@ -154,17 +168,17 @@
    ]
   },
   "ceiling_joist": {
-   "_doc": "NEW: 2x6 at 16 in across the building on the plates, lapped and spiked over the hall's two bearing walls (spans 3.9 and 3.0 m), each nailed to a rafter's foot: the roof's tie.",
+   "_doc": "NEW: the loft's floor joists, 2x10 at 16 in across the building on the plates (a crowd's 40 lb/ft2 over the 13 ft spans: 2x8 was at its limit), broken over the hall's two bearing walls and the front office's summer beams, each spiked to a rafter's foot: the roof's tie.",
    "section": [
     0.05,
-    0.14
+    0.235
    ],
    "spacing": 0.406,
    "wood": "framing",
    "lap": 0.6
   },
   "rafters": {
-   "_doc": "NEW (the builder's trusses replaced by a common-rafter roof): 2x6 at 24 in, 9/12, birdsmouthed on the plates, against a 1x8 ridge board; a 1x6 collar tie on every second pair a third down from the ridge; the gables' studs up to the end rafters; 1x6 boards across them (shingle lath laid close), wood shingles drawn on them; 12 in eaves.",
+   "_doc": "NEW (the builder's trusses replaced by a common-rafter roof): 2x6 at 24 in, 9/12, birdsmouthed on the plates, against a 1x8 ridge board; a 1x6 collar tie on every second pair a quarter of the rise down from the ridge (head room in the loft); the gables' studs up to the end rafters; 1x6 boards across them (shingle lath laid close), wood shingles drawn on them; 12 in eaves.",
    "rafter": [
     0.05,
     0.14
@@ -179,7 +193,7 @@
     0.14
    ],
    "collar_every": 2,
-   "collar_down": 0.33,
+   "collar_down": 0.25,
    "eave": 0.3
   },
   "truss": {
@@ -233,25 +247,17 @@
    "look": "wood:int_floor"
   },
   {
-   "_doc": "NEW use of a floor: the attic over the whole building, its joists the ceiling joists (frame.ceiling_joist); boards only along the middle from the scuttle (a walk 1.2 m wide), the rest the ceiling's back; the scuttle a hatch in the hall's ceiling.",
+   "_doc": "NEW use of a floor: the loft over the whole building on frame.ceiling_joist (2x8), boarded all over (Sean: usable); its scuttle in the hall's ceiling. Standing head room (1.9 m) down the middle 2.6 m wide. Its joists run over the side walls' plates (the rect's ends) and break over the hall's two bearing walls.",
    "id": "attic",
    "level": "upper",
    "rect": [
+    0.02,
     0.1,
-    0.1,
-    8.43,
+    8.51,
     14.53
    ],
    "joists": "x",
    "joist": "ceiling_joist",
-   "boards": [
-    [
-     3.65,
-     0.1,
-     4.85,
-     14.53
-    ]
-   ],
    "openings": [
     {
      "id": "scuttle",
@@ -263,6 +269,10 @@
      ],
      "leaves": 1
     }
+   ],
+   "breaks": [
+    4.05,
+    5.37
    ]
   }
  ],
@@ -313,17 +323,10 @@
      "level": "ground",
      "at": 4.71,
      "width": 0.91,
-     "height": 2.13,
-     "glazed": true
-    },
-    {
-     "type": "window",
-     "level": "ground",
-     "at": 4.71,
-     "width": 0.91,
-     "height": 0.36,
-     "sill": 2.29,
-     "_doc": "the transom"
+     "height": 2.51,
+     "glazed": true,
+     "transom": 0.38,
+     "_doc": "the street door, 3 ft by 7 ft, glazed above, a transom light over it (one opening, 8 ft 3 in)"
     },
     {
      "type": "window",
@@ -348,14 +351,16 @@
      "type": "window",
      "level": "upper",
      "at": 4.265,
-     "width": 0.61,
-     "height": 0.91,
-     "sill": 0.75
+     "width": 0.76,
+     "height": 1.07,
+     "sill": 0.6,
+     "_doc": "the loft's window over Main Street: a man kneeling or standing at it shoots down the street"
     }
-   ]
+   ],
+   "ribbon": false
   },
   {
-   "_doc": "The back, to the back lot: the back door at the hall's end onto the back porch; the kitchen's window (west) and the bedroom's (east); a louvred vent high in the gable.",
+   "_doc": "The back, to the back lot: the back door at the hall's end onto the back porch; the kitchen's window (west) and the bedroom's (east); the loft door in the gable over the porch's roof, the ladder beside the porch up to it.",
    "id": "back",
    "line": [
     [
@@ -415,14 +420,16 @@
      "sill": 0.84
     },
     {
-     "type": "vent",
+     "type": "door",
      "level": "upper",
-     "at": 4.265,
-     "width": 0.46,
-     "height": 0.61,
-     "sill": 0.9
+     "at": 3.6,
+     "width": 0.76,
+     "height": 1.98,
+     "leaf": "inward",
+     "_doc": "the loft door in the back gable, off the middle so its head clears the rafters (6 ft 6 in), the ladder under it"
     }
-   ]
+   ],
+   "ribbon": false
   },
   {
    "_doc": "The east side, to the side yard: the front office's window; the surgery's two tall windows (3 by 6 ft, the operating light; Cathell 1882, north light preferred, Sean took the east: the quarters keep the back) and its side door (3 ft 6 in, for a stretcher; Cathell's second door, a patient leaves without crossing the waiting room); the sick room's and the bedroom's windows.",
@@ -508,7 +515,8 @@
      "height": 1.37,
      "sill": 0.84
     }
-   ]
+   ],
+   "ribbon": false
   },
   {
    "_doc": "The west side, to the lane: the front office's window; the dispensary's high window over its shelves; the sitting room's and the kitchen's windows.",
@@ -578,7 +586,8 @@
      "height": 1.37,
      "sill": 0.84
     }
-   ]
+   ],
+   "ribbon": false
   },
   {
    "_doc": "The front office's back wall: the way into the hall (a door standing open), the dispensary's hatch (he hands a bottle through it and takes the money; a counter on its sill, no glass).",
@@ -849,7 +858,7 @@
  ],
  "stairs": [
   {
-   "_doc": "The side door's steps from the side yard (the pad +0.3 here) up to its stoop: four risers of 6 1/2 in, 12 in treads, 4 ft wide for two men and a stretcher, climbing west to a 4 ft stoop.",
+   "_doc": "the side door's steps from the yard (the pad, y 0) up to its stoop: five risers of 7 1/2 in, 11 in treads, 4 ft wide for two men and a stretcher, climbing west to a 4 ft stoop",
    "id": "side",
    "head": [
     -1.22,
@@ -857,10 +866,10 @@
    ],
    "dir": "+x",
    "width": 1.22,
-   "from": 0.3,
+   "from": 0.0,
    "to": "ground",
-   "risers": 4,
-   "going": 0.3,
+   "risers": 5,
+   "going": 0.28,
    "wood": "painted_white",
    "stoop": [
     -1.22,
@@ -870,38 +879,38 @@
    ]
   },
   {
-   "_doc": "The back porch's two steps down to the back lot.",
+   "_doc": "the back porch's five steps down to the pad (7 in risers, 11 in treads)",
    "id": "back",
    "head": [
-    4.06,
+    4.1,
     16.46
    ],
-   "dir": "+z",
+   "dir": "-z",
    "width": 1.3,
-   "from": 0.55,
+   "from": 0.0,
    "to": 0.9,
-   "risers": 2,
+   "risers": 5,
    "going": 0.28,
    "wood": "painted_white"
   }
  ],
  "back_porch": {
-  "_doc": "NEW: a small open porch at the back door, 10 ft by 6 ft, one step down from the floor, its deck on two posts and a ledger on the back wall's studs, a shed roof over it on the same posts.",
+  "_doc": "NEW: a small open porch at the back door, 6 ft 9 in by 6 ft, one step down from the floor, its deck on two posts and a ledger on the back wall's studs, a shed roof over it on the same posts.",
   "rect": [
-   3.2,
+   3.95,
    14.63,
-   6.25,
+   6.0,
    16.46
   ],
   "deck_top": 0.9,
   "roof_height": 2.6,
   "posts": [
    [
-    3.3,
+    4.05,
     16.36
    ],
    [
-    6.15,
+    5.9,
     16.36
    ]
   ]
@@ -914,28 +923,28 @@
     "id": "middle",
     "at": [
      3.6,
-     3.81
+     3.5
     ],
     "size": 0.34,
     "over_ridge": 0.6,
-    "_doc": "in the front office's back wall beside the hall: the front office's stove one side, the surgery's the other"
+    "_doc": "in the front office's back corner by the surgery's wall: the office's stove into it, the surgery's through the wall"
    },
    {
     "id": "kitchen",
     "at": [
-     5.37,
+     5.65,
      12.6
     ],
     "size": 0.34,
     "over_ridge": 0.6,
-    "_doc": "in the hall's west wall: the kitchen's cookstove"
+    "_doc": "in the kitchen against the hall's wall: the cookstove"
    }
   ]
  },
  "front": {
-  "_doc": "NEW for a gable front: the sign board across the gable's foot, over the walk's porch roof (ValleyTown's, walk.awning 2.8 over the walk's top).",
+  "_doc": "a gable front: the sign board across the gable's foot, over the walk's porch roof (ValleyTown's, walk.awning 2.8 over the walk's top)",
   "sign_text": "PHYSICIAN & SURGEON",
-  "sign": {
+  "gable_sign": {
    "y": [
     4.45,
     5.0
@@ -1033,7 +1042,7 @@
    "use": "his cookstove, table, a dresser; boiling water for the surgery"
   },
   {
-   "id": "attic",
+   "id": "loft",
    "level": "upper",
    "rect": [
     0.1,
@@ -1041,7 +1050,7 @@
     8.43,
     14.53
    ],
-   "use": "storage reached by the hall's scuttle (crates of bottles, old journals); the front gable's window over the street"
+   "use": "storage (crates of bottles, old journals); a place to shoot from: the front window over Main Street, the back door over the back lot; reached by the ladder outside or the hall's scuttle"
   }
  ],
  "use_points": [
@@ -1369,6 +1378,49 @@
     -6.0,
     5.85
    ]
+  },
+  {
+   "id": "loft_window",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    4.265,
+    4.61,
+    0.6
+   ],
+   "look": [
+    4.265,
+    -20.0
+   ],
+   "_doc": "kneel at the front gable's window: Main Street both ways"
+  },
+  {
+   "id": "loft_door",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    3.6,
+    4.61,
+    13.8
+   ],
+   "look": [
+    3.6,
+    30.0
+   ]
+  },
+  {
+   "id": "loft_store",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.265,
+    4.61,
+    7.3
+   ],
+   "look": [
+    4.265,
+    0.0
+   ]
   }
  ],
  "materials": {
@@ -1395,5 +1447,54 @@
   "Light for surgery: daylight from big windows, north preferred, lamps at night (Farrar 1880; Saint Marys Hospital's 1889 operating room).",
   "History Colorado, 'False Front Commercial': the type the doctor's isn't (Sean chose the gable front, 2026-11-10).",
   "All references: REFERENCES.md (found by search; none could be opened from the session: to be checked)."
+ ],
+ "ladders": [
+  {
+   "_doc": "NEW (the train's Ladder part): fixed to the back wall's studs through the siding, from the back lot up to the loft door's sill, east of the back porch (Sean, 2026-11-10).",
+   "id": "loft",
+   "wall": "back",
+   "at": 3.6,
+   "from": 0.0,
+   "to": 4.61,
+   "width": 0.45
+  }
+ ],
+ "lamps": {},
+ "furniture": [],
+ "fixtures": [],
+ "summer_beams": [
+  {
+   "_doc": "NEW: the loft's joists break over the hall's walls, which stop at the front office's back wall; across the front office they break over a summer beam (a 6x8 cased in the ceiling) on two posts, one let into the front wall, one into the office's back wall, each over a girder.",
+   "id": "office_e",
+   "x": 4.05,
+   "z": [
+    0.1,
+    3.86
+   ],
+   "section": [
+    0.15,
+    0.235
+   ],
+   "posts": [
+    0.18,
+    3.81
+   ]
+  },
+  {
+   "id": "office_w",
+   "x": 5.37,
+   "z": [
+    0.1,
+    3.86
+   ],
+   "section": [
+    0.15,
+    0.235
+   ],
+   "posts": [
+    0.18,
+    3.81
+   ]
+  }
  ]
 }
