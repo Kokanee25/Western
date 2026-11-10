@@ -190,7 +190,19 @@ func _process(delta: float) -> void:
 		_read_controls(delta)
 	elif not drawn:
 		aiming = false
+	# On your back and not coming out: nothing to pose (the hands' arm solve stops with it).
+	var away := not drawn and _draw <= 0.0
+	if away and not visible:
+		_set_hands_posing(false)
+		return
+	_set_hands_posing(true)
 	_animate(delta)
+
+
+func _set_hands_posing(on: bool) -> void:
+	if hand and hand.is_processing() != on:
+		hand.set_process(on)
+		left_hand.set_process(on)
 
 
 func _read_controls(delta: float) -> void:
