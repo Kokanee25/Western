@@ -1128,10 +1128,16 @@ frozen until Sean names one.
   lever faded case colours, the weakest call); five rounds in game light and first person in the game's
   HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
   cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
-  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
+  the Fable polish pass on #733 (all the guns together). Traps:
   Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
   (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
-  run is ~70 min here. Nothing in the game changed.
+  run is ~70 min here. **In the game** (#777, PR #792, LAYOUT "src/weapons"): key 6, `Winchester73*`
+  (`config/winchester73.tres` proposed), Q the lever, the `hammer` key (middle mouse, Alt) half cock, R the
+  gate, the Colt's belt; `Rope` and the rope range (F5's last stop); feel ranges proposed (rope 30 m steady
+  10/16, 60 m 4/16); sheet `experiments/gun_lab/win73/results/2026-11-10_in_game/` (the hold re-laid, eye
+  50 cm behind the notch). Waiting on Sean's play; next: men carrying it. Traps: a drawn rifle on Main
+  Street sets the gang off (shoot sheets on the rope range); lavapipe draws ~1 frame a second, so a
+  bridge `wait` under a second misses short poses.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
