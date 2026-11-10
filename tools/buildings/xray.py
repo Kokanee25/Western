@@ -182,7 +182,7 @@ def main(spec_path, members_path, out):
     def below(y):
         return lambda m: max(p[1] for p in corners(m)) < y and m["kind"] not in ("floor_board", "board", "trim", "glass", "door") and not m["id"].startswith(("fence/", "stoop", "back_porch", "stair/"))
     views.append(View("Ground floor framing from above (sills, girders on piers, 2x10 joists)", lambda p: (W - p[0], p[2], -p[1]), below(lv["ground"] - 0.01), -0.6, W + 0.6, -0.4, D + 0.4, []))
-    loft = lambda m: lv["ground"] + 2.5 < (sum(p[1] for p in corners(m)) / 8.0) < lv["upper"] and m["kind"] not in ("board", "floor_board", "trim", "glass", "door") and "/siding/" not in m["id"]
+    loft = lambda m: lv["ground"] + 2.5 < (sum(p[1] for p in corners(m)) / 8.0) < lv["upper"] and m["kind"] not in ("board", "floor_board", "trim", "glass", "door") and "/siding/" not in m["id"] and not m["id"].startswith(("back_porch", "ladder/", "stoop"))
     views.append(View("Loft framing from above (plates, summer beams, 2x10 joists, the scuttle, chimneys)", lambda p: (W - p[0], p[2], -p[1]), loft, -0.6, W + 0.6, -0.4, D + 0.4, []))
 
     ims = [v.draw(members) for v in views]

@@ -33,3 +33,28 @@ room but the attic (23).
 New to the builder (step 3): the common-rafter roof and ceiling joists in place of trusses; ceilings;
 brick chimneys; the sign on a gable; the back porch; narrow 4 in clapboard; the hatch (an opening
 with no glass); a floor's own joist size (the attic's).
+
+Sean's calls on step 2 (2026-11-10): 28 x 48 ft; the lot dug level (a pad at the street edge's
+height, a bank behind); the walk stops at the building and the side yard opens on Main Street
+through a wagon gate (a wagon backs to the surgery's side door); the loft made usable (2x10 joists,
+a window over Main Street to shoot from, a loft door in the back gable with a ladder up to it).
+
+## Step 3: the build, the checks, the X-ray sheet
+
+`tests/test_building_doctor.gd` builds it in the lab (3,398 members, 115 draws) and checks it:
+destructible through and through; it stands (nothing over 16% of its limit under its own weight,
+nothing over with a crowd on both floors); **built right** (`Checks.built_right`, #695: nothing
+crosses any of its 28 openings through the whole wall, the 18 in outer walls framed and every
+window glazed); doors and use points fit a man; every room has its use points; the porch's posts
+carry its roof. `xray.jpg` is drawn from the built members (`tools/buildings/xray.py`).
+
+What the checks caught on the way (each fixed in the builder or the spec):
+- the door's kings ran up through the loft window over it, the window's down through the door
+  (kings now stop under and over stacked openings, the window over the door a band up);
+- the loft's joists broke over the hall's line in the front office with no wall under them
+  (summer beams on posts there now);
+- a tilted rafter's box takes in the whole loft, so it rested on fifty things and failed at its
+  "joint" (in a rafter roof a tilted member touches only what it truly meets; pairs meet at the ridge);
+- boards cantilevered past their joists at the chimney holes (the holes snap to the joist lines);
+- the porch's joists couldn't rest on its ledger (the order members stack in);
+- 2x8 loft joists at their limit over 13 ft with a crowd (2x10 now).
