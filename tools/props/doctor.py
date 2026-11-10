@@ -39,16 +39,34 @@ def mesh(model, part):
 
 
 # --- The examining table --------------------------------------------------------------------------
-# A plain walnut table at the height a doctor works standing (29 in), 6 ft by 2 ft, a shelf under it
-# for the basin and dressings, a horsehair pad in black oilcloth along it and a raised head (a wedge
-# of the same: the head end, +x). Legs set in from the corners, aprons flush with their outer faces.
+# A walnut table at the height a doctor works standing (29 in), 6 ft by 2 ft, three drawers in its
+# apron on his side (+z), a low shelf, a buttoned horsehair pad in leather along it and a raised head (a wedge of
+# the same: the head end, +x). Refs: the 1880 Stohlmann catalogue, the Remick museum's table. Legs set in from the corners, aprons flush with their outer faces.
 TABLE = {
     "length": 1.83, "width": 0.61, "top": 0.74, "board": 0.026, "boards": 3,
-    "leg": 0.065, "inset": 0.06, "apron_h": 0.11, "apron_t": 0.022,
+    "leg": 0.065, "inset": 0.06, "apron_h": 0.17, "apron_t": 0.022,
     "stretcher": (0.05, 0.035), "stretcher_y": 0.14, "shelf_t": 0.018, "shelf_boards": 6,
-    "pad": {"length": 1.28, "height": 0.06, "width": 0.56, "x": -0.21},
+    "drawers": (3, 1), "drawer_t": 0.022,
+    "pad": {"length": 1.19, "height": 0.075, "width": 0.56, "x": -0.21, "button": 0.14},
     "head": {"length": 0.5, "low": 0.05, "high": 0.22, "width": 0.56, "x": 0.635},
 }
+
+
+def table_drawers():
+    """The examining table's drawer fronts: [(column, row, (width, height), (x, y, z of its middle))]."""
+    t = TABLE
+    H, L, W = t["top"], t["length"], t["width"]
+    under = H - t["board"]
+    lx, lz, hl = L * 0.5 - t["inset"], W * 0.5 - t["inset"] + 0.01, t["leg"] * 0.5
+    inner_x = lx - hl
+    bottom_top = under - t["apron_h"]  # the drawers fill the front apron's face
+    cols, rows = t["drawers"]
+    gap = 0.006
+    dw = (inner_x * 2 - gap * (cols + 1)) / cols
+    dh = (under - bottom_top - gap * (rows + 1)) / rows
+    zf = lz + hl + t["drawer_t"] * 0.5
+    return [(c, r_, (dw, dh), (-inner_x + gap + dw * 0.5 + c * (dw + gap), bottom_top + gap + dh * 0.5 + r_ * (dh + gap), zf))
+            for c in range(cols) for r_ in range(rows)]
 
 
 def examining_table():
@@ -76,13 +94,22 @@ def examining_table():
     bw = W / t["boards"]
     for k in range(t["boards"]):
         ms.append(member("top%d" % k, "furniture_top", [L, t["board"], bw], [0, H - t["board"] * 0.5, -W * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP))
-    # The shelf: boards laid across from stretcher to stretcher, edge to edge between the legs.
+    # The bottom: boards laid across from stretcher to stretcher, edge to edge between the legs.
     sw, sh = t["stretcher"]
     span = (lz + sh * 0.5) * 2
     sbw = inner_x * 2 / t["shelf_boards"]
+    bottom_top = t["stretcher_y"] + sw * 0.5 + t["shelf_t"]
     for k in range(t["shelf_boards"]):
         ms.append(member("shelf%d" % k, "furniture_top", [sbw, t["shelf_t"], span],
-                         [-inner_x + sbw * (k + 0.5), t["stretcher_y"] + sw * 0.5 + t["shelf_t"] * 0.5, 0], look=WALNUT))
+                         [-inner_x + sbw * (k + 0.5), bottom_top - t["shelf_t"] * 0.5, 0], look=WALNUT))
+    # On the doctor's side (+z) a row of drawers in the deep apron under the top (the period's tables
+    # carry drawers: the 1880 Stohlmann catalogue's, the Remick museum's), each with its brass knob;
+    # the legs and the low shelf open below, as the doctor's target sheet's table.
+    for c, r_, (dw, dh), (x, y, zf) in table_drawers():
+        if True:
+            m = member("drawer_%d_%d" % (c, r_), "trim", [dw, dh, t["drawer_t"]], [x, y, zf], look=WALNUT)
+            m["dress"] = [{"look": "pbr:examining_table", "draw": mesh("examining_table", "Knob_%d_%d" % (c, r_))}]
+            ms.append(m)
     p = t["pad"]
     ms.append(member("pad", "trim", [p["length"], p["height"], p["width"]], [p["x"], H + p["height"] * 0.5, 0],
                      wood="hay", look="pbr:examining_table", draw=mesh("examining_table", "Pad")))
@@ -90,7 +117,7 @@ def examining_table():
     ms.append(member("head", "trim", [h["length"], h["high"], h["width"]], [h["x"], H + h["high"] * 0.5, 0],
                      wood="straw", look="pbr:examining_table", draw=mesh("examining_table", "HeadPad")))
     return {
-        "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): a plain walnut table 6 ft by 2 ft at a standing doctor's working height (29 in), a shelf under it for the basin and dressings, a horsehair pad in black oilcloth (\"American cloth\") along it and a raised head of the same at its +x end. Walnut from the material library (F2 a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
+        "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): a walnut table 6 ft by 2 ft at a standing doctor's working height (29 in), three drawers in its deep apron on his side (+z) with brass knobs (the 1880 Stohlmann catalogue's and the Remick museum's tables carry drawers), a shelf low down for the basin and dressings, a buttoned horsehair pad in brown leather along it and a raised head of the same at its +x end. Walnut from the material library (F2 a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
         "id": "examining_table", "kind": "members", "fixture": True, "wood": "walnut",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "seat": {"member": "pad", "at": [-0.15, H + p["height"], 0.0], "share": 1.0, "hold": 0.1, "sway": 0.0},

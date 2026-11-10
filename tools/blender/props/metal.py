@@ -60,6 +60,10 @@ FINISHES = {
     # examining tables; a dull sheen, cracked and greyed where it's worn.
     "oilcloth": {"kind": "coat", "color": (0.040, 0.036, 0.034), "under": (0.20, 0.17, 0.14), "rust": 0.0,
                  "rough": 0.45, "metal": 0.0, "wear": 0.6, "craze": 0.8},
+    # Brown leather over horsehair, buttoned (the 1880 Stohlmann catalogue's physician's table, the
+    # Remick museum's): a dull sheen, darker in the buttons' pleats, rubbed paler where he leans.
+    "leather": {"kind": "coat", "color": (0.15, 0.08, 0.04), "under": (0.34, 0.22, 0.13), "rust": 0.0,
+                "rough": 0.5, "metal": 0.0, "wear": 0.55, "craze": 0.35},
     # Ebony (instrument handles until aseptic all-metal ones in the 1890s), and a knife's bone.
     "ebony": {"kind": "coat", "color": (0.045, 0.038, 0.033), "under": (0.10, 0.08, 0.06), "rust": 0.0,
               "rough": 0.35, "metal": 0.0, "wear": 0.3},

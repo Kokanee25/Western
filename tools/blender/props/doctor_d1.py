@@ -33,20 +33,79 @@ def merged(name, parts, smooth=True):
 
 # --- The examining table's pads -------------------------------------------------------------------
 
+def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.02, dimple=0.012, n=3):
+    """A buttoned cushion on the box x0..x1, z0..z1 from y0, its top h0 high at x0 and h1 at x1 (a
+    wedge if they differ): a grid top drawn in at each button of a diamond pattern, its edges rolled
+    over, sides down to y0, a flat bottom; the buttons themselves little discs."""
+    nx = max(2, int(round((x1 - x0) / button * n)))
+    nz = max(2, int(round((z1 - z0) / button * n)))
+    rows = [z0 + button * 0.5 + k * button * 0.5 for k in range(int((z1 - z0 - button) / (button * 0.5)) + 2)]
+    rows = [z for z in rows if z < z1 - button * 0.35]
+    buttons = []
+    for k, z in enumerate(rows):
+        off = button * 0.5 if k % 2 else 0.0
+        x = x0 + button * 0.5 + off
+        while x < x1 - button * 0.35:
+            buttons.append((x, z))
+            x += button
+
+    def top(x, z):
+        h = h0 + (h1 - h0) * (x - x0) / max(1e-6, x1 - x0)
+        d = 0.0
+        for bx, bz in buttons:
+            r2 = ((x - bx) ** 2 + (z - bz) ** 2) / (0.028 ** 2)
+            if r2 < 9.0:
+                d = max(d, math.exp(-r2))
+        e = min(x - x0, x1 - x, z - z0, z1 - z)
+        edge = (1.0 - min(1.0, e / roll)) ** 2 * roll * 0.9
+        return y0 + h - dimple * d - edge
+
+    verts, faces = [], []
+    for j in range(nz + 1):
+        for i in range(nx + 1):
+            x = x0 + (x1 - x0) * i / nx
+            z = z0 + (z1 - z0) * j / nz
+            verts.append((x, top(x, z), z))
+    idx = lambda i, j: j * (nx + 1) + i
+    for j in range(nz):
+        for i in range(nx):
+            faces.append([idx(i, j), idx(i, j + 1), idx(i + 1, j + 1), idx(i + 1, j)])
+    # The boundary, anticlockwise seen from above, and its foot at y0.
+    ring = [idx(i, 0) for i in range(nx)] + [idx(nx, j) for j in range(nz)] + [idx(i, nz) for i in range(nx, 0, -1)] + [idx(0, j) for j in range(nz, 0, -1)]
+    base = len(verts)
+    for k in ring:
+        vx, _, vz = verts[k]
+        verts.append((vx, y0, vz))
+    m = len(ring)
+    for k in range(m):
+        a, b = ring[k], ring[(k + 1) % m]
+        faces.append([a, b, base + (k + 1) % m, base + k])
+    verts.append((0.5 * (x0 + x1), y0, 0.5 * (z0 + z1)))
+    c = len(verts) - 1
+    faces += [[c, base + (k + 1) % m, base + k] for k in range(m)]
+    part = Part(name, smooth=True).add(verts, faces)
+    for bx, bz in buttons:
+        part.merge(lathe("b", [(0.008, -0.002), (0.009, 0.001), (0.006, 0.004), (0.0, 0.005)], 8, at=(bx, top(bx, bz) - 0.003, bz)))
+    return part
+
+
 def table():
     t = doctor.TABLE
     H = t["top"]
     p = t["pad"]
-    pad = box("Pad", (p["length"], p["height"], p["width"]), (p["x"], H + p["height"] * 0.5, 0), smooth=True, bevel=0.025)
-    # Its buttons: the oilcloth drawn in at a row of tufts (a dimple a button).
-    v = np.asarray(pad.verts)
-    pad.verts = [tuple(x) for x in v]
+    pad = cushion("Pad", p["x"] - p["length"] * 0.5, p["x"] + p["length"] * 0.5, -p["width"] * 0.5, p["width"] * 0.5, H,
+                  p["height"], p["height"], button=p["button"])
     h = t["head"]
-    x0, x1 = h["x"] - h["length"] * 0.5, h["x"] + h["length"] * 0.5
     w = h["width"] * 0.5
-    wedge = common.slab("HeadPad", [(x0, H), (x1, H), (x1, H + h["high"]), (x1 - 0.03, H + h["high"] + 0.004),
-                                    (x0 + 0.02, H + h["low"])], -w, w, bevel=0.012, smooth=False)
-    metal.export_baked("examining_table", [(pad, "oilcloth"), (wedge, "oilcloth")], size=512)
+    head = cushion("HeadPad", h["x"] - h["length"] * 0.5, h["x"] + h["length"] * 0.5, -w, w, H, h["low"] + 0.02, h["high"],
+                   button=p["button"])
+    parts = [(pad, "leather"), (head, "leather")]
+    # The drawers' knobs: turned brass, one a drawer.
+    for c, r_, (dw, dh), (x, y, zf) in doctor.table_drawers():
+        z = zf + t["drawer_t"] * 0.5
+        parts.append((lathe("Knob_%d_%d" % (c, r_), [(0.009, 0.0), (0.011, 0.008), (0.006, 0.014), (0.014, 0.022), (0.012, 0.028), (0.0, 0.03)],
+                            12, axis="z", at=(x, y, z)), "brass"))
+    metal.export_baked("examining_table", parts, size=1024)
 
 
 # --- The iron cot ---------------------------------------------------------------------------------
