@@ -114,3 +114,6 @@ func test_the_boards_seed_reaches_the_fragment_shader_flat() -> void:
 	var code: String = (load("res://src/render/scan_wood.gdshader") as Shader).code
 	check(code.contains("varying flat float v_seed;"), "v_seed is a flat varying")
 	check(not code.contains("varying float v_seed;"), "and not an interpolated one")
+	# The same fault's one other case (the audit, PR #775): a flame's seed in the old tongues' shader.
+	var flame: String = (load("res://src/fire/flame.gdshader") as Shader).code
+	check(flame.contains("varying flat float seed;"), "a flame's seed is flat too")
