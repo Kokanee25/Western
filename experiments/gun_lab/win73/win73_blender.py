@@ -351,6 +351,16 @@ def bevel(ob, width, seg=3, angle=32.0):
 
 def finish(ob, sharp_deg=38.0):
     me = ob.data
+    # The booleans and bevels leave zero-area slivers; weighted normals give them zero-length normals,
+    # which the game's shader turns to NaN and its bloom to a white blob (the painted rounds' "sun glint"
+    # on the receiver's corner). Dissolved first (a micron), then the loose bits dropped.
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-6, edges=bm.edges[:])
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.calc_area() < 1e-12], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    bm.to_mesh(me)
+    bm.free()
     me.validate()
     me.shade_smooth()
     me.set_sharp_from_angle(angle=math.radians(sharp_deg))
@@ -362,6 +372,17 @@ def finish(ob, sharp_deg=38.0):
     m.weight = 50
     m.keep_sharp = True
     realise(ob)
+    # Any corner normal the weighting still left zero (opposed faces cancelling) takes its face's.
+    me = ob.data
+    cn = [Vector(c.vector) for c in me.corner_normals]
+    fixed = 0
+    for p in me.polygons:
+        for li in p.loop_indices:
+            if cn[li].length < 0.5 or not all(math.isfinite(c) for c in cn[li]):
+                cn[li] = Vector(p.normal) if p.normal.length > 0.5 else Vector((0.0, 0.0, 1.0))
+                fixed += 1
+    if fixed:
+        me.normals_split_custom_set([v.normalized() for v in cn])
     return ob
 
 
@@ -461,7 +482,9 @@ def mats():
 # the rear, the rear upper edge sloping down past the hammer to the wood, the rear face where the
 # stock butts, the frame's lower rear round the lever's front loop, the lower edge stepping up to the
 # front section under the barrel.
-RECV_SIDE = [(F_RECV, 0.50), (-3.05, 0.55), (-3.50, 0.43), (-4.00, 0.23), (-4.50, -0.07), (-4.85, -0.42), (-5.25, -0.70),
+# The front collar (where the barrel threads in) stands proud of the top, to 0.60 from f 1.8 (the
+# photo's profile; it also hides the barrel's end face).
+RECV_SIDE = [(F_RECV, 0.60), (1.80, 0.60), (1.62, 0.55), (-3.05, 0.55), (-3.50, 0.43), (-4.00, 0.23), (-4.50, -0.07), (-4.85, -0.42), (-5.25, -0.70),
              (-5.25, -1.00), (-5.15, -1.50), (-4.95, -1.95), (-4.60, -2.28), (-4.30, -2.40), (-4.08, -2.34),
              (-4.00, -2.10), (-1.95, -2.08), (-1.60, -1.98), (-1.30, -1.80), (-0.90, -1.60), (1.95, -1.56),
              (F_RECV, -1.30)]
@@ -506,10 +529,10 @@ def gate_outline(grow=0.0):
 
 
 def make_receiver():
-    body = prism("Receiver", RECV_SIDE, HW, MAT["blued"], corners=(0, 5, 6, 18))
+    body = prism("Receiver", RECV_SIDE, HW, MAT["blued"], corners=(0, 7, 8, 20, 21))
     # The top's edges rounded across (a flat top with round shoulders, the 1873's).
-    top_round = prism_f("tr", [(-HW - 0.2, -3.0), (HW + 0.2, -3.0), (HW + 0.2, 0.30), (HW - 0.10, 0.52), (HW - 0.28, 0.58),
-                               (-HW + 0.28, 0.58), (-HW + 0.10, 0.52), (-HW - 0.2, 0.30)], -6.0, F_RECV + 0.1, smooth=True,
+    top_round = prism_f("tr", [(-HW - 0.2, -3.0), (HW + 0.2, -3.0), (HW + 0.2, 0.30), (HW - 0.10, 0.54), (HW - 0.30, 0.64),
+                               (-HW + 0.30, 0.64), (-HW + 0.10, 0.54), (-HW - 0.2, 0.30)], -6.0, F_RECV + 0.1, smooth=True,
                         corners=(0, 1))
     boolean(body, top_round, "INTERSECT")
     # The tangs follow the wrist's round (each cut to the stock's own outside grown a hair), not flat
@@ -559,8 +582,10 @@ def octagon_section(a, n_round=0):
 
 
 def barrel_solid(name, grow=0.0, f0=None, f1=None, mat=None):
-    """The barrel's outside from its shank to the muzzle: octagonal (the rifle) or round (the carbine)."""
-    f0 = F_RECV - 0.01 if f0 is None else f0
+    """The barrel's outside from its shank to the muzzle: octagonal (the rifle) or round (the carbine).
+    It starts 0.4" inside the receiver, so its end is never seen (a sliver of its flat end face peeping
+    over the receiver's rounded front caught the sun behind the camera as a white blob)."""
+    f0 = F_RECV - 0.4 if f0 is None else f0
     f1 = MUZZLE if f1 is None else f1
     bm = bmesh.new()
     rings = []
