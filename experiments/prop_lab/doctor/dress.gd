@@ -125,6 +125,12 @@ func _run() -> void:
 		push_error("no doctor's building in the valley (#778: valley.json's doctor lot needs its spec)")
 		quit(1)
 		return
+	# The doors' leaves stand open into the rooms, across the views: set aside for the props' judge
+	# (the building's, not a prop's; its own judge sees them).
+	for m in building.get_members():
+		if String(m.member_id).contains("/door_"):
+			building.unbatch(m)
+			m.visible = false
 	var placed := dress(building, batch)
 	var clock = valley.find_child("DayCycle", true, false)
 	if clock:
