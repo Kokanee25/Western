@@ -38,6 +38,7 @@ static func start_named(n: StringName, street_node: Node3D, town_node: TownLife,
 	m.street = street_node
 	m.town = town_node
 	m.opts = options
+	m.add_to_group(&"moment")  # the bridge's moment_result finds one it didn't start (a mission's, Enter's)
 	street_node.add_child(m)
 	m.begin()
 	return m

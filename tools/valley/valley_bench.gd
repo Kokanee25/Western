@@ -17,7 +17,8 @@ extends SceneTree
 ## are averaged too. `--no-railway` (a game arg, ValleyWorld) is the valley without it: the before.
 ## The farmhouse (G6, #731): `farm_lane` and `farm_start`, its lane's foot and the try's start looking
 ## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
-## `--no-farm-mission`: the valley without them). `--spots=a,b`: only those.
+## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
+## (`--mission=sheriff`: the sheriff and his horse there). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -78,6 +79,16 @@ func _spots(world: StringName) -> Array:
 		start = Vector2(st.x, st.z)
 	out.append(["farm_lane", Vector3(lane.x, 0.0, lane.y), _heading(lane, house)])
 	out.append(["farm_start", Vector3(start.x, 0.0, start.y), _heading(start, house)])
+	# The opening (#746): Harlan's place looking down his ford path, and the site from 4 m up the
+	# path looking at where the sheriff lies. With `--mission=sheriff` (a game arg) he's there, his
+	# horse by him; without it the same spots bare: the before.
+	var home: Vector2 = lay.place_at("harlan_homestead")
+	var site: Vector2 = lay.place_at("opening_site")
+	var ford: PackedVector2Array = lay.road_line("harlan_ford_path")
+	var down: Vector2 = home + (ford[1] - home).normalized() * 6.0
+	var near: Vector2 = site + (ford[ford.size() - 2] - site).normalized() * 4.0
+	out.append(["harlan_home", Vector3(down.x, 0.0, down.y), _heading(down, ford[1])])
+	out.append(["sheriff_site", Vector3(near.x, 0.0, near.y), _heading(near, site)])
 	return out
 
 

@@ -1,0 +1,102 @@
+{
+  "_doc": "The sheriff on the road (docs/missions/the-sheriff.md; issue #746, the first mission, rough). Dawn at Harlan's homestead; he walks the ford path down to the East Road and finds the sheriff gut-shot at opening_site, his horse standing off the road with its reins down. Nod to help him, shake your head to leave him (the view's nod and shake, HeadGesture). Hold E on the wound to press it, long enough and it's packed and bound. E by his horse: the stand-in card (leading a horse isn't built), the walk into town run on his body (Physiology), the doctor at his greybox. sheriff.care = good (packed, and his blood loss at the doctor's at most care.good_max_loss) / poor (taken in otherwise) / left him (you walked off). Started in the valley by -- --world=valley --mission=sheriff, or the bridge's `moment the_sheriff`; Enter afterwards (or held 1.5 s any time) starts it again. Lines are typed, chosen by his blood loss (Act: bands).",
+  "script": "res://src/missions/sheriff_on_road.gd",
+  "hour": 5.6,
+  "start": "harlan_homestead",
+  "start_toward": "harlan_ford_path",
+  "site": "opening_site",
+  "doctor_lot": "doctor",
+  "livery_lot": "livery",
+  "street_off_m": 4.0,
+  "sheriff": {"id": "sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "off_road_m": 1.5},
+  "doctor": {"id": "doctor", "name": "Doc", "model": "doctor_s2_talking", "seed": 747},
+  "horse": {"off_m": 8.0, "along_m": 4.0},
+  "wound": {
+    "_doc": "Gut-shot two game hours before dawn (shot_ago_s, real seconds: 112.5 a game hour): what he's lost lying there, a weeping wound in the belly wall (outer: shows, pressed and packed by you; it doesn't clot on its own) and a slow bleed inside (inner: nothing outside reaches it). Each stops by its limit (ml), so untreated and left he passes out (0.42 lost) but doesn't bleed to death on the road: by the wound rules a gut shot has hours (Physiology's gut_death_game_hours does for him later).",
+    "lost_before_ml": 450,
+    "outer": {"rate": 2.4, "limit_ml": 1350},
+    "inner": {"rate": 0.2, "limit_ml": 300},
+    "pain": 0.9,
+    "shot_ago_s": 225
+  },
+  "care": {
+    "_doc": "good: you packed it (pressed pack_s in all) and he'd lost no more than good_max_loss of his blood by the doctor's; poor: you took him in otherwise; left him: you walked off (found_m, then leave_m from him before he's on the horse).",
+    "good_max_loss": 0.30,
+    "pack_s": 6.0,
+    "press_reach_m": 2.0,
+    "horse_reach_m": 3.0
+  },
+  "distances": {"hail_m": 25.0, "ask_m": 3.5, "found_m": 15.0, "leave_m": 45.0},
+  "trip": {"_doc": "The stand-in for leading his horse into town (Sean's maybe, #746: no horse of Harlan's at the start): the road's length from the site to the doctor (ValleyRoads), walked at lead_mps, plus load_s getting him up across the saddle; the minutes run on his body and the clock.", "lead_mps": 1.3, "load_s": 60.0},
+  "left": {"found_after_s": 1500.0},
+  "say_gap_s": 14.0,
+  "bands": {"clear": 0.22, "weak": 0.32, "fading": 0.5},
+  "cards": {
+    "trip": "You get him up across his saddle and lead his horse down the East Road into town.\n(%d minutes on foot. A stand-in: leading a horse isn't built yet.)",
+    "left": "You leave him on the road.\nLater that morning a freighter coming down the East Road finds him and hauls him into town in the back of his wagon.",
+    "end": "The doctor takes him in. His horse is put up at the livery.\n\nsheriff.care: %s\n\n(Enter: start again)",
+    "end_left": "sheriff.care: left him\n\n(Enter: start again)"
+  },
+  "lines": {
+    "hail": {
+      "clear": ["Hold it! Who's that?", "Keep your hands where I can see 'em."],
+      "weak": ["Who's there? Don't... don't come closer."],
+      "fading": ["Who... who is that?"]
+    },
+    "ask": {
+      "clear": ["Harlan. You're Harlan, from up the creek. I'm gut-shot. I need the doc. You going to help me or not?"],
+      "weak": ["I'm shot. In the belly. Get me to the doc... will you?"],
+      "fading": ["Doc... get me to the doc."]
+    },
+    "ask_again": {
+      "clear": ["Well? Nod or don't, but don't just stand there."],
+      "weak": ["Please."],
+      "fading": ["..."]
+    },
+    "nod": {
+      "clear": ["Thank God. Press on it. Hard. It won't quit bleeding."],
+      "weak": ["Press on it... hard."],
+      "fading": ["...hurts."]
+    },
+    "shot_by": {
+      "clear": ["Man in a faded red shirt. Rode up easy, like he wanted directions. Then he shot me."],
+      "weak": ["Red shirt. Faded red. Rode up like a friend."],
+      "fading": ["...red..."]
+    },
+    "shake": {
+      "clear": ["You'd leave a man in the road? Then go on. Damn you."],
+      "weak": ["Don't... don't leave me here."],
+      "fading": ["..."]
+    },
+    "press": {
+      "clear": ["Christ! That's it. Keep on it."],
+      "weak": ["...that's it."],
+      "fading": ["..."]
+    },
+    "packed": {
+      "clear": ["That'll hold. My horse is yonder. Get me up on him."],
+      "weak": ["My horse..."],
+      "fading": ["..."]
+    },
+    "idle": {
+      "clear": ["Damn, it burns.", "Sun's coming up. Ain't that something.", "Don't you let me lie here."],
+      "weak": ["I'm cold.", "Don't let me lie here."],
+      "fading": ["..."]
+    },
+    "walked_off": {
+      "clear": ["Harlan! HARLAN!"],
+      "weak": ["Harlan..."],
+      "fading": ["..."]
+    },
+    "doctor": {
+      "clear": ["Gut-shot. Help me get him up the steps."],
+      "weak": ["He's bled a fair bit. Up the steps with him, quick now."],
+      "fading": ["Lord. He's near bled white. Get him inside."],
+      "out": ["He's out cold. Help me with him. Now."]
+    },
+    "doctor_after": {
+      "good": ["Somebody packed that wound, and packed it right. That's bought him some hours. Come back tonight."],
+      "poor": ["He's lost more than he can spare. I'll do what I can. It may not be much."]
+    }
+  }
+}

@@ -45,7 +45,10 @@ const HELP := {
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
-	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40)",
+	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
+	"story": "story [clear] -> the story's facts so far (StoryState: sheriff.care ...); clear forgets them",
+	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
+	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
 	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
 	"quit": "quit -> close the game",
 }
@@ -716,7 +719,36 @@ func _cmd_moment(a: Array) -> Dictionary:
 	return _moment.result()
 
 
+func _cmd_story(a: Array) -> Dictionary:
+	if a.size() > 0 and a[0] == "clear":
+		StoryState.clear()
+	return StoryState.to_dict()
+
+
+## A nod (pitch) or a shake (yaw): three swings of 12 degrees, a tenth of a second each, back level.
+func _cmd_nod(_a: Array) -> Dictionary:
+	return await _head(Vector2(0.0, -1.0))
+
+
+func _cmd_shake(_a: Array) -> Dictionary:
+	return await _head(Vector2(1.0, 0.0))
+
+
+func _head(axis: Vector2) -> Dictionary:
+	var yaw0 := player.rotation.y
+	var pitch0 := player.get_pitch_degrees()
+	for k: float in [0.5, 1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0]:
+		_set_view(yaw0 - deg_to_rad(axis.x * 12.0 * k), pitch0 + axis.y * 12.0 * k)
+		await _physics_frames(3)
+	return {"facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1)}
+
+
 func _cmd_moment_result(a: Array) -> Dictionary:
+	if _moment == null or not is_instance_valid(_moment) or _moment.is_queued_for_deletion():
+		_moment = get_tree().get_first_node_in_group(&"moment") as Moment
+		for m in get_tree().get_nodes_in_group(&"moment"):
+			if not (m as Node).is_queued_for_deletion():
+				_moment = m as Moment
 	if _moment == null or not is_instance_valid(_moment):
 		return {"ok": false, "error": "no moment running (moment NAME)"}
 	if a.size() > 0 and a[0] == "wait":
