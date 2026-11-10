@@ -119,7 +119,10 @@ func _find_blocks() -> void:
 			var x0 := float(l.x0)
 			var x1 := float(l.x1)
 			var c := Vector2((x0 + x1) * 0.5, sgn * (front + depth * 0.5))
-			_add_block(String(l.id), "lot", c, Vector2(x1 - x0, depth), 90.0, LOT_H)
+			# Its floor up or down with its walk (G7, #737): the roofline steps with the floors.
+			var walk: Dictionary = l.get("walk", {})
+			var lift := 0.0 if walk.get("none", false) else float(walk.get("h", ValleyTown.WALK_TOP)) - ValleyTown.WALK_TOP
+			_add_block(String(l.id), "lot", c, Vector2(x1 - x0, depth), 90.0, LOT_H + lift)
 	for ex: Dictionary in t.get("extras", []):
 		if ex.has("at") and ex.has("w") and ex.has("d"):
 			_add_block(String(ex.id), "extra", ValleyLayout.xz(ex.at), Vector2(float(ex.w), float(ex.d)), 90.0, float(ex.get("h", BLOCK_H)))

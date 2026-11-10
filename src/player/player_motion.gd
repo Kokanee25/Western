@@ -13,6 +13,8 @@ extends RefCounted
 var steps := 0.0
 ## Where the eyes are above the feet (m), sprung towards standing or crouched.
 var eye_height := 1.64
+## Flat on the ground (the player's crawl): the eyes go to crawl_eye_height, the steps crawl_step.
+var crawling := false
 ## Offsets this frame: the head's position (m; x to the right, y up) and turn (degrees: x pitch up,
 ## z roll to the left).
 var head_pos := Vector3.ZERO
@@ -82,7 +84,9 @@ func looked(delta_degrees: Vector2) -> void:
 
 
 ## The step length (m) at this speed: short and quick crouched, longer as he runs.
-static func step_length(t: PlayerTuning, speed: float, crouching: bool) -> float:
+static func step_length(t: PlayerTuning, speed: float, crouching: bool, crawling := false) -> float:
+	if crawling:
+		return t.step_crawl
 	if crouching:
 		return t.step_crouch
 	if speed <= t.walk_speed:
@@ -101,7 +105,7 @@ func step(t: PlayerTuning, delta: float, local_velocity: Vector3, on_floor: bool
 	footfall = false
 	if on_floor and speed > 0.2:
 		var before := steps
-		steps += speed * delta / maxf(step_length(t, speed, crouching), 0.05)
+		steps += speed * delta / maxf(step_length(t, speed, crouching, crawling), 0.05)
 		footfall = floorf(steps) > floorf(before)
 	var phase := fposmod(steps, 1.0)
 	var run_k := clampf(inverse_lerp(t.walk_speed, t.run_speed, speed), 0.0, 1.0)
@@ -124,7 +128,7 @@ func step(t: PlayerTuning, delta: float, local_velocity: Vector3, on_floor: bool
 	_was_on_floor = on_floor
 	var dip := _dip.step(0.0, delta, t.head_hz, t.head_damping)
 	# Crouching sinks, standing rises: a spring, so heavier settles slower and overshoots a touch.
-	var target_eye := t.crouch_eye_height if crouching else t.stand_eye_height
+	var target_eye := t.crawl_eye_height if crawling else (t.crouch_eye_height if crouching else t.stand_eye_height)
 	eye_height = _eye.step(target_eye, delta, t.crouch_hz, t.crouch_damping)
 	# Winded: his breath heaves him, deeper and faster the more winded.
 	_breath += delta * t.breath_rate * (1.0 + winded * 1.5)

@@ -194,6 +194,32 @@ Results of the G steps that build the new valley beside the old town.
     the men; at the lane's foot (13 m) 0.44 -> 0.64 -> 4.65 over 60 frames, **3.82 over 240** (a
     warm-up in the first); the old town's same view 4.63 (60 frames). The men close up are the cost,
     in both worlds; the house alone 0.2 ms.
+- **G7 walks** (#737, the walks at each owner's height; Sean's table and elevation first:
+  `docs/briefs/valley-walks.md`, `docs/concept/valley-walks.png`, by `tools/valley/town_walks.py`):
+  - **Built** from each lot's `walk` in valley.json: the store's loading dock at 1.10 m, the bank at
+    1.20, the saloon at wagon-bed height (0.95), the assay shack at 0.20, the livery's yard with none;
+    joined walks a flight (the store two treads to the hardware's) or a barrow ramp (the butcher to the
+    bakery's); ends down into every lane and alley, drops off the store's dock and the bank's east end;
+    the wagonwright's and blacksmith's doors ramps; walks from 0.8 m on posts, open underneath, from
+    1.0 m railed; porch roofs at each one's own height (`PorchRoof`). Cellars marked for the saloon,
+    store and bank (dug with #695). The crawl (Sean: "we need to add a way to crawl").
+  - **Tests** (`tests/test_valley_town.gd`, 7): every walk at its height, no riser over 0.2, posts,
+    rails and awnings as the lot says, the joins and drops, room to crawl under the undertaker's and
+    the bank's; the ways go down and up the steps between walks; `walk ... run` to every door and
+    through every passage. Full suite 1,116 passed, 1 failed (`test_settle_incremental`'s worker
+    check, run beside a film: 77/76 broken; alone it passes, 76/76).
+  - **Films** (real look, lavapipe, walking pace): `results/g7_walk_north.mp4` (west to east, door to
+    door by the steps, off the store's dock into its alley; `g7_walk_north.txt`),
+    `results/g7_walk_south.mp4` (east to west; `g7_walk_south.txt`), `results/g7_crawl.mp4` (in under
+    the undertaker's walk; `g7_crawl.txt`). **Sheet** `results/g7_walks_sheet.jpg` (each side looked
+    along from near it every 35 m, and close views `g7_store_drop`, `g7_hotel_doctor_lane`,
+    `g7_undertaker_posts`, `g7_bank`; `g7_walks_pictures.txt`). The overview re-run.
+  - **The frame** (`valley_bench.gd --spots=crossroads --frames=120`, lavapipe, real look; `--no-town`
+    the before), render CPU at Sean's 0.51 -> 0.76 ms (draws 209 -> 537; G5's flat walks 474), load
+    8.1 -> 9.5 s drawn here. Budget 4 ms.
+  - Found: `Waypoints._no_step_up` skipped a look that found nothing (a way straight across an alley
+    between two high walks read as walkable); the bridge's `walk ... run` let go 2 m early on a short
+    last leg and slid on past (now eases to a walk).
 - **The overview** (Sean, 2026-11-09: a fresh one after every G step): `tools/valley/valley_overview.gd`
   (`xvfb-run -a godot --rendering-driver vulkan -s res://tools/valley/valley_overview.gd`, ~3 min
   here) draws the greybox straight down, orthographic, north up, noon, fog and screen-space effects

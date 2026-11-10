@@ -826,8 +826,13 @@ frozen until Sean names one.
   **G6 the farmhouse on the widow's pad** (#731, PR #741, build 3574): the house (spec unchanged) and its
   hills carried into the bake, the East Road and the widow's lane as places, `FarmhouseMission` without
   TownLife (on within 300 m); farm bot town = valley (1/24 won, 19/24 alive each). The overview
-  (`tools/valley/valley_overview.gd`): re-run after each G step. Next: waits on #695's week (the saloon
-  onto its lot) and the horse ridden (G7). For art: the valley's fog (the town's 0.0035) hides the
+  (`tools/valley/valley_overview.gd`): re-run after each G step. **G7 walks** (#737, PR #747, build
+  3681): each lot's `walk` in valley.json (its height and reason; table and elevation
+  `docs/briefs/valley-walks.md`, `docs/concept/valley-walks.png` by `tools/valley/town_walks.py`), flights,
+  ramps, drops, walks on posts and railed, porch roofs (`PorchRoof`, the old porch's part); cellars marked
+  (saloon, store, bank: dug with #695); the player's crawl (hold C/B); the ways go by the steps
+  (`Waypoints._no_step_up` now counts nothing below as a drop). Next: #736 B (places with height); the
+  saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no

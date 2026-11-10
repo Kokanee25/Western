@@ -553,6 +553,11 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- The crawl (#737, Sean): hold crouch's toggle (C, B) `crawl_hold_s` to go down flat, a tap comes up
+  to a crouch, jump or run to stand, each only with room over you (`Player.can_stand(height)`):
+  `is_crawling` (is_crouching too), `force_crawl` (bridge `crawl [on|off]`), PlayerTuning `crawl_*`
+  (0.5 m capsule, eyes 0.36, 0.6 m/s); the visible body put away flat; `height_share()` squashes
+  the wounds' parts (a lying man's hits are still taken as a squashed upright one's).
 - A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
   pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
   on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
@@ -734,6 +739,19 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
+  (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
+  `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
+  `rail_at` 1.0) and its `cellar` (marked only: dug when the building moves onto its lot, #695).
+  `tools/valley/town_walks.py` draws `docs/concept/valley-walks.png` and writes
+  `docs/briefs/valley-walks.md` from the same numbers (its layout mirrors ValleyTown's: change both).
+  ValleyTown: joined walks' higher one carries a flight or ramp down; the ends' flights are places
+  (`<id>_w_top`/`_w_foot`, `_e_...`, the feet linked to Main Street and the passage), a drop has none;
+  `surface()` slopes over flights and ramps so `_line` splits the links on them. Boardwalk's options
+  (`on_posts`, `rail`, `awning` by `PorchRoof`, `ramps`, `end_ramps`, `street_below`, `max_riser`)
+  are off by default. A lot's block rises with its floor. The player crawls (hold C/B; bridge
+  `crawl`) under walks on posts. `Waypoints._no_step_up` counts a look that finds nothing within
+  0.5 m as a drop (a way straight across an alley between two high walks read as walkable).
 - **The farmhouse on the widow's pad** (G6, #731; `tests/test_valley_farmhouse.gd`): ValleyWorld
   builds the old town's `Farmhouse` (spec unchanged) with `layout` given (`-- --no-farmhouse` leaves it
   out): its middle (own x 4.5, z 3.8) on `widow_homestead`'s `at`, `farmhouse.facing` 180, on the
