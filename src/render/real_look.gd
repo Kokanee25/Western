@@ -81,10 +81,33 @@ var _hung := {}
 
 func _ready() -> void:
 	add_to_group(&"real_look")
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--aa="):
+			aa = "taa" if a.substr(5) == "taa" else "fsr2"
 	process_priority = 100  # after DayCycle and the light looks have set this frame's light
 	# At once when the switch moves (a preset's later values, view.* say, then go over it).
 	Settings.changed.connect(_sync)
 	_sync.call_deferred()
+
+
+## Key 0: FSR2 <-> TAA, live, under the real look (Sean's test on his PC, #721).
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"debug_aa") and Settings.real_look:
+		set_aa("taa" if aa == "fsr2" else "fsr2")
+		var overlay := get_tree().root.find_child("DebugOverlay", true, false)
+		if overlay and overlay.has_method("toast"):
+			overlay.toast("Anti-aliasing: %s   (0 switches)" % ("TAA" if aa == "taa" else "FSR2"))
+
+
+## Sets the real look's anti-aliasing now (and for later switches of the look).
+func set_aa(mode: String) -> void:
+	aa = mode
+	var vp := viewport()
+	if vp == null or not _applied:
+		return
+	var vals: Dictionary = AA_TAA if aa == "taa" else {"scaling_3d_mode": VIEW_REAL["scaling_3d_mode"], "use_taa": VIEW_REAL["use_taa"]}
+	for k: String in vals:
+		vp.set(k, vals[k])
 
 
 func _exit_tree() -> void:
@@ -200,6 +223,12 @@ const VIEW_REAL := {
 	"anisotropic_filtering_level": Viewport.ANISOTROPY_16X, "use_debanding": true,
 	"scaling_3d_mode": Viewport.SCALING_3D_MODE_FSR2, "scaling_3d_scale": 1.0, "fsr_sharpness": 0.2,
 }
+## The anti-aliasing under the real look: "fsr2" (the default, VIEW_REAL's) or "taa" (Godot's TAA, no
+## upscaler). Sean's test (#721, 2026-11-09): under lavapipe FSR2 at native scale anti-aliased almost
+## nothing (a 1 m old board's pixel noise 11.8, TAA 3.1); on his PC, key 0 (`debug_aa`) switches it
+## live, `--aa=fsr2|taa` for a run. Not saved: the default stays FSR2 until he decides.
+const AA_TAA := {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "use_taa": true}
+static var aa := "fsr2"
 
 
 func _view(on: bool) -> void:
@@ -211,6 +240,9 @@ func _view(on: bool) -> void:
 			if not _view_before.has(k):
 				_view_before[k] = vp.get(k)
 			vp.set(k, VIEW_REAL[k])
+		if aa == "taa":
+			for k: String in AA_TAA:
+				vp.set(k, AA_TAA[k])
 	else:
 		for k: String in _view_before:
 			vp.set(k, _view_before[k])

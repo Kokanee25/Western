@@ -1,0 +1,22 @@
+{
+ "id": "red_oak_veneer",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/red_oak_veneer",
+ "metres": [
+  1.0,
+  1.0
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-09",
+ "lossless": 2,
+ "mean_linear": [
+  0.5449,
+  0.4085,
+  0.28415
+ ]
+}
