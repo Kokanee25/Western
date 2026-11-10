@@ -1128,10 +1128,19 @@ frozen until Sean names one.
   lever faded case colours, the weakest call); five rounds in game light and first person in the game's
   HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
   cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
-  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
-  Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
-  (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
-  run is ~70 min here. Nothing in the game changed.
+  the Fable polish pass on #733 (all the guns together). Traps: Commons answers 429 (space requests); the
+  Met, Smithsonian, Internet Archive storage and Rock Island (bot check) are out of reach; a big flat face
+  needs face-area weighted normals or it streaks; a view run is ~70 min here.
+  **In the game** (#777, PR #795): the 24" in `assets/weapons/win73_24.*`; `Winchester73Model`/`State`/
+  `Viewmodel`, `config/winchester73.tres` (proposed); key 6, Q the lever (held with a round in: half cock),
+  R a round through the gate, RMB down the buckhorn; one belt with the revolver; `report_rifle`;
+  `HangingRope` (src/structures) and the rope range on minus; feel ranges `winchester_*` (proposed: hip to
+  shot 0.37 s, lever 0.52 s, gate 0.83 s a round, rope 30 m 0.9/0.5, 60 m 0.7/0.3 steady/rushed);
+  `fp_fit.gd` fits the holds in seconds; sheets `results/2026-11-10_in_game/`; blind playtest
+  `docs/playtests/2026-11-10-winchester.md`. Waiting on Sean's play (his issue); next: NPCs carrying it.
+  Traps: the street's outlaw shoots you for firing near him (sheets: face east, out of town); the full
+  suite takes >90 min here (run it in parts); `test_town_day::test_in_a_fight_they_work_together` fails on
+  clean main here too.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
