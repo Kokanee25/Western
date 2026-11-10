@@ -76,6 +76,27 @@ uniform float variety : hint_range(0.0, 1.0) = 1.0;
 uniform float warp_gain = 1.0;
 // Rough-sawn: a circular saw's arcs across the face (a 48 in blade, ~5 mm a tooth), worn down by age.
 uniform float saw_marks = 0.0;
+// How much old varnish darkens (1: not at all).
+uniform float varnish_dark = 0.72;
+// A few years against old (the judge, #721: "few can hardly be told from old"). `age_split`: at a few
+// years the weathered scan's cracks shallower and its grey lighter (silvered, not yet split); old, its
+// darks deeper. `checks`: old boards' sun-splits, long cracks along the grain, widest where they start,
+// the most of them run in from a board's end. `end_rot`: old boards' feet by the ground dark and
+// ragged, where splash and damp sit.
+uniform float age_split = 0.0;
+uniform float checks = 0.0;
+uniform float end_rot = 0.0;
+// Joints as shadowed gaps (the judge: "not lines drawn on"): where a neighbour covers a board's edge
+// (the lap above, a batten: UV2 = the metres covered at the -Y and +Y edges) the face just past it
+// sits in the neighbour's lee, a soft contact shadow `contact` deep; `arris`: the long edges' last
+// millimetres rounded over, as a handled, weathered edge is.
+uniform float contact = 0.0;
+uniform float arris = 0.0;
+// Varnish's years (the judge: "nothing says a few years"; "a uniform crackle web like an overlay"):
+// `handling` dulls and rubs the coat in broad patches from a few years on; `craze_patch` keeps the
+// old coat's crazing to patches and to some boards.
+uniform float handling = 0.0;
+uniform float craze_patch = 0.0;
 // The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
 // figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
 uniform float grain_contrast = 1.0;
@@ -114,6 +135,8 @@ varying float v_role;
 varying float v_width;
 varying vec3 v_axis;   // the board's length in the world
 varying vec3 v_yaxis;  // across its face in the world
+varying flat vec2 v_cover;
+varying flat float v_length;
 
 float hash11(float p) {
 	p = fract(p * 0.1031);
@@ -170,6 +193,8 @@ void vertex() {
 	v_ground = CUSTOM2.z;
 	v_nails = CUSTOM2.xy;
 	v_role = CUSTOM2.w;
+	v_cover = UV2;
+	v_length = L;
 }
 
 // A scan sampled at metres `m` (along the grain, across it) with this board's offset and flips;
@@ -197,11 +222,14 @@ uniform float weathered_grain = 0.0;
 
 vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
 	vec3 n = texture(tex, uv, detail_bias).rgb * 2.0 - 1.0;
+	// OpenGL maps: red along the image's U, green up it (-V). Grain along U: U is along the board, V
+	// across it. Grain along V (the uv swapped): U is across, V along, so along = -green, across = red
+	// (the swap with the same sign turned the relief half round: cracks lit as ridges).
 	if (grain_v) {
-		n.xy = n.yx;
+		n.xy = vec2(-n.y, n.x);
+	} else {
+		n.y = -n.y;
 	}
-	// OpenGL maps: green up the image, which is -across here.
-	n.y = -n.y;
 	n.xy *= flip;
 	return n;
 }
@@ -307,8 +335,16 @@ void fragment() {
 				float ck = smoothstep(0.86, 0.93, texture(big_noise, vec2(v_m.x / 0.5 + seed * 3.0, v_m.y / 0.0025) + 0.5).r);
 				colb *= 1.0 - 0.45 * ck * weathered_grain * fade * wx;
 			}
+			float oldness = smoothstep(0.6, 1.0, ag);
+			if (age_split > 0.0) {
+				vec3 soft = textureLod(albedo_b, uvb, 5.0).rgb * tint_old;
+				float lb = dot(colb, vec3(0.333)) / max(dot(soft, vec3(0.333)), 0.01);
+				colb = mix(colb, mix(soft, colb, 0.5) * 1.22, age_split * (1.0 - oldness));
+				colb *= mix(1.0, clamp(lb, 0.0, 1.0), 0.55 * age_split * oldness);
+			}
 			colb *= 1.0 + value_jitter * variety * rnd(seed, 34.0);
 			vec3 nb = scan_normal(normal_b, uvb, fb, grain_v_b);
+			nb.xy *= mix(1.0, 0.55, age_split * (1.0 - oldness));
 			float rb = texture(rough_b, uvb, detail_bias).r;
 			if (sw > 0.0) {
 				nb = normalize(mix(nb, nb2, sw));
@@ -320,6 +356,61 @@ void fragment() {
 		}
 	}
 
+	float old_k = smoothstep(0.6, 1.0, ag);
+	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9) {
+		float fw = fwidth(v_m.y);
+		for (int i = 0; i < 5; i++) {
+			float fi = float(i);
+			if (hash11(seed * 131.0 + fi * 17.0) > 0.35 + 0.5 * checks) {
+				continue;
+			}
+			// The first three run in from an end; the rest lie in the board's length.
+			float len = (0.12 + 0.5 * hash11(seed * 211.0 + fi * 5.0)) * (i < 3 ? 1.0 : 0.6);
+			float from_end = i < 3 ? (hash11(seed * 17.0 + fi) < 0.5 ? 0.0 : 1.0) : -1.0;
+			float x0 = from_end < 0.0 ? hash11(seed * 419.0 + fi * 3.0) * max(v_length - len, 0.0) : (from_end < 0.5 ? 0.0 : v_length - len);
+			float t = (v_m.x - x0) / len;
+			if (t < 0.0 || t > 1.0) {
+				continue;
+			}
+			// Widest where it starts (the end), tapering to nothing; in the length, a lens.
+			float taper = from_end < 0.0 ? sin(t * 3.14159) : (from_end < 0.5 ? 1.0 - t : t);
+			float yc = rnd(seed, 90.0 + fi) * 0.36 * v_width + (texture(big_noise, vec2(v_m.x / 1.1 + seed * 5.0 + fi * 0.37, seed * 3.0)).r - 0.5) * 0.03;
+			float wdt = (0.0006 + 0.0016 * hash11(seed * 61.0 + fi * 7.0)) * sqrt(max(taper, 0.0)) * (0.5 + 0.5 * checks);
+			float dy = v_m.y - yc;
+			float mk = (1.0 - smoothstep(wdt - fw * 0.5, wdt + fw, abs(dy))) * old_k * step(0.02, taper);
+			col *= 1.0 - 0.88 * mk;
+			// Its lips: the face falls away into it.
+			float lip = (1.0 - smoothstep(wdt, wdt * 3.0 + fw, abs(dy))) * (1.0 - mk) * old_k;
+			nrm.y += sign(dy) * -0.5 * lip;
+		}
+	}
+	if (end_rot > 0.0 && old_k > 0.0 && !floor_face && abs(v_axis.y) > 0.7 && bisect >= 9) {
+		float hr = v_world.y - v_ground;
+		float top = (0.05 + 0.2 * hash11(seed * 23.0)) * end_rot;
+		float rag = (texture(big_noise, vec2(v_m.y / 0.11 + seed * 9.0, hr / 0.6 + seed)).r - 0.5) * 0.12;
+		float rot = (1.0 - smoothstep(top * 0.3, top, hr + rag)) * old_k;
+		col = mix(col, col * vec3(0.4, 0.34, 0.29), rot * 0.85);
+		rough = mix(rough, 1.0, rot);
+	}
+	if (contact > 0.0 && face < 0.5 && bisect >= 8) {
+		float ym = v_m.y + v_width * 0.5;
+		float d_lo = ym - v_cover.x;
+		float d_hi = (v_width - ym) - v_cover.y;
+		float sh = 0.0;
+		if (v_cover.x > 0.0005) {
+			sh = max(sh, step(0.0, d_lo) * exp(-max(d_lo, 0.0) / 0.012));
+		}
+		if (v_cover.y > 0.0005) {
+			sh = max(sh, step(0.0, d_hi) * exp(-max(d_hi, 0.0) / 0.012));
+		}
+		col *= 1.0 - 0.55 * contact * sh;
+	}
+	if (arris > 0.0 && face < 0.5) {
+		float e = smoothstep(v_width * 0.5 - 0.0035, v_width * 0.5, abs(v_m.y));
+		nrm.y += sign(v_m.y) * e * 0.9 * arris;
+		// Down in the joint it's dark (a tongue-and-groove's V most of all).
+		col *= 1.0 - mix(0.25, 0.5, varnish) * e * e * arris;
+	}
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
 	if (!floor_face && bisect >= 9) {
 		// Sun-fade: paler and greyer in broad patches.
@@ -370,13 +461,15 @@ void fragment() {
 			float here = step(-0.2, rnd(seed, 84.0 + kr));
 			rings = here * arc * (1.0 - smoothstep(0.0012, 0.003, abs(length(dr) - rr))) * (0.25 + 0.75 * ag);
 		}
+		wear = max(wear, handling * smoothstep(0.2, 0.6, ag) * 0.75 * smoothstep(0.52, 0.78, texture(big_noise, q / 1.1 + 0.6).r));
 		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Old varnish darkens, and crazes into fine cracks.
-		col *= mix(1.0, 0.72, varnish * smoothstep(0.5, 1.0, ag));
+		col *= mix(1.0, varnish_dark, varnish * smoothstep(0.5, 1.0, ag));
 		float cz = abs(texture(big_noise, v_m * 2.2 + seed * 5.0).r - 0.5);
 		float czw = fwidth(texture(big_noise, v_m * 2.2 + seed * 5.0).r);
 		float craze = (1.0 - smoothstep(0.0, 0.012 + czw, cz)) * smoothstep(0.6, 1.0, ag) * (1.0 - smoothstep(0.02, 0.08, czw));
+		craze *= mix(1.0, smoothstep(0.42, 0.7, texture(big_noise, q / 0.9 + 0.2).r) * step(-0.3, rnd(seed, 85.0)), craze_patch);
 		col *= 1.0 - 0.3 * craze * varnish;
 		// Worn through: paler raw wood; glass rings a pale haze in the coat.
 		col = mix(col, col * 1.35 + 0.02, varnish * smoothstep(0.55, 0.95, wear) * 0.6);

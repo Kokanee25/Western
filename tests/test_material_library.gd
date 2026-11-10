@@ -104,3 +104,13 @@ func test_every_scan_grain_runs_the_way_the_library_says() -> void:
 					dy += absf(img.get_pixel(x, y + 1).get_luminance() - c)
 			var measured := "u" if dy > dx else "v"
 			check_eq(measured, String(sc.get("grain", "u")), "%s (%s's %s): grain along %s" % [sc["id"], e["id"], slot, measured])
+
+
+## The weave (#721, #763): a board's seed is hashed in the fragment shader into the board's place in
+## each scan, so it must reach it exact. Interpolated, its last bits differed from pixel to pixel and
+## the hash made blocks, a weave and smudge of every scan at 1 m. Anything per board that's hashed
+## stays a flat varying.
+func test_the_boards_seed_reaches_the_fragment_shader_flat() -> void:
+	var code: String = (load("res://src/render/scan_wood.gdshader") as Shader).code
+	check(code.contains("varying flat float v_seed;"), "v_seed is a flat varying")
+	check(not code.contains("varying float v_seed;"), "and not an interpolated one")
