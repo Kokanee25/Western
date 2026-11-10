@@ -29,6 +29,10 @@ signal parted(height: float)
 @export var swings := true
 ## A fresh rope hung again this many seconds after it parted (the gun lab's range: 0 never).
 @export var mend_after := 0.0
+## Drawn at least this many screen pixels wide, however far (a 7/8" rope 30 m off is a third of a
+## pixel at 720 lines: the eye sees it, the screen can't). Only its look: a ball still has to find
+## its true width.
+@export var min_pixels := 1.5
 
 ## The section cuts: [{y (m below the anchor), cuts: Array of Vector2 (from, to) across the section,
 ## m from its axis}].
@@ -245,6 +249,17 @@ func mend() -> void:
 	_swing_v = Vector2.ZERO
 	_body.rotation = Vector3.ZERO
 	_hang(length)
+
+
+func _process(_delta: float) -> void:
+	var cam := get_viewport().get_camera_3d() if get_viewport() else null
+	if cam == null or _mesh == null:
+		return
+	var h := float(get_viewport().get_visible_rect().size.y)
+	var dist := cam.global_position.distance_to(_mesh.global_position)
+	var pixel := 2.0 * tan(deg_to_rad(cam.fov) * 0.5) / maxf(h, 1.0)
+	var w := maxf(1.0, dist * pixel * min_pixels / diameter)
+	_mesh.scale = Vector3(w, 1.0, w)
 
 
 func _physics_process(delta: float) -> void:

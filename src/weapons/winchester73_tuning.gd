@@ -83,4 +83,6 @@ extends Resource
 @export var view_kick_rise := 0.1
 @export var view_kick_back := 0.025
 @export var view_climb_degrees := 0.8
-@export var aim_fov := 60.0
+## The view shouldered (degrees; the game's is 75): a little narrower than the coach gun's 62, the
+## eye's on the blade and what's past it (proposed: the rope at 30-60 m is a few pixels at most).
+@export var aim_fov := 52.0

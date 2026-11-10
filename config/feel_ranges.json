@@ -170,7 +170,7 @@
       "max": 0.7,
       "unit": "seconds from raising the Winchester's sights (cocked, at the low ready) to the shot, for a hand that fires the moment the blade's in the notch",
       "measured_by": "test_gun_feel::test_rifle_shoulder_to_first_shot",
-      "last": null,
+      "last": 0.35,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -180,7 +180,7 @@
       "max": 0.9,
       "unit": "seconds between the Winchester's shots, lever and trigger as fast as they go",
       "measured_by": "test_gun_feel::test_rifle_cycling_rate",
-      "last": null,
+      "last": 0.517,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -190,7 +190,7 @@
       "max": 1.6,
       "unit": "seconds a round through the Winchester's gate, R held",
       "measured_by": "test_gun_feel::test_rifle_reload_per_round",
-      "last": null,
+      "last": 1.1,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -200,7 +200,7 @@
       "max": 0.9,
       "unit": "share of steady shots (settled on the shoulder, the blade steered onto the rope and squeezed as a practised hand does: test_gun_feel's _steady_squeeze) that touch a hanging 7/8\" rope 30 m off from 3 m up",
       "measured_by": "test_gun_feel::test_rifle_rope_shot",
-      "last": null,
+      "last": 0.625,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -210,7 +210,7 @@
       "max": 0.6,
       "unit": "share of steady shots that touch the rope 60 m off from 3 m up",
       "measured_by": "test_gun_feel::test_rifle_rope_shot",
-      "last": null,
+      "last": 0.25,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -220,7 +220,7 @@
       "max": 0.35,
       "unit": "share of rushed shots (winded, fired the moment the stock is in the shoulder) that touch the rope 30 m off",
       "measured_by": "test_gun_feel::test_rifle_rope_shot",
-      "last": null,
+      "last": 0.062,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
@@ -230,7 +230,7 @@
       "max": 0.2,
       "unit": "share of rushed shots that touch the rope 60 m off",
       "measured_by": "test_gun_feel::test_rifle_rope_shot",
-      "last": null,
+      "last": 0.0,
       "history": [
         "2026-11-10 proposed by the gameplay session (#734 step 2, the Winchester): Sean to OK or change when he's played it (#777)"
       ]
