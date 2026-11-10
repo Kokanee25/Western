@@ -1,0 +1,38 @@
+{
+  "_doc": "The valley town's people (#756, No Law step 1; docs/missions/BUILD_ORDER.md 0.3): who's in town when, where they stand or sit, and the few props they need, read by ValleyFolk (src/people/valley_folk.gd). A point is `lot` + `at` [a, b]: a metres east of the lot's west side (its x0), b metres back from the street front (north lots: -z, south lots: +z); y the ground's (plus `up`). `hours` [from, to] the clock's hours they're in town (to < from: past midnight). Come in while you watch (the clock running into `from`) and a man walks in from his `from` place by the town's ways (ValleyTown.add_ways plus this file's `places`); the clock set past it (a jump, a load at night) and he's at his post already. Past `to` he walks back out to his `from` and is gone. Sean's B on #755 (unanswered: B by default): the saloon stays a grey block, so the bar, the card table and the drinking are in the saloon's yard (saloon_annex, Sean #700) for now; when the spec saloon goes onto its lot (A, or #695's week) the set moves inside and the people with it.",
+  "status": "PROPOSED (#756): who and where are this session's stand-ins; No Law's card (docs/missions/no-law.md) names the barman, the card player and the red shirt.",
+  "walk_in_h": 0.5,
+  "set": {
+    "_doc": "The saloon yard's stand-in bar and card table. `bar`: the kit bar's middle, running along the yard (b) with its customers' side east (+x, `yaw` 90); `table`: the card table's middle, `chairs` its four chairs by compass round it (each facing the table); `lamps` lit oil lamps (OilLamp, lit 17-4) on the bar's and the table's tops.",
+    "lot": "saloon_annex",
+    "bar": {"at": [1.9, 5.0], "yaw": 90.0},
+    "table": {"at": [7.4, 5.0]},
+    "chair_out": 0.78,
+    "chairs": ["n", "e", "s", "w"],
+    "lamps": [{"on": "bar", "along": -0.9}, {"on": "table"}],
+    "cups": [{"on": "bar", "along": 0.2}, {"on": "bar", "along": 0.9}, {"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}]
+  },
+  "places": {
+    "_doc": "The set's own places, added to the town's ways for the folk: each [a, b] in the set's lot and what it links to (another of these, or the nearest of the town's places with `nearest`).",
+    "nolaw_yard_front": {"at": [5.2, 1.6], "links": ["saloon_annex"], "nearest": true},
+    "nolaw_yard_mid": {"at": [4.9, 8.0], "links": ["nolaw_yard_front"], "nearest": true},
+    "nolaw_bar_north": {"at": [1.0, 7.2], "links": ["nolaw_yard_mid"]}
+  },
+  "people": [
+    {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13],
+     "hours": [17.0, 3.0], "from": "saloon", "post": {"behind": "bar", "along": 0.0},
+     "_doc": "The barman behind the bar (No Law: \"Jesus, Cody, my chair!\"). Comes out of the saloon's door."},
+    {"id": "miner", "name": "Miner", "model": "miner_s4_talking", "seed": 762, "shirt": [0.3, 0.42, 0.6], "vest": [0, 0, 0, 0],
+     "hours": [19.0, 1.5], "from": "hotel", "post": {"at_bar": "bar", "along": -0.6},
+     "_doc": "A drinker at the bar, in from the hotel."},
+    {"id": "rancher", "name": "Rancher", "model": "mexican_rancher_s1_talking", "seed": 763, "shirt": [0.88, 0.82, 0.7], "vest": [0.45, 0.3, 0.2],
+     "hours": [19.3, 1.0], "from": "back@0", "post": {"at_bar": "bar", "along": 0.7},
+     "_doc": "A drinker at the bar, in from Back Street by the North-South Street."},
+    {"id": "earl", "name": "Earl", "model": "old_rancher_s3_talking", "seed": 764, "shirt": [0.6, 0.55, 0.45], "vest": [0.25, 0.2, 0.15],
+     "hours": [19.5, 2.0], "from": "saloon_annex_back", "post": {"chair": "w"},
+     "_doc": "At the card table (the card cheat's Earl: No Law's card player). In from Back Street through the yard."},
+    {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0],
+     "hours": [19.6, 2.0], "from": "hotel", "post": {"chair": "e"},
+     "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."}
+  ]
+}
