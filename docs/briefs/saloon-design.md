@@ -7,11 +7,31 @@ answer the questions in §3.** No game code changed.
 
 Builds on `docs/briefs/saloon-references.md` (the first pass: its figures are checked in §5).
 
+## Sean's answers (2026-11-10)
+
+All DECIDED, Sean on PR #772:
+1. **Concept B, the corner saloon**, with **an open view from the upper floor down to the main floor so
+   people can fall over the rail**: an open well 14 x 22 ft over the card tables (west bay), a railed
+   gallery along the west wall, the dance hall open to it along its west side (the girder line). The dance
+   floor stays closed over the bar, so Payday Night still drops it on the bar. The 13 ft drop over the rail
+   is a fall from height (#736/#759). B's plans and three views were redone for it (B's card below).
+2. **The Baron's men saw the girder** over the bar (a half-sawn joist would hold).
+3. **Both saloons get a hall** ("give both a hall I guess"): The Salt Creek's here, and the Railroad
+   Saloon keeps its own. Payday Night can play in either; its card (PR #743, planning's) says which.
+4. **Open joists** under the dance hall: the girder, the joists and the fresh cut are seen from the bar,
+   dust sifts through the floorboards.
+5. **Re-aim the valley's moon** so it crosses the south: the corner door, the front windows and the
+   balcony frame it.
+6. **The saloon is deeper than valley.json's 17.1 m**: B is 72 ft (21.9 m) deep; the spec sets it.
+7. **Glazed double doors with a transom**, no batwings.
+8. **A boardwalk down the North-South Street** under B's wrapping balcony.
+9. (C's brick front: moot with B. It's on the corner lot, as all four were.)
+
 ## 1. Costs
 
 | What | Spent | Cap |
 | --- | --- | --- |
-| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | **$4.23** (30 views at $0.14 each, every one painted first time; D got two more, the theatre and a fuller rear) | $5.00 (your pre-approval; $1.25 a concept) |
+| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | **TOTAL_SPEND** (33 views at $0.14 each, every one painted first time; D got two more, the theatre and a fuller rear; B three for the open well) | $5.00 (your pre-approval; $1.25 a concept) |
 | Plans (drawn by code from each concept's data), research | $0 | |
 
 The plans aren't painted: `tools/buildings/concept_plans.py` draws them from `experiments/building_lab/saloon_*/concept.json`,
@@ -103,7 +123,7 @@ Colorado on corner entrances with an iron column.
   street**; the kitchen and lunch counter; the store room with the trap and the back door to the yard.
 - *Upper:* the dance hall 36 x 44 ft over the bar's half of the room; the owner's office in the corner over
   the entrance, windows and a door onto both streets' balcony, a grate in its floor over the card tables
-  (⑥); six rented rooms off the back hall.
+  (⑥); four rented rooms off the back hall; the open well and its gallery (⑧, below).
 - *Balcony* wraps the corner: 54 ft on Main Street and 44 ft down the side street, ten posts (④). *Outside
   stair* up the east wall in the yard to the back hall (③).
 
@@ -116,6 +136,14 @@ Colorado on corner entrances with an iron column.
 - *Balcony Ambush:* the best of the four: men on two sides of the corner, ten posts, the corner column the
   key one; blow the corner and both arms sag toward it.
 - *Fire:* frame throughout.
+
+**The open well (Sean, 2026-11-10).** Upstairs, rooms 1 and 2 gave way to an open well 14 x 22 ft over the
+card tables, a turned rail round it (36 in) and a 4 ft gallery along the west wall from the owner's office to
+the back hall; the dance hall's west side is open to it along the girder line. Its framing: the well's edges
+trimmed and headed, the west bay's joists cut short at the header, the girder carrying the rail's side. For
+the missions: No Law's upper viewing place (the card draft's "the upper floor ... could offer another
+viewing position"), men thrown or shot over the rail onto the tables (⑧), the AI's second level over the
+room. Views repainted for it: the cutaway, the door, and the new one over the rail.
 
 **Faults in the sheet** (settled by the spec, not repainted): the rear view painted the plan's red markers
 onto the wall; the front view shows the corner door only from the side.
@@ -236,7 +264,7 @@ Numbers ① to ⑦ match the red marks on every plan.
 | Dance hall over the bar, its floor real framing (Payday Night) | 40 x 48 ft over the bar room, one girder on 3 posts | 36 x 44 ft over the bar's half, two girders on 6 posts | 50 x 42 ft over the barroom, two girders on 6 posts | 40 x 40 ft over the bar room, two girders on 4 posts |
 | ② The cut, over the bar | east bay, over the bar | east bay, over the bar | east bay, over the bar | east bay, over the bar |
 | ③ Outside stair (Payday Night) | west wall, on the side street (seen from across it) | east wall, in the yard (seen from Main Street across the yard) | back wall, over the back street | west wall, up to the boxes |
-| Rooms upstairs; ⑥ the owner's office and his ear | 5 rooms; office over the club room, a grate in its floor | 6 rooms; office in the corner over the entrance, a grate over the card tables | 10 rooms; office over the club room, a grate over the faro table | the boxes, 3 rooms; office over the card tables, a grate |
+| Rooms upstairs; ⑥ the owner's office and his ear | 5 rooms; office over the club room, a grate in its floor | 4 rooms; office in the corner over the entrance, a grate over the card tables; the open well over the tables | 10 rooms; office over the club room, a grate over the faro table | the boxes, 3 rooms; office over the card tables, a grate |
 | ④ Balcony over the walk on posts (Balcony Ambush; falls #736/#759) | 40 ft, 5 posts | wraps the corner: 54 + 44 ft, 10 posts | 50 ft, 4 turned posts | 54 ft, 5 posts; the band plays on it |
 | Cellar; ⑤ its way out | under the back, trap in the store room, bulkhead to the yard | under the bar's back half, trap behind the bar, bulkhead to the yard | under the front, trap behind the bar, iron hatch in the boardwalk | keg cellar under the bar; the poker room under the stage, bulkhead to the back street |
 | Long bar, back bar and mirror | 36 ft, east wall | 34 ft, east wall | 36 ft, east wall | 31 ft, east wall |
