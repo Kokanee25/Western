@@ -840,7 +840,13 @@ frozen until Sean names one.
   `docs/briefs/valley-walks.md`, `docs/concept/valley-walks.png` by `tools/valley/town_walks.py`), flights,
   ramps, drops, walks on posts and railed, porch roofs (`PorchRoof`, the old porch's part); cellars marked
   (saloon, store, bank: dug with #695); the player's crawl (hold C/B); the ways go by the steps
-  (`Waypoints._no_step_up` now counts nothing below as a drop). Next: #736 B (places with height); the
+  (`Waypoints._no_step_up` now counts nothing below as a drop). **The places with height** (#736 A+B,
+  #751, Sean's yes on #752; PR #758, build 3710): fifteen in valley.json's `heights` (Sentinel Butte, the
+  south rim's notch and the rimrock trail, the Baron's coach cut, Robbers' Rock, the stage station, three
+  homesteads, the windmill's water, Cottonwood Bluff, the line shack, water tower, headframe, ore chute,
+  bell tower, the Jump-off); landforms in the bake (`landforms_height`, `undercut`), blocks and `Ladder`s
+  (ValleyMarkers), the lab's `valley_sight`/`valley_climb`; plan `docs/briefs/valley-heights.md`. All 68
+  lines clear, 15 walks within 20 s of the plan. Next: #759 (#736 D, falls from height); the
   saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).

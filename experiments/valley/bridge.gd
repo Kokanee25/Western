@@ -13,10 +13,17 @@ extends BridgeLab
 ##                                       (ValleyRoads' shortest way, as the plan's travel tables go):
 ##                                       the game seconds it took, against the plan's time at the
 ##                                       game's walk (2.8 m/s); where you stuck, if you did (G4)
+##   valley_sight HEIGHT                  you on a place with height's high spot (#736 B), each of its
+##                                       targets measured: distance, how far below, the line from your
+##                                       eye to a man's chest there clear over the ground (the bake,
+##                                       every metre) and through the world (blocks, buildings: a ray)
+##   valley_climb HEIGHT                  you at its ladder's foot walking into it: on top, and how long
 
 const HELP := {
 	"valley_train": "valley_train [run [S] | at MARK [KMH] | sync] -> the valley's daily train: where it is, the engineer's state; run: the day's run from S s after it leaves (no S: by the clock); at: stood with its front on MARK (or held at KMH), nobody driving",
 	"valley_view": "valley_view VP|MARK [LOOK] -> you at a valley viewpoint (vp_*) or beside a route mark, looking at LOOK (a mark or viewpoint; trestle_mid)",
+	"valley_sight": "valley_sight HEIGHT -> you on a valley height's high spot (#736 B); each target: distance, drop, the line to a man's chest there clear over the ground and through the blocks",
+	"valley_climb": "valley_climb HEIGHT -> you at a valley height's ladder foot, walking into it: whether you got on top and how long it took",
 	"valley_walk": "valley_walk PLACE [run] -> walk (or run) by the roads from where you stand to a valley place, bridge or viewpoint: the game seconds it took and the plan's time for that way at the game's walk; where you stuck",
 }
 
@@ -122,6 +129,11 @@ var _roads: ValleyRoads
 ## Where the plan's travel tables end a journey: a place's or viewpoint's `at`, a bridge's middle.
 func _journey_end(id: String) -> Variant:
 	var e := ValleyLayout.main().entry(id)
+	# A place with height (#736 B): where a man goes to it (its ladder's foot, its high spot), not
+	# its middle (a building's).
+	if not ValleyLayout.main().height(id).is_empty() and street is ValleyWorld and (street as ValleyWorld).places().has(StringName(id)):
+		var q := (street as ValleyWorld).places().at(StringName(id))
+		return Vector2(q.x, q.z)
 	if e.has("at"):
 		return ValleyLayout.xz(e.at)
 	if street is ValleyWorld and (street as ValleyWorld).places().has(StringName(id)):
@@ -205,3 +217,116 @@ func _cmd_valley_walk(a: Array) -> Dictionary:
 		"time": "%d:%02d" % [int(secs) / 60, int(secs) % 60], "plan_seconds": snappedf(plan_s, 0.1),
 		"plan_time": "%d:%02d" % [int(plan_s) / 60, int(plan_s) % 60], "road_m": snappedf(float(j.length), 1.0),
 		"walked_m": snappedf(walked, 1.0), "climb_m": snappedf(climb, 1.0), "descent_m": snappedf(drop, 1.0), "roads": j.roads}
+
+
+## The valley's markers (ValleyMarkers), or null.
+func _markers() -> ValleyMarkers:
+	return (street as ValleyWorld).markers if street is ValleyWorld else null
+
+
+## How a man's eye over his feet, and what's aimed at over a target's ground (valley_plan.py's).
+const SIGHT_EYE := 1.6
+const SIGHT_CHEST := 1.2
+## How far in from a roof's or platform's edge a man stands to shoot over it (m).
+const SIGHT_LIP := 0.4
+
+
+func _cmd_valley_sight(a: Array) -> Dictionary:
+	var mk := _markers()
+	if a.is_empty() or mk == null:
+		return {"ok": false, "error": "valley_sight HEIGHT (world valley)"}
+	var hp := ValleyLayout.main().height(str(a[0]))
+	if hp.is_empty():
+		return {"ok": false, "error": "no height %s" % a[0]}
+	var feet := mk.high_spot(str(a[0]))
+	player.velocity = Vector3.ZERO
+	player.global_position = feet + Vector3.UP * 0.05
+	await physics_frames(3)
+	var ter := ValleyTerrain.main()
+	var out := []
+	var all_clear := true
+	var on_block := mk.block_at(Vector2(feet.x, feet.z))
+	for t: Dictionary in hp.targets:
+		var c := ValleyLayout.xz(t.at)
+		# A man on a roof or a platform steps to its edge toward what he shoots at (SIGHT_LIP in).
+		var at := feet
+		var f2 := Vector2(feet.x, feet.z)
+		if not on_block.is_empty():
+			var d2 := (c - f2).normalized()
+			var e := ValleyMarkers.block_exit(on_block, f2, d2)
+			f2 += d2 * maxf(e - SIGHT_LIP, 0.0)
+			at = Vector3(f2.x, feet.y, f2.y)
+		var eye := at + Vector3.UP * SIGHT_EYE
+		# A target in a building is the man at its side toward the shooter; on a rock (a block that
+		# names a place on its top) the man on top.
+		var aim_y := mk.surface(c.x, c.y)
+		var tb := mk.block_at(c)
+		if not tb.is_empty():
+			if String(tb.get("stand", "")) != "":
+				aim_y = (tb.centre as Vector3).y + (tb.size as Vector3).y
+			else:
+				var back := (f2 - c).normalized()
+				c += back * (ValleyMarkers.block_exit(tb, c, back) + 1.5)
+				aim_y = mk.surface(c.x, c.y)
+		var aim := Vector3(c.x, aim_y + SIGHT_CHEST, c.y)
+		var dist := Vector2(c.x - at.x, c.y - at.z).length()
+		# Over the ground: every metre, past the first and last 3 m (the men's own footing).
+		var gap := INF
+		var n := maxi(int(dist), 2)
+		for k in range(1, n):
+			var f := float(k) / n
+			if f * dist < 3.0 or (1.0 - f) * dist < 3.0:
+				continue
+			var q := eye.lerp(aim, f)
+			gap = minf(gap, q.y - ter.height(q.x, q.z))
+		# Through the world: a ray from 0.5 m out to 0.5 m short (blocks, the town, structures).
+		await get_tree().physics_frame
+		var dir := (aim - eye).normalized()
+		var q := PhysicsRayQueryParameters3D.create(eye + dir * 0.5, aim - dir * 0.5, Layers.WORLD)
+		q.exclude = [player.get_rid()]
+		var hit := World.space(player).intersect_ray(q)
+		var hit_what := ""
+		if not hit.is_empty():
+			var p: Vector3 = hit.position
+			# The ground's own hit within the footing allowance isn't a block in the way.
+			if Vector2(p.x - at.x, p.z - at.z).length() > 3.0 and Vector2(p.x - c.x, p.z - c.y).length() > 3.0:
+				hit_what = "%s at %s" % [(hit.collider as Node).name if hit.collider is Node else "?", arr(p)]
+		var ok := gap > 0.3 and hit_what == ""
+		all_clear = all_clear and ok
+		out.append({"name": t.name, "distance": snappedf(dist, 1.0), "below": snappedf(eye.y - aim.y, 0.1), "clear": ok,
+			"ground_gap": snappedf(gap, 0.1), "hit": hit_what})
+	return {"height": str(a[0]), "feet": arr(feet), "all_clear": all_clear, "targets": out}
+
+
+func _cmd_valley_climb(a: Array) -> Dictionary:
+	var mk := _markers()
+	if a.is_empty() or mk == null:
+		return {"ok": false, "error": "valley_climb HEIGHT (world valley)"}
+	var lad := {}
+	for l: Dictionary in mk.ladders:
+		if l.id == str(a[0]):
+			lad = l
+	if lad.is_empty():
+		return {"ok": false, "error": "no ladder at %s" % a[0]}
+	var ladder: Ladder = lad.ladder
+	player.velocity = Vector3.ZERO
+	player.global_position = lad.foot
+	await physics_frames(3)
+	bridge._face(ladder.global_position + Vector3.UP * 1.5)
+	await physics_frames(1)
+	var t0 := bridge._game_seconds()
+	var top: Vector3 = lad.top
+	var got_on := false
+	var on_top := false
+	while bridge._game_seconds() - t0 < 10.0 + ladder.height / ladder.climb_speed * 2.0:
+		bridge._act(true, &"move_forward")
+		await get_tree().physics_frame
+		got_on = got_on or player.ladder != null
+		if player.ladder == null and player.global_position.y > top.y - 0.3:
+			on_top = true
+			break
+	bridge._act(false, &"move_forward")
+	await physics_frames(10)
+	var p := player.global_position
+	return {"height": str(a[0]), "ladder_m": snappedf(ladder.height, 0.1), "got_on": got_on, "on_top": on_top and p.y > top.y - 0.3,
+		"seconds": snappedf(bridge._game_seconds() - t0, 0.1), "at": arr(p), "top": arr(top)}
