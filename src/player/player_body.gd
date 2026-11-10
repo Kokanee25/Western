@@ -76,6 +76,12 @@ func _build() -> void:
 
 
 ## Show the revolver's grip in the holster (holstered) or not (in your hand).
+## Sat in a chair (PlayerSeat): update_pose sits the legs.
+var seated := false
+## The hips over the floor sat (m): the kit chair's seat is 0.47.
+const SEAT_HIP_HEIGHT := 0.52
+
+
 func set_gun_holstered(holstered: bool) -> void:
 	if _holstered_grip:
 		_holstered_grip.visible = holstered
@@ -85,6 +91,14 @@ func set_gun_holstered(holstered: bool) -> void:
 ## bobs, two per stride; pitch is the view pitch in degrees.
 func update_pose(delta: float, speed: float, crouch: float, on_floor: bool, stride_phase: float, pitch: float) -> void:
 	var look_down := clampf(-pitch / 80.0, 0.0, 1.0)
+	if seated:
+		# Sat in a chair (PlayerSeat): hips on the seat, thighs out level over it, shins down.
+		_hips.position = Vector3(0.0, SEAT_HIP_HEIGHT, BACK_OFFSET + LOOK_DOWN_BACK_OFFSET * look_down)
+		_stride_amount = 0.0
+		for i in 2:
+			_thighs[i].rotation.x = deg_to_rad(88.0)
+			_knees[i].rotation.x = deg_to_rad(-92.0)
+		return
 	_hips.position = Vector3(0.0, lerpf(HIP_HEIGHT, CROUCH_HIP_HEIGHT, crouch), BACK_OFFSET + LOOK_DOWN_BACK_OFFSET * look_down)
 	var target_stride := clampf(speed / 3.0, 0.0, 1.3) if on_floor else 0.3
 	_stride_amount = move_toward(_stride_amount, target_stride, delta * 4.0)

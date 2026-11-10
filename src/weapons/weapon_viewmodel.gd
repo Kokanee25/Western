@@ -25,6 +25,8 @@ var drawn := true
 var aiming := false
 ## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).
 var hands_busy := false
+## Why the hands are busy, when it isn't a wound (sat at a table): PlayerWounds sets it.
+var busy_why := ""
 var arm_disabled := false
 ## Why the arm can't hold it, in plain words (PlayerWounds sets it with `arm_disabled`).
 var arm_why := ""
@@ -168,7 +170,7 @@ func why_not_usable() -> String:
 	if arm_disabled:
 		return arm_why if arm_why != "" else "your arm won't hold it"
 	if hands_busy:
-		return "your hands are pressing on a wound"
+		return busy_why if busy_why != "" else "your hands are pressing on a wound"
 	return ""
 
 
