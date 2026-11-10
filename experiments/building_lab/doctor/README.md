@@ -8,7 +8,7 @@ Art lane, branch `claude/art-building-doctor-8rz70p`. The building lab's six ste
 | `sheet/` | step 1, the target sheet: `request.json` (the views' words), `panels/`, `sheet.jpg`, `spent.json` |
 | `REFERENCES.md` | the period references (found by search; not opened from the session) |
 | `doctor.json` | step 2, the spec (format 1 and what's NEW for a one-storey gable front) |
-| `plan.png` | the ground plan drawn from the spec (`tools/buildings/plan_sheet.py`) |
+| `results/plan.png` | the ground plan drawn from the spec (`tools/buildings/plan_sheet.py`) |
 
 ## Step 1: the target sheet (approved by Sean, 2026-11-10)
 
@@ -46,7 +46,7 @@ destructible through and through; it stands (nothing over 16% of its limit under
 nothing over with a crowd on both floors); **built right** (`Checks.built_right`, #695: nothing
 crosses any of its 28 openings through the whole wall, the 18 in outer walls framed and every
 window glazed); doors and use points fit a man; every room has its use points; the porch's posts
-carry its roof. `xray.jpg` is drawn from the built members (`tools/buildings/xray.py`).
+carry its roof. `results/xray.jpg` is drawn from the built members (`tools/buildings/xray.py`).
 
 What the checks caught on the way (each fixed in the builder or the spec):
 - the door's kings ran up through the loft window over it, the window's down through the door
