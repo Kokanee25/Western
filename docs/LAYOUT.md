@@ -1320,6 +1320,21 @@ his mouth and the subtitle), `prompt` (PlayerWounds.say), `card(text, s)` (a bla
 a stand-in for what isn't built), `fact(key, value)` (StoryState, stamped with the clock), `timeline`.
 Every moment is in the group `moment` (the bridge's `moment_result` finds one it didn't start).
 
+**No Law's murder** (`no_law_murder.gd`, `NoLawMurder`, a `CardCheat`, which is an `Act`; #773; data
+`config/moments/no_law_murder.json`; `tests/test_no_law_murder.gd`): started by ValleyFolk (its
+`hour` 22 on the first night, or from `earliest` once you've played `after_hands` hands at the table;
+`murder_auto`, `-- --no-murder`) or the bridge's `moment no_law_murder`. The stranger (ValleyFolk's
+act man) walks in and sits in the free chair you're not in; `after_s` on, Cody (the red shirt, a
+stand-in model) in by his `in` places; within `stop_m` of the table the game `interrupt(&"red_shirt",
+true)`, you `PlayerSeat.hold`ed if sat there, the stranger's warning, every folk brain `hush`ed;
+the accusation, Earl's reply, then CardCheat's beats (turn, kick, after_kick, draw, approach) on
+Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics, smoke, flash, sound,
+`shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
+line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
+word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
+of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
+`nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`.
+
 ## src/missions (the farmhouse)
 
 - `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
@@ -1506,6 +1521,14 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
   seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
   valley_bench spot `saloon_yard`.
+  A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
+  act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
+  a man out for the rest of his hours (`kept_out`). It starts No Law's murder (`_maybe_murder`,
+  `start_murder`; src/moments). **CivilianBrain**'s lines: a man's no closer than `SAY_GAP` 2.5 s
+  (but fire, thanks, his chair), a shot's cry `CRY_SPREAD` after it, kept back if another just cried,
+  never another man's line of the last 4 s; `hush(s)` (an act's quiet); a gun drawn within `GUN_SEEN`
+  9 m that he sees: uneasy, a line (`gun_out`), his eye on the man; SitChore's man whose chair went
+  from under him says so once he's up (`chair`).
 - **`CardGame`** (`src/people/card_game.gd`, #766, No Law step 2; data `config/card_game.json`, rules
   **`Poker`** `src/people/poker.gd`: cards 0..51, `score`/`compare`/`name`/`discards`;
   `tests/test_card_game.gd`): ValleyFolk makes one at the set's table with its four chairs. Five-card

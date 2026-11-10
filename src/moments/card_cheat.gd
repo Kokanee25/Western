@@ -1,5 +1,5 @@
 class_name CardCheat
-extends Moment
+extends Act
 ## The card cheat (docs/briefs/showcase-moments.md; Sean's favourite): Earl sits back at the
 ## saloon's card table; Cody, cheated the day before, walks in angry (clip `walk_angry`), comes up
 ## with his back to Earl's chair and kicks its back legs out behind him (clip `kick_back`: his
@@ -13,6 +13,8 @@ extends Moment
 ##
 ## Data: config/moments/card_cheat.json (who, where, the hour, the clips, the lines, the timings).
 ## Bridge: `moment card_cheat [animated=0] [hour=H]`, `moment_result [wait]`.
+## An Act (its lines, prompts, facts) so No Law's murder (NoLawMurder, #773) plays its walk, kick,
+## draw and stand-over on the valley's own men.
 
 const KICK_POSE_LANDS := 0.23  ## s into the kick pose the boot lands (#204's scene: 14 ticks)
 const KICK_POSE_IMPULSE := 48.0  ## N·s a kicking leg gives (the chair lab's)
@@ -32,7 +34,7 @@ var chair_parent: Node
 var _target := Vector3.ZERO
 var _back := Vector3.FORWARD  ## the way the chair's back faces (out of the back posts)
 var _head_spot := Vector3.ZERO
-var _said := 0
+var _lines_said := 0
 var _fell_t := -1.0
 var _loose_t := -1.0
 var _kick_t := -1.0
@@ -40,11 +42,7 @@ var _kicked_pose := false
 
 
 func begin() -> void:
-	animated = bool(int(opts.get("animated", 1 if data.get("animated", true) else 0)))
-	for beat: String in data.get("clips", {}):
-		var n := StringName(data.clips[beat])
-		if animated and MotionClip.load_clip(n) != null:
-			clips[beat] = n
+	_load_clips()
 	set_hour()
 	var table: Array = data.get("table", [7.6, 0.78, 4.2])
 	var table_at := Vector3(table[0], table[1], table[2])
@@ -61,28 +59,48 @@ func begin() -> void:
 		_note("no free chair at the table")
 		_finish(&"no_chair")
 		return
-	chair_was = chair.global_transform
-	chair_parent = chair.get_parent()
-	_back = -chair.global_basis.z
-	_back.y = 0.0
-	_back = _back.normalized()
-	chair.went_loose.connect(func() -> void: _loose_t = t; _note("the chair went loose"))
+	_take_chair(chair)
 	# Earl, already in his chair as the beat begins (he's been at the table a while): posed sitting
 	# back first, his weight on the seat half a second on, as the chair lab sat its men (sat down
 	# standing-posed, his weight settles on the seat wrong and the fall goes forward).
 	var spot := Seating.spot(chair)
 	cheater = _man(data.cheater, spot, Seating.faces(chair), false)
 	cheater.set_pose(&"sit_back")
-	cheater.fell.connect(func(_c: bool) -> void: _fell_t = t; _note("Earl fell"))
 	# Cody at the door.
 	victim = _man(data.victim, enter, spot, true)
+	_watch_men()
+	state = &"sitting"
+
+
+## The clips that exist for the beats (`clips` in the data), unless `animated=0`.
+func _load_clips() -> void:
+	animated = bool(int(opts.get("animated", 1 if data.get("animated", true) else 0)))
+	for beat: String in data.get("clips", {}):
+		var n := StringName(data.clips[beat])
+		if animated and MotionClip.load_clip(n) != null:
+			clips[beat] = n
+
+
+## The chair Cody kicks: where it stood (to put a whole one back), the way its back faces.
+func _take_chair(c: KitProp) -> void:
+	chair = c
+	chair_was = chair.global_transform
+	chair_parent = chair.get_parent()
+	_back = -chair.global_basis.z
+	_back.y = 0.0
+	_back = _back.normalized()
+	chair.went_loose.connect(func() -> void: _loose_t = t; _note("the chair went loose"))
+
+
+## Earl's fall, Cody's boot and his draw, noted and acted on.
+func _watch_men() -> void:
+	cheater.fell.connect(func(_c: bool) -> void: _fell_t = t; _note("Earl fell"))
 	victim.clip_struck.connect(func(m: Node, r: StringName, speed: float) -> void:
 		strikes.append(String(r))
 		_note("Cody's boot %s %s at %.1f m/s" % [{&"broke": "broke", &"moved": "shifted", &"held": "stopped on"}.get(r, "met"), m.name, speed]))
 	victim.clip_event.connect(func(_c: StringName, ev: String) -> void:
 		if ev == "draw":
 			victim.draw_gun())
-	state = &"sitting"
 
 
 func _man(d: Dictionary, at: Vector3, faces: Vector3, armed: bool) -> HumanBody:
@@ -218,9 +236,9 @@ func _physics_process(delta: float) -> void:
 			if not clips.has("stand_over"):
 				victim.face(head)
 			var lines: Array = data.get("lines", [])
-			if _said < lines.size() and state_t > 0.3 + 2.3 * _said:
-				Events.spoke.emit(victim, String(lines[_said]))
-				_said += 1
+			if _lines_said < lines.size() and state_t > 0.3 + 2.3 * _lines_said:
+				Events.spoke.emit(victim, String(lines[_lines_said]))
+				_lines_said += 1
 			if state_t > float(data.get("hold_s", 4.0)):
 				_note("it times out: no one dies yet")
 				victim.stop_clip()

@@ -89,3 +89,36 @@ within arm's length look at you closely: `lines_senses` and `sight_sync` ~2 ms a
 the street). The card game drawn ~0.25-0.4 ms a tick here while cards and chips move; headless
 (`build`-style Prof sums, 600 ticks) 0.05-0.07 ms a tick, and sat or stood by the chair the same.
 The cards and chips are two MultiMeshes (+4 draws; the faces up are text, a draw each).
+
+## Step 3 (#773): the red shirt, the kick and the murder
+
+The code: `src/moments/no_law_murder.gd` (`NoLawMurder`, a `CardCheat`, which is now an `Act`); data
+`config/moments/no_law_murder.json`, the two men in `config/valley_folk.json` (`act`); tests
+`tests/test_no_law_murder.gd`; LAYOUT "src/moments" and "src/people". Still B on #755: the yard.
+
+```sh
+godot -- --world=valley        # 7 three times (21:30); sit at the card table; after your first hand
+                               # (or at 22:00 wherever you are) it happens
+python3 tools/bridge.py start --game-args=--world=valley,--no-murder
+python3 tools/bridge.py "time 21" "wait 3" "sit n" "look earl" "moment no_law_murder" "wait 30" "moment_result" "story"
+experiments/valley_folk/film_murder.sh build/murder_films [seat|bar]   # the films (~25 min each here)
+```
+
+What happens (`moment_result`'s `events`, the test's run): the stranger in from the street and sat
+in the south chair at 3.5 s ("Evening. Mind if I sit in a while?"); Cody in at 6.5 s; within 6 m of
+the table the game stops and holds, you're held (E: "The stranger's hand is on your arm. Sit
+still."), the stranger: "Don't move, friend..."; Cody's accusation at 3.5 m, Earl's "Now, Cody, I
+never..." and the kick from behind (the clip's boot on the crest rail, then a spindle broken: the
+chair goes, Earl with it) at ~12.5 s; the draw, over him, one shot at ~17 s ("Dead (brain)"); "Ain't
+no law left in this valley to save you now, Earl."; he holsters and walks out; the barman's "Jesus,
+Cody, my chair!" ~1.6 s on, the room silent till then (the folk hushed); out of the yard at ~23 s;
+the stranger's word 4 s later, you let go, he goes; the drifter (5 s) and the miner (9 s) leave;
+Cody and the stranger walk off east down Main Street and are taken out once out of your sight or
+45 m on. Earl's body stays (ValleyFolk: `dead`). Not sat, it happens the same (`seen_from` heard /
+yard / away). StoryState: `nolaw.murder` done, `nolaw.seen_from`, `nolaw.witnessed`, `nolaw.earl`.
+
+From step 2's playtest, where it touches this scene (CivilianBrain): a man's lines 2.5 s apart at
+least (fire, thanks and his chair aside); a shot's cries spread 0.15-1.1 s, kept back if another just
+cried, never a line another man said in the last 4 s; a gun drawn within 9 m that a man sees: a line
+("Whoa, now. Easy with that iron.") and his eye on the gunman; a man whose chair went from under him
+says so once he's up.

@@ -10,6 +10,7 @@ var valley: ValleyWorld
 
 
 func before_each() -> void:
+	ValleyFolk.murder_auto = false  # No Law's murder (#773) has its own tests
 	if holder != null:
 		return
 	holder = Node.new()
