@@ -256,6 +256,11 @@ The outline was never the fault: the crop's overlap was 0.956 before and after. 
     `saa_checker`). The bake cuts a 1.2 mm diamond knurl into it. Close up it shows; at the game
     views' distance it's faint, dark on dark.
 
+**Approved** (Sean, 2026-11-10): "the spur reads as a thumb rest now, close enough. Leave the shape."
+For later, not now: the checkering a touch lighter in the next surfaces pass; Sean judges it in first
+person, in the hand. The Winchester (#734) copies this method (script from real dimensions, the photo
+overlay with per-part crops, game-light views, then paint).
+
 ## Results
 
 `results/2026-11-09/` (round 1, placeholder materials, 7½", Main Street at 16:00, real look):
