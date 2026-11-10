@@ -15,6 +15,8 @@ var steps := 0.0
 var eye_height := 1.64
 ## Flat on the ground (the player's crawl): the eyes go to crawl_eye_height, the steps crawl_step.
 var crawling := false
+## Sat in a chair (PlayerSeat): the eyes go to seat_eye_height.
+var seated := false
 ## Offsets this frame: the head's position (m; x to the right, y up) and turn (degrees: x pitch up,
 ## z roll to the left).
 var head_pos := Vector3.ZERO
@@ -129,6 +131,8 @@ func step(t: PlayerTuning, delta: float, local_velocity: Vector3, on_floor: bool
 	var dip := _dip.step(0.0, delta, t.head_hz, t.head_damping)
 	# Crouching sinks, standing rises: a spring, so heavier settles slower and overshoots a touch.
 	var target_eye := t.crawl_eye_height if crawling else (t.crouch_eye_height if crouching else t.stand_eye_height)
+	if seated:
+		target_eye = t.seat_eye_height
 	eye_height = _eye.step(target_eye, delta, t.crouch_hz, t.crouch_damping)
 	# Winded: his breath heaves him, deeper and faster the more winded.
 	_breath += delta * t.breath_rate * (1.0 + winded * 1.5)

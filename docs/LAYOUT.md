@@ -572,6 +572,16 @@ it all away and puts the probe and haze back.
   a rect under the wounds' overlay, shown only while there's grit). Past the blast's reach,
   `Blast.detonate` calls `feel_blast` out to `felt_reach_x`. Measured by the sound lab's
   `dynamite_you_*` and `on_you.py`.
+- `PlayerSeat` (`player_seat.gd`, #766, No Law step 2; dials PlayerTuning `seat_*`): E by a free kit
+  chair (its seat within `seat_reach`, in `seat_view_deg` of your view; in the group `claims_use`, so
+  it isn't a shove) sits you in it: `KitProp.sit(player)` (80 kg: the player has no `total_mass`), eyes
+  to `seat_eye_height` (`PlayerMotion.seated`), the legs sat (`PlayerBody.seated`), the crouch's capsule.
+  Sat: the walk skipped (`step`), the view held within `seat_turn_deg` of the chair (`clamp_turn`, on
+  each look too), no gun (PlayerWounds sets `hands_busy`, `busy_why`: "you're sat at the table"). E
+  stands you a step clear (`_clear_spot`) unless `hold(reason, why)` (an act; E says `why`). The chair's
+  `went_loose` (kicked, broken, blown) drops you flat (the crawl) and still for `seat_fall_s`
+  (`dumped`); `Player.fell` exists only so a kit chair can listen for it. Bridge `sit [n|e|s|w]`,
+  `stand`; `read player`'s `seat`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -1511,6 +1521,23 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
   seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
   valley_bench spot `saloon_yard`.
+- **`CardGame`** (`src/people/card_game.gd`, #766, No Law step 2; data `config/card_game.json`, rules
+  **`Poker`** `src/people/poker.gd`: cards 0..51, `score`/`compare`/`name`/`discards`;
+  `tests/test_card_game.gd`): ValleyFolk makes one at the set's table with its four chairs. Five-card
+  draw among whoever's sat and fit in them (`sat()`: a conscious HumanBody, or the player), two or more
+  with a man among them: shuffle, ante, deal (the men deal in turn; Earl the cheat deals himself one
+  off the bottom `cheat.odds` of his deals, `cheated`), a betting round, the draw, a second round, the
+  showdown (`hand_done`), between; the men bet by `Poker.strength` and the data's `play`, say lines
+  (`lines`, `by` a man; `say_chance`, `say_gap_s`; Events.spoke), reach for the deck and the pot
+  (`reach_to`) and watch whoever's turn it is (`FaceLife.attend_to`). You're dealt in from the next
+  hand after you sit at it: your cards face up before you, on your turn a nod calls/checks and a shake
+  folds (HeadGesture), waited on `you_wait_s` you check or fold to a bet; prompts by PlayerWounds.say (what a call costs, the pot, your chips). Stops
+  (`interrupted(reason)`, the cards left lying, the pot riding): a shot within `stop_on.shot_m`, a blast
+  within `blast_m`, any man of the hand out of his chair (`up`: kicked, his brain's trouble), an act's
+  `interrupt(reason, hold)`; deals again after `resume_after_s` calm with two sat, unless `hold`; you
+  standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
+  drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
+  valley_bench spot `card_seat` (you sat in the north chair, the game going).
 
 ## src/audio
 

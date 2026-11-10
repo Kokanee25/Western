@@ -1,0 +1,71 @@
+{
+  "_doc": "The card game at the saloon yard's table (#766, No Law step 2; CardGame, src/people/card_game.gd): five-card draw among whoever is sat at it (two or more), the player dealt in when he sits in a free chair there. A scene, not a minigame (Sean, #766): the men deal, ante, bet, draw and show by these rules and numbers, saying a line now and then; on your turn a nod calls (or checks) and a shake folds, and if you do neither for `you_wait_s` you check, or fold to a bet. It runs until something stops it (`stop_on`, a man out of his chair, an act's `interrupt`); the cards stay where they lie. Chips are a stake each, no money yet.",
+  "status": "PROPOSED (#766): the game, the stakes, the timings and the lines are this session's; No Law (docs/missions/no-law.md) asks only for 'a card game' that's interrupted.",
+  "ante": 1,
+  "bets": [1, 2],
+  "max_raises": 2,
+  "stack": {"men": 40, "you": 20},
+  "rebuy_below": 3,
+  "beats": {
+    "_doc": "Seconds: the shuffle, everyone's ante, a card dealt every deal_every_s (each in the air card_fly_s), a man's think (between the two), the draw a man, the showdown's look, between hands; on your turn you're waited on you_wait_s; a chip pushed takes chip_fly_s.",
+    "shuffle_s": 2.4, "ante_s": 1.2, "deal_every_s": 0.16, "card_fly_s": 0.22, "think_s": [1.0, 2.6],
+    "draw_s": 1.3, "showdown_s": 5.0, "between_s": 3.5, "you_wait_s": 7.0, "chip_fly_s": 0.3
+  },
+  "play": {
+    "_doc": "How the men play their cards (Poker.strength, 0..1: a pair of jacks ~0.47): open the betting past open_at, raise past raise_at (each with its chance), call with anything past call_at, and with less now and then (bluff_call); a man folds what he won't call.",
+    "open_at": 0.4, "open_chance": 0.7, "raise_at": 0.6, "raise_chance": 0.5, "call_at": 0.27, "bluff_call": 0.25
+  },
+  "cheat": {
+    "_doc": "Earl deals himself from the bottom now and then (No Law: the card player the red shirt believes has been cheating): dealing, `odds` that one of his cards is swapped for one that pairs his best. Counted in the report (`cheated`).",
+    "who": "earl", "odds": 0.3
+  },
+  "say_chance": 0.55,
+  "say_gap_s": 2.5,
+  "stop_on": {"_doc": "A shot this near (m), a blast this near: the hand's over.", "shot_m": 40.0, "blast_m": 90.0},
+  "resume_after_s": 25.0,
+  "place": {
+    "_doc": "Where things lie on the table, from its middle toward each chair (m): a man's cards `cards_in` from the middle, spread `card_gap` apart; his chips `chips_in`, `chips_side` to his right; the pot `pot_off` from the middle; the deck by the dealer `deck_in`.",
+    "cards_in": 0.33, "card_gap": 0.072, "chips_in": 0.4, "chips_side": 0.2, "deck_in": 0.22, "pot_off": [0.0, 0.0]
+  },
+  "you": {
+    "turn": "Your bet: {call} to call. Nod: call · shake: fold",
+    "turn_check": "Your bet. Nod: check · shake: fold",
+    "stakes": "\n(pot {pot} · you have {stack})",
+    "they_bet": "{who} makes it {n}",
+    "dealt": "You're dealt in: {hand}",
+    "next_hand": "You're in from the next hand",
+    "you_call": "You call", "you_check": "You check", "you_fold": "You fold",
+    "you_draw": "You draw {n}", "you_stand_pat": "You stand pat",
+    "you_win": "You take the pot with {hand}",
+    "broke": "You're cleaned out"
+  },
+  "lines": {
+    "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these.",
+    "shuffle": ["Five-card draw. Ante up.", "Same game, gents.", "Cut 'em thin, deal 'em true.", "Ante."],
+    "your_turn": ["Your bet, mister.", "Up to you, friend.", "Mister?", "You in or out?"],
+    "check": ["Check.", "I'll knock.", "Check."],
+    "bet": ["A dollar.", "I'll bet.", "Bet two bits more'n it's worth.", "Bet."],
+    "call": ["I'll see that.", "Call.", "Don't mind if I do.", "See you."],
+    "raise": ["And one more.", "Raise.", "Let's make it worth the lamp oil."],
+    "fold": ["Ain't my night.", "I'm out.", "Fold.", "Hell with it."],
+    "draw_0": ["I'll play these.", "None for me."],
+    "draw_1": ["One.", "Just the one."],
+    "draw_2": ["Two.", "Give me two."],
+    "draw_3": ["Three. And make 'em good.", "Three."],
+    "win": ["{hand}. Thank you kindly.", "{hand}. Read 'em.", "{hand}."],
+    "win_quiet": ["Mine, I reckon.", "Nobody? Then that's mine."],
+    "lose": ["Again.", "Hell.", "That's a hand."],
+    "rebuy": ["Hold on, I've got more.", "Spot me a minute."],
+    "you_fold": ["Smart.", "Can't win 'em all, mister."],
+    "you_win": ["Well, look at the new fella.", "Beginner's luck."],
+    "by": {
+      "earl": {
+        "win": ["{hand}. Lady's been kind tonight.", "{hand}. Don't look at me like that."],
+        "shuffle": ["My deal. Ante up, boys.", "Five-card. Same as ever."]
+      },
+      "drifter": {
+        "lose": ["Every damn hand.", "You're a lucky old man, Earl."]
+      }
+    }
+  }
+}
