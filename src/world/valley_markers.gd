@@ -299,17 +299,34 @@ func _find_places() -> void:
 			if places.has(StringName(id)):
 				continue
 			places.add(StringName(id), _on_ground(Vector2((float(l.x0) + float(l.x1)) * 0.5, sgn * (front - 1.5))))
-	# The roads out of town a man is sent along by name (G6): the East Road and the widow's lane.
+	# The roads out of town a man is sent along by name (G6): the East Road and the widow's lane;
+	# Harlan's ford path (#746, the opening), its ends joined to his homestead and the East Road.
 	for id: String in WAY_ROADS:
 		if not layout.road(id).is_empty():
 			_add_road_way(id)
+	var ford: Array = ways.get("harlan_ford_path", [])
+	if not ford.is_empty():
+		if places.has(&"harlan_homestead") and ford[0] != &"harlan_homestead":
+			join(&"harlan_homestead", ford[0])
+		var east: Array = ways.get("east_road", [])
+		var end := places.at(ford[-1])
+		var near := &""
+		var nd := INF
+		for n: StringName in east:
+			var d := places.at(n).distance_to(end)
+			if d < nd:
+				nd = d
+				near = n
+		if near != &"" and near != ford[-1]:
+			join(ford[-1], near)
 
 
 # --- The roads as ways (G6) --------------------------------------------------------------------
 
 ## The roads walked by the places (G6, #731): `walk farm_porch` from the crossroads goes down Main
-## Street to its east end, along the East Road over Bridges A and B and up the widow's lane.
-const WAY_ROADS: Array[String] = ["east_road", "widow_lane"]
+## Street to its east end, along the East Road over Bridges A and B and up the widow's lane; and
+## Harlan's ford path (#746) from his homestead down to the East Road at the opening's site.
+const WAY_ROADS: Array[String] = ["east_road", "widow_lane", "harlan_ford_path"]
 ## A way's links: no longer than this (m), and the ground along one rising no more than WAY_RISE
 ## over its lower end (Waypoints._walkable sweeps it at the lower end's height: as ValleyTown's).
 const WAY_LINK_MAX := 12.0
