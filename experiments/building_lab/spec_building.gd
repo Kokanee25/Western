@@ -269,6 +269,7 @@ func build() -> void:
 	_use_points()
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
+	_library_finishes()
 
 
 # --- foundation, cellar, posts and beams (band 0) -------------------------------------------------
@@ -2185,6 +2186,25 @@ func _yard_front() -> void:
 			add_member("fence/picket_%d_%d" % [int(a * 100), j], &"board", wood, Vector3(0.07, 1.1, 0.02), Vector3(px, 0.6, z + 0.095))
 			px += 0.15
 			j += 1
+	# A board fence down the yard's far side (`side_fence`: the doctor's, against the alley), 6 ft:
+	# its posts at `x`, the rails and boards outside them (toward -x), the boards' face on the lot line.
+	var sf: Dictionary = yf.get("side_fence", {})
+	if not sf.is_empty():
+		var fx := float(sf.x)
+		var za := float(sf.z[0])
+		var zb := float(sf.z[1])
+		var fh := float(sf.get("h", 1.8))
+		var n := maxi(1, ceili((zb - za) / 2.4))
+		for i in n + 1:
+			add_member("fence/side_post_%d" % i, &"post", &"framing", Vector3(0.09, fh + 0.3, 0.09), Vector3(fx, (fh + 0.3) * 0.5 - 0.3, za + (zb - za) * i / n))
+		for h in [0.3, fh - 0.25]:
+			add_member("fence/side_rail_%d" % int(h * 100), &"beam", &"framing", Vector3(0.04, 0.09, zb - za), Vector3(fx - 0.065, h, (za + zb) * 0.5))
+		var bz := za
+		var j := 0
+		while bz < zb - 0.05:
+			add_member("fence/side_board_%d" % j, &"board", wood, Vector3(0.02, fh - 0.05, 0.14), Vector3(fx - 0.095, (fh - 0.05) * 0.5 + 0.05, bz + 0.07))
+			bz += 0.15
+			j += 1
 	# The gate's leaves, standing open into the yard.
 	var lw := (g1 - g0) * 0.5 - 0.03
 	for e in 2:
@@ -2277,3 +2297,152 @@ func _braces() -> void:
 				bas = Basis(dir, bas.y, dir.cross(bas.y).normalized())
 				add_member("%s/brace_%d" % [w.id, e], &"ledger", &"framing", Vector3(len, 0.09, 0.025), c, bas.orthonormalized())
 				break
+
+
+# --- finishes from the material library by name (#765; Sean, 2026-11-10: only woods the materials
+# judge passed, #721; a building takes its finish from the library by name, so a finish that passes
+# later appears without a rebuild) -----------------------------------------------------------------
+
+const LIB_SHADER := "res://src/render/scan_wood.gdshader"
+const LIB_AGES := {"new": 0.0, "few": 0.5, "old": 1.0}
+var _lib_mats := {}
+
+## The finish a surface takes (spec.materials.finishes[name]): its `want` when the library has that
+## entry and it's passed at that age (the entry's `approved`), else its `use` (a swatch the
+## materials judge passed: the spec says which round). {entry, age, role} or {}.
+func finish(name: String) -> Dictionary:
+	var f: Dictionary = (spec.materials.get("finishes", {}) as Dictionary).get(name, {})
+	if f.is_empty():
+		return {}
+	var want: Dictionary = f.get("want", {})
+	if not want.is_empty():
+		var e := MaterialLibrary.entry(String(want.entry))
+		if not e.is_empty() and (e.get("approved", []) as Array).has(String(want.get("age", "few"))):
+			return want
+	return f.get("use", {})
+
+
+## Which finish a member takes (spec.materials.surfaces: [[pattern in its id, finish], ...] the
+## first that matches; then `framing` for timber, none for stone, glass and the sign).
+func _finish_of(m: StructureMember) -> String:
+	var id := String(m.member_id).trim_prefix(String(structure_id) + "/")
+	if m.kind == &"glass" or m.wood in [&"stone", &"brick", &"sign", &"glass"]:
+		return ""
+	for s: Array in spec.materials.get("surfaces", []):
+		if id.contains(String(s[0])):
+			return String(s[1])
+	return "framing"
+
+
+## Every member drawn as a board of its finish's library wood (the library's shader, a board mesh
+## in its own frame carrying the shader's per-board channels: Structure batches such boards by the
+## way they face). Members made later (a cut's ends) are drawn in their own wood as before.
+func _library_finishes() -> void:
+	if not (spec.materials.get("finishes", {}) as Dictionary).size():
+		return
+	var gy := global_position.y if is_inside_tree() else 0.0
+	for m: StructureMember in get_members():
+		var fname := _finish_of(m)
+		if fname == "":
+			continue
+		var f := finish(fname)
+		if f.is_empty():
+			continue
+		var mi := m.drawn_node()
+		if mi == null:
+			continue
+		var e := MaterialLibrary.entry(String(f.entry))
+		var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("class", "common")), SamplePanel.CLASSES[&"common"])
+		var ai: int = ["new", "few", "old"].find(String(f.get("age", "few")))
+		var warp := float(cls.warp[ai]) * float(e.get("warp_scale", 1.0))
+		var nails := Vector2(float(e.get("nails", 1)), float(e.get("nail_at", 0.6)))
+		# The board's frame in the member: X along its longest side, Y its next, Z through it.
+		var s := m.size
+		var order := [0, 1, 2]
+		order.sort_custom(func(a: int, b: int) -> bool: return s[a] > s[b])
+		var ex := Vector3.ZERO
+		ex[order[0]] = 1.0
+		var ey := Vector3.ZERO
+		ey[order[1]] = 1.0
+		var ez := ex.cross(ey)
+		var length: float = s[order[0]]
+		var rng := hash(m.member_id)
+		mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, gy)
+		mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
+		mi.material_override = _lib_material(f, gy)
+
+
+func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
+	var key := "%s/%s/%s" % [f.entry, f.get("age", "few"), f.get("role", "wall")]
+	if _lib_mats.has(key):
+		return _lib_mats[key]
+	var mat := ShaderMaterial.new()
+	mat.shader = load(LIB_SHADER)
+	MaterialLibrary.apply(mat, MaterialLibrary.entry(String(f.entry)), float(LIB_AGES.get(String(f.get("age", "few")), 0.5)), StringName(f.get("role", "wall")))
+	# Its walls' height (shelter under the eaves: the shader's `wall_top` over the ground).
+	mat.set_shader_parameter(&"wall_top", wall_height)
+	_lib_mats[key] = mat
+	return mat
+
+
+## A board's mesh in the library shader's own layout (scan_wood.gdshader's header: X along 0..L,
+## Y across, Z through; CUSTOM0 seed, x / L, 2y / W, face; CUSTOM1 L, W, T, warp; CUSTOM2 nails,
+## their place, ground y, role), its grid coarser than the sample panel's (a building has thousands
+## of boards: ~150 vertices a long board, not ~600), its arrays kept on it (MemberMesh.arrays_of:
+## the batch merges them without a read back) and marked `board_frame` for Structure's batching.
+static func _board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails: Vector2, ground_y: float) -> ArrayMesh:
+	var nx := clampi(ceili(length / 0.4), 2, 14)
+	var ny := 2
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var idx := PackedInt32Array()
+	var hw := width * 0.5
+	var ht := thick * 0.5
+	var grid := func(nu: int, nv: int, at: Callable, normal: Vector3, face: float) -> void:
+		var base := v.size()
+		for j in nv + 1:
+			for i in nu + 1:
+				var p: Vector3 = at.call(float(i) / nu, float(j) / nv)
+				v.append(p)
+				n.append(normal)
+				if face == 1.0:
+					uv.append(Vector2(p.y, p.z))
+				elif face == 2.0:
+					uv.append(Vector2(p.x, p.z))
+				else:
+					uv.append(Vector2(p.x, p.y))
+				c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / maxf(hw, 0.001), -1.0, 1.0), face])
+				c1.append_array([length, width, thick, warp])
+				c2.append_array([nails.x, nails.y, ground_y, 0.0])
+		for j in nv:
+			for i in nu:
+				var a := base + j * (nu + 1) + i
+				idx.append_array([a, a + nu + 1, a + 1, a + 1, a + nu + 1, a + nu + 2])
+	grid.call(nx, ny, func(s, t): return Vector3(s * length, (t * 2.0 - 1.0) * hw, ht), Vector3.BACK, 0.0)
+	grid.call(nx, ny, func(s, t): return Vector3((1.0 - s) * length, (t * 2.0 - 1.0) * hw, -ht), Vector3.FORWARD, 0.0)
+	grid.call(nx, 1, func(s, t): return Vector3((1.0 - s) * length, hw, (t * 2.0 - 1.0) * ht), Vector3.UP, 2.0)
+	grid.call(nx, 1, func(s, t): return Vector3(s * length, -hw, (t * 2.0 - 1.0) * ht), Vector3.DOWN, 2.0)
+	grid.call(1, 1, func(s, t): return Vector3(0.0, (1.0 - s * 2.0) * hw, (t * 2.0 - 1.0) * ht), Vector3.LEFT, 1.0)
+	grid.call(1, 1, func(s, t): return Vector3(length, (s * 2.0 - 1.0) * hw, (t * 2.0 - 1.0) * ht), Vector3.RIGHT, 1.0)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = n
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_CUSTOM0] = c0
+	arrays[Mesh.ARRAY_CUSTOM1] = c1
+	arrays[Mesh.ARRAY_CUSTOM2] = c2
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -ht - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
+	mesh.set_meta(&"arrays", arrays)
+	mesh.set_meta(&"board_frame", true)
+	return mesh

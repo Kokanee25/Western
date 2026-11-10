@@ -56,12 +56,21 @@
   ],
   "_sean": "Sean, 2026-11-10: 28 x 48 ft (conflict 1); the pad (2a); the yard's front as works best (3: the walk stops at the building, steps down at its east end, the yard open to Main Street by a wagon gate in a picket fence: a wagon or his buggy backs to the surgery's side door); the attic made usable (4).",
   "yard_front": {
-   "_doc": "the walk ends at the building (valley.json doctor walk.span); a picket fence on the front line with a wagon gate 10 ft wide, its posts 4x4",
+   "_doc": "the walk ends at the building (valley.json doctor walk.span); a picket fence on the front line with a wagon gate 10 ft wide on 4x4 posts, and a board fence down the yard's side against the alley",
    "fence_z": 0.0,
    "gate": [
     -4.6,
     -1.55
-   ]
+   ],
+   "side_fence": {
+    "_doc": "a 6 ft board fence down the side yard's east edge against the doctor's alley, from the front line back past the building (the yard private, the alley an alley)",
+    "x": -7.765,
+    "z": [
+     0.0,
+     16.4
+    ],
+    "h": 1.8
+   }
   }
  },
  "levels": {
@@ -1424,16 +1433,193 @@
   }
  ],
  "materials": {
-  "_doc": "PROVISIONAL until step 4 (only woods the materials judge passed, #721, from PR #761's library: the 'fine' class F2 and its nearest passing age). Placeholders the builder knows today.",
+  "_doc": "Sean, 2026-11-10 (#765): finished unpainted for now on swatches the materials judge passed (#721; docs/screenshots/judge/2026-11-10_material_r3e: R1 new and a few years, C1 old, F2 all three ages), each surface taking its finish from the library by name (spec_building.gd finish()): a finish's `want` (the paint he needs) is used the moment the library has that entry passed at that age; until then its `use`. Stone, brick, glass and the sign aren't the library's (yet).",
+  "finishes": {
+   "exterior": {
+    "want": {
+     "entry": "painted_white_lap",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "white lead on narrow clapboard, two years old (the approved sheet); C1 passes only old"
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_green_trim",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "bottle-green trim, corner boards, sash and doors"
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "pale painted beaded boards (cream in the office, grey-green in the surgery)"
+   },
+   "ceiling": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    },
+    "_why": "the library's only passing floor; a varnished pine floor would be his own"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "rough-sawn timber where it shows: the loft's rafters and joists, the porch's frame, the roof boards' undersides"
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the roof boards, the porch's and stoop's decks, steps, the fence, the ladder"
+   }
+  },
+  "surfaces": [
+   [
+    "/siding/",
+    "exterior"
+   ],
+   [
+    "/corner_",
+    "trim"
+   ],
+   [
+    "/trim_",
+    "trim"
+   ],
+   [
+    "/transom_bar",
+    "trim"
+   ],
+   [
+    "roof/ridge_cap",
+    "trim"
+   ],
+   [
+    "front/door_",
+    "trim"
+   ],
+   [
+    "back/door_",
+    "trim"
+   ],
+   [
+    "yard/door_",
+    "trim"
+   ],
+   [
+    "lane/door_",
+    "trim"
+   ],
+   [
+    "/in_ground/",
+    "inside"
+   ],
+   [
+    "/in_upper/",
+    "inside"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
+   [
+    "/m/casing",
+    "inside"
+   ],
+   [
+    "/p/casing",
+    "inside"
+   ],
+   [
+    "/door_",
+    "inside"
+   ],
+   [
+    "ceiling/",
+    "ceiling"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "floor/attic/board",
+    "floor"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "back_porch/board",
+    "rough"
+   ],
+   [
+    "back_porch/roof_board",
+    "rough"
+   ],
+   [
+    "stoop/",
+    "rough"
+   ],
+   [
+    "fence/",
+    "rough"
+   ],
+   [
+    "stair/",
+    "rough"
+   ],
+   [
+    "ladder/",
+    "rough"
+   ]
+  ],
   "floor": "wood:int_floor",
   "wall_boards": "int_boards",
   "woodwork": "wood:int_timber",
   "timber": "wood:int_timber",
-  "exterior_sides": "painted_white",
   "trim_outside": "painted_green",
   "roof": "weathered_pine",
-  "rough": "framing",
-  "chimney": "brick"
+  "rough": "framing"
  },
  "sources": [
   "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
