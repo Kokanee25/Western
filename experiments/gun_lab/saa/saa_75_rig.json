@@ -1,0 +1,197 @@
+{
+ "about": "Colt Single Action Army (1873 pattern), #693 step 1: experiments/gun_lab/saa/saa_blender.py. Godot space, metres, the gun's local frame (barrel along -Z, up +Y, right +X). Angles in degrees about the axis given (right-hand rule). Travel numbers marked 'est' are estimates from the mechanism's geometry, not measured.",
+ "barrel_in": 7.5,
+ "parts": [
+  "Frame",
+  "Gate",
+  "Barrel",
+  "EjectorHousing",
+  "Ejector",
+  "Cylinder",
+  "BasePin",
+  "Hammer",
+  "Trigger",
+  "Bolt",
+  "Backstrap",
+  "TriggerGuard",
+  "Grip",
+  "Screw_Hammer",
+  "Screw_HammerR",
+  "Screw_Bolt",
+  "Screw_BoltR",
+  "Screw_Trigger",
+  "Screw_TriggerR",
+  "Screw_BasePin",
+  "Screw_GateCatch",
+  "Screw_GuardFront",
+  "Screw_GuardRear",
+  "Screw_Ejector",
+  "Screw_BackstrapL",
+  "Screw_BackstrapR",
+  "Screw_Butt"
+ ],
+ "rounds": {
+  "case": "Case<k>",
+  "bullet": "Bullet<k>",
+  "parent": "Cylinder",
+  "show": "loaded: case+bullet; spent: case only; empty: neither"
+ },
+ "moving": {
+  "Cylinder": {
+   "pivot": [
+    0.0,
+    0.04064,
+    -0.015748
+   ],
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "index_deg": 60.0,
+   "note": "chamber k sits at 60k deg clockwise from the top seen from behind; +60 about the axis turns the next chamber up under the hammer (Colt's way, clockwise from behind). Turned by the hand while cocking from half to full cock.",
+   "gate_chamber_deg": 75.0
+  },
+  "Hammer": {
+   "pivot": [
+    0.0,
+    0.01651,
+    0.00254
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "notches_deg": {
+    "rest": 0.0,
+    "safety": 4.0,
+    "half": 10.0,
+    "full": 24.0
+   },
+   "note": "est: the four clicks (C-O-L-T); the pivot is low (the Met gun's hammer screw), so 24 deg takes the face ~0.6 in back"
+  },
+  "Trigger": {
+   "pivot": [
+    0.0,
+    0.008382,
+    -0.011938
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "pull_deg": -6.0,
+   "cocked_deg": -3.0,
+   "note": "est: the trigger comes back with the hammer as it cocks, a short pull lets it go"
+  },
+  "Bolt": {
+   "pivot": [
+    0.0,
+    0.011176,
+    -0.018796
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "down_deg": -5.0,
+   "note": "est: down while the cylinder turns, up into the next notch at full cock"
+  },
+  "Gate": {
+   "pivot": [
+    0.018471,
+    0.0328,
+    -0.010363
+   ],
+   "axis": [
+    0,
+    0,
+    -1
+   ],
+   "open_deg": -95.0,
+   "note": "est: swings out and down to the right about an axis along the bore"
+  },
+  "Ejector": {
+   "pivot": [
+    0.012758,
+    0.044058,
+    -0.057353
+   ],
+   "axis": [
+    0,
+    0,
+    1
+   ],
+   "stroke_m": 0.04521,
+   "note": "slides back (toward +Z) by the stroke; its rear tip then stands past the cylinder's back"
+  }
+ },
+ "markers": {
+  "Muzzle": [
+   0.0,
+   0.053848,
+   -0.247244
+  ],
+  "SightRear": [
+   0.0,
+   0.06477,
+   -0.013208
+  ],
+  "SightFront": [
+   0.0,
+   0.06985,
+   -0.231496
+  ],
+  "GripWeb": [
+   0.0,
+   0.042418,
+   0.010922
+  ],
+  "TriggerFace": [
+   0.0,
+   -0.007112,
+   -0.008128
+  ],
+  "GatePoint": [
+   0.012758,
+   0.044058,
+   -0.004013
+  ],
+  "BoreBreech": [
+   0.0,
+   0.053848,
+   -0.056744
+  ]
+ },
+ "dims_in": {
+  "bore": 0.445,
+  "groove": 0.454,
+  "barrel_od_breech": 0.7,
+  "barrel_od_muzzle": 0.686,
+  "gap": 0.006,
+  "cyl_len": 1.608,
+  "cyl_dia": 1.65,
+  "bolt_circle": 0.52,
+  "chamber": 0.481,
+  "rim": 0.512,
+  "rim_t": 0.06,
+  "case_len": 1.285,
+  "oal": 1.6,
+  "bullet": 0.454,
+  "headspace": 0.062,
+  "frame_front_len": 0.686,
+  "top_strap": [
+   0.33,
+   0.48
+  ],
+  "frame_bottom": -1.62,
+  "eject_od": 0.44,
+  "eject_rod": 0.22,
+  "eject_len": 4.05,
+  "eject_stroke": 1.78,
+  "base_pin": 0.21
+ }
+}

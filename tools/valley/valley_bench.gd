@@ -15,6 +15,10 @@ extends SceneTree
 ## its timetable at the end of the line far from you (from east_start, or from the Ore Works for a
 ## spot east of the depot), and the train's own systems (Prof `train*`, `people_*` for its engineer)
 ## are averaged too. `--no-railway` (a game arg, ValleyWorld) is the valley without it: the before.
+## The farmhouse (G6, #731): `farm_lane` and `farm_start`, its lane's foot and the try's start looking
+## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
+## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
+## (`--mission=sheriff`: the sheriff and his horse there). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -22,6 +26,8 @@ extends SceneTree
 var frames := 60
 var out_path := ""
 var ride := false
+## `--spots=a,b`: only those spots.
+var only: PackedStringArray = []
 var main: Node
 
 
@@ -33,12 +39,21 @@ func _initialize() -> void:
 			out_path = a.substr(6)
 		elif a == "--ride":
 			ride = true
+		elif a.begins_with("--spots="):
+			only = a.substr(8).split(",")
 	_run.call_deferred()
 
 
 func _spots(world: StringName) -> Array:
+	var fh = load("res://src/missions/farmhouse.gd")
 	if world != &"valley":
-		return [["street", Vector3(11.0, 0.0, -9.0), 121.0]]
+		# The old town's farmhouse from its lane's foot and the try's start (G6's reference).
+		var hm: Vector3 = fh.at(fh.MIDDLE)
+		var tl: Vector3 = fh.at(Vector3(2.8, 0.0, -9.0))
+		var ts: Vector3 = fh.carried(40.0, TownLayout.street_z(40.0) + 3.0)
+		return [["street", Vector3(11.0, 0.0, -9.0), 121.0],
+				["farm_lane", tl, _heading(Vector2(tl.x, tl.z), Vector2(hm.x, hm.z))],
+				["farm_start", ts, _heading(Vector2(ts.x, ts.z), Vector2(hm.x, hm.z))]]
 	var lay = load("res://src/world/valley_layout.gd").main()
 	var env: Rect2 = lay.envelope()
 	var mid := env.get_center()
@@ -50,6 +65,30 @@ func _spots(world: StringName) -> Array:
 	var vp: Dictionary = lay.viewpoint("vp_trestle_overlook")
 	var o := Vector2(vp.at[0], vp.at[1])
 	out.append(["trestle_overlook", Vector3(o.x, 0.0, o.y), _heading(o, mid)])
+	# The widow's pad (G6, #731): from the lane's foot and from the mission's start on the slope,
+	# looking at the house (its mission comes on as you're there: you're within its reach). With
+	# `--no-farmhouse` (a game arg) the same spots, the pad bare: the before.
+	var pad: Dictionary = lay.place("widow_homestead")
+	var house := Vector2(pad.at[0], pad.at[1])
+	var lane := house + Vector2(-1.7, 12.8)  # (the farm's lane foot: its own (2.8, -9), turned to face south)
+	var start := house + Vector2(-58.0, 55.6)  # (the try's start: the old town's road_east, carried)
+	if fh.in_valley():
+		var l: Vector3 = fh.at(Vector3(2.8, 0.0, -9.0))
+		lane = Vector2(l.x, l.z)
+		var st: Vector3 = fh.carried(40.0, TownLayout.street_z(40.0) + 3.0)
+		start = Vector2(st.x, st.z)
+	out.append(["farm_lane", Vector3(lane.x, 0.0, lane.y), _heading(lane, house)])
+	out.append(["farm_start", Vector3(start.x, 0.0, start.y), _heading(start, house)])
+	# The opening (#746): Harlan's place looking down his ford path, and the site from 4 m up the
+	# path looking at where the sheriff lies. With `--mission=sheriff` (a game arg) he's there, his
+	# horse by him; without it the same spots bare: the before.
+	var home: Vector2 = lay.place_at("harlan_homestead")
+	var site: Vector2 = lay.place_at("opening_site")
+	var ford: PackedVector2Array = lay.road_line("harlan_ford_path")
+	var down: Vector2 = home + (ford[1] - home).normalized() * 6.0
+	var near: Vector2 = site + (ford[ford.size() - 2] - site).normalized() * 4.0
+	out.append(["harlan_home", Vector3(down.x, 0.0, down.y), _heading(down, ford[1])])
+	out.append(["sheriff_site", Vector3(near.x, 0.0, near.y), _heading(near, site)])
 	return out
 
 
@@ -95,6 +134,8 @@ func _run() -> void:
 			await process_frame
 		report.load_ms["timetable_after"] = (Time.get_ticks_usec() - tw) / 1000.0
 	for s: Array in _spots(settings.world):
+		if not only.is_empty() and not String(s[0]) in only:
+			continue
 		var at: Vector3 = s[1]
 		if ground:
 			at.y = ground.height_at(at.x, at.z) + 0.05
@@ -106,6 +147,11 @@ func _run() -> void:
 			ground.valley.prime(at + Vector3.UP * 1.6)
 		var prime_ms := (Time.get_ticks_usec() - tp) / 1000.0
 		var far := _train_far(world_root, at)
+		# At the farmhouse its mission on, as you'd find it (the valley's starts as you come near):
+		# `--no-farm-mission` (a game arg) leaves the house empty.
+		var fmn = world_root.get_node_or_null(^"FarmhouseMission")
+		if String(s[0]).begins_with("farm_") and fmn and fmn.state == 0 and not "--no-farm-mission" in OS.get_cmdline_user_args():
+			fmn.begin(false)
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
@@ -118,6 +164,9 @@ func _run() -> void:
 		m["sean_render_cpu_ms"] = snappedf(float(m.render_cpu_ms) * scale, 0.01)
 		m["at"] = [at.x, at.y, at.z, s[2]]
 		report.spots[s[0]] = m
+		var fm = world_root.get_node_or_null(^"FarmhouseMission")
+		if fm:
+			m["farm_men"] = fm.brains.size()
 		print("%-17s frame %.1f ms (p99 %.1f)  render CPU %.2f ms (Sean's %.2f)  draws %d  prims %dk  blocks %s  prime %.0f ms  train %.3f ms  people %.3f ms  nodes %d" % [
 				s[0], m.avg_ms, m.p99_ms, m.render_cpu_ms, m.sean_render_cpu_ms, m.draw_calls, m.primitives / 1000.0,
 				m.get("blocks", {}).get("by_level", {}), prime_ms, m.train_ms, m.people_ms, m.nodes])

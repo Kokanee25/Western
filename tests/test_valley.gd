@@ -158,8 +158,10 @@ func test_the_valley_scene_is_empty() -> void:
 		check_eq(Ground.of(get_tree()), ground, "it's the ground (Ground.of)")
 		check_near(ground.height_at(0.0, 0.0), 0.0, 1e-4, "the crossroads at Y 0")
 		check(ground.valley != null and ground.valley.bodies.size() > 0, "its chunks")
-	for name in ["TownLife", "TownLayout", "Farmhouse", "FarmhouseMission", "StreetDressing", "FireSystem"]:
+	for name in ["TownLife", "TownLayout", "StreetDressing", "FireSystem"]:
 		check(valley.find_child(name, true, false) == null, "no %s in the valley" % name)
+	# (G6: the farmhouse and its mission on the widow's pad; tests/test_valley_farmhouse.gd.)
+	check(valley.get_node_or_null(^"Farmhouse") is Farmhouse and valley.get_node_or_null(^"FarmhouseMission") is FarmhouseMission, "the farmhouse and its mission (G6)")
 	var people := get_tree().get_nodes_in_group(&"people")
 	check(people.size() <= 1 and people.all(func(p: Node) -> bool: return p.name == "Engineer"), "nobody in it but the train's engineer (G3) (%s)" % [people.map(func(p: Node) -> String: return p.name)])
 	var rail := valley.get_node_or_null(^"Railway") as ValleyRailway

@@ -28,3 +28,18 @@ Reference only; not for the game or the repo. The repo licence is the licence of
 
 Searched but not kept: Freedoom's pistol and pump (sci-fi, the hands barely show); Blade of Agony's rifle and shotgun sprites (pieces, not a whole view); AssaultCube (too dark); OpenSpades, vkQuake2, LibreQuake and TheForceEngine (no first-person shots in their repos); the Minecraft gun mods (blocky arms, rifles only); Smokin' Guns, the open-source Western FPS (no screenshots in its repos).
 Blocked hosts: user-images.githubusercontent.com, imgur, *.github.io, opengameart, itch, moddb, codeberg. gitlab.com works.
+
+# The Colt Single Action Army, side on (fetched 2026-11-09, #693, for the SAA's shape)
+
+**`saa_met_59-143-4_left.jpg`** (in this folder, 1920 x 1213): "Peacemaker" Colt Single-Action Army
+Revolver, serial no. 4519, 1874; The Metropolitan Museum of Art, New York, accession 59.143.4, Gift
+of John E. Parsons, 1959; L. 13 in., barrel 7½ in., cal. .45. **CC0** (The Met's Open Access, as
+recorded on its Wikimedia Commons page). Source: https://www.metmuseum.org/art/collection/search/24848 ;
+the file: https://commons.wikimedia.org/wiki/File:%22Peacemaker%22_Colt_Single-Action_Army_Revolver,_serial_no._4519_MET_59.143.4_169744_jan2015.jpg
+(its 1920 px rendition). The left side, straight on, on a plain ground: the reference the SAA's
+outlines are fitted to (`experiments/gun_lab/saa/overlay.py`; the README's "The reference").
+
+Looked at for detail, not kept here: the Smithsonian's NMAH series "Colt SAA-NMAH-AHB2015q0217xx/08xx"
+on Commons (CC0, Smithsonian Open Access): close three-quarter views of the left side (the hammer
+spur, the screws, the recoil shield). Wikimedia answers this workspace's shared address with 429s
+often: fetch one file at a time, spaced, at a standard thumbnail width (960, 1280, 1920).

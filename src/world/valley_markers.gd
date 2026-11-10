@@ -119,7 +119,10 @@ func _find_blocks() -> void:
 			var x0 := float(l.x0)
 			var x1 := float(l.x1)
 			var c := Vector2((x0 + x1) * 0.5, sgn * (front + depth * 0.5))
-			_add_block(String(l.id), "lot", c, Vector2(x1 - x0, depth), 90.0, LOT_H)
+			# Its floor up or down with its walk (G7, #737): the roofline steps with the floors.
+			var walk: Dictionary = l.get("walk", {})
+			var lift := 0.0 if walk.get("none", false) else float(walk.get("h", ValleyTown.WALK_TOP)) - ValleyTown.WALK_TOP
+			_add_block(String(l.id), "lot", c, Vector2(x1 - x0, depth), 90.0, LOT_H + lift)
 	for ex: Dictionary in t.get("extras", []):
 		if ex.has("at") and ex.has("w") and ex.has("d"):
 			_add_block(String(ex.id), "extra", ValleyLayout.xz(ex.at), Vector2(float(ex.w), float(ex.d)), 90.0, float(ex.get("h", BLOCK_H)))
@@ -296,6 +299,150 @@ func _find_places() -> void:
 			if places.has(StringName(id)):
 				continue
 			places.add(StringName(id), _on_ground(Vector2((float(l.x0) + float(l.x1)) * 0.5, sgn * (front - 1.5))))
+	# The roads out of town a man is sent along by name (G6): the East Road and the widow's lane;
+	# Harlan's ford path (#746, the opening), its ends joined to his homestead and the East Road.
+	for id: String in WAY_ROADS:
+		if not layout.road(id).is_empty():
+			_add_road_way(id)
+	var ford: Array = ways.get("harlan_ford_path", [])
+	if not ford.is_empty():
+		if places.has(&"harlan_homestead") and ford[0] != &"harlan_homestead":
+			join(&"harlan_homestead", ford[0])
+		var east: Array = ways.get("east_road", [])
+		var end := places.at(ford[-1])
+		var near := &""
+		var nd := INF
+		for n: StringName in east:
+			var d := places.at(n).distance_to(end)
+			if d < nd:
+				nd = d
+				near = n
+		if near != &"" and near != ford[-1]:
+			join(ford[-1], near)
+
+
+# --- The roads as ways (G6) --------------------------------------------------------------------
+
+## The roads walked by the places (G6, #731): `walk farm_porch` from the crossroads goes down Main
+## Street to its east end, along the East Road over Bridges A and B and up the widow's lane; and
+## Harlan's ford path (#746) from his homestead down to the East Road at the opening's site.
+const WAY_ROADS: Array[String] = ["east_road", "widow_lane", "harlan_ford_path"]
+## A way's links: no longer than this (m), and the ground along one rising no more than WAY_RISE
+## over its lower end (Waypoints._walkable sweeps it at the lower end's height: as ValleyTown's).
+const WAY_LINK_MAX := 12.0
+const WAY_RISE := 0.3
+## Looked at every this (m) along a road.
+const WAY_STEP := 1.0
+## A way's end joins a place already there within this (m) (Main Street's end, a road it leaves).
+const WAY_JOIN := 1.5
+## Each road's way: its places' names in order along it.
+var ways := {}
+
+
+## A road's places along it (`<road>@<metres along>`), each link as long as WAY_LINK_MAX and
+## WAY_RISE allow, a place at every bend; its ends taken by a place already there within WAY_JOIN.
+func _add_road_way(id: String) -> void:
+	var line := layout.road_line(id)
+	var decks := road_bridges().values()
+	var pts := PackedVector2Array()
+	var ss := PackedFloat32Array()
+	var bend := {}  # sample index -> true at the line's vertices
+	var s_at := 0.0
+	for i in range(1, line.size()):
+		var n := maxi(1, ceili(line[i - 1].distance_to(line[i]) / WAY_STEP))
+		for k in range(0 if i == 1 else 1, n + 1):
+			var p := line[i - 1].lerp(line[i], float(k) / n)
+			if pts.size() > 0:
+				s_at += p.distance_to(pts[pts.size() - 1])
+			pts.append(p)
+			ss.append(s_at)
+		bend[pts.size() - 1] = true
+	var ys := PackedFloat32Array()
+	for p in pts:
+		ys.append(_surface(p, decks))
+	var names: Array[StringName] = []
+	var i0 := 0
+	names.append(_way_place(id, pts[0], ys[0], ss[0], true))
+	while i0 < pts.size() - 1:
+		var best := i0 + 1
+		var j := i0 + 1
+		while j < pts.size():
+			if pts[i0].distance_to(pts[j]) > WAY_LINK_MAX or _way_rise(ys, i0, j) > WAY_RISE:
+				break
+			best = j
+			if bend.has(j):
+				break
+			j += 1
+		var n := _way_place(id, pts[best], ys[best], ss[best], best == pts.size() - 1)
+		if n != names[-1]:
+			places.link(names[-1], n)
+			names.append(n)
+		i0 = best
+	ways[id] = names
+
+
+## The most the surface rises over the lower end of the piece from sample i to j.
+static func _way_rise(ys: PackedFloat32Array, i: int, j: int) -> float:
+	var low := minf(ys[i], ys[j])
+	var worst := 0.0
+	for k in range(i, j + 1):
+		worst = maxf(worst, ys[k] - low)
+	return worst
+
+
+## The place at a way's point: at its ends one already there within WAY_JOIN, else a new one.
+func _way_place(id: String, p: Vector2, y: float, s: float, end: bool) -> StringName:
+	var best := &""
+	var best_d := WAY_JOIN
+	for n: StringName in (places.points if end else {}):
+		var q: Vector3 = places.points[n]
+		var d := Vector2(q.x - p.x, q.z - p.y).length()
+		if d < best_d and absf(q.y - y) < 0.6:
+			best_d = d
+			best = n
+	if best != &"":
+		return best
+	var name := StringName("%s@%d" % [id, roundi(s)])
+	places.add(name, Vector3(p.x, y + 0.05, p.y))
+	return name
+
+
+## The place at a road's far end (its way's last), or "" if it has no way.
+func way_end(id: String) -> StringName:
+	var w: Array = ways.get(id, [])
+	return w[-1] if not w.is_empty() else &""
+
+
+## `a` linked to `b` through places between (`a>b~1`...) on the ground, each piece within
+## WAY_LINK_MAX and WAY_RISE (as ValleyTown's ways): for what joins the valley's places later (the
+## farmhouse's, G6).
+func join(a: StringName, b: StringName) -> void:
+	var pa := places.at(a)
+	var pb := places.at(b)
+	var flat := Vector2(pb.x - pa.x, pb.z - pa.z).length()
+	var n := maxi(1, ceili(flat / WAY_LINK_MAX))
+	var decks := road_bridges().values()
+	while n < 64:
+		var ys := PackedFloat32Array()
+		var m := n * 8
+		for k in m + 1:
+			var q := pa.lerp(pb, float(k) / m)
+			ys.append(_surface(Vector2(q.x, q.z), decks))
+		var ok := true
+		for k in n:
+			if _way_rise(ys, k * 8, (k + 1) * 8) > WAY_RISE:
+				ok = false
+				break
+		if ok:
+			break
+		n += 1
+	var prev := a
+	for k in range(1, n):
+		var q := pa.lerp(pb, float(k) / n)
+		var name_k := StringName("%s>%s~%d" % [a, b, k])
+		places.add(name_k, Vector3(q.x, _surface(Vector2(q.x, q.z), decks) + 0.05, q.z), [prev])
+		prev = name_k
+	places.link(prev, b)
 
 
 ## A point POST_OFF off a block's side, toward the crossroads.

@@ -171,7 +171,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := inv * pos
 	var d := inv.basis * dir
 	o.y /= squash
@@ -211,7 +211,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedded := false) -> Dictionary:
 	var seg := _segment_at(pos)
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := xf.affine_inverse() * pos
 	o.y /= squash
 	var d := (xf.affine_inverse().basis * dir).normalized()
@@ -244,7 +244,7 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	var bt := Blast.t()
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var kpa := {}
 	var chest := xf * Vector3(0, 1.3 * squash, 0)
 	var head := player.camera.global_position
@@ -517,7 +517,7 @@ func _grit_view(delta: float) -> void:
 ## Which part of you is at a world point (standing, or crouched and squashed down).
 func _segment_at(point: Vector3) -> StringName:
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var p := xf.affine_inverse() * point
 	p.y /= squash
 	var best := &"chest"

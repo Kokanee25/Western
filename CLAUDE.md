@@ -829,9 +829,27 @@ frozen until Sean names one.
   plan. **G5 the town greybox** (#724, PR #730, build 3541): `ValleyTown` (boardwalks from the `Boardwalk`
   part, the lanes and 1.2 m alleys open to Back Street and the rear lane, the undertaker's junk, the
   town's ways in `places`); `Waypoints.route` one search back from the goal (1 s -> 10 ms there).
-  Next: G6, the farmhouse to the widow's pad (#731); the saloon onto its lot waits on #695. For art: the valley's fog (the town's 0.0035) hides the
+  **G6 the farmhouse on the widow's pad** (#731, PR #741, build 3574): the house (spec unchanged) and its
+  hills carried into the bake, the East Road and the widow's lane as places, `FarmhouseMission` without
+  TownLife (on within 300 m); farm bot town = valley (1/24 won, 19/24 alive each). The overview
+  (`tools/valley/valley_overview.gd`): re-run after each G step. **G7 walks** (#737, PR #747, build
+  3681): each lot's `walk` in valley.json (its height and reason; table and elevation
+  `docs/briefs/valley-walks.md`, `docs/concept/valley-walks.png` by `tools/valley/town_walks.py`), flights,
+  ramps, drops, walks on posts and railed, porch roofs (`PorchRoof`, the old porch's part); cellars marked
+  (saloon, store, bank: dug with #695); the player's crawl (hold C/B); the ways go by the steps
+  (`Waypoints._no_step_up` now counts nothing below as a drop). Next: #736 B (places with height); the
+  saloon onto its lot waits on #695's week, the horse ridden on #341. For art: the valley's fog (the town's 0.0035) hides the
   foothills. Found: a dug tile's mesh and `Ground.height_at` split its 5 cm quads on the other
   diagonal from its Jolt field (millimetres on a crater's wall; the valley's bake follows Jolt's).
+- **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
+  `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
+  sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
+  horse; nod/shake by your view (`HeadGesture`), E on the wound packs it, E by his horse a card (leading
+  isn't built) run on his body, a stand-in doctor; `sheriff.care` good/poor/left him in `StoryState`
+  (memory only; bridge `story`). `Act` (src/moments) is the first cut of acts. Blind playtest
+  `docs/playtests/2026-11-10-sheriff.md`. Waiting on Sean: #755 (his play; the saloon onto its valley
+  lot now or in #695's week). Next: #756 (No Law's town: people in the valley, the saloon). The card's
+  systems lines and BUILD_ORDER's Step 1 are on PR #743 (unmerged): update them when it lands.
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
@@ -1048,6 +1066,19 @@ frozen until Sean names one.
   judge: new CLOSE in all four pairs. Sean's $3: $2.11 spent. Sean: the hold "still looks like
   shit": **next, the rig posed by eye** (`docs/briefs/viewmodel-rig.md`; targets
   `assets/textures/guns/hold_game_*.jpg`); the `next session` issue.
+- **The Colt SAA by script** (#693 step 1, branch `claude/colt-single-action-blender-sm1nxd`;
+  `experiments/gun_lab/saa/` README): the 1873 Colt built in Blender from its real dimensions
+  (`saa_blender.py --barrel=7.5|5.5|4.75`, ~8 s), 39 parts the game can drive (cylinder indexing,
+  hammer notches, trigger, bolt, gate, ejector; rounds per chamber), `saa_<barrel>_rig.json`,
+  `saa_rig.gd` drives them; `saa_views.gd` shows it under the real look. Sean's review: refitted to
+  the Met's 1874 Colt (CC0 photo, `docs/concept/guns/ref/`; `overlay.py`, overlap 0.666 -> 0.952).
+  Painted (Sean's yes, #740; `gun_surfaces.yml`, $1.12 of $2.50); then Sean's second review in four
+  steps (`results/2026-11-09_review2/`): the shield a dome, the spur alone; metal as metal; the metals'
+  finishes from 3D noise in the bake (no UV stretch), walnut painted; third review: the ears flush
+  under the hammer's top, the guard a flat strap; fourth: the spur a broad blunt thumb rest, judged by
+  `overlay.py --crop` (`results/2026-11-09_review4/`). **Sean approved step 1** (2026-11-10): the shape
+  stays. Later: the checkering a touch lighter in the next surfaces pass; he judges it in first person
+  in the hand. The Winchester (#734) copies this method. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

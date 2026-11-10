@@ -66,7 +66,8 @@ it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `world [town|valley]` (which world; with a name it answers and the scene reloads in
-that world, and `bridge.py` waits for the new bridge and goes on), `quit`. Facing is degrees
+that world, and `bridge.py` waits for the new bridge and goes on), `story [clear]` (the story's facts,
+StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -558,6 +559,11 @@ it all away and puts the probe and haze back.
   heavy.tres` set only `PlayerTuning.MOVEMENT_GROUPS` (`take_movement`); F switches
   (`Player.next_movement`, `movement_changed`); the game's tuning is middle. `tests/test_movement.gd`,
   `experiments/movement_feel/` (measure, films).
+- The crawl (#737, Sean): hold crouch's toggle (C, B) `crawl_hold_s` to go down flat, a tap comes up
+  to a crouch, jump or run to stand, each only with room over you (`Player.can_stand(height)`):
+  `is_crawling` (is_crouching too), `force_crawl` (bridge `crawl [on|off]`), PlayerTuning `crawl_*`
+  (0.5 m capsule, eyes 0.36, 0.6 m/s); the visible body put away flat; `height_share()` squashes
+  the wounds' parts (a lying man's hits are still taken as a squashed upright one's).
 - A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
   pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
   on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
@@ -739,6 +745,38 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
+  (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
+  `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
+  `rail_at` 1.0) and its `cellar` (marked only: dug when the building moves onto its lot, #695).
+  `tools/valley/town_walks.py` draws `docs/concept/valley-walks.png` and writes
+  `docs/briefs/valley-walks.md` from the same numbers (its layout mirrors ValleyTown's: change both).
+  ValleyTown: joined walks' higher one carries a flight or ramp down; the ends' flights are places
+  (`<id>_w_top`/`_w_foot`, `_e_...`, the feet linked to Main Street and the passage), a drop has none;
+  `surface()` slopes over flights and ramps so `_line` splits the links on them. Boardwalk's options
+  (`on_posts`, `rail`, `awning` by `PorchRoof`, `ramps`, `end_ramps`, `street_below`, `max_riser`)
+  are off by default. A lot's block rises with its floor. The player crawls (hold C/B; bridge
+  `crawl`) under walks on posts. `Waypoints._no_step_up` counts a look that finds nothing within
+  0.5 m as a drop (a way straight across an alley between two high walks read as walkable).
+- **The farmhouse on the widow's pad** (G6, #731; `tests/test_valley_farmhouse.gd`): ValleyWorld
+  builds the old town's `Farmhouse` (spec unchanged) with `layout` given (`-- --no-farmhouse` leaves it
+  out): its middle (own x 4.5, z 3.8) on `widow_homestead`'s `at`, `farmhouse.facing` 180, on the
+  ground under its low corner (`Farmhouse.valley_site`); the mission's hills are the place's `hills`
+  in valley.json (town.json's bumps about the old house, baked over the pad by `valley_plan.py`), so
+  within 15 m the ground relative to the house is the old town's to ~0.1 m. While it's in the tree
+  `Farmhouse`'s statics answer for it (`in_valley`, `origin`, `ground_at`, `carried(x, z)`: an old
+  town point round the house where it is now; `start_place`/`below_place`: `farm_start`, `farm_road`).
+  A `Fittings` scoped to it (`only`, `ground_relative`). **The roads as ways**
+  (`ValleyMarkers.WAY_ROADS`: the East Road and the widow's lane, `<road>@<m>`, links within 12 m and
+  0.3 m of rise, a place at every bend, `ways`, `way_end(id)`, `join(a, b)`), so `walk farm_porch` from
+  the crossroads goes by Main Street, the East Road and the lane; `Farmhouse.add_valley_places` joins
+  the house's places to the lane's end. `FarmhouseMission` there: no TownLife; it starts when you come
+  within `VALLEY_REACH` (300 m) of the house, by `farm_start`, `--mission=farmhouse` or Enter after a
+  loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
+  own places (`FarmhouseMission.places()`, not the valley's thousand).
+- **The overview** (`tools/valley/valley_overview.gd` + `.py`): the greybox from overhead, north up,
+  plain and with the plan over it, and close views of the town, canyon and west; run after each G
+  step (experiments/valley/README.md).
 - `src/world/town_layout.gd` + `config/town.json` — **the town's layout** (docs/briefs/main-street.md):
   `TownLayout`, the street's first child, places the nodes the file names (by path: the store,
   saloon, boardwalks, rail, trough, markers) before anything builds; an entry `in` a building is
@@ -1248,6 +1286,14 @@ pose, #204's spot and blow), the kick, a step clear, the draw (`draw_gun` at the
 nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_cheat/`: `run.py`
 (N runs through the bridge, `tally.md`), `film.sh` (bar, door, old against new), results by date.
 
+**Acts** (`src/moments/act.gd`, `Act`, a `Moment`; roadmap 3.5, docs/missions/BUILD_ORDER.md 0.1, the
+first cut by the sheriff on the road, #746): a story scene's extras over a moment: `line(beat, band)`
+from the data's `lines.<beat>.<band>` (a list said in turn), the band by a man's blood loss
+(`band_of`: `bands`, default clear < 0.22, weak < 0.32, fading; `out` not conscious), `speak` (Events.spoke:
+his mouth and the subtitle), `prompt` (PlayerWounds.say), `card(text, s)` (a black screen and a typed line:
+a stand-in for what isn't built), `fact(key, value)` (StoryState, stamped with the clock), `timeline`.
+Every moment is in the group `moment` (the bridge's `moment_result` finds one it didn't start).
+
 ## src/missions (the farmhouse)
 
 - `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
@@ -1295,6 +1341,29 @@ nothing dies; Earl stays down under the gun (`rise_ok` off). `experiments/card_c
   `--farm-rovers=0`, `--farm-cornered=off` (the befores).
 - `OutlawBrain`'s blast case (`_blasted`, #488's gap): a blast that hurts him dazes him
   (`stunned`), no "hit" callout, no turning on a shooter.
+- In the valley (G6): see "src/world/town_layout.gd" (the farmhouse on the widow's pad).
+- **The sheriff on the road** (#746, the first story mission, rough; card `docs/missions/the-sheriff.md`):
+  `src/missions/sheriff_on_road.gd` (`SheriffOnRoad`, an `Act`), data `config/moments/the_sheriff.json`.
+  Valley only: `-- --world=valley --mission=sheriff` (ValleyWorld starts it 5 ticks in) or the bridge's
+  `moment the_sheriff`; Enter when it's over (held 1.5 s any time) starts it again (`restart`). You at
+  `harlan_homestead` facing the ford path at 6.3 (first sun; the clock runs); the sheriff (`sean_s3_talking`) shot through the
+  belly (`take_bullet` for the hole, then `shape_wound`: his body as the data has it: 450 ml lost, a
+  weeping wall bleed 2.4 ml/s to 1,350 ml that doesn't clot, 0.2 ml/s inside to 300 ml, the gut holed 2
+  game hours before; untended he passes out at ~0.41 lost and doesn't bleed to death: the gut kills him
+  ~30 game hours after the shot), limp and conscious 1.5 m off the East Road's middle at `opening_site`;
+  his horse (`Horse`, reins to the ground) 8 m off. Lines by his band (Act): hail at 25 m, the ask at
+  3.5 m, again every 14 s. Your answer: `HeadGesture` (`src/missions/head_gesture.gd`: three swings of
+  6 degrees in 1.4 s on one axis of your view, the other moving less than 1/1.5 as much: a nod on pitch,
+  a shake on yaw; bridge `nod`/`shake`). E (`shove`, the scene `claims_use`): by his belly (2 m) your
+  hand on the wound (`bleeds[0].hand`: x0.25 while held), 6 s of it all told and it's packed and bound
+  (`apply_pressure`, the bandage); by his horse (3 m) you take him in: the stand-in card (leading a horse
+  isn't built), the road's length (`ValleyRoads.journey`, ~470 m) at 1.3 m/s plus 60 s run on his body
+  (`run_body`) and the clock; then him laid before the doctor's lot, `doctor_s2_talking` beside him,
+  his horse at the livery's front. Walk 45 m off once found (15 m) and you've left him: a card, 1,500 s on
+  his body. `care_for`: left him / good (packed and lost <= 0.30 at the doctor's) / poor. Facts
+  (`StoryState`, `src/missions/story_state.gd`: static, in memory, bridge `story [clear]`):
+  `sheriff.care`, `sheriff.blood_loss`, `sheriff.packed`, `sheriff.answer`. `tests/test_sheriff.gd`;
+  valley_bench spots `harlan_home`, `sheriff_site`.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
   playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,

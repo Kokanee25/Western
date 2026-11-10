@@ -507,44 +507,10 @@ func _build_roof(tanp: float) -> void:
 			Vector3(w * 0.5, cap_y + BOARD_T * 0.5 - 0.005, (STUD_D + d + 0.25) * 0.5))
 
 
-## Porch awning over the boardwalk: two posts, a beam, a ledger on the facade, rafters, boards.
-## The lantern bracket is here too.
+## Porch awning over the boardwalk (PorchRoof: two posts, a beam, a ledger on the facade, rafters,
+## boards). The lantern bracket is here too.
 func _build_porch() -> void:
-	var w := width
-	var post := 0.14
-	var beam_y0 := porch_height
-	var beam_y1 := porch_height + 0.18
-	var ledger_y1 := porch_height + 0.37
-	var zb := -porch_depth
-	for i in 2:
-		var px := post * 0.5 + 0.05 if i == 0 else w - post * 0.5 - 0.05
-		add_member("porch/post%d" % i, &"post", &"framing", Vector3(post, beam_y0, post), Vector3(px, beam_y0 * 0.5, zb))
-	add_member("porch/beam", &"beam", &"framing", Vector3(w + 0.2, beam_y1 - beam_y0, 0.16), Vector3(w * 0.5, (beam_y0 + beam_y1) * 0.5, zb))
-	add_member("porch/ledger", &"ledger", &"framing", Vector3(w, 0.15, 0.05), Vector3(w * 0.5, ledger_y1 - 0.075, -0.025))
-
-	var a := atan2(ledger_y1 - beam_y1, -0.05 - zb)
-	var basis := Basis(Vector3.RIGHT, -a)
-	var up_slope := basis.z  # toward the building, rising
-	var z_start := zb - 0.3
-	var start := Vector3(0.0, beam_y1 - (zb - z_start) * tan(a), z_start)
-	var length := (-0.05 - z_start) / cos(a)
-	var i := 0
-	var x := 0.2
-	while x < w - 0.1:
-		var c := start + up_slope * (length * 0.5) + basis.y * 0.06
-		c.x = x
-		add_member("porch/rafter/%02d" % i, &"rafter", &"framing", Vector3(0.05, 0.12, length), c, basis)
-		x += 0.75
-		i += 1
-	i = 0
-	var sl := 0.0
-	while sl < length - 0.02:
-		var bw := minf(0.195, length - sl)
-		var c := start + up_slope * (sl + bw * 0.5) + basis.y * (0.12 + BOARD_T * 0.5)
-		c.x = w * 0.5
-		add_member("porch/board/%02d" % i, &"roof_board", &"weathered_pine", Vector3(w + 0.3, BOARD_T, bw), c, basis)
-		sl += 0.2
-		i += 1
+	PorchRoof.build(self, "porch", width, porch_depth, porch_height)
 
 	if not porch_lantern:
 		return

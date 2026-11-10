@@ -19,6 +19,7 @@ const HELP := {
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
+	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
@@ -44,7 +45,10 @@ const HELP := {
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
-	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40)",
+	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
+	"story": "story [clear] -> the story's facts so far (StoryState: sheriff.care ...); clear forgets them",
+	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
+	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
 	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
 	"quit": "quit -> close the game",
 }
@@ -388,7 +392,12 @@ func _cmd_walk(a: Array) -> Dictionary:
 			var v := player.get_horizontal_speed()
 			var stop := maxf(0.5, v * v / (2.0 * maxf(player.tuning.ground_decel, 0.1))) if last_leg else 0.5
 			if flat.length() < stop:
-				break
+				# A short last leg after a run (down a walk's end flight into an alley, #737): ease off
+				# to a walk and steer on in, not let go and slide on past.
+				if last_leg and run and flat.length() > 0.5 and v > player.tuning.walk_speed + 0.3:
+					_act(false, &"run")
+				else:
+					break
 			var now := _game_seconds()
 			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
@@ -435,6 +444,12 @@ func _cmd_key(a: Array) -> Dictionary:
 		if down:
 			await _seconds(float(a[1]) if a.size() > 1 else 0.1)
 	return {"key": OS.get_keycode_string(code)}
+
+
+func _cmd_crawl(a: Array) -> Dictionary:
+	player.force_crawl = a.is_empty() or String(a[0]) != "off"
+	await _seconds(0.6)
+	return {"crawling": player.is_crawling, "crouching": player.is_crouching, "at": _arr(player.global_position)}
 
 
 func _cmd_press(a: Array) -> Dictionary:
@@ -704,7 +719,36 @@ func _cmd_moment(a: Array) -> Dictionary:
 	return _moment.result()
 
 
+func _cmd_story(a: Array) -> Dictionary:
+	if a.size() > 0 and a[0] == "clear":
+		StoryState.clear()
+	return StoryState.to_dict()
+
+
+## A nod (pitch) or a shake (yaw): three swings of 12 degrees, a tenth of a second each, back level.
+func _cmd_nod(_a: Array) -> Dictionary:
+	return await _head(Vector2(0.0, -1.0))
+
+
+func _cmd_shake(_a: Array) -> Dictionary:
+	return await _head(Vector2(1.0, 0.0))
+
+
+func _head(axis: Vector2) -> Dictionary:
+	var yaw0 := player.rotation.y
+	var pitch0 := player.get_pitch_degrees()
+	for k: float in [0.5, 1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0]:
+		_set_view(yaw0 - deg_to_rad(axis.x * 12.0 * k), pitch0 + axis.y * 12.0 * k)
+		await _physics_frames(3)
+	return {"facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1)}
+
+
 func _cmd_moment_result(a: Array) -> Dictionary:
+	if _moment == null or not is_instance_valid(_moment) or _moment.is_queued_for_deletion():
+		_moment = get_tree().get_first_node_in_group(&"moment") as Moment
+		for m in get_tree().get_nodes_in_group(&"moment"):
+			if not (m as Node).is_queued_for_deletion():
+				_moment = m as Moment
 	if _moment == null or not is_instance_valid(_moment):
 		return {"ok": false, "error": "no moment running (moment NAME)"}
 	if a.size() > 0 and a[0] == "wait":
@@ -983,7 +1027,7 @@ func _frame() -> Dictionary:
 func _player_state() -> Dictionary:
 	var w := player.wounds
 	var out := {"at": _arr(player.global_position), "facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1),
-		"crouching": player.is_crouching, "weapon": _weapon_line(), "movement": String(player.movement),
+		"crouching": player.is_crouching, "crawling": player.is_crawling, "weapon": _weapon_line(), "movement": String(player.movement),
 		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)

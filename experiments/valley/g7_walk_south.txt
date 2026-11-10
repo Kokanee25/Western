@@ -1,0 +1,19 @@
+# Valley G7 walks (#737): Main Street's south side walked east to west at walking pace: the land
+# office, the bank (its east end a drop), the jail, the livery's dirt yard, the wagonwright's ramp,
+# the blacksmith, the assay shack. Real look, lavapipe, a film:
+# python3 tools/bridge.py run experiments/valley/g7_walk_south.txt --size=960x540 --movie=build/g7_walk_south.avi --game-args=--world=valley --timeout=7000
+wait 30
+time 10.5
+goto land_office_e_foot
+look 60 1.4 8.85
+wait 2
+walk land_office
+walk bank
+walk jail
+walk livery
+walk wagonwright
+walk blacksmith
+walk assay_office
+walk assay_office_w_top
+walk assay_office_w_foot
+wait 2

@@ -81,7 +81,7 @@ func _g(x: float, z: float) -> Vector3:
 
 
 func _place(name: StringName) -> Vector3:
-	return mission._town().places.at(name)
+	return mission.places().at(name)
 
 
 ## The way in, as points (the house's own space; FORMAT.md).
@@ -121,8 +121,10 @@ func _the_draw() -> Array[Vector3]:
 	return r
 
 
+## A point of the old town's ground (x, z there) where it is round the house now: the town's own,
+## or carried to the valley's farmhouse (G6: Farmhouse.carried, as its hills were).
 func _w(x: float, z: float) -> Vector3:
-	return Vector3(x, TownLayout.ground_height(x, z), z)
+	return Farmhouse.carried(x, z)
 
 
 ## After the breach: in through the hole in the kitchen's back wall, to the bedroom.
@@ -145,7 +147,7 @@ func _route_out() -> Array[Vector3]:
 			return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room_back_e"), _place(&"farm_room_back"),
 					_place(&"farm_kitchen_door"), _place(&"farm_kitchen_in"), _place(&"farm_kitchen"), _p(Vector3(2.9, f, 7.2)), _g(2.9, 10.0), _g(4.4, 16.0), _g(4.4, 30.0), _g(-10.0, 48.0)]
 	return [_place(&"farm_bedroom_door"), _place(&"farm_room_e"), _place(&"farm_room"), _place(&"farm_door"), _place(&"farm_porch"),
-			_place(&"farm_steps"), _place(&"farm_lane"), _place(&"road_farm")]
+			_place(&"farm_steps"), _place(&"farm_lane"), _place(Farmhouse.below_place())]
 
 
 func _phase(p: String) -> void:
