@@ -1,0 +1,88 @@
+{
+ "_doc": "A concept's target sheet for the saloon (#765, #660; docs/briefs/saloon-design.md). The views are painted on GitHub (tools/buildings/target_sheet.py, building_sheet.yml); `plans` is drawn by tools/buildings/concept_plans.py from ../concept.json and given to the painted views. A target, not a blueprint: the spec settles every size.",
+ "sheet_title": "Salt Creek, 1882: The Salt Creek saloon, concept C, the brick front (target sheet, #765/#660)",
+ "cap": 1.25,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (sawn and planed pine, paint, glass, iron, brick, brass, dust), period-accurate in every object. No modern objects. No text other than the signs named. No border, no frame, no watermark, no captions.",
+ "building": "THE SALT CREEK, a saloon with a dance hall above, built in 1882 with a fireproof brick front: a two-storey building 50 ft wide and 100 ft deep, its Main Street front of red brick (tall segmental-arched windows upstairs, a cast-iron and glass shopfront below with glazed double doors in the middle and a narrower door at the west end for the hall stair, a heavy bracketed cornice with the name 'THE SALT CREEK' and '1882' in raised letters on the parapet), the brick returning one bay down the west side; behind the brick front the building is wood frame with narrow white-painted clapboard and a low gabled roof. A 4 ft passage on the east side leads to the yard. The wooden balcony runs the full 50 ft front on four turned wooden posts at the boardwalk's edge, with doors onto it from the three front rooms. The outside stair is at the back, along the north wall, up to the upper hall's back door, over the back street. In the boardwalk in front a pair of iron sidewalk doors open to the cellar (beer is lowered from the brewery wagon). Ground floor, front to back like the Board of Trade at Leadville: an antechamber behind a carved oak partition with a cigar stand, the barroom 42 x 44 ft (encaustic tile floor in a pattern, the bar along the east wall, three posts down the middle carrying the girder), the club room two steps up at the back (faro, stud poker, a wheel), a lunch counter, a billiard room and a store room; the hall stair from its own street door up to the dance hall. Upstairs: the dance hall 50 x 42 ft over the barroom (the town's hall: dances, meetings, a fiddler's stand), three front rooms on the balcony, the owner's office over the club room and seven rented rooms off a hall. Cellar under the front: brick and stone walls, kegs, barrels, a coal bin. The most finished of the town's buildings, as a mining town built once it had money. Based on the Board of Trade saloon at Leadville (1883) and the brick-fronted halls of Georgetown and Central City. It stands in Salt Creek, a two-year-old Colorado mining-and-ranching boom town in the foothills, in 1882, on the north-east corner of the town's one crossroads: its front faces south onto Main Street (a wide dirt street, 66 ft between the building fronts), its west side faces the North-South Street, and on its east side is its own fenced yard, 34 ft wide, with a wagon gate; behind it, at the back of the 125 ft lot, a back street. The ground rises gently toward the back. A raised plank boardwalk 8 ft deep runs along Main Street in front, its top about 3 ft above the dirt, with steps down at the door and at the corner, and a hitching rail at its edge. Second floor: a dance hall over the bar room (its floor framed with joists on a timber girder carried by posts that stand in the bar room below; the bar room has no ceiling, so the joists and the underside of the floorboards are seen from below), and rented rooms and the owner's office. A wooden balcony over the boardwalk at the second floor, carried on plain square timber posts standing at the boardwalk's street edge, with a wooden railing and balusters; doors from upstairs open onto it. A timber outside stair runs up the building's side to a door on the upper floor. A cellar for kegs and barrels. Inside the bar room: a long bar of dark varnished wood about 42 in high with a brass foot rail and spittoons along it; behind it a tall back bar with a big mirror in panels, shelves of bottles and glasses; kerosene hanging lamps and wall brackets; a wide-plank pine floor, worn and scattered with sawdust; a big cast-iron stove with its pipe; round card tables with bentwood and plank chairs; a faro table; an upright piano; framed prints, a mounted elk head, a calendar and painted notices on board or papered walls. Front doors are glazed double doors with a transom (no swinging batwing doors).",
+ "views": [
+  {
+   "id": "front",
+   "title": "Front (south), from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The whole front of the building seen straight on from the middle of Main Street at eye level, at golden hour (the low sun shining down the street from the west, raking across the front from the left), the whole front up to its cornice, the balcony and every one of its posts, the boardwalk, its steps and hitching rail in frame, a bit of the North-South Street on the left and of the yard on the right. Nearly orthographic: a long lens, little perspective. A few townsmen on the walk, two saddled horses at the rail, for scale."
+  },
+  {
+   "id": "corner",
+   "title": "The corner, from the crossroads",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "A three-quarter view from the crossroads, standing in the street south-west of the building, looking north-east: the front and the whole west side along the North-South Street, the corner, the balcony; at dusk, the sky still light, the lamps lit inside so the windows glow warm, men on the balcony and the walk. "
+  },
+  {
+   "id": "rear",
+   "title": "The back and the yard (north-east)",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "A three-quarter view of the back and the east side from the far corner of the yard, looking south-west, in morning light: the frame back of the building behind the brick front, the outside stair along the back wall, the back door, the privy and the coal shed, the back street; the outside stair at the back along the north wall. The upper floor's back windows."
+  },
+  {
+   "id": "plans",
+   "title": "Plans: cellar, ground, upper (drawn from data)",
+   "view": "(drawn by code)"
+  },
+  {
+   "id": "cutaway",
+   "title": "Cutaway: both floors and the cellar",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-west with the roof and the front and west walls cut away and the ground cut away to show the cellar, at night with the lamps lit: the bar room full of drinkers below, the bar and back bar, the posts and girder; the dance hall above it with a dozen couples dancing and a fiddler; the cut edges show the framing clearly: balloon-framed studs, the second floor's deep joists running across onto the girder, the floorboards on them, the rafters. The rooms upstairs, the cellar's kegs. The balcony over the walk at the front on its posts."
+  },
+  {
+   "id": "door",
+   "title": "Inside: from the front door",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "Inside at eye level, standing just inside the front door at night, looking into the bar room: the long bar with its brass rail and spittoons and the back bar's mirror, the bartender, men drinking along it; the posts down the room and the open joists of the dance floor overhead with hanging kerosene lamps; card tables with games going; the stair up; the stove; smoke in the lamplight; through the ceiling's floorboards a little light and dust from the dancing above."
+  },
+  {
+   "id": "bar",
+   "title": "Inside: from the bar",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "Inside at eye level at night, standing at the bar with one boot on the brass foot rail, looking back across the room toward the card tables and the front door: a poker game at a round table in the middle distance (one player with his back to the door), other tables, the faro layout, the piano, the stove, the posts; the joists of the dance floor overhead with lamps hung from them; the front windows dark with the street's lamps beyond. A shot glass and a bottle on the bar in the foreground."
+  },
+  {
+   "id": "dance",
+   "title": "Inside: the dance hall upstairs",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plans"
+   ],
+   "view": "Inside the dance hall on the upper floor at night, at eye level: a plank floor worn pale in the middle, a fiddler on his little platform, a dozen men in work clothes and their Sunday coats dancing a reel with women in plain dresses, others on benches round the walls, kerosene lamps on brackets, the doors at the front standing open onto the balcony and the night street beyond. A bare, plain room, the board walls papered or whitewashed."
+  }
+ ]
+}
