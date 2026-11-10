@@ -289,6 +289,21 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		b.hits.append(info)
 		Events.bullet_hit.emit(info)
 		return remaining
+	elif collider != null and collider.has_meta(&"hanging_rope"):
+		# A rope (HangingRope): cut by the share of it the ball's width takes; the ball goes on,
+		# hardly slowed.
+		var rope: HangingRope = collider.get_meta(&"hanging_rope")
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		var cut := rope.take_ball(hit.position, dir, b.diameter * 0.5)
+		info.rope = rope
+		info.rope_cut = cut
+		_set_energy(b, maxf(e_before - 25.0 * cut, 0.0))
+		info.penetrated = true
+		info.energy_after = b.energy()
+		if cut > 0.0:
+			b.hits.append(info)
+			Events.bullet_hit.emit(info)
+		return remaining
 	elif collider is RigidBody3D:
 		var body := collider as RigidBody3D
 		var j := dir * b.mass * b.velocity.length() * tuning.impulse_transfer

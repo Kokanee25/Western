@@ -164,6 +164,76 @@
       "history": [
         "2026-10-18 proposed (gunplay: the kick pushes, roadmap 3.2); waits for Sean's OK after he plays it"
       ]
+    },
+    "winchester_shoulder_to_shot_s": {
+      "min": 0.3,
+      "max": 0.8,
+      "unit": "seconds from the aim key at the hip to the first shot down the sights (fired the moment it's shouldered)",
+      "measured_by": "test_gun_feel::test_winchester_handling",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_lever_to_shot_s": {
+      "min": 0.35,
+      "max": 0.9,
+      "unit": "seconds from shot to shot working the lever as fast as a hand can, shouldered",
+      "measured_by": "test_gun_feel::test_winchester_handling",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_gate_round_s": {
+      "min": 0.5,
+      "max": 1.2,
+      "unit": "seconds a round through the loading gate (five, the turn to the gate counted once)",
+      "measured_by": "test_gun_feel::test_winchester_handling",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_rope_30m_steady": {
+      "min": 0.6,
+      "max": 1.0,
+      "unit": "share of 10 seeded shots that touch a hanging 3/4\" rope 30 m off from a roof, shouldered, settled, squeezed as the blade sits on it",
+      "measured_by": "test_gun_feel::test_winchester_rope_shot",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_rope_60m_steady": {
+      "min": 0.3,
+      "max": 0.8,
+      "unit": "the same at 60 m",
+      "measured_by": "test_gun_feel::test_winchester_rope_shot",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_rope_30m_rushed": {
+      "min": 0.1,
+      "max": 0.6,
+      "unit": "share of 10 seeded shots that touch the rope at 30 m winded from a run, fired as the blade first crosses it once the rifle's up",
+      "measured_by": "test_gun_feel::test_winchester_rope_shot",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
+    },
+    "winchester_rope_60m_rushed": {
+      "min": 0.0,
+      "max": 0.4,
+      "unit": "the same at 60 m",
+      "measured_by": "test_gun_feel::test_winchester_rope_shot",
+      "last": null,
+      "history": [
+        "2026-11-10 measured as the game is and proposed by the gameplay session (#777): Sean to OK or change once he's played the Winchester"
+      ]
     }
   }
 }

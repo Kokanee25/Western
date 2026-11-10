@@ -19,6 +19,33 @@ The build is ~8 s. The views need the native plugin built (`cargo build --releas
 `addons/saltcreek_native`, the `.so` into its `bin/`) and lavapipe (`mesa-vulkan-drivers`, xvfb):
 ~10 min to load the street under the real look, then ~50 s a pose.
 
+## In the game (#777, step 2)
+
+The 24" rifle's glb, its four jpgs and its rig json are the game's now: **`assets/weapons/win73_24.*`**
+(`win73_views.gd` loads the 24" from there; a rebuild by `win73_blender.py`/`win73_paint.py` writes here,
+so copy the glb, jpgs and json over the game's after one, and re-import). `win73_rig.gd`'s logic is
+`Winchester73Model` (src/weapons); the gun in your hands is `Winchester73Viewmodel` (key 6) with
+`Winchester73State` and `config/winchester73.tres` (`Winchester73Tuning`, every number proposed). The
+feel numbers are in `tests/test_gun_feel.gd` (`winchester_*` in `config/feel_ranges.json`), the rules in
+`tests/test_winchester.gd`. LAYOUT.md "src/weapons" has how it works.
+
+What the step measured (`test_gun_feel.gd`, at 60 fps; proposed ranges):
+
+| | measured | range |
+|---|---|---|
+| hip to the first shot down the sights | 0.37 s | 0.3-0.8 |
+| shot to shot, the lever as fast as a hand works it | 0.52 s | 0.35-0.9 |
+| a round through the gate | 0.82 s (the turn to the gate once in five) | 0.5-1.2 |
+| the rope at 30 m, steady / rushed | 9 / 5 of 10 touch it | 0.6-1 / 0.1-0.6 |
+| the rope at 60 m, steady / rushed | 7 / 3 of 10 | 0.3-0.8 / 0-0.4 |
+
+The rope (`HangingRope`): 3/4" manila, a man's weight on it, hung from a roof's height 30 and 60 m off,
+2.5 m below your eye. Steady: shouldered, settled 1.5 s, the trigger squeezed as the blade sits on the
+rope (the shot breaks 0.1 s after). Rushed: winded from a run, fired as the blade first crosses it
+once it's up. A hit is the ball touching it: one through its middle parts it, a graze frays it and a
+second at the same place parts it. The first run hit nothing at 60 m (3 cm RMS misses): the shouldered
+shake went 0.45 -> 0.3 of the revolver's and the rifle's cone 0.025 -> 0.02 degrees (2.4 MOA).
+
 ## Files
 
 - `win73_blender.py`: the gun. Out: `win73_<barrel>.glb` (one node a part, its origin on its pivot) and

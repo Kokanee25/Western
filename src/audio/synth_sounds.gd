@@ -7,7 +7,7 @@ class_name SynthSounds
 const RATE := 22050
 const HI_RATE := 44100
 ## Made at HI_RATE.
-const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
+const HI := [&"report", &"report_big", &"report_rifle", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
 	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast",
 	&"blast_roll", &"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3"]
 
@@ -20,7 +20,7 @@ static var _warm_task := -1
 const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing", &"break_open", &"close",
 	&"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject", &"glass", &"flesh", &"zip", &"crack",
 	&"ricochet", &"timber_crack", &"timber_crash", &"fire", &"splash", &"fill", &"steam", &"report",
-	&"report_big", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
+	&"report_big", &"report_rifle", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
 	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh"]
@@ -127,6 +127,7 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"steam": samples = _steam(rng)
 		&"report": samples = _report(rng, false)
 		&"report_big": samples = _report(rng, true)
+		&"report_rifle": samples = _report(rng, false, true)
 		&"rolling": samples = _rolling(rng, false)
 		&"rolling_big": samples = _rolling(rng, true)
 		&"whirr": samples = _whirr(rng)
@@ -228,15 +229,18 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 ## the gas, and the deep push of a lot of slow-burning powder: more boom than crack. No echo here:
 ## the room, the fronts and the hills are where it's heard (GameAudio). `big` for the coach gun: a
 ## bigger bore and three times the powder, so a longer, deeper push. 44.1 kHz.
-static func _report(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Array:
-	var n := int(HI_RATE * (0.9 if big else 0.7))
+## `rifle`: a black-powder rifle's (the Winchester's .44-40 from 24"): the charge burnt out in the
+## long barrel, so a harder, longer shock than the revolver's, and a heavier, longer body behind it
+## than the revolver's (#777; proposed, for Sean's ears).
+static func _report(rng: RandomNumberGenerator, big: bool, rifle := false) -> PackedFloat32Array:
+	var n := int(HI_RATE * (0.9 if big else 0.85 if rifle else 0.7))
 	var out := PackedFloat32Array()
 	out.resize(n)
-	var t_pos := 0.0016 if big else 0.0011  # the shock's positive phase
-	var boom_hz := 64.0 if big else 86.0
-	var boom_tau := 0.10 if big else 0.07
-	var gas_tau := 0.028 if big else 0.018
-	var body_tau := 0.15 if big else 0.10
+	var t_pos := 0.0016 if big else 0.0014 if rifle else 0.0011  # the shock's positive phase
+	var boom_hz := 64.0 if big else 74.0 if rifle else 86.0
+	var boom_tau := 0.10 if big else 0.09 if rifle else 0.07
+	var gas_tau := 0.028 if big else 0.024 if rifle else 0.018
+	var body_tau := 0.15 if big else 0.14 if rifle else 0.10
 	var lp := 0.0
 	var slow := 0.0
 	var deep := 0.0

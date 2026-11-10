@@ -60,7 +60,8 @@ file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y
 (a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
 person: `in_the_way`, `a_ball_goes_through`, `from_the_barrel`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
 buildings to a place; lets go in time to stop there, answers once stopped), `press
-ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|shotgun|rifle|dynamite|none`, `shoot [N]`, `rifle
+lever|open|close|turn|half|cock|load N|cover|state` (the Winchester), `rope [M]` (a rope M ahead), `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
@@ -1731,7 +1732,23 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
   its wander is `Sway`, shared with the gang's `GunHand`),
   `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
-  `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
+  `ShotgunModel` (`config/shotgun.tres`), `Winchester73Viewmodel` + `Winchester73State`/
+  `Winchester73Model` (`config/winchester73.tres`, #777; below). `Player.weapons`/`weapon`/
+  `select_weapon()` switch them.
+- **The Winchester 1873** (#777; the lab `experiments/gun_lab/win73/`): key 6 (`weapon_rifle`) off its
+  sling. `Winchester73State`: 15 in the tube, the lever's stroke (`work_lever`: open throws the
+  chamber's round or case out, cocks, the cover rides back, the carrier lifts; home chambers it; the
+  trigger only with the lever home), half cock the safety (`SAFE`), `thumb_cock` from half,
+  `load_round` a round through the gate (any time the lever's home; `loading` is the gun turned to
+  it, which OutlawBrain counts as reloading), `shared` the revolver's state: one belt of .44-40.
+  The viewmodel: Q works the lever, or thumbs the hammer back from half with a round in; with a round
+  in and the hammer back, Q waits to see: held `half_cock_hold` it eases to half cock, let go it
+  works the lever. `shoulder` 0..1 at `shoulder_time` (aimed once it's 0.85); the aim pose is
+  worked out from the rig's `SightRear`/`SightFront` (`EYE_RELIEF` 0.38 m); `sway_factor` and
+  `WeaponViewmodel.shake_factor` blend hip to shouldered. The right hand rides the lever's pivot
+  (`R_LEVER_SHARE`); the arms' shoulders and elbows blend hip to shouldered (`AIM_SHOULDER_*`).
+  The report is `GameAudio.gunshot(.., rifle=true)` (`report_rifle`). Bridge `weapon rifle`,
+  `rifle lever|half|cock|load N|cover|state`. `HangingRope` (src/structures) is the rope it's for.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model

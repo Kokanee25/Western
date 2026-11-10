@@ -29,7 +29,7 @@ func after_each() -> void:
 
 
 func _gun(which: String) -> WeaponViewmodel:
-	var w: WeaponViewmodel = player.revolver() if which == "revolver" else player.shotgun()
+	var w: WeaponViewmodel = player.revolver() if which == "revolver" else player.winchester() if which == "rifle" else player.shotgun()
 	w.needs_captured_mouse = false
 	player.select_weapon(w)
 	w.take_out()
@@ -205,3 +205,177 @@ func test_sway_measured() -> void:
 		rms = sqrt(rms / xs.size())
 		print("    %s aimed and settled: sway rms %.2f°, widest %.2f° (= %.0f cm at 15 m)" % [which, rms, mx, tan(deg_to_rad(mx)) * 1500.0])
 		check(rms > 0.0, "it wanders")
+
+
+# --- The Winchester 1873 (#777; every range proposed until Sean plays it) ------------------------
+
+## The rifle in hand, a round chambered, the hammer back, the hands free.
+func _rifle() -> Winchester73Viewmodel:
+	var w := await _gun("rifle") as Winchester73Viewmodel
+	w.state.tuning.misfire_chance = 0.0
+	if not w.state.ready_to_fire():
+		w.work_lever()
+	await wait_until(func() -> bool: return w.state.ready_to_fire() and w.state.ready(), 60)
+	return w
+
+
+## From the hip to the first shot down the sights (pressed the moment it's at your shoulder); the
+## lever as fast as a hand works it, shot to shot; a round through the gate.
+func test_winchester_handling() -> void:
+	var w := await _rifle()
+	var shots: Array[float] = []
+	var clock := {"t": 0.0}
+	var on_shot := func(_o: Vector3, _d: Vector3, _s: Node) -> void: shots.append(clock.t)
+	Events.shot_fired.connect(on_shot)
+	Input.action_press(&"aim")
+	var fired := false
+	while shots.is_empty() and clock.t < 3.0:
+		if not fired and w.is_shouldered():
+			fired = w.pull_trigger() == Winchester73State.Shot.FIRED
+		await process_frames(1)
+		clock.t += 1.0 / 60.0
+	Feel.within(self, "winchester_shoulder_to_shot_s", shots[0] if not shots.is_empty() else 9.0)
+	# The lever and the trigger as fast as they'll go, still shouldered: five more.
+	while shots.size() < 6 and clock.t < 10.0:
+		if w.state.ready():
+			if w.state.ready_to_fire():
+				w.pull_trigger()
+			elif not w.state.lever_open:
+				w.cock_press()
+		await process_frames(1)
+		clock.t += 1.0 / 60.0
+	Input.action_release(&"aim")
+	Events.shot_fired.disconnect(on_shot)
+	var gaps: Array[float] = []
+	for i in range(1, shots.size()):
+		gaps.append(snappedf(shots[i] - shots[i - 1], 0.001))
+	print("    winchester: shot to shot with the lever %s s" % str(gaps))
+	var mean := 0.0
+	for g in gaps:
+		mean += g / gaps.size()
+	Feel.within(self, "winchester_lever_to_shot_s", mean if not gaps.is_empty() else 9.0)
+	# Five rounds through the gate (the turn to it once).
+	await wait_until(func() -> bool: return w.state.ready(), 60)
+	w.state.tube = 5
+	var t0: float = clock.t
+	Input.action_press(&"reload")
+	while (w.state.tube < 10 or not w.state.ready()) and clock.t - t0 < 15.0:
+		await process_frames(1)
+		clock.t += 1.0 / 60.0
+	Input.action_release(&"reload")
+	Feel.within(self, "winchester_gate_round_s", (clock.t - t0) / 5.0)
+
+
+## The rope shot (#734: the hanging; Sean, #777): a hanging rope (3/4", a man's weight on it) shot
+## at from a roof, 30 and 60 m off and some 2.5 m below your eye. Steady: shouldered, settled, the
+## trigger squeezed as the blade sits on the rope. Rushed: winded from a run, fired as the blade
+## first crosses the rope once it's up. Each shot its own seed (the wander and the ball's cone);
+## a hit is the ball touching the rope (one through its middle parts it; a graze frays it, and a
+## second at the same place parts it: HangingRope).
+func test_winchester_rope_shot() -> void:
+	var w := await _rifle()
+	Events.shot_fired.connect(func(o: Vector3, d: Vector3, _s: Node) -> void: _last_line = [o, d])
+	var roof := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6.0, 1.0, 6.0)
+	shape.shape = box
+	roof.add_child(shape)
+	street.add_child(roof)
+	var feet := player.global_position + Vector3(0.0, 30.0, 0.0)
+	roof.global_position = feet + Vector3.DOWN * 0.5
+	player.global_position = feet
+	player.velocity = Vector3.ZERO
+	await physics_frames(10)
+	var ahead := -player.global_transform.basis.z
+	ahead.y = 0.0
+	ahead = ahead.normalized()
+	var rates := {}
+	for dist in [30.0, 60.0]:
+		var rope := HangingRope.new()
+		rope.load_kg = 80.0
+		rope.length = 2.0
+		street.add_child(rope)
+		var eye := player.camera.global_position
+		rope.global_position = Vector3(eye.x, eye.y - 1.5, eye.z) + ahead * dist
+		var mark := rope.global_position + Vector3.DOWN * 1.0
+		await physics_frames(2)
+		for how in ["steady", "rushed"]:
+			var hit := 0
+			var cut := 0
+			var n := 10
+			_misses.clear()
+			for i in n:
+				# The same hands at both distances (paired seeds): only the range differs.
+				var seed := 1873 + i * 31 + (0 if how == "steady" else 997)
+				w.sway_model = Sway.new(seed)
+				w._rng.seed = seed
+				w._kick_rng.seed = seed + 1
+				rope.mend()
+				var touched := await _rope_shot(w, mark, rope, dist, how == "rushed")
+				hit += int(touched > 0)
+				cut += int(rope.is_parted)
+			var key := "winchester_rope_%dm_%s" % [int(dist), how]
+			rates[key] = float(hit) / n
+			print("    rope %d m %s: %d of %d touched it, %d cut it through; misses (cm) %s" % [int(dist), how, hit, n, cut, str(_misses)])
+		rope.queue_free()
+	for key: String in rates:
+		Feel.within(self, key, rates[key])
+	check(rates.winchester_rope_30m_steady >= rates.winchester_rope_60m_steady, "nearer is easier")
+	check(rates.winchester_rope_30m_steady > rates.winchester_rope_30m_rushed, "steady beats rushed")
+
+
+## Look at `mark`, then one shot as a man would take it; returns how many balls touched the rope.
+func _rope_shot(w: Winchester73Viewmodel, mark: Vector3, rope: HangingRope, dist: float, rushed: bool) -> int:
+	Input.action_release(&"aim")
+	await wait_until(func() -> bool: return w.shoulder <= 0.0, 60)
+	w.state.tube = w.tuning.magazine  # topped up: forty shots
+	if not w.state.ready_to_fire():
+		w.work_lever()
+	await wait_until(func() -> bool: return w.state.ready_to_fire() and w.state.ready(), 60)
+	_last_line = []
+	for k in 3:
+		var cam := player.camera.global_transform
+		var to := (mark - cam.origin).normalized()
+		var fwd := -cam.basis.z
+		var yaw := rad_to_deg(atan2(-to.x, -to.z) - atan2(-fwd.x, -fwd.z))
+		var pitch := rad_to_deg(asin(to.y) - asin(fwd.y))
+		player.add_look(Vector2(-wrapf(yaw, -180.0, 180.0), pitch), false)
+		await physics_frames(1)
+	player.composure.winded = 0.8 if rushed else 0.0
+	player.composure.rattled = 0.0
+	Input.action_press(&"aim")
+	await wait_until(func() -> bool: return w.is_shouldered(), 60)
+	# The rope's half-width as you see it (degrees): the blade's "on it".
+	var window := rad_to_deg(atan((rope.diameter * 0.5) / dist))
+	var settle := 0.0 if rushed else 1.5
+	var t := 0.0
+	var before := rope.hits
+	while t < settle + 4.0:
+		await process_frames(1)
+		t += 1.0 / 60.0
+		if rushed:
+			player.composure.winded = maxf(player.composure.winded, 0.7)
+		if t < settle:
+			continue
+		var off := w.sway.x + w.kick.yaw
+		if absf(off) <= window or t >= settle + 3.9:
+			# The squeeze: the shot breaks a moment after you decide (the gun keeps moving).
+			await process_frames(6)
+			w.pull_trigger()
+			break
+	await physics_frames(int(dist / 400.0 * 60.0) + 8)
+	Input.action_release(&"aim")
+	if _last_line.size() == 2:
+		var o: Vector3 = _last_line[0]
+		var d: Vector3 = _last_line[1]
+		var p := rope.global_position - o
+		var flat := Vector2(d.x, d.z).normalized()
+		var miss := Vector2(p.x, p.z).x * flat.y - Vector2(p.x, p.z).y * flat.x
+		_misses.append(snappedf(miss * 100.0, 0.1))
+	return rope.hits - before
+
+
+## The last shot's line (origin, way), and each shot's miss sideways of the rope's middle (cm).
+var _last_line: Array = []
+var _misses: Array[float] = []

@@ -32,6 +32,8 @@ const BULLETS := 0xFFFFFFFF & ~PEOPLE & ~WALK
 ## (`Sight`, issue #565). A pane stays on WORLD for the physics (balls, the player, a blast), but
 ## a line looked along on WORLD passes it; one asked on this bit finds it (`Sight.see`).
 const SIGHT_GLASS := 1 << 20
+## A hanging rope (HangingRope): balls meet it, nothing walks into it or stands on it.
+const ROPES := 1 << 21
 
 ## Render: people's skin and clothes (wound and blood decals paint only these).
 const VIS_BODY := 2

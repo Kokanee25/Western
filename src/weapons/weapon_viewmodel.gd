@@ -45,6 +45,8 @@ var sway := Vector2.ZERO
 var steady := 0.0
 ## How much this gun wanders, against a revolver held out at arm's length.
 var sway_factor := 1.0
+## And its fine shake (the rifle's stock against your shoulder and cheek damps it).
+var shake_factor := 1.0
 ## Tests: hold it dead still (no sway at all).
 var steady_hands := false
 ## The wander itself (Sway: the same model the gang's guns use, GunHand).
@@ -340,7 +342,7 @@ func _update_sway(delta: float) -> void:
 	# Breathing deeper and faster when winded; a fine shake that a hurt arm (extra_spread) and being
 	# rattled make worse.
 	var breath := t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
-	var shake := (t.tremor + extra_spread * 0.12) * scale
+	var shake := (t.tremor + extra_spread * 0.12) * scale * shake_factor
 	var s := sway_model.step(delta, amp, breath, t.breath_rate, 1.0 + winded * 1.5, shake)
 	# The body carries the gun too: it lags your turns and rides your steps (PlayerMotion).
 	var body := _player.motion.hand_turn if _player else Vector2.ZERO

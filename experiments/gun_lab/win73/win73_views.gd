@@ -71,10 +71,12 @@ func _run() -> void:
 	cam.fov = 32.0
 	street.add_child(cam)
 	cam.current = true
-	gun = (load("res://experiments/gun_lab/win73/win73_%s.glb" % tag) as PackedScene).instantiate()
+	# The 24" rifle is the game's (promoted to assets/weapons/ by #777); the carbine stays the lab's.
+	var dir := "res://assets/weapons/" if tag == "24" else "res://experiments/gun_lab/win73/"
+	gun = (load(dir + "win73_%s.glb" % tag) as PackedScene).instantiate()
 	street.add_child(gun)
 	gun.global_position = base
-	rig = load("res://experiments/gun_lab/win73/win73_rig.gd").new(gun, "res://experiments/gun_lab/win73/win73_%s_rig.json" % tag)
+	rig = load("res://experiments/gun_lab/win73/win73_rig.gd").new(gun, dir + "win73_%s_rig.json" % tag)
 	# Every room's probe drawn (screenshots.gd's wait), then the look settled.
 	for _i in 7 * root.find_children("*", "ReflectionProbe", true, false).size() + 30:
 		await process_frame

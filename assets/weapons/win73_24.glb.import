@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bfllmn76jy101"
-path="res://.godot/imported/win73_24.glb-b80dfcb2b93a82ff088fe8f7382eb74f.scn"
+uid="uid://cravrxkeukcjs"
+path="res://.godot/imported/win73_24.glb-37906c4d15d1155dc5e24959762b1bed.scn"
 
 [deps]
 
-source_file="res://experiments/gun_lab/win73/win73_24.glb"
-dest_files=["res://.godot/imported/win73_24.glb-b80dfcb2b93a82ff088fe8f7382eb74f.scn"]
+source_file="res://assets/weapons/win73_24.glb"
+dest_files=["res://.godot/imported/win73_24.glb-37906c4d15d1155dc5e24959762b1bed.scn"]
 
 [params]
 

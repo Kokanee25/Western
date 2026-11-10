@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ihwhorqj0kvl"
-path="res://.godot/imported/win73_24_w73_long_albedo.jpg-cb5960808e14c7c408263c0766dd9a2a.ctex"
+uid="uid://da1yb5cfkyr5q"
+path="res://.godot/imported/win73_24_w73_long_albedo.jpg-447329ec4873df93bd1f431e8259add5.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "987d7e141b1115aa3507ba74e09dea29"
 }
 
 [deps]
 
-source_file="res://experiments/gun_lab/win73/win73_24_w73_long_albedo.jpg"
-dest_files=["res://.godot/imported/win73_24_w73_long_albedo.jpg-cb5960808e14c7c408263c0766dd9a2a.ctex"]
+source_file="res://assets/weapons/win73_24_w73_long_albedo.jpg"
+dest_files=["res://.godot/imported/win73_24_w73_long_albedo.jpg-447329ec4873df93bd1f431e8259add5.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

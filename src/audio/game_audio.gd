@@ -41,9 +41,10 @@ static func t() -> SoundTuning:
 
 ## A gun going off at `at`: the report (its blast, close), the roll of it (the boom that carries,
 ## and the hills sending it back), and outdoors the slap off the fronts. `big` for the coach gun.
-static func gunshot(host: Node, at: Vector3, big := false) -> void:
-	var near := &"report_big" if big else &"report"
-	var far := &"rolling_big" if big else &"rolling"
+static func gunshot(host: Node, at: Vector3, big := false, rifle := false) -> void:
+	var near := &"report_big" if big else &"report_rifle" if rifle else &"report"
+	# A rifle's roll is the heavy one, as the coach gun's (the hills send back a bigger charge).
+	var far := &"rolling_big" if big or rifle else &"rolling"
 	var k := t()
 	var heard := play(host, near, at, {"unit_size": k.report_unit_size, "volume_db": k.report_db, "max_db": k.report_db})
 	play(host, far, at, {"unit_size": k.roll_unit_size, "volume_db": k.roll_db, "max_db": k.roll_max_db, "panning": 0.5})

@@ -738,7 +738,7 @@ func _tell_gun() -> void:
 					say(not_now.substr(0, 1).to_upper() + not_now.substr(1) + ".", 2.5)
 				return
 	var tried := false
-	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
+	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun", &"weapon_rifle"]:
 		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
 			tried = true
 	# The ones you're doing yourself (your hands on a wound; sat at a table, said only when you try
@@ -827,8 +827,8 @@ func _physics_step(delta: float) -> void:
 		var sat := player.seat != null and player.seat.seated()
 		gun.hands_busy = tending > 0.0 or sat
 		gun.busy_why = "you're sat at the table" if sat and tending <= 0.0 else ""
-		# The shotgun takes both hands; the revolver only the right.
-		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
+		# The shotgun and the rifle take both hands; the revolver only the right.
+		gun.arm_disabled = not p.can_hold("r") or ((gun is ShotgunViewmodel or gun is Winchester73Viewmodel) and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
 		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - steadiness) * 4.0
 		gun.arm_why = "" if not gun.arm_disabled else p.why_cant_hold("r") if p.why_cant_hold("r") != "" else p.why_cant_hold("l")

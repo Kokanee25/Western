@@ -110,7 +110,7 @@ func _footsteps() -> void:
 				"volume_db": -14.0 if is_crouching else (-4.0 if is_running else -9.0)})
 
 
-## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite, a water
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the rifle, the dynamite, a water
 ## bucket and the plunger box (the bundles' blasting machine, #647) are added beside it, put away.
 func _arm() -> void:
 	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
@@ -123,6 +123,16 @@ func _arm() -> void:
 	shotgun._draw = 0.0
 	camera.add_child(shotgun)
 	weapons.append(shotgun)
+	# The Winchester 1873 (#777), slung; its .44-40 from the revolver's belt (one box for both).
+	var rifle := Winchester73Viewmodel.new()
+	rifle.name = "Winchester"
+	rifle.selected = false
+	rifle.drawn = false
+	rifle._draw = 0.0
+	camera.add_child(rifle)
+	weapons.append(rifle)
+	if revolver is RevolverViewmodel:
+		rifle.state.shared = (revolver as RevolverViewmodel).state
 	var dynamite := DynamiteViewmodel.new()
 	dynamite.name = "Dynamite"
 	dynamite.selected = false
@@ -173,6 +183,10 @@ func shotgun() -> ShotgunViewmodel:
 	return camera.get_node_or_null(^"Shotgun") as ShotgunViewmodel
 
 
+func winchester() -> Winchester73Viewmodel:
+	return camera.get_node_or_null(^"Winchester") as Winchester73Viewmodel
+
+
 func dynamite() -> DynamiteViewmodel:
 	return camera.get_node_or_null(^"Dynamite") as DynamiteViewmodel
 
@@ -205,6 +219,8 @@ func _update_weapon_switch() -> void:
 			select_weapon(revolver())
 		elif Input.is_action_just_pressed(&"weapon_shotgun"):
 			select_weapon(shotgun())
+		elif Input.is_action_just_pressed(&"weapon_rifle"):
+			select_weapon(winchester())
 		elif Input.is_action_just_pressed(&"weapon_dynamite"):
 			select_weapon(dynamite())
 		elif Input.is_action_just_pressed(&"weapon_bucket"):
