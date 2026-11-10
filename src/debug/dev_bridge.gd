@@ -554,8 +554,13 @@ func _cmd_shoot(a: Array) -> Dictionary:
 		if w is Winchester73Viewmodel:
 			# The rifle: at half cock thumb the hammer back; down, work the lever (Q's tap).
 			var rtries := 0
-			while not _cocked(w) and rtries < 3:
-				var half := (w as Winchester73Viewmodel).state.hammer == Winchester73State.Hammer.HALF_COCK
+			while not _cocked(w) and rtries < 6:
+				var rstate := (w as Winchester73Viewmodel).state
+				if rstate.lever_open or not rstate.ready():
+					await _seconds(0.3)  # the lever still going home
+					rtries += 1
+					continue
+				var half := rstate.hammer == Winchester73State.Hammer.HALF_COCK
 				_act(true, &"hammer" if half else &"cock")
 				await _settle()
 				_act(false, &"hammer" if half else &"cock")
@@ -604,7 +609,8 @@ func _cocked(w: WeaponViewmodel) -> bool:
 	if w is ShotgunViewmodel:
 		return (w as ShotgunViewmodel).state.cocked_hammers.has(true)
 	if w is Winchester73Viewmodel:
-		return (w as Winchester73Viewmodel).state.hammer == Winchester73State.Hammer.FULL_COCK
+		var rs := (w as Winchester73Viewmodel).state
+		return rs.hammer == Winchester73State.Hammer.FULL_COCK and not rs.lever_open and rs.ready()
 	return true
 
 

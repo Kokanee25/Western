@@ -95,6 +95,10 @@ var _held_round: Node3D
 var _loading_until := 0.0
 var _clock := 0.0
 var _close_when_ready := false
+var _fire_until := 0.0
+## A squeeze that comes while the lever's still finishing its stroke fires as it shuts, this long after
+## at most (s): a hand already on the trigger.
+const TRIGGER_BUFFER := 0.2
 
 
 func _ready() -> void:
@@ -245,6 +249,12 @@ func _read_controls(delta: float) -> void:
 	if InputMap.has_action(&"hammer") and Input.is_action_just_pressed(&"hammer") and _action_ok(&"hammer"):
 		hammer_press()
 	if Input.is_action_just_pressed(&"fire") and _action_ok(&"fire"):
+		if state.ready() and not state.lever_open:
+			pull_trigger()
+		else:
+			_fire_until = _clock + TRIGGER_BUFFER  # the lever still going home: the squeeze comes as it shuts
+	if _fire_until > _clock and state.ready() and not state.lever_open:
+		_fire_until = 0.0
 		pull_trigger()
 	if Settings.auto_cock and state.ready() and not state.lever_open and state.hammer == Winchester73State.Hammer.DOWN \
 			and state.rounds_ready() > 0:
