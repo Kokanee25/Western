@@ -20,7 +20,7 @@ The blind playtest's brief: `PLAYTEST.md` (`tools/playtest.py start --game-args=
 
 | Beat | Built | Stand-in |
 |---|---|---|
-| Dawn at Harlan's homestead | you on its pad at 5.6, facing down the ford path | the pad is the greybox's (no cabin yet) |
+| Dawn at Harlan's homestead | you on its pad at 6.3 (first sun), the clock running, facing down the ford path | the pad is the greybox's (no cabin yet) |
 | The ford path to the East Road | the path is now one of the valley's ways (`ValleyMarkers.WAY_ROADS`), joined to his homestead and the East Road: `walk opening_site` goes by it (~350 m) | |
 | The sheriff gut-shot at `opening_site` | a real ball through the belly (the hole, the blood on his shirt), then his body as the data has it; down (limp), conscious; lines by his blood loss (clear / weak / fading / out) | the man is the Studio's `sean_s3_talking`; typed lines; the red shirt described, not named |
 | His horse at the site | the bay (`Horse`), reins hanging to the ground, a place `sheriffs_horse` | no rifle on the saddle (no new art) |
@@ -76,3 +76,14 @@ Inside the budget: +0.08-0.11 ms of render CPU at Sean's and ~0.6 ms of people (
 body; the train's engineer is the rest). (The mission run's `crossroads` row isn't the crossroads:
 the mission put you at Harlan's place after the bench had placed you, so it's left out.) Logs:
 `build/vb_before.log`, `build/vb_sheriff.log` (not kept).
+
+## The blind playtest (`docs/playtests/2026-11-10-sheriff.md`)
+
+Three tries, each ended right (good, poor, left him); his words changing with his state and how long
+you took worked. Fixed after it: a shake or nod counts only when it changes your answer (turning away
+to leave read as more shaking: "Damn you" three times); your hands on his wound are a yes (he asked
+"Well? Nod or don't" after being packed); no debug words on the cards (`sheriff.care: ...`, "A
+stand-in: ..."); a line at the start pointing you down to the road; the clock runs from first sun (6.3,
+was 5.6: the road was near black at 50 m); a restart levels your view. Left for later: the
+arrival in town is still a card and a man lying in the street (the doctor's "up the steps" with nobody
+moving), and nothing you see shows the care's difference, only the doctor's words.

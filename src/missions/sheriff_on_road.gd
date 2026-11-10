@@ -59,6 +59,8 @@ func begin() -> void:
 	valley = street as ValleyWorld
 	pace = float(opts.get("pace", 1.0))
 	set_hour()
+	if clock() and bool(data.get("clock_runs", true)):
+		clock().set_time_scale(1.0)  # the morning goes on while you're at it (the game holds it at noon)
 	StoryState.clear("sheriff.")
 	_place_player()
 	site = _site_point()
@@ -107,6 +109,8 @@ func _place_player() -> void:
 	var heading := rad_to_deg(atan2(dir.x, -dir.y))
 	p.global_transform = Transform3D(Basis(Vector3.UP, ValleyWorld.yaw_of(heading)), _on_ground(at) + Vector3.UP * 0.05)
 	p.velocity = Vector3.ZERO
+	p.add_look(Vector2(0.0, -p.get_pitch_degrees()), false)  # level (a restart kept the last look)
+	prompt(String(data.get("dawn_line", "")), 7.0)
 
 
 ## The East Road's way at the site (unit, in x/z as a Vector3).
@@ -301,7 +305,8 @@ func _road_step(delta: float) -> void:
 	# Your answer: the view's nod or shake, while you're with him.
 	if found and dist < float(dd.get("hail_m", 25.0)):
 		var g := gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
-		if g != &"" and asked:
+		# Only a change of answer counts (turning away to leave reads as more shaking).
+		if g != &"" and asked and String(g) != answer:
 			_answer(String(g), band)
 	if asked and answer == "" and near and t - _ask_t > float(data.get("say_gap_s", 14.0)):
 		_ask_t = t
@@ -374,6 +379,9 @@ func _press_step(p: Player, delta: float, band: String) -> void:
 			phys.bleeds[0].hand = now
 		if now and pressed_s == 0.0:
 			_say(line("press", band))
+		if now and answer != "nod":
+			answer = "nod"  # your hands on his wound are a yes
+			_note("answer: nod (pressed the wound)")
 	if pressing:
 		pressed_s += delta
 		if not packed and pressed_s >= float((data.get("care", {}) as Dictionary).get("pack_s", 6.0)):

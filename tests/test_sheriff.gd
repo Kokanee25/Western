@@ -161,7 +161,7 @@ func test_dawn_at_harlan_s_and_the_sheriff_on_the_road() -> void:
 	var p := m.player()
 	var home := ValleyLayout.main().place_at("harlan_homestead")
 	check(Vector2(p.global_position.x, p.global_position.z).distance_to(home) < 15.0, "you start at Harlan's place")
-	check_near(m.clock().time_of_day, 5.6, 0.05, "at dawn")
+	check_near(m.clock().time_of_day, float(_data().hour), 0.05, "at dawn")
 	check_eq(String(m.state), "road", "he's on the road")
 	check(m.sheriff.limp and m.phys.is_conscious(), "down, and with it")
 	var site := ValleyLayout.main().place_at("opening_site")
@@ -174,8 +174,7 @@ func test_help_him_well() -> void:
 	var m := await _start()
 	var p := m.player()
 	_put(p, m._sheriff_at() + Vector3(1.0, 0, 0.6))
-	await physics_frames(10)
-	check(m.asked, "he asks you")
+	check(await wait_until(func() -> bool: return m.asked, 60 * 5), "he hails you, then asks")
 	await _nod(m, p)
 	check_eq(m.answer, "nod", "you nod")
 	_put(p, m.sheriff.parts[&"abdomen"].global_position + Vector3(0.8, 0, 0))
@@ -197,14 +196,14 @@ func test_help_him_well() -> void:
 	check_eq(m.care, "good", "care good (lost %.3f)" % m.loss_at_doctor)
 	check_eq(StoryState.get_fact("sheriff.care"), "good", "the story knows")
 	check(m.doctor != null and is_instance_valid(m.doctor), "the doctor's there")
-	check(m.clock().time_of_day > 5.6 + 2.0, "hours on the clock (%.2f)" % m.clock().time_of_day)
+	check(m.clock().time_of_day > float(_data().hour) + 2.0, "hours on the clock (%.2f)" % m.clock().time_of_day)
 
 
 func test_help_him_poorly() -> void:
 	var m := await _start()
 	var p := m.player()
 	_put(p, m._sheriff_at() + Vector3(1.0, 0, 0.6))
-	await physics_frames(10)
+	await wait_until(func() -> bool: return m.asked, 60 * 5)
 	await _nod(m, p)
 	# Straight to his horse, the wound not tended.
 	_put(p, m.horse.global_position + Vector3(1.5, 0, 0))
@@ -222,7 +221,7 @@ func test_leave_him() -> void:
 	var m := await _start()
 	var p := m.player()
 	_put(p, m._sheriff_at() + Vector3(1.0, 0, 0.6))
-	await physics_frames(10)
+	await wait_until(func() -> bool: return m.asked, 60 * 5)
 	var was := 0.0
 	for k: float in [0.5, 1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0]:
 		p.add_look(Vector2(12.0 * k - was, 0.0))

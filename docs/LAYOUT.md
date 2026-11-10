@@ -1341,7 +1341,7 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   `src/missions/sheriff_on_road.gd` (`SheriffOnRoad`, an `Act`), data `config/moments/the_sheriff.json`.
   Valley only: `-- --world=valley --mission=sheriff` (ValleyWorld starts it 5 ticks in) or the bridge's
   `moment the_sheriff`; Enter when it's over (held 1.5 s any time) starts it again (`restart`). You at
-  `harlan_homestead` facing the ford path at 5.6 (dawn); the sheriff (`sean_s3_talking`) shot through the
+  `harlan_homestead` facing the ford path at 6.3 (first sun; the clock runs); the sheriff (`sean_s3_talking`) shot through the
   belly (`take_bullet` for the hole, then `shape_wound`: his body as the data has it: 450 ml lost, a
   weeping wall bleed 2.4 ml/s to 1,350 ml that doesn't clot, 0.2 ml/s inside to 300 ml, the gut holed 2
   game hours before; untended he passes out at ~0.41 lost and doesn't bleed to death: the gut kills him

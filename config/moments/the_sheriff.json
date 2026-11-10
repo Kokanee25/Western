@@ -1,7 +1,9 @@
 {
   "_doc": "The sheriff on the road (docs/missions/the-sheriff.md; issue #746, the first mission, rough). Dawn at Harlan's homestead; he walks the ford path down to the East Road and finds the sheriff gut-shot at opening_site, his horse standing off the road with its reins down. Nod to help him, shake your head to leave him (the view's nod and shake, HeadGesture). Hold E on the wound to press it, long enough and it's packed and bound. E by his horse: the stand-in card (leading a horse isn't built), the walk into town run on his body (Physiology), the doctor at his greybox. sheriff.care = good (packed, and his blood loss at the doctor's at most care.good_max_loss) / poor (taken in otherwise) / left him (you walked off). Started in the valley by -- --world=valley --mission=sheriff, or the bridge's `moment the_sheriff`; Enter afterwards (or held 1.5 s any time) starts it again. Lines are typed, chosen by his blood loss (Act: bands).",
   "script": "res://src/missions/sheriff_on_road.gd",
-  "hour": 5.6,
+  "hour": 6.3,
+  "clock_runs": true,
+  "dawn_line": "Dawn. A shot, a while back, from down by the East Road. North, past the ford.",
   "start": "harlan_homestead",
   "start_toward": "harlan_ford_path",
   "site": "opening_site",
@@ -32,10 +34,10 @@
   "say_gap_s": 14.0,
   "bands": {"clear": 0.22, "weak": 0.32, "fading": 0.5},
   "cards": {
-    "trip": "You get him up across his saddle and lead his horse down the East Road into town.\n(%d minutes on foot. A stand-in: leading a horse isn't built yet.)",
+    "trip": "You get him up across his saddle and lead his horse down the East Road into town.\nIt's %d minutes on foot.",
     "left": "You leave him on the road.\nLater that morning a freighter coming down the East Road finds him and hauls him into town in the back of his wagon.",
-    "end": "The doctor takes him in. His horse is put up at the livery.\n\nsheriff.care: %s\n\n(Enter: start again)",
-    "end_left": "sheriff.care: left him\n\n(Enter: start again)"
+    "end": "The doctor takes him in. His horse is put up at the livery.\n\n(Enter: start again)",
+    "end_left": "(Enter: start again)"
   },
   "lines": {
     "hail": {
