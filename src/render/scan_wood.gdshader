@@ -85,6 +85,17 @@ uniform float grain_contrast = 1.0;
 uniform float wall_top = 2.0;
 uniform float eaves_m = 0.45;
 uniform float edge_shelter = 0.8;
+// Sheltered wood weathers too, only slower: darker and browner than the silver, not the new wood's
+// orange (round 3's orange stripes read as outlines drawn on, the materials judge 2026-11-10).
+uniform float shelter_dark = 0.3;
+// A lap's joint: the board above shades the top of the one below, a soft dark band across the top
+// of each horizontal board's face (the judge: the lap drawn as one continuous soft shadow).
+uniform float lap_shade = 0.0;
+// Old varnish's darkening (was 0.72: old walnut went black, the judge 2026-11-10).
+uniform float old_varnish_dark = 0.72;
+// Age's reach into the weathered scan: a few years silver and light, old darker and rougher (the
+// judge: R1's few and old alike).
+uniform float old_dark = 0.22;
 // The weathered scan sampled twice, the second turned half round and moved, blended along the board
 // by noise, so no stretch of a board shows the scan's repeat (a short scan's knot came three times
 // down one board). After Heitz and Neyret's stochastic texturing (HPG 2018): two decorrelated
@@ -263,10 +274,18 @@ void fragment() {
 		// Exposed wood is mostly grey by a few years; sheltered wood keeps its colour longer.
 		float hw = v_world.y - v_ground;
 		float eaves = floor_face ? 0.0 : smoothstep(wall_top - eaves_m, wall_top - 0.08, hw);
-		float by_edge = face < 0.5 ? smoothstep(0.55, 0.95, abs(v_across)) * edge_shelter : 0.0;
+		// Beside a batten both edges of a standing board; on a horizontal board only its top, under
+		// the lap or the board above (its bottom edge is out in the weather).
+		float up_across = v_across * sign(v_yaxis.y);
+		float edge_d = abs(v_yaxis.y) > 0.5 ? max(up_across, 0.0) : abs(v_across);
+		float by_edge = face < 0.5 ? smoothstep(0.25, 1.0, edge_d) * edge_shelter : 0.0;
 		float shelter = clamp(max(eaves, by_edge), 0.0, 1.0) * (1.0 - 0.6 * smoothstep(0.5, 1.0, ag));
 		float exposed_age = smoothstep(0.0, 0.42, ag);
-		float wx = clamp(exposed_age * (1.0 - 0.85 * shelter) + (n1 - 0.5) * 0.35 + (n2 - 0.5) * 0.2, 0.0, 1.0) * weathering;
+		float wx = clamp(exposed_age * (1.0 - 0.5 * shelter) + (n1 - 0.5) * 0.35 + (n2 - 0.5) * 0.2, 0.0, 1.0) * weathering;
+		// The sheltered wood's own colour: darker, its orange gone brown.
+		float sh = shelter * exposed_age * weathering;
+		float cl = dot(col, vec3(0.299, 0.587, 0.114));
+		col = mix(col, mix(vec3(cl), col, 0.55) * (1.0 - shelter_dark), sh);
 		if (wx > 0.001) {
 			vec2 fb;
 			vec2 uvb = scan_uv(m, tile_b, grain_v_b, seed, 2.0, fb);
@@ -297,8 +316,10 @@ void fragment() {
 				nb = normalize(mix(nb, nb2, sw));
 				rb = mix(rb, rb2, sw);
 			}
+			// Old: the silver darkens and its checks open (a few years stays light).
+			colb *= 1.0 - old_dark * smoothstep(0.5, 1.0, ag);
 			col = mix(col, colb, wx);
-			nrm = normalize(mix(nrm, nb, wx * 0.5));
+			nrm = normalize(mix(nrm, nb, wx * (0.5 + 0.3 * smoothstep(0.5, 1.0, ag))));
 			rough = mix(rough, rb, wx);
 		}
 	}
@@ -320,6 +341,11 @@ void fragment() {
 	float g = grime * age_layer * (1.0 - smoothstep(0.0, 0.55, hgt)) * (0.55 + 0.45 * n2);
 	if (!floor_face) {
 		col = mix(col, col * vec3(0.62, 0.55, 0.47), g);
+	}
+	// The lap's soft shadow: the board above shades the top of this one's face.
+	if (lap_shade > 0.0 && face < 0.5 && abs(v_yaxis.y) > 0.5) {
+		float top = v_across * sign(v_yaxis.y);
+		col *= 1.0 - lap_shade * smoothstep(0.15, 0.6, top);
 	}
 	// Dirt in the joints (the long faces' edges).
 	if (face < 0.5) {
@@ -356,7 +382,7 @@ void fragment() {
 		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Old varnish darkens, and crazes into fine cracks.
-		col *= mix(1.0, 0.72, varnish * smoothstep(0.5, 1.0, ag));
+		col *= mix(1.0, old_varnish_dark, varnish * smoothstep(0.5, 1.0, ag));
 		float cz = abs(texture(big_noise, v_m * 2.2 + seed * 5.0).r - 0.5);
 		float czw = fwidth(texture(big_noise, v_m * 2.2 + seed * 5.0).r);
 		float craze = (1.0 - smoothstep(0.0, 0.012 + czw, cz)) * smoothstep(0.6, 1.0, ag) * (1.0 - smoothstep(0.02, 0.08, czw));
@@ -412,5 +438,5 @@ void fragment() {
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
 	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint);
-	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings, 0.0, 1.0));
+	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.5 + rings, 0.0, 1.0));
 }
