@@ -284,6 +284,13 @@ func step(dt: float) -> void:
 			_clear_table()
 			_start_hand()
 		return
+	# A man of the hand gone from the world (out of town at the end of his hours): it's over, and
+	# he's no longer at the table.
+	if seats.any(func(x: Dictionary) -> bool: return not is_instance_valid(x.who)):
+		seats = seats.filter(func(x: Dictionary) -> bool: return is_instance_valid(x.who))
+		_turn = -1
+		interrupt(&"up")
+		return
 	# A man in the hand out of his chair (kicked from under him, up and off): the hand's over. You
 	# standing up only folds you.
 	for s in seats:
@@ -670,7 +677,7 @@ func _lines(who: Node3D, kind: String) -> Array:
 
 
 ## A line of `kind` from him (sometimes: say_chance, a man at most every say_gap_s; `always`).
-func _say(who: Node3D, kind: String, fill := {}, always := false) -> void:
+func _say(who: Variant, kind: String, fill := {}, always := false) -> void:
 	if who == null or not is_instance_valid(who) or not who is HumanBody:
 		return
 	var id := id_of(who)
@@ -704,20 +711,25 @@ func _act() -> void:
 		return
 	var c := centre()
 	for s in seats:
+		if not is_instance_valid(s.who):
+			continue
 		var man := s.who as HumanBody
-		if man == null or not is_instance_valid(man) or man.limp or s.chair.seated != man:
+		if man == null or man.limp or s.chair.seated != man:
 			continue
 		var life := man.get_node_or_null(^"FaceLife") as FaceLife
 		if life:
 			var look := c
 			if _turn >= 0 and _turn < seats.size() and seats[_turn].id != s.id:
-				var other: Node3D = seats[_turn].who
+				var other: Node3D = seats[_turn].who if is_instance_valid(seats[_turn].who) else null
+				if other == null:
+					continue
 				look = other.global_position + Vector3.UP * 1.15 if other is HumanBody else (other as Player).camera.global_position
 			life.attend_to(look)
 	for k: String in _reach.keys():
 		var r: Array = _reach[k]
-		var man := _seat(r[0]).get("who") as HumanBody
-		if man == null or not is_instance_valid(man) or _clock > float(r[3]) or man.limp:
+		var who: Variant = _seat(r[0]).get("who")
+		var man := who as HumanBody if is_instance_valid(who) else null
+		if man == null or _clock > float(r[3]) or man.limp:
 			_reach.erase(k)
 			continue
 		# Out to it and back: eased in and out over a quarter second each way.
