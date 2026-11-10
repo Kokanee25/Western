@@ -10,8 +10,10 @@ extends Node3D
 ## ValleyMarks; blocks, posts, Bridge A and the town bridge, the places by name, ValleyMarkers), the
 ## town's greybox (G5: boardwalks, the lanes and alleys open to the back, the town's ways, ValleyTown),
 ## the farmhouse on the widow's pad and its hostage rescue (G6: Farmhouse, FarmhouseMission; its places
-## joined to the valley's by the East Road and the widow's lane) and the player at the crossroads
-## looking down Main Street. No TownLife, gang or labs: they need the old town.
+## joined to the valley's by the East Road and the widow's lane), the sheriff on the road (the first
+## story mission, #746: SheriffOnRoad, `-- --mission=sheriff` or the bridge's `moment the_sheriff`)
+## and the player at the crossroads looking down Main Street. No TownLife, gang or labs: they need
+## the old town.
 
 ## The ground's colour where a tile's been dug (the greybox's dirt; the undug ground's colours are
 ## config/valley_terrain.tres's).
@@ -30,6 +32,8 @@ static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
 static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
 ## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
+## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
+const SHERIFF_ARG := "--mission=sheriff"
 
 
 func _ready() -> void:
@@ -52,6 +56,15 @@ func _ready() -> void:
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
+	if SHERIFF_ARG in OS.get_cmdline_user_args():
+		_start_sheriff.call_deferred()
+
+
+## The sheriff on the road (#746), once the valley's in (its places, the ground under you).
+func _start_sheriff() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(&"the_sheriff", self, null)
 
 
 ## Where the player starts: on the crossroads' ground, facing down Main Street (west).

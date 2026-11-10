@@ -1051,6 +1051,19 @@ frozen until Sean names one.
   judge: new CLOSE in all four pairs. Sean's $3: $2.11 spent. Sean: the hold "still looks like
   shit": **next, the rig posed by eye** (`docs/briefs/viewmodel-rig.md`; targets
   `assets/textures/guns/hold_game_*.jpg`); the `next session` issue.
+- **The Colt SAA by script** (#693 step 1, branch `claude/colt-single-action-blender-sm1nxd`;
+  `experiments/gun_lab/saa/` README): the 1873 Colt built in Blender from its real dimensions
+  (`saa_blender.py --barrel=7.5|5.5|4.75`, ~8 s), 39 parts the game can drive (cylinder indexing,
+  hammer notches, trigger, bolt, gate, ejector; rounds per chamber), `saa_<barrel>_rig.json`,
+  `saa_rig.gd` drives them; `saa_views.gd` shows it under the real look. Sean's review: refitted to
+  the Met's 1874 Colt (CC0 photo, `docs/concept/guns/ref/`; `overlay.py`, overlap 0.666 -> 0.952).
+  Painted (Sean's yes, #740; `gun_surfaces.yml`, $1.12 of $2.50); then Sean's second review in four
+  steps (`results/2026-11-09_review2/`): the shield a dome, the spur alone; metal as metal; the metals'
+  finishes from 3D noise in the bake (no UV stretch), walnut painted; third review: the ears flush
+  under the hammer's top, the guard a flat strap; fourth: the spur a broad blunt thumb rest, judged by
+  `overlay.py --crop` (`results/2026-11-09_review4/`). **Sean approved step 1** (2026-11-10): the shape
+  stays. Later: the checkering a touch lighter in the next surfaces pass; he judges it in first person
+  in the hand. The Winchester (#734) copies this method. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

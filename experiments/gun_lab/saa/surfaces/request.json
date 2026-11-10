@@ -1,0 +1,9 @@
+{
+ "about": "The SAA's surfaces (#693 step 1). Sean's yes on #740, 2026-11-09: cap $2.50, the grip frame blued. FLUX.2 [max] on OpenRouter, flat tiling surfaces only.",
+ "cap": 2.50,
+ "items": [
+  {"id": "case", "tries": 3, "what": "colour case-hardened steel as on the frame of a 19th-century single-action revolver, bone-and-charcoal case hardening: soft watery marbled swirls and feathered blotches of deep blue, violet, peacock green, straw yellow and amber over silvery grey steel, faded and softened by a century of handling, the finest polishing lines and a few tiny pits"},
+  {"id": "blued", "tries": 2, "what": "worn blued steel from the barrel of an 1870s revolver: deep blue-black charcoal bluing worn thin in places to a plum-brown and grey steel, very fine polishing lines running straight across from left to right, faint freckles of old rust, a soft satin sheen"},
+  {"id": "walnut", "tries": 2, "what": "oil-finished American black walnut from an old revolver's grip: close straight grain running from top to bottom, warm dark chocolate brown with lighter honey streaks and open pores, darkened by decades of hands, old oil and grime, a few small dents and scratches"}
+ ]
+}
