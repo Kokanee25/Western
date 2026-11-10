@@ -31,7 +31,7 @@ All DECIDED, Sean on PR #772:
 
 | What | Spent | Cap |
 | --- | --- | --- |
-| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | **TOTAL_SPEND** (33 views at $0.14 each, every one painted first time; D got two more, the theatre and a fuller rear; B three for the open well) | $5.00 (your pre-approval; $1.25 a concept) |
+| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | **$4.65** (33 views at $0.14 each, every one painted first time; D got two more, the theatre and a fuller rear; B three for the open well) | $5.00 (your pre-approval; $1.25 a concept) |
 | Plans (drawn by code from each concept's data), research | $0 | |
 
 The plans aren't painted: `tools/buildings/concept_plans.py` draws them from `experiments/building_lab/saloon_*/concept.json`,

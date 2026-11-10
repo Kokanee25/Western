@@ -473,7 +473,9 @@ frozen until Sean names one.
   `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
   the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a
   target sheet (`experiments/building_lab/saloon_*/`, plans drawn by `tools/buildings/concept_plans.py`),
-  $4.23 of $5. Waiting on Sean: his pick and the brief's §3 (the girder, not a joist, is what fails).
+  $4.65 of $5. **Sean picked B, the corner saloon** (PR #772), with an open well over the card tables (falls
+  over the rail), the girder sawn, open joists, the moon re-aimed south, glazed doors (the brief's "Sean's
+  answers"). Next: its spec and build in #765's order (after the doctor, jail and store).
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
