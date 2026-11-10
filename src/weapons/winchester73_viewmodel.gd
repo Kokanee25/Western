@@ -15,7 +15,7 @@ extends WeaponViewmodel
 
 ## The usual first-person carry (the lab's low ready, #776's sheets): the wrist low on the right out
 ## front, the muzzle in towards the middle. Turned to load: the gate's side to you. Euler degrees.
-const HIP_ROT := Vector3(-4.0, 12.0, -7.0)
+const HIP_ROT := Vector3(-6.0, 6.0, -6.0)
 const HIP_WRIST := Vector3(0.17, -0.17, -0.33)
 const LOAD_ROT := Vector3(8.0, 62.0, 10.0)
 const LOAD_AT := Vector3(0.02, -0.12, -0.36)
@@ -32,11 +32,11 @@ const TUCK_ROT := Vector3(62.0, 14.0, -10.0)
 ## The right hand round the wrist, its fingers through the lever's loop, the index on the trigger
 ## (the lab's fp hands, design inches); it rides the lever's pivot while the lever's worked. The left
 ## under the forend.
-const R_HAND := Vector3(-5.0, -1.95, 0.72)
-const R_WRIST_DIR := Vector3(0.12, -0.75, 0.65)
-const R_PALM_DIR := Vector3(-1.0, 0.15, 0.0)
-const R_FOREARM := Vector3(0.45, -0.55, 0.70)
-const R_GRIP := {"middle": 72.0, "ring": 66.0, "little": 60.0}
+const R_HAND := Vector3(-5.2, -1.8, 0.62)
+const R_WRIST_DIR := Vector3(0.5, 0.12, 0.86)
+const R_PALM_DIR := Vector3(-1.0, -0.2, 0.0)
+const R_FOREARM := Vector3(0.55, -0.35, 0.75)
+const R_GRIP := {"middle": 82.0, "ring": 78.0, "little": 72.0}
 const R_INDEX_REST := 12.0
 const R_INDEX_PULL := 24.0
 const R_INDEX_SPREAD := 28.0
@@ -59,9 +59,9 @@ const HIP_SHOULDER_R := Vector3(0.19, -0.2, 0.07)
 const HIP_SHOULDER_L := Vector3(-0.19, -0.2, 0.07)
 const HIP_POLE_R := Vector3(0.5, -1.0, 0.2)
 const HIP_POLE_L := Vector3(-0.5, -1.0, 0.2)
-const AIM_SHOULDER_R := Vector3(0.11, -0.16, 0.16)
+const AIM_SHOULDER_R := Vector3(0.1, -0.2, 0.18)
 const AIM_SHOULDER_L := Vector3(-0.17, -0.22, 0.06)
-const AIM_POLE_R := Vector3(1.0, -0.25, 0.1)
+const AIM_POLE_R := Vector3(0.6, -0.8, 0.0)
 const AIM_POLE_L := Vector3(-0.15, -1.0, -0.1)
 const HAMMER_LEVEL := {Winchester73State.Hammer.DOWN: 0.0, Winchester73State.Hammer.HALF_COCK: 1.0,
 		Winchester73State.Hammer.FULL_COCK: 2.0}
