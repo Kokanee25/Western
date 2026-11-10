@@ -11,7 +11,7 @@ Builds on `docs/briefs/saloon-references.md` (the first pass: its figures are ch
 
 | What | Spent | Cap |
 | --- | --- | --- |
-| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | SPENT_TOTAL | $5.00 (your pre-approval; $1.25 a concept) |
+| Four target sheets, 7 painted views each (Nano Banana Pro on GitHub, like the doctor's) | **$4.23** (30 views at $0.14 each, every one painted first time; D got two more, the theatre and a fuller rear) | $5.00 (your pre-approval; $1.25 a concept) |
 | Plans (drawn by code from each concept's data), research | $0 | |
 
 The plans aren't painted: `tools/buildings/concept_plans.py` draws them from `experiments/building_lab/saloon_*/concept.json`,
@@ -194,7 +194,7 @@ on both sides").
 - *Balcony Ambush:* the band's balcony: the men are on it because the band is (a reason for them to be there).
 - *Fire:* the most to burn: the drop, the curtains and the boxes.
 
-D is the one concept with more than the must-haves: the theatre is a second big room to build, light and
+Its sheet has one view more than the others, the theatre from the boxes. D is the one concept with more than the must-haves: the theatre is a second big room to build, light and
 fill with people.
 
 ## 3. Questions only you can answer
