@@ -14,11 +14,13 @@ const VIEWS := {
 	"front": [Vector3(4.6, 1.75, -17.0), Vector3(4.4, 3.3, 0.0), 42.0, 13.0],
 	"side_yard": [Vector3(-13.5, 1.75, -15.0), Vector3(2.0, 3.0, 5.0), 45.0, 16.5],
 	"rear": [Vector3(15.0, 1.9, 27.0), Vector3(4.0, 3.2, 13.0), 45.0, 8.5],
-	"front_office": [Vector3(4.71, 2.55, 0.6), Vector3(4.71, 2.2, 8.0), 72.0, 11.0],
+	# Inside, each camera in the room's far corner, clear of every door's leaf (round 1 stood behind
+	# them), by day (no lamps yet: the sheet's evening sick room would be black).
+	"front_office": [Vector3(7.9, 2.55, 0.7), Vector3(2.5, 2.0, 3.6), 72.0, 11.0],
 	"surgery": [Vector3(3.6, 2.55, 4.25), Vector3(0.2, 2.0, 6.6), 72.0, 9.0],
-	"dispensary": [Vector3(5.75, 2.55, 4.2), Vector3(8.3, 2.1, 7.6), 72.0, 11.0],
-	"sick_room": [Vector3(3.6, 2.55, 11.1), Vector3(0.4, 1.7, 8.6), 72.0, 18.5],
-	"quarters": [Vector3(5.75, 2.55, 11.7), Vector3(8.3, 1.9, 14.3), 72.0, 8.0],
+	"dispensary": [Vector3(8.15, 2.55, 7.9), Vector3(5.6, 2.0, 4.1), 72.0, 11.0],
+	"sick_room": [Vector3(0.45, 2.55, 11.0), Vector3(3.8, 1.8, 8.5), 72.0, 15.0],
+	"quarters": [Vector3(8.15, 2.55, 14.25), Vector3(5.6, 1.9, 11.6), 72.0, 8.0],
 }
 
 var out_dir := "build/doctor_renders"
