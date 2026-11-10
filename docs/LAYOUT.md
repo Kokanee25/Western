@@ -2060,6 +2060,10 @@ The weave's bisect (2026-11-10): `--panels=bisect` (one flat panel, `scan_wood`'
 the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `tools/weave_measure.py`
 (a 2x2 checker's response per 100 of brightness). The materials judge: `docs/concept/judge/MATERIAL.md`
 (a blind agent on crops of the wood only, against the Studio's AAA references read in place).
+`tools/material_judge.py prepare --from=RUN --out=DIR --refs=<Studio>/references [--before=RUN0 --same]`
+cuts a review run's crops and writes the judge's prompt; with `--before` a blind A/B (sets P and Q, the
+key under `build/`). scan_wood's later dials: `contact`/`arris` (joints as shadowed gaps; a board's covered
+edges in UV2, SamplePanel), `age_split`/`checks`/`end_rot` (few against old), `varnish_dark`.
 
 ## src/props/prop_models.gd
 
