@@ -174,7 +174,28 @@ Inches; f along the bore from the breech face, u up from the bore's axis. Source
 | The buckhorn: 0.90" across the horns, its notch 0.72" over the bore | | est. (a buckhorn's usual shape; the photo's sight is a leaf) |
 | Travel: the lever's 52°, the bolt's 1.85", the carrier's 0.75" (= the tube's drop, measured), the hammer's 13°/34°, the cover's 1.45", the gate's 16° | | est. |
 
-## Results
+## Game light
 
-`results/2026-11-10_views/` (placeholder materials, the 24" rifle, Main Street at 16:00, real look):
-see "Game light" below once written.
+`results/2026-11-10_views/` (placeholder materials, the 24" rifle, over Main Street's road at 16:00
+under the real look, the game's sky to reflect; `win73_views.gd`, ~65 min here):
+- `turntable.jpg`, `turntable.mp4`: 24 steps of 15°;
+- `four_views.jpg`: both straight sides, the action's three-quarters (from behind on the left, from in
+  front on the right), the whole gun three-quarter, each side turned to the sun, down the sights;
+- `close.jpg`: right, left, the muzzle (octagon, crown, the tube's plug), the hammer from above, the
+  gate pressed; `close_open.jpg` (the lever thrown, the cover back); `fp_sights.jpg` (the front blade's
+  top in the buckhorn's notch);
+- `mech.jpg`: rest, half cock, the lever at 35, 70 and 100% (the bolt out over the wrist, the hammer
+  cocked), closing at 50%, closed and cocked, fired, the cover back, the gate in;
+- `side_by_side_real_look.jpg` and `action_crop_real_look.jpg` (`overlay.py --plain`, the game's side
+  render put to the photo's scale by where the muzzle and the receiver's front landed): the screws, both
+  loops, the hammer and the frame's rear land within a few pixels of the photo's.
+
+Found in game light and fixed:
+- **The receiver's streaks:** the first run showed dark diagonal streaks across its flat sides. Their
+  corner normals were shared with the bevels: 1,584 of 1,617 were bent more than 5°.
+- **The fix:** normals weighted by face area (`finish()`), on every part; now none are bent.
+
+Left for the surfaces pass (Sean's word first), as the Colt's first round was:
+- the bluing reads too clean, near chrome, with a hard sun glint on the barrel;
+- the lever and hammer are flat pale grey (the case colours to come);
+- the walnut is flat orange in the sun and near black in shade.
