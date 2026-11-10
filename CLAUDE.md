@@ -866,8 +866,15 @@ frozen until Sean names one.
   isn't built) run on his body, a stand-in doctor; `sheriff.care` good/poor/left him in `StoryState`
   (memory only; bridge `story`). `Act` (src/moments) is the first cut of acts. Blind playtest
   `docs/playtests/2026-11-10-sheriff.md`. Waiting on Sean: #755 (his play; the saloon onto its valley
-  lot now or in #695's week). Next: #756 (No Law's town: people in the valley, the saloon). The card's
-  systems lines and BUILD_ORDER's Step 1 are on PR #743 (unmerged): update them when it lands.
+  lot now or in #695's week). The card's systems lines and BUILD_ORDER's Step 1 are on PR #743
+  (unmerged): update them when it lands.
+- **No Law step 1, the valley's townsfolk** (#756, PR #764, build 3725; `experiments/valley_folk/README.md`,
+  LAYOUT "src/people"): `ValleyFolk` from `config/valley_folk.json` (`-- --no-folk` without). On #755's B
+  (unanswered) the set is in the saloon's yard: the barkeep behind a kit bar, two drinkers, Earl and the
+  drifter sat at the card table (`SitChore`), north and south chairs free, two lamps; each a CivilianBrain
+  routed by the folk's own Waypoints (~560 places); in by their hours (walk in as the clock runs, placed on
+  a jump), out after. `saloon_yard` bench: render CPU 0.59 -> 1.01 ms at Sean's, people ~1.4 ms a tick.
+  Next: #766 (the seated player and the card game).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
