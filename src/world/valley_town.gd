@@ -123,6 +123,11 @@ func _find_walks() -> void:
 		for i in bs.size():
 			var b: Dictionary = bs[i]
 			var wd: Dictionary = b.walk
+			# A walk only along its building's front (`span`: the doctor's, its side yard open, #765).
+			if wd.has("span"):
+				b = b.duplicate()
+				b.x0 = float(wd.span[0])
+				b.x1 = float(wd.span[1])
 			var x1 := float(b.x1)
 			var joined_e := ""
 			if i + 1 < bs.size() and float(bs[i + 1].x0) - x1 < TIGHT:
@@ -131,7 +136,7 @@ func _find_walks() -> void:
 			var joined_w := ""
 			if i > 0 and float(b.x0) - float(bs[i - 1].x1) < TIGHT:
 				joined_w = String(bs[i - 1].id)
-			var door := (float(b.x0) + float(b.x1)) * 0.5
+			var door := float(wd.get("door_x", (float(b.x0) + float(b.x1)) * 0.5))
 			var edge_z := sgn * (front - walk_depth)
 			var y := ground((float(b.x0) + x1) * 0.5, edge_z)
 			var h := float(wd.get("h", WALK_TOP))

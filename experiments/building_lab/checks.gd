@@ -94,7 +94,8 @@ static func stands(b: Structure, crowd := 1915.0, balcony := 2873.0) -> Dictiona
 	var out := {}
 	var falling := b.members_without_load_path()
 	var a := StructuralAnalysis.new().analyse(b)
-	out.dead = {"falling": falling.size(), "over": a.overloaded().size(), "worst": _worst(a, 8)}
+	out.dead = {"falling": falling.size(), "over": a.overloaded().size(), "worst": _worst(a, 8),
+		"falling_first": falling.slice(0, 12).map(func(m: Variant) -> String: return String(m.member_id if m is StructureMember else m).get_slice("/", 1) + "/" + String(m.member_id if m is StructureMember else m).get_slice("/", 2))}
 	# A crowd on every floor board (40 lb/ft2), 60 on the balcony and galleries (people pressing
 	# to the rail).
 	var before := {}
@@ -312,3 +313,119 @@ static func _under(n: Node, cls: String) -> bool:
 static func _axis(n: String) -> Vector3:
 	var v := {"x": Vector3.RIGHT, "y": Vector3.UP, "z": Vector3.BACK}[n.trim_prefix("-").trim_prefix("+")] as Vector3
 	return -v if n.begins_with("-") else v
+
+
+## Built right (#695, Sean 2026-11-07: "windows aren't being blocked by studs or boards"): through
+## every opening in every wall, from the siding's face outside to the finish's face inside, nothing
+## but its glass and its door's leaf; every opening in an outer wall framed (a king stud each side,
+## a header over it, a rough sill under a window) and glazed if it's a window, so what's a window
+## outside is a window inside. A member's box is tested by its long edges and its middle line (a
+## rafter is tilted: its box is not its bounds).
+static func built_right(b: Node, spec: Dictionary) -> Dictionary:
+	var failures := []
+	var sid := String(b.structure_id) + "/"
+	var lv: Dictionary = b._lv
+	var by_id := {}
+	for m: StructureMember in b.get_members():
+		by_id[String(m.member_id).trim_prefix(sid)] = m
+	var openings := 0
+	var framed := 0
+	for w: Dictionary in spec.walls:
+		var wl: Dictionary = b.walls.get(w.id, {})
+		if wl.is_empty():
+			failures.append("%s: not built" % w.id)
+			continue
+		var wall: Dictionary = wl.dict
+		var partition: bool = w.get("partition", false)
+		var origin: Vector3 = wall.origin
+		var along: Vector3 = wall.along
+		var out: Vector3 = wall.out
+		# Through the wall: an outer wall from the siding's face to its inside finish's; a partition both faces.
+		var d0 := -0.1 - 0.025 if not partition else -0.075
+		var d1 := 0.025 + 0.01 if not partition else 0.075
+		var j := 0
+		for o: Dictionary in w.get("openings", []):
+			openings += 1
+			var lvl: String = o.get("level", w.get("level", "ground"))
+			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))
+			var s0 := float(o.at) - float(o.width) * 0.5
+			var s1 := float(o.at) + float(o.width) * 0.5
+			var pts := [origin + along * (s0 + 0.012) + out * d0 + Vector3.UP * (y0 + 0.012),
+				origin + along * (s1 - 0.012) + out * d1 + Vector3.UP * (y0 + float(o.height) - 0.012)]
+			var lo: Vector3 = (pts[0] as Vector3).min(pts[1])
+			var hi: Vector3 = (pts[0] as Vector3).max(pts[1])
+			var clear := AABB(lo, hi - lo)
+			for id: String in by_id:
+				var m: StructureMember = by_id[id]
+				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_"):
+					continue  # its glass, its leaf, a door's transom bar
+				if not m.structure_aabb().intersects(clear):
+					continue
+				if _crosses(m, clear):
+					failures.append("%s %s at %.2f: %s across it" % [w.id, o.type, float(o.at), id])
+			if not partition:
+				var pre := "%s/opening%d/" % [w.id, j]
+				var ok := by_id.has(pre + "king0") and by_id.has(pre + "king1") and by_id.has(pre + "header")
+				if o.type == "window" and y0 > float(lv[lvl]) + 0.4:
+					ok = ok and by_id.has(pre + "sill")
+				if ok:
+					framed += 1
+				else:
+					failures.append("%s %s at %.2f: not framed (kings, header%s)" % [w.id, o.type, float(o.at), ", sill" if o.type == "window" else ""])
+				if o.type == "window":
+					var glazed := false
+					for id: String in by_id:
+						var gm: StructureMember = by_id[id]
+						if gm.kind == &"glass" and clear.grow(0.02).has_point(gm.transform.origin):
+							glazed = true
+					if not glazed:
+						failures.append("%s window at %.2f: no glass" % [w.id, float(o.at)])
+			j += 1
+	return {"ok": failures.is_empty(), "failures": failures, "openings": openings, "framed": framed}
+
+
+## Whether a member (an oriented box) passes through `clear`: its middle line and its four long edges.
+static func _crosses(m: StructureMember, clear: AABB) -> bool:
+	var t := m.transform
+	var h := m.size * 0.5
+	var ax := 0
+	if h.y > h[ax]:
+		ax = 1
+	if h.z > h[ax]:
+		ax = 2
+	var u := Vector3.ZERO
+	u[ax] = h[ax]
+	var others := [0, 1, 2]
+	others.erase(ax)
+	var a: int = others[0]
+	var c: int = others[1]
+	var offs := [Vector3.ZERO]
+	for sa in [-1.0, 1.0]:
+		for sc in [-1.0, 1.0]:
+			var v := Vector3.ZERO
+			v[a] = h[a] * sa * 0.98
+			v[c] = h[c] * sc * 0.98
+			offs.append(v)
+	for off: Vector3 in offs:
+		var p0 := t * (off - u)
+		var p1 := t * (off + u)
+		if clear.has_point(p0) or clear.has_point(p1) or clear.intersects_segment(p0, p1):
+			return true
+	return false
+
+
+## Every member as data (the X-ray sheet's: tools/buildings/xray.py): id, kind, wood, its box's
+## centre, axes (columns of its basis) and size, in the structure's space.
+static func export_members(b: Structure, path: String) -> int:
+	var out := []
+	var sid := String(b.structure_id) + "/"
+	for m: StructureMember in b.get_members():
+		var t := m.transform
+		out.append({"id": String(m.member_id).trim_prefix(sid), "kind": String(m.kind), "wood": String(m.wood),
+			"c": [t.origin.x, t.origin.y, t.origin.z], "x": [t.basis.x.x, t.basis.x.y, t.basis.x.z],
+			"y": [t.basis.y.x, t.basis.y.y, t.basis.y.z], "z": [t.basis.z.x, t.basis.z.y, t.basis.z.z],
+			"s": [m.size.x, m.size.y, m.size.z]})
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"structure": String(b.structure_id), "members": out}))
+	f.close()
+	return out.size()

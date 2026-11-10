@@ -15,10 +15,13 @@ var fire: FireSystem
 var ballistics: Ballistics
 var boardwalk: Boardwalk
 var ground: StaticBody3D
+## The spec the next lab builds (the saloon's unless set: the doctor's test sets it, #765).
+static var spec_path := ""
 
 
 func _ready() -> void:
-	spec = SpecBuilding.load_spec(SpecBuilding.SPEC)
+	var path := spec_path if spec_path != "" else SpecBuilding.SPEC
+	spec = SpecBuilding.load_spec(path)
 	_ground()
 	fire = FireSystem.new()
 	fire.name = "FireSystem"
@@ -27,7 +30,10 @@ func _ready() -> void:
 	ballistics.name = "Ballistics"
 	add_child(ballistics)
 	building = SpecBuilding.new()
-	building.name = "Saloon"
+	building.name = "Saloon" if path == SpecBuilding.SPEC else String(spec.id).capitalize()
+	if path != SpecBuilding.SPEC:
+		building.spec_path = path
+		building.structure_id = StringName(String(spec.id) + "_spec")
 	add_child(building)
 	boardwalk = Boardwalk.new()
 	boardwalk.name = "SouthBoardwalk"
@@ -35,19 +41,36 @@ func _ready() -> void:
 	boardwalk.length = float(spec.lot.width) + 1.2
 	boardwalk.top = float(spec.levels.ground.top)
 	boardwalk.steps = [Vector2(7.62, 1.83)]
+	if path != SpecBuilding.SPEC:
+		# The walk across its front, steps at its street door.
+		boardwalk.structure_id = StringName(String(spec.id) + "_walk")
+		boardwalk.length = float(spec.lot.width)
+		for w: Dictionary in spec.walls:
+			if w.id == "front":
+				for o: Dictionary in w.openings:
+					if o.type == "door":
+						boardwalk.steps = [Vector2(float(o.at), 1.83)]
 	add_child(boardwalk)
 	fittings = Fittings.new()
 	fittings.name = "Fittings"
 	add_child(fittings)
 
 
-## The ground at y 0, open over the cellar down to its floor.
+## The ground at y 0, open over the cellar down to its floor (a building without one: flat).
 func _ground() -> void:
 	ground = StaticBody3D.new()
 	ground.name = "Ground"
 	ground.collision_layer = Layers.WORLD
 	ground.add_to_group(&"ground")
 	add_child(ground)
+	if not spec.has("cellar"):
+		var cs0 := CollisionShape3D.new()
+		var box0 := BoxShape3D.new()
+		box0.size = Vector3(120.0, 1.0, 120.0)
+		cs0.shape = box0
+		cs0.position = Vector3(0.0, -0.5, 0.0)
+		ground.add_child(cs0)
+		return
 	var c: Array = spec.cellar.rect
 	var x0 := float(c[0])
 	var z0 := float(c[1])
