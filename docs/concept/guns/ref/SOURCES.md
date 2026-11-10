@@ -43,3 +43,18 @@ Looked at for detail, not kept here: the Smithsonian's NMAH series "Colt SAA-NMA
 on Commons (CC0, Smithsonian Open Access): close three-quarter views of the left side (the hammer
 spur, the screws, the recoil shield). Wikimedia answers this workspace's shared address with 429s
 often: fetch one file at a time, spaced, at a standard thumbnail width (960, 1280, 1920).
+
+# The Winchester Model 1873 rifle, side on (fetched 2026-11-10, #734, for the Winchester's shape)
+
+**`w73_hmaag_right.jpg`** (in this folder, 1920 x 505, Commons' 1920 px rendition of the 2365 x 622
+original): "Winchester 1873 Rifle", photographed by Hmaag, 6 December 2017 ("own work"); **CC0** (CC0 1.0
+Universal Public Domain Dedication, as recorded on its Commons page). The file:
+https://commons.wikimedia.org/wiki/File:Winchester_1873_Rifle.jpg . The right side, nearly straight on,
+on a plain wood table: a rifle with an octagon barrel, a crescent butt, a raised folding-leaf rear sight
+and a tang sight (both accessories this model doesn't carry). The reference the Winchester's outlines
+are fitted to (`experiments/gun_lab/win73/overlay.py`; that folder's README, "The reference").
+
+Looked at, not kept: Commons' "Category:Winchester Model 1873". The rest are CC BY-SA (the Musée de
+l'Armée's two carbines, the Wehrtechnische Studiensammlung's carbine, Hmaag's other 73s) or not
+side-on. The Met and the Smithsonian (images.metmuseum.org, collections.si.edu, ids.si.edu) are blocked
+from this workspace; Commons' API answers 429 often (one request at a time, spaced).

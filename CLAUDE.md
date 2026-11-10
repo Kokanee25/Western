@@ -1113,6 +1113,25 @@ frozen until Sean names one.
   `overlay.py --crop` (`results/2026-11-09_review4/`). **Sean approved step 1** (2026-11-10): the shape
   stays. Later: the checkering a touch lighter in the next surfaces pass; he judges it in first person
   in the hand. The Winchester (#734) copies this method. Nothing in the game changed.
+- **The Winchester 1873 by script** (#734 step 1, branch `claude/winchester-1873-rig-i4y7gt`;
+  `experiments/gun_lab/win73/` README): `win73_blender.py --barrel=24|20` (~8 s), every driven part its own
+  object on its pivot (receiver, barrel, tube, lever, hammer, trigger, carrier, bolt, dust cover, gate,
+  buckhorn and blade sights, forend, cap, band, stock, crescent plate, screws, rounds in the chamber, on the
+  carrier, in the tube), `win73_<barrel>_rig.json`, `win73_rig.gd` (`lever(t, closing)` takes the bolt back,
+  cocks and holds the hammer, lifts the carrier; half cock, cover, gate). Fitted to Hmaag's CC0 Commons photo
+  (`docs/concept/guns/ref/w73_hmaag_right.jpg`; the barrel measured from the receiver's face, as collectors
+  do): overlap 0.930 -> 0.961, part crops 0.875-0.970 (`overlay.py --crop`, `--profile`; the rear sight 0.785,
+  the photo's is a leaf). The lab picked the 24" rifle (sight radius for the rope shot). Game-light views
+  `win73_views.gd`. Sean OK'd the shape (#767, A). **Surfaces** (`win73_paint.py`, the Colt's way, no paid
+  call): each part's finish from the evidence reachable (README "The surfaces": Wikipedia, the reference
+  rifle, museum photos on Commons; the receiver blued, case-hardened receivers made to order; the hammer and
+  lever faded case colours, the weakest call); five rounds in game light and first person in the game's
+  HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
+  cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
+  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
+  Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
+  (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
+  run is ~70 min here. Nothing in the game changed.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
