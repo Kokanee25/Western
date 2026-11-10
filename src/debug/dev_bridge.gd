@@ -24,7 +24,7 @@ const HELP := {
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
-	"weapon": "weapon revolver|shotgun|dynamite|bucket|plunger|none -> take that out (none: put it away)",
+	"weapon": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none -> take that out (none: put it away)",
 	"shove": "shove -> a shove, as a tap of its key (E) does; answers what it did (a man, a prop, a wall, a miss)",
 	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
@@ -461,7 +461,7 @@ func _cmd_press(a: Array) -> Dictionary:
 	var action := StringName(a[0])
 	# Why it won't do anything, as the screen says it (#607: out of cartridges, the gun put away).
 	var w := player.weapon if player else null
-	var why := w.why_not(action) if w != null and w.armed and action in [&"reload", &"fire", &"aim", &"cock"] else ""
+	var why := w.why_not(action) if w != null and w.armed and action in [&"reload", &"fire", &"aim", &"cock", &"hammer"] else ""
 	_act(true, action)
 	await _settle()
 	await _seconds(float(a[1]) if a.size() > 1 else 0.1)
@@ -551,7 +551,17 @@ func _cmd_shoot(a: Array) -> Dictionary:
 	var clicked := 0  # the hammer fell and nothing went off: an empty or spent chamber, or a misfire
 	for i in n:
 		var before := _shots
-		if w is RevolverViewmodel or w is ShotgunViewmodel:
+		if w is Winchester73Viewmodel:
+			# The rifle: at half cock thumb the hammer back; down, work the lever (Q's tap).
+			var rtries := 0
+			while not _cocked(w) and rtries < 3:
+				var half := (w as Winchester73Viewmodel).state.hammer == Winchester73State.Hammer.HALF_COCK
+				_act(true, &"hammer" if half else &"cock")
+				await _settle()
+				_act(false, &"hammer" if half else &"cock")
+				await _seconds(0.6)
+				rtries += 1
+		elif w is RevolverViewmodel or w is ShotgunViewmodel:
 			# Thumb the hammer back till it's cocked (a press while the gun's still coming up or
 			# recoiling doesn't take).
 			var tries := 0
@@ -593,6 +603,8 @@ func _cocked(w: WeaponViewmodel) -> bool:
 		return (w as RevolverViewmodel).state.hammer == RevolverState.Hammer.FULL_COCK
 	if w is ShotgunViewmodel:
 		return (w as ShotgunViewmodel).state.cocked_hammers.has(true)
+	if w is Winchester73Viewmodel:
+		return (w as Winchester73Viewmodel).state.hammer == Winchester73State.Hammer.FULL_COCK
 	return true
 
 
@@ -603,9 +615,9 @@ func _cmd_weapon(a: Array) -> Dictionary:
 			player.weapon.put_away()
 		await _seconds(0.8)
 		return {"weapon": _weapon_line()}
-	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
+	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "rifle": player.rifle(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
 	if w == null:
-		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|plunger|none"}
+		return {"ok": false, "error": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none"}
 	player.select_weapon(w)
 	var until := _game_seconds() + 4.0
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
@@ -1162,13 +1174,16 @@ func _weapon_line() -> String:
 	var w := player.weapon
 	if w == null:
 		return "none"
-	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
+	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "rifle" if w is Winchester73Viewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
 	var drawn := w.drawn
 	var loads := ""
 	if "state" in w and w.state and w.state.has_method("to_dict"):
 		var st: Dictionary = w.state.to_dict()
 		if st.has("chambers"):
 			loads = ", %d loaded, %d on the belt" % [(st.chambers as Array).count(1), int(st.get("belt", 0))]
+		elif st.has("tube"):
+			loads = ", %d in the tube, chamber %s, %d on the belt%s" % [int(st.tube), ["empty", "loaded", "spent", "dud"][int(st.chamber)],
+					(w as Winchester73Viewmodel).state.belt(), ", lever open" if st.lever_open else ""]
 		elif st.has("barrels"):
 			loads = ", %d loaded, %d cocked%s" % [(st.barrels as Array).count(1), (st.cocked as Array).count(true), ", open" if st.open else ""]
 		if st.has("hammer"):
