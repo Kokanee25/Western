@@ -1,0 +1,82 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1406,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322514.166225
+  },
+  {
+   "what": "corner",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322551.3145502
+  },
+  {
+   "what": "rear",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322579.8145108
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1416,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322610.4461813
+  },
+  {
+   "what": "door",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322641.8618066
+  },
+  {
+   "what": "bar",
+   "cost": 0.1407,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322672.2501726
+  },
+  {
+   "what": "dance",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794322701.467045
+  }
+ ],
+ "total": 0.9857
+}
