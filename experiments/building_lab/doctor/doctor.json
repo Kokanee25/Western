@@ -925,8 +925,8 @@
   ]
  },
  "chimneys": {
-  "_doc": "NEW: two brick chimneys on their own footings in the crawl space, up through the floor (cut round, trimmed), the ceiling and the roof beside the ridge; 13 in square (a 9 in flue, a brick's width round it), 2 ft over the ridge. Stovepipes in at thimbles: the front office's coal stove and (through the wall) the surgery's; the kitchen's cookstove.",
-  "wood": "brick",
+  "_doc": "NEW: two brick chimneys (drawn in the game's stone until a brick is made: the judge's round 2 read the unknown 'brick' as timber posts) on their own footings in the crawl space, up through the floor (cut round, trimmed), the ceiling and the roof beside the ridge; 13 in square (a 9 in flue, a brick's width round it), 2 ft over the ridge. Stovepipes in at thimbles: the front office's coal stove and (through the wall) the surgery's; the kitchen's cookstove.",
+  "wood": "stone",
   "list": [
    {
     "id": "middle",
@@ -1619,7 +1619,8 @@
   "timber": "wood:int_timber",
   "trim_outside": "painted_green",
   "roof": "weathered_pine",
-  "rough": "framing"
+  "rough": "framing",
+  "chimney": "stone"
  },
  "sources": [
   "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
