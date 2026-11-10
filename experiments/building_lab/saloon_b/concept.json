@@ -7,7 +7,8 @@
   "4": "Balcony Ambush: the balcony's posts",
   "5": "The cellar's way out",
   "6": "The owner's office and his ear",
-  "7": "The red shirt's way out (follow him)"
+  "7": "The red shirt's way out (follow him)",
+  "8": "The open well: falls over the rail to the bar room"
  },
  "walk": {
   "main": [
@@ -525,20 +526,31 @@
      "kind": "office"
     },
     {
-     "name": "Room 1",
+     "name": "Gallery",
      "x": 0,
      "y": 18,
-     "w": 18,
-     "d": 13,
-     "kind": "room"
+     "w": 4,
+     "d": 26,
+     "kind": "hall",
+     "nolabel": true
     },
     {
-     "name": "Room 2",
-     "x": 0,
-     "y": 31,
-     "w": 18,
-     "d": 13,
-     "kind": "room"
+     "name": "",
+     "x": 4,
+     "y": 40,
+     "w": 14,
+     "d": 4,
+     "kind": "hall",
+     "nolabel": true
+    },
+    {
+     "name": "Open well: rails round it, the card tables below",
+     "x": 4,
+     "y": 18,
+     "w": 14,
+     "d": 22,
+     "kind": "theatre",
+     "size": "14 x 22 ft, 13 ft drop"
     },
     {
      "name": "Dance hall",
@@ -743,22 +755,17 @@
      "o": "v"
     },
     {
-     "x": 10,
+     "x": 1,
      "y": 18,
      "w": 3,
      "o": "h"
     },
     {
      "x": 18,
-     "y": 22,
-     "w": 3,
-     "o": "v"
-    },
-    {
-     "x": 18,
-     "y": 35,
-     "w": 3,
-     "o": "v"
+     "y": 18,
+     "w": 22,
+     "o": "v",
+     "arch": true
     },
     {
      "x": 8,
@@ -855,6 +862,11 @@
      "n": 4,
      "x": -4,
      "y": 20
+    },
+    {
+     "n": 8,
+     "x": 11,
+     "y": 36
     }
    ]
   }
