@@ -1,0 +1,43 @@
+name: Building sheet
+# A building's target sheet (the building lab's step 1; tools/buildings/target_sheet.py): runs only
+# when an art building branch pushes a changed sheet request, with the key from the secrets; commits
+# the views and the spend back to that branch. Every call checks the request's cap before it is made.
+on:
+  push:
+    branches: ["claude/art-building-*"]
+    paths: ["experiments/building_lab/*/sheet/request.json"]
+concurrency:
+  group: building-sheet-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  paint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pillow numpy
+      - name: Paint
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 tools/buildings/target_sheet.py --paint
+      - name: Lay out the sheet
+        if: always()
+        run: |
+          for d in experiments/building_lab/*/sheet; do
+            [ -d "$d/panels" ] && python3 tools/buildings/target_sheet.py --sheet="$d" || true
+          done
+      - name: Commit the views and the spend
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/building_lab/*/sheet
+          git diff --cached --quiet && exit 0
+          git commit -m "Building sheet: the views (run ${{ github.run_number }})"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push
