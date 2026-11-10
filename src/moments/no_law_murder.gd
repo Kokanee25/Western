@@ -57,6 +57,12 @@ var _let_go := false
 var _hushed := false
 ## Walking off down the street after (s since; -1 not).
 var _cody_going := -1.0
+## The stranger's way to his chair (walked back the other way when he goes).
+var _str_approach: Array[Vector3] = []
+var _str_said_at := -100.0
+## The barkeep over by Earl: since he was sent (s; -1 not), and back at his bar.
+var _barkeep_go := -1.0
+var _barkeep_back := false
 
 
 func begin() -> void:
@@ -126,8 +132,15 @@ func _stranger_chair() -> KitProp:
 func _start_stranger() -> void:
 	stranger_chair = _stranger_chair()
 	var way := _points(_str.get("in", []))
+	_str_approach.clear()
+	if stranger_chair:
+		var k := String(stranger_chair.name).get_slice("_", 1)
+		for ab: Array in (_str.get("approach", {}) as Dictionary).get(k, []):
+			_str_approach.append(_lot(ab))
+	way.append_array(_str_approach)
 	var end := _behind(stranger_chair) if stranger_chair else _lot([5.6, 3.6])
 	way.append(end)
+	Events.deed.connect(_on_deed)
 	stranger = folk.take(StringName(_str.get("id", "stranger")), way[0], way[1] if way.size() > 1 else end)
 	if stranger == null:
 		_note("no stranger")
@@ -157,7 +170,8 @@ func _stranger_step(delta: float) -> void:
 				_str_state = &"sat"
 				_str_t = 0.0
 				_note("the stranger sits in %s" % stranger_chair.name)
-				speak(stranger, line("stranger_sit"))
+				if state == &"stranger":
+					speak(stranger, line("stranger_sit"))  # (not once Cody's in: the playtest heard it after his warning)
 			elif stranger_chair == null or _str_t > float(_str.get("sit_timeout_s", 20.0)):
 				# No chair to be had: he stands by the table.
 				_str_state = &"sat"
@@ -197,7 +211,10 @@ func _stranger_leaves() -> void:
 	if stranger_chair != null and is_instance_valid(stranger_chair) and stranger_chair.seated == stranger:
 		Seating.stand_up(stranger, stranger_chair)
 	stranger.set_pose(&"stand")
-	_str_route = _way_out()
+	_str_route.clear()
+	for i in range(_str_approach.size() - 1, -1, -1):
+		_str_route.append(_str_approach[i])
+	_str_route.append_array(_way_out())
 	_str_state = &"leave"
 	_str_t = 0.0
 	_note("the stranger gets up and goes")
@@ -206,11 +223,17 @@ func _stranger_leaves() -> void:
 ## Out of the yard by `way`, then on away from the table: true once he can go (well clear and out of
 ## your sight, or far off, or a minute on: then he's taken out of the world).
 func _walk_off(man: HumanBody, way: Array[Vector3], speed: float, delta: float, walking_s: float) -> bool:
-	var centre := game.centre() if game else man.global_position
-	var far := Vector2(man.global_position.x - centre.x, man.global_position.z - centre.z).length()
-	if (far > float(_cody.get("gone_m", 14.0)) and not _in_your_sight(man.global_position)) or walking_s > 90.0:
+	var p := player()
+	var from_you := man.global_position.distance_to(p.global_position) if p else INF
+	if (from_you > float(_cody.get("gone_m", 30.0)) and not _in_your_sight(man.global_position)) or walking_s > 240.0:
 		return true
-	return _walk_way(man, way, speed, delta)
+	if _walk_way(man, way, speed, delta):
+		# His way walked and you still on him (following): on down the street the same way.
+		var off: Array = _cody.get("off", [1.0, 0.0])
+		var on := Vector3(float(off[0]), 0.0, float(off[1])).normalized()
+		man.set_pose(&"stand")
+		man.walk_to(man.global_position + on * 4.0, speed, delta)
+	return false
 
 
 ## In front of you and near enough to see (a man going out of sight is let go).
@@ -221,6 +244,70 @@ func _in_your_sight(at: Vector3) -> bool:
 	var to := at - p.global_position
 	var fwd := p.get_forward()
 	return to.length() < 60.0 and fwd.dot(to.normalized()) > 0.2
+
+
+## A gun drawn on the stranger or "Drop it!" at him: he has his word (#773's playtest: silence).
+func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
+	if stranger == null or not is_instance_valid(stranger) or actor == stranger or not actor is Player:
+		return
+	if kind not in [&"aim_at", &"shout", &"draw"] or (target != stranger and kind != &"draw"):
+		return
+	if kind == &"draw" and (actor as Node3D).global_position.distance_to(stranger.global_position) > 6.0:
+		return
+	if t - _str_said_at < 4.0 or not stranger.physiology.is_conscious():
+		return
+	_str_said_at = t
+	stranger.face((actor as Node3D).global_position + Vector3.UP * 1.5)
+	speak(stranger, line("stranger_aimed"))
+
+
+## The barkeep comes round to Earl's body, says his piece there, gathers the cards; back to his bar
+## a while on (#773's playtest: nobody went to the body, the dead game stayed on the felt).
+func _barkeep_step(delta: float) -> void:
+	if _barkeep_go < 0.0 or _barkeep_back or barkeep == null or not is_instance_valid(barkeep) or cheater == null or not is_instance_valid(cheater):
+		return
+	_barkeep_go += delta
+	var brain := barkeep.get_node_or_null(^"Brain") as CivilianBrain
+	if brain == null:
+		return
+	var after: Dictionary = data.get("after", {})
+	var body := (cheater.parts[&"pelvis"] as Node3D).global_position
+	if not _barkeep_more:
+		var flat := barkeep.global_position - body
+		flat.y = 0.0
+		if flat.length() < 1.6 or _barkeep_go > float(after.get("barkeep_more_s", 20.0)):
+			_barkeep_more = true
+			barkeep.face(body)
+			if barkeep.physiology.is_conscious():
+				speak(barkeep, line("barkeep_more"))
+			if game:
+				game._clear_table()  # he gathers up the cards
+			_note("the barkeep by Earl")
+	elif _barkeep_go > float(after.get("barkeep_more_s", 20.0)) + float(after.get("watch_s", 30.0)):
+		_barkeep_back = true
+		var p := folk._person(&"barkeep")
+		if not p.is_empty():
+			var pf := folk.post_of(p)
+			brain.go_to(pf[0], pf[1])
+		_note("the barkeep back to his bar")
+
+
+## Send the barkeep over to Earl.
+func _barkeep_to_body() -> void:
+	if _barkeep_go >= 0.0 or _barkeep_more:
+		return
+	var brain := barkeep.get_node_or_null(^"Brain") as CivilianBrain if barkeep != null and is_instance_valid(barkeep) else null
+	if brain == null or not barkeep.physiology.is_conscious() or cheater == null or not is_instance_valid(cheater):
+		_barkeep_more = true  # no barkeep to go (shot, gone): nothing waits on him
+		return
+	var body := (cheater.parts[&"pelvis"] as Node3D).global_position
+	var from := barkeep.global_position - body
+	from.y = 0.0
+	var spot := body + from.normalized() * 1.0
+	spot.y = folk.ground(spot.x, spot.z) + 0.05
+	brain.go_to(spot, body)
+	_barkeep_go = 0.0
+	_note("the barkeep goes to Earl")
 
 
 ## Walk `man` along `way` (popping each point as he gets to it): true once he's at the end.
@@ -243,8 +330,10 @@ func _walk_way(man: HumanBody, way: Array[Vector3], speed: float, delta: float) 
 func _physics_process(delta: float) -> void:
 	if done:
 		# Over (the facts set): Cody and the stranger still walking off till they're gone.
+		t += delta
 		_stranger_step(delta)
 		_cody_walks(delta)
+		_barkeep_step(delta)
 		return
 	for m: HumanBody in [cheater, victim, stranger]:
 		if m != null and is_instance_valid(m):
@@ -498,10 +587,9 @@ func _after_step(delta: float) -> void:
 	if victim != null and is_instance_valid(victim) and end_reason != &"done" and victim.physiology.alive and not victim.limp:
 		victim.set_pose(&"stand")
 	_cody_walks(delta)
-	if _barkeep_t >= 0.0 and not _barkeep_more and t - _barkeep_t > float((data.get("after", {}) as Dictionary).get("barkeep_more_s", 7.0)):
-		_barkeep_more = true
-		if barkeep != null and is_instance_valid(barkeep) and barkeep.physiology.is_conscious():
-			speak(barkeep, line("barkeep_more"))
+	if _barkeep_t >= 0.0 and t - _barkeep_t > float((data.get("after", {}) as Dictionary).get("to_body_s", 3.0)):
+		_barkeep_to_body()
+	_barkeep_step(delta)
 	var leave_s := float(_str.get("leave_s", 4.0))
 	if state_t > leave_s and _str_state in [&"sat", &"walk", &"sit"]:
 		if stranger != null and is_instance_valid(stranger) and end_reason == &"done":
@@ -539,6 +627,8 @@ func result() -> Dictionary:
 
 ## Take back what it put in the world (its men), and let everyone go; Earl, if dead, stays dead.
 func reset() -> void:
+	if Events.deed.is_connected(_on_deed):
+		Events.deed.disconnect(_on_deed)
 	_release_you()
 	if game:
 		game.let_go(&"red_shirt")

@@ -14,12 +14,12 @@
   "walk_speed": 1.6,
   "beat_timeout_s": 12.0,
   "red_shirt": {
-    "_doc": "Comes in from the street by `in` (places of ValleyFolk's), out by `out` and on `off` [x, z] m from its last down Main Street, taken out of the world once clear of the table (`gone_m`) and out of your sight, or there. `after_s` after the stranger's sat (or gave up on a chair).",
+    "_doc": "Comes in from the street by `in` (places of ValleyFolk's), out by `out` and on `off` [x, z] m from its last down Main Street and on that way, taken out of the world once `gone_m` from you and out of your sight (follow him and he walks on). `after_s` after the stranger's sat (or gave up on a chair).",
     "id": "cody", "after_s": 3.0,
     "in": ["saloon_annex", "nolaw_yard_front"],
     "out": ["nolaw_yard_front", "saloon_annex", "main@29.2"],
     "off": [45.0, 0.0],
-    "gone_m": 14.0,
+    "gone_m": 30.0,
     "stop_m": 6.0,
     "aim_s": 0.6,
     "second_shot_s": 0.7,
@@ -29,14 +29,18 @@
   "stranger": {
     "_doc": "Sits in the free chair you're not in (the first of `chairs` free), a minute's quiet before Cody; stands and leaves `leave_s` after Cody's out of the yard.",
     "id": "stranger", "in": ["saloon_annex", "nolaw_yard_front"], "chairs": ["s", "n"], "walk_speed": 1.2,
-    "sit_timeout_s": 20.0, "leave_s": 4.0
+    "sit_timeout_s": 20.0, "leave_s": 4.0,
+    "_approach": "The way to each chair from the yard's front, [a, b] in the set's lot (config/valley_folk.json's points), round the table and its men (#773's playtest: the north chair's way went through the table); walked back the other way when he goes.",
+    "approach": {"s": [[7.4, 3.3]], "n": [[9.7, 3.3], [9.7, 6.7], [7.4, 6.7]]}
   },
   "hold_why": "The stranger's hand is on your arm. Sit still.",
   "hush_s": 3.0,
   "after": {
-    "_doc": "After Cody's out: who leaves (ValleyFolk.send_off, gone for the night) and how long after (s), and the barkeep's lines.",
+    "_doc": "After Cody's out: who leaves (ValleyFolk.send_off, gone for the night) and how long after (s); the barkeep comes round to Earl `to_body_s` after his first line, says his second there (or `barkeep_more_s` on), gathers the cards and goes back to his bar `watch_s` later.",
     "leave": {"drifter": 5.0, "miner": 9.0},
-    "barkeep_more_s": 7.0
+    "to_body_s": 3.0,
+    "barkeep_more_s": 20.0,
+    "watch_s": 30.0
   },
   "seen": {"_doc": "nolaw.seen_from: table (sat at it), yard (within saw_m, the shot in your view's half), heard (within heard_m), away.", "saw_m": 25.0, "heard_m": 400.0},
   "lines": {
@@ -47,6 +51,7 @@
     "earl_reply": ["Now, Cody, I never..."],
     "gloat": ["Ain't no law left in this valley to save you now, Earl."],
     "barkeep": ["Jesus, Cody, my chair!"],
-    "barkeep_more": ["Somebody ought to fetch the... hell. Ain't nobody left to fetch."]
+    "barkeep_more": ["Somebody ought to fetch the... hell. Ain't nobody left to fetch."],
+    "stranger_aimed": ["Easy, friend. I ain't the one you want.", "Put it up. You'll only get yourself killed.", "Walk away. That's my advice."]
   }
 }

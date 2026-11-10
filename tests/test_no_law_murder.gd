@@ -87,8 +87,9 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	await _at(21.0)
 	var f := _folk()
 	var p := _player()
-	await _sit("n")
-	check(p.seat.seated() and _chair("n").seated == p, "sat in the north chair (%s)" % p.seat.report())
+	# The south chair (the playtest's): the stranger's way to the north one goes round the table.
+	await _sit("s")
+	check(p.seat.seated() and _chair("s").seated == p, "sat in the south chair (%s)" % p.seat.report())
 	var earl := f.folk_man(&"earl")
 	check(earl != null and _chair("w").seated == earl, "Earl at the table")
 	# The clock at its hour on the first night: it starts.
@@ -99,7 +100,9 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	if m == null:
 		return
 	var sat := await wait_until(func() -> bool: return m._str_state == &"sat", 60 * 30)
-	check(sat and _chair("s").seated == m.stranger, "the stranger sits in the free (south) chair (%s)" % m.result())
+	check(sat and _chair("n").seated == m.stranger, "the stranger sits in the free (north) chair (%s)" % m.result())
+	check(m.events.any(func(e: Array) -> bool: return String(e[1]).begins_with("the stranger sits")) and m.state == &"stranger", "sat before Cody comes in (%s)" % [m.events])
+	check_eq(_lines_of("stranger"), ["Evening. Mind if I sit in a while?"], "his first line first")
 	var stopped := await wait_until(func() -> bool: return m.state not in [&"stranger", &"come"], 60 * 40)
 	check(stopped, "Cody comes up to Earl (%s)" % m.result())
 	check(f.cards.state == &"stopped" and f.cards.stop_reason == &"red_shirt" and f.cards.holds.has(&"red_shirt"), "the game stopped and held (%s)" % f.cards.state)
@@ -119,6 +122,14 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check(over and r.end == "done", "it plays out (%s)" % r)
 	check(_lines_of("cody").any(func(l: String) -> bool: return "no law" in l), "no law to save him (%s)" % [_lines_of("cody")])
 	check(_lines_of("barkeep").has("Jesus, Cody, my chair!"), "the barman's first words")
+	check(m.events.any(func(e: Array) -> bool: return e[1] == "the barkeep by Earl"), "the barkeep comes round to Earl (%s)" % [m.events.slice(-6)])
+	check_eq(int(f.cards.report().cards_on_table), 0, "and gathers the cards")
+	# A gun on the stranger as he goes: he has his word.
+	if m.stranger != null and is_instance_valid(m.stranger):
+		var n := _lines_of("stranger").size()
+		Events.deed.emit(p, &"aim_at", m.stranger, p.global_position)
+		await physics_frames(2)
+		check(_lines_of("stranger").size() == n + 1, "the stranger answers a gun on him (%s)" % [_lines_of("stranger")])
 	# The room quiet from the shot to the barman's line: nobody else says a word.
 	var shot_t := -1.0
 	for e: Array in m.events:

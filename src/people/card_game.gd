@@ -69,6 +69,7 @@ var _said := {}
 var _gesture := HeadGesture.new()
 var _you_turn := false
 var _you_told := false
+var _you_warned := false  # the last seconds of your turn said (#773's playtest: a late nod folded unwarned)
 var _reach := {}  # id -> [side, point, until]
 var _you_seated := false
 var _broke_told := false
@@ -469,6 +470,7 @@ func _next_turn() -> void:
 			if s.id == YOU:
 				_you_turn = true
 				_you_told = false
+				_you_warned = false
 				_gesture = HeadGesture.new()
 				_t = _beat("you_wait_s")
 			return
@@ -507,6 +509,9 @@ func _bet_step(dt: float) -> void:
 			_you_turn = false
 			_call(s)
 			_prompt(String(data.you.you_call if to_call > 0 else data.you.you_check), 1.5)
+		elif _t <= 3.0 and to_call > 0 and not _you_warned:
+			_you_warned = true
+			_prompt(String(data.you.get("hurry", "Nod to call, shake to fold: 3 s")), 3.0)
 		elif _t <= 0.0:
 			# Waited on with a bet to you: you're out of it (it doesn't spend your money for you).
 			_you_turn = false
