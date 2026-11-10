@@ -124,6 +124,14 @@ func _ready() -> void:
 	_fire_look = _rng.randf_range(0.0, FIRE_LOOK)  # not everyone looking on the same tick
 
 
+## A new post (and the point he faces there): he walks to it by the town's places, a route on his
+## way to the old one dropped (ValleyFolk sends its people out of town by it).
+func go_to(point: Vector3, facing := Vector3.INF) -> void:
+	post = point
+	faces = facing
+	_home_route.clear()
+
+
 func say(kind: StringName) -> void:
 	var lines: Array = LINES.get(kind, [])
 	if lines.is_empty() or not body.physiology.is_conscious() or not body.physiology.can_speak():
@@ -503,7 +511,7 @@ func slow_reason() -> StringName:
 		return &"bucket"
 	if _shout_in > 0.0:
 		return &"shout"
-	if chore != null and chore.call(&"busy"):
+	if chore != null and chore.call(&"busy") and not (chore.has_method(&"lets_slow") and chore.call(&"lets_slow")):
 		return &"chore"
 	return &""
 

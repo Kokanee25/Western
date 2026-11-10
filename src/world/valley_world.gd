@@ -12,8 +12,9 @@ extends Node3D
 ## the farmhouse on the widow's pad and its hostage rescue (G6: Farmhouse, FarmhouseMission; its places
 ## joined to the valley's by the East Road and the widow's lane), the sheriff on the road (the first
 ## story mission, #746: SheriffOnRoad, `-- --mission=sheriff` or the bridge's `moment the_sheriff`)
-## and the player at the crossroads looking down Main Street. No TownLife, gang or labs: they need
-## the old town.
+## the valley town's people (#756: ValleyFolk from config/valley_folk.json, the saloon yard's bar and
+## card table at night) and the player at the crossroads looking down Main Street. No TownLife, gang
+## or labs: they need the old town.
 
 ## The ground's colour where a tile's been dug (the greybox's dirt; the undug ground's colours are
 ## config/valley_terrain.tres's).
@@ -24,6 +25,7 @@ var railway: ValleyRailway
 var markers: ValleyMarkers
 var farmhouse: Farmhouse
 var mission: FarmhouseMission
+var folk: ValleyFolk
 ## The main line and its train (G3); `-- --no-railway`: the valley without them (the bench's before).
 static var railway_default := not "--no-railway" in OS.get_cmdline_user_args()
 ## The greybox markers (G4); `-- --no-markers`: the valley without them (the bench's before).
@@ -53,6 +55,11 @@ func _ready() -> void:
 		add_child(markers)
 		if farmhouse:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
+		if markers.town and ValleyFolk.folk_default:
+			folk = ValleyFolk.new()
+			folk.layout = layout
+			folk.town = markers.town
+			add_child(folk)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
