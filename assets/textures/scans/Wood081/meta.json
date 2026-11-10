@@ -1,0 +1,19 @@
+{
+ "id": "Wood081",
+ "source": "ambientcg",
+ "licence": "CC0 1.0",
+ "page": "https://ambientcg.com/view?id=Wood081",
+ "metres": null,
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-09",
+ "lossless": 2,
+ "mean_linear": [
+  0.39508,
+  0.14561,
+  0.06298
+ ]
+}
