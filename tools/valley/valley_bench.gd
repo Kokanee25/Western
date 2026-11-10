@@ -18,7 +18,8 @@ extends SceneTree
 ## The farmhouse (G6, #731): `farm_lane` and `farm_start`, its lane's foot and the try's start looking
 ## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
 ## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
-## (`--mission=sheriff`: the sheriff and his horse there). `--spots=a,b`: only those.
+## (`--mission=sheriff`: the sheriff and his horse there). The places with height (#736 B):
+## `height_<id>` on each high spot looking at its first target. `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -89,6 +90,12 @@ func _spots(world: StringName) -> Array:
 	var near: Vector2 = site + (ford[ford.size() - 2] - site).normalized() * 4.0
 	out.append(["harlan_home", Vector3(down.x, 0.0, down.y), _heading(down, ford[1])])
 	out.append(["sheriff_site", Vector3(near.x, 0.0, near.y), _heading(near, site)])
+	# The places with height (#736 B, #752): on each high spot (a block's top, a rim), looking at
+	# its first target: `height_<id>` (the widest views; a fourth item names the height).
+	for hp: Dictionary in lay.heights():
+		var h := Vector2(hp.high.at[0], hp.high.at[1])
+		var t := Vector2(hp.targets[0].at[0], hp.targets[0].at[1])
+		out.append(["height_%s" % hp.id, Vector3(h.x, 0.0, h.y), _heading(h, t), String(hp.id)])
 	return out
 
 
@@ -139,6 +146,8 @@ func _run() -> void:
 		var at: Vector3 = s[1]
 		if ground:
 			at.y = ground.height_at(at.x, at.z) + 0.05
+		if s.size() > 3 and world_root.get("markers") != null:
+			at = world_root.markers.high_spot(String(s[3])) + Vector3.UP * 0.05
 		player.global_position = at
 		player.velocity = Vector3.ZERO
 		player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)

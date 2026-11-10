@@ -1,0 +1,10 @@
+goto town
+valley_walk cottonwood_bluff
+goto town
+valley_walk dead_homestead
+goto town
+valley_walk headframe
+goto town
+valley_walk ore_chute
+valley_sight dead_homestead
+valley_sight cottonwood_bluff
