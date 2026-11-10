@@ -696,13 +696,15 @@ func _tell_gun() -> void:
 					_gun_told = now
 					say(not_now.substr(0, 1).to_upper() + not_now.substr(1) + ".", 2.5)
 				return
-	if why == "" or why == "your hands are pressing on a wound":
-		_gun_why = ""  # (that one you're doing yourself: nothing to tell)
-		return
 	var tried := false
 	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
 		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
 			tried = true
+	# The ones you're doing yourself (your hands on a wound; sat at a table, said only when you try
+	# the gun): nothing to tell.
+	if why == "" or why == "your hands are pressing on a wound" or (why == w.busy_why and not tried):
+		_gun_why = ""
+		return
 	if why != _gun_why or (tried and now - _gun_told > 2.0):
 		_gun_why = why
 		_gun_told = now

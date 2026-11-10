@@ -31,6 +31,7 @@ var down_t := 0.0
 var last := &""
 var _told := false  # "E: sit" said for the chair you're by
 var _near: KitProp
+var _stand_soon := false
 
 
 func _ready() -> void:
@@ -82,6 +83,8 @@ func _physics_process(delta: float) -> void:
 	if player == null:
 		return
 	down_t = maxf(down_t - delta, 0.0)
+	if _stand_soon and seated():
+		stand()
 	if chair != null and not seated():
 		_lost_chair()
 	var here := null if seated() else chair_here()
@@ -139,8 +142,13 @@ func sit(c: KitProp) -> bool:
 	return true
 
 
-## Up out of it, a step clear (behind it, or to a side with room).
+## Up out of it, a step clear (behind it, or to a side with room). Asked outside the physics tick
+## (the bridge, a tool) it's done on the next (where the room's looked for is a physics query).
 func stand() -> void:
+	if not Engine.is_in_physics_frame():
+		_stand_soon = true
+		return
+	_stand_soon = false
 	var c := chair
 	if c != null and is_instance_valid(c):
 		if c.went_loose.is_connected(_on_chair_went):

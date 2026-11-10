@@ -752,10 +752,10 @@ func _cmd_sit(a: Array) -> Dictionary:
 func _cmd_stand(_a: Array) -> Dictionary:
 	if not player.seat.seated():
 		return {"ok": false, "error": "you're not sat down"}
-	var did := player.seat.use()
+	player.seat.use()
 	await _settle()
 	var out := player.seat.report()
-	out["did"] = String(did)
+	out["did"] = String(player.seat.last)
 	out["at"] = _arr(player.global_position)
 	return out
 

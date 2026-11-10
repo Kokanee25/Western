@@ -82,6 +82,9 @@ var _card_mm: MultiMeshInstance3D
 var _chip_mm: MultiMeshInstance3D
 var _dirty := true
 var _letters := false
+var _centre := Vector3.ZERO
+var _centre_at := -1.0
+var _top := -1.0
 
 
 func _init() -> void:
@@ -169,9 +172,14 @@ func you_in() -> bool:
 
 # --- Where things lie ------------------------------------------------------------------------------
 
+## The middle of the table's top (read again every second: a kicked table moves).
 func centre() -> Vector3:
-	var top := PropKit.bounds(table.definition).end.y if table else 0.76
-	return table.global_transform * Vector3(0.0, top, 0.0) if table else global_position
+	if _centre_at < 0.0 or _clock - _centre_at > 1.0 or _clock < _centre_at:
+		_centre_at = _clock
+		if _top < 0.0 and table:
+			_top = PropKit.bounds(table.definition).end.y
+		_centre = table.global_transform * Vector3(0.0, _top, 0.0) if table else global_position
+	return _centre
 
 
 ## Flat from the table's middle toward his chair.
