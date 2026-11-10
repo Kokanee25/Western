@@ -3,13 +3,18 @@ extends Node3D
 ## The valley town's greybox (G5, #724; docs/briefs/valley-plan.md §3, §12): what stands between
 ## and in front of the lots' blocks (ValleyMarkers.blocks), from config/valley.json alone.
 ##
-##   - **Boardwalks** (`walks`): the game's Boardwalk part along every building lot's front (the
-##     town's `main_street.boardwalk_depth` deep, 0.38 m up), each its own level from the ground at
-##     its street edge's middle, so they step up and down as the street falls (each owner built his
-##     own: Sean's period guide, #467). A walk runs over a shoulder-to-shoulder gap (narrower than
-##     TIGHT) to its neighbour's; where it ends at a lane, an alley, a yard or a street it steps down
-##     to the ground (end steps); a flight of steps to the street in front of each lot's door, the
-##     edge elsewhere a step too high (people come and go by the steps, as in the old town).
+##   - **Boardwalks** (`walks`; G7, #737): the game's Boardwalk part along every building lot's
+##     front (the town's `main_street.boardwalk_depth` deep), each at its own owner's height: its
+##     lot's `walk.h` over the ground at its street edge's middle (the bank high and proud, the store
+##     at a loading dock's, a shack near the dirt; the reasons in valley.json and
+##     docs/briefs/valley-walks.md). A walk runs over a shoulder-to-shoulder gap (narrower than TIGHT)
+##     to its neighbour's, the higher one carrying a flight (or a ramp) down to the lower; where it
+##     ends at a lane, an alley, a yard or a street it steps down to the ground, ramps, or drops (no
+##     steps: jump); a flight of steps (or a wagon ramp) to the street at each door, the edge
+##     elsewhere a step too high (people come and go by the steps, as in the old town). No riser is
+##     over `town.walks.riser_max`. From `posts_at` a walk stands on posts, open underneath (crawl
+##     under it), from `rail_at` it has a rail along the street; `awning` puts a porch roof over it,
+##     so the roofline steps with the floors. A lot with `walk.none` (the livery's yard) has none.
 ##   - **Passages** (`passages`): every way from Main Street to Back Street (north) or the rear lane
 ##     (south) between the blocks: the lanes, the 1.2 m gameplay alleys, the yards, the vacant lot,
 ##     the house lots and the unnamed gaps between buildings, each its lot's id (or `gap_<side>@x`).
@@ -23,7 +28,8 @@ extends Node3D
 
 ## A gap between two buildings narrower than this is shoulder to shoulder: their walks join over it.
 const TIGHT := 1.0
-## The walks' height over the ground at their street edge's middle (the old town's walk).
+## A walk's height over the ground at its street edge's middle when its lot gives none (the old
+## town's walk).
 const WALK_TOP := 0.38
 ## A door's place: this far out from the lot's front, on its walk.
 const DOOR_OUT := 0.6
@@ -51,7 +57,13 @@ var junk: Array[Dictionary] = []
 var junk_body: StaticBody3D
 var front := 10.05
 var walk_depth := 2.4
+## town.walks' rules (valley.json): the tallest riser, ramps 1 in ramp_slope, posts and rail from.
+var riser_max := 0.2
+var ramp_slope := 8.0
+var posts_at := 0.8
+var rail_at := 1.0
 var build_ms := {}
+var pending_passage_links: Array = []
 
 
 func _init() -> void:
@@ -66,6 +78,11 @@ func _ready() -> void:
 	var ms: Dictionary = layout.town().get("main_street", {})
 	front = float(ms.get("width_between_fronts", 20.1)) * 0.5
 	walk_depth = float(ms.get("boardwalk_depth", 2.4))
+	var rules: Dictionary = layout.town().get("walks", {})
+	riser_max = float(rules.get("riser_max", riser_max))
+	ramp_slope = float(rules.get("ramp_slope", ramp_slope))
+	posts_at = float(rules.get("posts_at", posts_at))
+	rail_at = float(rules.get("rail_at", rail_at))
 	var u := Time.get_ticks_usec()
 	_find_walks()
 	_build_walks()
@@ -85,12 +102,13 @@ static func sign_of(side: String) -> float:
 	return -1.0 if side == "north" else 1.0
 
 
-## The buildings' extents on a side, west to east: [{id, x0, x1}] (the lots of kind building).
+## The buildings' extents on a side, west to east: [{id, x0, x1, walk}] (the lots of kind building;
+## `walk` the lot's, {} if it gives none).
 func _buildings(side: String) -> Array:
 	var out := []
 	for l: Dictionary in layout.lots(side):
 		if l.get("kind", "") == "building":
-			out.append({"id": String(l.id), "x0": float(l.x0), "x1": float(l.x1)})
+			out.append({"id": String(l.id), "x0": float(l.x0), "x1": float(l.x1), "walk": l.get("walk", {})})
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.x0 < b.x0)
 	return out
 
@@ -101,9 +119,10 @@ func _find_walks() -> void:
 	walks.clear()
 	for side in ["north", "south"]:
 		var sgn := sign_of(side)
-		var bs := _buildings(side)
+		var bs := _buildings(side).filter(func(b: Dictionary) -> bool: return not (b.walk as Dictionary).get("none", false))
 		for i in bs.size():
 			var b: Dictionary = bs[i]
+			var wd: Dictionary = b.walk
 			var x1 := float(b.x1)
 			var joined_e := ""
 			if i + 1 < bs.size() and float(bs[i + 1].x0) - x1 < TIGHT:
@@ -115,8 +134,11 @@ func _find_walks() -> void:
 			var door := (float(b.x0) + float(b.x1)) * 0.5
 			var edge_z := sgn * (front - walk_depth)
 			var y := ground((float(b.x0) + x1) * 0.5, edge_z)
-			walks.append({"id": String(b.id), "side": side, "x0": float(b.x0), "x1": x1, "y": y, "top": y + WALK_TOP,
-				"door": door, "joined_w": joined_w, "joined_e": joined_e, "node": null})
+			var h := float(wd.get("h", WALK_TOP))
+			walks.append({"id": String(b.id), "side": side, "x0": float(b.x0), "x1": x1, "y": y, "h": h, "top": y + h,
+				"door": door, "door_kind": String(wd.get("door", "steps")), "door_w": float(wd.get("door_w", FLIGHT_W)),
+				"awning": float(wd.get("awning", 0.0)), "end_w": String(wd.get("w", "steps")), "end_e": String(wd.get("e", "steps")),
+				"joined_w": joined_w, "joined_e": joined_e, "ends": {}, "node": null})
 
 
 ## A walk's x along it (its own space: north walks run east to west, their street side +Z; south
@@ -126,28 +148,68 @@ static func _local_x(w: Dictionary, x: float) -> float:
 
 
 func _build_walks() -> void:
+	var by_id := {}
 	for w: Dictionary in walks:
+		by_id[w.id] = w
+	for w: Dictionary in walks:
+		var sgn := sign_of(String(w.side))
+		var y := float(w.y)
 		var bw := Boardwalk.new()
 		bw.name = "Walk_%s" % w.id
 		bw.structure_id = StringName("valley_walk_%s" % w.id)
 		bw.build_seed = hash(String(w.id)) & 0xffff
 		bw.length = float(w.x1) - float(w.x0)
 		bw.walk_depth = walk_depth
-		bw.top = WALK_TOP
-		bw.steps = [Vector2(_local_x(w, float(w.door)), FLIGHT_W)]
-		var ends := []
+		bw.top = float(w.h)
+		bw.riser = riser_max
+		bw.max_riser = true
+		bw.ramp_slope = ramp_slope
+		var at := Vector3(float(w.x1) if w.side == "north" else float(w.x0), y, sgn * front)
+		var xf := Transform3D(Basis(Vector3.UP, PI) if w.side == "north" else Basis.IDENTITY, at)
+		bw.transform = xf
+		# The door's flight (or ramp) from the street before it: how far that street is under the
+		# walk's origin.
+		var door_local := _local_x(w, float(w.door))
+		var foot := ground(float(w.door), sgn * (front - walk_depth - 1.0))
+		bw.street_below = maxf(0.0, y - foot)
+		if String(w.door_kind) == "ramp":
+			bw.ramps = [Vector2(door_local, float(w.door_w))]
+		else:
+			bw.steps = [Vector2(door_local, float(w.door_w))]
 		# End 0 is the walk's start (east on the north side, west on the south), 1 its far end.
+		var e_steps := []
+		var e_ramps := []
 		for end in [0, 1]:
 			var east: bool = (end == 0) == (w.side == "north")
-			if String(w.joined_e if east else w.joined_w) != "":
-				continue
+			var other := String(w.joined_e if east else w.joined_w)
+			var kind := String(w.end_e if east else w.end_w)
 			var ex := float(w.x1) if east else float(w.x0)
-			var sgn := sign_of(String(w.side))
-			var g := maxf(ground(ex, sgn * front), ground(ex, sgn * (front - walk_depth)))
-			ends.append(Vector2(end, clampf(g - float(w.y), 0.0, WALK_TOP - 0.1)))
-		bw.end_steps = ends
-		var at := Vector3(float(w.x1) if w.side == "north" else float(w.x0), float(w.y), sign_of(String(w.side)) * front)
-		bw.transform = Transform3D(Basis(Vector3.UP, PI) if w.side == "north" else Basis.IDENTITY, at)
+			var info := {"end": end, "x": ex, "kind": kind, "to": other}
+			if other != "":
+				# Joined over a tight gap: the higher walk carries the flight down to the lower's top.
+				var o: Dictionary = by_id[other]
+				var diff := float(w.top) - float(o.top)
+				var o_kind := String(o.end_w if east else o.end_e)
+				info["kind"] = "ramp" if "ramp" in [kind, o_kind] else "steps"
+				info["below"] = float(o.top) - y
+				if diff <= 0.02:
+					info["kind"] = "level" if diff >= -0.02 else "theirs"
+			else:
+				info["below"] = maxf(ground(ex, sgn * front), ground(ex, sgn * (front - walk_depth))) - y
+			match String(info.kind):
+				"steps":
+					e_steps.append(Vector2(end, float(info.below)))
+				"ramp":
+					e_ramps.append(Vector2(end, float(info.below)))
+			(w.ends as Dictionary)[end] = info
+		bw.end_steps = e_steps
+		bw.end_ramps = e_ramps
+		bw.on_posts = float(w.h) >= posts_at - 0.001
+		bw.rail = float(w.h) >= rail_at - 0.001
+		bw.awning = float(w.awning)
+		bw.ground_at = func(lx: float, lz: float) -> float:
+			var p := xf * Vector3(lx, 0.0, lz)
+			return ground(p.x, p.z) - y
 		add_child(bw)
 		w.node = bw
 
@@ -162,16 +224,52 @@ func walk_at(x: float, z: float) -> Dictionary:
 	return {}
 
 
-## What a man stands on at a map point: a walk's planks, else the ground.
+## A walk's end (0 or 1) flight or ramp to the ground: [its foot, its head] (world), or [] where
+## it has none (joined, a drop).
+func end_way(w: Dictionary, end: int) -> Array:
+	var info: Dictionary = (w.ends as Dictionary).get(end, {})
+	if String(info.get("to", "")) != "" or not String(info.get("kind", "")) in ["steps", "ramp"]:
+		return []
+	var bw := w.node as Boardwalk
+	var fh := bw.end_foot_head(end)
+	if fh.is_empty():
+		return []
+	var foot := bw.transform * (fh[0] as Vector3)
+	var head := bw.transform * (fh[1] as Vector3)
+	return [Vector3(foot.x, ground(foot.x, foot.z) + 0.05, foot.z), head + Vector3.UP * 0.05]
+
+
+## What a man stands on at a map point: a walk's planks, its end flight or ramp, its door's flight
+## or ramp in front of it (each taken as its slope from foot to head), else the ground.
 func surface(x: float, z: float) -> float:
 	var w := walk_at(x, z)
-	return float(w.top) if not w.is_empty() else ground(x, z)
+	if not w.is_empty():
+		var bw := w.node as Boardwalk
+		for end in [0, 1]:
+			var run := bw._end_run(end) if bw else 0.0
+			if run <= 0.0:
+				continue
+			var info: Dictionary = (w.ends as Dictionary).get(end, {})
+			var d := absf(x - float(info.get("x", x)))
+			if d < run:
+				return lerpf(float(w.y) + float(info.get("below", 0.0)), float(w.top), d / run)
+		return float(w.top)
+	for f: Dictionary in walks:
+		var bw := f.node as Boardwalk
+		if bw == null or absf(x - float(f.door)) > float(f.door_w) * 0.5:
+			continue
+		var h := float(f.h) + bw.street_below
+		var run := h * bw.ramp_slope if not bw.ramps.is_empty() else bw._rises(h) * Boardwalk.TREAD
+		var out := absf(z) - (front - walk_depth)
+		if signf(z) == sign_of(String(f.side)) and out < 0.0 and out > -run:
+			return lerpf(float(f.top), float(f.top) - h, -out / run)
+	return ground(x, z)
 
 
-## Where a man stands at the foot of a walk's door flight (world).
+## Where a man stands at the foot of a walk's door flight or ramp (world).
 func steps_foot(w: Dictionary) -> Vector3:
 	var bw := w.node as Boardwalk
-	var local := bw.step_foot(0)
+	var local := bw.step_foot(-1 if not bw.ramps.is_empty() else 0)
 	var p := bw.transform * local
 	return Vector3(p.x, ground(p.x, p.z) + 0.05, p.z)
 
@@ -307,6 +405,14 @@ func add_ways(places: Waypoints) -> void:
 		main_x[snappedf(float(w.door), 0.1)] = true
 	for p: Dictionary in passages:
 		main_x[snappedf(float(p.x), 0.1)] = true
+	# Where each walk's end flight comes down (G7): Main Street's middle beside it too.
+	var end_ways := {}
+	for w: Dictionary in walks:
+		for end in [0, 1]:
+			var ew := end_way(w, end)
+			if not ew.is_empty():
+				end_ways["%s:%d" % [w.id, end]] = ew
+				main_x[snappedf((ew[0] as Vector3).x, 0.1)] = true
 	var main_names := _chain(places, "main", main_x.keys(), func(x: float) -> Vector2: return Vector2(x, 0.0), on)
 	if places.has(&"town"):
 		places.link(&"town", main_names[0.0])
@@ -316,12 +422,33 @@ func add_ways(places: Waypoints) -> void:
 		var sgn := sign_of(String(w.side))
 		places.add(id, Vector3(float(w.door), float(w.top) + 0.05, sgn * (front - DOOR_OUT)))
 		var foot := StringName("%s_steps" % w.id)
-		places.add(foot, steps_foot(w), [id])
+		places.add(foot, steps_foot(w))
+		_line(places, id, foot, on)
 		places.link(foot, main_names[snappedf(float(w.door), 0.1)])
-	# Along a run of walks joined over tight gaps, door to door.
+	# Along a run of walks joined over tight gaps, door to door (over the flight between them).
 	for w: Dictionary in walks:
 		if String(w.joined_e) != "":
 			places.link(StringName(String(w.id)), StringName(String(w.joined_e)))
+	# Each end's flight or ramp: its head on the walk (`<id>_w_top`/`<id>_e_top`, linked to the
+	# door), its foot on the ground (`_w_foot`, linked to Main Street beside it and to the passage it
+	# comes down into). A drop has none: nobody's sent down it.
+	for w: Dictionary in walks:
+		for end in [0, 1]:
+			var key := "%s:%d" % [w.id, end]
+			if not end_ways.has(key):
+				continue
+			var ew: Array = end_ways[key]
+			var east: bool = (end == 0) == (w.side == "north")
+			var tag := "%s_%s" % [w.id, "e" if east else "w"]
+			var head := StringName(tag + "_top")
+			var foot_n := StringName(tag + "_foot")
+			places.add(head, ew[1], [StringName(String(w.id))])
+			places.add(foot_n, ew[0])
+			_line(places, head, foot_n, on)
+			_line(places, foot_n, main_names[snappedf((ew[0] as Vector3).x, 0.1)], on)
+			for p: Dictionary in passages:
+				if p.side == w.side and float(p.x0) - 0.6 <= (ew[0] as Vector3).x and float(p.x1) + 0.6 >= (ew[0] as Vector3).x:
+					pending_passage_links.append([foot_n, StringName(String(p.id))])
 	# Back Street and the rear lane: a place at every passage's end, the North-South Street's, the ends.
 	var back_x := {0.0: true, float((t.get("back_street", {}) as Dictionary).get("x", [mx.x])[0]): true,
 		float((t.get("back_street", {}) as Dictionary).get("x", [0, mx.y])[1]): true}
@@ -343,6 +470,9 @@ func add_ways(places: Waypoints) -> void:
 		places.link(back, end)
 		if not p.junk:
 			_line(places, id, back, on)
+	for pl: Array in pending_passage_links:
+		_line(places, pl[0], pl[1], on)
+	pending_passage_links.clear()
 	# The North-South Street from the rail's side to the creek's, through every street it crosses;
 	# Creek Street.
 	var ns: Dictionary = t.get("ns_street", {})

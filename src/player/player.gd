@@ -24,6 +24,13 @@ var can_sprint := true
 var can_jump := true
 var force_crouch := false
 var is_crouching := false
+## Flat on your belly (#737; is_crouching is true too): under a high boardwalk, a wagon, a low
+## gap. `force_crawl` holds you there (the dev bridge, tests).
+var is_crawling := false
+var force_crawl := false
+var _crawl_toggled := false
+var _crouch_toggle_held := 0.0
+var _jump_spent := false
 var is_running := false
 var wounds: PlayerWounds
 var composure: PlayerComposure
@@ -84,7 +91,7 @@ var _step_n := 0
 func _footsteps() -> void:
 	if not motion.footfall:
 		return
-	var loud := 2.0 if is_crouching else (13.0 if is_running else 6.0)
+	var loud := (1.0 if is_crawling else 2.0) if is_crouching else (13.0 if is_running else 6.0)
 	Events.noise.emit(global_position, loud, &"footsteps", self)
 	if GameAudio.enabled():
 		# The sound lab: on boards (any timber underfoot) a hollow knock, on the street's dirt a crunch.
@@ -267,8 +274,20 @@ func _physics_step(delta: float) -> void:
 	if input_enabled:
 		move = Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
 		_stick_look(delta)
+		# Crouch's toggle: a tap crouches or stands (from a crawl, comes up to a crouch); held, you
+		# go down flat and crawl.
 		if Input.is_action_just_pressed(&"crouch_toggle"):
-			_crouch_toggled = not _crouch_toggled
+			_crouch_toggle_held = 0.0
+			if _crawl_toggled:
+				_crawl_toggled = false
+				_crouch_toggle_held = -INF
+			else:
+				_crouch_toggled = not _crouch_toggled
+		if Input.is_action_pressed(&"crouch_toggle"):
+			_crouch_toggle_held += delta
+			if _crouch_toggle_held >= tuning.crawl_hold_s and not _crawl_toggled:
+				_crawl_toggled = true
+				_crouch_toggled = true
 		if Input.is_action_just_pressed(&"run_toggle"):
 			_run_latched = true
 		if move.length() < 0.1:
@@ -276,12 +295,20 @@ func _physics_step(delta: float) -> void:
 		wants_run = Input.is_action_pressed(&"run") or _run_latched
 		if wants_run and move.length() > 0.1:
 			_crouch_toggled = false
+			_crawl_toggled = false
+		if _crawl_toggled and Input.is_action_just_pressed(&"jump"):
+			# Up off your belly first; the jump is the next press.
+			_crawl_toggled = false
+			_crouch_toggled = false
+			_jump_spent = true
 		wants_crouch = _crouch_toggled or Input.is_action_pressed(&"crouch")
-		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump
+		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump and not _jump_spent
+		_jump_spent = false
 	wants_run = wants_run and can_sprint
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
+	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
-	_update_crouch(wants_crouch)
+	_update_crouch(wants_crouch, wants_crawl)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
 	if _ladder_step(move, wants_jump, delta):
 		_update_head(delta, 0.0)
@@ -289,7 +316,9 @@ func _physics_step(delta: float) -> void:
 		return
 
 	var speed := tuning.walk_speed
-	if is_crouching:
+	if is_crawling:
+		speed = tuning.crawl_speed
+	elif is_crouching:
 		speed = tuning.crouch_speed
 	elif is_running:
 		# Blown from running, the run sags.
@@ -450,7 +479,23 @@ func _stick_look(delta: float) -> void:
 	add_look(Vector2(stick.x, stick.y * y_sign) * Settings.stick_look_speed * delta)
 
 
-func _update_crouch(wants_crouch: bool) -> void:
+func _update_crouch(wants_crouch: bool, wants_crawl := false) -> void:
+	if wants_crawl:
+		if not is_crawling:
+			is_crawling = true
+			is_crouching = true
+			_set_collision_height(tuning.crawl_height, tuning.crawl_radius)
+		return
+	if is_crawling:
+		# Up off your belly only with room over you: to a crouch, or on up if you're standing.
+		if not can_stand(tuning.crouch_height):
+			return
+		is_crawling = false
+		_set_collision_height(tuning.crouch_height)
+		if not wants_crouch and can_stand():
+			is_crouching = false
+			_set_collision_height(tuning.stand_height)
+		return
 	if wants_crouch and not is_crouching:
 		is_crouching = true
 		_set_collision_height(tuning.crouch_height)
@@ -459,21 +504,38 @@ func _update_crouch(wants_crouch: bool) -> void:
 		_set_collision_height(tuning.stand_height)
 
 
-## True when there is headroom to stand up from a crouch.
-func can_stand() -> bool:
+## Your height now over your feet as a share of standing (crouched or crawling less): the wounds
+## squash your body's parts down by it.
+func height_share() -> float:
+	if is_crawling:
+		return tuning.crawl_height / tuning.stand_height
+	return tuning.crouch_height / tuning.stand_height if is_crouching else 1.0
+
+
+## True when there is headroom to stand up from a crouch (or to come up to `height`).
+func can_stand(height := -1.0) -> bool:
+	if height < 0.0:
+		height = tuning.stand_height
 	var shape := CapsuleShape3D.new()
 	shape.radius = tuning.radius * 0.9
-	shape.height = tuning.stand_height - 0.12
+	shape.height = maxf(height - 0.12, shape.radius * 2.0)
 	var params := PhysicsShapeQueryParameters3D.new()
 	params.shape = shape
-	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (tuning.stand_height * 0.5 + 0.08))
+	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (height * 0.5 + 0.08))
 	params.exclude = [get_rid()]
 	params.collision_mask = collision_mask
 	return World.space(self).intersect_shape(params, 1).is_empty()
 
 
-func _set_collision_height(height: float) -> void:
-	_body_shape.height = height
+func _set_collision_height(height: float, radius := -1.0) -> void:
+	var r := tuning.radius if radius < 0.0 else radius
+	# A capsule's height is never under its width: the order that keeps it so on the way.
+	if r < _body_shape.radius:
+		_body_shape.radius = r
+		_body_shape.height = height
+	else:
+		_body_shape.height = height
+		_body_shape.radius = r
 	collision.position = Vector3(0.0, height * 0.5, 0.0)
 	Sight.changed(self, true)  # his capsule, crouched or not
 
@@ -485,7 +547,10 @@ func _update_head(delta: float, falling: float) -> void:
 	var grounded := is_on_floor()
 	var aiming := weapon != null and weapon.aiming
 	var winded := composure.winded if composure else 0.0
+	motion.crawling = is_crawling
 	motion.step(tuning, delta, global_basis.inverse() * velocity, grounded, is_crouching, aiming, winded, falling)
+	# Flat on the ground the body you see is under you, not round you: put away.
+	body.visible = not is_crawling
 	_eye_height = motion.eye_height
 	head.position = Vector3(motion.head_pos.x, _eye_height + motion.head_pos.y, 0.0)
 	# The lean's pitch (and a kick's look down) goes on top of yours by its change, so whoever else
