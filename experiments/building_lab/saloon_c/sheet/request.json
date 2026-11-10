@@ -1,5 +1,5 @@
 {
- "_doc": "A concept's target sheet for the saloon (#765, #660; docs/briefs/saloon-design.md). The views are painted on GitHub (tools/buildings/target_sheet.py, building_sheet.yml); `plans` is drawn by tools/buildings/concept_plans.py from ../concept.json and given to the painted views. A target, not a blueprint: the spec settles every size.",
+ "_doc": "A concept's target sheet for the saloon (#765, #660; docs/briefs/saloon-design.md). The views are painted on GitHub (tools/buildings/target_sheet.py, building_sheet.yml); `plans` is drawn by tools/buildings/concept_plans.py from ../concept.json and given to the painted views. A target, not a blueprint: the spec settles every size. Painted 2026-11-10 at Sean's \$5 pre-approval (\$1.25 a concept).",
  "sheet_title": "Salt Creek, 1882: The Salt Creek saloon, concept C, the brick front (target sheet, #765/#660)",
  "cap": 1.25,
  "model": "google/gemini-3-pro-image-preview",
