@@ -179,6 +179,8 @@ const HANDS_UP_KEYS := [
 	[0.40, {&"upper_arm_r": Vector3(81, 90, 163), &"forearm_r": Vector3(86, 0, 0), &"hand_r": Vector3(0, 13, 18),
 			&"upper_arm_l": Vector3(81, -90, -163), &"forearm_l": Vector3(86, 0, 0), &"hand_l": Vector3(0, -13, -18)}],
 ]
+## A landing's speed past what his drop gives (m/s): shoved or thrown down off the edge (`_step_fall`).
+const FALL_PUSH_SLACK := 3.0
 const HANDS_UP_TIME := 0.58
 ## Letting them down again (any pose after hands_up): the arms slerped to the new pose this long,
 ## so the down path is the shortest turn, not the Euler numbers' (which swing them out and over).
@@ -6010,7 +6012,10 @@ func _step_fall(delta: float) -> void:
 				_fall_v.clear()  # slowed without landing hard (slid to a stop): done
 			return
 		var drop := _fall_top - pelvis.global_position.y
-		var v_in := maxf(was_down, sqrt(maxf(2.0 * 9.8 * drop, 0.0)) if drop > 0.0 and drop < 1e4 else 0.0)
+		var fell := sqrt(maxf(2.0 * 9.8 * drop, 0.0)) if drop > 0.0 and drop < 1e4 else 0.0
+		# No faster than the drop he's had could make him (and a push's few m/s more): a one-tick
+		# jolt of the ragdoll lying where he lay isn't a fall (#778: the sheriff, left on the road).
+		var v_in := maxf(minf(was_down, fell + FALL_PUSH_SLACK), fell)
 		if v_in < ft.min_speed:
 			if down < ft.min_speed * 0.8:
 				_fall_v.clear()
