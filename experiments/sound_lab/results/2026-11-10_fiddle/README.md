@@ -120,5 +120,6 @@ sheet music; the hands are built from the note data either way.
 | 8 | Close | C, hybrid (through the floor) |
 
 All three of ours passed; A and B in both places. The record marked wrong is most likely its
-medium and tune (a 1922 horn disc, Sallie Gooden). No fiddler needed by this test. Which one becomes
-the fiddler's voice is Sean's call (recommended: B, no sample files, the same note data as his hands).
+medium and tune (a 1922 horn disc, Sallie Gooden). No fiddler needed by this test. **Sean picked B,
+our own model** (2026-11-11: "we're going with our own model obviously that was unreal"): it becomes
+the fiddler's voice, played from the same note data as his hands.

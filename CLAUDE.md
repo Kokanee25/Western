@@ -905,8 +905,9 @@ frozen until Sean names one.
 - **The fiddler's sound** (#790, branch `claude/sound-fiddle-50icg1`; `experiments/sound_lab/fiddle/`,
   results `experiments/sound_lab/results/2026-11-10_fiddle/`): Soldier's Joy as note data, made three ways
   (A samples, VSCO 2 CE CC0; B our own bowed-string model; C hybrid), the lab's `music` kind on the saloon's
-  balcony; blind set against Eck Robertson's 1922 "Sallie Gooden" (PD). Waiting on Sean's ear; none passes:
-  a fiddler. Found: the balcony's boards don't stop GameAudio's wall ray. Trap: one lavapipe game at a time.
+  balcony; blind set against Eck Robertson's 1922 "Sallie Gooden" (PD). Sean's ear: all three passed, **he
+  picked B, our own model** (no fiddler). Found: the balcony's boards don't stop GameAudio's wall ray. Trap:
+  one lavapipe game at a time. Next: B as the fiddler's voice in the game (its issue).
 - **Dynamite on you** (#596 step 2, PR #655): `PlayerWounds._feel`/`feel_blast` (BlastTuning "On
   you", proposed): the dulling, the whine past the ears' filter (`lowpass_db`), `view_shake` (with the
   gun's kick), grit (`blast_grit.gdshader`); sound lab `dynamite_you_*`, `on_you.py`, results
