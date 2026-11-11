@@ -29,6 +29,10 @@ extends Resource
 	# Clear white oak, dressed (the prop kit's chairs and tables): the Wood Handbook's clear-wood
 	# figures at 12% moisture, not cut down (furniture stock is picked clear); `toughness`, its work
 	# to maximum load in bending (J/m³), is what a blow must put into it to break it (KitProp).
+	# Black walnut, dressed (the prop kit's doctor's furniture, #788: its look is the material
+	# library's walnut): the Wood Handbook's clear figures at 12% moisture (specific gravity 0.55,
+	# MOR 101 MPa, compression 52.3 MPa, MOE 11.6 GPa, work to maximum load 74 kJ/m³).
+	&"walnut": {"density": 610.0, "bending": 101e6, "compression": 52e6, "stiffness": 11.6e9, "toughness": 74e3},
 	&"oak": {"density": 750.0, "bending": 105e6, "compression": 51e6, "stiffness": 12.3e9, "toughness": 101e3},
 	# Cotton duck, a covered wagon's cover (the prop factory's): as a member a centimetre thick, the
 	# weight of heavy duck (~0.5 kg/m²); nothing it carries, so its strengths are nominal.

@@ -1,0 +1,39 @@
+{
+  "_doc": "A linen huckaback hand towel, 75 x 45 cm, white with red woven borders (the washstand's; Sean, #788: like the barkeep's rag, and it wipes up blood). A prop that's cloth (ClothProp, `like` the bar rag): it drapes over the washstand's bar by its own physics, is picked up, dropped, knocked off, burns. Linen huckaback ~250 g/m2: ~85 g dry. Pressed on a wound it takes up blood as a pad (`soaks`); held and drawn over a table's top or the floor it wipes up what's there (ClothProp.wipe_at: blood marks and pools, spilt water and drink), up to ~250 ml (linen takes up about three times its weight). Written by tools/props/doctor.py.",
+  "id": "hand_towel",
+  "like": "bar_cloth",
+  "fixture": true,
+  "size": [
+    0.75,
+    0.45
+  ],
+  "points": [
+    12,
+    8
+  ],
+  "mass": 0.085,
+  "colour": [
+    0.86,
+    0.84,
+    0.79
+  ],
+  "stains": [
+    0.62,
+    0.56,
+    0.47
+  ],
+  "stripe": [
+    0.55,
+    0.12,
+    0.1
+  ],
+  "stripe_at": [
+    0.1,
+    0.9
+  ],
+  "stripe_width": 0.015,
+  "holds_ml": 250.0,
+  "wipe_rate": 1.2,
+  "flame_radius": 0.18,
+  "factory": "tools/props/doctor.py"
+}

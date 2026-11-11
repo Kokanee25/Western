@@ -2261,6 +2261,17 @@ judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2
   darkening (`murk`); `carry`/`set_down`, `empty_out` (on boards a spill, outside it soaks away),
   `fill`, `give`/`receive`. Prof `mop` (People). The lab: `experiments/mopping/`.
 
+**Library woods, baked metal and the factory's doctor's batch** (#788, `docs/briefs/prop-factory.md`
+"The recipe brought up to date"): kit looks `lib:<entry>/<age>[/top]` (`PropKit.dress_lib`, a member
+drawn as a material library board by `PropKit.board_mesh`, the building lab's board mesh shared;
+`lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
+`_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
+`tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their
+models (`cushion`, `soft_box`, `drape`); `experiments/prop_lab/doctor/dress.gd` + `dress.json` lay a
+batch into his rooms on his valley lot and render the views (the doors' leaves set aside). A kit
+lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
+(`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
+
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,

@@ -362,6 +362,26 @@ func hang_on(by: HumanBody, shoulder_side: String) -> void:
 	side = shoulder_side
 
 
+## Over a rail (a washstand's towel bar, a line, a chair's back; #788): laid flat across it, its
+## length (X) across the rail's `along` (world) and its middle there, the points over the rail pinned
+## to it, the rest left to hang by its own physics (a rail a couple of centimetres thick slips
+## between its points otherwise). The rail carries it: broken off or knocked, it goes with it; picked
+## up, let go or freed rail, it's free.
+func hang_over(rail: Node3D, along: Vector3, top: Vector3) -> void:
+	if burnt or rail == null:
+		return
+	_release_all()
+	var a := along.normalized()
+	var x := a.cross(Vector3.UP).normalized()
+	place(Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP).normalized() * -1.0).orthonormalized(), top + Vector3.UP * 0.01))
+	var mid := cols / 2
+	var take: Array[int] = []
+	for j in rows:
+		for i in [mid - 1, mid]:
+			take.append(j * cols + i)
+	_pin(take, rail)
+
+
 ## On top of his shoulder (world), where a rag over it lies: above the joint, in toward his neck.
 static func shoulder_top(by: HumanBody, shoulder_side: String) -> Vector3:
 	var joint := (by.pivots[StringName("upper_arm_" + shoulder_side)] as Node3D).global_position
@@ -499,6 +519,7 @@ func _physics_step(delta: float) -> void:
 	var at := centre()
 	_fire_step(at, CHECK_EVERY)
 	_blood_step(CHECK_EVERY)
+	_wipe_step(CHECK_EVERY)
 	wet = maxf(wet - CHECK_EVERY / 600.0, 0.0)  # dries over ten minutes
 	if _tex_dirty:
 		_tex_dirty = false
@@ -580,6 +601,63 @@ func _blood_step(dt: float) -> void:
 	if flow <= 0.0:
 		return
 	soak(flow * float(definition.get("soaks", 0.8)) * dt, holder.palm(side))
+
+
+# --- Wiping (#788, Sean: "can be used to wipe up blood") ------------------------------------------
+# Held in a hand and drawn over a wooden surface (a table's top, the floor), it takes up what's
+# under its lowest points through the surface's marks (FloorMarks.take: spilt water and drink, the
+# blood of marks and pools, Blood.take), as a mop's head does (MopProp._exchange) but dry linen:
+# `wipe_rate` of what's under it a second at a wiping pace (0.3 m/s), less as it fills, up to
+# `holds_ml` all told. Blood reddens it where it touched (soak); the rest wets it.
+
+## What else it's taken up wiping (ml: water, whiskey, beer, lamp oil).
+var spills_ml := 0.0
+var _wipe_last := Vector3.INF
+
+
+func _wipe_step(dt: float) -> void:
+	if held != Held.HAND or holder == null or burnt or float(definition.get("wipe_rate", 0.0)) <= 0.0:
+		_wipe_last = Vector3.INF
+		return
+	var low := Vector3(0, INF, 0)
+	for i in point_count():
+		var p := point(i)
+		if p.y < low.y:
+			low = p
+	var moved := 0.0 if _wipe_last == Vector3.INF else Vector2(low.x - _wipe_last.x, low.z - _wipe_last.z).length() / dt
+	_wipe_last = low
+	wipe_at(low, moved, dt)
+
+
+## Wipes the surface under `at` (world: its lowest point, within 3 cm of the surface), moving
+## `speed` m/s across it, for `dt` s. What it took: {blood, other} (ml).
+func wipe_at(at: Vector3, speed: float, dt: float) -> Dictionary:
+	var out := {"blood": 0.0, "other": 0.0}
+	var marks := FloorMarks.find(get_tree())
+	var cap := float(definition.get("holds_ml", 120.0))
+	var full := (blood_ml + spills_ml) / maxf(cap, 1.0)
+	if marks == null or burnt or full >= 1.0:
+		return out
+	var under := marks.surface_at(at, 0.06)
+	if under.is_empty() or at.y - (under.at as Vector3).y > 0.03:
+		return out
+	var share := float(definition.get("wipe_rate", 0.0)) * clampf(speed / 0.3, 0.1, 1.0) * (1.0 - full) * dt
+	var radius := clampf(minf(size.x, size.y) * 0.4, 0.06, 0.2)
+	var got := marks.take(under.at, radius, share)
+	var blood := float(got.blood)
+	for kind: StringName in got.liquid:
+		if kind == &"blood":
+			blood += float(got.liquid[kind])
+		else:
+			out.other += float(got.liquid[kind])
+	blood = minf(blood, cap - blood_ml)
+	out.blood = blood
+	if blood > 0.0:
+		soak(blood, at)
+	if out.other > 0.0:
+		spills_ml = minf(spills_ml + out.other, maxf(cap - blood_ml, 0.0))
+		wet = clampf(wet + out.other / maxf(cap, 1.0), 0.0, 1.0)
+	return out
 
 
 ## Takes up `ml` of blood where it touches `at` (world): red there, spreading as it fills.

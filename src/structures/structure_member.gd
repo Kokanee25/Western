@@ -673,6 +673,11 @@ func apply_voxel_mesh(m: Array) -> void:
 	if m.size() < 3 or has_meta(&"snapped") or consumed or pieces.is_empty() or not is_instance_valid(pieces[0][0]):
 		return
 	var mi := pieces[0][0] as MeshInstance3D
+	if mi.mesh and mi.mesh.has_meta(&"board_frame"):
+		# A material library board (#765, #788) is drawn in its own frame by its own shader: carved,
+		# it's the member's box in the member's space, in its wood's texel material.
+		mi.transform = Transform3D()
+		mi.material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
 	var mesh := ArrayMesh.new()
 	if not (m[0] as Array).is_empty():
 		mesh = MemberMesh.made(m[0])  # (its arrays kept: RubbleRest joins it without a read back)
