@@ -36,8 +36,10 @@ hasn't confirmed in words.)
   the bold cowboy does (Sean's to find).
 - DECIDED (Sean, 2026-11-11): "He can keep the name Cody and yes he can ride with the gang and be in the jail".
   The saloon killer is **Cody** (the name the built No Law gave him, #785), without the red shirt; he
-  **rides with the gang**; and he's **held in the jail** for the card cheat. OPEN: the red shirt's name
-  (he was Cody in the build), and whether Cody's night in custody is the Water Tower's (the depot's
+  **rides with the gang**; and he's **held in the jail** for the card cheat. The red shirt's name: DECIDED
+  (Sean, 2026-11-11: "I like Silas kett"): **Silas Kett** (he was Cody in the build). PROPOSED (not
+  picked): the town knows him only as "the red shirt" until someone names him (the Kid, or Rourke on the
+  platform). OPEN: whether Cody's night in custody is the Water Tower's (the depot's
   freight room, `hold-him`) or the town jail's.
 - This session's proposal as it was put (the first and last points are now Sean's, above):
   - **The red shirt, Joe's wife's killer** (the faded red shirt is from Sean's own No Justice card,
