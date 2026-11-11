@@ -477,3 +477,19 @@ func test_the_counters_drawers_wear_their_knobs() -> void:
 	var drawers := c.get_members().filter(func(m: StructureMember) -> bool: return String(m.member_id).contains("/drawer_"))
 	check(drawers.size() == 24, "three rows of eight drawers (%d)" % drawers.size())
 	check(c.batch_count() <= 8, "and it still draws in a few batches (%d)" % c.batch_count())
+
+
+func test_a_pull_on_a_walnut_drawer_is_drawn_on_the_drawer() -> void:
+	# A dress layer on a library board (a pull, a knob, his papers) sits where its kit file puts it,
+	# not off by the board frame's half length (#805), and stays there when the board is carved.
+	var d := await _place(&"roll_top_desk")
+	var drawer := _m(d, "drawer_l0")
+	var layer: MeshInstance3D = null
+	for c in drawer.drawn_node().get_children():
+		if String(c.name).begins_with("Dress"):
+			layer = c
+	check(layer != null, "the drawer wears its pull")
+	if layer:
+		# (in the member's own space: a batched member's nodes are out of the tree)
+		var off := (drawer.drawn_node().transform * layer.transform * layer.get_aabb()).get_center()
+		check(absf(off.x) < 0.03 and absf(off.y) < 0.03, "the pull is on the drawer's middle (off by %s)" % off)

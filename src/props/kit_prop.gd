@@ -131,6 +131,10 @@ func build() -> void:
 			layer.mesh = st.commit()
 			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
 			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
+			# In the member's own space: a library board's mesh is drawn in its board's frame (#805:
+			# the frame's half-length offset carried every pull, knob and paper on a `lib:` member
+			# off to one end; StructureMember.apply_voxel_mesh puts them back when it's carved).
+			layer.transform = mi.transform.affine_inverse()
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 		m.set_meta(&"closed", m.transform)
