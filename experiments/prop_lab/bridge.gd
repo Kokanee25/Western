@@ -6,6 +6,7 @@ extends BridgeLab
 const HELP := {
 	"prop": "prop ID X Y Z [YAW] -> a kit prop (assets/props/kit/ID.json) put down there in the street, turned YAW degrees: its members, weight, whether it stands",
 	"props_clear": "props_clear -> takes away every prop `prop` put down",
+	"prop_open": "prop_open HINGE [AMOUNT] [CARRIED] -> the last prop `prop` put down opens that hinge (a coach's door_l, a strongbox's lid; CARRIED: the prop it carries by that name, its strongbox), unlocked first: AMOUNT 0..1 (1)",
 	"props_of": "props_of ID -> where the town's kit props of that id are (a hung deer head, the saloon's barrels): positions and which way they face",
 	"deer_variant": "deer_variant ID [DIR] -> the town's hung deer heads made again as the deer fidelity lab's version ID (deer_fidelity/deer_variants.gd; DIR its files): the kit's own deer_head, its members drawn by that version; `game` the game's again, `none` none (the shots' background)",
 }
@@ -33,6 +34,20 @@ func _cmd_prop(a: Array) -> Dictionary:
 		out["kg"] = snappedf((p as KitProp).mass(), 0.1)
 		out["stands"] = not (p as KitProp).loose
 	return out
+
+
+func _cmd_prop_open(a: Array) -> Dictionary:
+	if a.is_empty() or _placed.is_empty() or not (_placed[-1] is KitProp):
+		return {"ok": false, "error": "prop_open HINGE [AMOUNT] [CARRIED], after `prop`"}
+	var p := _placed[-1] as KitProp
+	if a.size() > 2:
+		p = p.carried(String(a[2]))
+		if p == null:
+			return {"ok": false, "error": "it carries no %s" % a[2]}
+	p.unlock(String(a[0]))
+	var ok := p.open_hinge(String(a[0]), float(a[1]) if a.size() > 1 else 1.0)
+	await physics_frames(2)
+	return {"ok": ok, "open": p.hinge_open(String(a[0])), "stands": not p.loose}
 
 
 func _cmd_props_clear(_a: Array) -> Dictionary:

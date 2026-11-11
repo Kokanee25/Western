@@ -52,6 +52,11 @@ extends Resource
 	# along the grain 16.9 MPa, MOE 6.9 GPa). RollingLog's mass comes from it.
 	&"green_pine": {"density": 740.0, "bending": 35e6, "compression": 16.9e6, "stiffness": 6.9e9, "toughness": 40e3},
 	&"bone": {"density": 450.0, "bending": 30e6, "compression": 60e6, "stiffness": 10e9, "toughness": 8e3},
+	# Harness and sole leather (the prop lab, 2026-11-10: the Baron's coach's thoroughbraces and
+	# boot): ~950 kg/m³; tough in tension (~25 MPa), a strap carries nothing in bending.
+	&"leather": {"density": 950.0, "bending": 5e6, "compression": 2e6, "stiffness": 0.2e9, "toughness": 60e3},
+	# Paper and card, a bundle of documents (the strongbox's): it burns, a ball goes through.
+	&"paper": {"density": 700.0, "bending": 5e6, "compression": 3e6, "stiffness": 3e9, "toughness": 5e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 
