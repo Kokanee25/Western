@@ -571,7 +571,8 @@ void fragment() {
 		}
 		if (face > 1.5 && paint_edge > 0.0) {
 			float en = texture(big_noise, vec2(v_m.x / 0.12 + seed * 3.0, seed)).r;
-			c *= mix(1.0, 0.68 + 0.4 * en, paint_edge);
+			// (round 2: darkened 0.68-1.08 they read as drawn dark lines; the gloss was the hairline)
+			c *= mix(1.0, 0.9 + 0.15 * en, paint_edge);
 		}
 		pcov = paint * (1.0 - bare_wood);
 		col = mix(col, c, paint);
