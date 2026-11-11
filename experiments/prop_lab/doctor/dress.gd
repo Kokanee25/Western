@@ -14,11 +14,11 @@ extends SceneTree
 ## name -> [camera, look at (the building's space: y over the street edge's ground; the ground
 ## floor is at 0.95), fov, hour].
 const VIEWS := {
-	# The surgery from its back by the sick room's door (the hall door at z 4.6 and the side door at
-	# z 7.3 swing in: clear of both), the table end on, the east windows left, by morning light.
-	"surgery": [Vector3(1.55, 2.45, 7.95), Vector3(2.1, 1.3, 4.9), 66.0, 9.5],
+	# The surgery from the doctor's side by the hall door (the doors' leaves are set aside), the table's
+	# drawers toward us, the east windows beyond, by morning light.
+	"surgery": [Vector3(3.6, 2.45, 4.3), Vector3(1.6, 1.25, 6.1), 66.0, 9.5],
 	# The same at night: the reflector lamp lit on the instrument table.
-	"surgery_night": [Vector3(1.55, 2.45, 7.95), Vector3(2.1, 1.3, 4.9), 66.0, 21.5],
+	"surgery_night": [Vector3(3.6, 2.45, 4.3), Vector3(1.6, 1.25, 6.1), 66.0, 21.5],
 	# The washstand and the instrument table, close.
 	"wash": [Vector3(2.4, 2.3, 6.2), Vector3(3.75, 1.55, 7.6), 58.0, 10.0],
 	"instruments": [Vector3(1.45, 2.25, 6.0), Vector3(0.42, 1.72, 5.25), 50.0, 10.0],

@@ -79,7 +79,7 @@ def drape(name, half_w, top_fn, z0, z1, hang=0.2, r=0.05, thick=0.008, nz=24, fo
     for k in range(1, 7):
         t = math.pi * 0.5 * k / 6
         section.append((-half_w + r - r * math.cos(t), -r + r * math.sin(t)))
-    n_top = 14
+    n_top = 8
     for k in range(1, n_top):
         section.append((-half_w + r + (2 * (half_w - r)) * k / n_top, 0.0))
     for k in range(0, 6):
@@ -235,26 +235,29 @@ def cot():
     wires = []
     sx = px - 0.03
     sz = inner_z - 0.01
-    for k in range(int(sx * 2 / 0.06) + 1):
-        x = -sx + k * 0.06
+    for k in range(int(sx * 2 / 0.09) + 1):
+        x = -sx + k * 0.09
         wires.append(box("w", (0.003, 0.003, sz * 2), (x, y - 0.006, 0)))
-    for k in range(int(sz * 2 / 0.07) + 1):
-        z = -sz + k * 0.07
+    for k in range(int(sz * 2 / 0.1) + 1):
+        z = -sz + k * 0.1
         wires.append(box("w", (sx * 2, 0.003, 0.003), (0, y - 0.004, z)))
     parts.append((merged("Spring", wires, smooth=False), "japanned"))
     # The straw tick, soft and sagging where he lies; the blanket laid over its foot two-thirds,
     # rounding over its edges and hanging down both sides in soft folds, turned down at its head;
     # the pillow stuffed, in a white case (the 1864-65 wards' beds: grey wool, white pillows).
     tx, ty, tz = c["tick"]
-    tick = soft_box("Tick", (tx, ty, tz), (0, y + ty * 0.5, 0), e=0.22)
     sag = lambda vx, vz: 0.035 * max(0.0, 1 - (2 * vz / tz) ** 2) * max(0.0, 1 - (2 * vx / tx) ** 2)
-    tick.verts = [(vx, vy - (sag(vx, vz) if vy > y + ty * 0.5 else 0.0), vz) for vx, vy, vz in tick.verts]
+    # A tufted straw tick (ticks were tied through at a handspan's spacing): the table pad's buttoned
+    # cushion, its tufts wide apart, its edges rolled well over, sagging where he lies.
+    tick = cushion("Tick", -tx * 0.5, tx * 0.5, -tz * 0.5, tz * 0.5, y, ty, ty, button=0.32, roll=0.05, dimple=0.016, n=5)
+    tick.verts = [(vx, vy - (sag(vx, vz) if vy > y + 0.02 else 0.0), vz) for vx, vy, vz in tick.verts]
     parts.append((tick, "ticking"))
     bx, by, bz = c["blanket"]
     top = y + ty
     bz0 = tz * 0.5 - bz
-    top_fn = lambda x, z: top + 0.006 - sag(x, z)
-    blanket = drape("Blanket", tx * 0.5 + 0.02, top_fn, bz0, tz * 0.5 + 0.015, hang=0.2, r=0.055)
+    # Its top a little clear of the tick, rumpled (two slow waves and a finer one across it).
+    top_fn = lambda x, z: top + 0.014 - sag(x, z) + 0.008 * math.sin(z * 7.0 + x * 3.0) * math.sin(x * 9.0 + 1.3) + 0.004 * math.sin(z * 19.0 - x * 11.0)
+    blanket = drape("Blanket", tx * 0.5 + 0.02, top_fn, bz0, tz * 0.5 + 0.015, hang=0.2, r=0.055, folds=0.022, nz=14)
     turn = drape("d", tx * 0.5 + 0.03, lambda x, z: top_fn(x, z) + 0.012, bz0 - 0.02, bz0 + 0.17, hang=0.08, r=0.05, nz=6, seed=3)
     blanket.merge(turn)
     parts.append((blanket, "wool"))
@@ -324,9 +327,10 @@ def tray():
         tray_parts.append(moved(box("w", (0.003, 0.028, sz - 0.02), (0, 0.014, 0)), -s * 25, (0, 0, 1), (s * (sx * 0.5 - 0.016), 0, 0)))
     rim = [(-sx * 0.5, 0.026, -sz * 0.5), (sx * 0.5, 0.026, -sz * 0.5), (sx * 0.5, 0.026, sz * 0.5), (-sx * 0.5, 0.026, sz * 0.5), (-sx * 0.5, 0.026, -sz * 0.5)]
     tray_parts.append(tube("r", rim, 0.003, sides=6, caps=(False, False)))
-    parts = [(merged("Tray", tray_parts, smooth=False), "enamel")]
+    parts = [(merged("Tray", tray_parts, smooth=False), "japanned")]
     # A folded linen cloth in it, the instruments laid out on it (the target sheet's table).
-    parts.append((soft_box("Cloth", (sx - 0.05, 0.008, sz - 0.05), (0, fy + 0.002, 0), e=0.12, rings=6, segs=20), "linen"))
+    # (a white napkin folded on the black tray: the instruments read on it, as the target's on linen)
+    parts.append((soft_box("Cloth", (sx - 0.03, 0.01, sz - 0.03), (0, fy + 0.003, 0), e=0.12, rings=6, segs=20), "linen"))
     cy = fy + 0.008
     # The amputation saw (a capital saw): a deep blade, its teeth along the lower edge, the back's
     # spine, an ebony handle.
@@ -339,7 +343,9 @@ def tray():
     blade = moved(common.slab("b", outline, -0.0007, 0.0007), -90, (1, 0, 0), (0.035, cy + 0.003, -0.055))
     spine = box("k", (0.23, 0.005, 0.008), (0.05, cy + 0.004, -0.067), bevel=0.0015)
     parts.append((merged("SawBlade", [blade, spine], smooth=False), "steel"))
-    parts.append((soft_box("SawHandle", (0.10, 0.026, 0.05), (-0.12, cy + 0.013, -0.06), e=0.35, rings=8, segs=16), "ebony"))
+    # Its handle: a pistol grip in ebony, flat, its heel swept down (as the Weiss and Teufel sets' saws).
+    grip = common.slab("g", [(-0.155, -0.035), (-0.12, -0.04), (-0.095, -0.012), (-0.085, 0.014), (-0.10, 0.018), (-0.14, 0.012), (-0.16, -0.008)], -0.009, 0.009, bevel=0.003)
+    parts.append((moved(grip, -90, (1, 0, 0), (0.035, cy + 0.009, -0.055), name="SawHandle"), "ebony"))
     # The bullet forceps: two long jaws crossing at a joint, finger rings.
     fz = 0.012
     jaws = [moved(box("j", (0.19, 0.005, 0.007), (0, 0, 0), bevel=0.0018), a_, (0, 1, 0), (0.01, cy + 0.0035, fz)) for a_ in (3.5, -3.5)]
@@ -371,9 +377,9 @@ def lamp():
                     caps=(False, False))
     # The reflector: a dished tin disc 22 cm across on the wall behind the chimney, rolled at its
     # edge; a hanging tab with the nail's hole over it.
-    dish = lathe("d", [(0.0, -0.016), (0.05, -0.012), (0.09, 0.0), (0.108, 0.012), (0.111, 0.015), (0.107, 0.014), (0.088, 0.003), (0.05, -0.008), (0.0, -0.012)],
-                 32, axis="z", at=(0, 0.27, wz + 0.016), caps=(False, False))
-    tab = box("t", (0.03, 0.05, 0.004), (0, 0.395, wz + 0.004), bevel=0.0012)
+    dish = lathe("d", [(0.0, -0.014), (0.035, -0.011), (0.062, -0.002), (0.074, 0.009), (0.076, 0.012), (0.073, 0.011), (0.06, 0.002), (0.035, -0.007), (0.0, -0.010)],
+                 32, axis="z", at=(0, 0.28, wz + 0.016), caps=(False, False))
+    tab = box("t", (0.03, 0.05, 0.004), (0, 0.375, wz + 0.004), bevel=0.0012)
     reflector = merged("Reflector", [dish, tab])
     # The bracket: a strap from the disc's foot out to a ring round the fount, a brace under it.
     strap = tube("s", [(0, 0.16, wz + 0.006), (0, 0.075, wz + 0.01), (0, 0.06, -0.06), (0, 0.06, -0.045)], [(0.004, 0.009)] * 4, sides=6, up_hint=(1, 0, 0))

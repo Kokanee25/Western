@@ -58,7 +58,7 @@ FINISHES = {
                "rough": 0.12, "metal": 0.0, "metal_under": 1.0, "wear": 0.5},
     # White ironstone china (the common washstand set of the 1860s-80s, English and American
     # potteries): a creamy white glaze, faint crazing, no metal.
-    "china": {"kind": "coat", "color": (0.90, 0.89, 0.85), "under": (0.70, 0.66, 0.58), "rust": 0.0,
+    "china": {"kind": "coat", "color": (0.87, 0.89, 0.91), "under": (0.70, 0.66, 0.58), "rust": 0.0,
               "rough": 0.08, "metal": 0.0, "wear": 0.05, "craze": 0.5},
     # Black glazed oilcloth ("American cloth") over horsehair: the covering of doctors' couches and
     # examining tables; a dull sheen, cracked and greyed where it's worn.
@@ -203,8 +203,9 @@ def _node_tree(mat, look, img, mode):
     elif kind == "stripes":
         sep = g.N.new("ShaderNodeSeparateXYZ")
         g.L.new(obj, sep.inputs[0])
-        # Stripes along the part's X (the mattress's length): two narrow blue lines a pitch.
-        wave = g.math("SINE", g.math("MULTIPLY", sep.outputs["Z"], 2 * math.pi / look["pitch"]), 0.0)
+        # Stripes along the mattress's length (the game's z, Blender's -Y): their pitch across it, on
+        # Blender's X (Z is up there: round 2's stripes went round the tick in layers).
+        wave = g.math("SINE", g.math("MULTIPLY", sep.outputs["X"], 2 * math.pi / look["pitch"]), 0.0)
         stripe = g.maprange(wave, 0.35, 0.55)
         base = g.mix(stripe, look["color"], look["stripe"])
         base = g.mix(g.math("MULTIPLY", g.noise(obj, 30.0, 5.0), 0.35), base, (0.45, 0.40, 0.32))  # soil
