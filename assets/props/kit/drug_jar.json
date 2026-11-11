@@ -1,0 +1,45 @@
+{
+  "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): a clear glass shop round (1 pint) with a ground glass stopper, its label black with gilt lettering, a powder in it. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (3.8 m/s) or 50 kPa breaks it and what's in it goes on the floor. Four labels in the period's style (PULV. RHEI, QUIN. SULPH., POT. BROMID., MAG. SULPH.): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py.",
+  "id": "drug_jar",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:medicine_bottles",
+  "looks": {
+    "GlassJar": "glass:clear",
+    "LiquidJar": "pbr:medicine_bottles",
+    "LabelJar%d": "pbr:medicine_labels",
+    "StopperJar": "glass:clear"
+  },
+  "variants": 4,
+  "size": [
+    0.09,
+    0.226,
+    0.09
+  ],
+  "mass": 0.8,
+  "wall": 0.0025,
+  "glass": [
+    "GlassJar",
+    "LiquidJar",
+    "LabelJar",
+    "StopperJar"
+  ],
+  "whole": [],
+  "shards": 12,
+  "piece_mass": 0.01,
+  "breaks_at": 3.8,
+  "shatters_kpa": 50,
+  "heat_seconds": 20,
+  "cut_area": 0.04,
+  "contents": {
+    "liquid": "powder",
+    "litres": 0.284,
+    "colour": [
+      0.85,
+      0.83,
+      0.78
+    ]
+  },
+  "factory": "tools/props/doctor.py"
+}

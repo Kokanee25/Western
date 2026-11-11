@@ -2,7 +2,7 @@
 kit files of an 1882 country doctor's furniture, written from the numbers here, so a change is one
 number and a re-run. The Blender half (tools/blender/props/doctor_*.py) reads the same numbers.
 
-    python3 tools/props/doctor.py            # writes assets/props/kit/<id>.json for batch D1
+    python3 tools/props/doctor.py [--batch=D2]   # writes assets/props/kit/<id>.json for batches D1 and D2
 
 Woods from the material library (`lib:<entry>/<age>`, #721: only ages the materials judge passed:
 F2 `fine_walnut_tg` new and a few years, the doctor's own floor's), metal and cloth baked the gun way
@@ -11,7 +11,9 @@ straw, hay, canvas); every member's kind on the support ladder (docs/briefs/prop
 Each prop's period reference: experiments/prop_lab/refs/doctor/README.md.
 """
 import json
+import math
 import os
+import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 KIT = os.path.join(ROOT, "assets", "props", "kit")
@@ -324,11 +326,373 @@ def hand_towel():
     }
 
 
+# === Batch D2: the dispensary and the front office (#805) ===========================================
+
+# --- The medicine bottles ---------------------------------------------------------------------------
+# A druggist's shelf of the 1870s-80s (refs experiments/prop_lab/refs/doctor/ README, "D2"): four kinds,
+# each its own kit file drawn from one Blender model (glb:medicine_bottles), each with four paper
+# labels (the kit's `variants`: the Nth of a kind made wears label N mod 4).
+#   panel: the prescription "panel" bottle, aqua (the commonest druggist's bottle of the period),
+#          4 oz, a flat front for the label, a cork;
+#   round: a round amber bottle (tinctures and fluid extracts kept from the light), 8 oz, a cork;
+#   poison: a small cobalt-blue hexagonal poison bottle, 2 oz, ribbed edges to be known by touch,
+#           a red POISON label (state pharmacy laws of the 1870s-80s asked for one);
+#   jar: a clear glass "shop round" with a ground glass stopper, 1 pint, for powders (the shelf's
+#        big bottles; its label under the varnish, black with gilt).
+# Sections bottom up: (y, half width x, half depth z, squareness (2 round, 6 a rounded box), sides:
+# 0 smooth, 6 a hexagon). The neck and lip round. `label`: (y0, y1, the arc's half angle about +z,
+# in radians); `liquid`: its top's height and finish; `stopper`: cork or glass.
+BOTTLES = {
+    "panel": {
+        "kit": "medicine_bottle", "glass": "aqua", "litres": 0.118, "mass": 0.21,
+        "sections": [(0.0, 0.025, 0.0140, 6, 0), (0.004, 0.026, 0.0150, 6, 0), (0.100, 0.026, 0.0150, 6, 0),
+                     (0.112, 0.020, 0.0130, 4, 0), (0.120, 0.0105, 0.0100, 2, 0), (0.128, 0.0095, 0.0095, 2, 0),
+                     (0.129, 0.0118, 0.0118, 2, 0), (0.136, 0.0118, 0.0118, 2, 0), (0.137, 0.0090, 0.0090, 2, 0)],
+        "label": (0.030, 0.088, 0.95), "liquid": (0.096, "tincture"), "stopper": ("cork", 0.0088, 0.122, 0.146),
+        "liquid_name": "tincture", "colour": [0.42, 0.16, 0.06],
+        "labels": [("TINCT. OPII", "LAUDANUM", "Dose: 10 to 20 drops"), ("TINCT. ARNICAE", "for bruises & sprains", "Not to be taken"),
+                   ("SYR. IPECAC.", "EMETIC", "Dose: one teaspoonful"), ("TINCT. FERRI CHLOR.", "IRON", "Dose: 15 drops in water")],
+    },
+    "round": {
+        "kit": "medicine_bottle_round", "glass": "amber", "litres": 0.236, "mass": 0.40,
+        "sections": [(0.0, 0.0285, 0.0285, 2, 0), (0.005, 0.030, 0.030, 2, 0), (0.115, 0.030, 0.030, 2, 0),
+                     (0.130, 0.025, 0.025, 2, 0), (0.142, 0.013, 0.013, 2, 0), (0.157, 0.0115, 0.0115, 2, 0),
+                     (0.158, 0.0138, 0.0138, 2, 0), (0.166, 0.0138, 0.0138, 2, 0), (0.167, 0.0105, 0.0105, 2, 0)],
+        "label": (0.032, 0.098, 1.25), "liquid": (0.12, "syrup"), "stopper": ("cork", 0.0102, 0.150, 0.176),
+        "liquid_name": "tincture", "colour": [0.35, 0.12, 0.04],
+        "labels": [("SPT. AMMON. AROM.", "SAL VOLATILE", "Dose: half a teaspoonful"), ("TINCT. CINCHONAE CO.", "BARK", "Dose: one teaspoonful"),
+                   ("EXT. ERGOTAE FL.", "", "Dose: as directed"), ("VIN. COLCHICI", "for the gout", "Dose: 20 drops")],
+    },
+    "poison": {
+        "kit": "poison_bottle", "glass": "cobalt", "litres": 0.059, "mass": 0.13,
+        "sections": [(0.0, 0.0185, 0.0185, 2, 6), (0.004, 0.0195, 0.0195, 2, 6), (0.072, 0.0195, 0.0195, 2, 6),
+                     (0.082, 0.015, 0.015, 2, 6), (0.090, 0.0085, 0.0085, 2, 0), (0.099, 0.0078, 0.0078, 2, 0),
+                     (0.100, 0.0098, 0.0098, 2, 0), (0.106, 0.0098, 0.0098, 2, 0), (0.107, 0.0072, 0.0072, 2, 0)],
+        "label": (0.022, 0.060, 0.50), "liquid": (0.075, "tincture"), "stopper": ("cork", 0.0072, 0.094, 0.113),
+        "liquid_name": "poison", "colour": [0.3, 0.2, 0.1],
+        "labels": [("POISON", "LAUDANUM", ""), ("POISON", "TR. ACONITI", ""), ("POISON", "STRYCHNIA", ""), ("POISON", "ACID. CARBOLIC.", "")],
+    },
+    "jar": {
+        "kit": "drug_jar", "glass": "clear", "litres": 0.473, "mass": 0.80,
+        "sections": [(0.0, 0.043, 0.043, 2, 0), (0.006, 0.045, 0.045, 2, 0), (0.150, 0.045, 0.045, 2, 0),
+                     (0.168, 0.038, 0.038, 2, 0), (0.180, 0.024, 0.024, 2, 0), (0.190, 0.022, 0.022, 2, 0),
+                     (0.191, 0.0265, 0.0265, 2, 0), (0.198, 0.0265, 0.0265, 2, 0), (0.199, 0.0200, 0.0200, 2, 0)],
+        "label": (0.050, 0.118, 0.85), "liquid": (0.11, "powder"), "stopper": ("glass", 0.019, 0.184, 0.226),
+        "liquid_name": "powder", "colour": [0.85, 0.83, 0.78],
+        "labels": [("PULV. RHEI", "", ""), ("QUIN. SULPH.", "", ""), ("POT. BROMID.", "", ""), ("MAG. SULPH.", "", "")],
+        "gilt": True,
+    },
+}
+# Each kind's thin glass: a 4 oz prescription bottle's wall ~2 mm (the whiskey bottle's 4): it breaks
+# off a shelf onto boards (a 0.6 m fall, 3.4 m/s) and at a lower overpressure; the jar's heavier glass
+# takes a little more.
+BOTTLE_BREAKS = {"panel": (3.2, 40), "round": (3.4, 45), "poison": (3.4, 45), "jar": (3.8, 50)}
+
+
+def bottle_size(kind):
+    b = BOTTLES[kind]
+    w = max(max(s[1], s[2]) for s in b["sections"]) * 2
+    return [w, b["stopper"][3], w]
+
+
+def bottle(kind):
+    b = BOTTLES[kind]
+    k = kind.capitalize()
+    breaks, kpa = BOTTLE_BREAKS[kind]
+    looks = {"Glass" + k: "glass:" + b["glass"], "Liquid" + k: "pbr:medicine_bottles", "Label%s%%d" % k: "pbr:medicine_labels"}
+    if b["stopper"][0] == "cork":
+        looks["Cork" + k] = "pbr:medicine_bottles"
+    else:
+        looks["Stopper" + k] = "glass:" + b["glass"]
+    what = {"panel": "an aqua glass prescription panel bottle (4 oz), a flat front with its paper label, a cork",
+            "round": "a round amber glass bottle (8 oz, tinctures kept from the light), its paper label round the front, a cork",
+            "poison": "a cobalt-blue hexagonal poison bottle (2 oz), its ribbed edges known by touch in the dark, a red POISON label, a cork",
+            "jar": "a clear glass shop round (1 pint) with a ground glass stopper, its label black with gilt lettering, a powder in it"}[kind]
+    names = ", ".join(l[0] for l in b["labels"])
+    return {
+        "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): %s. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (%.1f m/s) or %d kPa breaks it and what's in it goes on the floor. Four labels in the period's style (%s): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py." % (what, breaks, kpa, names),
+        "id": b["kit"], "kind": "shatters", "fixture": True, "in_game": False,
+        "model": "glb:medicine_bottles", "looks": looks, "variants": len(b["labels"]),
+        "size": r(bottle_size(kind)), "mass": b["mass"], "wall": 0.0025,
+        "glass": ["Glass" + k, "Liquid" + k, "Label" + k] + (["Stopper" + k] if b["stopper"][0] == "glass" else []),
+        "whole": [["Cork" + k]] if b["stopper"][0] == "cork" else [],
+        "shards": 8 if kind != "jar" else 12, "piece_mass": 0.01, "breaks_at": breaks, "shatters_kpa": kpa,
+        "heat_seconds": 20, "cut_area": 0.02 if kind != "jar" else 0.04,
+        "contents": {"liquid": b["liquid_name"], "litres": round(b["litres"] * (0.6 if kind == "jar" else 0.8), 3), "colour": b["colour"]},
+    }
+
+
+def medicine_bottle():
+    return bottle("panel")
+
+
+def medicine_bottle_round():
+    return bottle("round")
+
+
+def poison_bottle():
+    return bottle("poison")
+
+
+def drug_jar():
+    return bottle("jar")
+
+
+# --- The mortar and pestle -------------------------------------------------------------------------
+# A Wedgwood-ware mortar and pestle (the druggist's prescription mortar of the 19th century: a hard,
+# unglazed white stoneware bowl on a foot with a pouring lip; the pestle's head the same stoneware on
+# a turned wooden handle), about a pint: 15 cm across. Its axis at the origin; the lip toward +x.
+# The Met's Wedgwood mortar (refs mortar_wedgwood_stoneware_met.jpg): twice as wide as it's tall, a thick
+# rounded rim, no foot to speak of, a long dark wooden pestle handle.
+MORTAR = {"radius": 0.078, "height": 0.074, "foot": 0.058, "bowl": 0.062, "bowl_depth": 0.056,
+          "pestle": {"head": 0.024, "length": 0.21, "tilt": 32.0}}
+
+
+def mortar():
+    m = MORTAR
+    return {
+        "_doc": "A Wedgwood-ware mortar and pestle (#805; refs experiments/prop_lab/refs/doctor/): the druggist's prescription mortar, a pint, 15 cm across, of hard unglazed white stoneware on a foot with a pouring lip, its bowl greyed by what's been ground in it; the pestle's head the same stoneware on a turned hardwood handle, leaning in it. A prop that shatters (GlassProp): stoneware ~1 cm thick, so it takes a fall off the counter (6 m/s) and a blast past 150 kPa, but a ball breaks it; the pestle comes through whole. ~1.6 kg. Baked the gun way (tools/blender/props/doctor_d2.py). Written by tools/props/doctor.py.",
+        "id": "mortar", "kind": "shatters", "fixture": True, "in_game": False,
+        "model": "glb:mortar", "looks": {"Mortar": "pbr:mortar", "Pestle": "pbr:mortar", "PestleHandle": "pbr:mortar"},
+        "size": r([m["radius"] * 2, m["height"], m["radius"] * 2]),
+        "mass": 1.6, "wall": 0.012, "glass": ["Mortar"], "whole": [["Pestle", "PestleHandle"]], "shards": 10, "piece_mass": 0.25,
+        "breaks_at": 6.0, "shatters_kpa": 150, "heat_seconds": 1e9, "cut_area": 0.02,
+    }
+
+
+# --- The druggist's scales -------------------------------------------------------------------------
+# A druggist's prescription balance in its case (refs scales_cased_balance_1860_1880_wellcome.jpg, a
+# balance of 1860-80: a glazed wooden case on a base with a drawer, its brass pillar in the middle, the
+# beam on a knife edge, two small brass pans hung low on stirrups): a walnut base with the drawer for the
+# weights (brass knob), four corner posts, glass on its sides, front and top in a walnut frame; inside, a
+# turned brass pillar, the beam with its pointer down to a scale, the pans. Its front (the drawer) toward
+# +z. The brass members' boxes are the metal's own section (as the cot's iron), drawn full size from
+# glb:scales; the panes are glass members (a ball breaks them, as a window's).
+SCALES = {"base": (0.46, 0.075, 0.25), "drawer": (0.30, 0.042), "case_h": 0.38, "post": 0.022, "pane": 0.004,
+          "pillar": (0.012, 0.31), "beam": (0.30, 0.008, 0.006), "pan": {"radius": 0.045, "y": 0.105, "wire": 0.004},
+          "beam_y": 0.385}
+
+
+def scales():
+    c = SCALES
+    bx, by, bz = c["base"]
+    ms = [member("base", "post", [bx, by, bz], [0, by * 0.5, 0], look=WALNUT_TOP)]
+    dw, dh = c["drawer"]
+    d = member("drawer", "trim", [dw, dh, 0.012], [0, by * 0.5, bz * 0.5 + 0.006], look=WALNUT)
+    d["dress"] = [{"look": "pbr:scales", "draw": mesh("scales", "Knob")}]
+    ms.append(d)
+    # The case: corner posts on the base, the top's rails on them, glass between.
+    ch, ps, pn = c["case_h"], c["post"], c["pane"]
+    cx, cz = bx * 0.5 - 0.015 - ps * 0.5, bz * 0.5 - 0.015 - ps * 0.5
+    top_y = by + ch
+    for i, (sx, sz) in enumerate([(-1, -1), (1, -1), (-1, 1), (1, 1)]):
+        ms.append(member("post%d" % i, "stud", [ps, ch - ps, ps], [sx * cx, by + (ch - ps) * 0.5, sz * cz], look=WALNUT))
+    for s_, name in ((-1, "b"), (1, "f")):
+        ms.append(member("rail_" + name, "cripple", [cx * 2 + ps, ps, ps], [0, top_y - ps * 0.5, s_ * cz], look=WALNUT))
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("rail_" + name, "cripple", [ps, ps, cz * 2 - ps], [s_ * cx, top_y - ps * 0.5, 0], look=WALNUT))
+    glass = "glass:clear"
+    ph = ch - ps
+    for s_, name in ((-1, "back"), (1, "front")):
+        ms.append(member("pane_" + name, "glass", [cx * 2 - ps, ph, pn], [0, by + ph * 0.5, s_ * cz], wood="glass", look=glass))
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("pane_" + name, "glass", [pn, ph, cz * 2 - ps], [s_ * cx, by + ph * 0.5, 0], wood="glass", look=glass))
+    ms.append(member("pane_top", "glass", [cx * 2 - ps, pn, cz * 2 - ps], [0, top_y - ps * 0.5, 0], wood="glass", look=glass))
+    pw, ph2 = c["pillar"]
+    ms.append(member("pillar", "stud", [pw, ph2, pw], [0, by + ph2 * 0.5, -0.02], wood="iron", look="pbr:scales", draw=mesh("scales", "Pillar")))
+    lx, ly, lz = c["beam"]
+    ms.append(member("beam", "cripple", [lx, ly, lz], [0, c["beam_y"], -0.02], wood="iron", look="pbr:scales", draw=mesh("scales", "Beam")))
+    p = c["pan"]
+    hang = c["beam_y"] - p["y"]
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("pan_" + name, "trim", [p["wire"], hang, p["wire"]], [s_ * lx * 0.5, p["y"] + hang * 0.5, -0.02], wood="iron",
+                         look="pbr:scales", draw=mesh("scales", "Pan" + name.upper())))
+    return {
+        "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): a walnut base with a drawer for the weights (its brass knob), a glazed walnut case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Walnut from the material library (F2 a few years, the doctor's; the period's cases were mahogany or walnut); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
+        "id": "scales", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "splits_below": 0.4, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
+# --- His desk: a walnut roll-top --------------------------------------------------------------------
+# A roll-top desk of the 1880s (the patent roll-tops of Cutler and others: the room's spec gives him
+# one): two pedestals of four drawers either side of the knee hole, a writing bed across them, and
+# over its back the roll-top's case: S-curved sides (library boards cut to the curve), a back, a top,
+# the tambour rolled up out of sight under its top, pigeonholes over a row of small drawers inside.
+# Its front (where he sits) toward +z; ~1.4 m wide, 0.8 deep, 1.2 high.
+DESK = {"width": 1.40, "depth": 0.80, "bed": 0.76, "top": 1.20, "panel": 0.019, "board": 0.025,
+        "pedestal": 0.40, "drawers": 4, "plinth": 0.07, "case_depth": 0.44, "pigeon_depth": 0.26,
+        "pigeon_y": (0.89, 1.15), "pigeons": 8, "small_drawers": 6}
+
+
+def desk_curve(n=10):
+    """The roll-top's side, (z, y) bottom front round to the top: a short rise, then a quarter ellipse
+    back to the top's front edge (the S of the patent roll-tops, its tambour running in a groove)."""
+    d = DESK
+    zf = d["depth"] * 0.5 - 0.035
+    zt = d["depth"] * 0.5 - d["case_depth"] - 0.0
+    y0, y1 = d["bed"], d["top"] - d["board"]
+    rise = 0.03
+    pts = [(zf, y0), (zf, y0 + rise)]
+    for k in range(1, n + 1):
+        t = math.pi * 0.5 * k / n
+        pts.append((zt + (zf - zt) * math.cos(t), y0 + rise + (y1 - y0 - rise) * math.sin(t)))
+    return pts
+
+
+def desk_drawers():
+    """The pedestals' drawer fronts: [(id, (w, h), (x, y, z))]."""
+    d = DESK
+    out = []
+    pw = d["pedestal"]
+    h_all = d["bed"] - d["board"] - d["plinth"]
+    gap = 0.006
+    dh = (h_all - gap * (d["drawers"] + 1)) / d["drawers"]
+    zf = d["depth"] * 0.5 - 0.01
+    for s_, name in ((-1, "l"), (1, "r")):
+        cx = s_ * (d["width"] * 0.5 - pw * 0.5)
+        for k in range(d["drawers"]):
+            y = d["plinth"] + gap + dh * 0.5 + k * (dh + gap)
+            out.append(("drawer_%s%d" % (name, k), (pw - d["panel"] * 2 - gap * 2, dh), (cx, y, zf)))
+    # The knee hole's shallow drawer under the bed.
+    kw = d["width"] - pw * 2 - gap * 2
+    out.append(("drawer_middle", (kw, 0.075), (0.0, d["bed"] - d["board"] - 0.0375 - 0.004, zf)))
+    return out
+
+
+def desk_small_drawers():
+    """The small drawers inside the case, under the pigeonholes: [(id, (w, h), (x, y, z))]."""
+    d = DESK
+    inner = d["width"] - d["panel"] * 2
+    n = d["small_drawers"]
+    gap = 0.005
+    w = (inner - gap * (n + 1)) / n
+    y0 = d["bed"]
+    h = d["pigeon_y"][0] - y0 - 0.016 - gap * 2
+    z = -d["depth"] * 0.5 + d["panel"] + d["pigeon_depth"] + 0.006
+    return [("small_%d" % k, (w, h), (-inner * 0.5 + gap + w * 0.5 + k * (w + gap), y0 + gap + h * 0.5, z)) for k in range(n)]
+
+
+def roll_top_desk():
+    d = DESK
+    W, D = d["width"], d["depth"]
+    pw, t = d["pedestal"], d["panel"]
+    under = d["bed"] - d["board"]
+    ms = []
+    zb = -D * 0.5
+    # The pedestals: two sides, a back, a plinth front, the drawer fronts with brass pulls.
+    for s_, name in ((-1, "l"), (1, "r")):
+        cx = s_ * (W * 0.5 - pw * 0.5)
+        for k, sx in enumerate((-1, 1)):
+            x = cx + sx * (pw * 0.5 - t * 0.5)
+            ms.append(member("ped_%s_side%d" % (name, k), "post", [t, under, D - 0.02], [x, under * 0.5, -0.01], look=WALNUT))
+        ms.append(member("ped_%s_back" % name, "furniture_frame", [pw - t * 2, under - 0.02, t], [cx, under * 0.5 + 0.01, zb + t * 0.5], look=WALNUT))
+        ms.append(member("ped_%s_plinth" % name, "furniture_frame", [pw - t * 2, d["plinth"], t], [cx, d["plinth"] * 0.5, D * 0.5 - 0.02 - t * 0.5], look=WALNUT))
+    for did, (w, h), (x, y, z) in desk_drawers():
+        m = member(did, "trim", [w, h, 0.02], [x, y, z], look=WALNUT)
+        m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Pull_" + did)}]
+        ms.append(m)
+    # The writing bed, its boards front to back, worn where his arms rest.
+    nb = 3
+    bw = D / nb
+    for k in range(nb):
+        ms.append(member("bed%d" % k, "furniture_top", [W, d["board"], bw], [0, d["bed"] - d["board"] * 0.5, -D * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP))
+    # The case over the bed's back: S-curved sides (library boards cut to the curve), the back, the top.
+    curve = desk_curve()
+    zs = [p[0] for p in curve]
+    z0, z1 = zb, max(zs)
+    y0, y1 = d["bed"], d["top"] - d["board"]
+    cz, cy = (z0 + z1) * 0.5, (y0 + y1) * 0.5
+    outline = [(z0 - cz, y0 - cy)] + [(z - cz, y - cy) for z, y in curve] + [(z0 - cz, y1 - cy)]
+    outline = [(round(a, 4), round(b, 4)) for a, b in reversed(outline)]
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("case_side_" + name, "trim", [t, y1 - y0, z1 - z0], [s_ * (W * 0.5 - t * 0.5), cy, cz], look=WALNUT,
+                         draw={"shape": "cut", "outline": [list(p) for p in outline], "plane": "zy"}))
+    ms.append(member("case_back", "trim", [W - t * 2, y1 - y0, t], [0, cy, zb + t * 0.5], look=WALNUT))
+    top_d = d["case_depth"] + 0.02
+    ms.append(member("case_top", "trim", [W, d["board"], top_d], [0, d["top"] - d["board"] * 0.5, zb + top_d * 0.5 - 0.005], look=WALNUT_TOP))
+    # (The tambour is rolled up out of sight behind the case's front, under its top.)
+    # Inside: the pigeonholes' shelf and partitions over a row of small drawers.
+    inner = W - t * 2
+    pd = d["pigeon_depth"]
+    pz = zb + t + pd * 0.5
+    py0, py1 = d["pigeon_y"]
+    # Under the shelf, three upright boards carrying it, the small drawers between them.
+    sh = 0.016  # (thicker than the support graph's contact reach, 12 mm: a thinner board stacked on its own kind isn't "on" it)
+    lo = py0 - sh - d["bed"]
+    for k, x in enumerate((-inner * 0.5 + 0.005, 0.0, inner * 0.5 - 0.005)):
+        ms.append(member("drawer_case_%d" % k, "trim", [0.010, lo, pd], [x, d["bed"] + lo * 0.5, pz], look=WALNUT))
+    ms.append(member("pigeon_shelf", "trim", [inner, sh, pd], [0, py0 - sh * 0.5, pz], look=WALNUT))
+    for k in range(d["pigeons"] + 1):
+        x = -inner * 0.5 + 0.006 + (inner - 0.012) * k / d["pigeons"]
+        if k in (0, d["pigeons"]):
+            continue
+        ms.append(member("pigeon_%d" % k, "trim", [0.010, py1 - py0, pd], [x, (py0 + py1) * 0.5, pz], look=WALNUT))
+    ms.append(member("pigeon_top", "trim", [inner, sh, pd], [0, py1 + sh * 0.5, pz], look=WALNUT))
+    for did, (w, h), (x, y, z) in desk_small_drawers():
+        m = member(did, "trim", [w, h, 0.012], [x, y, z], look=WALNUT)
+        m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Pull_" + did)}]
+        ms.append(m)
+    return {
+        "_doc": "His desk (#805; refs experiments/prop_lab/refs/doctor/): a walnut roll-top of the 1880s (the doctor's spec gives him one), 1.4 m wide, 0.8 deep: two pedestals of four drawers either side of the knee hole (a shallow drawer over it), a writing bed of three boards across them, and on its back the roll-top's case: S-curved sides (library boards cut to the curve, PropKit.lib_cut_mesh), a back, a top, the tambour rolled up out of sight under its top, eight pigeonholes over a row of six small drawers. Brass pulls baked the gun way (tools/blender/props/doctor_d2.py). Walnut from the material library (F2 a few years: the bed and top worn where his arms go). ~85 kg. Its front, where he sits, toward +z. A ball through a pedestal's side holes it and it stands. Written by tools/props/doctor.py.",
+        "id": "roll_top_desk", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "splits_below": 0.3, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
+# --- The dispensary's counter and shelves: the kit's own, in his walnut ----------------------------
+# The kit's counter and shelves (assets/props/kit/counter.json, shelves.json) `like`d in the material
+# library's walnut, the shelves with seven boards (a druggist's shelving runs to the ceiling, its
+# boards a bottle's height apart: 0.35 m).
+SHELVES = {"depth": 0.30, "height": 2.55, "length": 2.0, "boards": [0.30, 0.66, 1.02, 1.38, 1.74, 2.10, 2.46], "board": 0.025}
+
+
+def dispensary_shelves():
+    c = SHELVES
+    L = c["length"]
+    ms = []
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("upright_" + name, "post", [c["depth"], c["height"], 0.03], [0, c["height"] * 0.5, s_ * (L * 0.5 - 0.015)], look=WALNUT))
+    for k, y in enumerate(c["boards"]):
+        ms.append(member("shelf%d" % k, "furniture_top", [c["depth"], c["board"], L - 0.06], [0, y, 0], look=WALNUT_TOP))
+    # A back of boards behind them (the shelving's own: the bottles stand against it, not the wall's).
+    ms.append(member("back", "furniture_frame", [0.012, c["height"] - 0.1, L - 0.06], [-c["depth"] * 0.5 + 0.006, c["height"] * 0.5, 0], look=WALNUT))
+    return {
+        "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's walnut from the material library (F2 a few years, the boards' tops worn), 2.55 m high with seven boards 0.36 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart) and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
+        "id": "dispensary_shelves", "like": "shelves", "fixture": True, "in_game": False, "wood": "walnut",
+        "look": WALNUT, "members": ms,
+    }
+
+
+def dispensary_counter():
+    with open(os.path.join(KIT, "counter.json")) as f:
+        base = json.load(f)
+    ms = []
+    for m in base["members"]:
+        m = dict(m)
+        m["look"] = WALNUT_TOP if m["kind"] == "furniture_top" else WALNUT
+        m.pop("wood", None)
+        ms.append(m)
+    return {
+        "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: front, two ends, the top overhanging) in the doctor's walnut from the material library (F2 a few years, the top worn where he works); fitted along the west wall at his make_up place, the scales and mortar on it. Written by tools/props/doctor.py.",
+        "id": "dispensary_counter", "like": "counter", "fixture": True, "in_game": False, "wood": "walnut",
+        "look": WALNUT, "members": ms,
+    }
+
+
+BATCH_D2 = [medicine_bottle, medicine_bottle_round, poison_bottle, drug_jar, mortar, scales, roll_top_desk, dispensary_shelves,
+            dispensary_counter]
+
+
 BATCH_D1 = [examining_table, iron_cot, washstand, wash_basin, wash_pitcher, instrument_tray, reflector_lamp, hand_towel]
 
 
 def main():
-    for make in BATCH_D1:
+    batches = {"D1": BATCH_D1, "D2": BATCH_D2}
+    which = [a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--batch=")] or ["D1", "D2"]
+    for make in [f for b in which for f in batches[b]]:
         d = make()
         d["factory"] = "tools/props/doctor.py"
         path = os.path.join(KIT, d["id"] + ".json")

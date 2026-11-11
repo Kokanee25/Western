@@ -326,3 +326,139 @@ func test_the_hand_towel_hangs_over_the_washstands_bar() -> void:
 	var r := towel.height_range()
 	check(r.y > bar.global_position.y, "its middle stays on the bar (top %.2f, bar %.2f)" % [r.y, bar.global_position.y])
 	check(r.x > 0.2 and r.x < bar.global_position.y - 0.2, "and it hangs down either side, clear of the floor (%.2f)" % r.x)
+
+
+# --- The doctor's batch D2 (#805): the dispensary and his desk ----------------------------------
+
+const DOCTOR_D2_MEMBERS := [&"scales", &"roll_top_desk", &"dispensary_shelves", &"dispensary_counter"]
+const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"poison_bottle", &"drug_jar"]
+
+
+func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: a cased prescription balance ~6-12; a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
+	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 170.0],
+			&"dispensary_counter": [40.0, 120.0]}
+	for id: StringName in DOCTOR_D2_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_the_desks_curved_sides_are_library_boards_cut_to_the_curve() -> void:
+	var d := await _place(&"roll_top_desk")
+	var side := _m(d, "case_side_l").drawn_node()
+	var plain := _m(d, "case_back").drawn_node()
+	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:fine_walnut_tg/few"),
+			"the curved side is the same walnut as the rest")
+	check(side.mesh.has_meta(&"board_frame"), "drawn as a library board (batched with the others)")
+	var box := side.get_aabb()
+	var faces := side.mesh.get_faces()
+	# Cut to the curve: its front top corner is gone (no corner of the cut near the box's front top).
+	var front_top := false
+	var xf := side.transform
+	for v in faces:
+		var p := xf * v
+		var m := _m(d, "case_side_l")
+		if p.z > m.size.z * 0.5 - 0.02 and p.y > m.size.y * 0.5 - 0.02:
+			front_top = true
+	check(not front_top and faces.size() > 36, "the side is cut to its S-curve (%d corners, box %s)" % [faces.size(), box.size])
+
+
+func test_doctor_d2_bottles_stand_wear_their_labels_and_break() -> void:
+	var counts := {}
+	var made: Array[GlassProp] = []
+	var x := -1.0
+	for id: StringName in DOCTOR_D2_BOTTLES:
+		for k in 5:
+			var b := PropKit.make(id) as GlassProp
+			b.position = Vector3(x, 0, 0)
+			x += 0.11
+			world.add_child(b)
+			made.append(b)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	for b in made:
+		check(not b.loose and not b.broken, "%s stands" % b.kit_id)
+		var labels := b.model.find_children("Label*", "MeshInstance3D", false, false)
+		check(labels.size() == 1, "%s wears one label (%d)" % [b.kit_id, labels.size()])
+		var glass := b.model.find_children("Glass*", "MeshInstance3D", false, false)
+		check(glass.size() == 1 and (glass[0] as MeshInstance3D).material_override is ShaderMaterial \
+				and ((glass[0] as MeshInstance3D).material_override as ShaderMaterial).shader.resource_path == "res://src/props/bottle_glass.gdshader",
+				"%s is see-through tinted glass" % b.kit_id)
+		if not labels.is_empty():
+			counts.get_or_add(b.kit_id, {})[String(labels[0].name)] = true
+	for id: StringName in DOCTOR_D2_BOTTLES:
+		check(counts.get(id, {}).size() == 4, "%s's five wear its four labels in turn (%s)" % [id, counts.get(id, {}).keys()])
+	# A ball along the row: through the glass of several.
+	var spilt := []
+	var on_spill := func(at: Vector3, liquid: StringName, litres: float, _s: Node) -> void: spilt.append([liquid, litres])
+	Events.liquid_spilled.connect(on_spill)
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(Vector3(-2.0, 0.06, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	var broken := made.filter(func(g: GlassProp) -> bool: return g.broken).size()
+	check(broken >= 3, "a ball along the shelf breaks the bottles in its way (%d)" % broken)
+	check(spilt.size() >= 2 and float(spilt[0][1]) > 0.02, "what's in them goes on the floor (%s)" % [spilt.slice(0, 3)])
+	Events.liquid_spilled.disconnect(on_spill)
+	# One off a shelf's height onto the floor.
+	var drop := PropKit.make(&"medicine_bottle") as GlassProp
+	drop.position = Vector3(3, 1.2, 0)
+	world.add_child(drop)
+	await wait_until(func() -> bool: return drop.broken, 120)
+	check(drop.broken, "a bottle off the top shelf breaks on the floor")
+
+
+func test_the_mortar_breaks_shot_and_its_pestle_comes_through() -> void:
+	var m := PropKit.make(&"mortar") as GlassProp
+	world.add_child(m)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(not m.loose and not m.broken, "the mortar stands")
+	check(m.model.find_children("Pestle*", "MeshInstance3D", false, false).size() == 2, "its pestle (head and handle) in it")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	ballistics.fire(Vector3(-5, 0.05, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(m.broken, "a ball breaks the stoneware")
+	check(world.find_children("Piece", "RigidBody3D", false, false).size() >= 1, "the pestle comes through whole")
+
+
+func test_the_dispensarys_bottles_stand_on_their_shelf_and_come_down_with_it() -> void:
+	var s := PropKit.spawn_fitted(&"dispensary_shelves", &"test_shelves", Vector3(0.3, 2.55, 1.2))
+	world.add_child(s)
+	await physics_frames(KitProp.SETTLE_FRAMES + 2)
+	var board := _m(s, "shelf2")
+	var y := board.global_position.y + board.size.y * 0.5
+	var bottles: Array[GlassProp] = []
+	for k in 4:
+		var b := PropKit.make(&"medicine_bottle_round") as GlassProp
+		b.position = Vector3(0.0, y + 0.002, -0.3 + 0.2 * k)
+		world.add_child(b)
+		bottles.append(b)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(bottles.all(func(b: GlassProp) -> bool: return not b.loose), "they stand on the board")
+	s.break_member(board)
+	await physics_frames(int(GlassProp.CHECK_EVERY * 60) + 4)
+	check(bottles.all(func(b: GlassProp) -> bool: return b.loose or b.broken), "the board gone, they come down")
+
+
+func test_the_scales_drop_their_pans_when_the_pillar_goes() -> void:
+	var sc := await _place(&"scales")
+	var pillar := _m(sc, "pillar")
+	check(_m(sc, "pan_l").drawn_node().mesh.get_faces().size() > 100, "a pan is drawn from its model (dish and wires)")
+	check((_m(sc, "beam").drawn_node().material_override as StandardMaterial3D) == PropModels.pbr("scales"), "the brass is baked")
+	var gone := sc.break_member(pillar)
+	check(gone.has(_m(sc, "beam").member_id) and gone.has(_m(sc, "pan_l").member_id), "the beam and pans come down with the pillar (%s)" % [gone])
+	check(not gone.has(_m(sc, "base").member_id) and not gone.has(_m(sc, "pane_front").member_id), "the base and its case stay")
+	var pane := _m(sc, "pane_front")
+	check(pane.kind == &"glass" and (pane.drawn_node().material_override as ShaderMaterial).shader.resource_path == "res://src/props/bottle_glass.gdshader",
+			"its case is glazed with clear glass")

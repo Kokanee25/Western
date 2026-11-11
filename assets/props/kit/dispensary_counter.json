@@ -1,0 +1,72 @@
+{
+  "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: front, two ends, the top overhanging) in the doctor's walnut from the material library (F2 a few years, the top worn where he works); fitted along the west wall at his make_up place, the scales and mortar on it. Written by tools/props/doctor.py.",
+  "id": "dispensary_counter",
+  "like": "counter",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "look": "lib:fine_walnut_tg/few",
+  "members": [
+    {
+      "id": "front",
+      "kind": "post",
+      "size": [
+        2.0,
+        0.95,
+        0.03
+      ],
+      "at": [
+        0,
+        0.475,
+        -0.225
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "end_l",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.95,
+        0.51
+      ],
+      "at": [
+        -0.985,
+        0.475,
+        0.045
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "end_r",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.95,
+        0.51
+      ],
+      "at": [
+        0.985,
+        0.475,
+        0.045
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        2.0,
+        0.04,
+        0.6
+      ],
+      "at": [
+        0,
+        0.97,
+        0
+      ],
+      "look": "lib:fine_walnut_tg/few/top"
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

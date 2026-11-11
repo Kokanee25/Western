@@ -128,6 +128,29 @@ static func bottle_glass(variant: int) -> ShaderMaterial:
 			c * 2.0, 0.12, 0.0, 0.9)
 
 
+## A bottle's coloured glass by name (#805, the kit look `glass:<name>`: the druggist's bottles):
+## see-through, its colour gathering at its outline (src/props/bottle_glass.gdshader). One material
+## a colour, shared by every bottle in it.
+const TINTED_GLASS := {
+	# The period's bottle glass: aqua (the natural green-blue of iron in cheap glass: most
+	# prescription bottles), amber (tinctures kept from the light), cobalt (poisons), clear (flint
+	# glass: shop rounds), green.
+	"aqua": Color(0.62, 0.8, 0.76, 0.26), "amber": Color(0.42, 0.2, 0.05, 0.78), "cobalt": Color(0.1, 0.16, 0.55, 0.74),
+	"clear": Color(0.86, 0.9, 0.88, 0.12), "green": Color(0.28, 0.42, 0.22, 0.7),
+}
+
+
+static func tinted_glass(name: String) -> ShaderMaterial:
+	var key := "tinted_glass_" + name
+	if not _materials.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://src/props/bottle_glass.gdshader")
+		m.set_shader_parameter(&"tint", TINTED_GLASS.get(name, TINTED_GLASS["clear"]))
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
+
+
 ## A lamp's glass chimney (src/props/chimney_glass.gdshader): glowing amber from the flame when its
 ## lamp is lit (the instance parameter `glow`, set by OilLamp), faint clear glass when it isn't.
 static func chimney_glass() -> ShaderMaterial:

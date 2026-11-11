@@ -24,7 +24,20 @@ const VIEWS := {
 	"instruments": [Vector3(1.45, 2.25, 6.0), Vector3(0.42, 1.72, 5.25), 50.0, 10.0],
 	# The sick room, its two cots, in the afternoon.
 	"sick_room": [Vector3(3.85, 2.45, 11.2), Vector3(1.4, 1.2, 9.2), 66.0, 15.0],
+	# D2 (#805): the dispensary from inside its door, its shelving and his counter under the high window.
+	"dispensary": [Vector3(5.75, 2.6, 4.2), Vector3(7.85, 1.75, 7.55), 66.0, 10.0],
+	# His counter as he works at it (make_up): the scales, the mortar, a few bottles.
+	"counter": [Vector3(6.75, 2.5, 7.35), Vector3(8.15, 1.95, 6.55), 56.0, 10.0],
+	# The shelving's bottles, close.
+	"shelves": [Vector3(6.55, 2.55, 5.85), Vector3(6.55, 2.3, 7.95), 58.0, 10.0],
+	# The front office: his roll-top and chair against its back wall, from the street door.
+	"front_office": [Vector3(3.6, 2.5, 0.55), Vector3(1.2, 1.55, 3.4), 64.0, 10.0],
+	# The desk, close: the pigeonholes, its curved sides, the drawers' pulls.
+	"desk": [Vector3(2.05, 2.45, 1.95), Vector3(1.15, 1.75, 3.45), 56.0, 10.0],
 }
+## The views a batch is judged in (all of them without --views).
+const BATCH_VIEWS := {"D1": ["surgery", "surgery_night", "wash", "instruments", "sick_room"],
+		"D2": ["dispensary", "counter", "shelves", "front_office", "desk"]}
 
 var out_dir := "build/doctor_props"
 var batch := "D1"
@@ -58,7 +71,23 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 	building.add_child(holder)
 	var placed := {}
 	var tops := {}
+	var entries: Array = []
 	for e: Dictionary in spec.batches[batch_name]:
+		if not e.has("row"):
+			entries.append(e)
+			continue
+		# A row: the kits in turn along its step (a shelf of bottles), its gaps left.
+		var row: Dictionary = e.row
+		for k in int(row.count):
+			if (row.get("skip", []) as Array).has(float(k)) or (row.get("skip", []) as Array).has(k):
+				continue
+			var one := e.duplicate(true)
+			one.erase("row")
+			one.id = "%s_%d" % [e.id, k]
+			one.kit = (row.kits as Array)[k % (row.kits as Array).size()]
+			one.at = [float(e.at[0]) + float(row.step[0]) * k, float(e.at[1]) + float(row.step[1]) * k, float(e.at[2]) + float(row.step[2]) * k]
+			entries.append(one)
+	for e: Dictionary in entries:
 		var id := StringName(e.kit)
 		var node: Node3D
 		if e.has("cloth_over"):
@@ -171,6 +200,8 @@ func _run() -> void:
 	FileAccess.open(out_dir + "/placed.txt", FileAccess.WRITE).store_string("\n".join(report) + "\n")
 	for v: String in VIEWS:
 		if not only.is_empty() and not only.has(v):
+			continue
+		if only.is_empty() and BATCH_VIEWS.has(batch) and not (BATCH_VIEWS[batch] as Array).has(v):
 			continue
 		var view: Array = VIEWS[v]
 		if clock:

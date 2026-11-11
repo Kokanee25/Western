@@ -84,6 +84,32 @@ FINISHES = {
     # The cobalt line printed under ironstone's rim (the Davenport set's band, refs/doctor/).
     "cobalt": {"kind": "coat", "color": (0.10, 0.16, 0.42), "under": (0.10, 0.16, 0.42), "rust": 0.0,
                "rough": 0.08, "metal": 0.0, "wear": 0.0},
+    # Cork (a bottle's stopper, cut from cork oak bark): tan, open-pored, dull; darkened where it's
+    # been handled and wet with what it stops.
+    "cork": {"kind": "coat", "color": (0.52, 0.38, 0.24), "under": (0.34, 0.22, 0.12), "rust": 0.0,
+             "rough": 0.9, "metal": 0.0, "wear": 0.4, "craze": 0.6},
+    # What's in a bottle, seen through its glass (#805): a tincture's red-brown (laudanum, arnica, iron
+    # chloride are all dark brown-red in alcohol), a syrup's darker amber, a powder's off-white (quinine
+    # sulphate, potassium bromide and Epsom salts are white crystals). Smooth liquids, a dull powder.
+    "tincture": {"kind": "coat", "color": (0.30, 0.09, 0.03), "under": (0.30, 0.09, 0.03), "rust": 0.0,
+                 "rough": 0.1, "metal": 0.0, "wear": 0.0},
+    "syrup": {"kind": "coat", "color": (0.22, 0.10, 0.03), "under": (0.22, 0.10, 0.03), "rust": 0.0,
+              "rough": 0.1, "metal": 0.0, "wear": 0.0},
+    "powder": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.80, 0.78, 0.72), "rust": 0.0,
+               "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.3},
+    # Wedgwood's white stoneware ("Wedgwood ware", the druggists' mortar from the 1770s on): a hard,
+    # dense, unglazed buff-white body outside, a slight sheen where it's handled, its grinding bowl
+    # inside rough and greyed by what's been ground in it.
+    "stoneware": {"kind": "coat", "color": (0.80, 0.77, 0.69), "under": (0.66, 0.62, 0.55), "rust": 0.0,
+                  "rough": 0.72, "metal": 0.0, "wear": 0.35, "mottle": 0.35},
+    # A turned hardwood handle (a pestle's: lignum vitae or boxwood): dark brown, oiled by the hand.
+    # (the Met's Wedgwood pestle's is near black-brown: lignum vitae darkens with handling)
+    "turned_wood": {"kind": "coat", "color": (0.16, 0.09, 0.05), "under": (0.30, 0.19, 0.10), "rust": 0.0,
+                    "rough": 0.45, "metal": 0.0, "wear": 0.5},
+    # Leather on a desk's writing bed (a roll-top's and a library table's: dyed skiver, often green or
+    # red, tooled at its edge in gilt): green, rubbed through to brown where the arms rest.
+    "desk_leather": {"kind": "coat", "color": (0.10, 0.17, 0.10), "under": (0.24, 0.20, 0.12), "rust": 0.0,
+                     "rough": 0.55, "metal": 0.0, "wear": 0.7, "craze": 0.3},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,
@@ -258,6 +284,10 @@ def export_baked(prop_id, parts, size=1024):
     scene.render.bake.margin = 6
     objs = []
     mats = {}
+    # Parts with no finish (None) aren't baked: their own UVs (`part.uvs`, a (u, v) a vertex: a
+    # printed label on its own sheet) or none (a bottle's glass: the game's glass look); added after.
+    plain = [(p, f) for p, f in parts if f is None]
+    parts = [(p, f) for p, f in parts if f is not None]
     for part, finish in parts:
         verts = [(x, -z, y) for x, y, z in part.verts]  # game space -> Blender's (the exporter turns back)
         mesh = bpy.data.meshes.new(part.name)
@@ -309,6 +339,21 @@ def export_baked(prop_id, parts, size=1024):
         ob.data.uv_layers.remove(ob.data.uv_layers["UVMap"]) if "UVMap" in ob.data.uv_layers else None
         ob.data.uv_layers["bake"].name = "UVMap"
         ob.data.materials.clear()
+    for part, _ in plain:
+        mesh = bpy.data.meshes.new(part.name)
+        mesh.from_pydata([(x, -z, y) for x, y, z in part.verts], [], part.faces)
+        lay = mesh.uv_layers.new(name="UVMap")
+        uvs = getattr(part, "uvs", None)
+        if uvs:
+            for poly in mesh.polygons:
+                for li, vi in zip(poly.loop_indices, poly.vertices):
+                    lay.data[li].uv = uvs[vi]
+        mesh.validate()
+        for poly in mesh.polygons:
+            poly.use_smooth = part.smooth
+        obj = bpy.data.objects.new(part.name, mesh)
+        scene.collection.objects.link(obj)
+    parts = parts + plain
     path = os.path.join(common.MODELS, prop_id + ".glb")
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_materials="NONE", export_yup=True,
                               export_apply=True, export_animations=False, export_normals=True)

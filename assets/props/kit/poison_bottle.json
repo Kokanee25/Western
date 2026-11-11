@@ -1,0 +1,48 @@
+{
+  "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): a cobalt-blue hexagonal poison bottle (2 oz), its ribbed edges known by touch in the dark, a red POISON label, a cork. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (3.4 m/s) or 45 kPa breaks it and what's in it goes on the floor. Four labels in the period's style (POISON, POISON, POISON, POISON): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py.",
+  "id": "poison_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:medicine_bottles",
+  "looks": {
+    "GlassPoison": "glass:cobalt",
+    "LiquidPoison": "pbr:medicine_bottles",
+    "LabelPoison%d": "pbr:medicine_labels",
+    "CorkPoison": "pbr:medicine_bottles"
+  },
+  "variants": 4,
+  "size": [
+    0.039,
+    0.113,
+    0.039
+  ],
+  "mass": 0.13,
+  "wall": 0.0025,
+  "glass": [
+    "GlassPoison",
+    "LiquidPoison",
+    "LabelPoison"
+  ],
+  "whole": [
+    [
+      "CorkPoison"
+    ]
+  ],
+  "shards": 8,
+  "piece_mass": 0.01,
+  "breaks_at": 3.4,
+  "shatters_kpa": 45,
+  "heat_seconds": 20,
+  "cut_area": 0.02,
+  "contents": {
+    "liquid": "poison",
+    "litres": 0.047,
+    "colour": [
+      0.3,
+      0.2,
+      0.1
+    ]
+  },
+  "factory": "tools/props/doctor.py"
+}

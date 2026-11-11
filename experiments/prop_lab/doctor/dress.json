@@ -1,5 +1,5 @@
 {
-  "_doc": "The prop factory's doctor batches laid into his rooms (#788; docs/briefs/prop-factory.md 'The doctor's office batch'): each entry a kit prop at [x, y over the ground floor, z] in the building's space (the spec's: x from its east corner, z back from its front), turned `facing` degrees about Y (a prop faces +Z), placed at the spec's use points (experiments/building_lab/doctor/doctor.json). `on` puts it on another entry's top (its kit bounds' top). `fit` spawns a fixture fitted to a size (PropKit.spawn_fitted). `light`: an OilLamp at that height in the prop. Read by experiments/prop_lab/doctor/dress.gd; when the doctor's spec takes furniture of this kind, these move there.",
+  "_doc": "The prop factory's doctor batches laid into his rooms (#788; docs/briefs/prop-factory.md 'The doctor's office batch'): each entry a kit prop at [x, y over the ground floor, z] in the building's space (the spec's: x from its east corner, z back from its front), turned `facing` degrees about Y (a prop faces +Z), placed at the spec's use points (experiments/building_lab/doctor/doctor.json). `on` puts it on another entry's top (its kit bounds' top). `fit` spawns a fixture fitted to a size (PropKit.spawn_fitted). `light`: an OilLamp at that height in the prop. `row`: {kits, count, step, skip}: a row of props along `step` from `at`, the kits in turn (a shelf of bottles; `skip` leaves gaps). Read by experiments/prop_lab/doctor/dress.gd; when the doctor's spec takes furniture of this kind, these move there.",
   "batches": {
     "D1": [
       {"id": "table", "kit": "examining_table", "at": [2.0, 0.0, 5.5], "facing": 90, "use": "on_table, operate, hold_lamp"},
@@ -12,6 +12,22 @@
       {"id": "towel", "kit": "hand_towel", "cloth_over": "wash", "use": "laid over the washstand's towel bar: it drapes"},
       {"id": "cot_1", "kit": "iron_cot", "at": [0.6, 0.0, 9.27], "facing": 0, "use": "cot_1 (where you wake after you die)"},
       {"id": "cot_2", "kit": "iron_cot", "at": [3.42, 0.0, 9.27], "facing": 0, "use": "cot_2"}
+    ],
+    "D2": [
+      {"id": "shelves", "kit": "dispensary_shelves", "fit": [0.3, 2.55, 2.1], "at": [6.62, 0.0, 7.97], "facing": 90, "use": "the dispensary's shelving on its back wall (dispensary_back), the bottles on it"},
+      {"id": "counter", "kit": "dispensary_counter", "fit": [2.3, 0.92, 0.6], "at": [8.13, 0.0, 6.55], "facing": 90, "use": "make_up: his counter along the west wall under the high window, its front to the room"},
+      {"id": "scales", "kit": "scales", "on": "counter", "at": [8.16, 0.0, 6.85], "facing": 270, "use": "make_up: the balance on the counter, its drawer toward him"},
+      {"id": "mortar", "kit": "mortar", "on": "counter", "at": [8.12, 0.0, 6.2], "facing": 160},
+      {"id": "c_round", "kit": "medicine_bottle_round", "on": "counter", "at": [8.3, 0.0, 7.4], "facing": 250},
+      {"id": "c_panel", "kit": "medicine_bottle", "on": "counter", "at": [8.15, 0.0, 7.28], "facing": 265},
+      {"id": "c_jar", "kit": "drug_jar", "on": "counter", "at": [8.3, 0.0, 5.75], "facing": 270},
+      {"id": "c_poison", "kit": "poison_bottle", "on": "counter", "at": [8.32, 0.0, 7.58], "facing": 280},
+      {"id": "jars_low", "row": {"kits": ["drug_jar"], "count": 9, "step": [0.21, 0, 0], "skip": [4]}, "at": [5.76, 1.0325, 7.94], "facing": 180},
+      {"id": "eye", "row": {"kits": ["medicine_bottle", "medicine_bottle_round", "medicine_bottle", "medicine_bottle_round", "poison_bottle"], "count": 17, "step": [0.112, 0, 0], "skip": [6, 7]}, "at": [5.7, 1.3925, 7.95], "facing": 180},
+      {"id": "high", "row": {"kits": ["medicine_bottle_round", "medicine_bottle_round", "poison_bottle", "medicine_bottle"], "count": 15, "step": [0.125, 0, 0], "skip": [10]}, "at": [5.72, 1.7525, 7.95], "facing": 180},
+      {"id": "jars_high", "row": {"kits": ["drug_jar"], "count": 7, "step": [0.27, 0, 0]}, "at": [5.8, 2.1125, 7.94], "facing": 180},
+      {"id": "desk", "kit": "roll_top_desk", "at": [1.2, 0.0, 3.36], "facing": 180, "use": "desk: his roll-top against the front office's back wall, its front to the room (the use point at [1.2, 3.1] is inside the desk's 0.8 m: he sits at ~2.6)"},
+      {"id": "chair", "kit": "chair", "at": [1.2, 0.0, 2.6], "facing": 0, "use": "desk: his chair, the kit's"}
     ]
   }
 }
