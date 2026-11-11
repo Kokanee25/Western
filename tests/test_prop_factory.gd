@@ -493,3 +493,110 @@ func test_a_pull_on_a_walnut_drawer_is_drawn_on_the_drawer() -> void:
 		# (in the member's own space: a batched member's nodes are out of the tree)
 		var off := (drawer.drawn_node().transform * layer.transform * layer.get_aabb()).get_center()
 		check(absf(off.x) < 0.03 and absf(off.y) < 0.03, "the pull is on the drawer's middle (off by %s)" % off)
+
+
+# --- The doctor's batch D3 (#819): his books, the hall's pegs, the pot and the blankets ---------
+
+const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_stack", &"bookcase", &"folded_blankets", &"folded_blanket"]
+
+
+func test_doctor_d3_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; a walnut bookcase
+	# ~20-40; a wool blanket ~2 (its member's canvas is lighter).
+	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
+			&"folded_blankets": [1.5, 8.0], &"folded_blanket": [0.5, 3.0]}
+	for id: StringName in DOCTOR_D3_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_his_books_are_printed_on_their_sheet_and_burn() -> void:
+	var row := await _place(&"book_row_a")
+	var book := _m(row, "book0")
+	var mi := book.drawn_node()
+	check((mi.material_override as StandardMaterial3D) == PropModels.pbr("medical_books"), "a book wears the books' printed sheet")
+	check(mi.mesh.get_faces().size() > 20 * 3, "drawn from its model (boards, leaves, a rounded spine), not a box")
+	for suffix in ["albedo", "orm"]:
+		check(ResourceLoader.exists("res://assets/props/models/medical_books_%s.png" % suffix), "the sheet's %s is there" % suffix)
+	check(book.wood == &"paper" and not FireTuning.new().fireproof.has(book.wood), "a book is paper: it burns")
+	check(row.batch_count() <= 2, "a row is one draw or two (%d)" % row.batch_count())
+	var pile := await _place(&"book_stack", Vector3(2, 0, 0))
+	var gone := pile.members_without_load_path({pile.get_members()[0].member_id: true})
+	check(gone.size() == 2, "the bottom book out, the two on it come down (%s)" % [gone])
+
+
+func test_a_ball_goes_into_a_book_and_the_row_stands() -> void:
+	var row := await _place(&"book_row_b")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var book := row.get_members()[3]
+	var from := book.global_position + Vector3(0, 0, 5)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (book.global_position - from).normalized(), r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not book.holes.is_empty() or book.broken, "a .45 ball marks the book it meets (holes %d, broken %s)" % [book.holes.size(), book.broken])
+	check(not row.loose, "the row stands")
+
+
+func test_a_row_of_books_stands_on_its_shelf_and_comes_down_with_it() -> void:
+	var c := await _place(&"bookcase")
+	var shelf := _m(c, "shelf2")
+	var row := PropKit.spawn(&"book_row_a")
+	row.position = Vector3(0, shelf.global_position.y + shelf.size.y * 0.5 + 0.002, 0)
+	world.add_child(row)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not row.loose, "the row stands on the shelf")
+	check(absf(row.global_position.y - (shelf.global_position.y + shelf.size.y * 0.5)) < 0.02, "on its top (%.3f)" % row.global_position.y)
+	c.break_member(shelf)
+	await wait_until(func() -> bool: return row.loose, 180)
+	check(row.loose, "the shelf gone, the row comes down")
+
+
+func test_the_coat_pegs_hang_on_their_nails_and_a_peg_gone_drops_the_coat() -> void:
+	var wall := Structure.new()
+	wall.structure_id = &"peg_wall"
+	world.add_child(wall)
+	for x in [-0.5, 0.5]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.4, 0.1), Vector3(x, 1.2, -0.07))
+	for i in 10:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.4, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var p := PropKit.spawn(&"coat_pegs")
+	p.position = Vector3(0, 1.65, 0)
+	world.add_child(p)
+	await physics_frames(KitProp.SETTLE_FRAMES + 6)
+	check(not p.loose, "the rail hangs on its nails in the wall")
+	check(p.members_without_load_path().is_empty(), "everything on it hangs from it %s" % [p.members_without_load_path()])
+	check(_m(p, "coat").drawn_node().mesh.get_faces().size() > 1000, "his coat is drawn from its model")
+	check((_m(p, "hat").drawn_node().material_override as StandardMaterial3D) == PropModels.pbr("coat_pegs"), "the hat is baked")
+	check(not FireTuning.new().fireproof.has(_m(p, "coat").wood), "the coat burns")
+	var falling := p.members_without_load_path({_m(p, "peg1").member_id: true})
+	check(falling.has(_m(p, "coat").member_id), "its peg gone, the coat comes down")
+	check(not falling.has(_m(p, "hat").member_id), "the hat stays on its own")
+	check(_m(p, "rail").drawn_node().mesh.has_meta(&"board_frame"), "the rail is a library board")
+
+
+func test_the_chamber_pot_stands_and_a_ball_breaks_it() -> void:
+	var pot := PropKit.make(&"chamber_pot") as GlassProp
+	pot.position = Vector3(0, 0, 0)
+	world.add_child(pot)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(not pot.broken and not pot.loose, "the pot stands on the floor")
+	check(pot.model.get_child_count() >= 1, "drawn from its model")
+	check(PropKit.definition(&"chamber_pot").size[1] < 0.42, "it goes under the cot's spring (0.42 m)")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	ballistics.fire(pot.global_position + Vector3(-5, 0.07, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(pot.broken, "a ball breaks it")

@@ -2,7 +2,7 @@
 kit files of an 1882 country doctor's furniture, written from the numbers here, so a change is one
 number and a re-run. The Blender half (tools/blender/props/doctor_*.py) reads the same numbers.
 
-    python3 tools/props/doctor.py [--batch=D2]   # writes assets/props/kit/<id>.json for batches D1 and D2
+    python3 tools/props/doctor.py [--batch=D3]   # writes assets/props/kit/<id>.json for batches D1 to D3
 
 Woods from the material library (`lib:<entry>/<age>`, #721: only ages the materials judge passed:
 F2 `fine_walnut_tg` new and a few years, the doctor's own floor's), metal and cloth baked the gun way
@@ -751,6 +751,227 @@ def bentwood_chair():
     }
 
 
+# === Batch D3: his books, the hall's pegs, the sick room's pot and blankets (#819) =================
+
+# --- His books --------------------------------------------------------------------------------------
+# A country doctor's shelf in 1882 (refs experiments/prop_lab/refs/doctor/ README, "D3"): the standard
+# American texts of the 1860s-70s, most in "law sheep" (medical and law books' usual trade binding
+# through the 1880s: tan sheepskin, a red and a black leather label lettered in gilt), some in the
+# publishers' dark cloth stamped in gilt, a few in calf. Each: (title lines, author, binding,
+# height, thickness, depth) in metres (an octavo ~24 x 16 cm, a royal octavo ~26 x 18, the army's
+# quarto 30 x 24). One Blender model (glb:medical_books), every face printed on its own sheet
+# (tools/blender/props/doctor_d3.py), a book a member: it burns (wood `paper`), a ball goes through.
+BOOKS = [
+    (["GRAY'S", "ANATOMY"], "GRAY", "sheep", 0.262, 0.062, 0.180),
+    (["PRACTICE", "OF", "MEDICINE"], "FLINT", "sheep", 0.245, 0.060, 0.165),
+    (["SYSTEM", "OF", "SURGERY", "VOL. I"], "GROSS", "sheep", 0.255, 0.066, 0.175),
+    (["SYSTEM", "OF", "SURGERY", "VOL. II"], "GROSS", "sheep", 0.255, 0.066, 0.175),
+    (["UNITED STATES", "DISPENSATORY"], "WOOD & BACHE", "sheep", 0.250, 0.078, 0.170),
+    (["DISEASES", "OF", "WOMEN"], "THOMAS", "cloth_green", 0.238, 0.048, 0.160),
+    (["HUMAN", "PHYSIOLOGY"], "DALTON", "sheep", 0.240, 0.052, 0.162),
+    (["FRACTURES", "AND", "DISLOCATIONS"], "HAMILTON", "cloth_brown", 0.240, 0.055, 0.162),
+    (["MEDICAL", "DICTIONARY"], "DUNGLISON", "sheep", 0.250, 0.072, 0.170),
+    (["MIDWIFERY"], "PLAYFAIR", "cloth_plum", 0.232, 0.045, 0.155),
+    (["THERAPEUTICS", "& MATERIA", "MEDICA"], "H. C. WOOD", "sheep", 0.240, 0.050, 0.160),
+    (["GUNSHOT", "WOUNDS"], "LONGMORE", "cloth_black", 0.225, 0.040, 0.150),
+    (["DISEASES", "OF", "CHILDREN"], "MEIGS & PEPPER", "sheep", 0.242, 0.060, 0.162),
+    (["OPERATIVE", "SURGERY"], "S. SMITH", "cloth_green", 0.236, 0.050, 0.158),
+    (["MEDICAL", "JURISPRUDENCE"], "TAYLOR", "calf", 0.235, 0.054, 0.156),
+    (["NATIONAL", "DISPENSATORY"], "STILLE & MAISCH", "sheep", 0.252, 0.080, 0.172),
+    (["MANUAL", "OF", "CHEMISTRY"], "FOWNES", "cloth_brown", 0.205, 0.046, 0.135),
+    (["MEDICAL &", "SURGICAL", "HISTORY", "OF THE WAR"], "SURG. GENL.", "cloth_green", 0.300, 0.070, 0.240),
+    (["PATHOLOGICAL", "ANATOMY"], "DELAFIELD", "calf", 0.240, 0.044, 0.160),
+    (["TRANSACTIONS", "AM. MED.", "ASSOC.", "1879"], "", "cloth_black", 0.232, 0.042, 0.155),
+    (["PHYSICIAN'S", "VISITING", "LIST"], "", "calf", 0.170, 0.022, 0.105),
+    (["THE", "PHYSICIAN", "HIMSELF"], "CATHELL", "cloth_plum", 0.195, 0.030, 0.130),
+]
+# Which book is where: two shelf rows standing spine out (+z), and a pile lying (bottom up).
+BOOK_ROWS = {"book_row_a": [0, 2, 3, 1, 8, 6, 5, 12, 11], "book_row_b": [4, 15, 10, 14, 7, 13, 18, 9, 19, 16]}
+BOOK_STACK = [17, 21, 20]
+BOOK_GAP = 0.0015
+
+
+def book_places(kit):
+    """[(book, (size x, y, z), (at x, y, z), lying)] of a book kit, in its space: a row stands on its
+    shelf spine out (+z), the spines in a line 1 cm proud of nothing (a reader's shelf: not flush),
+    its middle at x = 0; the pile lies, each on the one under it, spines to +z."""
+    out = []
+    if kit == "book_stack":
+        y = 0.0
+        for n, k in enumerate(BOOK_STACK):
+            _t, _a, _b, h, w, d = BOOKS[k]
+            out.append((k, (h, w, d), ((0.012, -0.008, 0.0)[n % 3], y + w * 0.5, (0.0, 0.01, -0.006)[n % 3]), True))
+            y += w
+        return out
+    ks = BOOK_ROWS[kit]
+    total = sum(BOOKS[k][4] for k in ks) + BOOK_GAP * (len(ks) - 1)
+    x = -total * 0.5
+    front = 0.09
+    for n, k in enumerate(ks):
+        _t, _a, _b, h, w, d = BOOKS[k]
+        # (pushed in by hand: a few millimetres each way)
+        z = front - d * 0.5 - (0.0, 0.006, 0.002, 0.009, 0.004)[n % 5]
+        out.append((k, (w, h, d), (x + w * 0.5, h * 0.5, z), False))
+        x += w + BOOK_GAP
+    return out
+
+
+def book_kit(kit):
+    ms = []
+    places = book_places(kit)
+    kinds = ["post", "furniture_top", "trim"]
+    for n, (k, size, at, lying) in enumerate(places):
+        ms.append(member("book%d" % k, kinds[min(n, 2)] if lying else "post", size, at, wood="paper", look="pbr:medical_books",
+                         draw=mesh("medical_books", "Book%d" % k)))
+    titles = "; ".join("%s (%s)" % (" ".join(BOOKS[k][0]).title(), BOOKS[k][1].title() or "a year's volume") for k, *_ in places)
+    what = ("a pile of three lying on a table or a desk's top, the army's big quarto under his visiting list"
+            if kit == "book_stack" else "a shelf's row standing spine out (+z), %d cm of them" % round(sum(p[1][0] for p in places) * 100))
+    return {
+        "_doc": "His medical books (#819; refs experiments/prop_lab/refs/doctor/): %s. The standard American texts a country doctor of 1882 owned: %s. Most in law sheep (tan sheepskin with a red and a black label lettered in gilt, the trade binding of medical books into the 1880s), some in publishers' cloth, a few in calf. Each book a member (wood `paper`: ~1.5 kg an octavo): it burns, a ball goes through it, the row comes down with its shelf. Drawn from glb:medical_books, every face printed on its own sheet (tools/blender/props/doctor_d3.py: Pillow, as the bottles' labels). Written by tools/props/doctor.py." % (what, titles),
+        "id": kit, "kind": "members", "fixture": True, "in_game": False, "wood": "paper", "look": "pbr:medical_books",
+        "splits_below": 0.3, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
+def book_row_a():
+    return book_kit("book_row_a")
+
+
+def book_row_b():
+    return book_kit("book_row_b")
+
+
+def book_stack():
+    return book_kit("book_stack")
+
+
+# --- His bookcase -----------------------------------------------------------------------------------
+# A plain open walnut bookcase, chest high (the country office's: Cathell 1882 wants the doctor's
+# books "in sight"): two sides, four shelves, a boarded back, a top overhanging, a plinth. The shelves'
+# tops (for what stands on them) in `shelf_tops()`. Its front toward +z.
+BOOKCASE = {"width": 0.64, "depth": 0.27, "height": 1.38, "side": 0.022, "board": 0.02, "top": 0.024,
+            "shelves": [0.09, 0.44, 0.76, 1.07], "plinth": 0.08}
+
+
+def shelf_tops():
+    return [round(y + BOOKCASE["board"] * 0.5, 4) for y in BOOKCASE["shelves"]]
+
+
+def bookcase():
+    c = BOOKCASE
+    W, D, H, t = c["width"], c["depth"], c["height"], c["side"]
+    under = H - c["top"]
+    ms = []
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("side_" + name, "post", [t, under, D], [s_ * (W * 0.5 - t * 0.5), under * 0.5, 0], look=WALNUT))
+    for k, y in enumerate(c["shelves"]):
+        ms.append(member("shelf%d" % k, "furniture_top", [W - t * 2, c["board"], D - 0.014], [0, y, 0.007], look=WALNUT_TOP))
+    ms.append(member("back", "furniture_frame", [W - t * 2, under - 0.04, 0.012], [0, under * 0.5 + 0.02, -D * 0.5 + 0.006], look=WALNUT))
+    ms.append(member("plinth", "furniture_frame", [W - t * 2, c["plinth"], 0.018], [0, c["plinth"] * 0.5, D * 0.5 - 0.02], look=WALNUT))
+    ms.append(member("top", "trim", [W + 0.04, c["top"], D + 0.025], [0, H - c["top"] * 0.5, 0.0075], look=WALNUT_TOP))
+    return {
+        "_doc": "His bookcase (#819): a plain open walnut bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Walnut from the material library (F2 a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
+        "id": "bookcase", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "splits_below": 0.3, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
+# --- The hall's pegs, his coat and hat --------------------------------------------------------------
+# A peg rail (the spec's hall: "his bag and coat on pegs"): a walnut board nailed to the wall at
+# 1.65 m with five turned pegs, his black frock coat hung by its loop on one and his hat on another.
+# The wall's face at z = 0, the pegs toward +z; the origin at the rail's middle. The coat's member is
+# what hangs under its own peg (19 cm: the drawn coat's shoulders lie over the pegs either side, and
+# don't hang on them).
+PEGS = {"length": 0.98, "height": 0.115, "thick": 0.022, "pegs": 5, "peg_len": 0.09, "peg_r": 0.0115,
+        "coat": {"peg": 1, "size": (0.19, 1.04, 0.15)}, "hat": {"peg": 3, "brim": 0.165, "crown": 0.092, "crown_h": 0.115}}
+
+
+def peg_xs():
+    p = PEGS
+    step = (p["length"] - 0.16) / (p["pegs"] - 1)
+    return [-(p["length"] - 0.16) * 0.5 + step * k for k in range(p["pegs"])]
+
+
+def coat_pegs():
+    p = PEGS
+    t = p["thick"]
+    ms = [member("rail", "post", [p["length"], p["height"], t], [0, 0, t * 0.5], look=WALNUT)]
+    xs = peg_xs()
+    look = "pbr:coat_pegs"
+    for k, x in enumerate(xs):
+        ms.append(member("peg%d" % k, "furniture_frame", [p["peg_r"] * 2, p["peg_r"] * 2, p["peg_len"]], [x, 0, t + p["peg_len"] * 0.5],
+                         wood="oak", look=look, draw=mesh("coat_pegs", "Peg%d" % k)))
+    cw, ch, cd = p["coat"]["size"]
+    cx = xs[p["coat"]["peg"]]
+    coat = member("coat", "trim", [cw, ch, cd], [cx, 0.012 - ch * 0.5, t + 0.012 + cd * 0.5], wood="canvas", look=look, draw=mesh("coat_pegs", "Coat"))
+    coat["dress"] = [{"look": look, "draw": mesh("coat_pegs", "CoatButtons")}]
+    ms.append(coat)
+    h = p["hat"]
+    hx = xs[h["peg"]]
+    hat = member("hat", "trim", [h["brim"] * 2, h["brim"] * 2, 0.13], [hx, -0.045, t + 0.012 + 0.065], wood="canvas", look=look, draw=mesh("coat_pegs", "Hat"))
+    hat["dress"] = [{"look": look, "draw": mesh("coat_pegs", "HatBand")}]
+    ms.append(hat)
+    return {
+        "_doc": "The hall's pegs (#819; the doctor's spec: 'his bag and coat on pegs'; refs experiments/prop_lab/refs/doctor/): a walnut rail 0.98 m long nailed to the wall through two nails, five turned hardwood pegs in it, his black broadcloth frock coat hung by its loop on the second and his black felt hat on the fourth. Hung (KitProp `hangs`): it holds while a nail's still in the wall and falls when its board goes; a peg shot off drops what's on it; the coat and hat burn (wood `canvas`). The rail from the material library (F2 walnut, a few years); the pegs, coat and hat baked the gun way (tools/blender/props/doctor_d3.py). The wall's face at z = 0, the pegs toward +z, the rail's middle the origin (hang it at ~1.65 m). Written by tools/props/doctor.py.",
+        "id": "coat_pegs", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut", "drawn_bounds": True,
+        "splits_below": 0.4, "blow_wood_share": 0.5,
+        "hangs": {"nails": [r([-p["length"] * 0.5 + 0.06, 0.0, 0.004]), r([p["length"] * 0.5 - 0.06, 0.0, 0.004])]},
+        "members": ms,
+    }
+
+
+# --- The chamber pot --------------------------------------------------------------------------------
+# White ironstone, as the wash set (the same potteries sold them as one toilet set): a round pot
+# 23 cm across with a rolled rim and a loop handle, its lid with a knob, a cobalt line under the rim.
+# Its axis at the origin, the handle toward -x.
+CHAMBER = {"radius": 0.115, "height": 0.135, "foot": 0.066, "lid_h": 0.04, "knob": 0.03}
+
+
+def chamber_pot():
+    c = CHAMBER
+    return {
+        "_doc": "A white ironstone chamber pot with its lid (#819; refs experiments/prop_lab/refs/doctor/): 23 cm across, a rolled rim, a loop handle, a cobalt line under the rim as the wash set's (the potteries sold basin, pitcher and pot as one toilet set), under a cot in the sick room. A prop that shatters (GlassProp), as the basin: ~5 mm of fired clay, it breaks kicked hard or dropped (2.5 m/s) and at ~25 kPa; a ball breaks it. Empty. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py.",
+        "id": "chamber_pot", "kind": "shatters", "fixture": True, "in_game": False,
+        "model": "glb:chamber_pot", "looks": {"Pot": "pbr:chamber_pot", "PotBand": "pbr:chamber_pot", "Lid": "pbr:chamber_pot"},
+        "size": r([c["radius"] * 2 + 0.05, c["height"] + c["lid_h"] + c["knob"], c["radius"] * 2]),
+        "mass": 1.9, "wall": 0.005, "glass": ["Pot", "PotBand", "Lid"], "whole": [], "shards": 10, "piece_mass": 0.2,
+        "breaks_at": 2.5, "shatters_kpa": 25, "heat_seconds": 1e9, "cut_area": 0.03,
+    }
+
+
+# --- Folded blankets --------------------------------------------------------------------------------
+# Spare blankets folded (the wards' issue: grey wool with a dark band, a white one with blue bands,
+# a brown one): each folded in four along its length and laid in a pile, the folds' bights to +x.
+# A blanket a member (it burns; pulled from under, the ones over it come down).
+BLANKET = {"size": (0.54, 0.088, 0.40), "layers": 4, "finishes": ["wool_fold", "wool_white", "wool_brown"]}
+
+
+def _blankets(kit, n, what):
+    bx, by, bz = BLANKET["size"]
+    kinds = ["post", "furniture_top", "trim"]
+    ms = [member("blanket%d" % k, kinds[k], [bx, by, bz], [0, by * (k + 0.5), 0], wood="canvas", look="pbr:folded_blankets",
+                 draw=mesh("folded_blankets", "Blanket%d" % k)) for k in range(n)]
+    return {
+        "_doc": "%s (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in four and laid flat, 54 x 40 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py." % what,
+        "id": kit, "kind": "members", "fixture": True, "in_game": False, "wood": "canvas", "look": "pbr:folded_blankets",
+        "splits_below": 0.3, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
+def folded_blankets():
+    return _blankets("folded_blankets", 3, "A pile of three folded blankets")
+
+
+def folded_blanket():
+    return _blankets("folded_blanket", 1, "A folded grey blanket")
+
+
+BATCH_D3 = [book_row_a, book_row_b, book_stack, bookcase, coat_pegs, chamber_pot, folded_blankets, folded_blanket]
+
+
 BATCH_D2 = [medicine_bottle, medicine_bottle_round, poison_bottle, drug_jar, mortar, scales, roll_top_desk, dispensary_shelves,
             dispensary_counter, bentwood_chair]
 
@@ -759,8 +980,8 @@ BATCH_D1 = [examining_table, iron_cot, washstand, wash_basin, wash_pitcher, inst
 
 
 def main():
-    batches = {"D1": BATCH_D1, "D2": BATCH_D2}
-    which = [a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--batch=")] or ["D1", "D2"]
+    batches = {"D1": BATCH_D1, "D2": BATCH_D2, "D3": BATCH_D3}
+    which = [a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--batch=")] or ["D1", "D2", "D3"]
     for make in [f for b in which for f in batches[b]]:
         d = make()
         d["factory"] = "tools/props/doctor.py"

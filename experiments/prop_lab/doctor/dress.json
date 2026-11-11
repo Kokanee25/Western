@@ -34,6 +34,27 @@
       {"id": "counter_back", "row": {"kits": ["medicine_bottle_round", "medicine_bottle", "medicine_bottle", "medicine_bottle_round", "poison_bottle", "medicine_bottle"], "count": 4, "step": [0, 0, 0.068], "skip": [], "jitter": [0.01, 0.01, 30]}, "at": [8.33, 0.0, 5.43], "on": "counter", "facing": 270},
       {"id": "desk", "kit": "roll_top_desk", "at": [1.2, 0.0, 3.36], "facing": 180, "use": "desk: his roll-top against the front office's back wall, its front to the room (the use point at [1.2, 3.1] is inside the desk's 0.8 m: he sits at ~2.6)"},
       {"id": "chair", "kit": "bentwood_chair", "at": [1.2, 0.0, 2.6], "facing": 0, "use": "desk: his chair, a bentwood (the kit's spindle-back read as a 1905 Mission chair beside the desk, round 1)"}
+    ],
+    "D3": [
+      {"id": "bookcase", "kit": "bookcase", "at": [2.75, 0.0, 3.615], "facing": 180, "use": "his books beside the roll-top, against the front office's back wall (the room's spec: 'his roll-top desk and books')"},
+      {"id": "case_row3", "kit": "book_row_a", "at": [2.75, 1.08, 3.615], "facing": 180},
+      {"id": "case_row2", "kit": "book_row_b", "at": [2.75, 0.77, 3.615], "facing": 180},
+      {"id": "desk_books", "kit": "book_stack", "at": [1.72, 0.762, 3.14], "facing": 205, "use": "on the writing bed's corner: the army's quarto, Cathell, his visiting list"},
+      {"id": "pegs", "kit": "coat_pegs", "at": [4.105, 1.65, 7.1], "facing": 90, "use": "the hall's east wall between the surgery's and the sick room's doors: 'his bag and coat on pegs'"},
+      {"id": "wash_sick", "kit": "washstand", "at": [2.0, 0.0, 11.11], "facing": 180, "use": "the sick room's washstand (D1's) against its back wall"},
+      {"id": "basin_sick", "kit": "wash_basin", "on": "wash_sick", "at": [2.0, 0.0, 11.11], "facing": 0},
+      {"id": "pitcher_sick", "kit": "wash_pitcher", "on": "basin_sick", "at": [2.0, 0.0, 11.09], "facing": 40, "lift": 0.014},
+      {"id": "spare_blanket", "kit": "folded_blanket", "at": [2.0, 0.172, 11.11], "facing": 180, "use": "on the washstand's low shelf"},
+      {"id": "blankets", "kit": "folded_blankets", "at": [3.42, 0.6, 9.95], "facing": 90, "use": "spare blankets on the foot of the empty cot"},
+      {"id": "sick_chair", "kit": "bentwood_chair", "at": [1.62, 0.0, 10.3], "facing": 245, "use": "bedside: a chair by the cot (D2's bentwood)"},
+      {"id": "pot_1", "kit": "chamber_pot", "at": [0.82, 0.0, 10.0], "facing": 200, "use": "under cot_1, half out"},
+      {"id": "pot_2", "kit": "chamber_pot", "at": [3.2, 0.0, 9.45], "facing": 20},
+      {"id": "sit_case", "kit": "bookcase", "at": [6.3, 0.0, 8.375], "facing": 0, "use": "the sitting room's books ('a table, his chair, books')"},
+      {"id": "sit_row3", "kit": "book_row_b", "at": [6.3, 1.08, 8.375], "facing": 0},
+      {"id": "sit_row2", "kit": "book_row_a", "at": [6.3, 0.77, 8.375], "facing": 0},
+      {"id": "sit_table", "kit": "table", "fit": [0.9, 0.76, 0.7], "at": [6.75, 0.0, 10.25], "facing": 0, "use": "his table (the kit's plain table, as the surgery's side table)"},
+      {"id": "sit_chair", "kit": "bentwood_chair", "at": [7.55, 0.0, 9.55], "facing": 309, "use": "sit_read"},
+      {"id": "sit_books", "kit": "book_stack", "on": "sit_table", "at": [6.62, 0.0, 10.18], "facing": 25}
     ]
   }
 }

@@ -1,0 +1,210 @@
+{
+  "_doc": "The hall's pegs (#819; the doctor's spec: 'his bag and coat on pegs'; refs experiments/prop_lab/refs/doctor/): a walnut rail 0.98 m long nailed to the wall through two nails, five turned hardwood pegs in it, his black broadcloth frock coat hung by its loop on the second and his black felt hat on the fourth. Hung (KitProp `hangs`): it holds while a nail's still in the wall and falls when its board goes; a peg shot off drops what's on it; the coat and hat burn (wood `canvas`). The rail from the material library (F2 walnut, a few years); the pegs, coat and hat baked the gun way (tools/blender/props/doctor_d3.py). The wall's face at z = 0, the pegs toward +z, the rail's middle the origin (hang it at ~1.65 m). Written by tools/props/doctor.py.",
+  "id": "coat_pegs",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "drawn_bounds": true,
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hangs": {
+    "nails": [
+      [
+        -0.43,
+        0.0,
+        0.004
+      ],
+      [
+        0.43,
+        0.0,
+        0.004
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "rail",
+      "kind": "post",
+      "size": [
+        0.98,
+        0.115,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.011
+      ],
+      "look": "lib:fine_walnut_tg/few"
+    },
+    {
+      "id": "peg0",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        -0.41,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Peg0"
+      }
+    },
+    {
+      "id": "peg1",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        -0.205,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Peg1"
+      }
+    },
+    {
+      "id": "peg2",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Peg2"
+      }
+    },
+    {
+      "id": "peg3",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.205,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Peg3"
+      }
+    },
+    {
+      "id": "peg4",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.41,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Peg4"
+      }
+    },
+    {
+      "id": "coat",
+      "kind": "trim",
+      "size": [
+        0.19,
+        1.04,
+        0.15
+      ],
+      "at": [
+        -0.205,
+        -0.508,
+        0.109
+      ],
+      "wood": "canvas",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Coat"
+      },
+      "dress": [
+        {
+          "look": "pbr:coat_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "coat_pegs",
+            "part": "CoatButtons"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hat",
+      "kind": "trim",
+      "size": [
+        0.33,
+        0.33,
+        0.13
+      ],
+      "at": [
+        0.205,
+        -0.045,
+        0.099
+      ],
+      "wood": "canvas",
+      "look": "pbr:coat_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "coat_pegs",
+        "part": "Hat"
+      },
+      "dress": [
+        {
+          "look": "pbr:coat_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "coat_pegs",
+            "part": "HatBand"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}
