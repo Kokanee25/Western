@@ -1,0 +1,110 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1404,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402007.490917
+  },
+  {
+   "what": "plan",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    1696,
+    2528
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402028.738205
+  },
+  {
+   "what": "corner",
+   "cost": 0.1411,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402056.5232587
+  },
+  {
+   "what": "yard",
+   "cost": 0.1416,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402093.9086344
+  },
+  {
+   "what": "lane",
+   "cost": 0.1413,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402126.8290744
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1413,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402158.6090345
+  },
+  {
+   "what": "office",
+   "cost": 0.1413,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402188.0936391
+  },
+  {
+   "what": "cells",
+   "cost": 0.142,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402219.4858506
+  },
+  {
+   "what": "cage",
+   "cost": 0.0,
+   "ok": false,
+   "at": 1794402224.8242207
+  },
+  {
+   "what": "roof",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402259.5409884
+  }
+ ],
+ "total": 1.2705
+}
