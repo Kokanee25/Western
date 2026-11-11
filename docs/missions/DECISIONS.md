@@ -89,7 +89,7 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `law.tally` | quiet / mixed / violent | `i-am-the-law` | `the-bridge-is-out` | Quiet: hired guns with no orders; violent: soldiers under orders (DECIDED) |
 | `law.joe` | rode out / stayed beside / stayed by his choice | `i-am-the-law` | Joe's trust | Asked to hide: he remembers it (DECIDED) |
 
-| `prisoner.fate` (the Water Tower night) | freed / dead / still held for the train | `hold-him` (the Water Tower) | the gang, the Baron, `joe-on-the-rope` (the released man's walk) | Freed: back on the street, as the arrest ending's released man; dead: the Baron's loose end tied (DECIDED pick) |
+| `prisoner.fate` (the Water Tower night; Cody, PROPOSED: his transfer to the county) | freed / dead / still held for the train | `hold-him` (the Water Tower) | the gang, the Baron, `joe-on-the-rope` (the released man's walk) | Freed: back on the street, as the arrest ending's released man; dead: the Baron's loose end tied (DECIDED pick) |
 | `depot.tank` | standing / wrecked | `hold-him` | the daily train | Wrecked: the train can't take water at Salt Creek until rebuilt (DECIDED pick) |
 
 ### Act IV

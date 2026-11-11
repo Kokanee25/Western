@@ -34,6 +34,16 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
     room; or it lands in the yard. The prisoner freed, dead, or still held.
   - **The mark:** the wrecked tower and freight room stay; the yard is wet; the daily train can't take water
     at Salt Creek until the tank is rebuilt.
+- PROPOSED (Sean's question, 2026-11-11: "is Cody being brought to the train to go to a bigger jail?"; this
+  session: yes): **Cody's transfer.** He's held in the town's stone jail for the card cheat's murder (Sean:
+  "be in the jail"); a murder is tried at the county seat's court, so he goes there by the morning train to
+  the county jail. The train comes through before dawn, so the night before Harlan walks him down to the
+  depot and holds him in the freight room (stout, locked, used for the express) to put him straight on.
+  That's the Water Tower night. Both groups want him before the county gets him: the gang to free their man,
+  the Baron's men to kill him before he can talk about who pays the gang.
+- PROPOSED (this session, period): the wire is from the county, not a U.S. Marshal (a town murder was the
+  county's and the state's to try in Colorado by 1882; federal marshals handled federal crimes). The
+  card's name could stay as the town says it.
 - OPEN (the judge, to make it a steady 5): a poor cut can tip it the wrong way; the axe strokes real (a
   wounded axeman cuts slower); what the two groups do when they see each other.
 - Settles (were OPEN on this card): the fire ("burning you out" isn't needed); this card's setting moves
