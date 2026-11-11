@@ -482,7 +482,7 @@ frozen until Sean names one.
   `docs/screenshots/material_library/2026-11-11_paint/`): all game, P5/P6 new near the yardstick; passed
   (`approved`): `painted_white_lap`, `painted_green_trim`, `painted_buff_drop`, `painted_pale_tg`,
   `painted_pale_tg_green` at every age, `painted_oxblood_batten` few and old. The doctor takes his three by
-  name. Traps: a ~2.5 h review round here, render only what changed; the lab's shader is loaded at its start
+  name. Merged as PR #803 (build 3975); next #804. Traps: a ~2.5 h review round here, render only what changed; the lab's shader is loaded at its start
   (edit freely while it runs).
 - **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
   README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
