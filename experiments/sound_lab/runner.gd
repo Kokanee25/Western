@@ -344,9 +344,10 @@ func _setup_music() -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {"ok": false, "error": "no recording %s (sound NAME file=WAV)" % path}
 	var at := _v(_spec.source)
-	# his feet exactly where the scenario says: a ray finds neither the balcony's boards (not on
-	# WORLD or WALK, though he stands on them) nor, from above, anything but the roof
-	_put_player(_v(_spec.player))
+	# his feet exactly where the scenario says (a ray finds neither the balcony's boards, not on
+	# WORLD or WALK though he stands on them, nor, from above, anything but the roof); outdoors
+	# `find_floor` puts them on the ground or boardwalk under the point
+	_put_player(_floor(_v(_spec.player)) if bool(_spec.get("find_floor", false)) else _v(_spec.player))
 	lab.bridge._face(at)
 	_listener_node = lab.player.camera
 	_setup["distance_m"] = snappedf(_listener_node.global_position.distance_to(at), 0.01)

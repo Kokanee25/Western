@@ -51,6 +51,12 @@
 			"_doc": "#790: the fiddler on the saloon's balcony (no dance hall yet), the player beside him, ~1.3 m; sound NAME file=WAV"},
 		"music_balcony_below": {"kind": "music", "source": [14.45, 4.25, 0.55], "player": [14.1, 0.78, 1.0],
 			"unit_size": 2.0, "volume_db": 0.0, "max_db": 3.0, "tail": 1.5,
-			"_doc": "#790: the same, the player on the bar room's floor under the balcony, its boards and joists between (RoomMuffled)"}
+			"_doc": "#790: the same, the player on the bar room's floor under the balcony, its boards and joists between (RoomMuffled)"},
+		"music_street_porch": {"kind": "music", "source": [14.45, 4.25, 0.55], "player": [10.5, 0.8, -3.0], "find_floor": true,
+			"unit_size": 2.0, "volume_db": 0.0, "max_db": 3.0, "tail": 1.5,
+			"_doc": "#790: the fiddler on the balcony, heard from the porch by the saloon's door (the gun lab's door7 spot)"},
+		"music_street_across": {"kind": "music", "source": [14.45, 4.25, 0.55], "player": [11.0, 0.0, -16.4], "find_floor": true,
+			"unit_size": 2.0, "volume_db": 0.0, "max_db": 3.0, "tail": 1.5,
+			"_doc": "#790: the same, heard from across the street, ~18 m"}
 	}
 }

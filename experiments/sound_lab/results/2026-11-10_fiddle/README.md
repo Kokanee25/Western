@@ -123,3 +123,13 @@ All three of ours passed; A and B in both places. The record marked wrong is mos
 medium and tune (a 1922 horn disc, Sallie Gooden). No fiddler needed by this test. **Sean picked B,
 our own model** (2026-11-11: "we're going with our own model obviously that was unreal"): it becomes
 the fiddler's voice, played from the same note data as his hands.
+
+## From outside (B, Sean's pick; 2026-11-11)
+
+`outside/B_porch.mp3` (the porch by the saloon's door, 5.5 m from him) and `outside/B_across.mp3`
+(across the street, 17.5 m): the lab's `music_street_porch` / `music_street_across`, the fiddler on
+the balcony inside. The game hears both through the walls (RoomMuffled: the room's ring, the wall's
+low-pass and drop). As heard, the porch is -47 LUFS and across the street -57, against -19 up close
+and -37 through the floor; the two clips are raised together (the porch to -20) to be heard on a
+phone, keeping the 10 dB between them. Found: from the porch, GameAudio's one ray is stopped first
+by a porch post, not the wall (the same muffle here, but by luck, like the balcony's joists).
