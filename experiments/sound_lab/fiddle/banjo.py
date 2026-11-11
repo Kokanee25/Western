@@ -66,14 +66,14 @@ NAMES = {0: "C", 2: "D", 7: "G", 9: "A"}
 MAX_FRET = 9
 STRIKE_POS = 0.28
 HEAD_RISE = 2200.0
-LOSS = 0.30
 NAIL_W = 0.00025
 # a string swings two ways at once: across the head (vertical: it drives the head, so it's loud and
 # dies fast) and along it (horizontal: barely coupled, quiet, rings on), a hair apart in pitch, so the
 # note beats and its decay has two stages (Weinreich's two polarisations; on a banjo the vertical one
 # drains into the head fastest of any string instrument). (level, decay time x, cents)
 POLS = [(1.0, 0.55, 0.0), (0.35, 1.9, 1.3)]
-POP = 0.45          # the head struck through the bridge: a small drum's thump under each strike
+CLICK = 0.06        # the nail's tick on the string (a broadband scrape, a few ms)
+POP = 0.25          # the head struck through the bridge: a small drum's thump under each strike
 
 
 # ----------------------------------------------------------------------------------------- the part
@@ -223,24 +223,28 @@ def arrange(sc, seed=1866):
 # ---------------------------------------------------------------------------------------- the sound
 
 @njit(cache=True)
-def run_string(f0, exc, gain, damp, sr, loss):
-    """One string's loop: per sample its pitch (Hz), the strikes fed in, the loop's gain per sample
-    (decay) and a mute (1 free, <1 a finger lifting or the nail landing on it), both per pass."""
+def run_string(f0, exc, gain, loss, damp, sr):
+    """One string's loop: per sample its pitch (Hz), the strikes fed in, the loop's gain and its
+    one-pole loss (how much duller each pass leaves it: loop_filter) and a mute (1 free, <1 a finger
+    lifting or the nail landing on it), all per pass."""
     n = f0.shape[0]
     out = np.zeros(n)
     buf = np.zeros(BUF)
     w = 0
     lp = 0.0
-    a = loss  # gut: the highs go each pass
     for i in range(n):
-        d = sr / f0[i] - a / (1.0 - a)
+        a = loss[i]
+        om = 2.0 * np.pi * f0[i] / sr
+        # the loss filter's own delay at the note's pitch, taken off the line so it stays in tune
+        pd = np.arctan2(a * np.sin(om), 1.0 - a * np.cos(om)) / om
+        d = sr / f0[i] - pd
         if d < 2.0:
             d = 2.0
         x = _read(buf, w, d)
         lp = (1.0 - a) * x + a * lp
         y = exc[i] + gain[i] * damp[i] * lp
         buf[w] = y
-        out[i] = y
+        out[i] = lp  # what the bridge feels: the wave arriving at it, not the strike itself
         w = (w + 1) % BUF
     return out
 
@@ -285,6 +289,30 @@ def t60(f):
     return 1.9 * (147.0 / f) ** 0.5
 
 
+T60_HIGH = 0.25     # s: how long a partial near 2 kHz rings (the "pl" of the plunk goes at once)
+F_HIGH = 2000.0
+
+
+def loop_filter(f0, sr, t_low, t_high, f_high=F_HIGH):
+    """The loop's gain and one-pole coefficient per pass so the note rings t_low and its partials
+    near f_high ring t_high (two decay times set the filter; Valimaki-style loss design, solved by
+    bisection). Gut strings and a head that takes the highs first: a banjo's bright strike and dull
+    ring, where a uniform loss (take 1, 2) left every partial ringing as long as the note."""
+    g0 = 10 ** (-3.0 / (t_low * f0))
+    g2 = 10 ** (-3.0 / (np.minimum(t_high, t_low) * f0))
+    w0, w2 = 2 * np.pi * f0 / sr, 2 * np.pi * f_high / sr
+    mag = lambda a, w: (1 - a) / np.sqrt(1 - 2 * a * np.cos(w) + a * a)  # noqa: E731
+    want = g2 / g0
+    lo, hi = np.zeros_like(f0), np.full_like(f0, 0.999)
+    for _ in range(40):
+        a = 0.5 * (lo + hi)
+        r = mag(a, w2) / mag(a, w0)
+        lo = np.where(r > want, a, lo)
+        hi = np.where(r > want, hi, a)
+    a = 0.5 * (lo + hi)
+    return g0 / mag(a, w0), a
+
+
 def render(part, sr=common.SR, seed=1866):
     srm = sr * OVER
     rng = np.random.default_rng(seed)
@@ -320,7 +348,7 @@ def render(part, sr=common.SR, seed=1866):
                 damp[ring_end:ring_end + m] = 0.6
                 midi[ring_end:nxt] = tuning[s]
             if e["kind"] in ("nail", "brush", "drop", "thumb"):
-                damp[i0:i0 + int(0.003 * srm)] = 0.75  # the nail lands on the moving string
+                damp[i0:i0 + int(0.004 * srm)] = 0.93  # the nail lands on the moving string (not a gate)
             width = {"nail": NAIL_W, "brush": NAIL_W * 1.5, "drop": 0.0012, "thumb": 0.0015,
                      "hammer": 0.0009, "pull": 0.0007}[e["kind"]]
             width *= rng.uniform(0.7, 1.4)  # no two strikes the same nail
@@ -340,12 +368,12 @@ def render(part, sr=common.SR, seed=1866):
                 L = int((0.006 if e["kind"] == "brush" else 0.003) * srm)  # the nail's scrape
                 nb = rng.standard_normal(L) * np.exp(-np.arange(L) / (0.0012 * srm))
                 cseg = click[i0:i0 + len(nb)]
-                cseg += 0.02 * e["amp"] * nb[:len(cseg)]
+                cseg += CLICK * e["amp"] * nb[:len(cseg)]
         f0 = common.hz(midi + drift / 100.0)
         for level, decay, cents in POLS:
             fp = f0 * 2.0 ** (cents / 1200.0)
-            gain = 10 ** (-3.0 / (decay * t60(fp) * fp))  # per pass round the loop
-            out = run_string(fp, exc, gain, damp, float(srm), LOSS if decay < 1 else LOSS * 0.8)
+            gain, loss = loop_filter(fp, srm, decay * t60(fp), decay * T60_HIGH)
+            out = run_string(fp, exc, gain, loss, damp, float(srm))
             total += level * out * (0.8 if s == 5 else 1.0)
     b, a = butter(2, [2000 / (srm / 2), 9000 / (srm / 2)], "band")
     total += lfilter(b, a, click) * np.std(total) * 4

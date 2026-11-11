@@ -59,6 +59,14 @@ changes; results in `../results/2026-11-10_fiddle/`.
   varied. Single strikes: early decay / late decay 1.3 -> 3.5 (one slope to two stages), the ring's
   waver 0.16 -> 0.62 dB; the tune's strikes 1.2 -> 1.8 dB apart. The banjo alone sits at -20 LUFS
   (strikes are peaky; not limited).
+  Third take (Sean: "still kinda digital"), measured against a real one: Uncle Dave Macon's "Papa's
+  Billie Goat" (1924, fetch.sh). His strikes are broadband ticks whose highs die in tens of ms; ours
+  kept every partial ringing as long as the note. Now `loop_filter` sets each string's loss from two
+  decay times (the note `t60`, partials near 2 kHz `T60_HIGH` 0.25 s), the output is the wave arriving
+  at the bridge (not the strike itself: its spike over the note 10 -> 0 dB), the head's thump softer,
+  and the nail landing no longer mutes the old note dead. Single strikes: early / late decay 4.7 (take
+  1: 1.3); every struck note within 30 cents. Spectrogram beside his:
+  `../results/2026-11-10_fiddle/banjo/spectrogram_macon_vs_take3.png`.
 - `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
 
 ## Commands

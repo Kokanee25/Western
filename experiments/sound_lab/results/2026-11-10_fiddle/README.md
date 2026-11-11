@@ -172,3 +172,5 @@ game's level). Heard: close -18.6, through the floor -39.5, porch -48.9, across 
 
 `banjo/`: our banjo model (`fiddle/banjo.py`) alone and with the fiddle (`fiddle/duet.py`), Turkey in the
 Straw (open G) and Devil's Dream (open A), plain takes at -18 LUFS. The duet's game distances follow.
+Take 3 (after "still kinda digital"): measured against Uncle Dave Macon's 1924 "Papa's Billie Goat"
+(`spectrogram_macon_vs_take3.png`); the clips in `banjo/` are take 3.
