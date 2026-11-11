@@ -18,8 +18,13 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
-  `RECIPE.md`). **Next: the jail (#780)**, then the general store, then saloon B, the corner saloon (#772,
+  `RECIPE.md`). **Next: the room fixes (#824-826), then the jail (#811)**, then the general store, then saloon B, the corner saloon (#772,
   `docs/briefs/saloon-design.md` "Sean's answers").
+- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): why the office reads cheap (flat
+  indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows, indoor wear
+  under the floor). **Sean said yes to all five picks (#821, DECIDED).** Built once in the doctor's office by #824
+  (light and lamps), #825 (pine floor, furniture woods and finish), #826 (sash window part, narrow beaded boards,
+  skirting, casings); then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
 - Room light (#608): off; waiting on Sean.
