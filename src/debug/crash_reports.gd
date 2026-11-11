@@ -499,6 +499,11 @@ static func _arg(prefix: String) -> String:
 
 
 static func _read_args() -> void:
+	# A box of its own (the labs' games run side by side: each read the other's running marker as
+	# a run that didn't quit, and put the notice over its film).
+	var box := _arg("--crash-box=")
+	if box != "":
+		box_dir = box
 	var h := _arg("--hang-at=")
 	if h != "":
 		_hang_at = float(h)

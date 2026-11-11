@@ -61,6 +61,9 @@ def run_one(job):
            "--", "--dev-bridge", f"--bridge-port={port}", f"--bridge-script={cmds}"]
     if not picture:
         cmd.append("--sound-lab-dark")
+    else:
+        # Its own crash box: a game beside it isn't "the run before that didn't quit" (CrashReports).
+        cmd.append(f"--crash-box=user://crash_box_{port}")
     cmd += extra
     t = time.time()
     with open(os.path.join(out_dir, "godot.log"), "w") as log:
@@ -100,6 +103,9 @@ def main():
     extra = ["--old-sound"] if _opt("old-sound") else []
     if _opt("blast-set") is not None:
         extra.append(f"--blast-set={_opt('blast-set')}")
+    if _opt("picture"):
+        # A drawn run stalls past 5 s under lavapipe: no stall reports over the film (CrashReports).
+        extra.append("--crash-watch=600,0")
     jobs = [(n, os.path.join(out, n), 8820 + i, seed, bool(_opt("picture")), extra) for i, n in enumerate(todo)]
     with ThreadPoolExecutor(int(_opt("jobs", 3))) as ex:
         results = list(ex.map(run_one, jobs))
