@@ -1,0 +1,4 @@
+P3_new_P_near.png build/r1p3_after/paint/painted_oxblood_batten_new/noon_near.png (420, 0, 1820, 780)
+P3_new_P_far.png build/r1p3_after/paint/painted_oxblood_batten_new/golden_far.png (750, 240, 1310, 600)
+P3_new_Q_near.png build/r1p3_before/paint/painted_oxblood_batten_new/noon_near.png (420, 0, 1820, 780)
+P3_new_Q_far.png build/r1p3_before/paint/painted_oxblood_batten_new/golden_far.png (750, 240, 1310, 600)
