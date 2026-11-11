@@ -105,8 +105,9 @@ FINISHES = {
     # Wedgwood's white stoneware ("Wedgwood ware", the druggists' mortar from the 1770s on): a hard,
     # dense, unglazed buff-white body outside, a slight sheen where it's handled, its grinding bowl
     # inside rough and greyed by what's been ground in it.
-    "stoneware": {"kind": "coat", "color": (0.90, 0.89, 0.86), "under": (0.74, 0.72, 0.68), "rust": 0.0,
-                  "rough": 0.72, "metal": 0.0, "wear": 0.35, "mottle": 0.35},
+    # (round 3's critic: speckled orange "clay" under the room's warm light: no mottle, a cooler white)
+    "stoneware": {"kind": "coat", "color": (0.92, 0.92, 0.90), "under": (0.80, 0.79, 0.76), "rust": 0.0,
+                  "rough": 0.62, "metal": 0.0, "wear": 0.12},
     # A turned hardwood handle (a pestle's: lignum vitae or boxwood): dark brown, oiled by the hand.
     # (the Met's Wedgwood pestle's is near black-brown: lignum vitae darkens with handling)
     "turned_wood": {"kind": "coat", "color": (0.16, 0.09, 0.05), "under": (0.30, 0.19, 0.10), "rust": 0.0,
