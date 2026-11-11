@@ -25,6 +25,10 @@ import os
 import common
 
 # Each finish: how it's made (kind), its colour(s), roughness, metal, how much its edges wear.
+# Bare metal is 0.8, not the guns' 1 (#788 round 2): the guns are judged outdoors and in the hand;
+# indoors the game's rooms have no reflection probe yet (art's RoomReflections is the saloon's), and
+# a full mirror there reflects the dark and reads black (the critic: "a black faceted font"). A
+# fifth of diffuse keeps its colour; back to 1 when rooms take their own probe.
 FINISHES = {
     # Black japan (asphaltum varnish stoved on): the finish of cast and wrought iron bedsteads and
     # hospital cots through the 1870s-80s (period trade catalogues' "japanned iron bedsteads"); a
@@ -35,26 +39,26 @@ FINISHES = {
     # than silver, harder than bare polished steel); warm white-grey, a soft polish, rubbed through
     # to the steel only on the hardest-used edges.
     "nickel": {"kind": "plate", "color": (0.70, 0.68, 0.62), "under": (0.56, 0.56, 0.57), "rust": 0.0,
-               "rough": 0.20, "metal": 1.0, "wear": 0.35},
+               "rough": 0.20, "metal": 0.8, "wear": 0.35},
     # Bright polished steel (a saw's blade, a probe's shaft): cool grey, fine polish lines, a faint
     # brown bloom in the hollows where it's been put away damp.
     "steel": {"kind": "plate", "color": (0.58, 0.58, 0.60), "under": (0.50, 0.50, 0.51), "rust": 0.25,
-              "rough": 0.24, "metal": 1.0, "wear": 0.2},
+              "rough": 0.24, "metal": 0.8, "wear": 0.2},
     # Cast and sheet brass (a lamp's font and foot, a scale's pans): yellow, darkened to brown in
     # the hollows by tarnish, rubbed bright where hands go.
     "brass": {"kind": "plate", "color": (0.62, 0.46, 0.22), "under": (0.80, 0.64, 0.34), "rust": 0.0,
-              "rough": 0.30, "metal": 1.0, "wear": 0.6, "tarnish": 0.55},
+              "rough": 0.30, "metal": 0.8, "wear": 0.6, "tarnish": 0.55},
     # Tinplate (sheet iron dipped in tin): a lamp's reflector and a cheap tray; bright grey, mottled
     # dull, specks of rust where the tin's worn.
     "tin": {"kind": "plate", "color": (0.66, 0.66, 0.64), "under": (0.42, 0.33, 0.24), "rust": 0.5,
-            "rough": 0.26, "metal": 1.0, "wear": 0.3, "mottle": 0.5},
+            "rough": 0.26, "metal": 0.8, "wear": 0.3, "mottle": 0.5},
     # White enamel on iron (enamelled hollow-ware, made in the US from the 1870s): a doctor's basin
     # and instrument tray; glossy, chipped black at its rims.
     "enamel": {"kind": "coat", "color": (0.83, 0.83, 0.80), "under": (0.05, 0.05, 0.06), "rust": 0.2,
                "rough": 0.12, "metal": 0.0, "metal_under": 1.0, "wear": 0.5},
     # White ironstone china (the common washstand set of the 1860s-80s, English and American
     # potteries): a creamy white glaze, faint crazing, no metal.
-    "china": {"kind": "coat", "color": (0.86, 0.85, 0.80), "under": (0.70, 0.66, 0.58), "rust": 0.0,
+    "china": {"kind": "coat", "color": (0.90, 0.89, 0.85), "under": (0.70, 0.66, 0.58), "rust": 0.0,
               "rough": 0.08, "metal": 0.0, "wear": 0.05, "craze": 0.5},
     # Black glazed oilcloth ("American cloth") over horsehair: the covering of doctors' couches and
     # examining tables; a dull sheen, cracked and greyed where it's worn.
@@ -69,10 +73,17 @@ FINISHES = {
               "rough": 0.35, "metal": 0.0, "wear": 0.3},
     # Blue-and-white striped ticking (a mattress's or pillow's cover, cotton twill) and a grey wool
     # blanket with a dark stripe at its ends (the army's and hospitals' issue): cloth, no metal.
-    "ticking": {"kind": "stripes", "color": (0.70, 0.67, 0.58), "stripe": (0.20, 0.24, 0.34), "pitch": 0.025,
+    "ticking": {"kind": "stripes", "color": (0.74, 0.71, 0.62), "stripe": (0.13, 0.17, 0.30), "pitch": 0.03,
                 "rough": 0.85, "metal": 0.0, "wear": 0.0},
     "wool": {"kind": "wool", "color": (0.36, 0.34, 0.31), "stripe": (0.16, 0.14, 0.13), "rough": 0.95,
              "metal": 0.0, "wear": 0.0},
+    # Linen and cotton (a pillow's case, a towel, a dressing cloth): off-white, a fine weave, soiled
+    # a little; no metal.
+    "linen": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.70, 0.66, 0.58), "rust": 0.0,
+              "rough": 0.9, "metal": 0.0, "wear": 0.0},
+    # The cobalt line printed under ironstone's rim (the Davenport set's band, refs/doctor/).
+    "cobalt": {"kind": "coat", "color": (0.10, 0.16, 0.42), "under": (0.10, 0.16, 0.42), "rust": 0.0,
+               "rough": 0.08, "metal": 0.0, "wear": 0.0},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,
@@ -194,7 +205,7 @@ def _node_tree(mat, look, img, mode):
         g.L.new(obj, sep.inputs[0])
         # Stripes along the part's X (the mattress's length): two narrow blue lines a pitch.
         wave = g.math("SINE", g.math("MULTIPLY", sep.outputs["Z"], 2 * math.pi / look["pitch"]), 0.0)
-        stripe = g.maprange(wave, 0.55, 0.75)
+        stripe = g.maprange(wave, 0.35, 0.55)
         base = g.mix(stripe, look["color"], look["stripe"])
         base = g.mix(g.math("MULTIPLY", g.noise(obj, 30.0, 5.0), 0.35), base, (0.45, 0.40, 0.32))  # soil
         worn = base

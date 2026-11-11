@@ -191,6 +191,12 @@ WASH = {"width": 0.76, "depth": 0.42, "top": 0.76, "board": 0.022, "leg": 0.045,
         "apron_h": 0.12, "apron_t": 0.02, "shelf_y": 0.14, "splash": (0.14, 0.018)}
 
 
+def wash_towel_bar():
+    """The washstand's towel bar's middle (x, y, z) in its space: off its +x side, under the top."""
+    w = WASH
+    return (w["width"] * 0.5 + 0.05, w["top"] - 0.13, 0.0)
+
+
 def washstand():
     w = WASH
     W, D, H = w["width"], w["depth"], w["top"]
@@ -220,8 +226,15 @@ def washstand():
         ms.append(member("shelf%d" % k, "furniture_top", [lx * 2, 0.016, sd * 0.5], [0, w["shelf_y"] + 0.015 + 0.008, -sd * 0.25 + sd * 0.5 * k], look=WALNUT))
     sh, st = w["splash"]
     ms.append(member("splashback", "trim", [W, sh, st], [0, H + sh * 0.5, -D * 0.5 + st * 0.5], look=WALNUT))
+    # A towel bar on two brackets off the +x legs, the towel hung on it (drawn on the bar).
+    bx, by, bz = wash_towel_bar()
+    for k, sz in enumerate((-1, 1)):
+        ms.append(member("towel_bracket%d" % k, "cripple", [bx - (lx + hl), 0.03, 0.03], [(lx + hl + bx) * 0.5, by, sz * lz], look=WALNUT))
+    bar = member("towel_bar", "trim", [0.022, 0.022, lz * 2 + 0.03], [bx, by + 0.026, 0], look=WALNUT)
+    bar["dress"] = [{"look": "pbr:washset", "draw": mesh("washset", "Towel")}]
+    ms.append(bar)
     return {
-        "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
+        "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side with a linen towel, a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
         "id": "washstand", "kind": "members", "fixture": True, "wood": "walnut",
         "splits_below": 0.5, "blow_wood_share": 0.5,
         "members": ms,
@@ -235,11 +248,11 @@ PITCHER = {"radius": 0.105, "height": 0.31, "foot": 0.075}
 
 def wash_basin():
     return {
-        "_doc": "A white ironstone wash basin (the common washstand china of the 1860s-80s; #788, refs experiments/prop_lab/refs/doctor/), 38 cm across: a prop that shatters (GlassProp). ~5 mm of fired clay under its glaze: it breaks dropped from a table's height or kicked (2.5 m/s) and at ~25 kPa; a ball breaks it. Baked the gun way (tools/blender/props/doctor_d1.py). Holds a litre of water. Written by tools/props/doctor.py.",
+        "_doc": "A white ironstone wash basin with a cobalt line under its rim (the common washstand china of the 1860s-80s; #788, refs experiments/prop_lab/refs/doctor/), 38 cm across: a prop that shatters (GlassProp). ~5 mm of fired clay under its glaze: it breaks dropped from a table's height or kicked (2.5 m/s) and at ~25 kPa; a ball breaks it. Baked the gun way (tools/blender/props/doctor_d1.py). Holds a litre of water. Written by tools/props/doctor.py.",
         "id": "wash_basin", "kind": "shatters", "fixture": True,
-        "model": "glb:washset", "looks": {"Basin": "pbr:washset"},
+        "model": "glb:washset", "looks": {"Basin": "pbr:washset", "BasinBand": "pbr:washset"},
         "size": r([BASIN["radius"] * 2, BASIN["height"], BASIN["radius"] * 2]),
-        "mass": 1.6, "wall": 0.005, "glass": ["Basin"], "whole": [], "shards": 9, "piece_mass": 0.2,
+        "mass": 1.6, "wall": 0.005, "glass": ["Basin", "BasinBand"], "whole": [], "shards": 9, "piece_mass": 0.2,
         "breaks_at": 2.5, "shatters_kpa": 25, "heat_seconds": 1e9, "cut_area": 0.03,
         "contents": {"liquid": "water", "litres": 1.0},
     }
@@ -249,9 +262,9 @@ def wash_pitcher():
     return {
         "_doc": "A white ironstone pitcher (ewer) to the basin (#788), 31 cm high with its handle and lip, standing in the basin: a prop that shatters (GlassProp), as the basin. Holds 2.5 l of water. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
         "id": "wash_pitcher", "kind": "shatters", "fixture": True,
-        "model": "glb:washset", "looks": {"Pitcher": "pbr:washset"},
+        "model": "glb:washset", "looks": {"Pitcher": "pbr:washset", "PitcherBand": "pbr:washset"},
         "size": r([PITCHER["radius"] * 2, PITCHER["height"], PITCHER["radius"] * 2]),
-        "mass": 1.4, "wall": 0.005, "glass": ["Pitcher"], "whole": [], "shards": 9, "piece_mass": 0.2,
+        "mass": 1.4, "wall": 0.005, "glass": ["Pitcher", "PitcherBand"], "whole": [], "shards": 9, "piece_mass": 0.2,
         "breaks_at": 2.5, "shatters_kpa": 25, "heat_seconds": 1e9, "cut_area": 0.03,
         "contents": {"liquid": "water", "litres": 2.5},
     }
@@ -279,20 +292,23 @@ def instrument_tray():
 
 
 # --- The lamp with a reflector --------------------------------------------------------------------
-# The oil lamp (its kit file) on a stand with a tin reflector behind its chimney, to throw its light
-# onto the table: the surgery's lamp at night, held over the table (DESIGN.md's showcase).
-LAMP = {"size": (0.2, 0.44, 0.2)}
+# A wall bracket lamp (both references hang on the wall: a dished tin reflector behind the chimney,
+# the fount in a ring on the bracket), hung on a nail as the sconce is; the doctor takes it down and
+# holds it over the table at night (DESIGN.md's showcase). Its axis at the origin, the wall `wall`
+# behind it.
+LAMP = {"size": (0.24, 0.44, 0.26), "wall": 0.125}
 
 
 def reflector_lamp():
     return {
-        "_doc": "A kerosene lamp with a reflector (#788; refs experiments/prop_lab/refs/doctor/): the oil lamp's (`like`) brass foot and font, burner and glass chimney, with a dished tinplate reflector on an arm behind the chimney to throw its light forward (+z) onto the table, the surgery's lamp at night. A prop that shatters (GlassProp): the chimney breaks, the brass and tin come through whole. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
+        "_doc": "A wall bracket lamp with a reflector (#788; refs experiments/prop_lab/refs/doctor/: both period lamps hang on the wall): a tin fount in a ring on a japanned bracket, a brass burner and a globe chimney, and a dished tinplate reflector 22 cm across on the wall behind, throwing its light forward (+z) into the room. Hung on one nail through the reflector's tab, as the sconce: its wall board shot out or burnt, it falls and smashes. A prop that shatters (GlassProp, `like` the oil lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole. The surgery's lamp; at night the doctor holds it over the table. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
         "id": "reflector_lamp", "like": "oil_lamp", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:reflector_lamp",
-        "looks": {"Chimney": "prop:chimney_glass", "Foot": "pbr:reflector_lamp", "Font": "pbr:reflector_lamp",
-                  "Burner": "pbr:reflector_lamp", "Reflector": "pbr:reflector_lamp"},
-        "size": r(LAMP["size"]), "mass": 1.1,
-        "glass": ["Chimney"], "whole": [["Foot", "Font", "Burner", "Reflector"]],
+        "looks": {"Chimney": "prop:chimney_glass", "Font": "pbr:reflector_lamp", "Burner": "pbr:reflector_lamp",
+                  "Reflector": "pbr:reflector_lamp", "Bracket": "pbr:reflector_lamp"},
+        "size": r(LAMP["size"]), "mass": 1.0,
+        "hangs": {"nails": [[0.0, 0.395, -LAMP["wall"] + 0.004]]},
+        "glass": ["Chimney"], "whole": [["Font", "Burner", "Reflector", "Bracket"]],
     }
 
 

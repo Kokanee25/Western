@@ -168,8 +168,9 @@ func test_doctor_d1_stands_weighs_and_draws_in_a_few_batches() -> void:
 		check(p.members_without_load_path().is_empty(), "%s: every member has its way down" % id)
 		var kg := p.mass()
 		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
-		# Library boards batch by the way they face (three ways at most), the baked look one more.
-		check(p.batch_count() <= 6, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		# Library boards batch by the way they face (a table's legs, aprons both ways, top, shelf and
+		# drawer fronts: five frames), the baked look and its dress one or two more.
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
 		p.queue_free()
 		await physics_frames(1)
 
@@ -256,3 +257,30 @@ func test_doctor_d1_glass_stands_and_the_china_breaks() -> void:
 	await wait_until(func() -> bool: return pitcher.broken, 120)
 	check(pitcher.broken, "the pitcher dropped from 1.2 m breaks (%.1f m/s against 2.5)" % sqrt(2.0 * 9.81 * 1.2))
 	w.queue_free()
+
+
+func test_the_reflector_lamp_hangs_on_its_nail_and_its_chimney_glows_when_lit() -> void:
+	# A wall: two studs and boards across them, its face at z = 0 (the lamp's back toward it).
+	var wall := Structure.new()
+	wall.structure_id = &"lamp_wall"
+	world.add_child(wall)
+	for x in [-0.4, 0.4]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.4, 0.1), Vector3(x, 1.2, -0.07))
+	for i in 10:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.2, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var lamp := PropKit.make(&"reflector_lamp") as GlassProp
+	lamp.position = Vector3(0, 1.3, 0.125)
+	world.add_child(lamp)
+	var light := OilLamp.new()
+	light.name = "Light"
+	light.show_mesh = false
+	lamp.add_child(light)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 6)
+	check(not lamp.loose and not lamp.broken, "it hangs on its nail in the wall")
+	light.set_lit(true)
+	var chimney := lamp._chimney_mesh()
+	check(chimney != null, "its model has its glass chimney")
+	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 1.0, "lit, its chimney glows")
+	light.set_lit(false)
+	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 0.0, "out, it doesn't")

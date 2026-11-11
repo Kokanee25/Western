@@ -1,11 +1,12 @@
 {
-  "_doc": "A white ironstone wash basin (the common washstand china of the 1860s-80s; #788, refs experiments/prop_lab/refs/doctor/), 38 cm across: a prop that shatters (GlassProp). ~5 mm of fired clay under its glaze: it breaks dropped from a table's height or kicked (2.5 m/s) and at ~25 kPa; a ball breaks it. Baked the gun way (tools/blender/props/doctor_d1.py). Holds a litre of water. Written by tools/props/doctor.py.",
+  "_doc": "A white ironstone wash basin with a cobalt line under its rim (the common washstand china of the 1860s-80s; #788, refs experiments/prop_lab/refs/doctor/), 38 cm across: a prop that shatters (GlassProp). ~5 mm of fired clay under its glaze: it breaks dropped from a table's height or kicked (2.5 m/s) and at ~25 kPa; a ball breaks it. Baked the gun way (tools/blender/props/doctor_d1.py). Holds a litre of water. Written by tools/props/doctor.py.",
   "id": "wash_basin",
   "kind": "shatters",
   "fixture": true,
   "model": "glb:washset",
   "looks": {
-    "Basin": "pbr:washset"
+    "Basin": "pbr:washset",
+    "BasinBand": "pbr:washset"
   },
   "size": [
     0.38,
@@ -15,7 +16,8 @@
   "mass": 1.6,
   "wall": 0.005,
   "glass": [
-    "Basin"
+    "Basin",
+    "BasinBand"
   ],
   "whole": [],
   "shards": 9,

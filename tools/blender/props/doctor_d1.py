@@ -31,9 +31,97 @@ def merged(name, parts, smooth=True):
     return out
 
 
+def soft_box(name, size, at, e=0.3, rings=14, segs=28, flat_bottom=True, finish_bulge=0.0):
+    """A soft, rounded box (a superellipsoid: a sphere's directions pushed out by |u|^e; e 0.15 boxy,
+    1 round): a straw tick, a pillow, a folded cloth. `flat_bottom` sits it on its foot;
+    `finish_bulge` swells its top in the middle (a stuffed pillow)."""
+    a, b, c = (float(v) * 0.5 for v in size)
+    f = lambda u: math.copysign(abs(u) ** e, u)
+    verts = [(0.0, -b, 0.0)]
+    for i in range(1, rings):
+        phi = math.pi * i / rings - math.pi * 0.5
+        for k in range(segs):
+            th = 2 * math.pi * k / segs
+            ux, uy, uz = math.cos(phi) * math.cos(th), math.sin(phi), math.cos(phi) * math.sin(th)
+            x, y, z = a * f(ux), b * f(uy), c * f(uz)
+            if finish_bulge and y > 0:
+                y += finish_bulge * (1 - (x / a) ** 2) * (1 - (z / c) ** 2)
+            verts.append((x, y, z))
+    verts.append((0.0, b, 0.0))
+    faces = []
+    for k in range(segs):
+        faces.append([0, 1 + k, 1 + (k + 1) % segs])
+    for i in range(rings - 2):
+        for k in range(segs):
+            p0 = 1 + i * segs + k
+            p1 = 1 + i * segs + (k + 1) % segs
+            faces.append([p0, p0 + segs, p1 + segs, p1])
+    top = len(verts) - 1
+    base = 1 + (rings - 2) * segs
+    for k in range(segs):
+        faces.append([top, base + (k + 1) % segs, base + k])
+    if flat_bottom:
+        verts = [(x, max(y, -b * 0.92), z) for x, y, z in verts]
+    ax, ay, az = at
+    return Part(name, smooth=True).add([(x + ax, y + ay, z + az) for x, y, z in verts], faces)
+
+
+def drape(name, half_w, top_fn, z0, z1, hang=0.2, r=0.05, thick=0.008, nz=24, folds=0.012, seed=1):
+    """A blanket laid over a bed: across x its section rises from a hem `hang` below the top at
+    -half_w, rounds over the edge (radius r), lies on the top (`top_fn(x, z)`), and falls the same
+    the other side; along z from z0 to z1; soft folds in what hangs. A thin solid (two skins)."""
+    import random
+    rng = random.Random(seed)
+    phase = [rng.uniform(0, 6.28) for _ in range(4)]
+    section = []
+    for k in range(6):
+        section.append((-half_w, -hang + (hang - r) * k / 5))
+    for k in range(1, 7):
+        t = math.pi * 0.5 * k / 6
+        section.append((-half_w + r - r * math.cos(t), -r + r * math.sin(t)))
+    n_top = 14
+    for k in range(1, n_top):
+        section.append((-half_w + r + (2 * (half_w - r)) * k / n_top, 0.0))
+    for k in range(0, 6):
+        t = math.pi * 0.5 * k / 6
+        section.append((half_w - r + r * math.sin(t), -r + r * math.cos(t)))
+    for k in range(6):
+        section.append((half_w, -r - (hang - r) * k / 5))
+    ns = len(section)
+    outer, inner = [], []
+    for j in range(nz + 1):
+        z = z0 + (z1 - z0) * j / nz
+        for sx, sy in section:
+            hang_share = min(1.0, max(0.0, -sy - r) / max(1e-6, hang - r))
+            wob = folds * hang_share * (math.sin(z * 23 + phase[0] + sx) + 0.6 * math.sin(z * 41 + phase[1]))
+            x = sx + math.copysign(wob, sx)
+            y = top_fn(max(-half_w + r, min(half_w - r, sx)), z) + sy
+            outer.append((x, y, z))
+            nxs = -1.0 if sx < -half_w + r * 0.5 else (1.0 if sx > half_w - r * 0.5 else 0.0)
+            inner.append((x - nxs * thick, y - (thick if nxs == 0.0 else 0.0), z))
+    verts = outer + inner
+    off = len(outer)
+    faces = []
+    for j in range(nz):
+        for i in range(ns - 1):
+            a = j * ns + i
+            faces.append([a, a + 1, a + ns + 1, a + ns])
+            faces.append([off + a, off + a + ns, off + a + ns + 1, off + a + 1])
+    for i in range(ns - 1):  # the ends
+        faces.append([i + 1, i, off + i, off + i + 1])
+        a = nz * ns + i
+        faces.append([a, a + 1, off + a + 1, off + a])
+    for j in range(nz):  # the hems
+        a = j * ns
+        faces.append([a + ns, a, off + a, off + a + ns])
+        a = j * ns + ns - 1
+        faces.append([a, a + ns, off + a + ns, off + a])
+    return Part(name, smooth=True).add(verts, faces)
+
+
 # --- The examining table's pads -------------------------------------------------------------------
 
-def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.02, dimple=0.012, n=3):
+def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.022, dimple=0.02, n=3):
     """A buttoned cushion on the box x0..x1, z0..z1 from y0, its top h0 high at x0 and h1 at x1 (a
     wedge if they differ): a grid top drawn in at each button of a diamond pattern, its edges rolled
     over, sides down to y0, a flat bottom; the buttons themselves little discs."""
@@ -154,48 +242,49 @@ def cot():
         z = -sz + k * 0.07
         wires.append(box("w", (sx * 2, 0.003, 0.003), (0, y - 0.004, z)))
     parts.append((merged("Spring", wires, smooth=False), "japanned"))
-    # The straw tick, sagging a little in the middle; the blanket over its foot two-thirds,
-    # hanging at the sides; the pillow at the head.
+    # The straw tick, soft and sagging where he lies; the blanket laid over its foot two-thirds,
+    # rounding over its edges and hanging down both sides in soft folds, turned down at its head;
+    # the pillow stuffed, in a white case (the 1864-65 wards' beds: grey wool, white pillows).
     tx, ty, tz = c["tick"]
-    tick = box("Tick", (tx, ty, tz), (0, y + ty * 0.5, 0), smooth=True, bevel=0.045)
-    tv = []
-    for vx, vy, vz in tick.verts:
-        sag = 0.018 * (1 - (2 * vz / tz) ** 2) * (1 - (2 * vx / tx) ** 2) if vy > y + ty * 0.5 else 0.0
-        tv.append((vx, vy - sag, vz))
-    tick.verts = tv
+    tick = soft_box("Tick", (tx, ty, tz), (0, y + ty * 0.5, 0), e=0.22)
+    sag = lambda vx, vz: 0.035 * max(0.0, 1 - (2 * vz / tz) ** 2) * max(0.0, 1 - (2 * vx / tx) ** 2)
+    tick.verts = [(vx, vy - (sag(vx, vz) if vy > y + ty * 0.5 else 0.0), vz) for vx, vy, vz in tick.verts]
     parts.append((tick, "ticking"))
     bx, by, bz = c["blanket"]
     top = y + ty
     bz0 = tz * 0.5 - bz
-    blanket = merged("Blanket", [
-        box("t", (bx + 0.02, by, bz), (0, top + by * 0.5 - 0.012, bz0 + bz * 0.5), bevel=0.006),
-        box("s", (0.012, 0.16, bz), (-(bx + 0.02) * 0.5, top - 0.07, bz0 + bz * 0.5), bevel=0.004),
-        box("s", (0.012, 0.16, bz), ((bx + 0.02) * 0.5, top - 0.07, bz0 + bz * 0.5), bevel=0.004),
-        box("e", (bx + 0.02, 0.14, 0.012), (0, top - 0.06, tz * 0.5 + 0.006), bevel=0.004),
-        # The turn-down at its head edge.
-        box("d", (bx + 0.02, 0.012, 0.16), (0, top + by + 0.002 - 0.012, bz0 + 0.08), bevel=0.004),
-    ], smooth=True)
+    top_fn = lambda x, z: top + 0.006 - sag(x, z)
+    blanket = drape("Blanket", tx * 0.5 + 0.02, top_fn, bz0, tz * 0.5 + 0.015, hang=0.2, r=0.055)
+    turn = drape("d", tx * 0.5 + 0.03, lambda x, z: top_fn(x, z) + 0.012, bz0 - 0.02, bz0 + 0.17, hang=0.08, r=0.05, nz=6, seed=3)
+    blanket.merge(turn)
     parts.append((blanket, "wool"))
     qx, qy, qz = c["pillow"]
-    pillow = box("Pillow", (qx, qy, qz), (0, top + qy * 0.5 - 0.01, -tz * 0.5 + qz * 0.5 + 0.03), smooth=True, bevel=0.045)
-    parts.append((pillow, "ticking"))
+    pillow = soft_box("Pillow", (qx, qy * 0.8, qz), (0, top - sag(0.0, -tz * 0.5 + qz * 0.5) + qy * 0.4, -tz * 0.5 + qz * 0.5 + 0.03), e=0.45, finish_bulge=0.02)
+    parts.append((pillow, "linen"))
     metal.export_baked("iron_cot", parts, size=1024)
 
 
-# --- The wash set (basin and pitcher, white ironstone; the washstand's drawer knob) ----------------
+# --- The wash set (basin and pitcher, white ironstone with a cobalt line; the washstand's knob and
+# its towel) -------------------------------------------------------------------------------------
+
+def torus_ring(name, radius, y, tube_r, segs=40, sides=6):
+    pts = [(math.cos(2 * math.pi * k / segs) * radius, y, math.sin(2 * math.pi * k / segs) * radius) for k in range(segs + 1)]
+    return tube(name, pts, tube_r, sides=sides, caps=(False, False))
+
 
 def washset():
     b = doctor.BASIN
     R, H = b["radius"], b["height"]
     basin = lathe("Basin", [(b["foot"], 0.0), (b["foot"] + 0.004, 0.008), (R * 0.62, 0.025), (R * 0.88, 0.06), (R, H - 0.006),
                             (R + 0.006, H), (R - 0.004, H + 0.002), (R - 0.012, H - 0.008), (R * 0.85, 0.06),
-                            (R * 0.58, 0.028), (b["foot"] - 0.004, 0.014), (0.0, 0.014)], 28, caps=(True, False))
+                            (R * 0.58, 0.028), (b["foot"] - 0.004, 0.014), (0.0, 0.014)], 36, caps=(True, False))
+    basin_band = torus_ring("BasinBand", R + 0.0035, H - 0.009, 0.0022)
     p = doctor.PITCHER
     PR, PH = p["radius"], p["height"]
     body = lathe("Pitcher", [(p["foot"], 0.0), (p["foot"] + 0.004, 0.01), (PR * 0.95, 0.06), (PR, 0.11), (PR * 0.88, 0.17),
                              (PR * 0.66, 0.235), (PR * 0.70, 0.27), (PR * 0.82, PH - 0.005), (PR * 0.84, PH),
                              (PR * 0.78, PH), (PR * 0.64, 0.25), (PR * 0.60, 0.22), (PR * 0.82, 0.15), (PR * 0.86, 0.07),
-                             (0.0, 0.012)], 28, caps=(True, False))
+                             (0.0, 0.012)], 36, caps=(True, False))
     # The lip: the rim's +x side drawn out and up into a spout.
     verts = []
     for vx, vy, vz in body.verts:
@@ -205,16 +294,27 @@ def washset():
             vy += 0.012 * k
         verts.append((vx, vy, vz))
     body.verts = verts
-    handle = tube("h", [(-PR * 0.74, 0.275, 0), (-PR - 0.04, 0.26, 0), (-PR - 0.055, 0.19, 0), (-PR - 0.03, 0.12, 0), (-PR * 0.95, 0.09, 0)],
-                  [(0.008, 0.012)] * 5, sides=8, up_hint=(0, 0, 1))
+    # The handle: a smooth loop from under the rim to the belly, flattened.
+    hp = []
+    for k in range(10):
+        t = k / 9.0
+        ang = math.pi * (0.1 + 0.8 * t)
+        hp.append((-PR * 0.72 - 0.065 * math.sin(ang) - 0.01 * t, 0.275 - 0.185 * t, 0.0))
+    handle = tube("h", hp, [(0.0075, 0.012)] * len(hp), sides=12, up_hint=(0, 0, 1))
     pitcher = merged("Pitcher", [body, handle])
+    pitcher_band = torus_ring("PitcherBand", PR * 0.835, PH - 0.012, 0.002)
     w = doctor.WASH
     under = w["top"] - w["board"]
     lz = w["depth"] * 0.5 - w["inset"] - w["leg"] * 0.5
     zf = lz + w["leg"] * 0.5 + 0.001
     knob = lathe("Knob", [(0.012, 0.0), (0.016, 0.006), (0.015, 0.016), (0.008, 0.02), (0.0, 0.022)], 12, axis="z",
                  at=(0, under - w["apron_h"] * 0.5, zf))
-    metal.export_baked("washset", [(basin, "china"), (pitcher, "china"), (knob, "brass")], size=1024)
+    # The towel: a linen huckaback towel folded over the side bar, hanging both sides.
+    bx, by, bz = doctor.wash_towel_bar()
+    towel = drape("Towel", 0.035, lambda x, z: by + 0.012, bz - 0.2, bz + 0.2, hang=0.34, r=0.02, thick=0.004, nz=10, folds=0.008, seed=5)
+    towel.verts = [(bx + vz_x, vy, vz) for (vz_x, vy, vz) in [(v[0], v[1], v[2]) for v in towel.verts]]
+    metal.export_baked("washset", [(basin, "china"), (basin_band, "cobalt"), (pitcher, "china"), (pitcher_band, "cobalt"),
+                                   (knob, "brass"), (towel, "linen")], size=1024)
 
 
 # --- The instrument tray --------------------------------------------------------------------------
@@ -230,42 +330,62 @@ def tray():
     rim = [(-sx * 0.5, 0.026, -sz * 0.5), (sx * 0.5, 0.026, -sz * 0.5), (sx * 0.5, 0.026, sz * 0.5), (-sx * 0.5, 0.026, sz * 0.5), (-sx * 0.5, 0.026, -sz * 0.5)]
     tray_parts.append(tube("r", rim, 0.003, sides=6, caps=(False, False)))
     parts = [(merged("Tray", tray_parts, smooth=False), "enamel")]
-    # The bone saw: a stiff-backed blade and an ebony handle, laid along the tray.
-    parts.append((merged("SawBlade", [box("b", (0.2, 0.0012, 0.04), (0.02, fy + 0.002, -0.06), bevel=0.0004),
-                                      box("k", (0.2, 0.004, 0.007), (0.02, fy + 0.004, -0.08), bevel=0.001)], smooth=False), "steel"))
-    parts.append((box("SawHandle", (0.095, 0.022, 0.034), (-0.125, fy + 0.012, -0.068), bevel=0.008, smooth=True), "ebony"))
-    # The bullet forceps: two long jaws crossing at a joint, ring handles.
-    fz = 0.0
-    jaws = [moved(box("j", (0.17, 0.004, 0.006), (0, 0, 0), bevel=0.0015), a, (0, 1, 0), (0.0, fy + 0.004, fz)) for a in (3.0, -3.0)]
-    rings = [lathe("o", [(0.011, -0.002), (0.013, 0.0), (0.011, 0.002)], 10, at=(-0.1, fy + 0.004, fz + s * 0.012), caps=(False, False)) for s in (-1, 1)]
+    # A folded linen cloth in it, the instruments laid out on it (the target sheet's table).
+    parts.append((soft_box("Cloth", (sx - 0.05, 0.008, sz - 0.05), (0, fy + 0.002, 0), e=0.12, rings=6, segs=20), "linen"))
+    cy = fy + 0.008
+    # The amputation saw (a capital saw): a deep blade, its teeth along the lower edge, the back's
+    # spine, an ebony handle.
+    teeth = [(0.13, -0.025)]
+    x = 0.13
+    while x > -0.10:
+        teeth += [(x - 0.002, -0.029), (x - 0.004, -0.025)]
+        x -= 0.004
+    outline = [(-0.10, 0.012), (-0.10, -0.025)] + sorted(teeth, key=lambda t: t[0]) + [(0.13, 0.012)]
+    blade = moved(common.slab("b", outline, -0.0007, 0.0007), -90, (1, 0, 0), (0.035, cy + 0.003, -0.055))
+    spine = box("k", (0.23, 0.005, 0.008), (0.05, cy + 0.004, -0.067), bevel=0.0015)
+    parts.append((merged("SawBlade", [blade, spine], smooth=False), "steel"))
+    parts.append((soft_box("SawHandle", (0.10, 0.026, 0.05), (-0.12, cy + 0.013, -0.06), e=0.35, rings=8, segs=16), "ebony"))
+    # The bullet forceps: two long jaws crossing at a joint, finger rings.
+    fz = 0.012
+    jaws = [moved(box("j", (0.19, 0.005, 0.007), (0, 0, 0), bevel=0.0018), a_, (0, 1, 0), (0.01, cy + 0.0035, fz)) for a_ in (3.5, -3.5)]
+    rings = [moved(torus_ring("o", 0.013, 0.0, 0.0022, segs=16, sides=6), 0, (0, 1, 0), (-0.1, cy + 0.003, fz + s_ * 0.014)) for s_ in (-1, 1)]
     parts.append((merged("Forceps", jaws + rings), "nickel"))
-    # Nelaton's probe: a long slender rod, its tip a bead of unglazed porcelain (a ball leaves a lead mark on it).
-    parts.append((tube("Probe", [(-0.13, fy + 0.0025, 0.05), (0.12, fy + 0.0025, 0.062)], 0.0018, sides=6), "nickel"))
-    parts.append((common.blob("ProbeTip", (0.123, fy + 0.0035, 0.0622), (0.0035, 0.0035, 0.0035), rings=4, sides=6), "china"))
-    # A scalpel: a bellied blade and an ebony handle.
-    parts.append((box("ScalpelBlade", (0.04, 0.001, 0.011), (0.075, fy + 0.002, 0.09), bevel=0.0003), "steel"))
-    parts.append((box("ScalpelHandle", (0.085, 0.008, 0.012), (0.012, fy + 0.004, 0.09), bevel=0.003, smooth=True), "ebony"))
-    metal.export_baked("instrument_tray", parts, size=512)
+    # Nelaton's probe: a long slender rod, its tip a bead of unglazed porcelain.
+    parts.append((tube("Probe", [(-0.13, cy + 0.003, 0.055), (0.125, cy + 0.003, 0.064)], 0.0025, sides=8), "nickel"))
+    parts.append((common.blob("ProbeTip", (0.128, cy + 0.004, 0.0642), (0.005, 0.005, 0.005), rings=5, sides=8), "china"))
+    # A scalpel: a bellied blade and an octagonal ebony handle.
+    sb = common.slab("s", [(0.0, 0.0), (0.04, 0.0), (0.03, 0.009), (0.0, 0.007)], -0.0006, 0.0006)
+    parts.append((moved(sb, -90, (1, 0, 0), (0.055, cy + 0.002, 0.092), name="ScalpelBlade"), "steel"))
+    parts.append((tube("ScalpelHandle", [(-0.045, cy + 0.007, 0.095), (0.055, cy + 0.007, 0.095)], (0.008, 0.006), sides=8), "ebony"))
+    metal.export_baked("instrument_tray", parts, size=1024)
 
 
-# --- The reflector lamp ---------------------------------------------------------------------------
+# --- The reflector lamp: a wall bracket lamp (the references: a tin reflector disc on the wall
+# behind the chimney, the fount in a ring on the bracket) --------------------------------------
 
 def lamp():
-    foot = lathe("Foot", [(0.07, 0.0), (0.072, 0.006), (0.06, 0.016), (0.03, 0.035), (0.018, 0.06), (0.02, 0.075), (0.03, 0.082)], 20)
-    font = lathe("Font", [(0.03, 0.082), (0.055, 0.1), (0.064, 0.13), (0.055, 0.16), (0.03, 0.175), (0.024, 0.18)], 20)
-    burner = merged("Burner", [lathe("b", [(0.024, 0.18), (0.028, 0.188), (0.028, 0.2), (0.033, 0.205), (0.031, 0.212)], 16),
-                               *[tube("g", [(math.cos(a) * 0.03, 0.205, math.sin(a) * 0.03), (math.cos(a) * 0.038, 0.222, math.sin(a) * 0.038)], 0.0025, sides=5)
-                                 for a in (0.3, 2.4, 4.5)],
-                               box("w", (0.014, 0.01, 0.01), (0.04, 0.196, 0.0), bevel=0.003)])  # the wick's key
-    chimney = lathe("Chimney", [(0.03, 0.205), (0.044, 0.23), (0.05, 0.26), (0.046, 0.295), (0.032, 0.335), (0.023, 0.375), (0.022, 0.435)], 20,
+    wz = -doctor.LAMP["wall"]  # the wall's face behind it (the lamp's axis at the origin)
+    # The fount: a tin font in the bracket's ring, the brass collar and burner on it.
+    font = lathe("Font", [(0.035, 0.05), (0.052, 0.06), (0.058, 0.09), (0.055, 0.13), (0.04, 0.155), (0.026, 0.165), (0.024, 0.17)], 24)
+    burner = merged("Burner", [lathe("b", [(0.024, 0.17), (0.028, 0.176), (0.028, 0.19), (0.034, 0.196), (0.031, 0.203)], 16),
+                               *[tube("g", [(math.cos(a_) * 0.031, 0.198, math.sin(a_) * 0.031), (math.cos(a_) * 0.039, 0.214, math.sin(a_) * 0.039)], 0.0025, sides=5)
+                                 for a_ in (0.3, 2.4, 4.5)],
+                               box("w", (0.016, 0.01, 0.01), (0.042, 0.184, 0.0), bevel=0.003)])
+    # A bulged ("globe") chimney, as the wall lamp's.
+    chimney = lathe("Chimney", [(0.031, 0.198), (0.036, 0.215), (0.046, 0.245), (0.05, 0.27), (0.044, 0.3), (0.03, 0.33), (0.024, 0.37), (0.023, 0.43)], 24,
                     caps=(False, False))
-    # The reflector: a dished tin disc 20 cm across behind the chimney, facing +z, on a wire arm
-    # from the burner's collar.
-    dish = lathe("d", [(0.0, -0.012), (0.04, -0.008), (0.08, 0.004), (0.1, 0.016), (0.102, 0.018), (0.098, 0.017), (0.078, 0.007), (0.04, -0.004), (0.0, -0.008)],
-                 24, axis="z", at=(0, 0.29, -0.085), caps=(False, False))
-    arm = tube("a", [(0, 0.2, -0.031), (0, 0.205, -0.07), (0, 0.24, -0.094), (0, 0.27, -0.096)], 0.0025, sides=6)
-    reflector = merged("Reflector", [dish, arm])
-    metal.export_baked("reflector_lamp", [(foot, "brass"), (font, "brass"), (burner, "brass"), (chimney, "glass"), (reflector, "tin")], size=512)
+    # The reflector: a dished tin disc 22 cm across on the wall behind the chimney, rolled at its
+    # edge; a hanging tab with the nail's hole over it.
+    dish = lathe("d", [(0.0, -0.016), (0.05, -0.012), (0.09, 0.0), (0.108, 0.012), (0.111, 0.015), (0.107, 0.014), (0.088, 0.003), (0.05, -0.008), (0.0, -0.012)],
+                 32, axis="z", at=(0, 0.27, wz + 0.016), caps=(False, False))
+    tab = box("t", (0.03, 0.05, 0.004), (0, 0.395, wz + 0.004), bevel=0.0012)
+    reflector = merged("Reflector", [dish, tab])
+    # The bracket: a strap from the disc's foot out to a ring round the fount, a brace under it.
+    strap = tube("s", [(0, 0.16, wz + 0.006), (0, 0.075, wz + 0.01), (0, 0.06, -0.06), (0, 0.06, -0.045)], [(0.004, 0.009)] * 4, sides=6, up_hint=(1, 0, 0))
+    ring = torus_ring("r", 0.06, 0.07, 0.004, segs=24, sides=6)
+    brace = tube("e", [(0, 0.11, wz + 0.008), (0, 0.065, -0.055)], 0.003, sides=5)
+    bracket = merged("Bracket", [strap, ring, brace])
+    metal.export_baked("reflector_lamp", [(font, "tin"), (burner, "brass"), (chimney, "glass"), (reflector, "tin"), (bracket, "japanned")], size=1024)
 
 
 def build():

@@ -5,7 +5,8 @@
   "fixture": true,
   "model": "glb:washset",
   "looks": {
-    "Pitcher": "pbr:washset"
+    "Pitcher": "pbr:washset",
+    "PitcherBand": "pbr:washset"
   },
   "size": [
     0.21,
@@ -15,7 +16,8 @@
   "mass": 1.4,
   "wall": 0.005,
   "glass": [
-    "Pitcher"
+    "Pitcher",
+    "PitcherBand"
   ],
   "whole": [],
   "shards": 9,

@@ -80,6 +80,23 @@ func _take_hitbox(lamp: Node) -> void:
 	var hb := lamp.get_node_or_null(^"Hitbox") as CollisionObject3D
 	if hb:
 		hb.collision_layer = 0
+	# Its chimney is this prop's (the lamp's own model is hidden): the lamp lights it when it's lit,
+	# so the glass glows round its flame (chimney_glass.gdshader's `glow`; #788: a kit lamp's chimney
+	# never glowed).
+	var chimney := _chimney_mesh()
+	if chimney and lamp.get(&"show_mesh") == false:
+		lamp.set(&"_chimney", chimney)
+		lamp.call(&"set_lit", bool(lamp.get(&"lit")))
+
+
+## The model's glass chimney (a lamp's), or null.
+func _chimney_mesh() -> MeshInstance3D:
+	if model == null:
+		return null
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		if String(mi.name).begins_with("Chimney") and mi.material_override is ShaderMaterial:
+			return mi
+	return null
 
 
 func _build() -> void:
