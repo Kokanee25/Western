@@ -74,8 +74,10 @@ static func deepest(m: StructureMember) -> float:
 ## going `push` (world, into the plate), `radius` wide (m), along `along` (world; a log's line) for
 ## `length` m (0: a round dish). Returns {"depth": its depth after, "torn": bool, "dent": record} or
 ## {} if too light to show.
+## `mesh` false: the dent recorded but its mesh left for the caller to rebuild (DentWatch spreads
+## them over ticks: nine plates dented on one tick were ~90 ms here, #794).
 static func dent(m: StructureMember, at: Vector3, joules: float, push: Vector3, radius := -1.0,
-		along := Vector3.ZERO, length := 0.0) -> Dictionary:
+		along := Vector3.ZERO, length := 0.0, mesh := true) -> Dictionary:
 	if not can_dent(m) or m.has_meta(&"dent_torn"):
 		return {}
 	var dt := t()
@@ -125,7 +127,8 @@ static func dent(m: StructureMember, at: Vector3, joules: float, push: Vector3, 
 	m.set_meta(&"dents", list)
 	var deepest_now := float(record.d)
 	var torn := deepest_now >= dt.tear_depth
-	rebuild(m)
+	if mesh or torn:
+		rebuild(m)
 	if torn:
 		tear(m, push)
 	return {"depth": deepest_now, "torn": torn, "dent": record}

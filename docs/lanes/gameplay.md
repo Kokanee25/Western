@@ -21,10 +21,15 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
+- **The coach heist** (#794, PR #814, build 4002; `experiments/coach_heist/` README): `SwingingRam` (the log
+  on two ropes from a gallows frame, held by a trip pin a ball splits), `Dents`/`DentWatch`, `CoachDrive`,
+  `CoachCut` (`-- --world=valley --mission=coach`, bridge `ch_cut`) on the prop lab's `baron_coach`. Over
+  8/8, dents ~3.7 cm, worst frame ~31 ms at Sean's in the cut. Rough: the guards have no brains or guns.
+  Next: #815 (the guards fight back, the strongbox taken). Parked until after the slice unless Sean says.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 
 ## Parked until after the slice
-Coach heist (#770, waiting #791) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
+train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
 dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
