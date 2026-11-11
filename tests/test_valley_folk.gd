@@ -12,6 +12,7 @@ var valley: ValleyWorld
 
 ## The valley built once for the file (it's freed with the case, after its last test).
 func before_each() -> void:
+	ValleyFolk.murder_auto = false  # No Law's murder (#773) has its own tests
 	if holder != null:
 		return
 	holder = Node.new()

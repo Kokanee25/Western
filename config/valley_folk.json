@@ -33,6 +33,12 @@
      "_doc": "At the card table (the card cheat's Earl: No Law's card player). In from Back Street through the yard."},
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0],
      "hours": [19.6, 2.0], "from": "hotel", "post": {"chair": "e"},
-     "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."}
+     "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
+    {"id": "cody", "name": "Cody", "model": "hothead_lyle_s2_talking", "seed": 773, "gun": true, "shirt": [0.55, 0.16, 0.12], "vest": [0, 0, 0, 0],
+     "act": "no_law_murder", "from": "saloon_annex",
+     "_doc": "The red shirt (No Law beat 3, #773: the Baron's hired gun, the man who shot the sheriff). No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: Lyle's model (his faded brick-red shirt) till the characters lane makes Cody."},
+    {"id": "stranger", "name": "Stranger", "model": "bold_cowboy_s3_talking", "seed": 774, "shirt": [0.7, 0.66, 0.58], "vest": [0.2, 0.17, 0.14],
+     "act": "no_law_murder", "from": "saloon_annex",
+     "_doc": "The stranger who sits in the free chair and tells you not to move (No Law beat 3, #773). A stand-in man."}
   ]
 }

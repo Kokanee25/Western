@@ -772,6 +772,7 @@ func _on_hit(info: Dictionary) -> void:
 			return
 		&"blow":
 			_scare(clampf(float(info.get("joules", 0.0)) / 600.0, 0.05, 0.5), &"hit")
+			stunned = maxf(stunned, head_stun_seconds(info) * _think.randf_range(0.8, 1.2))
 			return
 		&"graze":
 			var before := fear
@@ -808,6 +809,21 @@ func _on_hit(info: Dictionary) -> void:
 	_start_wince(info, fear - fear_before)
 	if _has(&"odds") and mood in [Mood.FIGHTING, Mood.RELOADING]:
 		_hold_break = maxf(_hold_break, lerpf(ODDS_STOCK.x, ODDS_STOCK.y, clampf(nerve, 0.0, 1.0)))
+
+
+## A hard knock on the head dazes him (a coach going over with him in it, #770; timber falling
+## on him): from HEAD_STUN_J, a second, longer the harder, to HEAD_STUN_MAX. 0 for anything else.
+## (Head impacts of ~100 J and up are where concussion becomes likely in falls; well short of a
+## cracked skull, which is Physiology.blow's.)
+const HEAD_STUN_J := 60.0
+const HEAD_STUN_MAX := 8.0
+static func head_stun_seconds(info: Dictionary) -> float:
+	if info.get("segment", &"") != &"head":
+		return 0.0
+	var j := float(info.get("joules", 0.0))
+	if j < HEAD_STUN_J:
+		return 0.0
+	return clampf(j / HEAD_STUN_J, 1.0, HEAD_STUN_MAX)
 
 
 ## Caught cold by `who` (the farmhouse's surprise assault, issue #537: a wall blown in before any
