@@ -1290,7 +1290,10 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   `glass:<colour>`, printed labels (GlassProp `variants`), each prop against a period reference
   (`experiments/prop_lab/refs/doctor/`) and judged blind in his rooms (`experiments/prop_lab/doctor/dress.gd`
   `--batch=D1|D2`). D2: bottles, mortar, cased balance, roll-top desk, bentwood chair, the dispensary's shelving and
-  counter; critic r3 1 SAME / 5 CLOSE / 1 DIFFERENT. Next: D3 (his bag by Rodin, books, coat stand, chamber pot,
-  blankets), its issue. Traps: a lavapipe view ~10-15 min, never two renders or a render and the suite at once;
+  counter; critic r3 1 SAME / 5 CLOSE / 1 DIFFERENT. **D3 started and paused** (#819, branch
+  `claude/props-doctor-d3-y5xi1l`, one WIP commit, no PR): books, bookcase, coat pegs with his coat and hat, chamber
+  pot, folded blankets made (`doctor_d3.py`), not rendered or judged; one test fails (the coat's peg); the bag waits
+  on #823 (Rodin $2.35 or free by script). Waits on Sean's picks on #821 (the room review, #818); the handover is a
+  comment on #819. Traps: a lavapipe view ~10-15 min, never two renders or a render and the suite at once;
   a same-kind member thinner than 12 mm isn't "on" the one under it (CONTACT_EPSILON); the valley has no
   StaticBatch (glass props draw part by part).
