@@ -903,7 +903,15 @@ frozen until Sean names one.
   (`CardGame`, `Poker`, `config/card_game.json`): five-card draw, you dealt in from the next hand, nod calls and
   shake folds, Earl deals off the bottom; stops for a shot, a man out of his chair or an act's `interrupt`.
   Bridge `sit [n|e|s|w]`, `stand`, `cards`. `card_seat` bench: render CPU 1.14 ms at Sean's, people ~2.0.
-  Blind playtest `docs/playtests/2026-11-10-cards.md`. Next: #773 (the red shirt, the kick and the murder).
+  Blind playtest `docs/playtests/2026-11-10-cards.md`. **Step 3, the murder** (#773, PR #785, build 3882;
+  LAYOUT "src/moments", `experiments/valley_folk/README.md` "Step 3"): `NoLawMurder` (a `CardCheat`, now an Act;
+  `config/moments/no_law_murder.json`): the stranger in the free chair, Cody (Lyle's model, stand-in) in, the game
+  and you held, the kick, the head shot, "no law", out; the barman's line; after, Earl's body stays (ValleyFolk
+  `dead`), the barkeep to it, men `send_off`; StoryState `nolaw.*`. Started at 22:00 on the first night or after
+  your first hand (`ValleyFolk.murder_auto`, `-- --no-murder`; tests at night in the valley turn it off).
+  CivilianBrain: lines 2.5 s apart, cries spread, `hush`, a drawn gun noticed. Bench `murder_seat` 1.42 ms render,
+  people ~3.2 at Sean's. Playtest `docs/playtests/2026-11-10-murder.md`. Next: #796 (the morning after and the
+  sheriff's last day).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
