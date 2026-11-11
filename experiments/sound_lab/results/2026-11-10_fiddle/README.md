@@ -174,3 +174,9 @@ game's level). Heard: close -18.6, through the floor -39.5, porch -48.9, across 
 Straw (open G) and Devil's Dream (open A), plain takes at -18 LUFS. The duet's game distances follow.
 Take 3 (after "still kinda digital"): measured against Uncle Dave Macon's 1924 "Papa's Billie Goat"
 (`spectrogram_macon_vs_take3.png`); the clips in `banjo/` are take 3.
+
+## The minstrel band
+
+`band/`: the bones and the tambourine alone (Turkey in the Straw) and the band (fiddle, banjo, bones,
+tambourine) on Turkey in the Straw and Devil's Dream; plain takes. `turkey_in_the_straw/`: the fiddle
+alone at the game's distances (heard: close -18.9, floor -37.7, porch -47.1, across -56.9 LUFS).

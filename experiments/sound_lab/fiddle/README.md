@@ -69,6 +69,22 @@ changes; results in `../results/2026-11-10_fiddle/`.
   `../results/2026-11-10_fiddle/banjo/spectrogram_macon_vs_take3.png`.
 - `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
 
+## The bones and tambourine (the minstrel band)
+
+- `rhythm.py`: the beat grid the rhythm players play to (banjo.arrange's: four running notes a
+  beat, bars from the tune's bar 1, the fiddler's swing).
+- `bones.py`: two rib-bone slats as free bars (modes 1 : 2.756 : 5.404 : 8.933 over ~650 Hz, Q
+  ~20-35), each clack a ~0.3 ms contact into both, half of them flammed; the reel rhythm (beat,
+  half beat, a triplet roll into the next beat, a longer roll every four bars).
+- `tambourine.py`: a damped calfskin head (Bessel modes over ~190 Hz) and six jingle pairs, each
+  with its own energy spent in random collisions (Cook's PhISEM idea), each collision ringing a thin
+  disc's modes over 3-4 kHz. A hit's jingle: -20 dB in ~145 ms, -40 in ~320. Hits on the beat, taps
+  on the half beat, a shake before each bar, a thumb roll every four bars.
+- `band.py`: fiddle, banjo, bones and tambourine from one tune (`--with=` who plays); levels in
+  `LEVELS` (banjo -2.5, bones -9, tambourine -11 dB against the fiddle). Each tune's rhythm players
+  seeded by its name. Alone the bones and tambourine sit at -23 to -26 LUFS (short strikes in
+  silence, not limited); the band at -19 to -20.
+
 ## Commands
 
 ```sh
@@ -76,6 +92,7 @@ experiments/sound_lab/fiddle/fetch.sh                       # needs dn801308.us.
 python3 experiments/sound_lab/fiddle/tune.py                # the note data (already in the repo)
 python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--part=OUT.json]   # the banjo alone
 python3 experiments/sound_lab/fiddle/duet.py turkey_in_the_straw.json   # fiddle and banjo
+python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json   # with bones and tambourine too
 python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json  # any ABC tune
 python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~80 min the 8 game runs (one at a time)
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png
