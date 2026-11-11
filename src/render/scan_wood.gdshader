@@ -464,9 +464,9 @@ void fragment() {
 		pcol *= mix(vec3(1.0), vec3(1.0, 0.92, 0.76), paint_yellow * ag);
 		float pl = dot(pcol, vec3(0.3, 0.59, 0.11));
 		// Faded: duller and a little lighter, keeping its hue (an iron red goes brown-pink, not grey).
-		pcol = mix(pcol, mix(vec3(pl), pcol, 0.45) * 1.1 + 0.03, paint_fade * years * sunk);
+		pcol = mix(pcol, (mix(vec3(pl), pcol, 0.45) * 1.1 + 0.03) * vec3(1.04, 1.0, 0.9), paint_fade * years * sunk);
 		float chalk = clamp(paint_chalk * years * sunk * (0.75 + 0.5 * (n1 - 0.5) + 0.7 * (n2 - 0.5)), 0.0, 1.0);
-		pcol = mix(pcol, vec3(0.85, 0.84, 0.8), chalk * 0.25);
+		pcol = mix(pcol, vec3(0.86, 0.83, 0.76), chalk * 0.25);
 		float thin = mix(paint_thin_new, paint_thin, years) * (0.6 + 0.4 * sunk + 0.4 * paint_inside);
 		float ghp = clamp(grain_hp, 0.45, 1.6);
 		pcol *= mix(1.0, ghp, thin);
