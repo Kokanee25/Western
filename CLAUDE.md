@@ -489,7 +489,7 @@ frozen until Sean names one.
   lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from
   the library by name (paints wanted: white clapboard, green trim, pale inside boards, the sign's
   lettering); `Checks.built_right` and the X-ray (`tools/buildings/`). Next: the jail, after the paints.
-- **The jail** (#780, branch `claude/art-building-jail-xrtsvh`; `experiments/building_lab/jail/` README): steps 1-3 done, shown to Sean: the sheet ($1.55, approved), the spec (stone, an L with a cell ell, a walled yard; no pad), the build by `stone.gd` (the builder's stone branch) and its checks (`tests/test_building_jail.gd` 6/6), the X-ray (`results/xray.jpg`). Next: steps 4-6 (its issue).
+- **The jail** (#780, branch `claude/art-building-jail-xrtsvh`; `experiments/building_lab/jail/` README): steps 1-3 done, shown to Sean: the sheet ($1.55, approved), the spec (stone, an L with a cell ell, a walled yard; no pad), the build by `stone.gd` (the builder's stone branch) and its checks (`tests/test_building_jail.gd` 6/6), the X-ray (`results/xray.jpg`). Next: steps 4-6, #811.
 - **The saloon, research and concepts** (#765, #660; branch `claude/art-saloon-research-9gk9m7`):
   `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
   the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a
