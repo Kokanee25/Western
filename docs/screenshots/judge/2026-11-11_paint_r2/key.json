@@ -1,0 +1,34 @@
+{
+ "P1_few": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P1_old": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P2_few": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P2_old": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P3_few": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P3_old": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P4_few": {
+  "P": "before",
+  "Q": "after"
+ },
+ "P4_old": {
+  "P": "before",
+  "Q": "after"
+ }
+}
