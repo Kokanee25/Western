@@ -1,0 +1,36 @@
+{
+  "_doc": "A Wedgwood-ware mortar and pestle (#805; refs experiments/prop_lab/refs/doctor/): the druggist's prescription mortar, a quart, 18 cm across, of hard unglazed white stoneware on a foot with a pouring lip, its bowl greyed by what's been ground in it; the pestle's head the same stoneware on a turned hardwood handle, leaning in it. A prop that shatters (GlassProp): stoneware ~1 cm thick, so it takes a fall off the counter (6 m/s) and a blast past 150 kPa, but a ball breaks it; the pestle comes through whole. ~2.2 kg. Baked the gun way (tools/blender/props/doctor_d2.py). Written by tools/props/doctor.py.",
+  "id": "mortar",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:mortar",
+  "looks": {
+    "Mortar": "pbr:mortar",
+    "Pestle": "pbr:mortar",
+    "PestleHandle": "pbr:mortar"
+  },
+  "size": [
+    0.184,
+    0.084,
+    0.184
+  ],
+  "mass": 2.2,
+  "wall": 0.012,
+  "glass": [
+    "Mortar"
+  ],
+  "whole": [
+    [
+      "Pestle",
+      "PestleHandle"
+    ]
+  ],
+  "shards": 10,
+  "piece_mass": 0.25,
+  "breaks_at": 6.0,
+  "shatters_kpa": 150,
+  "heat_seconds": 1000000000.0,
+  "cut_area": 0.02,
+  "factory": "tools/props/doctor.py"
+}

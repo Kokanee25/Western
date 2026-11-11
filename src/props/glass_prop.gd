@@ -112,13 +112,20 @@ func _build() -> void:
 			# A model made in Blender (docs/briefs/prop-factory.md), each part in the look its kit
 			# file's "looks" gives it by name ("" for the rest).
 			var looks: Dictionary = definition.get("looks", {})
-			for part: String in looks:
+			for key: String in looks:
+				# A part named with "%d" is one of `variants` (a bottle's labels, #805): the Nth made
+				# wears the (N mod variants)th.
+				var part := key % posmod(variant, int(definition.get("variants", 1))) if key.contains("%d") else key
 				var mesh := PropKit.model_part(String(other).substr(4), part)
 				if mesh:
 					var mi := MeshInstance3D.new()
 					mi.name = part if part != "" else "Mesh"
 					mi.mesh = mesh
-					mi.material_override = PropKit.material(String(looks[part]), variant)
+					mi.material_override = PropKit.material(String(looks[key]), variant)
+					if String(looks[key]).begins_with("glass:"):
+						# See-through glass casts no shadow of its own (what's in it does): and no
+						# draw in each shadow pass for every bottle on a shelf (#805).
+						mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 					model.add_child(mi)
 		var other:
 			var built := PropModels.build(StringName(other), variant)

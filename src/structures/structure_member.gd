@@ -676,8 +676,12 @@ func apply_voxel_mesh(m: Array) -> void:
 	if mi.mesh and mi.mesh.has_meta(&"board_frame"):
 		# A material library board (#765, #788) is drawn in its own frame by its own shader: carved,
 		# it's the member's box in the member's space, in its wood's texel material.
+		var frame := mi.transform
 		mi.transform = Transform3D()
 		mi.material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
+		for c in mi.get_children():  # (its dress layers stay where they were: KitProp, #805)
+			if c is Node3D and String(c.name).begins_with("Dress"):
+				(c as Node3D).transform = frame * (c as Node3D).transform
 	var mesh := ArrayMesh.new()
 	if not (m[0] as Array).is_empty():
 		mesh = MemberMesh.made(m[0])  # (its arrays kept: RubbleRest joins it without a read back)
