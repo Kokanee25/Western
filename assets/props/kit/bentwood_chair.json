@@ -1,0 +1,174 @@
+{
+  "_doc": "His chair (#805): a bentwood, Thonet's No. 14 (ref experiments/prop_lab/refs/doctor/chair_thonet_no14_mak.jpg: designed 1859, the common office and cafe chair of the 1870s-80s): steam-bent beech stained walnut, the back legs running up into the hoop of the back with a smaller loop inside it, a round caned seat on its bent ring, four splayed legs braced by a ring under the seat. The kit's spindle-back `chair` was tried beside his desk first (round 1's critic: square posts and slats, a Mission chair of 1905), so this is its own. Its members' boxes are the bent rods' section (wood oak for the beech's weight: ~3 kg); drawn and baked the gun way from glb:bentwood_chair (tools/blender/props/doctor_d2.py: a bent beech's stain, the cane woven). A man sits on it as on the kit's chair (`seat`). Facing +Z. Written by tools/props/doctor.py.",
+  "id": "bentwood_chair",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "seat",
+    "at": [
+      0.0,
+      0.47000000000000003,
+      0.0
+    ],
+    "share": 0.75,
+    "hold": 0.05,
+    "sway": 0.03
+  },
+  "members": [
+    {
+      "id": "leg_front_l",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.45,
+        0.03
+      ],
+      "at": [
+        -0.17,
+        0.225,
+        0.13
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "LegFL"
+      }
+    },
+    {
+      "id": "leg_front_r",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.45,
+        0.03
+      ],
+      "at": [
+        0.17,
+        0.225,
+        0.13
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "LegFR"
+      }
+    },
+    {
+      "id": "leg_back_l",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.45,
+        0.03
+      ],
+      "at": [
+        -0.15,
+        0.225,
+        -0.16
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "LegBL"
+      }
+    },
+    {
+      "id": "leg_back_r",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.45,
+        0.03
+      ],
+      "at": [
+        0.15,
+        0.225,
+        -0.16
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "LegBR"
+      }
+    },
+    {
+      "id": "leg_ring",
+      "kind": "furniture_frame",
+      "size": [
+        0.34,
+        0.01,
+        0.3
+      ],
+      "at": [
+        0.0,
+        0.21,
+        -0.015
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "LegRing"
+      }
+    },
+    {
+      "id": "seat",
+      "kind": "furniture_top",
+      "size": [
+        0.41,
+        0.012,
+        0.41
+      ],
+      "at": [
+        0.0,
+        0.46,
+        0.0
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "Seat"
+      },
+      "dress": [
+        {
+          "look": "pbr:bentwood_chair",
+          "draw": {
+            "shape": "mesh",
+            "model": "bentwood_chair",
+            "part": "SeatRing"
+          }
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "kind": "trim",
+      "size": [
+        0.3,
+        0.42,
+        0.014
+      ],
+      "at": [
+        0.0,
+        0.68,
+        -0.19
+      ],
+      "look": "pbr:bentwood_chair",
+      "draw": {
+        "shape": "mesh",
+        "model": "bentwood_chair",
+        "part": "Back"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

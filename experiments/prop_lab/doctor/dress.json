@@ -1,5 +1,5 @@
 {
-  "_doc": "The prop factory's doctor batches laid into his rooms (#788; docs/briefs/prop-factory.md 'The doctor's office batch'): each entry a kit prop at [x, y over the ground floor, z] in the building's space (the spec's: x from its east corner, z back from its front), turned `facing` degrees about Y (a prop faces +Z), placed at the spec's use points (experiments/building_lab/doctor/doctor.json). `on` puts it on another entry's top (its kit bounds' top). `fit` spawns a fixture fitted to a size (PropKit.spawn_fitted). `light`: an OilLamp at that height in the prop. Read by experiments/prop_lab/doctor/dress.gd; when the doctor's spec takes furniture of this kind, these move there.",
+  "_doc": "The prop factory's doctor batches laid into his rooms (#788; docs/briefs/prop-factory.md 'The doctor's office batch'): each entry a kit prop at [x, y over the ground floor, z] in the building's space (the spec's: x from its east corner, z back from its front), turned `facing` degrees about Y (a prop faces +Z), placed at the spec's use points (experiments/building_lab/doctor/doctor.json). `on` puts it on another entry's top (its kit bounds' top). `fit` spawns a fixture fitted to a size (PropKit.spawn_fitted). `light`: an OilLamp at that height in the prop. `row`: {kits, count, step, skip}: a row of props along `step` from `at`, the kits in turn (a shelf of bottles; `skip` leaves gaps). Read by experiments/prop_lab/doctor/dress.gd; when the doctor's spec takes furniture of this kind, these move there.",
   "batches": {
     "D1": [
       {"id": "table", "kit": "examining_table", "at": [2.0, 0.0, 5.5], "facing": 90, "use": "on_table, operate, hold_lamp"},
@@ -12,6 +12,28 @@
       {"id": "towel", "kit": "hand_towel", "cloth_over": "wash", "use": "laid over the washstand's towel bar: it drapes"},
       {"id": "cot_1", "kit": "iron_cot", "at": [0.6, 0.0, 9.27], "facing": 0, "use": "cot_1 (where you wake after you die)"},
       {"id": "cot_2", "kit": "iron_cot", "at": [3.42, 0.0, 9.27], "facing": 0, "use": "cot_2"}
+    ],
+    "D2": [
+      {"id": "shelves", "kit": "dispensary_shelves", "fit": [0.3, 2.71, 2.1], "at": [6.62, 0.0, 7.97], "facing": 90, "use": "the dispensary's shelving on its back wall (dispensary_back), the bottles on it"},
+      {"id": "counter", "kit": "dispensary_counter", "at": [8.13, 0.0, 6.55], "facing": 90, "use": "make_up: his counter of drawers along the west wall under the high window, its drawers to the room"},
+      {"id": "scales", "kit": "scales", "on": "counter", "at": [8.16, 0.0, 6.85], "facing": 270, "use": "make_up: the balance on the counter, its drawer toward him"},
+      {"id": "mortar", "kit": "mortar", "on": "counter", "at": [8.12, 0.0, 6.2], "facing": 160},
+      {"id": "c_round", "kit": "medicine_bottle_round", "on": "counter", "at": [8.3, 0.0, 7.4], "facing": 250},
+      {"id": "c_panel", "kit": "medicine_bottle", "on": "counter", "at": [8.15, 0.0, 7.28], "facing": 265},
+      {"id": "c_jar", "kit": "drug_jar", "on": "counter", "at": [8.3, 0.0, 5.75], "facing": 270},
+      {"id": "c_poison", "kit": "poison_bottle", "on": "counter", "at": [8.32, 0.0, 7.58], "facing": 280},
+      {"id": "board0", "row": {"kits": ["drug_jar", "drug_jar", "drug_jar", "medicine_bottle_round", "drug_jar", "drug_jar"], "count": 17, "step": [0.104, 0, 0], "skip": [6], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 0.1325, 8.0], "facing": 180},
+      {"id": "board1", "row": {"kits": ["drug_jar", "medicine_bottle_round", "drug_jar", "drug_jar", "medicine_bottle_round", "drug_jar", "drug_jar"], "count": 19, "step": [0.096, 0, 0], "skip": [11], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 0.4325, 8.0], "facing": 180},
+      {"id": "board2", "row": {"kits": ["medicine_bottle_round", "medicine_bottle_round", "medicine_bottle", "medicine_bottle_round", "medicine_bottle_round", "poison_bottle", "medicine_bottle_round"], "count": 25, "step": [0.074, 0, 0], "skip": [9, 10], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 0.7325, 8.0], "facing": 180},
+      {"id": "board3", "row": {"kits": ["medicine_bottle", "medicine_bottle", "medicine_bottle_round", "medicine_bottle", "poison_bottle", "medicine_bottle", "medicine_bottle", "medicine_bottle_round", "poison_bottle"], "count": 26, "step": [0.07, 0, 0], "skip": [14, 15], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 1.0325, 8.0], "facing": 180},
+      {"id": "board4", "row": {"kits": ["medicine_bottle_round", "medicine_bottle", "medicine_bottle_round", "medicine_bottle_round", "medicine_bottle", "poison_bottle", "medicine_bottle_round"], "count": 25, "step": [0.074, 0, 0], "skip": [20], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 1.3325, 8.0], "facing": 180},
+      {"id": "board5", "row": {"kits": ["medicine_bottle_round", "medicine_bottle_round", "poison_bottle", "medicine_bottle_round", "medicine_bottle", "medicine_bottle_round"], "count": 25, "step": [0.074, 0, 0], "skip": [5, 6], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 1.6325, 8.0], "facing": 180},
+      {"id": "board6", "row": {"kits": ["drug_jar", "drug_jar", "medicine_bottle_round", "drug_jar", "drug_jar", "drug_jar"], "count": 18, "step": [0.1, 0, 0], "skip": [12], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 1.9325, 8.0], "facing": 180},
+      {"id": "board7", "row": {"kits": ["drug_jar", "medicine_bottle_round", "drug_jar", "drug_jar", "drug_jar"], "count": 18, "step": [0.1, 0, 0], "skip": [3], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 2.2325, 8.0], "facing": 180},
+      {"id": "board8", "row": {"kits": ["drug_jar", "drug_jar", "drug_jar", "drug_jar", "medicine_bottle_round", "drug_jar"], "count": 17, "step": [0.104, 0, 0], "skip": [14], "jitter": [0.01, 0.035, 25]}, "at": [5.66, 2.5325, 8.0], "facing": 180},
+      {"id": "counter_back", "row": {"kits": ["medicine_bottle_round", "medicine_bottle", "medicine_bottle", "medicine_bottle_round", "poison_bottle", "medicine_bottle"], "count": 4, "step": [0, 0, 0.068], "skip": [], "jitter": [0.01, 0.01, 30]}, "at": [8.33, 0.0, 5.43], "on": "counter", "facing": 270},
+      {"id": "desk", "kit": "roll_top_desk", "at": [1.2, 0.0, 3.36], "facing": 180, "use": "desk: his roll-top against the front office's back wall, its front to the room (the use point at [1.2, 3.1] is inside the desk's 0.8 m: he sits at ~2.6)"},
+      {"id": "chair", "kit": "bentwood_chair", "at": [1.2, 0.0, 2.6], "facing": 0, "use": "desk: his chair, a bentwood (the kit's spindle-back read as a 1905 Mission chair beside the desk, round 1)"}
     ]
   }
 }

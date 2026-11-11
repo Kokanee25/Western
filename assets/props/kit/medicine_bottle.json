@@ -1,0 +1,48 @@
+{
+  "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): an aqua glass prescription panel bottle (4 oz), a flat front with its paper label, a cork. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (3.2 m/s) or 40 kPa breaks it and what's in it goes on the floor. Four labels in the period's style (TINCT. OPII, TINCT. ARNICAE, SYR. IPECAC., TINCT. FERRI CHLOR.): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py.",
+  "id": "medicine_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:medicine_bottles",
+  "looks": {
+    "GlassPanel": "glass:aqua",
+    "LiquidPanel": "pbr:medicine_bottles",
+    "LabelPanel%d": "pbr:medicine_labels",
+    "CorkPanel": "pbr:medicine_bottles"
+  },
+  "variants": 4,
+  "size": [
+    0.052,
+    0.146,
+    0.052
+  ],
+  "mass": 0.21,
+  "wall": 0.0025,
+  "glass": [
+    "GlassPanel",
+    "LiquidPanel",
+    "LabelPanel"
+  ],
+  "whole": [
+    [
+      "CorkPanel"
+    ]
+  ],
+  "shards": 8,
+  "piece_mass": 0.01,
+  "breaks_at": 3.2,
+  "shatters_kpa": 40,
+  "heat_seconds": 20,
+  "cut_area": 0.02,
+  "contents": {
+    "liquid": "tincture",
+    "litres": 0.094,
+    "colour": [
+      0.42,
+      0.16,
+      0.06
+    ]
+  },
+  "factory": "tools/props/doctor.py"
+}
