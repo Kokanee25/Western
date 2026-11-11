@@ -134,3 +134,5 @@ of it is in the game yet:
 - **"Arkansas Traveller"**, traditional, as printed in *Ryan's Mammoth Collection* (1883), public domain;
   the ABC transcription from music21's corpus (`ryansMammoth`), turned into note data by
   `experiments/sound_lab/fiddle/abc_tune.py`.
+- **"Devil's Dream"** and **"Turkey in the Straw"** (printed as "Old Zip Coon"), traditional, as printed in
+  *Ryan's Mammoth Collection* (1883), public domain; ABC from music21's corpus (`ryansMammoth`).

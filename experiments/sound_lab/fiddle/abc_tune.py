@@ -5,7 +5,7 @@ tune.arrange's old-time rules (strings and fingers, the shuffle, drones, double 
 
     python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json
     (a path inside music21's corpus, or any .abc file; --tempo=108 half notes a minute,
-     --times=2 the whole tune played that many times, as for a dance)
+     --times=2 the whole tune played that many times, as for a dance, --title="..." the name it goes by)
 
 The chords: of the key's three (I, IV and V of K:'s major; D, G and A when it isn't one of
 tune.CHORD_TONES' keys), the one whose notes take up most of the bar, the bar's first note counted double; a tie keeps the bar
@@ -106,6 +106,7 @@ def main():
     times = int(next((a.split("=")[1] for a in sys.argv[1:] if a.startswith("--times=")), 1))
     title, book, notes, n_bars, key = read(args[0], times)
     chords = chords_of(notes, n_bars, key)
+    title = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--title=")), title)
     d = tune.arrange(tempo_half=tempo, phrases=[(notes, 0)], chords=chords, title=title.title(),
                      source=f"{book}, via music21's corpus ({args[0]}); traditional, public domain")
     d["chords"] = chords
