@@ -1168,8 +1168,18 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   (v the closing speed last tick, `striker(rb)` keeps a striker's), a plate's blow closed after
   `contact_gap_s` and `share` of it dented in; a ball on a plate dents by `ball_share` of its spent
   energy (`Events.bullet_hit`). What strikes may carry `dent_radius`/`dent_length` metas and `dent_axis()`.
+  A striker's blows are read from its own contacts (#794: the coach's 128 fill with its riders' parts);
+  the dented meshes are rebuilt `MESH_BUDGET_MS` a tick (`Dents.dent(..., mesh=false)`, `meshes_waiting()`).
 - **A log** (`RollingLog`): a cylinder along its x, mass from `wood` (`green_pine`), `hold_by(structure,
   ids)` keeps it frozen until all have broken (`released`), `rolling_speed(h)`.
+- **The swinging ram** (`SwingingRam`, #794, Sean's #791): its space's origin on the ground under the
+  log at the bottom of its swing, road along x, held back toward -z. `build()` makes the gallows frame
+  (a kit prop `ram_frame_N` built in code: legs, caps `cap_0|1`, knees, ties; `leg_back|fore`,
+  `foot_back|fore` for banks), the log (RollingLog, CCD off: Jolt's cast collision reports no contact
+  impulses) held at `held_at()` (`pull_up` over `bottom_y` on its arc) and the trip (`ram_trip`: stake
+  and `pin` at `trip_at`). Two ropes, fixed length, as impulses in `_physics_process` (pull only,
+  Baumgarte `rope_bias`; `tension`, `most_tension`); a rope whose cap breaks or frame goes loose is cut
+  (`ropes_on`). `release()`, `pin_position()`, `state()`.
 - **Loose by members** (#770): `Structure.mass_by_members` gives a dropped body its centre of weight
   and inertia from its members (`_weigh_by_members`); `breaks_up` false keeps a body of several
   members whole when it lands hard. `CoachDrive` (src/missions) sets both on its coach.
@@ -1455,6 +1465,14 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   swept 3 ticks on meets the coach's hands it off (`hand_off`: `go_loose` at the drive's velocity, its
   bodies watched by `DentWatch`, the guards limp a tick apart); `trace_hook_*` pulled toward the team
   (springs, `trace_stiffness`, broken past `trace_breaks`); `lean()`, `events`. Its labs commands: `ch_*`.
+  `seat(man, at, floor_y, yaw)` (the box's two face forward); a rider's `Blocker` capsule is excepted
+  with his parts (it threw the coach at the hand-off, #794); its carried kit props go loose with it;
+  `ground` (x, z -> y) sets it on the road at its `AXLES`, pitched to the grade.
+- **The coach cut** (`CoachCut`, #794; valley.json `heights` coach_cut): `setup()` finds the South Road's
+  way and level bed at the cut from the ground, the SwingingRam over it (held up the south-west bank);
+  `start_coach()` the Baron's coach `start_back` m down the grade with four guards and the box's two;
+  `release_lead` lets the pin go itself; `place_player` (the high spot), `result()`. `-- --world=valley
+  --mission=coach` (ValleyWorld `start_coach_cut`), the lab's `cut` mode and bridge `ch_cut`.
 
 ## src/people
 

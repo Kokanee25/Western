@@ -4,10 +4,16 @@ extends Node3D
 ##         speed at the foot against the lossless roll, sqrt(4/3 g h) (#784's table)
 ##   tip   the coach standing, a log `--radii` thrown sideways into its low plates' middle (1.39 m
 ##         up) at `--speeds`: over or not, the lean; the threshold against #784's 4,100 N.s
-##   heist the whole of it, `--seeds` times: the log let go as the driven coach comes up (each seed a
-##         little earlier or later), off the step into its side; the speeds, the lean, the traces,
-##         the dents and the guards; every physics frame timed (#492's gate: none over 100 ms at
-##         Sean's, x0.65 of here)
+##   swing the ram (#794) let go from `--drops` (its middle held that high over the bottom of its
+##         swing): its speed at the bottom against sqrt(2 g h), the time, the ropes' pull; and the
+##         standing coach struck by it at the bottom: over or not, the lean, the dents
+##   cut   the coach cut in the valley (#794: CoachCut on the bake's ground round it), `--seeds`
+##         times: the coach driven up the South Road, the pin let go a swing's time short of the ram
+##         (each seed a little earlier or later); over or not, the dents, every frame timed
+##   heist the whole of it, `--seeds` times: the striker (`--striker=ram`, the default, or `roll`)
+##         let go as the driven coach comes up (each seed a little earlier or later), into its side;
+##         the speeds, the lean, the traces, the dents, the guards, the men on the box and the
+##         strongbox; every physics frame timed (#492's gate: none over 100 ms at Sean's, x0.65 of here)
 ## Writes <out>/<mode>.json and <out>/<mode>.md.
 
 var args := {}
@@ -23,6 +29,7 @@ var _frame_us: Array[float] = []
 var _last_us := 0
 var _case_frames: Array[float] = []
 const SITE := "res://experiments/coach_heist/heist_site.gd"
+const CUT_SITE := "res://experiments/coach_heist/cut_site.gd"
 
 
 func _ready() -> void:
@@ -35,14 +42,37 @@ func _ready() -> void:
 		"roll":
 			for d in _floats("drops", "2,4,6,8"):
 				_cases.append({"drop": d, "step": 0.0, "with_coach": false, "seconds": 6.0})
+		"swing":
+			for d in _floats("drops", "2,2.5,3,3.3,3.6,4"):
+				for with_coach in [false, true]:
+					_cases.append({"pull_up": d, "with_coach": with_coach, "drive": false, "guards": 4 if with_coach else 0,
+							"coach_x": 0.0, "seconds": 6.0})
+		"cut":
+			for s in int(args.get("seeds", 8)):
+				_cases.append({"seed": s, "seconds": float(args.get("seconds", 36.0)), "guards": int(args.get("guards", 4)),
+						"lead_shift": (float(s) - (float(args.get("seeds", 8)) - 1.0) * 0.5) * float(args.get("spread", 0.06))})
 		"tip":
 			for r in _floats("radii", "0.25,0.3,0.35"):
 				for v in _floats("speeds", "2,3,3.5,4,4.5,5,5.5,6,7,8"):
 					_cases.append({"log_r": r, "v": v, "with_log": false, "drive": false, "guards": 0, "seconds": 5.0})
 		_:
-			for s in int(args.get("seeds", 5)):
-				_cases.append({"seed": s, "log_r": float(args.get("log_r", 0.3)), "ledge": float(args.get("ledge", 0.6)), "step": float(args.get("step", 2.5)), "seconds": float(args.get("seconds", 12.0)), "guards": int(args.get("guards", 4)),
-						"lead_shift": (float(s) - (float(args.get("seeds", 5)) - 1.0) * 0.5) * 0.12})
+			var ram := String(args.get("striker", "ram")) == "ram"
+			for s in int(args.get("seeds", 8)):
+				var c := {"seed": s, "striker": "ram" if ram else "roll", "log_r": float(args.get("log_r", 0.3)),
+						"seconds": float(args.get("seconds", 10.0 if ram else 12.0)), "guards": int(args.get("guards", 4)),
+						"lead_shift": (float(s) - (float(args.get("seeds", 8)) - 1.0) * 0.5) * float(args.get("spread", 0.06 if ram else 0.12))}
+				for k in ["pull_up", "bottom_y", "rope", "coach_z", "speed"]:
+					if args.has(k):
+						c[k] = float(args[k])
+				if not ram:
+					c["ledge"] = float(args.get("ledge", 0.6))
+					c["step"] = float(args.get("step", 2.5))
+				_cases.append(c)
+	if args.has("only"):
+		var keep := []
+		for i in String(args.only).split(","):
+			keep.append(_cases[int(i)])
+		_cases = keep
 	_next()
 
 
@@ -64,11 +94,19 @@ func _next() -> void:
 		get_tree().quit(0)
 		return
 	var c: Dictionary = _cases[_case].duplicate()
-	_site = load(SITE).new()
+	_site = load(CUT_SITE if mode == "cut" else SITE).new()
 	_site.name = "Site%d" % _case
 	add_child(_site)
 	var o := c.duplicate()
-	if mode == "heist":
+	if mode == "cut":
+		o["release_lead"] = 1.4 * (float(args.get("swing_s", 1.28)) + float(c.lead_shift))
+	elif mode == "heist" and c.striker == "ram":
+		# Let go when the coach's middle is a swing's time short of the ram's line (the swing
+		# mode's ~1.2 s to the bottom), plus the seed's shift: it meets the coach's middle.
+		var v := float(c.get("speed", 1.4))
+		o["release_at_x"] = v * (float(args.get("swing_s", 1.28)) + float(c.lead_shift))
+		o["coach_x"] = float(o.release_at_x) + 6.0
+	elif mode == "heist":
 		# The coach starts far enough back that the log, let go when the coach reaches the mark, meets
 		# its middle: the roll's measured time (~2.6 s from the deck to the coach's side).
 		o["coach_z"] = float(args.get("coach_z", 0.6))
@@ -107,7 +145,7 @@ func _physics_process(_delta: float) -> void:
 			b.angular_velocity = Vector3(float(args.spin), 0, 0)
 		if args.has("slide"):
 			b.linear_velocity = Vector3(0, 0, float(args.slide))
-	if args.has("debug") and _tick % 6 == 0 and _site.log_body:
+	if args.has("debug") and _tick % 6 == 0 and _site.get(&"log_body"):
 		var mb: RigidBody3D = _site.drive.main_body() if _site.drive else null
 		print("t%d log %s v %s | coach %s v %s w %s lean %.1f frz %s" % [_tick, _site.log_body.global_position, _site.log_body.linear_velocity,
 				mb.global_position if mb else Vector3.ZERO, mb.linear_velocity if mb else Vector3.ZERO, mb.angular_velocity if mb else Vector3.ZERO,
@@ -123,7 +161,7 @@ func _physics_process(_delta: float) -> void:
 
 func _start(c: Dictionary) -> void:
 	match mode:
-		"roll":
+		"roll", "swing":
 			_site.release_log()
 		"tip":
 			# A log beside the standing coach, its middle at the low plates' middle, thrown at it.
@@ -140,11 +178,34 @@ func _start(c: Dictionary) -> void:
 
 func _line(r: Dictionary) -> String:
 	match mode:
+		"cut":
+			return "seed %d: let go %.2f s, struck %.2f s, lean %.0f %s, dents %d, deepest %.1f cm, traces left %d, strongbox loose %s, ram %s" % [
+					r.case.seed, r.released_at, r.hit_at, r.max_lean, "OVER" if r.over else "stood", r.dents, r.deepest_cm, r.traces_on, r.get("strongbox_loose", false), r.ram]
 		"roll":
 			return "drop %.1f: at the foot %.2f m/s (lossless %.2f)" % [r.drop, float(r.log_at_foot.get("speed", -1.0)), r.lossless_at_foot]
+		"swing":
+			var b: Dictionary = r.get("ram_at_bottom", {})
+			var line := "drop %.1f: at the bottom %.2f m/s (lossless %.2f) in %.2f s, ropes' most pull %.1f kN" % [
+					r.case.pull_up, float(b.get("speed", -1.0)), float(r.ram.lossless), float(b.get("t", -1.0)), float(b.get("tension_n", 0.0)) / 1000.0]
+			if r.case.with_coach:
+				line += " | the coach: lean %.0f %s, dents %d, deepest %.1f cm" % [r.max_lean, "OVER" if r.over else "stood", (r.dents as Array).size(), _deepest(r) * 100.0]
+			return line
 		"tip":
 			var j: float = _site.log_body.mass * float(r.case.v)
 			return "r %.2f (%.0f kg) v %.1f (%.0f N.s carried): lean %.0f %s" % [r.case.log_r, _site.log_body.mass, r.case.v, j, r.max_lean, "OVER" if r.over else "back"]
+	if r.case.get("striker", "roll") == "ram":
+		var off := 0
+		var on_box := 0
+		for g: Dictionary in r.guards:
+			if g.who in ["driver", "messenger"]:
+				on_box += 1
+				if g.get("y", 9.0) < 1.2:
+					off += 1
+		return "seed %d: swing %.2f s, hit %.2f m/s (vz %.2f vy %.2f at y %.2f, %.2f m along), lean %.0f %s, traces left %d, dents %d, deepest %.1f cm, heads %d, box men down %d/%d, strongbox %s" % [
+				r.case.seed, float(r.log_at_hit.get("after_release", -1.0)), float(r.log_at_hit.get("speed", -1.0)),
+				float(r.log_at_hit.get("vz", -1.0)), float(r.log_at_hit.get("vy", 0.0)), float(r.log_at_hit.get("y", -1.0)), float(r.log_at_hit.get("x", 0.0)),
+				r.max_lean, "OVER" if r.over else "stood", r.traces_on, (r.dents as Array).size(), _deepest(r) * 100.0,
+				(r.head_blows as Array).size(), off, on_box, "in" if r.get("strongbox", {}).get("in_coach", false) else "out"]
 	return "seed %d: roll %.2f s, foot %.2f, hit %.2f (vz %.2f vy %.2f at y %.2f), lean %.0f %s, traces left %d, dents %d, deepest %.1f cm, heads %d" % [
 		r.case.seed, float(r.log_at_hit.get("after_release", -1.0)), float(r.log_at_foot.get("speed", -1.0)), float(r.log_at_hit.get("speed", -1.0)),
 		float(r.log_at_hit.get("vz", -1.0)), float(r.log_at_hit.get("vy", 0.0)), float(r.log_at_hit.get("y", -1.0)), r.max_lean, "OVER" if r.over else "stood",

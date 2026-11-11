@@ -30,6 +30,11 @@ var driving := false
 var loose := false
 ## What may strike it (the log).
 var strikers: Array[RigidBody3D] = []
+## The ground's height under a point (x, z) -> y, or none: driven, the coach is set on it at its
+## axles (`AXLES`, its own x: front, hind), pitched to the grade (the South Road climbs ~7 % to the
+## coach cut, #794). Without, it's driven level.
+var ground := Callable()
+const AXLES := Vector2(-1.45, 1.03)
 ## Its seated men: [{"man", "local"}] (local: his transform in the coach's space).
 var riders: Array[Dictionary] = []
 var bodies: Array[RigidBody3D] = []
@@ -56,12 +61,15 @@ func start(c: KitProp) -> void:
 
 
 ## Seat `man` at a seat of the kit file's `seats_at` (coach space): his feet on the floor under
-## it, facing across the coach (the benches face each other), sitting back.
-func seat(man: HumanBody, at: Vector3, floor_y: float) -> void:
+## it, facing the seat's `yaw` (degrees, -z turned about y: the box's two face forward) or, without
+## one, across the coach (the benches face each other), sitting back.
+func seat(man: HumanBody, at: Vector3, floor_y: float, yaw := NAN) -> void:
 	var local := Transform3D(Basis.IDENTITY, Vector3(at.x, floor_y, at.z))
-	var face_x := -signf(at.x) if absf(at.x) > 0.1 else -1.0
+	var face := Vector3(-signf(at.x) if absf(at.x) > 0.1 else -1.0, 0.0, 0.0)
+	if not is_nan(yaw):
+		face = Basis(Vector3.UP, deg_to_rad(yaw)) * Vector3.FORWARD
 	man.global_transform = coach.global_transform * local
-	man.face(man.global_position + coach.global_basis * Vector3(face_x, 0.0, 0.0))
+	man.face(man.global_position + coach.global_basis * face)
 	man.set_pose(&"sit_back")
 	riders.append({"man": man, "local": coach.global_transform.affine_inverse() * man.global_transform})
 
@@ -74,6 +82,8 @@ func _physics_process(delta: float) -> void:
 		hand_off("struck")
 	elif not loose and driving:
 		coach.global_position += heading * speed * delta
+		if ground.is_valid():
+			_on_ground()
 	if not loose:
 		for r: Dictionary in riders:
 			var man := r.man as HumanBody
@@ -93,6 +103,21 @@ func _physics_process(delta: float) -> void:
 						_ride(man, rb, false)
 				man.go_limp()
 				events.append({"t": time, "what": "thrown", "who": String(man.person_id)})
+
+
+## Set on the ground at its axles, pitched to the grade, its side kept level.
+func _on_ground() -> void:
+	var at := coach.global_position
+	var f := at + heading * -AXLES.x
+	var h := at - heading * AXLES.y
+	var yf := float(ground.call(f.x, f.z))
+	var yh := float(ground.call(h.x, h.z))
+	f.y = yf
+	h.y = yh
+	var x := (h - f).normalized()
+	var z := x.cross(Vector3.UP).normalized()
+	at.y = yh + (yf - yh) * AXLES.y / (AXLES.y - AXLES.x)
+	coach.global_transform = Transform3D(Basis(x, z.cross(x), z), at)
 
 
 ## A striker's box, swept along its speed LOOK_TICKS ahead, meets the coach's.
@@ -139,14 +164,26 @@ func hand_off(why: String) -> void:
 	var made: Array[RigidBody3D] = []
 	if not coach.loose:
 		made = coach.go_loose(heading * speed)
+	_loose_carried()
 	_take_bodies(made)
 	events.append({"t": time, "what": "handed_off", "why": why, "bodies": bodies.size()})
+
+
+## What it carries (the strongbox under the rear bench) goes loose with it, inside it, at its
+## speed: left standing it'd be a fixed thing in the coach's way till its floor check found the
+## floor gone.
+func _loose_carried() -> void:
+	for c in coach.get_children():
+		var p := c as KitProp
+		if p and not p.loose:
+			p.go_loose(heading * speed if driving else Vector3.ZERO)
 
 
 func _on_went_loose() -> void:
 	if loose:
 		return
 	loose = true
+	_loose_carried.call_deferred()
 	events.append({"t": time, "what": "handed_off", "why": "went loose"})
 	_take_bodies.call_deferred([] as Array[RigidBody3D])
 
@@ -172,10 +209,15 @@ func _take_bodies(made: Array[RigidBody3D]) -> void:
 	handed_off.emit(bodies)
 
 
-## A rider's posed parts don't shove the coach while he sits in it (TrainWreck._ride).
+## A rider's posed parts don't shove the coach while he sits in it (TrainWreck._ride), nor his
+## upright blocker (the capsule that keeps the player out of him, a fixed body standing through the
+## bench and the roof: at the hand-off it threw the coach ~2,000 N.s a contact, #794).
 static func _ride(man: HumanBody, rb: RigidBody3D, on: bool) -> void:
+	var with: Array[PhysicsBody3D] = []
 	for seg in man.parts:
-		var part := man.parts[seg] as PhysicsBody3D
+		with.append(man.parts[seg] as PhysicsBody3D)
+	with.append(man.get_node_or_null(^"Blocker") as PhysicsBody3D)
+	for part in with:
 		if part == null or not is_instance_valid(part):
 			continue
 		if on:

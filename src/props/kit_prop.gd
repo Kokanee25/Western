@@ -374,7 +374,7 @@ func _find_footing() -> void:
 		for hit in space.intersect_shape(q, 16):
 			var c: Object = hit.collider
 			if c is StructureMember:
-				under.append([c, (c as StructureMember).global_position])
+				under.append([c, _floor_place(c)])
 			elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 				under.append([null, Vector3.ZERO])  # the ground, a fixed floor: never goes
 		_feet[m] = under
@@ -406,7 +406,7 @@ func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
 			for hit in space.intersect_shape(q, 8):
 				var c: Object = hit.collider
 				if c is StructureMember:
-					into.append([c, (c as StructureMember).global_position])
+					into.append([c, _floor_place(c)])
 				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 					into.append([null, Vector3.ZERO])
 		_feet[m] = into
@@ -460,9 +460,19 @@ func _has_footing(m: StructureMember) -> bool:
 		if f == null:
 			return true
 		if is_instance_valid(f) and not (f as StructureMember).broken and not (f as StructureMember).consumed \
-				and (f as StructureMember).global_position.distance_to(e[1]) < MOVED:
+				and _floor_place(f).distance_to(e[1]) < MOVED:
 			return true
 	return false
+
+
+## Where a floor member is, to tell whether it's moved from under a foot: in the world, or, for a
+## floor of what carries this prop (the coach's under its strongbox), in this prop's space: the two
+## move together (a driven coach dropped its strongbox in the first quarter second, #794).
+func _floor_place(f: StructureMember) -> Vector3:
+	var s := f.get_parent()
+	while s != null and not s is Structure:
+		s = s.get_parent()
+	return to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
 
 
 ## The four lowest corners of a member (structure space): its footprint.

@@ -3,7 +3,8 @@
 Issue #770 (#736's comment: the Baron's iron-plated coach, a log down a bank knocks it over and
 dents its plates, the guards inside thrown about). Sean's picks on #784: **1B** (the log: green
 ponderosa pine 0.6 x 6 m, 1.25 t), **2C** (a 2.5 m crib step at the bank's foot) and **dents as
-planned**. This lab builds them and measures them against #784's numbers.
+planned**. Then (#791, 2026-11-11) **no rolling log: a battering ram**, log B on two ropes, hitting
+sideways at the bottom of its swing ~2 m up on the upper plates (#794): the lab's default since.
 
 What it uses (the parts are in the game, `docs/PARTS.md`):
 - `RollingLog` (`src/structures/rolling_log.gd`): a rigid cylinder, its mass from its wood
@@ -14,25 +15,74 @@ What it uses (the parts are in the game, `docs/PARTS.md`):
   its guards thrown, its traces pulled and broken.
 - `Structure.mass_by_members` and `breaks_up` (a loose coach weighs where its members do, and
   stays whole when it lands).
-- The coach: `baron_coach` once the prop lab's #782 (PR #786) is on main; until then
-  `coach_stand_in.json` (made by `stand_in.py` from that branch's file: the real coach's running
-  gear, frame, panels, roof and its 28 plates, without the kit code not yet on main, with 112 kg of
-  oak ballast in the benches to its 1,508 kg; centre of weight 1.39 m against the real 1.41).
+- `SwingingRam` (`src/structures/swinging_ram.gd`, #794): the log on two fixed-length ropes from a
+  gallows frame over the road (kit members), held back up the bank by its trip pin.
+- `CoachCut` (`src/missions/coach_cut.gd`): the ram and the coach in the valley's coach cut.
+- The coach: the prop lab's `baron_coach` (#782, PR #786), its strongbox carried under the rear
+  bench, four guards inside and the driver and messenger on the box. (Until #786 the lab ran a
+  stand-in made from its branch; gone since.)
 
 ```sh
+# the ram let go from --drops (its middle that high over the bottom of its swing): its speed at the
+# bottom against sqrt(2 g h), the ropes' pull; and the standing coach struck at the bottom
+godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=swing [--drops=2,2.5,3,3.3,3.6,4] --out=DIR
+# the heist (the ram by default; --striker=roll the log off the step), 8 seeds, the pin let go a swing
+# short of the ram (--swing_s=1.28) plus each seed's shift (--spread=0.06 s); --only=N one seed
+godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=heist [--seeds=8] [--pull_up=3.3] [--spread=S] --out=DIR
+# the valley's coach cut: CoachCut on the bake's own ground round it (a 1 m height field), 8 seeds
+godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=cut [--seeds=8] --out=DIR
 # the log down bare 1:1.5 banks 2, 4, 6, 8 m: its speed at the foot against sqrt(4/3 g h)
 godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=roll --out=DIR
 # the standing coach struck sideways by logs A/B/C at speeds, at 1.39 m (the low plates' middle) or --hit_y
 godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=tip [--hit_y=2.0] [--speeds=3,4,...] --out=DIR
 # the whole heist, 8 times: the coach driven up, the log let go at the mark, every frame timed
-godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=heist --seeds=8 [--ledge=0.6] [--coach_z=0.6] [--log_r=0.3] --out=DIR
+godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --mode=heist --striker=roll --seeds=8 [--ledge=0.6] [--coach_z=0.6] [--log_r=0.3] --out=DIR
 #   --debug: the log and the coach every 6 ticks, every blow the dent watch closes; --spikes: frames over 40 ms
 ```
 
-In a running game (the dev bridge): `ch_build [X Y Z] [ledge=] [coach_z=] [log_r=] [guards=]`,
-`ch_release`, `ch_read`, `ch_clear`.
+In a running game (the dev bridge): `ch_build [X Y Z] [striker=ram|roll] [pull_up=] [coach_z=] [log_r=] [guards=]`,
+`ch_release`, `ch_read`, `ch_clear`; in the valley (`--world=valley`) `ch_cut [auto] [back=M] [here]`,
+`ch_cut_go`, `ch_cut_read`. The game: `-- --world=valley --mission=coach` (you at the high spot over
+the cut, the coach coming up the grade: shoot the pin).
 
-## What was found (2026-11-10, `results/2026-11-10/`)
+## The ram (2026-11-11, #794, `results/2026-11-11_ram/`)
+
+**The swing** (`swing.md`): from 2.0, 2.5, 3.0, 3.3, 3.6, 4.0 m its speed at the bottom is 6.26, 7.00,
+7.67, 8.04, 8.40, 8.85 m/s against sqrt(2 g h)'s 6.26, 7.00, 7.67, 8.05, 8.40, 8.86, in 1.23-1.32 s;
+each rope pulls 10.9-15.5 kN at the bottom (m (g + v^2/L) / 2; 1-inch manila holds ~40 kN).
+**The standing coach struck at the bottom** (2.0 m up, the upper plates): over from every drop of
+2.0 m and more (lean 100-110), the deepest dent 2.8 (2.0 m), 3.6 (3.3), 4.0 cm (4.0); from 1.6 m (5.6
+m/s) and less it stands (lean 10-19), dents 1.8-2.5 cm.
+
+**The heist** (`heist.md`, the coach driven at 1.4 m/s, the pin let go 1.28 s short, 8 seeds a
+0.06 s apart): **over 8 of 8** (lean 100-106), 9-14 plates dented, **the deepest 3.6 cm in all 8**, the
+four traces broken, the strongbox loose inside the coach 8/8, the driver and messenger off the box on the
+road 8/8, head blows 0-4 (none over 60 J). The worst frame 22-36 ms here, **14-24 at Sean's**.
+Let go up to 0.9 s early or late (`heist_wide.md`, --spread=0.25) it meets the coach 1.3 m either
+side of its middle: over 8/8, deepest 3.4-3.6 cm.
+
+**Found on the way** (each fixed, each with a test):
+- A seated man's `Blocker` (the upright capsule that keeps the player out of him, a fixed body standing
+  through the bench and roof) shoved the loose coach ~2,000 N.s a contact at the hand-off: the coach shot
+  off at up to 19 m/s before the log arrived. The old rolling-log heists ran with it (their `tip` runs,
+  with no guards, didn't). `CoachDrive._ride` excepts it now.
+- The coach's contact report (128) fills with its six riders' parts and its wheels: the log's blow was
+  dropped and nothing dented. `DentWatch` reads a striker's blows from the striker's side.
+- Jolt's cast (CCD) collision for the log resolves the blow outside the reported contacts: the ram's log
+  runs discrete (at ~8 m/s a tick is 13 cm into a 1.4 m body).
+- Nine plates dented on one tick rebuilt nine dense meshes (~100 ms here): now `MESH_BUDGET_MS` a tick.
+- The carried strongbox fell loose in the first quarter second of the drive (KitProp's floor check saw
+  the coach's floor move); `KitProp._floor_place` reads a carrier's floor in the prop's own space.
+- The ropes run from the bents at the log's ends to slings 0.3 m in: each rope's length is its 3D
+  length with the log at the bottom (taken as the arc's radius, the log fell free for its first 0.3 s).
+
+**The coach cut** (`cut.md`): see the results file; the valley's South Road is level through the cut
+(12.3 m, +-0.1 over +-10 m along) between its banks, the south-west one rising ~1:1.5, so the ram's
+held log clears its bank by ~3 m.
+
+## The rolling log (2026-11-10, `results/2026-11-10/`; before the ram)
+
+(Its heists ran with the riders' blockers shoving the coach at the hand-off: see the ram's "found".)
 
 **The log's speed** (`roll.md`): at the foot of 2, 4, 6, 8 m banks 4.94, 7.06, 8.69, 10.09 m/s
 against the lossless 5.11, 7.23, 8.86, 10.23: 97-99%. Off the cut's 5.5 m bank 8.4 (lossless 8.48).
