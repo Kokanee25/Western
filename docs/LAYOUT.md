@@ -85,7 +85,7 @@ The bridge loads every lab's file at start (folders in name order), lists them i
 `labs`: each lab's commands, or what was refused) and refuses a name the bridge or an earlier lab
 already has. Labs never edit `dev_bridge.gd`. Test fixtures: `tests/labs/`. Labs with commands:
 `blast_freeze` (`bf_blast`, `bf_frames`: a stick in the burning spec saloon, every frame timed; its
-README), `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
+README), `coach_heist` (`ch_build`, `ch_release`, `ch_read`, `ch_clear`: the heist's site built beside you; its README), `breakage_lab` (`breakage`, `breakage_list`, `breakage_aim`; its README), `perception_lab`
 (`perception`, `perception_list`, `perception_probe`, `perception_known`: what a man knows right
 now, in any game; its README), `sound_lab` (`sound`, `sound_list`, `sound_find`,
 `sound_inventory`; its README: run under `--write-movie`, so the mix runs on game time); `gun_lab` (`gun_fp`,
@@ -755,6 +755,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **Buildings from their specs** (#765): a town lot's `spec` (the building lab's format, the doctor's
+  first) is built on it by `ValleyWorld._make_buildings` in place of its block (ValleyMarkers skips it),
+  its floor at its walk's top; a lot's `pad` {y, x, z, blend} is dug level into the bake
+  (`valley_plan.py`); a walk's `span` keeps it to the building, `door_x` puts its steps at the door.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -866,6 +870,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   members); a member drawn on its own has the shared `char_overlay.gdshader` with its look as
   instance uniforms, carried over when it's unbatched or snaps (`_own_fire_look`); both share
   `char.gdshaderinc`. A KitProp leaves its PropBatch when it heats.
+  **Library boards** (#765): a member drawn by the material library's `scan_wood.gdshader` (its mesh's
+  meta `board_frame`, made by the building lab's `spec_building.gd`) batches only with its material's
+  boards facing the same way, merged and drawn in that frame (`_batch_axes`) with their CUSTOM0-2
+  channels (the shader reads a board's axes from its node); no fire places on those batches.
   **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
   batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts
@@ -1149,6 +1157,23 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   batch, on its meshes once it's broken (`_hosts`; moved when that changes). A wide sheet holds up to `max_tiles` flipbook flames,
   half a flame apart, the hotter drawn, each its own frame and height (`ragged`).
 
+- **Dents** (#770; `Dents`, `DentWatch`, `DentTuning` in `config/dents.tres`): a member marked to dent
+  (kit `"plate": true`, or `Dents.mark(m)`) is pushed in by `Dents.dent(m, at, joules, push, radius,
+  along, length)`: depth sqrt(E / (pi yield t)), merged with a dent near it on the same side (energies
+  add), past `tear_depth` torn off (`tear`: broken out standing, its parts a body of their own loose);
+  its mesh rebuilt from its box in `cell` squares (`dented_mesh`), found standing or in its rubble
+  body (`mesh_of`: `Structure._drop` tags each part with meta `member`); `state`/`restore`.
+  `DentWatch` (one a scene, `DentWatch.of`): `watch(rb, structure)` reads a body's contacts each tick
+  (128 reported, meta `dent_watch` keeps `_report` off it), each contact on a plate doing 1/2 J v
+  (v the closing speed last tick, `striker(rb)` keeps a striker's), a plate's blow closed after
+  `contact_gap_s` and `share` of it dented in; a ball on a plate dents by `ball_share` of its spent
+  energy (`Events.bullet_hit`). What strikes may carry `dent_radius`/`dent_length` metas and `dent_axis()`.
+- **A log** (`RollingLog`): a cylinder along its x, mass from `wood` (`green_pine`), `hold_by(structure,
+  ids)` keeps it frozen until all have broken (`released`), `rolling_speed(h)`.
+- **Loose by members** (#770): `Structure.mass_by_members` gives a dropped body its centre of weight
+  and inertia from its members (`_weigh_by_members`); `breaks_up` false keeps a body of several
+  members whole when it lands hard. `CoachDrive` (src/missions) sets both on its coach.
+
 ## src/bodies
 
 - `src/bodies/` — `Anatomy` (config/anatomy.json, generated by `tools/anatomy/build_anatomy.py` —
@@ -1335,6 +1360,21 @@ his mouth and the subtitle), `prompt` (PlayerWounds.say), `card(text, s)` (a bla
 a stand-in for what isn't built), `fact(key, value)` (StoryState, stamped with the clock), `timeline`.
 Every moment is in the group `moment` (the bridge's `moment_result` finds one it didn't start).
 
+**No Law's murder** (`no_law_murder.gd`, `NoLawMurder`, a `CardCheat`, which is an `Act`; #773; data
+`config/moments/no_law_murder.json`; `tests/test_no_law_murder.gd`): started by ValleyFolk (its
+`hour` 22 on the first night, or from `earliest` once you've played `after_hands` hands at the table;
+`murder_auto`, `-- --no-murder`) or the bridge's `moment no_law_murder`. The stranger (ValleyFolk's
+act man) walks in and sits in the free chair you're not in; `after_s` on, Cody (the red shirt, a
+stand-in model) in by his `in` places; within `stop_m` of the table the game `interrupt(&"red_shirt",
+true)`, you `PlayerSeat.hold`ed if sat there, the stranger's warning, every folk brain `hush`ed;
+the accusation, Earl's reply, then CardCheat's beats (turn, kick, after_kick, draw, approach) on
+Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics, smoke, flash, sound,
+`shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
+line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
+word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
+of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
+`nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`.
+
 ## src/missions (the farmhouse)
 
 - `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
@@ -1409,6 +1449,12 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
   playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,
   `farm_free`, `farm_fail`, `farm_run`.
+
+- **The coach on the road** (`CoachDrive`, #770; lab `experiments/coach_heist/`): `start(kit_prop)` drives it
+  along its -x at `speed`, `seat(man, at, floor_y)` carries guards in it; a striker (`strikers`) whose box
+  swept 3 ticks on meets the coach's hands it off (`hand_off`: `go_loose` at the drive's velocity, its
+  bodies watched by `DentWatch`, the guards limp a tick apart); `trace_hook_*` pulled toward the team
+  (springs, `trace_stiffness`, broken past `trace_breaks`); `lean()`, `events`. Its labs commands: `ch_*`.
 
 ## src/people
 
@@ -1521,6 +1567,14 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
   seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
   valley_bench spot `saloon_yard`.
+  A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
+  act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
+  a man out for the rest of his hours (`kept_out`). It starts No Law's murder (`_maybe_murder`,
+  `start_murder`; src/moments). **CivilianBrain**'s lines: a man's no closer than `SAY_GAP` 2.5 s
+  (but fire, thanks, his chair), a shot's cry `CRY_SPREAD` after it, kept back if another just cried,
+  never another man's line of the last 4 s; `hush(s)` (an act's quiet); a gun drawn within `GUN_SEEN`
+  9 m that he sees: uneasy, a line (`gun_out`), his eye on the man; SitChore's man whose chair went
+  from under him says so once he's up (`chair`).
 - **`CardGame`** (`src/people/card_game.gd`, #766, No Law step 2; data `config/card_game.json`, rules
   **`Poker`** `src/people/poker.gd`: cards 0..51, `score`/`compare`/`name`/`discards`;
   `tests/test_card_game.gd`): ValleyFolk makes one at the set's table with its four chairs. Five-card
@@ -1531,7 +1585,7 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
   (`lines`, `by` a man; `say_chance`, `say_gap_s`; Events.spoke), reach for the deck and the pot
   (`reach_to`) and watch whoever's turn it is (`FaceLife.attend_to`). You're dealt in from the next
   hand after you sit at it: your cards face up before you, on your turn a nod calls/checks and a shake
-  folds (HeadGesture), waited on `you_wait_s` you check or fold to a bet; prompts by PlayerWounds.say (what a call costs, the pot, your chips). Stops
+  folds (HeadGesture), waited on `you_wait_s` (10 s, told at 3 s left) you check or fold to a bet; prompts by PlayerWounds.say (what a call costs, the pot, your chips). Stops
   (`interrupted(reason)`, the cards left lying, the pot riding): a shot within `stop_on.shot_m`, a blast
   within `blast_m`, any man of the hand out of his chair (`up`: kicked, his brain's trouble), an act's
   `interrupt(reason, hold)`; deals again after `resume_after_s` calm with two sat, unless `hold`; you
@@ -1746,6 +1800,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
   measures it (and the rhythm, reload, sway) frame by frame against the feel ranges.
+  `Winchester73Viewmodel` (6; #734 step 2) + `Winchester73State`/`Winchester73Model`
+  (`config/winchester73.tres`, proposed): the gun lab's `win73` model promoted (`assets/weapons/
+  winchester73.glb`, `winchester73_rig.json`: every moving part a node on its pivot, driven by the rig);
+  Q the lever (tap: a stroke; held: stays open), the hammer key (middle mouse, Alt) half cock / full,
+  R one round through the gate, H slings it; the Colt's belt is its ammunition (`state.shares`); poses
+  from the model's markers (the eye 38 cm behind the notch), the right HeldHand on a pivot at the
+  lever's pin riding the loop, to the gate to load; `shoulder` 0..1 blends sway, shake
+  (`WeaponViewmodel.shake_factor`) and spread from the hip's to the aimed. The rifle's report is
+  `report_rifle`/`rolling_rifle` (SynthSounds, `GameAudio.gunshot`'s ids). `Rope` (src/structures)
+  is what the rope shot cuts (`Layers.ROPES`, Ballistics' `rope` meta); the gun lab's rope range
+  (`win73/rope_range.gd`, F5's last stop) and `test_gun_feel`'s rope shot use it.
   `Ballistics.fire_charge()` flies a shotgun charge as separate pellets. `DynamiteViewmodel` is the
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
@@ -2141,6 +2206,12 @@ judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2
   loose prop's `"model": "glb:<id>"` + `looks`. Lathes and sweeps take `"at"`/`"rot"` (onto any axis).
   Contact sheets: `python3 experiments/prop_lab/factory_sheet.py --ids=a,b --out=DIR` (the lab's
   bridge `prop ID X Y Z [YAW]`: before the saloon, a townsman beside, noon and 21:30).
+  `tools/props/coach.py` (#782): the Baron's coach (`baron_coach`) and its `strongbox`, on wagons.py's
+  wheels. The kit keys it brought, in KitProp: `"hinges"` (`open_hinge(name, amount)`,
+  `hinge_open`, `is_locked`/`unlock`; its members turned about the line, hung on its `"on"` members in
+  `_hang_hinged`), `"shot_breaks"` (J: a member a ball breaks, which iron never splits: a padlock, a
+  trace hook; `_any_bullet_hit`), `"carries"` (kit props put in as children on their floor:
+  `carried(name)`), and data for the heist (`"seats_at"`, a member's `"plate": true`).
 
 - **Props that shatter** (`GlassProp`, `src/props/glass_prop.gd`; kit `"kind": "shatters"`, made by
   `PropKit.make`): its model (PropModels' `bottle`/`lamp`) drawn batched (StaticBatch's `OWNERS`) over

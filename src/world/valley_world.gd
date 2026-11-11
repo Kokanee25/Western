@@ -26,6 +26,8 @@ var markers: ValleyMarkers
 var farmhouse: Farmhouse
 var mission: FarmhouseMission
 var folk: ValleyFolk
+## The town's buildings built from their specs (#765: the doctor's first), by lot id.
+var buildings := {}
 ## The main line and its train (G3); `-- --no-railway`: the valley without them (the bench's before).
 static var railway_default := not "--no-railway" in OS.get_cmdline_user_args()
 ## The greybox markers (G4); `-- --no-markers`: the valley without them (the bench's before).
@@ -55,6 +57,7 @@ func _ready() -> void:
 		add_child(markers)
 		if farmhouse:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
+		_make_buildings()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
@@ -102,6 +105,32 @@ func _make_farmhouse() -> void:
 		mission = FarmhouseMission.new()
 		mission.name = "FarmhouseMission"
 		add_child(mission)
+
+
+## Every town lot with its building's spec (valley.json's `spec`: the building lab's builder, #765)
+## built on it in place of its block: set on its lot's `at` and `facing`, its floor at its walk's top
+## (ValleyTown's: the lot's `walk.h` over the street's edge), on the pad the bake dug for it.
+func _make_buildings() -> void:
+	if markers == null or markers.town == null:
+		return
+	var tops := {}
+	for w: Dictionary in markers.town.walks:
+		tops[String(w.id)] = float(w.top)
+	for side: String in ["north", "south"]:
+		for l: Dictionary in layout.lots(side):
+			if not l.has("spec"):
+				continue
+			var b: Node3D = load("res://experiments/building_lab/spec_building.gd").new()
+			var sp: Dictionary = b.load_spec(String(l.spec))
+			b.set(&"spec_path", String(l.spec))
+			b.set(&"structure_id", StringName("valley_" + String(l.id)))
+			b.name = "Building_" + String(l.id)
+			var at: Array = (sp.lot as Dictionary).at
+			var floor_top := float(sp.levels.ground.top)
+			var y: float = tops.get(String(l.id), float(at[1]) + floor_top) - floor_top
+			b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), y, float(at[2])))
+			add_child(b)
+			buildings[String(l.id)] = b
 
 
 ## The ground, from the bake (ValleyTerrain, config/valley_ground/): a Ground over it, so a crater,

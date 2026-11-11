@@ -9,7 +9,7 @@
   "beats": {
     "_doc": "Seconds: the shuffle, everyone's ante, a card dealt every deal_every_s (each in the air card_fly_s), a man's think (between the two), the draw a man, the showdown's look, between hands; on your turn you're waited on you_wait_s; a chip pushed takes chip_fly_s.",
     "shuffle_s": 2.4, "ante_s": 1.2, "deal_every_s": 0.16, "card_fly_s": 0.22, "think_s": [1.0, 2.6],
-    "draw_s": 1.3, "showdown_s": 5.0, "between_s": 3.5, "you_wait_s": 7.0, "chip_fly_s": 0.3
+    "draw_s": 1.3, "showdown_s": 5.0, "between_s": 3.5, "you_wait_s": 10.0, "chip_fly_s": 0.3
   },
   "play": {
     "_doc": "How the men play their cards (Poker.strength, 0..1: a pair of jacks ~0.47): open the betting past open_at, raise past raise_at (each with its chance), call with anything past call_at, and with less now and then (bluff_call); a man folds what he won't call.",
@@ -34,7 +34,7 @@
     "they_bet": "{who} makes it {n}",
     "dealt": "You're dealt in: {hand}",
     "next_hand": "You're in from the next hand",
-    "you_call": "You call", "you_check": "You check", "you_fold": "You fold",
+    "you_call": "You call", "you_check": "You check", "hurry": "Nod to call, shake to fold: 3 s left.", "you_fold": "You fold",
     "you_draw": "You draw {n}", "you_stand_pat": "You stand pat",
     "you_win": "You take the pot with {hand}",
     "broke": "You're cleaned out"

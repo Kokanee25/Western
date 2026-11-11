@@ -57,6 +57,14 @@ const CUT_MIN_PIECE := 0.15
 const CUT_CHUNK := 0.3
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
+## What falls loose weighs where its members do (centre of weight and inertia from each member's
+## own weight, `_weigh_by_members`), not evenly through its shapes: set on a coach going over (the
+## heist, #770), where heavy plates high up decide it.
+var mass_by_members := false
+## A fallen piece of several members comes apart when it lands hard (`_on_rubble_hit`): a wall's
+## boards, a chair. Off for what's built to take a jolt whole (a coach going over, #770: its body
+## stays a body, what's struck hard enough still breaks by its own toughness).
+var breaks_up := true
 var tuning: TimberTuning
 ## The last analysis of it, kept and brought up to date for what's changed since (start_analysis);
 ## F3 and tests read it.
@@ -128,6 +136,11 @@ var _batched := {}
 var _batch_members := {}
 ## Batch -> its mesh arrays, kept for the shadow mesh (merged off the main thread).
 var _batch_arrays := {}
+## Batch -> the frame its boards are merged and drawn in, for boards drawn by the material
+## library's shader (a mesh with meta `board_frame`, #765): that shader reads each board's own
+## axes from the node it's drawn by and its seed and shape from per-vertex channels (CUSTOM0-2),
+## so such boards batch only with boards facing the same way, merged in their own frame.
+var _batch_axes := {}
 var _batch_dirty := {}
 ## The shadow mesh (every batch merged) is built on a worker thread, at most every
 ## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
@@ -510,15 +523,24 @@ func _batch_all() -> void:
 				or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
 			continue
 		var mat := mi.material_override
-		if not groups.has(mat):
-			groups[mat] = []
-		(groups[mat] as Array).append(m)
+		var gk: Variant = mat
+		var frame: Variant = _frame_of(m, mi)
+		if frame != null:
+			gk = [mat, var_to_str(frame)]
+		if not groups.has(gk):
+			groups[gk] = []
+		(groups[gk] as Array).append(m)
 		mi.visible = false
-	for mat in groups:
-		var pieces := _batch_pieces(groups[mat])
+	var next := {}
+	for gk in groups:
+		var mat: Material = gk[0] if gk is Array else gk
+		var pieces := _batch_pieces(groups[gk])
 		for i in pieces.size():
-			var key := [mat, i]
+			var key := [mat, int(next.get(mat, 0))]
+			next[mat] = int(next.get(mat, 0)) + 1
 			_batch_members[key] = pieces[i]
+			if gk is Array:
+				_batch_axes[key] = str_to_var(gk[1])
 			for m: StructureMember in pieces[i]:
 				_batched[m] = key
 	# Unbatched members (holed, burning) are walls to a far lamp too (OilLamp).
@@ -569,6 +591,11 @@ func _build_batch(key: Array) -> void:
 	if list.is_empty():
 		_apply_batch(key, list, [], false)
 		return
+	if _batch_axes.has(key):
+		var inputs: Variant = _member_inputs(list, _batch_axes[key])
+		if inputs != null:
+			_apply_batch(key, list, _merge_members(inputs, false), false)
+			return
 	var st := SurfaceTool.new()
 	var counts := PackedInt32Array()
 	for m: StructureMember in list:
@@ -603,13 +630,20 @@ func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
 			old.queue_free()
 		_batches.erase(key)
 		_batch_arrays.erase(key)
+		_batch_axes.erase(key)
 		_fire_mats.erase(key)
 		_looks.erase(key)
 		return
 	var flags := 0
-	if fire:
+	var frame: Variant = _batch_axes.get(key)
+	if frame != null:
+		fire = false  # (its CUSTOM2 is the boards': the char is drawn on members out of the batch)
+		for c in 3:
+			if arrays[Mesh.ARRAY_CUSTOM0 + c] != null:
+				flags |= Mesh.ARRAY_CUSTOM_RGBA_FLOAT << (Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT + c * Mesh.ARRAY_FORMAT_CUSTOM_BITS)
+	elif fire:
 		flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
-	_batch_arrays[key] = arrays
+	_batch_arrays[key] = arrays if frame == null else _in_structure(arrays, frame)
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	if old == null:
@@ -619,6 +653,7 @@ func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
 		_batches[key] = old
 	old.mesh = mesh
+	old.transform = Transform3D(frame as Basis, Vector3.ZERO) if frame != null else Transform3D()
 	if fire:
 		if not _fire_mats.has(key):
 			var cm := ShaderMaterial.new()
@@ -779,16 +814,19 @@ func _batch_new(m: StructureMember) -> void:
 			or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
 		return
 	var mat := mi.material_override
+	var frame: Variant = _frame_of(m, mi)
 	var key: Variant = null
 	var next := 0
 	for k: Array in _batch_members:
 		if k[0] == mat:
 			next = maxi(next, int(k[1]) + 1)
-			if key == null and (_batch_members[k] as Array).size() < BATCH_PIECE:
+			if key == null and (_batch_members[k] as Array).size() < BATCH_PIECE and _batch_axes.get(k) == frame:
 				key = k
 	if key == null:
 		key = [mat, next]
 		_batch_members[key] = []
+		if frame != null:
+			_batch_axes[key] = frame
 	(_batch_members[key] as Array).append(m)
 	_batched[m] = key
 	_hide_after[m] = key
@@ -829,7 +867,7 @@ func _rebuild_dirty_batches() -> void:
 		var list: Array = (_batch_members.get(key, []) as Array).duplicate()
 		_batch_frame_units += list.size()
 		_batch_dirty.erase(key)
-		var inputs: Variant = null if list.is_empty() else _member_inputs(list)
+		var inputs: Variant = null if list.is_empty() else _member_inputs(list, _batch_axes.get(key))
 		if inputs == null:
 			_build_batch(key)  # (nothing left of it, or members the merge doesn't take: here)
 			_show_rebuilt(key)
@@ -868,9 +906,10 @@ func _rebuild_next_frame() -> void:
 
 ## Each member's mesh arrays (read once a mesh) and where it sits; null if they don't all carry
 ## the channels the merge takes (it falls back to the SurfaceTool's, here).
-func _member_inputs(list: Array) -> Variant:
+func _member_inputs(list: Array, frame: Variant = null) -> Variant:
 	var out: Array = []
 	var shape := -1
+	var into := Transform3D(frame as Basis, Vector3.ZERO).affine_inverse() if frame != null else Transform3D()
 	for m: StructureMember in list:
 		var mi := m.drawn_node()
 		if mi == null or mi.mesh == null or mi.mesh.get_surface_count() == 0:
@@ -885,8 +924,19 @@ func _member_inputs(list: Array) -> Variant:
 		if has < 0 or (shape >= 0 and has != shape):
 			return null
 		shape = has
-		out.append([arrays, m.transform * mi.transform])
+		out.append([arrays, into * m.transform * mi.transform])
 	return out
+
+
+## A board drawn by the material library's shader: the frame it's drawn in (its mesh's axes in the
+## structure, snapped), or null for any other member's mesh.
+static func _frame_of(m: StructureMember, mi: MeshInstance3D) -> Variant:
+	if mi.mesh == null or not mi.mesh.has_meta(&"board_frame"):
+		return null
+	var b := (m.transform.basis * mi.transform.basis).orthonormalized()
+	for i in 3:
+		b[i] = Vector3(snappedf(b[i].x, 0.001), snappedf(b[i].y, 0.001), snappedf(b[i].z, 0.001))
+	return b
 
 
 ## Which of the merge's channels the arrays carry (a bit each), or -1 if they carry one it doesn't
@@ -894,11 +944,12 @@ func _member_inputs(list: Array) -> Variant:
 static func _channels(arrays: Array) -> int:
 	if arrays.size() < Mesh.ARRAY_MAX or arrays[Mesh.ARRAY_VERTEX] == null:
 		return -1
-	for slot: int in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
+	for slot: int in [Mesh.ARRAY_CUSTOM3, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
 		if arrays[slot] != null:
 			return -1
 	var has := 0
-	for slot: int in [Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_INDEX]:
+	for slot: int in [Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_INDEX,
+			Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2]:
 		if arrays[slot] != null:
 			has |= 1 << slot
 	return has
@@ -924,6 +975,9 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 	var uv2s := PackedVector2Array()
 	var indices := PackedInt32Array()
 	var counts := PackedInt32Array()
+	var cu0 := PackedFloat32Array()
+	var cu1 := PackedFloat32Array()
+	var cu2 := PackedFloat32Array()
 	var indexed: bool = first[Mesh.ARRAY_INDEX] != null
 	for inp: Array in inputs:
 		var a: Array = inp[0]
@@ -953,6 +1007,12 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 			uvs.append_array(a[Mesh.ARRAY_TEX_UV])
 		if first[Mesh.ARRAY_TEX_UV2] != null:
 			uv2s.append_array(a[Mesh.ARRAY_TEX_UV2])
+		if first[Mesh.ARRAY_CUSTOM0] != null:
+			cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
+		if first[Mesh.ARRAY_CUSTOM1] != null:
+			cu1.append_array(a[Mesh.ARRAY_CUSTOM1])
+		if first[Mesh.ARRAY_CUSTOM2] != null:
+			cu2.append_array(a[Mesh.ARRAY_CUSTOM2])
 		if indexed:
 			for i: int in (a[Mesh.ARRAY_INDEX] as PackedInt32Array):
 				indices.append(i + base)
@@ -972,7 +1032,13 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 		arrays[Mesh.ARRAY_TEX_UV2] = uv2s
 	if indexed:
 		arrays[Mesh.ARRAY_INDEX] = indices
-	if fire:
+	if first[Mesh.ARRAY_CUSTOM0] != null:
+		arrays[Mesh.ARRAY_CUSTOM0] = cu0
+	if first[Mesh.ARRAY_CUSTOM1] != null:
+		arrays[Mesh.ARRAY_CUSTOM1] = cu1
+	if first[Mesh.ARRAY_CUSTOM2] != null:
+		arrays[Mesh.ARRAY_CUSTOM2] = cu2
+	if fire and arrays[Mesh.ARRAY_CUSTOM2] == null:
 		arrays[Mesh.ARRAY_CUSTOM2] = _places(arrays, counts)
 	return arrays
 
@@ -1032,6 +1098,19 @@ func _show_rebuilt(key: Variant = null) -> void:
 			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
 			if mi and not (m as StructureMember).consumed:
 				mi.visible = true
+
+
+## A framed batch's vertices and normals in the structure's space (the shadow's merge takes every
+## batch as sitting at the structure's origin).
+static func _in_structure(arrays: Array, frame: Basis) -> Array:
+	var out: Array = []
+	out.resize(Mesh.ARRAY_MAX)
+	var xf := Transform3D(frame, Vector3.ZERO)
+	out[Mesh.ARRAY_VERTEX] = xf * (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array)
+	if arrays[Mesh.ARRAY_NORMAL] != null:
+		out[Mesh.ARRAY_NORMAL] = xf * (arrays[Mesh.ARRAY_NORMAL] as PackedVector3Array)
+	out[Mesh.ARRAY_INDEX] = arrays[Mesh.ARRAY_INDEX]
+	return out
 
 
 ## The shadow mesh now, on this thread (the build; tests).
@@ -1172,6 +1251,7 @@ func _clear_batches() -> void:
 	_batched.clear()
 	_batch_members.clear()
 	_batch_arrays.clear()
+	_batch_axes.clear()
 	_batch_dirty.clear()
 	_show_after.clear()
 	_hide_after.clear()
@@ -1734,16 +1814,21 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 		rb.transform = host.global_transform.affine_inverse() * at if host else at
 		var to_rb := at.affine_inverse()
 		var mass := 0.0
+		var spread: Array = []  # (mass_by_members: each member's [kg, centre, basis, size] in the body's space)
 		for id in clump:
 			var m := get_member(id)
 			unbatch(m, false, true)
 			m.broken = true
 			mark_dirty(id)
 			mass += m.weight(tuning) / 9.81
+			if mass_by_members:
+				var in_rb := to_rb * m.global_transform
+				spread.append([m.weight(tuning) / 9.81, in_rb.origin, in_rb.basis, m.size])
 			# Its mesh and shape into the body where they are (as reparent(rb, true) put them).
 			var at_m := m.global_transform
 			for c in m.take_parts():
 				c.transform = to_rb * (at_m * c.transform)
+				c.set_meta(&"member", id)  # (whose it is in the body: Dents finds a plate's mesh and shape)
 				rb.add_child(c)
 				if c is CollisionShape3D:
 					_loose_shape(m, c as CollisionShape3D)  # (masonry: the stone without its mortar)
@@ -1760,8 +1845,51 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			rb.queue_free()
 			continue
 		rb.mass = maxf(mass, 0.3)
+		if mass_by_members and spread.size() > 1:
+			_weigh_by_members(rb, spread)
 		_wake_near(rb.global_position, 6.0)
 	return fallen
+
+
+## A body's centre of weight and its turning inertia from its members' own weights (heavy iron
+## plates high on a coach of pine and oak), not from its shapes' volumes as the physics would have
+## them (Jolt spreads a body's mass evenly through its shapes). Each member a solid box; the
+## inertia about the centre by the parallel axis rule, its diagonal in the body's axes (the body
+## turned square to the structure: a kit prop standing as built).
+func _weigh_by_members(rb: RigidBody3D, spread: Array) -> void:
+	var total := 0.0
+	var com := Vector3.ZERO
+	for e: Array in spread:
+		total += float(e[0])
+		com += (e[1] as Vector3) * float(e[0])
+	if total <= 0.0:
+		return
+	com /= total
+	var ix := 0.0
+	var iy := 0.0
+	var iz := 0.0
+	for e: Array in spread:
+		var kg := float(e[0])
+		var sz: Vector3 = e[3]
+		var b: Basis = (e[2] as Basis).orthonormalized()
+		var own := Vector3(sz.y * sz.y + sz.z * sz.z, sz.x * sz.x + sz.z * sz.z, sz.x * sz.x + sz.y * sz.y) * kg / 12.0
+		# The box's tensor turned into the body's axes: R diag(own) R^T, its diagonal.
+		for axis in 3:
+			var row := Vector3(b.x[axis], b.y[axis], b.z[axis])
+			var v := row.x * row.x * own.x + row.y * row.y * own.y + row.z * row.z * own.z
+			if axis == 0:
+				ix += v
+			elif axis == 1:
+				iy += v
+			else:
+				iz += v
+		var d := (e[1] as Vector3) - com
+		ix += kg * (d.y * d.y + d.z * d.z)
+		iy += kg * (d.x * d.x + d.z * d.z)
+		iz += kg * (d.x * d.x + d.y * d.y)
+	rb.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+	rb.center_of_mass = com
+	rb.inertia = Vector3(ix, iy, iz)
 
 
 ## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
@@ -1906,7 +2034,7 @@ func _physics_step(delta: float) -> void:
 			if v.length_squared() > RUNAWAY_SPEED * RUNAWAY_SPEED:
 				v = _runaway(rb, v, lost)
 			rb.set_meta(&"v", v)
-			if gated and not rb.freeze:
+			if gated and not rb.freeze and not rb.has_meta(&"dent_watch"):  # (Dents.Watch reads its contacts)
 				_report(rb, v.length_squared(), on2, off2, tick)
 			if rb.global_position.y < lost_below:
 				lost.append(rb)
@@ -2000,7 +2128,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		_play(&"timber_crash", rb.global_position)
 		ImpactEffects.burst(get_parent(), rb.global_position, Vector3.UP, Color(0.66, 0.56, 0.44), 18, 1.4, 0.07)
 	var ids: Array = rb.get_meta(&"members", [])
-	if ids.size() > 1 and speed > tuning.break_up_speed:
+	if breaks_up and ids.size() > 1 and speed > tuning.break_up_speed:
 		_break_up.call_deferred(rb)
 
 

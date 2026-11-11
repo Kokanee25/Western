@@ -89,3 +89,59 @@ within arm's length look at you closely: `lines_senses` and `sight_sync` ~2 ms a
 the street). The card game drawn ~0.25-0.4 ms a tick here while cards and chips move; headless
 (`build`-style Prof sums, 600 ticks) 0.05-0.07 ms a tick, and sat or stood by the chair the same.
 The cards and chips are two MultiMeshes (+4 draws; the faces up are text, a draw each).
+
+## Step 3 (#773): the red shirt, the kick and the murder
+
+The code: `src/moments/no_law_murder.gd` (`NoLawMurder`, a `CardCheat`, which is now an `Act`); data
+`config/moments/no_law_murder.json`, the two men in `config/valley_folk.json` (`act`); tests
+`tests/test_no_law_murder.gd`; LAYOUT "src/moments" and "src/people". Still B on #755: the yard.
+
+```sh
+godot -- --world=valley        # 7 three times (21:30); sit at the card table; after your first hand
+                               # (or at 22:00 wherever you are) it happens
+python3 tools/bridge.py start --game-args=--world=valley,--no-murder
+python3 tools/bridge.py "time 21" "wait 3" "sit n" "look earl" "moment no_law_murder" "wait 30" "moment_result" "story"
+experiments/valley_folk/film_murder.sh build/murder_films [seat|bar]   # the films (~25 min each here)
+```
+
+What happens (`moment_result`'s `events`, the test's run): the stranger in from the street and sat
+in the south chair at 3.5 s ("Evening. Mind if I sit in a while?"); Cody in at 6.5 s; within 6 m of
+the table the game stops and holds, you're held (E: "The stranger's hand is on your arm. Sit
+still."), the stranger: "Don't move, friend..."; Cody's accusation at 3.5 m, Earl's "Now, Cody, I
+never..." and the kick from behind (the clip's boot on the crest rail, then a spindle broken: the
+chair goes, Earl with it) at ~12.5 s; the draw, over him, one shot at ~17 s ("Dead (brain)"); "Ain't
+no law left in this valley to save you now, Earl."; he holsters and walks out; the barman's "Jesus,
+Cody, my chair!" ~1.6 s on, the room silent till then (the folk hushed); out of the yard at ~23 s;
+the stranger's word 4 s later, you let go, he goes; the drifter (5 s) and the miner (9 s) leave;
+Cody and the stranger walk off east down Main Street and are taken out once out of your sight or
+45 m on. Earl's body stays (ValleyFolk: `dead`). Not sat, it happens the same (`seen_from` heard /
+yard / away). StoryState: `nolaw.murder` done, `nolaw.seen_from`, `nolaw.witnessed`, `nolaw.earl`.
+
+From step 2's playtest, where it touches this scene (CivilianBrain): a man's lines 2.5 s apart at
+least (fire, thanks and his chair aside); a shot's cries spread 0.15-1.1 s, kept back if another just
+cried, never a line another man said in the last 4 s; a gun drawn within 9 m that a man sees: a line
+("Whoa, now. Easy with that iron.") and his eye on the gunman; a man whose chair went from under him
+says so once he's up.
+
+### The frame and the films
+
+`tools/valley/valley_bench.gd --spots=saloon_yard,card_seat,murder_seat` drawn under lavapipe (real look,
+60 frames, 21:00); `murder_seat` is you sat in the north chair as it plays, measured from Cody's arrival at
+Earl (the kick, Earl going over, the draw; seven men in the yard):
+
+| Spot | render CPU at Sean's | draws | primitives | people a tick at Sean's | card game (ms a frame, here) |
+|---|---|---|---|---|---|
+| `saloon_yard` | 1.13 | 827 | 4,895k | ~1.6 | - |
+| `card_seat` | 1.33 | 1,067 | 4,660k | ~2.3 | 0.13 |
+| `murder_seat` | 1.42 | 1,138 | 6,116k | ~3.2 | 0.07 |
+
+People a tick as step 2 counted them: (people less `people_prep_sum`) over two ticks a drawn frame, x0.65.
+This VM ran `saloon_yard` and `card_seat` ~17% slower than step 2's did (its 5.84 and 7.93 ms of people a
+frame then are 6.85 and 9.08 now, with nothing changed there but when the brains speak), so `card_seat`
+is as it was. The murder is in budget: render CPU 1.42 of 4.0, people ~3.2 of 4.0.
+
+Films (`film_murder.sh`, Movie Maker under lavapipe; the crash guard's "stalled over 5 s" note on screen is
+the movie writer's slow frames, not the game): `results/2026-11-10_murder/murder_from_the_chair.mp4` (sat in
+the north chair, turned to Earl; the view turned down at 12 s), `murder_from_the_yard.mp4` (a camera by the
+table's south-west corner). In both runs the kick's first touch stopped on the crest rail, the second broke a
+spindle and the chair went (12.5 s), Earl pitched forward over the table's edge, one shot, "Dead (brain)".

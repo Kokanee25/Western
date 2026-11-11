@@ -476,6 +476,11 @@ frozen until Sean names one.
   C1 game / near / game, F2 game x3 (unmoved; its varnish waits on the light lane, #711). Every swatch
   passes "game or better". Traps: the judges vary by about a grade run to run; a per-board value that's
   hashed must be a flat varying; ~1 min a 1080p lab shot after ~1.5 min of load.
+- **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
+  README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
+  lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from
+  the library by name (paints wanted: white clapboard, green trim, pale inside boards, the sign's
+  lettering); `Checks.built_right` and the X-ray (`tools/buildings/`). Next: the jail, after the paints.
 - **The saloon, research and concepts** (#765, #660; branch `claude/art-saloon-research-9gk9m7`):
   `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
   the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a
@@ -871,7 +876,15 @@ frozen until Sean names one.
   player's (`PlayerWounds.take_fall`) hurt by the height and how he lands; the neck, low back and aorta
   by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
   TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
-  feet first he goes through. Next: #770 (the heist's log, coach and dents, or #736 C).
+  feet first he goes through. Next: #770.
+- **The coach heist** (#770, Sean's 1B 2C on #784; branch `claude/gameplay-coach-heist-log-dents-xg9u0n`;
+  `experiments/coach_heist/` README, LAYOUT "src/structures", "src/missions"): `RollingLog`, `Dents` +
+  `DentWatch` (config/dents.tres; plates, and the train's steel by `Dents.mark`), `CoachDrive`, a loose
+  body weighed by its members (`Structure.mass_by_members`, `breaks_up`); the lab's stand-in coach until
+  #786 (`coach_stand_in.json` by `stand_in.py`). As picked it stands 3/3 (the log comes off the step falling);
+  with a 0.6 m flat crib top and the coach 0.6 m to the far side it goes over 8/8 (worst frame ~21 ms at
+  Sean's), the dents small (the log meets the top edge). Struck at its centre of weight's height it slides,
+  never tips. Waiting on Sean: #791 (B small dents, C both, or the dent dial; the flat top). Then the coach cut.
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
@@ -890,7 +903,15 @@ frozen until Sean names one.
   (`CardGame`, `Poker`, `config/card_game.json`): five-card draw, you dealt in from the next hand, nod calls and
   shake folds, Earl deals off the bottom; stops for a shot, a man out of his chair or an act's `interrupt`.
   Bridge `sit [n|e|s|w]`, `stand`, `cards`. `card_seat` bench: render CPU 1.14 ms at Sean's, people ~2.0.
-  Blind playtest `docs/playtests/2026-11-10-cards.md`. Next: #773 (the red shirt, the kick and the murder).
+  Blind playtest `docs/playtests/2026-11-10-cards.md`. **Step 3, the murder** (#773, PR #785, build 3882;
+  LAYOUT "src/moments", `experiments/valley_folk/README.md` "Step 3"): `NoLawMurder` (a `CardCheat`, now an Act;
+  `config/moments/no_law_murder.json`): the stranger in the free chair, Cody (Lyle's model, stand-in) in, the game
+  and you held, the kick, the head shot, "no law", out; the barman's line; after, Earl's body stays (ValleyFolk
+  `dead`), the barkeep to it, men `send_off`; StoryState `nolaw.*`. Started at 22:00 on the first night or after
+  your first hand (`ValleyFolk.murder_auto`, `-- --no-murder`; tests at night in the valley turn it off).
+  CivilianBrain: lines 2.5 s apart, cries spread, `hush`, a drawn gun noticed. Bench `murder_seat` 1.42 ms render,
+  people ~3.2 at Sean's. Playtest `docs/playtests/2026-11-10-murder.md`. Next: #796 (the morning after and the
+  sheriff's last day).
 - **No working girl for now** (#698, Sean 2026-11-07): `TownLife` no longer makes her (no
   `working_girl` field); her `assets/people/` files stay; `saloon_window` goes unused.
 - **The dynamite's sound** (#596 step 1, done 2026-11-04): `BlastSounds` plays Sean's pick (#605:
@@ -1135,10 +1156,16 @@ frozen until Sean names one.
   lever faded case colours, the weakest call); five rounds in game light and first person in the game's
   HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
   cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
-  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
+  the Fable polish pass on #733 (all the guns together). Traps:
   Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
   (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
-  run is ~70 min here. Nothing in the game changed.
+  run is ~70 min here. **In the game** (#777, PR #792, LAYOUT "src/weapons"): key 6, `Winchester73*`
+  (`config/winchester73.tres` proposed), Q the lever, the `hammer` key (middle mouse, Alt) half cock, R the
+  gate, the Colt's belt; `Rope` and the rope range (F5's last stop); feel ranges proposed (rope 30 m steady
+  10/16, 60 m 4/16); sheet `experiments/gun_lab/win73/results/2026-11-10_in_game/` (the hold re-laid, eye
+  50 cm behind the notch). Waiting on Sean's play; next: men carrying it. Traps: a drawn rifle on Main
+  Street sets the gang off (shoot sheets on the rope range); lavapipe draws ~1 frame a second, so a
+  bridge `wait` under a second misses short poses.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every
@@ -1234,3 +1261,12 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
   StandardMaterial3D. Sean picked C1f (#526, "for now": an art style change is being tried):
   `model_paint` mipmapped and a texel a square, the deer and steer skull paints imported with mipmaps.
+- **The Baron's coach** (#782, branch `claude/prop-lab-coach-xl8t64`, PR below; for the heist #736/#770):
+  `tools/props/coach.py` -> `baron_coach` (Concord-style, armoured: 28 separate 8 mm iron plate members
+  `"plate": true`, 6 framed slits, two hinged doors, benches for four guards and `seats_at`, driver's box,
+  boot, pole and four trace hooks; 1,508 kg empty) and `strongbox` (iron, padlock and hasp, hinged lid, the
+  papers; 44 kg) carried under the rear bench. New kit keys in KitProp: `hinges` (`open_hinge`, `unlock`),
+  `shot_breaks`, `carries`; look `prop:plate_iron`; woods `leather`, `paper` (TimberTuning, gameplay's).
+  Sean's paint A (#783). Critic round 2: coach DOESN'T (a box, not a Concord's egg-shaped body; it doesn't
+  look hung), strongbox CLOSE (`experiments/prop_lab/results/2026-11-10_coach/`). Interface on #770.
+  Next: #787 (Sean: keep it, and build a Concord-bodied `baron_coach_concord` beside it to compare).
