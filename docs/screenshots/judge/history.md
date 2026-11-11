@@ -436,3 +436,11 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-09_cheap_matlib_r3_metahuman | golden_far | **cheap indie** | 2, 3, 4, 5, 6 | Oiled, uniform boards | 3% / 5.7 / 1.58 / 0.31 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
 | 2026-11-09_cheap_matlib_r3_metahuman | golden_far | **good indie** | 2, 4, 5, 6 | The knot that repeats | 3% / 5.0 / 1.44 / 0.25 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
 | 2026-11-09_cheap_matlib_r3_metahuman | noon_near | **cheap indie** | 1, 6 | The screen-door squares | 6% / 1.1 / 1.07 / 0.13 | #721 round 3, R1 with MetaHuman Sean (s3, lab only), TAA, 1920x1080 |
+| 2026-11-10_doctor_r2_cheap | front | **cheap indie** | 1, 2, 3, 4, 7, 9 | Greybox buildings and a debug label in shot | 0% / 21.8 / 0.78 / 0.26 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | side_yard | **cheap indie** | 3, 4, 7, 9 | Untextured grey blocks frame the shot | 0% / 13.4 / 1.92 / 0.22 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | rear | **cheap indie** | 2, 3, 7, 9 | A blank wall eats a third of the frame | 0% / 19.4 / 1.29 / 0.18 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | front_office | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 9 | An empty room | 80% / 0.5 / 3.68 / 0.67 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | surgery | **cheap indie** | 2, 3, 5, 7, 9 | An empty room | 79% / 0.0 / 0.79 / 0.25 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | dispensary | **cheap indie** | 1, 2, 3, 7, 8, 9 | Too dark to read, with no source | 89% / 0.2 / 8.56 / 0.69 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | sick_room | **cheap indie** | 1, 2, 3, 7, 8 | A black frame | 100% / 0.3 / 2.05 / 0.46 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |
+| 2026-11-10_doctor_r2_cheap | quarters | **cheap indie** | 1, 2, 3, 7, 8 | Too dark, no source | 97% / 0.1 / 3.65 / 0.70 | the doctor's office on its valley lot (#765), unpainted, no props or lamps |

@@ -417,7 +417,7 @@ func _doctor_front() -> Vector3:
 	for s: String in ["north", "south"]:
 		for d: Dictionary in l.lots(s):
 			if String(d.id) == lot:
-				x = (float(d.x0) + float(d.x1)) * 0.5
+				x = float((d.get("walk", {}) as Dictionary).get("door_x", (float(d.x0) + float(d.x1)) * 0.5))
 				side = s
 	var front := float((l.town().get("main_street", {}) as Dictionary).get("width_between_fronts", 20.1)) * 0.5
 	var deep := float((l.town().get("main_street", {}) as Dictionary).get("boardwalk_depth", 2.4))

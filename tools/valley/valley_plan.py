@@ -364,6 +364,18 @@ class Terrain:
 				continue
 			y = float(pd["y"])
 			self._blend(X, Z, H, p["at"][0], p["at"][1], pd["w"], pd["d"], pd.get("heading", 90), pd.get("blend", 30), lambda X, Z, y=y: np.full(X.shape, y))
+		# A town lot dug level for the building on it (#765, the doctor's: Sean's pad on a rising lot):
+		# its `pad` {y, x: [x0, x1], z: [z0, z1], blend} levelled, the bank `blend` m round it.
+		for side in ("north", "south"):
+			for l in self.data["town"].get(side, []):
+				lp = l.get("pad")
+				if not lp:
+					continue
+				y = float(lp["y"])
+				x0, x1 = lp["x"]
+				z0, z1 = lp["z"]
+				self._blend(X, Z, H, (x0 + x1) / 2, (z0 + z1) / 2, abs(x1 - x0), abs(z1 - z0), 90, lp.get("blend", 3.0),
+					lambda X, Z, y=y: np.full(X.shape, y))
 		# A place's hills (G6: the farmhouse's, carried from the old town) over its levelled pad and
 		# the ground round it: each bump a smoothstep of the distance, summed (TownLayout.hills_height).
 		for p in self.data["places"]:
