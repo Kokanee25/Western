@@ -162,3 +162,8 @@ porch at -20, across 9.7 dB under, as the game has them), `crowd_porch` / `crowd
 bed run at +1 dB in the scenarios; the porch at -20, across 9.2 under). As heard in the game: close
 -19.1, through the floor -37.2, porch -46.6, across -56.3. The porch runs take ~17 min under lavapipe
 with a 37 s tune: `run.py --timeout=2000`.
+
+## Devil's Dream at the game's distances
+
+`devils_dream/`: the plain take (`dry.mp3`) and the six game runs, cut as Arkansas Traveller's (pairs keep the
+game's level). Heard: close -18.6, through the floor -39.5, porch -48.9, across -58.6 LUFS.
