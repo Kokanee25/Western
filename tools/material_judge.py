@@ -94,11 +94,11 @@ def prepare(args):
         kp = os.path.join(ROOT, "build", round_name + ".key.json")
         os.makedirs(os.path.dirname(kp), exist_ok=True)
         json.dump(key, open(kp, "w"), indent=1)
-    lines = ["You are the materials judge for a western game's wood materials. You are blind: you know nothing",
+    lines = ["You are the materials judge for a western game's wood (bare and painted) materials. You are blind: you know nothing",
              "about how these pictures were made or what changed, and you must not look for that. Do not read",
              "any other file in the repository than the ones named here.",
              "", "Read the rubric first: %s" % os.path.join(ROOT, "docs/concept/judge/MATERIAL.md"),
-             "", "The yardstick (official screenshots of shipped AAA games; look only at their wood):"]
+             "", "The yardstick (official screenshots of shipped AAA games; look only at their wood, bare and painted):"]
     lines += ["  " + os.path.join(refs, r) for r in REFS]
     lines += ["", "The crops to judge, all in %s (near: 1 m at noon; far: 5 m at golden hour;" % out,
               "saloon_night: 1 m by lamplight; noon_rail: a rail and floor of the same wood):"]

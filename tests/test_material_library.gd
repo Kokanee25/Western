@@ -8,10 +8,11 @@ func test_every_entry_has_its_scans_and_a_code() -> void:
 	var entries: Array = MaterialLibrary.entries()
 	check(entries.size() >= 8, "the woods are in the library (%d)" % entries.size())
 	var codes := {}
-	for e in entries:
-		check(e.has("code") and not codes.has(e["code"]), "%s has its own swatch code" % e["id"])
-		codes[e.get("code", "")] = true
-		check(SamplePanel.CLASSES.has(StringName(e["class"])), "%s's class is a panel class" % e["id"])
+	for e0 in entries:
+		check(e0.has("code") and not codes.has(e0["code"]), "%s has its own swatch code" % e0["id"])
+		codes[e0.get("code", "")] = true
+		var e := MaterialLibrary.resolved(e0)
+		check(SamplePanel.CLASSES.has(StringName(e["wood_class"])), "%s's wood class is a panel class" % e["id"])
 		for slot in (e["scans"] as Dictionary):
 			var dir: String = MaterialLibrary.SCANS + String(e["scans"][slot]["id"]) + "/"
 			check(ResourceLoader.exists(dir + "albedo.jpg"), "%s's scan %s is in the repo" % [e["id"], dir])
@@ -86,7 +87,8 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 ## Each scan's grain runs the way the library says: the albedo changes most across its grain.
 ## (C2's fir boards drew their grain across the board, two rounds running, from a guessed direction.)
 func test_every_scan_grain_runs_the_way_the_library_says() -> void:
-	for e in MaterialLibrary.entries():
+	for e0 in MaterialLibrary.entries("wood"):
+		var e := MaterialLibrary.resolved(e0)
 		for slot in (e["scans"] as Dictionary):
 			var sc: Dictionary = e["scans"][slot]
 			var path := ProjectSettings.globalize_path(MaterialLibrary.SCANS + String(sc["id"]) + "/albedo.jpg")
@@ -117,3 +119,44 @@ func test_the_boards_seed_reaches_the_fragment_shader_flat() -> void:
 	# The same fault's one other case (the audit, PR #775): a flame's seed in the old tongues' shader.
 	var flame: String = (load("res://src/fire/flame.gdshader") as Shader).code
 	check(flame.contains("varying flat float seed;"), "a flame's seed is flat too")
+
+
+## Paint (#721's paint round): each coat lies over a wood in the library, takes its scans and its own
+## layout, and sets the shader's paint; the wood's own floor stays bare where the entry says.
+func test_a_paint_lies_over_a_wood_and_draws_its_coat() -> void:
+	var paints: Array = MaterialLibrary.entries("paint")
+	check(paints.size() >= 5, "the paints are in the library (%d)" % paints.size())
+	for e0 in paints:
+		var base := MaterialLibrary.entry(String(e0.get("over", "")))
+		check(not base.is_empty() and base.get("family", "") == "wood", "%s lies over a wood (%s)" % [e0["id"], e0.get("over", "")])
+		var e := MaterialLibrary.resolved(e0)
+		check_eq(String(e["id"]), String(e0["id"]), "%s keeps its own id" % e0["id"])
+		check(e.has("scans"), "%s takes its wood's scans" % e0["id"])
+		check_eq(String(e["layout"]), String(e0.get("layout", base["layout"])), "%s's layout is its own, else its wood's" % e0["id"])
+		var m := ShaderMaterial.new()
+		m.shader = SamplePanel.SHADER
+		MaterialLibrary.apply(m, e0, 0.5, &"wall")
+		check(float(m.get_shader_parameter("paint")) > 0.5, "%s's wall is painted" % e0["id"])
+		var c: Color = m.get_shader_parameter("paint_color")
+		var want: Array = e0["paint_color"]
+		check(is_equal_approx(c.r, want[0]) and is_equal_approx(c.b, want[2]), "%s's colour reaches the shader" % e0["id"])
+		var f := ShaderMaterial.new()
+		f.shader = SamplePanel.SHADER
+		MaterialLibrary.apply(f, e0, 0.5, &"floor")
+		check(float(f.get_shader_parameter("paint")) < 0.5, "%s's porch floor stays bare" % e0["id"])
+	var p := SamplePanel.new()
+	p.entry = MaterialLibrary.entry("painted_green_trim")
+	p.age_name = &"few"
+	add_child(p)
+	p.build()
+	check(p.boards > 10, "a paint's panel builds (%d boards)" % p.boards)
+	p.free()
+
+
+## Step 0 of the paint round (after PR #775): the lab's per-member values in texel_grid that feed a
+## hash or a floor() are flat too.
+func test_texel_grid_per_member_values_are_flat() -> void:
+	var f := FileAccess.open("res://src/render/texel_grid.gdshaderinc", FileAccess.READ)
+	var code := f.get_as_text()
+	for v in ["varying flat float lab_u0;", "varying flat vec4 weather_frame;", "varying flat vec4 weather_nails;"]:
+		check(code.contains(v), v)

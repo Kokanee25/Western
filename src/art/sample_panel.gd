@@ -50,8 +50,10 @@ var _mats := {}
 
 
 func build() -> void:
+	# A paint lies over a wood: the wood's boards, the paint's layout where it says.
+	entry = MaterialLibrary.resolved(entry)
 	_rng.seed = hash([entry.get("id", ""), String(age_name), seed_base])
-	var cls: Dictionary = CLASSES[StringName(entry.get("class", "common"))]
+	var cls: Dictionary = CLASSES[StringName(entry.get("wood_class", "common"))]
 	var ai: int = ["new", "few", "old"].find(String(age_name))
 	var warp: float = float(cls["warp"][ai]) * float(entry.get("warp_scale", 1.0))
 	var gap: float = float(cls["gap"][ai])
@@ -155,7 +157,7 @@ func _backing(wall: Node3D) -> void:
 func _floor(fl: Node3D, cls: Dictionary, ai: int, warp: float) -> void:
 	var f: Dictionary = cls["floor"]
 	# Face-nailed, two to a joist; a fine floor's strips are blind-nailed through the tongue.
-	var floor_nails := Vector2(0, 0) if StringName(entry.get("class", "")) == &"fine" else Vector2(2, 0.6)
+	var floor_nails := Vector2(0, 0) if StringName(entry.get("wood_class", "")) == &"fine" else Vector2(2, 0.6)
 	var z := -0.01
 	var basis := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
 	while z > -FLOOR_D:

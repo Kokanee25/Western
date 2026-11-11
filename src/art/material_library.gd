@@ -14,6 +14,10 @@ extends RefCounted
 ##   tint_new, tint_mid, tint_old ([r, g, b] multipliers), and any of scan_wood.gdshader's dials
 ##   by name (varnish, weathering, grime, sun_fade, streaks, joint_dirt, value_jitter, ...).
 ##   `floor` and `rail` may hold the same fields for those parts (their own scans, tints, dials).
+## A paint entry (family "paint", #721's paint round): `over` names the wood it's laid on, whose
+## fields it takes under its own (`resolved`): its layout and boards may differ (trim boards, narrow
+## inside boards; `panel_class` the panel's gaps and warp, e.g. a fine joinery's for boards inside); paint_color, paint_under ([r, g, b]) and the `paint_*` dials; `inside` for a coat
+## indoors. A building takes a finish by its id, as a wood.
 
 const PATH := "res://config/material_library.json"
 const SCANS := "res://assets/textures/scans/"
@@ -25,7 +29,11 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"normal_strength", "grime", "sun_fade", "streaks", "joint_dirt", "layer_new", "varnish",
 		"specular_wood", "saw_marks", "detail_bias", "weathered_bias", "weathered_grain", "albedo_bias",
 		"grain_contrast", "eaves_m", "edge_shelter", "b_stochastic", "varnish_dark",
-		"age_split", "checks", "end_rot", "contact", "arris"]
+		"age_split", "checks", "end_rot", "contact", "arris",
+		"paint", "paint_inside", "paint_chalk", "paint_fade", "paint_peel", "paint_crack", "paint_thin_new",
+		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead"]
+## Colours an entry may set ([r, g, b], sRGB as the shader's source_color).
+const COLOURS := ["tint_new", "tint_mid", "tint_old", "varnish_amber", "paint_color", "paint_under", "paint_dust"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D
@@ -54,6 +62,22 @@ static func entry(id: String) -> Dictionary:
 	return {}
 
 
+## The entry with what it lies `over` (a paint's wood) under its own fields; `wood_class` the wood's
+## class (SamplePanel's sizes). A wood comes back as it is (and its class as `wood_class`).
+static func resolved(e: Dictionary) -> Dictionary:
+	if e.has("wood_class"):
+		return e
+	var out := e.duplicate()
+	var base_id := String(e.get("over", ""))
+	if base_id != "":
+		out = entry(base_id).duplicate()
+		out.merge(e, true)
+		out["wood_class"] = e.get("panel_class", entry(base_id).get("class", "common"))
+	else:
+		out["wood_class"] = e.get("class", "common")
+	return out
+
+
 ## The entry's fields for a part: the part's own (entry[role]) over the entry's.
 static func for_role(e: Dictionary, role: StringName) -> Dictionary:
 	var out := e.duplicate()
@@ -65,7 +89,7 @@ static func for_role(e: Dictionary, role: StringName) -> Dictionary:
 
 ## Sets a scan_wood.gdshader material from an entry at an age (0 new .. 1 old) for a part.
 static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName) -> void:
-	var r := for_role(e, role)
+	var r := for_role(resolved(e), role)
 	var scans: Dictionary = r.get("scans", {})
 	for slot in ["a", "a2", "b"]:
 		var has: bool = scans.has(slot)
@@ -88,7 +112,7 @@ static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName
 		var ma := _mean(SCANS + String(scans["a"]["id"]) + "/")
 		var m2 := _mean(SCANS + String(scans["a2"]["id"]) + "/")
 		m.set_shader_parameter("a2_gain", Vector3(ma.x / maxf(m2.x, 1e-4), ma.y / maxf(m2.y, 1e-4), ma.z / maxf(m2.z, 1e-4)))
-	for t in ["tint_new", "tint_mid", "tint_old", "varnish_amber"]:
+	for t in COLOURS:
 		if r.has(t):
 			var c: Array = r[t]
 			m.set_shader_parameter(t, Color(c[0], c[1], c[2]))

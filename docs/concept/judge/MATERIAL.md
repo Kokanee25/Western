@@ -25,6 +25,21 @@ material as the light shows it.
    lines drawn on (bright or coloured outlines, dashes).
 6. **Holds at distance:** at 5 m it keeps its character without shimmer, mush or a flat card.
 
+## Painted wood (#721's paint round, 2026-11-11)
+
+A painted swatch (codes P1...) is judged by the same six checks and grades, read for a coat of paint
+over boards:
+
+1. **Real stuff:** reads as oil house paint on wood (white lead, an iron-oxide red, chrome green, a
+   buff, a pale indoor coat): a film with the boards' grain and edges under it, not a flat colour,
+   plastic, a decal or a stock "peeling paint" texture.
+2. **Age reads:** new is a sound, even coat with a low sheen; a few years chalks and fades where the
+   sun works, cracks along the grain, lets go first where water sits (the foot, a lap's lower edge,
+   board ends, the arrises) and takes the street's dust low; old has failed in strips and flakes to
+   primer and grey bare wood. Indoors: yellowed, rubbed where hands go, scuffed low.
+3-6. As for wood; a peel's edge should read as a film's edge (sharp, a little lifted), never as
+   dots, noise or a pattern stamped over the boards.
+
 ## The grade (one per swatch and age)
 
 | grade | what it means |

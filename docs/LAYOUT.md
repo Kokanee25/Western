@@ -2129,6 +2129,14 @@ the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `t
 cuts a review run's crops and writes the judge's prompt; with `--before` a blind A/B (sets P and Q, the
 key under `build/`). scan_wood's later dials: `contact`/`arris` (joints as shadowed gaps; a board's covered
 edges in UV2, SamplePanel), `age_split`/`checks`/`end_rot` (few against old), `varnish_dark`.
+**Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
+(`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
+`wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
+shot. scan_wood's `paint_*` (colour, primer, chalk, fade, peel where water sits, cracks, grain through,
+relief, brush, sheen, yellowing, dust; `paint_inside` for a coat indoors; `paint_sun` the hot side) and
+`bead` (beaded boards). A paint passes at an age into `approved` when the materials judge grades it game or
+better with check 3 (no tile tells) passed; buildings take a finish by id (the doctor's `want`s). The
+judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2026-11-11_paint_r*`.
 
 ## src/props/prop_models.gd
 
