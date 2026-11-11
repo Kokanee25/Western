@@ -469,6 +469,13 @@ frozen until Sean names one.
   tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
   few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
   grain with the test, not by eye; one render at a time.
+  **The weave fixed and the climb** (#763, #721, branch `claude/art-wood-quality-climb-9p9niw`): the weave was
+  the board's seed interpolated then hashed (`varying flat` now; a test holds it). Four blind A/B rounds
+  (`tools/material_judge.py`; record `docs/screenshots/judge/2026-11-10_material_climb/`, sheet
+  `docs/screenshots/material_library/2026-11-10_climb/sheet.jpg`): R1 near the yardstick at all three ages,
+  C1 game / near / game, F2 game x3 (unmoved; its varnish waits on the light lane, #711). Every swatch
+  passes "game or better". Traps: the judges vary by about a grade run to run; a per-board value that's
+  hashed must be a flat varying; ~1 min a 1080p lab shot after ~1.5 min of load.
 - **The saloon, research and concepts** (#765, #660; branch `claude/art-saloon-research-9gk9m7`):
   `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
   the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a
