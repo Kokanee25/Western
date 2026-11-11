@@ -484,7 +484,9 @@ void fragment() {
 			// How far up from the wet edge it let go: a grain line, straight along the board, a whisker
 			// of tear in it.
 			float h = v_width * (horiz ? mix(0.15, 0.7, hash11(seed * 3.31 + ck * 2.9 + side)) : mix(0.1, 0.35, hash11(seed * 3.31 + ck * 2.9 + side)));
-			float tear = (texture(big_noise, vec2(pm.x / 0.02, pm.y / 0.004) + so * 1.7).r - 0.5) * 0.008
+			// (along a lap the tear varies along the board only: varied across it too, the edge's
+			// solutions were spikes, a skyline)
+			float tear = (texture(big_noise, vec2(pm.x / 0.02, horiz ? so.y * 3.0 : pm.y / 0.004) + so * 1.7).r - 0.5) * 0.008
 					+ (texture(big_noise, vec2(pm.x / 0.18, so.y * 4.0 + ck * 0.3)).r - 0.5) * 0.02;
 			float sp = on > 0.5 ? (h * step_h * taper - u + tear) * 6.0 : -1.0;
 			// The ends: the film gone back from a board's end along the grain, a ragged front.
