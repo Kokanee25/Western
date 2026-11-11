@@ -112,6 +112,12 @@ static func iron() -> ShaderMaterial:
 	return _mat("iron", PixelArt.metal("prop_iron", IRON, 217, 0.6), Color.WHITE, 0.7, 0.5)
 
 
+## Iron plate (the Baron's coach's armour, #782): blackened sheet, its mottle calm (the train's
+## iron's): the props' iron is a stove's, and on a plate a metre across its mottle reads as camouflage.
+static func plate_iron() -> ShaderMaterial:
+	return _mat("plate_iron", PixelArt.metal("prop_plate_iron", Color(0.21, 0.19, 0.17), 223, 0.32), Color.WHITE, 0.66, 0.5)
+
+
 static func felt() -> ShaderMaterial:
 	return _mat("felt", PixelArt.dirt("prop_felt", FELT, 219), Color.WHITE, 1.0, 0.0, 0.1)
 

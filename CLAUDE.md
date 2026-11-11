@@ -1259,3 +1259,12 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   mipmaps, lose Rodin's deer; not triangles, paint size or dropped maps; `model_paint` refuses a
   StandardMaterial3D. Sean picked C1f (#526, "for now": an art style change is being tried):
   `model_paint` mipmapped and a texel a square, the deer and steer skull paints imported with mipmaps.
+- **The Baron's coach** (#782, branch `claude/prop-lab-coach-xl8t64`, PR below; for the heist #736/#770):
+  `tools/props/coach.py` -> `baron_coach` (Concord-style, armoured: 28 separate 8 mm iron plate members
+  `"plate": true`, 6 framed slits, two hinged doors, benches for four guards and `seats_at`, driver's box,
+  boot, pole and four trace hooks; 1,508 kg empty) and `strongbox` (iron, padlock and hasp, hinged lid, the
+  papers; 44 kg) carried under the rear bench. New kit keys in KitProp: `hinges` (`open_hinge`, `unlock`),
+  `shot_breaks`, `carries`; look `prop:plate_iron`; woods `leather`, `paper` (TimberTuning, gameplay's).
+  Sean's paint A (#783). Critic round 2: coach DOESN'T (a box, not a Concord's egg-shaped body; it doesn't
+  look hung), strongbox CLOSE (`experiments/prop_lab/results/2026-11-10_coach/`). Interface on #770.
+  Next: #787 (Sean: keep it, and build a Concord-bodied `baron_coach_concord` beside it to compare).
