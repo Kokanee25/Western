@@ -362,6 +362,26 @@ func hang_on(by: HumanBody, shoulder_side: String) -> void:
 	side = shoulder_side
 
 
+## Over a rail (a washstand's towel bar, a line, a chair's back; #788): laid flat across it, its
+## length (X) across the rail's `along` (world) and its middle there, the points over the rail pinned
+## to it, the rest left to hang by its own physics (a rail a couple of centimetres thick slips
+## between its points otherwise). The rail carries it: broken off or knocked, it goes with it; picked
+## up, let go or freed rail, it's free.
+func hang_over(rail: Node3D, along: Vector3, top: Vector3) -> void:
+	if burnt or rail == null:
+		return
+	_release_all()
+	var a := along.normalized()
+	var x := a.cross(Vector3.UP).normalized()
+	place(Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP).normalized() * -1.0).orthonormalized(), top + Vector3.UP * 0.01))
+	var mid := cols / 2
+	var take: Array[int] = []
+	for j in rows:
+		for i in [mid - 1, mid]:
+			take.append(j * cols + i)
+	_pin(take, rail)
+
+
 ## On top of his shoulder (world), where a rag over it lies: above the joint, in toward his neck.
 static func shoulder_top(by: HumanBody, shoulder_side: String) -> Vector3:
 	var joint := (by.pivots[StringName("upper_arm_" + shoulder_side)] as Node3D).global_position

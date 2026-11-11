@@ -314,3 +314,15 @@ func test_the_hand_towel_wipes_up_blood_and_reddens() -> void:
 	check(after < before - 20.0, "and the top's left cleaner (%.0f -> %.0f ml)" % [before, after])
 	check(towel.blood_ml > 20.0 and towel.bloodiness() > 0.02, "it's red where it took it (%.0f ml, %.2f red)" % [towel.blood_ml, towel.bloodiness()])
 	check(towel.wipe_at(Vector3(3.0, 0.5, 3.0), 0.3, 0.1).blood == 0.0, "over nothing it takes nothing")
+
+
+func test_the_hand_towel_hangs_over_the_washstands_bar() -> void:
+	var w := await _place(&"washstand")
+	var towel := PropKit.make(&"hand_towel") as ClothProp
+	world.add_child(towel)
+	var bar := _m(w, "towel_bar")
+	towel.hang_over(bar, bar.global_basis.z, bar.global_position + Vector3.UP * (bar.size.y * 0.5 + 0.005))
+	await physics_frames(120)
+	var r := towel.height_range()
+	check(r.y > bar.global_position.y, "its middle stays on the bar (top %.2f, bar %.2f)" % [r.y, bar.global_position.y])
+	check(r.x > 0.2 and r.x < bar.global_position.y - 0.2, "and it hangs down either side, clear of the floor (%.2f)" % r.x)
