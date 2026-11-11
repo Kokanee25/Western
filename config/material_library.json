@@ -1,5 +1,5 @@
 {
- "note": "The material library (#701, docs/briefs/material-library.md): MaterialLibrary reads it, SamplePanel shows each entry new / a few years / old in the material lab (tools/material_lab.gd --panels=CLASS). `approved` lists the ages Sean has passed (none yet: candidates). Paint entries (family `paint`, #721's paint round) lie `over` a wood entry: its fields under theirs (MaterialLibrary.resolved), the coat drawn by scan_wood.gdshader's `paint_*` dials; `inside` ones are judged at night too. Scans in assets/textures/scans/<id>/ (CC0, CREDITS.md); `grain` u or v: the way the scan's grain runs; `metres` the size a scan covers (along the grain, across) where the source doesn't say.",
+ "note": "The material library (#701, docs/briefs/material-library.md): MaterialLibrary reads it, SamplePanel shows each entry new / a few years / old in the material lab (tools/material_lab.gd --panels=CLASS). `approved` lists the ages passed: Sean's, or since #721 (Sean, 2026-11-10) the materials judge's 'game' or better with no tile tell (the woods' passes are in the 2026-11-10 pick sheet, not yet here). Paint entries (family `paint`, #721's paint round) lie `over` a wood entry: its fields under theirs (MaterialLibrary.resolved), the coat drawn by scan_wood.gdshader's `paint_*` dials; `inside` ones are judged at night too. Scans in assets/textures/scans/<id>/ (CC0, CREDITS.md); `grain` u or v: the way the scan's grain runs; `metres` the size a scan covers (along the grain, across) where the source doesn't say.",
  "entries": [
   {
    "id": "rough_pine_batten", "code": "R1", "family": "wood", "class": "rough", "approved": [],
@@ -81,7 +81,7 @@
    "floor": {"varnish": 0.5}
   },
   {
-   "id": "painted_white_lap", "code": "P1", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": [],
+   "id": "painted_white_lap", "code": "P1", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": ["new", "few", "old"],
    "name": "White lead in linseed oil, on planed pine lap siding",
    "paint": 1.0, "paint_color": [0.88, 0.87, 0.82], "paint_under": [0.8, 0.78, 0.72],
    "paint_chalk": 0.8, "paint_fade": 0.2, "paint_peel": 0.7, "paint_crack": 0.0, "paint_thin_new": 0.06, "paint_thin": 0.4,
@@ -89,7 +89,7 @@
    "layer_new": 0.3, "streaks": 0.45, "sun_fade": 0.0, "grime": 0.8, "joint_dirt": 0.45, "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "painted_green_trim", "code": "P2", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": [],
+   "id": "painted_green_trim", "code": "P2", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": ["new", "few", "old"],
    "name": "Chrome green trim paint, on planed pine boards (casings, corner boards)",
    "layout": "vertical", "board_w": 0.14, "nails": 2, "nail_at": 0.6,
    "paint": 1.0, "paint_color": [0.16, 0.27, 0.19], "paint_under": [0.84, 0.83, 0.78],
@@ -98,7 +98,7 @@
    "layer_new": 0.3, "streaks": 0.45, "sun_fade": 0.0, "grime": 0.8, "joint_dirt": 0.45, "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "painted_oxblood_batten", "code": "P3", "family": "paint", "class": "paint", "over": "rough_pine_batten", "approved": [],
+   "id": "painted_oxblood_batten", "code": "P3", "family": "paint", "class": "paint", "over": "rough_pine_batten", "approved": ["few", "old"],
    "name": "Ox-blood red (iron oxide in linseed oil), on rough-sawn board and batten",
    "paint": 1.0, "paint_color": [0.4, 0.12, 0.08], "paint_under": [0.3, 0.12, 0.08],
    "paint_chalk": 0.75, "paint_fade": 0.55, "paint_peel": 0.45, "paint_crack": 0.3, "paint_thin_new": 0.15, "paint_thin": 0.6,
@@ -106,7 +106,7 @@
    "layer_new": 0.3, "streaks": 0.45, "sun_fade": 0.0, "grime": 0.8, "joint_dirt": 0.45, "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "painted_buff_drop", "code": "P4", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": [],
+   "id": "painted_buff_drop", "code": "P4", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": ["new", "few", "old"],
    "name": "Buff (ochre and white lead), on planed pine drop siding",
    "layout": "horizontal", "board_w": 0.15, "nails": 2, "nail_at": 0.6,
    "paint": 1.0, "paint_color": [0.76, 0.64, 0.45], "paint_under": [0.82, 0.8, 0.74],
@@ -115,7 +115,7 @@
    "layer_new": 0.3, "streaks": 0.45, "sun_fade": 0.0, "grime": 0.8, "joint_dirt": 0.45, "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "painted_pale_tg", "code": "P5", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": [], "inside": true,
+   "id": "painted_pale_tg", "code": "P5", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": ["new", "few", "old"], "inside": true,
    "name": "Pale cream interior paint, on narrow planed pine boards (walls and ceilings inside)",
    "layout": "vertical", "board_w": 0.09, "nails": 0, "bead": 1.0, "arris": 0.5, "panel_class": "fine", "checks": 0.0, "end_rot": 0.0,
    "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]}, "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
@@ -126,7 +126,7 @@
    "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "painted_pale_tg_green", "code": "P6", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": [], "inside": true,
+   "id": "painted_pale_tg_green", "code": "P6", "family": "paint", "class": "paint", "over": "common_pine_lap", "approved": ["new", "few", "old"], "inside": true,
    "name": "Pale grey-green interior paint (a surgery's), on narrow planed pine boards (walls and ceilings inside)",
    "layout": "vertical", "board_w": 0.09, "nails": 0, "bead": 1.0, "arris": 0.5, "panel_class": "fine", "checks": 0.0, "end_rot": 0.0,
    "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]}, "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
