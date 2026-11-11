@@ -280,7 +280,7 @@ func _groups() -> Array:
 		["GunSmoke", by_class.call(["GunSmoke"]), "process"],
 		["BloodJet", by_class.call(["BloodJet"]), "physics"],
 		["DynamiteStick", by_class.call(["DynamiteStick"]), "physics"],
-		["Player (+wounds, composure, deeds, guns)", by_class.call(["Player", "PlayerWounds", "PlayerComposure", "PlayerDeeds", "RevolverViewmodel", "ShotgunViewmodel", "DynamiteViewmodel"]), "both"],
+		["Player (+wounds, composure, deeds, guns)", by_class.call(["Player", "PlayerWounds", "PlayerComposure", "PlayerDeeds", "RevolverViewmodel", "ShotgunViewmodel", "Winchester73Viewmodel", "DynamiteViewmodel"]), "both"],
 		["TownLife", by_class.call(["TownLife"]), "process"],
 		["Debug overlay/traces/spawns", by_class.call(["DebugOverlay", "BulletTraces", "DebugSpawns", "OutlawSpawner", "DebugBreaker"]), "process"],
 		["Art: Backdrop, DepthMosaic", by_class.call(["Backdrop", "DepthMosaic"]), "process"],

@@ -26,6 +26,8 @@ const RAGDOLL := 64
 const WALK := 128
 ## What a walker stands on: the world and the walking ramps.
 const STAND := WORLD | WALK
+## Physics: a hanging rope (Rope, #734): only balls look for it (nothing walks into or lands on it).
+const ROPES := 256
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE & ~WALK
 ## Sight only, no physics body is on it: an unbroken window pane as the sight service holds it
