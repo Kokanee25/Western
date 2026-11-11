@@ -23,7 +23,9 @@ extends SceneTree
 ## `saloon_yard`, Main Street before the saloon's yard at nine at night, looking at its bar and card
 ## table with the barkeep, two drinkers and two card players there (ValleyFolk; `--no-folk`, a game
 ## arg: the yard empty, the before). `card_seat` (#766): sat in the card table's north chair, the
-## card game going (CardGame; Prof `card_game`). `--spots=a,b`: only those.
+## card game going (CardGame; Prof `card_game`). `murder_seat` (#773): sat there as No Law's murder
+## plays (NoLawMurder: the stranger sat, Cody kicking Earl's chair out and drawing; Prof
+## `valley_folk`, `people_*`). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -108,6 +110,8 @@ func _spots(world: StringName) -> Array:
 	# Sat at its card table (#766): in the north chair, the game going with you dealt in (where you
 	# stand is the chair's, set once the folk are in).
 	out.append(["card_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
+	# The murder from the same chair (#773): measured from Cody's arrival at Earl (kick, draw).
+	out.append(["murder_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
 	return out
 
 
@@ -176,7 +180,8 @@ func _run() -> void:
 		var clock = world_root.get_node_or_null(^"DayCycle")
 		var was_hour: float = clock.time_of_day if clock else 12.0
 		var folk = world_root.get("folk")
-		var at_table := String(s[0]) == "card_seat"
+		var murder := String(s[0]) == "murder_seat"
+		var at_table := String(s[0]) == "card_seat" or murder
 		if (String(s[0]) == "saloon_yard" or at_table) and clock:
 			clock.set_time(21.0)
 			if folk:
@@ -189,6 +194,12 @@ func _run() -> void:
 			var g = folk.cards
 			while g.state in [&"idle", &"shuffle", &"ante"]:
 				await process_frame
+			if murder:
+				var act = folk.start_murder()
+				var waited := 0
+				while act != null and act.state in [&"stranger", &"come"] and waited < 6000:
+					await process_frame
+					waited += 1
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
@@ -196,6 +207,8 @@ func _run() -> void:
 			m["folk"] = folk.people.size() if folk else 0
 			if at_table:
 				m["cards"] = folk.cards.report().state
+				if murder and folk.murder:
+					m["murder"] = String(folk.murder.state)
 				m["card_game_ms"] = snappedf(m.get("systems", {}).get("card_game", 0.0), 0.001)
 				player.seat.stand()
 			clock.set_time(was_hour)
