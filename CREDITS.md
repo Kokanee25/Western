@@ -143,3 +143,6 @@ of it is in the game yet:
 - **"Cotton-Eyed Joe"**, traditional (before 1861), public domain: written out for Salt Creek in
   `experiments/sound_lab/fiddle/tunes/` (our own ABC; its notes checked against The Session's setting,
   which isn't copied or shipped).
+- **"The Yellow Rose of Texas"** (Firth, Pond & Co., 1858), public domain: written out for Salt Creek in
+  `experiments/sound_lab/fiddle/tunes/` (our own ABC; its notes checked against The Session's settings,
+  which aren't copied or shipped).
