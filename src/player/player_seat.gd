@@ -30,6 +30,9 @@ var down_t := 0.0
 ## The last thing E did here (&"sat", &"stood", &"held", &""): for the bridge and the tests.
 var last := &""
 var _told := false  # "E: sit" said for the chair you're by
+var _told_ago := INF  # since "E: sit" was last said (s): not again within SIT_TOLD_GAP
+## "E: sit down" no oftener than this (s) (#773's playtest: it flashed five times walking past the chairs).
+const SIT_TOLD_GAP := 6.0
 var _near: KitProp
 var _stand_soon := false
 
@@ -91,9 +94,12 @@ func _physics_process(delta: float) -> void:
 	if here != _near:
 		_near = here
 		_told = false
+	_told_ago += delta
 	if here != null and not _told and player.wounds and player.input_enabled:
 		_told = true
-		player.wounds.say("E: sit down", 1.5)
+		if _told_ago > SIT_TOLD_GAP:
+			_told_ago = 0.0
+			player.wounds.say("E: sit down", 1.5)
 	if player.input_enabled and Input.is_action_just_pressed(&"shove"):
 		use()
 
