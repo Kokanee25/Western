@@ -476,6 +476,11 @@ frozen until Sean names one.
   C1 game / near / game, F2 game x3 (unmoved; its varnish waits on the light lane, #711). Every swatch
   passes "game or better". Traps: the judges vary by about a grade run to run; a per-board value that's
   hashed must be a flat varying; ~1 min a 1080p lab shot after ~1.5 min of load.
+- **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
+  README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
+  lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from
+  the library by name (paints wanted: white clapboard, green trim, pale inside boards, the sign's
+  lettering); `Checks.built_right` and the X-ray (`tools/buildings/`). Next: the jail, after the paints.
 - **The saloon, research and concepts** (#765, #660; branch `claude/art-saloon-research-9gk9m7`):
   `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
   the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a

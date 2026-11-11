@@ -118,7 +118,8 @@ func _find_blocks() -> void:
 	for side in ["north", "south"]:
 		var sgn := -1.0 if side == "north" else 1.0
 		for l: Dictionary in layout.lots(side):
-			if l.get("kind", "") != "building":
+			# (A lot with its building's spec has that building, ValleyWorld's: no block, #765.)
+			if l.get("kind", "") != "building" or l.has("spec"):
 				continue
 			var depth := float(l.get("depth", lot_depth))
 			var x0 := float(l.x0)

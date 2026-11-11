@@ -58,7 +58,12 @@ func test_a_boardwalk_along_every_building_s_front() -> void:
 		check(bw != null and bw.get_members().size() > 50, "%s's walk built (%d members)" % [w.id, bw.get_members().size() if bw else 0])
 		var l := lay.lot(String(w.id))
 		check_near(float(w.x0), float(l.x0), 0.01, "%s's walk starts at its lot" % w.id)
-		check(float(w.x1) >= float(l.x1) - 0.01, "%s's walk runs its frontage" % w.id)
+		# (A lot whose walk has a `span` keeps it to its building: the doctor's side yard is open, #765.)
+		var span: Array = (l.get("walk", {}) as Dictionary).get("span", [])
+		if span.is_empty():
+			check(float(w.x1) >= float(l.x1) - 0.01, "%s's walk runs its frontage" % w.id)
+		else:
+			check_near(float(w.x1), float(span[1]), 0.01, "%s's walk runs its building's front" % w.id)
 		# At its owner's height (G7, #737): the lot's walk.h over the ground at its street edge.
 		var sgn := ValleyTown.sign_of(String(w.side))
 		var edge := t.ground((float(w.x0) + float(w.x1)) * 0.5, sgn * (t.front - t.walk_depth))
