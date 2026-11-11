@@ -2137,6 +2137,14 @@ relief, brush, sheen, yellowing, dust; `paint_inside` for a coat indoors; `paint
 `bead` (beaded boards). A paint passes at an age into `approved` when the materials judge grades it game or
 better with check 3 (no tile tells) passed; buildings take a finish by id (the doctor's `want`s). The
 judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2026-11-11_paint_r*`.
+Paint round 2 (#804): `paint_erode_inside` (0: indoors the film keeps its body, the grain doesn't grow
+through it), `paint_yellow_tint`, `paint_strips` (old outside fails in runs from the wet edges and the
+ends, few flecks mid-face, the wood's checks hidden under a sound film), `paint_soften`/`paint_edge`
+(a coat's relief rounded, painted edge faces dull: P3). The lab's `--dials=FILE` lays dials on every panel
+(a round's before as the same code with its new dials set back), `--probe-dials=FILE` a probe's variants,
+`--shots=noon_near,...`; a panel's seed is its place in the whole family at all three ages, so any subset
+run draws a full run's boards (before 2026-11-11 it was the run's own count). Rounds
+`docs/screenshots/judge/2026-11-11_paint2_*`.
 
 ## src/props/prop_models.gd
 
