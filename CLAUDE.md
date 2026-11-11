@@ -1284,7 +1284,7 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   Sean's paint A (#783). Critic round 2: coach DOESN'T (a box, not a Concord's egg-shaped body; it doesn't
   look hung), strongbox CLOSE (`experiments/prop_lab/results/2026-11-10_coach/`). Interface on #770.
   Next: #787 (Sean: keep it, and build a Concord-bodied `baron_coach_concord` beside it to compare).
-- **The doctor's office, batches D1 and D2** (#788 PR #802; #805, branch `claude/props-doctor-d2-fq16z9`; brief
+- **The doctor's office, batches D1 and D2** (#788 PR #802; #805 PR #817, branch `claude/props-doctor-d2-fq16z9`; brief
   `docs/briefs/prop-factory.md` "The recipe brought up to date"): woods from the library (`lib:`, boards cut to an
   outline too: `PropKit.lib_cut_mesh`), metal and china baked (`pbr:`, `tools/blender/props/metal.py`), bottle glass
   `glass:<colour>`, printed labels (GlassProp `variants`), each prop against a period reference
