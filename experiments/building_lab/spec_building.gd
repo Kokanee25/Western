@@ -20,6 +20,7 @@ extends FalseFrontBuilding
 
 const Stair := preload("res://experiments/building_lab/stair.gd")
 const Marks := preload("res://experiments/building_lab/marks.gd")
+const StoneBuilder := preload("res://experiments/building_lab/stone.gd")
 const CELL := 2.0
 const SPEC := "res://experiments/building_lab/saloon.json"
 
@@ -213,6 +214,17 @@ func build() -> void:
 	add_child(_furnish)
 
 	_chimney_openings()
+	if _fr.has("stone_wall"):
+		# A load-bearing stone building (#780, the jail): stone.gd lays it; then what every building has.
+		StoneBuilder.new(self).build()
+		band = 0
+		_lamps()
+		_kit()
+		_use_points()
+		_add_interior_ambient()
+		marks = Marks.place(self, spec)
+		_library_finishes()
+		return
 	band = 0
 	_foundation()
 	_cellar()
@@ -1116,8 +1128,8 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float) -> void:
 func _partitions(level: String, b: int) -> void:
 	band = b
 	for w: Dictionary in spec.walls:
-		if not w.get("partition", false) or w.level != level:
-			continue
+		if not w.get("partition", false) or w.level != level or w.get("stone", false):
+			continue  # (a stone partition is stone.gd's, #780)
 		var a := Vector3(w.line[0][0], 0, w.line[0][1])
 		var e := Vector3(w.line[1][0], 0, w.line[1][1])
 		var along := (e - a).normalized()

@@ -55,7 +55,12 @@
   ],
   "walk_h": 0.6,
   "ground": {
-   "_doc": "the ground's height in the building's space at the corners (the bake, 2026-11-11): the builder reads the bake itself in the valley; these are for the footings and steps",
+   "_doc": "the ground's height in the building's space (the bake, 2026-11-11): `plane` [y at the origin, dy/dx, dy/dz] fits every corner within 3 cm; the builder lays the footings and the steps' foot by it (and the lab tilts its ground to it)",
+   "plane": [
+    -0.05,
+    -0.0055,
+    -0.0314
+   ],
    "front_w": -0.05,
    "front_e": -0.11,
    "back_w": -0.49,
@@ -76,17 +81,17 @@
    "top": 0.6
   },
   "upper": {
-   "top": 4.261,
+   "top": 4.258,
    "_doc": "the office's roof as its upper level: men stand on it (the jail night)"
   },
   "plate": 3.95,
   "false_front": 0.0,
   "roof_pitch": 0.0,
-  "office_roof": 4.261,
+  "office_roof": 4.258,
   "ell_ceiling": 3.65,
-  "ell_roof": 3.91,
-  "office_coping": 5.201,
-  "ell_coping": 4.85
+  "ell_roof": 3.907,
+  "office_coping": 5.198,
+  "ell_coping": 4.847
  },
  "frame": {
   "_doc": "NEW: a load-bearing stone building. Rubble walls carry the roof joists in pockets; inside, one stone cross wall carries the office's joists at mid depth; the floor is timber on girders and piers in the office block, stone flags on rammed fill in the cell wing (nothing to dig through). Sizes from Mahan's and Rankine's rules for rubble walls (a one-storey wall of 12-17 ft: 18-22 in), the joists to checks.gd's sizing (the Wood Handbook; the roof at 40 lb/ft2 with men on it). Dressed sizes, metres [width, depth].",
@@ -261,17 +266,24 @@
     0.56,
     0.56,
     10.41,
+    7.32
+   ],
+   "joists": "x",
+   "look": "wood:int_floor",
+   "_doc": "the office's: 2x10 along x on the side walls' set-offs and the two girders (3.3 m spans); the cross wall's doorways floored by its stone"
+  },
+  {
+   "id": "ground_back",
+   "level": "ground",
+   "rect": [
+    0.56,
+    7.77,
+    10.41,
     13.459999999999999
    ],
    "joists": "x",
    "look": "wood:int_floor",
-   "breaks_at": [
-    [
-     7.32,
-     7.77
-    ]
-   ],
-   "_doc": "the office, the sheriff's room and the guard room: one floor, its boards over the cross wall's doorways"
+   "_doc": "the sheriff's room and the guard room"
   },
   {
    "id": "cells",
@@ -285,6 +297,57 @@
    "kind": "flags",
    "flag": 0.6,
    "_doc": "NEW: the cell wing's floor, sandstone flags 4 in thick on rammed earth fill to the floor's height (the fill a stone member under them)"
+  },
+  {
+   "id": "roof_front",
+   "level": "upper",
+   "rect": [
+    0.41,
+    0.41,
+    10.56,
+    7.470000000000001
+   ],
+   "joists": "z",
+   "joist": "roof_joist",
+   "_doc": "NEW use: the office's flat roof over the office, its joists on the front wall's and the cross wall's ledges (the walls step in 6 in at the joists)"
+  },
+  {
+   "id": "roof_back",
+   "level": "upper",
+   "rect": [
+    0.41,
+    7.619999999999999,
+    10.56,
+    13.61
+   ],
+   "joists": "z",
+   "joist": "roof_joist",
+   "openings": [
+    {
+     "id": "hatch",
+     "rect": [
+      9.031,
+      8.4,
+      9.768,
+      9.1
+     ],
+     "hatch": 1
+    }
+   ],
+   "_doc": "over the back rooms; the hatch between two joists over the guard room"
+  },
+  {
+   "id": "ell_roof",
+   "level": "ell_roof",
+   "rect": [
+    6.5,
+    14.02,
+    10.56,
+    22.75
+   ],
+   "joists": "x",
+   "joist": "ell_joist",
+   "_doc": "the cell wing's flat roof, its joists across on the side walls' ledges"
   }
  ],
  "walls": [
@@ -303,7 +366,28 @@
    ],
    "out": "-z",
    "stone": true,
-   "top": 5.201,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.143,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
    "openings": [
     {
      "type": "door",
@@ -321,7 +405,7 @@
      "at": 2.5,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.76,
+     "sill": 0.68,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -332,7 +416,7 @@
      "at": 8.47,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.76,
+     "sill": 0.68,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -354,7 +438,28 @@
    ],
    "out": "-x",
    "stone": true,
-   "top": 5.201,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.343,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "front",
+    "back"
+   ],
    "openings": [
     {
      "type": "window",
@@ -362,7 +467,7 @@
      "at": 3.38,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.76,
+     "sill": 0.68,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -373,7 +478,7 @@
      "at": 10.04,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.76,
+     "sill": 0.68,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -395,7 +500,28 @@
    ],
    "out": "+x",
    "stone": true,
-   "top": 5.201,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.343,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "front",
+    "back"
+   ],
    "openings": [
     {
      "type": "window",
@@ -403,7 +529,7 @@
      "at": 3.38,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.76,
+     "sill": 0.68,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -413,7 +539,8 @@
      "level": "ground",
      "at": 10.34,
      "width": 1.0,
-     "height": 2.13,
+     "height": 2.51,
+     "transom": 0.38,
      "leaf": "inward",
      "strapped": true
     }
@@ -434,7 +561,28 @@
    ],
    "out": "+z",
    "stone": true,
-   "top": 5.201,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.143,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
    "openings": [
     {
      "type": "window",
@@ -442,7 +590,7 @@
      "at": 2.75,
      "width": 0.91,
      "height": 1.52,
-     "sill": 0.9,
+     "sill": 0.99,
      "lights": 6,
      "bars": true,
      "shutters": "inside"
@@ -452,7 +600,8 @@
      "level": "ground",
      "at": 7.335,
      "width": 0.91,
-     "height": 2.03,
+     "height": 2.51,
+     "transom": 0.38,
      "leaf": "inward",
      "strapped": true,
      "_doc": "into the corridor: its leaf swings into the guard room"
@@ -474,7 +623,23 @@
    ],
    "out": "-x",
    "stone": true,
-   "top": 4.85,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
    "openings": [
     {
      "type": "window",
@@ -482,7 +647,7 @@
      "at": 2.2,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -493,7 +658,7 @@
      "at": 4.64,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -504,7 +669,7 @@
      "at": 7.08,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -526,7 +691,23 @@
    ],
    "out": "+x",
    "stone": true,
-   "top": 4.85,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
    "openings": [
     {
      "type": "window",
@@ -534,7 +715,7 @@
      "at": 2.2,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -545,7 +726,7 @@
      "at": 4.64,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -556,7 +737,7 @@
      "at": 7.08,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -578,7 +759,23 @@
    ],
    "out": "+z",
    "stone": true,
-   "top": 4.85,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "ell_west",
+    "ell_east"
+   ],
    "jailbreak": true,
    "openings": [
     {
@@ -587,7 +784,7 @@
      "at": 1.88,
      "width": 0.3,
      "height": 0.6,
-     "sill": 2.3,
+     "sill": 2.1,
      "bars": true,
      "glass": false,
      "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
@@ -607,9 +804,32 @@
      7.32
     ]
    ],
+   "out": "-z",
    "partition": true,
    "stone": true,
    "thick": 0.45,
+   "top": 4.258,
+   "profile": [
+    [
+     -9,
+     -0.6,
+     0.15
+    ],
+    [
+     0.143,
+     -0.45,
+     0
+    ],
+    [
+     3.95,
+     -0.3,
+     -0.15
+    ]
+   ],
+   "ends": [
+    "west",
+    "east"
+   ],
    "level": "ground",
    "bearing": true,
    "openings": [
@@ -617,15 +837,13 @@
      "type": "door",
      "at": 2.44,
      "width": 0.91,
-     "height": 2.13,
-     "leaf": "outward"
+     "height": 2.13
     },
     {
      "type": "door",
      "at": 7.04,
      "width": 0.91,
-     "height": 2.13,
-     "leaf": "outward"
+     "height": 2.13
     }
    ]
   },
@@ -648,13 +866,14 @@
    "inside": [
     {
      "side": "-",
-     "finish": "plaster"
+     "finish": "boards"
     },
     {
      "side": "+",
-     "finish": "plaster"
+     "finish": "boards"
     }
    ],
+   "_finish": "lath and plaster wanted (step 4); boards stand in",
    "openings": []
   }
  ],
@@ -694,9 +913,9 @@
   },
   "hatch": {
    "rect": [
-    9.3,
+    9.031,
     8.4,
-    10.0,
+    9.768,
     9.1
    ],
    "leaves": 1
@@ -712,13 +931,16 @@
  },
  "ladders": [
   {
-   "_doc": "NEW use: inside, fixed to the guard room's east wall under the hatch, from the floor to the roof",
+   "_doc": "NEW use: inside, standing in the guard room up through the roof hatch (spiked to its trimmer), the climber facing east",
    "id": "roof",
    "inside": true,
-   "wall": "east",
-   "at": 8.89,
+   "at": [
+    9.62,
+    8.75
+   ],
+   "face": "+x",
    "from": 0.6,
-   "to": 4.261,
+   "to": 4.258,
    "width": 0.45
   }
  ],
@@ -762,7 +984,7 @@
    0.064,
    0.0064
   ],
-  "vertical_every": 0.102,
+  "vertical_every": 0.152,
   "horizontal_every": 0.305,
   "door": {
    "width": 0.76,
@@ -800,6 +1022,10 @@
      ]
     ],
     "out": "-z",
+    "ends": [
+     null,
+     null
+    ],
     "gates": [
      {
       "at": 13.03,
@@ -820,6 +1046,10 @@
      ]
     ],
     "out": "+x",
+    "ends": [
+     "yard_front",
+     "yard_lane"
+    ],
     "gates": []
    },
    {
@@ -835,6 +1065,10 @@
      ]
     ],
     "out": "+z",
+    "ends": [
+     null,
+     null
+    ],
     "gates": [
      {
       "at": 20.0,
@@ -855,6 +1089,10 @@
      ]
     ],
     "out": "-x",
+    "ends": [
+     null,
+     "yard_lane"
+    ],
     "gates": []
    }
   ]
@@ -874,8 +1112,8 @@
    "against": "yard_east"
   },
   {
-   "_doc": "the privy in the yard's south-east corner",
-   "kind": "outhouse",
+   "_doc": "the privy in the yard's south-east corner (built with the props, later)",
+   "kind": "privy",
    "at": [
     29.2,
     36.4
@@ -1135,7 +1373,7 @@
    "use": "sit",
    "who": "prisoner",
    "at": [
-    9.6,
+    9.0,
     0.6,
     16.2
    ],
@@ -1149,7 +1387,7 @@
    "use": "sit",
    "who": "prisoner",
    "at": [
-    9.6,
+    9.0,
     0.6,
     18.6
    ],
@@ -1163,7 +1401,7 @@
    "use": "sit",
    "who": "prisoner",
    "at": [
-    9.6,
+    9.0,
     0.6,
     21.1
    ],
@@ -1178,7 +1416,7 @@
    "who": "deputy",
    "at": [
     2.5,
-    4.261,
+    4.258,
     1.0
    ],
    "look": [
@@ -1192,7 +1430,7 @@
    "who": "deputy",
    "at": [
     8.5,
-    4.261,
+    4.258,
     1.0
    ],
    "look": [
@@ -1206,7 +1444,7 @@
    "who": "deputy",
    "at": [
     1.0,
-    4.261,
+    4.258,
     7.0
    ],
    "look": [
@@ -1220,7 +1458,7 @@
    "who": "deputy",
    "at": [
     9.9,
-    4.261,
+    4.258,
     12.8
    ],
    "look": [

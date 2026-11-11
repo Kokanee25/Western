@@ -69,3 +69,51 @@ NEW to the builder (step 3): stone outer walls in pieces (footings, quoins, lint
 whose foot follows the ground; stone partitions; a flat roof of joists in pockets, boards and tin; an
 L footprint (`lot.footprint`); stone flags on fill; the cages; the yard's stone walls and gates; a
 plank shed; an inside ladder.
+
+## Step 3: the build, the checks, the X-ray sheet
+
+`stone.gd` builds a stone building from its spec (`spec_building.gd` hands it over when
+`frame.stone_wall` is given; the saloon, farmhouse and doctor build as before):
+- **The walls are stone pieces** (Sean's call): each wall in rows (the 0.6 m courses, broken at the
+  set-offs, sills, heads, lintel tops and the coping), cut into pieces of at most 1.5 m, staggered row
+  to row; a dressed sill under each window and a lintel over each opening (bearing 12 in each side),
+  named so `Checks.built_right` counts them as the opening's framing. Each wall's thickness by height is
+  its `profile`: a 6 in set-off under the floor (the side walls carry the 2x10 joists on it, the front,
+  back and cross walls the girders), 22 in up to the roof, then a 6 in ledge the roof's joists bear on
+  (no pockets to fill: the parapet over it is 16 in). The footings go 3 ft under the ground, following
+  its fall (the spec's plane). Every piece is kind `sill` of the game's `stone`: a piece rests on the
+  one under it.
+- **The floors**: 2x10 joists across on the side walls' set-offs and two girders (on stone piers,
+  between the front, cross and back walls' set-offs); the cell wing a stone fill under 4 in flags.
+- **The roofs**: the office's 3x12 joists front to back on the front wall's, cross wall's and back
+  wall's ledges (spans 7.1 and 6.0 m), boards, tin sheets; the hatch between two joists over the guard
+  room, headers on its trimmers, its leaf folded back, a ladder up through it. The ell's 3x10 across.
+- **The cages**: strap-iron lattices as members (`iron`): straps 2 1/2 x 1/4 in, uprights at 6 in on
+  the flags, cross straps at 12 in on them, straps over the top; each door the lattice's own straps;
+  a plank bunk; the corridor's grille gate.
+- **The yard**: 10 ft walls of 18 in stone on all four sides, their tops stepped with the ground in
+  6 m lengths, the wagon gates open from the ground up (a footing under each), the leaves standing
+  open against the wall's inside.
+
+`tests/test_building_jail.gd` (6, all pass): **3,094 members** (1,648 stone), destructible through and
+through; **it stands** (none without a load path, none over its limit under its own weight; with a
+crowd on its floors and roof the worst is a 3x12 roof joist at 84%); **built right** (18 openings,
+nothing across any, the 16 in the outer walls under their lintels, the windows on their sills and glazed,
+the slits open); people fit (5 doors, 17 use points; every room used, the roof's four behind the
+parapet); **the jailbreak by the rules**: the ell's end wall blown out 1.5 m wide and 1.8 m high at
+its foot (6 pieces), and only what was over the hole goes (1 piece: the stone either side carries
+the rest); **80 draws** (71 batches, 9 own meshes).
+
+`results/xray.jpg` (`tools/buildings/xray.py`, a stone building's views): each wall from outside
+with its openings' clear areas, a section along through the office, cross wall, guard room and
+corridor, a section across the cells, the floors' framing and the roofs' from above, the whole lot
+from above.
+
+What the checks caught on the way: the cages' door straps were kind `door`, which rests on nothing
+beside it (they're the lattice's own straps now); a gate leaf placed in the gateway floated (it stands
+against the wall's inside face); a footing drawn from above across a gateway read as a wall (the
+X-ray hides what's buried).
+
+Not built yet (the look's, step 4, and the props'): the plaster and whitewash inside, the painted
+sign and the cut JAIL panel, the sashes and shutters, the shed and the privy, the lamps; the
+valley lot (`spec`, the walk's `span` and `door_x`) waits for the judge (step 5).
