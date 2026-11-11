@@ -10,6 +10,7 @@ var valley: ValleyWorld
 
 
 func before_each() -> void:
+	ValleyFolk.murder_auto = false  # No Law's murder (#773) has its own tests
 	if holder != null:
 		return
 	holder = Node.new()
@@ -128,7 +129,7 @@ func test_sat_at_the_table_at_night_dealt_in() -> void:
 		return g.you_in() and (g._seat(CardGame.YOU).cards as Array).size() == 5, 60 * 40)
 	check(dealt, "dealt in within 40 s (%s)" % g.report())
 	var start := g.hands
-	var played := await wait_until(func() -> bool: return g.hands > start, 60 * 60)
+	var played := await wait_until(func() -> bool: return g.hands > start, 60 * 90)  # you waited on 10 s a turn (you_wait_s)
 	var r := g.report()
 	check(played, "a hand played out with you in it (%s)" % r)
 	check_eq(r.seats.size(), 3, "you, Earl and the drifter")

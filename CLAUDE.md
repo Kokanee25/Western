@@ -469,11 +469,25 @@ frozen until Sean names one.
   tile tell; passed (pick sheet `docs/screenshots/material_library/2026-11-10/`): R1 new, C1 old, F2 new and a
   few years; the rest parked, buildings use the nearest passing age. Merged as PR #761. Traps: check a scan's
   grain with the test, not by eye; one render at a time.
+  **The weave fixed and the climb** (#763, #721, branch `claude/art-wood-quality-climb-9p9niw`): the weave was
+  the board's seed interpolated then hashed (`varying flat` now; a test holds it). Four blind A/B rounds
+  (`tools/material_judge.py`; record `docs/screenshots/judge/2026-11-10_material_climb/`, sheet
+  `docs/screenshots/material_library/2026-11-10_climb/sheet.jpg`): R1 near the yardstick at all three ages,
+  C1 game / near / game, F2 game x3 (unmoved; its varnish waits on the light lane, #711). Every swatch
+  passes "game or better". Traps: the judges vary by about a grade run to run; a per-board value that's
+  hashed must be a flat varying; ~1 min a 1080p lab shot after ~1.5 min of load.
 - **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
   README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
   lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from
   the library by name (paints wanted: white clapboard, green trim, pale inside boards, the sign's
   lettering); `Checks.built_right` and the X-ray (`tools/buildings/`). Next: the jail, after the paints.
+- **The saloon, research and concepts** (#765, #660; branch `claude/art-saloon-research-9gk9m7`):
+  `docs/briefs/saloon-design.md` (HABS/NRHP figures checked, period interiors, framing, games; one doc for
+  the phone), four concepts on the corner lot (A false front, B corner, C brick front, D variety hall), each a
+  target sheet (`experiments/building_lab/saloon_*/`, plans drawn by `tools/buildings/concept_plans.py`),
+  $4.65 of $5. **Sean picked B, the corner saloon** (PR #772), with an open well over the card tables (falls
+  over the rail), the girder sawn, open joists, the moon re-aimed south, glazed doors (the brief's "Sean's
+  answers"). Next: its spec and build in #765's order (after the doctor, jail and store).
 - **Room light** (#608 part 1, branch `claude/art-light-indoor`; `RoomLight`, lab `experiments/light_lab/`):
   lamps' bounce, each room's fill by its lamps, sky through openings and holes, haze from shots;
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
@@ -862,7 +876,15 @@ frozen until Sean names one.
   player's (`PlayerWounds.take_fall`) hurt by the height and how he lands; the neck, low back and aorta
   by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
   TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
-  feet first he goes through. Next: #770 (the heist's log, coach and dents, or #736 C).
+  feet first he goes through. Next: #770.
+- **The coach heist** (#770, Sean's 1B 2C on #784; branch `claude/gameplay-coach-heist-log-dents-xg9u0n`;
+  `experiments/coach_heist/` README, LAYOUT "src/structures", "src/missions"): `RollingLog`, `Dents` +
+  `DentWatch` (config/dents.tres; plates, and the train's steel by `Dents.mark`), `CoachDrive`, a loose
+  body weighed by its members (`Structure.mass_by_members`, `breaks_up`); the lab's stand-in coach until
+  #786 (`coach_stand_in.json` by `stand_in.py`). As picked it stands 3/3 (the log comes off the step falling);
+  with a 0.6 m flat crib top and the coach 0.6 m to the far side it goes over 8/8 (worst frame ~21 ms at
+  Sean's), the dents small (the log meets the top edge). Struck at its centre of weight's height it slides,
+  never tips. Waiting on Sean: #791 (B small dents, C both, or the dent dial; the flat top). Then the coach cut.
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
@@ -1126,10 +1148,16 @@ frozen until Sean names one.
   lever faded case colours, the weakest call); five rounds in game light and first person in the game's
   HeldHands (`--only=fp`); the receiver's front collar fitted (the sun blob). Cheap judge round 5: all five
   cheap indie; Sean kept them (#776, A), the judge's five rifle faults and the case-colour question logged for
-  the Fable polish pass on #733 (all the guns together). Next: #777 (the handling in the game). Traps:
+  the Fable polish pass on #733 (all the guns together). Traps:
   Commons answers 429 (space requests); the Met, Smithsonian, Internet Archive storage and Rock Island
   (bot check) are out of reach; a big flat face needs face-area weighted normals or it streaks; a view
-  run is ~70 min here. Nothing in the game changed.
+  run is ~70 min here. **In the game** (#777, PR #792, LAYOUT "src/weapons"): key 6, `Winchester73*`
+  (`config/winchester73.tres` proposed), Q the lever, the `hammer` key (middle mouse, Alt) half cock, R the
+  gate, the Colt's belt; `Rope` and the rope range (F5's last stop); feel ranges proposed (rope 30 m steady
+  10/16, 60 m 4/16); sheet `experiments/gun_lab/win73/results/2026-11-10_in_game/` (the hold re-laid, eye
+  50 cm behind the notch). Waiting on Sean's play; next: men carrying it. Traps: a drawn rifle on Main
+  Street sets the gang off (shoot sheets on the rope range); lavapipe draws ~1 frame a second, so a
+  bridge `wait` under a second misses short poses.
 - The body lab (3.1b, `experiments/body_lab/`): the body and gore labs (#167, build 1919); an
   ear, the nose or the jaw shot off (#215, build 1980). On `claude/body-lab-baseline-6fb8py`: the
   painted face wounds, readable face blood, the sling's cloth, singed hair, the wound signs every

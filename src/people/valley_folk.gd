@@ -16,10 +16,21 @@ extends Node3D
 ## place; set past it (a jump, starting at night) he's at his post already. Past the end of his
 ## hours he walks back to his `from` and is gone. Built while the valley loads and kept out of the
 ## world till they're wanted (TownLife's riders, #488: a Studio man built in play is a long frame).
+## A man with an `act` (No Law's red shirt and the stranger, #773) has no hours: he's built with the
+## rest and waits till that act `take`s him. A dead man stays where he lies (state &"dead"), and a
+## man sent off by an act (`send_off`) stays gone for the rest of his hours.
+##
+## No Law's murder (NoLawMurder, config/moments/no_law_murder.json) is started from here: on the
+## first night (no `nolaw.murder` in StoryState) at its `hour`, or sooner once you've played its
+## `after_hands` hands at the table; `-- --no-murder` (or `murder_auto` false: the card game's tests)
+## leaves it out.
 
 const DATA := "res://config/valley_folk.json"
 ## `-- --no-folk`: the valley without them (the bench's before).
 static var folk_default := not "--no-folk" in OS.get_cmdline_user_args()
+## No Law's murder started by the clock and the card game (`-- --no-murder`: not).
+static var murder_auto := not "--no-murder" in OS.get_cmdline_user_args()
+const MURDER := &"no_law_murder"
 ## How often the clock is read (s).
 const LOOK_EVERY := 0.5
 ## This near his way out (m), a man leaving is gone.
@@ -47,6 +58,12 @@ var _last_hour := NAN
 var _look := 0.0
 var _clock: DayCycle
 var build_ms := {}
+## Sent off by an act for the rest of his hours (id -> true): not brought back till they're over.
+var kept_out := {}
+## No Law's murder, once started (NoLawMurder), and the hands you've played at the table.
+var murder: Moment
+var _murder_data := {}
+var _your_hands := 0
 
 
 func _init() -> void:
@@ -67,6 +84,12 @@ func _ready() -> void:
 	u = Time.get_ticks_usec()
 	_build_set()
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
+	cards.hand_done.connect(func(_w: String, _p: int, _h: String) -> void:
+		if cards.report().get("seats", []).any(func(x: Dictionary) -> bool: return String(x.get("id", "")) == CardGame.YOU):
+			_your_hands += 1)
+	var mpath := "res://config/moments/%s.json" % MURDER
+	if FileAccess.file_exists(mpath):
+		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
 	for p: Dictionary in data.people:
 		state[StringName(p.id)] = &"out"
 	_prebuild.call_deferred()
@@ -242,7 +265,8 @@ func _make(p: Dictionary) -> HumanBody:
 	man.person_id = StringName(p.id)
 	man.name = String(p.get("name", p.id))
 	man.rng_seed = int(p.get("seed", 1))
-	man.has_gun = false
+	man.has_gun = bool(p.get("gun", false))
+	man.start_holstered = true
 	man.shirt_color = _colour(p.get("shirt", [0.8, 0.78, 0.7]))
 	man.vest_color = _colour(p.get("vest", [0, 0, 0, 0]))
 	man.hat_color = Color(0, 0, 0, 0)
@@ -310,8 +334,11 @@ func _send_off(id: StringName, walk: bool) -> void:
 		people.erase(id)
 		state[id] = &"out"
 		return
+	if not man.physiology.alive:
+		state[id] = &"dead"  # his body stays where it lies (No Law: Earl's, #773)
+		return
 	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
-	if not walk or brain == null or not man.physiology.alive or man.limp:
+	if not walk or brain == null or man.limp:
 		_gone(id)
 		return
 	for c: RefCounted in brain.chores:
@@ -380,8 +407,18 @@ func _step(delta: float) -> void:
 	var walk_h := float(data.get("walk_in_h", 0.5))
 	for p: Dictionary in data.people:
 		var id := StringName(p.id)
+		if p.has("act"):
+			continue
 		var hours: Array = p.hours
 		var want := in_hours(h, hours)
+		if kept_out.has(id):
+			if want:
+				continue
+			kept_out.erase(id)
+		var here: HumanBody = people.get(id)
+		if here != null and is_instance_valid(here) and not here.physiology.alive and state.get(id) in [&"coming", &"in", &"going"]:
+			state[id] = &"dead"
+			_going_for.erase(id)
 		var was := not is_nan(_last_hour) and in_hours(_last_hour, hours)
 		var st: StringName = state.get(id, &"out")
 		if want and st == &"out":
@@ -396,10 +433,80 @@ func _step(delta: float) -> void:
 			if man != null and is_instance_valid(man) and man.global_position.distance_to(post_of(p)[0]) < 1.0:
 				state[id] = &"in"
 	_last_hour = h
+	_maybe_murder(h)
 
 
 func _ready_once() -> bool:
 	return build_ms.has("men")
+
+
+# --- The acts' men and No Law's murder -----------------------------------------------------------
+
+## An act's man (`act` in the data, no hours) into the world at `at`, facing `faces`: no brain, the
+## act moves him. Null if he isn't one or he's out already.
+func take(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
+	var p := _person(id)
+	if p.is_empty() or not p.has("act") or (people.has(id) and is_instance_valid(people[id])):
+		return null
+	var man: HumanBody = _waiting.get(id)
+	_waiting.erase(id)
+	if man == null or not is_instance_valid(man):
+		man = _make(p)
+	man.enter(get_parent(), at, HumanBody.yaw_toward(at, faces))
+	people[id] = man
+	state[id] = &"act"
+	return man
+
+
+## An act's man out of the world (he's walked off).
+func release(id: StringName) -> void:
+	var man: HumanBody = people.get(id)
+	people.erase(id)
+	state[id] = &"out"
+	if man != null and is_instance_valid(man):
+		man.queue_free()
+
+
+## Up and away for the rest of his hours (an act's: No Law's drifter and miner after the shot): he
+## walks back out the way he came and isn't brought back till his hours are over.
+func send_off(id: StringName) -> void:
+	if not state.get(id, &"out") in [&"coming", &"in"]:
+		return
+	kept_out[id] = true
+	_send_off(id, true)
+
+
+## The folk man by id in the world, or null.
+func folk_man(id: StringName) -> HumanBody:
+	var m: HumanBody = people.get(id)
+	return m if m != null and is_instance_valid(m) else null
+
+
+## Is it time for No Law's murder? The first night (StoryState has no nolaw.murder), Earl sat at the
+## table, and the clock at its `hour` (to its `until`), or from `earliest` once you've played its
+## `after_hands` hands there.
+func _maybe_murder(h: float) -> void:
+	if not murder_auto or _murder_data.is_empty() or StoryState.has_fact("nolaw.murder"):
+		return
+	if murder != null and is_instance_valid(murder):
+		return
+	var d := _murder_data
+	var until := float(d.get("until", 2.0))
+	var at_hour := in_hours(h, [float(d.get("hour", 22.0)), until])
+	var played := _your_hands >= int(d.get("after_hands", 1)) and in_hours(h, [float(d.get("earliest", 20.0)), until])
+	if not at_hour and not played:
+		return
+	var earl := folk_man(StringName(d.get("cheater", "earl")))
+	var chair := props.get("chair_" + String(d.get("chair", "w"))) as KitProp
+	if earl == null or chair == null or chair.seated != earl or state.get(StringName(d.get("cheater", "earl"))) != &"in":
+		return
+	start_murder()
+
+
+## No Law's murder now (the clock, the card game, or the bridge's `moment no_law_murder`).
+func start_murder(options := {}) -> Moment:
+	murder = Moment.start_named(MURDER, get_parent() as Node3D, null, options)
+	return murder
 
 
 ## Who's where, for the bridge and the tests: {id: {state, at, seated, pose}}.
@@ -409,11 +516,15 @@ func report() -> Dictionary:
 		var id := StringName(p.id)
 		var man: HumanBody = people.get(id)
 		var d := {"state": String(state.get(id, &"out"))}
-		if man != null and is_instance_valid(man):
+		if man != null and is_instance_valid(man) and p.has("act"):
+			d["at"] = [snappedf(man.global_position.x, 0.01), snappedf(man.global_position.y, 0.01), snappedf(man.global_position.z, 0.01)]
+			d["alive"] = man.physiology.alive
+		elif man != null and is_instance_valid(man):
 			var post: Vector3 = post_of(p)[0]
 			d["at"] = [snappedf(man.global_position.x, 0.01), snappedf(man.global_position.y, 0.01), snappedf(man.global_position.z, 0.01)]
 			d["from_post"] = snappedf(Vector2(man.global_position.x - post.x, man.global_position.z - post.z).length(), 0.01)
 			var chair: KitProp = props.get("chair_" + String((p.post as Dictionary).get("chair", "")))
 			d["seated"] = chair != null and chair.seated == man
+			d["alive"] = man.physiology.alive
 		out[String(id)] = d
 	return out

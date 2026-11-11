@@ -56,12 +56,15 @@ func _ready() -> void:
 	_bind(&"cock", [KEY_Q], [JOY_BUTTON_RIGHT_SHOULDER], [], [MOUSE_BUTTON_WHEEL_DOWN])
 	_bind(&"reload", [KEY_R], [JOY_BUTTON_X])
 	_bind(&"holster", [KEY_H], [JOY_BUTTON_LEFT_SHOULDER])
+	# The Winchester's hammer (#734): eased down to half cock (the safety) or thumbed back to full.
+	_bind(&"hammer", [KEY_ALT], [], [], [MOUSE_BUTTON_MIDDLE])
 	# What's in your hand: 1 the revolver, 2 the shotgun, 3 dynamite, or the next (wheel up / Y).
 	_bind(&"weapon_revolver", [KEY_1], [])
 	_bind(&"weapon_shotgun", [KEY_2], [])
 	_bind(&"weapon_dynamite", [KEY_3], [])
 	_bind(&"weapon_bucket", [KEY_4], [])  # a water bucket (BucketViewmodel): R fills it at a trough
 	_bind(&"weapon_plunger", [KEY_5], [])  # the plunger box (PlungerViewmodel): sets off the wired bundles (#647)
+	_bind(&"weapon_rifle", [KEY_6], [])  # the Winchester 1873 (Winchester73Viewmodel, #734)
 	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])

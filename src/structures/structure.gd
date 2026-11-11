@@ -57,6 +57,14 @@ const CUT_MIN_PIECE := 0.15
 const CUT_CHUNK := 0.3
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
+## What falls loose weighs where its members do (centre of weight and inertia from each member's
+## own weight, `_weigh_by_members`), not evenly through its shapes: set on a coach going over (the
+## heist, #770), where heavy plates high up decide it.
+var mass_by_members := false
+## A fallen piece of several members comes apart when it lands hard (`_on_rubble_hit`): a wall's
+## boards, a chair. Off for what's built to take a jolt whole (a coach going over, #770: its body
+## stays a body, what's struck hard enough still breaks by its own toughness).
+var breaks_up := true
 var tuning: TimberTuning
 ## The last analysis of it, kept and brought up to date for what's changed since (start_analysis);
 ## F3 and tests read it.
@@ -1806,16 +1814,21 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 		rb.transform = host.global_transform.affine_inverse() * at if host else at
 		var to_rb := at.affine_inverse()
 		var mass := 0.0
+		var spread: Array = []  # (mass_by_members: each member's [kg, centre, basis, size] in the body's space)
 		for id in clump:
 			var m := get_member(id)
 			unbatch(m, false, true)
 			m.broken = true
 			mark_dirty(id)
 			mass += m.weight(tuning) / 9.81
+			if mass_by_members:
+				var in_rb := to_rb * m.global_transform
+				spread.append([m.weight(tuning) / 9.81, in_rb.origin, in_rb.basis, m.size])
 			# Its mesh and shape into the body where they are (as reparent(rb, true) put them).
 			var at_m := m.global_transform
 			for c in m.take_parts():
 				c.transform = to_rb * (at_m * c.transform)
+				c.set_meta(&"member", id)  # (whose it is in the body: Dents finds a plate's mesh and shape)
 				rb.add_child(c)
 				if c is CollisionShape3D:
 					_loose_shape(m, c as CollisionShape3D)  # (masonry: the stone without its mortar)
@@ -1832,8 +1845,51 @@ func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
 			rb.queue_free()
 			continue
 		rb.mass = maxf(mass, 0.3)
+		if mass_by_members and spread.size() > 1:
+			_weigh_by_members(rb, spread)
 		_wake_near(rb.global_position, 6.0)
 	return fallen
+
+
+## A body's centre of weight and its turning inertia from its members' own weights (heavy iron
+## plates high on a coach of pine and oak), not from its shapes' volumes as the physics would have
+## them (Jolt spreads a body's mass evenly through its shapes). Each member a solid box; the
+## inertia about the centre by the parallel axis rule, its diagonal in the body's axes (the body
+## turned square to the structure: a kit prop standing as built).
+func _weigh_by_members(rb: RigidBody3D, spread: Array) -> void:
+	var total := 0.0
+	var com := Vector3.ZERO
+	for e: Array in spread:
+		total += float(e[0])
+		com += (e[1] as Vector3) * float(e[0])
+	if total <= 0.0:
+		return
+	com /= total
+	var ix := 0.0
+	var iy := 0.0
+	var iz := 0.0
+	for e: Array in spread:
+		var kg := float(e[0])
+		var sz: Vector3 = e[3]
+		var b: Basis = (e[2] as Basis).orthonormalized()
+		var own := Vector3(sz.y * sz.y + sz.z * sz.z, sz.x * sz.x + sz.z * sz.z, sz.x * sz.x + sz.y * sz.y) * kg / 12.0
+		# The box's tensor turned into the body's axes: R diag(own) R^T, its diagonal.
+		for axis in 3:
+			var row := Vector3(b.x[axis], b.y[axis], b.z[axis])
+			var v := row.x * row.x * own.x + row.y * row.y * own.y + row.z * row.z * own.z
+			if axis == 0:
+				ix += v
+			elif axis == 1:
+				iy += v
+			else:
+				iz += v
+		var d := (e[1] as Vector3) - com
+		ix += kg * (d.y * d.y + d.z * d.z)
+		iy += kg * (d.x * d.x + d.z * d.z)
+		iz += kg * (d.x * d.x + d.y * d.y)
+	rb.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+	rb.center_of_mass = com
+	rb.inertia = Vector3(ix, iy, iz)
 
 
 ## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
@@ -1978,7 +2034,7 @@ func _physics_step(delta: float) -> void:
 			if v.length_squared() > RUNAWAY_SPEED * RUNAWAY_SPEED:
 				v = _runaway(rb, v, lost)
 			rb.set_meta(&"v", v)
-			if gated and not rb.freeze:
+			if gated and not rb.freeze and not rb.has_meta(&"dent_watch"):  # (Dents.Watch reads its contacts)
 				_report(rb, v.length_squared(), on2, off2, tick)
 			if rb.global_position.y < lost_below:
 				lost.append(rb)
@@ -2072,7 +2128,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		_play(&"timber_crash", rb.global_position)
 		ImpactEffects.burst(get_parent(), rb.global_position, Vector3.UP, Color(0.66, 0.56, 0.44), 18, 1.4, 0.07)
 	var ids: Array = rb.get_meta(&"members", [])
-	if ids.size() > 1 and speed > tuning.break_up_speed:
+	if breaks_up and ids.size() > 1 and speed > tuning.break_up_speed:
 		_break_up.call_deferred(rb)
 
 
