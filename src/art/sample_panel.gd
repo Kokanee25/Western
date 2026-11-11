@@ -62,7 +62,7 @@ func build() -> void:
 	var nails := Vector2(float(entry.get("nails", 1)), float(entry.get("nail_at", 0.6)))
 	match layout:
 		"board_batten":
-			_vertical(wall, bw, bt, gap, warp, cls, nails, &"wall")
+			_vertical(wall, bw, bt, gap, warp, cls, nails, &"wall", 0.03)
 			# The battens over the joints (2.5 in), nailed down their middle.
 			var bx: Array = wall.get_meta("joints", [])
 			for jx in bx:
@@ -89,7 +89,7 @@ func _part(name: StringName) -> Node3D:
 
 
 ## Vertical boards across the wall (board and batten, tongue and groove), each its own width.
-func _vertical(wall: Node3D, bw: float, bt: float, gap: float, warp: float, cls: Dictionary, nails: Vector2, role: StringName) -> void:
+func _vertical(wall: Node3D, bw: float, bt: float, gap: float, warp: float, cls: Dictionary, nails: Vector2, role: StringName, batten_cover := 0.0) -> void:
 	var x := 0.0
 	var joints := []
 	# Up the wall: local X up, local Y along +X, the face toward -Z.
@@ -98,7 +98,9 @@ func _vertical(wall: Node3D, bw: float, bt: float, gap: float, warp: float, cls:
 		var w: float = minf(bw * (1.0 + _rng.randf_range(-1.0, 1.0) * cls["width_var"]), wall_size.x - x)
 		var t: float = bt + _rng.randf_range(-1.0, 1.0) * cls["thick_var"]
 		var l: float = wall_size.y + _rng.randf_range(-1.0, 1.0) * cls["ends"] * 0.5
-		_board(wall, Transform3D(basis, Vector3(x + w * 0.5, 0.0, -t * 0.5)), l, w, t, warp, nails, role)
+		# Under a batten: each edge but the wall's two ends (local -Y is the wall's left).
+		var cover := Vector2(batten_cover if x > 0.0 else 0.0, batten_cover if x + w < wall_size.x - 0.02 else 0.0)
+		_board(wall, Transform3D(basis, Vector3(x + w * 0.5, 0.0, -t * 0.5)), l, w, t, warp, nails, role, 0.0, cover)
 		x += w + gap * _rng.randf_range(0.6, 1.4)
 		joints.append(x - gap * 0.5)
 	joints.pop_back()
@@ -128,7 +130,8 @@ func _lap(wall: Node3D, bw: float, bt: float, expose: float, warp: float, cls: D
 		var t: float = bt + _rng.randf_range(-1.0, 1.0) * cls["thick_var"]
 		# Turned about its length so its foot (local -Y side... here, the bottom) leans out.
 		var basis := Basis(Vector3.RIGHT, Vector3.DOWN, Vector3.BACK * -1.0).rotated(Vector3.RIGHT, tilt)
-		_board(wall, Transform3D(basis, Vector3(0.0, y + w * 0.5, -t * 0.5 - bt * 0.5)), wall_size.x, w, t, warp, nails, &"wall")
+		_board(wall, Transform3D(basis, Vector3(0.0, y + w * 0.5, -t * 0.5 - bt * 0.5)), wall_size.x, w, t, warp, nails, &"wall", 0.0,
+				Vector2(maxf(w - expose, 0.0), 0.0))
 		y += expose * (1.0 + _rng.randf_range(-0.03, 0.03))
 
 
@@ -179,9 +182,9 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 	_board(r, Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05)), wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
 
 
-func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0) -> void:
+func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0, cover := Vector2.ZERO) -> void:
 	var mi := MeshInstance3D.new()
-	mi.mesh = board_mesh(length, width, thick, _rng.randf(), warp, nails, global_position.y if is_inside_tree() else 0.0, kind)
+	mi.mesh = board_mesh(length, width, thick, _rng.randf(), warp, nails, global_position.y if is_inside_tree() else 0.0, kind, cover)
 	mi.material_override = _material(role)
 	mi.transform = xf
 	parent.add_child(mi)
@@ -202,13 +205,15 @@ func _material(role: StringName) -> ShaderMaterial:
 
 ## One board's mesh: a box in its own frame (X along 0..length, Y across, Z through, the shown face
 ## +Z), its long faces cut in a grid fine enough for the vertex shader's warp, every vertex carrying
-## the board's seed and where it is on the board (scan_wood.gdshader's CUSTOM0-2).
-static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails := Vector2.ZERO, ground_y := 0.0, kind := 0.0) -> ArrayMesh:
+## the board's seed and where it is on the board (scan_wood.gdshader's CUSTOM0-2); UV2 `cover`: the
+## metres of its -Y and +Y edges a neighbour covers (the lap above, a batten), for the joint's shadow.
+static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails := Vector2.ZERO, ground_y := 0.0, kind := 0.0, cover := Vector2.ZERO) -> ArrayMesh:
 	var nx := clampi(ceili(length / 0.1), 4, 40)
 	var ny := 4
 	var v := PackedVector3Array()
 	var n := PackedVector3Array()
 	var uv := PackedVector2Array()
+	var uv2 := PackedVector2Array()
 	var c0 := PackedFloat32Array()
 	var c1 := PackedFloat32Array()
 	var c2 := PackedFloat32Array()
@@ -231,6 +236,7 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 					uv.append(Vector2(p.x, p.z))
 				else:
 					uv.append(Vector2(p.x, p.y))
+				uv2.append(cover)
 				c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / hw, -1.0, 1.0), face])
 				c1.append_array([length, width, thick, warp])
 				c2.append_array([nails.x, nails.y, ground_y, kind])
@@ -256,6 +262,7 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 	arrays[Mesh.ARRAY_VERTEX] = v
 	arrays[Mesh.ARRAY_NORMAL] = n
 	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_TEX_UV2] = uv2
 	arrays[Mesh.ARRAY_CUSTOM0] = c0
 	arrays[Mesh.ARRAY_CUSTOM1] = c1
 	arrays[Mesh.ARRAY_CUSTOM2] = c2

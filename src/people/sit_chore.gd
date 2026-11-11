@@ -15,6 +15,10 @@ var man: HumanBody
 var chair: KitProp
 ## False: he's to get up and go (ValleyFolk sends him off at the end of his hours).
 var wanted := true
+## The chair he was sat in last tick, and whether it went from under him (kicked, broken): once
+## he's up again he says so (#773, the cards playtest: Earl stood silent on its pieces).
+var _sat_in: KitProp
+var _dumped := false
 
 
 func _init(m: HumanBody, c: KitProp) -> void:
@@ -35,6 +39,14 @@ func lets_slow() -> bool:
 func step_chore(delta: float, free: bool) -> bool:
 	if not is_instance_valid(man):
 		return false
+	if _sat_in != null and (not is_instance_valid(_sat_in) or _sat_in.loose):
+		_dumped = true
+	_sat_in = chair if chair != null and is_instance_valid(chair) and chair.seated == man else null
+	if _dumped and not man.limp and not man.rising and man.physiology.is_conscious():
+		_dumped = false
+		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+		if brain:
+			brain.say(&"chair")
 	if chair == null or not is_instance_valid(chair) or chair.loose:
 		# His chair's gone (kicked to pieces): another free one near takes its place (the playtest's
 		# Earl stood on the wreck for minutes).
