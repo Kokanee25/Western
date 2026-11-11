@@ -16,6 +16,7 @@ var scenario := ""
 var seed_value := 1
 var out_dir := ""
 var picture := false  # draw every frame (slow); otherwise one frame of the view, then none
+var music_file := ""  # a music scenario's recording (a WAV path), else the scenario's own `file`
 
 var _data := {}
 var _spec := {}
@@ -89,6 +90,7 @@ func run() -> Dictionary:
 		"steps": ok = _setup_steps()
 		"fight": ok = await _setup_fight()
 		"cost": ok = _setup_cost()
+		"music": ok = _setup_music()
 		_: ok = {"ok": false, "error": "no kind %s" % _spec.kind}
 	if not ok.get("ok", true):
 		_unhook()
@@ -109,6 +111,7 @@ func run() -> Dictionary:
 		"steps": await _event_steps()
 		"fight": await _event_fight()
 		"cost": await _event_cost()
+		"music": await _event_music()
 	await lab.seconds(float(_spec.get("tail", _data.get("tail", 4.0))))
 	_stop_recording()
 	_unhook()
@@ -332,6 +335,44 @@ func _event_impact() -> void:
 func _event_ricochet() -> void:
 	_mark("fired", _v(_spec.origin))
 	_fire_ball(_v(_spec.origin), _v(_spec.dir))
+
+
+## Music played at an instrument (the fiddler, #790): a recording placed by GameAudio where he
+## stands, the ears where the scenario puts the player (with him, or under the floor).
+func _setup_music() -> Dictionary:
+	var path := music_file if music_file != "" else String(_spec.get("file", ""))
+	if not FileAccess.file_exists(path):
+		return {"ok": false, "error": "no recording %s (sound NAME file=WAV)" % path}
+	var at := _v(_spec.source)
+	# his feet exactly where the scenario says (a ray finds neither the balcony's boards, not on
+	# WORLD or WALK though he stands on them, nor, from above, anything but the roof); outdoors
+	# `find_floor` puts them on the ground or boardwalk under the point
+	_put_player(_floor(_v(_spec.player)) if bool(_spec.get("find_floor", false)) else _v(_spec.player))
+	lab.bridge._face(at)
+	_listener_node = lab.player.camera
+	_setup["distance_m"] = snappedf(_listener_node.global_position.distance_to(at), 0.01)
+	_setup["file"] = path
+	return {"ok": true}
+
+
+func _event_music() -> void:
+	var path := music_file if music_file != "" else String(_spec.get("file", ""))
+	var s := AudioStreamWAV.load_from_file(path)
+	var at := _v(_spec.source)
+	GameAudio.play(_street, &"music", at, {"stream": s, "unit_size": float(_spec.get("unit_size", 2.0)),
+			"volume_db": float(_spec.get("volume_db", 0.0)), "max_db": float(_spec.get("max_db", 3.0))})
+	_mark("music", at)
+	# a bed under it (the room's crowd, #790): another recording placed in the room, from the start
+	var bed: Dictionary = _spec.get("bed", {})
+	if not bed.is_empty():
+		var bp := String(bed.file)
+		if not bp.is_absolute_path():
+			bp = ProjectSettings.globalize_path("res://").path_join(bp)
+		var bs := AudioStreamWAV.load_from_file(bp)
+		GameAudio.play(_street, &"music_bed", _v(bed.at), {"stream": bs, "unit_size": float(bed.get("unit_size", 3.0)),
+				"volume_db": float(bed.get("volume_db", 0.0)), "max_db": float(bed.get("max_db", 3.0))})
+		_mark("bed", _v(bed.at))
+	await lab.seconds(s.get_length())
 
 
 func _event_dynamite() -> void:

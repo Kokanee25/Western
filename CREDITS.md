@@ -112,3 +112,22 @@ The dynamite's recordings (#596), Freesound, cut by `experiments/train_lab/recor
 - **m-150-020927-24-bit** by boilingsand, CC0 (https://freesound.org/s/49711/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s1/crack`.
 - **dynamite explosion in the mountain** by felixblume, CC0 (https://freesound.org/s/251401/): downloaded by hand by Sean from Freesound's CC0-only search (#599). Cut into `assets/audio/blast/s1/boom`, `s1/sub`, `s1/roll`.
 
+
+The fiddler's sound experiment (#790, the sound lab; `experiments/sound_lab/fiddle/`); nothing
+of it is in the game yet:
+
+- **VSCO 2 Community Edition** by Versilian Studios (Sam Gossner; the solo violin "LLVln" set),
+  CC0 1.0 (https://github.com/sgossner/VSCO-2-CE, commit 4403009; its Readme asks for a credit
+  and that the samples aren't sold as they are). The solo violin's sustains (`Arco Vib`) and short
+  strokes (`spic`), fetched into `build/` by `experiments/sound_lab/fiddle/fetch.sh`; render A and
+  the hybrid C are made from them.
+- **"Sallie Gooden"** played by A. C. "Eck" Robertson, recorded for Victor in 1922 (Victor 18956),
+  public domain in the US (a sound recording published before 1923: its federal protection under
+  the Music Modernization Act ended on 1 January 2022; the tune is traditional). From the Internet
+  Archive (https://archive.org/details/ACEckRobertsonSallieGoodenVictor18956). The experiment's
+  reference only, to compare against: a 20 s excerpt in its results, not in the game.
+- The room's crowd under the fiddle heard from outside: the cinematic's generated take
+  `sfx_room.mp3` (ElevenLabs sound effects v2 through fal, 2026-10-26; branch `claude/cinematic-saloon`),
+  cut into a steady bed by `experiments/sound_lab/fiddle/crowd_bed.py`; a lab stand-in, not in the game.
+- **"The Soldier's Joy"**, traditional, as printed in O'Neill's *Music of Ireland* (1903), No. 1642,
+  public domain; the ABC transcription from music21's corpus (`oneills1850`; music21 is BSD-3).

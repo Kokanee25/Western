@@ -22,7 +22,7 @@ func _ready() -> void:
 
 func _cmd_sound(a: Array) -> Dictionary:
 	if a.is_empty():
-		return {"ok": false, "error": "sound SCENARIO [seed=N] [out=DIR] [picture]"}
+		return {"ok": false, "error": "sound SCENARIO [seed=N] [out=DIR] [picture] [file=WAV (a music scenario's recording)]"}
 	var r: Node = Runner.new()
 	r.name = "SoundRunner"
 	r.lab = self
@@ -34,6 +34,7 @@ func _cmd_sound(a: Array) -> Dictionary:
 			"seed": r.seed_value = int(kv[1])
 			"out": r.out_dir = kv[1]
 			"picture": r.picture = true
+			"file": r.music_file = kv[1]
 	if r.out_dir == "":
 		r.out_dir = "build/sound_lab/bridge/%s_s%d" % [r.scenario, r.seed_value]
 	if not r.out_dir.is_absolute_path():
