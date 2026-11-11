@@ -121,7 +121,7 @@ def drape(name, half_w, top_fn, z0, z1, hang=0.2, r=0.05, thick=0.008, nz=24, fo
 
 # --- The examining table's pads -------------------------------------------------------------------
 
-def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.022, dimple=0.02, n=3):
+def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.022, dimple=0.02, n=3, discs=True):
     """A buttoned cushion on the box x0..x1, z0..z1 from y0, its top h0 high at x0 and h1 at x1 (a
     wedge if they differ): a grid top drawn in at each button of a diamond pattern, its edges rolled
     over, sides down to y0, a flat bottom; the buttons themselves little discs."""
@@ -172,7 +172,7 @@ def cushion(name, x0, x1, z0, z1, y0, h0, h1, button=0.14, roll=0.022, dimple=0.
     c = len(verts) - 1
     faces += [[c, base + (k + 1) % m, base + k] for k in range(m)]
     part = Part(name, smooth=True).add(verts, faces)
-    for bx, bz in buttons:
+    for bx, bz in (buttons if discs else []):
         part.merge(lathe("b", [(0.008, -0.002), (0.009, 0.001), (0.006, 0.004), (0.0, 0.005)], 8, at=(bx, top(bx, bz) - 0.003, bz)))
     return part
 
@@ -249,14 +249,14 @@ def cot():
     sag = lambda vx, vz: 0.035 * max(0.0, 1 - (2 * vz / tz) ** 2) * max(0.0, 1 - (2 * vx / tx) ** 2)
     # A tufted straw tick (ticks were tied through at a handspan's spacing): the table pad's buttoned
     # cushion, its tufts wide apart, its edges rolled well over, sagging where he lies.
-    tick = cushion("Tick", -tx * 0.5, tx * 0.5, -tz * 0.5, tz * 0.5, y, ty, ty, button=0.32, roll=0.05, dimple=0.016, n=5)
+    tick = cushion("Tick", -tx * 0.5, tx * 0.5, -tz * 0.5, tz * 0.5, y, ty, ty, button=0.32, roll=0.05, dimple=0.016, n=5, discs=False)
     tick.verts = [(vx, vy - (sag(vx, vz) if vy > y + 0.02 else 0.0), vz) for vx, vy, vz in tick.verts]
     parts.append((tick, "ticking"))
     bx, by, bz = c["blanket"]
     top = y + ty
     bz0 = tz * 0.5 - bz
     # Its top a little clear of the tick, rumpled (two slow waves and a finer one across it).
-    top_fn = lambda x, z: top + 0.014 - sag(x, z) + 0.008 * math.sin(z * 7.0 + x * 3.0) * math.sin(x * 9.0 + 1.3) + 0.004 * math.sin(z * 19.0 - x * 11.0)
+    top_fn = lambda x, z: top + 0.026 - sag(x, z) + 0.008 * math.sin(z * 7.0 + x * 3.0) * math.sin(x * 9.0 + 1.3) + 0.004 * math.sin(z * 19.0 - x * 11.0)
     blanket = drape("Blanket", tx * 0.5 + 0.02, top_fn, bz0, tz * 0.5 + 0.015, hang=0.2, r=0.055, folds=0.022, nz=14)
     turn = drape("d", tx * 0.5 + 0.03, lambda x, z: top_fn(x, z) + 0.012, bz0 - 0.02, bz0 + 0.17, hang=0.08, r=0.05, nz=6, seed=3)
     blanket.merge(turn)

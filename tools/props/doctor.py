@@ -277,10 +277,10 @@ TRAY = {"size": (0.36, 0.045, 0.24)}
 
 def instrument_tray():
     return {
-        "_doc": "An instrument tray (#788; refs experiments/prop_lab/refs/doctor/): a white enamelled iron tray 36 x 24 cm, chipped at its rim, with a bone saw, a bullet forceps, Nelaton's porcelain-tipped probe and a scalpel on it (nickel-plated; the saw and scalpel ebony-handled). A loose rigid prop (LooseProp): a ball holes its thin iron and knocks it, a boot sends it, a hard landing dents it; it doesn't burn. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
+        "_doc": "An instrument tray (#788; refs experiments/prop_lab/refs/doctor/): a japanned tin tray 36 x 24 cm with a white linen napkin in it, with a bone saw, a bullet forceps, Nelaton's porcelain-tipped probe and a scalpel on it (nickel-plated; the saw and scalpel ebony-handled). A loose rigid prop (LooseProp): a ball holes its thin iron and knocks it, a boot sends it, a hard landing dents it; it doesn't burn. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
         "id": "instrument_tray", "kind": "loose", "fixture": True,
         "model": "glb:instrument_tray",
-        "looks": {k: "pbr:instrument_tray" for k in ("Tray", "SawBlade", "SawHandle", "Forceps", "Probe", "ProbeTip",
+        "looks": {k: "pbr:instrument_tray" for k in ("Tray", "Cloth", "SawBlade", "SawHandle", "Forceps", "Probe", "ProbeTip",
                                                      "ScalpelBlade", "ScalpelHandle")},
         "shape": "box", "size": r(TRAY["size"]),
         "mass": 1.3, "wall": 0.0008, "hole_radius": 0.005, "breaks_at": 4.0, "shatters_kpa": 1e9,
