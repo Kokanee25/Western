@@ -140,3 +140,6 @@ of it is in the game yet:
   Hornpipe, 18th century) and **"Red River Valley"** (1870s-1890s): public-domain melodies, written out
   for Salt Creek in `experiments/sound_lab/fiddle/tunes/` (our own ABC; the notes of the first three
   checked against the Nottingham Music Database's versions, GPL, which aren't copied or shipped).
+- **"Cotton-Eyed Joe"**, traditional (before 1861), public domain: written out for Salt Creek in
+  `experiments/sound_lab/fiddle/tunes/` (our own ABC; its notes checked against The Session's setting,
+  which isn't copied or shipped).
