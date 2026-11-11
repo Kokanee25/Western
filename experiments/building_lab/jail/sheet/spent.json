@@ -104,7 +104,29 @@
    ],
    "model": "google/gemini-3-pro-image-preview",
    "at": 1794402259.5409884
+  },
+  {
+   "what": "corner",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402479.3213696
+  },
+  {
+   "what": "cage",
+   "cost": 0.1406,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794402509.3724973
   }
  ],
- "total": 1.2705
+ "total": 1.5512
 }
