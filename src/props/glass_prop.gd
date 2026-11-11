@@ -122,6 +122,10 @@ func _build() -> void:
 					mi.name = part if part != "" else "Mesh"
 					mi.mesh = mesh
 					mi.material_override = PropKit.material(String(looks[key]), variant)
+					if String(looks[key]).begins_with("glass:"):
+						# See-through glass casts no shadow of its own (what's in it does): and no
+						# draw in each shadow pass for every bottle on a shelf (#805).
+						mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 					model.add_child(mi)
 		var other:
 			var built := PropModels.build(StringName(other), variant)

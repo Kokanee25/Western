@@ -385,9 +385,13 @@ def desk_brass():
         bail = tube("b", pts, 0.003, sides=6, caps=(True, True))
         parts.append((merged("Pull_" + did, [plate, *posts, bail]), "brass"))
     # The counter's drawers' turned knobs.
+    # (the counter's front faces -z: each knob turned to stand out of it, round 2's "no knobs": they
+    # stood into the drawers) and a brass label holder over it, as a druggist's drawers carry.
     for did, (w, h), (x, y, z) in doctor.counter_drawers():
-        parts.append((lathe("Knob_" + did, [(0.006, 0.0), (0.008, 0.005), (0.005, 0.01), (0.009, 0.016), (0.0, 0.021)], 10, axis="z",
-                            at=(x, y, z - 0.009 - 0.021) if False else (x, y, z - 0.009)), "brass"))
+        knob = lathe("k", [(0.008, 0.0), (0.010, 0.006), (0.006, 0.012), (0.012, 0.019), (0.009, 0.025), (0.0, 0.027)], 12, axis="z")
+        knob = moved(knob, 180, (0, 1, 0), (x, y - h * 0.12, z - 0.009))
+        holder = box("h", (w * 0.42, h * 0.22, 0.002), (x, y + h * 0.22, z - 0.010), bevel=0.0006)
+        parts.append((merged("Knob_" + did, [knob, holder]), "brass"))
     for did, (w, h), (x, y, z) in doctor.desk_small_drawers():
         parts.append((lathe("Pull_" + did, [(0.004, 0.0), (0.006, 0.004), (0.0035, 0.008), (0.0065, 0.012), (0.0, 0.015)], 10, axis="z",
                             at=(x, y, z + 0.006)), "brass"))
@@ -421,6 +425,17 @@ def desk_brass():
             # A ledger lying.
             papers.append(box("g", (cell * 0.8, 0.025, pd * 0.85), (cx, py0 + 0.0125, zb + pd * 0.52), bevel=0.003))
     parts.append((merged("Papers", papers, smooth=False), "paper"))
+    # On the writing bed: a green leather blotter in its corners, an inkstand (a cut-glass well in a
+    # brass tray, a pen laid in its groove) at its back.
+    zf = d["depth"] * 0.5
+    by = d["bed"]
+    parts.append((box("Blotter", (0.56, 0.008, 0.38), (0.0, by + 0.004, zf - 0.27), bevel=0.002), "desk_leather"))
+    tray = box("t", (0.22, 0.012, 0.09), (0.0, by + 0.006, zb + d["case_depth"] + 0.06), bevel=0.003)
+    pen = tube("p", [(-0.09, by + 0.014, zb + d["case_depth"] + 0.035), (0.08, by + 0.014, zb + d["case_depth"] + 0.035)], 0.0035, sides=6)
+    parts.append((merged("Inkstand", [tray, pen]), "brass"))
+    wells = [lathe("w", [(0.022, 0.0), (0.024, 0.01), (0.024, 0.04), (0.012, 0.05), (0.013, 0.058), (0.0, 0.06)], 8,
+                   at=(sx * 0.055, by + 0.012, zb + d["case_depth"] + 0.065)) for sx in (-1, 1)]
+    parts.append((merged("Inkwells", wells, smooth=False), "ink_glass"))
     metal.export_baked("desk_brass", parts, size=512)
 
 
@@ -429,7 +444,7 @@ def desk_brass():
 def bentwood_chair():
     c = doctor.BENTWOOD
     sy, R, top = c["seat_y"], c["seat_r"], c["back_top"]
-    r = 0.014  # the bent rod's radius (~28 mm beech)
+    r = 0.0175  # the bent rod's radius (~35 mm beech at the legs: round 2's critic, "pencil-thin")
     parts = []
     # The seat: its bent ring, the caned seat inside it.
     parts.append((torus_ring("SeatRing", R, sy, r, segs=36, sides=8), "bentwood"))

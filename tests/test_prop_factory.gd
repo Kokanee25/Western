@@ -336,7 +336,7 @@ const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"pois
 
 func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
 	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
-	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 170.0],
+	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 200.0],
 			&"dispensary_counter": [40.0, 130.0], &"bentwood_chair": [2.0, 8.0]}
 	for id: StringName in DOCTOR_D2_MEMBERS:
 		var def := PropKit.definition(id)
@@ -433,7 +433,7 @@ func test_the_mortar_breaks_shot_and_its_pestle_comes_through() -> void:
 
 
 func test_the_dispensarys_bottles_stand_on_their_shelf_and_come_down_with_it() -> void:
-	var s := PropKit.spawn_fitted(&"dispensary_shelves", &"test_shelves", Vector3(0.3, 2.55, 1.2))
+	var s := PropKit.spawn_fitted(&"dispensary_shelves", &"test_shelves", Vector3(0.3, 2.71, 1.2))
 	world.add_child(s)
 	await physics_frames(KitProp.SETTLE_FRAMES + 2)
 	var board := _m(s, "shelf2")

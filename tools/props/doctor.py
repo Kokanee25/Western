@@ -382,7 +382,6 @@ BOTTLES = {
         "labels": [("PULV. RHEI", "", ""), ("QUIN. SULPH.", "", ""), ("POT. BROMID.", "", ""), ("MAG. SULPH.", "", "")],
         # What's in each, by its label: rhubarb root's yellow-brown powder, the rest white.
         "fills": ["rhubarb", "powder", "crystals", "crystals"],
-        "gilt": True,
     },
 }
 # Each kind's thin glass: a 4 oz prescription bottle's wall ~2 mm (the whiskey bottle's 4): it breaks
@@ -410,7 +409,7 @@ def bottle(kind):
     what = {"panel": "an aqua glass prescription panel bottle (4 oz), a flat front with its paper label, a cork",
             "round": "a round amber glass bottle (8 oz, tinctures kept from the light), its paper label round the front, a cork",
             "poison": "a cobalt-blue hexagonal poison bottle (2 oz), its ribbed edges known by touch in the dark, a red POISON label, a cork",
-            "jar": "a clear glass shop round (1 pint) with a ground glass stopper, its label black with gilt lettering, a powder in it"}[kind]
+            "jar": "a clear glass shop round (1 pint) with a ground glass stopper, its paper label, a powder or crystals in it"}[kind]
     names = ", ".join(l[0] for l in b["labels"])
     return {
         "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): %s. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (%.1f m/s) or %d kPa breaks it and what's in it goes on the floor. Four labels in the period's style (%s): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py." % (what, breaks, kpa, names),
@@ -447,18 +446,18 @@ def drug_jar():
 # a turned wooden handle), about a pint: 15 cm across. Its axis at the origin; the lip toward +x.
 # The Met's Wedgwood mortar (refs mortar_wedgwood_stoneware_met.jpg): twice as wide as it's tall, a thick
 # rounded rim, no foot to speak of, a long dark wooden pestle handle.
-MORTAR = {"radius": 0.078, "height": 0.074, "foot": 0.058, "bowl": 0.062, "bowl_depth": 0.056,
+MORTAR = {"radius": 0.092, "height": 0.084, "foot": 0.066, "bowl": 0.074, "bowl_depth": 0.064,
           "pestle": {"head": 0.024, "length": 0.21, "tilt": 32.0}}
 
 
 def mortar():
     m = MORTAR
     return {
-        "_doc": "A Wedgwood-ware mortar and pestle (#805; refs experiments/prop_lab/refs/doctor/): the druggist's prescription mortar, a pint, 15 cm across, of hard unglazed white stoneware on a foot with a pouring lip, its bowl greyed by what's been ground in it; the pestle's head the same stoneware on a turned hardwood handle, leaning in it. A prop that shatters (GlassProp): stoneware ~1 cm thick, so it takes a fall off the counter (6 m/s) and a blast past 150 kPa, but a ball breaks it; the pestle comes through whole. ~1.6 kg. Baked the gun way (tools/blender/props/doctor_d2.py). Written by tools/props/doctor.py.",
+        "_doc": "A Wedgwood-ware mortar and pestle (#805; refs experiments/prop_lab/refs/doctor/): the druggist's prescription mortar, a quart, 18 cm across, of hard unglazed white stoneware on a foot with a pouring lip, its bowl greyed by what's been ground in it; the pestle's head the same stoneware on a turned hardwood handle, leaning in it. A prop that shatters (GlassProp): stoneware ~1 cm thick, so it takes a fall off the counter (6 m/s) and a blast past 150 kPa, but a ball breaks it; the pestle comes through whole. ~2.2 kg. Baked the gun way (tools/blender/props/doctor_d2.py). Written by tools/props/doctor.py.",
         "id": "mortar", "kind": "shatters", "fixture": True, "in_game": False,
         "model": "glb:mortar", "looks": {"Mortar": "pbr:mortar", "Pestle": "pbr:mortar", "PestleHandle": "pbr:mortar"},
         "size": r([m["radius"] * 2, m["height"], m["radius"] * 2]),
-        "mass": 1.6, "wall": 0.012, "glass": ["Mortar"], "whole": [["Pestle", "PestleHandle"]], "shards": 10, "piece_mass": 0.25,
+        "mass": 2.2, "wall": 0.012, "glass": ["Mortar"], "whole": [["Pestle", "PestleHandle"]], "shards": 10, "piece_mass": 0.25,
         "breaks_at": 6.0, "shatters_kpa": 150, "heat_seconds": 1e9, "cut_area": 0.02,
     }
 
@@ -600,7 +599,11 @@ def roll_top_desk():
     nb = 3
     bw = D / nb
     for k in range(nb):
-        ms.append(member("bed%d" % k, "furniture_top", [W, d["board"], bw], [0, d["bed"] - d["board"] * 0.5, -D * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP))
+        bed = member("bed%d" % k, "furniture_top", [W, d["board"], bw], [0, d["bed"] - d["board"] * 0.5, -D * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP)
+        if k == 1:
+            # His blotter and inkstand on it (drawn on the bed: they go where it goes).
+            bed["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", n)} for n in ("Blotter", "Inkstand", "Inkwells")]
+        ms.append(bed)
     # The case over the bed's back: S-curved sides (library boards cut to the curve), the back, the top.
     curve = desk_curve()
     zs = [p[0] for p in curve]
@@ -652,7 +655,7 @@ def roll_top_desk():
 # The kit's counter and shelves (assets/props/kit/counter.json, shelves.json) `like`d in the material
 # library's walnut, the shelves with seven boards (a druggist's shelving runs to the ceiling, its
 # boards a bottle's height apart: 0.35 m).
-SHELVES = {"depth": 0.30, "height": 2.55, "length": 2.0, "boards": [0.30, 0.66, 1.02, 1.38, 1.74, 2.10, 2.46], "board": 0.025}
+SHELVES = {"depth": 0.30, "height": 2.62, "length": 2.0, "boards": [0.12, 0.42, 0.72, 1.02, 1.32, 1.62, 1.92, 2.22, 2.52], "board": 0.025}
 
 
 def dispensary_shelves():
@@ -663,10 +666,12 @@ def dispensary_shelves():
         ms.append(member("upright_" + name, "post", [c["depth"], c["height"], 0.03], [0, c["height"] * 0.5, s_ * (L * 0.5 - 0.015)], look=WALNUT))
     for k, y in enumerate(c["boards"]):
         ms.append(member("shelf%d" % k, "furniture_top", [c["depth"], c["board"], L - 0.06], [0, y, 0], look=WALNUT_TOP))
+    # A cornice over the front (round 2's critic: a plain bookcase): a deep board on the uprights.
+    ms.append(member("cornice", "trim", [c["depth"] + 0.05, 0.09, L + 0.06], [0.025, c["height"] + 0.045, 0], look=WALNUT))
     # A back of boards behind them (the shelving's own: the bottles stand against it, not the wall's).
     ms.append(member("back", "furniture_frame", [0.012, c["height"] - 0.1, L - 0.06], [-c["depth"] * 0.5 + 0.006, c["height"] * 0.5, 0], look=WALNUT))
     return {
-        "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's walnut from the material library (F2 a few years, the boards' tops worn), 2.55 m high with seven boards 0.36 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart) and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
+        "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's walnut from the material library (F2 a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
         "id": "dispensary_shelves", "like": "shelves", "fixture": True, "in_game": False, "wood": "walnut",
         "look": WALNUT, "members": ms,
     }

@@ -105,7 +105,7 @@ FINISHES = {
     # Wedgwood's white stoneware ("Wedgwood ware", the druggists' mortar from the 1770s on): a hard,
     # dense, unglazed buff-white body outside, a slight sheen where it's handled, its grinding bowl
     # inside rough and greyed by what's been ground in it.
-    "stoneware": {"kind": "coat", "color": (0.86, 0.84, 0.78), "under": (0.70, 0.67, 0.60), "rust": 0.0,
+    "stoneware": {"kind": "coat", "color": (0.90, 0.89, 0.86), "under": (0.74, 0.72, 0.68), "rust": 0.0,
                   "rough": 0.72, "metal": 0.0, "wear": 0.35, "mottle": 0.35},
     # A turned hardwood handle (a pestle's: lignum vitae or boxwood): dark brown, oiled by the hand.
     # (the Met's Wedgwood pestle's is near black-brown: lignum vitae darkens with handling)
@@ -126,6 +126,9 @@ FINISHES = {
     # Writing paper and an envelope gone cream with age, a ledger's marbled boards: paper, no metal.
     "paper": {"kind": "coat", "color": (0.80, 0.75, 0.62), "under": (0.66, 0.60, 0.48), "rust": 0.0,
               "rough": 0.9, "metal": 0.0, "wear": 0.2, "mottle": 0.4},
+    # An inkwell's pressed glass with the ink in it: near black, glossy.
+    "ink_glass": {"kind": "coat", "color": (0.05, 0.06, 0.08), "under": (0.2, 0.22, 0.24), "rust": 0.0,
+                  "rough": 0.08, "metal": 0.0, "wear": 0.3},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,

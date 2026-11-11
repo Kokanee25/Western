@@ -381,7 +381,33 @@
         0.7475,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:fine_walnut_tg/few/top",
+      "dress": [
+        {
+          "look": "pbr:desk_brass",
+          "draw": {
+            "shape": "mesh",
+            "model": "desk_brass",
+            "part": "Blotter"
+          }
+        },
+        {
+          "look": "pbr:desk_brass",
+          "draw": {
+            "shape": "mesh",
+            "model": "desk_brass",
+            "part": "Inkstand"
+          }
+        },
+        {
+          "look": "pbr:desk_brass",
+          "draw": {
+            "shape": "mesh",
+            "model": "desk_brass",
+            "part": "Inkwells"
+          }
+        }
+      ]
     },
     {
       "id": "bed2",

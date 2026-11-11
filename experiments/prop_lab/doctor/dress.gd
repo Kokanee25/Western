@@ -226,6 +226,7 @@ func _run() -> void:
 			var draws := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
 			print("%s: %d draw calls in the frame" % [v, draws])
 			continue
+		print("%s: %d draw calls in the frame" % [v, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)])
 		var path := "%s/%s.png" % [out_dir, v]
 		vp.get_texture().get_image().save_png(path)
 		print("saved %s" % path)
