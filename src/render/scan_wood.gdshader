@@ -422,7 +422,7 @@ void fragment() {
 		float endz = face < 0.5 ? 1.0 - smoothstep(0.0, 0.09, min(v_m.x, v_length - v_m.x)) : 1.0;
 		float olds = smoothstep(0.45, 1.0, pag);
 		float drive = years * (outside * (0.22 * sunk * olds + 0.9 * foot + 0.75 * drip + 0.5 * arr + 0.6 * endz)
-				+ paint_inside * (0.3 * arr * smoothstep(0.5, 1.0, ag) + 0.15 * foot));
+				+ paint_inside * 0.15 * foot);
 		drive *= paint_peel;
 		// The film's failure field, in the board's own metres (flat seed: its own place), strips along
 		// the grain over blots; the peel's edge sharp but never thinner than a pixel.
