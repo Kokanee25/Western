@@ -108,7 +108,8 @@ def main():
     chords = chords_of(notes, n_bars, key)
     title = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--title=")), title)
     d = tune.arrange(tempo_half=tempo, phrases=[(notes, 0)], chords=chords, title=title.title(),
-                     source=f"{book}, via music21's corpus ({args[0]}); traditional, public domain")
+                     source=(f"{book}, via music21's corpus ({args[0]}); traditional, public domain"
+                             if not os.path.exists(args[0]) else book))
     d["chords"] = chords
     out = args[1] if len(args) > 1 else os.path.join(HERE, re.sub(r"\W+", "_", title.lower()).strip("_") + ".json")
     if not os.path.isabs(out):

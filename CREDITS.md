@@ -136,3 +136,7 @@ of it is in the game yet:
   `experiments/sound_lab/fiddle/abc_tune.py`.
 - **"Devil's Dream"** and **"Turkey in the Straw"** (printed as "Old Zip Coon"), traditional, as printed in
   *Ryan's Mammoth Collection* (1883), public domain; ABC from music21's corpus (`ryansMammoth`).
+- **"Oh! Susanna"** (Stephen Foster, 1848), **"Buffalo Gals"** (1844), **"Sailor's Hornpipe"** (the College
+  Hornpipe, 18th century) and **"Red River Valley"** (1870s-1890s): public-domain melodies, written out
+  for Salt Creek in `experiments/sound_lab/fiddle/tunes/` (our own ABC; the melodies were checked by ear
+  and against memory, no transcription copied).
