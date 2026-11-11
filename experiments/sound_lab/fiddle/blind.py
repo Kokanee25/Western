@@ -7,9 +7,11 @@ the key in its own file.
   listen/5-8.mp3  from the bar room under the balcony, its boards between (RoomMuffled)
   key/KEY.md      which is which (and the seed), with each one's dry render
 
-Each set is shuffled on its own. Every source went in at the same loudness (-18 LUFS); a set keeps
-the game's levels between its four, raised together so its loudest is at -16 LUFS (the floor's
-set is quiet as heard, too quiet on a phone).
+Each set is shuffled on its own. Every source went in at the same loudness (-18 LUFS); what comes
+out of the game differs by its spectrum (through the floor the record, all in the low-pass's band,
+comes out 5-7 dB louder than ours), so each clip is set to its set's loudness (up close -16 LUFS,
+through the floor -24: quieter, as it is, but audible on a phone) and every clip cut to the same
+length: nothing but the sound tells them apart (not their level, not their file size).
 
     python3 experiments/sound_lab/fiddle/blind.py [--out=experiments/sound_lab/results/2026-11-10_fiddle]
 """
@@ -61,14 +63,17 @@ def main():
             t = next(m["t"] for m in marks if m["name"] == "music")
             # from just before the music (the lab's half second of quiet trimmed)
             clips[src] = x[int(max(0.0, t - 0.05) * sr):].astype(np.float64) / 32768.0
-        loud = max(common.loudness(x.mean(axis=1), sr) for x in clips.values())
-        gain = 10 ** ((-16.0 - loud) / 20)
+        target = -16.0 if first == 1 else -24.0
+        length = min(len(x) for x in clips.values())
         order = list(render.SOURCES)
         rnd.shuffle(order)
         lines += [f"## {title} (clips {first}-{first + 3})", ""]
         for i, src in enumerate(order):
             n = first + i
-            x = clips[src] * gain
+            x = clips[src][:length].copy()
+            x = x * 10 ** ((target - common.loudness(x.mean(axis=1), sr)) / 20)
+            fade = int(0.2 * sr)
+            x[-fade:] *= np.linspace(1, 0, fade)[:, None]
             mp3(x, sr, os.path.join(listen, f"{n}.mp3"))
             lines.append(f"- **{n}**: {NAMES[src]}")
         lines.append("")
