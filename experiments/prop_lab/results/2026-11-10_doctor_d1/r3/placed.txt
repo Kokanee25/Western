@@ -1,0 +1,10 @@
+table: examining_table at (2.0, 0.95, 5.5), 13204 triangles, 7 batches, standing
+side: table at (0.42, 0.95, 5.25), 120 triangles, 2 batches, standing
+tray: instrument_tray at (0.42, 1.73, 5.05), 1826 triangles, standing
+lamp: reflector_lamp at (0.22, 2.3, 5.17), 2856 triangles, standing
+wash: washstand at (3.77, 0.95, 7.6), 1116 triangles, 6 batches, standing
+basin: wash_basin at (3.75, 1.71, 7.6), 1308 triangles, standing
+pitcher: wash_pitcher at (3.75, 1.74, 7.62), 1764 triangles, standing
+towel: hand_towel at (0.0, 0.0, 0.0), 154 triangles, standing
+cot_1: iron_cot at (0.6, 0.95, 9.27), 14372 triangles, 2 batches, standing
+cot_2: iron_cot at (3.42, 0.95, 9.27), 14372 triangles, 2 batches, standing
