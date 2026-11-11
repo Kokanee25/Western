@@ -7,7 +7,7 @@ class_name SynthSounds
 const RATE := 22050
 const HI_RATE := 44100
 ## Made at HI_RATE.
-const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
+const HI := [&"report", &"report_big", &"report_rifle", &"rolling", &"rolling_big", &"rolling_rifle", &"whirr", &"impact_wood", &"impact_dirt",
 	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast",
 	&"blast_roll", &"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3"]
 
@@ -23,7 +23,8 @@ const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing"
 	&"report_big", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
-	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh"]
+	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh",
+	&"rifle", &"report_rifle", &"rolling_rifle"]
 
 
 ## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
@@ -100,6 +101,7 @@ static func _make(id: StringName) -> AudioStreamWAV:
 	match id:
 		&"gunshot": samples = _gunshot(rng)
 		&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
+		&"rifle": samples = _gunshot(rng, 62.0, 0.2, 0.12)
 		&"dynamite": samples = _blast(rng)
 		&"fuse": samples = _fuse(rng)
 		&"match": samples = _match(rng)
@@ -127,8 +129,10 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"steam": samples = _steam(rng)
 		&"report": samples = _report(rng, false)
 		&"report_big": samples = _report(rng, true)
+		&"report_rifle": samples = _report_rifle(rng)
 		&"rolling": samples = _rolling(rng, false)
 		&"rolling_big": samples = _rolling(rng, true)
+		&"rolling_rifle": samples = _rolling(rng, true)
 		&"whirr": samples = _whirr(rng)
 		&"blast": samples = _blast_near(rng)
 		&"blast_roll": samples = _blast_roll(rng)
@@ -229,14 +233,25 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 ## the room, the fronts and the hills are where it's heard (GameAudio). `big` for the coach gun: a
 ## bigger bore and three times the powder, so a longer, deeper push. 44.1 kHz.
 static func _report(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Array:
-	var n := int(HI_RATE * (0.9 if big else 0.7))
+	if big:
+		return _report_shaped(rng, 0.9, 0.0016, 64.0, 0.10, 0.028, 0.15)
+	return _report_shaped(rng, 0.7, 0.0011, 86.0, 0.07, 0.018, 0.10)
+
+
+## The Winchester's (#734): the Colt's 40 grains of powder, but burnt in a 24" barrel: the gas
+## leaves slower and later, the bullet faster (~400 m/s, past the speed of sound), so a sharper
+## shock than the coach gun's, and a longer, heavier push than the Colt's.
+static func _report_rifle(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	return _report_shaped(rng, 0.85, 0.0013, 74.0, 0.09, 0.024, 0.13)
+
+
+## `seconds` long; the shock's positive phase `t_pos`; the boom's pitch and fall; the gas's and the
+## body's decay.
+static func _report_shaped(rng: RandomNumberGenerator, seconds: float, t_pos: float, boom_hz: float, boom_tau: float,
+		gas_tau: float, body_tau: float) -> PackedFloat32Array:
+	var n := int(HI_RATE * seconds)
 	var out := PackedFloat32Array()
 	out.resize(n)
-	var t_pos := 0.0016 if big else 0.0011  # the shock's positive phase
-	var boom_hz := 64.0 if big else 86.0
-	var boom_tau := 0.10 if big else 0.07
-	var gas_tau := 0.028 if big else 0.018
-	var body_tau := 0.15 if big else 0.10
 	var lp := 0.0
 	var slow := 0.0
 	var deep := 0.0

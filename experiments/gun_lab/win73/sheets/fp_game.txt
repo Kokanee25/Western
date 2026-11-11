@@ -1,0 +1,86 @@
+# The Winchester in the game's own first person, under the real look (#734 step 2): every pose and
+# reload step, then the sight picture at both ropes of the rope range. Run (lavapipe, ~10 min to load):
+#   python3 tools/bridge.py start --size=960x540 --game-args=--real
+#   python3 tools/bridge.py run experiments/gun_lab/win73/sheets/fp_game.txt
+#   python3 experiments/gun_lab/win73/sheets/contact.py build/win73_fp OUT.jpg
+time 15.5
+wait 6
+goto 24 0 -9 270
+weapon rifle
+wait 2
+screenshot build/win73_fp/01_rest.png
+hold aim
+wait 1.5
+screenshot build/win73_fp/02_aimed.png
+release aim
+wait 1
+hold cock
+wait 0.5
+screenshot build/win73_fp/03_lever_open.png
+release cock
+wait 1
+hold aim
+wait 1.5
+press fire
+wait 0.05
+screenshot build/win73_fp/04_shot.png
+wait 1
+release aim
+wait 1
+press hammer
+wait 0.3
+press cock
+wait 1
+press hammer
+wait 1
+screenshot build/win73_fp/05_half_cock.png
+press hammer
+wait 1
+hold move_forward
+wait 0.8
+screenshot build/win73_fp/06_walking.png
+hold run
+wait 1.2
+screenshot build/win73_fp/07_running.png
+release run
+release move_forward
+wait 1.5
+hold cock
+wait 0.5
+screenshot build/win73_fp/08_lever_case_out.png
+release cock
+wait 1
+hold reload
+wait 0.4
+screenshot build/win73_fp/09_gate_round.png
+wait 0.6
+screenshot build/win73_fp/10_gate_pushed.png
+wait 1.2
+screenshot build/win73_fp/11_gate_next.png
+release reload
+wait 2
+screenshot build/win73_fp/12_loaded_back.png
+press holster
+wait 1.2
+screenshot build/win73_fp/13_slung.png
+key F5
+key F5
+key F5
+key F5
+key F5
+key F5
+key F5
+key F5
+wait 6
+weapon rifle
+wait 2
+look 70 3.1 9
+hold aim
+wait 2
+screenshot build/win73_fp/14_rope_30m.png
+release aim
+look 100 3.1 15
+hold aim
+wait 2
+screenshot build/win73_fp/15_rope_60m.png
+release aim

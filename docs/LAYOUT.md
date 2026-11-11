@@ -1800,6 +1800,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
   measures it (and the rhythm, reload, sway) frame by frame against the feel ranges.
+  `Winchester73Viewmodel` (6; #734 step 2) + `Winchester73State`/`Winchester73Model`
+  (`config/winchester73.tres`, proposed): the gun lab's `win73` model promoted (`assets/weapons/
+  winchester73.glb`, `winchester73_rig.json`: every moving part a node on its pivot, driven by the rig);
+  Q the lever (tap: a stroke; held: stays open), the hammer key (middle mouse, Alt) half cock / full,
+  R one round through the gate, H slings it; the Colt's belt is its ammunition (`state.shares`); poses
+  from the model's markers (the eye 38 cm behind the notch), the right HeldHand on a pivot at the
+  lever's pin riding the loop, to the gate to load; `shoulder` 0..1 blends sway, shake
+  (`WeaponViewmodel.shake_factor`) and spread from the hip's to the aimed. The rifle's report is
+  `report_rifle`/`rolling_rifle` (SynthSounds, `GameAudio.gunshot`'s ids). `Rope` (src/structures)
+  is what the rope shot cuts (`Layers.ROPES`, Ballistics' `rope` meta); the gun lab's rope range
+  (`win73/rope_range.gd`, F5's last stop) and `test_gun_feel`'s rope shot use it.
   `Ballistics.fire_charge()` flies a shotgun charge as separate pellets. `DynamiteViewmodel` is the
   stick in hand; held E plants it where you aim on any structure piece or the ground, lit on letting go
   (#506: `plant_spot`, `claims_use`, which PlayerShove asks; `DynamiteStick.stick_to` holds it until
