@@ -284,3 +284,33 @@ func test_the_reflector_lamp_hangs_on_its_nail_and_its_chimney_glows_when_lit() 
 	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 1.0, "lit, its chimney glows")
 	light.set_lit(false)
 	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 0.0, "out, it doesn't")
+
+
+func test_the_hand_towel_wipes_up_blood_and_reddens() -> void:
+	# A table's top of boards, blood spilt on it (a pool's worth), the towel drawn over it.
+	var top := Structure.new()
+	top.structure_id = &"wipe_top"
+	world.add_child(top)
+	for x in [-0.5, 0.5]:
+		top.add_member("leg%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 0.75, 0.05), Vector3(x, 0.375, 0))
+	for i in 4:
+		top.add_member("board%d" % i, &"furniture_top", &"framing", Vector3(1.2, 0.03, 0.15), Vector3(0, 0.765, -0.225 + 0.15 * i))
+	top.infer_supports()
+	var marks := FloorMarks.ensure(world)
+	await physics_frames(2)
+	marks.add_liquid(Vector3(0.0, 0.78, 0.0), &"blood", 60.0, 0.15)
+	var towel := PropKit.make(&"hand_towel") as ClothProp
+	towel.position = Vector3(0.0, 0.8, 0.0)
+	world.add_child(towel)
+	await physics_frames(20)
+	var before := float(marks.mess(Vector3(0.0, 0.78, 0.0), 0.3).liquid)
+	var took := 0.0
+	# Drawn back and forth over it at a wiping pace, a tenth of a second at a time.
+	for k in 30:
+		var x := sin(k * 0.6) * 0.15
+		took += float(towel.wipe_at(Vector3(x, 0.785, 0.0), 0.3, 0.1).blood)
+	var after := float(marks.mess(Vector3(0.0, 0.78, 0.0), 0.3).liquid)
+	check(took > 20.0, "it takes up the blood (%.0f ml of 60)" % took)
+	check(after < before - 20.0, "and the top's left cleaner (%.0f -> %.0f ml)" % [before, after])
+	check(towel.blood_ml > 20.0 and towel.bloodiness() > 0.02, "it's red where it took it (%.0f ml, %.2f red)" % [towel.blood_ml, towel.bloodiness()])
+	check(towel.wipe_at(Vector3(3.0, 0.5, 3.0), 0.3, 0.1).blood == 0.0, "over nothing it takes nothing")

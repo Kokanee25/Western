@@ -61,6 +61,19 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 	for e: Dictionary in spec.batches[batch_name]:
 		var id := StringName(e.kit)
 		var node: Node3D
+		if e.has("cloth_over"):
+			# Cloth laid flat across what it's to hang over (the washstand's towel bar: the kit's
+			# `towel_bar` member), a little above it: it drapes there by its own physics.
+			var under: Node3D = placed[e.cloth_over]
+			var bar := Vector3.ZERO
+			for m: Dictionary in kit.expand(kit.definition(StringName(under.get(&"kit_id")))):
+				if String(m.id) == "towel_bar":
+					bar = Vector3(m.at[0], float(m.at[1]) + float(m.size[1]) * 0.5 + 0.02, m.at[2])
+			var cloth: Node3D = kit.make(id)
+			cloth.transform = under.transform * Transform3D(Basis(), bar)
+			holder.add_child(cloth)
+			placed[e.id] = cloth
+			continue
 		if e.has("fit"):
 			node = kit.spawn_fitted(id, StringName("dress_%s" % e.id), Vector3(e.fit[0], e.fit[1], e.fit[2]))
 		else:

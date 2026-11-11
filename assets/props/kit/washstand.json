@@ -1,5 +1,5 @@
 {
-  "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side with a linen towel, a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
+  "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
   "id": "washstand",
   "kind": "members",
   "fixture": true,
@@ -285,17 +285,7 @@
         0.656,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few",
-      "dress": [
-        {
-          "look": "pbr:washset",
-          "draw": {
-            "shape": "mesh",
-            "model": "washset",
-            "part": "Towel"
-          }
-        }
-      ]
+      "look": "lib:fine_walnut_tg/few"
     }
   ],
   "factory": "tools/props/doctor.py"

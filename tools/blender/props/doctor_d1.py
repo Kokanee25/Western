@@ -309,12 +309,7 @@ def washset():
     zf = lz + w["leg"] * 0.5 + 0.001
     knob = lathe("Knob", [(0.012, 0.0), (0.016, 0.006), (0.015, 0.016), (0.008, 0.02), (0.0, 0.022)], 12, axis="z",
                  at=(0, under - w["apron_h"] * 0.5, zf))
-    # The towel: a linen huckaback towel folded over the side bar, hanging both sides.
-    bx, by, bz = doctor.wash_towel_bar()
-    towel = drape("Towel", 0.035, lambda x, z: by + 0.012, bz - 0.2, bz + 0.2, hang=0.34, r=0.02, thick=0.004, nz=10, folds=0.008, seed=5)
-    towel.verts = [(bx + vz_x, vy, vz) for (vz_x, vy, vz) in [(v[0], v[1], v[2]) for v in towel.verts]]
-    metal.export_baked("washset", [(basin, "china"), (basin_band, "cobalt"), (pitcher, "china"), (pitcher_band, "cobalt"),
-                                   (knob, "brass"), (towel, "linen")], size=1024)
+    metal.export_baked("washset", [(basin, "china"), (basin_band, "cobalt"), (pitcher, "china"), (pitcher_band, "cobalt"), (knob, "brass")], size=1024)
 
 
 # --- The instrument tray --------------------------------------------------------------------------

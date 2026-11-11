@@ -9,6 +9,7 @@
       {"id": "wash", "kit": "washstand", "at": [3.77, 0.0, 7.6], "facing": 270, "use": "wash_surgery"},
       {"id": "basin", "kit": "wash_basin", "on": "wash", "at": [3.75, 0.0, 7.6], "facing": 0},
       {"id": "pitcher", "kit": "wash_pitcher", "on": "basin", "at": [3.75, 0.0, 7.62], "facing": 200, "lift": 0.014},
+      {"id": "towel", "kit": "hand_towel", "cloth_over": "wash", "use": "laid over the washstand's towel bar: it drapes"},
       {"id": "cot_1", "kit": "iron_cot", "at": [0.6, 0.0, 9.27], "facing": 0, "use": "cot_1 (where you wake after you die)"},
       {"id": "cot_2", "kit": "iron_cot", "at": [3.42, 0.0, 9.27], "facing": 0, "use": "cot_2"}
     ]

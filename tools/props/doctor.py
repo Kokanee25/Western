@@ -226,15 +226,13 @@ def washstand():
         ms.append(member("shelf%d" % k, "furniture_top", [lx * 2, 0.016, sd * 0.5], [0, w["shelf_y"] + 0.015 + 0.008, -sd * 0.25 + sd * 0.5 * k], look=WALNUT))
     sh, st = w["splash"]
     ms.append(member("splashback", "trim", [W, sh, st], [0, H + sh * 0.5, -D * 0.5 + st * 0.5], look=WALNUT))
-    # A towel bar on two brackets off the +x legs, the towel hung on it (drawn on the bar).
+    # A towel bar on two brackets off the +x legs (the hand towel, cloth, hangs over it).
     bx, by, bz = wash_towel_bar()
     for k, sz in enumerate((-1, 1)):
         ms.append(member("towel_bracket%d" % k, "cripple", [bx - (lx + hl), 0.03, 0.03], [(lx + hl + bx) * 0.5, by, sz * lz], look=WALNUT))
-    bar = member("towel_bar", "trim", [0.022, 0.022, lz * 2 + 0.03], [bx, by + 0.026, 0], look=WALNUT)
-    bar["dress"] = [{"look": "pbr:washset", "draw": mesh("washset", "Towel")}]
-    ms.append(bar)
+    ms.append(member("towel_bar", "trim", [0.022, 0.022, lz * 2 + 0.03], [bx, by + 0.026, 0], look=WALNUT))
     return {
-        "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side with a linen towel, a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
+        "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
         "id": "washstand", "kind": "members", "fixture": True, "wood": "walnut",
         "splits_below": 0.5, "blow_wood_share": 0.5,
         "members": ms,
@@ -312,7 +310,21 @@ def reflector_lamp():
     }
 
 
-BATCH_D1 = [examining_table, iron_cot, washstand, wash_basin, wash_pitcher, instrument_tray, reflector_lamp]
+# --- The hand towel -------------------------------------------------------------------------------
+# A linen huckaback hand towel (the washstand's; Sean, #788: "like the barkeep's towel, can be used to
+# wipe up blood"): the bar rag's cloth (`like` bar_cloth), larger, white with a red woven border.
+def hand_towel():
+    return {
+        "_doc": "A linen huckaback hand towel, 75 x 45 cm, white with red woven borders (the washstand's; Sean, #788: like the barkeep's rag, and it wipes up blood). A prop that's cloth (ClothProp, `like` the bar rag): it drapes over the washstand's bar by its own physics, is picked up, dropped, knocked off, burns. Linen huckaback ~250 g/m2: ~85 g dry. Pressed on a wound it takes up blood as a pad (`soaks`); held and drawn over a table's top or the floor it wipes up what's there (ClothProp.wipe_at: blood marks and pools, spilt water and drink), up to ~250 ml (linen takes up about three times its weight). Written by tools/props/doctor.py.",
+        "id": "hand_towel", "like": "bar_cloth", "fixture": True,
+        "size": [0.75, 0.45], "points": [12, 8], "mass": 0.085,
+        "colour": [0.86, 0.84, 0.79], "stains": [0.62, 0.56, 0.47],
+        "stripe": [0.55, 0.12, 0.1], "stripe_at": [0.1, 0.9], "stripe_width": 0.015,
+        "holds_ml": 250.0, "wipe_rate": 1.2, "flame_radius": 0.18,
+    }
+
+
+BATCH_D1 = [examining_table, iron_cot, washstand, wash_basin, wash_pitcher, instrument_tray, reflector_lamp, hand_towel]
 
 
 def main():
