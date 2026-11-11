@@ -1270,3 +1270,14 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   Sean's paint A (#783). Critic round 2: coach DOESN'T (a box, not a Concord's egg-shaped body; it doesn't
   look hung), strongbox CLOSE (`experiments/prop_lab/results/2026-11-10_coach/`). Interface on #770.
   Next: #787 (Sean: keep it, and build a Concord-bodied `baron_coach_concord` beside it to compare).
+- **The prop factory brought up to date, the doctor's batch D1** (#788, branch `claude/props-doctor-office-fjq146`;
+  brief `docs/briefs/prop-factory.md` "The recipe brought up to date"): woods from the material library
+  (`lib:` looks, `PropKit.board_mesh`), metal the gun way (`pbr:` looks, `tools/blender/props/metal.py`),
+  CC0 scans for natural things, Rodin pay-per-call for soft hero props, every prop checked against a
+  period reference (`experiments/prop_lab/refs/doctor/`) and judged blind in his rooms
+  (`experiments/prop_lab/doctor/dress.gd`). D1 (`tools/props/doctor.py`, `tools/blender/props/doctor_d1.py`):
+  examining table, iron cot, washstand with ironstone basin and pitcher, instrument tray, wall bracket
+  lamp, hand towel (cloth that wipes up blood, `ClothProp.wipe_at`; Sean's ask). A kit lamp's chimney now
+  glows lit. Critic r1 2 CLOSE, r2 5 CLOSE / 1 DIFFERENT, r3 in the PR. Next: D2 (bottles, mortar,
+  scales, desk, chair); nobody wipes yet (gameplay's hands). Traps: a lavapipe view ~10-15 min, never two
+  renders at once; Blender bakes share the CPU; a hung cloth needs `hang_over` (a bar slips between points).

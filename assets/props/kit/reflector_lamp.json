@@ -1,0 +1,43 @@
+{
+  "_doc": "A wall bracket lamp with a reflector (#788; refs experiments/prop_lab/refs/doctor/: both period lamps hang on the wall): a tin fount in a ring on a japanned bracket, a brass burner and a globe chimney, and a dished tinplate reflector 22 cm across on the wall behind, throwing its light forward (+z) into the room. Hung on one nail through the reflector's tab, as the sconce: its wall board shot out or burnt, it falls and smashes. A prop that shatters (GlassProp, `like` the oil lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole. The surgery's lamp; at night the doctor holds it over the table. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
+  "id": "reflector_lamp",
+  "like": "oil_lamp",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:reflector_lamp",
+  "looks": {
+    "Chimney": "prop:chimney_glass",
+    "Font": "pbr:reflector_lamp",
+    "Burner": "pbr:reflector_lamp",
+    "Reflector": "pbr:reflector_lamp",
+    "Bracket": "pbr:reflector_lamp"
+  },
+  "size": [
+    0.24,
+    0.44,
+    0.26
+  ],
+  "mass": 1.0,
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.395,
+        -0.121
+      ]
+    ]
+  },
+  "glass": [
+    "Chimney"
+  ],
+  "whole": [
+    [
+      "Font",
+      "Burner",
+      "Reflector",
+      "Bracket"
+    ]
+  ],
+  "factory": "tools/props/doctor.py"
+}

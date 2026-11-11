@@ -26,7 +26,9 @@ class_name PropKit
 ## ebony, brass, iron, plate_iron (the coach's armour), mirror; the factory's straw, canvas, burlap, leather, bone, dung, glass_eye), or
 ## "wood:<name>" (the texture factory's woods, WoodMaterials), or "model:<name>" (a model's own
 ## painted texture on its UVs: assets/props/models/<name>_paint.png, PropModels.model_paint; the deer
-## head from Rodin). Without it, the member's wood's.
+## head from Rodin), or "pbr:<model>" (metal the gun way: the model's baked albedo and ORM,
+## metallic, PropModels.pbr), or "lib:<entry>/<age>[/top]" (the material library's woods, #721: the
+## member drawn as a library board, dress_lib; boxes only). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at", "rot"}: turned about
 ##    the prop's Y (or an axis through "at", turned by "rot": a wheel's hub, across the wagon);
@@ -280,6 +282,10 @@ static func material(look: String, variant: int) -> Material:
 		return WoodMaterials.get_material(StringName(parts[1]), variant)
 	if parts.size() == 2 and parts[0] == "model":
 		return PropModels.model_paint(parts[1])
+	if parts.size() == 2 and parts[0] == "pbr":
+		return PropModels.pbr(parts[1])
+	if parts[0] == "lib":
+		return lib_material(look)
 	match parts[parts.size() - 1]:
 		"dark_wood":
 			return PropModels.dark_wood()
@@ -333,6 +339,8 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.dung()
 		"glass_eye":
 			return PropModels.glass_eye()
+		"chimney_glass":
+			return PropModels.chimney_glass()
 	push_warning("PropKit: unknown look %s" % look)
 	return PropModels.mid_wood()
 
@@ -344,10 +352,143 @@ static func material(look: String, variant: int) -> Material:
 ## drawn woodwork starts each at its own place along it), so a structure keeps one batch a look.
 static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> void:
 	var mi := m.get_child(0) as MeshInstance3D
+	if look.begins_with("lib:"):
+		if not draw.is_empty() and String(draw.get("shape", "box")) != "box":
+			push_warning("PropKit: %s: a library wood draws boards only (its \"draw\" left out)" % m.member_id)
+		dress_lib(m, look)
+		return
 	if look != "":
 		mi.material_override = material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
 	if not draw.is_empty():
 		mi.mesh = draw_mesh(draw, m)
+
+
+# --- The material library's woods on kit members (docs/briefs/prop-factory.md, #788) ------------
+
+## The ages a library look names (`lib:<entry>/<age>`), as the doctor's builder reads them (#765).
+const LIB_AGES := {"new": 0.0, "few": 0.5, "old": 1.0}
+static var _lib_mats := {}
+
+
+## A look's parts: "lib:<entry>/<age>[/top]" -> [entry, age, top]. `top`: a worked or leaned-on top
+## (the library shader's rail-top role: rings and elbow wear where it's varnished).
+static func lib_parts(look: String) -> Array:
+	var p := look.trim_prefix("lib:").split("/")
+	return [p[0], p[1] if p.size() > 1 else "few", p.size() > 2 and p[2] == "top"]
+
+
+## The library's shader for a prop's wood (MaterialLibrary.apply at the entry's age, as a building's
+## boards), one material an entry and age for every prop: a room's furniture batches by it. Indoors:
+## no sun-fade, water streaks or grime from the ground (its world height isn't known when it's made).
+static func lib_material(look: String) -> ShaderMaterial:
+	var lp := lib_parts(look)
+	var key := "%s/%s" % [lp[0], lp[1]]
+	if _lib_mats.has(key):
+		return _lib_mats[key]
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://src/render/scan_wood.gdshader")
+	var e := MaterialLibrary.entry(String(lp[0]))
+	if e.is_empty():
+		push_warning("PropKit: no library entry %s" % lp[0])
+	MaterialLibrary.apply(mat, e, float(LIB_AGES.get(String(lp[1]), 0.5)), &"wall")
+	mat.set_shader_parameter(&"sun_fade", 0.0)
+	mat.set_shader_parameter(&"streaks", 0.0)
+	mat.set_shader_parameter(&"grime", 0.0)
+	mat.set_shader_parameter(&"wall_top", 1000.0)
+	mat.resource_name = "lib_" + key
+	_lib_mats[key] = mat
+	return mat
+
+
+## A member drawn as a library board: its box as a board in its own frame (X its longest side, Y the
+## next, Z through it, the shader's layout), the board's seed from its id, as the doctor's builder
+## draws a wall's boards (#765). Structure batches such boards by the way they face (meta
+## `board_frame`).
+static func dress_lib(m: StructureMember, look: String) -> void:
+	var mi := m.get_child(0) as MeshInstance3D
+	var lp := lib_parts(look)
+	var e := MaterialLibrary.entry(String(lp[0]))
+	var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("class", "common")), SamplePanel.CLASSES[&"common"])
+	var ai: int = maxi(0, ["new", "few", "old"].find(String(lp[1])))
+	# Furniture is joined and stays true: a tenth of a wall board's warp.
+	var warp := float(cls.warp[ai]) * float(e.get("warp_scale", 1.0)) * 0.1
+	var s := m.size
+	var order := [0, 1, 2]
+	order.sort_custom(func(a: int, b: int) -> bool: return s[a] > s[b])
+	var ex := Vector3.ZERO
+	ex[order[0]] = 1.0
+	var ey := Vector3.ZERO
+	ey[order[1]] = 1.0
+	var ez := ex.cross(ey)
+	var length: float = s[order[0]]
+	var rng := hash(m.member_id)
+	mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, 1.0 if lp[2] else 0.0)
+	mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
+	mi.material_override = lib_material(look)
+
+
+## A board's mesh in the library shader's own layout (scan_wood.gdshader's header: X along 0..L,
+## Y across, Z through; CUSTOM0 seed, x / L, 2y / W, face; CUSTOM1 L, W, T, warp; CUSTOM2 nails,
+## their place, ground y, role), a grid of ~0.4 m along it, its arrays kept on it
+## (MemberMesh.arrays_of: the batch merges them without a read back) and marked `board_frame` for
+## Structure's batching. The doctor's builder's (#765), shared here so props and buildings draw
+## their boards one way.
+static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails: Vector2, ground_y: float, role := 0.0) -> ArrayMesh:
+	var nx := clampi(ceili(length / 0.4), 2, 14)
+	var ny := 2
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var idx := PackedInt32Array()
+	var hw := width * 0.5
+	var ht := thick * 0.5
+	var grid := func(nu: int, nv: int, at: Callable, normal: Vector3, face: float) -> void:
+		var base := v.size()
+		for j in nv + 1:
+			for i in nu + 1:
+				var p: Vector3 = at.call(float(i) / nu, float(j) / nv)
+				v.append(p)
+				n.append(normal)
+				if face == 1.0:
+					uv.append(Vector2(p.y, p.z))
+				elif face == 2.0:
+					uv.append(Vector2(p.x, p.z))
+				else:
+					uv.append(Vector2(p.x, p.y))
+				c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / maxf(hw, 0.001), -1.0, 1.0), face])
+				c1.append_array([length, width, thick, warp])
+				c2.append_array([nails.x, nails.y, ground_y, role])
+		for j in nv:
+			for i in nu:
+				var a := base + j * (nu + 1) + i
+				idx.append_array([a, a + nu + 1, a + 1, a + 1, a + nu + 1, a + nu + 2])
+	grid.call(nx, ny, func(s, t): return Vector3(s * length, (t * 2.0 - 1.0) * hw, ht), Vector3.BACK, 0.0)
+	grid.call(nx, ny, func(s, t): return Vector3((1.0 - s) * length, (t * 2.0 - 1.0) * hw, -ht), Vector3.FORWARD, 0.0)
+	grid.call(nx, 1, func(s, t): return Vector3((1.0 - s) * length, hw, (t * 2.0 - 1.0) * ht), Vector3.UP, 2.0)
+	grid.call(nx, 1, func(s, t): return Vector3(s * length, -hw, (t * 2.0 - 1.0) * ht), Vector3.DOWN, 2.0)
+	grid.call(1, 1, func(s, t): return Vector3(0.0, (1.0 - s * 2.0) * hw, (t * 2.0 - 1.0) * ht), Vector3.LEFT, 1.0)
+	grid.call(1, 1, func(s, t): return Vector3(length, (s * 2.0 - 1.0) * hw, (t * 2.0 - 1.0) * ht), Vector3.RIGHT, 1.0)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = n
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_CUSTOM0] = c0
+	arrays[Mesh.ARRAY_CUSTOM1] = c1
+	arrays[Mesh.ARRAY_CUSTOM2] = c2
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -ht - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
+	mesh.set_meta(&"arrays", arrays)
+	mesh.set_meta(&"board_frame", true)
+	return mesh
 
 
 ## Boxes in the prop's space, one mesh: each {"size", "at", "rot"}, or a stick {"from", "to",

@@ -1,0 +1,34 @@
+{
+  "_doc": "A white ironstone pitcher (ewer) to the basin (#788), 31 cm high with its handle and lip, standing in the basin: a prop that shatters (GlassProp), as the basin. Holds 2.5 l of water. Baked the gun way (tools/blender/props/doctor_d1.py). Written by tools/props/doctor.py.",
+  "id": "wash_pitcher",
+  "kind": "shatters",
+  "fixture": true,
+  "model": "glb:washset",
+  "looks": {
+    "Pitcher": "pbr:washset",
+    "PitcherBand": "pbr:washset"
+  },
+  "size": [
+    0.21,
+    0.31,
+    0.21
+  ],
+  "mass": 1.4,
+  "wall": 0.005,
+  "glass": [
+    "Pitcher",
+    "PitcherBand"
+  ],
+  "whole": [],
+  "shards": 9,
+  "piece_mass": 0.2,
+  "breaks_at": 2.5,
+  "shatters_kpa": 25,
+  "heat_seconds": 1000000000.0,
+  "cut_area": 0.03,
+  "contents": {
+    "liquid": "water",
+    "litres": 2.5
+  },
+  "factory": "tools/props/doctor.py"
+}
