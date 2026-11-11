@@ -380,6 +380,8 @@ BOTTLES = {
         "label": (0.050, 0.118, 0.85), "liquid": (0.11, "powder"), "stopper": ("glass", 0.019, 0.184, 0.226),
         "liquid_name": "powder", "colour": [0.85, 0.83, 0.78],
         "labels": [("PULV. RHEI", "", ""), ("QUIN. SULPH.", "", ""), ("POT. BROMID.", "", ""), ("MAG. SULPH.", "", "")],
+        # What's in each, by its label: rhubarb root's yellow-brown powder, the rest white.
+        "fills": ["rhubarb", "powder", "crystals", "crystals"],
         "gilt": True,
     },
 }
@@ -399,7 +401,8 @@ def bottle(kind):
     b = BOTTLES[kind]
     k = kind.capitalize()
     breaks, kpa = BOTTLE_BREAKS[kind]
-    looks = {"Glass" + k: "glass:" + b["glass"], "Liquid" + k: "pbr:medicine_bottles", "Label%s%%d" % k: "pbr:medicine_labels"}
+    liquid = ("Liquid%s%%d" % k) if b.get("fills") else "Liquid" + k
+    looks = {"Glass" + k: "glass:" + b["glass"], liquid: "pbr:medicine_bottles", "Label%s%%d" % k: "pbr:medicine_labels"}
     if b["stopper"][0] == "cork":
         looks["Cork" + k] = "pbr:medicine_bottles"
     else:
@@ -469,7 +472,7 @@ def mortar():
 # +z. The brass members' boxes are the metal's own section (as the cot's iron), drawn full size from
 # glb:scales; the panes are glass members (a ball breaks them, as a window's).
 SCALES = {"base": (0.46, 0.075, 0.25), "drawer": (0.30, 0.042), "case_h": 0.38, "post": 0.022, "pane": 0.004,
-          "pillar": (0.012, 0.31), "beam": (0.30, 0.008, 0.006), "pan": {"radius": 0.045, "y": 0.105, "wire": 0.004},
+          "pillar": (0.012, 0.31), "beam": (0.24, 0.008, 0.006), "pan": {"radius": 0.045, "y": 0.105, "wire": 0.004},
           "beam_y": 0.385}
 
 
@@ -623,7 +626,10 @@ def roll_top_desk():
     lo = py0 - sh - d["bed"]
     for k, x in enumerate((-inner * 0.5 + 0.005, 0.0, inner * 0.5 - 0.005)):
         ms.append(member("drawer_case_%d" % k, "trim", [0.010, lo, pd], [x, d["bed"] + lo * 0.5, pz], look=WALNUT))
-    ms.append(member("pigeon_shelf", "trim", [inner, sh, pd], [0, py0 - sh * 0.5, pz], look=WALNUT))
+    shelf = member("pigeon_shelf", "trim", [inner, sh, pd], [0, py0 - sh * 0.5, pz], look=WALNUT)
+    # His papers in the pigeonholes: letters, bills, a ledger (drawn on the shelf; they burn with it).
+    shelf["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Papers")}]
+    ms.append(shelf)
     for k in range(d["pigeons"] + 1):
         x = -inner * 0.5 + 0.006 + (inner - 0.012) * k / d["pigeons"]
         if k in (0, d["pigeons"]):
@@ -666,24 +672,82 @@ def dispensary_shelves():
     }
 
 
+# A druggist's counter of drawers (round 1's critic: the kit's counter here was "a blank box"): the
+# period's dispensing counters carried banks of small drawers for roots and powders (the target panel's
+# dispensary). The kit's counter's frame (front, two ends, the top overhanging) at 2.3 m, its front
+# faced with two rows of drawers, each with a turned brass knob. Its front toward -z, as the counter's.
+COUNTER = {"length": 2.3, "height": 0.92, "depth": 0.6, "panel": 0.03, "top": 0.04, "plinth": 0.08, "drawers": (8, 3)}
+
+
+def counter_drawers():
+    """The counter's drawer fronts: [(id, (w, h), (x, y, z))] on its front (-z)."""
+    c = COUNTER
+    cols, rows = c["drawers"]
+    gap = 0.006
+    inner = c["length"] - c["panel"] * 2
+    h_all = c["height"] - c["top"] - c["plinth"]
+    w = (inner - gap * (cols + 1)) / cols
+    h = (h_all - gap * (rows + 1)) / rows
+    z = -c["depth"] * 0.5 + 0.075 - c["panel"] - 0.009
+    return [("drawer_%d_%d" % (i, k), (w, h), (-inner * 0.5 + gap + w * 0.5 + i * (w + gap), c["plinth"] + gap + h * 0.5 + k * (h + gap), z))
+            for i in range(cols) for k in range(rows)]
+
+
 def dispensary_counter():
-    with open(os.path.join(KIT, "counter.json")) as f:
-        base = json.load(f)
-    ms = []
-    for m in base["members"]:
-        m = dict(m)
-        m["look"] = WALNUT_TOP if m["kind"] == "furniture_top" else WALNUT
-        m.pop("wood", None)
+    c = COUNTER
+    L, H, D, t = c["length"], c["height"], c["depth"], c["panel"]
+    under = H - c["top"]
+    zf = -D * 0.5 + 0.075  # the front's inside face sits under the top's overhang
+    ms = [member("front", "post", [L, under, t], [0, under * 0.5, zf - t * 0.5], look=WALNUT)]
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("end_" + name, "post", [t, under, D - 0.075 - t], [s_ * (L * 0.5 - t * 0.5), under * 0.5, (zf + D * 0.5) * 0.5], look=WALNUT))
+    ms.append(member("plinth", "furniture_frame", [L - t * 2, c["plinth"], 0.02], [0, c["plinth"] * 0.5, zf - t - 0.01], look=WALNUT))
+    for did, (w, h), (x, y, z) in counter_drawers():
+        m = member(did, "trim", [w, h, 0.018], [x, y, z], look=WALNUT)
+        m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Knob_" + did)}]
         ms.append(m)
+    ms.append(member("top", "furniture_top", [L, c["top"], D], [0, H - c["top"] * 0.5, 0], look=WALNUT_TOP))
     return {
-        "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: front, two ends, the top overhanging) in the doctor's walnut from the material library (F2 a few years, the top worn where he works); fitted along the west wall at his make_up place, the scales and mortar on it. Written by tools/props/doctor.py.",
+        "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: a front and two ends under a top overhanging the front) at 2.3 m, its front faced with three rows of eight small drawers for roots and powders, each with a turned brass knob (the period's dispensing counters, the target panel's dispensary; round 1's critic called the plain one a blank box). In the doctor's walnut from the material library (F2 a few years, the top worn where he works); the knobs baked the gun way (glb:desk_brass). Along the west wall at his make_up place, the scales and mortar on it. Its front (the drawers) toward -z. Written by tools/props/doctor.py.",
         "id": "dispensary_counter", "like": "counter", "fixture": True, "in_game": False, "wood": "walnut",
         "look": WALNUT, "members": ms,
     }
 
 
+# --- His chair: a bentwood --------------------------------------------------------------------------
+# Thonet's No. 14 (refs chair_thonet_no14_mak.jpg: designed 1859, sold by the million from the 1860s, the
+# common office and cafe chair of the 1880s): steam-bent beech stained walnut, the back legs running up
+# into the hoop of the back with a smaller loop inside it, a round caned seat on a bent ring, the four
+# legs splayed and braced by a ring under the seat. Its members' boxes are the bent wood's own section
+# (a 3 cm rod), drawn full size from glb:bentwood_chair. Facing +Z (you sit looking +Z), as the kit's chair.
+BENTWOOD = {"seat_y": 0.46, "seat_r": 0.205, "back_top": 0.89, "leg": 0.03, "ring_y": 0.21}
+
+
+def bentwood_chair():
+    c = BENTWOOD
+    sy, lg = c["seat_y"], c["leg"]
+    ms = []
+    look = "pbr:bentwood_chair"
+    for name, x, z, part in (("leg_front_l", -0.17, 0.13, "LegFL"), ("leg_front_r", 0.17, 0.13, "LegFR"),
+                             ("leg_back_l", -0.15, -0.16, "LegBL"), ("leg_back_r", 0.15, -0.16, "LegBR")):
+        ms.append(member(name, "post", [lg, sy - 0.01, lg], [x, (sy - 0.01) * 0.5, z], look=look, draw=mesh("bentwood_chair", part)))
+    ms.append(member("leg_ring", "furniture_frame", [0.34, 0.01, 0.30], [0, c["ring_y"], -0.015], look=look, draw=mesh("bentwood_chair", "LegRing")))
+    seat = member("seat", "furniture_top", [c["seat_r"] * 2, 0.012, c["seat_r"] * 2], [0, sy, 0], look=look, draw=mesh("bentwood_chair", "Seat"))
+    seat["dress"] = [{"look": look, "draw": mesh("bentwood_chair", "SeatRing")}]
+    ms.append(seat)
+    ms.append(member("back", "trim", [0.30, c["back_top"] - sy - 0.01, 0.014], [0, (c["back_top"] + sy + 0.01) * 0.5, -0.19], look=look,
+                     draw=mesh("bentwood_chair", "Back")))
+    return {
+        "_doc": "His chair (#805): a bentwood, Thonet's No. 14 (ref experiments/prop_lab/refs/doctor/chair_thonet_no14_mak.jpg: designed 1859, the common office and cafe chair of the 1870s-80s): steam-bent beech stained walnut, the back legs running up into the hoop of the back with a smaller loop inside it, a round caned seat on its bent ring, four splayed legs braced by a ring under the seat. The kit's spindle-back `chair` was tried beside his desk first (round 1's critic: square posts and slats, a Mission chair of 1905), so this is its own. Its members' boxes are the bent rods' section (wood oak for the beech's weight: ~3 kg); drawn and baked the gun way from glb:bentwood_chair (tools/blender/props/doctor_d2.py: a bent beech's stain, the cane woven). A man sits on it as on the kit's chair (`seat`). Facing +Z. Written by tools/props/doctor.py.",
+        "id": "bentwood_chair", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
+        "splits_below": 0.5, "blow_wood_share": 0.5,
+        "seat": {"member": "seat", "at": [0.0, sy + 0.01, 0.0], "share": 0.75, "hold": 0.05, "sway": 0.03},
+        "members": ms,
+    }
+
+
 BATCH_D2 = [medicine_bottle, medicine_bottle_round, poison_bottle, drug_jar, mortar, scales, roll_top_desk, dispensary_shelves,
-            dispensary_counter]
+            dispensary_counter, bentwood_chair]
 
 
 BATCH_D1 = [examining_table, iron_cot, washstand, wash_basin, wash_pitcher, instrument_tray, reflector_lamp, hand_towel]

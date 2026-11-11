@@ -330,14 +330,14 @@ func test_the_hand_towel_hangs_over_the_washstands_bar() -> void:
 
 # --- The doctor's batch D2 (#805): the dispensary and his desk ----------------------------------
 
-const DOCTOR_D2_MEMBERS := [&"scales", &"roll_top_desk", &"dispensary_shelves", &"dispensary_counter"]
+const DOCTOR_D2_MEMBERS := [&"scales", &"roll_top_desk", &"dispensary_shelves", &"dispensary_counter", &"bentwood_chair"]
 const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"poison_bottle", &"drug_jar"]
 
 
 func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: a cased prescription balance ~6-12; a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
+	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
 	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 170.0],
-			&"dispensary_counter": [40.0, 120.0]}
+			&"dispensary_counter": [40.0, 130.0], &"bentwood_chair": [2.0, 8.0]}
 	for id: StringName in DOCTOR_D2_MEMBERS:
 		var def := PropKit.definition(id)
 		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
@@ -462,3 +462,18 @@ func test_the_scales_drop_their_pans_when_the_pillar_goes() -> void:
 	var pane := _m(sc, "pane_front")
 	check(pane.kind == &"glass" and (pane.drawn_node().material_override as ShaderMaterial).shader.resource_path == "res://src/props/bottle_glass.gdshader",
 			"its case is glazed with clear glass")
+
+
+func test_his_bentwood_chair_carries_him() -> void:
+	var c := await _place(&"bentwood_chair")
+	check(_m(c, "back").drawn_node().mesh.get_faces().size() > 300, "its back is drawn from its model (the hoop and its inner loop)")
+	check(PropKit.definition(&"bentwood_chair").has("seat"), "a man sits on it as on the kit's chair")
+	_m(c, "seat").extra_load = 90.0 * 0.75 * 9.81
+	check(c.settle().is_empty() and not c.loose, "it carries a 90 kg man")
+
+
+func test_the_counters_drawers_wear_their_knobs() -> void:
+	var c := await _place(&"dispensary_counter")
+	var drawers := c.get_members().filter(func(m: StructureMember) -> bool: return String(m.member_id).contains("/drawer_"))
+	check(drawers.size() == 24, "three rows of eight drawers (%d)" % drawers.size())
+	check(c.batch_count() <= 8, "and it still draws in a few batches (%d)" % c.batch_count())

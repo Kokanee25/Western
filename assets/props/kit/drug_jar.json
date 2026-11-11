@@ -7,7 +7,7 @@
   "model": "glb:medicine_bottles",
   "looks": {
     "GlassJar": "glass:clear",
-    "LiquidJar": "pbr:medicine_bottles",
+    "LiquidJar%d": "pbr:medicine_bottles",
     "LabelJar%d": "pbr:medicine_labels",
     "StopperJar": "glass:clear"
   },

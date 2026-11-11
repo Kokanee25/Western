@@ -640,7 +640,17 @@
         0.882,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:fine_walnut_tg/few",
+      "dress": [
+        {
+          "look": "pbr:desk_brass",
+          "draw": {
+            "shape": "mesh",
+            "model": "desk_brass",
+            "part": "Papers"
+          }
+        }
+      ]
     },
     {
       "id": "pigeon_1",

@@ -90,17 +90,22 @@ FINISHES = {
              "rough": 0.9, "metal": 0.0, "wear": 0.4, "craze": 0.6},
     # What's in a bottle, seen through its glass (#805): a tincture's red-brown (laudanum, arnica, iron
     # chloride are all dark brown-red in alcohol), a syrup's darker amber, a powder's off-white (quinine
-    # sulphate, potassium bromide and Epsom salts are white crystals). Smooth liquids, a dull powder.
+    # sulphate, potassium bromide and Epsom salts are white crystals; powdered rhubarb root
+    # yellow-brown). Smooth liquids, a dull powder, glinting crystals.
     "tincture": {"kind": "coat", "color": (0.30, 0.09, 0.03), "under": (0.30, 0.09, 0.03), "rust": 0.0,
                  "rough": 0.1, "metal": 0.0, "wear": 0.0},
     "syrup": {"kind": "coat", "color": (0.22, 0.10, 0.03), "under": (0.22, 0.10, 0.03), "rust": 0.0,
               "rough": 0.1, "metal": 0.0, "wear": 0.0},
+    "rhubarb": {"kind": "coat", "color": (0.52, 0.36, 0.14), "under": (0.52, 0.36, 0.14), "rust": 0.0,
+                "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.4},
+    "crystals": {"kind": "coat", "color": (0.86, 0.86, 0.84), "under": (0.86, 0.86, 0.84), "rust": 0.0,
+                 "rough": 0.5, "metal": 0.0, "wear": 0.0, "mottle": 0.5},
     "powder": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.80, 0.78, 0.72), "rust": 0.0,
                "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.3},
     # Wedgwood's white stoneware ("Wedgwood ware", the druggists' mortar from the 1770s on): a hard,
     # dense, unglazed buff-white body outside, a slight sheen where it's handled, its grinding bowl
     # inside rough and greyed by what's been ground in it.
-    "stoneware": {"kind": "coat", "color": (0.80, 0.77, 0.69), "under": (0.66, 0.62, 0.55), "rust": 0.0,
+    "stoneware": {"kind": "coat", "color": (0.86, 0.84, 0.78), "under": (0.70, 0.67, 0.60), "rust": 0.0,
                   "rough": 0.72, "metal": 0.0, "wear": 0.35, "mottle": 0.35},
     # A turned hardwood handle (a pestle's: lignum vitae or boxwood): dark brown, oiled by the hand.
     # (the Met's Wedgwood pestle's is near black-brown: lignum vitae darkens with handling)
@@ -110,6 +115,17 @@ FINISHES = {
     # red, tooled at its edge in gilt): green, rubbed through to brown where the arms rest.
     "desk_leather": {"kind": "coat", "color": (0.10, 0.17, 0.10), "under": (0.24, 0.20, 0.12), "rust": 0.0,
                      "rough": 0.55, "metal": 0.0, "wear": 0.7, "craze": 0.3},
+    # Steam-bent beech stained to walnut (Thonet's chairs: "nussbaum" stain over beech, a thin shellac
+    # polish): dark brown, rubbed through to the paler beech on the hoop and the seat's front.
+    "bentwood": {"kind": "coat", "color": (0.17, 0.09, 0.05), "under": (0.42, 0.28, 0.15), "rust": 0.0,
+                 "rough": 0.42, "metal": 0.0, "wear": 0.55},
+    # Woven cane (split rattan, the No. 14's seat): honey-gold, its open weave's holes dark (the craze
+    # lines here as the weave), darker where it's sat on.
+    "cane": {"kind": "coat", "color": (0.60, 0.45, 0.22), "under": (0.30, 0.20, 0.09), "rust": 0.0,
+             "rough": 0.6, "metal": 0.0, "wear": 0.2, "craze": 1.0},
+    # Writing paper and an envelope gone cream with age, a ledger's marbled boards: paper, no metal.
+    "paper": {"kind": "coat", "color": (0.80, 0.75, 0.62), "under": (0.66, 0.60, 0.48), "rust": 0.0,
+              "rough": 0.9, "metal": 0.0, "wear": 0.2, "mottle": 0.4},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,

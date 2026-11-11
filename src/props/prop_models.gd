@@ -136,8 +136,11 @@ const TINTED_GLASS := {
 	# prescription bottles), amber (tinctures kept from the light), cobalt (poisons), clear (flint
 	# glass: shop rounds), green.
 	"aqua": Color(0.62, 0.8, 0.76, 0.26), "amber": Color(0.42, 0.2, 0.05, 0.78), "cobalt": Color(0.1, 0.16, 0.55, 0.74),
-	"clear": Color(0.86, 0.9, 0.88, 0.12), "green": Color(0.28, 0.42, 0.22, 0.7),
+	"clear": Color(0.5, 0.54, 0.52, 0.08), "green": Color(0.28, 0.42, 0.22, 0.7),
 }
+## How much each colour's outline thickens (clear flint glass hardly: round 1's balance case read as
+## milky panes at the pale clear's 0.65).
+const TINTED_GLASS_EDGE := {"clear": 0.3}
 
 
 static func tinted_glass(name: String) -> ShaderMaterial:
@@ -146,6 +149,7 @@ static func tinted_glass(name: String) -> ShaderMaterial:
 		var m := ShaderMaterial.new()
 		m.shader = preload("res://src/props/bottle_glass.gdshader")
 		m.set_shader_parameter(&"tint", TINTED_GLASS.get(name, TINTED_GLASS["clear"]))
+		m.set_shader_parameter(&"edge", TINTED_GLASS_EDGE.get(name, 0.65))
 		m.resource_name = key
 		_materials[key] = m
 	return _materials[key]

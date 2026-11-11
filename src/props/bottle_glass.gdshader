@@ -9,13 +9,17 @@ render_mode blend_mix, cull_disabled, depth_draw_never;
 uniform vec4 tint : source_color = vec4(0.62, 0.8, 0.76, 0.28);
 // How much its outline darkens and thickens with colour.
 uniform float edge = 0.65;
+// How much its outline catches the room's light (glass seen edge-on mirrors what's beside it: a
+// bottle's bright rim and highlight line; the rooms have no reflection probe of their own yet, so
+// the mirror alone shows dark: round 1's critic, "dull solid objects").
+uniform float sheen = 0.35;
 
 void fragment() {
 	float facing = abs(dot(normalize(NORMAL), normalize(VIEW)));
 	float rim = pow(1.0 - facing, 1.5);
-	ALBEDO = tint.rgb * (1.0 - 0.25 * rim);
+	ALBEDO = mix(tint.rgb * (1.0 - 0.25 * rim), vec3(0.85), sheen * pow(rim, 2.5));
 	ALPHA = clamp(tint.a + (1.0 - tint.a) * rim * edge, 0.0, 1.0);
-	ROUGHNESS = 0.06;
-	SPECULAR = 0.7;
+	ROUGHNESS = 0.04;
+	SPECULAR = 0.9;
 	METALLIC = 0.0;
 }

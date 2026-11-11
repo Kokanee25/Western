@@ -86,6 +86,14 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 			one.id = "%s_%d" % [e.id, k]
 			one.kit = (row.kits as Array)[k % (row.kits as Array).size()]
 			one.at = [float(e.at[0]) + float(row.step[0]) * k, float(e.at[1]) + float(row.step[1]) * k, float(e.at[2]) + float(row.step[2]) * k]
+			# Set down by hand, not on a ruler (round 1's critic: rows like wallpaper): each a little
+			# off its place and turned, by its id (the same every run).
+			var j: Array = row.get("jitter", [0.0, 0.0, 0.0])
+			if not j.is_empty():
+				var h := hash(String(one.id))
+				one.at[0] += float(j[0]) * (float(h % 1000) / 500.0 - 1.0)
+				one.at[2] += float(j[1]) * (float((h / 1000) % 1000) / 500.0 - 1.0)
+				one.facing = float(e.get("facing", 0.0)) + float(j[2]) * (float((h / 1000000) % 1000) / 500.0 - 1.0)
 			entries.append(one)
 	for e: Dictionary in entries:
 		var id := StringName(e.kit)

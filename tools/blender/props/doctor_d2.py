@@ -24,6 +24,11 @@ import doctor  # noqa: E402  (tools/props/doctor.py: the numbers)
 import metal  # noqa: E402
 from common import Part, box, lathe, moved, tube  # noqa: E402
 
+
+def torus_ring(name, radius, y, tube_r, segs=40, sides=6):
+    pts = [(math.cos(2 * math.pi * k / segs) * radius, y, math.sin(2 * math.pi * k / segs) * radius) for k in range(segs + 1)]
+    return tube(name, pts, tube_r, sides=sides, caps=(False, False))
+
 # The label sheet: 1024 px square, four rows (one a kind of bottle), four labels a row, at
 # LABEL_PX pixels a metre of label (a 4 oz bottle's label is ~130 px tall: its small print legible
 # from a step away, as the target sheet's shelf is seen).
@@ -149,7 +154,12 @@ def bottles():
         level, finish = b["liquid"]
         inside = [s for s in secs if s[0] < level] + [section_at(secs, level)]
         inside = [(max(y, 0.006), *rest) for y, *rest in inside]
-        parts.append((loft("Liquid" + k, inside, shrink=0.0028, top_cap=True), finish))
+        if b.get("fills"):
+            # What's in it by its label (the Nth label's jar holds the Nth fill).
+            for n, fill in enumerate(b["fills"]):
+                parts.append((loft("Liquid%s%d" % (k, n), inside, shrink=0.0028, top_cap=True), fill))
+        else:
+            parts.append((loft("Liquid" + k, inside, shrink=0.0028, top_cap=True), finish))
         y0, y1, half = b["label"]
         for n in range(len(b["labels"])):
             parts.append((label_patch("Label%s%d" % (k, n), secs, y0, y1, half, label_rect(kind, n)), None))
@@ -300,8 +310,8 @@ def mortar():
     for vx, vy, vz in body.verts:
         if vy > H - 0.03 and vx > 0.0:
             k = (vx / max(1e-6, math.hypot(vx, vz))) ** 10 * min(1.0, (vy - (H - 0.03)) / 0.03)
-            vx += 0.016 * k
-            vy -= 0.004 * k
+            vx += 0.026 * k
+            vy -= 0.003 * k
         verts.append((vx, vy, vz))
     body.verts = verts
     p = m["pestle"]
@@ -332,8 +342,8 @@ def scales():
                       (0.0065, top - 0.09), (0.011, top - 0.085), (0.011, top - 0.075), (0.0065, top - 0.07), (0.0065, top - 0.02),
                       (0.010, top - 0.016), (0.010, top - 0.006), (0.0, top - 0.006)], 20, at=(0, 0, z))
     fork = [box("f", (0.004, 0.022, 0.014), (s_ * 0.007, top + 0.002, z), bevel=0.001) for s_ in (-1, 1)]
-    plate = moved(lathe("p", [(0.0, 0.0), (0.045, 0.0), (0.045, 0.002), (0.0, 0.002)], 24, axis="z"), 0, (0, 0, 1), (0, by0 + 0.055, z + 0.012))
-    pillar = merged("Pillar", [col, *fork, plate])
+    plate = box("p", (0.036, 0.014, 0.002), (0, by0 + 0.06, z + 0.011), bevel=0.0008)
+    pillar = merged("Pillar", [col, *fork, plate])  # (the scale: a small plate the pointer reads against)
     # The beam: thicker at its middle, tapering to its ends' hooks; its pointer down the pillar's
     # front to the scale.
     lx, ly, lz = c["beam"]
@@ -365,18 +375,109 @@ def desk_brass():
     parts = []
     for did, (w, h), (x, y, zf) in doctor.desk_drawers():
         z = zf + 0.01
-        # A cast brass bail pull: an oval back plate, two posts, the bail hanging in them.
-        plate = moved(lathe("p", [(0.0, 0.0), (0.016, 0.0), (0.016, 0.0018), (0.0, 0.0024)], 16, axis="z"), 0, (0, 0, 1), (0, 0, 0))
-        plate.verts = [(vx * 2.4, vy, vz) for vx, vy, vz in plate.verts]
-        plate = moved(plate, 0, (0, 0, 1), (x, y + 0.004, z))
-        posts = [lathe("o", [(0.003, 0.0), (0.0035, 0.008), (0.0025, 0.012), (0.0, 0.013)], 8, axis="z", at=(x + s_ * 0.028, y + 0.006, z)) for s_ in (-1, 1)]
-        pts = [(x + 0.028 * math.cos(math.pi * k / 10), y + 0.006 - 0.02 * math.sin(math.pi * k / 10), z + 0.011) for k in range(11)]
-        bail = tube("b", pts, 0.0022, sides=6, caps=(True, True))
+        # A cast brass bail pull (round 1: "tiny"; a roll-top's are ~10 cm across): an oval back plate,
+        # two posts, the bail hanging in them.
+        plate = moved(lathe("p", [(0.0, 0.0), (0.02, 0.0), (0.02, 0.0022), (0.0, 0.003)], 16, axis="z"), 0, (0, 0, 1), (0, 0, 0))
+        plate.verts = [(vx * 2.6, vy, vz) for vx, vy, vz in plate.verts]
+        plate = moved(plate, 0, (0, 0, 1), (x, y + 0.006, z))
+        posts = [lathe("o", [(0.004, 0.0), (0.0045, 0.01), (0.003, 0.015), (0.0, 0.016)], 8, axis="z", at=(x + s_ * 0.04, y + 0.008, z)) for s_ in (-1, 1)]
+        pts = [(x + 0.04 * math.cos(math.pi * k / 12), y + 0.008 - 0.028 * math.sin(math.pi * k / 12), z + 0.014) for k in range(13)]
+        bail = tube("b", pts, 0.003, sides=6, caps=(True, True))
         parts.append((merged("Pull_" + did, [plate, *posts, bail]), "brass"))
+    # The counter's drawers' turned knobs.
+    for did, (w, h), (x, y, z) in doctor.counter_drawers():
+        parts.append((lathe("Knob_" + did, [(0.006, 0.0), (0.008, 0.005), (0.005, 0.01), (0.009, 0.016), (0.0, 0.021)], 10, axis="z",
+                            at=(x, y, z - 0.009 - 0.021) if False else (x, y, z - 0.009)), "brass"))
     for did, (w, h), (x, y, z) in doctor.desk_small_drawers():
         parts.append((lathe("Pull_" + did, [(0.004, 0.0), (0.006, 0.004), (0.0035, 0.008), (0.0065, 0.012), (0.0, 0.015)], 10, axis="z",
                             at=(x, y, z + 0.006)), "brass"))
+    # His papers in the pigeonholes: bundles of letters standing, a ledger lying, a few envelopes.
+    d = doctor.DESK
+    inner = d["width"] - d["panel"] * 2
+    pd = d["pigeon_depth"]
+    zb = -d["depth"] * 0.5 + d["panel"]
+    py0 = d["pigeon_y"][0]
+    rng = random.Random(7)
+    papers = []
+    n = d["pigeons"]
+    cell = (inner - 0.012) / n
+    for k in range(n):
+        if k in (2, 6):
+            continue
+        cx = -inner * 0.5 + 0.006 + cell * (k + 0.5)
+        kind = rng.random()
+        if kind < 0.45:
+            # Letters standing on edge, a bundle leaning.
+            for i in range(rng.randint(3, 6)):
+                hgt = rng.uniform(0.09, 0.14)
+                papers.append(moved(box("l", (0.004, hgt, pd * rng.uniform(0.55, 0.8)), (0, hgt * 0.5, 0), bevel=0.0008),
+                                    rng.uniform(-8, 8), (0, 0, 1), (cx - cell * 0.3 + i * 0.012, py0, zb + pd * 0.55)))
+        elif kind < 0.8:
+            # A stack of papers lying flat, a little askew.
+            for i in range(rng.randint(2, 5)):
+                papers.append(moved(box("s", (cell * 0.75, 0.004, pd * 0.8), (0, 0.002, 0)), rng.uniform(-5, 5), (0, 1, 0),
+                                    (cx + rng.uniform(-0.006, 0.006), py0 + i * 0.0045, zb + pd * 0.55)))
+        else:
+            # A ledger lying.
+            papers.append(box("g", (cell * 0.8, 0.025, pd * 0.85), (cx, py0 + 0.0125, zb + pd * 0.52), bevel=0.003))
+    parts.append((merged("Papers", papers, smooth=False), "paper"))
     metal.export_baked("desk_brass", parts, size=512)
+
+
+# --- His bentwood chair (Thonet's No. 14) ----------------------------------------------------------
+
+def bentwood_chair():
+    c = doctor.BENTWOOD
+    sy, R, top = c["seat_y"], c["seat_r"], c["back_top"]
+    r = 0.014  # the bent rod's radius (~28 mm beech)
+    parts = []
+    # The seat: its bent ring, the caned seat inside it.
+    parts.append((torus_ring("SeatRing", R, sy, r, segs=36, sides=8), "bentwood"))
+    cane = lathe("Seat", [(0.0, sy + 0.004), (R - 0.004, sy + 0.004), (R - 0.006, sy + 0.001), (0.0, sy + 0.001)], 36)
+    parts.append((cane, "cane"))
+    # The front legs: from under the ring's front quarters down and out to the floor, tapering.
+    for name, sx in (("LegFL", -1), ("LegFR", 1)):
+        a = math.radians(90 - 42 * sx)
+        x0, z0 = math.cos(a) * R * 0.92 * -1 * -1, math.sin(a) * R * 0.92
+        x0 = sx * abs(x0)
+        pts = [(x0, sy - 0.01, z0), (x0 * 1.08, sy * 0.5, z0 * 1.08), (x0 * 1.16, 0.0, z0 * 1.16)]
+        parts.append((tube(name, pts, [(r, r), (r * 0.95, r * 0.95), (r * 0.8, r * 0.8)], sides=10), "bentwood"))
+    # The back legs: one bent rod each, from the floor behind up through the seat's back into the
+    # hoop of the back (the No. 14's one piece), meeting at its top.
+    hoop = []
+    for sx in (-1, 1):
+        side = []
+        side.append((sx * 0.17, 0.0, -0.27))
+        side.append((sx * 0.155, sy * 0.5, -0.22))
+        side.append((sx * 0.15, sy - 0.01, -0.175))
+        for k in range(1, 8):
+            t = k / 7.0
+            side.append((sx * (0.15 - 0.01 * t), sy + (top - 0.08 - sy) * t, -0.18 - 0.07 * math.sin(t * math.pi * 0.5)))
+        hoop.append(side)
+    # The top arc joining the two sides.
+    arc = []
+    for k in range(1, 12):
+        a = math.pi * k / 12
+        arc.append((-math.cos(a) * 0.14, top - 0.08 + math.sin(a) * 0.08, -0.25))
+    path_back = list(reversed(hoop[0][3:])) + arc + hoop[1][3:]
+    back = tube("b", path_back, r, sides=10, caps=(False, False))
+    # The inner loop: a smaller oval inside the hoop, from the seat's back up to just under the top.
+    loop = []
+    for k in range(25):
+        a = 2 * math.pi * k / 24
+        loop.append((math.sin(a) * 0.085, sy + 0.2 + math.cos(a) * 0.13, -0.215 - 0.03 * (math.cos(a) * 0.5 + 0.5)))
+    inner = tube("i", loop, r * 0.75, sides=8, caps=(False, False))
+    parts.append((merged("Back", [back, inner]), "bentwood"))
+    parts.append((tube("LegBL", hoop[0][:4], r, sides=10), "bentwood"))
+    parts.append((tube("LegBR", hoop[1][:4], r, sides=10), "bentwood"))
+    # The leg ring: a bent hoop round the four legs, a little under halfway up.
+    ry = c["ring_y"]
+    ring = []
+    for k in range(29):
+        a = 2 * math.pi * k / 28
+        ring.append((math.cos(a) * 0.19, ry, math.sin(a) * 0.165 - 0.02))
+    parts.append((tube("LegRing", ring, r * 0.7, sides=8, caps=(False, False)), "bentwood"))
+    metal.export_baked("bentwood_chair", parts, size=512)
 
 
 def build():
@@ -385,6 +486,7 @@ def build():
     mortar()
     scales()
     desk_brass()
+    bentwood_chair()
 
 
 if __name__ == "__main__":
@@ -392,6 +494,6 @@ if __name__ == "__main__":
     for a in sys.argv[1:]:
         if a.startswith("--only="):
             only = a.split("=", 1)[1].split(",")
-    for f in (labels, bottles, mortar, scales, desk_brass):
+    for f in (labels, bottles, mortar, scales, desk_brass, bentwood_chair):
         if only is None or f.__name__ in only:
             f()
