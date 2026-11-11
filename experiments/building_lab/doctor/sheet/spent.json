@@ -1,0 +1,115 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1409,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317392.2194555
+  },
+  {
+   "what": "plan",
+   "cost": 0.1399,
+   "ok": true,
+   "size": [
+    1696,
+    2528
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317419.4455583
+  },
+  {
+   "what": "side_yard",
+   "cost": 0.1402,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317449.818151
+  },
+  {
+   "what": "rear",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317484.977074
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1418,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317518.8321743
+  },
+  {
+   "what": "front_office",
+   "cost": 0.1409,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317549.0762265
+  },
+  {
+   "what": "surgery",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317580.4730644
+  },
+  {
+   "what": "dispensary",
+   "cost": 0.1398,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317612.3668354
+  },
+  {
+   "what": "sick_room",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317641.9180117
+  },
+  {
+   "what": "quarters",
+   "cost": 0.1429,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794317676.6352386
+  }
+ ],
+ "total": 1.4078
+}

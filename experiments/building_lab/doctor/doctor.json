@@ -1,0 +1,1687 @@
+{
+ "_doc": "The doctor's office and dispensary (#765, the first practice building; the building lab's step 2). Format 1 (../FORMAT.md) with what a one-storey gable-fronted building needs (each marked NEW, built in step 3). Target sheet: sheet/sheet.jpg (Sean approved 2026-11-10, gable front, white with green trim, the surgery lit from the east); sizes from this spec only, never off the pictures. SPACE: on its lot the building faces south (facing 180), so the builder's x runs from its EAST corner (the side yard's) westward, and its z back (north) from the front wall's outer stud face; the side walls are named by what they face, 'yard' (east) and 'lane' (west), not by the format's compass, which would read backwards here.",
+ "format": 1,
+ "id": "doctor",
+ "identity": {
+  "owner": "Doc, the town's physician and surgeon, a bachelor who came west with the railroad surveys and stayed",
+  "trade": "a doctor's office and dispensary: he sees patients in the front office, operates in the surgery, keeps one or two overnight in the sick room, makes up and sells his own drugs from the dispensary's hatch, and lives in the two back rooms",
+  "means": "comfortable, a professional man's: the building put up by a hired carpenter in 1880 of planed, freighted pine, painted white lead with green trim, plastered nothing, every room boarded in beaded stuff and painted",
+  "age_and_repair": "two years: the paint still fresh but chalking on the south front, dust splashed up the foot of the walls, the front steps already worn pale, one cracked pane in the surgery's side door puttied over",
+  "clues": [
+   "red and green show globes in the front window",
+   "a brass plate by the door: hours and 'Night Calls at the Side Door'",
+   "a sawdust bucket and a stained mop by the surgery's side door",
+   "a buggy whip and a medical bag on a peg in the hall",
+   "a path worn from the side yard's gate to the side door's steps"
+  ],
+  "class": "fine",
+  "built": 1880,
+  "now": 1882
+ },
+ "lot": {
+  "_doc": "valley.json town.north 'doctor' (x 70.8-87.2, 16.4 m = 54 ft, building depth 16): the building on the lot's west edge, against the lane (lane_n6); the side yard east of it to the doctor's alley. The front wall's face on the town's front line (z -10.05). Its floor is its walk's top (walk.h 0.95 over the ground at the walk's street edge, ValleyTown): the lot's ground there (x 79, z -7.65) is world -0.23, the building's y 0, so the floor is at 0.95 here. The ground under it RISES northward, 0.5 m front to back (world -0.14 at the front wall, +0.36 at the back wall), and falls 0.1 m west to east: the pad below.",
+  "valley_lot": "doctor",
+  "side": "north",
+  "at": [
+   79.33,
+   -0.23,
+   -10.05
+  ],
+  "facing": 180,
+  "width": 8.53,
+  "depth": 14.63,
+  "yard": [
+   -7.87,
+   0.0,
+   0.0,
+   16.0
+  ],
+  "pad": {
+   "_doc": "Sean, 2026-11-10 (conflict 2, a): the ground dug level at the street edge's height (the building's y 0) under the building, its side yard and 2 m round them: a cut of 0.1 m at the front wall and 0.6 m at the back, sloping back up to the natural ground over 3 m behind (the bank a carpenter leaves on a rising lot); the foundation shows 0.54 m all round.",
+   "y": 0.0,
+   "rect": [
+    -7.87,
+    -0.3,
+    8.53,
+    16.6
+   ],
+   "margin": 2.0,
+   "bank": 3.0
+  },
+  "footprint_with_stair": [
+   -2.5,
+   -0.3,
+   8.53,
+   16.8
+  ],
+  "_sean": "Sean, 2026-11-10: 28 x 48 ft (conflict 1); the pad (2a); the yard's front as works best (3: the walk stops at the building, steps down at its east end, the yard open to Main Street by a wagon gate in a picket fence: a wagon or his buggy backs to the surgery's side door); the attic made usable (4).",
+  "yard_front": {
+   "_doc": "the walk ends at the building (valley.json doctor walk.span); a picket fence on the front line with a wagon gate 10 ft wide on 4x4 posts, and a board fence down the yard's side against the alley",
+   "fence_z": 0.0,
+   "gate": [
+    -4.6,
+    -1.55
+   ],
+   "side_fence": {
+    "_doc": "a 6 ft board fence down the side yard's east edge against the doctor's alley, from the front line back past the building (the yard private, the alley an alley)",
+    "x": -7.765,
+    "z": [
+     0.0,
+     16.4
+    ],
+    "h": 1.8
+   }
+  }
+ },
+ "levels": {
+  "_doc": "One storey: the floor 3 ft up (the walk's top); 11 ft from floor to ceiling (a fine building's; Palliser 1878's cottages give 9-11 ft for the first storey); the loft's 2x8 joists on the plates carry its boarded floor and the ceiling under them (Sean, 2026-11-10: a usable loft, a place to shoot from); a 9/12 roof (36.9 degrees) gabled front to back, its gables to the street and the back lot.",
+  "ground": {
+   "top": 0.95
+  },
+  "upper": {
+   "top": 4.61,
+   "_doc": "the loft's floor: 2x10 joists on the plates (4.35) and 1 in boards (Sean: usable)"
+  },
+  "plate": 4.35,
+  "false_front": 0.0,
+  "roof_pitch": 36.87,
+  "roof_from": -0.35,
+  "roof_to": 14.98
+ },
+ "frame": {
+  "_doc": "A balloon-framed one-storey house (Bell 1858; Woodward 1865, 'Balloon Frames'): 2x4 studs at 16 in from the sill to a doubled plate, the floor's joists on the sills and two girders under the hall's walls, the roof of common rafters on a ridge board with the ceiling joists nailed to their feet as ties (Hodgson 1883: a roof of 28 ft span on a bearing partition needs no truss). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing (the Wood Handbook's figures, 40 lb/ft2 on the floor, L/360).",
+  "foundation": {
+   "_doc": "rubble stone laid in lime mortar, 18 in thick, 2 ft into the pad (below the worst of the frost a fine builder bothered with)",
+   "wood": "stone",
+   "thick": 0.45,
+   "bottom": -0.6,
+   "top": 0.54,
+   "piece": 1.5
+  },
+  "sill": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "pier": {
+   "size": 0.4,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing",
+   "pier_every": 1.83
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "floor_board": {
+   "width": 0.14,
+   "thick": 0.022,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "plate": {
+   "height": 0.1,
+   "_doc": "two 2x4s flat, their joints a stud apart"
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15,
+   "_doc": "two 2x6s on edge over every opening, on trimmers"
+  },
+  "post": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "beam": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing"
+  },
+  "bracket": {
+   "reach": 0.3,
+   "thick": 0.08
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "ceiling_joist": {
+   "_doc": "NEW: the loft's floor joists, 2x10 at 16 in across the building on the plates (a crowd's 40 lb/ft2 over the 13 ft spans: 2x8 was at its limit), broken over the hall's two bearing walls and the front office's summer beams, each spiked to a rafter's foot: the roof's tie.",
+   "section": [
+    0.05,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "lap": 0.6
+  },
+  "rafters": {
+   "_doc": "NEW (the builder's trusses replaced by a common-rafter roof): 2x6 at 24 in, 9/12, birdsmouthed on the plates, against a 1x8 ridge board; a 1x6 collar tie on every second pair a quarter of the rise down from the ridge (head room in the loft); the gables' studs up to the end rafters; 1x6 boards across them (shingle lath laid close), wood shingles drawn on them; 12 in eaves.",
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "ridge": [
+    0.025,
+    0.185
+   ],
+   "collar": [
+    0.025,
+    0.14
+   ],
+   "collar_every": 2,
+   "collar_down": 0.25,
+   "eave": 0.3
+  },
+  "truss": {
+   "_doc": "unused (rafters above); kept for the builder's eave and board helpers until step 3 frees them",
+   "tie": [
+    0.05,
+    0.14
+   ],
+   "principal": [
+    0.0,
+    0.0
+   ],
+   "queen": [
+    0.0,
+    0.0
+   ],
+   "purlin": [
+    0.0,
+    0.0
+   ],
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.0,
+    14.63
+   ],
+   "purlins": []
+  }
+ },
+ "girders": {
+  "_doc": "Under the hall's two walls, the floor's joists spanning from the side sills to them (3.95 m on the surgery's side, 3.06 on the dispensary's) and across the hall between them; on stone piers at 6 ft.",
+  "x": [
+   4.05,
+   5.37
+  ]
+ },
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    8.43,
+    14.53
+   ],
+   "joists": "x",
+   "look": "wood:int_floor"
+  },
+  {
+   "_doc": "NEW use of a floor: the loft over the whole building on frame.ceiling_joist (2x8), boarded all over (Sean: usable); its scuttle in the hall's ceiling. Standing head room (1.9 m) down the middle 2.6 m wide. Its joists run over the side walls' plates (the rect's ends) and break over the hall's two bearing walls.",
+   "id": "attic",
+   "level": "upper",
+   "rect": [
+    0.02,
+    0.1,
+    8.51,
+    14.53
+   ],
+   "joists": "x",
+   "joist": "ceiling_joist",
+   "openings": [
+    {
+     "id": "scuttle",
+     "rect": [
+      4.3,
+      11.6,
+      5.1,
+      12.2
+     ],
+     "leaves": 1
+    }
+   ],
+   "breaks": [
+    4.05,
+    5.37
+   ]
+  }
+ ],
+ "ceilings": {
+  "_doc": "NEW (README 'What the format needs' item 11): beaded 1x4 boards nailed up under the ceiling joists in every room, run front to back (across the joists).",
+  "finish": "beaded",
+  "rooms": "all"
+ },
+ "walls": [
+  {
+   "_doc": "The front, to the street: the gable over it, the street door (3 ft by 7 ft, glazed above, a transom over it) a little west of the middle at the hall's line, a show window either side (5 by 7 ft, four lights, low sills for the show globes); the attic's small window high in the gable; the sign across the gable's foot above the walk's porch roof.",
+   "id": "front",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     8.53,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1,
+    "_exposure": "NEW: narrow 4 in clapboard (a fine building's), the builder's lap was 6 in"
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 4.71,
+     "width": 0.91,
+     "height": 2.51,
+     "glazed": true,
+     "transom": 0.38,
+     "_doc": "the street door, 3 ft by 7 ft, glazed above, a transom light over it (one opening, 8 ft 3 in)"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.85,
+     "width": 1.52,
+     "height": 2.13,
+     "sill": 0.46,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 7.0,
+     "width": 1.52,
+     "height": 2.13,
+     "sill": 0.46,
+     "lights": 4,
+     "_doc": "DRUGS in gilt on its glass (the sign art, step 4)"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 4.265,
+     "width": 0.76,
+     "height": 1.07,
+     "sill": 0.6,
+     "_doc": "the loft's window over Main Street: a man kneeling or standing at it shoots down the street"
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The back, to the back lot: the back door at the hall's end onto the back porch; the kitchen's window (west) and the bedroom's (east); the loft door in the gable over the porch's roof, the ladder beside the porch up to it.",
+   "id": "back",
+   "line": [
+    [
+     0,
+     14.63
+    ],
+    [
+     8.53,
+     14.63
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 4.71,
+     "width": 0.86,
+     "height": 2.03,
+     "glazed": true,
+     "leaf": "inward"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 7.0,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.0,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    },
+    {
+     "type": "door",
+     "level": "upper",
+     "at": 3.6,
+     "width": 0.76,
+     "height": 1.98,
+     "leaf": "inward",
+     "_doc": "the loft door in the back gable, off the middle so its head clears the rafters (6 ft 6 in), the ladder under it"
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The east side, to the side yard: the front office's window; the surgery's two tall windows (3 by 6 ft, the operating light; Cathell 1882, north light preferred, Sean took the east: the quarters keep the back) and its side door (3 ft 6 in, for a stretcher; Cathell's second door, a patient leaves without crossing the waiting room); the sick room's and the bedroom's windows.",
+   "id": "yard",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     14.63
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 14.53,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 14.53,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.9,
+     "width": 0.76,
+     "height": 1.52,
+     "sill": 0.76
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.5,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.66
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 5.85,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.66
+    },
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 7.3,
+     "width": 1.07,
+     "height": 2.13,
+     "glazed": true,
+     "leaf": "inward"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 9.8,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 13.0,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The west side, to the lane: the front office's window; the dispensary's high window over its shelves; the sitting room's and the kitchen's windows.",
+   "id": "lane",
+   "line": [
+    [
+     8.53,
+     0
+    ],
+    [
+     8.53,
+     14.63
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 14.53,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 14.53,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.9,
+     "width": 0.76,
+     "height": 1.52,
+     "sill": 0.76
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 6.0,
+     "width": 0.91,
+     "height": 0.76,
+     "sill": 1.6,
+     "_doc": "high over the dispensary's shelves"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 9.8,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 13.0,
+     "width": 0.76,
+     "height": 1.37,
+     "sill": 0.84
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The front office's back wall: the way into the hall (a door standing open), the dispensary's hatch (he hands a bottle through it and takes the money; a counter on its sill, no glass).",
+   "id": "office_back",
+   "line": [
+    [
+     0.1,
+     3.81
+    ],
+    [
+     8.43,
+     3.81
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 4.61,
+     "width": 0.91,
+     "height": 2.13,
+     "leaf": "outward"
+    },
+    {
+     "type": "hatch",
+     "at": 7.0,
+     "width": 0.91,
+     "height": 0.76,
+     "sill": 0.97,
+     "_doc": "NEW type: an opening with a sill board and no glass"
+    }
+   ]
+  },
+  {
+   "_doc": "The hall's east wall, bearing (the ceiling joists lap on its plate, a girder under it): the surgery's door near the front, the sick room's, the bedroom's. Its doors open into the rooms.",
+   "id": "hall_e",
+   "line": [
+    [
+     4.05,
+     3.86
+    ],
+    [
+     4.05,
+     14.53
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": true,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 0.75,
+     "width": 0.91,
+     "height": 2.13
+    },
+    {
+     "type": "door",
+     "at": 5.65,
+     "width": 0.81,
+     "height": 2.03
+    },
+    {
+     "type": "door",
+     "at": 8.45,
+     "width": 0.81,
+     "height": 2.03
+    }
+   ]
+  },
+  {
+   "_doc": "The hall's west wall, bearing: the dispensary's door, the sitting room's, the kitchen's. Its doors open into the rooms (outward), never across the 4 ft hall.",
+   "id": "hall_w",
+   "line": [
+    [
+     5.37,
+     3.86
+    ],
+    [
+     5.37,
+     14.53
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": true,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 1.3,
+     "width": 0.81,
+     "height": 2.03,
+     "leaf": "outward"
+    },
+    {
+     "type": "door",
+     "at": 5.65,
+     "width": 0.81,
+     "height": 2.03,
+     "leaf": "outward"
+    },
+    {
+     "type": "door",
+     "at": 8.45,
+     "width": 0.81,
+     "height": 2.03,
+     "leaf": "outward"
+    }
+   ]
+  },
+  {
+   "_doc": "Between the surgery and the sick room: a door so a patient goes from the table to a cot without the hall.",
+   "id": "surgery_back",
+   "line": [
+    [
+     0.1,
+     8.18
+    ],
+    [
+     4.0,
+     8.18
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 2.8,
+     "width": 0.81,
+     "height": 2.03,
+     "leaf": "outward"
+    }
+   ]
+  },
+  {
+   "id": "sick_back",
+   "line": [
+    [
+     0.1,
+     11.38
+    ],
+    [
+     4.0,
+     11.38
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  },
+  {
+   "id": "dispensary_back",
+   "line": [
+    [
+     5.42,
+     8.18
+    ],
+    [
+     8.43,
+     8.18
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  },
+  {
+   "_doc": "Between his sitting room and his kitchen.",
+   "id": "sitting_back",
+   "line": [
+    [
+     5.42,
+     11.38
+    ],
+    [
+     8.43,
+     11.38
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 1.6,
+     "width": 0.81,
+     "height": 2.03
+    }
+   ]
+  }
+ ],
+ "stairs": [
+  {
+   "_doc": "the side door's steps from the yard (the pad, y 0) up to its stoop: five risers of 7 1/2 in, 11 in treads, 4 ft wide for two men and a stretcher, climbing west to a 4 ft stoop",
+   "id": "side",
+   "head": [
+    -1.22,
+    6.69
+   ],
+   "dir": "+x",
+   "width": 1.22,
+   "from": 0.0,
+   "to": "ground",
+   "risers": 5,
+   "going": 0.28,
+   "wood": "painted_white",
+   "stoop": [
+    -1.22,
+    6.69,
+    0.0,
+    7.91
+   ]
+  },
+  {
+   "_doc": "the back porch's five steps down to the pad (7 in risers, 11 in treads)",
+   "id": "back",
+   "head": [
+    4.1,
+    16.46
+   ],
+   "dir": "-z",
+   "width": 1.3,
+   "from": 0.0,
+   "to": 0.9,
+   "risers": 5,
+   "going": 0.28,
+   "wood": "painted_white"
+  }
+ ],
+ "back_porch": {
+  "_doc": "NEW: a small open porch at the back door, 6 ft 9 in by 6 ft, one step down from the floor, its deck on two posts and a ledger on the back wall's studs, a shed roof over it on the same posts.",
+  "rect": [
+   3.95,
+   14.63,
+   6.0,
+   16.46
+  ],
+  "deck_top": 0.9,
+  "roof_height": 2.6,
+  "posts": [
+   [
+    4.05,
+    16.36
+   ],
+   [
+    5.9,
+    16.36
+   ]
+  ]
+ },
+ "chimneys": {
+  "_doc": "NEW: two brick chimneys (drawn in the game's stone until a brick is made: the judge's round 2 read the unknown 'brick' as timber posts) on their own footings in the crawl space, up through the floor (cut round, trimmed), the ceiling and the roof beside the ridge; 13 in square (a 9 in flue, a brick's width round it), 2 ft over the ridge. Stovepipes in at thimbles: the front office's coal stove and (through the wall) the surgery's; the kitchen's cookstove.",
+  "wood": "stone",
+  "list": [
+   {
+    "id": "middle",
+    "at": [
+     3.6,
+     3.5
+    ],
+    "size": 0.34,
+    "over_ridge": 0.6,
+    "_doc": "in the front office's back corner by the surgery's wall: the office's stove into it, the surgery's through the wall"
+   },
+   {
+    "id": "kitchen",
+    "at": [
+     5.65,
+     12.6
+    ],
+    "size": 0.34,
+    "over_ridge": 0.6,
+    "_doc": "in the kitchen against the hall's wall: the cookstove"
+   }
+  ]
+ },
+ "front": {
+  "_doc": "a gable front: the sign board across the gable's foot, over the walk's porch roof (ValleyTown's, walk.awning 2.8 over the walk's top)",
+  "sign_text": "PHYSICIAN & SURGEON",
+  "gable_sign": {
+   "y": [
+    4.45,
+    5.0
+   ],
+   "width": 4.9
+  }
+ },
+ "rooms": [
+  {
+   "id": "front_office",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    8.43,
+    3.76
+   ],
+   "use": "patients wait on the bench and chairs; his roll-top desk and books; the coal stove; the dispensary's hatch where drugs are sold"
+  },
+  {
+   "id": "hall",
+   "level": "ground",
+   "rect": [
+    4.1,
+    3.86,
+    5.32,
+    14.53
+   ],
+   "use": "from the front office to the back door: every room off it; a stretcher's straight way in and out; his bag and coat on pegs"
+  },
+  {
+   "id": "surgery",
+   "level": "ground",
+   "rect": [
+    0.1,
+    3.86,
+    4.0,
+    8.13
+   ],
+   "use": "examining and operating: the table in the east windows' light (a lamp held over it at night), the instrument cabinet, the washstand; the side door to the yard; the sick room through its door"
+  },
+  {
+   "id": "dispensary",
+   "level": "ground",
+   "rect": [
+    5.42,
+    3.86,
+    8.43,
+    8.13
+   ],
+   "use": "making up drugs: shelves of bottles to the ceiling, drawers, the counter and scales; the hatch to the front office"
+  },
+  {
+   "id": "sick_room",
+   "level": "ground",
+   "rect": [
+    0.1,
+    8.23,
+    4.0,
+    11.33
+   ],
+   "use": "two iron cots for patients kept overnight (the sheriff's first night; where you wake after you die, DESIGN.md section 3), a chair, a washstand"
+  },
+  {
+   "id": "sitting_room",
+   "level": "ground",
+   "rect": [
+    5.42,
+    8.23,
+    8.43,
+    11.33
+   ],
+   "use": "his sitting and dining room: a table, his chair, books"
+  },
+  {
+   "id": "bedroom",
+   "level": "ground",
+   "rect": [
+    0.1,
+    11.43,
+    4.0,
+    14.53
+   ],
+   "use": "his bed, a washstand, his trunk"
+  },
+  {
+   "id": "kitchen",
+   "level": "ground",
+   "rect": [
+    5.42,
+    11.43,
+    8.43,
+    14.53
+   ],
+   "use": "his cookstove, table, a dresser; boiling water for the surgery"
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "rect": [
+    0.1,
+    0.1,
+    8.43,
+    14.53
+   ],
+   "use": "storage (crates of bottles, old journals); a place to shoot from: the front window over Main Street, the back door over the back lot; reached by the ladder outside or the hall's scuttle"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "desk",
+   "use": "work",
+   "who": "doctor",
+   "at": [
+    1.2,
+    0.95,
+    3.1
+   ],
+   "look": [
+    1.2,
+    3.8
+   ]
+  },
+  {
+   "id": "wait_1",
+   "use": "wait",
+   "who": "patient",
+   "at": [
+    7.95,
+    0.95,
+    1.4
+   ],
+   "look": [
+    6.0,
+    1.4
+   ]
+  },
+  {
+   "id": "wait_2",
+   "use": "wait",
+   "who": "patient",
+   "at": [
+    7.95,
+    0.95,
+    2.3
+   ],
+   "look": [
+    6.0,
+    2.3
+   ]
+  },
+  {
+   "id": "wait_3",
+   "use": "wait",
+   "who": "patient",
+   "at": [
+    3.2,
+    0.95,
+    0.65
+   ],
+   "look": [
+    3.2,
+    2.5
+   ]
+  },
+  {
+   "id": "hatch_serve",
+   "use": "serve",
+   "who": "doctor",
+   "at": [
+    7.0,
+    0.95,
+    4.35
+   ],
+   "look": [
+    7.0,
+    3.0
+   ]
+  },
+  {
+   "id": "hatch_buy",
+   "use": "buy",
+   "who": "anyone",
+   "at": [
+    7.0,
+    0.95,
+    3.25
+   ],
+   "look": [
+    7.0,
+    4.5
+   ]
+  },
+  {
+   "id": "make_up",
+   "use": "work",
+   "who": "doctor",
+   "at": [
+    6.9,
+    0.95,
+    6.6
+   ],
+   "look": [
+    8.4,
+    6.6
+   ]
+  },
+  {
+   "id": "operate",
+   "use": "operate",
+   "who": "doctor",
+   "at": [
+    2.75,
+    0.95,
+    5.5
+   ],
+   "look": [
+    2.0,
+    5.5
+   ]
+  },
+  {
+   "id": "hold_lamp",
+   "use": "assist",
+   "who": "anyone",
+   "at": [
+    1.2,
+    0.95,
+    5.5
+   ],
+   "look": [
+    2.0,
+    5.5
+   ],
+   "_doc": "the showcase's 'you hold the lamp' (DESIGN.md, the doctor's table)"
+  },
+  {
+   "id": "on_table",
+   "use": "lie",
+   "who": "patient",
+   "at": [
+    2.0,
+    0.95,
+    5.5
+   ],
+   "look": [
+    2.0,
+    7.0
+   ],
+   "_doc": "where the table will stand (props later)"
+  },
+  {
+   "id": "wash_surgery",
+   "use": "work",
+   "who": "doctor",
+   "at": [
+    3.5,
+    0.95,
+    7.6
+   ],
+   "look": [
+    3.9,
+    7.6
+   ]
+  },
+  {
+   "id": "cot_1",
+   "use": "sleep",
+   "who": "patient",
+   "at": [
+    0.6,
+    0.95,
+    9.8
+   ],
+   "look": [
+    0.6,
+    11.0
+   ],
+   "_doc": "where you wake after you die"
+  },
+  {
+   "id": "cot_2",
+   "use": "sleep",
+   "who": "patient",
+   "at": [
+    3.4,
+    0.95,
+    9.8
+   ],
+   "look": [
+    3.4,
+    11.0
+   ]
+  },
+  {
+   "id": "bedside",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    2.0,
+    0.95,
+    10.5
+   ],
+   "look": [
+    0.6,
+    9.8
+   ]
+  },
+  {
+   "id": "hall_wait",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.71,
+    0.95,
+    7.0
+   ],
+   "look": [
+    4.71,
+    4.0
+   ]
+  },
+  {
+   "id": "sit_read",
+   "use": "sit",
+   "who": "doctor",
+   "at": [
+    7.6,
+    0.95,
+    9.4
+   ],
+   "look": [
+    6.6,
+    10.2
+   ]
+  },
+  {
+   "id": "eat",
+   "use": "eat",
+   "who": "doctor",
+   "at": [
+    6.9,
+    0.95,
+    12.6
+   ],
+   "look": [
+    6.9,
+    13.6
+   ]
+  },
+  {
+   "id": "cook",
+   "use": "work",
+   "who": "doctor",
+   "at": [
+    7.6,
+    0.95,
+    13.8
+   ],
+   "look": [
+    8.4,
+    13.8
+   ]
+  },
+  {
+   "id": "bed",
+   "use": "sleep",
+   "who": "doctor",
+   "at": [
+    1.0,
+    0.95,
+    13.2
+   ],
+   "look": [
+    1.0,
+    12.0
+   ]
+  },
+  {
+   "id": "back_porch",
+   "use": "smoke",
+   "who": "doctor",
+   "at": [
+    4.71,
+    0.9,
+    15.5
+   ],
+   "look": [
+    4.71,
+    20.0
+   ]
+  },
+  {
+   "id": "watch_e",
+   "use": "watch",
+   "who": "anyone",
+   "at": [
+    1.85,
+    0.95,
+    0.75
+   ],
+   "look": [
+    1.85,
+    -8.0
+   ]
+  },
+  {
+   "id": "watch_w",
+   "use": "watch",
+   "who": "anyone",
+   "at": [
+    7.0,
+    0.95,
+    0.75
+   ],
+   "look": [
+    7.0,
+    -8.0
+   ]
+  },
+  {
+   "id": "watch_yard",
+   "use": "watch",
+   "who": "anyone",
+   "at": [
+    0.65,
+    0.95,
+    5.85
+   ],
+   "look": [
+    -6.0,
+    5.85
+   ]
+  },
+  {
+   "id": "loft_window",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    4.265,
+    4.61,
+    0.6
+   ],
+   "look": [
+    4.265,
+    -20.0
+   ],
+   "_doc": "kneel at the front gable's window: Main Street both ways"
+  },
+  {
+   "id": "loft_door",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    3.6,
+    4.61,
+    13.8
+   ],
+   "look": [
+    3.6,
+    30.0
+   ]
+  },
+  {
+   "id": "loft_store",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.265,
+    4.61,
+    7.3
+   ],
+   "look": [
+    4.265,
+    0.0
+   ]
+  }
+ ],
+ "materials": {
+  "_doc": "Sean, 2026-11-10 (#765): finished unpainted for now on swatches the materials judge passed (#721; docs/screenshots/judge/2026-11-10_material_r3e: R1 new and a few years, C1 old, F2 all three ages), each surface taking its finish from the library by name (spec_building.gd finish()): a finish's `want` (the paint he needs) is used the moment the library has that entry passed at that age; until then its `use`. Stone, brick, glass and the sign aren't the library's (yet).",
+  "finishes": {
+   "exterior": {
+    "want": {
+     "entry": "painted_white_lap",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "white lead on narrow clapboard, two years old (the approved sheet); C1 passes only old"
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_green_trim",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "bottle-green trim, corner boards, sash and doors"
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "pale painted beaded boards (cream in the office, grey-green in the surgery)"
+   },
+   "ceiling": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    },
+    "_why": "the library's only passing floor; a varnished pine floor would be his own"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "rough-sawn timber where it shows: the loft's rafters and joists, the porch's frame, the roof boards' undersides"
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the roof boards, the porch's and stoop's decks, steps, the fence, the ladder"
+   }
+  },
+  "surfaces": [
+   [
+    "/siding/",
+    "exterior"
+   ],
+   [
+    "/corner_",
+    "trim"
+   ],
+   [
+    "/trim_",
+    "trim"
+   ],
+   [
+    "/transom_bar",
+    "trim"
+   ],
+   [
+    "roof/ridge_cap",
+    "trim"
+   ],
+   [
+    "front/door_",
+    "trim"
+   ],
+   [
+    "back/door_",
+    "trim"
+   ],
+   [
+    "yard/door_",
+    "trim"
+   ],
+   [
+    "lane/door_",
+    "trim"
+   ],
+   [
+    "/in_ground/",
+    "inside"
+   ],
+   [
+    "/in_upper/",
+    "inside"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
+   [
+    "/m/casing",
+    "inside"
+   ],
+   [
+    "/p/casing",
+    "inside"
+   ],
+   [
+    "/door_",
+    "inside"
+   ],
+   [
+    "ceiling/",
+    "ceiling"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "floor/attic/board",
+    "floor"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "back_porch/board",
+    "rough"
+   ],
+   [
+    "back_porch/roof_board",
+    "rough"
+   ],
+   [
+    "stoop/",
+    "rough"
+   ],
+   [
+    "fence/",
+    "rough"
+   ],
+   [
+    "stair/",
+    "rough"
+   ],
+   [
+    "ladder/",
+    "rough"
+   ]
+  ],
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_timber",
+  "timber": "wood:int_timber",
+  "trim_outside": "painted_green",
+  "roof": "weathered_pine",
+  "rough": "framing",
+  "chimney": "stone"
+ },
+ "sources": [
+  "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
+  "William E. Bell, Carpentry Made Easy (1858): the balloon frame, studs at 16 in sill to plate, girders on piers.",
+  "George E. Woodward, Woodward's Country Homes (1865), 'Balloon Frames' (p.151); Woodward's National Architect (1869): sills, corner posts, partitions of 3x4 at 12-16 in.",
+  "Palliser, Palliser & Co., American Cottage Homes (1878): a cottage's storey heights and specification.",
+  "Fred T. Hodgson, The Carpenters' Steel Square and its Uses (1883): common rafters, the birdsmouth, the collar beam.",
+  "D. W. Cathell, The Physician Himself (1882): the office kept neat, his library on show, a second door so a patient leaves without crossing the waiting room.",
+  "Dr. Maghee's office, Rawlins, Wyoming, 1880s photograph (Carbon County Museum 1955.282.0025): a small clapboard doctor's office with a gable front and an off-centre door.",
+  "Operating tables: factory-made ones (Allison, 'Perfection') are of the 1890s; an 1882 country surgeon's was a plain wooden table (ECU 13885; Dittrick Museum).",
+  "Light for surgery: daylight from big windows, north preferred, lamps at night (Farrar 1880; Saint Marys Hospital's 1889 operating room).",
+  "History Colorado, 'False Front Commercial': the type the doctor's isn't (Sean chose the gable front, 2026-11-10).",
+  "All references: REFERENCES.md (found by search; none could be opened from the session: to be checked)."
+ ],
+ "ladders": [
+  {
+   "_doc": "NEW (the train's Ladder part): fixed to the back wall's studs through the siding, from the back lot up to the loft door's sill, east of the back porch (Sean, 2026-11-10).",
+   "id": "loft",
+   "wall": "back",
+   "at": 3.6,
+   "from": 0.0,
+   "to": 4.61,
+   "width": 0.45
+  }
+ ],
+ "lamps": {},
+ "furniture": [],
+ "fixtures": [],
+ "summer_beams": [
+  {
+   "_doc": "NEW: the loft's joists break over the hall's walls, which stop at the front office's back wall; across the front office they break over a summer beam (a 6x8 cased in the ceiling) on two posts, one let into the front wall, one into the office's back wall, each over a girder.",
+   "id": "office_e",
+   "x": 4.05,
+   "z": [
+    0.1,
+    3.86
+   ],
+   "section": [
+    0.15,
+    0.235
+   ],
+   "posts": [
+    0.18,
+    3.81
+   ]
+  },
+  {
+   "id": "office_w",
+   "x": 5.37,
+   "z": [
+    0.1,
+    3.86
+   ],
+   "section": [
+    0.15,
+    0.235
+   ],
+   "posts": [
+    0.18,
+    3.81
+   ]
+  }
+ ]
+}

@@ -755,6 +755,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **Buildings from their specs** (#765): a town lot's `spec` (the building lab's format, the doctor's
+  first) is built on it by `ValleyWorld._make_buildings` in place of its block (ValleyMarkers skips it),
+  its floor at its walk's top; a lot's `pad` {y, x, z, blend} is dug level into the bake
+  (`valley_plan.py`); a walk's `span` keeps it to the building, `door_x` puts its steps at the door.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -866,6 +870,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   members); a member drawn on its own has the shared `char_overlay.gdshader` with its look as
   instance uniforms, carried over when it's unbatched or snaps (`_own_fire_look`); both share
   `char.gdshaderinc`. A KitProp leaves its PropBatch when it heats.
+  **Library boards** (#765): a member drawn by the material library's `scan_wood.gdshader` (its mesh's
+  meta `board_frame`, made by the building lab's `spec_building.gd`) batches only with its material's
+  boards facing the same way, merged and drawn in that frame (`_batch_axes`) with their CUSTOM0-2
+  channels (the shader reads a board's axes from its node); no fire places on those batches.
   **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
   batched member is its body alone (`StructureMember.rest`: its mesh and shape nodes out of the tree,
   kept, the shape held on the body as a shape owner, so it's still the collider); `realise()` puts

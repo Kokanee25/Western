@@ -70,7 +70,8 @@ func test_a_block_for_every_building_volume() -> void:
 	var lay := ValleyLayout.main()
 	var want := 0
 	for l: Dictionary in lay.town_buildings():
-		want += 1
+		if not l.has("spec"):
+			want += 1  # (a lot with its building's spec has that building, not a block: #765)
 	for ex: Dictionary in lay.town().get("extras", []):
 		if ex.has("w"):
 			want += 1

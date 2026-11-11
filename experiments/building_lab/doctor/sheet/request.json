@@ -1,0 +1,111 @@
+{
+ "_doc": "The doctor's office target sheet (#765, the building lab's step 1). tools/buildings/target_sheet.py paints each view on GitHub (building_sheet.yml) and lays them out (sheet.jpg). Sean's calls (2026-11-10): a gable front, white with green trim, the surgery lit from the east, go at a $2.50 cap; the spec (step 2) settles every size. References: ../REFERENCES.md.",
+ "sheet_title": "Salt Creek, 1882: the doctor's office and dispensary (target sheet, #765)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (planed pine, paint, glass, iron, brick, dust), period-accurate in every object. No people unless the view asks for them. No modern objects. No text other than the signs named. No border, no frame, no watermark, no captions.",
+ "building": "A doctor's office and dispensary, built in 1880 in a two-year-old Colorado mining-and-ranching boom town, now 1882: a 'fine' building for its town, built by a doctor with some money, kept in good repair, two years old (fresh paint just beginning to chalk on the sunny front, dust splashed at the foot). A one-storey wood-frame building 26 ft wide and 48 ft deep, its floor 3 ft above the dirt street, its gable end facing the street (no false front), a steep front-gable roof (about 9/12, wood shingles) running front to back, two brick chimneys on the ridge line (one middle, one at the back), like the 1880s photograph of Dr. Maghee's office in Rawlins, Wyoming. Narrow planed pine lap clapboard siding painted white lead (warm off-white); corner boards, window casings, sashes, the doors and the gable's raking boards and frieze painted dark bottle green; the gable has a small window to the loft space and simple moulded rakes. A long flat painted signboard fixed across the front under the gable, over the awning, reads 'PHYSICIAN & SURGEON' in black shaded letters; the left show window has 'DRUGS' in gilt letters on the glass. The front (facing the street, south): a raised plank boardwalk 3 ft up with five plank steps down to the street in front of the door, and a shed-roofed wooden awning over the walk on four chamfered square posts about 9 ft high; a green four-panel door with a glazed upper half and a transom, set a little off-centre, between two big show windows of four large panes each; in one window two tall glass show globes (apothecary carboys) of red and green liquid. The east side faces a side yard and a picket gate (the yard 25 ft wide, a buggy shed and his horse's stall at its back): on that side two tall double-hung windows for the surgery, a side door with a small stoop and steps (for a stretcher brought round from a wagon), and a smaller window further back. The rear: a small open back porch with a door into his kitchen, a stovepipe, a woodpile, a rain barrel, a path to a privy. Inside, front to back: (1) the front office and waiting room across the full width (a long bench, chairs, a coal stove, his roll-top desk and a glass-fronted bookcase of medical books, a wall clock); (2) behind it on the west the dispensary, a narrow room lined floor to ceiling with shelves of bottles and stoppered glass jars, banks of small labelled drawers, a counter with brass scales, a mortar and pestle, a pill machine; (3) behind it on the east the surgery and examining room, the largest back room, lit by the two tall east windows: a plain heavy wooden operating table of a carpenter's making, padded with a thin horsehair pad under oilcloth (no factory-made table: they come later), an instrument cabinet with glass doors, a washstand with a basin and pitcher, a kerosene lamp hung from the ceiling on a pulley, a carbolic spray, a bucket of sawdust; (4) at the back on the east a small sickroom with two narrow iron cots, a chair, a washstand and a chamber pot, for a patient kept overnight; (5) at the back on the west his own quarters: a kitchen-sitting room with a cast-iron cookstove, table and chairs, and his small bedroom. Walls and ceilings inside are planed beaded tongue-and-groove boards painted pale (cream in the office, pale grey-green in the surgery), a varnished pine floor, plain moulded door and window casings, four-panel doors.",
+ "views": [
+  {
+   "id": "front",
+   "title": "Front (south), from the street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The front of the building seen straight on from the middle of the dirt street at eye level, a little after noon in clear sky, the whole gable front up to the ridge, the awning, the boardwalk and its steps in frame, a bit of the neighbours either side (a plain grey frame building on the left, an alley and a barber's on the right), the side yard's picket gate visible on the right. Nearly orthographic: a long lens, little perspective."
+  },
+  {
+   "id": "plan",
+   "title": "Floor plan",
+   "aspect": "2:3",
+   "size": "2K",
+   "view": "A clean architect's floor plan of the building drawn from above, black ink lines on off-white paper, the street (south) at the bottom: walls as thick lines, every door with its swing arc, every window as a thin triple line, the furniture drawn in plan (the bench, desk, stove, shelves, counter, operating table, cots, cookstove, bed). Each room labelled in neat hand lettering: FRONT OFFICE & WAITING ROOM, DISPENSARY, SURGERY, SICK ROOM, KITCHEN, BEDROOM, BACK PORCH, BOARDWALK, SIDE YARD. A scale bar in feet and a north arrow. No perspective, no colour except a pale wash on the floors."
+  },
+  {
+   "id": "side_yard",
+   "title": "Front and east side, from the side yard's corner",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front"
+   ],
+   "view": "A three-quarter view from the street's far side looking north-west, showing the front and the whole east side: the side yard, its picket gate, the surgery's two tall windows, the side door and its stoop, the buggy shed and stall at the back of the yard, the long roof running back from the front gable and its two chimneys. Late afternoon light."
+  },
+  {
+   "id": "rear",
+   "title": "Rear (north), from the back lot",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "The back of the building from the back lot, a three-quarter view from the north-west: the back gable end, the back porch and kitchen door, the kitchen window, the stovepipe and chimney, the woodpile, rain barrel and the path to the privy. Morning light."
+  },
+  {
+   "id": "cutaway",
+   "title": "Cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-east with the roof and the east and south walls cut away (the cut edges showing the studs, plates, joists and clapboard), revealing every room furnished as the plan has it, in daylight: the front office and waiting room, the dispensary's bottle shelves, the surgery with its table under the windows, the sick room's two cots, the kitchen and bedroom. The framing visible at the cuts: balloon-framed studs at 16 inches, floor joists on sills and piers, the rafters and collar ties of the gable roof."
+  },
+  {
+   "id": "front_office",
+   "title": "Inside: the front office and waiting room",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the front office and waiting room at eye level, standing just inside the street door looking back into the building: daylight through the show windows on the left and right, the long bench and chairs, the coal stove, the roll-top desk and bookcase, the wall clock, the open door to the dispensary on the left with its shelves of bottles glimpsed, the door to the surgery on the right."
+  },
+  {
+   "id": "surgery",
+   "title": "Inside: the surgery and examining room",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the surgery at eye level: the plain wooden operating table (a carpenter's, padded under oilcloth) in the middle under the strong side light of the two tall east windows, the ceiling lamp on its pulley over it, the glass-doored instrument cabinet, the washstand, a side table with instruments laid on a towel, the carbolic spray, a bucket of sawdust under the table's end; the door to the sick room at the back."
+  },
+  {
+   "id": "dispensary",
+   "title": "Inside: the dispensary",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the narrow dispensary at eye level: shelves to the ceiling crowded with real period medicine bottles (amber, cobalt, clear and green glass, paper labels), stoppered show jars, banks of small wooden drawers with brass pulls and enamel labels, the counter with brass scales, a marble slab, a mortar and pestle and a pill machine, a ladder; light from the front office's door."
+  },
+  {
+   "id": "sick_room",
+   "title": "Inside: the sick room",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the small sick room at eye level in the evening: two narrow iron cots with grey wool blankets against the walls, a wooden chair between them, a washstand with a basin and pitcher, a kerosene lamp on a small table, a curtained window, a chamber pot under one cot; the open door to the surgery beyond."
+  },
+  {
+   "id": "quarters",
+   "title": "Inside: his quarters (kitchen and bedroom)",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the doctor's kitchen-sitting room at eye level: the cast-iron cookstove with its pipe, a deal table with two chairs and an oil lamp, a dresser of plates, his coat on a peg, books on a shelf, the back door with its window, and through an open door his small bedroom with an iron bed. A bachelor's tidy, plain rooms. Morning light."
+  }
+ ]
+}
