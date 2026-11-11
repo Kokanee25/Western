@@ -1250,4 +1250,4 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   `shot_breaks`, `carries`; look `prop:plate_iron`; woods `leather`, `paper` (TimberTuning, gameplay's).
   Sean's paint A (#783). Critic round 2: coach DOESN'T (a box, not a Concord's egg-shaped body; it doesn't
   look hung), strongbox CLOSE (`experiments/prop_lab/results/2026-11-10_coach/`). Interface on #770.
-  Next: the next-step issue (the curved body, Sean's call).
+  Next: #787 (Sean: keep it, and build a Concord-bodied `baron_coach_concord` beside it to compare).
