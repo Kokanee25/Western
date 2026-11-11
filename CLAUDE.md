@@ -476,6 +476,14 @@ frozen until Sean names one.
   C1 game / near / game, F2 game x3 (unmoved; its varnish waits on the light lane, #711). Every swatch
   passes "game or better". Traps: the judges vary by about a grade run to run; a per-board value that's
   hashed must be a flat varying; ~1 min a 1080p lab shot after ~1.5 min of load.
+  **Paint** (#721, branch `claude/art-material-paint-0ba7mm`; LAYOUT "src/render" material library): paint
+  entries (family `paint`, P1-P6) `over` the woods, scan_wood's `paint_*` and `bead`; three blind rounds each
+  outside and in (`docs/screenshots/judge/2026-11-11_paint_r*`, sheets
+  `docs/screenshots/material_library/2026-11-11_paint/`): all game, P5/P6 new near the yardstick; passed
+  (`approved`): `painted_white_lap`, `painted_green_trim`, `painted_buff_drop`, `painted_pale_tg`,
+  `painted_pale_tg_green` at every age, `painted_oxblood_batten` few and old. The doctor takes his three by
+  name. Traps: a ~2.5 h review round here, render only what changed; the lab's shader is loaded at its start
+  (edit freely while it runs).
 - **The doctor's office** (#765, branch `claude/art-building-doctor-8rz70p`; `experiments/building_lab/doctor/`
   README, `RECIPE.md`): the first practice building through the building lab's six steps, on its valley
   lot (`valley.json` `spec`, `pad`, walk `span`/`door_x`); unpainted on passing swatches, finishes from

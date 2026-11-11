@@ -101,3 +101,12 @@ him (bridge, 2026-11-10: packed, taken in 484 m, laid at his steps, `sheriff.car
 ## Step 6: the recipe
 
 `../RECIPE.md`.
+
+## The paints (#721's paint round, 2026-11-11)
+
+The library's paints passed the materials judge (`docs/screenshots/judge/2026-11-11_paint_r*`), so the
+doctor's `want`s are used on load: `painted_white_lap` (few) outside, `painted_green_trim` (few) on the
+corner boards, trim and outside doors, `painted_pale_tg` (few, cream) inside and on the ceilings. Renders in
+game light by `render_valley.gd` (front, side yard, front office, surgery) and each beside round 2's
+unpainted one: `results/2026-11-11_paint/`. `painted_pale_tg_green` (the surgery's grey-green) is in the
+library too, for when the spec gives the surgery its own finish.

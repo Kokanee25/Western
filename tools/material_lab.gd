@@ -663,7 +663,7 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				lamps[i].global_position = pt * (PANEL_LAMPS[i] as Vector3)
 			numbers["panels"].append({"name": name, "entry": spec["entry"].get("id", ""), "age": spec["age"],
 					"boards": p.boards, "triangles": _triangles(p), "man_height": _man_height(man),
-					"rail_height": float(sp.CLASSES[StringName(spec["entry"].get("class", "common"))]["rail"]["h"]),
+					"rail_height": float(sp.CLASSES[StringName(ml.resolved(spec["entry"]).get("wood_class", "common"))]["rail"]["h"]),
 					"wall_height": 2.0})
 			# A probe's viewport settings for this panel's shots (put back after).
 			var view_was := {}
@@ -687,6 +687,9 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				shots = REVIEW_SHOTS.duplicate()
 				if views.has("rail"):
 					shots += REVIEW_FINE
+				# A coat indoors is judged under the lamps too.
+				if bool(spec["entry"].get("inside", false)):
+					shots.append(["saloon", "near"])
 			var lit := ""
 			for shot in shots:
 				var light: String = shot[0]

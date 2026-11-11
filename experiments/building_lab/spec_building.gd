@@ -2351,8 +2351,9 @@ func _library_finishes() -> void:
 		var mi := m.drawn_node()
 		if mi == null:
 			continue
-		var e := MaterialLibrary.entry(String(f.entry))
-		var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("class", "common")), SamplePanel.CLASSES[&"common"])
+		# A paint lies over a wood (#721's paint round): its boards' class and nails are the resolved entry's.
+		var e := MaterialLibrary.resolved(MaterialLibrary.entry(String(f.entry)))
+		var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("wood_class", "common")), SamplePanel.CLASSES[&"common"])
 		var ai: int = ["new", "few", "old"].find(String(f.get("age", "few")))
 		var warp := float(cls.warp[ai]) * float(e.get("warp_scale", 1.0))
 		var nails := Vector2(float(e.get("nails", 1)), float(e.get("nail_at", 0.6)))
