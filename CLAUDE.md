@@ -892,7 +892,7 @@ frozen until Sean names one.
   blockers excepted, the strongbox loose with it, on the ground's grade), `CoachCut` (the valley's coach
   cut, `-- --world=valley --mission=coach`, bridge `ch_cut`), on the prop lab's `baron_coach`. Lab, 8 seeds:
   over 8/8, the deepest dent 3.6-3.7 cm, worst frame ~23 ms at Sean's; in the cut over 8/8, 3.7 cm, ~31 ms.
-  Rough: the guards have no brains or guns. Next: the issue after #794 (the guards' fight after the hit).
+  Rough: the guards have no brains or guns. Build 4002. Next: #815 (the guards fight back, the strongbox taken).
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
