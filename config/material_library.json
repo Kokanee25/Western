@@ -102,7 +102,7 @@
    "name": "Ox-blood red (iron oxide in linseed oil), on rough-sawn board and batten",
    "paint": 1.0, "paint_color": [0.4, 0.12, 0.08], "paint_under": [0.3, 0.12, 0.08],
    "paint_chalk": 0.75, "paint_fade": 0.55, "paint_peel": 0.45, "paint_crack": 0.3, "paint_thin_new": 0.15, "paint_thin": 0.6,
-   "paint_relief": 0.85, "paint_brush": 0.15, "paint_rough_new": 0.6,
+   "paint_relief": 0.85, "paint_brush": 0.15, "paint_rough_new": 0.6, "paint_soften": 1.2, "paint_edge": 1.0,
    "layer_new": 0.3, "streaks": 0.45, "sun_fade": 0.0, "grime": 0.8, "joint_dirt": 0.45, "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {

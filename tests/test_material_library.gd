@@ -160,3 +160,15 @@ func test_texel_grid_per_member_values_are_flat() -> void:
 	var code := f.get_as_text()
 	for v in ["varying flat float lab_u0;", "varying flat vec4 weather_frame;", "varying flat vec4 weather_nails;"]:
 		check(code.contains(v), v)
+
+
+## Paint round 2 (#804): every dial the library sets is a uniform of the shader (a misspelt one is
+## silently dropped), and the round's dials are there: an indoor film that doesn't erode, the
+## outdoor strips.
+func test_every_library_dial_is_a_shader_uniform() -> void:
+	var code: String = (load("res://src/render/scan_wood.gdshader") as Shader).code
+	for d in MaterialLibrary.DIALS + MaterialLibrary.COLOURS:
+		check(code.contains("uniform float %s " % d) or code.contains("uniform vec3 %s " % d)
+				or code.contains("uniform float %s;" % d), "%s is a scan_wood uniform" % d)
+	for d in ["paint_erode_inside", "paint_strips"]:
+		check(d in MaterialLibrary.DIALS, "%s is a library dial" % d)

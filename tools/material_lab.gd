@@ -114,6 +114,13 @@ var _review := false
 var _settle := 40
 var _probe_aa := false
 var _probe_ss := false
+## --probe-dials=FILE: the probe's variants from a JSON file, {name: {shader dial: value}} (paint round 2).
+var _probe_dials := ""
+## --dials=FILE: shader dials laid on every panel, {dial: value} (a round's "before" as the same code
+## with its new dials set back, so before and after share the panels' boards).
+var _dials := {}
+## --shots=noon_near,golden_far: only these of a panel's shots.
+var _only_shots: Array = []
 var _bisect_only: Array = []  # --bisect-only=6_weathering,6b_no_stochastic: just these steps
 var _bisect_from := 0  # --bisect-from=N: start the bisect at step N (a cut-off run picked up)
 ## --aa=taa: the review renders through Godot's TAA instead of the real look's FSR2. Under lavapipe
@@ -154,6 +161,12 @@ func _run() -> void:
 			_probe_ss = true
 		elif arg == "--probe-aa":
 			_probe_aa = true
+		elif arg.begins_with("--shots="):
+			_only_shots = Array(arg.substr(8).split(","))
+		elif arg.begins_with("--dials="):
+			_dials = JSON.parse_string(FileAccess.get_file_as_string(arg.substr(8)))
+		elif arg.begins_with("--probe-dials="):
+			_probe_dials = arg.substr(14)
 		elif arg.begins_with("--settle="):
 			_settle = int(arg.substr(9))
 		elif arg.begins_with("--man="):
@@ -626,8 +639,16 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 					mat.set_shader_parameter("variety", spec["variety"])
 				if spec.has("warp_gain"):
 					mat.set_shader_parameter("warp_gain", spec["warp_gain"])
-				for d in spec.get("dials", {}):
-					mat.set_shader_parameter(d, spec["dials"][d])
+				var all_dials: Dictionary = _dials.duplicate()
+				all_dials.merge(spec.get("dials", {}), true)
+				for d in all_dials:
+					var dv = all_dials[d]
+					# (a probe file's [r, g, b] is a vec3)
+					if dv is Array and dv.size() == 3:
+						dv = Vector3(dv[0], dv[1], dv[2])
+					elif d == "bisect":
+						dv = int(dv)
+					mat.set_shader_parameter(d, dv)
 			p.visible = false
 			built.append([spec, p, x])
 			x += PANEL_STEP + (float(spec["long"]) - 2.0 if spec.has("long") else 0.0)
@@ -690,6 +711,8 @@ func _panels(street: Node3D, viewport: SubViewport, clock, settings, families: S
 				# A coat indoors is judged under the lamps too.
 				if bool(spec["entry"].get("inside", false)):
 					shots.append(["saloon", "near"])
+			if not _only_shots.is_empty():
+				shots = shots.filter(func(sh): return _only_shots.has("%s_%s" % [sh[0], sh[1]]))
 			var lit := ""
 			for shot in shots:
 				var light: String = shot[0]
@@ -785,12 +808,18 @@ func _panel_specs(ml, family: String) -> Array:
 				"taa": {"view": {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "use_taa": true}},
 				"msaa4": {"view": {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "msaa_3d": Viewport.MSAA_4X}},
 			}
+		var pseed := 3
+		if _probe_dials != "":
+			variants = JSON.parse_string(FileAccess.get_file_as_string(_probe_dials))
+			# (a dials probe draws the entry's own boards: its seed as a full run's, below)
+			var fam: Array = ml.entries(String(pe.get("family", "")))
+			pseed = fam.map(func(x): return x["id"]).find(pid) * 3 + maxi(["new", "few", "old"].find(age), 0)
 		for vn in variants:
 			var d: Dictionary = variants[vn]
 			var dials: Dictionary = {} if (d.has("view") or d.has("env")) else d
 			out.append({"entry": pe, "age": age, "name": "%s_%s_%s" % [pid, age, vn], "dials": dials,
 					"view": d.get("view", {}), "env": d.get("env", {}), "ssil_full": d.get("ssil_full", false),
-					"views": {"near": PANEL_VIEWS["near"]}, "seed": 3})
+					"views": {"near": PANEL_VIEWS["near"]}, "seed": pseed})
 		return out
 	if family == "long" or family == "shape":
 		# Part 1 on a long wall, part 5 on a rough wall: before (off) and after, each age.
@@ -806,18 +835,22 @@ func _panel_specs(ml, family: String) -> Array:
 				out.append({"entry": e, "age": age, "name": "%s_%s_true" % [id, age], "warp_gain": 0.0, "views": SHAPE_VIEWS})
 				out.append({"entry": e, "age": age, "name": "%s_%s_warped" % [id, age], "warp_gain": 1.0, "views": SHAPE_VIEWS})
 		return out
-	var i := 0
+	# A panel's seed is its place in the whole family at all three ages, so a run of a few entries or
+	# ages builds the same boards as a full run (paint round 2: a round's before and after, and a
+	# judged crop, reproducible from any subset).
+	var ei := -1
 	for e in ml.entries(family):
+		ei += 1
 		if not _panel_entries.is_empty() and not _panel_entries.has(e["id"]):
 			continue
 		for age in _panel_ages:
+			var i: int = ei * 3 + maxi(["new", "few", "old"].find(String(age)), 0)
 			var spec := {"entry": e, "age": age, "name": "%s_%s" % [e["id"], age], "seed": i}
 			if String(e.get("class", "")) == "fine":
 				var v := PANEL_VIEWS.duplicate()
 				v["rail"] = RAIL_VIEW
 				spec["views"] = v
 			out.append(spec)
-			i += 1
 	return out
 
 

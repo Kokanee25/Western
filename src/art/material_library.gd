@@ -31,7 +31,7 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"grain_contrast", "eaves_m", "edge_shelter", "b_stochastic", "varnish_dark",
 		"age_split", "checks", "end_rot", "contact", "arris",
 		"paint", "paint_inside", "paint_chalk", "paint_fade", "paint_peel", "paint_crack", "paint_thin_new",
-		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead"]
+		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "paint_erode_inside", "paint_strips", "paint_soften", "paint_edge", "bead"]
 ## Colours an entry may set ([r, g, b], sRGB as the shader's source_color).
 const COLOURS := ["tint_new", "tint_mid", "tint_old", "varnish_amber", "paint_color", "paint_under", "paint_dust"]
 
@@ -119,6 +119,9 @@ static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName
 	for d in DIALS:
 		if r.has(d):
 			m.set_shader_parameter(d, float(r[d]))
+	if r.has("paint_yellow_tint"):
+		var yt: Array = r["paint_yellow_tint"]
+		m.set_shader_parameter("paint_yellow_tint", Vector3(yt[0], yt[1], yt[2]))
 	if r.has("wear_band"):
 		m.set_shader_parameter("wear_band", Vector2(r["wear_band"][0], r["wear_band"][1]))
 	m.set_shader_parameter("age", age)
