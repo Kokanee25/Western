@@ -105,3 +105,20 @@ What it says, and what it can't:
 Sean's ear on the blind set. If one passes, it becomes the fiddler's voice (the note data drives
 both his sound and his hands). If none does, a fiddler records the tunes phrase by phrase from our
 sheet music; the hands are built from the note data either way.
+
+## Sean's ear (2026-11-11, on his phone, blind)
+
+| Clip | Sean | Was |
+|---|---|---|
+| 1 | Sounds real | A, samples (up close) |
+| 2 | Sounds real | B, the model (up close) |
+| 3 | Wrong | the 1922 record (up close) |
+| 4 | Sounds real | C, hybrid (up close) |
+| 5 | Sounds real | B, the model (through the floor) |
+| 6 | Sounds real | A, samples (through the floor) |
+| 7 | Wrong | the 1922 record (through the floor) |
+| 8 | Close | C, hybrid (through the floor) |
+
+All three of ours passed; A and B in both places. The record marked wrong is most likely its
+medium and tune (a 1922 horn disc, Sallie Gooden). No fiddler needed by this test. Which one becomes
+the fiddler's voice is Sean's call (recommended: B, no sample files, the same note data as his hands).
