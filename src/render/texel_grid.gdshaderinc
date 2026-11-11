@@ -74,7 +74,7 @@ varying float lab_face;
 // member's long faces starting `lab_u0` m along its strip (COLOR.b x 2 m: LabGeometry's per-member
 // offset, so members sharing a strip don't show the same knot at the same place).
 uniform float end_texels = 0.0;
-varying float lab_u0;
+varying flat float lab_u0;
 // The board's edge lines at least a screen pixel wide (material lab round 3, 2026-10-21): a
 // texel-wide line on a fine wood (384 a metre: 2.6 mm) is under a pixel past a metre or two and
 // broke into dashes as it fell on and off the pixels' centres (both blind critics' "black dashes
@@ -122,8 +122,8 @@ uniform float weather_bleach_walls = 0.45;
 // shapes on the wood rather than a coat with the bare wood showing as pale shapes in it (round 4's
 // "pale clouds"); 1 = as before.
 uniform float weather_mud_cover = 1.0;
-varying vec4 weather_frame;
-varying vec4 weather_nails;
+varying flat vec4 weather_frame;
+varying flat vec4 weather_nails;
 varying vec3 weather_n;
 
 varying vec3 tri_pos;

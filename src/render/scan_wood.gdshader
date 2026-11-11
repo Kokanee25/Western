@@ -114,6 +114,44 @@ uniform float specular_wood = 0.35;
 // (joints, splash), 9 + the rest (sun-fade, streaks, nails, varnish, end grain, lap shade).
 uniform int bisect = 99;
 
+// Paint (#721's paint round, 2026-11-11; config/material_library.json's `paint` entries): a coat over
+// the wood, aged as house paint ages. Oil paint (white lead in linseed, or earth and chrome pigments in
+// it) doesn't wear evenly: the binder breaks down in UV first, so the sunny faces chalk (a pale, matte
+// powder) and fade while the shaded ones keep their colour; water gets in where it sits (the foot by
+// the ground, a lap's drip edge, board ends, the edges' arrises) and the film lets go there, cracking
+// along the grain first (wood moves across its grain, the film can't) and then peeling in strips
+// to the primer and the bare wood, which greys as bare wood does. Thin paint shows the grain under it,
+// and rough-sawn wood's fibres through any coat. Inside, no sun: it yellows, rubs through where hands
+// go and is scuffed at the foot. Sources: USDA Forest Products Lab, "Wood Handbook" ch. 16 (finishing,
+// paint failure on wood); FPL's "Painting Outside Wood Surfaces" and Williams, "Finishes for Exterior
+// Wood" (chalking, cracking with the grain, intercoat peeling, mill glaze); National Park Service
+// Preservation Brief 10, "Exterior Paint Problems on Historic Woodwork" (the failure patterns by
+// place: sills, drip edges, the sunny elevations).
+uniform float paint : hint_range(0.0, 1.0) = 0.0;
+// A bead along one edge of each board (beaded tongue and groove).
+uniform float bead = 0.0;
+uniform vec3 paint_color : source_color = vec3(0.9, 0.89, 0.84);
+// The coat under it (primer, or an older colour) seen in the ring round each peel.
+uniform vec3 paint_under : source_color = vec3(0.86, 0.84, 0.78);
+// 0 outside, 1 inside (no sun, no rain).
+uniform float paint_inside : hint_range(0.0, 1.0) = 0.0;
+// Each at full age (old); a few years is about a third of chalk, cracks and peeling.
+uniform float paint_chalk = 0.7;
+uniform float paint_fade = 0.5;
+uniform float paint_peel = 0.6;
+uniform float paint_crack = 0.6;
+// How much the grain shows through: new, and the most when old (a thin, eroded film).
+uniform float paint_thin_new = 0.08;
+uniform float paint_thin = 0.45;
+// The wood's relief through the coat (rough-sawn more), new and old.
+uniform float paint_relief = 0.45;
+uniform float paint_brush = 0.5;
+uniform float paint_rough_new = 0.42;
+uniform float paint_yellow = 0.0;
+uniform vec3 paint_dust : source_color = vec3(0.58, 0.49, 0.39);
+// Where the sun works hardest, in the world (south-west: the afternoon's heat; DayCycle's south is -Z).
+uniform vec3 paint_sun = vec3(-0.6, 0.0, -0.8);
+
 // Flat: the seed is one number a board, and the fragment shader hashes it into the board's place in
 // each scan. Interpolated, its last bits differed from pixel to pixel (a perspective-interpolated
 // constant isn't exact), and the hash turned that into jumps of many texels in the rasteriser's
@@ -254,6 +292,11 @@ void fragment() {
 	}
 	vec3 nrm = bisect >= 3 ? scan_normal(normal_a, uva, fa, grain_v_a) : vec3(0.0, 0.0, 1.0);
 	float rough = bisect >= 4 ? texture(rough_a, uva, detail_bias).r : 0.6;
+	// The fresh grain against its neighbourhood, for paint thin enough to show it.
+	float grain_hp = 1.0;
+	if (paint > 0.0) {
+		grain_hp = dot(col, vec3(0.333)) / max(dot(textureLod(albedo_a, uva, 6.0).rgb, vec3(0.333)), 0.01);
+	}
 	if (has_a2 && rnd(seed, 30.0) > 0.0 && variety > 0.5 && bisect >= 5) {
 		vec2 f2;
 		vec2 uv2 = scan_uv(m, tile_a2, grain_v_a2, seed, 1.0, f2);
@@ -263,6 +306,9 @@ void fragment() {
 		}
 		nrm = scan_normal(normal_a2, uv2, f2, grain_v_a2);
 		rough = texture(rough_a2, uv2, detail_bias).r;
+		if (paint > 0.0) {
+			grain_hp = dot(col, vec3(0.333)) / max(dot(textureLod(albedo_a2, uv2, 6.0).rgb * a2_gain, vec3(0.333)), 0.01);
+		}
 	}
 	// Saw arcs: centred off one edge every ~0.9 m along the board, rings 5 mm apart.
 	if (saw_marks > 0.0 && face < 0.5 && bisect >= 5) {
@@ -351,6 +397,117 @@ void fragment() {
 		}
 	}
 
+	// Paint (the uniforms' note): the coat by where it is on the wall and how long it's been there.
+	float pcov = 0.0;
+	vec3 pcol = paint_color;
+	if (paint > 0.0 && bisect >= 9) {
+		float hp = v_world.y - v_ground;
+		float outside = 1.0 - paint_inside;
+		// The sun's share: a wall by its facing (the shaded side keeps its colour), a deck by facing up.
+		float sunk = floor_face ? clamp(v_wnormal.y, 0.0, 1.0)
+				: mix(0.3, 1.0, clamp(dot(normalize(v_wnormal.xz + vec2(1e-4)), normalize(paint_sun.xz)), 0.0, 1.0));
+		sunk *= outside * (1.0 - 0.7 * (floor_face ? 0.0 : smoothstep(wall_top - eaves_m, wall_top - 0.08, hp)));
+		// A few years ~0.37 of old's failure, old all of it.
+		// (A board replaced on an old wall was painted with it at some later coat: most of the wall's age.)
+		float pag = mix(ag, age, 0.75);
+		float years = 0.35 * smoothstep(0.0, 0.5, pag) + 0.65 * smoothstep(0.45, 1.0, pag);
+		// Where water sits: the foot, a horizontal board's lower (drip) edge, the arrises, the ends.
+		float foot = 1.0 - smoothstep(0.04, 0.55, hp);
+		float drip = 0.0;
+		if (!floor_face && abs(v_axis.y) < 0.5 && face < 0.5) {
+			drip = smoothstep(0.5, 0.97, -v_across * sign(v_yaxis.y + 1e-4));
+		}
+		float arr = face < 0.5 ? smoothstep(0.82, 1.0, abs(v_across)) : 1.0;
+		float endz = face < 0.5 ? 1.0 - smoothstep(0.0, 0.14, min(v_m.x, v_length - v_m.x)) : 1.0;
+		float olds = smoothstep(0.45, 1.0, pag);
+		float drive = years * (outside * (0.45 * sunk * olds + 0.5 * foot + 0.4 * drip + 0.25 * arr + 0.35 * endz)
+				+ paint_inside * (0.3 * arr * smoothstep(0.5, 1.0, ag) + 0.15 * foot));
+		drive *= paint_peel;
+		// The film's failure field, in the board's own metres (flat seed: its own place), strips along
+		// the grain over blots; the peel's edge sharp but never thinner than a pixel.
+		vec2 pm = face < 0.5 ? v_m : m;
+		vec2 so = vec2(hash11(seed * 13.7 + 0.1), hash11(seed * 29.1 + 0.2)) * 5.0;
+		float strip = texture(big_noise, vec2(pm.x / 1.2, pm.y / 0.16) + so).r;
+		float blot = texture(big_noise, pm / 0.4 + so * 1.3 + 0.5).r;
+		float flake = texture(big_noise, vec2(pm.x / 0.12, pm.y / 0.05) + so * 0.7).r;
+		// Stretched to about a 0.2 spread, so nothing peels where nothing drives it (no stray flecks).
+		float field = (strip * 0.45 + blot * 0.4 + flake * 0.15 - 0.5) * 2.2 + 0.5;
+		float thr = 1.02 - 0.6 * drive;
+		float fw = max(fwidth(field), 0.003);
+		float bare_top = drive > 0.0 ? smoothstep(thr - fw, thr + fw, field) : 0.0;
+		float bare_wood = drive > 0.0 ? smoothstep(thr + 0.03 - fw, thr + 0.03 + fw, field) : 0.0;
+		// The film's lifted edge round each peel (lit), and its shadow on what's under it.
+		float lip = drive > 0.0 ? smoothstep(thr - 0.018 - fw, thr - fw, field) * (1.0 - bare_top) : 0.0;
+		float under = drive > 0.0 ? bare_top * (1.0 - smoothstep(thr + fw, thr + 0.012 + fw, field)) : 0.0;
+		// Cracks with the grain (a few years on), and across it as well when old (alligatoring), faded
+		// before they'd alias.
+		float near_k = 1.0 - smoothstep(0.35, 1.0, fwidth(pm.y) / 0.0015);
+		float crk = 0.0;
+		if (paint_crack > 0.0 && years > 0.0 && near_k > 0.0) {
+			float cf = texture(big_noise, vec2(pm.x / 0.45, pm.y / 0.05) + so * 2.0).r;
+			float cw = fwidth(cf);
+			float line = 1.0 - smoothstep(0.006, 0.006 + cw, abs(cf - 0.5));
+			float where = smoothstep(0.45, 0.62, texture(big_noise, pm / 0.5 + so + 0.25).r + 0.15 * sunk);
+			crk = line * where * smoothstep(0.0, 0.5, years);
+			float af = texture(big_noise, pm / 0.06 + so * 3.0).r;
+			float aw = fwidth(af);
+			float cell = 1.0 - smoothstep(0.008, 0.008 + aw, abs(af - 0.5));
+			crk = max(crk, cell * smoothstep(0.55, 1.0, years) * (0.35 + 0.65 * sunk) * where);
+			crk *= paint_crack * near_k;
+		}
+		// Brush marks along the grain: the ridges oil paint dries with.
+		float bn = texture(big_noise, vec2(pm.x / 0.5, pm.y / 0.012) + so * 3.0).r - 0.5;
+		float bfade = 1.0 - smoothstep(0.35, 1.0, fwidth(pm.y) / 0.0025);
+		// The coat's colour: one bucket (a whisker a board), faded and chalked by the sun, yellowed
+		// indoors, the grain under it showing as the film thins.
+		pcol *= 1.0 + 0.02 * variety * rnd(seed, 35.0);
+		pcol *= mix(vec3(1.0), vec3(1.0, 0.92, 0.76), paint_yellow * ag);
+		float pl = dot(pcol, vec3(0.3, 0.59, 0.11));
+		// Faded: duller and a little lighter, keeping its hue (an iron red goes brown-pink, not grey).
+		pcol = mix(pcol, mix(vec3(pl), pcol, 0.45) * 1.1 + 0.03, paint_fade * years * sunk);
+		float chalk = clamp(paint_chalk * years * sunk * (0.75 + 0.5 * (n1 - 0.5) + 0.7 * (n2 - 0.5)), 0.0, 1.0);
+		pcol = mix(pcol, vec3(0.85, 0.84, 0.8), chalk * 0.25);
+		float thin = mix(paint_thin_new, paint_thin, years) * (0.6 + 0.4 * sunk + 0.4 * paint_inside);
+		float ghp = clamp(grain_hp, 0.45, 1.6);
+		pcol *= mix(1.0, ghp, thin);
+		pcol *= 1.0 + paint_brush * 0.07 * bn * bfade;
+		vec3 prim = paint_under * mix(1.0, ghp, thin * 0.7);
+		vec3 c = mix(pcol, prim, bare_top);
+		// Bare wood out from under the coat greys in the sun as any bare wood does.
+		vec3 bare = mix(col, vec3(dot(col, vec3(0.3, 0.59, 0.11))) * 1.12, 0.2 + 0.4 * sunk);
+		c = mix(c, bare, bare_wood);
+		c *= 1.0 + 0.1 * lip;
+		c *= 1.0 - 0.45 * under;
+		c *= 1.0 - 0.55 * crk * (1.0 - bare_wood);
+		// Inside: hands' grime and polish in the rub band, scuffs at the foot (boots, chairs).
+		float rub = 0.0;
+		if (paint_inside > 0.0) {
+			float band = smoothstep(wear_band.x - 0.1, wear_band.x, hp) * (1.0 - smoothstep(wear_band.y, wear_band.y + 0.1, hp));
+			rub = paint_inside * ag * band * (0.45 + 0.55 * n2);
+			c = mix(c, c * vec3(0.8, 0.76, 0.7), rub * 0.55);
+			float sc = smoothstep(0.62, 0.7, texture(big_noise, vec2(q.x / 0.25, hp / 0.05) + so).r) * (1.0 - smoothstep(0.06, 0.35, hp));
+			c *= 1.0 - 0.3 * sc * paint_inside * (0.3 + 0.7 * ag);
+		}
+		// Dust splashed up from the street, speckled at the foot, a film higher (outside).
+		if (!floor_face) {
+			float spk = smoothstep(0.5, 0.62, texture(big_noise, q / 0.16 + 0.3).r);
+			float dust = outside * (0.12 + 0.88 * smoothstep(0.0, 0.5, ag)) * (1.0 - smoothstep(0.0, 0.35 + 0.3 * n2, hp)) * (0.35 + 0.65 * spk);
+			c = mix(c, paint_dust * mix(1.0, ghp, 0.3), dust * 0.6);
+		}
+		pcov = paint * (1.0 - bare_wood);
+		col = mix(col, c, paint);
+		// The wood's relief through the coat (more as it erodes), the brush's ridges, the cracks' and
+		// the peels' edges.
+		float relief = mix(paint_relief, min(paint_relief * 1.7, 1.0), years);
+		nrm.xy *= mix(1.0, relief, pcov);
+		nrm.y += pcov * paint_brush * 0.25 * bn * bfade * (1.0 - years);
+		float g1 = texture(big_noise, vec2(pm.x / 0.7, (pm.y + 0.002) / 0.06) + so).r - strip;
+		nrm.y -= paint * lip * clamp(g1 * 60.0, -1.0, 1.0) * 0.6;
+		float pr = mix(paint_rough_new, 0.94, max(chalk, years * 0.55));
+		pr = mix(pr, 0.3, rub * 0.6);
+		rough = mix(rough, pr, pcov);
+	}
+
 	float old_k = smoothstep(0.6, 1.0, ag);
 	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9) {
 		float fw = fwidth(v_m.y);
@@ -400,6 +557,16 @@ void fragment() {
 		}
 		col *= 1.0 - 0.55 * contact * sh;
 	}
+	// Beaded boards (inside walls and ceilings): a quirk cut along one edge and the bead rounded
+	// beside it, as a beading plane leaves (the doctor's office, #765).
+	if (bead > 0.0 && face < 0.5) {
+		float yb = v_width * 0.5 - 0.011;
+		float d = v_m.y - yb;
+		float quirk = 1.0 - smoothstep(0.0007, 0.0007 + fwidth(v_m.y), abs(d));
+		float tb = clamp(d / 0.0095, 0.0, 1.0);
+		nrm.y += bead * step(0.0, d) * (0.5 - tb) * 1.4;
+		col *= 1.0 - 0.45 * quirk * bead;
+	}
 	if (arris > 0.0 && face < 0.5) {
 		float e = smoothstep(v_width * 0.5 - 0.0035, v_width * 0.5, abs(v_m.y));
 		nrm.y += sign(v_m.y) * e * 0.9 * arris;
@@ -409,7 +576,7 @@ void fragment() {
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
 	if (!floor_face && bisect >= 9) {
 		// Sun-fade: paler and greyer in broad patches.
-		float f = sun_fade * age_layer * smoothstep(0.35, 0.85, n1);
+		float f = sun_fade * age_layer * smoothstep(0.35, 0.85, n1) * (1.0 - pcov);
 		col = mix(col, vec3(luma) * 1.12, f * 0.45);
 		// Water streaks: long dark runs down the wall.
 		float s = mix(0.5, texture(big_noise, vec2(q.x / 0.3, q.y / 6.0) + 0.71).r, variety);
@@ -429,7 +596,7 @@ void fragment() {
 		col *= 1.0 - joint_dirt * age_layer * smoothstep(0.72, 1.0, abs(v_across)) * 0.45;
 	}
 	if (end_grain && bisect >= 9) {
-		col *= 0.62;
+		col *= mix(0.62, 0.85, pcov);
 		rough = max(rough, 0.85);
 	}
 
@@ -504,14 +671,16 @@ void fragment() {
 	}
 	col = mix(col, col * vec3(0.72, 0.5, 0.36), rust * 0.6);
 	vec3 head = mix(vec3(0.16, 0.15, 0.14), vec3(0.28, 0.14, 0.07), ag);
+	// Painted over with the wall, rust coming through it in a few years.
+	head = mix(head, mix(pcol * 0.9, vec3(0.3, 0.15, 0.08), smoothstep(0.2, 0.9, ag) * 0.75), pcov);
 	col = mix(col, head, nail);
 
 	// The last millimetres beside a joint hold wax and dirt: no coat's gleam there (a cupped board's
 	// raised edge caught the sky as a pale line along every joint, the judge's dashes).
 	float by_joint = face < 0.5 ? smoothstep(0.8, 0.97, abs(v_across)) : 0.0;
 	ALBEDO = clamp(col, 0.0, 1.0);
-	ROUGHNESS = clamp(rough + roughness_add + 0.18 * ag * (1.0 - varnish) - nail * 0.2, 0.05, 1.0);
-	SPECULAR = edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish);
+	ROUGHNESS = clamp(rough + (roughness_add + 0.18 * ag * (1.0 - varnish)) * (1.0 - pcov) - nail * 0.2, 0.05, 1.0);
+	SPECULAR = mix(edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish), 0.5, pcov);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
 	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint);
