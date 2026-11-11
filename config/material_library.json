@@ -120,7 +120,7 @@
    "layout": "vertical", "board_w": 0.09, "nails": 0, "bead": 1.0, "arris": 0.5, "panel_class": "fine", "checks": 0.0, "end_rot": 0.0,
    "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]}, "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
    "paint": 1.0, "paint_inside": 1.0, "paint_color": [0.8, 0.8, 0.72], "paint_under": [0.72, 0.66, 0.52],
-   "paint_peel": 0.5, "paint_crack": 0.25, "paint_thin_new": 0.05, "paint_thin": 0.18, "paint_yellow": 0.55,
+   "paint_peel": 0.5, "paint_crack": 0.25, "paint_thin_new": 0.05, "paint_thin": 0.18, "paint_yellow": 1.0,
    "paint_relief": 0.35, "paint_brush": 0.5, "paint_rough_new": 0.4, "wear_band": [0.75, 1.1],
    "weathering": 0.0, "layer_new": 0.3, "streaks": 0.0, "sun_fade": 0.0, "grime": 0.35, "joint_dirt": 0.5,
    "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
@@ -131,7 +131,7 @@
    "layout": "vertical", "board_w": 0.09, "nails": 0, "bead": 1.0, "arris": 0.5, "panel_class": "fine", "checks": 0.0, "end_rot": 0.0,
    "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]}, "b": {"id": "Wood011", "grain": "v", "metres": [1.4, 1.4]}},
    "paint": 1.0, "paint_inside": 1.0, "paint_color": [0.68, 0.74, 0.68], "paint_under": [0.72, 0.66, 0.52],
-   "paint_peel": 0.5, "paint_crack": 0.25, "paint_thin_new": 0.05, "paint_thin": 0.18, "paint_yellow": 0.55,
+   "paint_peel": 0.5, "paint_crack": 0.25, "paint_thin_new": 0.05, "paint_thin": 0.18, "paint_yellow": 1.0,
    "paint_relief": 0.35, "paint_brush": 0.5, "paint_rough_new": 0.4, "wear_band": [0.75, 1.1],
    "weathering": 0.0, "layer_new": 0.3, "streaks": 0.0, "sun_fade": 0.0, "grime": 0.35, "joint_dirt": 0.5,
    "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}

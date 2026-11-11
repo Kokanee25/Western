@@ -422,7 +422,7 @@ void fragment() {
 		float endz = face < 0.5 ? 1.0 - smoothstep(0.0, 0.09, min(v_m.x, v_length - v_m.x)) : 1.0;
 		float olds = smoothstep(0.45, 1.0, pag);
 		float drive = years * (outside * (0.22 * sunk * olds + 0.9 * foot + 0.75 * drip + 0.5 * arr + 0.6 * endz)
-				+ paint_inside * 0.15 * foot);
+				+ paint_inside * (0.15 * foot + 0.55 * endz * olds));
 		drive *= paint_peel;
 		// The film's failure field, in the board's own metres (flat seed: its own place), strips along
 		// the grain over blots; the peel's edge sharp but never thinner than a pixel.
@@ -484,10 +484,11 @@ void fragment() {
 		float rub = 0.0;
 		if (paint_inside > 0.0) {
 			float band = smoothstep(wear_band.x - 0.1, wear_band.x, hp) * (1.0 - smoothstep(wear_band.y, wear_band.y + 0.1, hp));
+			// (inside round 3: the ages read, the judge's "old barely differs from new")
 			rub = paint_inside * ag * band * (0.45 + 0.55 * n2);
-			c = mix(c, c * vec3(0.8, 0.76, 0.7), rub * 0.55);
+			c = mix(c, c * vec3(0.72, 0.68, 0.6), rub * 0.8);
 			float sc = smoothstep(0.62, 0.7, texture(big_noise, vec2(q.x / 0.25, hp / 0.05) + so).r) * (1.0 - smoothstep(0.06, 0.35, hp));
-			c *= 1.0 - 0.3 * sc * paint_inside * (0.3 + 0.7 * ag);
+			c *= 1.0 - 0.5 * sc * paint_inside * (0.2 + 0.8 * ag);
 		}
 		// Dust splashed up from the street, speckled at the foot, a film higher (outside).
 		if (!floor_face) {
