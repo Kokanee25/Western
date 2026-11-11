@@ -89,7 +89,10 @@ def parse(abc):
     return out
 
 
-def arrange(tempo_half=108.0, seed=1882):
+def arrange(tempo_half=108.0, seed=1882, phrases=None, chords=None, title=None, source=None):
+    """The tune as played. `phrases`: [(notes, rep)], notes [(midi or None for a rest, units, bar)], a
+    unit the tune's running note (an eighth in Soldier's Joy's cut time, a sixteenth in a 2/4 reel);
+    `chords`: a chord name per bar (D, G, A). Default: Soldier's Joy."""
     rnd = random.Random(seed)
     eighth = 60.0 / tempo_half / 4.0
     swing = 0.55
@@ -97,7 +100,12 @@ def arrange(tempo_half=108.0, seed=1882):
     strokes = []
     t_eighths = 0.0
     lead = 0.3  # a breath before the first note
-    phrases = [(parse(ABC_A), 0), (parse(ABC_A2), 1)]
+    if phrases is None:
+        phrases = [(parse(ABC_A), 0), (parse(ABC_A2), 1)]
+        chords = CHORDS_A
+        title = "Soldier's Joy (A part twice)"
+        source = ("O'Neill's Music of Ireland (1903) No. 1642, via music21's corpus (oneills1850); "
+                  "traditional, public domain")
     direction = "up"  # the pickup comes up-bow so the bar starts down
     for phrase, rep in phrases:
         run = 0  # position within a run of eighths, for the shuffle
@@ -107,7 +115,12 @@ def arrange(tempo_half=108.0, seed=1882):
             if bar != last_bar:
                 run = 0  # the shuffle starts again on each bar's downbeat
                 last_bar = bar
-            chord = CHORDS_A[min(bar, len(CHORDS_A) - 1)]
+            chord = chords[min(bar, len(chords) - 1)]
+            if midi is None:  # a rest: the bow lifts, the time goes by
+                t_eighths += n8
+                run = 0
+                prev_dur = None
+                continue
             # swing: an eighth on the beat is long, off it short
             on_beat = (t_eighths % 2) < 1e-6
             start = lead + _swung(t_eighths, eighth, swing)
@@ -115,7 +128,9 @@ def arrange(tempo_half=108.0, seed=1882):
             dur = end - start
             s, f = string_finger(midi)
             slur = False
-            if n8 == 1:
+            if n8 < 1 and prev_dur is not None and prev_dur < 1:
+                slur = True  # a triplet's notes in one bow
+            elif n8 == 1:
                 # Nashville shuffle on runs of eighths: notes 1-2 slurred, 3 and 4 separate.
                 if prev_dur == 1 and run % 4 == 1 and k > 0:
                     slur = True
@@ -139,6 +154,8 @@ def arrange(tempo_half=108.0, seed=1882):
             slide = None
             if n8 >= 4 and midi == 74:
                 slide = 73  # into the held d from its leading note
+            elif n8 >= 4 and f > 0:
+                slide = midi - 1  # into any other held stopped note from a semitone under
             elif bar >= 1 and midi == 66 and on_beat and rnd.random() < 0.5:
                 slide = 65  # the bar's F# smeared up from F natural, as old-time players do
             # where the finger lands: a few cents off each time (an open string is where it's tuned)
@@ -158,7 +175,7 @@ def arrange(tempo_half=108.0, seed=1882):
                     st["strings"].append(ls)
             else:
                 beside = {"G": "D", "D": "A", "A": "D", "E": "A"}[s]
-                if STRINGS[beside] in CHORD_TONES[chord] and (n8 >= 2 or on_beat or slur):
+                if STRINGS[beside] % 12 in {m % 12 for m in CHORD_TONES[chord]} and (n8 >= 2 or on_beat or slur):
                     notes.append(_extra(notes[-1], STRINGS[beside], beside, 0, "drone", 0.45))
                     if beside not in st["strings"]:
                         st["strings"].append(beside)
@@ -187,8 +204,8 @@ def arrange(tempo_half=108.0, seed=1882):
                 n["speed"] = st["speed"]
                 n["pos"] = st["pos"]
     notes.sort(key=lambda n: (n["t"], n["voice"] != "melody"))
-    return {"tune": "Soldier's Joy (A part twice)",
-            "source": "O'Neill's Music of Ireland (1903) No. 1642, via music21's corpus (oneills1850); traditional, public domain",
+    return {"tune": title,
+            "source": source,
             "tempo_half_bpm": tempo_half, "tuning": STRINGS, "seed": seed,
             "length_s": round(max(n["t"] + n["dur"] for n in notes), 3), "notes": notes, "strokes": strokes}
 
