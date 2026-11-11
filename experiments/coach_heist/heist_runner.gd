@@ -145,6 +145,10 @@ func _physics_process(_delta: float) -> void:
 			b.angular_velocity = Vector3(float(args.spin), 0, 0)
 		if args.has("slide"):
 			b.linear_velocity = Vector3(0, 0, float(args.slide))
+	if args.has("ropes") and _site.get(&"ram") and not _site.ram.is_held():
+		var tn: Array[float] = _site.ram.tension
+		if tn[0] + tn[1] > 5000.0:
+			print("t%d ropes %.1f %.1f kN" % [_tick, tn[0] / 1000.0, tn[1] / 1000.0])
 	if args.has("debug") and _tick % 6 == 0 and _site.get(&"log_body"):
 		var mb: RigidBody3D = _site.drive.main_body() if _site.drive else null
 		print("t%d log %s v %s | coach %s v %s w %s lean %.1f frz %s" % [_tick, _site.log_body.global_position, _site.log_body.linear_velocity,
@@ -179,8 +183,9 @@ func _start(c: Dictionary) -> void:
 func _line(r: Dictionary) -> String:
 	match mode:
 		"cut":
-			return "seed %d: let go %.2f s, struck %.2f s, lean %.0f %s, dents %d, deepest %.1f cm, traces left %d, strongbox loose %s, ram %s" % [
-					r.case.seed, r.released_at, r.hit_at, r.max_lean, "OVER" if r.over else "stood", r.dents, r.deepest_cm, r.traces_on, r.get("strongbox_loose", false), r.ram]
+			return "seed %d: swing %.2f s, hit %s, lean %.0f %s, dents %d, deepest %.1f cm, traces left %d, strongbox loose %s, ropes' most %.1f kN" % [
+					r.case.seed, r.hit_at - r.released_at, r.hit, r.max_lean, "OVER" if r.over else "stood", r.dents, r.deepest_cm, r.traces_on,
+					r.get("strongbox_loose", false), float(r.ram.get("most_tension_n", 0.0)) / 1000.0]
 		"roll":
 			return "drop %.1f: at the foot %.2f m/s (lossless %.2f)" % [r.drop, float(r.log_at_foot.get("speed", -1.0)), r.lossless_at_foot]
 		"swing":

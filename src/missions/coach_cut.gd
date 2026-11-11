@@ -47,6 +47,9 @@ var t := 0.0
 var released_at := -1.0
 var hit_at := -1.0
 var max_lean := 0.0
+## The ram's log at the hand-off: its speed, where it was (the ram's space), how far along the coach.
+var hit := {}
+var _dents_from := 0  # (the scene's watch may have dented before this cut was made)
 
 
 func _init() -> void:
@@ -62,6 +65,7 @@ func setup() -> void:
 		height_at = func(x: float, z: float) -> float: return terrain.height(x, z)
 	_find_road()
 	watch = DentWatch.of(get_tree())
+	_dents_from = watch.made.size()
 	ram = SwingingRam.new()
 	add_child(ram)
 	var line := middle + side * (PLATE_FACE + ram.log_radius + LOG_GAP)
@@ -93,7 +97,11 @@ func start_coach() -> void:
 	drive.ground = height_at
 	drive.start(coach)
 	drive.strikers.append(ram.log_body)
-	drive.handed_off.connect(func(_b: Array) -> void: hit_at = t)
+	drive.handed_off.connect(func(_b: Array) -> void:
+		hit_at = t
+		var lg := ram.log_body
+		hit = {"speed": snappedf(lg.linear_velocity.length(), 0.01), "at": _arr(ram.to_local(lg.global_position)),
+				"along": snappedf((lg.global_position - coach.global_position).dot(road_dir), 0.01)})
 	_seat_riders()
 
 
@@ -133,12 +141,13 @@ func _physics_process(delta: float) -> void:
 ## What happened, for the bridge and the lab.
 func result() -> Dictionary:
 	var deepest := 0.0
-	for d: Dictionary in watch.made if watch else []:
+	var mine: Array = watch.made.slice(_dents_from) if watch else []
+	for d: Dictionary in mine:
 		deepest = maxf(deepest, float(d.depth))
 	var out := {"released_at": snappedf(released_at, 0.01), "hit_at": snappedf(hit_at, 0.01),
-		"over": max_lean > 60.0, "max_lean": snappedf(max_lean, 0.1), "dents": watch.made.size() if watch else 0,
+		"over": max_lean > 60.0, "max_lean": snappedf(max_lean, 0.1), "dents": mine.size(),
 		"deepest_cm": snappedf(deepest * 100.0, 0.1), "traces_on": drive.traces_on() if drive else 0,
-		"ram": ram.state() if ram else {}, "riders": []}
+		"ram": ram.state() if ram else {}, "hit": hit, "riders": []}
 	for man in riders:
 		if is_instance_valid(man):
 			(out.riders as Array).append({"who": String(man.person_id), "limp": man.limp,
@@ -148,6 +157,10 @@ func result() -> Dictionary:
 		var sb := coach.carried("strongbox")
 		out["strongbox_loose"] = sb.loose if sb else false
 	return out
+
+
+static func _arr(v: Vector3) -> Array:
+	return [snappedf(v.x, 0.01), snappedf(v.y, 0.01), snappedf(v.z, 0.01)]
 
 
 # --- The place ------------------------------------------------------------------------------------

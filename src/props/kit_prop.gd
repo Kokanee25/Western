@@ -465,14 +465,23 @@ func _has_footing(m: StructureMember) -> bool:
 	return false
 
 
+## Footed where it is, its feet not looked for: something carries it (a coach on its road, driven by
+## CoachDrive: on a Jolt height field a foot a few mm under the surface finds nothing, #794).
+func keep_footed() -> void:
+	_put_down = true
+	_footed = true
+	_feet.clear()
+
+
 ## Where a floor member is, to tell whether it's moved from under a foot: in the world, or, for a
-## floor of what carries this prop (the coach's under its strongbox), in this prop's space: the two
-## move together (a driven coach dropped its strongbox in the first quarter second, #794).
+## floor of what carries this prop (the coach's under its strongbox; a building's under its props),
+## in the carrier's space: a driven coach moves its floor and its strongbox together (it dropped it
+## in the first quarter second, #794); a building that stands still reads as the world.
 func _floor_place(f: StructureMember) -> Vector3:
 	var s := f.get_parent()
 	while s != null and not s is Structure:
 		s = s.get_parent()
-	return to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
+	return (s as Node3D).to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
 
 
 ## The four lowest corners of a member (structure space): its footprint.

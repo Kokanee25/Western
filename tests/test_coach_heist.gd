@@ -325,7 +325,7 @@ func test_a_ball_through_the_pin_lets_the_ram_go() -> void:
 	world.add_child(ballistics)
 	await physics_frames(1)
 	var t: RevolverTuning = load("res://config/revolver.tres")
-	var from := pin + Vector3(6.0, 1.5, 0.0)
+	var from := pin + Vector3(1.0, 5.0, -7.0)  # (from up the bank, as from the cut's high spot)
 	var b := ballistics.fire(from, (pin - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
 	await wait_until(func() -> bool: return not b.alive, 60)
 	await physics_frames(3)

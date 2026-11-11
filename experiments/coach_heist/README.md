@@ -49,36 +49,47 @@ the cut, the coach coming up the grade: shoot the pin).
 
 **The swing** (`swing.md`): from 2.0, 2.5, 3.0, 3.3, 3.6, 4.0 m its speed at the bottom is 6.26, 7.00,
 7.67, 8.04, 8.40, 8.85 m/s against sqrt(2 g h)'s 6.26, 7.00, 7.67, 8.05, 8.40, 8.86, in 1.23-1.32 s;
-each rope pulls 10.9-15.5 kN at the bottom (m (g + v^2/L) / 2; 1-inch manila holds ~40 kN).
+each rope pulls 10.8-15.5 kN at the bottom (m (g + v^2/L) / 2; 1-inch manila holds ~40 kN).
 **The standing coach struck at the bottom** (2.0 m up, the upper plates): over from every drop of
-2.0 m and more (lean 100-110), the deepest dent 2.8 (2.0 m), 3.6 (3.3), 4.0 cm (4.0); from 1.6 m (5.6
-m/s) and less it stands (lean 10-19), dents 1.8-2.5 cm.
+2.0 m and more (lean 100-108), the deepest dent 2.8 (2.0 m), 3.6 (3.3), 4.0 cm (4.0); from 1.6 m (5.6
+m/s) and 1.2 m it stands (lean 14-17), dents 2.1-2.5 cm.
 
-**The heist** (`heist.md`, the coach driven at 1.4 m/s, the pin let go 1.28 s short, 8 seeds a
-0.06 s apart): **over 8 of 8** (lean 100-106), 9-14 plates dented, **the deepest 3.6 cm in all 8**, the
-four traces broken, the strongbox loose inside the coach 8/8, the driver and messenger off the box on the
-road 8/8, head blows 0-4 (none over 60 J). The worst frame 22-36 ms here, **14-24 at Sean's**.
-Let go up to 0.9 s early or late (`heist_wide.md`, --spread=0.25) it meets the coach 1.3 m either
-side of its middle: over 8/8, deepest 3.4-3.6 cm.
+**The heist** (`heist.md`: the coach driven at 1.4 m/s, the pin let go 1.28 s short, 8 seeds 0.06 s
+apart): **over 8 of 8** (lean 100-105), 9-14 plates dented, **the deepest 3.6-3.7 cm in all 8**, the
+four traces broken, the strongbox loose inside the coach 8/8, the driver and messenger off the box on
+the road 8/8, head blows 0-2 (none over 60 J). The worst frame 20-35 ms here, **13-23 at Sean's**.
+Let go up to 0.9 s early or late (`heist_wide.md`, `--spread=0.25`) it meets the coach up to 1.3 m
+either side of its middle: over 8/8, deepest 3.4-3.6 cm, worst frame 21 ms at Sean's.
 
-**Found on the way** (each fixed, each with a test):
+**The coach cut** (`cut.md`: CoachCut on the bake's ground, the coach 40 m down the grade): the South
+Road is level through the cut (12.3 m, +-0.1 over +-10 m along), its bed ~6.5 m between banks, the
+south-west one rising ~1:1.5 (the held log clears it by ~3 m). **Over 8 of 8**, the swing 1.18 s, the hit
+7.99 m/s 2.02 m up, 9-14 plates dented, the deepest 3.7 cm in all 8, the ropes 18-28 kN over 0.1 s,
+the worst frame 15-31 ms at Sean's. In the game (`-- --world=valley --mission=coach`, the bridge's
+`ch_cut auto`): over, 10 dented, 3.7 cm, ropes 21 kN; from the high spot an aimed revolver shot
+(`hold aim`) let the pin go 5 times of 6 at ~10 m.
+
+**Found on the way** (each fixed, each with a test or a lab check):
 - A seated man's `Blocker` (the upright capsule that keeps the player out of him, a fixed body standing
   through the bench and roof) shoved the loose coach ~2,000 N.s a contact at the hand-off: the coach shot
-  off at up to 19 m/s before the log arrived. The old rolling-log heists ran with it (their `tip` runs,
-  with no guards, didn't). `CoachDrive._ride` excepts it now.
+  off at up to 19 m/s before the log arrived. The rolling log's heists ran with it (their `tip` runs, with
+  no guards, didn't). `CoachDrive._ride` excepts it now.
 - The coach's contact report (128) fills with its six riders' parts and its wheels: the log's blow was
   dropped and nothing dented. `DentWatch` reads a striker's blows from the striker's side.
 - Jolt's cast (CCD) collision for the log resolves the blow outside the reported contacts: the ram's log
   runs discrete (at ~8 m/s a tick is 13 cm into a 1.4 m body).
 - Nine plates dented on one tick rebuilt nine dense meshes (~100 ms here): now `MESH_BUDGET_MS` a tick.
 - The carried strongbox fell loose in the first quarter second of the drive (KitProp's floor check saw
-  the coach's floor move); `KitProp._floor_place` reads a carrier's floor in the prop's own space.
-- The ropes run from the bents at the log's ends to slings 0.3 m in: each rope's length is its 3D
+  the coach's floor move); `KitProp._floor_place` reads a carrier's floor in the carrier's space.
+- The ropes run from the bents beyond the log's ends to slings 0.3 m in: each rope's length is its 3D
   length with the log at the bottom (taken as the arc's radius, the log fell free for its first 0.3 s).
-
-**The coach cut** (`cut.md`): see the results file; the valley's South Road is level through the cut
-(12.3 m, +-0.1 over +-10 m along) between its banks, the south-west one rising ~1:1.5, so the ram's
-held log clears its bank by ~3 m.
+- After the blow the ropes go slack and snatch taut: a fixed rope takes that in one tick (75-118 kN);
+  `most_tension` is over 0.1 s, as a manila rope's stretch spreads it (17-28 kN).
+- On the valley's ground (Jolt height fields: surfaces, not solids) a kit prop's foot a few mm under
+  the surface finds nothing and it goes loose: the driven coach and the trip's stake now `keep_footed`.
+- CoachDrive met the striker in the world's axes: a coach turned 33 degrees to the road has a box half
+  again as wide, and it was handed off with the ram half a swing away (a rope at 100 kN): the coach's space now.
+- The pin on the stake's road side was hidden from the high spot by the stake: across its top now, 7 cm.
 
 ## The rolling log (2026-11-10, `results/2026-11-10/`; before the ram)
 

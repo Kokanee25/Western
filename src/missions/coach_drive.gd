@@ -52,6 +52,7 @@ func start(c: KitProp) -> void:
 	c.breaks_up = false  # (a coach takes a jolt whole: what's struck hard still breaks)
 	heading = -c.global_basis.x.normalized()
 	driving = true
+	c.keep_footed()  # (the drive carries it: its feet aren't looked for, #794)
 	_last_xf = c.global_transform
 	c.went_loose.connect(_on_went_loose)
 	for id: StringName in c.members:
@@ -120,18 +121,21 @@ func _on_ground() -> void:
 	coach.global_transform = Transform3D(Basis(x, z.cross(x), z), at)
 
 
-## A striker's box, swept along its speed LOOK_TICKS ahead, meets the coach's.
+## A striker's box, swept along its speed LOOK_TICKS ahead, meets the coach's: both in the coach's
+## own space (in the world's axes a coach on a road at 33 degrees has a box half again as wide, and it
+## was handed off with the ram still half a swing off, #794).
 func _strike_coming(delta: float) -> bool:
-	var box := coach_box()
+	var inv := coach.global_transform.affine_inverse()
+	var box := PropKit.bounds(coach.definition)
 	for s in strikers:
 		if not is_instance_valid(s) or s.freeze:
 			continue
 		var v := s.linear_velocity - (heading * speed if driving else Vector3.ZERO)
 		if v.length() < 0.3:
 			continue
-		var sb := _box_of(s)
+		var sb := _box_of(s, inv)
 		var ahead := sb
-		ahead.position += v * delta * LOOK_TICKS
+		ahead.position += inv.basis * v * delta * LOOK_TICKS
 		if box.intersects(sb.merge(ahead)):
 			return true
 	return false
@@ -142,14 +146,15 @@ func coach_box() -> AABB:
 	return coach.global_transform * PropKit.bounds(coach.definition)
 
 
-static func _box_of(rb: RigidBody3D) -> AABB:
+## `rb`'s shapes' box, in the space `into` takes the world to.
+static func _box_of(rb: RigidBody3D, into := Transform3D.IDENTITY) -> AABB:
 	var out := AABB()
 	var first := true
 	for c in rb.get_children():
 		var cs := c as CollisionShape3D
 		if cs == null or cs.shape == null:
 			continue
-		var b := cs.global_transform * cs.shape.get_debug_mesh().get_aabb()
+		var b := (into * cs.global_transform) * cs.shape.get_debug_mesh().get_aabb()
 		out = b if first else out.merge(b)
 		first = false
 	return out

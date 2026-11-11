@@ -53,9 +53,13 @@ var anchors: Array[Vector3] = []
 var slings: Array[Vector3] = []
 var _cut: Array[bool] = [false, false]
 var _rope_len: Array[float] = [0.0, 0.0]
-## The most either rope has pulled (N) since let go, and the tick it did.
+## The most either rope has pulled (N) since let go, over `SNATCH_TICKS` (a fixed-length rope takes
+## a snatch, the log falling back taut after the blow, in one tick; a manila rope's stretch spreads
+## it over about a tenth of a second), and each rope's pull this tick.
 var most_tension := 0.0
 var tension: Array[float] = [0.0, 0.0]
+const SNATCH_TICKS := 6
+var _recent: Array = [[], []]
 var _ropes: Array[MeshInstance3D] = []
 var _trip_rope: MeshInstance3D
 var _made := 0
@@ -94,6 +98,7 @@ func build() -> void:
 	trip = PropKit.spawn(_trip_def(), StringName("ram_trip_%d" % _made))
 	add_child(trip)
 	trip.position = trip_at
+	trip.keep_footed()  # (driven into the bank: on a slope of the valley's height field its foot found nothing)
 	log_body.hold_by(trip, ["pin"])
 	log_body.released.connect(_on_released)
 	for i in 2:
@@ -190,7 +195,11 @@ func _physics_process(delta: float) -> void:
 	st.angular_velocity = w
 	for i in 2:
 		tension[i] = acc[i] / delta
-		most_tension = maxf(most_tension, tension[i])
+		var r: Array = _recent[i]
+		r.append(tension[i])
+		if r.size() > SNATCH_TICKS:
+			r.pop_front()
+		most_tension = maxf(most_tension, r.reduce(func(a: float, b: float) -> float: return a + b, 0.0) / SNATCH_TICKS)
 
 
 ## A rope lets go when the cap it hangs from breaks, or the frame goes loose.
@@ -285,14 +294,17 @@ func _frame_def(bx: float, top: float) -> StringName:
 	return id
 
 
-## The stake the trip rope is tied off at, and its oak toggle pin through the chain (a ball splits it).
+## The stake the trip rope is tied off at, and its oak toggle pin (7 cm: it holds the log's ~11 kN
+## pull back) through the chain, across the stake's top (a ball splits it; an aimed shot from the
+## coach cut's high spot, ~10 m, let it go 5 times of 6).
 func _trip_def() -> StringName:
 	var id := &"ram_trip"
 	if not PropKit._defs.has(id):
 		PropKit._defs[id] = {"id": "ram_trip", "kind": "members", "wood": "oak", "look": "wood:dark_oak",
 			"splits_below": 0.97, "_doc": "SwingingRam's trip: a stake and the chain's toggle pin", "members": [
 				{"id": "stake", "kind": "post", "size": [0.12, 0.8, 0.12], "at": [0.0, 0.4, 0.0]},
-				{"id": "pin", "kind": "trim", "size": [0.035, 0.035, 0.25], "at": [0.0, 0.7, 0.08]},
+				# Across the stake's top, through the chain's last link: in sight from up the bank too.
+				{"id": "pin", "kind": "trim", "size": [0.3, 0.07, 0.07], "at": [0.0, 0.835, 0.0]},
 			]}
 	return id
 
@@ -302,4 +314,5 @@ func state() -> Dictionary:
 	var p := to_local(log_body.global_position) if log_body else Vector3.ZERO
 	return {"held": is_held(), "at": [snappedf(p.x, 0.01), snappedf(p.y, 0.01), snappedf(p.z, 0.01)],
 		"speed": snappedf(log_body.linear_velocity.length(), 0.01) if log_body else 0.0,
-		"ropes": ropes_on(), "most_tension_n": roundf(most_tension), "lossless": snappedf(lossless_speed(), 0.01)}
+		"ropes": ropes_on(), "most_tension_n": roundf(most_tension), "lossless": snappedf(lossless_speed(), 0.01),
+		"trip_loose": trip.loose if trip else true, "frame_loose": frame.loose if frame else true}

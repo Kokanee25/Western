@@ -1178,7 +1178,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `foot_back|fore` for banks), the log (RollingLog, CCD off: Jolt's cast collision reports no contact
   impulses) held at `held_at()` (`pull_up` over `bottom_y` on its arc) and the trip (`ram_trip`: stake
   and `pin` at `trip_at`). Two ropes, fixed length, as impulses in `_physics_process` (pull only,
-  Baumgarte `rope_bias`; `tension`, `most_tension`); a rope whose cap breaks or frame goes loose is cut
+  Baumgarte `rope_bias`; `tension`, `most_tension` over `SNATCH_TICKS`: a fixed rope takes a snatch in a
+  tick, a manila one over ~0.1 s); a rope whose cap breaks or frame goes loose is cut
   (`ropes_on`). `release()`, `pin_position()`, `state()`.
 - **Loose by members** (#770): `Structure.mass_by_members` gives a dropped body its centre of weight
   and inertia from its members (`_weigh_by_members`); `breaks_up` false keeps a body of several
@@ -1467,7 +1468,9 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   (springs, `trace_stiffness`, broken past `trace_breaks`); `lean()`, `events`. Its labs commands: `ch_*`.
   `seat(man, at, floor_y, yaw)` (the box's two face forward); a rider's `Blocker` capsule is excepted
   with his parts (it threw the coach at the hand-off, #794); its carried kit props go loose with it;
-  `ground` (x, z -> y) sets it on the road at its `AXLES`, pitched to the grade.
+  `ground` (x, z -> y) sets it on the road at its `AXLES`, pitched to the grade; driven, its feet aren't
+  looked for (`KitProp.keep_footed`: a Jolt height field is a surface, a foot mm under it finds nothing);
+  a striker's sweep is met in the coach's own space (a turned coach's world box hands off half a swing early).
 - **The coach cut** (`CoachCut`, #794; valley.json `heights` coach_cut): `setup()` finds the South Road's
   way and level bed at the cut from the ground, the SwingingRam over it (held up the south-west bank);
   `start_coach()` the Baron's coach `start_back` m down the grade with four guards and the box's two;
