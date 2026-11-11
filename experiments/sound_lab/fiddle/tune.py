@@ -44,7 +44,7 @@ PITCH = {"C": 60, "D": 62, "E": 64, "F": 66, "G": 67, "A": 69, "B": 71,  # K:D (
          "c": 73, "d": 74, "e": 76, "f": 78, "g": 79, "a": 81, "b": 83}
 # The bars' chords (D major; bar 4's G E E the dominant, A). (D major, the A bar the dominant).
 CHORDS_A = ["D", "D", "D", "D", "A", "D", "D", "D", "D"]  # pickup counts as bar 0
-CHORD_TONES = {"D": {62, 66, 69}, "A": {69, 73, 64}, "G": {67, 71, 62}}
+CHORD_TONES = {"D": {62, 66, 69}, "A": {69, 73, 64}, "G": {67, 71, 62}, "E": {64, 68, 71}, "C": {60, 64, 67}}
 
 STRINGS = {"G": 55, "D": 62, "A": 69, "E": 76}
 ORDER = ["G", "D", "A", "E"]
