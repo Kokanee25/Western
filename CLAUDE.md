@@ -332,7 +332,7 @@ python3 tools/bridge.py stop
 **The roadmap (`docs/ROADMAP.md`) decides what each lane does next;** the Next lines below are
 what each lane had open when it was adopted (2026-10-14).
 
-Latest status entries: `docs/status/2026-11-02_onward.md` (the end of the file). Builds: main is
+Latest status entries: `docs/status/2026-11-11_onward.md` (the end of the file; `2026-11-02_onward.md` before it). Builds: main is
 green at **build 863** (art merge 3h, PR #99); merges 3i (#100) and 3j (#101) and the lamp-shadow
 pass are on main after it. DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are
 frozen until Sean names one.
@@ -1292,6 +1292,7 @@ frames under 45 fps at Sean's. Next: step 3 (the solver, S3-S5); the sticks a ja
   (`experiments/prop_lab/doctor/dress.gd`). D1 (`tools/props/doctor.py`, `tools/blender/props/doctor_d1.py`):
   examining table, iron cot, washstand with ironstone basin and pitcher, instrument tray, wall bracket
   lamp, hand towel (cloth that wipes up blood, `ClothProp.wipe_at`; Sean's ask). A kit lamp's chimney now
-  glows lit. Critic r1 2 CLOSE, r2 5 CLOSE / 1 DIFFERENT, r3 in the PR. Next: D2 (bottles, mortar,
-  scales, desk, chair); nobody wipes yet (gameplay's hands). Traps: a lavapipe view ~10-15 min, never two
+  glows lit. Merged (PR #802, build 3968); critic r1 2 CLOSE, r2 5 CLOSE / 1 DIFFERENT, r3 mixed (rooms too
+  dark to judge, bedding stiff). Next: #805, D2 (bottles, mortar, scales, desk, chair); nobody wipes yet
+  (gameplay's hands). Traps: a lavapipe view ~10-15 min, never two
   renders at once; Blender bakes share the CPU; a hung cloth needs `hang_over` (a bar slips between points).
