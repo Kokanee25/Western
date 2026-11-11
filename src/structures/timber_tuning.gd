@@ -43,6 +43,10 @@ extends Resource
 	# its weight spread through the box (a skull and horns ~5 kg, mostly air inside); brittle: a
 	# ball or a fall cracks it (fresh cortical bone ~100 MPa, weathered far less). Doesn't burn
 	# (FireTuning.fireproof).
+	# A green ponderosa pine log, cut this season (the coach heist's, #770/#784): the Wood Handbook's
+	# green weight (~740 kg/m³ with its sap) and green clear-wood strengths (MOR 35 MPa, compression
+	# along the grain 16.9 MPa, MOE 6.9 GPa). RollingLog's mass comes from it.
+	&"green_pine": {"density": 740.0, "bending": 35e6, "compression": 16.9e6, "stiffness": 6.9e9, "toughness": 40e3},
 	&"bone": {"density": 450.0, "bending": 30e6, "compression": 60e6, "stiffness": 10e9, "toughness": 8e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
