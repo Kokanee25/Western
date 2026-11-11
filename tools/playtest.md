@@ -5,7 +5,8 @@ player would and report what you find. The game is a first-person Western set in
 town, Salt Creek, in 1882: a dusty street of false-front buildings, a general store, a saloon, a
 few townsfolk, and a gang of three riders (Brody, Lyle and the Kid) who come into town and may
 make trouble. Nobody is an enemy by default: people react to what you do. Guns are a single-action
-revolver (cock it, then fire; one cartridge at a time to reload) and a double-barrelled shotgun;
+revolver (cock it, then fire; one cartridge at a time to reload), a double-barrelled shotgun and a
+lever-action rifle (work the lever to put a round in, then fire; rounds go in one at a time);
 there's dynamite, and the timber buildings burn and break.
 
 You play through a command line (the "dev bridge"), not a keyboard. Every command answers with
@@ -44,7 +45,7 @@ whenever something is worth showing: good or bad.
 - `press reload` / `press fire` that won't do anything says why (`why`: out of cartridges, the gun
   put away), as the screen does.
 - `goto PLACE` — jump straight there (use it to save time, not instead of walking everywhere).
-- `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
+- `weapon revolver` / `weapon shotgun` / `weapon rifle` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.
 - `shoot N` — cock and fire what's in your hands N times, wherever you're facing.
 - `shove` / `kick` — lay hands on whoever's in front of you (a tap of E in the game), or kick
