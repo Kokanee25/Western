@@ -1,5 +1,12 @@
 # The Winchester Model 1873, built by script (#734 step 1)
 
+**In the game since #734 step 2 (#777, 2026-11-10):** the model and rig copied to
+`assets/weapons/winchester73.*` and driven by `Winchester73Model` (src/weapons; `win73_rig.gd`'s logic);
+held by `Winchester73Viewmodel` (key 6). Rebuilding the gun here: copy `win73_24.glb`, its jpgs and the rig
+json over the game's (`winchester73.glb`, `winchester73_w73_*.jpg`, `winchester73_rig.json`). The rope range
+(`rope_range.gd`, F5's last stop) and the game's first-person sheets (`sheets/fp_game.txt` through the
+bridge, `sheets/contact.py`) are this step's.
+
 Sean, 2026-11-09 (#734): the next gun, made the way the Colt was (`../saa/README.md`): a Blender
 script from the real gun's dimensions, fitted to a real side photo part by part, shown in the game's
 own light, painted only after Sean OKs the shape. **Nothing in the game changes in this step:** no

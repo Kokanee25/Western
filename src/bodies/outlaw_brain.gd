@@ -3395,6 +3395,8 @@ static func _reloading(p: Player) -> bool:
 		return (w as RevolverViewmodel).state.gate_open
 	if w is ShotgunViewmodel:
 		return (w as ShotgunViewmodel).state.open
+	if w is Winchester73Viewmodel:
+		return (w as Winchester73Viewmodel).is_loading()
 	return false
 
 

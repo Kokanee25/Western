@@ -67,6 +67,7 @@
 		"DebugSpawns/StoreInside": {"in": "Store", "at": [1.5, 0.4, 7.5], "facing": 180},
 		"DebugSpawns/SaloonDoor": {"in": "Saloon", "at": [5, 0.8, -1.0], "facing": 180},
 		"DebugSpawns/SpecSaloon": {"at": [-64.38, 1.816, 22.5], "facing": 180},
+		"DebugSpawns/RopeRange": {"at": [39.4, 3.05, 12.0], "facing": -90},
 		"DebugSpawns/SaloonInside": {"in": "Saloon", "at": [3.5, 0.8, 9.7], "facing": -140}
 	}
 }
