@@ -501,6 +501,10 @@ frozen until Sean names one.
   **off** (`Settings.room_light`, look panel N). The cheap judge: no better than off yet (results
   `experiments/light_lab/results/2026-11-03_r1/`). Waiting on Sean: turn it on? Part 2 (the street
   by day) after his word.
+- **The doctor's room review** (#818, report only): `docs/reviews/2026-11-doctor-room.md`: why the office reads
+  cheap (flat indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows,
+  indoor wear under the floor) and PROPOSED rules for the building recipe, the prop recipe and the library.
+  Waiting on Sean's five picks (its issue); the jail's look (#811) starts from its section 2.
 - Known: a full golden render is ~2.5 h on lavapipe (batches of 24-25, `golden_check.py --render
   --only=`); `pgrep -f`/`pkill -f` match their own command (and `pkill -x godot` stops every render);
   a data texture with an alpha channel needs `process/fix_alpha_border=false`; after a local import,
