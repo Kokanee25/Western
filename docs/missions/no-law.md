@@ -40,7 +40,12 @@ hasn't confirmed in words.)
   murderer just has to be some rough asshole". So the card cheat's killer is **a rough man of his own**, not
   the bold cowboy and not the red shirt, and the red shirt stays the man who killed Joe's wife. OPEN: what
   the bold cowboy does (Sean's to find).
-- The rest of this session's proposal, still PROPOSED (not picked):
+- DECIDED (Sean, 2026-11-11): "He can keep the name Cody and yes he can ride with the gang and be in the jail".
+  The saloon killer is **Cody** (the name the built No Law gave him, #785), without the red shirt; he
+  **rides with the gang**; and he's **held in the jail** for the card cheat. OPEN: the red shirt's name
+  (he was Cody in the build), and whether Cody's night in custody is the Water Tower's (the depot's
+  freight room, `hold-him`) or the town jail's.
+- This session's proposal as it was put (the first and last points are now Sean's, above):
   - **The red shirt, Joe's wife's killer** (the faded red shirt is from Sean's own No Justice card,
     the one thing her people saw) and the man who shot the sheriff on the road. Nobody in town saw either
     killing, so the arrest ending can still let him go.
