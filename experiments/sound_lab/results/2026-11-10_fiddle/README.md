@@ -147,3 +147,18 @@ murmur, not a Payday Night dance. As run (bed at -5 dB) it sat 12 dB under the f
 porch, barely there; the clips raise its part by 6 dB from the same two runs (the mix is linear at
 these levels; the scenarios now say +1 dB): 5.7 dB under the fiddle at the porch, 2.9 across the
 street. Raised together to -20 LUFS at the porch, as the fiddle-only pair.
+
+## A second tune: Arkansas Traveller (B only; 2026-11-11)
+
+Sean: "make me another song and make the same sound board for the distances, just our fiddle".
+`../../fiddle/abc_tune.py` turns any ABC file into note data the same way as Soldier's Joy (string
+and finger in first position, the shuffle, swing, drones from each bar's chord, double stops,
+slides); `arkansas_traveller.json` is Ryan's Mammoth Collection's (1883) reel, both parts twice, 37 s
+at half note = 108. Dry render: 90% of its 212 melody notes within 30 cents (melody alone). The
+chords are guessed per bar from its notes (the B part comes out all D), so they only steer the drones.
+
+`arkansas/`: `balcony_close` (-16 LUFS), `balcony_below` (-24), `street_porch` / `street_across` (the
+porch at -20, across 9.7 dB under, as the game has them), `crowd_porch` / `crowd_across` (the crowd
+bed run at +1 dB in the scenarios; the porch at -20, across 9.2 under). As heard in the game: close
+-19.1, through the floor -37.2, porch -46.6, across -56.3. The porch runs take ~17 min under lavapipe
+with a 37 s tune: `run.py --timeout=2000`.

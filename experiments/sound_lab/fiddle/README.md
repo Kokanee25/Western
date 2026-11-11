@@ -48,6 +48,7 @@ changes; results in `../results/2026-11-10_fiddle/`.
 ```sh
 experiments/sound_lab/fiddle/fetch.sh                       # needs dn801308.us.archive.org allowed
 python3 experiments/sound_lab/fiddle/tune.py                # the note data (already in the repo)
+python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json  # any ABC tune
 python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~80 min the 8 game runs (one at a time)
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png
 python3 experiments/sound_lab/fiddle/blind.py               # listen/1-8.mp3, key/KEY.md (a new shuffle)

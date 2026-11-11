@@ -131,3 +131,6 @@ of it is in the game yet:
   cut into a steady bed by `experiments/sound_lab/fiddle/crowd_bed.py`; a lab stand-in, not in the game.
 - **"The Soldier's Joy"**, traditional, as printed in O'Neill's *Music of Ireland* (1903), No. 1642,
   public domain; the ABC transcription from music21's corpus (`oneills1850`; music21 is BSD-3).
+- **"Arkansas Traveller"**, traditional, as printed in *Ryan's Mammoth Collection* (1883), public domain;
+  the ABC transcription from music21's corpus (`ryansMammoth`), turned into note data by
+  `experiments/sound_lab/fiddle/abc_tune.py`.
