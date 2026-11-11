@@ -53,6 +53,12 @@ changes; results in `../results/2026-11-10_fiddle/`.
   a hard strike a few cents sharp for a moment, through a calfskin head (a membrane's modes over
   ~260 Hz, a 1-3 kHz rise). Checks (single strikes): in tune within a cent, a G3 down 13 dB by 0.3 s
   and 37 by 0.8 s; in Turkey in the Straw every struck note within 30 cents, centroid ~1.6-1.7 kHz.
+  Second take (Sean: "much more keyboard than the fiddle"): two polarisations a string (`POLS`: the
+  vertical one into the head, loud and quick; the horizontal quiet, ringing on, 1.3 cents apart), the
+  head's thump under each strike (`POP`), strings a few cents off and wandering, strikes and brushes
+  varied. Single strikes: early decay / late decay 1.3 -> 3.5 (one slope to two stages), the ring's
+  waver 0.16 -> 0.62 dB; the tune's strikes 1.2 -> 1.8 dB apart. The banjo alone sits at -20 LUFS
+  (strikes are peaky; not limited).
 - `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
 
 ## Commands

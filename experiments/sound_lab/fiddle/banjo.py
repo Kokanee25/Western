@@ -32,7 +32,10 @@ neck end, ~0.28 of the string from the bridge: the mellow knock), and pulls the 
 sharp for a moment (a hard strike stretches it). The strings' force at the bridge goes through the
 head: a stretched skin's modes (a circular membrane's Bessel ratios over a ~260 Hz fundamental,
 heavily damped as calfskin is) with a dense upper set under a broad 1-3 kHz rise, and a little of
-the pot's air. That head is why a banjo is loud, bright and short. Ideas from Rae & Rossing's
+the pot's air. That head is why a banjo is loud, bright and short. Each string runs twice, its two ways of
+swinging (POLS: into the head, loud and soon gone; along it, quiet and ringing on, a hair sharper),
+so a note drops fast then rings with a waver; each strike also thumps the skin itself (POP); and
+no string is dead in tune, no two strikes or brushes alike (a keyboard's tells, taken out). Ideas from Rae & Rossing's
 banjo measurements, Dickey's (2003) banjo model and Jaffe & Smith's (1983) plucked-string
 extensions; the code is ours.
 """
@@ -65,6 +68,12 @@ STRIKE_POS = 0.28
 HEAD_RISE = 2200.0
 LOSS = 0.30
 NAIL_W = 0.00025
+# a string swings two ways at once: across the head (vertical: it drives the head, so it's loud and
+# dies fast) and along it (horizontal: barely coupled, quiet, rings on), a hair apart in pitch, so the
+# note beats and its decay has two stages (Weinreich's two polarisations; on a banjo the vertical one
+# drains into the head fastest of any string instrument). (level, decay time x, cents)
+POLS = [(1.0, 0.55, 0.0), (0.35, 1.9, 1.3)]
+POP = 0.45          # the head struck through the bridge: a small drum's thump under each strike
 
 
 # ----------------------------------------------------------------------------------------- the part
@@ -137,7 +146,7 @@ def arrange(sc, seed=1866):
     def ev(u, s, f, midi, kind, amp, ring_units):
         t = when(u) + rng.normal(0, 0.005)
         events.append({"t": round(float(t), 4), "unit": u, "string": s, "fret": int(f), "midi": int(midi),
-                       "kind": kind, "amp": round(float(amp * rng.uniform(0.9, 1.1)), 3),
+                       "kind": kind, "amp": round(float(amp * np.clip(np.exp(rng.normal(0, 0.15)), 0.7, 1.25)), 3),
                        "ring": round(ring_units * unit, 4)})
 
     last_u = mel[-1]["unit"]
@@ -173,13 +182,19 @@ def arrange(sc, seed=1866):
             group = [s for s in (s2, s2 - 1, s2 - 2) if s >= 1]
             if len(group) < 2:
                 group = [s2 + 1] + group
+            gap = 0.0
             for k, s in enumerate(group):
                 f = f2 if s == s2 else chord_fret(s, pcs, tuning, hand)
-                ev(u0 + 2 + k * 0.008 / unit, s, f, tuning[s] + f, "brush", 0.75 if s == s2 else 0.5, 1)
+                if k == len(group) - 1 and k >= 2 and rng.random() < 0.2:
+                    break  # the nail runs out before the last string
+                ev(u0 + 2 + gap / unit, s, f, tuning[s] + f, "brush", 0.75 if s == s2 else 0.45 - 0.08 * k, 1)
+                gap += rng.uniform(0.005, 0.014)  # a hand, not a comb
         else:
+            gap = 0.0
             for k, s in enumerate((3, 2, 1)):
                 f = chord_fret(s, pcs, tuning, hand)
-                ev(u0 + 2 + k * 0.008 / unit, s, f, tuning[s] + f, "brush", 0.5, 1)
+                ev(u0 + 2 + gap / unit, s, f, tuning[s] + f, "brush", 0.5 - 0.08 * k, 1)
+                gap += rng.uniform(0.005, 0.014)
         # ty: the thumb on the drone, or dropped onto a long string for the tune's note
         m3 = starts.get(round(u0 + 3, 4))
         dropped = False
@@ -277,9 +292,14 @@ def render(part, sr=common.SR, seed=1866):
     tuning = {int(k): v for k, v in part["tuning"].items()}
     total = np.zeros(n)
     click = np.zeros(n)
+    pop = np.zeros(n)
+    pk = _pulse(srm, 0.0012, rng)
     for s in (1, 2, 3, 4, 5):
         evs = [e for e in part["events"] if e["string"] == s]
         midi = np.full(n, float(tuning[s]))
+        # no string is dead in tune (gut drifts, pegs slip): a few cents off, wandering slowly
+        drift = lfilter(*butter(1, 1.5 / (srm / 2)), rng.standard_normal(n))
+        drift = rng.normal(0, 3.0) + 1.5 * drift / (np.std(drift) + 1e-9)
         exc = np.zeros(n)
         damp = np.ones(n)
         for j, e in enumerate(evs):
@@ -303,25 +323,33 @@ def render(part, sr=common.SR, seed=1866):
                 damp[i0:i0 + int(0.003 * srm)] = 0.75  # the nail lands on the moving string
             width = {"nail": NAIL_W, "brush": NAIL_W * 1.5, "drop": 0.0012, "thumb": 0.0015,
                      "hammer": 0.0009, "pull": 0.0007}[e["kind"]]
+            width *= rng.uniform(0.7, 1.4)  # no two strikes the same nail
             p = _pulse(srm, width, rng) * e["amp"] * (0.5 if e["kind"] == "hammer" else 1.0)
             # where it lands: a comb at the strike point's share of the period
             period = srm / common.hz(e["midi"])
-            lag = int(round(rng.uniform(0.24, 0.32) * period))
+            lag = int(round(rng.uniform(0.2, 0.34) * period))
+            if e["kind"] not in ("hammer", "pull"):
+                pseg = pop[i0:i0 + len(pk)]
+                pseg += pk[:len(pseg)] * e["amp"] * (0.6 if e["kind"] in ("thumb", "drop") else 1.0)
             shaped = np.zeros(len(p) + lag)
             shaped[:len(p)] += p
             shaped[lag:lag + len(p)] -= p
             seg = exc[i0:i0 + len(shaped)]
             seg += shaped[:len(seg)] * 0.5
             if e["kind"] in ("nail", "brush"):
-                nb = rng.standard_normal(int(0.003 * srm)) * np.exp(-np.arange(int(0.003 * srm)) / (0.0008 * srm))
+                L = int((0.006 if e["kind"] == "brush" else 0.003) * srm)  # the nail's scrape
+                nb = rng.standard_normal(L) * np.exp(-np.arange(L) / (0.0012 * srm))
                 cseg = click[i0:i0 + len(nb)]
                 cseg += 0.02 * e["amp"] * nb[:len(cseg)]
-        f0 = common.hz(midi)
-        gain = 10 ** (-3.0 / (t60(f0) * f0))  # per pass round the loop
-        out = run_string(f0, exc, gain, damp, float(srm), LOSS)
-        total += out * (0.8 if s == 5 else 1.0)
+        f0 = common.hz(midi + drift / 100.0)
+        for level, decay, cents in POLS:
+            fp = f0 * 2.0 ** (cents / 1200.0)
+            gain = 10 ** (-3.0 / (decay * t60(fp) * fp))  # per pass round the loop
+            out = run_string(fp, exc, gain, damp, float(srm), LOSS if decay < 1 else LOSS * 0.8)
+            total += level * out * (0.8 if s == 5 else 1.0)
     b, a = butter(2, [2000 / (srm / 2), 9000 / (srm / 2)], "band")
     total += lfilter(b, a, click) * np.std(total) * 4
+    total += pop * POP * np.std(total) / (np.std(pop) + 1e-12)
     y = common.resample(total, srm, sr)
     y = fftconvolve(y, head_ir(sr, seed))[: len(y)]
     b, a = butter(2, 80 / (sr / 2), "high")
