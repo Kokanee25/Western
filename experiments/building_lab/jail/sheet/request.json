@@ -26,10 +26,9 @@
    "aspect": "16:9",
    "size": "2K",
    "refs": [
-    "front",
     "plan"
    ],
-   "view": "A three-quarter view from the middle of the crossroads looking south-east, showing the front and the whole west side along the cross street, a clear summer evening, the low golden sun from the north-west raking across the front and the west side so every stone's texture shows, long shadows: the corner's dressed quoins, the parapet's level top over both faces, the west side's two barred windows, and behind the office the lower cell wing's parapet and high little windows just visible over the yard. Dust, a hitching rail at the street's edge, wheel ruts."
+   "view": "The building's WEST SIDE seen from the cross street: standing in the middle of the dirt cross street west of the building, looking EAST at its long west side wall (46 ft of rubble stone with two barred windows and no door), the front (north) corner with its dressed quoins on the LEFT and the stone walk and steps just turning the corner there, Main Street opening beyond on the left; on the RIGHT, past the office's back corner, the lower stone cell wing set back behind it and the 10 ft yard wall. A clear summer evening, the low golden sun from the north-west full on this west wall, long shadows. Dust, a hitching rail at the street's edge, wheel ruts. Nearly orthographic: a long lens."
   },
   {
    "id": "yard",
@@ -92,11 +91,10 @@
    "aspect": "16:9",
    "size": "2K",
    "refs": [
-    "front",
     "plan",
     "cells"
    ],
-   "view": "From inside one of the strap-iron cages, sitting on its plank bunk, looking out through the iron lattice and the barred door across the dim corridor to the whitewashed rubble wall and its one small high barred window, a bar of low sunset light on the stone; the bucket, a grey blanket, initials scratched in the whitewash. Night coming."
+   "view": "The point of view of a man sitting on the plank bunk inside one of the strap-iron cages, looking out through the cage's lattice of flat riveted iron straps and its barred door, across the dim stone-flagged corridor to the whitewashed rubble wall opposite with one small high barred window, a bar of low orange evening light falling on the stone. In the cage: a tin bucket, a folded grey blanket, old initials scratched into the whitewash. No people visible."
   },
   {
    "id": "roof",
