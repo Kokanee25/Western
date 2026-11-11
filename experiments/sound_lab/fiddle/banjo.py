@@ -1,0 +1,350 @@
+#!/usr/bin/env python3
+"""The banjo (#790, after the fiddle): the fiddler's partner at the dances, made the same way, by our
+own model, from the same note data. Written fresh from the physics, no copied code.
+
+    python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--out=build/.../turkey_banjo.wav]
+        [--part=OUT.json] (the banjo's own note data: what his hands do)
+
+**The instrument:** an 1870s-80s five-string banjo: gut strings, a calfskin head on an open-backed
+pot, the short fifth string a drone the thumb plays. It's tuned to the tune's key the way old-time
+players retune rather than capo: open G (gDGBD) for G tunes, open A (aEAC#E) for A, and D (aDF#AD)
+for D.
+
+**How he plays (the part):** the stroke style the minstrel books taught (Briggs, 1855) and old-time
+players kept as clawhammer: the back of a nail strikes down, the thumb catches the fifth string on
+the way back. Each beat (four of the tune's running notes) is "bum-ditty": the tune's note on the
+beat struck by the nail (bum), then a brush down across three strings with the tune's note on top
+(dit), then the thumb on the fifth string (ty). Where the tune moves on the beat's second note on
+the same string he hammers on (a finger comes down on the ringing string) or pulls off (a finger
+leaves it, plucking it); every other beat, when the tune's last note of the beat is on a long
+string, the thumb drops onto that string to play it instead of the drone (drop thumb). The rest of
+the tune he leaves to the fiddle: a banjo plays its skeleton. The tune goes down an octave when that
+keeps more of it in the first five frets (most fiddle tunes; octave_for), and a note still above
+the ninth fret down another. Fretted notes ring until the finger leaves (a beat on at most), open strings until struck
+again or they fade. The chords are the fiddle part's (abc_tune.chords_of), the brush's other
+strings fretted to them near the hand.
+
+**The sound (the model):** each string a digital waveguide (the Karplus-Strong loop made
+physical: a delay of one period, a one-pole loss that dulls the highs each pass as gut does, a
+loop gain set by each string's decay time). A strike is fed in as a short pulse (a nail sharp, a
+thumb's flesh softer), combed by where on the string it lands (clawhammer strikes over the head's
+neck end, ~0.28 of the string from the bridge: the mellow knock), and pulls the string a few cents
+sharp for a moment (a hard strike stretches it). The strings' force at the bridge goes through the
+head: a stretched skin's modes (a circular membrane's Bessel ratios over a ~260 Hz fundamental,
+heavily damped as calfskin is) with a dense upper set under a broad 1-3 kHz rise, and a little of
+the pot's air. That head is why a banjo is loud, bright and short. Ideas from Rae & Rossing's
+banjo measurements, Dickey's (2003) banjo model and Jaffe & Smith's (1983) plucked-string
+extensions; the code is ours.
+"""
+import json
+import os
+import sys
+
+import numpy as np
+from numba import njit
+from scipy.signal import butter, fftconvolve, lfilter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import common  # noqa: E402
+import tune  # noqa: E402
+from bowed import _read  # noqa: E402  (the cubic fractional read)
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+OVER = 2
+BUF = 8192
+# strings 1 (the highest long string) to 4, and 5 the short drone; midi
+TUNINGS = {
+    "G": {1: 62, 2: 59, 3: 55, 4: 50, 5: 67},   # gDGBD, open G
+    "A": {1: 64, 2: 61, 3: 57, 4: 52, 5: 69},   # aEAC#E, open G a tone up
+    "D": {1: 62, 2: 57, 3: 54, 4: 50, 5: 69},   # aDF#AD
+    "C": {1: 62, 2: 60, 3: 55, 4: 48, 5: 67},   # gCGCD, double C
+}
+NAMES = {0: "C", 2: "D", 7: "G", 9: "A"}
+MAX_FRET = 9
+STRIKE_POS = 0.28
+HEAD_RISE = 2200.0
+LOSS = 0.30
+NAIL_W = 0.00025
+
+
+# ----------------------------------------------------------------------------------------- the part
+
+def key_of(sc):
+    """The tune's key: the pitch it ends on (fiddle tunes end on their tonic)."""
+    mel = [n for n in sc["notes"] if n["voice"] == "melody"]
+    return NAMES.get(mel[-1]["midi"] % 12, "D")
+
+
+def octave_for(mel, tuning):
+    """The octave the banjo takes the tune in: down one (as banjo players take most fiddle tunes)
+    or as written, whichever puts more of its notes in the first five frets."""
+    def fits(shift):
+        return sum(tuning[4] <= n["midi"] + shift <= tuning[1] + 5 for n in mel)
+    return max((0, -12), key=fits)
+
+
+def place(midi, tuning, hand):
+    """Where a tune's note goes: (string, fret, midi) on strings 1-4, the cheapest by fret height,
+    an open string preferred, near where the hand is; above the ninth fret an octave down."""
+    while midi > tuning[1] + MAX_FRET:
+        midi -= 12
+    while midi < tuning[4]:
+        midi += 12
+    best = None
+    for s in (1, 2, 3, 4):
+        f = midi - tuning[s]
+        if 0 <= f <= MAX_FRET:
+            cost = (-0.6 if f == 0 else 0.25 * f + 0.35 * abs(f - hand))
+            if best is None or cost < best[0]:
+                best = (cost, s, f)
+    return best[1], best[2], midi
+
+
+def chord_fret(s, pcs, tuning, near):
+    """A chord tone on string s within the first four frets, nearest the hand (open preferred)."""
+    opts = [f for f in range(0, 5) if (tuning[s] + f) % 12 in pcs]
+    if not opts:
+        return 0
+    return min(opts, key=lambda f: (abs(f - near) if f else -0.5 + 0.2 * near))
+
+
+def arrange(sc, seed=1866):
+    """The banjo's part for the fiddle's note data: events {t, string, fret, midi, kind, amp, dur}
+    (kind: nail, brush, thumb, drop, hammer, pull)."""
+    rng = np.random.default_rng(seed)
+    key = key_of(sc)
+    tuning = TUNINGS[key]
+    mel = sorted([n for n in sc["notes"] if n["voice"] == "melody"], key=lambda n: n["unit"])
+    shift = octave_for(mel, tuning)
+    mel = [dict(n, midi=n["midi"] + shift) for n in mel]
+    unit = 60.0 / sc["tempo_half_bpm"] / 4.0
+    lead = 0.3
+    when = lambda u: lead + tune._swung(u, unit, 0.55)  # noqa: E731
+    starts = {round(n["unit"], 4): n for n in mel}
+    ends = [mel[i + 1]["unit"] if i + 1 < len(mel) else n["unit"] + n["dur"] / unit for i, n in enumerate(mel)]
+    bar1 = next((n["unit"] for n in mel if n["bar"] >= 1), 0.0)
+    chords = sc.get("chords") or [key] * (mel[-1]["bar"] + 1)
+
+    def sounding(u):
+        for n, e in zip(mel, ends):
+            if n["unit"] <= u + 1e-6 < e and n["t"] + n["dur"] > when(u) - 0.02:
+                return n
+        return None
+
+    events = []
+    hand = 0
+
+    def ev(u, s, f, midi, kind, amp, ring_units):
+        t = when(u) + rng.normal(0, 0.005)
+        events.append({"t": round(float(t), 4), "unit": u, "string": s, "fret": int(f), "midi": int(midi),
+                       "kind": kind, "amp": round(float(amp * rng.uniform(0.9, 1.1)), 3),
+                       "ring": round(ring_units * unit, 4)})
+
+    last_u = mel[-1]["unit"]
+    first = bar1 - 4 * np.ceil((bar1 - mel[0]["unit"]) / 4.0 - 1e-6)
+    u0 = first
+    cell = 0
+    while u0 < last_u - 1e-6:
+        m0 = sounding(u0)
+        bar = (m0 or mel[0])["bar"] if m0 else max(0, int((u0 - bar1) // 8) + 1)
+        pcs = {m % 12 for m in tune.CHORD_TONES[chords[min(bar, len(chords) - 1)]]}
+        accent = 1.0 if abs(((u0 - bar1) % 8)) < 1e-6 else 0.85
+        # bum: the beat's note by the nail
+        if m0 is not None:
+            s0, f0, p0 = place(m0["midi"], tuning, hand)
+            if f0:
+                hand = f0
+            ev(u0, s0, f0, p0, "nail", accent, 2)
+            # its second note: a hammer-on or pull-off on the same string
+            m1 = starts.get(round(u0 + 1, 4))
+            if m1 is not None and m1["midi"] != m0["midi"]:
+                s1, f1, p1 = place(m1["midi"], tuning, hand)
+                if s1 == s0 and 0 < f1 - f0 <= 4:
+                    ev(u0 + 1, s1, f1, p1, "hammer", 0.4, 1)
+                elif s1 == s0 and 0 < f0 - f1 <= 4:
+                    ev(u0 + 1, s1, f1, p1, "pull", 0.5, 1)
+        # dit: a brush down three strings, the tune's note on top
+        m2 = sounding(u0 + 2)
+        if m2 is not None:
+            s2, f2, p2 = place(m2["midi"], tuning, hand)
+            if f2:
+                hand = f2
+            # the nail lands on the tune's string and carries on down (toward the floor, string 1)
+            group = [s for s in (s2, s2 - 1, s2 - 2) if s >= 1]
+            if len(group) < 2:
+                group = [s2 + 1] + group
+            for k, s in enumerate(group):
+                f = f2 if s == s2 else chord_fret(s, pcs, tuning, hand)
+                ev(u0 + 2 + k * 0.008 / unit, s, f, tuning[s] + f, "brush", 0.75 if s == s2 else 0.5, 1)
+        else:
+            for k, s in enumerate((3, 2, 1)):
+                f = chord_fret(s, pcs, tuning, hand)
+                ev(u0 + 2 + k * 0.008 / unit, s, f, tuning[s] + f, "brush", 0.5, 1)
+        # ty: the thumb on the drone, or dropped onto a long string for the tune's note
+        m3 = starts.get(round(u0 + 3, 4))
+        dropped = False
+        if m3 is not None and cell % 2 == 1 and m2 is not None and m3["midi"] != m2["midi"]:
+            s3, f3, p3 = place(m3["midi"], tuning, hand)
+            if s3 >= 2 and abs(f3 - hand) <= 3:
+                ev(u0 + 3, s3, f3, p3, "drop", 0.6, 1)
+                dropped = True
+        if not dropped:
+            ev(u0 + 3, 5, 0, tuning[5], "thumb", 0.55, 1)
+        u0 += 4
+        cell += 1
+    # the last note: a full brush on the tonic chord, the drone with it, let ring
+    pcs = {m % 12 for m in tune.CHORD_TONES[key]}
+    for k, s in enumerate((4, 3, 2, 1)):
+        f = chord_fret(s, pcs, tuning, 0)
+        ev(last_u + k * 0.012 / unit, s, f, tuning[s] + f, "brush", 0.85, 12)
+    ev(last_u + 0.04 / unit, 5, 0, tuning[5], "thumb", 0.5, 12)
+    events.sort(key=lambda e: e["t"])
+    return {"tune": sc["tune"], "instrument": "five-string banjo, gut strings, calfskin head",
+            "key": key, "tuning": tuning, "style": "stroke style (clawhammer): bum-ditty, hammer-ons, "
+            "pull-offs, drop thumb", "seed": seed, "length_s": round(events[-1]["t"] + 2.5, 3),
+            "octave": shift // 12, "events": events}
+
+
+# ---------------------------------------------------------------------------------------- the sound
+
+@njit(cache=True)
+def run_string(f0, exc, gain, damp, sr, loss):
+    """One string's loop: per sample its pitch (Hz), the strikes fed in, the loop's gain per sample
+    (decay) and a mute (1 free, <1 a finger lifting or the nail landing on it), both per pass."""
+    n = f0.shape[0]
+    out = np.zeros(n)
+    buf = np.zeros(BUF)
+    w = 0
+    lp = 0.0
+    a = loss  # gut: the highs go each pass
+    for i in range(n):
+        d = sr / f0[i] - a / (1.0 - a)
+        if d < 2.0:
+            d = 2.0
+        x = _read(buf, w, d)
+        lp = (1.0 - a) * x + a * lp
+        y = exc[i] + gain[i] * damp[i] * lp
+        buf[w] = y
+        out[i] = y
+        w = (w + 1) % BUF
+    return out
+
+
+def _pulse(sr, width, rng):
+    """A strike: a raised-cosine pulse `width` s wide (the nail ~0.4 ms, flesh ~1.5 ms), a hint of
+    noise for the nail's scrape."""
+    m = max(3, int(width * sr))
+    p = 0.5 - 0.5 * np.cos(2 * np.pi * np.arange(m) / (m - 1))
+    p = p + 0.15 * rng.standard_normal(m) * p
+    return p / p.sum()
+
+
+def head_ir(sr, seed=1866, length=0.18):
+    """The calfskin head and the pot: a membrane's modes (Bessel ratios over ~260 Hz; heavily
+    damped), a dense set above under a broad 1-3 kHz rise, and the open back's air low down."""
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(length * sr)) / sr
+    f01 = 260.0
+    ratios = [1.0, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501, 3.600, 3.652, 4.060, 4.154, 4.601]
+    modes = [(150.0, 6.0, 0.35)]  # the pot's air
+    for k, r in enumerate(ratios):
+        modes.append((f01 * r, rng.uniform(10, 20), (1.0 if k < 4 else 0.8) * rng.uniform(0.6, 1.0)))
+    f = f01 * 4.8
+    while f < 9000:
+        f *= 1.0 + rng.uniform(0.02, 0.06)
+        rise = np.exp(-0.5 * (np.log(f / HEAD_RISE) / 0.6) ** 2)
+        amp = (0.25 + 0.75 * rise) * (1.0 if f < 4000 else (4000 / f) ** 2) * rng.uniform(0.5, 1.0)
+        modes.append((f, rng.uniform(12, 25), amp))
+    ir = np.zeros_like(t)
+    for fr, q, a in modes:
+        # a mode's peak in the response goes as amp x Q / f: scaled so `a` is that peak's height
+        a = a * fr / f01 * 15.0 / q
+        ir += a * np.exp(-np.pi * fr * t / q) * np.sin(2 * np.pi * fr * t + rng.uniform(0, 2 * np.pi))
+    ir /= np.max(np.abs(ir))
+    ir[0] += 0.6  # the bridge's own push into the air, straight through
+    return ir
+
+
+def t60(f):
+    """A gut banjo string's ring: ~2 s low, about one up high (the head drinks it)."""
+    return 1.9 * (147.0 / f) ** 0.5
+
+
+def render(part, sr=common.SR, seed=1866):
+    srm = sr * OVER
+    rng = np.random.default_rng(seed)
+    n = int(part["length_s"] * srm)
+    tuning = {int(k): v for k, v in part["tuning"].items()}
+    total = np.zeros(n)
+    click = np.zeros(n)
+    for s in (1, 2, 3, 4, 5):
+        evs = [e for e in part["events"] if e["string"] == s]
+        midi = np.full(n, float(tuning[s]))
+        exc = np.zeros(n)
+        damp = np.ones(n)
+        for j, e in enumerate(evs):
+            i0 = int(e["t"] * srm)
+            if i0 >= n:
+                continue
+            nxt = int(evs[j + 1]["t"] * srm) if j + 1 < len(evs) else n
+            # the finger holds the fret until the next strike on this string or the ring's end
+            ring_end = min(nxt, i0 + int(max(e["ring"], 0.05) * srm))
+            midi[i0:nxt] = e["midi"]
+            # a hard strike stretches the string: a few cents sharp, settling in ~60 ms
+            k = np.arange(nxt - i0) / srm
+            cents = 9.0 * e["amp"] * np.exp(-k / 0.06) * (e["kind"] not in ("hammer", "pull"))
+            midi[i0:nxt] += cents / 100.0
+            if e["fret"] > 0 and ring_end < nxt:
+                # the finger leaves: a short mute, then the open string (quiet: the mute took it)
+                m = int(0.03 * srm)
+                damp[ring_end:ring_end + m] = 0.6
+                midi[ring_end:nxt] = tuning[s]
+            if e["kind"] in ("nail", "brush", "drop", "thumb"):
+                damp[i0:i0 + int(0.003 * srm)] = 0.75  # the nail lands on the moving string
+            width = {"nail": NAIL_W, "brush": NAIL_W * 1.5, "drop": 0.0012, "thumb": 0.0015,
+                     "hammer": 0.0009, "pull": 0.0007}[e["kind"]]
+            p = _pulse(srm, width, rng) * e["amp"] * (0.5 if e["kind"] == "hammer" else 1.0)
+            # where it lands: a comb at the strike point's share of the period
+            period = srm / common.hz(e["midi"])
+            lag = int(round(rng.uniform(0.24, 0.32) * period))
+            shaped = np.zeros(len(p) + lag)
+            shaped[:len(p)] += p
+            shaped[lag:lag + len(p)] -= p
+            seg = exc[i0:i0 + len(shaped)]
+            seg += shaped[:len(seg)] * 0.5
+            if e["kind"] in ("nail", "brush"):
+                nb = rng.standard_normal(int(0.003 * srm)) * np.exp(-np.arange(int(0.003 * srm)) / (0.0008 * srm))
+                cseg = click[i0:i0 + len(nb)]
+                cseg += 0.02 * e["amp"] * nb[:len(cseg)]
+        f0 = common.hz(midi)
+        gain = 10 ** (-3.0 / (t60(f0) * f0))  # per pass round the loop
+        out = run_string(f0, exc, gain, damp, float(srm), LOSS)
+        total += out * (0.8 if s == 5 else 1.0)
+    b, a = butter(2, [2000 / (srm / 2), 9000 / (srm / 2)], "band")
+    total += lfilter(b, a, click) * np.std(total) * 4
+    y = common.resample(total, srm, sr)
+    y = fftconvolve(y, head_ir(sr, seed))[: len(y)]
+    b, a = butter(2, 80 / (sr / 2), "high")
+    return lfilter(b, a, y)
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    opt = {a.split("=")[0][2:]: a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--") and "=" in a}
+    src = args[0] if os.path.isabs(args[0]) else os.path.join(HERE, args[0])
+    sc = json.load(open(src))
+    part = arrange(sc)
+    if "part" in opt:
+        json.dump(part, open(opt["part"], "w"), indent=1)
+    name = os.path.splitext(os.path.basename(src))[0]
+    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_banjo.wav"))
+    y = render(part)
+    common.write_wav(out, common.normalise(y))
+    kinds = {}
+    for e in part["events"]:
+        kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+    print(f"{out}: {part['tune']} in {part['key']} ({part['length_s']} s), {kinds}")
+
+
+if __name__ == "__main__":
+    main()

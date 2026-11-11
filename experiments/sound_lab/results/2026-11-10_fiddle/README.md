@@ -167,3 +167,8 @@ with a 37 s tune: `run.py --timeout=2000`.
 
 `devils_dream/`: the plain take (`dry.mp3`) and the six game runs, cut as Arkansas Traveller's (pairs keep the
 game's level). Heard: close -18.6, through the floor -39.5, porch -48.9, across -58.6 LUFS.
+
+## The banjo
+
+`banjo/`: our banjo model (`fiddle/banjo.py`) alone and with the fiddle (`fiddle/duet.py`), Turkey in the
+Straw (open G) and Devil's Dream (open A), plain takes at -18 LUFS. The duet's game distances follow.

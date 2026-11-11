@@ -25,7 +25,8 @@ How it's played (our own rules, from how old-time fiddling is described, not fro
 Each note: t, dur (s), midi, cents (where the finger lands, off the true pitch), string (G D A E), finger (0 open, 1-4), stroke (index), slur (tied to
 the note before in one stroke), bow (down/up), speed (bow m/s), pressure (0-1, of the most a
 fiddler leans), pos (bow from the bridge, of the string's length), accent, slide_from (midi or
-null), slide_s, voice (melody, drone, double).
+null), slide_s, voice (melody, drone, double); a melody note also its bar (0 the pickup) and unit
+(its start in the tune's running notes, unswung: the beat grid a banjo plays to).
 Strokes: index, t0, t1, dir, strings, pressure, speed, pos.
 """
 import json
@@ -164,7 +165,7 @@ def arrange(tempo_half=108.0, seed=1882, phrases=None, chords=None, title=None, 
                           "finger": f, "stroke": st["index"], "slur": slur, "bow": st["dir"],
                           "pressure": round(pressure, 3), "accent": round(accent, 2), "pos": 0.0,
                           "speed": 0.0, "slide_from": slide, "slide_s": 0.06 if slide else 0.0,
-                          "voice": "melody"})
+                          "voice": "melody", "bar": bar, "unit": round(t_eighths, 4)})
             # drones and double stops
             if n8 >= 2 and midi in (74, 69):
                 # the held d with F# under it on the D string (a sixth); the open A with the open D
@@ -218,7 +219,7 @@ def _swung(e, eighth, swing):
 
 
 def _extra(melody, midi, s, f, voice, level):
-    n = dict(melody)
+    n = {k: v for k, v in melody.items() if k not in ("bar", "unit")}
     n.update({"midi": midi, "cents": 0.0 if f == 0 else round(melody["cents"] * -0.5, 1), "string": s, "finger": f,
               "voice": voice, "slur": melody["slur"],
               "pressure": round(melody["pressure"] * level, 3), "slide_from": None, "slide_s": 0.0})

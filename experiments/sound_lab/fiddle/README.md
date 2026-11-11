@@ -43,11 +43,25 @@ changes; results in `../results/2026-11-10_fiddle/`.
 - `fetch.sh`: the reference record (Internet Archive) and the violin samples (VSCO 2 CE at a fixed
   commit) into `build/sound_lab/fiddle/`.
 
+## The banjo (after Sean picked B)
+
+- `banjo.py`: **our own banjo**, the same way as B: an 1870s five-string (gut strings, calfskin head,
+  open back) tuned open to the tune's key. `arrange()` writes his part from the fiddle's note data
+  (each melody note's `bar` and `unit`, the beat grid): clawhammer's bum-ditty, hammer-ons, pull-offs,
+  drop thumb, the tune an octave down when that keeps it low on the neck; `render()` plays it: a
+  waveguide loop a string (gut's losses, each string's decay), strikes combed at 0.28 of the string,
+  a hard strike a few cents sharp for a moment, through a calfskin head (a membrane's modes over
+  ~260 Hz, a 1-3 kHz rise). Checks (single strikes): in tune within a cent, a G3 down 13 dB by 0.3 s
+  and 37 by 0.8 s; in Turkey in the Straw every struck note within 30 cents, centroid ~1.6-1.7 kHz.
+- `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
+
 ## Commands
 
 ```sh
 experiments/sound_lab/fiddle/fetch.sh                       # needs dn801308.us.archive.org allowed
 python3 experiments/sound_lab/fiddle/tune.py                # the note data (already in the repo)
+python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--part=OUT.json]   # the banjo alone
+python3 experiments/sound_lab/fiddle/duet.py turkey_in_the_straw.json   # fiddle and banjo
 python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json  # any ABC tune
 python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~80 min the 8 game runs (one at a time)
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png
