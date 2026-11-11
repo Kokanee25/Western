@@ -26,6 +26,22 @@ hasn't confirmed in words.)
 
 - DECIDED (Sean, 2026-11-09, picked from the story judge): **the red shirt is the Baron's hired gun, and the man who
   shot the sheriff.** His "no law to save him now" in the saloon is a boast.
+- DECIDED (Sean, 2026-11-11): **two men, not one.** "I just realized the guy in the red shirt can't be the one to shoot the card cheat and be the one to murder Joe's wife - then if he gets away with the wife's murder he could still be held for the card cheats murder". A whole saloon saw the card cheat
+  shot, so the man who did it can't be let go on the train the way No Justice's arrest ending lets the
+  red shirt go. This replaces "the red shirt kills the cheat" wherever a card says it (the lines dated
+  2026-11-09 stand as the record).
+- OPEN: which man is which. PROPOSED (this session, not picked):
+  - **The red shirt stays Joe's wife's killer** (the faded red shirt is from Sean's own No Justice card,
+    the one thing her people saw) and the man who shot the sheriff on the road. Nobody in town saw either
+    killing, so the arrest ending can still let him go.
+  - **The saloon killer is another man:** the inventory's "bold cowboy" who accuses the cheat (the
+    inventory's own "Saloon Shooting"; the game already seats the bold cowboy at the saloon table). His
+    "no law to save him now" stays his boast. He rides with the red shirt: a player who follows him out
+    of the saloon still learns the raiders' way, and he's among the six at the cabin.
+  - **What it gives:** the man the whole saloon saw kill is the one the law can hold (he's the prisoner
+    waiting for the morning train on the Water Tower night, `hold-him`); the man who killed a Ute woman,
+    seen only by her people, is the one let go. The town gets its hanging and Joe gets nothing: No
+    Justice in one picture.
 - DECIDED (Sean, 2026-11-09): "we need rourke to come no matter what because if Joe kills him we should still meet
   him": Rourke is met whatever No Justice's ending. In the arrest ending (picked from the story judge)
   the man on the platform who lets the red shirt go is Rourke, or his officer: Rourke's first sighting.

@@ -17,7 +17,7 @@ yet (`MAP.md`). The facts below are what that system has to remember. Built from
 
 ```mermaid
 flowchart TD
-  sheriff[the-sheriff<br/>day 1: help or leave, how well] --> nolaw[no-law<br/>night 1: the red shirt kills the cheat]
+  sheriff[the-sheriff<br/>day 1: help or leave, how well] --> nolaw[no-law<br/>night 1: a man kills the cheat<br/>not the red shirt: Sean 2026-11-11]
   nolaw --> deputy[day 2: deputized, nod or shake<br/>last words by day 1's care]
   deputy --> funeral[the funeral: attend or not]
   nolaw -->|followed him: knows the way| nojustice
@@ -56,6 +56,7 @@ Each fact: its values, the mission that sets it, the missions that read it, and 
 | `nolaw.followed_red_shirt` | yes / no | `no-law` | `no-justice` | He already knows the raiders' way (DECIDED pick) |
 | `joe.question` | stop (arrest) / step aside / acted / shot the surrendered man / killed him outside first | `no-justice` | `joe-on-the-rope`, Joe's trust, the camp | See the next rows |
 | `red_shirt.fate` | released / killed by Joe / murdered by Harlan / killed outside | `no-justice` | `joe-on-the-rope`, the town | Released: he walks Main Street, and Joe kills him there (the rope's cause, DECIDED). Killed by Joe: the kin come (DECIDED). Murdered by Harlan: witnesses, rumour (DECIDED); the rope's cause **OPEN** |
+| `saloon_killer.fate` | held for trial / killed / got away | `no-justice` (PROPOSED: he's among the six at the cabin) | `hold-him`, the town | Sean, 2026-11-11: he's not the red shirt, so he can be held for the cheat even when the red shirt is let go. PROPOSED: held, he's the Water Tower's prisoner |
 | `joe.disguise_held` | yes / no | `no-justice` (witnesses, DECIDED pick) | `joe-on-the-rope` | Held: the kin come for Joe. Broken: they go to the Ute camp (DECIDED) |
 | `camp.trust` | trusts Harlan / cooled | `no-justice` | the camp, Joe | Revenge: trusts; arrest: cools (DECIDED) |
 | `widow.visited` | yes / no | `widows-place` (DECIDED, Sean 2026-11-09) | `farmhouse-rescue` | Not visited: a stranger to her, the boys and Blue; the ways in unknown (DECIDED) |

@@ -87,7 +87,8 @@ flowchart TD
 
 **The opening, in order** (Sean, 2026-11-09): day 1 dawn, the sheriff on the road → the doctor's →
 night 1, `no-law` (Harlan seated, unarmed, no law yet; the stranger tells him not to do anything; the
-red shirt murders the card cheat and rides off) → the same night, the red shirt's gang raids Joe's camp
+red shirt murders the card cheat and rides off; Sean 2026-11-11: two men, so the saloon killer isn't the red shirt,
+which is which OPEN) → the same night, the red shirt's gang raids Joe's camp
 → day 2, the sheriff deputizes Harlan, gives him his revolver and dies; the funeral (attend or not);
 OPEN (Sean: "gotta be flagged"): where and when Harlan meets Joe →
 `no-justice` (now he's the law, and the law fails anyway).

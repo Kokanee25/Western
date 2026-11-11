@@ -66,7 +66,7 @@ overpass is for early train encounters and boarding; the great trestle is kept f
 evidence and the trial are "a maybe" (Sean, 2026-11-09).
 
 **Every mission, one line each** (to judge "unique among ours"):
-- No Law: night one in the saloon, Harlan not yet the law; the man in the red shirt murders a card cheat.
+- No Law: night one in the saloon, Harlan not yet the law; a man murders a card cheat (Sean, 2026-11-11: not the red shirt, two men; which is which OPEN, PROPOSED the bold cowboy, the red shirt's partner).
 - The Sheriff on the Road: you find him gut-shot at dawn; carry him to the doctor or leave him; on day 2 he deputizes you and dies.
 - No Justice: raiders killed Joe's wife; ride with him; the man in the red shirt hides in a cabin; nod to stop Joe, or not.
 - Joe on the Rope: a mob hangs Joe; shoot the rope from an overlook, or he dies for good.

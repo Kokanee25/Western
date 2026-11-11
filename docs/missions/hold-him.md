@@ -20,7 +20,8 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 
 - DECIDED (Sean, 2026-11-09: "yes add yours"): the Water Tower, version 3 (`proposals/setpieces_2026-11-09.md`;
   set-piece judge 5, low). In short:
-  - **The night:** Harlan's prisoner (the red shirt, on No Justice's arrest ending) waits in the depot's
+  - **The night:** Harlan's prisoner (the red shirt, on No Justice's arrest ending; OPEN since Sean's two men,
+    2026-11-11: PROPOSED the saloon killer, the one the law can't let go, `no-law`) waits in the depot's
     timber freight room for the morning train. The railroad's water tank stands over it: a timber frame on
     four legs, a stave tank held by iron hoops, a spout, an outlet valve.
   - **Two groups, opposite aims:** his friends want him **freed** (the tank half-drained, dropped on the
