@@ -467,34 +467,32 @@ void fragment() {
 			float u = horiz ? (1.0 + v_across * sy) * hw : (1.0 - abs(v_across)) * hw;
 			float side = horiz ? 0.0 : step(0.0, v_across);
 			float want = clamp(0.1 * years + 0.42 * olds, 0.0, 1.0) * (0.7 + 0.3 * sunk) * clamp(paint_peel / 0.65, 0.0, 1.5) * paint_strips;
-			// Runs along the board, each its own length (~0.2-0.6 m), torn off square-ish and ragged at
-			// its ends (the cell's edge moved by a noise across the grain).
-			float jag = (texture(big_noise, vec2(pm.y / 0.012, pm.x / 0.08) + so * 2.3).r - 0.5) * 0.08
-					+ (texture(big_noise, vec2(pm.y / 0.004, pm.x / 0.02) + so * 1.1).r - 0.5) * 0.03;
+			// Runs along the board, each its own length (~0.3-0.6 m), torn off ragged at its ends (the
+			// cell's edge moved by a noise across the grain). (big_noise's features are ~0.16 of its tile:
+			// a feature of f metres is pm / (f / 0.16); round 2's first scales were 6x too fine, spires.)
+			float jag = (texture(big_noise, vec2(pm.y / 0.06, pm.x / 0.3) + so * 2.3).r - 0.5) * 0.06
+					+ (texture(big_noise, vec2(pm.y / 0.025, pm.x / 0.12) + so * 1.1).r - 0.5) * 0.02;
 			float xs = pm.x + jag + so.x * 0.37;
-			float cl = 0.42;
+			float xt = pm.x + so.x * 0.37;
+			float cl = 0.55;
 			float ck = floor(xs / cl);
 			float on = step(hash11(seed * 7.13 + ck * 1.37 + side * 5.1 + 0.3), want);
 			// Tapered toward the run's ends: the tear runs down to the wet edge, not square.
-			float cf = fract(xs / cl);
-			float taper = smoothstep(0.0, 0.12, min(cf, 1.0 - cf));
-			// Its top edge wanders along the run (where the film split along the grain), torn small and
-			// angular across it.
-			float step_h = mix(0.35, 1.0, smoothstep(0.3, 0.7, texture(big_noise, vec2(pm.x / 0.16, ck * 0.71 + side) + so).r));
-			// How far up from the wet edge it let go: a grain line, straight along the board, a whisker
-			// of tear in it.
+			float cf = fract(xt / cl);
+			float taper = smoothstep(0.0, 0.15, min(cf, 1.0 - cf));
+			// Its top edge wanders along the run (~15 cm) where the film split along the grain.
+			float step_h = mix(0.55, 1.0, smoothstep(0.3, 0.7, texture(big_noise, vec2(pm.x / 0.9, ck * 0.71 + side) + so).r));
+			// How far up from the wet edge it let go, and a tear along it (~1 cm and ~6 cm).
 			float h = v_width * (horiz ? mix(0.15, 0.7, hash11(seed * 3.31 + ck * 2.9 + side)) : mix(0.1, 0.35, hash11(seed * 3.31 + ck * 2.9 + side)));
-			// (along a lap the tear varies along the board only: varied across it too, the edge's
-			// solutions were spikes, a skyline)
-			float tear = (texture(big_noise, vec2(pm.x / 0.02, horiz ? so.y * 3.0 : pm.y / 0.004) + so * 1.7).r - 0.5) * 0.008
-					+ (texture(big_noise, vec2(pm.x / 0.18, so.y * 4.0 + ck * 0.3)).r - 0.5) * 0.02;
+			float tear = (texture(big_noise, vec2(pm.x / 0.06, so.y * 3.0 + side) + so * 1.7).r - 0.5) * 0.006
+					+ (texture(big_noise, vec2(pm.x / 0.4, so.y * 4.0 + ck * 0.3)).r - 0.5) * 0.012;
 			float sp = on > 0.5 ? (h * step_h * taper - u + tear) * 6.0 : -1.0;
 			// The ends: the film gone back from a board's end along the grain, a ragged front.
 			float ue = min(v_m.x, v_length - v_m.x);
 			float endk = step(v_length * 0.5, v_m.x);
 			float eon = step(hash11(seed * 5.77 + endk * 3.1 + 0.9), want * 1.2);
 			float reach_e = (0.03 + 0.12 * hash11(seed * 9.1 + endk * 1.7)) * eon;
-			float front = (texture(big_noise, vec2(pm.y / 0.025, endk * 7.0) + so * 3.1).r - 0.5) * 0.08;
+			float front = (texture(big_noise, vec2(pm.y / 0.1, endk * 7.0) + so * 3.1).r - 0.5) * 0.06;
 			float se = eon > 0.5 ? (reach_e + front - ue) * 6.0 : -1.0;
 			float sb = max(sp, se);
 			by_strip = sb > pf;
