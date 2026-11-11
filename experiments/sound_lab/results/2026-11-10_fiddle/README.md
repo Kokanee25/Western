@@ -133,3 +133,17 @@ low-pass and drop). As heard, the porch is -47 LUFS and across the street -57, a
 and -37 through the floor; the two clips are raised together (the porch to -20) to be heard on a
 phone, keeping the 10 dB between them. Found: from the porch, GameAudio's one ray is stopped first
 by a porch post, not the wall (the same muffle here, but by luck, like the balcony's joists).
+
+## From outside with the room's crowd (B; 2026-11-11)
+
+`outside/B_crowd_porch.mp3`, `outside/B_crowd_across.mp3`: the fiddler on the balcony and the room's
+crowd on the bar room floor (7.5, 2.3, 6.5; off the door's line, or GameAudio counts it outdoors),
+both heard through the walls (RoomMuffled), from the porch and across the street (`music_crowd_*`,
+the music kind's `bed`). The crowd is the cinematic's ElevenLabs take (`sfx_room.mp3`, branch
+`claude/cinematic-saloon`, made through fal on 2026-10-26: "Quiet 1880s saloon at night: low
+murmur of men..."): busy for ~2 s and then dying away, so `fiddle/crowd_bed.py` levels its first
+10 s and builds a steady 23 s bed of overlapping slices in three layers. A stand-in: a quiet
+murmur, not a Payday Night dance. As run (bed at -5 dB) it sat 12 dB under the fiddle at the
+porch, barely there; the clips raise its part by 6 dB from the same two runs (the mix is linear at
+these levels; the scenarios now say +1 dB): 5.7 dB under the fiddle at the porch, 2.9 across the
+street. Raised together to -20 LUFS at the porch, as the fiddle-only pair.

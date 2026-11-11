@@ -117,5 +117,8 @@ of it is in the game yet:
   the Music Modernization Act ended on 1 January 2022; the tune is traditional). From the Internet
   Archive (https://archive.org/details/ACEckRobertsonSallieGoodenVictor18956). The experiment's
   reference only, to compare against: a 20 s excerpt in its results, not in the game.
+- The room's crowd under the fiddle heard from outside: the cinematic's generated take
+  `sfx_room.mp3` (ElevenLabs sound effects v2 through fal, 2026-10-26; branch `claude/cinematic-saloon`),
+  cut into a steady bed by `experiments/sound_lab/fiddle/crowd_bed.py`; a lab stand-in, not in the game.
 - **"The Soldier's Joy"**, traditional, as printed in O'Neill's *Music of Ireland* (1903), No. 1642,
   public domain; the ABC transcription from music21's corpus (`oneills1850`; music21 is BSD-3).

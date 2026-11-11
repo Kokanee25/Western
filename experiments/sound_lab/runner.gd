@@ -362,6 +362,16 @@ func _event_music() -> void:
 	GameAudio.play(_street, &"music", at, {"stream": s, "unit_size": float(_spec.get("unit_size", 2.0)),
 			"volume_db": float(_spec.get("volume_db", 0.0)), "max_db": float(_spec.get("max_db", 3.0))})
 	_mark("music", at)
+	# a bed under it (the room's crowd, #790): another recording placed in the room, from the start
+	var bed: Dictionary = _spec.get("bed", {})
+	if not bed.is_empty():
+		var bp := String(bed.file)
+		if not bp.is_absolute_path():
+			bp = ProjectSettings.globalize_path("res://").path_join(bp)
+		var bs := AudioStreamWAV.load_from_file(bp)
+		GameAudio.play(_street, &"music_bed", _v(bed.at), {"stream": bs, "unit_size": float(bed.get("unit_size", 3.0)),
+				"volume_db": float(bed.get("volume_db", 0.0)), "max_db": float(bed.get("max_db", 3.0))})
+		_mark("bed", _v(bed.at))
 	await lab.seconds(s.get_length())
 
 
