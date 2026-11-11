@@ -36,14 +36,16 @@ hasn't confirmed in words.)
   shot, so the man who did it can't be let go on the train the way No Justice's arrest ending lets the
   red shirt go. This replaces "the red shirt kills the cheat" wherever a card says it (the lines dated
   2026-11-09 stand as the record).
-- OPEN: which man is which. PROPOSED (this session, not picked):
-  - **The red shirt stays Joe's wife's killer** (the faded red shirt is from Sean's own No Justice card,
+- DECIDED (Sean, 2026-11-11): "The bold cowboy is not the murderer - I'll find something else for him - the
+  murderer just has to be some rough asshole". So the card cheat's killer is **a rough man of his own**, not
+  the bold cowboy and not the red shirt, and the red shirt stays the man who killed Joe's wife. OPEN: what
+  the bold cowboy does (Sean's to find).
+- The rest of this session's proposal, still PROPOSED (not picked):
+  - **The red shirt, Joe's wife's killer** (the faded red shirt is from Sean's own No Justice card,
     the one thing her people saw) and the man who shot the sheriff on the road. Nobody in town saw either
     killing, so the arrest ending can still let him go.
-  - **The saloon killer is another man:** the inventory's "bold cowboy" who accuses the cheat (the
-    inventory's own "Saloon Shooting"; the game already seats the bold cowboy at the saloon table). His
-    "no law to save him now" stays his boast. He rides with the red shirt: a player who follows him out
-    of the saloon still learns the raiders' way, and he's among the six at the cabin.
+  - **The saloon killer** keeps the "no law to save him now" boast. He rides with the red shirt: a player
+    who follows him out of the saloon still learns the raiders' way, and he's among the six at the cabin.
   - **What it gives:** the man the whole saloon saw kill is the one the law can hold (he's the prisoner
     waiting for the morning train on the Water Tower night, `hold-him`); the man who killed a Ute woman,
     seen only by her people, is the one let go. The town gets its hanging and Joe gets nothing: No
@@ -109,7 +111,8 @@ From `sources/inventory_2026-11-09.md` (Sean's "tentative mission layout").
 - DECIDED (inventory, "Established story direction"; there "The Saloon Shooting"): "Harlan visits the
   saloon while the sheriff is incapacitated." "He kicks a chair aside and creates a confrontation." "He
   declares that there is no law in Salt Creek and shoots the accused cheater."
-- OPEN: who shoots: "A bold cowboy accuses another man of cheating" (inventory) vs the red shirt
+- Settled (Sean, 2026-11-11): neither; "the murderer just has to be some rough asshole". Was OPEN: who
+  shoots: "A bold cowboy accuses another man of cheating" (inventory) vs the red shirt
   (Sean's No Law draft and chat, 2026-11-09). And "Introduces ... our environmental combat systems"
   (inventory) vs "sitting at a table and has no gun yet so he can't do anything at all" (Sean, chat).
 - PROPOSED (inventory): "These first three are currently story beats. They could become one larger
