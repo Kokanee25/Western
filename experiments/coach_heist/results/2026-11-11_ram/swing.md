@@ -1,0 +1,18 @@
+# Coach heist lab: swing
+
+- drop 1.2: at the bottom 4.85 m/s (lossless 4.85) in 1.20 s, ropes' most pull 9.0 kN  (frames max 3 ms here, 2 at Sean's)
+- drop 1.2: at the bottom 4.85 m/s (lossless 4.85) in 1.20 s, ropes' most pull 9.0 kN | the coach: lean 14 stood, dents 7, deepest 2.1 cm  (frames max 36 ms here, 23 at Sean's)
+- drop 1.6: at the bottom 5.60 m/s (lossless 5.60) in 1.22 s, ropes' most pull 9.9 kN  (frames max 2 ms here, 1 at Sean's)
+- drop 1.6: at the bottom 5.60 m/s (lossless 5.60) in 1.22 s, ropes' most pull 9.9 kN | the coach: lean 17 stood, dents 13, deepest 2.5 cm  (frames max 22 ms here, 14 at Sean's)
+- drop 2.0: at the bottom 6.26 m/s (lossless 6.26) in 1.23 s, ropes' most pull 10.8 kN  (frames max 1 ms here, 0 at Sean's)
+- drop 2.0: at the bottom 6.26 m/s (lossless 6.26) in 1.23 s, ropes' most pull 10.8 kN | the coach: lean 100 OVER, dents 9, deepest 2.8 cm  (frames max 21 ms here, 14 at Sean's)
+- drop 2.5: at the bottom 7.00 m/s (lossless 7.00) in 1.25 s, ropes' most pull 12.0 kN  (frames max 1 ms here, 0 at Sean's)
+- drop 2.5: at the bottom 7.00 m/s (lossless 7.00) in 1.25 s, ropes' most pull 12.0 kN | the coach: lean 101 OVER, dents 9, deepest 3.2 cm  (frames max 28 ms here, 18 at Sean's)
+- drop 3.0: at the bottom 7.67 m/s (lossless 7.67) in 1.27 s, ropes' most pull 13.1 kN  (frames max 1 ms here, 0 at Sean's)
+- drop 3.0: at the bottom 7.67 m/s (lossless 7.67) in 1.27 s, ropes' most pull 13.1 kN | the coach: lean 101 OVER, dents 9, deepest 3.5 cm  (frames max 28 ms here, 18 at Sean's)
+- drop 3.3: at the bottom 8.04 m/s (lossless 8.05) in 1.28 s, ropes' most pull 13.8 kN  (frames max 1 ms here, 0 at Sean's)
+- drop 3.3: at the bottom 8.04 m/s (lossless 8.05) in 1.28 s, ropes' most pull 13.8 kN | the coach: lean 100 OVER, dents 9, deepest 3.6 cm  (frames max 22 ms here, 14 at Sean's)
+- drop 3.6: at the bottom 8.40 m/s (lossless 8.40) in 1.30 s, ropes' most pull 14.5 kN  (frames max 3 ms here, 2 at Sean's)
+- drop 3.6: at the bottom 8.40 m/s (lossless 8.40) in 1.30 s, ropes' most pull 14.5 kN | the coach: lean 104 OVER, dents 9, deepest 3.8 cm  (frames max 22 ms here, 15 at Sean's)
+- drop 4.0: at the bottom 8.85 m/s (lossless 8.86) in 1.32 s, ropes' most pull 15.5 kN  (frames max 1 ms here, 0 at Sean's)
+- drop 4.0: at the bottom 8.85 m/s (lossless 8.86) in 1.32 s, ropes' most pull 15.5 kN | the coach: lean 108 OVER, dents 9, deepest 4.0 cm  (frames max 20 ms here, 13 at Sean's)
