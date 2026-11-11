@@ -1,18 +1,23 @@
 extends Node3D
-## The coach heist lab's site (issue #770, Sean's 1B 2C on #784): the road along x, the bank above
-## it on the -z side (1:1.5, `drop` m from the deck's lip to a `step` m crib at its foot), a far bank
-## on +z, the log on the deck held by two wedges and a chained stake's toggle pin (a kit prop's
-## members: a ball splits one), and the coach on the road (`baron_coach` if the kit has it, else
-## the lab's stand-in), driven by a CoachDrive, four guards seated in it. Built by `build(opts)`;
-## the runner and the bridge read its numbers.
+## The coach heist lab's site (issues #770, #794): the road along x, the bank above it on the -z side
+## (1:1.5, `drop` m high, from the road's edge or from a `step` m crib at its foot), a far bank on +z,
+## and the coach (`baron_coach`) on the road, driven by a CoachDrive, four guards seated in it and
+## the driver and messenger on its box. What strikes it (`striker`):
+##   ram   (the default since #791, Sean's call) a SwingingRam: log B on two ropes from a gallows frame
+##         over the road, held back up the bank by its trip pin, striking sideways at the bottom of
+##         its swing (`bottom_y`, 2.0 m: the upper plates)
+##   roll  (#784's 1B 2C) the log on a deck on the bank's lip held by two wedges and a chained stake's
+##         toggle pin, rolling down the bank and off the step (`step` 2.5, `ledge` 0.6)
+## Built by `build(opts)`; the runner and the bridge read its numbers.
 
 const ROAD_HALF := 2.5  ## the road 5 m wide, its edges at z +-2.5
 const SLOPE := 1.5  ## horizontal per vertical, both banks
 const DECK := 4.0  ## the deck's depth back from the lip (m)
 const FAR_BANK := 8.0
-const STAND_IN := "res://experiments/coach_heist/coach_stand_in.json"
 
 var opts := {}
+var striker := "ram"
+var ram: SwingingRam
 var step := 2.5
 var drop := 5.5
 ## The step's flat top (m, a crib's top course) between the bank's foot and the step's face.
@@ -33,6 +38,9 @@ var log_at_foot := {}
 var log_at_face := {}
 var log_at_hit := {}
 var max_lean := 0.0
+## The ram's log at the bottom of its swing (first crossing its line), and the riders on the box
+## and the strongbox at the end.
+var ram_at_bottom := {}
 var head_blows: Array[Dictionary] = []
 var released_at := -1.0
 var coach_kg := 0.0
@@ -41,8 +49,9 @@ var t := 0.0
 
 func build(o: Dictionary) -> void:
 	opts = o
-	step = float(o.get("step", 2.5))
-	drop = float(o.get("drop", 5.5))
+	striker = String(o.get("striker", "ram"))
+	step = float(o.get("step", 0.0 if striker == "ram" else 2.5))
+	drop = float(o.get("drop", 6.0 if striker == "ram" else 5.5))
 	ledge = float(o.get("ledge", 0.0)) if step > 0.0 else 0.0
 	foot_z = -ROAD_HALF - ledge
 	lip_z = foot_z - drop * SLOPE
@@ -51,7 +60,10 @@ func build(o: Dictionary) -> void:
 	add_child(watch)
 	_ground()
 	if bool(o.get("with_log", true)):
-		_deck_and_log()
+		if striker == "ram":
+			_ram()
+		else:
+			_deck_and_log()
 	if bool(o.get("with_coach", true)):
 		_coach(Vector3(float(o.get("coach_x", 0.0)), 0.0, float(o.get("coach_z", 0.0))))
 
@@ -63,7 +75,11 @@ func _physics_process(delta: float) -> void:
 	if opts.has("release_at_x") and released_at < 0.0 and coach and log_body and log_body.held \
 			and coach.position.x <= float(opts.release_at_x):
 		release_log()
-	if log_body and not log_body.freeze:
+	if ram and released_at >= 0.0 and ram_at_bottom.is_empty() and log_body \
+			and ram.to_local(log_body.global_position).z >= 0.0:
+		ram_at_bottom = {"t": t - released_at, "speed": log_body.linear_velocity.length(),
+				"y": ram.to_local(log_body.global_position).y, "tension_n": ram.most_tension}
+	if striker != "ram" and log_body and not log_body.freeze:
 		var p := to_local(log_body.global_position)
 		if log_at_face.is_empty() and step > 0.0 and p.z >= -ROAD_HALF:
 			log_at_face = {"t": t, "speed": log_body.linear_velocity.length(), "vz": log_body.linear_velocity.z, "vy": log_body.linear_velocity.y, "y": p.y}
@@ -185,14 +201,18 @@ func _deck_and_log() -> void:
 	log_body.released.connect(_on_released)
 
 
-func _on_released() -> void:
+func _on_released(nudge := true) -> void:
 	released_at = t
 	# Over the lip it goes: the last hold out, it tips off the deck's edge.
-	log_body.linear_velocity = global_basis * Vector3(0.0, 0.0, 0.4)
+	if nudge:
+		log_body.linear_velocity = global_basis * Vector3(0.0, 0.0, 0.4)
 
 
 ## Every hold broken out, as balls into them would (the bridge's `ch_release`).
 func release_log() -> void:
+	if ram:
+		ram.release()
+		return
 	if deck == null:
 		log_body.release()
 		return
@@ -204,15 +224,49 @@ func release_log() -> void:
 		log_body.release()
 
 
+# --- The ram ---------------------------------------------------------------------------------------
+
+## The z the ram's swing bottoms out at: its log's face a hair off the coach's near plates (their
+## outer face 0.708 m from its middle) where the coach drives (`coach_z`).
+func ram_line_z() -> float:
+	return float(opts.get("coach_z", 0.0)) - 0.708 - float(opts.get("log_r", 0.3)) - float(opts.get("ram_gap", 0.02))
+
+
+## The ground's height at `z` across the road (the banks' slopes; flat road between).
+func ground_y(z: float) -> float:
+	if z < foot_z:
+		return step + minf((foot_z - z) / SLOPE, drop)
+	if z > ROAD_HALF:
+		return minf((z - ROAD_HALF) / SLOPE, FAR_BANK)
+	return step if z < -ROAD_HALF else 0.0
+
+
+func _ram() -> void:
+	ram = SwingingRam.new()
+	ram.log_radius = float(opts.get("log_r", 0.3))
+	ram.log_length = float(opts.get("log_len", 6.0))
+	ram.bottom_y = float(opts.get("bottom_y", 2.0))
+	ram.rope_length = float(opts.get("rope", 5.0))
+	ram.pull_up = float(opts.get("pull_up", 3.3))
+	var z0 := ram_line_z()
+	ram.position = Vector3(float(opts.get("ram_x", 0.0)), 0.0, z0)
+	ram.leg_back = z0 - (-ROAD_HALF - 0.4)
+	ram.leg_fore = (ROAD_HALF + 0.4) - z0
+	ram.foot_back = ground_y(-ROAD_HALF - 0.4)
+	ram.foot_fore = ground_y(ROAD_HALF + 0.4)
+	add_child(ram)
+	var held := ram.held_at()
+	var tz := held.z - 2.5
+	ram.trip_at = Vector3(0.0, ground_y(z0 + tz), tz)
+	ram.build()
+	log_body = ram.log_body
+	log_body.released.connect(_on_released.bind(false))
+
+
 # --- The coach -------------------------------------------------------------------------------------
 
 func coach_id() -> StringName:
-	if PropKit.has(&"baron_coach"):
-		return &"baron_coach"
-	if not PropKit._defs.has(&"coach_stand_in"):
-		var f := FileAccess.open(STAND_IN, FileAccess.READ)
-		PropKit._defs[&"coach_stand_in"] = JSON.parse_string(f.get_as_text())
-	return &"coach_stand_in"
+	return &"baron_coach"
 
 
 func _coach(at: Vector3) -> void:
@@ -229,6 +283,9 @@ func _coach(at: Vector3) -> void:
 	if log_body:
 		drive.strikers.append(log_body)
 	drive.handed_off.connect(func(_b: Array) -> void:
+		var mb: RigidBody3D = drive.main_body()
+		if mb:
+			_body_from_coach = mb.global_transform.affine_inverse() * coach.global_transform
 		if log_body:
 			log_at_hit = {"t": t, "after_release": t - released_at, "speed": log_body.linear_velocity.length(), "vz": log_body.linear_velocity.z, "vy": log_body.linear_velocity.y,
 					"y": to_local(log_body.global_position).y, "x": to_local(log_body.global_position).x - coach.position.x})
@@ -239,25 +296,43 @@ func _coach(at: Vector3) -> void:
 func _guards(n: int) -> void:
 	var seats: Array = coach.definition.get("seats_at", [])
 	var k := 0
+	var box := bool(opts.get("box", true))
 	for s: Dictionary in seats:
-		if k >= n or s.has("who"):
+		var who := String(s.get("who", ""))
+		if (who == "" and k >= n) or (who != "" and not box):
 			continue
 		var man := HumanBody.new()
-		man.name = "Guard%d" % k
+		man.name = who.to_pascal_case() if who != "" else "Guard%d" % k
 		man.body_model = &"outlaw"
 		man.has_gun = false
 		man.start_holstered = true
-		man.rng_seed = 7700 + k + int(opts.get("seed", 0)) * 10
-		man.person_id = StringName("guard_%d" % k)
+		man.rng_seed = 7700 + guards.size() + int(opts.get("seed", 0)) * 10
+		man.person_id = StringName(who if who != "" else "guard_%d" % k)
 		add_child(man)
 		var at := PropKit.vec(s.at)
-		drive.seat(man, at, 1.105)
+		# On the box his feet are on the footboard's line, a seat's drop below it; inside, the floor.
+		drive.seat(man, at, at.y - 0.405 if who != "" else 1.105, float(s.get("yaw", NAN)))
 		man.hit.connect(func(info: Dictionary) -> void:
 			if info.get("kind") == &"blow" and info.get("segment") == &"head":
 				head_blows.append({"who": String(man.person_id), "joules": float(info.get("joules", 0.0)),
 						"stun_s": OutlawBrain.head_stun_seconds(info)}))
 		guards.append(man)
-		k += 1
+		if who == "":
+			k += 1
+
+
+## Whether `p` (world) is inside the coach's body (its box, upper works, under the roof), as it lies now.
+func in_coach(p: Vector3) -> bool:
+	var rb: RigidBody3D = drive.main_body() if drive else null
+	var xf := coach.global_transform
+	if rb:
+		# The loose body carries the coach's space as it was at the hand-off.
+		xf = rb.global_transform * _body_from_coach
+	var local := xf.affine_inverse() * p
+	return absf(local.x) < 1.31 and absf(local.z) < 0.72 and local.y > 1.0 and local.y < 2.45
+
+
+var _body_from_coach := Transform3D.IDENTITY
 
 
 ## Where to let the log go so it meets the coach's middle: the drive's lead (m ahead of the log's
@@ -276,8 +351,20 @@ func result() -> Dictionary:
 		"dents": watch.made, "head_blows": head_blows, "guards": []}
 	for man in guards:
 		if is_instance_valid(man):
+			var pelvis: Node3D = man.parts.get(&"pelvis", man) if man.parts else man
 			(out.guards as Array).append({"who": String(man.person_id), "limp": man.limp,
-					"conscious": man.physiology.is_conscious(), "falls": man.last_fall if man.get(&"last_fall") else {}})
+					"conscious": man.physiology.is_conscious(), "in_coach": in_coach(pelvis.global_position),
+					"y": snappedf(pelvis.global_position.y, 0.01)})
+	var sb: KitProp = coach.carried("strongbox") if coach else null
+	if sb and is_instance_valid(sb):
+		var at := sb.global_position
+		for rb in sb.rubble:
+			if is_instance_valid(rb):
+				at = rb.global_transform * rb.center_of_mass
+		out["strongbox"] = {"loose": sb.loose, "in_coach": in_coach(at), "y": snappedf(at.y, 0.01)}
+	if ram:
+		out["ram"] = ram.state()
+		out["ram_at_bottom"] = ram_at_bottom
 	if coach:
 		out["coach"] = String(coach.kit_id)
 		out["coach_kg"] = coach_kg

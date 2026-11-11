@@ -1,9 +1,10 @@
 extends TestCase
-## The coach heist's systems (issue #770, Sean's 1B 2C and "dents OK" on #784;
-## experiments/coach_heist/): dents in iron plate by the energy put into it (Dents, DentWatch),
-## the log as a rigid body of green pine held by its deck's members (RollingLog), a coach driven
-## and handed to physics when struck (CoachDrive), a loose body weighed by its members
-## (Structure.mass_by_members), and a hard knock on the head dazing an outlaw.
+## The coach heist's systems (issue #770, Sean's 1B 2C and "dents OK" on #784; the ram, Sean's
+## call on #791, #794; experiments/coach_heist/): dents in iron plate by the energy put into it
+## (Dents, DentWatch), the log as a rigid body of green pine held by its deck's members
+## (RollingLog), the swinging ram (SwingingRam), the Baron's coach driven and handed to physics
+## when struck (CoachDrive), a loose body weighed by its members (Structure.mass_by_members), and a
+## hard knock on the head dazing an outlaw.
 
 var world: Node3D
 
@@ -177,11 +178,8 @@ func test_the_log_rolls_down_a_bank_nearly_as_fast_as_it_would_without_losses() 
 
 # --- The coach -------------------------------------------------------------------------------------
 
-func _stand_in() -> KitProp:
-	if not PropKit._defs.has(&"coach_stand_in"):
-		var f := FileAccess.open("res://experiments/coach_heist/coach_stand_in.json", FileAccess.READ)
-		PropKit._defs[&"coach_stand_in"] = JSON.parse_string(f.get_as_text())
-	var c := PropKit.spawn(&"coach_stand_in")
+func _coach() -> KitProp:
+	var c := PropKit.spawn(&"baron_coach")
 	world.add_child(c)
 	await physics_frames(KitProp.SETTLE_FRAMES + 2)
 	return c
@@ -189,7 +187,7 @@ func _stand_in() -> KitProp:
 
 ## A log thrown sideways into the standing coach at `y`: how far over it leans.
 func _strike(y: float, v: float) -> float:
-	var c: KitProp = await _stand_in()
+	var c: KitProp = await _coach()
 	var drive := CoachDrive.new()
 	world.add_child(drive)
 	drive.start(c)
@@ -221,7 +219,7 @@ func test_struck_at_its_middle_the_coach_is_shoved_not_tipped() -> void:
 
 
 func test_a_driven_coach_moves_along_its_heading_and_its_riders_with_it() -> void:
-	var c: KitProp = await _stand_in()
+	var c: KitProp = await _coach()
 	var drive := CoachDrive.new()
 	world.add_child(drive)
 	drive.start(c)
@@ -236,6 +234,22 @@ func test_a_driven_coach_moves_along_its_heading_and_its_riders_with_it() -> voi
 	await physics_frames(60)
 	check_near(c.global_position.x - x0, -drive.speed, 0.05, "a second at the team's walk, front first (-x)")
 	check((man.global_position - c.global_position).distance_to(off) < 0.01, "the guard rides along in his seat")
+
+
+func test_the_strongbox_rides_in_its_place_while_the_coach_is_driven() -> void:
+	var c := PropKit.spawn(&"baron_coach")
+	world.add_child(c)
+	c.position = Vector3(8.0, 0.0, 0.0)  # (placed after it's in the tree, as the lab and the cut do)
+	var drive := CoachDrive.new()
+	world.add_child(drive)
+	drive.start(c)
+	var sb := c.carried("strongbox")
+	await physics_frames(90)
+	check(not sb.loose, "it stands under the rear bench while the coach drives")
+	check(c.to_local(sb.global_position).distance_to(Vector3(1.04, 1.105, 0.0)) < 0.01, "in its place")
+	drive.hand_off("test")
+	await physics_frames(2)
+	check(sb.loose, "handed off, it's loose inside the coach")
 
 
 func test_the_loose_body_weighs_where_its_members_do() -> void:
@@ -256,6 +270,132 @@ func test_the_loose_body_weighs_where_its_members_do() -> void:
 	check_eq(rb.center_of_mass_mode, RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM, "its own centre of weight")
 	check((rb.global_transform * rb.center_of_mass).distance_to(p.global_transform * want) < 0.01,
 			"by the members' weights, toward the iron (%s)" % (rb.global_transform * rb.center_of_mass))
+
+
+# --- The ram (#794) ---------------------------------------------------------------------------------
+
+func _ram(drop := 3.3) -> SwingingRam:
+	var ram := SwingingRam.new()
+	ram.pull_up = drop
+	world.add_child(ram)
+	ram.position = Vector3(0.0, 0.0, -1.03)
+	ram.build()
+	await physics_frames(KitProp.SETTLE_FRAMES + 2)
+	return ram
+
+
+func test_the_ram_hangs_held_on_its_frame_until_its_pin_goes() -> void:
+	var ram := await _ram()
+	check(ram.frame.settle().is_empty() and not ram.frame.loose, "the frame stands")
+	check(ram.frame.members_without_load_path().is_empty(), "every member of it has its way down")
+	check(not ram.trip.loose, "the trip's stake stands on the ground")
+	await physics_frames(30)
+	check(ram.is_held() and ram.log_body.freeze, "held back up its arc")
+	check_near(ram.to_local(ram.log_body.global_position).y, 2.0 + 3.3, 0.01, "its middle 3.3 m over the bottom of its swing")
+	ram.release()
+	await physics_frames(2)
+	check(not ram.is_held() and not ram.log_body.freeze, "the pin out, it swings")
+
+
+func test_the_ram_swings_to_the_bottom_at_the_speed_its_drop_gives() -> void:
+	var ram := await _ram()
+	ram.release()
+	var at_bottom := {}
+	for i in 120:
+		await physics_frames(1)
+		if ram.to_local(ram.log_body.global_position).z >= 0.0:
+			at_bottom = {"t": i / 60.0, "v": ram.log_body.linear_velocity.length(), "y": ram.to_local(ram.log_body.global_position).y,
+					"pull": ram.tension[0] + ram.tension[1]}
+			break
+	check(not at_bottom.is_empty(), "it reached the bottom")
+	check_near(float(at_bottom.get("v", 0.0)), sqrt(2.0 * 9.81 * 3.3), 0.1, "~8 m/s, sqrt(2 g h)")
+	check_near(float(at_bottom.get("y", 0.0)), 2.0, 0.05, "2 m up: the upper plates")
+	check_near(float(at_bottom.get("t", 0.0)), 1.28, 0.05, "~1.3 s from the pin")
+	# Both ropes: its weight and its turn, m (g + v^2 / L), ~27 kN (1-inch manila holds ~40 kN).
+	var m := ram.log_body.mass
+	var want := m * (9.81 + 2.0 * 9.81 * 3.3 / ram.pivot_length())
+	check_near(float(at_bottom.get("pull", 0.0)), want, want * 0.05, "the ropes' pull at the bottom (%.0f N)" % want)
+	check(ram.most_tension < 20000.0, "neither rope past 20 kN")
+
+
+func test_a_ball_through_the_pin_lets_the_ram_go() -> void:
+	var ram := await _ram()
+	var pin := ram.pin_position()
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var from := pin + Vector3(1.0, 5.0, -7.0)  # (from up the bank, as from the cut's high spot)
+	var b := ballistics.fire(from, (pin - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not ram.is_held(), "the pin split, the log's let go")
+
+
+func test_a_rope_lets_go_when_its_cap_breaks() -> void:
+	var ram := await _ram()
+	ram.release()
+	await physics_frames(5)
+	check_eq(ram.ropes_on(), 2, "both ropes on")
+	var cap: StructureMember = ram.frame.members[StringName("%s/cap_0" % ram.frame.structure_id)]
+	ram.frame.break_member(cap, Vector3.UP)
+	await physics_frames(2)
+	check_eq(ram.ropes_on(), 1, "the broken cap's rope is gone")
+
+
+func test_the_ram_tips_the_coach_and_dents_its_upper_plates() -> void:
+	var c: KitProp = await _coach()
+	var drive := CoachDrive.new()
+	world.add_child(drive)
+	drive.start(c)
+	drive.driving = false
+	# Its six riders fill the coach's contact report: the dents are read from the ram's side.
+	for s: Dictionary in c.definition.seats_at:
+		var man := HumanBody.new()
+		man.body_model = &"outlaw"
+		man.has_gun = false
+		world.add_child(man)
+		var at := PropKit.vec(s.at)
+		drive.seat(man, at, at.y - 0.405 if s.has("who") else 1.105, float(s.yaw))
+	var watch := DentWatch.of(get_tree())
+	watch.made.clear()
+	var ram := await _ram()
+	drive.strikers.append(ram.log_body)
+	ram.release()
+	var most := 0.0
+	for i in 240:
+		await physics_frames(1)
+		if drive.loose:
+			most = maxf(most, drive.lean())
+	check(drive.loose, "struck: handed to physics")
+	check(most > 60.0, "over (%.0f deg)" % most)
+	var deepest := 0.0
+	var upper := 0
+	for d: Dictionary in watch.made:
+		deepest = maxf(deepest, float(d.depth))
+		if String(d.member).contains("_up"):
+			upper += 1
+	check(upper >= 3, "the upper plates dented (%d)" % upper)
+	check(deepest > 0.025 and deepest < 0.05, "the deepest ~3-4 cm (%.1f cm)" % (deepest * 100.0))
+	check_eq(watch.meshes_waiting(), 0, "every dented plate's mesh rebuilt by now")
+
+
+func test_a_seated_mans_blocker_doesnt_shove_the_coach_at_the_hand_off() -> void:
+	var c: KitProp = await _coach()
+	var drive := CoachDrive.new()
+	world.add_child(drive)
+	drive.start(c)
+	var man := HumanBody.new()
+	man.body_model = &"outlaw"
+	man.has_gun = false
+	world.add_child(man)
+	var seat: Dictionary = (c.definition.seats_at as Array)[4]
+	drive.seat(man, PropKit.vec(seat.at), float(seat.at[1]) - 0.405, float(seat.yaw))
+	await physics_frames(10)
+	drive.hand_off("test")
+	await physics_frames(3)
+	var v := drive.main_body().linear_velocity
+	check(v.distance_to(drive.heading * drive.speed) < 0.5, "it rolls on at the team's walk (%s)" % v)
 
 
 # --- The guards ------------------------------------------------------------------------------------

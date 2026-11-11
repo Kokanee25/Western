@@ -1,0 +1,2410 @@
+[
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 1.2,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 1.8525,
+      "max_ms": 2.85,
+      "mean_ms": 0.310498567335244,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.655
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 1.2: at the bottom 4.85 m/s (lossless 4.85) in 1.20 s, ropes' most pull 9.0 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        1.99,
+        -0.16
+      ],
+      "held": false,
+      "lossless": 4.85,
+      "most_tension_n": 9003.0,
+      "ropes": 2,
+      "speed": 4.84
+    },
+    "ram_at_bottom": {
+      "speed": 4.85176563262939,
+      "t": 1.2,
+      "tension_n": 8976.77627871924,
+      "y": 1.98888909816742
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 1.2,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0191435994677529,
+        "into": 1750.01060136998,
+        "joules": 5833.36867123326,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 5112,
+        "tick": 77,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0196568449522648,
+        "into": 1845.10508367458,
+        "joules": 6150.35027891526,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 5112,
+        "tick": 77,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0209994982857231,
+        "into": 2105.77186532347,
+        "joules": 7019.23955107824,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 5112,
+        "tick": 77,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0192708580880123,
+        "into": 23.3440065566163,
+        "joules": 77.813355188721,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 5566,
+        "tick": 125,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0198030009416293,
+        "into": 99.2905738674668,
+        "joules": 330.968579558223,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 6373,
+        "tick": 279,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00458973891927284,
+        "into": 100.593390272357,
+        "joules": 335.311300907858,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 6373,
+        "tick": 279,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00216044439144922,
+        "into": 22.2884396530114,
+        "joules": 74.2947988433714,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 6585,
+        "tick": 332,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.16666666666667,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.16666666666667,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.18333333333333,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.2,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.21666666666667,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.23333333333333,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.25,
+        "what": "thrown",
+        "who": "messenger"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 23.244,
+      "max_ms": 35.76,
+      "mean_ms": 5.48083954154728,
+      "over_100_at_seans": 0,
+      "p99_ms": 18.809
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 1.63
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 1.63
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 1.49
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 1.42
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.19
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.17
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 1.2: at the bottom 4.85 m/s (lossless 4.85) in 1.20 s, ropes' most pull 9.0 kN | the coach: lean 14 stood, dents 7, deepest 2.1 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.1,
+      "speed": 4.79997444152832,
+      "t": 1.16666666666667,
+      "vy": -0.474087834358215,
+      "vz": 4.77650451660156,
+      "x": 0.00000607347601544461,
+      "y": 2.01097393035889
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 14.0164941580662,
+    "over": false,
+    "ram": {
+      "at": [
+        0.01,
+        2.0,
+        0.04
+      ],
+      "held": false,
+      "lossless": 4.85,
+      "most_tension_n": 12362.0,
+      "ropes": 2,
+      "speed": 0.06
+    },
+    "ram_at_bottom": {
+      "speed": 4.85176563262939,
+      "t": 1.2,
+      "tension_n": 8976.77627871924,
+      "y": 1.98888909816742
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 1.07
+    },
+    "traces_on": 4
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 1.6,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.99125,
+      "max_ms": 1.525,
+      "mean_ms": 0.321017191977077,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.721
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 1.6: at the bottom 5.60 m/s (lossless 5.60) in 1.22 s, ropes' most pull 9.9 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        2.02,
+        -0.54
+      ],
+      "held": false,
+      "lossless": 5.6,
+      "most_tension_n": 9937.0,
+      "ropes": 2,
+      "speed": 5.54
+    },
+    "ram_at_bottom": {
+      "speed": 5.60179758071899,
+      "t": 1.21666666666667,
+      "tension_n": 9906.20244835891,
+      "y": 1.98825860023499
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 1.6,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0222042504478431,
+        "into": 2354.32121277843,
+        "joules": 7847.73737592809,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0227917521754372,
+        "into": 2480.55527635022,
+        "joules": 8268.51758783405,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0243221876884429,
+        "into": 2824.8718589802,
+        "joules": 9416.23952993398,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0252872118670243,
+        "into": 3053.48208159619,
+        "joules": 10178.2736053206,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0222124670431961,
+        "into": 2356.06394973421,
+        "joules": 7853.54649911402,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0242446511953116,
+        "into": 2806.88979771857,
+        "joules": 9356.29932572856,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0202632520347483,
+        "into": 1960.70282114769,
+        "joules": 6535.6760704923,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0194737392685859,
+        "into": 1810.89047017274,
+        "joules": 6036.30156724248,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.021939342232243,
+        "into": 2298.47977594688,
+        "joules": 7661.59925315628,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 7188,
+        "tick": 78,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0228639598619008,
+        "into": 141.976503038508,
+        "joules": 473.25501012836,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 8565,
+        "tick": 288,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0207379250166724,
+        "into": 92.9360732062571,
+        "joules": 309.786910687524,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 8565,
+        "tick": 289,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0228471435561136,
+        "into": 194.147266153989,
+        "joules": 647.15755384663,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 8714,
+        "tick": 326,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0201892886081587,
+        "into": 135.524848876761,
+        "joules": 451.74949625587,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 8714,
+        "tick": 327,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.2,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.2,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.21666666666667,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.23333333333333,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.25,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.26666666666667,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "messenger"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 14.13425,
+      "max_ms": 21.745,
+      "mean_ms": 5.33385386819484,
+      "over_100_at_seans": 0,
+      "p99_ms": 19.403
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 1.32
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 1.64
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 1.54
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 1.4
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.17
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.13
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 1.6: at the bottom 5.60 m/s (lossless 5.60) in 1.22 s, ropes' most pull 9.9 kN | the coach: lean 17 stood, dents 13, deepest 2.5 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.13333333333333,
+      "speed": 5.5623836517334,
+      "t": 1.2,
+      "vy": -0.515217423439026,
+      "vz": 5.53847122192383,
+      "x": 0.00000607735364610562,
+      "y": 2.00688505172729
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 16.911486913249,
+    "over": false,
+    "ram": {
+      "at": [
+        0.05,
+        2.0,
+        -0.01
+      ],
+      "held": false,
+      "lossless": 5.6,
+      "most_tension_n": 13188.0,
+      "ropes": 2,
+      "speed": 0.25
+    },
+    "ram_at_bottom": {
+      "speed": 5.60179758071899,
+      "t": 1.21666666666667,
+      "tension_n": 9906.20244835891,
+      "y": 1.98825860023499
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 1.07
+    },
+    "traces_on": 4
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 2.0,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.3354,
+      "max_ms": 0.516,
+      "mean_ms": 0.263919770773639,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.5
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 2.0: at the bottom 6.26 m/s (lossless 6.26) in 1.23 s, ropes' most pull 10.8 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        2.09,
+        -1.01
+      ],
+      "held": false,
+      "lossless": 6.26,
+      "most_tension_n": 10870.0,
+      "ropes": 2,
+      "speed": 6.09
+    },
+    "ram_at_bottom": {
+      "speed": 6.26222801208496,
+      "t": 1.23333333333333,
+      "tension_n": 10835.8897311233,
+      "y": 1.9877210855484
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 2.0,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0247681067141263,
+        "into": 2929.4028626511,
+        "joules": 9764.67620883699,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0254327814427017,
+        "into": 3088.73891349158,
+        "joules": 10295.7963783053,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0272110430582003,
+        "into": 3535.76880916062,
+        "joules": 11785.8960305354,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0283760040938911,
+        "into": 3844.99657700543,
+        "joules": 12816.6552566848,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.025056754819149,
+        "into": 2998.07938456057,
+        "joules": 9993.59794853523,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0272749836873715,
+        "into": 3552.40506252476,
+        "joules": 11841.3502084159,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.022536345659283,
+        "into": 2425.2721049551,
+        "joules": 8084.24034985034,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0220298924954388,
+        "into": 2317.49196416762,
+        "joules": 7724.97321389208,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0247561388612685,
+        "into": 2926.57259445812,
+        "joules": 9755.24198152707,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 9380,
+        "tick": 79,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.21666666666667,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.21666666666667,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.23333333333333,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.25,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.26666666666667,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9090.90995788574,
+        "t": 3.61666666666666,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 13.87685,
+      "max_ms": 21.349,
+      "mean_ms": 6.57312607449857,
+      "over_100_at_seans": 0,
+      "p99_ms": 19.434
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.34
+      },
+      {
+        "conscious": false,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.28
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.3
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.17
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.41
+      }
+    ],
+    "head_blows": [
+      {
+        "joules": 21.6055294581503,
+        "stun_s": 0.0,
+        "who": "driver"
+      },
+      {
+        "joules": 2469.43882443857,
+        "stun_s": 8.0,
+        "who": "guard_1"
+      },
+      {
+        "joules": 23.9783880563646,
+        "stun_s": 0.0,
+        "who": "guard_2"
+      },
+      {
+        "joules": 22.8108061846251,
+        "stun_s": 0.0,
+        "who": "guard_3"
+      }
+    ],
+    "ledge": 0.0,
+    "line": "drop 2.0: at the bottom 6.26 m/s (lossless 6.26) in 1.23 s, ropes' most pull 10.8 kN | the coach: lean 100 OVER, dents 9, deepest 2.8 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.15,
+      "speed": 6.22122764587402,
+      "t": 1.21666666666667,
+      "vy": -0.621079742908478,
+      "vz": 6.1901478767395,
+      "x": 0.00000620469199930085,
+      "y": 2.00907230377197
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 99.9410764640541,
+    "over": true,
+    "ram": {
+      "at": [
+        0.06,
+        2.01,
+        -0.38
+      ],
+      "held": false,
+      "lossless": 6.26,
+      "most_tension_n": 16767.0,
+      "ropes": 2,
+      "speed": 0.15
+    },
+    "ram_at_bottom": {
+      "speed": 6.26222801208496,
+      "t": 1.23333333333333,
+      "tension_n": 10835.8897311233,
+      "y": 1.9877210855484
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.57
+    },
+    "traces_on": 3
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 2.5,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.4953,
+      "max_ms": 0.762,
+      "mean_ms": 0.292888252148997,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.442
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 2.5: at the bottom 7.00 m/s (lossless 7.00) in 1.25 s, ropes' most pull 12.0 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        2.27,
+        -1.71
+      ],
+      "held": false,
+      "lossless": 7.0,
+      "most_tension_n": 12035.0,
+      "ropes": 2,
+      "speed": 6.56
+    },
+    "ram_at_bottom": {
+      "speed": 7.00015211105347,
+      "t": 1.25,
+      "tension_n": 11990.5066490657,
+      "y": 1.98685133457184
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 2.5,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0243215704976327,
+        "into": 2824.7284949989,
+        "joules": 9415.76164999632,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 11992,
+        "tick": 77,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0276190575901657,
+        "into": 3642.59756135671,
+        "joules": 12141.991871189,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.028352483181803,
+        "into": 3838.62497202941,
+        "joules": 12795.4165734314,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0302812899873385,
+        "into": 4378.67010139869,
+        "joules": 14595.5670046623,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0315105177961012,
+        "into": 4741.37778779581,
+        "joules": 15804.592625986,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0277194853271516,
+        "into": 3669.13597002852,
+        "joules": 12230.4532334284,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0302339821100327,
+        "into": 4364.99936423914,
+        "joules": 14549.9978807971,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0251820336576506,
+        "into": 3028.13394338249,
+        "joules": 10093.779811275,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0273807316263201,
+        "into": 3580.0045473438,
+        "joules": 11933.348491146,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 11993,
+        "tick": 80,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.23333333333333,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.23333333333333,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.25,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.26666666666667,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.31666666666667,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9002.15148925781,
+        "t": 3.06666666666666,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 18.10575,
+      "max_ms": 27.855,
+      "mean_ms": 6.78126934097422,
+      "over_100_at_seans": 0,
+      "p99_ms": 20.916
+    },
+    "guards": [
+      {
+        "conscious": false,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.33
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.37
+      },
+      {
+        "conscious": false,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.26
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.18
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.48
+      }
+    ],
+    "head_blows": [
+      {
+        "joules": 56.9727549803924,
+        "stun_s": 0.0,
+        "who": "guard_0"
+      },
+      {
+        "joules": 20.6313401780688,
+        "stun_s": 0.0,
+        "who": "guard_2"
+      }
+    ],
+    "ledge": 0.0,
+    "line": "drop 2.5: at the bottom 7.00 m/s (lossless 7.00) in 1.25 s, ropes' most pull 12.0 kN | the coach: lean 101 OVER, dents 9, deepest 3.2 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.16666666666667,
+      "speed": 6.95304584503174,
+      "t": 1.23333333333333,
+      "vy": -0.786949932575226,
+      "vz": 6.9083685874939,
+      "x": 0.0000063112397583609,
+      "y": 2.01448893547058
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 100.6138500973,
+    "over": true,
+    "ram": {
+      "at": [
+        0.06,
+        2.0,
+        -0.16
+      ],
+      "held": false,
+      "lossless": 7.0,
+      "most_tension_n": 12014.0,
+      "ropes": 2,
+      "speed": 0.21
+    },
+    "ram_at_bottom": {
+      "speed": 7.00015211105347,
+      "t": 1.25,
+      "tension_n": 11990.5066490657,
+      "y": 1.98685133457184
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.43
+    },
+    "traces_on": 3
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 3.0,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.4511,
+      "max_ms": 0.694,
+      "mean_ms": 0.333767908309456,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.649
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.0: at the bottom 7.67 m/s (lossless 7.67) in 1.27 s, ropes' most pull 13.1 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        2.6,
+        -2.48
+      ],
+      "held": false,
+      "lossless": 7.67,
+      "most_tension_n": 13198.0,
+      "ropes": 2,
+      "speed": 6.8
+    },
+    "ram_at_bottom": {
+      "speed": 7.66683101654053,
+      "t": 1.26666666666667,
+      "tension_n": 13140.6392551009,
+      "y": 1.98591804504395
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 3.0,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0302992608908185,
+        "into": 4383.86882359984,
+        "joules": 14612.8960786661,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0311129225538532,
+        "into": 4622.48059991839,
+        "joules": 15408.2686663946,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0332476106843508,
+        "into": 5278.54662826058,
+        "joules": 17595.1554275353,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0346136984863023,
+        "into": 5721.2311409525,
+        "joules": 19070.7704698417,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0304640079986098,
+        "into": 4431.67152170499,
+        "joules": 14772.2384056833,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0332164313748908,
+        "into": 5268.65092364056,
+        "joules": 17562.1697454685,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0275966699212392,
+        "into": 3636.69466502852,
+        "joules": 12122.3155500951,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0267407098175299,
+        "into": 3414.59612896317,
+        "joules": 11381.9870965439,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0300933068993702,
+        "into": 4324.47419241902,
+        "joules": 14414.9139747301,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 14675,
+        "tick": 81,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.25,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.25,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.26666666666667,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.31666666666667,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.33333333333333,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9193.69697570801,
+        "t": 2.86666666666666,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 18.3521,
+      "max_ms": 28.234,
+      "mean_ms": 6.12584813753582,
+      "over_100_at_seans": 0,
+      "p99_ms": 22.671
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.29
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.22
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.44
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.26
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.2
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.34
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.0: at the bottom 7.67 m/s (lossless 7.67) in 1.27 s, ropes' most pull 13.1 kN | the coach: lean 101 OVER, dents 9, deepest 3.5 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.18333333333333,
+      "speed": 7.61236667633057,
+      "t": 1.25,
+      "vy": -0.970574915409088,
+      "vz": 7.55023908615112,
+      "x": 0.00000657984037388815,
+      "y": 2.02138066291809
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 100.510468354023,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.54,
+        2.03,
+        -0.3
+      ],
+      "held": false,
+      "lossless": 7.67,
+      "most_tension_n": 16943.0,
+      "ropes": 2,
+      "speed": 1.11
+    },
+    "ram_at_bottom": {
+      "speed": 7.66683101654053,
+      "t": 1.26666666666667,
+      "tension_n": 13140.6392551009,
+      "y": 1.98591804504395
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.5
+    },
+    "traces_on": 3
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 3.3,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.42055,
+      "max_ms": 0.647,
+      "mean_ms": 0.315361031518625,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.608
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.3: at the bottom 8.04 m/s (lossless 8.05) in 1.28 s, ropes' most pull 13.8 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        2.89,
+        -2.96
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 13897.0,
+      "ropes": 2,
+      "speed": 6.81
+    },
+    "ram_at_bottom": {
+      "speed": 8.04037952423096,
+      "t": 1.28333333333333,
+      "tension_n": 13842.5088047465,
+      "y": 1.98571288585663
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 3.3,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0317829467057963,
+        "into": 4823.71677901351,
+        "joules": 16079.055930045,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0326256654335271,
+        "into": 5082.90786885615,
+        "joules": 16943.0262295205,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0348288297106065,
+        "into": 5792.56939135264,
+        "joules": 19308.5646378421,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0362229334368713,
+        "into": 6265.57188321351,
+        "joules": 20885.2396107117,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0318255978923455,
+        "into": 4836.67185777656,
+        "joules": 16122.2395259219,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0347353734435081,
+        "into": 5761.52467285981,
+        "joules": 19205.082242866,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0289932913941113,
+        "into": 4014.10309218027,
+        "joules": 13380.3436406009,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0279014030808154,
+        "into": 3717.45369609845,
+        "joules": 12391.5123203282,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0314343106836659,
+        "into": 4718.47179911316,
+        "joules": 15728.2393303772,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 17088,
+        "tick": 82,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.26666666666667,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.26666666666667,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.31666666666667,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.33333333333333,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.35,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9408.6742401123,
+        "t": 2.65,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 14.32925,
+      "max_ms": 22.045,
+      "mean_ms": 4.75218051575931,
+      "over_100_at_seans": 0,
+      "p99_ms": 18.898
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.39
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.27
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.26
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.2
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.45
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.3: at the bottom 8.04 m/s (lossless 8.05) in 1.28 s, ropes' most pull 13.8 kN | the coach: lean 100 OVER, dents 9, deepest 3.6 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.2,
+      "speed": 7.98878574371338,
+      "t": 1.26666666666667,
+      "vy": -1.01445317268372,
+      "vz": 7.92411375045776,
+      "x": 0.00000668602524456219,
+      "y": 2.0202043056488
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 100.084769983813,
+    "over": true,
+    "ram": {
+      "at": [
+        0.21,
+        2.18,
+        1.09
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 21813.0,
+      "ropes": 2,
+      "speed": 0.49
+    },
+    "ram_at_bottom": {
+      "speed": 8.04037952423096,
+      "t": 1.28333333333333,
+      "tension_n": 13842.5088047465,
+      "y": 1.98571288585663
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.69
+    },
+    "traces_on": 3
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 3.6,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 1.62565,
+      "max_ms": 2.501,
+      "mean_ms": 0.243077363896848,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.765
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.6: at the bottom 8.40 m/s (lossless 8.40) in 1.30 s, ropes' most pull 14.5 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        3.24,
+        -3.42
+      ],
+      "held": false,
+      "lossless": 8.4,
+      "most_tension_n": 14594.0,
+      "ropes": 2,
+      "speed": 6.73
+    },
+    "ram_at_bottom": {
+      "speed": 8.39694309234619,
+      "t": 1.3,
+      "tension_n": 14543.8253928274,
+      "y": 1.98573768138885
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 3.6,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0293768279768811,
+        "into": 4121.00632954352,
+        "joules": 13736.6877651451,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 18985,
+        "tick": 80,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0332250215562112,
+        "into": 5271.37635301998,
+        "joules": 17571.2545100666,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0341137955596132,
+        "into": 5557.16851084935,
+        "joules": 18523.8950361645,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0364660295677075,
+        "into": 6349.95197646897,
+        "joules": 21166.5065882299,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0379862223759523,
+        "into": 6890.41998623342,
+        "joules": 22968.0666207781,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0334621081094036,
+        "into": 5346.87556680799,
+        "joules": 17822.9185560266,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0364729565492837,
+        "into": 6352.36464264616,
+        "joules": 21174.5488088205,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0302642181681558,
+        "into": 4373.73432801087,
+        "joules": 14579.1144267029,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 18985,
+        "tick": 83,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0330554739034618,
+        "into": 5217.71383971556,
+        "joules": 17392.3794657185,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 18986,
+        "tick": 83,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.28333333333333,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.28333333333333,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.31666666666667,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.33333333333333,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.35,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.36666666666667,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9310.34088134766,
+        "t": 2.31666666666666,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 14.62045,
+      "max_ms": 22.493,
+      "mean_ms": 5.51624068767908,
+      "over_100_at_seans": 0,
+      "p99_ms": 20.299
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.28
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.3
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.15
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.42
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 3.6: at the bottom 8.40 m/s (lossless 8.40) in 1.30 s, ropes' most pull 14.5 kN | the coach: lean 104 OVER, dents 9, deepest 3.8 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.21666666666667,
+      "speed": 8.34810638427734,
+      "t": 1.28333333333333,
+      "vy": -1.05586135387421,
+      "vz": 8.28106498718262,
+      "x": 0.00000677452999298112,
+      "y": 2.01905608177185
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 104.492011017466,
+    "over": true,
+    "ram": {
+      "at": [
+        0.24,
+        2.1,
+        -0.95
+      ],
+      "held": false,
+      "lossless": 8.4,
+      "most_tension_n": 19181.0,
+      "ropes": 2,
+      "speed": 0.91
+    },
+    "ram_at_bottom": {
+      "speed": 8.39694309234619,
+      "t": 1.3,
+      "tension_n": 14543.8253928274,
+      "y": 1.98573768138885
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.36
+    },
+    "traces_on": 3
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 0,
+      "pull_up": 4.0,
+      "seconds": 6.0,
+      "with_coach": false
+    },
+    "dents": [],
+    "drop": 6.0,
+    "events": [],
+    "frames": {
+      "max_at_seans": 0.33085,
+      "max_ms": 0.509,
+      "mean_ms": 0.322214899713467,
+      "over_100_at_seans": 0,
+      "p99_ms": 0.483
+    },
+    "guards": [],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 4.0: at the bottom 8.85 m/s (lossless 8.86) in 1.32 s, ropes' most pull 15.5 kN",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {},
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 0.0,
+    "over": false,
+    "ram": {
+      "at": [
+        0.0,
+        3.81,
+        -4.0
+      ],
+      "held": false,
+      "lossless": 8.86,
+      "most_tension_n": 15523.0,
+      "ropes": 2,
+      "speed": 6.47
+    },
+    "ram_at_bottom": {
+      "speed": 8.85000419616699,
+      "t": 1.31666666666667,
+      "tension_n": 15464.3921426127,
+      "y": 1.98495316505432
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "coach_x": 0.0,
+      "drive": false,
+      "guards": 4,
+      "pull_up": 4.0,
+      "seconds": 6.0,
+      "with_coach": true
+    },
+    "coach": "baron_coach",
+    "coach_kg": 1511.99738047659,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0308689916942311,
+        "into": 4550.28259238903,
+        "joules": 15167.6086412968,
+        "member": "heist_coach/plate_back_up_a",
+        "t": 21238,
+        "tick": 81,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0348934519134941,
+        "into": 5814.08466283642,
+        "joules": 19380.2822094547,
+        "member": "heist_coach/plate_l_fore_up_a",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0358302324197781,
+        "into": 6130.45532474336,
+        "joules": 20434.8510824778,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.038303243062828,
+        "into": 7005.91032510947,
+        "joules": 23353.0344170316,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0398947456020262,
+        "into": 7600.19755722709,
+        "joules": 25333.9918574236,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0351455258694346,
+        "into": 5898.39120115985,
+        "joules": 19661.3040038662,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0317700521086661,
+        "into": 4819.80353159725,
+        "joules": 16066.0117719908,
+        "member": "heist_coach/plate_front_up_a",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0347197630453729,
+        "into": 5756.34727154067,
+        "joules": 19187.8242384689,
+        "member": "heist_coach/plate_l_aft_up_b",
+        "t": 21238,
+        "tick": 84,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0383045952056114,
+        "into": 7006.40496512072,
+        "joules": 23354.6832170691,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 21289,
+        "tick": 84,
+        "torn": false
+      }
+    ],
+    "drop": 6.0,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 1.3,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 1.3,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 1.31666666666667,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 1.33333333333333,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 1.35,
+        "what": "thrown",
+        "who": "guard_3"
+      },
+      {
+        "t": 1.36666666666667,
+        "what": "thrown",
+        "who": "driver"
+      },
+      {
+        "t": 1.38333333333333,
+        "what": "thrown",
+        "who": "messenger"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9875.08773803711,
+        "t": 2.43333333333333,
+        "what": "trace_broke"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 12.96295,
+      "max_ms": 19.943,
+      "mean_ms": 6.31161604584527,
+      "over_100_at_seans": 0,
+      "p99_ms": 16.094
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_0",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_1",
+        "y": 0.31
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_2",
+        "y": 0.28
+      },
+      {
+        "conscious": true,
+        "in_coach": true,
+        "limp": true,
+        "who": "guard_3",
+        "y": 0.25
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "driver",
+        "y": 0.15
+      },
+      {
+        "conscious": true,
+        "in_coach": false,
+        "limp": true,
+        "who": "messenger",
+        "y": 0.18
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.0,
+    "line": "drop 4.0: at the bottom 8.85 m/s (lossless 8.86) in 1.32 s, ropes' most pull 15.5 kN | the coach: lean 108 OVER, dents 9, deepest 4.0 cm",
+    "log_at_face": {},
+    "log_at_foot": {},
+    "log_at_hit": {
+      "after_release": 1.23333333333333,
+      "speed": 8.79682350158691,
+      "t": 1.3,
+      "vy": -1.19128429889679,
+      "vz": 8.71578693389893,
+      "x": 0.00000690419665261288,
+      "y": 2.02357125282288
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.85889383614004,
+    "max_lean": 107.901484356786,
+    "over": true,
+    "ram": {
+      "at": [
+        0.95,
+        2.23,
+        0.02
+      ],
+      "held": false,
+      "lossless": 8.86,
+      "most_tension_n": 23109.0,
+      "ropes": 2,
+      "speed": 0.11
+    },
+    "ram_at_bottom": {
+      "speed": 8.85000419616699,
+      "t": 1.31666666666667,
+      "tension_n": 15464.3921426127,
+      "y": 1.98495316505432
+    },
+    "released_at": 0.0666666666666667,
+    "step": 0.0,
+    "strongbox": {
+      "in_coach": true,
+      "loose": true,
+      "y": 0.45
+    },
+    "traces_on": 3
+  }
+]

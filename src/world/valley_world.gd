@@ -38,6 +38,8 @@ static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
+var coach_cut: CoachCut
 
 
 func _ready() -> void:
@@ -68,6 +70,8 @@ func _ready() -> void:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if CoachCut.START_ARG in OS.get_cmdline_user_args():
+		_start_coach_cut.call_deferred()
 
 
 ## The sheriff on the road (#746), once the valley's in (its places, the ground under you).
@@ -75,6 +79,27 @@ func _start_sheriff() -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## The coach heist in the coach cut (#794), once the valley's ground is in: the ram held, the coach
+## coming up the grade, you at the high spot. Made again by the coach heist lab's `ch_cut`.
+func start_coach_cut(lead := -1.0, back := 40.0) -> CoachCut:
+	if coach_cut and is_instance_valid(coach_cut):
+		coach_cut.queue_free()
+	coach_cut = CoachCut.new()
+	coach_cut.layout = layout
+	coach_cut.release_lead = lead
+	coach_cut.start_back = back
+	add_child(coach_cut)
+	coach_cut.begin()
+	return coach_cut
+
+
+func _start_coach_cut() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	start_coach_cut()
+	coach_cut.place_player(get_node_or_null(^"Player") as Node3D)
 
 
 ## Where the player starts: on the crossroads' ground, facing down Main Street (west).

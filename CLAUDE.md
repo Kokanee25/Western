@@ -885,14 +885,14 @@ frozen until Sean names one.
   by `Physiology.axial` (ramps). Bodies break roof and floor boards and rails from above (BodyImpacts,
   TimberTuning `body_*`; the span drops out, `cut_member`); on his back he lodges between rafters,
   feet first he goes through. Next: #770.
-- **The coach heist** (#770, Sean's 1B 2C on #784; branch `claude/gameplay-coach-heist-log-dents-xg9u0n`;
-  `experiments/coach_heist/` README, LAYOUT "src/structures", "src/missions"): `RollingLog`, `Dents` +
-  `DentWatch` (config/dents.tres; plates, and the train's steel by `Dents.mark`), `CoachDrive`, a loose
-  body weighed by its members (`Structure.mass_by_members`, `breaks_up`); the lab's stand-in coach until
-  #786 (`coach_stand_in.json` by `stand_in.py`). As picked it stands 3/3 (the log comes off the step falling);
-  with a 0.6 m flat crib top and the coach 0.6 m to the far side it goes over 8/8 (worst frame ~21 ms at
-  Sean's), the dents small (the log meets the top edge). Struck at its centre of weight's height it slides,
-  never tips. Waiting on Sean: #791 (B small dents, C both, or the dent dial; the flat top). Then the coach cut.
+- **The coach heist** (#770, the ram by Sean's #791: #794; `experiments/coach_heist/` README, LAYOUT
+  "src/structures", "src/missions"): `RollingLog`, `Dents` + `DentWatch` (a striker's blows read from its
+  side, meshes rebuilt on a budget), `SwingingRam` (log B on two fixed-length ropes from a gallows frame of
+  members, held back up the bank by a trip pin a ball splits), `CoachDrive` (a seat's yaw, riders'
+  blockers excepted, the strongbox loose with it, on the ground's grade), `CoachCut` (the valley's coach
+  cut, `-- --world=valley --mission=coach`, bridge `ch_cut`), on the prop lab's `baron_coach`. Lab, 8 seeds:
+  over 8/8, the deepest dent 3.6-3.7 cm, worst frame ~23 ms at Sean's; in the cut over 8/8, 3.7 cm, ~31 ms.
+  Rough: the guards have no brains or guns. Next: the issue after #794 (the guards' fight after the hit).
 - **The sheriff on the road** (#746, PR #754, build 3698; the first story mission, rough;
   `experiments/sheriff/README.md`, LAYOUT "src/missions"): `-- --world=valley --mission=sheriff`; first
   sun at Harlan's place, the ford path (a valley way now), the sheriff gut-shot at `opening_site`, his
