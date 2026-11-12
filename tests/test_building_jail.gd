@@ -110,3 +110,51 @@ func test_what_the_jail_costs_to_draw() -> void:
 	var r := Checks.draw_calls(lab)
 	print("  draws: %s" % [r])
 	check(true, "counted")
+
+
+## #811 (the doctor's rules, #824-#826, #829): every room people use has a lamp of its own on its
+## stone (the cages lit by the corridor's lantern through their straps, the roof by none); RoomLight
+## gets every outer door and window and the spec's daylight; each barred window is a sash inside its
+## bars, lined through the stone; the office's floor is the library's worn fir, never a wall's or the
+## trim's entry, and the sashes, casings and skirting take the trim's finish.
+func test_the_jails_rooms_are_lit_and_finished() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var lit := {}
+	for lamp: OilLamp in b.lamps:
+		var at: Vector3 = b.to_local(lamp.global_position)
+		for r: Dictionary in spec.rooms:
+			var rc: Array = r.rect
+			if at.x > float(rc[0]) - 0.2 and at.x < float(rc[2]) + 0.2 and at.z > float(rc[1]) - 0.2 \
+					and at.z < float(rc[3]) + 0.2 and at.y < 4.0:
+				lit[r.id] = true
+	for r: Dictionary in spec.rooms:
+		if r.id != "roof" and not String(r.id).begins_with("cell_"):
+			check(lit.has(r.id), "the %s has a lamp" % r.id)
+	var n := 0
+	for w: Dictionary in spec.walls:
+		if not w.get("partition", false):
+			n += (w.get("openings", []) as Array).size()
+	var ops: Array = b.light_openings()
+	check(ops.size() == n, "RoomLight gets every outer opening (%d of %d)" % [ops.size(), n])
+	var probe := b.get_node(^"InteriorAmbient") as ReflectionProbe
+	check(probe.has_meta(&"day_ambient") and float(probe.get_meta(&"day_ambient")) < 0.2, "a low fill by day: the windows light the rooms")
+	check(b.has_meta(&"room_window_gain"), "the windows' daylight is the spec's")
+	# The sashes inside the bars, the linings through the stone.
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id)
+		if id.contains("/window_") and id.contains("/lining_jamb0"):
+			var w: Dictionary = b.walls[id.trim_prefix(String(b.structure_id) + "/").get_slice("/", 0)].dict
+			var d := ((m.transform.origin - (w.origin as Vector3)).dot(w.out as Vector3))
+			check(d < -0.2 and m.size[m.size.min_axis_index()] < 0.05, "a lining through the stone: %s at d %.2f" % [id, d])
+	var floors := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id)
+		var fn: String = b._finish_of(m)
+		if id.contains("floor/ground") and id.contains("/board"):
+			floors[fn] = true
+		if id.contains("/window_") and m.kind != &"glass" or id.contains("/skirt") or id.contains("/casing"):
+			check(fn == "trim", "%s in the trim's finish (%s)" % [id, fn])
+	check(floors.keys() == ["floor"], "the floor's boards all the floor's finish (%s)" % [floors.keys()])
+	check(String(b.finish("floor").entry) == "floor_fir_worn", "the floor the library's worn fir (%s)" % b.finish("floor"))
+	check(b.finish("floor").entry != b.finish("inside").entry and b.finish("floor").entry != b.finish("trim").entry, "the floor never a wall's or the trim's wood")

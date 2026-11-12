@@ -1802,6 +1802,11 @@ func _kit_lamps(L: Dictionary) -> void:
 		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
 		var level := String(e.get("level", "ground"))
 		var foot := (_lv[level] as float) + float(e.height)
+		if wl.spec.get("stone", false):
+			# A stone wall (#811, the jail): on its face at the lamp's height (its profile; a stone
+			# partition's + side is its line, the - side its thickness in).
+			var band := StoneBuilder.band_at(wl.spec.profile, foot)
+			face_d = band.y if plus else band.x
 		var p: Vector3 = wall.origin + (wall.along as Vector3) * float(e.at) + (wall.out as Vector3) * face_d
 		var kit := StringName(e.get("kit", "reflector_lamp"))
 		var def := PropKit.definition(kit)

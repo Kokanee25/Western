@@ -276,7 +276,13 @@ func _dress_openings(w: Dictionary, wall: Dictionary, holes: Array) -> void:
 		var o: Dictionary = h.o
 		var r: Rect2 = h.r
 		if o.type == "window":
-			if o.get("glass", true):
+			if o.has("lights"):
+				# A sash window (#826's part, SashWindow) behind the bars: the bars at the stone's face,
+				# the sashes just inside them, the reveal lined through the wall's whole thickness (the
+				# boxed reveal the inside shutters fold into, #811).
+				SashWindow.build(b, wall, r, int(o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
+						"outer": 0.0, "inner": -t})
+			elif o.get("glass", true):
 				b._glass(wall, r)
 			if o.get("bars", false):
 				b._bars(wall, r)

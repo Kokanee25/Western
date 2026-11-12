@@ -406,7 +406,7 @@
      "width": 0.91,
      "height": 1.83,
      "sill": 0.68,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     },
@@ -417,7 +417,7 @@
      "width": 0.91,
      "height": 1.83,
      "sill": 0.68,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     }
@@ -468,7 +468,7 @@
      "width": 0.91,
      "height": 1.83,
      "sill": 0.68,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     },
@@ -479,7 +479,7 @@
      "width": 0.91,
      "height": 1.83,
      "sill": 0.68,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     }
@@ -530,7 +530,7 @@
      "width": 0.91,
      "height": 1.83,
      "sill": 0.68,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     },
@@ -591,7 +591,7 @@
      "width": 0.91,
      "height": 1.52,
      "sill": 0.99,
-     "lights": 6,
+     "lights": 4,
      "bars": true,
      "shutters": "inside"
     },
@@ -878,9 +878,11 @@
   }
  ],
  "inside_finish": {
-  "_doc": "NEW: the office block's stone lime-plastered and whitewashed inside (a grimy band where men lean), the cell wing's bare rubble whitewashed; the look's (step 4): drawn as the stone until a plaster and whitewash are in the library.",
+  "_doc": "NEW: the office block's stone lime-plastered and whitewashed inside (a grimy band where men lean), the cell wing's bare rubble whitewashed: drawn as the game's stone until a plaster and whitewash are in the library (#811). The guard room's stud partition is boarded in the library's pale painted beaded boards at their judged width (#826, `boards` \"judged\") with a skirting; skirting, casings and the sashes in the trim's finish.",
   "office": "plaster_whitewash",
-  "cells": "rubble_whitewash"
+  "cells": "rubble_whitewash",
+  "boards": "judged",
+  "skirting": 0.2
  },
  "roof": {
   "_doc": "NEW: flat roofs behind the parapets. The office's joists front to back in pockets (front wall, cross wall, back wall); the ell's across the wing in pockets in its side walls, the office's back wall's parapet standing over its north end. Tin over boards on both; the office roof is a place to stand (the jail night): a hatch from the guard room with a fixed ladder, a stovepipe through it from the office stove.",
@@ -1467,13 +1469,97 @@
    ]
   }
  ],
+ "light": {
+  "_doc": "#824/#829, as the doctor's: a near-neutral low fill, the windows lighting each room by day (window_day) and a low fill by day (day_fill), so the rooms take their shape from their barred windows and lamps.",
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 7.0,
+  "day_fill": 0.1
+ },
  "lamps": {
-  "_doc": "the look's and props' (later): a lamp on the desk, one on the guard table, a lantern on a joist in the corridor"
+  "_doc": "#824 (#821 pick 1: a lamp a room people use): the kit's reflector lamps hung on the stone (spec_building.gd _kit_lamps, on a stone wall's face at the lamp's height). The office's beside the sheriff's desk and over the visitors' bench; the sheriff's room's on the cross wall; the guard room's by his table, looking at the cell wing's door; the corridor's lantern lights the three cages through their straps. The desk's and the corridor's cast shadows (the views a player stands in: the cages' straps on the flags), the rest don't (render CPU).",
+  "kit": [
+   {
+    "room": "office",
+    "kit": "reflector_lamp",
+    "wall": "west",
+    "level": "ground",
+    "at": 4.9,
+    "height": 1.5,
+    "energy": 1.3,
+    "reach": 6.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ],
+    "_doc": "beside the sheriff's desk"
+   },
+   {
+    "room": "office",
+    "kit": "reflector_lamp",
+    "wall": "east",
+    "level": "ground",
+    "at": 1.9,
+    "height": 1.55,
+    "lit": [
+     17,
+     22
+    ],
+    "_doc": "over the visitors' bench"
+   },
+   {
+    "room": "sheriff_room",
+    "kit": "reflector_lamp",
+    "wall": "cross",
+    "side": "-",
+    "level": "ground",
+    "at": 3.6,
+    "height": 1.6,
+    "lit": [
+     18,
+     23
+    ]
+   },
+   {
+    "room": "guard_room",
+    "kit": "reflector_lamp",
+    "wall": "back",
+    "level": "ground",
+    "at": 6.2,
+    "height": 1.6,
+    "energy": 1.2,
+    "lit": [
+     17,
+     6
+    ],
+    "_doc": "by the guard's table, beside the cell wing's door: lit all night"
+   },
+   {
+    "room": "corridor",
+    "kit": "reflector_lamp",
+    "wall": "ell_west",
+    "level": "ground",
+    "at": 4.6,
+    "height": 1.7,
+    "energy": 1.2,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     6
+    ],
+    "_doc": "the jailer's lantern, lighting the cages across the corridor all night"
+   }
+  ]
  },
  "furniture": [],
  "fixtures": [],
  "materials": {
-  "_doc": "Step 4's (#721's library by name, passing entries only): the stone is the game's (`stone`) until the masonry lab's rubble look; the doors and gates want the library's oxblood paint (passed few and old); the office floor the library's only passing floor; rough timber the batten.",
+  "_doc": "Step 4 (#811; the library by name, passing entries only): the stone is the game's (`stone`) until the masonry lab's rubble look; the doors and gates the library's oxblood paint (passed few and old); the floor the library's worn fir (#825, worn on the jail's ways); the sashes, casings and skirting the bottle-green trim (reads near black indoors, as the sheet's dark sash); the guard room's partition the pale beaded boards; the roof's joists and boards, seen from the rooms, and rough timber the batten.",
   "finishes": {
    "doors": {
     "want": {
@@ -1487,11 +1573,17 @@
     }
    },
    "floor": {
+    "want": {
+     "entry": "floor_fir_worn",
+     "age": "few",
+     "role": "floor"
+    },
     "use": {
      "entry": "fine_walnut_tg",
      "age": "few",
      "role": "floor"
-    }
+    },
+    "_why": "oiled fir and pine boards, worn on the jail's ways (the door to the desk, through the cross wall to the guard room and the cells' door)"
    },
    "framing": {
     "use": {
@@ -1506,9 +1598,53 @@
      "age": "few",
      "role": "wall"
     }
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_green_trim",
+     "age": "few"
+    },
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the sashes, their lined reveals, casings and skirting"
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "old"
+    },
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the stud partition's boards, painted pale and old (a county building's paint, not fresh)"
    }
   },
   "surfaces": [
+   [
+    "/casing",
+    "trim"
+   ],
+   [
+    "/skirt",
+    "trim"
+   ],
+   [
+    "/window_",
+    "trim"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
    [
     "/door_",
     "doors"
@@ -1520,6 +1656,18 @@
    [
     "floor/ground/board",
     "floor"
+   ],
+   [
+    "floor/ground_back/board",
+    "floor"
+   ],
+   [
+    "floor/roof_",
+    "framing"
+   ],
+   [
+    "floor/ell_roof",
+    "framing"
    ],
    [
     "roof/board",
@@ -1542,7 +1690,7 @@
   "wall_boards": "int_boards",
   "woodwork": "wood:int_timber",
   "timber": "wood:int_timber",
-  "trim_outside": "painted_rust",
+  "trim_outside": "painted_green",
   "roof": "weathered_pine",
   "rough": "framing",
   "chimney": "stone"
