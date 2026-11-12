@@ -1,0 +1,221 @@
+# ElevenLabs Voice Changer
+
+> Change the voices in your audios with voices in ElevenLabs!
+
+
+## Overview
+
+- **Endpoint**: `https://fal.run/fal-ai/elevenlabs/voice-changer`
+- **Model ID**: `fal-ai/elevenlabs/voice-changer`
+- **Category**: audio-to-audio
+- **Kind**: inference
+**Tags**: voice-change, audio-to-audio
+
+
+
+## Pricing
+
+- **Price**: $0.3 per minutes
+
+For more details, see [fal.ai pricing](https://fal.ai/pricing).
+
+## API Information
+
+This model can be used via our HTTP API or more conveniently via our client libraries.
+See the input and output schema below, as well as the usage examples.
+
+
+### Input Schema
+
+The API accepts the following input parameters:
+
+
+- **`audio_url`** (`string`, _required_):
+  The input audio file
+  - Examples: "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3"
+
+- **`voice`** (`string`, _optional_):
+  The voice to use for speech generation Default value: `"Rachel"`
+  - Default: `"Rachel"`
+  - Examples: "Aria", "Roger", "Sarah", "Laura", "Charlie", "George", "Callum", "River", "Liam", "Charlotte", "Alice", "Matilda", "Will", "Jessica", "Eric", "Chris", "Brian", "Daniel", "Lily", "Bill"
+
+- **`model_id`** (`ModelIdEnum`, _optional_):
+  Speech-to-speech model. Multilingual v2 supports 29 languages; English v2 supports English only. Both models have the same price. Default value: `"eleven_multilingual_sts_v2"`
+  - Default: `"eleven_multilingual_sts_v2"`
+  - Options: `"eleven_multilingual_sts_v2"`, `"eleven_english_sts_v2"`
+
+- **`stability`** (`float`, _optional_):
+  Voice stability (0-1). Lower values allow more emotional variation; higher values make delivery more consistent. If omitted, uses the voice's stored setting.
+  - Range: `0` to `1`
+
+- **`similarity_boost`** (`float`, _optional_):
+  How closely to match the original voice (0-1). If omitted, uses the voice's stored setting.
+  - Range: `0` to `1`
+
+- **`style`** (`float`, _optional_):
+  Style exaggeration (0-1). Nonzero values may increase latency. If omitted, uses the voice's stored setting.
+  - Range: `0` to `1`
+
+- **`use_speaker_boost`** (`boolean`, _optional_):
+  Boost similarity to the original speaker, at the cost of increased latency. If omitted, uses the voice's stored setting.
+
+- **`remove_background_noise`** (`boolean`, _optional_):
+  If set, will remove the background noise from your audio input using our audio isolation model.
+  - Default: `false`
+
+- **`seed`** (`integer`, _optional_):
+  Random seed for reproducibility.
+
+- **`output_format`** (`OutputFormatEnum`, _optional_):
+  Output format of the generated audio. Formatted as codec_sample_rate_bitrate. Default value: `"mp3_44100_128"`
+  - Default: `"mp3_44100_128"`
+  - Options: `"mp3_22050_32"`, `"mp3_44100_32"`, `"mp3_44100_64"`, `"mp3_44100_96"`, `"mp3_44100_128"`, `"mp3_44100_192"`, `"pcm_8000"`, `"pcm_16000"`, `"pcm_22050"`, `"pcm_24000"`, `"pcm_44100"`, `"pcm_48000"`, `"ulaw_8000"`, `"alaw_8000"`, `"opus_48000_32"`, `"opus_48000_64"`, `"opus_48000_96"`, `"opus_48000_128"`, `"opus_48000_192"`
+
+
+
+**Required Parameters Example**:
+
+```json
+{
+  "audio_url": "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3"
+}
+```
+
+**Full Example**:
+
+```json
+{
+  "audio_url": "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3",
+  "voice": "Aria",
+  "model_id": "eleven_multilingual_sts_v2",
+  "output_format": "mp3_44100_128"
+}
+```
+
+
+### Output Schema
+
+The API returns the following output format:
+
+- **`audio`** (`File`, _required_):
+  The generated audio file
+  - Examples: {"url":"https://storage.googleapis.com/falserverless/example_outputs/elevenlabs/voice_change_out.mp3"}
+
+- **`seed`** (`integer`, _required_):
+  Random seed for reproducibility.
+  - Examples: 1902083897
+
+
+
+**Example Response**:
+
+```json
+{
+  "audio": {
+    "url": "https://storage.googleapis.com/falserverless/example_outputs/elevenlabs/voice_change_out.mp3"
+  },
+  "seed": 1902083897
+}
+```
+
+
+## Usage Examples
+
+### cURL
+
+```bash
+curl --request POST \
+  --url https://fal.run/fal-ai/elevenlabs/voice-changer \
+  --header "Authorization: Key $FAL_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+     "audio_url": "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3"
+   }'
+```
+
+### Python
+
+Ensure you have the Python client installed:
+
+```bash
+pip install fal-client
+```
+
+Then use the API client to make requests:
+
+```python
+import fal_client
+
+def on_queue_update(update):
+    if isinstance(update, fal_client.InProgress):
+        for log in update.logs:
+           print(log["message"])
+
+result = fal_client.subscribe(
+    "fal-ai/elevenlabs/voice-changer",
+    arguments={
+        "audio_url": "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3"
+    },
+    with_logs=True,
+    on_queue_update=on_queue_update,
+)
+print(result)
+```
+
+### JavaScript
+
+Ensure you have the JavaScript client installed:
+
+```bash
+npm install --save @fal-ai/client
+```
+
+Then use the API client to make requests:
+
+```javascript
+import { fal } from "@fal-ai/client";
+
+const result = await fal.subscribe("fal-ai/elevenlabs/voice-changer", {
+  input: {
+    audio_url: "https://storage.googleapis.com/falserverless/example_inputs/elevenlabs/voice_change_in.mp3"
+  },
+  logs: true,
+  onQueueUpdate: (update) => {
+    if (update.status === "IN_PROGRESS") {
+      update.logs.map((log) => log.message).forEach(console.log);
+    }
+  },
+});
+console.log(result.data);
+console.log(result.requestId);
+```
+
+
+## Deploy your own model
+
+To run your own weights, a fine-tune or a custom pipeline on the GPUs that serve this API, deploy it on fal Serverless. GPUs from H100 (80GB) to B300 (288GB), billed per second; an H100 is $4.50/h list, as low as $2.49/h. Prices, GPU specs and deploy steps: [fal Serverless](https://fal.ai/serverless.md).
+
+## Additional Resources
+
+### Documentation
+
+- [Model Playground](https://fal.ai/models/fal-ai/elevenlabs/voice-changer)
+- [API Documentation](https://fal.ai/models/fal-ai/elevenlabs/voice-changer/api)
+- [OpenAPI Schema](https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/elevenlabs/voice-changer)
+
+### fal.ai Platform
+
+- [Platform Documentation](https://fal.ai/docs/documentation)
+- [Python Client](https://fal.ai/docs/api-reference/client-libraries/python)
+- [JavaScript Client](https://fal.ai/docs/api-reference/client-libraries/javascript)
+
+### Other agent-readable surfaces
+
+This file covers one model. To find anything else:
+
+- [Platform overview](https://fal.ai/llms.txt): Entry points and representative endpoint IDs
+- [Documentation index](https://fal.ai/docs/llms.txt): Every documentation page
+- [Full documentation text](https://fal.ai/docs/llms-full.txt): The whole documentation inlined
+- [Pricing](https://fal.ai/pricing.md): Model API and Serverless GPU prices
+- [fal Serverless](https://fal.ai/serverless.md): Deploy your own models: GPU prices, specs and steps
+- Any other model: `https://fal.ai/models/<endpoint-id>/llms.txt`
