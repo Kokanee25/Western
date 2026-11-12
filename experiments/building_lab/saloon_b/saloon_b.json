@@ -43,7 +43,7 @@
 		]
 	},
 	"levels": {
-		"_doc": "The floor at the walk's top (0.95, wagon-bed height). 13 ft (3.96 m) floor to floor below: the bar room's 8x8 posts ~13 ft (How to Build Houses 1889), and the 13 ft fall over the gallery's rail Sean asked for. 11 ft to the plate above (a dance hall). The roof a low 3/12 on queen-post trusses behind the street's cornice (the hip and the side street's cornice are step 2's).",
+		"_doc": "The floor at the walk's top (0.95, wagon-bed height). 13 ft (3.96 m) floor to floor below: the bar room's 8x8 posts ~13 ft (How to Build Houses 1889), and the 13 ft fall over the gallery's rail Sean asked for. 11 ft to the plate above (a dance hall). The roof a low 2/12 on queen-post trusses, its ridge (10.3) under the cornice's top behind the street's cornice (the hip and the side street's cornice are step 2's).",
 		"cellar": {
 			"floor": -2.0
 		},
@@ -54,8 +54,8 @@
 			"top": 4.91
 		},
 		"plate": 8.26,
-		"false_front": 9.9,
-		"roof_pitch": 14.04
+		"false_front": 10.5,
+		"roof_pitch": 9.46
 	},
 	"frame": {
 		"_doc": "A balloon frame (Bell 1858; Woodward 1865): studs sill to plate through both storeys, the upper joists on a 1x6 ribbon let into them. The dance floor by the brief's section 7: 3x12 joists at 16 in over 18 ft (Hatfield 1880 pp.126-128), on two lines of 10x12 girders on 8x8 posts 10-14 ft apart (Hatfield p.142; How to Build Houses 1889). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing.",
@@ -95,12 +95,12 @@
 			"wood": "framing"
 		},
 		"dance_joist": {
-			"_doc": "3x12 at 16 in, 18 ft (Hatfield): the dance hall, the office, the gallery",
+			"_doc": "3x12 at 12 in over 18 ft (Hatfield gives 3x12 at 16 in or 2x12 at 12: at 16 in the joists under the boards' joints were at 0.98 of their limit with a dancing crowd, checks.gd): the dance hall, the office, the gallery",
 			"section": [
 				0.075,
 				0.3
 			],
-			"spacing": 0.406,
+			"spacing": 0.305,
 			"wood": "framing"
 		},
 		"long_joist": {
@@ -125,9 +125,9 @@
 			"spacing": 0.406,
 			"wood": "framing",
 			"tall": {
-				"_doc": "the balloon studs run 7.6 m sill to plate: 3x4",
+				"_doc": "the balloon studs run 7.6 m sill to plate under the trusses and a dance floor: 4x4 (3x4 buckled under a dancing crowd, 70 lb/ft2)",
 				"section": [
-					0.075,
+					0.1,
 					0.1
 				],
 				"walls": [
@@ -404,6 +404,7 @@
 		{
 			"_doc": "THE GIRDER THE BARON'S MEN SAW (Sean's answer 2): its piece between the posts at 22 and 33 ft (beam/east/2) carries the dance floor's joists both sides, over the bar. Cut, the floor from the yard wall to the west girder comes down on the bar (tests/test_building_saloon_b.gd).",
 			"id": "east",
+			"brackets": false,
 			"from": [
 				5.49,
 				0.1
@@ -474,8 +475,12 @@
 		}
 	],
 	"sabotage": {
-		"_doc": "Payday Night (#809): the member the Baron's men saw, and what it must drop on.",
+		"_doc": "Payday Night (#809): the member the Baron's men saw and where (a kerf at its middle, metres along it from its middle: Structure.cut_member), and what it must drop on. Sound, it carries a dancing crowd (70 lb/ft2, Hatfield); cut, its two halves tip off their posts and the 16 joists on it hinge down on the yard wall's ribbon and the west girder, the floor's boards with them. No brackets under this girder (they catch the halves); the dance floor's joists are cut 12 mm short (`end_gap`) and the wall boards stop under the ribbon, or the pieces jam.",
 		"girder": "beam/east/2",
+		"cut": [
+			-0.15,
+			0.15
+		],
 		"onto": "bar"
 	},
 	"floors": [
@@ -522,6 +527,7 @@
 			"id": "dance",
 			"level": "upper",
 			"joist": "dance_joist",
+			"end_gap": 0.012,
 			"rect": [
 				0.1,
 				0.1,
@@ -627,7 +633,7 @@
 				]
 			],
 			"out": "-z",
-			"top": 9.9,
+			"top": 10.5,
 			"outside": {
 				"siding": "vertical",
 				"wood": "saloon_red"
@@ -637,7 +643,8 @@
 					"level": "ground",
 					"from": 0.1,
 					"to": 14.020000000000001,
-					"finish": "boards"
+					"finish": "boards",
+					"to_y": 4.43
 				},
 				{
 					"level": "upper",
@@ -738,6 +745,13 @@
 				{
 					"level": "ground",
 					"from": 2.44,
+					"to": 15.24,
+					"finish": "boards",
+					"to_y": 4.43
+				},
+				{
+					"level": "ground",
+					"from": 15.24,
 					"to": 21.849999999999998,
 					"finish": "boards"
 				},
@@ -871,7 +885,8 @@
 					"level": "ground",
 					"from": 0.1,
 					"to": 13.41,
-					"finish": "boards"
+					"finish": "boards",
+					"to_y": 4.43
 				},
 				{
 					"level": "ground",
@@ -964,6 +979,13 @@
 				{
 					"level": "ground",
 					"from": 12.8,
+					"to": 15.29,
+					"finish": "boards",
+					"to_y": 4.43
+				},
+				{
+					"level": "ground",
+					"from": 15.29,
 					"to": 16.36,
 					"finish": "boards"
 				},
@@ -1962,7 +1984,7 @@
 	},
 	"front": {
 		"sign": "THE SALT CREEK",
-		"sign_from": 8.55,
+		"sign_from": 8.75,
 		"cornice": "dark_trim"
 	},
 	"rooms": [
@@ -2732,6 +2754,20 @@
 					23
 				],
 				"side": "+"
+			},
+			{
+				"room": "gallery",
+				"kit": "reflector_lamp",
+				"wall": "side",
+				"level": "upper",
+				"at": 9.45,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.0,
+				"_doc": "on the gallery, between its windows"
 			},
 			{
 				"room": "upper_hall",

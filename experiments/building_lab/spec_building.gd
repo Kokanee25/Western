@@ -497,8 +497,9 @@ func _posts_and_beams() -> void:
 			var size := dir.abs() * (s1 - s0) + Vector3.UP * float(bs[1]) + Vector3(dir.z, 0, dir.x).abs() * float(bs[0])
 			var m := add_member("beam/%s/%d" % [b.id, i], &"beam", &"framing", size, c)
 			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "x" if absf(dir.x) > 0.5 else "z", "up": "y", "args": [float(_fr.beam.chamfer)]}, String(_fr.beam.look))
-		# Brackets under it, each side of each post along it.
-		for p: Array in spec.posts.free:
+		# Brackets under it, each side of each post along it (`brackets: false`: none, the girder the
+		# Baron's men saw in saloon B: a bracket would catch its cut halves).
+		for p: Array in (spec.posts.free if b.get("brackets", true) else []):
 			var q := Vector3(p[0], 0, p[1]) - a
 			var s := q.dot(dir)
 			if q.distance_to(dir * s) > 0.05 or s < -0.05 or s > a.distance_to(e) + 0.05:
@@ -673,6 +674,11 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				if float(pr[1]) - float(pr[0]) < 0.1:
 					continue
 				var cut: bool = parts.size() > 1
+				# A joist is cut a little short of what it butts (a floor's `end_gap`, saloon B's dance
+				# floor): when its girder goes it hinges down on its other end, and a piece as long as
+				# its bay would jam end to end against the next one (a rigid body's corner swings out).
+				var gap := float(f.get("end_gap", 0.0))
+				pr = [float(pr[0]) + gap, float(pr[1]) - gap]
 				var size := Vector3(js[0], js[1], float(pr[1]) - float(pr[0]))
 				var c := Vector3(q, (jt + jb) * 0.5, (float(pr[0]) + float(pr[1])) * 0.5)
 				if not along_z:
@@ -912,7 +918,15 @@ func _outer_walls() -> void:
 				y1 = wall_height - PLATE_H
 			y1 = minf(y1, float(fin.get("to_y", y1)))
 			var face := _face(wall, -STUD_D, -1.0)
-			_finish(face, "%s/in_%s" % [w.id, lvl], float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
+			# (a level's second stretch of finish on a wall takes its own ids: saloon B's stair well)
+			var seg := 0
+			for other: Dictionary in w.inside:
+				if other == fin:
+					break
+				if other.level == lvl and String(other.finish) != "rough":
+					seg += 1
+			var fid := "%s/in_%s" % [w.id, lvl] if seg == 0 else "%s/in_%s/s%d" % [w.id, lvl, seg]
+			_finish(face, fid, float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
 		# Doors in it.
 		for o in ops:
 			var so: Dictionary = o[1]
@@ -2820,6 +2834,18 @@ func _diag(c: Dictionary, id: String, kind: StringName, wood: StringName, s0: fl
 	# (the basis' z is `along x up`: into the room when that is -out)
 	var center: Vector3 = (c.origin as Vector3) + along * ((s0 + s1) * 0.5) + Vector3.UP * ((y0 + y1) * 0.5) + out * ((d0 + d1) * 0.5)
 	return add_member(id, kind, wood, Vector3(s1 - s0, y1 - y0, d1 - d0), center, b)
+
+
+## Payday Night's sabotage (`sabotage`, saloon B: the girder the Baron's men saw): the kerf cut
+## through it (`cut`: metres along it from its middle), as Structure.cut_member; what it carried
+## comes down when the structure next settles. Returns the two halves left on their posts.
+func saw_girder() -> Array[StructureMember]:
+	var sb: Dictionary = spec.get("sabotage", {})
+	var g := get_member(StringName("%s/%s" % [structure_id, sb.get("girder", "")]))
+	if g == null or g.broken:
+		return []
+	var c: Array = sb.get("cut", [-0.15, 0.15])
+	return cut_member(g, float(c[0]), float(c[1]), Vector3.DOWN * 0.5)
 
 
 ## A corner cut off on the diagonal for the entrance (`corner`; the walls' `void` openings leave it
