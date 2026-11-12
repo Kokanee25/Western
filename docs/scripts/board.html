@@ -1,0 +1,305 @@
+<title>Salt Creek: the sheriff on the road (script)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: a screenplay page down the middle; each line a speaker, its words, then a small working strip (takes, pick, note). */
+:root {
+  --bg: #eef0ec;          /* paper, a little green-grey */
+  --page: #fbfbf8;
+  --ink: #1d2124;
+  --muted: #5f676b;
+  --rule: #d4d8d2;
+  --accent: #8a3b22;      /* dried-blood brick: built lines, the OK */
+  --new: #2f5e7a;         /* new wordings */
+  --bible: #6b5a1e;       /* bible sample lines */
+  --field: #ffffff;
+  --ok: #2f6b3a;
+  --f-script: "Courier Prime", "Courier New", Courier, monospace;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --bible: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --bible: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 44rem; margin: 0 auto; padding-block: 20px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--page); border: 1px solid var(--rule); border-radius: 4px; padding: 22px 18px; display: grid; gap: 28px; }
+@media (min-width: 640px) { .sheet { padding: 36px 44px; } }
+h1 { font-family: var(--f-script); font-weight: 700; font-size: 1.35rem; letter-spacing: .02em; margin: 0; text-wrap: balance; text-transform: uppercase; }
+h2 { font-family: var(--f-script); font-weight: 700; font-size: 1.05rem; margin: 0; text-transform: uppercase; letter-spacing: .03em; text-wrap: balance; }
+.small, .meta { font-size: 12.5px; color: var(--muted); }
+.head { display: grid; gap: 8px; }
+.head p { margin: 0; max-width: 62ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.chip { display: inline-block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 3px; padding: 0 5px; line-height: 1.5; }
+.st-built { color: var(--accent); } .st-new { color: var(--new); } .st-bible { color: var(--bible); }
+.setup { color: var(--muted); }
+
+section.block { display: grid; gap: 14px; }
+.label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.cast { display: grid; gap: 12px; }
+.castrow { display: grid; gap: 4px; padding-block: 10px; border-top: 1px solid var(--rule); }
+.castrow b { font-family: var(--f-script); text-transform: uppercase; }
+.slot { border: 1px dashed var(--rule); border-radius: 4px; padding: 8px 10px; font-size: 12.5px; color: var(--muted); }
+
+.scene { display: grid; gap: 22px; padding-top: 6px; border-top: 2px solid var(--ink); }
+.slug { display: grid; gap: 6px; }
+.slug .built { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.slug p { margin: 0; font-size: 13.5px; color: var(--muted); max-width: 62ch; }
+
+.line { display: grid; gap: 6px; }
+.who { font-family: var(--f-script); font-weight: 700; text-transform: uppercase; text-align: center; letter-spacing: .04em; }
+.paren { font-family: var(--f-script); font-style: italic; text-align: center; color: var(--muted); font-size: 14px; margin: 0 auto; max-width: 30rem; }
+.words { list-style: none; margin: 0 auto; padding: 0; max-width: 30rem; display: grid; gap: 6px; width: 100%; }
+.words li { font-family: var(--f-script); font-size: 16.5px; line-height: 1.45; display: grid; grid-template-columns: 1.6em 1fr; gap: 4px; }
+.words li .n { color: var(--muted); font-size: 12px; padding-top: 3px; }
+.words li .t { min-width: 0; }
+.words li .sub { display: block; font-family: var(--f-ui); font-size: 11.5px; color: var(--muted); }
+.breath { color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 10px; justify-content: center; text-align: center; max-width: 34rem; margin: 2px auto 0; }
+.meta .k { font-weight: 600; }
+.warn { color: var(--accent); }
+
+.work { display: grid; gap: 8px; max-width: 34rem; width: 100%; margin: 6px auto 0; padding: 10px; background: var(--bg); border-radius: 4px; }
+.takes { display: grid; gap: 6px; }
+.take { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }
+.take audio { width: 100%; min-width: 0; height: 34px; }
+.take label { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+.notebox { display: grid; gap: 4px; }
+textarea { width: 100%; box-sizing: border-box; min-height: 2.4em; resize: vertical; font: 14px/1.4 var(--f-ui); color: var(--ink); background: var(--field); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+textarea:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--new); outline-offset: 2px; }
+.saved { font-size: 11.5px; color: var(--muted); min-height: 1em; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; }
+button { font: 600 13px var(--f-ui); border-radius: 4px; border: 1px solid var(--rule); background: var(--page); color: var(--ink); padding: 6px 10px; cursor: pointer; }
+button.on { border-color: var(--accent); color: var(--accent); }
+
+.okbar { display: grid; gap: 8px; justify-items: center; text-align: center; padding-top: 18px; border-top: 2px solid var(--ink); }
+#ok { font-size: 16px; padding: 12px 22px; border: 2px solid var(--accent); color: var(--accent); background: var(--page); }
+#ok.done { border-color: var(--ok); color: var(--ok); }
+.notice { font-size: 13px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 10px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+.toc a { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <article class="sheet" id="sheet">
+    <header class="head">
+      <div class="label">Salt Creek · voiced lines · script</div>
+      <h1 id="title">The sheriff on the road</h1>
+      <p class="small" id="status">Loading the script…</p>
+    </header>
+  </article>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const sheet = document.getElementById("sheet");
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let db = null, notes = {}, pageDoc = null, script = null;
+
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+  // Takes are shown shuffled, stable per line, with no "recommended" (#807).
+  function shuffled(arr, seed) {
+    let h = 2166136261; for (const c of seed) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 13), 1274126177); const j = Math.abs(h) % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  function saver(path, getData, statusEl) {
+    let timer = null, busy = false, again = false;
+    async function write() {
+      if (!db) return;
+      if (busy) { again = true; return; }
+      busy = true; statusEl.textContent = "Saving…";
+      try { await db.doc(path).set(Object.assign(getData(), { at: new Date().toISOString() })); statusEl.textContent = "Saved"; }
+      catch (e) { statusEl.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again in a moment."; }
+      busy = false; if (again) { again = false; write(); }
+    }
+    return { soon() { clearTimeout(timer); timer = setTimeout(write, 700); }, now() { clearTimeout(timer); write(); } };
+  }
+
+  function workStrip(kind, id, takes) {
+    const path = (kind === "cast" ? "cast/" : "lines/") + id;
+    const work = el("div", "work");
+    const state = Object.assign({ note: "", pick: "" }, notes[path] || {});
+    const saved = el("div", "saved");
+    const s = saver(path, () => ({ note: state.note, pick: state.pick }), saved);
+
+    const tk = el("div", "takes");
+    if (takes && takes.length) {
+      shuffled(takes, id).forEach((t, i) => {
+        const row = el("div", "take");
+        const lab = el("label");
+        const r = document.createElement("input"); r.type = "radio"; r.name = "pick-" + id; r.id = "pick-" + id + "-" + t.id; r.checked = state.pick === t.id; r.disabled = !db;
+        r.addEventListener("change", () => { state.pick = t.id; s.now(); });
+        lab.append(r, document.createTextNode(String.fromCharCode(65 + i)));
+        const au = document.createElement("audio"); au.controls = true; au.preload = "none"; au.src = t.url;
+        row.append(lab, au); tk.append(row);
+      });
+    } else {
+      tk.append(el("div", "slot", kind === "cast" ? "Voice: candidates go here once casting starts." : "Takes: 3–4 go here once the script is OK and the cast is picked. Tap one to pick it."));
+    }
+    work.append(tk);
+
+    const nb = el("div", "notebox");
+    const ta = document.createElement("textarea"); ta.id = "note-" + id; ta.rows = 1; ta.value = state.note;
+    ta.placeholder = kind === "cast" ? "A note on this voice (age, accent, a man it should sound like)" : "A note: “redo”, or a better wording";
+    ta.setAttribute("aria-label", "Note on " + id); ta.disabled = !db;
+    ta.addEventListener("input", () => { state.note = ta.value; s.soon(); });
+    ta.addEventListener("blur", () => s.now());
+    nb.append(ta);
+    if (kind !== "cast") {
+      const q = el("div", "quick");
+      const b = el("button", "", "Redo"); b.type = "button"; b.disabled = !db;
+      b.addEventListener("click", () => { ta.value = ta.value.trim() ? (/^redo/i.test(ta.value) ? ta.value : "Redo. " + ta.value) : "Redo."; state.note = ta.value; s.now(); });
+      q.append(b); nb.append(q);
+    }
+    nb.append(saved);
+    work.append(nb);
+    return work;
+  }
+
+  function words(line) {
+    const ul = el("ol", "words");
+    line.words.forEach((w, i) => {
+      const li = el("li");
+      const breath = w.text.trim() === "...";
+      const sub = [];
+      sub.push('<span class="chip st-' + esc(w.status) + '">' + esc(w.status) + "</span>");
+      if (w.setups) sub.push('<span class="setup">' + w.setups.map(esc).join(" ") + "</span>");
+      if (w.needs) sub.push("needs " + esc(w.needs));
+      if (w.note) sub.push(esc(w.note));
+      li.innerHTML = '<span class="n">' + (line.words.length > 1 ? (i + 1) + "." : "") + '</span><span class="t">' +
+        (breath ? '<span class="breath">(a breath, no words)</span>' : esc(w.text)) +
+        '<span class="sub">' + sub.join(" · ") + "</span></span>";
+      ul.append(li);
+    });
+    return ul;
+  }
+
+  function render() {
+    const d = script, cast = Object.fromEntries(d.cast.map((c) => [c.id, c]));
+    sheet.innerHTML = "";
+    const head = el("header", "head");
+    head.append(el("div", "label", "Salt Creek · voiced lines · script · " + esc(d.year)));
+    head.append(el("h1", "", esc(d.title)));
+    head.append(el("p", "", "Read it on your phone. Leave a note on any line (“redo”, or a better wording); it saves as you type. Tap <b>Script OK</b> at the bottom when it's right. Nothing is voiced before that."));
+    head.append(el("div", "legend",
+      '<span><span class="chip st-built">built</span> in the game now, fixed</span>' +
+      '<span><span class="chip st-new">new</span> written for this script</span>' +
+      '<span><span class="chip st-bible">bible</span> a sample line from the story bible</span>' +
+      '<span>S1, S5… the setups a line plants (SETUPS.md)</span>'));
+    if (!db) head.append(el("p", "notice", "Notes and picks can't be saved in this view (signed out, or the store didn't answer). The script reads the same."));
+    const toc = el("nav", "toc"); toc.append(el("span", "label", "Scenes"));
+    d.scenes.forEach((s) => { const a = el("a", "", esc(s.title)); a.href = "#" + s.id; toc.append(a); });
+    head.append(toc);
+    sheet.append(head);
+
+    // Cast
+    const cs = el("section", "block"); cs.id = "cast";
+    cs.append(el("h2", "", "Cast"));
+    cs.append(el("p", "small", "Each character gets one voice, picked from candidates saying the same two lines, then fixed. Harlan doesn't speak in this mission."));
+    const cl = el("div", "cast");
+    d.cast.forEach((c) => {
+      const row = el("div", "castrow");
+      row.append(el("div", "", "<b>" + esc(c.name) + "</b>" + (c.called ? ' <span class="small">· called ' + esc(c.called) + "</span>" : "")));
+      row.append(el("div", "", esc(c.brief)));
+      row.append(el("div", "small", "Bible: " + esc(c.bible)));
+      row.append(workStrip("cast", c.id, c.voice ? c.voice.candidates : null));
+      cl.append(row);
+    });
+    cs.append(cl);
+    sheet.append(cs);
+
+    // Scenes
+    d.scenes.forEach((s, si) => {
+      const sec = el("section", "scene"); sec.id = s.id;
+      const slug = el("div", "slug");
+      slug.append(el("h2", "", (si + 1) + ". " + esc(s.title) + " — " + esc(s.when)));
+      slug.append(el("div", "built " + (s.built === true ? "st-built" : "st-new"), s.built === true ? "Built in the game" : s.built ? "Partly built" : "Not built yet"));
+      slug.append(el("p", "", esc(s.setting)));
+      sec.append(slug);
+      s.lines.forEach((l) => {
+        const box = el("div", "line"); box.id = l.id;
+        box.append(el("div", "who", esc((cast[l.speaker] || {}).called || (cast[l.speaker] || {}).name || l.speaker)));
+        box.append(el("p", "paren", "(" + esc(l.condition) + ") " + esc(l.delivery)));
+        box.append(words(l));
+        const m = [];
+        m.push('<span><span class="k">When:</span> ' + esc(l.trigger) + "</span>");
+        if (l.when) m.push('<span><span class="k">If:</span> ' + esc(l.when) + "</span>");
+        if (l.setups) m.push('<span><span class="k">Plants:</span> ' + l.setups.map(esc).join(", ") + "</span>");
+        if (l.check) m.push('<span class="warn"><span class="k">Check:</span> “' + esc(l.check) + "” (WORDS.md)</span>");
+        if (l.note) m.push("<span>" + esc(l.note) + "</span>");
+        m.push('<span class="k">' + esc(l.id) + "</span>");
+        box.append(el("div", "meta", m.join("")));
+        box.append(workStrip("line", l.id, l.takes));
+        sec.append(box);
+      });
+      sheet.append(sec);
+    });
+
+    // Words to check, and the setups
+    const wc = el("section", "block");
+    wc.append(el("h2", "", "Words to check"));
+    wc.append(el("ul", "small", d.words_to_check.map((w) => "<li><b>" + esc(w.words) + "</b>: " + esc(w.worry) + "</li>").join("")));
+    wc.append(el("h2", "", "Setups planted here"));
+    wc.append(el("ul", "small", d.setups.map((x) => "<li><b>" + esc(x.id) + "</b> " + esc(x.what) + (x.status ? " (" + esc(x.status) + ")" : "") + "</li>").join("")));
+    sheet.append(wc);
+
+    // Script OK
+    const ok = el("section", "okbar");
+    const okSaved = el("div", "saved");
+    const btn = el("button"); btn.id = "ok"; btn.type = "button";
+    const isOk = () => !!(pageDoc && pageDoc.ok);
+    const paint = () => { btn.textContent = isOk() ? "Script OK ✓ (tap to take it back)" : "Script OK"; btn.classList.toggle("done", isOk());
+      okSaved.textContent = isOk() && pageDoc.at ? "Marked OK " + new Date(pageDoc.at).toLocaleString() : ""; };
+    btn.disabled = !db;
+    btn.addEventListener("click", async () => {
+      const next = { ok: !isOk(), at: new Date().toISOString() };
+      okSaved.textContent = "Saving…";
+      try { await db.doc("page/script").set(next); pageDoc = next; paint(); }
+      catch (e) { okSaved.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again."; }
+    });
+    ok.append(el("p", "small", "When every line reads right (notes are fine: the next session works them in), tap it."));
+    ok.append(btn, okSaved);
+    sheet.append(ok);
+    paint();
+    if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+  }
+
+  async function start() {
+    try {
+      const r = await fetch("script.json", { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      script = await r.json();
+    } catch (e) {
+      document.getElementById("status").textContent = "The script file didn't load (" + e.message + "). Reload the page.";
+      return;
+    }
+    render();
+    // The store: notes and picks (lines/<id>, cast/<id>) and the page's OK (page/script).
+    try {
+      const use = window.claude && window.claude.use;
+      db = use ? await Promise.race([window.claude.use("db"), new Promise((r) => setTimeout(() => r(null), 10000))]) : null;
+    } catch (e) { db = null; }
+    if (!db) { render(); return; }
+    try {
+      const [l, c, p] = await Promise.all([db.collection("lines").get(), db.collection("cast").get(), db.doc("page/script").get()]);
+      l.docs.forEach((x) => { notes["lines/" + x.id] = x.data(); });
+      c.docs.forEach((x) => { notes["cast/" + x.id] = x.data(); });
+      pageDoc = p.exists ? p.data() : null;
+    } catch (e) { /* empty store: start blank */ }
+    render();
+  }
+  start();
+})();
+</script>
