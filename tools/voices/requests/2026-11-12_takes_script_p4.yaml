@@ -1,0 +1,145 @@
+task: takes
+spend: 0.2
+price_per_1k: 0.08
+note: 'takes for the whole script, retry of the gaps (#846): breath-only wordings get a short vocal sound as text (fal refuses tags with no words); the checker''s refusals go again (free if refused)'
+variants:
+- id: road.ask_again.clear.w2.s0
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or GET on.'
+- id: road.ask_again.clear.w2.s1
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or GET on.'
+- id: road.ask_again.fading.w0.s0
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.ask_again.fading.w0.s1
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.ask_again.fading.w0.s2
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.shake.clear.w0.s0
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous] Then go on. [short pause] Damn you.'
+- id: road.shake.clear.w0.s1
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous] Then go on. [short pause] Damn you.'
+- id: road.shake.clear.w0.s2
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous] Then go on. [short pause] Damn you.'
+- id: road.shake.fading.w0.s0
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.shake.fading.w0.s1
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.shake.fading.w0.s2
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.press.fading.w0.s0
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[groans softly] Nnh...'
+- id: road.press.fading.w0.s1
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[groans softly] Nnh...'
+- id: road.press.fading.w0.s2
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[groans softly] Nnh...'
+- id: road.packed.fading.w0.s0
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.packed.fading.w0.s1
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.packed.fading.w0.s2
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.walked_off.fading.w0.s0
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.walked_off.fading.w0.s1
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak] Hhhh...'
+- id: road.walked_off.fading.w0.s2
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak] Hhhh...'
