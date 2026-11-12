@@ -706,6 +706,11 @@ func _start_fight(with_who: Node, his_idea := false) -> void:
 		senses.note(with_who, (with_who as Node3D).global_position, 1.0)
 	if body.gun_holstered and _react <= 0.0:
 		body.draw_gun()
+	# The man's companions, near, are in it with him (you and Joe: #843, "outlaws shoot at him too").
+	for a: Node3D in CompanionBrain.allies_of(with_who):
+		if a != body and relations.stance(a) < Relations.Stance.FIGHT \
+				and a.global_position.distance_to(body.global_position) < CompanionBrain.ALLY_REACH:
+			relations.side_with(a)
 
 
 ## The moment it takes him to take in that it's come to shooting and move: a hothead's quicker

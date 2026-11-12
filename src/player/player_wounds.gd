@@ -803,8 +803,12 @@ func _physics_step(delta: float) -> void:
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
 		var given_up := _given_up_in_reach()
+		var companion := CompanionBrain.in_view(player)
 		if given_up != null:
 			_arrest(given_up)
+		elif companion != null:
+			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
+			say(companion.told(player), 2.0)
 		elif w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
