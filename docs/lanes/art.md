@@ -38,7 +38,8 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `window_day` 7). RoomLight's daylight rooms (`RoomLightTuning` "Daylight"): windows aimed at the floor 0.6
   across, reaching twice the far wall, falling off, shadowed by day; a soft light off each sunlit patch.
   Cheap judge round 2 (`docs/screenshots/judge/2026-11-12_doctor_daylight_r2/`): tell 1 passes on desk and
-  window, fails on the dispensary (its blank window card first, #826). Render CPU at Sean's <= 2.81 ms.
+  window, fails on the dispensary (judged before #826's sashes; with them, `results/2026-11-12_daylight/with_826.jpg`,
+  the light holds, not re-judged). Render CPU at Sean's <= 2.83 ms.
   Rule in `experiments/building_lab/RECIPE.md` "Light". Next: contact shadows with #711.
 - Room light (#608): on under the real look; its painted-look switch still waiting on Sean.
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.

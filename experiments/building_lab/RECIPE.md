@@ -156,8 +156,8 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
   windows' shadows the doctor's day views are 1.6-2.8 ms, #829). `--variants=` tries dials in one
   load (`day_fill`, `window_day`, `room.<RoomLightTuning dial>`).
 - **What a room by day still lacks** (#829's judge): the dispensary under its one high window, out
-  of the sun, still reads flat (the judge wants light thrown into the room from a window that shows
-  only a blank card: #826's sash and glass first, then try a brighter, tighter sky spot there).
+  of the sun, still reads flat (judged before #826's sash and glass, when the window was a blank
+  card; with them the light holds, not yet re-judged: next, a brighter, tighter sky spot there).
 - **Not done here:** contact shadows under furniture (#711's; SSAO is all there is, and the lamps
   that cast shadows), lamps lit by people (a man carrying or lighting one: the lamps keep the clock).
 
