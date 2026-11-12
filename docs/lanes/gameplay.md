@@ -11,7 +11,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **No Law** steps 1-3 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`; build 3882;
   `experiments/valley_folk/README.md`). **Next: step 4, the morning after and the sheriff's last day (#796).**
   The No Law card is out of date: the murderer is one of the Baron's men, not the red shirt (#744).
-- **No Justice** (#738): week 2. Joe on the rope: 3-4 shots or close in (#744).
+- **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
+  `hideout` box canyon, 4 the cabin, the knife and the nod). **Step 1 done: Joe, the companion**
+  (`CompanionBrain`, `Physiology.spared`; `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y;
+  `experiments/gunfight_lab/results/2026-11-12_joe/`). Open: he holds fire a lot and they seldom shoot at
+  him; you alive 13/20 without him, 16 and 11 of 20 with (noise at n=20); riding waits on #478; his real
+  look is the Studio's (stand-in `miner_s4_talking`). **Next: step 2, the doctor's and the camp.**
+  Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 
 ## Systems the slice leans on

@@ -50,6 +50,7 @@ const HELP := {
 	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
 	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
+	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
 	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
 	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
 	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
@@ -792,6 +793,26 @@ func _cmd_cards(a: Array) -> Dictionary:
 
 
 ## A nod (pitch) or a shake (yaw): three swings of 12 degrees, a tenth of a second each, back level.
+func _cmd_joe(a: Array) -> Dictionary:
+	var what := String(a[0]) if a.size() > 0 else "state"
+	var man: HumanBody = null
+	for n: Node in get_tree().get_nodes_in_group(&"companions"):
+		man = n as HumanBody
+	if what == "here" and man == null:
+		man = CompanionBrain.spawn_beside(player)
+		await _physics_frames(10)
+	if man == null:
+		return {"error": "no Joe: 'joe here' brings him in (or -- --joe)"}
+	var b := man.get_node(^"Brain") as CompanionBrain
+	var said := ""
+	if what in ["wait", "come"] and (what == "wait") == (b.wait_at == Vector3.INF):
+		said = b.told(player)
+	return {"said": said, "at": [snappedf(man.global_position.x, 0.1), snappedf(man.global_position.z, 0.1)],
+		"from_you_m": snappedf(CompanionBrain._flat(man.global_position, player.global_position), 0.1), "waiting": b.wait_at != Vector3.INF,
+		"conscious": man.physiology.is_conscious(), "alive": man.physiology.alive, "in_your_line": b.in_your_line(),
+		"doing": b.describe(), "stats": b.stats}
+
+
 func _cmd_nod(_a: Array) -> Dictionary:
 	return await _head(Vector2(0.0, -1.0))
 
