@@ -41,9 +41,27 @@ def stand(obj):
     return float(np.ptp(g[:, 1]))
 
 
+def brass(path):
+    """Rodin painted the frame, loops and buckles cream (round 1's critic: "a bright cream frame jumps
+    out"): what's pale and unsaturated in its paint (nothing in the leather is) goes to dulled brass,
+    keeping its light and dark."""
+    from PIL import Image
+    im = np.asarray(Image.open(path).convert("RGB"), dtype="float32") / 255.0
+    v = im.max(2)
+    sat = (v - im.min(2)) / np.maximum(v, 1e-4)
+    k = np.clip((v - 0.42) / 0.12, 0, 1) * np.clip((0.55 - sat) / 0.15, 0, 1)
+    lum = im @ np.array([0.3, 0.59, 0.11], dtype="float32")
+    metal = lum[:, :, None] * np.array([0.98, 0.72, 0.30], dtype="float32") * 0.78
+    out = im * (1 - k[:, :, None]) + metal * k[:, :, None]
+    Image.fromarray((np.clip(out, 0, 1) * 255).astype("uint8")).save(path, optimize=True)
+    print("brass: %.1f%% of the paint" % (100 * float((k > 0.5).mean())))
+
+
 def main():
     obj = R.load(sys.argv[1])
-    R.paint(os.path.join(R.MODELS, "doctors_bag_paint.png"), TEX_PX)
+    paint = os.path.join(R.MODELS, "doctors_bag_paint.png")
+    R.paint(paint, TEX_PX)
+    brass(paint)
     height = stand(obj)
     R.decimate(obj, TRIS)
 

@@ -43,7 +43,7 @@ PAGES = (8, COVER_Y + COVER_ROW * 2 + 20, 264, COVER_Y + COVER_ROW * 2 + 276)
 # Each binding: (leather or cloth colour, its roughness, the labels' colours or None, raised bands).
 GILT = (205, 166, 88)
 BINDINGS = {
-    "sheep": {"color": (172, 124, 74), "rough": 0.58, "labels": ((112, 28, 24), (24, 20, 18)), "bands": 0, "mottle": 0.22},
+    "sheep": {"color": (172, 124, 74), "rough": 0.58, "labels": ((112, 28, 24), (24, 20, 18)), "bands": 0, "mottle": 0.11},
     "calf": {"color": (78, 44, 26), "rough": 0.5, "labels": ((96, 24, 22), None), "bands": 5, "mottle": 0.3},
     "cloth_green": {"color": (34, 54, 42), "rough": 0.9, "labels": None, "bands": 0, "mottle": 0.08},
     "cloth_brown": {"color": (72, 48, 34), "rough": 0.9, "labels": None, "bands": 0, "mottle": 0.08},
@@ -239,7 +239,7 @@ def book(k, lying=False, at=(0.0, 0.0, 0.0), name=None):
         uvs.extend(_uv(rect, s, t) for s, t in st)
         faces.append([base, base + 1, base + 2, base + 3])
 
-    tb, sq, bulge = 0.003, 0.003, 0.0045
+    tb, sq, bulge = 0.003, 0.003, 0.0075  # (round 1: "flat spines")
     zs, zb = d * 0.5 - bulge, -d * 0.5
     flat = [(0.5, 0.5)] * 4
 
@@ -315,8 +315,22 @@ def books():
     sheet()
     parts = []
     for kit in list(doctor.BOOK_ROWS) + ["book_stack"]:
-        for n, (k, _size, at, lying) in enumerate(doctor.book_places(kit)):
-            parts.append(book(k, lying, at, name="Vol%d" % n if kit == "book_row_c" else None))
+        places = doctor.book_places(kit)
+        for n, (k, size, at, lying) in enumerate(places):
+            part = book(k, lying, at, name="Vol%d" % n if kit == "book_row_c" else None)
+            uvs = part.uvs
+            if lying:
+                # A pile set down by hand: each book a few degrees round from the one under it.
+                turn = (4.0, -7.0, 9.0)[n % 3]
+                part = moved(moved(part, 0, (0, 1, 0), (-at[0], 0, -at[2])), turn, (0, 1, 0), (at[0], 0, at[2]))
+            elif kit == "book_row_a" and n == len(places) - 1:
+                # The row's last book leans on its neighbour (round 1: "all bolt upright").
+                lean = 7.0
+                x0, y0 = at[0] - size[0] * 0.5, at[1] - size[1] * 0.5
+                shift = size[1] * math.sin(math.radians(lean))
+                part = moved(moved(part, 0, (0, 0, 1), (-x0, -y0, 0)), lean, (0, 0, 1), (x0 + shift, y0, 0))
+            part.uvs = uvs
+            parts.append(part)
     export_plain("medical_books", parts)
 
 
@@ -330,10 +344,13 @@ def _coat(cx, t):
     z_wall = t + 0.014
     rng = random.Random(4)
     # (y, half width, half depth, how much the folds stand, how far the front's lap opens)
-    secs = [(0.008, 0.050, 0.030, 0.0, 0.0), (-0.012, 0.085, 0.040, 0.0, 0.0), (-0.05, 0.150, 0.052, 0.01, 0.2),
-            (-0.10, 0.200, 0.060, 0.02, 0.5), (-0.17, 0.218, 0.066, 0.03, 0.8), (-0.30, 0.212, 0.066, 0.045, 1.0),
-            (-0.46, 0.200, 0.064, 0.06, 1.0), (-0.62, 0.212, 0.066, 0.08, 1.0), (-0.80, 0.226, 0.069, 0.10, 1.0),
-            (-0.94, 0.236, 0.071, 0.115, 1.0), (-ch + 0.014, 0.240, 0.072, 0.125, 1.0)]
+    # (round 1's critic: "a cardboard cut-out: square spiked shoulders, a ruler-straight hem, no waist
+    # or skirt": the shoulders round off and drop, the waist draws in, the skirt flares in deep folds)
+    secs = [(0.008, 0.048, 0.030, 0.0, 0.0), (-0.012, 0.074, 0.040, 0.0, 0.0), (-0.04, 0.112, 0.050, 0.01, 0.2),
+            (-0.075, 0.150, 0.058, 0.02, 0.4), (-0.12, 0.180, 0.064, 0.03, 0.7), (-0.19, 0.196, 0.068, 0.04, 0.9),
+            (-0.30, 0.186, 0.066, 0.05, 1.0), (-0.44, 0.160, 0.060, 0.07, 1.0), (-0.54, 0.172, 0.064, 0.11, 1.0),
+            (-0.68, 0.205, 0.072, 0.15, 1.0), (-0.82, 0.232, 0.080, 0.18, 1.0), (-0.94, 0.248, 0.084, 0.20, 1.0),
+            (-ch + 0.014, 0.254, 0.086, 0.21, 1.0)]
     n = 56
     ph = [rng.uniform(0, 6.28) for _ in range(3)]
     verts, faces = [], []
@@ -351,7 +368,11 @@ def _coat(cx, t):
             # The fronts lap left over right: a step down the middle of the front.
             if front > 0.6 and lap:
                 z += 0.006 * lap * (1.0 if c < 0.02 else 0.0) * min(1.0, (front - 0.6) / 0.2)
-            verts.append((cx + x, y, z_wall + b * 0.45 + z))
+            # It hangs a little to one side (one shoulder lower), and its hem dips and lifts with the folds.
+            drop = -0.022 * c * min(1.0, max(0.0, (0.008 - y) / 0.12)) * max(0.0, 1.0 - max(0.0, -y - 0.2) / 0.3)
+            hem = 0.022 * fold / 0.21 * math.sin(5 * th + ph[1]) * max(0.0, (-y - 0.6) / 0.42)
+            sway = 0.035 * max(0.0, -y / ch) ** 1.5
+            verts.append((cx + x + sway, y + drop + hem, z_wall + b * 0.45 + z))
     for i in range(len(secs) - 1):
         for k in range(n):
             a_ = i * n + k
@@ -370,10 +391,13 @@ def _coat(cx, t):
     # The sleeves: hanging from the dropped shoulders, a little forward, creased at the elbow.
     zc = z_wall + 0.066 * 0.45
     for sx in (-1, 1):
-        pts = [(cx + sx * 0.185, -0.085, zc + 0.012), (cx + sx * 0.222, -0.16, zc + 0.018), (cx + sx * 0.236, -0.34, zc + 0.026),
-               (cx + sx * 0.240, -0.45, zc + 0.036), (cx + sx * 0.238, -0.60, zc + 0.040), (cx + sx * 0.236, -0.70, zc + 0.040)]
-        radii = [(0.045, 0.05), (0.056, 0.05), (0.052, 0.045), (0.05, 0.04), (0.046, 0.04), (0.044, 0.04)]
-        parts.append(tube("s", pts, radii, sides=14, caps=(True, True), noise=0.04, seed=3 + sx))
+        ln = 0.66 if sx < 0 else 0.69   # (one sleeve hangs a little lower, its cuff turned in)
+        # (the sleeve's head is sunk in the shoulder: its cap stood up as a spike, round 1)
+        pts = [(cx + sx * 0.120, -0.135, zc + 0.016), (cx + sx * 0.176, -0.17 - 0.02 * (sx < 0), zc + 0.022),
+               (cx + sx * 0.214, -0.30, zc + 0.034), (cx + sx * 0.212, -0.44, zc + 0.052),
+               (cx + sx * 0.196 + 0.02, -0.57, zc + 0.058), (cx + sx * 0.184 + 0.03, -ln, zc + 0.05)]
+        radii = [(0.030, 0.034), (0.050, 0.046), (0.050, 0.046), (0.047, 0.042), (0.043, 0.04), (0.040, 0.038)]
+        parts.append(tube("s", pts, radii, sides=14, caps=(True, True), noise=0.09, seed=3 + sx))
     # The collar turned down round the neck, the lapels rolling from it down to the top button.
     zf = z_wall + 0.066 * 0.45
     ring = [(cx + math.cos(2 * math.pi * k / 20) * 0.078, -0.004 - 0.012 * abs(math.cos(2 * math.pi * k / 20)), zf + math.sin(2 * math.pi * k / 20) * 0.036)
@@ -400,6 +424,18 @@ def _hat(hx, t):
     felt = lathe("f", [(r - 0.004, -0.003), (R * 0.7, -0.002), (R - 0.006, 0.006), (R, 0.016), (R - 0.004, 0.019), (R * 0.72, 0.004),
                        (r + 0.003, 0.003), (r, 0.012), (r - 0.002, ch * 0.62), (r * 0.9, ch * 0.86), (r * 0.62, ch * 0.985),
                        (0.0, ch)], 32, caps=(False, False))
+    # (round 1: "a perfectly symmetric disc and dome": the crown's centre crease, the brim rolled up
+    # at its sides and dipped front and back)
+    fv = []
+    for x, y, z in felt.verts:
+        rad = math.hypot(x, z)
+        if y > ch * 0.55:
+            y -= 0.022 * math.exp(-(z / 0.028) ** 2) * min(1.0, (y - ch * 0.55) / (ch * 0.3))
+        if rad > r + 0.01:
+            k = (rad - r) / (R - r)
+            y += k * k * (0.016 * (z * z - x * x) / (rad * rad))
+        fv.append((x, y, z))
+    felt.verts = fv
     band = lathe("b", [(r + 0.0035, 0.004), (r + 0.0025, 0.03), (r + 0.0005, 0.031)], 32, caps=(False, False))
     at = (hx, -(r - 0.012), t + 0.03)
     return moved(felt, 97, (1, 0, 0), at, name="Hat"), moved(band, 97, (1, 0, 0), at, name="HatBand")
@@ -492,7 +528,7 @@ def folded(name, size, layers, seed, at=(0.0, 0.0, 0.0), turn=0.0):
             nx, ny = -ty / ln, tx / ln
             up = y / hgt
             # The edges of the upper layers droop and draw in; a slow wave over the top.
-            dy = -0.007 * edge * up + 0.003 * up * math.sin(x * 14 + z * 9 + phz[0])
+            dy = -0.016 * edge * up + 0.006 * up * math.sin(x * 14 + z * 9 + phz[0]) + 0.004 * up * math.sin(x * 31 - z * 17 + phz[2])
             dz = -math.copysign(0.006 * up * abs(math.sin(i * 0.7 + phz[1])), 2 * fz - 1) * (1.0 if j in (0, nz) else 0.0)
             k_ = 1.0 - 0.12 * edge
             outer.append((x + nx * ht * k_, y + dy + ny * ht * k_, z + dz))

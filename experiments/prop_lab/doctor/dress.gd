@@ -41,7 +41,7 @@ const VIEWS := {
 	# The sick room's far end: its washstand, the bedside chair, the spare blankets on the empty cot.
 	"sick_wash": [Vector3(3.3, 2.4, 9.0), Vector3(2.2, 1.4, 11.0), 62.0, 15.0],
 	# The chamber pot under the first cot; the folded blankets, close.
-	"pot": [Vector3(2.2, 1.75, 10.9), Vector3(1.0, 1.08, 10.0), 50.0, 15.0],
+	"pot": [Vector3(2.2, 1.75, 10.9), Vector3(1.0, 1.08, 10.0), 50.0, 9.0],  # (by the east window's morning light)
 	"blankets": [Vector3(2.5, 2.25, 10.9), Vector3(3.42, 1.62, 9.95), 45.0, 15.0],
 	# His bookcase beside the desk, close; the sitting room's books, table and chair.
 	"bookcase": [Vector3(2.75, 2.45, 1.75), Vector3(2.75, 1.78, 3.6), 50.0, 10.0],

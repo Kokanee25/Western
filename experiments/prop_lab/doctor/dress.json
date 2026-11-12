@@ -47,7 +47,7 @@
       {"id": "basin_sick", "kit": "wash_basin", "on": "wash_sick", "at": [2.0, 0.0, 11.11], "facing": 0},
       {"id": "pitcher_sick", "kit": "wash_pitcher", "on": "basin_sick", "at": [2.0, 0.0, 11.09], "facing": 40, "lift": 0.014},
       {"id": "spare_blanket", "kit": "folded_blanket", "at": [2.0, 0.172, 11.11], "facing": 180, "use": "on the washstand's low shelf"},
-      {"id": "blankets", "kit": "folded_blankets", "at": [3.42, 0.6, 9.95], "facing": 90, "use": "spare blankets on the foot of the empty cot"},
+      {"id": "blankets", "kit": "folded_blankets", "at": [3.42, 0.6, 9.86], "facing": 90, "use": "spare blankets on the foot of the empty cot"},
       {"id": "sick_chair", "kit": "bentwood_chair", "at": [1.75, 0.0, 9.1], "facing": 255, "use": "bedside: a chair by the cot (D2's bentwood)"},
       {"id": "pot_1", "kit": "chamber_pot", "at": [1.0, 0.0, 10.0], "facing": 200, "use": "under cot_1, half out"},
       {"id": "pot_2", "kit": "chamber_pot", "at": [3.2, 0.0, 9.45], "facing": 20},

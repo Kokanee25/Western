@@ -1,5 +1,5 @@
 {
-  "_doc": "A pile of three folded blankets (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in four and laid flat, 54 x 40 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py.",
+  "_doc": "A pile of three folded blankets (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in three and laid flat, 48 x 37 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py.",
   "id": "folded_blankets",
   "kind": "members",
   "fixture": true,
@@ -13,13 +13,13 @@
       "id": "blanket0",
       "kind": "post",
       "size": [
-        0.54,
-        0.088,
-        0.4
+        0.48,
+        0.105,
+        0.37
       ],
       "at": [
         0.0,
-        0.044,
+        0.0525,
         0.0
       ],
       "wood": "canvas",
@@ -34,13 +34,13 @@
       "id": "blanket1",
       "kind": "furniture_top",
       "size": [
-        0.54,
-        0.088,
-        0.4
+        0.48,
+        0.105,
+        0.37
       ],
       "at": [
         0.0,
-        0.132,
+        0.1575,
         0.0
       ],
       "wood": "canvas",
@@ -55,13 +55,13 @@
       "id": "blanket2",
       "kind": "trim",
       "size": [
-        0.54,
-        0.088,
-        0.4
+        0.48,
+        0.105,
+        0.37
       ],
       "at": [
         0.0,
-        0.22,
+        0.2625,
         0.0
       ],
       "wood": "canvas",

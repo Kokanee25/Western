@@ -869,7 +869,7 @@ def book_stack():
 # A plain open oak bookcase, chest high (the country office's: Cathell 1882 wants the doctor's
 # books "in sight"): two sides, four shelves, a boarded back, a top overhanging, a plinth. The shelves'
 # tops (for what stands on them) in `shelf_tops()`. Its front toward +z.
-BOOKCASE = {"width": 0.64, "depth": 0.27, "height": 1.38, "side": 0.022, "board": 0.02, "top": 0.024,
+BOOKCASE = {"width": 0.64, "depth": 0.27, "height": 1.47, "side": 0.022, "board": 0.02, "top": 0.024,
             "shelves": [0.09, 0.44, 0.76, 1.07], "plinth": 0.08}
 
 
@@ -888,9 +888,14 @@ def bookcase():
         ms.append(member("shelf%d" % k, "furniture_top", [W - t * 2, c["board"], D - 0.014], [0, y, 0.007], look=OAK_TOP))
     ms.append(member("back", "furniture_frame", [W - t * 2, under - 0.04, 0.012], [0, under * 0.5 + 0.02, -D * 0.5 + 0.006], look=OAK))
     ms.append(member("plinth", "furniture_frame", [W - t * 2, c["plinth"], 0.018], [0, c["plinth"] * 0.5, D * 0.5 - 0.02], look=OAK))
-    ms.append(member("top", "trim", [W + 0.04, c["top"], D + 0.025], [0, H - c["top"] * 0.5, 0.0075], look=OAK_TOP))
+    # A frieze under the top and a cornice round it, a base moulding on the plinth (round 1's critic: "a
+    # modern flat-pack shelf: no cornice, no moulding").
+    ms.append(member("frieze", "furniture_frame", [W - t * 2, 0.075, 0.018], [0, under - 0.0375, D * 0.5 - 0.009], look=OAK))
+    ms.append(member("cornice", "trim", [W + 0.05, 0.03, D + 0.03], [0, under - 0.015, 0.01], look=OAK))
+    ms.append(member("base_mould", "trim", [W + 0.03, 0.03, 0.02], [0, c["plinth"] + 0.015, D * 0.5 + 0.004], look=OAK))
+    ms.append(member("top", "trim", [W + 0.09, c["top"], D + 0.05], [0, H - c["top"] * 0.5, 0.012], look=OAK_TOP))
     return {
-        "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b, book_row_c; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
+        "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.47 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, a frieze and cornice under an overhanging top, a moulded plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b, book_row_c; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
         "id": "bookcase", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "members": ms,
@@ -984,7 +989,7 @@ def doctors_bag():
 # Spare blankets folded (the wards' issue: grey wool with a dark band, a white one with blue bands,
 # a brown one): each folded in four along its length and laid in a pile, the folds' bights to +x.
 # A blanket a member (it burns; pulled from under, the ones over it come down).
-BLANKET = {"size": (0.54, 0.088, 0.40), "layers": 4, "finishes": ["wool_fold", "wool_white", "wool_brown"]}
+BLANKET = {"size": (0.48, 0.105, 0.37), "layers": 3, "finishes": ["wool_fold", "wool_white", "wool_brown"]}
 
 
 def _blankets(kit, n, what):
@@ -993,7 +998,7 @@ def _blankets(kit, n, what):
     ms = [member("blanket%d" % k, kinds[k], [bx, by, bz], [0, by * (k + 0.5), 0], wood="canvas", look="pbr:folded_blankets",
                  draw=mesh("folded_blankets", "Blanket%d" % k)) for k in range(n)]
     return {
-        "_doc": "%s (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in four and laid flat, 54 x 40 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py." % what,
+        "_doc": "%s (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in three and laid flat, 48 x 37 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py." % what,
         "id": kit, "kind": "members", "fixture": True, "in_game": False, "wood": "canvas", "look": "pbr:folded_blankets",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "members": ms,
