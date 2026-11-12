@@ -6,7 +6,7 @@ extends SceneTree
 ## Untyped where it names game classes: -s scripts compile before autoloads.
 ##
 ##   xvfb-run -a godot --rendering-driver vulkan -s res://experiments/prop_lab/doctor/dress.gd -- \
-##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts]
+##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts] [--no-rows]
 ##
 ## ~10 min a view under lavapipe; never two runs at once (~10 GB each). --counts prints the draws
 ## (the frame's) and the batch's triangles and batches, then quits.
@@ -92,6 +92,8 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 		if not e.has("row"):
 			entries.append(e)
 			continue
+		if OS.get_cmdline_user_args().has("--no-rows"):
+			continue  # (a placement check without the shelves' ~190 bottles: the load is minutes shorter)
 		# A row: the kits in turn along its step (a shelf of bottles), its gaps left.
 		var row: Dictionary = e.row
 		for k in int(row.count):

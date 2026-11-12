@@ -158,8 +158,8 @@ const DOCTOR_D1_GLASS := [&"wash_basin", &"wash_pitcher", &"reflector_lamp"]
 
 
 func test_doctor_d1_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: a solid walnut table ~45-60; an iron cot with its tick ~25-40; a washstand ~15-30.
-	var weights := {&"examining_table": [40.0, 70.0], &"iron_cot": [22.0, 45.0], &"washstand": [12.0, 32.0]}
+	# kg: a solid oak table ~55-75 (oak since #825: 750 kg/m3); an iron cot with its tick ~25-40; a pine washstand ~9-20.
+	var weights := {&"examining_table": [40.0, 80.0], &"iron_cot": [22.0, 45.0], &"washstand": [8.0, 32.0]}
 	for id: StringName in DOCTOR_D1:
 		var def := PropKit.definition(id)
 		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
@@ -179,9 +179,9 @@ func test_doctor_d1_woods_are_the_libraries_and_its_metal_is_baked() -> void:
 	var t := await _place(&"examining_table")
 	var leg := _m(t, "leg0").drawn_node()
 	var mat := leg.material_override as ShaderMaterial
-	check(mat != null and mat.shader.resource_path == "res://src/render/scan_wood.gdshader", "a leg is the library's walnut")
+	check(mat != null and mat.shader.resource_path == "res://src/render/scan_wood.gdshader", "a leg is the library's furniture oak")
 	check(leg.mesh.has_meta(&"board_frame"), "drawn as a library board (batched by the way it faces)")
-	check(PropKit.lib_material("lib:fine_walnut_tg/few") == mat, "every walnut prop shares one material")
+	check(PropKit.lib_material("lib:furniture_oak/few") == mat, "every oak prop shares one material")
 	var pad := _m(t, "pad").drawn_node()
 	var oil := pad.material_override as StandardMaterial3D
 	check(oil != null and oil.albedo_texture != null and oil.roughness_texture != null and oil.metallic_texture != null,
@@ -207,7 +207,7 @@ func test_a_man_laid_on_the_table_or_the_cot_is_carried() -> void:
 		await physics_frames(1)
 
 
-func test_a_shot_through_a_walnut_leg_is_carved_where_the_leg_is() -> void:
+func test_a_shot_through_an_oak_leg_is_carved_where_the_leg_is() -> void:
 	var t := await _place(&"examining_table")
 	var ballistics := Ballistics.new()
 	world.add_child(ballistics)
@@ -335,7 +335,7 @@ const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"pois
 
 
 func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
+	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); an oak roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
 	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 200.0],
 			&"dispensary_counter": [40.0, 130.0], &"bentwood_chair": [2.0, 8.0]}
 	for id: StringName in DOCTOR_D2_MEMBERS:
@@ -355,8 +355,8 @@ func test_the_desks_curved_sides_are_library_boards_cut_to_the_curve() -> void:
 	var d := await _place(&"roll_top_desk")
 	var side := _m(d, "case_side_l").drawn_node()
 	var plain := _m(d, "case_back").drawn_node()
-	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:fine_walnut_tg/few"),
-			"the curved side is the same walnut as the rest")
+	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:furniture_oak/few"),
+			"the curved side is the same oak as the rest")
 	check(side.mesh.has_meta(&"board_frame"), "drawn as a library board (batched with the others)")
 	var box := side.get_aabb()
 	var faces := side.mesh.get_faces()
@@ -479,7 +479,7 @@ func test_the_counters_drawers_wear_their_knobs() -> void:
 	check(c.batch_count() <= 8, "and it still draws in a few batches (%d)" % c.batch_count())
 
 
-func test_a_pull_on_a_walnut_drawer_is_drawn_on_the_drawer() -> void:
+func test_a_pull_on_an_oak_drawer_is_drawn_on_the_drawer() -> void:
 	# A dress layer on a library board (a pull, a knob, his papers) sits where its kit file puts it,
 	# not off by the board frame's half length (#805), and stays there when the board is carved.
 	var d := await _place(&"roll_top_desk")
@@ -501,7 +501,7 @@ const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_stack", &"bookc
 
 
 func test_doctor_d3_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; a walnut bookcase
+	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; an oak bookcase
 	# ~20-40; a wool blanket ~2 (its member's canvas is lighter).
 	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
 			&"folded_blankets": [1.5, 8.0], &"folded_blanket": [0.5, 3.0]}

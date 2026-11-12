@@ -4,8 +4,8 @@ number and a re-run. The Blender half (tools/blender/props/doctor_*.py) reads th
 
     python3 tools/props/doctor.py [--batch=D3]   # writes assets/props/kit/<id>.json for batches D1 to D3
 
-Woods from the material library (`lib:<entry>/<age>`, #721: only ages the materials judge passed:
-F2 `fine_walnut_tg` new and a few years, the doctor's own floor's), metal and cloth baked the gun way
+Woods from the material library (`lib:<entry>/<age>`, #721, #825: `furniture_oak` and
+`furniture_painted_pine`, never his floor's `floor_fir_worn`), metal and cloth baked the gun way
 (`pbr:<model>`, tools/blender/props/metal.py). Masses from the materials (TimberTuning: walnut, iron,
 straw, hay, canvas); every member's kind on the support ladder (docs/briefs/prop-factory.md "Kinds").
 Each prop's period reference: experiments/prop_lab/refs/doctor/README.md.
@@ -18,8 +18,16 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 KIT = os.path.join(ROOT, "assets", "props", "kit")
 
-WALNUT = "lib:fine_walnut_tg/few"
-WALNUT_TOP = "lib:fine_walnut_tg/few/top"
+# Furniture is never the floor's wood (Sean's picks 2 and 5 on #821; docs/briefs/prop-factory.md point 1):
+# office pieces in the library's furniture oak, plain pieces (shelving, counters, a washstand, a peg rail)
+# in its painted pine; `/top` a top's wear, `/front` a drawer front's (hands round the pull). The walnut
+# (`furniture_walnut`) is parked: the room's good piece, his desk, takes oak until it passes.
+OAK = "lib:furniture_oak/few"
+OAK_TOP = OAK + "/top"
+OAK_FRONT = OAK + "/front"
+PINE = "lib:furniture_painted_pine/few"
+PINE_TOP = PINE + "/top"
+PINE_FRONT = PINE + "/front"
 
 
 def r(v, n=4):
@@ -41,7 +49,7 @@ def mesh(model, part):
 
 
 # --- The examining table --------------------------------------------------------------------------
-# A walnut table at the height a doctor works standing (29 in), 6 ft by 2 ft, three drawers in its
+# A oak table at the height a doctor works standing (29 in), 6 ft by 2 ft, three drawers in its
 # apron on his side (+z), a low shelf, a buttoned horsehair pad in leather along it and a raised head (a wedge of
 # the same: the head end, +x). Refs: the 1880 Stohlmann catalogue, the Remick museum's table. Legs set in from the corners, aprons flush with their outer faces.
 TABLE = {
@@ -80,22 +88,22 @@ def examining_table():
     hl = t["leg"] * 0.5
     ms = []
     for i, (sx, sz) in enumerate([(-1, -1), (1, -1), (-1, 1), (1, 1)]):
-        ms.append(member("leg%d" % i, "post", [t["leg"], under, t["leg"]], [sx * lx, under * 0.5, sz * lz], look=WALNUT))
+        ms.append(member("leg%d" % i, "post", [t["leg"], under, t["leg"]], [sx * lx, under * 0.5, sz * lz], look=OAK))
     inner_x = lx - hl
     inner_z = lz - hl
     ay = under - t["apron_h"] * 0.5
     for s in (-1, 1):
         ms.append(member("apron_long_%s" % ("b" if s < 0 else "f"), "furniture_frame", [inner_x * 2, t["apron_h"], t["apron_t"]],
-                         [0, ay, s * (lz + hl - t["apron_t"] * 0.5)], look=WALNUT))
+                         [0, ay, s * (lz + hl - t["apron_t"] * 0.5)], look=OAK))
         ms.append(member("apron_end_%s" % ("foot" if s < 0 else "head"), "furniture_frame", [t["apron_t"], t["apron_h"], inner_z * 2],
-                         [s * (lx + hl - t["apron_t"] * 0.5), ay, 0], look=WALNUT))
+                         [s * (lx + hl - t["apron_t"] * 0.5), ay, 0], look=OAK))
         sw, sh = t["stretcher"]
         ms.append(member("stretcher_%s" % ("b" if s < 0 else "f"), "furniture_frame", [inner_x * 2, sw, sh],
-                         [0, t["stretcher_y"], s * lz], look=WALNUT))
+                         [0, t["stretcher_y"], s * lz], look=OAK))
     # The top: its boards along it, edge to edge (worn where he leans and works: the library's top).
     bw = W / t["boards"]
     for k in range(t["boards"]):
-        ms.append(member("top%d" % k, "furniture_top", [L, t["board"], bw], [0, H - t["board"] * 0.5, -W * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP))
+        ms.append(member("top%d" % k, "furniture_top", [L, t["board"], bw], [0, H - t["board"] * 0.5, -W * 0.5 + bw * (k + 0.5)], look=OAK_TOP))
     # The bottom: boards laid across from stretcher to stretcher, edge to edge between the legs.
     sw, sh = t["stretcher"]
     span = (lz + sh * 0.5) * 2
@@ -103,13 +111,13 @@ def examining_table():
     bottom_top = t["stretcher_y"] + sw * 0.5 + t["shelf_t"]
     for k in range(t["shelf_boards"]):
         ms.append(member("shelf%d" % k, "furniture_top", [sbw, t["shelf_t"], span],
-                         [-inner_x + sbw * (k + 0.5), bottom_top - t["shelf_t"] * 0.5, 0], look=WALNUT))
+                         [-inner_x + sbw * (k + 0.5), bottom_top - t["shelf_t"] * 0.5, 0], look=OAK))
     # On the doctor's side (+z) a row of drawers in the deep apron under the top (the period's tables
     # carry drawers: the 1880 Stohlmann catalogue's, the Remick museum's), each with its brass knob;
     # the legs and the low shelf open below, as the doctor's target sheet's table.
     for c, r_, (dw, dh), (x, y, zf) in table_drawers():
         if True:
-            m = member("drawer_%d_%d" % (c, r_), "trim", [dw, dh, t["drawer_t"]], [x, y, zf], look=WALNUT)
+            m = member("drawer_%d_%d" % (c, r_), "trim", [dw, dh, t["drawer_t"]], [x, y, zf], look=OAK_FRONT)
             m["dress"] = [{"look": "pbr:examining_table", "draw": mesh("examining_table", "Knob_%d_%d" % (c, r_))}]
             ms.append(m)
     p = t["pad"]
@@ -119,8 +127,8 @@ def examining_table():
     ms.append(member("head", "trim", [h["length"], h["high"], h["width"]], [h["x"], H + h["high"] * 0.5, 0],
                      wood="straw", look="pbr:examining_table", draw=mesh("examining_table", "HeadPad")))
     return {
-        "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): a walnut table 6 ft by 2 ft at a standing doctor's working height (29 in), three drawers in its deep apron on his side (+z) with brass knobs (the 1880 Stohlmann catalogue's and the Remick museum's tables carry drawers), a shelf low down for the basin and dressings, a buttoned horsehair pad in brown leather along it and a raised head of the same at its +x end. Walnut from the material library (F2 a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
-        "id": "examining_table", "kind": "members", "fixture": True, "wood": "walnut",
+        "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): an oak table 6 ft by 2 ft at a standing doctor's working height (29 in), three drawers in its deep apron on his side (+z) with brass knobs (the 1880 Stohlmann catalogue's and the Remick museum's tables carry drawers), a shelf low down for the basin and dressings, a buttoned horsehair pad in brown leather along it and a raised head of the same at its +x end. Oak from the material library (a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
+        "id": "examining_table", "kind": "members", "fixture": True, "wood": "oak",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "seat": {"member": "pad", "at": [-0.15, H + p["height"], 0.0], "share": 1.0, "hold": 0.1, "sway": 0.0},
         "members": ms,
@@ -187,7 +195,7 @@ def iron_cot():
 
 
 # --- The washstand --------------------------------------------------------------------------------
-# A plain walnut washstand: a top with a low splashback, a drawer in the front apron (its brass knob),
+# A plain painted pine washstand: a top with a low splashback, a drawer in the front apron (its brass knob),
 # a shelf low down for the slop jar; the basin and pitcher stand on it (their own kit files: china).
 WASH = {"width": 0.76, "depth": 0.42, "top": 0.76, "board": 0.022, "leg": 0.045, "inset": 0.02,
         "apron_h": 0.12, "apron_t": 0.02, "shelf_y": 0.14, "splash": (0.14, 0.018)}
@@ -207,35 +215,35 @@ def washstand():
     hl = w["leg"] * 0.5
     ms = []
     for i, (sx, sz) in enumerate([(-1, -1), (1, -1), (-1, 1), (1, 1)]):
-        ms.append(member("leg%d" % i, "post", [w["leg"], under, w["leg"]], [sx * lx, under * 0.5, sz * lz], look=WALNUT))
+        ms.append(member("leg%d" % i, "post", [w["leg"], under, w["leg"]], [sx * lx, under * 0.5, sz * lz], look=PINE))
     ay = under - w["apron_h"] * 0.5
     for s in (-1, 1):
         a = member("apron_%s" % ("back" if s < 0 else "front"), "furniture_frame", [(lx - hl) * 2, w["apron_h"], w["apron_t"]],
-                   [0, ay, s * (lz + hl - w["apron_t"] * 0.5)], look=WALNUT)
+                   [0, ay, s * (lz + hl - w["apron_t"] * 0.5)], look=PINE)
         if s > 0:
             a["dress"] = [{"look": "pbr:washset", "draw": mesh("washset", "Knob")}]
         ms.append(a)
         ms.append(member("apron_%s" % ("l" if s < 0 else "r"), "furniture_frame", [w["apron_t"], w["apron_h"], (lz - hl) * 2],
-                         [s * (lx + hl - w["apron_t"] * 0.5), ay, 0], look=WALNUT))
+                         [s * (lx + hl - w["apron_t"] * 0.5), ay, 0], look=PINE))
         ms.append(member("stretcher_%s" % ("l" if s < 0 else "r"), "furniture_frame", [0.03, 0.03, (lz - hl) * 2],
-                         [s * lx, w["shelf_y"], 0], look=WALNUT))
+                         [s * lx, w["shelf_y"], 0], look=PINE))
     # The top in two boards, the shelf in two boards across the side stretchers.
     for k in range(2):
-        ms.append(member("top%d" % k, "furniture_top", [W, w["board"], D * 0.5], [0, H - w["board"] * 0.5, -D * 0.25 + D * 0.5 * k], look=WALNUT_TOP))
+        ms.append(member("top%d" % k, "furniture_top", [W, w["board"], D * 0.5], [0, H - w["board"] * 0.5, -D * 0.25 + D * 0.5 * k], look=PINE_TOP))
     # (between the legs front to back, from stretcher to stretcher across)
     sd = (lz - hl) * 2
     for k in range(2):
-        ms.append(member("shelf%d" % k, "furniture_top", [lx * 2, 0.016, sd * 0.5], [0, w["shelf_y"] + 0.015 + 0.008, -sd * 0.25 + sd * 0.5 * k], look=WALNUT))
+        ms.append(member("shelf%d" % k, "furniture_top", [lx * 2, 0.016, sd * 0.5], [0, w["shelf_y"] + 0.015 + 0.008, -sd * 0.25 + sd * 0.5 * k], look=PINE))
     sh, st = w["splash"]
-    ms.append(member("splashback", "trim", [W, sh, st], [0, H + sh * 0.5, -D * 0.5 + st * 0.5], look=WALNUT))
+    ms.append(member("splashback", "trim", [W, sh, st], [0, H + sh * 0.5, -D * 0.5 + st * 0.5], look=PINE))
     # A towel bar on two brackets off the +x legs (the hand towel, cloth, hangs over it).
     bx, by, bz = wash_towel_bar()
     for k, sz in enumerate((-1, 1)):
-        ms.append(member("towel_bracket%d" % k, "cripple", [bx - (lx + hl), 0.03, 0.03], [(lx + hl + bx) * 0.5, by, sz * lz], look=WALNUT))
-    ms.append(member("towel_bar", "trim", [0.022, 0.022, lz * 2 + 0.03], [bx, by + 0.026, 0], look=WALNUT))
+        ms.append(member("towel_bracket%d" % k, "cripple", [bx - (lx + hl), 0.03, 0.03], [(lx + hl + bx) * 0.5, by, sz * lz], look=PINE))
+    ms.append(member("towel_bar", "trim", [0.022, 0.022, lz * 2 + 0.03], [bx, by + 0.026, 0], look=PINE))
     return {
-        "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
-        "id": "washstand", "kind": "members", "fixture": True, "wood": "walnut",
+        "_doc": "A plain painted pine washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Painted pine from the material library (a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
+        "id": "washstand", "kind": "members", "fixture": True, "wood": "weathered_pine",
         "splits_below": 0.5, "blow_wood_share": 0.5,
         "members": ms,
     }
@@ -465,8 +473,8 @@ def mortar():
 # --- The druggist's scales -------------------------------------------------------------------------
 # A druggist's prescription balance in its case (refs scales_cased_balance_1860_1880_wellcome.jpg, a
 # balance of 1860-80: a glazed wooden case on a base with a drawer, its brass pillar in the middle, the
-# beam on a knife edge, two small brass pans hung low on stirrups): a walnut base with the drawer for the
-# weights (brass knob), four corner posts, glass on its sides, front and top in a walnut frame; inside, a
+# beam on a knife edge, two small brass pans hung low on stirrups): an oak base with the drawer for the
+# weights (brass knob), four corner posts, glass on its sides, front and top in an oak frame; inside, a
 # turned brass pillar, the beam with its pointer down to a scale, the pans. Its front (the drawer) toward
 # +z. The brass members' boxes are the metal's own section (as the cot's iron), drawn full size from
 # glb:scales; the panes are glass members (a ball breaks them, as a window's).
@@ -478,9 +486,9 @@ SCALES = {"base": (0.46, 0.075, 0.25), "drawer": (0.30, 0.042), "case_h": 0.38, 
 def scales():
     c = SCALES
     bx, by, bz = c["base"]
-    ms = [member("base", "post", [bx, by, bz], [0, by * 0.5, 0], look=WALNUT_TOP)]
+    ms = [member("base", "post", [bx, by, bz], [0, by * 0.5, 0], look=OAK_TOP)]
     dw, dh = c["drawer"]
-    d = member("drawer", "trim", [dw, dh, 0.012], [0, by * 0.5, bz * 0.5 + 0.006], look=WALNUT)
+    d = member("drawer", "trim", [dw, dh, 0.012], [0, by * 0.5, bz * 0.5 + 0.006], look=OAK_FRONT)
     d["dress"] = [{"look": "pbr:scales", "draw": mesh("scales", "Knob")}]
     ms.append(d)
     # The case: corner posts on the base, the top's rails on them, glass between.
@@ -488,11 +496,11 @@ def scales():
     cx, cz = bx * 0.5 - 0.015 - ps * 0.5, bz * 0.5 - 0.015 - ps * 0.5
     top_y = by + ch
     for i, (sx, sz) in enumerate([(-1, -1), (1, -1), (-1, 1), (1, 1)]):
-        ms.append(member("post%d" % i, "stud", [ps, ch - ps, ps], [sx * cx, by + (ch - ps) * 0.5, sz * cz], look=WALNUT))
+        ms.append(member("post%d" % i, "stud", [ps, ch - ps, ps], [sx * cx, by + (ch - ps) * 0.5, sz * cz], look=OAK))
     for s_, name in ((-1, "b"), (1, "f")):
-        ms.append(member("rail_" + name, "cripple", [cx * 2 + ps, ps, ps], [0, top_y - ps * 0.5, s_ * cz], look=WALNUT))
+        ms.append(member("rail_" + name, "cripple", [cx * 2 + ps, ps, ps], [0, top_y - ps * 0.5, s_ * cz], look=OAK))
     for s_, name in ((-1, "l"), (1, "r")):
-        ms.append(member("rail_" + name, "cripple", [ps, ps, cz * 2 - ps], [s_ * cx, top_y - ps * 0.5, 0], look=WALNUT))
+        ms.append(member("rail_" + name, "cripple", [ps, ps, cz * 2 - ps], [s_ * cx, top_y - ps * 0.5, 0], look=OAK))
     glass = "glass:clear"
     ph = ch - ps
     for s_, name in ((-1, "back"), (1, "front")):
@@ -510,14 +518,14 @@ def scales():
         ms.append(member("pan_" + name, "trim", [p["wire"], hang, p["wire"]], [s_ * lx * 0.5, p["y"] + hang * 0.5, -0.02], wood="iron",
                          look="pbr:scales", draw=mesh("scales", "Pan" + name.upper())))
     return {
-        "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): a walnut base with a drawer for the weights (its brass knob), a glazed walnut case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Walnut from the material library (F2 a few years, the doctor's; the period's cases were mahogany or walnut); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
-        "id": "scales", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): an oak base with a drawer for the weights (its brass knob), a glazed oak case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Oak from the material library (a few years, the doctor's; the period's cases were mahogany or oak); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
+        "id": "scales", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.4, "blow_wood_share": 0.5,
         "members": ms,
     }
 
 
-# --- His desk: a walnut roll-top --------------------------------------------------------------------
+# --- His desk: an oak roll-top --------------------------------------------------------------------
 # A roll-top desk of the 1880s (the patent roll-tops of Cutler and others: the room's spec gives him
 # one): two pedestals of four drawers either side of the knee hole, a writing bed across them, and
 # over its back the roll-top's case: S-curved sides (library boards cut to the curve), a back, a top,
@@ -588,18 +596,18 @@ def roll_top_desk():
         cx = s_ * (W * 0.5 - pw * 0.5)
         for k, sx in enumerate((-1, 1)):
             x = cx + sx * (pw * 0.5 - t * 0.5)
-            ms.append(member("ped_%s_side%d" % (name, k), "post", [t, under, D - 0.02], [x, under * 0.5, -0.01], look=WALNUT))
-        ms.append(member("ped_%s_back" % name, "furniture_frame", [pw - t * 2, under - 0.02, t], [cx, under * 0.5 + 0.01, zb + t * 0.5], look=WALNUT))
-        ms.append(member("ped_%s_plinth" % name, "furniture_frame", [pw - t * 2, d["plinth"], t], [cx, d["plinth"] * 0.5, D * 0.5 - 0.02 - t * 0.5], look=WALNUT))
+            ms.append(member("ped_%s_side%d" % (name, k), "post", [t, under, D - 0.02], [x, under * 0.5, -0.01], look=OAK))
+        ms.append(member("ped_%s_back" % name, "furniture_frame", [pw - t * 2, under - 0.02, t], [cx, under * 0.5 + 0.01, zb + t * 0.5], look=OAK))
+        ms.append(member("ped_%s_plinth" % name, "furniture_frame", [pw - t * 2, d["plinth"], t], [cx, d["plinth"] * 0.5, D * 0.5 - 0.02 - t * 0.5], look=OAK))
     for did, (w, h), (x, y, z) in desk_drawers():
-        m = member(did, "trim", [w, h, 0.02], [x, y, z], look=WALNUT)
+        m = member(did, "trim", [w, h, 0.02], [x, y, z], look=OAK_FRONT)
         m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Pull_" + did)}]
         ms.append(m)
     # The writing bed, its boards front to back, worn where his arms rest.
     nb = 3
     bw = D / nb
     for k in range(nb):
-        bed = member("bed%d" % k, "furniture_top", [W, d["board"], bw], [0, d["bed"] - d["board"] * 0.5, -D * 0.5 + bw * (k + 0.5)], look=WALNUT_TOP)
+        bed = member("bed%d" % k, "furniture_top", [W, d["board"], bw], [0, d["bed"] - d["board"] * 0.5, -D * 0.5 + bw * (k + 0.5)], look=OAK_TOP)
         if k == 1:
             # His blotter and inkstand on it (drawn on the bed: they go where it goes).
             bed["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", n)} for n in ("Blotter", "Inkstand", "Inkwells")]
@@ -613,11 +621,11 @@ def roll_top_desk():
     outline = [(z0 - cz, y0 - cy)] + [(z - cz, y - cy) for z, y in curve] + [(z0 - cz, y1 - cy)]
     outline = [(round(a, 4), round(b, 4)) for a, b in reversed(outline)]
     for s_, name in ((-1, "l"), (1, "r")):
-        ms.append(member("case_side_" + name, "trim", [t, y1 - y0, z1 - z0], [s_ * (W * 0.5 - t * 0.5), cy, cz], look=WALNUT,
+        ms.append(member("case_side_" + name, "trim", [t, y1 - y0, z1 - z0], [s_ * (W * 0.5 - t * 0.5), cy, cz], look=OAK,
                          draw={"shape": "cut", "outline": [list(p) for p in outline], "plane": "zy"}))
-    ms.append(member("case_back", "trim", [W - t * 2, y1 - y0, t], [0, cy, zb + t * 0.5], look=WALNUT))
+    ms.append(member("case_back", "trim", [W - t * 2, y1 - y0, t], [0, cy, zb + t * 0.5], look=OAK))
     top_d = d["case_depth"] + 0.02
-    ms.append(member("case_top", "trim", [W, d["board"], top_d], [0, d["top"] - d["board"] * 0.5, zb + top_d * 0.5 - 0.005], look=WALNUT_TOP))
+    ms.append(member("case_top", "trim", [W, d["board"], top_d], [0, d["top"] - d["board"] * 0.5, zb + top_d * 0.5 - 0.005], look=OAK_TOP))
     # (The tambour is rolled up out of sight behind the case's front, under its top.)
     # Inside: the pigeonholes' shelf and partitions over a row of small drawers.
     inner = W - t * 2
@@ -628,8 +636,8 @@ def roll_top_desk():
     sh = 0.016  # (thicker than the support graph's contact reach, 12 mm: a thinner board stacked on its own kind isn't "on" it)
     lo = py0 - sh - d["bed"]
     for k, x in enumerate((-inner * 0.5 + 0.005, 0.0, inner * 0.5 - 0.005)):
-        ms.append(member("drawer_case_%d" % k, "trim", [0.010, lo, pd], [x, d["bed"] + lo * 0.5, pz], look=WALNUT))
-    shelf = member("pigeon_shelf", "trim", [inner, sh, pd], [0, py0 - sh * 0.5, pz], look=WALNUT)
+        ms.append(member("drawer_case_%d" % k, "trim", [0.010, lo, pd], [x, d["bed"] + lo * 0.5, pz], look=OAK_FRONT))
+    shelf = member("pigeon_shelf", "trim", [inner, sh, pd], [0, py0 - sh * 0.5, pz], look=OAK)
     # His papers in the pigeonholes: letters, bills, a ledger (drawn on the shelf; they burn with it).
     shelf["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Papers")}]
     ms.append(shelf)
@@ -637,23 +645,23 @@ def roll_top_desk():
         x = -inner * 0.5 + 0.006 + (inner - 0.012) * k / d["pigeons"]
         if k in (0, d["pigeons"]):
             continue
-        ms.append(member("pigeon_%d" % k, "trim", [0.010, py1 - py0, pd], [x, (py0 + py1) * 0.5, pz], look=WALNUT))
-    ms.append(member("pigeon_top", "trim", [inner, sh, pd], [0, py1 + sh * 0.5, pz], look=WALNUT))
+        ms.append(member("pigeon_%d" % k, "trim", [0.010, py1 - py0, pd], [x, (py0 + py1) * 0.5, pz], look=OAK))
+    ms.append(member("pigeon_top", "trim", [inner, sh, pd], [0, py1 + sh * 0.5, pz], look=OAK))
     for did, (w, h), (x, y, z) in desk_small_drawers():
-        m = member(did, "trim", [w, h, 0.012], [x, y, z], look=WALNUT)
+        m = member(did, "trim", [w, h, 0.012], [x, y, z], look=OAK_FRONT)
         m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Pull_" + did)}]
         ms.append(m)
     return {
-        "_doc": "His desk (#805; refs experiments/prop_lab/refs/doctor/): a walnut roll-top of the 1880s (the doctor's spec gives him one), 1.4 m wide, 0.8 deep: two pedestals of four drawers either side of the knee hole (a shallow drawer over it), a writing bed of three boards across them, and on its back the roll-top's case: S-curved sides (library boards cut to the curve, PropKit.lib_cut_mesh), a back, a top, the tambour rolled up out of sight under its top, eight pigeonholes over a row of six small drawers. Brass pulls baked the gun way (tools/blender/props/doctor_d2.py). Walnut from the material library (F2 a few years: the bed and top worn where his arms go). ~85 kg. Its front, where he sits, toward +z. A ball through a pedestal's side holes it and it stands. Written by tools/props/doctor.py.",
-        "id": "roll_top_desk", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "_doc": "His desk (#805; refs experiments/prop_lab/refs/doctor/): an oak roll-top of the 1880s (the doctor's spec gives him one), 1.4 m wide, 0.8 deep: two pedestals of four drawers either side of the knee hole (a shallow drawer over it), a writing bed of three boards across them, and on its back the roll-top's case: S-curved sides (library boards cut to the curve, PropKit.lib_cut_mesh), a back, a top, the tambour rolled up out of sight under its top, eight pigeonholes over a row of six small drawers. Brass pulls baked the gun way (tools/blender/props/doctor_d2.py). Oak from the material library (a few years: the bed and top worn where his arms go). ~85 kg. Its front, where he sits, toward +z. The room's good piece: it wants walnut once the library's `furniture_walnut` passes. A ball through a pedestal's side holes it and it stands. Written by tools/props/doctor.py.",
+        "id": "roll_top_desk", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "members": ms,
     }
 
 
-# --- The dispensary's counter and shelves: the kit's own, in his walnut ----------------------------
+# --- The dispensary's counter and shelves: the kit's own, in his painted pine ----------------------------
 # The kit's counter and shelves (assets/props/kit/counter.json, shelves.json) `like`d in the material
-# library's walnut, the shelves with seven boards (a druggist's shelving runs to the ceiling, its
+# library's painted pine, the shelves with seven boards (a druggist's shelving runs to the ceiling, its
 # boards a bottle's height apart: 0.35 m).
 SHELVES = {"depth": 0.30, "height": 2.62, "length": 2.0, "boards": [0.12, 0.42, 0.72, 1.02, 1.32, 1.62, 1.92, 2.22, 2.52], "board": 0.025}
 
@@ -663,17 +671,17 @@ def dispensary_shelves():
     L = c["length"]
     ms = []
     for s_, name in ((-1, "l"), (1, "r")):
-        ms.append(member("upright_" + name, "post", [c["depth"], c["height"], 0.03], [0, c["height"] * 0.5, s_ * (L * 0.5 - 0.015)], look=WALNUT))
+        ms.append(member("upright_" + name, "post", [c["depth"], c["height"], 0.03], [0, c["height"] * 0.5, s_ * (L * 0.5 - 0.015)], look=PINE))
     for k, y in enumerate(c["boards"]):
-        ms.append(member("shelf%d" % k, "furniture_top", [c["depth"], c["board"], L - 0.06], [0, y, 0], look=WALNUT_TOP))
+        ms.append(member("shelf%d" % k, "furniture_top", [c["depth"], c["board"], L - 0.06], [0, y, 0], look=PINE_TOP))
     # A cornice over the front (round 2's critic: a plain bookcase): a deep board on the uprights.
-    ms.append(member("cornice", "trim", [c["depth"] + 0.05, 0.09, L + 0.06], [0.025, c["height"] + 0.045, 0], look=WALNUT))
+    ms.append(member("cornice", "trim", [c["depth"] + 0.05, 0.09, L + 0.06], [0.025, c["height"] + 0.045, 0], look=PINE))
     # A back of boards behind them (the shelving's own: the bottles stand against it, not the wall's).
-    ms.append(member("back", "furniture_frame", [0.012, c["height"] - 0.1, L - 0.06], [-c["depth"] * 0.5 + 0.006, c["height"] * 0.5, 0], look=WALNUT))
+    ms.append(member("back", "furniture_frame", [0.012, c["height"] - 0.1, L - 0.06], [-c["depth"] * 0.5 + 0.006, c["height"] * 0.5, 0], look=PINE))
     return {
-        "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's walnut from the material library (F2 a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
-        "id": "dispensary_shelves", "like": "shelves", "fixture": True, "in_game": False, "wood": "walnut",
-        "look": WALNUT, "members": ms,
+        "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's painted pine from the material library (a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
+        "id": "dispensary_shelves", "like": "shelves", "fixture": True, "in_game": False, "wood": "weathered_pine",
+        "look": PINE, "members": ms,
     }
 
 
@@ -703,19 +711,19 @@ def dispensary_counter():
     L, H, D, t = c["length"], c["height"], c["depth"], c["panel"]
     under = H - c["top"]
     zf = -D * 0.5 + 0.075  # the front's inside face sits under the top's overhang
-    ms = [member("front", "post", [L, under, t], [0, under * 0.5, zf - t * 0.5], look=WALNUT)]
+    ms = [member("front", "post", [L, under, t], [0, under * 0.5, zf - t * 0.5], look=PINE)]
     for s_, name in ((-1, "l"), (1, "r")):
-        ms.append(member("end_" + name, "post", [t, under, D - 0.075 - t], [s_ * (L * 0.5 - t * 0.5), under * 0.5, (zf + D * 0.5) * 0.5], look=WALNUT))
-    ms.append(member("plinth", "furniture_frame", [L - t * 2, c["plinth"], 0.02], [0, c["plinth"] * 0.5, zf - t - 0.01], look=WALNUT))
+        ms.append(member("end_" + name, "post", [t, under, D - 0.075 - t], [s_ * (L * 0.5 - t * 0.5), under * 0.5, (zf + D * 0.5) * 0.5], look=PINE))
+    ms.append(member("plinth", "furniture_frame", [L - t * 2, c["plinth"], 0.02], [0, c["plinth"] * 0.5, zf - t - 0.01], look=PINE))
     for did, (w, h), (x, y, z) in counter_drawers():
-        m = member(did, "trim", [w, h, 0.018], [x, y, z], look=WALNUT)
+        m = member(did, "trim", [w, h, 0.018], [x, y, z], look=PINE_FRONT)
         m["dress"] = [{"look": "pbr:desk_brass", "draw": mesh("desk_brass", "Knob_" + did)}]
         ms.append(m)
-    ms.append(member("top", "furniture_top", [L, c["top"], D], [0, H - c["top"] * 0.5, 0], look=WALNUT_TOP))
+    ms.append(member("top", "furniture_top", [L, c["top"], D], [0, H - c["top"] * 0.5, 0], look=PINE_TOP))
     return {
-        "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: a front and two ends under a top overhanging the front) at 2.3 m, its front faced with three rows of eight small drawers for roots and powders, each with a turned brass knob (the period's dispensing counters, the target panel's dispensary; round 1's critic called the plain one a blank box). In the doctor's walnut from the material library (F2 a few years, the top worn where he works); the knobs baked the gun way (glb:desk_brass). Along the west wall at his make_up place, the scales and mortar on it. Its front (the drawers) toward -z. Written by tools/props/doctor.py.",
-        "id": "dispensary_counter", "like": "counter", "fixture": True, "in_game": False, "wood": "walnut",
-        "look": WALNUT, "members": ms,
+        "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: a front and two ends under a top overhanging the front) at 2.3 m, its front faced with three rows of eight small drawers for roots and powders, each with a turned brass knob (the period's dispensing counters, the target panel's dispensary; round 1's critic called the plain one a blank box). In the doctor's painted pine from the material library (a few years, the top worn where he works); the knobs baked the gun way (glb:desk_brass). Along the west wall at his make_up place, the scales and mortar on it. Its front (the drawers) toward -z. Written by tools/props/doctor.py.",
+        "id": "dispensary_counter", "like": "counter", "fixture": True, "in_game": False, "wood": "weathered_pine",
+        "look": PINE, "members": ms,
     }
 
 
@@ -847,7 +855,7 @@ def book_stack():
 
 
 # --- His bookcase -----------------------------------------------------------------------------------
-# A plain open walnut bookcase, chest high (the country office's: Cathell 1882 wants the doctor's
+# A plain open oak bookcase, chest high (the country office's: Cathell 1882 wants the doctor's
 # books "in sight"): two sides, four shelves, a boarded back, a top overhanging, a plinth. The shelves'
 # tops (for what stands on them) in `shelf_tops()`. Its front toward +z.
 BOOKCASE = {"width": 0.64, "depth": 0.27, "height": 1.38, "side": 0.022, "board": 0.02, "top": 0.024,
@@ -864,22 +872,22 @@ def bookcase():
     under = H - c["top"]
     ms = []
     for s_, name in ((-1, "l"), (1, "r")):
-        ms.append(member("side_" + name, "post", [t, under, D], [s_ * (W * 0.5 - t * 0.5), under * 0.5, 0], look=WALNUT))
+        ms.append(member("side_" + name, "post", [t, under, D], [s_ * (W * 0.5 - t * 0.5), under * 0.5, 0], look=OAK))
     for k, y in enumerate(c["shelves"]):
-        ms.append(member("shelf%d" % k, "furniture_top", [W - t * 2, c["board"], D - 0.014], [0, y, 0.007], look=WALNUT_TOP))
-    ms.append(member("back", "furniture_frame", [W - t * 2, under - 0.04, 0.012], [0, under * 0.5 + 0.02, -D * 0.5 + 0.006], look=WALNUT))
-    ms.append(member("plinth", "furniture_frame", [W - t * 2, c["plinth"], 0.018], [0, c["plinth"] * 0.5, D * 0.5 - 0.02], look=WALNUT))
-    ms.append(member("top", "trim", [W + 0.04, c["top"], D + 0.025], [0, H - c["top"] * 0.5, 0.0075], look=WALNUT_TOP))
+        ms.append(member("shelf%d" % k, "furniture_top", [W - t * 2, c["board"], D - 0.014], [0, y, 0.007], look=OAK_TOP))
+    ms.append(member("back", "furniture_frame", [W - t * 2, under - 0.04, 0.012], [0, under * 0.5 + 0.02, -D * 0.5 + 0.006], look=OAK))
+    ms.append(member("plinth", "furniture_frame", [W - t * 2, c["plinth"], 0.018], [0, c["plinth"] * 0.5, D * 0.5 - 0.02], look=OAK))
+    ms.append(member("top", "trim", [W + 0.04, c["top"], D + 0.025], [0, H - c["top"] * 0.5, 0.0075], look=OAK_TOP))
     return {
-        "_doc": "His bookcase (#819): a plain open walnut bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Walnut from the material library (F2 a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
-        "id": "bookcase", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut",
+        "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
+        "id": "bookcase", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "members": ms,
     }
 
 
 # --- The hall's pegs, his coat and hat --------------------------------------------------------------
-# A peg rail (the spec's hall: "his bag and coat on pegs"): a walnut board nailed to the wall at
+# A peg rail (the spec's hall: "his bag and coat on pegs"): a painted pine board nailed to the wall at
 # 1.65 m with five turned pegs, his black frock coat hung by its loop on one and his hat on another.
 # The wall's face at z = 0, the pegs toward +z; the origin at the rail's middle. The coat's member is
 # what hangs under its own peg (19 cm: the drawn coat's shoulders lie over the pegs either side, and
@@ -897,7 +905,7 @@ def peg_xs():
 def coat_pegs():
     p = PEGS
     t = p["thick"]
-    ms = [member("rail", "post", [p["length"], p["height"], t], [0, 0, t * 0.5], look=WALNUT)]
+    ms = [member("rail", "post", [p["length"], p["height"], t], [0, 0, t * 0.5], look=PINE)]
     xs = peg_xs()
     look = "pbr:coat_pegs"
     for k, x in enumerate(xs):
@@ -905,17 +913,17 @@ def coat_pegs():
                          wood="oak", look=look, draw=mesh("coat_pegs", "Peg%d" % k)))
     cw, ch, cd = p["coat"]["size"]
     cx = xs[p["coat"]["peg"]]
-    coat = member("coat", "trim", [cw, ch, cd], [cx, 0.012 - ch * 0.5, t + 0.012 + cd * 0.5], wood="canvas", look=look, draw=mesh("coat_pegs", "Coat"))
+    coat = member("coat", "trim", [cw, ch, cd], [cx, 0.012 - ch * 0.5, t + 0.03 + cd * 0.5], wood="canvas", look=look, draw=mesh("coat_pegs", "Coat"))
     coat["dress"] = [{"look": look, "draw": mesh("coat_pegs", "CoatButtons")}]
     ms.append(coat)
     h = p["hat"]
     hx = xs[h["peg"]]
-    hat = member("hat", "trim", [h["brim"] * 2, h["brim"] * 2, 0.13], [hx, -0.045, t + 0.012 + 0.065], wood="canvas", look=look, draw=mesh("coat_pegs", "Hat"))
+    hat = member("hat", "trim", [h["brim"] * 2, h["brim"] * 2, 0.11], [hx, -0.045, t + 0.03 + 0.055], wood="canvas", look=look, draw=mesh("coat_pegs", "Hat"))
     hat["dress"] = [{"look": look, "draw": mesh("coat_pegs", "HatBand")}]
     ms.append(hat)
     return {
-        "_doc": "The hall's pegs (#819; the doctor's spec: 'his bag and coat on pegs'; refs experiments/prop_lab/refs/doctor/): a walnut rail 0.98 m long nailed to the wall through two nails, five turned hardwood pegs in it, his black broadcloth frock coat hung by its loop on the second and his black felt hat on the fourth. Hung (KitProp `hangs`): it holds while a nail's still in the wall and falls when its board goes; a peg shot off drops what's on it; the coat and hat burn (wood `canvas`). The rail from the material library (F2 walnut, a few years); the pegs, coat and hat baked the gun way (tools/blender/props/doctor_d3.py). The wall's face at z = 0, the pegs toward +z, the rail's middle the origin (hang it at ~1.65 m). Written by tools/props/doctor.py.",
-        "id": "coat_pegs", "kind": "members", "fixture": True, "in_game": False, "wood": "walnut", "drawn_bounds": True,
+        "_doc": "The hall's pegs (#819; the doctor's spec: 'his bag and coat on pegs'; refs experiments/prop_lab/refs/doctor/): a painted pine rail 0.98 m long nailed to the wall through two nails, five turned hardwood pegs in it, his black broadcloth frock coat hung by its loop on the second and his black felt hat on the fourth. Hung (KitProp `hangs`): it holds while a nail's still in the wall and falls when its board goes; a peg shot off drops what's on it; the coat and hat burn (wood `canvas`). The rail from the material library (a few years); the pegs, coat and hat baked the gun way (tools/blender/props/doctor_d3.py). The wall's face at z = 0, the pegs toward +z, the rail's middle the origin (hang it at ~1.65 m). Written by tools/props/doctor.py.",
+        "id": "coat_pegs", "kind": "members", "fixture": True, "in_game": False, "wood": "weathered_pine", "drawn_bounds": True,
         "splits_below": 0.4, "blow_wood_share": 0.5,
         "hangs": {"nails": [r([-p["length"] * 0.5 + 0.06, 0.0, 0.004]), r([p["length"] * 0.5 - 0.06, 0.0, 0.004])]},
         "members": ms,

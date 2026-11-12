@@ -1,10 +1,10 @@
 {
-  "_doc": "His bookcase (#819): a plain open walnut bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Walnut from the material library (F2 a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at 0.10, 0.45, 0.77, 1.08 m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py.",
+  "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at 0.10, 0.45, 0.77, 1.08 m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py.",
   "id": "bookcase",
   "kind": "members",
   "fixture": true,
   "in_game": false,
-  "wood": "walnut",
+  "wood": "oak",
   "splits_below": 0.3,
   "blow_wood_share": 0.5,
   "members": [
@@ -21,7 +21,7 @@
         0.678,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "side_r",
@@ -36,7 +36,7 @@
         0.678,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf0",
@@ -51,7 +51,7 @@
         0.09,
         0.007
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "shelf1",
@@ -66,7 +66,7 @@
         0.44,
         0.007
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "shelf2",
@@ -81,7 +81,7 @@
         0.76,
         0.007
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "shelf3",
@@ -96,7 +96,7 @@
         1.07,
         0.007
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "back",
@@ -111,7 +111,7 @@
         0.698,
         -0.129
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "plinth",
@@ -126,7 +126,7 @@
         0.04,
         0.115
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "top",
@@ -141,7 +141,7 @@
         1.368,
         0.0075
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     }
   ],
   "factory": "tools/props/doctor.py"
