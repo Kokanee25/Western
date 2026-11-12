@@ -96,6 +96,20 @@ changes; results in `../results/2026-11-10_fiddle/`.
   seeded by its name. Alone the bones and tambourine sit at -23 to -26 LUFS (short strikes in
   silence, not limited); the band at -19 to -20.
 
+## The harmonica
+
+- `harmonica.py`: a ten-hole diatonic in Richter tuning (Hohner's, from 1857), its key from the tune's
+  last note (Red River Valley a G harp, Oh! Susanna a D). A free reed chops the breath: the flow is the
+  slot's opening (only the clearance while the reed is in it, a gap growing as it swings out, its tapered
+  tip uncovering it gradually) times the breath's speed, and we hear the flow's rate of change; the reed
+  grows from rest, faster when the breath already flows; the blow chord tuned just. The part: melody
+  single-note (tongue blocked), slaps now and then, a soft chord and the hand tremolo on long notes,
+  slides over the holes between on one breath, bends for missing low notes.
+  Measured against Jenkins and Jenkins' "Mouth Organ Blues" (1924, fetch.sh): the dip at a change of
+  note (his -1.7 dB; ours was -9 to -11, a hole as one reed stopped and the next started from rest; now
+  -1.8 to -2.5) and the way a note comes in (his ~3 cents flat; ours was 15 sharp from the reed's second
+  mode; now -1 to -4). Left: held notes waver 4-7 cents to his 1.6 (`../results/2026-11-10_fiddle/harmonica/`).
+
 ## Commands
 
 ```sh
@@ -104,6 +118,7 @@ python3 experiments/sound_lab/fiddle/tune.py                # the note data (alr
 python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--part=OUT.json]   # the banjo alone
 python3 experiments/sound_lab/fiddle/duet.py turkey_in_the_straw.json   # fiddle and banjo
 python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json   # with bones and tambourine too
+python3 experiments/sound_lab/fiddle/harmonica.py red_river_valley.json  # the harmonica
 python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json  # any ABC tune
 python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~80 min the 8 game runs (one at a time)
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png

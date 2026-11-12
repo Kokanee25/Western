@@ -17,6 +17,12 @@ if [ ! -s "$B/ref/macon_goat.flac" ]; then
   curl -fsSL -o "$B/ref/macon_goat.flac" \
     "https://dn801308.us.archive.org/0/items/78_papas-billie-goat_uncle-dave-macon-macon_gbia0237943b/PAPA%27S%20BILLIE%20GOAT%20-%20Uncle%20Dave%20Macon%20-%20Macon.flac"
 fi
+# the harmonica's reference (measured against, never shipped): Jenkins and Jenkins, "Mouth Organ
+# Blues" (3 October 1924; US recordings of 1924 public domain since 2025); needs dn601306.us.archive.org
+if [ ! -s "$B/ref/jenkins_mouth_organ.flac" ]; then
+  curl -fsSL -o "$B/ref/jenkins_mouth_organ.flac" \
+    "https://dn601306.us.archive.org/0/items/JenkinsAndJenkinsMouthOrganBlues1924/Jenkins_and_Jenkins-Mouth_Organ_Blues-1924.flac"
+fi
 if [ ! -d "$B/vsco/repo/.git" ]; then
   GIT_LFS_SKIP_SMUDGE=1 git clone -q --filter=blob:none --no-checkout https://github.com/sgossner/VSCO-2-CE "$B/vsco/repo"
 fi
