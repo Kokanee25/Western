@@ -5,6 +5,7 @@ band: the fiddle on top, the banjo just under it, the bones and tambourine in th
 
     python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json [--out=...wav]
         [--with=banjo,bones,tambourine] (who plays with the fiddle)
+    --strings=gut|steel (the banjo's strings)
 """
 import json
 import os
@@ -49,9 +50,10 @@ def main():
     opt = {a.split("=")[0][2:]: a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--") and "=" in a}
     src = args[0] if os.path.isabs(args[0]) else os.path.join(HERE, args[0])
     sc = json.load(open(src))
+    banjo.strings(opt.get("strings", "gut"))
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
-    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band.wav"))
+    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]) + ".wav"))
     y = render(sc, who)
     common.write_wav(out, y)
     print(f"{out}: {sc['tune']}, fiddle with {', '.join(who)}, {len(y) / common.SR:.1f} s, peak {np.max(np.abs(y)):.2f}")

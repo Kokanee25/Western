@@ -4,6 +4,7 @@ own model, from the same note data. Written fresh from the physics, no copied co
 
     python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--out=build/.../turkey_banjo.wav]
         [--part=OUT.json] (the banjo's own note data: what his hands do)
+        [--strings=gut|steel] (gut, the default: the period's; steel: from the 1890s, Macon's)
 
 **The instrument:** an 1870s-80s five-string banjo: gut strings, a calfskin head on an open-backed
 pot, the short fifth string a drone the thumb plays. It's tuned to the tune's key the way old-time
@@ -263,7 +264,7 @@ def head_ir(sr, seed=1866, length=0.18):
     damped), a dense set above under a broad 1-3 kHz rise, and the open back's air low down."""
     rng = np.random.default_rng(seed)
     t = np.arange(int(length * sr)) / sr
-    f01 = 260.0
+    f01 = HEAD_F01
     ratios = [1.0, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501, 3.600, 3.652, 4.060, 4.154, 4.601]
     modes = [(150.0, 6.0, 0.35)]  # the pot's air
     for k, r in enumerate(ratios):
@@ -286,10 +287,29 @@ def head_ir(sr, seed=1866, length=0.18):
 
 def t60(f):
     """A gut banjo string's ring: ~2 s low, about one up high (the head drinks it)."""
-    return 1.9 * (147.0 / f) ** 0.5
+    return T60_LOW * (147.0 / f) ** 0.5
 
 
 T60_HIGH = 0.25     # s: how long a partial near 2 kHz rings (the "pl" of the plunk goes at once)
+T60_LOW = 1.9       # s: the note's own ring at D3 (t60 scales it by pitch)
+HEAD_F01 = 260.0    # Hz: the head's first mode (its tension)
+
+# The strings (Sean, 2026-11-12: "can I hear the clawhammer version", the steel-strung one):
+# gut, the 1870s-80s banjo's (dull, short: the default); steel, as from the 1890s on and on Uncle
+# Dave Macon's records (thin steel loses its highs far slower, rings longer, takes a harder nail; the
+# head pulled tighter to stand the tension). Same hand, same part, same model.
+STRINGS = {
+    "gut": {"T60_LOW": 1.9, "T60_HIGH": 0.25, "NAIL_W": 0.00025, "HEAD_F01": 260.0, "HEAD_RISE": 2200.0},
+    "steel": {"T60_LOW": 3.0, "T60_HIGH": 0.7, "NAIL_W": 0.00018, "HEAD_F01": 300.0, "HEAD_RISE": 2800.0},
+}
+
+
+def strings(kind="gut"):
+    """Strings the banjo with gut or steel (sets the module's dials)."""
+    g = globals()
+    for k, v in STRINGS[kind].items():
+        g[k] = v
+    return kind
 F_HIGH = 2000.0
 
 
@@ -389,11 +409,13 @@ def main():
     opt = {a.split("=")[0][2:]: a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--") and "=" in a}
     src = args[0] if os.path.isabs(args[0]) else os.path.join(HERE, args[0])
     sc = json.load(open(src))
+    strings(opt.get("strings", "gut"))
     part = arrange(sc)
     if "part" in opt:
         json.dump(part, open(opt["part"], "w"), indent=1)
     name = os.path.splitext(os.path.basename(src))[0]
-    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_banjo.wav"))
+    suffix = "" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]
+    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_banjo{suffix}.wav"))
     y = render(part)
     common.write_wav(out, common.normalise(y))
     kinds = {}

@@ -5,6 +5,7 @@ Written as one sound, the way the game would place them: two men side by side on
 
     python3 experiments/sound_lab/fiddle/duet.py turkey_in_the_straw.json [--out=...wav]
         [--banjo-db=-2.5] (the banjo's loudness against the fiddle's)
+    --strings=gut|steel (the banjo's strings)
 """
 import json
 import os
@@ -36,9 +37,10 @@ def main():
     opt = {a.split("=")[0][2:]: a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--") and "=" in a}
     src = args[0] if os.path.isabs(args[0]) else os.path.join(HERE, args[0])
     sc = json.load(open(src))
+    banjo.strings(opt.get("strings", "gut"))
     name = os.path.splitext(os.path.basename(src))[0]
     y, part = render(sc, float(opt.get("banjo-db", -2.5)))
-    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_duet.wav"))
+    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_duet" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]) + ".wav"))
     common.write_wav(out, y)
     print(f"{out}: {sc['tune']}, fiddle and banjo (in {part['key']}), {len(y) / common.SR:.1f} s")
 

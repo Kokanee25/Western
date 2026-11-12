@@ -67,6 +67,11 @@ changes; results in `../results/2026-11-10_fiddle/`.
   and the nail landing no longer mutes the old note dead. Single strikes: early / late decay 4.7 (take
   1: 1.3); every struck note within 30 cents. Spectrogram beside his:
   `../results/2026-11-10_fiddle/banjo/spectrogram_macon_vs_take3.png`.
+  Strings (Sean, 2026-11-12): `--strings=gut` (the default, the period's: take 3 unchanged, byte for
+  byte) or `steel` (`STRINGS`: from the 1890s on, Macon's: the highs ring 0.7 s, the note longer, a
+  harder nail, the head tighter; centroid 1.7 kHz to gut's 1.1, above 4 kHz 8 dB more); duet.py and
+  band.py take it too. In the band the bones clack on the banjo's own beats and the tambourine is
+  two thirds of everything above 5 kHz: the banjo's strike reads differently there.
 - `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
 
 ## The bones and tambourine (the minstrel band)

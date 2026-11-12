@@ -180,3 +180,6 @@ Take 3 (after "still kinda digital"): measured against Uncle Dave Macon's 1924 "
 `band/`: the bones and the tambourine alone (Turkey in the Straw) and the band (fiddle, banjo, bones,
 tambourine) on Turkey in the Straw and Devil's Dream; plain takes. `turkey_in_the_straw/`: the fiddle
 alone at the game's distances (heard: close -18.9, floor -37.7, porch -47.1, across -56.9 LUFS).
+
+Steel strings (`banjo/turkey_*_steel.mp3`): the same banjo and part strung with steel, alone, with the
+fiddle and in the band (Turkey in the Straw).
