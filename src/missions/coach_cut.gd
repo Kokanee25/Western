@@ -9,11 +9,14 @@ extends Node3D
 ## (CoachDrive.ground), four guards inside and the driver and messenger on the box. Shoot the pin as it
 ## comes (from the high spot on the bank, 14 m off the road and ~8 m from the pin) and the log meets
 ## its upper plates at the bottom of its swing: over it goes, dented.
-## Rough: the guards are seated outlaws with no brains or guns yet, nothing follows the hit.
+## After the hit (#815): CoachFight, the guards out of the wreck fighting and the strongbox taken;
+## won up the rimrock trail with the papers or the box, lost and Enter tries again from the high spot.
 ## `-- --world=valley --mission=coach` (you at the high spot, the coach `start_back` down the road),
 ## or the coach heist lab's bridge `ch_cut` (experiments/coach_heist/).
 
 const START_ARG := "--mission=coach"
+## Enter after a try (CoachFight.retry): the valley starts it again on its next load.
+static var start_on_load := false
 const CUT := "coach_cut"
 const ROAD := "south_road"
 ## The coach's near plates' outer face from its middle (m), and the gap the log's face is hung off it.
@@ -35,6 +38,10 @@ var coach: KitProp
 var drive: CoachDrive
 var watch: DentWatch
 var riders: Array[HumanBody] = []
+## The fight after the hit (#815), made with the coach.
+var fight: CoachFight
+## The hit's seed (the guards' daze, nerve, who's hurt).
+@export var fight_seed := 815
 ## The cut's geometry (world): the road's middle at the cut, the coach's way along it (toward the
 ## Baron's) and the side the ram is held back on (up the south-west bank).
 var middle := Vector3.ZERO
@@ -97,7 +104,12 @@ func start_coach() -> void:
 	drive.ground = height_at
 	drive.start(coach)
 	drive.strikers.append(ram.log_body)
-	drive.handed_off.connect(func(_b: Array) -> void:
+	fight = CoachFight.new()
+	fight.cut = self
+	fight.seed_value = fight_seed
+	add_child(fight)
+	drive.handed_off.connect(func(b: Array) -> void:
+		fight.on_hit(b)
 		hit_at = t
 		var lg := ram.log_body
 		hit = {"speed": snappedf(lg.linear_velocity.length(), 0.01), "at": _arr(ram.to_local(lg.global_position)),
@@ -122,6 +134,8 @@ func place_player(player: Node3D) -> void:
 	var look := ram.pin_position() if ram else middle
 	look.y = at.y
 	player.global_transform = Transform3D(Basis.looking_at((look - at).normalized(), Vector3.UP), at)
+	if fight:
+		fight._say("The Baron's coach is coming up the grade. Shoot the pin as it comes under the log.", 8.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -156,6 +170,8 @@ func result() -> Dictionary:
 		out["coach_at"] = [snappedf(coach.global_position.x, 0.1), snappedf(coach.global_position.z, 0.1)]
 		var sb := coach.carried("strongbox")
 		out["strongbox_loose"] = sb.loose if sb else false
+	if fight:
+		out["fight"] = fight.result()
 	return out
 
 
@@ -230,7 +246,7 @@ func _seat_riders() -> void:
 		var man := HumanBody.new()
 		man.name = who.to_pascal_case() if who != "" else "Guard%d" % k
 		man.body_model = &"outlaw"
-		man.has_gun = false
+		man.has_gun = true
 		man.start_holstered = true
 		man.person_id = StringName(who if who != "" else "coach_guard_%d" % k)
 		man.rng_seed = 9400 + riders.size()
@@ -238,5 +254,6 @@ func _seat_riders() -> void:
 		var at := PropKit.vec(s.at)
 		drive.seat(man, at, at.y - 0.405 if who != "" else 1.105, float(s.get("yaw", NAN)))
 		riders.append(man)
+		fight.add_man(man, &"inside" if who == "" else &"box")
 		if who == "":
 			k += 1

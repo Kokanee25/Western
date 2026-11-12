@@ -62,6 +62,54 @@ extends Resource
 ## And once more this long after that, with the rubble down.
 @export var hole_settle := 2.5
 
+@export_group("Daylight (a spec building's rooms, #829)")
+## A building that names its openings and its light (a spec's `light`, RoomLight's `daylight`
+## rooms) has its windows light the room, not the wall under them: each window's sky spot sits at
+## day_window_height of the window up, aimed day_window_tilt degrees down from level, across the
+## room (its reach the distance to the far wall times day_window_reach_over, between the two
+## limits: the engine's range window, (1 - (d/reach)^4)^2, has a light at a fifth by 0.87 of its
+## reach, so the far wall needs about twice its distance), falling off with distance (the window
+## side bright, the far side dim). The sky through a
+## window is a big soft source low in the wall: its light runs across a room, not down it.
+@export var day_window_height := 0.6
+@export var day_window_tilt := 18.0
+## Or, over 0, aimed at the floor this share of the way to the far wall (a high window steeper, a
+## low one flatter: the sky comes down through a window onto the floor in front of it), its tilt
+## between day_window_tilt_min and day_window_tilt_max.
+@export var day_window_aim := 0.6
+## A daylight room's windows cast shadows by day (the desk's on the wall beside it; and a partition stops
+## a window's light, so it lights its own room, not the next: judge round 1 of #829, "no shadows,
+## nothing shows where the light comes from"). Doors don't (they stand open or shut).
+@export var day_window_shadows := true
+## And their colour: the sky's is opening_day_colour (pale blue: the rooms read a blue-grey wash
+## to the judge, round 1); a daylight room's windows take this, near white.
+@export var day_window_colour := Color(1.0, 0.97, 0.92)
+@export var day_window_tilt_min := 12.0
+@export var day_window_tilt_max := 50.0
+@export var day_window_spread := 62.0
+@export var day_window_attenuation := 1.4
+@export var day_window_angle_attenuation := 1.5
+@export var day_window_reach_over := 2.0
+@export var day_window_reach_min := 3.0
+@export var day_window_reach_max := 10.0
+## The sun through a window: where its rays land (a grid of sun_patch_rays x sun_patch_rays over
+## the window, each tested against the sun outside: a porch roof shades it) a soft spot faces
+## back into the room off the patch, the light the sunlit floor gives back (instant radiosity's
+## virtual point light, as the lamps' bounces). Its energy is the sun's x the window's area seen
+## by the sun x the share that gets in x the patch's lightness x sun_patch_gain (1/pi is a
+## Lambertian patch's; more is art's).
+@export var sun_patch_gain := 2.5
+@export var sun_patch_rays := 3
+@export var sun_patch_spread := 80.0
+@export var sun_patch_reach := 4.5
+@export var sun_patch_offset := 0.3
+@export var sun_patch_attenuation := 1.0
+@export var sun_patch_angle_attenuation := 1.0
+## How much of the patch's own hue its bounce takes (0 the sun's colour, 1 sun x surface).
+@export var sun_patch_tint := 0.5
+## Recast when the sun has moved this much (degrees).
+@export var sun_patch_degrees := 0.5
+
 @export_group("Haze")
 ## Room haze (fog density) a shot fired inside adds, and its half-life in seconds.
 @export var haze_per_shot := 0.004

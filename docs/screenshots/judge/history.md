@@ -456,3 +456,9 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-12_doctor_light_r2 | dispensary | **cheap indie** | 1, 2, 3, 6, 7, 9 | The window is a blank beige card | 49% / 1.1 / 1.77 / 0.21 |  |
 | 2026-11-12_doctor_light_r2 | window | **cheap indie** | 3, 5, 7, 9 | The world outside is an empty plane | 8% / 2.5 / 1.09 / 0.41 |  |
 | 2026-11-12_doctor_light_r2 | night | **good indie** | 3 | The floor reads as orange plastic | 43% / 0.1 / 1.78 / 0.11 |  |
+| doctor_daylight_r1 | desk | **cheap indie** | 1, 2, 3, 4, 6, 7 | Even grey fill, no light source | 20% / 1.9 / 1.21 / 0.18 | #829 low fill, windows across the room, sun bounce |
+| doctor_daylight_r1 | dispensary | **cheap indie** | 1, 2, 3, 4, 5, 6, 9 | The window is a blank beige card | 40% / 2.2 / 1.28 / 0.28 | #829 low fill, windows across the room, sun bounce |
+| doctor_daylight_r1 | window | **cheap indie** | 3, 4, 5, 7, 9 | Nothing outside the window | 6% / 3.7 / 1.09 / 0.37 | #829 low fill, windows across the room, sun bounce |
+| doctor_daylight_r2 | desk_N | **cheap indie** | 2, 3, 4, 7 | Painted, toy-like finish | 23% / 1.2 / 1.08 / 0.16 | #829 + window shadows by day, warm |
+| doctor_daylight_r2 | dispensary_N | **cheap indie** | 1, 2, 3, 4, 6, 9 | Dead window | 49% / 1.0 / 1.30 / 0.27 | #829 + window shadows by day, warm |
+| doctor_daylight_r2 | window_N | **cheap indie** | 3, 4, 5, 7, 9 | Hanging porch post | 6% / 3.8 / 1.02 / 0.35 | #829 + window shadows by day, warm |

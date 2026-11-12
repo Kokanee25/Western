@@ -1,5 +1,5 @@
 {
- "note": "The material library (#701, docs/briefs/material-library.md): MaterialLibrary reads it, SamplePanel shows each entry new / a few years / old in the material lab (tools/material_lab.gd --panels=CLASS). `approved` lists the ages passed: Sean's, or since #721 (Sean, 2026-11-10) the materials judge's 'game' or better with no tile tell (the woods' passes are in the 2026-11-10 pick sheet, not yet here). Paint entries (family `paint`, #721's paint round) lie `over` a wood entry: its fields under theirs (MaterialLibrary.resolved), the coat drawn by scan_wood.gdshader's `paint_*` dials; `inside` ones are judged at night too. Scans in assets/textures/scans/<id>/ (CC0, CREDITS.md); `grain` u or v: the way the scan's grain runs; `metres` the size a scan covers (along the grain, across) where the source doesn't say.",
+ "note": "The material library (#701, docs/briefs/material-library.md): MaterialLibrary reads it, SamplePanel shows each entry new / a few years / old in the material lab (tools/material_lab.gd --panels=CLASS). `approved` lists the ages passed: Sean's, or since #721 (Sean, 2026-11-10) the materials judge's 'game' or better with no tile tell (the woods' passes are in the 2026-11-10 pick sheet, not yet here). Floors (family `floor`) and furniture (family `furniture`), #825: judged in docs/screenshots/judge/2026-11-12_floor_furniture_r*; walnut furniture (FN3) parked (its top clouds, no walnut figure): use oak until it passes. Paint entries (family `paint`, #721's paint round) lie `over` a wood entry: its fields under theirs (MaterialLibrary.resolved), the coat drawn by scan_wood.gdshader's `paint_*` dials; `inside` ones are judged at night too. Scans in assets/textures/scans/<id>/ (CC0, CREDITS.md); `grain` u or v: the way the scan's grain runs; `metres` the size a scan covers (along the grain, across) where the source doesn't say.",
  "entries": [
   {
    "id": "rough_pine_batten", "code": "R1", "family": "wood", "class": "rough", "approved": [],
@@ -135,6 +135,46 @@
    "paint_relief": 0.35, "paint_brush": 0.5, "paint_rough_new": 0.4, "wear_band": [0.75, 1.1],
    "weathering": 0.0, "layer_new": 0.3, "streaks": 0.0, "sun_fade": 0.0, "grime": 0.35, "joint_dirt": 0.5,
    "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
+  },
+  {
+   "id": "floor_fir_worn", "code": "FL1", "family": "floor", "class": "floor", "panel_class": "common", "approved": ["new", "few", "old"], "inside": true,
+   "name": "Fir and pine floor boards, oiled, worn where feet go (a common building's floor)",
+   "layout": "horizontal", "board_w": 0.13, "board_t": 0.022, "nails": 0, "arris": 0.0,
+   "scans": {"a": {"id": "Wood058", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood014", "grain": "u", "metres": [1.4, 1.4]}},
+   "tint_new": [1.0, 0.94, 0.86], "tint_mid": [0.78, 0.68, 0.56], "tint_old": [1.0, 1.0, 1.0],
+   "weathering": 0.0, "varnish": 0.0, "specular_wood": 0.32, "roughness_add": 0.05, "traffic": 1.0,
+   "grime": 0.7, "layer_new": 0.3, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.75, "checks": 0.0, "end_rot": 0.0,
+   "value_jitter": 0.13, "hue_jitter": 0.05, "normal_strength": 0.75
+  },
+  {
+   "id": "furniture_oak", "code": "FN1", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": ["new", "few", "old"], "inside": true,
+   "name": "Oak, straight-grained stock, varnished: office furniture (desks, chests, cases)",
+   "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4,
+   "scans": {"a": {"id": "red_oak_veneer", "grain": "u", "metres": [0.55, 0.55]}},
+   "tint_new": [0.84, 0.68, 0.5], "tint_mid": [0.78, 0.62, 0.45], "tint_old": [1.0, 1.0, 1.0],
+   "weathering": 0.0, "varnish": 0.7, "varnish_amber": [0.86, 0.7, 0.5], "varnish_dark": 0.8, "specular_wood": 0.4, "furniture": 1.0,
+   "grime": 0.0, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.06, "hue_jitter": 0.03, "normal_strength": 0.7
+  },
+  {
+   "id": "furniture_painted_pine", "code": "FN2", "family": "furniture", "class": "furniture", "panel_class": "fine", "over": "common_pine_lap", "approved": ["new", "few"], "inside": true,
+   "name": "Painted pine (a slate grey-green oil paint): shelving, counters, plain pieces",
+   "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4, "checks": 0.0, "end_rot": 0.0, "contact": 0.0, "age_split": 0.0,
+   "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [0.9, 0.9]}, "a2": {"id": "Wood050", "grain": "u", "metres": [0.9, 0.9]}},
+   "tint_new": [1.0, 0.95, 0.86], "tint_mid": [0.9, 0.8, 0.66], "tint_old": [1.0, 1.0, 1.0], "furniture": 1.0,
+   "paint": 1.0, "paint_inside": 1.0, "paint_color": [0.34, 0.39, 0.37], "paint_under": [0.62, 0.56, 0.46],
+   "paint_peel": 0.35, "paint_crack": 0.15, "paint_thin_new": 0.05, "paint_thin": 0.16, "paint_yellow": 0.35,
+   "paint_relief": 0.3, "paint_brush": 0.55, "paint_rough_new": 0.36,
+   "weathering": 0.0, "layer_new": 0.3, "streaks": 0.0, "sun_fade": 0.0, "grime": 0.0, "joint_dirt": 0.3,
+   "value_jitter": 0.03, "hue_jitter": 0.01
+  },
+  {
+   "id": "furniture_walnut", "code": "FN3", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": [], "inside": true,
+   "name": "Black walnut, varnished: one good piece a room (a fine room's desk or case)",
+   "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4,
+   "scans": {"a": {"id": "black_walnut_veneer_02", "grain": "u", "metres": [0.6, 0.6]}, "a2": {"id": "Wood051", "grain": "u", "metres": [0.6, 0.6]}},
+   "tint_new": [0.62, 0.55, 0.5], "tint_mid": [0.58, 0.5, 0.45], "tint_old": [1.0, 1.0, 1.0],
+   "weathering": 0.0, "varnish": 0.75, "varnish_amber": [0.92, 0.84, 0.72], "varnish_dark": 0.86, "specular_wood": 0.42, "furniture": 1.0,
+   "grime": 0.0, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.06, "hue_jitter": 0.03, "normal_strength": 0.7
   }
  ]
 }

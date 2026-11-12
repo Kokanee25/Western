@@ -10,7 +10,7 @@ memory, and is marked **ref**: look it up before a script leans on it (Green's D
 is free online and dates every sense). Where two sources disagreed, both are given. No paid tools
 were used.
 
-## Six rules
+## Seven rules
 
 1. **Period words carry it, not spelling.** One "ain't" or a dropped g places a man. Don't write
    dialect out letter by letter ("Ah reckon yuh"): the voice actor, or the voice model, does the
@@ -25,6 +25,14 @@ were used.
 5. **Understate.** "He's poorly" for dying. "A little trouble" for a killing. "I'd as soon not."
 6. **If a word feels like a Western, check it.** Most of the famous ones are from films and the
    pulps of the 1920s on (see "Avoid").
+7. **Slurs: a few, from the worst men only, at moments that matter** (D, Sean 2026-11-11, #830, C13
+   b). The men: Kett, Cody, the loudest man at the rope. Never from anyone else: not Harlan, not the
+   journal or the paper, not anyone the game wants liked. How to apply it (P·bible): each one is a
+   moment the script names and says why it's there (a man showing what he is, a crowd turning);
+   never as colour or as a habit of speech, and never twice where once will do. Everyone else carries contempt as the period did
+   without the words: "your Indian", "that Ute", "them", and what men do. The words themselves are
+   chosen in the script, not listed here. Whether the voice service will say them, and how the store
+   page warns of them, is O (some lines may not be voiceable).
 
 ## Say this
 
@@ -145,7 +153,7 @@ This is the one to get right, and the one most often done wrong.
   agency used: Ignacio, Severo, Buckskin Charley ✓. "Joe" is that kind of name. His own is not ours
   to make up (`VOICES.md`, "Names").
 - **What others call his people:** "the Utes", "the Indians", "the agency Indians"; the decent ones
-  say "Joe's people". How ugly the worst men's words get is Sean's call (C13).
+  say "Joe's people". The worst men's words: rule 7 (C13 b).
 - **Ute in the game** (the camp's talk, a word of Joe's to his dead) is written with a Southern Ute
   speaker or not at all.
 
