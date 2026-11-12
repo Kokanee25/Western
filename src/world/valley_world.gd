@@ -158,6 +158,46 @@ func _make_buildings() -> void:
 			b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), y, float(at[2])))
 			add_child(b)
 			buildings[String(l.id)] = b
+			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
+			if not sw.is_empty():
+				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## A boardwalk down a building's side street (its spec's `lot.side_walk`: saloon B's, under its
+## wrapping balcony, #848; art's, Sean's answer 8 on #772): from `at` [x, z] in the building's space,
+## turned `turn` degrees there (a Boardwalk runs along its +X, the street on its -Z), `length` by
+## `depth`, its top the building's floor, on posts over the street's own ground, a flight to the
+## street at each of `steps` [centre, width] and steps down at its far end. Its near end meets the
+## lot's walk on Main Street (`walk.span` carries that one past the corner).
+func _side_walk(id: String, b: Node3D, sw: Dictionary, floor_top: float) -> void:
+	var town := markers.town
+	var bw := Boardwalk.new()
+	bw.name = "SideWalk_" + id
+	bw.structure_id = StringName("valley_side_walk_" + id)
+	bw.build_seed = hash(id + "_side") & 0xffff
+	bw.length = float(sw.length)
+	bw.walk_depth = float(sw.depth)
+	bw.top = floor_top
+	bw.riser = town.riser_max
+	bw.max_riser = true
+	bw.on_posts = true
+	var xf: Transform3D = b.transform * Transform3D(Basis(Vector3.UP, deg_to_rad(float(sw.get("turn", -90.0)))), Vector3(float(sw.at[0]), 0.0, float(sw.at[1])))
+	bw.transform = xf
+	var y := xf.origin.y
+	bw.ground_at = func(lx: float, lz: float) -> float:
+		var p := xf * Vector3(lx, 0.0, lz)
+		return town.ground(p.x, p.z) - y
+	var flights := []
+	var below := 0.0
+	for st: Array in sw.get("steps", []):
+		flights.append(Vector2(float(st[0]), float(st[1])))
+		var foot := xf * Vector3(float(st[0]), 0.0, -bw.walk_depth - 1.0)
+		below = maxf(below, y - town.ground(foot.x, foot.z))
+	bw.steps = flights
+	bw.street_below = below
+	var far := xf * Vector3(bw.length, 0.0, -bw.walk_depth * 0.5)
+	bw.end_steps = [Vector2(1, town.ground(far.x, far.z) - y)]
+	add_child(bw)
 
 
 ## The ground, from the bake (ValleyTerrain, config/valley_ground/): a Ground over it, so a crater,

@@ -378,6 +378,9 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 		var d1 := 0.025 + 0.01 if not partition else 0.075
 		var j := 0
 		for o: Dictionary in w.get("openings", []):
+			if o.type == "void":
+				j += 1
+				continue  # a cut corner: open by design, its column and beams its frame (saloon B)
 			openings += 1
 			var lvl: String = o.get("level", w.get("level", "ground"))
 			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))

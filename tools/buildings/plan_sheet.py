@@ -187,6 +187,8 @@ def main(spec_path, out):
 
     # Use points.
     for u in sp.get("use_points", []):
+        if "at" not in u:
+        	continue  # a kit's seats (the card tables')
         x, _, z = u["at"]
         c = P(x, z)
         d.ellipse([c[0] - 6, c[1] - 6, c[0] + 6, c[1] + 6], fill=(40, 140, 60), outline=ink)
