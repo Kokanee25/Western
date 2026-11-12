@@ -35,8 +35,8 @@ const VIEWS := {
 	# The desk, close: the pigeonholes, its curved sides, the drawers' pulls.
 	"desk": [Vector3(2.05, 2.45, 1.95), Vector3(1.15, 1.75, 3.45), 56.0, 10.0],
 	# D3 (#819): the hall's pegs, his coat and hat on them, from the front office's end, and close.
-	"hall": [Vector3(5.15, 2.55, 4.9), Vector3(4.12, 2.2, 7.1), 62.0, 10.0],
-	"pegs": [Vector3(5.28, 2.5, 8.0), Vector3(4.12, 2.2, 7.0), 56.0, 10.0],
+	"hall": [Vector3(4.75, 2.5, 4.3), Vector3(4.35, 2.1, 8.2), 66.0, 10.0],
+	"pegs": [Vector3(5.3, 2.45, 8.2), Vector3(4.12, 2.25, 8.2), 75.0, 10.0],
 	# The sick room's far end: its washstand, the bedside chair, the spare blankets on the empty cot.
 	"sick_wash": [Vector3(3.3, 2.4, 9.0), Vector3(2.2, 1.4, 11.0), 62.0, 15.0],
 	# The chamber pot under the first cot; the folded blankets, close.
@@ -50,7 +50,7 @@ const VIEWS := {
 ## (D3's views show D1's cots and D2's desk); its views are the last one's.
 const BATCH_VIEWS := {"D1": ["surgery", "surgery_night", "wash", "instruments", "sick_room"],
 		"D2": ["dispensary", "counter", "shelves", "front_office", "desk"],
-		"D3": ["hall", "pegs", "sick_room", "sick_wash", "pot", "blankets", "bookcase", "front_office", "sitting_room"]}
+		"D3": ["hall", "pegs", "sick_room", "pot", "blankets", "bookcase", "front_office", "sitting_room"]}
 
 var out_dir := "build/doctor_props"
 var batch := "D1"

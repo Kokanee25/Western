@@ -497,13 +497,13 @@ func test_a_pull_on_an_oak_drawer_is_drawn_on_the_drawer() -> void:
 
 # --- The doctor's batch D3 (#819): his books, the hall's pegs, the pot and the blankets ---------
 
-const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_stack", &"bookcase", &"folded_blankets", &"folded_blanket"]
+const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_row_c", &"book_stack", &"bookcase", &"folded_blankets", &"folded_blanket"]
 
 
 func test_doctor_d3_stands_weighs_and_draws_in_a_few_batches() -> void:
 	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; an oak bookcase
 	# ~20-40; a wool blanket ~2 (its member's canvas is lighter).
-	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
+	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_row_c": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
 			&"folded_blankets": [1.5, 8.0], &"folded_blanket": [0.5, 3.0]}
 	for id: StringName in DOCTOR_D3_MEMBERS:
 		var def := PropKit.definition(id)

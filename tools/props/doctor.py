@@ -792,9 +792,14 @@ BOOKS = [
     (["TRANSACTIONS", "AM. MED.", "ASSOC.", "1879"], "", "cloth_black", 0.232, 0.042, 0.155),
     (["PHYSICIAN'S", "VISITING", "LIST"], "", "calf", 0.170, 0.022, 0.105),
     (["THE", "PHYSICIAN", "HIMSELF"], "CATHELL", "cloth_plum", 0.195, 0.030, 0.130),
+    # A run of his journal bound by the year (the American Journal of the Medical Sciences, Philadelphia,
+    # quarterly since 1827: a country doctor's one subscription), two spines turn about along the run.
+    (["AMERICAN", "JOURNAL", "MEDICAL", "SCIENCES"], "1879", "calf", 0.236, 0.047, 0.158),
+    (["AMERICAN", "JOURNAL", "MEDICAL", "SCIENCES"], "1881", "calf", 0.236, 0.049, 0.158),
 ]
 # Which book is where: two shelf rows standing spine out (+z), and a pile lying (bottom up).
-BOOK_ROWS = {"book_row_a": [0, 2, 3, 1, 8, 6, 5, 12, 11], "book_row_b": [4, 15, 10, 14, 7, 13, 18, 9, 19, 16]}
+BOOK_ROWS = {"book_row_a": [0, 2, 3, 1, 8, 6, 5, 12, 11], "book_row_b": [4, 15, 10, 14, 7, 13, 18, 9, 19, 16],
+             "book_row_c": [22, 23, 22, 23, 23, 22, 23, 22, 22, 23, 22]}
 BOOK_STACK = [17, 21, 20]
 BOOK_GAP = 0.0015
 
@@ -829,9 +834,11 @@ def book_kit(kit):
     places = book_places(kit)
     kinds = ["post", "furniture_top", "trim"]
     for n, (k, size, at, lying) in enumerate(places):
-        ms.append(member("book%d" % k, kinds[min(n, 2)] if lying else "post", size, at, wood="paper", look="pbr:medical_books",
-                         draw=mesh("medical_books", "Book%d" % k)))
-    titles = "; ".join("%s (%s)" % (" ".join(BOOKS[k][0]).title(), BOOKS[k][1].title() or "a year's volume") for k, *_ in places)
+        # (a run's volumes are the same two books over again: named by their place)
+        mid, part = ("vol%d" % n, "Vol%d" % n) if kit == "book_row_c" else ("book%d" % k, "Book%d" % k)
+        ms.append(member(mid, kinds[min(n, 2)] if lying else "post", size, at, wood="paper", look="pbr:medical_books",
+                         draw=mesh("medical_books", part)))
+    titles = "; ".join(dict.fromkeys("%s (%s)" % (" ".join(BOOKS[k][0]).title(), BOOKS[k][1].title() or "a year's volume") for k, *_ in places))
     what = ("a pile of three lying on a table or a desk's top, the army's big quarto under his visiting list"
             if kit == "book_stack" else "a shelf's row standing spine out (+z), %d cm of them" % round(sum(p[1][0] for p in places) * 100))
     return {
@@ -848,6 +855,10 @@ def book_row_a():
 
 def book_row_b():
     return book_kit("book_row_b")
+
+
+def book_row_c():
+    return book_kit("book_row_c")
 
 
 def book_stack():
@@ -879,7 +890,7 @@ def bookcase():
     ms.append(member("plinth", "furniture_frame", [W - t * 2, c["plinth"], 0.018], [0, c["plinth"] * 0.5, D * 0.5 - 0.02], look=OAK))
     ms.append(member("top", "trim", [W + 0.04, c["top"], D + 0.025], [0, H - c["top"] * 0.5, 0.0075], look=OAK_TOP))
     return {
-        "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
+        "_doc": "His bookcase (#819): a plain open oak bookcase, chest high (1.38 m), 0.64 m wide: two sides, four shelves (the lowest the tallest, for the quartos), a boarded back, an overhanging top, a plinth. Oak from the material library (a few years: the shelves' and top's faces worn). ~28 kg empty. His books stand on it as their own props (book_row_a, book_row_b, book_row_c; shelf tops at %s m): a shelf shot out or burnt, its row comes down. Its front toward +z. Written by tools/props/doctor.py." % ", ".join("%.2f" % y for y in shelf_tops()),
         "id": "bookcase", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.3, "blow_wood_share": 0.5,
         "members": ms,
@@ -977,7 +988,7 @@ def folded_blanket():
     return _blankets("folded_blanket", 1, "A folded grey blanket")
 
 
-BATCH_D3 = [book_row_a, book_row_b, book_stack, bookcase, coat_pegs, chamber_pot, folded_blankets, folded_blanket]
+BATCH_D3 = [book_row_a, book_row_b, book_row_c, book_stack, bookcase, coat_pegs, chamber_pot, folded_blankets, folded_blanket]
 
 
 BATCH_D2 = [medicine_bottle, medicine_bottle_round, poison_bottle, drug_jar, mortar, scales, roll_top_desk, dispensary_shelves,

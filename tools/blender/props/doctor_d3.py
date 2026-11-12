@@ -33,8 +33,8 @@ from doctor_d2 import _centred, _font, merged, torus_ring  # noqa: E402
 # step away), two rows of boards at COVER_PX, one tile of page edges.
 SHEET = 2048
 SPINE_PX = 1900.0
-COVER_PX = 760.0
-CELL = 186
+COVER_PX = 690.0
+CELL = 170
 SPINE_ROW = 590
 COVER_Y = SPINE_ROW * 2 + 10
 COVER_ROW = 240
@@ -56,7 +56,7 @@ def spine_rect(k):
     """Book k's spine on the sheet (pixels, y down)."""
     _t, _a, _b, h, w, _d = doctor.BOOKS[k]
     pw, ph = int(round(w * SPINE_PX)), int(round(h * SPINE_PX))
-    row, col = divmod(k, 11)
+    row, col = divmod(k, 12)
     x0 = col * CELL + (CELL - pw) // 2
     y0 = row * SPINE_ROW + (SPINE_ROW - ph) // 2
     return (x0, y0, x0 + pw, y0 + ph)
@@ -65,7 +65,7 @@ def spine_rect(k):
 def cover_rect(k):
     _t, _a, _b, h, _w, d = doctor.BOOKS[k]
     pw, ph = int(round(d * COVER_PX)), int(round(h * COVER_PX))
-    row, col = divmod(k, 11)
+    row, col = divmod(k, 12)
     x0 = col * CELL + (CELL - pw) // 2
     y0 = COVER_Y + row * COVER_ROW + (COVER_ROW - ph) // 2
     return (x0, y0, x0 + pw, y0 + ph)
@@ -225,7 +225,7 @@ def _uv(rect, u, v):
     return ((x0 + (x1 - x0) * u) / SHEET, 1.0 - (y1 + (y0 - y1) * v) / SHEET)
 
 
-def book(k, lying=False, at=(0.0, 0.0, 0.0)):
+def book(k, lying=False, at=(0.0, 0.0, 0.0), name=None):
     """Book k standing at the origin (its thickness along x, its foot at y = 0... its middle at
     `at`'s x and z, spine to +z), or lying (its height along x, its lower board down): boards, the
     block of leaves set in from them, a rounded spine; every face's UVs on the books' sheet."""
@@ -283,7 +283,7 @@ def book(k, lying=False, at=(0.0, 0.0, 0.0)):
         verts = [(y - h * 0.5 + ax, -x + ay, z + az) for x, y, z in verts]
     else:
         verts = [(x + ax, y + ay - h * 0.5, z + az) for x, y, z in verts]
-    part = Part("Book%d" % k, smooth=True).add(verts, faces)
+    part = Part(name or "Book%d" % k, smooth=True).add(verts, faces)
     part.uvs = uvs
     return part
 
@@ -315,8 +315,8 @@ def books():
     sheet()
     parts = []
     for kit in list(doctor.BOOK_ROWS) + ["book_stack"]:
-        for k, _size, at, lying in doctor.book_places(kit):
-            parts.append(book(k, lying, at))
+        for n, (k, _size, at, lying) in enumerate(doctor.book_places(kit)):
+            parts.append(book(k, lying, at, name="Vol%d" % n if kit == "book_row_c" else None))
     export_plain("medical_books", parts)
 
 
@@ -454,7 +454,7 @@ def folded(name, size, layers, seed, at=(0.0, 0.0, 0.0), turn=0.0):
     w, hgt, d = size
     rng = random.Random(seed)
     pitch = hgt / layers
-    ht = pitch * 0.43
+    ht = pitch * 0.495  # (the layers lie on each other: round 0's pile read as loose sheets with gaps)
     rb = pitch * 0.5
     path = []
     for i in range(layers):
@@ -494,7 +494,7 @@ def folded(name, size, layers, seed, at=(0.0, 0.0, 0.0), turn=0.0):
             # The edges of the upper layers droop and draw in; a slow wave over the top.
             dy = -0.007 * edge * up + 0.003 * up * math.sin(x * 14 + z * 9 + phz[0])
             dz = -math.copysign(0.006 * up * abs(math.sin(i * 0.7 + phz[1])), 2 * fz - 1) * (1.0 if j in (0, nz) else 0.0)
-            k_ = 1.0 - 0.25 * edge
+            k_ = 1.0 - 0.12 * edge
             outer.append((x + nx * ht * k_, y + dy + ny * ht * k_, z + dz))
             inner.append((x - nx * ht * k_, y + dy - ny * ht * k_, z + dz))
     verts = outer + inner
