@@ -600,3 +600,18 @@ func test_the_chamber_pot_stands_and_a_ball_breaks_it() -> void:
 	ballistics.fire(pot.global_position + Vector3(-5, 0.07, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
 	await physics_frames(3)
 	check(pot.broken, "a ball breaks it")
+
+
+func test_his_bag_stands_is_rodins_model_and_burns() -> void:
+	var bag := await _place(&"doctors_bag")
+	check(bag.settle().is_empty() and not bag.loose, "the bag stands on the floor")
+	check(bag.members_without_load_path().is_empty(), "its handle is on it")
+	var kg := bag.mass()
+	check(kg >= 1.0 and kg <= 6.0, "it weighs %.1f kg (a physician's bag with its instruments ~2-4)" % kg)
+	var body := _m(bag, "body")
+	check(body.drawn_node().mesh.get_faces().size() > 3000 * 3, "its body is drawn from Rodin's model")
+	check(ResourceLoader.exists("res://assets/props/models/doctors_bag_paint.png"), "with its own paint")
+	check(not FireTuning.new().fireproof.has(body.wood), "it burns")
+	var gone := bag.members_without_load_path({body.member_id: true})
+	check(gone.has(_m(bag, "handle").member_id), "the body gone, the handle comes down")
+

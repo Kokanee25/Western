@@ -960,6 +960,26 @@ def chamber_pot():
     }
 
 
+# --- His bag ------------------------------------------------------------------------------------------
+# By Rodin (Sean's "A" on #823): tools/blender/props/doctors_bag_rodin.py turns the Studio's model into
+# glb:doctors_bag (parts `body`, `handle`) with its own paint (look model:doctors_bag); the boxes below
+# are the ones that script prints.
+BAG = {"body": ([0.0, 0.1144, 0.0], [0.3998, 0.2296, 0.2]), "handle": ([0.0, 0.2532, 0.0], [0.1245, 0.0597, 0.0195])}
+
+
+def doctors_bag():
+    look = "model:doctors_bag"
+    (bc, bs), (hc, hs) = BAG["body"], BAG["handle"]
+    ms = [member("body", "post", bs, bc, wood="hay", look=look, draw=mesh("doctors_bag", "body")),
+          member("handle", "trim", hs, hc, wood="leather", look=look, draw=mesh("doctors_bag", "handle"))]
+    return {
+        "_doc": "His bag (#819; Sean's A on #823; ref experiments/prop_lab/refs/doctor/bag_doctors_leather_1890_1930_wellcome.jpg): an 1880s physician's Gladstone bag, 40 cm long, dark brown cross-grained cowhide scuffed pale at its corners, a hinged brass frame with a lock plate, a strap and buckle near each end, a rolled leather handle. Made by Rodin from three realistic pictures (the Character Studio's prop-pictures and prop3d, card cards/props/doctors_bag.yaml; tools/blender/props/doctors_bag_rodin.py: cut to 5,000 triangles, its own painted texture, look model:doctors_bag). Two members: the body (a leather shell with his instruments in it, not solid: wood `hay` gives the box the bag's ~3 kg; it burns; a ball goes through) and the handle on it. Stands on the hall's floor under his coat. Its instruments aren't props yet: nothing comes out of it. Written by tools/props/doctor.py.",
+        "id": "doctors_bag", "kind": "members", "fixture": True, "in_game": False, "wood": "leather", "look": look,
+        "drawn_bounds": True, "splits_below": 0.3, "blow_wood_share": 0.5,
+        "members": ms,
+    }
+
+
 # --- Folded blankets --------------------------------------------------------------------------------
 # Spare blankets folded (the wards' issue: grey wool with a dark band, a white one with blue bands,
 # a brown one): each folded in four along its length and laid in a pile, the folds' bights to +x.
@@ -988,7 +1008,7 @@ def folded_blanket():
     return _blankets("folded_blanket", 1, "A folded grey blanket")
 
 
-BATCH_D3 = [book_row_a, book_row_b, book_row_c, book_stack, bookcase, coat_pegs, chamber_pot, folded_blankets, folded_blanket]
+BATCH_D3 = [book_row_a, book_row_b, book_row_c, book_stack, bookcase, coat_pegs, chamber_pot, folded_blankets, folded_blanket, doctors_bag]
 
 
 BATCH_D2 = [medicine_bottle, medicine_bottle_round, poison_bottle, drug_jar, mortar, scales, roll_top_desk, dispensary_shelves,
