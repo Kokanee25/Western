@@ -60,6 +60,23 @@ the floor), side, lit [from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 
+**Saloon B's parts** (`saloon_b/saloon_b.json`, #848; all optional, the other specs build as before):
+an opening of type `void` (a corner cut off: no studs, trim or leaf; a king that would stand past
+the wall's end is left to the corner's column) and `corner` {from, to, door {width, height,
+transom}, column {at, size, wood}, beam}: one iron column from the sill to the balcony's beam, a
+deep beam under each void's header, and the diagonal wall with glazed double doors standing open
+and a transom light (`_corner_entrance`; RoomLight and the traffic map take its doorway); a
+partition opening of type `arch` (no leaf); `frame.stacked` (openings over openings under trusses:
+kings stop under and over them, and plates, ribbons, ledgers, siding, sashes and finish go a band
+up so they rest on the cripples over an opening); `girders.under` [{x, z}] a girder under a
+bearing partition that runs with the joists, piers to the floor's top, the boards butted to it; a
+beam's `brackets: false`; a floor's `end_gap` (its joists cut that much short at each end, so
+they hinge down when a support goes instead of jamming); `sabotage` {girder, cut} the member a
+mission saws and where (`SpecBuilding.saw_girder`); `galleries.height` the rail's; a wall's second
+stretch of finish at a level (its ids under `in_<level>/s1`); stairs' `stoop` against the back
+wall; `lot.side_walk` {at, turn, length, depth, steps} a boardwalk down a side street, built by
+whoever places the building (ValleyWorld, the lab).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers
