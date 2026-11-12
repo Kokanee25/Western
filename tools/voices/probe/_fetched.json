@@ -1,0 +1,21 @@
+{
+ "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/elevenlabs/text-to-voice/design/eleven-v3": 10062,
+ "https://fal.ai/models/fal-ai/elevenlabs/text-to-voice/design/eleven-v3/llms.txt": 10696,
+ "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/elevenlabs/tts/eleven-v3": 6820,
+ "https://fal.ai/models/fal-ai/elevenlabs/tts/eleven-v3/llms.txt": 6910,
+ "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=elevenlabs/tts/eleven-v4": 7222,
+ "https://fal.ai/models/elevenlabs/tts/eleven-v4/llms.txt": 7312,
+ "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/elevenlabs/tts/multilingual-v2": 7620,
+ "https://fal.ai/models/fal-ai/elevenlabs/tts/multilingual-v2/llms.txt": 7386,
+ "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/elevenlabs/text-to-dialogue/eleven-v3": 7733,
+ "https://fal.ai/models/fal-ai/elevenlabs/text-to-dialogue/eleven-v3/llms.txt": 7583,
+ "https://fal.ai/elevenlabs": 810551,
+ "https://fal.ai/models?keywords=elevenlabs": 1475926,
+ "https://fal.ai/terms": 230837,
+ "https://elevenlabs.io/terms-of-use": 457833,
+ "https://elevenlabs.io/service-specific-terms": 283437,
+ "https://elevenlabs.io/use-policy": 395789,
+ "https://elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform/llms.txt": 2019,
+ "https://elevenlabs.io/docs/api-reference/text-to-voice/design.md": 9372,
+ "https://elevenlabs.io/docs/models.md": 63717
+}
