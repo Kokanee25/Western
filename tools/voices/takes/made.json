@@ -1,0 +1,74 @@
+[
+ {
+  "id": "shot_by.A0",
+  "line": "road.shot_by.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me.",
+  "stability": 0.0,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "shot_by.A3",
+  "line": "road.shot_by.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me.",
+  "stability": 0.3,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "shot_by.B",
+  "line": "road.shot_by.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[A gut-shot man lies on his back in the dust, telling it to keep his mind off the hole in him, bitter at himself for being fooled.] [pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me.",
+  "stability": 0.0,
+  "error": "422 https://queue.fal.run/elevenlabs/tts/requests/01a1d195-a970-7a40-b7ef-441dc3d83801: {\"detail\":[{\"loc\":[\"body\",\"voice\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"ATJBRWuZJ9io70PFlRSH\",\"categories\":[\"violence\"]},{\"loc\":[\"body\",\"text\"]"
+ },
+ {
+  "id": "ask_again.A0",
+  "line": "road.ask_again.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there.",
+  "stability": 0.0,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "ask_again.A3",
+  "line": "road.ask_again.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there.",
+  "stability": 0.3,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "ask_again.B",
+  "line": "road.ask_again.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[A badly hurt lawman on his back, out of patience, snapping at the man standing over him who won't nod or shake his head.] [annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there.",
+  "stability": 0.0,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "shake.A0",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.0,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "shake.A3",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.3,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ },
+ {
+  "id": "shake.B",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[A dying lawman, nearly smiling, patient, to a young man who has just refused his badge; then turning to the doctor for the order.] [exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.0,
+  "error": "[Errno 2] No such file or directory: 'ffmpeg'"
+ }
+]

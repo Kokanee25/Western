@@ -83,3 +83,11 @@ date,request,app,what,est_usd
 2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c3 check,0.100
 2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c4,0.066
 2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c4 check,0.100
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,shot_by.A0,0.011
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,shot_by.A3,0.011
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,ask_again.A0,0.007
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,ask_again.A3,0.007
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,ask_again.B,0.017
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,shake.A0,0.009
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,shake.A3,0.009
+2026-11-12,2026-11-12_takes_acting_test,elevenlabs/tts/eleven-v4,shake.B,0.020
