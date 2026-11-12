@@ -70,7 +70,8 @@ func _ready() -> void:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
-	if CoachCut.START_ARG in OS.get_cmdline_user_args():
+	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
+		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
 
 
@@ -83,13 +84,14 @@ func _start_sheriff() -> void:
 
 ## The coach heist in the coach cut (#794), once the valley's ground is in: the ram held, the coach
 ## coming up the grade, you at the high spot. Made again by the coach heist lab's `ch_cut`.
-func start_coach_cut(lead := -1.0, back := 40.0) -> CoachCut:
+func start_coach_cut(lead := -1.0, back := 40.0, fight_seed := 815) -> CoachCut:
 	if coach_cut and is_instance_valid(coach_cut):
 		coach_cut.queue_free()
 	coach_cut = CoachCut.new()
 	coach_cut.layout = layout
 	coach_cut.release_lead = lead
 	coach_cut.start_back = back
+	coach_cut.fight_seed = fight_seed
 	add_child(coach_cut)
 	coach_cut.begin()
 	return coach_cut

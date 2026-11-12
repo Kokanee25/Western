@@ -23,6 +23,8 @@ var motion := PlayerMotion.new()
 var input_enabled := true
 ## Set by wounds (PlayerWounds): slower, no running or jumping, down on the ground.
 var move_factor := 1.0
+## Something heavy carried (the Baron's strongbox on your shoulder, CoachFight): your pace's share.
+var burden := 1.0
 var can_sprint := true
 var can_jump := true
 var force_crouch := false
@@ -364,7 +366,7 @@ func _physics_step(delta: float) -> void:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor * (shove.pace() if shove else 1.0)
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
 	var target := Vector2(wish.x, wish.z) * speed

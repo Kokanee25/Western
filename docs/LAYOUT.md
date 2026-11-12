@@ -512,6 +512,10 @@ and front windows and holes found from `Events.member_broken` (`RoomLight.wall_p
 grid through that patch, again after `hole_settle`) each a spot of moon or sky (MoonWindows stands
 down while it's on). `Events.shot_fired`/`exploded` inside thicken `RoomHaze` (`haze_*`). Off takes
 it all away and puts the probe and haze back.
+A building that has `light_openings()` (a spec building with `light`, #824) gives every outer
+door and window instead (each with its wall's frame); its meta `room_fill` is its fill colour and
+`room_window_gain` scales its daylight in them (its opening spots then have no specular). Under the
+real look RoomLight is on whatever `Settings.room_light` says.
 
 ## The look panel
 
@@ -859,6 +863,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `TimberTuning`), `FalseFrontBuilding` (shape options: two-storey fronts with `sign_from`, a barn's
   `gable_front` + `loft_door` + `gable_sign`, `batwings`, `window_bars`, `porch`, `furnished`,
   `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
+  `SashWindow` (#826: a lined double-hung sash, a glass member a light, dusty glass in
+  `window_glass.gdshader`; the spec builder makes one for a window with `lights`),
   `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
   `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
@@ -1476,6 +1482,21 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   `start_coach()` the Baron's coach `start_back` m down the grade with four guards and the box's two;
   `release_lead` lets the pin go itself; `place_player` (the high spot), `result()`. `-- --world=valley
   --mission=coach` (ValleyWorld `start_coach_cut`), the lab's `cut` mode and bridge `ch_cut`.
+- **After the hit** (`CoachFight`, #815; dials `config/coach_fight.tres`, `CoachFightTuning`): made by
+  CoachCut with the coach, started by `handed_off`. The hit's seed (`CoachCut.fight_seed`, bridge `ch_cut
+  seed=N`) sets each man's daze (plus each head knock's `head_stun_seconds`), nerve and a seeded limb blow;
+  the Falls already hurt most of them (broken feet, ribs). Settled, the door on top is swung open on the
+  wreck (`_open_door`: its shapes and meshes turned in the rubble body; `open_hinge` won't on a loose
+  prop); one at a time each guard's limp body is slid under it inside and `get_up`s; the first who can
+  hold a gun stands in it on a walk-only step (`hatch_step`, an OutlawBrain window order), the rest
+  climb out (`_climb`, 2.2 s scripted) to the lee; the box's two get up on the road, the messenger
+  ordered to the outcrop's flank. Each gets his OutlawBrain then (`hold`: `in_reach`, off the ram's bank,
+  `cornered`), `caught_cold` 3 ticks on. The strongbox: E held at the door (`haul_out`: a fresh standing
+  kit prop by you, padlock away from the wreck; not `keep_footed`: it'd have no feet to balance on once
+  the padlock's off), padlock shot, E opens and takes the papers, or E shoulders it shut (`Player.burden`).
+  Won up the rimrock trail (`on_trail`); lost down, got by or left it; Enter again (`CoachCut.start_on_load`,
+  GameReset). StoryState `coach.*`. Sight's first question in the valley takes the whole world (~80 ms
+  here): CoachFight asks one on its first tick. Lab: bridge `ch_fight`, `ch_fight_run`, `fight_runs.py`.
 
 ## src/people
 
@@ -2158,6 +2179,15 @@ relief, brush, sheen, yellowing, dust; `paint_inside` for a coat indoors; `paint
 `bead` (beaded boards). A paint passes at an age into `approved` when the materials judge grades it game or
 better with check 3 (no tile tells) passed; buildings take a finish by id (the doctor's `want`s). The
 judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2026-11-11_paint_r*`.
+**Floors and furniture** (#825, Sean's picks 2 and 5 on #821): family `floor` entries (`floor_fir_worn`,
+FL1) carry `traffic`: scan_wood's `traffic_map` (R feet, G by a wall; `MaterialLibrary.traffic_image`
+paints it from ways and room rects, `set_traffic` lays it on the world's floor plane at a height), worn
+paths pale and matte, dark by the walls; a building's floor takes its ways from its spec
+(`SpecBuilding.traffic_ways`: doors, rooms, use points). Family `furniture` entries (FN1 oak, FN2 painted
+pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2, the kit's
+`lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
+`panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
+room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
 
 ## src/props/prop_models.gd
 
