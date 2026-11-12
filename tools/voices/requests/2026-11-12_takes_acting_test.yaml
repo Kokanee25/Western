@@ -1,0 +1,14 @@
+task: takes
+spend: 0.40
+price_per_1k: 0.08
+note: the acting test (#846), the sheriff's fixed voice c4, three lines, A (short moment tags, stability 0.0 and 0.3) and B (the situation in a tagged lead-in)
+variants:
+  - {id: shot_by.A0, line: road.shot_by.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me."}
+  - {id: shot_by.A3, line: road.shot_by.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.3, seed: 1, text: "[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me."}
+  - {id: shot_by.B, line: road.shot_by.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[A gut-shot man lies on his back in the dust, telling it to keep his mind off the hole in him, bitter at himself for being fooled.] [pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me."}
+  - {id: ask_again.A0, line: road.ask_again.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there."}
+  - {id: ask_again.A3, line: road.ask_again.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.3, seed: 1, text: "[annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there."}
+  - {id: ask_again.B, line: road.ask_again.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[A badly hurt lawman on his back, out of patience, snapping at the man standing over him who won't nod or shake his head.] [annoyed] Well? [short pause] [sighs] Nod or don't, [pained] but don't just stand there."}
+  - {id: shake.A0, line: day2.shake.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him."}
+  - {id: shake.A3, line: day2.shake.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.3, seed: 1, text: "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him."}
+  - {id: shake.B, line: day2.shake.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[A dying lawman, nearly smiling, patient, to a young man who has just refused his badge; then turning to the doctor for the order.] [exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him."}

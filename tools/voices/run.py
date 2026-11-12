@@ -2,12 +2,12 @@
 
 A request is tools/voices/requests/<YYYY-MM-DD>_<what>.yaml; it's done when <name>.done.yaml exists
 (its outcome), so a push never runs it twice. Fields:
-    task: probe | cast
+    task: probe | cast | takes
     spend: 0.00          # the most the whole request may cost ($): required; the run stops before passing it
     note: why
 probe (free; optional `apps:` [fal endpoint ids] and `pages:` {name: url}): fetches fal's API schemas and pages for its ElevenLabs endpoints and the terms
 (ElevenLabs, fal) into tools/voices/probe/, for the session to read (the workspace can't reach them).
-cast (paid): see cast.py.
+cast (paid): see cast.py. takes (paid): see takes.py.
 Every paid call is a row in tools/voices/paid.csv (date, request, app, what, est $).
 """
 import glob
@@ -98,6 +98,13 @@ def main():
             try:
                 out = cast.run(req, os.path.basename(path)[:-5])
             except Exception as e:   # a failed run is recorded, never retried by itself
+                out = {"error": repr(e)}
+        elif req.get("task") == "takes":
+            sys.path.insert(0, HERE)
+            import takes
+            try:
+                out = takes.run(req, os.path.basename(path)[:-5])
+            except Exception as e:
                 out = {"error": repr(e)}
         else:
             out = {"error": "unknown task"}
