@@ -161,6 +161,27 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
 - **Not done here:** contact shadows under furniture (#711's; SSAO is all there is, and the lamps
   that cast shadows), lamps lit by people (a man carrying or lighting one: the lamps keep the clock).
 
+## Walls and windows (#826, Sean's picks 3 and 4 on #821)
+
+- **A finish is drawn at the board width it was judged at.** A spec says `inside_finish.boards:
+  "judged"`; the builder cuts members three of the paint's boards wide (27 cm for
+  `painted_pale_tg`'s 9 cm) and draws each as that many beaded boards (`strips_mesh`: one mesh, so
+  it batches as one board). The test fails a board more than a fifth off its entry's `board_w`.
+- **Every boarded room has a skirting** (`inside_finish.skirting`, 0.2 m), stopped at the door
+  casings; **casings, skirting and sashes take the trim's finish** (surfaces `/casing`, `/skirt`,
+  `/window_` before `/in_ground/`), never the wall's (they vanished in it).
+- **Windows are sashes:** give every outer window its `lights` (two-over-two is the 1880s' town
+  sash; one-over-one for a small loft or high window). `Checks.built_right` fails a window whose
+  panes aren't its lights or whose reveal isn't lined. Barred windows (`bars: true`) keep their
+  sashes inside the bars.
+- **The sash stands by its joints in the support graph:** linings in framing's tier (as the
+  nailers), rails through between the linings, stiles and bar pieces standing on them, a pane on
+  the rail or bar under it (glass on trim, `_link`'s one exception). Trim beside trim carries
+  nothing: a piece that only touches its neighbours at the side falls at load.
+- **A pane is a draw of its own** (glass isn't batched): the doctor went from 14 panes to 52,
+  158 draws to 195 in the lab's count. A building with many small lights (six-over-six) wants
+  them counted against the render budget before it's specced.
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests

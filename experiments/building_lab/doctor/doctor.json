@@ -290,6 +290,11 @@
   "finish": "beaded",
   "rooms": "all"
  },
+ "inside_finish": {
+  "_doc": "#826 (Sean's pick 3 on #821): the inside boards drawn at the width their paint was judged at ('judged': painted_pale_tg's 9 cm beaded boards, three to a 27 cm member, SpecBuilding.strips_mesh; the ceiling's too), and a plain 8 in skirting at the foot of every boarded wall (its top rounded), stopped at the door casings; skirting, casings and the windows' sashes and linings in the trim's finish (surfaces /skirt, /casing, /window_).",
+  "boards": "judged",
+  "skirting": 0.2
+ },
  "walls": [
   {
    "_doc": "The front, to the street: the gable over it, the street door (3 ft by 7 ft, glazed above, a transom over it) a little west of the middle at the hall's line, a show window either side (5 by 7 ft, four lights, low sills for the show globes); the attic's small window high in the gable; the sign across the gable's foot above the walk's porch roof.",
@@ -363,7 +368,8 @@
      "width": 0.76,
      "height": 1.07,
      "sill": 0.6,
-     "_doc": "the loft's window over Main Street: a man kneeling or standing at it shoots down the street"
+     "_doc": "the loft's window over Main Street: a man kneeling or standing at it shoots down the street",
+     "lights": 2
     }
    ],
    "ribbon": false
@@ -418,7 +424,8 @@
      "at": 7.0,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     },
     {
      "type": "window",
@@ -426,7 +433,8 @@
      "at": 2.0,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     },
     {
      "type": "door",
@@ -481,7 +489,8 @@
      "at": 1.9,
      "width": 0.76,
      "height": 1.52,
-     "sill": 0.76
+     "sill": 0.76,
+     "lights": 4
     },
     {
      "type": "window",
@@ -489,7 +498,8 @@
      "at": 4.5,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.66
+     "sill": 0.66,
+     "lights": 4
     },
     {
      "type": "window",
@@ -497,7 +507,8 @@
      "at": 5.85,
      "width": 0.91,
      "height": 1.83,
-     "sill": 0.66
+     "sill": 0.66,
+     "lights": 4
     },
     {
      "type": "door",
@@ -514,7 +525,8 @@
      "at": 9.8,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     },
     {
      "type": "window",
@@ -522,7 +534,8 @@
      "at": 13.0,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     }
    ],
    "ribbon": false
@@ -568,7 +581,8 @@
      "at": 1.9,
      "width": 0.76,
      "height": 1.52,
-     "sill": 0.76
+     "sill": 0.76,
+     "lights": 4
     },
     {
      "type": "window",
@@ -577,7 +591,8 @@
      "width": 0.91,
      "height": 0.76,
      "sill": 1.6,
-     "_doc": "high over the dispensary's shelves"
+     "_doc": "high over the dispensary's shelves",
+     "lights": 2
     },
     {
      "type": "window",
@@ -585,7 +600,8 @@
      "at": 9.8,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     },
     {
      "type": "window",
@@ -593,7 +609,8 @@
      "at": 13.0,
      "width": 0.76,
      "height": 1.37,
-     "sill": 0.84
+     "sill": 0.84,
+     "lights": 4
     }
    ],
    "ribbon": false
@@ -1508,6 +1525,18 @@
    }
   },
   "surfaces": [
+   [
+    "/casing",
+    "trim"
+   ],
+   [
+    "/skirt",
+    "trim"
+   ],
+   [
+    "/window_",
+    "trim"
+   ],
    [
     "/siding/",
     "exterior"

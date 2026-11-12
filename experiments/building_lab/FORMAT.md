@@ -35,6 +35,8 @@ separately and don't agree). The pictures are the look to match.
 | `rooms` | each room's level, rect and use | 12, from the hall to the cellar |
 | `fixtures`, `furniture` | kit props by id, place, facing, repeats; a table's chairs; furniture of members (`table`, `shelves`) | the bar and back bar in sections, 3 card tables, 14 chairs |
 | `lamps` | sconces by wall, level, places along it, height; lamps on the tables and the bar; a chandelier | 31 OilLamps |
+| `inside_finish` (#826) | `boards: "judged"`: the inside boards (and the ceiling's) drawn at the width their finish's library entry was judged at (`board_w`), three to a member (`strips_mesh`); `skirting`: its height on every boarded face, stopped at the door casings | the doctor's: 9 cm beaded boards, an 8 in skirting |
+| windows' `lights`, `bars` (#826) | an outer window with `lights` is a sash window (`SashWindow`, `src/structures/sash_window.gd`): a lined reveal, two sashes of `lights / 2` panes (1: one fixed light), each pane its own glass; without it, one pane as before. `bars: true` sets iron bars outside the sashes (`_bars`) | the doctor's: two-over-two below, one-over-one in the loft and the dispensary's high window |
 | `light` (#824) | the room's light: `fill` the indoor fill's colour (near neutral); with it the fill's box reaches the outer walls and RoomLight takes the sky through every outer door and window (`light_openings`) | the doctor's |
 | `outbuildings` | each by kind, place, size | the outhouse |
 | `use_points` | where people stand, sit, serve, work, sleep, watch and take cover; `seats` points at a kit prop's | 22, plus the tables' seats |
