@@ -1,0 +1,3053 @@
+{
+	"_doc": "Saloon B, the corner saloon (The Salt Creek; #772, Sean's answers of 2026-11-10 in docs/briefs/saloon-design.md; step 1 of #848: the spec and the frame). Format: experiments/building_lab/FORMAT.md. Sizes come from this file, never off the pictures (saloon_b/sheet, saloon_b/concept.json are the target). Metres in the building's own space. It stands on a NORTH-side lot facing south (facing 180), so x runs from its EAST corner (the yard, x 0) to the North-South Street (x 16.46), z back from Main Street's front wall, y up from the ground at the walk's street edge. Walls are named by what they face: front (Main Street), side (the North-South Street), yard (east), back. 54 x 72 ft, two storeys: 13 ft floor to floor below (the fall over the gallery's rail, #759), 11 ft above.",
+	"format": 1,
+	"id": "saloon_b",
+	"identity": {
+		"owner": "The Salt Creek's owner, who built the whole corner in 1881 and meant to stay",
+		"trade": "saloon, gaming room and lunch counter; a dance hall over the bar; four rooms let upstairs",
+		"means": "the first man in town to build two storeys on a corner lot; dark red with cream trim, a bracketed cornice on the street",
+		"age_and_repair": "1 year: the paint new, the floor already worn pale from the corner door to the bar",
+		"clues": [
+			"a brass foot rail bright where boots rest",
+			"a faro layout by the arch, a wheel in the gaming room",
+			"the owner's office over the corner door, a grate in its floor over the card tables",
+			"a fiddler's platform in the dance hall's corner",
+			"kegs rolled down a trap behind the bar's end"
+		],
+		"built": 1881,
+		"now": 1882
+	},
+	"lot": {
+		"_doc": "valley.json town.north 'saloon' (x 7.6-24.0): the building's origin is its east front corner; its side wall on the lot's west edge, on the North-South Street. Sean's answer 6: 72 ft deep (the lot's old 17.1 m is the spec saloon A's). The yard east of it (saloon_annex) holds the outside stair.",
+		"valley_lot": "saloon",
+		"side": "north",
+		"at": [
+			24.06,
+			0.0,
+			-10.05
+		],
+		"facing": 180,
+		"width": 16.46,
+		"depth": 21.95,
+		"yard": [
+			-10.4,
+			0.0,
+			0.0,
+			21.95
+		],
+		"footprint_with_stair": [
+			-1.3,
+			-2.44,
+			18.900000000000002,
+			23.25
+		]
+	},
+	"levels": {
+		"_doc": "The floor at the walk's top (0.95, wagon-bed height). 13 ft (3.96 m) floor to floor below: the bar room's 8x8 posts ~13 ft (How to Build Houses 1889), and the 13 ft fall over the gallery's rail Sean asked for. 11 ft to the plate above (a dance hall). The roof a low 3/12 on queen-post trusses behind the street's cornice (the hip and the side street's cornice are step 2's).",
+		"cellar": {
+			"floor": -2.0
+		},
+		"ground": {
+			"top": 0.95
+		},
+		"upper": {
+			"top": 4.91
+		},
+		"plate": 8.26,
+		"false_front": 9.9,
+		"roof_pitch": 14.04
+	},
+	"frame": {
+		"_doc": "A balloon frame (Bell 1858; Woodward 1865): studs sill to plate through both storeys, the upper joists on a 1x6 ribbon let into them. The dance floor by the brief's section 7: 3x12 joists at 16 in over 18 ft (Hatfield 1880 pp.126-128), on two lines of 10x12 girders on 8x8 posts 10-14 ft apart (Hatfield p.142; How to Build Houses 1889). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing.",
+		"stacked": true,
+		"foundation": {
+			"wood": "stone",
+			"thick": 0.45,
+			"bottom": -0.3,
+			"top": 0.475,
+			"piece": 1.5
+		},
+		"sill": {
+			"section": [
+				0.2,
+				0.2
+			],
+			"wood": "framing"
+		},
+		"pier": {
+			"size": 0.45,
+			"wood": "stone"
+		},
+		"girder": {
+			"section": [
+				0.15,
+				0.2
+			],
+			"wood": "framing",
+			"pier_every": 1.9
+		},
+		"joist": {
+			"section": [
+				0.05,
+				0.25
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"dance_joist": {
+			"_doc": "3x12 at 16 in, 18 ft (Hatfield): the dance hall, the office, the gallery",
+			"section": [
+				0.075,
+				0.3
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"long_joist": {
+			"_doc": "3x12 at 12 in over the gaming room's 22 ft (Kidder: no wood joist over 25 ft)",
+			"section": [
+				0.075,
+				0.3
+			],
+			"spacing": 0.305,
+			"wood": "framing"
+		},
+		"floor_board": {
+			"width": 0.15,
+			"thick": 0.025,
+			"wood": "floor"
+		},
+		"stud": {
+			"section": [
+				0.05,
+				0.1
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"tall": {
+				"_doc": "the balloon studs run 7.6 m sill to plate: 3x4",
+				"section": [
+					0.075,
+					0.1
+				],
+				"walls": [
+					"front",
+					"back",
+					"yard",
+					"side"
+				]
+			}
+		},
+		"plate": {
+			"height": 0.1
+		},
+		"ribbon": {
+			"section": [
+				0.025,
+				0.15
+			]
+		},
+		"header": {
+			"height": 0.15
+		},
+		"post": {
+			"_doc": "8x8, chamfered, on stone footings",
+			"section": [
+				0.2,
+				0.2
+			],
+			"wood": "framing",
+			"look": "wood:int_timber",
+			"chamfer": 0.035
+		},
+		"beam": {
+			"_doc": "the girders under the dance floor: 10x12",
+			"section": [
+				0.25,
+				0.3
+			],
+			"wood": "framing",
+			"look": "wood:int_timber",
+			"chamfer": 0.03
+		},
+		"bracket": {
+			"reach": 0.55,
+			"thick": 0.1,
+			"look": "wood:int_timber"
+		},
+		"wall_post": {
+			"section": [
+				0.15,
+				0.1
+			]
+		},
+		"truss": {
+			"_doc": "Queen-post trusses across the 54 ft at 10 ft (Bell; Tredgold), purlins, common rafters and boards.",
+			"tie": [
+				0.15,
+				0.25
+			],
+			"principal": [
+				0.15,
+				0.2
+			],
+			"queen": [
+				0.15,
+				0.15
+			],
+			"purlin": [
+				0.1,
+				0.15
+			],
+			"rafter": [
+				0.05,
+				0.15
+			],
+			"rafter_spacing": 0.61,
+			"at": [
+				0.25,
+				3.05,
+				6.1,
+				9.14,
+				12.19,
+				15.24,
+				18.29,
+				21.7
+			],
+			"purlins": [
+				0.3,
+				2.9,
+				5.6,
+				8.3
+			]
+		}
+	},
+	"girders": {
+		"_doc": "Lines under the ground floor's joists (10 ft or less between them), on stone piers; in the cellar on its posts.",
+		"z": [
+			3.05,
+			6.1,
+			9.14,
+			11.28,
+			13.41,
+			15.85,
+			18.9
+		],
+		"under": [
+			{
+				"_doc": "NEW: a girder under each bearing partition that runs with the joists (the stair hall's and the store room's walls carry the rooms' floor above): piers to the boards' underside",
+				"x": 6.1,
+				"z": [
+					13.5,
+					21.7
+				]
+			},
+			{
+				"x": 12.8,
+				"z": [
+					13.5,
+					21.7
+				]
+			}
+		]
+	},
+	"cellar": {
+		"_doc": "Under the bar's back half and the store room, 16 x 46 ft (the concept's 20 ft narrowed so the east girder's posts stand on solid ground west of its wall), rubble-stone walls, 8 ft clear under the girders. The trap in the store room behind the bar's end (kegs down, girder to girder so no joist is cut short), its steep stair under it. The bulkhead to the yard (the concept's 5) waits for the valley's ground to be dug for it (#695).",
+		"rect": [
+			0.0,
+			7.92,
+			4.88,
+			21.95
+		],
+		"posts": [
+			[
+				1.45,
+				9.14
+			],
+			[
+				2.8,
+				9.14
+			],
+			[
+				1.45,
+				11.28
+			],
+			[
+				2.8,
+				11.28
+			],
+			[
+				1.45,
+				13.41
+			],
+			[
+				2.8,
+				13.41
+			],
+			[
+				1.45,
+				15.85
+			],
+			[
+				2.8,
+				15.85
+			],
+			[
+				1.45,
+				18.9
+			],
+			[
+				2.8,
+				18.9
+			]
+		],
+		"flag": 1.2,
+		"trap": {
+			"rect": [
+				3.1,
+				13.51,
+				4.1,
+				15.75
+			]
+		},
+		"stair": {
+			"head": [
+				3.15,
+				13.51
+			],
+			"dir": "-z",
+			"width": 0.9,
+			"risers": 15,
+			"going": 0.2
+		}
+	},
+	"posts": {
+		"_doc": "8x8 chamfered posts, floor to the girders, each on a pier. The east girder's (x 5.49) at 11, 22, 33 ft and against the back wall; the west girder's (x 10.97) under the office's wall and the well's edge; three under the gallery's beam; two at the stair's well. 'wall' posts stand in a wall's stud line under a beam's end.",
+		"free": [
+			[
+				5.49,
+				3.35
+			],
+			[
+				5.49,
+				6.71
+			],
+			[
+				5.49,
+				10.06
+			],
+			[
+				5.49,
+				13.25
+			],
+			[
+				10.97,
+				2.74
+			],
+			[
+				10.97,
+				5.49
+			],
+			[
+				10.97,
+				9.37
+			],
+			[
+				10.97,
+				13.25
+			],
+			[
+				15.24,
+				5.49
+			],
+			[
+				15.24,
+				8.84
+			],
+			[
+				15.24,
+				12.19
+			],
+			[
+				15.14,
+				15.24
+			],
+			[
+				15.14,
+				20.4
+			]
+		],
+		"wall": [
+			[
+				5.49,
+				0.05
+			],
+			[
+				10.97,
+				0.05
+			],
+			[
+				16.385,
+				5.49
+			],
+			[
+				15.14,
+				21.9
+			],
+			[
+				16.385,
+				15.24
+			]
+		]
+	},
+	"beams": [
+		{
+			"_doc": "THE GIRDER THE BARON'S MEN SAW (Sean's answer 2): its piece between the posts at 22 and 33 ft (beam/east/2) carries the dance floor's joists both sides, over the bar. Cut, the floor from the yard wall to the west girder comes down on the bar (tests/test_building_saloon_b.gd).",
+			"id": "east",
+			"from": [
+				5.49,
+				0.1
+			],
+			"to": [
+				5.49,
+				13.36
+			]
+		},
+		{
+			"id": "west",
+			"from": [
+				10.97,
+				0.1
+			],
+			"to": [
+				10.97,
+				13.36
+			]
+		},
+		{
+			"_doc": "under the office's wall, the well's front edge",
+			"id": "well_front",
+			"from": [
+				10.97,
+				5.49
+			],
+			"to": [
+				16.36,
+				5.49
+			]
+		},
+		{
+			"_doc": "the gallery's beam, the well's west edge",
+			"id": "gallery",
+			"from": [
+				15.24,
+				5.49
+			],
+			"to": [
+				15.24,
+				12.29
+			]
+		},
+		{
+			"_doc": "the stair's well: the upper floor's edge beside the stair",
+			"id": "stair",
+			"from": [
+				15.14,
+				15.24
+			],
+			"to": [
+				15.14,
+				21.849999999999998
+			]
+		},
+		{
+			"_doc": "under the upper hall's edge at the stair's head: the stringers land on it",
+			"id": "stair_head",
+			"from": [
+				15.14,
+				15.24
+			],
+			"to": [
+				16.36,
+				15.24
+			]
+		}
+	],
+	"sabotage": {
+		"_doc": "Payday Night (#809): the member the Baron's men saw, and what it must drop on.",
+		"girder": "beam/east/2",
+		"onto": "bar"
+	},
+	"floors": [
+		{
+			"id": "ground",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				16.36,
+				21.849999999999998
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"rough": [
+				[
+					0.1,
+					19.51,
+					12.8,
+					21.849999999999998
+				],
+				[
+					0.1,
+					13.41,
+					6.1,
+					21.849999999999998
+				]
+			],
+			"openings": [
+				{
+					"id": "trap",
+					"rect": [
+						3.1,
+						13.51,
+						4.1,
+						15.75
+					],
+					"hatch": 2
+				}
+			]
+		},
+		{
+			"_doc": "The dance hall, 36 x 44 ft over the bar: open joists (Sean's answer 4), 3x12 at 16 in across the building, broken over the east girder, their ends on the yard wall's ribbon and the west girder.",
+			"id": "dance",
+			"level": "upper",
+			"joist": "dance_joist",
+			"rect": [
+				0.1,
+				0.1,
+				10.97,
+				13.36
+			],
+			"joists": "x",
+			"breaks": [
+				5.49
+			],
+			"look": "wood:int_floor"
+		},
+		{
+			"id": "office",
+			"level": "upper",
+			"joist": "dance_joist",
+			"rect": [
+				10.97,
+				0.1,
+				16.36,
+				5.54
+			],
+			"joists": "x",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "the gallery along the side street's wall, 4 ft, from the office's door to the back hall",
+			"id": "gallery",
+			"level": "upper",
+			"joist": "dance_joist",
+			"rect": [
+				15.14,
+				5.54,
+				16.36,
+				12.19
+			],
+			"joists": "x",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "the gallery's return behind the well, to the dance hall and the back hall",
+			"id": "link",
+			"level": "upper",
+			"joist": "dance_joist",
+			"rect": [
+				10.97,
+				12.19,
+				16.36,
+				13.36
+			],
+			"joists": "x",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "the upper hall, over the bar room's back wall and the rooms behind it",
+			"id": "hall",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				0.1,
+				13.36,
+				16.36,
+				15.24
+			],
+			"joists": "x",
+			"breaks": [
+				6.1,
+				12.8
+			],
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "the rented rooms, to the stair's well",
+			"id": "rooms",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				0.1,
+				15.24,
+				15.29,
+				21.849999999999998
+			],
+			"joists": "x",
+			"breaks": [
+				6.1,
+				12.8
+			],
+			"look": "wood:int_floor"
+		}
+	],
+	"walls": [
+		{
+			"_doc": "Main Street: three show windows between the girders' lines, the corner cut off west of x 14.02 (a 'void': no studs, the upper floor carried over it on the headers to the iron column), the dance hall's two doors and the office's onto the balcony.",
+			"id": "front",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					16.46,
+					0
+				]
+			],
+			"out": "-z",
+			"top": 9.9,
+			"outside": {
+				"siding": "vertical",
+				"wood": "saloon_red"
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 14.020000000000001,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 16.36,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 2.74,
+					"width": 2.44,
+					"height": 2.4,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 8.23,
+					"width": 2.74,
+					"height": 2.4,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 12.5,
+					"width": 1.83,
+					"height": 2.4,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "void",
+					"level": "ground",
+					"at": 15.24,
+					"width": 2.44,
+					"height": 3.0,
+					"_doc": "the cut corner: the entrance porch under the office"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 2.74,
+					"width": 1.22,
+					"height": 2.3
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 8.23,
+					"width": 1.22,
+					"height": 2.3
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 12.5,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 15.24,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "the office's door onto the balcony, over the corner"
+				}
+			]
+		},
+		{
+			"_doc": "The North-South Street: the corner's other side cut off (z 0-2.44), three windows on the card tables, the stair hall's own door; above, the office, the gallery's two windows, the hall's and the stair's.",
+			"id": "side",
+			"line": [
+				[
+					16.46,
+					0
+				],
+				[
+					16.46,
+					21.95
+				]
+			],
+			"out": "+x",
+			"top": "plate",
+			"outside": {
+				"siding": "vertical",
+				"wood": "saloon_red"
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 2.44,
+					"to": 21.849999999999998,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 21.849999999999998,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "void",
+					"level": "ground",
+					"at": 1.22,
+					"width": 2.44,
+					"height": 3.0
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 4.3,
+					"width": 1.52,
+					"height": 2.3,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.9,
+					"width": 1.52,
+					"height": 2.3,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 11.0,
+					"width": 1.52,
+					"height": 2.3,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 14.4,
+					"width": 1.07,
+					"height": 2.53,
+					"transom": 0.4,
+					"_doc": "the stair hall's door on the side street: the dancers' way up"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 1.22,
+					"width": 0.91,
+					"height": 2.13
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 4.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 7.9,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 11.0,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 14.4,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 18.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4,
+					"_doc": "lights the stair"
+				}
+			]
+		},
+		{
+			"_doc": "The yard: the back bar's wall below (no window behind the mirror), the store room's window; above, the dance hall's two windows, the upper hall's door to the outside stair's landing, room 6's window.",
+			"id": "yard",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					0,
+					21.95
+				]
+			],
+			"out": "-x",
+			"top": "plate",
+			"outside": {
+				"siding": "vertical",
+				"wood": "saloon_red"
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 13.41,
+					"finish": "boards"
+				},
+				{
+					"level": "ground",
+					"from": 13.41,
+					"to": 21.849999999999998,
+					"finish": "rough"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 21.849999999999998,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 14.33,
+					"width": 0.91,
+					"height": 1.22,
+					"sill": 1.1,
+					"lights": 2,
+					"bars": true
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.66,
+					"width": 1.22,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 9.14,
+					"width": 1.22,
+					"height": 1.83,
+					"sill": 0.6,
+					"lights": 4
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 14.33,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "outward",
+					"_doc": "to the outside stair: Payday Night's two men with a saw"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 18.6,
+					"width": 0.91,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				}
+			]
+		},
+		{
+			"_doc": "The back, to the yard: the stair hall's back door, the kitchen's window, the store room's door; a window to each rented room.",
+			"id": "back",
+			"line": [
+				[
+					0,
+					21.95
+				],
+				[
+					16.46,
+					21.95
+				]
+			],
+			"out": "+z",
+			"top": "gable",
+			"outside": {
+				"siding": "vertical",
+				"wood": "saloon_red"
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 12.8,
+					"finish": "rough"
+				},
+				{
+					"level": "ground",
+					"from": 12.8,
+					"to": 16.36,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 16.36,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 3.0,
+					"width": 1.07,
+					"height": 2.13,
+					"leaf": "outward"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 9.45,
+					"width": 1.22,
+					"height": 1.22,
+					"sill": 1.0,
+					"lights": 4
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 14.2,
+					"width": 1.07,
+					"height": 2.13,
+					"leaf": "outward"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 1.37,
+					"width": 0.91,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 4.88,
+					"width": 0.91,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 9.45,
+					"width": 0.91,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 14.2,
+					"width": 0.91,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				}
+			]
+		},
+		{
+			"_doc": "The bar room's back wall (44 ft): the door behind the bar's end to the store room, the wide arch to the gaming room, the door to the stair hall.",
+			"id": "bar_back",
+			"line": [
+				[
+					0.1,
+					13.41
+				],
+				[
+					16.36,
+					13.41
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.27,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "outward"
+				},
+				{
+					"type": "arch",
+					"at": 9.2,
+					"width": 2.44,
+					"height": 2.6
+				},
+				{
+					"type": "door",
+					"at": 14.4,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "outward"
+				}
+			]
+		},
+		{
+			"_doc": "the stair hall's east wall; the upper joists break over it",
+			"id": "hall_wall",
+			"line": [
+				[
+					12.8,
+					13.46
+				],
+				[
+					12.8,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 7.14,
+					"width": 0.91,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"_doc": "the store room's west wall; the upper joists break over it",
+			"id": "store_wall",
+			"line": [
+				[
+					6.1,
+					13.46
+				],
+				[
+					6.1,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 7.14,
+					"width": 0.91,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"id": "kitchen",
+			"line": [
+				[
+					6.15,
+					19.51
+				],
+				[
+					12.75,
+					19.51
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "hatch",
+					"at": 3.3,
+					"width": 1.8,
+					"height": 1.0,
+					"sill": 1.0,
+					"_doc": "the lunch counter"
+				},
+				{
+					"type": "door",
+					"at": 5.7,
+					"width": 0.91,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"_doc": "the office's wall on the well; its door onto the gallery",
+			"id": "office_s",
+			"line": [
+				[
+					10.97,
+					5.49
+				],
+				[
+					16.36,
+					5.49
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.78,
+					"width": 0.86,
+					"height": 2.03,
+					"leaf": "outward"
+				}
+			]
+		},
+		{
+			"_doc": "between the office and the dance hall",
+			"id": "office_e",
+			"line": [
+				[
+					10.97,
+					0.1
+				],
+				[
+					10.97,
+					5.44
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"_doc": "the dance hall's back wall: two doors to the upper hall",
+			"id": "dance_back",
+			"line": [
+				[
+					0.1,
+					13.41
+				],
+				[
+					10.97,
+					13.41
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 3.56,
+					"width": 1.22,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 8.43,
+					"width": 1.22,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"_doc": "the rented rooms' doors off the upper hall, opening into the rooms",
+			"id": "rooms_front",
+			"line": [
+				[
+					0.1,
+					15.24
+				],
+				[
+					15.24,
+					15.24
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.58,
+					"width": 0.81,
+					"height": 2.03,
+					"leaf": "outward"
+				},
+				{
+					"type": "door",
+					"at": 4.93,
+					"width": 0.81,
+					"height": 2.03,
+					"leaf": "outward"
+				},
+				{
+					"type": "door",
+					"at": 9.2,
+					"width": 0.81,
+					"height": 2.03,
+					"leaf": "outward"
+				},
+				{
+					"type": "door",
+					"at": 13.46,
+					"width": 0.81,
+					"height": 2.03,
+					"leaf": "outward"
+				}
+			]
+		},
+		{
+			"id": "room_5_6",
+			"line": [
+				[
+					2.9,
+					15.290000000000001
+				],
+				[
+					2.9,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "room_4_5",
+			"line": [
+				[
+					7.01,
+					15.290000000000001
+				],
+				[
+					7.01,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "room_3_4",
+			"line": [
+				[
+					11.13,
+					15.290000000000001
+				],
+				[
+					11.13,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"_doc": "between room 3 and the stair's well",
+			"id": "stair_wall",
+			"line": [
+				[
+					15.24,
+					15.290000000000001
+				],
+				[
+					15.24,
+					21.849999999999998
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		}
+	],
+	"inside_finish": {
+		"_doc": "#826's rules: the inside boards at their paint's judged width, a skirting on every boarded wall.",
+		"boards": "judged",
+		"skirting": 0.2
+	},
+	"corner": {
+		"_doc": "NEW: the corner entrance (Sean's answers 1 and 7). The ground floor's south-west corner is cut off on the diagonal 8 ft each way; the upper floor runs on over it on the walls' headers and a 10x12 beam each way to ONE cast-iron column at the corner (the Balcony Ambush's key post). The diagonal wall holds glazed double doors (6 ft by 8 ft) with a transom light, no batwings; the triangle in front of them is the entrance porch at the walk's height.",
+		"from": [
+			14.020000000000001,
+			0.1
+		],
+		"to": [
+			16.36,
+			2.44
+		],
+		"door": {
+			"width": 1.83,
+			"height": 2.44,
+			"transom": 0.45
+		},
+		"column": {
+			"at": [
+				16.36,
+				0.1
+			],
+			"size": 0.2,
+			"wood": "iron"
+		},
+		"beam": [
+			0.2,
+			0.3
+		]
+	},
+	"stairs": [
+		{
+			"_doc": "The stair hall's stair, up the side street's wall to the upper hall: 21 risers of 7.4 in, 10 in treads (Hodgson 1884), 3 ft 3 in wide, its open side railed. The dancers come down it into the bar room.",
+			"id": "hall",
+			"head": [
+				15.32,
+				15.24
+			],
+			"dir": "-z",
+			"width": 1.0,
+			"from": "ground",
+			"to": "upper",
+			"risers": 21,
+			"going": 0.254,
+			"rail": "-x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber",
+			"posts": [
+				[
+					15.4,
+					17.8
+				],
+				[
+					16.25,
+					17.8
+				]
+			]
+		},
+		{
+			"_doc": "The outside stair in the yard, up the east wall to the landing at the upper hall's door (the concept's 3: Payday Night's two men and a saw; seen from Main Street across the yard's gate): 26 risers of 7.4 in, 10 in treads, 3 ft 6 in wide, three posts' lines under it.",
+			"id": "outside",
+			"head": [
+				-1.17,
+				15.24
+			],
+			"dir": "-z",
+			"width": 1.07,
+			"from": 0.0,
+			"to": "upper",
+			"risers": 26,
+			"going": 0.254,
+			"rail": "-x",
+			"wood": "weathered_pine",
+			"posts": [
+				[
+					-1.12,
+					17.4
+				],
+				[
+					-0.15,
+					17.4
+				],
+				[
+					-1.12,
+					19.5
+				],
+				[
+					-0.15,
+					19.5
+				]
+			]
+		},
+		{
+			"_doc": "the store room's back door: five steps to the yard",
+			"id": "back_store",
+			"head": [
+				2.4,
+				22.95
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 5,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"stoop": [
+				2.4,
+				21.95,
+				3.6,
+				22.95
+			]
+		},
+		{
+			"_doc": "the stair hall's back door: five steps to the yard",
+			"id": "back_hall",
+			"head": [
+				13.6,
+				22.95
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 5,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"stoop": [
+				13.6,
+				21.95,
+				14.8,
+				22.95
+			]
+		}
+	],
+	"balconies": [
+		{
+			"_doc": "The balcony wraps the corner: 54 ft on Main Street and 44 ft down the North-South Street, 8 ft deep over both walks (Sean's answer 8), on ten 6x6 posts (the Balcony Ambush's), a 6x10 beam a bay (blow a post and its two bays fold), 2x10 joists on ledgers through the siding into the studs. The corner's own beam runs from the iron column out to the side street's first post.",
+			"id": "street",
+			"wood": "weathered_pine",
+			"post": [
+				0.15,
+				0.15
+			],
+			"beam": [
+				0.15,
+				0.25
+			],
+			"posts": [
+				[
+					0.08,
+					-2.36
+				],
+				[
+					3.83,
+					-2.36
+				],
+				[
+					7.58,
+					-2.36
+				],
+				[
+					11.33,
+					-2.36
+				],
+				[
+					15.08,
+					-2.36
+				],
+				[
+					18.82,
+					-2.36
+				],
+				[
+					18.82,
+					0.0
+				],
+				[
+					18.82,
+					4.44
+				],
+				[
+					18.82,
+					8.88
+				],
+				[
+					18.82,
+					13.33
+				]
+			],
+			"beams": [
+				[
+					[
+						0.0,
+						-2.36
+					],
+					[
+						3.83,
+						-2.36
+					]
+				],
+				[
+					[
+						3.83,
+						-2.36
+					],
+					[
+						7.58,
+						-2.36
+					]
+				],
+				[
+					[
+						7.58,
+						-2.36
+					],
+					[
+						11.33,
+						-2.36
+					]
+				],
+				[
+					[
+						11.33,
+						-2.36
+					],
+					[
+						15.08,
+						-2.36
+					]
+				],
+				[
+					[
+						15.08,
+						-2.36
+					],
+					[
+						18.895,
+						-2.36
+					]
+				],
+				[
+					[
+						18.82,
+						-2.36
+					],
+					[
+						18.82,
+						0.0
+					]
+				],
+				[
+					[
+						18.82,
+						0.0
+					],
+					[
+						18.82,
+						4.44
+					]
+				],
+				[
+					[
+						18.82,
+						4.44
+					],
+					[
+						18.82,
+						8.88
+					]
+				],
+				[
+					[
+						18.82,
+						8.88
+					],
+					[
+						18.82,
+						13.41
+					]
+				],
+				[
+					[
+						16.36,
+						0.0
+					],
+					[
+						18.895,
+						0.0
+					]
+				]
+			],
+			"ledgers": [
+				{
+					"wall": "front",
+					"from": 0.0,
+					"to": 16.46
+				},
+				{
+					"wall": "side",
+					"from": 0.0,
+					"to": 13.41
+				}
+			],
+			"decks": [
+				{
+					"rect": [
+						0.0,
+						-2.44,
+						18.900000000000002,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						16.51,
+						-0.05,
+						18.900000000000002,
+						13.41
+					],
+					"joists": "x"
+				}
+			],
+			"rails": [
+				[
+					[
+						0.05,
+						-2.4
+					],
+					[
+						18.86,
+						-2.4
+					]
+				],
+				[
+					[
+						18.86,
+						-2.4
+					],
+					[
+						18.86,
+						13.37
+					]
+				],
+				[
+					[
+						0.05,
+						-2.4
+					],
+					[
+						0.05,
+						-0.05
+					]
+				],
+				[
+					[
+						16.51,
+						13.37
+					],
+					[
+						18.86,
+						13.37
+					]
+				]
+			]
+		},
+		{
+			"_doc": "The outside stair's landing at the upper hall's door, in the yard.",
+			"id": "landing",
+			"wood": "weathered_pine",
+			"post": [
+				0.15,
+				0.15
+			],
+			"beam": [
+				0.15,
+				0.25
+			],
+			"posts": [
+				[
+					-1.14,
+					13.49
+				],
+				[
+					-1.14,
+					15.16
+				]
+			],
+			"beams": [
+				[
+					[
+						-1.14,
+						13.41
+					],
+					[
+						-1.14,
+						15.24
+					]
+				]
+			],
+			"ledgers": [
+				{
+					"wall": "yard",
+					"from": 13.41,
+					"to": 15.24
+				}
+			],
+			"decks": [
+				{
+					"rect": [
+						-1.22,
+						13.41,
+						-0.05,
+						15.24
+					],
+					"joists": "x"
+				}
+			],
+			"rails": [
+				[
+					[
+						-1.18,
+						13.45
+					],
+					[
+						-0.05,
+						13.45
+					]
+				],
+				[
+					[
+						-1.18,
+						13.45
+					],
+					[
+						-1.18,
+						15.2
+					]
+				]
+			]
+		}
+	],
+	"galleries": {
+		"_doc": "THE OPEN WELL (Sean's answer 1): 14 x 22 ft over the card tables, a 36 in turned rail round it (How to Build Houses 1889's height: a man leaning is held, a man thrown goes over), the gallery 4 ft wide along the side street's wall, the dance hall open to it along the west girder. 13 ft to the bar room's floor: a fall from height (#759).",
+		"well": [
+			10.97,
+			5.54,
+			15.14,
+			12.19
+		],
+		"rails": [
+			[
+				[
+					10.91,
+					5.6
+				],
+				[
+					10.91,
+					12.25
+				]
+			],
+			[
+				[
+					15.2,
+					5.6
+				],
+				[
+					15.2,
+					12.25
+				]
+			],
+			[
+				[
+					10.91,
+					12.25
+				],
+				[
+					15.2,
+					12.25
+				]
+			]
+		],
+		"height": 0.915,
+		"look": "wood:int_oak"
+	},
+	"front": {
+		"sign": "THE SALT CREEK",
+		"sign_from": 8.55,
+		"cornice": "dark_trim"
+	},
+	"rooms": [
+		{
+			"id": "bar_room",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				16.36,
+				13.36
+			],
+			"use": "the bar down the yard wall, the card tables under the well by the side street's windows, the faro bank by the arch, the piano",
+			"open_to": "upper"
+		},
+		{
+			"id": "stair_hall",
+			"level": "ground",
+			"rect": [
+				12.85,
+				13.46,
+				16.36,
+				21.85
+			],
+			"use": "the side street's own door, the stair up to the dance hall, the back door to the yard"
+		},
+		{
+			"id": "gaming_room",
+			"level": "ground",
+			"rect": [
+				6.15,
+				13.46,
+				12.75,
+				19.46
+			],
+			"use": "faro, the wheel, poker, behind the arch"
+		},
+		{
+			"id": "kitchen",
+			"level": "ground",
+			"rect": [
+				6.15,
+				19.56,
+				12.75,
+				21.85
+			],
+			"use": "the cook and the lunch counter"
+		},
+		{
+			"id": "store_room",
+			"level": "ground",
+			"rect": [
+				0.1,
+				13.46,
+				6.05,
+				21.85
+			],
+			"use": "barrels and cases; the trap to the cellar; the back door to the yard"
+		},
+		{
+			"id": "cellar",
+			"level": "cellar",
+			"rect": [
+				0.45,
+				8.15,
+				4.65,
+				21.5
+			],
+			"use": "kegs and spirits kept cool"
+		},
+		{
+			"id": "dance_hall",
+			"level": "upper",
+			"rect": [
+				0.1,
+				0.1,
+				10.97,
+				13.36
+			],
+			"use": "dancing on payday night; the fiddler's platform in its back corner; open to the well along its west side"
+		},
+		{
+			"id": "office",
+			"level": "upper",
+			"rect": [
+				11.02,
+				0.1,
+				16.36,
+				5.44
+			],
+			"use": "the owner's office over the corner door, doors onto both streets' balcony"
+		},
+		{
+			"id": "gallery",
+			"level": "upper",
+			"rect": [
+				15.14,
+				5.54,
+				16.36,
+				13.36
+			],
+			"use": "along the well's rail: watching the card tables below"
+		},
+		{
+			"id": "upper_hall",
+			"level": "upper",
+			"rect": [
+				0.1,
+				13.46,
+				16.36,
+				15.19
+			],
+			"use": "from the stair's head to the dance hall's doors, the rooms' doors and the door to the outside stair"
+		},
+		{
+			"id": "room_3",
+			"level": "upper",
+			"rect": [
+				11.18,
+				15.29,
+				15.19,
+				21.85
+			],
+			"use": "let by the night"
+		},
+		{
+			"id": "room_4",
+			"level": "upper",
+			"rect": [
+				7.06,
+				15.29,
+				11.08,
+				21.85
+			],
+			"use": "let by the night"
+		},
+		{
+			"id": "room_5",
+			"level": "upper",
+			"rect": [
+				2.95,
+				15.29,
+				6.96,
+				21.85
+			],
+			"use": "let by the night"
+		},
+		{
+			"id": "room_6",
+			"level": "upper",
+			"rect": [
+				0.1,
+				15.29,
+				2.85,
+				21.85
+			],
+			"use": "let by the night"
+		}
+	],
+	"use_points": [
+		{
+			"id": "barman_a",
+			"use": "serve",
+			"who": "barman",
+			"at": [
+				0.99,
+				0.95,
+				4.0
+			],
+			"facing": 90
+		},
+		{
+			"id": "barman_b",
+			"use": "serve",
+			"who": "barman",
+			"at": [
+				0.99,
+				0.95,
+				8.5
+			],
+			"facing": 90
+		},
+		{
+			"id": "drinker_1",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				2.69,
+				0.95,
+				3.4
+			],
+			"facing": -90
+		},
+		{
+			"id": "drinker_2",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				2.69,
+				0.95,
+				5.2
+			],
+			"facing": -90
+		},
+		{
+			"id": "drinker_3",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				2.69,
+				0.95,
+				7.4
+			],
+			"facing": -90
+		},
+		{
+			"id": "drinker_4",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				2.69,
+				0.95,
+				9.0
+			],
+			"facing": -90
+		},
+		{
+			"id": "drinker_5",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				2.69,
+				0.95,
+				10.6
+			],
+			"facing": -90
+		},
+		{
+			"id": "gambler_tables",
+			"use": "gamble",
+			"who": "gambler",
+			"seats": "card_table"
+		},
+		{
+			"id": "piano",
+			"use": "play",
+			"who": "pianist",
+			"at": [
+				14.6,
+				0.95,
+				12.3
+			],
+			"facing": 180
+		},
+		{
+			"id": "faro_bank",
+			"use": "deal",
+			"who": "gambler",
+			"at": [
+				8.0,
+				0.95,
+				11.6
+			],
+			"facing": 0
+		},
+		{
+			"id": "stair_foot",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				14.3,
+				0.95,
+				19.0
+			],
+			"facing": 90
+		},
+		{
+			"id": "wheel",
+			"use": "deal",
+			"who": "gambler",
+			"at": [
+				9.0,
+				0.95,
+				17.0
+			],
+			"facing": 0
+		},
+		{
+			"id": "gaming_watch",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				11.0,
+				0.95,
+				15.5
+			],
+			"facing": -90
+		},
+		{
+			"id": "cook",
+			"use": "cook",
+			"who": "cook",
+			"at": [
+				9.45,
+				0.95,
+				20.8
+			],
+			"facing": 0
+		},
+		{
+			"id": "stores",
+			"use": "work",
+			"who": "barman",
+			"at": [
+				1.6,
+				0.95,
+				17.5
+			],
+			"facing": 90
+		},
+		{
+			"id": "cellar_kegs",
+			"use": "work",
+			"who": "barman",
+			"at": [
+				1.9,
+				-1.92,
+				10.2
+			],
+			"facing": 0
+		},
+		{
+			"id": "fiddler",
+			"use": "play",
+			"who": "fiddler",
+			"at": [
+				1.2,
+				4.91,
+				12.3
+			],
+			"facing": -135
+		},
+		{
+			"id": "dancer_1",
+			"use": "dance",
+			"who": "anyone",
+			"at": [
+				3.5,
+				4.91,
+				5.0
+			]
+		},
+		{
+			"id": "dancer_2",
+			"use": "dance",
+			"who": "anyone",
+			"at": [
+				7.5,
+				4.91,
+				4.0
+			]
+		},
+		{
+			"id": "dancer_3",
+			"use": "dance",
+			"who": "anyone",
+			"at": [
+				3.5,
+				4.91,
+				9.0
+			]
+		},
+		{
+			"id": "dancer_4",
+			"use": "dance",
+			"who": "anyone",
+			"at": [
+				8.0,
+				4.91,
+				9.5
+			]
+		},
+		{
+			"id": "owner_desk",
+			"use": "work",
+			"who": "owner",
+			"at": [
+				13.6,
+				4.91,
+				2.8
+			],
+			"facing": 180
+		},
+		{
+			"id": "rail_watch_a",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				15.75,
+				4.91,
+				7.5
+			],
+			"facing": 90,
+			"_doc": "at the gallery's rail over the card tables: No Law's upper viewing place"
+		},
+		{
+			"id": "rail_watch_b",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				15.75,
+				4.91,
+				10.5
+			],
+			"facing": 90
+		},
+		{
+			"id": "dance_rail",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				10.4,
+				4.91,
+				8.5
+			],
+			"facing": -90
+		},
+		{
+			"id": "upper_hall",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				8.0,
+				4.91,
+				14.3
+			]
+		},
+		{
+			"id": "room_3_bed",
+			"use": "sleep",
+			"who": "lodger",
+			"at": [
+				13.2,
+				4.91,
+				19.5
+			]
+		},
+		{
+			"id": "room_4_bed",
+			"use": "sleep",
+			"who": "lodger",
+			"at": [
+				9.1,
+				4.91,
+				19.5
+			]
+		},
+		{
+			"id": "room_5_bed",
+			"use": "sleep",
+			"who": "lodger",
+			"at": [
+				5.0,
+				4.91,
+				19.5
+			]
+		},
+		{
+			"id": "room_6_bed",
+			"use": "sleep",
+			"who": "lodger",
+			"at": [
+				1.5,
+				4.91,
+				19.5
+			]
+		},
+		{
+			"id": "balcony_fiddler",
+			"use": "play",
+			"who": "fiddler",
+			"at": [
+				8.2,
+				4.91,
+				-1.2
+			],
+			"facing": 180,
+			"_doc": "#799: the fiddler on the balcony over Main Street"
+		},
+		{
+			"id": "balcony_corner",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				17.66,
+				4.91,
+				-1.2
+			],
+			"facing": 135,
+			"_doc": "over the crossroads: every road in view"
+		}
+	],
+	"fixtures": [
+		{
+			"_doc": "The bar down the yard wall (the concept's 34 ft: three 3 m kit sections), the customers to the west; the back bar against the wall, four 2.5 m sections. UNDER THE SAWN GIRDER'S PANEL.",
+			"kit": "bar",
+			"at": [
+				1.75,
+				3.9
+			],
+			"facing": 90,
+			"repeat": {
+				"count": 3,
+				"step": [
+					0,
+					3.0
+				]
+			}
+		},
+		{
+			"kit": "back_bar",
+			"at": [
+				0.38,
+				3.15
+			],
+			"facing": 90,
+			"repeat": {
+				"count": 4,
+				"step": [
+					0,
+					2.5
+				]
+			}
+		}
+	],
+	"furniture": [
+		{
+			"_doc": "No Law's table (the concept's 1), under the well by the side street's windows",
+			"kit": "card_table",
+			"at": [
+				13.1,
+				7.3
+			],
+			"chairs": 4,
+			"id": "no_law_table"
+		},
+		{
+			"kit": "card_table",
+			"at": [
+				13.2,
+				10.5
+			],
+			"chairs": 4
+		},
+		{
+			"kit": "card_table",
+			"at": [
+				8.23,
+				2.8
+			],
+			"chairs": 4
+		},
+		{
+			"kit": "card_table",
+			"at": [
+				8.23,
+				8.6
+			],
+			"chairs": 4
+		}
+	],
+	"lamps": {
+		"_doc": "#824's rules: a building names its lamps, a room each, not an even row of sconces. The bar room: two lamps standing on the bar, a wheel of six over the card tables hung in the well from a truss (it lights the tables and the gallery), a reflector lamp by the card tables' windows, one by the piano, one at the bar's back door. Only the lamps where a player stands cast shadows.",
+		"on_bar": [
+			[
+				1.75,
+				3.5
+			],
+			[
+				1.75,
+				9.6
+			]
+		],
+		"on_tables": false,
+		"chandelier": {
+			"at": [
+				13.05,
+				9.14
+			],
+			"y": 5.6,
+			"radius": 0.7,
+			"lamps": 6,
+			"truss": 9.14
+		},
+		"kit": [
+			{
+				"room": "bar_room",
+				"kit": "reflector_lamp",
+				"wall": "side",
+				"level": "ground",
+				"at": 6.1,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"shadows": true,
+				"energy": 1.5,
+				"reach": 7.0,
+				"_doc": "between the card tables' windows"
+			},
+			{
+				"room": "bar_room",
+				"kit": "reflector_lamp",
+				"wall": "bar_back",
+				"level": "ground",
+				"at": 12.6,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"_doc": "over the piano"
+			},
+			{
+				"room": "bar_room",
+				"kit": "reflector_lamp",
+				"wall": "bar_back",
+				"level": "ground",
+				"at": 4.4,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				]
+			},
+			{
+				"room": "bar_room",
+				"kit": "reflector_lamp",
+				"wall": "front",
+				"level": "ground",
+				"at": 5.95,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.3
+			},
+			{
+				"room": "gaming_room",
+				"kit": "reflector_lamp",
+				"wall": "bar_back",
+				"level": "ground",
+				"at": 7.2,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"side": "+",
+				"shadows": true,
+				"energy": 1.4
+			},
+			{
+				"room": "gaming_room",
+				"kit": "reflector_lamp",
+				"wall": "store_wall",
+				"level": "ground",
+				"at": 3.2,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"side": "+"
+			},
+			{
+				"room": "kitchen",
+				"kit": "reflector_lamp",
+				"wall": "back",
+				"level": "ground",
+				"at": 11.3,
+				"height": 1.6,
+				"lit": [
+					5,
+					22
+				]
+			},
+			{
+				"room": "store_room",
+				"kit": "reflector_lamp",
+				"wall": "yard",
+				"level": "ground",
+				"at": 17.6,
+				"height": 1.6,
+				"lit": [
+					17,
+					23
+				],
+				"energy": 0.9
+			},
+			{
+				"room": "stair_hall",
+				"kit": "reflector_lamp",
+				"wall": "hall_wall",
+				"level": "ground",
+				"at": 2.2,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"side": "+",
+				"energy": 1.2
+			},
+			{
+				"room": "dance_hall",
+				"kit": "reflector_lamp",
+				"wall": "yard",
+				"level": "upper",
+				"at": 6.4,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"shadows": true,
+				"energy": 1.5,
+				"reach": 7.0
+			},
+			{
+				"room": "dance_hall",
+				"kit": "reflector_lamp",
+				"wall": "front",
+				"level": "upper",
+				"at": 5.5,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4
+			},
+			{
+				"room": "dance_hall",
+				"kit": "reflector_lamp",
+				"wall": "dance_back",
+				"level": "upper",
+				"at": 6.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4
+			},
+			{
+				"room": "office",
+				"kit": "reflector_lamp",
+				"wall": "office_e",
+				"level": "upper",
+				"at": 2.7,
+				"height": 1.6,
+				"lit": [
+					17,
+					23
+				],
+				"side": "+"
+			},
+			{
+				"room": "upper_hall",
+				"kit": "reflector_lamp",
+				"wall": "dance_back",
+				"level": "upper",
+				"at": 6.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"side": "+",
+				"energy": 1.0
+			},
+			{
+				"room": "upper_hall",
+				"kit": "reflector_lamp",
+				"wall": "rooms_front",
+				"level": "upper",
+				"at": 11.5,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.0
+			},
+			{
+				"room": "room_6",
+				"kit": "reflector_lamp",
+				"wall": "room_5_6",
+				"level": "upper",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					19,
+					23
+				],
+				"energy": 0.9
+			},
+			{
+				"room": "room_5",
+				"kit": "reflector_lamp",
+				"wall": "room_4_5",
+				"level": "upper",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					19,
+					23
+				],
+				"energy": 0.9
+			},
+			{
+				"room": "room_4",
+				"kit": "reflector_lamp",
+				"wall": "room_3_4",
+				"level": "upper",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					19,
+					23
+				],
+				"energy": 0.9
+			},
+			{
+				"room": "room_3",
+				"kit": "reflector_lamp",
+				"wall": "stair_wall",
+				"level": "upper",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					19,
+					23
+				],
+				"energy": 0.9
+			}
+		]
+	},
+	"light": {
+		"_doc": "#824/#829's rules, the doctor's numbers until step 2 tunes them here: a near-neutral low fill, the windows lighting the rooms by day.",
+		"fill": [
+			0.62,
+			0.6,
+			0.57
+		],
+		"window_day": 7.0,
+		"day_fill": 0.1
+	},
+	"materials": {
+		"_doc": "Step 1 (the frame): finishes by name from the material library, the passing entries only; step 2 picks and judges them (#848's second issue). Dark red board and batten with cream trim outside (the approved oxblood), pale beaded boards inside, the worn fir floor.",
+		"floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_oak",
+		"timber": "wood:int_timber",
+		"trim_outside": "dark_trim",
+		"roof": "weathered_pine",
+		"rough": "framing",
+		"deck": "weathered_pine",
+		"finishes": {
+			"exterior": {
+				"want": {
+					"entry": "painted_oxblood_batten",
+					"age": "few"
+				},
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"trim": {
+				"want": {
+					"entry": "painted_buff_drop",
+					"age": "few"
+				},
+				"use": {
+					"entry": "common_pine_lap",
+					"age": "old",
+					"role": "wall"
+				}
+			},
+			"inside": {
+				"want": {
+					"entry": "painted_pale_tg",
+					"age": "few"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"floor": {
+				"want": {
+					"entry": "floor_fir_worn",
+					"age": "few",
+					"role": "floor"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "floor"
+				}
+			},
+			"framing": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"rough": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				}
+			}
+		},
+		"surfaces": [
+			[
+				"/casing",
+				"trim"
+			],
+			[
+				"/skirt",
+				"trim"
+			],
+			[
+				"/window_",
+				"trim"
+			],
+			[
+				"/siding/",
+				"exterior"
+			],
+			[
+				"/corner_",
+				"trim"
+			],
+			[
+				"/trim_",
+				"trim"
+			],
+			[
+				"/transom_bar",
+				"trim"
+			],
+			[
+				"front/cornice",
+				"trim"
+			],
+			[
+				"front/cap",
+				"trim"
+			],
+			[
+				"roof/ridge_cap",
+				"trim"
+			],
+			[
+				"front/door_",
+				"trim"
+			],
+			[
+				"back/door_",
+				"trim"
+			],
+			[
+				"yard/door_",
+				"trim"
+			],
+			[
+				"side/door_",
+				"trim"
+			],
+			[
+				"corner/leaf",
+				"trim"
+			],
+			[
+				"corner/out/",
+				"exterior"
+			],
+			[
+				"corner/in/",
+				"inside"
+			],
+			[
+				"/in_ground/",
+				"inside"
+			],
+			[
+				"/in_upper/",
+				"inside"
+			],
+			[
+				"/m/board/",
+				"inside"
+			],
+			[
+				"/p/board/",
+				"inside"
+			],
+			[
+				"/m/casing",
+				"inside"
+			],
+			[
+				"/p/casing",
+				"inside"
+			],
+			[
+				"/door_",
+				"inside"
+			],
+			[
+				"floor/ground/board",
+				"floor"
+			],
+			[
+				"floor/dance/board",
+				"floor"
+			],
+			[
+				"floor/office/board",
+				"floor"
+			],
+			[
+				"floor/gallery/board",
+				"floor"
+			],
+			[
+				"floor/link/board",
+				"floor"
+			],
+			[
+				"floor/hall/board",
+				"floor"
+			],
+			[
+				"floor/rooms/board",
+				"floor"
+			],
+			[
+				"roof/board",
+				"rough"
+			],
+			[
+				"stoop/",
+				"rough"
+			],
+			[
+				"stair/outside",
+				"rough"
+			],
+			[
+				"stair/back",
+				"rough"
+			],
+			[
+				"street/",
+				"rough"
+			],
+			[
+				"landing/",
+				"rough"
+			]
+		]
+	},
+	"sources": [
+		"docs/briefs/saloon-design.md sections 5-7 (HABS AZ-7, Hatfield 1877/1880, Trautwine 1883, Kidder 1895, Bell 1858/75, Woodward 1869, How to Build Houses 1889, Hodgson 1884)",
+		"experiments/building_lab/saloon_b/concept.json and sheet/ (the plans and three views: the target)"
+	]
+}

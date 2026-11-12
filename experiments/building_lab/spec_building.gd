@@ -222,6 +222,8 @@ func build() -> void:
 	band = 1
 	_ground_floor()
 	_outer_walls()
+	if spec.has("corner"):
+		_corner_entrance()
 	band = 2
 	_partitions("ground", 2)
 	_stairs_inside()
@@ -233,9 +235,10 @@ func build() -> void:
 	band = 4
 	_partitions("upper", 4)
 	_outside_stair()
-	band = 1
+	band = 2 if _fr.get("stacked", false) else 1
 	if _has_false_front():
 		_false_front()
+	band = 1
 	if spec.has("porch"):
 		_porch()
 	if _fr.has("rafters"):
@@ -260,6 +263,8 @@ func build() -> void:
 		_trusses()
 		band = 6
 		_roof_cover()
+		band = 1
+		_stoops()
 	if (spec.get("lamps", {}) as Dictionary).has("chandelier"):
 		_chandelier()
 	band = 2
@@ -323,9 +328,18 @@ func light_openings() -> Array:
 		var o: Vector3 = d.out
 		var side := "front" if o.z < -0.5 else ("back" if o.z > 0.5 else ("left" if o.x < -0.5 else "right"))
 		for op: Array in _openings(wl.spec):
+			if String(op[1].type) == "void":
+				continue
 			var kind := "door" if String(op[1].type) == "door" else "window"
 			out.append({"wall": side, "rect": op[0], "kind": kind,
 					"frame": {"origin": d.origin, "along": d.along, "inward": -o}})
+	if spec.has("corner"):
+		# The corner's double doors and their transom, in the diagonal wall.
+		var c := _corner_frame()
+		var dw := float(spec.corner.door.width)
+		var dh := float(spec.corner.door.height) + float(spec.corner.door.get("transom", 0.0))
+		out.append({"wall": "front", "rect": Rect2((float(c.length) - dw) * 0.5, floor_top, dw, dh), "kind": "door",
+				"frame": {"origin": c.origin, "along": c.along, "inward": -(c.out as Vector3)}})
 	return out
 
 
@@ -569,9 +583,32 @@ func _ground_floor() -> void:
 			x += every
 			k += 1
 		_pieces("girder/%d" % int(z * 100), Vector3(0.2, top + float(g[1]) * 0.5, z), Vector3.RIGHT, width - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
+	# A girder under a bearing partition that runs with the joists (`girders.under`: saloon B's stair
+	# hall and store room walls): from the piers to the floor's top, the joists beside it and the
+	# boards butted to it each side, so the wall's studs stand on the girder and not on a board.
+	var slots := []
+	for u: Dictionary in spec.girders.get("under", []):
+		var ux := float(u.x)
+		var z0 := float(u.z[0])
+		var z1 := float(u.z[1])
+		var h := floor_top - top
+		slots.append({"id": "under%d" % int(ux * 100), "slot": true, "rect": [ux - float(g[0]) * 0.5, z0, ux + float(g[0]) * 0.5, z1]})
+		var z := z0 + 0.3
+		var k := 0
+		while z < z1:
+			band = 0
+			add_member("pier/u%d_%02d" % [int(ux * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(ux, (top - 0.3) * 0.5, z))
+			band = 1
+			z += every
+			k += 1
+		_pieces("girder/under%d" % int(ux * 100), Vector3(ux, top + h * 0.5, z0), Vector3.BACK, z1 - z0, Vector2(h, g[0]), &"sill", &"framing")
 	for f: Dictionary in spec.floors:
 		if f.level == "ground":
-			_floor(f, spec.girders.get("x", []) if spec.girders.has("x") else gz)
+			var fl := f
+			if not slots.is_empty():
+				fl = f.duplicate()
+				fl.openings = (f.get("openings", []) as Array) + slots
+			_floor(fl, spec.girders.get("x", []) if spec.girders.has("x") else gz)
 
 
 func _upper_floors() -> void:
@@ -646,6 +683,8 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				n += 1
 	# Headers across each opening's ends, on the trimmers either side.
 	for o: Dictionary in openings:
+		if o.get("slot", false):
+			continue  # a girder's own slot in the boards (`girders.under`): nothing to head
 		var orr: Array = o.rect
 		var oa0 := float(orr[0]) if along_z else float(orr[1])
 		var oa1 := float(orr[2]) if along_z else float(orr[3])
@@ -807,7 +846,13 @@ func _outer_walls() -> void:
 				board_top = func(_x: float) -> float: return h
 		var tall: Dictionary = _fr.stud.get("tall", {})
 		var sw := float(tall.section[0]) if (tall.get("walls", []) as Array).has(w.id) else STUD_W
+		band = 1
 		_studs(wall, sill_top, top_at, rects, -STUD_D, 0.0, sw)
+		# With openings stacked and a corner cut off (saloon B: `frame.stacked`), what the studs carry
+		# goes a band up: over an opening the wall's studs are cripples on its header (a tier above
+		# plates, ribbons and nailers), and a plate, a ribbon, a board or a sash must rest on them.
+		var clad := 2 if _fr.get("stacked", false) else 1
+		band = clad
 		# The plate on top, the ribbon the upper joists sit on.
 		var length: float = wall.length
 		var x0: float = wall.x_start
@@ -824,7 +869,9 @@ func _outer_walls() -> void:
 		for b: Dictionary in spec.get("balconies", []):
 			for l: Dictionary in b.ledgers:
 				if l.wall == w.id:
-					cut.append(Rect2(float(l.from), rb, float(l.to) - float(l.from), float(_fr.joist.section[1])))
+					# (the balcony's own joists: 2x10s under a floor of deeper ones, saloon B's)
+					var bj := float(_fr.joist.section[1])
+					cut.append(Rect2(float(l.from), (_lv.upper as float) - float(_fr.floor_board.thick) - bj, float(l.to) - float(l.from), bj))
 		# Where the porch roof's ledger and a lean-to's are nailed to the studs.
 		if w.id == "front" and spec.has("porch"):
 			cut.append(Rect2(-1.0, float(spec.porch.height) + 0.21, width + 2.0, 0.17))
@@ -842,6 +889,8 @@ func _outer_walls() -> void:
 		for o in ops:
 			var spec_o: Dictionary = o[1]
 			var window: bool = spec_o.type == "window"
+			if spec_o.type == "void":
+				continue  # a cut corner: open, the porch under the upper floor (`_corner_entrance`)
 			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
 			if window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
@@ -868,7 +917,7 @@ func _outer_walls() -> void:
 		for o in ops:
 			var so: Dictionary = o[1]
 			if so.type == "door":
-				band = 4 if o[2] == "upper" else 1  # a leaf stands on the floor it opens on
+				band = 4 if o[2] == "upper" else clad  # a leaf stands on the floor it opens on
 				var lr: Rect2 = o[0]
 				var tr := float(so.get("transom", 0.0))
 				if tr > 0.0:
@@ -878,7 +927,7 @@ func _outer_walls() -> void:
 					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, bar.position.x, bar.end.x, bar.position.y, bar.end.y, -STUD_D, BOARD_T)
 					_glass(wall, Rect2(lr.position.x, lr.end.y + 0.05, lr.size.x, tr - 0.05))
 				_leaf(wall, lr, String(so.get("leaf", "inward")) == "outward", -STUD_D)
-				band = 1
+				band = clad
 			elif so.type == "batwings":
 				door_rect = o[0]
 				_build_door()
@@ -889,6 +938,7 @@ func _outer_walls() -> void:
 					var leaf := get_member(StringName("%s/front/batwing%d" % [structure_id, i]))
 					if leaf:
 						leaf.collision_layer = Layers.DEBRIS
+		band = 1
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a
@@ -939,7 +989,7 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 	# can't rest on a cripple in the same band).
 	var lifted := {}
 	# (The doctor's rules, #765: the saloon's and farmhouse's frames are as they were until their turn.)
-	var stacked := _fr.has("rafters")
+	var stacked: bool = _fr.has("rafters") or _fr.get("stacked", false)
 	for j in openings.size() if stacked else 0:
 		var o := openings[j]
 		for q in openings:
@@ -948,6 +998,7 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 	var b0 := band
 	var count := 0
 	for sx in xs:
+		band = b0  # (a stud after one lifted over a stacked opening is back in the wall's band)
 		var inside := -1
 		var blocked := false
 		for j in openings.size():
@@ -973,6 +1024,10 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 						if float(sp[1]) > o.end.y + HEADER_H:
 							nxt.append([maxf(sp[0], o.end.y + HEADER_H), sp[1]])
 					spans = nxt
+				elif _fr.get("stacked", false) and sx + sw * 0.5 > o.position.x - sw * 2.0 - 0.01 and sx - sw * 0.5 < o.end.x + sw * 2.0 + 0.01:
+					# Beside a narrower opening stacked on the one it's in (saloon B's upper windows
+					# over wider ones): that opening's king stands here, not a cripple through its edge.
+					spans = spans.filter(func(sp: Array) -> bool: return float(sp[1]) < o.position.y - PLATE_H or float(sp[0]) > o.end.y + HEADER_H)
 			var k := 0
 			for sp: Array in spans:
 				if float(sp[1]) - float(sp[0]) > 0.05:
@@ -1004,6 +1059,8 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 				elif q.end.y <= o.position.y + 0.001:
 					k0 = maxf(k0, q.end.y + HEADER_H)
 			band = b0
+			if kx - sw < x_start - 0.001 or kx + sw > x_end + 0.001:
+				continue  # a void at the wall's end (saloon B's cut corner): its column stands there
 			_wall_member("%s/opening%d/king%d" % [n, j, side], &"stud" if k0 <= foot + 0.001 else &"cripple", &"framing", wall, kx - sw, kx + sw,
 					k0, k1, d0, d1)
 		band = b0 + (1 if lifted.has(j) else 0)
@@ -1268,7 +1325,8 @@ func _partitions(level: String, b: int) -> void:
 		for o in ops:
 			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
 			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
-			_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
+			if String((o[1] as Dictionary).type) == "door":  # (an arch and a hatch have no leaf)
+				_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------
@@ -1329,7 +1387,7 @@ func _balconies() -> void:
 			var dir := (e - a).normalized()
 			var size := dir.abs() * a.distance_to(e) + Vector3.UP * float(bs[1]) + Vector3(dir.z, 0, dir.x).abs() * float(bs[0])
 			add_member("%s/beam/%d" % [b.id, k], &"beam", wood, size, (a + e) * 0.5 + Vector3.UP * (jb - float(bs[1]) * 0.5))
-		band = 1
+		band = 2 if _fr.get("stacked", false) else 1
 		for l: Dictionary in b.ledgers:
 			var wall: Dictionary = walls[l.wall].dict
 			_wall_member("%s/ledger_%s" % [b.id, l.wall], &"ledger", wood, wall, float(l.from), float(l.to), jb, jt, 0.0, 0.05)
@@ -1354,7 +1412,8 @@ func _gallery_rails() -> void:
 		var r: Array = g.rails[k]
 		var a := Vector3(r[0][0], top, r[0][1])
 		var e := Vector3(r[1][0], top, r[1][1])
-		var made := Railing.build(self, "gallery/rail/%d" % k, a, e, {"height": 1.0, "spacing": 0.12, "baluster": 0.045,
+		var rh := float(g.get("height", 1.0))
+		var made := Railing.build(self, "gallery/rail/%d" % k, a, e, {"height": rh, "spacing": 0.12, "baluster": 0.045,
 				"rail": Vector2(0.075, 0.06), "wood": &"oak"})
 		for m in made:
 			if m.kind == &"trim":
@@ -1363,7 +1422,7 @@ func _gallery_rails() -> void:
 				PropKit.dress_member(m, {}, look)
 		# Square newels with caps at its ends.
 		for p in [a, e]:
-			var nw := add_member("gallery/newel/%d_%d" % [k, int(p.x * 10 + p.z)], &"furniture_frame", &"oak", Vector3(0.125, 1.15, 0.125), p + Vector3.UP * 0.575)
+			var nw := add_member("gallery/newel/%d_%d" % [k, int(p.x * 10 + p.z)], &"furniture_frame", &"oak", Vector3(0.125, rh + 0.15, 0.125), p + Vector3.UP * (rh + 0.15) * 0.5)
 			PropKit.dress_member(nw, {"shape": "profile", "profile": "chamfered", "along": "y", "up": "z", "args": [0.015]}, look)
 
 
@@ -2325,7 +2384,11 @@ func _stoops() -> void:
 		var against := "yard" if float(r[2]) <= 0.01 else ("lane" if float(r[0]) >= width - 0.01 else "back")
 		var out_x := float(r[0]) if against == "yard" else float(r[2])
 		band = 1
-		_deck("stoop/" + String(st.id), r, floor_top, against, [[out_x + (0.06 if against == "yard" else -0.06), float(r[1]) + 0.06], [out_x + (0.06 if against == "yard" else -0.06), float(r[3]) - 0.06]])
+		var posts := [[out_x + (0.06 if against == "yard" else -0.06), float(r[1]) + 0.06], [out_x + (0.06 if against == "yard" else -0.06), float(r[3]) - 0.06]]
+		if against == "back":
+			# (a stoop at a back door: its beam along the wall, a post under each end)
+			posts = [[float(r[0]) + 0.06, float(r[3]) - 0.06], [float(r[2]) - 0.06, float(r[3]) - 0.06]]
+		_deck("stoop/" + String(st.id), r, floor_top, against, posts)
 
 
 ## The side yard's front (lot.yard_front): a picket fence on the front line from the building to the
@@ -2620,10 +2683,16 @@ func traffic_ways() -> Dictionary:
 		var e := Vector2(w.line[1][0], w.line[1][1])
 		var dir := (e - a).normalized()
 		for o: Dictionary in w.get("openings", []):
-			if String(o.get("type", "")) == "door" and String(o.get("level", "ground")) in ["ground", "<null>"]:
+			if String(o.get("type", "")) in ["door", "arch"] and String(o.get("level", w.get("level", "ground"))) in ["ground", "<null>"]:
 				doors.append(a + dir * float(o.at))
 				if w.has("out"):
 					outer.append(a + dir * float(o.at))
+	if spec.has("corner"):
+		var cf: Array = spec.corner.from
+		var ct: Array = spec.corner.to
+		var mid := Vector2((float(cf[0]) + float(ct[0])) * 0.5, (float(cf[1]) + float(ct[1])) * 0.5)
+		doors.append(mid)
+		outer.append(mid)
 	var heavy := ["work", "serve", "operate", "buy"]
 	var ways := []
 	for rc: Array in rooms:
@@ -2635,6 +2704,8 @@ func traffic_ways() -> Dictionary:
 		if ds.is_empty():
 			continue
 		for u: Dictionary in spec.get("use_points", []):
+			if not u.has("at"):
+				continue  # a kit's seats (the card tables')
 			var at: Array = u.at
 			var p := Vector2(at[0], at[2])
 			if absf(float(at[1]) - ground) > 0.2 or p.x < rc[0] or p.x > rc[2] or p.y < rc[1] or p.y > rc[3]:
@@ -2724,3 +2795,125 @@ static func strips_mesh(length: float, width: float, thick: float, strip: float,
 	mesh.set_meta(&"strip_widths", widths)
 	return mesh
 
+
+
+# --- the corner entrance (saloon B, #848) -------------------------------------------------------------
+
+## The diagonal wall's frame: its line from `corner.from` to `corner.to` (the studs' outer face),
+## `along` it, `out` to the street corner, and the basis its members take (x along, z into the room).
+func _corner_frame() -> Dictionary:
+	var c: Dictionary = spec.corner
+	var a := Vector3(c.from[0], 0, c.from[1])
+	var e := Vector3(c.to[0], 0, c.to[1])
+	var along := (e - a).normalized()
+	var out := Vector3(along.z, 0, -along.x)
+	if out.dot(Vector3(width, 0, 0) - a) < 0.0:
+		out = -out
+	return {"origin": a, "along": along, "out": out, "length": a.distance_to(e), "basis": Basis(along, Vector3.UP, along.cross(Vector3.UP))}
+
+
+## A member of the diagonal wall: `s0..s1` along it, `y0..y1`, `d0..d1` out from its line.
+func _diag(c: Dictionary, id: String, kind: StringName, wood: StringName, s0: float, s1: float, y0: float, y1: float, d0: float, d1: float) -> StructureMember:
+	var along: Vector3 = c.along
+	var out: Vector3 = c.out
+	var b: Basis = c.basis
+	# (the basis' z is `along x up`: into the room when that is -out)
+	var center: Vector3 = (c.origin as Vector3) + along * ((s0 + s1) * 0.5) + Vector3.UP * ((y0 + y1) * 0.5) + out * ((d0 + d1) * 0.5)
+	return add_member(id, kind, wood, Vector3(s1 - s0, y1 - y0, d1 - d0), center, b)
+
+
+## A corner cut off on the diagonal for the entrance (`corner`; the walls' `void` openings leave it
+## open): one cast-iron column at the corner from the sill to the balcony's beam, a deep beam each
+## way from it to the walls' studs under their headers (the upper floor runs on over the porch), and
+## the diagonal wall: studs under a plate against the upper joists, glazed double doors standing
+## open inward, a transom light over them, boarded both sides.
+func _corner_entrance() -> void:
+	var cs: Dictionary = spec.corner
+	var c := _corner_frame()
+	var sill_top := float(_fr.foundation.top) + float(_fr.sill.section[1])
+	var col: Dictionary = cs.column
+	var cw := float(col.size)
+	var bj := float(_fr.joist.section[1])
+	var balcony_beam := 0.25
+	for b: Dictionary in spec.get("balconies", []):
+		balcony_beam = float((b.beam as Array)[1])
+		break
+	var col_top := (_lv.upper as float) - float(_fr.floor_board.thick) - bj - balcony_beam
+	band = 0
+	var column := add_member("corner/column", &"post", StringName(col.get("wood", "iron")), Vector3(cw, col_top - sill_top, cw),
+			Vector3(col.at[0], (col_top + sill_top) * 0.5, col.at[1]))
+	column.set_meta(&"corner_column", true)
+	# The beams under the two walls' headers over the cut (their voids), column to king studs.
+	band = 1
+	var bm: Array = cs.beam
+	for w: Dictionary in spec.walls:
+		if w.get("partition", false):
+			continue
+		for o: Dictionary in w.get("openings", []):
+			if o.type != "void":
+				continue
+			var wall: Dictionary = walls[w.id].dict
+			var top := floor_top + float(o.height)
+			var s0 := float(o.at) - float(o.width) * 0.5
+			var s1 := float(o.at) + float(o.width) * 0.5
+			# Clear of the column's own square at the wall's corner end.
+			if s0 < 0.01:
+				s0 = cw
+			if s1 > float(wall.length) - 0.01:
+				s1 = float(wall.length) - cw
+			_wall_member("corner/beam_%s" % w.id, &"header", &"framing", wall, s0, s1, top - float(bm[1]), top, -float(bm[0]), 0.0)
+	# The diagonal wall, standing on the ground floor.
+	band = 2
+	var L: float = c.length
+	var foot := floor_top
+	var top := (_lv.upper_joist_bottom as float)
+	var dw := float(cs.door.width)
+	var dh := float(cs.door.height)
+	var tr := float(cs.door.get("transom", 0.0))
+	var d0 := (L - dw) * 0.5
+	var d1 := (L + dw) * 0.5
+	var head := foot + dh + tr
+	_diag(c, "corner/plate", &"plate", &"framing", 0.0, L, top - PLATE_H, top, -STUD_D, 0.0)
+	var k := 0
+	for sx: Array in [[0.0, STUD_W], [L - STUD_W, L], [d0 - STUD_W * 2.0, d0], [d1, d1 + STUD_W * 2.0],
+			[d0 * 0.5 - STUD_W, d0 * 0.5], [(d1 + L) * 0.5, (d1 + L) * 0.5 + STUD_W]]:
+		_diag(c, "corner/stud/%d" % k, &"stud", &"framing", sx[0], sx[1], foot, top - PLATE_H, -STUD_D, 0.0)
+		k += 1
+	_diag(c, "corner/header", &"header", &"framing", d0, d1, head, head + HEADER_H, -STUD_D, 0.0)
+	for i in 3:
+		var sx := d0 + dw * (i + 1) / 4.0
+		_diag(c, "corner/cripple/%d" % i, &"cripple", &"framing", sx - STUD_W * 0.5, sx + STUD_W * 0.5, head + HEADER_H, top - PLATE_H, -STUD_D, 0.0)
+	# Boarded outside and in: each side of the doors, and over them.
+	var trim := StringName(spec.materials.get("trim_outside", "dark_trim"))
+	var n := 0
+	for part: Array in [[0.0, d0, foot, top], [d1, L, foot, top], [d0, d1, head, top]]:
+		var x := float(part[0])
+		while x < float(part[1]) - 0.02:
+			var x1 := minf(x + 0.25, float(part[1]))
+			_diag(c, "corner/out/b%02d" % n, &"board", &"saloon_red", x, x1 - 0.004, float(part[2]) - 0.25, float(part[3]), 0.0, BOARD_T)
+			_diag(c, "corner/in/board/%02d" % n, &"board", &"framing", x, x1 - 0.004, float(part[2]), float(part[3]) - 0.02, -STUD_D - 0.02, -STUD_D)
+			x = x1
+			n += 1
+	# The transom: its bar and its light.
+	if tr > 0.0:
+		_diag(c, "corner/transom_bar", &"trim", trim, d0, d1, foot + dh, foot + dh + 0.05, -STUD_D, BOARD_T)
+		_diag(c, "corner/transom_glass", &"glass", &"glass", d0 + 0.01, d1 - 0.01, foot + dh + 0.05, head - 0.005, -0.055, -0.045)
+	# The two leaves, each glazed over a panel, standing open into the room at their jambs.
+	var along: Vector3 = c.along
+	var inward: Vector3 = -(c.out as Vector3)
+	var lw := dw * 0.5 - 0.02
+	var lh := dh - 0.02
+	var lb := Basis(inward, Vector3.UP, inward.cross(Vector3.UP))
+	for side in 2:
+		var hinge: Vector3 = (c.origin as Vector3) + along * (d0 + 0.025 if side == 0 else d1 - 0.025) + inward * STUD_D
+		var mid := hinge + inward * (lw * 0.5 + 0.02)
+		var pre := "corner/leaf%d" % side
+		var st := 0.11
+		var panel := 0.95
+		add_member(pre + "/panel", &"trim", trim, Vector3(lw, panel, 0.045), mid + Vector3.UP * (foot + 0.01 + panel * 0.5), lb)
+		for e in 2:
+			var off := inward * ((lw - st) * 0.5) * (-1.0 if e == 0 else 1.0)
+			add_member("%s/stile%d" % [pre, e], &"trim", trim, Vector3(st, lh - panel - st, 0.045), mid + off + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
+		add_member(pre + "/rail", &"trim", trim, Vector3(lw, st, 0.045), mid + Vector3.UP * (foot + 0.01 + lh - st * 0.5), lb)
+		add_member(pre + "/glass", &"glass", &"glass", Vector3(lw - st * 2.0, lh - panel - st, 0.008), mid + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
+	band = 1
