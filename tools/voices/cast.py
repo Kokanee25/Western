@@ -10,10 +10,10 @@ eleven-v3), run by run.py on GitHub. A request:
         text: "[tag] line one [tag] line two"   # 100-1000 characters: what each candidate says
         check: "[tag] line two"       # said again by the SAVED voice through TTS: proves the voice id is reusable
 Each candidate is one design call (its own seed): fal returns three previews and saves one voice
-(`voice_id`); the candidate is the preview of the saved voice. Then one TTS call (eleven-v3) with
+(`voice_id`); the candidate is the preview of the saved voice. Then one TTS call (Eleven v4, the takes' model) with
 voice=voice_id says `check`. Everything lands in tools/voices/cast/<speaker>/ and cast/made.json.
 Prices (fal's model pages, fetched 2026-11-12 by the probe): design $0.10 per 1,000 characters
-performed; eleven-v3 TTS $0.10 per 1,000 characters.
+performed; Eleven v4 TTS $0.08 per 1,000 characters (v3 $0.10).
 """
 import csv
 import datetime
@@ -26,7 +26,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 QUEUE = "https://queue.fal.run/"
 DESIGN = "fal-ai/elevenlabs/text-to-voice/design/eleven-v3"
-TTS = "fal-ai/elevenlabs/tts/eleven-v3"
+TTS = "elevenlabs/tts/eleven-v4"     # the takes' model: the check proves a designed voice speaks in it
 FMT = "mp3_44100_64"
 
 
@@ -123,7 +123,7 @@ def run(req, name):
                 continue
             if vid and sp.get("check"):
                 try:
-                    a2 = call(TTS, {"text": sp["check"], "voice": vid, "stability": 0.5, "output_format": FMT}, key)
+                    a2 = call(TTS, {"text": sp["check"], "voice": vid, "stability": 0.5, "similarity_boost": 0.75, "seed": seed, "output_format": FMT}, key)
                     spent += 0.10
                     ledger(name, TTS, cid + " check", 0.10)
                     fetch(a2["audio"]["url"], os.path.join(d, cid + "_check.mp3"))
