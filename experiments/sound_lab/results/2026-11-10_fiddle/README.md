@@ -183,3 +183,6 @@ alone at the game's distances (heard: close -18.9, floor -37.7, porch -47.1, acr
 
 Steel strings (`banjo/turkey_*_steel.mp3`): the same banjo and part strung with steel, alone, with the
 fiddle and in the band (Turkey in the Straw).
+
+Fiddle and banjo (take 3) at the game's distances: `banjo/turkey_duet_game/` (heard: close -19.0, floor
+-36.9, porch -46.4, across -56.1 LUFS).
