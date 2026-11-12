@@ -1,6 +1,6 @@
 task: takes
 spend: 0.08
 price_per_1k: 0.08
-note: the acting test (#846), shot_by.B again: fal's checker refused the lead-in ("gut-shot", "hole in him": violence). Same line, a lead-in without those words. Free if refused again.
+note: "the acting test (#846), shot_by.B again - fal checker refused the lead-in (gut-shot, hole in him: violence). Same line, a lead-in without those words. Free if refused again."
 variants:
   - {id: shot_by.B, line: road.shot_by.clear, app: elevenlabs/tts/eleven-v4, voice: ATJBRWuZJ9io70PFlRSH, stability: 0.0, seed: 1, text: "[A hurt man lies on his back in the dust, telling it to keep his mind off the pain, bitter at himself for being fooled.] [pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me."}
