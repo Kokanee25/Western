@@ -12,11 +12,15 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 ## Open
 - **The fiddler in the game (#799)**: our own bowed-string model (B, Sean's pick on #790); Soldier's Joy as
   note data; then the piano player with it (one music system, week 3; the first saloon entry, #810).
-- **Voiced lines (#807)**: script, then 4-5 ElevenLabs takes per line, Sean picks on a listening board;
-  first the sheriff on the road. Needs the story bible's voices (#809) for later lines.
+- **Voiced lines (#807)**: one script a mission as data (`docs/scripts/`, README there) and one artifact page
+  each, the listening board (`docs/scripts/board.html`, Sean's notes and picks in its database). The sheriff
+  on the road's script is written (66 lines, 5 speakers; page https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX),
+  waiting on Sean's Script OK (#835). Next: casting (#836), then 3-4 takes a line, then into the game.
 - Waiting on Sean's ears: #601 (train), #264 (snap or whirr).
 
 ## Traps
 - Pre-1929 music only; recordings CC0/CC BY, credited. Wikimedia refuses downloads here: Sean uploads them.
 - The balcony's boards don't stop GameAudio's wall ray.
 - One lavapipe game at a time.
+- Built lines (`config/moments/`) are copied into a script as they are; changing one is gameplay's. The board
+  reads `script.json` published beside it: republish the JSON with the page (`files`), never paste it in.
