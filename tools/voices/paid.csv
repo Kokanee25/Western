@@ -75,3 +75,11 @@ date,request,app,what,est_usd
 2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b3 check,0.100
 2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_b4,0.048
 2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c1,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c2,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c3,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c4,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c4 check,0.100
