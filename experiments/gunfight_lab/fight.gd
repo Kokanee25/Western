@@ -92,6 +92,11 @@ const _FRIGHTS := ["hit", "near miss", "a friend down or quit", "a friend's shou
 var _fear_why := {}  # id -> [what just frightened him, the frame]
 ## Captures still being taken (the bridge waits for them before it answers).
 var capturing := 0
+## Joe beside you (`joe=1`, No Justice step 1, #843): the companion and what he did.
+var joe: HumanBody
+var joe_brain: CompanionBrain
+var _joe := {"shots": 0, "hits": 0, "hits_on_your_man": 0, "hits_taken": 0, "hit_by_you": 0, "gang_shots_at_him": 0, "downed": 0}
+var _last_hitter := {}  # gang id -> "you" / "joe": who hit him last (who put him out)
 
 
 func _init(owner_lab: Node, options: Dictionary) -> void:
@@ -253,6 +258,8 @@ func setup() -> String:
 			"pinned": 0, "reloads": 0, "callouts": {}, "near_misses_on_him": 0, "outcome": "standing", "out_at": -1.0,
 			"moods": [], "_cover": cover}
 		i += 1
+	if String(opts.get("joe", "")) in ["1", "on", "true"]:
+		_joe_in(at, yaw, town)
 	await lab.physics_frames(3)
 	_check_bodies()
 	# Lamps the scenario wants lit, and every lamp near enough to be part of it, to watch.
@@ -344,6 +351,9 @@ func setup() -> String:
 func _turn() -> void:
 	_turned = true
 	_turned_at = t
+	if joe_brain != null:
+		for man: HumanBody in _live():
+			joe_brain.relations.side_with(man)  # he sees them go for their guns
 	for man: HumanBody in _live():
 		var b := brains[_mid(man)] as OutlawBrain
 		# (#607: the count's out, nothing you did: their own idea, "Take him!", where the brain has it)
@@ -418,6 +428,8 @@ func _physics_process(delta: float) -> void:
 	if bot:
 		bot.tick(delta, t)
 	_watch_men(delta)
+	if joe_brain != null and is_instance_valid(joe_brain):
+		_watch_joe()
 	_settle_doubts()
 	_watch_world(delta)
 	_track_t -= delta
@@ -710,8 +722,89 @@ func _hook_events() -> void:
 			var own := who in gang and _men.has(_mid(who)) and not _shots.is_empty() and float(_men[_mid(who)].get("_shot_t", -99.0)) >= t - 0.3
 			_note("cut", "%s cut by glass in the %s%s" % [_who(who) if who is HumanBody else "you", info.get("segment", "?"), " (just after his own shot)" if own else ""]))
 	_hook(Events.spoke, func(p: Node, text: String) -> void:
-		if p in gang:
+		if p in gang or (joe != null and p == joe):
 			_note("said", "%s: \"%s\"" % [_who(p), text]))
+	if joe != null:
+		_joe_hooks()
+
+
+## Joe beside you: 2.2 m to your right and a pace back, his gun out, following you (a Studio man as
+## the stand-in: miner_s4_talking, until the Studio makes Joe).
+func _joe_in(at: Vector3, yaw: float, town: TownLife) -> void:
+	var basis := Basis(Vector3.UP, yaw)
+	var pos := at + basis * Vector3(2.2, 0.0, 0.8)
+	joe = HumanBody.new()
+	joe.name = "Joe"
+	joe.person_id = &"joe"
+	joe.rng_seed = 300 + 10 * int(opts.seed)
+	joe.body_model = StringName(opts.get("joe_model", "miner_s4_talking"))
+	joe.shirt_color = Color(0.55, 0.5, 0.4)
+	joe_brain = CompanionBrain.new()
+	joe_brain.name = "Brain"
+	joe_brain.follow_man(player)
+	joe_brain.places = town.places
+	joe.add_child(joe_brain)
+	joe.enter(street, pos, yaw)
+	_note("joe", "Joe beside you at %s" % str(_arr(pos)))
+
+
+var _joe_was := ""
+
+
+## What Joe's doing, each change of mind (the timeline's "joe" lines).
+func _watch_joe() -> void:
+	var b := joe_brain
+	var tgt := _who(b.target) if b.target != null else "-"
+	var now := "%s/%s on %s: %s" % [OutlawBrain.MOOD_NAMES[b.mood], OutlawBrain.Tactic.keys()[b.tactic], tgt, b.decision]
+	if now != _joe_was:
+		_joe_was = now
+		_note("joe", now)
+
+
+func _joe_hooks() -> void:
+	_hook(Events.shot_fired, func(_o: Vector3, _d: Vector3, shooter: Node) -> void:
+		if not started or done:
+			return
+		if shooter == joe:
+			_joe.shots += 1
+		elif shooter in gang:
+			var b := brains.get(_mid(shooter)) as OutlawBrain
+			if b != null and b.target == joe:
+				_joe.gang_shots_at_him += 1)
+	_hook(Events.bullet_hit, func(info: Dictionary) -> void:
+		if not started or done:
+			return
+		var person: Variant = info.get("person")
+		var shooter: Variant = info.get("shooter")
+		if person == null or info.get("hat", false):
+			return
+		if person == joe:
+			if shooter == player:
+				_joe.hit_by_you += 1
+			elif shooter in gang:
+				_joe.hits_taken += 1
+		elif person in gang and _men.has(_mid(person)):
+			if shooter == joe:
+				_joe.hits += 1
+				if joe_brain.yours(person as Node):
+					_joe.hits_on_your_man += 1
+				_last_hitter[_mid(person)] = "joe"
+			elif shooter == player:
+				_last_hitter[_mid(person)] = "you")
+
+
+func _joe_record() -> Dictionary:
+	var put_out := {"you": 0, "joe": 0, "none": 0}
+	for id in gang_ids:
+		if float(_men[id].out_at) >= 0.0:
+			var by := String(_last_hitter.get(id, "none"))
+			put_out[by] = int(put_out[by]) + 1
+	var st := joe_brain.stats if is_instance_valid(joe_brain) else {}
+	var ph := joe.physiology if is_instance_valid(joe) else null
+	return _joe.merged({"put_out": put_out, "line_s": snappedf(float(st.get("line_s", 0.0)), 0.01),
+		"line_steps": int(st.get("line_steps", 0)), "held_fire": int(st.get("held_fire", 0)), "calls": int(st.get("calls", 0)),
+		"downs": int(st.get("downs", 0)), "out_cold_s": snappedf(float(st.get("out_cold_s", 0.0)), 0.1),
+		"alive": ph != null and ph.alive, "conscious": ph != null and ph.is_conscious(), "wounds": ph.wounds if ph else 0})
 
 
 func _hook(sig: Signal, f: Callable) -> void:
@@ -1141,6 +1234,8 @@ func _finish(why: String) -> void:
 		"you": you, "gang": {"shots": gang_shots, "hits_on_you": gang_hits}, "men": men, "situations": sit,
 		"longest_quiet_s": snappedf(quiet, 0.01), "longest_quiet_from": snappedf(quiet_from, 0.01),
 		"perf": _perf(), "timeline": _timeline, "track": _track})
+	if joe_brain != null:
+		record["joe"] = _joe_record()
 	Prof.on = false
 	if _shoot_dir != "":
 		_capture.call_deferred("t%05.1f" % t)
