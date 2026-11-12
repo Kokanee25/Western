@@ -69,7 +69,13 @@ Where it and the steps above disagree, this wins.
    carved by a ball, the member falls back to its own wood's texel material in its own space. Only an age the
    materials judge passed is used (R1 new, C1 old, F2 new and a few years, 2026-11-10); a prop that
    wants another takes the nearest passing one, as the buildings do, and says which it wants in its
-   `_doc`. So a table matches the floor it stands on. **Paint** comes when the library has it (the
+   `_doc`. **A prop's wood is never its floor's entry** (Sean, #821 picks 2 and 5; #825): furniture
+   takes the library's **furniture** entries (family `furniture`: `furniture_oak` for office pieces,
+   `furniture_painted_pine` for shelving, counters and plain pieces, `furniture_walnut` for one good
+   piece a room), never a floor (`floor_*`) or a wall board's entry; a room holds at least three woods
+   or finishes. Their finish is a joined piece's (rubbed arrises, grease round the pulls, dust on
+   tops); a drawer's front takes **`lib:<entry>/<age>/front`** (its pulls at its quarters over 0.6 m,
+   else its middle). **Paint** comes when the library has it (the
    next material round, #721: `painted_*`); until then the prop is unpainted on a passing wood.
    Library boards are boxes: a turned leg or a carved crest stays on a passing look of its own
    (the kit's lathes keep `wood:`) or is made square, as country furniture mostly was.
