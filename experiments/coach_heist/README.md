@@ -40,7 +40,7 @@ godot --headless --fixed-fps 60 -s res://experiments/coach_heist/heist.gd -- --m
 #   --debug: the log and the coach every 6 ticks, every blow the dent watch closes; --spikes: frames over 40 ms
 ```
 
-In a running game (the dev bridge): `ch_build [X Y Z] [striker=ram|roll] [pull_up=] [coach_z=] [log_r=] [guards=]`,
+In a running game (the dev bridge): `ch_fight`, `ch_fight_run seed=N` (the fight after the hit, #815); `ch_build [X Y Z] [striker=ram|roll] [pull_up=] [coach_z=] [log_r=] [guards=]`,
 `ch_release`, `ch_read`, `ch_clear`; in the valley (`--world=valley`) `ch_cut [auto] [back=M] [here]`,
 `ch_cut_go`, `ch_cut_read`. The game: `-- --world=valley --mission=coach` (you at the high spot over
 the cut, the coach coming up the grade: shoot the pin).
@@ -90,6 +90,45 @@ the worst frame 15-31 ms at Sean's. In the game (`-- --world=valley --mission=co
 - CoachDrive met the striker in the world's axes: a coach turned 33 degrees to the road has a box half
   again as wide, and it was handed off with the ram half a swing away (a rope at 100 kN): the coach's space now.
 - The pin on the stake's road side was hidden from the high spot by the stake: across its top now, 7 cm.
+
+## After the hit (2026-11-12, #815, `results/2026-11-12_fight/`)
+
+`CoachFight` (src/missions/coach_fight.gd, LAYOUT "src/missions"): the guards dazed (a seeded few seconds
+plus their head knocks), the door on top swung open on the wreck, one at a time each gets up inside under
+it; the first who can hold a gun fights from it (an OutlawBrain window order on a walk-only step), the rest
+climb out to the lee; the box's two get up on the road, the messenger for the outcrop. All OutlawBrains
+holding the cut (`cornered`), caught cold. The strongbox: E held at the door hauls it out, the padlock shot
+off, E opens it and takes the papers (or E shoulders it shut, 44 kg, half pace). Won up the rimrock trail;
+lost down, got by, or left it; Enter again. StoryState `coach.*`.
+
+```sh
+# N scripted runs (a fresh game each, headless): coach_bot.gd shoots the pin from the high spot, fights by
+# the gunfight lab's `hold`, goes down round the wreck's back (crouched under the hung log), hauls the box,
+# shoots the padlock (or shoulders the box after 45 s without), out up the trail
+python3 experiments/coach_heist/fight_runs.py --seeds=1-8 [--take=papers|box] [--aim=1.0] [--auto] --out=DIR
+```
+Bridge: `ch_cut ... seed=N`, `ch_fight` (each man's phase, mood, fear, broken bones, the box), `ch_fight_run`.
+
+**8 runs** (`summary_papers.md`): **won 5** (the papers, 72-123 s of fight from the hit, 154-227 s all told),
+**lost 2** (you down at 92 and 129 s: the guards fired 6-8 shots), **1 still on at 300 s** (a standoff: 25
+shots each way). Each run 4-5 men got up, 1-5 gave up, 2 died (0-1 at the hit itself, the rest bleeding
+out later). The guards fired in 4 of 8; in the other 4 they gave up before they had a shot. Frames from
+the hit to the end: mean 5-7 ms, p95 7-13, **worst 50 ms here, ~32 at Sean's** (#492's gate: 100).
+
+**Found on the way:**
+- The throw hurts them badly: ribs, a tibia, the pelvis, feet broken in most of the six (thrown about inside
+  by the box, BodyImpacts; the box's two by their fall, Falls), so their pain (`fear_from` "pain" 1-1.7)
+  breaks most of them within a minute, "can't run". The seeded extra blow (`hurt_chance` 0.2) adds little.
+  The dial for a harder fight is how hard the inside of a coach is to a thrown man, not the guards' nerve.
+- Sight's first question in the valley takes the whole world (~80 ms here): nobody had asked one in the cut
+  before the first guard's first look. CoachFight asks one on its first tick.
+- A kit prop set down on a height field: `keep_footed` gives it no feet to balance on, so the first member
+  shot off (the padlock) sent it loose and its lid wouldn't open. The box is set 1 cm over the ground
+  instead, where its feet find the height field.
+- The box set down by the wreck's side rested on the wreck (a moving body) and went loose: it goes on the
+  road on your side, its padlock away from the wreck.
+- After the hit the ram's log hangs over the road at head height: you crouch under it.
+- `KitProp.open_hinge` won't on a loose prop: the wreck's door is turned in its rubble body (`_open_door`).
 
 ## The rolling log (2026-11-10, `results/2026-11-10/`; before the ram)
 
