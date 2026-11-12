@@ -297,6 +297,10 @@ func _add_interior_ambient() -> void:
 		haze.size = probe.size
 	if light.has("window_day"):
 		set_meta(&"room_window_gain", float(light.window_day))
+	if light.has("day_fill"):
+		# The fill's level by day (DayCycle's interior_ambient_day else, 0.45: one even level that
+		# made the rooms flat, #829): low, so the windows and the sun's patches light the rooms.
+		probe.set_meta(&"day_ambient", float(light.day_fill))
 	if light.has("fill"):
 		var c: Array = light.fill
 		set_meta(&"room_fill", Color(c[0], c[1], c[2]))

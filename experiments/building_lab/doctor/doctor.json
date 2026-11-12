@@ -1681,13 +1681,14 @@
   }
  ],
  "light": {
-  "_doc": "NEW (#824): the room's light. `fill` the indoor fill's colour (RoomLight's `room_fill`): near neutral and low, so the windows (RoomLight's soft sky through every outer door and window, `light_openings`) and the lamps give the rooms their shape, not one tint; the fill's box reaches the outer walls' inside boards (spec_building.gd _add_interior_ambient). `window_day` scales RoomLight's daylight through the windows for this building (round 1 at 1: the dispensary under its high window read dull and flat).",
+  "_doc": "NEW (#824): the room's light. `fill` the indoor fill's colour (RoomLight's `room_fill`): near neutral and low, so the windows (RoomLight's soft sky through every outer door and window, `light_openings`) and the lamps give the rooms their shape, not one tint; the fill's box reaches the outer walls' inside boards (spec_building.gd _add_interior_ambient). `window_day` scales RoomLight's daylight through the windows for this building (round 1 at 1: the dispensary under its high window read dull and flat; 7 since #829, with the fill low). `day_fill` (#829) the fill's level by day (DayCycle's 0.45 else: one even level, the rooms flat): low, so the windows (aimed across each room at its floor, falling off) and the sun's patches (a light off each) give the rooms their shape by day.",
   "fill": [
    0.62,
    0.6,
    0.57
   ],
-  "window_day": 3.0
+  "window_day": 7.0,
+  "day_fill": 0.1
  },
  "lamps": {
   "_doc": "NEW (#824, #821 pick 1: a building names its lamps, a room each): kit lamps hung on the walls (spec_building.gd _kit_lamps: the reflector lamp on a nail in the wall's boards, its OilLamp lit by the clock, `lit` [from, until]). The surgery's over the instrument table on the east wall's pier (D1's place; at night he holds it over the table), the desk's beside his roll-top; those two cast shadows (the views a player stands in), the rest don't (render CPU).",

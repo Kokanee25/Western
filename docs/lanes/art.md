@@ -38,13 +38,14 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   and sashes in the trim's green (reads near black indoors: the approved chrome green). Rules in
   `experiments/building_lab/RECIPE.md` "Walls and windows". +38 draws (panes); render CPU <= 2.3 ms at Sean's.
   Cheap judge still cheap indie for the walk's floating porch posts, grey neighbours, empty rooms.
-- **The doctor lit as a room** (#824, merged): his spec names a lamp a room (`lamps.kit`, the hung reflector
-  lamp, by the clock), `light` (fill to the outer walls, near neutral; RoomLight's sky at every outer opening,
-  `window_day` 3); indoor paint wears from the floor. The orange / blue corner was the probe's edge (proved,
-  `experiments/building_lab/doctor/results/2026-11-12_light/`). Cheap judge before / r1 / r2: desk, dispensary,
-  window cheap indie each time, the night good indie; tell 1 (flat light) still fails by day. Rule in
-  `experiments/building_lab/RECIPE.md` "Light". Render CPU at Sean's <= 2.0 ms. Next: daylight with shape
-  inside (the new issue), contact shadows with #711.
+- **The doctor lit as a room** (#824) **and by day** (#829): his spec names a lamp a room (`lamps.kit`), `light`
+  (`fill` to the outer walls, near neutral; `day_fill` 0.1, DayCycle reads the probe's `day_ambient`;
+  `window_day` 7). RoomLight's daylight rooms (`RoomLightTuning` "Daylight"): windows aimed at the floor 0.6
+  across, reaching twice the far wall, falling off, shadowed by day; a soft light off each sunlit patch.
+  Cheap judge round 2 (`docs/screenshots/judge/2026-11-12_doctor_daylight_r2/`): tell 1 passes on desk and
+  window, fails on the dispensary (judged before #826's sashes; with them, `results/2026-11-12_daylight/with_826.jpg`,
+  the light holds, not re-judged). Render CPU at Sean's <= 2.83 ms.
+  Rule in `experiments/building_lab/RECIPE.md` "Light". Next: contact shadows with #711.
 - Room light (#608): on under the real look; its painted-look switch still waiting on Sean.
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.
 

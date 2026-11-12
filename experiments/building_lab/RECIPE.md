@@ -143,11 +143,35 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
   blue-grey corner; proved by the test render in `doctor/results/2026-11-12_light/`), its colour is
   the spec's (near neutral, not a tint), and RoomLight lets the sky (or the moon) in at every outer
   door and window (`light_openings`), `window_day` times its usual day light.
+- **By day the windows light the rooms, not a fill** (#829). The fill by day is low (`light.day_fill`,
+  0.1 for the doctor; DayCycle's 0.45 else, one even level everywhere, so the far wall was as bright
+  as the one by the window: the judge's "flat light"). The light comes in at the windows instead
+  (RoomLight's daylight rooms, `RoomLightTuning` "Daylight"): each window's sky spot sits partway up
+  the window and aims at the floor 0.6 of the way across the room (a high window steeper; the floor
+  found through a counter under it), reaching about twice the far wall's distance (the engine's
+  range window has a light at a fifth by 0.87 of its reach) and falling off with distance
+  (`window_day` 7: the window side bright, the far side dim, the window's own wall dark round it).
+  **By day the windows cast shadows** (doors don't): what made the judge pass the desk (round 1
+  without them failed: "no shadows, nothing shows where the light comes from"); the desk throws its
+  shadow up the wall, the chair on the floor, and a partition stops a window's light, so each
+  window lights its own room and not the next one evenly. Not by night: the moon through a window
+  is too faint to show one, and each shadowed light costs render CPU. Their colour is near white
+  (`day_window_colour`), not the sky's pale blue (round 1's "blue-grey wash").
+  And the sun through a window lights the room round its patch: rays through the window toward the
+  sun (a porch roof shades them) and on in find where it lands; a soft spot off that patch, facing
+  back into the room, carries the sun's energy x the window's area as the sun sees it x the patch's
+  lightness (x2.5, art's), half the floor's hue (the warm wall beside the window view's patch).
+  Recast as the sun moves (every 0.5 degrees).
 - **Inside paint wears from the room's floor**, not the street's ground (`INSIDE_FINISHES`: inside,
   ceiling, floor): the hand band and the scuffs over the skirting land where hands and boots are.
 - **Judge the rooms lit:** the four views of `doctor/light_views.gd` (desk corner, dispensary,
   window from inside, the surgery at night with its lamp), before and after, by the cheap judge.
-  `--cpu` measures each view's render CPU; the interior's must stay under 4 ms at Sean's.
+  `--cpu` measures each view's render CPU; the interior's must stay under 4 ms at Sean's (with the
+  windows' shadows the doctor's day views are 1.6-2.8 ms, #829). `--variants=` tries dials in one
+  load (`day_fill`, `window_day`, `room.<RoomLightTuning dial>`).
+- **What a room by day still lacks** (#829's judge): the dispensary under its one high window, out
+  of the sun, still reads flat (judged before #826's sash and glass, when the window was a blank
+  card; with them the light holds, not yet re-judged: next, a brighter, tighter sky spot there).
 - **Not done here:** contact shadows under furniture (#711's; SSAO is all there is, and the lamps
   that cast shadows), lamps lit by people (a man carrying or lighting one: the lamps keep the clock).
 
