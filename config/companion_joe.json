@@ -1,5 +1,5 @@
 {
-	"_doc": "Joe, the companion (No Justice step 1, #843; CompanionBrain). His dials and his lines. The lines are written to docs/story/VOICES.md (Joe: English his third language, exact and plain, few contractions, says a thing once, dry) and WORDS.md (no Western film words, no 'heap', 'many moons' or dropped verbs). Subtitled only: nothing is voiced yet (#807). PROPOSED, all of it.",
+	"_doc": "Joe, the companion (No Justice step 1, #843; CompanionBrain). His dials and his lines (in the voice of docs/scripts/no_justice.json's fight.joe_call, fight.joe_hit, fight.joe_up; the mission's own placed calls, 'Left. By the wagon.', come with step 3). The lines are written to docs/story/VOICES.md (Joe: English his third language, exact and plain, few contractions, says a thing once, dry) and WORDS.md (no Western film words, no 'heap', 'many moons' or dropped verbs). Subtitled only: nothing is voiced yet (#807). PROPOSED, all of it.",
 	"tuning": {
 		"_doc": "Distances in m, times in s.",
 		"follow_near": 3.5,
@@ -40,6 +40,8 @@
 		"you_hit": ["Harlan! Get down.", "You are hit. Stay low."],
 		"loading": ["Loading.", "Cover me. I load."],
 		"come_to": ["I am still here.", "Not yet. I am still here."],
+		"up": ["Enough. I can walk."],
+		"down_leg": ["I am hit. The leg. Go on."],
 		"cant_stand": ["My leg will not hold me.", "I cannot stand on it."],
 		"over": ["That is all of them.", "It is quiet now."],
 		"not_me": ["Harlan. Not at me.", "Point it somewhere else."],

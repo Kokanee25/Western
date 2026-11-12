@@ -54,6 +54,7 @@ var _tend_end := -99.0
 var _brain_said := {}  # the gang brain's moments: kind -> when he last said it
 var _prone_up := 0.0  # getting up off his belly after the fight (s left kneeling)
 var _said_cant_stand := false
+var _said_up := true  # (set false when he goes down)
 var _stuck_t := 0.0
 var _go_last := Vector3.INF
 var _way: Array[Vector3] = []
@@ -432,7 +433,8 @@ func _on_any_hit(info: Dictionary) -> void:
 
 func _on_my_hit(info: Dictionary) -> void:
 	if info.get("shooter") != leader and info.get("kind", &"bullet") in [&"bullet", &"graze", &"pellet"]:
-		_call(&"hit", null, 5.0)
+		var leg := String(info.get("segment", "")).contains("thigh") or String(info.get("segment", "")).contains("shin")
+		_call(&"down_leg" if leg and not body.physiology.can_stand() else &"hit", null, 5.0)
 
 
 # --- His tick ---------------------------------------------------------------------------------
@@ -449,6 +451,7 @@ func _physics_step(delta: float) -> void:
 	if p.spared_times > _spared_seen:
 		_spared_seen = p.spared_times
 		_down_hard = true
+		_said_up = false
 		stats.downs += 1
 		_decide("down", "a wound that would have killed him (%s): out cold while it's on" % p.spared_cause)
 	if _down_hard:
@@ -492,6 +495,9 @@ func _a_fight_on() -> bool:
 func _get_back_up(delta: float) -> void:
 	if body.limp:
 		if body.physiology.can_stand():
+			if not body.rising and not _said_up:
+				_said_up = true
+				_say_line(&"up", true)
 			body.get_up()
 		elif not _said_cant_stand:
 			_said_cant_stand = true
