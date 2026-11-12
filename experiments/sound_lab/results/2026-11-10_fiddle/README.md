@@ -186,3 +186,11 @@ fiddle and in the band (Turkey in the Straw).
 
 Fiddle and banjo (take 3) at the game's distances: `banjo/turkey_duet_game/` (heard: close -19.0, floor
 -36.9, porch -46.4, across -56.1 LUFS).
+
+## The listening pages (Sean, 2026-11-12: one per instrument, one for the band)
+
+Fiddle (the blind test and the tunes) https://claude.ai/artifact/Brm6ru3SYuT2YAxGqduYyR · Banjo (the bench
+and the period takes) https://claude.ai/artifact/1yWnbNpVQRMvN5WnCfVCVT · Bones
+https://claude.ai/artifact/VZqwzo7afwxRvY5MgwNY4i · Tambourine https://claude.ai/artifact/UV2qVWZU8W5jR1hmvgrQER
+· Harmonica https://claude.ai/artifact/XTSEsn19brioFRWQVSBQsT · Piano https://claude.ai/artifact/Cr362YFn3vMLrDFt678Qyn
+· The band https://claude.ai/artifact/Cy32HgZvFY28Te36i9bQuc (private to Sean; each links to the others).
