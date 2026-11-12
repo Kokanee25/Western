@@ -4,7 +4,9 @@ own model, from the same note data. Written fresh from the physics, no copied co
 
     python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--out=build/.../turkey_banjo.wav]
         [--part=OUT.json] (the banjo's own note data: what his hands do)
-        [--strings=gut|steel] (gut, the default: the period's; steel: from the 1890s, Macon's)
+        [--strings=gut|steel|modern] (gut, the default: the period's; steel: from the 1890s, Macon's;
+        modern: steel on a tight synthetic head, an open-back as The Dead South's banjoist plays)
+        [--style=clawhammer|rolls] (clawhammer, the default; rolls: three-finger with picks)
 
 **The instrument:** an 1870s-80s five-string banjo: gut strings, a calfskin head on an open-backed
 pot, the short fifth string a drone the thumb plays. It's tuned to the tune's key the way old-time
@@ -74,6 +76,7 @@ NAIL_W = 0.00025
 # drains into the head fastest of any string instrument). (level, decay time x, cents)
 POLS = [(1.0, 0.55, 0.0), (0.35, 1.9, 1.3)]
 CLICK = 0.06        # the nail's tick on the string (a broadband scrape, a few ms)
+PICK_W = 0.0001      # a metal fingerpick: harder and narrower than a nail
 POP = 0.25          # the head struck through the bridge: a small drum's thump under each strike
 
 
@@ -221,6 +224,86 @@ def arrange(sc, seed=1866):
             "octave": shift // 12, "events": events}
 
 
+def arrange_rolls(sc, seed=1949):
+    """Three-finger rolls (the banjo bench): thumb, index and middle with metal picks, a note on
+    every one of the tune's running notes, accents on 1, the and of 2, and 4 (3-3-2, the bluegrass
+    roll's): the tune's notes go there, on the finger whose string they're on (the thumb the third
+    and fourth strings, the index the second, the middle the first); between them the roll cycles
+    round the fingers, never one twice running nor the one the next tune note needs, the index and
+    middle on the chord's notes and the thumb on the fifth-string drone. Picked near the bridge (bright). The last note a pinch on the tonic chord."""
+    import rhythm
+    rng = np.random.default_rng(seed)
+    key = key_of(sc)
+    tuning = TUNINGS[key]
+    mel = sorted([n for n in sc["notes"] if n["voice"] == "melody"], key=lambda n: n["unit"])
+    shift = octave_for(mel, tuning)
+    mel = [dict(n, midi=n["midi"] + shift) for n in mel]
+    when, beats, last, unit = rhythm.grid(sc)
+    ends = [mel[i + 1]["unit"] if i + 1 < len(mel) else n["unit"] + 4 for i, n in enumerate(mel)]
+    bar1 = next((n["unit"] for n in mel if n["bar"] >= 1), 0.0)
+    chords = sc.get("chords") or [key] * (mel[-1]["bar"] + 1)
+    events, hand, prev, pfinger = [], 0, None, None
+
+    def sounding(u):
+        for n, e in zip(mel, ends):
+            if n["unit"] <= u + 1e-6 < e:
+                return n
+        return None
+
+    def ev(u, s, f, kind, amp):
+        events.append({"t": round(float(when(u) + rng.normal(0, 0.004)), 4), "unit": u, "string": s,
+                       "fret": int(f), "midi": int(tuning[s] + f), "kind": kind,
+                       "amp": round(float(amp * np.clip(np.exp(rng.normal(0, 0.12)), 0.75, 1.2)), 3),
+                       "ring": round(2 * unit, 4), "pos": round(float(rng.uniform(0.12, 0.18)), 3)})
+
+    held = {}  # string -> fret the left hand holds for the tune's note
+    for u0, bar_start, phrase_end in beats:
+        for k in range(4):
+            u = u0 + k
+            if when(u) < rhythm.LEAD - 1e-6 or u > last + 1e-6:
+                continue
+            slot = int(round((u - bar1) % 8))
+            bar = max(0, int((u - bar1) // 8) + 1)
+            pcs = {m % 12 for m in tune.CHORD_TONES[chords[min(bar, len(chords) - 1)]]}
+            n = sounding(u)
+            if slot in (0, 3, 6) and n is not None:
+                s, f, _ = place(n["midi"], tuning, hand)
+                if f:
+                    hand = f
+                held = {s: f}
+                # the third string is the thumb's or the index's: whichever the roll leaves free
+                finger = "M" if s == 1 else ("I" if s == 2 or (s == 3 and pfinger == "T") else "T")
+                ev(u, s, f, "tpick" if finger == "T" else "pick", 1.05 if slot == 0 else 0.95)
+                prev, pfinger = s, finger
+                continue
+            # the roll goes on round the fingers (T I M T ...), never the same finger twice running,
+            # nor the one the tune's next note needs; the thumb's filler is the fifth-string drone
+            nxt = sounding(u + 1) if int(round((u + 1 - bar1) % 8)) in (0, 3, 6) else None
+            need = None
+            if nxt is not None:
+                ns = place(nxt["midi"], tuning, hand)[0]
+                need = "M" if ns == 1 else ("I" if ns == 2 else ("T" if ns == 4 else None))
+            order = ["T", "I", "M"]
+            i0 = (order.index(pfinger) + 1) % 3 if pfinger else 0
+            finger = next(fg for fg in order[i0:] + order[:i0] if fg != pfinger and fg != need)
+            s = {"T": 5, "I": 2, "M": 1}[finger]
+            if s == prev:
+                s = {"T": 3, "I": 3, "M": 2}[finger]
+            f = 0 if s == 5 else held.get(s, chord_fret(s, pcs, tuning, hand))
+            ev(u, s, f, "tpick" if finger == "T" else "pick", 0.6)
+            prev, pfinger = s, finger
+    # the last note: a pinch, thumb and middle together, the tonic chord left to ring
+    pcs = {m % 12 for m in tune.CHORD_TONES[key]}
+    for k, s in enumerate((3, 1, 5)):
+        f = 0 if s == 5 else chord_fret(s, pcs, tuning, 0)
+        ev(last + k * 0.003 / unit, s, f, "tpick" if s != 1 else "pick", 1.0 if s != 5 else 0.6)
+        events[-1]["ring"] = round(12 * unit, 4)
+    events.sort(key=lambda e: e["t"])
+    return {"tune": sc["tune"], "instrument": "five-string banjo", "key": key, "tuning": tuning,
+            "style": "three-finger rolls (forward roll, metal picks)", "seed": seed,
+            "length_s": round(events[-1]["t"] + 3.0, 3), "octave": shift // 12, "events": events}
+
+
 # ---------------------------------------------------------------------------------------- the sound
 
 @njit(cache=True)
@@ -268,13 +351,13 @@ def head_ir(sr, seed=1866, length=0.18):
     ratios = [1.0, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501, 3.600, 3.652, 4.060, 4.154, 4.601]
     modes = [(150.0, 6.0, 0.35)]  # the pot's air
     for k, r in enumerate(ratios):
-        modes.append((f01 * r, rng.uniform(10, 20), (1.0 if k < 4 else 0.8) * rng.uniform(0.6, 1.0)))
+        modes.append((f01 * r, HEAD_Q * rng.uniform(10, 20), (1.0 if k < 4 else 0.8) * rng.uniform(0.6, 1.0)))
     f = f01 * 4.8
     while f < 9000:
         f *= 1.0 + rng.uniform(0.02, 0.06)
         rise = np.exp(-0.5 * (np.log(f / HEAD_RISE) / 0.6) ** 2)
         amp = (0.25 + 0.75 * rise) * (1.0 if f < 4000 else (4000 / f) ** 2) * rng.uniform(0.5, 1.0)
-        modes.append((f, rng.uniform(12, 25), amp))
+        modes.append((f, HEAD_Q * rng.uniform(12, 25), amp))
     ir = np.zeros_like(t)
     for fr, q, a in modes:
         # a mode's peak in the response goes as amp x Q / f: scaled so `a` is that peak's height
@@ -293,14 +376,22 @@ def t60(f):
 T60_HIGH = 0.25     # s: how long a partial near 2 kHz rings (the "pl" of the plunk goes at once)
 T60_LOW = 1.9       # s: the note's own ring at D3 (t60 scales it by pitch)
 HEAD_F01 = 260.0    # Hz: the head's first mode (its tension)
+HEAD_Q = 1.0        # the head's ring (calfskin damps hard; a synthetic head rings longer)
 
 # The strings (Sean, 2026-11-12: "can I hear the clawhammer version", the steel-strung one):
 # gut, the 1870s-80s banjo's (dull, short: the default); steel, as from the 1890s on and on Uncle
 # Dave Macon's records (thin steel loses its highs far slower, rings longer, takes a harder nail; the
 # head pulled tighter to stand the tension). Same hand, same part, same model.
 STRINGS = {
-    "gut": {"T60_LOW": 1.9, "T60_HIGH": 0.25, "NAIL_W": 0.00025, "HEAD_F01": 260.0, "HEAD_RISE": 2200.0},
-    "steel": {"T60_LOW": 3.0, "T60_HIGH": 0.7, "NAIL_W": 0.00018, "HEAD_F01": 300.0, "HEAD_RISE": 2800.0},
+    "gut": {"T60_LOW": 1.9, "T60_HIGH": 0.25, "NAIL_W": 0.00025, "HEAD_F01": 260.0, "HEAD_RISE": 2200.0,
+            "HEAD_Q": 1.0},
+    "steel": {"T60_LOW": 3.0, "T60_HIGH": 0.7, "NAIL_W": 0.00018, "HEAD_F01": 300.0, "HEAD_RISE": 2800.0,
+              "HEAD_Q": 1.0},
+    # a modern open-back (the banjo bench, Sean 2026-11-12: "more like The Dead South", whose
+    # banjoist plays open-backs, clawhammer and three-finger): steel, and a synthetic head pulled
+    # tight, which rings longer and brighter than calfskin
+    "modern": {"T60_LOW": 3.2, "T60_HIGH": 0.8, "NAIL_W": 0.00018, "HEAD_F01": 330.0, "HEAD_RISE": 3000.0,
+               "HEAD_Q": 1.8},
 }
 
 
@@ -367,15 +458,15 @@ def render(part, sr=common.SR, seed=1866):
                 m = int(0.03 * srm)
                 damp[ring_end:ring_end + m] = 0.6
                 midi[ring_end:nxt] = tuning[s]
-            if e["kind"] in ("nail", "brush", "drop", "thumb"):
+            if e["kind"] in ("nail", "brush", "drop", "thumb", "pick", "tpick"):
                 damp[i0:i0 + int(0.004 * srm)] = 0.93  # the nail lands on the moving string (not a gate)
             width = {"nail": NAIL_W, "brush": NAIL_W * 1.5, "drop": 0.0012, "thumb": 0.0015,
-                     "hammer": 0.0009, "pull": 0.0007}[e["kind"]]
+                     "hammer": 0.0009, "pull": 0.0007, "pick": PICK_W, "tpick": PICK_W * 1.3}[e["kind"]]
             width *= rng.uniform(0.7, 1.4)  # no two strikes the same nail
             p = _pulse(srm, width, rng) * e["amp"] * (0.5 if e["kind"] == "hammer" else 1.0)
             # where it lands: a comb at the strike point's share of the period
             period = srm / common.hz(e["midi"])
-            lag = int(round(rng.uniform(0.2, 0.34) * period))
+            lag = int(round((e["pos"] if "pos" in e else rng.uniform(0.2, 0.34)) * period))
             if e["kind"] not in ("hammer", "pull"):
                 pseg = pop[i0:i0 + len(pk)]
                 pseg += pk[:len(pseg)] * e["amp"] * (0.6 if e["kind"] in ("thumb", "drop") else 1.0)
@@ -384,8 +475,8 @@ def render(part, sr=common.SR, seed=1866):
             shaped[lag:lag + len(p)] -= p
             seg = exc[i0:i0 + len(shaped)]
             seg += shaped[:len(seg)] * 0.5
-            if e["kind"] in ("nail", "brush"):
-                L = int((0.006 if e["kind"] == "brush" else 0.003) * srm)  # the nail's scrape
+            if e["kind"] in ("nail", "brush", "pick", "tpick"):
+                L = int((0.006 if e["kind"] == "brush" else 0.003) * srm)  # the nail's (or pick's) scrape
                 nb = rng.standard_normal(L) * np.exp(-np.arange(L) / (0.0012 * srm))
                 cseg = click[i0:i0 + len(nb)]
                 cseg += CLICK * e["amp"] * nb[:len(cseg)]
@@ -410,11 +501,12 @@ def main():
     src = args[0] if os.path.isabs(args[0]) else os.path.join(HERE, args[0])
     sc = json.load(open(src))
     strings(opt.get("strings", "gut"))
-    part = arrange(sc)
+    part = arrange_rolls(sc) if opt.get("style") == "rolls" else arrange(sc)
     if "part" in opt:
         json.dump(part, open(opt["part"], "w"), indent=1)
     name = os.path.splitext(os.path.basename(src))[0]
-    suffix = "" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]
+    suffix = ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]) + \
+        ("_rolls" if opt.get("style") == "rolls" else "")
     out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_banjo{suffix}.wav"))
     y = render(part)
     common.write_wav(out, common.normalise(y))

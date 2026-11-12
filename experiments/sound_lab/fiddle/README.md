@@ -72,6 +72,12 @@ changes; results in `../results/2026-11-10_fiddle/`.
   harder nail, the head tighter; centroid 1.7 kHz to gut's 1.1, above 4 kHz 8 dB more); duet.py and
   band.py take it too. In the band the bones clack on the banjo's own beats and the tambourine is
   two thirds of everything above 5 kHz: the banjo's strike reads differently there.
+  **The banjo bench** (Sean, 2026-11-12: "an artifact that's just the banjo until it's perfect ...
+  more like The Dead South", whose banjoist plays open-backs, clawhammer and three-finger):
+  `--strings=modern` (steel on a tight synthetic head, `HEAD_Q`), `--style=rolls` (`arrange_rolls`:
+  three-finger with metal picks, the tune on the 3-3-2 accents, the fingers cycling between with the
+  thumb on the drone, the third string either finger's), `bench_clip.py` (one fixed gain to -22 LUFS,
+  no leveller). Rounds in `../results/2026-11-10_fiddle/banjo_bench/`.
 - `duet.py`: fiddle and banjo together from one tune's note data, the banjo 2.5 dB under.
 
 ## The bones and tambourine (the minstrel band)
