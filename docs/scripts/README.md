@@ -34,3 +34,13 @@ as they are and never changed here; a change to one is a gameplay change.
 - What Sean leaves is in the page's database (ArtifactData, the page's URL): `lines/<line id>`
   `{note, pick, at}`, `cast/<cast id>` `{note, pick, at}`, `page/script` `{ok, at}`. Read them with
   `list`; they're his, so don't overwrite them.
+
+## The cast (#836)
+
+Each speaker's voice is designed on fal (ElevenLabs Voice Design, `eleven_ttv_v3`) from his brief,
+by a request in `tools/voices/requests/` that runs once on GitHub (`.github/workflows/voices.yml`,
+`tools/voices/run.py`, `cast.py`; `FAL_KEY` in the repo's secrets, never in a session). Each
+candidate says the same two lines; a second call in Eleven v4 (the takes' model) proves its saved
+`voice_id` works. The candidates go to the page's asset store as audio-only mp4 (the store takes no
+mp3) and into `cast[].voice.candidates`; Sean picks on the page (`cast/<id>.pick`), and the pick is
+copied into `cast[].voice.picked`. Costs: `tools/voices/paid.csv`; terms: `tools/voices/TERMS.md`.
