@@ -71,6 +71,8 @@
     "gap_s": 20.0,
     "sets": {
       "townsman": [
+        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Sheriff's gone, then. And Doc's pinned his star on you. Well. Somebody had to.", "Deputy, is it? You'll want to keep out of Cody's way."]},
         {"id": "morning.you_were_there", "if": {"nolaw.morning": true, "nolaw.seen_from": "table"}, "once": true,
          "words": ["You were sat right there at the table, they say. And you never moved."]},
         {"id": "morning.versions", "if": {"nolaw.morning": true},
@@ -79,10 +81,14 @@
          "words": ["Sheriff's shot, they say. Laid up at the doc's.", "Who's to keep the peace now? Not me.", "I'm putting the bar on my door tonight."]}
       ],
       "loudmouth": [
-        {"id": "morning.nobody", "if": {"nolaw.morning": true},
+        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Him? Deputy? Cody'll eat him for breakfast.", "Sheriff's dead and they give the star to a drifter. God help us."]},
+        {"id": "morning.nobody", "if": {"nolaw.morning": true, "!nolaw.deputy": true},
          "words": ["And who's to take Cody in? The sheriff's dying.", "He'll be back, you watch. Nobody to stop him."]}
       ],
       "undertaker": [
+        {"id": "after.sheriff", "if": {"nolaw.sheriff": "dead"}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Two in two days. The sheriff gets the good box; the county's paying for that one."]},
         {"id": "morning.undertaker", "if": {"nolaw.earl": "undertaker"},
          "words": ["Earl. Shot through the head, before witnesses, by the man Cody. Pine box. Nobody's paying for a stone."]}
       ]

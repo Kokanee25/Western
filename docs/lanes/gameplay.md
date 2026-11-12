@@ -15,7 +15,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   doctor's cot (`-- --world=valley --mission=sheriff_dies --care=good|poor|left`); the story's Harlan is
   unarmed till then (`Player.lacks`). **Next: step 5, Beat 6, the funeral.**
   Open: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float (her model);
-  long lines run off the subtitle's width; Earl isn't seen laid out (the undertaker's a block).
+  long lines run off the subtitle's width; Earl isn't seen laid out (the undertaker's a block); from the
+  playtest (`docs/playtests/2026-11-12-sheriff-dies.md`): the wife's "Were you with him?" doesn't wait, the
+  bridge's walk out of the doctor's sticks, the boots through the cot's rail, nobody minds a drawn gun by day.
 - **No Justice** (#738): week 2. Joe on the rope: 3-4 shots or close in (#744).
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 

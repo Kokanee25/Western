@@ -41,6 +41,10 @@ var _wait := &""
 var _wait_t := 0.0
 var _hold_s := 0.0
 var _gave := false
+var _followed := false
+## From the oath on, a nod or shake counts before its prompt (`_early`, taken when the wait starts).
+var _early_from := false
+var _early := ""
 var state_t := 0.0
 
 
@@ -99,9 +103,10 @@ func _set_up_morning() -> void:
 	var c := clock()
 	if c:
 		c.set_time(float(opts.get("hour", data.get("hour", 8.5))))
-	for k: String in ["nolaw.murder", "nolaw.morning", "nolaw.seen_from"]:
+	var morning := {"nolaw.murder": "done", "nolaw.morning": true, "nolaw.seen_from": "table", "nolaw.earl": "undertaker"}
+	for k: String in morning:
 		if not StoryState.has_fact(k):
-			fact(k, {"nolaw.murder": "done", "nolaw.morning": true, "nolaw.seen_from": "table"}[k])
+			fact(k, morning[k])
 	if not StoryState.has_fact("sheriff.care"):
 		fact("sheriff.care", care)
 	var p := player()
@@ -300,7 +305,8 @@ func _lead_step(p: Player, delta: float) -> void:
 		if _lead.is_empty():
 			doctor.set_pose(&"stand")
 			doctor.face(sheriff.global_position + Vector3.UP * 0.6 if sheriff else cot.global_position)
-		if state_t > float(data.get("lead_after_s", 2.5)) + 0.5 and state_t < float(data.get("lead_after_s", 2.5)) + 0.6:
+		if state_t > float(data.get("lead_after_s", 2.5)) + 0.5 and not _followed:
+			_followed = true
 			prompt(String((data.get("prompts", {}) as Dictionary).get("follow", "")), 3.0)
 	if _flat(p.global_position, cot.global_position) < float(data.get("bed_m", 3.2)) and absf(p.global_position.y - cot.global_position.y) < 1.5:
 		if not _lead.is_empty():
@@ -344,6 +350,11 @@ func _room_step(p: Player, delta: float) -> void:
 		_wait_t += delta
 		_wait_step(p, delta, near)
 		return
+	if _early_from and near and _early == "":
+		# The oath's said: a nod or shake from then on counts, before the prompt's up.
+		var g := gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
+		if g != &"":
+			_early = String(g)
 	if t < _next_t or not near or _beat >= _beats.size():
 		return
 	var b: Array = _beats[_beat]
@@ -352,9 +363,13 @@ func _room_step(p: Player, delta: float) -> void:
 		"wait":
 			_wait = StringName(b[1])
 			_wait_t = 0.0
-			gesture = HeadGesture.new()
+			if _wait == &"answer" and _early != "":
+				_answered(_early)
+				return
+			if _wait != &"answer" or gesture == null:
+				gesture = HeadGesture.new()
 			var pr: Dictionary = data.get("prompts", {})
-			prompt(String(pr.get(String(b[1]), "")), 5.0 if b[1] == "answer" else 4.0)
+			prompt(String(pr.get(String(b[1]), "")), 12.0 if b[1] == "answer" else float(data.get("hold_wait_s", 12.0)))
 		"do":
 			_do(String(b[1]))
 		_:
@@ -364,6 +379,9 @@ func _room_step(p: Player, delta: float) -> void:
 				beat = "nod" if answer == "nod" else "shake"
 			var text := line(beat, String(b[2]))
 			_say(who, text)
+			if beat == "oath":
+				_early_from = true
+				gesture = HeadGesture.new()
 			_next_t = t + maxf(float(data.get("gap_min_s", 2.6)), float(text.length()) / float(data.get("cps", 13.0)) + 0.8) * _pace()
 
 
@@ -388,6 +406,7 @@ func _wait_step(p: Player, delta: float, near: bool) -> void:
 
 
 func _answered(g: String) -> void:
+	_early_from = false
 	answer = g
 	_note("answer: " + g)
 	fact("nolaw.accepted", g)

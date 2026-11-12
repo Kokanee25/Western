@@ -197,8 +197,9 @@ func _answer_and_end(m: SheriffDies, how: String) -> void:
 		var held := await wait_until(func() -> bool: return m._wait != &"hold", 60 * 6)
 		Input.action_release(&"shove")
 		check(held and m.held_him, "E: you hold him while Doc works")
-		asked = await wait_until(func() -> bool: return m._wait == &"answer", 60 * 30)
-		check(asked, "to the oath")
+		# The shake comes as soon as he's said the oath, before its prompt (it counts: the playtest's).
+		asked = await wait_until(func() -> bool: return m._early_from or m._wait == &"answer", 60 * 30)
+		check(asked and m._wait != &"answer", "to the oath, before the prompt (%s)" % m._wait)
 	check(not p.carries(p.revolver()), "no gun yet")
 	if how == "nod":
 		await _nod(p)
@@ -251,3 +252,7 @@ func _after(m: SheriffDies) -> void:
 	check(s != null and not s.limp and s.pose == &"on_back", "where he lay (%s)" % m.result().get("sheriff"))
 	check(_lines_of("doc").has("He's gone, ma'am."), "Doc: he's gone")
 	check(_lines_of("wife").has("I'll sit with him now. Go on, the both of you."), "his wife stays with him")
+	# The town knows: no more "the sheriff's dying", and the undertaker has him.
+	var f := m.folk
+	check(String(f.line_for("loudmouth")[0]) == "after.deputy", "the loudmouth's moved on (%s)" % [f.line_for("loudmouth")])
+	check(String(f.line_for("undertaker")[0]) == "after.sheriff", "the undertaker's line (%s)" % [f.line_for("undertaker")])
