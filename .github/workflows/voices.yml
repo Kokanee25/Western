@@ -27,6 +27,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -q pyyaml
+      - run: sudo apt-get install -y -qq ffmpeg   # takes.py makes audio-only mp4 (#846)
       - name: Run the waiting requests
         env:
           FAL_KEY: ${{ secrets.FAL_KEY }}
