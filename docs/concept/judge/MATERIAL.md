@@ -40,6 +40,21 @@ over boards:
 3-6. As for wood; a peel's edge should read as a film's edge (sharp, a little lifted), never as
    dots, noise or a pattern stamped over the boards.
 
+## Floors and furniture (#825)
+
+A floor swatch (codes FL...) is a room's floor by its wall, a doorway in the wall and a worn path
+from it; a furniture swatch (codes FN...) is a chest of drawers in that finish, standing on a floor
+of another wood. The same six checks and grades, read for:
+
+1. **Real stuff:** floor boards (pine or fir, oiled or bare) of a working building, not a deck or a
+   laminate; a joined piece's wood and finish (varnished oak, walnut, painted pine), not a wall's
+   boards cut to shape, plastic or a decal.
+2. **Age reads:** a floor's path worn paler and duller where feet go and darker, dustier by the wall,
+   more so with the years; a piece's finish rubbed through on its edges and round its pulls, grease
+   darkening round them, dust on its top, the varnish duller in patches.
+3-6. As for wood; the wear should follow use (the path, the edges, the pulls), never read as a
+   pattern, a smear or lines drawn along the edges.
+
 ## The grade (one per swatch and age)
 
 | grade | what it means |

@@ -21,11 +21,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
-- **The coach heist** (#794, PR #814, build 4002; `experiments/coach_heist/` README): `SwingingRam` (the log
-  on two ropes from a gallows frame, held by a trip pin a ball splits), `Dents`/`DentWatch`, `CoachDrive`,
-  `CoachCut` (`-- --world=valley --mission=coach`, bridge `ch_cut`) on the prop lab's `baron_coach`. Over
-  8/8, dents ~3.7 cm, worst frame ~31 ms at Sean's in the cut. Rough: the guards have no brains or guns.
-  Next: #815 (the guards fight back, the strongbox taken). Parked until after the slice unless Sean says.
+- **The coach heist** (#794, #815, PR #839; `experiments/coach_heist/` README "After the hit"): `SwingingRam`,
+  `Dents`/`DentWatch`, `CoachDrive`, `CoachCut` (`-- --world=valley --mission=coach`), and `CoachFight`: the
+  guards dazed, up inside the wreck, one in the door on top, the rest out to the lee; the strongbox hauled out,
+  padlock shot, papers taken or the box shouldered; won up the rimrock trail, Enter again; StoryState `coach.*`.
+  8 scripted runs (`fight_runs.py`): won 5, lost 2, one standoff; worst frame ~32 ms at Sean's. Open: the throw
+  breaks most of the guards' bones (BodyImpacts inside the coach), so most give up without firing; the playtest
+  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop, the "store floor" wake line. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 
 ## Parked until after the slice

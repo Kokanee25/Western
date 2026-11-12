@@ -89,3 +89,128 @@ func test_what_the_doctors_costs_to_draw() -> void:
 	var r := Checks.draw_calls(lab)
 	print("  draws: %s" % [r])
 	check(true, "counted")
+
+
+## #824 (#821 pick 1): the rooms lit as rooms. Every room people use (all but the loft) has a lamp
+## of its own, hung on its walls; RoomLight gets every outer door and window; the indoor fill reaches
+## the outer walls' inside boards; and the inside paint's wear is measured from the floor.
+func test_the_doctors_rooms_have_their_own_light() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var lit := {}
+	for lamp: OilLamp in b.lamps:
+		var at: Vector3 = b.to_local(lamp.global_position)
+		for r: Dictionary in spec.rooms:
+			var rc: Array = r.rect
+			if r.id != "loft" and at.x > float(rc[0]) - 0.2 and at.x < float(rc[2]) + 0.2 \
+					and at.z > float(rc[1]) - 0.2 and at.z < float(rc[3]) + 0.2 and at.y < 4.3:
+				lit[r.id] = true
+	for r: Dictionary in spec.rooms:
+		if r.id != "loft":
+			check(lit.has(r.id), "the %s has a lamp" % r.id)
+	var n := 0
+	for w: Dictionary in spec.walls:
+		if not w.get("partition", false):
+			n += (w.get("openings", []) as Array).size()
+	var ops: Array = b.light_openings()
+	check(ops.size() == n, "RoomLight gets every outer opening (%d of %d)" % [ops.size(), n])
+	for o: Dictionary in ops:
+		var rect: Rect2 = o.rect
+		check(rect.position.y >= 0.9 and rect.size.x > 0.3, "an opening in the wall above the floor: %s" % rect)
+	var probe := b.get_node(^"InteriorAmbient") as ReflectionProbe
+	check(probe.size.x >= b.width - 0.01 and probe.size.z >= b.depth - 0.01, "the fill reaches the outer walls (%s)" % probe.size)
+	check(b.has_meta(&"room_fill") and b.get_meta(&"room_fill") is Color, "the fill's colour is the spec's")
+	# An inside wall board's ground (CUSTOM2's z, the shader's wear height) is the floor's.
+	var found := false
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).contains("/in_ground/") and m.drawn_node() and m.drawn_node().mesh is ArrayMesh:
+			var arrays: Array = (m.drawn_node().mesh as ArrayMesh).surface_get_arrays(0)
+			var c2: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM2]
+			if c2.size() >= 4:
+				var gy: float = b.global_position.y
+				check(absf(c2[2] - (gy + b.floor_top)) < 0.01, "an inside board's wear from the floor (%.2f, floor %.2f)" % [c2[2] - gy, b.floor_top])
+				found = true
+				break
+	check(found, "an inside board found to read")
+
+
+## #826 (#821 picks 3 and 4): the inside boards drawn at the width their paint was judged at
+## (painted_pale_tg, 9 cm), a skirting on every boarded room's walls, casings in the trim's finish;
+## every window a sash of its spec's lights, lined, each pane its own glass that breaks alone.
+func test_the_doctors_walls_and_windows_are_as_judged() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var judged := float(MaterialLibrary.entry("painted_pale_tg").board_w)
+	var drawn := 0
+	var off := 0
+	var members := 0
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id)
+		if not (id.contains("/in_ground/board/") or id.contains("/m/board/") or id.contains("/p/board/")):
+			continue
+		members += 1
+		var mi: MeshInstance3D = m.drawn_node()
+		if mi == null or not (mi.mesh as Mesh).has_meta(&"strip_widths"):
+			continue
+		var ws: Array = mi.mesh.get_meta(&"strip_widths")
+		for i in ws.size():
+			drawn += 1
+			# (the last board of a member may be ripped to what's left at a wall's end)
+			if i < ws.size() - 1 and absf(float(ws[i]) - judged) > judged * 0.2:
+				off += 1
+	print("  inside boards: %d members drawn as %d boards, %d off the judged %.2f m" % [members, drawn, off, judged])
+	check(members > 100 and drawn >= members * 2, "the inside boards drawn as narrow boards (%d members, %d boards)" % [members, drawn])
+	check(off == 0, "every board drawn within a fifth of its paint's judged width (%d off)" % off)
+	var skirts := 0
+	var casings := 0
+	var trim_casings := 0
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id)
+		if id.contains("/skirt"):
+			skirts += 1
+			check(b._finish_of(m) == "trim", "a skirting in the trim's finish: %s" % id)
+		if id.contains("/casing"):
+			casings += 1
+			trim_casings += 1 if b._finish_of(m) == "trim" else 0
+	print("  %d skirting pieces, %d casing pieces" % [skirts, casings])
+	check(skirts > 20, "skirting along the boarded walls (%d)" % skirts)
+	check(casings > 0 and trim_casings == casings, "the casings in the trim's finish (%d of %d)" % [trim_casings, casings])
+	# Every boarded ground-floor wall face has a skirting.
+	for w: Dictionary in spec.walls:
+		for fin: Dictionary in w.get("inside", []):
+			if fin.finish != "boards" or fin.get("level", w.get("level", "ground")) != "ground":
+				continue
+			var pre: String = "%s/%s/" % [b.structure_id, w.id]
+			var found := false
+			for m: StructureMember in b.get_members():
+				if String(m.member_id).begins_with(pre) and String(m.member_id).contains("/skirt"):
+					found = true
+					break
+			check(found, "%s has a skirting" % w.id)
+	# The windows: a pane a light (built_right counts them per opening), each its own glass.
+	var lights := 0
+	for w: Dictionary in spec.walls:
+		for o: Dictionary in w.get("openings", []):
+			lights += int(o.get("lights", 0))
+	var panes: Array[StructureMember] = []
+	for m: StructureMember in b.get_members():
+		if m.kind == &"glass" and String(m.member_id).contains("/window_"):
+			panes.append(m)
+	check(panes.size() == lights, "a pane for each light (%d of %d)" % [panes.size(), lights])
+	check(panes.size() > 0 and panes[0].collision_layer & Layers.WORLD != 0, "a pane is in the world (Sight holds it as glass)")
+	# One pane of the west show window broken: the other three stand, and so does its sash.
+	var pre := "%s/front/window_" % b.structure_id
+	var west: Array[StructureMember] = []
+	for p in panes:
+		if String(p.member_id).begins_with(pre) and p.position.x > 1.0 and p.position.x < 2.7:
+			west.append(p)
+	check(west.size() == 4, "the west show window has four panes (%d)" % west.size())
+	if west.size() == 4:
+		b.break_member(west[0])
+		await physics_frames(20)
+		check(west[0].broken, "the pane shot is broken")
+		for p in west.slice(1):
+			check(not p.broken, "the next pane stands: %s" % p.member_id)
+		for m: StructureMember in b.get_members():
+			if String(m.member_id).begins_with(pre) and m.kind == &"trim" and m.position.x > 1.0 and m.position.x < 2.7:
+				check(not m.broken, "its sash stands: %s" % m.member_id)
