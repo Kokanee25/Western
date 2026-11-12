@@ -39,15 +39,15 @@
     {"id": "sheriff", "name": "The sheriff", "called": "Sheriff", "bible": "VOICES.md, The sheriff",
      "brief": "Mid-fifties, a plains man (Missouri or Kansas, not stage Texas), fourteen years on a Colorado claim. Low and dry, gravel from pain; gives orders even on his back; short sentences that shorten to a word as he bleeds.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his mid-fifties from the American plains, Missouri or Kansas, not a Texas drawl; a rancher and lawman. Low, dry and weathered, with gravel in it from pain; hurt and short of breath but still giving orders. Plain short sentences, unhurried. Natural, conversational and understated, like a real man talking, not a narrator or an actor performing.", "text": "[hurting, quiet, short of breath] Sun's coming up. Ain't that something. Fourteen years I've rode this road. Never had to look behind me on it. [very weak, fading, long pauses] Badge... Doc. Pin it on him.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his early fifties, still strong and hard from years of ranch work, a rancher and lawman from the American plains, Missouri or Kansas, not a Texas drawl. A low, dry, weathered baritone with gravel in it, firm and vigorous with plain authority, not an old man's voice. Gut-shot, hurting and short of breath, but still giving orders. Plain short sentences. A real man talking, with feeling, not a narrator.", "text": "[exhales sharply] Sun's coming up. [short pause] Ain't that something. [inhales deeply] Fourteen years I've rode this road. Never had to look behind me on it. [long pause] [whispers] Badge... Doc. [exhales] Pin it on him.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_c.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "sheriff_b1", "url": "/_blob/45d42a980013b784e94f3c58cd78be7d", "voice_id": "1mmdlEjjnJr3bjhG52ua", "seed": 11001},
-          {"id": "sheriff_b2", "url": "/_blob/d7869b8895c627ffcdb9cb240f9f2180", "voice_id": "7SMTg8i7tNoSYLPe9byN", "seed": 11002},
-          {"id": "sheriff_b3", "url": "/_blob/1c5578afcf4a6b7b3078267faf536cbd", "voice_id": "NOvcxvk2K9LREnHC8OFW", "seed": 11003},
-          {"id": "sheriff_b4", "url": "/_blob/faffaab2f7881041be38041c446608a9", "voice_id": "2rvrdFFnBcUXA5cpvVrj", "seed": 11004}
+          {"id": "sheriff_c1", "url": "/_blob/9e5839b9852ee91cae7848bbd7c91396", "voice_id": "Ukf6aMxK87f7Wv7BpSld", "seed": 21001},
+          {"id": "sheriff_c2", "url": "/_blob/ac5857f642f4d2b93f98b221fb947680", "voice_id": "enfVjLcAlfS4CG0ZrPbV", "seed": 21002},
+          {"id": "sheriff_c3", "url": "/_blob/592f3a967cd191d817c12b256dcdd9d3", "voice_id": "nHHZ68dqFx6o6rLM6s3n", "seed": 21003},
+          {"id": "sheriff_c4", "url": "/_blob/06c9ce173d823c607cbd42368157508c", "voice_id": "ATJBRWuZJ9io70PFlRSH", "seed": 21004}
         ],
-        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
+        "earlier": "round 1 dropped (an old movie, Sean); round 2 (requests/2026-11-12_cast_sheriff_road_b.yaml) not picked: Sean, on the page, \"Can we make the voice early 50's\"",
         "picked": null
       }},
     {"id": "doctor", "name": "The doctor", "called": "Doc", "bible": "VOICES.md, The doctor; WORDS.md, The doctor",
