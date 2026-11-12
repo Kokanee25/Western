@@ -116,9 +116,9 @@
     {"id": "murder", "title": "The murder", "when": "Night 1, the card table", "built": true,
      "setting": "Cody walks up, accuses Earl, kicks his chair out from under him and shoots him in the head where he lies. Very quick; not a fair fight. The room goes quiet until the barman.",
      "lines": [
-      {"id": "murder.accuse", "speaker": "cody", "trigger": "Cody stops at the table", "when": "any", "condition": "angry, sure of himself",
-       "delivery": "Flat and loud enough for the room; he wants them to hear it.",
-       "words": [{"text": "Earl. You been dealing off the bottom of that deck.", "status": "built"}], "takes": []},
+      {"id": "murder.accuse", "speaker": "cody", "trigger": "Cody comes into the yard: shouting at Earl from the moment he walks in, before he reaches the table", "when": "any", "condition": "furious",
+       "delivery": "Shouted across the yard as he comes, already worked up; the whole room turns. The no-law line comes after, quiet, with Earl on the floor.",
+       "words": [{"text": "Earl, you cheating son of a bitch!", "status": "new", "note": "Sean's redo, 2026-11-12 (was the built 'Earl. You been dealing off the bottom of that deck.')"}], "takes": []},
       {"id": "murder.earl", "speaker": "earl", "trigger": "Right after the accusation", "when": "any", "condition": "afraid, placating",
        "delivery": "A nervous smile in it; cut off by the kick.",
        "words": [{"text": "Now, Cody, I never...", "status": "built"}], "takes": []},
