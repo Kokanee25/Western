@@ -4,6 +4,8 @@ eleven-v3), run by run.py on GitHub. A request:
     spend: 5.00                       # the most the whole request may cost ($)
     script: docs/scripts/sheriff_road.json
     candidates: 4                     # voices per speaker
+    round: v                          # candidate ids are <speaker>_<round><n> (b = the second round)
+    seed_base: 0                      # added to every seed, so a new round gets new voices
     speakers:
       sheriff:
         prompt: "..."                 # age, region, grain, pace; never a real person's name
@@ -27,7 +29,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 QUEUE = "https://queue.fal.run/"
 DESIGN = "fal-ai/elevenlabs/text-to-voice/design/eleven-v3"
 TTS = "elevenlabs/tts/eleven-v4"     # the takes' model: the check proves a designed voice speaks in it
-FMT = "mp3_44100_64"
+FMT = "mp3_44100_128"
 
 
 def estimate(req):
@@ -96,8 +98,8 @@ def run(req, name):
         os.makedirs(d, exist_ok=True)
         made[sid] = []
         for c in range(1, n + 1):
-            seed = 1000 * (si + 1) + c
-            cid = "%s_v%d" % (sid, c)
+            seed = int(req.get("seed_base", 0)) + 1000 * (si + 1) + c
+            cid = "%s_%s%d" % (sid, req.get("round", "v"), c)
             row = {"id": cid, "seed": seed}
             body = {"prompt": sp["prompt"], "text": sp["text"], "auto_generate_text": False, "seed": seed,
                     "guidance_scale": sp.get("guidance_scale", 4), "loudness": 0.5, "output_format": FMT,

@@ -1,0 +1,64 @@
+task: cast
+spend: 3.50
+note: the cast again (#836), Sean 2026-11-12 "the voices sound like they were recorded and being played from an old movie" - audio quality first in every prompt, no era words, conversational acting, 128 kbps; the sheriff's lines the checker passes
+script: docs/scripts/sheriff_road.json
+candidates: 4
+round: b
+seed_base: 10000
+speakers:
+  sheriff:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A man in his mid-fifties from the American plains, Missouri or Kansas, not a Texas drawl;
+      a rancher and lawman. Low, dry and weathered, with gravel in it from pain; hurt and short of
+      breath but still giving orders. Plain short sentences, unhurried. Natural, conversational and
+      understated, like a real man talking, not a narrator or an actor performing.
+    text: >-
+      [hurting, quiet, short of breath] Sun's coming up. Ain't that something. Fourteen years I've rode
+      this road. Never had to look behind me on it. [very weak, fading, long pauses] Badge... Doc. Pin
+      it on him.
+    check: "[very weak, fading, long pauses] Badge... Doc. Pin it on him."
+  doctor:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A man in his late forties, an educated Easterner from Philadelphia living out west. Brisk,
+      quiet and dry; precise whole sentences, never raised; a clear mid-low voice, a little tired, with
+      a faint Philadelphia accent. Natural, conversational and understated, like a real man talking,
+      not a narrator or an actor performing.
+    text: >-
+      [calm, approving] Somebody packed that wound, and packed it right. That's bought him some hours.
+      Come back tonight. [tired, plain] The ball's in the bowel. I can't get at it, and it would make no
+      odds if I could. He'll not see another night.
+    check: "[tired, plain] The ball's in the bowel. I can't get at it, and it would make no odds if I could. He'll not see another night."
+  widow:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A woman of about forty, a Midwestern farm wife with good schooling. A level, low,
+      plain-spoken alto; grief held down under work; short sentences, hard questions asked plainly.
+      Warm underneath but tired and unadorned. Natural, conversational and understated, like a real
+      woman talking, not a narrator or an actress performing.
+    text: >-
+      [grief held down] Were you with him? [cold] A freighter brought him, they tell me. [grief held down,
+      steady] I'll sit with him now. Go on, the both of you.
+    check: "[grief held down, steady] I'll sit with him now. Go on, the both of you."
+  freighter:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A man in his forties who drives freight wagons; a voice hoarse and rough from shouting at
+      mules all day. A rough rural Western country voice, talking quickly, still shaken by what he has
+      just seen. Natural, conversational and understated, like a real man talking, not a narrator or an
+      actor performing.
+    text: >-
+      [shaken, quick] Found him in the road east of the ford. Talked about a red shirt the whole way in.
+      [shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it.
+    check: "[shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it."
+  livery:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A man in his sixties who keeps a livery stable in a small Western town; a slow, grumbling,
+      slightly nasal rural voice, gruff to hide that he minds. Unhurried and plain. Natural,
+      conversational and understated, like a real man talking, not a narrator or an actor performing.
+    text: >-
+      [shaken, grumbling] That's the sheriff's bay. Lord. I'll put him up. Saddle, rifle and all.
+      [grumbling] Leave him with me. I'll see he's fed, whoever's paying.
+    check: "[grumbling] Leave him with me. I'll see he's fed, whoever's paying."
