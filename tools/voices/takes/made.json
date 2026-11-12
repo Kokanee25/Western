@@ -1,10 +1,698 @@
 [
  {
-  "id": "shot_by.B",
-  "line": "road.shot_by.clear",
+  "id": "left.freighter.w1.s1",
+  "line": "left.freighter",
   "app": "elevenlabs/tts/eleven-v4",
-  "text": "[A hurt man lies on his back in the dust, telling it to keep his mind off the pain, bitter at himself for being fooled.] [pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted directions. [long pause] [exhales sharply] Then he shot me.",
+  "text": "[shaken, still telling it] Red shirt, he kept saying. [short pause] Red shirt, and a name. [short pause] Harlan, or near it.",
+  "stability": 0.3,
+  "file": "takes/left.freighter.w1.s1.mp4"
+ },
+ {
+  "id": "left.doctor.w0.s0",
+  "line": "left.doctor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, grave] A freighter brought him in at ten, [short pause] insensible in the back of the wagon. [short pause] He's sinking.",
   "stability": 0.0,
-  "error": "422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1a1-599e-7731-95fe-7c87f50269cd: {\"detail\":[{\"loc\":[\"body\",\"voice\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"ATJBRWuZJ9io70PFlRSH\",\"categories\":[\"violence\"]},{\"loc\":[\"body\",\"text\"]"
+  "file": "takes/left.doctor.w0.s0.mp4"
+ },
+ {
+  "id": "left.doctor.w0.s1",
+  "line": "left.doctor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, grave] A freighter brought him in at ten, [short pause] insensible in the back of the wagon. [short pause] He's sinking.",
+  "stability": 0.15,
+  "file": "takes/left.doctor.w0.s1.mp4"
+ },
+ {
+  "id": "left.doctor.w0.s2",
+  "line": "left.doctor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, grave] A freighter brought him in at ten, [short pause] insensible in the back of the wagon. [short pause] He's sinking.",
+  "stability": 0.3,
+  "file": "takes/left.doctor.w0.s2.mp4"
+ },
+ {
+  "id": "evening.doctor.good.w0.s0",
+  "line": "evening.doctor.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] The ball's in the bowel. [short pause] I can't get at it, [sighs] and it would make no odds if I could. [long pause] He'll not see another night.",
+  "stability": 0.0,
+  "file": "takes/evening.doctor.good.w0.s0.mp4"
+ },
+ {
+  "id": "evening.doctor.good.w0.s1",
+  "line": "evening.doctor.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] The ball's in the bowel. [short pause] I can't get at it, [sighs] and it would make no odds if I could. [long pause] He'll not see another night.",
+  "stability": 0.15,
+  "file": "takes/evening.doctor.good.w0.s1.mp4"
+ },
+ {
+  "id": "evening.doctor.good.w0.s2",
+  "line": "evening.doctor.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] The ball's in the bowel. [short pause] I can't get at it, [sighs] and it would make no odds if I could. [long pause] He'll not see another night.",
+  "stability": 0.3,
+  "file": "takes/evening.doctor.good.w0.s2.mp4"
+ },
+ {
+  "id": "evening.doctor.poor.w0.s0",
+  "line": "evening.doctor.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, low] He's sinking. [short pause] I've given him morphia. [long pause] Tomorrow, I think, [sighs] and it won't be easy.",
+  "stability": 0.0,
+  "file": "takes/evening.doctor.poor.w0.s0.mp4"
+ },
+ {
+  "id": "evening.doctor.poor.w0.s1",
+  "line": "evening.doctor.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, low] He's sinking. [short pause] I've given him morphia. [long pause] Tomorrow, I think, [sighs] and it won't be easy.",
+  "stability": 0.15,
+  "file": "takes/evening.doctor.poor.w0.s1.mp4"
+ },
+ {
+  "id": "evening.doctor.poor.w0.s2",
+  "line": "evening.doctor.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, low] He's sinking. [short pause] I've given him morphia. [long pause] Tomorrow, I think, [sighs] and it won't be easy.",
+  "stability": 0.3,
+  "file": "takes/evening.doctor.poor.w0.s2.mp4"
+ },
+ {
+  "id": "evening.doctor.go.w0.s0",
+  "line": "evening.doctor.go",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, kind] His wife's with him. [short pause] There's nothing for you to do here tonight.",
+  "stability": 0.0,
+  "file": "takes/evening.doctor.go.w0.s0.mp4"
+ },
+ {
+  "id": "evening.doctor.go.w0.s1",
+  "line": "evening.doctor.go",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, kind] His wife's with him. [short pause] There's nothing for you to do here tonight.",
+  "stability": 0.3,
+  "file": "takes/evening.doctor.go.w0.s1.mp4"
+ },
+ {
+  "id": "evening.doctor.go.w1.s0",
+  "line": "evening.doctor.go",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, gentle] Go on. [short pause] He'll ask for you in the morning.",
+  "stability": 0.0,
+  "file": "takes/evening.doctor.go.w1.s0.mp4"
+ },
+ {
+  "id": "evening.doctor.go.w1.s1",
+  "line": "evening.doctor.go",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, gentle] Go on. [short pause] He'll ask for you in the morning.",
+  "stability": 0.3,
+  "file": "takes/evening.doctor.go.w1.s1.mp4"
+ },
+ {
+  "id": "day2.door.good.w0.s0",
+  "line": "day2.door.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He's clear this morning. [short pause] It won't last.",
+  "stability": 0.0,
+  "file": "takes/day2.door.good.w0.s0.mp4"
+ },
+ {
+  "id": "day2.door.good.w0.s1",
+  "line": "day2.door.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He's clear this morning. [short pause] It won't last.",
+  "stability": 0.15,
+  "file": "takes/day2.door.good.w0.s1.mp4"
+ },
+ {
+  "id": "day2.door.good.w0.s2",
+  "line": "day2.door.good",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He's clear this morning. [short pause] It won't last.",
+  "stability": 0.3,
+  "file": "takes/day2.door.good.w0.s2.mp4"
+ },
+ {
+  "id": "day2.door.poor.w0.s0",
+  "line": "day2.door.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He comes and goes. [short pause] Be quick.",
+  "stability": 0.0,
+  "file": "takes/day2.door.poor.w0.s0.mp4"
+ },
+ {
+  "id": "day2.door.poor.w0.s1",
+  "line": "day2.door.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He comes and goes. [short pause] Be quick.",
+  "stability": 0.15,
+  "file": "takes/day2.door.poor.w0.s1.mp4"
+ },
+ {
+  "id": "day2.door.poor.w0.s2",
+  "line": "day2.door.poor",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, urgent] He's asking for you. [short pause] He comes and goes. [short pause] Be quick.",
+  "stability": 0.3,
+  "file": "takes/day2.door.poor.w0.s2.mp4"
+ },
+ {
+  "id": "day2.door.left.w0.s0",
+  "line": "day2.door.left",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, puzzled] He's been asking for you since the freighter brought him. [long pause] I couldn't tell you why.",
+  "stability": 0.0,
+  "file": "takes/day2.door.left.w0.s0.mp4"
+ },
+ {
+  "id": "day2.door.left.w0.s1",
+  "line": "day2.door.left",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, puzzled] He's been asking for you since the freighter brought him. [long pause] I couldn't tell you why.",
+  "stability": 0.15,
+  "file": "takes/day2.door.left.w0.s1.mp4"
+ },
+ {
+  "id": "day2.door.left.w0.s2",
+  "line": "day2.door.left",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, puzzled] He's been asking for you since the freighter brought him. [long pause] I couldn't tell you why.",
+  "stability": 0.3,
+  "file": "takes/day2.door.left.w0.s2.mp4"
+ },
+ {
+  "id": "day2.with_him.w0.s0",
+  "line": "day2.with_him",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief held down] Were you with him?",
+  "stability": 0.0,
+  "file": "takes/day2.with_him.w0.s0.mp4"
+ },
+ {
+  "id": "day2.with_him.w0.s1",
+  "line": "day2.with_him",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief held down] Were you with him?",
+  "stability": 0.15,
+  "file": "takes/day2.with_him.w0.s1.mp4"
+ },
+ {
+  "id": "day2.with_him.w0.s2",
+  "line": "day2.with_him",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief held down] Were you with him?",
+  "stability": 0.3,
+  "file": "takes/day2.with_him.w0.s2.mp4"
+ },
+ {
+  "id": "day2.obliged.w0.s0",
+  "line": "day2.obliged",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, steady] He said it was you that brought him. [short pause] I'm obliged to you, Mr. Harlan.",
+  "stability": 0.0,
+  "file": "takes/day2.obliged.w0.s0.mp4"
+ },
+ {
+  "id": "day2.obliged.w0.s1",
+  "line": "day2.obliged",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, steady] He said it was you that brought him. [short pause] I'm obliged to you, Mr. Harlan.",
+  "stability": 0.15,
+  "file": "takes/day2.obliged.w0.s1.mp4"
+ },
+ {
+  "id": "day2.obliged.w0.s2",
+  "line": "day2.obliged",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, steady] He said it was you that brought him. [short pause] I'm obliged to you, Mr. Harlan.",
+  "stability": 0.3,
+  "file": "takes/day2.obliged.w0.s2.mp4"
+ },
+ {
+  "id": "day2.freighter.w0.s0",
+  "line": "day2.freighter",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, flat] A freighter brought him, they tell me.",
+  "stability": 0.0,
+  "file": "takes/day2.freighter.w0.s0.mp4"
+ },
+ {
+  "id": "day2.freighter.w0.s1",
+  "line": "day2.freighter",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, flat] A freighter brought him, they tell me.",
+  "stability": 0.15,
+  "file": "takes/day2.freighter.w0.s1.mp4"
+ },
+ {
+  "id": "day2.freighter.w0.s2",
+  "line": "day2.freighter",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[cold, flat] A freighter brought him, they tell me.",
+  "stability": 0.3,
+  "file": "takes/day2.freighter.w0.s2.mp4"
+ },
+ {
+  "id": "day2.red_shirt.clear.w0.s0",
+  "line": "day2.red_shirt.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, exact] Faded red shirt. [short pause] I'd know him again. [inhales deeply] You find him, Harlan.",
+  "stability": 0.0,
+  "file": "takes/day2.red_shirt.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.red_shirt.clear.w0.s1",
+  "line": "day2.red_shirt.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, exact] Faded red shirt. [short pause] I'd know him again. [inhales deeply] You find him, Harlan.",
+  "stability": 0.15,
+  "file": "takes/day2.red_shirt.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.red_shirt.clear.w0.s2",
+  "line": "day2.red_shirt.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, exact] Faded red shirt. [short pause] I'd know him again. [inhales deeply] You find him, Harlan.",
+  "stability": 0.3,
+  "file": "takes/day2.red_shirt.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.red_shirt.fading.w0.s0",
+  "line": "day2.red_shirt.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, words coming apart] ...red shirt... [long pause] rode up easy...",
+  "stability": 0.0,
+  "file": "takes/day2.red_shirt.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.red_shirt.fading.w0.s1",
+  "line": "day2.red_shirt.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, words coming apart] ...red shirt... [long pause] rode up easy...",
+  "stability": 0.15,
+  "file": "takes/day2.red_shirt.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.red_shirt.fading.w0.s2",
+  "line": "day2.red_shirt.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers, words coming apart] ...red shirt... [long pause] rode up easy...",
+  "stability": 0.3,
+  "file": "takes/day2.red_shirt.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.ditch.clear.w0.s0",
+  "line": "day2.ditch.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] He's wanted my ditch since the day I cut it. [short pause] Now he'll go at her. [long pause] [softly] Look to them.",
+  "stability": 0.0,
+  "file": "takes/day2.ditch.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.ditch.clear.w0.s1",
+  "line": "day2.ditch.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] He's wanted my ditch since the day I cut it. [short pause] Now he'll go at her. [long pause] [softly] Look to them.",
+  "stability": 0.15,
+  "file": "takes/day2.ditch.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.ditch.clear.w0.s2",
+  "line": "day2.ditch.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] He's wanted my ditch since the day I cut it. [short pause] Now he'll go at her. [long pause] [softly] Look to them.",
+  "stability": 0.3,
+  "file": "takes/day2.ditch.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.ditch.fading.w0.s0",
+  "line": "day2.ditch.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...the ditch... [long pause] look to them...",
+  "stability": 0.0,
+  "file": "takes/day2.ditch.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.ditch.fading.w0.s1",
+  "line": "day2.ditch.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...the ditch... [long pause] look to them...",
+  "stability": 0.15,
+  "file": "takes/day2.ditch.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.ditch.fading.w0.s2",
+  "line": "day2.ditch.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...the ditch... [long pause] look to them...",
+  "stability": 0.3,
+  "file": "takes/day2.ditch.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.oath.clear.w0.s0",
+  "line": "day2.oath.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] Doc. [short pause] My badge. [long pause] [inhales deeply] Raise your hand, Harlan. [short pause] You'll keep the peace of this county, best you're able. [short pause] Nod, then.",
+  "stability": 0.0,
+  "file": "takes/day2.oath.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.oath.clear.w0.s1",
+  "line": "day2.oath.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] Doc. [short pause] My badge. [long pause] [inhales deeply] Raise your hand, Harlan. [short pause] You'll keep the peace of this county, best you're able. [short pause] Nod, then.",
+  "stability": 0.15,
+  "file": "takes/day2.oath.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.oath.clear.w0.s2",
+  "line": "day2.oath.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] Doc. [short pause] My badge. [long pause] [inhales deeply] Raise your hand, Harlan. [short pause] You'll keep the peace of this county, best you're able. [short pause] Nod, then.",
+  "stability": 0.3,
+  "file": "takes/day2.oath.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.oath.fading.w0.s0",
+  "line": "day2.oath.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] Badge... [long pause] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.0,
+  "file": "takes/day2.oath.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.oath.fading.w0.s1",
+  "line": "day2.oath.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] Badge... [long pause] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.15,
+  "file": "takes/day2.oath.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.oath.fading.w0.s2",
+  "line": "day2.oath.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] Badge... [long pause] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.3,
+  "file": "takes/day2.oath.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.nod.clear.w0.s0",
+  "line": "day2.nod.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, satisfied] Good. [short pause] You're my deputy. [short pause] Doc, you heard him.",
+  "stability": 0.0,
+  "file": "takes/day2.nod.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.nod.clear.w0.s1",
+  "line": "day2.nod.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, satisfied] Good. [short pause] You're my deputy. [short pause] Doc, you heard him.",
+  "stability": 0.15,
+  "file": "takes/day2.nod.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.nod.clear.w0.s2",
+  "line": "day2.nod.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, satisfied] Good. [short pause] You're my deputy. [short pause] Doc, you heard him.",
+  "stability": 0.3,
+  "file": "takes/day2.nod.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.nod.fading.w0.s0",
+  "line": "day2.nod.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...good.",
+  "stability": 0.0,
+  "file": "takes/day2.nod.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.nod.fading.w0.s1",
+  "line": "day2.nod.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...good.",
+  "stability": 0.15,
+  "file": "takes/day2.nod.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.nod.fading.w0.s2",
+  "line": "day2.nod.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...good.",
+  "stability": 0.3,
+  "file": "takes/day2.nod.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.shake.clear.w0.s0",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.0,
+  "file": "takes/day2.shake.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.shake.clear.w0.s1",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.15,
+  "file": "takes/day2.shake.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.shake.clear.w0.s2",
+  "line": "day2.shake.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales] [chuckles] That's not the way this works, son. [long pause] [whispers] Doc. [inhales deeply] Pin it on him.",
+  "stability": 0.3,
+  "file": "takes/day2.shake.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.shake.fading.w0.s0",
+  "line": "day2.shake.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...not how it works... [long pause] son.",
+  "stability": 0.0,
+  "file": "takes/day2.shake.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.shake.fading.w0.s1",
+  "line": "day2.shake.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...not how it works... [long pause] son.",
+  "stability": 0.15,
+  "file": "takes/day2.shake.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.shake.fading.w0.s2",
+  "line": "day2.shake.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...not how it works... [long pause] son.",
+  "stability": 0.3,
+  "file": "takes/day2.shake.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.pistol.clear.w0.s0",
+  "line": "day2.pistol.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[dry] Take my pistol. [short pause] [chuckles] She pulls a hair to the left.",
+  "stability": 0.0,
+  "file": "takes/day2.pistol.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.pistol.clear.w0.s1",
+  "line": "day2.pistol.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[dry] Take my pistol. [short pause] [chuckles] She pulls a hair to the left.",
+  "stability": 0.15,
+  "file": "takes/day2.pistol.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.pistol.clear.w0.s2",
+  "line": "day2.pistol.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[dry] Take my pistol. [short pause] [chuckles] She pulls a hair to the left.",
+  "stability": 0.3,
+  "file": "takes/day2.pistol.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.pistol.fading.w0.s0",
+  "line": "day2.pistol.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...pistol... [long pause] take it.",
+  "stability": 0.0,
+  "file": "takes/day2.pistol.fading.w0.s0.mp4"
+ },
+ {
+  "id": "day2.pistol.fading.w0.s1",
+  "line": "day2.pistol.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...pistol... [long pause] take it.",
+  "stability": 0.15,
+  "file": "takes/day2.pistol.fading.w0.s1.mp4"
+ },
+ {
+  "id": "day2.pistol.fading.w0.s2",
+  "line": "day2.pistol.fading",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...pistol... [long pause] take it.",
+  "stability": 0.3,
+  "file": "takes/day2.pistol.fading.w0.s2.mp4"
+ },
+ {
+  "id": "day2.last.clear.w0.s0",
+  "line": "day2.last.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, at peace] Sun's up. [short pause] [softly] Ain't that something.",
+  "stability": 0.0,
+  "file": "takes/day2.last.clear.w0.s0.mp4"
+ },
+ {
+  "id": "day2.last.clear.w0.s1",
+  "line": "day2.last.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, at peace] Sun's up. [short pause] [softly] Ain't that something.",
+  "stability": 0.15,
+  "file": "takes/day2.last.clear.w0.s1.mp4"
+ },
+ {
+  "id": "day2.last.clear.w0.s2",
+  "line": "day2.last.clear",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[exhales, at peace] Sun's up. [short pause] [softly] Ain't that something.",
+  "stability": 0.3,
+  "file": "takes/day2.last.clear.w0.s2.mp4"
+ },
+ {
+  "id": "day2.boot.w0.s0",
+  "line": "day2.boot",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...boot.",
+  "stability": 0.0,
+  "file": "takes/day2.boot.w0.s0.mp4"
+ },
+ {
+  "id": "day2.boot.w0.s1",
+  "line": "day2.boot",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...boot.",
+  "stability": 0.15,
+  "file": "takes/day2.boot.w0.s1.mp4"
+ },
+ {
+  "id": "day2.boot.w0.s2",
+  "line": "day2.boot",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[whispers] ...boot.",
+  "stability": 0.3,
+  "file": "takes/day2.boot.w0.s2.mp4"
+ },
+ {
+  "id": "day2.where.w0.s0",
+  "line": "day2.where",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[busy, short] Hold him. [short pause] No... yes, like that. [short pause] [curious] You've done this before. Where? [long pause] [lets it go] No. Keep it.",
+  "stability": 0.0,
+  "file": "takes/day2.where.w0.s0.mp4"
+ },
+ {
+  "id": "day2.where.w0.s1",
+  "line": "day2.where",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[busy, short] Hold him. [short pause] No... yes, like that. [short pause] [curious] You've done this before. Where? [long pause] [lets it go] No. Keep it.",
+  "stability": 0.15,
+  "file": "takes/day2.where.w0.s1.mp4"
+ },
+ {
+  "id": "day2.where.w0.s2",
+  "line": "day2.where",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[busy, short] Hold him. [short pause] No... yes, like that. [short pause] [curious] You've done this before. Where? [long pause] [lets it go] No. Keep it.",
+  "stability": 0.3,
+  "file": "takes/day2.where.w0.s2.mp4"
+ },
+ {
+  "id": "day2.gone.w0.s0",
+  "line": "day2.gone",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet] He's gone.",
+  "stability": 0.0,
+  "file": "takes/day2.gone.w0.s0.mp4"
+ },
+ {
+  "id": "day2.gone.w0.s1",
+  "line": "day2.gone",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet] He's gone.",
+  "stability": 0.3,
+  "file": "takes/day2.gone.w0.s1.mp4"
+ },
+ {
+  "id": "day2.gone.w1.s0",
+  "line": "day2.gone",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, gentle] He's gone, ma'am.",
+  "stability": 0.0,
+  "file": "takes/day2.gone.w1.s0.mp4"
+ },
+ {
+  "id": "day2.gone.w1.s1",
+  "line": "day2.gone",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[quiet, gentle] He's gone, ma'am.",
+  "stability": 0.3,
+  "file": "takes/day2.gone.w1.s1.mp4"
+ },
+ {
+  "id": "day2.acting.w0.s0",
+  "line": "day2.acting",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] I'm the coroner, Harlan, [short pause] so until the county sends a man I'm what law there is. [short pause] And you're my deputy. [sighs] Keep the badge on.",
+  "stability": 0.0,
+  "file": "takes/day2.acting.w0.s0.mp4"
+ },
+ {
+  "id": "day2.acting.w0.s1",
+  "line": "day2.acting",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] I'm the coroner, Harlan, [short pause] so until the county sends a man I'm what law there is. [short pause] And you're my deputy. [sighs] Keep the badge on.",
+  "stability": 0.15,
+  "file": "takes/day2.acting.w0.s1.mp4"
+ },
+ {
+  "id": "day2.acting.w0.s2",
+  "line": "day2.acting",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[tired, plain] I'm the coroner, Harlan, [short pause] so until the county sends a man I'm what law there is. [short pause] And you're my deputy. [sighs] Keep the badge on.",
+  "stability": 0.3,
+  "file": "takes/day2.acting.w0.s2.mp4"
+ },
+ {
+  "id": "day2.sit.w0.s0",
+  "line": "day2.sit",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief as work] I'll sit with him now. [short pause] Go on, the both of you.",
+  "stability": 0.0,
+  "file": "takes/day2.sit.w0.s0.mp4"
+ },
+ {
+  "id": "day2.sit.w0.s1",
+  "line": "day2.sit",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief as work] I'll sit with him now. [short pause] Go on, the both of you.",
+  "stability": 0.15,
+  "file": "takes/day2.sit.w0.s1.mp4"
+ },
+ {
+  "id": "day2.sit.w0.s2",
+  "line": "day2.sit",
+  "app": "elevenlabs/tts/eleven-v4",
+  "text": "[level, grief as work] I'll sit with him now. [short pause] Go on, the both of you.",
+  "stability": 0.3,
+  "file": "takes/day2.sit.w0.s2.mp4"
  }
 ]

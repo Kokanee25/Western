@@ -1,0 +1,425 @@
+estimate: 0.332
+spent_at_most: 0.281
+made:
+- id: road.hail.clear.w0.s0
+  line: road.hail.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[pained] [sharp] Hold it! [short pause] Who''s that?'
+  stability: 0.0
+  file: takes/road.hail.clear.w0.s0.mp4
+- id: road.hail.clear.w0.s1
+  line: road.hail.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[pained] [sharp] Hold it! [short pause] Who''s that?'
+  stability: 0.3
+  file: takes/road.hail.clear.w0.s1.mp4
+- id: road.hail.clear.w1.s0
+  line: road.hail.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[breathing hard] Keep your hands where I can see ''em.'
+  stability: 0.0
+  file: takes/road.hail.clear.w1.s0.mp4
+- id: road.hail.clear.w1.s1
+  line: road.hail.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[breathing hard] Keep your hands where I can see ''em.'
+  stability: 0.3
+  file: takes/road.hail.clear.w1.s1.mp4
+- id: road.hail.weak.w0.s0
+  line: road.hail.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, afraid] Who''s there? [short pause] Don''t... [short pause] don''t
+    come closer.'
+  stability: 0.0
+  file: takes/road.hail.weak.w0.s0.mp4
+- id: road.hail.weak.w0.s1
+  line: road.hail.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, afraid] Who''s there? [short pause] Don''t... [short pause] don''t
+    come closer.'
+  stability: 0.15
+  file: takes/road.hail.weak.w0.s1.mp4
+- id: road.hail.weak.w0.s2
+  line: road.hail.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, afraid] Who''s there? [short pause] Don''t... [short pause] don''t
+    come closer.'
+  stability: 0.3
+  file: takes/road.hail.weak.w0.s2.mp4
+- id: road.hail.fading.w0.s0
+  line: road.hail.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Who... [long pause] who is that?'
+  stability: 0.0
+  file: takes/road.hail.fading.w0.s0.mp4
+- id: road.hail.fading.w0.s1
+  line: road.hail.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Who... [long pause] who is that?'
+  stability: 0.15
+  file: takes/road.hail.fading.w0.s1.mp4
+- id: road.hail.fading.w0.s2
+  line: road.hail.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Who... [long pause] who is that?'
+  stability: 0.3
+  file: takes/road.hail.fading.w0.s2.mp4
+- id: road.ask.clear.w0.s0
+  line: road.ask.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Harlan. [short pause] You''re Harlan, from up the creek.
+    [pained] I''m gut-shot. I need the doc. [short pause] You going to help me or
+    not?'
+  stability: 0.0
+  file: takes/road.ask.clear.w0.s0.mp4
+- id: road.ask.clear.w0.s1
+  line: road.ask.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Harlan. [short pause] You''re Harlan, from up the creek.
+    [pained] I''m gut-shot. I need the doc. [short pause] You going to help me or
+    not?'
+  stability: 0.15
+  file: takes/road.ask.clear.w0.s1.mp4
+- id: road.ask.clear.w0.s2
+  line: road.ask.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Harlan. [short pause] You''re Harlan, from up the creek.
+    [pained] I''m gut-shot. I need the doc. [short pause] You going to help me or
+    not?'
+  stability: 0.3
+  file: takes/road.ask.clear.w0.s2.mp4
+- id: road.ask.weak.w0.s0
+  line: road.ask.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] I''m shot. [short pause] In the belly. [long pause] [whispers] Get
+    me to the doc... will you?'
+  stability: 0.0
+  file: takes/road.ask.weak.w0.s0.mp4
+- id: road.ask.weak.w0.s1
+  line: road.ask.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] I''m shot. [short pause] In the belly. [long pause] [whispers] Get
+    me to the doc... will you?'
+  stability: 0.15
+  file: takes/road.ask.weak.w0.s1.mp4
+- id: road.ask.weak.w0.s2
+  line: road.ask.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] I''m shot. [short pause] In the belly. [long pause] [whispers] Get
+    me to the doc... will you?'
+  stability: 0.3
+  file: takes/road.ask.weak.w0.s2.mp4
+- id: road.ask.fading.w0.s0
+  line: road.ask.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Doc... [long pause] get me to the doc.'
+  stability: 0.0
+  file: takes/road.ask.fading.w0.s0.mp4
+- id: road.ask.fading.w0.s1
+  line: road.ask.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Doc... [long pause] get me to the doc.'
+  stability: 0.15
+  file: takes/road.ask.fading.w0.s1.mp4
+- id: road.ask.fading.w0.s2
+  line: road.ask.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] Doc... [long pause] get me to the doc.'
+  stability: 0.3
+  file: takes/road.ask.fading.w0.s2.mp4
+- id: road.ask_again.clear.w0.s0
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] Well? [short pause] [sighs] NOD. [short pause] Or DON''T. [pained,
+    snapping] But don''t just stand there!'
+  stability: 0.0
+  file: takes/road.ask_again.clear.w0.s0.mp4
+- id: road.ask_again.clear.w0.s1
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] Well? [short pause] [sighs] NOD. [short pause] Or DON''T. [pained,
+    snapping] But don''t just stand there!'
+  stability: 0.3
+  file: takes/road.ask_again.clear.w0.s1.mp4
+- id: road.ask_again.clear.w1.s0
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] Make up your mind, Harlan. [short pause] [pained, snapping] I''m
+    BLEEDING.'
+  stability: 0.0
+  file: takes/road.ask_again.clear.w1.s0.mp4
+- id: road.ask_again.clear.w1.s1
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] Make up your mind, Harlan. [short pause] [pained, snapping] I''m
+    BLEEDING.'
+  stability: 0.3
+  file: takes/road.ask_again.clear.w1.s1.mp4
+- id: road.ask_again.clear.w2.s0
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or
+    GET on.'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1be-befa-7a60-b939-1c0e52b8ed83:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.ask_again.clear.w2.s1
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or
+    GET on.'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1be-c865-78f0-af55-51d956f2fb60:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.ask_again.weak.w0.s0
+  line: road.ask_again.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers, weak] Please.'
+  stability: 0.0
+  file: takes/road.ask_again.weak.w0.s0.mp4
+- id: road.ask_again.weak.w0.s1
+  line: road.ask_again.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers, weak] Please.'
+  stability: 0.3
+  file: takes/road.ask_again.weak.w0.s1.mp4
+- id: road.ask_again.weak.w1.s0
+  line: road.ask_again.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers, weak] Harlan... [long pause] please.'
+  stability: 0.0
+  file: takes/road.ask_again.weak.w1.s0.mp4
+- id: road.ask_again.weak.w1.s1
+  line: road.ask_again.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers, weak] Harlan... [long pause] please.'
+  stability: 0.3
+  file: takes/road.ask_again.weak.w1.s1.mp4
+- id: road.ask_again.fading.w0.s0
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1be-fccb-7132-b876-16f56154c36d:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.ask_again.fading.w0.s1
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.15
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1bf-062d-79b1-8b58-16c6372ca43e:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.ask_again.fading.w0.s2
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1bf-0f90-79f2-88ef-edf123225d53:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.nod.clear.w0.s0
+  line: road.nod.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Thank God. [short pause] Press on it. [pained] Hard. [short
+    pause] It won''t quit bleeding.'
+  stability: 0.0
+  file: takes/road.nod.clear.w0.s0.mp4
+- id: road.nod.clear.w0.s1
+  line: road.nod.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Thank God. [short pause] Press on it. [pained] Hard. [short
+    pause] It won''t quit bleeding.'
+  stability: 0.15
+  file: takes/road.nod.clear.w0.s1.mp4
+- id: road.nod.clear.w0.s2
+  line: road.nod.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales sharply] Thank God. [short pause] Press on it. [pained] Hard. [short
+    pause] It won''t quit bleeding.'
+  stability: 0.3
+  file: takes/road.nod.clear.w0.s2.mp4
+- id: road.nod.weak.w0.s0
+  line: road.nod.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Press on it... [short pause] hard.'
+  stability: 0.0
+  file: takes/road.nod.weak.w0.s0.mp4
+- id: road.nod.weak.w0.s1
+  line: road.nod.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Press on it... [short pause] hard.'
+  stability: 0.15
+  file: takes/road.nod.weak.w0.s1.mp4
+- id: road.nod.weak.w0.s2
+  line: road.nod.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Press on it... [short pause] hard.'
+  stability: 0.3
+  file: takes/road.nod.weak.w0.s2.mp4
+- id: road.nod.fading.w0.s0
+  line: road.nod.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...hurts.'
+  stability: 0.0
+  file: takes/road.nod.fading.w0.s0.mp4
+- id: road.nod.fading.w0.s1
+  line: road.nod.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...hurts.'
+  stability: 0.15
+  file: takes/road.nod.fading.w0.s1.mp4
+- id: road.nod.fading.w0.s2
+  line: road.nod.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...hurts.'
+  stability: 0.3
+  file: takes/road.nod.fading.w0.s2.mp4
+- id: road.shot_by.clear.w0.s0
+  line: road.shot_by.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted
+    directions. [long pause] [exhales sharply] Then he shot me.'
+  stability: 0.0
+  file: takes/road.shot_by.clear.w0.s0.mp4
+- id: road.shot_by.clear.w0.s1
+  line: road.shot_by.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted
+    directions. [long pause] [exhales sharply] Then he shot me.'
+  stability: 0.15
+  file: takes/road.shot_by.clear.w0.s1.mp4
+- id: road.shot_by.clear.w0.s2
+  line: road.shot_by.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[pained] Man in a faded red shirt. [short pause] Rode up easy, like he wanted
+    directions. [long pause] [exhales sharply] Then he shot me.'
+  stability: 0.3
+  file: takes/road.shot_by.clear.w0.s2.mp4
+- id: road.shot_by.weak.w0.s0
+  line: road.shot_by.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Red shirt. [short pause] Faded red. [long pause] Rode up like a friend.'
+  stability: 0.0
+  file: takes/road.shot_by.weak.w0.s0.mp4
+- id: road.shot_by.weak.w0.s1
+  line: road.shot_by.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Red shirt. [short pause] Faded red. [long pause] Rode up like a friend.'
+  stability: 0.15
+  file: takes/road.shot_by.weak.w0.s1.mp4
+- id: road.shot_by.weak.w0.s2
+  line: road.shot_by.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak] Red shirt. [short pause] Faded red. [long pause] Rode up like a friend.'
+  stability: 0.3
+  file: takes/road.shot_by.weak.w0.s2.mp4
+- id: road.shot_by.fading.w0.s0
+  line: road.shot_by.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...red...'
+  stability: 0.0
+  file: takes/road.shot_by.fading.w0.s0.mp4
+- id: road.shot_by.fading.w0.s1
+  line: road.shot_by.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...red...'
+  stability: 0.15
+  file: takes/road.shot_by.fading.w0.s1.mp4
+- id: road.shot_by.fading.w0.s2
+  line: road.shot_by.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[whispers] ...red...'
+  stability: 0.3
+  file: takes/road.shot_by.fading.w0.s2.mp4
+- id: road.shake.clear.w0.s0
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-4cf6-73d0-87ea-fbb92c0fcc15:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.clear.w0.s1
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.15
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-565f-7a62-96c6-bdb3ceb2d1fe:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.clear.w0.s2
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-5fb8-7930-9346-9bbdade4f311:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.weak.w0.s0
+  line: road.shake.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, ashamed] Don''t... [short pause] don''t leave me here.'
+  stability: 0.0
+  file: takes/road.shake.weak.w0.s0.mp4
+- id: road.shake.weak.w0.s1
+  line: road.shake.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, ashamed] Don''t... [short pause] don''t leave me here.'
+  stability: 0.15
+  file: takes/road.shake.weak.w0.s1.mp4
+- id: road.shake.weak.w0.s2
+  line: road.shake.weak
+  app: elevenlabs/tts/eleven-v4
+  text: '[weak, ashamed] Don''t... [short pause] don''t leave me here.'
+  stability: 0.3
+  file: takes/road.shake.weak.w0.s2.mp4
+- id: road.shake.fading.w0.s0
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-9b51-7501-acc4-002a8665e34a:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.shake.fading.w0.s1
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.15
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-a4b1-7e72-be5d-1151c6d651b6:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.shake.fading.w0.s2
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak]'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1c0-ae1a-7f10-b3fa-e4957ac2a6a7:
+    {"detail":[{"loc":["body","text"],"msg":"Text input is empty or contains only
+    speech tags without any actual text content. Please provide text with words to
+    be spoken.","type":"feature_not_supported","url":"https://docs.fal.ai/errors#feature_not_supported","input":"[exhales
+    slowly, weak]"}]}'
+- id: road.press.clear.w0.s0
+  line: road.press.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[cries out through gritted teeth] Christ! [short pause] [breathing hard]
+    That''s it. Keep on it.'
+  stability: 0.0
+  file: takes/road.press.clear.w0.s0.mp4
