@@ -1,0 +1,1560 @@
+{
+ "_doc": "The sheriff's office and jail (#780, the second practice building; the building lab's step 2). Format 1 (../FORMAT.md) with what a one-storey STONE building needs (each part marked NEW, built in step 3). Target sheet: sheet/sheet.jpg (Sean approved 2026-11-11); sizes from this spec only, never off the pictures (the sheet's plan runs the cell wing to the lane and draws the roof as planks: settled here by Sean's words, a short ell and a tin roof). SPACE: facing 0 (a south-side lot: the front faces north onto Main Street, so x runs east from the WEST front corner on the cross street, z south, back from the front wall's outer face). Every outer wall's line is its OUTER face, the stone thickness inside it.",
+ "format": 1,
+ "id": "jail",
+ "identity": {
+  "owner": "the county: the sheriff (an elected man, the town's law and the county's) keeps it, a deputy sleeps in it when there's a man in a cell",
+  "trade": "the sheriff's office and the county jail: warrants, wanted men, the town's drunks for a night, a man held for the circuit judge or the Marshal",
+  "means": "the county's money: the one stone building in a town of wood, plain and heavy, built to hold men in and a mob out",
+  "age": "built 1881 (a year old in 1882) by a stonemason and his crew from the town's own quarried sandstone; the strap-iron cages shipped in by rail from St. Louis",
+  "repair": "new and sound: the mortar still pale, the oxblood paint on the doors fresh, the whitewash inside already grimy where men lean",
+  "clues": [
+   "wanted posters layered on the office wall, the oldest curling",
+   "a chained gun rack and a squat iron safe",
+   "the cell keys on an iron ring by the guard room's table",
+   "initials and tallies scratched into the cells' whitewash",
+   "a rifle left leaning on the roof's parapet facing the saloon"
+  ]
+ },
+ "lot": {
+  "_doc": "valley.json town.south 'jail' (x 7.6-38.4, 30.8 m = 101 ft; building depth 14): the office block on the lot's WEST corner, on the crossroads (its west wall on the cross street's edge, its front on the town's front line z +10.05); the cell ell straight back from the office's east half; the rest of the lot the jail yard, walled in stone to the rear lane (Sean, 2026-11-11). Its floor is its walk's top (walk.h 0.6, the walk stopping at the building: span [7.6, 18.57]): the ground at the walk's street edge by the door (x 13.09, z 7.65) is world -0.322, the building's y 0. The ground FALLS behind (Sean, 2026-11-11: no pad, the stone follows the fall): -0.05 at the front wall's west end, -0.11 at its east, -0.49/-0.56 at the office's back corners, -0.82/-0.85 at the ell's end, -1.26/-1.45 at the lane's corners: the stone base shows 0.65 m at the front, 1.1 at the back, 1.45 at the ell's end.",
+  "valley_lot": "jail",
+  "side": "south",
+  "at": [
+   7.6,
+   -0.322,
+   10.05
+  ],
+  "facing": 0,
+  "width": 10.97,
+  "depth": 14.02,
+  "yard": [
+   0.0,
+   0.0,
+   30.8,
+   38.1
+  ],
+  "yard_name": "JAIL YARD",
+  "footprint": [
+   [
+    0,
+    0,
+    10.97,
+    14.02
+   ],
+   [
+    6.09,
+    14.02,
+    10.97,
+    23.16
+   ]
+  ],
+  "walk_x": [
+   0,
+   10.97
+  ],
+  "walk_h": 0.6,
+  "ground": {
+   "_doc": "the ground's height in the building's space (the bake, 2026-11-11): `plane` [y at the origin, dy/dx, dy/dz] fits every corner within 3 cm; the builder lays the footings and the steps' foot by it (and the lab tilts its ground to it)",
+   "plane": [
+    -0.05,
+    -0.0055,
+    -0.0314
+   ],
+   "front_w": -0.05,
+   "front_e": -0.11,
+   "back_w": -0.49,
+   "back_e": -0.56,
+   "back_door": -0.46,
+   "ell_sw": -0.82,
+   "ell_se": -0.85,
+   "yard_ne": -0.23,
+   "yard_se": -1.45,
+   "yard_sw": -1.26,
+   "yard_w_at_office": -0.49
+  },
+  "_sean": "Sean, 2026-11-11: stone all round, one storey; the office on the corner with a short cell ell and the yard walled in stone to the lane; a flat tin roof behind a stone parapet; three strap-iron cages; raw rubble, dressed corners, oxblood doors; no pad (the stone follows the fall); the walk stops at the building; the stone walls laid as the builder's stone pieces for now (the masonry lab's rubble later, its step 8)."
+ },
+ "levels": {
+  "_doc": "One storey. The floor 2 ft up (the walk's top, ValleyTown's stone walk); 11 ft clear to the office's roof joists, 10 ft in the cell wing; flat roofs (joists level, the tin laid to fall to the back) behind parapets 2 ft 9 in over the roof with a 4 in coping: the office's coping 17 ft over its floor, the ell's 16 ft.",
+  "ground": {
+   "top": 0.6
+  },
+  "upper": {
+   "top": 4.258,
+   "_doc": "the office's roof as its upper level: men stand on it (the jail night)"
+  },
+  "plate": 3.95,
+  "false_front": 0.0,
+  "roof_pitch": 0.0,
+  "office_roof": 4.258,
+  "ell_ceiling": 3.65,
+  "ell_roof": 3.907,
+  "office_coping": 5.198,
+  "ell_coping": 4.847
+ },
+ "frame": {
+  "_doc": "NEW: a load-bearing stone building. Rubble walls carry the roof joists in pockets; inside, one stone cross wall carries the office's joists at mid depth; the floor is timber on girders and piers in the office block, stone flags on rammed fill in the cell wing (nothing to dig through). Sizes from Mahan's and Rankine's rules for rubble walls (a one-storey wall of 12-17 ft: 18-22 in), the joists to checks.gd's sizing (the Wood Handbook; the roof at 40 lb/ft2 with men on it). Dressed sizes, metres [width, depth].",
+  "stone_wall": {
+   "_doc": "NEW: the rubble walls (masonry lab materials.json `rubble_stone`, the panel's 0.55 m), laid by the builder as stone pieces in courses (each piece a member: a charge breaks the pieces it reaches); its footing 3 ft under the ground (below the frost: a county job done right), its top stepped with the ground under it; dressed quoins at the corners, dressed lintels over and sills under every opening, a dressed coping on the parapet. `masonry` names the masonry lab's kind, for its step 8 to lay the stones and joints in place of the pieces.",
+   "masonry": "rubble_stone",
+   "wood": "stone",
+   "thick": 0.56,
+   "course": 0.6,
+   "piece": 1.5,
+   "footing_below": 0.9,
+   "footing_spread": 0.15,
+   "quoin": [
+    0.45,
+    0.3
+   ],
+   "lintel": {
+    "height": 0.3,
+    "bear": 0.3
+   },
+   "sill": {
+    "height": 0.12,
+    "proj": 0.04
+   },
+   "coping": {
+    "height": 0.1,
+    "proj": 0.04
+   },
+   "pocket": 0.15
+  },
+  "cross_wall": {
+   "thick": 0.45,
+   "_doc": "18 in rubble inside, bearing"
+  },
+  "pier": {
+   "size": 0.4,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing",
+   "pier_every": 1.83
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "_doc": "the office block's floor: 2x10 at 16 in along x, on the girders and in pockets in the side walls"
+  },
+  "floor_board": {
+   "width": 0.14,
+   "thick": 0.022,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "_doc": "the one timber partition (sheriff's room / guard room), plastered both sides"
+  },
+  "plate": {
+   "height": 0.1
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15
+  },
+  "roof_joist": {
+   "_doc": "NEW: the office's flat roof, 3x12 at 16 in front to back, 6 in into pockets in the front and back walls and the cross wall (spans 22 ft and 19 ft); 1x6 boards across them, tin sheets over (lapped, laid to fall to the back wall's scuppers).",
+   "section": [
+    0.075,
+    0.286
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "along": "z"
+  },
+  "ell_joist": {
+   "_doc": "NEW: the cell wing's flat roof, 3x10 at 16 in across the wing (12 ft 4 in span)",
+   "section": [
+    0.075,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "along": "x"
+  },
+  "roof_board": {
+   "width": 0.14,
+   "thick": 0.025,
+   "wood": "framing"
+  },
+  "tin": {
+   "thick": 0.003,
+   "sheet": [
+    0.66,
+    2.44
+   ],
+   "wood": "iron",
+   "_doc": "NEW: 26 in x 8 ft terne-plate (tin) sheets, a member each"
+  },
+  "truss": {
+   "_doc": "unused (a flat roof); kept for the builder's helpers",
+   "tie": [
+    0.05,
+    0.14
+   ],
+   "principal": [
+    0,
+    0
+   ],
+   "queen": [
+    0,
+    0
+   ],
+   "purlin": [
+    0,
+    0
+   ],
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0,
+    14.02
+   ],
+   "purlins": []
+  },
+  "post": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "beam": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing"
+  }
+ },
+ "girders": {
+  "_doc": "Under the office block's floor, front to back, on stone piers at 6 ft: the joists along x spanning 3.3 m between the side walls and them; each girder stops at the cross wall's face and starts again behind it.",
+  "x": [
+   3.84,
+   7.13
+  ]
+ },
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.56,
+    0.56,
+    10.41,
+    7.32
+   ],
+   "joists": "x",
+   "look": "wood:int_floor",
+   "_doc": "the office's: 2x10 along x on the side walls' set-offs and the two girders (3.3 m spans); the cross wall's doorways floored by its stone"
+  },
+  {
+   "id": "ground_back",
+   "level": "ground",
+   "rect": [
+    0.56,
+    7.77,
+    10.41,
+    13.459999999999999
+   ],
+   "joists": "x",
+   "look": "wood:int_floor",
+   "_doc": "the sheriff's room and the guard room"
+  },
+  {
+   "id": "cells",
+   "level": "ground",
+   "rect": [
+    6.65,
+    14.02,
+    10.41,
+    22.6
+   ],
+   "kind": "flags",
+   "flag": 0.6,
+   "_doc": "NEW: the cell wing's floor, sandstone flags 4 in thick on rammed earth fill to the floor's height (the fill a stone member under them)"
+  },
+  {
+   "id": "roof_front",
+   "level": "upper",
+   "rect": [
+    0.41,
+    0.41,
+    10.56,
+    7.470000000000001
+   ],
+   "joists": "z",
+   "joist": "roof_joist",
+   "_doc": "NEW use: the office's flat roof over the office, its joists on the front wall's and the cross wall's ledges (the walls step in 6 in at the joists)"
+  },
+  {
+   "id": "roof_back",
+   "level": "upper",
+   "rect": [
+    0.41,
+    7.619999999999999,
+    10.56,
+    13.61
+   ],
+   "joists": "z",
+   "joist": "roof_joist",
+   "openings": [
+    {
+     "id": "hatch",
+     "rect": [
+      9.031,
+      8.4,
+      9.768,
+      9.1
+     ],
+     "hatch": 1
+    }
+   ],
+   "_doc": "over the back rooms; the hatch between two joists over the guard room"
+  },
+  {
+   "id": "ell_roof",
+   "level": "ell_roof",
+   "rect": [
+    6.5,
+    14.02,
+    10.56,
+    22.75
+   ],
+   "joists": "x",
+   "joist": "ell_joist",
+   "_doc": "the cell wing's flat roof, its joists across on the side walls' ledges"
+  }
+ ],
+ "walls": [
+  {
+   "_doc": "The front, on Main Street: the door in the middle (3 ft 6 in by 7 ft, iron-strapped planks, a barred transom over it); a barred window either side (3 ft by 6 ft, six-over-six); the painted SHERIFF board over the door; JAIL cut in a dressed panel in the parapet's middle.",
+   "id": "front",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     10.97,
+     0
+    ]
+   ],
+   "out": "-z",
+   "stone": true,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.143,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 5.485,
+     "width": 1.07,
+     "height": 2.51,
+     "transom": 0.38,
+     "leaf": "inward",
+     "strapped": true
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.5,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.68,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 8.47,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.68,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    }
+   ]
+  },
+  {
+   "_doc": "The west side, on the cross street: a barred window to the office and one to the sheriff's room; no door.",
+   "id": "west",
+   "line": [
+    [
+     0,
+     0.56
+    ],
+    [
+     0,
+     13.459999999999999
+    ]
+   ],
+   "out": "-x",
+   "stone": true,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.343,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "front",
+    "back"
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 3.38,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.68,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 10.04,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.68,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    }
+   ]
+  },
+  {
+   "_doc": "The office block's east side, onto the yard: a barred window to the office; the guard room's door to the yard (3 ft 4 in, strapped), five stone steps down to the yard.",
+   "id": "east",
+   "line": [
+    [
+     10.97,
+     0.56
+    ],
+    [
+     10.97,
+     13.459999999999999
+    ]
+   ],
+   "out": "+x",
+   "stone": true,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.343,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "front",
+    "back"
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 3.38,
+     "width": 0.91,
+     "height": 1.83,
+     "sill": 0.68,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    },
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 10.34,
+     "width": 1.0,
+     "height": 2.51,
+     "transom": 0.38,
+     "leaf": "inward",
+     "strapped": true
+    }
+   ]
+  },
+  {
+   "_doc": "The office block's back: outside on the west (a small barred window to the sheriff's room), inside on the east where the ell meets it: the cell wing's door from the guard room (an iron-strapped plank door, the grille gate behind it in the corridor). Its parapet runs over the ell's roof.",
+   "id": "back",
+   "line": [
+    [
+     0,
+     14.02
+    ],
+    [
+     10.97,
+     14.02
+    ]
+   ],
+   "out": "+z",
+   "stone": true,
+   "top": 5.198,
+   "profile": [
+    [
+     -9,
+     -0.7100000000000001,
+     0
+    ],
+    [
+     0.143,
+     -0.56,
+     0
+    ],
+    [
+     3.95,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.75,
+     "width": 0.91,
+     "height": 1.52,
+     "sill": 0.99,
+     "lights": 6,
+     "bars": true,
+     "shutters": "inside"
+    },
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 7.335,
+     "width": 0.91,
+     "height": 2.51,
+     "transom": 0.38,
+     "leaf": "inward",
+     "strapped": true,
+     "_doc": "into the corridor: its leaf swings into the guard room"
+    }
+   ]
+  },
+  {
+   "_doc": "The cell ell's west side, onto the yard: three high slits lighting the corridor.",
+   "id": "ell_west",
+   "line": [
+    [
+     6.09,
+     14.02
+    ],
+    [
+     6.09,
+     23.16
+    ]
+   ],
+   "out": "-x",
+   "stone": true,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.2,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.64,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 7.08,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    }
+   ]
+  },
+  {
+   "_doc": "The cell ell's east side, onto the yard: a high slit behind each cage.",
+   "id": "ell_east",
+   "line": [
+    [
+     10.97,
+     14.02
+    ],
+    [
+     10.97,
+     23.16
+    ]
+   ],
+   "out": "+x",
+   "stone": true,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    null,
+    null
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.2,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.64,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 7.08,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    }
+   ]
+  },
+  {
+   "_doc": "The cell ell's end, facing the rear lane across the yard: blank but for one high slit. THE JAILBREAK'S WALL (DESIGN.md: the gang's dynamite; a bundle of about three sticks, #676; the masonry lab's step 8).",
+   "id": "ell_south",
+   "line": [
+    [
+     6.65,
+     23.16
+    ],
+    [
+     10.41,
+     23.16
+    ]
+   ],
+   "out": "+z",
+   "stone": true,
+   "top": 4.847,
+   "profile": [
+    [
+     -9,
+     -0.56,
+     0
+    ],
+    [
+     3.65,
+     -0.41,
+     0
+    ]
+   ],
+   "ends": [
+    "ell_west",
+    "ell_east"
+   ],
+   "jailbreak": true,
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.88,
+     "width": 0.3,
+     "height": 0.6,
+     "sill": 2.1,
+     "bars": true,
+     "glass": false,
+     "_doc": "a high slit, 1 ft by 2 ft, crossed bars, no sash"
+    }
+   ]
+  },
+  {
+   "_doc": "The stone cross wall, bearing the office's roof joists at mid depth: the office's two doors back, to the sheriff's room and the guard room.",
+   "id": "cross",
+   "line": [
+    [
+     0.56,
+     7.32
+    ],
+    [
+     10.41,
+     7.32
+    ]
+   ],
+   "out": "-z",
+   "partition": true,
+   "stone": true,
+   "thick": 0.45,
+   "top": 4.258,
+   "profile": [
+    [
+     -9,
+     -0.6,
+     0.15
+    ],
+    [
+     0.143,
+     -0.45,
+     0
+    ],
+    [
+     3.95,
+     -0.3,
+     -0.15
+    ]
+   ],
+   "ends": [
+    "west",
+    "east"
+   ],
+   "level": "ground",
+   "bearing": true,
+   "openings": [
+    {
+     "type": "door",
+     "at": 2.44,
+     "width": 0.91,
+     "height": 2.13
+    },
+    {
+     "type": "door",
+     "at": 7.04,
+     "width": 0.91,
+     "height": 2.13
+    }
+   ]
+  },
+  {
+   "_doc": "Between the sheriff's room and the guard room: 2x4 studs, lath and plaster both sides, not bearing (the roof joists run over it front to back).",
+   "id": "sheriff_guard",
+   "line": [
+    [
+     5.0,
+     7.77
+    ],
+    [
+     5.0,
+     13.459999999999999
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "_finish": "lath and plaster wanted (step 4); boards stand in",
+   "openings": []
+  }
+ ],
+ "inside_finish": {
+  "_doc": "NEW: the office block's stone lime-plastered and whitewashed inside (a grimy band where men lean), the cell wing's bare rubble whitewashed; the look's (step 4): drawn as the stone until a plaster and whitewash are in the library.",
+  "office": "plaster_whitewash",
+  "cells": "rubble_whitewash"
+ },
+ "roof": {
+  "_doc": "NEW: flat roofs behind the parapets. The office's joists front to back in pockets (front wall, cross wall, back wall); the ell's across the wing in pockets in its side walls, the office's back wall's parapet standing over its north end. Tin over boards on both; the office roof is a place to stand (the jail night): a hatch from the guard room with a fixed ladder, a stovepipe through it from the office stove.",
+  "office": {
+   "rect": [
+    0.56,
+    0.56,
+    10.41,
+    13.459999999999999
+   ],
+   "joist": "roof_joist",
+   "bear_on": [
+    "front",
+    "cross",
+    "back"
+   ]
+  },
+  "ell": {
+   "rect": [
+    6.65,
+    14.02,
+    10.41,
+    22.6
+   ],
+   "joist": "ell_joist",
+   "bear_on": [
+    "ell_west",
+    "ell_east"
+   ]
+  },
+  "hatch": {
+   "rect": [
+    9.031,
+    8.4,
+    9.768,
+    9.1
+   ],
+   "leaves": 1
+  },
+  "stovepipe": {
+   "at": [
+    5.0,
+    4.0
+   ],
+   "dia": 0.15,
+   "_doc": "from the office stove up through a thimble in a tin collar"
+  }
+ },
+ "ladders": [
+  {
+   "_doc": "NEW use: inside, standing in the guard room up through the roof hatch (spiked to its trimmer), the climber facing east",
+   "id": "roof",
+   "inside": true,
+   "at": [
+    9.62,
+    8.75
+   ],
+   "face": "+x",
+   "from": 0.6,
+   "to": 4.258,
+   "width": 0.45
+  }
+ ],
+ "stairs": [
+  {
+   "_doc": "the guard room's yard door: a 4 ft stone stoop at the floor and five stone steps (8.5 in risers, 11 in treads) down into the yard, 4 ft wide",
+   "id": "yard",
+   "head": [
+    12.15,
+    10.3
+   ],
+   "dir": "-x",
+   "width": 1.22,
+   "from": -0.46,
+   "to": "ground",
+   "risers": 5,
+   "going": 0.28,
+   "wood": "stone",
+   "stoop": [
+    10.97,
+    10.3,
+    12.15,
+    11.52
+   ]
+  }
+ ],
+ "cells": {
+  "_doc": "NEW: three riveted strap-iron cages (the period's factory cells, shipped knocked down by rail and riveted up in the room), free-standing on the flags along the ell's east side, a 4 ft 6 in corridor along the west; each 7 ft deep (x), 8 ft long (z), 7 ft high, sharing their side lattices, a barred door on the corridor side; inside each a plank bunk hung on two chains from the back lattice, a bucket. The lattice: flat straps 2 1/2 x 1/4 in, 4 in apart vertical and 12 in horizontal (drawn as members, the riveting the look's). The grille gate across the corridor's north end, inside the strapped door.",
+  "x": [
+   8.12,
+   10.25
+  ],
+  "z": [
+   15.0,
+   17.44,
+   19.88,
+   22.32
+  ],
+  "height": 2.13,
+  "strap": [
+   0.064,
+   0.0064
+  ],
+  "vertical_every": 0.152,
+  "horizontal_every": 0.305,
+  "door": {
+   "width": 0.76,
+   "side": "-x"
+  },
+  "bunk": {
+   "width": 0.6,
+   "length": 1.9,
+   "height": 0.45
+  },
+  "gate": {
+   "z": 14.45,
+   "x": [
+    6.65,
+    8.02
+   ]
+  }
+ },
+ "yard_walls": {
+  "_doc": "NEW (Sean, 2026-11-11: stone all round): 10 ft rubble walls 18 in thick closing the jail yard, on footings 3 ft down, their tops stepped with the ground in 6 m lengths, a dressed coping; a plank wagon gate (10 ft, two leaves, oxblood) on Main Street and on the rear lane. Lines on the walls' outer faces, the stone inside.",
+  "thick": 0.45,
+  "height": 3.05,
+  "step": 6.0,
+  "walls": [
+   {
+    "id": "yard_front",
+    "line": [
+     [
+      10.97,
+      0
+     ],
+     [
+      30.8,
+      0
+     ]
+    ],
+    "out": "-z",
+    "ends": [
+     null,
+     null
+    ],
+    "gates": [
+     {
+      "at": 13.03,
+      "width": 3.05
+     }
+    ]
+   },
+   {
+    "id": "yard_east",
+    "line": [
+     [
+      30.8,
+      0.45
+     ],
+     [
+      30.8,
+      37.65
+     ]
+    ],
+    "out": "+x",
+    "ends": [
+     "yard_front",
+     "yard_lane"
+    ],
+    "gates": []
+   },
+   {
+    "id": "yard_lane",
+    "line": [
+     [
+      0,
+      38.1
+     ],
+     [
+      30.8,
+      38.1
+     ]
+    ],
+    "out": "+z",
+    "ends": [
+     null,
+     null
+    ],
+    "gates": [
+     {
+      "at": 20.0,
+      "width": 3.05
+     }
+    ]
+   },
+   {
+    "id": "yard_west",
+    "line": [
+     [
+      0,
+      14.02
+     ],
+     [
+      0,
+      37.65
+     ]
+    ],
+    "out": "-x",
+    "ends": [
+     null,
+     "yard_lane"
+    ],
+    "gates": []
+   }
+  ]
+ },
+ "outbuildings": [
+  {
+   "_doc": "NEW kind: the sheriff's plank stable and shed against the yard's east wall at the front (a stall, his saddle, hay)",
+   "kind": "shed",
+   "rect": [
+    25.5,
+    0.6,
+    30.35,
+    5.5
+   ],
+   "high": 2.9,
+   "low": 2.3,
+   "against": "yard_east"
+  },
+  {
+   "_doc": "the privy in the yard's south-east corner (built with the props, later)",
+   "kind": "privy",
+   "at": [
+    29.2,
+    36.4
+   ],
+   "facing": 270
+  }
+ ],
+ "front": {
+  "sign_text": "SHERIFF",
+  "_doc": "the painted board over the door (the look's: the factory's lettering), and JAIL cut in the parapet's dressed panel (a stone member)",
+  "board": {
+   "y": [
+    3.0,
+    3.45
+   ],
+   "width": 2.2
+  },
+  "panel": {
+   "text": "JAIL",
+   "width": 1.6,
+   "height": 0.5
+  }
+ },
+ "rooms": [
+  {
+   "id": "office",
+   "level": "ground",
+   "rect": [
+    0.56,
+    0.56,
+    10.41,
+    7.32
+   ],
+   "use": "the sheriff at his desk (warrants, the county's papers), visitors on the bench, the stove, the gun rack and safe; where a man is brought in and booked"
+  },
+  {
+   "id": "sheriff_room",
+   "level": "ground",
+   "rect": [
+    0.56,
+    7.77,
+    4.95,
+    13.459999999999999
+   ],
+   "use": "the sheriff's or the deputy's bed, washstand and trunk: a man sleeps here when the cells are full"
+  },
+  {
+   "id": "guard_room",
+   "level": "ground",
+   "rect": [
+    5.05,
+    7.77,
+    10.41,
+    13.459999999999999
+   ],
+   "use": "the deputy at his table with the keys, watching the cell wing's door; the ladder to the roof; the yard door"
+  },
+  {
+   "id": "corridor",
+   "level": "ground",
+   "rect": [
+    6.65,
+    14.02,
+    8.02,
+    22.6
+   ],
+   "use": "the jailer's way past the cages: food in, buckets out, the lantern"
+  },
+  {
+   "id": "cell_1",
+   "level": "ground",
+   "rect": [
+    8.12,
+    15.0,
+    10.25,
+    17.44
+   ],
+   "use": "a prisoner: sits, lies on the bunk, stands at the bars"
+  },
+  {
+   "id": "cell_2",
+   "level": "ground",
+   "rect": [
+    8.12,
+    17.44,
+    10.25,
+    19.88
+   ],
+   "use": "a prisoner"
+  },
+  {
+   "id": "cell_3",
+   "level": "ground",
+   "rect": [
+    8.12,
+    19.88,
+    10.25,
+    22.32
+   ],
+   "use": "a prisoner (the jailbreak's man: against the end wall)"
+  },
+  {
+   "id": "roof",
+   "level": "upper",
+   "rect": [
+    0.56,
+    0.56,
+    10.41,
+    13.459999999999999
+   ],
+   "use": "the jail night: men behind the parapet watch Main Street, the cross street and the yard"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "desk",
+   "use": "work",
+   "who": "sheriff",
+   "at": [
+    2.2,
+    0.6,
+    5.4
+   ],
+   "look": [
+    2.2,
+    2.0
+   ]
+  },
+  {
+   "id": "bench_1",
+   "use": "wait",
+   "who": "visitor",
+   "at": [
+    9.6,
+    0.6,
+    2.0
+   ],
+   "look": [
+    7.0,
+    2.0
+   ]
+  },
+  {
+   "id": "bench_2",
+   "use": "wait",
+   "who": "visitor",
+   "at": [
+    9.6,
+    0.6,
+    3.0
+   ],
+   "look": [
+    7.0,
+    3.0
+   ]
+  },
+  {
+   "id": "front_window",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    8.47,
+    0.6,
+    1.0
+   ],
+   "look": [
+    8.47,
+    -6.0
+   ]
+  },
+  {
+   "id": "west_window",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    1.0,
+    0.6,
+    3.94
+   ],
+   "look": [
+    -6.0,
+    3.94
+   ]
+  },
+  {
+   "id": "bed",
+   "use": "sleep",
+   "who": "sheriff",
+   "at": [
+    1.4,
+    0.6,
+    11.6
+   ],
+   "look": [
+    3.0,
+    11.6
+   ]
+  },
+  {
+   "id": "washstand",
+   "use": "stand",
+   "who": "sheriff",
+   "at": [
+    3.9,
+    0.6,
+    8.6
+   ],
+   "look": [
+    3.9,
+    7.8
+   ]
+  },
+  {
+   "id": "guard_table",
+   "use": "sit",
+   "who": "deputy",
+   "at": [
+    6.6,
+    0.6,
+    10.2
+   ],
+   "look": [
+    7.335,
+    13.4
+   ]
+  },
+  {
+   "id": "guard_watch",
+   "use": "watch",
+   "who": "deputy",
+   "at": [
+    8.6,
+    0.6,
+    12.0
+   ],
+   "look": [
+    7.335,
+    14.0
+   ]
+  },
+  {
+   "id": "corridor",
+   "use": "stand",
+   "who": "jailer",
+   "at": [
+    7.335,
+    0.6,
+    18.6
+   ],
+   "look": [
+    9.0,
+    18.6
+   ]
+  },
+  {
+   "id": "cell_1_bunk",
+   "use": "sit",
+   "who": "prisoner",
+   "at": [
+    9.0,
+    0.6,
+    16.2
+   ],
+   "look": [
+    8.1,
+    16.2
+   ]
+  },
+  {
+   "id": "cell_2_bunk",
+   "use": "sit",
+   "who": "prisoner",
+   "at": [
+    9.0,
+    0.6,
+    18.6
+   ],
+   "look": [
+    8.1,
+    18.6
+   ]
+  },
+  {
+   "id": "cell_3_bunk",
+   "use": "sit",
+   "who": "prisoner",
+   "at": [
+    9.0,
+    0.6,
+    21.1
+   ],
+   "look": [
+    8.1,
+    21.1
+   ]
+  },
+  {
+   "id": "roof_front_w",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    2.5,
+    4.258,
+    1.0
+   ],
+   "look": [
+    2.5,
+    -20.0
+   ]
+  },
+  {
+   "id": "roof_front_e",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    8.5,
+    4.258,
+    1.0
+   ],
+   "look": [
+    8.5,
+    -20.0
+   ]
+  },
+  {
+   "id": "roof_west",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    1.0,
+    4.258,
+    7.0
+   ],
+   "look": [
+    -20.0,
+    7.0
+   ]
+  },
+  {
+   "id": "roof_yard",
+   "use": "take cover",
+   "who": "deputy",
+   "at": [
+    9.9,
+    4.258,
+    12.8
+   ],
+   "look": [
+    20.0,
+    30.0
+   ]
+  }
+ ],
+ "lamps": {
+  "_doc": "the look's and props' (later): a lamp on the desk, one on the guard table, a lantern on a joist in the corridor"
+ },
+ "furniture": [],
+ "fixtures": [],
+ "materials": {
+  "_doc": "Step 4's (#721's library by name, passing entries only): the stone is the game's (`stone`) until the masonry lab's rubble look; the doors and gates want the library's oxblood paint (passed few and old); the office floor the library's only passing floor; rough timber the batten.",
+  "finishes": {
+   "doors": {
+    "want": {
+     "entry": "painted_oxblood_batten",
+     "age": "few"
+    },
+    "use": {
+     "entry": "painted_oxblood_batten",
+     "age": "old",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    }
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   }
+  },
+  "surfaces": [
+   [
+    "/door_",
+    "doors"
+   ],
+   [
+    "gate/",
+    "doors"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "roof/board",
+    "framing"
+   ],
+   [
+    "roof/joist",
+    "framing"
+   ],
+   [
+    "shed/",
+    "rough"
+   ],
+   [
+    "outhouse/",
+    "rough"
+   ]
+  ],
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_timber",
+  "timber": "wood:int_timber",
+  "trim_outside": "painted_rust",
+  "roof": "weathered_pine",
+  "rough": "framing",
+  "chimney": "stone"
+ },
+ "sources": [
+  "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021): the game's timber figures and checks.gd's sizing of every span.",
+  "D. H. Mahan, A Treatise on Civil Engineering (1873 ed.), on stone masonry: rubble walls, through-stones, bed joints, the thickness of walls by their height.",
+  "W. J. M. Rankine, A Manual of Civil Engineering (1862 and later): rubble and coursed rubble, lintels and their bearing.",
+  "Q. A. Gillmore, A Practical Treatise on Limes, Hydraulic Cements and Mortars (1874): lime mortar.",
+  "Ira O. Baker, A Treatise on Masonry Construction (1889): rubble walls and footings (a few years after; practice unchanged).",
+  "The Pauly firm of St. Louis (jail builders from the 1870s): riveted strap-iron cells shipped by rail; their trade catalogues (found by search, not opened from this session).",
+  "The masonry lab: config/destruction/materials.json (rubble_stone), docs/briefs/masonry-lab.md, #663, #676 (a rubble jail wall takes a bundle of about three sticks).",
+  "DESIGN.md: 'Hold him till the Marshal comes' (the jail night: fire, dynamite at the back wall), the jailbreak; docs/briefs/valley-plan.md \u00a73."
+ ]
+}

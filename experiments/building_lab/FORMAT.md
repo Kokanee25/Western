@@ -60,6 +60,21 @@ the floor), side, lit [from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 
+**A stone building's parts** (`jail/jail.json`, #780; built by `stone.gd` when `frame.stone_wall`
+is given; the others build as before): `frame.stone_wall` {`masonry` the masonry lab's kind,
+`thick`, `course`, `piece`, `footing_below`, `lintel` {height, bear}, `sill`, `coping`}; a stone
+wall (`stone: true`) has its `line` on its OUTER face (a stone partition's: its `out` face), the
+stone inward, its `top`, its `profile` ([from y, d_lo, d_hi], d along `out`, 0 the line: set-offs
+and ledges) and its `ends` (the wall each end butts, or null: it runs to that wall's inside face at
+every height); a window's `bars`, `glass: false` (a slit), a door's `transom`; `lot.ground.plane`
+[y at the origin, dy/dx, dy/dz] (the footings follow it; the lab tilts its ground to it);
+`lot.footprint` (the plan's wings), `walk_x`, `walk_h`, `yard_name` (plan_sheet.py); `floors`
+`kind: "flags"` (a stone fill under flags) and floors on other levels with their own `joist` (the
+flat roofs: `levels.upper` the office's, `levels.ell_roof` the wing's) and a `hatch`;
+`frame.roof_joist`, `ell_joist`, `tin`; `cells` (strap-iron cages: x, z, height, strap, spacing,
+door, bunk, gate); `ladders` with `inside` (at [x, z], `face`); `stairs` with `wood: "stone"`
+(stone blocks to a stoop); `yard_walls` {thick, height, step, walls: line, out, ends, gates}.
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

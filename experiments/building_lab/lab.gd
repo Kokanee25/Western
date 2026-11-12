@@ -69,6 +69,13 @@ func _ground() -> void:
 		box0.size = Vector3(120.0, 1.0, 120.0)
 		cs0.shape = box0
 		cs0.position = Vector3(0.0, -0.5, 0.0)
+		# A lot whose ground falls (the jail's, #780: `lot.ground.plane`, [y at the origin, dy/dx, dy/dz]):
+		# the slab tilted to it, as the valley's bake has it.
+		var pl: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [])
+		if not pl.is_empty():
+			var n := Vector3(-float(pl[1]), 1.0, -float(pl[2])).normalized()
+			var basis := Basis(Quaternion(Vector3.UP, n))
+			cs0.transform = Transform3D(basis, Vector3(0.0, float(pl[0]), 0.0) + basis * Vector3(0.0, -0.5, 0.0))
 		ground.add_child(cs0)
 		return
 	var c: Array = spec.cellar.rect
