@@ -102,19 +102,20 @@ func _run() -> void:
 		cam.global_position = building.to_global(view[0])
 		cam.look_at(building.to_global(view[1]), Vector3.UP)
 		cam.fov = float(view[2])
-		for i in 40:
+		# (the look re-blends after a clock jump: a frame is ~15 s under lavapipe here, so a few do)
+		for i in 14:
 			await process_frame
 		await create_timer(5.0).timeout
-		for i in 8:
+		for i in 4:
 			await process_frame
 		var draws: int = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
 		if cpu:
 			var ms: Array[float] = []
-			for i in 30:
+			for i in 20:
 				await process_frame
 				ms.append(RenderingServer.viewport_get_measured_render_time_cpu(vp_rid) + RenderingServer.get_frame_setup_time_cpu())
 			ms.sort()
-			var line := "%s: render CPU median %.2f ms here, %.2f at Sean's (x0.65); %d draws" % [v, ms[15], ms[15] * 0.65, draws]
+			var line := "%s: render CPU median %.2f ms here, %.2f at Sean's (x0.65); %d draws" % [v, ms[10], ms[10] * 0.65, draws]
 			print(line)
 			lines.append(line)
 			continue
