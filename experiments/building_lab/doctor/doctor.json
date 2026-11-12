@@ -1646,7 +1646,142 @@
    "width": 0.45
   }
  ],
- "lamps": {},
+ "light": {
+  "_doc": "NEW (#824): the room's light. `fill` the indoor fill's colour (RoomLight's `room_fill`): near neutral and low, so the windows (RoomLight's soft sky through every outer door and window, `light_openings`) and the lamps give the rooms their shape, not one tint; the fill's box reaches the outer walls' inside boards (spec_building.gd _add_interior_ambient). `window_day` scales RoomLight's daylight through the windows for this building (round 1 at 1: the dispensary under its high window read dull and flat).",
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 3.0
+ },
+ "lamps": {
+  "_doc": "NEW (#824, #821 pick 1: a building names its lamps, a room each): kit lamps hung on the walls (spec_building.gd _kit_lamps: the reflector lamp on a nail in the wall's boards, its OilLamp lit by the clock, `lit` [from, until]). The surgery's over the instrument table on the east wall's pier (D1's place; at night he holds it over the table), the desk's beside his roll-top; those two cast shadows (the views a player stands in), the rest don't (render CPU).",
+  "kit": [
+   {
+    "room": "surgery",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 5.17,
+    "height": 1.35,
+    "energy": 1.6,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "front_office",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 3.15,
+    "height": 1.5,
+    "energy": 1.3,
+    "reach": 6.0,
+    "shadows": true,
+    "lit": [
+     17,
+     22
+    ],
+    "_doc": "beside the roll-top desk"
+   },
+   {
+    "room": "front_office",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 3.0,
+    "height": 1.55,
+    "lit": [
+     17,
+     22
+    ],
+    "_doc": "over the waiting bench"
+   },
+   {
+    "room": "hall",
+    "kit": "reflector_lamp",
+    "wall": "hall_e",
+    "level": "ground",
+    "at": 3.2,
+    "height": 1.65,
+    "side": "+",
+    "energy": 1.0,
+    "lit": [
+     17,
+     5
+    ],
+    "_doc": "between the surgery's and sick room's doors, on the hall's side"
+   },
+   {
+    "room": "dispensary",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 4.5,
+    "height": 1.55,
+    "lit": [
+     17,
+     22
+    ],
+    "_doc": "by the counter's end"
+   },
+   {
+    "room": "sick_room",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 10.8,
+    "height": 1.4,
+    "energy": 0.9,
+    "lit": [
+     17,
+     5
+    ]
+   },
+   {
+    "room": "sitting_room",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 10.6,
+    "height": 1.5,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "bedroom",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 12.0,
+    "height": 1.5,
+    "energy": 0.9,
+    "lit": [
+     20,
+     23
+    ]
+   },
+   {
+    "room": "kitchen",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 12.0,
+    "height": 1.5,
+    "lit": [
+     17,
+     21
+    ]
+   }
+  ]
+ },
  "furniture": [],
  "fixtures": [],
  "summer_beams": [

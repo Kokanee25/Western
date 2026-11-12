@@ -5,7 +5,6 @@
       {"id": "table", "kit": "examining_table", "at": [2.0, 0.0, 5.5], "facing": 90, "use": "on_table, operate, hold_lamp"},
       {"id": "side", "kit": "table", "fit": [0.9, 0.78, 0.5], "at": [0.42, 0.0, 5.25], "facing": 90, "use": "the instrument table under the east window (clear of the side door's swing) (the kit's plain table, as the old doctor's)"},
       {"id": "tray", "kit": "instrument_tray", "on": "side", "at": [0.42, 0.0, 5.05], "facing": 90},
-      {"id": "lamp", "kit": "reflector_lamp", "at": [0.225, 1.35, 5.17], "facing": 90, "light": 0.0, "use": "hung on the east wall's pier between the windows (its nail in the wall), over the instrument table; at night held over the table (hold_lamp)"},
       {"id": "wash", "kit": "washstand", "at": [3.77, 0.0, 7.6], "facing": 270, "use": "wash_surgery"},
       {"id": "basin", "kit": "wash_basin", "on": "wash", "at": [3.75, 0.0, 7.6], "facing": 0},
       {"id": "pitcher", "kit": "wash_pitcher", "on": "basin", "at": [3.75, 0.0, 7.62], "facing": 200, "lift": 0.014},

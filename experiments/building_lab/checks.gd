@@ -28,6 +28,12 @@ static func destructible(root: Node, building: Structure) -> Dictionary:
 
 static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 	for c in n.get_children(true):
+		if c is GlassProp:
+			# A kit prop that shatters (a hung lamp, #824): its own body and pieces are the prop's,
+			# its OilLamp the light it carries.
+			out.kit_props += 1
+			out.lamps += c.find_children("*", "OilLamp", true, false).size()
+			continue
 		_sort(c, building, out)
 		_walk(c, building, out)
 

@@ -27,7 +27,14 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   skirting, casings); then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
-- Room light (#608): off; waiting on Sean.
+- **The doctor lit as a room** (#824, merged): his spec names a lamp a room (`lamps.kit`, the hung reflector
+  lamp, by the clock), `light` (fill to the outer walls, near neutral; RoomLight's sky at every outer opening,
+  `window_day` 3); indoor paint wears from the floor. The orange / blue corner was the probe's edge (proved,
+  `experiments/building_lab/doctor/results/2026-11-12_light/`). Cheap judge before / r1 / r2: desk, dispensary,
+  window cheap indie each time, the night good indie; tell 1 (flat light) still fails by day. Rule in
+  `experiments/building_lab/RECIPE.md` "Light". Render CPU at Sean's <= 2.0 ms. Next: daylight with shape
+  inside (the new issue), contact shadows with #711.
+- Room light (#608): on under the real look; its painted-look switch still waiting on Sean.
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.
 
 ## Traps
