@@ -6,7 +6,7 @@ extends SceneTree
 ## Untyped where it names game classes: -s scripts compile before autoloads.
 ##
 ##   xvfb-run -a godot --rendering-driver vulkan -s res://experiments/prop_lab/doctor/dress.gd -- \
-##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts] [--no-rows]
+##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts] [--no-rows] [--skip=towel]
 ##
 ## ~10 min a view under lavapipe; never two runs at once (~10 GB each). --counts prints the draws
 ## (the frame's) and the batch's triangles and batches, then quits.
@@ -35,12 +35,13 @@ const VIEWS := {
 	# The desk, close: the pigeonholes, its curved sides, the drawers' pulls.
 	"desk": [Vector3(2.05, 2.45, 1.95), Vector3(1.15, 1.75, 3.45), 56.0, 10.0],
 	# D3 (#819): the hall's pegs, his coat and hat on them, from the front office's end, and close.
-	"hall": [Vector3(4.75, 2.5, 4.3), Vector3(4.35, 2.1, 8.2), 66.0, 10.0],
-	"pegs": [Vector3(5.3, 2.45, 8.2), Vector3(4.12, 2.25, 8.2), 75.0, 10.0],
+	# (the hall has no window: seen at dusk, its lamp lit)
+	"hall": [Vector3(4.75, 2.5, 4.3), Vector3(4.35, 2.1, 8.2), 66.0, 18.0],
+	"pegs": [Vector3(5.3, 2.3, 8.25), Vector3(4.12, 1.95, 8.2), 80.0, 18.0],
 	# The sick room's far end: its washstand, the bedside chair, the spare blankets on the empty cot.
 	"sick_wash": [Vector3(3.3, 2.4, 9.0), Vector3(2.2, 1.4, 11.0), 62.0, 15.0],
 	# The chamber pot under the first cot; the folded blankets, close.
-	"pot": [Vector3(2.2, 1.75, 10.9), Vector3(0.8, 1.1, 10.0), 50.0, 15.0],
+	"pot": [Vector3(2.2, 1.75, 10.9), Vector3(1.0, 1.08, 10.0), 50.0, 15.0],
 	"blankets": [Vector3(2.5, 2.25, 10.9), Vector3(3.42, 1.62, 9.95), 45.0, 15.0],
 	# His bookcase beside the desk, close; the sitting room's books, table and chair.
 	"bookcase": [Vector3(2.75, 2.45, 1.75), Vector3(2.75, 1.78, 3.6), 50.0, 10.0],
@@ -88,7 +89,13 @@ static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dict
 	var listed: Array = []
 	for b in batch_name.split(","):
 		listed.append_array(spec.batches[b])
+	var skip: PackedStringArray = []
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--skip="):
+			skip = a.substr(7).split(",")  # (entries left out by id: D1's towel blows through the wall into D3's hall under lavapipe's slow frames)
 	for e: Dictionary in listed:
+		if skip.has(String(e.id)):
+			continue
 		if not e.has("row"):
 			entries.append(e)
 			continue
