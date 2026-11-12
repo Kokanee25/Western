@@ -110,6 +110,24 @@ changes; results in `../results/2026-11-10_fiddle/`.
   -1.8 to -2.5) and the way a note comes in (his ~3 cents flat; ours was 15 sharp from the reed's second
   mode; now -1 to -4). Left: held notes waver 4-7 cents to his 1.6 (`../results/2026-11-10_fiddle/harmonica/`).
 
+## The saloon piano
+
+- `piano.py`: an old upright: one wound string a note in the bass, two in the tenor, three from the
+  middle up; each partial a stiff string's (f_n = n f0 sqrt(1 + B n^2), B an upright's), dying in two
+  stages (Weinreich's), damped at the key's release (none in the top octave and a half), through a
+  soundboard and case (`board_ir`: modes over a set curve) with each key's knock. Out of tune (each key
+  ~6 cents, its strings ~7 apart: the honky-tonk), hard felt. The hammer's push (`hammer_force`): its
+  length the measured one (Askenfelt & Jansson: ~4 ms low bass to ~0.7 near the top), shorter for a
+  harder blow, peaked, with the near end's returning jolts on it; its shape fitted so middle C's
+  partials match Fletcher's measured tone at soft, ordinary and hard touches. (A simulated hammer on a
+  pass-through string held middle C on ~4 ms whatever the felt: left for a string modelled under the
+  hammer.) Voiced: each key measured through the board and set even (`piano_voicing.json`, four
+  strikes a key; delete it after changing the model), then left ~1.5 dB uneven per key.
+  The part (`arrange`): oom-pah (bass root then fifth on the beat, an octave under on the bar, a close
+  chord off the beat), the tune in the right hand a hair ahead, a third/sixth or octave under the
+  strong notes. Checks: single notes within ~14 cents (the tuning built in; median +4, the strings'
+  stiffness); above 4 kHz -25 dB of the whole; the tune 2.6-4.9 dB over the left hand.
+
 ## Commands
 
 ```sh
@@ -119,6 +137,7 @@ python3 experiments/sound_lab/fiddle/banjo.py turkey_in_the_straw.json [--part=O
 python3 experiments/sound_lab/fiddle/duet.py turkey_in_the_straw.json   # fiddle and banjo
 python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json   # with bones and tambourine too
 python3 experiments/sound_lab/fiddle/harmonica.py red_river_valley.json  # the harmonica
+python3 experiments/sound_lab/fiddle/piano.py oh_susanna.json           # the saloon piano
 python3 experiments/sound_lab/fiddle/abc_tune.py ryansMammoth/ArkansasTravellerReel.abc arkansas_traveller.json  # any ABC tune
 python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~80 min the 8 game runs (one at a time)
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png
