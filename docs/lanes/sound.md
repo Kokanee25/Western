@@ -17,8 +17,9 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
   road: script OK (Sean, 2026-11-12), **cast fixed** (`cast[].voice.picked`: sheriff c4, doctor b3, widow b1,
   freighter b4, livery b1; voice ids on fal's ElevenLabs account). No Justice: Script OK tapped; No Law: not yet
   (#835). Paid calls: request files in `tools/voices/requests/`, run once on GitHub (`voices.yml`, FAL_KEY);
-  ledger `tools/voices/paid.csv`, terms `tools/voices/TERMS.md`. Next: the acting test (moment tags, v4
-  expressive, Sean's own read through fal's voice changer), then 3-4 takes a line.
+  ledger `tools/voices/paid.csv`, terms `tools/voices/TERMS.md`. Next: Sean picks a take per wording on the page (212 takes, method A
+  fixed by the acting test); two wordings refused by fal's checker; then cut and wire the picks (#807 step 5).
+  Branch `claude/voices-sheriff-road-takes`, no PR yet.
 - Waiting on Sean's ears: #601 (train), #264 (snap or whirr).
 
 ## Traps
