@@ -7,7 +7,9 @@ takes under every line, and he picks one.
 
 | Mission | Script | Page | State |
 |---|---|---|---|
-| The sheriff on the road | `sheriff_road.json` | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | draft, waiting on Sean's Script OK |
+| The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | draft, waiting on Sean's Script OK |
+| No Law | `no_law.json` (page `no_law.html`) | https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY | draft, waiting on Sean's Script OK |
+| No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | draft, waiting on Sean's Script OK |
 
 ## The file
 
@@ -23,7 +25,9 @@ as they are and never changed here; a change to one is a gameplay change.
 - Publish: the Artifact tool with `file_path` `docs/scripts/board.html`, `files`
   `{"script.json": "docs/scripts/<mission>.json"}` and `capabilities` `{"db": {}}`. To update the
   sheriff's page from another session, pass its URL as `url` (read it first). A new mission is a new
-  artifact (no `url`), with its own `<title>` line in a copy of `board.html`.
+  artifact (no `url`): a copy of `board.html` (the template, also the sheriff's page) with its `<title>` and `<h1>`
+  changed. A change to the page's code goes into `board.html` and every copy, and each page is republished.
+- Speakers shared between missions (the doctor, the widow) keep one cast id and one voice across pages.
 - Takes go in each line's `takes` as `[{"id": "t1", "url": "<asset url>"}]` (audio uploaded to the
   page's asset store: declare `assets` too); the page shows them shuffled, lettered A-D, no
   "recommended". Cast candidates go in `cast[].voice.candidates` the same way.

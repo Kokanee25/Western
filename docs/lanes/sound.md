@@ -15,7 +15,9 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 - **Voiced lines (#807)**: one script a mission as data (`docs/scripts/`, README there) and one artifact page
   each, the listening board (`docs/scripts/board.html`, Sean's notes and picks in its database). The sheriff
   on the road's script is written (66 lines, 5 speakers; page https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX),
-  waiting on Sean's Script OK (#835). Next: casting (#836), then 3-4 takes a line, then into the game.
+  No Law (32 lines, https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY) and No Justice (47 lines,
+  https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW) the same way. All three wait on Sean's Script OK (#835).
+  Next: casting (#836, the sheriff's first), then 3-4 takes a line, then into the game.
 - Waiting on Sean's ears: #601 (train), #264 (snap or whirr).
 
 ## Traps

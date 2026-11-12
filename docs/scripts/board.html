@@ -225,7 +225,7 @@ button.on { border-color: var(--accent); color: var(--accent); }
       const sec = el("section", "scene"); sec.id = s.id;
       const slug = el("div", "slug");
       slug.append(el("h2", "", (si + 1) + ". " + esc(s.title) + " — " + esc(s.when)));
-      slug.append(el("div", "built " + (s.built ? "st-built" : "st-new"), s.built ? "Built in the game" : "Not built yet"));
+      slug.append(el("div", "built " + (s.built === true ? "st-built" : "st-new"), s.built === true ? "Built in the game" : s.built ? "Partly built" : "Not built yet"));
       slug.append(el("p", "", esc(s.setting)));
       sec.append(slug);
       s.lines.forEach((l) => {
