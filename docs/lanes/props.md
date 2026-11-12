@@ -14,13 +14,17 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
-- **The doctor's office, D1 and D2 merged** (#788 PR #802; #805 PR #817): bottles (`glass:<colour>`, printed labels
-  as GlassProp `variants`), mortar, cased balance, roll-top desk, bentwood chair, the dispensary's shelving and
-  counter; boards cut to an outline (`PropKit.lib_cut_mesh`). Critic r3 1 SAME / 5 CLOSE / 1 DIFFERENT.
-  **Hold further judge rounds**: the Fable room review (#818, `docs/reviews/2026-11-doctor-room.md`) found the
-  cheapness is mostly the room (no lamps, one walnut on floor and furniture, a wall board's finish on furniture
-  with ageing off). Next, after Sean's picks on #821: a furniture finish of its own, storage that ships filled,
-  then D3 (his bag by Rodin, books, coat stand, chamber pot, blankets).
+- **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
+  (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
+  `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
+  `lib:furniture_oak/few` or `lib:furniture_painted_pine/few` (#825). No D4. Blind critic, two rounds
+  (`experiments/prop_lab/results/2026-11-12_doctor_d3/r2/critic.md`): peg rail SAME; books, hat, bag, pot,
+  blankets CLOSE; **coat and bookcase DIFFERENT** (the coat hangs stiff as on a hanger: code-built cloth
+  doesn't drape; the bookcase is a low open oak shelf where the panel shows a tall dark glazed case on a
+  cupboard base). Those two wait on Sean's pick (the `waiting on Sean` issue opened with the merge); don't
+  re-judge the rest. The props sit in his rooms only by the lab's `dress.json` until his spec takes them.
+  The Studio's branch `claude/studio-doctor-bag` (the bag's card, pictures, model, ledger at $64.89 of $66)
+  is unmerged: Sean's OK needed.
 - Parked until after the slice: the Concord-bodied coach (#787; `tools/props/coach.py`, the boxy
   `baron_coach` stays), farmhouse props (#540).
 - Then the jail's and the store's props as those buildings land (art's #765 order).
