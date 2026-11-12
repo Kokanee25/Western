@@ -1,0 +1,495 @@
+task: takes
+spend: 0.81
+price_per_1k: 0.08
+note: 'the sheriff on the road, takes for the whole script, part 2 (#846). Method A (Sean''s picks on the acting test): short moment tags, stability 0.0 / 0.15 / 0.3. Breath-only wordings are voiced as sounds ([exhales slowly], [groans softly]), never as words.'
+variants:
+- id: road.press.clear.w0.s1
+  line: road.press.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[cries out through gritted teeth] Christ! [short pause] [breathing hard] That''s it. Keep on it.'
+- id: road.press.clear.w0.s2
+  line: road.press.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[cries out through gritted teeth] Christ! [short pause] [breathing hard] That''s it. Keep on it.'
+- id: road.press.weak.w0.s0
+  line: road.press.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[gasps] ...that''s it.'
+- id: road.press.weak.w0.s1
+  line: road.press.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[gasps] ...that''s it.'
+- id: road.press.weak.w0.s2
+  line: road.press.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[gasps] ...that''s it.'
+- id: road.press.fading.w0.s0
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[groans softly]'
+- id: road.press.fading.w0.s1
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[groans softly]'
+- id: road.press.fading.w0.s2
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[groans softly]'
+- id: road.packed.clear.w0.s0
+  line: road.packed.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales] That''ll hold. [short pause] My horse is yonder. [short pause] Get me up on him.'
+- id: road.packed.clear.w0.s1
+  line: road.packed.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales] That''ll hold. [short pause] My horse is yonder. [short pause] Get me up on him.'
+- id: road.packed.clear.w0.s2
+  line: road.packed.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales] That''ll hold. [short pause] My horse is yonder. [short pause] Get me up on him.'
+- id: road.packed.weak.w0.s0
+  line: road.packed.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[weak] My horse...'
+- id: road.packed.weak.w0.s1
+  line: road.packed.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[weak] My horse...'
+- id: road.packed.weak.w0.s2
+  line: road.packed.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[weak] My horse...'
+- id: road.packed.fading.w0.s0
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak]'
+- id: road.packed.fading.w0.s1
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak]'
+- id: road.packed.fading.w0.s2
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak]'
+- id: road.idle.clear.w0.s0
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[pained, dry] Damn, it burns.'
+- id: road.idle.clear.w0.s1
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[pained, dry] Damn, it burns.'
+- id: road.idle.clear.w1.s0
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales] Sun''s coming up. [short pause] Ain''t that something.'
+- id: road.idle.clear.w1.s1
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[exhales] Sun''s coming up. [short pause] Ain''t that something.'
+- id: road.idle.clear.w2.s0
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[pained] Don''t you let me lie here.'
+- id: road.idle.clear.w2.s1
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[pained] Don''t you let me lie here.'
+- id: road.idle.clear.w3.s0
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[inhales deeply] Fourteen years I''ve rode this road. [short pause] [exhales] Never had to look behind me on it.'
+- id: road.idle.clear.w3.s1
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[inhales deeply] Fourteen years I''ve rode this road. [short pause] [exhales] Never had to look behind me on it.'
+- id: road.idle.clear.w4.s0
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[dry] Winchester''s right there on my saddle. [short pause] [sighs] Never put a hand to it.'
+- id: road.idle.clear.w4.s1
+  line: road.idle.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[dry] Winchester''s right there on my saddle. [short pause] [sighs] Never put a hand to it.'
+- id: road.idle.weak.w0.s0
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[weak, shivering] I''m cold.'
+- id: road.idle.weak.w0.s1
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[weak, shivering] I''m cold.'
+- id: road.idle.weak.w1.s0
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[weak] Don''t let me lie here.'
+- id: road.idle.weak.w1.s1
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[weak] Don''t let me lie here.'
+- id: road.idle.weak.w2.s0
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[weak] Stay where I can see you.'
+- id: road.idle.weak.w2.s1
+  line: road.idle.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 2
+  text: '[weak] Stay where I can see you.'
+- id: road.walked_off.clear.w0.s0
+  line: road.walked_off.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[shouting, furious] Harlan! [short pause] [voice breaking] HARLAN!'
+- id: road.walked_off.clear.w0.s1
+  line: road.walked_off.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[shouting, furious] Harlan! [short pause] [voice breaking] HARLAN!'
+- id: road.walked_off.clear.w0.s2
+  line: road.walked_off.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[shouting, furious] Harlan! [short pause] [voice breaking] HARLAN!'
+- id: road.walked_off.weak.w0.s0
+  line: road.walked_off.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[weak, calling] Harlan...'
+- id: road.walked_off.weak.w0.s1
+  line: road.walked_off.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[weak, calling] Harlan...'
+- id: road.walked_off.weak.w0.s2
+  line: road.walked_off.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[weak, calling] Harlan...'
+- id: road.walked_off.fading.w0.s0
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.0
+  seed: 1
+  text: '[exhales slowly, weak]'
+- id: road.walked_off.fading.w0.s1
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.15
+  seed: 2
+  text: '[exhales slowly, weak]'
+- id: road.walked_off.fading.w0.s2
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: ATJBRWuZJ9io70PFlRSH
+  stability: 0.3
+  seed: 3
+  text: '[exhales slowly, weak]'
+- id: town.doctor.clear.w0.s0
+  line: town.doctor.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[calm, quick] Gut-shot. [short pause] Help me get him up the steps.'
+- id: town.doctor.clear.w0.s1
+  line: town.doctor.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[calm, quick] Gut-shot. [short pause] Help me get him up the steps.'
+- id: town.doctor.clear.w0.s2
+  line: town.doctor.clear
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[calm, quick] Gut-shot. [short pause] Help me get him up the steps.'
+- id: town.doctor.weak.w0.s0
+  line: town.doctor.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[calm, brisk] He''s bled a fair bit. [short pause] Up the steps with him, quick now.'
+- id: town.doctor.weak.w0.s1
+  line: town.doctor.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[calm, brisk] He''s bled a fair bit. [short pause] Up the steps with him, quick now.'
+- id: town.doctor.weak.w0.s2
+  line: town.doctor.weak
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[calm, brisk] He''s bled a fair bit. [short pause] Up the steps with him, quick now.'
+- id: town.doctor.fading.w0.s0
+  line: town.doctor.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[under his breath] Lord. [short pause] [grave] He''s near bled white. Get him inside.'
+- id: town.doctor.fading.w0.s1
+  line: town.doctor.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[under his breath] Lord. [short pause] [grave] He''s near bled white. Get him inside.'
+- id: town.doctor.fading.w0.s2
+  line: town.doctor.fading
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[under his breath] Lord. [short pause] [grave] He''s near bled white. Get him inside.'
+- id: town.doctor.out.w0.s0
+  line: town.doctor.out
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[urgent] He''s out cold. [short pause] Help me with him. [short pause] NOW.'
+- id: town.doctor.out.w0.s1
+  line: town.doctor.out
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[urgent] He''s out cold. [short pause] Help me with him. [short pause] NOW.'
+- id: town.doctor.out.w0.s2
+  line: town.doctor.out
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[urgent] He''s out cold. [short pause] Help me with him. [short pause] NOW.'
+- id: town.doctor_after.good.w0.s0
+  line: town.doctor_after.good
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[approving, dry] Somebody packed that wound, [short pause] and packed it right. [short pause] That''s bought him some hours. Come back tonight.'
+- id: town.doctor_after.good.w0.s1
+  line: town.doctor_after.good
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[approving, dry] Somebody packed that wound, [short pause] and packed it right. [short pause] That''s bought him some hours. Come back tonight.'
+- id: town.doctor_after.good.w0.s2
+  line: town.doctor_after.good
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[approving, dry] Somebody packed that wound, [short pause] and packed it right. [short pause] That''s bought him some hours. Come back tonight.'
+- id: town.where.w0.s0
+  line: town.where
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[curious] You''ve done this before. [short pause] Where? [long pause] [lets it go] No. [short pause] Keep it.'
+- id: town.where.w0.s1
+  line: town.where
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[curious] You''ve done this before. [short pause] Where? [long pause] [lets it go] No. [short pause] Keep it.'
+- id: town.where.w0.s2
+  line: town.where
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[curious] You''ve done this before. [short pause] Where? [long pause] [lets it go] No. [short pause] Keep it.'
+- id: town.doctor_after.poor.w0.s0
+  line: town.doctor_after.poor
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.0
+  seed: 1
+  text: '[grave, plain] He''s lost more than he can spare. [short pause] I''ll do what I can. [short pause] It may not be much.'
+- id: town.doctor_after.poor.w0.s1
+  line: town.doctor_after.poor
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.15
+  seed: 2
+  text: '[grave, plain] He''s lost more than he can spare. [short pause] I''ll do what I can. [short pause] It may not be much.'
+- id: town.doctor_after.poor.w0.s2
+  line: town.doctor_after.poor
+  app: elevenlabs/tts/eleven-v4
+  voice: 4azXcYimkYjryiN8Q7F2
+  stability: 0.3
+  seed: 3
+  text: '[grave, plain] He''s lost more than he can spare. [short pause] I''ll do what I can. [short pause] It may not be much.'
+- id: town.livery.w0.s0
+  line: town.livery
+  app: elevenlabs/tts/eleven-v4
+  voice: Fj50rEyFwc8pGKqGpwQ7
+  stability: 0.0
+  seed: 1
+  text: '[shaken, grumbling] That''s the sheriff''s bay. [short pause] Lord. [sighs] I''ll put him up. Saddle, rifle and all.'
+- id: town.livery.w0.s1
+  line: town.livery
+  app: elevenlabs/tts/eleven-v4
+  voice: Fj50rEyFwc8pGKqGpwQ7
+  stability: 0.3
+  seed: 2
+  text: '[shaken, grumbling] That''s the sheriff''s bay. [short pause] Lord. [sighs] I''ll put him up. Saddle, rifle and all.'
+- id: town.livery.w1.s0
+  line: town.livery
+  app: elevenlabs/tts/eleven-v4
+  voice: Fj50rEyFwc8pGKqGpwQ7
+  stability: 0.0
+  seed: 1
+  text: '[gruff, shaken] Leave him with me. [short pause] I''ll see he''s fed, [sighs] whoever''s paying.'
+- id: town.livery.w1.s1
+  line: town.livery
+  app: elevenlabs/tts/eleven-v4
+  voice: Fj50rEyFwc8pGKqGpwQ7
+  stability: 0.3
+  seed: 2
+  text: '[gruff, shaken] Leave him with me. [short pause] I''ll see he''s fed, [sighs] whoever''s paying.'
+- id: left.freighter.w0.s0
+  line: left.freighter
+  app: elevenlabs/tts/eleven-v4
+  voice: Uy7DFPjvyD9mvvDbyeiL
+  stability: 0.0
+  seed: 1
+  text: '[shaken] Found him in the road east of the ford. [short pause] [exhales] Talked about a red shirt the whole way in.'
+- id: left.freighter.w0.s1
+  line: left.freighter
+  app: elevenlabs/tts/eleven-v4
+  voice: Uy7DFPjvyD9mvvDbyeiL
+  stability: 0.3
+  seed: 2
+  text: '[shaken] Found him in the road east of the ford. [short pause] [exhales] Talked about a red shirt the whole way in.'
+- id: left.freighter.w1.s0
+  line: left.freighter
+  app: elevenlabs/tts/eleven-v4
+  voice: Uy7DFPjvyD9mvvDbyeiL
+  stability: 0.0
+  seed: 1
+  text: '[shaken, still telling it] Red shirt, he kept saying. [short pause] Red shirt, and a name. [short pause] Harlan, or near it.'
