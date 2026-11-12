@@ -48,7 +48,7 @@
           {"id": "sheriff_c4", "url": "/_blob/06c9ce173d823c607cbd42368157508c", "voice_id": "ATJBRWuZJ9io70PFlRSH", "seed": 21004}
         ],
         "earlier": "round 1 dropped (an old movie, Sean); round 2 (requests/2026-11-12_cast_sheriff_road_b.yaml) not picked: Sean, on the page, \"Can we make the voice early 50's\"",
-        "picked": null
+        "picked": {"id": "sheriff_c4", "voice_id": "ATJBRWuZJ9io70PFlRSH", "seed": 21004, "by": "Sean", "at": "2026-11-12", "fixed": true}
       }},
     {"id": "doctor", "name": "The doctor", "called": "Doc", "bible": "VOICES.md, The doctor; WORDS.md, The doctor",
      "brief": "Late forties, an educated Easterner gone west (Philadelphia or New England). Brisk, quiet, dry; whole sentences, never raised; counts things.",
