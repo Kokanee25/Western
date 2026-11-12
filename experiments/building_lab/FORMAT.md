@@ -35,6 +35,7 @@ separately and don't agree). The pictures are the look to match.
 | `rooms` | each room's level, rect and use | 12, from the hall to the cellar |
 | `fixtures`, `furniture` | kit props by id, place, facing, repeats; a table's chairs; furniture of members (`table`, `shelves`) | the bar and back bar in sections, 3 card tables, 14 chairs |
 | `lamps` | sconces by wall, level, places along it, height; lamps on the tables and the bar; a chandelier | 31 OilLamps |
+| `light` (#824) | the room's light: `fill` the indoor fill's colour (near neutral); with it the fill's box reaches the outer walls and RoomLight takes the sky through every outer door and window (`light_openings`) | the doctor's |
 | `outbuildings` | each by kind, place, size | the outhouse |
 | `use_points` | where people stand, sit, serve, work, sleep, watch and take cover; `seats` points at a kit prop's | 22, plus the tables' seats |
 | `use` | how it's used day in day out (docs/briefs/lived-in.md): years in use; walking paths by level, who, passings a day and width; climbs a day on each stair; spots where people stand at a rail (`at`, `feet`); doors; spills; the kit's furniture; lamps' soot; weather (splash, bleach, streaks) | ten paths, four stairs, four spots, two spills |
@@ -52,6 +53,8 @@ boards stopped under the rafters that cross it, `ribbon: false` none; an inside 
 caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuildings` kind
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
+`lamps.kit` (#824) kit lamps hung on a wall's boards {kit, wall, level, at, height (its foot over
+the floor), side, lit [from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 

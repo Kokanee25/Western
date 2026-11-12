@@ -272,6 +272,57 @@ func build() -> void:
 	_library_finishes()
 
 
+# --- the room's light (#824) -------------------------------------------------------------------------
+
+## The building's indoor fill (FalseFrontBuilding's probe) reaching its outer walls' inside boards:
+## the base's box stops at the studs' inner face and fades over 0.3 m, so those boards took almost
+## none of the room's fill and the sky's cool one instead, beside a partition in the full amber
+## (the doctor's orange / blue-grey corner, docs/reviews/2026-11-doctor-room.md cause 1; proved by
+## its test render, experiments/building_lab/doctor/results/2026-11-11_light/). The box runs to the
+## wall lines (the siding outside stays out of it), blending over its last 5 cm. The spec's
+## `light.fill` is the fill's colour (near neutral: the windows and lamps give the room its shape;
+## RoomLight reads the meta `room_fill`).
+func _add_interior_ambient() -> void:
+	super()
+	var probe := get_node_or_null(^"InteriorAmbient") as ReflectionProbe
+	var haze := get_node_or_null(^"RoomHaze") as FogVolume
+	var light: Dictionary = spec.get("light", {})
+	if probe == null or light.is_empty():
+		return
+	probe.size = Vector3(width, probe.size.y, depth)
+	probe.blend_distance = 0.05
+	if haze:
+		haze.size = probe.size
+	if light.has("window_day"):
+		set_meta(&"room_window_gain", float(light.window_day))
+	if light.has("fill"):
+		var c: Array = light.fill
+		set_meta(&"room_fill", Color(c[0], c[1], c[2]))
+		probe.ambient_color = Color(c[0], c[1], c[2])
+
+
+## Every outer door and window, for RoomLight (its soft sky or moon light just inside each): {wall
+## (front/back/left/right by the way it faces), rect (along the wall from its line's start, up from
+## the building's 0), kind, frame {origin, along, inward}}. Only a spec with `light` gives them
+## (the saloon's keep RoomLight's front door and windows).
+func light_openings() -> Array:
+	var out := []
+	if not spec.has("light"):
+		return [{"wall": "front", "rect": door_rect, "kind": "door"}]
+	for id: String in walls:
+		var wl: Dictionary = walls[id]
+		if wl.spec.get("partition", false):
+			continue
+		var d: Dictionary = wl.dict
+		var o: Vector3 = d.out
+		var side := "front" if o.z < -0.5 else ("back" if o.z > 0.5 else ("left" if o.x < -0.5 else "right"))
+		for op: Array in _openings(wl.spec):
+			var kind := "door" if String(op[1].type) == "door" else "window"
+			out.append({"wall": side, "rect": op[0], "kind": kind,
+					"frame": {"origin": d.origin, "along": d.along, "inward": -o}})
+	return out
+
+
 # --- foundation, cellar, posts and beams (band 0) -------------------------------------------------
 
 func _foundation() -> void:
@@ -1638,6 +1689,7 @@ func _lamps() -> void:
 	for lp: Array in L.get("on_furniture", []):
 		# A lamp standing on furniture (a table's top, a dresser's), [x, y over its floor, z].
 		_lamp(Vector3(lp[0], floor_top + float(lp[1]), lp[2]))
+	_kit_lamps(L)
 	if not L.has("chandelier"):
 		return
 	# The chandelier's lamps on its rim.
@@ -1646,6 +1698,46 @@ func _lamps() -> void:
 		var a := TAU * (k + 0.5) / int(c.lamps)
 		var p := Vector3(c.at[0], float(c.y) + 0.035, c.at[1]) + Vector3(cos(a), 0, sin(a)) * float(c.radius) * cos(PI / 8.0)
 		_lamp(p)
+
+
+## The kit's lamps hung on the walls (#824: a building names its lamps, a room each): `lamps.kit`,
+## each {kit (a lamp the kit hangs on a nail: reflector_lamp), wall, level, at (along the wall),
+## height (its foot over the floor), side (a partition's - or +), lit [from, until hours], energy,
+## reach, shadows}. The prop hangs on its nail in the wall's boards (it falls when they go) and
+## carries its OilLamp (the flame's light, lit by the clock; GlassProp takes it as its hitbox).
+func _kit_lamps(L: Dictionary) -> void:
+	for e: Dictionary in L.get("kit", []):
+		var wl: Dictionary = walls[e.wall]
+		var wall: Dictionary = wl.dict
+		var partition: bool = wl.spec.get("partition", false)
+		var plus: bool = partition and e.get("side", "-") == "+"
+		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else -STUD_D - 0.02
+		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
+		var level := String(e.get("level", "ground"))
+		var foot := (_lv[level] as float) + float(e.height)
+		var p: Vector3 = wall.origin + (wall.along as Vector3) * float(e.at) + (wall.out as Vector3) * face_d
+		var kit := StringName(e.get("kit", "reflector_lamp"))
+		var def := PropKit.definition(kit)
+		# Its back on the boards: the nail's tab is the back of its box.
+		var back := absf(float((def.get("hangs", {}).get("nails", [[0, 0, -0.12]]) as Array)[0][2])) + 0.01
+		var prop := PropKit.make(kit)
+		prop.name = "KitLamp%02d" % lamps.size()
+		prop.transform = Transform3D(Basis(Vector3.UP, atan2(into.x, into.z)), Vector3(p.x, foot, p.z) + into * back)
+		_furnish.add_child(prop)
+		var lamp := OilLamp.new()
+		lamp.name = "Light"
+		lamp.show_mesh = false
+		var lit: Array = e.get("lit", [17, 23])
+		lamp.lit_from_hour = int(lit[0])
+		lamp.lit_until_hour = int(lit[1])
+		lamp.energy = float(e.get("energy", 1.2))
+		lamp.light_range = float(e.get("reach", 6.0))
+		lamp.casts_shadows = bool(e.get("shadows", false))
+		# The flame: over the fount, in front of the reflector.
+		var flame: Array = e.get("flame", [0.0, 0.24, 0.04])
+		lamp.position = Vector3(flame[0], flame[1], flame[2])
+		prop.add_child(lamp)
+		lamps.append(lamp)
 
 
 ## The kit's fixtures and furniture, and the lamps that stand on them.
@@ -2368,9 +2460,29 @@ func _library_finishes() -> void:
 		var ez := ex.cross(ey)
 		var length: float = s[order[0]]
 		var rng := hash(m.member_id)
-		mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, gy)
+		# Inside, the paint's wear (the hand band, scuffs, dust at the skirting) is measured from the
+		# room's floor, not the street's ground (#821, the review's cause 7: the doctor's floor is
+		# 0.95 m up, so his hand band fell at the floor line and the scuffs under it).
+		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) else 0.0)
+		mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground)
 		mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 		mi.material_override = _lib_material(f, gy)
+
+
+## The finishes inside the rooms, whose wear is measured from their floor (`_floor_under`).
+const INSIDE_FINISHES := ["inside", "ceiling", "floor"]
+
+
+## The floor a member stands over, in the building's space: the highest level's top at or under its
+## foot (a wall board's bottom; a ceiling's board over the room it closes).
+func _floor_under(m: StructureMember) -> float:
+	var foot := m.position.y - m.size.y * 0.5 + 0.05
+	var best := -INF
+	for k: String in ["cellar", "ground", "upper"]:
+		var v := float(_lv.get(k, -INF))
+		if v <= foot and v > best:
+			best = v
+	return best if best > -INF else 0.0
 
 
 func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:

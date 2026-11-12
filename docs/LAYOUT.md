@@ -512,6 +512,10 @@ and front windows and holes found from `Events.member_broken` (`RoomLight.wall_p
 grid through that patch, again after `hole_settle`) each a spot of moon or sky (MoonWindows stands
 down while it's on). `Events.shot_fired`/`exploded` inside thicken `RoomHaze` (`haze_*`). Off takes
 it all away and puts the probe and haze back.
+A building that has `light_openings()` (a spec building with `light`, #824) gives every outer
+door and window instead (each with its wall's frame); its meta `room_fill` is its fill colour and
+`room_window_gain` scales its daylight in them (its opening spots then have no specular). Under the
+real look RoomLight is on whatever `Settings.room_light` says.
 
 ## The look panel
 
