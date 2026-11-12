@@ -1,274 +1,292 @@
 {
  "sheriff": [
   {
-   "id": "sheriff_v1",
-   "seed": 1001,
-   "voice_id": "pCfYPpO4mBYvlnQ0wvlh",
+   "id": "sheriff_b1",
+   "seed": 11001,
+   "voice_id": "1mmdlEjjnJr3bjhG52ua",
    "previews": [
-    "pCfYPpO4mBYvlnQ0wvlh",
-    "ARQsUPNtvhvI1rigUqg5",
-    "dUlwtJ0rGGv5bNyLNc1W"
+    "1mmdlEjjnJr3bjhG52ua",
+    "is0HGxlmOyzWZ9Y9TTti",
+    "vkfe5RehM87uZdD42QQs"
    ],
    "saved_preview": "matched",
-   "file": "sheriff/sheriff_v1.mp3",
-   "seconds": 15.96625,
-   "check_file": "sheriff/sheriff_v1_check.mp3"
+   "file": "sheriff/sheriff_b1.mp3",
+   "seconds": 13.952125,
+   "check_file": "sheriff/sheriff_b1_check.mp3"
   },
   {
-   "id": "sheriff_v2",
-   "seed": 1002,
-   "error": "design: 422 https://queue.fal.run/fal-ai/elevenlabs/requests/01a1d009-6d85-70b3-8414-5f18739096cd: {\"detail\":[{\"loc\":[\"body\",\"voice_name\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"saltcreek_sheriff_v2\",\"categories\":[\"violence\"]},{\"loc\":[\"body\",\"text\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"[hurt, bitter, breathing hard] Man in a faded red shirt. Rode up easy, like "
-  },
-  {
-   "id": "sheriff_v3",
-   "seed": 1003,
-   "error": "design: 422 https://queue.fal.run/fal-ai/elevenlabs/requests/01a1d009-76d7-78b1-9233-358cd08b2c69: {\"detail\":[{\"loc\":[\"body\",\"voice_name\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"saltcreek_sheriff_v3\",\"categories\":[\"violence\"]},{\"loc\":[\"body\",\"text\"],\"msg\":\"The content could not be processed because it contained material flagged by a content checker.\",\"type\":\"content_policy_violation\",\"url\":\"https://docs.fal.ai/errors#content_policy_violation\",\"input\":\"[hurt, bitter, breathing hard] Man in a faded red shirt. Rode up easy, like "
-  },
-  {
-   "id": "sheriff_v4",
-   "seed": 1004,
-   "voice_id": "eILIC78kR9Zr2pqFBaeE",
+   "id": "sheriff_b2",
+   "seed": 11002,
+   "voice_id": "7SMTg8i7tNoSYLPe9byN",
    "previews": [
-    "eILIC78kR9Zr2pqFBaeE",
-    "STQJt7OM226Q393DZpt8",
-    "6gr1EAwSirlO9fRGAu5I"
+    "7SMTg8i7tNoSYLPe9byN",
+    "CTgCJWC68xc1dQnwcmts",
+    "b0xNKZTh3Sspq7iTjyhQ"
    ],
    "saved_preview": "matched",
-   "file": "sheriff/sheriff_v4.mp3",
-   "seconds": 12.8315,
-   "check_file": "sheriff/sheriff_v4_check.mp3"
+   "file": "sheriff/sheriff_b2.mp3",
+   "seconds": 14.6835625,
+   "check_file": "sheriff/sheriff_b2_check.mp3"
+  },
+  {
+   "id": "sheriff_b3",
+   "seed": 11003,
+   "voice_id": "NOvcxvk2K9LREnHC8OFW",
+   "previews": [
+    "NOvcxvk2K9LREnHC8OFW",
+    "nW56RaiAVOKhEW3DGBsd",
+    "klcF00Ap8QYdjk2pudHn"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_b3.mp3",
+   "seconds": 13.4035625,
+   "check_file": "sheriff/sheriff_b3_check.mp3"
+  },
+  {
+   "id": "sheriff_b4",
+   "seed": 11004,
+   "voice_id": "2rvrdFFnBcUXA5cpvVrj",
+   "previews": [
+    "2rvrdFFnBcUXA5cpvVrj",
+    "PccBA1zrt13LE4uLeFsE",
+    "DrRisuJssZAZDix0J0DH"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_b4.mp3",
+   "seconds": 14.2133125,
+   "check_file": "sheriff/sheriff_b4_check.mp3"
   }
  ],
  "doctor": [
   {
-   "id": "doctor_v1",
-   "seed": 2001,
-   "voice_id": "wfKbFlqrkNlgsGgCLNYO",
+   "id": "doctor_b1",
+   "seed": 12001,
+   "voice_id": "mXUbtW2kXyaXBh75e31s",
    "previews": [
-    "wfKbFlqrkNlgsGgCLNYO",
-    "BF2X3PGPpJ9AqHWxgUoP",
-    "Ap8HxV08NN2z52AuiUZO"
+    "mXUbtW2kXyaXBh75e31s",
+    "l4U32w09M9EEuhJjM3Vp",
+    "bOF5arvFA5gUIflumE12"
    ],
    "saved_preview": "matched",
-   "file": "doctor/doctor_v1.mp3",
-   "seconds": 14.216,
-   "check_file": "doctor/doctor_v1_check.mp3"
+   "file": "doctor/doctor_b1.mp3",
+   "seconds": 13.0900625,
+   "check_file": "doctor/doctor_b1_check.mp3"
   },
   {
-   "id": "doctor_v2",
-   "seed": 2002,
-   "voice_id": "RiiWVRSc2plqa12CPYaC",
+   "id": "doctor_b2",
+   "seed": 12002,
+   "voice_id": "RyxZpkCZrpD3H6R0DsRW",
    "previews": [
-    "RiiWVRSc2plqa12CPYaC",
-    "NCWI3eNurMiBuQRH0AKS",
-    "4yqmSRZ7icvX3eNrXxBu"
+    "RyxZpkCZrpD3H6R0DsRW",
+    "A81r3v088W8HGSU1rWAU",
+    "c5FMYuHEP9biUb8aSYnG"
    ],
    "saved_preview": "matched",
-   "file": "doctor/doctor_v2.mp3",
-   "seconds": 11.81275,
-   "check_file": "doctor/doctor_v2_check.mp3"
+   "file": "doctor/doctor_b2.mp3",
+   "seconds": 14.2133125,
+   "check_file": "doctor/doctor_b2_check.mp3"
   },
   {
-   "id": "doctor_v3",
-   "seed": 2003,
-   "voice_id": "8vtESVYFmFbXdRewrTfy",
+   "id": "doctor_b3",
+   "seed": 12003,
+   "voice_id": "4azXcYimkYjryiN8Q7F2",
    "previews": [
-    "8vtESVYFmFbXdRewrTfy",
-    "8TFCBeF2rxI9ClTxvk1e",
-    "OUGALdEQgHFcTfsXLYcV"
+    "4azXcYimkYjryiN8Q7F2",
+    "YYvQPyPVcQfImsgDOWJq",
+    "kANmZPhZ1ym4CZi8x2fQ"
    ],
    "saved_preview": "matched",
-   "file": "doctor/doctor_v3.mp3",
-   "seconds": 15.8095,
-   "check_file": "doctor/doctor_v3_check.mp3"
+   "file": "doctor/doctor_b3.mp3",
+   "seconds": 13.56025,
+   "check_file": "doctor/doctor_b3_check.mp3"
   },
   {
-   "id": "doctor_v4",
-   "seed": 2004,
-   "voice_id": "Brneg21xWaUtNPhkZaBs",
+   "id": "doctor_b4",
+   "seed": 12004,
+   "voice_id": "9yzzXApIsJqi6aqUDGuA",
    "previews": [
-    "Brneg21xWaUtNPhkZaBs",
-    "SmJAR1ddWtqSjygUXnn0",
-    "9rBQXdbdWH6SEc3lDfjW"
+    "9yzzXApIsJqi6aqUDGuA",
+    "V3YPWwjWokKuSibmfTg5",
+    "4gPID0BOwkWZweutTZNe"
    ],
    "saved_preview": "matched",
-   "file": "doctor/doctor_v4.mp3",
-   "seconds": 16.044625,
-   "check_file": "doctor/doctor_v4_check.mp3"
+   "file": "doctor/doctor_b4.mp3",
+   "seconds": 13.717,
+   "check_file": "doctor/doctor_b4_check.mp3"
   }
  ],
  "widow": [
   {
-   "id": "widow_v1",
-   "seed": 3001,
-   "voice_id": "pxezK81abjhgIPMdFhGY",
+   "id": "widow_b1",
+   "seed": 13001,
+   "voice_id": "SDscCL4JluGFC3SpvZdQ",
    "previews": [
-    "pxezK81abjhgIPMdFhGY",
-    "9iFHtWkkcj6eVqj85KeJ",
-    "0qKOUkrPfrHvoCqT4QEt"
+    "SDscCL4JluGFC3SpvZdQ",
+    "A7mucuTivdcRwNqBwV3l",
+    "ETwI8IQZj8GXLj99Apc3"
    ],
    "saved_preview": "matched",
-   "file": "widow/widow_v1.mp3",
-   "seconds": 9.096,
-   "check_file": "widow/widow_v1_check.mp3"
+   "file": "widow/widow_b1.mp3",
+   "seconds": 9.0933125,
+   "check_file": "widow/widow_b1_check.mp3"
   },
   {
-   "id": "widow_v2",
-   "seed": 3002,
-   "voice_id": "k1fZl05rwEgemoo93En7",
+   "id": "widow_b2",
+   "seed": 13002,
+   "voice_id": "e5C1lp0bTVIHpjme3a3y",
    "previews": [
-    "k1fZl05rwEgemoo93En7",
-    "dtjJVrB0RrpNAuhg5fem",
-    "TMdWH9wA9Pn9rK5jJXGt"
+    "e5C1lp0bTVIHpjme3a3y",
+    "968Wo84PKw375O2bMd6B",
+    "wStRxTzy5HSXMX8IdPMf"
    ],
    "saved_preview": "matched",
-   "file": "widow/widow_v2.mp3",
-   "seconds": 8.834875,
-   "check_file": "widow/widow_v2_check.mp3"
+   "file": "widow/widow_b2.mp3",
+   "seconds": 8.832125,
+   "check_file": "widow/widow_b2_check.mp3"
   },
   {
-   "id": "widow_v3",
-   "seed": 3003,
-   "voice_id": "S9MG46Sbt9SCcSB4o2Iu",
+   "id": "widow_b3",
+   "seed": 13003,
+   "voice_id": "zpFtQrdCcT2Zstxu5G0G",
    "previews": [
-    "S9MG46Sbt9SCcSB4o2Iu",
-    "G5PHv5qho1Q9dvFSqmeo",
-    "6yksEbruTSRGkcyTO1R9"
+    "zpFtQrdCcT2Zstxu5G0G",
+    "fxJpIhSAVi6GdcKQGMeB",
+    "eQG3v1OhAbokSWt75rva"
    ],
    "saved_preview": "matched",
-   "file": "widow/widow_v3.mp3",
-   "seconds": 9.096,
-   "check_file": "widow/widow_v3_check.mp3"
+   "file": "widow/widow_b3.mp3",
+   "seconds": 7.395375,
+   "check_file": "widow/widow_b3_check.mp3"
   },
   {
-   "id": "widow_v4",
-   "seed": 3004,
-   "voice_id": "mAUbytMub8VHvMGybjDL",
+   "id": "widow_b4",
+   "seed": 13004,
+   "voice_id": "mEqh4shy6lVuZZjKB0X5",
    "previews": [
-    "mAUbytMub8VHvMGybjDL",
-    "0g8tSWwCHh9BlIvQdvMD",
-    "Uo8hIQTtad1DdXohV3W3"
+    "mEqh4shy6lVuZZjKB0X5",
+    "lBZ1PuF1ezZhkZhM8351",
+    "nEv9H8r5gfPbXdn5Td1H"
    ],
    "saved_preview": "matched",
-   "file": "widow/widow_v4.mp3",
-   "seconds": 7.4765,
-   "check_file": "widow/widow_v4_check.mp3"
+   "file": "widow/widow_b4.mp3",
+   "seconds": 9.0933125,
+   "check_file": "widow/widow_b4_check.mp3"
   }
  ],
  "freighter": [
   {
-   "id": "freighter_v1",
-   "seed": 4001,
-   "voice_id": "2fwaBFigGFhOJKYd8Tfn",
+   "id": "freighter_b1",
+   "seed": 14001,
+   "voice_id": "R4dJw1vdM2LfaxcNXp0b",
    "previews": [
-    "2fwaBFigGFhOJKYd8Tfn",
-    "lQldQCMmZGC1M93zrWVv",
-    "fzPe2Ou0GoANqxmPP9ir"
+    "R4dJw1vdM2LfaxcNXp0b",
+    "RncPRBVQbZcYsgJKlurV",
+    "a7OIusaK6mQfSWlArqgA"
    ],
    "saved_preview": "matched",
-   "file": "freighter/freighter_v1.mp3",
-   "seconds": 11.734375,
-   "check_file": "freighter/freighter_v1_check.mp3"
+   "file": "freighter/freighter_b1.mp3",
+   "seconds": 11.9668125,
+   "check_file": "freighter/freighter_b1_check.mp3"
   },
   {
-   "id": "freighter_v2",
-   "seed": 4002,
-   "voice_id": "zfYxMy5v3mL2nCqVE6Uk",
+   "id": "freighter_b2",
+   "seed": 14002,
+   "voice_id": "U6OuRPDjQSByoawtFR8m",
    "previews": [
-    "zfYxMy5v3mL2nCqVE6Uk",
-    "PMq3wDLSY454kvz3k2d4",
-    "e3Myq9kfOWeosnZWkbDd"
+    "U6OuRPDjQSByoawtFR8m",
+    "RPEcNsAtx04DVvtbhYpm",
+    "rd96cE1qJWuGzS00lI95"
    ],
    "saved_preview": "matched",
-   "file": "freighter/freighter_v2.mp3",
-   "seconds": 8.7565,
-   "check_file": "freighter/freighter_v2_check.mp3"
+   "file": "freighter/freighter_b2.mp3",
+   "seconds": 11.31375,
+   "check_file": "freighter/freighter_b2_check.mp3"
   },
   {
-   "id": "freighter_v3",
-   "seed": 4003,
-   "voice_id": "uVWSkMv4Lv9psGBJFCGX",
+   "id": "freighter_b3",
+   "seed": 14003,
+   "voice_id": "B4ohrHjNdKV1Iy3dmenJ",
    "previews": [
-    "uVWSkMv4Lv9psGBJFCGX",
-    "XBdKxRZWywjAr4pmQsHa",
-    "YzbjX73XiPKITCCq2ikc"
+    "B4ohrHjNdKV1Iy3dmenJ",
+    "GmBl1ej4suyBH6Wx9cmr",
+    "yx1m0fcRpPUKt2GkMcDQ"
    ],
    "saved_preview": "matched",
-   "file": "freighter/freighter_v3.mp3",
-   "seconds": 10.924625,
-   "check_file": "freighter/freighter_v3_check.mp3"
+   "file": "freighter/freighter_b3.mp3",
+   "seconds": 10.8435625,
+   "check_file": "freighter/freighter_b3_check.mp3"
   },
   {
-   "id": "freighter_v4",
-   "seed": 4004,
-   "voice_id": "REh5HhSnUUqflR2jYqDN",
+   "id": "freighter_b4",
+   "seed": 14004,
+   "voice_id": "Uy7DFPjvyD9mvvDbyeiL",
    "previews": [
-    "REh5HhSnUUqflR2jYqDN",
-    "oblKhom2dMg4YeqGAV7y",
-    "thCM1VeK3JV8PkfiK8uX"
+    "Uy7DFPjvyD9mvvDbyeiL",
+    "fRPNo13G9JHV9N61yTSz",
+    "VPs3Mgo1L883BNQ0FrpR"
    ],
    "saved_preview": "matched",
-   "file": "freighter/freighter_v4.mp3",
-   "seconds": 10.376,
-   "check_file": "freighter/freighter_v4_check.mp3"
+   "file": "freighter/freighter_b4.mp3",
+   "seconds": 12.59375,
+   "check_file": "freighter/freighter_b4_check.mp3"
   }
  ],
  "livery": [
   {
-   "id": "livery_v1",
-   "seed": 5001,
-   "voice_id": "mXTBcHSprNumTzBCUvP4",
+   "id": "livery_b1",
+   "seed": 15001,
+   "voice_id": "Fj50rEyFwc8pGKqGpwQ7",
    "previews": [
-    "mXTBcHSprNumTzBCUvP4",
-    "uOSGGRw7xSetdhP3aJd9",
-    "a4KbYjLzlImZnJ1BnGqZ"
+    "Fj50rEyFwc8pGKqGpwQ7",
+    "R36Gzafj0S4AOJexvjTZ",
+    "RXAn0E5ytzBZNYK2wkma"
    ],
    "saved_preview": "matched",
-   "file": "livery/livery_v1.mp3",
-   "seconds": 16.358125,
-   "check_file": "livery/livery_v1_check.mp3"
+   "file": "livery/livery_b1.mp3",
+   "seconds": 13.0116875,
+   "check_file": "livery/livery_b1_check.mp3"
   },
   {
-   "id": "livery_v2",
-   "seed": 5002,
-   "voice_id": "p5wDXaPHXREJMq1pMlID",
+   "id": "livery_b2",
+   "seed": 15002,
+   "voice_id": "1FS03UrpS3txIZkaOAbn",
    "previews": [
-    "p5wDXaPHXREJMq1pMlID",
-    "4n7ty7vBopfeJruMEAsv",
-    "gA0hnUNPCUQPYzlF1tNI"
+    "1FS03UrpS3txIZkaOAbn",
+    "7wnoogR017miHIt703h7",
+    "KRfFiUnuc9DvXwqg59xh"
    ],
    "saved_preview": "matched",
-   "file": "livery/livery_v2.mp3",
-   "seconds": 16.6715,
-   "check_file": "livery/livery_v2_check.mp3"
+   "file": "livery/livery_b2.mp3",
+   "seconds": 14.0305,
+   "check_file": "livery/livery_b2_check.mp3"
   },
   {
-   "id": "livery_v3",
-   "seed": 5003,
-   "voice_id": "ghtSG9LdGMBVxcDGCLzR",
+   "id": "livery_b3",
+   "seed": 15003,
+   "voice_id": "fNsd5LquoJGfVrtmVoHE",
    "previews": [
-    "ghtSG9LdGMBVxcDGCLzR",
-    "lXFjSjSwcuuoPsaoD4Y2",
-    "aQUnt55hnkahpCn9G5bH"
+    "fNsd5LquoJGfVrtmVoHE",
+    "lGznPRpWSZ2stCt0yE4d",
+    "Fd8snRfQLEXPMTXS0SxV"
    ],
    "saved_preview": "matched",
-   "file": "livery/livery_v3.mp3",
-   "seconds": 14.1115,
-   "check_file": "livery/livery_v3_check.mp3"
+   "file": "livery/livery_b3.mp3",
+   "seconds": 13.87375,
+   "check_file": "livery/livery_b3_check.mp3"
   },
   {
-   "id": "livery_v4",
-   "seed": 5004,
-   "voice_id": "0cF2nonZJHAQP4zp84OW",
+   "id": "livery_b4",
+   "seed": 15004,
+   "voice_id": "wMCQyCHuVyxxZ58mSJe9",
    "previews": [
-    "0cF2nonZJHAQP4zp84OW",
-    "ZViIPjj7Tzqo7pR0jIGY",
-    "Jr1mNy3kXMAJYKJ83U4n"
+    "wMCQyCHuVyxxZ58mSJe9",
+    "HxVXnzGM14qXjzkezM0D",
+    "v3zqqmABv84Ko9FLEUvg"
    ],
    "saved_preview": "matched",
-   "file": "livery/livery_v4.mp3",
-   "seconds": 14.1115,
-   "check_file": "livery/livery_v4_check.mp3"
+   "file": "livery/livery_b4.mp3",
+   "seconds": 11.235375,
+   "check_file": "livery/livery_b4_check.mp3"
   }
  ]
 }
