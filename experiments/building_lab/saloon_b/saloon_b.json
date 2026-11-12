@@ -23,10 +23,29 @@
 		"side": "north",
 		"at": [
 			24.06,
-			0.0,
+			0.15,
 			-10.05
 		],
 		"facing": 180,
+		"side_walk": {
+			"_doc": "NEW (Sean's answer 8): a boardwalk down the North-South Street under the balcony's side arm and on past the stair hall's door, at the floor's height, from the front wall's line back 51 ft; a flight to the street before the door; its near end meets Main Street's walk at the corner (valley.json's walk.span). Built by whoever places the building (ValleyWorld, the lab), a Boardwalk of its own.",
+			"at": [
+				16.46,
+				0.0
+			],
+			"turn": -90,
+			"length": 15.6,
+			"depth": 2.44,
+			"steps": [
+				[
+					14.4,
+					1.6
+				]
+			]
+		},
+		"pad": {
+			"_doc": "valley.json's saloon pad: the lot dug level at the walk's street edge (world 0.15, the building's y 0); the ground rises 0.9 m to the back wall"
+		},
 		"width": 16.46,
 		"depth": 21.95,
 		"yard": [
