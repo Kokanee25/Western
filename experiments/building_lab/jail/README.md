@@ -156,3 +156,33 @@ count (79 before: the 24 panes and the lamps).
 **On its lot** (`config/valley.json` town.south `jail`): `spec`, the walk's `span` [7.6, 18.57] and
 `door_x` 13.085, no pad (the stone follows the fall); ValleyWorld places it at `lot.at` (y -0.322,
 facing 0). The bake re-baked for valley.json's new hash (`valley_plan.py --bake`: only the hash moved).
+
+## Step 5: the judge (#811)
+
+`render_valley.gd` draws it on its lot in the valley's real look from the sheet's views and the rooms
+lit (`results/2026-11-12_look/`: each view, `sheet.jpg`, `cpu.txt`); `tools/buildings/judge_pairs.py`
+sets each beside its target (the sheet's `lane`, `cells`, `cage` are the renders' `rear`, `corridor`,
+`cell`). Two rounds, then Sean (CLAUDE.md).
+- **Round 1** (`docs/screenshots/judge/2026-11-12_jail_r1/`): the blind critic 0 SAME / 3 CLOSE (front,
+  cells, cage) / 5 DIFFERENT; three of the five were my cameras (the roof's at the parapet, the office
+  diagonal, the corridor looking the other way: "mirrored"). The cheap judge (`..._r1_cheap/`, the
+  Studio's AAA references): six cheap indie; tell 1 (flat light) PASS on the office, the desk under the
+  west window's sun and the corridor at night (the lantern, the cages' straps striped on the flags);
+  FAIL on the guard room's evenly lit partition, the corridor by day (a blue-grey fill) and the front
+  (no cast shadow under a low sun). Its two "geometry" faults were a stone pier beside a lined reveal
+  and the partition's top under the roof: none.
+- **Round 2** (`..._r2/`, `..._r2_cheap/`: the office west along its windowed front, the corridor from
+  its end wall, the roof from its back over the deck, the lane wider): the critic **0 SAME / 4 CLOSE**
+  (front, cells, cage, roof) **/ 4 DIFFERENT** (corner, yard, lane, office). Its top three: the flat
+  silhouette (the sheet's stepped parapet with a raised centre and end piers, the cell wing well below
+  the office); the yard wall as tall as the wing, hiding it from the lane (Sean's 10 ft); the openings
+  with no stone dressing (the lintels, sills and quoins are built but drawn in the same placeholder
+  stone). The cheap judge: **the corridor at night good indie** (one warm lamp, real falloff, the
+  cages' shadows), the office at night, the office and the corridor by day, the roof cheap indie
+  (the by-day rooms' blue-grey fill, tell 1).
+- **Render CPU** at Sean's 0.9-2.0 ms a view (the corridor at night, its lantern's shadows through the
+  cages, the most), budget 4. 128 draws in the lab's count.
+
+What's left is the stone and the spec's form, Sean's: the plaster and whitewash inside and the rubble
+outside (a library entry; the masonry lab), the parapet (flat, or the sheet's stepped one), the yard
+wall's height from the lane. The rooms wait on the prop lab's furniture.
