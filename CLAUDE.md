@@ -349,7 +349,7 @@ python3 tools/bridge.py stop
 keeping it under ~10 KB: where things stand, what's open, the traps. No history in these files: that goes in
 `docs/status/` and the PR. The roadmap (`docs/ROADMAP.md`) decides what each lane does next.
 
-- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (next the jail, #780).
+- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next the general store).
 - `docs/lanes/gameplay.md`: the slice's missions (next No Law step 4, #796), the valley, weapons, the soak.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
 - `docs/lanes/props.md`: the kit and factory (next the doctor's D2, #805).
