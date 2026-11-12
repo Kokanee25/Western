@@ -1849,6 +1849,8 @@ func _kit() -> void:
 ## The spec's furniture and props laid into its rooms (#844, `dressing`: PropDressing), every batch;
 ## the labs that judge them read `dressed`, never a placement of their own.
 func _dressing() -> void:
+	if "--no-dressing" in OS.get_cmdline_user_args():
+		return  # (the bench's before: the rooms bare)
 	var d: Dictionary = spec.get("dressing", {})
 	for b: String in d.get("batches", {}):
 		var placed := PropDressing.place(_furnish, d.batches[b], floor_top, String(structure_id))
@@ -1856,6 +1858,13 @@ func _dressing() -> void:
 		for n: Node3D in placed.values():
 			if n is KitProp:
 				kit_props.append(n)
+	if not dressed.is_empty():
+		# Its glass props' fixed parts (corks, labels, contents: ~750 meshes in the doctor's) drawn
+		# as the town's are (StaticBatch: one draw a kind; a shot or a fall hands a prop back). The
+		# valley has no StaticBatch of its own; its kit props join PropBatch by themselves.
+		var batch := StaticBatch.new()
+		batch.name = "DressingBatch"
+		_furnish.add_child(batch)
 
 
 func _spawn(id: StringName, at: Vector3, yaw: float) -> KitProp:

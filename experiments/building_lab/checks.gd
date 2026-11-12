@@ -11,6 +11,7 @@ const EXCEPTIONS := {
 	&"stair_ramp": "a stair's walking ramp, Layers.WALK only (falling men meet the treads); the builder frees it when the stringers go - gameplay, the Stair part (experiments/building_lab/stair.gd, to be promoted)",
 	&"lamp_hitbox": "an OilLamp's hitbox (a ball smashes the lamp) - gameplay, src/world/oil_lamp.gd",
 	&"ground": "the ground (here boxes round the cellar's pit) - gameplay, the town's ground",
+	&"static_batch": "the dressing's glass props' fixed parts drawn together (StaticBatch; a prop shot or falling is handed back) - #844, src/world/static_batch.gd",
 }
 ## Not things (they neither collide nor draw a surface): allowed, counted.
 const NOT_THINGS := "the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D)"
@@ -77,6 +78,9 @@ static func _sort(n: Node, building: Structure, out: Dictionary) -> void:
 			if p is StructureMember or p is OilLamp:
 				return
 			p = p.get_parent()
+		if n.get_parent() is StaticBatch:
+			allowed[&"static_batch"] = int(allowed.get(&"static_batch", 0)) + 1
+			return
 		if n.get_parent() is Structure and _internal(n):
 			allowed[&"batch"] = int(allowed.get(&"batch", 0)) + 1
 			return
