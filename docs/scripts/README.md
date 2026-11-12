@@ -7,9 +7,9 @@ takes under every line, and he picks one.
 
 | Mission | Script | Page | State |
 |---|---|---|---|
-| The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | draft, waiting on Sean's Script OK |
+| The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | Script OK (2026-11-12); cast fixed (#836); takes next (#846) |
 | No Law | `no_law.json` (page `no_law.html`) | https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY | draft, waiting on Sean's Script OK |
-| No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | draft, waiting on Sean's Script OK |
+| No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | Script OK (2026-11-12) |
 
 ## The file
 
