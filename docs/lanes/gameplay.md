@@ -26,7 +26,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
-  heights (#736). The saloon onto its lot waits on art's saloon B.
+  heights (#736). **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
+  No Law's set is still in the yard (no switch built): to move it in, `config/valley_folk.json`'s `set` goes to
+  the saloon lot's floor (the walk's top, not the ground: `ValleyFolk.ground` gives the pad under the floor), using
+  the spec's own `no_law_table` (under the well) and bar instead of spawning a second set, with ways in by the
+  corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
 - **Falls from height** done (#759, `Falls`, `config/falls.tres`).
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).

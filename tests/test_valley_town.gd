@@ -57,9 +57,10 @@ func test_a_boardwalk_along_every_building_s_front() -> void:
 		var bw := w.node as Boardwalk
 		check(bw != null and bw.get_members().size() > 50, "%s's walk built (%d members)" % [w.id, bw.get_members().size() if bw else 0])
 		var l := lay.lot(String(w.id))
-		check_near(float(w.x0), float(l.x0), 0.01, "%s's walk starts at its lot" % w.id)
-		# (A lot whose walk has a `span` keeps it to its building: the doctor's side yard is open, #765.)
+		# (A lot whose walk has a `span` keeps it to its building: the doctor's side yard is open, #765;
+		# saloon B's runs on west past its corner to the side street's walk, #848.)
 		var span: Array = (l.get("walk", {}) as Dictionary).get("span", [])
+		check_near(float(w.x0), float(l.x0) if span.is_empty() else float(span[0]), 0.01, "%s's walk starts at its lot" % w.id)
 		if span.is_empty():
 			check(float(w.x1) >= float(l.x1) - 0.01, "%s's walk runs its frontage" % w.id)
 		else:
