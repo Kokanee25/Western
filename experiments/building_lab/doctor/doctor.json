@@ -1500,12 +1500,17 @@
     }
    },
    "floor": {
+    "want": {
+     "entry": "floor_fir_worn",
+     "age": "few",
+     "role": "floor"
+    },
     "use": {
      "entry": "fine_walnut_tg",
      "age": "few",
      "role": "floor"
     },
-    "_why": "the library's only passing floor; a varnished pine floor would be his own"
+    "_why": "oiled fir and pine boards, worn on his ways (door to desk, the hall), dark by the walls (#825); never his furniture's wood"
    },
    "framing": {
     "use": {

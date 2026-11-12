@@ -114,6 +114,20 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
 - Bare dark walnut everywhere inside reads near black: a building's inside finishes want a pale wall
   as soon as the library has one.
 
+## Floors and furniture (#825, Sean's picks 2 and 5 on #821)
+
+- **The floor's wood by the building's class:** rough, wide pine boards; common (and the doctor), the
+  library's worn fir and pine floor (`floor_fir_worn`, oiled, a family `floor` entry); fine, a narrow
+  oak or maple floor when the library has one. Never a wall's or the furniture's entry.
+- **Feet wear the floor where the building's ways go:** a floor entry with `traffic` takes the
+  building's traffic map (`SpecBuilding.traffic_ways`: in each ground-floor room, door to door and
+  each use point to its nearest door and nearest outside door; `MaterialLibrary.traffic_image`):
+  paler, matte paths, dark by the walls. A building gets it from its `rooms`, its walls' doors and
+  its `use_points`: name them and the floor follows.
+- **Furniture is never the floor's wood:** the prop lab dresses the rooms in the library's furniture
+  entries (`docs/briefs/prop-factory.md`, point 1); `tests/test_material_library.gd` fails the doctor
+  if a kit in his rooms is drawn in his floor's entry.
+
 ## Light (#824, Sean's pick 1 on #821: rooms get real light)
 
 The doctor's office is the test room; the jail, the store and saloon B follow it.

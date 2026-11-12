@@ -87,7 +87,7 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 ## Each scan's grain runs the way the library says: the albedo changes most across its grain.
 ## (C2's fir boards drew their grain across the board, two rounds running, from a guessed direction.)
 func test_every_scan_grain_runs_the_way_the_library_says() -> void:
-	for e0 in MaterialLibrary.entries("wood"):
+	for e0 in MaterialLibrary.entries():
 		var e := MaterialLibrary.resolved(e0)
 		for slot in (e["scans"] as Dictionary):
 			var sc: Dictionary = e["scans"][slot]
@@ -160,3 +160,67 @@ func test_texel_grid_per_member_values_are_flat() -> void:
 	var code := f.get_as_text()
 	for v in ["varying flat float lab_u0;", "varying flat vec4 weather_frame;", "varying flat vec4 weather_nails;"]:
 		check(code.contains(v), v)
+
+
+## A floor's traffic map (#825): feet's wear along a way, none off it; dark by a wall, not where feet go.
+func test_a_traffic_map_wears_the_ways_and_keeps_the_walls_dark() -> void:
+	var img := MaterialLibrary.traffic_image(Vector2(3.0, 2.0), [[Vector2(0.0, 1.0), Vector2(2.5, 1.0), 1.0]],
+			[[0.0, 0.0, 3.0, 2.0]], 0.1, 0.6, 0.4)
+	check_eq(img.get_size(), Vector2i(30, 20), "a texel every 0.1 m")
+	check(img.get_pixel(15, 9).r > 0.9 and img.get_pixel(15, 10).r > 0.9, "the way's middle is worn")
+	check(img.get_pixel(15, 2).r < 0.01, "half a metre off it isn't")
+	check(img.get_pixel(15, 0).g > 0.8, "by the wall it's dark")
+	check(img.get_pixel(15, 6).g < 0.05, "out in the room it isn't")
+	check(img.get_pixel(0, 9).g < 0.6, "where feet reach a wall, less")
+
+
+## The doctor's ground floor's ways (#825): from the street door to his desk, through the hall.
+func test_the_doctors_floor_has_his_ways() -> void:
+	var b = load("res://experiments/building_lab/spec_building.gd").new()
+	b.spec = b.load_spec("res://experiments/building_lab/doctor/doctor.json")
+	b._lv = {"ground": float(b.spec.levels.ground.top)}
+	var tw: Dictionary = b.traffic_ways()
+	check((tw.rooms as Array).size() == 8, "his eight ground-floor rooms")
+	var to_desk := false
+	var hall := 0
+	for w: Array in tw.ways:
+		if (w[0] as Vector2).distance_to(Vector2(4.71, 0.0)) < 0.05 and (w[1] as Vector2).distance_to(Vector2(1.2, 3.1)) < 0.05:
+			to_desk = true
+		if (w[0] as Vector2).x > 4.0 and (w[0] as Vector2).x < 5.4 and (w[1] as Vector2).x > 4.0 and (w[1] as Vector2).x < 5.4:
+			hall += 1
+	check(to_desk, "the street door to the desk")
+	check(hall >= 3, "along the hall, door to door (%d)" % hall)
+	check(tw.size.x > 8.0 and tw.size.y > 14.0, "the map covers his floor")
+	b.free()
+
+
+## Floors and furniture (#825; the doctor's room review, causes 2 and 5): each floor wears where feet
+## go, each furniture entry has its own finish, and a room's furniture never takes its floor's wood.
+func test_floors_and_furniture_keep_apart() -> void:
+	var floors := MaterialLibrary.entries("floor")
+	var furniture := MaterialLibrary.entries("furniture")
+	check(floors.size() >= 1 and furniture.size() >= 2, "a floor and the furniture woods are in the library")
+	for e in floors:
+		check(float(e.get("traffic", 0.0)) > 0.0, "%s wears where feet go" % e.id)
+	for e in furniture:
+		check(float(MaterialLibrary.resolved(e).get("furniture", 0.0)) > 0.0, "%s has the furniture finish" % e.id)
+	check_eq(PropKit.lib_parts("lib:furniture_oak/old/front"), ["furniture_oak", "old", 2.0], "a drawer's front")
+	check_eq(PropKit.lib_parts("lib:fine_walnut_tg/few/top"), ["fine_walnut_tg", "few", 1.0], "a worked top")
+	# The doctor: the floor his spec draws (its `want` once passed, else its `use`) isn't any of the
+	# woods his rooms' furniture is drawn in.
+	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/building_lab/doctor/doctor.json"))
+	var f: Dictionary = spec.materials.finishes.floor
+	var floor_id := String(f.use.entry)
+	if f.has("want") and (MaterialLibrary.entry(String(f.want.entry)).get("approved", []) as Array).has(String(f.want.age)):
+		floor_id = String(f.want.entry)
+	var dress: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/prop_lab/doctor/dress.json"))
+	for batch in dress.batches:
+		for p: Dictionary in dress.batches[batch]:
+			var path := "res://assets/props/kit/%s.json" % p.get("kit", "")
+			if not FileAccess.file_exists(path):
+				continue
+			var kit: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+			for m: Dictionary in kit.get("members", []):
+				var look := String(m.get("look", ""))
+				if look.begins_with("lib:"):
+					check(String(PropKit.lib_parts(look)[0]) != floor_id, "%s's %s isn't the floor's wood (%s)" % [p.kit, m.id, floor_id])

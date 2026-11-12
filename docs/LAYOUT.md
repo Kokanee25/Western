@@ -2164,6 +2164,15 @@ relief, brush, sheen, yellowing, dust; `paint_inside` for a coat indoors; `paint
 `bead` (beaded boards). A paint passes at an age into `approved` when the materials judge grades it game or
 better with check 3 (no tile tells) passed; buildings take a finish by id (the doctor's `want`s). The
 judge's rubric has a "Painted wood" section; rounds in `docs/screenshots/judge/2026-11-11_paint_r*`.
+**Floors and furniture** (#825, Sean's picks 2 and 5 on #821): family `floor` entries (`floor_fir_worn`,
+FL1) carry `traffic`: scan_wood's `traffic_map` (R feet, G by a wall; `MaterialLibrary.traffic_image`
+paints it from ways and room rects, `set_traffic` lays it on the world's floor plane at a height), worn
+paths pale and matte, dark by the walls; a building's floor takes its ways from its spec
+(`SpecBuilding.traffic_ways`: doors, rooms, use points). Family `furniture` entries (FN1 oak, FN2 painted
+pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2, the kit's
+`lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
+`panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
+room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
 
 ## src/props/prop_models.gd
 

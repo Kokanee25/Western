@@ -552,6 +552,17 @@ const SHAPE_VIEWS := {
 	"rake": [Vector3(-0.6, 1.2, -0.9), Vector3(2.0, 0.9, -0.05), 40.0],
 	"near": [Vector3(0.75, 1.45, -1.0), Vector3(1.0, 0.75, 0.0), 50.0],
 }
+## A floor (#825; SamplePanel's floor room: the floor x -0.4..2.6, z 0..-2.4, a doorway at x 0.55..1.45):
+## standing 2.5 m from the wall looking down the worn path, and from 5 m.
+const FLOOR_VIEWS := {
+	"far": [Vector3(1.1, 1.62, -5.6), Vector3(1.1, -0.2, -1.5), 42.0],
+	"near": [Vector3(1.15, 1.62, -2.45), Vector3(1.2, -0.25, -0.55), 55.0],
+}
+## Furniture (#825): the panel's chest of drawers (x 0.55..1.45, 1.05 m high, against the wall).
+const CHEST_VIEWS := {
+	"far": [Vector3(1.3, 1.6, -5.0), Vector3(1.05, 0.45, -0.3), 36.0],
+	"near": [Vector3(1.15, 1.5, -1.5), Vector3(1.05, 0.38, -0.3), 52.0],
+}
 ## The man beside a panel: right of the wall, on the floor patch's corner, turned to the camera.
 const PANEL_MAN := [Vector3(2.45, 0.0, -0.55), Vector3(0.0, 1.5, -6.0)]
 ## Night: the saloon's lamps round the panel (two sconces off the wall, one hung, one behind the camera).
@@ -816,6 +827,10 @@ func _panel_specs(ml, family: String) -> Array:
 				var v := PANEL_VIEWS.duplicate()
 				v["rail"] = RAIL_VIEW
 				spec["views"] = v
+			elif String(e.get("family", "")) == "floor":
+				spec["views"] = FLOOR_VIEWS
+			elif String(e.get("family", "")) == "furniture":
+				spec["views"] = CHEST_VIEWS
 			out.append(spec)
 			i += 1
 	return out
