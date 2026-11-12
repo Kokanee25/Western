@@ -1634,6 +1634,25 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
   drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
   valley_bench spot `card_seat` (you sat in the north chair, the game going).
+- **`CompanionBrain`** (`src/people/companion_brain.gd`, #843, No Justice step 1; data
+  `config/companion_joe.json`; `tests/test_companion.gd`): Joe, the one full companion. An
+  `OutlawBrain` (variant D and the trial's fixes, "D+") on your side: `follow_man(player)`;
+  `Relations.friend_nodes` holds you, so your deeds (a gun on him, "Drop it!", a stray ball) are never
+  against him. Your fight is his (you shoot at an armed man, or one shoots at you: `side_with`), and
+  theirs is his: `OutlawBrain._start_fight` takes on the man's `CompanionBrain.allies_of` within
+  `ALLY_REACH` 60 m, and Joe's shots add to that man's pressure on him (`DRAW_EYE`). Never gives up
+  or runs (`_go_to_ground`). Leaves you your man (`yours`: one you hit in the last 3 s, or hurt and in
+  your sights); in your sights he'd rather another. Out of your line of fire (`line_offset`: within
+  0.9 m of it for 0.35 s, he steps 1.8 m aside). Calm, he walks behind you and to one side
+  (`follow_spot`; the town's ways when stuck) or waits (`told`: G with him in your view,
+  `PlayerWounds`). He calls what he sees (a man to your side or behind, one loading, going round,
+  down, quit; his own hits and yours; `lines` in the data, subtitled), and the gang brain's own words
+  only as `brain_lines` has them. **`Physiology.spared`**: a wound that would kill him (`_die`) puts
+  him down instead (`_spare`: the brain, neck, cord, lungs and gut a near thing, the bleeds clotting,
+  his blood short of the loss that kills, out `SPARED_OUT` 8 s); the brain holds him out while a fight
+  is on within 80 m and he comes to and gets up after (`_get_back_up`; a broken leg: he says so). The
+  rope turns `spared` off. `-- --joe` brings him in beside you; bridge `joe [here|wait|come|state]`;
+  the gunfight lab's `joe=1` (Shift+Y to play it; `joe_stats.py`). Stand-in body `miner_s4_talking`.
 
 ## src/audio
 
