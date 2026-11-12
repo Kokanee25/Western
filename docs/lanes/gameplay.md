@@ -16,7 +16,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (`CompanionBrain`, `Physiology.spared`; `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y;
   `experiments/gunfight_lab/results/2026-11-12_joe/`). Open: he holds fire a lot and they seldom shoot at
   him; you alive 13/20 without him, 16 and 11 of 20 with (noise at n=20); riding waits on #478; his real
-  look is the Studio's (stand-in `miner_s4_talking`). **Next: step 2, the doctor's and the camp.**
+  look is the Studio's (stand-in `miner_s4_talking`). **Next: step 2, the doctor's and the camp; first (Sean,
+  PR #853) why the playtest fixes dropped survival with Joe (16 -> 11 of 20): he has to help.**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850): designed, not built: `docs/briefs/townsfolk.md`
