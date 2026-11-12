@@ -6,3 +6,8 @@ middle C's partials 5-7 / 10-12 under the fundamental: soft -21/-31, ordinary -1
 (Fletcher's ~-20/-35, -10/-25, -5/-18); the first try was 30-40 dB too dull (a smooth push excites no
 upper partials). Keys voiced even (the first pass, one strike a key with random phases, was 13 dB
 out at worst); single notes within ~14 cents; above 4 kHz -25 dB; the tune 2.6-4.9 dB over the oom-pah.
+
+Take 2 (`*_2.mp3`, after "a bit digital"): pedalled each bar, sympathetic strings (~18 dB under), felt
+dampers, each string of a note its own stiffness, the left hand's chords varied and drifting, phrases
+shaped. Checked against Morton (1924) and Confrey (1921): strike onsets already matched; above 4 kHz
+-25 to -26 dB, the tune 2.3-4.8 dB over the left hand, as before.

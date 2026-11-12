@@ -23,6 +23,16 @@ if [ ! -s "$B/ref/jenkins_mouth_organ.flac" ]; then
   curl -fsSL -o "$B/ref/jenkins_mouth_organ.flac" \
     "https://dn601306.us.archive.org/0/items/JenkinsAndJenkinsMouthOrganBlues1924/Jenkins_and_Jenkins-Mouth_Organ_Blues-1924.flac"
 fi
+# the piano's references (measured against, never shipped): Zez Confrey, "Kitten on the Keys" (1921),
+# and Jelly Roll Morton, "35th Street Blues" (1924; a 1944 reissue, de-noised, cut at 5 kHz); US
+# recordings of 1921 and 1924 public domain; need dn801309 and dn801304.us.archive.org
+if [ ! -s "$B/ref/confrey_kitten.flac" ]; then
+  curl -fsSL -o "$B/ref/confrey_kitten.flac" \
+    "https://dn801309.us.archive.org/0/items/78_kitten-on-the-keys_zez-confrey-zez-confrey_gbia0566187a/KITTEN%20ON%20THE%20KEYS%20-%20ZEZ%20CONFREY%20-%20Zez%20Confrey.flac"
+fi
+if [ ! -s "$B/ref/morton_35th.flac" ]; then
+  curl -fsSL -o "$B/ref/morton_35th.flac" "https://dn801304.us.archive.org/0/items/35th-street-blues/35th%20Street%20Blues.flac"
+fi
 if [ ! -d "$B/vsco/repo/.git" ]; then
   GIT_LFS_SKIP_SMUDGE=1 git clone -q --filter=blob:none --no-checkout https://github.com/sgossner/VSCO-2-CE "$B/vsco/repo"
 fi

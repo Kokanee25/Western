@@ -127,6 +127,15 @@ changes; results in `../results/2026-11-10_fiddle/`.
   chord off the beat), the tune in the right hand a hair ahead, a third/sixth or octave under the
   strong notes. Checks: single notes within ~14 cents (the tuning built in; median +4, the strings'
   stiffness); above 4 kHz -25 dB of the whole; the tune 2.6-4.9 dB over the left hand.
+  Take 2 (Sean: "a bit digital"), against Morton's "35th Street Blues" (1924) and Confrey's "Kitten on
+  the Keys" (1921) (fetch.sh): the strikes' first 12 ms were already as noise-like as Confrey's (1.5-1.8x
+  the note after, his 1.5); the gaps between strikes measure the music more than the piano. What changed,
+  by how pianos and pianists work rather than by a measurement: the pedal each bar (each beat in a slow
+  tune; `pedal` in the part, dampers off while it's down), the unstruck strings answering
+  (`sympathetic`: every string's partials as a response the bridge drives, all of them while the
+  pedal's down, the undamped top always; ~18 dB under the whole), felt dampers (slower, a faint thud),
+  each string of a note its own stiffness (+-6%: each overtone beats its own way), the off-beat
+  chord's voicing turned and sometimes rolled, the left hand drifting ~10 ms, phrases swelling +-10%.
 
 ## Commands
 

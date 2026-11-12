@@ -48,6 +48,7 @@ OUT_OF_TUNE = 6.0      # cents: each note off true (s.d.)
 UNISON = 7.0           # cents: a note's strings off one another (s.d.): the honky-tonk
 HARD_FELT = 0.7        # the felt gone hard: its contact time x this
 STRIKE = 1.0 / 8.0     # where the hammer meets the string
+SYMPATHY = 0.025      # how strongly the unstruck strings answer (against the struck ones)
 WORN = 1.5             # dB: each key a little off even (fixed per key)
 AFTER = 0.12           # the aftersound's share (Weinreich's second stage)
 ROOTS = {"C": 48, "D": 50, "E": 52, "F": 53, "G": 43, "A": 45, "B": 47}
@@ -187,7 +188,7 @@ def play_note(out, sr, rng, midi, t, dur, vel, detune, pedal=False, gain=None):
     f0 = common.hz(midi + detune / 100.0)
     b = inharm(midi)
     damped = midi < 89 and not pedal
-    tau_d = (0.06 + 0.25 * (89 - midi) / 68.0) if damped else 0.0
+    tau_d = (0.1 + 0.4 * (89 - midi) / 68.0) if damped else 0.0  # felt dampers, not a gate
     off = int(dur * sr)
     ring = t60(f0)
     n = int(min(ring * 1.2, dur + (6 * tau_d if damped else ring)) * sr) + 1
@@ -195,11 +196,13 @@ def play_note(out, sr, rng, midi, t, dur, vel, detune, pedal=False, gain=None):
     unis = [0.0] + list(key.normal(0, UNISON, 2))
     line = STRIKE * key.uniform(0.95, 1.05)
     ph0 = rng.uniform(0, 2 * np.pi, 64)  # one hammer strikes all a note's strings at once: they start in step
+    stiff = key.uniform(0.94, 1.06, 3)  # no two strings of a note alike: each overtone beats its own way
     for k in range(strings_for(midi)):
         fs = f0 * 2 ** (unis[k] / 1200.0)
+        bk = b * stiff[k]
         nmax = int(min(60, 18000.0 / fs))
         nn = np.arange(1, nmax + 1)
-        fn = nn * fs * np.sqrt(1 + b * nn ** 2)
+        fn = nn * fs * np.sqrt(1 + bk * nn ** 2)
         keep = fn < 18000.0
         nn, fn = nn[keep], fn[keep]
         a = pulse_spectrum_at(midi, vel, fn) * np.abs(np.sin(nn * np.pi * line * rng.uniform(0.995, 1.005)))
@@ -226,6 +229,33 @@ def knocks(n, events, sr, rng):
         f = rng.uniform(110, 260)
         y[i:i + L] += e["vel"] * np.exp(-tt / 0.008) * np.sin(2 * np.pi * f * tt) * rng.uniform(0.7, 1.0)
     return y
+
+
+_SYM = {}
+
+
+def sympathetic(sr, length=4.0):
+    """What the unstruck strings answer: every string's first partials (to 6 kHz), each ringing at
+    its own pitch and fading as a string does; as an impulse response the bridge's signal drives.
+    Returns (all strings, the undamped top ones)."""
+    if sr in _SYM:
+        return _SYM[sr]
+    rng = np.random.default_rng(1881)
+    t = np.arange(int(length * sr)) / sr
+    out = []
+    for lo in (21, 89):
+        ir = np.zeros(len(t))
+        for m in range(lo, 109):
+            f0 = float(common.hz(m + rng.normal(0, OUT_OF_TUNE) / 100.0))
+            for k in range(1, 7):
+                f = k * f0 * np.sqrt(1 + inharm(m) * k * k)
+                if f > 6000:
+                    break
+                sg = 6.91 / (0.5 * t60(f0)) * (1 + (f / 2500.0) ** 2)
+                ir += np.exp(-sg * t) * np.sin(2 * np.pi * f * t + rng.uniform(0, 2 * np.pi)) / k
+        out.append(ir / (np.sqrt(np.sum(ir ** 2)) + 1e-12))
+    _SYM[sr] = tuple(out)
+    return _SYM[sr]
 
 
 def board_ir(sr, seed=1880, length=0.25):
@@ -305,20 +335,42 @@ def arrange(sc, seed=None):
         keys.append({"t": t, "midi": bass, "dur": beat_len * 0.9, "vel": 0.62 + 0.08 * bar_start, "hand": "left"})
         if bar_start:
             keys.append({"t": t + 0.003, "midi": bass - 12, "dur": beat_len * 0.9, "vel": 0.5, "hand": "left"})
-        # the chord: close, round the G under middle C to the C above, short
-        tri = sorted({52 + ((p - 52) % 12) for p in tune.CHORD_TONES[ch]})
-        tc = when(u0 + 2) + rng.normal(0, 0.006)
-        for p in tri:
-            keys.append({"t": tc + rng.uniform(0, 0.006), "midi": int(p), "dur": beat_len * 0.55,
-                         "vel": 0.42 + rng.normal(0, 0.03), "hand": "left"})
+        # the chord: close, round middle C, its voicing turned now and then (a hand, not a stamp),
+        # sometimes rolled, the last note of it a touch louder
+        lo = 52 + (3 if rng.random() < 0.35 else 0) - (2 if rng.random() < 0.2 else 0)
+        tri = sorted({lo + ((p - lo) % 12) for p in tune.CHORD_TONES[ch]})
+        tc = when(u0 + 2) + rng.normal(0, 0.007)
+        spread = rng.uniform(0.012, 0.025) if rng.random() < 0.2 else 0.006
+        for j, p in enumerate(tri):
+            keys.append({"t": tc + j * spread * rng.uniform(0.5, 1.0), "midi": int(p), "dur": beat_len * 0.55,
+                         "vel": 0.4 + 0.04 * (j == len(tri) - 1) + rng.normal(0, 0.04), "hand": "left"})
     # the end: the tonic, low and full, held
     tl = when(last)
     r = ROOTS[key]
     for p in (r - 12, r, r + 7, r + 12, r + 16):  # root low, root, fifth, root, the third above
         keys.append({"t": tl + rng.uniform(0, 0.01), "midi": p, "dur": 2.5, "vel": 0.6, "hand": "left"})
+    # a player's left hand drifts a little against the beat (a slow wander, ~10 ms), and each phrase
+    # of four bars swells and eases (+-10%), over a slow random lean
+    drift = np.cumsum(rng.normal(0, 0.003, 4096)); drift -= np.convolve(drift, np.ones(9) / 9, mode="same")
+    for j, e in enumerate(keys):
+        if e["hand"] == "left":
+            e["t"] += float(np.clip(drift[j % 4096], -0.012, 0.012))
+    span = max(e["t"] for e in keys)
+    lean = np.cumsum(rng.normal(0, 0.02, 64)); lean = 0.06 * lean / (np.abs(lean).max() + 1e-9)
+    phrase = 8 * 4 * unit * 1.0  # four bars of the tune's running notes
+    for e in keys:
+        arc = 0.1 * np.sin(np.pi * ((e["t"] - rhythm.LEAD) % phrase) / phrase)
+        e["vel"] = float(np.clip(e["vel"] * (0.95 + arc + lean[int(63 * e["t"] / (span + 1e-9))]), 0.15, 1.0))
+    # the pedal: down just after each bar's bass note, up just before the next (each beat in a slow tune)
+    starts = [when(u0) for u0, bs, _ in beats if when(u0) >= rhythm.LEAD - 1e-6 and bs]
+    if len(starts) > 1 and np.median(np.diff(starts)) > 1.6:
+        starts = [when(u0) for u0, bs, _ in beats if when(u0) >= rhythm.LEAD - 1e-6]
+    starts.append(when(last))
+    pedal = [[round(a + rng.uniform(0.04, 0.08), 4), round(b - rng.uniform(0.02, 0.04), 4)] for a, b in zip(starts, starts[1:])]
+    pedal.append([round(when(last) + 0.05, 4), round(when(last) + 3.0, 4)])
     keys.sort(key=lambda e: e["t"])
     return {"tune": sc["tune"], "instrument": "saloon upright piano", "key": key, "seed": seed,
-            "length_s": round(max(e["t"] + e["dur"] for e in keys) + 2.0, 3), "keys": keys}
+            "length_s": round(max(e["t"] + e["dur"] for e in keys) + 3.0, 3), "keys": keys, "pedal": pedal}
 
 
 def render(part, sr=common.SR, seed=None):
@@ -326,9 +378,37 @@ def render(part, sr=common.SR, seed=None):
     n = int(part["length_s"] * sr)
     out = np.zeros(n)
     detune = {m: rng.normal(0, OUT_OF_TUNE) for m in range(21, 109)}  # each key's own wrongness
+    pedal = part.get("pedal", [])
+
+    def released(t):  # with the pedal down the dampers stay off until it comes up
+        for a, b in pedal:
+            if a <= t < b:
+                return b
+        return t
+    falls = []
     for e in part["keys"]:
-        play_note(out, sr, rng, e["midi"], e["t"], e["dur"], e["vel"], detune[e["midi"]])
+        r = released(e["t"] + e["dur"])
+        play_note(out, sr, rng, e["midi"], e["t"], r - e["t"], e["vel"], detune[e["midi"]])
+        if e["midi"] < 89:
+            falls.append((r, e["vel"]))
+    # the strings that aren't struck: with the dampers off (the pedal) every string answers what the
+    # bridge plays it, at its own partials, and rings on; the top strings have no dampers and always do
+    gate = np.zeros(n)
+    for a, b in pedal:
+        gate[int(a * sr):int(b * sr)] = 1.0
+    gate = lfilter(*butter(1, 20 / (sr / 2)), gate)
+    sym_all, sym_top = sympathetic(sr)
+    out = out + SYMPATHY * (fftconvolve(out * gate, sym_all)[:n] + 0.3 * fftconvolve(out, sym_top)[:n])
     y = fftconvolve(out, board_ir(sr))[:n]
+    # each damper's felt settling back on its strings: a faint soft thud
+    d = np.zeros(n)
+    L = int(0.02 * sr)
+    for t, v in falls:
+        i = int(t * sr)
+        if i + L < n:
+            d[i:i + L] += v * rng.standard_normal(L) * np.exp(-np.arange(L) / (0.004 * sr))
+    d = lfilter(*butter(2, [150 / (sr / 2), 1200 / (sr / 2)], "band"), d)
+    y = y + 0.012 * np.std(y) / (np.std(d) + 1e-12) * d
     k = knocks(n, [{"t": e["t"], "vel": e["vel"]} for e in part["keys"]], sr, rng)
     y = y + 0.06 * np.std(y) / (np.std(k) + 1e-12) * k
     b, a = butter(2, 40 / (sr / 2), "high")
