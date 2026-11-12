@@ -363,8 +363,8 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 			var clear := AABB(lo, hi - lo)
 			for id: String in by_id:
 				var m: StructureMember = by_id[id]
-				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_"):
-					continue  # its glass, its leaf, a door's transom bar
+				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_") or id.contains("/window_") or id.contains("/bars_"):
+					continue  # its glass, its leaf, a door's transom bar, its sash window and lining, its bars
 				if not m.structure_aabb().intersects(clear):
 					continue
 				if _crosses(m, clear):
@@ -386,6 +386,24 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 							glazed = true
 					if not glazed:
 						failures.append("%s window at %.2f: no glass" % [w.id, float(o.at)])
+					# A sash window (#826): its lights built, a pane each, and its reveal lined.
+					if o.has("lights"):
+						var panes := 0
+						var linings := 0
+						for id: String in by_id:
+							if not id.begins_with(w.id + "/window_"):
+								continue
+							var wm: StructureMember = by_id[id]
+							if not clear.grow(0.03).has_point(wm.transform.origin):
+								continue
+							if wm.kind == &"glass":
+								panes += 1
+							elif id.contains("/lining_"):
+								linings += 1
+						if panes != int(o.lights):
+							failures.append("%s window at %.2f: %d panes for %d lights" % [w.id, float(o.at), panes, int(o.lights)])
+						if linings < 4:
+							failures.append("%s window at %.2f: its reveal open (%d linings of 4)" % [w.id, float(o.at), linings])
 			j += 1
 	return {"ok": failures.is_empty(), "failures": failures, "openings": openings, "framed": framed}
 

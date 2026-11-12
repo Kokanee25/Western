@@ -27,6 +27,12 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   skirting, casings); then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
+- **The doctor's walls and windows** (#826): every window a `SashWindow` (src/structures, a part: lined reveal,
+  two sashes by the spec's `lights`, a glass member a pane that breaks alone, dusty glass), the inside boards
+  drawn at their paint's judged 9 cm (`inside_finish.boards: "judged"`, `strips_mesh`), a skirting, casings
+  and sashes in the trim's green (reads near black indoors: the approved chrome green). Rules in
+  `experiments/building_lab/RECIPE.md` "Walls and windows". +38 draws (panes); render CPU <= 2.3 ms at Sean's.
+  Cheap judge still cheap indie for the walk's floating porch posts, grey neighbours, empty rooms.
 - **The doctor lit as a room** (#824, merged): his spec names a lamp a room (`lamps.kit`, the hung reflector
   lamp, by the clock), `light` (fill to the outer walls, near neutral; RoomLight's sky at every outer opening,
   `window_day` 3); indoor paint wears from the floor. The orange / blue corner was the probe's edge (proved,

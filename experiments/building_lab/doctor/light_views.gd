@@ -24,6 +24,8 @@ const VIEWS := {
 	"window": [Vector3(3.1, 2.5, 2.4), Vector3(1.85, 2.3, 0.0), 58.0, 10.0],
 	# The surgery at night, its lamp lit.
 	"night": [Vector3(3.6, 2.45, 4.3), Vector3(1.6, 1.25, 6.1), 66.0, 21.5],
+	# The front from the street at golden hour (#826): the west show window, the door, the east one.
+	"front_gold": [Vector3(3.4, 1.75, -7.5), Vector3(3.6, 2.2, 0.0), 58.0, 17.6],
 }
 
 var out_dir := "build/doctor_light"
