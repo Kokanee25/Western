@@ -68,6 +68,7 @@ var box_state := &"in"
 var box: KitProp
 var took := ""
 var _hold := 0.0
+var _was_held := false
 var _prompt := 0.0
 var _retry_hold := 0.0
 var _player: Player
@@ -626,8 +627,9 @@ func _use_step(delta: float) -> void:
 				_hold = -INF
 				take_papers()
 		&"carried":
-			if held and Input.is_action_just_pressed(&"shove"):
+			if held and not _was_held:
 				set_down()
+	_was_held = held
 
 
 func _tell(text: String) -> void:
@@ -680,7 +682,7 @@ func shoulder() -> void:
 	if p:
 		p.burden = tuning.box_pace
 	_note("box shouldered")
-	_say("You've the box on your shoulder. E sets it down.", 3.0)
+	_say("The box on your shoulder: slow going. E sets it down. Get clear: %s" % way_out(), 8.0)
 
 
 func set_down() -> void:
@@ -712,7 +714,7 @@ func take_papers() -> void:
 	box_state = &"taken"
 	took = "papers"
 	_note("papers taken")
-	_say("The Baron's papers: deeds, a ledger, letters. Now get clear: the rimrock trail, past the cut.", 5.0)
+	_say("The Baron's papers: deeds, a ledger, letters. Now get clear: %s" % way_out(), 8.0)
 
 
 # --- Won and lost ------------------------------------------------------------------------------------
@@ -731,6 +733,20 @@ func _check_end() -> void:
 		return
 	if not have and _flat(p.global_position, cut.middle) > tuning.left_it:
 		_lose(&"left_it", "You rode off and left it.")
+
+
+## Where the way out is from you, in words (the playtest, #815: nobody could find it).
+func way_out() -> String:
+	var line := cut.layout.road_line("rimrock_trail") if cut.layout else PackedVector2Array()
+	var p := player()
+	if line.size() < 2 or p == null:
+		return "the rimrock trail."
+	var a := line[0] + (line[1] - line[0]).normalized() * 10.0
+	var to := a - Vector2(p.global_position.x, p.global_position.z)
+	var deg := fposmod(rad_to_deg(atan2(to.x, -to.y)), 360.0)
+	var names := ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"]
+	return "the rimrock trail, %d m off to the %s (it leaves the road past the cut and climbs south)." % [
+			roundi(to.length() / 5.0) * 5, names[roundi(deg / 45.0) % 8]]
 
 
 ## Far enough up the rimrock trail (from where it leaves the South Road) and on it.

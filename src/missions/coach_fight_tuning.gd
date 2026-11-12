@@ -47,13 +47,13 @@ extends Resource
 @export var shoulder_hold := 1.5
 @export var box_reach := 1.6
 ## Carrying the box (44 kg) you walk at this share of your pace.
-@export var box_pace := 0.5
+@export var box_pace := 0.35
 
 @export_group("The way out")
 ## Won: the papers or the box, and you this far up the rimrock trail from the South Road (m),
 ## within `trail_wide` of it.
-@export var trail_along := 30.0
-@export var trail_wide := 14.0
+@export var trail_along := 15.0
+@export var trail_wide := 20.0
 ## Lost: gone this far from the cut (m) without them (you left it).
 @export var left_it := 140.0
 ## Lost: the coach driven this far past the ram's line, not struck (m).
