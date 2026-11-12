@@ -13,6 +13,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   The No Law card is out of date: the murderer is one of the Baron's men, not the red shirt (#744).
 - **No Justice** (#738): week 2. Joe on the rope: 3-4 shots or close in (#744).
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
+- **Townsfolk behaving realistically** (Sean 2026-11-12, #850): designed, not built: `docs/briefs/townsfolk.md`
+  (days and the book, spots, staged reactions, news, regard and barks, the saloon as a room; an 11-step plan,
+  step 1 measures and shuts the perception leaks). Waiting on Sean's five picks: #851. Starts when he places it.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
