@@ -1,0 +1,3 @@
+saloon B in the valley: 7560 members, 28 lamps; 27651 collision bodies in the world
+front: render CPU median 1.73 ms here, 1.12 at Sean's (x0.65); 805 draws
+corner: render CPU median 2.84 ms here, 1.85 at Sean's (x0.65); 1764 draws

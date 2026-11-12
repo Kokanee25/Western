@@ -60,6 +60,14 @@ var burns := 0.0
 var alive := true
 var cause_of_death := &""
 var wounds := 0
+## Can't die of an ordinary wound (the companion, Joe: "the only full companion", DESIGN.md; #843).
+## A wound that would kill him puts him down instead (`_spare`): out cold, the killing part of it
+## made a wound a man lives through, his bleeding stopped short of the loss that kills. The rope
+## turns it off (the one way he dies), and then he dies like anyone.
+var spared := false
+## How many times a wound that would have killed him was turned (`_spare`), and the last cause.
+var spared_times := 0
+var spared_cause := &""
 
 
 func _init(t: PhysiologyTuning = null, a: Anatomy = null) -> void:
@@ -520,9 +528,42 @@ func burn(amount: float) -> void:
 
 
 func _die(cause: StringName) -> void:
+	if alive and spared:
+		_spare(cause)
+		return
 	if alive:
 		alive = false
 		cause_of_death = cause
+
+
+## Out cold this long at least (s) after a wound that would have killed a spared man; whoever keeps
+## him (CompanionBrain) holds him down longer while the fight's on.
+const SPARED_OUT := 8.0
+
+
+## A spared man's killing wound turned into one he lives through: the brain, the neck and the cord
+## not gone (a near thing: a graze to the skull, a wrenched neck), the lungs holding, the gut not a
+## death sentence, the bleeding clotting, his blood kept short of the loss that kills; and he's out
+## cold for a while. The broken bones and the rest of the wound stay as they are.
+func _spare(cause: StringName) -> void:
+	spared_times += 1
+	spared_cause = cause
+	brain_dead = false
+	neck_seconds = -1.0
+	for c: StringName in [&"cord_cervical", &"cord_thoracic", &"cord_lumbar"]:
+		cut.erase(c)
+	lung_damage.clear()
+	airway_blood = false
+	if gut_seconds >= 0.0:
+		gut_seconds = 0.0
+	if burns >= tuning.burns_fatal:
+		burns = tuning.burns_fatal * 0.8
+	for b in bleeds:
+		b.clots = true
+		b.clot = minf(float(b.clot), 0.15)
+	blood_ml = maxf(blood_ml, tuning.blood_ml * (1.0 - tuning.unconscious_at_loss * 0.95))
+	oxygen = maxf(oxygen, 0.6)
+	concussion = maxf(concussion, SPARED_OUT)
 
 
 # --- What the body can do ---------------------------------------------------------------------
@@ -763,7 +804,8 @@ func to_dict() -> Dictionary:
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
-			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys()}
+			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
+			"spared": spared, "spared_times": spared_times}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -788,6 +830,8 @@ func from_dict(d: Dictionary) -> void:
 		infections[StringName(k)] = (d.infections[k] as Dictionary).duplicate()
 	gangrene_hours = d.get("gangrene_hours", 0.0)
 	lost_parts = _set_of(d.get("lost_parts", []))
+	spared = d.get("spared", false)
+	spared_times = d.get("spared_times", 0)
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]

@@ -10,6 +10,7 @@ extends Node
 ## his hand and finds cover, C is B and shaken first, D is C and fights that commit: the game's now).
 ##
 ##   Y  the next setup (hall, stair, gallery, back, front, then again on the next seed).
+##      Shift+Y: the same with Joe beside you (the companion, #843); X keeps him.
 ##   X  this run again (same setup, variant and seed: the men's dice the same; what you do isn't).
 ##   Z  this setup and seed with the next variant (A, B, C, D, D+), shown.
 ##
@@ -99,7 +100,8 @@ func _input(event: InputEvent) -> void:
 	var game := "D+"
 	if event.is_action_pressed(&"gunfight_next"):
 		var i := int(st.next)
-		_queue({"setup": SETUPS[i % SETUPS.size()], "variant": game, "seed": 1 + i / SETUPS.size(), "run": i + 1})
+		_queue({"setup": SETUPS[i % SETUPS.size()], "variant": game, "seed": 1 + i / SETUPS.size(), "run": i + 1,
+				"joe": Input.is_key_pressed(KEY_SHIFT)})
 		st.next = i + 1
 	elif event.is_action_pressed(&"gunfight_again") and not last.is_empty():
 		_queue(last)
@@ -121,7 +123,7 @@ func _start() -> void:
 	await seconds(0.5)  # the town settles (people placed, lamps made) before the men come in
 	var opts := {"scenario": String(_run.get("setup", SETUPS[0])), "hour": "golden", "weapon": "revolver", "style": "human", "bodies": "game",
 		"variant": "D" if _run.variant == "D+" else _run.variant, "seed": int(_run.seed), "max": 300.0, "count": COUNT, "draw_turns": "false",
-		"fixes": "all+" + "+".join(TRIAL) if _run.variant == "D+" else "all"}
+		"fixes": "all+" + "+".join(TRIAL) if _run.variant == "D+" else "all", "joe": "1" if _run.get("joe", false) else ""}
 	_fight = Fight.new(self, opts)
 	add_child(_fight)
 	var err: String = await _fight.setup()
@@ -138,7 +140,8 @@ func _update_hud() -> void:
 	if not _panel.visible:
 		return
 	var setup := String(_run.get("setup", SETUPS[0]))
-	var head := "THREE GUNMEN   %s   run %d   variant %s   seed %d" % [SETUP_NAMES.get(setup, setup), int(_run.run), _run.variant, int(_run.seed)]
+	var head := "THREE GUNMEN   %s   run %d   variant %s   seed %d%s" % [SETUP_NAMES.get(setup, setup), int(_run.run), _run.variant, int(_run.seed),
+			"   JOE WITH YOU" if _run.get("joe", false) else ""]
 	var line := ""
 	if _over != "":
 		line = _over
@@ -149,7 +152,7 @@ func _update_hud() -> void:
 			line = "Shoot first, or wait: they go for theirs in %.0f s" % ceilf(_fight._count)
 		else:
 			line = "%.0f s" % _fight.t
-	_hud.text = head + "\n" + line + "\nY next setup   X this run again   Z this one with the next variant   F3 what they're thinking"
+	_hud.text = head + "\n" + line + "\nY next setup (Shift+Y with Joe)   X this run again   Z this one with the next variant   F3 what they're thinking"
 
 
 ## The run's record to user://gunfight_runs/, a line in runs.csv, and what happened on screen.

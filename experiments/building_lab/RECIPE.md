@@ -196,6 +196,38 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
   158 draws to 195 in the lab's count. A building with many small lights (six-over-six) wants
   them counted against the render budget before it's specced.
 
+## A two-storey building under trusses (saloon B, #848 step 1)
+
+What the corner saloon's frame taught (its record: `saloon_b/README.md`):
+
+- **Write the spec with a script while its numbers move** (feet to metres, every wall's openings
+  from the same constants), then keep only the JSON. B's girder lines, well and partitions moved
+  three times before the checks passed.
+- **Lay the upper floor out from its bearing lines first:** the two girders, the bearing
+  partitions under them, a beam on posts wherever a floor's edge has nothing under it (the well's
+  gallery, the stair's well, the stair's head: the stringers land on a beam, never on a joist).
+  A floor that would need tail joists is split into floors instead (the band ladder can't hang a
+  tail from a header and carry boards on it).
+- **Keep openings off the lines where a girder or beam meets a wall** (its wall post stands in the
+  studs there), and stack upper openings over lower ones centred and no wider, or a clear 0.3 m
+  apart; set `frame.stacked`.
+- **A bearing partition that runs with the joists stands on a girder** (`girders.under`), not on a
+  floor board between two joists (the crowd's check failed one board in twenty).
+- **Run the game's own settle on the built building** (`b.settle()` returns nothing on a sound
+  frame), not only `Checks.stands`: it found the balcony's joists hanging by one end after a change
+  the stand check had been run before.
+- **Load it as its use loads it:** B's dance floor is checked at 70 lb/ft2 (Hatfield's hall), not
+  the 40 of a dwelling: the balloon studs went to 4x4 and the joists to 12 in for it.
+- **A collapse on purpose needs room to fall.** Cut, the girder's pieces and joists stood jammed:
+  rigid pieces as long as their bays wedge end to end, wall boards drawn over the joists' ends
+  hold them, and a post's brackets catch a girder's halves. So: the floor's `end_gap` (12 mm),
+  the ground floor's wall boards stopped under the ribbon (`to_y`), no brackets under the girder
+  that's cut, and the cut made with `cut_member` (a kerf), not `break_member` (two halves in place).
+- **Measure a collapse by where the pieces are**, not by which members broke: broken members stay
+  where they were; the fallen pieces are the `rubble` group's bodies.
+- **The X-ray sheet reads a two-storey frame** as it is (`tools/buildings/xray.py`), its titles
+  still the doctor's (the section's, the side walls' names).
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
