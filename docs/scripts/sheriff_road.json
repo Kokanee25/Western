@@ -39,64 +39,71 @@
     {"id": "sheriff", "name": "The sheriff", "called": "Sheriff", "bible": "VOICES.md, The sheriff",
      "brief": "Mid-fifties, a plains man (Missouri or Kansas, not stage Texas), fourteen years on a Colorado claim. Low and dry, gravel from pain; gives orders even on his back; short sentences that shorten to a word as he bleeds.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "A man in his mid-fifties from the American plains, Missouri or Kansas, not a Texas drawl, who has worked a Colorado claim for fourteen years in the 1880s. A low, dry, weathered voice with gravel in it from pain; gut-shot and breathing hard, but still giving orders. Short, plain sentences at an unhurried pace. Natural and close, unpolished, never an announcer's polish.", "text": "[hurt, bitter, breathing hard] Man in a faded red shirt. Rode up easy, like he wanted directions. Then he shot me. [dying, very weak, fading, long pauses] Badge... Doc. Pin it on him.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his mid-fifties from the American plains, Missouri or Kansas, not a Texas drawl; a rancher and lawman. Low, dry and weathered, with gravel in it from pain; hurt and short of breath but still giving orders. Plain short sentences, unhurried. Natural, conversational and understated, like a real man talking, not a narrator or an actor performing.", "text": "[hurting, quiet, short of breath] Sun's coming up. Ain't that something. Fourteen years I've rode this road. Never had to look behind me on it. [very weak, fading, long pauses] Badge... Doc. Pin it on him.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "sheriff_v1", "url": "/_blob/98a2f020328045344fc3c36a4574c7f6", "voice_id": "pCfYPpO4mBYvlnQ0wvlh", "seed": 1001},
-          {"id": "sheriff_v4", "url": "/_blob/53cd0a5fac4163693f688e68247cb222", "voice_id": "eILIC78kR9Zr2pqFBaeE", "seed": 1004}
+          {"id": "sheriff_b1", "url": "/_blob/45d42a980013b784e94f3c58cd78be7d", "voice_id": "1mmdlEjjnJr3bjhG52ua", "seed": 11001},
+          {"id": "sheriff_b2", "url": "/_blob/d7869b8895c627ffcdb9cb240f9f2180", "voice_id": "7SMTg8i7tNoSYLPe9byN", "seed": 11002},
+          {"id": "sheriff_b3", "url": "/_blob/1c5578afcf4a6b7b3078267faf536cbd", "voice_id": "NOvcxvk2K9LREnHC8OFW", "seed": 11003},
+          {"id": "sheriff_b4", "url": "/_blob/faffaab2f7881041be38041c446608a9", "voice_id": "2rvrdFFnBcUXA5cpvVrj", "seed": 11004}
         ],
+        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
         "picked": null
       }},
     {"id": "doctor", "name": "The doctor", "called": "Doc", "bible": "VOICES.md, The doctor; WORDS.md, The doctor",
      "brief": "Late forties, an educated Easterner gone west (Philadelphia or New England). Brisk, quiet, dry; whole sentences, never raised; counts things.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "A man in his late forties, an educated Easterner from Philadelphia who went west to a Colorado town in the 1880s. Brisk, quiet and dry; precise whole sentences, never raised; a clear mid-low voice, a little tired, with a faint old Philadelphia accent. Natural and close, not theatrical.", "text": "[calm, approving] Somebody packed that wound, and packed it right. That's bought him some hours. Come back tonight. [tired, plain] The ball's in the bowel. I can't get at it, and it would make no odds if I could. He'll not see another night.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his late forties, an educated Easterner from Philadelphia living out west. Brisk, quiet and dry; precise whole sentences, never raised; a clear mid-low voice, a little tired, with a faint Philadelphia accent. Natural, conversational and understated, like a real man talking, not a narrator or an actor performing.", "text": "[calm, approving] Somebody packed that wound, and packed it right. That's bought him some hours. Come back tonight. [tired, plain] The ball's in the bowel. I can't get at it, and it would make no odds if I could. He'll not see another night.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "doctor_v1", "url": "/_blob/e4ff65adc9652b6e45ba4cb370379428", "voice_id": "wfKbFlqrkNlgsGgCLNYO", "seed": 2001},
-          {"id": "doctor_v2", "url": "/_blob/1dbee2d4c33c1f938b56a9d0fafc2ee4", "voice_id": "RiiWVRSc2plqa12CPYaC", "seed": 2002},
-          {"id": "doctor_v3", "url": "/_blob/8d67c6d40049ee6e0f9aa2b633bf18fe", "voice_id": "8vtESVYFmFbXdRewrTfy", "seed": 2003},
-          {"id": "doctor_v4", "url": "/_blob/82b6ba0362ecf4f44cf2398d9d2d5e01", "voice_id": "Brneg21xWaUtNPhkZaBs", "seed": 2004}
+          {"id": "doctor_b1", "url": "/_blob/514425790c6850928433fd151b34fd73", "voice_id": "mXUbtW2kXyaXBh75e31s", "seed": 12001},
+          {"id": "doctor_b2", "url": "/_blob/081cba7fde76a332191c35a3d9899b0f", "voice_id": "RyxZpkCZrpD3H6R0DsRW", "seed": 12002},
+          {"id": "doctor_b3", "url": "/_blob/c48be17451e580b4cb05d2d64b67a4f8", "voice_id": "4azXcYimkYjryiN8Q7F2", "seed": 12003},
+          {"id": "doctor_b4", "url": "/_blob/c062a6da8107ec6bbb2431f9206bcc92", "voice_id": "9yzzXApIsJqi6aqUDGuA", "seed": 12004}
         ],
+        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
         "picked": null
       }},
     {"id": "widow", "name": "The sheriff's wife", "called": "ma'am, Mrs.", "bible": "VOICES.md, The widow; WORDS.md, The town's women",
      "brief": "About forty, a Midwestern farm wife with good schooling. Level and low, short; grief held under work; asks hard questions plainly.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "A woman of about forty, a Midwestern farm wife with good schooling, living in 1880s Colorado. A level, low, plain-spoken alto; grief held down under work; short sentences, hard questions asked plainly. Warm underneath but tired and unadorned. Natural and close.", "text": "[grief held down] Were you with him? [cold] A freighter brought him, they tell me. [grief held down, steady] I'll sit with him now. Go on, the both of you.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A woman of about forty, a Midwestern farm wife with good schooling. A level, low, plain-spoken alto; grief held down under work; short sentences, hard questions asked plainly. Warm underneath but tired and unadorned. Natural, conversational and understated, like a real woman talking, not a narrator or an actress performing.", "text": "[grief held down] Were you with him? [cold] A freighter brought him, they tell me. [grief held down, steady] I'll sit with him now. Go on, the both of you.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "widow_v1", "url": "/_blob/4071f13b1d4ffc6b4fcab7b1ec6a539a", "voice_id": "pxezK81abjhgIPMdFhGY", "seed": 3001},
-          {"id": "widow_v2", "url": "/_blob/1f5598acf403cf419eee2ec8a8bc9a30", "voice_id": "k1fZl05rwEgemoo93En7", "seed": 3002},
-          {"id": "widow_v3", "url": "/_blob/aefbdfaaab0d0912870ab8315aa67de6", "voice_id": "S9MG46Sbt9SCcSB4o2Iu", "seed": 3003},
-          {"id": "widow_v4", "url": "/_blob/381df8379620d8269a40f2c22cf6fc29", "voice_id": "mAUbytMub8VHvMGybjDL", "seed": 3004}
+          {"id": "widow_b1", "url": "/_blob/dae19f58747a8f9d05becd07b8b1646d", "voice_id": "SDscCL4JluGFC3SpvZdQ", "seed": 13001},
+          {"id": "widow_b2", "url": "/_blob/146ca17ad5fd913e48c0472f79a3ed3f", "voice_id": "e5C1lp0bTVIHpjme3a3y", "seed": 13002},
+          {"id": "widow_b3", "url": "/_blob/00b6b0043d9521d9b61fe3bebceb7215", "voice_id": "zpFtQrdCcT2Zstxu5G0G", "seed": 13003},
+          {"id": "widow_b4", "url": "/_blob/f9f1adbeb6b84a37617f616d59143576", "voice_id": "mEqh4shy6lVuZZjKB0X5", "seed": 13004}
         ],
+        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
         "picked": null
       }},
     {"id": "freighter", "name": "The freighter", "called": "", "bible": "SETUPS.md S1 (P·bible); a smaller voice",
      "brief": "Forties, a teamster, hoarse from shouting at mules; rough country voice, quick, still shaken by what he hauled in.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "A man in his forties, a teamster driving freight wagons in 1880s Colorado; a voice hoarse and rough from shouting at mules all day. A rough rural Western country voice, talking quickly, still shaken by the wounded man he hauled into town. Natural and unpolished.", "text": "[shaken, quick] Found him in the road east of the ford. Talked about a red shirt the whole way in. [shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his forties who drives freight wagons; a voice hoarse and rough from shouting at mules all day. A rough rural Western country voice, talking quickly, still shaken by what he has just seen. Natural, conversational and understated, like a real man talking, not a narrator or an actor performing.", "text": "[shaken, quick] Found him in the road east of the ford. Talked about a red shirt the whole way in. [shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "freighter_v1", "url": "/_blob/462094093398f2d6165c28ff1b38b50d", "voice_id": "2fwaBFigGFhOJKYd8Tfn", "seed": 4001},
-          {"id": "freighter_v2", "url": "/_blob/df714df6ad7b14a0c080d750de9965a0", "voice_id": "zfYxMy5v3mL2nCqVE6Uk", "seed": 4002},
-          {"id": "freighter_v3", "url": "/_blob/586f1d6943257d59053bb0d258a53f98", "voice_id": "uVWSkMv4Lv9psGBJFCGX", "seed": 4003},
-          {"id": "freighter_v4", "url": "/_blob/4bfe8ca29857877f1c6c087654b3103d", "voice_id": "REh5HhSnUUqflR2jYqDN", "seed": 4004}
+          {"id": "freighter_b1", "url": "/_blob/90756c7022634a406262f0799abae1a1", "voice_id": "R4dJw1vdM2LfaxcNXp0b", "seed": 14001},
+          {"id": "freighter_b2", "url": "/_blob/9e91ac06da59bf56dc34176fe27651f6", "voice_id": "U6OuRPDjQSByoawtFR8m", "seed": 14002},
+          {"id": "freighter_b3", "url": "/_blob/8d0e56c43203583e92edea6e2e900478", "voice_id": "B4ohrHjNdKV1Iy3dmenJ", "seed": 14003},
+          {"id": "freighter_b4", "url": "/_blob/e071dacba9c5014a5c1d308dd09b6d66", "voice_id": "Uy7DFPjvyD9mvvDbyeiL", "seed": 14004}
         ],
+        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
         "picked": null
       }},
     {"id": "livery", "name": "The livery man", "called": "", "bible": "VOICES.md, Smaller voices",
      "brief": "Sixties, slow and grumbling to hide that he minds; a little nasal, rural.",
      "voice": {
-        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "A man in his sixties who keeps the livery stable in an 1880s Colorado town; a slow, grumbling, slightly nasal rural voice, gruff to hide that he minds. Unhurried and plain. Natural and unpolished.", "text": "[shaken, grumbling] That's the sheriff's bay. Lord. I'll put him up. Saddle, rifle and all. [grumbling] Leave him with me. I'll see he's fed, whoever's paying.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road.yaml"},
+        "design": {"app": "fal-ai/elevenlabs/text-to-voice/design/eleven-v3", "model": "eleven_ttv_v3", "prompt": "Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no hiss. A man in his sixties who keeps a livery stable in a small Western town; a slow, grumbling, slightly nasal rural voice, gruff to hide that he minds. Unhurried and plain. Natural, conversational and understated, like a real man talking, not a narrator or an actor performing.", "text": "[shaken, grumbling] That's the sheriff's bay. Lord. I'll put him up. Saddle, rifle and all. [grumbling] Leave him with me. I'll see he's fed, whoever's paying.", "guidance_scale": 4, "loudness": 0.5, "request": "tools/voices/requests/2026-11-12_cast_sheriff_road_b.yaml"},
         "takes_model": {"app": "elevenlabs/tts/eleven-v4", "stability": 0.5, "similarity_boost": 0.75},
         "candidates": [
-          {"id": "livery_v1", "url": "/_blob/a48511b5637486f473deb9a72bdd47dd", "voice_id": "mXTBcHSprNumTzBCUvP4", "seed": 5001},
-          {"id": "livery_v2", "url": "/_blob/410230cb29417b57345f3ebd4ffe9f8b", "voice_id": "p5wDXaPHXREJMq1pMlID", "seed": 5002},
-          {"id": "livery_v3", "url": "/_blob/6889e53c208ffadb9e073b80f83b2113", "voice_id": "ghtSG9LdGMBVxcDGCLzR", "seed": 5003},
-          {"id": "livery_v4", "url": "/_blob/8e227189b45aa7fc629ec026a66eccf0", "voice_id": "0cF2nonZJHAQP4zp84OW", "seed": 5004}
+          {"id": "livery_b1", "url": "/_blob/d5f71c155015b9fc05cf79bfbb00788d", "voice_id": "Fj50rEyFwc8pGKqGpwQ7", "seed": 15001},
+          {"id": "livery_b2", "url": "/_blob/adefde17704cf7c31beae4281c02ce74", "voice_id": "1FS03UrpS3txIZkaOAbn", "seed": 15002},
+          {"id": "livery_b3", "url": "/_blob/94cabcc67179ed830bbc13f7a1ff8b06", "voice_id": "fNsd5LquoJGfVrtmVoHE", "seed": 15003},
+          {"id": "livery_b4", "url": "/_blob/add1ebbcc6c5c60f7eef7d8fecc462f8", "voice_id": "wMCQyCHuVyxxZ58mSJe9", "seed": 15004}
         ],
+        "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
         "picked": null
       }}
   ],
