@@ -2318,8 +2318,10 @@ drawn as a material library board by `PropKit.board_mesh`, the building lab's bo
 `lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
 `_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
 `tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their
-models (`cushion`, `soft_box`, `drape`); `experiments/prop_lab/doctor/dress.gd` + `dress.json` lay a
-batch into his rooms on his valley lot and render the views (the doors' leaves set aside). A kit
+models (`cushion`, `soft_box`, `drape`). A building's props are its spec's `dressing`, placed by its
+build (`SpecBuilding._dressing` -> `PropDressing.place`, `src/props/prop_dressing.gd`; #844), in play and
+in every lab alike; `experiments/prop_lab/doctor/dress.gd` renders a batch's views from `building.dressed`
+(the doors' leaves set aside). A kit
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 

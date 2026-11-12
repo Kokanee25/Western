@@ -28,9 +28,9 @@ static func destructible(root: Node, building: Structure) -> Dictionary:
 
 static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 	for c in n.get_children(true):
-		if c is GlassProp:
-			# A kit prop that shatters (a hung lamp, #824): its own body and pieces are the prop's,
-			# its OilLamp the light it carries.
+		if c is GlassProp or c is ClothProp:
+			# A kit prop that shatters (a hung lamp, #824) or a cloth (the doctor's towel, #844): its
+			# own body and pieces are the prop's, its OilLamp the light it carries.
 			out.kit_props += 1
 			out.lamps += c.find_children("*", "OilLamp", true, false).size()
 			continue
@@ -182,6 +182,22 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 				var m := hit.collider as StructureMember
 				if m and m.kind != &"door":
 					failures.append("%s door at %.2f: %s in the way" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
+			# And its way in either side (#844: the kitchen chimney stood in the kitchen side of the hall's
+			# door): 0.45 m beyond each face, 0.6 wide, from a tread over the floor; nothing but a leaf.
+			var across := Vector3(along.z, 0, along.x).abs()
+			var normal := Vector3(-along.z, 0, along.x)
+			for side: float in [-1.0, 1.0]:
+				var way := BoxShape3D.new()
+				way.size = along.abs() * 0.6 + Vector3.UP * 1.8 + across * 0.45
+				var wq := PhysicsShapeQueryParameters3D.new()
+				wq.shape = way
+				wq.transform = Transform3D(Basis(), b.to_global(Vector3(mid.x, y0 + 1.0, mid.z) + normal * side * 0.325))
+				wq.collision_mask = Layers.WORLD
+				for hit in space.intersect_shape(wq, 8):
+					var m := hit.collider as StructureMember
+					# (a ladder up to a door is its way in: the doctor's loft door)
+					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/"):
+						failures.append("%s door at %.2f: %s in its way in" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
 	# Stairs: two metres over the nosings all the way up.
 	var stairs := 0
 	for ramp in b.find_children("Ramp_*", "StaticBody3D", false, false):
@@ -234,8 +250,15 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 		q.shape = cap
 		q.transform = Transform3D(Basis(), b.to_global(at + Vector3.UP * 0.92))
 		q.collision_mask = Layers.WORLD
-		for h in space.intersect_shape(q, 4):
+		# A point on furniture (a bed, the table, his chair: `prop`, #844) leaves that prop out; it
+		# must be there.
+		var on_prop := StringName(u.get_meta(&"prop", &""))
+		if on_prop != &"" and not b.find_children("*", "KitProp", true, false).any(func(k: Node) -> bool: return (k as KitProp).structure_id == on_prop):
+			failures.append("%s: its %s isn't there" % [u.name, on_prop])
+		for h in space.intersect_shape(q, 8):
 			var m := h.collider as StructureMember
+			if m and on_prop != &"" and m.get_parent() is KitProp and (m.get_parent() as KitProp).structure_id == on_prop:
+				continue
 			failures.append("%s: no room (%s)" % [u.name, String(m.member_id).trim_prefix("saloon_spec/") if m else str(h.collider)])
 	return {"ok": failures.is_empty(), "failures": failures, "doors": doors.size(), "stairs": stairs, "use_points": points}
 
