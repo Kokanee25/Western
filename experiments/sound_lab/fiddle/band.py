@@ -4,7 +4,7 @@ data (bowed.py, banjo.py, bones.py, tambourine.py), mixed as one sound the way t
 band: the fiddle on top, the banjo just under it, the bones and tambourine in the rhythm's place.
 
     python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json [--out=...wav]
-        [--with=banjo,bones,tambourine] (who plays with the fiddle)
+        [--with=banjo,bones,tambourine] (who plays with the fiddle; piano too: --with=banjo,bones,tambourine,piano)
     --strings=gut|steel (the banjo's strings)
 """
 import json
@@ -18,11 +18,12 @@ import banjo  # noqa: E402
 import bones  # noqa: E402
 import bowed  # noqa: E402
 import common  # noqa: E402
+import piano  # noqa: E402
 import tambourine  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # each player's loudness against the fiddle's (dB)
-LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0}
+LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0, "piano": -4.0}
 
 
 def player(name, sc):
@@ -32,6 +33,8 @@ def player(name, sc):
         return bones.render(bones.arrange(sc))
     if name == "tambourine":
         return tambourine.render(tambourine.arrange(sc))[0]
+    if name == "piano":
+        return piano.render(piano.arrange(sc))
     raise ValueError(name)
 
 
@@ -53,7 +56,8 @@ def main():
     banjo.strings(opt.get("strings", "gut"))
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
-    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"]) + ".wav"))
+    out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"])
+                  + ("_piano" if "piano" in who else "") + ".wav"))
     y = render(sc, who)
     common.write_wav(out, y)
     print(f"{out}: {sc['tune']}, fiddle with {', '.join(who)}, {len(y) / common.SR:.1f} s, peak {np.max(np.abs(y)):.2f}")
