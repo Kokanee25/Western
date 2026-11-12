@@ -2,14 +2,16 @@
 
 Art lane, branch `claude/art-building-jail-xrtsvh`. The building lab's steps by `../RECIPE.md`
 (the doctor's office, `../doctor/`, is the worked example), each shown to Sean before the next.
-Steps 4-6 (the look, the judge, the recipe) are the next session's: the look waits on the masonry
-lab's stone (#663) and the paints (#779).
+Steps 4-6 (the look, the judge, the recipe): #811, on the doctor's rules (#821: #824 light, #825 floor
+and furniture woods, #826 walls and windows, #829 daylight).
 
 | File | What |
 | --- | --- |
 | `sheet/` | step 1, the target sheet: `request.json` (the views' words), `panels/`, `sheet.jpg`, `spent.json` |
 | `jail.json` | step 2, the spec (format 1 and what's NEW for a one-storey stone building) |
 | `results/plan.png` | the ground plan drawn from the spec (`tools/buildings/plan_sheet.py`) |
+| `render_valley.gd` | step 5: the sheet's views and the rooms lit, in the valley's real look (`--cpu`: render CPU) |
+| `results/2026-11-12_look/` | step 5: the renders beside the sheet (`pairs.jpg`), the judges' grades below |
 
 ## Before step 1
 
@@ -117,3 +119,40 @@ X-ray hides what's buried).
 Not built yet (the look's, step 4, and the props'): the plaster and whitewash inside, the painted
 sign and the cut JAIL panel, the sashes and shutters, the shed and the privy, the lamps; the
 valley lot (`spec`, the walk's `span` and `door_x`) waits for the judge (step 5).
+
+## Step 4: the look (#811)
+
+No X-ray review from Sean was on #780 or #811 when this started; the master chat's word (#811) was to
+start once #824-#826 merged. Every rule the doctor's room review (#818) proposed is approved (#821),
+and the jail takes the parts those sessions built rather than building them again:
+
+- **Windows (#826's SashWindow):** each barred window is two-over-two (`lights` 4: the town's 1880s
+  sash; six-over-six would be 12 panes a window, a draw each) inside its bars, its reveal lined through
+  the stone's whole thickness (`stone.gd`: `outer` 0, `inner` the wall's inside face): the boxed reveal
+  its inside shutters fold into. The high slits stay open, barred. 24 panes.
+- **Lamps (#824):** five of the kit's reflector lamps hung on the stone (`_kit_lamps` reads a stone
+  wall's `profile` for its face): the office's beside the desk (shadows) and over the bench, the
+  sheriff's room's on the cross wall, the guard room's beside the cell wing's door (lit all night), the
+  corridor's lantern (shadows: the cages' straps on the flags; lit all night). The cages are lit by it
+  through their straps, not each by a lamp; the roof by none.
+- **Light (#824, #829):** the doctor's `light` (`fill` near neutral, `window_day` 7, `day_fill` 0.1).
+- **Finishes (#825, the library by name):** the floor `floor_fir_worn` (worn on the jail's ways from its
+  rooms, doors and use points); sashes, linings, casings and skirting `painted_green_trim` (near black
+  indoors, the sheet's dark sash); the stud partition's boards `painted_pale_tg` old at its judged 9 cm
+  with a skirting (`inside_finish.boards` "judged"); doors and gates oxblood; the roof's joists and
+  boards (the rooms' ceilings) and the shed the batten. The floor is never a wall's or the trim's entry
+  (the test). Every floor's id is named (`floor/ground/` and `floor/ground_back/`: one not named falls
+  to `framing`, the batten).
+- **Still the game's stone, inside and out:** the plaster and whitewash inside (the sheet's office and
+  cells) and the rubble outside aren't in the library; the masonry lab's rubble look is its step 8.
+- **Not the look's:** the furniture (the prop lab dresses the rooms, as the doctor's #819), the SHERIFF
+  sign and the JAIL panel (the factory's lettering, paid: not asked), the inside shutters, the shed's and
+  privy's props.
+
+`tests/test_building_jail.gd` 7/7 (the new one: a lamp in every room people use, RoomLight's openings
+and daylight, every lining through the stone, the floor's and trim's finishes). 128 draws in the lab's
+count (79 before: the 24 panes and the lamps).
+
+**On its lot** (`config/valley.json` town.south `jail`): `spec`, the walk's `span` [7.6, 18.57] and
+`door_x` 13.085, no pad (the stone follows the fall); ValleyWorld places it at `lot.at` (y -0.322,
+facing 0). The bake re-baked for valley.json's new hash (`valley_plan.py --bake`: only the hash moved).

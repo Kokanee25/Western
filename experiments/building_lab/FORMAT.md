@@ -55,8 +55,9 @@ boards stopped under the rafters that cross it, `ribbon: false` none; an inside 
 caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuildings` kind
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
-`lamps.kit` (#824) kit lamps hung on a wall's boards {kit, wall, level, at, height (its foot over
-the floor), side, lit [from, until], energy, reach, shadows};
+`lamps.kit` (#824) kit lamps hung on a wall's boards (on a stone wall, its face at the lamp's
+height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side, lit
+[from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 
