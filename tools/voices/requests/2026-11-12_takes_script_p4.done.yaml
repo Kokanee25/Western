@@ -1,0 +1,138 @@
+estimate: 0.074
+spent_at_most: 0.034
+made:
+- id: road.ask_again.clear.w2.s0
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or
+    GET on.'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1ce-b0ad-7573-b4d3-477b92923432:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.ask_again.clear.w2.s1
+  line: road.ask_again.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[annoyed] You deaf, man? [short pause] [sighs] Help me. [short pause] Or
+    GET on.'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1ce-bbba-7072-83b5-95a3faed0c81:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.ask_again.fading.w0.s0
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.0
+  file: takes/road.ask_again.fading.w0.s0.mp4
+- id: road.ask_again.fading.w0.s1
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.15
+  file: takes/road.ask_again.fading.w0.s1.mp4
+- id: road.ask_again.fading.w0.s2
+  line: road.ask_again.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.3
+  file: takes/road.ask_again.fading.w0.s2.mp4
+- id: road.shake.clear.w0.s0
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.0
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1ce-f0d1-7151-9568-c601cc3dd9da:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.clear.w0.s1
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.15
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1ce-fa29-71c3-8936-791d53f57de3:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.clear.w0.s2
+  line: road.shake.clear
+  app: elevenlabs/tts/eleven-v4
+  text: '[incredulous] You''d leave a man in the road? [long pause] [quiet, contemptuous]
+    Then go on. [short pause] Damn you.'
+  stability: 0.3
+  error: '422 https://queue.fal.run/elevenlabs/tts/requests/01a1d1cf-0359-74b3-8c14-417a8060d519:
+    {"detail":[{"loc":["body","voice"],"msg":"The content could not be processed because
+    it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"ATJBRWuZJ9io70PFlRSH","categories":["harassment"]},{"loc":["body","text'
+- id: road.shake.fading.w0.s0
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.0
+  file: takes/road.shake.fading.w0.s0.mp4
+- id: road.shake.fading.w0.s1
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.15
+  file: takes/road.shake.fading.w0.s1.mp4
+- id: road.shake.fading.w0.s2
+  line: road.shake.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.3
+  file: takes/road.shake.fading.w0.s2.mp4
+- id: road.press.fading.w0.s0
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[groans softly] Nnh...'
+  stability: 0.0
+  file: takes/road.press.fading.w0.s0.mp4
+- id: road.press.fading.w0.s1
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[groans softly] Nnh...'
+  stability: 0.15
+  file: takes/road.press.fading.w0.s1.mp4
+- id: road.press.fading.w0.s2
+  line: road.press.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[groans softly] Nnh...'
+  stability: 0.3
+  file: takes/road.press.fading.w0.s2.mp4
+- id: road.packed.fading.w0.s0
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.0
+  file: takes/road.packed.fading.w0.s0.mp4
+- id: road.packed.fading.w0.s1
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.15
+  file: takes/road.packed.fading.w0.s1.mp4
+- id: road.packed.fading.w0.s2
+  line: road.packed.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.3
+  file: takes/road.packed.fading.w0.s2.mp4
+- id: road.walked_off.fading.w0.s0
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.0
+  file: takes/road.walked_off.fading.w0.s0.mp4
+- id: road.walked_off.fading.w0.s1
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.15
+  file: takes/road.walked_off.fading.w0.s1.mp4
+- id: road.walked_off.fading.w0.s2
+  line: road.walked_off.fading
+  app: elevenlabs/tts/eleven-v4
+  text: '[exhales slowly, weak] Hhhh...'
+  stability: 0.3
+  file: takes/road.walked_off.fading.w0.s2.mp4
