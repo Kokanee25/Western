@@ -1476,6 +1476,21 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   `start_coach()` the Baron's coach `start_back` m down the grade with four guards and the box's two;
   `release_lead` lets the pin go itself; `place_player` (the high spot), `result()`. `-- --world=valley
   --mission=coach` (ValleyWorld `start_coach_cut`), the lab's `cut` mode and bridge `ch_cut`.
+- **After the hit** (`CoachFight`, #815; dials `config/coach_fight.tres`, `CoachFightTuning`): made by
+  CoachCut with the coach, started by `handed_off`. The hit's seed (`CoachCut.fight_seed`, bridge `ch_cut
+  seed=N`) sets each man's daze (plus each head knock's `head_stun_seconds`), nerve and a seeded limb blow;
+  the Falls already hurt most of them (broken feet, ribs). Settled, the door on top is swung open on the
+  wreck (`_open_door`: its shapes and meshes turned in the rubble body; `open_hinge` won't on a loose
+  prop); one at a time each guard's limp body is slid under it inside and `get_up`s; the first who can
+  hold a gun stands in it on a walk-only step (`hatch_step`, an OutlawBrain window order), the rest
+  climb out (`_climb`, 2.2 s scripted) to the lee; the box's two get up on the road, the messenger
+  ordered to the outcrop's flank. Each gets his OutlawBrain then (`hold`: `in_reach`, off the ram's bank,
+  `cornered`), `caught_cold` 3 ticks on. The strongbox: E held at the door (`haul_out`: a fresh standing
+  kit prop by you, padlock away from the wreck; not `keep_footed`: it'd have no feet to balance on once
+  the padlock's off), padlock shot, E opens and takes the papers, or E shoulders it shut (`Player.burden`).
+  Won up the rimrock trail (`on_trail`); lost down, got by or left it; Enter again (`CoachCut.start_on_load`,
+  GameReset). StoryState `coach.*`. Sight's first question in the valley takes the whole world (~80 ms
+  here): CoachFight asks one on its first tick. Lab: bridge `ch_fight`, `ch_fight_run`, `fight_runs.py`.
 
 ## src/people
 
