@@ -5,7 +5,7 @@ A request is tools/voices/requests/<YYYY-MM-DD>_<what>.yaml; it's done when <nam
     task: probe | cast
     spend: 0.00          # the most the whole request may cost ($): required; the run stops before passing it
     note: why
-probe (free): fetches fal's API schemas and pages for its ElevenLabs endpoints and the terms
+probe (free; optional `apps:` [fal endpoint ids] and `pages:` {name: url}): fetches fal's API schemas and pages for its ElevenLabs endpoints and the terms
 (ElevenLabs, fal) into tools/voices/probe/, for the session to read (the workspace can't reach them).
 cast (paid): see cast.py.
 Every paid call is a row in tools/voices/paid.csv (date, request, app, what, est $).
@@ -54,10 +54,10 @@ def text_of(page):
     return re.sub(r"[ \t]+", " ", re.sub(r"\n\s*\n+", "\n", html.unescape(page))).strip()
 
 
-def probe(out):
+def probe(out, apps=None, pages=None):
     os.makedirs(out, exist_ok=True)
     got = {}
-    for app in FAL_APPS:
+    for app in apps or FAL_APPS:
         slug = app.replace("/", "_")
         for kind, url in (("openapi", "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=" + app),
                           ("llms", "https://fal.ai/models/%s/llms.txt" % app)):
@@ -67,12 +67,12 @@ def probe(out):
                 got[url] = len(t)
             except Exception as e:
                 got[url] = "failed: %s" % e
-    for name, url in PAGES.items():
+    for name, url in (pages if pages is not None else PAGES).items():
         try:
             raw = fetch(url)
-            if name == "fal_models":   # just the ElevenLabs endpoint ids
-                ids = sorted(set(re.findall(r"(?:fal-ai/)?elevenlabs/[a-z0-9/_.-]+", raw)))
-                open(os.path.join(out, "fal_models.ids.txt"), "w").write("\n".join(ids) + "\n")
+            if name.startswith("fal_models"):   # just the endpoint ids
+                ids = sorted(set(re.findall(r"(?:fal-ai/)?(?:elevenlabs|[a-z0-9-]*(?:voice|speech|sts)[a-z0-9-]*)/[a-z0-9/_.-]+", raw)))
+                open(os.path.join(out, name + ".ids.txt"), "w").write("\n".join(ids) + "\n")
             else:
                 open(os.path.join(out, name + ".txt"), "w").write(raw if url.endswith((".txt", ".md")) else text_of(raw))
             got[url] = len(raw)
@@ -91,7 +91,7 @@ def main():
         if "spend" not in req:
             out = {"error": "no spend: field"}
         elif req.get("task") == "probe":
-            out = probe(os.path.join(HERE, "probe"))
+            out = probe(os.path.join(HERE, "probe"), req.get("apps"), req.get("pages"))
         elif req.get("task") == "cast":
             sys.path.insert(0, HERE)
             import cast

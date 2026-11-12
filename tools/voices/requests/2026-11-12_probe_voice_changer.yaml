@@ -1,0 +1,13 @@
+task: probe
+spend: 0.00
+note: free; does fal have ElevenLabs' voice changer (speech to speech) for Sean's own reads (#836 acting test)
+apps:
+  - fal-ai/elevenlabs/voice-changer
+  - fal-ai/elevenlabs/speech-to-speech
+  - elevenlabs/voice-changer
+  - fal-ai/elevenlabs/voice-changer/multilingual-sts-v2
+  - fal-ai/elevenlabs/audio-isolation
+pages:
+  fal_models_audio: "https://fal.ai/models?keywords=voice%20changer"
+  el_v3_prompting: "https://elevenlabs.io/docs/best-practices/prompting/eleven-v3.md"
+  el_voice_design_guide: "https://elevenlabs.io/docs/eleven-creative/voices/voice-design.md"
