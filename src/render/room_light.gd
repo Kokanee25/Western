@@ -19,7 +19,8 @@ extends Node
 ##   at night goes dark amber and down to ambient_scale of what it was (the bounces do the rest of
 ##   its work), scaled again by the share of the room's lamps still lit (DayCycle reads the meta
 ##   `room_light_scale`).
-## - **Openings.** The front door and windows (as MoonWindows has them) and every hole a break
+## - **Openings.** The front door and windows (as MoonWindows has them), or every outer door and
+##   window of a building that names its own (`light_openings`: a spec building's, #824), and every hole a break
 ##   makes in a wall let the sky in: a soft spot just inside, sized to the opening, moonlight by
 ##   night (the round-2 MoonWindows' numbers, which it then stands in for) and skylight by day
 ##   (the sun comes through on its own, shadowed). A hole is found from the structure's own
@@ -231,10 +232,15 @@ func _room_for(b: FalseFrontBuilding) -> Room:
 	r.probe = b.get_node_or_null(^"InteriorAmbient") as ReflectionProbe
 	if r.probe:
 		r.colour_was = r.probe.ambient_color
-		r.probe.ambient_color = tune().ambient_colour
+		r.probe.ambient_color = fill_colour(b)
 	r.haze = b.get_node_or_null(^"RoomHaze") as FogVolume
 	_rooms[b] = r
-	# The building's own openings: the door and, if it has them, the front windows (MoonWindows').
+	# A building that knows its own openings (a spec building's every outer door and window, #824)
+	# gives them; else the door and, if it has them, the front windows (MoonWindows').
+	if b.has_method(&"light_openings"):
+		for o: Dictionary in b.call(&"light_openings"):
+			_add_opening(r, StringName(o.wall), o.rect, StringName(o.kind), o.get("frame", {}))
+		return r
 	var rects: Array[Rect2] = [b.door_rect]
 	if b.front_windows:
 		var f := b.floor_top
@@ -242,6 +248,14 @@ func _room_for(b: FalseFrontBuilding) -> Room:
 	for i in rects.size():
 		_add_opening(r, &"front", rects[i], &"door" if i == 0 else &"window")
 	return r
+
+
+## The room's fill colour: the building's own (a spec's `light.fill`, its meta `room_fill`: near
+## neutral, so the windows and lamps give the room its shape, #824) or the tuning's.
+static func fill_colour(b: Node) -> Color:
+	if b and b.has_meta(&"room_fill"):
+		return b.get_meta(&"room_fill")
+	return tune().ambient_colour
 
 
 # --- the lamps' bounce -----------------------------------------------------------------------------
@@ -511,24 +525,29 @@ func _fill(r: Room) -> void:
 	var scale := tune().ambient_scale * (r.share if tune().ambient_follows_lamps else 1.0)
 	if not is_equal_approx(float(r.probe.get_meta(&"room_light_scale", -1.0)), scale):
 		r.probe.set_meta(&"room_light_scale", scale)
-	if r.probe.ambient_color != tune().ambient_colour:
-		r.probe.ambient_color = tune().ambient_colour
+	var c := fill_colour(r.building)
+	if r.probe.ambient_color != c:
+		r.probe.ambient_color = c
 
 
 # --- openings ------------------------------------------------------------------------------------
 
-func _add_opening(r: Room, wall: StringName, rect: Rect2, kind: StringName) -> Dictionary:
+## `frame` (optional): the wall's own {origin, along, inward} in the building's space, for a wall
+## that isn't one of the box's four sides.
+func _add_opening(r: Room, wall: StringName, rect: Rect2, kind: StringName, frame := {}) -> Dictionary:
 	var s := SpotLight3D.new()
 	s.name = "Opening%d" % r.openings.size()
 	s.shadow_enabled = false
-	s.light_specular = 0.2
+	# A soft fill from the sky, so no highlight of its own: on a varnished floor each window's spot
+	# showed as a cold blue dot at night (the doctor's, #824 round 1). The old rooms keep MoonWindows'.
+	s.light_specular = 0.0 if r.building.has_meta(&"room_window_gain") else 0.2
 	s.light_volumetric_fog_energy = 0.6  # a shaft in the room's haze (MoonWindows')
 	s.light_energy = 0.0
 	s.visible = false
 	s.add_to_group(&"room_light_opening")
 	r.building.add_child(s)
 	var b := r.building
-	var w := _wall_frame(b, wall)
+	var w := frame if not frame.is_empty() else _wall_frame(b, wall)
 	var top := Vector2(rect.get_center().x, rect.end.y - 0.1)
 	var inward: Vector3 = w.inward
 	var at: Vector3 = (w.origin as Vector3) + (w.along as Vector3) * top.x + Vector3.UP * top.y + inward * (FalseFrontBuilding.STUD_D + 0.05)
@@ -574,7 +593,9 @@ func _openings_light(r: Room, clock: DayCycle) -> void:
 		var rect: Rect2 = o.rect
 		var size := clampf(sqrt(float(o.get("area", rect.get_area())) / WINDOW_AREA), 0.15, sqrt(tn.opening_max_area / WINDOW_AREA))
 		var night_e := cfg.moon_window_energy * moon * tn.opening_night_gain
-		var day_e := tn.opening_day_energy * day
+		# A building's own daylight gain (a spec's `light.window_day`, #824: its rooms lit by their
+		# windows, not a tint).
+		var day_e := tn.opening_day_energy * day * float(r.building.get_meta(&"room_window_gain", 1.0))
 		var e := (night_e + day_e) * size
 		var shown := e > 0.001
 		if s.visible != shown:

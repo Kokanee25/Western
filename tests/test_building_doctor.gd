@@ -89,3 +89,46 @@ func test_what_the_doctors_costs_to_draw() -> void:
 	var r := Checks.draw_calls(lab)
 	print("  draws: %s" % [r])
 	check(true, "counted")
+
+
+## #824 (#821 pick 1): the rooms lit as rooms. Every room people use (all but the loft) has a lamp
+## of its own, hung on its walls; RoomLight gets every outer door and window; the indoor fill reaches
+## the outer walls' inside boards; and the inside paint's wear is measured from the floor.
+func test_the_doctors_rooms_have_their_own_light() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var lit := {}
+	for lamp: OilLamp in b.lamps:
+		var at: Vector3 = b.to_local(lamp.global_position)
+		for r: Dictionary in spec.rooms:
+			var rc: Array = r.rect
+			if r.id != "loft" and at.x > float(rc[0]) - 0.2 and at.x < float(rc[2]) + 0.2 \
+					and at.z > float(rc[1]) - 0.2 and at.z < float(rc[3]) + 0.2 and at.y < 4.3:
+				lit[r.id] = true
+	for r: Dictionary in spec.rooms:
+		if r.id != "loft":
+			check(lit.has(r.id), "the %s has a lamp" % r.id)
+	var n := 0
+	for w: Dictionary in spec.walls:
+		if not w.get("partition", false):
+			n += (w.get("openings", []) as Array).size()
+	var ops: Array = b.light_openings()
+	check(ops.size() == n, "RoomLight gets every outer opening (%d of %d)" % [ops.size(), n])
+	for o: Dictionary in ops:
+		var rect: Rect2 = o.rect
+		check(rect.position.y >= 0.9 and rect.size.x > 0.3, "an opening in the wall above the floor: %s" % rect)
+	var probe := b.get_node(^"InteriorAmbient") as ReflectionProbe
+	check(probe.size.x >= b.width - 0.01 and probe.size.z >= b.depth - 0.01, "the fill reaches the outer walls (%s)" % probe.size)
+	check(b.has_meta(&"room_fill") and b.get_meta(&"room_fill") is Color, "the fill's colour is the spec's")
+	# An inside wall board's ground (CUSTOM2's z, the shader's wear height) is the floor's.
+	var found := false
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).contains("/in_ground/") and m.drawn_node() and m.drawn_node().mesh is ArrayMesh:
+			var arrays: Array = (m.drawn_node().mesh as ArrayMesh).surface_get_arrays(0)
+			var c2: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM2]
+			if c2.size() >= 4:
+				var gy: float = b.global_position.y
+				check(absf(c2[2] - (gy + b.floor_top)) < 0.01, "an inside board's wear from the floor (%.2f, floor %.2f)" % [c2[2] - gy, b.floor_top])
+				found = true
+				break
+	check(found, "an inside board found to read")

@@ -114,6 +114,29 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
 - Bare dark walnut everywhere inside reads near black: a building's inside finishes want a pale wall
   as soon as the library has one.
 
+## Light (#824, Sean's pick 1 on #821: rooms get real light)
+
+The doctor's office is the test room; the jail, the store and saloon B follow it.
+
+- **A spec names its lamps, one a room people use** (`lamps.kit`, FORMAT.md): kit lamps hung on a
+  wall's boards (the `reflector_lamp`: it falls and smashes when its boards go), each with its hours
+  (`lit` [from, until]), energy and reach. Only the lamps in the rooms a player stands in cast
+  shadows (`shadows: true`; the doctor's surgery and desk lamps), the rest don't: render CPU.
+  `tests/test_building_<b>.gd` fails a room without one (the doctor's test).
+- **A spec has `light`** (`fill`, `window_day`). With it, the building's indoor fill reaches its
+  outer walls' inside boards (the base probe stopped at the studs' inner face and faded over 0.3 m:
+  the outer walls took the sky's cool fill beside the partitions' amber, the doctor's orange /
+  blue-grey corner; proved by the test render in `doctor/results/2026-11-12_light/`), its colour is
+  the spec's (near neutral, not a tint), and RoomLight lets the sky (or the moon) in at every outer
+  door and window (`light_openings`), `window_day` times its usual day light.
+- **Inside paint wears from the room's floor**, not the street's ground (`INSIDE_FINISHES`: inside,
+  ceiling, floor): the hand band and the scuffs over the skirting land where hands and boots are.
+- **Judge the rooms lit:** the four views of `doctor/light_views.gd` (desk corner, dispensary,
+  window from inside, the surgery at night with its lamp), before and after, by the cheap judge.
+  `--cpu` measures each view's render CPU; the interior's must stay under 4 ms at Sean's.
+- **Not done here:** contact shadows under furniture (#711's; SSAO is all there is, and the lamps
+  that cast shadows), lamps lit by people (a man carrying or lighting one: the lamps keep the clock).
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
