@@ -62,7 +62,7 @@
           {"id": "doctor_b4", "url": "/_blob/c062a6da8107ec6bbb2431f9206bcc92", "voice_id": "9yzzXApIsJqi6aqUDGuA", "seed": 12004}
         ],
         "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
-        "picked": null
+        "picked": {"id": "doctor_b3", "voice_id": "4azXcYimkYjryiN8Q7F2", "seed": 12003, "by": "Sean", "at": "2026-11-12", "fixed": true}
       }},
     {"id": "widow", "name": "The sheriff's wife", "called": "ma'am, Mrs.", "bible": "VOICES.md, The widow; WORDS.md, The town's women",
      "brief": "About forty, a Midwestern farm wife with good schooling. Level and low, short; grief held under work; asks hard questions plainly.",
@@ -76,7 +76,7 @@
           {"id": "widow_b4", "url": "/_blob/f9f1adbeb6b84a37617f616d59143576", "voice_id": "mEqh4shy6lVuZZjKB0X5", "seed": 13004}
         ],
         "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
-        "picked": null
+        "picked": {"id": "widow_b1", "voice_id": "SDscCL4JluGFC3SpvZdQ", "seed": 13001, "by": "Sean", "at": "2026-11-12", "fixed": true}
       }},
     {"id": "freighter", "name": "The freighter", "called": "", "bible": "SETUPS.md S1 (P·bible); a smaller voice",
      "brief": "Forties, a teamster, hoarse from shouting at mules; rough country voice, quick, still shaken by what he hauled in.",
@@ -90,7 +90,7 @@
           {"id": "freighter_b4", "url": "/_blob/e071dacba9c5014a5c1d308dd09b6d66", "voice_id": "Uy7DFPjvyD9mvvDbyeiL", "seed": 14004}
         ],
         "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
-        "picked": null
+        "picked": {"id": "freighter_b4", "voice_id": "Uy7DFPjvyD9mvvDbyeiL", "seed": 14004, "by": "Sean", "at": "2026-11-12", "fixed": true}
       }},
     {"id": "livery", "name": "The livery man", "called": "", "bible": "VOICES.md, Smaller voices",
      "brief": "Sixties, slow and grumbling to hide that he minds; a little nasal, rural.",
@@ -104,7 +104,7 @@
           {"id": "livery_b4", "url": "/_blob/add1ebbcc6c5c60f7eef7d8fecc462f8", "voice_id": "wMCQyCHuVyxxZ58mSJe9", "seed": 15004}
         ],
         "earlier": "round 1 (tools/voices/requests/2026-11-12_cast_sheriff_road.yaml) dropped: Sean, 2026-11-12, it sounded like an old movie (no audio-quality words, 1880s in the prompt, 64 kbps)",
-        "picked": null
+        "picked": {"id": "livery_b1", "voice_id": "Fj50rEyFwc8pGKqGpwQ7", "seed": 15001, "by": "Sean", "at": "2026-11-12", "fixed": true}
       }}
   ],
   "scenes": [
