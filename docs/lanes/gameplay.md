@@ -19,6 +19,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   look is the Studio's (stand-in `miner_s4_talking`). **Next: step 2, the doctor's and the camp.**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
+- **Townsfolk behaving realistically** (Sean 2026-11-12, #850): designed, not built: `docs/briefs/townsfolk.md`
+  (days and the book, spots, staged reactions, news, regard and barks, the saloon as a room; an 11-step plan,
+  step 1 measures and shuts the perception leaks). Waiting on Sean's five picks: #851. Starts when he places it.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
