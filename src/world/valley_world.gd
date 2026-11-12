@@ -38,6 +38,9 @@ static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
+## SheriffDies, the morning after set up, you on Main Street).
+const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
 
@@ -70,16 +73,38 @@ func _ready() -> void:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
+		_start_sheriff_dies.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
 
 
-## The sheriff on the road (#746), once the valley's in (its places, the ground under you).
+## The sheriff on the road (#746), once the valley's in (its places, the ground under you). The
+## story's Harlan has no revolver till the dying sheriff gives him his (No Law, #796).
 func _start_sheriff() -> void:
 	for i in 5:
 		await get_tree().physics_frame
+	_unarmed()
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## No Law's sheriff's last day alone (#796), once the folk are built.
+func _start_sheriff_dies() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	var care := "good"
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--care="):
+			care = a.get_slice("=", 1)
+	if folk:
+		folk.start_sheriff_dies({"set_up": true, "care": care})
+
+
+func _unarmed() -> void:
+	var p := get_node_or_null(^"Player") as Player
+	if p and not StoryState.has_fact("nolaw.revolver"):
+		p.lack(&"revolver")
 
 
 ## The coach heist in the coach cut (#794), once the valley's ground is in: the ram held, the coach

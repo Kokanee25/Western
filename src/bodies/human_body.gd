@@ -112,6 +112,11 @@ const POSES := {
 	# On his belly (the rig is laid flat): arms forward, head up.
 	&"prone": {&"upper_arm_r": Vector3(150, 0, 12), &"forearm_r": Vector3(25, 0, 0),
 			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
+	# On his back in a bed (No Law's dying sheriff on the doctor's cot, #796): the rig laid face up,
+	# his head toward his own +z (put him with his feet at the bed's foot, facing along it to its
+	# foot), arms down by his sides, his head a little up on the pillow.
+	&"on_back": {&"upper_arm_r": Vector3(6, 0, 6), &"forearm_r": Vector3(18, 0, 0),
+			&"upper_arm_l": Vector3(6, 0, -6), &"forearm_l": Vector3(18, 0, 0), &"head": Vector3(-18, 0, 0)},
 	&"lie": {&"upper_arm_r": Vector3(165, 0, 20), &"forearm_r": Vector3(60, 0, 0),
 			&"upper_arm_l": Vector3(165, 0, -20), &"forearm_l": Vector3(60, 0, 0), &"head": Vector3(20, 0, 0)},
 	# Bent over, walking backwards, both hands down on a man's collar, dragging him.
@@ -1570,7 +1575,8 @@ func _physics_step(delta: float) -> void:
 		_apply_pose(delta, false, pose_ahead)
 		if stumbling > 0.0:
 			pass  # he's going down already
-		elif not physiology.can_stand() and not prone and not rising:
+		elif not physiology.can_stand() and not prone and not rising and pose != &"on_back":
+			# (Laid on his back in a bed he stays there, alive or dead: No Law's sheriff, #796.)
 			if _can_crawl():
 				go_prone()
 			else:
@@ -2742,6 +2748,11 @@ func _place_rig(delta: float, snap: bool) -> void:
 	if prone or pose == &"lie":
 		_rig.rotation.x = lerp_angle(_rig.rotation.x, deg_to_rad(-90.0), clampf(delta * 3.0, 0.0, 1.0) if not snap else 1.0)
 		_rig.position.y = lerpf(_rig.position.y, 0.16, k)
+		_set_blocker(true)
+		return
+	if pose == &"on_back":
+		_rig.rotation.x = deg_to_rad(90.0)
+		_rig.position.y = 0.13
 		_set_blocker(true)
 		return
 	_rig.rotation.x = 0.0

@@ -1381,16 +1381,23 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
 `config/moments/no_law_murder.json`; `tests/test_no_law_murder.gd`): started by ValleyFolk (its
 `hour` 22 on the first night, or from `earliest` once you've played `after_hands` hands at the table;
 `murder_auto`, `-- --no-murder`) or the bridge's `moment no_law_murder`. The stranger (ValleyFolk's
-act man) walks in and sits in the free chair you're not in; `after_s` on, Cody (the red shirt, a
-stand-in model) in by his `in` places; within `stop_m` of the table the game `interrupt(&"red_shirt",
-true)`, you `PlayerSeat.hold`ed if sat there, the stranger's warning, every folk brain `hush`ed;
+act man) walks in and sits in the free chair you're not in; `after_s` on, Cody (a stand-in model) in by his `in` places; within `stop_m` of the table the game
+`interrupt(&"cody", true)`, you `PlayerSeat.hold`ed if sat there, the stranger's warning, every folk brain `hush`ed;
 the accusation, Earl's reply, then CardCheat's beats (turn, kick, after_kick, draw, approach) on
 Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics, smoke, flash, sound,
 `shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
 line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
 word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
 of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
-`nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`.
+`nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`. Cody (#796: not the red shirt;
+the role `cody`, the blacksmith's model) shouts his accusation as he's taken in off the street; the stranger's
+warning `warn_after_s` after it.
+
+**No Law's morning after** (#796; ValleyFolk, `config/valley_folk.json` `morning` and `talk`): the murder done
+and the clock round to the day: `nolaw.morning`; Earl's body to the undertaker's once you're off it
+(`to_undertaker`: `gone_for_good`, `nolaw.earl` undertaker, `death.earl`); day folk at `post.lot` posts on the
+walks say lines by the story's facts (`says`, `ValleyFolk.story_holds`: a value, a list, "*", "!key");
+from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
 
 ## src/missions (the farmhouse)
 
@@ -1462,6 +1469,19 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   (`StoryState`, `src/missions/story_state.gd`: static, in memory, bridge `story [clear]`):
   `sheriff.care`, `sheriff.blood_loss`, `sheriff.packed`, `sheriff.answer`. `tests/test_sheriff.gd`;
   valley_bench spots `harlan_home`, `sheriff_site`.
+- **The sheriff's last day** (#796, No Law beat 5; `src/missions/sheriff_dies.gd`, `SheriffDies`, an `Act`; data
+  `config/moments/sheriff_dies.json`; `tests/test_sheriff_dies.gd`): ValleyFolk's act men (`act: sheriff_dies`:
+  runner, dying_sheriff, doc, wife). The runner finds you in town, the doctor at his door (lines by
+  `sheriff.care`) leads you by the data's `lead` (the doctor's building's own [x, z]) to the sick room; the
+  sheriff `on_back` (HumanBody's pose: rig face up, his head to his +z; he doesn't go prone or limp in it) on an
+  iron cot at the building's `cot_1` (the room's own cot if the props lane has put one, else one made), his
+  wife in a chair at `bedside`. Beats by care (clear / fading voice), `hold` (E, poor or left) and the
+  `answer` (HeadGesture; none = shake), the badge, the revolver (`Player.give`), death by his gut's clock
+  (Physiology). Facts nolaw.sheriff, accepted, deputy, revolver, acting, held_him, death.sheriff.
+  `-- --world=valley --mission=sheriff_dies [--care=..]` or `moment sheriff_dies set_up=1 care=..`.
+- **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
+  out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
+  `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
 - The lab: `experiments/farmhouse/` (README): the probe, the breach check, the contact sheet, the
   scripted player (`farm_bot.gd`, the gunfight lab's eyes and hand) and its runs (`run.py`), the
   playtest brief; bridge commands `farm_wall`, `farm_hole`, `farm_hide`, `farm_blast`, `farm_view`, `farm_start`, `farm_state`,
