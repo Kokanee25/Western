@@ -2586,8 +2586,72 @@ func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
 	MaterialLibrary.apply(mat, MaterialLibrary.entry(String(f.entry)), float(LIB_AGES.get(String(f.get("age", "few")), 0.5)), StringName(f.get("role", "wall")))
 	# Its walls' height (shelter under the eaves: the shader's `wall_top` over the ground).
 	mat.set_shader_parameter(&"wall_top", wall_height)
+	# A floor wood with feet's wear takes this building's ways (#825).
+	if String(f.get("role", "")) == "floor" and float(MaterialLibrary.resolved(MaterialLibrary.entry(String(f.entry))).get("traffic", 0.0)) > 0.0:
+		var tw := traffic_ways()
+		if not (tw.ways as Array).is_empty():
+			var gt := global_transform if is_inside_tree() else transform
+			var gl := float(_lv.get("ground", 0.0))
+			MaterialLibrary.set_traffic(mat, MaterialLibrary.traffic_image(tw.size, tw.ways, tw.rooms), gt * Vector3.ZERO,
+					gt.basis.x, gt.basis.z, tw.size, (gt * Vector3(0.0, gl, 0.0)).y)
 	_lib_mats[key] = mat
 	return mat
+
+
+## The ground floor's ways (#825), for its floor's traffic map: in each room, from every door to every
+## other (through traffic) and from each use point on the floor to its nearest door and to the room's
+## nearest outside door (where callers come in), heavier where someone works or serves. Doors are the walls' door openings on the ground level; rooms their
+## rects. {ways: [[Vector2, Vector2, weight]], rooms: [[x0, z0, x1, z1]], size: Vector2} in the
+## building's own x, z.
+func traffic_ways() -> Dictionary:
+	var ground := float(_lv.get("ground", 0.0))
+	var rooms := []
+	var size := Vector2.ZERO
+	for r: Dictionary in spec.get("rooms", []):
+		if String(r.get("level", "ground")) != "ground":
+			continue
+		var rc: Array = r.rect
+		rooms.append([float(rc[0]), float(rc[1]), float(rc[2]), float(rc[3])])
+		size = Vector2(maxf(size.x, float(rc[2]) + 0.1), maxf(size.y, float(rc[3]) + 0.1))
+	var doors := []
+	var outer := []
+	for w: Dictionary in spec.get("walls", []):
+		var a := Vector2(w.line[0][0], w.line[0][1])
+		var e := Vector2(w.line[1][0], w.line[1][1])
+		var dir := (e - a).normalized()
+		for o: Dictionary in w.get("openings", []):
+			if String(o.get("type", "")) == "door" and String(o.get("level", "ground")) in ["ground", "<null>"]:
+				doors.append(a + dir * float(o.at))
+				if w.has("out"):
+					outer.append(a + dir * float(o.at))
+	var heavy := ["work", "serve", "operate", "buy"]
+	var ways := []
+	for rc: Array in rooms:
+		var ds := doors.filter(func(d: Vector2) -> bool:
+			return d.x > rc[0] - 0.3 and d.x < rc[2] + 0.3 and d.y > rc[1] - 0.3 and d.y < rc[3] + 0.3)
+		for i in ds.size():
+			for j in range(i + 1, ds.size()):
+				ways.append([ds[i], ds[j], 0.8])
+		if ds.is_empty():
+			continue
+		for u: Dictionary in spec.get("use_points", []):
+			var at: Array = u.at
+			var p := Vector2(at[0], at[2])
+			if absf(float(at[1]) - ground) > 0.2 or p.x < rc[0] or p.x > rc[2] or p.y < rc[1] or p.y > rc[3]:
+				continue
+			var near: Vector2 = ds[0]
+			for d: Vector2 in ds:
+				if d.distance_to(p) < near.distance_to(p):
+					near = d
+			var k := 1.0 if String(u.get("use", "")) in heavy else 0.7
+			ways.append([near, p, k])
+			var near_out := Vector2.INF
+			for d: Vector2 in ds:
+				if outer.has(d) and d.distance_to(p) < near_out.distance_to(p):
+					near_out = d
+			if near_out != Vector2.INF and near_out != near:
+				ways.append([near_out, p, k * 0.8])
+	return {"ways": ways, "rooms": rooms, "size": size}
 
 
 ## A board's mesh in the library shader's own layout (scan_wood.gdshader's header: X along 0..L,

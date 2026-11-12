@@ -27,8 +27,9 @@ class_name PropKit
 ## "wood:<name>" (the texture factory's woods, WoodMaterials), or "model:<name>" (a model's own
 ## painted texture on its UVs: assets/props/models/<name>_paint.png, PropModels.model_paint; the deer
 ## head from Rodin), or "pbr:<model>" (metal the gun way: the model's baked albedo and ORM,
-## metallic, PropModels.pbr), or "lib:<entry>/<age>[/top]" (the material library's woods, #721: the
-## member drawn as a library board, dress_lib; boxes only), or "glass:<colour>" (a bottle's tinted
+## metallic, PropModels.pbr), or "lib:<entry>/<age>[/top|/front]" (the material library's woods, #721: the
+## member drawn as a library board, dress_lib; boxes only; `front` a drawer's front, its pulls worn
+## round under a furniture entry's finish, #825: pulls at its quarters over 0.6 m, else its middle), or "glass:<colour>" (a bottle's tinted
 ## glass, see-through: aqua, amber, cobalt, clear, green; PropModels.tinted_glass, #805). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at", "rot"}: turned about
@@ -374,11 +375,15 @@ const LIB_AGES := {"new": 0.0, "few": 0.5, "old": 1.0}
 static var _lib_mats := {}
 
 
-## A look's parts: "lib:<entry>/<age>[/top]" -> [entry, age, top]. `top`: a worked or leaned-on top
-## (the library shader's rail-top role: rings and elbow wear where it's varnished).
+## A look's parts: "lib:<entry>/<age>[/top|/front]" -> [entry, age, role]. The role (the library
+## shader's CUSTOM2.w): 1 `top`, a worked or leaned-on top (rings and elbow wear where it's varnished);
+## 2 `front`, a drawer's front (hands round its pulls, under a furniture entry, #825); else 0.
 static func lib_parts(look: String) -> Array:
 	var p := look.trim_prefix("lib:").split("/")
-	return [p[0], p[1] if p.size() > 1 else "few", p.size() > 2 and p[2] == "top"]
+	var role := 0.0
+	if p.size() > 2:
+		role = 1.0 if p[2] == "top" else (2.0 if p[2] == "front" else 0.0)
+	return [p[0], p[1] if p.size() > 1 else "few", role]
 
 
 ## The library's shader for a prop's wood (MaterialLibrary.apply at the entry's age, as a building's
@@ -411,8 +416,8 @@ static func lib_material(look: String) -> ShaderMaterial:
 static func dress_lib(m: StructureMember, look: String, cut := {}) -> void:
 	var mi := m.get_child(0) as MeshInstance3D
 	var lp := lib_parts(look)
-	var e := MaterialLibrary.entry(String(lp[0]))
-	var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("class", "common")), SamplePanel.CLASSES[&"common"])
+	var e := MaterialLibrary.resolved(MaterialLibrary.entry(String(lp[0])))
+	var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("wood_class", "common")), SamplePanel.CLASSES[&"common"])
 	var ai: int = maxi(0, ["new", "few", "old"].find(String(lp[1])))
 	# Furniture is joined and stays true: a tenth of a wall board's warp.
 	var warp := float(cls.warp[ai]) * float(e.get("warp_scale", 1.0)) * 0.1
@@ -428,7 +433,7 @@ static func dress_lib(m: StructureMember, look: String, cut := {}) -> void:
 	var rng := hash(m.member_id)
 	var frame := Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 	if cut.is_empty():
-		mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, 1.0 if lp[2] else 0.0)
+		mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, float(lp[2]))
 	else:
 		mi.mesh = lib_cut_mesh(cut, m, frame, float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp)
 	mi.transform = frame

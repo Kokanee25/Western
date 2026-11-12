@@ -11,7 +11,9 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - **Material library** (`config/material_library.json`, `SamplePanel`, `scan_wood.gdshader`; LAYOUT
   "src/render"). Passing woods: R1 (all ages), C1, F2. Approved paints: `painted_white_lap`,
   `painted_green_trim`, `painted_buff_drop`, `painted_pale_tg`, `painted_pale_tg_green` (all ages),
-  `painted_oxblood_batten` (few, old). Buildings take finishes by name.
+  `painted_oxblood_batten` (few, old). Buildings take finishes by name. Floors and furniture (#825):
+  `floor_fir_worn` FL1 (all ages; feet's wear from the building's traffic map), `furniture_oak` FN1 (all),
+  `furniture_painted_pine` FN2 (new, few); `furniture_walnut` FN3 parked (top clouds, no walnut figure).
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
   `docs/concept/judge/MATERIAL.md`): a swatch passes at "game" or better with no tile tell. Cheap judge
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
@@ -22,9 +24,12 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `docs/briefs/saloon-design.md` "Sean's answers").
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): why the office reads cheap (flat
   indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows, indoor wear
-  under the floor). **Sean said yes to all five picks (#821, DECIDED).** Built once in the doctor's office by #824
-  (light and lamps), #825 (pine floor, furniture woods and finish), #826 (sash window part, narrow beaded boards,
-  skirting, casings); then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
+  under the floor). **Sean said yes to all five picks (#821, DECIDED).** #824 (light), #825 (floor and furniture
+  woods, merged: the doctor's floor is FL1 with his ways worn; the prop lab re-points his furniture, #819) and
+  #826 done; then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
+- **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
+  floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
+  the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
 - **The doctor's walls and windows** (#826): every window a `SashWindow` (src/structures, a part: lined reveal,
