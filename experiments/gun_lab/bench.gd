@@ -89,7 +89,7 @@ func _place_player(yaw := PLAYER_YAW) -> void:
 
 func _gun(which: String) -> WeaponViewmodel:
 	var p: Player = lab.player
-	var w: WeaponViewmodel = p.revolver() if which == "revolver" else p.shotgun()
+	var w: WeaponViewmodel = p.revolver() if which == "revolver" else (p.rifle() if which == "winchester" else p.shotgun())
 	w.needs_captured_mouse = false
 	p.select_weapon(w)
 	w.take_out()
@@ -103,6 +103,60 @@ func _gun(which: String) -> WeaponViewmodel:
 static func _write(path: String, data: Variant) -> void:
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	f.store_string(JSON.stringify(data, "  "))
+
+
+# --- Harlan's arms (#890) ------------------------------------------------------------------------
+
+## The Colt and the Winchester in first person under the game's own look: idle, aimed, cocked (the
+## Colt) or the lever thrown (the rifle), reloading at the gate. Each frame a second or so settled.
+func arms(here := false, guns: Array = ["revolver", "winchester"]) -> Array:
+	await quiet_town()
+	if not here:
+		await _place_player()
+	var shots := []
+	for which: String in guns:
+		var w := await _gun(which)
+		await _frames(30)
+		for st: String in ["idle", "aimed", "cocked", "reloading"]:
+			match st:
+				"aimed":
+					_act(true, &"aim")
+					await _frames(50)
+				"cocked":
+					if w is Winchester73Viewmodel:
+						(w as Winchester73Viewmodel).lever_open()   # thrown and held
+						await lab.seconds(0.4)
+					else:
+						w.call(&"cock_press")
+						await _frames(8)
+				"reloading":
+					if w is RevolverViewmodel:
+						var r := (w as RevolverViewmodel).state
+						r.hammer = RevolverState.Hammer.DOWN
+						r.chambers.fill(RevolverState.Chamber.SPENT)
+						w.call(&"reload_press")
+						await _frames(40)
+						w.call(&"reload_press")
+						await _frames(10)
+					else:
+						var wv := w as Winchester73Viewmodel
+						if wv.state.lever_open:
+							wv.lever_close()
+						await _frames(30)
+						wv.state.tube = 0
+						wv.reload_press()
+						# A round at the gate for a moment only: by game time (lavapipe draws ~1 a second).
+						await lab.seconds(0.5)
+			var path := out_dir.path_join("arms_%s_%s.png" % [which, st])
+			await _shot(path)
+			shots.append(path.get_file())
+			_act(false, &"aim")
+			if w is Winchester73Viewmodel and (w as Winchester73Viewmodel).state.lever_open:
+				(w as Winchester73Viewmodel).lever_close()
+			await _frames(20)
+		w.put_away()
+		await _frames(40)
+	return shots
 
 
 # --- First person --------------------------------------------------------------------------------

@@ -9,6 +9,7 @@ const HELP := {
 	"gun_men": "gun_men BODY [out=DIR] [hour=H] -> one man's gun holstered, drawing, aiming, firing, reloading, dropped, from 1, 5 and 10 m, with the grip's gap to his hand: DIR/men_<body>/*.png, DIR/men_<body>.json (needs drawing)",
 	"gun_grip": "gun_grip BODY -> the grip's and holster's gaps for one man, no frames (headless is fine)",
 	"gun_framing": "gun_framing revolver|shotgun [aim] -> the share of each hand on screen, and where each hand part lands in the view (pixels), the gun held at rest (or aimed)",
+	"gun_arms": "gun_arms [out=DIR] [hour=H] [here] [guns=revolver,winchester] -> Harlan's arms (#890) on the Colt and the Winchester in the real game: idle, aimed, cocked / mid-lever, reloading: DIR/arms_<gun>_<state>.png (here: where you stand, not the street's middle; the painted man's arms: start the game with --painted-arms)",
 	"gun_handling": "gun_handling [out=DIR] -> draw to first shot, cocking, rhythm, reloads, sight recovery, accuracy (steady, rushed, hip, walking, wounded) for both guns, and the outlaw's figures: DIR/handling.json",
 }
 
@@ -43,6 +44,19 @@ func _cmd_gun_fp(a: Array) -> Dictionary:
 	var out: Dictionary = await b.fp(String(a[0]))
 	b.queue_free()
 	return {"frames": (out.frames as Array).size(), "out": b.out_dir}
+
+
+func _cmd_gun_arms(a: Array) -> Dictionary:
+	if DisplayServer.get_name() == "headless":
+		return {"ok": false, "error": "headless: nothing is drawn"}
+	var guns: Array = ["revolver", "winchester"]
+	for x: String in a:
+		if x.begins_with("guns="):
+			guns = Array(x.substr(5).split(","))
+	var b := _bench(a.filter(func(x): return x != "here" and not x.begins_with("guns=")))
+	var shots: Array = await b.arms(a.has("here"), guns)
+	b.queue_free()
+	return {"shots": shots, "metahuman": HeldHand.metahuman(), "out": b.out_dir}
 
 
 func _cmd_gun_men(a: Array) -> Dictionary:
