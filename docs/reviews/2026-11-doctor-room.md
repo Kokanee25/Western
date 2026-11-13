@@ -220,52 +220,52 @@ desk.
 
 **Check:** a band at hand height in the hall; scuffs above the skirting.
 
-## 2. Rules for the recipes (each PROPOSED)
+## 2. Rules for the recipes (all APPROVED: Sean's yes to the five picks on #821, 2026-11-11)
 
 **`experiments/building_lab/RECIPE.md`**
 
-- PROPOSED (step 2): a spec is not done without its lamps. Every room people use names one, with
+- APPROVED (#821) (step 2): a spec is not done without its lamps. Every room people use names one, with
   where it hangs or stands.
-- PROPOSED (step 2): each room's finishes are named by room, not one `inside` for the house (the
+- APPROVED (#821) (step 2): each room's finishes are named by room, not one `inside` for the house (the
   surgery's grey-green is already in the library).
-- PROPOSED (step 3): windows are sashes with their `lights` built and their reveals lined;
+- APPROVED (#821) (step 3): windows are sashes with their `lights` built and their reveals lined;
   `Checks.built_right` fails otherwise.
-- PROPOSED (step 3): every finished room has a skirting, casings in the trim's finish, and a rail
+- APPROVED (#821) (step 3): every finished room has a skirting, casings in the trim's finish, and a rail
   or cove at the ceiling.
-- PROPOSED (step 4): a finish is drawn at the layout it was judged at. A test compares each
+- APPROVED (#821) (step 4): a finish is drawn at the layout it was judged at. A test compares each
   member's drawn board width with its entry's.
-- PROPOSED (step 4): floor, walls and furniture never share an entry.
-- PROPOSED (step 4): inside wear is measured from the room's floor.
-- PROPOSED (step 5): before any judge round, a room has its lamps, its skirting and its windows.
+- APPROVED (#821) (step 4): floor, walls and furniture never share an entry.
+- APPROVED (#821) (step 4): inside wear is measured from the room's floor.
+- APPROVED (#821) (step 5): before any judge round, a room has its lamps, its skirting and its windows.
   Views are the ones a player gets: standing height, from the door. Window views face the street
   or the yard until the neighbours exist.
-- PROPOSED (step 5): one "whole room" view a building is checked for one wood or one tint
+- APPROVED (#821) (step 5): one "whole room" view a building is checked for one wood or one tint
   covering more than half the frame.
 
 **`docs/briefs/prop-factory.md` (the recipe brought up to date)**
 
-- PROPOSED: strike "So a table matches the floor it stands on". Replace with: a prop's wood is
+- APPROVED (#821): strike "So a table matches the floor it stands on". Replace with: a prop's wood is
   never its floor's entry; a room holds at least three woods or finishes.
-- PROPOSED: furniture takes the library's `furniture` role, not the wall board's.
-- PROPOSED: woods by class. Plain rooms: painted or bare pine, oak. Fine rooms: one walnut or
+- APPROVED (#821): furniture takes the library's `furniture` role, not the wall board's.
+- APPROVED (#821): woods by class. Plain rooms: painted or bare pine, oak. Fine rooms: one walnut or
   mahogany hero piece.
-- PROPOSED: a storage prop is not done until it holds something, mixed.
-- PROPOSED: the batch's judge views include one whole-room view with the building's own lamps.
+- APPROVED (#821): a storage prop is not done until it holds something, mixed.
+- APPROVED (#821): the batch's judge views include one whole-room view with the building's own lamps.
 
 **`config/material_library.json` and `docs/concept/judge/MATERIAL.md`**
 
-- PROPOSED: a floor wood for each building class (rough: wide pine; common: pine or fir, worn;
+- APPROVED (#821): a floor wood for each building class (rough: wide pine; common: pine or fir, worn;
   fine: narrow oak or maple), judged as a floor with a worn path.
-- PROPOSED: a `furniture` role, judged on a furniture panel.
-- PROPOSED: a paint passes only at its own board width, and the judge is shown one corner of a
+- APPROVED (#821): a `furniture` role, judged on a furniture panel.
+- APPROVED (#821): a paint passes only at its own board width, and the judge is shown one corner of a
   room as well as the panel.
-- PROPOSED: a fine wood is judged once more as a whole wall and floor before a building uses it
+- APPROVED (#821): a fine wood is judged once more as a whole wall and floor before a building uses it
   widely (the walnut passed small and failed big).
 
 **Light (`#711`, `#608`)**
 
-- PROPOSED: a spec building's indoor fill covers its outer walls and is near neutral.
-- PROPOSED: RoomLight's openings come from the spec.
+- APPROVED (#821): a spec building's indoor fill covers its outer walls and is near neutral.
+- APPROVED (#821): RoomLight's openings come from the spec.
 
 ## 3. What the jail session should do first (#811)
 

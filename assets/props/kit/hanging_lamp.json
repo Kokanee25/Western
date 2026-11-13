@@ -1,0 +1,83 @@
+{
+  "_doc": "A kerosene hanging lamp (#866; refs experiments/prop_lab/refs/saloon/): an iron hook in the joist, a brass chain, a brass smoke bell over the chimney (the soot kept off the ceiling), three brass arms down to a ring, the brass font sitting in the ring with its burner and a plain glass chimney; no shade (the bar room's: two rows of three under the dance floor's joists). A prop that shatters (GlassProp) hung by a hook (`hangs.hook`: what's above the hook is what it hangs from, a joist or a beam): it swings when what it hangs from moves (the dance floor over it), a blast or a hand pushes it (`GlassProp.push_swing`), and falls with its joist (broken, burnt away or dropped): the chimney breaks at a walk's pace, the brass comes through whole, and a lit one's oil burns where it lands (OilLamp.smash). Its body is the lamp's box (`hit`), not the chain's: a ball through the chain passes. Its light (an OilLamp, `light_height` over its foot) swings with it. 1.0 m from the joist's underside to its foot. One physics body at rest (the frozen lamp; its swing is drawn, not simulated); broken, the chimney's shards (up to 10, GlassProp's) and the brass as one piece. Baked the gun way (tools/blender/props/saloon_s1.py). Written by tools/props/saloon.py.",
+  "id": "hanging_lamp",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:hanging_lamp",
+  "looks": {
+    "Chimney": "prop:chimney_glass",
+    "Font": "pbr:hanging_lamp",
+    "Burner": "pbr:hanging_lamp",
+    "Frame": "pbr:hanging_lamp",
+    "Bell": "pbr:hanging_lamp",
+    "Chain": "pbr:hanging_lamp",
+    "Hook": "pbr:hanging_lamp"
+  },
+  "size": [
+    0.2,
+    1.0,
+    0.2
+  ],
+  "mass": 3.0,
+  "wall": 0.0015,
+  "hangs": {
+    "hook": [
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "hit": {
+    "at": [
+      0.0,
+      0.29,
+      0.0
+    ],
+    "size": [
+      0.18,
+      0.46,
+      0.18
+    ]
+  },
+  "swing": {
+    "pivot": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "length": 0.72,
+    "damping": 0.35
+  },
+  "light_height": 0.33,
+  "glass": [
+    "Chimney"
+  ],
+  "whole": [
+    [
+      "Font",
+      "Burner",
+      "Frame",
+      "Bell",
+      "Chain"
+    ]
+  ],
+  "piece_mass": 2.0,
+  "shards": 10,
+  "breaks_at": 1.5,
+  "shatters_kpa": 15,
+  "heat_seconds": 30,
+  "cut_area": 0.04,
+  "contents": {
+    "liquid": "lamp_oil",
+    "litres": 0.6,
+    "flammable": true,
+    "colour": [
+      0.85,
+      0.75,
+      0.45
+    ]
+  },
+  "factory": "tools/props/saloon.py"
+}

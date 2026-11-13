@@ -8,6 +8,8 @@ const HELP := {
 	"props_clear": "props_clear -> takes away every prop `prop` put down",
 	"prop_open": "prop_open HINGE [AMOUNT] [CARRIED] -> the last prop `prop` put down opens that hinge (a coach's door_l, a strongbox's lid; CARRIED: the prop it carries by that name, its strongbox), unlocked first: AMOUNT 0..1 (1)",
 	"props_of": "props_of ID -> where the town's kit props of that id are (a hung deer head, the saloon's barrels): positions and which way they face",
+	"prop_stand": "prop_stand X Y Z [YAW] -> the judging stand (#866) there: a boarded wall 3.6 m wide behind (its face at z -0.9) and a beam over the front on two posts, its underside at 3.0 m, to hang lamps from and nail wall props to",
+	"prop_light": "prop_light HEIGHT [ENERGY] -> the last prop `prop` put down gets its OilLamp light at HEIGHT over its origin (a lamp's flame), lit by the hour as the town's",
 	"deer_variant": "deer_variant ID [DIR] -> the town's hung deer heads made again as the deer fidelity lab's version ID (deer_fidelity/deer_variants.gd; DIR its files): the kit's own deer_head, its members drawn by that version; `game` the game's again, `none` none (the shots' background)",
 }
 
@@ -34,6 +36,45 @@ func _cmd_prop(a: Array) -> Dictionary:
 		out["kg"] = snappedf((p as KitProp).mass(), 0.1)
 		out["stands"] = not (p as KitProp).loose
 	return out
+
+
+## The judging stand (#866, the prop factory's "on stands"): a wall to hang wall props on and a
+## beam to hang lamps from, in the street (lab only; `props_clear` takes it away).
+func _cmd_prop_stand(a: Array) -> Dictionary:
+	if a.size() < 3:
+		return {"ok": false, "error": "prop_stand X Y Z [YAW]"}
+	var s := Structure.new()
+	s.name = "LabStand"
+	s.structure_id = &"lab_stand"
+	street.add_child(s)
+	s.global_transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(a[3]) if a.size() > 3 else 0.0)), vec(a, 0))
+	for x in [-1.75, 1.75]:
+		s.add_member("post%d" % int(x * 10), &"post", &"framing", Vector3(0.15, 3.2, 0.15), Vector3(x, 1.6, 0.0))
+	s.add_member("beam", &"beam", &"framing", Vector3(3.7, 0.2, 0.12), Vector3(0, 3.1, 0.0))
+	for x in [-1.75, -0.6, 0.6, 1.75]:
+		s.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.7, 0.1), Vector3(x, 1.35, -1.0))
+	for i in 13:
+		s.add_member("board%d" % i, &"board", &"framing", Vector3(3.6, 0.2, 0.02), Vector3(0, 0.1 + 0.2 * i, -0.94))
+	s.infer_supports()
+	_placed.append(s)
+	await physics_frames(2)
+	return {"stand": arr(s.global_position), "members": s.get_members().size()}
+
+
+func _cmd_prop_light(a: Array) -> Dictionary:
+	if a.is_empty() or _placed.is_empty():
+		return {"ok": false, "error": "prop_light HEIGHT [ENERGY], after `prop`"}
+	var lamp := OilLamp.new()
+	lamp.name = "Light"
+	lamp.show_mesh = false
+	lamp.lit_from_hour = 17
+	lamp.lit_until_hour = 4
+	lamp.energy = float(a[1]) if a.size() > 1 else 1.4
+	lamp.light_range = 7.0
+	lamp.position = Vector3(0, float(a[0]), 0)
+	_placed[-1].add_child(lamp)
+	await physics_frames(2)
+	return {"light": arr(lamp.global_position)}
 
 
 func _cmd_prop_open(a: Array) -> Dictionary:
