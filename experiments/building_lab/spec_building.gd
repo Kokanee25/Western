@@ -1506,8 +1506,27 @@ func _false_front() -> void:
 	_wall_member("front/cornice", &"trim", &"dark_trim", front, -0.15, w + 0.15, h - 0.3, h - 0.05, d0, d0 + 0.18)
 	_wall_member("front/cornice_band", &"trim", &"dark_trim", front, -0.05, w + 0.05, h - 0.55, h - 0.45, d0, d0 + 0.05)
 	_wall_member("front/cap", &"trim", &"dark_trim", front, -0.2, w + 0.2, h, h + 0.04, -STUD_D - 0.02, d0 + 0.22)
-	var sign := _wall_member("front/sign", &"trim", &"sign", front, 1.5, w - 1.5, sign_from + 0.2, h - 0.8, d0, d0 + 0.03)
-	SignArt.hang(self, sign, sign_text)
+	# The sign-writer's letters where they're painted (#886, saloon B's THE SALT CREEK): the board
+	# cut to them (a margin round them a fifth of their height each side), the letters laid on its
+	# face as the jail's are on its boards (FacadeArt); else the factory's painted board, else blank.
+	var ink := SignArt.letters(sign_text)
+	var y0 := sign_from + 0.2
+	var y1 := h - 0.8
+	var x0 := 1.5
+	var x1 := w - 1.5
+	var lh := (y1 - y0) / 1.4
+	var lw := lh * float(ink.get_width()) / float(ink.get_height()) if ink else 0.0
+	if ink and lw > x1 - x0 - lh * 0.4:
+		lw = x1 - x0 - lh * 0.4
+		lh = lw * float(ink.get_height()) / float(ink.get_width())
+	if ink:
+		x0 = w * 0.5 - lw * 0.5 - lh * 0.2
+		x1 = w * 0.5 + lw * 0.5 + lh * 0.2
+	var sign := _wall_member("front/sign", &"trim", &"dark_trim" if ink else &"sign", front, x0, x1, y0, y1, d0, d0 + 0.03)
+	if ink:
+		FacadeArt._paint_letters(self, sign, ink, Rect2(w * 0.5 - lw * 0.5, (y0 + y1 - lh) * 0.5, lw, lh), d0 + 0.03, true)
+	else:
+		SignArt.hang(self, sign, sign_text)
 	var cn: Dictionary = spec.get("front", {}).get("brackets", {})
 	if not cn.is_empty():
 		_cornice_brackets("front", front, 0.0, w, h - 0.3, cn)
@@ -1941,7 +1960,8 @@ func _lamps() -> void:
 
 ## The kit's lamps hung on the walls (#824: a building names its lamps, a room each): `lamps.kit`,
 ## each {kit (a lamp the kit hangs on a nail: reflector_lamp), wall, level, at (along the wall),
-## height (its foot over the floor), side (a partition's - or +), lit [from, until hours], energy,
+## height (its foot over the floor), side (a partition's - or +; an outer wall's "out", on its siding
+## outside), lit [from, until hours], energy,
 ## reach, shadows}. The prop hangs on its nail in the wall's boards (it falls when they go) and
 ## carries its OilLamp (the flame's light, lit by the clock; GlassProp takes it as its hitbox).
 func _kit_lamps(L: Dictionary) -> void:
@@ -1950,8 +1970,10 @@ func _kit_lamps(L: Dictionary) -> void:
 		var wall: Dictionary = wl.dict
 		var partition: bool = wl.spec.get("partition", false)
 		var plus: bool = partition and e.get("side", "-") == "+"
-		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else -STUD_D - 0.02
-		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
+		# `side: "out"` on an outer wall (#886, saloon B's walks): on the siding's face, outside.
+		var out: bool = not partition and e.get("side", "") == "out"
+		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else (BOARD_T + 0.005 if out else -STUD_D - 0.02)
+		var into := (wall.out as Vector3) if plus or out else -(wall.out as Vector3)
 		var level := String(e.get("level", "ground"))
 		var foot := (_lv[level] as float) + float(e.height)
 		if wl.spec.get("stone", false):

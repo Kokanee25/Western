@@ -2015,7 +2015,8 @@
 			"sides": [
 				"side"
 			]
-		}
+		},
+		"_sign_doc": "#886: THE SALT CREEK in the factory's painted letters (letters_the_salt_creek, gold-ochre sign-writer's paint) on the board, cut to them, in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
 	},
 	"rooms": [
 		{
@@ -2587,7 +2588,7 @@
 		}
 	],
 	"lamps": {
-		"_doc": "#824's rules: a building names its lamps, a room each, not an even row of sconces. The bar room: two lamps standing on the bar, a wheel of six over the card tables hung in the well from a truss (it lights the tables and the gallery), a reflector lamp by the card tables' windows, one by the piano, one at the bar's back door. Only the lamps where a player stands cast shadows.",
+		"_doc": "#824's rules: a building names its lamps, a room each, not an even row of sconces. The bar room: two lamps standing on the bar, a wheel of six over the card tables hung in the well from a truss (it lights the tables and the gallery), a reflector lamp by the card tables' windows, one by the piano, one at the bar's back door. Only the lamps where a player stands cast shadows. Outside (#886): four reflector lamps on the walks under the balcony, two on each street's wall (`side: \"out\"`), lit from dusk; only the one by the corner casts shadows.",
 		"on_bar": [
 			[
 				1.75,
@@ -2877,6 +2878,71 @@
 					23
 				],
 				"energy": 0.9
+			},
+			{
+				"room": "walks",
+				"kit": "reflector_lamp",
+				"wall": "front",
+				"side": "out",
+				"level": "ground",
+				"at": 5.4,
+				"height": 1.85,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4,
+				"reach": 6.5,
+				"_doc": "#886: on Main Street's walk under the balcony, between the first two windows"
+			},
+			{
+				"room": "walks",
+				"kit": "reflector_lamp",
+				"wall": "front",
+				"side": "out",
+				"level": "ground",
+				"at": 10.6,
+				"height": 1.85,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4,
+				"reach": 6.5,
+				"shadows": true,
+				"_doc": "#886: Main Street's walk, between the middle window and the card room's; the one outside lamp that casts shadows (the nearer the corner doors)"
+			},
+			{
+				"room": "walks",
+				"kit": "reflector_lamp",
+				"wall": "side",
+				"side": "out",
+				"level": "ground",
+				"at": 6.1,
+				"height": 1.85,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4,
+				"reach": 6.5,
+				"_doc": "#886: on the side street's walk, between the first two windows (the bar room's lamp inside is behind the same studs)"
+			},
+			{
+				"room": "walks",
+				"kit": "reflector_lamp",
+				"wall": "side",
+				"side": "out",
+				"level": "ground",
+				"at": 12.8,
+				"height": 1.85,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 1.4,
+				"reach": 6.5,
+				"_doc": "#886: the side street's walk, by the back door, the balcony's last bay"
 			}
 		]
 	},
@@ -2978,6 +3044,10 @@
 			}
 		},
 		"surfaces": [
+			[
+				"front/sign",
+				"oak"
+			],
 			[
 				"/wainscot",
 				"oak"

@@ -360,3 +360,41 @@ func test_saloon_b_has_its_finishes_cornices_and_dust() -> void:
 			if c is CPUParticles3D and (c as CPUParticles3D).one_shot and (c as CPUParticles3D).emitting:
 				falling += 1
 		check(falling == 1, "a step above shakes one fall down (%d)" % falling)
+
+
+## #886 (Sean's yes on #885): THE SALT CREEK painted on the false front's board (the factory's
+## letters, laid on a board cut to them in the dark walnut), and the walks lit: four reflector lamps
+## on the outside walls under the balcony, two a street, lit from dusk, one casting shadows.
+func test_saloon_bs_sign_is_lettered_and_its_walks_lit() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	var sign: StructureMember = b.get_member(StringName(sid + "front/sign"))
+	check(sign != null, "the false front has its sign board")
+	check(SignArt.letters("THE SALT CREEK") != null, "THE SALT CREEK's letters are painted (letters_the_salt_creek)")
+	var painted := sign.find_children("PaintedLetters", "MeshInstance3D", true, false)
+	check(painted.size() == 1, "the letters are laid on the board (%d)" % painted.size())
+	if painted.size() == 1:
+		var q := (painted[0] as MeshInstance3D).mesh as QuadMesh
+		var at: Vector3 = b.to_local((painted[0] as Node3D).global_position)
+		check(q.size.x < sign.size.x and q.size.y < sign.size.y, "inside the board (%s on %s)" % [q.size, Vector2(sign.size.x, sign.size.y)])
+		check(q.size.x > sign.size.x * 0.75, "the board cut to them (%.2f of %.2f m)" % [q.size.x, sign.size.x])
+		check(absf(at.x - b.width * 0.5) < 0.05 and at.z < -0.05, "centred on the front, on the board's face (%s)" % at)
+		check(q.size.x > 4.0, "big enough to read down the street (%.2f m)" % q.size.x)
+	check(b._finish_of(sign) == "oak", "the board in the dark walnut (%s)" % b._finish_of(sign))
+	var ground := float(b._lv.ground)
+	var walks := {"front": 0, "side": 0}
+	var shadows := 0
+	for lamp: OilLamp in b.lamps:
+		var p: Vector3 = b.to_local(lamp.global_position)
+		var on_front := p.z < 0.0
+		var on_side: bool = p.x > float(b.width)
+		if not (on_front or on_side):
+			continue
+		walks["front" if on_front else "side"] += 1
+		check(p.y > ground + 1.8 and p.y < ground + 2.6, "a walk's lamp is hung over a man's head (%.2f over the walk)" % (p.y - ground))
+		check((on_front and p.z > -2.36) or (on_side and p.x < 18.82 and p.z < 13.33), "and under the balcony (%s)" % p)
+		check(lamp.lit_from_hour == 17 and lamp.lit_until_hour == 4, "lit from dusk to 4 (%d-%d)" % [lamp.lit_from_hour, lamp.lit_until_hour])
+		if lamp.casts_shadows:
+			shadows += 1
+	check(walks.front == 2 and walks.side == 2, "two lamps on each street's walk (%s)" % walks)
+	check(shadows == 1, "only one of them casts shadows (%d)" % shadows)
