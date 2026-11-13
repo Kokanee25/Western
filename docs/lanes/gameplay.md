@@ -72,7 +72,7 @@ Night floor lab (#745).
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
   `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
-  frame bench (#865), the goldens and the tour (art's views). Rubble growth is by design (DESIGN §8).
+  goldens and the tour (art's views); the bench is by hand (`perf_bench --world=valley`, below). Rubble growth is by design (DESIGN §8).
 - White patches (#670): not reproduced, waiting on Sean's F12.
 
 ## Traps
