@@ -197,7 +197,7 @@ def render(sc, sr=common.SR, seed=1882):
         # the hand never holds a pitch dead still: a slow wander, ~3 cents, under the fingers' own
         wander = lfilter([1.0], [1.0, -0.99995], rng.standard_normal(len(vb)))
         wander = lfilter(*butter(1, 6 / (srm / 2)), wander)
-        wander = 3.0 * wander / (np.std(wander) + 1e-9)
+        wander = sc.get("player", {}).get("wander_cents", 3.0) * wander / (np.std(wander) + 1e-9)  # (drunk.py: more)
         f0s = f0[s] * 2.0 ** (wander / 1200.0)
         beta = np.full(len(vb), 0.10)
         for st in sc["strokes"]:
