@@ -329,6 +329,8 @@ const MH_HOLDS := {
 	"win73.l_hand_ful": Vector3(8.2, -2.05, -0.25),
 	"win73.l_roll": 30.0,
 	"win73.l_grip": {"index": 20.0, "middle": 40.0, "ring": 75.0, "little": 75.0},
+	# His left thumb along the forend's left side, not up past it (the judge's round 1).
+	"win73.l_thumb": [Vector3(-20.0, 10.0, 0.0), 15.0, 10.0],
 }
 
 
@@ -567,7 +569,7 @@ static func _own_material(mi: MeshInstance3D, skin: bool) -> Material:
 	var std := m.duplicate() as StandardMaterial3D if m is StandardMaterial3D else StandardMaterial3D.new()
 	if skin:
 		std.subsurf_scatter_enabled = true
-		std.subsurf_scatter_strength = 0.35
+		std.subsurf_scatter_strength = 0.15
 		std.subsurf_scatter_skin_mode = true
 	else:
 		std.uv1_scale = Vector3.ONE

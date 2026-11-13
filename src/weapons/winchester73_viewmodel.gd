@@ -179,7 +179,8 @@ func _build_hands() -> void:
 	var l_grip: Dictionary = HeldHand.hold("win73.l_grip", L_GRIP)
 	for f: String in l_grip:
 		left_hand.grasp(f, l_grip[f])
-	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
+	var l_thumb: Array = HeldHand.hold("win73.l_thumb", L_THUMB)
+	left_hand.thumb_pose(l_thumb[0], l_thumb[1], l_thumb[2])
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L
