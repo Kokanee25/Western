@@ -144,3 +144,60 @@ func test_dead_in_his_chair_his_hands_stay_in_his_lap() -> void:
 	if man.limp:
 		var out := maxf(_arm_out(man, "r"), _arm_out(man, "l"))
 		check(out < 45.0, "no arm flung out (%.0f deg)" % out)
+
+
+## Getting up among his broken chair's pieces and knocked down again as he rises (#834: Earl), the
+## ragdoll that takes his rising rig's place is put in among the pieces the rig was let through
+## (HumanBody._spare_rubble): those in him are let through it too, till they're clear of him, so the
+## engine doesn't shove them out at him (eight blows of 8 to 36 J on Earl's thigh, pelvis and shin: he
+## never stood again); he gets up after.
+func test_knocked_down_as_he_rises_among_the_pieces_they_dont_break_him() -> void:
+	var man: HumanBody = await _seated_kicked_over(false)
+	check(man.limp, "he goes over with the chair")
+	await physics_frames(90)
+	man.get_up()
+	check(man.rising, "he's getting up")
+	await physics_frames(3)
+	check(not man._spared.is_empty(), "the chair's pieces let through his rising body")
+	# The seat, right in his hips as he goes down again (as the engine had Earl's).
+	var piece: RigidBody3D = man._spared[0]
+	for rb: RigidBody3D in man._spared:
+		if rb.mass > piece.mass:
+			piece = rb
+	RubbleRest.let_go(piece)
+	piece.global_transform = Transform3D(piece.global_basis, (man.parts[&"pelvis"] as Node3D).global_position)
+	piece.linear_velocity = Vector3.ZERO
+	var blows := []
+	var on_hit := func(info: Dictionary) -> void:
+		if info.get("person") == man and info.get("kind") == &"blow" and not info.has("pushed"):
+			blows.append(info)
+	Events.body_hit.connect(on_hit)
+	man.go_limp()
+	man.brace()
+	await physics_frames(1)
+	# What the engine would push it against now, its exceptions honoured (the man's parts or not).
+	var tm := PhysicsTestMotionParameters3D.new()
+	tm.from = piece.global_transform
+	tm.motion = Vector3.UP * 0.01
+	tm.recovery_as_collision = true
+	tm.max_collisions = 16
+	var res := PhysicsTestMotionResult3D.new()
+	var touched := []
+	if PhysicsServer3D.body_test_motion(piece.get_rid(), tm, res):
+		for i in res.get_collision_count():
+			var b := res.get_collider(i) as Node
+			if b != null and b.get_meta(&"human_body", null) == man and not touched.has(b.name):
+				touched.append(b.name)
+	check(touched.is_empty(), "the seat in him is let through the body he falls in (in %s)" % [touched])
+	await physics_frames(50)
+	Events.body_hit.disconnect(on_hit)
+	check_eq(blows.size(), 0, "no blows from the pieces he's put down in (%s)" % [blows.map(
+			func(b: Dictionary) -> String: return "%s %.0f J" % [b.segment, b.joules])])
+	check(man.physiology.can_stand(), "his legs his own")
+	# Clear of him, it's his to meet again.
+	RubbleRest.let_go(piece)
+	piece.global_position += Vector3(0, 0, 1.5) + Vector3(1.5, 0.3, 0)
+	await physics_frames(30)
+	check(not man._spared.has(piece), "once it's clear of him, not let through any more")
+	var up := await wait_until(func() -> bool: return not man.limp and not man.rising, 60 * 12)
+	check(up, "and he gets up again")
