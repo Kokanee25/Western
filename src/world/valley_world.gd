@@ -43,18 +43,26 @@ const SHERIFF_ARG := "--mission=sheriff"
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
+## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
+## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
+## folk's set (their men are built a frame later: `folk.build_ms`).
+var load_ms := {}
 
 
 func _ready() -> void:
+	var u := Time.get_ticks_usec()
 	if layout == null:
 		layout = ValleyLayout.main()
 	_make_ground()
+	u = _took(&"ground", u)
 	if railway_default:
 		railway = ValleyRailway.new()
 		railway.layout = layout
 		add_child(railway)
+		u = _took(&"railway", u)
 	if farmhouse_default:
 		_make_farmhouse()
+		u = _took(&"farmhouse", u)
 	if markers_default:
 		markers = ValleyMarkers.new()
 		markers.layout = layout
@@ -62,12 +70,15 @@ func _ready() -> void:
 		add_child(markers)
 		if farmhouse:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
+		u = _took(&"markers", u)
 		_make_buildings()
+		u = _took(&"buildings", u)
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
 			folk.town = markers.town
 			add_child(folk)
+			u = _took(&"folk", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
@@ -127,6 +138,12 @@ func _start_coach_cut() -> void:
 		await get_tree().physics_frame
 	start_coach_cut()
 	coach_cut.place_player(get_node_or_null(^"Player") as Node3D)
+
+
+func _took(part: StringName, since: int) -> int:
+	var now := Time.get_ticks_usec()
+	load_ms[part] = (now - since) / 1000.0
+	return now
 
 
 ## Where the player starts: on the crossroads' ground, facing down Main Street (west).
