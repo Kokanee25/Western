@@ -2095,6 +2095,11 @@ func _dug_ground() -> Ground:
 	return _ground if not _ground.tiles.is_empty() else null
 
 
+## How long (physics frames) the pieces a man's blow broke off spare him (`broken_by`, set by HumanBody's
+## clip blow): long enough for a piece leaving with his boot to clear his leg.
+const BREAKER_SPARED_FRAMES := 30
+
+
 ## Falling timber lands on something: hard enough and it breaks what it hits; a piece of several
 ## members breaks up.
 func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
@@ -2113,6 +2118,12 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		# Timber coming down on someone: once per piece per person.
 		var person: Object = other.get_meta(&"human_body")
 		var hurt: Array = rb.get_meta(&"hurt", [])
+		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
+		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
+		var by: Array = get_meta(&"broken_by", [])
+		if by.size() == 2 and by[0] == person and Engine.get_physics_frames() - int(by[1]) <= BREAKER_SPARED_FRAMES:
+			hurt.append(person)
+			rb.set_meta(&"hurt", hurt)
 		if not hurt.has(person):
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)
