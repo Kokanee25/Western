@@ -287,8 +287,32 @@ func build() -> void:
 	_kit()
 	_use_points()
 	_add_interior_ambient()
+	_dust()
 	marks = Marks.place(self, spec)
 	_library_finishes()
+
+
+## Dust sifting through an upper floor's boards (FloorDust; saloon B's dance floor over the bar,
+## #867): the spec's `dust` {floor, rest, motes} names the floor it falls from.
+func _dust() -> void:
+	var old := get_node_or_null(^"FloorDust")
+	if old:
+		old.free()
+	var d: Dictionary = spec.get("dust", {})
+	if d.is_empty():
+		return
+	for f: Dictionary in spec.floors:
+		if String(f.id) != String(d.get("floor", "")):
+			continue
+		var r: Array = f.rect
+		var fd := FloorDust.new()
+		fd.name = "FloorDust"
+		fd.rect = Rect2(float(r[0]), float(r[1]), float(r[2]) - float(r[0]), float(r[3]) - float(r[1]))
+		fd.top = float(_lv.upper) - float(_fr.floor_board.thick)
+		fd.bottom = floor_top
+		fd.rest = float(d.get("rest", fd.rest))
+		fd.motes = int(d.get("motes", fd.motes))
+		add_child(fd)
 
 
 # --- the room's light (#824) -------------------------------------------------------------------------
@@ -1123,7 +1147,8 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 	# #826 (#821 pick 3): with the spec's `inside_finish.boards` "judged", the boards are drawn at
 	# the width their paint was judged at (painted_pale_tg: 9 cm, beaded): a member is as many of
 	# them as come nearest the old 24 cm (three), drawn as that many boards (`strips`).
-	var strip := 0.0 if hall else _judged_board_w(id + "/board/")
+	# (saloon B's bar room, #867: over a wainscot the boards are drawn as judged too)
+	var strip := _judged_board_w(id + "/board/") if (not hall or spec.has("inside_finish")) else 0.0
 	if strip > 0.0:
 		bw = strip * maxi(1, roundi(0.24 / strip))
 	var t := 0.02
@@ -1185,7 +1210,7 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 				# (judged boards close up: the joint is drawn, a gap showed the lit siding behind, #826)
 				var gap := 0.0005 if strip > 0.0 else 0.002
 				var m := _on_face(face, "%s/board/%03d_%d" % [id, i, k], &"board", &"framing", s + gap, e - gap, sp[0], sp[1], 0.0, t)
-				if hall:
+				if hall and strip <= 0.0:
 					PropKit.dress_member(m, {"shape": "profile", "profile": "beaded", "along": "y", "up": n_axis, "across": along_axis, "args": [0.006]}, look)
 				else:
 					(m.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(StringName(spec.materials.wall_boards), hash(m.member_id))
@@ -1217,9 +1242,16 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 			_skirting(face, id, s0, s1, y0, sk, t, holes)
 		return
 	# The wainscot in the runs between the openings that come down through it, and the picture rail.
+	# (a window whose sill is under the wainscot's cap stops it too, with a plain apron under its
+	# stool, #867: saloon B's tall street windows sit 0.6 m off the floor)
 	var runs: Array = [[s0, s1]]
-	for o in holes:
-		if o.position.y < y0 + 0.3:
+	for j in holes.size():
+		var o := holes[j]
+		if o.end.x < s0 or o.position.x > s1:
+			continue
+		if o.position.y < y0 + wains - 0.01:
+			if o.position.y > y0 + 0.3:
+				_on_face(face, "%s/wainscot_apron%d" % [id, j], &"trim", &"oak", o.position.x - 0.12, o.end.x + 0.12, y0, o.position.y - 0.04, 0.0, t)
 			var nxt: Array = []
 			for r: Array in runs:
 				if o.position.x - 0.12 > float(r[0]):
@@ -1231,8 +1263,18 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 		var r: Array = runs[ri]
 		if float(r[1]) - float(r[0]) > 0.3:
 			_wainscot(face, "%s/wainscot%d" % [id, ri], r[0], r[1], y0, along_axis, n_axis, oak)
-	var pr := _on_face(face, "%s/picture_rail" % id, &"trim", &"oak", s0, s1, y0 + 2.6, y0 + 2.645, t, t + 0.04)
-	PropKit.dress_member(pr, {"shape": "profile", "profile": "ogee", "along": along_axis, "up": n_axis, "across": "y"}, oak)
+	# The picture rail over the heads of the openings (saloon B's 3 m windows), in stock lengths;
+	# none where the wall stops short of it.
+	var rail_y := y0 + 2.6
+	for o in holes:
+		if o.end.x > s0 and o.position.x < s1:
+			rail_y = maxf(rail_y, o.end.y + 0.16)
+	if rail_y < y1 - 0.1:
+		var np := maxi(1, ceili((s1 - s0) / 4.9))
+		for k in np:
+			var pid := "%s/picture_rail" % id if np == 1 else "%s/picture_rail/%d" % [id, k]
+			var pr := _on_face(face, pid, &"trim", &"oak", s0 + (s1 - s0) * k / np, s0 + (s1 - s0) * (k + 1) / np - 0.002, rail_y, rail_y + 0.045, t, t + 0.04)
+			PropKit.dress_member(pr, {"shape": "profile", "profile": "ogee", "along": along_axis, "up": n_axis, "across": "y"}, oak)
 
 
 ## The interior stand's wainscot as members: a skirting, top and bottom rails, stiles ~0.6 m apart,
@@ -1466,6 +1508,43 @@ func _false_front() -> void:
 	_wall_member("front/cap", &"trim", &"dark_trim", front, -0.2, w + 0.2, h, h + 0.04, -STUD_D - 0.02, d0 + 0.22)
 	var sign := _wall_member("front/sign", &"trim", &"sign", front, 1.5, w - 1.5, sign_from + 0.2, h - 0.8, d0, d0 + 0.03)
 	SignArt.hang(self, sign, sign_text)
+	var cn: Dictionary = spec.get("front", {}).get("brackets", {})
+	if not cn.is_empty():
+		_cornice_brackets("front", front, 0.0, w, h - 0.3, cn)
+		for sd: String in cn.get("sides", []):
+			_side_cornice(sd, cn)
+
+
+## Brackets under a cornice (saloon B, #867: the sheet's bracketed cornice on both streets): a
+## block a `spacing`, `drop` tall and `reach` out from the siding, its foot half as deep, under
+## the cornice's underside at `top`. Trim on the siding's boards, in the trim's finish.
+func _cornice_brackets(id: String, wall: Dictionary, x0: float, x1: float, top: float, cn: Dictionary) -> void:
+	var sp := float(cn.get("spacing", 0.9))
+	var drop := float(cn.get("drop", 0.34))
+	var reach := float(cn.get("reach", 0.16))
+	var bw := float(cn.get("width", 0.09))
+	var n := maxi(2, roundi((x1 - x0 - 0.4) / sp) + 1)
+	for i in n:
+		var x := x0 + 0.2 + (x1 - x0 - 0.4) * i / (n - 1)
+		_wall_member("%s/cornice_bracket/%02d" % [id, i], &"trim", &"dark_trim", wall, x - bw * 0.5, x + bw * 0.5, top - drop * 0.55, top, BOARD_T, BOARD_T + reach)
+		_wall_member("%s/cornice_bracket/%02d_foot" % [id, i], &"trim", &"dark_trim", wall, x - bw * 0.5, x + bw * 0.5, top - drop, top - drop * 0.55, BOARD_T, BOARD_T + reach * 0.5)
+
+
+## The eave's cornice on a side wall (the side street's): a frieze band, a crown under the roof's
+## edge and brackets between, in stock lengths, as the false front's on Main Street.
+func _side_cornice(id: String, cn: Dictionary) -> void:
+	if not walls.has(id):
+		return
+	var wall: Dictionary = walls[id].dict
+	var top := float(cn.get("side_top", wall_height))
+	var d0 := BOARD_T
+	var n := maxi(1, ceili(depth / 4.9))
+	for k in n:
+		var a := depth * k / n
+		var b := depth * (k + 1) / n
+		_wall_member("%s/cornice/%d" % [id, k], &"trim", &"dark_trim", wall, a, b - 0.003, top - 0.25, top, d0, d0 + 0.18)
+		_wall_member("%s/cornice_band/%d" % [id, k], &"trim", &"dark_trim", wall, a, b - 0.003, top - 0.75, top - 0.65, d0, d0 + 0.05)
+	_cornice_brackets(id, wall, 0.0, depth, top - 0.25, cn)
 
 
 ## The height of the common rafters' underside over the wall's outer face.
@@ -2160,6 +2239,9 @@ func _rafter_roof() -> void:
 		var base: Vector3 = (sl.eave as Vector3) + Vector3(0, wall_height, 0) - dir * over
 		var row := 0
 		var s := 0.0
+		# `levels.roof_tight`: the boards butted (a big roof seen from inside shows the 3 mm gaps as
+		# specks of sky, #867).
+		var roof_gap := 0.0 if bool(spec.levels.get("roof_tight", false)) else 0.003
 		while s < slope - 0.02:
 			var bw := minf(0.145, slope - s)
 			var sa := s - over  # along the slope from the wall's face
@@ -2181,7 +2263,7 @@ func _rafter_roof() -> void:
 					var nx := minf(cut, float(sp[1])) if float(sp[1]) - cut > 1.0 else float(sp[1])
 					var c := base + dir * (s + bw * 0.5) + normal * (float(rf[1]) + BOARD_T * 0.5)
 					c.z = (at + nx) * 0.5
-					add_member("roof/board_%d/%02d_%d" % [side, row, k], &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(bw - 0.003, BOARD_T, nx - at - 0.004), c, sl.basis)
+					add_member("roof/board_%d/%02d_%d" % [side, row, k], &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(bw - roof_gap, BOARD_T, nx - at - roof_gap), c, sl.basis)
 					k += 1
 					at = nx
 					cut += 4.9
@@ -2597,7 +2679,8 @@ func _finish_of(m: StructureMember) -> String:
 		return ""
 	for s: Array in spec.materials.get("surfaces", []):
 		if id.contains(String(s[0])):
-			return String(s[1])
+			# "-": the member keeps its own drawn shape and wood (a dressed bracket's cove).
+			return "" if String(s[1]) == "-" else String(s[1])
 	return "framing"
 
 

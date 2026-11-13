@@ -84,18 +84,52 @@ Not checked here: the frame's deflection (the format's item 12), fire and blast 
 
 ## Not in step 1 (for step 2 or its owner)
 
-- **The hip and the side street's cornice.** The roof is a plain 2/12 on trusses, its gables to the
-  yard and the side street behind boards; the bracketed cornice is on Main Street only.
+- **The hip.** The roof is a plain 2/12 on trusses, its gables to the yard and the side street
+  behind boards (the bracketed cornice is on both streets since step 2). Sean's to pick.
 - **The cellar's bulkhead to the yard** (the concept's 5) and the cellar dug in the valley: the
   valley's ground isn't opened under the building yet (#695), so on its lot the cellar's members
   stand in the ground. In the lab the pit is open and the trap's stair reaches it.
 - **No Law's set stays in the yard.** See "No Law" below.
-- **Finishes, paint, the sign's lettering, the look of the posts and stair**: step 2. The spec
-  names passing library entries so the frame draws (oxblood board and batten, buff trim, pale
-  boards inside, the worn fir floor).
+- **The sign's lettering** (THE SALT CREEK): a paid paint job, Sean's to OK. The rest of the
+  look is step 2, below.
 - **Props**: the bar and back bar are the kit's sections and four card tables with chairs; the
   rest is the prop lab's (`docs/briefs/saloon-design.md` "The props B needs").
 - **Working doors**: every leaf stands open (the format's item 13).
+
+## Step 2: the look (#867)
+
+- **Finishes by name** (`materials.finishes`, `surfaces`): dark red board and batten
+  (`painted_oxblood_batten` at "few", the age it passed) with buff trim, casings, sashes, skirting
+  and the walks' posts and rails; inside, buff painted boards over a dark wainscot with a picture
+  rail on the bar room's street walls; the worn fir floor; the posts, girders, open joists, the
+  well's rail, the hall stair and the doors in the library's walnut (`oak` and `timber`: the
+  library's oak drew a flat fresh orange, its rough pine read as bark, its planed pine as
+  driftwood; there is no dressed-timber entry yet). The brackets keep their coves (finish `-`).
+- **A bracketed cornice on both streets** (`front.brackets`, its `sides`), and the roof's boards
+  butted (`levels.roof_tight`: the 3 mm gaps drew as specks of sky from the dance hall).
+- **Light** (`light`): fill 0.62/0.6/0.57, `day_fill` 0.32, `window_day` 14, for a room 54 ft wide
+  and 13 ft high (the doctor's 0.1 and 7 left the far half near black: `results/2026-11-13_look/
+  light_a_b.jpg`).
+- **Dust through the dance floor** (`dust`, `FloorDust` in `src/art/`): a few motes hang under the
+  boards, and more fall under anyone moving on the floor above (`stir` for anything else).
+- **Judged, two rounds** (`docs/screenshots/judge/2026-11-13_saloon_b_r1`, `_r2`; renders in
+  `results/2026-11-13_look/`, `pairs_r2.jpg` beside the sheet). The cheap judge: **the bar room
+  good indie** from the corner doors (both rounds) and from behind the bar by lamplight (round 2);
+  **the corner cheap indie**, as are the front, the back, the dance hall and the gallery. The
+  tells still open, most outside this step:
+  - outside: no town, ground or sky around it (grey lots, a posterised dusk sky), the blank sign,
+    nothing lit on the walks at night (the building has no porch lamps), one even red with no
+    corner boards or belt course, the walks' deck on bare posts with no skirt;
+  - inside: nothing dressed and nobody there, all the woodwork one varnished red-brown with bold
+    grain and a glossy floor (a dressed-timber and a matt floor entry are the material library's
+    next), pale flecks and dark dashes on the buff boards (the paint's wear, drawn large), an open
+    door leaf near the dance hall's camera that reads as a black slab, lamp light through the
+    balusters' feet and on the ceiling over the bar's lamps.
+- **Cost:** render CPU at Sean's (x0.65 of this VM's), budget 4 ms: Main Street 2.1, the corner at
+  dusk 2.6, the bar room from the doors 3.0, from behind the bar by lamplight 3.2, the gallery over
+  the well by lamplight 3.4 (step 1: 1.1 to 1.9 by day; the dance hall's view not measured). Members 7,763 (step 1: 7,560); the valley's collision bodies 27,908 of
+  Jolt's 32,768.
+- **Goldens:** none change (the golden views are the old town's, not the valley's).
 
 ## No Law
 

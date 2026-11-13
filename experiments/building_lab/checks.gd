@@ -13,7 +13,7 @@ const EXCEPTIONS := {
 	&"ground": "the ground (here boxes round the cellar's pit) - gameplay, the town's ground",
 }
 ## Not things (they neither collide nor draw a surface): allowed, counted.
-const NOT_THINGS := "the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D)"
+const NOT_THINGS := "the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D), the dust in the air under a floor (FloorDust)"
 
 
 ## The walk: every node under `root` that collides or draws, sorted. "bad" lists any that's
@@ -33,6 +33,10 @@ static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 			# its OilLamp the light it carries.
 			out.kit_props += 1
 			out.lamps += c.find_children("*", "OilLamp", true, false).size()
+			continue
+		if c is FloorDust:
+			# Dust in the air under a floor (#867): motes, nothing to hit, break or burn.
+			out.not_things += 1
 			continue
 		_sort(c, building, out)
 		_walk(c, building, out)

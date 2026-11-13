@@ -22,22 +22,25 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
-  (#858); saloon B is Fable's (#848: step 1 done, below).
+  (#858); saloon B steps 1 and 2 done (below).
 - **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
   whitewash inside and rubble outside not in the library (the game's stone stands in; both judges name it first);
   the parapet flat where the sheet's steps up in the middle; the 10 ft yard wall hides the cell wing from the lane.
   Sean's picks (the `waiting on Sean` issue). The rooms wait on the prop lab's furniture.
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
-- **Saloon B, the corner saloon** (#772; step 1 done, #848): its spec and frame stand on the corner lot
-  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, nine tests): 7,560 members, the
-  open well and its 36 in rail, the dance hall on two girder lines, the wrapping balcony over both walks, the cut
-  corner on one iron column, the sawn girder (`sabotage`, `saw_girder`: cut, its panel comes down over the bar;
-  uncut it carries a dancing crowd). **Next: step 2, the finishes, light and judges (its own issue).** Not in
-  step 1: the hip and side cornice, the cellar dug in the valley and its bulkhead (#695), No Law's set (still in
-  the yard: gameplay's to move, the spec's `no_law_table` and bar are there), props (the prop lab).
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change (RECIPE "A
-  two-storey building under trusses").
+- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #867): spec, frame and look on the corner lot
+  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
+  27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
+  boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
+  twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
+  (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
+  red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
+  the hip or the plain roof, the sign's paid lettering, porch lamps (#885). Wants from the
+  material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
+  Law's set (still in the yard: gameplay's to move).
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
+  surface, and `-` keeps a dressed member's shape; judge a bar room by lamplight (RECIPE "A big room's look").
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
