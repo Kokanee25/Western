@@ -110,8 +110,8 @@ func test_the_sawn_girder_drops_the_dance_floor_over_the_bar() -> void:
 		elif id.begins_with("floor/dance/board/"):
 			boards += 1
 		# What may go with it: the girder, the gallery's rail that stood on those boards, and the
-		# bar room's floor boards the timbers land on.
-		elif not (id.begins_with("beam/east/2") or id.begins_with("gallery/") or id.begins_with("floor/ground/board/")):
+		# bar room's floor the timbers land on (its boards, and since #867 a joist under them).
+		elif not (id.begins_with("beam/east/2") or id.begins_with("gallery/") or id.begins_with("floor/ground/")):
 			outside.append(id)
 		if id.begins_with("floor/dance/joist/"):
 			check(m.position.z > gz0 - 0.3 and m.position.z < gz1 + 0.3, "a fallen joist is one of the panel's: %s" % id)
@@ -275,3 +275,52 @@ func test_saloon_bs_rooms_have_their_own_light() -> void:
 		for o: Dictionary in w.get("openings", []):
 			if o.type == "window":
 				check(o.has("lights"), "%s's window at %s is a sash" % [w.id, o.at])
+
+
+## Step 2 (#867): the look's parts are built and take their finishes by name: the bar room's
+## wainscot (oak, clear of every window), the bracketed cornice on both streets (the trim's
+## paint), the dressed timber over the bar, and the dust under the dance floor.
+func test_saloon_b_has_its_finishes_cornices_and_dust() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	var count := {"wainscot": 0, "front_brackets": 0, "side_brackets": 0, "side_cornice": 0}
+	var want := {"/wainscot": "oak", "/picture_rail": "oak", "front/cornice_bracket": "trim", "side/cornice": "trim",
+			"floor/dance/joist": "timber", "beam/east": "timber", "gallery/rail": "oak", "stair/hall/tread": "oak",
+			"street/post": "trim", "/siding/": "exterior", "floor/dance/board": "floor"}
+	var seen := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if id.contains("/wainscot"):
+			count.wainscot += 1
+		elif id.begins_with("front/cornice_bracket/"):
+			count.front_brackets += 1
+		elif id.begins_with("side/cornice_bracket/"):
+			count.side_brackets += 1
+		elif id.begins_with("side/cornice/"):
+			count.side_cornice += 1
+		for k: String in want:
+			if id.contains(k) and not seen.has(k):
+				seen[k] = true
+				check(b._finish_of(m) == want[k], "%s takes the %s finish (%s)" % [id, want[k], b._finish_of(m)])
+				var f: Dictionary = b.finish(want[k])
+				var e: Dictionary = MaterialLibrary.entry(String(f.get("entry", "")))
+				check(not e.is_empty(), "%s names a library entry (%s)" % [want[k], f])
+	for k: String in want:
+		check(seen.has(k), "a member for %s" % k)
+	print("  %s" % [count])
+	check(int(count.wainscot) > 100, "the bar room is wainscoted (%d pieces)" % count.wainscot)
+	check(int(count.front_brackets) >= 30 and int(count.side_brackets) >= 40, "brackets under the cornice on both streets: %s" % [count])
+	check(int(count.side_cornice) >= 4, "the side street's eave has its cornice")
+	# The outside paint is one the judge passed at the age it's drawn at.
+	var ext: Dictionary = b.finish("exterior")
+	check((MaterialLibrary.entry(String(ext.entry)).get("approved", []) as Array).has(String(ext.age)), "the outside paint is passed at its age: %s" % [ext])
+	var dust := b.get_node_or_null(^"FloorDust") as FloorDust
+	check(dust != null, "dust under the dance floor")
+	if dust:
+		check(dust.rect.size.x > 9.0 and dust.top > 4.7 and dust.bottom < 1.0, "it falls from the dance floor's boards to the bar room's floor (%s, %.2f to %.2f)" % [dust.rect, dust.top, dust.bottom])
+		dust.stir(Vector3(3.0, 0.0, 6.0))
+		var falling := 0
+		for c in dust.get_children():
+			if c is CPUParticles3D and (c as CPUParticles3D).one_shot and (c as CPUParticles3D).emitting:
+				falling += 1
+		check(falling == 1, "a step above shakes one fall down (%d)" % falling)
