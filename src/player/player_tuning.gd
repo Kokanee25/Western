@@ -28,6 +28,12 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var seat_reach := 1.3
 @export var seat_view_deg := 70.0
 @export var seat_fall_s := 1.4
+## On your belly, loose pieces this light or lighter (kg: a broken chair's, a plank or two) are
+## yours to shove aside as you crawl (Player._wade), never a wall that holds you or a weight that
+## carries you; and how fast (m/s) you push one out from under or beside you, on top of your own
+## crawl into it. (#834: a chair's seat lying on a downed man shoved his capsule half a metre.)
+@export var wade_max_kg := 12.0
+@export var wade_push := 0.3
 ## Crouching and standing are a spring: how quick (Hz) and how much it overshoots (damping: 1 =
 ## not at all, lower sinks past and comes back).
 @export var crouch_hz := 2.0
