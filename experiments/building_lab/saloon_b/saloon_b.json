@@ -2004,7 +2004,7 @@
 	},
 	"front": {
 		"sign": "THE SALT CREEK",
-		"sign_from": 8.75,
+		"sign_from": 8.45,
 		"cornice": "dark_trim",
 		"brackets": {
 			"_doc": "Step 2 (#867): the sheet's bracketed cornice on BOTH streets: a bracket every ~3 ft under Main Street's cornice, and the side street's eave given the same band, crown and brackets (`sides`).",
@@ -2016,7 +2016,7 @@
 				"side"
 			]
 		},
-		"_sign_doc": "#886: THE SALT CREEK in the factory's painted letters (letters_the_salt_creek, gold-ochre sign-writer's paint) on the board, cut to them, in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
+		"_sign_doc": "#886: THE SALT CREEK in the factory's painted letters (letters_the_salt_creek, gold-ochre sign-writer's paint) on the board, cut to them (sign_from 8.45, down from 8.75: a 1.05 m board, the letters 0.75 m tall and ~4.9 m across), in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
 	},
 	"rooms": [
 		{
