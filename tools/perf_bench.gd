@@ -28,6 +28,17 @@ extends SceneTree
 ## the engine's (physics, culling, the scene tree) and anything not timed. Godot's process/physics time monitors read nonsense headless (the
 ## loop's not paced), so the frame is wall clock; draw calls and render CPU need --render.
 ## Untyped on purpose: -s scripts compile before autoloads exist.
+##
+## THE VALLEY (#865, the review's R4): `-- --world=valley` runs the valley instead, its scenes
+## `day` (Main Street at two in the afternoon, you by the saloon's yard looking west down it), `night`
+## (nine at night before the saloon's yard: the folk's bar and card table, the lamps lit), `gunfight`
+## (the day's street, two crews of three shooting it out 20 to 40 m from you) and `blast` (the day's
+## street, a stick in the saloon's front and one in the doctor's, measured from 3 s after), each
+## after the valley's load (`load`: the bake, the scene, and the scene by part, ValleyWorld.load_ms).
+## --townsfolk=N: N more townsfolk on Main Street (tools/valley/valley_townsfolk.gd), half near you
+## and half far (--band=near|far: all in one band). --bodies: the collision bodies (Jolt's
+## max_bodies counts them) by what owns them. tools/valley/bench_runs.py runs the counts and scenes
+## one game at a time and writes the table.
 
 var seconds := 30.0
 var quick := false
@@ -56,6 +67,11 @@ var folk := 1
 ## --census-by: the census's particles, visible meshes and collision shapes counted by what owns
 ## them (the nearest scripted node up the tree: its class, or its script's file).
 var census_by := false
+## The valley's bench (#865): N more townsfolk, where they stand, the bodies census.
+var townsfolk := 0
+var band := "mix"
+var bodies := false
+var valley := false
 
 
 func _initialize() -> void:
@@ -77,6 +93,14 @@ func _initialize() -> void:
 			budget_report = false
 		elif a == "--census-by":
 			census_by = true
+		elif a.begins_with("--townsfolk="):
+			townsfolk = int(a.substr(12))
+		elif a.begins_with("--band="):
+			band = a.substr(7)
+		elif a == "--bodies":
+			bodies = true
+		elif a == "--world=valley":
+			valley = true
 		elif a == "--no-render-time":
 			render_time = false
 		elif a.begins_with("--clutter="):
@@ -285,6 +309,17 @@ func _groups() -> Array:
 		["Debug overlay/traces/spawns", by_class.call(["DebugOverlay", "BulletTraces", "DebugSpawns", "OutlawSpawner", "DebugBreaker"]), "process"],
 		["Art: Backdrop, DepthMosaic", by_class.call(["Backdrop", "DepthMosaic"]), "process"],
 	]
+	if valley:
+		g.append_array([
+			["FaceLife (blinks, breath, mouth)", by_class.call(["FaceLife"]), "physics"],
+			["FaceGaze (eyes)", by_class.call(["FaceGaze"]), "process"],
+			["FaceSpeech", by_class.call(["FaceSpeech"]), "both"],
+			["ValleyFolk (the clock, talk)", by_class.call(["ValleyFolk"]), "process"],
+			["CardGame", by_class.call(["CardGame"]), "both"],
+			["RoomLight", by_class.call(["RoomLight"]), "both"],
+			["ValleyGround (levels)", by_class.call(["ValleyGround", "Ground"]), "both"],
+			["ValleyRailway (the train)", by_class.call(["ValleyRailway"]), "both"],
+		])
 	if render:
 		g.append(["(hidden) people", by_class.call(["HumanBody"]), "hide"])
 		g.append(["(hidden) structures", by_class.call(["Structure", "FalseFrontBuilding", "SaloonBuilding", "Boardwalk", "TargetBoard", "RangeCover", "HitchingRail", "WaterTrough"]), "hide"])
@@ -325,6 +360,9 @@ func _ablate(scene_name: String, base: Dictionary) -> Array:
 
 
 func _run() -> void:
+	if valley:
+		await _run_valley()
+		return
 	root.get_node(^"Settings").autosave = false
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
@@ -544,3 +582,249 @@ func _print(s: String, e: Dictionary) -> void:
 		for r in e.systems:
 			print("   %-42s %4d nodes  saves %6.2f ms  (render cpu %5.2f, draws %5.0f)" % [
 					r.system, r.nodes, r.saves_ms, r.render_cpu_ms, r.draw_calls])
+
+
+
+# --- The valley (#865) ----------------------------------------------------------------------------
+
+## Where you stand by day: Main Street by the saloon's yard, looking west down the street (the
+## saloon, the store's row, the crossroads); at night: before the yard, looking up it at the bar.
+const DAY_AT := Vector3(40.0, 0.0, 2.0)
+const DAY_HEADING := 270.0
+const NIGHT_AT := Vector3(29.2, 0.0, -8.0)
+const NIGHT_HEADING := 355.0
+
+
+func _run_valley() -> void:
+	var settings = root.get_node(^"Settings")
+	settings.autosave = false
+	var t0 := Time.get_ticks_usec()
+	load("res://src/world/valley_terrain.gd").main()
+	var t1 := Time.get_ticks_usec()
+	main = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	var t2 := Time.get_ticks_usec()
+	await _frames(3)
+	var t3 := Time.get_ticks_usec()
+	street = main.find_child("Valley", true, false)
+	var folk = street.get("folk")
+	report["load"] = {"bake_ms": (t1 - t0) / 1000.0, "scene_ms": (t2 - t1) / 1000.0, "first_frames_ms": (t3 - t2) / 1000.0,
+			"parts_ms": street.get("load_ms"), "folk_ms": folk.build_ms if folk else {}}
+	print("load: bake %.0f ms, scene %.0f ms, first 3 frames %.0f ms; parts %s; folk %s" % [
+			report.load.bake_ms, report.load.scene_ms, report.load.first_frames_ms, JSON.stringify(report.load.parts_ms), JSON.stringify(report.load.folk_ms)])
+	var player = street.get_node(^"Player")
+	player.input_enabled = false
+	var clock = street.get_node_or_null(^"DayCycle")
+	var scenes := ["day", "night", "gunfight", "blast"] if only == "" else [only]
+	if only == "load":
+		scenes = []
+	for s: String in scenes:
+		var night := s == "night"
+		var at: Vector3 = NIGHT_AT if night else DAY_AT
+		_stand(player, at, NIGHT_HEADING if night else DAY_HEADING)
+		if clock:
+			clock.set_time(21.0 if night else 14.0)
+		if folk:
+			folk._look = 0.0  # (the folk read the clock now, not in half a second)
+		await _frames(60)
+		var made: Array = []
+		if townsfolk > 0:
+			await physics_frame
+			made = load("res://tools/valley/valley_townsfolk.gd").lay(street, townsfolk, player.global_position,
+					band, Vector3(NIGHT_AT.x, 0.0, NIGHT_AT.z) if night else Vector3.INF)
+		await _frames(120)
+		var extra := {}
+		if s == "gunfight":
+			extra = await _gunfight(player)
+		elif s == "blast":
+			await physics_frame  # (a blast asks the world: in the physics frame)
+			extra = _valley_blast()
+			await _frames(180)
+		var m: Dictionary = await _measure(int(seconds * 60.0))
+		var entry := {"frames": m, "census": _census(), "people": _people_census(player)}
+		entry.people["townsfolk_added"] = made.size()
+		entry.merge(extra)
+		if bodies:
+			entry["bodies"] = _bodies_census()
+		if budget_report:
+			entry["budget"] = await _budget(m)
+		if ablate:
+			entry["systems"] = await _ablate(s, m)
+		report[s] = entry
+		_print(s, entry)
+		print("   people: %s" % JSON.stringify(entry.people))
+		if extra:
+			print("   %s" % JSON.stringify(extra))
+		if bodies:
+			print("   bodies: %s" % JSON.stringify(entry.bodies))
+		for man in made:
+			if is_instance_valid(man):
+				man.queue_free()
+		await _frames(2)
+	if only == "load" and bodies:
+		await _frames(60)
+		report["bodies"] = _bodies_census()
+		print("   bodies: %s" % JSON.stringify(report.bodies))
+	if out_path != "":
+		var f := FileAccess.open(out_path, FileAccess.WRITE)
+		f.store_string(JSON.stringify(report, "  "))
+	quit()
+
+
+func _stand(player: Node3D, at: Vector3, heading: float) -> void:
+	var ground = street.get_node_or_null(^"Ground")
+	if ground:
+		at.y = ground.height_at(at.x, at.z) + 0.05
+	player.global_position = at
+	player.velocity = Vector3.ZERO
+	player.rotation = Vector3(0.0, -deg_to_rad(heading), 0.0)
+
+
+## Everyone in the world by band (PeopleTick's: within 25 m every tick, past 60 m every 4th), and how
+## many of each have a face that lives (FaceLife).
+func _people_census(player: Node3D) -> Dictionary:
+	var out := {"men": 0, "near_25": 0, "mid": 0, "far_60": 0, "faces": 0, "dead": 0}
+	for n in street.find_children("*", "", true, false):
+		var s = n.get_script()
+		if s == null:
+			continue
+		var g: String = (s as Script).get_global_name()
+		if g == "HumanBody":
+			out.men += 1
+			var d: float = (n as Node3D).global_position.distance_to(player.global_position)
+			if d <= 25.0:
+				out.near_25 += 1
+			elif d >= 60.0:
+				out.far_60 += 1
+			else:
+				out.mid += 1
+			if n.get("physiology") != null and not n.physiology.alive:
+				out.dead += 1
+		elif g == "FaceLife":
+			out.faces += 1
+	return out
+
+
+## Two crews of three on the street west of you, 20 to 40 m off, turned on each other: the gang's
+## three (TownLife.GANG's men) by the saloon's front and three more outlaws across by the jail.
+func _gunfight(player: Node3D) -> Dictionary:
+	var town_life = load("res://src/people/town_life.gd")
+	var folk = street.get("folk")
+	var crews := [[], []]
+	var brains := [[], []]
+	var spots := [[Vector3(16, 0, -6), Vector3(19, 0, -3), Vector3(13, 0, -2)],
+			[Vector3(2, 0, 6), Vector3(-1, 0, 3), Vector3(4, 0, 2)]]
+	var ground = street.get_node_or_null(^"Ground")
+	for c in 2:
+		for i in 3:
+			var g: Dictionary = town_life.GANG[i]
+			var man = load("res://src/bodies/human_body.gd").new()
+			var id := "%s_%d" % [g.id, c]
+			man.name = id.capitalize()
+			man.person_id = StringName(id)
+			man.rng_seed = 700 + 10 * c + i
+			man.shirt_color = g.shirt
+			man.coat_color = g.coat
+			man.hat_color = g.hat
+			man.body_model = g.model
+			man.has_gun = true
+			var brain = load("res://src/bodies/outlaw_brain.gd").new()
+			brain.name = "Brain"
+			brain.temper = g.temper
+			brain.nerve = maxf(g.nerve, 0.7)  # (a fight that lasts the measure, not one that runs off)
+			brain.proud = g.proud
+			var friends: Array[StringName] = []
+			for k in 3:
+				if k != i:
+					friends.append(StringName("%s_%d" % [town_life.GANG[k].id, c]))
+			brain.friends = friends
+			if folk:
+				brain.places = folk.places
+			man.add_child(brain)
+			var at: Vector3 = spots[c][i]
+			if ground:
+				at.y = ground.height_at(at.x, at.z) + 0.05
+			var other: Vector3 = spots[1 - c][0]
+			man.enter(street, at, man.yaw_toward(at, other))
+			crews[c].append(man)
+			brains[c].append(brain)
+	await _frames(60)
+	for c in 2:
+		for i in 3:
+			brains[c][i].turn_on(crews[1 - c][i])
+	await _frames(120)
+	return {"crews": 6}
+
+
+## A stick in the saloon's front and one in the doctor's (the valley's two spec buildings on Main
+## Street), as the old street's blast scene puts one in each of three buildings.
+func _valley_blast() -> Dictionary:
+	var blast = load("res://src/blast/blast.gd")
+	var out := {"sticks": []}
+	var bs: Dictionary = street.get("buildings")
+	for id in ["saloon", "doctor"]:
+		var b: Node3D = bs.get(id)
+		if b == null:
+			continue
+		var members: Array = b.find_children("*", "StructureMember", true, false)
+		if members.is_empty():
+			continue
+		# The member nearest the street at about waist height: the front.
+		var best: Node3D = null
+		var best_d := INF
+		var front := b.global_position + Vector3(0.0, 1.0, 0.0)
+		front.z = 0.0
+		for m: Node3D in members:
+			var d := m.global_position.distance_to(front)
+			if d < best_d:
+				best_d = d
+				best = m
+		blast.detonate(street, best.global_position + Vector3(0, 0.3, 0), 0.2)
+		out.sticks.append(id)
+	return out
+
+
+## The collision bodies in the world (each a Jolt body, against project.godot's max_bodies) by what
+## owns them: the valley's own children, the spec buildings, the grey-box town, the kit props, people.
+func _bodies_census() -> Dictionary:
+	var by := {}
+	var kinds := {}
+	var total := 0
+	for n in street.find_children("*", "CollisionObject3D", true, false):
+		total += 1
+		var k: String = n.get_class()
+		kinds[k] = int(kinds.get(k, 0)) + 1
+		var owner_name := _body_owner(n)
+		by[owner_name] = int(by.get(owner_name, 0)) + 1
+	var keys := by.keys()
+	keys.sort_custom(func(a, b) -> bool: return by[a] > by[b])
+	var sorted := {}
+	for k in keys:
+		sorted[k] = by[k]
+	return {"total": total, "max_bodies": ProjectSettings.get_setting("physics/jolt_physics_3d/limits/max_bodies", 0),
+			"kinds": kinds, "by": sorted}
+
+
+## What a body belongs to: a person, a kit prop (its prop id), a spec building, or the valley's child
+## it hangs under (the ground, the railway, the markers' town by its child).
+func _body_owner(n: Node) -> String:
+	var p := n
+	var kit := ""
+	while p != null and p != street:
+		var s = p.get_script()
+		if s != null:
+			var g: String = (s as Script).get_global_name()
+			if g == "HumanBody":
+				return "people"
+			if g == "KitProp" and kit == "":
+				kit = "kit:" + String(p.get(&"prop_id")) if p.get(&"prop_id") != null else "kit"
+		if p.get_parent() == street:
+			var top := String(p.name)
+			if top == "Markers" and n != p:
+				var q := n
+				while q.get_parent() != p:
+					q = q.get_parent()
+				top = "Markers/" + String(q.name).rstrip("0123456789_")
+			return top + (" (" + kit + ")" if kit != "" else "")
+		p = p.get_parent()
+	return "?"
