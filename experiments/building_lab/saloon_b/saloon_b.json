@@ -2880,17 +2880,17 @@
 		]
 	},
 	"light": {
-		"_doc": "#824/#829's rules, the doctor's numbers until step 2 tunes them here: a near-neutral low fill, the windows lighting the rooms by day.",
+		"_doc": "#824/#829's rules, tuned for a room 54 ft wide and 13 ft high (#867): the doctor's 0.1 and 7 left the bar room's far half near black (results/2026-11-13_look/light_a_b.jpg); the windows still light it, the fill only lifts the far walls.",
 		"fill": [
 			0.62,
 			0.6,
 			0.57
 		],
-		"window_day": 7.0,
-		"day_fill": 0.1
+		"window_day": 14.0,
+		"day_fill": 0.32
 	},
 	"materials": {
-		"_doc": "Step 2 (#867): finishes by name from the material library, the passing entries only. Outside: ox-blood board and batten (painted_oxblood_batten, passed at a few years and old: drawn at 'few', the nearest passed age to a paint a year in this sun), buff trim (the cornice and its brackets on both streets, corner boards, casings, sashes, the balcony's posts, beams and rails). Inside: the bar room's street walls and its back wall wainscoted in oak to 0.9 m with a picture rail, pale beaded boards over; pale boards in the other rooms; the posts, girders, brackets and the open joists over the bar dressed timber stained dark (the library's oak); the worn fir floor with the building's ways; the hall stair, the well's rail, the inside doors and the corner's doors oak.",
+		"_doc": "Step 2 (#867): finishes by name from the material library, the passing entries only. Outside: ox-blood board and batten (painted_oxblood_batten, passed at a few years and old: drawn at 'few', the nearest passed age to a paint a year in this sun), buff trim (the cornice and its brackets on both streets, corner boards, casings, sashes, the balcony's posts, beams and rails). Inside: the bar room's street walls and its back wall wainscoted in oak to 0.9 m with a picture rail, pale beaded boards over; pale boards in the other rooms; the posts, girders, brackets and the open joists over the bar brown rough-sawn pine (R1: the library has no dressed timber yet); the worn fir floor with the building's ways; the hall stair, the well's rail, the inside doors and the corner's doors oak.",
 		"floor": "wood:int_floor",
 		"wall_boards": "int_boards",
 		"woodwork": "wood:int_oak",
@@ -2968,9 +2968,9 @@
 				}
 			},
 			"timber": {
-				"_doc": "the posts, girders, brackets and the open joists over the bar: dressed timber, stained and oiled dark as the sheet's (the library's oak: its planed pine a few years old draws weathered grey, an outside wood)",
+				"_doc": "the posts, girders, brackets and the open joists over the bar: rough-sawn pine gone brown in a year of lamp smoke (R1; the library's oak drew them a flat orange, its planed pine a weathered grey: no dressed-timber entry yet)",
 				"use": {
-					"entry": "furniture_oak",
+					"entry": "rough_pine_batten",
 					"age": "few",
 					"role": "wall"
 				}
