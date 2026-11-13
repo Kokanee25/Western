@@ -22,8 +22,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   stand-in models; no children; the townsman walks up at 1.2 m/s (4 min from the hotel).
   Open from step 4: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float;
   long lines run off the subtitle's width; Earl isn't seen laid out; the wife's "Were you with him?" doesn't
-  wait; nobody minds a drawn gun by day. **Next: No Law's Beats 7 on (the card on #743's branch): see the
-  next-session issue.**
+  wait; nobody minds a drawn gun by day. **Next: the whole mission played end to end on the real clock and its
+  seams mended (#876).**
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Step 1 done: Joe, the companion**
   (`CompanionBrain`, `Physiology.spared`; `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y;
