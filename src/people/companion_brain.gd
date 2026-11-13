@@ -373,7 +373,8 @@ func _pick_fight(delta: float) -> void:
 		if not _armed_man(who) and not _on_me(who):
 			continue  # (a man with no gun and no fight in him isn't his to shoot)
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (1.0 if who == t else 0.0) \
-				+ (1.5 if _on_me(who) else 0.0) - (3.0 if yours(who) and not _on_me(who) else 1.0 if in_your_sights(who) else 0.0)
+				+ (1.5 if _on_me(who) else 0.0) - (3.0 if yours(who) and not _on_me(who) else 1.0 if in_your_sights(who) else 0.0) \
+				+ (float(tune.get("on_you_pick", 0.0)) if _on_you(who) else 0.0)
 		if p > best_p:
 			best = who
 			best_p = p
@@ -431,6 +432,12 @@ func in_your_sights(who: Node) -> bool:
 	var cam := p.camera
 	var to := (who as Node3D).global_position + Vector3.UP * 1.2 - cam.global_position
 	return rad_to_deg((-cam.global_transform.basis.z).angle_to(to)) < float(tune.yours_aim_deg)
+
+
+## That man's on you: his fight is with you (Joe covers you: he takes on the men shooting at you).
+func _on_you(who: Node) -> bool:
+	var b := Crew.brain_of(who)
+	return b != null and leader != null and b.target == leader
 
 
 func _on_me(who: Node) -> bool:
