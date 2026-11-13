@@ -107,6 +107,18 @@ chimney is `prop:chimney_glass@0.330` (its flame's height; the table lamp's 0.20
 bridge's `prop_light` puts the lamp 0.16 under the height as the game does (S1's stand lit the lamps from
 their smoke bells; the game's placing was right).
 
+**Judged** (the blind critic, two rounds; `r1/critic.md`, `r2/critic.md`): r1 1 SAME (the plain hanging
+lamp), 15 CLOSE, 2 DIFFERENT (the fiddle a toy guitar, the keg rack); r2 (S2's and the redone S1 groups) 1
+SAME (the cookstove), 8 CLOSE, 1 DIFFERENT: **the keg rack** (kegs stand on end; a rack lays them on their
+sides in cradles, tap end out). A kit prop is held only by what's under its own bottom (`KitProp._find_footing`
+looks down its own y), so a keg turned on its side goes loose: a lying keg needs its own kit file, its staves
+laid out one by one round a horizontal axis. Left for the next step, with the CLOSE notes still open: the
+wheel's dice don't read (a blank navy ring; brighter, fewer, bigger marks), the fiddle's f-holes and teeth-like
+strings, the saw's teeth and its handle's hole (a knife from a few steps), the bow's stick and hair too far
+apart, the gold scales twice too big, the faro table unplayed (no chips), the kegs near-black with hoops the
+wood's colour, the stove's smooth casting, the till a plain box, glass faint at night. (Round 2's critic read
+round 1's file for its format before it was told to skip it, and says it judged only what it saw.)
+
 | Prop | Bodies standing | Broken | Where in saloon B (room, count) |
 | --- | --- | --- | --- |
 | `wall_bench` | 10 | its members | dance hall: 6 round its walls; balcony: 1 (Balcony Ambush); the walk: 1-2. Its back against the wall (-z) |
@@ -114,7 +126,7 @@ their smoke bells; the game's placing was right).
 | `fiddle` | 1 | 1 | dance hall: on the platform, on or by the fiddler's chair (1); in his hands while he plays (`grips`, no code yet) |
 | `fiddle_bow` | 1 | 1 | with the fiddle (1) |
 | `beer_keg` | 10 (8 staves, 2 heads) | its members; its beer runs (PropContents) | store room and cellar: ~12 on the racks (most as drawn stand-ins: twelve real are 120 bodies), 1 in the work board's ice box, empties on the yard's pile |
-| `keg_rack` | 10 | its members | store room 1, cellar 1: four kegs a tier (rails' tops at 0.16 and 0.88 m) |
+| `keg_rack` | 10 | its members | store room 1, cellar 1: four kegs a tier (rails' tops at 0.16 and 0.88 m). DIFFERENT: redo with kegs on their sides |
 | `cookstove` | 12 | iron doesn't break; its pipe comes down; its coals a small fire | kitchen: 1, its pipe to the chimney (trim the lengths); the doctor's office: 1 (his kitchen) |
 
 S2 as listed is ~145 bodies (eight benches 80, three real kegs 30, two racks 20, the cookstove 12, the
