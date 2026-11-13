@@ -427,6 +427,19 @@
   "strips": 0,
   "palette": []
  },
+ "letters_the_salt_creek": {
+  "kind": "lettering",
+  "metres": [
+   3.542,
+   0.54
+  ],
+  "texels": [
+   680,
+   104
+  ],
+  "strips": 0,
+  "palette": []
+ },
  "painted_ochre": {
   "kind": "tile",
   "metres": [
