@@ -2686,7 +2686,7 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	if ballistics == null:
 		return
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var t_rev := _revolver_tuning()
 	# Along the barrel, where his hand has it: the wander, the lag onto a moving man, the kick of
 	# his last shot, a jolt. No dice (GunHand). Variant A: in a cone round his aim.
 	var dir := hand.barrel() if variant != Variant.A else _cone_shot(ballistics, origin, point, t)
@@ -2787,10 +2787,21 @@ func _judge_range() -> void:
 	_range_err = maxf(1.0 + _range_rng.randfn(0.0, range_judgement), 0.3)
 
 
+## The revolver's numbers, loaded once (a `load()` a shot was a lookup each, and the first a read
+## from disk on the fight's first shot: #881).
+static var _rev_tuning: RevolverTuning
+
+
+static func _revolver_tuning() -> RevolverTuning:
+	if _rev_tuning == null:
+		_rev_tuning = load("res://config/revolver.tres")
+	return _rev_tuning
+
+
 ## He knows his gun: aimed from `origin` at `point`, held over for the drop at the range he judges
 ## it to be (off by `range_judgement`, judged again each shot).
 func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vector3:
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var t_rev := _revolver_tuning()
 	var judged := origin.distance_to(point) * _range_err
 	var base := (point - origin).normalized()
 	var axis := base.cross(Vector3.UP)
