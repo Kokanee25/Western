@@ -55,10 +55,26 @@ boards stopped under the rafters that cross it, `ribbon: false` none; an inside 
 caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuildings` kind
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
-`lamps.kit` (#824) kit lamps hung on a wall's boards {kit, wall, level, at, height (its foot over
-the floor), side, lit [from, until], energy, reach, shadows};
+`lamps.kit` (#824) kit lamps hung on a wall's boards (on a stone wall, its face at the lamp's
+height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side, lit
+[from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
+
+**A stone building's parts** (`jail/jail.json`, #780; built by `stone.gd` when `frame.stone_wall`
+is given; the others build as before): `frame.stone_wall` {`masonry` the masonry lab's kind,
+`thick`, `course`, `piece`, `footing_below`, `lintel` {height, bear}, `sill`, `coping`}; a stone
+wall (`stone: true`) has its `line` on its OUTER face (a stone partition's: its `out` face), the
+stone inward, its `top`, its `profile` ([from y, d_lo, d_hi], d along `out`, 0 the line: set-offs
+and ledges) and its `ends` (the wall each end butts, or null: it runs to that wall's inside face at
+every height); a window's `bars`, `glass: false` (a slit), a door's `transom`; `lot.ground.plane`
+[y at the origin, dy/dx, dy/dz] (the footings follow it; the lab tilts its ground to it);
+`lot.footprint` (the plan's wings), `walk_x`, `walk_h`, `yard_name` (plan_sheet.py); `floors`
+`kind: "flags"` (a stone fill under flags) and floors on other levels with their own `joist` (the
+flat roofs: `levels.upper` the office's, `levels.ell_roof` the wing's) and a `hatch`;
+`frame.roof_joist`, `ell_joist`, `tin`; `cells` (strap-iron cages: x, z, height, strap, spacing,
+door, bunk, gate); `ladders` with `inside` (at [x, z], `face`); `stairs` with `wood: "stone"`
+(stone blocks to a stoop); `yard_walls` {thick, height, step, walls: line, out, ends, gates}.
 
 **Saloon B's parts** (`saloon_b/saloon_b.json`, #848; all optional, the other specs build as before):
 an opening of type `void` (a corner cut off: no studs, trim or leaf; a king that would stand past

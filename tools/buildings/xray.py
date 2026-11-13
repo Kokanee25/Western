@@ -140,6 +140,8 @@ def wall_openings(spec, wall_id, lv, to_uv):
 def main(spec_path, members_path, out):
     spec = json.load(open(spec_path))
     members = json.load(open(members_path))["members"]
+    if spec.get("frame", {}).get("stone_wall"):
+        return main_stone(spec, members, out)
     W, D = float(spec["lot"]["width"]), float(spec["lot"]["depth"])
     lv = {"ground": float(spec["levels"]["ground"]["top"]), "upper": float(spec["levels"]["upper"]["top"])}
     top = max(max(p[1] for p in corners(m)) for m in members) + 0.3
@@ -195,6 +197,92 @@ def main(spec_path, members_path, out):
     d = ImageDraw.Draw(sheet)
     d.text((14, 12), "%s: the X-ray sheet (framing from the built members, %d of them)" % (spec["id"], len(members)), fill=(25, 20, 15), font=font(28, True))
     d.text((14, 50), "red: each opening's clear area (nothing may cross it)   tan: studs   dark: kings   orange: headers and rough sills   brown: plates, sills, posts, beams   sienna: rafters   grey: stone   red-brown: brick",
+           fill=(25, 20, 15), font=font(15))
+    y = 90
+    for r in rows:
+        x = 10
+        for im in r:
+            sheet.paste(im, (x, y))
+            x += im.width
+        y += max(im.height for im in r)
+    sheet.save(out, quality=90)
+    print(out, sheet.size, len(members), "members")
+
+
+def main_stone(spec, members, out):
+    """A load-bearing stone building (#780, the jail; facing 0, its front to the north): each wall
+    from outside with every opening's clear area, two sections (along through the corridor, across
+    through the cells), the floors' framing and the roofs' from above, and the whole lot from above."""
+    W, D = float(spec["lot"]["width"]), float(spec["lot"]["depth"])
+    feet = spec["lot"].get("footprint", [[0, 0, W, D]])
+    DT = max(float(f[3]) for f in feet)
+    yard = spec["lot"].get("yard", [0, 0, W, DT])
+    lv = {"ground": float(spec["levels"]["ground"]["top"]), "upper": float(spec["levels"]["upper"]["top"])}
+    house = [m for m in members if not m["id"].startswith(("yard_", "gate/"))]
+    top = max(max(p[1] for p in corners(m)) for m in house) + 0.3
+    bot = min(min(p[1] for p in corners(m)) for m in house) - 0.1
+    lines = {w["id"]: w["line"] for w in spec["walls"]}
+    plane = spec["lot"].get("ground", {}).get("plane", [0.0, 0.0, 0.0])
+
+    def above_ground(m):
+        # Not a footing under a gateway (buried, it would read as the wall across it).
+        c = m["c"]
+        return max(p[1] for p in corners(m)) > plane[0] + plane[1] * c[0] + plane[2] * c[2] + 0.05
+
+    def in_slab(m, axis, lo, hi):
+        cs = corners(m)
+        return max(p[axis] for p in cs) > lo and min(p[axis] for p in cs) < hi
+
+    def ops(wall_id, to_uv):
+        return wall_openings(spec, wall_id, lv, to_uv)
+
+    def solid(m):
+        return m["kind"] not in ("glass",) and not m["id"].startswith(("yard_", "gate/"))
+    views = []
+    # The front from Main Street (looking south: west on the right).
+    views.append(View("Front (north, on Main Street), looking south: west on the right", lambda p: (W - p[0], p[1], p[2]),
+                      lambda m: solid(m) and in_slab(m, 2, -0.1, 0.75) and not m["id"].startswith(("floor/", "stair/")), -0.5, W + 0.5, bot, top,
+                      ops("front", lambda s_, y: (W - s_, y))))
+    z0 = float(lines["west"][0][1])
+    views.append(View("West side (the cross street), looking east: Main Street on the left", lambda p: (p[2], p[1], p[0]),
+                      lambda m: solid(m) and (in_slab(m, 0, -0.1, 0.75) or (in_slab(m, 0, 6.0, 6.8) and min(p[2] for p in corners(m)) > D - 0.1)) and not m["id"].startswith("floor/"),
+                      -0.5, DT + 0.5, bot, top,
+                      ops("west", lambda s_, y: (z0 + s_, y)) + ops("ell_west", lambda s_, y: (float(lines["ell_west"][0][1]) + s_, y))))
+    views.append(View("East side (the yard): the office and the cell wing, looking west", lambda p: (DT - p[2], p[1], -p[0]),
+                      lambda m: solid(m) and in_slab(m, 0, W - 0.75, W + 2.5) and not m["id"].startswith("floor/"), -0.5, DT + 0.5, bot, top,
+                      ops("east", lambda s_, y: (DT - (z0 + s_), y)) + ops("ell_east", lambda s_, y: (DT - (float(lines["ell_east"][0][1]) + s_), y))))
+    ex0 = float(lines["ell_south"][0][0])
+    views.append(View("Back: the cell wing's end (the jailbreak's wall) and the office's back, looking north", lambda p: (p[0], p[1], -p[2]),
+                      lambda m: solid(m) and (in_slab(m, 2, DT - 0.75, DT + 0.1) or (in_slab(m, 2, D - 0.75, D + 0.1) and min(p[0] for p in corners(m)) < 6.2)) and not m["id"].startswith("floor/"),
+                      -0.5, W + 0.5, bot, top,
+                      ops("ell_south", lambda s_, y: (ex0 + s_, y)) + [o for o in ops("back", lambda s_, y: (s_, y)) if max(o[0], o[2]) < 6.0]))
+    cx = 7.3
+    views.append(View("Section along at x %.1f m (office | cross wall | guard room | corridor), looking west" % cx, lambda p: (p[2], p[1], p[0]),
+                      lambda m: solid(m) and in_slab(m, 0, cx - 0.25, cx + 0.25), -0.5, DT + 0.5, bot, top, []))
+    zc = 18.6
+    views.append(View("Section across the cell wing at z %.1f m (corridor | cage 2), looking south" % zc, lambda p: (W - p[0], p[1], p[2]),
+                      lambda m: solid(m) and in_slab(m, 2, zc - 0.2, zc + 0.2), -0.5, W - 5.5, bot, top, []))
+
+    def below(y):
+        return lambda m: max(p[1] for p in corners(m)) < y and m["kind"] not in ("floor_board", "board", "trim", "glass", "door") and solid(m)
+    views.append(View("The floors' framing from above (set-offs, girders on piers, 2x10 joists; the cells' fill), north up",
+                      lambda p: (p[0], -p[2], -p[1]), below(lv["ground"] - 0.01), -0.6, W + 0.6, -DT - 0.4, 0.4, []))
+    roof = lambda m: lv["ground"] + 2.9 < (sum(p[1] for p in corners(m)) / 8.0) < lv["upper"] + 0.01 and m["kind"] not in ("board", "floor_board", "trim", "glass") and solid(m)
+    views.append(View("The roofs' framing from above (3x12 and 3x10 joists on the walls' ledges, the hatch), north up",
+                      lambda p: (p[0], -p[2], -p[1]), roof, -0.6, W + 0.6, -DT - 0.4, 0.4, []))
+    views.append(View("The lot from above: the jail, the cages, the yard's stone walls and gates (roofs off), north up",
+                      lambda p: (p[0], -p[2], -p[1]), lambda m: (sum(p[1] for p in corners(m)) / 8.0) < lv["ground"] + 2.4 and m["kind"] not in ("floor_board",) and not m["id"].startswith("floor/") and above_ground(m),
+                      float(yard[0]) - 0.6, float(yard[2]) + 0.6, -float(yard[3]) - 0.6, 0.6, []))
+
+    ims = [v.draw(members) for v in views]
+    cols = 2
+    rows = [ims[i:i + cols] for i in range(0, len(ims), cols)]
+    Wpx = max(sum(im.width for im in r) for r in rows) + 20
+    Hpx = sum(max(im.height for im in r) for r in rows) + 120
+    sheet = Image.new("RGB", (Wpx, Hpx), (236, 232, 222))
+    d = ImageDraw.Draw(sheet)
+    d.text((14, 12), "%s: the X-ray sheet (the stone and the frame from the built members, %d of them)" % (spec["id"], len(members)), fill=(25, 20, 15), font=font(28, True))
+    d.text((14, 50), "red: each opening's clear area (nothing may cross it)   grey: stone pieces (rows, lintels, sills, set-offs, ledges)   tan: studs and the cages' iron   brown: girders, plates   wheat: joists   blue: glass",
            fill=(25, 20, 15), font=font(15))
     y = 90
     for r in rows:
