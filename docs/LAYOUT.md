@@ -763,6 +763,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   first) is built on it by `ValleyWorld._make_buildings` in place of its block (ValleyMarkers skips it),
   its floor at its walk's top; a lot's `pad` {y, x, z, blend} is dug level into the bake
   (`valley_plan.py`); a walk's `span` keeps it to the building, `door_x` puts its steps at the door.
+  **Saloon B** (#848, `experiments/building_lab/saloon_b/`) stands on the corner lot: its walk's `span`
+  runs on west past the corner, and its spec's `lot.side_walk` is a Boardwalk down the North-South
+  Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -1634,6 +1637,25 @@ of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (
   standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
   drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
   valley_bench spot `card_seat` (you sat in the north chair, the game going).
+- **`CompanionBrain`** (`src/people/companion_brain.gd`, #843, No Justice step 1; data
+  `config/companion_joe.json`; `tests/test_companion.gd`): Joe, the one full companion. An
+  `OutlawBrain` (variant D and the trial's fixes, "D+") on your side: `follow_man(player)`;
+  `Relations.friend_nodes` holds you, so your deeds (a gun on him, "Drop it!", a stray ball) are never
+  against him. Your fight is his (you shoot at an armed man, or one shoots at you: `side_with`), and
+  theirs is his: `OutlawBrain._start_fight` takes on the man's `CompanionBrain.allies_of` within
+  `ALLY_REACH` 60 m, and Joe's shots add to that man's pressure on him (`DRAW_EYE`). Never gives up
+  or runs (`_go_to_ground`). Leaves you your man (`yours`: one you hit in the last 3 s, or hurt and in
+  your sights); in your sights he'd rather another. Out of your line of fire (`line_offset`: within
+  0.9 m of it for 0.35 s, he steps 1.8 m aside). Calm, he walks behind you and to one side
+  (`follow_spot`; the town's ways when stuck) or waits (`told`: G with him in your view,
+  `PlayerWounds`). He calls what he sees (a man to your side or behind, one loading, going round,
+  down, quit; his own hits and yours; `lines` in the data, subtitled), and the gang brain's own words
+  only as `brain_lines` has them. **`Physiology.spared`**: a wound that would kill him (`_die`) puts
+  him down instead (`_spare`: the brain, neck, cord, lungs and gut a near thing, the bleeds clotting,
+  his blood short of the loss that kills, out `SPARED_OUT` 8 s); the brain holds him out while a fight
+  is on within 80 m and he comes to and gets up after (`_get_back_up`; a broken leg: he says so). The
+  rope turns `spared` off. `-- --joe` brings him in beside you; bridge `joe [here|wait|come|state]`;
+  the gunfight lab's `joe=1` (Shift+Y to play it; `joe_stats.py`). Stand-in body `miner_s4_talking`.
 
 ## src/audio
 
