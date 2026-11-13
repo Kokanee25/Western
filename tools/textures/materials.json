@@ -1162,20 +1162,20 @@
    "texels_per_metre": 192,
    "vram": true,
    "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
+  },
+  "letters_the_salt_creek": {
+   "for": "street",
+   "kind": "lettering",
+   "metres": [
+    5.4,
+    0.54
+   ],
+   "colours": 10,
+   "text": "THE SALT CREEK",
+   "what": "old gold-ochre sign-writer's paint, tall bold slab-serif capitals with a thin dark brown shadow line, one line",
+   "texels_per_metre": 192,
+   "vram": true,
+   "about": "#886 (Sean's yes on #885: 'Pay'): saloon B's sign, as its sheet paints it (gold letters on a dark board); the letters alone, laid on the board the spec builder cuts to them (SignArt.letters), in the walnut."
   }
- },
- "letters_the_salt_creek": {
-  "for": "street",
-  "kind": "lettering",
-  "metres": [
-   5.4,
-   0.54
-  ],
-  "colours": 10,
-  "text": "THE SALT CREEK",
-  "what": "old gold-ochre sign-writer's paint, tall bold slab-serif capitals with a thin dark brown shadow line, one line",
-  "texels_per_metre": 192,
-  "vram": true,
-  "about": "#886 (Sean's yes on #885: 'Pay'): saloon B's sign, as its sheet paints it (gold letters on a dark board); the letters alone, laid on the board the spec builder cuts to them (SignArt.letters), in the walnut."
  }
 }
