@@ -22,15 +22,18 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`). **Next: the room fixes (#824-826), then the jail (#811)**, then the general store, then saloon B, the corner saloon (#772,
   `docs/briefs/saloon-design.md` "Sean's answers").
-- **Saloon B, the corner saloon** (#772; step 1 done, #848): its spec and frame stand on the corner lot
-  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, nine tests): 7,560 members, the
-  open well and its 36 in rail, the dance hall on two girder lines, the wrapping balcony over both walks, the cut
-  corner on one iron column, the sawn girder (`sabotage`, `saw_girder`: cut, its panel comes down over the bar;
-  uncut it carries a dancing crowd). **Next: step 2, the finishes, light and judges (its own issue).** Not in
-  step 1: the hip and side cornice, the cellar dug in the valley and its bulkhead (#695), No Law's set (still in
-  the yard: gameplay's to move, the spec's `no_law_table` and bar are there), props (the prop lab).
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change (RECIPE "A
-  two-storey building under trusses").
+- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #867): spec, frame and look on the corner lot
+  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
+  27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
+  boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
+  twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
+  (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
+  red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
+  the hip or the plain roof, the sign's paid lettering, porch lamps (the `waiting on Sean` issue). Wants from the
+  material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
+  Law's set (still in the yard: gameplay's to move).
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
+  surface, and `-` keeps a dressed member's shape; judge a bar room by lamplight (RECIPE "A big room's look").
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): why the office reads cheap (flat
   indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows, indoor wear
   under the floor). **Sean said yes to all five picks (#821, DECIDED).** #824 (light), #825 (floor and furniture
