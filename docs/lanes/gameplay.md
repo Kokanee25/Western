@@ -58,8 +58,10 @@ riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · p
 Night floor lab (#745).
 
 ## Open problems
-- **The nightly soak is red since Oct 29**: 8,448 orphaned nodes after four hours. Find which objects pile
-  up and free them (`tools/soak.gd`, LAYOUT "The soak").
+- **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
+  valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
+  `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
+  frame bench (#865), the goldens and the tour (art's views). Rubble growth is by design (DESIGN §8).
 - White patches (#670): not reproduced, waiting on Sean's F12.
 
 ## Traps
