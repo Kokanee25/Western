@@ -23,6 +23,12 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
   (#858); saloon B is Fable's (#848: step 1 done, below).
+- **The valley's ground and scatter** (#891; LAYOUT "src/world/town_layout.gd", PARTS "Materials and look"): the
+  valley's ground drawn real from six CC0 scans by a ground map baked from valley.json (re-bake
+  `tools/textures/valley_ground_map.gd` when it changes); rutted streets; the scatter (grass, stones, sage, rocks,
+  boulders, logs, pines, cottonwoods) by rules. Cheap judge: the roads good indie (from cheap), streets and the
+  height still cheap (the sky's flat bands, greybox fronts, backlit near-black bushes, cloned trees, one grass).
+  Render CPU at Sean's: street 2.37 -> 2.80, road 0.58 -> 0.90. Next: its issue (sky, trees, bushes, grass kinds).
 - **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
   whitewash inside and rubble outside not in the library (the game's stone stands in; both judges name it first);
   the parapet flat where the sheet's steps up in the middle; the 10 ft yard wall hides the cell wing from the lane.
@@ -72,3 +78,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - A data texture with alpha needs `process/fix_alpha_border=false`. After a local import the Studio men's
   `.import` stubs fill in: keep them out of commits but filled locally, or the men draw white.
 - Render only what changed; a review round is ~2.5 h here.
+- The valley's views: `tools/textures/valley_ground_shots.sh OUT` (~10 min, one game). A drawn perf_bench
+  run's first load compiles every shader under lavapipe (the scatter's "4 s" load is that; headless 0.2 s).
+- Poly Haven's scanned trees are millions of triangles (the fetch's `max_tris` skips them); its plants' glTF
+  diffuse is a JPEG without alpha (the fetch bakes their `Alpha` map in). Never LOD-cut card foliage.

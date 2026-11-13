@@ -462,3 +462,21 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | doctor_daylight_r2 | desk_N | **cheap indie** | 2, 3, 4, 7 | Painted, toy-like finish | 23% / 1.2 / 1.08 / 0.16 | #829 + window shadows by day, warm |
 | doctor_daylight_r2 | dispensary_N | **cheap indie** | 1, 2, 3, 4, 6, 9 | Dead window | 49% / 1.0 / 1.30 / 0.27 | #829 + window shadows by day, warm |
 | doctor_daylight_r2 | window_N | **cheap indie** | 3, 4, 5, 7, 9 | Hanging porch post | 6% / 3.8 / 1.02 / 0.35 | #829 + window shadows by day, warm |
+| 2026-11-13_valley_ground_r1 | before_street_noon | **cheap indie** | 1, 3, 4, 5, 6, 7, 9 | The ground is a blank plane | 0% / 15.9 / 9.51 / 0.47 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_street_noon | **cheap indie** | 1, 3, 4, 5, 6, 7, 9 | Camouflage stone wall | 0% / 15.3 / 1.13 / 0.32 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | before_street_golden | **cheap indie** | 3, 4, 6, 7, 9 | Blank ground under a dramatic sun | 2% / 6.3 / 8.75 / 0.30 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_street_golden | **good indie** | 3, 4, 6, 7, 9 | Posterised sky | 12% / 3.4 / 0.69 / 0.11 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | before_sheriff_road | **cheap indie** | 1, 3, 4, 7, 9 | Nothing on the ground | 0% / 54.8 / 11.24 / 0.36 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_sheriff_road | **good indie** | 5, 6, 9 | Posterised sky | 0% / 22.2 / 0.60 / 0.03 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | before_camp_approach | **cheap indie** | 1, 3, 4, 7, 9 | Nothing in the picture | 0% / 54.1 / 14.84 / 0.27 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_camp_approach | **good indie** | 6, 9 | Topiary trees | 0% / 26.0 / 0.75 / 0.04 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | before_cabin | **cheap indie** | 1, 3, 4, 7, 9 | Blank ground | 0% / 58.9 / 10.89 / 0.25 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_cabin | **good indie** | 6, 9 | Posterised sky | 0% / 22.2 / 0.57 / 0.04 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | before_town_height | **cheap indie** | 1, 3, 4, 6, 7, 8, 9 | A town of grey boxes | 0% / 46.8 / 8.20 / 0.34 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r1 | after_town_height | **cheap indie** | 1, 3, 4, 6, 7, 8, 9 | A town of blank blocks | 0% / 33.2 / 0.90 / 0.18 | #891 valley ground+scatter round 1: a-l before/after pairs (sources.txt) |
+| 2026-11-13_valley_ground_r2 | street_noon | **cheap indie** | 1, 3, 4, 5, 6, 7, 9 | Camouflage-pattern stone wall | 0% / 15.3 / 1.13 / 0.32 | #891 round 2: after only |
+| 2026-11-13_valley_ground_r2 | street_golden | **cheap indie** | 3, 4, 6, 7, 9 | Posterised sky | 12% / 3.4 / 0.69 / 0.11 | #891 round 2: after only |
+| 2026-11-13_valley_ground_r2 | sheriff_road | **good indie** | 3, 4, 6, 9 | Posterised sky | 0% / 19.8 / 0.62 / 0.04 | #891 round 2: after only |
+| 2026-11-13_valley_ground_r2 | camp_approach | **good indie** | 3, 4, 6, 9 | Posterised sky | 0% / 27.1 / 0.71 / 0.03 | #891 round 2: after only |
+| 2026-11-13_valley_ground_r2 | cabin | **cheap indie** | 3, 4, 6, 7, 9 | Posterised sky | 0% / 21.9 / 0.55 / 0.04 | #891 round 2: after only |
+| 2026-11-13_valley_ground_r2 | town_height | **cheap indie** | 1, 3, 4, 6, 7, 8, 9 | Untextured grey boxes for a town | 0% / 34.1 / 0.92 / 0.19 | #891 round 2: after only |
