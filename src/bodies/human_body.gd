@@ -5417,14 +5417,18 @@ var _brace_tuck := false  ## thrown: his knees come up too (THROWN_TUCK)
 ## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
 ## nothing).
 func brace() -> void:
-	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
+	if not limp or not physiology.alive or not physiology.is_conscious():
+		return
+	# Not hurt past knowing it: he'll get up again once he's still (`get_up`). (Before the tone's
+	# looked at: knocked down again as he was getting up, his joints have none yet, and he lay
+	# there for good: Earl in his chair's pieces, #834.)
+	rise_ok = true
+	if _tone.is_empty():
 		return
 	_brace_t = 0.0
 	_brace_k = BRACE_TONE
 	_brace_fade = BRACE_FADE
 	_brace_tuck = false
-	# Not hurt past knowing it: he'll get up again once he's still (`get_up`).
-	rise_ok = true
 
 
 func _step_brace(delta: float) -> void:
