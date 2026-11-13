@@ -2245,6 +2245,14 @@ pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2,
 `lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
 `panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
 room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
+**Stone and lime** (#860, #857 1a): family `stone` (S1 `rubble_stone`) and `plaster` (PL1 `plaster_whitewash`,
+PL2 `rubble_whitewash`) drawn by `src/render/rubble_stone.gdshader` (a procedural rubble height field in the
+building's space, the scans `face_scan`/`plaster_scan` under it; quoins at `corners`, `drips` streaks,
+inside `regions` by floor height and finish). `StoneFinish` (`src/art/stone_finish.gd`) makes the material,
+sets its space and gives each stone member a chamfered mesh (`piece_mesh`, `exposed`); `SpecBuilding._stone_finish`
+uses it only once the spec's `materials.stone.want` is approved (or `"trial": true`, lab only, never committed).
+`--panels=stone|plaster` (SamplePanel's `_stone_wall`). Not yet approved: two judge rounds failed on the
+screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`).
 
 ## src/props/prop_models.gd
 
