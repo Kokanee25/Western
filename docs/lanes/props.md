@@ -17,7 +17,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - **Saloon B's batch S1 is made and judged, not placed** (#866): hanging lamps (plain and shaded: hooked,
   they swing and fall with their joist), shot glass, schooner, decanter, the bartender's work board, the box
   stove (its coals spill lit), faro table and lookout stool, piano stool, wheel of fortune, gold scales, till,
-  slat mat, deck and chips, and the bar's brass arm rail. `tools/props/saloon.py`, `tools/blender/props/
+  slat mat, deck and chips, and the bar's brass arm rail (`bar_arm_rail`, set on each bar's top). `tools/props/saloon.py`, `tools/blender/props/
   saloon_s1.py`; judged on the lab's stand (`experiments/prop_lab/saloon/s1_sheet.py`, results
   `experiments/prop_lab/results/2026-11-13_saloon_s1/`). Where each goes in saloon B and its physics bodies:
   `experiments/prop_lab/README.md` "Saloon B, batch S1" (~215 bodies for the whole set as listed).
@@ -40,3 +40,5 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - The dev bridge already has `stand` (the player): the lab's stand is `prop_stand`. The old factory sheet's
   spot before the saloon has a tied horse in view; the S1 stand is on the road east (40, 0, -5.4).
 - A repeated member's mesh draw isn't renumbered: lay meshed members out one by one.
+- Saloon B's bars, chairs and walks are in the valley: any member added there (even to `bar`) shifts Jolt's
+  contact order and tips CI's card-game chair tests (#834). Add props as their own kits, placed later.

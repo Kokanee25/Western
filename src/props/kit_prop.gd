@@ -119,7 +119,8 @@ func build() -> void:
 		m.set_meta(&"kit", spec)
 		if spec.has("solid"):
 			# A hollow member (#866: a cast firebox, a stovepipe, a brass tube): the share of its box
-			# that's metal, for its weight.
+			# that's metal, for its weight. StructureMember.weight counts the rest as char (a fifth of
+			# its density), so a hollow member weighs at least a fifth of its box.
 			m.solid_share = float(spec.solid)
 		var mi := m.get_child(0) as MeshInstance3D
 		var own_look: String = spec.get("look", definition.get("look", ""))

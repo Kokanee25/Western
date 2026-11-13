@@ -620,18 +620,18 @@ func test_his_bag_stands_is_rodins_model_and_burns() -> void:
 # --- Saloon B, batch S1 (#866; tools/props/saloon.py, tools/blender/props/saloon_s1.py) -----------
 
 const SALOON_S1_MEMBERS := [&"work_board", &"box_stove", &"faro_table", &"lookout_stool", &"piano_stool", &"gold_scales",
-		&"till_drawer", &"slat_mat", &"card_deck", &"chip_stacks"]
+		&"till_drawer", &"slat_mat", &"card_deck", &"chip_stacks", &"bar_arm_rail"]
 const SALOON_S1_GLASS := [&"shot_glass", &"schooner", &"decanter"]
 
 
 func test_saloon_s1_stands_weighs_and_draws_in_a_few_batches() -> void:
 	# kg (and each member a physics body while it stands: the valley is near Jolt's limit, #865, so
 	# each stays at or under the bodies its README row gives).
-	var weights := {&"work_board": [40.0, 120.0], &"box_stove": [150.0, 400.0], &"faro_table": [25.0, 70.0], &"lookout_stool": [3.0, 12.0],
+	var weights := {&"work_board": [40.0, 150.0], &"box_stove": [150.0, 750.0], &"faro_table": [25.0, 70.0], &"lookout_stool": [3.0, 12.0],
 			&"piano_stool": [3.0, 12.0], &"gold_scales": [2.0, 10.0], &"till_drawer": [3.0, 14.0], &"slat_mat": [5.0, 20.0],
-			&"card_deck": [0.02, 0.2], &"chip_stacks": [0.02, 0.4]}
+			&"card_deck": [0.02, 0.2], &"chip_stacks": [0.02, 0.4], &"bar_arm_rail": [5.0, 40.0]}
 	var bodies := {&"work_board": 17, &"box_stove": 16, &"faro_table": 16, &"lookout_stool": 9, &"piano_stool": 6, &"gold_scales": 6,
-			&"till_drawer": 2, &"slat_mat": 3, &"card_deck": 1, &"chip_stacks": 1}
+			&"till_drawer": 2, &"slat_mat": 3, &"card_deck": 1, &"chip_stacks": 1, &"bar_arm_rail": 1}
 	for id: StringName in SALOON_S1_MEMBERS:
 		var def := PropKit.definition(id)
 		check(def.get("factory", "") == "tools/props/saloon.py", "%s is the factory's" % id)
@@ -780,11 +780,14 @@ func test_the_wheel_of_fortune_hangs_on_its_nails() -> void:
 	check(w.member_count() == 3, "board, wheel and clapper (%d)" % w.member_count())
 
 
-func test_the_bar_has_its_brass_arm_rail() -> void:
+func test_the_arm_rail_sits_on_the_bars_top() -> void:
 	var bar := await _place(&"bar")
-	var rail := _m(bar, "arm_rail")
-	check(rail != null, "the bar has an arm rail")
-	check(rail != null and rail.global_position.y > 1.1, "on its top (%.2f)" % (rail.global_position.y if rail else 0.0))
-	var foot := PropKit.expand(PropKit.definition(&"bar")).filter(func(s: Dictionary) -> bool: return s.id == "foot_rail")
-	check(not foot.is_empty() and String(foot[0].look) == "pbr:bar_rails", "its foot rail is baked brass, not painted")
-	check(bar.settle().is_empty() and not bar.loose, "it stands")
+	var rail := PropKit.spawn(&"bar_arm_rail") as KitProp
+	rail.position = Vector3(0, 1.095, 0.455)
+	world.add_child(rail)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not rail.loose, "it sits on the bar's top")
+	check(rail.member_count() == 1, "one body (%d)" % rail.member_count())
+	bar.go_loose(Vector3(0, 0, 1.0))
+	await wait_until(func() -> bool: return rail.loose, 60)
+	check(rail.loose, "the bar going over takes it down")

@@ -262,7 +262,7 @@ def box_stove():
         y += ln
     f = s["fire"]
     return {
-        "_doc": "A cast-iron box stove (#866; refs experiments/prop_lab/refs/saloon/): the long wood-burning box stove of the 1860s-80s that heated saloons, stores and depots, a firebox 84 cm long on four short cast legs, a door at its +x end with a sliding draught, a collar on its top at the back for the pipe; on a box of sand (old oak boards round it) that keeps the floor from its heat and its coals; its pipe (four 62 cm lengths of 6 in pipe) straight up to the flue: the placing session takes off the lengths the ceiling doesn't want. Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when the stove goes over. A fire source (`stove`, StoveFire): lit by the hour (as the lamps, %d:00 to %d:00) it glows at its draught; knocked over, or its sand box burnt out from under it, its coals spill round its door and burn on the boards for %d s (FireSystem.small_fire, %.1f times a spill's heat). Baked the gun way (tools/blender/props/saloon_s1.py: cast iron black-leaded, rubbed to the iron at its edges, rust where the wet mop has been). ~170 kg of iron and ~135 kg of sand. 14 physics bodies (its members) standing. Written by tools/props/saloon.py." % (f["lit_from"], f["lit_until"], int(f["seconds"]), f["heating"]),
+        "_doc": "A cast-iron box stove (#866; refs experiments/prop_lab/refs/saloon/): the long wood-burning box stove of the 1860s-80s that heated saloons, stores and depots, a firebox 84 cm long on four short cast legs, a door at its +x end with a sliding draught, a collar on its top at the back for the pipe; on a box of sand (old oak boards round it) that keeps the floor from its heat and its coals; its pipe (four 62 cm lengths of 6 in pipe) straight up to the flue: the placing session takes off the lengths the ceiling doesn't want. Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when the stove goes over. A fire source (`stove`, StoveFire): lit by the hour (as the lamps, %d:00 to %d:00) it glows at its draught; knocked over, or its sand box burnt out from under it, its coals spill round its door and burn on the boards for %d s (FireSystem.small_fire, %.1f times a spill's heat). Baked the gun way (tools/blender/props/saloon_s1.py: cast iron black-leaded, rubbed to the iron at its edges, rust where the wet mop has been). ~170 kg of iron and ~135 kg of sand (the kit weighs it ~680: StructureMember.weight counts a hollow member's inside as char, a fifth of the iron, #866). 14 physics bodies (its members) standing. Written by tools/props/saloon.py." % (f["lit_from"], f["lit_until"], int(f["seconds"]), f["heating"]),
         "id": "box_stove", "kind": "members", "fixture": True, "in_game": False, "wood": "iron", "look": "pbr:box_stove",
         "splits_below": 0.3, "blow_wood_share": 0.3,
         "stove": {"member": "body", "door": r([bx * 0.5 + 0.05, y0 + 0.08, 0.0]), "glow_at": r([bx * 0.5 + 0.04, y0 + by * 0.35, 0.0]),
@@ -544,47 +544,30 @@ def chip_stacks():
     }
 
 
-# --- The bar's arm rail (added to assets/props/kit/bar.json) -------------------------------------
-# A 2 1/2 in brass rail along the top's front edge on brass saddles, where the arms rest; the foot rail
-# and its brackets drawn from the same baked brass (no flat painted metal, the recipe's point 2).
+# --- The bar's arm rail (its own kit prop, set on the bar's top) -------------------------------------
+# A 2 1/2 in brass rail along the bar top's front edge on brass saddles, where the arms rest. Its own
+# kit prop, not a member of `bar`: saloon B's bars are in the valley already, and a member added to
+# every bar section there tipped the card-game chair tests' physics in CI (#834). The placing session
+# sets one on each 3 m section's top (bar space: x 0, y 1.095, z 0.455).
 BAR = {"top_y": 1.095, "front_z": 0.5, "rail_r": 0.0318, "rail_len": 2.9, "rail_z": 0.455, "saddle": 0.014,
        "saddles": [-1.2, -0.4, 0.4, 1.2]}
 
 
-def bar_rails(bar):
-    """The bar's kit file with its arm rail added and its foot rail drawn from the baked brass."""
+def bar_arm_rail():
     c = BAR
-    ms = [m for m in bar["members"] if not m["id"].startswith("arm_rail")]
-    rail = member("arm_rail", "trim", [c["rail_len"], c["rail_r"] * 2 + c["saddle"], c["rail_r"] * 2],
-                  [0, c["top_y"] + (c["rail_r"] * 2 + c["saddle"]) * 0.5, c["rail_z"]], wood="iron", look="pbr:bar_rails",
-                  draw=mesh("bar_rails", "ArmRail"), solid=0.07)  # (a brass tube, 1/16 in wall)
-    ms.append(rail)
-    out = []
-    for m in ms:
-        if m["id"] == "foot_rail":
-            m["look"] = "pbr:bar_rails"
-            m["draw"] = mesh("bar_rails", "FootRail")
-        elif m["id"].startswith("rail_bracket"):
-            # Laid out one by one (a Blender part a bracket: a repeat's copies would each draw them all).
-            rep = m.pop("repeat", None)
-            if rep:
-                for k in range(int(rep["count"])):
-                    one = dict(m, id="rail_bracket%d" % k, at=r([m["at"][0] + rep["step"][0] * k, m["at"][1], m["at"][2]]))
-                    out.append(one)
-                continue
-        out.append(m)
-    for m in out:
-        if m["id"].startswith("rail_bracket"):
-            m["look"] = "pbr:bar_rails"
-            m["draw"] = mesh("bar_rails", "FootBracket" + m["id"][len("rail_bracket"):])
-    bar["members"] = out
-    if "arm rail" not in bar["_doc"]:
-        bar["_doc"] += " Its arm rail (#866): a 2 1/2 in brass rail along the top's front edge on brass saddles (one member, wood iron); the foot rail, its brackets and the arm rail drawn from one baked brass (pbr:bar_rails, tools/blender/props/saloon_s1.py; tools/props/saloon.py adds them)."
-    return bar
+    h = c["rail_r"] * 2 + c["saddle"]
+    ms = [member("rail", "post", [c["rail_len"], h, c["rail_r"] * 2], [0, h * 0.5, 0], wood="iron", look="pbr:bar_rails",
+                 draw=mesh("bar_rails", "ArmRail"), solid=0.07)]  # (a brass tube, 1/16 in wall)
+    return {
+        "_doc": "The bar's arm rail (#866; refs experiments/prop_lab/refs/saloon/arm_rail_trinidad_saloon_1880s.jpg): a 2 1/2 in brass tube 2.9 m long on four brass saddles, set along a bar section's top at its front edge where the drinkers' arms rest (bar space: x 0, y 1.095, z 0.455). Its own kit prop, not a member of `bar` (saloon B's bars stand in the valley: a member added to every section tipped the card-game chair tests, #834); it settles onto the bar's top and comes down with it. Old brass baked the gun way (tools/blender/props/saloon_s1.py). One member, wood iron (a tube: `solid` 0.07; StructureMember.weight still counts the inside as char, so it weighs ~25 kg for a real ~8). 1 physics body. Written by tools/props/saloon.py.",
+        "id": "bar_arm_rail", "kind": "members", "fixture": True, "in_game": False, "wood": "iron",
+        "splits_below": 0.1, "blow_wood_share": 0.3,
+        "members": ms,
+    }
 
 
 BATCH_S1 = [hanging_lamp, hanging_lamp_shaded, shot_glass, schooner, decanter, work_board, box_stove, faro_table, lookout_stool,
-            piano_stool, wheel_of_fortune, gold_scales, till_drawer, slat_mat, card_deck, chip_stacks]
+            piano_stool, wheel_of_fortune, gold_scales, till_drawer, slat_mat, card_deck, chip_stacks, bar_arm_rail]
 
 
 def main():
@@ -602,13 +585,6 @@ def main():
             json.dump(d, f, indent=2)
             f.write("\n")
         print("wrote", os.path.relpath(path, ROOT), "(%d members)" % len(d.get("members", [])))
-    if not only or "bar" in only:
-        path = os.path.join(KIT, "bar.json")
-        bar = bar_rails(json.load(open(path)))
-        with open(path, "w") as f:
-            json.dump(bar, f, indent=1)  # (the bar's own file's layout)
-            f.write("\n")
-        print("wrote", os.path.relpath(path, ROOT), "(the arm rail)")
 
 
 if __name__ == "__main__":

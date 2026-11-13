@@ -650,24 +650,16 @@ def cards_chips():
 
 
 def bar_rails():
+    """The bar_arm_rail kit's rail, about its own bottom middle (its kit prop sits on the bar's top)."""
     c = saloon.BAR
     rr = c["rail_r"]
-    yr = c["top_y"] + c["saddle"] + rr
+    yr = c["saddle"] + rr
     half = c["rail_len"] * 0.5
-    saddles = [tube("a", [(-half, yr, c["rail_z"]), (half, yr, c["rail_z"])], rr, sides=16, caps=(True, True))]
+    parts = [tube("a", [(-half, yr, 0.0), (half, yr, 0.0)], rr, sides=16, caps=(True, True))]
     for x in c["saddles"]:
-        saddles.append(box("s", (0.03, c["saddle"] + rr * 0.5, 0.05), (x, c["top_y"] + (c["saddle"] + rr * 0.5) * 0.5, c["rail_z"]), bevel=0.004))
-        saddles.append(box("b", (0.05, 0.004, 0.07), (x, c["top_y"] + 0.002, c["rail_z"]), bevel=0.0015))
-    foot = tube("FootRail", [(-1.45, 0.16, 0.5), (1.45, 0.16, 0.5)], 0.025, sides=16)
-    brackets = []
-    for k in range(4):
-        x = -1.2 + 0.8 * k
-        brackets.append(merged("FootBracket%d" % k, [box("p", (0.06, 0.08, 0.008), (x, 0.16, 0.294), bevel=0.002),
-                                                      tube("a", [(x, 0.16, 0.298), (x, 0.16, 0.45)], 0.009, sides=8),
-                                                      moved(ring("r", 0.03, 0.0, 0.006, segs=16, sides=6), 90.0, (0, 0, 1), (x, 0.16, 0.5))]))
-    # The rail and its saddles one part (one draw: the bar's batches stay a look each).
-    metal.export_baked("bar_rails", [(merged("ArmRail", saddles), "brass_old"), (foot, "brass_old"),
-                                     *[(b, "brass_old") for b in brackets]], size=1024)
+        parts.append(box("s", (0.03, c["saddle"] + rr * 0.5, 0.05), (x, (c["saddle"] + rr * 0.5) * 0.5, 0.0), bevel=0.004))
+        parts.append(box("b", (0.05, 0.004, 0.07), (x, 0.002, 0.0), bevel=0.0015))
+    metal.export_baked("bar_rails", [(merged("ArmRail", parts), "brass_old")], size=512)
 
 
 def slat_mat():
