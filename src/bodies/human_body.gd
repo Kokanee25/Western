@@ -21,6 +21,10 @@ signal fell_from(fall: Dictionary)
 const POSES := {
 	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
+	# Stood at a graveside (Funeral, #868): his head bowed, his hands together before him.
+	&"mourn": {&"upper_arm_r": Vector3(6, 0, -6), &"upper_arm_l": Vector3(6, 0, 6),
+			&"forearm_r": Vector3(26, 38, 0), &"forearm_l": Vector3(26, -38, 0),
+			&"chest": Vector3(-4, 0, 0), &"head": Vector3(-18, 0, 0)},
 	&"aim": {&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
 	# Giving up (#694, Sean): upper arms out at shoulder height a little forward of his sides,
