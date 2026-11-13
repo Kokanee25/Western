@@ -1,9 +1,9 @@
 {
-  "_doc": "A plain walnut washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Walnut from the material library (F2 a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
+  "_doc": "A plain painted pine washstand (#788; refs experiments/prop_lab/refs/doctor/): a two-board top with a low splashback, a drawer in the front apron with its brass knob, a towel bar off its side (its towel the hand_towel kit file, cloth), a shelf low down; the wash basin and pitcher (white ironstone china, their own kit files) stand on it. Painted pine from the material library (a few years, as the examining table). ~22 kg. Written by tools/props/doctor.py.",
   "id": "washstand",
   "kind": "members",
   "fixture": true,
-  "wood": "walnut",
+  "wood": "weathered_pine",
   "splits_below": 0.5,
   "blow_wood_share": 0.5,
   "members": [
@@ -20,7 +20,7 @@
         0.369,
         -0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "leg1",
@@ -35,7 +35,7 @@
         0.369,
         -0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "leg2",
@@ -50,7 +50,7 @@
         0.369,
         0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "leg3",
@@ -65,7 +65,7 @@
         0.369,
         0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "apron_back",
@@ -80,7 +80,7 @@
         0.678,
         -0.18
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "apron_l",
@@ -95,7 +95,7 @@
         0.678,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "stretcher_l",
@@ -110,7 +110,7 @@
         0.14,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "apron_front",
@@ -125,7 +125,7 @@
         0.678,
         0.18
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few",
       "dress": [
         {
           "look": "pbr:washset",
@@ -150,7 +150,7 @@
         0.678,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "stretcher_r",
@@ -165,7 +165,7 @@
         0.14,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "top0",
@@ -180,7 +180,7 @@
         0.749,
         -0.105
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "top1",
@@ -195,7 +195,7 @@
         0.749,
         0.105
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf0",
@@ -210,7 +210,7 @@
         0.163,
         -0.0725
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "shelf1",
@@ -225,7 +225,7 @@
         0.163,
         0.0725
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "splashback",
@@ -240,7 +240,7 @@
         0.83,
         -0.201
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "towel_bracket0",
@@ -255,7 +255,7 @@
         0.63,
         -0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "towel_bracket1",
@@ -270,7 +270,7 @@
         0.63,
         0.1675
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "towel_bar",
@@ -285,7 +285,7 @@
         0.656,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     }
   ],
   "factory": "tools/props/doctor.py"

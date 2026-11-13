@@ -1,11 +1,11 @@
 {
-  "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's walnut from the material library (F2 a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
+  "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's painted pine from the material library (a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
   "id": "dispensary_shelves",
   "like": "shelves",
   "fixture": true,
   "in_game": false,
-  "wood": "walnut",
-  "look": "lib:fine_walnut_tg/few",
+  "wood": "weathered_pine",
+  "look": "lib:furniture_painted_pine/few",
   "members": [
     {
       "id": "upright_l",
@@ -20,7 +20,7 @@
         1.31,
         -0.985
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "upright_r",
@@ -35,7 +35,7 @@
         1.31,
         0.985
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "shelf0",
@@ -50,7 +50,7 @@
         0.12,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf1",
@@ -65,7 +65,7 @@
         0.42,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf2",
@@ -80,7 +80,7 @@
         0.72,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf3",
@@ -95,7 +95,7 @@
         1.02,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf4",
@@ -110,7 +110,7 @@
         1.32,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf5",
@@ -125,7 +125,7 @@
         1.62,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf6",
@@ -140,7 +140,7 @@
         1.92,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf7",
@@ -155,7 +155,7 @@
         2.22,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "shelf8",
@@ -170,7 +170,7 @@
         2.52,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     },
     {
       "id": "cornice",
@@ -185,7 +185,7 @@
         2.665,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "back",
@@ -200,7 +200,7 @@
         1.31,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     }
   ],
   "factory": "tools/props/doctor.py"
