@@ -1,9 +1,9 @@
 {
-  "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): a walnut table 6 ft by 2 ft at a standing doctor's working height (29 in), three drawers in its deep apron on his side (+z) with brass knobs (the 1880 Stohlmann catalogue's and the Remick museum's tables carry drawers), a shelf low down for the basin and dressings, a buttoned horsehair pad in brown leather along it and a raised head of the same at its +x end. Walnut from the material library (F2 a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
+  "_doc": "An 1880s country doctor's examining table (#788; refs experiments/prop_lab/refs/doctor/): an oak table 6 ft by 2 ft at a standing doctor's working height (29 in), three drawers in its deep apron on his side (+z) with brass knobs (the 1880 Stohlmann catalogue's and the Remick museum's tables carry drawers), a shelf low down for the basin and dressings, a buttoned horsehair pad in brown leather along it and a raised head of the same at its +x end. Oak from the material library (a few years, the doctor's own floor: the top worn where he leans); the pads baked the gun way (tools/blender/props/doctor_d1.py). Heavy stock: a .45 ball through a 65 mm leg (the carve leaves ~0.4 of it) holes it and it stands (`splits_below` 0.3). ~55 kg. The patient lies on it: his weight on the pad (`seat`, all of it). Written by tools/props/doctor.py.",
   "id": "examining_table",
   "kind": "members",
   "fixture": true,
-  "wood": "walnut",
+  "wood": "oak",
   "splits_below": 0.3,
   "blow_wood_share": 0.5,
   "seat": {
@@ -31,7 +31,7 @@
         0.357,
         -0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "leg1",
@@ -46,7 +46,7 @@
         0.357,
         -0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "leg2",
@@ -61,7 +61,7 @@
         0.357,
         0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "leg3",
@@ -76,7 +76,7 @@
         0.357,
         0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "apron_long_b",
@@ -91,7 +91,7 @@
         0.629,
         -0.2765
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "apron_end_foot",
@@ -106,7 +106,7 @@
         0.629,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "stretcher_b",
@@ -121,7 +121,7 @@
         0.14,
         -0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "apron_long_f",
@@ -136,7 +136,7 @@
         0.629,
         0.2765
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "apron_end_head",
@@ -151,7 +151,7 @@
         0.629,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "stretcher_f",
@@ -166,7 +166,7 @@
         0.14,
         0.255
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "top0",
@@ -181,7 +181,7 @@
         0.727,
         -0.2033
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "top1",
@@ -196,7 +196,7 @@
         0.727,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "top2",
@@ -211,7 +211,7 @@
         0.727,
         0.2033
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "shelf0",
@@ -226,7 +226,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf1",
@@ -241,7 +241,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf2",
@@ -256,7 +256,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf3",
@@ -271,7 +271,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf4",
@@ -286,7 +286,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "shelf5",
@@ -301,7 +301,7 @@
         0.174,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "drawer_0_0",
@@ -316,7 +316,7 @@
         0.629,
         0.2985
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:examining_table",
@@ -341,7 +341,7 @@
         0.629,
         0.2985
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:examining_table",
@@ -366,7 +366,7 @@
         0.629,
         0.2985
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:examining_table",

@@ -520,6 +520,17 @@ func state() -> Dictionary:
 			"cells": _chunks.size(), "stirring": _stirring.size()}
 
 
+## Its pieces' nodes kept out of the tree (held on purpose, not lost: the soak takes them off its
+## orphan count, #863).
+func held_nodes() -> int:
+	var n := 0
+	for e: Dictionary in _rest.values():
+		for item: Array in e.nodes:
+			if is_instance_valid(item[0]) and not (item[0] as Node).is_inside_tree():
+				n += 1
+	return n
+
+
 ## Is it drawn by its cell (not by itself)? (Tests.)
 func drawn_by_cell(rb: RigidBody3D) -> bool:
 	var e: Dictionary = _rest.get(rb.get_instance_id(), {})

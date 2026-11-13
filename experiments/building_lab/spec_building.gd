@@ -2031,8 +2031,8 @@ func _physics_process(delta: float) -> void:
 		if not is_instance_valid(ramp):
 			continue
 		var standing := false
-		for m: StructureMember in r[1]:
-			if is_instance_valid(m) and not m.broken and not m.consumed:
+		for m: Variant in r[1]:  # (untyped: a member freed since; typed, each look was an error, #863)
+			if is_instance_valid(m) and not (m as StructureMember).broken and not (m as StructureMember).consumed:
 				standing = true
 		if not standing:
 			ramp.queue_free()

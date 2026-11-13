@@ -1,11 +1,11 @@
 {
-  "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: a front and two ends under a top overhanging the front) at 2.3 m, its front faced with three rows of eight small drawers for roots and powders, each with a turned brass knob (the period's dispensing counters, the target panel's dispensary; round 1's critic called the plain one a blank box). In the doctor's walnut from the material library (F2 a few years, the top worn where he works); the knobs baked the gun way (glb:desk_brass). Along the west wall at his make_up place, the scales and mortar on it. Its front (the drawers) toward -z. Written by tools/props/doctor.py.",
+  "_doc": "The dispensary's counter (#805): the kit's counter (`like` counter.json: a front and two ends under a top overhanging the front) at 2.3 m, its front faced with three rows of eight small drawers for roots and powders, each with a turned brass knob (the period's dispensing counters, the target panel's dispensary; round 1's critic called the plain one a blank box). In the doctor's painted pine from the material library (a few years, the top worn where he works); the knobs baked the gun way (glb:desk_brass). Along the west wall at his make_up place, the scales and mortar on it. Its front (the drawers) toward -z. Written by tools/props/doctor.py.",
   "id": "dispensary_counter",
   "like": "counter",
   "fixture": true,
   "in_game": false,
-  "wood": "walnut",
-  "look": "lib:fine_walnut_tg/few",
+  "wood": "weathered_pine",
+  "look": "lib:furniture_painted_pine/few",
   "members": [
     {
       "id": "front",
@@ -20,7 +20,7 @@
         0.44,
         -0.24
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "end_l",
@@ -35,7 +35,7 @@
         0.44,
         0.0375
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "end_r",
@@ -50,7 +50,7 @@
         0.44,
         0.0375
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "plinth",
@@ -65,7 +65,7 @@
         0.04,
         -0.265
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_painted_pine/few"
     },
     {
       "id": "drawer_0_0",
@@ -80,7 +80,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -105,7 +105,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -130,7 +130,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -155,7 +155,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -180,7 +180,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -205,7 +205,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -230,7 +230,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -255,7 +255,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -280,7 +280,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -305,7 +305,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -330,7 +330,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -355,7 +355,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -380,7 +380,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -405,7 +405,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -430,7 +430,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -455,7 +455,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -480,7 +480,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -505,7 +505,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -530,7 +530,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -555,7 +555,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -580,7 +580,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -605,7 +605,7 @@
         0.2153,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -630,7 +630,7 @@
         0.48,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -655,7 +655,7 @@
         0.7447,
         -0.264
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_painted_pine/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -680,7 +680,7 @@
         0.9,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_painted_pine/few/top"
     }
   ],
   "factory": "tools/props/doctor.py"
