@@ -1,0 +1,104 @@
+{
+  "_doc": "A wheel of fortune (#866; refs experiments/prop_lab/refs/saloon/): the gaming room's wall wheel (the period's 'big six'), 36 in across, 24 painted segments numbered in red, black and cream, a brass peg between each at its rim, on an iron axle in an old oak backboard; a leather clapper on a block over it that stops on a number. Hung (KitProp `hangs`: two nails through its board into the wall: it falls when its wall board goes); the wheel and the clapper are members on the board (a ball through the face splinters it; the face burns). The board from the material library (oak, old); the face printed and its rim, pegs, hub and clapper baked the gun way (tools/blender/props/saloon_s1.py). It doesn't turn yet. The wall's face at z = 0, the wheel toward +z, the board's middle the origin (hang it at ~1.9 m). 3 physics bodies. ~18 kg. Written by tools/props/saloon.py.",
+  "id": "wheel_of_fortune",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "anchor": "wall",
+  "drawn_bounds": true,
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hangs": {
+    "nails": [
+      [
+        -0.44,
+        0.49,
+        0.004
+      ],
+      [
+        0.44,
+        0.49,
+        0.004
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "board",
+      "kind": "board",
+      "size": [
+        1.04,
+        1.14,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.015
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "wheel",
+      "kind": "trim",
+      "size": [
+        0.92,
+        0.92,
+        0.045
+      ],
+      "at": [
+        0.0,
+        -0.04,
+        0.0725
+      ],
+      "wood": "weathered_pine",
+      "look": "pbr:wheel_face",
+      "draw": {
+        "shape": "mesh",
+        "model": "wheel_of_fortune",
+        "part": "Face"
+      },
+      "dress": [
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Rim"
+          }
+        },
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Hub"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clapper",
+      "kind": "trim",
+      "size": [
+        0.08,
+        0.1,
+        0.07
+      ],
+      "at": [
+        0.0,
+        0.47,
+        0.065
+      ],
+      "wood": "oak",
+      "look": "pbr:wheel_of_fortune",
+      "draw": {
+        "shape": "mesh",
+        "model": "wheel_of_fortune",
+        "part": "Clapper"
+      }
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}
