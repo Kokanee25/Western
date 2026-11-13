@@ -230,7 +230,10 @@ func _walk_off(man: HumanBody, way: Array[Vector3], speed: float, delta: float, 
 	if (from_you > float(_cody.get("gone_m", 30.0)) and not _in_your_sight(man.global_position)) or walking_s > 240.0:
 		return true
 	if _walk_way(man, way, speed, delta):
-		# His way walked and you still on him (following): on down the street the same way.
+		# His way walked and you still on him (following): on down the street the same way. You
+		# saw which way he went (S10: at the camp you'll know it already, No Justice step 2).
+		if man == victim and not StoryState.has_fact("nolaw.followed"):
+			fact("nolaw.followed", true)
 		var off: Array = _cody.get("off", [1.0, 0.0])
 		var on := Vector3(float(off[0]), 0.0, float(off[1])).normalized()
 		man.set_pose(&"stand")

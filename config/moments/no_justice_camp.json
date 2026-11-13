@@ -1,0 +1,80 @@
+{
+  "_doc": "No Justice, step 2 (#843's plan, #859): the doctor's office and the Southern Ute camp. The lines are docs/scripts/no_justice.json's scenes doctor, camp and ride (said as written there; status new or bible, all PROPOSED). The day the sheriff died, late morning: Joe in the doctor's front office (where they meet is OPEN, s3: the card's place, a stand-in), the doctor by his desk, the bold cowboy in the corner (his part is OPEN, s4: the card's one line). You walk in: the doctor tells you who Joe is, Joe what he wants and whether your badge does anything, the doctor's warning and the cowboy's (S11), and Joe asks once. A nod: 'Then we go now.' A shake, or no answer: 'No. I did not think so.', and he goes out; follow him out and you've come anyway (acting answers too), stay and he rides alone. The ride out is a card (riding isn't built, #478), along the ute_trail to ute_community. The camp: the raid's damage (stand-in kit props, charred, with real bullet holes); Joe goes to the survivors (their talk is in Ute and isn't written: a Southern Ute speaker or not at all; no survivor is shown till the Studio has them, made with care); he comes back and tells it (camp.what, camp.shirt S1, camp.way S10; camp.you_knew if you followed Cody out of the saloon, nolaw.followed); he puts on the cowboy's hat and neckerchief and says why (S12; C4 a, the costume stays; his look is the characters lane's); a while looking at him in it, the dry line (S37); then he reads the trail toward the hideout canyon (ride.trail's first line) and walks with you again (CompanionBrain). Facts: nojustice.met (nod, followed, declined), nojustice.camp, nojustice.knew_the_way, nojustice.costume, nojustice.trail. Started by `-- --world=valley --mission=no_justice` or the bridge's `moment no_justice_camp set_up=1`.",
+  "status": "PROPOSED (#859): the places, timings and stand-ins are this session's; the meeting place (s3) and the cowboy's part (s4) are OPEN.",
+  "script": "res://src/missions/no_justice_camp.gd",
+  "hour": 10.5,
+  "building": "doctor",
+  "_local": "Points in the doctor's building's own space [x, z] (experiments/building_lab/doctor/doctor.json: the front office is x 0.1-8.43, z 0.1-3.76; the floor at y 0.95; the door out at [4.71, -1.2]).",
+  "door_out": [4.71, -1.2],
+  "front_office": [0.1, 0.1, 8.43, 3.76],
+  "joe_spot": [3.0, 2.3],
+  "doctor_spot": [1.5, 2.6],
+  "cowboy_spot": [7.7, 0.75],
+  "cowboy_faces": [5.0, 2.0],
+  "joe_out": [[4.71, 0.6], [4.71, -1.2], [4.0, -4.0]],
+  "you_start": {"_doc": "`--mission=no_justice`: you on Main Street, this far from the doctor's door out.", "off": [-12.0, 5.0]},
+  "hear_m": 8.0,
+  "cps": 13.0,
+  "gap_min_s": 2.4,
+  "answer_s": 25.0,
+  "follow_s": 60.0,
+  "follow_m": 6.0,
+  "joe_walk": 1.3,
+  "ride": {"_doc": "The card: the trail's length (valley.json's ute_trail, from the town's end of it) plus town to its start, at a horse's walk; the clock goes on by it.", "trail": "ute_trail", "mps": 1.8},
+  "camp": {
+    "_doc": "Around ute_community (valley.json: at [-1350, 1230], its pad 140 x 90 m at y 41). `arrive`: where you come in, this far back from the place along the trail's last leg; `survivors`: where Joe goes to them, this far on past the place's middle along the same line, out of earshot; `trail_m`: how far he walks toward the hideout to read the ground.",
+    "place": "ute_community",
+    "arrive_back_m": 34.0,
+    "joe_side_m": 2.2,
+    "survivors_on_m": 22.0,
+    "talk_s": 16.0,
+    "trail_toward": "hideout",
+    "trail_m": 14.0,
+    "kneel_s": 3.5,
+    "look_s": 2.5,
+    "look_within_s": 40.0
+  },
+  "damage": {
+    "_doc": "The raid's damage, stand-ins (kit props) about the arrival, [id, x, z, yaw degrees, tipped] in the camp's own frame (x across the trail, z on along it from where you arrive); `char` 0-1 how burned (Structure.show_fire); `holes` shots put through it at setup from `from` (m off, its own frame), a real ball each (Ballistics).",
+    "props": [
+      {"id": "covered_wagon", "at": [-9.0, 14.0], "yaw": 70, "char": 0.85, "holes": 4, "from": [6.0, 1.4, -8.0]},
+      {"id": "broken_wagon_wheel", "at": [-5.5, 10.5], "yaw": 20, "char": 0.6},
+      {"id": "crate", "at": [4.5, 9.0], "yaw": 35, "tipped": true, "char": 0.4, "holes": 2, "from": [-5.0, 1.2, -6.0]},
+      {"id": "barrel", "at": [6.0, 11.5], "yaw": 0, "tipped": true, "holes": 2, "from": [-6.0, 1.0, -5.0]},
+      {"id": "folded_blankets", "at": [2.0, 13.0], "yaw": 10, "char": 0.9},
+      {"id": "straw_pile", "at": [-2.5, 16.5], "yaw": 0, "char": 1.0},
+      {"id": "water_barrel", "at": [8.5, 15.0], "yaw": 0, "holes": 3, "from": [-7.0, 1.3, -4.0]},
+      {"id": "tin_cup", "at": [1.0, 8.0], "yaw": 0, "tipped": true}
+    ]
+  },
+  "lines": {
+    "who": {"any": ["This is Joe. The night Earl was shot, his people's camp was raided while the men were out hunting. His wife was killed. I'll not tell the rest. He can, if he chooses."]},
+    "joe_wants": {"any": ["I want the men who did it."]},
+    "badge": {"any": ["You wear the sheriff's badge. Does it do anything?"]},
+    "warning": {"any": ["Bring them in if you like. I never yet saw a white man hang on an Indian's word."]},
+    "cowboy": {"any": ["Doc's right. No jury in Colorado'll hang a white man for a Ute woman. I've seen 'em try."]},
+    "ask": {"any": ["I ride today. Will you come?"]},
+    "yes": {"any": ["Then we go now."]},
+    "no": {"any": ["No. I did not think so."]},
+    "wait": {"any": ["Wait here."]},
+    "what": {"any": ["Six of them. Seven, one says. They came in the night. We were four days gone, hunting. Four days."]},
+    "shirt": {"any": ["The one who did it to her wore a red shirt. Faded. That is all they saw of him. It is enough."]},
+    "way": {"any": ["They went toward the hills. That way."]},
+    "you_knew": {"any": ["You knew that already."]},
+    "disguise": {"any": ["If they see a Ute, they go to the camp after. If they see a cowboy, they come to me."]},
+    "nobody": {"any": ["A hat and a rag at my neck, and I am nobody's Indian. Only one more man who shot at them."]},
+    "trail": {"any": ["Six horses. One throws his right fore."]}
+  },
+  "prompts": {
+    "go": "The doctor's: along Main Street. Go in.",
+    "answer": "Nod or shake your head (move your view).",
+    "follow": "Joe goes out to the horses.",
+    "survivors": "(Joe talks with the survivors, in Ute.)",
+    "costume": "(Joe puts on a cowboy's hat and ties a neckerchief.)",
+    "trail": "Joe has their trail: south-east, toward the box canyon under the rimrock. G: tell him to wait or come."
+  },
+  "cards": {
+    "ride": "You ride out with Joe on the trail to the Southern Ute camp. %d minutes.",
+    "alone": "Joe rides out alone."
+  }
+}

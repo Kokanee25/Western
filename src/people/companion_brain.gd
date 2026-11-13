@@ -58,6 +58,11 @@ var _said_up := true  # (set false when he goes down)
 var _stuck_t := 0.0
 var _go_last := Vector3.INF
 var _way: Array[Vector3] = []
+## Held by a scene (No Justice's camp, `NoJusticeCamp`): while it's quiet the scene walks him and
+## turns him, not his following; in a fight he's his own man again.
+var held := false
+## In the cowboy's hat and neckerchief (S12, No Justice step 2; his look is the Studio's).
+var costume := false
 
 
 static var _shared := {}
@@ -123,6 +128,14 @@ static func _start_when_ready(main_node: Node) -> void:
 
 ## Joe brought in beside you (2.2 m to your right, a pace back), following you. Returns him.
 static func spawn_beside(p: Player, model := STAND_IN) -> HumanBody:
+	var town := p.get_parent().get_node_or_null(^"TownLife") as TownLife
+	var at := p.global_position + p.global_transform.basis * Vector3(2.2, 0.0, 0.8)
+	return make_joe(p.get_parent(), at, p.rotation.y, p, town.places if town else null, model)
+
+
+## Joe into `parent` at `at` facing `yaw`, following `leader` (a scene's: `held` to hold him there).
+static func make_joe(parent: Node, at: Vector3, yaw: float, leader: Node3D, ways: Waypoints = null,
+		model := STAND_IN, hold_him := false) -> HumanBody:
 	var man := HumanBody.new()
 	man.name = "Joe"
 	man.person_id = &"joe"
@@ -130,13 +143,12 @@ static func spawn_beside(p: Player, model := STAND_IN) -> HumanBody:
 	man.shirt_color = Color(0.55, 0.5, 0.4)
 	var b := CompanionBrain.new()
 	b.name = "Brain"
-	b.follow_man(p)
-	var town := p.get_parent().get_node_or_null(^"TownLife") as TownLife
-	if town != null:
-		b.places = town.places
+	b.follow_man(leader)
+	b.held = hold_him
+	if ways != null:
+		b.places = ways
 	man.add_child(b)
-	var at := p.global_position + p.global_transform.basis * Vector3(2.2, 0.0, 0.8)
-	man.enter(p.get_parent(), at, p.rotation.y)
+	man.enter(parent, at, yaw)
 	return man
 
 
@@ -191,7 +203,7 @@ static func in_view(player: Player, reach := -1.0, deg := -1.0) -> CompanionBrai
 
 ## A word from you (the shout key with him in view): wait here, or come on. Returns what you said.
 func told(by: Node3D) -> String:
-	if by != leader:
+	if by != leader or held:
 		return ""
 	if wait_at == Vector3.INF:
 		wait_at = body.global_position
@@ -623,6 +635,8 @@ func _social(delta: float) -> void:
 	if who != null and who != leader and relations.stance(who) >= Relations.Stance.WARY:
 		super._social(delta)
 		return
+	if held:
+		return  # the scene has him
 	_reload_quietly(delta)
 	if _fight_seen and _calm_t > float(tune.after_fight):
 		_fight_seen = false
