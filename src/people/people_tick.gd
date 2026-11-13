@@ -154,7 +154,8 @@ static var _player: Node3D
 ## The men that tick this tick, in order, each with his `tick_dt` (this tick's delta and whatever
 ## he was owed); the others are owed this one. A man's band is his distance to the player and to
 ## everyone in trouble (`HumanBody.in_trouble`: a fight, running, hands up), with a margin
-## each way (`HumanBody.tick_band`); in the camera's view one band nearer, in the middle of it none.
+## each way (`HumanBody.tick_band`); in the camera's view one band nearer (not the far band's:
+## `seen_nearer_far`), where the sights point none.
 ## No player in the world (a lab, a test) or `Settings.people_bands` off: everyone, every tick.
 func _bands(men: Array, delta: float) -> Array[HumanBody]:
 	var due: Array[HumanBody] = []
@@ -188,6 +189,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 	var cam_at := cam.global_position if cam else Vector3.ZERO
 	var cam_fwd := -cam.global_basis.z if cam else Vector3.ZERO
 	var cone := cos(deg_to_rad(tn.aim_cone_deg))
+	var aimed := cam != null and (not tn.aim_needs_sights or _aiming(player))
 	var edges := [tn.near_m, tn.far_m]
 	var every := [1, tn.middle_every, tn.far_every]
 	for i in live.size():
@@ -212,10 +214,10 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 		if run > 0 and cam != null:
 			var chest := at + Vector3.UP * 1.3
 			var to := chest - cam_at
-			if to.length_squared() > 1e-6 and cam_fwd.dot(to.normalized()) > cone:
-				run = 0  # where he's looking, where the gun points
+			if aimed and to.length_squared() > 1e-6 and cam_fwd.dot(to.normalized()) > cone:
+				run = 0  # where the gun points
 				why = &"n_full_aimed"
-			elif tn.seen_nearer and cam.is_position_in_frustum(chest):
+			elif tn.seen_nearer and (run < 2 or tn.seen_nearer_far) and cam.is_position_in_frustum(chest):
 				run -= 1
 				why = &"n_full_seen"
 		if Prof.on:
@@ -258,6 +260,12 @@ func _count_why(man: HumanBody, run: int, calm: bool, band: int, near_hot: int, 
 
 
 static var _why_names := {}
+
+
+## Is the player aiming down his gun's sights (the aim cone's switch: `aim_needs_sights`)?
+static func _aiming(player: Node3D) -> bool:
+	var p := player as Player
+	return p != null and p.weapon != null and p.weapon.selected and p.weapon.drawn and p.weapon.aiming
 
 
 static func _find_player() -> Node3D:
