@@ -280,6 +280,10 @@ var tick_every := 1
 var tick_owed := 0.0
 var tick_dt := 0.0
 var woken := false
+## Calm, and not within the near band of anyone in trouble (PeopleTick sets it each tick; false
+## with no player or the bands off): his senses look at another calm man every
+## `PeopleTickTuning.calm_look_every`th look (Senses; #881).
+var tick_calm := false
 var parts := {}  ## segment -> the physics body carrying it (AnimatableBody3D, RigidBody3D when limp)
 var pivots := {}  ## segment -> joint pivot (while standing)
 var visuals := {}  ## segment -> Node3D holding its meshes and decals

@@ -167,6 +167,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 				man.tick_owed = 0.0
 				man.tick_band = 0
 				man.tick_every = 1
+				man.tick_calm = false
 				due.append(man)
 		return due
 	if _tuning == null:
@@ -175,6 +176,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 	var live: Array[HumanBody] = []
 	var calm: Array[bool] = []
 	var hot: PackedVector3Array = [player.global_position]
+	var near2 := tn.near_m * tn.near_m
 	for man: HumanBody in men:
 		if not is_instance_valid(man) or not man.is_inside_tree():
 			continue
@@ -197,11 +199,14 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 		var at := man.global_position
 		var d2 := INF
 		var near_hot := 0  # (which: the player is 0)
+		var trouble2 := INF  # to the nearest man in trouble
 		for h in hot.size():
 			var e := at.distance_squared_to(hot[h])
 			if e < d2:
 				d2 = e
 				near_hot = h
+			if h > 0 and e < trouble2:
+				trouble2 = e
 		var d := sqrt(d2)
 		var b := man.tick_band
 		while b < 2 and d > edges[b] + tn.margin_m:
@@ -222,6 +227,7 @@ func _bands(men: Array, delta: float) -> Array[HumanBody]:
 				why = &"n_full_seen"
 		if Prof.on:
 			_count_why(man, run, calm[i], b, near_hot, why)
+		man.tick_calm = calm[i] and not man.woken and trouble2 > near2
 		man.woken = false
 		var n: int = every[run]
 		man.tick_every = n

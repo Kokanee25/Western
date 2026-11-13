@@ -32,3 +32,8 @@ extends Resource
 ## only in view (`seen_nearer`): with the revolver drawn as you walk, the far men down the street
 ## sat in the cone and ticked every tick (#881).
 @export var aim_needs_sights := true
+## A calm man (`HumanBody.tick_calm`) looks at another calm man only every this many of his looks
+## (Senses), with the time between: their awareness of each other builds as fast, only noticed up
+## to a look (0.12 s) later. The player and anyone in or near trouble are looked at every look.
+## The street's 25 townsfolk looking at each other were most of the senses' time (#881). 1: off.
+@export var calm_look_every := 2
