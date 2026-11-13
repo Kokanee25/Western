@@ -1,0 +1,26 @@
+X:1
+T:Sooner or Later
+B:Written for Salt Creek (2026): an up-tempo singalong in the indie-folk way, a flat-picked banjo riff over a driving strum
+M:4/4
+L:1/8
+K:D
+% the riff
+"D"dfaf gfed | "G"BdgB d2ed | "D"dfaf gfed | "A"ceae gfec |
+% verse
+"D"z2fe d2de | "G"g2fe d4 | "D"z2fe d2de | "A"e6 z2 |
+"D"z2fe d2de | "G"g2fe d2Bd | "A"e2fe c2A2 | "D"d6 z2 |
+% chorus, the singalong
+"Bm"f4 f2ef | "G"g4 f2e2 | "D"f2a4 f2 | "A"e8 |
+"Bm"f4 f2ef | "G"g4 b2a2 | "A"a2g2 f2e2 | "D"d8 |
+% the riff again
+"D"dfaf gfed | "G"BdgB d2ed | "D"dfaf gfed | "A"ceae gfec |
+% verse
+"D"z2fe d2de | "G"g2fe d4 | "D"z2fe d2de | "A"e6 z2 |
+"D"z2fe d2de | "G"g2fe d2Bd | "A"e2fe c2A2 | "D"d6 z2 |
+% chorus twice, the last time to close
+"Bm"f4 f2ef | "G"g4 f2e2 | "D"f2a4 f2 | "A"e8 |
+"Bm"f4 f2ef | "G"g4 b2a2 | "A"a2g2 f2e2 | "D"d8 |
+"Bm"f4 f2ef | "G"g4 f2e2 | "D"f2a4 f2 | "A"e8 |
+"Bm"f4 f2ef | "G"g4 b2a2 | "A"a2g2 f2e2 | "D"d8 |
+% the riff out, and the last chord
+"D"dfaf gfed | "G"BdgB d2ed | "D"dfaf gfed | "A"ceae gfec | "D"d8 |

@@ -5,7 +5,7 @@ band: the fiddle on top, the banjo just under it, the bones and tambourine in th
 
     python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json [--out=...wav]
         [--with=banjo,bones,tambourine] (who plays with the fiddle; piano too: --with=banjo,bones,tambourine,piano)
-    --strings=gut|steel|modern (the banjo's strings), --banjo-style=clawhammer|rolls|flatpick, --no-fiddle,
+    --strings=gut|steel|modern (the banjo's strings), --banjo-style=clawhammer|rolls|flatpick, --strum=folk|drive, --no-fiddle,
     --levels=banjo:0,guitar:-2 (each player against the fiddle, or the band's 0 without it)
 """
 import json
@@ -62,6 +62,7 @@ def main():
     banjo.strings(opt.get("strings", "gut"))
     global BANJO_STYLE
     BANJO_STYLE = opt.get("banjo-style", "clawhammer")
+    guitar.STYLE = opt.get("strum", "folk")  # the guitar's strum: folk or drive
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
     out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"])

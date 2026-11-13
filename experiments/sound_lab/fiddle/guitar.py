@@ -38,7 +38,14 @@ SHAPES = {                                   # frets low E to high E; None not p
     "Em": [0, 2, 2, 0, 3, 3], "Am": [None, 0, 2, 2, 1, 0], "A": [None, 0, 2, 2, 2, 0],
     "E": [0, 2, 2, 1, 0, 0], "Bm": [None, 2, 4, 4, 3, 2], "F": [1, 3, 3, 2, 1, 1], "Dm": [None, None, 0, 2, 3, 1],
 }
-PATTERN = [(0, "D"), (2, "D"), (3, "U"), (5, "U"), (6, "D"), (7, "U")]  # eighths of a 4/4 bar
+# strums, as (eighth of a 4/4 bar, direction, how hard): "folk" the down, down-up, up-down-up; "drive"
+# every eighth, down-up, leaning on beats two and four (the bounce of an up-tempo folk song)
+PATTERNS = {
+    "folk": [(0, "D", 1.0), (2, "D", 0.78), (3, "U", 0.55), (5, "U", 0.55), (6, "D", 0.78), (7, "U", 0.55)],
+    "drive": [(0, "D", 0.9), (1, "U", 0.45), (2, "D", 1.0), (3, "U", 0.5), (4, "D", 0.85), (5, "U", 0.45),
+              (6, "D", 1.0), (7, "U", 0.55)],
+}
+STYLE = "folk"
 T60_LOW, T60_HIGH = 5.0, 0.8                 # s: a string's own ring (E2), and its partials near 2 kHz
 POLS = [(1.0, 1.0, 0.0), (0.4, 1.7, 0.8)]   # (level, decay x, cents): the two ways a string swings
 
@@ -59,17 +66,18 @@ def arrange(sc, seed=1972):
         shape = SHAPES.get(ch, SHAPES["G"])
         played = [i for i, f in enumerate(shape) if f is not None]
         final = b == len(starts) - 1
-        for k, d in (PATTERN[:1] if final else PATTERN):  # the last bar: one chord, let ring
+        pattern = PATTERNS[STYLE]
+        for k, d, hard in (pattern[:1] if final else pattern):  # the last bar: one chord, let ring
             t0 = when(u + k)
             if t0 < first:
                 continue
             if d == "D":
                 strs = played if k == 0 else (played[1:] if len(played) > 4 else played)
-                amp = (1.0 if k == 0 else 0.78) * np.exp(rng.normal(0, 0.08))
+                amp = (1.0 if final else hard) * np.exp(rng.normal(0, 0.08))
                 spread = rng.uniform(0.016, 0.028) * (1.6 if final else 1.0)
             else:
                 strs = played[::-1][:rng.integers(3, 5)]
-                amp = 0.55 * np.exp(rng.normal(0, 0.1))
+                amp = hard * np.exp(rng.normal(0, 0.1))
                 spread = rng.uniform(0.008, 0.015)
             tt = t0 + rng.normal(0, 0.005)
             strokes.append({"t": round(float(tt), 4), "dir": d, "chord": ch, "spread": round(float(spread), 4),
