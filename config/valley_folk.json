@@ -34,11 +34,71 @@
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0],
      "hours": [19.6, 2.0], "from": "hotel", "post": {"chair": "e"},
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
-    {"id": "cody", "name": "Cody", "model": "hothead_lyle_s2_talking", "seed": 773, "gun": true, "shirt": [0.55, 0.16, 0.12], "vest": [0, 0, 0, 0],
+    {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0],
      "act": "no_law_murder", "from": "saloon_annex",
-     "_doc": "The red shirt (No Law beat 3, #773: the Baron's hired gun, the man who shot the sheriff). No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: Lyle's model (his faded brick-red shirt) till the characters lane makes Cody."},
+     "_doc": "Cody, who kills Earl (No Law beat 3, #773): one of the Baron's hired guns, a rough man. Not the red shirt (Sean on #796, 2026-11-11: the red shirt, who shot the sheriff, is another man and isn't in the saloon), so no red shirt on him. No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: the blacksmith's model (grey-blue work shirt) till the characters lane makes Cody."},
     {"id": "stranger", "name": "Stranger", "model": "bold_cowboy_s3_talking", "seed": 774, "shirt": [0.7, 0.66, 0.58], "vest": [0.2, 0.17, 0.14],
      "act": "no_law_murder", "from": "saloon_annex",
-     "_doc": "The stranger who sits in the free chair and tells you not to move (No Law beat 3, #773). A stand-in man."}
-  ]
+     "_doc": "The stranger who sits in the free chair and tells you not to move (No Law beat 3, #773). A stand-in man."},
+    {"id": "townsman", "name": "Townsman", "model": "storekeeper_s1_talking", "seed": 781, "shirt": [0.5, 0.56, 0.62], "vest": [0.2, 0.18, 0.16],
+     "hours": [7.0, 19.0], "from": "hotel", "post": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
+     "says": "townsman",
+     "_doc": "By day on the hotel's walk (No Law's scripts, docs/scripts/no_law.json: the townsman). Tells you the town's news: the sheriff shot (once he's brought in), and the morning after, Earl's murder as the town has it, or that you were sat at the table."},
+    {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16],
+     "hours": [8.0, 19.5], "from": "saloon", "post": {"lot": "saloon", "at": [3.0, -1.0], "faces": [3.0, -8.0]},
+     "says": "loudmouth",
+     "_doc": "By day on the saloon's walk (the scripts' loudmouth): last night's bravado gone sour the morning after."},
+    {"id": "undertaker", "name": "Undertaker", "model": "oldtimer_factory", "seed": 783, "shirt": [0.82, 0.8, 0.76], "vest": [0.1, 0.1, 0.11],
+     "hours": [7.0, 18.0], "from": "undertaker", "post": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0]},
+     "says": "undertaker",
+     "_doc": "On his walk by day. The morning after, Earl's laid out with him (ValleyFolk's morning: the body taken from the yard, a recorded death)."},
+    {"id": "runner", "name": "Townsman", "model": "young_factory", "seed": 791, "shirt": [0.7, 0.62, 0.5], "vest": [0, 0, 0, 0],
+     "act": "sheriff_dies", "from": "doctor",
+     "_doc": "The young man the doctor sends to find you on day 2 (SheriffDies: \"Harlan! Doc's asking for you.\")."},
+    {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14],
+     "act": "sheriff_dies", "from": "doctor",
+     "_doc": "The sheriff on the doctor's cot, day 2 (SheriffDies): the road's man (the_sheriff.json's model), built with the folk (a Studio man built in play is a long frame)."},
+    {"id": "doc", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "shirt": [0.85, 0.84, 0.8], "vest": [0.12, 0.12, 0.13],
+     "act": "sheriff_dies", "from": "doctor",
+     "_doc": "The doctor (the_sheriff.json's), day 2: at his door for you, then in the sick room."},
+    {"id": "wife", "name": "Mrs.", "model": "widow_s6_talking", "seed": 796, "shirt": [0.3, 0.27, 0.3], "vest": [0, 0, 0, 0],
+     "act": "sheriff_dies", "from": "doctor",
+     "_doc": "The sheriff's wife at his bedside, day 2. A stand-in: the widow's model (the characters lane's), only used here."}
+  ],
+  "talk": {
+    "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
+    "near_m": 4.0,
+    "gap_s": 20.0,
+    "sets": {
+      "townsman": [
+        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Sheriff's gone, then. And Doc's pinned his star on you. Well. Somebody had to.", "Deputy, is it? You'll want to keep out of Cody's way."]},
+        {"id": "morning.you_were_there", "if": {"nolaw.morning": true, "nolaw.seen_from": "table"}, "once": true,
+         "words": ["You were sat right there at the table, they say. And you never moved."]},
+        {"id": "morning.versions", "if": {"nolaw.morning": true},
+         "words": ["Cody shot Earl dead over the cards. Said there's no law left to save him. Bold as brass.", "Earl drew first, I heard. Or reached, anyhow.", "Three shots, they say. Or two. Nobody counted."]},
+        {"id": "town.worried", "if": {"sheriff.care": "*", "!nolaw.murder": true},
+         "words": ["Sheriff's shot, they say. Laid up at the doc's.", "Who's to keep the peace now? Not me.", "I'm putting the bar on my door tonight."]}
+      ],
+      "loudmouth": [
+        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Him? Deputy? Cody'll eat him for breakfast.", "Sheriff's dead and they give the star to a drifter. God help us."]},
+        {"id": "morning.nobody", "if": {"nolaw.morning": true, "!nolaw.deputy": true},
+         "words": ["And who's to take Cody in? The sheriff's dying.", "He'll be back, you watch. Nobody to stop him."]}
+      ],
+      "undertaker": [
+        {"id": "after.sheriff", "if": {"nolaw.sheriff": "dead"}, "_doc": "PROPOSED (#796): not in the scripts yet.",
+         "words": ["Two in two days. The sheriff gets the good box; the county's paying for that one."]},
+        {"id": "morning.undertaker", "if": {"nolaw.earl": "undertaker"},
+         "words": ["Earl. Shot through the head, before witnesses, by the man Cody. Pine box. Nobody's paying for a stone."]}
+      ]
+    }
+  },
+  "morning": {
+    "_doc": "No Law's morning after (#796): once the murder's done (nolaw.murder done) and the clock's in `hours` (it can only get there through the night), nolaw.morning is set. Earl's body, if he's dead, is taken to the undertaker's once you're `unseen_m` off it or it's out of your view: gone from the yard for good, StoryState nolaw.earl = undertaker and death.earl his record. From `sheriff_from` (the clock) the dying sheriff's scene (SheriffDies, config/moments/sheriff_dies.json) starts, once.",
+    "hours": [5.0, 19.5],
+    "unseen_m": 30.0,
+    "sheriff_from": 7.5,
+    "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
+  }
 }

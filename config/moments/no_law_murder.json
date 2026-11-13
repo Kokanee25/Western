@@ -1,6 +1,6 @@
 {
-  "_doc": "No Law, beat 3 (docs/missions/no-law.md; issue #773): the red shirt (Cody, the Baron's hired gun, the man who shot the sheriff) walks into the saloon's yard at night, accuses Earl of dealing from the bottom, kicks his chair out from under him (the card cheat's kick, CardCheat), draws, shoots him in the head where he lies, says there's no law to save him now and walks out. A stranger sits down in the free chair a minute before and tells you not to move; sat at the table you're held there (PlayerSeat.hold) and the game with you (CardGame.interrupt(&\"red_shirt\", true)). The room goes quiet (the folk hushed, CivilianBrain.hush) till the barman: \"Jesus, Cody, my chair!\". After: you're let go, Earl's body stays, the drifter and the miner leave, the stranger has his word and goes. Started by ValleyFolk at `hour` on the first night (StoryState has no nolaw.murder yet), or sooner once you've played `after_hands` hands at the table (from `earliest` on); the bridge's `moment no_law_murder` starts it now. `-- --no-murder`: the valley's nights without it. Sean (chat, 2026-11-09): sat at the table with no gun, \"so he can't do anything at all\"; \"the stranger sits there and tells the character not to do anything\"; \"card cheat shot in the head\"; the barman's first words \"Jesus, Cody, my chair!\".",
-  "status": "PROPOSED (#773): the timings, lines and stand-in men are this session's; the red shirt is Lyle's model (his faded brick-red shirt, the sheriff's \"faded red shirt\") until the characters lane makes Cody.",
+  "_doc": "No Law, beat 3 (docs/missions/no-law.md; issue #773): Cody (one of the Baron's hired guns; not the red shirt, who shot the sheriff: Sean on #796, 2026-11-11) walks into the saloon's yard at night already shouting at Earl (Sean, 2026-11-12: as he comes in, not when he reaches the table), kicks his chair out from under him (the card cheat's kick, CardCheat), draws, shoots him in the head where he lies, says there's no law to save him now and walks out. A stranger sits down in the free chair a minute before and tells you not to move; sat at the table you're held there (PlayerSeat.hold) and the game with you (CardGame.interrupt(&\"cody\", true)). The room goes quiet (the folk hushed, CivilianBrain.hush) till the barman: \"Jesus, Cody, my chair!\". After: you're let go, Earl's body stays, the drifter and the miner leave, the stranger has his word and goes. Started by ValleyFolk at `hour` on the first night (StoryState has no nolaw.murder yet), or sooner once you've played `after_hands` hands at the table (from `earliest` on); the bridge's `moment no_law_murder` starts it now. `-- --no-murder`: the valley's nights without it. Sean (chat, 2026-11-09): sat at the table with no gun, \"so he can't do anything at all\"; \"the stranger sits there and tells the character not to do anything\"; \"card cheat shot in the head\"; the barman's first words \"Jesus, Cody, my chair!\".",
+  "status": "PROPOSED (#773): the timings, lines and stand-in men are this session's; Cody's stand-in is the blacksmith's model (a rough man in a grey-blue work shirt: not the red shirt, #796) until the characters lane makes him.",
   "script": "res://src/moments/no_law_murder.gd",
   "hour": 22.0,
   "until": 2.0,
@@ -13,14 +13,15 @@
   "animated": true,
   "walk_speed": 1.6,
   "beat_timeout_s": 12.0,
-  "red_shirt": {
-    "_doc": "Comes in from the street by `in` (places of ValleyFolk's), out by `out` and on `off` [x, z] m from its last down Main Street and on that way, taken out of the world once `gone_m` from you and out of your sight (follow him and he walks on). `after_s` after the stranger's sat (or gave up on a chair).",
+  "cody": {
+    "_doc": "Comes in from the street by `in` (places of ValleyFolk's), shouting the accusation as he's taken in at its first; the stranger's warning `warn_after_s` after the shout (once he's within `stop_m` of the table, when the game stops). Out by `out` and on `off` [x, z] m from its last down Main Street and on that way, taken out of the world once `gone_m` from you and out of your sight (follow him and he walks on). `after_s` after the stranger's sat (or gave up on a chair).",
     "id": "cody", "after_s": 3.0,
     "in": ["saloon_annex", "nolaw_yard_front"],
     "out": ["nolaw_yard_front", "saloon_annex", "main@29.2"],
     "off": [45.0, 0.0],
     "gone_m": 30.0,
     "stop_m": 6.0,
+    "warn_after_s": 1.8,
     "aim_s": 0.6,
     "second_shot_s": 0.7,
     "gloat_s": 0.9,

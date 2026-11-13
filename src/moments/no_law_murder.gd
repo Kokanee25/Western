@@ -2,10 +2,12 @@ class_name NoLawMurder
 extends CardCheat
 ## No Law, beat 3 (docs/missions/no-law.md; issue #773; data config/moments/no_law_murder.json): at
 ## night in the saloon's yard, the card game going. A stranger walks in and sits in the free chair
-## you're not in ("Evening. Mind if I sit in a while?"). A minute on, the red shirt (Cody, the
-## Baron's hired gun) comes in off the street; as he comes up the game stops and holds
-## (CardGame.interrupt(&"red_shirt", true)), the stranger tells you not to move, and sat at the table
-## you're held there (PlayerSeat.hold: E says why). Cody accuses Earl, kicks his chair out from under
+## you're not in ("Evening. Mind if I sit in a while?"). A minute on, Cody (one of the Baron's hired
+## guns; not the red shirt, who shot the sheriff: Sean, #796) comes in off the street already
+## shouting at Earl ("Earl, you cheating son of a bitch!", Sean's note 2026-11-12: as he walks into
+## the yard, not at the table); as he comes up the game stops and holds (CardGame.interrupt(&"cody",
+## true)), the stranger tells you not to move, and sat at the table you're held there
+## (PlayerSeat.hold: E says why). Earl's "Now, Cody, I never...", the kick of his chair out from under
 ## him from behind (the card cheat's walk, kick, draw and approach: CardCheat's beats on the valley's
 ## own Earl and chair), stands over him and shoots him in the head where he lies (a second shot if
 ## the first didn't kill him), says there's no law to save him now, holsters and walks out the way
@@ -24,8 +26,6 @@ extends CardCheat
 const KICK_BEATS: Array[StringName] = [&"turn", &"kick", &"after_kick", &"draw", &"approach"]
 ## Close enough to a point on his way (m).
 const ARRIVE := 0.35
-## Cody accuses Earl from this far off (m).
-const ACCUSE_M := 3.5
 
 var folk: ValleyFolk
 var game: CardGame
@@ -46,6 +46,8 @@ var _str_state := &"out"
 var _str_t := 0.0
 var _stopped := false
 var _accused := false
+var _accuse_t := -100.0
+var _warned := false
 var _drew := false
 var _shot_t := -1.0
 ## Since Cody went out of the yard (s; -1 before).
@@ -72,7 +74,7 @@ func begin() -> void:
 		_finish(&"no_folk")
 		return
 	game = folk.cards
-	_cody = data.get("red_shirt", {})
+	_cody = data.get("cody", {})
 	_str = data.get("stranger", {})
 	_load_clips()
 	cheater = folk.folk_man(StringName(data.get("cheater", "earl")))
@@ -340,6 +342,8 @@ func _physics_process(delta: float) -> void:
 			m.wake()  # full ticks while it plays, however far off you are (PeopleTick's bands)
 	_stranger_step(delta)
 	card_step(delta)
+	if _stopped and not _warned and state != &"after" and t - _accuse_t > float(_cody.get("warn_after_s", 1.8)):
+		_warn()
 	if state == &"after":
 		t += delta
 		state_t += delta
@@ -396,13 +400,18 @@ func _cody_in() -> void:
 		way.append(_lot([5.2, -2.0]))
 	victim = folk.take(StringName(_cody.get("id", "cody")), way[0], cheater.global_position)
 	if victim == null:
-		_note("no red shirt")
+		_note("no Cody")
 		_end(&"no_cody")
 		return
 	way.pop_front()
 	_route = way
 	_watch_men()
-	_note("the red shirt comes in")
+	_note("Cody comes in")
+	# Shouting at Earl as he comes into the yard (Sean, 2026-11-12), not once he's at the table.
+	_accused = true
+	_accuse_t = t
+	speak(victim, line("accuse"))
+	_note("Cody accuses Earl")
 	_go(&"come")
 
 
@@ -410,11 +419,6 @@ func _come(delta: float) -> void:
 	var to_table := victim.global_position.distance_to(game.centre()) if game else INF
 	if not _stopped and to_table < float(_cody.get("stop_m", 6.0)):
 		_stop_all()
-	var to_earl := victim.global_position.distance_to(cheater.global_position)
-	if not _accused and to_earl < ACCUSE_M:
-		_accused = true
-		speak(victim, line("accuse"))
-		_note("Cody accuses Earl")
 	if not _route.is_empty():
 		if _walk(delta, _route[0], float(data.get("walk_speed", 1.6))):
 			_route.pop_front()
@@ -440,15 +444,24 @@ func _stop_all() -> void:
 		return
 	_stopped = true
 	if game:
-		game.interrupt(&"red_shirt", true)
+		game.interrupt(&"cody", true)
 	if _you_at_table():
-		player().seat.hold(&"red_shirt", String(data.get("hold_why", "Sit still.")))
+		player().seat.hold(&"cody", String(data.get("hold_why", "Sit still.")))
 		you_held = true
-	if stranger != null and is_instance_valid(stranger):
-		speak(stranger, line("stranger_warn"))
+	if t - _accuse_t > float(_cody.get("warn_after_s", 1.8)):
+		_warn()  # (else in a moment: his shout's still in the air)
 	_hush(120.0)
 	_hushed = true
 	_note("the game stops; you're held: %s" % you_held)
+
+
+## The stranger's hand on your arm: "Don't move, friend." (once).
+func _warn() -> void:
+	if _warned:
+		return
+	_warned = true
+	if stranger != null and is_instance_valid(stranger):
+		speak(stranger, line("stranger_warn"))
 
 
 ## Every folk man quiet for `s` (CivilianBrain.hush).
@@ -576,7 +589,7 @@ func _release_you() -> void:
 	_let_go = true
 	var p := player()
 	if p != null and p.seat != null:
-		p.seat.let_go(&"red_shirt")
+		p.seat.let_go(&"cody")
 		if p.seat.seated():
 			prompt("E: stand up", 2.0)
 
@@ -631,7 +644,7 @@ func reset() -> void:
 		Events.deed.disconnect(_on_deed)
 	_release_you()
 	if game:
-		game.let_go(&"red_shirt")
+		game.let_go(&"cody")
 	if folk != null and is_instance_valid(folk):
 		for id: StringName in [StringName(_cody.get("id", "cody")), StringName(_str.get("id", "stranger"))]:
 			if folk.state.get(id) == &"act":

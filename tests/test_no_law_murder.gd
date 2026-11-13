@@ -1,6 +1,6 @@
 extends TestCase
 ## No Law, beat 3 (#773; NoLawMurder, config/moments/no_law_murder.json): at night at the saloon
-## yard's card table, a stranger sits in the free chair, the red shirt (Cody) walks in, the game
+## yard's card table, a stranger sits in the free chair, Cody walks in shouting at Earl, the game
 ## stops and you're held in your seat, the stranger tells you not to move, Cody kicks Earl's chair
 ## out, shoots him in the head where he lies, says there's no law to save him and walks out; the
 ## room quiet till the barman's "Jesus, Cody, my chair!". After: you're let go, Earl's body stays,
@@ -105,7 +105,25 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check_eq(_lines_of("stranger"), ["Evening. Mind if I sit in a while?"], "his first line first")
 	var stopped := await wait_until(func() -> bool: return m.state not in [&"stranger", &"come"], 60 * 40)
 	check(stopped, "Cody comes up to Earl (%s)" % m.result())
-	check(f.cards.state == &"stopped" and f.cards.stop_reason == &"red_shirt" and f.cards.holds.has(&"red_shirt"), "the game stopped and held (%s)" % f.cards.state)
+	check(f.cards.state == &"stopped" and f.cards.stop_reason == &"cody" and f.cards.holds.has(&"cody"), "the game stopped and held (%s)" % f.cards.state)
+	# He shouts at Earl as he walks into the yard (Sean, 2026-11-12), before he's up at the table:
+	# the accusation before the game stops, and the stranger's warning after it.
+	var ev: Array = m.events.map(func(e: Array) -> String: return String(e[1]))
+	var acc := ev.find("Cody accuses Earl")
+	var stop := -1
+	for i in ev.size():
+		if ev[i].begins_with("the game stops"):
+			stop = i
+	check(acc >= 0 and acc == ev.find("Cody comes in") + 1 and acc < stop, "Cody shouts as he comes in, before he's at the table (%s)" % [ev])
+	check_eq(_lines_of("cody").slice(0, 1), ["Earl, you cheating son of a bitch!"], "his shout")
+	var shout_i := -1
+	var warn_i := -1
+	for i in said.size():
+		if said[i][2] == "Earl, you cheating son of a bitch!" and shout_i < 0:
+			shout_i = i
+		if String(said[i][2]).begins_with("Don't move") and warn_i < 0:
+			warn_i = i
+	check(shout_i >= 0 and warn_i > shout_i, "the stranger's warning after the shout (%d, %d)" % [shout_i, warn_i])
 	check(m.you_held and p.seat.held(), "you're held in your seat")
 	check_eq(p.seat.use(), &"held", "E doesn't stand you")
 	check(_lines_of("stranger").any(func(l: String) -> bool: return l.begins_with("Don't move")), "the stranger tells you not to move (%s)" % [_lines_of("stranger")])

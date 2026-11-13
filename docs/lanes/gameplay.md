@@ -8,9 +8,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
   `HeadGesture`, `Act`. Waiting on Sean: #755.
-- **No Law** steps 1-3 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`; build 3882;
-  `experiments/valley_folk/README.md`). **Next: step 4, the morning after and the sheriff's last day (#796).**
-  The No Law card is out of date: the murderer is one of the Baron's men, not the red shirt (#744).
+- **No Law** steps 1-4 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`;
+  `experiments/valley_folk/README.md` "Step 4"). Cody isn't the red shirt (the red shirt, Silas Kett, shot the
+  sheriff; nobody names him yet); he shouts at Earl as he walks in. The morning after: Earl to the
+  undertaker's (`death.earl`), day folk's lines by the story's facts (`talk`); the sheriff dies on the
+  doctor's cot (`-- --world=valley --mission=sheriff_dies --care=good|poor|left`); the story's Harlan is
+  unarmed till then (`Player.lacks`). **Next: step 5, Beat 6, the funeral.**
+  Open: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float (her model);
+  long lines run off the subtitle's width; Earl isn't seen laid out (the undertaker's a block); from the
+  playtest (`docs/playtests/2026-11-12-sheriff-dies.md`): the wife's "Were you with him?" doesn't wait, the
+  bridge's walk out of the doctor's sticks, the boots through the cot's rail, nobody minds a drawn gun by day.
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Step 1 done: Joe, the companion**
   (`CompanionBrain`, `Physiology.spared`; `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y;

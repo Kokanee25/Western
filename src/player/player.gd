@@ -199,9 +199,46 @@ func plunger() -> PlungerViewmodel:
 	return camera.get_node_or_null(^"Plunger") as PlungerViewmodel
 
 
+## What you don't carry yet (No Law, #796: Harlan's unarmed till the dying sheriff gives him his
+## revolver): kinds (`revolver`, `shotgun`, `rifle`, `dynamite`, `bucket`, `plunger`) -> true. A gun
+## you lack won't come out (PlayerWounds keeps its hands busy: "you haven't got one") and isn't in
+## the weapon wheel. The story's start in the valley (`-- --mission=sheriff`) takes the revolver.
+var lacks := {}
+const KIND_NODES := {&"revolver": ^"Gun", &"shotgun": ^"Shotgun", &"rifle": ^"Rifle",
+		&"dynamite": ^"Dynamite", &"bucket": ^"Bucket", &"plunger": ^"Plunger"}
+
+
+## You carry this one (not lacked).
+func carries(w: WeaponViewmodel) -> bool:
+	if w == null or lacks.is_empty():
+		return w != null
+	for k: StringName in lacks:
+		if camera.get_node_or_null(KIND_NODES.get(k, ^"")) == w:
+			return false
+	return true
+
+
+## Without this kind from now (put away if it's in your hands).
+func lack(kind: StringName) -> void:
+	lacks[kind] = true
+	var w := camera.get_node_or_null(KIND_NODES.get(kind, ^"")) as WeaponViewmodel
+	if w and w.drawn:
+		w.put_away()
+	if kind == &"revolver" and body:
+		body.set_gun_holstered(false)  # no grip in an empty holster
+
+
+## Given it (the sheriff's revolver): in its holster, yours to draw.
+func give(kind: StringName) -> void:
+	lacks.erase(kind)
+	if kind == &"revolver" and body:
+		var r := revolver()
+		body.set_gun_holstered(r == null or not r.drawn)
+
+
 ## Put the gun in your hands away and bring out another once it is.
 func select_weapon(w: WeaponViewmodel) -> void:
-	if w == null:
+	if w == null or not carries(w):
 		return
 	if w == weapon and _switch_to == null:
 		w.take_out()
@@ -229,7 +266,12 @@ func _update_weapon_switch() -> void:
 			select_weapon(plunger())
 		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
 			var current := _switch_to if _switch_to else weapon
-			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])
+			var i := weapons.find(current)
+			for k in weapons.size() - 1:
+				var next := weapons[(i + 1 + k) % weapons.size()]
+				if carries(next):
+					select_weapon(next)
+					break
 	if _switch_to and (weapon == null or weapon.is_put_away()):
 		weapon = _switch_to
 		_switch_to = null
