@@ -173,6 +173,27 @@ func test_a_piece_freed_at_rest_takes_its_nodes() -> void:
 	check_eq(_rest().mesh_count(), 0, "and nothing drawn for it")
 
 
+## The soak takes what's held out of the tree on purpose off its orphan count (#863).
+func test_its_held_nodes_are_counted() -> void:
+	var bodies := await _lying([&"rig/stud", &"rig/plank"] as Array[StringName])
+	if _rest() == null or _rest().piece_count() < 2:
+		check(false, "the pieces didn't come to rest")
+		return
+	await physics_frames(int(RubbleRest.BUILD_GAP * 60) + 30)
+	var out := 0
+	for rb: RigidBody3D in bodies:
+		var e: Dictionary = _rest()._rest.get(rb.get_instance_id(), {})
+		for n: Array in e.get("nodes", []):
+			if not (n[0] as Node).is_inside_tree():
+				out += 1
+	check(out > 0, "some of their nodes out of the tree (%d)" % out)
+	check_eq(_rest().held_nodes(), out, "each counted as held")
+	var rb0: RigidBody3D = bodies[0]
+	rb0.apply_impulse(Vector3(0, 6.0, 0))
+	await physics_frames(RubbleRest.STIR_TICKS + 3)
+	check(_rest().held_nodes() < out, "one woken: its nodes back on it, no longer held")
+
+
 func test_window_shards_lying_still_join() -> void:
 	var pane := s.add_member("pane", &"glass", &"glass", Vector3(0.6, 0.5, 0.004), Vector3(0, 2.3, 0))
 	await physics_frames(2)
