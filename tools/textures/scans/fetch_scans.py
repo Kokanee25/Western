@@ -197,6 +197,7 @@ def models(picks_path: str, out: str) -> None:
                 with open(dst, "wb") as f:
                     f.write(get(inc["url"]))
             info = get_json(f"{PH_API}/info/{aid}")
+            _alpha(aid, d, gl, files, p.get("res", "1k"))
         except Exception as e:  # noqa: BLE001: report and go on to the next pick
             print(f"  FAILED {aid}: {e}", flush=True)
             continue
@@ -207,6 +208,50 @@ def models(picks_path: str, out: str) -> None:
         with open(os.path.join(d, "meta.json"), "w") as f:
             json.dump(meta, f, indent=1)
         print("  ok", sorted(os.listdir(d)), flush=True)
+
+
+def _alpha(aid: str, d: str, gl: dict, files: dict, res: str) -> None:
+    """A cut-out plant's leaves need their alpha, but Poly Haven's glTF names a JPEG diffuse (no alpha).
+    Its alpha map (or the diffuse PNG's own alpha) is fetched and baked into an RGBA PNG beside it, and
+    the .gltf pointed at that."""
+    from PIL import Image
+    if not any(m.get("alphaMode") in ("BLEND", "MASK") for m in gl.get("materials", [])):
+        return
+    print("  files:", sorted(files.keys()), flush=True)
+    alpha = None
+    for k in files:
+        if re.search(r"alpha|opacity|mask", k, re.I) and isinstance(files[k], dict):
+            r = files[k].get(res) or next(iter(files[k].values()))
+            fmt = r.get("png") or r.get("jpg") if isinstance(r, dict) else None
+            if fmt:
+                alpha = Image.open(io.BytesIO(get(fmt["url"]))).convert("L")
+                print("  alpha from", k, flush=True)
+                break
+    if alpha is None:
+        dif = (files.get("Diffuse") or {}).get(res) or {}
+        if dif.get("png"):
+            im = Image.open(io.BytesIO(get(dif["png"]["url"])))
+            if im.mode in ("RGBA", "LA"):
+                alpha = im.getchannel("A")
+                print("  alpha from the diffuse PNG", flush=True)
+    if alpha is None:
+        print(f"  NO ALPHA for {aid}", flush=True)
+        return
+    for img in gl.get("images", []):
+        if "diff" not in img.get("uri", ""):
+            continue
+        src = os.path.join(d, img["uri"])
+        rgb = Image.open(src).convert("RGB")
+        a = alpha.resize(rgb.size, Image.LANCZOS)
+        rgba = rgb.copy()
+        rgba.putalpha(a)
+        uri = os.path.splitext(img["uri"])[0] + "_alpha.png"
+        rgba.save(os.path.join(d, uri), optimize=True)
+        img["uri"] = uri
+        img["mimeType"] = "image/png"
+    with open(os.path.join(d, f"{aid}.gltf"), "w") as f:
+        json.dump(gl, f, indent=1)
+    print("  baked the alpha into the diffuse", flush=True)
 
 
 def catalogue(out: str) -> None:

@@ -34,6 +34,12 @@ static var railway_default := not "--no-railway" in OS.get_cmdline_user_args()
 static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
 ## The farmhouse and its mission on the widow's pad (G6); `-- --no-farmhouse`: without (the bench's before).
 static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
+## The ground drawn real and the land's scatter (#891, art's: ValleyGroundArt, ValleyScatter);
+## `-- --greybox-ground` keeps G2's vertex colours, `-- --no-scatter` leaves the scatter out (the
+## bench's befores).
+static var ground_art_default := not "--greybox-ground" in OS.get_cmdline_user_args()
+static var scatter_default := not "--no-scatter" in OS.get_cmdline_user_args()
+var scatter: ValleyScatter
 ## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
@@ -55,6 +61,8 @@ func _ready() -> void:
 		layout = ValleyLayout.main()
 	_make_ground()
 	u = _took(&"ground", u)
+	_make_scatter()
+	u = _took(&"scatter", u)
 	if railway_default:
 		railway = ValleyRailway.new()
 		railway.layout = layout
@@ -249,16 +257,33 @@ func _make_ground() -> void:
 	g.name = "Ground"
 	g.tuning = load("res://config/ground_valley.tres")
 	g.terrain = ValleyTerrain.main()
-	var dug := StandardMaterial3D.new()
-	dug.albedo_color = DUG_COLOUR
-	dug.roughness = 1.0
-	g.material = dug
-	var drawn := StandardMaterial3D.new()
-	drawn.vertex_color_use_as_albedo = true
-	drawn.roughness = 1.0
-	g.valley_material = drawn
+	var art := ValleyGroundArt.main() if ground_art_default else null
+	if art and art.ready:
+		g.material = art.tile_material
+		g.valley_material = art.material
+	else:
+		var dug := StandardMaterial3D.new()
+		dug.albedo_color = DUG_COLOUR
+		dug.roughness = 1.0
+		g.material = dug
+		var drawn := StandardMaterial3D.new()
+		drawn.vertex_color_use_as_albedo = true
+		drawn.roughness = 1.0
+		g.valley_material = drawn
 	g.valley_marks = ValleyMarks.main() if markers_default else null
 	add_child(g)
+
+
+## The land's grass, sage, rocks and trees (#891, art's ValleyScatter), over the ground drawn real.
+func _make_scatter() -> void:
+	var art := ValleyGroundArt.main()
+	if not scatter_default or not ground_art_default or not art.ready:
+		return
+	scatter = ValleyScatter.new()
+	scatter.name = "Scatter"
+	scatter.ground = get_node_or_null(^"Ground") as Node3D
+	scatter.setup(ValleyTerrain.main(), art, load("res://config/valley_scatter.tres") as ValleyScatterTuning)
+	add_child(scatter)
 
 
 ## The valley's places by name (ValleyMarkers.places: every place, bridge, viewpoint and town lot),
