@@ -318,3 +318,68 @@ func test_walks_up_a_ramped_stair() -> void:
 	var up := await wait_until(func() -> bool: return player.global_position.y > 2.2, 480)
 	Input.action_release(&"move_forward")
 	check(up, "up the ramped stair to the landing (got to %.2f m)" % player.global_position.y)
+
+
+## A loose piece (in the group "rubble", as Structure's are) of `kg`, a box `size` at `at`.
+func _piece(kg: float, size: Vector3, at: Vector3, basis := Basis()) -> RigidBody3D:
+	var rb := RigidBody3D.new()
+	rb.collision_layer = Layers.WORLD
+	rb.collision_mask = Layers.WORLD | Layers.PEOPLE | Layers.BODY_PARTS
+	rb.mass = kg
+	rb.add_to_group(&"rubble")
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	cs.shape = box
+	rb.add_child(cs)
+	arena.add_child(rb)
+	rb.global_transform = Transform3D(basis, at)
+	return rb
+
+
+## Down on your belly in a broken chair's pieces (#834): one lying in and on you doesn't shove you
+## about (the engine moves a CharacterBody3D out of whatever's in it, and a chair's seat on a man
+## downed by its going carried him half a metre with his own speed nil); you push it off you.
+func test_a_light_piece_lying_in_you_doesnt_move_you() -> void:
+	player.force_crawl = true
+	await physics_frames(30)
+	var at := player.global_position
+	# A seat tipped onto you: half in you, slanting down your back.
+	var seat := _piece(4.8, Vector3(0.42, 0.06, 0.42), at + Vector3(0.12, 0.42, 0.1), Basis(Vector3.FORWARD, 0.6))
+	var most := 0.0
+	for i in 60:
+		await physics_frames(1)
+		most = maxf(most, Vector2(player.global_position.x - at.x, player.global_position.z - at.z).length())
+	check(most < 0.02, "you stay where you lie (moved at most %.3f m)" % most)
+	check(player.wading_through(seat) or seat.global_position.distance_to(at) > 0.4, "it's let through you")
+	await physics_frames(90)
+	var off := Vector2(seat.global_position.x - at.x, seat.global_position.z - at.z).length()
+	check(off > player.tuning.crawl_radius, "and pushed off you (%.2f m from your middle)" % off)
+
+
+## Wedged between light pieces either side and one across your way, you crawl on, shoving them
+## aside; a heavy one across your way still stops you.
+func test_you_crawl_out_through_light_pieces_not_heavy_ones() -> void:
+	player.force_crawl = true
+	await physics_frames(30)
+	var at := player.global_position
+	var ahead := -player.global_basis.z
+	var side := player.global_basis.x
+	# Two legs leaning in at your sides (their faces ~0.9 across, 0.4 up), a back rail on edge ahead.
+	_piece(1.2, Vector3(0.05, 0.5, 0.6), at + side * 0.3 + Vector3.UP * 0.2, Basis(ahead, 0.4))
+	_piece(1.2, Vector3(0.05, 0.5, 0.6), at - side * 0.3 + Vector3.UP * 0.2, Basis(ahead, -0.4))
+	var rail := _piece(3.0, Vector3(0.8, 0.45, 0.08), at + ahead * 0.4 + Vector3.UP * 0.23)
+	await physics_frames(20)
+	var from := player.global_position
+	await _hold(&"move_forward", 60)
+	var went := (player.global_position - from).dot(ahead)
+	check(went > 0.25, "you crawl on through them (%.2f m)" % went)
+	check(rail.global_position.distance_to(at) > 0.45, "the rail shoved along")
+	# A beam (60 kg) across your way: a wall.
+	var there := player.global_position
+	_piece(60.0, Vector3(1.2, 0.45, 0.2), there + ahead * 0.45 + Vector3.UP * 0.23)
+	await physics_frames(20)
+	from = player.global_position
+	await _hold(&"move_forward", 60)
+	went = (player.global_position - from).dot(ahead)
+	check(went < 0.15, "a beam stops you (%.2f m)" % went)

@@ -1634,6 +1634,7 @@ func _physics_step(delta: float) -> void:
 		_step_thrown(delta)
 		_step_fall(delta)
 		_rise_watch(delta)
+		_unspare(delta)
 		_step_tone(delta)
 		_step_dying(delta)
 		if _impacts:
@@ -1922,6 +1923,15 @@ func _rise_step(delta: float) -> void:
 ## body: his animated parts are put where the ragdoll lay, among or in them, and the engine flung
 ## them out at him (5 kJ: Structure._on_rubble_hit broke his shin as he got up).
 const SPARE_RADIUS := 2.5
+## The pieces let through him (`_spare_rubble`). Knocked down again as he rises, the ragdoll that
+## takes the rig's place is let through them too (`_spare_ragdoll`): its parts are put where the
+## rig's were, in among them, and the engine shoved the pieces out at him (eight blows of 8 to 36 J
+## on Earl's thigh, pelvis and shin from his own chair's, three ticks after he'd got up: he never
+## stood again, #834). Each is the ragdoll's to meet again once it's clear of him (`_unspare`).
+var _spared: Array[RigidBody3D] = []
+## How often (s) lying limp he looks whether those pieces are clear of him yet.
+const UNSPARE_EVERY := 0.25
+var _unspare_t := 0.0
 
 
 func _spare_rubble(at: Vector3) -> void:
@@ -1932,6 +1942,7 @@ func _spare_rubble(at: Vector3) -> void:
 	q.transform = Transform3D(Basis(), at)
 	q.collision_mask = Layers.WORLD
 	Prof.count(&"q_body")
+	_spared.clear()
 	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
 		var rb := hit.collider as RigidBody3D
 		if rb == null:
@@ -1939,6 +1950,74 @@ func _spare_rubble(at: Vector3) -> void:
 		for part: Variant in parts.values():
 			rb.add_collision_exception_with(part as Node)
 		rb.add_collision_exception_with(_blocker)
+		if not _spared.has(rb):
+			_spared.append(rb)
+
+
+## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
+## ragdoll too (a man down again as he gets up among them), till they're clear (`_unspare`).
+func _spare_ragdoll(bodies: Dictionary, rig: Array) -> void:
+	var kept: Array[RigidBody3D] = []
+	if _spared.is_empty():
+		return
+	# (The rig's parts keep their shapes' copies till they're freed: what's in him is what's in them.)
+	var space := World.space(self)
+	for rb in _spared:
+		if not is_instance_valid(rb):
+			continue
+		var in_him := _in_him(rb, space)
+		_unspare_from(rb, rig)  # (the rig's going: nothing left let through a freed body)
+		if not in_him:
+			continue
+		for part: Variant in bodies.values():
+			rb.add_collision_exception_with(part as Node)
+		kept.append(rb)
+	_spared = kept
+	_unspare_t = 0.0
+
+
+## This piece no longer let through these parts of him.
+static func _unspare_from(rb: RigidBody3D, from: Array) -> void:
+	for part: Variant in from:
+		if is_instance_valid(part):
+			rb.remove_collision_exception_with(part as Node)
+
+
+## Lying limp: each piece let through him that's no longer in any part of him is his to meet again.
+func _unspare(delta: float) -> void:
+	if _spared.is_empty():
+		return
+	_unspare_t += delta
+	if _unspare_t < UNSPARE_EVERY:
+		return
+	_unspare_t = 0.0
+	var space := World.space(self)
+	var kept: Array[RigidBody3D] = []
+	for rb in _spared:
+		if not is_instance_valid(rb):
+			continue
+		if _in_him(rb, space):
+			kept.append(rb)
+			continue
+		_unspare_from(rb, parts.values())
+	_spared = kept
+
+
+## Does any of this piece's shapes overlap a part of him?
+func _in_him(rb: RigidBody3D, space: PhysicsDirectSpaceState3D) -> bool:
+	var rid := rb.get_rid()
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.collision_mask = Layers.BODY_PARTS
+	q.margin = 0.02
+	for i in PhysicsServer3D.body_get_shape_count(rid):
+		q.shape_rid = PhysicsServer3D.body_get_shape(rid, i)
+		q.transform = rb.global_transform * PhysicsServer3D.body_get_shape_transform(rid, i)
+		Prof.count(&"q_body")
+		for hit: Dictionary in space.intersect_shape(q, 16):
+			var c := hit.collider as Node
+			if c != null and c.get_meta(&"human_body", null) == self:
+				return true
+	return false
 
 
 ## The lowest point of him (world y): each capsule's lower end.
@@ -1995,6 +2074,9 @@ func _rebuild_rig() -> void:
 	for c in get_children():
 		if c is Joint3D:
 			c.queue_free()
+	for rb in _spared:
+		if is_instance_valid(rb):
+			_unspare_from(rb, old.values())  # (`_spare_rubble` lets them through the new rig)
 	for sid: StringName in old:
 		(old[sid] as Node).queue_free()
 	_impacts = null
@@ -4937,6 +5019,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	for sid: StringName in pivots:
 		joint_at[sid] = (pivots[sid] as Node3D).global_position
 	var bodies := {}
+	var rig := parts.values()
 	for sid: StringName in anatomy.segments:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
@@ -4974,6 +5057,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		bodies[sid] = rb
 		parts[sid] = rb
 	_scale_inertia(bodies)
+	_spare_ragdoll(bodies, rig)
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -5443,14 +5527,18 @@ var _brace_tuck := false  ## thrown: his knees come up too (THROWN_TUCK)
 ## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
 ## nothing).
 func brace() -> void:
-	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
+	if not limp or not physiology.alive or not physiology.is_conscious():
+		return
+	# Not hurt past knowing it: he'll get up again once he's still (`get_up`). (Before the tone's
+	# looked at: knocked down again as he was getting up, his joints have none yet, and he lay
+	# there for good: Earl in his chair's pieces, #834.)
+	rise_ok = true
+	if _tone.is_empty():
 		return
 	_brace_t = 0.0
 	_brace_k = BRACE_TONE
 	_brace_fade = BRACE_FADE
 	_brace_tuck = false
-	# Not hurt past knowing it: he'll get up again once he's still (`get_up`).
-	rise_ok = true
 
 
 func _step_brace(delta: float) -> void:
