@@ -1,0 +1,43 @@
+{
+  "_doc": "Bar glass (#866; refs experiments/prop_lab/refs/saloon/): a beer schooner of 10 oz, a tall flared bowl on a short stem and a round foot (the Wainwright advertising glass's shape), a head on its beer. A prop that shatters (GlassProp), as the whiskey bottle: a ball, a fall faster than 3.5 m/s (a heavy glass off the bar onto the boards: some do, some don't) or 40 kPa breaks it, and what's in it goes on the floor (`Events.liquid_spilled`). The glass the kit's `glass:clear` (see-through, no shadow of its own); what's in it baked the gun way (tools/blender/props/saloon_s1.py). One physics body standing (the frozen glass; a shelf of forty is forty bodies: set a row on the back bar sparingly), its shards when it breaks. Written by tools/props/saloon.py.",
+  "id": "schooner",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:bar_glasses_schooner",
+  "looks": {
+    "Glass": "glass:clear",
+    "Liquid": "pbr:bar_glasses_schooner",
+    "Foam": "pbr:bar_glasses_schooner"
+  },
+  "size": [
+    0.08,
+    0.17,
+    0.08
+  ],
+  "mass": 0.88,
+  "wall": 0.003,
+  "glass": [
+    "Glass",
+    "Liquid",
+    "Foam"
+  ],
+  "whole": [],
+  "shards": 12,
+  "piece_mass": 0.02,
+  "breaks_at": 3.5,
+  "shatters_kpa": 40,
+  "heat_seconds": 25,
+  "cut_area": 0.03,
+  "contents": {
+    "liquid": "beer",
+    "litres": 0.33,
+    "colour": [
+      0.72,
+      0.5,
+      0.16
+    ]
+  },
+  "factory": "tools/props/saloon.py"
+}

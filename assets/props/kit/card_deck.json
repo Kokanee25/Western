@@ -1,0 +1,44 @@
+{
+  "_doc": "A deck of cards (#866; refs experiments/prop_lab/refs/saloon/): 52 square-cornered cards of the period (no corner indices yet in a western saloon of 1882; a blue patterned back), squared on the table. One member (it burns; a ball knocks it). The faces printed on the card game's sheet, the back baked (tools/blender/props/saloon_s1.py). 1 physics body. Written by tools/props/saloon.py.",
+  "id": "card_deck",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "splits_below": 0.1,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "deck",
+      "kind": "post",
+      "size": [
+        0.064,
+        0.016,
+        0.089
+      ],
+      "at": [
+        0.0,
+        0.008,
+        0.0
+      ],
+      "wood": "paper",
+      "look": "pbr:cards_chips",
+      "draw": {
+        "shape": "mesh",
+        "model": "cards_chips",
+        "part": "Deck"
+      },
+      "dress": [
+        {
+          "look": "pbr:cards_chips",
+          "draw": {
+            "shape": "mesh",
+            "model": "cards_chips",
+            "part": "DeckBack"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}
