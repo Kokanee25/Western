@@ -216,7 +216,7 @@ paid on every turn of every session.
   open). Then, and never later: write the status entry and your lane file's lines, and do no
   more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
   last message with **"Step done: <what>."**, one plain sentence for Sean saying what the next
-  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line the model line below)
+  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line `#N: <short title>`, the issue it works, so the session's name in Sean's list starts with the number (Sean, 2026-11-13); its second line the model line below)
   that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
   nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
   branch to start (from `main`), the goal and what done looks like, what this session found and
