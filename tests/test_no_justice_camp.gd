@@ -75,6 +75,7 @@ func _to_the_ask(opts := {}) -> NoJusticeCamp:
 	check(p.carries(p.revolver()), "the sheriff's revolver is yours by now")
 	check(m.joe != null and m.joe_brain.held, "Joe's there, held by the scene")
 	check(m.doctor != null and m.cowboy != null, "the doctor and the cowboy are there")
+	check(not m.folk.people.has(&"earl"), "Earl's at the undertaker's, not at cards")
 	await physics_frames(10)
 	check_eq(m.state, &"walk_in", "waiting for you to come in")
 	_put(m._local([4.6, 1.2]))
@@ -101,6 +102,9 @@ func _out_and_camp(m: NoJusticeCamp) -> void:
 	var place := ValleyLayout.main().place_at("ute_community")
 	check(Vector2(p.global_position.x, p.global_position.z).distance_to(place) < 60.0, "you're at the Ute camp (%s)" % p.global_position)
 	check(p.input_enabled, "your hands back after the card")
+	var c := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	if c:
+		check(c.time_of_day > 10.5 and c.time_of_day < 12.0, "you come in by daylight, the ride's minutes on (%.2f h)" % c.time_of_day)
 	check(m.props.size() >= 6, "the raid's damage (%d props)" % m.props.size())
 	var over := await wait_until(func() -> bool: return m.done, 60 * 150)
 	check(over, "it plays out (%s)" % m.result())

@@ -13,6 +13,8 @@
   "cowboy_faces": [5.0, 2.0],
   "joe_out": [[4.71, 0.6], [4.71, -1.2], [4.0, -4.0]],
   "you_start": {"_doc": "`--mission=no_justice`: you on Main Street, this far from the doctor's door out.", "off": [-12.0, 5.0]},
+  "talk_in_m": 1.2,
+  "_talk_in_m": "The doctor starts once you're this far into the front office (its z; past the door's swing, from where the open door hid the room, #859's playtest) or within 3 m of Joe.",
   "hear_m": 8.0,
   "cps": 13.0,
   "gap_min_s": 2.4,

@@ -43,6 +43,7 @@ var _looked := 0.0
 var _said_nobody := false
 var _trail_to := Vector3.ZERO
 var _told := false  # the survivors' prompt up
+var _go_told := false  # the walk-in prompt up
 var _to_shoot: Array = []  # [kit prop, its damage entry]
 
 
@@ -124,6 +125,9 @@ func _set_up_day() -> void:
 	for k: String in before:
 		if not StoryState.has_fact(k):
 			fact(k, before[k])
+	# Earl's at the undertaker's by now, not at the card table (#859's playtest met him dealing).
+	if folk.people.has(&"earl") and not folk.gone_for_good.has(&"earl"):
+		folk.to_undertaker(&"earl")
 	if opts.has("followed"):
 		fact("nolaw.followed", bool(opts.followed))
 	var p := player()
@@ -181,9 +185,12 @@ func _physics_process(delta: float) -> void:
 	_hold_poses()
 	match state:
 		&"walk_in":
-			if state_t < 0.2:
+			if not _go_told:
+				_go_told = true
 				prompt(String(_prompts().get("go", "")), 5.0)
-			if _in_front_office(p.global_position) or (_flat(p.global_position, joe.global_position) < 3.0):
+			# In past the door's swing (from the doorway the open door hides them), or up by Joe.
+			if _in_front_office(p.global_position) and _in_building(p.global_position).y > float(data.get("talk_in_m", 1.2)) \
+					or _flat(p.global_position, joe.global_position) < 3.0:
 				_beats = [["doctor", "who"], ["joe", "joe_wants"], ["joe", "badge"], ["doctor", "warning"],
 						["cowboy", "cowboy"], ["joe", "ask"], ["wait", "answer"]]
 				_beat = 0
@@ -317,9 +324,11 @@ func _ride() -> void:
 	ride_s = metres / float(rd.get("mps", 1.8))
 	_note("the ride: %.0f m, %.0f s" % [metres, ride_s])
 	card(String((data.get("cards", {}) as Dictionary).get("ride", "You ride out with Joe.")).replace("%d", str(roundi(ride_s / 60.0))), 5.0 * _pace())
+	# The clock on by the ride as the story tells it (the card's minutes), not at the game's quick
+	# day: 1.9 km at the quick day's pace was nine hours, and you came in at night (#859's playtest).
 	var c := clock()
-	if c and joe:
-		c.set_time(c.time_of_day + ride_s / joe.physiology.tuning.game_hour_seconds)
+	if c:
+		c.set_time(c.time_of_day + ride_s / 3600.0)
 	var p := player()
 	if p:
 		p.input_enabled = false
