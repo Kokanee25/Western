@@ -228,6 +228,22 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - **The X-ray sheet reads a two-storey frame** as it is (`tools/buildings/xray.py`), its titles
   still the doctor's (the section's, the side walls' names).
 
+## A big room's look (saloon B, #867 step 2)
+
+- **Light scales with the room.** The doctor's `day_fill` 0.1 and `window_day` 7 leave a room 16 m
+  deep near black past its middle; saloon B takes 0.32 and 14. Judge an interior by the light the
+  sheet painted it in: a bar room by lamplight (19.0), not at 15.5 with its lamps out.
+- **Name every surface** (`materials.surfaces`, first match wins): whatever is left falls to
+  `framing`. A finish redraws a member as a plain board, so a dressed member (a bracket's cove)
+  takes the finish `-` to keep its shape.
+- **No dressed timber in the library yet:** oak draws fresh orange, rough pine reads as bark,
+  planed pine as driftwood; walnut is the nearest for posts, girders, rails and doors.
+- **A wainscot** stops at any opening whose bottom is under its cap, with an apron under a sill.
+- **Butt a big roof's boards** (`levels.roof_tight`): from inside, 3 mm gaps are specks of sky.
+- **The golden images are the old town's**, so a valley building changes none.
+- A render is 10 to 14 minutes a view here: give a background render its whole time
+  (`timeout`), and try a change on one or two views before a round.
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
