@@ -1,0 +1,33 @@
+{
+  "_doc": "A carpenter's handsaw (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the Disston pattern of the 1870s-80s, a 26 in taper-ground steel blade breasted along its back, 5 1/2 points to the inch (a rip saw's), an apple-wood handle closed round the hand with four split brass saw nuts. Payday Night's: carried up the outside stair to cut through the dance floor. Lying on its side (the blade along x, the toe at +x, the teeth toward +z). Steel the gun way, the blade dulled and freckled with rust, bright along its teeth, the handle's varnish worn through where the hand goes (tools/blender/props/saloon_s2.py). A loose prop (LooseProp: one physics body; a ball holes the blade, a kick or a fall bends it). ~0.9 kg. Written by tools/props/saloon_s2.py.",
+  "id": "handsaw",
+  "kind": "loose",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:handsaw",
+  "looks": {
+    "Blade": "pbr:handsaw",
+    "Handle": "pbr:handsaw",
+    "Nuts": "pbr:handsaw"
+  },
+  "shape": "box",
+  "size": [
+    0.8,
+    0.022,
+    0.24
+  ],
+  "mass": 0.9,
+  "wall": 0.0011,
+  "hole_radius": 0.005,
+  "breaks_at": 1000.0,
+  "shatters_kpa": 1000000000.0,
+  "spills_below": 0.0,
+  "dent": {
+    "radius": 0.04,
+    "shot": 0.004,
+    "kick": 0.01,
+    "fall": 0.004
+  },
+  "factory": "tools/props/saloon_s2.py"
+}

@@ -47,7 +47,7 @@ HANG = {"drop": 1.0, "ring_y": 0.21, "ring_r": 0.088, "font": (0.078, 0.13, 0.25
 
 def _hanging(kit, model, shaded):
     h = HANG
-    looks = {"Chimney": "prop:chimney_glass", "Font": "pbr:" + model, "Burner": "pbr:" + model, "Frame": "pbr:" + model,
+    looks = {"Chimney": "prop:chimney_glass@%.3f" % HANG["flame_y"], "Font": "pbr:" + model, "Burner": "pbr:" + model, "Frame": "pbr:" + model,
              "Bell": "pbr:" + model, "Chain": "pbr:" + model, "Hook": "pbr:" + model}
     whole = ["Font", "Burner", "Frame", "Bell", "Chain"]
     width = 0.2
@@ -59,14 +59,14 @@ def _hanging(kit, model, shaded):
     what = ("a dome shade 50 cm across over it, painted green outside and white within (the gaming room's: over a table, its "
             "light thrown down on the cloth)" if shaded else "no shade (the bar room's: two rows of three under the dance floor's joists)")
     return {
-        "_doc": "A kerosene hanging lamp (#866; refs experiments/prop_lab/refs/saloon/): an iron hook in the joist, a brass chain, a brass smoke bell over the chimney (the soot kept off the ceiling), three brass arms down to a ring, the brass font sitting in the ring with its burner and a plain glass chimney; %s. A prop that shatters (GlassProp) hung by a hook (`hangs.hook`: what's above the hook is what it hangs from, a joist or a beam): it swings when what it hangs from moves (the dance floor over it), a blast or a hand pushes it (`GlassProp.push_swing`), and falls with its joist (broken, burnt away or dropped): the chimney breaks at a walk's pace, the brass comes through whole, and a lit one's oil burns where it lands (OilLamp.smash). Its body is the lamp's box (`hit`), not the chain's: a ball through the chain passes. Its light (an OilLamp, `light_height` over its foot) swings with it. 1.0 m from the joist's underside to its foot. One physics body at rest (the frozen lamp; its swing is drawn, not simulated); broken, the chimney's shards (up to 10, GlassProp's) and the brass as one piece. Baked the gun way (tools/blender/props/saloon_s1.py). Written by tools/props/saloon.py." % what,
+        "_doc": "A kerosene hanging lamp (#866; refs experiments/prop_lab/refs/saloon/): an iron hook in the joist, a brass chain, a brass smoke bell over the chimney (the soot kept off the ceiling), three brass arms down to a ring, the brass font sitting in the ring with its burner and a plain glass chimney; %s. A prop that shatters (GlassProp) hung by a hook (`hangs.hook`: what's above the hook is what it hangs from, a joist or a beam): it swings when what it hangs from moves (the dance floor over it), a blast or a hand pushes it (`GlassProp.push_swing`), and falls with its joist (broken, burnt away or dropped): the chimney breaks at a walk's pace, the brass comes through whole, and a lit one's oil burns where it lands (OilLamp.smash). Its body is the lamp's box (`hit`), not the chain's: a ball through the chain passes. Its light (an OilLamp, `light_height` over its foot) swings with it; the font, burner and arms under the flame cast no shadow (`no_shadow`: the room has no bounce light to fill the metre-wide disc they'd black out under it). 1.0 m from the joist's underside to its foot. One physics body at rest (the frozen lamp; its swing is drawn, not simulated); broken, the chimney's shards (up to 10, GlassProp's) and the brass as one piece. Baked the gun way (tools/blender/props/saloon_s1.py). Written by tools/props/saloon.py." % what,
         "id": kit, "kind": "shatters", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:" + model, "looks": looks,
         "size": r([width, h["drop"], width]), "mass": 4.2 if shaded else 3.0, "wall": 0.0015,
         "hangs": {"hook": r([0.0, h["drop"], 0.0])},
         "hit": {"at": r([0.0, 0.29, 0.0]), "size": r([width if shaded else 0.18, 0.46, width if shaded else 0.18])},
         "swing": {"pivot": r([0.0, h["drop"], 0.0]), "length": 0.72, "damping": 0.35},
-        "light_height": h["flame_y"],
+        "light_height": h["flame_y"], "no_shadow": ["Font", "Burner", "Frame"],
         "glass": ["Chimney"], "whole": [whole],
         "piece_mass": 2.4 if shaded else 2.0, "shards": 10, "breaks_at": 1.5, "shatters_kpa": 15, "heat_seconds": 30, "cut_area": 0.04,
         "contents": {"liquid": "lamp_oil", "litres": 0.6, "flammable": True, "colour": [0.85, 0.75, 0.45]},
@@ -108,18 +108,18 @@ def _glass(kit):
     g = GLASSES[kit]
     top = max(y for _, y in g["profile"]) if kit != "decanter" else g["stopper"][2]
     rad = max(rr for rr, _ in g["profile"])
-    looks = {"Glass": "glass:clear", "Liquid": "pbr:bar_glasses_" + kit}
+    looks = {"Glass": "glass:flint", "Liquid": "pbr:bar_glasses_" + kit}
     glass_parts = ["Glass", "Liquid"]
     whole = []
     if g.get("foam"):
         looks["Foam"] = "pbr:bar_glasses_" + kit
         glass_parts.append("Foam")
     if g.get("stopper"):
-        looks["Stopper"] = "glass:clear"
+        looks["Stopper"] = "glass:flint"
         whole = [["Stopper"]]
     bl, kpa = g["breaks"]
     return {
-        "_doc": "Bar glass (#866; refs experiments/prop_lab/refs/saloon/): %s. A prop that shatters (GlassProp), as the whiskey bottle: a ball, a fall faster than %.1f m/s (a heavy glass off the bar onto the boards: some do, some don't) or %d kPa breaks it, and what's in it goes on the floor (`Events.liquid_spilled`). The glass the kit's `glass:clear` (see-through, no shadow of its own); what's in it baked the gun way (tools/blender/props/saloon_s1.py). One physics body standing (the frozen glass; a shelf of forty is forty bodies: set a row on the back bar sparingly), its shards when it breaks. Written by tools/props/saloon.py." % (g["what"], bl, kpa),
+        "_doc": "Bar glass (#866; refs experiments/prop_lab/refs/saloon/): %s. A prop that shatters (GlassProp), as the whiskey bottle: a ball, a fall faster than %.1f m/s (a heavy glass off the bar onto the boards: some do, some don't) or %d kPa breaks it, and what's in it goes on the floor (`Events.liquid_spilled`). The glass the kit's `glass:flint` (see-through, its thick outline catching the lamps; no shadow of its own); what's in it baked the gun way (tools/blender/props/saloon_s1.py). One physics body standing (the frozen glass; a shelf of forty is forty bodies: set a row on the back bar sparingly), its shards when it breaks. Written by tools/props/saloon.py." % (g["what"], bl, kpa),
         "id": kit, "kind": "shatters", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:bar_glasses_" + kit, "looks": looks,
         "size": r([rad * 2, top, rad * 2]), "mass": round(g["mass"] + g["litres"] * 1.0, 3), "wall": g["wall"],
@@ -190,7 +190,7 @@ def work_board():
     tx = (-L * 0.5 + x0) * 0.5
     front = member("top_f", "furniture_top", [tl, b, D * 0.5], [tx, H - b * 0.5, D * 0.25], look=OAK_OLD_TOP)
     front["dress"] = [dress("pbr:work_board", "work_board", "Zinc"), dress("pbr:work_board", "work_board", "Sinks"),
-                      dress("pbr:work_board", "work_board", "Drip"), dress("glass:clear", "work_board", "DripGlasses")]
+                      dress("pbr:work_board", "work_board", "Drip"), dress("glass:flint", "work_board", "DripGlasses")]
     ms.append(front)
     ms.append(member("top_b", "furniture_top", [tl, b, D * 0.5], [tx, H - b * 0.5, -D * 0.25], look=OAK_OLD_TOP))
     shelf = member("shelf", "furniture_top", [span, 0.022, D - 0.01], [cx, w["shelf_y"] + 0.011, 0], look=OAK_OLD)
@@ -341,9 +341,12 @@ def faro_table():
     }
 
 
-# The lookout's stool: a high stool (a seat at 34 in, so he sees over the players' shoulders),
-# four splayed legs, a ring of rungs for his feet, a square seat.
-LOOKOUT = {"seat_y": 0.86, "seat": 0.36, "seat_t": 0.035, "leg": 0.042, "splay": 5.5, "foot": 0.21, "rung_y": 0.32, "rung": 0.03}
+# The lookout's chair (S1's critic: the low square stool read as a side table): a high chair, its seat at
+# 43 in so he sees down onto the layout over the players' heads (the period's lookout sat "perched on a
+# high stool" at the dealer's elbow), straight oak legs, the back posts run on up into a back with a
+# crest rail and a slat, a stout footrest across the front legs and rungs round the rest.
+LOOKOUT = {"seat_y": 1.1, "seat": (0.46, 0.44), "seat_t": 0.035, "leg": 0.045, "back_y": 1.55, "foot_y": 0.46, "foot": (0.05, 0.035),
+           "rung_y": 0.3, "rung": 0.028, "crest": (0.08, 0.035), "slat_y": 1.3}
 
 
 def lean(a, slope):
@@ -357,25 +360,29 @@ def lean(a, slope):
 def lookout_stool():
     c = LOOKOUT
     sy, st, lg = c["seat_y"], c["seat_t"], c["leg"]
+    sx, sz = c["seat"]
     h = sy - st
-    slope = math.tan(math.radians(c["splay"]))
-    ln = h / math.cos(math.radians(c["splay"]))
-    mid = c["foot"] - slope * h * 0.5  # the leg's middle's distance out (along its diagonal)
-    ms = [member("leg%d", "post", [lg, ln, lg], [0, h * 0.5, 0], look=OAK, rot=r([-c["splay"], 0, 0]),
-                 repeat={"count": 4, "radius": r(mid), "start": 45}, blow_span=c["rung_y"])]
-    # Rungs at two heights, front and back lower (his feet), the sides higher: each from leg to leg
-    # (a leg's diagonal distance out at that height over root 2).
-    def half(y):
-        return (c["foot"] - slope * y) / math.sqrt(2.0)
+    hx, hz = sx * 0.5 - lg * 0.5 - 0.01, sz * 0.5 - lg * 0.5 - 0.01
+    by = c["back_y"]
+    ms = []
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("leg_front_" + name, "post", [lg, h, lg], [s_ * hx, h * 0.5, hz], look=OAK, blow_span=c["foot_y"]))
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("post_back_" + name, "post", [lg, by, lg], [s_ * hx, by * 0.5, -hz], look=OAK, blow_span=c["rung_y"]))
+    ms.append(member("seat", "furniture_top", [sx, st, sz], [0, sy - st * 0.5, 0.01], look=OAK_TOP))
+    # His feet: a stout footrest across the front, worn; the sides and back a rung each, lower.
+    fw, ft = c["foot"]
+    ms.append(member("footrest", "furniture_frame", [hx * 2 - lg, ft, fw], [0, c["foot_y"], hz], look=OAK_OLD))
     y = c["rung_y"]
-    for s, name in ((-1, "b"), (1, "f")):
-        ms.append(member("rung_" + name, "furniture_frame", [half(y) * 2, c["rung"], c["rung"]], [0, y, s * half(y)], look=OAK))
-    y2 = y + 0.12
-    for s, name in ((-1, "l"), (1, "r")):
-        ms.append(member("rung_" + name, "furniture_frame", [c["rung"], c["rung"], half(y2) * 2], [s * half(y2), y2, 0], look=OAK))
-    ms.append(member("seat", "furniture_top", [c["seat"], st, c["seat"]], [0, sy - st * 0.5, 0], look=OAK_TOP))
+    for s_, name in ((-1, "l"), (1, "r")):
+        ms.append(member("rung_" + name, "furniture_frame", [c["rung"], c["rung"], hz * 2 - lg], [s_ * hx, y, 0], look=OAK))
+    ms.append(member("rung_b", "furniture_frame", [hx * 2 - lg, c["rung"], c["rung"]], [0, y + 0.06, -hz], look=OAK))
+    # The back: a crest rail at the posts' tops and a slat under it.
+    cw, ct = c["crest"]
+    ms.append(member("crest", "furniture_frame", [hx * 2 + lg, cw, ct], [0, by - cw * 0.5, -hz], look=OAK))
+    ms.append(member("slat", "furniture_frame", [hx * 2 - lg, 0.05, 0.02], [0, c["slat_y"], -hz], look=OAK))
     return {
-        "_doc": "The faro lookout's high stool (#866; refs experiments/prop_lab/refs/saloon/): the man who watches the bets for the house sits at the dealer's elbow, higher than the players: a square oak seat at 34 in on four splayed legs, two rungs low front and back for his feet and two higher at the sides. Oak from the material library (a few years; the seat worn). 9 physics bodies (its members). ~7 kg. Written by tools/props/saloon.py.",
+        "_doc": "The faro lookout's high chair (#866, #879; refs experiments/prop_lab/refs/saloon/): the man who watches the bets for the house sits at the dealer's elbow, perched higher than the players to see down onto the layout: an oak seat at 43 in (1.1 m) on four straight legs, the back posts running on up into a back (a crest rail and a slat, 1.55 m), a stout footrest across the front legs at 46 cm worn by his boots, a rung each at the sides and back. Oak from the material library (a few years; the seat and footrest worn). 11 physics bodies (its members). ~10 kg. Written by tools/props/saloon.py.",
         "id": "lookout_stool", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.5, "blow_wood_share": 0.5,
         "seat": {"member": "seat", "at": [0.0, sy, 0.0], "share": 0.85, "hold": 0.05, "sway": 0.04},
@@ -420,27 +427,33 @@ def piano_stool():
 
 
 # --- The wheel of fortune -----------------------------------------------------------------------
-# A gambling wheel on the gaming room's wall (the period's "wheel of fortune" or "big six"): a wheel
-# 36 in across of painted segments, numbered, a peg between each at its rim, turning on an iron axle
-# in an old oak backboard; a leather clapper on a block over it stops on a number.
-WHEEL = {"board": (1.04, 1.14, 0.03), "radius": 0.46, "thick": 0.045, "segments": 24, "axle_y": -0.04, "clapper_y": 0.47}
+# A gambling wheel on the gaming room's wall (the period's "wheel of fortune", "big six" or dice wheel;
+# the H. C. Evans wheel of the reference, S1's critic: the first, a small flat disc, read as a dartboard):
+# big (48 in), open: a painted band of 30 panels of dice round a wooden rim, a ring of brass pegs
+# standing out of its edge, 16 spokes from a hub dressed in a gilt eight-pointed star, the wall seen
+# between them; it turns on an iron axle in a stout oak plank nailed up the wall, and a leather flapper
+# on a block at the plank's top stops in the pegs on a panel.
+WHEEL = {"board": (0.24, 1.56, 0.04), "board_y": 0.1, "radius": 0.6, "band": (0.41, 0.57), "thick": 0.05, "segments": 30,
+         "spokes": 16, "star": 0.24, "stand_off": 0.035, "peg": 0.05, "axle_y": 0.0, "clapper_y": 0.74}
 
 
 def wheel_of_fortune():
     w = WHEEL
     bx, by, bt = w["board"]
-    ms = [member("board", "board", [bx, by, bt], [0, 0, bt * 0.5], look=OAK_OLD)]
+    ms = [member("board", "board", [bx, by, bt], [0, w["board_y"], bt * 0.5], look=OAK_OLD)]
     R, th = w["radius"], w["thick"]
-    ms.append(member("wheel", "trim", [R * 2, R * 2, th], [0, w["axle_y"], bt + 0.02 + th * 0.5], wood="weathered_pine", look="pbr:wheel_face",
+    span = (R + w["peg"]) * 2
+    ms.append(member("wheel", "trim", [span, span, th], [0, w["axle_y"], bt + w["stand_off"] + th * 0.5], wood="weathered_pine", look="pbr:wheel_face",
                      draw=mesh("wheel_of_fortune", "Face")))
-    ms[-1]["dress"] = [dress("pbr:wheel_of_fortune", "wheel_of_fortune", "Rim"), dress("pbr:wheel_of_fortune", "wheel_of_fortune", "Hub")]
-    ms.append(member("clapper", "trim", [0.08, 0.1, 0.07], [0, w["clapper_y"], bt + 0.035], wood="oak", look="pbr:wheel_of_fortune",
+    ms[-1]["dress"] = [dress("pbr:wheel_of_fortune", "wheel_of_fortune", part) for part in ("Rim", "Spokes", "Hub")]
+    ms.append(member("clapper", "trim", [0.1, 0.16, 0.12], [0, w["clapper_y"], bt + 0.06], wood="oak", look="pbr:wheel_of_fortune",
                      draw=mesh("wheel_of_fortune", "Clapper")))
+    ms[-1]["dress"] = [dress("pbr:wheel_of_fortune", "wheel_of_fortune", "Flap")]
     return {
-        "_doc": "A wheel of fortune (#866; refs experiments/prop_lab/refs/saloon/): the gaming room's wall wheel (the period's 'big six'), 36 in across, 24 painted segments numbered in red, black and cream, a brass peg between each at its rim, on an iron axle in an old oak backboard; a leather clapper on a block over it that stops on a number. Hung (KitProp `hangs`: two nails through its board into the wall: it falls when its wall board goes); the wheel and the clapper are members on the board (a ball through the face splinters it; the face burns). The board from the material library (oak, old); the face printed and its rim, pegs, hub and clapper baked the gun way (tools/blender/props/saloon_s1.py). It doesn't turn yet. The wall's face at z = 0, the wheel toward +z, the board's middle the origin (hang it at ~1.9 m). 3 physics bodies. ~18 kg. Written by tools/props/saloon.py.",
+        "_doc": "A wheel of fortune (#866, #879; refs experiments/prop_lab/refs/saloon/wheel_of_fortune_evans_gambling_wheel.jpg): the gaming room's wall wheel (the period's 'big six' or dice wheel, after the H. C. Evans wheel), 48 in across and open: a painted band of 30 blue panels of dice between gilt lines round a wooden rim, a brass peg standing out of the rim between each panel, 16 spokes from a hub dressed in a gilt eight-pointed star, the wall seen between them; on an iron axle in a stout old oak plank nailed up the wall, a leather flapper on a block at the plank's top that stops in the pegs. Hung (KitProp `hangs`: two nails through its plank into the wall: it falls when its wall board goes); the wheel and the flapper are members on the plank (a ball through the band splinters it; it burns). The plank from the material library (oak, old); the band printed, its rim, pegs, spokes, star and flapper baked the gun way (tools/blender/props/saloon_s1.py). It doesn't turn yet. The wall's face at z = 0, the wheel toward +z, the axle the origin (hang it with its middle at ~1.85 m: its top 2.55 m, the plank's 2.6 m). 3 physics bodies. ~30 kg. Written by tools/props/saloon.py.",
         "id": "wheel_of_fortune", "kind": "members", "fixture": True, "in_game": False, "wood": "oak", "anchor": "wall",
         "drawn_bounds": True, "splits_below": 0.4, "blow_wood_share": 0.5,
-        "hangs": {"nails": [r([-bx * 0.5 + 0.08, by * 0.5 - 0.08, 0.004]), r([bx * 0.5 - 0.08, by * 0.5 - 0.08, 0.004])]},
+        "hangs": {"nails": [r([0.0, w["board_y"] + by * 0.5 - 0.06, 0.004]), r([0.0, w["board_y"] - by * 0.5 + 0.06, 0.004])]},
         "members": ms,
     }
 
@@ -452,7 +465,7 @@ def gold_scales():
     c = doctor.SCALES
     bx, by, bz = c["base"]
     nb = (0.30, by, 0.17)
-    ms = [member("base", "post", [nb[0], by, nb[2]], [0, by * 0.5, -0.02], look=OAK_TOP)]
+    ms = [member("base", "post", [nb[0], by, nb[2]], [0, by * 0.5, -0.02], look=OAK_OLD)]
     d = member("drawer", "trim", [0.2, c["drawer"][1], 0.012], [0, by * 0.5, nb[2] * 0.5 - 0.02 + 0.006], look=OAK_FRONT)
     d["dress"] = [{"look": "pbr:scales", "draw": dict(mesh("scales", "Knob"), at=r([0, 0, nb[2] * 0.5 - 0.02 - bz * 0.5]))}]
     ms.append(d)
@@ -481,7 +494,7 @@ TILL = {"size": (0.42, 0.13, 0.36), "drawer": (0.36, 0.085)}
 def till_drawer():
     sx, sy, sz = TILL["size"]
     dw, dh = TILL["drawer"]
-    ms = [member("case", "post", [sx, sy, sz], [0, sy * 0.5, 0], look=OAK_TOP, solid=0.3)]  # (a box: its boards ~0.3 of it)
+    ms = [member("case", "post", [sx, sy, sz], [0, sy * 0.5, 0], look=OAK_OLD, solid=0.3)]  # (a box: its boards ~0.3 of it)
     d = member("drawer", "trim", [dw, dh, 0.016], [0, 0.012 + dh * 0.5, sz * 0.5 + 0.008], look=OAK_FRONT)
     d["dress"] = [dress("pbr:till_drawer", "till_drawer", "Pull"), dress("pbr:till_drawer", "till_drawer", "Bell")]
     ms.append(d)
