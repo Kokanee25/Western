@@ -209,8 +209,8 @@ FINISHES = {
                  "rough": 0.88, "metal": 0.0, "wear": 0.5},
     # Batch S2 (#879). A handsaw's blade: steel gone dull grey with use, freckled and bloomed brown with
     # rust (a tool kept in a damp shed), bright only along its teeth and where it's wiped.
-    "saw_steel": {"kind": "plate", "color": (0.44, 0.44, 0.45), "under": (0.62, 0.62, 0.63), "rust": 0.55,
-                  "rough": 0.38, "metal": 0.75, "wear": 0.4, "mottle": 0.6},
+    "saw_steel": {"kind": "plate", "color": (0.30, 0.30, 0.31), "under": (0.55, 0.55, 0.56), "rust": 0.7,
+                  "rough": 0.55, "metal": 0.6, "wear": 0.35, "mottle": 0.7},
     # Apple wood (the saw's handle): warm brown under an old varnish, worn pale and greasy where the hand goes.
     "apple_wood": {"kind": "coat", "color": (0.30, 0.15, 0.06), "under": (0.52, 0.34, 0.17), "rust": 0.0,
                    "rough": 0.5, "metal": 0.0, "wear": 0.7, "mottle": 0.4},

@@ -20,8 +20,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from doctor import KIT, PINE, PINE_TOP, ROOT, member, mesh, r  # noqa: E402
-from saloon import dress  # noqa: E402
+from doctor import KIT, PINE, ROOT, member, mesh, r  # noqa: E402
+from saloon import OAK_OLD, dress  # noqa: E402
 
 PINE_OLD = "lib:furniture_painted_pine/old"
 PINE_OLD_TOP = PINE_OLD + "/top"
@@ -192,14 +192,14 @@ def keg_rack():
     ms = []
     for i, x in enumerate((-hx, 0.0, hx)):
         for s_, name in ((-1, "b"), (1, "f")):
-            ms.append(member("post%d%s" % (i, name), "post", [p, top, p], [x, top * 0.5, s_ * hz], look=PINE, blow_span=c["tiers"][0]))
+            ms.append(member("post%d%s" % (i, name), "post", [p, top, p], [x, top * 0.5, s_ * hz], look=OAK_OLD, blow_span=c["tiers"][0]))
     for j, y in enumerate(c["tiers"]):
         for s_, name in ((-1, "b"), (1, "f")):
             ms.append(member("rail%d%s" % (j, name), "furniture_top", [L, rh, rw], [0, y - rh * 0.5, s_ * c["rail_z"]],
-                             look=PINE_OLD_TOP if j == 0 else PINE_TOP))
+                             look=OAK_OLD))
     return {
-        "_doc": "A keg rack (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the cellar's stillage, two tiers of heavy pine (4 in posts, 3 x 4 in rails), each tier a pair of long rails the kegs stand across, four kegs a tier (`beer_keg`, placed on it: the lower tier's rails at 16 cm, the upper's at 88), on six posts. 1.9 m long, 0.5 m deep, 0.88 m high. Painted pine from the material library (a few years; the lower rails old and slopped). Saloon B's store room and cellar: 2. 10 physics bodies (its members). ~70 kg. Written by tools/props/saloon_s2.py.",
-        "id": "keg_rack", "kind": "members", "fixture": True, "in_game": False, "wood": "weathered_pine",
+        "_doc": "A keg rack (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the cellar's stillage, two tiers of heavy oak (4 in posts, 3 x 4 in rails), each tier a pair of long rails the kegs stand across, four kegs a tier (`beer_keg`, placed on it: the lower tier's rails at 16 cm, the upper's at 88), on six posts. 1.9 m long, 0.5 m deep, 0.88 m high. Old oak from the material library (a cellar's: unpainted, slopped and dark; the library's painted pine read as teal paint). Saloon B's store room and cellar: 2. 10 physics bodies (its members). ~70 kg. Written by tools/props/saloon_s2.py.",
+        "id": "keg_rack", "kind": "members", "fixture": True, "in_game": False, "wood": "oak",
         "splits_below": 0.5, "blow_wood_share": 0.5,
         "members": ms,
     }
