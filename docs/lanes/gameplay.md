@@ -51,10 +51,15 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop, the "store floor" wake line. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N [--band=] [--bodies] [--extra-bodies=N]`, `tools/valley/bench_runs.py` (all scenes and counts,
-  ~1.5 h). A townsman costs 0.165 ms (near 0.23, far 0.11): the 4.0 holds ~18 till the cuts; every scene's
-  else is over. Bodies 27.7k of 32.8k; the full town ~45-55k: raise `max_bodies` to 65,536 (~4 MB).
-  **Next: the cuts (the review's ranked list), #881.**
+  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881,
+  the review's "After the cuts")**: far men ~0.3 of a near man (`PeopleTickTuning.seen_nearer_far`,
+  `aim_needs_sights`), calm men look at calm men every 2nd look (`calm_look_every`, `HumanBody.tick_calm`),
+  fingers posed on change; day with 25 ≈ 3.5 on #865's scale (4.9 on the slower workspace that measured it):
+  **the brief's 24 fit**. The valley's spec buildings warm their first analysis on a worker
+  (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
+  65,536. Train past 400 m `Train.distant`. Open: every scene's else is over (~1 ms untimed engine share, the
+  train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
+  walk casts); the gunfight's people are over (its men at full rate by design).
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
@@ -81,6 +86,6 @@ Night floor lab (#745).
 - lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
 - The native plugin builds here (`cargo build --release`, ~3 min; copy the `.so` into `bin/`).
-- The valley bench: the drawn runs take ~6 min each (80 s of shader compiles); the gunfight's drawn
-  1 s is four frames after the first shots (its render CPU isn't real yet).
+- The valley bench: the drawn runs take ~6 min each (80 s of shader compiles). Workspaces' cores differ (one
+  read 38% slower at 25): compare against a baseline from the same workspace; the noise is ±0.35.
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.
