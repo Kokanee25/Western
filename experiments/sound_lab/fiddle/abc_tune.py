@@ -7,7 +7,7 @@ tune.arrange's old-time rules (strings and fingers, the shuffle, drones, double 
     (a path inside music21's corpus, or any .abc file; --tempo=108 half notes a minute,
      --times=2 the whole tune played that many times, as for a dance, --title="..." the name it goes by)
 
-The chords: of the key's three (I, IV and V of K:'s major; D, G and A when it isn't one of
+The chords: the ABC's own chord symbols where it has them ("G", "Em", "Cadd9" as C); otherwise, of the key's three (I, IV and V of K:'s major; D, G and A when it isn't one of
 tune.CHORD_TONES' keys), the one whose notes take up most of the bar, the bar's first note counted double; a tie keeps the bar
 before's. Only tunes that are public domain (traditional, or old books like Ryan's Mammoth
 Collection, 1883, and O'Neill's, 1903).
@@ -39,15 +39,34 @@ def read(path, times=1):
     unit_q = 4.0 * int(unit_len.group(1)) / int(unit_len.group(2)) if unit_len else 0.5
     key = re.search(r"^K:\s*([A-G])\s*$", text, re.M)
     score = converter.parse(full)
-    out, bar = [], -1
+    out, bar, written, starts, total = [], -1, [], [], 0.0
     for m in played_bars(score) * times:
         bar += 1
+        starts.append(round(total, 4))  # where each bar begins, in the tune's running notes
+        total += sum(round(float(n.quarterLength) / unit_q, 4) for n in m.recurse().notesAndRests
+                     if not isinstance(n, harmony.Harmony) and n.quarterLength > 0)
+        written.append(next((_chord_name(h) for h in m.recurse().getElementsByClass(harmony.Harmony)
+                             if _chord_name(h)), None))
         for n in m.recurse().notesAndRests:
             if isinstance(n, harmony.Harmony) or n.quarterLength == 0:
                 continue  # a "0"/"4" in quotes is the book's fingering, read as a chord symbol; grace notes
             units = round(float(n.quarterLength) / unit_q, 4)
             _add(out, n, units, bar)
-    return title, (book.group(1).strip() if book else full), out, bar + 1, (key.group(1) if key else "D")
+    return title, (book.group(1).strip() if book else full), out, bar + 1, (key.group(1) if key else "D"), written, starts
+
+
+def _chord_name(h):
+    """A written chord symbol as the arranger's name: its root, and "m" if minor (Cadd9 -> C, Em7 -> Em);
+    None for what isn't a chord (a book's fingering digits, read as symbols)."""
+    try:
+        root = h.root().name.replace("-", "b")
+    except Exception:  # noqa: BLE001
+        return None
+    if not h.figure or not h.figure[0].isalpha():
+        return None
+    minor = "m" in h.figure[1:3] and not h.figure[1:4].startswith("maj")
+    name = root + ("m" if minor else "")
+    return name if name in tune.CHORD_TONES else None
 
 
 def played_bars(score):
@@ -104,13 +123,17 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     tempo = float(next((a.split("=")[1] for a in sys.argv[1:] if a.startswith("--tempo=")), 108))
     times = int(next((a.split("=")[1] for a in sys.argv[1:] if a.startswith("--times=")), 1))
-    title, book, notes, n_bars, key = read(args[0], times)
+    title, book, notes, n_bars, key, written, starts = read(args[0], times)
     chords = chords_of(notes, n_bars, key)
+    if any(written):  # the song's own chords where it writes them (each held until the next)
+        last = written[next(i for i, c in enumerate(written) if c)]
+        chords = [last := (c or last) for c in written]
     title = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--title=")), title)
     d = tune.arrange(tempo_half=tempo, phrases=[(notes, 0)], chords=chords, title=title.title(),
                      source=(f"{book}, via music21's corpus ({args[0]}); traditional, public domain"
                              if not os.path.exists(args[0]) else book))
     d["chords"] = chords
+    d["bar_units"] = starts  # each bar's start (the beat grid's downbeats: rhythm.grid)
     out = args[1] if len(args) > 1 else os.path.join(HERE, re.sub(r"\W+", "_", title.lower()).strip("_") + ".json")
     if not os.path.isabs(out):
         out = os.path.join(HERE, out)

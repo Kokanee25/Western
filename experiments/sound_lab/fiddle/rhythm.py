@@ -24,6 +24,12 @@ def grid(sc):
 
     bar1 = next((n["unit"] for n in mel if n["bar"] >= 1), 0.0)
     first = bar1 - 4 * np.ceil((bar1 - mel[0]["unit"]) / 4.0 - 1e-6)
+    starts = sc.get("bar_units")
+    if starts and len(starts) > 2:
+        # the bars as written (a song that opens on rests, or a line that starts after its downbeat)
+        full = float(np.median(np.diff(starts)))
+        bar1 = starts[0] if starts[1] - starts[0] >= full - 1e-6 else starts[1]
+        first = bar1 - 4 * np.ceil((bar1 - starts[0]) / 4.0 - 1e-6)
     last = mel[-1]["unit"]
     beats = []
     u0 = first

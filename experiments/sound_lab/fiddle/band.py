@@ -5,7 +5,8 @@ band: the fiddle on top, the banjo just under it, the bones and tambourine in th
 
     python3 experiments/sound_lab/fiddle/band.py turkey_in_the_straw.json [--out=...wav]
         [--with=banjo,bones,tambourine] (who plays with the fiddle; piano too: --with=banjo,bones,tambourine,piano)
-    --strings=gut|steel|modern (the banjo's strings), --banjo-style=clawhammer|rolls
+    --strings=gut|steel|modern (the banjo's strings), --banjo-style=clawhammer|rolls|flatpick, --no-fiddle,
+    --levels=banjo:0,guitar:-2 (each player against the fiddle, or the band's 0 without it)
 """
 import json
 import os
@@ -18,18 +19,21 @@ import banjo  # noqa: E402
 import bones  # noqa: E402
 import bowed  # noqa: E402
 import common  # noqa: E402
+import guitar  # noqa: E402
 import piano  # noqa: E402
 import tambourine  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # each player's loudness against the fiddle's (dB)
 BANJO_STYLE = "clawhammer"  # or "rolls" (three-finger, banjo.arrange_rolls)
-LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0, "piano": -4.0}
+LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0, "piano": -4.0, "guitar": -1.0}
 
 
 def player(name, sc):
+    if name == "guitar":
+        return guitar.render(guitar.arrange(sc))
     if name == "banjo":
-        part = banjo.arrange_rolls(sc) if BANJO_STYLE == "rolls" else banjo.arrange(sc)
+        part = {"rolls": banjo.arrange_rolls, "flatpick": banjo.arrange_flatpick}.get(BANJO_STYLE, banjo.arrange)(sc)
         return banjo.render(part)
     if name == "bones":
         return bones.render(bones.arrange(sc))
@@ -40,8 +44,8 @@ def player(name, sc):
     raise ValueError(name)
 
 
-def render(sc, who=("banjo", "bones", "tambourine")):
-    parts = [common.normalise(bowed.render(sc))]
+def render(sc, who=("banjo", "bones", "tambourine"), fiddle=True):
+    parts = [common.normalise(bowed.render(sc))] if fiddle else []
     for name in who:
         parts.append(common.normalise(player(name, sc)) * 10 ** (LEVELS[name] / 20.0))
     y = np.zeros(max(len(p) for p in parts))
@@ -61,10 +65,14 @@ def main():
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
     out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"])
-                  + ("_rolls" if BANJO_STYLE == "rolls" else "") + ("_piano" if "piano" in who else "") + ".wav"))
-    y = render(sc, who)
+                  + ("" if BANJO_STYLE == "clawhammer" else "_" + BANJO_STYLE) + ("_piano" if "piano" in who else "")
+                  + ("_nofiddle" if "no-fiddle" in sys.argv[1:] or "--no-fiddle" in sys.argv else "") + ".wav"))
+    for kv in filter(None, opt.get("levels", "").split(",")):  # --levels=banjo:0,guitar:-2
+        k, v = kv.split(":")
+        LEVELS[k] = float(v)
+    y = render(sc, who, fiddle="no-fiddle" not in sys.argv)
     common.write_wav(out, y)
-    print(f"{out}: {sc['tune']}, fiddle with {', '.join(who)}, {len(y) / common.SR:.1f} s, peak {np.max(np.abs(y)):.2f}")
+    print(f"{out}: {sc['tune']}, {'fiddle with ' if '--no-fiddle' not in sys.argv else ''}{', '.join(who)}, {len(y) / common.SR:.1f} s, peak {np.max(np.abs(y)):.2f}")
 
 
 if __name__ == "__main__":

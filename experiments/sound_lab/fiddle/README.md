@@ -137,6 +137,22 @@ changes; results in `../results/2026-11-10_fiddle/`.
   each string of a note its own stiffness (+-6%: each overtone beats its own way), the off-beat
   chord's voicing turned and sometimes rolled, the left hand drifting ~10 ms, phrases swelling +-10%.
 
+## The guitar, and toward Caamp
+
+- `guitar.py` (Sean, 2026-11-13: "sound like the band Caamp ... we may need an actual guitar"): a
+  steel-string flat-top, banjo.py's strings (steel's longer ring) on a wooden body (`body_ir`: the air
+  through the soundhole ~100 Hz, the top ~190, the back ~230, a dense set above; its curve set, its detail
+  kept), strummed with a pick "down, down-up, up-down-up" in the folk shapes that keep the top strings
+  ringing (G 320033, Cadd9 x32033, D xx0232, Em7 022033). Check: in each bar 87-92% of its sound on that
+  chord's notes.
+- `banjo.arrange_flatpick`: the banjo played "like a guitar, with a flat pick" (Caamp's Evan Westfall):
+  the tune note by note near the bridge, light strums in its rests. `band.py --banjo-style=flatpick
+  --no-fiddle --levels=banjo:0,guitar:-2 --with=guitar,banjo,tambourine`.
+- `abc_tune.py` reads a song's own chord symbols (Em, Cadd9 as C; `tune.CHORD_TONES` has the minors now)
+  and writes `bar_units` (each bar's start), which `rhythm.grid` uses: a song can open on rests (an
+  intro) or start a line after its downbeat. Tunes without them read as before.
+- `tunes/porch_light.abc`: an original song in that style (intro, verse, chorus twice, outro; ~94 s).
+
 ## Commands
 
 ```sh

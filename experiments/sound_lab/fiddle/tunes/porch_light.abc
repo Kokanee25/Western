@@ -1,0 +1,22 @@
+X:1
+T:Porch Light
+B:Written for Salt Creek (2026): a warm indie-folk song, the strummed guitar under a flat-picked banjo's hook
+M:4/4
+L:1/8
+K:G
+% intro: the guitar alone
+"G"z8 | "C"z8 | "Em"z8 | "D"z8 |
+% verse
+"G"z2Bd d2BA | "C"G2E2 G4 | "Em"z2Bd d2ed | "D"B2A4 z2 |
+"G"z2Bd d2BA | "C"G2E2 G2AB | "D"d2ed B2A2 | "G"G6 z2 |
+% chorus
+"C"e2ed e2g2 | "G"d4 B2G2 | "D"A2AB d2A2 | "Em"B4 z2GA |
+"C"e2ed e2g2 | "G"d4 B2d2 | "D"e2dB A2B2 | "G"G6 z2 |
+% verse again
+"G"z2Bd d2BA | "C"G2E2 G4 | "Em"z2Bd d2ed | "D"B2A4 z2 |
+"G"z2Bd d2BA | "C"G2E2 G2AB | "D"d2ed B2A2 | "G"G6 z2 |
+% chorus again
+"C"e2ed e2g2 | "G"d4 B2G2 | "D"A2AB d2A2 | "Em"B4 z2GA |
+"C"e2ed e2g2 | "G"d4 B2d2 | "D"e2dB A2B2 | "G"G6 z2 |
+% outro
+"G"G2B2 d2g2 | "C"e6 z2 | "Em"B2G2 E2D2 | "G"G8 |

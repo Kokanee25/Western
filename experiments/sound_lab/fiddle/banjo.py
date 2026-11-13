@@ -304,6 +304,52 @@ def arrange_rolls(sc, seed=1949):
             "length_s": round(events[-1]["t"] + 3.0, 3), "octave": shift // 12, "events": events}
 
 
+def arrange_flatpick(sc, seed=2014):
+    """Flat-picked banjo (the banjo bench's Caamp round: their banjoist plays it "like a guitar, with a
+    flat pick", the band's "melody factory"): the tune's notes picked one by one near the bridge,
+    alternate strokes (down on the beat, up between), each note held till the next; where the tune rests
+    a beat or more, a light strum of the chord across the top three strings on the beat."""
+    import rhythm
+    rng = np.random.default_rng(seed)
+    key = key_of(sc)
+    tuning = TUNINGS[key]
+    mel = sorted([n for n in sc["notes"] if n["voice"] == "melody"], key=lambda n: n["unit"])
+    shift = octave_for(mel, tuning)
+    when, beats, last, unit = rhythm.grid(sc)
+    chords = sc.get("chords") or [key]
+    starts = sc.get("bar_units") or []
+    events, hand = [], 0
+
+    def bar_of(u):
+        return max(0, int(np.searchsorted(starts, u + 1e-6)) - 1) if starts else 0
+
+    for k, n in enumerate(mel):
+        s, f, m = place(n["midi"] + shift, tuning, hand)
+        if f:
+            hand = f
+        on_beat = abs((n["unit"] - (starts[0] if starts else 0)) % 2) < 1e-6
+        nxt = mel[k + 1]["t"] if k + 1 < len(mel) else n["t"] + n["dur"]
+        events.append({"t": round(float(n["t"] + rng.normal(0, 0.004)), 4), "unit": n["unit"], "string": s, "fret": int(f),
+                       "midi": int(m), "kind": "pick", "amp": round(float((1.0 if on_beat else 0.82) * np.exp(rng.normal(0, 0.08))), 3),
+                       "ring": round(float(max(n["dur"], nxt - n["t"])), 4), "pos": round(float(rng.uniform(0.13, 0.18)), 3)})
+    # the rests: a light strum on the beat (the top three strings, the chord)
+    for u0, bar_start, _ in beats:
+        for uu in (u0, u0 + 2):
+            if any(n["unit"] <= uu + 1e-6 < n["unit"] + max(n["dur"] / unit, 0.5) for n in mel):
+                continue
+            ch = chords[min(bar_of(uu), len(chords) - 1)]
+            pcs = {x % 12 for x in tune.CHORD_TONES.get(ch, tune.CHORD_TONES[key])}
+            for j, s in enumerate((3, 2, 1)):
+                f = chord_fret(s, pcs, tuning, hand)
+                events.append({"t": round(float(when(uu) + j * 0.009 + rng.normal(0, 0.004)), 4), "unit": uu, "string": s,
+                               "fret": int(f), "midi": int(tuning[s] + f), "kind": "pick", "amp": 0.45, "ring": round(2 * unit, 4),
+                               "pos": round(float(rng.uniform(0.15, 0.2)), 3)})
+    events.sort(key=lambda e: e["t"])
+    return {"tune": sc["tune"], "instrument": "five-string banjo, flat-picked", "key": key, "tuning": tuning,
+            "style": "flat pick: the tune note by note, strums in its rests", "seed": seed,
+            "length_s": round(events[-1]["t"] + 3.0, 3), "octave": shift // 12, "events": events}
+
+
 # ---------------------------------------------------------------------------------------- the sound
 
 @njit(cache=True)
