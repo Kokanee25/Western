@@ -15,16 +15,20 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   doctor's cot (`-- --world=valley --mission=sheriff_dies --care=good|poor|left`); the story's Harlan is
   unarmed till then (`Player.lacks`). **Next: step 5, Beat 6, the funeral.**
   Open: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float (her model);
-  long lines run off the subtitle's width; Earl isn't seen laid out (the undertaker's a block); from the
+  Earl isn't seen laid out (the undertaker's a block); from the
   playtest (`docs/playtests/2026-11-12-sheriff-dies.md`): the wife's "Were you with him?" doesn't wait, the
   bridge's walk out of the doctor's sticks, the boots through the cot's rail, nobody minds a drawn gun by day.
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
-  `hideout` box canyon, 4 the cabin, the knife and the nod). **Step 1 done: Joe, the companion**
-  (`CompanionBrain`, `Physiology.spared`; `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y;
-  `experiments/gunfight_lab/results/2026-11-12_joe/`). Open: he holds fire a lot and they seldom shoot at
-  him; you alive 13/20 without him, 16 and 11 of 20 with (noise at n=20); riding waits on #478; his real
-  look is the Studio's (stand-in `miner_s4_talking`). **Next: step 2, the doctor's and the camp; first (Sean,
-  PR #853) why the playtest fixes dropped survival with Joe (16 -> 11 of 20): he has to help.**
+  `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
+  `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y, `--joe-tune=k:v+k:v`) helps since #859: he may shoot the
+  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`:
+  hits you take -1/3; survival can't be measured under a few hundred fights a side). Open: he's in your line
+  ~0.7 s a fight; his cover should keep off the line between you and your man. Step 2: `NoJusticeCamp`
+  (`config/moments/no_justice_camp.json`; `-- --world=valley --mission=no_justice`, bridge
+  `moment no_justice_camp set_up=1`; valley_bench `ute_camp`). Open: Joe's hat (the stand-in "whole" model drops
+  it; characters lane), no survivors shown (till the Studio has them), no line for a shake then following him
+  out, the valley's marker posts; playtest `docs/playtests/2026-11-13-camp.md`. Riding waits on #478.
+  **Next: step 3, the hideout fight.**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850): designed, not built: `docs/briefs/townsfolk.md`
