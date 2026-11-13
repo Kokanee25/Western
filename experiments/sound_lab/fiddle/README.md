@@ -156,6 +156,9 @@ changes; results in `../results/2026-11-10_fiddle/`.
   a kick (a damped skin's modes over ~55 Hz, the pitch falling after the hit, the beater's slap) and a soft
   snare (its wires), stomp or four on the floor. In `band.py` both follow `--strum`. Low: earbuds, not a
   phone speaker.
+- The dancer's number, The Red Garter (`tunes/red_garter_*.abc`): `piano.STYLE` "habanera" (the bass held
+  through three sixteenths, the chord on the fourth, on two and its "and"), `piano.MELODY` False (`band.py
+  --piano-accompany --piano-style=habanera`), the fiddle's vibrato (`player.vibrato_cents` in the note data).
 - `tunes/porch_light.abc`: an original song in that style (intro, verse, chorus twice, outro; ~94 s).
 
 ## Commands

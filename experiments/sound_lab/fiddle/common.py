@@ -71,6 +71,11 @@ def string_controls(sc, sr=SR, release=0.03):
             ramp = np.clip(np.arange(i1 - i0) / max(m, 1), 0, 1)
             ramp = 0.5 - 0.5 * np.cos(np.pi * ramp)
             p = nt["slide_from"] + (target - nt["slide_from"]) * ramp
+        vib = sc.get("player", {}).get("vibrato_cents", 0.0)
+        if vib and nt["voice"] == "melody" and nt["dur"] >= 0.3:
+            # a player who leans on the long notes: vibrato (~5.5 Hz), coming in after the note speaks
+            kk = np.arange(i1 - i0) / sr
+            p = p + vib / 100.0 * np.sin(2 * np.pi * 5.5 * kk) * np.clip((kk - 0.15) / 0.25, 0, 1)
         f0[s][i0:i1] = hz(p)
         stopped[s][i0:i1] = nt["finger"] > 0
         # force: a fiddler's 0.4-1.6 N by pressure; an accent leans in for the first 40 ms

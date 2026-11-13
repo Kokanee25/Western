@@ -51,7 +51,13 @@ STRIKE = 1.0 / 8.0     # where the hammer meets the string
 SYMPATHY = 0.025      # how strongly the unstruck strings answer (against the struck ones)
 WORN = 1.5             # dB: each key a little off even (fixed per key)
 AFTER = 0.12           # the aftersound's share (Weinreich's second stage)
-ROOTS = {"C": 48, "D": 50, "E": 52, "F": 53, "G": 43, "A": 45, "B": 47}
+ROOTS = {"C": 48, "D": 50, "E": 52, "F": 53, "G": 43, "A": 45, "B": 47, "Bb": 46, "Eb": 51}
+STYLE = "oompah"   # the left hand: "oompah" (bass on the beat, chord off it) or "habanera"
+MELODY = True      # the right hand plays the tune; False when the fiddle has it (the piano accompanies)
+
+
+def root_of(ch):
+    return ROOTS[ch[:-1] if ch.endswith("m") and len(ch) > 1 else ch]
 
 
 def strings_for(midi):
@@ -307,7 +313,7 @@ def arrange(sc, seed=None):
     # the right hand: the tune, in the piano's singing middle (C5 or so); a third or sixth under it
     # on the long strong notes, the octave under it on the strongest
     shift = 12 * round((76 - np.median([n["midi"] for n in mel])) / 12)
-    for k, n in enumerate(mel):
+    for k, n in enumerate(mel if MELODY else []):
         m = n["midi"] + shift
         t = n["t"] - 0.008 + rng.normal(0, 0.005)  # the melody a hair ahead
         nxt = mel[k + 1]["t"] if k + 1 < len(mel) else n["t"] + n["dur"]
@@ -322,13 +328,30 @@ def arrange(sc, seed=None):
                 keys.append({"t": t + 0.004, "midi": under[0], "dur": dur, "vel": vel * 0.75, "hand": "right"})
             if n["dur"] >= 0.6 and rng.random() < 0.5:
                 keys.append({"t": t + 0.002, "midi": m - 12, "dur": dur, "vel": vel * 0.8, "hand": "right"})
+    # the left hand, the habanera's (Bizet's and Iradier's dance): the bass held through the beat's first
+    # three quarters, then the chord on its last sixteenth, on two, and on two's "and": a slinking lilt
+    for b, u in enumerate(sc.get("bar_units", []) if STYLE == "habanera" else []):
+        if b == len(sc["bar_units"]) - 1:
+            break
+        ch = chords[min(b, len(chords) - 1)]
+        root = root_of(ch)
+        lo = 52 + (3 if rng.random() < 0.3 else 0)
+        tri = sorted({lo + ((p - lo) % 12) for p in tune.CHORD_TONES[ch]})
+        t = when(u) + rng.normal(0, 0.006)
+        keys.append({"t": t, "midi": root, "dur": when(u + 3) - when(u), "vel": 0.58, "hand": "left"})
+        keys.append({"t": t + 0.003, "midi": root - 12, "dur": when(u + 3) - when(u), "vel": 0.45, "hand": "left"})
+        for k, d, v in ((3, 1, 0.36), (4, 2, 0.42), (6, 2, 0.36)):
+            tc = when(u + k) + rng.normal(0, 0.006)
+            for p in tri:
+                keys.append({"t": tc + rng.uniform(0, 0.006), "midi": int(p), "dur": (when(u + k + d) - when(u + k)) * 0.8,
+                             "vel": v + rng.normal(0, 0.03), "hand": "left"})
     # the left hand: oom on the beat, pah off it
-    for i, (u0, bar_start, phrase_end) in enumerate(beats):
+    for i, (u0, bar_start, phrase_end) in enumerate(beats if STYLE == "oompah" else []):
         if when(u0) < rhythm.LEAD - 1e-6:
             continue
         bar = next((n["bar"] for n in mel if n["unit"] >= u0 - 1e-6), mel[-1]["bar"])
         ch = chords[min(bar, len(chords) - 1)]
-        root = ROOTS[ch]
+        root = root_of(ch)
         bass = root if (i % 2 == 0) else root + 7 - 12 * (root + 7 > 52)  # root, then the fifth
         t = when(u0) + rng.normal(0, 0.006)
         beat_len = when(u0 + 2) - when(u0)
@@ -346,8 +369,10 @@ def arrange(sc, seed=None):
                          "vel": 0.4 + 0.04 * (j == len(tri) - 1) + rng.normal(0, 0.04), "hand": "left"})
     # the end: the tonic, low and full, held
     tl = when(last)
-    r = ROOTS[key]
-    for p in (r - 12, r, r + 7, r + 12, r + 16):  # root low, root, fifth, root, the third above
+    end = chords[-1] if sc.get("chords") else key
+    r = root_of(end)
+    third = 3 if end.endswith("m") and len(end) > 1 else 4
+    for p in (r - 12, r, r + 7, r + 12, r + 12 + third):  # root low, root, fifth, root, the third above
         keys.append({"t": tl + rng.uniform(0, 0.01), "midi": p, "dur": 2.5, "vel": 0.6, "hand": "left"})
     # a player's left hand drifts a little against the beat (a slow wander, ~10 ms), and each phrase
     # of four bars swells and eases (+-10%), over a slow random lean

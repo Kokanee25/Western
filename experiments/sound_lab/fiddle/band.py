@@ -71,6 +71,8 @@ def main():
     guitar.STYLE = opt.get("strum", "folk")  # the guitar's strum: folk or drive
     bass.STYLE = "drive" if guitar.STYLE == "drive" else "folk"  # the bass and drums follow the strum
     drums.STYLE = "four" if guitar.STYLE == "drive" else "stomp"
+    piano.STYLE = opt.get("piano-style", "oompah")  # oompah or habanera
+    piano.MELODY = "piano-accompany" not in " ".join(sys.argv)  # --piano-accompany: chords only, the fiddle has the tune
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
     out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"])
