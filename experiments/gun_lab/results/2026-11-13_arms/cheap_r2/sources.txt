@@ -1,0 +1,8 @@
+a arms_revolver_idle build/arms2/day/arms_revolver_idle.png
+b arms_revolver_aimed build/arms2/day/arms_revolver_aimed.png
+c arms_revolver_reloading build/arms2/day/arms_revolver_reloading.png
+d arms_revolver_idle build/arms2/night/arms_revolver_idle.png
+e arms_winchester_idle build/arms2/day/arms_winchester_idle.png
+f arms_winchester_cocked build/arms2/day/arms_winchester_cocked.png
+g arms_winchester_aimed build/arms2/night/arms_winchester_aimed.png
+h arms_winchester_reloading build/arms2/night/arms_winchester_reloading.png
