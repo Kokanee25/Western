@@ -158,6 +158,11 @@ func _build() -> void:
 						# See-through glass casts no shadow of its own (what's in it does): and no
 						# draw in each shadow pass for every bottle on a shelf (#805).
 						mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+					elif part in definition.get("no_shadow", []):
+						# Parts under a lamp's own flame (a hanging lamp's font and burner, #879):
+						# their shadow would black out a metre round the table it's hung over (the
+						# room has no bounce light to fill it, as a real room's walls and shade do).
+						mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 					model.add_child(mi)
 		var other:
 			var built := PropModels.build(StringName(other), variant)
