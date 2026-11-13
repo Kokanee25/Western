@@ -171,10 +171,16 @@ func _build_hands() -> void:
 		hand.grasp(f, R_GRIP[f])
 	hand.grasp("index", R_INDEX_REST, R_INDEX_SPREAD)
 	hand.thumb_pose(R_THUMB[0], R_THUMB[1], R_THUMB[2])
-	left_hand = _held(false, model, d.call(L_HAND_FUL), L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
-	for f: String in L_GRIP:
-		left_hand.grasp(f, L_GRIP[f])
-	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
+	left_hand = _held(false, model, d.call(HeldHand.hold("win73.l_hand_ful", L_HAND_FUL)), L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
+	var roll: float = HeldHand.hold("win73.l_roll", 0.0)
+	if roll != 0.0:
+		left_hand.basis = left_hand.basis * Basis(Vector3(0.0, 0.0, 1.0), deg_to_rad(roll))
+		left_hand.aim_forearm(L_FOREARM)
+	var l_grip: Dictionary = HeldHand.hold("win73.l_grip", L_GRIP)
+	for f: String in l_grip:
+		left_hand.grasp(f, l_grip[f])
+	var l_thumb: Array = HeldHand.hold("win73.l_thumb", L_THUMB)
+	left_hand.thumb_pose(l_thumb[0], l_thumb[1], l_thumb[2])
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L

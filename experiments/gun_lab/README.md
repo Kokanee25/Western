@@ -41,6 +41,15 @@ xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan -
     -s res://experiments/gun_lab/views.gd -- --out=build/gun_lab/v --gun=revolver [--only=rest,detail_right] [--fit=1]
 ```
 
+`--gun=winchester` (#890) gives the rifle's views (rest, aim, lever thrown, at the gate, the details);
+`--arms=painted` uses the painted man's arms even where Harlan's MetaHuman arms are
+(`assets/people/private/`). With his arms `--fit=1` fits his bigger hand: on the Winchester the
+right's fingers onto the lever and its index's reach to the trigger, and the left's place under the
+forend searched (up, across, its palm's roll; the forend an elliptic cylinder) with its fingers
+closed onto the wood. The numbers go in `HeldHand.MH_HOLDS`. In the real game:
+`python3 tools/bridge.py "gun_arms out=DIR hour=16"` (and `hour=21.5 here` where you stand, for
+lamplight): both guns idle, aimed, cocked or the lever thrown, reloading, ~25 min under lavapipe.
+
 The detail views also print `GAP`: each finger bone's skin against the wood or trigger it holds (mm,
 negative = into it). `--fit=1` closes every finger on what it holds as a finger closes, its three
 joints together (`HeldHand.grasp`: 0.75 : 1 : 0.55, a cylinder grasp's) until it comes within

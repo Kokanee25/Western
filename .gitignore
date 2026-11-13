@@ -46,3 +46,6 @@ __pycache__/
 
 # The material library's 4K scans (lab only; pulled from the pool branch, #721)
 /assets/textures/scans4k/
+
+# MetaHuman-made files (the Character Studio, private): never in this public repo (#692, #890)
+/assets/people/private/

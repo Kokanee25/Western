@@ -4,6 +4,8 @@ extends Node
 const STATES := {
 	"revolver": ["rest", "aim", "cocked", "reload_open", "reload_eject", "reload_insert", "look_down", "detail_left", "detail_right", "detail_below", "detail_cocked"],
 	"shotgun": ["rest", "aim", "cocked", "open", "pulled", "loaded", "look_down", "detail_left", "detail_right", "detail_below", "detail_open"],
+	# The Winchester 1873 (#890): the low ready, shouldered, the lever thrown, a round at the gate.
+	"winchester": ["rest", "aim", "lever", "gate", "detail_left", "detail_right", "detail_below", "detail_lever"],
 }
 ## The detail views: a camera 0.45 m off the gun (in its own space: from its left, right, below).
 const DETAIL := {"left": Vector3(-0.42, 0.06, -0.08), "right": Vector3(0.42, 0.06, -0.08), "below": Vector3(0.12, -0.4, -0.12)}
@@ -29,6 +31,10 @@ func run() -> void:
 		await _side(_arg("side"), out)
 		get_tree().quit()
 		return
+	# `--arms=painted`: the painted Studio man's arms even where Harlan's MetaHuman arms are (#890).
+	if _arg("arms") == "painted":
+		HeldHand.use_private = false
+		HeldHand.reset()
 	var world := Node3D.new()
 	add_child(world)
 	var env := WorldEnvironment.new()
@@ -69,7 +75,7 @@ func run() -> void:
 	var guns := ["revolver", "shotgun"] if _arg("gun") == "" else [_arg("gun")]
 	var only := _arg("only").split(",", false)
 	for g: String in guns:
-		var w: WeaponViewmodel = _player.revolver() if g == "revolver" else _player.shotgun()
+		var w: WeaponViewmodel = _player.revolver() if g == "revolver" else (_player.rifle() if g == "winchester" else _player.shotgun())
 		w.needs_captured_mouse = false
 		_player.select_weapon(w)
 		w.take_out()
@@ -121,7 +127,12 @@ func _reset(w: WeaponViewmodel) -> void:
 	Input.action_release(&"aim")
 	_player.rotation = Vector3.ZERO
 	_player.add_look(Vector2(0.0, -_player.get_pitch_degrees()))
-	if w is RevolverViewmodel:
+	if w is Winchester73Viewmodel:
+		var wv := w as Winchester73Viewmodel
+		if wv.state.lever_open:
+			wv.lever_close()
+		wv.state.busy = 0.0
+	elif w is RevolverViewmodel:
 		var r := (w as RevolverViewmodel).state
 		r.gate_open = false
 		r.hammer = RevolverState.Hammer.DOWN
@@ -149,6 +160,15 @@ func _state(w: WeaponViewmodel, st: String) -> void:
 			_player.add_look(Vector2(0.0, -60.0 - _player.get_pitch_degrees()))
 			await _frames(10)
 			w.take_out()
+		"lever", "detail_lever":
+			# Mid-stroke: the lever thrown and held (the hand rides the loop down).
+			(w as Winchester73Viewmodel).lever_open()
+			await _frames(12)
+		"gate":
+			var wv := w as Winchester73Viewmodel
+			wv.state.tube = 0
+			wv.reload_press()
+			await _frames(20)
 		"cocked", "detail_cocked":
 			w.call(&"cock_press")
 			await _frames(6)
@@ -176,7 +196,12 @@ func _state(w: WeaponViewmodel, st: String) -> void:
 
 
 func _spend(w: WeaponViewmodel) -> void:
-	if w is RevolverViewmodel:
+	if w is Winchester73Viewmodel:
+		var wv := w as Winchester73Viewmodel
+		if wv.state.lever_open:
+			wv.lever_close()
+		wv.state.busy = 0.0
+	elif w is RevolverViewmodel:
 		(w as RevolverViewmodel).state.chambers.fill(RevolverState.Chamber.SPENT)
 	else:
 		(w as ShotgunViewmodel).state.barrels.assign([ShotgunState.Barrel.SPENT, ShotgunState.Barrel.SPENT])
@@ -274,6 +299,9 @@ func _fit(w: WeaponViewmodel) -> void:
 			continue
 		var hand := h as Node3D
 		var grip: Array[MeshInstance3D] = []
+		if gun is Winchester73Model:
+			_fit_win73(hand, gun as Winchester73Model)
+			continue
 		for n in ["Grip/Panels", "Grip/Backstrap", "Grip/Butt", "Stock/PistolGrip/Grip", "Stock/PistolGrip/Cap", "Stock/Wrist", "Barrels/Forend", "Barrels/Barrel0", "Barrels/Barrel1"]:
 			var mi := gun.get_node_or_null(n) as MeshInstance3D
 			if mi:
@@ -317,6 +345,153 @@ func _fit(w: WeaponViewmodel) -> void:
 		elif fingers.has("thumb") and gun.get_node_or_null("Barrels/Forend"):
 			var forend: Array[MeshInstance3D] = [gun.get_node("Barrels/Forend") as MeshInstance3D]
 			_fit_thumb(hand, gun, forend, "rest", SHOTGUN_LEFT_THUMB_TIP)
+
+
+## The Winchester's hands (#890). Its parts are Blender meshes, so distances are measured two ways:
+## to the forend as an elliptic cylinder along the barrel (its mesh's bounds: inside is known, and
+## quick), and to a small part's own vertices (the lever, the trigger). The left hand: its place
+## under the forend searched (up and across, in design inches) with its fingers closed onto it, the
+## palm on the wood and not in it; the right: its fingers closed on the lever's loop, the index's
+## spread and curl searched to put its pad on the trigger. Prints the numbers for HeldHand.MH_HOLDS.
+func _fit_win73(hand: Node3D, gun: Winchester73Model) -> void:
+	var right := bool(hand.get(&"right"))
+	if not right:
+		_fit_win73_left(hand, gun)
+		return
+	var lever := _verts(gun, ["Lever"])
+	for f: String in ["middle", "ring", "little"]:
+		var hi := _close_on(hand, f, func(): return _vert_gap(hand, f, lever))
+		print("FIT %s %s: grasp %.0f (gap %+.1f mm)" % [hand.name, f, hi, _vert_gap(hand, f, lever) * 1000.0])
+	var trig := _verts(gun, ["Trigger"])
+	var best := [INF, 0.0, 0.0]
+	for spread in range(-10, 46, 5):
+		for amount in range(0, 121, 5):
+			hand.call(&"grasp", "index", float(amount), float(spread))
+			var pad: PackedVector3Array = hand.call(&"surface_points", "finger_index_r_2", 0.4)
+			var near := INF
+			for i in range(0, pad.size(), 2):
+				for v: Vector3 in trig:
+					near = minf(near, pad[i].distance_to(v))
+			if near < best[0]:
+				best = [near, float(spread), float(amount)]
+	hand.call(&"grasp", "index", best[2], best[1])
+	print("FIT %s index: spread %.0f, grasp %.0f (pad %.0f mm off the trigger)" % [hand.name, best[1], best[2], best[0] * 1000.0])
+
+
+func _close_on(hand: Node3D, f: String, gap: Callable, spread := 0.0) -> float:
+	var lo := 0.0
+	var hi := 140.0
+	for it in 12:
+		var mid := (lo + hi) * 0.5
+		hand.call(&"grasp", f, mid, spread)
+		if float(gap.call()) <= FIT_MM * 0.001:
+			hi = mid
+		else:
+			lo = mid
+	hand.call(&"grasp", f, hi, spread)
+	return hi
+
+
+func _fit_win73_left(hand: Node3D, gun: Winchester73Model) -> void:
+	var fe := gun.parts.get("Forend") as Node3D
+	var mis: Array = ([fe] if fe is MeshInstance3D else []) + fe.find_children("*", "MeshInstance3D", true, false)
+	var mi := mis[0] as MeshInstance3D
+	var bb := mi.get_aabb()
+	var to_fe := mi.global_transform.affine_inverse()
+	var c := bb.get_center()
+	var ax := bb.size.x * 0.5
+	var ay := bb.size.y * 0.5
+	# Signed distance (m) of a global point to the forend's elliptic cylinder, negative inside.
+	var dist := func(p: Vector3) -> float:
+		var q := to_fe * p - c
+		if absf(q.z) > bb.size.z * 0.5:
+			return 1.0
+		return (sqrt((q.x / ax) * (q.x / ax) + (q.y / ay) * (q.y / ay)) - 1.0) * minf(ax, ay)
+	var fgap := func(f: String) -> float:
+		var best := INF
+		for k in 3:
+			var pts: PackedVector3Array = hand.call(&"surface_points", "finger_%s_l_%d" % [f, k], FIT_FROM if k == 0 else 0.0)
+			for i in range(0, pts.size(), 3):
+				best = minf(best, dist.call(pts[i]))
+		return best
+	# Where the hand sits on the forend now (its space, cm: x across (+ the gun's left), y up, from
+	# the forend's middle line; the forend's half width and height first).
+	var fl := func(p: Vector3) -> Vector3: return ((to_fe * p - c) * 100.0).snappedf(0.1)
+	print("FOREND half %.1f x %.1f cm" % [ax * 100.0, ay * 100.0])
+	for f: String in ["index", "middle", "little"]:
+		hand.call(&"grasp", f, 0.0)
+		var bones: Array = (hand.get(&"fingers") as Dictionary)[f]
+		var tip := (bones[2] as Node3D).global_transform * (hand.call(&"tip_dir", bones[2]) as Vector3 * float(hand.get(&"lengths")[f][2]))
+		print("  %s knuckle %s tip(open) %s" % [f, fl.call((bones[0] as Node3D).global_position), fl.call(tip)])
+	print("  wrist %s" % fl.call((hand.get(&"wrist") as Node3D).global_position))
+	var base: Vector3 = hand.position
+	var base_basis: Basis = hand.basis
+	var best := [INF]
+	var ups := []
+	var lefts := []
+	for k in 13:
+		ups.append(-0.5 + k * 0.25)
+	for k in 11:
+		lefts.append(-1.5 + k * 0.25)
+	for roll in [-30.0, -15.0, 0.0, 15.0, 30.0]:
+		# The palm turned about the hand's own wrist line (its +Z), then placed.
+		var rb := base_basis * Basis(Vector3(0.0, 0.0, 1.0), deg_to_rad(roll))
+		for du: float in ups:
+			for dl: float in lefts:
+				hand.basis = rb
+				hand.position = base + Vector3(dl, du, 0.0) * 0.0254
+				for f: String in ["index", "middle", "ring", "little"]:
+					hand.call(&"grasp", f, 0.0)
+				var palm: PackedVector3Array = hand.call(&"surface_points", "hand_l")
+				var pgap := INF
+				for i in range(0, palm.size(), 3):
+					pgap = minf(pgap, dist.call(palm[i]))
+				if pgap < -0.002 or pgap > 0.012:
+					continue
+				var score := absf(pgap - 0.002) * 500.0
+				var grasps := {}
+				for f: String in ["index", "middle", "ring", "little"]:
+					var g := _close_on(hand, f, func(): return fgap.call(f))
+					grasps[f] = g
+					score += (40.0 if float(fgap.call(f)) > 0.004 else 0.0) + (8.0 if g < 20.0 or g > 110.0 else 0.0)
+				if score < best[0]:
+					best = [score, du, dl, grasps, pgap, roll]
+	if best.size() < 6:
+		hand.basis = base_basis
+		hand.position = base
+		print("FIT LeftHand: no place with the palm on the forend")
+		return
+	hand.basis = base_basis * Basis(Vector3(0.0, 0.0, 1.0), deg_to_rad(best[5]))
+	hand.position = base + Vector3(best[2], best[1], 0.0) * 0.0254
+	for f: String in best[3]:
+		hand.call(&"grasp", f, best[3][f])
+	var g: Dictionary = best[3]
+	print("FIT LeftHand place: up %+.2f in, x %+.2f in, roll %+.0f (palm %+.1f mm), grasps index %.0f middle %.0f ring %.0f little %.0f, score %.1f" % [best[1], best[2], best[5], best[4] * 1000.0, g.index, g.middle, g.ring, g.little, best[0]])
+
+
+func _verts(gun: Winchester73Model, parts: Array) -> Array:
+	var verts := []
+	for pn: String in parts:
+		var node: Node = gun.parts.get(pn)
+		if node == null:
+			continue
+		for mi: MeshInstance3D in ([node] if node is MeshInstance3D else []) + node.find_children("*", "MeshInstance3D", true, false):
+			var vs: PackedVector3Array = mi.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+			var xf := mi.global_transform
+			for i in range(0, vs.size(), 2):
+				verts.append(xf * vs[i])
+	return verts
+
+
+func _vert_gap(hand: Node3D, f: String, verts: Array) -> float:
+	var side := "r" if bool(hand.get(&"right")) else "l"
+	var best := INF
+	for k in range(0, 3):
+		var pts: PackedVector3Array = hand.call(&"surface_points", "finger_%s_%s_%d" % [f, side, k], FIT_FROM if k == 0 else 0.0)
+		for i in range(0, pts.size(), 3):
+			for v: Vector3 in verts:
+				best = minf(best, pts[i].distance_to(v))
+	return best
 
 
 func _min_gap(hand: Node3D, f: String, from_bone: int, boxes: Array[MeshInstance3D]) -> float:

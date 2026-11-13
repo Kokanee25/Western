@@ -1895,6 +1895,16 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   lab's `blender/guns_blender.py`: bevelled, the side painting baked) each part takes its Blender mesh
   (`GunParts.blender_meshes`), else factory paintings (`GunParts._painted`). Next: a rig posed by eye
   (`docs/briefs/viewmodel-rig.md`) in place of the fitted hold.
+  **Harlan's arms (#890):** where the private `assets/people/private/harlan_arms.glb` is (git-ignored;
+  the Studio's `tools/fp_arms.py` from MetaHuman Sean, fetched by `tools/characters/fetch_arms.sh`),
+  `HeldHand` cuts both hands from it instead (`arms_path()`, `metahuman()`; `-- --painted-arms` or
+  `use_private = false` for the painted): his skin's own PBR maps (subsurface on), his rolled shirt
+  sleeves (`cloth_*`, cut the same way), twist bones as their segments. His finger frames are put
+  into the painted men's (`_canonical_fingers`) and his rest curl taken off every curl, so a pose's
+  angles mean the same finger; his bigger hand has its own fitted holds (`HeldHand.MH_HOLDS`, read
+  by `hold(key, painted)` in `HandModel` and `Winchester73Viewmodel`). The gun lab's views take
+  `--gun=winchester` and `--arms=painted`; its `--fit=1` fits the rifle's hands; bridge `gun_arms`
+  shoots both guns in the real game (idle, aimed, cocked / lever thrown, reloading).
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`

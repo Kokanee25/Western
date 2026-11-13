@@ -41,7 +41,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Falls from height** done (#759, `Falls`, `config/falls.tres`).
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
-- **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
+- **The Colt** (#693 step 1 approved; `saa_75` still only in the gun lab). Harlan's arms are characters'
+  (#890: `HeldHand` takes MetaHuman arms when the private file is in, holds `HeldHand.MH_HOLDS`). The painted
+  hand's Winchester left sits 2-4 cm under the forend (the lab's `--fit=1` measures it); left as it was.
 - **The coach heist** (#794, #815, PR #839; `experiments/coach_heist/` README "After the hit"): `SwingingRam`,
   `Dents`/`DentWatch`, `CoachDrive`, `CoachCut` (`-- --world=valley --mission=coach`), and `CoachFight`: the
   guards dazed, up inside the wreck, one in the door on top, the rest out to the lee; the strongbox hauled out,
