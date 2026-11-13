@@ -74,7 +74,8 @@ static func load_data() -> Dictionary:
 
 func _init() -> void:
 	data = load_data()
-	tune = data.tuning
+	tune = (data.tuning as Dictionary).duplicate()
+	_lab_tune(tune)
 	variant = Variant.D
 	nerve = float(tune.nerve)
 	temper = float(tune.temper)
@@ -150,6 +151,17 @@ static func make_joe(parent: Node, at: Vector3, yaw: float, leader: Node3D, ways
 	man.add_child(b)
 	man.enter(parent, at, yaw)
 	return man
+
+
+## The gunfight lab's trials (#859): `-- --joe-tune=key:value+key:value` sets his tuning's numbers
+## for this game (a fight's run: `run.py --game-args=--joe-tune=yours_after_shot:3`).
+static func _lab_tune(into: Dictionary) -> void:
+	for a: String in OS.get_cmdline_user_args():
+		if not a.begins_with("--joe-tune="):
+			continue
+		for kv: String in a.get_slice("=", 1).split("+", false):
+			if kv.contains(":"):
+				into[kv.get_slice(":", 0)] = float(kv.get_slice(":", 1))
 
 
 # --- Who's with whom --------------------------------------------------------------------------
@@ -306,7 +318,7 @@ const TEND_FAST := 3.0
 func _wants_to_tend() -> bool:
 	if _now - _tend_end < TEND_AGAIN:
 		return false
-	if _fight_on and body.physiology.total_bleed_rate() < TEND_FAST:
+	if _fight_on and body.physiology.total_bleed_rate() < float(tune.get("tend_fast", TEND_FAST)):
 		return false
 	return super._wants_to_tend()
 
@@ -380,7 +392,7 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var b := Crew.brain_of(t)
 	if b != null and not b is CompanionBrain:
 		var e := b.relations.entry(body)
-		e.pressure = minf(float(e.pressure) + DRAW_EYE, DRAW_EYE_MAX)
+		e.pressure = minf(float(e.pressure) + float(tune.get("draw_eye", DRAW_EYE)), float(tune.get("draw_eye_max", DRAW_EYE_MAX)))
 
 
 ## How much more a man minds Joe for each shot Joe puts at him, and at most (Relations' pressure: a
@@ -595,7 +607,7 @@ func _watch_line(delta: float) -> void:
 			right.y = 0.0
 			var o := line_offset()
 			var side := signf(o) if absf(o) > 0.05 else _side
-			if _line_fails >= 1:
+			if _line_fails >= 1 and float(tune.get("line_run", 1.0)) > 0.0:
 				# Stepping aside didn't do it (a wall, or you keep turning his way): to your side,
 				# where your gun never points.
 				_line_to = p.global_position + right.normalized() * side * 2.0 + p.global_transform.basis.z * 0.5
