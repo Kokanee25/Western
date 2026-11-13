@@ -25,8 +25,14 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - Talking face: four men's jaws go back more than down (#247).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
+- **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
+  as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
+  gameplay's, on Sean's word (README: the part, a native skin shape).
 
 ## Traps
 - After a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - `talking_face.py --pin=no` for loose hair or a short head mesh (the edge pin slashes the chin).
 - Judge every change against Sean's pictures and his words.
+- A MetaHuman in a lab: copy the Studio's `frozen/<build>/` into `assets/people/` and list it in
+  `.git/info/exclude` (never committed, #692). A skinned mesh added to a man needs his `custom_aabb`; a
+  SoftBody3D's mesh needs normals (without them it's drawn scrambled).
