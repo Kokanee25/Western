@@ -71,7 +71,39 @@ python3 experiments/viewmodel_rig/sheet.py --pair DIR_A DIR_B OUT.jpg --names=..
 
 ## Results (2026-11-13)
 
-See `results/2026-11-13/` and the pick issue (#896's "which goes in the game?").
+`results/2026-11-13/` (the town under the real look; each new view beside **today's HeldHand** at the
+same places with the same finger numbers: #890's full MetaHuman arms weren't pushed when this ran, so
+they get their column when that branch is readable):
+- `compare_day.jpg`, `compare_lamp.jpg`: the five first-person views (the Colt at the hip, aimed one
+  handed, the thumb going to the hammer; the Winchester aimed down the buckhorn, the lever 60% thrown),
+  Main Street at 16:00 with the sun behind, and an arm's length from the store porch's oil lamp at 21:30.
+- `wrist_day.jpg`, `wrist_lamp.jpg`: each view's close look at the right wrist and fingers.
+- `poses_plain.jpg`: every pose on the plain stage, the two reloads too, with their close looks;
+  `kick_plain.jpg`: the aimed shots 0, 40, 80 and 160 ms after the shot (GunKick on the held node).
+- The cheap judge, one round each, blind: `docs/screenshots/judge/2026-11-13_cheap_vmr_fp/` (the new rig)
+  and `..._held/` (today's hands), the same five frames (four by day, the Colt at the hip by lamp).
+
+**The cheap judge** (blind, one round each, a = Colt hip, b = Colt aimed, c = rifle aimed, d = rifle
+mid-lever, e = Colt hip by lamp): **new rig: d good indie, a b c e cheap indie** (ranked d, b, a, e, c);
+**today's hands: all five cheap indie** (ranked d, e, a, c, b). Both judges' Winchester mid-lever was
+their best ("both hands really grip the rifle"); against the new one only the factory-new rifle and a
+spotless cuff. Against the new Colt views: from the eye the hand reads as a fingerless mound with the
+revolver beside it, not held (a, e), and the aimed hand looks open with the gun beyond it (b); the
+rifle aimed from behind shows swollen thumbs, one in the air (c). Today's: a faceted mitten, a bare
+clean forearm swelling at the camera, smeared fingers. Shared by both (the town's, not the hands'):
+the banded sky, ruler-straight ruts, stamped pebbles, the flat royal-blue rifle seen end-on.
+
+What the new rig does better (by eye, and what the sheet shows): the cut never shows (the cuff hides
+it in every pose); a dressed arm (linen cuff, wool sleeve with a hem and folds) in place of a bare
+forearm to the elbow; the MetaHuman's skin (pores, knuckle creases, nails) in the real look; the hand
+stays the same shape whatever the gun does (no elbow or shoulder to bend wrong).
+What's still rough: the reload poses (both guns) and the Colt's cocking thumb are first passes (the
+thumb reaches the spur's side, not its top); the Winchester's left thumb and the aimed Colt's wrist
+were set by eye in a few rounds, not polished; the sleeve's folds are code's, not a cloth sim;
+the hands aren't decimated (21k triangles); the views use one camera, so the hip views' 55 degrees
+also narrows the world (a game version draws the arms on their own layer and field of view, #693).
+Today's HeldHand side is posed with the new rig's finger numbers; its own fitted hold (`HandModel`)
+would close a little differently.
 
 ## What it costs
 
