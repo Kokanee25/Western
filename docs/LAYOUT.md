@@ -2705,6 +2705,10 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `godot --headless -s res://tools/people_envelope.gd`, `python3 tools/blender/fetch_makehuman.py`,
   `~/bpyenv/bin/python tools/blender/make_people.py --only=outlaw` (~15 s; byte-for-byte repeatable
   except the face guide render). `CLOTH_PASSES=dir` saves each garment's raw bake passes for tuning.
+- `fp_arms.py` (#896, a lab's): the Studio MetaHuman's hands cut at the wrist by his own weights, the
+  rig trimmed to forearm, hand and the 30 finger bones, the shirt's cuff and coat's sleeve modelled
+  from his forearm's sections, wool twill and linen made in numpy; its glb is private (git-ignored,
+  `experiments/viewmodel_rig/private/`). Used by `experiments/viewmodel_rig/` (README there).
 
 ## addons/saltcreek_native (the native plugin)
 

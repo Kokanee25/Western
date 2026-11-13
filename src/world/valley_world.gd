@@ -76,6 +76,7 @@ func _ready() -> void:
 		u = _took(&"markers", u)
 		_make_buildings()
 		u = _took(&"buildings", u)
+		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
@@ -219,6 +220,17 @@ func _make_buildings() -> void:
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
+## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## member of the building on one frame (#881). A few frames on, its props and fittings are in.
+func _warm_buildings() -> void:
+	for i in 3:
+		await get_tree().physics_frame
+	for b: Variant in buildings.values():
+		if b is Structure and is_instance_valid(b):
+			(b as Structure).warm_analysis()
 
 
 ## A boardwalk down a building's side street (its spec's `lot.side_walk`: saloon B's, under its
