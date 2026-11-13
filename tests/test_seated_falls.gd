@@ -186,7 +186,7 @@ func test_knocked_down_as_he_rises_among_the_pieces_they_dont_break_him() -> voi
 	if PhysicsServer3D.body_test_motion(piece.get_rid(), tm, res):
 		for i in res.get_collision_count():
 			var b := res.get_collider(i) as Node
-			if b != null and b.get_meta(&"human_body", null) == man and not touched.has(b.name):
+			if b != null and b.has_meta(&"human_body") and b.get_meta(&"human_body") == man and not touched.has(b.name):
 				touched.append(b.name)
 	check(touched.is_empty(), "the seat in him is let through the body he falls in (in %s)" % [touched])
 	await physics_frames(50)
