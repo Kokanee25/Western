@@ -1,5 +1,5 @@
 {
-  "_doc": "No Law, beat 6: the sheriff's funeral (docs/missions/no-law.md \"Beat 6\"; #868; the lines are docs/scripts/no_law.json's scene `funeral`, taken as they stand). The day after he dies (`days_after`), from `hours`[0] on the clock, the town gathers at the cemetery on the hill up Church Lane: the widow and the doctor by the grave, the preacher at its foot, the townsfolk round it, hats off and heads bowed (the day folk walk up from their posts if you'd see them go, the night's men are borrowed from ValleyFolk's waiting men), the Baron and his foreman stood apart. Once you're near (or `gather_s` on) the preacher reads the old burial words and the box is lowered; two of the town say a small true thing; the Baron goes to the widow with his offer and she refuses him without looking up; he leaves, with a word for you if you came; she thanks you if you came; the town walks back to work. It plays whether you're there or not, and nobody tells you to go: nolaw.funeral = attended (you stood within `attend_m` of the grave for `attend_s` of the service), distance (within `seen_m` with the hill not between) or missed. Lines are heard only within `hear_m` (the prayer `prayer_m`); nolaw.offer_heard if you heard the Baron's offer, baron.met if he spoke to you. A shot nearby breaks it up (nolaw.funeral_broken). Past its hours unseen (the clock jumped on), it's missed and the grave is filled. Started by ValleyFolk (the clock), by the bridge's `moment funeral [set_up=1]`, or at launch with `-- --world=valley --mission=funeral` (the scene alone: the sheriff dead yesterday, you on Church Lane below the church).",
+  "_doc": "No Law, beat 6: the sheriff's funeral (docs/missions/no-law.md \"Beat 6\"; #868; the lines are docs/scripts/no_law.json's scene `funeral`, taken as they stand). The day after he dies (`days_after`), from `hours`[0] on the clock, the town gathers at the cemetery on the hill up Church Lane: the widow and the doctor by the grave, the preacher at its foot, the townsfolk round it, hats off and heads bowed (the day folk walk up from their posts if you'd see them go, the night's men are borrowed from ValleyFolk's waiting men), the Baron and his foreman stood apart. Once you're near (or `gather_s` on) the preacher reads the old burial words and the box is lowered (the committal and an Amen as it goes: this session's, from the same service); two of the town say a small true thing; the Baron goes to the widow with his offer and she refuses him without looking up; he leaves, with a word for you if you came; she thanks you if you came; the town walks back to work. It plays whether you're there or not, and nobody tells you to go: nolaw.funeral = attended (you stood within `attend_m` of the grave for `attend_s` of the service), distance (within `seen_m` with the hill not between) or missed. Lines are heard only within `hear_m` (the prayer `prayer_m`); nolaw.offer_heard if you heard the Baron's offer, baron.met if he spoke to you. A shot nearby breaks it up (nolaw.funeral_broken). The mourners leave one by one down the lane and are taken out of the world only where you can't see them; the grave is filled once they've gone and you're off the hill, not looking (stay and it stays open: there's no sexton yet). Past its hours unseen (the clock jumped on), it's missed and the grave is filled. Started by ValleyFolk (the clock), by the bridge's `moment funeral [set_up=1]`, or at launch with `-- --world=valley --mission=funeral` (the scene alone: the sheriff dead yesterday, you on Church Lane below the church).",
   "status": "PROPOSED (#868; No Law's script isn't OK'd yet, #835): the day, the hour, who stands where and every timing are this session's. Stand-ins: the pine box, the open grave, the earth, the headboards (plain blocks: the prop lab's kit has none yet); the preacher, the Baron and his foreman are existing men's models (the characters lane's, used as they are); no children (no child's body yet); a hat comes off by being hidden (no hat in the hand yet).",
   "script": "res://src/missions/funeral.gd",
   "days_after": 1,
@@ -9,7 +9,7 @@
   "grave": [-104.0, -197.0],
   "old_graves": [[-8.0, -6.0], [-5.2, -6.4], [-2.4, -6.0], [5.0, -6.2], [8.0, -5.8], [-7.0, 6.5], [-4.0, 6.9]],
   "you_start": {"_doc": "`--mission=funeral`: you on Church Lane below the church, looking up it.", "at": [-64.0, -131.0]},
-  "lane": {"_doc": "Church Lane's points (config/valley.json way `church_lane`) added to the folk's places, so the town can walk up and back.", "line": [[0, -60], [0, -95], [-30, -120], [-62, -128], [-85, -165], [-95, -185]], "out": 4},
+  "lane": {"_doc": "Church Lane's points (config/valley.json way `church_lane`) added to the folk's places, so the town can walk up and back.", "line": [[0, -60], [0, -95], [-30, -120], [-62, -128], [-85, -165], [-95, -185]], "out": 0},
   "mourners": [
     {"id": "wife", "how": "take", "spot": [0.3, -1.6], "stays": true},
     {"id": "doc", "how": "take", "spot": [1.4, -1.8], "stays": true},
@@ -24,7 +24,7 @@
     {"id": "rancher", "how": "borrow", "spot": [-1.2, -2.0]},
     {"id": "drifter", "how": "borrow", "spot": [-2.3, -2.2]}
   ],
-  "speakers": {"prayer": "preacher", "town_1": "loudmouth", "town_2": "barkeep", "offer": "baron", "refuse": "wife", "baron_you": "baron", "you_came": "wife"},
+  "speakers": {"prayer": "preacher", "commit": "preacher", "amen": "preacher", "town_1": "loudmouth", "town_2": "barkeep", "offer": "baron", "refuse": "wife", "baron_you": "baron", "you_came": "wife"},
   "baron_to": [1.5, -2.9],
   "gather_min_s": 6.0,
   "gather_s": 150.0,
@@ -39,12 +39,15 @@
   "gap_min_s": 3.0,
   "walk_wait_s": 25.0,
   "stay_m": 40.0,
-  "stay_s": 180.0,
+  "stay_s": 75.0,
   "gone_m": 45.0,
-  "gone_s": 240.0,
+  "gone_s": 420.0,
+  "leave_gap_s": 1.6,
   "break_m": 150.0,
   "lines": {
     "prayer": {"any": ["Man that is born of a woman hath but a short time to live, and is full of misery. He cometh up, and is cut down, like a flower."]},
+    "commit": {"_doc": "PROPOSED (#868, not in the scripts yet): the same 1662 service's committal, said as the box goes down.", "any": ["We therefore commit his body to the ground; earth to earth, ashes to ashes, dust to dust."]},
+    "amen": {"_doc": "PROPOSED (#868, not in the scripts yet).", "any": ["Amen."]},
     "town_1": {"any": ["Fined me twice. Fair, both times."]},
     "town_2": {"any": ["He'd come in Saturdays. One drink. Never two."]},
     "offer": {"any": ["A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure."]},

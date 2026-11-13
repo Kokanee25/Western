@@ -24,6 +24,7 @@ var men := {}
 var how := {}
 var _old_post := {}
 var _leaving := {}  # id -> seconds since he turned to go
+var _go_at := {}  # id -> when he turns to go (one by one)
 var _stays := {}
 var coffin: Node3D
 var boards: Array[Node3D] = []
@@ -155,9 +156,9 @@ func _add_ways() -> void:
 		places.add(&"funeral_grave", spot([0.0, 5.0], 0.05), [prev])
 
 
-## Where a man leaving goes: down the lane (the lane's `out` point).
+## Where a man leaving goes: down the lane to its foot behind town (the lane's `out` point).
 func _way_out() -> Vector3:
-	var n := StringName("funeral_lane_%d" % int((data.get("lane", {}) as Dictionary).get("out", 4)))
+	var n := StringName("funeral_lane_%d" % int((data.get("lane", {}) as Dictionary).get("out", 0)))
 	return folk.places.at(n) if folk.places and folk.places.has(n) else spot([2.0, 30.0])
 
 
@@ -188,7 +189,7 @@ func _block(n: String, size: Vector3, at: Vector3, colour: Color, solid := true)
 
 
 func _make_place() -> void:
-	var wood := Color(0.52, 0.42, 0.28)
+	var wood := Color(0.74, 0.62, 0.42)
 	var old_wood := Color(0.42, 0.38, 0.33)
 	var dirt := Color(0.33, 0.25, 0.18)
 	# The graves already here: a low mound and a headboard each.
@@ -200,7 +201,16 @@ func _make_place() -> void:
 	# His: the hole (a dark patch: the ground isn't dug), the earth from it at its head, the box on
 	# two boards across it.
 	open_grave = _block("OpenGrave", Vector3(2.3, 0.02, 0.95), spot([0.0, 0.0]), Color(0.05, 0.04, 0.035), false)
-	earth = _block("GraveEarth", Vector3(0.9, 0.5, 1.5), spot([-2.0, -0.2]), dirt)
+	earth = _block("GraveEarth", Vector3(1.5, 0.28, 2.3), spot([-2.3, -0.1]), dirt)
+	var heap := [[Vector3(1.0, 0.5, 1.6), Vector3(-0.1, 0.0, 0.2), 14.0], [Vector3(0.6, 0.72, 0.9), Vector3(0.05, 0.0, -0.3), -22.0], [Vector3(0.5, 0.4, 0.7), Vector3(-0.3, 0.0, 0.85), 31.0]]
+	for h: Array in heap:
+		var lump := _block("EarthLump", h[0], earth.global_position + (h[1] as Vector3) - Vector3.UP * 0.14, dirt.darkened(0.12 * float(heap.find(h))), false)
+		lump.rotation.y = deg_to_rad(float(h[2]))
+		lump.reparent(earth)
+	# The gravedigger's spade stood in it.
+	var spade := _block("Spade", Vector3(0.035, 1.25, 0.035), earth.global_position + Vector3(0.45, 0.0, 0.5), old_wood, false)
+	spade.rotation.z = deg_to_rad(-9.0)
+	spade.reparent(earth)
 	for bx: float in [-0.7, 0.7]:
 		boards.append(_block("GraveBoard", Vector3(0.18, 0.04, 1.5), spot([bx, 0.0], 0.02), old_wood, false))
 	coffin = _block("PineBox", Vector3(1.95, 0.4, 0.6), spot([0.0, 0.0], 0.06), wood)
@@ -349,6 +359,7 @@ func _physics_process(delta: float) -> void:
 		_lower_step(delta)
 	if done:
 		_stay_step(p, delta)
+		_fill_step(p)
 		return
 	if p == null:
 		return
@@ -359,9 +370,9 @@ func _physics_process(delta: float) -> void:
 		&"gather":
 			var near := _flat(p.global_position, grave) < float(data.get("start_m", 16.0))
 			if state_t > float(data.get("gather_min_s", 6.0)) * _pace() and (near or state_t > float(data.get("gather_s", 150.0)) * _pace()):
-				_beats = [["say", "prayer"], ["do", "lower"], ["say", "town_1"], ["say", "town_2"], ["walk", "baron"],
+				_beats = [["say", "prayer"], ["do", "lower"], ["say", "commit"], ["do", "lowered"], ["say", "amen"], ["say", "town_1"], ["say", "town_2"], ["walk", "baron"],
 						["say", "offer"], ["say", "refuse"], ["do", "tally"], ["do", "baron_out"], ["say", "baron_you"],
-						["do", "baron_gone"], ["say", "you_came"], ["do", "end"]]
+						["do", "baron_gone"], ["say", "you_came"], ["do", "to_grave"], ["do", "end"]]
 				_beat = 0
 				_next_t = t + 1.5 * _pace()
 				_counting = true
@@ -419,7 +430,7 @@ func _service_step(p: Player) -> void:
 				if br:
 					br.faces = p.global_position + Vector3.UP * 1.5
 					br.rest_pose = &"stand"
-			var did := _say(who, text, float(data.get("prayer_m" if what == "prayer" else "hear_m", 12.0)))
+			var did := _say(who, text, float(data.get("prayer_m" if what in ["prayer", "commit", "amen"] else "hear_m", 12.0)))
 			if did:
 				heard.append(what)
 			if what == "offer":
@@ -446,7 +457,17 @@ func _do(what: String, p: Player) -> void:
 			for bd: Node3D in boards:
 				bd.visible = false
 			_lower = 0.0
-			_next_t = t + (float(data.get("lower_s", 8.0)) + 2.0) * _pace()
+			_next_t = t + 1.5 * _pace()
+		"lowered":
+			# (The words are said as it goes down; on when it's down.)
+			_next_t = maxf(_next_t, t + maxf(float(data.get("lower_s", 8.0)) * _pace() - _lower, 0.0) + 1.0 * _pace()) if _lower >= 0.0 else _next_t
+		"to_grave":
+			# Her thanks said, she turns back to him.
+			for id: StringName in _stays.keys():
+				var sb := _brain(id)
+				if sb:
+					sb.faces = grave + Vector3.UP * 0.3
+					sb.rest_pose = &"mourn" if id != &"preacher" else &"stand"
 		"tally":
 			_tally()
 		"baron_out":
@@ -485,9 +506,12 @@ func _tally() -> void:
 
 ## Over: the town walks back to work; the widow, the doctor and the preacher stay by the grave.
 func _end() -> void:
+	var k := 0
 	for id: StringName in men.keys():
-		if not _stays.has(id):
-			_leave(id)
+		if not _stays.has(id) and not _leaving.has(id):
+			# One by one, not as a body.
+			_go_at[id] = t + float(k) * float(data.get("leave_gap_s", 1.6)) * (0.6 + 0.8 * fposmod(float(k) * 0.618, 1.0))
+			k += 1
 	if Events.shot_fired.is_connected(_on_shot):
 		Events.shot_fired.disconnect(_on_shot)
 	_finish(&"done")
@@ -527,8 +551,13 @@ func _foreman_step(delta: float) -> void:
 		fb.go_to(to, b.global_position + Vector3.UP * 1.5)
 
 
-## Men on their way out: gone once they're down the lane, or off where you can't see them.
+## Men on their way out: gone once they're off where you can't see them (or at the lane's foot, in
+## town, or in time: never from under your eyes on the hill).
 func _leaving_step(p: Player, delta: float) -> void:
+	for id: StringName in _go_at.keys():
+		if t >= float(_go_at[id]):
+			_go_at.erase(id)
+			_leave(id)
 	if _leaving.is_empty():
 		return
 	var out := _way_out()
@@ -538,8 +567,9 @@ func _leaving_step(p: Player, delta: float) -> void:
 		if m == null:
 			_leaving.erase(id)
 			continue
-		var far := p == null or (_flat(p.global_position, m.global_position) > float(data.get("gone_m", 45.0)) and not folk._you_see(m.global_position, 150.0))
-		if _flat(m.global_position, out) < 2.0 or (far and _leaving[id] > 3.0) or _leaving[id] > float(data.get("gone_s", 240.0)):
+		var unseen := p == null or not folk._you_see(m.global_position, 200.0)
+		var far := unseen and (p == null or _flat(p.global_position, m.global_position) > float(data.get("gone_m", 45.0)))
+		if (far and _leaving[id] > 3.0) or (_flat(m.global_position, out) < 2.0 and unseen) or _leaving[id] > float(data.get("gone_s", 240.0)):
 			_put_away(id)
 
 
@@ -554,18 +584,19 @@ func _stay_step(p: Player, delta: float) -> void:
 	for id: StringName in _stays.keys():
 		_leave(id)
 	_stays.clear()
-	if away and (p == null or not folk._you_see(grave, 150.0)):
-		_fill()
-	else:
-		_fill_when_gone = true
+	_fill_when_unseen = true
 
 
-var _fill_when_gone := false
+var _fill_when_unseen := false
 
 
-func _process(_delta: float) -> void:
-	if _fill_when_gone and _leaving.is_empty():
-		_fill_when_gone = false
+## Filled once they've gone and you're off the hill, not looking (nobody's seen shovelling: there's
+## no sexton yet; stay and it stays open).
+func _fill_step(p: Player) -> void:
+	if not _fill_when_unseen or not _leaving.is_empty() or not _go_at.is_empty():
+		return
+	if p == null or (_flat(p.global_position, grave) > float(data.get("stay_m", 40.0)) and not folk._you_see(grave, 400.0)):
+		_fill_when_unseen = false
 		_fill()
 
 

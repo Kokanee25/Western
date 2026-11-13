@@ -123,7 +123,7 @@ func test_attended() -> void:
 	var over := await wait_until(func() -> bool: return m.done, 60 * 150)
 	check(over, "it plays out (%s)" % m.result())
 	check_eq(StoryState.get_fact("nolaw.funeral"), "attended", "attended")
-	check(_lines_of("preacher").size() == 1 and _lines_of("preacher")[0].begins_with("Man that is born of a woman"), "the burial words (%s)" % [_lines_of("preacher")])
+	check(_lines_of("preacher").size() == 3 and _lines_of("preacher")[0].begins_with("Man that is born of a woman") and _lines_of("preacher")[2] == "Amen.", "the burial words, the committal, Amen (%s)" % [_lines_of("preacher")])
 	check(_lines_of("loudmouth").has("Fined me twice. Fair, both times.") and _lines_of("barkeep").has("He'd come in Saturdays. One drink. Never two."), "two of the town (%s)" % [said])
 	check(_lines_of("baron").size() == 2 and _lines_of("baron")[0].begins_with("A hard day, ma'am."), "the Baron's offer (%s)" % [_lines_of("baron")])
 	check_eq(_lines_of("baron")[-1] if not _lines_of("baron").is_empty() else "", "Mr. Harlan. A sad day for the county.", "his word to you")
@@ -131,12 +131,18 @@ func test_attended() -> void:
 	check_eq(StoryState.get_fact("nolaw.offer_heard"), true, "you heard the offer")
 	check_eq(StoryState.get_fact("baron.met"), true, "the Baron's met you")
 	check(not m.coffin.visible, "the box is down")
-	# The town walks back to work; the widow stays by the grave.
+	# The town walks back to work, one by one; the widow stays by the grave.
+	await wait_until(func() -> bool: return m._go_at.is_empty(), 60 * 30)
 	check(m.man(&"wife") != null and m.man(&"townsman") == null, "the widow stays, the town goes")
 	check_eq(String(f.state[&"townsman"]), "coming", "the townsman's on his way back to his post")
 	check(m._leaving.has(&"baron") or f.state[&"baron"] == &"out", "the Baron's leaving")
+	# Nobody's taken out of the world while you're stood there looking, and the grave stays open.
+	_put(m.spot([0.0, 14.0]), m.grave)
+	await physics_frames(60 * 12)
+	check(m.man(&"miner") != null and m.man(&"barkeep") != null, "they walk off; nobody's gone from near you (%s)" % m.result())
+	check(not m.filled.visible, "the grave's open while you're there")
 	# You go; they go; the grave's filled.
-	_put(f.lot_point("hotel", 4.0, 12.0))
+	_put(f.lot_point("hotel", 4.0, -12.0), f.lot_point("hotel", 4.0, -40.0))  # in the street, your back to the hill
 	var gone := await wait_until(func() -> bool: return m.men.is_empty() and m.filled.visible, 60 * 30)
 	check(gone, "the hill's empty and the grave filled (%s)" % m.result())
 	check(f._waiting.has(&"barkeep") and f._waiting.has(&"wife") and f._waiting.has(&"baron"), "the borrowed and the act's men are back waiting, not freed")
@@ -184,6 +190,7 @@ func test_missed_and_from_a_distance() -> void:
 	over = await wait_until(func() -> bool: return m.done, 60 * 90)
 	check(over and StoryState.get_fact("nolaw.funeral") == "distance", "from a distance (%s)" % m.result())
 	check(_lines_of("baron").is_empty() and _lines_of("wife").is_empty(), "too far to hear the offer (%s)" % [said])
+	check_eq(String(f.line_for("townsman")[0]), "funeral.distance", "the town saw you stand off (%s)" % [f.line_for("townsman")])
 
 
 func test_the_clock_past_it() -> void:

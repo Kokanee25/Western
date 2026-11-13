@@ -84,6 +84,8 @@
          "words": ["They're burying the sheriff tomorrow. Ten o'clock, up on the hill past the church."]},
         {"id": "funeral.announce_today", "if": {"nolaw.sheriff": "dead", "nolaw.funeral_due": "today"}, "once": true, "_doc": "PROPOSED (#868).",
          "words": ["Sheriff's burying is this morning. Ten o'clock, up on the hill. Most of the town's going."]},
+        {"id": "funeral.distance", "if": {"nolaw.funeral": "distance"}, "once": true, "_doc": "PROPOSED (#868): said once if you watched from off; no more is made of it.",
+         "words": ["Saw you down the lane at the burying. You could've come up. Nobody'd have minded."]},
         {"id": "funeral.missed", "if": {"nolaw.funeral": "missed"}, "once": true, "_doc": "PROPOSED (#868): said once if you weren't there; no more is made of it.",
          "words": ["Didn't see you on the hill for the sheriff. Whole town was up there."]},
         {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
