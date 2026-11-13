@@ -69,6 +69,8 @@ var kept_out := {}
 ## No Law's murder, once started (NoLawMurder), and the hands you've played at the table.
 var murder: Moment
 var _murder_data := {}
+## A murder over before it played (no Cody): not tried again before this physics frame.
+var _murder_again := 0
 var _your_hands := 0
 ## Gone for good (Earl to the undertaker's): never brought back (id -> true).
 var gone_for_good := {}
@@ -123,18 +125,27 @@ func _notification(what: int) -> void:
 ## A point of a lot: `a` m east of its west side, `b` m back from the street front, on the ground
 ## (`up` over it).
 func lot_point(lot_id: String, a: float, b: float, up := 0.0) -> Vector3:
-	var lot := layout.lot(lot_id)
-	var north := layout.lots("north").any(func(l: Dictionary) -> bool: return String(l.id) == lot_id)
-	var front := float((layout.town().get("main_street", {}) as Dictionary).get("width_between_fronts", 20.1)) * 0.5
+	return point_of_lot(layout, town, lot_id, a, b, up)
+
+
+## `lot_point` for any valley town (ValleyWorld's wake spots too); `b` under 0 is out on its walk.
+static func point_of_lot(l: ValleyLayout, t: ValleyTown, lot_id: String, a: float, b: float, up := 0.0) -> Vector3:
+	var lot := l.lot(lot_id)
+	var north := l.lots("north").any(func(x: Dictionary) -> bool: return String(x.id) == lot_id)
+	var front := float((l.town().get("main_street", {}) as Dictionary).get("width_between_fronts", 20.1)) * 0.5
 	var x := float(lot.get("x0", 0.0)) + a
 	var z := (-1.0 if north else 1.0) * (front + b)
-	return Vector3(x, ground(x, z) + up, z)
+	return Vector3(x, surface_of(t, x, z) + up, z)
 
 
 ## What a man stands on there: the town's walks, else the ground.
 func ground(x: float, z: float) -> float:
-	if town:
-		return town.surface(x, z)
+	return surface_of(town, x, z)
+
+
+static func surface_of(t: ValleyTown, x: float, z: float) -> float:
+	if t:
+		return t.surface(x, z)
 	return ValleyTerrain.main().height(x, z)
 
 
@@ -515,6 +526,13 @@ func _maybe_murder(h: float) -> void:
 	if not murder_auto or _murder_data.is_empty() or StoryState.has_fact("nolaw.murder"):
 		return
 	if murder != null and is_instance_valid(murder):
+		if not murder.done:
+			return
+		# Over before Cody came in (it wrote nothing): freed, and tried again a minute on (#864).
+		murder.reset()
+		murder = null
+		_murder_again = Engine.get_physics_frames() + 60 * Engine.physics_ticks_per_second
+	if Engine.get_physics_frames() < _murder_again:
 		return
 	var d := _murder_data
 	var until := float(d.get("until", 2.0))
