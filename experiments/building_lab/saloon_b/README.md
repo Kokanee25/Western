@@ -125,7 +125,9 @@ Not checked here: the frame's deflection (the format's item 12), fire and blast 
     next), pale flecks and dark dashes on the buff boards (the paint's wear, drawn large), an open
     door leaf near the dance hall's camera that reads as a black slab, lamp light through the
     balusters' feet and on the ceiling over the bar's lamps.
-- **Cost:** CPU_LINE Members 7,763 (step 1: 7,560); the valley's collision bodies 27,908 of
+- **Cost:** render CPU at Sean's (x0.65 of this VM's), budget 4 ms: Main Street 2.1, the corner at
+  dusk 2.6, the bar room from the doors 3.0, from behind the bar by lamplight 3.2, the gallery over
+  the well by lamplight 3.4 (step 1: 1.1 to 1.9 by day; the dance hall's view not measured). Members 7,763 (step 1: 7,560); the valley's collision bodies 27,908 of
   Jolt's 32,768.
 - **Goldens:** none change (the golden views are the old town's, not the valley's).
 
