@@ -21,7 +21,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   saloon_s1.py`; judged on the lab's stand (`experiments/prop_lab/saloon/s1_sheet.py`, results
   `experiments/prop_lab/results/2026-11-13_saloon_s1/`). Where each goes in saloon B and its physics bodies:
   `experiments/prop_lab/README.md` "Saloon B, batch S1" (~215 bodies for the whole set as listed).
-- **Next:** batch S2 (the brief's rest of the twelve: the wall bench, handsaw, fiddle and bow, beer keg and
+- **Next:** batch S2 (#879: the wheel, lookout stool and till redone first; then the brief's rest of the twelve: the wall bench, handsaw, fiddle and bow, beer keg and
   rack, beds and washstand sets, the owner's desk, the cookstove), then the placing session once #865's
   body fix and #862's route land.
 - The doctor's office is furnished (D1-D3 merged); his coat and bookcase wait on Sean's pick (#871). The
