@@ -48,6 +48,7 @@ var _spared_seen := 0
 var _spared_set := false
 var _yours_hit := {}  # man -> when you last hit him
 var _yours_shot := {}  # man -> when you last shot at him
+var _you_fired := -INF  # when you last fired
 var _line_fails := 0  # steps aside that left him still in your line
 var _tend_t := 0.0  # this bout of tending his wound (s)
 var _tend_end := -99.0
@@ -236,6 +237,8 @@ func _provoked(by: Node) -> void:
 
 func _on_deed(actor: Node, kind: StringName, deed_target: Node, at: Vector3) -> void:
 	if actor == leader:
+		if kind == &"shoot_at":
+			_you_fired = _now
 		if kind == &"shoot_at" and deed_target is Node and deed_target != body:
 			_yours_shot[deed_target] = _now
 		if kind in [&"shoot_at", &"hit", &"kill"] and deed_target is HumanBody and deed_target != body \
@@ -607,7 +610,11 @@ func _watch_line(delta: float) -> void:
 	if in_your_line():
 		_line_t += delta
 		stats.line_s += delta
-		if _line_t > float(tune.line_grace) and _line_step <= 0.0 and not body.prone:
+		# While you're shooting he doesn't wait to see if your gun moves on: out at once.
+		var grace := float(tune.line_grace)
+		if _now - _you_fired < float(tune.get("firing_s", 3.0)):
+			grace = float(tune.get("line_grace_firing", grace))
+		if _line_t > grace and _line_step <= 0.0 and not body.prone:
 			# Out of it, sideways, the way he's already off it.
 			var p := leader as Player
 			var right := p.camera.global_transform.basis.x
