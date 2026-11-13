@@ -20,8 +20,15 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
-  `RECIPE.md`). **Next: the room fixes (#824-826), then the jail (#811)**, then the general store, then saloon B, the corner saloon (#772,
-  `docs/briefs/saloon-design.md` "Sean's answers").
+  `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
+  **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
+  (#858); saloon B is Fable's (#848: step 1 done, below).
+- **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
+  whitewash inside and rubble outside not in the library (the game's stone stands in; both judges name it first);
+  the parapet flat where the sheet's steps up in the middle; the 10 ft yard wall hides the cell wing from the lane.
+  Sean's picks (the `waiting on Sean` issue). The rooms wait on the prop lab's furniture.
+- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
+  `RECIPE.md` (#824-#826, #829); the jail built on them.
 - **Saloon B, the corner saloon** (#772; step 1 done, #848): its spec and frame stand on the corner lot
   (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, nine tests): 7,560 members, the
   open well and its 36 in rail, the dance hall on two girder lines, the wrapping balcony over both walks, the cut
@@ -31,11 +38,6 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   the yard: gameplay's to move, the spec's `no_law_table` and bar are there), props (the prop lab).
   Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change (RECIPE "A
   two-storey building under trusses").
-- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): why the office reads cheap (flat
-  indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows, indoor wear
-  under the floor). **Sean said yes to all five picks (#821, DECIDED).** #824 (light), #825 (floor and furniture
-  woods, merged: the doctor's floor is FL1 with his ways worn; the prop lab re-points his furniture, #819) and
-  #826 done; then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
