@@ -16,9 +16,11 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import banjo  # noqa: E402
+import bass  # noqa: E402
 import bones  # noqa: E402
 import bowed  # noqa: E402
 import common  # noqa: E402
+import drums  # noqa: E402
 import guitar  # noqa: E402
 import piano  # noqa: E402
 import tambourine  # noqa: E402
@@ -26,10 +28,14 @@ import tambourine  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 # each player's loudness against the fiddle's (dB)
 BANJO_STYLE = "clawhammer"  # or "rolls" (three-finger, banjo.arrange_rolls)
-LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0, "piano": -4.0, "guitar": -1.0}
+LEVELS = {"banjo": -2.5, "bones": -9.0, "tambourine": -11.0, "piano": -4.0, "guitar": -1.0, "bass": -4.0, "drums": -7.0}
 
 
 def player(name, sc):
+    if name == "bass":
+        return bass.render(bass.arrange(sc))
+    if name == "drums":
+        return drums.render(drums.arrange(sc))
     if name == "guitar":
         return guitar.render(guitar.arrange(sc))
     if name == "banjo":
@@ -63,6 +69,8 @@ def main():
     global BANJO_STYLE
     BANJO_STYLE = opt.get("banjo-style", "clawhammer")
     guitar.STYLE = opt.get("strum", "folk")  # the guitar's strum: folk or drive
+    bass.STYLE = "drive" if guitar.STYLE == "drive" else "folk"  # the bass and drums follow the strum
+    drums.STYLE = "four" if guitar.STYLE == "drive" else "stomp"
     who = tuple(w for w in opt.get("with", "banjo,bones,tambourine").split(",") if w)
     name = os.path.splitext(os.path.basename(src))[0]
     out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_band" + ("" if opt.get("strings", "gut") == "gut" else "_" + opt["strings"])
