@@ -905,6 +905,7 @@ func _build_skin() -> void:
 	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
 	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
 	var talking := PeopleBodies.report(body_model).has("facerig")
+	var cuts: Dictionary = PeopleBodies.report(body_model).get("alpha_cut", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
@@ -920,7 +921,7 @@ func _build_skin() -> void:
 			_rigid_meshes[mi] = pieces[b][1]
 			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
 			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
-			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or cuts.has(shape) or (shape == "head" and talking))
 			if baked.has(shape):
 				# His own painted texture (the Studio's Rodin men) carries its own shading: the light
 				# smooth on it, not cut into the old look's four flat steps, which carved their faces
@@ -938,6 +939,8 @@ func _build_skin() -> void:
 						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
+			if cuts.has(shape):  # a groom's cards (a MetaHuman's, #889): its coverage cut
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"alpha_cut", float(cuts[shape]))
 			mi.layers = Layers.VIS_BODY
 			mi.custom_aabb = _cull_box
 			skeleton.add_child(mi)

@@ -42,7 +42,17 @@ const EYE_HEIGHT := 1.655
 
 
 static func has_model(model: StringName) -> bool:
-	return model != &"" and ResourceLoader.exists(PATH % model)
+	return model != &"" and ResourceLoader.exists(PATH % glb_of(model))
+
+
+## A lighter level of a man (#889, the MetaHumans at town scale): his report says `lod` = {of: the
+## model whose GLB he is drawn from, keep: shape -> share of its triangles kept (Godot's own mesh
+## simplifier, ImporterMesh.generate_lods), cards: shape -> one groom card in N kept, drop: shapes
+## left out}. The level's own report is a copy of the man's (his proportions, eyes, skeleton), with
+## `textures_from` naming the man's textures. Written by the Studio (tools/metahuman_to_game.sh).
+static func glb_of(model: StringName) -> StringName:
+	var lod: Variant = report(model).get("lod")
+	return StringName(lod.get("of", model)) if lod is Dictionary else model
 
 
 static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Dictionary:
@@ -61,8 +71,17 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 	# only what his model has.
 	if not anatomy.maps.is_empty() and not whole:
 		push_warning("PeopleBodies: %s has his own proportions but isn't whole: BodyMesh's clothes left off" % model)
+	# What a whole man may still wear of BodyMesh's (his report's `wears`: a MetaHuman's hat, #889,
+	# so his repeats don't read as clones), and what of his own goes under it (`under_hat`: his hair
+	# cards would come through the crown).
+	var info := report(model)
+	var hatted := false
 	if whole or not anatomy.maps.is_empty():
-		shapes.clear()
+		var wears: Array = info.get("wears", [])
+		for k: String in shapes.keys():
+			if not k in wears:
+				shapes.erase(k)
+		hatted = shapes.has("hat")
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
@@ -78,6 +97,8 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 			continue
 		# His own hat's brim and band go with his hat: a man not wearing one wears neither.
 		if k in ["hat_brim", "hat_band"] and not shapes.has("hat") and not whole:
+			continue
+		if hatted and k in info.get("under_hat", []):
 			continue
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
 		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie). A whole
@@ -121,8 +142,6 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 					paint_squares[shape] = float(p.shapes[shape].get("texels_per_square", 1))
 	out["paint"] = paint
 	out["paint_squares"] = paint_squares
-	# His skin tone, measured from his painted face, so body and painted sides match it.
-	var info := report(model)
 	# His skinned hands' finger bones (tools/blender/fit_tripo.py skinned_hands): each one's rest.
 	# Every man has the finger bones in his skeleton (#696); a man whose skin isn't weighted to them
 	# has them at the anatomy's fingers (HumanBody._add_finger_bones), drawn fingers on his hands.
@@ -275,7 +294,8 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	var key := "%s|%d|%s" % [model, hash(order), shoulder_share]
 	if _cache.has(key):
 		return _cache[key]
-	var scene := load(PATH % model) as PackedScene
+	var scene := load(PATH % glb_of(model)) as PackedScene
+	var lod: Dictionary = report(model).get("lod", {}) if report(model).get("lod") is Dictionary else {}
 	var out := {}
 	if scene == null:
 		_cache[key] = out
@@ -310,6 +330,8 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 			continue
 		if shape.begins_with("finger_"):
 			_own_finger(out, shape, mi)
+			continue
+		if shape in lod.get("drop", []):
 			continue
 		# The mesh's bone numbers are the skin's binds; ours are the anatomy's segment order.
 		var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D
@@ -355,6 +377,10 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 					bones[v * 4 + k] = pairs[k][0]
 					weights[v * 4 + k] = float(pairs[k][1]) / total
 		var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		if (lod.get("cards", {}) as Dictionary).has(shape):
+			tris = thin_cards(tris, verts.size(), int(lod.cards[shape]))
+		if (lod.get("keep", {}) as Dictionary).has(shape):
+			tris = simplified(verts, normals, uvs, tris, float(lod.keep[shape]))
 		var has := DeformRig.has_own(bones, weights, anatomy)
 		own.clavicle = own.clavicle or has.clavicle
 		own.twist = own.twist or has.twist
@@ -400,6 +426,68 @@ static func _load(anatomy: Anatomy, model: StringName) -> Dictionary:
 	out["_skeleton"] = own
 	_cache[key] = out
 	return out
+
+
+## The triangles of a mesh simplified to about `keep` of them (a lighter level, `lod.keep`): Godot's
+## own simplifier (ImporterMesh.generate_lods, meshoptimizer: a chain of levels each about half the
+## last), the level nearest the share asked for. The vertices stay as they are (the pieces keep only
+## those a triangle uses), so his weights, UVs and blend shapes carry over untouched.
+static func simplified(verts: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array,
+		tris: PackedInt32Array, keep: float) -> PackedInt32Array:
+	if keep >= 1.0 or tris.size() < 3:
+		return tris
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = tris
+	var im := ImporterMesh.new()
+	im.add_surface(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	im.generate_lods(25.0, 60.0, [])
+	var want := keep * tris.size()
+	var best := tris
+	for k in im.get_surface_lod_count(0):
+		var idx := im.get_surface_lod_indices(0, k)
+		if absf(idx.size() - want) < absf(best.size() - want):
+			best = idx
+	return best
+
+
+## One groom card in `every` kept (a lighter level's `lod.cards`): a card is a piece of the mesh not
+## joined to any other (MetaHuman's cards are strips of a few quads), found by the vertices its
+## triangles share. Fewer, the same cards: a thinner beard, not a different one.
+static func thin_cards(tris: PackedInt32Array, nverts: int, every: int) -> PackedInt32Array:
+	if every <= 1:
+		return tris
+	var parent := PackedInt32Array()
+	parent.resize(nverts)
+	for i in nverts:
+		parent[i] = i
+	for t in range(0, tris.size(), 3):
+		var a := _root(parent, tris[t])
+		for j in [1, 2]:
+			var b := _root(parent, tris[t + j])
+			if a != b:
+				parent[b] = a
+	var card := {}  # a card's root -> its number, in the order the cards come
+	var out := PackedInt32Array()
+	for t in range(0, tris.size(), 3):
+		var r := _root(parent, tris[t])
+		if not card.has(r):
+			card[r] = card.size()
+		if int(card[r]) % every == 0:
+			out.append_array([tris[t], tris[t + 1], tris[t + 2]])
+	return out
+
+
+## The root of a vertex's card (union-find, halving the path as it goes; packed arrays are passed
+## by reference).
+static func _root(parent: PackedInt32Array, x: int) -> int:
+	while parent[x] != x:
+		parent[x] = parent[parent[x]]
+		x = parent[x]
+	return x
 
 
 ## A skinned hand's finger bones, in the order the skeleton has them after the anatomy's: right
