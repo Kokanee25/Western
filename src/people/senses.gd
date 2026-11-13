@@ -26,7 +26,7 @@ const PERIPHERAL := 100.0
 const NOTICE_RATE := 3.0
 
 ## Knowledge per person: {seen (bool now), awareness 0..1, last_pos, last_time (s, game clock),
-## heard_pos, heard_time}.
+## heard_pos, heard_time, turn and owed (the calm looks)}.
 var known := {}
 ## Sounds he heard and couldn't put to anyone, newest last: {at (his guess), kind, time}. A shot in
 ## the next building doesn't come with a name (the perception lab's baseline, 2026-10-22: every
@@ -185,7 +185,10 @@ func since_seen(who: Node) -> float:
 func _entry(who: Node) -> Dictionary:
 	if not known.has(who):
 		known[who] = {"seen": false, "awareness": 0.0, "last_pos": Vector3.INF, "last_time": -INF,
-				"heard_pos": Vector3.INF, "heard_time": -INF}
+				"heard_pos": Vector3.INF, "heard_time": -INF,
+				# The calm looks (`_look`): which of them this is (each man on his own turn, so a
+				# look takes in half of them, not all and then none), and the time since the last.
+				"turn": (who as HumanBody).tick_index if who is HumanBody else 0, "owed": 0.0}
 	return known[who]
 
 
@@ -223,14 +226,33 @@ func range_to(who: Node3D) -> float:
 	return SightLight.range_of(who, _light())
 
 
+static var _tick_tuning: PeopleTickTuning
+
+
+static func _calm_look_every() -> int:
+	if _tick_tuning == null:
+		_tick_tuning = load("res://config/people_tick.tres")
+	return maxi(_tick_tuning.calm_look_every, 1)
+
+
 ## Look round: for everyone who could be seen, how plainly, and awareness building or fading.
+## A calm man looks at another calm man only every `calm_look_every`th look (PeopleTick's tuning),
+## taking in the time between (`k.owed`): what one sees of the other builds as fast (#881).
 func _look(dt: float) -> void:
+	var calm_every := _calm_look_every() if body.tick_calm else 1
 	var from := eye()
 	var fwd := facing()
 	var space := World.space(body)
 	var far := SightLight.tune().range_day + 2.0
 	for who: Node in _people():
 		var k := _entry(who)
+		if calm_every > 1 and who is HumanBody and (who as HumanBody).tick_calm:
+			k.turn = (int(k.turn) + 1) % calm_every
+			if k.turn != 0:
+				k.owed = float(k.owed) + dt
+				continue
+		var pair_dt := dt + float(k.owed)
+		k.owed = 0.0
 		var was := k.seen as bool
 		var vis := 0.0
 		# Out of reach, or plainly behind him (more than 3 m off, his head and pelvis are within
@@ -240,9 +262,9 @@ func _look(dt: float) -> void:
 		if d < far and (d < 3.0 or rad_to_deg(fwd.angle_to(to)) < PERIPHERAL + 25.0):
 			vis = _visibility(who as Node3D, from, fwd, range_to(who as Node3D), space)
 		if vis > 0.0:
-			k.awareness = minf(float(k.awareness) + vis * NOTICE_RATE * dt, 1.0)
+			k.awareness = minf(float(k.awareness) + vis * NOTICE_RATE * pair_dt, 1.0)
 		else:
-			k.awareness = maxf(float(k.awareness) - dt * 0.05, 0.0)
+			k.awareness = maxf(float(k.awareness) - pair_dt * 0.05, 0.0)
 		k.seen = vis > 0.0 and k.awareness >= 1.0
 		if k.seen:
 			k.last_pos = (who as Node3D).global_position
