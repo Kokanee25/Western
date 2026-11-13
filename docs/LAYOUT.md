@@ -200,10 +200,18 @@ addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread
 changed since the last soak, and by hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
 runs the street for hours of game time flat out (~3.4x real time here) with the clock at 30x: the
 gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a fire and a stick
-twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
-anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
+twice every 100 minutes. Two soaks a night since #863 (a matrix, `--world=town` and `--world=valley`:
+in the valley No Law's folk and their murder, the player carried round at a gallop, sticks and holes).
+Fails on any error, memory or nodes still climbing, orphan nodes *not held on purpose* still climbing
+(members at rest keep their mesh and shape aside, `StructureMember.rest`, and rubble drawn by its cell
+too, `RubbleRest.held_nodes()`: ~19,000 of a town's orphans are those; `orphans_problem`, tested in
+`test_soak_rules`), rubble with nothing left on it, the members' mesh cache past
+`MemberMesh.CACHE_LIMIT`, anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
 time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
-summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
+summary and an artifact; its table has, each window, the held count, the rubble, members at rest and
+the mesh cache, and it ends with the kinds of node that grew most. Rubble growing is by design
+(DESIGN §8: persistent, nothing vanishes); it isn't a fault. A red night opens an issue labelled
+`nightly red` (or comments on the open one). Each problem is also printed as it's found (`soak problem, <kind>: ...`,
 lost bodies with their path, script, rubble members and speed; stuck men with where they are and
 where they're going) and each window prints the process's resident memory, so a run the runner
 kills still leaves its log; past 6 GB resident it stops early and reports. A frozen game prints
@@ -233,8 +241,11 @@ spread (`test_gun_feel`). CI prints every number against its range in the test r
 **The smoke test** (`src/debug/smoke_test.gd`, `SmokeTest`; `-- --smoke-test [--smoke-out=FILE]`
 on any build, a release export included): 30 s of the street (the gang in, a stick on the range, a
 member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` and exit 0, or
-`[smoke] FAILED` with the errors and exit 1. With `--world=valley` it runs in the valley (nobody
-there yet: the people count isn't asked; its line ends `world valley`). Drawn, its clock starts at the first frame on
+`[smoke] FAILED` with the errors and exit 1. With `--world=valley` it runs in the valley (at least one
+person there, the stick 30 m from you on the dirt; its line ends `world valley`), and with
+`--mission=sheriff|sheriff_dies|coach` it fails if the mission never started (a `moment` or the
+`CoachCut`). The nightly (`nightly.yml`, job `smoke`, from source, headless) runs four legs: the valley,
+the sheriff on the road, No Law's sheriff's last day, the coach heist (~1 min each). Drawn, its clock starts at the first frame on
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
