@@ -175,6 +175,30 @@
    "tint_new": [0.62, 0.55, 0.5], "tint_mid": [0.58, 0.5, 0.45], "tint_old": [1.0, 1.0, 1.0],
    "weathering": 0.0, "varnish": 0.75, "varnish_amber": [0.92, 0.84, 0.72], "varnish_dark": 0.86, "specular_wood": 0.42, "furniture": 1.0,
    "grime": 0.0, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.06, "hue_jitter": 0.03, "normal_strength": 0.7
+  },
+  {
+   "id": "rubble_stone", "code": "S1", "family": "stone", "class": "stone", "panel_class": "common", "approved": [],
+   "name": "Coursed rubble: hammer-squared local stone in thick recessed lime joints, dressed quoins, lintels, sills and coping (#860)",
+   "shader": "rubble_stone", "_doc": "Drawn by rubble_stone.gdshader over the builder's stone pieces (StoneFinish), in the building's space. Sizes from the masonry lab (config/destruction/materials.json rubble_stone: stones 0.35 x 0.22 m, jitter 0.35, joints 0.03). Age: damp, dirt and streaks deepen, the mortar greys.",
+   "stone": [0.35, 0.22], "size_jitter": 0.35, "joint": 0.03, "joint_depth": 0.014, "stone_relief": 0.012, "bed_wander": 0.018, "arris_round": 0.03,
+   "quoin": [0.45, 0.3, 0.3],
+   "tone_a": [0.6, 0.54, 0.45], "tone_b": [0.55, 0.52, 0.47], "tone_c": [0.58, 0.5, 0.41], "tone_d": [0.49, 0.43, 0.36], "tone_spread": 0.1,
+   "mortar_color": [0.66, 0.63, 0.57], "dressed_color": [0.62, 0.57, 0.49], "dressed_joint": 0.006,
+   "limewash": 0.25, "limewash_color": [0.82, 0.8, 0.74], "damp_height": 0.45, "damp_tint": [0.62, 0.58, 0.54], "dirt_height": 0.28,
+   "dirt_color": [0.5, 0.42, 0.33], "streaks": 0.6, "streak_color": [0.32, 0.3, 0.28], "roughness_stone": 0.86, "roughness_mortar": 0.95,
+   "face_scan": "Rock030", "face_tile": 0.9
+  },
+  {
+   "id": "plaster_whitewash", "code": "PL1", "family": "plaster", "class": "plaster", "panel_class": "common", "approved": [], "inside": true,
+   "name": "Lime plaster on the stone, whitewashed: a county office's walls inside (#857 pick 1a)",
+   "shader": "rubble_stone", "_doc": "A stone face that looks into an inside region (spec inside_finish.regions, finish plaster_whitewash) draws this: a lime coat with a soft wave, whitewash thinning and flaking with age to the plaster's grey, a grimy band where men lean, scuffs at the foot, soot under the ceiling.",
+   "whitewash_color": [0.86, 0.85, 0.8], "plaster_color": [0.74, 0.72, 0.67], "grime_color": [0.5, 0.45, 0.38], "soot": 0.25,
+   "plaster_scan": "Plaster001", "plaster_tile": 1.5
+  },
+  {
+   "id": "rubble_whitewash", "code": "PL2", "family": "plaster", "class": "plaster", "panel_class": "common", "approved": [], "inside": true,
+   "name": "Bare rubble whitewashed: the cell wing inside (#857 pick 1a)",
+   "shader": "rubble_stone", "_doc": "The rubble's stones and joints under the same whitewash as PL1 (its colours): the coat pooled in the joints, thin on the stones' high spots."
   }
  ]
 }
