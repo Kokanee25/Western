@@ -262,4 +262,5 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - An alley beside an open yard is no alley: fence the yard (the doctor's side fence).
 - **A change to the valley's static bodies can tip the card-game tests** (they share one valley; Jolt's contact
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
-  `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
+  `--only=card_game` several times after any valley.json walk or lot change (the jail on its lot: one run in
+  five failed); the jail's placing waits on #834.

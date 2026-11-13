@@ -153,12 +153,14 @@ and the jail takes the parts those sessions built rather than building them agai
 and daylight, every lining through the stone, the floor's and trim's finishes). 128 draws in the lab's
 count (79 before: the 24 panes and the lamps).
 
-**On its lot** (`config/valley.json` town.south `jail`): its `spec`, no pad (the stone follows the fall);
-ValleyWorld places it at `lot.at` (y -0.322, facing 0). The bake re-baked for valley.json's new hash
-(`valley_plan.py --bake`: only the hash moved). **The walk still runs the lot's whole frontage:** Sean's
-"the walk stops at the building" (`span` [7.6, 18.57], `door_x` 13.085) tipped the card-game tests' chair
-physics (the shared valley's static bodies change Jolt's contact order; both chair tests failed in every
-full CI run), so it waits until those tests are robust (#834, gameplay's).
+**Not on its valley lot yet** (`config/valley.json` town.south `jail` keeps its block): placed (its
+`spec`, no pad, ValleyWorld at `lot.at` y -0.322, facing 0) it made the card-game test
+`test_his_chair_broken_he_takes_a_free_one` fail about one run in five (main's build 4243 red; none in
+ten without it), and with Sean's shorter walk both chair tests failed every CI run: the tests share one
+valley and its static bodies change Jolt's contact order. Placing it, and the walk stopping at the
+building (`span` [7.6, 18.57], `door_x` 13.085), wait on #834 (gameplay's: a man rising on debris,
+`rise_ok` lost by a fall mid-rise, the player creeping up out of rubble). The renders in step 5 were made
+with it placed.
 
 ## Step 5: the judge (#811)
 

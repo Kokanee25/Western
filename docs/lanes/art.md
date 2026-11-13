@@ -20,7 +20,8 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
-  `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
+  `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README); off its valley lot until the
+  card-game tests are robust (#834: placed, a chair test failed one run in five).
   **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
   (#858); saloon B is Fable's (#848: step 1 done, below).
 - **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
