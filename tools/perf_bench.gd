@@ -72,6 +72,8 @@ var townsfolk := 0
 var band := "mix"
 var bodies := false
 var valley := false
+## --extra-bodies=N: N more static boxes at rest off the town (what more bodies cost Jolt, #865).
+var extra_bodies := 0
 
 
 func _initialize() -> void:
@@ -99,6 +101,8 @@ func _initialize() -> void:
 			band = a.substr(7)
 		elif a == "--bodies":
 			bodies = true
+		elif a.begins_with("--extra-bodies="):
+			extra_bodies = int(a.substr(15))
 		elif a == "--world=valley":
 			valley = true
 		elif a == "--no-render-time":
@@ -614,6 +618,9 @@ func _run_valley() -> void:
 			report.load.bake_ms, report.load.scene_ms, report.load.first_frames_ms, JSON.stringify(report.load.parts_ms), JSON.stringify(report.load.folk_ms)])
 	var player = street.get_node(^"Player")
 	player.input_enabled = false
+	if extra_bodies > 0:
+		_add_extra_bodies(extra_bodies)
+		await _frames(3)
 	var clock = street.get_node_or_null(^"DayCycle")
 	var scenes := ["day", "night", "gunfight", "blast"] if only == "" else [only]
 	if only == "load":
@@ -669,6 +676,25 @@ func _run_valley() -> void:
 		var f := FileAccess.open(out_path, FileAccess.WRITE)
 		f.store_string(JSON.stringify(report, "  "))
 	quit()
+
+
+## N static boxes (0.3 m, like a member's piece) at rest in a grid 300 m south of the town, each its
+## own body as the members are: what N more bodies cost Jolt's step, queries and memory.
+func _add_extra_bodies(n: int) -> void:
+	var holder := Node3D.new()
+	holder.name = "BenchExtraBodies"
+	street.add_child(holder)
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(0.3, 0.3, 0.3)
+	var side := int(ceil(sqrt(float(n))))
+	for i in n:
+		var b := StaticBody3D.new()
+		var c := CollisionShape3D.new()
+		c.shape = shape
+		b.add_child(c)
+		b.position = Vector3(-150.0 + float(i % side) * 0.5, 2.0, 300.0 + float(i / side) * 0.5)
+		holder.add_child(b)
+	print("extra bodies: %d" % n)
 
 
 func _stand(player: Node3D, at: Vector3, heading: float) -> void:
