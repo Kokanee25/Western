@@ -69,6 +69,10 @@ Night floor lab (#745).
   for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
 
 ## Open problems
+- **The card game's chair tests** (#834) fixed: crawling, light rubble is let through and shoved aside
+  (`Player._wade`); a man knocked down mid-rise is let through the pieces in him (`HumanBody._spare_ragdoll`).
+  Two traps left: the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions`
+  on one errors: test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
   `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the

@@ -583,7 +583,9 @@ real look RoomLight is on whatever `Settings.room_light` says.
   to a crouch, jump or run to stand, each only with room over you (`Player.can_stand(height)`):
   `is_crawling` (is_crouching too), `force_crawl` (bridge `crawl [on|off]`), PlayerTuning `crawl_*`
   (0.5 m capsule, eyes 0.36, 0.6 m/s); the visible body put away flat; `height_share()` squashes
-  the wounds' parts (a lying man's hits are still taken as a squashed upright one's).
+  the wounds' parts (a lying man's hits are still taken as a squashed upright one's). Crawling,
+  light loose pieces (rubble up to `wade_max_kg`, a chair's) are let through you and shoved aside
+  (`Player._wade`, `wade_push`; #834): they neither wedge you nor carry you about.
 - A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
   pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
   on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
@@ -1235,7 +1237,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
   steps in project.godot; his skin's culling box (each skin mesh's `custom_aabb`, about his root)
   follows his parts when he's limp or away from his root (`_keep_in_cull_box`, #562: a fixed box
-  hid a body thrown past it); **falls from height** (#759, Sean's table on #762; `Falls`,
+  hid a body thrown past it); getting up among loose pieces (`_spare_rubble`), they're let through
+  him, and knocked down again mid-rise, through the ragdoll too while they're in him (`_spared`,
+  `_spare_ragdoll`, `_unspare`; #834: Earl's chair broke his thigh); **falls from height** (#759, Sean's table on #762; `Falls`,
   `FallTuning` in `config/falls.tres`): any limp man coming down faster than `min_speed` (~1.5 m)
   is watched (`_step_fall`); his landing's energy (his weight and the speed of the height he came
   down from: the ragdoll's damping isn't counted) less what he goes on with is shared out as
