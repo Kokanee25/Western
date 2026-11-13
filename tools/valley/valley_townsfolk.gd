@@ -34,6 +34,7 @@ static func lay(world: Node3D, n: int, at: Vector3, band := "mix", around := Vec
 	var space: PhysicsDirectSpaceState3D = World.space(world)
 	var folk = world.get("folk")
 	var places = folk.places if folk else null
+	var ground = world.get_node_or_null(^"Ground")
 	var made := []
 	for i in n:
 		var near := i < near_n
@@ -58,7 +59,9 @@ static func lay(world: Node3D, n: int, at: Vector3, band := "mix", around := Vec
 			var side := 1.0 if (k / 2) % 2 == 0 else -1.0
 			post = Vector3(x, 0.0, side * WALK_Z)
 			faces = Vector3(x, 1.5, 0.0)
-		var q := PhysicsRayQueryParameters3D.create(post + Vector3.UP * 40.0, post + Vector3.DOWN * 40.0, Layers.STAND)
+		# Down from just above the ground (2.4 m: over a walk, under an awning or a roof), not from the sky.
+		var g: float = ground.height_at(post.x, post.z) if ground else 0.0
+		var q := PhysicsRayQueryParameters3D.create(Vector3(post.x, g + 2.4, post.z), Vector3(post.x, g - 2.0, post.z), Layers.STAND)
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
 			post.y = (hit.position as Vector3).y
