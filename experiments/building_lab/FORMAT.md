@@ -56,8 +56,10 @@ caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuild
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
 `lamps.kit` (#824) kit lamps hung on a wall's boards (on a stone wall, its face at the lamp's
-height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side, lit
-[from, until], energy, reach, shadows};
+height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side (a
+partition's `-`/`+`; `out` on an outer wall's siding outside, #886), lit [from, until], energy, reach,
+shadows}; a front's painted sign letters (`letters_<sign>`, the factory's `lettering`) are laid on its
+board, cut to them, which takes a finish (`front/sign`), #886;
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 

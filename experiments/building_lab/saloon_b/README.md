@@ -131,6 +131,27 @@ Not checked here: the frame's deflection (the format's item 12), fire and blast 
   Jolt's 32,768.
 - **Goldens:** none change (the golden views are the old town's, not the valley's).
 
+## Step 3: the sign and the walks' lamps (#886)
+
+- **THE SALT CREEK** (Sean's "pay", #885): the texture factory's `letters_the_salt_creek` (kind
+  `lettering`: gold-ochre sign-writer's paint on white, the white keyed out; one call, $0.10, People
+  run 131). The spec builder lays a front's painted letters (`SignArt.letters`) on its own board, cut
+  to them, as the jail's are on its boards (`FacadeArt._paint_letters`); the board is a plain trim
+  board in the walnut (`front/sign` -> `oak`). `front.sign_from` 8.45 (was 8.75): a 1.05 m board,
+  letters 0.75 m tall and 4.9 m across (at 8.75 they were 3.5 m on a 16.5 m front). Why not the
+  factory's `sign` kind: it takes the board's width from the picture, at most 21:9, a 2.3 m board.
+- **Lamps on the walks** (Sean's "add lamps", #885): four reflector lamps under the balcony on the
+  siding outside (`lamps.kit` `side: "out"`, new), two on Main Street's wall (at 5.4 and 10.6) and two
+  on the side street's (6.1 and 12.8), 1.85 m over the walk, lit 17 to 4, energy 1.4, reach 6.5; only
+  the one at 10.6 casts shadows.
+- **Judged, one round** (`docs/screenshots/judge/2026-11-13_saloon_b_sign`; renders in
+  `results/2026-11-13_sign/`): the cheap judge has **the corner at dusk good indie** (step 2: cheap
+  indie; the sconces, lit windows and pools of light lift it) and the front by day still cheap indie
+  (grey neighbours, flat light, the empty street: not this step's). The blind critic: the lamps are
+  placed right with visible flames but each throws a tight smear that doesn't reach the walk; the
+  sign only just reads by day (grey on grey in the front's shade) and is lost at dusk. Open: the
+  lamps' reach and colour, the board's darkness against the letters, the sign's light at night.
+
 ## No Law
 
 The issue asked for the yard set swapped into the building where the spec allows, behind a switch
