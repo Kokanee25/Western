@@ -335,8 +335,9 @@ func weight(tuning: TimberTuning) -> float:
 		return 0.0
 	var c := char_depth * 2.0
 	var sound := maxf(size.x - c, 0.0) * maxf(size.y - c, 0.0) * maxf(size.z - c, 0.0) * solid_share
-	# Char weighs about a fifth of the wood it was.
-	return (sound + (volume() - sound) * 0.2) * density(tuning) * 9.81
+	# Char weighs about a fifth of the wood it was (of what's solid: a carved hole, or a hollow kit
+	# member's inside, #866, weighs nothing).
+	return (sound + maxf(volume() * solid_share - sound, 0.0) * 0.2) * density(tuning) * 9.81
 
 
 ## kg/m³: masonry's from materials.json (MasonryMaterials), the rest TimberTuning's.

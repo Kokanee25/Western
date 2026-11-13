@@ -58,3 +58,34 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
   `deer_fidelity/`): which step loses Rodin's deer between its render and the saloon's wall (the
   grid shader's min-square coarsening, then no mipmaps; not the triangles or the paint's size),
   the stand and in-game sheets, costs, the kit checks.
+
+## Saloon B, batch S1 (#866)
+
+Made and judged on the lab's stand, **not placed** (the valley is near Jolt's body limit, #865; the
+furniture's route into the game is #862). `tools/props/saloon.py` (kit files), `tools/blender/props/
+saloon_s1.py` (models), `saloon/s1_sheet.py` (the stand: `prop_stand`, `prop`, `prop_light` on this lab's
+bridge; noon and night), references `refs/saloon/`. Results `results/2026-11-13_saloon_s1/`.
+
+**Physics bodies**: each kit member is a body while the prop stands (a StaticBody3D), a glass prop
+one (its frozen body). Broken: a kit prop's broken members each a rubble body and, gone over, the
+rest one; a glass prop's shards (each a RigidBody3D, frozen once still, at most 160 in the world,
+oldest freed) and its whole parts one each. The placing session counts the room's total
+(~215 bodies as below; the valley had ~5,100 to spare under Jolt's 32,768 at #865's count).
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `hanging_lamp` | 1 | up to 10 shards + the brass | bar room: two rows of three hung from the dance floor's joists (6); dance hall: 2. With an OilLamp at `light_height` |
+| `hanging_lamp_shaded` | 1 | up to 10 shards + the brass and shade | gaming room: one over each table (2-3) |
+| `shot_glass` / `schooner` / `decanter` | 1 each | 8-12 shards (+ the stopper) | ~40 in all: back bar rows, the bar top, the tables in play (No Law's: a few; Payday: on the bar for the dust). Set fewer as props and more as dress if the count bites |
+| `work_board` | 17 | its members | behind the bar under its top, its back on the bar's back boards: 3 sections along the 34 ft run |
+| `slat_mat` | 3 | its members | behind the bar along the aisle: 5-6 |
+| `box_stove` | 16 | iron doesn't break; its pipe comes down; its coals a small fire | bar room, mid-room, 1: its pipe up to the flue (take off the lengths the ceiling doesn't want) |
+| `faro_table` | 16 | its members | bar room 1, gaming room 1 |
+| `lookout_stool` | 9 | its members | one at each faro table's dealer's elbow (2) |
+| `piano_stool` | 6 | its members | before the upright piano on the back wall, 1 |
+| `wheel_of_fortune` | 3 | its members | gaming room's wall, ~1.9 m to its middle, 1 |
+| `gold_scales` | 6 | its members | the back bar by the till, 1 |
+| `till_drawer` | 2 | its members | the back bar, 1 |
+| `card_deck` | 1 | 1 | each table in play (~5) |
+| `chip_stacks` | 1 | 1 | each table in play (~5) |
+| the bar's arm rail | +1 a bar section | 1 | part of `bar` (4 sections: +4) |

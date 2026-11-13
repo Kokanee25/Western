@@ -87,6 +87,11 @@ func _ready() -> void:
 	if not Events.bullet_hit.is_connected(_any_bullet_hit):
 		Events.bullet_hit.connect(_any_bullet_hit)
 	_put_in_carried()
+	if definition.has("stove") and get_node_or_null(^"StoveFire") == null:
+		# A firebox (#866: the box stove): its glow by the hour, its coals when it goes over.
+		var sf := StoveFire.new()
+		sf.name = "StoveFire"
+		add_child(sf)
 
 
 ## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").
@@ -112,6 +117,10 @@ func build() -> void:
 		var m := add_member(spec.id, StringName(spec.kind), StringName(spec.get("wood", definition.get("wood", "oak"))),
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
+		if spec.has("solid"):
+			# A hollow member (#866: a cast firebox, a stovepipe, a brass tube): the share of its box
+			# that's metal, for its weight.
+			m.solid_share = float(spec.solid)
 		var mi := m.get_child(0) as MeshInstance3D
 		var own_look: String = spec.get("look", definition.get("look", ""))
 		PropKit.dress_member(m, spec.get("draw", {}), own_look)

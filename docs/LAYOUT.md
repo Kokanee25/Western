@@ -2365,6 +2365,16 @@ batch into his rooms on his valley lot and render the views (the doors' leaves s
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 
+**Saloon B's props** (#866): `tools/props/saloon.py` writes batch S1's kit files (and adds the bar's arm
+rail to `bar.json`), `tools/blender/props/saloon_s1.py` their models (the faro layout and the wheel's
+face printed by Pillow). A hanging lamp is a GlassProp hung by a hook (`"hangs": {"hook"}`: footed on
+what's over it) that swings (`"swing"`: its model and lights on a `Swing` pivot, a damped pendulum driven
+by its joist's acceleration, `push_swing`; drawn, no body) and whose body is only `"hit"`'s box. A kit
+file's `"stove"` gives a KitProp a `StoveFire` (`src/props/stove_fire.gd`: a glow by the hour; going
+loose lit, its coals as a `FireSystem.small_fire`). A member's `"solid"` is the share of its box that's
+material (hollow iron, a tube). Judged on the lab's stand (`experiments/prop_lab/saloon/s1_sheet.py`,
+the bridge's `stand` and `prop_light`).
+
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,

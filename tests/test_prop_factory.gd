@@ -615,3 +615,176 @@ func test_his_bag_stands_is_rodins_model_and_burns() -> void:
 	var gone := bag.members_without_load_path({body.member_id: true})
 	check(gone.has(_m(bag, "handle").member_id), "the body gone, the handle comes down")
 
+
+
+# --- Saloon B, batch S1 (#866; tools/props/saloon.py, tools/blender/props/saloon_s1.py) -----------
+
+const SALOON_S1_MEMBERS := [&"work_board", &"box_stove", &"faro_table", &"lookout_stool", &"piano_stool", &"gold_scales",
+		&"till_drawer", &"slat_mat", &"card_deck", &"chip_stacks"]
+const SALOON_S1_GLASS := [&"shot_glass", &"schooner", &"decanter"]
+
+
+func test_saloon_s1_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg (and each member a physics body while it stands: the valley is near Jolt's limit, #865, so
+	# each stays at or under the bodies its README row gives).
+	var weights := {&"work_board": [40.0, 120.0], &"box_stove": [150.0, 400.0], &"faro_table": [25.0, 70.0], &"lookout_stool": [3.0, 12.0],
+			&"piano_stool": [3.0, 12.0], &"gold_scales": [2.0, 10.0], &"till_drawer": [3.0, 14.0], &"slat_mat": [5.0, 20.0],
+			&"card_deck": [0.02, 0.2], &"chip_stacks": [0.02, 0.4]}
+	var bodies := {&"work_board": 17, &"box_stove": 16, &"faro_table": 16, &"lookout_stool": 9, &"piano_stool": 6, &"gold_scales": 6,
+			&"till_drawer": 2, &"slat_mat": 3, &"card_deck": 1, &"chip_stacks": 1}
+	for id: StringName in SALOON_S1_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/saloon.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_saloon_s1_woods_are_the_librarys_furniture_never_the_floors() -> void:
+	for id: StringName in SALOON_S1_MEMBERS:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", PropKit.definition(id).get("look", "")))
+			check(not look.begins_with("lib:floor_"), "%s/%s isn't the floor's wood" % [id, spec.id])
+			check(not look.begins_with("prop:") and not look.begins_with("wood:"), "%s/%s is the library's or baked (%s)" % [id, spec.id, look])
+
+
+func test_the_bar_glasses_stand_hold_their_drink_and_break() -> void:
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var spilled := []
+	var on_spill := func(_at: Vector3, liquid: StringName, litres: float, _source: Object) -> void: spilled.append([liquid, litres])
+	Events.liquid_spilled.connect(on_spill)
+	var x := -1.0
+	for id: StringName in SALOON_S1_GLASS:
+		var g := PropKit.make(id) as GlassProp
+		g.position = Vector3(x, 0, 0)
+		world.add_child(g)
+		await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+		check(not g.loose and not g.broken, "%s stands" % id)
+		check(g.model.get_child_count() >= 2, "%s is drawn from its model: its glass and what's in it" % id)
+		var at := g.global_position + Vector3.UP * 0.03
+		ballistics.fire(at + Vector3(0, 0, -5), Vector3.BACK, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+		await physics_frames(3)
+		check(g.broken, "a ball breaks the %s" % id)
+		x += 1.0
+	Events.liquid_spilled.disconnect(on_spill)
+	check(spilled.size() == 3, "each lets its drink go (%s)" % [spilled])
+	var dropped := PropKit.make(&"schooner") as GlassProp
+	dropped.position = Vector3(0, 1.1, 2)
+	world.add_child(dropped)
+	await wait_until(func() -> bool: return dropped.broken, 120)
+	check(dropped.broken, "a schooner off the bar (1.1 m) breaks on the floor")
+
+
+## A joist on two posts, its underside at 3 m: what a hanging lamp hangs from.
+func _joist() -> Structure:
+	var s := Structure.new()
+	s.structure_id = &"lamp_joist"
+	world.add_child(s)
+	for x in [-1.5, 1.5]:
+		s.add_member("post%d" % int(x * 10), &"post", &"framing", Vector3(0.1, 3.0, 0.1), Vector3(x, 1.5, 0))
+	s.add_member("joist", &"beam", &"framing", Vector3(3.2, 0.2, 0.05), Vector3(0, 3.1, 0))
+	s.infer_supports()
+	return s
+
+
+func test_a_hanging_lamp_hangs_from_its_joist_swings_and_falls_with_it() -> void:
+	var s := _joist()
+	var lamp := PropKit.make(&"hanging_lamp") as GlassProp
+	var drop := float(PropKit.definition(&"hanging_lamp").hangs.hook[1])
+	lamp.position = Vector3(0.3, 3.0 - drop, 0)
+	world.add_child(lamp)
+	var light := OilLamp.new()
+	light.name = "Light"
+	light.show_mesh = false
+	light.position = Vector3(0, float(PropKit.definition(&"hanging_lamp").light_height), 0)
+	lamp.add_child(light)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 6)
+	check(not lamp.loose and not lamp.broken, "it hangs from the joist on its hook")
+	check(light.get_parent() != lamp, "its light is on its swing, not left behind")
+	lamp.push_swing(Vector3(1.2, 0, 0))
+	await physics_frames(12)
+	var lean := lamp.swing_angle().length()
+	check(lean > 0.1, "pushed, it swings (%.2f rad)" % lean)
+	check(not lamp.loose, "and stays on its hook")
+	await physics_frames(600)
+	check(lamp.swing_angle().length() < lean * 0.3, "its swing dies away (%.3f rad)" % lamp.swing_angle().length())
+	# The joist working under the dancers: moved sideways a few times, the lamp swings with it.
+	var joist: StructureMember = s.get_member(&"lamp_joist/joist")
+	var rest := joist.position
+	for k in 6:
+		joist.position = rest + Vector3(0.012 * (1 if k % 2 == 0 else -1), -0.01, 0)
+		await physics_frames(6)
+	joist.position = rest
+	await physics_frames(2)
+	check(lamp.swing_angle().length() > 0.005, "the floor working over it sets it swinging (%.3f rad)" % lamp.swing_angle().length())
+	check(not lamp.loose, "a few cm of floor doesn't drop it")
+	s.break_member(joist)
+	await wait_until(func() -> bool: return lamp.broken, 240)
+	check(lamp.loose, "its joist gone, it falls")
+	check(lamp.broken, "and its chimney breaks on the floor")
+
+
+func test_a_hanging_lamp_hung_in_the_air_falls() -> void:
+	var lamp := PropKit.make(&"hanging_lamp_shaded") as GlassProp
+	lamp.position = Vector3(0, 1.5, 0)
+	world.add_child(lamp)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(lamp.loose, "nothing over its hook: it falls")
+
+
+func test_the_box_stove_spills_its_coals_when_it_goes_over_lit() -> void:
+	var fire := FireSystem.new()
+	world.add_child(fire)
+	var stove := await _place(&"box_stove")
+	var sf := stove.get_node(^"StoveFire") as StoveFire
+	check(sf != null, "it has its firebox")
+	sf.set_lit(true)
+	check(sf.lit, "lit, it glows")
+	var door := sf.door_now()
+	check(door.x > 0.4 and door.y > 0.2, "its door is at its +x end (%s)" % door)
+	stove.go_loose(Vector3(0, 0, 1.5))
+	await wait_until(func() -> bool: return not sf.coals.is_empty(), 90)
+	check(not sf.coals.is_empty(), "knocked over lit, its coals spill")
+	check(fire.spills.has(sf.coals), "and burn on the floor (a small fire)")
+	check(not sf.lit, "its glow is out")
+	var cold := await _place(&"box_stove", Vector3(4, 0, 0))
+	var csf := cold.get_node(^"StoveFire") as StoveFire
+	csf.set_lit(false)
+	cold.go_loose()
+	await physics_frames(60)
+	check(csf.coals.is_empty(), "a cold stove going over spills nothing")
+
+
+func test_the_wheel_of_fortune_hangs_on_its_nails() -> void:
+	var wall := Structure.new()
+	wall.structure_id = &"wheel_wall"
+	world.add_child(wall)
+	for x in [-0.6, 0.6]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 3.0, 0.1), Vector3(x, 1.5, -0.07))
+	for i in 14:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.6, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var w := PropKit.spawn(&"wheel_of_fortune") as KitProp
+	w.position = Vector3(0, 1.9, 0)
+	world.add_child(w)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not w.loose, "it hangs on its nails")
+	check(w.member_count() == 3, "board, wheel and clapper (%d)" % w.member_count())
+
+
+func test_the_bar_has_its_brass_arm_rail() -> void:
+	var bar := await _place(&"bar")
+	var rail := _m(bar, "arm_rail")
+	check(rail != null, "the bar has an arm rail")
+	check(rail != null and rail.global_position.y > 1.1, "on its top (%.2f)" % (rail.global_position.y if rail else 0.0))
+	var foot := PropKit.expand(PropKit.definition(&"bar")).filter(func(s: Dictionary) -> bool: return s.id == "foot_rail")
+	check(not foot.is_empty() and String(foot[0].look) == "pbr:bar_rails", "its foot rail is baked brass, not painted")
+	check(bar.settle().is_empty() and not bar.loose, "it stands")
