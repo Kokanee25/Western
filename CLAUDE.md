@@ -205,6 +205,10 @@ demo. The first slice's definition (DESIGN.md §12) is the roadmap's Gate D.
 Context is the budget: three sessions share one weekly limit, and everything this file loads is
 paid on every turn of every session.
 
+- **Claim your issue first** (Sean, 2026-11-13: two sessions started on one issue): before anything else,
+  read your issue's labels. If it has **`in progress`**, stop and tell Sean another session has it (its
+  "Started" comment says which). Otherwise add the `in progress` label and comment "Started: <your session
+  link>, branch <branch>, <time>". Remove the label when you stop (merged, handed over, or waiting on Sean).
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and your lane's file, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
@@ -349,7 +353,7 @@ python3 tools/bridge.py stop
 keeping it under ~10 KB: where things stand, what's open, the traps. No history in these files: that goes in
 `docs/status/` and the PR. The roadmap (`docs/ROADMAP.md`) decides what each lane does next.
 
-- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (next the jail, #780).
+- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next its stone as rubble, #860, then the general store).
 - `docs/lanes/gameplay.md`: the slice's missions (next No Law step 4, #796), the valley, weapons, the soak.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
 - `docs/lanes/props.md`: the kit and factory (next the doctor's D2, #805).
