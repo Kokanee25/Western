@@ -7,7 +7,7 @@ extends SceneTree
 ##
 ##   godot --headless -s res://tools/textures/scatter_meshes.gd
 ##
-## Plants keep their own near mesh (a simplifier collapses leaf and blade cards into twigs) and are cut
+## And the trees ValleyTrees builds, baked to assets/props/trees/. Plants keep their own near mesh (a simplifier collapses leaf and blade cards into twigs) and are cut
 ## only a little far off. Re-run when a model or a target below changes. Untyped where it names game classes.
 
 ## id -> [near triangles, far triangles] a piece (at most; a piece with fewer keeps its own).
@@ -34,6 +34,17 @@ func _process(_d: float) -> bool:
 
 
 func _run() -> void:
+	# The trees built in code (ValleyTrees), baked so the game loads them rather than building them.
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://assets/props/trees"))
+	var trees = load("res://src/art/valley_trees.gd")
+	for kind in [&"pine", &"cottonwood"]:
+		for v in trees.VARIANTS:
+			for near in [true, false]:
+				var t: Dictionary = trees.build(kind, near, v)
+				var base: String = trees.baked_path(kind, near, v)
+				ResourceSaver.save(t.trunk, base + "_trunk.res", ResourceSaver.FLAG_COMPRESS)
+				ResourceSaver.save(t.crown, base + "_crown.res", ResourceSaver.FLAG_COMPRESS)
+				print("tree %s: %d + %d triangles" % [base.get_file(), _tris(t.trunk), _tris(t.crown)])
 	for id: String in TARGETS:
 		var dir := "res://assets/props/scans/%s/" % id
 		var ps: PackedScene = load(dir + id + ".gltf")
@@ -59,7 +70,9 @@ func _run() -> void:
 func _tris(m: Mesh) -> int:
 	var t := 0
 	for s in m.get_surface_count():
-		t += (m.surface_get_arrays(s)[Mesh.ARRAY_INDEX] as PackedInt32Array).size() / 3
+		var a := m.surface_get_arrays(s)
+		var idx = a[Mesh.ARRAY_INDEX]
+		t += (idx.size() if idx != null and idx.size() > 0 else (a[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()) / 3
 	return t
 
 

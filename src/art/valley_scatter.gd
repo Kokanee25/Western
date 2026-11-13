@@ -33,6 +33,8 @@ var _queue: Array[Vector3i] = []
 var _plant_mats := {}
 
 const PLANT := "res://src/art/scatter_plant.gdshader"
+## Metres over which a bush's scan hands over to its far blob (dithered, per pixel).
+const BLEND_M := 8.0
 
 
 class Species:
@@ -41,8 +43,10 @@ class Species:
 	var near: Array[Mesh] = []
 	var far: Array[Mesh] = []
 	var piece_scale: Array = []
+	## A tree species' shapes (ValleyTrees.VARIANTS), near and far.
+	var trees: Array = []
+	var trees_far: Array = []
 	var tree: Dictionary = {}
-	var tree_far: Dictionary = {}
 
 
 func setup(t: ValleyTerrain, a: ValleyGroundArt, tn: ValleyScatterTuning) -> void:
@@ -58,8 +62,10 @@ func setup(t: ValleyTerrain, a: ValleyGroundArt, tn: ValleyScatterTuning) -> voi
 		s.index = i
 		s.d = d
 		if d.has("tree"):
-			s.tree = ValleyTrees.meshes(StringName(d.tree), true)
-			s.tree_far = ValleyTrees.meshes(StringName(d.tree), false)
+			for v in ValleyTrees.VARIANTS:
+				s.trees.append(ValleyTrees.meshes(StringName(d.tree), true, v))
+				s.trees_far.append(ValleyTrees.meshes(StringName(d.tree), false, v))
+			s.tree = s.trees[0]
 		else:
 			var tint: Array = d.get("tint", [1.0, 1.0, 1.0])
 			for piece: String in d.meshes:
@@ -68,8 +74,34 @@ func setup(t: ValleyTerrain, a: ValleyGroundArt, tn: ValleyScatterTuning) -> voi
 				s.near.append(_tinted(nm, tint, d))
 				s.far.append(_tinted(fm, tint, d))
 			s.piece_scale = d.get("piece_scale", [])
+			if d.has("far_blob"):
+				var blob := _blob_mesh(d.far_blob, d)
+				for k in s.far.size():
+					s.far[k] = blob
 		_species.append(s)
 		placed[String(d.name)] = 0
+
+
+## A bush far off as one noise-holed blob of foliage (ValleyTrees' crowns' shader): ~80 triangles.
+func _blob_mesh(b: Dictionary, d: Dictionary) -> Mesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 891
+	var r := float(b.radius)
+	ValleyTrees._blob(st, Vector3(0, r * 0.7, 0), Vector3(r * 1.15, r * 0.7, r), Vector3(0, -r, 0), 1, rng)
+	ValleyTrees._blob(st, Vector3(r * 0.6, r * 0.5, r * 0.3), Vector3(r * 0.7, r * 0.5, r * 0.7), Vector3(0, -r, 0), 1, rng)
+	var m := st.commit()
+	var ca: Array = b.colour_a
+	var cb: Array = b.colour_b
+	var mat := ValleyTrees._foliage(Color(ca[0], ca[1], ca[2]), Color(cb[0], cb[1], cb[2]), float(d.range) - float(d.get("fade", 0.0)), float(d.range))
+	mat.set_shader_parameter(&"leaf_scale", 9.0)
+	mat.set_shader_parameter(&"hole", 0.62)
+	# It takes over from the scanned bush per pixel at near_m (the cells are coarser than that).
+	mat.set_shader_parameter(&"appear_from", float(d.near_m) - BLEND_M)
+	mat.set_shader_parameter(&"appear_to", float(d.near_m))
+	m.surface_set_material(0, mat)
+	return m
 
 
 ## A copy of the scan's mesh with its material tinted and set to fade out by distance (dithered); a
@@ -97,8 +129,16 @@ func _tinted(m: Mesh, tint: Array, d: Dictionary) -> Mesh:
 				sm.set_shader_parameter(&"saturation", float(pl.get("saturation", 1.0)))
 				sm.set_shader_parameter(&"brightness", float(pl.get("brightness", 1.0)))
 				sm.set_shader_parameter(&"vary", float(pl.get("vary", 0.15)))
+				if pl.has("recolour"):
+					var rc: Array = pl.recolour
+					sm.set_shader_parameter(&"recolour", Color(float(rc[0]), float(rc[1]), float(rc[2])))
+					sm.set_shader_parameter(&"recolour_mix", float(pl.get("recolour_mix", 0.7)))
 				sm.set_shader_parameter(&"alpha_cut", std.alpha_scissor_threshold if std.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR else 0.4)
-				if fade > 0.0:
+				if d.has("far_blob"):
+					# Handing over to the far blob per pixel at near_m.
+					sm.set_shader_parameter(&"fade_from", float(d.near_m) - BLEND_M)
+					sm.set_shader_parameter(&"fade_to", float(d.near_m))
+				elif fade > 0.0:
 					sm.set_shader_parameter(&"fade_from", float(d.range) - fade)
 					sm.set_shader_parameter(&"fade_to", float(d.range))
 				_plant_mats[key] = sm
@@ -122,7 +162,7 @@ func _process(_delta: float) -> void:
 	if cam != Vector3.INF:
 		_frame += 1
 		var jumped := _last == Vector3.INF or cam.distance_to(_last) > tuning.jump_m
-		if jumped or _frame % tuning.look_every == 0:
+		if jumped or (_frame % tuning.look_every == 0 and cam.distance_to(_last) > 2.0):
 			_last = cam
 			_choose(cam)
 		if jumped:
@@ -227,7 +267,7 @@ func _chance(d: Dictionary, x: float, z: float, h: float, slope: float) -> float
 	var pm := float(d.patch_m)
 	var pn := _noise.get_noise_2d(x / pm, z / pm) * 0.5 + 0.5
 	var pt := float(d.patch)
-	p *= lerpf(1.0, smoothstep(0.35, 0.75, pn) * 2.0, pt)
+	p *= lerpf(1.0, smoothstep(0.42, 0.62, pn) * 2.2, pt)
 	return clampf(p, 0.0, 1.0)
 
 
@@ -265,7 +305,7 @@ func _make(key: Vector3i) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key)
 	var n := int(round(float(d.per_100m2) * cell * cell / 100.0))
-	var pieces := maxi(1, s.near.size()) if s.tree.is_empty() else 1
+	var pieces := maxi(1, s.near.size()) if s.tree.is_empty() else s.trees.size()
 	var xfs: Array = []
 	for k in pieces:
 		xfs.append([])
@@ -286,23 +326,54 @@ func _make(key: Vector3i) -> void:
 		var slope := _slope(x, z)
 		if roll >= _chance(d, x, z, h, slope):
 			continue
-		var up := Vector3.UP.lerp(_normal(x, z), float(d.tilt)).normalized()
-		var b := Basis(Quaternion(Vector3.UP, up)) * Basis(Vector3.UP, turn)
-		var ps := float(s.piece_scale[piece]) if piece < s.piece_scale.size() else 1.0
-		b = b.scaled(Vector3.ONE * size * ps)
-		var aabb: AABB = s.near[piece].get_aabb() if s.tree.is_empty() else AABB(Vector3(-1, 0, -1), Vector3(2, float(s.tree.height), 2))
-		var sink := float(d.sink) * aabb.size.y * size * ps
-		var p := Vector3(x, h - sink, z)
-		(xfs[piece] as Array).append(Transform3D(b, p - origin))
-		points.append(p)
-		var coll := String(d.get("collide", ""))
-		if coll == "sphere":
-			var r := maxf(aabb.size.x, aabb.size.z) * 0.38 * size * ps
-			if r > 0.3:
-				shapes.append([coll, Transform3D(Basis(), p - origin + Vector3(0, aabb.size.y * size * ps * 0.25, 0)), r])
-		elif coll == "trunk":
-			shapes.append([coll, Transform3D(Basis(), p - origin + Vector3(0, 2.0 * size, 0)), float(s.tree.trunk_r) * size])
-		placed[String(d.name)] += 1
+		var cl: Array = d.get("cluster", [1, 0.0])
+		for c in int(cl[0]):
+			var cx := x
+			var cz := z
+			if c > 0:
+				var a := rng.randf() * TAU
+				var rr := sqrt(rng.randf()) * float(cl[1])
+				cx += cos(a) * rr
+				cz += sin(a) * rr
+				piece = rng.randi() % pieces
+				size = rng.randf_range(float(sc[0]), float(sc[1])) * 0.85
+				turn = rng.randf() * TAU
+				if art.kept_clear(cx, cz, float(d.clear)):
+					continue
+			_place(s, d, cx, cz, piece, size, turn, origin, xfs, points, shapes)
+	_finish(node, s, d, origin, pieces, xfs, points, shapes)
+
+
+## One instance at (x, z): stood on the ground (sunk, leaning with the slope), its body's shape kept.
+func _place(s: Species, d: Dictionary, x: float, z: float, piece: int, size: float, turn: float, origin: Vector3,
+		xfs: Array, points: PackedVector3Array, shapes: Array) -> void:
+	var h := terrain.height(x, z)
+	var up := Vector3.UP.lerp(_normal(x, z), float(d.tilt)).normalized()
+	var lean := float(d.get("lean", 0.0))
+	if lean > 0.0:
+		up = (up + Vector3(sin(turn * 3.1), 0.0, cos(turn * 2.3)) * lean * fposmod(turn * 7.7, 1.0)).normalized()
+	var b := Basis(Quaternion(Vector3.UP, up)) * Basis(Vector3.UP, turn)
+	var ps := float(s.piece_scale[piece]) if piece < s.piece_scale.size() else 1.0
+	b = b.scaled(Vector3.ONE * size * ps)
+	var aabb: AABB = s.near[piece].get_aabb() if s.tree.is_empty() else AABB(Vector3(-1, 0, -1), Vector3(2, float(s.trees[piece].height), 2))
+	var sink := float(d.sink) * aabb.size.y * size * ps
+	var p := Vector3(x, h - sink, z)
+	(xfs[piece] as Array).append(Transform3D(b, p - origin))
+	points.append(p)
+	var coll := String(d.get("collide", ""))
+	if coll == "sphere":
+		var r := maxf(aabb.size.x, aabb.size.z) * 0.38 * size * ps
+		if r > 0.3:
+			shapes.append([coll, Transform3D(Basis(), p - origin + Vector3(0, aabb.size.y * size * ps * 0.25, 0)), r])
+	elif coll == "trunk":
+		shapes.append([coll, Transform3D(Basis(), p - origin + Vector3(0, 2.0 * size, 0)), float(s.tree.trunk_r) * size])
+	placed[String(d.name)] += 1
+
+
+## The cell's MultiMeshes and body, from what was placed.
+func _finish(node: Node3D, s: Species, d: Dictionary, origin: Vector3, pieces: int, xfs: Array,
+		points: PackedVector3Array, shapes: Array) -> void:
+	var cell := float(d.cell)
 	node.position = origin
 	# Where each instance stands (world), for the tests and anyone asking (a MultiMesh's own
 	# transforms can't be read back without a renderer).
@@ -314,14 +385,22 @@ func _make(key: Vector3i) -> void:
 		if list.is_empty():
 			continue
 		if s.tree.is_empty():
+			if d.has("far_blob"):
+				# Per pixel by distance (the materials' fades): each drawn wherever any of the cell may need it.
+				var reach := cell * 0.71
+				_multi(node, s.near[k], list, 0.0, near_m + reach, d)
+				_multi(node, s.far[k], list, maxf(0.0, near_m - BLEND_M - reach), range_m, d)
+				continue
 			_multi(node, s.near[k], list, 0.0, minf(near_m, range_m), d)
 			if range_m > near_m:
-				_multi(node, s.far[k], list, near_m, range_m, d)
+				_multi(node, s.far[k], list, near_m, range_m, d, false, false)
 		else:
-			_multi(node, s.tree.trunk, list, 0.0, near_m, d)
-			_multi(node, s.tree.crown, list, 0.0, near_m, d, true)
-			_multi(node, s.tree_far.trunk, list, near_m, range_m, d)
-			_multi(node, s.tree_far.crown, list, near_m, range_m, d, true)
+			var tn: Dictionary = s.trees[k]
+			var tf: Dictionary = s.trees_far[k]
+			_multi(node, tn.trunk, list, 0.0, near_m, d)
+			_multi(node, tn.crown, list, 0.0, near_m, d, true)
+			_multi(node, tf.trunk, list, near_m, range_m, d)
+			_multi(node, tf.crown, list, near_m, range_m, d, true)
 	if not shapes.is_empty():
 		var body := StaticBody3D.new()
 		body.name = "Body"
@@ -349,7 +428,8 @@ func _make(key: Vector3i) -> void:
 
 ## One MultiMesh of `mesh` at `list` (cell-relative), drawn between `from` and `to` metres from the
 ## camera (the cell's middle: Godot's visibility range); a tree's crown gets its tint and seed.
-func _multi(parent: Node3D, mesh: Mesh, list: Array, from: float, to: float, d: Dictionary, crown := false) -> void:
+func _multi(parent: Node3D, mesh: Mesh, list: Array, from: float, to: float, d: Dictionary, crown := false,
+		shadows := true) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_custom_data = crown
@@ -363,7 +443,7 @@ func _multi(parent: Node3D, mesh: Mesh, list: Array, from: float, to: float, d: 
 			mm.set_instance_custom_data(i, Color(0.85 + v * 0.3, 0.9 + v * 0.15, 0.85 + (1.0 - v) * 0.25, v))
 	var mi := MultiMeshInstance3D.new()
 	mi.multimesh = mm
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if bool(d.get("shadows", false)) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadows and bool(d.get("shadows", false)) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.visibility_range_begin = from
 	mi.visibility_range_end = to
 	parent.add_child(mi)

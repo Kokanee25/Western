@@ -43,6 +43,10 @@ adds its own lines.
   no credit asked; credited all the same.
   - **Poly Haven** (polyhaven.com, CC0): `black_walnut_veneer_02` (https://polyhaven.com/a/black_walnut_veneer_02), `oak_veneer_01` (https://polyhaven.com/a/oak_veneer_01), `red_oak_veneer` (https://polyhaven.com/a/red_oak_veneer), `sapele_veneer` (https://polyhaven.com/a/sapele_veneer).
   - **ambientCG** (ambientcg.com, by Lennart Demes, CC0): `Wood009` (https://ambientcg.com/view?id=Wood009), `Wood014` (https://ambientcg.com/view?id=Wood014), `Wood015` (https://ambientcg.com/view?id=Wood015), `Wood047` (https://ambientcg.com/view?id=Wood047), `Wood048` (https://ambientcg.com/view?id=Wood048), `Wood050` (https://ambientcg.com/view?id=Wood050), `Wood051` (https://ambientcg.com/view?id=Wood051), `Wood058` (https://ambientcg.com/view?id=Wood058), `Wood059` (https://ambientcg.com/view?id=Wood059), `Wood061` (https://ambientcg.com/view?id=Wood061), `Wood062` (https://ambientcg.com/view?id=Wood062), `Wood063` (https://ambientcg.com/view?id=Wood063), `Wood081` (https://ambientcg.com/view?id=Wood081), `Wood086` (https://ambientcg.com/view?id=Wood086), `Wood087` (https://ambientcg.com/view?id=Wood087).
+- **The valley's ground and scatter** (#891; fetched on GitHub by `.github/workflows/scans.yml`): CC0 1.0
+  from **Poly Haven** (polyhaven.com), no credit asked; credited all the same.
+  - Ground textures (`assets/textures/scans/<id>/`): `dirt` (https://polyhaven.com/a/dirt), `dry_ground_rocks` (https://polyhaven.com/a/dry_ground_rocks), `withered_grass` (https://polyhaven.com/a/withered_grass), `rocky_trail` (https://polyhaven.com/a/rocky_trail), `mud_cracked_dry_riverbed_002` (https://polyhaven.com/a/mud_cracked_dry_riverbed_002), `cliff_side` (https://polyhaven.com/a/cliff_side).
+  - Models (`assets/props/scans/<id>/`, glTF at 1k, cut to two levels by `tools/textures/scatter_meshes.gd`): `namaqualand_boulder_03`, `namaqualand_boulder_05`, `rock_07`, `namaqualand_rocks_01`, `namaqualand_stones_01`, `grass_medium_02`, `wild_rooibos_bush`, `dead_tree_trunk_02` (each at https://polyhaven.com/a/<id>; their authors in each `meta.json`).
 
 ## Prop references (the prop lab)
 

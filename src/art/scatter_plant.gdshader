@@ -14,6 +14,9 @@ uniform bool has_arm = false;
 uniform vec3 tint : source_color = vec3(1.0);
 uniform float saturation = 1.0;
 uniform float brightness = 1.0;
+// Drawn toward this colour by the scan's lightness (a dark scan made pale, as sagebrush is), by recolour_mix.
+uniform vec3 recolour : source_color = vec3(0.5);
+uniform float recolour_mix = 0.0;
 // How much one plant differs from the next (its lightness and hue, by its place).
 uniform float vary = 0.15;
 uniform float alpha_cut = 0.4;
@@ -31,6 +34,11 @@ void vertex() {
 
 void fragment() {
 	vec4 a = texture(albedo_tex, UV);
+	// Cut-outs thin away in the mipmaps; their alpha raised by the mip level keeps them full far off
+	// (Ben Golus, "Anti-aliased Alpha Test: The Esoteric Alpha To Coverage", 2017).
+	vec2 px = UV * vec2(textureSize(albedo_tex, 0));
+	float lod = max(0.0, 0.5 * log2(max(dot(dFdx(px), dFdx(px)), dot(dFdy(px), dFdy(px)))));
+	a.a *= 1.0 + lod * 0.25;
 	if (a.a < alpha_cut) {
 		discard;
 	}
@@ -45,6 +53,7 @@ void fragment() {
 	vec3 c = a.rgb;
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation) * tint * brightness;
+	c = mix(c, recolour * (0.55 + l * 2.2), recolour_mix);
 	c *= 1.0 + (die - 0.5) * vary * 2.0;
 	c.r *= 1.0 + (die - 0.5) * vary;
 	ALBEDO = clamp(c, 0.0, 1.0);

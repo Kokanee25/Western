@@ -16,8 +16,8 @@ extends Resource
 @export var rock_from := 30.0
 @export var rock_full := 44.0
 @export var water_near := 25.0
-@export var grade := Vector3(1.04, 0.97, 0.88)
-@export var grade_sat := 0.9
+@export var grade := Vector3(1.0, 0.89, 0.76)
+@export var grade_sat := 1.08
 @export var street_tint := Vector3(1.08, 0.95, 0.82)
 @export var trail_tint := Vector3(0.86, 0.8, 0.72)
 
@@ -35,7 +35,7 @@ extends Resource
 @export var manure_density := 3.0
 @export var straw_density := 12.0
 @export var puddle_cover := 0.18
-@export var detail_far := 60.0
+@export var detail_far := 40.0
 
 ## The dials the shader takes, by name.
 const DIALS := ["rock_from", "rock_full", "water_near", "grade", "grade_sat", "street_tint", "trail_tint", "packed_dark", "rut_dark",

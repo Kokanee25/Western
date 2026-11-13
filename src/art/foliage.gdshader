@@ -10,10 +10,12 @@ uniform vec3 colour_b : source_color = vec3(0.34, 0.38, 0.20);
 // How finely the crown breaks up (holes a metre), and how much of a blob's edge is holed away.
 uniform float leaf_scale = 5.0;
 uniform float hole = 0.48;
-uniform float wrap = 0.35;
 // Fades out (dithered) between these distances (m), so a far tree can take over.
 uniform float fade_from = 0.0;
 uniform float fade_to = 0.0;
+// Fades in (dithered) between these distances (m), as a near version fades out (ValleyScatter's far bushes).
+uniform float appear_from = 0.0;
+uniform float appear_to = 0.0;
 
 varying vec3 obj;
 varying vec3 tint;
@@ -55,9 +57,10 @@ void fragment() {
 	if (n < hole * rim) {
 		discard;
 	}
-	if (fade_to > 0.0) {
+	if (fade_to > 0.0 || appear_to > 0.0) {
 		float d = length(VERTEX);
-		float keep = 1.0 - smoothstep(fade_from, fade_to, d);
+		float keep = fade_to > 0.0 ? 1.0 - smoothstep(fade_from, fade_to, d) : 1.0;
+		keep *= appear_to > 0.0 ? smoothstep(appear_from, appear_to, d) : 1.0;
 		float dither = fract(dot(FRAGCOORD.xy, vec2(0.5, 0.25)) + hash13(vec3(FRAGCOORD.xy, 1.0)) * 0.5);
 		if (keep < dither) {
 			discard;
@@ -68,11 +71,6 @@ void fragment() {
 	ALBEDO = c * (tint.r + tint.g + tint.b > 0.01 ? tint : vec3(1.0));
 	ROUGHNESS = 0.85;
 	SPECULAR = 0.2;
-	BACKLIGHT = vec3(0.25, 0.3, 0.15) * 0.6;
-}
-
-void light() {
-	float ndl = dot(NORMAL, LIGHT);
-	float w = clamp((ndl + wrap) / (1.0 + wrap), 0.0, 1.0);
-	DIFFUSE_LIGHT += w * ATTENUATION * LIGHT_COLOR / PI;
+	// Light through the leaves when the sun is behind them (no black cut-outs against it).
+	BACKLIGHT = c * 0.9 + vec3(0.06, 0.07, 0.03);
 }

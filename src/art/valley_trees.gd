@@ -11,12 +11,38 @@ const BARK_NORMAL := "res://assets/textures/scans/Wood086/normal.jpg"
 static var _cache := {}
 
 
-## {trunk: ArrayMesh, crown: ArrayMesh} of `kind` (&"pine", &"cottonwood") at `near` or far detail.
-static func meshes(kind: StringName, near: bool) -> Dictionary:
-	var key := "%s_%s" % [kind, near]
+## How many shapes of each kind there are (a tree drawn picks one).
+const VARIANTS := 3
+
+
+## {trunk: ArrayMesh, crown: ArrayMesh, height, trunk_r} of `kind` (&"pine", &"cottonwood"), its
+## shape `variant` (0 .. VARIANTS - 1), at `near` or far detail.
+## Baked by tools/textures/scatter_meshes.gd (building them here takes seconds at load); built here
+## when they aren't.
+static func meshes(kind: StringName, near: bool, variant := 0) -> Dictionary:
+	var key := "%s_%s_%d" % [kind, near, variant]
 	if not _cache.has(key):
-		_cache[key] = _pine(near) if kind == &"pine" else _cottonwood(near)
+		var base := baked_path(kind, near, variant)
+		if ResourceLoader.exists(base + "_trunk.res") and ResourceLoader.exists(base + "_crown.res"):
+			var trunk: Mesh = load(base + "_trunk.res")
+			_cache[key] = {"trunk": trunk, "crown": load(base + "_crown.res"),
+				"height": float(trunk.get_meta(&"height", 18.0)), "trunk_r": float(trunk.get_meta(&"trunk_r", 0.3))}
+		else:
+			_cache[key] = build(kind, near, variant)
 	return _cache[key]
+
+
+## Where a tree's baked meshes are (+ "_trunk.res", "_crown.res").
+static func baked_path(kind: StringName, near: bool, variant: int) -> String:
+	return "res://assets/props/trees/%s_%d_%s" % [kind, variant, "near" if near else "far"]
+
+
+## A tree made now (the tool bakes these).
+static func build(kind: StringName, near: bool, variant := 0) -> Dictionary:
+	var t := _pine(near, variant) if kind == &"pine" else _cottonwood(near, variant)
+	(t.trunk as Mesh).set_meta(&"height", t.height)
+	(t.trunk as Mesh).set_meta(&"trunk_r", t.trunk_r)
+	return t
 
 
 static func _bark(colour: Color) -> StandardMaterial3D:
@@ -44,10 +70,10 @@ static func _foliage(a: Color, b: Color, fade_from: float, fade_to: float) -> Sh
 
 
 ## A ponderosa pine 18 m tall: a straight trunk bare to half way, a ragged rounded-conical crown.
-static func _pine(near: bool) -> Dictionary:
+static func _pine(near: bool, variant := 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 1873
-	var h := 18.0
+	rng.seed = 1873 + variant * 101
+	var h: float = 18.0 * [1.0, 0.85, 1.12][variant % 3]
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	_limb(st, Vector3.ZERO, Vector3(0, h * 0.97, 0), 0.32, 0.06, 8 if near else 5, 5 if near else 2)
@@ -59,23 +85,23 @@ static func _pine(near: bool) -> Dictionary:
 	var centre := Vector3(0, h * 0.7, 0)
 	for i in blobs:
 		var t := (float(i) + rng.randf() * 0.7) / blobs
-		var y := lerpf(h * 0.36, h * 0.99, t)
+		var y := lerpf(h * 0.27, h * 0.99, t)
 		# Branch clumps standing out from the trunk, widest a third of the way up the crown.
-		var spread := (2.9 * pow(1.0 - t, 0.6) * (0.6 + 0.4 * sin(PI * minf(1.0, t * 1.6 + 0.3)))) + 0.3
+		var spread := (3.2 * pow(1.0 - t, 0.55) * (0.6 + 0.4 * sin(PI * minf(1.0, t * 1.6 + 0.3)))) + 0.3
 		var a := rng.randf() * TAU
 		var off := Vector3(cos(a), 0, sin(a)) * spread * rng.randf_range(0.55, 1.0)
 		var r := lerpf(1.35, 0.7, t) * rng.randf_range(0.8, 1.2) * (1.0 if near else 1.4)
-		_blob(cs, Vector3(off.x, y - 0.4 * t, off.z), Vector3(r * 1.5, r * 0.62, r * 1.5), centre, 2 if near else 1, rng)
+		_blob(cs, Vector3(off.x, y - 0.4 * t, off.z), Vector3(r * 1.35, r * rng.randf_range(0.8, 1.1), r * 1.35), centre, 2 if near else 1, rng)
 	var crown := cs.commit()
-	crown.surface_set_material(0, _foliage(Color(0.13, 0.19, 0.10), Color(0.24, 0.30, 0.15), 0.0, 0.0))
+	crown.surface_set_material(0, _foliage(Color(0.17, 0.23, 0.12), Color(0.32, 0.38, 0.19), 0.0, 0.0))
 	return {"trunk": trunk, "crown": crown, "height": h, "trunk_r": 0.32}
 
 
 ## A cottonwood 14 m tall: a stout trunk forking low into leaning limbs, a broad round crown.
-static func _cottonwood(near: bool) -> Dictionary:
+static func _cottonwood(near: bool, variant := 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 1878
-	var h := 14.0
+	rng.seed = 1878 + variant * 101
+	var h: float = 14.0 * [1.0, 0.9, 1.1][variant % 3]
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var sides := 8 if near else 5
@@ -101,7 +127,7 @@ static func _cottonwood(near: bool) -> Dictionary:
 		var r := rng.randf_range(1.5, 2.4) * (1.0 if near else 1.4)
 		_blob(cs, p, Vector3(r, r * 0.85, r), centre, 2 if near else 1, rng)
 	var crown := cs.commit()
-	crown.surface_set_material(0, _foliage(Color(0.24, 0.30, 0.12), Color(0.42, 0.44, 0.20), 0.0, 0.0))
+	crown.surface_set_material(0, _foliage(Color(0.30, 0.36, 0.15), Color(0.50, 0.52, 0.25), 0.0, 0.0))
 	return {"trunk": trunk, "crown": crown, "height": h, "trunk_r": 0.5}
 
 

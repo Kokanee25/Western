@@ -276,8 +276,10 @@ func _make_ground() -> void:
 
 ## The land's grass, sage, rocks and trees (#891, art's ValleyScatter), over the ground drawn real.
 func _make_scatter() -> void:
+	if not scatter_default or not ground_art_default:
+		return
 	var art := ValleyGroundArt.main()
-	if not scatter_default or not ground_art_default or not art.ready:
+	if not art.ready:
 		return
 	scatter = ValleyScatter.new()
 	scatter.name = "Scatter"

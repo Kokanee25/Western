@@ -348,7 +348,7 @@ void fragment() {
 		travel *= on_road;
 		rut_h *= on_road;
 	}
-	bool street = cls > 0.5 && cls < 2.5 && on_road > 0.01;
+	bool street = cls > 0.5 && cls < 2.5 && (on_road > 0.01 || lot > 0.5);
 
 	// The layers' weights.
 	float w_grass = clamp(0.55 + (macro - 0.5) * 1.2 + wet * 0.6 - patch * 0.3, 0.0, 1.0);
@@ -358,13 +358,17 @@ void fragment() {
 	float w_mud = 0.0;
 	// The town's lots, pads and the rail bed: trodden, stony, little grass.
 	float worked = max(max(lot * 0.85, pad * 0.75), rail * 0.9);
-	w_trail = worked * (0.5 + patch * 0.5);
+	// A lot right by a town street carries the street's dirt up to the fronts; the rest of the lots
+	// stony and trodden; pads and the rail bed bared dirt.
+	float by_street = (cls > 0.5 && cls < 2.5) ? 1.0 - smoothstep(half_w + 2.0, half_w + 5.0, abs(across)) : 0.0;
+	w_trail = lot * (0.5 + patch * 0.5) * (1.0 - by_street);
+	w_dirt = max(max(pad * 0.75, rail * 0.9), lot * by_street);
 	w_grass *= 1.0 - worked * 0.85;
 	w_dry *= 1.0 - worked * 0.4;
 	// On the roads: packed dirt where they're travelled, stony at the edges, grass on a crown.
 	if (on_road > 0.0) {
 		float packed = street ? 1.0 : clamp(travel * 1.3 + 0.15, 0.0, 1.0);
-		w_dirt = on_road * packed * (1.0 - crown * 0.7);
+		w_dirt = max(w_dirt, on_road * packed * (1.0 - crown * 0.7));
 		w_trail = max(w_trail, on_road * (1.0 - packed) * 0.8 + gather * 0.6);
 		w_grass *= 1.0 - on_road * (1.0 - crown);
 		w_dry *= 1.0 - on_road * 0.9;
@@ -406,8 +410,8 @@ void fragment() {
 	if (w_dirt > 0.01) {
 		Layer dl = layer(dirt_albedo, dirt_normal, dirt_rough, xz, dirt_m);
 		// A country road's dirt is the land's own, bared and dusty: lighter than the town's churned street.
-		if (!(cls > 0.5 && cls < 2.5)) {
-			dl.albedo *= vec3(1.3, 1.24, 1.16);
+		if (!(cls > 0.5 && cls < 1.5)) {
+			dl.albedo *= vec3(1.42, 1.34, 1.24);
 		}
 		add(g, dl, w_dirt);
 	}
@@ -429,11 +433,11 @@ void fragment() {
 	float h = 0.0;
 	// Travelled: packed, darker, smoother (the town's streets; a country road's bare dirt is as light as
 	// the land round it); ruts' bottoms darker still.
-	float town_road = cls > 0.5 && cls < 2.5 ? 1.0 : 0.35;
+	float town_road = cls > 0.5 && cls < 1.5 ? 1.0 : 0.35;
 	col *= mix(1.0, packed_dark, travel * 0.8 * town_road);
 	rough = mix(rough, rough * 0.85, travel);
 	h += rut_h * rut_depth * (0.7 + vnoise(xz * 0.6) * 0.6);
-	col *= mix(1.0, rut_dark, clamp(-rut_h, 0.0, 1.0) * mix(0.5, 1.0, town_road));
+	col *= mix(1.0, rut_dark, clamp(-rut_h, 0.0, 1.0) * mix(0.3, 1.0, town_road));
 	// Hoof prints between the ruts, boot prints toward the walks.
 	if (on_road > 0.05 && near > 0.0) {
 		float hp = prints(xz, 0.38, hoof_density * 0.3 * lane_mid * on_road, 0.065);
@@ -466,8 +470,10 @@ void fragment() {
 		float streak = smoothstep(0.55, 0.85, vnoise(vec2(xz.x * 0.08, across * 2.2) + 3.0)) * travel;
 		col = mix(col, col * vec3(1.18, 1.12, 1.04), streak * 0.5);
 		rough = mix(rough, 1.0, loose * 0.5);
-		// Loose dust gathered at the walks: lighter, rougher.
-		col = mix(col, col * vec3(1.12, 1.08, 1.02), gather * 0.6);
+		// Dust and litter gathered against the walks, darkest right at their edge (the shade under them).
+		col *= 1.0 - gather * 0.18;
+		float contact = 1.0 - smoothstep(0.0, 0.45, abs(abs(across) - walk_edge));
+		col *= 1.0 - contact * 0.35 * (cls < 1.5 ? 1.0 : 0.0);
 		// Dried puddle stains: a darker rim, a smoother middle.
 		col *= 1.0 - puddle * 0.12;
 		rough = mix(rough, rough * 0.8, puddle);
