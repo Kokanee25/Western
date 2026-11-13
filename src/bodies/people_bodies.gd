@@ -278,12 +278,25 @@ static func _is_whole(model: StringName) -> bool:
 
 
 ## The model's report (assets/people/<model>.json: "whole", "eyes", "eye_gain", ...), or {}.
+## Read once and kept (read-only) until the file changes: a man's build asks for it a dozen times
+## (has_model, his levels, HumanBody's face, eyes and cuts), and parsing it each time slowed every
+## man's set-up.
+static var _reports := {}
+
+
 static func report(model: StringName) -> Dictionary:
 	var path := REPORT_PATH % model
 	if not FileAccess.file_exists(path):
 		return {}
+	var stamp := FileAccess.get_modified_time(path)
+	var kept: Variant = _reports.get(path)
+	if kept is Array and kept[0] == stamp:
+		return kept[1]
 	var info: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	return info if info is Dictionary else {}
+	var out: Dictionary = info if info is Dictionary else {}
+	out.make_read_only()
+	_reports[path] = [stamp, out]
+	return out
 
 
 ## The generated shapes ("skin", "head"), cut into pieces per bone. Cached per model and bone
