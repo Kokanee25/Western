@@ -176,9 +176,21 @@ def models(picks_path: str, out: str) -> None:
         try:
             files = get_json(f"{PH_API}/files/{aid}")
             g = files["gltf"][p.get("res", "1k")]["gltf"]
+            doc = get(g["url"])
+            gl = json.loads(doc.decode("utf-8"))
+            tris = 0
+            for mesh in gl.get("meshes", []):
+                for prim in mesh.get("primitives", []):
+                    if "indices" in prim:
+                        tris += gl["accessors"][prim["indices"]]["count"] // 3
+            limit = int(p.get("max_tris", picks.get("max_tris", 200000)))
+            print(f"  {tris} triangles", flush=True)
+            if tris > limit:
+                print(f"  SKIPPED {aid}: {tris} triangles > {limit}", flush=True)
+                continue
             os.makedirs(d, exist_ok=True)
             with open(os.path.join(d, f"{aid}.gltf"), "wb") as f:
-                f.write(get(g["url"]))
+                f.write(doc)
             for rel, inc in (g.get("include") or {}).items():
                 dst = os.path.join(d, rel)
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
@@ -190,7 +202,7 @@ def models(picks_path: str, out: str) -> None:
             continue
         meta = {"id": aid, "source": "polyhaven", "licence": "CC0 1.0", "page": f"https://polyhaven.com/a/{aid}",
                 "name": info.get("name", aid), "authors": sorted((info.get("authors") or {}).keys()),
-                "polycount": info.get("polycount"), "res": p.get("res", "1k"), "why": p.get("why", ""),
+                "polycount": info.get("polycount"), "triangles": tris, "res": p.get("res", "1k"), "why": p.get("why", ""),
                 "fetched": time.strftime("%Y-%m-%d")}
         with open(os.path.join(d, "meta.json"), "w") as f:
             json.dump(meta, f, indent=1)
