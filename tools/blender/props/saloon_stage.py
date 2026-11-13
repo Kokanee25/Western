@@ -39,7 +39,7 @@ metal.FINISHES.update({
     "lace_black": {"kind": "coat", "color": (0.03, 0.028, 0.03), "under": (0.18, 0.16, 0.15), "rust": 0.0,
                    "rough": 0.9, "metal": 0.0, "wear": 0.3, "mottle": 0.3},
     # Plum cotton velvet (a showman's coat), the nap worn brown at the cuffs and edges.
-    "velvet_plum": {"kind": "coat", "color": (0.13, 0.035, 0.08), "under": (0.28, 0.20, 0.14), "rust": 0.0,
+    "velvet_plum": {"kind": "coat", "color": (0.25, 0.065, 0.15), "under": (0.28, 0.20, 0.14), "rust": 0.0,
                     "rough": 0.93, "metal": 0.0, "wear": 0.55, "mottle": 0.45},
     # Dyed felt (her hat): a dusty bottle green.
     "felt_green": {"kind": "coat", "color": (0.05, 0.10, 0.06), "under": (0.22, 0.20, 0.15), "rust": 0.0,
@@ -49,10 +49,10 @@ metal.FINISHES.update({
               "rough": 0.98, "metal": 0.0, "wear": 0.2, "mottle": 0.6},
     # A trunk's canvas cover, painted (dark green-brown) and gone dull, worn through at the edges to the
     # tan canvas.
-    "trunk_canvas": {"kind": "coat", "color": (0.10, 0.11, 0.07), "under": (0.42, 0.34, 0.22), "rust": 0.0,
+    "trunk_canvas": {"kind": "coat", "color": (0.21, 0.16, 0.09), "under": (0.42, 0.34, 0.22), "rust": 0.0,
                      "rough": 0.85, "metal": 0.0, "wear": 0.85, "mottle": 0.55},
     # Oak slats, varnished long ago, scuffed.
-    "trunk_slat": {"kind": "coat", "color": (0.30, 0.19, 0.10), "under": (0.50, 0.38, 0.24), "rust": 0.0,
+    "trunk_slat": {"kind": "coat", "color": (0.46, 0.30, 0.15), "under": (0.50, 0.38, 0.24), "rust": 0.0,
                    "rough": 0.7, "metal": 0.0, "wear": 0.75, "mottle": 0.6},
     # A trunk's inside paper (a cheap printed lining), and white muslin, folded.
     "muslin": {"kind": "coat", "color": (0.78, 0.75, 0.66), "under": (0.62, 0.58, 0.48), "rust": 0.0,
@@ -230,16 +230,20 @@ def _plumed_hat(hx, t):
         fv.append((x, y, z))
     felt.verts = fv
     band = lathe("b", [(r + 0.0035, 0.004), (r + 0.003, 0.028), (r + 0.0005, 0.029)], 32, caps=(False, False))
-    # The plume: a long feather from the band's right, arching over the crown and curling down past
-    # the brim; its vane wide and ragged, thin through.
-    L = h["plume"]
+    # The plume: a full ostrich feather from the band at her right, arching up over the crown and
+    # curling down past the brim at her left, its vane wide and ragged (round 1's critic: a thin
+    # vane seen edge on from the front showed nothing: now a full round plume across the hat's face).
     pts, rad = [], []
-    for i in range(13):
-        u = i / 12
-        a = math.pi * 0.95 * u
-        pts.append((-0.02 + math.cos(a) * L * 0.42 * (1 - 0.2 * u) * -1 + 0.06, 0.02 + math.sin(a) * L * 0.35, r * 0.9 - u * 0.03))
-        rad.append((0.004 + 0.045 * math.sin(math.pi * min(1.0, u * 1.15)) + 0.004, 0.006))
-    plume = tube("p", pts, rad, sides=10, noise=0.25, seed=11, up_hint=(0, 0, 1))
+    for i in range(15):
+        u = i / 14
+        a = math.pi * u
+        x = r * 1.1 * math.cos(a) - u * (R - r) * 0.9
+        y = ch * 0.4 + math.sin(a) * (ch * 0.75) - max(0.0, u - 0.75) * 0.25
+        z = r * 0.35 * math.sin(a)
+        pts.append((x, y, z))
+        w = 0.012 + 0.03 * math.sin(math.pi * min(1.0, u * 1.1))
+        rad.append((w, w * 0.8))
+    plume = tube("p", pts, rad, sides=12, noise=0.3, seed=11)
     at = (hx, -(r - 0.012), t + 0.03)
     return (moved(felt, 97, (1, 0, 0), at, name="Hat"), moved(band, 97, (1, 0, 0), at, name="HatBand"),
             moved(plume, 97, (1, 0, 0), at, name="Plume"))
@@ -375,7 +379,7 @@ def screen_cloth():
     from PIL import Image, ImageDraw, ImageFilter
 
     W, H = CLOTH_PX[0] * 3, CLOTH_PX[1]
-    img = Image.new("RGB", (W, H), (196, 178, 140))
+    img = Image.new("RGB", (W, H), (214, 186, 132))
     d = ImageDraw.Draw(img)
     rng = random.Random(1879)
     px_m = CLOTH_PX[0] / ss.SCREEN["leaf"]
@@ -386,16 +390,16 @@ def screen_cloth():
         off = leaf * 37
         for x in range(x0 - pitch, x0 + CLOTH_PX[0] + pitch, pitch):
             sx = x + off % pitch
-            d.rectangle([sx, 0, sx + int(0.012 * px_m), H], fill=(128, 62, 44))
+            d.rectangle([sx, 0, sx + int(0.012 * px_m), H], fill=(150, 58, 36))
             d.rectangle([sx + int(0.018 * px_m), 0, sx + int(0.022 * px_m), H], fill=(150, 96, 60))
             # Sprigs between the stripes: a rose (three rings), two leaves, every so far down.
             for y in range(int(rng.uniform(0, 0.12) * px_m), H, int(0.13 * px_m)):
                 cx = sx + pitch // 2 + int(rng.uniform(-6, 6))
                 cy = y + int(rng.uniform(-5, 5))
-                for rr, col in ((16, (150, 70, 66)), (11, (176, 92, 82)), (5, (120, 50, 46))):
+                for rr, col in ((22, (172, 66, 58)), (15, (204, 96, 80)), (7, (130, 44, 38))):
                     d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=col)
                 for sgn in (-1, 1):
-                    d.ellipse([cx + sgn * 14 - 9, cy + 10, cx + sgn * 14 + 9, cy + 20], fill=(92, 104, 66))
+                    d.ellipse([cx + sgn * 18 - 12, cy + 12, cx + sgn * 18 + 12, cy + 26], fill=(88, 110, 58))
         d.line([x0, 0, x0, H], fill=(70, 56, 40), width=6)
     img = img.filter(ImageFilter.GaussianBlur(1.2))
     a = np.asarray(img).astype(np.float32) / 255.0
@@ -490,8 +494,8 @@ def footlight():
     chimney = lathe("Chimney", [(cr, by + 0.008), (cr + 0.006, by + 0.02), (cr + 0.008, by + 0.04), (cr + 0.002, by + 0.07), (cr - 0.004, c1)], 20,
                     caps=(False, False))
     # The hood: a curved tin reflector, a half-cylinder's arc standing on the plate's front edge (the
-    # house's side, +z), concave toward the flame, its top turned back over it as a lip; braced to
-    # the plate.
+    # house's side, +z), nearly flat and leaning back over the flame, its top turned back as a lip;
+    # braced to the plate.
     h = f["hood"]
     W, Hh, hz, dish = h["width"], h["height"], h["z"], h["dish"]
     nx, ny = 12, 6
@@ -503,7 +507,8 @@ def footlight():
             x = -W * 0.5 + W * u
             bow = dish * (1 - (2 * u - 1) ** 2)  # bowed toward +z at its middle
             lip = 0.04 * max(0.0, (v - 0.8) / 0.2) ** 2
-            verts.append((x, pt + Hh * v, hz + bow - lip))
+            lean = Hh * v * 0.27  # (round 1's critic: a bowed hood read as a tin can: a flat shield leaning back over the flame)
+            verts.append((x, pt + Hh * v, hz + bow - lip - lean))
     for j in range(ny):
         for k in range(nx):
             a = j * (nx + 1) + k

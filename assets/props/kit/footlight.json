@@ -1,5 +1,5 @@
 {
-  "_doc": "A stage footlight (#903; refs experiments/prop_lab/refs/saloon_stage/): an oil footlight of a frontier variety hall (before gas reached it): a squat tin font with a flat-wick brass burner and a short plain chimney on a tin foot plate, behind a curved tin reflector hood 22 cm across that hides the flame from the house and throws its light up and back onto the stage. A prop that shatters (GlassProp, `like` the oil lamp, as the doctor's reflector lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole, a lit one's oil burns where it's kicked over. One prop repeated: a row of four or five along the stage's front edge, ~0.9 m apart, the hood (+z) toward the house, each with its OilLamp at `light_height`. Baked the gun way (tools/blender/props/saloon_stage.py). 1 physics body. Written by tools/props/saloon_stage.py.",
+  "_doc": "A stage footlight (#903; refs experiments/prop_lab/refs/saloon_stage/): an oil footlight of a frontier variety hall (before gas reached it): a squat tin font with a flat-wick brass burner and a short plain chimney on a tin foot plate, behind a curved tin reflector hood 26 cm across and 30 cm high that hides the flame from the house and throws its light up and back onto the stage. A prop that shatters (GlassProp, `like` the oil lamp, as the doctor's reflector lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole, a lit one's oil burns where it's kicked over. One prop repeated: a row of four or five along the stage's front edge, ~0.9 m apart, the hood (+z) toward the house, each with its OilLamp at `light_height`. Baked the gun way (tools/blender/props/saloon_stage.py). 1 physics body. Written by tools/props/saloon_stage.py.",
   "id": "footlight",
   "like": "oil_lamp",
   "fixture": true,
@@ -14,9 +14,9 @@
     "Plate": "pbr:footlight"
   },
   "size": [
-    0.22,
-    0.2,
-    0.17
+    0.26,
+    0.3,
+    0.2
   ],
   "mass": 0.9,
   "light_height": 0.1,

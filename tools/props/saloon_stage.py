@@ -259,8 +259,8 @@ def dressing_screen():
 # a flat-wick brass burner and a short plain chimney, on a tin foot plate, behind a curved tin
 # reflector hood that hides the flame from the house and throws its light up and back onto the
 # stage. A row of four or five along the stage's front edge, each its own prop (one prop repeated).
-FOOT = {"font_r": 0.06, "font_h": 0.055, "burner_y": 0.075, "flame_y": 0.1, "chimney": (0.088, 0.21, 0.026), "plate": (0.2, 0.004, 0.17),
-        "hood": {"width": 0.22, "height": 0.2, "z": 0.075, "dish": 0.035}}
+FOOT = {"font_r": 0.06, "font_h": 0.055, "burner_y": 0.075, "flame_y": 0.1, "chimney": (0.088, 0.21, 0.026), "plate": (0.22, 0.004, 0.2),
+        "hood": {"width": 0.26, "height": 0.3, "z": 0.085, "dish": 0.015}}
 
 
 def footlight():
@@ -268,7 +268,7 @@ def footlight():
     pw, _, pd = f["plate"]
     h = f["hood"]
     return {
-        "_doc": "A stage footlight (#903; refs experiments/prop_lab/refs/saloon_stage/): an oil footlight of a frontier variety hall (before gas reached it): a squat tin font with a flat-wick brass burner and a short plain chimney on a tin foot plate, behind a curved tin reflector hood 22 cm across that hides the flame from the house and throws its light up and back onto the stage. A prop that shatters (GlassProp, `like` the oil lamp, as the doctor's reflector lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole, a lit one's oil burns where it's kicked over. One prop repeated: a row of four or five along the stage's front edge, ~0.9 m apart, the hood (+z) toward the house, each with its OilLamp at `light_height`. Baked the gun way (tools/blender/props/saloon_stage.py). 1 physics body. Written by tools/props/saloon_stage.py.",
+        "_doc": "A stage footlight (#903; refs experiments/prop_lab/refs/saloon_stage/): an oil footlight of a frontier variety hall (before gas reached it): a squat tin font with a flat-wick brass burner and a short plain chimney on a tin foot plate, behind a curved tin reflector hood 26 cm across and 30 cm high that hides the flame from the house and throws its light up and back onto the stage. A prop that shatters (GlassProp, `like` the oil lamp, as the doctor's reflector lamp: its oil, its chimney's breaking): the chimney breaks, the tin and brass come through whole, a lit one's oil burns where it's kicked over. One prop repeated: a row of four or five along the stage's front edge, ~0.9 m apart, the hood (+z) toward the house, each with its OilLamp at `light_height`. Baked the gun way (tools/blender/props/saloon_stage.py). 1 physics body. Written by tools/props/saloon_stage.py.",
         "id": "footlight", "like": "oil_lamp", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:footlight",
         "looks": {"Chimney": "prop:chimney_glass", "Font": "pbr:footlight", "Burner": "pbr:footlight", "Hood": "pbr:footlight", "Plate": "pbr:footlight"},
