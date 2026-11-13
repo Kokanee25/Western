@@ -238,7 +238,7 @@
           }
         },
         {
-          "look": "glass:clear",
+          "look": "glass:flint",
           "draw": {
             "shape": "mesh",
             "model": "work_board",

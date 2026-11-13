@@ -137,10 +137,13 @@ const TINTED_GLASS := {
 	# glass: shop rounds), green.
 	"aqua": Color(0.62, 0.8, 0.76, 0.26), "amber": Color(0.42, 0.2, 0.05, 0.78), "cobalt": Color(0.1, 0.16, 0.55, 0.74),
 	"clear": Color(0.5, 0.54, 0.52, 0.08), "green": Color(0.28, 0.42, 0.22, 0.7),
+	# Bar glass (#879): heavy pressed flint, thick-walled, its outline catching the lamps (clear's
+	# thin outline vanished at night under lamplight and left the drinks floating).
+	"flint": Color(0.62, 0.66, 0.64, 0.12),
 }
 ## How much each colour's outline thickens (clear flint glass hardly: round 1's balance case read as
 ## milky panes at the pale clear's 0.65).
-const TINTED_GLASS_EDGE := {"clear": 0.3}
+const TINTED_GLASS_EDGE := {"clear": 0.3, "flint": 0.55}
 
 
 static func tinted_glass(name: String) -> ShaderMaterial:
@@ -150,6 +153,8 @@ static func tinted_glass(name: String) -> ShaderMaterial:
 		m.shader = preload("res://src/props/bottle_glass.gdshader")
 		m.set_shader_parameter(&"tint", TINTED_GLASS.get(name, TINTED_GLASS["clear"]))
 		m.set_shader_parameter(&"edge", TINTED_GLASS_EDGE.get(name, 0.65))
+		if name == "flint":
+			m.set_shader_parameter(&"sheen", 0.6)
 		m.resource_name = key
 		_materials[key] = m
 	return _materials[key]
@@ -163,6 +168,18 @@ static func chimney_glass() -> ShaderMaterial:
 		m.shader = preload("res://src/props/chimney_glass.gdshader")
 		_materials["chimney"] = m
 	return _materials["chimney"]
+
+
+## A chimney with its flame at `flame_y` in its own model's space (a kit lamp whose flame isn't the
+## table lamp's 0.205: the hanging lamp's, #879), one material a height.
+static func chimney_glass_at(flame_y: float) -> ShaderMaterial:
+	var key := "chimney_%.3f" % flame_y
+	if not _materials.has(key):
+		var m := chimney_glass().duplicate() as ShaderMaterial
+		m.set_shader_parameter(&"flame_y", flame_y)
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
 
 
 ## The lamp's dark old brass (the painting's lamp foot is near-black bronze with lit edges).
