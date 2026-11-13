@@ -33,11 +33,11 @@ const SPILL_EVERY := 0.5
 const DRAW_EVERY := 3
 ## Under this much head (m) a hole only dribbles down the wood: no jet drawn off it.
 const DRIBBLE := 0.004
-## kg a litre: water; whiskey at 40% alcohol (~0.95); lamp oil (kerosene, 0.78-0.81).
-const DENSITY := {&"water": 1.0, &"whiskey": 0.95, &"lamp_oil": 0.8}
+## kg a litre: water; whiskey at 40% alcohol (~0.95); lamp oil (kerosene, 0.78-0.81); lager (~1.01; the keg, #879).
+const DENSITY := {&"water": 1.0, &"whiskey": 0.95, &"lamp_oil": 0.8, &"beer": 1.01}
 ## How each looks running (and its alpha).
 const COLOURS := {&"water": Color(0.62, 0.68, 0.7, 0.55), &"whiskey": Color(0.62, 0.36, 0.1, 0.8),
-		&"lamp_oil": Color(0.78, 0.7, 0.42, 0.7)}
+		&"lamp_oil": Color(0.78, 0.7, 0.42, 0.7), &"beer": Color(0.72, 0.5, 0.16, 0.7)}
 
 var prop: KitProp
 var liquid: StringName = &"water"

@@ -1,0 +1,169 @@
+{
+  "_doc": "A keg rack (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the cellar's stillage, two tiers of heavy pine (4 in posts, 3 x 4 in rails), each tier a pair of long rails the kegs stand across, four kegs a tier (`beer_keg`, placed on it: the lower tier's rails at 16 cm, the upper's at 88), on six posts. 1.9 m long, 0.5 m deep, 0.88 m high. Painted pine from the material library (a few years; the lower rails old and slopped). Saloon B's store room and cellar: 2. 10 physics bodies (its members). ~70 kg. Written by tools/props/saloon_s2.py.",
+  "id": "keg_rack",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "post0b",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        -0.905,
+        0.44,
+        -0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "post0f",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        -0.905,
+        0.44,
+        0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "post1b",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.44,
+        -0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "post1f",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.44,
+        0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "post2b",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        0.905,
+        0.44,
+        -0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "post2f",
+      "kind": "post",
+      "size": [
+        0.09,
+        0.88,
+        0.09
+      ],
+      "at": [
+        0.905,
+        0.44,
+        0.22
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.16
+    },
+    {
+      "id": "rail0b",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.075,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.1225,
+        -0.13
+      ],
+      "look": "lib:furniture_painted_pine/old/top"
+    },
+    {
+      "id": "rail0f",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.075,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.1225,
+        0.13
+      ],
+      "look": "lib:furniture_painted_pine/old/top"
+    },
+    {
+      "id": "rail1b",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.075,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.8425,
+        -0.13
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "rail1f",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.075,
+        0.09
+      ],
+      "at": [
+        0.0,
+        0.8425,
+        0.13
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    }
+  ],
+  "factory": "tools/props/saloon_s2.py"
+}

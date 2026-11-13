@@ -1,0 +1,309 @@
+{
+  "_doc": "A beer keg (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a wooden half-barrel keg of lager from the brewery, 15 1/2 gallons (~59 l), 62 cm high, stouter-hooped than a whiskey barrel; the kit's `barrel` (its look, wood and breaking, `like`) made smaller: eight oak staves bulged as a cask's, six iron hoops, a head at each end set in the croze. Full of beer (PropContents: a ball or an axe lets it run; ~59 kg of beer in a ~14 kg keg). Saloon B's store room and cellar (~12, on their racks: `keg_rack`), one in the work board's ice box, empties on the yard's pile. 10 physics bodies standing (8 staves, 2 heads): twelve are 120, so the placing session sets most of a rack's as drawn stand-ins and keeps a few real. Written by tools/props/saloon_s2.py.",
+  "like": "barrel",
+  "id": "beer_keg",
+  "replaces": "",
+  "in_game": false,
+  "fixture": true,
+  "holds": {
+    "_doc": "Its inside (PropContents): from the bottom head's top to the top head's underside, the staves' inner radius at the heads and at the bulge: ~59 l, a half-barrel's.",
+    "from": 0.035,
+    "to": 0.585,
+    "radius": [
+      0.158,
+      0.2
+    ]
+  },
+  "contents": {
+    "liquid": "beer",
+    "full": true
+  },
+  "members": [
+    {
+      "id": "stave%d",
+      "kind": "post",
+      "size": [
+        0.1538,
+        0.62,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.31,
+        0.0
+      ],
+      "repeat": {
+        "count": 8,
+        "radius": 0.19,
+        "start": 0
+      },
+      "draw": {
+        "shape": "sweep",
+        "profile": [
+          [
+            0.18,
+            0.0
+          ],
+          [
+            0.1961,
+            0.0775
+          ],
+          [
+            0.2097,
+            0.155
+          ],
+          [
+            0.2188,
+            0.2325
+          ],
+          [
+            0.222,
+            0.31
+          ],
+          [
+            0.2188,
+            0.3875
+          ],
+          [
+            0.2097,
+            0.465
+          ],
+          [
+            0.1961,
+            0.5425
+          ],
+          [
+            0.18,
+            0.62
+          ],
+          [
+            0.158,
+            0.62
+          ],
+          [
+            0.1741,
+            0.5425
+          ],
+          [
+            0.1877,
+            0.465
+          ],
+          [
+            0.1968,
+            0.3875
+          ],
+          [
+            0.2,
+            0.31
+          ],
+          [
+            0.1968,
+            0.2325
+          ],
+          [
+            0.1877,
+            0.155
+          ],
+          [
+            0.1741,
+            0.0775
+          ],
+          [
+            0.158,
+            0.0
+          ],
+          [
+            0.18,
+            0.0
+          ]
+        ],
+        "from": 67.5,
+        "to": 112.5,
+        "segments": 3,
+        "grain_up": true,
+        "caps": true
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.1881,
+                0.029
+              ],
+              [
+                0.1945,
+                0.04
+              ],
+              [
+                0.1927,
+                0.051
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.204,
+                0.109
+              ],
+              [
+                0.21,
+                0.12
+              ],
+              [
+                0.2079,
+                0.131
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2186,
+                0.209
+              ],
+              [
+                0.2237,
+                0.22
+              ],
+              [
+                0.2207,
+                0.231
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2207,
+                0.389
+              ],
+              [
+                0.2237,
+                0.4
+              ],
+              [
+                0.2186,
+                0.411
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.2079,
+                0.489
+              ],
+              [
+                0.21,
+                0.5
+              ],
+              [
+                0.204,
+                0.511
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "sweep",
+            "profile": [
+              [
+                0.1927,
+                0.569
+              ],
+              [
+                0.1945,
+                0.58
+              ],
+              [
+                0.1881,
+                0.591
+              ]
+            ],
+            "from": 67.5,
+            "to": 112.5,
+            "segments": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "head_top",
+      "kind": "furniture_top",
+      "size": [
+        0.2855,
+        0.025,
+        0.2855
+      ],
+      "at": [
+        0.0,
+        0.5975,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.166,
+        "segments": 24
+      }
+    },
+    {
+      "id": "head_bottom",
+      "kind": "floor_board",
+      "size": [
+        0.2855,
+        0.025,
+        0.2855
+      ],
+      "at": [
+        0.0,
+        0.0225,
+        0.0
+      ],
+      "look": "prop:barrel_head",
+      "draw": {
+        "shape": "disc",
+        "radius": 0.166,
+        "segments": 24
+      }
+    }
+  ],
+  "factory": "tools/props/saloon_s2.py"
+}

@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "props"))
 import common  # noqa: E402
 import metal  # noqa: E402
 import saloon  # noqa: E402  (tools/props/saloon.py: the numbers)
-from common import Part, box, lathe, moved, tube  # noqa: E402
+from common import Part, box, lathe, moved, slab, tube  # noqa: E402
 
 
 def merged(name, parts, smooth=True):
@@ -524,58 +524,81 @@ def piano_stool():
 
 # --- The wheel of fortune -------------------------------------------------------------------------
 
-def wheel_numbers():
-    rng = random.Random(1882)
-    nums = list(range(1, 25))
-    rng.shuffle(nums)
-    return nums
+def annulus(name, r0, r1, z0, z1, segs=64, smooth=False):
+    """A flat ring about the z axis (a wheel's rim or band) from radius r0 to r1, z0 to z1, closed."""
+    verts, faces = [], []
+    for k in range(segs):
+        a = 2 * math.pi * k / segs
+        c, s_ = math.cos(a), math.sin(a)
+        verts += [(c * r0, s_ * r0, z0), (c * r1, s_ * r1, z0), (c * r1, s_ * r1, z1), (c * r0, s_ * r0, z1)]
+    for k in range(segs):
+        a, b = 4 * k, 4 * ((k + 1) % segs)
+        for i in range(4):
+            j = (i + 1) % 4
+            faces.append([a + i, b + i, b + j, a + j])
+    return Part(name, smooth).add(verts, faces)
+
+
+def star(name, r_out, r_in, z0, z1, points=8, turn=0.0, at=(0.0, 0.0)):
+    pts = []
+    for k in range(points * 2):
+        a = math.pi * k / points + turn
+        rr = r_out if k % 2 == 0 else r_in
+        pts.append((at[0] + math.cos(a) * rr, at[1] + math.sin(a) * rr))
+    return slab(name, pts, z0, z1, bevel=min(0.004, (z1 - z0) * 0.4))
 
 
 def wheel_face():
-    """wheel_face_albedo.png: 24 segments round the wheel, red, black and cream by turns, a number in each."""
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    """wheel_face_albedo.png: the band of the Evans-style dice wheel: 30 panels, faded blue, three dice
+    each, between gilt lines; worn and smoked. The sheet's radius 0.98 of its half is the band's outside."""
+    from PIL import Image, ImageDraw, ImageFilter
 
+    w = saloon.WHEEL
     S = 1024
-    img = Image.new("RGB", (S, S), (120, 24, 20))
-    d = ImageDraw.Draw(img)
     c = S * 0.5
-    n = saloon.WHEEL["segments"]
-    cols = [(150, 28, 22), (24, 22, 20), (214, 200, 160)]
-    try:
-        font = ImageFont.truetype("DejaVuSerif-Bold.ttf", 54)
-    except OSError:
-        font = ImageFont.load_default()
-    nums = wheel_numbers()
+    r1 = c * 0.98
+    r0 = r1 * w["band"][0] / w["band"][1]
+    img = Image.new("RGB", (S, S), (40, 30, 26))
+    d = ImageDraw.Draw(img)
+    n = w["segments"]
+    gilt = (196, 156, 72)
+    d.ellipse([c - r1, c - r1, c + r1, c + r1], fill=(72, 112, 178))
+    d.ellipse([c - r0, c - r0, c + r0, c + r0], fill=(40, 30, 26))
+    rng = random.Random(1882)
     for k in range(n):
-        a0, a1 = 360.0 * k / n, 360.0 * (k + 1) / n
-        d.pieslice([c - c * 0.98, c - c * 0.98, c + c * 0.98, c + c * 0.98], a0, a1, fill=cols[k % 3], outline=(200, 160, 70), width=3)
-    d.ellipse([c - c * 0.3, c - c * 0.3, c + c * 0.3, c + c * 0.3], fill=(32, 28, 24), outline=(200, 160, 70), width=4)
-    d.ellipse([c - c * 0.98, c - c * 0.98, c + c * 0.98, c + c * 0.98], outline=(200, 160, 70), width=8)
-    for k in range(n):
-        a = math.radians(360.0 * (k + 0.5) / n)
-        txt = str(nums[k])
-        tile = Image.new("RGBA", (120, 80), (0, 0, 0, 0))
-        td = ImageDraw.Draw(tile)
-        ink = (230, 214, 170) if k % 3 != 2 else (30, 24, 20)
-        bbox = td.textbbox((0, 0), txt, font=font)
-        td.text(((120 - (bbox[2] - bbox[0])) * 0.5, (80 - (bbox[3] - bbox[1])) * 0.5 - bbox[1]), txt, fill=ink, font=font)
-        # Read from the rim inward: the number's top toward the rim.
-        tile = tile.rotate(-math.degrees(a) - 90.0, expand=True, resample=Image.BICUBIC)
-        x, y = c + math.cos(a) * c * 0.72, c + math.sin(a) * c * 0.72
-        img.paste(tile, (int(x - tile.width * 0.5), int(y - tile.height * 0.5)), tile)
-    # Age: smoke and hands darken it unevenly.
-    rng = np.random.default_rng(1882)
-    noise = rng.normal(0, 1, (S // 8, S // 8))
-    px = img.load()
-    for y in range(S):
-        for x in range(S):
-            k = 0.86 + 0.06 * noise[y // 8, x // 8]
-            r_, g_, b_ = px[x, y]
-            px[x, y] = (int(r_ * k), int(g_ * k * 0.97), int(b_ * k * 0.9))
-    img = img.filter(ImageFilter.GaussianBlur(0.5))
+        a = 2 * math.pi * k / n
+        d.line([(c + math.cos(a) * r0, c + math.sin(a) * r0), (c + math.cos(a) * r1, c + math.sin(a) * r1)], fill=gilt, width=5)
+        am = 2 * math.pi * (k + 0.5) / n
+        rows = 3
+        for j in range(rows):
+            rad = r0 + (r1 - r0) * (j + 0.5) / rows
+            side = (r1 - r0) / rows * 0.74
+            die = Image.new("RGBA", (int(side) + 4, int(side) + 4), (0, 0, 0, 0))
+            dd = ImageDraw.Draw(die)
+            dd.rounded_rectangle([2, 2, side + 1, side + 1], radius=side * 0.16, fill=(226, 218, 196), outline=(30, 26, 24), width=2)
+            v = rng.randint(1, 6)
+            q = side / 4.0
+            spots = {1: [(2, 2)], 2: [(1, 1), (3, 3)], 3: [(1, 1), (2, 2), (3, 3)], 4: [(1, 1), (3, 1), (1, 3), (3, 3)],
+                     5: [(1, 1), (3, 1), (2, 2), (1, 3), (3, 3)], 6: [(1, 1), (3, 1), (1, 2), (3, 2), (1, 3), (3, 3)]}[v]
+            for sx, sy in spots:
+                px, py = 2 + sx * q, 2 + sy * q
+                dd.ellipse([px - q * 0.32, py - q * 0.32, px + q * 0.32, py + q * 0.32], fill=(26, 22, 20) if v != 1 else (150, 30, 24))
+            die = die.rotate(-math.degrees(am), expand=True, resample=Image.BICUBIC)
+            x, y = c + math.cos(am) * rad, c + math.sin(am) * rad
+            img.paste(die, (int(x - die.width * 0.5), int(y - die.height * 0.5)), die)
+    for rr, wd in ((r1 - 3, 7), (r0 + 3, 7), (r1 - 14, 2), (r0 + 14, 2)):
+        d.ellipse([c - rr, c - rr, c + rr, c + rr], outline=gilt, width=wd)
+    # Age: smoke and hands, darker toward the rim's bottom where the flapper's hand reaches.
+    rng2 = np.random.default_rng(1882)
+    noise = rng2.normal(0, 1, (S // 16, S // 16))
+    big = np.kron(noise, np.ones((16, 16)))
+    arr = np.asarray(img).astype(np.float32)
+    k = (0.88 + 0.06 * big)[..., None] * np.array([1.0, 0.97, 0.9])
+    arr = np.clip(arr * k, 0, 255).astype(np.uint8)
+    img = Image.fromarray(arr).filter(ImageFilter.GaussianBlur(0.6))
     out = os.path.join(common.MODELS, "wheel_face_albedo.png")
     img.save(out)
-    Image.new("RGB", (64, 64), (255, int(0.6 * 255), 0)).save(os.path.join(common.MODELS, "wheel_face_orm.png"))
+    Image.new("RGB", (64, 64), (255, int(0.62 * 255), 0)).save(os.path.join(common.MODELS, "wheel_face_orm.png"))
     print("wheel face ->", os.path.relpath(out, common.ROOT))
 
 
@@ -584,43 +607,66 @@ def wheel():
     w = saloon.WHEEL
     bx, by, bt = w["board"]
     R, th = w["radius"], w["thick"]
+    b0, b1 = w["band"]
     cy = w["axle_y"]
-    z0 = bt + 0.02
+    z0 = bt + w["stand_off"]
     z1 = z0 + th
-    seg = 48
-    verts, uvs, faces = [(0.0, cy, z1)], [(0.5, 0.5)], []
+    zm = (z0 + z1) * 0.5
+    seg = 96
+    # The band: its front at z1 - 4 mm (inside the rim's lips), printed; its back the same, unprinted.
+    zf = z1 - 0.004
+    verts, uvs, faces = [], [], []
     for k in range(seg):
         a = 2 * math.pi * k / seg
-        verts.append((math.cos(a) * R, cy + math.sin(a) * R, z1))
-        # The sheet's y runs down; the wheel's up: the image's angle mirrored.
-        uvs.append((0.5 + math.cos(a) * 0.49, 0.5 + math.sin(a) * 0.49))
+        for rr in (b0, b1):
+            verts.append((math.cos(a) * rr, cy + math.sin(a) * rr, zf))
+            uvs.append((0.5 + math.cos(a) * 0.49 * rr / b1, 0.5 + math.sin(a) * 0.49 * rr / b1))
     for k in range(seg):
-        faces.append([0, 1 + k, 1 + (k + 1) % seg])
-    # Its edge (the rim's band covers it; on the sheet's outer red).
-    base = len(verts)
-    for k in range(seg):
-        a = 2 * math.pi * k / seg
-        verts += [(math.cos(a) * R, cy + math.sin(a) * R, z0), (math.cos(a) * R, cy + math.sin(a) * R, z1)]
-        uvs += [(0.5 + math.cos(a) * 0.495, 0.5 + math.sin(a) * 0.495)] * 2
-    for k in range(seg):
-        a, b = base + 2 * k, base + 2 * ((k + 1) % seg)
+        a, b = 2 * k, 2 * ((k + 1) % seg)
         faces.append([a, b, b + 1, a + 1])
+    nf = len(verts)
+    for k in range(seg):
+        a = 2 * math.pi * k / seg
+        for rr in (b0, b1):
+            verts.append((math.cos(a) * rr, cy + math.sin(a) * rr, z0 + 0.006))
+            uvs.append((0.5 + math.cos(a) * 0.49 * 0.5 * (b0 + b1) / b1, 0.5 + math.sin(a) * 0.49 * 0.5 * (b0 + b1) / b1))
+    for k in range(seg):
+        a, b = nf + 2 * k, nf + 2 * ((k + 1) % seg)
+        faces.append([a + 1, b + 1, b, a])
     face = Part("Face", smooth=False).add(verts, faces)
     face.uvs = uvs
-    rim = [ring("r", R + 0.004, 0.0, 0.006, segs=64, sides=6)]
-    rim = [moved(rim[0], 90.0, (1, 0, 0), (0, cy, z1 - 0.01))]
+    # The rim (its lips stand proud of the band), the band's inner ring, a brass bead round the rim's
+    # face, and a brass peg out of the rim's edge between each panel.
+    rim = [annulus("o", b1 - 0.004, R, z0, z1 + 0.006, segs=seg), annulus("i", b0 - 0.022, b0 + 0.004, z0, z1 + 0.004, segs=seg)]
+    rim = [moved(p, 0.0, (0, 0, 1), (0, cy, 0)) for p in rim]
     n = w["segments"]
+    pegs = []
     for k in range(n):
         a = 2 * math.pi * k / n
-        x, y = math.cos(a) * (R - 0.025), cy + math.sin(a) * (R - 0.025)
-        rim.append(lathe("p", [(0.0, z1), (0.0075, z1), (0.006, z1 + 0.04), (0.0085, z1 + 0.044), (0.0, z1 + 0.05)], 8, axis="z", at=(x, y, 0.0)))
-    hub = lathe("Hub", [(0.0, z1), (0.06, z1), (0.06, z1 + 0.012), (0.035, z1 + 0.02), (0.02, z1 + 0.04), (0.0, z1 + 0.045)], 20, axis="z", at=(0, cy, 0.0))
-    # The clapper: a block on the board over the wheel, a leather flap hanging to the pegs.
+        peg = lathe("p", [(0.0, R - 0.01), (0.0045, R - 0.01), (0.0042, R + w["peg"] - 0.008), (0.0065, R + w["peg"] - 0.005),
+                          (0.004, R + w["peg"]), (0.0, R + w["peg"] + 0.001)], 8)
+        pegs.append(moved(peg, math.degrees(a) - 90.0, (0, 0, 1), (0, cy, zm)))
+    bead = [moved(ring("b", R - 0.006, 0.0, 0.0045, segs=seg, sides=6), 90.0, (1, 0, 0), (0, cy, z1 + 0.006))]
+    # The spokes, from the hub to the band's inner ring, in the wheel's middle plane.
+    spokes = []
+    for k in range(w["spokes"]):
+        a = 2 * math.pi * (k + 0.5) / w["spokes"]
+        pts = [(math.cos(a) * rr, cy + math.sin(a) * rr, zm) for rr in (0.05, 0.2, b0 - 0.01)]
+        spokes.append(tube("s", pts, [(0.013, 0.013), (0.011, 0.011), (0.009, 0.009)], sides=6))
+    spokes.append(star("r", w["star"] * 1.06, w["star"] * 0.4, zm - 0.004, zm + 0.008, turn=math.pi / 8, at=(0, cy)))
+    # The hub: a gilt eight-pointed star over the spokes, a boss and the axle's nut.
+    hub = [star("g", w["star"], w["star"] * 0.36, zm + 0.008, zm + 0.02, at=(0, cy)),
+           star("g2", w["star"] * 0.55, w["star"] * 0.25, zm + 0.02, zm + 0.028, turn=math.pi / 8, at=(0, cy)),
+           lathe("h", [(0.0, zm), (0.055, zm), (0.055, zm + 0.03), (0.04, zm + 0.04), (0.025, zm + 0.05), (0.012, zm + 0.065), (0.0, zm + 0.068)],
+                 20, axis="z", at=(0, cy, 0.0))]
+    # The flapper: an oak block on the plank's top over the wheel, a leather flap hanging into the pegs.
     cyp = w["clapper_y"]
-    clap = merged("Clapper", [box("b", (0.09, 0.1, 0.08), (0, cyp + 0.03, bt + 0.04), bevel=0.008),
-                              box("f", (0.045, 0.12, 0.006), (0, cyp - 0.045, z1 + 0.04), bevel=0.002)], smooth=False)
-    parts = [(merged("Rim", rim), "brass_old"), (hub, "brass_old"), (clap, "leather"), (face, None)]
-    metal.export_baked("wheel_of_fortune", parts, size=512)
+    block = merged("Clapper", [box("b", (0.1, 0.1, zm + 0.02 - bt), (0, cyp + 0.03, (bt + zm + 0.02) * 0.5), bevel=0.008),
+                               box("p", (0.05, 0.03, 0.03), (0, cyp - 0.03, zm), bevel=0.004)], smooth=False)
+    flap = merged("Flap", [box("f", (0.042, cyp - 0.04 - (R + 0.012), 0.006), (0, (cyp - 0.04 + R + 0.012) * 0.5, zm), bevel=0.002)], smooth=False)
+    parts = [(merged("Rim", rim + pegs + bead), "brass_old"), (merged("Spokes", spokes), "turned_wood"), (merged("Hub", hub), "brass_old"),
+             (block, "turned_wood"), (flap, "leather"), (face, None)]
+    metal.export_baked("wheel_of_fortune", parts, size=1024)
 
 
 # --- The till, the cards and chips, the bar's rails -----------------------------------------------
