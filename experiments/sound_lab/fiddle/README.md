@@ -151,6 +151,11 @@ changes; results in `../results/2026-11-10_fiddle/`.
 - `abc_tune.py` reads a song's own chord symbols (Em, Cadd9 as C; `tune.CHORD_TONES` has the minors now)
   and writes `bar_units` (each bar's start), which `rhythm.grid` uses: a song can open on rests (an
   intro) or start a line after its downbeat. Tunes without them read as before.
+- `bass.py`: an upright bass, pizzicato (banjo.py's strings, E1-G2, a wide soft pluck, a big body), root
+  and fifth with a walk into each change (`STYLE` drive: every beat); every note within 30 cents. `drums.py`:
+  a kick (a damped skin's modes over ~55 Hz, the pitch falling after the hit, the beater's slap) and a soft
+  snare (its wires), stomp or four on the floor. In `band.py` both follow `--strum`. Low: earbuds, not a
+  phone speaker.
 - `tunes/porch_light.abc`: an original song in that style (intro, verse, chorus twice, outro; ~94 s).
 
 ## Commands

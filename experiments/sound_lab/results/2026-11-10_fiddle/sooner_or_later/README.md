@@ -7,3 +7,5 @@ down-up, beats two and four leant on. `band.py sooner_or_later.json --no-fiddle 
 --banjo-style=flatpick --strum=drive --with=guitar,banjo,tambourine --levels=banjo:0,guitar:-2,tambourine:-14`.
 The guitar on its chords: median 90% of its sound on the chord's pitch classes (the low bars are the
 chords' own overtones counted by name: B minor's F# has a C# third partial).
+
+Full band (`song_full.mp3`): guitar, banjo, upright bass (every beat), drums (four on the floor).
