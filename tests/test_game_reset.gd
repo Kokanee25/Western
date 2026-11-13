@@ -90,3 +90,45 @@ func _scripts(dir: String) -> PackedStringArray:
 		if sub != "results":
 			out.append_array(_scripts(dir.path_join(sub)))
 	return out
+
+
+## A fresh start wipes the story (#864, review A5): after Backspace No Law's murder plays again.
+func test_a_fresh_start_wipes_the_story() -> void:
+	StoryState.set_fact("nolaw.murder", "done")
+	StoryState.set_fact("sheriff.care", "good")
+	StoryState.mark_checkpoint()
+	GameReset.clear_statics()  # what Backspace, a look's reload and the bridge's world do first
+	check(StoryState.facts.is_empty(), "no facts (%s)" % StoryState.facts)
+	check(StoryState.when.is_empty(), "no times")
+	check(StoryState.checkpoint.is_empty(), "no mission's checkpoint either")
+
+
+## A mission's retry starts from the story as it stood when the mission began: what earlier missions
+## set holds, what the lost try set is gone; and again on a second retry.
+func test_a_retry_puts_back_the_story_as_the_mission_began() -> void:
+	GameReset.clear_statics()
+	StoryState.set_fact("sheriff.care", "good", 1, 7.5)
+	StoryState.mark_checkpoint()  # the mission begins (CoachCut.start_coach, FarmhouseMission.begin, ...)
+	StoryState.set_fact("coach.outcome", "lost")
+	StoryState.set_fact("sheriff.care", "poor")  # (nothing a try does to an earlier fact sticks)
+	GameReset.clear_for_retry()
+	check_eq(StoryState.get_fact("sheriff.care"), "good", "the earlier mission's fact as it was")
+	check_eq(StoryState.when.get("sheriff.care"), [1, 7.5], "and when it was set")
+	check(not StoryState.has_fact("coach.outcome"), "the lost try's fact gone")
+	StoryState.set_fact("coach.outcome", "lost")
+	GameReset.clear_for_retry()
+	check(not StoryState.has_fact("coach.outcome"), "gone again on the second retry")
+	check_eq(StoryState.get_fact("sheriff.care"), "good", "the checkpoint kept")
+	GameReset.clear_statics()
+
+
+## Every mission's retry reloads through GameReset.retry (the story to its checkpoint), not the
+## fresh start; and each mission marks its checkpoint as it begins.
+func test_every_mission_retry_keeps_the_story_to_its_start() -> void:
+	for path: String in ["res://src/missions/coach_fight.gd", "res://src/missions/farmhouse_mission.gd"]:
+		var src := FileAccess.get_file_as_string(path)
+		check("GameReset.retry(" in src, "%s retries through GameReset.retry" % path.get_file())
+		check(not "GameReset.reset(" in src, "%s doesn't start the game afresh" % path.get_file())
+	for path: String in ["res://src/missions/coach_cut.gd", "res://src/missions/farmhouse_mission.gd",
+			"res://src/missions/sheriff_on_road.gd", "res://src/missions/sheriff_dies.gd"]:
+		check("StoryState.mark_checkpoint()" in FileAccess.get_file_as_string(path), "%s marks its checkpoint" % path.get_file())

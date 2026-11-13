@@ -1560,11 +1560,8 @@ func _street_spot(p: Vector3) -> Vector3:
 	var side := signf(body.global_position.x - p.x)
 	if side == 0.0:
 		side = 1.0
-	var x := p.x + side * 12.0
-	# Main Street between Market Street and Freight Street (config/town.json).
-	if x > 16.0 or x < -34.0:
-		x = p.x - side * 12.0
-	return TownLayout.street_point(clampf(x, -34.0, 16.0), -0.6 + _think.randf_range(-1.0, 1.0))
+	# The loaded world's Main Street (the old town's or the valley's: WorldPlaces, #864).
+	return WorldPlaces.street_spot(get_tree(), p, side * 12.0, _think.randf_range(-1.0, 1.0))
 
 
 ## Face to face in the open, hand by the holster. He goes for his gun when you go for yours, or

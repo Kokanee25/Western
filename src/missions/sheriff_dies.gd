@@ -63,6 +63,7 @@ func begin() -> void:
 	folk.sheriff_scene = self
 	if opts.get("set_up", false):
 		_set_up_morning()
+	StoryState.mark_checkpoint()  # the night before it, set up or played (#864)
 	fact("nolaw.sheriff", "dying")
 	_make_room()
 	_make_men()
