@@ -150,6 +150,11 @@ vec4 rubble(vec2 p, out vec2 local, out vec2 half_size) {
 		float cut = mix(a, b, 0.32 + 0.36 * h11(id * 4.4));
 		if (p.x < cut) { b = cut; id = fract(id * 7.13 + 0.21); } else { a = cut; id = fract(id * 3.71 + 0.47); }
 	}
+	// The odd stone in a tall course two thin ones stacked (the course's line broken).
+	if (h11(id * 5.9) < 0.12 && y1 - y0 > stone_size.y * 0.85) {
+		float cut = mix(y0, y1, 0.38 + 0.24 * h11(id * 6.6));
+		if (p.y < cut) { y1 = cut; id = fract(id * 5.31 + 0.13); } else { y0 = cut; id = fract(id * 2.97 + 0.61); }
+	}
 	// Each side's half joint its own: a stone set a little in from its neighbours, more on some sides.
 	vec4 inset = joint * 0.5 * (0.35 + 1.5 * vec4(h11(id * 91.0), h11(id * 37.0), h11(id * 53.0), h11(id * 71.0)));
 	vec2 lo = vec2(a + inset.x, y0 + inset.y);
@@ -252,22 +257,30 @@ void fragment() {
 	if (finish > 0.5 && finish < 1.5) {
 		// --- Lime plaster, whitewashed -----------------------------------------------------------
 		vec2 pp = top ? p.xz : vec2(u, p.y);
-		float und = nz(pp * 0.05) * 0.004 + nz(pp * 0.3 + 3.1) * 0.0012;
+		// A lime coat follows the wall under it: a soft wave, and the rubble's courses a ghost through it.
+		vec2 gl;
+		vec2 gh;
+		vec4 ghost = rubble(pp, gl, gh);
+		float und = nz(pp * 0.05) * 0.006 + nz(pp * 0.3 + 3.1) * 0.0018 + 0.0006 * smoothstep(0.03, -0.07, ghost.x) * (0.5 + 0.5 * nz(pp + ghost.y));
 		h = und;
 		vec3 base = plaster_color;
 		if (has_plaster) {
 			vec3 s = texture(plaster_albedo, pp / plaster_tile).rgb;
-			base *= clamp(s / max(plaster_mean, vec3(0.05)), 0.7, 1.3);
+			base *= mix(vec3(1.0), clamp(s / max(plaster_mean, vec3(0.05)), 0.7, 1.3), 0.4);
 		}
 		// The wash: thick and fresh mostly, thin where it's worn, flaked in patches with age.
 		float thin = smoothstep(0.55, 0.85, nz(pp * 0.4 + 7.7)) * (0.3 + 0.7 * inside_age);
 		// Flaked where the coat let go (old), the plaster's grey a shade under the white, a lip at its edge.
 		float fn = nz(pp * 0.7 + 1.9) + 0.08 * nz(pp * 6.0);
-		float flake = smoothstep(0.84 - 0.06 * inside_age, 0.86 - 0.06 * inside_age, fn) * smoothstep(0.3, 0.8, inside_age);
-		float lip = smoothstep(0.8 - 0.06 * inside_age, 0.84 - 0.06 * inside_age, fn) - flake;
+		float flake = smoothstep(0.88 - 0.1 * inside_age, 0.895 - 0.1 * inside_age, fn) * smoothstep(0.4, 0.9, inside_age);
+		float lip = 0.0;
 		vec3 wash = whitewash_color * (0.95 + 0.07 * nz(pp * 2.3)) * (0.97 + 0.03 * nz(pp * 9.0));
-		col = mix(wash, mix(wash, base, 0.6), clamp(thin * 0.4 + flake * 0.55, 0.0, 1.0));
-		h += flake * -0.0007 + lip * 0.0004;
+		col = mix(wash, mix(wash, base, 0.5), clamp(thin * 0.45, 0.0, 1.0));
+		// Where it let go: the grey plaster under, its edge a little darker (dirt caught on it).
+		float fedge = smoothstep(0.865 - 0.1 * inside_age, 0.88 - 0.1 * inside_age, fn) * smoothstep(0.4, 0.9, inside_age) - flake;
+		col = mix(col, mix(wash, base, 0.45), flake);
+		col = mix(col, col * 0.92, fedge * 0.5);
+		h -= flake * 0.0006;
 		rough = 0.92;
 		stone_mask = 0.0;
 	} else {
@@ -284,6 +297,10 @@ void fragment() {
 			float tool = sin((fp.x * 0.7 + fp.y) * 180.0 + nz(fp * 3.0) * 9.0) * 0.5 + 0.5;
 			h = 0.00035 * tool * draft + 0.002 * (nz(fp * 1.7 + sid * 9.0) - 0.5) - in_mortar * 0.006
 				- 0.003 * (1.0 - smoothstep(0.0, 0.025, edge)) * nz(fp * 6.0 + sid);
+			if (quoin_here > 0.5) {
+				// A quoin rock-faced inside a drafted margin: pitched, not a flat panel.
+				h += draft * (0.008 * nz(fp * 1.3 + sid * 4.0) + 0.003 * nz(fp * 5.0 + sid)) * smoothstep(0.03, 0.07, edge);
+			}
 			col = dressed_color * (1.0 + 0.08 * (h11(sid * 23.0 + 1.0) - 0.5) * 2.0);
 			col *= 0.88 + 0.2 * nz(fp * 0.6 + sid * 5.0);
 			col *= 0.94 + 0.1 * nz(fp * 2.9 + sid);
@@ -307,19 +324,12 @@ void fragment() {
 			stone_mask = 1.0 - smoothstep(-aa, aa, r.x);
 			in_mortar = 1.0 - stone_mask;
 			sid = r.y;
-			// Pinnings: small spalls tapped into the wide joints.
-			float pin = 0.0;
-			if (r.x > 0.012) {
-				vec2 pc = floor(fp / 0.06);
-				vec2 pl = fp - (pc + 0.5) * 0.06 - (vec2(h21(pc), h21(pc + 7.0)) - 0.5) * 0.02;
-				float pr = 0.012 + 0.01 * h21(pc + 3.0);
-				float pd = max(abs(pl.x) * 0.8 + abs(pl.y) * 0.5, length(pl * vec2(0.9, 1.5))) + 0.004 * (nz(fp * 5.0) - 0.5);
-				pin = h21(pc + 11.0) > 0.82 ? 1.0 - smoothstep(pr - aa, pr + aa, pd) : 0.0;
-				pin *= smoothstep(0.012, 0.02, r.x);
-			}
 			// The stone's face: domed, tilted as it was set, pitted.
 			vec2 tilt = vec2(h11(r.y * 61.0), h11(r.y * 67.0)) - 0.5;
-			float face = stone_relief * (0.55 + 0.45 * h11(r.y * 5.0)) * sqrt(r.z)
+			// Its face rolls down to the joint over a few cm (a knocked, weathered arris), no step.
+			float roll = smoothstep(-0.002, -0.06, r.x);
+			float face = stone_relief * (0.55 + 0.45 * h11(r.y * 5.0)) * (0.55 * roll + 0.45 * smoothstep(0.0, 1.0, r.z))
+				- joint_depth * 0.35 * (1.0 - roll)
 				+ dot(local, tilt) * 0.05
 				+ 0.003 * (nz(fp * 2.2 + r.y * 13.0) - 0.5) + 0.0012 * (nz(fp * 7.0 + r.y) - 0.5);
 			vec3 st = stone_tone(r.y);
@@ -327,29 +337,26 @@ void fragment() {
 			if (has_face) {
 				vec2 fo = vec2(h11(r.y * 7.0), h11(r.y * 11.0));
 				vec3 sc = texture(face_albedo, (fp + fo * 3.0) / face_tile).rgb;
-				st *= clamp(sc / max(face_mean, vec3(0.05)), 0.6, 1.4);
+				st *= mix(vec3(1.0), clamp(sc / max(face_mean, vec3(0.05)), 0.7, 1.3), 0.75);
 				face += 0.004 * (dot(sc - face_mean, vec3(0.333)));
 			}
-			float mort = -joint_depth * (0.45 + 0.9 * age) + 0.0025 * (nz(fp * 4.0 + 5.0) - 0.5) - 0.004 * smoothstep(0.0, 0.02, r.x);
-			h = mix(mort, face, stone_mask);
-			h = mix(h, -joint_depth * 0.5 + 0.002, pin);
+			// The pointing: flush and smooth new, eroded back and crumbly old.
+			float mort = -joint_depth * (0.45 + 0.9 * age) + (0.002 + 0.003 * age) * (nz(fp * 4.0 + 5.0) - 0.5)
+				- 0.003 * age * (nz(fp * 11.0 + 2.0) - 0.5) - 0.003 * smoothstep(0.0, 0.02, r.x);
+			h = mix(mort, face, smoothstep(0.003, -0.003, r.x));
 			// Age: new stone fresh from the quarry, paler at its knocked arrises; with the years a grey-brown
 			// patina over it, a dark crust in patches (desert varnish), the arrises dulled, grit in the pits.
-			float rim = 1.0 - smoothstep(0.0, 0.02, -r.x);
-			st = mix(st, st * 1.14, rim * 0.5 * (1.0 - age));
-			st *= mix(1.06, 0.9, age);
-			st = mix(st, vec3(dot(st, vec3(0.3, 0.4, 0.3))) * vec3(1.0, 0.96, 0.9), 0.3 * age);
+			st *= mix(1.05, 0.95, age);
+			st = mix(st, vec3(dot(st, vec3(0.3, 0.4, 0.3))) * vec3(1.0, 0.96, 0.9), 0.18 * age);
 			float crust = smoothstep(0.55, 0.8, nz(fp * 0.45 + r.y * 2.0) + 0.15 * nz(fp * 3.0)) * age;
-			st = mix(st, st * vec3(0.62, 0.56, 0.5), crust * 0.6);
-			st = mix(st, st * 0.82, (1.0 - smoothstep(0.0, 0.006, face - 0.003)) * 0.4 * age);
+			st = mix(st, st * vec3(0.7, 0.62, 0.54), crust * 0.4);
 			vec3 mc = mortar_color * (0.92 + 0.12 * nz(fp * 3.0 + 1.0));
 			mc = mix(mc * 1.06, mc * vec3(0.72, 0.69, 0.64), age);
 			mc = mix(mc, mc * 0.8, smoothstep(0.4, 0.8, nz(fp * 1.3 + 3.0)) * age);
-			col = mix(mc, st, stone_mask);
-			col = mix(col, stone_tone(h21(floor(fp / 0.06))) * (0.85 + 0.2 * nz(fp * 4.0)), pin);
+			col = mix(mc * 0.92, st, stone_mask);
 			// Deep joints and the stones' shadowed undersides.
-			occl = mix(0.5 + 0.25 * smoothstep(0.01, 0.03, r.w), 1.0, stone_mask);
-			occl *= 1.0 - 0.15 * (1.0 - smoothstep(0.0, 0.04, -r.x)) * stone_mask * smoothstep(0.0, -0.6, local.y / hs.y);
+			// The joints in their own shade, deeper the older (no drawn line: it follows the height).
+			occl = mix(0.62 - 0.12 * age, 1.0, smoothstep(0.004, -0.02, r.x));
 			rough = mix(roughness_mortar, roughness_stone, stone_mask);
 		}
 		if (finish > 1.5) {
@@ -358,6 +365,9 @@ void fragment() {
 			float thin = (1.0 - in_mortar) * smoothstep(0.004, 0.012, h) * 0.35 + 0.15 * smoothstep(0.6, 0.9, nz(fp * 0.5 + 2.0)) * inside_age;
 			vec3 wash = whitewash_color * (0.95 + 0.08 * nz(fp * 2.0));
 			col = mix(wash, col, clamp(thin, 0.0, 0.6));
+			// Coats of wash fill the joints and soften every edge.
+			h *= 0.55;
+			occl = mix(occl, 1.0, 0.5);
 			rough = 0.93;
 		} else {
 			// Outside: the old lime wash left in the joints and the stones' hollows.
@@ -396,7 +406,7 @@ void fragment() {
 				if (abs(dot(off, vec2(-da.z, da.y))) > 0.15 || abs(dot(off, da.yz)) > 0.12) { continue; }
 				float past = length(ab) * (t < 0.0 ? -t : max(t - 1.0, 0.0));
 				float down = (da.x - p.y) / max(da.w, 0.1);
-				float runs = smoothstep(0.62, 0.85, nz(vec2(u * 0.9, da.x * 0.37)) + 0.12 * nz(vec2(u * 4.0, 1.0)));
+				float runs = smoothstep(0.66 - 0.18 * age, 0.86 - 0.1 * age, nz(vec2(u * 0.9, da.x * 0.37)) + 0.12 * nz(vec2(u * 4.0, 1.0)));
 				sk = max(sk, runs * (1.0 - smoothstep(0.05, 1.0, down + 0.25 * nz(vec2(u * 3.0, p.y * 0.5)))) * (1.0 - smoothstep(0.0, 0.12, past)));
 			}
 			col = mix(col, col * mix(vec3(1.0), streak_color * 2.2, 0.6), sk * streaks * (0.4 + 0.6 * age));
@@ -409,7 +419,13 @@ void fragment() {
 		float hf = p.y - at.x;
 		vec2 pp = vec2(u, p.y);
 		float band = smoothstep(grime_band.x - 0.15, grime_band.x, hf) * (1.0 - smoothstep(grime_band.y, grime_band.y + 0.25, hf));
-		band *= smoothstep(0.35, 0.75, nz(pp * vec2(0.6, 0.25) + 9.0)) * inside_age;
+		band *= (0.35 + 0.65 * smoothstep(0.3, 0.75, nz(pp * vec2(0.35, 0.9) + 9.0))) * (0.3 + 0.9 * inside_age);
+		// Hands: smudges at shoulder height, more with the years.
+		vec2 hc = floor(pp / vec2(0.35, 0.3));
+		vec2 hl = pp - (hc + 0.5) * vec2(0.35, 0.3) - (vec2(h21(hc), h21(hc + 3.0)) - 0.5) * 0.15;
+		float hand = (h21(hc + 9.0) < 0.25 * inside_age ? 1.0 : 0.0) * (1.0 - smoothstep(0.03, 0.07, length(hl * vec2(1.0, 0.8)) + 0.02 * nz(pp * 9.0)));
+		hand *= smoothstep(grime_band.x - 0.1, grime_band.x + 0.1, hf) * (1.0 - smoothstep(grime_band.y - 0.1, grime_band.y + 0.1, hf));
+		band = max(band, hand * 0.8);
 		float scuff = (1.0 - smoothstep(0.05, 0.3 + 0.1 * nz(vec2(u, 3.0)), hf)) * (0.5 + 0.5 * nz(pp * 4.0)) * (0.3 + 0.7 * inside_age);
 		float high = smoothstep(at.y - 1.0, at.y, p.y) * soot * (0.6 + 0.4 * nz(pp * 0.5));
 		col = mix(col, col * grime_color * 1.6, clamp(band * 0.55, 0.0, 1.0));
