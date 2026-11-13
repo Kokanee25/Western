@@ -162,7 +162,9 @@ func test_the_valley_scene_is_empty() -> void:
 		check(valley.find_child(name, true, false) == null, "no %s in the valley" % name)
 	# (G6: the farmhouse and its mission on the widow's pad; tests/test_valley_farmhouse.gd.)
 	check(valley.get_node_or_null(^"Farmhouse") is Farmhouse and valley.get_node_or_null(^"FarmhouseMission") is FarmhouseMission, "the farmhouse and its mission (G6)")
-	var people := get_tree().get_nodes_in_group(&"people")
+	# Nobody but the train's engineer (G3) and, by day, the town's day folk on their walks (#796).
+	var folk := (valley as ValleyWorld).folk
+	var people := get_tree().get_nodes_in_group(&"people").filter(func(p: Node) -> bool: return folk == null or not folk.people.values().has(p))
 	check(people.size() <= 1 and people.all(func(p: Node) -> bool: return p.name == "Engineer"), "nobody in it but the train's engineer (G3) (%s)" % [people.map(func(p: Node) -> String: return p.name)])
 	var rail := valley.get_node_or_null(^"Railway") as ValleyRailway
 	check(rail != null and rail.line != null and rail.train != null, "the main line and its train (G3: tests/test_valley_railway.gd)")

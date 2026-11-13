@@ -35,6 +35,9 @@ separately and don't agree). The pictures are the look to match.
 | `rooms` | each room's level, rect and use | 12, from the hall to the cellar |
 | `fixtures`, `furniture` | kit props by id, place, facing, repeats; a table's chairs; furniture of members (`table`, `shelves`) | the bar and back bar in sections, 3 card tables, 14 chairs |
 | `lamps` | sconces by wall, level, places along it, height; lamps on the tables and the bar; a chandelier | 31 OilLamps |
+| `inside_finish` (#826) | `boards: "judged"`: the inside boards (and the ceiling's) drawn at the width their finish's library entry was judged at (`board_w`), three to a member (`strips_mesh`); `skirting`: its height on every boarded face, stopped at the door casings | the doctor's: 9 cm beaded boards, an 8 in skirting |
+| windows' `lights`, `bars` (#826) | an outer window with `lights` is a sash window (`SashWindow`, `src/structures/sash_window.gd`): a lined reveal, two sashes of `lights / 2` panes (1: one fixed light), each pane its own glass; without it, one pane as before. `bars: true` sets iron bars outside the sashes (`_bars`) | the doctor's: two-over-two below, one-over-one in the loft and the dispensary's high window |
+| `light` (#824) | the room's light: `fill` the indoor fill's colour (near neutral); with it the fill's box reaches the outer walls and RoomLight takes the sky through every outer door and window (`light_openings`) | the doctor's |
 | `outbuildings` | each by kind, place, size | the outhouse |
 | `use_points` | where people stand, sit, serve, work, sleep, watch and take cover; `seats` points at a kit prop's | 22, plus the tables' seats |
 | `use` | how it's used day in day out (docs/briefs/lived-in.md): years in use; walking paths by level, who, passings a day and width; climbs a day on each stair; spots where people stand at a rail (`at`, `feet`); doors; spills; the kit's furniture; lamps' soot; weather (splash, bleach, streaks) | ten paths, four stairs, four spots, two spills |
@@ -52,8 +55,43 @@ boards stopped under the rafters that cross it, `ribbon: false` none; an inside 
 caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuildings` kind
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
+`lamps.kit` (#824) kit lamps hung on a wall's boards (on a stone wall, its face at the lamp's
+height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side, lit
+[from, until], energy, reach, shadows};
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
+
+**A stone building's parts** (`jail/jail.json`, #780; built by `stone.gd` when `frame.stone_wall`
+is given; the others build as before): `frame.stone_wall` {`masonry` the masonry lab's kind,
+`thick`, `course`, `piece`, `footing_below`, `lintel` {height, bear}, `sill`, `coping`}; a stone
+wall (`stone: true`) has its `line` on its OUTER face (a stone partition's: its `out` face), the
+stone inward, its `top`, its `profile` ([from y, d_lo, d_hi], d along `out`, 0 the line: set-offs
+and ledges) and its `ends` (the wall each end butts, or null: it runs to that wall's inside face at
+every height); a window's `bars`, `glass: false` (a slit), a door's `transom`; `lot.ground.plane`
+[y at the origin, dy/dx, dy/dz] (the footings follow it; the lab tilts its ground to it);
+`lot.footprint` (the plan's wings), `walk_x`, `walk_h`, `yard_name` (plan_sheet.py); `floors`
+`kind: "flags"` (a stone fill under flags) and floors on other levels with their own `joist` (the
+flat roofs: `levels.upper` the office's, `levels.ell_roof` the wing's) and a `hatch`;
+`frame.roof_joist`, `ell_joist`, `tin`; `cells` (strap-iron cages: x, z, height, strap, spacing,
+door, bunk, gate); `ladders` with `inside` (at [x, z], `face`); `stairs` with `wood: "stone"`
+(stone blocks to a stoop); `yard_walls` {thick, height, step, walls: line, out, ends, gates}.
+
+**Saloon B's parts** (`saloon_b/saloon_b.json`, #848; all optional, the other specs build as before):
+an opening of type `void` (a corner cut off: no studs, trim or leaf; a king that would stand past
+the wall's end is left to the corner's column) and `corner` {from, to, door {width, height,
+transom}, column {at, size, wood}, beam}: one iron column from the sill to the balcony's beam, a
+deep beam under each void's header, and the diagonal wall with glazed double doors standing open
+and a transom light (`_corner_entrance`; RoomLight and the traffic map take its doorway); a
+partition opening of type `arch` (no leaf); `frame.stacked` (openings over openings under trusses:
+kings stop under and over them, and plates, ribbons, ledgers, siding, sashes and finish go a band
+up so they rest on the cripples over an opening); `girders.under` [{x, z}] a girder under a
+bearing partition that runs with the joists, piers to the floor's top, the boards butted to it; a
+beam's `brackets: false`; a floor's `end_gap` (its joists cut that much short at each end, so
+they hinge down when a support goes instead of jamming); `sabotage` {girder, cut} the member a
+mission saws and where (`SpecBuilding.saw_girder`); `galleries.height` the rail's; a wall's second
+stretch of finish at a level (its ids under `in_<level>/s1`); stairs' `stoop` against the back
+wall; `lot.side_walk` {at, turn, length, depth, steps} a boardwalk down a side street, built by
+whoever places the building (ValleyWorld, the lab).
 
 ## Bands: a second storey on the support ladder
 

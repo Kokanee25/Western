@@ -803,8 +803,12 @@ func _physics_step(delta: float) -> void:
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
 		var given_up := _given_up_in_reach()
+		var companion := CompanionBrain.in_view(player)
 		if given_up != null:
 			_arrest(given_up)
+		elif companion != null:
+			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
+			say(companion.told(player), 2.0)
 		elif w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
@@ -825,8 +829,10 @@ func _physics_step(delta: float) -> void:
 	for gun in player.weapons:
 		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
 		var sat := player.seat != null and player.seat.seated()
-		gun.hands_busy = tending > 0.0 or sat
-		gun.busy_why = "you're sat at the table" if sat and tending <= 0.0 else ""
+		# One you don't carry (No Law: the revolver till the sheriff gives it, Player.lacks).
+		var lacked := not player.carries(gun)
+		gun.hands_busy = tending > 0.0 or sat or lacked
+		gun.busy_why = "you haven't got one" if lacked else ("you're sat at the table" if sat and tending <= 0.0 else "")
 		# The shotgun and the rifle take both hands; the revolver only the right.
 		gun.arm_disabled = not p.can_hold("r") or ((gun is ShotgunViewmodel or gun is Winchester73Viewmodel) and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))

@@ -7,7 +7,8 @@ shader_type spatial;
 //   CUSTOM0 = (seed in [0, 1), x / L, 2y / W, face: 0 a long face, 1 an end (end grain), 2 an edge)
 //   CUSTOM1 = (L, W, T, warp: how far this board twists, cups, bows and crooks, 0 true .. 1 an old shed's)
 //   CUSTOM2 = (nail rows: 0, 1 or 2; their place across the face, 0..1 of the half width; ground y;
-//              role: 0 a board, 1 a bar's rail top: glass rings and elbow wear where it's varnished)
+//              role: 0 a board, 1 a bar's rail top: glass rings and elbow wear where it's varnished,
+//              2 a drawer front: hands round its pulls, under `furniture`)
 // so a batch of boards draws the same as the boards one by one (part 5: in the vertex shader, from a
 // seed, not unique meshes). Its collision is still its plain box.
 //
@@ -152,6 +153,30 @@ uniform vec3 paint_dust : source_color = vec3(0.58, 0.49, 0.39);
 // Where the sun works hardest, in the world (south-west: the afternoon's heat; DayCycle's south is -Z).
 uniform vec3 paint_sun = vec3(-0.6, 0.0, -0.8);
 
+// Floors (#825; the doctor's room review, cause 2): feet scour a floor's oil and dirt off along the
+// ways people walk (door to desk, door to door) and leave the boards there paler, greyer and matte,
+// their soft earlywood worn below the latewood; by the walls, where nobody treads, the old oil and the
+// dust stay dark. `traffic` the strength at full age; `traffic_map` a building's own ways (R: feet,
+// G: by a wall; MaterialLibrary.traffic_map paints it from its rooms, doors and use points), in the
+// world's floor plane: uv = (dot(p - origin, u), dot(p - origin, v)). Without a map, a patchy wear only.
+// After the Wood Handbook ch. 16 (oil finishes: they darken as they age and wear off where abraded) and
+// period floors left oiled or bare (Moxon / Nicholson's carpentry manuals: deal floors, scoured).
+uniform float traffic = 0.0;
+uniform bool has_traffic_map = false;
+uniform sampler2D traffic_map : filter_linear, repeat_disable;
+uniform vec3 traffic_origin = vec3(0.0);
+uniform vec3 traffic_u = vec3(1.0, 0.0, 0.0);
+uniform vec3 traffic_v = vec3(0.0, 0.0, 1.0);
+// The map's floor height in the world: another level over the same plane (a loft) keeps a patchy wear only.
+uniform float traffic_y = 0.0;
+// Furniture (#825; the review's cause 5): a joined piece's finish, not a wall board's. Its arrises and
+// ends rubbed through to paler wood (or through the paint to primer and wood); round a drawer's pulls
+// (a board of role 2: pulls at its quarters when it's over 0.6 m long, else its middle, as the kit sets
+// them) dark with hands' grease and worn just under; dust on whatever faces up; the varnish duller in
+// patches. Its scans are mapped smaller and straighter by the entry (its `metres`).
+uniform float furniture = 0.0;
+uniform vec3 furniture_dust : source_color = vec3(0.6, 0.56, 0.5);
+
 // Flat: the seed is one number a board, and the fragment shader hashes it into the board's place in
 // each scan. Interpolated, its last bits differed from pixel to pixel (a perspective-interpolated
 // constant isn't exact), and the hash turned that into jumps of many texels in the rasteriser's
@@ -170,6 +195,7 @@ varying vec3 v_axis;   // the board's length in the world
 varying vec3 v_yaxis;  // across its face in the world
 varying flat vec2 v_cover;
 varying flat float v_length;
+varying flat float v_thick;
 
 float hash11(float p) {
 	p = fract(p * 0.1031);
@@ -228,6 +254,7 @@ void vertex() {
 	v_role = CUSTOM2.w;
 	v_cover = UV2;
 	v_length = L;
+	v_thick = max(CUSTOM1.z, 0.001);
 }
 
 // A scan sampled at metres `m` (along the grain, across it) with this board's offset and flips;
@@ -340,6 +367,68 @@ void fragment() {
 	float n2 = mix(0.5, texture(big_noise, q / 1.7 + 0.37).r, variety);
 	float age_layer = mix(layer_new, 1.0, ag);
 
+	// A floor's traffic (the uniforms' note): `tr` where feet have worn it, `by_wall` where none have.
+	float tr = 0.0;
+	float by_wall = 0.0;
+	if (traffic > 0.0 && floor_face && v_wnormal.y > 0.0 && face < 0.5 && bisect >= 9) {
+		vec2 tq = vec2(dot(v_world - traffic_origin, traffic_u), dot(v_world - traffic_origin, traffic_v));
+		vec2 tm = vec2(0.3, 0.0);
+		if (has_traffic_map) {
+			bool inside_map = all(greaterThanEqual(tq, vec2(0.0))) && all(lessThanEqual(tq, vec2(1.0)))
+					&& abs(v_world.y - traffic_y) < 0.4;
+			tm = inside_map ? texture(traffic_map, tq).rg : vec2(0.0);
+		}
+		// A path's edge is ragged and its middle uneven, never a painted band.
+		float rag = texture(big_noise, q / 0.5 + 0.13).r - 0.5;
+		float feet = clamp(tm.r * (1.0 + 1.1 * rag) + 0.4 * (n2 - 0.5) * tm.r, 0.0, 1.0);
+		tr = traffic * feet * mix(0.25, 1.0, smoothstep(0.0, 0.6, ag));
+		by_wall = traffic * tm.g * age_layer;
+	}
+	// Furniture (the uniforms' note): `fwear` the finish rubbed through, `fgrime` hands' grease round
+	// the pulls, `fdust` dust on what faces up.
+	float fwear = 0.0;
+	float fwear_edge = 0.0;
+	float fgrime = 0.0;
+	float fdust = 0.0;
+	if (furniture > 0.0 && bisect >= 9) {
+		float yrs = smoothstep(0.0, 1.0, ag);
+		// The arrises: a long face's last centimetre each side and at its ends; an end's or an edge's
+		// corners (their UV's y runs through the board's thickness).
+		// (Soft, a few millimetres, and continuous: thin and patchy they read as dashes drawn on.)
+		float e_long = face < 0.5 ? pow(smoothstep(v_width * 0.5 - 0.012, v_width * 0.5, abs(v_m.y)), 2.0) : 0.0;
+		float e_end = face < 0.5 ? pow(1.0 - smoothstep(0.0, 0.014, min(v_m.x, v_length - v_m.x)), 2.0) : 0.0;
+		float e_side = face > 0.5 ? pow(smoothstep(v_thick * 0.5 - 0.006, v_thick * 0.5, abs(v_m.y)), 2.0) : 0.0;
+		// Hands take some lengths of an edge more than others, over tens of centimetres.
+		float along_n = texture(big_noise, vec2(v_m.x / 0.8 + seed * 7.0, seed * 3.0)).r;
+		fwear = max(max(e_long, e_end), e_side) * clamp(0.55 + 0.9 * (along_n - 0.5), 0.0, 1.0) * 0.85 * (0.05 + 0.95 * yrs);
+		fwear_edge = fwear * furniture;
+		// A drawer front's pulls: grease in an oval round each, a little low (fingers curl under it), and the
+		// finish worn through just under it.
+		if (v_role > 1.5 && face < 0.5 && abs(v_wnormal.y) < 0.5) {
+			float L = v_length;
+			float px = L > 0.6 ? (v_m.x < L * 0.5 ? L * 0.25 : L * 0.75) : L * 0.5;
+			// Down and the ovals' radii in the board's own frame (a narrow drawer's front may stand on end).
+			vec2 down = vec2(-v_axis.y, -v_yaxis.y);
+			bool on_end = abs(v_axis.y) > 0.5;
+			vec2 o = vec2(v_m.x - px, v_m.y);
+			vec2 dg = (o - down * 0.014) / (on_end ? vec2(0.042, 0.06) : vec2(0.06, 0.042));
+			float rg = length(dg) * (0.85 + 0.3 * texture(big_noise, v_m / 0.05 + seed).r);
+			fgrime = (1.0 - smoothstep(0.3, 1.0, rg)) * (0.25 + 0.75 * yrs);
+			vec2 dw = (o - down * 0.02) / (on_end ? vec2(0.016, 0.035) : vec2(0.035, 0.016));
+			fwear = max(fwear, (1.0 - smoothstep(0.4, 1.0, length(dw))) * (0.1 + 0.9 * yrs) * 0.85);
+		}
+		// Dust on what faces up, thicker where nothing is set down or wiped (patchy), and along a top's
+		// back and ends (here: its long edges and ends, where a cloth doesn't reach).
+		float up = smoothstep(0.6, 0.9, v_wnormal.y);
+		// (A film, even but for where things were set down and wiped: a broad, low-contrast patchiness.)
+		float dn2 = texture(big_noise, q / 1.1 + 0.21).r;
+		float corner = face < 0.5 ? max(smoothstep(0.6, 1.0, abs(v_across)), 1.0 - smoothstep(0.0, 0.06, min(v_m.x, v_length - v_m.x))) : 0.5;
+		fdust = up * clamp(0.5 + 0.55 * (dn2 - 0.5) + 0.3 * corner, 0.0, 1.0) * smoothstep(0.1, 1.0, ag);
+		fwear *= furniture;
+		fgrime *= furniture;
+		fdust *= furniture;
+	}
+
 	// Weathering: toward the grey scan, first where the sun and rain reach (patchy, the top and the
 	// sun faces), all of it when old.
 	if (has_b && weathering > 0.0 && bisect >= 6) {
@@ -424,6 +513,8 @@ void fragment() {
 		float drive = years * (outside * (0.22 * sunk * olds + 0.9 * foot + 0.75 * drip + 0.5 * arr + 0.6 * endz)
 				+ paint_inside * (0.15 * foot + 0.55 * endz * olds));
 		drive *= paint_peel;
+		// A painted piece of furniture chips and rubs through at its arrises and round its pulls.
+		drive = max(drive, fwear_edge * 1.6 * smoothstep(0.15, 0.6, ag));
 		// The film's failure field, in the board's own metres (flat seed: its own place), strips along
 		// the grain over blots; the peel's edge sharp but never thinner than a pixel.
 		vec2 pm = face < 0.5 ? v_m : m;
@@ -573,7 +664,7 @@ void fragment() {
 		float e = smoothstep(v_width * 0.5 - 0.0035, v_width * 0.5, abs(v_m.y));
 		nrm.y += sign(v_m.y) * e * 0.9 * arris;
 		// Down in the joint it's dark (a tongue-and-groove's V most of all).
-		col *= 1.0 - mix(0.25, 0.5, varnish) * e * e * arris;
+		col *= 1.0 - mix(0.25, 0.5, varnish) * e * e * arris * (1.0 - furniture);
 	}
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
 	if (!floor_face && bisect >= 9) {
@@ -597,6 +688,30 @@ void fragment() {
 	if (face < 0.5 && bisect >= 8) {
 		col *= 1.0 - joint_dirt * age_layer * smoothstep(0.72, 1.0, abs(v_across)) * 0.45;
 	}
+	// A floor's traffic: the oil and dirt film scoured off the path (paler, greyer, matte, the grain
+	// standing up), ground dirt held in its margins and joints; dark and dusty by the walls.
+	// An oiled floor darkens as its oil ages and takes dirt (old against a few years).
+	if (traffic > 0.0 && floor_face && v_wnormal.y > 0.0 && bisect >= 9) {
+		col *= 1.0 - 0.22 * traffic * smoothstep(0.5, 1.0, ag);
+	}
+	if (tr > 0.0 || by_wall > 0.0) {
+		float lt = dot(col, vec3(0.3, 0.59, 0.11));
+		vec3 worn = mix(col, vec3(lt), 0.45) * 1.45 + vec3(0.02, 0.018, 0.013);
+		col = mix(col, worn, smoothstep(0.0, 0.9, tr) * 0.85);
+		float margin = smoothstep(0.08, 0.4, tr) * (1.0 - smoothstep(0.45, 0.85, tr));
+		col = mix(col, col * vec3(0.76, 0.72, 0.66), margin * 0.4);
+		col *= 1.0 - 0.45 * tr * smoothstep(0.75, 1.0, abs(v_across));
+		col *= 1.0 - 0.45 * by_wall;
+		col = mix(col, furniture_dust * 0.7, 0.12 * by_wall * smoothstep(0.4, 0.7, n2));
+		nrm.xy *= 1.0 + 1.3 * tr;
+		rough = mix(rough, 0.88, clamp(tr, 0.0, 1.0) * 0.75);
+	}
+	// A floor board's edges sit inside its joint: dark, never lit by the sun raking through the gap
+	// (round 1 and 2: bright dashes along every joint at 5 m).
+	if (traffic > 0.0 && face > 1.5) {
+		col *= 0.3;
+		rough = 1.0;
+	}
 	if (end_grain && bisect >= 9) {
 		col *= mix(0.62, 0.85, pcov);
 		rough = max(rough, 0.85);
@@ -613,7 +728,7 @@ void fragment() {
 		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 0.0;
 		wear = ag * band * (0.6 * (0.6 + 0.4 * n2) + 0.5 * edge);
 		// The bar's rail top: elbows every stool's width, and glass rings.
-		if (v_role > 0.5 && face < 0.5 && v_wnormal.y > 0.7) {
+		if (v_role > 0.5 && v_role < 1.5 && face < 0.5 && v_wnormal.y > 0.7) {
 			float ek = fract(v_m.x / 0.75 + hash11(seed * 91.0));
 			float elbow = (1.0 - smoothstep(0.0, 0.3, abs(ek - 0.5))) * (0.7 + 0.3 * n2);
 			wear += elbow * (0.15 + 0.85 * ag);
@@ -625,6 +740,7 @@ void fragment() {
 			float here = step(-0.2, rnd(seed, 84.0 + kr));
 			rings = here * arc * (1.0 - smoothstep(0.0012, 0.003, abs(length(dr) - rr))) * (0.25 + 0.75 * ag);
 		}
+		wear = max(wear, max(fwear, tr));
 		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Old varnish darkens, and crazes into fine cracks.
@@ -632,13 +748,14 @@ void fragment() {
 		float cz = abs(texture(big_noise, v_m * 2.2 + seed * 5.0).r - 0.5);
 		float czw = fwidth(texture(big_noise, v_m * 2.2 + seed * 5.0).r);
 		float craze = (1.0 - smoothstep(0.0, 0.012 + czw, cz)) * smoothstep(0.6, 1.0, ag) * (1.0 - smoothstep(0.02, 0.08, czw));
+		craze *= 1.0 - furniture;
 		col *= 1.0 - 0.3 * craze * varnish;
 		// Worn through: paler raw wood; glass rings a pale haze in the coat.
-		col = mix(col, col * 1.35 + 0.02, varnish * smoothstep(0.55, 0.95, wear) * 0.6);
+		col = mix(col, col * mix(1.35, 1.7, furniture) + mix(0.02, 0.04, furniture), varnish * smoothstep(0.55, 0.95, wear) * 0.6);
 		col = mix(col, col * 1.45 + 0.03, rings * 0.55);
 		wear = max(wear, craze * 0.5);
 		if (edge_face) {
-			col *= 0.55;
+			col *= mix(0.55, 0.8, furniture);
 		}
 	}
 
@@ -680,11 +797,20 @@ void fragment() {
 	// The last millimetres beside a joint hold wax and dirt: no coat's gleam there (a cupped board's
 	// raised edge caught the sky as a pale line along every joint, the judge's dashes).
 	float by_joint = face < 0.5 ? smoothstep(0.8, 0.97, abs(v_across)) : 0.0;
+	// Furniture's hands and dust, over wood and paint alike.
+	float dull = 0.0;
+	if (furniture > 0.0) {
+		col = mix(col, col * vec3(0.5, 0.44, 0.37), fgrime * 0.7);
+		col = mix(col, furniture_dust * mix(1.0, dot(col, vec3(0.333)) * 2.0, 0.2), fdust * 0.42);
+		rough = mix(rough, 0.9, fdust * 0.8);
+		dull = furniture * smoothstep(0.4, 0.75, texture(big_noise, q / 0.3 + 0.61).r) * smoothstep(0.3, 1.0, ag);
+		by_joint = 0.0;
+	}
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = clamp(rough + (roughness_add + 0.18 * ag * (1.0 - varnish)) * (1.0 - pcov) - nail * 0.2, 0.05, 1.0);
-	SPECULAR = mix(edge_face && varnish > 0.0 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish), 0.5, pcov);
+	SPECULAR = mix(edge_face && (varnish > 0.0 || traffic > 0.0) && furniture < 0.5 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish), 0.5, pcov);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	NORMAL_MAP = n * 0.5 + 0.5;
-	CLEARCOAT = edge_face ? 0.0 : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint);
-	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings, 0.0, 1.0));
+	CLEARCOAT = edge_face ? mix(0.0, 0.4 * varnish, furniture) : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint) * (1.0 - 0.8 * fdust);
+	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings + dull * 0.6, 0.0, 1.0));
 }

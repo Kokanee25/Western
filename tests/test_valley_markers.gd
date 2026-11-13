@@ -113,10 +113,11 @@ func test_a_block_for_every_building_volume() -> void:
 						hit = "(%.0f, %.0f)" % [q.x, q.y]
 			check(hit == "", "%s's block is off %s (crossed at %s)" % [b.id, r.id, hit])
 	# A ray down onto a block meets its roof.
-	var saloon: Dictionary = mk.blocks.filter(func(b: Dictionary) -> bool: return b.id == "saloon")[0]
+	# (the hotel's: the saloon is built from its spec since #848, no block)
+	var saloon: Dictionary = mk.blocks.filter(func(b: Dictionary) -> bool: return b.id == "hotel")[0]
 	var top: Vector3 = saloon.centre + Vector3(0.0, saloon.size.y, 0.0)
 	var hit := valley.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(top + Vector3.UP * 20.0, top - Vector3.UP * 5.0, Layers.WORLD))
-	check(not hit.is_empty() and absf(hit.position.y - top.y) < 0.05, "the saloon's block is solid (its roof at %.2f)" % top.y)
+	check(not hit.is_empty() and absf(hit.position.y - top.y) < 0.05, "the hotel's block is solid (its roof at %.2f)" % top.y)
 
 
 func test_bridge_a_on_its_crib_and_the_town_bridge() -> void:

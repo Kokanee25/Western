@@ -14,6 +14,8 @@ var fittings: Fittings
 var fire: FireSystem
 var ballistics: Ballistics
 var boardwalk: Boardwalk
+## A boardwalk down the side street (the spec's `lot.side_walk`: saloon B's).
+var side_walk: Boardwalk
 var ground: StaticBody3D
 ## The spec the next lab builds (the saloon's unless set: the doctor's test sets it, #765).
 static var spec_path := ""
@@ -50,6 +52,25 @@ func _ready() -> void:
 				for o: Dictionary in w.openings:
 					if o.type == "door":
 						boardwalk.steps = [Vector2(float(o.at), 1.83)]
+	if spec.has("corner"):
+		# Saloon B: the flight before the corner door, the walk on past the corner to the side street's.
+		boardwalk.steps = [Vector2(float(spec.lot.width) - 1.3, 1.83)]
+	var sw: Dictionary = spec.lot.get("side_walk", {})
+	if not sw.is_empty():
+		boardwalk.length = float(spec.lot.width) + float(sw.depth)
+		side_walk = Boardwalk.new()
+		side_walk.name = "SideWalk"
+		side_walk.structure_id = StringName(String(spec.id) + "_side_walk")
+		side_walk.length = float(sw.length)
+		side_walk.walk_depth = float(sw.depth)
+		side_walk.top = float(spec.levels.ground.top)
+		side_walk.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sw.get("turn", -90.0)))), Vector3(float(sw.at[0]), 0.0, float(sw.at[1])))
+		var flights := []
+		for st: Array in sw.get("steps", []):
+			flights.append(Vector2(float(st[0]), float(st[1])))
+		side_walk.steps = flights
+		side_walk.end_steps = [Vector2(1, 0.0)]
+		add_child(side_walk)
 	add_child(boardwalk)
 	fittings = Fittings.new()
 	fittings.name = "Fittings"
@@ -69,6 +90,13 @@ func _ground() -> void:
 		box0.size = Vector3(120.0, 1.0, 120.0)
 		cs0.shape = box0
 		cs0.position = Vector3(0.0, -0.5, 0.0)
+		# A lot whose ground falls (the jail's, #780: `lot.ground.plane`, [y at the origin, dy/dx, dy/dz]):
+		# the slab tilted to it, as the valley's bake has it.
+		var pl: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [])
+		if not pl.is_empty():
+			var n := Vector3(-float(pl[1]), 1.0, -float(pl[2])).normalized()
+			var basis := Basis(Quaternion(Vector3.UP, n))
+			cs0.transform = Transform3D(basis, Vector3(0.0, float(pl[0]), 0.0) + basis * Vector3(0.0, -0.5, 0.0))
 		ground.add_child(cs0)
 		return
 	var c: Array = spec.cellar.rect

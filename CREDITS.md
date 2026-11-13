@@ -51,7 +51,16 @@ adds its own lines.
   CC BY 2.0, CC BY 4.0 (Wellcome Collection, Auckland Museum) and CC BY-SA 3.0/4.0, each file's author,
   source page and licence in that folder's README.md. One (the 1880 Stohlmann, Pfarre & Co.
   catalogue engraving) is tagged "no known copyright restrictions": a US book of 1880, public domain
-  by age.
+  by age. Batch D2's (#805, the same folder, its README's rows): ten more from Wikimedia Commons
+  (bottles, a Wedgwood mortar, cased and hand balances, a Wooton desk, a doctor's office, chairs) under
+  public domain, CC0 (the Met, MAK), CC BY 4.0 (Wellcome Collection) and CC BY-SA 2.0/4.0. Batch D3's
+  (#819): one more, a leather doctor's bag (Wellcome Collection, CC BY 4.0). The books' spines (#819,
+  `assets/props/models/medical_books_albedo.png`) are set in Liberation Serif as the bottles' labels.
+
+- **Liberation Serif** (Red Hat; SIL Open Font License 1.1), as installed with the workspace's fonts:
+  the medicine bottles' printed labels (#805, `tools/blender/props/doctor_d2.py`) are set in it and
+  saved as a picture (`assets/props/models/medicine_labels_albedo.png`); the font itself isn't in this
+  repo or the game.
 
 ## Motion (the gameplay session)
 

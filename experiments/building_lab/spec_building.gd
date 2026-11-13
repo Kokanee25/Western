@@ -20,6 +20,7 @@ extends FalseFrontBuilding
 
 const Stair := preload("res://experiments/building_lab/stair.gd")
 const Marks := preload("res://experiments/building_lab/marks.gd")
+const StoneBuilder := preload("res://experiments/building_lab/stone.gd")
 const CELL := 2.0
 const SPEC := "res://experiments/building_lab/saloon.json"
 
@@ -83,7 +84,9 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 	m.touching.append(other.member_id)
 	var tier := _tier(m)
 	var other_tier := _tier(other)
-	var beneath := other_tier == tier and other.kind == m.kind and other_box.end.y <= box.position.y + CONTACT_EPSILON \
+	# (A pane rests on its sash's rail and bars as one trim on another: SashWindow, #826.)
+	var same := other.kind == m.kind or (m.kind == &"glass" and other.kind == &"trim")
+	var beneath := other_tier == tier and same and other_box.end.y <= box.position.y + CONTACT_EPSILON \
 			and other_box.position.y < box.position.y - CONTACT_EPSILON
 	if other_tier < tier or beneath:
 		m.supported_by.append(other.member_id)
@@ -213,6 +216,17 @@ func build() -> void:
 	add_child(_furnish)
 
 	_chimney_openings()
+	if _fr.has("stone_wall"):
+		# A load-bearing stone building (#780, the jail): stone.gd lays it; then what every building has.
+		StoneBuilder.new(self).build()
+		band = 0
+		_lamps()
+		_kit()
+		_use_points()
+		_add_interior_ambient()
+		marks = Marks.place(self, spec)
+		_library_finishes()
+		return
 	band = 0
 	_foundation()
 	_cellar()
@@ -220,6 +234,8 @@ func build() -> void:
 	band = 1
 	_ground_floor()
 	_outer_walls()
+	if spec.has("corner"):
+		_corner_entrance()
 	band = 2
 	_partitions("ground", 2)
 	_stairs_inside()
@@ -231,9 +247,10 @@ func build() -> void:
 	band = 4
 	_partitions("upper", 4)
 	_outside_stair()
-	band = 1
+	band = 2 if _fr.get("stacked", false) else 1
 	if _has_false_front():
 		_false_front()
+	band = 1
 	if spec.has("porch"):
 		_porch()
 	if _fr.has("rafters"):
@@ -258,6 +275,8 @@ func build() -> void:
 		_trusses()
 		band = 6
 		_roof_cover()
+		band = 1
+		_stoops()
 	if (spec.get("lamps", {}) as Dictionary).has("chandelier"):
 		_chandelier()
 	band = 2
@@ -270,6 +289,70 @@ func build() -> void:
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
 	_library_finishes()
+
+
+# --- the room's light (#824) -------------------------------------------------------------------------
+
+## The building's indoor fill (FalseFrontBuilding's probe) reaching its outer walls' inside boards:
+## the base's box stops at the studs' inner face and fades over 0.3 m, so those boards took almost
+## none of the room's fill and the sky's cool one instead, beside a partition in the full amber
+## (the doctor's orange / blue-grey corner, docs/reviews/2026-11-doctor-room.md cause 1; proved by
+## its test render, experiments/building_lab/doctor/results/2026-11-11_light/). The box runs to the
+## wall lines (the siding outside stays out of it), blending over its last 5 cm. The spec's
+## `light.fill` is the fill's colour (near neutral: the windows and lamps give the room its shape;
+## RoomLight reads the meta `room_fill`).
+func _add_interior_ambient() -> void:
+	super()
+	var probe := get_node_or_null(^"InteriorAmbient") as ReflectionProbe
+	var haze := get_node_or_null(^"RoomHaze") as FogVolume
+	var light: Dictionary = spec.get("light", {})
+	if probe == null or light.is_empty():
+		return
+	probe.size = Vector3(width, probe.size.y, depth)
+	probe.blend_distance = 0.05
+	if haze:
+		haze.size = probe.size
+	if light.has("window_day"):
+		set_meta(&"room_window_gain", float(light.window_day))
+	if light.has("day_fill"):
+		# The fill's level by day (DayCycle's interior_ambient_day else, 0.45: one even level that
+		# made the rooms flat, #829): low, so the windows and the sun's patches light the rooms.
+		probe.set_meta(&"day_ambient", float(light.day_fill))
+	if light.has("fill"):
+		var c: Array = light.fill
+		set_meta(&"room_fill", Color(c[0], c[1], c[2]))
+		probe.ambient_color = Color(c[0], c[1], c[2])
+
+
+## Every outer door and window, for RoomLight (its soft sky or moon light just inside each): {wall
+## (front/back/left/right by the way it faces), rect (along the wall from its line's start, up from
+## the building's 0), kind, frame {origin, along, inward}}. Only a spec with `light` gives them
+## (the saloon's keep RoomLight's front door and windows).
+func light_openings() -> Array:
+	var out := []
+	if not spec.has("light"):
+		return [{"wall": "front", "rect": door_rect, "kind": "door"}]
+	for id: String in walls:
+		var wl: Dictionary = walls[id]
+		if wl.spec.get("partition", false):
+			continue
+		var d: Dictionary = wl.dict
+		var o: Vector3 = d.out
+		var side := "front" if o.z < -0.5 else ("back" if o.z > 0.5 else ("left" if o.x < -0.5 else "right"))
+		for op: Array in _openings(wl.spec):
+			if String(op[1].type) == "void":
+				continue
+			var kind := "door" if String(op[1].type) == "door" else "window"
+			out.append({"wall": side, "rect": op[0], "kind": kind,
+					"frame": {"origin": d.origin, "along": d.along, "inward": -o}})
+	if spec.has("corner"):
+		# The corner's double doors and their transom, in the diagonal wall.
+		var c := _corner_frame()
+		var dw := float(spec.corner.door.width)
+		var dh := float(spec.corner.door.height) + float(spec.corner.door.get("transom", 0.0))
+		out.append({"wall": "front", "rect": Rect2((float(c.length) - dw) * 0.5, floor_top, dw, dh), "kind": "door",
+				"frame": {"origin": c.origin, "along": c.along, "inward": -(c.out as Vector3)}})
+	return out
 
 
 # --- foundation, cellar, posts and beams (band 0) -------------------------------------------------
@@ -426,8 +509,9 @@ func _posts_and_beams() -> void:
 			var size := dir.abs() * (s1 - s0) + Vector3.UP * float(bs[1]) + Vector3(dir.z, 0, dir.x).abs() * float(bs[0])
 			var m := add_member("beam/%s/%d" % [b.id, i], &"beam", &"framing", size, c)
 			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "x" if absf(dir.x) > 0.5 else "z", "up": "y", "args": [float(_fr.beam.chamfer)]}, String(_fr.beam.look))
-		# Brackets under it, each side of each post along it.
-		for p: Array in spec.posts.free:
+		# Brackets under it, each side of each post along it (`brackets: false`: none, the girder the
+		# Baron's men saw in saloon B: a bracket would catch its cut halves).
+		for p: Array in (spec.posts.free if b.get("brackets", true) else []):
 			var q := Vector3(p[0], 0, p[1]) - a
 			var s := q.dot(dir)
 			if q.distance_to(dir * s) > 0.05 or s < -0.05 or s > a.distance_to(e) + 0.05:
@@ -512,9 +596,32 @@ func _ground_floor() -> void:
 			x += every
 			k += 1
 		_pieces("girder/%d" % int(z * 100), Vector3(0.2, top + float(g[1]) * 0.5, z), Vector3.RIGHT, width - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
+	# A girder under a bearing partition that runs with the joists (`girders.under`: saloon B's stair
+	# hall and store room walls): from the piers to the floor's top, the joists beside it and the
+	# boards butted to it each side, so the wall's studs stand on the girder and not on a board.
+	var slots := []
+	for u: Dictionary in spec.girders.get("under", []):
+		var ux := float(u.x)
+		var z0 := float(u.z[0])
+		var z1 := float(u.z[1])
+		var h := floor_top - top
+		slots.append({"id": "under%d" % int(ux * 100), "slot": true, "rect": [ux - float(g[0]) * 0.5, z0, ux + float(g[0]) * 0.5, z1]})
+		var z := z0 + 0.3
+		var k := 0
+		while z < z1:
+			band = 0
+			add_member("pier/u%d_%02d" % [int(ux * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(ux, (top - 0.3) * 0.5, z))
+			band = 1
+			z += every
+			k += 1
+		_pieces("girder/under%d" % int(ux * 100), Vector3(ux, top + h * 0.5, z0), Vector3.BACK, z1 - z0, Vector2(h, g[0]), &"sill", &"framing")
 	for f: Dictionary in spec.floors:
 		if f.level == "ground":
-			_floor(f, spec.girders.get("x", []) if spec.girders.has("x") else gz)
+			var fl := f
+			if not slots.is_empty():
+				fl = f.duplicate()
+				fl.openings = (f.get("openings", []) as Array) + slots
+			_floor(fl, spec.girders.get("x", []) if spec.girders.has("x") else gz)
 
 
 func _upper_floors() -> void:
@@ -579,6 +686,11 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				if float(pr[1]) - float(pr[0]) < 0.1:
 					continue
 				var cut: bool = parts.size() > 1
+				# A joist is cut a little short of what it butts (a floor's `end_gap`, saloon B's dance
+				# floor): when its girder goes it hinges down on its other end, and a piece as long as
+				# its bay would jam end to end against the next one (a rigid body's corner swings out).
+				var gap := float(f.get("end_gap", 0.0))
+				pr = [float(pr[0]) + gap, float(pr[1]) - gap]
 				var size := Vector3(js[0], js[1], float(pr[1]) - float(pr[0]))
 				var c := Vector3(q, (jt + jb) * 0.5, (float(pr[0]) + float(pr[1])) * 0.5)
 				if not along_z:
@@ -589,6 +701,8 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				n += 1
 	# Headers across each opening's ends, on the trimmers either side.
 	for o: Dictionary in openings:
+		if o.get("slot", false):
+			continue  # a girder's own slot in the boards (`girders.under`): nothing to head
 		var orr: Array = o.rect
 		var oa0 := float(orr[0]) if along_z else float(orr[1])
 		var oa1 := float(orr[2]) if along_z else float(orr[3])
@@ -750,7 +864,13 @@ func _outer_walls() -> void:
 				board_top = func(_x: float) -> float: return h
 		var tall: Dictionary = _fr.stud.get("tall", {})
 		var sw := float(tall.section[0]) if (tall.get("walls", []) as Array).has(w.id) else STUD_W
+		band = 1
 		_studs(wall, sill_top, top_at, rects, -STUD_D, 0.0, sw)
+		# With openings stacked and a corner cut off (saloon B: `frame.stacked`), what the studs carry
+		# goes a band up: over an opening the wall's studs are cripples on its header (a tier above
+		# plates, ribbons and nailers), and a plate, a ribbon, a board or a sash must rest on them.
+		var clad := 2 if _fr.get("stacked", false) else 1
+		band = clad
 		# The plate on top, the ribbon the upper joists sit on.
 		var length: float = wall.length
 		var x0: float = wall.x_start
@@ -767,7 +887,9 @@ func _outer_walls() -> void:
 		for b: Dictionary in spec.get("balconies", []):
 			for l: Dictionary in b.ledgers:
 				if l.wall == w.id:
-					cut.append(Rect2(float(l.from), rb, float(l.to) - float(l.from), float(_fr.joist.section[1])))
+					# (the balcony's own joists: 2x10s under a floor of deeper ones, saloon B's)
+					var bj := float(_fr.joist.section[1])
+					cut.append(Rect2(float(l.from), (_lv.upper as float) - float(_fr.floor_board.thick) - bj, float(l.to) - float(l.from), bj))
 		# Where the porch roof's ledger and a lean-to's are nailed to the studs.
 		if w.id == "front" and spec.has("porch"):
 			cut.append(Rect2(-1.0, float(spec.porch.height) + 0.21, width + 2.0, 0.17))
@@ -785,9 +907,16 @@ func _outer_walls() -> void:
 		for o in ops:
 			var spec_o: Dictionary = o[1]
 			var window: bool = spec_o.type == "window"
+			if spec_o.type == "void":
+				continue  # a cut corner: open, the porch under the upper floor (`_corner_entrance`)
 			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
-			if window:
+			if window and spec_o.has("lights"):
+				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
+				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim"))})
+			elif window:
 				_glass(wall, o[0])
+			if spec_o.get("bars", false):
+				_bars(wall, o[0])
 		# Inside: the finish on its inner face, level by level.
 		for fin: Dictionary in w.inside:
 			var lvl: String = fin.level
@@ -801,12 +930,20 @@ func _outer_walls() -> void:
 				y1 = wall_height - PLATE_H
 			y1 = minf(y1, float(fin.get("to_y", y1)))
 			var face := _face(wall, -STUD_D, -1.0)
-			_finish(face, "%s/in_%s" % [w.id, lvl], float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
+			# (a level's second stretch of finish on a wall takes its own ids: saloon B's stair well)
+			var seg := 0
+			for other: Dictionary in w.inside:
+				if other == fin:
+					break
+				if other.level == lvl and String(other.finish) != "rough":
+					seg += 1
+			var fid := "%s/in_%s" % [w.id, lvl] if seg == 0 else "%s/in_%s/s%d" % [w.id, lvl, seg]
+			_finish(face, fid, float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
 		# Doors in it.
 		for o in ops:
 			var so: Dictionary = o[1]
 			if so.type == "door":
-				band = 4 if o[2] == "upper" else 1  # a leaf stands on the floor it opens on
+				band = 4 if o[2] == "upper" else clad  # a leaf stands on the floor it opens on
 				var lr: Rect2 = o[0]
 				var tr := float(so.get("transom", 0.0))
 				if tr > 0.0:
@@ -816,7 +953,7 @@ func _outer_walls() -> void:
 					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, bar.position.x, bar.end.x, bar.position.y, bar.end.y, -STUD_D, BOARD_T)
 					_glass(wall, Rect2(lr.position.x, lr.end.y + 0.05, lr.size.x, tr - 0.05))
 				_leaf(wall, lr, String(so.get("leaf", "inward")) == "outward", -STUD_D)
-				band = 1
+				band = clad
 			elif so.type == "batwings":
 				door_rect = o[0]
 				_build_door()
@@ -827,6 +964,7 @@ func _outer_walls() -> void:
 					var leaf := get_member(StringName("%s/front/batwing%d" % [structure_id, i]))
 					if leaf:
 						leaf.collision_layer = Layers.DEBRIS
+		band = 1
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a
@@ -877,7 +1015,7 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 	# can't rest on a cripple in the same band).
 	var lifted := {}
 	# (The doctor's rules, #765: the saloon's and farmhouse's frames are as they were until their turn.)
-	var stacked := _fr.has("rafters")
+	var stacked: bool = _fr.has("rafters") or _fr.get("stacked", false)
 	for j in openings.size() if stacked else 0:
 		var o := openings[j]
 		for q in openings:
@@ -886,6 +1024,7 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 	var b0 := band
 	var count := 0
 	for sx in xs:
+		band = b0  # (a stud after one lifted over a stacked opening is back in the wall's band)
 		var inside := -1
 		var blocked := false
 		for j in openings.size():
@@ -911,6 +1050,10 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 						if float(sp[1]) > o.end.y + HEADER_H:
 							nxt.append([maxf(sp[0], o.end.y + HEADER_H), sp[1]])
 					spans = nxt
+				elif _fr.get("stacked", false) and sx + sw * 0.5 > o.position.x - sw * 2.0 - 0.01 and sx - sw * 0.5 < o.end.x + sw * 2.0 + 0.01:
+					# Beside a narrower opening stacked on the one it's in (saloon B's upper windows
+					# over wider ones): that opening's king stands here, not a cripple through its edge.
+					spans = spans.filter(func(sp: Array) -> bool: return float(sp[1]) < o.position.y - PLATE_H or float(sp[0]) > o.end.y + HEADER_H)
 			var k := 0
 			for sp: Array in spans:
 				if float(sp[1]) - float(sp[0]) > 0.05:
@@ -942,6 +1085,8 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 				elif q.end.y <= o.position.y + 0.001:
 					k0 = maxf(k0, q.end.y + HEADER_H)
 			band = b0
+			if kx - sw < x_start - 0.001 or kx + sw > x_end + 0.001:
+				continue  # a void at the wall's end (saloon B's cut corner): its column stands there
 			_wall_member("%s/opening%d/king%d" % [n, j, side], &"stud" if k0 <= foot + 0.001 else &"cripple", &"framing", wall, kx - sw, kx + sw,
 					k0, k1, d0, d1)
 		band = b0 + (1 if lifted.has(j) else 0)
@@ -975,6 +1120,12 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 	var hall := finish == "wainscot"
 	var wains := 0.9 if hall else 0.0
 	var bw := 0.15 if hall else 0.24
+	# #826 (#821 pick 3): with the spec's `inside_finish.boards` "judged", the boards are drawn at
+	# the width their paint was judged at (painted_pale_tg: 9 cm, beaded): a member is as many of
+	# them as come nearest the old 24 cm (three), drawn as that many boards (`strips`).
+	var strip := 0.0 if hall else _judged_board_w(id + "/board/")
+	if strip > 0.0:
+		bw = strip * maxi(1, roundi(0.24 / strip))
 	var t := 0.02
 	var along_axis := "x" if absf((face.along as Vector3).x) > 0.5 else "z"
 	var n_axis := ("" if (face.normal as Vector3).dot(Vector3.ONE) > 0.0 else "-") + ("z" if along_axis == "x" else "x")
@@ -1009,9 +1160,18 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 	var i := 0
 	while s < s1 - 0.02:
 		var e := minf(s + bw, s1)
+		if strip > 0.0:
+			# A member ends at an opening's side (#826: a 27 cm member cut out over a window's height
+			# left a gap the 11 cm casing no longer covers), its last board ripped to fit.
+			for o in holes:
+				for edge in [o.position.x, o.end.x]:
+					if edge > s + 0.02 and edge < e - 0.001:
+						e = edge
 		var spans: Array = [[y0 + wains, y1]]
+		# (with boards as judged a member ends at an opening's side: one beside it isn't cut)
+		var tol := -0.001 if strip > 0.0 else 0.02
 		for o in holes:
-			if o.position.x < e + 0.02 and o.end.x > s - 0.02:
+			if o.position.x < e + tol and o.end.x > s - tol:
 				var nxt: Array = []
 				for sp: Array in spans:
 					if float(sp[0]) < o.position.y:
@@ -1022,11 +1182,16 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 		var k := 0
 		for sp: Array in spans:
 			if float(sp[1]) - float(sp[0]) > 0.05:
-				var m := _on_face(face, "%s/board/%03d_%d" % [id, i, k], &"board", &"framing", s + 0.002, e - 0.002, sp[0], sp[1], 0.0, t)
+				# (judged boards close up: the joint is drawn, a gap showed the lit siding behind, #826)
+				var gap := 0.0005 if strip > 0.0 else 0.002
+				var m := _on_face(face, "%s/board/%03d_%d" % [id, i, k], &"board", &"framing", s + gap, e - gap, sp[0], sp[1], 0.0, t)
 				if hall:
 					PropKit.dress_member(m, {"shape": "profile", "profile": "beaded", "along": "y", "up": n_axis, "across": along_axis, "args": [0.006]}, look)
 				else:
 					(m.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(StringName(spec.materials.wall_boards), hash(m.member_id))
+				if strip > 0.0:
+					m.set_meta(&"strips", strip)
+					m.set_meta(&"strips_across", 0 if along_axis == "x" else 2)
 				k += 1
 		s = e
 		i += 1
@@ -1047,6 +1212,9 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 		if o.position.y > y0 + 0.3:
 			_on_face(face, "%s/stool" % cid, &"trim", &"oak", o.position.x - cw - 0.02, o.end.x + cw + 0.02, o.position.y - 0.04, o.position.y, 0.0, 0.07)
 	if not hall:
+		var sk := float(spec.get("inside_finish", {}).get("skirting", 0.0))
+		if sk > 0.0:
+			_skirting(face, id, s0, s1, y0, sk, t, holes)
 		return
 	# The wainscot in the runs between the openings that come down through it, and the picture rail.
 	var runs: Array = [[s0, s1]]
@@ -1100,6 +1268,47 @@ func _wainscot(face: Dictionary, id: String, s0: float, s1: float, y0: float, al
 			PropKit.dress_member(pn, {"shape": "panel", "out": n_axis, "bevel": 0.045}, oak)
 
 
+## A plain skirting (#826, #821 pick 3) along a boarded face, `h` high over its boards, in runs
+## between the openings that come down to the floor (doors), each no longer than a stock length,
+## its top edge rounded; the trim's finish (spec surfaces `/skirt`).
+func _skirting(face: Dictionary, id: String, s0: float, s1: float, y0: float, h: float, t: float, holes: Array[Rect2]) -> void:
+	var runs: Array = [[s0, s1]]
+	for o in holes:
+		if o.position.y < y0 + 0.3:
+			var nxt: Array = []
+			for r: Array in runs:
+				# (stopped at the casing's foot, 11 cm out from the opening)
+				if o.position.x - 0.11 > float(r[0]):
+					nxt.append([r[0], minf(o.position.x - 0.11, r[1])])
+				if o.end.x + 0.11 < float(r[1]):
+					nxt.append([maxf(o.end.x + 0.11, r[0]), r[1]])
+			runs = nxt
+	for ri in runs.size():
+		var r: Array = runs[ri]
+		var length := float(r[1]) - float(r[0])
+		if length < 0.06:
+			continue
+		var n := maxi(1, ceili(length / 4.9))
+		for k in n:
+			var a := float(r[0]) + length * k / n
+			var b := float(r[0]) + length * (k + 1) / n
+			_on_face(face, "%s/skirt%d_%d" % [id, ri, k], &"trim", &"oak", a, b - 0.002, y0, y0 + h, t, t + 0.022)
+
+
+## The board width a finish was judged at (its library entry's `board_w`), for a member id the spec's
+## surfaces give a finish, when the spec asks for boards as judged (`inside_finish.boards`); else 0.
+func _judged_board_w(id: String) -> float:
+	if String(spec.get("inside_finish", {}).get("boards", "")) != "judged":
+		return 0.0
+	for sf: Array in spec.materials.get("surfaces", []):
+		if id.contains(String(sf[0])):
+			var f := finish(String(sf[1]))
+			if f.is_empty():
+				return 0.0
+			return float(MaterialLibrary.resolved(MaterialLibrary.entry(String(f.entry))).get("board_w", 0.0))
+	return 0.0
+
+
 ## A door's leaf standing open at right angles to its wall, into the room (or out of it).
 func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float) -> void:
 	var lw := o.size.x - 0.05
@@ -1116,8 +1325,8 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float) -> void:
 func _partitions(level: String, b: int) -> void:
 	band = b
 	for w: Dictionary in spec.walls:
-		if not w.get("partition", false) or w.level != level:
-			continue
+		if not w.get("partition", false) or w.level != level or w.get("stone", false):
+			continue  # (a stone partition is stone.gd's, #780)
 		var a := Vector3(w.line[0][0], 0, w.line[0][1])
 		var e := Vector3(w.line[1][0], 0, w.line[1][1])
 		var along := (e - a).normalized()
@@ -1142,7 +1351,8 @@ func _partitions(level: String, b: int) -> void:
 		for o in ops:
 			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
 			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
-			_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
+			if String((o[1] as Dictionary).type) == "door":  # (an arch and a hatch have no leaf)
+				_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------
@@ -1203,7 +1413,7 @@ func _balconies() -> void:
 			var dir := (e - a).normalized()
 			var size := dir.abs() * a.distance_to(e) + Vector3.UP * float(bs[1]) + Vector3(dir.z, 0, dir.x).abs() * float(bs[0])
 			add_member("%s/beam/%d" % [b.id, k], &"beam", wood, size, (a + e) * 0.5 + Vector3.UP * (jb - float(bs[1]) * 0.5))
-		band = 1
+		band = 2 if _fr.get("stacked", false) else 1
 		for l: Dictionary in b.ledgers:
 			var wall: Dictionary = walls[l.wall].dict
 			_wall_member("%s/ledger_%s" % [b.id, l.wall], &"ledger", wood, wall, float(l.from), float(l.to), jb, jt, 0.0, 0.05)
@@ -1228,7 +1438,8 @@ func _gallery_rails() -> void:
 		var r: Array = g.rails[k]
 		var a := Vector3(r[0][0], top, r[0][1])
 		var e := Vector3(r[1][0], top, r[1][1])
-		var made := Railing.build(self, "gallery/rail/%d" % k, a, e, {"height": 1.0, "spacing": 0.12, "baluster": 0.045,
+		var rh := float(g.get("height", 1.0))
+		var made := Railing.build(self, "gallery/rail/%d" % k, a, e, {"height": rh, "spacing": 0.12, "baluster": 0.045,
 				"rail": Vector2(0.075, 0.06), "wood": &"oak"})
 		for m in made:
 			if m.kind == &"trim":
@@ -1237,7 +1448,7 @@ func _gallery_rails() -> void:
 				PropKit.dress_member(m, {}, look)
 		# Square newels with caps at its ends.
 		for p in [a, e]:
-			var nw := add_member("gallery/newel/%d_%d" % [k, int(p.x * 10 + p.z)], &"furniture_frame", &"oak", Vector3(0.125, 1.15, 0.125), p + Vector3.UP * 0.575)
+			var nw := add_member("gallery/newel/%d_%d" % [k, int(p.x * 10 + p.z)], &"furniture_frame", &"oak", Vector3(0.125, rh + 0.15, 0.125), p + Vector3.UP * (rh + 0.15) * 0.5)
 			PropKit.dress_member(nw, {"shape": "profile", "profile": "chamfered", "along": "y", "up": "z", "args": [0.015]}, look)
 
 
@@ -1638,6 +1849,7 @@ func _lamps() -> void:
 	for lp: Array in L.get("on_furniture", []):
 		# A lamp standing on furniture (a table's top, a dresser's), [x, y over its floor, z].
 		_lamp(Vector3(lp[0], floor_top + float(lp[1]), lp[2]))
+	_kit_lamps(L)
 	if not L.has("chandelier"):
 		return
 	# The chandelier's lamps on its rim.
@@ -1646,6 +1858,51 @@ func _lamps() -> void:
 		var a := TAU * (k + 0.5) / int(c.lamps)
 		var p := Vector3(c.at[0], float(c.y) + 0.035, c.at[1]) + Vector3(cos(a), 0, sin(a)) * float(c.radius) * cos(PI / 8.0)
 		_lamp(p)
+
+
+## The kit's lamps hung on the walls (#824: a building names its lamps, a room each): `lamps.kit`,
+## each {kit (a lamp the kit hangs on a nail: reflector_lamp), wall, level, at (along the wall),
+## height (its foot over the floor), side (a partition's - or +), lit [from, until hours], energy,
+## reach, shadows}. The prop hangs on its nail in the wall's boards (it falls when they go) and
+## carries its OilLamp (the flame's light, lit by the clock; GlassProp takes it as its hitbox).
+func _kit_lamps(L: Dictionary) -> void:
+	for e: Dictionary in L.get("kit", []):
+		var wl: Dictionary = walls[e.wall]
+		var wall: Dictionary = wl.dict
+		var partition: bool = wl.spec.get("partition", false)
+		var plus: bool = partition and e.get("side", "-") == "+"
+		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else -STUD_D - 0.02
+		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
+		var level := String(e.get("level", "ground"))
+		var foot := (_lv[level] as float) + float(e.height)
+		if wl.spec.get("stone", false):
+			# A stone wall (#811, the jail): on its face at the lamp's height (its profile; a stone
+			# partition's + side is its line, the - side its thickness in).
+			var band := StoneBuilder.band_at(wl.spec.profile, foot)
+			face_d = band.y if plus else band.x
+		var p: Vector3 = wall.origin + (wall.along as Vector3) * float(e.at) + (wall.out as Vector3) * face_d
+		var kit := StringName(e.get("kit", "reflector_lamp"))
+		var def := PropKit.definition(kit)
+		# Its back on the boards: the nail's tab is the back of its box.
+		var back := absf(float((def.get("hangs", {}).get("nails", [[0, 0, -0.12]]) as Array)[0][2])) + 0.01
+		var prop := PropKit.make(kit)
+		prop.name = "KitLamp%02d" % lamps.size()
+		prop.transform = Transform3D(Basis(Vector3.UP, atan2(into.x, into.z)), Vector3(p.x, foot, p.z) + into * back)
+		_furnish.add_child(prop)
+		var lamp := OilLamp.new()
+		lamp.name = "Light"
+		lamp.show_mesh = false
+		var lit: Array = e.get("lit", [17, 23])
+		lamp.lit_from_hour = int(lit[0])
+		lamp.lit_until_hour = int(lit[1])
+		lamp.energy = float(e.get("energy", 1.2))
+		lamp.light_range = float(e.get("reach", 6.0))
+		lamp.casts_shadows = bool(e.get("shadows", false))
+		# The flame: over the fount, in front of the reflector.
+		var flame: Array = e.get("flame", [0.0, 0.24, 0.04])
+		lamp.position = Vector3(flame[0], flame[1], flame[2])
+		prop.add_child(lamp)
+		lamps.append(lamp)
 
 
 ## The kit's fixtures and furniture, and the lamps that stand on them.
@@ -1712,8 +1969,8 @@ func _physics_process(delta: float) -> void:
 		if not is_instance_valid(ramp):
 			continue
 		var standing := false
-		for m: StructureMember in r[1]:
-			if is_instance_valid(m) and not m.broken and not m.consumed:
+		for m: Variant in r[1]:  # (untyped: a member freed since; typed, each look was an error, #863)
+			if is_instance_valid(m) and not (m as StructureMember).broken and not (m as StructureMember).consumed:
 				standing = true
 		if not standing:
 			ramp.queue_free()
@@ -1976,6 +2233,9 @@ func _ceilings() -> void:
 	var y1: float = _lv.upper_joist_bottom
 	var t := 0.016
 	var bw := 0.14
+	var strip := _judged_board_w("ceiling/")
+	if strip > 0.0:
+		bw = strip * maxi(1, roundi(bw / strip))
 	var holes: Array = []
 	for f: Dictionary in spec.floors:
 		if f.level == "upper":
@@ -2010,6 +2270,9 @@ func _ceilings() -> void:
 					var b := minf(a + 4.9, float(sp[1]))
 					var m := add_member("ceiling/%s/%03d_%d" % [rm.id, i, k], &"board", &"framing", Vector3(x1 - x - 0.003, t, b - a - 0.003), Vector3((x + x1) * 0.5, y1 - t * 0.5, (a + b) * 0.5))
 					(m.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(look, hash(m.member_id))
+					if strip > 0.0:
+						m.set_meta(&"strips", strip)
+						m.set_meta(&"strips_across", 0)
 					k += 1
 					a = b
 			x = x1
@@ -2152,7 +2415,11 @@ func _stoops() -> void:
 		var against := "yard" if float(r[2]) <= 0.01 else ("lane" if float(r[0]) >= width - 0.01 else "back")
 		var out_x := float(r[0]) if against == "yard" else float(r[2])
 		band = 1
-		_deck("stoop/" + String(st.id), r, floor_top, against, [[out_x + (0.06 if against == "yard" else -0.06), float(r[1]) + 0.06], [out_x + (0.06 if against == "yard" else -0.06), float(r[3]) - 0.06]])
+		var posts := [[out_x + (0.06 if against == "yard" else -0.06), float(r[1]) + 0.06], [out_x + (0.06 if against == "yard" else -0.06), float(r[3]) - 0.06]]
+		if against == "back":
+			# (a stoop at a back door: its beam along the wall, a post under each end)
+			posts = [[float(r[0]) + 0.06, float(r[3]) - 0.06], [float(r[2]) - 0.06, float(r[3]) - 0.06]]
+		_deck("stoop/" + String(st.id), r, floor_top, against, posts)
 
 
 ## The side yard's front (lot.yard_front): a picket fence on the front line from the building to the
@@ -2361,6 +2628,14 @@ func _library_finishes() -> void:
 		var s := m.size
 		var order := [0, 1, 2]
 		order.sort_custom(func(a: int, b: int) -> bool: return s[a] > s[b])
+		var strip := float(m.get_meta(&"strips", 0.0))
+		if strip > 0.0:
+			# Boards drawn across a set axis (the wall's along, the ceiling's x), the grain the other way.
+			var across := int(m.get_meta(&"strips_across", order[1]))
+			order.erase(across)
+			order.insert(1, across)
+			if s[order[2]] > s[order[0]]:
+				order = [order[2], order[1], order[0]]
 		var ex := Vector3.ZERO
 		ex[order[0]] = 1.0
 		var ey := Vector3.ZERO
@@ -2368,9 +2643,32 @@ func _library_finishes() -> void:
 		var ez := ex.cross(ey)
 		var length: float = s[order[0]]
 		var rng := hash(m.member_id)
-		mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, gy)
+		# Inside, the paint's wear (the hand band, scuffs, dust at the skirting) is measured from the
+		# room's floor, not the street's ground (#821, the review's cause 7: the doctor's floor is
+		# 0.95 m up, so his hand band fell at the floor line and the scuffs under it).
+		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) else 0.0)
+		if strip > 0.0:
+			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
+		else:
+			mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground)
 		mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 		mi.material_override = _lib_material(f, gy)
+
+
+## The finishes inside the rooms, whose wear is measured from their floor (`_floor_under`).
+const INSIDE_FINISHES := ["inside", "ceiling", "floor"]
+
+
+## The floor a member stands over, in the building's space: the highest level's top at or under its
+## foot (a wall board's bottom; a ceiling's board over the room it closes).
+func _floor_under(m: StructureMember) -> float:
+	var foot := m.position.y - m.size.y * 0.5 + 0.05
+	var best := -INF
+	for k: String in ["cellar", "ground", "upper"]:
+		var v := float(_lv.get(k, -INF))
+		if v <= foot and v > best:
+			best = v
+	return best if best > -INF else 0.0
 
 
 func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
@@ -2382,8 +2680,80 @@ func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
 	MaterialLibrary.apply(mat, MaterialLibrary.entry(String(f.entry)), float(LIB_AGES.get(String(f.get("age", "few")), 0.5)), StringName(f.get("role", "wall")))
 	# Its walls' height (shelter under the eaves: the shader's `wall_top` over the ground).
 	mat.set_shader_parameter(&"wall_top", wall_height)
+	# A floor wood with feet's wear takes this building's ways (#825).
+	if String(f.get("role", "")) == "floor" and float(MaterialLibrary.resolved(MaterialLibrary.entry(String(f.entry))).get("traffic", 0.0)) > 0.0:
+		var tw := traffic_ways()
+		if not (tw.ways as Array).is_empty():
+			var gt := global_transform if is_inside_tree() else transform
+			var gl := float(_lv.get("ground", 0.0))
+			MaterialLibrary.set_traffic(mat, MaterialLibrary.traffic_image(tw.size, tw.ways, tw.rooms), gt * Vector3.ZERO,
+					gt.basis.x, gt.basis.z, tw.size, (gt * Vector3(0.0, gl, 0.0)).y)
 	_lib_mats[key] = mat
 	return mat
+
+
+## The ground floor's ways (#825), for its floor's traffic map: in each room, from every door to every
+## other (through traffic) and from each use point on the floor to its nearest door and to the room's
+## nearest outside door (where callers come in), heavier where someone works or serves. Doors are the walls' door openings on the ground level; rooms their
+## rects. {ways: [[Vector2, Vector2, weight]], rooms: [[x0, z0, x1, z1]], size: Vector2} in the
+## building's own x, z.
+func traffic_ways() -> Dictionary:
+	var ground := float(_lv.get("ground", 0.0))
+	var rooms := []
+	var size := Vector2.ZERO
+	for r: Dictionary in spec.get("rooms", []):
+		if String(r.get("level", "ground")) != "ground":
+			continue
+		var rc: Array = r.rect
+		rooms.append([float(rc[0]), float(rc[1]), float(rc[2]), float(rc[3])])
+		size = Vector2(maxf(size.x, float(rc[2]) + 0.1), maxf(size.y, float(rc[3]) + 0.1))
+	var doors := []
+	var outer := []
+	for w: Dictionary in spec.get("walls", []):
+		var a := Vector2(w.line[0][0], w.line[0][1])
+		var e := Vector2(w.line[1][0], w.line[1][1])
+		var dir := (e - a).normalized()
+		for o: Dictionary in w.get("openings", []):
+			if String(o.get("type", "")) in ["door", "arch"] and String(o.get("level", w.get("level", "ground"))) in ["ground", "<null>"]:
+				doors.append(a + dir * float(o.at))
+				if w.has("out"):
+					outer.append(a + dir * float(o.at))
+	if spec.has("corner"):
+		var cf: Array = spec.corner.from
+		var ct: Array = spec.corner.to
+		var mid := Vector2((float(cf[0]) + float(ct[0])) * 0.5, (float(cf[1]) + float(ct[1])) * 0.5)
+		doors.append(mid)
+		outer.append(mid)
+	var heavy := ["work", "serve", "operate", "buy"]
+	var ways := []
+	for rc: Array in rooms:
+		var ds := doors.filter(func(d: Vector2) -> bool:
+			return d.x > rc[0] - 0.3 and d.x < rc[2] + 0.3 and d.y > rc[1] - 0.3 and d.y < rc[3] + 0.3)
+		for i in ds.size():
+			for j in range(i + 1, ds.size()):
+				ways.append([ds[i], ds[j], 0.8])
+		if ds.is_empty():
+			continue
+		for u: Dictionary in spec.get("use_points", []):
+			if not u.has("at"):
+				continue  # a kit's seats (the card tables')
+			var at: Array = u.at
+			var p := Vector2(at[0], at[2])
+			if absf(float(at[1]) - ground) > 0.2 or p.x < rc[0] or p.x > rc[2] or p.y < rc[1] or p.y > rc[3]:
+				continue
+			var near: Vector2 = ds[0]
+			for d: Vector2 in ds:
+				if d.distance_to(p) < near.distance_to(p):
+					near = d
+			var k := 1.0 if String(u.get("use", "")) in heavy else 0.7
+			ways.append([near, p, k])
+			var near_out := Vector2.INF
+			for d: Vector2 in ds:
+				if outer.has(d) and d.distance_to(p) < near_out.distance_to(p):
+					near_out = d
+			if near_out != Vector2.INF and near_out != near:
+				ways.append([near_out, p, k * 0.8])
+	return {"ways": ways, "rooms": rooms, "size": size}
 
 
 ## A board's mesh in the library shader's own layout (scan_wood.gdshader's header: X along 0..L,
@@ -2393,3 +2763,200 @@ func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
 ## the batch merges them without a read back) and marked `board_frame` for Structure's batching.
 static func _board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails: Vector2, ground_y: float) -> ArrayMesh:
 	return PropKit.board_mesh(length, width, thick, seed, warp, nails, ground_y)  # (shared with the kit's props, #788)
+
+
+## A member drawn as boards `strip` wide side by side across its width (#826: a wall cut 27 cm a
+## member, drawn as the three 9 cm beaded boards its paint was judged at), the last one ripped to
+## what's left; each a library board of its own (its own seed, grain, bead and nails), one mesh in
+## the board frame (`_board_mesh`'s), so it batches as one board does.
+static func strips_mesh(length: float, width: float, thick: float, strip: float, rng: int, warp: float, nails: Vector2, ground_y: float) -> ArrayMesh:
+	var widths: Array[float] = []
+	var left := width
+	while left > 0.0005:
+		var w := minf(strip, left)
+		if left - w < 0.03 and widths.size() > 0 and left - w > 0.0005:
+			w = left  # (no sliver: the last board takes it)
+		widths.append(w)
+		left -= w
+	var parts: Array = []
+	var y := -width * 0.5
+	for i in widths.size():
+		var wi: float = widths[i]
+		var seed := float(hash(rng + i * 7919) % 100000) / 100000.0
+		var arr: Array = PropKit.board_mesh(length, wi, thick, seed, warp, nails, ground_y).get_meta(&"arrays")
+		parts.append([arr, y + wi * 0.5])
+		y += wi
+	var out := []
+	out.resize(Mesh.ARRAY_MAX)
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var idx := PackedInt32Array()
+	for p: Array in parts:
+		var a: Array = p[0]
+		var off := Vector3(0.0, float(p[1]), 0.0)
+		var base := v.size()
+		for q: Vector3 in a[Mesh.ARRAY_VERTEX]:
+			v.append(q + off)
+		n.append_array(a[Mesh.ARRAY_NORMAL])
+		uv.append_array(a[Mesh.ARRAY_TEX_UV])
+		c0.append_array(a[Mesh.ARRAY_CUSTOM0])
+		c1.append_array(a[Mesh.ARRAY_CUSTOM1])
+		c2.append_array(a[Mesh.ARRAY_CUSTOM2])
+		for k: int in a[Mesh.ARRAY_INDEX]:
+			idx.append(base + k)
+	out[Mesh.ARRAY_VERTEX] = v
+	out[Mesh.ARRAY_NORMAL] = n
+	out[Mesh.ARRAY_TEX_UV] = uv
+	out[Mesh.ARRAY_CUSTOM0] = c0
+	out[Mesh.ARRAY_CUSTOM1] = c1
+	out[Mesh.ARRAY_CUSTOM2] = c2
+	out[Mesh.ARRAY_INDEX] = idx
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -width * 0.5 - 0.02, -thick * 0.5 - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
+	mesh.set_meta(&"arrays", out)
+	mesh.set_meta(&"board_frame", true)
+	mesh.set_meta(&"strip_widths", widths)
+	return mesh
+
+
+
+# --- the corner entrance (saloon B, #848) -------------------------------------------------------------
+
+## The diagonal wall's frame: its line from `corner.from` to `corner.to` (the studs' outer face),
+## `along` it, `out` to the street corner, and the basis its members take (x along, z into the room).
+func _corner_frame() -> Dictionary:
+	var c: Dictionary = spec.corner
+	var a := Vector3(c.from[0], 0, c.from[1])
+	var e := Vector3(c.to[0], 0, c.to[1])
+	var along := (e - a).normalized()
+	var out := Vector3(along.z, 0, -along.x)
+	if out.dot(Vector3(width, 0, 0) - a) < 0.0:
+		out = -out
+	return {"origin": a, "along": along, "out": out, "length": a.distance_to(e), "basis": Basis(along, Vector3.UP, along.cross(Vector3.UP))}
+
+
+## A member of the diagonal wall: `s0..s1` along it, `y0..y1`, `d0..d1` out from its line.
+func _diag(c: Dictionary, id: String, kind: StringName, wood: StringName, s0: float, s1: float, y0: float, y1: float, d0: float, d1: float) -> StructureMember:
+	var along: Vector3 = c.along
+	var out: Vector3 = c.out
+	var b: Basis = c.basis
+	# (the basis' z is `along x up`: into the room when that is -out)
+	var center: Vector3 = (c.origin as Vector3) + along * ((s0 + s1) * 0.5) + Vector3.UP * ((y0 + y1) * 0.5) + out * ((d0 + d1) * 0.5)
+	return add_member(id, kind, wood, Vector3(s1 - s0, y1 - y0, d1 - d0), center, b)
+
+
+## Payday Night's sabotage (`sabotage`, saloon B: the girder the Baron's men saw): the kerf cut
+## through it (`cut`: metres along it from its middle), as Structure.cut_member; what it carried
+## comes down when the structure next settles. Returns the two halves left on their posts.
+func saw_girder() -> Array[StructureMember]:
+	var sb: Dictionary = spec.get("sabotage", {})
+	var g := get_member(StringName("%s/%s" % [structure_id, sb.get("girder", "")]))
+	if g == null or g.broken:
+		return []
+	var c: Array = sb.get("cut", [-0.15, 0.15])
+	return cut_member(g, float(c[0]), float(c[1]), Vector3.DOWN * 0.5)
+
+
+## A corner cut off on the diagonal for the entrance (`corner`; the walls' `void` openings leave it
+## open): one cast-iron column at the corner from the sill to the balcony's beam, a deep beam each
+## way from it to the walls' studs under their headers (the upper floor runs on over the porch), and
+## the diagonal wall: studs under a plate against the upper joists, glazed double doors standing
+## open inward, a transom light over them, boarded both sides.
+func _corner_entrance() -> void:
+	var cs: Dictionary = spec.corner
+	var c := _corner_frame()
+	var sill_top := float(_fr.foundation.top) + float(_fr.sill.section[1])
+	var col: Dictionary = cs.column
+	var cw := float(col.size)
+	var bj := float(_fr.joist.section[1])
+	var balcony_beam := 0.25
+	for b: Dictionary in spec.get("balconies", []):
+		balcony_beam = float((b.beam as Array)[1])
+		break
+	var col_top := (_lv.upper as float) - float(_fr.floor_board.thick) - bj - balcony_beam
+	band = 0
+	var column := add_member("corner/column", &"post", StringName(col.get("wood", "iron")), Vector3(cw, col_top - sill_top, cw),
+			Vector3(col.at[0], (col_top + sill_top) * 0.5, col.at[1]))
+	column.set_meta(&"corner_column", true)
+	# The beams under the two walls' headers over the cut (their voids), column to king studs.
+	band = 1
+	var bm: Array = cs.beam
+	for w: Dictionary in spec.walls:
+		if w.get("partition", false):
+			continue
+		for o: Dictionary in w.get("openings", []):
+			if o.type != "void":
+				continue
+			var wall: Dictionary = walls[w.id].dict
+			var top := floor_top + float(o.height)
+			var s0 := float(o.at) - float(o.width) * 0.5
+			var s1 := float(o.at) + float(o.width) * 0.5
+			# Clear of the column's own square at the wall's corner end.
+			if s0 < 0.01:
+				s0 = cw
+			if s1 > float(wall.length) - 0.01:
+				s1 = float(wall.length) - cw
+			_wall_member("corner/beam_%s" % w.id, &"header", &"framing", wall, s0, s1, top - float(bm[1]), top, -float(bm[0]), 0.0)
+	# The diagonal wall, standing on the ground floor.
+	band = 2
+	var L: float = c.length
+	var foot := floor_top
+	var top := (_lv.upper_joist_bottom as float)
+	var dw := float(cs.door.width)
+	var dh := float(cs.door.height)
+	var tr := float(cs.door.get("transom", 0.0))
+	var d0 := (L - dw) * 0.5
+	var d1 := (L + dw) * 0.5
+	var head := foot + dh + tr
+	_diag(c, "corner/plate", &"plate", &"framing", 0.0, L, top - PLATE_H, top, -STUD_D, 0.0)
+	var k := 0
+	for sx: Array in [[0.0, STUD_W], [L - STUD_W, L], [d0 - STUD_W * 2.0, d0], [d1, d1 + STUD_W * 2.0],
+			[d0 * 0.5 - STUD_W, d0 * 0.5], [(d1 + L) * 0.5, (d1 + L) * 0.5 + STUD_W]]:
+		_diag(c, "corner/stud/%d" % k, &"stud", &"framing", sx[0], sx[1], foot, top - PLATE_H, -STUD_D, 0.0)
+		k += 1
+	_diag(c, "corner/header", &"header", &"framing", d0, d1, head, head + HEADER_H, -STUD_D, 0.0)
+	for i in 3:
+		var sx := d0 + dw * (i + 1) / 4.0
+		_diag(c, "corner/cripple/%d" % i, &"cripple", &"framing", sx - STUD_W * 0.5, sx + STUD_W * 0.5, head + HEADER_H, top - PLATE_H, -STUD_D, 0.0)
+	# Boarded outside and in: each side of the doors, and over them.
+	var trim := StringName(spec.materials.get("trim_outside", "dark_trim"))
+	var n := 0
+	for part: Array in [[0.0, d0, foot, top], [d1, L, foot, top], [d0, d1, head, top]]:
+		var x := float(part[0])
+		while x < float(part[1]) - 0.02:
+			var x1 := minf(x + 0.25, float(part[1]))
+			_diag(c, "corner/out/b%02d" % n, &"board", &"saloon_red", x, x1 - 0.004, float(part[2]) - 0.25, float(part[3]), 0.0, BOARD_T)
+			_diag(c, "corner/in/board/%02d" % n, &"board", &"framing", x, x1 - 0.004, float(part[2]), float(part[3]) - 0.02, -STUD_D - 0.02, -STUD_D)
+			x = x1
+			n += 1
+	# The transom: its bar and its light.
+	if tr > 0.0:
+		_diag(c, "corner/transom_bar", &"trim", trim, d0, d1, foot + dh, foot + dh + 0.05, -STUD_D, BOARD_T)
+		_diag(c, "corner/transom_glass", &"glass", &"glass", d0 + 0.01, d1 - 0.01, foot + dh + 0.05, head - 0.005, -0.055, -0.045)
+	# The two leaves, each glazed over a panel, standing open into the room at their jambs.
+	var along: Vector3 = c.along
+	var inward: Vector3 = -(c.out as Vector3)
+	var lw := dw * 0.5 - 0.02
+	var lh := dh - 0.02
+	var lb := Basis(inward, Vector3.UP, inward.cross(Vector3.UP))
+	for side in 2:
+		var hinge: Vector3 = (c.origin as Vector3) + along * (d0 + 0.025 if side == 0 else d1 - 0.025) + inward * STUD_D
+		var mid := hinge + inward * (lw * 0.5 + 0.02)
+		var pre := "corner/leaf%d" % side
+		var st := 0.11
+		var panel := 0.95
+		add_member(pre + "/panel", &"trim", trim, Vector3(lw, panel, 0.045), mid + Vector3.UP * (foot + 0.01 + panel * 0.5), lb)
+		for e in 2:
+			var off := inward * ((lw - st) * 0.5) * (-1.0 if e == 0 else 1.0)
+			add_member("%s/stile%d" % [pre, e], &"trim", trim, Vector3(st, lh - panel - st, 0.045), mid + off + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
+		add_member(pre + "/rail", &"trim", trim, Vector3(lw, st, 0.045), mid + Vector3.UP * (foot + 0.01 + lh - st * 0.5), lb)
+		add_member(pre + "/glass", &"glass", &"glass", Vector3(lw - st * 2.0, lh - panel - st, 0.008), mid + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
+	band = 1

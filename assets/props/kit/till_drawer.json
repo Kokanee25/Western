@@ -1,0 +1,62 @@
+{
+  "_doc": "The bar's till (#866; refs experiments/prop_lab/refs/saloon/): an oak cash box of the period's bars, 42 cm wide, its till drawer in front with a brass pull and the little bell that rings as it opens. It holds the house's coin and notes (not yet a prop of their own). Oak from the material library (a few years; the top worn); its brass baked the gun way (tools/blender/props/saloon_s1.py). On the back bar by the scales. 2 physics bodies. ~6 kg. Written by tools/props/saloon.py.",
+  "id": "till_drawer",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "case",
+      "kind": "post",
+      "size": [
+        0.42,
+        0.13,
+        0.36
+      ],
+      "at": [
+        0.0,
+        0.065,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top",
+      "solid": 0.3
+    },
+    {
+      "id": "drawer",
+      "kind": "trim",
+      "size": [
+        0.36,
+        0.085,
+        0.016
+      ],
+      "at": [
+        0.0,
+        0.0545,
+        0.188
+      ],
+      "look": "lib:furniture_oak/few/front",
+      "dress": [
+        {
+          "look": "pbr:till_drawer",
+          "draw": {
+            "shape": "mesh",
+            "model": "till_drawer",
+            "part": "Pull"
+          }
+        },
+        {
+          "look": "pbr:till_drawer",
+          "draw": {
+            "shape": "mesh",
+            "model": "till_drawer",
+            "part": "Bell"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

@@ -28,6 +28,12 @@ static func destructible(root: Node, building: Structure) -> Dictionary:
 
 static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 	for c in n.get_children(true):
+		if c is GlassProp:
+			# A kit prop that shatters (a hung lamp, #824): its own body and pieces are the prop's,
+			# its OilLamp the light it carries.
+			out.kit_props += 1
+			out.lamps += c.find_children("*", "OilLamp", true, false).size()
+			continue
 		_sort(c, building, out)
 		_walk(c, building, out)
 
@@ -343,8 +349,20 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 		# Through the wall: an outer wall from the siding's face to its inside finish's; a partition both faces.
 		var d0 := -0.1 - 0.025 if not partition else -0.075
 		var d1 := 0.025 + 0.01 if not partition else 0.075
+		var stone: bool = w.get("stone", false)
+		if stone:
+			# A stone wall (#780): from its outer face (its line) through its thickness at a man's height.
+			var t := 0.56
+			for p: Array in w.get("profile", []):
+				if float(p[0]) <= float(lv.ground) + 1.0:
+					t = -float(p[1])
+			d0 = -t + 0.012
+			d1 = -0.012
 		var j := 0
 		for o: Dictionary in w.get("openings", []):
+			if o.type == "void":
+				j += 1
+				continue  # a cut corner: open by design, its column and beams its frame (saloon B)
 			openings += 1
 			var lvl: String = o.get("level", w.get("level", "ground"))
 			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))
@@ -357,8 +375,8 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 			var clear := AABB(lo, hi - lo)
 			for id: String in by_id:
 				var m: StructureMember = by_id[id]
-				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_"):
-					continue  # its glass, its leaf, a door's transom bar
+				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_") or id.contains("/window_") or id.contains("/bars_"):
+					continue  # its glass, its leaf, a door's transom bar, its sash window and lining, its bars
 				if not m.structure_aabb().intersects(clear):
 					continue
 				if _crosses(m, clear):
@@ -366,13 +384,15 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 			if not partition:
 				var pre := "%s/opening%d/" % [w.id, j]
 				var ok := by_id.has(pre + "king0") and by_id.has(pre + "king1") and by_id.has(pre + "header")
+				if stone:
+					ok = by_id.has(pre + "lintel")  # a stone wall's opening: its lintel (and a window's sill)
 				if o.type == "window" and y0 > float(lv[lvl]) + 0.4:
 					ok = ok and by_id.has(pre + "sill")
 				if ok:
 					framed += 1
 				else:
-					failures.append("%s %s at %.2f: not framed (kings, header%s)" % [w.id, o.type, float(o.at), ", sill" if o.type == "window" else ""])
-				if o.type == "window":
+					failures.append("%s %s at %.2f: not framed (%s%s)" % [w.id, o.type, float(o.at), "lintel" if stone else "kings, header", ", sill" if o.type == "window" else ""])
+				if o.type == "window" and o.get("glass", true):
 					var glazed := false
 					for id: String in by_id:
 						var gm: StructureMember = by_id[id]
@@ -380,6 +400,24 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 							glazed = true
 					if not glazed:
 						failures.append("%s window at %.2f: no glass" % [w.id, float(o.at)])
+					# A sash window (#826): its lights built, a pane each, and its reveal lined.
+					if o.has("lights"):
+						var panes := 0
+						var linings := 0
+						for id: String in by_id:
+							if not id.begins_with(w.id + "/window_"):
+								continue
+							var wm: StructureMember = by_id[id]
+							if not clear.grow(0.03).has_point(wm.transform.origin):
+								continue
+							if wm.kind == &"glass":
+								panes += 1
+							elif id.contains("/lining_"):
+								linings += 1
+						if panes != int(o.lights):
+							failures.append("%s window at %.2f: %d panes for %d lights" % [w.id, float(o.at), panes, int(o.lights)])
+						if linings < 4:
+							failures.append("%s window at %.2f: its reveal open (%d linings of 4)" % [w.id, float(o.at), linings])
 			j += 1
 	return {"ok": failures.is_empty(), "failures": failures, "openings": openings, "framed": framed}
 

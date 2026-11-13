@@ -18,6 +18,11 @@ extends RefCounted
 ## fields it takes under its own (`resolved`): its layout and boards may differ (trim boards, narrow
 ## inside boards; `panel_class` the panel's gaps and warp, e.g. a fine joinery's for boards inside); paint_color, paint_under ([r, g, b]) and the `paint_*` dials; `inside` for a coat
 ## indoors. A building takes a finish by its id, as a wood.
+## A floor entry (family "floor", #825) is a wood with `traffic` (feet's wear: scan_wood's traffic map,
+## `traffic_map` here); a furniture entry (family "furniture") a wood or paint with `furniture` (the
+## joined piece's finish: rubbed arrises, pulls, dust) and scans mapped at a furniture board's scale.
+## A floor, a wall and the furniture in one room never share an entry (`docs/briefs/prop-factory.md`,
+## `experiments/building_lab/RECIPE.md`). `panel_class` the boards' class where `class` names the family.
 
 const PATH := "res://config/material_library.json"
 const SCANS := "res://assets/textures/scans/"
@@ -31,9 +36,10 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"grain_contrast", "eaves_m", "edge_shelter", "b_stochastic", "varnish_dark",
 		"age_split", "checks", "end_rot", "contact", "arris",
 		"paint", "paint_inside", "paint_chalk", "paint_fade", "paint_peel", "paint_crack", "paint_thin_new",
-		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead"]
+		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead",
+		"traffic", "furniture"]
 ## Colours an entry may set ([r, g, b], sRGB as the shader's source_color).
-const COLOURS := ["tint_new", "tint_mid", "tint_old", "varnish_amber", "paint_color", "paint_under", "paint_dust"]
+const COLOURS := ["tint_new", "tint_mid", "tint_old", "varnish_amber", "paint_color", "paint_under", "paint_dust", "furniture_dust"]
 
 static var _data: Dictionary = {}
 static var _noise: NoiseTexture2D
@@ -74,7 +80,7 @@ static func resolved(e: Dictionary) -> Dictionary:
 		out.merge(e, true)
 		out["wood_class"] = e.get("panel_class", entry(base_id).get("class", "common"))
 	else:
-		out["wood_class"] = e.get("class", "common")
+		out["wood_class"] = e.get("panel_class", e.get("class", "common"))
 	return out
 
 
@@ -172,3 +178,63 @@ static func noise() -> NoiseTexture2D:
 		_noise.noise = n
 		_noise.normalize = true
 	return _noise
+
+
+# --- a floor's traffic (#825) ---------------------------------------------------------------------
+
+## A floor's traffic map (scan_wood.gdshader's `traffic_map`), over a plane `size` metres (its own x, z),
+## a texel every `px` metres. R where feet go: each way [a, b, weight] (Vector2s in the plane's metres)
+## a band `width` wide, feathered at its sides, ways summed as chances (where several cross, more); G by
+## a wall: inside each room's rect [x0, z0, x1, z1], within `wall_m` of its sides, less where feet go.
+static func traffic_image(size: Vector2, ways: Array, rooms: Array, px := 0.1, width := 0.75, wall_m := 0.5) -> Image:
+	var w := maxi(2, ceili(size.x / px))
+	var h := maxi(2, ceili(size.y / px))
+	var feet := PackedFloat32Array()
+	feet.resize(w * h)
+	feet.fill(0.0)
+	var hw := width * 0.5
+	for way: Array in ways:
+		var a: Vector2 = way[0]
+		var b: Vector2 = way[1]
+		var k := float(way[2]) if way.size() > 2 else 1.0
+		var ab := b - a
+		var l2 := maxf(ab.length_squared(), 1e-6)
+		var i0 := clampi(floori((minf(a.x, b.x) - hw) / px), 0, w - 1)
+		var i1 := clampi(ceili((maxf(a.x, b.x) + hw) / px), 0, w - 1)
+		var j0 := clampi(floori((minf(a.y, b.y) - hw) / px), 0, h - 1)
+		var j1 := clampi(ceili((maxf(a.y, b.y) + hw) / px), 0, h - 1)
+		for j in range(j0, j1 + 1):
+			for i in range(i0, i1 + 1):
+				var p := Vector2((i + 0.5) * px, (j + 0.5) * px)
+				var t := clampf((p - a).dot(ab) / l2, 0.0, 1.0)
+				var d := p.distance_to(a + ab * t) / hw
+				if d >= 1.0:
+					continue
+				var v := k * (1.0 - smoothstep(0.3, 1.0, d))
+				var at := j * w + i
+				feet[at] = 1.0 - (1.0 - feet[at]) * (1.0 - v)
+	var img := Image.create(w, h, false, Image.FORMAT_RGB8)
+	for j in h:
+		for i in w:
+			var p := Vector2((i + 0.5) * px, (j + 0.5) * px)
+			var g := 0.0
+			for r: Array in rooms:
+				if p.x < r[0] or p.x > r[2] or p.y < r[1] or p.y > r[3]:
+					continue
+				var d := minf(minf(p.x - r[0], r[2] - p.x), minf(p.y - r[1], r[3] - p.y))
+				g = maxf(g, 1.0 - smoothstep(0.05, wall_m, d))
+			var f := feet[j * w + i]
+			img.set_pixel(i, j, Color(f, g * (1.0 - f), 0.0))
+	return img
+
+
+## Sets a scan_wood material's traffic map: `img` over the plane whose (0, 0) is `origin` in the world,
+## its x along `ax` and its z along `az` (unit vectors in the world), `size` metres, for the floor at
+## world height `y` (other levels over the same plane keep a patchy wear only).
+static func set_traffic(m: ShaderMaterial, img: Image, origin: Vector3, ax: Vector3, az: Vector3, size: Vector2, y: float) -> void:
+	m.set_shader_parameter(&"has_traffic_map", true)
+	m.set_shader_parameter(&"traffic_map", ImageTexture.create_from_image(img))
+	m.set_shader_parameter(&"traffic_origin", origin)
+	m.set_shader_parameter(&"traffic_u", ax.normalized() / maxf(size.x, 0.01))
+	m.set_shader_parameter(&"traffic_v", az.normalized() / maxf(size.y, 0.01))
+	m.set_shader_parameter(&"traffic_y", y)

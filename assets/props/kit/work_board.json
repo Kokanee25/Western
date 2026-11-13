@@ -1,0 +1,348 @@
+{
+  "_doc": "The bartender's work board (#866; refs experiments/prop_lab/refs/saloon/: the period's bar-fixture catalogues): built in behind the bar under its top, an oak counter 2.4 m long (oak as the bar it's built into, old: worked hard) at his working height (0.86 m), its top sheathed in zinc with two zinc sinks let into it (wash and rinse) and a ribbed zinc drip board at its left end, the clean glasses upturned on it; two beer pumps (brass, tall turned handles) whose pipes run down into the ice box at its right end (a keg on ice in it, under a zinc-lined lid); the shelf under it stocked (Sean, #821: storage ships filled): a case of bottles, bar towels, a bucket. Its back (-z) against the bar's back boards; the bartender on +z. Oak from the material library (old; never the floor's fir: round 1's critic read the painted pine as a navy kitchen counter); the zinc, brass and the stock baked the gun way (tools/blender/props/saloon_s1.py). The sinks, drip board, glasses and stock are the top's and the shelf's dress (drawn on them, gone with them), so it stands as 17 physics bodies (its members) and breaks into its members; the beer stand is iron (`wood` iron: it doesn't burn). ~70 kg. Written by tools/props/saloon.py.",
+  "id": "work_board",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.832,
+        0.06
+      ],
+      "at": [
+        -1.17,
+        0.416,
+        -0.25
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.832,
+        0.06
+      ],
+      "at": [
+        1.17,
+        0.416,
+        -0.25
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.832,
+        0.06
+      ],
+      "at": [
+        -1.17,
+        0.416,
+        0.25
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "ice_front",
+      "kind": "post",
+      "size": [
+        0.78,
+        0.832,
+        0.03
+      ],
+      "at": [
+        0.81,
+        0.416,
+        0.265
+      ],
+      "look": "lib:furniture_oak/old/front"
+    },
+    {
+      "id": "ice_part",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.832,
+        0.53
+      ],
+      "at": [
+        0.435,
+        0.416,
+        -0.015
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "ice_back",
+      "kind": "post",
+      "size": [
+        0.75,
+        0.832,
+        0.03
+      ],
+      "at": [
+        0.825,
+        0.416,
+        -0.265
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "ice_end",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.832,
+        0.5
+      ],
+      "at": [
+        1.185,
+        0.416,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "ice_lid",
+      "kind": "furniture_top",
+      "size": [
+        0.78,
+        0.028,
+        0.56
+      ],
+      "at": [
+        0.81,
+        0.846,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "dress": [
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "IceLid"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apron_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.56,
+        0.12,
+        0.022
+      ],
+      "at": [
+        -0.36,
+        0.772,
+        0.269
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "apron_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.56,
+        0.12,
+        0.022
+      ],
+      "at": [
+        -0.36,
+        0.772,
+        -0.269
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "stretcher_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.56,
+        0.05,
+        0.035
+      ],
+      "at": [
+        -0.36,
+        0.135,
+        -0.2625
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "stretcher_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.56,
+        0.05,
+        0.035
+      ],
+      "at": [
+        -0.36,
+        0.135,
+        0.2625
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "top_f",
+      "kind": "furniture_top",
+      "size": [
+        1.62,
+        0.028,
+        0.28
+      ],
+      "at": [
+        -0.39,
+        0.846,
+        0.14
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "dress": [
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "Zinc"
+          }
+        },
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "Sinks"
+          }
+        },
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "Drip"
+          }
+        },
+        {
+          "look": "glass:clear",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "DripGlasses"
+          }
+        }
+      ]
+    },
+    {
+      "id": "top_b",
+      "kind": "furniture_top",
+      "size": [
+        1.62,
+        0.028,
+        0.28
+      ],
+      "at": [
+        -0.39,
+        0.846,
+        -0.14
+      ],
+      "look": "lib:furniture_oak/old/top"
+    },
+    {
+      "id": "shelf",
+      "kind": "furniture_top",
+      "size": [
+        1.56,
+        0.022,
+        0.55
+      ],
+      "at": [
+        -0.36,
+        0.171,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "Stock"
+          }
+        },
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "StockTowels"
+          }
+        },
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "StockBucket"
+          }
+        },
+        {
+          "look": "glass:green",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "StockGlass"
+          }
+        }
+      ]
+    },
+    {
+      "id": "taps",
+      "kind": "trim",
+      "size": [
+        0.2,
+        0.42,
+        0.12
+      ],
+      "at": [
+        0.27,
+        1.073,
+        -0.12
+      ],
+      "wood": "iron",
+      "look": "pbr:work_board",
+      "draw": {
+        "shape": "mesh",
+        "model": "work_board",
+        "part": "Taps"
+      },
+      "solid": 0.06,
+      "dress": [
+        {
+          "look": "pbr:work_board",
+          "draw": {
+            "shape": "mesh",
+            "model": "work_board",
+            "part": "TapHandles"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

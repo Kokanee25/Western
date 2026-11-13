@@ -145,3 +145,29 @@ the movie writer's slow frames, not the game): `results/2026-11-10_murder/murder
 the north chair, turned to Earl; the view turned down at 12 s), `murder_from_the_yard.mp4` (a camera by the
 table's south-west corner). In both runs the kick's first touch stopped on the crest rail, the second broke a
 spindle and the chair went (12.5 s), Earl pitched forward over the table's edge, one shot, "Dead (brain)".
+
+## Step 4 (#796): the morning after and the sheriff's last day
+
+Cody isn't the red shirt any more (Sean on #796): the role is `cody` in the data and code, his stand-in is the
+blacksmith's model (grey-blue work shirt), and he shouts "Earl, you cheating son of a bitch!" as he's taken in
+off the street, not at the table (Sean's note, 2026-11-12); the stranger's warning comes `warn_after_s` after.
+
+The morning after (`config/valley_folk.json` `morning`, `talk`; ValleyFolk): with the murder done and the clock
+come round to the day (`nolaw.morning`), Earl's body goes to the undertaker's once you're off it (out of the
+world for good; `nolaw.earl` = undertaker, `death.earl` his record). Three day folk on the walks, 7-19: the
+townsman (the hotel's walk) tells you "you were sat right there at the table" if you were, else the town's
+versions; the loudmouth (the saloon's walk) that nobody'll take Cody in; the undertaker has Earl laid out.
+Their lines are No Law's script's (`docs/scripts/no_law.json` on PR #837), chosen by StoryState facts
+(`ValleyFolk.story_holds`). Nobody arrests Cody.
+
+The sheriff's last day (`SheriffDies`, `config/moments/sheriff_dies.json`): from 7.5 a young man the doctor
+sent finds you in town; the doctor at his door says his line by `sheriff.care` and leads you through the
+front office and the hall to the sick room; the sheriff on his back on an iron cot (`on_back`, a new pose),
+his wife sat by him (the widow's model). His words clear (care good) or fading (poor, left); poor or left,
+Doc has you hold him (E); the oath; nod or shake (a shake or no answer: "That's not the way this works,
+son."); the badge, his revolver (the story's Harlan is unarmed till now: `Player.lacks`), his last words, and
+his gut takes him (Physiology's own death; he stays on the cot). Doc's the acting law and keeps you on.
+
+See it: `-- --world=valley --mission=sheriff_dies [--care=good|poor|left]` (the morning set up, you on Main
+Street west of the doctor's), or the bridge's `moment sheriff_dies set_up=1 care=poor`. Tests:
+`tests/test_sheriff_dies.gd` (the facts and lines, the morning, both answers).

@@ -1,0 +1,33 @@
+{
+  "_doc": "A white ironstone chamber pot with its lid (#819; refs experiments/prop_lab/refs/doctor/): 23 cm across, a rolled rim, a loop handle, a cobalt line under the rim as the wash set's (the potteries sold basin, pitcher and pot as one toilet set), under a cot in the sick room. A prop that shatters (GlassProp), as the basin: ~5 mm of fired clay, it breaks kicked hard or dropped (2.5 m/s) and at ~25 kPa; a ball breaks it. Empty. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py.",
+  "id": "chamber_pot",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:chamber_pot",
+  "looks": {
+    "Pot": "pbr:chamber_pot",
+    "PotBand": "pbr:chamber_pot",
+    "Lid": "pbr:chamber_pot"
+  },
+  "size": [
+    0.28,
+    0.205,
+    0.23
+  ],
+  "mass": 1.9,
+  "wall": 0.005,
+  "glass": [
+    "Pot",
+    "PotBand",
+    "Lid"
+  ],
+  "whole": [],
+  "shards": 10,
+  "piece_mass": 0.2,
+  "breaks_at": 2.5,
+  "shatters_kpa": 25,
+  "heat_seconds": 1000000000.0,
+  "cut_area": 0.03,
+  "factory": "tools/props/doctor.py"
+}

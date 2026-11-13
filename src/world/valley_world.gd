@@ -38,18 +38,31 @@ static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
+## SheriffDies, the morning after set up, you on Main Street).
+const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
+## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
+var coach_cut: CoachCut
+## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
+## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
+## folk's set (their men are built a frame later: `folk.build_ms`).
+var load_ms := {}
 
 
 func _ready() -> void:
+	var u := Time.get_ticks_usec()
 	if layout == null:
 		layout = ValleyLayout.main()
 	_make_ground()
+	u = _took(&"ground", u)
 	if railway_default:
 		railway = ValleyRailway.new()
 		railway.layout = layout
 		add_child(railway)
+		u = _took(&"railway", u)
 	if farmhouse_default:
 		_make_farmhouse()
+		u = _took(&"farmhouse", u)
 	if markers_default:
 		markers = ValleyMarkers.new()
 		markers.layout = layout
@@ -57,24 +70,80 @@ func _ready() -> void:
 		add_child(markers)
 		if farmhouse:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
+		u = _took(&"markers", u)
 		_make_buildings()
+		u = _took(&"buildings", u)
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
 			folk.town = markers.town
 			add_child(folk)
+			u = _took(&"folk", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
+		_start_sheriff_dies.call_deferred()
+	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
+		CoachCut.start_on_load = false
+		_start_coach_cut.call_deferred()
 
 
-## The sheriff on the road (#746), once the valley's in (its places, the ground under you).
+## The sheriff on the road (#746), once the valley's in (its places, the ground under you). The
+## story's Harlan has no revolver till the dying sheriff gives him his (No Law, #796).
 func _start_sheriff() -> void:
 	for i in 5:
 		await get_tree().physics_frame
+	_unarmed()
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## No Law's sheriff's last day alone (#796), once the folk are built.
+func _start_sheriff_dies() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	var care := "good"
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--care="):
+			care = a.get_slice("=", 1)
+	if folk:
+		folk.start_sheriff_dies({"set_up": true, "care": care})
+
+
+func _unarmed() -> void:
+	var p := get_node_or_null(^"Player") as Player
+	if p and not StoryState.has_fact("nolaw.revolver"):
+		p.lack(&"revolver")
+
+
+## The coach heist in the coach cut (#794), once the valley's ground is in: the ram held, the coach
+## coming up the grade, you at the high spot. Made again by the coach heist lab's `ch_cut`.
+func start_coach_cut(lead := -1.0, back := 40.0, fight_seed := 815) -> CoachCut:
+	if coach_cut and is_instance_valid(coach_cut):
+		coach_cut.queue_free()
+	coach_cut = CoachCut.new()
+	coach_cut.layout = layout
+	coach_cut.release_lead = lead
+	coach_cut.start_back = back
+	coach_cut.fight_seed = fight_seed
+	add_child(coach_cut)
+	coach_cut.begin()
+	return coach_cut
+
+
+func _start_coach_cut() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	start_coach_cut()
+	coach_cut.place_player(get_node_or_null(^"Player") as Node3D)
+
+
+func _took(part: StringName, since: int) -> int:
+	var now := Time.get_ticks_usec()
+	load_ms[part] = (now - since) / 1000.0
+	return now
 
 
 ## Where the player starts: on the crossroads' ground, facing down Main Street (west).
@@ -131,6 +200,46 @@ func _make_buildings() -> void:
 			b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), y, float(at[2])))
 			add_child(b)
 			buildings[String(l.id)] = b
+			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
+			if not sw.is_empty():
+				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## A boardwalk down a building's side street (its spec's `lot.side_walk`: saloon B's, under its
+## wrapping balcony, #848; art's, Sean's answer 8 on #772): from `at` [x, z] in the building's space,
+## turned `turn` degrees there (a Boardwalk runs along its +X, the street on its -Z), `length` by
+## `depth`, its top the building's floor, on posts over the street's own ground, a flight to the
+## street at each of `steps` [centre, width] and steps down at its far end. Its near end meets the
+## lot's walk on Main Street (`walk.span` carries that one past the corner).
+func _side_walk(id: String, b: Node3D, sw: Dictionary, floor_top: float) -> void:
+	var town := markers.town
+	var bw := Boardwalk.new()
+	bw.name = "SideWalk_" + id
+	bw.structure_id = StringName("valley_side_walk_" + id)
+	bw.build_seed = hash(id + "_side") & 0xffff
+	bw.length = float(sw.length)
+	bw.walk_depth = float(sw.depth)
+	bw.top = floor_top
+	bw.riser = town.riser_max
+	bw.max_riser = true
+	bw.on_posts = true
+	var xf: Transform3D = b.transform * Transform3D(Basis(Vector3.UP, deg_to_rad(float(sw.get("turn", -90.0)))), Vector3(float(sw.at[0]), 0.0, float(sw.at[1])))
+	bw.transform = xf
+	var y := xf.origin.y
+	bw.ground_at = func(lx: float, lz: float) -> float:
+		var p := xf * Vector3(lx, 0.0, lz)
+		return town.ground(p.x, p.z) - y
+	var flights := []
+	var below := 0.0
+	for st: Array in sw.get("steps", []):
+		flights.append(Vector2(float(st[0]), float(st[1])))
+		var foot := xf * Vector3(float(st[0]), 0.0, -bw.walk_depth - 1.0)
+		below = maxf(below, y - town.ground(foot.x, foot.z))
+	bw.steps = flights
+	bw.street_below = below
+	var far := xf * Vector3(bw.length, 0.0, -bw.walk_depth * 0.5)
+	bw.end_steps = [Vector2(1, town.ground(far.x, far.z) - y)]
+	add_child(bw)
 
 
 ## The ground, from the bake (ValleyTerrain, config/valley_ground/): a Ground over it, so a crater,

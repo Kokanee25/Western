@@ -3,7 +3,9 @@
 walk, outer walls and partitions, every door (its leaf and swing) and window, the rooms by name and
 size, the girders, chimneys, stairs and porch, the use points. Drawn as the world sees it: north up,
 the street at the bottom, for a lot facing 180 (the north side of Main Street) the builder's x
-mirrored so east is on the right.
+mirrored so east is on the right; for a lot facing 0 (the south side) the street at the top. A stone
+building (#780, the jail): its walls drawn at their thickness (the line their outer face), the
+footprint's wings (`lot.footprint`), the yard's walls and gates, the cells' cages.
 
     python3 tools/buildings/plan_sheet.py experiments/building_lab/doctor/doctor.json OUT.png
 """
@@ -32,24 +34,30 @@ def main(spec_path, out):
     lot = sp["lot"]
     W, D = float(lot["width"]), float(lot["depth"])
     mirror = float(lot.get("facing", 0)) == 180
+    south = float(lot.get("facing", 0)) == 0 and lot.get("side") == "south"
     yard = lot.get("yard", [0, 0, 0, 0])
+    feet = lot.get("footprint", [[0, 0, W, D]])
     xmin = min(0.0, float(yard[0]), float(lot.get("footprint_with_stair", [0])[0])) - 1.0
     xmax = max(W, float(yard[2])) + 1.0
-    zmin, zmax = -3.4, max(D, float(lot.get("footprint_with_stair", [0, 0, 0, D])[3])) + 1.5
+    zmin = -3.4
+    zmax = max(D, float(yard[3]), max(float(f[3]) for f in feet), float(lot.get("footprint_with_stair", [0, 0, 0, D])[3])) + 1.5
+    stone_t = float(sp.get("frame", {}).get("stone_wall", {}).get("thick", 0.0))
     wpx = int((xmax - xmin) * S) + 2 * M
     hpx = int((zmax - zmin) * S) + 2 * M + 80
 
     def P(x, z):
         sx = (xmax - x) if mirror else (x - xmin)
-        return (M + sx * S, M + 60 + (zmax - z) * S)
+        sz = (z - zmin) if south else (zmax - z)
+        return (M + sx * S, M + 60 + sz * S)
 
     im = Image.new("RGB", (wpx, hpx), (246, 241, 230))
     d = ImageDraw.Draw(im)
     ink, red, blue, grey = (25, 20, 15), (190, 40, 30), (40, 80, 170), (150, 140, 125)
     title = "%s: ground plan from the spec (%s)" % (sp["id"], spec_path.split("/")[-1])
     d.text((M, 20), title, fill=ink, font=font(28, True))
-    d.text((M, 56), "north up, the street at the bottom; metres; %.2f x %.2f m (%.0f x %.0f ft)" % (W, D, W / 0.3048, D / 0.3048),
-           fill=ink, font=font(18))
+    sub = "north up, the street at the %s; metres; %s%.2f x %.2f m (%.0f x %.0f ft)" % (
+        "top" if south else "bottom", "the main block " if len(feet) > 1 else "", W, D, W / 0.3048, D / 0.3048)
+    d.text((M, 56), sub, fill=ink, font=font(18))
 
     def rect(r, **kw):
         a, b = P(r[0], r[1]), P(r[2], r[3])
@@ -57,13 +65,51 @@ def main(spec_path, out):
 
     # The side yard, the walk (2.4 m in front of the front line), the street's edge.
     rect([yard[0], yard[1], yard[2], yard[3]], fill=(232, 226, 205), outline=grey)
-    a = P(float(yard[0]) + 0.3, float(yard[3]) - 0.6)
-    d.text((min(a[0], P(float(yard[2]), 0)[0]) + 20, a[1]), "SIDE YARD", fill=grey, font=font(20, True))
-    rect([min(0, float(yard[0])), -2.4, max(W, float(yard[2])), 0.0], fill=(222, 206, 180), outline=grey)
-    a = P(W * 0.5 + 2.5, -1.0)
-    d.text((a[0], a[1] - 10), "THE WALK (ValleyTown's, 0.95 m up)", fill=ink, font=font(18))
+    yname = lot.get("yard_name", "SIDE YARD")
+    if south:
+        a = P(float(yard[2]) - 9.0, float(yard[3]) * 0.5)
+        d.text(a, yname, fill=grey, font=font(20, True))
+    else:
+        a = P(float(yard[0]) + 0.3, float(yard[3]) - 0.6)
+        d.text((min(a[0], P(float(yard[2]), 0)[0]) + 20, a[1]), yname, fill=grey, font=font(20, True))
+    wx = lot.get("walk_x", [min(0, float(yard[0])), max(W, float(yard[2]))])
+    rect([float(wx[0]), -2.4, float(wx[1]), 0.0], fill=(222, 206, 180), outline=grey)
+    a = P(float(wx[0]) + 0.3 if south else W * 0.5 + 2.5, -1.0)
+    d.text((a[0], a[1] - 10), "THE WALK (ValleyTown's, %.2f m up)" % float(lot.get("walk_h", 0.95)), fill=ink, font=font(18))
     a = P(W * 0.5 + 1.0, -3.0)
     d.text((a[0], a[1] - 10), "MAIN STREET", fill=grey, font=font(20, True))
+    if south:
+        a = P(-0.8, float(yard[3]) * 0.5)
+        d.text((a[0] - 30, a[1]), "CROSS\nSTREET", fill=grey, font=font(18, True))
+        a = P(float(yard[2]) * 0.5, float(yard[3]) + 0.9)
+        d.text((a[0], a[1] - 10), "REAR LANE", fill=grey, font=font(20, True))
+    # A yard's stone walls (#780), their gates gaps with the leaves drawn open.
+    yw = sp.get("yard_walls", {})
+    for w in yw.get("walls", []):
+        (ax, az), (bx, bz) = w["line"]
+        t = float(yw["thick"])
+        sgn = -1 if w["out"] in ("+x", "+z") else 1
+        L = math.hypot(bx - ax, bz - az)
+        ux, uz = (bx - ax) / L, (bz - az) / L
+        nx, nz = (1, 0) if abs(uz) > 0.5 else (0, 1)
+        s0 = 0.0
+        cuts = sorted((float(g["at"]) - float(g["width"]) / 2, float(g["at"]) + float(g["width"]) / 2) for g in w.get("gates", []))
+        for c0, c1 in cuts + [(L, L)]:
+            if c0 > s0:
+                q = [(ax + ux * s0 + nx * tt * sgn, az + uz * s0 + nz * tt * sgn) for tt in (0, t)]
+                q += [(ax + ux * c0 + nx * tt * sgn, az + uz * c0 + nz * tt * sgn) for tt in (t, 0)]
+                d.polygon([P(*pt) for pt in q], fill=(110, 100, 88))
+            if c1 > c0:
+                g = P(ax + ux * (c0 + c1) / 2, az + uz * (c0 + c1) / 2)
+                d.text((g[0] - 18, g[1] + (8 if nz else -8)), "gate", fill=red, font=font(14))
+            s0 = c1
+    for o in sp.get("outbuildings", []):
+        if "rect" in o:
+            rect(o["rect"], fill=(214, 196, 166), outline=ink, width=2)
+            c = P((o["rect"][0] + o["rect"][2]) / 2, (o["rect"][1] + o["rect"][3]) / 2)
+            d.text((c[0] - 22, c[1] - 8), o["kind"].upper(), fill=ink, font=font(14, True))
+        elif "at" in o:
+            rect([o["at"][0] - 0.6, o["at"][1] - 0.6, o["at"][0] + 0.6, o["at"][1] + 0.6], fill=(214, 196, 166), outline=ink, width=2)
 
     # Back porch, stairs and their stoop.
     bp = sp.get("back_porch")
@@ -91,8 +137,32 @@ def main(spec_path, out):
         c = P((r[0] + r[2]) * 0.5, (r[1] + r[3]) * 0.5)
         d.text((c[0] - 14, c[1] - 8), "%dR" % n, fill=ink, font=font(14))
 
-    # The building's floor.
-    rect([0, 0, W, D], fill=(250, 246, 236))
+    # The building's floor (its footprint's wings, #780).
+    for f in feet:
+        rect(f, fill=(250, 246, 236))
+    # Cells' cages (#780): their lattice drawn as a fine grid, the doors on their side.
+    ce = sp.get("cells")
+    if ce:
+        cx0, cx1 = ce["x"]
+        zs = ce["z"]
+        for k in range(len(zs) - 1):
+            rect([cx0, zs[k], cx1, zs[k + 1]], fill=(236, 232, 226), outline=(60, 60, 70), width=3)
+            for j in range(1, 8):
+                x = cx0 + (cx1 - cx0) * j / 8
+                d.line([P(x, zs[k]), P(x, zs[k + 1])], fill=(170, 170, 180), width=1)
+            c = P((cx0 + cx1) / 2, (zs[k] + zs[k + 1]) / 2)
+            d.text((c[0] - 22, c[1] - 8), "CAGE %d" % (k + 1), fill=(60, 60, 70), font=font(14, True))
+            dw = float(ce["door"]["width"])
+            zm = (zs[k] + zs[k + 1]) / 2
+            d.line([P(cx0, zm - dw / 2), P(cx0 - dw, zm - dw / 2)], fill=red, width=3)
+        g = ce.get("gate")
+        if g:
+            d.line([P(g["x"][0], g["z"]), P(g["x"][1], g["z"])], fill=(60, 60, 70), width=5)
+    rf = sp.get("roof", {})
+    if "hatch" in rf:
+        rect(rf["hatch"]["rect"], outline=red, width=2)
+        c = P(rf["hatch"]["rect"][0], rf["hatch"]["rect"][1])
+        d.text((c[0] - 4, c[1] - 18), "hatch", fill=red, font=font(13))
     # Girders (dashed) and chimneys.
     for gx in sp.get("girders", {}).get("x", []):
         z = 0.2
@@ -123,7 +193,15 @@ def main(spec_path, out):
     # Walls: the outer ones as their stud depth (0.1 m) plus the siding, partitions centred.
     def wall_box(w):
         (ax, az), (bx, bz) = w["line"]
-        if w.get("partition"):
+        if w.get("stone"):
+            # A stone wall: its line the outer face (a partition's: its north or west face), the
+            # stone on inward (+x/+z for a partition) at its thickness.
+            t = float(w.get("thick", stone_t))
+            if w.get("partition") or w["out"] in ("-x", "-z"):
+                t0, t1 = 0.0, t
+            else:
+                t0, t1 = -t, 0.0
+        elif w.get("partition"):
             t0, t1 = -0.05, 0.05
         else:
             o = w["out"]
@@ -149,7 +227,7 @@ def main(spec_path, out):
         s = 0.0
         pieces = []
         for c0, c1, o in cuts:
-            if o["type"] in ("door", "hatch") or (o["type"] == "window" and float(o.get("sill", 0)) < 2.2):
+            if o["type"] in ("door", "hatch") or (o["type"] == "window" and (float(o.get("sill", 0)) < 2.2 or o.get("glass") is False)):
                 if c0 > s:
                     pieces.append((s, c0))
                 s = max(s, c1)
@@ -160,8 +238,8 @@ def main(spec_path, out):
         for c0, c1, o in cuts:
             mid = (t0 + t1) / 2
             if o["type"] == "window":
-                if float(o.get("sill", 0)) >= 2.2:
-                    continue   # a transom: shown with its door
+                if float(o.get("sill", 0)) >= 2.2 and o.get("glass") is not False:
+                    continue   # a transom: shown with its door (a high slit with no glass, #780, is drawn)
                 for t in (t0, mid, t1):
                     d.line([P(*along_pt(w, c0, t)), P(*along_pt(w, c1, t))], fill=blue, width=2)
                 d.line([P(*along_pt(w, c0, t0)), P(*along_pt(w, c0, t1))], fill=ink, width=2)
@@ -187,6 +265,8 @@ def main(spec_path, out):
 
     # Use points.
     for u in sp.get("use_points", []):
+        if "at" not in u:
+        	continue  # a kit's seats (the card tables')
         x, _, z = u["at"]
         c = P(x, z)
         d.ellipse([c[0] - 6, c[1] - 6, c[0] + 6, c[1] + 6], fill=(40, 140, 60), outline=ink)

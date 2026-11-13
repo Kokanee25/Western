@@ -1,0 +1,315 @@
+{
+  "_doc": "A faro table (#866; refs experiments/prop_lab/refs/saloon/; the period's main game): oak, 54 x 36 in at 30 in, the dealer's side (-z) cut back 12 in for him to sit into, the top covered in green baize with the layout enamelled on it (a suit of spades: ace to six along the near row, eight to king along the far, the seven at the end; the high-card bar along the players' edge), a rounded oak rim, the German-silver dealing box at the dealer's place, the case-keeper (thirteen spindles of beads) beside it, a few stacks of chips on the cards. Oak from the material library (a few years; the top worn); the legs square (a country maker's); the cloth printed and the box, case-keeper and chips baked the gun way (tools/blender/props/saloon_s1.py). The cloth, rim and the game are the middle board's dress (gone with it), so it stands as 16 physics bodies (its members). ~45 kg. The bar room has one, the gaming room another. Written by tools/props/saloon.py.",
+  "id": "faro_table",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.732,
+        0.07
+      ],
+      "at": [
+        -0.615,
+        0.366,
+        -0.385
+      ],
+      "look": "lib:furniture_oak/few",
+      "blow_span": 0.5124
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.732,
+        0.07
+      ],
+      "at": [
+        0.615,
+        0.366,
+        -0.385
+      ],
+      "look": "lib:furniture_oak/few",
+      "blow_span": 0.5124
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.732,
+        0.07
+      ],
+      "at": [
+        -0.615,
+        0.366,
+        0.385
+      ],
+      "look": "lib:furniture_oak/few",
+      "blow_span": 0.5124
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.732,
+        0.07
+      ],
+      "at": [
+        0.615,
+        0.366,
+        0.385
+      ],
+      "look": "lib:furniture_oak/few",
+      "blow_span": 0.5124
+    },
+    {
+      "id": "apron_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.024,
+        0.11,
+        0.7
+      ],
+      "at": [
+        -0.638,
+        0.677,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.024,
+        0.11,
+        0.7
+      ],
+      "at": [
+        0.638,
+        0.677,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.16,
+        0.11,
+        0.024
+      ],
+      "at": [
+        0.0,
+        0.677,
+        0.408
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_bl",
+      "kind": "furniture_frame",
+      "size": [
+        0.3,
+        0.11,
+        0.024
+      ],
+      "at": [
+        -0.43,
+        0.677,
+        -0.408
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_br",
+      "kind": "furniture_frame",
+      "size": [
+        0.3,
+        0.11,
+        0.024
+      ],
+      "at": [
+        0.43,
+        0.677,
+        -0.408
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_cut_l",
+      "kind": "cripple",
+      "size": [
+        0.024,
+        0.11,
+        0.109
+      ],
+      "at": [
+        -0.292,
+        0.677,
+        -0.3655
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_cut_r",
+      "kind": "cripple",
+      "size": [
+        0.024,
+        0.11,
+        0.109
+      ],
+      "at": [
+        0.292,
+        0.677,
+        -0.3655
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "apron_cut",
+      "kind": "board",
+      "size": [
+        0.56,
+        0.11,
+        0.024
+      ],
+      "at": [
+        0.0,
+        0.677,
+        -0.323
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "top0l",
+      "kind": "furniture_top",
+      "size": [
+        0.405,
+        0.028,
+        0.3033
+      ],
+      "at": [
+        -0.4825,
+        0.746,
+        -0.3033
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "top0r",
+      "kind": "furniture_top",
+      "size": [
+        0.405,
+        0.028,
+        0.3033
+      ],
+      "at": [
+        0.4825,
+        0.746,
+        -0.3033
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "top0m",
+      "kind": "furniture_top",
+      "size": [
+        0.56,
+        0.028,
+        0.1833
+      ],
+      "at": [
+        0.0,
+        0.746,
+        -0.2433
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "top1",
+      "kind": "furniture_top",
+      "size": [
+        1.37,
+        0.028,
+        0.6067
+      ],
+      "at": [
+        0.0,
+        0.746,
+        0.1517
+      ],
+      "look": "lib:furniture_oak/few/top",
+      "dress": [
+        {
+          "look": "pbr:faro_layout",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "Cloth"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "Rim"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "DealingBox"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "CaseKeeper"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "CaseBeads"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "ChipsW"
+          }
+        },
+        {
+          "look": "pbr:faro_table",
+          "draw": {
+            "shape": "mesh",
+            "model": "faro_table",
+            "part": "ChipsR"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

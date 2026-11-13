@@ -1,0 +1,650 @@
+[
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.21,
+      "seconds": 36.0,
+      "seed": 0
+    },
+    "coach_at": [
+      401.6,
+      802.8
+    ],
+    "deepest_cm": 3.7,
+    "dents": 9,
+    "frames": {
+      "max_at_seans": 15.0501,
+      "max_ms": 23.154,
+      "mean_ms": 3.26406700791066,
+      "over_100_at_seans": 0,
+      "p99_ms": 9.646
+    },
+    "hit": {
+      "along": -0.16,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.7,
+    "line": "seed 0: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": -0.16 }, lean 100 OVER, dents 9, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 27.9 kN",
+    "max_lean": 99.8,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.35,
+        2.13,
+        1.15
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 27896.0,
+      "ropes": 2,
+      "speed": 0.0
+    },
+    "released_at": 27.52,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.15,
+      "seconds": 36.0,
+      "seed": 1
+    },
+    "coach_at": [
+      401.6,
+      802.8
+    ],
+    "deepest_cm": 3.7,
+    "dents": 14,
+    "frames": {
+      "max_at_seans": 19.66185,
+      "max_ms": 30.249,
+      "mean_ms": 3.3335016286645,
+      "over_100_at_seans": 0,
+      "p99_ms": 12.226
+    },
+    "hit": {
+      "along": -0.09,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.65,
+    "line": "seed 1: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": -0.09 }, lean 106 OVER, dents 14, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 19.9 kN",
+    "max_lean": 105.7,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.08,
+        2.0,
+        -0.05
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 19895.0,
+      "ropes": 2,
+      "speed": 0.26
+    },
+    "released_at": 27.47,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.09,
+      "seconds": 36.0,
+      "seed": 2
+    },
+    "coach_at": [
+      401.5,
+      802.7
+    ],
+    "deepest_cm": 3.7,
+    "dents": 9,
+    "frames": {
+      "max_at_seans": 16.3228,
+      "max_ms": 25.112,
+      "mean_ms": 3.58052675663099,
+      "over_100_at_seans": 0,
+      "p99_ms": 10.832
+    },
+    "hit": {
+      "along": 0.0,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.58,
+    "line": "seed 2: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.0 }, lean 107 OVER, dents 9, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 18.4 kN",
+    "max_lean": 106.9,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.11,
+        2.0,
+        -0.23
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 18430.0,
+      "ropes": 2,
+      "speed": 0.37
+    },
+    "released_at": 27.4,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.03,
+      "seconds": 36.0,
+      "seed": 3
+    },
+    "coach_at": [
+      401.4,
+      802.7
+    ],
+    "deepest_cm": 3.7,
+    "dents": 11,
+    "frames": {
+      "max_at_seans": 19.3232,
+      "max_ms": 29.728,
+      "mean_ms": 3.62271707771056,
+      "over_100_at_seans": 0,
+      "p99_ms": 11.722
+    },
+    "hit": {
+      "along": 0.07,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.53,
+    "line": "seed 3: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.07 }, lean 103 OVER, dents 11, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 21.0 kN",
+    "max_lean": 103.4,
+    "over": true,
+    "ram": {
+      "at": [
+        0.3,
+        2.0,
+        -0.03
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 21019.0,
+      "ropes": 2,
+      "speed": 0.25
+    },
+    "released_at": 27.35,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.03,
+      "seconds": 36.0,
+      "seed": 4
+    },
+    "coach_at": [
+      401.4,
+      802.6
+    ],
+    "deepest_cm": 3.7,
+    "dents": 12,
+    "frames": {
+      "max_at_seans": 31.00695,
+      "max_ms": 47.703,
+      "mean_ms": 3.78561144718473,
+      "over_100_at_seans": 0,
+      "p99_ms": 12.355
+    },
+    "hit": {
+      "along": 0.17,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.47,
+    "line": "seed 4: swing 1.19 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.17 }, lean 101 OVER, dents 12, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 18.5 kN",
+    "max_lean": 101.3,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.67,
+        2.14,
+        1.03
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 18503.0,
+      "ropes": 2,
+      "speed": 0.0
+    },
+    "released_at": 27.28,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.09,
+      "seconds": 36.0,
+      "seed": 5
+    },
+    "coach_at": [
+      401.3,
+      802.6
+    ],
+    "deepest_cm": 3.7,
+    "dents": 14,
+    "frames": {
+      "max_at_seans": 21.2849,
+      "max_ms": 32.746,
+      "mean_ms": 3.58176454164728,
+      "over_100_at_seans": 0,
+      "p99_ms": 11.727
+    },
+    "hit": {
+      "along": 0.26,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.4,
+    "line": "seed 5: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.26 }, lean 103 OVER, dents 14, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 18.5 kN",
+    "max_lean": 103.0,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.68,
+        2.15,
+        1.02
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 18503.0,
+      "ropes": 2,
+      "speed": 0.0
+    },
+    "released_at": 27.22,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.15,
+      "seconds": 36.0,
+      "seed": 6
+    },
+    "coach_at": [
+      401.2,
+      802.5
+    ],
+    "deepest_cm": 3.7,
+    "dents": 9,
+    "frames": {
+      "max_at_seans": 14.99225,
+      "max_ms": 23.065,
+      "mean_ms": 3.48344346207538,
+      "over_100_at_seans": 0,
+      "p99_ms": 9.809
+    },
+    "hit": {
+      "along": 0.33,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.35,
+    "line": "seed 6: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.33 }, lean 102 OVER, dents 9, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 20.1 kN",
+    "max_lean": 102.1,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.51,
+        2.15,
+        1.15
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 20083.0,
+      "ropes": 2,
+      "speed": 0.0
+    },
+    "released_at": 27.17,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.21,
+      "seconds": 36.0,
+      "seed": 7
+    },
+    "coach_at": [
+      401.2,
+      802.5
+    ],
+    "deepest_cm": 3.7,
+    "dents": 14,
+    "frames": {
+      "max_at_seans": 23.64505,
+      "max_ms": 36.377,
+      "mean_ms": 3.31503676128431,
+      "over_100_at_seans": 0,
+      "p99_ms": 10.561
+    },
+    "hit": {
+      "along": 0.42,
+      "at": [
+        0.0,
+        2.02,
+        -0.61
+      ],
+      "speed": 7.99
+    },
+    "hit_at": 28.28,
+    "line": "seed 7: swing 1.18 s, hit { \"speed\": 7.99, \"at\": [0.0, 2.02, -0.61], \"along\": 0.42 }, lean 102 OVER, dents 14, deepest 3.7 cm, traces left 0, strongbox loose true, ropes' most 20.2 kN",
+    "max_lean": 102.1,
+    "over": true,
+    "ram": {
+      "at": [
+        -0.28,
+        2.0,
+        -0.09
+      ],
+      "held": false,
+      "lossless": 8.05,
+      "most_tension_n": 20232.0,
+      "ropes": 2,
+      "speed": 0.74
+    },
+    "released_at": 27.1,
+    "riders": [
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_0"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_1"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "coach_guard_2"
+      },
+      {
+        "conscious": false,
+        "limp": true,
+        "who": "coach_guard_3"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "driver"
+      },
+      {
+        "conscious": true,
+        "limp": true,
+        "who": "messenger"
+      }
+    ],
+    "strongbox_loose": true,
+    "traces_on": 0
+  }
+]

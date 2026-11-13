@@ -1,0 +1,337 @@
+{
+  "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): an oak base with a drawer for the weights (its brass knob), a glazed oak case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Oak from the material library (a few years, the doctor's; the period's cases were mahogany or oak); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
+  "id": "scales",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        0.46,
+        0.075,
+        0.25
+      ],
+      "at": [
+        0.0,
+        0.0375,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "drawer",
+      "kind": "trim",
+      "size": [
+        0.3,
+        0.042,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.0375,
+        0.131
+      ],
+      "look": "lib:furniture_oak/few/front",
+      "dress": [
+        {
+          "look": "pbr:scales",
+          "draw": {
+            "shape": "mesh",
+            "model": "scales",
+            "part": "Knob"
+          }
+        }
+      ]
+    },
+    {
+      "id": "post0",
+      "kind": "stud",
+      "size": [
+        0.022,
+        0.358,
+        0.022
+      ],
+      "at": [
+        -0.204,
+        0.254,
+        -0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "post1",
+      "kind": "stud",
+      "size": [
+        0.022,
+        0.358,
+        0.022
+      ],
+      "at": [
+        0.204,
+        0.254,
+        -0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "post2",
+      "kind": "stud",
+      "size": [
+        0.022,
+        0.358,
+        0.022
+      ],
+      "at": [
+        -0.204,
+        0.254,
+        0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "post3",
+      "kind": "stud",
+      "size": [
+        0.022,
+        0.358,
+        0.022
+      ],
+      "at": [
+        0.204,
+        0.254,
+        0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "rail_b",
+      "kind": "cripple",
+      "size": [
+        0.43,
+        0.022,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.444,
+        -0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "rail_f",
+      "kind": "cripple",
+      "size": [
+        0.43,
+        0.022,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.444,
+        0.099
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "rail_l",
+      "kind": "cripple",
+      "size": [
+        0.022,
+        0.022,
+        0.176
+      ],
+      "at": [
+        -0.204,
+        0.444,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "rail_r",
+      "kind": "cripple",
+      "size": [
+        0.022,
+        0.022,
+        0.176
+      ],
+      "at": [
+        0.204,
+        0.444,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "pane_back",
+      "kind": "glass",
+      "size": [
+        0.386,
+        0.358,
+        0.004
+      ],
+      "at": [
+        0.0,
+        0.254,
+        -0.099
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    },
+    {
+      "id": "pane_front",
+      "kind": "glass",
+      "size": [
+        0.386,
+        0.358,
+        0.004
+      ],
+      "at": [
+        0.0,
+        0.254,
+        0.099
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    },
+    {
+      "id": "pane_l",
+      "kind": "glass",
+      "size": [
+        0.004,
+        0.358,
+        0.176
+      ],
+      "at": [
+        -0.204,
+        0.254,
+        0.0
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    },
+    {
+      "id": "pane_r",
+      "kind": "glass",
+      "size": [
+        0.004,
+        0.358,
+        0.176
+      ],
+      "at": [
+        0.204,
+        0.254,
+        0.0
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    },
+    {
+      "id": "pane_top",
+      "kind": "glass",
+      "size": [
+        0.386,
+        0.004,
+        0.176
+      ],
+      "at": [
+        0.0,
+        0.444,
+        0.0
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    },
+    {
+      "id": "pillar",
+      "kind": "stud",
+      "size": [
+        0.012,
+        0.31,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.23,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "Pillar"
+      }
+    },
+    {
+      "id": "beam",
+      "kind": "cripple",
+      "size": [
+        0.24,
+        0.008,
+        0.006
+      ],
+      "at": [
+        0.0,
+        0.385,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "Beam"
+      }
+    },
+    {
+      "id": "pan_l",
+      "kind": "trim",
+      "size": [
+        0.004,
+        0.28,
+        0.004
+      ],
+      "at": [
+        -0.12,
+        0.245,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "PanL"
+      }
+    },
+    {
+      "id": "pan_r",
+      "kind": "trim",
+      "size": [
+        0.004,
+        0.28,
+        0.004
+      ],
+      "at": [
+        0.12,
+        0.245,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "PanR"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

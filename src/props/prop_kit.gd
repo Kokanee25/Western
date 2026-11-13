@@ -27,8 +27,10 @@ class_name PropKit
 ## "wood:<name>" (the texture factory's woods, WoodMaterials), or "model:<name>" (a model's own
 ## painted texture on its UVs: assets/props/models/<name>_paint.png, PropModels.model_paint; the deer
 ## head from Rodin), or "pbr:<model>" (metal the gun way: the model's baked albedo and ORM,
-## metallic, PropModels.pbr), or "lib:<entry>/<age>[/top]" (the material library's woods, #721: the
-## member drawn as a library board, dress_lib; boxes only). Without it, the member's wood's.
+## metallic, PropModels.pbr), or "lib:<entry>/<age>[/top|/front]" (the material library's woods, #721: the
+## member drawn as a library board, dress_lib; boxes only; `front` a drawer's front, its pulls worn
+## round under a furniture entry's finish, #825: pulls at its quarters over 0.6 m, else its middle), or "glass:<colour>" (a bottle's tinted
+## glass, see-through: aqua, amber, cobalt, clear, green; PropModels.tinted_glass, #805). Without it, the member's wood's.
 ## "draw": how the member is drawn when it isn't a plain box (its collision is always its box):
 ##   {"shape": "lathe", "profile": [[r, y], ...], "segments", "grain_up", "at", "rot"}: turned about
 ##    the prop's Y (or an axis through "at", turned by "rot": a wheel's hub, across the wagon);
@@ -286,6 +288,8 @@ static func material(look: String, variant: int) -> Material:
 		return PropModels.pbr(parts[1])
 	if parts[0] == "lib":
 		return lib_material(look)
+	if parts.size() == 2 and parts[0] == "glass":
+		return PropModels.tinted_glass(parts[1])
 	match parts[parts.size() - 1]:
 		"dark_wood":
 			return PropModels.dark_wood()
@@ -353,9 +357,10 @@ static func material(look: String, variant: int) -> Material:
 static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> void:
 	var mi := m.get_child(0) as MeshInstance3D
 	if look.begins_with("lib:"):
-		if not draw.is_empty() and String(draw.get("shape", "box")) != "box":
-			push_warning("PropKit: %s: a library wood draws boards only (its \"draw\" left out)" % m.member_id)
-		dress_lib(m, look)
+		var shape := String(draw.get("shape", "box")) if not draw.is_empty() else "box"
+		if shape != "box" and shape != "cut":
+			push_warning("PropKit: %s: a library wood draws boards (and boards cut to an outline) only (its \"draw\" left out)" % m.member_id)
+		dress_lib(m, look, draw if shape == "cut" else {})
 		return
 	if look != "":
 		mi.material_override = material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
@@ -370,11 +375,15 @@ const LIB_AGES := {"new": 0.0, "few": 0.5, "old": 1.0}
 static var _lib_mats := {}
 
 
-## A look's parts: "lib:<entry>/<age>[/top]" -> [entry, age, top]. `top`: a worked or leaned-on top
-## (the library shader's rail-top role: rings and elbow wear where it's varnished).
+## A look's parts: "lib:<entry>/<age>[/top|/front]" -> [entry, age, role]. The role (the library
+## shader's CUSTOM2.w): 1 `top`, a worked or leaned-on top (rings and elbow wear where it's varnished);
+## 2 `front`, a drawer's front (hands round its pulls, under a furniture entry, #825); else 0.
 static func lib_parts(look: String) -> Array:
 	var p := look.trim_prefix("lib:").split("/")
-	return [p[0], p[1] if p.size() > 1 else "few", p.size() > 2 and p[2] == "top"]
+	var role := 0.0
+	if p.size() > 2:
+		role = 1.0 if p[2] == "top" else (2.0 if p[2] == "front" else 0.0)
+	return [p[0], p[1] if p.size() > 1 else "few", role]
 
 
 ## The library's shader for a prop's wood (MaterialLibrary.apply at the entry's age, as a building's
@@ -404,11 +413,11 @@ static func lib_material(look: String) -> ShaderMaterial:
 ## next, Z through it, the shader's layout), the board's seed from its id, as the doctor's builder
 ## draws a wall's boards (#765). Structure batches such boards by the way they face (meta
 ## `board_frame`).
-static func dress_lib(m: StructureMember, look: String) -> void:
+static func dress_lib(m: StructureMember, look: String, cut := {}) -> void:
 	var mi := m.get_child(0) as MeshInstance3D
 	var lp := lib_parts(look)
-	var e := MaterialLibrary.entry(String(lp[0]))
-	var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("class", "common")), SamplePanel.CLASSES[&"common"])
+	var e := MaterialLibrary.resolved(MaterialLibrary.entry(String(lp[0])))
+	var cls: Dictionary = SamplePanel.CLASSES.get(StringName(e.get("wood_class", "common")), SamplePanel.CLASSES[&"common"])
 	var ai: int = maxi(0, ["new", "few", "old"].find(String(lp[1])))
 	# Furniture is joined and stays true: a tenth of a wall board's warp.
 	var warp := float(cls.warp[ai]) * float(e.get("warp_scale", 1.0)) * 0.1
@@ -422,8 +431,12 @@ static func dress_lib(m: StructureMember, look: String) -> void:
 	var ez := ex.cross(ey)
 	var length: float = s[order[0]]
 	var rng := hash(m.member_id)
-	mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, 1.0 if lp[2] else 0.0)
-	mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
+	var frame := Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
+	if cut.is_empty():
+		mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, float(lp[2]))
+	else:
+		mi.mesh = lib_cut_mesh(cut, m, frame, float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp)
+	mi.transform = frame
 	mi.material_override = lib_material(look)
 
 
@@ -486,6 +499,57 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
 	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -ht - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
+	mesh.set_meta(&"arrays", arrays)
+	mesh.set_meta(&"board_frame", true)
+	return mesh
+
+
+## A library board cut to an outline (#805: a roll-top desk's S-curved sides; a bracket, a crest):
+## the kit's "cut" draw ({"outline", "plane"}, as woodwork_mesh's) made in the member's own space,
+## then laid into the board's frame (`frame`: the board's X along the member's longest side, as
+## dress_lib lays a plain board) with the library shader's attributes worked out at each corner
+## (board_mesh's layout: its broad faces 0, its ends 1, its edges 2), so it takes the same grain,
+## wear and batch as the boards round it.
+static func lib_cut_mesh(draw: Dictionary, m: StructureMember, frame: Transform3D, seed: float, dims: Vector3, warp: float) -> ArrayMesh:
+	var cut := woodwork_mesh(draw, m)
+	var src := cut.surface_get_arrays(0)
+	var to_board := frame.affine_inverse()
+	var verts: PackedVector3Array = src[Mesh.ARRAY_VERTEX]
+	var norms: PackedVector3Array = src[Mesh.ARRAY_NORMAL]
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var length := dims.x
+	var hw := dims.y * 0.5
+	for i in verts.size():
+		var p := to_board * verts[i]
+		var nb := (to_board.basis * norms[i]).normalized()
+		var a := nb.abs()
+		var face := 0.0 if a.z >= a.x and a.z >= a.y else (2.0 if a.y >= a.x else 1.0)
+		v.append(p)
+		n.append(nb)
+		uv.append(Vector2(p.x, p.y) if face == 0.0 else (Vector2(p.y, p.z) if face == 1.0 else Vector2(p.x, p.z)))
+		c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / maxf(hw, 0.001), -1.0, 1.0), face])
+		c1.append_array([length, dims.y, dims.z, warp])
+		c2.append_array([0.0, 0.0, -1000.0, 0.0])
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = n
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_CUSTOM0] = c0
+	arrays[Mesh.ARRAY_CUSTOM1] = c1
+	arrays[Mesh.ARRAY_CUSTOM2] = c2
+	arrays[Mesh.ARRAY_INDEX] = src[Mesh.ARRAY_INDEX]
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -dims.z * 0.5 - 0.02), Vector3(length + 0.04, dims.y + 0.04, dims.z + 0.04))
 	mesh.set_meta(&"arrays", arrays)
 	mesh.set_meta(&"board_frame", true)
 	return mesh

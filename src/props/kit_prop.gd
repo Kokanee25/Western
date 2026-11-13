@@ -87,6 +87,11 @@ func _ready() -> void:
 	if not Events.bullet_hit.is_connected(_any_bullet_hit):
 		Events.bullet_hit.connect(_any_bullet_hit)
 	_put_in_carried()
+	if definition.has("stove") and get_node_or_null(^"StoveFire") == null:
+		# A firebox (#866: the box stove): its glow by the hour, its coals when it goes over.
+		var sf := StoveFire.new()
+		sf.name = "StoveFire"
+		add_child(sf)
 
 
 ## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").
@@ -112,6 +117,11 @@ func build() -> void:
 		var m := add_member(spec.id, StringName(spec.kind), StringName(spec.get("wood", definition.get("wood", "oak"))),
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
+		if spec.has("solid"):
+			# A hollow member (#866: a cast firebox, a stovepipe, a brass tube): the share of its box
+			# that's metal, for its weight. StructureMember.weight counts the rest as char (a fifth of
+			# its density), so a hollow member weighs at least a fifth of its box.
+			m.solid_share = float(spec.solid)
 		var mi := m.get_child(0) as MeshInstance3D
 		var own_look: String = spec.get("look", definition.get("look", ""))
 		PropKit.dress_member(m, spec.get("draw", {}), own_look)
@@ -131,6 +141,10 @@ func build() -> void:
 			layer.mesh = st.commit()
 			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
 			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
+			# In the member's own space: a library board's mesh is drawn in its board's frame (#805:
+			# the frame's half-length offset carried every pull, knob and paper on a `lib:` member
+			# off to one end; StructureMember.apply_voxel_mesh puts them back when it's carved).
+			layer.transform = mi.transform.affine_inverse()
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
 		m.set_meta(&"closed", m.transform)
@@ -374,7 +388,7 @@ func _find_footing() -> void:
 		for hit in space.intersect_shape(q, 16):
 			var c: Object = hit.collider
 			if c is StructureMember:
-				under.append([c, (c as StructureMember).global_position])
+				under.append([c, _floor_place(c)])
 			elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 				under.append([null, Vector3.ZERO])  # the ground, a fixed floor: never goes
 		_feet[m] = under
@@ -406,7 +420,7 @@ func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
 			for hit in space.intersect_shape(q, 8):
 				var c: Object = hit.collider
 				if c is StructureMember:
-					into.append([c, (c as StructureMember).global_position])
+					into.append([c, _floor_place(c)])
 				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 					into.append([null, Vector3.ZERO])
 		_feet[m] = into
@@ -460,9 +474,28 @@ func _has_footing(m: StructureMember) -> bool:
 		if f == null:
 			return true
 		if is_instance_valid(f) and not (f as StructureMember).broken and not (f as StructureMember).consumed \
-				and (f as StructureMember).global_position.distance_to(e[1]) < MOVED:
+				and _floor_place(f).distance_to(e[1]) < MOVED:
 			return true
 	return false
+
+
+## Footed where it is, its feet not looked for: something carries it (a coach on its road, driven by
+## CoachDrive: on a Jolt height field a foot a few mm under the surface finds nothing, #794).
+func keep_footed() -> void:
+	_put_down = true
+	_footed = true
+	_feet.clear()
+
+
+## Where a floor member is, to tell whether it's moved from under a foot: in the world, or, for a
+## floor of what carries this prop (the coach's under its strongbox; a building's under its props),
+## in the carrier's space: a driven coach moves its floor and its strongbox together (it dropped it
+## in the first quarter second, #794); a building that stands still reads as the world.
+func _floor_place(f: StructureMember) -> Vector3:
+	var s := f.get_parent()
+	while s != null and not s is Structure:
+		s = s.get_parent()
+	return (s as Node3D).to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
 
 
 ## The four lowest corners of a member (structure space): its footprint.

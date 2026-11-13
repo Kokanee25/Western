@@ -84,6 +84,129 @@ FINISHES = {
     # The cobalt line printed under ironstone's rim (the Davenport set's band, refs/doctor/).
     "cobalt": {"kind": "coat", "color": (0.10, 0.16, 0.42), "under": (0.10, 0.16, 0.42), "rust": 0.0,
                "rough": 0.08, "metal": 0.0, "wear": 0.0},
+    # Cork (a bottle's stopper, cut from cork oak bark): tan, open-pored, dull; darkened where it's
+    # been handled and wet with what it stops.
+    "cork": {"kind": "coat", "color": (0.52, 0.38, 0.24), "under": (0.34, 0.22, 0.12), "rust": 0.0,
+             "rough": 0.9, "metal": 0.0, "wear": 0.4, "craze": 0.6},
+    # What's in a bottle, seen through its glass (#805): a tincture's red-brown (laudanum, arnica, iron
+    # chloride are all dark brown-red in alcohol), a syrup's darker amber, a powder's off-white (quinine
+    # sulphate, potassium bromide and Epsom salts are white crystals; powdered rhubarb root
+    # yellow-brown). Smooth liquids, a dull powder, glinting crystals.
+    "tincture": {"kind": "coat", "color": (0.30, 0.09, 0.03), "under": (0.30, 0.09, 0.03), "rust": 0.0,
+                 "rough": 0.1, "metal": 0.0, "wear": 0.0},
+    "syrup": {"kind": "coat", "color": (0.22, 0.10, 0.03), "under": (0.22, 0.10, 0.03), "rust": 0.0,
+              "rough": 0.1, "metal": 0.0, "wear": 0.0},
+    "rhubarb": {"kind": "coat", "color": (0.52, 0.36, 0.14), "under": (0.52, 0.36, 0.14), "rust": 0.0,
+                "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.4},
+    "crystals": {"kind": "coat", "color": (0.86, 0.86, 0.84), "under": (0.86, 0.86, 0.84), "rust": 0.0,
+                 "rough": 0.5, "metal": 0.0, "wear": 0.0, "mottle": 0.5},
+    "powder": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.80, 0.78, 0.72), "rust": 0.0,
+               "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.3},
+    # Wedgwood's white stoneware ("Wedgwood ware", the druggists' mortar from the 1770s on): a hard,
+    # dense, unglazed buff-white body outside, a slight sheen where it's handled, its grinding bowl
+    # inside rough and greyed by what's been ground in it.
+    # (round 3's critic: speckled orange "clay" under the room's warm light: no mottle, a cooler white)
+    "stoneware": {"kind": "coat", "color": (0.92, 0.92, 0.90), "under": (0.80, 0.79, 0.76), "rust": 0.0,
+                  "rough": 0.62, "metal": 0.0, "wear": 0.12},
+    # A turned hardwood handle (a pestle's: lignum vitae or boxwood): dark brown, oiled by the hand.
+    # (the Met's Wedgwood pestle's is near black-brown: lignum vitae darkens with handling)
+    "turned_wood": {"kind": "coat", "color": (0.16, 0.09, 0.05), "under": (0.30, 0.19, 0.10), "rust": 0.0,
+                    "rough": 0.45, "metal": 0.0, "wear": 0.5},
+    # Leather on a desk's writing bed (a roll-top's and a library table's: dyed skiver, often green or
+    # red, tooled at its edge in gilt): green, rubbed through to brown where the arms rest.
+    "desk_leather": {"kind": "coat", "color": (0.10, 0.17, 0.10), "under": (0.24, 0.20, 0.12), "rust": 0.0,
+                     "rough": 0.55, "metal": 0.0, "wear": 0.7, "craze": 0.3},
+    # Steam-bent beech stained to walnut (Thonet's chairs: "nussbaum" stain over beech, a thin shellac
+    # polish): dark brown, rubbed through to the paler beech on the hoop and the seat's front.
+    "bentwood": {"kind": "coat", "color": (0.17, 0.09, 0.05), "under": (0.42, 0.28, 0.15), "rust": 0.0,
+                 "rough": 0.42, "metal": 0.0, "wear": 0.55},
+    # Woven cane (split rattan, the No. 14's seat): honey-gold, its open weave's holes dark (the craze
+    # lines here as the weave), darker where it's sat on.
+    "cane": {"kind": "coat", "color": (0.60, 0.45, 0.22), "under": (0.30, 0.20, 0.09), "rust": 0.0,
+             "rough": 0.6, "metal": 0.0, "wear": 0.2, "craze": 1.0},
+    # Writing paper and an envelope gone cream with age, a ledger's marbled boards: paper, no metal.
+    "paper": {"kind": "coat", "color": (0.80, 0.75, 0.62), "under": (0.66, 0.60, 0.48), "rust": 0.0,
+              "rough": 0.9, "metal": 0.0, "wear": 0.2, "mottle": 0.4},
+    # An inkwell's pressed glass with the ink in it: near black, glossy.
+    "ink_glass": {"kind": "coat", "color": (0.05, 0.06, 0.08), "under": (0.2, 0.22, 0.24), "rust": 0.0,
+                  "rough": 0.08, "metal": 0.0, "wear": 0.3},
+    # --- D3 (#819) ---
+    # Black wool broadcloth (a professional man's frock coat, 1870s-80s: fulled and napped so the weave
+    # is hidden, a dull deep black that greys with dust and wear at the folds' crowns and the cuffs).
+    "broadcloth": {"kind": "coat", "color": (0.040, 0.040, 0.046), "under": (0.15, 0.14, 0.13), "rust": 0.0,
+                   "rough": 0.92, "metal": 0.0, "wear": 0.35, "mottle": 0.25},
+    # Black fur felt (his hat): matte, dusty on the crown and the brim's edge.
+    "felt": {"kind": "coat", "color": (0.050, 0.047, 0.045), "under": (0.20, 0.18, 0.15), "rust": 0.0,
+             "rough": 0.96, "metal": 0.0, "wear": 0.3, "mottle": 0.3},
+    # A hat's grosgrain silk band: black, a low sheen.
+    "ribbon": {"kind": "coat", "color": (0.022, 0.022, 0.026), "under": (0.08, 0.08, 0.08), "rust": 0.0,
+               "rough": 0.5, "metal": 0.0, "wear": 0.1},
+    # Horn buttons (a coat's): near black, polished.
+    "horn": {"kind": "coat", "color": (0.06, 0.045, 0.035), "under": (0.20, 0.15, 0.10), "rust": 0.0,
+             "rough": 0.3, "metal": 0.0, "wear": 0.4},
+    # Folded blankets (their `band`: where the end's stripe falls on the folded pile, the part's |x|):
+    # the wards' grey with a dark band, a white with indigo bands (the hospitals' and the Hudson's Bay
+    # pattern's kin), a brown.
+    "wool_fold": {"kind": "wool", "color": (0.36, 0.34, 0.31), "stripe": (0.14, 0.12, 0.11), "rough": 0.95,
+                  "metal": 0.0, "wear": 0.0, "band": (0.150, 0.158, 0.205, 0.197)},
+    "wool_white": {"kind": "wool", "color": (0.74, 0.71, 0.63), "stripe": (0.12, 0.16, 0.34), "rough": 0.95,
+                   "metal": 0.0, "wear": 0.0, "band": (0.165, 0.172, 0.200, 0.193)},
+    "wool_brown": {"kind": "wool", "color": (0.27, 0.19, 0.12), "stripe": (0.10, 0.07, 0.05), "rough": 0.95,
+                   "metal": 0.0, "wear": 0.0, "band": (0.140, 0.148, 0.215, 0.207)},
+    # --- Saloon B, batch S1 (#866) ---
+    # What's in the bar's glasses: whiskey (a deep amber) and lager under its head (pale gold, a
+    # cream foam); drawn inside the see-through glass, glossy.
+    "whiskey": {"kind": "coat", "color": (0.20, 0.075, 0.018), "under": (0.20, 0.075, 0.018), "rust": 0.0,
+                "rough": 0.06, "metal": 0.0, "wear": 0.0},
+    "beer": {"kind": "coat", "color": (0.42, 0.25, 0.05), "under": (0.42, 0.25, 0.05), "rust": 0.0,
+             "rough": 0.06, "metal": 0.0, "wear": 0.0},
+    "foam": {"kind": "coat", "color": (0.86, 0.82, 0.70), "under": (0.86, 0.82, 0.70), "rust": 0.0,
+             "rough": 0.7, "metal": 0.0, "wear": 0.0},
+    # Sheet zinc (a bar's work board, its sinks and drip board: the fixture catalogues' "zinc-lined"):
+    # a dull blue-grey that whitens in blotches where water stands, rubbed brighter on its edges.
+    "zinc": {"kind": "plate", "color": (0.50, 0.52, 0.53), "under": (0.66, 0.67, 0.67), "rust": 0.0,
+             "rough": 0.48, "metal": 0.6, "wear": 0.35, "mottle": 0.7},
+    # Cast iron black-leaded (stove polish, graphite rubbed on hot): near black with a dull sheen,
+    # worn to grey iron on its edges and feet, rust where the mop's been.
+    "cast_iron": {"kind": "coat", "color": (0.055, 0.054, 0.056), "under": (0.30, 0.29, 0.28), "rust": 0.45,
+                  "rough": 0.55, "metal": 0.25, "metal_under": 0.8, "wear": 0.7},
+    # Russia sheet iron (stovepipe): blue-black, mottled, rusting at its seams.
+    "sheet_iron": {"kind": "plate", "color": (0.10, 0.10, 0.115), "under": (0.32, 0.27, 0.22), "rust": 0.6,
+                   "rough": 0.5, "metal": 0.6, "wear": 0.3, "mottle": 0.4},
+    # Sand in the stove's box, ash and grit trodden into it.
+    "sand": {"kind": "coat", "color": (0.60, 0.53, 0.40), "under": (0.42, 0.38, 0.32), "rust": 0.0,
+             "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.6},
+    # A hanging lamp's shade: green paint (chrome green) outside, chipped to the tin; white enamel inside.
+    "shade_green": {"kind": "coat", "color": (0.05, 0.13, 0.07), "under": (0.45, 0.44, 0.40), "rust": 0.3,
+                    "rough": 0.6, "metal": 0.0, "metal_under": 0.8, "wear": 0.45},
+    # The shade's inside: white paint gone cream with the lamp's heat and smoke, dull.
+    "enamel_dull": {"kind": "coat", "color": (0.70, 0.66, 0.55), "under": (0.30, 0.28, 0.25), "rust": 0.0,
+                    "rough": 0.6, "metal": 0.0, "wear": 0.2},
+    # Old brass (S1, round 1's critic: the bar's brass all one new gold): darker, tarnished brown in
+    # its hollows and broadly, bright only where hands go.
+    "brass_old": {"kind": "plate", "color": (0.42, 0.31, 0.14), "under": (0.70, 0.55, 0.28), "rust": 0.0,
+                  "rough": 0.42, "metal": 0.8, "wear": 0.6, "tarnish": 0.8, "mottle": 0.5},
+    # A duckboard's pine slats: grey-brown, slopped and trodden dark, rubbed pale on their edges.
+    "slat_wood": {"kind": "coat", "color": (0.26, 0.20, 0.14), "under": (0.46, 0.38, 0.28), "rust": 0.0,
+                  "rough": 0.85, "metal": 0.0, "wear": 0.7, "mottle": 0.6},
+    # Red plush (a piano stool's seat), its nap rubbed bare and brown in the middle.
+    "plush": {"kind": "coat", "color": (0.30, 0.045, 0.05), "under": (0.22, 0.13, 0.08), "rust": 0.0,
+              "rough": 0.95, "metal": 0.0, "wear": 0.8},
+    # Ivory-white (the case-keeper's beads), and the clay chips: white, red and blue.
+    "ivory": {"kind": "coat", "color": (0.84, 0.80, 0.66), "under": (0.70, 0.64, 0.50), "rust": 0.0,
+              "rough": 0.35, "metal": 0.0, "wear": 0.3},
+    "clay_white": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.62, 0.58, 0.50), "rust": 0.0,
+                   "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    "clay_red": {"kind": "coat", "color": (0.50, 0.08, 0.06), "under": (0.62, 0.40, 0.32), "rust": 0.0,
+                 "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    "clay_blue": {"kind": "coat", "color": (0.10, 0.15, 0.36), "under": (0.45, 0.45, 0.52), "rust": 0.0,
+                  "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    # A card's patterned back (blue), its edges paper.
+    "card_back": {"kind": "coat", "color": (0.36, 0.12, 0.09), "under": (0.74, 0.70, 0.60), "rust": 0.0,
+                  "rough": 0.75, "metal": 0.0, "wear": 0.6, "mottle": 0.5},
+    # A packing case's rough pine.
+    "box_pine": {"kind": "coat", "color": (0.46, 0.34, 0.21), "under": (0.58, 0.46, 0.31), "rust": 0.0,
+                 "rough": 0.88, "metal": 0.0, "wear": 0.5},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,
@@ -218,7 +341,8 @@ def _node_tree(mat, look, img, mode):
         base = g.mix(g.math("MULTIPLY", nap, 0.5), look["color"], tuple(c * 0.75 for c in look["color"]))
         # A dark band a hand from each end (|x| near the blanket's ends: the part's own X).
         ax = g.math("ABSOLUTE", sep.outputs["X"], 0.0)
-        band = g.math("MULTIPLY", g.maprange(ax, 0.66, 0.68), g.maprange(ax, 0.78, 0.76), True)
+        b0, b1, b2, b3 = look.get("band", (0.66, 0.68, 0.78, 0.76))
+        band = g.math("MULTIPLY", g.maprange(ax, b0, b1), g.maprange(ax, b2, b3), True)
         worn = g.mix(band, base, look["stripe"])
         metal = 0.0
     if mode == "albedo":
@@ -245,7 +369,7 @@ def _node_tree(mat, look, img, mode):
     target.select = True
 
 
-def export_baked(prop_id, parts, size=1024):
+def export_baked(prop_id, parts, size=1024, recalc_normals=False):
     """Write assets/props/models/<prop_id>.glb with its baked albedo and ORM: `parts` a list of
     (common.Part, finish name). One object a part (the kit file's `"part"`), on one atlas."""
     import bpy
@@ -258,11 +382,23 @@ def export_baked(prop_id, parts, size=1024):
     scene.render.bake.margin = 6
     objs = []
     mats = {}
+    # Parts with no finish (None) aren't baked: their own UVs (`part.uvs`, a (u, v) a vertex: a
+    # printed label on its own sheet) or none (a bottle's glass: the game's glass look); added after.
+    plain = [(p, f) for p, f in parts if f is None]
+    parts = [(p, f) for p, f in parts if f is not None]
     for part, finish in parts:
         verts = [(x, -z, y) for x, y, z in part.verts]  # game space -> Blender's (the exporter turns back)
         mesh = bpy.data.meshes.new(part.name)
         mesh.from_pydata(verts, [], part.faces)
         mesh.validate()
+        if recalc_normals:
+            # (a closed skin whose faces were wound by a winding path: outward by Blender's own test)
+            import bmesh
+            bm = bmesh.new()
+            bm.from_mesh(mesh)
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+            bm.to_mesh(mesh)
+            bm.free()
         for poly in mesh.polygons:
             poly.use_smooth = part.smooth
         obj = bpy.data.objects.new(part.name, mesh)
@@ -309,6 +445,21 @@ def export_baked(prop_id, parts, size=1024):
         ob.data.uv_layers.remove(ob.data.uv_layers["UVMap"]) if "UVMap" in ob.data.uv_layers else None
         ob.data.uv_layers["bake"].name = "UVMap"
         ob.data.materials.clear()
+    for part, _ in plain:
+        mesh = bpy.data.meshes.new(part.name)
+        mesh.from_pydata([(x, -z, y) for x, y, z in part.verts], [], part.faces)
+        lay = mesh.uv_layers.new(name="UVMap")
+        uvs = getattr(part, "uvs", None)
+        if uvs:
+            for poly in mesh.polygons:
+                for li, vi in zip(poly.loop_indices, poly.vertices):
+                    lay.data[li].uv = uvs[vi]
+        mesh.validate()
+        for poly in mesh.polygons:
+            poly.use_smooth = part.smooth
+        obj = bpy.data.objects.new(part.name, mesh)
+        scene.collection.objects.link(obj)
+    parts = parts + plain
     path = os.path.join(common.MODELS, prop_id + ".glb")
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", export_materials="NONE", export_yup=True,
                               export_apply=True, export_animations=False, export_normals=True)

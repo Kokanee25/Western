@@ -57,6 +57,15 @@ func build() -> void:
 	var ai: int = ["new", "few", "old"].find(String(age_name))
 	var warp: float = float(cls["warp"][ai]) * float(entry.get("warp_scale", 1.0))
 	var gap: float = float(cls["gap"][ai])
+	# A floor is judged as a floor in a room's corner, a furniture finish on a chest of drawers (#825).
+	match String(entry.get("family", "")):
+		"floor":
+			_floor_room(entry, cls, ai, warp)
+			return
+		"furniture":
+			_floor_room(MaterialLibrary.entry(ROOM_FLOOR), CLASSES[&"common"], ai, CLASSES[&"common"]["warp"][ai])
+			_chest(cls, warp)
+			return
 	var wall := _part(&"wall")
 	var layout := String(entry.get("layout", "lap"))
 	var bw: float = float(entry.get("board_w", 0.15))
@@ -184,25 +193,137 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 	_board(r, Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05)), wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
 
 
-func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0, cover := Vector2.ZERO) -> void:
+func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0, cover := Vector2.ZERO, e := {}) -> void:
 	var mi := MeshInstance3D.new()
 	mi.mesh = board_mesh(length, width, thick, _rng.randf(), warp, nails, global_position.y if is_inside_tree() else 0.0, kind, cover)
-	mi.material_override = _material(role)
+	mi.material_override = _material(role, e)
 	mi.transform = xf
 	parent.add_child(mi)
 	boards += 1
 
 
 ## The panel's material for a part (the wall, floor and rail share the entry; a part may name its
-## own entry fields with a prefix, e.g. "floor_scans").
-func _material(role: StringName) -> ShaderMaterial:
-	if _mats.has(role):
-		return _mats[role]
+## own entry fields with a prefix, e.g. "floor_scans"); `e` another entry (a floor room's wall).
+func _material(role: StringName, e := {}) -> ShaderMaterial:
+	var key := "%s/%s" % [role, e.get("id", "")]
+	if _mats.has(key):
+		return _mats[key]
 	var m := ShaderMaterial.new()
 	m.shader = SHADER
-	MaterialLibrary.apply(m, entry, AGES[age_name], role)
-	_mats[role] = m
+	MaterialLibrary.apply(m, entry if e.is_empty() else e, AGES[age_name], role)
+	_mats[key] = m
 	return m
+
+
+# --- floors and furniture (#825) -------------------------------------------------------------------
+
+## A floor's room: its wall in the inside paint, a doorway in it, the floor running along X.
+const ROOM_WALL := "painted_pale_tg"
+## The floor a furniture panel's chest stands on (never the chest's wood).
+const ROOM_FLOOR := "floor_fir_worn"
+## The floor room's plane in the panel's space: x ROOM_X0.., z 0..-ROOM.y; the doorway's span along x.
+const ROOM := Vector2(3.0, 2.4)
+const ROOM_X0 := -0.4
+const DOOR := Vector2(0.55, 1.45)
+## Its ways in the traffic map's plane (x from ROOM_X0, z' = -z): from the doorway out to the room's
+## right front, and across the room's front.
+const ROOM_WAYS := [[Vector2(1.4, 0.0), Vector2(2.2, 1.2), 1.0], [Vector2(2.2, 1.2), Vector2(3.0, 2.0), 1.0],
+		[Vector2(0.0, 1.95), Vector2(3.0, 1.65), 0.7]]
+
+
+## The floor room: `fe`'s boards along X across the room (their own width), the inside-paint wall
+## behind with a doorway (dark beyond), and the room's traffic map (ROOM_WAYS; the wall's and the
+## left side's edges by_wall).
+func _floor_room(fe: Dictionary, cls: Dictionary, ai: int, warp: float) -> void:
+	var r := MaterialLibrary.resolved(fe)
+	var fl := _part(&"floor")
+	var bw := float(r.get("board_w", cls["floor"]["w"]))
+	var bt := float(r.get("board_t", cls["floor"]["t"]))
+	var basis := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
+	var z := -0.01
+	while z > -ROOM.y:
+		var w: float = bw * (1.0 + _rng.randf_range(-1.0, 1.0) * cls["width_var"])
+		var t: float = bt + _rng.randf_range(-1.0, 1.0) * cls["thick_var"]
+		# Boards end where they end: a butt joint somewhere along most rows.
+		var x := ROOM_X0
+		while x < ROOM_X0 + ROOM.x - 0.01:
+			var l: float = minf(_rng.randf_range(1.4, 3.6), ROOM_X0 + ROOM.x - x)
+			_board(fl, Transform3D(basis, Vector3(x, FLOOR_Y + t * 0.5, z - w * 0.5)), l, w, t, warp, Vector2(float(r.get("nails", 2)), float(r.get("nail_at", 0.6))), &"floor", 0.0, Vector2.ZERO, fe)
+			x += l + 0.002
+		z -= w + float(cls["floor"]["gap"][ai]) * _rng.randf_range(0.6, 1.4)
+	# The wall: narrow beaded boards in the inside paint, a doorway's gap, the dark hall beyond.
+	var wall := _part(&"wall")
+	var we := MaterialLibrary.resolved(MaterialLibrary.entry(ROOM_WALL))
+	var up := Basis(Vector3.UP, Vector3.RIGHT, Vector3.BACK * -1.0)
+	var x := ROOM_X0
+	while x < ROOM_X0 + ROOM.x - 0.02:
+		var w: float = float(we.get("board_w", 0.09)) * (1.0 + _rng.randf_range(-1.0, 1.0) * 0.015)
+		if x + w > DOOR.x and x < DOOR.y:
+			x = DOOR.y
+			continue
+		_board(wall, Transform3D(up, Vector3(x + w * 0.5, FLOOR_Y, -0.0095)), wall_size.y, w, 0.019, 0.05, Vector2.ZERO, &"wall", 0.0, Vector2.ZERO, we)
+		x += w + 0.0006
+	var hall := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(DOOR.y - DOOR.x + 0.4, wall_size.y + 0.2, 1.2)
+	hall.mesh = bm
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0.05, 0.04, 0.035)
+	dark.roughness = 1.0
+	dark.cull_mode = BaseMaterial3D.CULL_FRONT
+	hall.material_override = dark
+	hall.position = Vector3((DOOR.x + DOOR.y) * 0.5, wall_size.y * 0.5, 0.6)
+	hall.name = "Hall"
+	wall.add_child(hall)
+	var img := MaterialLibrary.traffic_image(ROOM, ROOM_WAYS, [[0.0, 0.0, ROOM.x + 1.0, ROOM.y + 1.0]])
+	var gt := global_transform if is_inside_tree() else transform
+	MaterialLibrary.set_traffic(_material(&"floor", fe), img, gt * Vector3(ROOM_X0, 0.0, 0.0), gt.basis.x, -gt.basis.z, ROOM, gt.origin.y + FLOOR_Y)
+
+
+## A chest of drawers in the entry's furniture finish against the wall (x 0.55..1.45, 1.05 m high,
+## 0.48 deep): a top, two sides, a plinth, four full-width drawers (their fronts role 2: pulls at their
+## quarters, as the kit sets a wide drawer's) with brass knobs, rails between them.
+func _chest(cls: Dictionary, warp: float) -> void:
+	var c := _part(&"chest")
+	var w := 0.9
+	var x0 := 0.55
+	var h := 1.05
+	var d := 0.48
+	var t := 0.02
+	var top := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
+	var front := Basis(Vector3.RIGHT, Vector3.DOWN, Vector3.BACK * -1.0)
+	var fy := FLOOR_Y + 0.03
+	warp *= 0.1
+	# The top, overhanging a little at the front and the sides.
+	_board(c, Transform3D(top, Vector3(x0 - 0.02, fy + h - 0.011, -d * 0.5 - 0.01)), w + 0.04, d + 0.03, 0.022, warp, Vector2.ZERO, &"wall")
+	# The sides (their faces out: -X and +X), from the floor to the top.
+	_board(c, Transform3D(Basis(Vector3.UP, Vector3.FORWARD, Vector3.LEFT), Vector3(x0 + t * 0.5, fy, -d * 0.5)), h - 0.022, d, t, warp, Vector2.ZERO, &"wall")
+	_board(c, Transform3D(Basis(Vector3.UP, Vector3.BACK, Vector3.RIGHT), Vector3(x0 + w - t * 0.5, fy, -d * 0.5)), h - 0.022, d, t, warp, Vector2.ZERO, &"wall")
+	# The plinth.
+	var inner := w - 2.0 * t
+	_board(c, Transform3D(front, Vector3(x0 + t, fy + 0.05, -d + t * 0.5)), inner, 0.1, t, warp, Vector2.ZERO, &"wall")
+	# Drawers, top down, a rail above each.
+	var heights := [0.16, 0.2, 0.22, 0.24]
+	var y := fy + h - 0.022
+	var knob_mat := StandardMaterial3D.new()
+	knob_mat.albedo_color = Color(0.62, 0.46, 0.24)
+	knob_mat.metallic = 1.0
+	knob_mat.roughness = 0.42
+	for dh: float in heights:
+		_board(c, Transform3D(front, Vector3(x0 + t, y - 0.0125, -d + t * 0.5)), inner, 0.025, t, warp, Vector2.ZERO, &"wall")
+		y -= 0.025
+		var dc := y - dh * 0.5
+		_board(c, Transform3D(front, Vector3(x0 + t + 0.003, dc, -d + t * 0.5 - 0.002)), inner - 0.006, dh - 0.004, t, warp, Vector2.ZERO, &"wall", 2.0)
+		for q: float in [0.25, 0.75]:
+			var knob := MeshInstance3D.new()
+			var sm := SphereMesh.new()
+			sm.radius = 0.016
+			sm.height = 0.024
+			knob.mesh = sm
+			knob.material_override = knob_mat
+			knob.position = Vector3(x0 + t + 0.003 + (inner - 0.006) * q, dc, -d - 0.012)
+			c.add_child(knob)
+		y -= dh
 
 
 ## One board's mesh: a box in its own frame (X along 0..length, Y across, Z through, the shown face

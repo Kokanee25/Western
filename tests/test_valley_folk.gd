@@ -43,6 +43,11 @@ func _at(h: float) -> void:
 	await physics_frames(2)
 
 
+## The night's folk in the world (the saloon yard's; the day folk on the walks, #796, aside).
+func _night_in() -> Array:
+	return _folk().people.keys().filter(func(id: StringName) -> bool: return not _folk()._person(id).has("says"))
+
+
 func _man(id: StringName) -> HumanBody:
 	return _folk().people.get(id)
 
@@ -65,9 +70,13 @@ func test_by_day_nobody_s_there_but_they_re_built() -> void:
 	await _empty()
 	var f := _folk()
 	check(f != null, "the valley has its folk")
-	check_eq(f.people.size(), 0, "nobody in town at noon")
+	check_eq(_night_in().size(), 0, "none of the night's folk in town at noon")
 	for p: Dictionary in f.data.people:
-		check_eq(String(f.state[StringName(p.id)]), "out", "%s out" % p.id)
+		if not p.has("says"):
+			check_eq(String(f.state[StringName(p.id)]), "out", "%s out" % p.id)
+	# By day the day folk at their posts on the walks (No Law's morning after, #796).
+	for id: StringName in [&"townsman", &"loudmouth", &"undertaker"]:
+		check(f.state.get(id) in [&"in", &"coming"], "%s in town by day (%s)" % [id, f.state.get(id)])
 	check(f.build_ms.has("men"), "built while the valley loaded (%s)" % f.build_ms)
 	# The set stands in the saloon's yard (Sean's B on #755: the saloon a grey block for now).
 	var yard := ValleyLayout.main().lot("saloon_annex")
@@ -82,7 +91,7 @@ func test_at_night_the_barkeep_the_drinkers_and_the_card_table() -> void:
 	await _at(21.0)
 	await physics_frames(90)
 	var f := _folk()
-	check_eq(f.people.size(), 5, "all five in at nine (%s)" % f.report())
+	check_eq(_night_in().size(), 5, "all five in at nine (%s)" % f.report())
 	for id: StringName in [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]:
 		check(_man(id) != null and _man(id).is_inside_tree(), "%s in the world" % id)
 		check(_off_post(id) < 0.6, "%s at his post (%.2f m off)" % [id, _off_post(id)])
@@ -110,7 +119,7 @@ func test_at_night_the_barkeep_the_drinkers_and_the_card_table() -> void:
 func test_they_walk_in_by_the_town_s_ways() -> void:
 	await _empty()
 	await _at(18.95)
-	check_eq(_folk().people.size(), 1, "only the barkeep in before seven (%s)" % _folk().report())
+	check_eq(_night_in().size(), 1, "only the barkeep in before seven (%s)" % _folk().report())
 	await _at(19.02)
 	var f := _folk()
 	var miner := _man(&"miner")
@@ -168,7 +177,7 @@ func test_and_out_at_the_end_of_their_hours() -> void:
 	check(not f.people.has(&"earl"), "and gone from the world")
 	# The clock jumped well past (a night slept through): the rest gone at once.
 	await _at(9.0)
-	check_eq(f.people.size(), 0, "nobody left in the morning")
+	check_eq(_night_in().size(), 0, "none of the night's folk left in the morning")
 
 
 func test_hours_past_midnight() -> void:
@@ -176,3 +185,34 @@ func test_hours_past_midnight() -> void:
 	check(not ValleyFolk.in_hours(2.0, [19.0, 2.0]) and not ValleyFolk.in_hours(12.0, [19.0, 2.0]), "out by day")
 	check(ValleyFolk.in_hours(10.0, [8.0, 17.0]) and not ValleyFolk.in_hours(17.5, [8.0, 17.0]), "a day's hours")
 	check_near(ValleyFolk.since(0.5, 23.0), 1.5, 0.001, "hours since, over midnight")
+
+
+## The valley's frame bench (#865): the load timed by part, and its townsfolk on Main Street's walks,
+## half near the spot and half far down the street, standing on something (not in the air or under it).
+func test_the_bench_s_load_parts_and_townsfolk() -> void:
+	await _empty()
+	for part in ["ground", "markers", "buildings", "folk"]:
+		check(valley.load_ms.has(StringName(part)), "the load's %s timed (%s)" % [part, valley.load_ms])
+	var at := Vector3(40.0, 0.0, 2.0)
+	var made: Array = load("res://tools/valley/valley_townsfolk.gd").lay(valley, 6, at)
+	await physics_frames(10)
+	check_eq(made.size(), 6, "six townsfolk")
+	var near := 0
+	var far := 0
+	var ground := valley.get_node(^"Ground")
+	for man: HumanBody in made:
+		var p := man.global_position
+		var d := Vector2(p.x - at.x, p.z - at.z).length()
+		if d <= 25.0:
+			near += 1
+		elif d >= 60.0:
+			far += 1
+		check(absf(p.z) > 9.0, "%s on a walk, not in the street (%s)" % [man.name, p])
+		var under: float = ground.height_at(p.x, p.z)
+		check(p.y > under - 0.3 and p.y < under + 2.0, "%s stands on the walk (%.2f over the ground)" % [man.name, p.y - under])
+		check(man.physiology.alive and not man.is_queued_for_deletion(), "%s alive" % man.name)
+	check_eq(near, 3, "half near")
+	check_eq(far, 3, "half far")
+	for man: HumanBody in made:
+		man.queue_free()
+	await physics_frames(2)

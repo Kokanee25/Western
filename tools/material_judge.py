@@ -22,7 +22,7 @@ import sys
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLASSES = ["rough", "common", "fine"]
+CLASSES = ["rough", "common", "fine", "paint", "floor", "furniture"]
 # shot -> (crop name, box in the 1920x1080 frame)
 SHOTS = {
     "noon_near": ("near", (420, 0, 1820, 780)),
@@ -102,6 +102,9 @@ def prepare(args):
     lines += ["  " + os.path.join(refs, r) for r in REFS]
     lines += ["", "The crops to judge, all in %s (near: 1 m at noon; far: 5 m at golden hour;" % out,
               "saloon_night: 1 m by lamplight; noon_rail: a rail and floor of the same wood):"]
+    if any(c.startswith(("FL", "FN")) for c in after):
+        lines += ["(Floors, FL: a room's floor from 2.5 m and 5 m, a doorway in its wall; furniture, FN: a chest of",
+                  "drawers at 1.5 m and 5 m, on a floor of another wood. Judge the floor, or the chest, not the rest.)"]
     for sw, name, files in listing:
         lines.append("  %s (%s): %s" % (sw, name, ", ".join(files)))
     if key:
