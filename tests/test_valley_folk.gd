@@ -185,3 +185,34 @@ func test_hours_past_midnight() -> void:
 	check(not ValleyFolk.in_hours(2.0, [19.0, 2.0]) and not ValleyFolk.in_hours(12.0, [19.0, 2.0]), "out by day")
 	check(ValleyFolk.in_hours(10.0, [8.0, 17.0]) and not ValleyFolk.in_hours(17.5, [8.0, 17.0]), "a day's hours")
 	check_near(ValleyFolk.since(0.5, 23.0), 1.5, 0.001, "hours since, over midnight")
+
+
+## The valley's frame bench (#865): the load timed by part, and its townsfolk on Main Street's walks,
+## half near the spot and half far down the street, standing on something (not in the air or under it).
+func test_the_bench_s_load_parts_and_townsfolk() -> void:
+	await _empty()
+	for part in ["ground", "markers", "buildings", "folk"]:
+		check(valley.load_ms.has(StringName(part)), "the load's %s timed (%s)" % [part, valley.load_ms])
+	var at := Vector3(40.0, 0.0, 2.0)
+	var made: Array = load("res://tools/valley/valley_townsfolk.gd").lay(valley, 6, at)
+	await physics_frames(10)
+	check_eq(made.size(), 6, "six townsfolk")
+	var near := 0
+	var far := 0
+	var ground := valley.get_node(^"Ground")
+	for man: HumanBody in made:
+		var p := man.global_position
+		var d := Vector2(p.x - at.x, p.z - at.z).length()
+		if d <= 25.0:
+			near += 1
+		elif d >= 60.0:
+			far += 1
+		check(absf(p.z) > 9.0, "%s on a walk, not in the street (%s)" % [man.name, p])
+		var under: float = ground.height_at(p.x, p.z)
+		check(p.y > under - 0.3 and p.y < under + 2.0, "%s stands on the walk (%.2f over the ground)" % [man.name, p.y - under])
+		check(man.physiology.alive and not man.is_queued_for_deletion(), "%s alive" % man.name)
+	check_eq(near, 3, "half near")
+	check_eq(far, 3, "half far")
+	for man: HumanBody in made:
+		man.queue_free()
+	await physics_frames(2)

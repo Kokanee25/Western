@@ -50,6 +50,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   breaks most of the guards' bones (BodyImpacts inside the coach), so most give up without firing; the playtest
   (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop, the "store floor" wake line. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
+- **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
+  --townsfolk=N [--band=] [--bodies] [--extra-bodies=N]`, `tools/valley/bench_runs.py` (all scenes and counts,
+  ~1.5 h). A townsman costs 0.165 ms (near 0.23, far 0.11): the 4.0 holds ~18 till the cuts; every scene's
+  else is over. Bodies 27.7k of 32.8k; the full town ~45-55k: raise `max_bodies` to 65,536 (~4 MB).
+  **Next: the cuts (the review's ranked list), #881.**
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
@@ -75,5 +80,7 @@ Night floor lab (#745).
   gang off (use the rope range).
 - lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
-- The native plugin builds here (`cargo build --release`, ~3 min).
+- The native plugin builds here (`cargo build --release`, ~3 min; copy the `.so` into `bin/`).
+- The valley bench: the drawn runs take ~6 min each (80 s of shader compiles); the gunfight's drawn
+  1 s is four frames after the first shots (its render CPU isn't real yet).
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.
