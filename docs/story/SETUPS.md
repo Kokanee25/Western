@@ -21,13 +21,18 @@ A setup's status is the status of its weakest end: a decided plant with a propos
 
 ## A. The spine: these must reach every player
 
-**S1. The faded red shirt** · T1 → T2 · D
-- Planted: the sheriff on the road. "Man in a faded red shirt. Rode up easy, like he wanted
-  directions. Then he shot me." (built; weaker when he's weak: "...red...").
-- Again: day 2, his last words, clear or fading by day 1's care (D). Every player is there.
-- Again (P·bible): if Harlan left him, the freighter who hauled him in repeats what he kept saying.
-- Pays off: Joe's camp, where the survivors name the killer "by one thing: a faded red shirt" (D); the
-  cabin, where the shirt is "plain to see" as he runs (D); Main Street, in the arrest ending.
+**S1. The faded red shirt** · T2 · D (the camp's only, since 2026-11-13)
+- **Moved off the sheriff** (D, Sean 2026-11-13, #830): "it can't be the same man as he would never
+  be released for the murder of joes wife if he also shot the sheriff". The shirt is Kett's, and Kett
+  didn't shoot the sheriff. The sheriff's clue is now S40. The built road line and the day-2 line
+  still say "red shirt" until they change (`CONTRADICTIONS.md` C16's table).
+- Planted: Joe's camp, where the survivors name the killer "by one thing: a faded red shirt" (D,
+  Sean's own No Justice card).
+- Before it (P·bible): a player who follows Cody out of the saloon on night one sees him join riders
+  past the last house, one of them in a faded red shirt in the lantern light (the raid is that
+  night). A thing seen, not a line.
+- Pays off: the cabin, where the shirt is "plain to see" as he runs (D); Main Street, in the arrest
+  ending.
 - Note: the old payoff, "the player recognizes him from the saloon", is gone since Kett isn't in the
   saloon (D, 2026-11-11). The man the player recognises from the saloon is Cody (S2).
 
@@ -56,7 +61,8 @@ A setup's status is the status of its weakest end: a decided plant with a propos
 - Planted: No Law. A whole room saw him kill, and the barman knows him by name ("Jesus, Cody, my
   chair!", D).
 - Pays off: he's the man the law **can** hold; alive and safe after the jail night he may talk, and
-  his word is the second kind of evidence (D, 2026-11-11).
+  his word is the second kind of evidence (D, 2026-11-11). He knows who shot the sheriff (D); by
+  C16 a (P, Sean's lean) that's the Baron's own foreman, so his word reaches the Baron in one step.
 - Arrested (D, Sean 2026-11-11, #830, C6 b): after the funeral he walks back into the saloon, bold
   as before, and Harlan, with the sheriff's revolver now, arrests him there. Same room, same barman:
   the answer to night one. The cabin no longer decides whether there's a witness. Whether Cody is
@@ -267,6 +273,29 @@ C10 b); the places P·bible. One face for three jobs:
 - Pays off: the farmhouse, where he walks up the widow's lane with the deed (D, v2) and a player who
   sat with him knows him; Gang B's man naming the foreman who paid for the rail (K7); the raid. His
   voice is O (s21).
+- By C16 a (P, Sean's lean 2026-11-13): he also shot the sheriff that morning, so the face is the
+  sheriff's killer's too (S40).
+
+**S40. "Friend", and a bald-faced sorrel** · T1 · P (Sean's lean, 2026-11-13, #905, C16 a); the
+marks and places P·bible. What the dying sheriff saw of the man who shot him: a stranger, soft-spoken,
+who **called him "friend"**, on a **bald-faced sorrel** (a red-brown horse with a white face). A
+line and an object (rule 3).
+- Planted: the sheriff on the road (the built `shot_by` lines, re-worded: C16's table) and day 2 at
+  the bedside, where every player passes. If Harlan left him, the freighter: "A sorrel, he kept
+  saying. A sorrel, and 'friend'."
+- Again, night one: the sorrel at the saloon's rail as Harlan goes in, then the stranger's built
+  "Don't move, friend." A player who listened joins them himself; nobody tells him. His built "Easy,
+  friend. I ain't the one you want." is a lie with no word changed. Tonight he can do nothing about
+  it (No Law's point); going for the stranger anyway is remembered (C16 a).
+- Again: the sorrel at the Baron's buggy at the funeral, the foreman standing behind the Baron
+  while he makes the widow his offer.
+- Pays off: the widow's lane, where the foreman walks up with the deed and the widow, who heard her
+  husband's last words, knows the horse at her gate; Cody, alive in the cell, names him (K14); the
+  raid, where Harlan can take him with the sheriff's own revolver.
+- Not a ball (Sean, 2026-11-09: "we aren't pulling bullets out"): a dead man's word about a horse
+  isn't a case on its own ("Not enough to hang a man on, Harlan. Not yet.", the doctor, P·bible). It
+  counts in "what people saw" (Harlan, the widow and the doctor heard it) and needs Cody or the
+  papers beside it.
 
 ## Missing
 
