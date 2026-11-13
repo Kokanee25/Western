@@ -30,7 +30,7 @@ const CLASSES := {
 			"rail": {"post": Vector2(0.14, 0.14), "rail": Vector2(0.14, 0.045), "h": 0.95}},
 	&"fine": {"warp": [0.03, 0.08, 0.22], "gap": [0.0003, 0.0006, 0.0015], "width_var": 0.015, "thick_var": 0.0003,
 			"ends": 0.0, "floor": {"w": 0.075, "t": 0.02, "gap": [0.0004, 0.001, 0.002]},
-			"rail": {"post": Vector2(0.1, 0.1), "rail": Vector2(0.075, 0.06), "h": 1.07}},
+			"rail": {"post": Vector2(0.1, 0.1), "rail": Vector2(0.075, 0.06), "h": 1.07, "profile": "handrail"}},
 }
 const AGES := {&"new": 0.0, &"few": 0.5, &"old": 1.0}
 
@@ -190,7 +190,20 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 	# The rail flat on the posts: along X, its face up.
 	var flat := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
 	# (its role 1: a bar's rail top, where varnished: glass rings and elbows)
-	_board(r, Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05)), wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
+	var at := Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05))
+	if rd.has("profile"):
+		# Run to its profile, as the game's Railing draws a handrail (#873): the board's frame is the rail's.
+		var mi := MeshInstance3D.new()
+		var L := wall_size.x
+		mi.mesh = PropKit.lib_profile_mesh({"shape": "profile", "profile": rd["profile"], "along": "x", "across": "y", "up": "z"},
+				Vector3(L, rail.x, rail.y), Transform3D(Basis(), Vector3(-L * 0.5, 0.0, 0.0)), _rng.randf(), Vector3(L, rail.x, rail.y),
+				warp * 0.3, global_position.y if is_inside_tree() else 0.0, 1.0)
+		mi.material_override = _material(&"rail")
+		mi.transform = at
+		r.add_child(mi)
+		boards += 1
+	else:
+		_board(r, at, wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
 
 
 func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0, cover := Vector2.ZERO, e := {}) -> void:

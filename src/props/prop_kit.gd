@@ -357,10 +357,13 @@ static func material(look: String, variant: int) -> Material:
 static func dress_member(m: StructureMember, draw: Dictionary, look := "") -> void:
 	var mi := m.get_child(0) as MeshInstance3D
 	if look.begins_with("lib:"):
+		# A member that keeps its profile (meta `draw`: a railing's handrail, #873) keeps it in a library wood.
+		if draw.is_empty() and m.has_meta(&"draw"):
+			draw = m.get_meta(&"draw")
 		var shape := String(draw.get("shape", "box")) if not draw.is_empty() else "box"
-		if shape != "box" and shape != "cut":
-			push_warning("PropKit: %s: a library wood draws boards (and boards cut to an outline) only (its \"draw\" left out)" % m.member_id)
-		dress_lib(m, look, draw if shape == "cut" else {})
+		if shape != "box" and shape != "cut" and shape != "profile":
+			push_warning("PropKit: %s: a library wood draws boards, boards cut to an outline and boards run to a profile only (its \"draw\" left out)" % m.member_id)
+		dress_lib(m, look, draw if shape == "cut" or shape == "profile" else {})
 		return
 	if look != "":
 		mi.material_override = material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
@@ -434,6 +437,8 @@ static func dress_lib(m: StructureMember, look: String, cut := {}) -> void:
 	var frame := Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 	if cut.is_empty():
 		mi.mesh = board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, Vector2.ZERO, -1000.0, float(lp[2]))
+	elif String(cut.get("shape", "")) == "profile":
+		mi.mesh = lib_profile_mesh(cut, m.size, frame, float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp, -1000.0, float(lp[2]))
 	else:
 		mi.mesh = lib_cut_mesh(cut, m, frame, float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp)
 	mi.transform = frame
@@ -534,7 +539,7 @@ static func lib_cut_mesh(draw: Dictionary, m: StructureMember, frame: Transform3
 		uv.append(Vector2(p.x, p.y) if face == 0.0 else (Vector2(p.y, p.z) if face == 1.0 else Vector2(p.x, p.z)))
 		c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(p.y / maxf(hw, 0.001), -1.0, 1.0), face])
 		c1.append_array([length, dims.y, dims.z, warp])
-		c2.append_array([0.0, 0.0, -1000.0, 0.0])
+		c2.append_array([0.0, 0.0, -1000.0, 10.0])
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = v
@@ -549,6 +554,119 @@ static func lib_cut_mesh(draw: Dictionary, m: StructureMember, frame: Transform3
 			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -dims.z * 0.5 - 0.02), Vector3(length + 0.04, dims.y + 0.04, dims.z + 0.04))
+	mesh.set_meta(&"arrays", arrays)
+	mesh.set_meta(&"board_frame", true)
+	return mesh
+
+
+## A library board run to a profile (#873, Sean 2026-11-12: handrails "nice rounded wood ... rounded
+## top flat bottom"; any kit "profile" draw: Profiles' handrail, rounded, chamfered, ogee, ...): the
+## profile extruded along the member's `along` as woodwork_mesh lays it, smooth within each of its runs
+## and hard where they meet, laid into the board's frame (`frame`, as dress_lib lays a plain board).
+## Every side is one long face (face 0) whose across runs round the outline (UV y the distance round
+## it, centred, so the scan's grain wraps the rail without a seam but under its foot; the board's
+## "width" in CUSTOM1 the outline's length), the ends end grain (face 1); role + 10 marks it shaped, so
+## the shader keeps its normals and doesn't ease it as a box (it's shaped already).
+## `size` the member's box (in its own space, where the draw's axes are named).
+static func lib_profile_mesh(draw: Dictionary, size: Vector3, frame: Transform3D, seed: float, dims: Vector3, warp: float,
+		ground_y := -1000.0, role := 0.0) -> ArrayMesh:
+	var along := String(draw.get("along", "x"))
+	var up := String(draw.get("up", "y"))
+	var across := String(draw.get("across", ""))
+	if across == "":
+		for k in ["x", "y", "z"]:
+			if k != along.trim_prefix("-") and k != up.trim_prefix("-"):
+				across = k
+	var ext := func(name: String) -> float:
+		var ax := _axis(name).abs()
+		return size.x * ax.x + size.y * ax.y + size.z * ax.z
+	var args: Array = [ext.call(across), ext.call(up)]
+	args.append_array(draw.get("args", []))
+	var runs: Array = Profiles.by_name(String(draw.profile), args)
+	var run_len: float = ext.call(along)
+	var to_board := frame.affine_inverse()
+	var sec := Basis(_axis(along), _axis(across), _axis(up))
+	var at := func(x: float, q: Vector2) -> Vector3: return to_board * (sec * Vector3(x, q.x, q.y))
+	var perim := 0.0
+	for run in runs:
+		var r: PackedVector2Array = run
+		for i in r.size() - 1:
+			perim += r[i].distance_to(r[i + 1])
+	var length := dims.x
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var idx := PackedInt32Array()
+	var add := func(p: Vector3, nn: Vector3, face: float, u: Vector2, across01: float) -> void:
+		v.append(p)
+		n.append(nn)
+		uv.append(u)
+		c0.append_array([seed, clampf(p.x / length, 0.0, 1.0), clampf(across01, -1.0, 1.0), face])
+		c1.append_array([length, perim, dims.z, warp])
+		c2.append_array([0.0, 0.0, ground_y, role + 10.0])
+	var s := 0.0
+	var x0 := -run_len * 0.5
+	var x1 := run_len * 0.5
+	for run in runs:
+		var r: PackedVector2Array = run
+		# Each point's normal: the mean of its two segments' within the run (smooth), its own at the ends.
+		var seg_n := []
+		for i in r.size() - 1:
+			var d := r[i + 1] - r[i]
+			seg_n.append(Vector2(d.y, -d.x).normalized())
+		var base := v.size()
+		for i in r.size():
+			if i > 0:
+				s += r[i - 1].distance_to(r[i])
+			var a: Vector2 = seg_n[maxi(i - 1, 0)]
+			var b: Vector2 = seg_n[mini(i, seg_n.size() - 1)]
+			var q := (a + b).normalized()
+			var nn := (to_board.basis * (sec * Vector3(0.0, q.x, q.y))).normalized()
+			var yy := s - perim * 0.5
+			for x in [x0, x1]:
+				var p: Vector3 = at.call(x, r[i])
+				add.call(p, nn, 0.0, Vector2(p.x, yy), yy / maxf(perim * 0.5, 1e-4))
+		for i in r.size() - 1:
+			var a0 := base + i * 2
+			idx.append_array([a0, a0 + 1, a0 + 3, a0, a0 + 3, a0 + 2])
+	# The ends: the outline's polygon at each, in end grain.
+	var ring := Profiles.outline(runs)
+	var tri := Geometry2D.triangulate_polygon(ring)
+	for e in [[x0, -1.0], [x1, 1.0]]:
+		var nn := (to_board.basis * (sec * Vector3(float(e[1]), 0.0, 0.0))).normalized()
+		var base := v.size()
+		for q in ring:
+			var p: Vector3 = at.call(float(e[0]), q)
+			add.call(p, nn, 1.0, Vector2(p.y, p.z), p.y / maxf(dims.y * 0.5, 1e-4))
+		for k in tri:
+			idx.append(base + k)
+	# Wound to face the normals (the profile's own way round decides it, as Profiles.to_mesh does).
+	for k in range(0, idx.size(), 3):
+		var pa := v[idx[k]]
+		var face_n := (v[idx[k + 1]] - pa).cross(v[idx[k + 2]] - pa)
+		if face_n.dot(n[idx[k]] + n[idx[k + 1]] + n[idx[k + 2]]) > 0.0:
+			var t := idx[k + 1]
+			idx[k + 1] = idx[k + 2]
+			idx[k + 2] = t
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = v
+	arrays[Mesh.ARRAY_NORMAL] = n
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_CUSTOM0] = c0
+	arrays[Mesh.ARRAY_CUSTOM1] = c1
+	arrays[Mesh.ARRAY_CUSTOM2] = c2
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+	var hw := dims.y * 0.5
 	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -dims.z * 0.5 - 0.02), Vector3(length + 0.04, dims.y + 0.04, dims.z + 0.04))
 	mesh.set_meta(&"arrays", arrays)
 	mesh.set_meta(&"board_frame", true)
