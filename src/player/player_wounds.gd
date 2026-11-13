@@ -931,8 +931,9 @@ func _limb_top(seg: StringName) -> StringName:
 ## Out cold (or killed): somebody carries you off and patches you up, and you come round hours
 ## later, hurt as you were but bound up, and told what happened (DESIGN.md §3: you wake up at the
 ## doctor's, hurt, poorer, and the town knows): beside the doctor's cot (no doctor himself yet:
-## M5), or the store's floor where there's no doctor's; until there's a purse it costs you nothing
-## but the hours.
+## M5), or the store where there's no doctor's (WorldPlaces.wake_spots: the valley's own, #864);
+## where the world has neither, where you fell. Until there's a purse it costs you nothing but
+## the hours.
 func _come_round() -> void:
 	knocked_out.emit()
 	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
@@ -944,18 +945,11 @@ func _come_round() -> void:
 	out_cold = 0.0
 	if player.has_meta(&"last_hit_by"):
 		player.remove_meta(&"last_hit_by")
-	var marker: Node = null
-	var where := "on the store floor"
-	for spot: Array in [["DoctorInside", "at the doctor's"], ["StoreInside", "on the store floor"]]:
-		var root: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
-		marker = root.find_child(spot[0], true, false)
-		if marker == null:
-			marker = get_tree().root.find_child(spot[0], true, false)
-		if marker != null:
-			where = spot[1]
-			break
-	if marker is Node3D:
-		player.global_position = (marker as Node3D).global_position
+	var where := "where you fell"
+	var spots := WorldPlaces.wake_spots(get_tree())
+	if not spots.is_empty():
+		where = String(spots[0].where)
+		player.global_position = spots[0].at
 		player.velocity = Vector3.ZERO
 	var clock := ""
 	var day := get_tree().get_first_node_in_group(&"day_cycle")

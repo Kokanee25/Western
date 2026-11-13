@@ -52,7 +52,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   padlock shot, papers taken or the box shouldered; won up the rimrock trail, Enter again; StoryState `coach.*`.
   8 scripted runs (`fight_runs.py`): won 5, lost 2, one standoff; worst frame ~32 ms at Sean's. Open: the throw
   breaks most of the guards' bones (BodyImpacts inside the coach), so most give up without firing; the playtest
-  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop, the "store floor" wake line. Next: #840.
+  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881,
@@ -70,6 +70,12 @@ train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
 dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
+
+- **Resets and places** (#864, the review's R3): a reload wipes the story (`GameReset`; No Law plays again after
+  Backspace); a mission's retry starts from the story at its start (`GameReset.retry`, `StoryState.mark_checkpoint`).
+  `WorldPlaces`: knocked out in the valley you wake at its doctor's (`bedside`), else the store's walk; the outlaws'
+  street spot is the loaded world's. Open from R3: no shared "player down" rule (the sheriff and No Law don't watch
+  for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
 
 ## Open problems
 - **The card game's chair tests** (#834) fixed: crawling, light rubble is let through and shoved aside
