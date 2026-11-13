@@ -186,7 +186,7 @@ func test_knocked_down_as_he_rises_among_the_pieces_they_dont_break_him() -> voi
 	if PhysicsServer3D.body_test_motion(piece.get_rid(), tm, res):
 		for i in res.get_collision_count():
 			var b := res.get_collider(i) as Node
-			if b != null and b.get_meta(&"human_body", null) == man and not touched.has(b.name):
+			if b != null and b.has_meta(&"human_body") and b.get_meta(&"human_body") == man and not touched.has(b.name):
 				touched.append(b.name)
 	check(touched.is_empty(), "the seat in him is let through the body he falls in (in %s)" % [touched])
 	await physics_frames(50)
@@ -201,3 +201,26 @@ func test_knocked_down_as_he_rises_among_the_pieces_they_dont_break_him() -> voi
 	check(not man._spared.has(piece), "once it's clear of him, not let through any more")
 	var up := await wait_until(func() -> bool: return not man.limp and not man.rising, 60 * 12)
 	check(up, "and he gets up again")
+
+
+## A piece in a body-parts collider that isn't a man's (no `human_body` meta, as some carry): no
+## error, and not him. (`get_meta(key, null)` still errors on a missing key: main's build 4383.)
+func test_a_piece_in_a_collider_with_no_man_is_not_in_him() -> void:
+	var other := StaticBody3D.new()
+	other.collision_layer = Layers.BODY_PARTS
+	var cs := CollisionShape3D.new()
+	cs.shape = SphereShape3D.new()
+	other.add_child(cs)
+	other.position = Vector3(0, 2, 0)
+	world.add_child(other)
+	var piece := RigidBody3D.new()
+	piece.freeze = true
+	var ps := CollisionShape3D.new()
+	ps.shape = BoxShape3D.new()
+	piece.add_child(ps)
+	piece.position = Vector3(0, 2, 0)
+	world.add_child(piece)
+	var man := HumanBody.new()
+	await physics_frames(2)
+	check(not man._in_him(piece, World.space(piece)), "not in him (and no error)")
+	man.free()

@@ -2672,7 +2672,8 @@ func _friend_in_the_way(point: Vector3) -> bool:
 	var hit := World.space(body).intersect_ray(q)
 	if hit.is_empty():
 		return false
-	var who: Variant = (hit.collider as Object).get_meta(&"human_body", null)
+	var c := hit.collider as Object
+	var who: Variant = c.get_meta(&"human_body") if c != null and c.has_meta(&"human_body") else null
 	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
 	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
