@@ -14,6 +14,14 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `painted_oxblood_batten` (few, old). Buildings take finishes by name. Floors and furniture (#825):
   `floor_fir_worn` FL1 (all ages; feet's wear from the building's traffic map), `furniture_oak` FN1 (all),
   `furniture_painted_pine` FN2 (new, few); `furniture_walnut` FN3 parked (top clouds, no walnut figure).
+- **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
+  (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
+  normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
+  meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
+  Next on it: wear and dents (#901). Saloon B's gallery rail takes the framing finish (`gallery/` not in its
+  surfaces): its step 2's to name.
+- **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
+  from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
   `docs/concept/judge/MATERIAL.md`): a swatch passes at "game" or better with no tile tell. Cheap judge
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
