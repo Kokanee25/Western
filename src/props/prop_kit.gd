@@ -290,6 +290,10 @@ static func material(look: String, variant: int) -> Material:
 		return lib_material(look)
 	if parts.size() == 2 and parts[0] == "glass":
 		return PropModels.tinted_glass(parts[1])
+	# A chimney whose flame isn't the table lamp's: "prop:chimney_glass@<flame's height in its model>"
+	# (#879: the hanging lamp's at 0.33 glowed below its glass).
+	if parts.size() == 2 and parts[1].begins_with("chimney_glass@"):
+		return PropModels.chimney_glass_at(float(parts[1].get_slice("@", 1)))
 	match parts[parts.size() - 1]:
 		"dark_wood":
 			return PropModels.dark_wood()

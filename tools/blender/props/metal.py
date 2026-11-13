@@ -207,6 +207,20 @@ FINISHES = {
     # A packing case's rough pine.
     "box_pine": {"kind": "coat", "color": (0.46, 0.34, 0.21), "under": (0.58, 0.46, 0.31), "rust": 0.0,
                  "rough": 0.88, "metal": 0.0, "wear": 0.5},
+    # Batch S2 (#879). A handsaw's blade: steel gone dull grey with use, freckled and bloomed brown with
+    # rust (a tool kept in a damp shed), bright only along its teeth and where it's wiped.
+    "saw_steel": {"kind": "plate", "color": (0.26, 0.26, 0.27), "under": (0.55, 0.55, 0.56), "rust": 0.8,
+                  "rough": 0.62, "metal": 0.5, "wear": 0.35, "mottle": 0.8},
+    # Apple wood (the saw's handle): warm brown under an old varnish, worn pale and greasy where the hand goes.
+    "apple_wood": {"kind": "coat", "color": (0.20, 0.10, 0.045), "under": (0.38, 0.24, 0.12), "rust": 0.0,
+                   "rough": 0.55, "metal": 0.0, "wear": 0.5, "mottle": 0.4},
+    # A fiddle's oil varnish: red-brown over golden spruce and maple, worn through to the pale wood
+    # where the chin, the hand and the case go, darkened with rosin dust round the bridge.
+    "fiddle_varnish": {"kind": "coat", "color": (0.19, 0.095, 0.04), "under": (0.50, 0.34, 0.15), "rust": 0.0,
+                       "rough": 0.5, "metal": 0.0, "wear": 0.6, "mottle": 0.5},
+    # Gut strings and a bow's white horse hair, greyed with rosin.
+    "gut": {"kind": "coat", "color": (0.74, 0.70, 0.60), "under": (0.60, 0.55, 0.45), "rust": 0.0,
+            "rough": 0.7, "metal": 0.0, "wear": 0.2},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,
