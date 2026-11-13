@@ -135,3 +135,67 @@ needs it.
    the buildings' 8.5 s: **~40% of the load**.
 
 Cuts 1–3 make the brief's 24 townsfolk fit; 4–7 bring the else back toward its 1.0.
+
+## After the cuts (#881), 2026-11-13
+
+The same bench (`bench_runs.py --scenes=day,gunfight --counts=0,25 --bands --seconds=10`) before and
+after, in another workspace, one game at a time. **This workspace's core ran slower than #865's**:
+main's day with 25 townsfolk read people **7.08** here where #865 read 5.12 (day with none: 1.25 for
+1.00). So each cut is measured against this workspace's own baseline, and the totals are given here
+and scaled to #865's (× 5.12 / 7.08). The runs' noise is about ±0.35 at Sean's (three runs of the same
+people code read 5.20, 4.53, 4.94).
+
+| Scene (Sean's ms) | People before → after | Else before → after | Total before → after | Worst frame |
+|---|---|---|---|---|
+| day, 0 | 1.25 → 1.12 | 2.02 → 1.67 | 3.66 → 3.46 | |
+| **day, 25** | **7.08 → 4.9** (≈ **3.5** on #865's scale) | 3.37 → 3.2 | 11.69 → 9.0 | |
+| gunfight, 0 | 4.41 → 3.91 | 4.21 → 3.29 | 9.42 → 7.46 | 593 → 78 ms |
+| gunfight, 25 | 11.09 → 10.20 | 5.70 → 5.55 | 18.29 → 16.16 | 684 → 97 ms |
+
+**A townsman** (day, 10 all near or all far, against none): near **0.235 → 0.21**, far **0.137 →
+0.065** (a far man now ~0.3 of a near one). Senses at 25 by day 1.11 → 0.69; the skeleton 1.65 → 0.75.
+On #865's scale the people part with 25 is ~3.5: **the 4.0 holds the brief's 24 by day, with ~0.5 to
+spare** (~28-30 at most). The gunfight stays over: its men fight at full rate (by design) and the
+outlaws' brains are ~1.1 flat.
+
+What each cut did (each benched on its own, in this order):
+
+1. **Far men** (`PeopleTick`): the far men down the street were in view, so they ticked every 2nd tick
+   (`seen_nearer`), and those in the 8-degree aim cone every tick, at any distance. A far man in view
+   now keeps the far band (`seen_nearer_far`, off: past 60 m a far tick's step is under a pixel), and
+   the cone counts only while you aim down the sights (`aim_needs_sights`). Day 25: 7.08 → 6.46. The
+   review's guess (body and skeleton paid every frame whatever the band) was wrong: the bands were.
+3. **Near men** (`HumanBody`, targeted): the skinned finger bones (30 a man) were read and compared every
+   tick; now only after `curl_hand`, a finger off, or hands up/down. `_track_carry`'s two dictionaries
+   swapped, not a new one a tick; the tickers' copy made only when one comes or goes. Day 25: 6.46 →
+   5.14 (skeleton 1.46 → 0.74).
+2. **Senses** (`Senses`, `PeopleTick`): a calm man (can slow, not woken, not within 25 m of trouble:
+   `HumanBody.tick_calm`) looks at another calm man every 2nd look (`calm_look_every`), the time between
+   owed to the pair, so awareness builds as fast; the player and anyone in or near trouble every look.
+   Day 25: senses 0.92 → 0.72 (10 near: 0.56 → 0.38). Cutting allocations in `_look` (the points, the
+   exclusions, the light once a look) measured nothing and was dropped: the time is in the lines (~1/3)
+   and the per-pair maths, not allocations.
+4. **The gunfight's hitch** was not the smoke's materials (headless draws nothing): it was
+   `settle_analyse`, the saloon's first analysis (7,600 members) whole on one frame when a ball broke a
+   member; **the valley has no FireSystem** to slice settles. Each spec building's first analysis is now
+   begun after the load and run on a worker (`Structure.warm_analysis`), so the first settle is an
+   update (47 ms). Worst frame 896 → 129 ms here; the gunfight's frame 9.65 → 7.84. OutlawBrain loads
+   the revolver's tuning once (not a `load()` a shot). **Left:** the outlaws' first cover moves, ~120 ms
+   (here) twice at a fight's start, ~21,000 walk casts in that frame (not found yet).
+5. **The train when distant** (past 400 m): lookout and bridge loads every 10th tick, cars drawn every
+   2nd frame; rails, solids and sound every tick. **The bench doesn't show it:** the day's train is
+   ~150 m off and coming up the street (moving at 4 m/s), not "miles off"; there its ~0.4 at Sean's is
+   real (sim 0.08, view 0.13, sound 0.13, lookout 0.05).
+6. **RealLook's hung lamps** write their range only on change (review B4; art's file, two lines). It runs
+   only under the real look, so the headless bench can't show it. RoomLight was profiled (~0.2 at Sean's
+   by day, spread over its rooms' sun patches, list and fill, nothing written unchanged) and left.
+7. **`max_bodies` 65,536** (`project.godot`): 27,705 in use after the load.
+
+**The else is still over (1.7 with none, ~3.2 with 25).** By day: the train ~0.4 (near, moving), RoomLight
+~0.2, the valley ground ~0.1, the day cycle ~0.07, and **~1 ms the timers don't cover** (the engine's
+own share: moved bodies synced to physics, the scene tree's process, notifications). Next: find the
+untimed share (a native profile, e.g. `perf` on a headless run), then the outlaws' first-move hitch.
+
+**The drawn gunfight wasn't measured:** this workspace had no Vulkan driver (lavapipe installed by hand),
+and under it the gunfight's 180 setup frames ran at ~0.1 fps (over 35 min before the measure began), so
+the run was stopped. Its render CPU is still to take, on a workspace with the Studio's setup or on Sean's F3.

@@ -263,6 +263,11 @@ var tick_index := -1
 ## His own nodes PeopleTick ticks after him, in tree order (his brain, face, senses: add_ticker).
 var _tickers: Array[Node] = []
 var _tickers_sorted := true
+## The tickers as his tick walks them: a copy, made again only when one comes or goes (a copy a
+## tick a man was one of the street's allocations, #881), so one that leaves mid-tick is still
+## walked past as before.
+var _tickers_run: Array[Node] = []
+var _tickers_changed := true
 ## Those of them that say whether he may tick slowly, and whether he's in trouble (PeopleTick's bands).
 var _slow_says: Array[Node] = []
 var _trouble_says: Array[Node] = []
@@ -275,6 +280,10 @@ var tick_every := 1
 var tick_owed := 0.0
 var tick_dt := 0.0
 var woken := false
+## Calm, and not within the near band of anyone in trouble (PeopleTick sets it each tick; false
+## with no player or the bands off): his senses look at another calm man every
+## `PeopleTickTuning.calm_look_every`th look (Senses; #881).
+var tick_calm := false
 var parts := {}  ## segment -> the physics body carrying it (AnimatableBody3D, RigidBody3D when limp)
 var pivots := {}  ## segment -> joint pivot (while standing)
 var visuals := {}  ## segment -> Node3D holding its meshes and decals
@@ -457,6 +466,7 @@ func add_ticker(n: Node) -> void:
 	if not _tickers.has(n):
 		_tickers.append(n)
 		_tickers_sorted = false
+		_tickers_changed = true
 		if n.has_method(&"can_slow"):
 			_slow_says.append(n)
 		if n.has_method(&"in_trouble"):
@@ -465,6 +475,7 @@ func add_ticker(n: Node) -> void:
 
 func remove_ticker(n: Node) -> void:
 	_tickers.erase(n)
+	_tickers_changed = true
 	_slow_says.erase(n)
 	_trouble_says.erase(n)
 
@@ -1323,6 +1334,12 @@ const THUMB_ACROSS := 45.0
 const THUMB_ACROSS_SIGN := -1.0
 
 
+## A finger node turned or came off since the skinned fingers were last set (curl_hand,
+## sever_finger), and whether they were set for open hands.
+var _fingers_dirty := true
+var _fingers_open := false
+
+
 ## Hands up, the relaxed curl is only this share of itself: the hands open, fingers loose (Sean,
 ## #692: "palms forward, fingers loose and slightly spread"), not a claw.
 const OPEN_HANDS_CURL := 0.2
@@ -1330,6 +1347,12 @@ const OPEN_HANDS_CURL := 0.2
 
 func _pose_fingers() -> void:
 	var open := pose == &"hands_up" and not limp
+	# Nothing to do till a finger node turns (curl_hand) or comes off, or his hands go up or down:
+	# 30 bones' reads a man a tick were ~0.6 ms of the street's 25 townsfolk (#881).
+	if not _fingers_dirty and open == _fingers_open:
+		return
+	_fingers_dirty = false
+	_fingers_open = open
 	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
 		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
@@ -1451,6 +1474,7 @@ func _own_fingers(data: Dictionary) -> void:
 
 ## Curl a hand's fingers (0 open, 1 fist) about the palm side.
 func curl_hand(side: String, amount: float) -> void:
+	_fingers_dirty = true
 	var sx := -1.0 if side == "r" else 1.0
 	for f: String in FINGERS:
 		var fid := StringName("%s_%s" % [f, side])
@@ -1537,9 +1561,13 @@ func people_tick(delta: float) -> void:
 	if not _tickers_sorted:
 		_tickers.sort_custom(func(a: Node, b: Node) -> bool: return b.is_greater_than(a))
 		_tickers_sorted = true
+		_tickers_changed = true
+	if _tickers_changed:
+		_tickers_run = _tickers.duplicate()
+		_tickers_changed = false
 	if is_physics_processing() and can_process():
 		_tick(delta)
-	for n: Node in _tickers.duplicate():
+	for n: Node in _tickers_run:
 		if is_instance_valid(n) and n.is_inside_tree() and n.is_physics_processing() and n.can_process():
 			n.call(&"tick", delta)
 
@@ -1677,9 +1705,10 @@ func prepare(delta: float, timed := false) -> void:
 func _track_carry(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	for sid: StringName in _carry_new:
-		_carry_last[sid] = _carry_new[sid]
-	var now := {}
+	# The two kept and swapped, not a new one a tick (#881): last tick's places become the ones before.
+	var now := _carry_last
+	_carry_last = _carry_new
+	now.clear()
 	for sid: StringName in parts:
 		var n := parts[sid] as Node3D
 		if n == null or not is_instance_valid(n):
@@ -4833,6 +4862,7 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	if knuckle == null:
 		return
 	fingers.erase(fid)
+	_fingers_dirty = true
 	var rb := RigidBody3D.new()
 	rb.name = "Finger_%s" % fid
 	rb.mass = 0.02
