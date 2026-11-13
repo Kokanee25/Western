@@ -216,7 +216,7 @@ paid on every turn of every session.
   open). Then, and never later: write the status entry and your lane file's lines, and do no
   more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
   last message with **"Step done: <what>."**, one plain sentence for Sean saying what the next
-  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line the model line below)
+  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line `#N: <short title>`, the issue it works, so the session's name in Sean's list starts with the number (Sean, 2026-11-13); its second line the model line below)
   that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
   nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
   branch to start (from `main`), the goal and what done looks like, what this session found and
@@ -356,7 +356,7 @@ keeping it under ~10 KB: where things stand, what's open, the traps. No history 
 - `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next its stone as rubble, #860, then the general store).
 - `docs/lanes/gameplay.md`: the slice's missions (next No Law step 4, #796), the valley, weapons, the soak.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
-- `docs/lanes/props.md`: the kit and factory (next the doctor's D2, #805).
+- `docs/lanes/props.md`: the kit and factory (saloon B's S1 and S2 made, not placed; next S3, #892).
 - `docs/lanes/sound.md`: GameAudio, the fiddler (#799), voiced lines (#807).
 
 Latest status entries: `docs/status/2026-11-11_onward.md` (the end of the file). The full Current state as
