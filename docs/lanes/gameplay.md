@@ -54,7 +54,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   --townsfolk=N [--band=] [--bodies] [--extra-bodies=N]`, `tools/valley/bench_runs.py` (all scenes and counts,
   ~1.5 h). A townsman costs 0.165 ms (near 0.23, far 0.11): the 4.0 holds ~18 till the cuts; every scene's
   else is over. Bodies 27.7k of 32.8k; the full town ~45-55k: raise `max_bodies` to 65,536 (~4 MB).
-  **Next: the cuts (the review's ranked list), the issue after #865.**
+  **Next: the cuts (the review's ranked list), #881.**
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
