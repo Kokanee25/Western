@@ -16,6 +16,11 @@ var said: Array = []  # [physics frame, speaker id, text, the act's t, msec]
 func before_each() -> void:
 	ValleyFolk.murder_auto = true
 	StoryState.clear("nolaw.")
+	await _new_valley()
+
+
+## The valley built again (the scene's reload, as after Backspace).
+func _new_valley() -> void:
 	if holder != null:
 		holder.queue_free()
 		await physics_frames(3)
@@ -239,3 +244,55 @@ func test_a_gun_drawn_by_the_table_is_noticed() -> void:
 	await physics_frames(20)
 	var lines := said.filter(func(s: Array) -> bool: return s[2] in CivilianBrain.LINES[&"gun_out"])
 	check(not lines.is_empty(), "someone minds the gun (%s)" % [said])
+
+
+
+# --- A reset (#864, review A5) -----------------------------------------------------------------
+
+## The murder's places are the valley folk's: none dropped for a misspelt name.
+func test_the_murders_places_are_all_the_folks() -> void:
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://config/moments/no_law_murder.json"))
+	var names: Array = d.cody.get("in", []) + d.cody.get("out", []) + d.stranger.get("in", [])
+	check(names.size() >= 4, "it names its ways (%s)" % [names])
+	for n: String in names:
+		check(_folk().places.has(StringName(n)), "%s is a place" % n)
+
+
+## After the murder, Backspace (a fresh start) and the night again: it plays again.
+func test_after_a_reset_the_murder_plays_again() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	# What the murder leaves the story (test_the_murder_with_you_sat_at_the_table plays it).
+	StoryState.set_fact("nolaw.murder", "done")
+	StoryState.set_fact("nolaw.earl", "dead")
+	ValleyFolk.murder_auto = true
+	await _at(22.0)
+	check(_folk().murder == null, "not again in the same game (%s)" % _folk().report())
+	GameReset.clear_statics()  # Backspace's, before the reload
+	await _new_valley()
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	ValleyFolk.murder_auto = true
+	await _at(22.0)
+	var m := _folk().murder as NoLawMurder
+	check(m != null and not m.done, "it plays again (%s)" % _folk().report())
+	if m != null:
+		m.reset()
+
+
+## Over before Cody came in (no Earl at the table): nothing written, and it comes again.
+func test_a_murder_over_before_it_played_writes_nothing_and_comes_again() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(12.0)
+	var first := _folk().start_murder() as NoLawMurder
+	check(first != null and first.done and not first.played, "over before it began (%s)" % (first.result() if first else {}))
+	check(not StoryState.has_fact("nolaw.murder"), "nothing in the story")
+	var first_id := first.get_instance_id() if first else 0
+	ValleyFolk.murder_auto = true
+	await _at(21.0)  # its hours yet to come: the spent one's let go
+	_folk()._murder_again = 0  # (not a minute's wait)
+	await _at(22.0)
+	var m := _folk().murder as NoLawMurder
+	check(m != null and m.get_instance_id() != first_id and not m.done, "a new one at its hour (%s)" % _folk().report())
+	if m != null:
+		m.reset()
