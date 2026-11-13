@@ -183,7 +183,9 @@ func test_he_leaves_your_man_to_you() -> void:
 	await physics_frames(3)
 	check(not brain.yours(other), "another man isn't")
 	Events.deed.emit(player, &"shoot_at", other, player.camera.global_position)
-	check(brain.yours(other), "until you fire at him (the playtest: Joe shot the man you'd been firing at)")
+	check(not brain.yours(other), "firing at him alone doesn't make him yours: Joe keeps his head down too (#859)")
+	(other.get_node(^"Brain") as OutlawBrain).target = player
+	check(brain._on_you(other), "a man whose fight is with you is on you: Joe would rather fight him (#859)")
 
 
 func test_he_steps_out_of_your_line() -> void:

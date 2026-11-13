@@ -401,8 +401,8 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 
 ## How much more a man minds Joe for each shot Joe puts at him, and at most (Relations' pressure: a
 ## fight is 1.0 up; the man who shot at him first stands at 1.5).
-const DRAW_EYE := 0.5
-const DRAW_EYE_MAX := 3.0
+const DRAW_EYE := 1.5
+const DRAW_EYE_MAX := 4.0
 
 
 func _can_shoot_at(t: Node3D) -> bool:
