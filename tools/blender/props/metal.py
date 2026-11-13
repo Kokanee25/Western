@@ -130,6 +130,29 @@ FINISHES = {
     # An inkwell's pressed glass with the ink in it: near black, glossy.
     "ink_glass": {"kind": "coat", "color": (0.05, 0.06, 0.08), "under": (0.2, 0.22, 0.24), "rust": 0.0,
                   "rough": 0.08, "metal": 0.0, "wear": 0.3},
+    # --- D3 (#819) ---
+    # Black wool broadcloth (a professional man's frock coat, 1870s-80s: fulled and napped so the weave
+    # is hidden, a dull deep black that greys with dust and wear at the folds' crowns and the cuffs).
+    "broadcloth": {"kind": "coat", "color": (0.040, 0.040, 0.046), "under": (0.15, 0.14, 0.13), "rust": 0.0,
+                   "rough": 0.92, "metal": 0.0, "wear": 0.35, "mottle": 0.25},
+    # Black fur felt (his hat): matte, dusty on the crown and the brim's edge.
+    "felt": {"kind": "coat", "color": (0.050, 0.047, 0.045), "under": (0.20, 0.18, 0.15), "rust": 0.0,
+             "rough": 0.96, "metal": 0.0, "wear": 0.3, "mottle": 0.3},
+    # A hat's grosgrain silk band: black, a low sheen.
+    "ribbon": {"kind": "coat", "color": (0.022, 0.022, 0.026), "under": (0.08, 0.08, 0.08), "rust": 0.0,
+               "rough": 0.5, "metal": 0.0, "wear": 0.1},
+    # Horn buttons (a coat's): near black, polished.
+    "horn": {"kind": "coat", "color": (0.06, 0.045, 0.035), "under": (0.20, 0.15, 0.10), "rust": 0.0,
+             "rough": 0.3, "metal": 0.0, "wear": 0.4},
+    # Folded blankets (their `band`: where the end's stripe falls on the folded pile, the part's |x|):
+    # the wards' grey with a dark band, a white with indigo bands (the hospitals' and the Hudson's Bay
+    # pattern's kin), a brown.
+    "wool_fold": {"kind": "wool", "color": (0.36, 0.34, 0.31), "stripe": (0.14, 0.12, 0.11), "rough": 0.95,
+                  "metal": 0.0, "wear": 0.0, "band": (0.150, 0.158, 0.205, 0.197)},
+    "wool_white": {"kind": "wool", "color": (0.74, 0.71, 0.63), "stripe": (0.12, 0.16, 0.34), "rough": 0.95,
+                   "metal": 0.0, "wear": 0.0, "band": (0.165, 0.172, 0.200, 0.193)},
+    "wool_brown": {"kind": "wool", "color": (0.27, 0.19, 0.12), "stripe": (0.10, 0.07, 0.05), "rough": 0.95,
+                   "metal": 0.0, "wear": 0.0, "band": (0.140, 0.148, 0.215, 0.207)},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,
@@ -264,7 +287,8 @@ def _node_tree(mat, look, img, mode):
         base = g.mix(g.math("MULTIPLY", nap, 0.5), look["color"], tuple(c * 0.75 for c in look["color"]))
         # A dark band a hand from each end (|x| near the blanket's ends: the part's own X).
         ax = g.math("ABSOLUTE", sep.outputs["X"], 0.0)
-        band = g.math("MULTIPLY", g.maprange(ax, 0.66, 0.68), g.maprange(ax, 0.78, 0.76), True)
+        b0, b1, b2, b3 = look.get("band", (0.66, 0.68, 0.78, 0.76))
+        band = g.math("MULTIPLY", g.maprange(ax, b0, b1), g.maprange(ax, b2, b3), True)
         worn = g.mix(band, base, look["stripe"])
         metal = 0.0
     if mode == "albedo":
@@ -291,7 +315,7 @@ def _node_tree(mat, look, img, mode):
     target.select = True
 
 
-def export_baked(prop_id, parts, size=1024):
+def export_baked(prop_id, parts, size=1024, recalc_normals=False):
     """Write assets/props/models/<prop_id>.glb with its baked albedo and ORM: `parts` a list of
     (common.Part, finish name). One object a part (the kit file's `"part"`), on one atlas."""
     import bpy
@@ -313,6 +337,14 @@ def export_baked(prop_id, parts, size=1024):
         mesh = bpy.data.meshes.new(part.name)
         mesh.from_pydata(verts, [], part.faces)
         mesh.validate()
+        if recalc_normals:
+            # (a closed skin whose faces were wound by a winding path: outward by Blender's own test)
+            import bmesh
+            bm = bmesh.new()
+            bm.from_mesh(mesh)
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+            bm.to_mesh(mesh)
+            bm.free()
         for poly in mesh.polygons:
             poly.use_smooth = part.smooth
         obj = bpy.data.objects.new(part.name, mesh)

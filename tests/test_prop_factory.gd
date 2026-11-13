@@ -158,8 +158,8 @@ const DOCTOR_D1_GLASS := [&"wash_basin", &"wash_pitcher", &"reflector_lamp"]
 
 
 func test_doctor_d1_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: a solid walnut table ~45-60; an iron cot with its tick ~25-40; a washstand ~15-30.
-	var weights := {&"examining_table": [40.0, 70.0], &"iron_cot": [22.0, 45.0], &"washstand": [12.0, 32.0]}
+	# kg: a solid oak table ~55-75 (oak since #825: 750 kg/m3); an iron cot with its tick ~25-40; a pine washstand ~9-20.
+	var weights := {&"examining_table": [40.0, 80.0], &"iron_cot": [22.0, 45.0], &"washstand": [8.0, 32.0]}
 	for id: StringName in DOCTOR_D1:
 		var def := PropKit.definition(id)
 		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
@@ -179,9 +179,9 @@ func test_doctor_d1_woods_are_the_libraries_and_its_metal_is_baked() -> void:
 	var t := await _place(&"examining_table")
 	var leg := _m(t, "leg0").drawn_node()
 	var mat := leg.material_override as ShaderMaterial
-	check(mat != null and mat.shader.resource_path == "res://src/render/scan_wood.gdshader", "a leg is the library's walnut")
+	check(mat != null and mat.shader.resource_path == "res://src/render/scan_wood.gdshader", "a leg is the library's furniture oak")
 	check(leg.mesh.has_meta(&"board_frame"), "drawn as a library board (batched by the way it faces)")
-	check(PropKit.lib_material("lib:fine_walnut_tg/few") == mat, "every walnut prop shares one material")
+	check(PropKit.lib_material("lib:furniture_oak/few") == mat, "every oak prop shares one material")
 	var pad := _m(t, "pad").drawn_node()
 	var oil := pad.material_override as StandardMaterial3D
 	check(oil != null and oil.albedo_texture != null and oil.roughness_texture != null and oil.metallic_texture != null,
@@ -207,7 +207,7 @@ func test_a_man_laid_on_the_table_or_the_cot_is_carried() -> void:
 		await physics_frames(1)
 
 
-func test_a_shot_through_a_walnut_leg_is_carved_where_the_leg_is() -> void:
+func test_a_shot_through_an_oak_leg_is_carved_where_the_leg_is() -> void:
 	var t := await _place(&"examining_table")
 	var ballistics := Ballistics.new()
 	world.add_child(ballistics)
@@ -335,7 +335,7 @@ const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"pois
 
 
 func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
-	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); a walnut roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
+	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); an oak roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
 	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 200.0],
 			&"dispensary_counter": [40.0, 130.0], &"bentwood_chair": [2.0, 8.0]}
 	for id: StringName in DOCTOR_D2_MEMBERS:
@@ -355,8 +355,8 @@ func test_the_desks_curved_sides_are_library_boards_cut_to_the_curve() -> void:
 	var d := await _place(&"roll_top_desk")
 	var side := _m(d, "case_side_l").drawn_node()
 	var plain := _m(d, "case_back").drawn_node()
-	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:fine_walnut_tg/few"),
-			"the curved side is the same walnut as the rest")
+	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:furniture_oak/few"),
+			"the curved side is the same oak as the rest")
 	check(side.mesh.has_meta(&"board_frame"), "drawn as a library board (batched with the others)")
 	var box := side.get_aabb()
 	var faces := side.mesh.get_faces()
@@ -479,7 +479,7 @@ func test_the_counters_drawers_wear_their_knobs() -> void:
 	check(c.batch_count() <= 8, "and it still draws in a few batches (%d)" % c.batch_count())
 
 
-func test_a_pull_on_a_walnut_drawer_is_drawn_on_the_drawer() -> void:
+func test_a_pull_on_an_oak_drawer_is_drawn_on_the_drawer() -> void:
 	# A dress layer on a library board (a pull, a knob, his papers) sits where its kit file puts it,
 	# not off by the board frame's half length (#805), and stays there when the board is carved.
 	var d := await _place(&"roll_top_desk")
@@ -493,3 +493,125 @@ func test_a_pull_on_a_walnut_drawer_is_drawn_on_the_drawer() -> void:
 		# (in the member's own space: a batched member's nodes are out of the tree)
 		var off := (drawer.drawn_node().transform * layer.transform * layer.get_aabb()).get_center()
 		check(absf(off.x) < 0.03 and absf(off.y) < 0.03, "the pull is on the drawer's middle (off by %s)" % off)
+
+
+# --- The doctor's batch D3 (#819): his books, the hall's pegs, the pot and the blankets ---------
+
+const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_row_c", &"book_stack", &"bookcase", &"folded_blankets", &"folded_blanket"]
+
+
+func test_doctor_d3_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; an oak bookcase
+	# ~20-40; a wool blanket ~2 (its member's canvas is lighter).
+	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_row_c": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
+			&"folded_blankets": [1.5, 8.0], &"folded_blanket": [0.5, 3.0]}
+	for id: StringName in DOCTOR_D3_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_his_books_are_printed_on_their_sheet_and_burn() -> void:
+	var row := await _place(&"book_row_a")
+	var book := _m(row, "book0")
+	var mi := book.drawn_node()
+	check((mi.material_override as StandardMaterial3D) == PropModels.pbr("medical_books"), "a book wears the books' printed sheet")
+	check(mi.mesh.get_faces().size() > 20 * 3, "drawn from its model (boards, leaves, a rounded spine), not a box")
+	for suffix in ["albedo", "orm"]:
+		check(ResourceLoader.exists("res://assets/props/models/medical_books_%s.png" % suffix), "the sheet's %s is there" % suffix)
+	check(book.wood == &"paper" and not FireTuning.new().fireproof.has(book.wood), "a book is paper: it burns")
+	check(row.batch_count() <= 2, "a row is one draw or two (%d)" % row.batch_count())
+	var pile := await _place(&"book_stack", Vector3(2, 0, 0))
+	var gone := pile.members_without_load_path({pile.get_members()[0].member_id: true})
+	check(gone.size() == 2, "the bottom book out, the two on it come down (%s)" % [gone])
+
+
+func test_a_ball_goes_into_a_book_and_the_row_stands() -> void:
+	var row := await _place(&"book_row_b")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var book := row.get_members()[3]
+	var from := book.global_position + Vector3(0, 0, 5)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (book.global_position - from).normalized(), r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not book.holes.is_empty() or book.broken, "a .45 ball marks the book it meets (holes %d, broken %s)" % [book.holes.size(), book.broken])
+	check(not row.loose, "the row stands")
+
+
+func test_a_row_of_books_stands_on_its_shelf_and_comes_down_with_it() -> void:
+	var c := await _place(&"bookcase")
+	var shelf := _m(c, "shelf2")
+	var row := PropKit.spawn(&"book_row_a")
+	row.position = Vector3(0, shelf.global_position.y + shelf.size.y * 0.5 + 0.002, 0)
+	world.add_child(row)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not row.loose, "the row stands on the shelf")
+	check(absf(row.global_position.y - (shelf.global_position.y + shelf.size.y * 0.5)) < 0.02, "on its top (%.3f)" % row.global_position.y)
+	c.break_member(shelf)
+	await wait_until(func() -> bool: return row.loose, 180)
+	check(row.loose, "the shelf gone, the row comes down")
+
+
+func test_the_coat_pegs_hang_on_their_nails_and_a_peg_gone_drops_the_coat() -> void:
+	var wall := Structure.new()
+	wall.structure_id = &"peg_wall"
+	world.add_child(wall)
+	for x in [-0.5, 0.5]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.4, 0.1), Vector3(x, 1.2, -0.07))
+	for i in 10:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.4, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var p := PropKit.spawn(&"coat_pegs")
+	p.position = Vector3(0, 1.65, 0)
+	world.add_child(p)
+	await physics_frames(KitProp.SETTLE_FRAMES + 6)
+	check(not p.loose, "the rail hangs on its nails in the wall")
+	check(p.members_without_load_path().is_empty(), "everything on it hangs from it %s" % [p.members_without_load_path()])
+	check(_m(p, "coat").drawn_node().mesh.get_faces().size() > 1000, "his coat is drawn from its model")
+	check((_m(p, "hat").drawn_node().material_override as StandardMaterial3D) == PropModels.pbr("coat_pegs"), "the hat is baked")
+	check(not FireTuning.new().fireproof.has(_m(p, "coat").wood), "the coat burns")
+	var falling := p.members_without_load_path({_m(p, "peg1").member_id: true})
+	check(falling.has(_m(p, "coat").member_id), "its peg gone, the coat comes down")
+	check(not falling.has(_m(p, "hat").member_id), "the hat stays on its own")
+	check(_m(p, "rail").drawn_node().mesh.has_meta(&"board_frame"), "the rail is a library board")
+
+
+func test_the_chamber_pot_stands_and_a_ball_breaks_it() -> void:
+	var pot := PropKit.make(&"chamber_pot") as GlassProp
+	pot.position = Vector3(0, 0, 0)
+	world.add_child(pot)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(not pot.broken and not pot.loose, "the pot stands on the floor")
+	check(pot.model.get_child_count() >= 1, "drawn from its model")
+	check(PropKit.definition(&"chamber_pot").size[1] < 0.42, "it goes under the cot's spring (0.42 m)")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	ballistics.fire(pot.global_position + Vector3(-5, 0.07, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(pot.broken, "a ball breaks it")
+
+
+func test_his_bag_stands_is_rodins_model_and_burns() -> void:
+	var bag := await _place(&"doctors_bag")
+	check(bag.settle().is_empty() and not bag.loose, "the bag stands on the floor")
+	check(bag.members_without_load_path().is_empty(), "its handle is on it")
+	var kg := bag.mass()
+	check(kg >= 1.0 and kg <= 6.0, "it weighs %.1f kg (a physician's bag with its instruments ~2-4)" % kg)
+	var body := _m(bag, "body")
+	check(body.drawn_node().mesh.get_faces().size() > 3000 * 3, "its body is drawn from Rodin's model")
+	check(ResourceLoader.exists("res://assets/props/models/doctors_bag_paint.png"), "with its own paint")
+	check(not FireTuning.new().fireproof.has(body.wood), "it burns")
+	var gone := bag.members_without_load_path({body.member_id: true})
+	check(gone.has(_m(bag, "handle").member_id), "the body gone, the handle comes down")
+

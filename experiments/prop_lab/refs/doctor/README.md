@@ -29,6 +29,7 @@ texture or ships in the game). Dates are the object's or photograph's as the sou
 | `desk_remick_office.jpg` | desk | Museum display of a country doctor's office (Remick Country Doctor Museum): a dark wooden pedestal desk with a pigeonhole top and banks of drawers, a leather-seated wooden armchair, a reading stand, books, an examining chair | Photo 2015-08-25; the furniture's date not given (likely 1890s-1930s) | Jllm06 | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Remick_Country_Doctor_Museum_02_-_the_doctor%27s_office_inside_the_farmhouse.jpg |
 | `chair_remick_office_armchair.jpg` | chair | Crop (220 x 225 px) of `desk_remick_office.jpg`: the desk's armchair, a low curved wooden back rail with a leather pad, a round leather seat, square tapered wooden legs | As `desk_remick_office.jpg` | Jllm06 | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Remick_Country_Doctor_Museum_02_-_the_doctor%27s_office_inside_the_farmhouse.jpg |
 | `chair_thonet_no14_mak.jpg` | chair | Two Thonet No. 14 bentwood chairs (MAK exhibition, Vienna): steamed beech in a walnut stain, a hoop back with an inner loop, round woven-cane seat, four splayed legs joined by a ring | Design 1859 (made in great numbers from the 1860s); photo 2020-06-14 | Gryffindor | CC0 | https://commons.wikimedia.org/wiki/File:Thonet_MAK_Vienna_2020_22.jpg |
+| `bag_doctors_leather_1890_1930_wellcome.jpg` | bag (D3, not yet made: #823) | Leather doctor's bag with its contents, English, owned by Prof. John Hill Abram: a wide, low Gladstone shape about 2:1 length to height, dark brown cross-grained leather worn paler at the edges, a hinged top frame with a centre lock tab and two side catches, a rolled leather handle on metal loops, gusseted ends that bulge; instruments beside it | 1890-1930 (a little late for 1882; the form is the 1870s-80s') | Wellcome Images / Wellcome Collection (L0058359) | CC BY 4.0 | https://commons.wikimedia.org/wiki/File:Leather_doctor%27s_bag_with_contents,_English,_1890-1930._The_Wellcome_L0058359.jpg |
 
 ## Notes
 
@@ -47,3 +48,11 @@ texture or ships in the game). Dates are the object's or photograph's as the sou
   1880s bottle with its paper label intact either (the labelled ones in museum photos are 20th century);
   the Wedgwood mortar is the Met's c. 1780 piece, the same form a druggist still bought in the 1880s.
   The Commons API itself also answers HTTP 429 when asked more often than every ~20 s.
+- Third batch (D3, 2026-11-12): only the bag's photograph was saved; Commons answered HTTP 429 to about half
+  of all requests even 25-30 s apart. Not found or not fetched: a shelf of law-sheep medical spines (the
+  books here follow the binding's description: tan sheep, a red and a black gilt label), a white ironstone
+  chamber pot (the pot follows D1's Davenport wash set), folded army blankets (the cot's 1864-65 ward
+  photographs show the grey blanket and its band). Candidates seen but not downloaded: the HABS photograph
+  of the Hancock Shaker peg board (`File:Shaker_furniture2.jpg`, public domain), the bag's second view
+  (Wellcome L0058360). The API's `thumburl` now points at thumb.wikimedia.org (blocked): the same path on
+  upload.wikimedia.org, without the query string, downloads.

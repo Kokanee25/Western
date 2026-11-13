@@ -15,7 +15,7 @@ sys.path.insert(0, HERE)
 
 # The deer head is Rodin's since 2026-10-24 (deer_head_rodin.py, from the Studio's paid model);
 # deer_head.py, the modelled one, is kept to compare and not built: it would write over it.
-PROPS = ["hay_bale", "straw_pile", "feed_sack", "grain_sack", "horse_droppings", "doctor_d1", "doctor_d2"]
+PROPS = ["hay_bale", "straw_pile", "feed_sack", "grain_sack", "horse_droppings", "doctor_d1", "doctor_d2", "doctor_d3"]
 
 
 def main():

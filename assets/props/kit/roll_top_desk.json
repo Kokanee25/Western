@@ -1,10 +1,10 @@
 {
-  "_doc": "His desk (#805; refs experiments/prop_lab/refs/doctor/): a walnut roll-top of the 1880s (the doctor's spec gives him one), 1.4 m wide, 0.8 deep: two pedestals of four drawers either side of the knee hole (a shallow drawer over it), a writing bed of three boards across them, and on its back the roll-top's case: S-curved sides (library boards cut to the curve, PropKit.lib_cut_mesh), a back, a top, the tambour rolled up out of sight under its top, eight pigeonholes over a row of six small drawers. Brass pulls baked the gun way (tools/blender/props/doctor_d2.py). Walnut from the material library (F2 a few years: the bed and top worn where his arms go). ~85 kg. Its front, where he sits, toward +z. A ball through a pedestal's side holes it and it stands. Written by tools/props/doctor.py.",
+  "_doc": "His desk (#805; refs experiments/prop_lab/refs/doctor/): an oak roll-top of the 1880s (the doctor's spec gives him one), 1.4 m wide, 0.8 deep: two pedestals of four drawers either side of the knee hole (a shallow drawer over it), a writing bed of three boards across them, and on its back the roll-top's case: S-curved sides (library boards cut to the curve, PropKit.lib_cut_mesh), a back, a top, the tambour rolled up out of sight under its top, eight pigeonholes over a row of six small drawers. Brass pulls baked the gun way (tools/blender/props/doctor_d2.py). Oak from the material library (a few years: the bed and top worn where his arms go). ~85 kg. Its front, where he sits, toward +z. The room's good piece: it wants walnut once the library's `furniture_walnut` passes. A ball through a pedestal's side holes it and it stands. Written by tools/props/doctor.py.",
   "id": "roll_top_desk",
   "kind": "members",
   "fixture": true,
   "in_game": false,
-  "wood": "walnut",
+  "wood": "oak",
   "splits_below": 0.3,
   "blow_wood_share": 0.5,
   "members": [
@@ -21,7 +21,7 @@
         0.3675,
         -0.01
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_l_side1",
@@ -36,7 +36,7 @@
         0.3675,
         -0.01
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_l_back",
@@ -51,7 +51,7 @@
         0.3775,
         -0.3905
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_l_plinth",
@@ -66,7 +66,7 @@
         0.035,
         0.3705
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_r_side0",
@@ -81,7 +81,7 @@
         0.3675,
         -0.01
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_r_side1",
@@ -96,7 +96,7 @@
         0.3675,
         -0.01
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_r_back",
@@ -111,7 +111,7 @@
         0.3775,
         -0.3905
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "ped_r_plinth",
@@ -126,7 +126,7 @@
         0.035,
         0.3705
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "drawer_l0",
@@ -141,7 +141,7 @@
         0.1554,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -166,7 +166,7 @@
         0.3201,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -191,7 +191,7 @@
         0.4849,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -216,7 +216,7 @@
         0.6496,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -241,7 +241,7 @@
         0.1554,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -266,7 +266,7 @@
         0.3201,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -291,7 +291,7 @@
         0.4849,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -316,7 +316,7 @@
         0.6496,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -341,7 +341,7 @@
         0.6935,
         0.39
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -366,7 +366,7 @@
         0.7475,
         -0.2667
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "bed1",
@@ -381,7 +381,7 @@
         0.7475,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top",
+      "look": "lib:furniture_oak/few/top",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -422,7 +422,7 @@
         0.7475,
         0.2667
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "case_side_l",
@@ -437,7 +437,7 @@
         0.9675,
         -0.0175
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few",
       "draw": {
         "shape": "cut",
         "outline": [
@@ -514,7 +514,7 @@
         0.9675,
         -0.0175
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few",
       "draw": {
         "shape": "cut",
         "outline": [
@@ -591,7 +591,7 @@
         0.9675,
         -0.3905
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "case_top",
@@ -606,7 +606,7 @@
         1.1875,
         -0.175
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "drawer_case_0",
@@ -621,7 +621,7 @@
         0.817,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few/front"
     },
     {
       "id": "drawer_case_1",
@@ -636,7 +636,7 @@
         0.817,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few/front"
     },
     {
       "id": "drawer_case_2",
@@ -651,7 +651,7 @@
         0.817,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few/front"
     },
     {
       "id": "pigeon_shelf",
@@ -666,7 +666,7 @@
         0.882,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -691,7 +691,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_2",
@@ -706,7 +706,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_3",
@@ -721,7 +721,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_4",
@@ -736,7 +736,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_5",
@@ -751,7 +751,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_6",
@@ -766,7 +766,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_7",
@@ -781,7 +781,7 @@
         1.02,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pigeon_top",
@@ -796,7 +796,7 @@
         1.158,
         -0.251
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "small_0",
@@ -811,7 +811,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -836,7 +836,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -861,7 +861,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -886,7 +886,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -911,7 +911,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",
@@ -936,7 +936,7 @@
         0.817,
         -0.115
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:desk_brass",

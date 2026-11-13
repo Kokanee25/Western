@@ -1,0 +1,57 @@
+{
+  "_doc": "His bag (#819; Sean's A on #823; ref experiments/prop_lab/refs/doctor/bag_doctors_leather_1890_1930_wellcome.jpg): an 1880s physician's Gladstone bag, 40 cm long, dark brown cross-grained cowhide scuffed pale at its corners, a hinged brass frame with a lock plate, a strap and buckle near each end, a rolled leather handle. Made by Rodin from three realistic pictures (the Character Studio's prop-pictures and prop3d, card cards/props/doctors_bag.yaml; tools/blender/props/doctors_bag_rodin.py: cut to 5,000 triangles, its own painted texture, look model:doctors_bag). Two members: the body (a leather shell with his instruments in it, not solid: wood `hay` gives the box the bag's ~3 kg; it burns; a ball goes through) and the handle on it. Stands on the hall's floor under his coat. Its instruments aren't props yet: nothing comes out of it. Written by tools/props/doctor.py.",
+  "id": "doctors_bag",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "leather",
+  "look": "model:doctors_bag",
+  "drawn_bounds": true,
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.3998,
+        0.2296,
+        0.2
+      ],
+      "at": [
+        0.0,
+        0.1144,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "model:doctors_bag",
+      "draw": {
+        "shape": "mesh",
+        "model": "doctors_bag",
+        "part": "body"
+      }
+    },
+    {
+      "id": "handle",
+      "kind": "trim",
+      "size": [
+        0.1245,
+        0.0597,
+        0.0195
+      ],
+      "at": [
+        0.0,
+        0.2532,
+        0.0
+      ],
+      "wood": "leather",
+      "look": "model:doctors_bag",
+      "draw": {
+        "shape": "mesh",
+        "model": "doctors_bag",
+        "part": "handle"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}
