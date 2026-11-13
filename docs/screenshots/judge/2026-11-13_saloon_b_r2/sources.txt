@@ -1,0 +1,7 @@
+a front build/r2/front.png
+b corner build/r2/corner.png
+c rear build/r2/rear.png
+d door build/r2/door.png
+e bar build/r2/bar.png
+f dance build/r2/dance.png
+g gallery build/r2/gallery.png
