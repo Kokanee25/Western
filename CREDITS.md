@@ -140,3 +140,18 @@ of it is in the game yet:
   cut into a steady bed by `experiments/sound_lab/fiddle/crowd_bed.py`; a lab stand-in, not in the game.
 - **"The Soldier's Joy"**, traditional, as printed in O'Neill's *Music of Ireland* (1903), No. 1642,
   public domain; the ABC transcription from music21's corpus (`oneills1850`; music21 is BSD-3).
+- **"Arkansas Traveller"**, traditional, as printed in *Ryan's Mammoth Collection* (1883), public domain;
+  the ABC transcription from music21's corpus (`ryansMammoth`), turned into note data by
+  `experiments/sound_lab/fiddle/abc_tune.py`.
+- **"Devil's Dream"** and **"Turkey in the Straw"** (printed as "Old Zip Coon"), traditional, as printed in
+  *Ryan's Mammoth Collection* (1883), public domain; ABC from music21's corpus (`ryansMammoth`).
+- **"Oh! Susanna"** (Stephen Foster, 1848), **"Buffalo Gals"** (1844), **"Sailor's Hornpipe"** (the College
+  Hornpipe, 18th century) and **"Red River Valley"** (1870s-1890s): public-domain melodies, written out
+  for Salt Creek in `experiments/sound_lab/fiddle/tunes/` (our own ABC; the notes of the first three
+  checked against the Nottingham Music Database's versions, GPL, which aren't copied or shipped).
+- **"Cotton-Eyed Joe"**, traditional (before 1861), public domain: written out for Salt Creek in
+  `experiments/sound_lab/fiddle/tunes/` (our own ABC; its notes checked against The Session's setting,
+  which isn't copied or shipped).
+- **"The Yellow Rose of Texas"** (Firth, Pond & Co., 1858), public domain: written out for Salt Creek in
+  `experiments/sound_lab/fiddle/tunes/` (our own ABC; its notes checked against The Session's settings,
+  which aren't copied or shipped).

@@ -25,7 +25,8 @@ How it's played (our own rules, from how old-time fiddling is described, not fro
 Each note: t, dur (s), midi, cents (where the finger lands, off the true pitch), string (G D A E), finger (0 open, 1-4), stroke (index), slur (tied to
 the note before in one stroke), bow (down/up), speed (bow m/s), pressure (0-1, of the most a
 fiddler leans), pos (bow from the bridge, of the string's length), accent, slide_from (midi or
-null), slide_s, voice (melody, drone, double).
+null), slide_s, voice (melody, drone, double); a melody note also its bar (0 the pickup) and unit
+(its start in the tune's running notes, unswung: the beat grid a banjo plays to).
 Strokes: index, t0, t1, dir, strings, pressure, speed, pos.
 """
 import json
@@ -44,7 +45,7 @@ PITCH = {"C": 60, "D": 62, "E": 64, "F": 66, "G": 67, "A": 69, "B": 71,  # K:D (
          "c": 73, "d": 74, "e": 76, "f": 78, "g": 79, "a": 81, "b": 83}
 # The bars' chords (D major; bar 4's G E E the dominant, A). (D major, the A bar the dominant).
 CHORDS_A = ["D", "D", "D", "D", "A", "D", "D", "D", "D"]  # pickup counts as bar 0
-CHORD_TONES = {"D": {62, 66, 69}, "A": {69, 73, 64}, "G": {67, 71, 62}}
+CHORD_TONES = {"D": {62, 66, 69}, "A": {69, 73, 64}, "G": {67, 71, 62}, "E": {64, 68, 71}, "C": {60, 64, 67}}
 
 STRINGS = {"G": 55, "D": 62, "A": 69, "E": 76}
 ORDER = ["G", "D", "A", "E"]
@@ -89,7 +90,10 @@ def parse(abc):
     return out
 
 
-def arrange(tempo_half=108.0, seed=1882):
+def arrange(tempo_half=108.0, seed=1882, phrases=None, chords=None, title=None, source=None):
+    """The tune as played. `phrases`: [(notes, rep)], notes [(midi or None for a rest, units, bar)], a
+    unit the tune's running note (an eighth in Soldier's Joy's cut time, a sixteenth in a 2/4 reel);
+    `chords`: a chord name per bar (D, G, A). Default: Soldier's Joy."""
     rnd = random.Random(seed)
     eighth = 60.0 / tempo_half / 4.0
     swing = 0.55
@@ -97,7 +101,12 @@ def arrange(tempo_half=108.0, seed=1882):
     strokes = []
     t_eighths = 0.0
     lead = 0.3  # a breath before the first note
-    phrases = [(parse(ABC_A), 0), (parse(ABC_A2), 1)]
+    if phrases is None:
+        phrases = [(parse(ABC_A), 0), (parse(ABC_A2), 1)]
+        chords = CHORDS_A
+        title = "Soldier's Joy (A part twice)"
+        source = ("O'Neill's Music of Ireland (1903) No. 1642, via music21's corpus (oneills1850); "
+                  "traditional, public domain")
     direction = "up"  # the pickup comes up-bow so the bar starts down
     for phrase, rep in phrases:
         run = 0  # position within a run of eighths, for the shuffle
@@ -107,7 +116,12 @@ def arrange(tempo_half=108.0, seed=1882):
             if bar != last_bar:
                 run = 0  # the shuffle starts again on each bar's downbeat
                 last_bar = bar
-            chord = CHORDS_A[min(bar, len(CHORDS_A) - 1)]
+            chord = chords[min(bar, len(chords) - 1)]
+            if midi is None:  # a rest: the bow lifts, the time goes by
+                t_eighths += n8
+                run = 0
+                prev_dur = None
+                continue
             # swing: an eighth on the beat is long, off it short
             on_beat = (t_eighths % 2) < 1e-6
             start = lead + _swung(t_eighths, eighth, swing)
@@ -115,7 +129,9 @@ def arrange(tempo_half=108.0, seed=1882):
             dur = end - start
             s, f = string_finger(midi)
             slur = False
-            if n8 == 1:
+            if n8 < 1 and prev_dur is not None and prev_dur < 1:
+                slur = True  # a triplet's notes in one bow
+            elif n8 == 1:
                 # Nashville shuffle on runs of eighths: notes 1-2 slurred, 3 and 4 separate.
                 if prev_dur == 1 and run % 4 == 1 and k > 0:
                     slur = True
@@ -139,6 +155,8 @@ def arrange(tempo_half=108.0, seed=1882):
             slide = None
             if n8 >= 4 and midi == 74:
                 slide = 73  # into the held d from its leading note
+            elif n8 >= 4 and f > 0:
+                slide = midi - 1  # into any other held stopped note from a semitone under
             elif bar >= 1 and midi == 66 and on_beat and rnd.random() < 0.5:
                 slide = 65  # the bar's F# smeared up from F natural, as old-time players do
             # where the finger lands: a few cents off each time (an open string is where it's tuned)
@@ -147,7 +165,7 @@ def arrange(tempo_half=108.0, seed=1882):
                           "finger": f, "stroke": st["index"], "slur": slur, "bow": st["dir"],
                           "pressure": round(pressure, 3), "accent": round(accent, 2), "pos": 0.0,
                           "speed": 0.0, "slide_from": slide, "slide_s": 0.06 if slide else 0.0,
-                          "voice": "melody"})
+                          "voice": "melody", "bar": bar, "unit": round(t_eighths, 4)})
             # drones and double stops
             if n8 >= 2 and midi in (74, 69):
                 # the held d with F# under it on the D string (a sixth); the open A with the open D
@@ -158,7 +176,7 @@ def arrange(tempo_half=108.0, seed=1882):
                     st["strings"].append(ls)
             else:
                 beside = {"G": "D", "D": "A", "A": "D", "E": "A"}[s]
-                if STRINGS[beside] in CHORD_TONES[chord] and (n8 >= 2 or on_beat or slur):
+                if STRINGS[beside] % 12 in {m % 12 for m in CHORD_TONES[chord]} and (n8 >= 2 or on_beat or slur):
                     notes.append(_extra(notes[-1], STRINGS[beside], beside, 0, "drone", 0.45))
                     if beside not in st["strings"]:
                         st["strings"].append(beside)
@@ -187,8 +205,8 @@ def arrange(tempo_half=108.0, seed=1882):
                 n["speed"] = st["speed"]
                 n["pos"] = st["pos"]
     notes.sort(key=lambda n: (n["t"], n["voice"] != "melody"))
-    return {"tune": "Soldier's Joy (A part twice)",
-            "source": "O'Neill's Music of Ireland (1903) No. 1642, via music21's corpus (oneills1850); traditional, public domain",
+    return {"tune": title,
+            "source": source,
             "tempo_half_bpm": tempo_half, "tuning": STRINGS, "seed": seed,
             "length_s": round(max(n["t"] + n["dur"] for n in notes), 3), "notes": notes, "strokes": strokes}
 
@@ -201,7 +219,7 @@ def _swung(e, eighth, swing):
 
 
 def _extra(melody, midi, s, f, voice, level):
-    n = dict(melody)
+    n = {k: v for k, v in melody.items() if k not in ("bar", "unit")}
     n.update({"midi": midi, "cents": 0.0 if f == 0 else round(melody["cents"] * -0.5, 1), "string": s, "finger": f,
               "voice": voice, "slur": melody["slur"],
               "pressure": round(melody["pressure"] * level, 3), "slide_from": None, "slide_s": 0.0})

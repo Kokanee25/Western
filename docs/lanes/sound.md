@@ -12,6 +12,14 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 ## Open
 - **The fiddler in the game (#799)**: our own bowed-string model (B, Sean's pick on #790); Soldier's Joy as
   note data; then the piano player with it (one music system, week 3; the first saloon entry, #810).
+- **The band's instruments, our own models (#790's follow-ons, `experiments/sound_lab/fiddle/` README)**:
+  the banjo (gut on calfskin, clawhammer, take 3 Sean's "way better", measured against Macon 1924; steel and a
+  modern open-back with three-finger rolls on the Banjo Bench, waiting on Sean's round-1 answers), bones,
+  tambourine, harmonica (against Jenkins 1924), the saloon piano (take 2, against Morton 1924 and Confrey
+  1921; "a bit digital" after take 1), `band.py` (any tune, any players), ten fiddle tunes (two drunk), and
+  Payday Night, an original reel the band plays (`tunes/payday_night.abc`). One page an instrument and one for
+  the band (links in `experiments/sound_lab/results/2026-11-10_fiddle/README.md`). Left for #822: the
+  cornet and the drums; its piano and banjo are these.
 - **Voiced lines (#807)**: one script a mission as data (`docs/scripts/`, README there) and one artifact page
   each, the listening board (`docs/scripts/board.html`, Sean's notes and picks in its database). The sheriff
   on the road's script is written (66 lines, 5 speakers; page https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX),
