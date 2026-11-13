@@ -15,7 +15,12 @@ extends Node3D
 ##   thrown (Blast's push for anything loose) and breaks if it lands hard;
 ## - **in a fire:** flames on it for `heat_seconds` crack it (thermal shock).
 ## Losing what it stands on (its table going over, the shelf burning) it falls with it; hung on
-## a nail (a sconce: "hangs"), losing what the nail's in (the wall's board shot out or burnt).
+## a nail (a sconce: "hangs"), losing what the nail's in (the wall's board shot out or burnt); hung
+## by a hook ("hangs": {"hook"}: a hanging lamp, #866), losing what's over the hook (the joist
+## broken, burnt or fallen). Hung by a hook it swings ("swing": its pivot, length and damping): when
+## what it hangs from moves (a dance floor working over it), a blast or a knock pushes it
+## (`push_swing`); the swing is drawn (its model and lights turned about the hook), not simulated,
+## so it costs no body.
 ##
 ## Breaking: shards of its glass fly (on with what broke it, the rest outward and down), the
 ## parts that come through whole fall as their own piece, the glass sound, people hear it, the
@@ -53,6 +58,25 @@ var _under := []  # [[StructureMember or null for fixed ground, its position]]
 var _footed := false
 var _v_before := Vector3.ZERO
 var _lamp_list: Array[Node] = []
+## Hung by a hook (#866): what it swings about, what it hangs from, and its swing (the bob's
+## sideways angles about x and z, radians, and their rates).
+var _pivot: Node3D
+var _pivot_rest := Vector3.ZERO
+var _anchor: StructureMember
+var _anchor_rest := Vector3.ZERO
+var _anchor_last := Vector3.INF
+var _anchor_v := Vector3.ZERO
+var _theta := Vector2.ZERO
+var _omega := Vector2.ZERO
+var _swinging := false
+## Swinging, it has left the batch (drawn on its own, as a prop that moves must be).
+var _unbatched := false
+## The most a swing leans (radians): past it, it's against the joist.
+const MAX_SWING := 0.7
+## Its hook looks this far over itself for what it hangs from (m).
+const HOOK_REACH := 0.06
+## Pushed faster than this (m/s) it comes off its hook instead of swinging.
+const OFF_HOOK := 4.0
 
 
 func _ready() -> void:
@@ -67,11 +91,19 @@ func _ready() -> void:
 	_lamp_list = find_children("*", "OilLamp", true, false)
 	for lamp in _lamp_list:
 		_take_hitbox(lamp)
+		_onto_pivot.call_deferred(lamp)
 	# (The town's callers add a lamp's light after it's built: PropLibrary's "light_height".)
 	child_entered_tree.connect(func(n: Node) -> void:
 		if n is OilLamp:
 			_lamp_list.append(n)
-			_take_hitbox.call_deferred(n))
+			_take_hitbox.call_deferred(n)
+			_onto_pivot.call_deferred(n))
+
+
+## A light added to a lamp that swings swings with it (onto its pivot, where it is).
+func _onto_pivot(n: Node) -> void:
+	if _pivot and is_instance_valid(n) and n.get_parent() == self and not loose:
+		n.reparent(_pivot, true)
 
 
 func _take_hitbox(lamp: Node) -> void:
@@ -134,6 +166,16 @@ func _build() -> void:
 			else:
 				push_warning("GlassProp: no model %s" % other)
 	add_child(model)
+	if definition.has("swing"):
+		# Its model (and its lights, as they come) on a pivot at its hook, turned as it swings.
+		_pivot = Node3D.new()
+		_pivot.name = "Swing"
+		_pivot_rest = PropKit.vec(definition.swing.get("pivot", [0.0, size.y, 0.0]))
+		_pivot.position = _pivot_rest
+		add_child(_pivot)
+		remove_child(model)
+		_pivot.add_child(model)
+		model.position -= _pivot_rest
 	var shape_box := AABB(Vector3(-size.x * 0.5, 0.0, -size.z * 0.5), size)
 	if definition.get("fit", false):
 		# As PropLibrary fits a drawn prop: scaled to the manifest's height, its anchor (a wall
@@ -159,7 +201,13 @@ func _build() -> void:
 	body.set_meta(&"ballistic_thickness", float(definition.get("wall", 0.004)) * 2.0)
 	body.set_meta(&"glass_prop", self)
 	var cs := CollisionShape3D.new()
-	if definition.get("fit", false) and definition.get("shape", "box") == "cylinder":
+	if definition.has("hit"):
+		# Its body only the part a ball breaks (a hanging lamp's, not its chain's).
+		var hb := BoxShape3D.new()
+		hb.size = PropKit.vec(definition.hit.size)
+		cs.shape = hb
+		cs.position = PropKit.vec(definition.hit.at)
+	elif definition.get("fit", false) and definition.get("shape", "box") == "cylinder":
 		# Round (it rolls): a cylinder the model's height, as wide as its narrower side.
 		var cyl := CylinderShape3D.new()
 		cyl.radius = minf(shape_box.size.x, shape_box.size.z) * 0.5
@@ -200,6 +248,8 @@ func _physics_process(delta: float) -> void:
 			# on its own frame, so a sconce whose wall a blast took fell a frame sooner or later.
 			_check_t = posmod(hash(name), 1000) / 1000.0 * CHECK_EVERY
 		return
+	if _pivot:
+		_swing_step(delta)
 	_check_t -= delta
 	if _check_t > 0.0:
 		return
@@ -227,7 +277,12 @@ func _find_footing() -> void:
 	q.shape = box
 	q.transform = Transform3D(global_basis, global_position + global_basis.y * (0.002 - FOOT_REACH * 0.5))
 	var nails: Array = definition.get("hangs", {}).get("nails", [])
-	if not nails.is_empty():
+	var hook: Variant = definition.get("hangs", {}).get("hook")
+	if hook != null:
+		# Hung by a hook: what's just over it (a joist's underside, a beam).
+		box.size = Vector3(0.05, HOOK_REACH, 0.05)
+		q.transform = Transform3D(global_basis, global_transform * (PropKit.vec(hook) + Vector3.UP * (HOOK_REACH * 0.5 - 0.002)))
+	elif not nails.is_empty():
 		# Hung on a nail (a sconce's back plate): what's behind it, up to KitProp.WALL_REACH back.
 		var p := PropKit.vec(nails[0])
 		box.size = Vector3(0.03, 0.03, KitProp.WALL_REACH)
@@ -238,6 +293,9 @@ func _find_footing() -> void:
 		var c: Object = hit.collider
 		if c is StructureMember:
 			_under.append([c, (c as StructureMember).global_position])
+			if hook != null and _anchor == null:
+				_anchor = c as StructureMember
+				_anchor_rest = _anchor.global_position
 			# A kit prop it stands on going over takes it at once (not at the next look: left
 			# frozen a moment, it's a fixed thing the table rises into).
 			var owner_prop := (c as Node).get_parent()
@@ -270,6 +328,7 @@ func wake(velocity := Vector3.ZERO) -> void:
 	if loose or broken:
 		return
 	loose = true
+	_swinging = false
 	StaticBatch.release_in(get_tree(), self)
 	model.reparent(body, true)
 	for lamp in _lamps():
@@ -278,6 +337,64 @@ func wake(velocity := Vector3.ZERO) -> void:
 	body.sleeping = false
 	body.linear_velocity = velocity
 	_v_before = velocity
+
+
+# --- Swinging on its hook (#866) -----------------------------------------------------------------
+
+## Pushed at its bob (`velocity`, m/s, world): it swings (a hand, a knock, a blast's wind).
+func push_swing(velocity: Vector3) -> void:
+	if _pivot == null or loose or broken:
+		return
+	var local := global_basis.inverse() * velocity
+	_omega += Vector2(local.x, local.z) / _length()
+	_swinging = true
+
+
+## How far it leans now (radians, the bob's sideways angles about x and z), for tests and the bridge.
+func swing_angle() -> Vector2:
+	return _theta
+
+
+func _length() -> float:
+	return maxf(float(definition.get("swing", {}).get("length", 0.7)), 0.1)
+
+
+## A damped pendulum about its hook, driven by what it hangs from moving under it (its
+## acceleration: a joist working as the dancers stamp), drawn by turning its pivot. Idle (nothing
+## moving, no swing) it does nothing but look at its joist.
+func _swing_step(dt: float) -> void:
+	var drive := Vector3.ZERO
+	var offset := Vector3.ZERO
+	if is_instance_valid(_anchor):
+		var p := _anchor.global_position
+		if _anchor_last != Vector3.INF and dt > 0.0:
+			var v := (p - _anchor_last) / dt
+			drive = ((v - _anchor_v) / dt).limit_length(60.0)
+			_anchor_v = v
+		_anchor_last = p
+		offset = p - _anchor_rest
+	if drive.length_squared() > 1e-6:
+		_swinging = true
+	if not _swinging and offset.length_squared() < 1e-8:
+		return
+	var swing: Dictionary = definition.get("swing", {})
+	var length := _length()
+	var local_a := global_basis.inverse() * drive
+	var acc := -(9.81 / length) * _theta - float(swing.get("damping", 0.3)) * _omega - Vector2(local_a.x, local_a.z) / length
+	_omega += acc * dt
+	_theta += _omega * dt
+	if _theta.length() > MAX_SWING:
+		_theta = _theta.limit_length(MAX_SWING)
+		_omega *= 0.5
+	if not _unbatched:
+		_unbatched = true
+		StaticBatch.release_in(get_tree(), self)
+	_pivot.transform = Transform3D(Basis.from_euler(Vector3(-_theta.y, 0.0, _theta.x)), _pivot_rest + global_basis.inverse() * offset)
+	if _theta.length() < 0.002 and _omega.length() < 0.004 and drive.length_squared() < 1e-6:
+		_swinging = false
+		_theta = Vector2.ZERO
+		_omega = Vector2.ZERO
+		_pivot.transform = Transform3D(Basis.IDENTITY, _pivot_rest + global_basis.inverse() * offset)
 
 
 # --- What breaks it ------------------------------------------------------------------------------
@@ -297,7 +414,10 @@ func _on_body_entered(other: Node) -> void:
 	if closing >= float(definition.get("breaks_at", 3.0)):
 		shatter(body.global_position + Vector3.UP * 0.05, (v - other_v).normalized())
 	elif not loose and other_v.length() > LOOSE_FROM:
-		wake(other_v * 0.5)  # knocked over by what struck it
+		if _pivot and other_v.length() * 0.5 < OFF_HOOK:
+			push_swing(other_v * 0.5)  # knocked: it swings on its hook
+		else:
+			wake(other_v * 0.5)  # knocked over by what struck it
 
 
 func _on_exploded(at: Vector3, kg: float) -> void:
@@ -329,6 +449,9 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 		local.z = maxf(local.z, 0.0)
 		local.y = maxf(local.y, 0.0)
 		v = global_basis * local
+	if _pivot and not loose and v.length() < OFF_HOOK:
+		push_swing(v)  # hung by a hook: the blast swings it
+		return
 	if v.length() >= LOOSE_FROM:
 		if loose:
 			body.linear_velocity += v

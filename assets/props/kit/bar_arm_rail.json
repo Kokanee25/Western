@@ -1,0 +1,35 @@
+{
+  "_doc": "The bar's arm rail (#866; refs experiments/prop_lab/refs/saloon/arm_rail_trinidad_saloon_1880s.jpg): a 2 1/2 in brass tube 2.9 m long on four brass saddles, set along a bar section's top at its front edge where the drinkers' arms rest (bar space: x 0, y 1.095, z 0.455). Its own kit prop, not a member of `bar` (saloon B's bars stand in the valley: a member added to every section tipped the card-game chair tests, #834); it settles onto the bar's top and comes down with it. Old brass baked the gun way (tools/blender/props/saloon_s1.py). One member, wood iron (a tube: `solid` 0.07; StructureMember.weight still counts the inside as char, so it weighs ~25 kg for a real ~8). 1 physics body. Written by tools/props/saloon.py.",
+  "id": "bar_arm_rail",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "iron",
+  "splits_below": 0.1,
+  "blow_wood_share": 0.3,
+  "members": [
+    {
+      "id": "rail",
+      "kind": "post",
+      "size": [
+        2.9,
+        0.0776,
+        0.0636
+      ],
+      "at": [
+        0.0,
+        0.0388,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:bar_rails",
+      "draw": {
+        "shape": "mesh",
+        "model": "bar_rails",
+        "part": "ArmRail"
+      },
+      "solid": 0.07
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}
