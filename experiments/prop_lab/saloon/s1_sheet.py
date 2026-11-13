@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Saloon B's batch S1 on the judging stand (#866; docs/briefs/prop-factory.md "Every prop is checked"):
+"""Saloon B's batches S1 and S2 on the judging stand (#866, #879; docs/briefs/prop-factory.md "Every prop is checked"):
 each group of props put down in the running town on the road east of it, on the lab's stand (a beam
 to hang lamps from, a boarded wall), at noon and at night by a hanging lamp lit
 on the beam, through the dev bridge (experiments/prop_lab/bridge.gd: `prop_stand`, `prop`, `prop_light`).
@@ -36,7 +36,7 @@ GROUPS = {
                    "cam": ((1.0, 1.65, 1.0), (0.0, 0.8, -0.45), 58), "night_lamp": 0.6},
     "box_stove": {"props": [("box_stove", 0.0, 0.0, -0.25, 0, None)],
                   "cam": ((1.8, 1.55, 2.0), (0.0, 1.0, -0.25), 56), "night_lamp": 1.2},
-    "faro": {"props": [("faro_table", 0.0, 0.0, 0.05, 0, None), ("lookout_stool", -0.85, 0.0, -0.45, 0, None)],
+    "faro": {"props": [("faro_table", 0.0, 0.0, 0.05, 0, None), ("lookout_stool", -0.92, 0.0, -0.3, 55, None)],
              "cam": ((0.85, 1.75, 1.75), (0.0, 0.72, 0.0), 52), "night_lamp": 0.0},
     "piano_stool": {"props": [("upright_piano", 0.0, 0.0, -0.55, 0, None), ("piano_stool", 0.05, 0.0, 0.25, 0, None)],
                     "cam": ((0.85, 1.25, 1.75), (0.0, 0.55, -0.05), 52), "night_lamp": 0.9},
@@ -44,6 +44,18 @@ GROUPS = {
               "cam": ((0.45, 1.75, 1.45), (0.0, 1.8, -0.9), 55), "night_lamp": 1.0},
     "bar": {"props": [("bar", 0.0, 0.0, -0.3, 0, None)],
             "cam": ((1.5, 1.85, 1.6), (0.0, 1.0, -0.3), 52), "night_lamp": 0.9},
+    # Batch S2 (#879): the bench against the stand's wall (its face at z -0.93), the saw and the fiddle
+    # on a table, the kegs on their rack, the cookstove.
+    "bench": {"props": [("wall_bench", 0.0, 0.0, -0.76, 0, None)],
+              "cam": ((1.35, 1.35, 1.25), (0.0, 0.5, -0.7), 52), "night_lamp": 0.9},
+    "saw_fiddle": {"props": [("table", 0.0, 0.0, 0.1, 0, None), ("handsaw", -0.12, TABLE, 0.28, 8, None), ("fiddle", 0.12, TABLE, -0.02, 25, None),
+                             ("fiddle_bow", -0.25, TABLE, -0.12, -12, None)],
+                   "cam": ((0.1, 1.38, 1.0), (0.0, 0.8, 0.08), 50), "night_lamp": 0.6},
+    "kegs": {"props": [("keg_rack", 0.0, 0.0, -0.55, 0, None)] + [("beer_keg", x, y, -0.55, 0, None) for y in (0.16, 0.88) for x in (-0.71, -0.24, 0.24, 0.71)]
+             + [("beer_keg", 0.95, 0.0, 0.25, 0, None)],
+             "cam": ((1.75, 1.45, 1.75), (0.0, 0.75, -0.45), 55), "night_lamp": 0.0},
+    "cookstove": {"props": [("cookstove", 0.0, 0.0, -0.45, 0, None)],
+                  "cam": ((1.3, 1.55, 1.5), (0.0, 0.65, -0.4), 55), "night_lamp": 1.1},
 }
 
 

@@ -14,16 +14,19 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
-- **Saloon B's batch S1 is made and judged, not placed** (#866): hanging lamps (plain and shaded: hooked,
-  they swing and fall with their joist), shot glass, schooner, decanter, the bartender's work board, the box
-  stove (its coals spill lit), faro table and lookout stool, piano stool, wheel of fortune, gold scales, till,
-  slat mat, deck and chips, and the bar's brass arm rail (`bar_arm_rail`, set on each bar's top). `tools/props/saloon.py`, `tools/blender/props/
-  saloon_s1.py`; judged on the lab's stand (`experiments/prop_lab/saloon/s1_sheet.py`, results
-  `experiments/prop_lab/results/2026-11-13_saloon_s1/`). Where each goes in saloon B and its physics bodies:
-  `experiments/prop_lab/README.md` "Saloon B, batch S1" (~215 bodies for the whole set as listed).
-- **Next:** batch S2 (#879: the wheel, lookout stool and till redone first; then the brief's rest of the twelve: the wall bench, handsaw, fiddle and bow, beer keg and
-  rack, beds and washstand sets, the owner's desk, the cookstove), then the placing session once #865's
-  body fix and #862's route land.
+- **Saloon B's batches S1 and S2 are made and judged, not placed** (#866, #879). S1: hanging lamps (plain and
+  shaded), shot glass, schooner, decanter, work board, box stove, faro table and lookout's high chair, piano
+  stool, wheel of fortune (the Evans dice wheel), gold scales, till, slat mat, deck and chips, the bar's arm rail.
+  S2: wall bench, handsaw, fiddle and bow, beer keg (full) and keg rack, cookstove. `tools/props/saloon.py`,
+  `saloon_s2.py`; `tools/blender/props/saloon_s1.py`, `saloon_s2.py`; the stand `experiments/prop_lab/saloon/
+  s1_sheet.py` (both batches' groups). Where each goes and its bodies: `experiments/prop_lab/README.md`
+  "Saloon B, batch S1" and "batch S2" (~365 bodies as listed).
+- **Open from S2's critic:** the keg rack is DIFFERENT (kegs lie on their sides in a rack: a kit prop is held
+  only under its own bottom, so a lying keg needs its own kit file, staves laid out round a horizontal axis);
+  CLOSE notes in the README (the wheel's dice, the fiddle's f-holes, the saw's teeth and grip, the scales'
+  size, the faro's chips, the kegs' colour).
+- **Next:** S3 (#892): the lying keg and its rack, the beds and the owner's desk; then the
+  placing session once #865's body fix and #862's route land.
 - The doctor's office is furnished (D1-D3 merged); his coat and bookcase wait on Sean's pick (#871). The
   Studio's branch `claude/studio-doctor-bag` is unmerged: Sean's OK needed.
 - Parked until after the slice: the Concord-bodied coach (#787; `tools/props/coach.py`, the boxy
@@ -37,6 +40,9 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - `model_paint` refuses a StandardMaterial3D; Rodin props need mipmapped paints.
 - Every kit member is a physics body standing: put small things on a prop as its `dress`, give hollow
   members `"solid"` (the share that's material) or their weight is the box's.
+- A kit prop is held only by what's under its own bottom (its local -y): turned on its side it goes loose.
+- The lab bridge's `prop_light HEIGHT` takes the kit's `light_height` (the flame); the lamp goes 0.16 under it,
+  as the game places it. A chimney whose flame isn't the table lamp's: `prop:chimney_glass@<y>`.
 - The dev bridge already has `stand` (the player): the lab's stand is `prop_stand`. The old factory sheet's
   spot before the saloon has a tied horse in view; the S1 stand is on the road east (40, 0, -5.4).
 - A repeated member's mesh draw isn't renumbered: lay meshed members out one by one.
