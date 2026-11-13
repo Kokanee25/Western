@@ -427,6 +427,7 @@ func _physics_step(delta: float) -> void:
 	else:
 		velocity.y -= tuning.gravity * delta
 	var falling := -velocity.y
+	_wade()
 	if on_floor and _step_up(delta):
 		# Up onto the step and this frame's way along it; the slide only settles him there.
 		var keep := velocity
@@ -440,6 +441,75 @@ func _physics_step(delta: float) -> void:
 	_update_head(delta, falling)
 	Sight.moved(self)  # where he is now, for the lines asked after him this tick
 	_footsteps()
+
+
+## Crawling among light loose pieces (rubble no heavier than `tuning.wade_max_kg`: a broken chair's,
+## a plank): they don't collide with you, and each one at or in you is shoved out of your way
+## (`wade_push`, plus your own crawl into it). A CharacterBody3D doesn't push rigid bodies, and the
+## engine moves it out of whatever overlaps it: a chair's seat lying on a man downed by its going
+## carried him half a metre with his own speed nil, and two of its pieces either side wedged him
+## (#834). A piece stays let through till it's clear of you (stood up among them, too); only
+## crawling lets new ones through: on your feet you stand on what's underfoot.
+const WADE_REACH := 0.12
+var _waded := {}  ## instance id -> the piece's RID, let through
+
+
+func _wade() -> void:
+	if not is_crawling and _waded.is_empty():
+		return
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = collision.shape
+	q.transform = collision.global_transform
+	q.margin = WADE_REACH
+	q.collision_mask = Layers.WORLD
+	q.exclude = [get_rid()]
+	var near := {}
+	var way := Vector3(velocity.x, 0.0, velocity.z)
+	for hit: Dictionary in World.space(self).intersect_shape(q, 32):
+		var rb := hit.collider as RigidBody3D
+		if rb == null or rb.mass > tuning.wade_max_kg or not rb.is_in_group(&"rubble"):
+			continue
+		var id := rb.get_instance_id()
+		if near.has(id):
+			continue
+		near[id] = true
+		if not _waded.has(id):
+			if not is_crawling:
+				continue
+			add_collision_exception_with(rb)
+			_waded[id] = rb.get_rid()
+		_shove_aside(rb, int(hit.shape), way)
+	for id: int in _waded.keys():
+		if not near.has(id):
+			PhysicsServer3D.body_remove_collision_exception(get_rid(), _waded[id])
+			_waded.erase(id)
+
+
+## A piece at or in you pushed out flat, away from your middle, at least `wade_push` (more if you're
+## crawling into it).
+func _shove_aside(rb: RigidBody3D, shape: int, way: Vector3) -> void:
+	var at := rb.global_transform * PhysicsServer3D.body_get_shape_transform(rb.get_rid(), shape).origin \
+			if shape >= 0 and shape < PhysicsServer3D.body_get_shape_count(rb.get_rid()) else rb.global_position
+	var dir := at - global_position
+	dir.y = 0.0
+	if dir.length() < 0.02:
+		dir = -global_basis.z
+		dir.y = 0.0
+	dir = dir.normalized()
+	var want := tuning.wade_push + maxf(way.dot(dir), 0.0)
+	var has := rb.linear_velocity.dot(dir)
+	if has >= want:
+		return
+	RubbleRest.let_go(rb)
+	if rb.freeze:
+		return  # (held by something else: a prop's own; it stays let through, unpushed)
+	rb.sleeping = false
+	rb.apply_central_impulse(dir * (want - has) * rb.mass)
+
+
+## Is this piece let through you now (`_wade`)?
+func wading_through(rb: Object) -> bool:
+	return rb != null and _waded.has(rb.get_instance_id())
 
 
 ## On a ladder (Ladder, train step 3): carried with it (a moving car's keeps you on the car),
@@ -643,7 +713,9 @@ func can_stand(height := -1.0) -> bool:
 	var params := PhysicsShapeQueryParameters3D.new()
 	params.shape = shape
 	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (height * 0.5 + 0.08))
-	params.exclude = [get_rid()]
+	var ex: Array[RID] = [get_rid()]
+	ex.append_array(_waded.values())  # (what you're crawling through doesn't keep you down: `_wade`)
+	params.exclude = ex
 	params.collision_mask = collision_mask
 	return World.space(self).intersect_shape(params, 1).is_empty()
 
