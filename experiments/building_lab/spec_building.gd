@@ -2222,6 +2222,9 @@ func _rafter_roof() -> void:
 		var base: Vector3 = (sl.eave as Vector3) + Vector3(0, wall_height, 0) - dir * over
 		var row := 0
 		var s := 0.0
+		# `levels.roof_tight`: the boards butted (a big roof seen from inside shows the 3 mm gaps as
+		# specks of sky, #867).
+		var roof_gap := 0.0 if bool(spec.levels.get("roof_tight", false)) else 0.003
 		while s < slope - 0.02:
 			var bw := minf(0.145, slope - s)
 			var sa := s - over  # along the slope from the wall's face
@@ -2243,7 +2246,7 @@ func _rafter_roof() -> void:
 					var nx := minf(cut, float(sp[1])) if float(sp[1]) - cut > 1.0 else float(sp[1])
 					var c := base + dir * (s + bw * 0.5) + normal * (float(rf[1]) + BOARD_T * 0.5)
 					c.z = (at + nx) * 0.5
-					add_member("roof/board_%d/%02d_%d" % [side, row, k], &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(bw - 0.003, BOARD_T, nx - at - 0.004), c, sl.basis)
+					add_member("roof/board_%d/%02d_%d" % [side, row, k], &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(bw - roof_gap, BOARD_T, nx - at - roof_gap), c, sl.basis)
 					k += 1
 					at = nx
 					cut += 4.9
@@ -2659,7 +2662,8 @@ func _finish_of(m: StructureMember) -> String:
 		return ""
 	for s: Array in spec.materials.get("surfaces", []):
 		if id.contains(String(s[0])):
-			return String(s[1])
+			# "-": the member keeps its own drawn shape and wood (a dressed bracket's cove).
+			return "" if String(s[1]) == "-" else String(s[1])
 	return "framing"
 
 

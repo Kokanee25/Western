@@ -74,7 +74,8 @@
 		},
 		"plate": 8.26,
 		"false_front": 10.5,
-		"roof_pitch": 9.46
+		"roof_pitch": 9.46,
+		"roof_tight": true
 	},
 	"frame": {
 		"_doc": "A balloon frame (Bell 1858; Woodward 1865): studs sill to plate through both storeys, the upper joists on a 1x6 ribbon let into them. The dance floor by the brief's section 7: 3x12 joists at 16 in over 18 ft (Hatfield 1880 pp.126-128), on two lines of 10x12 girders on 8x8 posts 10-14 ft apart (Hatfield p.142; How to Build Houses 1889). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing.",
@@ -2924,7 +2925,7 @@
 			},
 			"inside": {
 				"want": {
-					"entry": "painted_pale_tg",
+					"entry": "painted_buff_drop",
 					"age": "few"
 				},
 				"use": {
@@ -2960,17 +2961,17 @@
 				}
 			},
 			"oak": {
-				"_doc": "oak, varnished: the wainscot, the well's rail, the hall stair, the doors",
+				"_doc": "the wainscot, the well's rail, the hall stair, the doors: dark varnished wood (the library's walnut; furniture_oak drew a flat fresh orange the judges called plastic, round 1 of #867)",
 				"use": {
-					"entry": "furniture_oak",
+					"entry": "fine_walnut_tg",
 					"age": "few",
 					"role": "wall"
 				}
 			},
 			"timber": {
-				"_doc": "the posts, girders, brackets and the open joists over the bar: rough-sawn pine gone brown in a year of lamp smoke (R1; the library's oak drew them a flat orange, its planed pine a weathered grey: no dressed-timber entry yet)",
+				"_doc": "the posts, girders and the open joists over the bar: dark dressed timber (the library's walnut; R1 read as bark or concrete to the round 1 critic, oak a flat orange, planed pine a weathered grey: no dressed-timber entry yet)",
 				"use": {
-					"entry": "rough_pine_batten",
+					"entry": "fine_walnut_tg",
 					"age": "few",
 					"role": "wall"
 				}
@@ -3119,7 +3120,7 @@
 			],
 			[
 				"bracket/",
-				"timber"
+				"-"
 			],
 			[
 				"wall_post/",

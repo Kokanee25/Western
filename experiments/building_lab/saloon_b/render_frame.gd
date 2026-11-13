@@ -21,18 +21,18 @@ const VIEWS := {
 	# The sheet's views by its ids (saloon_b/sheet/request.json), for tools/buildings/judge_pairs.py.
 	"front": [Vector3(9.4, 2.4, -19.0), Vector3(9.4, 4.6, 0.0), 58.0, 11.0],
 	# The corner from the crossroads at dusk, the lamps lit (the sheet's); `corner_day` in the afternoon.
-	"corner": [Vector3(26.5, 1.9, -9.5), Vector3(13.6, 4.5, 3.4), 54.0, 18.6],
+	"corner": [Vector3(26.5, 1.9, -9.5), Vector3(13.6, 4.5, 3.4), 54.0, 19.4],
 	"corner_day": [Vector3(26.5, 1.9, -9.5), Vector3(13.6, 4.5, 3.4), 54.0, 15.5],
 	# The back and the yard from the north-east: the outside stair up the yard wall.
 	"rear": [Vector3(-13.5, 4.2, 33.0), Vector3(4.5, 4.4, 15.0), 58.0, 10.0],
 	# Inside from the corner doors: the bar on the right, the posts and girders, the well.
 	"door": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 15.5],
 	# From behind the bar's far end, back toward the corner doors and the card tables under the well.
-	"bar": [Vector3(1.2, 2.65, 12.3), Vector3(12.0, 2.4, 3.5), 72.0, 15.5],
+	"bar": [Vector3(1.2, 2.65, 12.3), Vector3(12.0, 2.4, 3.5), 72.0, 19.0],
 	# The dance hall from its back corner by the yard: the front's doors to the balcony, the well's rail.
-	"dance": [Vector3(0.9, 6.6, 12.6), Vector3(8.5, 6.2, 3.0), 72.0, 15.5],
+	"dance": [Vector3(0.9, 6.6, 12.6), Vector3(8.5, 6.2, 3.0), 72.0, 19.0],
 	# From the gallery's back corner over the rail: the well, the card tables, the bar under the girders.
-	"gallery": [Vector3(15.9, 6.55, 12.9), Vector3(9.0, 1.6, 6.0), 72.0, 15.5],
+	"gallery": [Vector3(15.9, 6.55, 12.9), Vector3(9.0, 1.6, 6.0), 72.0, 19.0],
 	# Not on the sheet: the side street, the yard, the bar room by lamp light (the two on the bar,
 	# the wheel in the well, the wall lamps).
 	"side": [Vector3(36.0, 2.6, 10.0), Vector3(16.5, 4.6, 10.6), 58.0, 15.5],
