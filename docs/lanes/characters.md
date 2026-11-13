@@ -19,6 +19,10 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - No working girl for now (#698).
 
 ## Open
+- **First-person hands, option 2** (#896, a lab: `experiments/viewmodel_rig/`, `tools/blender/fp_arms.py`): the
+  MetaHuman's hands cut at the wrist, modelled cuff and coat sleeve, a rig posed per gun from data (the Colt,
+  the Winchester). **Sean picked it (#913): next its promotion into the game, #914.** Its glb is private
+  (git-ignored); rebuild it from the Studio's frozen `sean_metahuman_s3` before the lab runs.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release). Then his first-person arms holding the
   guns (#693), week 3.
