@@ -337,7 +337,9 @@ func _hung_lamps() -> void:
 		var near := cam != null and cam.global_position.distance_to(light.global_position) < HUNG_SHADOW_REACH
 		if light.shadow_enabled != near:
 			light.shadow_enabled = near
-		light.omni_range = lamp.light_range * float(dials.hung_reach)
+		var reach := lamp.light_range * float(dials.hung_reach)
+		if light.omni_range != reach:  # (on change only: a range write redraws its shadow, review B4)
+			light.omni_range = reach
 		# OilLamp sets energy x flicker (not every frame under the render thread): what it set is
 		# read back only when it isn't what this wrote last.
 		var e := light.light_energy
