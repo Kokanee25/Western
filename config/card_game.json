@@ -16,7 +16,7 @@
     "open_at": 0.4, "open_chance": 0.7, "raise_at": 0.6, "raise_chance": 0.5, "call_at": 0.27, "bluff_call": 0.25
   },
   "cheat": {
-    "_doc": "Earl deals himself from the bottom now and then (No Law: the card player the red shirt believes has been cheating): dealing, `odds` that one of his cards is swapped for one that pairs his best. Counted in the report (`cheated`).",
+    "_doc": "Earl deals himself from the bottom now and then (No Law: the card player Cody believes has been cheating): dealing, `odds` that one of his cards is swapped for one that pairs his best. Counted in the report (`cheated`).",
     "who": "earl", "odds": 0.3
   },
   "say_chance": 0.55,

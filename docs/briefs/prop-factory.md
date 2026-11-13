@@ -128,7 +128,7 @@ shatter, wood breaks and burns, metal dents (the kit's bodies).
 | D1 | Lamp with a reflector | G (`like` the oil lamp) + `pbr:` tin | the surgery's lamp held over the table at night |
 | D2 | Medicine bottles (a shelf's worth, labelled), mortar and pestle, scales | G / L / L + K | the dispensary |
 | D2 | Desk, his chair | K (`lib:`) | the front office's `desk`; the kit chair if it passes beside it |
-| D3 | His bag, books, coat stand, chamber pot, blankets | R / K / K / G / cloth or B | the bag the one Rodin call |
+| D3 | Books (three rows and a pile) and a bookcase, the hall's pegs with his coat and hat, chamber pot, folded blankets, his bag | K printed / K (`lib:`) / K + B / G / B / R | made (#819); the books' faces printed on one sheet; the bag by Rodin (Sean's A, #823: $2.27 with a failed picture call) from pictures drawn realistic (the Studio's card `look`) |
 
 ## Kinds of member the kit uses (so a prop stands and falls right)
 

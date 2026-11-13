@@ -23,7 +23,13 @@ extends Node3D
 ## No Law's murder (NoLawMurder, config/moments/no_law_murder.json) is started from here: on the
 ## first night (no `nolaw.murder` in StoryState) at its `hour`, or sooner once you've played its
 ## `after_hands` hands at the table; `-- --no-murder` (or `murder_auto` false: the card game's tests)
-## leaves it out.
+## leaves it out, and No Law's morning after with it.
+##
+## The morning after (#796; the data's `morning`): the murder done and the clock come round to the
+## day, `nolaw.morning`; Earl's body taken to the undertaker's once you're off it (a recorded death:
+## nolaw.earl = undertaker, death.earl, gone from the world for good); the day folk at their posts
+## on the walks (`post.lot`) say the town's version of it when you pass (`talk`: lines by the story's
+## facts); from `sheriff_from` the dying sheriff's scene (SheriffDies) starts, once.
 
 const DATA := "res://config/valley_folk.json"
 ## `-- --no-folk`: the valley without them (the bench's before).
@@ -64,6 +70,14 @@ var kept_out := {}
 var murder: Moment
 var _murder_data := {}
 var _your_hands := 0
+## Gone for good (Earl to the undertaker's): never brought back (id -> true).
+var gone_for_good := {}
+## The dying sheriff's scene, once started (SheriffDies).
+var sheriff_scene: Moment
+## What the day folk have said (`talk`): [id, line id, text], and when each last spoke.
+var heard: Array = []
+var _spoke_at := {}
+var _said_n := {}
 
 
 func _init() -> void:
@@ -232,6 +246,15 @@ func post_of(p: Dictionary) -> Array:
 	if post.has("chair"):
 		var chair := props.get("chair_" + String(post.chair)) as KitProp
 		return [Seating.spot(chair), Seating.faces(chair)]
+	if post.has("lot"):
+		# Stood on a lot's walk or ground ([a, b] as lot_point's), facing `faces` (else the street).
+		var at_a: Array = post.at
+		var lot_id := String(post.lot)
+		var at := lot_point(lot_id, float(at_a[0]), float(at_a[1]), 0.05)
+		var fa: Array = post.get("faces", [float(at_a[0]), float(at_a[1]) - 6.0])
+		var look := lot_point(lot_id, float(fa[0]), float(fa[1]))
+		look.y = at.y + 1.5
+		return [at, look]
 	var bar: Node3D = props[String(post.get("behind", post.get("at_bar", "bar")))]
 	var b := _bounds(bar)
 	var t := bar.transform
@@ -390,6 +413,7 @@ func _process(delta: float) -> void:
 
 
 func _step(delta: float) -> void:
+	_ran += delta
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -407,7 +431,7 @@ func _step(delta: float) -> void:
 	var walk_h := float(data.get("walk_in_h", 0.5))
 	for p: Dictionary in data.people:
 		var id := StringName(p.id)
-		if p.has("act"):
+		if p.has("act") or gone_for_good.has(id):
 			continue
 		var hours: Array = p.hours
 		var want := in_hours(h, hours)
@@ -434,6 +458,8 @@ func _step(delta: float) -> void:
 				state[id] = &"in"
 	_last_hour = h
 	_maybe_murder(h)
+	_morning_step(h)
+	_talk_step()
 
 
 func _ready_once() -> bool:
@@ -507,6 +533,148 @@ func _maybe_murder(h: float) -> void:
 func start_murder(options := {}) -> Moment:
 	murder = Moment.start_named(MURDER, get_parent() as Node3D, null, options)
 	return murder
+
+
+# --- No Law's morning after (#796) --------------------------------------------------------------
+
+## The murder done and the clock round to the day: the morning; Earl to the undertaker's once
+## you're off him; the dying sheriff's scene from its hour.
+func _morning_step(h: float) -> void:
+	var md: Dictionary = data.get("morning", {})
+	if md.is_empty() or not murder_auto:
+		return
+	if not StoryState.has_fact("nolaw.morning"):
+		if StoryState.get_fact("nolaw.murder") != "done" or not in_hours(h, md.get("hours", [5.0, 19.5])):
+			return
+		_story("nolaw.morning", true)
+	if state.get(&"earl") == &"dead" and not gone_for_good.has(&"earl"):
+		var earl := folk_man(&"earl")
+		if earl == null or not _you_see(_body_at(earl), float(md.get("unseen_m", 30.0))):
+			to_undertaker(&"earl")
+	if (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and not StoryState.has_fact("nolaw.sheriff") \
+			and in_hours(h, [float(md.get("sheriff_from", 7.5)), float((md.get("hours", [5.0, 19.5]) as Array)[1])]):
+		start_sheriff_dies()
+
+
+## Earl's body (any of the dead) taken from where he lies to the undertaker's: out of the world
+## for good, and a recorded death (StoryState death.<id>; nolaw.earl = undertaker).
+func to_undertaker(id: StringName) -> void:
+	gone_for_good[id] = true
+	var man := folk_man(id)
+	people.erase(id)
+	state[id] = &"buried"
+	if man != null:
+		man.queue_free()
+	if id == &"earl":
+		_story("nolaw.earl", "undertaker")
+		_story("death.earl", String((data.get("morning", {}) as Dictionary).get("earl_death", "Earl, shot.")))
+
+
+## The dying sheriff's scene now (the clock, or the bridge's `moment sheriff_dies`).
+func start_sheriff_dies(options := {}) -> Moment:
+	sheriff_scene = Moment.start_named(&"sheriff_dies", get_parent() as Node3D, null, options)
+	return sheriff_scene
+
+
+func _story(key: String, value: Variant) -> void:
+	var c := _clock if _clock and is_instance_valid(_clock) else null
+	StoryState.set_fact(key, value, c.day if c else 1, hour())
+
+
+## A dead man's body's middle (his pelvis, limp).
+static func _body_at(man: HumanBody) -> Vector3:
+	var pelvis := man.parts.get(&"pelvis") as Node3D
+	return pelvis.global_position if pelvis else man.global_position
+
+
+## You're within `m` of `at` with it in front of you.
+func _you_see(at: Vector3, m: float) -> bool:
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	if p == null:
+		return false
+	var to := at - p.global_position
+	if to.length() > m:
+		return false
+	var fwd := p.get_forward()
+	fwd.y = 0.0
+	to.y = 0.0
+	return to.length() < 2.0 or fwd.normalized().dot(to.normalized()) > 0.0
+
+
+# --- What the day folk say when you pass (`talk`) -------------------------------------------------
+
+## Does the story hold `cond` ({fact: value | [values] | "*"; "!fact": anything = not set})?
+static func story_holds(cond: Dictionary) -> bool:
+	for k: String in cond:
+		if k.begins_with("_"):
+			continue
+		if k.begins_with("!"):
+			if StoryState.has_fact(k.substr(1)):
+				return false
+			continue
+		if not StoryState.has_fact(k):
+			return false
+		var want: Variant = cond[k]
+		var have: Variant = StoryState.get_fact(k)
+		if want is String and want == "*":
+			continue
+		if want is Array:
+			if not (want as Array).has(have):
+				return false
+		elif typeof(want) != typeof(have) or want != have:
+			return false
+	return true
+
+
+## The line the set `set_id` has for now ([entry id, text]), the words in turn; [] if none.
+func line_for(set_id: String) -> Array:
+	var talk: Dictionary = data.get("talk", {})
+	for e: Dictionary in (talk.get("sets", {}) as Dictionary).get(set_id, []):
+		if not story_holds(e.get("if", {})):
+			continue
+		var eid := String(e.id)
+		var n := int(_said_n.get(eid, 0))
+		var words: Array = e.get("words", [])
+		if words.is_empty() or (e.get("once", false) and n > 0):
+			continue
+		return [eid, String(words[n % words.size()])]
+	return []
+
+
+func _talk_step() -> void:
+	var talk: Dictionary = data.get("talk", {})
+	if talk.is_empty():
+		return
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	if p == null:
+		return
+	for pd: Dictionary in data.people:
+		if not pd.has("says"):
+			continue
+		var id := StringName(pd.id)
+		var man := folk_man(id)
+		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
+			continue
+		if man.global_position.distance_to(p.global_position) > float(talk.get("near_m", 4.0)):
+			continue
+		if _spoke_at.has(id) and _talk_clock() - float(_spoke_at[id]) < float(talk.get("gap_s", 20.0)):
+			continue
+		var l := line_for(String(pd.says))
+		if l.is_empty():
+			continue
+		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
+		_spoke_at[id] = _talk_clock()
+		man.face(p.global_position + Vector3.UP * 1.5)
+		Events.spoke.emit(man, String(l[1]))
+		heard.append([String(id), String(l[0]), String(l[1])])
+
+
+## Game seconds the folk have run (their talk's gaps).
+var _ran := 0.0
+
+
+func _talk_clock() -> float:
+	return _ran
 
 
 ## Who's where, for the bridge and the tests: {id: {state, at, seated, pose}}.

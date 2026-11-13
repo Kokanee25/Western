@@ -1,10 +1,10 @@
 {
-  "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): a walnut base with a drawer for the weights (its brass knob), a glazed walnut case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Walnut from the material library (F2 a few years, the doctor's; the period's cases were mahogany or walnut); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
+  "_doc": "A druggist's prescription balance in its case (#805; ref experiments/prop_lab/refs/doctor/scales_cased_balance_1860_1880_wellcome.jpg): an oak base with a drawer for the weights (its brass knob), a glazed oak case on it (corner posts, a top frame; glass sides, front and top: glass members, a ball breaks a pane as a window's), and inside a turned brass pillar, a brass beam on its knife edge with a pointer down to its scale, two small brass pans hung low on stirrups. Oak from the material library (a few years, the doctor's; the period's cases were mahogany or oak); the brass baked the gun way (tools/blender/props/doctor_d2.py; brass's members are the metal's own section, wood `iron` for its weight: brass is ~8.5 t/m3 to iron's 7.6). ~10 kg. Stands on the dispensary's counter; the pillar shot out drops the beam and pans. Written by tools/props/doctor.py.",
   "id": "scales",
   "kind": "members",
   "fixture": true,
   "in_game": false,
-  "wood": "walnut",
+  "wood": "oak",
   "splits_below": 0.4,
   "blow_wood_share": 0.5,
   "members": [
@@ -21,7 +21,7 @@
         0.0375,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few/top"
+      "look": "lib:furniture_oak/few/top"
     },
     {
       "id": "drawer",
@@ -36,7 +36,7 @@
         0.0375,
         0.131
       ],
-      "look": "lib:fine_walnut_tg/few",
+      "look": "lib:furniture_oak/few/front",
       "dress": [
         {
           "look": "pbr:scales",
@@ -61,7 +61,7 @@
         0.254,
         -0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "post1",
@@ -76,7 +76,7 @@
         0.254,
         -0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "post2",
@@ -91,7 +91,7 @@
         0.254,
         0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "post3",
@@ -106,7 +106,7 @@
         0.254,
         0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "rail_b",
@@ -121,7 +121,7 @@
         0.444,
         -0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "rail_f",
@@ -136,7 +136,7 @@
         0.444,
         0.099
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "rail_l",
@@ -151,7 +151,7 @@
         0.444,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "rail_r",
@@ -166,7 +166,7 @@
         0.444,
         0.0
       ],
-      "look": "lib:fine_walnut_tg/few"
+      "look": "lib:furniture_oak/few"
     },
     {
       "id": "pane_back",
