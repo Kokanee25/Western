@@ -1,5 +1,5 @@
 {
-  "_doc": "A cast-iron cookstove (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a kitchen range of the 1870s-80s (the trade catalogues' 'cook stove'), 86 cm wide, four cabriole legs under its firebox (left) and its oven (right), a cooking top 29 in up with four lids and a lifter, the firebox's door over its hearth lip, the oven's door with its nickel bands and latch, a nickel towel rail along the front, the pipe collar at the back over the firebox and three 60 cm lengths of 6 in pipe up to the flue (the placing session takes off what the ceiling doesn't want, or turns it to the wall's thimble). On a zinc-covered stove board. Saloon B's kitchen (1; the free lunch's) and the doctor's office (1, his kitchen). Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when it goes over. A fire source (`stove`, StoveFire): lit by the hour (5:00 to 21:00: breakfast to supper), its firebox glows at its door; knocked over, its coals spill and burn on the boards for 300 s (FireSystem.small_fire, 1.2 times a spill's heat). Baked the gun way (tools/blender/props/saloon_s2.py: cast iron black-leaded, rubbed to the iron at its edges and lids, rust where the kettle boils over; nickel; zinc). ~180 kg of iron. 12 physics bodies (its members) standing. Written by tools/props/saloon_s2.py.",
+  "_doc": "A cast-iron cookstove (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a kitchen range of the 1870s-80s (the trade catalogues' 'cook stove'), 86 cm wide, four cabriole legs under its firebox (left) and its oven (right), a cooking top 29 in up with four lids and a lifter, the firebox's door over its hearth lip, the oven's door with its nickel bands and latch, a nickel towel rail along the front, a high shelf on cast brackets over the back, the pipe collar at the back over the firebox and three 60 cm lengths of 6 in pipe up to the flue (the placing session takes off what the ceiling doesn't want, or turns it to the wall's thimble). On a zinc-covered stove board. Saloon B's kitchen (1; the free lunch's) and the doctor's office (1, his kitchen). Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when it goes over. A fire source (`stove`, StoveFire): lit by the hour (5:00 to 23:00: breakfast to the free lunch's last plate), its firebox glows at its door; knocked over, its coals spill and burn on the boards for 300 s (FireSystem.small_fire, 1.2 times a spill's heat). Baked the gun way (tools/blender/props/saloon_s2.py: cast iron black-leaded, rubbed to the iron at its edges and lids, rust where the kettle boils over; nickel; zinc). ~180 kg of iron. 12 physics bodies (its members) standing. Written by tools/props/saloon_s2.py.",
   "id": "cookstove",
   "kind": "members",
   "fixture": true,
@@ -24,7 +24,7 @@
     "seconds": 300.0,
     "heating": 1.2,
     "lit_from": 5,
-    "lit_until": 21,
+    "lit_until": 23,
     "glow": 0.5
   },
   "members": [

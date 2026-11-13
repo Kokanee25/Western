@@ -569,10 +569,10 @@ def wheel_face():
         a = 2 * math.pi * k / n
         d.line([(c + math.cos(a) * r0, c + math.sin(a) * r0), (c + math.cos(a) * r1, c + math.sin(a) * r1)], fill=gilt, width=5)
         am = 2 * math.pi * (k + 0.5) / n
-        rows = 3
+        rows = 2
         for j in range(rows):
             rad = r0 + (r1 - r0) * (j + 0.5) / rows
-            side = (r1 - r0) / rows * 0.74
+            side = (r1 - r0) / rows * 0.7
             die = Image.new("RGBA", (int(side) + 4, int(side) + 4), (0, 0, 0, 0))
             dd = ImageDraw.Draw(die)
             dd.rounded_rectangle([2, 2, side + 1, side + 1], radius=side * 0.16, fill=(226, 218, 196), outline=(30, 26, 24), width=2)

@@ -70,7 +70,7 @@ def wall_bench():
 # A carpenter's 26 in handsaw of the 1870s-80s (the Disston pattern: a taper-ground steel blade, a
 # breasted back, an apple-wood handle closed round the hand, fixed by four split brass saw nuts),
 # lying on its side: the blade along x (the toe at +x), the teeth toward +z, its flat on y.
-SAW = {"blade": 0.66, "heel": 0.17, "toe": 0.055, "thick": 0.0011, "handle": (0.16, 0.135, 0.022), "nuts": 4}
+SAW = {"blade": 0.66, "heel": 0.19, "toe": 0.045, "thick": 0.0011, "handle": (0.16, 0.135, 0.022), "nuts": 4}
 
 
 def handsaw():
@@ -78,7 +78,7 @@ def handsaw():
     hl, hh, ht = s["handle"]
     length = s["blade"] + hl - 0.02
     return {
-        "_doc": "A carpenter's handsaw (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the Disston pattern of the 1870s-80s, a 26 in taper-ground steel blade breasted along its back, 7 points to the inch, an apple-wood handle closed round the hand with four split brass saw nuts. Payday Night's: carried up the outside stair to cut through the dance floor. Lying on its side (the blade along x, the toe at +x, the teeth toward +z). Steel the gun way, the blade dulled and freckled with rust, bright along its teeth, the handle's varnish worn through where the hand goes (tools/blender/props/saloon_s2.py). A loose prop (LooseProp: one physics body; a ball holes the blade, a kick or a fall bends it). ~0.9 kg. Written by tools/props/saloon_s2.py.",
+        "_doc": "A carpenter's handsaw (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the Disston pattern of the 1870s-80s, a 26 in taper-ground steel blade breasted along its back, 5 1/2 points to the inch (a rip saw's), an apple-wood handle closed round the hand with four split brass saw nuts. Payday Night's: carried up the outside stair to cut through the dance floor. Lying on its side (the blade along x, the toe at +x, the teeth toward +z). Steel the gun way, the blade dulled and freckled with rust, bright along its teeth, the handle's varnish worn through where the hand goes (tools/blender/props/saloon_s2.py). A loose prop (LooseProp: one physics body; a ball holes the blade, a kick or a fall bends it). ~0.9 kg. Written by tools/props/saloon_s2.py.",
         "id": "handsaw", "kind": "loose", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:handsaw", "looks": {"Blade": "pbr:handsaw", "Handle": "pbr:handsaw", "Nuts": "pbr:handsaw"},
         "shape": "box", "size": r([length, ht, s["heel"] + 0.05]), "mass": 0.9, "wall": 0.0011, "hole_radius": 0.005,
@@ -129,13 +129,13 @@ def fiddle_bow():
 
 
 # --- The beer keg and its rack ------------------------------------------------------------------
-# A wooden half-barrel keg of lager (the brewery's: 15 1/2 gallons, ~59 l), smaller and stouter-hooped
-# than the whiskey barrel and built as it is (the kit's `barrel`): eight staves bulged as a cask's (the
-# barrel's fourteen narrower, but a keg is a fifth its weight in bodies), six iron hoops, a head at each
+# A wooden half-barrel keg of lager (the brewery's: 15 1/2 gallons, ~59 l), squat (S2 round 1's critic:
+# the first, tall and thin-hooped, read as a flour barrel), smaller than the whiskey barrel and built as it is (the kit's `barrel`): eight staves bulged as a cask's (the
+# barrel's fourteen narrower, but a keg is a fifth its weight in bodies), four heavy iron hoops, a head at each
 # end. Full, PropContents (beer runs from a hole and soaks the boards). Its staves' outer radius
 # r(y) = r_end + bulge * sin(pi y / H), as the barrel's.
-KEG = {"height": 0.62, "r_end": 0.18, "bulge": 0.042, "stave_t": 0.022, "staves": 8, "head_t": 0.025, "croze": 0.035,
-       "hoops": [0.04, 0.12, 0.22, 0.40, 0.50, 0.58], "hoop_w": 0.022}
+KEG = {"height": 0.56, "r_end": 0.19, "bulge": 0.05, "stave_t": 0.024, "staves": 8, "head_t": 0.025, "croze": 0.035,
+       "hoops": [0.045, 0.135, 0.425, 0.515], "hoop_w": 0.036}
 
 
 def _keg_r(y):
@@ -169,7 +169,7 @@ def beer_keg():
                  draw={"shape": "disc", "radius": r(ri), "segments": 24})]
     lo, hi = k["croze"], H - k["croze"]
     return {
-        "_doc": "A beer keg (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a wooden half-barrel keg of lager from the brewery, 15 1/2 gallons (~59 l), 62 cm high, stouter-hooped than a whiskey barrel; the kit's `barrel` (its look, wood and breaking, `like`) made smaller: eight oak staves bulged as a cask's, six iron hoops, a head at each end set in the croze. Full of beer (PropContents: a ball or an axe lets it run; ~59 kg of beer in a ~14 kg keg). Saloon B's store room and cellar (~12, on their racks: `keg_rack`), one in the work board's ice box, empties on the yard's pile. 10 physics bodies standing (8 staves, 2 heads): twelve are 120, so the placing session sets most of a rack's as drawn stand-ins and keeps a few real. Written by tools/props/saloon_s2.py.",
+        "_doc": "A beer keg (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a wooden half-barrel keg of lager from the brewery, 15 1/2 gallons (~59 l), squat, 56 cm high and 48 across its bulge, with four heavy iron hoops; the kit's `barrel` (its look, wood and breaking, `like`) made smaller: eight oak staves bulged as a cask's, a head at each end set in the croze. Full of beer (PropContents: a ball or an axe lets it run; ~59 kg of beer in a ~14 kg keg). Saloon B's store room and cellar (~12, on their racks: `keg_rack`), one in the work board's ice box, empties on the yard's pile. 10 physics bodies standing (8 staves, 2 heads): twelve are 120, so the placing session sets most of a rack's as drawn stand-ins and keeps a few real. Written by tools/props/saloon_s2.py.",
         "like": "barrel", "id": "beer_keg", "replaces": "", "in_game": False, "fixture": True,
         "holds": {"_doc": "Its inside (PropContents): from the bottom head's top to the top head's underside, the staves' inner radius at the heads and at the bulge: ~59 l, a half-barrel's.",
                   "from": r(lo), "to": r(hi), "radius": r([k["r_end"] - t, k["r_end"] + k["bulge"] - t])},
@@ -216,7 +216,8 @@ COOK = {"board": (1.16, 0.022, 0.96), "leg_h": 0.2, "leg": 0.05, "body": (0.86, 
         "firebox_x": -0.27, "fire_door": (0.24, 0.17, 0.03), "oven_door": (0.44, 0.33, 0.03), "oven_x": 0.17,
         "lids": [(-0.31, -0.06), (-0.31, 0.15), (0.03, -0.06), (0.03, 0.15)], "lid_r": 0.093,
         "pipe_r": 0.076, "pipe": [0.6, 0.6, 0.6], "pipe_at": (-0.14, -0.22),
-        "fire": {"radius": 0.4, "seconds": 300.0, "heating": 1.2, "lit_from": 5, "lit_until": 21, "glow": 0.5}}
+        "fire": {"radius": 0.4, "seconds": 300.0, "heating": 1.2, "lit_from": 5, "lit_until": 23, "glow": 0.5},
+        "shelf": (0.7, 0.2, 0.42)}
 
 
 def cookstove():
@@ -250,7 +251,7 @@ def cookstove():
         y += ln
     f = c["fire"]
     return {
-        "_doc": "A cast-iron cookstove (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a kitchen range of the 1870s-80s (the trade catalogues' 'cook stove'), 86 cm wide, four cabriole legs under its firebox (left) and its oven (right), a cooking top 29 in up with four lids and a lifter, the firebox's door over its hearth lip, the oven's door with its nickel bands and latch, a nickel towel rail along the front, the pipe collar at the back over the firebox and three 60 cm lengths of 6 in pipe up to the flue (the placing session takes off what the ceiling doesn't want, or turns it to the wall's thimble). On a zinc-covered stove board. Saloon B's kitchen (1; the free lunch's) and the doctor's office (1, his kitchen). Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when it goes over. A fire source (`stove`, StoveFire): lit by the hour (%d:00 to %d:00: breakfast to supper), its firebox glows at its door; knocked over, its coals spill and burn on the boards for %d s (FireSystem.small_fire, %.1f times a spill's heat). Baked the gun way (tools/blender/props/saloon_s2.py: cast iron black-leaded, rubbed to the iron at its edges and lids, rust where the kettle boils over; nickel; zinc). ~180 kg of iron. 12 physics bodies (its members) standing. Written by tools/props/saloon_s2.py." % (f["lit_from"], f["lit_until"], int(f["seconds"]), f["heating"]),
+        "_doc": "A cast-iron cookstove (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a kitchen range of the 1870s-80s (the trade catalogues' 'cook stove'), 86 cm wide, four cabriole legs under its firebox (left) and its oven (right), a cooking top 29 in up with four lids and a lifter, the firebox's door over its hearth lip, the oven's door with its nickel bands and latch, a nickel towel rail along the front, a high shelf on cast brackets over the back, the pipe collar at the back over the firebox and three 60 cm lengths of 6 in pipe up to the flue (the placing session takes off what the ceiling doesn't want, or turns it to the wall's thimble). On a zinc-covered stove board. Saloon B's kitchen (1; the free lunch's) and the doctor's office (1, his kitchen). Iron (`wood` iron: it doesn't burn or break; balls glance); the pipe's lengths stand on each other and come down when it goes over. A fire source (`stove`, StoveFire): lit by the hour (%d:00 to %d:00: breakfast to the free lunch's last plate), its firebox glows at its door; knocked over, its coals spill and burn on the boards for %d s (FireSystem.small_fire, %.1f times a spill's heat). Baked the gun way (tools/blender/props/saloon_s2.py: cast iron black-leaded, rubbed to the iron at its edges and lids, rust where the kettle boils over; nickel; zinc). ~180 kg of iron. 12 physics bodies (its members) standing. Written by tools/props/saloon_s2.py." % (f["lit_from"], f["lit_until"], int(f["seconds"]), f["heating"]),
         "id": "cookstove", "kind": "members", "fixture": True, "in_game": False, "wood": "iron", "look": "pbr:cookstove",
         "splits_below": 0.3, "blow_wood_share": 0.3,
         "stove": {"member": "body", "door": r([c["firebox_x"], y0 + 0.08, bz * 0.5 + 0.08]), "glow_at": r([c["firebox_x"], y0 + by - 0.14, bz * 0.5 + 0.04]),

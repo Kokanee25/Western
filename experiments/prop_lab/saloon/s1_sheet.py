@@ -36,7 +36,7 @@ GROUPS = {
                    "cam": ((1.0, 1.65, 1.0), (0.0, 0.8, -0.45), 58), "night_lamp": 0.6},
     "box_stove": {"props": [("box_stove", 0.0, 0.0, -0.25, 0, None)],
                   "cam": ((1.8, 1.55, 2.0), (0.0, 1.0, -0.25), 56), "night_lamp": 1.2},
-    "faro": {"props": [("faro_table", 0.0, 0.0, 0.05, 0, None), ("lookout_stool", -0.85, 0.0, -0.45, 0, None)],
+    "faro": {"props": [("faro_table", 0.0, 0.0, 0.05, 0, None), ("lookout_stool", -0.92, 0.0, -0.3, 55, None)],
              "cam": ((0.85, 1.75, 1.75), (0.0, 0.72, 0.0), 52), "night_lamp": 0.0},
     "piano_stool": {"props": [("upright_piano", 0.0, 0.0, -0.55, 0, None), ("piano_stool", 0.05, 0.0, 0.25, 0, None)],
                     "cam": ((0.85, 1.25, 1.75), (0.0, 0.55, -0.05), 52), "night_lamp": 0.9},

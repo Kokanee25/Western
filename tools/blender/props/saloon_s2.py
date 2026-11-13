@@ -57,38 +57,34 @@ def handsaw():
         back.append((x0 + L * u, zt - w))
     outline = [(x0, zt - 0.003), (x1, zt - 0.003)] + back[::-1]
     blade = [flat("b", outline, yb - t * 0.5, yb + t * 0.5)]
-    # The teeth: 7 to the inch, a row of points along the edge (each a flat triangle, both faces).
-    pitch = 0.0254 / 7
+    # The teeth: 5 1/2 to the inch, a row of points along the edge (each a flat triangle, both faces),
+    # their gullets cut into the blade.
+    pitch = 0.0254 / 5.5
     verts, faces = [], []
-    k = 0
     x = x0 + 0.01
     while x + pitch < x1:
         for yy in (yb - t * 0.5, yb + t * 0.5):
             base = len(verts)
-            verts += [(x, yy, zt - 0.003), (x + pitch, yy, zt - 0.003), (x + pitch * 0.35, yy, zt + 0.0016)]
+            verts += [(x, yy, zt - 0.003), (x + pitch, yy, zt - 0.003), (x + pitch * 0.3, yy, zt + 0.0035)]
             faces.append([base, base + 1, base + 2] if yy > yb else [base, base + 2, base + 1])
         x += pitch
-        k += 1
     blade.append(Part("t", False).add(verts, faces))
-    # The handle: a closed grip round the hand's hole, its cheek over the blade's heel, the horn at its top.
+    # The handle (S2 round 1's critic: a ring read as brass): a closed apple-wood grip round the hand's
+    # hole, as Disston's: the cheek over the blade's heel, a bar along the back with its horn, a bar on the
+    # teeth's side, the rounded grip at the back.
     hx0 = x0 - hl + 0.02
-    loop = []
-    cx, cz = hx0 + hl * 0.48, zt - heel * 0.52
-    for i in range(16):
-        a = 2 * math.pi * i / 16
-        loop.append((cx + math.cos(a) * 0.055, yb, cz + math.sin(a) * 0.033))
-    loop.append(loop[0])
-    grip = tube("g", loop, [(0.013, 0.011)] * len(loop), sides=8, caps=(False, False), up_hint=(0, 1, 0))
-    cheek = flat("c", [(x0 - 0.035, zt - 0.006), (x0 + 0.02, zt - 0.004), (x0 + 0.02, zt - heel + 0.002), (x0 - 0.01, zt - heel - 0.012),
-                       (x0 - 0.05, zt - heel * 0.75), (x0 - 0.05, zt - 0.03)], yb - ht * 0.5, yb + ht * 0.5, bevel=0.004)
-    horn = flat("h", [(x0 - 0.045, zt - heel - 0.005), (x0 - 0.005, zt - heel - 0.018), (x0 - 0.03, zt - heel - 0.035), (x0 - 0.07, zt - heel - 0.02)],
-                yb - ht * 0.45, yb + ht * 0.45, bevel=0.004)
-    handle = merged("Handle", [grip, cheek, horn])
+    y0h, y1h = yb - ht * 0.5, yb + ht * 0.5
+    hole = (hx0 + 0.04, x0 - 0.06, zt - 0.155, zt - 0.055)  # x from, x to, z from, z to
+    cheek = flat("c", [(hole[1], zt - heel - 0.012), (x0 + 0.02, zt - heel + 0.004), (x0 + 0.02, zt - 0.004), (hole[1], zt - 0.006)], y0h, y1h, bevel=0.004)
+    top = flat("tb", [(hx0 + 0.01, zt - heel - 0.012), (hole[1], zt - heel - 0.012), (hole[1], hole[2]), (hx0 + 0.02, hole[2])], y0h, y1h, bevel=0.004)
+    low = flat("lb", [(hx0 + 0.03, hole[3]), (hole[1], hole[3]), (hole[1], zt - 0.006), (hx0 + 0.05, zt - 0.02)], y0h, y1h, bevel=0.004)
+    horn = flat("h", [(hx0 + 0.005, zt - heel - 0.01), (hx0 + 0.05, zt - heel - 0.04), (hx0 + 0.075, zt - heel - 0.012)], y0h + 0.002, y1h - 0.002, bevel=0.003)
+    grip = tube("g", [(hx0 + 0.02, yb, hole[2] - 0.01), (hx0 + 0.012, yb, (hole[2] + hole[3]) * 0.5), (hx0 + 0.035, yb, hole[3] + 0.012)],
+                [(0.018, 0.011)] * 3, sides=8, up_hint=(0, 1, 0))
+    handle = merged("Handle", [cheek, top, low, horn, grip])
     nuts = []
-    for i in range(s["nuts"]):
-        px, pz = x0 - 0.02 + (i % 2) * 0.03, zt - 0.03 - (i // 2) * 0.06 - (i % 2) * 0.02
-        nuts.append(lathe("n", [(0.0, yb - ht * 0.5 - 0.002), (0.007, yb - ht * 0.5 - 0.002), (0.007, yb + ht * 0.5 + 0.002), (0.0, yb + ht * 0.5 + 0.002)], 10,
-                          at=(px, 0, pz)))
+    for px, pz in ((hole[1] + 0.025, zt - heel + 0.03), (hole[1] + 0.05, zt - heel + 0.06), (hole[1] + 0.025, zt - 0.06), (hole[1] + 0.05, zt - 0.03)):
+        nuts.append(lathe("n", [(0.0, y0h - 0.002), (0.0075, y0h - 0.002), (0.0075, y1h + 0.002), (0.0, y1h + 0.002)], 10, at=(px, 0, pz)))
     metal.export_baked("handsaw", [(merged("Blade", blade, smooth=False), "saw_steel"), (handle, "apple_wood"), (merged("Nuts", nuts), "brass_old")],
                        size=512)
 
@@ -100,8 +96,10 @@ def _fiddle_halfwidth(x):
     (the C-bouts) and the upper bout, round at the ends."""
     f = saloon_s2.FIDDLE
     hb = f["body"] * 0.5
-    ctrl = [(-hb, 0.0), (-hb + 0.004, 0.032), (-hb + 0.014, 0.062), (-0.13, 0.092), (-0.085, f["lower"] * 0.5), (-0.045, 0.094),
-            (-0.012, 0.068), (0.015, f["waist"] * 0.5), (0.045, 0.062), (0.075, 0.077), (0.105, f["upper"] * 0.5), (0.135, 0.078),
+    # The C-bouts cut in sharply between pointed corners (S2 round 1's critic: a smooth waist read as a guitar).
+    ctrl = [(-hb, 0.0), (-hb + 0.004, 0.034), (-hb + 0.014, 0.064), (-0.13, 0.093), (-0.085, f["lower"] * 0.5), (-0.05, 0.097),
+            (-0.032, 0.092), (-0.026, 0.098), (-0.022, 0.07), (-0.008, 0.058), (0.015, f["waist"] * 0.5), (0.04, 0.058), (0.054, 0.068),
+            (0.058, 0.088), (0.064, 0.08), (0.085, 0.082), (0.105, f["upper"] * 0.5), (0.135, 0.078),
             (hb - 0.016, 0.055), (hb - 0.005, 0.028), (hb, 0.0)]
     xs, ws = zip(*ctrl)
     return float(np.interp(x, xs, ws))
@@ -133,9 +131,10 @@ def fiddle():
     neck = [box("n", (nx1 - nx0, 0.02, 0.026), ((nx0 + nx1) * 0.5, ytop - 0.002, 0), bevel=0.004),
             box("h", (0.018, top_y - 0.002, 0.03), (hb - 0.004, (top_y - 0.002) * 0.5 + 0.002, 0), bevel=0.004),
             box("p", (0.07, 0.03, 0.022), (nx1 + 0.035, ytop - 0.004, 0), bevel=0.004),
-            lathe("s", [(0.0, -0.013), (0.018, -0.013), (0.022, -0.006), (0.022, 0.006), (0.018, 0.013), (0.0, 0.013)], 14, axis="z",
-                  at=(nx1 + 0.083, ytop + 0.006, 0)),
-            lathe("s2", [(0.0, -0.015), (0.009, -0.015), (0.011, 0.0), (0.009, 0.015), (0.0, 0.015)], 10, axis="z", at=(nx1 + 0.083, ytop + 0.006, 0))]
+            # The scroll: the pegbox's end curled round into a spiral.
+            tube("s", [(nx1 + 0.083 + math.cos(a) * rr, ytop + 0.006 + math.sin(a) * rr, 0.0)
+                       for a, rr in ((math.pi * k / 6.0, 0.024 - 0.0035 * k / 2.0) for k in range(0, 13))],
+                 [(0.009 - 0.0004 * k, 0.012) for k in range(13)], sides=8, up_hint=(0, 0, 1))]
     # Ebony: the fingerboard (tapering, over the body), the nut, the pegs, the tailpiece, the end button.
     bl, bw1, bw0 = f["board"]
     bx1 = nx1
@@ -149,6 +148,14 @@ def fiddle():
                               at=(px, ytop + 0.004, 0)) if side > 0 else
                         moved(lathe("g", [(0.0, -0.03), (0.0035, -0.03), (0.0035, 0.012), (0.009, 0.016), (0.009, 0.03), (0.0, 0.032)], 8, axis="z"),
                               180.0, (0, 1, 0), (px, ytop + 0.004, 0)))
+    # The f-holes, either side of the bridge: two long dark slits with round eyes at their ends.
+    for zs in (-1, 1):
+        zz = zs * 0.038
+        yh = top_y + arch * 0.5
+        fittings.append(flat("fh", [(-0.055, zz - 0.002), (0.015, zz + zs * 0.004 - 0.002), (0.015, zz + zs * 0.004 + 0.002), (-0.055, zz + 0.002)],
+                             yh, yh + 0.004))
+        for ex, ez in ((-0.058, zz - zs * 0.004), (0.018, zz + zs * 0.008)):
+            fittings.append(lathe("fe", [(0.0, yh), (0.0035, yh), (0.0035, yh + 0.004), (0.0, yh + 0.004)], 8, at=(ex, 0, ez)))
     tx0, tx1 = -hb + 0.02, -hb + 0.13
     fittings.append(flat("t", [(tx0, -0.012), (tx1, -0.021), (tx1, 0.021), (tx0, 0.012)], top_y + 0.006, top_y + 0.014, bevel=0.002))
     # The end button at the lower bout's end (axis x: the profile's height runs along x).
@@ -163,7 +170,7 @@ def fiddle():
     for i in range(4):
         zz = -0.0075 + i * 0.005
         pts = [(tx1, top_y + 0.015, zz * 2.4), (bridge_x, by + 0.032, zz * 2.0), (bx1 - 0.002, fb_y + 0.012, zz)]
-        strings.append(tube("s", pts, 0.0007, sides=3, caps=(False, False)))
+        strings.append(tube("s", pts, 0.0005, sides=3, caps=(False, False)))
     # The bow (its own prop, `fiddle_bow`, in its own space: the frog at the origin, the tip at +x).
     b = saloon_s2.BOW
     fw, fh, ft = b["frog"]
@@ -185,7 +192,11 @@ def fiddle():
 def cookstove():
     c = saloon_s2.COOK
     bw, bh, bd = c["board"]
+    # The stove board: zinc over a board, its edge turned down over a moulded strip, nailed.
     board = [box("b", (bw, bh, bd), (0, bh * 0.5, 0.06), bevel=0.004)]
+    for s_ in (-1, 1):
+        board.append(box("ex", (0.02, bh + 0.008, bd + 0.02), (s_ * (bw * 0.5 + 0.004), (bh + 0.008) * 0.5, 0.06), bevel=0.005))
+        board.append(box("ez", (bw, bh + 0.008, 0.02), (0, (bh + 0.008) * 0.5, 0.06 + s_ * (bd * 0.5 + 0.004)), bevel=0.005))
     bx, by, bz = c["body"]
     lh = c["leg_h"]
     y0 = bh + lh
@@ -247,6 +258,17 @@ def cookstove():
     top.append(tube("lift", [(0.2, py + pt + 0.015, 0.2), (0.36, py + pt + 0.015, 0.19), (0.38, py + pt + 0.03, 0.188)], 0.006, sides=5))
     top.append(lathe("c", [(pr + 0.012, py + pt), (pr + 0.012, py + pt + 0.05), (pr + 0.006, py + pt + 0.06), (pr + 0.004, py + pt + 0.06)], 24,
                      at=(px, 0, pz), caps=(False, False)))
+    # The high shelf over the back (a range's "high shelf", for keeping plates warm): a cast plate on two
+    # scrolled brackets from the top's back corners.
+    shw, shh, shd = c["shelf"]
+    sy0 = py + pt
+    zb = -bz * 0.5 - ov + 0.02
+    for s_ in (-1, 1):
+        xb = s_ * shw * 0.5
+        top.append(tube("sb", [(xb, sy0, zb), (xb, sy0 + shh * 0.5, zb - 0.01), (xb, sy0 + shh - 0.02, zb + 0.03), (xb, sy0 + shh - 0.012, zb + 0.08)],
+                        [(0.012, 0.008)] * 4, sides=6, up_hint=(1, 0, 0)))
+    top.append(box("sh", (shw + 0.06, 0.018, 0.16), (0, sy0 + shh, zb + 0.06), bevel=0.005))
+    top.append(box("shr", (shw + 0.06, 0.03, 0.012), (0, sy0 + shh + 0.024, zb + 0.14), bevel=0.004))
     pipes = []
     y = py + pt
     for k, ln in enumerate(c["pipe"]):
