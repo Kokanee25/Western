@@ -130,6 +130,36 @@
    "id": "Wood076",
    "source": "ambientcg",
    "why": "dark rough brown, spare"
+  },
+  {
+   "id": "dirt",
+   "source": "polyhaven",
+   "why": "the valley's packed street dirt (#891)"
+  },
+  {
+   "id": "dry_ground_rocks",
+   "source": "polyhaven",
+   "why": "open dry ground with stones (#891)"
+  },
+  {
+   "id": "withered_grass",
+   "source": "polyhaven",
+   "why": "dry grassland ground (#891)"
+  },
+  {
+   "id": "rocky_trail",
+   "source": "polyhaven",
+   "why": "stony tracks and lots (#891)"
+  },
+  {
+   "id": "mud_cracked_dry_riverbed_002",
+   "source": "polyhaven",
+   "why": "dried puddles, creek banks (#891)"
+  },
+  {
+   "id": "cliff_side",
+   "source": "polyhaven",
+   "why": "layered sandstone slopes (#891)"
   }
  ]
 }

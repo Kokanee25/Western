@@ -1,0 +1,59 @@
+have Wood047
+have Wood048
+have Wood086
+have Wood062
+have Wood087
+have Wood061
+have Wood059
+have Wood050
+have Wood014
+have Wood063
+have Wood058
+have Wood051
+have black_walnut_veneer_02
+have Wood081
+have Wood015
+have oak_veneer_01
+have red_oak_veneer
+have Wood009
+have sapele_veneer
+have Wood073
+have Wood079
+have Wood089
+have rough_wood
+have Wood011
+have Wood016
+have Wood076
+have dirt
+have dry_ground_rocks
+have withered_grass
+have rocky_trail
+have mud_cracked_dry_riverbed_002
+have cliff_side
+have namaqualand_boulder_03
+have namaqualand_boulder_05
+have rock_07
+have namaqualand_rocks_01
+have namaqualand_stones_01
+model grass_medium_02
+  7842 triangles
+  files: ['AO', 'Alpha', 'Diffuse', 'Displacement', 'Rough', 'arm', 'blend', 'dry_diff', 'fbx', 'gltf', 'nor_dx', 'nor_gl', 'usd']
+  alpha from Alpha
+  baked the alpha into the diffuse
+  ok ['grass_medium_02.bin', 'grass_medium_02.gltf', 'meta.json', 'textures']
+model wild_rooibos_bush
+  27519 triangles
+  files: ['AO', 'Alpha', 'Diffuse', 'Rough', 'arm', 'blend', 'fbx', 'gltf', 'nor_dx', 'nor_gl', 'usd']
+  alpha from Alpha
+  baked the alpha into the diffuse
+  ok ['meta.json', 'textures', 'wild_rooibos_bush.bin', 'wild_rooibos_bush.gltf']
+model pine_tree_01
+  17182252 triangles
+  SKIPPED pine_tree_01: 17182252 triangles > 150000
+model pine_sapling_medium
+  6038139 triangles
+  SKIPPED pine_sapling_medium: 6038139 triangles > 150000
+model island_tree_01
+  1599403 triangles
+  SKIPPED island_tree_01: 1599403 triangles > 150000
+have dead_tree_trunk_02

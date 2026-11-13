@@ -721,6 +721,19 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
   (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
   `--world=valley` tours it with sticks and digs.
+- **The valley's ground drawn real and its scatter** (#891, art's; `-- --greybox-ground` and `-- --no-scatter`
+  give the old): `ValleyGroundArt` (`src/art/valley_ground_art.gd`) makes the material ValleyGround's
+  blocks and the dug tiles wear (`src/art/valley_ground.gdshader`: six CC0 scans, `config/valley_ground_art.tres`)
+  and answers the ground map (`assets/textures/valley/ground_map_a.res`, `_b.res`, baked from valley.json by
+  `godot --headless -s res://tools/textures/valley_ground_map.gd`; re-bake when valley.json changes:
+  `tests/test_valley_ground_art.gd` fails until it is): `road_at`, `off_road`, `water_at`, `flags_at`,
+  `kept_clear`. `ValleyScatter` (ValleyWorld's `Scatter`; `config/valley_scatter.tres`, a species a dict):
+  cells a species round the camera, a MultiMesh a piece (near, far by visibility range; sage hands over
+  per pixel), seeded by cell; boulders and trunks one StaticBody3D a cell; Prof `scatter`.
+  `make_all_round(at)` builds at once (tools, tests). Meshes: `tools/textures/scatter_meshes.gd` cuts the
+  Poly Haven scans (`assets/props/scans/`, fetched by `scans.yml` from `tools/textures/scans/model_picks.json`)
+  to `<piece>_near.res`/`_far.res`; the trees are `ValleyTrees` (code). Views:
+  `tools/textures/valley_ground_shots.sh OUT [game args] [only]` (`valley_ground_views.txt`).
 - **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
   ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
   own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py

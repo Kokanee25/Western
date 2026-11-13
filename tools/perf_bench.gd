@@ -597,6 +597,10 @@ const DAY_AT := Vector3(40.0, 0.0, 2.0)
 const DAY_HEADING := 270.0
 const NIGHT_AT := Vector3(29.2, 0.0, -8.0)
 const NIGHT_HEADING := 355.0
+## `--scene=road` (art's, #891: the land's scatter): the East Road by the sheriff's opening site,
+## looking up it to the east-north-east, at two in the afternoon. Only when asked for.
+const ROAD_AT := Vector3(450.0, 0.0, 95.0)
+const ROAD_HEADING := 68.0
 
 
 func _run_valley() -> void:
@@ -627,8 +631,8 @@ func _run_valley() -> void:
 		scenes = []
 	for s: String in scenes:
 		var night := s == "night"
-		var at: Vector3 = NIGHT_AT if night else DAY_AT
-		_stand(player, at, NIGHT_HEADING if night else DAY_HEADING)
+		var at: Vector3 = NIGHT_AT if night else (ROAD_AT if s == "road" else DAY_AT)
+		_stand(player, at, NIGHT_HEADING if night else (ROAD_HEADING if s == "road" else DAY_HEADING))
 		if clock:
 			clock.set_time(21.0 if night else 14.0)
 		if folk:

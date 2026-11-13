@@ -1,0 +1,50 @@
+{
+ "note": "The valley's scatter models (#891): Poly Haven glTF at 1k, fetched by .github/workflows/scans.yml into assets/props/scans/<id>/. All CC0. A model over max_tris triangles is skipped.",
+ "max_tris": 150000,
+ "picks": [
+  {
+   "id": "namaqualand_boulder_03",
+   "why": "big angular boulder"
+  },
+  {
+   "id": "namaqualand_boulder_05",
+   "why": "rounded tan boulder"
+  },
+  {
+   "id": "rock_07",
+   "why": "red rock, the mesas' talus"
+  },
+  {
+   "id": "namaqualand_rocks_01",
+   "why": "a set of loose rocks"
+  },
+  {
+   "id": "namaqualand_stones_01",
+   "why": "stones and pebbles"
+  },
+  {
+   "id": "grass_medium_02",
+   "why": "dry grass clump"
+  },
+  {
+   "id": "wild_rooibos_bush",
+   "why": "fine-leaved shrub: sagebrush, tinted"
+  },
+  {
+   "id": "pine_tree_01",
+   "why": "ponderosa pine up high"
+  },
+  {
+   "id": "pine_sapling_medium",
+   "why": "young pine"
+  },
+  {
+   "id": "island_tree_01",
+   "why": "broadleaf: cottonwood stand-in by water, tinted"
+  },
+  {
+   "id": "dead_tree_trunk_02",
+   "why": "fallen log"
+  }
+ ]
+}

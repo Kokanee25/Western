@@ -1,0 +1,71 @@
+have Wood047
+have Wood048
+have Wood086
+have Wood062
+have Wood087
+have Wood061
+have Wood059
+have Wood050
+have Wood014
+have Wood063
+have Wood058
+have Wood051
+have black_walnut_veneer_02
+have Wood081
+have Wood015
+have oak_veneer_01
+have red_oak_veneer
+have Wood009
+have sapele_veneer
+have Wood073
+have Wood079
+have Wood089
+have rough_wood
+have Wood011
+have Wood016
+have Wood076
+fetch polyhaven dirt
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]
+fetch polyhaven dry_ground_rocks
+  maps ['albedo', 'normal', 'rough'] metres [4.0, 4.0]
+fetch polyhaven withered_grass
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]
+fetch polyhaven rocky_trail
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]
+fetch polyhaven mud_cracked_dry_riverbed_002
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]
+fetch polyhaven cliff_side
+  maps ['albedo', 'normal', 'rough'] metres [1.83, 1.83]
+model namaqualand_boulder_03
+  64826 triangles
+  ok ['meta.json', 'namaqualand_boulder_03.bin', 'namaqualand_boulder_03.gltf', 'textures']
+model namaqualand_boulder_05
+  89618 triangles
+  ok ['meta.json', 'namaqualand_boulder_05.bin', 'namaqualand_boulder_05.gltf', 'textures']
+model rock_07
+  14844 triangles
+  ok ['meta.json', 'rock_07.bin', 'rock_07.gltf', 'textures']
+model namaqualand_rocks_01
+  85716 triangles
+  ok ['meta.json', 'namaqualand_rocks_01.bin', 'namaqualand_rocks_01.gltf', 'textures']
+model namaqualand_stones_01
+  70124 triangles
+  ok ['meta.json', 'namaqualand_stones_01.bin', 'namaqualand_stones_01.gltf', 'textures']
+model grass_medium_02
+  7842 triangles
+  ok ['grass_medium_02.bin', 'grass_medium_02.gltf', 'meta.json', 'textures']
+model wild_rooibos_bush
+  27519 triangles
+  ok ['meta.json', 'textures', 'wild_rooibos_bush.bin', 'wild_rooibos_bush.gltf']
+model pine_tree_01
+  17182252 triangles
+  SKIPPED pine_tree_01: 17182252 triangles > 150000
+model pine_sapling_medium
+  6038139 triangles
+  SKIPPED pine_sapling_medium: 6038139 triangles > 150000
+model island_tree_01
+  1599403 triangles
+  SKIPPED island_tree_01: 1599403 triangles > 150000
+model dead_tree_trunk_02
+  83128 triangles
+  ok ['dead_tree_trunk_02.bin', 'dead_tree_trunk_02.gltf', 'meta.json', 'textures']

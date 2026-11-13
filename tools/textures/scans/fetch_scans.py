@@ -8,6 +8,12 @@ Poly Haven and ambientCG can't be reached from the workspace, so this runs on Gi
       every wood-like texture of both sources: DIR/catalogue.json (id, source, name, tags,
       size in metres where the source gives it) and contact sheets DIR/sheet_<source>_<n>.jpg
       (thumbnails with their ids), for choosing.
+  python3 tools/textures/scans/fetch_scans.py catalogue --kind=ground --out=DIR
+      the same for the valley's ground (#891): dirt, gravel, mud, sand, grass, rock textures, and
+      Poly Haven's nature models (rocks, boulders, shrubs, grass, trees, logs) as sheet_models_<n>.jpg.
+  python3 tools/textures/scans/fetch_scans.py models --picks=tools/textures/scans/model_picks.json \
+      --out=assets/props/scans
+      each pick's glTF at 1k (Poly Haven) -> OUT/<id>/ (the .gltf, its .bin and textures), meta.json.
   python3 tools/textures/scans/fetch_scans.py fetch --picks=... --out=DIR --hi=1   (4K: albedo 4096,
       normal 2048, roughness 1024; the lab's sharp close-ups, kept off the repo)
   python3 tools/textures/scans/fetch_scans.py fetch --picks=tools/textures/scans/picks.json \
@@ -32,6 +38,9 @@ UA = "SaltCreekMaterialLibrary/1.0 (github.com/Kokanee25/Western)"
 PH_API = "https://api.polyhaven.com"
 ACG_API = "https://ambientcg.com/api/v2/full_json"
 # What counts as a wood on each source (names and tags matched, case blind).
+# What counts as ground (the valley's, #891) and as a nature model.
+EARTHY = re.compile(r"ground|dirt|soil|gravel|mud|sand|pebble|rock|stone|grass|clay|desert|dry|earth|cliff|boulder|trail|road|path|scree|moss", re.I)
+NATURE = re.compile(r"rock|boulder|stone|tree|shrub|bush|grass|plant|branch|log|stump|nature|sage|cactus|weed|fern|pine|fir|trunk|root|dead", re.I)
 WOODY = re.compile(r"wood|plank|board|timber|siding|parquet|veneer|bark|walnut|oak|cherry|mahogany|pine|fir|barn", re.I)
 SIZES = {"albedo": 2048, "normal": 1024, "rough": 512}
 # --hi (4K): for the lab's sharp close-ups only; too heavy for the repo, so the workflow pushes them
@@ -59,12 +68,13 @@ def get_json(url: str):
 
 # ---------------------------------------------------------------- catalogue
 
-def ph_catalogue() -> list:
-    assets = get_json(f"{PH_API}/assets?t=textures")
+def ph_catalogue(kind: str = "textures", match=None) -> list:
+    match = match or WOODY
+    assets = get_json(f"{PH_API}/assets?t={kind}")
     out = []
     for aid, a in assets.items():
         text = " ".join([aid, a.get("name", "")] + a.get("categories", []) + a.get("tags", []))
-        if not WOODY.search(text):
+        if not match.search(text):
             continue
         dims = a.get("dimensions") or []  # millimetres, [w, h]
         out.append({
@@ -77,9 +87,10 @@ def ph_catalogue() -> list:
     return out
 
 
-def acg_catalogue() -> list:
+def acg_catalogue(queries=None, match=None) -> list:
+    match = match or WOODY
     seen = {}
-    for q in ["wood", "planks", "wood siding", "wood floor", "bark"]:
+    for q in queries or ["wood", "planks", "wood siding", "wood floor", "bark"]:
         url = f"{ACG_API}?type=Material&limit=250&include=tagData,imageData&q={urllib.parse.quote(q)}"
         data = get_json(url)
         for a in data.get("foundAssets", []):
@@ -88,7 +99,7 @@ def acg_catalogue() -> list:
                 continue
             tags = a.get("tags", []) or []
             text = " ".join([aid, a.get("displayName", "")] + tags)
-            if not WOODY.search(text):
+            if not match.search(text):
                 continue
             thumb = None
             prev = a.get("previewImage") or {}
@@ -130,6 +141,117 @@ def contact_sheets(items: list, out: str, prefix: str) -> list:
         paths.append(p)
         print("wrote", p, flush=True)
     return paths
+
+
+def catalogue_ground(out: str) -> None:
+    os.makedirs(out, exist_ok=True)
+    ph = sorted(ph_catalogue("textures", EARTHY), key=lambda a: a["id"])
+    print(f"polyhaven: {len(ph)} ground textures", flush=True)
+    models = sorted(ph_catalogue("models", NATURE), key=lambda a: a["id"])
+    print(f"polyhaven: {len(models)} nature models", flush=True)
+    try:
+        acg = sorted(acg_catalogue(["ground", "dirt", "gravel", "rock", "grass", "mud", "sand"], EARTHY),
+                     key=lambda a: a["id"])
+    except Exception as e:  # noqa: BLE001: one source down still gives the other
+        print(f"ambientcg failed: {e}", flush=True)
+        acg = []
+    print(f"ambientcg: {len(acg)} ground textures", flush=True)
+    with open(os.path.join(out, "catalogue.json"), "w") as f:
+        json.dump({"textures": ph + acg, "models": models}, f, indent=1)
+    contact_sheets(ph, out, "polyhaven")
+    contact_sheets(acg, out, "ambientcg")
+    contact_sheets(models, out, "models")
+
+
+def models(picks_path: str, out: str) -> None:
+    """Poly Haven's models at 1k as glTF: the .gltf, its .bin and its textures, as the source lays them."""
+    picks = json.load(open(picks_path))
+    for p in picks["picks"]:
+        aid = p["id"]
+        d = os.path.join(out, aid)
+        if os.path.exists(os.path.join(d, "meta.json")):
+            print("have", aid, flush=True)
+            continue
+        print("model", aid, flush=True)
+        try:
+            files = get_json(f"{PH_API}/files/{aid}")
+            g = files["gltf"][p.get("res", "1k")]["gltf"]
+            doc = get(g["url"])
+            gl = json.loads(doc.decode("utf-8"))
+            tris = 0
+            for mesh in gl.get("meshes", []):
+                for prim in mesh.get("primitives", []):
+                    if "indices" in prim:
+                        tris += gl["accessors"][prim["indices"]]["count"] // 3
+            limit = int(p.get("max_tris", picks.get("max_tris", 200000)))
+            print(f"  {tris} triangles", flush=True)
+            if tris > limit:
+                print(f"  SKIPPED {aid}: {tris} triangles > {limit}", flush=True)
+                continue
+            os.makedirs(d, exist_ok=True)
+            with open(os.path.join(d, f"{aid}.gltf"), "wb") as f:
+                f.write(doc)
+            for rel, inc in (g.get("include") or {}).items():
+                dst = os.path.join(d, rel)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                with open(dst, "wb") as f:
+                    f.write(get(inc["url"]))
+            info = get_json(f"{PH_API}/info/{aid}")
+            _alpha(aid, d, gl, files, p.get("res", "1k"))
+        except Exception as e:  # noqa: BLE001: report and go on to the next pick
+            print(f"  FAILED {aid}: {e}", flush=True)
+            continue
+        meta = {"id": aid, "source": "polyhaven", "licence": "CC0 1.0", "page": f"https://polyhaven.com/a/{aid}",
+                "name": info.get("name", aid), "authors": sorted((info.get("authors") or {}).keys()),
+                "polycount": info.get("polycount"), "triangles": tris, "res": p.get("res", "1k"), "why": p.get("why", ""),
+                "fetched": time.strftime("%Y-%m-%d")}
+        with open(os.path.join(d, "meta.json"), "w") as f:
+            json.dump(meta, f, indent=1)
+        print("  ok", sorted(os.listdir(d)), flush=True)
+
+
+def _alpha(aid: str, d: str, gl: dict, files: dict, res: str) -> None:
+    """A cut-out plant's leaves need their alpha, but Poly Haven's glTF names a JPEG diffuse (no alpha).
+    Its alpha map (or the diffuse PNG's own alpha) is fetched and baked into an RGBA PNG beside it, and
+    the .gltf pointed at that."""
+    from PIL import Image
+    if not any(m.get("alphaMode") in ("BLEND", "MASK") for m in gl.get("materials", [])):
+        return
+    print("  files:", sorted(files.keys()), flush=True)
+    alpha = None
+    for k in files:
+        if re.search(r"alpha|opacity|mask", k, re.I) and isinstance(files[k], dict):
+            r = files[k].get(res) or next(iter(files[k].values()))
+            fmt = r.get("png") or r.get("jpg") if isinstance(r, dict) else None
+            if fmt:
+                alpha = Image.open(io.BytesIO(get(fmt["url"]))).convert("L")
+                print("  alpha from", k, flush=True)
+                break
+    if alpha is None:
+        dif = (files.get("Diffuse") or {}).get(res) or {}
+        if dif.get("png"):
+            im = Image.open(io.BytesIO(get(dif["png"]["url"])))
+            if im.mode in ("RGBA", "LA"):
+                alpha = im.getchannel("A")
+                print("  alpha from the diffuse PNG", flush=True)
+    if alpha is None:
+        print(f"  NO ALPHA for {aid}", flush=True)
+        return
+    for img in gl.get("images", []):
+        if "diff" not in img.get("uri", ""):
+            continue
+        src = os.path.join(d, img["uri"])
+        rgb = Image.open(src).convert("RGB")
+        a = alpha.resize(rgb.size, Image.LANCZOS)
+        rgba = rgb.copy()
+        rgba.putalpha(a)
+        uri = os.path.splitext(img["uri"])[0] + "_alpha.png"
+        rgba.save(os.path.join(d, uri), optimize=True)
+        img["uri"] = uri
+        img["mimeType"] = "image/png"
+    with open(os.path.join(d, f"{aid}.gltf"), "w") as f:
+        json.dump(gl, f, indent=1)
+    print("  baked the alpha into the diffuse", flush=True)
 
 
 def catalogue(out: str) -> None:
@@ -246,8 +368,12 @@ def main() -> int:
     import urllib.parse  # noqa: F401: used through urllib.parse in acg_catalogue
     args = dict(a[2:].split("=", 1) for a in sys.argv[2:] if a.startswith("--") and "=" in a)
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
-    if mode == "catalogue":
+    if mode == "catalogue" and args.get("kind") == "ground":
+        catalogue_ground(args.get("out", "build/scans_ground"))
+    elif mode == "catalogue":
         catalogue(args.get("out", "build/scans"))
+    elif mode == "models":
+        models(args.get("picks", "tools/textures/scans/model_picks.json"), args.get("out", "assets/props/scans"))
     elif mode == "fetch":
         fetch(args.get("picks", "tools/textures/scans/picks.json"), args.get("out", "assets/textures/scans"),
               "hi" in sys.argv[2:] or args.get("hi") == "1")
