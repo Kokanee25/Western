@@ -262,6 +262,9 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	if p.seat.seated():
 		p.seat.stand()
 		await physics_frames(3)
+	# Clear of the table and the last test's chair pieces (the tests share one world: wedged in them,
+	# the player changed how Earl fell, #811).
+	p.global_position = Vector3(31.4, 0.4, -6.0)
 	var earl: HumanBody = valley.folk.people[&"earl"]
 	var ch := _chair("w")
 	check(ch.seated == earl, "Earl in the west chair")
