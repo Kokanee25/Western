@@ -1,0 +1,52 @@
+task: cast
+spend: 3.50
+note: the sheriff on the road's five voices, 4 candidates each (#836); Sean's yes in session 01WENT9E6K7QhByregrj6Li3
+script: docs/scripts/sheriff_road.json
+candidates: 4
+speakers:
+  sheriff:
+    prompt: >-
+      A man in his mid-fifties from the American plains, Missouri or Kansas, not a Texas drawl, who has
+      worked a Colorado claim for fourteen years in the 1880s. A low, dry, weathered voice with gravel in
+      it from pain; gut-shot and breathing hard, but still giving orders. Short, plain sentences at an
+      unhurried pace. Natural and close, unpolished, never an announcer's polish.
+    text: >-
+      [hurt, bitter, breathing hard] Man in a faded red shirt. Rode up easy, like he wanted directions.
+      Then he shot me. [dying, very weak, fading, long pauses] Badge... Doc. Pin it on him.
+    check: "[dying, very weak, fading, long pauses] Badge... Doc. Pin it on him."
+  doctor:
+    prompt: >-
+      A man in his late forties, an educated Easterner from Philadelphia who went west to a Colorado
+      town in the 1880s. Brisk, quiet and dry; precise whole sentences, never raised; a clear mid-low
+      voice, a little tired, with a faint old Philadelphia accent. Natural and close, not theatrical.
+    text: >-
+      [calm, approving] Somebody packed that wound, and packed it right. That's bought him some hours.
+      Come back tonight. [tired, plain] The ball's in the bowel. I can't get at it, and it would make no
+      odds if I could. He'll not see another night.
+    check: "[tired, plain] The ball's in the bowel. I can't get at it, and it would make no odds if I could. He'll not see another night."
+  widow:
+    prompt: >-
+      A woman of about forty, a Midwestern farm wife with good schooling, living in 1880s Colorado.
+      A level, low, plain-spoken alto; grief held down under work; short sentences, hard questions asked
+      plainly. Warm underneath but tired and unadorned. Natural and close.
+    text: >-
+      [grief held down] Were you with him? [cold] A freighter brought him, they tell me. [grief held down,
+      steady] I'll sit with him now. Go on, the both of you.
+    check: "[grief held down, steady] I'll sit with him now. Go on, the both of you."
+  freighter:
+    prompt: >-
+      A man in his forties, a teamster driving freight wagons in 1880s Colorado; a voice hoarse and rough
+      from shouting at mules all day. A rough rural Western country voice, talking quickly, still shaken
+      by the wounded man he hauled into town. Natural and unpolished.
+    text: >-
+      [shaken, quick] Found him in the road east of the ford. Talked about a red shirt the whole way in.
+      [shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it.
+    check: "[shaken] Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it."
+  livery:
+    prompt: >-
+      A man in his sixties who keeps the livery stable in an 1880s Colorado town; a slow, grumbling,
+      slightly nasal rural voice, gruff to hide that he minds. Unhurried and plain. Natural and unpolished.
+    text: >-
+      [shaken, grumbling] That's the sheriff's bay. Lord. I'll put him up. Saddle, rifle and all.
+      [grumbling] Leave him with me. I'll see he's fed, whoever's paying.
+    check: "[grumbling] Leave him with me. I'll see he's fed, whoever's paying."

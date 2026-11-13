@@ -1,0 +1,21 @@
+task: cast
+spend: 1.00
+note: the sheriff again (#836), Sean on the page 2026-11-12 "Can we make the voice early 50's" - a strong man of about fifty, not old; moment tags (ElevenLabs' v3 guide) instead of stage notes; no "understated"
+script: docs/scripts/sheriff_road.json
+candidates: 4
+round: c
+seed_base: 20000
+speakers:
+  sheriff:
+    prompt: >-
+      Perfect audio quality: a clean, modern studio recording, close microphone, dry, no room echo, no
+      hiss. A man in his early fifties, still strong and hard from years of ranch work, a rancher and
+      lawman from the American plains, Missouri or Kansas, not a Texas drawl. A low, dry, weathered
+      baritone with gravel in it, firm and vigorous with plain authority, not an old man's voice. Gut-shot,
+      hurting and short of breath, but still giving orders. Plain short sentences. A real man talking,
+      with feeling, not a narrator.
+    text: >-
+      [exhales sharply] Sun's coming up. [short pause] Ain't that something. [inhales deeply] Fourteen
+      years I've rode this road. Never had to look behind me on it. [long pause] [whispers] Badge...
+      Doc. [exhales] Pin it on him.
+    check: "[whispers] Badge... Doc. [exhales] Pin it on him."

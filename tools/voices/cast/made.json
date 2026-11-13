@@ -1,0 +1,60 @@
+{
+ "sheriff": [
+  {
+   "id": "sheriff_c1",
+   "seed": 21001,
+   "voice_id": "Ukf6aMxK87f7Wv7BpSld",
+   "previews": [
+    "Ukf6aMxK87f7Wv7BpSld",
+    "LRjUfhNrXTVJLEhPZ5qA",
+    "5V0ByQz4CWdJwE8RL65o"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_c1.mp3",
+   "seconds": 17.321875,
+   "check_file": "sheriff/sheriff_c1_check.mp3"
+  },
+  {
+   "id": "sheriff_c2",
+   "seed": 21002,
+   "voice_id": "enfVjLcAlfS4CG0ZrPbV",
+   "previews": [
+    "enfVjLcAlfS4CG0ZrPbV",
+    "CYQDK1dPbqTLUeRdtWha",
+    "ify2Hjs7kiwPO3dHVgEY"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_c2.mp3",
+   "seconds": 15.15375,
+   "check_file": "sheriff/sheriff_c2_check.mp3"
+  },
+  {
+   "id": "sheriff_c3",
+   "seed": 21003,
+   "voice_id": "nHHZ68dqFx6o6rLM6s3n",
+   "previews": [
+    "nHHZ68dqFx6o6rLM6s3n",
+    "QPa19mlhKhecBYid8V6n",
+    "FkHfq9nIAAnFSnaFVPeH"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_c3.mp3",
+   "seconds": 16.43375,
+   "check_file": "sheriff/sheriff_c3_check.mp3"
+  },
+  {
+   "id": "sheriff_c4",
+   "seed": 21004,
+   "voice_id": "ATJBRWuZJ9io70PFlRSH",
+   "previews": [
+    "ATJBRWuZJ9io70PFlRSH",
+    "ePQhMHNecvZAUIOYM4iL",
+    "csb51JQRKMOZQmLUfNA6"
+   ],
+   "saved_preview": "matched",
+   "file": "sheriff/sheriff_c4.mp3",
+   "seconds": 17.9488125,
+   "check_file": "sheriff/sheriff_c4_check.mp3"
+  }
+ ]
+}

@@ -138,3 +138,15 @@ of it is in the game yet:
   cut into a steady bed by `experiments/sound_lab/fiddle/crowd_bed.py`; a lab stand-in, not in the game.
 - **"The Soldier's Joy"**, traditional, as printed in O'Neill's *Music of Ireland* (1903), No. 1642,
   public domain; the ABC transcription from music21's corpus (`oneills1850`; music21 is BSD-3).
+
+## Voices (the sound sessions, #807)
+
+- **The voiced lines' voices and takes**: generated with ElevenLabs (Voice Design `eleven_ttv_v3`;
+  speech Eleven v4) through fal (fal.ai's API, our account, paid), from our own scripts in
+  `docs/scripts/`. Each voice is designed from a written description (age, region, grain, pace);
+  none is cloned from or named after a real person. Commercial use: fal's ElevenLabs page, "Content
+  generated through the fal.ai API can be used in commercial projects"; ElevenLabs' Terms of
+  Service (updated 2026-10-09) allow paid users commercial use, and its help page excludes only
+  Beta Services, which these models are not. fal's Terms (updated 2026-09-08) claim no rights in the
+  output. The record: `tools/voices/TERMS.md`; the calls and costs: `tools/voices/paid.csv`.
+  First cast: the sheriff on the road (2026-11-12, #836).

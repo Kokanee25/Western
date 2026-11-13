@@ -1,0 +1,41 @@
+# Voiced lines (#807): the paid calls to ElevenLabs through fal, from request files in
+# tools/voices/requests/ (tools/voices/run.py). Keys stay in the repo's secrets; a session never
+# holds one. Runs on a push to a claude/cast-* or claude/voices-* branch that changes
+# tools/voices/requests/; each request runs once (it's done when its .done.yaml exists) and the
+# results are committed back to the same branch ([skip ci]; a token's push starts no workflow).
+name: Voices
+
+on:
+  push:
+    branches: ["claude/cast-**", "claude/voices-**"]
+    paths: ["tools/voices/requests/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: voices-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q pyyaml
+      - name: Run the waiting requests
+        env:
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+        run: python3 tools/voices/run.py 2>&1 | tee build-voices.log
+      - name: Commit the results to the branch
+        if: always()
+        run: |
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A tools/voices
+          git diff --cached --quiet && exit 0
+          git commit -qm "Voices: requests run by run ${{ github.run_number }} [skip ci]"
+          for i in 1 2 3; do git pull -q --rebase origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 5; done

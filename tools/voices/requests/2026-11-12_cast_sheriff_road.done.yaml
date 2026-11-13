@@ -1,0 +1,222 @@
+estimate: 3.1
+spent_at_most: 2.79
+made:
+  sheriff:
+  - id: sheriff_v1
+    seed: 1001
+    voice_id: pCfYPpO4mBYvlnQ0wvlh
+    previews:
+    - pCfYPpO4mBYvlnQ0wvlh
+    - ARQsUPNtvhvI1rigUqg5
+    - dUlwtJ0rGGv5bNyLNc1W
+    saved_preview: matched
+    file: sheriff/sheriff_v1.mp3
+    seconds: 15.96625
+    check_file: sheriff/sheriff_v1_check.mp3
+  - id: sheriff_v2
+    seed: 1002
+    error: 'design: 422 https://queue.fal.run/fal-ai/elevenlabs/requests/01a1d009-6d85-70b3-8414-5f18739096cd:
+      {"detail":[{"loc":["body","voice_name"],"msg":"The content could not be processed
+      because it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"saltcreek_sheriff_v2","categories":["violence"]},{"loc":["body","text"],"msg":"The
+      content could not be processed because it contained material flagged by a content
+      checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"[hurt,
+      bitter, breathing hard] Man in a faded red shirt. Rode up easy, like '
+  - id: sheriff_v3
+    seed: 1003
+    error: 'design: 422 https://queue.fal.run/fal-ai/elevenlabs/requests/01a1d009-76d7-78b1-9233-358cd08b2c69:
+      {"detail":[{"loc":["body","voice_name"],"msg":"The content could not be processed
+      because it contained material flagged by a content checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"saltcreek_sheriff_v3","categories":["violence"]},{"loc":["body","text"],"msg":"The
+      content could not be processed because it contained material flagged by a content
+      checker.","type":"content_policy_violation","url":"https://docs.fal.ai/errors#content_policy_violation","input":"[hurt,
+      bitter, breathing hard] Man in a faded red shirt. Rode up easy, like '
+  - id: sheriff_v4
+    seed: 1004
+    voice_id: eILIC78kR9Zr2pqFBaeE
+    previews:
+    - eILIC78kR9Zr2pqFBaeE
+    - STQJt7OM226Q393DZpt8
+    - 6gr1EAwSirlO9fRGAu5I
+    saved_preview: matched
+    file: sheriff/sheriff_v4.mp3
+    seconds: 12.8315
+    check_file: sheriff/sheriff_v4_check.mp3
+  doctor:
+  - id: doctor_v1
+    seed: 2001
+    voice_id: wfKbFlqrkNlgsGgCLNYO
+    previews:
+    - wfKbFlqrkNlgsGgCLNYO
+    - BF2X3PGPpJ9AqHWxgUoP
+    - Ap8HxV08NN2z52AuiUZO
+    saved_preview: matched
+    file: doctor/doctor_v1.mp3
+    seconds: 14.216
+    check_file: doctor/doctor_v1_check.mp3
+  - id: doctor_v2
+    seed: 2002
+    voice_id: RiiWVRSc2plqa12CPYaC
+    previews:
+    - RiiWVRSc2plqa12CPYaC
+    - NCWI3eNurMiBuQRH0AKS
+    - 4yqmSRZ7icvX3eNrXxBu
+    saved_preview: matched
+    file: doctor/doctor_v2.mp3
+    seconds: 11.81275
+    check_file: doctor/doctor_v2_check.mp3
+  - id: doctor_v3
+    seed: 2003
+    voice_id: 8vtESVYFmFbXdRewrTfy
+    previews:
+    - 8vtESVYFmFbXdRewrTfy
+    - 8TFCBeF2rxI9ClTxvk1e
+    - OUGALdEQgHFcTfsXLYcV
+    saved_preview: matched
+    file: doctor/doctor_v3.mp3
+    seconds: 15.8095
+    check_file: doctor/doctor_v3_check.mp3
+  - id: doctor_v4
+    seed: 2004
+    voice_id: Brneg21xWaUtNPhkZaBs
+    previews:
+    - Brneg21xWaUtNPhkZaBs
+    - SmJAR1ddWtqSjygUXnn0
+    - 9rBQXdbdWH6SEc3lDfjW
+    saved_preview: matched
+    file: doctor/doctor_v4.mp3
+    seconds: 16.044625
+    check_file: doctor/doctor_v4_check.mp3
+  widow:
+  - id: widow_v1
+    seed: 3001
+    voice_id: pxezK81abjhgIPMdFhGY
+    previews:
+    - pxezK81abjhgIPMdFhGY
+    - 9iFHtWkkcj6eVqj85KeJ
+    - 0qKOUkrPfrHvoCqT4QEt
+    saved_preview: matched
+    file: widow/widow_v1.mp3
+    seconds: 9.096
+    check_file: widow/widow_v1_check.mp3
+  - id: widow_v2
+    seed: 3002
+    voice_id: k1fZl05rwEgemoo93En7
+    previews:
+    - k1fZl05rwEgemoo93En7
+    - dtjJVrB0RrpNAuhg5fem
+    - TMdWH9wA9Pn9rK5jJXGt
+    saved_preview: matched
+    file: widow/widow_v2.mp3
+    seconds: 8.834875
+    check_file: widow/widow_v2_check.mp3
+  - id: widow_v3
+    seed: 3003
+    voice_id: S9MG46Sbt9SCcSB4o2Iu
+    previews:
+    - S9MG46Sbt9SCcSB4o2Iu
+    - G5PHv5qho1Q9dvFSqmeo
+    - 6yksEbruTSRGkcyTO1R9
+    saved_preview: matched
+    file: widow/widow_v3.mp3
+    seconds: 9.096
+    check_file: widow/widow_v3_check.mp3
+  - id: widow_v4
+    seed: 3004
+    voice_id: mAUbytMub8VHvMGybjDL
+    previews:
+    - mAUbytMub8VHvMGybjDL
+    - 0g8tSWwCHh9BlIvQdvMD
+    - Uo8hIQTtad1DdXohV3W3
+    saved_preview: matched
+    file: widow/widow_v4.mp3
+    seconds: 7.4765
+    check_file: widow/widow_v4_check.mp3
+  freighter:
+  - id: freighter_v1
+    seed: 4001
+    voice_id: 2fwaBFigGFhOJKYd8Tfn
+    previews:
+    - 2fwaBFigGFhOJKYd8Tfn
+    - lQldQCMmZGC1M93zrWVv
+    - fzPe2Ou0GoANqxmPP9ir
+    saved_preview: matched
+    file: freighter/freighter_v1.mp3
+    seconds: 11.734375
+    check_file: freighter/freighter_v1_check.mp3
+  - id: freighter_v2
+    seed: 4002
+    voice_id: zfYxMy5v3mL2nCqVE6Uk
+    previews:
+    - zfYxMy5v3mL2nCqVE6Uk
+    - PMq3wDLSY454kvz3k2d4
+    - e3Myq9kfOWeosnZWkbDd
+    saved_preview: matched
+    file: freighter/freighter_v2.mp3
+    seconds: 8.7565
+    check_file: freighter/freighter_v2_check.mp3
+  - id: freighter_v3
+    seed: 4003
+    voice_id: uVWSkMv4Lv9psGBJFCGX
+    previews:
+    - uVWSkMv4Lv9psGBJFCGX
+    - XBdKxRZWywjAr4pmQsHa
+    - YzbjX73XiPKITCCq2ikc
+    saved_preview: matched
+    file: freighter/freighter_v3.mp3
+    seconds: 10.924625
+    check_file: freighter/freighter_v3_check.mp3
+  - id: freighter_v4
+    seed: 4004
+    voice_id: REh5HhSnUUqflR2jYqDN
+    previews:
+    - REh5HhSnUUqflR2jYqDN
+    - oblKhom2dMg4YeqGAV7y
+    - thCM1VeK3JV8PkfiK8uX
+    saved_preview: matched
+    file: freighter/freighter_v4.mp3
+    seconds: 10.376
+    check_file: freighter/freighter_v4_check.mp3
+  livery:
+  - id: livery_v1
+    seed: 5001
+    voice_id: mXTBcHSprNumTzBCUvP4
+    previews:
+    - mXTBcHSprNumTzBCUvP4
+    - uOSGGRw7xSetdhP3aJd9
+    - a4KbYjLzlImZnJ1BnGqZ
+    saved_preview: matched
+    file: livery/livery_v1.mp3
+    seconds: 16.358125
+    check_file: livery/livery_v1_check.mp3
+  - id: livery_v2
+    seed: 5002
+    voice_id: p5wDXaPHXREJMq1pMlID
+    previews:
+    - p5wDXaPHXREJMq1pMlID
+    - 4n7ty7vBopfeJruMEAsv
+    - gA0hnUNPCUQPYzlF1tNI
+    saved_preview: matched
+    file: livery/livery_v2.mp3
+    seconds: 16.6715
+    check_file: livery/livery_v2_check.mp3
+  - id: livery_v3
+    seed: 5003
+    voice_id: ghtSG9LdGMBVxcDGCLzR
+    previews:
+    - ghtSG9LdGMBVxcDGCLzR
+    - lXFjSjSwcuuoPsaoD4Y2
+    - aQUnt55hnkahpCn9G5bH
+    saved_preview: matched
+    file: livery/livery_v3.mp3
+    seconds: 14.1115
+    check_file: livery/livery_v3_check.mp3
+  - id: livery_v4
+    seed: 5004
+    voice_id: 0cF2nonZJHAQP4zp84OW
+    previews:
+    - 0cF2nonZJHAQP4zp84OW
+    - ZViIPjj7Tzqo7pR0jIGY
+    - Jr1mNy3kXMAJYKJ83U4n
+    saved_preview: matched
+    file: livery/livery_v4.mp3
+    seconds: 14.1115
+    check_file: livery/livery_v4_check.mp3

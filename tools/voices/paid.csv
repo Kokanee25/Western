@@ -1,0 +1,85 @@
+date,request,app,what,est_usd
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_v1,0.055
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,sheriff_v1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_v4,0.055
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,sheriff_v4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_v1,0.072
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,doctor_v1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_v2,0.072
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,doctor_v2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_v3,0.072
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,doctor_v3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_v4,0.072
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,doctor_v4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_v1,0.047
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,widow_v1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_v2,0.047
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,widow_v2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_v3,0.047
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,widow_v3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_v4,0.047
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,widow_v4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_v1,0.053
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,freighter_v1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_v2,0.053
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,freighter_v2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_v3,0.053
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,freighter_v3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_v4,0.053
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,freighter_v4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_v1,0.048
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,livery_v1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_v2,0.048
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,livery_v2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_v3,0.048
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,livery_v3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_v4,0.048
+2026-11-12,2026-11-12_cast_sheriff_road,elevenlabs/tts/eleven-v4,livery_v4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_b1,0.061
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,sheriff_b1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_b2,0.061
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,sheriff_b2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_b3,0.061
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,sheriff_b3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_b4,0.061
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,sheriff_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_b1,0.072
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,doctor_b1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_b2,0.072
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,doctor_b2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_b3,0.072
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,doctor_b3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,doctor_b4,0.072
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,doctor_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_b1,0.047
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,widow_b1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_b2,0.047
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,widow_b2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_b3,0.047
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,widow_b3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,widow_b4,0.047
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,widow_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_b1,0.053
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,freighter_b1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_b2,0.053
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,freighter_b2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_b3,0.053
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,freighter_b3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,freighter_b4,0.053
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,freighter_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_b1,0.048
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_b2,0.048
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_b3,0.048
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_road_b,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,livery_b4,0.048
+2026-11-12,2026-11-12_cast_sheriff_road_b,elevenlabs/tts/eleven-v4,livery_b4 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c1,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c1 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c2,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c2 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c3,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c3 check,0.100
+2026-11-12,2026-11-12_cast_sheriff_c,fal-ai/elevenlabs/text-to-voice/design/eleven-v3,sheriff_c4,0.066
+2026-11-12,2026-11-12_cast_sheriff_c,elevenlabs/tts/eleven-v4,sheriff_c4 check,0.100

@@ -1,0 +1,228 @@
+estimate: 3.12
+spent_at_most: 3.12
+made:
+  sheriff:
+  - id: sheriff_b1
+    seed: 11001
+    voice_id: 1mmdlEjjnJr3bjhG52ua
+    previews:
+    - 1mmdlEjjnJr3bjhG52ua
+    - is0HGxlmOyzWZ9Y9TTti
+    - vkfe5RehM87uZdD42QQs
+    saved_preview: matched
+    file: sheriff/sheriff_b1.mp3
+    seconds: 13.952125
+    check_file: sheriff/sheriff_b1_check.mp3
+  - id: sheriff_b2
+    seed: 11002
+    voice_id: 7SMTg8i7tNoSYLPe9byN
+    previews:
+    - 7SMTg8i7tNoSYLPe9byN
+    - CTgCJWC68xc1dQnwcmts
+    - b0xNKZTh3Sspq7iTjyhQ
+    saved_preview: matched
+    file: sheriff/sheriff_b2.mp3
+    seconds: 14.6835625
+    check_file: sheriff/sheriff_b2_check.mp3
+  - id: sheriff_b3
+    seed: 11003
+    voice_id: NOvcxvk2K9LREnHC8OFW
+    previews:
+    - NOvcxvk2K9LREnHC8OFW
+    - nW56RaiAVOKhEW3DGBsd
+    - klcF00Ap8QYdjk2pudHn
+    saved_preview: matched
+    file: sheriff/sheriff_b3.mp3
+    seconds: 13.4035625
+    check_file: sheriff/sheriff_b3_check.mp3
+  - id: sheriff_b4
+    seed: 11004
+    voice_id: 2rvrdFFnBcUXA5cpvVrj
+    previews:
+    - 2rvrdFFnBcUXA5cpvVrj
+    - PccBA1zrt13LE4uLeFsE
+    - DrRisuJssZAZDix0J0DH
+    saved_preview: matched
+    file: sheriff/sheriff_b4.mp3
+    seconds: 14.2133125
+    check_file: sheriff/sheriff_b4_check.mp3
+  doctor:
+  - id: doctor_b1
+    seed: 12001
+    voice_id: mXUbtW2kXyaXBh75e31s
+    previews:
+    - mXUbtW2kXyaXBh75e31s
+    - l4U32w09M9EEuhJjM3Vp
+    - bOF5arvFA5gUIflumE12
+    saved_preview: matched
+    file: doctor/doctor_b1.mp3
+    seconds: 13.0900625
+    check_file: doctor/doctor_b1_check.mp3
+  - id: doctor_b2
+    seed: 12002
+    voice_id: RyxZpkCZrpD3H6R0DsRW
+    previews:
+    - RyxZpkCZrpD3H6R0DsRW
+    - A81r3v088W8HGSU1rWAU
+    - c5FMYuHEP9biUb8aSYnG
+    saved_preview: matched
+    file: doctor/doctor_b2.mp3
+    seconds: 14.2133125
+    check_file: doctor/doctor_b2_check.mp3
+  - id: doctor_b3
+    seed: 12003
+    voice_id: 4azXcYimkYjryiN8Q7F2
+    previews:
+    - 4azXcYimkYjryiN8Q7F2
+    - YYvQPyPVcQfImsgDOWJq
+    - kANmZPhZ1ym4CZi8x2fQ
+    saved_preview: matched
+    file: doctor/doctor_b3.mp3
+    seconds: 13.56025
+    check_file: doctor/doctor_b3_check.mp3
+  - id: doctor_b4
+    seed: 12004
+    voice_id: 9yzzXApIsJqi6aqUDGuA
+    previews:
+    - 9yzzXApIsJqi6aqUDGuA
+    - V3YPWwjWokKuSibmfTg5
+    - 4gPID0BOwkWZweutTZNe
+    saved_preview: matched
+    file: doctor/doctor_b4.mp3
+    seconds: 13.717
+    check_file: doctor/doctor_b4_check.mp3
+  widow:
+  - id: widow_b1
+    seed: 13001
+    voice_id: SDscCL4JluGFC3SpvZdQ
+    previews:
+    - SDscCL4JluGFC3SpvZdQ
+    - A7mucuTivdcRwNqBwV3l
+    - ETwI8IQZj8GXLj99Apc3
+    saved_preview: matched
+    file: widow/widow_b1.mp3
+    seconds: 9.0933125
+    check_file: widow/widow_b1_check.mp3
+  - id: widow_b2
+    seed: 13002
+    voice_id: e5C1lp0bTVIHpjme3a3y
+    previews:
+    - e5C1lp0bTVIHpjme3a3y
+    - 968Wo84PKw375O2bMd6B
+    - wStRxTzy5HSXMX8IdPMf
+    saved_preview: matched
+    file: widow/widow_b2.mp3
+    seconds: 8.832125
+    check_file: widow/widow_b2_check.mp3
+  - id: widow_b3
+    seed: 13003
+    voice_id: zpFtQrdCcT2Zstxu5G0G
+    previews:
+    - zpFtQrdCcT2Zstxu5G0G
+    - fxJpIhSAVi6GdcKQGMeB
+    - eQG3v1OhAbokSWt75rva
+    saved_preview: matched
+    file: widow/widow_b3.mp3
+    seconds: 7.395375
+    check_file: widow/widow_b3_check.mp3
+  - id: widow_b4
+    seed: 13004
+    voice_id: mEqh4shy6lVuZZjKB0X5
+    previews:
+    - mEqh4shy6lVuZZjKB0X5
+    - lBZ1PuF1ezZhkZhM8351
+    - nEv9H8r5gfPbXdn5Td1H
+    saved_preview: matched
+    file: widow/widow_b4.mp3
+    seconds: 9.0933125
+    check_file: widow/widow_b4_check.mp3
+  freighter:
+  - id: freighter_b1
+    seed: 14001
+    voice_id: R4dJw1vdM2LfaxcNXp0b
+    previews:
+    - R4dJw1vdM2LfaxcNXp0b
+    - RncPRBVQbZcYsgJKlurV
+    - a7OIusaK6mQfSWlArqgA
+    saved_preview: matched
+    file: freighter/freighter_b1.mp3
+    seconds: 11.9668125
+    check_file: freighter/freighter_b1_check.mp3
+  - id: freighter_b2
+    seed: 14002
+    voice_id: U6OuRPDjQSByoawtFR8m
+    previews:
+    - U6OuRPDjQSByoawtFR8m
+    - RPEcNsAtx04DVvtbhYpm
+    - rd96cE1qJWuGzS00lI95
+    saved_preview: matched
+    file: freighter/freighter_b2.mp3
+    seconds: 11.31375
+    check_file: freighter/freighter_b2_check.mp3
+  - id: freighter_b3
+    seed: 14003
+    voice_id: B4ohrHjNdKV1Iy3dmenJ
+    previews:
+    - B4ohrHjNdKV1Iy3dmenJ
+    - GmBl1ej4suyBH6Wx9cmr
+    - yx1m0fcRpPUKt2GkMcDQ
+    saved_preview: matched
+    file: freighter/freighter_b3.mp3
+    seconds: 10.8435625
+    check_file: freighter/freighter_b3_check.mp3
+  - id: freighter_b4
+    seed: 14004
+    voice_id: Uy7DFPjvyD9mvvDbyeiL
+    previews:
+    - Uy7DFPjvyD9mvvDbyeiL
+    - fRPNo13G9JHV9N61yTSz
+    - VPs3Mgo1L883BNQ0FrpR
+    saved_preview: matched
+    file: freighter/freighter_b4.mp3
+    seconds: 12.59375
+    check_file: freighter/freighter_b4_check.mp3
+  livery:
+  - id: livery_b1
+    seed: 15001
+    voice_id: Fj50rEyFwc8pGKqGpwQ7
+    previews:
+    - Fj50rEyFwc8pGKqGpwQ7
+    - R36Gzafj0S4AOJexvjTZ
+    - RXAn0E5ytzBZNYK2wkma
+    saved_preview: matched
+    file: livery/livery_b1.mp3
+    seconds: 13.0116875
+    check_file: livery/livery_b1_check.mp3
+  - id: livery_b2
+    seed: 15002
+    voice_id: 1FS03UrpS3txIZkaOAbn
+    previews:
+    - 1FS03UrpS3txIZkaOAbn
+    - 7wnoogR017miHIt703h7
+    - KRfFiUnuc9DvXwqg59xh
+    saved_preview: matched
+    file: livery/livery_b2.mp3
+    seconds: 14.0305
+    check_file: livery/livery_b2_check.mp3
+  - id: livery_b3
+    seed: 15003
+    voice_id: fNsd5LquoJGfVrtmVoHE
+    previews:
+    - fNsd5LquoJGfVrtmVoHE
+    - lGznPRpWSZ2stCt0yE4d
+    - Fd8snRfQLEXPMTXS0SxV
+    saved_preview: matched
+    file: livery/livery_b3.mp3
+    seconds: 13.87375
+    check_file: livery/livery_b3_check.mp3
+  - id: livery_b4
+    seed: 15004
+    voice_id: wMCQyCHuVyxxZ58mSJe9
+    previews:
+    - wMCQyCHuVyxxZ58mSJe9
+    - HxVXnzGM14qXjzkezM0D
+    - v3zqqmABv84Ko9FLEUvg
+    saved_preview: matched
+    file: livery/livery_b4.mp3
+    seconds: 11.235375
+    check_file: livery/livery_b4_check.mp3
