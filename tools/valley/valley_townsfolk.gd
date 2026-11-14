@@ -60,11 +60,19 @@ static func lay(world: Node3D, n: int, at: Vector3, band := "mix", around := Vec
 			post = Vector3(x, 0.0, side * WALK_Z)
 			faces = Vector3(x, 1.5, 0.0)
 		# Down from just above the ground (2.4 m: over a walk, under an awning or a roof), not from the sky.
-		var g: float = ground.height_at(post.x, post.z) if ground else 0.0
-		var q := PhysicsRayQueryParameters3D.create(Vector3(post.x, g + 2.4, post.z), Vector3(post.x, g - 2.0, post.z), Layers.STAND)
-		var hit := space.intersect_ray(q)
-		if not hit.is_empty():
-			post.y = (hit.position as Vector3).y
+		# Higher than any walk (the bank's 1.2 m) is a wall's top, not a walk (the jail's 7 ft yard wall on
+		# the street line, #857): slide along the street and try again.
+		for _try in 4:
+			var g: float = ground.height_at(post.x, post.z) if ground else 0.0
+			post.y = 0.0
+			var q := PhysicsRayQueryParameters3D.create(Vector3(post.x, g + 2.4, post.z), Vector3(post.x, g - 2.0, post.z), Layers.STAND)
+			var hit := space.intersect_ray(q)
+			if not hit.is_empty():
+				post.y = (hit.position as Vector3).y
+			if hit.is_empty() or post.y - g < 1.5:
+				break
+			post.x += GAP * (1.0 if post.x >= at.x else -1.0)
+			faces.x = post.x if absf(faces.z) < 0.01 else faces.x
 		var man := HumanBody.new()
 		man.name = "Townsman%d" % i
 		man.person_id = StringName("townsman_%d" % i)

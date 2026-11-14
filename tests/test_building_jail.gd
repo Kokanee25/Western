@@ -158,3 +158,43 @@ func test_the_jails_rooms_are_lit_and_finished() -> void:
 	check(floors.keys() == ["floor"], "the floor's boards all the floor's finish (%s)" % [floors.keys()])
 	check(String(b.finish("floor").entry) == "floor_fir_worn", "the floor the library's worn fir (%s)" % b.finish("floor"))
 	check(b.finish("floor").entry != b.finish("inside").entry and b.finish("floor").entry != b.finish("trim").entry, "the floor never a wall's or the trim's wood")
+
+
+## #860 and #857: the stone's drawing data (StoneFinish: quoins at the footprint's convex corners, the
+## drips within the shader's 48), the parapet stepped over the door with piers at the corners (2a), the
+## cell wing's parapet about a metre under the office's, the yard wall 7 ft (3b); once the materials
+## judge has passed the library's rubble, every stone piece drawn in it, one material for the building.
+func test_the_jails_stone_and_parapet() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	var corners: Array = b.get_meta(&"stone_corners", [])
+	var drips: Array = b.get_meta(&"stone_drips", [])
+	print("  corners %s; %d drips" % [corners, drips.size()])
+	for c: Vector2 in [Vector2(0, 0), Vector2(6.09, 23.16), Vector2(10.97, 23.16), Vector2(30.8, 0), Vector2(30.8, 38.1), Vector2(0, 38.1)]:
+		check(corners.any(func(q: Vector2) -> bool: return q.distance_to(c) < 0.01), "a quoin corner at %s" % c)
+	check(corners.size() == 6, "only the convex corners (%d)" % corners.size())
+	check(drips.size() <= 96 and drips.size() > 10, "the drips fit the shader (%d)" % drips.size())
+	var tops := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		var w := id.get_slice("/", 0)
+		var t: float = m.transform.origin.y + m.size.y * 0.5
+		tops[w] = maxf(float(tops.get(w, -INF)), t)
+	check(absf(float(tops.front) - 5.75) < 0.02, "the front parapet steps up over the door (%.2f)" % tops.front)
+	check(float(tops.ell_south) < float(tops.west) - 0.9, "the cell wing's parapet a metre under the office's (%.2f, %.2f)" % [tops.ell_south, tops.west])
+	var yard_top := -INF
+	var yard_foot := INF
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).trim_prefix(sid).begins_with("yard_lane/") and m.wood == &"stone":
+			yard_top = maxf(yard_top, m.transform.origin.y + m.size.y * 0.5)
+	var pl: Array = lab.spec.lot.ground.plane
+	var g := float(pl[0]) + float(pl[1]) * 15.0 + float(pl[2]) * 38.1
+	check(yard_top - g < 2.3 and yard_top - g > 2.0, "the yard wall 7 ft over the lane (%.2f)" % (yard_top - g))
+	if b.stone_material != null:
+		var n := 0
+		for m: StructureMember in b.get_members():
+			if m.wood == &"stone":
+				check(m.drawn_node().material_override == b.stone_material, "%s in the library's stone" % m.member_id)
+				n += 1
+				if n > 40:
+					break

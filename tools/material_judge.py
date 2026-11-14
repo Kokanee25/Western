@@ -22,7 +22,7 @@ import sys
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLASSES = ["rough", "common", "fine", "paint", "floor", "furniture"]
+CLASSES = ["rough", "common", "fine", "paint", "floor", "furniture", "stone", "plaster"]
 # shot -> (crop name, box in the 1920x1080 frame)
 SHOTS = {
     "noon_near": ("near", (420, 0, 1820, 780)),

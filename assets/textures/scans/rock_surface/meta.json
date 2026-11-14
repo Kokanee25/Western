@@ -1,0 +1,17 @@
+{
+ "id": "rock_surface",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/rock_surface",
+ "metres": [
+  2.0,
+  2.0
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-13",
+ "lossless": 2
+}
