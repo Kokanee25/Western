@@ -16,13 +16,24 @@ extends Node
 ## - anti-aliases the game viewport (FSR2 at native scale: sharper than Godot's TAA, which left the
 ##   frame soft in R0's renders; 16x anisotropic; `view.*` dials) and draws it to the window filtered
 ##   when it isn't native;
-## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, SDFGI,
-##   volumetric fog) through LookPreset, every one put back when it goes off;
-## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own);
-## - SDFGI outdoors only: a ray up from the camera four times a second, its energy eased to
+## - sets the environment's realistic dials (config/looks/real_dials.json: AgX, SSIL, volumetric
+##   fog; SDFGI off since #643: its cascades scrolling as you walk were a long frame every metre or
+##   so) through LookPreset, every one put back when it goes off;
+## - exposure by a camera-attributes multiplier (DayCycle keeps setting the tonemap's own), lower by
+##   day than at night (real.exposure, blended by LightLooks);
+## - SDFGI, when the look panel turns it on, outdoors only: a ray up from the camera four times a second, its energy eased to
 ##   `sdfgi_indoor` under a roof (the saloon's indoor light is RoomLight's) and `sdfgi_outdoor` out;
 ## - StandardMaterial3Ds' and decals' nearest filtering made linear (and back), including what's
-##   added while it's on.
+##   added while it's on;
+## - every building's interior probe (`interior_ambient`) taken again when the room's light changes
+##   (RoomReflections.state: lamps lit or out, the sun up or down) and when it comes on: taken once
+##   at the build (noon), its reflections put a grey-blue daylight sheen on the floor and bar at
+##   night under the real look's specular (R1);
+## - the lamps hung over a room (OilLamp meta `lamp_group` "hung") lit as a shaded lamp is (R1):
+##   their tin shade casts a shadow and the lamp casts shadows, so the shade darkens the ceiling
+##   over it and the light falls in a pool on the floor, the chairs and tables shadowed in it;
+##   their energy and reach multiplied by `hung_energy` and `hung_reach` (each frame, after
+##   OilLamp's flicker has set it: the flicker read back from the light).
 
 const SHADERS := [
 	"res://src/render/texel_grid.gdshader", "res://src/render/texel_grid_blocks.gdshader",
@@ -36,13 +47,19 @@ const DEFINE := "#define REAL_LOOK"
 const ROOF_CHECK := 0.25
 const ROOF_REACH := 30.0
 
-## The real look's own dials (look addresses `real.<dial>`): exposure (a multiplier on DayCycle's),
+## The real look's own dials (look addresses `real.<dial>`): exposure (a multiplier on DayCycle's;
+## LightLooks blends it by the sun from real_light.json, x1.05 by day to x1.4 at night, #641),
 ## relief / groove / specular (the shaders' globals, real_look.gdshaderinc), SDFGI's energy
 ## outdoors and under a roof.
 static var dials := {
-	"exposure": 1.4, "relief": 0.004, "groove": 0.003, "specular": 0.35,
-	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0,
+	"exposure": 1.05, "relief": 0.004, "groove": 0.003, "specular": 0.35,
+	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0, "hung_energy": 1.0, "hung_reach": 1.0,
 }
+## The hung lamps' meshes that cast a shadow under the real look (the tin shade over the flame).
+const HUNG_CASTERS := [&"Shade", &"ShadeUnder"]
+## A hung lamp's shadow only with the camera this near (from the street a room's lamps' shadows were
+## most of the frame's draws: OilLamp's own far rule).
+const HUNG_SHADOW_REACH := 14.0
 ## Whether the world's shaders are compiled for the real look now.
 static var shaders_real := false
 static var _original_code := {}
@@ -57,14 +74,45 @@ var _since_roof := 1.0
 var _under_roof := false
 var _sdfgi := 1.0
 var _pending: Array[Node] = []
+var _room_state := -1
+## The hung lamps made shaded: lamp -> the light energy this last wrote.
+var _hung := {}
 
 
 func _ready() -> void:
 	add_to_group(&"real_look")
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--aa="):
+			aa = "taa" if a.substr(5) == "taa" else "fsr2"
 	process_priority = 100  # after DayCycle and the light looks have set this frame's light
+	# Our own sky, its light, clouds and the valley's far land (#918), while the real look is on.
+	if RealSky.enabled:
+		var sky := RealSky.new()
+		sky.name = "RealSky"
+		add_child(sky)
 	# At once when the switch moves (a preset's later values, view.* say, then go over it).
 	Settings.changed.connect(_sync)
 	_sync.call_deferred()
+
+
+## Key 0: FSR2 <-> TAA, live, under the real look (Sean's test on his PC, #721).
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"debug_aa") and Settings.real_look:
+		set_aa("taa" if aa == "fsr2" else "fsr2")
+		var overlay := get_tree().root.find_child("DebugOverlay", true, false)
+		if overlay and overlay.has_method("toast"):
+			overlay.toast("Anti-aliasing: %s   (0 switches)" % ("TAA" if aa == "taa" else "FSR2"))
+
+
+## Sets the real look's anti-aliasing now (and for later switches of the look).
+func set_aa(mode: String) -> void:
+	aa = mode
+	var vp := viewport()
+	if vp == null or not _applied:
+		return
+	var vals: Dictionary = AA_TAA if aa == "taa" else {"scaling_3d_mode": VIEW_REAL["scaling_3d_mode"], "use_taa": VIEW_REAL["use_taa"]}
+	for k: String in vals:
+		vp.set(k, vals[k])
 
 
 func _exit_tree() -> void:
@@ -88,6 +136,8 @@ func _process(delta: float) -> void:
 			if is_instance_valid(n):
 				_filters(n, true)
 	_ease_sdfgi(delta)
+	_retake_probes()
+	_hung_lamps()
 
 
 func _physics_process(delta: float) -> void:
@@ -133,6 +183,9 @@ func _set_applied(on: bool) -> void:
 		tree.node_added.disconnect(_added)
 		_pending.clear()
 	_sdfgi = -1.0  # snap to where the camera is, not ease from the last value
+	_room_state = -1  # the interior probes taken again in the light they're in now
+	if not on:
+		_unshade_hung()
 	print("[real look] %s" % ("on" if on else "off"))
 
 
@@ -175,6 +228,12 @@ const VIEW_REAL := {
 	"anisotropic_filtering_level": Viewport.ANISOTROPY_16X, "use_debanding": true,
 	"scaling_3d_mode": Viewport.SCALING_3D_MODE_FSR2, "scaling_3d_scale": 1.0, "fsr_sharpness": 0.2,
 }
+## The anti-aliasing under the real look: "fsr2" (the default, VIEW_REAL's) or "taa" (Godot's TAA, no
+## upscaler). Sean's test (#721, 2026-11-09): under lavapipe FSR2 at native scale anti-aliased almost
+## nothing (a 1 m old board's pixel noise 11.8, TAA 3.1); on his PC, key 0 (`debug_aa`) switches it
+## live, `--aa=fsr2|taa` for a run. Not saved: the default stays FSR2 until he decides.
+const AA_TAA := {"scaling_3d_mode": Viewport.SCALING_3D_MODE_BILINEAR, "use_taa": true}
+static var aa := "fsr2"
 
 
 func _view(on: bool) -> void:
@@ -186,6 +245,9 @@ func _view(on: bool) -> void:
 			if not _view_before.has(k):
 				_view_before[k] = vp.get(k)
 			vp.set(k, VIEW_REAL[k])
+		if aa == "taa":
+			for k: String in AA_TAA:
+				vp.set(k, AA_TAA[k])
 	else:
 		for k: String in _view_before:
 			vp.set(k, _view_before[k])
@@ -231,6 +293,86 @@ func _ease_sdfgi(delta: float) -> void:
 	_sdfgi = want if _sdfgi < 0.0 else move_toward(_sdfgi, want, delta * 2.0)
 	if not is_equal_approx(env.sdfgi_energy, _sdfgi):
 		env.sdfgi_energy = _sdfgi
+
+
+## The interior probes taken again when the room's light changes (and when the look comes on).
+func _retake_probes() -> void:
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	if clock == null:
+		return
+	var s := RoomReflections.state(clock.get_hour())
+	if s == _room_state:
+		return
+	_room_state = s
+	for p in get_tree().get_nodes_in_group(&"interior_ambient"):
+		if p is ReflectionProbe:
+			_retake(p as ReflectionProbe)
+
+
+## UPDATE_ONCE takes a probe again when it changes: always for two frames and back, a frame after
+## the lamps' own hour_changed has lit them (as RoomReflections.retake).
+func _retake(p: ReflectionProbe) -> void:
+	await get_tree().process_frame
+	if not is_instance_valid(p) or not p.is_inside_tree():
+		return
+	p.update_mode = ReflectionProbe.UPDATE_ALWAYS
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if is_instance_valid(p) and p.is_inside_tree():
+		p.update_mode = ReflectionProbe.UPDATE_ONCE
+
+
+## The hung lamps shaded (shadows from their tin shade) and their light multiplied, every frame
+## after OilLamp's flicker. New lamps are found in the `oil_lamps` group.
+func _hung_lamps() -> void:
+	var cam := _camera()
+	for n in get_tree().get_nodes_in_group(&"oil_lamps"):
+		var lamp := n as OilLamp
+		if lamp == null or lamp.get_meta(&"lamp_group", &"") != &"hung" or lamp._light == null:
+			continue
+		var light := lamp._light
+		if not _hung.has(lamp):
+			_hung[lamp] = -1.0
+			light.set_meta(&"real_shadow_before", light.shadow_enabled)
+			var root := lamp.get_parent()
+			for c: StringName in HUNG_CASTERS:
+				var mi := root.get_node_or_null(NodePath(String(c))) as MeshInstance3D if root else null
+				if mi:
+					mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		var near := cam != null and cam.global_position.distance_to(light.global_position) < HUNG_SHADOW_REACH
+		if light.shadow_enabled != near:
+			light.shadow_enabled = near
+		var reach := lamp.light_range * float(dials.hung_reach)
+		if light.omni_range != reach:  # (on change only: a range write redraws its shadow, review B4)
+			light.omni_range = reach
+		# OilLamp sets energy x flicker (not every frame under the render thread): what it set is
+		# read back only when it isn't what this wrote last.
+		var e := light.light_energy
+		if e != float(_hung[lamp]) and lamp.energy > 0.0:
+			var w := e * float(dials.hung_energy)
+			light.light_energy = w
+			_hung[lamp] = w
+	for lamp: Variant in _hung.keys():
+		if not is_instance_valid(lamp):
+			_hung.erase(lamp)
+
+
+func _unshade_hung() -> void:
+	for lamp: Variant in _hung.keys():
+		if not is_instance_valid(lamp):
+			continue
+		var l := lamp as OilLamp
+		var light := l._light
+		if light:
+			light.shadow_enabled = bool(light.get_meta(&"real_shadow_before", false))
+			light.omni_range = l.light_range
+			light.light_energy = l.energy
+		var root := l.get_parent()
+		for c: StringName in HUNG_CASTERS:
+			var mi := root.get_node_or_null(NodePath(String(c))) as MeshInstance3D if root else null
+			if mi:
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_hung.clear()
 
 
 ## A look address `real.<dial>`: set and read (LookPreset).

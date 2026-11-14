@@ -1,0 +1,54 @@
+shelves: dispensary_shelves at (6.62, 0.95, 7.97), 1592 triangles, 3 batches, standing
+counter: dispensary_counter at (8.13, 0.95, 6.55), 464 triangles, 3 batches, standing
+scales: scales at (8.16, 1.87, 6.85), 4776 triangles, 6 batches, standing
+mortar: mortar at (8.12, 1.87, 6.2), 1880 triangles, standing
+c_round: medicine_bottle_round at (8.3, 1.87, 7.4), 838 triangles, standing
+c_panel: medicine_bottle at (8.15, 1.87, 7.28), 790 triangles, standing
+c_jar: drug_jar at (8.3, 1.87, 5.75), 976 triangles, standing
+c_poison: poison_bottle at (8.32, 1.87, 7.58), 838 triangles, standing
+jars_low_0: drug_jar at (5.76, 1.98, 7.94), 976 triangles, standing
+jars_low_1: drug_jar at (5.97, 1.98, 7.94), 976 triangles, standing
+jars_low_2: drug_jar at (6.18, 1.98, 7.94), 976 triangles, standing
+jars_low_3: drug_jar at (6.39, 1.98, 7.94), 976 triangles, standing
+jars_low_5: drug_jar at (6.81, 1.98, 7.94), 976 triangles, standing
+jars_low_6: drug_jar at (7.02, 1.98, 7.94), 976 triangles, standing
+jars_low_7: drug_jar at (7.23, 1.98, 7.94), 976 triangles, standing
+jars_low_8: drug_jar at (7.44, 1.98, 7.94), 976 triangles, standing
+eye_0: medicine_bottle at (5.7, 2.34, 7.95), 790 triangles, standing
+eye_1: medicine_bottle_round at (5.81, 2.34, 7.95), 838 triangles, standing
+eye_2: medicine_bottle at (5.92, 2.34, 7.95), 790 triangles, standing
+eye_3: medicine_bottle_round at (6.04, 2.34, 7.95), 838 triangles, standing
+eye_4: poison_bottle at (6.15, 2.34, 7.95), 838 triangles, standing
+eye_5: medicine_bottle at (6.26, 2.34, 7.95), 790 triangles, standing
+eye_8: medicine_bottle_round at (6.6, 2.34, 7.95), 838 triangles, standing
+eye_9: poison_bottle at (6.71, 2.34, 7.95), 838 triangles, standing
+eye_10: medicine_bottle at (6.82, 2.34, 7.95), 790 triangles, standing
+eye_11: medicine_bottle_round at (6.93, 2.34, 7.95), 838 triangles, standing
+eye_12: medicine_bottle at (7.04, 2.34, 7.95), 790 triangles, standing
+eye_13: medicine_bottle_round at (7.16, 2.34, 7.95), 838 triangles, standing
+eye_14: poison_bottle at (7.27, 2.34, 7.95), 838 triangles, standing
+eye_15: medicine_bottle at (7.38, 2.34, 7.95), 790 triangles, standing
+eye_16: medicine_bottle_round at (7.49, 2.34, 7.95), 838 triangles, standing
+high_0: medicine_bottle_round at (5.72, 2.7, 7.95), 838 triangles, standing
+high_1: medicine_bottle_round at (5.85, 2.7, 7.95), 838 triangles, standing
+high_2: poison_bottle at (5.97, 2.7, 7.95), 838 triangles, standing
+high_3: medicine_bottle at (6.1, 2.7, 7.95), 790 triangles, standing
+high_4: medicine_bottle_round at (6.22, 2.7, 7.95), 838 triangles, standing
+high_5: medicine_bottle_round at (6.35, 2.7, 7.95), 838 triangles, standing
+high_6: poison_bottle at (6.47, 2.7, 7.95), 838 triangles, standing
+high_7: medicine_bottle at (6.6, 2.7, 7.95), 790 triangles, standing
+high_8: medicine_bottle_round at (6.72, 2.7, 7.95), 838 triangles, standing
+high_9: medicine_bottle_round at (6.85, 2.7, 7.95), 838 triangles, standing
+high_11: medicine_bottle at (7.1, 2.7, 7.95), 790 triangles, standing
+high_12: medicine_bottle_round at (7.22, 2.7, 7.95), 838 triangles, standing
+high_13: medicine_bottle_round at (7.35, 2.7, 7.95), 838 triangles, standing
+high_14: poison_bottle at (7.47, 2.7, 7.95), 838 triangles, standing
+jars_high_0: drug_jar at (5.8, 3.06, 7.94), 976 triangles, standing
+jars_high_1: drug_jar at (6.07, 3.06, 7.94), 976 triangles, standing
+jars_high_2: drug_jar at (6.34, 3.06, 7.94), 976 triangles, standing
+jars_high_3: drug_jar at (6.61, 3.06, 7.94), 976 triangles, standing
+jars_high_4: drug_jar at (6.88, 3.06, 7.94), 976 triangles, standing
+jars_high_5: drug_jar at (7.15, 3.06, 7.94), 976 triangles, standing
+jars_high_6: drug_jar at (7.42, 3.06, 7.94), 976 triangles, standing
+desk: roll_top_desk at (1.2, 0.95, 3.36), 6384 triangles, 6 batches, standing
+chair: chair at (1.2, 0.95, 2.6), 312 triangles, 1 batches, standing

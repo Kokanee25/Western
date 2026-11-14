@@ -56,6 +56,8 @@ var me: Node
 ## 0 cool (a professional) .. 1 hothead.
 var temper := 0.5
 var friends: Array[StringName] = []
+## Friends who aren't one of the town's men by id: the player, to his companion (CompanionBrain).
+var friend_nodes: Array[Node] = []
 var entries := {}  ## Node -> {pressure, grudge, fear, stance, below (s), climb (s), last (s)}
 
 
@@ -159,7 +161,7 @@ func uncow(who: Node) -> void:
 
 
 func _is_friend(who: Node) -> bool:
-	return who is HumanBody and friends.has((who as HumanBody).person_id)
+	return who is HumanBody and friends.has((who as HumanBody).person_id) or (who != null and friend_nodes.has(who))
 
 
 ## Time passing: pressure settles (faster when they've put the gun away), the ladder steps.

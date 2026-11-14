@@ -19,11 +19,12 @@ const HELP := {
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
+	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
-	"weapon": "weapon revolver|shotgun|dynamite|bucket|plunger|none -> take that out (none: put it away)",
+	"weapon": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none -> take that out (none: put it away)",
 	"shove": "shove -> a shove, as a tap of its key (E) does; answers what it did (a man, a prop, a wall, a miss)",
 	"kick": "kick -> a kick, as the key held and let go does; answers what it did",
 	"wait": "wait SECONDS -> let game time pass",
@@ -44,7 +45,16 @@ const HELP := {
 	"read": "read frame|player|people|look|places|counts|all -> what's going on",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
-	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40)",
+	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
+	"story": "story [clear] -> the story's facts so far (StoryState: sheriff.care ...); clear forgets them",
+	"band": "band [hush] -> the band (#799, Band): its state, tune, clock and each part's gain, bus, place and man; hush stops it as a shot would",
+	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
+	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
+	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
+	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
+	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
+	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
+	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
 	"quit": "quit -> close the game",
 }
 
@@ -90,7 +100,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	if main == null:
 		main = get_parent()
-	street = main.find_child("TestStreet", true, false)
+	street = World.root(main)  # the old town's street, or the valley (Settings.world)
 	player = main.find_child("Player", true, false) as Player
 	Settings.autosave = false  # a bridge run never writes the player's settings file
 	# Drawn slowly (lavapipe: about a frame a second), the game would only get 8 physics steps a
@@ -233,6 +243,25 @@ func _cmd_quit(_a: Array) -> Dictionary:
 	return {"ok": true}
 
 
+func _cmd_world(a: Array) -> Dictionary:
+	var here := {"world": String(Settings.world), "loaded": String(street.name) if street else "",
+			"worlds": Array(Settings.WORLDS).map(func(w: StringName) -> String: return String(w))}
+	if player:
+		here["at"] = _arr(player.global_position)
+	if a.is_empty():
+		return here
+	var want := StringName(String(a[0]).to_lower())
+	if not want in Settings.WORLDS:
+		return {"ok": false, "error": "no world %s (town or valley)" % want}
+	if want == Settings.world:
+		return here
+	Settings.set_world(want)
+	# Answered first: the reload frees this bridge with the scene, and the new one listens once the
+	# new world is in.
+	(func() -> void: GameReset.reload_scene(get_tree(), "the bridge's world")).call_deferred()
+	return {"world": String(want), "was": here.world, "reloading": true}
+
+
 func _cmd_screenshot(a: Array) -> Dictionary:
 	if DisplayServer.get_name() == "headless":
 		return {"ok": false, "error": "headless: nothing is drawn (run under xvfb with a renderer)"}
@@ -338,8 +367,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 	elif _person(a[0]) != null:
-		var p := _person(a[0])
-		points = [p.global_position + (player.global_position - p.global_position).normalized() * 1.5]
+		var p := _lies(_person(a[0]))
+		points = [p + (player.global_position - p).normalized() * 1.5]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -368,7 +397,12 @@ func _cmd_walk(a: Array) -> Dictionary:
 			var v := player.get_horizontal_speed()
 			var stop := maxf(0.5, v * v / (2.0 * maxf(player.tuning.ground_decel, 0.1))) if last_leg else 0.5
 			if flat.length() < stop:
-				break
+				# A short last leg after a run (down a walk's end flight into an alley, #737): ease off
+				# to a walk and steer on in, not let go and slide on past.
+				if last_leg and run and flat.length() > 0.5 and v > player.tuning.walk_speed + 0.3:
+					_act(false, &"run")
+				else:
+					break
 			var now := _game_seconds()
 			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
@@ -417,13 +451,19 @@ func _cmd_key(a: Array) -> Dictionary:
 	return {"key": OS.get_keycode_string(code)}
 
 
+func _cmd_crawl(a: Array) -> Dictionary:
+	player.force_crawl = a.is_empty() or String(a[0]) != "off"
+	await _seconds(0.6)
+	return {"crawling": player.is_crawling, "crouching": player.is_crouching, "at": _arr(player.global_position)}
+
+
 func _cmd_press(a: Array) -> Dictionary:
 	if a.is_empty() or not InputMap.has_action(StringName(a[0])):
 		return {"ok": false, "error": "no action %s" % (a[0] if a.size() > 0 else "")}
 	var action := StringName(a[0])
 	# Why it won't do anything, as the screen says it (#607: out of cartridges, the gun put away).
 	var w := player.weapon if player else null
-	var why := w.why_not(action) if w != null and w.armed and action in [&"reload", &"fire", &"aim", &"cock"] else ""
+	var why := w.why_not(action) if w != null and w.armed and action in [&"reload", &"fire", &"aim", &"cock", &"hammer"] else ""
 	_act(true, action)
 	await _settle()
 	await _seconds(float(a[1]) if a.size() > 1 else 0.1)
@@ -513,7 +553,22 @@ func _cmd_shoot(a: Array) -> Dictionary:
 	var clicked := 0  # the hammer fell and nothing went off: an empty or spent chamber, or a misfire
 	for i in n:
 		var before := _shots
-		if w is RevolverViewmodel or w is ShotgunViewmodel:
+		if w is Winchester73Viewmodel:
+			# The rifle: at half cock thumb the hammer back; down, work the lever (Q's tap).
+			var rtries := 0
+			while not _cocked(w) and rtries < 6:
+				var rstate := (w as Winchester73Viewmodel).state
+				if rstate.lever_open or not rstate.ready():
+					await _seconds(0.3)  # the lever still going home
+					rtries += 1
+					continue
+				var half := rstate.hammer == Winchester73State.Hammer.HALF_COCK
+				_act(true, &"hammer" if half else &"cock")
+				await _settle()
+				_act(false, &"hammer" if half else &"cock")
+				await _seconds(0.6)
+				rtries += 1
+		elif w is RevolverViewmodel or w is ShotgunViewmodel:
 			# Thumb the hammer back till it's cocked (a press while the gun's still coming up or
 			# recoiling doesn't take).
 			var tries := 0
@@ -555,6 +610,9 @@ func _cocked(w: WeaponViewmodel) -> bool:
 		return (w as RevolverViewmodel).state.hammer == RevolverState.Hammer.FULL_COCK
 	if w is ShotgunViewmodel:
 		return (w as ShotgunViewmodel).state.cocked_hammers.has(true)
+	if w is Winchester73Viewmodel:
+		var rs := (w as Winchester73Viewmodel).state
+		return rs.hammer == Winchester73State.Hammer.FULL_COCK and not rs.lever_open and rs.ready()
 	return true
 
 
@@ -565,9 +623,9 @@ func _cmd_weapon(a: Array) -> Dictionary:
 			player.weapon.put_away()
 		await _seconds(0.8)
 		return {"weapon": _weapon_line()}
-	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
+	var w: WeaponViewmodel = {"revolver": player.revolver(), "shotgun": player.shotgun(), "rifle": player.rifle(), "dynamite": player.dynamite(), "bucket": player.bucket(), "plunger": player.plunger()}.get(want)
 	if w == null:
-		return {"ok": false, "error": "weapon revolver|shotgun|dynamite|bucket|plunger|none"}
+		return {"ok": false, "error": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none"}
 	player.select_weapon(w)
 	var until := _game_seconds() + 4.0
 	while _game_seconds() < until and not (player.weapon == w and w.drawn):
@@ -684,7 +742,110 @@ func _cmd_moment(a: Array) -> Dictionary:
 	return _moment.result()
 
 
+func _cmd_band(a: Array) -> Dictionary:
+	var b := get_tree().get_first_node_in_group(&"band") as Band
+	if b == null:
+		return {"ok": false, "error": "no band here (the valley's, config/band.json; -- --no-band leaves it out)"}
+	if a.size() > 0 and a[0] == "hush":
+		b.hush(&"bridge")
+	return b.report()
+
+
+func _cmd_story(a: Array) -> Dictionary:
+	if a.size() > 0 and a[0] == "clear":
+		StoryState.clear()
+	return StoryState.to_dict()
+
+
+## E by a free chair (PlayerSeat.use, as the key); `sit n`: by the valley's card table's north chair
+## first, facing it.
+func _cmd_sit(a: Array) -> Dictionary:
+	var folk := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+	if a.size() > 0:
+		var chair: KitProp = folk.props.get("chair_" + String(a[0])) if folk else null
+		if chair == null:
+			return {"ok": false, "error": "no chair_%s (the valley's card table: n, e, s, w)" % a[0]}
+		var behind := Seating.spot(chair) - chair.global_basis.z * 0.5
+		player.global_position = behind
+		player.velocity = Vector3.ZERO
+		var to := chair.global_basis.z
+		player.rotation.y = atan2(-to.x, -to.z)
+		await _physics_frames(2)
+	var did := player.seat.use()
+	await _settle()
+	var out := player.seat.report()
+	out["did"] = String(did) if did != &"" else "nothing: no free chair by you"
+	return out
+
+
+func _cmd_stand(_a: Array) -> Dictionary:
+	if not player.seat.seated():
+		return {"ok": false, "error": "you're not sat down"}
+	player.seat.use()
+	await _settle()
+	var out := player.seat.report()
+	out["did"] = String(player.seat.last)
+	out["at"] = _arr(player.global_position)
+	return out
+
+
+func _cmd_cards(a: Array) -> Dictionary:
+	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
+	if g == null:
+		return {"ok": false, "error": "no card game (the valley: -- --world=valley, at night)"}
+	if a.size() > 1 and a[0] == "wait":
+		var want := g.hands + int(a[1])
+		var ticks := 0
+		while g.hands < want and g.state != &"stopped" and ticks < 180 * Engine.physics_ticks_per_second:
+			await get_tree().physics_frame
+			ticks += 1
+	return g.report()
+
+
+## A nod (pitch) or a shake (yaw): three swings of 12 degrees, a tenth of a second each, back level.
+func _cmd_joe(a: Array) -> Dictionary:
+	var what := String(a[0]) if a.size() > 0 else "state"
+	var man: HumanBody = null
+	for n: Node in get_tree().get_nodes_in_group(&"companions"):
+		man = n as HumanBody
+	if what == "here" and man == null:
+		man = CompanionBrain.spawn_beside(player)
+		await _physics_frames(10)
+	if man == null:
+		return {"error": "no Joe: 'joe here' brings him in (or -- --joe)"}
+	var b := man.get_node(^"Brain") as CompanionBrain
+	var said := ""
+	if what in ["wait", "come"] and (what == "wait") == (b.wait_at == Vector3.INF):
+		said = b.told(player)
+	return {"said": said, "at": [snappedf(man.global_position.x, 0.1), snappedf(man.global_position.z, 0.1)],
+		"from_you_m": snappedf(CompanionBrain._flat(man.global_position, player.global_position), 0.1), "waiting": b.wait_at != Vector3.INF,
+		"conscious": man.physiology.is_conscious(), "alive": man.physiology.alive, "in_your_line": b.in_your_line(),
+		"doing": b.describe(), "stats": b.stats}
+
+
+func _cmd_nod(_a: Array) -> Dictionary:
+	return await _head(Vector2(0.0, -1.0))
+
+
+func _cmd_shake(_a: Array) -> Dictionary:
+	return await _head(Vector2(1.0, 0.0))
+
+
+func _head(axis: Vector2) -> Dictionary:
+	var yaw0 := player.rotation.y
+	var pitch0 := player.get_pitch_degrees()
+	for k: float in [0.5, 1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0]:
+		_set_view(yaw0 - deg_to_rad(axis.x * 12.0 * k), pitch0 + axis.y * 12.0 * k)
+		await _physics_frames(3)
+	return {"facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1)}
+
+
 func _cmd_moment_result(a: Array) -> Dictionary:
+	if _moment == null or not is_instance_valid(_moment) or _moment.is_queued_for_deletion():
+		_moment = get_tree().get_first_node_in_group(&"moment") as Moment
+		for m in get_tree().get_nodes_in_group(&"moment"):
+			if not (m as Node).is_queued_for_deletion():
+				_moment = m as Moment
 	if _moment == null or not is_instance_valid(_moment):
 		return {"ok": false, "error": "no moment running (moment NAME)"}
 	if a.size() > 0 and a[0] == "wait":
@@ -963,8 +1124,10 @@ func _frame() -> Dictionary:
 func _player_state() -> Dictionary:
 	var w := player.wounds
 	var out := {"at": _arr(player.global_position), "facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1),
-		"crouching": player.is_crouching, "weapon": _weapon_line(), "movement": String(player.movement),
+		"crouching": player.is_crouching, "crawling": player.is_crawling, "weapon": _weapon_line(), "movement": String(player.movement),
 		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
+	if player.seat:
+		out["seat"] = player.seat.report()
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive
@@ -980,8 +1143,9 @@ func _people() -> Array:
 		var man := n as HumanBody
 		if man == null or not is_instance_valid(man) or man.physiology == null:
 			continue
-		var rel := man.global_position - player.global_position
-		var e := {"name": String(man.person_id), "at": _arr(man.global_position), "distance_m": snappedf(rel.length(), 0.1),
+		var at := _lies(man)
+		var rel := at - player.global_position
+		var e := {"name": String(man.person_id), "at": _arr(at), "distance_m": snappedf(rel.length(), 0.1),
 			"bearing": _bearing(rel), "alive": man.physiology.alive, "conscious": man.physiology.is_conscious(),
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
@@ -1047,13 +1211,16 @@ func _weapon_line() -> String:
 	var w := player.weapon
 	if w == null:
 		return "none"
-	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
+	var kind := "revolver" if w is RevolverViewmodel else "shotgun" if w is ShotgunViewmodel else "rifle" if w is Winchester73Viewmodel else "dynamite" if w is DynamiteViewmodel else "bucket" if w is BucketViewmodel else "plunger" if w is PlungerViewmodel else "?"
 	var drawn := w.drawn
 	var loads := ""
 	if "state" in w and w.state and w.state.has_method("to_dict"):
 		var st: Dictionary = w.state.to_dict()
 		if st.has("chambers"):
 			loads = ", %d loaded, %d on the belt" % [(st.chambers as Array).count(1), int(st.get("belt", 0))]
+		elif st.has("tube"):
+			loads = ", %d in the tube, chamber %s, %d on the belt%s" % [int(st.tube), ["empty", "loaded", "spent", "dud"][int(st.chamber)],
+					(w as Winchester73Viewmodel).state.belt(), ", lever open" if st.lever_open else ""]
 		elif st.has("barrels"):
 			loads = ", %d loaded, %d cocked%s" % [(st.barrels as Array).count(1), (st.cocked as Array).count(true), ", open" if st.open else ""]
 		if st.has("hammer"):
@@ -1231,11 +1398,22 @@ func _person(name: String) -> HumanBody:
 	return null
 
 
+## Where a man is: his root while he stands; limp, his pelvis (the root stays where he went limp,
+## #562: `read people` gave a dead man's spawn point for where he lay).
+static func _lies(man: HumanBody) -> Vector3:
+	var pelvis := man.parts.get(&"pelvis") as Node3D
+	if man.limp and pelvis != null and is_instance_valid(pelvis):
+		return pelvis.global_position
+	return man.global_position
+
+
 func _town() -> TownLife:
 	return street.get_node_or_null(^"TownLife") as TownLife
 
 
 func _places() -> Waypoints:
+	if street is ValleyWorld:
+		return (street as ValleyWorld).places()  # the valley's places (G4: ValleyMarkers)
 	var t := _town()
 	return t.places if t else Waypoints.test_street()
 

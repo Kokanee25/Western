@@ -1,0 +1,6 @@
+a noon_far build/ml_r2/common/common_pine_lap_new/noon_far.png
+b golden_near build/ml_r2/common/common_pine_lap_few/golden_near.png
+c saloon_far build/ml_r2/common/common_pine_lap_old/saloon_far.png
+d golden_far build/ml_r2/common/common_fir_drop_new/golden_far.png
+e noon_near build/ml_r2/common/common_fir_drop_old/noon_near.png
+f saloon_far build/ml_r2/common/common_fir_drop_few/saloon_far.png

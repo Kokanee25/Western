@@ -1,0 +1,307 @@
+{
+ "alarm": 159.58,
+ "blocking": [
+  "0.3:Furnishings/@RigidBody3D@31175",
+  "RB RigidBody3D at [1.36, 0.75, 3.49] mass 0.692999958992 kids [] meta [&\"members\", &\"rest_reach\", &\"hurt\", &\"v\", &\"held_still\", &\"held_cell\", &\"resting_in\"]",
+  "0.3:Furnishings/@RigidBody3D@31179",
+  "RB RigidBody3D at [1.5, 0.59, 3.46] mass 0.30000001192093 kids [] meta [&\"members\", &\"rest_reach\", &\"v\", &\"held_still\", &\"held_cell\", &\"resting_in\"]",
+  "0.3:Furnishings/@RigidBody3D@31180",
+  "RB RigidBody3D at [1.39, 0.59, 3.41] mass 0.30000001192093 kids [&\"@CollisionShape3D@23847\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "0.3:Furnishings/@RigidBody3D@31176",
+  "RB RigidBody3D at [1.55, 0.6, 3.36] mass 0.30000001192093 kids [&\"@CollisionShape3D@23855\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "0.3:House/floor_ground_joist_005",
+  "0.3:House/floor_ground_joist_009",
+  "0.3:House/floor_ground_joist_007",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "1.0:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.0:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.0:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.0:Valley/Player",
+  "1.6:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.6:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.6:Props/@RigidBody3D@30065",
+  "RB RigidBody3D at [0.34, 1.51, 3.48] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"reports_from\", &\"resting_in\", &\"held_still\", &\"held_cell\"]",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": 159.08,
+  "freed": -1.0,
+  "froze": 15.166666666667,
+  "gate_left": 106.12,
+  "gate_wait": 54.9666666666648,
+  "hid": 156.83,
+  "phase_at": {
+   "lit": 154.15,
+   "plant": 152.07,
+   "through": 160.58
+  },
+  "planted": 154.15
+ },
+ "bot_phase": "through",
+ "bot_target": "",
+ "breach": 159.58,
+ "end": 174.32,
+ "executed": -1.0,
+ "found": 161.87,
+ "frames": {
+  "blast_ms": 271.49,
+  "fight_ticks": 884,
+  "max_ms": 271.49,
+  "mean_ms": 14.95,
+  "p95_ms": 30.07
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   8.76,
+   2.18,
+   2.06
+  ],
+  "limp": false,
+  "pelvis": [
+   8.85,
+   1.43,
+   2.0
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  8.82,
+  1.81,
+  2.02
+ ],
+ "men": 7,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "hold on: past his nerve (fear 1.23 / 1.20), nowhere to run (1 of 3)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.93 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.15 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're kitchen)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "",
+   "id": "pike",
+   "inside": false,
+   "knows": 2.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.9,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.95 / 0.88)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  1.02,
+  0.56,
+  4.18
+ ],
+ "quits": [
+  [
+   159.58,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   163.43,
+   "pike",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   169.5,
+   "wes",
+   "gives up",
+   "give up: past his nerve (fear 0.95 / 0.88)",
+   false
+  ]
+ ],
+ "route_left": 6,
+ "route_next": [
+  1.0,
+  0.56,
+  3.9
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 8,
+ "shots_men": 8,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": 159.58,
+ "t": 174.32,
+ "threat": 162.42,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   159.58,
+   "Hollis down"
+  ],
+  [
+   159.58,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   159.58,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 11 m off)"
+  ],
+  [
+   159.58,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   159.58,
+   "Hollis gives up ()"
+  ],
+  [
+   161.25,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.27,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.38,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.87,
+   "found: Pike sees you"
+  ],
+  [
+   162.4,
+   "Pike down"
+  ],
+  [
+   162.42,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   163.43,
+   "Pike gives up ()"
+  ],
+  [
+   169.5,
+   "Wes gives up (give up: past his nerve (fear 0.95 / 0.88))"
+  ],
+  [
+   170.27,
+   "Dutch down, out"
+  ],
+  [
+   173.82,
+   "Lyle down"
+  ],
+  [
+   174.32,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

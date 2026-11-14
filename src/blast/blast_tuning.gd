@@ -222,7 +222,8 @@ extends Resource
 ## taste for fun physics over the real push, which only knocks a man over). 0 is the real blast
 ## alone (the game before 3b); 1 the proposed targets: from a stick on the floor 1 m off he's
 ## thrown 3-6 m with the arc's top 1-2 m up, 3 m off he's off his feet a metre or two, 6 m off he's
-## knocked down as before. PROPOSED: Sean picks the setting by eye from the films.
+## knocked down as before. The game's is 0.8 (config/blast.tres; Sean's pick from the films, #636,
+## "to start with": a 3-4 m throw from a metre off); 0 here is the code's own default.
 @export var blast_lift := 0.0
 ## The lift's speed (m/s) at blast_lift 1 right by the charge, before it falls away with distance.
 @export var lift_speed := 7.5

@@ -27,6 +27,10 @@ var _n := 0  # points a side
 var _cell := 0.05
 var _depth := 2.0
 var _slab := 10.0
+## The lowest of the authored ground under it, where the columns' feet are measured from: 0 in the
+## town (its slopes are a few metres up at most), the bake's lowest in the valley (its canyon floor
+## is 30 m down, its benches 170 up).
+var _floor := 0.0
 var _columns: Array[CollisionShape3D] = []
 var _shape: HeightMapShape3D
 var _mesh: MeshInstance3D
@@ -48,9 +52,16 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 		t.set_meta(m, ground.get_meta(m))
 	var size := tn.tile_size()
 	t.position = Vector3((at.x + 0.5) * size, 0.0, (at.y + 0.5) * size)
-	# The authored ground under it, where it slopes (the town's goes with x alone; the hills out of
-	# town with x and z: TownLayout.ground_height).
-	if at.x * size < TownLayout.ground_flat_east_of():
+	# The authored ground under it: the valley's bake (Ground.terrain) everywhere; in the town where
+	# it slopes (the town's goes with x alone; the hills out of town with x and z:
+	# TownLayout.ground_height).
+	if ground.terrain:
+		t.base.resize(t._n * t._n)
+		for j in t._n:
+			for i in t._n:
+				t.base[j * t._n + i] = ground.terrain.height(at.x * size + i * tn.cell, at.y * size + j * tn.cell)
+		t._floor = Array(t.base).min()
+	elif at.x * size < TownLayout.ground_flat_east_of():
 		var along := PackedFloat32Array()
 		for i in t._n:
 			along.append(TownLayout.ground_height(at.x * size + i * tn.cell))
@@ -86,6 +97,11 @@ static func make(ground: Ground, at: Vector2i) -> GroundTile:
 	t.add_child(t._mesh)
 	t.rebuild(ground.material)
 	return t
+
+
+## Its mesh (ValleyGround draws it with its chunk's finest level).
+func drawn() -> MeshInstance3D:
+	return _mesh
 
 
 ## The point (i along x, j along z) as an index into `heights`.
@@ -126,7 +142,7 @@ func rebuild(material: Material) -> void:
 func _rebuild_columns() -> void:
 	var half := (_n - 1) * 0.5
 	var cols := ceili(float(_n - 1) / COLUMN)
-	var bottom := -_depth - _slab
+	var bottom := _floor - _depth - _slab
 	var surf := _surface()
 	for cj in cols:
 		for ci in cols:

@@ -1,0 +1,3 @@
+a road_low_noon build/judge_before/road_low_noon.png
+b street_golden_hour build/judge_before/street_golden_hour.png
+c saloon_night build/judge_before/saloon_night.png

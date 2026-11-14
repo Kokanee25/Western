@@ -1,0 +1,245 @@
+{
+ "about": "Winchester Model 1873, #734 step 1: experiments/gun_lab/win73/win73_blender.py. Godot space, metres, the gun's local frame (barrel along -Z, up +Y, right +X). Angles in degrees about the axis given (right-hand rule). Travel numbers marked 'est' are estimates from the mechanism's geometry, not measured.",
+ "barrel_in": 24.0,
+ "kind": "rifle",
+ "magazine": 15,
+ "parts": [
+  "Receiver",
+  "Barrel",
+  "MagTube",
+  "Forend",
+  "ForendCap",
+  "MagBand",
+  "RearSight",
+  "FrontSight",
+  "Bolt",
+  "Carrier",
+  "DustCover",
+  "Gate",
+  "Hammer",
+  "Trigger",
+  "Lever",
+  "Buttstock",
+  "Buttplate",
+  "Screw_Hammer",
+  "Screw_HammerL",
+  "Screw_LeverPin",
+  "Screw_LeverPinL",
+  "Screw_SidePlate",
+  "Screw_SidePlateL",
+  "Screw_Spring",
+  "Screw_UpperTang",
+  "Screw_LowerTang",
+  "Screw_ForendCap",
+  "Screw_MagBand",
+  "Screw_ButtTop",
+  "Screw_ButtBottom"
+ ],
+ "rounds": {
+  "Chamber": {
+   "case": "CaseChamber",
+   "bullet": "BulletChamber",
+   "parent": "Win73"
+  },
+  "Carrier": {
+   "case": "CaseCarrier",
+   "bullet": "BulletCarrier",
+   "parent": "Carrier"
+  },
+  "Tube": {
+   "case": "CaseTube",
+   "bullet": "BulletTube",
+   "parent": "MagTube"
+  },
+  "show": "loaded: case+bullet; spent: case only; empty: neither"
+ },
+ "moving": {
+  "Lever": {
+   "pivot": [
+    0.0,
+    0.005334,
+    -0.06096
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "throw_deg": 52.0,
+   "note": "est: + swings the loop down and forward; the bolt, carrier and hammer follow (win73_rig.gd)"
+  },
+  "Bolt": {
+   "rest": [
+    0.0,
+    0.05334,
+    -0.11176
+   ],
+   "axis": [
+    0,
+    0,
+    1
+   ],
+   "stroke_m": 0.04699,
+   "note": "est: back (+Z) as the toggle links unfold, (1 - cos(pi t)) / 2 of the stroke over the lever's throw"
+  },
+  "Carrier": {
+   "rest": [
+    0.0,
+    0.03429,
+    -0.087884
+   ],
+   "axis": [
+    0,
+    1,
+    0
+   ],
+   "lift_m": 0.01905,
+   "note": "lifts straight up from the tube's line to the bore's in the last 30% of the opening, drops in the last 15% of the closing (the round already in the chamber)"
+  },
+  "Hammer": {
+   "pivot": [
+    0.0,
+    0.00508,
+    -0.000762
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "notches_deg": {
+    "rest": 0.0,
+    "half": 13.0,
+    "full": 34.0
+   },
+   "note": "est: + takes the spur back; the bolt's back cocks it in the first 45% of the throw"
+  },
+  "Trigger": {
+   "pivot": [
+    0.0,
+    0.004318,
+    -0.019812
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "pull_deg": -8.0,
+   "note": "est: - takes the blade back"
+  },
+  "DustCover": {
+   "rest": [
+    0.0,
+    0.06858,
+    -0.11176
+   ],
+   "axis": [
+    0,
+    0,
+    1
+   ],
+   "stroke_m": 0.03683,
+   "note": "est: slides back along its rail, uncovering the port"
+  },
+  "Gate": {
+   "pivot": [
+    0.013462,
+    0.031496,
+    -0.11049
+   ],
+   "axis": [
+    0,
+    1,
+    0
+   ],
+   "push_deg": -16.0,
+   "note": "est: hinged at its front, its back pressed in by a round going into the tube"
+  }
+ },
+ "markers": {
+  "Muzzle": [
+   0.0,
+   0.05334,
+   -0.77851
+  ],
+  "ReceiverFront": [
+   0.0,
+   0.05334,
+   -0.16891
+  ],
+  "BoreBreech": [
+   0.0,
+   0.05334,
+   -0.11176
+  ],
+  "SightRear": [
+   0.0,
+   0.071628,
+   -0.23749
+  ],
+  "SightFront": [
+   0.0,
+   0.069088,
+   -0.7493
+  ],
+  "Wrist": [
+   0.0,
+   -0.00254,
+   0.04064
+  ],
+  "TriggerFace": [
+   0.0,
+   -0.01524,
+   -0.0127
+  ],
+  "Forend": [
+   0.0,
+   0.03048,
+   -0.28956
+  ],
+  "GatePoint": [
+   0.014224,
+   0.031496,
+   -0.09144
+  ],
+  "Port": [
+   0.0,
+   0.06858,
+   -0.08636
+  ],
+  "Butt": [
+   0.0,
+   -0.07366,
+   0.30734
+  ]
+ },
+ "dims_in": {
+  "bore": 0.417,
+  "groove": 0.429,
+  "rim": 0.525,
+  "rim_t": 0.065,
+  "base": 0.471,
+  "neck": 0.443,
+  "case_len": 1.305,
+  "oal": 1.592,
+  "bullet": 0.429,
+  "f_recv": 2.25,
+  "flats_breech": 1.0,
+  "flats_muzzle": 0.88,
+  "round_breech": 0.8,
+  "round_muzzle": 0.7,
+  "tube_od": 0.6,
+  "tube_u": -0.75,
+  "width": 1.12,
+  "bolt_stroke": 1.85,
+  "carrier_lift": 0.75,
+  "cover_stroke": 1.45,
+  "muzzle_f": 26.25,
+  "sight_rear_f": 4.95,
+  "sight_front_f": 25.1,
+  "los_rear": 0.72,
+  "front_top": 0.62,
+  "heel_f": -17.05
+ }
+}

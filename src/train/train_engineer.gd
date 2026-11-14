@@ -70,13 +70,29 @@ func go_to(at: float, kmh: float) -> void:
 
 
 ## Follow a timetable (filled for this line) from its first stop, where the train stands. `late`:
-## he can't leave before this many seconds past the timetable's start (a late start).
-func run(tt: TrainTimetable, late := 0.0) -> void:
+## he can't leave before this many seconds past the timetable's start (a late start). `from_stop`:
+## the train stands at that stop instead (put where the timetable has it by the clock: the valley's
+## daily train at load, G3), its dwell counted from the timetable's arrival there.
+func run(tt: TrainTimetable, late := 0.0, from_stop := 0) -> void:
 	timetable = tt
-	stop = 0
+	stop = clampi(from_stop, 0, maxi(tt.stops.size() - 1, 0))
 	state = WAIT
 	arrived_t = sim.time
+	if stop > 0 and tt.stops[stop].has("arrive"):
+		arrived_t = minf(sim.time, float(tt.stops[stop].arrive))
 	late_until = float(tt.data.get("start", 0.0)) + late
+	_last_s = sim.s
+
+
+## Take over a train already running leg `k` of a timetable (from stop k toward k+1), as if he'd
+## left stop k on it: the valley's daily train put by the clock mid-leg (G3).
+func join(tt: TrainTimetable, k: int) -> void:
+	timetable = tt
+	stop = clampi(k, 0, maxi(tt.stops.size() - 2, 0))
+	arrived_t = sim.time
+	late_until = -INF
+	_start_leg(float(tt.stops[stop + 1].s))
+	_leg_from = float(tt.stops[stop].s)
 	_last_s = sim.s
 
 
@@ -255,12 +271,21 @@ func _creep(d: float) -> void:
 	# Brakes off, a breath of steam toward the mark (setting back if he's past it).
 	var way := 1 if d > 0.0 else -1
 	sim.reverser = dir * way
-	if sim.brake > 0.15:
+	# On a climb toward the mark (the valley's 2.5 % into the tunnel, G3) a breath of steam won't
+	# lift it: he opens up to what holds it on the grade and more, and lets the brakes off only
+	# once the steam's up against them, or it rolls back as they come off.
+	var climb := maxf(line.grade_at(sim.s - dir * sim.length * 0.5) * dir * way, 0.0)
+	var steam := clampf(0.35 + climb * 24.0, 0.35, 1.0)
+	if climb > 0.003 and sim.steam < steam * 0.9:
+		sim.brake_lever = 1.0
+		sim.throttle = steam
+		return
+	if sim.brake > 0.15 and climb <= 0.003:
 		sim.brake_lever = 0.0
 		sim.throttle = 0.0
 		return
 	sim.brake_lever = 0.0
-	sim.throttle = 0.35
+	sim.throttle = steam
 	braking = false
 	if way < 0:  # past it: back up to it, then stop as from any run
 		target = sim.s + d * dir

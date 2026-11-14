@@ -149,3 +149,814 @@ func test_the_top_sack_comes_down_when_one_under_it_goes() -> void:
 	var falling := s.members_without_load_path({_m(s, "sack0").member_id: true, _m(s, "sack1").member_id: true})
 	check(falling.has(_m(s, "sack2").member_id), "with both under it gone, the top sack falls")
 	check(s.members_without_load_path({_m(s, "sack0").member_id: true}).is_empty(), "on one it stays")
+
+
+# --- The doctor's office, batch D1 (#788; tools/props/doctor.py, tools/blender/props/doctor_d1.py) --
+
+const DOCTOR_D1 := [&"examining_table", &"iron_cot", &"washstand"]
+const DOCTOR_D1_GLASS := [&"wash_basin", &"wash_pitcher", &"reflector_lamp"]
+
+
+func test_doctor_d1_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: a solid oak table ~55-75 (oak since #825: 750 kg/m3); an iron cot with its tick ~25-40; a pine washstand ~9-20.
+	var weights := {&"examining_table": [40.0, 80.0], &"iron_cot": [22.0, 45.0], &"washstand": [8.0, 32.0]}
+	for id: StringName in DOCTOR_D1:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down" % id)
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		# Library boards batch by the way they face (a table's legs, aprons both ways, top, shelf and
+		# drawer fronts: five frames), the baked look and its dress one or two more.
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_doctor_d1_woods_are_the_libraries_and_its_metal_is_baked() -> void:
+	var t := await _place(&"examining_table")
+	var leg := _m(t, "leg0").drawn_node()
+	var mat := leg.material_override as ShaderMaterial
+	check(mat != null and mat.shader.resource_path == "res://src/render/scan_wood.gdshader", "a leg is the library's furniture oak")
+	check(leg.mesh.has_meta(&"board_frame"), "drawn as a library board (batched by the way it faces)")
+	check(PropKit.lib_material("lib:furniture_oak/few") == mat, "every oak prop shares one material")
+	var pad := _m(t, "pad").drawn_node()
+	var oil := pad.material_override as StandardMaterial3D
+	check(oil != null and oil.albedo_texture != null and oil.roughness_texture != null and oil.metallic_texture != null,
+			"the pad is baked the gun way: albedo and ORM")
+	var c := await _place(&"iron_cot", Vector3(3, 0, 0))
+	var post := _m(c, "post0").drawn_node()
+	check((post.material_override as StandardMaterial3D) == PropModels.pbr("iron_cot"), "the cot's iron is its baked japanned iron")
+	check(post.mesh.get_faces().size() > 36 * 3, "a post is drawn from its model (a tube with its knob), not a box")
+	check(FireTuning.new().fireproof.has(_m(c, "post0").wood), "iron doesn't burn")
+	check(not FireTuning.new().fireproof.has(_m(c, "tick").wood), "the straw tick does")
+	for model in ["examining_table", "iron_cot", "washset", "instrument_tray", "reflector_lamp"]:
+		for suffix in ["albedo", "orm"]:
+			check(ResourceLoader.exists("res://assets/props/models/%s_%s.png" % [model, suffix]), "%s has its baked %s" % [model, suffix])
+
+
+func test_a_man_laid_on_the_table_or_the_cot_is_carried() -> void:
+	for id: StringName in [&"examining_table", &"iron_cot"]:
+		var p := await _place(id)
+		var seat: Dictionary = PropKit.definition(id).seat
+		_m(p, String(seat.member)).extra_load = 90.0 * 9.81
+		check(p.settle().is_empty(), "%s carries a 90 kg man" % id)
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_a_shot_through_an_oak_leg_is_carved_where_the_leg_is() -> void:
+	var t := await _place(&"examining_table")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var leg := _m(t, "leg2")
+	var from := leg.global_position + Vector3(0, 0, 5)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (leg.global_position - from).normalized(), r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not leg.holes.is_empty() and not leg.broken, "the ball holes the 65 mm leg and it holds (holes %d, broken %s, section left %.2f)" % [leg.holes.size(), leg.broken, leg.section_left(t.tuning)])
+	if not leg.broken:
+		var mi := leg.drawn_node()
+		if mi.mesh and not mi.mesh.has_meta(&"board_frame"):
+			check(mi.transform.is_equal_approx(Transform3D()), "carved, its mesh is drawn in the leg's own space")
+	check(not t.loose, "the table stands")
+
+
+func test_doctor_d1_glass_stands_and_the_china_breaks() -> void:
+	var w := await _place(&"washstand")
+	var top := PropKit.bounds(PropKit.definition(&"washstand")).end.y
+	var basin := PropKit.make(&"wash_basin") as GlassProp
+	basin.position = Vector3(0, 0.76, 0.03)
+	world.add_child(basin)
+	var lamp := PropKit.make(&"reflector_lamp") as GlassProp
+	lamp.position = Vector3(2, 0, 0)
+	world.add_child(lamp)
+	var tray := PropKit.make(&"instrument_tray") as GlassProp
+	tray.position = Vector3(-2, 0, 0)
+	world.add_child(tray)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(top > 0.75, "the washstand's top is at %.2f" % top)
+	check(not basin.broken and not basin.loose, "the basin stands on the washstand")
+	check(tray is LooseProp and not tray.loose, "the tray lies where it's put, a loose prop")
+	for g: GlassProp in [basin, lamp]:
+		check(g.model.get_child_count() >= 1, "%s is drawn from its model" % g.kit_id)
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var at := basin.global_position + Vector3.UP * 0.05
+	ballistics.fire(at + Vector3(-5, 0, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(basin.broken, "a ball breaks the basin")
+	var pitcher := PropKit.make(&"wash_pitcher") as GlassProp
+	pitcher.position = Vector3(0, 1.2, 1.5)
+	world.add_child(pitcher)
+	await wait_until(func() -> bool: return pitcher.broken, 120)
+	check(pitcher.broken, "the pitcher dropped from 1.2 m breaks (%.1f m/s against 2.5)" % sqrt(2.0 * 9.81 * 1.2))
+	w.queue_free()
+
+
+func test_the_reflector_lamp_hangs_on_its_nail_and_its_chimney_glows_when_lit() -> void:
+	# A wall: two studs and boards across them, its face at z = 0 (the lamp's back toward it).
+	var wall := Structure.new()
+	wall.structure_id = &"lamp_wall"
+	world.add_child(wall)
+	for x in [-0.4, 0.4]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.4, 0.1), Vector3(x, 1.2, -0.07))
+	for i in 10:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.2, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var lamp := PropKit.make(&"reflector_lamp") as GlassProp
+	lamp.position = Vector3(0, 1.3, 0.125)
+	world.add_child(lamp)
+	var light := OilLamp.new()
+	light.name = "Light"
+	light.show_mesh = false
+	lamp.add_child(light)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 6)
+	check(not lamp.loose and not lamp.broken, "it hangs on its nail in the wall")
+	light.set_lit(true)
+	var chimney := lamp._chimney_mesh()
+	check(chimney != null, "its model has its glass chimney")
+	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 1.0, "lit, its chimney glows")
+	light.set_lit(false)
+	check(chimney != null and float(chimney.get_instance_shader_parameter(&"glow")) == 0.0, "out, it doesn't")
+
+
+func test_the_hand_towel_wipes_up_blood_and_reddens() -> void:
+	# A table's top of boards, blood spilt on it (a pool's worth), the towel drawn over it.
+	var top := Structure.new()
+	top.structure_id = &"wipe_top"
+	world.add_child(top)
+	for x in [-0.5, 0.5]:
+		top.add_member("leg%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 0.75, 0.05), Vector3(x, 0.375, 0))
+	for i in 4:
+		top.add_member("board%d" % i, &"furniture_top", &"framing", Vector3(1.2, 0.03, 0.15), Vector3(0, 0.765, -0.225 + 0.15 * i))
+	top.infer_supports()
+	var marks := FloorMarks.ensure(world)
+	await physics_frames(2)
+	marks.add_liquid(Vector3(0.0, 0.78, 0.0), &"blood", 60.0, 0.15)
+	var towel := PropKit.make(&"hand_towel") as ClothProp
+	towel.position = Vector3(0.0, 0.8, 0.0)
+	world.add_child(towel)
+	await physics_frames(20)
+	var before := float(marks.mess(Vector3(0.0, 0.78, 0.0), 0.3).liquid)
+	var took := 0.0
+	# Drawn back and forth over it at a wiping pace, a tenth of a second at a time.
+	for k in 30:
+		var x := sin(k * 0.6) * 0.15
+		took += float(towel.wipe_at(Vector3(x, 0.785, 0.0), 0.3, 0.1).blood)
+	var after := float(marks.mess(Vector3(0.0, 0.78, 0.0), 0.3).liquid)
+	check(took > 20.0, "it takes up the blood (%.0f ml of 60)" % took)
+	check(after < before - 20.0, "and the top's left cleaner (%.0f -> %.0f ml)" % [before, after])
+	check(towel.blood_ml > 20.0 and towel.bloodiness() > 0.02, "it's red where it took it (%.0f ml, %.2f red)" % [towel.blood_ml, towel.bloodiness()])
+	check(towel.wipe_at(Vector3(3.0, 0.5, 3.0), 0.3, 0.1).blood == 0.0, "over nothing it takes nothing")
+
+
+func test_the_hand_towel_hangs_over_the_washstands_bar() -> void:
+	var w := await _place(&"washstand")
+	var towel := PropKit.make(&"hand_towel") as ClothProp
+	world.add_child(towel)
+	var bar := _m(w, "towel_bar")
+	towel.hang_over(bar, bar.global_basis.z, bar.global_position + Vector3.UP * (bar.size.y * 0.5 + 0.005))
+	await physics_frames(120)
+	var r := towel.height_range()
+	check(r.y > bar.global_position.y, "its middle stays on the bar (top %.2f, bar %.2f)" % [r.y, bar.global_position.y])
+	check(r.x > 0.2 and r.x < bar.global_position.y - 0.2, "and it hangs down either side, clear of the floor (%.2f)" % r.x)
+
+
+# --- The doctor's batch D2 (#805): the dispensary and his desk ----------------------------------
+
+const DOCTOR_D2_MEMBERS := [&"scales", &"roll_top_desk", &"dispensary_shelves", &"dispensary_counter", &"bentwood_chair"]
+const DOCTOR_D2_BOTTLES := [&"medicine_bottle", &"medicine_bottle_round", &"poison_bottle", &"drug_jar"]
+
+
+func test_doctor_d2_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: a cased prescription balance ~6-12; a No. 14 bentwood ~3 (its rods' boxes in oak, a little more); an oak roll-top ~50-130 (its boards solid, 19 mm); walnut shelving and a counter, solid.
+	var weights := {&"scales": [5.0, 14.0], &"roll_top_desk": [45.0, 130.0], &"dispensary_shelves": [60.0, 200.0],
+			&"dispensary_counter": [40.0, 130.0], &"bentwood_chair": [2.0, 8.0]}
+	for id: StringName in DOCTOR_D2_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_the_desks_curved_sides_are_library_boards_cut_to_the_curve() -> void:
+	var d := await _place(&"roll_top_desk")
+	var side := _m(d, "case_side_l").drawn_node()
+	var plain := _m(d, "case_back").drawn_node()
+	check(side.material_override == plain.material_override and side.material_override == PropKit.lib_material("lib:furniture_oak/few"),
+			"the curved side is the same oak as the rest")
+	check(side.mesh.has_meta(&"board_frame"), "drawn as a library board (batched with the others)")
+	var box := side.get_aabb()
+	var faces := side.mesh.get_faces()
+	# Cut to the curve: its front top corner is gone (no corner of the cut near the box's front top).
+	var front_top := false
+	var xf := side.transform
+	for v in faces:
+		var p := xf * v
+		var m := _m(d, "case_side_l")
+		if p.z > m.size.z * 0.5 - 0.02 and p.y > m.size.y * 0.5 - 0.02:
+			front_top = true
+	check(not front_top and faces.size() > 36, "the side is cut to its S-curve (%d corners, box %s)" % [faces.size(), box.size])
+
+
+func test_doctor_d2_bottles_stand_wear_their_labels_and_break() -> void:
+	var counts := {}
+	var made: Array[GlassProp] = []
+	var x := -1.0
+	for id: StringName in DOCTOR_D2_BOTTLES:
+		for k in 5:
+			var b := PropKit.make(id) as GlassProp
+			b.position = Vector3(x, 0, 0)
+			x += 0.11
+			world.add_child(b)
+			made.append(b)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	for b in made:
+		check(not b.loose and not b.broken, "%s stands" % b.kit_id)
+		var labels := b.model.find_children("Label*", "MeshInstance3D", false, false)
+		check(labels.size() == 1, "%s wears one label (%d)" % [b.kit_id, labels.size()])
+		var glass := b.model.find_children("Glass*", "MeshInstance3D", false, false)
+		check(glass.size() == 1 and (glass[0] as MeshInstance3D).material_override is ShaderMaterial \
+				and ((glass[0] as MeshInstance3D).material_override as ShaderMaterial).shader.resource_path == "res://src/props/bottle_glass.gdshader",
+				"%s is see-through tinted glass" % b.kit_id)
+		if not labels.is_empty():
+			counts.get_or_add(b.kit_id, {})[String(labels[0].name)] = true
+	for id: StringName in DOCTOR_D2_BOTTLES:
+		check(counts.get(id, {}).size() == 4, "%s's five wear its four labels in turn (%s)" % [id, counts.get(id, {}).keys()])
+	# A ball along the row: through the glass of several.
+	var spilt := []
+	var on_spill := func(at: Vector3, liquid: StringName, litres: float, _s: Node) -> void: spilt.append([liquid, litres])
+	Events.liquid_spilled.connect(on_spill)
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(Vector3(-2.0, 0.06, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	var broken := made.filter(func(g: GlassProp) -> bool: return g.broken).size()
+	check(broken >= 3, "a ball along the shelf breaks the bottles in its way (%d)" % broken)
+	check(spilt.size() >= 2 and float(spilt[0][1]) > 0.02, "what's in them goes on the floor (%s)" % [spilt.slice(0, 3)])
+	Events.liquid_spilled.disconnect(on_spill)
+	# One off a shelf's height onto the floor.
+	var drop := PropKit.make(&"medicine_bottle") as GlassProp
+	drop.position = Vector3(3, 1.2, 0)
+	world.add_child(drop)
+	await wait_until(func() -> bool: return drop.broken, 120)
+	check(drop.broken, "a bottle off the top shelf breaks on the floor")
+
+
+func test_the_mortar_breaks_shot_and_its_pestle_comes_through() -> void:
+	var m := PropKit.make(&"mortar") as GlassProp
+	world.add_child(m)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(not m.loose and not m.broken, "the mortar stands")
+	check(m.model.find_children("Pestle*", "MeshInstance3D", false, false).size() == 2, "its pestle (head and handle) in it")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	ballistics.fire(Vector3(-5, 0.05, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(m.broken, "a ball breaks the stoneware")
+	check(world.find_children("Piece", "RigidBody3D", false, false).size() >= 1, "the pestle comes through whole")
+
+
+func test_the_dispensarys_bottles_stand_on_their_shelf_and_come_down_with_it() -> void:
+	var s := PropKit.spawn_fitted(&"dispensary_shelves", &"test_shelves", Vector3(0.3, 2.71, 1.2))
+	world.add_child(s)
+	await physics_frames(KitProp.SETTLE_FRAMES + 2)
+	var board := _m(s, "shelf2")
+	var y := board.global_position.y + board.size.y * 0.5
+	var bottles: Array[GlassProp] = []
+	for k in 4:
+		var b := PropKit.make(&"medicine_bottle_round") as GlassProp
+		b.position = Vector3(0.0, y + 0.002, -0.3 + 0.2 * k)
+		world.add_child(b)
+		bottles.append(b)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(bottles.all(func(b: GlassProp) -> bool: return not b.loose), "they stand on the board")
+	s.break_member(board)
+	await physics_frames(int(GlassProp.CHECK_EVERY * 60) + 4)
+	check(bottles.all(func(b: GlassProp) -> bool: return b.loose or b.broken), "the board gone, they come down")
+
+
+func test_the_scales_drop_their_pans_when_the_pillar_goes() -> void:
+	var sc := await _place(&"scales")
+	var pillar := _m(sc, "pillar")
+	check(_m(sc, "pan_l").drawn_node().mesh.get_faces().size() > 100, "a pan is drawn from its model (dish and wires)")
+	check((_m(sc, "beam").drawn_node().material_override as StandardMaterial3D) == PropModels.pbr("scales"), "the brass is baked")
+	var gone := sc.break_member(pillar)
+	check(gone.has(_m(sc, "beam").member_id) and gone.has(_m(sc, "pan_l").member_id), "the beam and pans come down with the pillar (%s)" % [gone])
+	check(not gone.has(_m(sc, "base").member_id) and not gone.has(_m(sc, "pane_front").member_id), "the base and its case stay")
+	var pane := _m(sc, "pane_front")
+	check(pane.kind == &"glass" and (pane.drawn_node().material_override as ShaderMaterial).shader.resource_path == "res://src/props/bottle_glass.gdshader",
+			"its case is glazed with clear glass")
+
+
+func test_his_bentwood_chair_carries_him() -> void:
+	var c := await _place(&"bentwood_chair")
+	check(_m(c, "back").drawn_node().mesh.get_faces().size() > 300, "its back is drawn from its model (the hoop and its inner loop)")
+	check(PropKit.definition(&"bentwood_chair").has("seat"), "a man sits on it as on the kit's chair")
+	_m(c, "seat").extra_load = 90.0 * 0.75 * 9.81
+	check(c.settle().is_empty() and not c.loose, "it carries a 90 kg man")
+
+
+func test_the_counters_drawers_wear_their_knobs() -> void:
+	var c := await _place(&"dispensary_counter")
+	var drawers := c.get_members().filter(func(m: StructureMember) -> bool: return String(m.member_id).contains("/drawer_"))
+	check(drawers.size() == 24, "three rows of eight drawers (%d)" % drawers.size())
+	check(c.batch_count() <= 8, "and it still draws in a few batches (%d)" % c.batch_count())
+
+
+func test_a_pull_on_an_oak_drawer_is_drawn_on_the_drawer() -> void:
+	# A dress layer on a library board (a pull, a knob, his papers) sits where its kit file puts it,
+	# not off by the board frame's half length (#805), and stays there when the board is carved.
+	var d := await _place(&"roll_top_desk")
+	var drawer := _m(d, "drawer_l0")
+	var layer: MeshInstance3D = null
+	for c in drawer.drawn_node().get_children():
+		if String(c.name).begins_with("Dress"):
+			layer = c
+	check(layer != null, "the drawer wears its pull")
+	if layer:
+		# (in the member's own space: a batched member's nodes are out of the tree)
+		var off := (drawer.drawn_node().transform * layer.transform * layer.get_aabb()).get_center()
+		check(absf(off.x) < 0.03 and absf(off.y) < 0.03, "the pull is on the drawer's middle (off by %s)" % off)
+
+
+# --- The doctor's batch D3 (#819): his books, the hall's pegs, the pot and the blankets ---------
+
+const DOCTOR_D3_MEMBERS := [&"book_row_a", &"book_row_b", &"book_row_c", &"book_stack", &"bookcase", &"folded_blankets", &"folded_blanket"]
+
+
+func test_doctor_d3_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg: an octavo in sheep ~1.2-2 (nine or ten a row); the army's quarto ~3.5; an oak bookcase
+	# ~20-40; a wool blanket ~2 (its member's canvas is lighter).
+	var weights := {&"book_row_a": [8.0, 22.0], &"book_row_b": [8.0, 22.0], &"book_row_c": [8.0, 22.0], &"book_stack": [2.5, 9.0], &"bookcase": [15.0, 45.0],
+			&"folded_blankets": [1.5, 8.0], &"folded_blanket": [0.5, 3.0]}
+	for id: StringName in DOCTOR_D3_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/doctor.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.1f kg" % [id, kg])
+		check(p.batch_count() <= 8, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_his_books_are_printed_on_their_sheet_and_burn() -> void:
+	var row := await _place(&"book_row_a")
+	var book := _m(row, "book0")
+	var mi := book.drawn_node()
+	check((mi.material_override as StandardMaterial3D) == PropModels.pbr("medical_books"), "a book wears the books' printed sheet")
+	check(mi.mesh.get_faces().size() > 20 * 3, "drawn from its model (boards, leaves, a rounded spine), not a box")
+	for suffix in ["albedo", "orm"]:
+		check(ResourceLoader.exists("res://assets/props/models/medical_books_%s.png" % suffix), "the sheet's %s is there" % suffix)
+	check(book.wood == &"paper" and not FireTuning.new().fireproof.has(book.wood), "a book is paper: it burns")
+	check(row.batch_count() <= 2, "a row is one draw or two (%d)" % row.batch_count())
+	var pile := await _place(&"book_stack", Vector3(2, 0, 0))
+	var gone := pile.members_without_load_path({pile.get_members()[0].member_id: true})
+	check(gone.size() == 2, "the bottom book out, the two on it come down (%s)" % [gone])
+
+
+func test_a_ball_goes_into_a_book_and_the_row_stands() -> void:
+	var row := await _place(&"book_row_b")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var book := row.get_members()[3]
+	var from := book.global_position + Vector3(0, 0, 5)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, (book.global_position - from).normalized(), r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(3)
+	check(not book.holes.is_empty() or book.broken, "a .45 ball marks the book it meets (holes %d, broken %s)" % [book.holes.size(), book.broken])
+	check(not row.loose, "the row stands")
+
+
+func test_a_row_of_books_stands_on_its_shelf_and_comes_down_with_it() -> void:
+	var c := await _place(&"bookcase")
+	var shelf := _m(c, "shelf2")
+	var row := PropKit.spawn(&"book_row_a")
+	row.position = Vector3(0, shelf.global_position.y + shelf.size.y * 0.5 + 0.002, 0)
+	world.add_child(row)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not row.loose, "the row stands on the shelf")
+	check(absf(row.global_position.y - (shelf.global_position.y + shelf.size.y * 0.5)) < 0.02, "on its top (%.3f)" % row.global_position.y)
+	c.break_member(shelf)
+	await wait_until(func() -> bool: return row.loose, 180)
+	check(row.loose, "the shelf gone, the row comes down")
+
+
+func test_the_coat_pegs_hang_on_their_nails_and_a_peg_gone_drops_the_coat() -> void:
+	var wall := Structure.new()
+	wall.structure_id = &"peg_wall"
+	world.add_child(wall)
+	for x in [-0.5, 0.5]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 2.4, 0.1), Vector3(x, 1.2, -0.07))
+	for i in 10:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.4, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var p := PropKit.spawn(&"coat_pegs")
+	p.position = Vector3(0, 1.65, 0)
+	world.add_child(p)
+	await physics_frames(KitProp.SETTLE_FRAMES + 6)
+	check(not p.loose, "the rail hangs on its nails in the wall")
+	check(p.members_without_load_path().is_empty(), "everything on it hangs from it %s" % [p.members_without_load_path()])
+	check(_m(p, "coat").drawn_node().mesh.get_faces().size() > 1000, "his coat is drawn from its model")
+	check((_m(p, "hat").drawn_node().material_override as StandardMaterial3D) == PropModels.pbr("coat_pegs"), "the hat is baked")
+	check(not FireTuning.new().fireproof.has(_m(p, "coat").wood), "the coat burns")
+	var falling := p.members_without_load_path({_m(p, "peg1").member_id: true})
+	check(falling.has(_m(p, "coat").member_id), "its peg gone, the coat comes down")
+	check(not falling.has(_m(p, "hat").member_id), "the hat stays on its own")
+	check(_m(p, "rail").drawn_node().mesh.has_meta(&"board_frame"), "the rail is a library board")
+
+
+func test_the_chamber_pot_stands_and_a_ball_breaks_it() -> void:
+	var pot := PropKit.make(&"chamber_pot") as GlassProp
+	pot.position = Vector3(0, 0, 0)
+	world.add_child(pot)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(not pot.broken and not pot.loose, "the pot stands on the floor")
+	check(pot.model.get_child_count() >= 1, "drawn from its model")
+	check(PropKit.definition(&"chamber_pot").size[1] < 0.42, "it goes under the cot's spring (0.42 m)")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	ballistics.fire(pot.global_position + Vector3(-5, 0.07, 0), Vector3.RIGHT, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+	await physics_frames(3)
+	check(pot.broken, "a ball breaks it")
+
+
+func test_his_bag_stands_is_rodins_model_and_burns() -> void:
+	var bag := await _place(&"doctors_bag")
+	check(bag.settle().is_empty() and not bag.loose, "the bag stands on the floor")
+	check(bag.members_without_load_path().is_empty(), "its handle is on it")
+	var kg := bag.mass()
+	check(kg >= 1.0 and kg <= 6.0, "it weighs %.1f kg (a physician's bag with its instruments ~2-4)" % kg)
+	var body := _m(bag, "body")
+	check(body.drawn_node().mesh.get_faces().size() > 3000 * 3, "its body is drawn from Rodin's model")
+	check(ResourceLoader.exists("res://assets/props/models/doctors_bag_paint.png"), "with its own paint")
+	check(not FireTuning.new().fireproof.has(body.wood), "it burns")
+	var gone := bag.members_without_load_path({body.member_id: true})
+	check(gone.has(_m(bag, "handle").member_id), "the body gone, the handle comes down")
+
+
+
+# --- Saloon B, batch S1 (#866; tools/props/saloon.py, tools/blender/props/saloon_s1.py) -----------
+
+const SALOON_S1_MEMBERS := [&"work_board", &"box_stove", &"faro_table", &"lookout_stool", &"piano_stool", &"gold_scales",
+		&"till_drawer", &"slat_mat", &"card_deck", &"chip_stacks", &"bar_arm_rail"]
+const SALOON_S1_GLASS := [&"shot_glass", &"schooner", &"decanter"]
+
+
+func test_saloon_s1_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg (and each member a physics body while it stands: the valley is near Jolt's limit, #865, so
+	# each stays at or under the bodies its README row gives).
+	var weights := {&"work_board": [40.0, 150.0], &"box_stove": [150.0, 750.0], &"faro_table": [25.0, 70.0], &"lookout_stool": [4.0, 16.0],
+			&"piano_stool": [3.0, 12.0], &"gold_scales": [2.0, 10.0], &"till_drawer": [3.0, 14.0], &"slat_mat": [5.0, 20.0],
+			&"card_deck": [0.02, 0.2], &"chip_stacks": [0.02, 0.4], &"bar_arm_rail": [5.0, 40.0]}
+	var bodies := {&"work_board": 17, &"box_stove": 16, &"faro_table": 16, &"lookout_stool": 11, &"piano_stool": 6, &"gold_scales": 6,
+			&"till_drawer": 2, &"slat_mat": 3, &"card_deck": 1, &"chip_stacks": 1, &"bar_arm_rail": 1}
+	for id: StringName in SALOON_S1_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/saloon.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_saloon_s1_woods_are_the_librarys_furniture_never_the_floors() -> void:
+	for id: StringName in SALOON_S1_MEMBERS:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", PropKit.definition(id).get("look", "")))
+			check(not look.begins_with("lib:floor_"), "%s/%s isn't the floor's wood" % [id, spec.id])
+			check(not look.begins_with("prop:") and not look.begins_with("wood:"), "%s/%s is the library's or baked (%s)" % [id, spec.id, look])
+
+
+func test_the_bar_glasses_stand_hold_their_drink_and_break() -> void:
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	var r: RevolverTuning = load("res://config/revolver.tres")
+	var spilled := []
+	var on_spill := func(_at: Vector3, liquid: StringName, litres: float, _source: Object) -> void: spilled.append([liquid, litres])
+	Events.liquid_spilled.connect(on_spill)
+	var x := -1.0
+	for id: StringName in SALOON_S1_GLASS:
+		var g := PropKit.make(id) as GlassProp
+		g.position = Vector3(x, 0, 0)
+		world.add_child(g)
+		await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+		check(not g.loose and not g.broken, "%s stands" % id)
+		check(g.model.get_child_count() >= 2, "%s is drawn from its model: its glass and what's in it" % id)
+		var at := g.global_position + Vector3.UP * 0.03
+		ballistics.fire(at + Vector3(0, 0, -5), Vector3.BACK, r.muzzle_velocity, r.bullet_mass, r.bullet_diameter)
+		await physics_frames(3)
+		check(g.broken, "a ball breaks the %s" % id)
+		x += 1.0
+	Events.liquid_spilled.disconnect(on_spill)
+	check(spilled.size() == 3, "each lets its drink go (%s)" % [spilled])
+	var dropped := PropKit.make(&"schooner") as GlassProp
+	dropped.position = Vector3(0, 1.1, 2)
+	world.add_child(dropped)
+	await wait_until(func() -> bool: return dropped.broken, 120)
+	check(dropped.broken, "a schooner off the bar (1.1 m) breaks on the floor")
+
+
+## A joist on two posts, its underside at 3 m: what a hanging lamp hangs from.
+func _joist() -> Structure:
+	var s := Structure.new()
+	s.structure_id = &"lamp_joist"
+	world.add_child(s)
+	for x in [-1.5, 1.5]:
+		s.add_member("post%d" % int(x * 10), &"post", &"framing", Vector3(0.1, 3.0, 0.1), Vector3(x, 1.5, 0))
+	s.add_member("joist", &"beam", &"framing", Vector3(3.2, 0.2, 0.05), Vector3(0, 3.1, 0))
+	s.infer_supports()
+	return s
+
+
+func test_a_hanging_lamp_hangs_from_its_joist_swings_and_falls_with_it() -> void:
+	var s := _joist()
+	var lamp := PropKit.make(&"hanging_lamp") as GlassProp
+	var drop := float(PropKit.definition(&"hanging_lamp").hangs.hook[1])
+	lamp.position = Vector3(0.3, 3.0 - drop, 0)
+	world.add_child(lamp)
+	var light := OilLamp.new()
+	light.name = "Light"
+	light.show_mesh = false
+	light.position = Vector3(0, float(PropKit.definition(&"hanging_lamp").light_height), 0)
+	lamp.add_child(light)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 6)
+	check(not lamp.loose and not lamp.broken, "it hangs from the joist on its hook")
+	check(light.get_parent() != lamp, "its light is on its swing, not left behind")
+	lamp.push_swing(Vector3(1.2, 0, 0))
+	await physics_frames(12)
+	var lean := lamp.swing_angle().length()
+	check(lean > 0.1, "pushed, it swings (%.2f rad)" % lean)
+	check(not lamp.loose, "and stays on its hook")
+	await physics_frames(600)
+	check(lamp.swing_angle().length() < lean * 0.3, "its swing dies away (%.3f rad)" % lamp.swing_angle().length())
+	# The joist working under the dancers: moved sideways a few times, the lamp swings with it.
+	var joist: StructureMember = s.get_member(&"lamp_joist/joist")
+	var rest := joist.position
+	for k in 6:
+		joist.position = rest + Vector3(0.012 * (1 if k % 2 == 0 else -1), -0.01, 0)
+		await physics_frames(6)
+	joist.position = rest
+	await physics_frames(2)
+	check(lamp.swing_angle().length() > 0.005, "the floor working over it sets it swinging (%.3f rad)" % lamp.swing_angle().length())
+	check(not lamp.loose, "a few cm of floor doesn't drop it")
+	s.break_member(joist)
+	await wait_until(func() -> bool: return lamp.broken, 240)
+	check(lamp.loose, "its joist gone, it falls")
+	check(lamp.broken, "and its chimney breaks on the floor")
+
+
+func test_a_hanging_lamp_hung_in_the_air_falls() -> void:
+	var lamp := PropKit.make(&"hanging_lamp_shaded") as GlassProp
+	lamp.position = Vector3(0, 1.5, 0)
+	world.add_child(lamp)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 4)
+	check(lamp.loose, "nothing over its hook: it falls")
+
+
+func test_the_box_stove_spills_its_coals_when_it_goes_over_lit() -> void:
+	var fire := FireSystem.new()
+	world.add_child(fire)
+	var stove := await _place(&"box_stove")
+	var sf := stove.get_node(^"StoveFire") as StoveFire
+	check(sf != null, "it has its firebox")
+	sf.set_lit(true)
+	check(sf.lit, "lit, it glows")
+	var door := sf.door_now()
+	check(door.x > 0.4 and door.y > 0.2, "its door is at its +x end (%s)" % door)
+	stove.go_loose(Vector3(0, 0, 1.5))
+	await wait_until(func() -> bool: return not sf.coals.is_empty(), 90)
+	check(not sf.coals.is_empty(), "knocked over lit, its coals spill")
+	check(fire.spills.has(sf.coals), "and burn on the floor (a small fire)")
+	check(not sf.lit, "its glow is out")
+	var cold := await _place(&"box_stove", Vector3(4, 0, 0))
+	var csf := cold.get_node(^"StoveFire") as StoveFire
+	csf.set_lit(false)
+	cold.go_loose()
+	await physics_frames(60)
+	check(csf.coals.is_empty(), "a cold stove going over spills nothing")
+
+
+func test_the_wheel_of_fortune_hangs_on_its_nails() -> void:
+	var wall := Structure.new()
+	wall.structure_id = &"wheel_wall"
+	world.add_child(wall)
+	for x in [-0.6, 0.6]:
+		wall.add_member("stud%d" % int(x * 10), &"post", &"framing", Vector3(0.05, 3.0, 0.1), Vector3(x, 1.5, -0.07))
+	for i in 14:
+		wall.add_member("board%d" % i, &"board", &"framing", Vector3(1.6, 0.2, 0.02), Vector3(0, 0.3 + 0.2 * i, -0.01))
+	wall.infer_supports()
+	var w := PropKit.spawn(&"wheel_of_fortune") as KitProp
+	w.position = Vector3(0, 1.9, 0)
+	world.add_child(w)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not w.loose, "it hangs on its nails")
+	check(w.member_count() == 3, "board, wheel and clapper (%d)" % w.member_count())
+
+
+func test_the_arm_rail_sits_on_the_bars_top() -> void:
+	var bar := await _place(&"bar")
+	var rail := PropKit.spawn(&"bar_arm_rail") as KitProp
+	rail.position = Vector3(0, 1.095, 0.455)
+	world.add_child(rail)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(not rail.loose, "it sits on the bar's top")
+	check(rail.member_count() == 1, "one body (%d)" % rail.member_count())
+	bar.go_loose(Vector3(0, 0, 1.0))
+	await wait_until(func() -> bool: return rail.loose, 60)
+	check(rail.loose, "the bar going over takes it down")
+
+
+# --- Saloon B, batch S2 (#879; tools/props/saloon_s2.py, tools/blender/props/saloon_s2.py) -----------
+
+const SALOON_S2_MEMBERS := [&"wall_bench", &"fiddle", &"fiddle_bow", &"beer_keg", &"cookstove"]
+
+
+func test_saloon_s2_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg (the keg full of beer; the fiddle's hollow box weighs its inside as char, ~1.7 for a real 0.5),
+	# and each member a physics body standing (README "Saloon B, batch S2").
+	var weights := {&"wall_bench": [8.0, 35.0], &"fiddle": [0.2, 2.5], &"fiddle_bow": [0.02, 0.5], &"beer_keg": [55.0, 95.0],
+			&"cookstove": [120.0, 800.0]}
+	var bodies := {&"wall_bench": 10, &"fiddle": 1, &"fiddle_bow": 1, &"beer_keg": 10, &"cookstove": 12}
+	for id: StringName in SALOON_S2_MEMBERS:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/saloon_s2.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_saloon_s2_woods_are_the_librarys_furniture_never_the_floors() -> void:
+	for id: StringName in [&"wall_bench", &"keg_rack"]:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", PropKit.definition(id).get("look", "")))
+			check(look.begins_with("lib:furniture_"), "%s/%s is the library's furniture wood (%s)" % [id, spec.id, look])
+	check(String(PropKit.definition(&"beer_keg").get("look", "")) == String(PropKit.definition(&"barrel").get("look", "")),
+			"the keg is the barrel's staves")
+
+
+func test_a_man_sits_on_the_wall_bench_and_the_lookout_sits_high() -> void:
+	var b := await _place(&"wall_bench")
+	_m(b, "seat").extra_load = 3.0 * 90.0 * 0.8 * 9.81
+	check(b.settle().is_empty() and not b.loose, "the bench carries three 90 kg men")
+	var l := await _place(&"lookout_stool", Vector3(3, 0, 0))
+	check(float(PropKit.definition(&"lookout_stool").seat.at[1]) > 1.0, "the lookout sits over a metre up, above the players")
+	_m(l, "seat").extra_load = 90.0 * 0.85 * 9.81
+	check(l.settle().is_empty() and not l.loose, "his chair carries him")
+	check(_m(l, "crest") != null and _m(l, "footrest") != null, "it has a back and a footrest")
+
+
+func test_a_keg_holds_beer_and_a_hole_lets_it_run() -> void:
+	var keg := await _place(&"beer_keg")
+	var c := keg.contents
+	check(c != null and c.liquid == &"beer", "it's full of beer")
+	check(c.litres > 50.0 and c.litres < 66.0, "a half-barrel's worth (%.1f l)" % c.litres)
+	var stave := _m(keg, "stave3")
+	var at := Vector3(stave.global_position.x, 0.2, stave.global_position.z)
+	var out := Vector3(at.x, 0.0, at.z).normalized()
+	stave.add_hole(at + out * 0.02, at - out * 0.02, 0.0057)
+	await physics_frames(2)
+	check(c.leaks.size() == 1, "a hole low in a stave leaks")
+	var before := c.litres
+	await physics_frames(60)
+	check(c.litres < before, "and the beer runs out (%.2f l)" % (before - c.litres))
+
+
+# --- Saloon B, batch S3 (#892; tools/props/saloon_s3.py) ----------------------------------------------
+
+const SALOON_S3 := [&"beer_keg_side", &"keg_rack", &"plank_bed", &"owner_desk"]
+
+
+func test_saloon_s3_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg (the keg full of beer), and each member a physics body standing (README "Saloon B, batch S3").
+	var weights := {&"beer_keg_side": [55.0, 95.0], &"keg_rack": [40.0, 140.0], &"plank_bed": [20.0, 80.0], &"owner_desk": [30.0, 110.0]}
+	var bodies := {&"beer_keg_side": 12, &"keg_rack": 10, &"plank_bed": 14, &"owner_desk": 13}
+	for id: StringName in SALOON_S3:
+		check(PropKit.definition(id).get("factory", "") == "tools/props/saloon_s3.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_the_lying_keg_lies_along_z_on_its_bottom_staves() -> void:
+	var keg := await _place(&"beer_keg_side")
+	var box := PropKit.bounds(keg.definition)
+	check(box.size.z > box.size.x + 0.04 and absf(box.size.x - box.size.y) < 0.03, "it lies along z (%s)" % box.size)
+	var feet := keg.get_members().filter(func(m: StructureMember) -> bool: return m.grounded)
+	check(feet.size() == 4, "its two bottom staves, in two lengths each, are its feet (%d)" % feet.size())
+	for m: StructureMember in keg.get_members():
+		if String(m.member_id).contains("stave"):
+			check(absf(m.axis().z) > 0.99, "%s lies along the keg's axis" % m.member_id)
+	var c := keg.contents
+	check(c != null and c.liquid == &"beer", "it's full of beer")
+	check(c.litres > 50.0 and c.litres < 66.0, "a half-barrel's worth lying (%.1f l)" % c.litres)
+	# A hole in a low stave lets it run; one in the top stave, over the beer, doesn't.
+	var low := _m(keg, "stave0a")
+	var at := low.global_position
+	var out := (at - Vector3(0, 0.24, at.z)).normalized()
+	low.add_hole(at + out * 0.02, at - out * 0.02, 0.0057)
+	await physics_frames(2)
+	check(c.leaks.size() == 1, "a hole low in it leaks")
+	var before := c.litres
+	await physics_frames(60)
+	check(c.litres < before, "and the beer runs out (%.2f l)" % (before - c.litres))
+
+
+func test_kegs_lie_on_their_rack_and_come_down_with_it() -> void:
+	var rack := await _place(&"keg_rack")
+	var kegs: Array[KitProp] = []
+	for slot: Array in PropKit.definition(&"keg_rack").slots:
+		var keg := PropKit.spawn(&"beer_keg_side") as KitProp
+		keg.position = PropKit.vec(slot)
+		world.add_child(keg)
+		kegs.append(keg)
+	await physics_frames(KitProp.SETTLE_FRAMES + 8)
+	for keg in kegs:
+		check(not keg.loose, "a keg lies on the rack (%s)" % keg.position)
+		check(absf(keg.position.y - float(PropKit.definition(&"keg_rack").slots[kegs.find(keg)][1])) < 0.01,
+				"on its rails, not sunk through them (%.3f)" % keg.position.y)
+	rack.go_loose(Vector3(0, 0, 1.5))
+	await wait_until(func() -> bool: return kegs.all(func(k: KitProp) -> bool: return k.loose), 120)
+	check(kegs.all(func(k: KitProp) -> bool: return k.loose), "the rack going over takes them all down")
+
+
+func test_a_man_lies_on_the_bed_and_the_desk_carries_his_books() -> void:
+	var bed := await _place(&"plank_bed")
+	_m(bed, "tick").extra_load = 90.0 * 9.81
+	check(bed.settle().is_empty() and not bed.loose, "the bed carries a 90 kg man")
+	check(String(_m(bed, "tick").get_meta(&"kit").draw.model) == "iron_cot", "its bedding is the cot's")
+	var desk := await _place(&"owner_desk", Vector3(3, 0, 0))
+	var top := _m(desk, "top1")
+	check(absf(top.position.y + top.size.y * 0.5 - 0.76) < 0.03, "its top at a desk's height")
+	_m(desk, "top1").extra_load = 40.0 * 9.81
+	check(desk.settle().is_empty() and not desk.loose, "it carries a man leaning on it")
+
+
+func test_the_cookstove_spills_its_coals_when_it_goes_over_lit() -> void:
+	var fire := FireSystem.new()
+	world.add_child(fire)
+	var stove := await _place(&"cookstove")
+	var sf := stove.get_node(^"StoveFire") as StoveFire
+	check(sf != null, "it has its firebox")
+	sf.set_lit(true)
+	var door := sf.door_now()
+	check(door.z > 0.25 and door.x < 0.0, "its firebox door is at its front, left (%s)" % door)
+	stove.go_loose(Vector3(0, 0, 1.5))
+	await wait_until(func() -> bool: return not sf.coals.is_empty(), 90)
+	check(not sf.coals.is_empty(), "knocked over lit, its coals spill")
+	check(fire.spills.has(sf.coals), "and burn on the floor")
+
+
+func test_the_handsaw_lies_where_its_put_and_a_ball_holes_its_blade() -> void:
+	var p := PropKit.make(&"handsaw") as LooseProp
+	check(p != null, "the kit makes the handsaw a loose prop")
+	world.add_child(p)
+	await physics_frames(GlassProp.SETTLE_FRAMES + 3)
+	check(not p.loose and not p.broken, "it lies where it's put")
+	var ballistics := Ballistics.new()
+	world.add_child(ballistics)
+	await physics_frames(1)
+	var aim := p.body.global_position + Vector3(0.1, 0.0, 0.0)
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(aim + Vector3(0, 3, 0.2), (aim - (aim + Vector3(0, 3, 0.2))).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter)
+	await wait_until(func() -> bool: return not b.alive, 60)
+	await physics_frames(2)
+	check(p.holes >= 1, "a ball through its blade holes it (%d)" % p.holes)

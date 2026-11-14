@@ -21,6 +21,14 @@ python3 experiments/farmhouse/run.py --ways=front,breach,back --seeds=1-4 --jobs
 python3 tools/bridge.py "farm_start" "farm_state"      # in a running game (bridge): the mission, its state
 ```
 
+## In the valley (G6, #731, 2026-11-09)
+
+The same house on the widow's pad (`--world=valley`; docs/LAYOUT.md "src/world/town_layout.gd"):
+`run.py ... --args="--world=valley"`. The bot's ways round the house and its start are the old
+town's carried (`Farmhouse.carried`), its places the mission's (`FarmhouseMission.places()`).
+`results/2026-11-09_valley/`: town and valley the same within noise (won 1/24 each, the rancher
+alive 19/24 each, the alarm at the same second, the quiet ways and the surprise held).
+
 ## Harder (issue #565, 2026-11-02)
 
 Sean: the guards give up too easily, can't see him outside a window, don't really shoot from

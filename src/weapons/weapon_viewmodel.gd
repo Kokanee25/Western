@@ -25,6 +25,8 @@ var drawn := true
 var aiming := false
 ## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).
 var hands_busy := false
+## Why the hands are busy, when it isn't a wound (sat at a table): PlayerWounds sets it.
+var busy_why := ""
 var arm_disabled := false
 ## Why the arm can't hold it, in plain words (PlayerWounds sets it with `arm_disabled`).
 var arm_why := ""
@@ -43,6 +45,9 @@ var sway := Vector2.ZERO
 var steady := 0.0
 ## How much this gun wanders, against a revolver held out at arm's length.
 var sway_factor := 1.0
+## How much of the fine shake reaches the muzzle (a rifle in the shoulder, the cheek on the comb and
+## both hands on it, damps it; the revolver and the coach gun keep all of it).
+var shake_factor := 1.0
 ## Tests: hold it dead still (no sway at all).
 var steady_hands := false
 ## The wander itself (Sway: the same model the gang's guns use, GunHand).
@@ -111,7 +116,7 @@ func _add_fill() -> void:
 
 func _mark_held() -> void:
 	for mi in find_children("*", "MeshInstance3D", true, false):
-		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+		Layers.hold(mi as MeshInstance3D)
 
 
 func _update_fill() -> void:
@@ -168,7 +173,7 @@ func why_not_usable() -> String:
 	if arm_disabled:
 		return arm_why if arm_why != "" else "your arm won't hold it"
 	if hands_busy:
-		return "your hands are pressing on a wound"
+		return busy_why if busy_why != "" else "your hands are pressing on a wound"
 	return ""
 
 
@@ -338,7 +343,7 @@ func _update_sway(delta: float) -> void:
 	# Breathing deeper and faster when winded; a fine shake that a hurt arm (extra_spread) and being
 	# rattled make worse.
 	var breath := t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
-	var shake := (t.tremor + extra_spread * 0.12) * scale
+	var shake := (t.tremor + extra_spread * 0.12) * scale * shake_factor
 	var s := sway_model.step(delta, amp, breath, t.breath_rate, 1.0 + winded * 1.5, shake)
 	# The body carries the gun too: it lags your turns and rides your steps (PlayerMotion).
 	var body := _player.motion.hand_turn if _player else Vector2.ZERO

@@ -214,6 +214,15 @@ func test_a_stick_in_the_spec_saloon_doesnt_freeze_the_frame() -> void:
 ## The fire's load checks on a worker (more-cores step 8): its results come on a tick fixed by the
 ## count of members, so the spec saloon's stick comes down the same with the worker as without
 ## (`--analysis-worker=off`: the same work on the main thread, on the same ticks).
+static func _broken_ids(s: Structure) -> Array:
+	var out: Array = []
+	for m in s.get_members():
+		if m.broken:
+			out.append(String(m.member_id))
+	out.sort()
+	return out
+
+
 func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 	var results := []
 	# The blast it was written with, in free air (#220 counts the floor under it: then the saloon
@@ -229,16 +238,13 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 		var saloon: Structure = lab.building
 		Blast.detonate(lab, Vector3(6.0, 0.8, 6.0), 0.15)
 		var settled_at := -1
+		var settled: Array = []  # what the analysis brought down, as it finished
 		for f in 400:
 			await physics_frames(1)
 			if settled_at < 0 and lab.fire._to_settle.is_empty() and lab.fire._check == null:
 				settled_at = f
-		var broken: Array = []
-		for m in saloon.get_members():
-			if m.broken:
-				broken.append(String(m.member_id))
-		broken.sort()
-		results.append({"broken": broken, "settled_at": settled_at})
+				settled = _broken_ids(saloon)
+		results.append({"broken": _broken_ids(saloon), "settled_at": settled_at, "settled": settled})
 		lab.queue_free()
 		await physics_frames(2)
 	FireSystem.analysis_worker = true
@@ -250,5 +256,11 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 		var only_w: Array = (results[0].broken as Array).filter(func(x: String) -> bool: return not (results[1].broken as Array).has(x))
 		var only_m: Array = (results[1].broken as Array).filter(func(x: String) -> bool: return not (results[0].broken as Array).has(x))
 		print("  broken with the worker only: %s; on the main thread only: %s" % [only_w, only_m])
-	check(results[0].broken == results[1].broken, "the same members broken with the worker as without")
+	# What the analysis brought down, as it finished, is compared member for member. After it, rubble
+	# still landing can break a floor board in one run and not the other: the two runs are one after
+	# the other, so the engine's body order differs (a full suite, 2026-11-06: one board, 77 / 76).
+	check(results[0].settled_at >= 0 and results[1].settled_at >= 0, "it settles, worker and main thread")
+	check(results[0].settled == results[1].settled, "the same members broken with the worker as without, as the analysis finished")
+	for r: Dictionary in results:
+		check((r.settled as Array).all(func(x: String) -> bool: return (r.broken as Array).has(x)), "and nothing it brought down stood again")
 	check_eq(results[0].settled_at, results[1].settled_at, "and done on the same frame")

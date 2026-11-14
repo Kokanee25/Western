@@ -195,8 +195,11 @@ func point_at(s: float) -> Vector3:
 
 ## A frame at s: origin on the rail top's middle, -Z along the line toward its end, +Y up.
 func transform_at(s: float) -> Transform3D:
-	var a := point_at(s - 0.5)
-	var b := point_at(s + 0.5)
+	# (Its direction from a metre of the curve inside the line: past either end both points were the
+	# end's, and no direction: the lookout's scan ahead of a train at the valley line's end, G3.)
+	var c := clampf(s, 0.5, maxf(length - 0.5, 0.5))
+	var a := point_at(c - 0.5)
+	var b := point_at(c + 0.5)
 	var fwd := (b - a).normalized()
 	return Transform3D(Basis.looking_at(fwd, Vector3.UP), point_at(s))
 
@@ -335,6 +338,7 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 			break
 		s = minf(s + step, b)
 	var swept := 0
+	var filled := 0
 	for j in frames.size() - 1:
 		var f0 := frames[j]
 		var f1 := frames[j + 1]
@@ -348,8 +352,16 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 		# The fill: from the ballast's foot down to the ground, sides at 1.5:1.
 		var fill0 := _fill_profile(f0, half_bot, bal_bot)
 		var fill1 := _fill_profile(f1, half_bot, bal_bot)
-		_quad(st_fill, fill0[0], fill0[1], fill1[1], fill1[0])
-		_quad(st_fill, fill0[2], fill0[3], fill1[3], fill1[2])
+		# In a cut the ground's over the ballast's foot: no fill there (its quads would have no area,
+		# and a shape of nothing but those is refused: the valley's cuttings, G3).
+		for side in [[0, 1], [2, 3]]:
+			var a0: Vector3 = fill0[side[0]]
+			var b0: Vector3 = fill0[side[1]]
+			var a1: Vector3 = fill1[side[0]]
+			var b1: Vector3 = fill1[side[1]]
+			if a0.distance_squared_to(b0) + a1.distance_squared_to(b1) > 1e-4:
+				_quad(st_fill, a0, b0, b1, a1)
+				filled += 1
 	var body := StaticBody3D.new()
 	body.name = "Bed"
 	body.collision_layer = Layers.WORLD
@@ -357,6 +369,8 @@ func _build_chunk(a: float, b: float, t: TrainTuning, n: int) -> void:
 	for pair in [[st_fill, _mat("fill", Color(0.42, 0.33, 0.23))], [st_bal, _mat("ballast", Color(0.36, 0.34, 0.31))]]:
 		if swept == 0:
 			break  # all of it on a bridge
+		if pair[0] == st_fill and filled == 0:
+			continue  # all of it in a cut
 		var st: SurfaceTool = pair[0]
 		st.generate_normals()
 		var mesh := st.commit()

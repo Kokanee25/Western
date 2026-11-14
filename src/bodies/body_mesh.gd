@@ -693,8 +693,14 @@ class Lofter:
 
 	## Cut into a piece per bone: {bone index: [skinned ArrayMesh, rigid ArrayMesh]}. Each vertex
 	## carries its rest position relative to its piece's bone centre in CUSTOM0 (for wounds).
+	## The skin's weights shared out to the deform bones (DeformRig.spread, #696: clavicles, twists);
+	## the pieces still cut by the 17 bones' own.
 	func to_pieces(centres: Dictionary) -> Dictionary:
-		return BodyMesh.split_pieces(verts, normals, uvs, bones, weights, tris, centres)
+		var a := Anatomy.shared()
+		var sb := bones.duplicate()
+		var sw := weights.duplicate()
+		DeformRig.spread(verts, sb, sw, a)
+		return BodyMesh.split_pieces(verts, normals, uvs, sb, sw, tris, centres, DeformRig.piece_of(a), {}, bones, weights)
 
 	## `shapes`: blend shapes, name -> the vertices in that shape (whole positions, as glTF's
 	## imported ones are: the normalized mode), the normals kept.

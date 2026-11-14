@@ -1,0 +1,8 @@
+a front build/doctor_renders_r2/front.png
+b side_yard build/doctor_renders_r2/side_yard.png
+c rear build/doctor_renders_r2/rear.png
+d front_office build/doctor_renders_r2/front_office.png
+e surgery build/doctor_renders_r2/surgery.png
+f dispensary build/doctor_renders_r2/dispensary.png
+g sick_room build/doctor_renders_r2/sick_room.png
+h quarters build/doctor_renders_r2/quarters.png

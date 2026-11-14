@@ -11,16 +11,33 @@ extends Node3D
 signal hit(info: Dictionary)
 signal fell(conscious: bool)
 signal died(cause: StringName)
+## A landing from height that counted (issue #759): `last_fall`'s {kind, speed, joules, blows, harm}.
+signal fell_from(fall: Dictionary)
 
 ## Joint rotations per pose (degrees). A hanging limb swings forward with +X; the trunk and head
 ## lean back with +X (forward with -X). The rig drops so the lower foot stays on the ground.
+## `clavicle_r`/`clavicle_l` (not joints: the deform rig's, DeformRig): the pose's own shoulder lift
+## over what the arms drive, [rise, forward, unused] degrees.
 const POSES := {
 	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
+	# Stood at a graveside (Funeral, #868): his head bowed, his hands together before him.
+	&"mourn": {&"upper_arm_r": Vector3(6, 0, -6), &"upper_arm_l": Vector3(6, 0, 6),
+			&"forearm_r": Vector3(26, 38, 0), &"forearm_l": Vector3(26, -38, 0),
+			&"chest": Vector3(-4, 0, 0), &"head": Vector3(-18, 0, 0)},
 	&"aim": {&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
-	&"hands_up": {&"upper_arm_r": Vector3(0, 0, 150), &"forearm_r": Vector3(0, 0, 25),
-			&"upper_arm_l": Vector3(0, 0, -150), &"forearm_l": Vector3(0, 0, -25), &"head": Vector3(8, 0, 0)},
+	# Giving up (#694, Sean): upper arms out at shoulder height a little forward of his sides,
+	# elbows bent ~100 degrees, hands at head height with the palms to you, chest and head a touch
+	# back. Each arm's three turns solved from those directions (the upper arm's YXZ turn so the
+	# elbow's hinge lies across the arm and forearm; the forearm a pure bend; the palm turned at the
+	# wrist, the hand bent back a little). He gets there by HANDS_UP_KEYS, not a blend.
+	&"hands_up": {&"upper_arm_r": Vector3(80, 22, 90), &"forearm_r": Vector3(98, 0, 0), &"hand_r": Vector3(0, 19, 15),
+			&"upper_arm_l": Vector3(80, -22, -90), &"forearm_l": Vector3(98, 0, 0), &"hand_l": Vector3(0, -19, -15),
+			&"chest": Vector3(4, 0, 0), &"head": Vector3(6, 0, 0),
+			# The shoulders up a little more than the raised arms alone take them (#696; Sean, #692:
+			# "clavicles lifted a little"): [rise, forward] degrees over DeformRig's drive.
+			&"clavicle_r": Vector3(5, 0, 0), &"clavicle_l": Vector3(5, 0, 0)},
 	# Under arrest: hands bound behind his back, head down a little.
 	&"hands_bound": {&"upper_arm_r": Vector3(-35, 0, 0), &"forearm_r": Vector3(40, 40, 0),
 			&"upper_arm_l": Vector3(-35, 0, 0), &"forearm_l": Vector3(40, -40, 0), &"head": Vector3(-6, 0, 0)},
@@ -99,6 +116,11 @@ const POSES := {
 	# On his belly (the rig is laid flat): arms forward, head up.
 	&"prone": {&"upper_arm_r": Vector3(150, 0, 12), &"forearm_r": Vector3(25, 0, 0),
 			&"upper_arm_l": Vector3(150, 0, -12), &"forearm_l": Vector3(25, 0, 0), &"head": Vector3(55, 0, 0)},
+	# On his back in a bed (No Law's dying sheriff on the doctor's cot, #796): the rig laid face up,
+	# his head toward his own +z (put him with his feet at the bed's foot, facing along it to its
+	# foot), arms down by his sides, his head a little up on the pillow.
+	&"on_back": {&"upper_arm_r": Vector3(6, 0, 6), &"forearm_r": Vector3(18, 0, 0),
+			&"upper_arm_l": Vector3(6, 0, -6), &"forearm_l": Vector3(18, 0, 0), &"head": Vector3(-18, 0, 0)},
 	&"lie": {&"upper_arm_r": Vector3(165, 0, 20), &"forearm_r": Vector3(60, 0, 0),
 			&"upper_arm_l": Vector3(165, 0, -20), &"forearm_l": Vector3(60, 0, 0), &"head": Vector3(20, 0, 0)},
 	# Bent over, walking backwards, both hands down on a man's collar, dragging him.
@@ -152,6 +174,28 @@ const POSES := {
 	# from his dials (PostPose, `take_post`), in `post_pose`; this entry only names it.
 	&"post": {},
 }
+## How his hands come up (#694, Sean: "forward and out together, elbows bending early, hands
+## leading; quick, with a small overshoot and settle; not one joint turning in a flat plane"):
+## [seconds, the arms' turns] from wherever they were, each joint slerped key to key, then the
+## pose's own turns (POSES hands_up) at HANDS_UP_TIME. Keys solved as the pose was: early, forearms
+## already bent and up in front; mid, upper arms forward and out halfway, hands at his chin;
+## over, a little higher and wider than the pose. Time runs on an ease-out to the overshoot.
+const HANDS_UP_KEYS := [
+	[0.11, {&"upper_arm_r": Vector3(19, 0, 7), &"forearm_r": Vector3(88, 0, 0), &"hand_r": Vector3(0, -7, 0),
+			&"upper_arm_l": Vector3(19, 0, -7), &"forearm_l": Vector3(88, 0, 0), &"hand_l": Vector3(0, 7, 0)}],
+	[0.24, {&"upper_arm_r": Vector3(42, -8, 25), &"forearm_r": Vector3(107, 0, 0), &"hand_r": Vector3(0, 33, 5),
+			&"upper_arm_l": Vector3(42, 8, -25), &"forearm_l": Vector3(107, 0, 0), &"hand_l": Vector3(0, -33, -5)}],
+	[0.40, {&"upper_arm_r": Vector3(81, 90, 163), &"forearm_r": Vector3(86, 0, 0), &"hand_r": Vector3(0, 13, 18),
+			&"upper_arm_l": Vector3(81, -90, -163), &"forearm_l": Vector3(86, 0, 0), &"hand_l": Vector3(0, -13, -18)}],
+]
+## A landing's speed past what his drop gives (m/s): shoved or thrown down off the edge (`_step_fall`).
+const FALL_PUSH_SLACK := 3.0
+const HANDS_UP_TIME := 0.58
+## Letting them down again (any pose after hands_up): the arms slerped to the new pose this long,
+## so the down path is the shortest turn, not the Euler numbers' (which swing them out and over).
+const HANDS_DOWN_TIME := 0.5
+const _HANDS_UP_JOINTS: Array[StringName] = [&"upper_arm_r", &"forearm_r", &"hand_r",
+		&"upper_arm_l", &"forearm_l", &"hand_l"]
 ## Poses lying down (the rig is turned face-down). "lie" is lying flat by choice (behind something
 ## low), and he can get up again; "prone" is down because his legs have gone.
 const PRONE_POSES := [&"prone", &"prone_aim"]
@@ -223,6 +267,11 @@ var tick_index := -1
 ## His own nodes PeopleTick ticks after him, in tree order (his brain, face, senses: add_ticker).
 var _tickers: Array[Node] = []
 var _tickers_sorted := true
+## The tickers as his tick walks them: a copy, made again only when one comes or goes (a copy a
+## tick a man was one of the street's allocations, #881), so one that leaves mid-tick is still
+## walked past as before.
+var _tickers_run: Array[Node] = []
+var _tickers_changed := true
 ## Those of them that say whether he may tick slowly, and whether he's in trouble (PeopleTick's bands).
 var _slow_says: Array[Node] = []
 var _trouble_says: Array[Node] = []
@@ -235,6 +284,10 @@ var tick_every := 1
 var tick_owed := 0.0
 var tick_dt := 0.0
 var woken := false
+## Calm, and not within the near band of anyone in trouble (PeopleTick sets it each tick; false
+## with no player or the bands off): his senses look at another calm man every
+## `PeopleTickTuning.calm_look_every`th look (Senses; #881).
+var tick_calm := false
 var parts := {}  ## segment -> the physics body carrying it (AnimatableBody3D, RigidBody3D when limp)
 var pivots := {}  ## segment -> joint pivot (while standing)
 var visuals := {}  ## segment -> Node3D holding its meshes and decals
@@ -299,6 +352,12 @@ var _legs_gone := false  ## the stumble ended because his legs gave: no column, 
 var _favour := {}  ## region ("leg_r", "arm_l", "body"...) -> [how much he favours it 0..1, its rate]
 var _favour_lean := {}  ## segment -> degrees the wounds' consequence bends him by (on top of the pose)
 var _pose_now := {}  ## segment -> current pose rotation (degrees), blending to the target
+## His arms on their way up or down (HANDS_UP_KEYS): 0 none, 1 up, 2 down; its time; the arms'
+## turns it started from (segment -> Quaternion); the pose last tick (to see him enter or leave it).
+var _hands_track := 0
+var _hands_t := 0.0
+var _hands_from := {}
+var _hands_was := &"stand"
 var _breath := 0.0
 ## What his wounds show round him as time goes (blood from his ears, mouth, nose, drips, prints).
 var signs: WoundSigns
@@ -411,6 +470,7 @@ func add_ticker(n: Node) -> void:
 	if not _tickers.has(n):
 		_tickers.append(n)
 		_tickers_sorted = false
+		_tickers_changed = true
 		if n.has_method(&"can_slow"):
 			_slow_says.append(n)
 		if n.has_method(&"in_trouble"):
@@ -419,6 +479,7 @@ func add_ticker(n: Node) -> void:
 
 func remove_ticker(n: Node) -> void:
 	_tickers.erase(n)
+	_tickers_changed = true
 	_slow_says.erase(n)
 	_trouble_says.erase(n)
 
@@ -484,7 +545,9 @@ func _ready() -> void:
 	add_to_group(&"people")
 	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
-	anatomy = Anatomy.shared()
+	# His own proportions if his model has them (#696: the Studio's men with their own bone lengths;
+	# the hitboxes, the ragdoll and what's inside go with him), else everyone's.
+	anatomy = Anatomy.for_model(body_model)
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", rng_seed])  # people's seeds run 501, 502...: their first draws would agree
 	physiology.treated.connect(_bind_wound)
@@ -825,6 +888,7 @@ func _build_skin() -> void:
 		skin.add_bind(i, rests[i].affine_inverse())
 		_bone_parts.append(sid)
 	_add_finger_bones(data, skin, rests)
+	_deform = DeformRig.add(skeleton, skin, anatomy, _bone_parts)
 	_shoulders = PeopleBodies.add_shoulders(skeleton, skin, data, _bone_parts)
 	skeleton.reset_bone_poses()
 	var f := look.duplicate()
@@ -856,6 +920,7 @@ func _build_skin() -> void:
 	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
 	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
 	var talking := PeopleBodies.report(body_model).has("facerig")
+	var cuts: Dictionary = PeopleBodies.report(body_model).get("alpha_cut", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
@@ -871,7 +936,7 @@ func _build_skin() -> void:
 			_rigid_meshes[mi] = pieces[b][1]
 			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
 			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
-			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or cuts.has(shape) or (shape == "head" and talking))
 			if baked.has(shape):
 				# His own painted texture (the Studio's Rodin men) carries its own shading: the light
 				# smooth on it, not cut into the old look's four flat steps, which carved their faces
@@ -889,15 +954,17 @@ func _build_skin() -> void:
 						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
+			if cuts.has(shape):  # a groom's cards (a MetaHuman's, #889): its coverage cut
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"alpha_cut", float(cuts[shape]))
 			mi.layers = Layers.VIS_BODY
-			mi.custom_aabb = AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
+			mi.custom_aabb = _cull_box
 			skeleton.add_child(mi)
 			mi.skin = skin
 			mi.skeleton = NodePath("..")
 			skin_meshes["%s/%s" % [shape, sid]] = mi
 			(segment_pieces.get_or_add(sid, []) as Array).append(mi)
 	_own_fingers(data)
-	if not _finger_rig.is_empty() or (bool(data.get("whole", false)) and not data.has("fingers")):
+	if skinned_fingers or (bool(data.get("whole", false)) and not data.has("fingers")):
 		# His skinned hands draw his fingers; the drawn ones only fly when one is shot off. A whole
 		# man's own hands are in his skin (the Character Studio's men): the drawn fingers would be
 		# a second hand on his, so they're hidden too (until the Studio skins his fingers).
@@ -986,6 +1053,7 @@ func _unmerge() -> void:
 	_merged.clear()
 	for mi: MeshInstance3D in skin_meshes.values():
 		mi.visible = true
+		mi.custom_aabb = _cull_box
 
 
 ## The wound shader for a generated piece: textured by its UVs, opened by rest positions (CUSTOM0).
@@ -1074,7 +1142,7 @@ func _cloth(what: String, colour: Color, style: StringName, cull_back := true) -
 
 ## Bones follow the parts (hitboxes while standing, ragdoll pieces when limp). `placed`: the
 ## parts' global transforms already read this tick (segment -> Transform3D; _track_carry's).
-func _update_skeleton(placed := {}) -> void:
+func _update_skeleton(placed := {}, dt := 0.0) -> void:
 	if skeleton == null:
 		return
 	var inv := skeleton.global_transform.affine_inverse()
@@ -1086,8 +1154,50 @@ func _update_skeleton(placed := {}) -> void:
 		var part: Node3D = parts.get(sid)
 		if part != null and is_instance_valid(part) and part.is_inside_tree():
 			skeleton.set_bone_pose(i, inv * part.global_transform)
+	_pose_deform(dt)
 	PeopleBodies.pose_shoulders(skeleton, _shoulders)
 	_pose_fingers()
+	_keep_in_cull_box(inv)
+
+
+## His skin's culling box (each skin mesh's custom_aabb, in the skeleton's space, which is his
+## root's): the renderer draws the skin only while this box is on screen. Standing, his parts are
+## posed about his root and CULL_BOX holds them; limp, the ragdoll takes them where it goes (a
+## blast's throw, his stride carried on, down a slope or a stair, dragged off) while the root stays
+## where he fell, so the box follows them (#562: a body thrown 14 m wasn't drawn looking straight at
+## it with where he fell behind the camera).
+const CULL_BOX := AABB(Vector3(-3, -2, -3), Vector3(6, 5, 6))
+## Past his parts' centres (a limb's half, a hat), and the room the box is given each time it's moved.
+const CULL_MARGIN := 0.6
+const CULL_ROOM := 2.0
+var _cull_box := CULL_BOX
+
+
+## Moves the box when a part is outside it: every part while he's limp (each frame), else his
+## pelvis (each tick: a man got up away from where he fell, a crawl).
+func _keep_in_cull_box(inv: Transform3D) -> void:
+	var inside := _cull_box.grow(-CULL_MARGIN)
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	var out := false
+	for sid: StringName in (parts.keys() if limp else [&"pelvis"]):
+		var part: Node3D = parts.get(sid)
+		if part == null or not is_instance_valid(part) or not part.is_inside_tree():
+			continue
+		var p := inv * part.global_position
+		out = out or not inside.has_point(p)
+		lo = lo.min(p)
+		hi = hi.max(p)
+	if not out:
+		return
+	if not limp:
+		# Only the pelvis was asked: the box goes back round him as he stands, about it.
+		lo = Vector3(lo.x, 0.0, lo.z) + CULL_BOX.position
+		hi = lo + CULL_BOX.size
+	_cull_box = AABB(lo, hi - lo).grow(CULL_MARGIN + CULL_ROOM)
+	for mi: Node in skeleton.get_children():
+		if mi is MeshInstance3D and (mi as MeshInstance3D).custom_aabb.size != Vector3.ZERO:
+			(mi as MeshInstance3D).custom_aabb = _cull_box
 
 
 ## A skinned hand's finger bones (the characters session's skinned hands,
@@ -1099,6 +1209,54 @@ func _update_skeleton(placed := {}) -> void:
 var _finger_rig: Array[FingerBone] = []
 ## A Studio man's shoulder helpers (PeopleBodies.shoulder_share), posed after his bones.
 var _shoulders: Array[PeopleBodies.ShoulderBone] = []
+## The fuller skeleton's deform bones (DeformRig, #696): clavicles and twist bones, posed after his
+## 17 bones from them, before the shoulder helpers. Shape the skin only.
+var _deform: Array[DeformRig.Bone] = []
+## Whether his skin is weighted to his finger bones (a skinned hand: the Studio's men's report
+## `finger_bones`, or his model's own weights): then the drawn fingers are hidden. Every man has the
+## finger bones in his skeleton (#696); without skinned hands nothing of his skin follows them.
+var skinned_fingers := false
+
+
+## The deform bones from his 17 as posed: the pose's own clavicle lift (POSES' clavicle_r/l keys,
+## [rise, forward, -] degrees) and a clip's clavicle channel, if it has one, over the drive from his
+## arms: the library layer's (#715; with its weight, the side's crossing share and his upper arm's
+## injury hold, as his arm takes it) under a played clip's (with its weight, as the joints); none of
+## it while he's limp (the arms' drive still is).
+func _pose_deform(dt: float) -> void:
+	if _deform.is_empty():
+		return
+	var target: Dictionary = POSES.get(pose, {}) if not limp else {}
+	var extra := [Vector2.ZERO, Vector2.ZERO]
+	for k in 2:
+		var v: Variant = target.get(DeformRig.CLAVICLES[k])
+		if v is Vector3:
+			extra[k] = Vector2((v as Vector3).x, (v as Vector3).y)
+	var clip := [null, null]
+	var ws := [0.0, 0.0]
+	if not limp:
+		var cw := clampf(_clip_w, 0.0, 1.0)
+		var lw := _lib.w if _lib != null and not _pose_lib.is_empty() else 0.0
+		for k in 2:
+			var cid: StringName = DeformRig.CLAVICLES[k]
+			var pq: Variant = _pose_played.get(cid) if cw > 0.0 else null
+			var lq: Variant = _pose_lib.get(cid) if lw > 0.0 else null
+			var lk := 0.0
+			if lq != null:
+				var arm := StringName("upper_arm_" + String(cid).right(1))
+				lk = lw * float(_lib.clav_k.get(cid, 1.0)) * (1.0 - clampf(float(_injury_w.get(arm, 0.0)), 0.0, 1.0))
+			if pq != null and lk > 0.0:
+				# Both: the library's under the played clip's, as the joints are layered.
+				clip[k] = (lq as Quaternion).slerp(pq, cw)
+				ws[k] = lk + (1.0 - lk) * cw
+			elif pq != null:
+				clip[k] = pq
+				ws[k] = cw
+			elif lk > 0.0:
+				# The played clip leads his arm without a channel: the drive takes it back as it comes on.
+				clip[k] = lq
+				ws[k] = lk * (1.0 - cw)
+	DeformRig.pose(skeleton, _deform, extra, clip, 0.0, dt, null, ws)
 
 
 ## One skinned finger bone: what it follows and the numbers its bend takes, worked out once (a
@@ -1115,18 +1273,27 @@ class FingerBone:
 	var rest: float  ## the relaxed bend (radians)
 	var gain: float  ## the fist's gain on the node's angle
 	var z := NAN  ## the finger node's angle it was last set for (INF: shot off)
+	var open := false  ## whether it was last set for open hands (hands up)
 
 
 func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) -> void:
 	var fb: Dictionary = data.get("finger_bones", {})
+	skinned_fingers = not fb.is_empty() or bool((data.get("skeleton", {}) as Dictionary).get("fingers", false))
+	if fb.is_empty():
+		# Every man's skeleton has them (#696): at the anatomy's fingers, for a skin not weighted to them.
+		fb = PeopleBodies.anatomy_finger_bones(anatomy)
 	if fb.is_empty():
 		return
 	var last := {}
 	var rest_of := {}  ## bone -> its rest in the skeleton's space
-	for name: String in data.get("finger_bone_names", []):
-		if not fb.has(name):
+	var anat_fb := PeopleBodies.anatomy_finger_bones(anatomy)
+	# A model whose hands are already curled at rest (a MetaHuman's) takes less of the relaxed curl
+	# (its report's `finger_rest_curl`, 0..1; the Rodin men's straight fingers all of it).
+	var relax := float(PeopleBodies.report(body_model).get("finger_rest_curl", 1.0))
+	for name: String in data.get("finger_bone_names", PeopleBodies.finger_bone_names()):
+		if not fb.has(name) and not anat_fb.has(name):
 			return
-		var r: Dictionary = fb[name]
+		var r: Dictionary = fb[name] if fb.has(name) else anat_fb[name]
 		var o: Array = r.origin
 		var b: Array = r.basis
 		var rest := Transform3D(Basis(Vector3(b[0][0], b[0][1], b[0][2]), Vector3(b[1][0], b[1][1], b[1][2]),
@@ -1150,7 +1317,7 @@ func _add_finger_bones(data: Dictionary, skin: Skin, rests: Array[Transform3D]) 
 		e.k = k
 		e.thumb = bits[1] == "thumb"
 		e.sx = -1.0 if bits[2] == "r" else 1.0
-		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k])
+		e.rest = deg_to_rad((RELAXED_THUMB if e.thumb else RELAXED_BEND)[k]) * relax
 		e.gain = (FIST_GAIN_THUMB if e.thumb else FIST_GAIN)[k]
 		_finger_rig.append(e)
 		last[fid] = i
@@ -1171,27 +1338,46 @@ const THUMB_ACROSS := 45.0
 const THUMB_ACROSS_SIGN := -1.0
 
 
+## A finger node turned or came off since the skinned fingers were last set (curl_hand,
+## sever_finger), and whether they were set for open hands.
+var _fingers_dirty := true
+var _fingers_open := false
+
+
+## Hands up, the relaxed curl is only this share of itself: the hands open, fingers loose (Sean,
+## #692: "palms forward, fingers loose and slightly spread"), not a claw.
+const OPEN_HANDS_CURL := 0.2
+
+
 func _pose_fingers() -> void:
+	var open := pose == &"hands_up" and not limp
+	# Nothing to do till a finger node turns (curl_hand) or comes off, or his hands go up or down:
+	# 30 bones' reads a man a tick were ~0.6 ms of the street's 25 townsfolk (#881).
+	if not _fingers_dirty and open == _fingers_open:
+		return
+	_fingers_dirty = false
+	_fingers_open = open
 	for e: FingerBone in _finger_rig:
 		var gone := not fingers.has(e.fid)
 		var z: float = INF if gone else (finger_bones[e.fid][e.k] as Node3D).rotation.z
-		if z == e.z:
+		if z == e.z and open == e.open:
 			continue
 		e.z = z
+		e.open = open
 		var pose: Transform3D = e.local
 		if gone:
 			pose = pose.scaled_local(Vector3.ONE * 0.001)   # shot off: shrunk to nothing at the knuckle
 		else:
-			pose = pose * Transform3D(_finger_bend(e, z), Vector3.ZERO)
+			pose = pose * Transform3D(_finger_bend(e, z, OPEN_HANDS_CURL if open else 1.0), Vector3.ZERO)
 		skeleton.set_bone_pose(e.bone, pose)
 
 
 ## A finger bone's bend for its node's angle `z`: the fist's gain, at least the relaxed curl, a
 ## thumb's leaning across the fist.
-static func _finger_bend(e: FingerBone, z: float) -> Basis:
+static func _finger_bend(e: FingerBone, z: float, relaxed := 1.0) -> Basis:
 	var angle := z * e.gain
-	if absf(angle) < e.rest:
-		angle = e.sx * e.rest
+	if absf(angle) < e.rest * relaxed:
+		angle = e.sx * e.rest * relaxed
 	if e.thumb:
 		var lean := deg_to_rad(THUMB_ACROSS)
 		return Basis(Vector3(0, 0, 1), angle * cos(lean)) * Basis(Vector3(1, 0, 0), THUMB_ACROSS_SIGN * absf(angle) * sin(lean))
@@ -1208,7 +1394,7 @@ func _process(delta: float) -> void:
 
 func _process_step(_delta: float) -> void:
 	if limp:
-		_update_skeleton()
+		_update_skeleton({}, _delta)
 
 
 ## The hand: palm, then each finger as three bones from its knuckle, following the anatomy.
@@ -1292,6 +1478,7 @@ func _own_fingers(data: Dictionary) -> void:
 
 ## Curl a hand's fingers (0 open, 1 fist) about the palm side.
 func curl_hand(side: String, amount: float) -> void:
+	_fingers_dirty = true
 	var sx := -1.0 if side == "r" else 1.0
 	for f: String in FINGERS:
 		var fid := StringName("%s_%s" % [f, side])
@@ -1308,7 +1495,7 @@ func _give_gun() -> void:
 	gun.name = "Revolver"
 	var vis: Node3D = visuals[&"hand_r"]
 	vis.add_child(gun)
-	gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
+	gun.position = anatomy.rest_point(&"hand_r", Vector3(0.232, 0.765, -0.05)) - anatomy.segment_center(&"hand_r")
 	gun.rotation_degrees = Vector3(-90, 0, 0)
 	held_gun = gun
 	curl_hand("r", 0.85)
@@ -1324,7 +1511,7 @@ func holster_gun(now := false) -> void:
 	_draw_left = 0.0 if now else DRAW_TIME
 	var vis: Node3D = visuals[&"pelvis"]
 	held_gun.reparent(vis, false)
-	held_gun.position = Vector3(0.2, 0.9, 0.02) - anatomy.segment_center(&"pelvis")
+	held_gun.position = anatomy.rest_point(&"pelvis", Vector3(0.2, 0.9, 0.02)) - anatomy.segment_center(&"pelvis")
 	held_gun.rotation_degrees = Vector3(-96, 0, 0)
 	_gun_shadow(false)
 	curl_hand("r", 0.25)
@@ -1347,7 +1534,7 @@ func draw_gun() -> void:
 	_draw_left = DRAW_TIME
 	var vis: Node3D = visuals[&"hand_r"]
 	held_gun.reparent(vis, false)
-	held_gun.position = Vector3(0.232, 0.765, -0.05) - anatomy.segment_center(&"hand_r")
+	held_gun.position = anatomy.rest_point(&"hand_r", Vector3(0.232, 0.765, -0.05)) - anatomy.segment_center(&"hand_r")
 	held_gun.rotation_degrees = Vector3(-90, 0, 0)
 	_gun_shadow(true)
 	curl_hand("r", 0.85)
@@ -1378,9 +1565,13 @@ func people_tick(delta: float) -> void:
 	if not _tickers_sorted:
 		_tickers.sort_custom(func(a: Node, b: Node) -> bool: return b.is_greater_than(a))
 		_tickers_sorted = true
+		_tickers_changed = true
+	if _tickers_changed:
+		_tickers_run = _tickers.duplicate()
+		_tickers_changed = false
 	if is_physics_processing() and can_process():
 		_tick(delta)
-	for n: Node in _tickers.duplicate():
+	for n: Node in _tickers_run:
 		if is_instance_valid(n) and n.is_inside_tree() and n.is_physics_processing() and n.can_process():
 			n.call(&"tick", delta)
 
@@ -1392,7 +1583,7 @@ func _tick(delta: float) -> void:
 	if not limp:
 		# His bones after his pose, from the parts' places _track_carry has just read.
 		t = Prof.start()
-		_update_skeleton(_carry_new if delta > 0.0 else {})
+		_update_skeleton(_carry_new if delta > 0.0 else {}, delta)
 		Prof.stop(&"people_skeleton", t)
 
 
@@ -1419,7 +1610,8 @@ func _physics_step(delta: float) -> void:
 		_apply_pose(delta, false, pose_ahead)
 		if stumbling > 0.0:
 			pass  # he's going down already
-		elif not physiology.can_stand() and not prone and not rising:
+		elif not physiology.can_stand() and not prone and not rising and pose != &"on_back":
+			# (Laid on his back in a bed he stays there, alive or dead: No Law's sheriff, #796.)
 			if _can_crawl():
 				go_prone()
 			else:
@@ -1447,7 +1639,9 @@ func _physics_step(delta: float) -> void:
 			_hat_meets_ground()
 		_step_brace(delta)
 		_step_thrown(delta)
+		_step_fall(delta)
 		_rise_watch(delta)
+		_unspare(delta)
 		_step_tone(delta)
 		_step_dying(delta)
 		if _impacts:
@@ -1515,9 +1709,10 @@ func prepare(delta: float, timed := false) -> void:
 func _track_carry(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	for sid: StringName in _carry_new:
-		_carry_last[sid] = _carry_new[sid]
-	var now := {}
+	# The two kept and swapped, not a new one a tick (#881): last tick's places become the ones before.
+	var now := _carry_last
+	_carry_last = _carry_new
+	now.clear()
 	for sid: StringName in parts:
 		var n := parts[sid] as Node3D
 		if n == null or not is_instance_valid(n):
@@ -1735,6 +1930,18 @@ func _rise_step(delta: float) -> void:
 ## body: his animated parts are put where the ragdoll lay, among or in them, and the engine flung
 ## them out at him (5 kJ: Structure._on_rubble_hit broke his shin as he got up).
 const SPARE_RADIUS := 2.5
+## Shapes a look of the space gives, and how many looks at most (4,096 shapes within 2.5 m of him).
+const SPARE_A_LOOK := 128
+const SPARE_LOOKS := 32
+## The pieces let through him (`_spare_rubble`). Knocked down again as he rises, the ragdoll that
+## takes the rig's place is let through them too (`_spare_ragdoll`): its parts are put where the
+## rig's were, in among them, and the engine shoved the pieces out at him (eight blows of 8 to 36 J
+## on Earl's thigh, pelvis and shin from his own chair's, three ticks after he'd got up: he never
+## stood again, #834). Each is the ragdoll's to meet again once it's clear of him (`_unspare`).
+var _spared: Array[RigidBody3D] = []
+## How often (s) lying limp he looks whether those pieces are clear of him yet.
+const UNSPARE_EVERY := 0.25
+var _unspare_t := 0.0
 
 
 func _spare_rubble(at: Vector3) -> void:
@@ -1745,13 +1952,94 @@ func _spare_rubble(at: Vector3) -> void:
 	q.transform = Transform3D(Basis(), at)
 	q.collision_mask = Layers.WORLD
 	Prof.count(&"q_body")
-	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
-		var rb := hit.collider as RigidBody3D
-		if rb == null:
+	_spared.clear()
+	# Every loose piece in reach, however much that stands is in reach too: the query gives 64 shapes
+	# at most, and a building's standing members filled it before the chair's pieces were counted
+	# (the saloon's wall by the yard's card table: Earl's own chair broke his thigh, 3.8 kJ, as he
+	# got up, #925). What isn't a loose piece is left out of the next look till a look comes back short.
+	var space := World.space(self)
+	var seen: Array[RID] = []
+	for look in SPARE_LOOKS:
+		q.exclude = seen
+		var hits := space.intersect_shape(q, SPARE_A_LOOK)
+		for hit: Dictionary in hits:
+			if not seen.has(hit.rid):
+				seen.append(hit.rid)
+			var rb := hit.collider as RigidBody3D
+			if rb == null or _spared.has(rb):
+				continue
+			for part: Variant in parts.values():
+				rb.add_collision_exception_with(part as Node)
+			rb.add_collision_exception_with(_blocker)
+			_spared.append(rb)
+		if hits.size() < SPARE_A_LOOK:
+			break
+
+
+## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
+## ragdoll too (a man down again as he gets up among them), till they're clear (`_unspare`).
+func _spare_ragdoll(bodies: Dictionary, rig: Array) -> void:
+	var kept: Array[RigidBody3D] = []
+	if _spared.is_empty():
+		return
+	# (The rig's parts keep their shapes' copies till they're freed: what's in him is what's in them.)
+	var space := World.space(self)
+	for rb in _spared:
+		if not is_instance_valid(rb):
 			continue
-		for part: Variant in parts.values():
+		var in_him := _in_him(rb, space)
+		_unspare_from(rb, rig)  # (the rig's going: nothing left let through a freed body)
+		if not in_him:
+			continue
+		for part: Variant in bodies.values():
 			rb.add_collision_exception_with(part as Node)
-		rb.add_collision_exception_with(_blocker)
+		kept.append(rb)
+	_spared = kept
+	_unspare_t = 0.0
+
+
+## This piece no longer let through these parts of him.
+static func _unspare_from(rb: RigidBody3D, from: Array) -> void:
+	for part: Variant in from:
+		if is_instance_valid(part):
+			rb.remove_collision_exception_with(part as Node)
+
+
+## Lying limp: each piece let through him that's no longer in any part of him is his to meet again.
+func _unspare(delta: float) -> void:
+	if _spared.is_empty():
+		return
+	_unspare_t += delta
+	if _unspare_t < UNSPARE_EVERY:
+		return
+	_unspare_t = 0.0
+	var space := World.space(self)
+	var kept: Array[RigidBody3D] = []
+	for rb in _spared:
+		if not is_instance_valid(rb):
+			continue
+		if _in_him(rb, space):
+			kept.append(rb)
+			continue
+		_unspare_from(rb, parts.values())
+	_spared = kept
+
+
+## Does any of this piece's shapes overlap a part of him?
+func _in_him(rb: RigidBody3D, space: PhysicsDirectSpaceState3D) -> bool:
+	var rid := rb.get_rid()
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.collision_mask = Layers.BODY_PARTS
+	q.margin = 0.02
+	for i in PhysicsServer3D.body_get_shape_count(rid):
+		q.shape_rid = PhysicsServer3D.body_get_shape(rid, i)
+		q.transform = rb.global_transform * PhysicsServer3D.body_get_shape_transform(rid, i)
+		Prof.count(&"q_body")
+		for hit: Dictionary in space.intersect_shape(q, 16):
+			var c := hit.collider as Node
+			if c != null and c.has_meta(&"human_body") and c.get_meta(&"human_body") == self:  # (a null default still errors when it's missing)
+				return true
+	return false
 
 
 ## The lowest point of him (world y): each capsule's lower end.
@@ -1808,6 +2096,9 @@ func _rebuild_rig() -> void:
 	for c in get_children():
 		if c is Joint3D:
 			c.queue_free()
+	for rb in _spared:
+		if is_instance_valid(rb):
+			_unspare_from(rb, old.values())  # (`_spare_rubble` lets them through the new rig)
 	for sid: StringName in old:
 		(old[sid] as Node).queue_free()
 	_impacts = null
@@ -2150,10 +2441,12 @@ func _pose_maths(delta: float, snap: bool) -> void:
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
 	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
+	var track := _hands_goals(delta, snap, target)
 	_rots.resize(pivots.size())
 	var i := 0
 	for sid: StringName in pivots:
-		var goal: Vector3 = target.get(sid, Vector3.ZERO)
+		var tracked := track.has(sid)
+		var goal: Vector3 = track[sid] if tracked else target.get(sid, Vector3.ZERO)
 		if leans:
 			goal += overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
 					+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
@@ -2162,7 +2455,10 @@ func _pose_maths(delta: float, snap: bool) -> void:
 		if sid == &"upper_arm_r" and (pose == &"aim" or pose == &"crouch_aim"):
 			goal.x += aim_pitch
 		var now: Vector3 = _pose_now.get(sid, goal)
-		now = now.lerp(goal, blend) if not rising else (_rise_pose_from.get(sid, now) as Vector3).lerp(goal, _rise_k)
+		if tracked:
+			now = goal  # the track is the path: followed, not blended to
+		else:
+			now = now.lerp(goal, blend) if not rising else (_rise_pose_from.get(sid, now) as Vector3).lerp(goal, _rise_k)
 		_pose_now[sid] = now
 		var f: Array = _flinch.get(sid, [Vector3.ZERO, Vector3.ZERO])
 		if delta > 0.0:
@@ -2177,6 +2473,71 @@ func _pose_maths(delta: float, snap: bool) -> void:
 			rot.x += sin(_breath * 1.6) * 1.2 * gasp * (1.0 + shock * 2.0 + (1.0 - physiology.breath_capacity()) * 1.5)
 		_rots[i] = rot
 		i += 1
+
+
+## The arms' goals this tick while his hands go up or come down (HANDS_UP_KEYS), segment -> turn
+## (degrees), or {} (the pose's own goals then, blended as any pose's). Entering hands_up starts the
+## way up from where his arms are; leaving it, the way down to the new pose. His own data only
+## (runs in `_pose_maths`, on a worker under PeopleTick).
+func _hands_goals(delta: float, snap: bool, target: Dictionary) -> Dictionary:
+	if pose != _hands_was:
+		var up := pose == &"hands_up"
+		_hands_track = 0
+		if not snap and not rising and (up or _hands_was == &"hands_up"):
+			_hands_track = 1 if up else 2
+			_hands_t = 0.0
+			_hands_from.clear()
+			for sid in _HANDS_UP_JOINTS:
+				var was: Vector3 = _pose_now.get(sid, (POSES[_hands_was] as Dictionary).get(sid, Vector3.ZERO)
+						if POSES.has(_hands_was) else Vector3.ZERO)
+				_hands_from[sid] = _quat_deg(was)
+		_hands_was = pose
+	if _hands_track == 0 or snap or rising:
+		_hands_track = 0
+		return {}
+	_hands_t += delta
+	var end := HANDS_UP_TIME if _hands_track == 1 else HANDS_DOWN_TIME
+	if _hands_t >= end:
+		_hands_track = 0
+		return {}  # the pose's own turns from here (their numbers, not a quaternion's other branch)
+	var out := {}
+	if _hands_track == 2:
+		var k := smoothstep(0.0, 1.0, _hands_t / end)
+		for sid in _HANDS_UP_JOINTS:
+			var to := _quat_deg(target.get(sid, Vector3.ZERO))
+			out[sid] = _deg_quat((_hands_from[sid] as Quaternion).slerp(to, k))
+		return out
+	# Up: an ease-out to the overshoot (quick off the mark, slowing into it), then a smooth settle.
+	var over_t: float = HANDS_UP_KEYS[-1][0]
+	var t := _hands_t
+	if t < over_t:
+		var x := t / over_t
+		t = over_t * (1.0 - (1.0 - x) * (1.0 - x))
+	var a_t := 0.0
+	var b_t := end
+	var b_i := HANDS_UP_KEYS.size()
+	for j in HANDS_UP_KEYS.size():
+		if t < float(HANDS_UP_KEYS[j][0]):
+			b_i = j
+			b_t = HANDS_UP_KEYS[j][0]
+			break
+		a_t = HANDS_UP_KEYS[j][0]
+	var f := clampf((t - a_t) / maxf(b_t - a_t, 1e-4), 0.0, 1.0)
+	if b_i == HANDS_UP_KEYS.size():
+		f = smoothstep(0.0, 1.0, f)
+	for sid in _HANDS_UP_JOINTS:
+		var qa: Quaternion = _hands_from[sid] if b_i == 0 else _quat_deg(HANDS_UP_KEYS[b_i - 1][1][sid])
+		var qb := _quat_deg(target.get(sid, Vector3.ZERO) if b_i == HANDS_UP_KEYS.size() else HANDS_UP_KEYS[b_i][1][sid])
+		out[sid] = _deg_quat(qa.slerp(qb, f))
+	return out
+
+
+static func _quat_deg(d: Vector3) -> Quaternion:
+	return Quaternion.from_euler(d * (PI / 180.0))
+
+
+static func _deg_quat(q: Quaternion) -> Vector3:
+	return q.get_euler() * (180.0 / PI)
 
 
 ## The pose's writes, on the main thread: each joint turned to its `_rots` (or its clip's turn),
@@ -2457,6 +2818,10 @@ func _clip_strikes(delta: float) -> void:
 			if pairs.size() >= 2:
 				at = pairs[1]
 			var result: StringName = s.call(&"take_blow", m, at, v * CLIP_BLOW_MASS, CLIP_BLOW_MASS)
+			if result == &"broke":
+				# The piece his boot broke goes off at his boot's speed, against his own leg: not a
+				# blow on him (Structure._on_rubble_hit spares the man who broke it, a moment).
+				s.set_meta(&"broken_by", [self, Engine.get_physics_frames()])
 			clip_struck.emit(m, result, v.length())
 			# The boot's energy went into what it met, and the clip's follow-through is off: a part
 			# moved by script would plough on through the chair and the man in it, throwing him as
@@ -2520,6 +2885,11 @@ func _place_rig(delta: float, snap: bool) -> void:
 	if prone or pose == &"lie":
 		_rig.rotation.x = lerp_angle(_rig.rotation.x, deg_to_rad(-90.0), clampf(delta * 3.0, 0.0, 1.0) if not snap else 1.0)
 		_rig.position.y = lerpf(_rig.position.y, 0.16, k)
+		_set_blocker(true)
+		return
+	if pose == &"on_back":
+		_rig.rotation.x = deg_to_rad(90.0)
+		_rig.position.y = 0.13
 		_set_blocker(true)
 		return
 	_rig.rotation.x = 0.0
@@ -3055,7 +3425,7 @@ func _cough(delta: float) -> void:
 		return
 	_cough_in = _rng.randf_range(2.5, 6.0) if p.airway_blood else _rng.randf_range(5.0, 11.0)
 	var head: Node3D = parts[&"head"]
-	var mouth := head.global_transform * (Vector3(0, 1.58, -0.1) - anatomy.segment_center(&"head"))
+	var mouth := head.global_transform * (anatomy.rest_point(&"head", Vector3(0, 1.58, -0.1)) - anatomy.segment_center(&"head"))
 	var fwd := -head.global_basis.z
 	# From a holed lung it comes up frothy and bright, pink with air (ATLS).
 	Blood.burst(get_parent(), mouth, fwd + Vector3.UP * 0.2, 10, 1.6, WoundSigns.FROTH if not p.lung_damage.is_empty() else Blood.ARTERIAL)
@@ -4401,7 +4771,7 @@ func mop_pool(share: float) -> void:
 		_pool_ml = 0.0
 		return
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
-	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+	_pool.size = Vector3(r * 2.0, POOL_DEPTH, r * 2.0)
 
 
 func _update_pool() -> void:
@@ -4422,10 +4792,38 @@ func _update_pool() -> void:
 		_pool.add_to_group(&"blood_drying")
 		add_child(_pool)
 	var r := clampf(sqrt(_pool_ml * 1e-6 / 0.002 / PI), 0.05, 1.1)
-	_pool.global_position = Vector3(chest.global_position.x, chest.global_position.y, chest.global_position.z)
+	var at := chest.global_position
+	_pool.global_position = Vector3(at.x, _pool_floor(at) + POOL_DEPTH * 0.25, at.z)
 	_pool.global_rotation = Vector3.ZERO
-	_pool.size = Vector3(r * 2.0, 1.0, r * 2.0)
+	_pool.size = Vector3(r * 2.0, POOL_DEPTH, r * 2.0)
 	_soak_in_pool(r, get_physics_process_delta_time())
+
+
+## The pool's box (m tall), laid on the floor under him (#669): it paints what lies within 15 cm
+## above the floor or tread he's on and 5 cm into it, not the air round him (a 1 m box centred on
+## his belly painted a stair's risers and rail, and the gun in your hands as you stood by him).
+const POOL_DEPTH := 0.2
+const POOL_FLOOR_EVERY := 0.5  ## s between looks for the floor while he lies still
+const POOL_FLOOR_MOVED := 0.1  ## m: moved this far, the floor is looked for again at once
+var _pool_floor_y := NAN
+var _pool_floor_from := Vector3.INF
+var _pool_floor_in := 0.0
+
+
+## The floor under his belly (world y): the first of the world's surfaces down from it, looked for
+## every POOL_FLOOR_EVERY s or when he's moved; not found, 15 cm under his belly (a man lies so).
+func _pool_floor(at: Vector3) -> float:
+	_pool_floor_in -= get_physics_process_delta_time()
+	if not is_nan(_pool_floor_y) and _pool_floor_in > 0.0 and at.distance_to(_pool_floor_from) < POOL_FLOOR_MOVED:
+		return _pool_floor_y
+	_pool_floor_in = POOL_FLOOR_EVERY
+	_pool_floor_from = at
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.1, at + Vector3.DOWN * 1.2, Layers.WORLD)
+	q.exclude = _own_rids()
+	Prof.count(&"q_pool")
+	var hit := World.space(self).intersect_ray(q)
+	_pool_floor_y = (hit.position as Vector3).y if not hit.is_empty() else at.y - 0.15
+	return _pool_floor_y
 
 
 ## Lying in his blood, his clothes take it up from below: each part of him resting in the pool gets
@@ -4487,6 +4885,7 @@ func sever_finger(fid: StringName, dir: Vector3) -> void:
 	if knuckle == null:
 		return
 	fingers.erase(fid)
+	_fingers_dirty = true
 	var rb := RigidBody3D.new()
 	rb.name = "Finger_%s" % fid
 	rb.mass = 0.02
@@ -4646,6 +5045,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 	for sid: StringName in pivots:
 		joint_at[sid] = (pivots[sid] as Node3D).global_position
 	var bodies := {}
+	var rig := parts.values()
 	for sid: StringName in anatomy.segments:
 		var part: Node3D = parts[sid]
 		var rb := RigidBody3D.new()
@@ -4683,6 +5083,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		bodies[sid] = rb
 		parts[sid] = rb
 	_scale_inertia(bodies)
+	_spare_ragdoll(bodies, rig)
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -5152,14 +5553,18 @@ var _brace_tuck := false  ## thrown: his knees come up too (THROWN_TUCK)
 ## Brace for the fall he's starting (call as or after he goes limp; asleep, dead or already down,
 ## nothing).
 func brace() -> void:
-	if not limp or not physiology.alive or not physiology.is_conscious() or _tone.is_empty():
+	if not limp or not physiology.alive or not physiology.is_conscious():
+		return
+	# Not hurt past knowing it: he'll get up again once he's still (`get_up`). (Before the tone's
+	# looked at: knocked down again as he was getting up, his joints have none yet, and he lay
+	# there for good: Earl in his chair's pieces, #834.)
+	rise_ok = true
+	if _tone.is_empty():
 		return
 	_brace_t = 0.0
 	_brace_k = BRACE_TONE
 	_brace_fade = BRACE_FADE
 	_brace_tuck = false
-	# Not hurt past knowing it: he'll get up again once he's still (`get_up`).
-	rise_ok = true
 
 
 func _step_brace(delta: float) -> void:
@@ -5708,6 +6113,136 @@ func _step_thrown(delta: float) -> void:
 		if physiology.severed_segments.has(rb.get_meta(&"segment", &"")):
 			continue  # a limb the blast took: not his to feel
 		take_blow(rb, joules, rb.global_position, was.normalized() if was.length() > 0.01 else Vector3.DOWN, rb.mass * dv)
+
+
+## A fall from height (issue #759; Sean's table on #762; Falls, config/falls.tres): watched while
+## his middle comes down faster than a man falling over where he stands; the landing, once a part
+## stops hard and his middle was coming down past `min_speed`, lasts `window`, and its energy (his
+## weight and that speed, less what he still has after: through a roof he keeps most of it) is
+## shared out over the parts that stopped (Falls.share_out) as blows (`take_blow`), with the load
+## up his spine from the first parts down (Physiology.axial). Any limp man, whatever put him over
+## the edge. How he falls is the ragdoll's own: only the landing's harm is added here.
+var _fall_v := {}  ## RigidBody3D -> its velocity last tick, while he's coming down fast
+var _fall_t := -1.0  ## s into a landing (-1: none)
+var _fall_in := 0.0  ## his middle's speed down as the landing began (m/s)
+var _fall_kind := &""
+## The parts down first: those that stopped with their undersides within this (m) of the lowest.
+const FALL_FIRST_BAND := 0.15
+var _fall_top := -INF  ## the height his middle would reach from where it last went slow (m)
+var _fall_stop := {}  ## RigidBody3D -> momentum it lost in the landing (N*s)
+var _fall_first := {}  ## RigidBody3D -> momentum it lost on the landing's first tick (N*s): down first
+## The last landing that counted, for the labs and tests: {kind, speed, joules, harm, blows}.
+var last_fall := {}
+
+
+func _step_fall(delta: float) -> void:
+	var pelvis := parts.get(&"pelvis") as RigidBody3D
+	if pelvis == null:
+		return
+	var ft := Falls.t()
+	var vy := pelvis.linear_velocity.y
+	var down := -vy
+	if _fall_t < 0.0 and down < ft.min_speed * 0.8 and not _fall_v.has(pelvis):
+		# Not coming down fast: where his fall would start from (the top of his arc going up).
+		_fall_top = pelvis.global_position.y + (vy * vy / 19.6 if vy > 0.0 else 0.0)
+		return
+	var g := Vector3.DOWN * 9.8 * delta
+	var was_down := -(_fall_v.get(pelvis, pelvis.linear_velocity) as Vector3).y
+	var stopped := {}  ## RigidBody3D -> how much it stopped this tick (m/s)
+	for sid: StringName in parts:
+		var rb := parts[sid] as RigidBody3D
+		if rb == null:
+			continue
+		var now := rb.linear_velocity
+		if _fall_v.has(rb):
+			var stop := ((_fall_v[rb] as Vector3) + g - now).length()
+			if stop >= ft.land_dv:
+				stopped[rb] = stop
+				if _fall_t >= 0.0:
+					_fall_stop[rb] = float(_fall_stop.get(rb, 0.0)) + rb.mass * stop
+		_fall_v[rb] = now
+	if _fall_t < 0.0:
+		if stopped.is_empty():
+			if down < ft.min_speed * 0.8:
+				_fall_v.clear()  # slowed without landing hard (slid to a stop): done
+			return
+		var drop := _fall_top - pelvis.global_position.y
+		var fell := sqrt(maxf(2.0 * 9.8 * drop, 0.0)) if drop > 0.0 and drop < 1e4 else 0.0
+		# No faster than the drop he's had could make him (and a push's few m/s more): a one-tick
+		# jolt of the ragdoll lying where he lay isn't a fall (#778: the sheriff, left on the road).
+		var v_in := maxf(minf(was_down, fell + FALL_PUSH_SLACK), fell)
+		if v_in < ft.min_speed:
+			if down < ft.min_speed * 0.8:
+				_fall_v.clear()
+			return  # a touch on the way down, too slow to count: still watching
+		# The landing begins.
+		_fall_t = 0.0
+		_fall_in = v_in
+		_fall_stop.clear()
+		_fall_first.clear()
+		var first: Array = []
+		var heights := {}
+		# Down first: the lowest of those that stopped (the joints pass a stop up the whole chain
+		# in the same tick, so at speed every part stops at once; only the ones near the ground hit it).
+		var low := INF
+		var under := {}
+		for rb: RigidBody3D in stopped:
+			under[rb] = rb.global_position.y - float(anatomy.segments[rb.get_meta(&"segment", &"pelvis")].radius)
+			low = minf(low, under[rb])
+		for rb: RigidBody3D in stopped:
+			var sid: StringName = rb.get_meta(&"segment", &"")
+			_fall_stop[rb] = rb.mass * float(stopped[rb])
+			if float(under[rb]) > low + FALL_FIRST_BAND:
+				continue
+			_fall_first[rb] = rb.mass * float(stopped[rb])
+			first.append(sid)
+			heights[sid] = rb.global_position.y
+		_fall_kind = Falls.landing_kind(first, pelvis.global_position.y, heights)
+		return
+	_fall_t += delta
+	if _fall_t < ft.window:
+		return
+	# Over: the blows.
+	var joules := Falls.hurt_energy(_body_mass(), _fall_in, down, ft) * (ft.feet_soften if _fall_kind == &"feet" else 1.0)
+	var blows := Falls.share_out(joules, _fall_stop, _fall_first, ft, _fall_kind)
+	var harm: PackedStringArray = []
+	var given := {}
+	var lead_j := 0.0
+	for rb: RigidBody3D in blows:
+		var j := float(blows[rb])
+		var sid := String(rb.get_meta(&"segment", &""))
+		if _fall_first.has(rb) and (sid == "head" or sid == "neck"):
+			lead_j += j
+		if j < ft.least_blow or not is_instance_valid(rb):
+			continue
+		if physiology.severed_segments.has(StringName(sid)):
+			continue
+		given[sid] = snappedf(j, 0.1)
+		harm.append_array(take_blow(rb, j, rb.global_position, Vector3.DOWN, rb.mass * _fall_in))
+	if _fall_kind == &"feet":
+		# Up the legs into the pelvis and the low back.
+		var pelvis_j := joules * ft.spine_share
+		if pelvis_j >= ft.least_blow:
+			given["pelvis_load"] = snappedf(pelvis_j, 0.1)
+			harm.append_array(take_blow(pelvis, pelvis_j, pelvis.global_position, Vector3.DOWN, pelvis.mass * _fall_in))
+		harm.append_array(physiology.axial(&"spine", pelvis_j, _rng))
+	elif _fall_kind == &"head":
+		harm.append_array(physiology.axial(&"neck", lead_j * ft.neck_share, _rng))
+	var whole := joules / maxf(ft.injury_share, 1e-6)  # (feet first, softened already)
+	harm.append_array(physiology.axial(&"aorta", whole, _rng))
+	last_fall = {"kind": _fall_kind, "speed": snappedf(_fall_in, 0.01), "out": snappedf(down, 0.01),
+			"joules": snappedf(joules, 0.1), "blows": given, "harm": harm, "alive": physiology.alive}
+	fell_from.emit(last_fall)
+	# The blast's landing watch is done with too: this landing was it.
+	_thrown_t = -1.0
+	_thrown_v.clear()
+	_thrown_hit.clear()
+	_fall_t = -1.0
+	_fall_v.clear()
+	_fall_stop.clear()
+	_fall_first.clear()
+	# Going on (through a roof): his next fall is from here, at the speed he still has.
+	_fall_top = pelvis.global_position.y + down * down / 19.6
 
 
 func _body_mass() -> float:

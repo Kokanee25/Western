@@ -1,0 +1,163 @@
+{
+  "after": {
+    "bents_down": 2,
+    "broken": 166,
+    "by_kind": {
+      "bent_sill": 6,
+      "brace": 63,
+      "cap": 2,
+      "girt": 25,
+      "guard": 6,
+      "post": 32,
+      "stringer": 8,
+      "tie": 24
+    },
+    "deck_damage": 1,
+    "rails_gone": 0
+  },
+  "derail": {},
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.8,
+    "ms": 349.316,
+    "posts": 8,
+    "stagger_ticks": 1,
+    "worst_one_ms": 77.2
+  },
+  "frames": {
+    "before_mean_ms": 0.0,
+    "frames": 721,
+    "gate": "pass",
+    "last_under_50fps_s": 0.54,
+    "mean_ms": 4.01,
+    "over_100": 1,
+    "over_50": 2,
+    "sean_worst_ms": 67.1,
+    "second_ms": 87.2,
+    "slow_spell_s": 0.24,
+    "worst_at_s": 0.1,
+    "worst_ms": 103.2
+  },
+  "load_cost": {
+    "settles": 0,
+    "updates": 0,
+    "us": 16851
+  },
+  "outcome": "no train",
+  "prof_ms_a_frame": {
+    "ballistics": 0.37,
+    "blast_break": 0.16,
+    "blast_settle": 0.14,
+    "day_cycle": 0.06,
+    "player": 0.33,
+    "rubble_rest": 0.06,
+    "settle_analyse": 0.3,
+    "structures": 0.18,
+    "train": 0.36,
+    "train_lookout": 0.14,
+    "train_sound": 0.1,
+    "train_view": 0.13,
+    "valley_ground": 0.08
+  },
+  "rubble": {
+    "awake_at_end": 1,
+    "pieces": 117
+  },
+  "slow_frames": [
+    {
+      "awake": 27,
+      "ms": 103.2,
+      "physics_ms": 4.5,
+      "process_ms": 1.6,
+      "rubble": 27,
+      "t": 0.02,
+      "top": {
+        "analysis_full_begin": 7.1,
+        "ballistics": 13.4,
+        "batches": 2.6,
+        "blast_break": 70.3,
+        "blast_fx": 3.9,
+        "blast_settle": 68.5,
+        "settle_analyse": 69.7,
+        "settle_apply": 4.1
+      }
+    },
+    {
+      "awake": 82,
+      "ms": 87.2,
+      "physics_ms": 4.5,
+      "process_ms": 1.6,
+      "rubble": 82,
+      "t": 0.08,
+      "top": {
+        "ballistics": 11.7,
+        "blast_break": 34.7,
+        "blast_settle": 32.9,
+        "bu_forget": 3.2,
+        "settle_analyse": 36.8,
+        "settle_apply": 6.6,
+        "train": 9.0,
+        "train_lookout": 8.7
+      }
+    },
+    {
+      "awake": 99,
+      "ms": 44.0,
+      "physics_ms": 4.5,
+      "process_ms": 1.6,
+      "rubble": 99,
+      "t": 0.13,
+      "top": {
+        "ballistics": 10.1,
+        "batches": 1.4,
+        "blast_break": 2.0,
+        "blast_gather": 0.8,
+        "blast_settle": 0.7,
+        "blast_snap": 1.0,
+        "settle_analyse": 10.0,
+        "voxels": 0.7
+      }
+    },
+    {
+      "awake": 103,
+      "ms": 40.7,
+      "physics_ms": 4.5,
+      "process_ms": 1.6,
+      "rubble": 103,
+      "t": 0.15,
+      "top": {
+        "ballistics": 7.7,
+        "batches": 1.8,
+        "player": 0.5,
+        "settle_analyse": 10.2,
+        "settle_apply": 0.4,
+        "train": 0.3,
+        "valley_ground": 0.5,
+        "voxels": 0.9
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 2,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 30.0,
+    "lead": 0.0,
+    "out": "/home/user/Western/build/trestle_valley/runs/two_bents_blown.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 4,
+    "story": "bottom",
+    "train": "none",
+    "wait": 6.0,
+    "when": "before"
+  },
+  "t_fire": 0.0166666666666667,
+  "t_off": -1.0
+}

@@ -12,6 +12,18 @@ extends StaticBody3D
 ## (Ballistics.surface_of), not as a board.
 
 @export var tuning: GroundTuning
+## The valley's bake (docs/briefs/valley-plan.md §12, G2): set before it enters the tree, the
+## authored ground is the bake's (ValleyTerrain.height) everywhere, drawn and collided by a
+## ValleyGround of chunks in place of the town's slabs, slope and hills; the digging, saving and
+## everything after it are the same. Null in the town.
+var terrain: ValleyTerrain
+## The valley's chunks (with `terrain`), and their tuning and drawn material.
+var valley: ValleyGround
+var valley_tuning: ValleyGroundTuning
+var valley_material: Material
+## What the valley's ground is where (roads, pads, fords, beds: G4's greybox), tinting its colours;
+## none: the ground's own colours alone.
+var valley_marks: ValleyMarks
 ## The ground's material (art's ground.gdshader): the scene's Mesh child's, kept for the tiles.
 var material: Material
 ## Vector2i (the tile's corner, in tiles) -> GroundTile.
@@ -46,6 +58,9 @@ func _ready() -> void:
 	add_to_group(&"ground")
 	set_meta(&"ground", true)
 	set_meta(&"surface", &"ground")
+	if terrain:
+		_ready_valley()
+		return
 	_mesh = get_node_or_null(^"Mesh") as MeshInstance3D
 	if _mesh == null:
 		_mesh = MeshInstance3D.new()
@@ -60,6 +75,29 @@ func _ready() -> void:
 			remove_child(c)
 			c.free()
 	_rebuild_flat()
+
+
+## The valley's ground: its chunks' collision now, its drawing from where the camera is.
+func _ready_valley() -> void:
+	for c in get_children():
+		if c is CollisionShape3D:
+			remove_child(c)
+			c.free()
+	if valley_tuning == null:
+		valley_tuning = load("res://config/valley_terrain.tres")
+	valley = ValleyGround.new()
+	valley.name = "Chunks"
+	valley.setup(self, terrain, valley_tuning, valley_material)
+	valley.marks = valley_marks
+	add_child(valley)
+	valley.build_collision()
+	valley.build_drawing()
+
+
+## The authored ground's height at (x, z) (world xz, the ground's own y left out): the valley's bake,
+## or the town's (TownLayout.ground_height).
+func authored_height(x: float, z: float) -> float:
+	return terrain.height(x, z) if terrain else TownLayout.ground_height(x, z)
 
 
 ## The ground's material told where the street's middle runs (TownLayout.street_z), sampled as
@@ -108,7 +146,7 @@ func key_at(x: float, z: float) -> Vector2i:
 func height_at(x: float, z: float) -> float:
 	var t: GroundTile = tiles.get(key_at(x, z))
 	if t == null:
-		return global_position.y + TownLayout.ground_height(x, z)
+		return global_position.y + authored_height(x, z)
 	var local := t.global_transform.affine_inverse() * Vector3(x, 0.0, z)
 	var half := tuning.tile_cells * 0.5
 	var u := clampf(local.x / tuning.cell + half, 0.0, tuning.tile_cells)
@@ -176,6 +214,10 @@ static func _minus(r: Rect2, hole: Rect2) -> Array[Rect2]:
 ## The ground's slabs (deep boxes, their tops at the authored height) and its mesh, outside the
 ## dug tiles; and the rise's chunks that have gained or lost a dug tile.
 func _rebuild_flat() -> void:
+	if terrain:
+		if valley:
+			valley.set_holes(tiles)
+		return
 	for c in get_children():
 		if c is CollisionShape3D:
 			remove_child(c)
@@ -749,7 +791,7 @@ func _wake(area: Rect2) -> void:
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = box
 	q.transform = Transform3D(Basis.IDENTITY, Vector3(area.get_center().x,
-			TownLayout.ground_height(area.get_center().x, area.get_center().y) + 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
+			authored_height(area.get_center().x, area.get_center().y) + 2.0 - tuning.earth_depth * 0.5, area.get_center().y))
 	q.collision_mask = 0xFFFFFFFF
 	# Not the ground itself: a height field answers once a triangle.
 	var ex: Array[RID] = [get_rid()]
@@ -760,6 +802,8 @@ func _wake(area: Rect2) -> void:
 			var t: GroundTile = tiles.get(Vector2i(kx, kz))
 			if t:
 				ex.append(t.get_rid())
+	if valley:
+		ex.append_array(valley.bodies_in(area.grow(0.1)))
 	q.exclude = ex
 	for hit in World.space(self).intersect_shape(q, 512):
 		if hit.collider is RigidBody3D:
@@ -819,15 +863,18 @@ func rescue(rb: RigidBody3D) -> bool:
 	var st := PhysicsServer3D.body_get_direct_state(rb.get_rid())
 	if st:
 		for i in st.get_contact_count():
-			if st.get_contact_collider_object(i) is GroundTile and st.get_contact_collider_shape(i) == GroundTile.FIELD_SHAPE \
+			var other := st.get_contact_collider_object(i)
+			# (the valley's chunks are a height field over boxes too: ValleyGround; any of theirs)
+			if (other is GroundTile and st.get_contact_collider_shape(i) == GroundTile.FIELD_SHAPE \
+					or valley and other is StaticBody3D and (other as Node).get_parent() == valley) \
 					and st.get_contact_local_normal(i).y < -0.3:
 				caught = true
 				break
 	if not caught:
 		var p := rb.global_position
-		caught = tiles.has(key_at(p.x, p.z)) and height_at(p.x, p.z) > p.y
+		caught = (tiles.has(key_at(p.x, p.z)) or terrain != null) and height_at(p.x, p.z) > p.y
 	if not caught and rb.max_contacts_reported == 0:
-		caught = _deepest(rb, true) > CAUGHT_DEEP
+		caught = _deepest(rb, terrain == null) > CAUGHT_DEEP
 	if not caught:
 		return false
 	rescued += 1

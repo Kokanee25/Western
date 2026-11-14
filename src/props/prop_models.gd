@@ -112,6 +112,12 @@ static func iron() -> ShaderMaterial:
 	return _mat("iron", PixelArt.metal("prop_iron", IRON, 217, 0.6), Color.WHITE, 0.7, 0.5)
 
 
+## Iron plate (the Baron's coach's armour, #782): blackened sheet, its mottle calm (the train's
+## iron's): the props' iron is a stove's, and on a plate a metre across its mottle reads as camouflage.
+static func plate_iron() -> ShaderMaterial:
+	return _mat("plate_iron", PixelArt.metal("prop_plate_iron", Color(0.21, 0.19, 0.17), 223, 0.32), Color.WHITE, 0.66, 0.5)
+
+
 static func felt() -> ShaderMaterial:
 	return _mat("felt", PixelArt.dirt("prop_felt", FELT, 219), Color.WHITE, 1.0, 0.0, 0.1)
 
@@ -122,6 +128,38 @@ static func bottle_glass(variant: int) -> ShaderMaterial:
 			c * 2.0, 0.12, 0.0, 0.9)
 
 
+## A bottle's coloured glass by name (#805, the kit look `glass:<name>`: the druggist's bottles):
+## see-through, its colour gathering at its outline (src/props/bottle_glass.gdshader). One material
+## a colour, shared by every bottle in it.
+const TINTED_GLASS := {
+	# The period's bottle glass: aqua (the natural green-blue of iron in cheap glass: most
+	# prescription bottles), amber (tinctures kept from the light), cobalt (poisons), clear (flint
+	# glass: shop rounds), green.
+	"aqua": Color(0.62, 0.8, 0.76, 0.26), "amber": Color(0.42, 0.2, 0.05, 0.78), "cobalt": Color(0.1, 0.16, 0.55, 0.74),
+	"clear": Color(0.5, 0.54, 0.52, 0.08), "green": Color(0.28, 0.42, 0.22, 0.7),
+	# Bar glass (#879): heavy pressed flint, thick-walled, its outline catching the lamps (clear's
+	# thin outline vanished at night under lamplight and left the drinks floating).
+	"flint": Color(0.62, 0.66, 0.64, 0.12),
+}
+## How much each colour's outline thickens (clear flint glass hardly: round 1's balance case read as
+## milky panes at the pale clear's 0.65).
+const TINTED_GLASS_EDGE := {"clear": 0.3, "flint": 0.55}
+
+
+static func tinted_glass(name: String) -> ShaderMaterial:
+	var key := "tinted_glass_" + name
+	if not _materials.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = preload("res://src/props/bottle_glass.gdshader")
+		m.set_shader_parameter(&"tint", TINTED_GLASS.get(name, TINTED_GLASS["clear"]))
+		m.set_shader_parameter(&"edge", TINTED_GLASS_EDGE.get(name, 0.65))
+		if name == "flint":
+			m.set_shader_parameter(&"sheen", 0.6)
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
+
+
 ## A lamp's glass chimney (src/props/chimney_glass.gdshader): glowing amber from the flame when its
 ## lamp is lit (the instance parameter `glow`, set by OilLamp), faint clear glass when it isn't.
 static func chimney_glass() -> ShaderMaterial:
@@ -130,6 +168,18 @@ static func chimney_glass() -> ShaderMaterial:
 		m.shader = preload("res://src/props/chimney_glass.gdshader")
 		_materials["chimney"] = m
 	return _materials["chimney"]
+
+
+## A chimney with its flame at `flame_y` in its own model's space (a kit lamp whose flame isn't the
+## table lamp's 0.205: the hanging lamp's, #879), one material a height.
+static func chimney_glass_at(flame_y: float) -> ShaderMaterial:
+	var key := "chimney_%.3f" % flame_y
+	if not _materials.has(key):
+		var m := chimney_glass().duplicate() as ShaderMaterial
+		m.set_shader_parameter(&"flame_y", flame_y)
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
 
 
 ## The lamp's dark old brass (the painting's lamp foot is near-black bronze with lit edges).
@@ -572,6 +622,38 @@ static func model_paint(model: String) -> ShaderMaterial:
 		# unfiltered texel a square off Rodin's patchwork atlas (speckle, blotches, sparkle at 9 m).
 		m.set_shader_parameter(&"use_mipmaps", true)
 		m.set_shader_parameter(&"fixed_squares", true)
+		m.resource_name = key
+		_materials[key] = m
+	return _materials[key]
+
+
+## Metal the gun way (docs/briefs/prop-factory.md, #788; the Colt #740, the Winchester #776): a model
+## baked in Blender by tools/blender/props/metal.py into an albedo and an ORM (glTF's occlusion,
+## roughness, metal: assets/props/models/<model>_albedo.png, _orm.png) on its own atlas UVs, drawn
+## physically (metallic from the ORM: it mirrors the game's sky and lamps). One material a model,
+## shared by every prop that wears it.
+static func pbr(model: String) -> StandardMaterial3D:
+	var key := "pbr_" + model
+	if not _materials.has(key):
+		var m := StandardMaterial3D.new()
+		var dir := "res://assets/props/models/%s_" % model
+		var albedo: Texture2D = load(dir + "albedo.png") if ResourceLoader.exists(dir + "albedo.png") else null
+		var orm: Texture2D = load(dir + "orm.png") if ResourceLoader.exists(dir + "orm.png") else null
+		if albedo == null:
+			push_warning("PropModels: no baked albedo for %s" % model)
+		m.albedo_texture = albedo
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		if orm:
+			m.ao_enabled = true
+			m.ao_texture = orm
+			m.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+			m.ao_light_affect = 0.6
+			m.roughness = 1.0
+			m.roughness_texture = orm
+			m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+			m.metallic = 1.0
+			m.metallic_texture = orm
+			m.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
 		m.resource_name = key
 		_materials[key] = m
 	return _materials[key]

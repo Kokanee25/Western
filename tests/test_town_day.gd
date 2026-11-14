@@ -328,6 +328,30 @@ func test_they_ride_out() -> void:
 	check(not is_instance_valid(kid), "out of the world")
 
 
+## #562: a man leaving town with no way out from where he is (or stuck short of it) isn't freed
+## where he stands; he stays, and looks for the way again.
+func test_with_no_way_out_he_stays() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	var nowhere := Waypoints.new()
+	nowhere.add(&"somewhere", kid.global_position + Vector3(4.0, 0.0, 0.0))
+	b.places = nowhere  # no road out of town on it
+	b.agenda = [{"do": &"leave"}]
+	b._step_started = false
+	var gone := [false]
+	b.left_town.connect(func() -> void: gone[0] = true)
+	await physics_frames(60 * 8)
+	check(not gone[0] and is_instance_valid(kid) and kid.is_inside_tree(), "still in the world, not freed where he stood")
+	check(not b.agenda.is_empty() and b.agenda[0].do == &"leave", "still meaning to leave")
+	# The way out back (the town's places): he walks it and is gone at its end.
+	b.places = town.places
+	b.walk_speed = 3.0
+	kid.global_position = town.places.at(&"street_west")
+	var left := await wait_until(func() -> bool: return gone[0], 60 * 20)
+	check(left, "with a way, he walks out")
+
+
 func test_in_a_fight_they_work_together() -> void:
 	town.bring_gang()
 	for g in town.gang:
@@ -517,9 +541,7 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.miner != null and town.miner.held_gun == null, "the miner is in town, unarmed")
 	check_eq(town.miner.body_model, &"miner_s4_talking", "he is the Studio's miner_s4, talking")
 	check(town.miner.global_position.distance_to(town.places.at(&"assay_front")) < 0.6, "in front of the assay office")
-	check(town.working_girl != null and town.working_girl.held_gun == null, "the working girl is in the saloon, unarmed")
-	check_eq(town.working_girl.body_model, &"working_girl_s3_talking", "she is the Studio's working_girl_s3, talking")
-	check(town.working_girl.global_position.distance_to(town.places.at(&"saloon_window")) < 0.6, "by the saloon's front windows")
+	check(not "working_girl" in town, "no working girl for now (#698)")
 	check(town.rancher != null and town.rancher.held_gun == null, "the Mexican rancher is in town, unarmed")
 	check_eq(town.rancher.body_model, &"mexican_rancher_s1_talking", "he is the Studio's mexican_rancher_s1, talking")
 	check(town.rancher.global_position.distance_to(town.places.at(&"livery_side")) < 0.6, "along the livery's front")
@@ -529,7 +551,7 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.rancher, town.blacksmith]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
 
 
@@ -604,7 +626,7 @@ func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> voi
 	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
 	await physics_frames(30)
 	var cowering: Array[HumanBody] = []
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.working_girl, town.rancher, town.blacksmith]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.rancher, town.blacksmith]:
 		var b := p.get_node_or_null(^"Brain") as CivilianBrain
 		if b != null and b.mood == CivilianBrain.Mood.COWERING:
 			cowering.append(p)

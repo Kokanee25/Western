@@ -30,6 +30,12 @@ const SETTLE_FRAMES := 4
 ## A prop on the ground this big or bigger (m, its biggest side) is left standing whatever's dug.
 const GROUND_PROP_MAX := 2.0
 
+## Only what's under this node (null: the whole street): the valley's are its farmhouse's (G6).
+var only: Node
+## A thing stands on the ground when its bottom is within GROUND of the ground under it (Ground's
+## height there), not of Y 0: the valley's (G6: the widow's pad is 8 m down). Off in the old town.
+var ground_relative := false
+
 var items: Array[Dictionary] = []
 ## Props standing on the ground: they fall when the ground under them goes.
 var on_ground: Array[Dictionary] = []
@@ -118,8 +124,9 @@ func collect() -> void:
 	_by_member.clear()
 	var street := get_parent()
 	var nodes: Array[Node3D] = []
+	var under := only if only != null else street
 	for s: Node in get_tree().get_nodes_in_group(&"structures"):
-		if street.is_ancestor_of(s):
+		if under == s or under.is_ancestor_of(s):
 			_candidates(s, nodes)
 	var dressing := street.get_node_or_null(^"StreetDressing")
 	if dressing:
@@ -131,7 +138,9 @@ func collect() -> void:
 		var box := _box_of(node)
 		if box.size == Vector3.ZERO:
 			continue
-		if box.position.y < GROUND:
+		var g := Ground.of(get_tree()) if ground_relative else null
+		var floor_y := g.height_at(box.get_center().x, box.get_center().z) if g else 0.0
+		if box.position.y < floor_y + GROUND:
 			# It stands on the ground: a prop not too big falls if that's dug from under it.
 			if node is StaticBody3D and node.has_meta(&"prop_id") and maxf(box.size.x, maxf(box.size.y, box.size.z)) < GROUND_PROP_MAX:
 				on_ground.append({"node": node, "box": box, "members": [], "on": [], "down": false, "bodies": _bodies_in(node)})

@@ -1,0 +1,4 @@
+a golden_far build/ml_r3/rough/rough_pine_batten_new/golden_far.png
+b golden_far build/ml_r3/rough/rough_pine_batten_few/golden_far.png
+c golden_far build/ml_r3/rough/rough_pine_batten_old/golden_far.png
+d noon_near build/ml_r3/rough/rough_pine_batten_old/noon_near.png

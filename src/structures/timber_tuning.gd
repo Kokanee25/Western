@@ -29,6 +29,10 @@ extends Resource
 	# Clear white oak, dressed (the prop kit's chairs and tables): the Wood Handbook's clear-wood
 	# figures at 12% moisture, not cut down (furniture stock is picked clear); `toughness`, its work
 	# to maximum load in bending (J/m³), is what a blow must put into it to break it (KitProp).
+	# Black walnut, dressed (the prop kit's doctor's furniture, #788: its look is the material
+	# library's walnut): the Wood Handbook's clear figures at 12% moisture (specific gravity 0.55,
+	# MOR 101 MPa, compression 52.3 MPa, MOE 11.6 GPa, work to maximum load 74 kJ/m³).
+	&"walnut": {"density": 610.0, "bending": 101e6, "compression": 52e6, "stiffness": 11.6e9, "toughness": 74e3},
 	&"oak": {"density": 750.0, "bending": 105e6, "compression": 51e6, "stiffness": 12.3e9, "toughness": 101e3},
 	# Cotton duck, a covered wagon's cover (the prop factory's): as a member a centimetre thick, the
 	# weight of heavy duck (~0.5 kg/m²); nothing it carries, so its strengths are nominal.
@@ -43,7 +47,16 @@ extends Resource
 	# its weight spread through the box (a skull and horns ~5 kg, mostly air inside); brittle: a
 	# ball or a fall cracks it (fresh cortical bone ~100 MPa, weathered far less). Doesn't burn
 	# (FireTuning.fireproof).
+	# A green ponderosa pine log, cut this season (the coach heist's, #770/#784): the Wood Handbook's
+	# green weight (~740 kg/m³ with its sap) and green clear-wood strengths (MOR 35 MPa, compression
+	# along the grain 16.9 MPa, MOE 6.9 GPa). RollingLog's mass comes from it.
+	&"green_pine": {"density": 740.0, "bending": 35e6, "compression": 16.9e6, "stiffness": 6.9e9, "toughness": 40e3},
 	&"bone": {"density": 450.0, "bending": 30e6, "compression": 60e6, "stiffness": 10e9, "toughness": 8e3},
+	# Harness and sole leather (the prop lab, 2026-11-10: the Baron's coach's thoroughbraces and
+	# boot): ~950 kg/m³; tough in tension (~25 MPa), a strap carries nothing in bending.
+	&"leather": {"density": 950.0, "bending": 5e6, "compression": 2e6, "stiffness": 0.2e9, "toughness": 60e3},
+	# Paper and card, a bundle of documents (the strongbox's): it burns, a ball goes through.
+	&"paper": {"density": 700.0, "bending": 5e6, "compression": 3e6, "stiffness": 3e9, "toughness": 5e3},
 }
 @export var default_wood := {"density": 480.0, "bending": 40e6, "compression": 30e6, "stiffness": 10e9}
 
@@ -68,6 +81,19 @@ extends Resource
 @export var break_up_speed := 2.5
 ## Falls slower than this don't damage what they land on.
 @export var harmless_speed := 1.5
+## A body landing on boards from above (issue #759, BodyImpacts): the work a board takes before it
+## breaks is its breaking load at that spot (its bending strength over its span between rafters or
+## joists) times this (m: his flesh's and the board's give together), set in the falls lab
+## (experiments/falls_lab/, `--body-stop`) so a man landing flat breaks roof boards from ~3-3.5 m, a
+## porch roof's from ~2.5-3, floors from ~6 feet first (Sean's #762). A man lying or walking on it
+## puts in nothing like it.
+## Landing on his feet, a foot or shin with his middle over it carries this share of his weight
+## (his ragdoll's knees fold at once where a man's take some of it).
+@export var body_feet_share := 0.25
+@export var body_stop := 0.4
+## ... and only a part coming down this fast (m/s) counts (a fall of ~0.5 m; a man slumping or
+## rolling on it, nothing).
+@export var body_above_speed := 3.0
 
 
 func wood(id: StringName) -> Dictionary:

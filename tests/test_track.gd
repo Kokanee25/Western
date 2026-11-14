@@ -237,6 +237,10 @@ func test_a_derail_hands_the_train_over_with_its_momentum() -> void:
 	await physics_frames(60 * 8)
 	var off := 0.0
 	for b: Dictionary in train.wreck.bodies:
+		# A car that jackknifed past `jackknife_deg` broke up (#620): its body's freed and its
+		# sections are bodies of their own further down the list.
+		if not is_instance_valid(b.body):
+			continue
 		var rb := b.body as RigidBody3D
 		var local := line.global_transform.affine_inverse() * rb.global_position
 		var s := line.curve.get_closest_offset(local)
@@ -369,6 +373,25 @@ func test_the_crew_mends_the_line_and_the_next_train_runs_through() -> void:
 	train.sim.set_speed(5.0)
 	await wait_until(func() -> bool: return train.sim.s > 450.0 or not train.derail.is_empty(), 60 * 60)
 	check(train.derail.is_empty(), "the next train runs through")
+
+
+## #562: the crew walking off takes its living; a man of it lying dead or down stays where he lies.
+func test_the_crews_dead_stay_when_it_leaves() -> void:
+	var line := _line()
+	var r := line.repair
+	r.from_s = 380.0
+	r.to_s = 390.0
+	r._come()
+	await physics_frames(10)
+	var down := r.men[0]
+	var walker := r.men[1]
+	down.go_limp()
+	r.state = TrackRepair.LEAVING
+	r._t = 601.0  # past the time it waits for its men to walk off
+	await physics_frames(3)
+	check(is_instance_valid(down) and down.is_inside_tree(), "the man lying down is still there")
+	check(not is_instance_valid(walker), "the crew's living have gone")
+	check_eq(r.state, TrackRepair.IDLE, "the crew's done")
 
 
 func test_a_car_stopped_hard_breaks_into_big_sections() -> void:

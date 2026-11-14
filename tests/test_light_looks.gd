@@ -44,6 +44,9 @@ func test_each_look_sets_known_addresses() -> void:
 
 func test_the_key_cycles_and_today_puts_back() -> void:
 	check(InputMap.has_action(&"light_look"), "8 is bound")
+	# The painted look's light (the real look's own is test_the_real_look_has_its_own_light).
+	var was_real := Settings.real_look
+	Settings.real_look = false
 	# A test that ran the main scene leaves the game's light in the statics: start from none.
 	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
 	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
@@ -90,6 +93,46 @@ func test_the_key_cycles_and_today_puts_back() -> void:
 	LightLooks.current = 0
 	street.free()
 	LookPreset.defaults.clear()
+	Settings.real_look = was_real
+	await process_frames(1)
+
+
+## The real look's own light (docs/briefs/red-dead.md R1): config/looks/real_light.json goes over
+## the game's night and day only while Settings.real_look is on; the painted look's numbers stay.
+func test_the_real_look_has_its_own_light() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var real_night: Dictionary = real.get("night_values", {})
+	check(not real_night.is_empty(), "the real look's night reads")
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global", "room", "real"]
+	for a: String in real_night.keys() + (real.get("day_values", {}) as Dictionary).keys():
+		check(a.get_slice(".", 0) in groups, "real_light.json: %s is a look address" % a)
+		check(a in LightLooks.addresses(), "and today's puts %s back" % a)
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var was := Settings.real_look
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	(street.get_node(^"DayCycle") as DayCycle).set_time(21.5)
+	var game_night: Dictionary = LookPreset.load_file(LightLooks.GAME).get("night_values", {})
+	const A := "building.saloon.night_ambient"
+	check(real_night.has(A) and game_night.has(A), "both say the saloon's night fill")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted: light pass round 3's fill")
+	Settings.real_look = true
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), real_night[A], 0.001, "real: its own")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted again: put back")
+	Settings.real_look = was
+	LightLooks.pick(get_tree(), 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
 	await process_frames(1)
 
 
@@ -131,3 +174,22 @@ func test_the_dusk_blend_is_quick() -> void:
 	street.free()
 	LookPreset.defaults.clear()
 	await process_frames(1)
+
+
+## The real look's exposure (#641, Sean 2026-11-08: daytime washed out under a high sun): R0's x1.4
+## kept for the night, lower by day for the whole scene, blended by the sun between.
+func test_the_real_looks_exposure_is_lower_by_day() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var day: float = (real.get("day_values", {}) as Dictionary).get("real.exposure", -1.0)
+	var night: float = (real.get("night_values", {}) as Dictionary).get("real.exposure", -1.0)
+	check(day >= 1.0 and day <= 1.1, "by day x1.0-1.1 (%.2f)" % day)
+	check_near(night, 1.4, 0.001, "at night R0's x1.4: the saloon unchanged")
+	var was := Settings.real_look
+	Settings.real_look = true
+	check_near(LightLooks.blended(get_tree(), 0.0, "real.")["real.exposure"], day, 0.001, "noon")
+	var dusk: float = LightLooks.blended(get_tree(), 0.5, "real.")["real.exposure"]
+	check(dusk > day and dusk < night, "between at dusk (%.2f)" % dusk)
+	check_near(LightLooks.blended(get_tree(), 1.0, "real.")["real.exposure"], night, 0.001, "night")
+	Settings.real_look = false
+	check(not LightLooks.blended(get_tree(), 0.0, "real.").has("real.exposure"), "the painted look doesn't set it")
+	Settings.real_look = was

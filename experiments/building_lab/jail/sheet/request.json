@@ -1,0 +1,111 @@
+{
+ "_doc": "The jail and sheriff's office target sheet (#780, the building lab's step 1; the second practice building). tools/buildings/target_sheet.py paints each view on GitHub (building_sheet.yml) and lays them out (sheet.jpg). Sean's calls (2026-11-11): stone all round, one storey; the office on the corner with a cell ell back from it (a short ell, the yard walled to the rear lane); a flat roof behind a stone parapet; three iron cages; raw rubble with dressed corners, oxblood doors; evening light from the north-west; go at a $2.50 cap. The spec (step 2) settles every size.",
+ "sheet_title": "Salt Creek, 1882: the sheriff's office and jail (target sheet, #780)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (rough sandstone, lime mortar, iron, planks, tin, dust), period-accurate in every object. No people unless the view asks for them. No modern objects. No text other than the signs named. No border, no frame, no watermark, no captions.",
+ "building": "The county sheriff's office and jail, built in 1881 of local stone by the county in a two-year-old Colorado mining-and-ranching boom town, now 1882: the one stone building on a street of wooden ones, plain, heavy and new, built to hold men in and keep a mob out. It stands on the south-east corner of the town's one crossroads: its FRONT faces NORTH onto the dirt Main Street (the big wooden saloon directly opposite), its WEST side runs along the dirt cross street. IN PLAN IT IS AN L: the office block on the corner, a plain rectangle 36 ft wide along Main Street and 46 ft deep, one storey; and a narrower one-storey stone cell wing, 16 ft wide and 30 ft long, running straight back (south) from the east half of the office's back wall. Nothing else is attached. Walls of rough rubble stone (local tan-grey and buff sandstone, irregular stones laid in rough courses in pale lime mortar), 22 inches thick, with squared dressed stones at every corner (quoins), and dressed stone lintels and sills over and under every opening. A FLAT ROOF (planks on heavy joists under tin sheets, draining through tin spouts through the parapet) hidden behind a plain stone PARAPET about 3 ft high with a flat dressed-stone coping, so both blocks read as square stone boxes with level tops; the office about 14 ft to the coping, the cell wing a little lower; a stovepipe and a roof hatch on the office's roof. The floor is 2 ft above the street: along the front a raised walk of stone flags on a stone sill, with three stone steps up to the door, NO awning and NO porch roof (nothing to burn). The front (north): one heavy plank door of vertical boards strapped with iron, painted dark oxblood red, centred, in a dressed-stone surround with a transom light over it barred with iron; a tall narrow window either side of it (six-over-six sash) behind square iron bars set in the stone, with inside plank shutters; a flat painted signboard over the door reads 'SHERIFF' in plain black capitals on cream, and a dressed stone panel in the parapet's middle is cut with 'JAIL'. The west side (on the cross street): two barred windows the same, no door. The cell wing has only small high windows, about 1 ft by 2 ft, set high under its parapet, each with heavy crossed iron bars; its far (south) end wall is blank stone but for one such window. East of the office, along the rest of the frontage, a 10 ft rubble-stone yard wall with a plank wagon gate (oxblood) closes the jail yard; the wall runs back along the lot's east line and across the back along the rear lane (with a second gate): inside the yard a small plank stable and shed for the sheriff's horse, a woodpile, a privy; the cell wing's south end faces the lane wall across about 50 ft of open yard. The office's back wall has one iron-strapped door into the yard, from the guard room. Inside, the office block: (1) at the front, the office across the full width (about 36 x 24 ft): the sheriff's flat-top desk and chair, a gun rack of rifles and shotguns locked with a chain, a squat iron safe, a pot-bellied stove with its pipe, a bench for visitors, wanted posters and a county map pinned on the wall, a coat rack, a water bucket and dipper, a wall clock; (2) behind it on the west, the sheriff's room (an iron bed, a washstand, a trunk, a chair); (3) behind it on the east, the guard room: a plain table and two chairs where the deputy sits, the cell keys on an iron ring on a nail, a ladder up to the roof hatch, the back door to the yard, and in its back wall the door into the cell wing: a heavy iron-strapped plank door with a riveted iron grille gate behind it. The cell wing: a 5 ft corridor down its west side, and along its east side THREE CELLS that are riveted strap-iron cages (flat iron straps woven in a lattice, riveted at every crossing, as the jail-cell makers of St. Louis shipped them), each about 7 ft wide, 8 ft deep and 7 ft high, standing free of the stone walls, each with a barred swinging door with a big lock box, a plank bunk hung on chains, a bucket, a blanket; a lantern hangs in the corridor. Inside walls: the office's stone lime-plastered and whitewashed, a little grimy; the cell wing's bare whitewashed rubble; the office's floor of wide pine planks, the cell wing's of stone flags; ceilings of the heavy roof joists and boards left open, whitewashed in the office.",
+ "views": [
+  {
+   "id": "front",
+   "title": "Front (north), from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The front of the building seen straight on from the middle of the dirt Main Street at eye level, a clear summer evening, the low golden sun from the north-west raking across the front and the west side so every stone's texture shows, long shadows. The whole office front up to the parapet's coping in frame, the stone walk and its three steps, the door, the two barred windows, the sign; on the left the corner and the cross street; on the right the start of the 10 ft stone yard wall with its plank wagon gate, and beyond it far off a red-brick bank. Nearly orthographic: a long lens, little perspective."
+  },
+  {
+   "id": "plan",
+   "title": "Floor plan",
+   "aspect": "2:3",
+   "size": "2K",
+   "view": "A clean architect's floor plan of the building drawn from above, black ink lines on off-white paper, Main Street (north) at the TOP, the cross street on the LEFT (west): the stone walls drawn thick and hatched, every door with its swing arc, every window as a thin triple line with its bars, the furniture drawn in plan (desk, gun rack, safe, stove, bench, bed, table, ladder, the three cages with their bunks). The L shape exactly: the office block on the corner, the narrow cell wing straight back from the east half of its back wall; and the yard walls around the yard east and south, with both gates. Each room labelled in neat hand lettering: OFFICE, SHERIFF'S ROOM, GUARD ROOM, CELLS, CORRIDOR, JAIL YARD, STABLE, MAIN STREET, CROSS STREET, REAR LANE. A north arrow. No perspective, no colour except a pale wash on the floors and a grey tone on the stone."
+  },
+  {
+   "id": "corner",
+   "title": "The corner, from the crossroads",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "plan"
+   ],
+   "view": "The building's WEST SIDE seen from the cross street: standing in the middle of the dirt cross street west of the building, looking EAST at its long west side wall (46 ft of rubble stone with two barred windows and no door), the front (north) corner with its dressed quoins on the LEFT and the stone walk and steps just turning the corner there, Main Street opening beyond on the left; on the RIGHT, past the office's back corner, the lower stone cell wing set back behind it and the 10 ft yard wall. A clear summer evening, the low golden sun from the north-west full on this west wall, long shadows. Dust, a hitching rail at the street's edge, wheel ruts. Nearly orthographic: a long lens."
+  },
+  {
+   "id": "yard",
+   "title": "The jail yard and the cell wing (east)",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the walled jail yard, a three-quarter view from its north-east corner looking south-west in late afternoon light: the office's back and east walls, its iron-strapped back door, the lower cell wing running back with its row of small high barred windows, the yard's 10 ft rubble walls round it, the plank stable and shed, the woodpile, the privy, the gate in the back wall onto the lane."
+  },
+  {
+   "id": "lane",
+   "title": "The jailbreak wall, from the rear lane",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "From the dirt rear lane behind the jail at dusk, looking north over the 10 ft rubble yard wall and its plank gate (seen from a little above, as from a wagon's seat): across the open yard, the cell wing's blank south end wall of rubble stone with its one small high barred window, and the office block's parapet behind it; the back of the town's wooden buildings either side. The wall the gang would come for."
+  },
+  {
+   "id": "cutaway",
+   "title": "Cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the north-east with the flat roofs and the north and east walls cut away (the cut edges showing the wall's 22-inch thickness: two faces of rubble with smaller stones and mortar packed between, through-stones across, the heavy roof joists bearing on the stone and the boards and tin over them, the parapet), revealing every room furnished as the plan has it, in daylight: the office, the sheriff's room, the guard room with its ladder to the roof hatch, and the cell wing's corridor and three riveted strap-iron cages."
+  },
+  {
+   "id": "office",
+   "title": "The office",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the office at eye level, standing in the front corner by the street door looking back into the building, warm evening light through the barred front windows: the sheriff's desk with papers and a lamp, the chained gun rack, the iron safe, the pot-bellied stove, the visitors' bench, wanted posters and the county map on the whitewashed plastered stone, the open joists overhead, and in the back wall the doors to the sheriff's room and to the guard room, the guard room's door open showing the iron-strapped cell wing door beyond."
+  },
+  {
+   "id": "cells",
+   "title": "The cell room",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the cell wing at eye level, standing at the corridor's end just inside the iron grille gate looking down the corridor: on the left the whitewashed rubble wall with its small high barred windows letting in thin shafts of evening light, on the right the three riveted strap-iron cages in a row, their lattice of flat iron straps, barred doors and big lock boxes, plank bunks on chains inside; stone flags underfoot, a lantern hanging from a joist. Dim, dusty, cramped."
+  },
+  {
+   "id": "cage",
+   "title": "Inside a cell",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "plan",
+    "cells"
+   ],
+   "view": "The point of view of a man sitting on the plank bunk inside one of the strap-iron cages, looking out through the cage's lattice of flat riveted iron straps and its barred door, across the dim stone-flagged corridor to the whitewashed rubble wall opposite with one small high barred window, a bar of low orange evening light falling on the stone. In the cage: a tin bucket, a folded grey blanket, old initials scratched into the whitewash. No people visible."
+  },
+  {
+   "id": "roof",
+   "title": "The roof behind the parapet",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "On the jail's flat tin roof at dusk, from the open roof hatch, looking north over the stone parapet's coping (chest high) down onto Main Street and the big wooden saloon opposite with its lamps coming on: the tin sheets, the stovepipe, a rifle leaning on the coping, the cell wing's lower roof behind on the left. Where a deputy would hold the jail."
+  }
+ ]
+}

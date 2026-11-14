@@ -1,0 +1,363 @@
+extends SceneTree
+## The valley's ground on the frame budget (docs/briefs/valley-plan.md §12, G2's gate): the game
+## (main scene) in the valley, the player stood at the crossroads, the envelope's four far corners
+## and the trestle overlook, each looking over the valley; at each, after the ground's levels have
+## settled, the frame, render CPU (the viewport's measured render time: a drawn run), draw calls,
+## primitives and the blocks drawn, averaged over `--frames`. Also how long the valley takes to
+## load. `--world=town` runs the same at perf_bench's street view, for a reference on this machine.
+##
+##   xvfb-run -a godot --rendering-driver vulkan -s res://tools/valley/valley_bench.gd -- --world=valley [--frames=60] [--out=build/valley_bench.json]
+##   godot --headless --fixed-fps 60 -s res://tools/valley/valley_bench.gd -- --world=valley --ride
+## --ride: no spots; a ride at a gallop (15 m/s) from the crossroads east past the trestle and on to
+## the far corner and back, the ground's own frame (Prof `valley_ground`: choosing and building its
+## blocks) each frame, its mean and worst (the levels' streaming as you travel).
+## The main line and its train (G3, #716) are in the valley: at each spot the train is put running
+## its timetable at the end of the line far from you (from east_start, or from the Ore Works for a
+## spot east of the depot), and the train's own systems (Prof `train*`, `people_*` for its engineer)
+## are averaged too. `--no-railway` (a game arg, ValleyWorld) is the valley without it: the before.
+## The farmhouse (G6, #731): `farm_lane` and `farm_start`, its lane's foot and the try's start looking
+## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
+## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
+## (`--mission=sheriff`: the sheriff and his horse there). The places with height (#736 B):
+## `height_<id>` on each high spot looking at its first target. The valley's folk (#756):
+## `saloon_yard`, Main Street before the saloon's yard at nine at night, looking at its bar and card
+## table with the barkeep, two drinkers and two card players there (ValleyFolk; `--no-folk`, a game
+## arg: the yard empty, the before). `card_seat` (#766): sat in the card table's north chair, the
+## card game going (CardGame; Prof `card_game`). `murder_seat` (#773): sat there as No Law's murder
+## plays (NoLawMurder: the stranger sat, Cody kicking Earl's chair out and drawing; Prof
+## `valley_folk`, `people_*`). `ute_camp` (#859): No Justice's camp, Joe and the raid's damage
+## (NoJusticeCamp `at_camp`; `--no-camp-act`: bare). `--spots=a,b`: only those.
+##
+## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
+## names game classes: -s scripts compile before autoloads exist.
+
+var frames := 60
+var out_path := ""
+var ride := false
+## `--spots=a,b`: only those spots.
+var only: PackedStringArray = []
+var main: Node
+
+
+func _initialize() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--frames="):
+			frames = int(a.substr(9))
+		elif a.begins_with("--out="):
+			out_path = a.substr(6)
+		elif a == "--ride":
+			ride = true
+		elif a.begins_with("--spots="):
+			only = a.substr(8).split(",")
+	_run.call_deferred()
+
+
+func _spots(world: StringName) -> Array:
+	var fh = load("res://src/missions/farmhouse.gd")
+	if world != &"valley":
+		# The old town's farmhouse from its lane's foot and the try's start (G6's reference).
+		var hm: Vector3 = fh.at(fh.MIDDLE)
+		var tl: Vector3 = fh.at(Vector3(2.8, 0.0, -9.0))
+		var ts: Vector3 = fh.carried(40.0, TownLayout.street_z(40.0) + 3.0)
+		return [["street", Vector3(11.0, 0.0, -9.0), 121.0],
+				["farm_lane", tl, _heading(Vector2(tl.x, tl.z), Vector2(hm.x, hm.z))],
+				["farm_start", ts, _heading(Vector2(ts.x, ts.z), Vector2(hm.x, hm.z))]]
+	var lay = load("res://src/world/valley_layout.gd").main()
+	var env: Rect2 = lay.envelope()
+	var mid := env.get_center()
+	var out := [["crossroads", Vector3.ZERO, 270.0]]
+	for c in [["corner_nw", env.position], ["corner_ne", Vector2(env.end.x, env.position.y)],
+			["corner_sw", Vector2(env.position.x, env.end.y)], ["corner_se", env.end]]:
+		var at: Vector2 = (c[1] as Vector2).move_toward(mid, 50.0)
+		out.append([c[0], Vector3(at.x, 0.0, at.y), _heading(at, mid)])
+	var vp: Dictionary = lay.viewpoint("vp_trestle_overlook")
+	var o := Vector2(vp.at[0], vp.at[1])
+	out.append(["trestle_overlook", Vector3(o.x, 0.0, o.y), _heading(o, mid)])
+	# The widow's pad (G6, #731): from the lane's foot and from the mission's start on the slope,
+	# looking at the house (its mission comes on as you're there: you're within its reach). With
+	# `--no-farmhouse` (a game arg) the same spots, the pad bare: the before.
+	var pad: Dictionary = lay.place("widow_homestead")
+	var house := Vector2(pad.at[0], pad.at[1])
+	var lane := house + Vector2(-1.7, 12.8)  # (the farm's lane foot: its own (2.8, -9), turned to face south)
+	var start := house + Vector2(-58.0, 55.6)  # (the try's start: the old town's road_east, carried)
+	if fh.in_valley():
+		var l: Vector3 = fh.at(Vector3(2.8, 0.0, -9.0))
+		lane = Vector2(l.x, l.z)
+		var st: Vector3 = fh.carried(40.0, TownLayout.street_z(40.0) + 3.0)
+		start = Vector2(st.x, st.z)
+	out.append(["farm_lane", Vector3(lane.x, 0.0, lane.y), _heading(lane, house)])
+	out.append(["farm_start", Vector3(start.x, 0.0, start.y), _heading(start, house)])
+	# The opening (#746): Harlan's place looking down his ford path, and the site from 4 m up the
+	# path looking at where the sheriff lies. With `--mission=sheriff` (a game arg) he's there, his
+	# horse by him; without it the same spots bare: the before.
+	var home: Vector2 = lay.place_at("harlan_homestead")
+	var site: Vector2 = lay.place_at("opening_site")
+	var ford: PackedVector2Array = lay.road_line("harlan_ford_path")
+	var down: Vector2 = home + (ford[1] - home).normalized() * 6.0
+	var near: Vector2 = site + (ford[ford.size() - 2] - site).normalized() * 4.0
+	# No Law's funeral (#868): at the graveside on the cemetery hill, the mourners gathered and the
+	# service on (Funeral, started here as `-- --mission=funeral` does).
+	var fun: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://config/moments/funeral.json"))
+	if fun is Dictionary:
+		var gv := Vector2(fun.grave[0], fun.grave[1])
+		var by := gv + Vector2(4.0, 8.0)
+		out.append(["funeral", Vector3(by.x, 0.0, by.y), _heading(by, gv)])
+	out.append(["harlan_home", Vector3(down.x, 0.0, down.y), _heading(down, ford[1])])
+	out.append(["sheriff_site", Vector3(near.x, 0.0, near.y), _heading(near, site)])
+	# The places with height (#736 B, #752): on each high spot (a block's top, a rim), looking at
+	# its first target: `height_<id>` (the widest views; a fourth item names the height).
+	for hp: Dictionary in lay.heights():
+		var h := Vector2(hp.high.at[0], hp.high.at[1])
+		var t := Vector2(hp.targets[0].at[0], hp.targets[0].at[1])
+		out.append(["height_%s" % hp.id, Vector3(h.x, 0.0, h.y), _heading(h, t), String(hp.id)])
+	# The valley's folk at night (#756): from Main Street's north edge before the saloon's yard,
+	# looking up the yard at the bar and the card table (the clock set to nine, then back).
+	var yard: Dictionary = lay.lot("saloon_annex")
+	var mouth := Vector2((float(yard.x0) + float(yard.x1)) * 0.5, -8.0)
+	out.append(["saloon_yard", Vector3(mouth.x, 0.0, mouth.y), _heading(mouth, mouth + Vector2(-0.6, -7.0))])
+	# Sat at its card table (#766): in the north chair, the game going with you dealt in (where you
+	# stand is the chair's, set once the folk are in).
+	out.append(["card_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
+	# The murder from the same chair (#773): measured from Cody's arrival at Earl (kick, draw).
+	out.append(["murder_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
+	# No Justice's camp (#859): where you come in on the Ute trail, NoJusticeCamp started there
+	# (`at_camp`: Joe, the raid's stand-in damage); `--no-camp-act` (a game arg): the place bare.
+	var camp: Vector2 = lay.place_at("ute_community")
+	out.append(["ute_camp", Vector3(camp.x, 0.0, camp.y), 0.0])
+	return out
+
+
+## The compass heading (0 north, 90 east) from `a` to `b`.
+static func _heading(a: Vector2, b: Vector2) -> float:
+	var d := b - a
+	return fposmod(rad_to_deg(atan2(d.x, -d.y)), 360.0)
+
+
+func _run() -> void:
+	var settings = root.get_node(^"Settings")
+	settings.autosave = false
+	var t0 := Time.get_ticks_usec()
+	if settings.world == &"valley":
+		load("res://src/world/valley_terrain.gd").main()
+	var t1 := Time.get_ticks_usec()
+	main = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	var t2 := Time.get_ticks_usec()
+	await process_frame
+	var world_root: Node = main.find_child("Valley", true, false) if settings.world == &"valley" else main.find_child("TestStreet", true, false)
+	var player = world_root.get_node(^"Player")
+	player.input_enabled = false
+	var ground = world_root.get_node_or_null(^"Ground")
+	var vp: Viewport = main.get_node_or_null(^"GameViewport")
+	var rid: RID = vp.get_viewport_rid() if vp else RID()
+	if rid.is_valid():
+		RenderingServer.viewport_set_measure_render_time(rid, true)
+	var budget = load("res://config/frame_budget.tres")
+	var scale: float = budget.clock_scale if budget and "clock_scale" in budget else 0.65
+	var report := {"world": String(settings.world), "load_ms": {"bake": (t1 - t0) / 1000.0, "scene": (t2 - t1) / 1000.0},
+			"clock_scale": scale, "spots": {}}
+	print("load: bake %.0f ms, scene %.0f ms" % [report.load_ms.bake, report.load_ms.scene])
+	if ride and ground and ground.valley:
+		report["ride"] = await _ride(player, ground)
+		_write(report)
+		quit(0)
+		return
+	var rw = world_root.get_node_or_null(^"Railway")
+	if rw and rw.train:
+		var tw := Time.get_ticks_usec()
+		while not rw.timed and Time.get_ticks_usec() - tw < 30000000:
+			await process_frame
+		report.load_ms["timetable_after"] = (Time.get_ticks_usec() - tw) / 1000.0
+	for s: Array in _spots(settings.world):
+		if not only.is_empty() and not String(s[0]) in only:
+			continue
+		var at: Vector3 = s[1]
+		if ground:
+			at.y = ground.height_at(at.x, at.z) + 0.05
+		if s.size() > 3 and world_root.get("markers") != null:
+			at = world_root.markers.high_spot(String(s[3])) + Vector3.UP * 0.05
+		player.global_position = at
+		player.velocity = Vector3.ZERO
+		player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)
+		var tp := Time.get_ticks_usec()
+		if ground and ground.valley:
+			ground.valley.prime(at + Vector3.UP * 1.6)
+		var prime_ms := (Time.get_ticks_usec() - tp) / 1000.0
+		var far := _train_far(world_root, at)
+		# At the farmhouse its mission on, as you'd find it (the valley's starts as you come near):
+		# `--no-farm-mission` (a game arg) leaves the house empty.
+		var fmn = world_root.get_node_or_null(^"FarmhouseMission")
+		if String(s[0]).begins_with("farm_") and fmn and fmn.state == 0 and not "--no-farm-mission" in OS.get_cmdline_user_args():
+			fmn.begin(false)
+		var clock = world_root.get_node_or_null(^"DayCycle")
+		var was_hour: float = clock.time_of_day if clock else 12.0
+		var folk = world_root.get("folk")
+		var murder := String(s[0]) == "murder_seat"
+		var at_table := String(s[0]) == "card_seat" or murder
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			clock.set_time(21.0)
+			if folk:
+				folk._look = 0.0
+		if at_table and folk:
+			for i in 30:
+				await process_frame
+			player.seat.sit(folk.props.chair_n)
+			player.rotation.y += deg_to_rad(20.0)  # the table and Earl past it
+			var g = folk.cards
+			while g.state in [&"idle", &"shuffle", &"ante"]:
+				await process_frame
+			if murder:
+				var act = folk.start_murder()
+				var waited := 0
+				while act != null and act.state in [&"stranger", &"come"] and waited < 6000:
+					await process_frame
+					waited += 1
+		var funeral = null
+		if String(s[0]) == "funeral" and folk:
+			funeral = folk.start_funeral({"set_up": true})
+			player.global_position = at
+			player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)
+			while funeral != null and funeral.state == &"gather":
+				await process_frame
+		var camp_act = null
+		if String(s[0]) == "ute_camp" and not "--no-camp-act" in OS.get_cmdline_user_args():
+			camp_act = load("res://src/moments/moment.gd").start_named(&"no_justice_camp", world_root, null, {"at_camp": true})
+			for i in 30:
+				await process_frame
+			at = player.global_position
+		for i in 60:
+			await process_frame
+		var m := await _measure(rid)
+		if funeral != null:
+			m["funeral"] = String(funeral.state)
+			m["folk"] = folk.people.size()
+			funeral.reset()
+			StoryState.clear()
+			clock.set_time(was_hour)
+		if camp_act != null:
+			m["camp"] = {"state": String(camp_act.state), "props": camp_act.props.size(), "holes": camp_act.holes}
+			camp_act.reset()
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			m["folk"] = folk.people.size() if folk else 0
+			if at_table:
+				m["cards"] = folk.cards.report().state
+				if murder and folk.murder:
+					m["murder"] = String(folk.murder.state)
+				m["card_game_ms"] = snappedf(m.get("systems", {}).get("card_game", 0.0), 0.001)
+				player.seat.stand()
+			clock.set_time(was_hour)
+		if far != "":
+			m["train_from"] = far
+			m["train_s"] = snappedf(float(world_root.get_node(^"Railway").train.sim.s), 0.1)
+		m["prime_ms"] = prime_ms
+		if ground and ground.valley:
+			m["blocks"] = ground.valley.census()
+		m["sean_render_cpu_ms"] = snappedf(float(m.render_cpu_ms) * scale, 0.01)
+		m["at"] = [at.x, at.y, at.z, s[2]]
+		report.spots[s[0]] = m
+		var fm = world_root.get_node_or_null(^"FarmhouseMission")
+		if fm:
+			m["farm_men"] = fm.brains.size()
+		print("%-17s frame %.1f ms (p99 %.1f)  render CPU %.2f ms (Sean's %.2f)  draws %d  prims %dk  blocks %s  prime %.0f ms  train %.3f ms  people %.3f ms  nodes %d" % [
+				s[0], m.avg_ms, m.p99_ms, m.render_cpu_ms, m.sean_render_cpu_ms, m.draw_calls, m.primitives / 1000.0,
+				m.get("blocks", {}).get("by_level", {}), prime_ms, m.train_ms, m.people_ms, m.nodes])
+	_write(report)
+	quit(0)
+
+
+func _write(report: Dictionary) -> void:
+	if out_path != "":
+		var f := FileAccess.open(out_path, FileAccess.WRITE)
+		f.store_string(JSON.stringify(report, "\t"))
+
+
+## At 15 m/s along a line of legs, the player carried (not walked: the ground's streaming is what's
+## measured), the ground's own frame each frame.
+func _ride(player: Node3D, ground: Node) -> Dictionary:
+	var legs := [Vector2(0, 0), Vector2(1300, 200), Vector2(2300, 2100), Vector2(-1900, 2100), Vector2(-1900, -1300), Vector2(0, 0)]
+	var prof = load("res://src/debug/prof.gd")
+	prof.on = true
+	var speed := 15.0 / 60.0
+	var times := PackedFloat32Array()
+	var built0: int = ground.valley.built
+	var t0 := Time.get_ticks_usec()
+	for k in legs.size() - 1:
+		var a: Vector2 = legs[k]
+		var b: Vector2 = legs[k + 1]
+		var steps := ceili(a.distance_to(b) / speed)
+		for i in steps:
+			var p := a.lerp(b, float(i) / steps)
+			player.global_position = Vector3(p.x, ground.height_at(p.x, p.y) + 0.05, p.y)
+			player.velocity = Vector3.ZERO
+			var before: int = int(prof._sum.get(&"valley_ground", 0))
+			await process_frame
+			times.append((int(prof._sum.get(&"valley_ground", 0)) - before) / 1000.0)
+	var sorted := times.duplicate()
+	sorted.sort()
+	var avg := 0.0
+	for t in times:
+		avg += t / times.size()
+	var out := {"frames": times.size(), "km": snappedf(times.size() * speed / 1000.0, 0.01), "mean_ms": snappedf(avg, 0.003),
+			"p99_ms": snappedf(sorted[int(sorted.size() * 0.99)], 0.01), "max_ms": snappedf(sorted[sorted.size() - 1], 0.01),
+			"blocks_built": int(ground.valley.built) - built0, "wall_s": (Time.get_ticks_usec() - t0) / 1e6, "census": ground.valley.census()}
+	print("ride: %s" % out)
+	return out
+
+
+## The train running its timetable at the end of the line far from `at`: from east_start (moving
+## off), or from the Ore Works for a spot east of the depot. "" with no railway.
+func _train_far(world_root: Node, at: Vector3) -> String:
+	var rw = world_root.get_node_or_null(^"Railway")
+	if rw == null or rw.train == null:
+		return ""
+	var from := "east_start" if at.x < 600.0 else "ore_works"
+	var k := 0 if from == "east_start" else 2
+	rw.driving = true
+	rw.start_run(float(rw.timetable.stops[k].get("depart", 0.0)) + 30.0, rw.run_day)
+	return from
+
+
+func _measure(rid: RID) -> Dictionary:
+	var prof = load("res://src/debug/prof.gd")
+	prof.on = true
+	var before := {}
+	for k in prof._sum:
+		before[k] = int(prof._sum[k])
+	var times := PackedFloat32Array()
+	var render := 0.0
+	var draws := 0.0
+	var phys := 0.0
+	var proc := 0.0
+	var prims := 0.0
+	var last := Time.get_ticks_usec()
+	for i in frames:
+		await process_frame
+		var now := Time.get_ticks_usec()
+		times.append((now - last) / 1000.0)
+		last = now
+		if rid.is_valid():
+			render += RenderingServer.viewport_get_measured_render_time_cpu(rid) / frames
+		draws += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / frames
+		phys += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0 / frames
+		proc += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 / frames
+		prims += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / frames
+	var sorted := times.duplicate()
+	sorted.sort()
+	var avg := 0.0
+	for t in times:
+		avg += t / times.size()
+	var train_us := 0
+	var people_us := 0
+	var parts := {}
+	for k in prof._sum:
+		var d := int(prof._sum[k]) - int(before.get(k, 0))
+		if String(k) in ["train", "train_view", "train_sound"]:
+			train_us += d  # (`train` holds the lookout, the strike, the bridge's carry: not added twice)
+		if d / 1000.0 / frames >= 0.005:
+			parts[String(k)] = snappedf(d / 1000.0 / frames, 0.003)
+		if String(k).begins_with("people") or String(k) == "senses":
+			people_us += d
+	return {"avg_ms": snappedf(avg, 0.01), "p99_ms": snappedf(sorted[int(sorted.size() * 0.99) - 1], 0.01),
+			"render_cpu_ms": snappedf(render, 0.01), "physics_ms": snappedf(phys, 0.01), "process_ms": snappedf(proc, 0.01), "draw_calls": roundi(draws), "primitives": roundi(prims),
+			"train_ms": snappedf(train_us / 1000.0 / frames, 0.001), "systems": parts, "people_ms": snappedf(people_us / 1000.0 / frames, 0.001),
+			"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))}

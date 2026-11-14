@@ -1,0 +1,11 @@
+| Height | feet | back | head |
+|---|---|---|---|
+| 1 m | nothing<br>of 20, 0.0 m/s; *target: nothing* | nothing<br>of 20, 0.0 m/s; *target: nothing* | nothing<br>of 20, 0.0 m/s; *target: nothing* |
+| 2 m | foot 2<br>of 20, 5.9 m/s; *target: foot 1/10* | nothing<br>of 20, 5.8 m/s; *target: bruised* | cold 20<br>of 20, 5.8 m/s; *target: out cold, skull 1/10* |
+| 3 m | foot 6<br>of 20, 7.1 m/s; *target: foot 1/3, shin 1/10* | ribs 4<br>of 20, 7.1 m/s; *target: ribs 1/3* | dead 5, neck 5, skull 11, cold 20<br>of 20, 7.0 m/s; *target: skull 4/10, dead 2/10* |
+| 4.5 m | foot 18<br>of 20, 8.5 m/s; *target: heel/shin 6/10, lives* | cold 5, ribs 19<br>of 20, 8.5 m/s; *target: ribs 6/10, organ 2/10, lives* | dead 12, neck 11, aorta 2, skull 20, cold 20<br>of 20, 8.5 m/s; *target: dead 1/2* |
+| 6 m | dead 1, aorta 1, back 1, pelvis 7, foot 20<br>of 20, 10.0 m/s; *target: legs 8/10, pelvis 3/10, dead 1/20* | dead 3, aorta 3, cold 20, ribs 20<br>of 20, 10.0 m/s; *target: dead 1/6* | dead 20, neck 20, aorta 3, skull 20, cold 20<br>of 20, 9.9 m/s; *target: dead 8/10* |
+| 9 m | dead 3, aorta 3, back 3, ribs 2, pelvis 20, foot 20<br>of 20, 12.6 m/s; *target: legs+pelvis, dead 2/10* | dead 9, aorta 9, cold 20, ribs 20, lung 4, organ 7<br>of 20, 12.6 m/s; *target: dead 4/10* | dead 20, crushed 10, neck 10, aorta 4, skull 10, cold 20<br>of 20, 12.5 m/s; *target: dead* |
+| 12 m | dead 6, aorta 6, back 4, cold 4, ribs 15, pelvis 20, foot 20<br>of 20, 14.8 m/s; *target: dead 4/10* | dead 13, aorta 11, cold 20, ribs 20, lung 12, organ 18<br>of 20, 14.7 m/s; *target: dead 6/10* | dead 20, crushed 14, neck 6, aorta 2, skull 6, cold 20, ribs 1<br>of 20, 14.8 m/s; *target: dead* |
+| 15 m | dead 10, aorta 10, back 5, cold 15, ribs 20, pelvis 20, foot 20<br>of 20, 16.7 m/s; *target: dead 1/2* | dead 20, aorta 20, cold 20, ribs 20, lung 20, organ 20<br>of 20, 16.6 m/s; *target: dead 3/4* | dead 20, crushed 20, cold 20<br>of 20, 16.6 m/s; *target: dead* |
+| 22 m | dead 20, aorta 20, back 15, cold 20, ribs 20, lung 3, organ 10, pelvis 20, foot 20<br>of 20, 20.4 m/s; *target: dead 9/10* | dead 20, aorta 20, skull 3, cold 20, ribs 20, lung 20, organ 20, pelvis 13, thigh 13<br>of 20, 20.3 m/s; *target: dead* | dead 20, crushed 20, cold 20<br>of 20, 20.3 m/s; *target: dead* |

@@ -1,6 +1,6 @@
 {
  "name": "the real look's renderer",
- "about": "What RealLook (src/render/real_look.gd) sets on the street's environment while the real look is on (docs/briefs/red-dead.md R0), each put back when it goes off. LookPreset addresses. The realistic renderer's own dials: AgX (the filmic curve), SSIL (bounce light in screen space), SDFGI (bounce light from the world's distance field; RealLook eases its energy to real.sdfgi_indoor under a roof, so indoors stays RoomLight's), the volumetric fog taking bounce light, the glow only for what's over white. Exposure is real.exposure (a camera-attributes multiplier: DayCycle keeps setting the tonemap's own). R0's renders: AgX's contrast 1.25 and SSIL 0.8 with exposure 1.6 read milky; 1.5, 0.6 and 1.4 kept the shade's shape.",
+ "about": "What RealLook (src/render/real_look.gd) sets on the street's environment while the real look is on (docs/briefs/red-dead.md R0), each put back when it goes off. LookPreset addresses. The realistic renderer's own dials: AgX (the filmic curve), SSIL (bounce light in screen space), SDFGI (bounce light from the world's distance field; RealLook eases its energy to real.sdfgi_indoor under a roof, so indoors stays RoomLight's), the volumetric fog taking bounce light, the glow only for what's over white. Exposure is real.exposure (a camera-attributes multiplier: DayCycle keeps setting the tonemap's own). R0's renders: AgX's contrast 1.25 and SSIL 0.8 with exposure 1.6 read milky; 1.5, 0.6 and 1.4 kept the shade's shape. SDFGI is off (#643, gameplay 2026-11-04): walking, each of its four cascades scrolls every 1.6/3.2/6.4/12.8 m and re-voxelises and re-floods its distance field on that frame, a long frame every 0.84 m (tools/walk_frames.gd on a 28 m walk: 28 frames over 1.25x the median, up to 1.74x; off, 1 and 1.27x; experiments/movement_feel/results/2026-11-04_lurch/): the lurch every few steps Sean felt. Its dials stay; the look panel's SDFGI switch turns it on to compare.",
  "values": {
   "env.tonemap_mode": 4,
   "env.tonemap_agx_contrast": 1.5,
@@ -9,7 +9,7 @@
   "env.ssil_radius": 3.0,
   "env.ssil_intensity": 0.6,
   "env.ssil_normal_rejection": 1.0,
-  "env.sdfgi_enabled": true,
+  "env.sdfgi_enabled": false,
   "env.sdfgi_use_occlusion": true,
   "env.sdfgi_read_sky_light": true,
   "env.sdfgi_cascades": 4,

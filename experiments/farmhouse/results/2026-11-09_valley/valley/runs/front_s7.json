@@ -1,0 +1,253 @@
+{
+ "alarm": 12.9,
+ "blocking": [
+  "0.3:Chunks/Chunk_29_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Chunks/Chunk_28_6",
+  "0.3:Valley/Player",
+  "1.0:Valley/Player",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 39.53,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "clear": 55.43,
+   "out": 39.53,
+   "rescue": 37.68
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 94.13,
+ "executed": 39.3,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 4874,
+  "max_ms": 189.33,
+  "mean_ms": 10.36,
+  "p95_ms": 19.0
+ },
+ "freed": 40.03,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.81,
+   1.24,
+   -9.47
+  ],
+  "limp": false,
+  "pelvis": [
+   2.83,
+   0.48,
+   -9.52
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.82,
+  0.86,
+  -9.49
+ ],
+ "men": 7,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 36.7,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front w: window front w (you're front)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 36.7,
+   "mood": "CALM",
+   "order": "window_front_w",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "come at you: you're reloading",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "window_front_e",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 2 m",
+   "id": "kid",
+   "inside": true,
+   "knows": 56.5,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to loft window: loft window (you're front)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "loft_window",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "pike",
+   "inside": true,
+   "knows": 36.7,
+   "mood": "CALM",
+   "order": "inside_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 7 m",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, gut-shot, bone broken.",
+ "player_local": [
+  4.5,
+  1.6,
+  -40.85
+ ],
+ "quits": [
+  [
+   16.53,
+   "wes",
+   "gives up",
+   "run for cover: in the open, 7 m",
+   true
+  ]
+ ],
+ "rover_found": "Pike saw you at 12.7 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 7,
+ "shots_men": 65,
+ "shots_out": 55,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 94.13,
+ "threat": 34.28,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.65,
+   "Pike saw you at 12.7 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.65,
+   "Pike warns you off"
+  ],
+  [
+   12.9,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.9,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.9,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   16.53,
+   "Wes down"
+  ],
+  [
+   16.53,
+   "Wes gives up (run for cover: in the open, 7 m)"
+  ],
+  [
+   34.28,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   34.28,
+   "the guard's last word"
+  ],
+  [
+   39.3,
+   "the guard shoots the rancher"
+  ],
+  [
+   39.72,
+   "Kid down, out"
+  ],
+  [
+   39.72,
+   "Kid dead"
+  ],
+  [
+   40.03,
+   "the rancher cut loose"
+  ],
+  [
+   94.13,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

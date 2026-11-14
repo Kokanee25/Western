@@ -20,6 +20,10 @@ an entry use DEFAULT). Views whose scenario runs physics, particles or people's 
 blasts, a fight, smoke) are noisier than a still, so their tolerances come from measured noise,
 not one number for all. A render with no golden fails (--allow-new lets it through, printed).
 Exit code 1 on any failure, so CI can run it (the gameplay session wires it in).
+Two looks (#641, 2026-11-08: the real look the game's default): every view is rendered in the
+painted look (--painted), which guards the town's layout, people and effects, and the views in
+REAL_VIEWS again in the real look as <view>_real (its light and exposure). All 77 in the real look
+would be ~13 h under lavapipe (~10 min a view: SSIL, volumetric fog, FSR2), past the nightly's limit.
 
 The renders are what a software GPU (lavapipe) draws at 1280x720; a real GPU differs a little
 everywhere (filtering, precision), so goldens are compared only against renders made the same
@@ -44,7 +48,21 @@ NOISE_FACTOR = 3.0  # a view's tolerance from its measured run-to-run noise
 W, H = 1280, 720
 
 
+## The views rendered again in the real look, as <view>_real (its light and exposure, #641): the
+## street at noon and golden hour, the store's front and porch, a lit interior by day, the saloon at night.
+REAL_VIEWS = ["street_golden_hour", "road_low_noon", "store_front_noon", "porch_dusk",
+              "inside_store_afternoon", "saloon_night"]
+REAL = "_real"
+
+
 def views():
+    """Every view name: tools/screenshots.gd's in its order (the painted look), then REAL_VIEWS'
+    real-look names."""
+    names = painted_views()
+    return names + [v + REAL for v in REAL_VIEWS if v in names]
+
+
+def painted_views():
     """The view names in tools/screenshots.gd, in its order."""
     names = []
     with open(os.path.join(ROOT, "tools", "screenshots.gd")) as f:
@@ -101,14 +119,24 @@ def render(out_dir, only):
     # --fresh: the scene loaded again for every view, so a view never inherits the one before
     # (smoke in the air, a pose half eased, the clouds' drift) and a subset renders as the full run.
     names = selected(only)
-    for k in range(0, len(names), BATCH):
-        batch = names[k:k + BATCH]
-        cmd = [godot, "--path", ROOT, "--rendering-driver", "vulkan", "-s", "res://tools/screenshots.gd",
-               "--", "--out=" + out_dir, "--fresh", "--only=" + ",".join(batch)]
-        if not os.environ.get("DISPLAY"):
-            cmd = ["xvfb-run", "-a"] + cmd
-        print("rendering:", " ".join(cmd), flush=True)
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    painted = [v for v in names if not v.endswith(REAL)]
+    real = [v[:-len(REAL)] for v in names if v.endswith(REAL)]
+    real_dir = os.path.join(out_dir, "real_look")
+    for look, todo, out in (("--painted", painted, out_dir), ("--real", real, real_dir)):
+        os.makedirs(out, exist_ok=True)
+        for k in range(0, len(todo), BATCH):
+            batch = todo[k:k + BATCH]
+            cmd = [godot, "--path", ROOT, "--rendering-driver", "vulkan", "-s", "res://tools/screenshots.gd",
+                   "--", "--out=" + out, "--fresh", "--only=" + ",".join(batch), look]
+            if not os.environ.get("DISPLAY"):
+                cmd = ["xvfb-run", "-a"] + cmd
+            print("rendering:", " ".join(cmd), flush=True)
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # The real look's renders beside the painted, named <view>_real.
+    for v in real:
+        src = os.path.join(real_dir, v + ".png")
+        if os.path.exists(src):
+            shutil.copyfile(src, os.path.join(out_dir, v + REAL + ".png"))
 
 
 def tolerances():

@@ -1,0 +1,207 @@
+{
+  "_doc": "The dispensary's shelving (#805): the kit's shelves (`like` shelves.json) in the doctor's painted pine from the material library (a few years, the boards' tops worn), 2.7 m high with nine boards 0.3 m apart (a druggist's shelving runs up the wall, its boards a bottle's height apart), a cornice and a boarded back. Fitted along its wall as the kit's shelves are (PropKit.spawn_fitted: length along Z, depth along X); what stands on a board (the bottles) comes down when it goes. Written by tools/props/doctor.py.",
+  "id": "dispensary_shelves",
+  "like": "shelves",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "look": "lib:furniture_painted_pine/few",
+  "members": [
+    {
+      "id": "upright_l",
+      "kind": "post",
+      "size": [
+        0.3,
+        2.62,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.31,
+        -0.985
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "upright_r",
+      "kind": "post",
+      "size": [
+        0.3,
+        2.62,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.31,
+        0.985
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "shelf0",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        0.12,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf1",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        0.42,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf2",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        0.72,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf3",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        1.02,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf4",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        1.32,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf5",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        1.62,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf6",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        1.92,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf7",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        2.22,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "shelf8",
+      "kind": "furniture_top",
+      "size": [
+        0.3,
+        0.025,
+        1.94
+      ],
+      "at": [
+        0.0,
+        2.52,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "cornice",
+      "kind": "trim",
+      "size": [
+        0.35,
+        0.09,
+        2.06
+      ],
+      "at": [
+        0.025,
+        2.665,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "back",
+      "kind": "furniture_frame",
+      "size": [
+        0.012,
+        2.52,
+        1.94
+      ],
+      "at": [
+        -0.144,
+        1.31,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

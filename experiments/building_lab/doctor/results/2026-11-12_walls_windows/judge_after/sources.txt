@@ -1,0 +1,2 @@
+a front_gold build/after3/front_gold.png
+b window build/after3/window.png

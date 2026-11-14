@@ -5,6 +5,10 @@ extends SceneTree
 ## then and a stick goes off; the clock runs 30x so day and night come round. It fails on:
 ## - any script or engine error (logged once each, with a count),
 ## - memory or the node count still climbing at the end (not just higher: climbing),
+## - nodes out of the tree piling up: the orphans less those held on purpose (a member at rest keeps
+##   its mesh and shape aside, StructureMember.rest; so does rubble drawn by its cell, RubbleRest),
+##   climbing (#863: the count at the end was the rule, and members at rest are most of it),
+## - the members' mesh cache past its limit (MemberMesh.CACHE_LIMIT),
 ## - anyone stuck (on his way somewhere and not a metre further in a minute),
 ## - anyone or any loose piece under the ground or off the map,
 ## - the frame time creeping (the last window's median several times the first's).
@@ -17,6 +21,12 @@ extends SceneTree
 ## the nightly workflow watches the log and that clock, and dumps every thread when they stop
 ## (soak #10 sat silent four hours at game minute 95, 2026-10-13). `--hang-at=S` hangs it on purpose
 ## to try that.
+##
+## In the valley (`-- --world=valley`, docs/briefs/valley-plan.md G2): nobody lives there yet, so
+## the player is carried round the valley at a gallop (the ground's levels built and freed as he
+## goes), and when the town has a stick a stick goes off on the dirt near him, and when it has a
+## fire a hole is dug and filled (`--every=S`: both every S seconds, the craters' stress run);
+## "under the ground" is under the valley's ground there, "off the map" outside its envelope.
 ##
 ## (--fixed-fps 60: each frame is a 60th of a second of game time and the loop runs flat out, about
 ## 3.4x real time here, so the frame times are what the game costs, not the engine's pacing.)
@@ -57,7 +67,9 @@ var _town
 var _player
 var _rng := RandomNumberGenerator.new()
 var _t := 0.0
-var _windows: Array = []  # {t, frame_ms_median, memory_mb, nodes, orphans, people}
+var _windows: Array = []  # {t, frame_ms, p99_ms, memory_mb, rss_mb, nodes, orphans, held, unheld, rubble, ...}
+var _kinds_first := {}  # node kind -> how many, at the first full window (what grew, at the end)
+var _kinds_last := {}
 var _frame_ms := PackedFloat32Array()
 var _problems := {}
 var _track := {}  # person (instance id) -> {at, since}
@@ -65,6 +77,14 @@ var _happened: Array[String] = []
 var _runaway := false
 var _frames := 0
 var _hang_at := -1.0
+## The valley (Settings.world): its Ground and envelope, the tour's legs and how far along it is.
+var _valley := false
+var _ground
+var _envelope := Rect2()
+var _tour: Array[Vector2] = []
+var _tour_s := 0.0
+const TOUR_SPEED := 15.0  # m/s, a gallop
+var _every := 0.0
 
 
 func _initialize() -> void:
@@ -73,6 +93,8 @@ func _initialize() -> void:
 			_minutes = float(a.substr(10))
 		elif a.begins_with("--out="):
 			_out = a.substr(6)
+		elif a.begins_with("--every="):
+			_every = float(a.substr(8))
 		elif a.begins_with("--hang-at="):  # hang on purpose at this game second (for trying it)
 			_hang_at = float(a.substr(10))
 	OS.add_logger(_catcher)
@@ -83,9 +105,16 @@ func _initialize() -> void:
 	await process_frame
 	await process_frame
 	OB = load("res://src/bodies/outlaw_brain.gd")
-	_street = _main.find_child("TestStreet", true, false)
-	_town = _street.get_node(^"TownLife")
+	_valley = root.get_node(^"Settings").world == &"valley"
+	_street = _main.find_child("Valley" if _valley else "TestStreet", true, false)
+	_town = null if _valley else _street.get_node(^"TownLife")
 	_player = _street.get_node(^"Player")
+	if _valley:
+		_ground = _street.get_node(^"Ground")
+		_envelope = load("res://src/world/valley_layout.gd").main().envelope()
+		var e := _envelope.grow(-60.0)
+		_tour = [Vector2.ZERO, Vector2(1300, 200), Vector2(e.end.x, e.end.y), Vector2(e.position.x, e.end.y),
+				Vector2(e.position.x, e.position.y), Vector2(e.end.x, e.position.y), Vector2.ZERO]
 	_player.input_enabled = false
 	_street.get_node(^"DayCycle").set_time_scale(30.0)
 	print("soak: %.0f minutes of game time" % _minutes)
@@ -102,10 +131,17 @@ func _run() -> void:
 	# Every 100 minutes: a fire at 20 and 70, a stick at 30 and 80.
 	var events := []
 	var cycle := 0.0
+	# (in the valley a hole dug where the town has a fire; `--every=S`: a stick and a hole every S
+	# seconds instead, the craters' stress run)
+	var cycle_events := [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]
+	var cycle_len := 6000.0
+	if _valley and _every > 0.0:
+		cycle_events = [[_every * 0.5, "blast"], [_every, "dig"]]
+		cycle_len = _every
 	while cycle < _minutes * 60.0:
-		for e in [[1200.0, "fire"], [1800.0, "blast"], [4200.0, "fire"], [4800.0, "blast"]]:
+		for e in cycle_events:
 			events.append([cycle + float(e[0]), e[1]])
-		cycle += 6000.0
+		cycle += cycle_len
 	var last := Time.get_ticks_usec()
 	while _t < _minutes * 60.0 and not _runaway:
 		await physics_frame
@@ -123,12 +159,14 @@ func _run() -> void:
 		_frame_ms.append((now - last) / 1000.0)
 		last = now
 		_t += dt
-		if _t >= next_gang:
+		if _valley:
+			_ride(dt)
+		if _town and _t >= next_gang:
 			next_gang += 240.0
 			if _town.gang.is_empty() or _town.gang.all(func(g): return not is_instance_valid(g)):
 				_town.bring_gang()
 				_happened.append("%s the gang rides in" % _clock())
-		if _t >= next_fight:
+		if _town and _t >= next_fight:
 			next_fight += 300.0
 			var live: Array = _town.gang.filter(func(g): return is_instance_valid(g))
 			if not live.is_empty():
@@ -153,6 +191,9 @@ func _clock() -> String:
 
 
 func _event(kind: String) -> void:
+	if _valley:
+		_valley_event(kind)
+		return
 	var members: Array = _street.find_children("*", "StructureMember", true, false).filter(
 			func(m): return not m.broken and not m.burning)
 	if members.is_empty():
@@ -163,6 +204,44 @@ func _event(kind: String) -> void:
 	else:
 		load("res://src/blast/blast.gd").detonate(_street, m.global_position + Vector3(0, 0.3, 0.5), 0.2)
 	_happened.append("%s %s at %s" % [_clock(), kind, m.member_id])
+
+
+## The valley's tour: the player carried along its legs, on the ground.
+func _ride(dt: float) -> void:
+	_tour_s += TOUR_SPEED * dt
+	var s := _tour_s
+	var k := 0
+	while true:
+		var leg := _tour[k].distance_to(_tour[k + 1])
+		if s <= leg:
+			var p := _tour[k].lerp(_tour[k + 1], s / leg)
+			_player.global_position = Vector3(p.x, _ground.height_at(p.x, p.y) + 0.05, p.y)
+			_player.velocity = Vector3.ZERO
+			return
+		s -= leg
+		k += 1
+		if k >= _tour.size() - 1:
+			_tour_s = 0.0
+			k = 0
+			s = 0.0
+
+
+## In the valley: a stick on the dirt near the player ("blast"), or a hole dug and filled back in
+## (the town's "fire", or "dig").
+func _valley_event(kind: String) -> void:
+	var a := _rng.randf() * TAU
+	var r := _rng.randf_range(8.0, 30.0)
+	var x: float = _player.global_position.x + cos(a) * r
+	var z: float = _player.global_position.z + sin(a) * r
+	var y: float = _ground.height_at(x, z)
+	if kind == "blast":
+		load("res://src/blast/blast.gd").detonate(_street, Vector3(x, y + 0.03, z), 0.2)
+		_happened.append("%s a stick on the dirt at (%.0f, %.1f, %.0f)" % [_clock(), x, y, z])
+	else:  # "fire" or "dig": a hole
+		var at := Vector3(x, y, z)
+		var bank: float = _ground.take(at, 0.9, 0.7)
+		_ground.put(at, bank, 0.9)
+		_happened.append("%s a hole dug and filled at (%.0f, %.1f, %.0f)" % [_clock(), x, y, z])
 
 
 func _problem(kind: String, text: String) -> void:
@@ -213,9 +292,9 @@ func _check() -> void:
 		var p := (n as Node3D).global_position
 		if not (is_finite(p.x) and is_finite(p.y) and is_finite(p.z)):
 			_problem("lost", "%s isn't anywhere" % _describe(n))
-		elif p.y < FLOOR_Y:
+		elif p.y < (_ground.height_at(p.x, p.z) + FLOOR_Y if _valley else FLOOR_Y):
 			_problem("under the ground", "%s at y %.1f" % [_describe(n), p.y])
-		elif Vector2(p.x, p.z).length() > MAP_RADIUS:
+		elif not _envelope.grow(300.0).has_point(Vector2(p.x, p.z)) if _valley else Vector2(p.x, p.z).length() > MAP_RADIUS:
 			_problem("off the map", "%s at %s" % [_describe(n), p])
 	# Men gone (left town, freed): a new one of the same name takes his path and, riding in where
 	# the last one rode out, would inherit his "not a metre in minutes" (the soak, 2026-10-13).
@@ -261,19 +340,70 @@ func _close_window() -> void:
 		"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
 		"orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)),
 		"people": root.get_tree().get_nodes_in_group(&"people").size(), "rss_mb": snappedf(_rss_mb(), 1.0)}
+	w.merge(_census())
+	w["unheld"] = w.orphans - w.held
 	_windows.append(w)
 	_frame_ms = PackedFloat32Array()
-	print("soak %s: frame %.2f ms (p99 %.1f), %.0f MB (resident %.0f), %d nodes, %d orphans, %d people" % [_clock(), w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb, w.nodes, w.orphans, w.people])
+	print("soak %s: frame %.2f ms (p99 %.1f), %.0f MB (resident %.0f), %d nodes, %d orphans (%d held), %d people, %d rubble (%d empty), %d members at rest, rubble rest %s, mesh cache %d" % [
+			_clock(), w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb, w.nodes, w.orphans, w.held, w.people, w.rubble,
+			w.rubble_empty, w.at_rest, w.rubble_rest, w.mesh_cache])
+
+
+## What's in the world, each window (#863): the rubble and what's held out of the tree on purpose,
+## the mesh cache, and every kind of node counted (the report says which kinds grew).
+func _census() -> Dictionary:
+	var at_rest := 0
+	for m in _street.find_children("*", "StructureMember", true, false):
+		if m.resting():
+			at_rest += 1
+	var rubble := root.get_tree().get_nodes_in_group(&"rubble")
+	var empty := 0
+	for rb: Node in rubble:
+		if rb.get_child_count() == 0 and (rb as CollisionObject3D).get_shape_owners().is_empty():
+			empty += 1
+	var rest = _street.get_node_or_null(^"RubbleRest")
+	var rr := {}
+	var rest_held := 0
+	if rest:
+		var st: Dictionary = rest.state()
+		rr = {"pieces": rest.piece_count(), "drawn": st.drawn, "cells": st.cells, "jobs": st.jobs}
+		rest_held = rest.held_nodes()
+	var kinds := {}
+	for n in root.find_children("*", "", true, false):
+		var sc: Script = n.get_script()
+		var k: String = sc.resource_path.get_file() if sc and sc.resource_path != "" else n.get_class()
+		kinds[k] = int(kinds.get(k, 0)) + 1
+	if _windows.size() == 1:
+		_kinds_first = kinds
+	_kinds_last = kinds
+	return {"at_rest": at_rest, "held": at_rest * 2 + rest_held, "rubble": rubble.size(), "rubble_empty": empty,
+			"rubble_rest": rr, "mesh_cache": load("res://src/structures/member_mesh.gd").cached()}
 
 
 ## Climbing: each of the last four windows above the one before.
 func _climbing(key: String) -> bool:
-	if _windows.size() < 5:
+	return climbing(_windows, key)
+
+
+static func climbing(windows: Array, key: String) -> bool:
+	if windows.size() < 5:
 		return false
-	for i in range(_windows.size() - 4, _windows.size()):
-		if float(_windows[i][key]) <= float(_windows[i - 1][key]):
+	for i in range(windows.size() - 4, windows.size()):
+		if float(windows[i][key]) <= float(windows[i - 1][key]):
 			return false
 	return true
+
+
+## The orphan rule (#863): nodes out of the tree less those held on purpose, still climbing and
+## 1000 past the first full window's. "" when all's well. (tests/test_soak_rules.gd)
+static func orphans_problem(windows: Array) -> String:
+	if windows.size() < 3:
+		return ""
+	var first: Dictionary = windows[1]
+	var last: Dictionary = windows[-1]
+	if climbing(windows, "unheld") and int(last.unheld) > int(first.unheld) + 1000:
+		return "still climbing: %d nodes out of the tree and not held, %d at the start" % [last.unheld, first.unheld]
+	return ""
 
 
 func _finish() -> void:
@@ -290,24 +420,40 @@ func _finish() -> void:
 			_problem("memory", "still climbing: %.0f MB at the end, %.0f at the start" % [last.memory_mb, first.memory_mb])
 		if _climbing("nodes") and int(last.nodes) > int(first.nodes) * 1.3:
 			_problem("nodes", "still climbing: %d at the end, %d at the start" % [last.nodes, first.nodes])
-		if int(last.orphans) > 1000:
-			_problem("orphans", "%d nodes out of the tree and never freed" % last.orphans)
+		# Held on purpose (members at rest, rubble in its cell) isn't lost; what's left climbing is.
+		var orphans := orphans_problem(_windows)
+		if orphans != "":
+			_problem("orphans", orphans)
+		if int(last.rubble_empty) > 0:
+			_problem("rubble", "%d pieces of rubble with nothing left on them" % last.rubble_empty)
+	var cache_limit: int = load("res://src/structures/member_mesh.gd").CACHE_LIMIT
+	if not _windows.is_empty() and int(_windows[-1].mesh_cache) > cache_limit:
+		_problem("mesh cache", "%d sizes, past its %d" % [_windows[-1].mesh_cache, cache_limit])
 	var ok := _problems.is_empty()
 	DirAccess.make_dir_recursive_absolute(_out)
-	var md := "# Soak: %s\n\n%.0f minutes of game time, %s.\n\n" % ["passed" if ok else "FAILED", _minutes, load("res://src/debug/debug_overlay.gd").build_label()]
+	var md := "# Soak (%s): %s\n\n%.0f minutes of game time, %s.\n\n" % ["the valley" if _valley else "the town", "passed" if ok else "FAILED", _minutes, load("res://src/debug/debug_overlay.gd").build_label()]
 	for kind: String in _problems:
 		md += "## %s\n\n" % kind.capitalize()
 		for line: String in _problems[kind]:
 			md += "- %s\n" % line
 		md += "\n"
-	md += "## Windows\n\n| t (s) | frame ms | p99 ms | memory MB | resident MB | nodes | orphans | people |\n|---|---|---|---|---|---|---|---|\n"
+	md += "## Windows\n\n| t (s) | frame ms | p99 ms | memory MB | resident MB | nodes | orphans | held | people | rubble | at rest | mesh cache |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n"
 	for w: Dictionary in _windows:
-		md += "| %d | %.2f | %.1f | %.0f | %.0f | %d | %d | %d |\n" % [w.t, w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb, w.nodes, w.orphans, w.people]
+		md += "| %d | %.2f | %.1f | %.0f | %.0f | %d | %d | %d | %d | %d | %d | %d |\n" % [w.t, w.frame_ms, w.p99_ms, w.memory_mb, w.rss_mb,
+				w.nodes, w.orphans, w.held, w.people, w.rubble, w.at_rest, w.mesh_cache]
+	md += "\n## The kinds of node that grew most (first window to last)\n\n"
+	var grew := []
+	for k: String in _kinds_last:
+		grew.append([int(_kinds_last[k]) - int(_kinds_first.get(k, 0)), k])
+	grew.sort_custom(func(a, b): return a[0] > b[0])
+	for g: Array in grew.slice(0, 8):
+		md += "- %s: %+d (%d now)\n" % [g[1], g[0], _kinds_last[g[1]]]
 	md += "\n## What happened\n\n" + "\n".join(_happened.map(func(h: String) -> String: return "- " + h)) + "\n"
 	var f := FileAccess.open(_out.path_join("soak.md"), FileAccess.WRITE)
 	f.store_string(md)
 	f = FileAccess.open(_out.path_join("soak.json"), FileAccess.WRITE)
-	f.store_string(JSON.stringify({"ok": ok, "problems": _problems, "windows": _windows, "happened": _happened}, "  "))
+	f.store_string(JSON.stringify({"ok": ok, "problems": _problems, "windows": _windows, "happened": _happened,
+			"world": "valley" if _valley else "town"}, "  "))
 	print(md)
 	# Its work waited for first (#435); loaded, not named: a -s script compiles before the autoloads.
 	load("res://src/main/game_quit.gd").quit(self, 0 if ok else 1)

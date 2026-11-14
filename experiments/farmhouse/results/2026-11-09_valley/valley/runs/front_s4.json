@@ -1,0 +1,324 @@
+{
+ "alarm": 12.9,
+ "blocking": [
+  "0.3:House/floor_ground_board_017_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_020_0",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.0:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259",
+  "1.6:House/bedroom_door_259"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 55.17,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 55.17,
+   "rescue": 53.52
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "Dutch",
+ "breach": -1.0,
+ "end": 99.68,
+ "executed": 41.5,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 5207,
+  "max_ms": 173.83,
+  "mean_ms": 12.23,
+  "p95_ms": 25.76
+ },
+ "freed": 55.67,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   6.84,
+   0.74,
+   4.9
+  ],
+  "limp": false,
+  "pelvis": [
+   6.15,
+   0.72,
+   4.63
+  ],
+  "pose": "prone",
+  "prone": true,
+  "tied": false
+ },
+ "hostage_local": [
+  6.51,
+  0.72,
+  4.75
+ ],
+ "men": 7,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "drag Pike to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.97 / 0.95), covered close",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "to kitchen door: kitchen door (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 11.6,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen door: kitchen door (you're bedroom)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 1 m",
+   "id": "pike",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "wes",
+   "inside": true,
+   "knows": 11.6,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, grey and cold, pulse thready, blood pumping out bright, bone broken.",
+ "player_local": [
+  4.86,
+  0.56,
+  3.07
+ ],
+ "quits": [
+  [
+   47.7,
+   "pike",
+   "gives up",
+   "run for cover: in the open, 1 m",
+   true
+  ],
+  [
+   79.22,
+   "brody",
+   "gives up",
+   "drag Pike to cover: he's down in the open",
+   true
+  ],
+  [
+   90.08,
+   "lyle",
+   "gives up",
+   "give up: past his nerve (fear 0.97 / 0.95), covered close",
+   false
+  ]
+ ],
+ "rover_found": "Pike saw you at 12.7 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 4,
+ "shots_men": 69,
+ "shots_out": 31,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 99.68,
+ "threat": 36.48,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.65,
+   "Pike saw you at 12.7 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.65,
+   "Pike warns you off"
+  ],
+  [
+   12.9,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.9,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.9,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   16.57,
+   "Pike down"
+  ],
+  [
+   36.48,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.48,
+   "the guard's last word"
+  ],
+  [
+   41.5,
+   "the guard shoots the rancher"
+  ],
+  [
+   43.7,
+   "Kid down, out"
+  ],
+  [
+   43.7,
+   "Kid dead"
+  ],
+  [
+   46.13,
+   "the rancher hit (bullet, by Wes)"
+  ],
+  [
+   47.2,
+   "Pike down"
+  ],
+  [
+   47.7,
+   "Pike gives up (run for cover: in the open, 1 m)"
+  ],
+  [
+   51.57,
+   "Wes down, out"
+  ],
+  [
+   55.67,
+   "the rancher cut loose"
+  ],
+  [
+   75.77,
+   "Wes dead"
+  ],
+  [
+   79.22,
+   "Brody down"
+  ],
+  [
+   79.22,
+   "Brody gives up (drag Pike to cover: he's down in the open)"
+  ],
+  [
+   90.08,
+   "Lyle gives up (give up: past his nerve (fear 0.97 / 0.95), covered close)"
+  ],
+  [
+   99.68,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

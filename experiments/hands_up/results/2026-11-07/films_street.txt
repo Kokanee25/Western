@@ -1,0 +1,14 @@
+read people
+time 16.2
+clock off
+goto 5 0 -4 180
+hu_man outlaw 5 0 -9.5 0
+hu_cam front 3.0
+hu_film build/hu_films/street_front_old old 100 15
+hu_film build/hu_films/street_front_new new 100 15
+hu_cam side 3.0
+hu_film build/hu_films/street_side_old old 100 15
+hu_film build/hu_films/street_side_new new 100 15
+hu_cam three 3.0
+hu_film build/hu_films/street_three_old old 100 15
+hu_film build/hu_films/street_three_new new 100 15

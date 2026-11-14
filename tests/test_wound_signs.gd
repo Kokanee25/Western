@@ -198,7 +198,11 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 			var rb := man.parts[sid] as RigidBody3D
 			rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
 		await physics_frames(1)
-	await physics_frames(90)  # let go: the swipe ends
+	# Let go: the swipe ends once he's lain still for WoundSigns.SMEAR_STILL. How long he slides on
+	# after the drag moves with the tests before this one (in the full suite with the valley's ahead
+	# of it, ~0.7 s, and 90 frames ended 0.2 s short of it, #713): waited for, not counted.
+	await physics_frames(90)
+	await wait_until(func() -> bool: return not is_instance_valid(man.signs._smear_tail), 180)
 	var smears := _smears().slice(before)
 	check(smears.size() >= 2, "smears along where he was dragged (%d)" % smears.size())
 	if smears.size() < 2:
@@ -217,7 +221,46 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 	check(first.global_basis.z.normalized().dot(Vector3.BACK) > 0.8, "laid lengthwise along the drag")
 	check(first.size.x > 0.12 and first.size.x < 0.4, "about as wide as his trunk (%.2f m)" % first.size.x)
 	check(first.texture_albedo.resource_path.ends_with("smear_start.png"), "heavy where it starts")
-	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends")
+	var kinds := smears.map(func(d: Decal) -> String: return d.texture_albedo.resource_path.get_file().get_basename())
+	var speeds := [&"chest", &"abdomen", &"pelvis"].map(func(sid: StringName) -> String: return "%.2f" % (man.parts[sid] as RigidBody3D).linear_velocity.length())
+	check((smears[-1] as Decal).texture_albedo.resource_path.ends_with("smear_end.png"), "feathered where it ends (%s; swipe %s, still %.2f s, trunk %s m/s)" % [
+			kinds, "on" if is_instance_valid(man.signs._smear_tail) else "ended", man.signs._smear_still, speeds])
+
+
+## However he came to lie (#925): the same drag over a dozen landings, each a hair's turn from the
+## last (how a ragdoll lands turns on less), smears every time. Before, the touch test's reach sat
+## in the middle of where his chest rests (0.17 to 0.26 m up, on an arm or a shoulder), so 1 landing
+## in 200 laid one piece and half laid only two; now none of 200 lays fewer than three.
+func test_a_drag_smears_however_he_landed() -> void:
+	Settings.library_motion = false
+	var fewest := 99
+	for i in 12:
+		var m := HumanBody.new()
+		m.has_gun = false
+		m.rng_seed = 40 + i
+		m.position = Vector3(-12.0 + i * 2.0, 0.0, -10.0)
+		m.rotation.y = i * 0.0007
+		world.add_child(m)
+		await physics_frames(30)
+		m.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+		m.physiology.bleeds[0].rate = 3.0
+		m.go_limp()
+		await physics_frames(150)
+		m.signs._end_smear()
+		var before := _smears().size()
+		for k in 60:
+			for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
+				var rb := m.parts[sid] as RigidBody3D
+				rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
+			await physics_frames(1)
+		await physics_frames(90)
+		await wait_until(func() -> bool: return not is_instance_valid(m.signs._smear_tail), 180)
+		var n := _smears().size() - before
+		fewest = mini(fewest, n)
+		check(n >= 2, "landing %d: smears along where he was dragged (%d)" % [i, n])
+		m.queue_free()
+		await physics_frames(2)
+	check(fewest >= 3, "a 0.95 m drag lays three pieces at least, however he lay (fewest %d)" % fewest)
 
 
 func test_a_smear_runs_out_as_the_blood_on_him_does() -> void:
@@ -294,6 +337,42 @@ func test_a_conscious_man_down_bleeds_into_a_pool() -> void:
 	man.prone = true
 	await physics_frames(60)
 	check(man._pool != null, "a pool under a man who's down, limp or not")
+
+
+## #669: the pool's box lies on the floor under him, thin, not a metre tall round his belly (on a
+## stair it painted the risers, the rail and the gun in your hands).
+func test_his_pool_lies_thin_on_the_floor() -> void:
+	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+	man.physiology.bleeds[0].rate = 6.0
+	man.go_limp()
+	man.time_scale = 20.0
+	await physics_frames(120)
+	man.time_scale = 1.0
+	check(man._pool != null, "a pool under him")
+	var pool := man._pool
+	check(pool.size.y <= 0.25, "thin (%.2f m)" % pool.size.y)
+	var bottom := pool.global_position.y - pool.size.y * 0.5
+	var top := pool.global_position.y + pool.size.y * 0.5
+	check(bottom < 0.0 and bottom > -0.15, "its foot just into the floor (%.2f)" % bottom)
+	check(top > 0.05 and top < 0.25, "its top a hand over it (%.2f)" % top)
+
+
+func test_his_pool_finds_the_tread_under_him() -> void:
+	# A tread 0.6 m up, off to one side (a man lying on a stair).
+	var tread := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.0, 0.04, 0.3)
+	shape.shape = box
+	tread.add_child(shape)
+	tread.position = Vector3(5.0, 0.58, 0.0)
+	world.add_child(tread)
+	await physics_frames(2)
+	man._pool_floor_y = NAN
+	var y := man._pool_floor(Vector3(5.0, 0.85, 0.0))
+	check(absf(y - 0.6) < 0.01, "the tread's top (%.2f)" % y)
+	man._pool_floor_y = NAN
+	check(absf(man._pool_floor(Vector3(8.0, 0.25, 0.0))) < 0.01, "and the floor where there's no tread")
 
 
 func test_a_broken_jaw_spits_teeth() -> void:

@@ -118,6 +118,8 @@ func test_switched_on_it_replaces_the_screen_mosaic_and_off_it_leaves() -> void:
 
 
 func test_as_a_setting_it_brings_its_textures_and_puts_the_surface_blocks_away() -> void:
+	# A trial over the painted look (the real look, the default since #641, has no texel grid).
+	Settings.set_real_look(false)
 	check(not Settings.probe_mosaic and not Settings.probe_active(), "off by default: the game's look is unchanged")
 	Settings.set_surface_blocks(true)
 	Settings.set_probe_mosaic(true)

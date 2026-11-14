@@ -1,0 +1,26 @@
+time 20.5
+clock off
+goto 9.5 0.78 8.5 0
+hu_man bold_cowboy_s3_talking 9.5 0.78 5.0 0
+hu_cam front 3.0
+hu_film build/hu_films/saloon_front_old old 100 15
+hu_film build/hu_films/saloon_front_new new 100 15
+hu_cam side 3.0
+hu_film build/hu_films/saloon_side_old old 100 15
+hu_film build/hu_films/saloon_side_new new 100 15
+hu_cam three 3.0
+hu_film build/hu_films/saloon_three_old old 100 15
+hu_film build/hu_films/saloon_three_new new 100 15
+time 17.6
+clock off
+goto 0 0 -4 180
+hu_man gang:brody 0 0 -9.5 0
+hu_cam front 3.0
+hu_film build/hu_films/street_front_old old 100 15
+hu_film build/hu_films/street_front_new new 100 15
+hu_cam side 3.0
+hu_film build/hu_films/street_side_old old 100 15
+hu_film build/hu_films/street_side_new new 100 15
+hu_cam three 3.0
+hu_film build/hu_films/street_three_old old 100 15
+hu_film build/hu_films/street_three_new new 100 15

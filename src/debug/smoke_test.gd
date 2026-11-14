@@ -10,6 +10,9 @@ extends Node
 ## software Vulkan on a CI runner the first takes ~50 s of shader compiling), and each event waits
 ## for a few frames after the last, so no effect's first draw is left for the frame it quits on.
 ## On the desktop it fails without the native plugin (an export once shipped without it).
+## In the valley (`-- --world=valley`) too, and with a mission (`--mission=sheriff`, `sheriff_dies`,
+## `coach`): then it fails if the mission never started. The nightly runs those legs (#863,
+## .github/workflows/nightly.yml, smoke).
 
 const SECONDS := 30.0
 const EVENTS := ["gang", "blast", "fire", "shot"]
@@ -74,7 +77,7 @@ func _process(_delta: float) -> void:
 		return
 	_frames += 1
 	var t := (Time.get_ticks_msec() - _start) / 1000.0
-	var street := main.find_child("TestStreet", true, false)
+	var street := World.root(main)  # the town's street, or the valley (Settings.world)
 	if street == null:
 		return
 	var settled := _frames - _last_event_frame >= FRAMES_BETWEEN
@@ -92,7 +95,7 @@ func _process(_delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	if _due.is_empty():
 		return
-	var street := main.find_child("TestStreet", true, false)
+	var street := World.root(main)  # the town's street, or the valley (Settings.world)
 	for what in _due:
 		_event(street, what)
 	_due.clear()
@@ -105,7 +108,13 @@ func _event(street: Node, what: String) -> void:
 			if town:
 				town.bring_gang()
 		"blast":
-			Blast.detonate(street, Vector3(40.0, 0.2, 25.0), 0.2)  # out on the range, away from everyone
+			var at := Vector3(40.0, 0.2, 25.0)  # out on the range, away from everyone
+			var ground := street.get_node_or_null(^"Ground")
+			var player := street.get_node_or_null(^"Player") as Node3D
+			if ground and player:  # the valley: on the dirt 30 m from wherever you are
+				at = player.global_position + Vector3(30.0, 0.0, 0.0)
+				at.y = ground.height_at(at.x, at.z) + 0.2
+			Blast.detonate(street, at, 0.2)
 		"fire":
 			var members := street.find_children("*", "StructureMember", true, false)
 			var fire := FireSystem.find(get_tree())
@@ -122,8 +131,12 @@ func _finish(street: Node, t: float) -> void:
 	OS.remove_logger(_catcher)
 	var people := get_tree().get_nodes_in_group(&"people").size()
 	var problems := PackedStringArray(_catcher.errors)
-	if people < 3:
-		problems.append("only %d people in the street" % people)
+	# (the valley at dawn, the sheriff's mission: two about; the town's street: the gang and more)
+	if people < (3 if Settings.world == &"town" else 1 if ValleyFolk.folk_default else 0):
+		problems.append("only %d people in the %s" % [people, "street" if Settings.world == &"town" else "valley"])
+	var mission := mission_arg()
+	if mission != "" and not mission_started(street):
+		problems.append("the mission %s never started" % mission)
 	if street.get_node_or_null(^"Player") == null:
 		problems.append("no player")
 	if DisplayServer.get_name() == "headless" and _frames < 10:  # it asks only that it runs
@@ -134,7 +147,9 @@ func _finish(street: Node, t: float) -> void:
 	if problems.is_empty():
 		lines.append("[smoke] ok: %.0f s, %d frames, %d people, %d nodes, native plugin %s%s" % [t, _frames, people,
 				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), "loaded" if ClassDB.class_exists(&"VoxelMember") else "none (web)",
-				", first frame after %.0f s" % _first_frame_s if _first_frame_s > 0.0 else ""])
+				", first frame after %.0f s" % _first_frame_s if _first_frame_s > 0.0 else ""]
+				+ (", world %s" % Settings.world if Settings.world != &"town" else "")
+				+ (", mission %s" % mission if mission != "" else ""))
 	else:
 		lines.append("[smoke] FAILED:")
 		for p in problems:
@@ -148,3 +163,17 @@ func _finish(street: Node, t: float) -> void:
 				f.store_string("\n".join(lines) + "\n")
 				f.close()
 	GameQuit.quit(get_tree(), 0 if problems.is_empty() else 1)  # its work waited for first (#435)
+
+
+## `--mission=NAME` on the command line, or "".
+static func mission_arg() -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--mission="):
+			return a.substr(10)
+	return ""
+
+
+## Is a mission under way: a moment of its (the sheriff's, No Law's) or the coach cut?
+func mission_started(street: Node) -> bool:
+	return not get_tree().get_nodes_in_group(&"moment").is_empty() \
+			or not street.find_children("*", "CoachCut", true, false).is_empty()

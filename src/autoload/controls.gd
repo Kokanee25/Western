@@ -28,6 +28,7 @@ func _ready() -> void:
 	_bind(&"debug_help", [KEY_F1], [])
 	_bind(&"debug_resolution", [KEY_F2], [])
 	_bind(&"debug_pixel_shading", [KEY_F6], [])
+	_bind(&"debug_aa", [KEY_0], [])  # the real look's anti-aliasing, FSR2 <-> TAA (RealLook, #721)
 	_bind(&"debug_texel_size", [KEY_F7], [])
 	_bind(&"debug_tiles", [KEY_P], [])
 	_bind(&"debug_mosaic", [KEY_O], [])  # the screen mosaic on/off (Settings.mosaic)
@@ -55,12 +56,15 @@ func _ready() -> void:
 	_bind(&"cock", [KEY_Q], [JOY_BUTTON_RIGHT_SHOULDER], [], [MOUSE_BUTTON_WHEEL_DOWN])
 	_bind(&"reload", [KEY_R], [JOY_BUTTON_X])
 	_bind(&"holster", [KEY_H], [JOY_BUTTON_LEFT_SHOULDER])
+	# The Winchester's hammer (#734): eased down to half cock (the safety) or thumbed back to full.
+	_bind(&"hammer", [KEY_ALT], [], [], [MOUSE_BUTTON_MIDDLE])
 	# What's in your hand: 1 the revolver, 2 the shotgun, 3 dynamite, or the next (wheel up / Y).
 	_bind(&"weapon_revolver", [KEY_1], [])
 	_bind(&"weapon_shotgun", [KEY_2], [])
 	_bind(&"weapon_dynamite", [KEY_3], [])
 	_bind(&"weapon_bucket", [KEY_4], [])  # a water bucket (BucketViewmodel): R fills it at a trough
 	_bind(&"weapon_plunger", [KEY_5], [])  # the plunger box (PlungerViewmodel): sets off the wired bundles (#647)
+	_bind(&"weapon_rifle", [KEY_6], [])  # the Winchester 1873 (Winchester73Viewmodel, #734)
 	_bind(&"weapon_next", [], [JOY_BUTTON_Y], [], [MOUSE_BUTTON_WHEEL_UP])
 	# Hold to press on your wounds (a belt goes round a bleeding limb after a few seconds).
 	_bind(&"tend_wounds", [KEY_B], [JOY_BUTTON_DPAD_DOWN])
@@ -74,6 +78,9 @@ func _ready() -> void:
 	_bind(&"gunfight_free", [KEY_Z], [])
 	# The player's movement presets, light / middle / heavy (Player.next_movement).
 	_bind(&"movement_preset", [KEY_F], [])
+	# A lost mission's "try again" (FarmhouseMission): Enter or Start only. Not ui_accept, which is
+	# Space and A as well, the jump (issue #668: a jump after the rancher died reset the game).
+	_bind(&"mission_retry", [KEY_ENTER, KEY_KP_ENTER], [JOY_BUTTON_START])
 
 
 func _bind(action: StringName, keys: Array, buttons: Array, axes: Array = [], mouse: Array = []) -> void:

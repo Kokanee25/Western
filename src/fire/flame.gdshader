@@ -24,7 +24,9 @@ uniform int shapes = 3;
 // Frames a second (each flame starts at its own frame).
 uniform float fps = 10.0;
 
-varying float seed;
+// Flat: one number a flame, hashed and floored below (interpolated, its last bits differ from pixel
+// to pixel: the material library's weave, #763).
+varying flat float seed;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
