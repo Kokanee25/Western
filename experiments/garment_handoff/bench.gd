@@ -56,6 +56,8 @@ func _run() -> void:
 	MODEL = StringName(opts.get("model", String(MODEL)))
 	var out_dir := String(opts.get("out", "build/garment_handoff"))
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	if opts.has("by-vertex"):  # the measure as #917 had it (nearest skin vertex, its normal)
+		load("res://src/bodies/worn_garment.gd").by_surface = false
 	prof = load("res://src/debug/prof.gd")
 	prof.on = true
 	_build_world()
@@ -70,6 +72,8 @@ func _run() -> void:
 	man.person_id = &"sean"
 	man.body_model = MODEL
 	man.has_gun = false
+	if opts.has("seed"):  # (his idle's and breath's noise: a different run of the same handoff)
+		man.rng_seed = int(opts.seed)
 	world.add_child(man)
 	man.global_position = Vector3.ZERO
 	man.face(Vector3(0, 1.4, -3.0))
@@ -92,6 +96,7 @@ func _run() -> void:
 			handoff.measure_skin = false
 			handoff.tune.end_after_rest = 2.0
 		handoff.tris = int(opts.get("tris", "700"))
+		handoff.under_tris = int(opts.get("under-tris", "-1"))
 		handoff.part_tune = {}
 		for k in ["precision", "skin_every", "give"]:
 			if opts.has(k):

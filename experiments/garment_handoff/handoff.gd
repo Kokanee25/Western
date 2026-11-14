@@ -31,6 +31,8 @@ var done := false
 var with_glove := true
 ## The glove's triangles (simplified to about).
 var tris := 700
+## His skin shape's triangles (0: the glove's own points; GarmentHandoff.COLLIDER_TRIS by default).
+var under_tris := -1
 ## Over the part's own tune (the bench's flags).
 var part_tune := {}
 ## Count the cloth under his skin each tick (CPU-skins his arm: ~10 ms here; off for the cost runs).
@@ -63,7 +65,8 @@ func dress(who: HumanBody, on_chair: Node3D) -> Dictionary:
 	chair = on_chair
 	if not with_glove:
 		return {"ok": true, "glove": "none"}
-	part = GarmentHandoff.glove_on(man, get_parent(), "l", null, tris)
+	part = GarmentHandoff.glove_on(man, get_parent(), "l", null, tris,
+			under_tris if under_tris >= 0 else GarmentHandoff.COLLIDER_TRIS)
 	if part == null:
 		return {"ok": false, "error": "no Skin_whole on " + String(man.body_model)}
 	glove = part.garment
@@ -247,6 +250,13 @@ func _measure() -> void:
 	if part.released_all_at >= 0.0:
 		rec.released_all_at = snappedf(part.released_all_at, 0.001)
 	var sx: float = cloth.stretch(pts)
+	if part.on_arm() > 0:
+		# The points still held on him against where his skin carries the worn glove now (mm).
+		var drawn: PackedVector3Array = glove.posed()
+		var off := 0.0
+		for i: int in part._on_arm:
+			off = maxf(off, pts[i].distance_to(drawn[i]))
+		rec.held_off_mm = maxf(float(rec.get("held_off_mm", 0.0)), snappedf(off * 1000.0, 0.1))
 	rec.stretch_max = maxf(float(rec.get("stretch_max", 1.0)), sx)
 	if measure_skin:
 		# The same count of the glove as worn (skinned with him), this tick: what the measure finds
