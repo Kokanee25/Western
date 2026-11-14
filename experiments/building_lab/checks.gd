@@ -199,8 +199,10 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 				wq.collision_mask = Layers.WORLD
 				for hit in space.intersect_shape(wq, 8):
 					var m := hit.collider as StructureMember
-					# (a ladder up to a door is its way in: the doctor's loft door)
-					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/"):
+					# (a ladder up to a door is its way in: the doctor's loft door; a gate opens like a door:
+					# the jail's cell-corridor grille inside its back door)
+					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/") \
+							and not String(m.member_id).contains("/gate/"):
 						failures.append("%s door at %.2f: %s in its way in" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
 	# Stairs: two metres over the nosings all the way up.
 	var stairs := 0
