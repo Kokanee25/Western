@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Saloon B's batches S1 and S2 on the judging stand (#866, #879; docs/briefs/prop-factory.md "Every prop is checked"):
+"""Saloon B's batches S1, S2 and S3 on the judging stand (#866, #879; docs/briefs/prop-factory.md "Every prop is checked"):
 each group of props put down in the running town on the road east of it, on the lab's stand (a beam
 to hang lamps from, a boarded wall), at noon and at night by a hanging lamp lit
 on the beam, through the dev bridge (experiments/prop_lab/bridge.gd: `prop_stand`, `prop`, `prop_light`).
@@ -22,6 +22,7 @@ YAW = 0.0
 MAN = (42.6, 0.0, -3.2)
 LAMP_Y = 3.0 - 1.0  # a hanging lamp's origin under the stand's beam (its drop 1.0 m)
 TABLE = 0.76
+SLOTS = json.load(open(os.path.join(ROOT, "assets", "props", "kit", "keg_rack.json")))["slots"]
 
 # Each group: props [(id, x, y, z, yaw, light height or None)] in the stand's space (x across, z toward
 # the camera, y up), and the camera (at, looking at, fov) in the same.
@@ -51,11 +52,17 @@ GROUPS = {
     "saw_fiddle": {"props": [("table", 0.0, 0.0, 0.1, 0, None), ("handsaw", -0.12, TABLE, 0.28, 8, None), ("fiddle", 0.12, TABLE, -0.02, 25, None),
                              ("fiddle_bow", -0.25, TABLE, -0.12, -12, None)],
                    "cam": ((0.1, 1.38, 1.0), (0.0, 0.8, 0.08), 50), "night_lamp": 0.6},
-    "kegs": {"props": [("keg_rack", 0.0, 0.0, -0.55, 0, None)] + [("beer_keg", x, y, -0.55, 0, None) for y in (0.16, 0.88) for x in (-0.71, -0.24, 0.24, 0.71)]
-             + [("beer_keg", 0.95, 0.0, 0.25, 0, None)],
-             "cam": ((1.75, 1.45, 1.75), (0.0, 0.75, -0.45), 55), "night_lamp": 0.0},
+    # Batch S3 (#892): the kegs lying on the stillage (its kit file's `slots`), one lying on the floor and
+    # one upright; a rented room's bed against the wall; the owner's desk, his chair and strongbox.
+    "kegs": {"props": [("keg_rack", 0.0, 0.0, -0.45, 0, None)] + [("beer_keg_side", x, y, -0.45, 0, None) for x, y, _ in SLOTS]
+             + [("beer_keg_side", 1.55, 0.0, 0.35, 70, None), ("beer_keg", -1.6, 0.0, 0.3, 0, None)],
+             "cam": ((1.9, 1.5, 2.1), (0.0, 0.7, -0.4), 58), "night_lamp": 0.0},
     "cookstove": {"props": [("cookstove", 0.0, 0.0, -0.45, 0, None)],
                   "cam": ((1.3, 1.55, 1.5), (0.0, 0.65, -0.4), 55), "night_lamp": 1.1},
+    "bed": {"props": [("plank_bed", 0.0, 0.0, 0.1, 0, None)],
+            "cam": ((1.55, 1.6, 1.75), (0.0, 0.5, 0.0), 55), "night_lamp": 0.9},
+    "desk": {"props": [("owner_desk", 0.0, 0.0, -0.55, 0, None), ("bentwood_chair", -0.75, 0.0, -0.1, 140, None), ("strongbox", 0.95, 0.0, -0.6, -15, None)],
+             "cam": ((0.35, 1.55, 1.45), (0.0, 0.6, -0.5), 55), "night_lamp": 0.5},
 }
 
 

@@ -132,3 +132,54 @@ round 1's file for its format before it was told to skip it, and says it judged 
 S2 as listed is ~145 bodies (eight benches 80, three real kegs 30, two racks 20, the cookstove 12, the
 saw, fiddle and bow 3); with S1's (~219 now, the lookout's chairs 2 more each) ~365 for both batches. The
 valley had ~5,100 to spare at #865's count.
+
+## Saloon B, batch S3 (#892)
+
+Made and judged on the same stand, **not placed** (as S1 and S2: #865's body fix and #862's route first).
+`tools/props/saloon_s3.py` writes the kit files; no Blender this batch (the session couldn't install `bpy`:
+pypi isn't reachable from it). The stand's groups `kegs` (redone), `bed`, `desk` in `saloon/s1_sheet.py`.
+Results `results/2026-11-14_saloon_s3/` (r1: all three groups; r2: the desk again). **No new references**:
+Commons and the Met's images weren't reachable from the session (a sub-agent tried ~12 min); the kegs were
+judged against S2's racking-room photo, the bed and desk against the critic's knowledge of the period.
+
+- **The keg on its side** (`beer_keg_side`, S2's DIFFERENT): S2's keg laid along z, tap head (its bung drawn on)
+  at +z, its eight staves laid out one by one, each with its own `rot` (Godot's YXZ; `euler_yxz` in the factory),
+  the sweep drawn about the keg's axis with the draw's `at`/`rot`. Kinds by height (post, stud, furniture_frame,
+  rafter: the support graph is boxes, and a lying stave's box overlaps its neighbour's in height, so each pair
+  rests on the pair under it by tier). **Its feet:** the two bottom staves, each two members end to end, their
+  boxes flat (`solid` 0.32, a stave's weight): KitProp settles a prop by a ray under the middle of each foot's
+  four lowest corners, so a whole-length foot's ray fell between a rack's rails to the floor, and a tilted box's
+  corners sank it 11 mm. Full of beer: `holds` written for the lying cask (its height across, the middle's radius
+  the round with the middle slice's area, the ends' solved to hold the upright keg's ~59 l).
+- **The keg rack** (`keg_rack`, redone): a stillage, two tiers of oak cradle rails on six posts, the kegs lying
+  across them tap end out, four a tier, chocks either side of each drawn on the rails; its kit file's `slots`
+  say where each keg goes (the tests and the stand read them). 2.35 m long, the upper rails at 0.745 m.
+- **The bed** (`plank_bed`): a single cottage bedstead, square posts with turned caps, a two-board headboard, a
+  footboard, side rails and slats, in library walnut (old); its bedding the doctor's cot's (`iron_cot`'s Tick,
+  Blanket, Pillow, the same size). New, not the cot: a rented room's bed, not a ward's. The brief's "iron or
+  plain wood": two rooms the cot, two this (or four of this).
+- **The owner's desk** (`owner_desk`): a flat-top double-pedestal kneehole desk (three drawers a side with brass
+  pulls, a knee drawer, a modesty panel, a two-board top, a back gallery), library oak; on its top, drawn on,
+  his ledgers (two closed, one open), papers, an inkstand and pen, a cigar box. New, not the doctor's roll-top
+  (42 bodies, a professional man's). His strongbox is the kit's `strongbox`; his chair the kit's.
+- **The washstand set** is the doctor's (`washstand`, `wash_basin`, `wash_pitcher`, `chamber_pot`, `hand_towel`):
+  one set a rented room and one in the owner's office, the pot under each bed.
+
+**Judged** (the blind critic, two rounds): r1 4 CLOSE (the rack, the lying kegs, the bed, the desk's things),
+1 DIFFERENT (the desk: the chair hid one pedestal, it read as a one-pedestal school desk with a Mission chair);
+r2 (the desk, the chair moved, the bentwood chair): the desk and its things CLOSE; **the kit's `bentwood_chair`
+DIFFERENT** (a black tubular bistro chair) and **`strongbox` DIFFERENT** (a black steamer trunk): both existing
+kit props, not S3's, for the placing session or a later batch. CLOSE notes open: the rack's posts and upper
+rails cross the lower kegs' fronts and it's near-black at noon; the kegs near-black at noon (staves, hoops and
+bung one mass: S2's note too); the bed clean and new (a slab blanket, no sag, square rails); the desk dark and
+grainless, no mouldings or plinth; the ledgers blank slabs, the inkstand unreadable.
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `beer_keg_side` | 12 (8 staves, the bottom two in two lengths, 2 heads) | its members; its beer runs (PropContents) | store room and cellar: on the racks (`keg_rack.slots`; most as drawn stand-ins: eight real are 96), a few on the floor |
+| `keg_rack` | 10 | its members; its kegs come down with it | store room 1, cellar 1 (2.35 x 0.57 m), back to the wall, tap ends out |
+| `plank_bed` | 14 | its members; the rails, slats and bedding burn | rented rooms: 2-4 (the rest `iron_cot`), head against the wall (-z), a chamber pot under each |
+| `owner_desk` | 13 | its members (the drawer fronts one member a pedestal) | the owner's office: 1, back to the wall; `strongbox` on the floor by it; his chair |
+
+S3 as listed: two racks 20, a few real lying kegs ~36, four beds 56, the desk 13: ~125 bodies (S1 and S2 ~355
+now the S2 rack's 20 are this one's): ~480 for the three batches.

@@ -1,0 +1,86 @@
+[
+ {
+  "desk": [
+   {
+    "cleared": 0,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 2.02
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 2.72
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.95
+    ],
+    "cmd": "prop owner_desk 40.000 0.000 -5.950 0.0",
+    "id": "owner_desk",
+    "kg": 61.4,
+    "members": 13,
+    "ok": true,
+    "stands": true,
+    "t": 3.45
+   },
+   {
+    "at": [
+     39.25,
+     0.0,
+     -5.5
+    ],
+    "cmd": "prop bentwood_chair 39.250 0.000 -5.500 140.0",
+    "id": "bentwood_chair",
+    "kg": 4.8,
+    "members": 7,
+    "ok": true,
+    "stands": true,
+    "t": 4.12
+   },
+   {
+    "at": [
+     40.95,
+     0.0,
+     -6.0
+    ],
+    "cmd": "prop strongbox 40.950 0.000 -6.000 -15.0",
+    "id": "strongbox",
+    "kg": 44.3,
+    "members": 10,
+    "ok": true,
+    "stands": true,
+    "t": 4.78
+   },
+   {
+    "at": [
+     40.5,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.500 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 5.45
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.5,
+     2.17,
+     -5.4
+    ],
+    "ok": true,
+    "t": 6.05
+   }
+  ]
+ }
+]
