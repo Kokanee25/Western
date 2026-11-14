@@ -2015,7 +2015,7 @@ func _in_him(rb: RigidBody3D, space: PhysicsDirectSpaceState3D) -> bool:
 		Prof.count(&"q_body")
 		for hit: Dictionary in space.intersect_shape(q, 16):
 			var c := hit.collider as Node
-			if c != null and c.get_meta(&"human_body", null) == self:
+			if c != null and c.has_meta(&"human_body") and c.get_meta(&"human_body") == self:  # (a null default still errors when it's missing)
 				return true
 	return false
 
