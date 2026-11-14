@@ -36,9 +36,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Next: step 3, the hideout fight.**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (Sean 2026-11-12, #850): designed, not built: `docs/briefs/townsfolk.md`
-  (days and the book, spots, staged reactions, news, regard and barks, the saloon as a room; an 11-step plan,
-  step 1 measures and shuts the perception leaks). Waiting on Sean's five picks: #851. Starts when he places it.
+- **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
+  picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
+  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Next: step 3, the
+  roster as data** (the 16 people's days, homes, dials; the street's and buildings' spots). Step 1's perception
+  leaks still wait. Open: BookLights' panes are greybox (art's fronts); a man the player follows into a real
+  interior still goes onto the book at its door; spot-to-spot moves are built but no one has two spots yet.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
