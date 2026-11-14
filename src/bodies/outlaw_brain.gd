@@ -510,8 +510,13 @@ func can_say() -> bool:
 	return _now - _said_at >= SAY_GAP
 
 
+## His own lines for a kind of thing he says, in place of LINES' (a mission's script: No Justice's
+## crew at the hideout, #934, set them from docs/scripts/no_justice.json).
+var own_lines := {}
+
+
 func say(kind: StringName, about_name := "", force := false) -> void:
-	var lines: Array = LINES.get(kind, [])
+	var lines: Array = own_lines.get(kind, LINES.get(kind, []))
 	var p := body.physiology
 	if lines.is_empty() or not p.is_conscious():
 		return

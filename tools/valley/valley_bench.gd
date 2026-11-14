@@ -26,7 +26,8 @@ extends SceneTree
 ## card game going (CardGame; Prof `card_game`). `murder_seat` (#773): sat there as No Law's murder
 ## plays (NoLawMurder: the stranger sat, Cody kicking Earl's chair out and drawing; Prof
 ## `valley_folk`, `people_*`). `ute_camp` (#859): No Justice's camp, Joe and the raid's damage
-## (NoJusticeCamp `at_camp`; `--no-camp-act`: bare). `--spots=a,b`: only those.
+## (NoJusticeCamp `at_camp`; `--no-camp-act`: bare). `hideout` (#934): above the hideout's line shack, the
+## fight's set and crew (NoJusticeHideout `arrive`; `--no-hideout-act`: bare). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -124,6 +125,10 @@ func _spots(world: StringName) -> Array:
 	# (`at_camp`: Joe, the raid's stand-in damage); `--no-camp-act` (a game arg): the place bare.
 	var camp: Vector2 = lay.place_at("ute_community")
 	out.append(["ute_camp", Vector3(camp.x, 0.0, camp.y), 0.0])
+	# No Justice's hideout (#934): on the slope above the line shack, NoJusticeHideout `arrive`d (the
+	# shack, the crew of six at their fire, their horses, the kit props); `--no-hideout-act`: bare.
+	var hide: Vector2 = lay.place_at("hideout")
+	out.append(["hideout", Vector3(hide.x - 58.0, 0.0, hide.y - 14.0), _heading(Vector2(hide.x - 58.0, hide.y - 14.0), hide)])
 	return out
 
 
@@ -225,9 +230,19 @@ func _run() -> void:
 			for i in 30:
 				await process_frame
 			at = player.global_position
+		var hide_act = null
+		if String(s[0]) == "hideout" and not "--no-hideout-act" in OS.get_cmdline_user_args():
+			hide_act = load("res://src/moments/moment.gd").start_named(&"no_justice_hideout", world_root, null, {"arrive": true})
+			for i in 30:
+				await process_frame
+			player.global_position = at + Vector3.UP * 0.1
+			player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
+		if hide_act != null:
+			m["hideout"] = {"state": String(hide_act.state), "props": hide_act.props.size(), "horses": hide_act.horses.size(), "crew": hide_act.crew.size()}
+			hide_act.reset()
 		if funeral != null:
 			m["funeral"] = String(funeral.state)
 			m["folk"] = folk.people.size()
