@@ -45,6 +45,8 @@ extends Node3D
 const DATA := "res://config/valley_folk.json"
 ## `-- --no-folk`: the valley without them (the bench's before).
 static var folk_default := not "--no-folk" in OS.get_cmdline_user_args()
+## The band in the yard (#799; `-- --no-band`: not).
+static var band_default := not "--no-band" in OS.get_cmdline_user_args()
 ## No Law's murder started by the clock and the card game (`-- --no-murder`: not).
 static var murder_auto := not "--no-murder" in OS.get_cmdline_user_args()
 const MURDER := &"no_law_murder"
@@ -62,8 +64,10 @@ var data: Dictionary
 var places: Waypoints
 ## In the world, by id.
 var people := {}
-## The set's props: "bar", "table", "chair_<n|e|s|w>", "lamp_<i>", "cup_<i>".
+## The set's props: "bar", "table", "chair_<n|e|s|w>", "lamp_<i>", "cup_<i>", "piano", "chair_piano".
 var props := {}
+## The band (Band, #799), when it plays on the set's lot.
+var band: Band
 ## The card game at the set's table (CardGame, #766).
 var cards: CardGame
 ## Built and out of the world till wanted (id -> HumanBody).
@@ -125,6 +129,7 @@ func _ready() -> void:
 	u = Time.get_ticks_usec()
 	_build_set()
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
+	_build_band()
 	cards.hand_done.connect(func(_w: String, _p: int, _h: String) -> void:
 		if cards.report().get("seats", []).any(func(x: Dictionary) -> bool: return String(x.get("id", "")) == CardGame.YOU):
 			_your_hands += 1)
@@ -245,6 +250,25 @@ func _build_set() -> void:
 		cards.chairs.append(props["chair_" + c])
 	cards.rng.seed = int(s.get("cards_seed", 766))
 	add_child(cards)
+	# The band's piano (#799; config/band.json): the kit's upright against the saloon's east wall,
+	# its keys to the yard, a chair before it for the pianist ("chair_piano").
+	var pd: Dictionary = s.get("piano", {})
+	if not pd.is_empty() and PropKit.has(&"upright_piano"):
+		var piano := PropKit.make(&"upright_piano")
+		piano.name = "FolkPiano"
+		var pc := _set_point(pd.at)
+		var pb := Basis(Vector3.UP, deg_to_rad(float(pd.get("yaw", 90.0))))
+		piano.transform = Transform3D(pb, pc)
+		add_child(piano)
+		props["piano"] = piano
+		var d := pb.z
+		var at := pc + d * float(pd.get("chair_out", 0.75))
+		at.y = ground(at.x, at.z)
+		var stool := PropKit.make(&"chair")
+		stool.name = "FolkChair_piano"
+		stool.transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
+		add_child(stool)
+		props["chair_piano"] = stool
 	var i := 0
 	for l: Dictionary in s.get("lamps", []):
 		var lamp := OilLamp.new()
@@ -265,6 +289,20 @@ func _build_set() -> void:
 		add_child(cup)
 		props["cup_%d" % i] = cup
 		i += 1
+
+
+## The band (#799, config/band.json) when it plays on this set's lot: its players' men are folk
+## with a `plays` (PlayChore), its other parts placed sound only.
+func _build_band() -> void:
+	if not band_default or not FileAccess.file_exists(Band.DATA):
+		return
+	var bd: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Band.DATA))
+	if String(bd.get("lot", "")) != String(data.set.get("lot", "")):
+		return
+	band = Band.new()
+	band.data = bd
+	band.folk = self
+	add_child(band)
 
 
 ## The kit prop's box (its own space).
@@ -437,9 +475,7 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	brain.post = pf[0]
 	brain.faces = pf[1]
 	brain.places = places
-	var chair: KitProp = props.get("chair_" + String(sp.get("chair", "")))
-	if chair != null:
-		brain.chores = [SitChore.new(man, chair)]
+	brain.chores = _chores_for(man, p, sp)
 	man.add_child(brain)
 	man.move_child(brain, 0)
 	var from := door(from_place if from_place != &"" else _book_place(p), p)
@@ -450,6 +486,16 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	book.take(id)
 	_log_view(id, "in", at, not walk)
 	return man
+
+
+## What he does at a spot: sat in its chair (SitChore), and a player in the band (#799) at his
+## instrument, his part sounding, his hands following it (PlayChore).
+func _chores_for(man: HumanBody, p: Dictionary, sp: Dictionary) -> Array:
+	var chair: KitProp = props.get("chair_" + String(sp.get("chair", "")))
+	var sit: SitChore = SitChore.new(man, chair) if chair != null else null
+	if p.has("plays") and band != null:
+		return [PlayChore.new(man, band, StringName(p.plays), sit, props.get(String(p.get("instrument", ""))))]
+	return [sit] if sit != null else []
 
 
 ## Out of town or indoors: up from his chair and off to his door (`walk`), or gone at once (onto the
@@ -766,8 +812,7 @@ func _move(p: Dictionary, b: Dictionary) -> bool:
 		if brain and brain.post.distance_to(pf[0]) > 0.3:
 			_stand_up(brain)
 			brain.go_to(pf[0], pf[1])
-			var chair: KitProp = props.get("chair_" + String(spot_of(p).get("chair", "")))
-			brain.chores = [SitChore.new(man, chair)] if chair != null else []
+			brain.chores = _chores_for(man, p, spot_of(p))
 			state[id] = &"coming"
 		elif st == &"going":
 			state[id] = &"coming"
