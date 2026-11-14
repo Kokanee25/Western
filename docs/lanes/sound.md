@@ -10,8 +10,14 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 - Train: 18 of 20 sounds real recordings (`assets/audio/train/`, `CREDITS.md`), brakes synthesised.
 
 ## Open
-- **The fiddler in the game (#799)**: our own bowed-string model (B, Sean's pick on #790); Soldier's Joy as
-  note data; then the piano player with it (one music system, week 3; the first saloon entry, #810).
+- **The band in the game (#799, merged 2026-11-14)**: `Band` (src/audio/band.gd, config/band.json) plays Payday
+  Night's six parts (fiddle B, banjo, piano, harmonica, bones, tambourine) from one note data, rendered ahead by
+  `tools/band/render_band.py` into `assets/audio/band/payday_night/` (3 MB of Ogg) and placed through GameAudio.
+  The fiddler and pianist (stand-in factory bodies) play in person at No Law's yard set (saloon B's dance hall,
+  #884, wasn't on main); the other four are placed sound only. Open: the band's place in saloon B's dance hall
+  when it's built; more tunes (render each: ~3 min); a fist fight played through faster (a second tempo's
+  render); the bowed sound and hands judged by Sean (the dry mix in
+  `experiments/sound_lab/results/2026-11-14_band/`); the dropped fiddle as the kit prop.
 - **The band's instruments, our own models (#790's follow-ons, `experiments/sound_lab/fiddle/` README)**:
   the banjo (gut on calfskin, clawhammer, take 3 Sean's "way better", measured against Macon 1924; steel and a
   modern open-back with three-finger rolls on the Banjo Bench, waiting on Sean's round-1 answers), bones,
@@ -31,6 +37,7 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 ## Traps
 - Pre-1929 music only; recordings CC0/CC BY, credited. Wikimedia refuses downloads here: Sean uploads them.
 - The balcony's boards don't stop GameAudio's wall ray.
-- One lavapipe game at a time.
+- One lavapipe game at a time. The bridge's game renders a few frames a second under lavapipe: the band's
+  clock follows the parts (real time), so a tune "ends" in fewer game seconds there.
 - Built lines (`config/moments/`) are copied into a script as they are; changing one is gameplay's. The board
   reads `script.json` published beside it: republish the JSON with the page (`files`), never paste it in.

@@ -9,8 +9,9 @@
     "table": {"at": [7.4, 5.0]},
     "chair_out": 0.78,
     "chairs": ["n", "e", "s", "w"],
-    "lamps": [{"on": "bar", "along": -0.9}, {"on": "table"}],
-    "cups": [{"on": "bar", "along": 0.2}, {"on": "bar", "along": 0.9}, {"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}]
+    "lamps": [{"on": "bar", "along": -0.9}, {"on": "table"}, {"on": "piano", "off": [0.55, -0.12]}],
+    "cups": [{"on": "bar", "along": 0.2}, {"on": "bar", "along": 0.9}, {"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}],
+    "piano": {"at": [0.6, 10.4], "yaw": 90.0, "chair_out": 0.75, "_doc": "The band's piano (#799, config/band.json): the kit's upright, its back to the saloon's east wall (yaw 90: its keys to +x, the yard), a kit chair `chair_out` before its middle for the pianist (props chair_piano)."}
   },
   "places": {
     "_doc": "The set's own places, added to the town's ways for the folk: each [a, b] in the set's lot and what it links to (another of these, or the nearest of the town's places with `nearest`).",
@@ -34,6 +35,12 @@
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0],
      "hours": [19.6, 2.0], "from": "hotel", "post": {"chair": "e"},
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
+    {"id": "fiddler", "name": "Fiddler", "model": "oldtimer_factory", "seed": 799, "shirt": [0.72, 0.66, 0.52], "vest": [0.32, 0.22, 0.16],
+     "hours": [19.0, 1.5], "from": "saloon", "post": {"lot": "saloon_annex", "at": [3.4, 10.8], "faces": [5.0, 5.0]}, "plays": "fiddle",
+     "_doc": "PROPOSED (#799): the band's fiddler (config/band.json), stood at the back of the yard; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
+    {"id": "pianist", "name": "Piano player", "model": "heavy_factory", "seed": 800, "shirt": [0.82, 0.8, 0.74], "vest": [0.12, 0.12, 0.14],
+     "hours": [19.0, 1.5], "from": "saloon", "post": {"chair": "piano"}, "plays": "piano", "instrument": "piano",
+     "_doc": "PROPOSED (#799): the band's piano player, sat at the set's piano; a stand-in body."},
     {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0],
      "act": "no_law_murder", "from": "saloon_annex",
      "_doc": "Cody, who kills Earl (No Law beat 3, #773): one of the Baron's hired guns, a rough man. Not the red shirt (Sean on #796, 2026-11-11: the red shirt, who shot the sheriff, is another man and isn't in the saloon), so no red shirt on him. No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: the blacksmith's model (grey-blue work shirt) till the characters lane makes Cody."},
