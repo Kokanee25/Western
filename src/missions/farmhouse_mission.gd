@@ -201,6 +201,7 @@ func begin(place_player := false) -> void:
 	state = State.ON
 	t = 0.0
 	_rng.seed = 520
+	StoryState.mark_checkpoint()  # its retry starts from the story as it is now (#864)
 	_note("started")
 	var street := house.get_parent()
 	# The range's man stands by the road east, between the town and the farm: he'd have it out with
@@ -1078,10 +1079,11 @@ func _hold_line(line: String) -> void:
 		_say(line + "  (Enter: try again)", 1.5, true)
 
 
-## Again from the start: the game started over (GameReset), the mission on from the edge of town.
+## Again from the start: the game started over (GameReset.retry: the story as it was when the
+## mission began), the mission on from the edge of town.
 func retry() -> void:
 	start_on_load = true
-	GameReset.reset(get_tree())
+	GameReset.retry(get_tree(), "the farmhouse's retry")
 
 
 # --- The blacksmith tells you -------------------------------------------------------------------
