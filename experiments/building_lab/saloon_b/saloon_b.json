@@ -2880,6 +2880,7 @@
 		"day_fill": 0.1
 	},
 	"materials": {
+		"wear": {"use": 1.0, "dings": 0.9, "_why": "#901: a saloon open from morning to the small hours, a dance hall over it: the most used wood in town"},
 		"_doc": "Step 1 (the frame): finishes by name from the material library, the passing entries only; step 2 picks and judges them (#848's second issue). Dark red board and batten with cream trim outside (the approved oxblood), pale beaded boards inside, the worn fir floor.",
 		"floor": "wood:int_floor",
 		"wall_boards": "int_boards",

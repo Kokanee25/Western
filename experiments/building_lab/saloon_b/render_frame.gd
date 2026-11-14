@@ -25,6 +25,12 @@ const VIEWS := {
 	"rail": [Vector3(16.05, 6.45, 9.7), Vector3(15.2, 5.75, 8.85), 60.0, 15.5],
 	# The bar room from inside the corner doors: the bar on the right, the posts and girders, the well.
 	"bar_room": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 15.5],
+	# Wear and dents at a metre (#901): the bar's top from a customer's place, the floor by the bar,
+	# a card table's chairs; the bar room by lamplight.
+	"bar_top": [Vector3(2.95, 2.65, 5.0), Vector3(1.9, 2.0, 5.9), 60.0, 15.5],
+	"floor_near": [Vector3(4.2, 2.35, 5.2), Vector3(3.4, 0.95, 6.2), 60.0, 15.5],
+	"chair": [Vector3(9.6, 2.2, 1.9), Vector3(8.4, 1.25, 2.8), 60.0, 15.5],
+	"bar_room_night": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 21.5],
 }
 
 var out_dir := "build/saloon_b_frame"

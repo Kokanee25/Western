@@ -1448,6 +1448,7 @@
   }
  ],
  "materials": {
+  "wear": {"use": 0.45, "dings": 0.4, "_why": "#901: a careful bachelor's office: patients in and out, kept clean"},
   "_doc": "Sean, 2026-11-10 (#765): finished unpainted for now on swatches the materials judge passed (#721; docs/screenshots/judge/2026-11-10_material_r3e: R1 new and a few years, C1 old, F2 all three ages), each surface taking its finish from the library by name (spec_building.gd finish()): a finish's `want` (the paint he needs) is used the moment the library has that entry passed at that age; until then its `use`. Stone, brick, glass and the sign aren't the library's (yet).",
   "finishes": {
    "exterior": {

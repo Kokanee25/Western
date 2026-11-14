@@ -2337,6 +2337,14 @@ No geometry (a bevelled board mesh, `tools/edge_round_bench.gd` on saloon B's 7,
 x3.6 triangles, x2.2 build time, +1.4 s);
 silhouettes and collision stay square. A shaped board (role + 10: `PropKit.lib_cut_mesh`, `lib_profile_mesh`)
 keeps its own normals and isn't eased.
+**Wear by use and knocks** (#901): scan_wood's `use_wear` and `dings` (a building's spec
+`materials.wear`, `SpecBuilding.WEAR_DEFAULT`; kit props `PropKit.LIB_USE`; entries may set them as
+dials), drawn by the use pass before the varnish (helpers in `src/render/wood_use.gdshaderinc`): the
+arrises worn uneven and knocked (`knock_r` grows `edge_round` there), one dent or V-groove cut in a
+14 cm cell at most, faded under a pixel; and by the board's use role (CUSTOM2.w mod 10; the look's
+`/<role>`, `PropKit.LIB_ROLES`; a building member's meta `use_role`): 3 door leaf (latch at +Y, meta
+`latch`), 4 tread, 5 walk, 6 kick, 7 bar top, 8 seat, 9 grip. They feed the varnish's `wear` (`urub`)
+and draw pale, polish, grime, cuts and burns after it; their relief joins the eased edge's tilt.
 **Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
 (`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
 `wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
