@@ -1,0 +1,266 @@
+[
+ {
+  "lamps": [
+   {
+    "cleared": 0,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 2.02
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 2.72
+   },
+   {
+    "at": [
+     39.25,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 39.250 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 3.45
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     39.25,
+     2.33,
+     -5.4
+    ],
+    "ok": true,
+    "t": 4.05
+   },
+   {
+    "at": [
+     40.75,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp_shaded 40.750 2.000 -5.400 0.0",
+    "id": "hanging_lamp_shaded",
+    "ok": true,
+    "t": 4.78
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.75,
+     2.33,
+     -5.4
+    ],
+    "ok": true,
+    "t": 5.38
+   }
+  ]
+ },
+ {
+  "glasses": [
+   {
+    "cleared": 3,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 27.35
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 28.05
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.3
+    ],
+    "cmd": "prop table 40.000 0.000 -5.300 0.0",
+    "id": "table",
+    "kg": 24.0,
+    "members": 5,
+    "ok": true,
+    "stands": true,
+    "t": 28.78
+   },
+   {
+    "at": [
+     39.58,
+     0.76,
+     -5.2
+    ],
+    "cmd": "prop shot_glass 39.580 0.760 -5.200 0.0",
+    "id": "shot_glass",
+    "ok": true,
+    "t": 29.45
+   },
+   {
+    "at": [
+     39.7,
+     0.76,
+     -5.32
+    ],
+    "cmd": "prop schooner 39.700 0.760 -5.320 0.0",
+    "id": "schooner",
+    "ok": true,
+    "t": 30.12
+   },
+   {
+    "at": [
+     39.85,
+     0.76,
+     -5.45
+    ],
+    "cmd": "prop decanter 39.850 0.760 -5.450 0.0",
+    "id": "decanter",
+    "ok": true,
+    "t": 30.78
+   },
+   {
+    "at": [
+     40.03,
+     0.76,
+     -5.15
+    ],
+    "cmd": "prop card_deck 40.030 0.760 -5.150 20.0",
+    "id": "card_deck",
+    "kg": 0.1,
+    "members": 1,
+    "ok": true,
+    "stands": true,
+    "t": 31.45
+   },
+   {
+    "at": [
+     40.08,
+     0.76,
+     -5.32
+    ],
+    "cmd": "prop chip_stacks 40.080 0.760 -5.320 -10.0",
+    "id": "chip_stacks",
+    "kg": 0.2,
+    "members": 1,
+    "ok": true,
+    "stands": true,
+    "t": 32.12
+   },
+   {
+    "at": [
+     40.3,
+     0.76,
+     -5.48
+    ],
+    "cmd": "prop till_drawer 40.300 0.760 -5.480 -8.0",
+    "id": "till_drawer",
+    "kg": 4.8,
+    "members": 2,
+    "ok": true,
+    "stands": true,
+    "t": 32.78
+   },
+   {
+    "at": [
+     40.45,
+     0.76,
+     -5.18
+    ],
+    "cmd": "prop gold_scales 40.450 0.760 -5.180 10.0",
+    "id": "gold_scales",
+    "kg": 3.4,
+    "members": 6,
+    "ok": true,
+    "stands": true,
+    "t": 33.45
+   },
+   {
+    "at": [
+     40.6,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.600 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 34.12
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.6,
+     2.33,
+     -5.4
+    ],
+    "ok": true,
+    "t": 34.72
+   }
+  ]
+ },
+ {
+  "bar": [
+   {
+    "cleared": 10,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 56.68
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 57.38
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.7
+    ],
+    "cmd": "prop bar 40.000 0.000 -5.700 0.0",
+    "id": "bar",
+    "kg": 340.7,
+    "members": 37,
+    "ok": true,
+    "stands": true,
+    "t": 58.12
+   },
+   {
+    "at": [
+     40.9,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.900 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 58.78
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.9,
+     2.33,
+     -5.4
+    ],
+    "ok": true,
+    "t": 59.38
+   }
+  ]
+ }
+]

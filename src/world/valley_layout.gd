@@ -98,8 +98,16 @@ func place_ids() -> PackedStringArray:
 	return _ids(places())
 
 
+## A place by id; an unknown one is an error (not the map's origin without a word: review A8, #864).
 func place(id: String) -> Dictionary:
-	return _by_id(places(), id)
+	var p := _by_id(places(), id)
+	if p.is_empty():
+		push_error("ValleyLayout: no place '%s' in valley.json's places" % id)
+	return p
+
+
+func has_place(id: String) -> bool:
+	return not _by_id(places(), id).is_empty()
 
 
 ## Where a place stands on the map (its `at`).
@@ -128,9 +136,19 @@ func mission(id: String) -> Dictionary:
 	return _by_id(missions(), id)
 
 
-## A place, bridge or viewpoint by id (what a mission's `places` name), or {}.
+## The places with height (#736 B): each with its `why`, `above`, `below`, its `landform` (in the
+## bake), `block` (the greybox), `high` (where the shooter stands) and `targets`.
+func heights() -> Array:
+	return data.get("heights", [])
+
+
+func height(id: String) -> Dictionary:
+	return _by_id(heights(), id)
+
+
+## A place, bridge, viewpoint or place with height by id (what a mission's `places` name), or {}.
 func entry(id: String) -> Dictionary:
-	for list: Array in [places(), bridges(), viewpoints()]:
+	for list: Array in [places(), bridges(), viewpoints(), heights()]:
 		var e := _by_id(list, id)
 		if not e.is_empty():
 			return e

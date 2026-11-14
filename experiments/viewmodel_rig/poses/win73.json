@@ -1,0 +1,156 @@
+{
+ "about": "The Winchester 1873 held by the first-person rig (#896): each pose sets the gun (win73_rig.gd), hangs it under the camera (camera space: right +X, up +Y, ahead -Z; m, degrees) and places each hand in the gun's own space (barrel along -Z, up +Y, right +X): `at` the index knuckle, `along` from the knuckles back to the wrist, `palm` the way the palm faces, `elbow` where the forearm runs back to (camera space). `in` a moving part: the hand rides it (the lever). Fingers: degrees a joint, root first, positive closing; a number is a grasp (the joints coupled). Started from the gun lab's win73_views.gd placements, then set by eye.",
+ "gun": "res://experiments/gun_lab/win73/win73_24.glb",
+ "rig": "res://experiments/gun_lab/win73/win73_rig.gd",
+ "rig_json": "res://experiments/gun_lab/win73/win73_24_rig.json",
+ "kick": {
+  "pitch": 6.0,
+  "yaw": 0.6,
+  "roll": 1.5,
+  "back": 0.03,
+  "rise": 0.07,
+  "damping": 0.6
+ },
+ "hands": {
+  "grip_r": {
+   "at": [0.019, 0.004, 0.012],
+   "along": [0.12, -0.75, 0.65],
+   "palm": [-1.0, 0.15, 0.0],
+   "elbow": [0.3, -0.42, 0.05],
+   "fingers": {
+    "middle": 70,
+    "ring": 66,
+    "little": 60,
+    "index": [8, 22, 14]
+   },
+   "spread": {
+    "index": 6
+   },
+   "thumb": {
+    "root": [10, 10, 25],
+    "bend": [35, 25]
+   }
+  },
+  "forend_l": {
+   "at": [0.013, 0.006, -0.3],
+   "along": [-0.45, -0.75, 0.45],
+   "palm": [-0.75, 0.65, 0.0],
+   "elbow": [-0.1, -0.5, -0.2],
+   "fingers": {
+    "index": 50,
+    "middle": 62,
+    "ring": 66,
+    "little": 68
+   },
+   "thumb": {
+    "root": [0, 0, 0],
+    "bend": [5, 5]
+   }
+  }
+ },
+ "poses": {
+  "idle": {
+   "gun": {
+    "hammer": "rest"
+   },
+   "held": {
+    "point": [0.0, 0.0076, 0.0051],
+    "at": [0.13, -0.17, -0.3],
+    "rot": [-7.0, 14.0, -8.0]
+   },
+   "fov": 55,
+   "r": "grip_r",
+   "l": "forend_l"
+  },
+  "aim": {
+   "gun": {
+    "hammer": "full"
+   },
+   "held": {
+    "sights": 0.38
+   },
+   "fov": 62,
+   "r": "grip_r",
+   "l": "forend_l"
+  },
+  "lever": {
+   "gun": {
+    "lever": 0.6,
+    "carrier_round": "loaded",
+    "chamber": "spent"
+   },
+   "held": {
+    "point": [0.0, 0.0076, 0.0051],
+    "at": [0.12, -0.15, -0.32],
+    "rot": [-4.0, 12.0, -6.0]
+   },
+   "fov": 55,
+   "r": {
+    "base": "grip_r",
+    "in": "Lever",
+    "at": [0.012, -0.03, 0.02],
+    "along": [0.1, -0.4, 0.9],
+    "palm": [-1.0, 0.25, 0.0],
+    "fingers": {
+     "index": 40,
+     "middle": 62,
+     "ring": 62,
+     "little": 58
+    },
+    "spread": {
+     "index": 0
+    },
+    "thumb": {
+     "root": [10, 35, 25],
+     "bend": [25, 20]
+    }
+   },
+   "l": "forend_l"
+  },
+  "reload": {
+   "gun": {
+    "gate": 1.0,
+    "hammer": "rest"
+   },
+   "held": {
+    "point": [0.0, 0.03, -0.09],
+    "at": [0.02, -0.17, -0.36],
+    "rot": [-4.0, 70.0, 12.0]
+   },
+   "fov": 75,
+   "r": {
+    "at": [0.032, 0.04, -0.06],
+    "along": [0.55, -0.35, 0.75],
+    "palm": [-0.6, -0.1, -0.8],
+    "elbow": [0.28, -0.45, -0.05],
+    "fingers": {
+     "index": [10, 40, 30],
+     "middle": [30, 70, 40],
+     "ring": 75,
+     "little": 80
+    },
+    "thumb": {
+     "root": [20, 10, 30],
+     "bend": [10, 5]
+    },
+    "round": true
+   },
+   "l": {
+    "at": [-0.012, 0.01, -0.15],
+    "along": [-0.75, -0.45, 0.45],
+    "palm": [0.4, 1.0, 0.0],
+    "elbow": [-0.12, -0.5, -0.15],
+    "fingers": {
+     "index": 40,
+     "middle": 56,
+     "ring": 60,
+     "little": 64
+    },
+    "thumb": {
+     "root": [5, 25, 10],
+     "bend": [15, 10]
+    }
+   }
+  }
+ }
+}

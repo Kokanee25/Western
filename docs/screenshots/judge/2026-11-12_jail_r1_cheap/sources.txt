@@ -1,0 +1,6 @@
+a office build/jail_r1/office.png
+b desk build/jail_r1/desk.png
+c guard_room build/jail_r1/guard_room.png
+d corridor build/jail_r1/corridor.png
+e corridor_night build/jail_r1/corridor_night.png
+f front build/jail_r1/front.png

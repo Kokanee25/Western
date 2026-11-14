@@ -159,3 +159,25 @@ func test_hung_lamps_are_shaded_and_put_back() -> void:
 	check(not light.shadow_enabled, "no shadow again")
 	check(shade.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "the shade casts none")
 	check(light.light_energy < lamp.energy * 1.2, "its own energy back")
+
+
+## Sean's anti-aliasing test (#721): key 0 / --aa= switches the real look's FSR2 and TAA live, and the
+## look's default stays FSR2.
+func test_the_anti_aliasing_switches_between_fsr2_and_taa() -> void:
+	var vp := SubViewport.new()
+	vp.name = "GameViewport"
+	holder.add_child(vp)
+	RealLook.aa = "fsr2"
+	Settings.set_real_look(true)
+	await process_frames(2)
+	check(vp.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2 and not vp.use_taa, "FSR2 by default")
+	real.set_aa("taa")
+	check(vp.scaling_3d_mode == Viewport.SCALING_3D_MODE_BILINEAR and vp.use_taa, "TAA, no upscaler")
+	real.set_aa("fsr2")
+	check(vp.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2 and not vp.use_taa, "FSR2 again")
+	real.set_aa("taa")
+	Settings.set_real_look(false)
+	await process_frames(2)
+	check(not vp.use_taa, "the painted look's own settings back")
+	RealLook.aa = "fsr2"
+	check(InputMap.has_action(&"debug_aa"), "key 0 is bound")

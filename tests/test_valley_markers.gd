@@ -70,14 +70,17 @@ func test_a_block_for_every_building_volume() -> void:
 	var lay := ValleyLayout.main()
 	var want := 0
 	for l: Dictionary in lay.town_buildings():
-		want += 1
+		if not l.has("spec"):
+			want += 1  # (a lot with its building's spec has that building, not a block: #765)
 	for ex: Dictionary in lay.town().get("extras", []):
 		if ex.has("w"):
 			want += 1
 	for p: Dictionary in lay.places():
 		if p.has("block"):
 			want += 1
-	check_eq(mk.blocks.size(), want, "a block each (the town's buildings, the extras with a size, the places with a block)")
+	for hp: Dictionary in lay.heights():
+		want += (hp.get("blocks", []) as Array).size()
+	check_eq(mk.blocks.size(), want, "a block each (the town's buildings, the extras with a size, the places with a block, the heights' blocks)")
 	check_eq(mk.body.get_child_count(), want, "each a box in the blocks' body")
 	var front := 20.1 * 0.5
 	for b: Dictionary in mk.blocks:
@@ -85,7 +88,8 @@ func test_a_block_for_every_building_volume() -> void:
 		var size: Vector3 = b.size
 		for p in ValleyMarkers._footprint(b.map, b.wd, float(b.heading)):
 			var g := ValleyTerrain.main().height(p.x, p.y)
-			check(c.y < g and c.y + size.y > g + 4.0, "%s stands from under the ground to over it at its corner (%.1f..%.1f, ground %.1f)" % [b.id, c.y, c.y + size.y, g])
+			# (A height's low blocks, a log deck or a stock tank, stand their own `h` over it: #736 B.)
+			check(c.y < g and c.y + size.y > g + (0.5 if b.kind == "height" else 4.0), "%s stands from under the ground to over it at its corner (%.1f..%.1f, ground %.1f)" % [b.id, c.y, c.y + size.y, g])
 		if b.kind == "lot":
 			# Off Main Street and the North-South Street: fronts on the street's edge.
 			check(absf(c.z) - size.z * 0.5 >= front - 0.01, "%s behind the fronts" % b.id)
@@ -109,10 +113,11 @@ func test_a_block_for_every_building_volume() -> void:
 						hit = "(%.0f, %.0f)" % [q.x, q.y]
 			check(hit == "", "%s's block is off %s (crossed at %s)" % [b.id, r.id, hit])
 	# A ray down onto a block meets its roof.
-	var saloon: Dictionary = mk.blocks.filter(func(b: Dictionary) -> bool: return b.id == "saloon")[0]
+	# (the hotel's: the saloon is built from its spec since #848, no block)
+	var saloon: Dictionary = mk.blocks.filter(func(b: Dictionary) -> bool: return b.id == "hotel")[0]
 	var top: Vector3 = saloon.centre + Vector3(0.0, saloon.size.y, 0.0)
 	var hit := valley.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(top + Vector3.UP * 20.0, top - Vector3.UP * 5.0, Layers.WORLD))
-	check(not hit.is_empty() and absf(hit.position.y - top.y) < 0.05, "the saloon's block is solid (its roof at %.2f)" % top.y)
+	check(not hit.is_empty() and absf(hit.position.y - top.y) < 0.05, "the hotel's block is solid (its roof at %.2f)" % top.y)
 
 
 func test_bridge_a_on_its_crib_and_the_town_bridge() -> void:
@@ -265,7 +270,7 @@ func test_the_road_network_is_the_plan_s() -> void:
 	# docs/briefs/valley-tables.md "F. Travel from the crossroads", "By road (m)": the plan's own
 	# shortest ways, which ValleyRoads builds the same network for.
 	var table := {"harlan_homestead": 713, "opening_site": 553, "widow_homestead": 2620, "bridge_a": 1016,
-		"vp_trestle_overlook": 1314, "ore_works": 1587, "mine": 2756, "timber_camp": 1701, "baron_ranch": 2000,
+		"vp_trestle_overlook": 1314, "ore_works": 1587, "mine": 2756, "timber_camp": 1701, "baron_ranch": 2023,
 		"baron_town_house": 244, "ute_community": 1899, "hideout": 2118, "cemetery": 243, "depot": 123, "east_exit": 3158}
 	var lay := ValleyLayout.main()
 	var roads := ValleyRoads.make(lay)

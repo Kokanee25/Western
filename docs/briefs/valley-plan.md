@@ -465,6 +465,11 @@ as usual):
 | G7 | **Outlying places** (Phase 4, when scheduled): the Ore Works, mine, ranch, widow, Harlan's, by the existing building pipeline; horse travel, the creek crossing, the overpass boarding, the trestle approaches. | G5, G6, the horse ridden (#341, #478) | Mission runs per place; the frame budget at each place. |
 | G8 | **The switch flips** when Sean says the new valley is better: `town.json` and the old street retire, old saves reset, the goldens re-approved. | Sean | The whole suite on the valley; the nightly visual checks; a playtest. |
 
+**After the G steps, #736's own** (Sean, 2026-11-09): **B, places with height** (#751, #752: built;
+`docs/briefs/valley-heights.md` and `docs/concept/valley-heights.png`, generated from `heights` in
+`valley.json`, with #736 A's landmark butte, the south rim's trail and the water in the west), then D (falls from height through roofs, in the building lab), then C (the small
+fights at these places).
+
 **Kept everywhere:** every system; the characters and anatomy; the saloon spec; the farmhouse
 spec; the props; the train, trestle, masonry, breakage and gunfight labs (each keeps its own scene
 or the old town until it moves); the dev bridge and tools; every test (a test that names old-town

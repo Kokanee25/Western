@@ -400,7 +400,7 @@
 		{"kit": "chair", "at": [6.64, 3.0], "facing": -200},
 		{"kit": "chair", "at": [4.84, 11.2], "facing": -160},
 		{"members": "table", "id": "kitchen_table", "rect": [4.44, 15.4, 6.04, 16.3], "height": 0.78, "level": "ground"},
-		{"members": "shelves", "id": "kitchen_shelves", "rect": [0.14, 12.4, 0.64, 14.4], "boards": 4, "level": "ground"},
+		{"members": "shelves", "id": "kitchen_shelves", "rect": [0.14, 12.4, 0.59, 14.4], "boards": 4, "level": "ground"},
 		{"members": "shelves", "id": "stores_shelves", "rect": [14.64, 12.6, 15.09, 16.6], "boards": 5, "level": "ground"},
 		{"members": "table", "id": "desk", "rect": [8.34, 15.6, 9.84, 16.5], "height": 0.76, "level": "ground"},
 		{"members": "shelves", "id": "cellar_rack_a", "rect": [6.64, 10.0, 7.14, 13.0], "boards": 3, "level": "cellar"},

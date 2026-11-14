@@ -1,0 +1,48 @@
+{
+  "_doc": "A druggist's bottle (#805; refs experiments/prop_lab/refs/doctor/): a round amber glass bottle (8 oz, tinctures kept from the light), its paper label round the front, a cork. A prop that shatters (GlassProp): thin glass, so a ball, a fall off a shelf (3.4 m/s) or 45 kPa breaks it and what's in it goes on the floor. Four labels in the period's style (SPT. AMMON. AROM., TINCT. CINCHONAE CO., EXT. ERGOTAE FL., VIN. COLCHICI): the Nth made wears label N mod 4 (`variants`). Drawn from glb:medicine_bottles (tools/blender/props/doctor_d2.py): the glass the kit's `glass:` look, the labels printed (pbr:medicine_labels), the cork and contents baked the gun way. Written by tools/props/doctor.py.",
+  "id": "medicine_bottle_round",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:medicine_bottles",
+  "looks": {
+    "GlassRound": "glass:amber",
+    "LiquidRound": "pbr:medicine_bottles",
+    "LabelRound%d": "pbr:medicine_labels",
+    "CorkRound": "pbr:medicine_bottles"
+  },
+  "variants": 4,
+  "size": [
+    0.06,
+    0.176,
+    0.06
+  ],
+  "mass": 0.4,
+  "wall": 0.0025,
+  "glass": [
+    "GlassRound",
+    "LiquidRound",
+    "LabelRound"
+  ],
+  "whole": [
+    [
+      "CorkRound"
+    ]
+  ],
+  "shards": 8,
+  "piece_mass": 0.01,
+  "breaks_at": 3.4,
+  "shatters_kpa": 45,
+  "heat_seconds": 20,
+  "cut_area": 0.02,
+  "contents": {
+    "liquid": "tincture",
+    "litres": 0.189,
+    "colour": [
+      0.35,
+      0.12,
+      0.04
+    ]
+  },
+  "factory": "tools/props/doctor.py"
+}

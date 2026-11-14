@@ -17,7 +17,16 @@ extends SceneTree
 ## are averaged too. `--no-railway` (a game arg, ValleyWorld) is the valley without it: the before.
 ## The farmhouse (G6, #731): `farm_lane` and `farm_start`, its lane's foot and the try's start looking
 ## at it, in either world (`--world=town`: the old town's), its mission begun (`--no-farmhouse`,
-## `--no-farm-mission`: the valley without them). `--spots=a,b`: only those.
+## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
+## (`--mission=sheriff`: the sheriff and his horse there). The places with height (#736 B):
+## `height_<id>` on each high spot looking at its first target. The valley's folk (#756):
+## `saloon_yard`, Main Street before the saloon's yard at nine at night, looking at its bar and card
+## table with the barkeep, two drinkers and two card players there (ValleyFolk; `--no-folk`, a game
+## arg: the yard empty, the before). `card_seat` (#766): sat in the card table's north chair, the
+## card game going (CardGame; Prof `card_game`). `murder_seat` (#773): sat there as No Law's murder
+## plays (NoLawMurder: the stranger sat, Cody kicking Earl's chair out and drawing; Prof
+## `valley_folk`, `people_*`). `ute_camp` (#859): No Justice's camp, Joe and the raid's damage
+## (NoJusticeCamp `at_camp`; `--no-camp-act`: bare). `--spots=a,b`: only those.
 ##
 ## Scaled to Sean's by FrameBudget's clock_scale (0.65; CLAUDE.md "Frame budget"). Untyped where it
 ## names game classes: -s scripts compile before autoloads exist.
@@ -78,6 +87,43 @@ func _spots(world: StringName) -> Array:
 		start = Vector2(st.x, st.z)
 	out.append(["farm_lane", Vector3(lane.x, 0.0, lane.y), _heading(lane, house)])
 	out.append(["farm_start", Vector3(start.x, 0.0, start.y), _heading(start, house)])
+	# The opening (#746): Harlan's place looking down his ford path, and the site from 4 m up the
+	# path looking at where the sheriff lies. With `--mission=sheriff` (a game arg) he's there, his
+	# horse by him; without it the same spots bare: the before.
+	var home: Vector2 = lay.place_at("harlan_homestead")
+	var site: Vector2 = lay.place_at("opening_site")
+	var ford: PackedVector2Array = lay.road_line("harlan_ford_path")
+	var down: Vector2 = home + (ford[1] - home).normalized() * 6.0
+	var near: Vector2 = site + (ford[ford.size() - 2] - site).normalized() * 4.0
+	# No Law's funeral (#868): at the graveside on the cemetery hill, the mourners gathered and the
+	# service on (Funeral, started here as `-- --mission=funeral` does).
+	var fun: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://config/moments/funeral.json"))
+	if fun is Dictionary:
+		var gv := Vector2(fun.grave[0], fun.grave[1])
+		var by := gv + Vector2(4.0, 8.0)
+		out.append(["funeral", Vector3(by.x, 0.0, by.y), _heading(by, gv)])
+	out.append(["harlan_home", Vector3(down.x, 0.0, down.y), _heading(down, ford[1])])
+	out.append(["sheriff_site", Vector3(near.x, 0.0, near.y), _heading(near, site)])
+	# The places with height (#736 B, #752): on each high spot (a block's top, a rim), looking at
+	# its first target: `height_<id>` (the widest views; a fourth item names the height).
+	for hp: Dictionary in lay.heights():
+		var h := Vector2(hp.high.at[0], hp.high.at[1])
+		var t := Vector2(hp.targets[0].at[0], hp.targets[0].at[1])
+		out.append(["height_%s" % hp.id, Vector3(h.x, 0.0, h.y), _heading(h, t), String(hp.id)])
+	# The valley's folk at night (#756): from Main Street's north edge before the saloon's yard,
+	# looking up the yard at the bar and the card table (the clock set to nine, then back).
+	var yard: Dictionary = lay.lot("saloon_annex")
+	var mouth := Vector2((float(yard.x0) + float(yard.x1)) * 0.5, -8.0)
+	out.append(["saloon_yard", Vector3(mouth.x, 0.0, mouth.y), _heading(mouth, mouth + Vector2(-0.6, -7.0))])
+	# Sat at its card table (#766): in the north chair, the game going with you dealt in (where you
+	# stand is the chair's, set once the folk are in).
+	out.append(["card_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
+	# The murder from the same chair (#773): measured from Cody's arrival at Earl (kick, draw).
+	out.append(["murder_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
+	# No Justice's camp (#859): where you come in on the Ute trail, NoJusticeCamp started there
+	# (`at_camp`: Joe, the raid's stand-in damage); `--no-camp-act` (a game arg): the place bare.
+	var camp: Vector2 = lay.place_at("ute_community")
+	out.append(["ute_camp", Vector3(camp.x, 0.0, camp.y), 0.0])
 	return out
 
 
@@ -128,6 +174,8 @@ func _run() -> void:
 		var at: Vector3 = s[1]
 		if ground:
 			at.y = ground.height_at(at.x, at.z) + 0.05
+		if s.size() > 3 and world_root.get("markers") != null:
+			at = world_root.markers.high_spot(String(s[3])) + Vector3.UP * 0.05
 		player.global_position = at
 		player.velocity = Vector3.ZERO
 		player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)
@@ -141,9 +189,63 @@ func _run() -> void:
 		var fmn = world_root.get_node_or_null(^"FarmhouseMission")
 		if String(s[0]).begins_with("farm_") and fmn and fmn.state == 0 and not "--no-farm-mission" in OS.get_cmdline_user_args():
 			fmn.begin(false)
+		var clock = world_root.get_node_or_null(^"DayCycle")
+		var was_hour: float = clock.time_of_day if clock else 12.0
+		var folk = world_root.get("folk")
+		var murder := String(s[0]) == "murder_seat"
+		var at_table := String(s[0]) == "card_seat" or murder
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			clock.set_time(21.0)
+			if folk:
+				folk._look = 0.0
+		if at_table and folk:
+			for i in 30:
+				await process_frame
+			player.seat.sit(folk.props.chair_n)
+			player.rotation.y += deg_to_rad(20.0)  # the table and Earl past it
+			var g = folk.cards
+			while g.state in [&"idle", &"shuffle", &"ante"]:
+				await process_frame
+			if murder:
+				var act = folk.start_murder()
+				var waited := 0
+				while act != null and act.state in [&"stranger", &"come"] and waited < 6000:
+					await process_frame
+					waited += 1
+		var funeral = null
+		if String(s[0]) == "funeral" and folk:
+			funeral = folk.start_funeral({"set_up": true})
+			player.global_position = at
+			player.rotation = Vector3(0.0, -deg_to_rad(float(s[2])), 0.0)
+			while funeral != null and funeral.state == &"gather":
+				await process_frame
+		var camp_act = null
+		if String(s[0]) == "ute_camp" and not "--no-camp-act" in OS.get_cmdline_user_args():
+			camp_act = load("res://src/moments/moment.gd").start_named(&"no_justice_camp", world_root, null, {"at_camp": true})
+			for i in 30:
+				await process_frame
+			at = player.global_position
 		for i in 60:
 			await process_frame
 		var m := await _measure(rid)
+		if funeral != null:
+			m["funeral"] = String(funeral.state)
+			m["folk"] = folk.people.size()
+			funeral.reset()
+			StoryState.clear()
+			clock.set_time(was_hour)
+		if camp_act != null:
+			m["camp"] = {"state": String(camp_act.state), "props": camp_act.props.size(), "holes": camp_act.holes}
+			camp_act.reset()
+		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+			m["folk"] = folk.people.size() if folk else 0
+			if at_table:
+				m["cards"] = folk.cards.report().state
+				if murder and folk.murder:
+					m["murder"] = String(folk.murder.state)
+				m["card_game_ms"] = snappedf(m.get("systems", {}).get("card_game", 0.0), 0.001)
+				player.seat.stand()
+			clock.set_time(was_hour)
 		if far != "":
 			m["train_from"] = far
 			m["train_s"] = snappedf(float(world_root.get_node(^"Railway").train.sim.s), 0.1)

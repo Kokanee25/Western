@@ -290,7 +290,8 @@ static func _centre_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to:
 const STEP_UP := 0.25
 
 
-## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m).
+## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m; a
+## look that finds nothing within half a metre under the lower end is a drop too).
 static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var n := maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.3))
 	var top := maxf(a.y, b.y) + 0.6
@@ -301,9 +302,11 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.STAND, exclude)
 		Prof.count(&"q_walk")
 		var hit := space.intersect_ray(q)
-		if hit.is_empty():
-			continue
-		var h := (hit.position as Vector3).y
+		# Nothing within half a metre under the lower end: a drop (off a high walk into an alley,
+		# #737), unless the ray only fell between two planks.
+		var h := (hit.position as Vector3).y if not hit.is_empty() else _foot_height(space, p, top, bottom, exclude)
+		if h == -INF:
+			return false
 		if absf(h - prev) > STEP_UP:
 			# A foot is wider than a ray: one that fell between two boards (a boardwalk's planks are
 			# 18 mm apart) is asked again a foot's width round, and the highest taken.

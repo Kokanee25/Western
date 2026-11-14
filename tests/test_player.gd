@@ -156,6 +156,63 @@ func test_cannot_stand_under_low_ceiling() -> void:
 	check(not player.is_crouching, "stands once there is headroom")
 
 
+func test_held_crouch_toggle_crawls_and_a_tap_comes_up() -> void:
+	Input.action_press(&"crouch_toggle")
+	await physics_frames(int(player.tuning.crawl_hold_s * 60.0) + 6)
+	Input.action_release(&"crouch_toggle")
+	Input.action_press(&"move_forward")
+	await physics_frames(90)
+	check(player.is_crawling and player.is_crouching, "held, down flat")
+	check_near(player.get_eye_height(), player.tuning.crawl_eye_height, 0.02, "eyes near the ground")
+	check_near(player.get_horizontal_speed(), player.tuning.crawl_speed, 0.05, "crawl speed")
+	check(not player.body.visible, "the body you see put away")
+	Input.action_release(&"move_forward")
+	await _hold(&"crouch_toggle", 1)
+	await physics_frames(20)
+	check(not player.is_crawling and player.is_crouching, "a tap: up to a crouch")
+	await _hold(&"crouch_toggle", 1)
+	await physics_frames(20)
+	check(not player.is_crouching, "another: standing")
+
+
+## A slab 0.65 m over the floor (a high boardwalk's underside): crouched you can't go under, flat
+## you crawl through and can't rise till you're out.
+func test_crawls_under_a_low_walk() -> void:
+	var walk := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6, 0.2, 2.4)
+	shape.shape = box
+	walk.add_child(shape)
+	walk.position = player.global_position + Vector3(0, 0.75, -3.0)
+	arena.add_child(walk)
+	await physics_frames(2)
+	player.force_crouch = true
+	Input.action_press(&"move_forward")
+	await physics_frames(120)
+	check(player.global_position.z > walk.position.z + 1.2 + player.tuning.radius - 0.05, "crouched, stopped at its edge (z %.2f)" % player.global_position.z)
+	player.force_crawl = true
+	await physics_frames(150)
+	var under := absf(player.global_position.z - walk.position.z) < 1.2
+	check(player.is_crawling and (under or player.global_position.z < walk.position.z), "flat, he goes in under it")
+	# Under it, he stays down even let go.
+	while player.global_position.z > walk.position.z:
+		await physics_frames(5)
+	Input.action_release(&"move_forward")
+	player.force_crawl = false
+	player.force_crouch = false
+	await physics_frames(20)
+	check(player.is_crawling, "no room to rise under it")
+	Input.action_press(&"move_forward")
+	player.force_crawl = true
+	await physics_frames(200)
+	Input.action_release(&"move_forward")
+	player.force_crawl = false
+	await physics_frames(30)
+	check(player.global_position.z < walk.position.z - 1.3, "out the far side (z %.2f)" % player.global_position.z)
+	check(not player.is_crouching, "and up")
+
+
 func test_jump_and_land() -> void:
 	Input.action_press(&"jump")
 	await physics_frames(2)
@@ -261,3 +318,68 @@ func test_walks_up_a_ramped_stair() -> void:
 	var up := await wait_until(func() -> bool: return player.global_position.y > 2.2, 480)
 	Input.action_release(&"move_forward")
 	check(up, "up the ramped stair to the landing (got to %.2f m)" % player.global_position.y)
+
+
+## A loose piece (in the group "rubble", as Structure's are) of `kg`, a box `size` at `at`.
+func _piece(kg: float, size: Vector3, at: Vector3, basis := Basis()) -> RigidBody3D:
+	var rb := RigidBody3D.new()
+	rb.collision_layer = Layers.WORLD
+	rb.collision_mask = Layers.WORLD | Layers.PEOPLE | Layers.BODY_PARTS
+	rb.mass = kg
+	rb.add_to_group(&"rubble")
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	cs.shape = box
+	rb.add_child(cs)
+	arena.add_child(rb)
+	rb.global_transform = Transform3D(basis, at)
+	return rb
+
+
+## Down on your belly in a broken chair's pieces (#834): one lying in and on you doesn't shove you
+## about (the engine moves a CharacterBody3D out of whatever's in it, and a chair's seat on a man
+## downed by its going carried him half a metre with his own speed nil); you push it off you.
+func test_a_light_piece_lying_in_you_doesnt_move_you() -> void:
+	player.force_crawl = true
+	await physics_frames(30)
+	var at := player.global_position
+	# A seat tipped onto you: half in you, slanting down your back.
+	var seat := _piece(4.8, Vector3(0.42, 0.06, 0.42), at + Vector3(0.12, 0.42, 0.1), Basis(Vector3.FORWARD, 0.6))
+	var most := 0.0
+	for i in 60:
+		await physics_frames(1)
+		most = maxf(most, Vector2(player.global_position.x - at.x, player.global_position.z - at.z).length())
+	check(most < 0.02, "you stay where you lie (moved at most %.3f m)" % most)
+	check(player.wading_through(seat) or seat.global_position.distance_to(at) > 0.4, "it's let through you")
+	await physics_frames(90)
+	var off := Vector2(seat.global_position.x - at.x, seat.global_position.z - at.z).length()
+	check(off > player.tuning.crawl_radius, "and pushed off you (%.2f m from your middle)" % off)
+
+
+## Wedged between light pieces either side and one across your way, you crawl on, shoving them
+## aside; a heavy one across your way still stops you.
+func test_you_crawl_out_through_light_pieces_not_heavy_ones() -> void:
+	player.force_crawl = true
+	await physics_frames(30)
+	var at := player.global_position
+	var ahead := -player.global_basis.z
+	var side := player.global_basis.x
+	# Two legs leaning in at your sides (their faces ~0.9 across, 0.4 up), a back rail on edge ahead.
+	_piece(1.2, Vector3(0.05, 0.5, 0.6), at + side * 0.3 + Vector3.UP * 0.2, Basis(ahead, 0.4))
+	_piece(1.2, Vector3(0.05, 0.5, 0.6), at - side * 0.3 + Vector3.UP * 0.2, Basis(ahead, -0.4))
+	var rail := _piece(3.0, Vector3(0.8, 0.45, 0.08), at + ahead * 0.4 + Vector3.UP * 0.23)
+	await physics_frames(20)
+	var from := player.global_position
+	await _hold(&"move_forward", 60)
+	var went := (player.global_position - from).dot(ahead)
+	check(went > 0.25, "you crawl on through them (%.2f m)" % went)
+	check(rail.global_position.distance_to(at) > 0.45, "the rail shoved along")
+	# A beam (60 kg) across your way: a wall.
+	var there := player.global_position
+	_piece(60.0, Vector3(1.2, 0.45, 0.2), there + ahead * 0.45 + Vector3.UP * 0.23)
+	await physics_frames(20)
+	from = player.global_position
+	await _hold(&"move_forward", 60)
+	went = (player.global_position - from).dot(ahead)
+	check(went < 0.15, "a beam stops you (%.2f m)" % went)

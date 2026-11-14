@@ -1,0 +1,53 @@
+{
+  "_doc": "The players' chips (#866; refs experiments/prop_lab/refs/saloon/): three stacks of the period's clay chips (white, red, blue), 39 mm across, the tallest twelve high. One member (the stacks as one: a ball through them knocks the lot; fired clay doesn't burn). Baked (tools/blender/props/saloon_s1.py). 1 physics body. Written by tools/props/saloon.py.",
+  "id": "chip_stacks",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "stone",
+  "splits_below": 0.1,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "chips",
+      "kind": "post",
+      "size": [
+        0.13,
+        0.04,
+        0.07
+      ],
+      "at": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "wood": "stone",
+      "look": "pbr:cards_chips",
+      "draw": {
+        "shape": "mesh",
+        "model": "cards_chips",
+        "part": "ChipsW"
+      },
+      "solid": 0.25,
+      "dress": [
+        {
+          "look": "pbr:cards_chips",
+          "draw": {
+            "shape": "mesh",
+            "model": "cards_chips",
+            "part": "ChipsR"
+          }
+        },
+        {
+          "look": "pbr:cards_chips",
+          "draw": {
+            "shape": "mesh",
+            "model": "cards_chips",
+            "part": "ChipsB"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

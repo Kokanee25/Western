@@ -3,7 +3,11 @@ name: Nightly soak
 # Every night (and by hand): the game left running for hours of game time, headless, with the gang
 # riding in again and again, fights, fires and blasts (tools/soak.gd). Red when anything breaks:
 # an error, memory still climbing, someone stuck or under the ground, the frame time creeping.
-# The report (soak.md) is the run's summary and an artifact.
+# The report (soak.md) is the run's summary and an artifact. Two soaks side by side (#863): the old
+# town (the gang, fires, sticks) and the valley (No Law's folk and their murder, the player carried
+# round at a gallop, sticks and holes). Then the smoke test from source on the valley and each
+# mission (src/debug/smoke_test.gd: the valley, the sheriff on the road, No Law's sheriff's last day,
+# the coach heist). A red night opens (or adds to) an issue labelled `nightly red`.
 
 on:
   schedule:
@@ -43,6 +47,11 @@ jobs:
   soak:
     needs: changed
     if: needs.changed.outputs.run == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        world: [town, valley]
+    name: soak (${{ matrix.world }})
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -81,7 +90,7 @@ jobs:
         run: |
           minutes="${{ github.event.inputs.minutes }}"
           mkdir -p build/soak
-          ~/godot/godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes="${minutes:-240}" --out=build/soak > build/soak/soak.log 2>&1 &
+          ~/godot/godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes="${minutes:-240}" --out=build/soak --world=${{ matrix.world }} > build/soak/soak.log 2>&1 &
           pid=$!
           tail -n +1 -f --pid=$pid build/soak/soak.log &
           # Once a minute, the machine's memory, the game's and the disk: the runner was shut down
@@ -129,5 +138,93 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: soak-report
+          name: soak-report-${{ matrix.world }}
           path: build/soak
+
+  # The smoke test from source, headless, on the valley and each mission (#863): 30 s each with a
+  # stick, a fire and a shot; any error, nobody in the valley, or a mission that never started fails it.
+  smoke:
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: The valley and the missions, 30 s each
+        run: |
+          mkdir -p build/smoke
+          failed=0
+          echo "## Smoke: the valley and the missions" >> "$GITHUB_STEP_SUMMARY"
+          for leg in "valley" "sheriff --mission=sheriff" "no_law --mission=sheriff_dies" "coach --mission=coach"; do
+            name=${leg%% *}; extra=""; [ "$name" != "$leg" ] && extra=${leg#* }
+            set +e
+            timeout 900 ~/godot/godot --headless -- --world=valley $extra --smoke-test --smoke-out="$PWD/build/smoke/$name.out" > "build/smoke/$name.log" 2>&1
+            code=$?
+            set -e
+            verdict=$(head -1 "build/smoke/$name.out" 2>/dev/null || echo "(no verdict written)")
+            echo "- $name: $verdict" >> "$GITHUB_STEP_SUMMARY"
+            if [ $code -ne 0 ] || ! grep -q "^\[smoke\] ok" "build/smoke/$name.out" 2>/dev/null; then
+              echo "::error::smoke $name failed (exit $code)"
+              cat "build/smoke/$name.out" 2>/dev/null; tail -40 "build/smoke/$name.log"
+              failed=1
+            else
+              echo "$name: $verdict"
+            fi
+          done
+          exit $failed
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-valley
+          path: build/smoke
+
+  # A red night says so where Sean looks (#863: the soak was red two weeks and blocked nothing):
+  # an issue labelled `nightly red`, or a comment on the one still open.
+  red:
+    needs: [soak, smoke]
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="The nightly soak or smoke failed on main ($GITHUB_SHA): $RUN"
+          open=$(gh issue list -R "$GITHUB_REPOSITORY" --label "nightly red" --state open --json number -q '.[0].number // ""')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" -R "$GITHUB_REPOSITORY" --body "Red again. $body"
+          else
+            gh label create "nightly red" -R "$GITHUB_REPOSITORY" --color B60205 --description "the nightly soak or smoke failed" 2>/dev/null || true
+            gh issue create -R "$GITHUB_REPOSITORY" --label "nightly red" --title "Nightly red: the soak or the smoke failed" \
+              --body "$body. The gameplay lane fixes it (the report is the run's artifact); close this once a night is green."
+          fi

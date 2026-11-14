@@ -84,6 +84,14 @@ func _ready() -> void:
 		Events.member_broken.connect(_any_member_broken)
 	if not Events.exploded.is_connected(_on_exploded):
 		Events.exploded.connect(_on_exploded)
+	if not Events.bullet_hit.is_connected(_any_bullet_hit):
+		Events.bullet_hit.connect(_any_bullet_hit)
+	_put_in_carried()
+	if definition.has("stove") and get_node_or_null(^"StoveFire") == null:
+		# A firebox (#866: the box stove): its glow by the hour, its coals when it goes over.
+		var sf := StoveFire.new()
+		sf.name = "StoveFire"
+		add_child(sf)
 
 
 ## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").
@@ -109,6 +117,11 @@ func build() -> void:
 		var m := add_member(spec.id, StringName(spec.kind), StringName(spec.get("wood", definition.get("wood", "oak"))),
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
+		if spec.has("solid"):
+			# A hollow member (#866: a cast firebox, a stovepipe, a brass tube): the share of its box
+			# that's metal, for its weight. StructureMember.weight counts the rest as char (a fifth of
+			# its density), so a hollow member weighs at least a fifth of its box.
+			m.solid_share = float(spec.solid)
 		var mi := m.get_child(0) as MeshInstance3D
 		var own_look: String = spec.get("look", definition.get("look", ""))
 		PropKit.dress_member(m, spec.get("draw", {}), own_look)
@@ -128,8 +141,14 @@ func build() -> void:
 			layer.mesh = st.commit()
 			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
 			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
+			# In the member's own space: a library board's mesh is drawn in its board's frame (#805:
+			# the frame's half-length offset carried every pull, knob and paper on a `lib:` member
+			# off to one end; StructureMember.apply_voxel_mesh puts them back when it's carved).
+			layer.transform = mi.transform.affine_inverse()
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
+		m.set_meta(&"closed", m.transform)
+	_hinge_angle.clear()
 	var seat: Dictionary = definition.get("seat", {})
 	_seat_member = members.get(StringName("%s/%s" % [structure_id, seat.get("member", "")]))
 	_seat_point = PropKit.vec(seat.get("at", [0, 0, 0]))
@@ -175,6 +194,7 @@ var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a
 
 func infer_supports() -> void:
 	super.infer_supports()
+	_hang_hinged()
 	# Hung on nails (a picture, a mount): what the nails go through is held as if it stood on the
 	# ground, and everything else hangs from it.
 	_nailed.clear()
@@ -368,7 +388,7 @@ func _find_footing() -> void:
 		for hit in space.intersect_shape(q, 16):
 			var c: Object = hit.collider
 			if c is StructureMember:
-				under.append([c, (c as StructureMember).global_position])
+				under.append([c, _floor_place(c)])
 			elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 				under.append([null, Vector3.ZERO])  # the ground, a fixed floor: never goes
 		_feet[m] = under
@@ -400,7 +420,7 @@ func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
 			for hit in space.intersect_shape(q, 8):
 				var c: Object = hit.collider
 				if c is StructureMember:
-					into.append([c, (c as StructureMember).global_position])
+					into.append([c, _floor_place(c)])
 				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 					into.append([null, Vector3.ZERO])
 		_feet[m] = into
@@ -454,9 +474,28 @@ func _has_footing(m: StructureMember) -> bool:
 		if f == null:
 			return true
 		if is_instance_valid(f) and not (f as StructureMember).broken and not (f as StructureMember).consumed \
-				and (f as StructureMember).global_position.distance_to(e[1]) < MOVED:
+				and _floor_place(f).distance_to(e[1]) < MOVED:
 			return true
 	return false
+
+
+## Footed where it is, its feet not looked for: something carries it (a coach on its road, driven by
+## CoachDrive: on a Jolt height field a foot a few mm under the surface finds nothing, #794).
+func keep_footed() -> void:
+	_put_down = true
+	_footed = true
+	_feet.clear()
+
+
+## Where a floor member is, to tell whether it's moved from under a foot: in the world, or, for a
+## floor of what carries this prop (the coach's under its strongbox; a building's under its props),
+## in the carrier's space: a driven coach moves its floor and its strongbox together (it dropped it
+## in the first quarter second, #794); a building that stands still reads as the world.
+func _floor_place(f: StructureMember) -> Vector3:
+	var s := f.get_parent()
+	while s != null and not s is Structure:
+		s = s.get_parent()
+	return (s as Node3D).to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
 
 
 ## The four lowest corners of a member (structure space): its footprint.
@@ -889,3 +928,162 @@ func _unseat() -> void:
 		if man.has_method(&"brace"):
 			man.call(&"brace")
 
+
+
+# --- Hinges: doors and lids that open (the Baron's coach, its strongbox; #782) --------------------
+
+## A kit file's "hinges": {name: {"members": [ids], "axis": [[x, y, z], [x, y, z]] (prop space: the
+## line it turns about), "open": degrees (signed, about the axis from its first point to its
+## second: fully open), "on": [ids] (what its hinges are fixed to: it hangs on them, at any angle,
+## and falls with them), "locked_by": [ids] (shut while every one of these is whole, until
+## `unlock`ed: a padlock, a hasp; break one and it opens)}}. Its members are turned about the line,
+## drawn on their own while it isn't shut.
+var _hinge_angle := {}  # name -> degrees open now (absent: shut)
+var _unlocked := {}  # name -> true: its key turned
+
+
+func hinge_names() -> Array:
+	return (definition.get("hinges", {}) as Dictionary).keys()
+
+
+## Shut and held: every member in its "locked_by" whole and no key turned.
+func is_locked(hinge: String) -> bool:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	var by: Array = h.get("locked_by", [])
+	if by.is_empty() or _unlocked.has(hinge):
+		return false
+	for id: String in by:
+		var m := _kit_member(id)
+		if m == null or m.broken:
+			return false
+	return true
+
+
+## The key turned (taken off a guard): it opens from now on.
+func unlock(hinge: String) -> void:
+	_unlocked[hinge] = true
+
+
+## How far open, 0 (shut) to 1 (its "open" angle).
+func hinge_open(hinge: String) -> float:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	var full := float(h.get("open", 90.0))
+	return float(_hinge_angle.get(hinge, 0.0)) / full if absf(full) > 0.001 else 0.0
+
+
+## Opens it `amount` of the way (0 shuts it). False if it can't: no such hinge, locked, or the
+## prop's gone loose (rubble now, whatever its doors were). What's broken of it stays where it fell.
+func open_hinge(hinge: String, amount := 1.0) -> bool:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	if h.is_empty() or loose or (amount > 0.0 and is_locked(hinge)):
+		return false
+	var deg := float(h.get("open", 90.0)) * clampf(amount, 0.0, 1.0)
+	var a := PropKit.vec(h.axis[0])
+	var b := PropKit.vec(h.axis[1])
+	var about := Transform3D(Basis(), a) * Transform3D(Basis((b - a).normalized(), deg_to_rad(deg)), Vector3.ZERO) \
+			* Transform3D(Basis(), -a)
+	var moved := false
+	for id: String in h.get("members", []):
+		var m := _kit_member(id)
+		if m == null or m.broken or not m.has_meta(&"closed"):
+			continue
+		unbatch(m)
+		m.transform = about * (m.get_meta(&"closed") as Transform3D)
+		moved = true
+	if absf(deg) < 0.001:
+		_hinge_angle.erase(hinge)
+	else:
+		_hinge_angle[hinge] = deg
+	if moved:
+		infer_supports()
+	return true
+
+
+## Each hinged member hangs on what its hinges are fixed to, whatever its angle (an open door
+## touches nothing under it).
+func _hang_hinged() -> void:
+	var hinges: Dictionary = definition.get("hinges", {})
+	for hinge: String in hinges:
+		var h: Dictionary = hinges[hinge]
+		var axis_mid := (PropKit.vec(h.axis[0]) + PropKit.vec(h.axis[1])) * 0.5
+		# Open, it hangs on its hinges alone (its box still touches the sill at the hinge's corner);
+		# shut, it stands in its frame as well.
+		if _hinge_angle.has(hinge):
+			var own := {}
+			for id: String in h.get("members", []) + h.get("on", []):
+				var k := _kit_member(id)
+				if k:
+					own[k.member_id] = true
+			for id: String in h.get("members", []):
+				var m := _kit_member(id)
+				if m == null:
+					continue
+				for s: StringName in m.supported_by.duplicate():
+					if not own.has(s):
+						m.supported_by.erase(s)
+						m.support_points.erase(s)
+						m.support_boxes.erase(s)
+						var o := get_member(s)
+						if o:
+							o.dependents.erase(m.member_id)
+		for on_id: String in h.get("on", []):
+			var o := _kit_member(on_id)
+			if o == null:
+				continue
+			for id: String in h.get("members", []):
+				var m := _kit_member(id)
+				if m == null or m.supported_by.has(o.member_id):
+					continue
+				m.supported_by.append(o.member_id)
+				o.dependents.append(m.member_id)
+				m.support_points[o.member_id] = axis_mid
+				m.support_boxes[o.member_id] = AABB(axis_mid - Vector3.ONE * 0.02, Vector3.ONE * 0.04)
+
+
+func _kit_member(id: String) -> StructureMember:
+	return members.get(StringName("%s/%s" % [structure_id, id]))
+
+
+# --- Shot apart: a padlock, a trace hook ----------------------------------------------------------
+
+## A member whose kit entry has "shot_breaks": J breaks when a ball strikes it with that much (iron
+## isn't carved, so it never splits by `splits_below`: a padlock shot off, a trace hook).
+static func _any_bullet_hit(info: Dictionary) -> void:
+	var id: StringName = info.get("member_id", &"")
+	if id == &"":
+		return
+	var props: Variant = _by_structure.get(StringName(String(id).get_slice("/", 0)))
+	if props == null:
+		return
+	for p: Variant in props:
+		if not is_instance_valid(p):
+			continue
+		var prop := p as KitProp
+		var m := prop.get_member(id)
+		if m == null or m.broken or not m.has_meta(&"kit"):
+			continue
+		var need: Variant = (m.get_meta(&"kit") as Dictionary).get("shot_breaks")
+		if need != null and float(info.get("energy_before", 0.0)) >= float(need):
+			prop.break_member(m, (info.get("direction", Vector3.ZERO) as Vector3) * 2.0)
+
+
+# --- What it carries: kit props inside it (the coach's strongbox) ---------------------------------
+
+## A kit file's "carries": [{"id": a kit id, "name", "at": [x, y, z], "yaw": degrees}]: each put in
+## as a kit prop of its own, a child of this one, standing on what's under it (the coach's floor):
+## it moves with it, and when what it stands on goes it falls, as any kit prop on a floor does.
+func _put_in_carried() -> void:
+	for c: Dictionary in definition.get("carries", []):
+		var nm := String(c.get("name", c.id)).to_pascal_case()
+		if has_node(NodePath(nm)):
+			continue
+		var p := PropKit.spawn(StringName(c.id))
+		p.name = nm
+		p.position = PropKit.vec(c.get("at", [0, 0, 0]))
+		p.rotation.y = deg_to_rad(float(c.get("yaw", 0.0)))
+		add_child(p)
+
+
+## A carried kit prop by its name ("strongbox"), or null.
+func carried(nm: String) -> KitProp:
+	return get_node_or_null(NodePath(nm.to_pascal_case())) as KitProp

@@ -16,6 +16,7 @@ fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
 --physics-thread=on|off: physics on its own thread or not for this run's games (more-cores step 6;
 written to the game's user://engine.cfg while it runs, then put back); without it, as the game is set.
+--joe=1: Joe beside you (CompanionBrain, #843); the record gets a "joe" part (joe_stats.py sums them).
 --render-thread=on|off: the renderer on its own thread or not for the fights (more-cores step 7;
 Godot's --render-thread separate|safe on each game's command line); without it, as the game is set.
 A --sheet is always drawn on the main thread (its shots are the frames it sets up).
@@ -79,8 +80,8 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} falls={falls} momentum={momentum} max={max} out={out}\nquit\n".format(
-            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""),
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} falls={falls} momentum={momentum} joe={joe} max={max} out={out}\nquit\n".format(
+            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), joe=opt(sys.argv[1:], "joe", ""),
             falls=opt(sys.argv[1:], "falls", ""), momentum=opt(sys.argv[1:], "momentum", ""), **f))
     cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--deterministic", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]

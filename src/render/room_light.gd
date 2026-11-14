@@ -19,13 +19,19 @@ extends Node
 ##   at night goes dark amber and down to ambient_scale of what it was (the bounces do the rest of
 ##   its work), scaled again by the share of the room's lamps still lit (DayCycle reads the meta
 ##   `room_light_scale`).
-## - **Openings.** The front door and windows (as MoonWindows has them) and every hole a break
+## - **Openings.** The front door and windows (as MoonWindows has them), or every outer door and
+##   window of a building that names its own (`light_openings`: a spec building's, #824), and every hole a break
 ##   makes in a wall let the sky in: a soft spot just inside, sized to the opening, moonlight by
 ##   night (the round-2 MoonWindows' numbers, which it then stands in for) and skylight by day
 ##   (the sun comes through on its own, shadowed). A hole is found from the structure's own
 ##   data: Events.member_broken names the member, its box says which wall and where, and a grid
 ##   of rays through that patch of wall says how much of it is open now. Only that patch is
 ##   probed, on a ray budget; nothing is rebuilt.
+## - **Daylight with shape** (#829, a building with its own `light`, a spec's: RoomLightTuning
+##   "Daylight"). Its windows' sky spots run across the room to the far wall and fall off (the
+##   window side bright, the far side dim), and the sun through a window lights the room round the
+##   patch it lands on: a soft spot off each sunlit patch, found by rays through the window toward
+##   the sun (a porch roof shades it) and on into the room, recast as the sun moves.
 ## - **Haze.** The room's own fog volume (FalseFrontBuilding.RoomHaze) thickens with every shot
 ##   fired and every blast inside, and clears over a minute or two: gunsmoke hanging in the
 ##   lamps' pools (GunSmoke's own clouds are the first seconds).
@@ -88,6 +94,10 @@ class Room:
 	## The share of its lamps lit (by energy), and the sky last lit its openings by.
 	var share := 1.0
 	var sky_was := Vector2(-1.0, -1.0)
+	## Its windows light the room by day (#829: a building with its own `light`).
+	var daylight := false
+	## The sun's light direction its patches were last cast for (zero: cast again).
+	var sun_was := Vector3.ZERO
 
 
 static func tune() -> RoomLightTuning:
@@ -142,6 +152,8 @@ func _process(delta: float) -> void:
 		_flicker(r)
 		_fill(r)
 		_openings_light(r, clock)
+		if r.daylight:
+			_sun_light(r, clock)
 		_haze(r, delta)
 	Prof.stop(&"room_light", t)
 
@@ -170,6 +182,8 @@ func _physics_process(delta: float) -> void:
 				if p.get("again", false):
 					# Once more when the rubble's down (a board still leaning in the hole hides it).
 					r.pending.append({"wall": p.wall, "rect": p.rect, "wait": tune().hole_settle, "again": false})
+		if r.daylight:
+			_daylight_step(r)
 		while rays > 0 and not r.probing.is_empty():
 			rays = _probe_step(r, r.probing[0], rays)
 			if r.probing[0].next >= (r.probing[0].cells as PackedVector2Array).size():
@@ -197,6 +211,8 @@ func _stop() -> void:
 		for o: Dictionary in r.openings:
 			if is_instance_valid(o.spot):
 				(o.spot as Node).queue_free()
+			if is_instance_valid(o.get("sun")):
+				(o.sun as Node).queue_free()
 		if is_instance_valid(r.probe):
 			r.probe.remove_meta(&"room_light_scale")
 			r.probe.ambient_color = r.colour_was
@@ -231,10 +247,16 @@ func _room_for(b: FalseFrontBuilding) -> Room:
 	r.probe = b.get_node_or_null(^"InteriorAmbient") as ReflectionProbe
 	if r.probe:
 		r.colour_was = r.probe.ambient_color
-		r.probe.ambient_color = tune().ambient_colour
+		r.probe.ambient_color = fill_colour(b)
 	r.haze = b.get_node_or_null(^"RoomHaze") as FogVolume
+	r.daylight = b.has_meta(&"room_window_gain")
 	_rooms[b] = r
-	# The building's own openings: the door and, if it has them, the front windows (MoonWindows').
+	# A building that knows its own openings (a spec building's every outer door and window, #824)
+	# gives them; else the door and, if it has them, the front windows (MoonWindows').
+	if b.has_method(&"light_openings"):
+		for o: Dictionary in b.call(&"light_openings"):
+			_add_opening(r, StringName(o.wall), o.rect, StringName(o.kind), o.get("frame", {}))
+		return r
 	var rects: Array[Rect2] = [b.door_rect]
 	if b.front_windows:
 		var f := b.floor_top
@@ -242,6 +264,14 @@ func _room_for(b: FalseFrontBuilding) -> Room:
 	for i in rects.size():
 		_add_opening(r, &"front", rects[i], &"door" if i == 0 else &"window")
 	return r
+
+
+## The room's fill colour: the building's own (a spec's `light.fill`, its meta `room_fill`: near
+## neutral, so the windows and lamps give the room its shape, #824) or the tuning's.
+static func fill_colour(b: Node) -> Color:
+	if b and b.has_meta(&"room_fill"):
+		return b.get_meta(&"room_fill")
+	return tune().ambient_colour
 
 
 # --- the lamps' bounce -----------------------------------------------------------------------------
@@ -511,33 +541,52 @@ func _fill(r: Room) -> void:
 	var scale := tune().ambient_scale * (r.share if tune().ambient_follows_lamps else 1.0)
 	if not is_equal_approx(float(r.probe.get_meta(&"room_light_scale", -1.0)), scale):
 		r.probe.set_meta(&"room_light_scale", scale)
-	if r.probe.ambient_color != tune().ambient_colour:
-		r.probe.ambient_color = tune().ambient_colour
+	var c := fill_colour(r.building)
+	if r.probe.ambient_color != c:
+		r.probe.ambient_color = c
 
 
 # --- openings ------------------------------------------------------------------------------------
 
-func _add_opening(r: Room, wall: StringName, rect: Rect2, kind: StringName) -> Dictionary:
+## `frame` (optional): the wall's own {origin, along, inward} in the building's space, for a wall
+## that isn't one of the box's four sides.
+func _add_opening(r: Room, wall: StringName, rect: Rect2, kind: StringName, frame := {}) -> Dictionary:
 	var s := SpotLight3D.new()
 	s.name = "Opening%d" % r.openings.size()
 	s.shadow_enabled = false
-	s.light_specular = 0.2
+	# A soft fill from the sky, so no highlight of its own: on a varnished floor each window's spot
+	# showed as a cold blue dot at night (the doctor's, #824 round 1). The old rooms keep MoonWindows'.
+	s.light_specular = 0.0 if r.building.has_meta(&"room_window_gain") else 0.2
 	s.light_volumetric_fog_energy = 0.6  # a shaft in the room's haze (MoonWindows')
 	s.light_energy = 0.0
 	s.visible = false
 	s.add_to_group(&"room_light_opening")
 	r.building.add_child(s)
-	var b := r.building
-	var w := _wall_frame(b, wall)
-	var top := Vector2(rect.get_center().x, rect.end.y - 0.1)
-	var inward: Vector3 = w.inward
-	var at: Vector3 = (w.origin as Vector3) + (w.along as Vector3) * top.x + Vector3.UP * top.y + inward * (FalseFrontBuilding.STUD_D + 0.05)
-	var dir := (inward * cos(deg_to_rad(38.0)) + Vector3.DOWN * sin(deg_to_rad(38.0))).normalized()
-	s.transform = Transform3D(Basis.looking_at(dir, Vector3.UP), at)
-	var o := {"wall": wall, "rect": rect, "kind": kind, "spot": s}
+	var w := frame if not frame.is_empty() else _wall_frame(r.building, wall)
+	var o := {"wall": wall, "rect": rect, "kind": kind, "spot": s, "frame": w}
+	_place_opening(r, o)
 	r.openings.append(o)
 	r.sky_was = Vector2(-1.0, -1.0)  # lit on the next frame
+	r.sun_was = Vector3.ZERO
 	return o
+
+
+## An opening's spot just inside it: under its head, 38 degrees down (the old rooms': the wall and
+## floor by it), or, in a daylight room, partway up the window and nearly level, across the room.
+func _place_opening(r: Room, o: Dictionary) -> void:
+	var s := o.spot as SpotLight3D
+	var w: Dictionary = o.frame
+	var rect: Rect2 = o.rect
+	var tn := tune()
+	var day: bool = r.daylight and o.kind != &"hole"
+	var up := rect.position.y + rect.size.y * tn.day_window_height if day else rect.end.y - 0.1
+	var tilt := deg_to_rad(tn.day_window_tilt if day else 38.0)
+	var inward: Vector3 = w.inward
+	var at: Vector3 = (w.origin as Vector3) + (w.along as Vector3) * rect.get_center().x + Vector3.UP * up + inward * (FalseFrontBuilding.STUD_D + 0.05)
+	var dir := (inward * cos(tilt) + Vector3.DOWN * sin(tilt)).normalized()
+	s.transform = Transform3D(Basis.looking_at(dir, Vector3.UP), at)
+	o["shaped"] = false
+	o.erase("reach")
 
 
 ## A wall in the building's own space: where along it starts, which way along, which way in.
@@ -574,7 +623,9 @@ func _openings_light(r: Room, clock: DayCycle) -> void:
 		var rect: Rect2 = o.rect
 		var size := clampf(sqrt(float(o.get("area", rect.get_area())) / WINDOW_AREA), 0.15, sqrt(tn.opening_max_area / WINDOW_AREA))
 		var night_e := cfg.moon_window_energy * moon * tn.opening_night_gain
-		var day_e := tn.opening_day_energy * day
+		# A building's own daylight gain (a spec's `light.window_day`, #824: its rooms lit by their
+		# windows, not a tint).
+		var day_e := tn.opening_day_energy * day * float(r.building.get_meta(&"room_window_gain", 1.0))
 		var e := (night_e + day_e) * size
 		var shown := e > 0.001
 		if s.visible != shown:
@@ -582,16 +633,174 @@ func _openings_light(r: Room, clock: DayCycle) -> void:
 		if not shown:
 			continue
 		# Written only when it's moved on (each write wakes the render thread when it's on).
-		var colour := cfg.moon_window_colour.lerp(tn.opening_day_colour, day_e / maxf(night_e + day_e, 0.0001))
+		var day_colour := tn.day_window_colour if r.daylight and o.kind != &"hole" else tn.opening_day_colour
+		# A daylight room's windows cast shadows by day (the moon's light is too faint to show one,
+		# and each shadowed light costs render CPU: the night view 2.0 -> 3.2 ms with them on).
+		var shadows: bool = r.daylight and tn.day_window_shadows and o.kind == &"window" and day_e > night_e
+		if s.shadow_enabled != shadows:
+			s.shadow_enabled = shadows
+		var colour := cfg.moon_window_colour.lerp(day_colour, day_e / maxf(night_e + day_e, 0.0001))
 		if absf(s.light_energy - e) > 0.002 * e or not s.light_color.is_equal_approx(colour):
 			s.light_energy = e
 			s.light_color = colour
-		if not o.get("shaped", false) or s.spot_range != cfg.moon_window_reach:
+		if r.daylight and o.kind != &"hole":
+			# Across the room to its far wall, falling off (#829); the reach is cast in a physics
+			# frame (moon_window_reach till then).
+			var reach: float = o.get("reach", cfg.moon_window_reach)
+			if not o.get("shaped", false) or s.spot_range != reach:
+				o["shaped"] = o.has("reach")
+				s.spot_range = reach
+				s.spot_angle = tn.day_window_spread
+				s.spot_attenuation = tn.day_window_attenuation
+				s.spot_angle_attenuation = tn.day_window_angle_attenuation
+		elif not o.get("shaped", false) or s.spot_range != cfg.moon_window_reach:
 			o["shaped"] = true
 			s.spot_range = cfg.moon_window_reach
 			s.spot_angle = clampf(rad_to_deg(atan2(rect.size.x * 0.6, 2.0)) + 34.0, 15.0, 80.0)
 			s.spot_attenuation = 0.8
 			s.spot_angle_attenuation = 5.0
+
+
+# --- daylight with shape (#829) ------------------------------------------------------------------
+
+## A daylight room's rays (physics frame): each window's reach to the far wall, once; the sun's
+## patches when the sun has moved.
+func _daylight_step(r: Room) -> void:
+	var b := r.building
+	var space := World.space(b)
+	if space == null or not b.is_inside_tree():
+		return
+	var tn := tune()
+	for o: Dictionary in r.openings:
+		if o.kind == &"hole" or o.has("reach") or not is_instance_valid(o.spot):
+			continue
+		var s := o.spot as SpotLight3D
+		var level := -s.global_basis.z
+		level.y = 0.0
+		level = level.normalized()
+		var hit := _ray(space, s.global_position, level, 14.0, [])
+		var d: float = s.global_position.distance_to(hit.position) if not hit.is_empty() else tn.day_window_reach_max
+		o["reach"] = clampf(d * tn.day_window_reach_over, tn.day_window_reach_min, tn.day_window_reach_max)
+		if tn.day_window_aim > 0.0:
+			# At the floor partway across: its height under the spot over that distance.
+			var down := _floor_under(space, s.global_position)
+			if not down.is_empty():
+				var h: float = s.global_position.y - (down.position as Vector3).y
+				var tilt := clampf(rad_to_deg(atan2(h, d * tn.day_window_aim)), tn.day_window_tilt_min, tn.day_window_tilt_max)
+				var dir := level * cos(deg_to_rad(tilt)) + Vector3.DOWN * sin(deg_to_rad(tilt))
+				s.global_basis = Basis.looking_at(dir, Vector3.UP)
+				o["tilt"] = tilt
+		r.sky_was = Vector2(-1.0, -1.0)  # shaped on the next frame
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	var sun := clock.sun if clock else null
+	if sun == null:
+		return
+	var l := -sun.global_basis.z
+	if r.sun_was != Vector3.ZERO and rad_to_deg(l.angle_to(r.sun_was)) < tn.sun_patch_degrees:
+		return
+	r.sun_was = l
+	for o: Dictionary in r.openings:
+		if o.kind != &"hole":
+			_sun_patch(r, o, l, space)
+
+
+## The floor under a point, through what stands on it (a counter under a window).
+static func _floor_under(space: PhysicsDirectSpaceState3D, from: Vector3) -> Dictionary:
+	var skip: Array[RID] = []
+	for i in 4:
+		var hit := _ray(space, from, Vector3.DOWN, 6.0, skip)
+		if hit.is_empty():
+			return hit
+		var m := hit.collider as StructureMember
+		if m and String(m.kind).begins_with("floor"):
+			return hit
+		skip.append(hit.rid)
+	return {}
+
+
+## Where the sun through one window lands, and how much of it: {pos, normal, gain (per unit of the
+## sun's energy), colour} in the opening's `patch` (empty: no sun in it).
+func _sun_patch(r: Room, o: Dictionary, l: Vector3, space: PhysicsDirectSpaceState3D) -> void:
+	var tn := tune()
+	var b := r.building
+	var xf := b.global_transform
+	var w: Dictionary = o.frame
+	var rect: Rect2 = o.rect
+	var inward := (xf.basis * (w.inward as Vector3)).normalized()
+	var cos_in := l.dot(inward)
+	o["patch"] = {}
+	if cos_in < 0.05 or l.y > -0.02:
+		return
+	var n := maxi(tn.sun_patch_rays, 1)
+	var lit := 0
+	var pos := Vector3.ZERO
+	var normal := Vector3.ZERO
+	var albedo := Color(0, 0, 0)
+	for i in n:
+		for j in n:
+			var at := Vector2(lerpf(rect.position.x, rect.end.x, (i + 0.5) / n), lerpf(rect.position.y, rect.end.y, (j + 0.5) / n))
+			var p := xf * ((w.origin as Vector3) + (w.along as Vector3) * at.x + Vector3.UP * at.y)
+			# Toward the sun from outside the siding: a porch roof or a neighbour shades it.
+			if not _ray(space, p - l * (0.35 / cos_in), -l, 60.0, []).is_empty():
+				continue
+			var hit := _ray(space, p + l * ((FalseFrontBuilding.STUD_D + 0.12) / cos_in), l, 14.0, [])
+			if hit.is_empty():
+				continue
+			lit += 1
+			pos += hit.position
+			normal += hit.normal
+			albedo += surface_colour(hit.collider)
+	if lit == 0:
+		return
+	var share := float(lit) / float(n * n)
+	albedo = albedo / float(lit)
+	var lightness := albedo.linear_to_srgb().get_luminance()
+	var hue := albedo / maxf(maxf(albedo.r, albedo.g), maxf(albedo.b, 0.001))
+	o["patch"] = {"pos": pos / float(lit), "normal": normal.normalized(),
+			"gain": tn.sun_patch_gain * rect.get_area() * cos_in * share * lightness,
+			"tint": Color.WHITE.lerp(Color(hue.r, hue.g, hue.b), tn.sun_patch_tint)}
+	o["patch_new"] = true
+
+
+## Each window's sun-patch light to the sun now.
+func _sun_light(r: Room, clock: DayCycle) -> void:
+	var sun := clock.sun if clock else null
+	var tn := tune()
+	for o: Dictionary in r.openings:
+		var patch: Dictionary = o.get("patch", {})
+		var s := o.get("sun") as SpotLight3D
+		var e := 0.0
+		if not patch.is_empty() and sun and sun.visible:
+			e = float(patch.gain) * sun.light_energy
+		if e <= 0.001:
+			if s and s.visible:
+				s.visible = false
+			continue
+		if s == null:
+			s = SpotLight3D.new()
+			s.name = "SunPatch%d" % r.openings.find(o)
+			s.shadow_enabled = false
+			s.light_specular = 0.0
+			s.add_to_group(&"room_light_sun")
+			r.building.add_child(s)
+			o["sun"] = s
+			o["patch_new"] = true
+		if o.get("patch_new", false):
+			o["patch_new"] = false
+			var nrm: Vector3 = patch.normal
+			var up := Vector3.UP if absf(nrm.y) < 0.9 else Vector3.FORWARD
+			s.global_transform = Transform3D(Basis.looking_at(nrm, up), (patch.pos as Vector3) + nrm * tn.sun_patch_offset)
+			s.spot_angle = tn.sun_patch_spread
+			s.spot_range = tn.sun_patch_reach
+			s.spot_attenuation = tn.sun_patch_attenuation
+			s.spot_angle_attenuation = tn.sun_patch_angle_attenuation
+			s.light_volumetric_fog_energy = 0.0
+		var colour: Color = sun.light_color * (patch.tint as Color)
+		if absf(s.light_energy - e) > 0.005 * e or not s.light_color.is_equal_approx(colour):
+			s.light_energy = e
+			s.light_color = colour
+		if not s.visible:
+			s.visible = true
 
 
 ## A member broke: if it was in one of a building's walls, that patch of wall is probed for a hole
@@ -771,4 +980,9 @@ func redo() -> void:
 		l.pos = Vector3.INF
 	for r: Room in _rooms.values():
 		r.sky_was = Vector2(-1.0, -1.0)
+		r.sun_was = Vector3.ZERO
+		if is_instance_valid(r.building):
+			for o: Dictionary in r.openings:
+				if is_instance_valid(o.spot):
+					_place_opening(r, o)
 	_since = tune().refresh_seconds

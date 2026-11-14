@@ -385,6 +385,17 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   `film_posts.sh ... climb`; a drawn fight is the headless one at `--fixed-fps 30` with the same
   script).
 
+## Joe beside you (2026-11-12, #843)
+
+`run.py ... --joe=1` (or `gf_fight ... joe=1`, `gf_play SETUP joe=1`, Shift+Y to play it) puts Joe,
+the companion (`CompanionBrain`), 2.2 m to your right and a pace back, his gun out. The record gets
+a `joe` part: his shots and hits (and those on your man), who put each man out (the last ball in
+him), his seconds in your line of fire and steps out of it, how often he held fire on your man, your
+balls in him, the gang's shots at him and hits on him, his downs, his calls. The timeline has his
+changes of mind (`joe`) and his words. `joe_stats.py RUN [RUN...]` sets runs side by side.
+20 fights without him and 20 with: `results/2026-11-12_joe/README.md`. The blind playtest:
+`PLAYTEST_JOE.md`, `docs/playtests/2026-11-12-joe.md`.
+
 ## Limitations
 
 - Headless numbers aren't play: the brief's measure is Sean playing three fights and saying which

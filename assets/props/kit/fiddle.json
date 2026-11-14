@@ -1,0 +1,74 @@
+{
+  "_doc": "A fiddle (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the dance hall's music (Payday Night's fiddler, on his chair on the platform), a plain violin of the period, a body 14 in long with an arched spruce top and its f-holes, maple ribs and back under a worn brown varnish rubbed pale where the chin and hand go, an ebony fingerboard, pegs and tailpiece, a maple bridge and four strings to a carved scroll. Lying on its back (its top up, the scroll at +x, the body's lower bout at the origin's -x). Its bow is its own prop (`fiddle_bow`). Baked the gun way (tools/blender/props/saloon_s2.py). One member (a hollow box of thin wood: `solid` 0.05, wood walnut for its burning): a ball splinters it, a fire takes it. 1 physics body. ~0.5 kg (the kit weighs it ~1.7: StructureMember.weight counts a hollow member's inside as char, #866). Written by tools/props/saloon_s2.py.",
+  "id": "fiddle",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "drawn_bounds": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.5,
+  "grips": {
+    "neck": [
+      0.278,
+      0.0552,
+      0.0
+    ],
+    "chin": [
+      -0.1495,
+      0.092,
+      -0.05
+    ]
+  },
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.595,
+        0.092,
+        0.205
+      ],
+      "at": [
+        0.1195,
+        0.046,
+        0.0
+      ],
+      "wood": "walnut",
+      "look": "pbr:fiddle",
+      "draw": {
+        "shape": "mesh",
+        "model": "fiddle",
+        "part": "Body"
+      },
+      "solid": 0.05,
+      "dress": [
+        {
+          "look": "pbr:fiddle",
+          "draw": {
+            "shape": "mesh",
+            "model": "fiddle",
+            "part": "Neck"
+          }
+        },
+        {
+          "look": "pbr:fiddle",
+          "draw": {
+            "shape": "mesh",
+            "model": "fiddle",
+            "part": "Fittings"
+          }
+        },
+        {
+          "look": "pbr:fiddle",
+          "draw": {
+            "shape": "mesh",
+            "model": "fiddle",
+            "part": "Strings"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon_s2.py"
+}

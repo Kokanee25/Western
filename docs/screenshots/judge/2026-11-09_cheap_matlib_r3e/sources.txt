@@ -1,0 +1,8 @@
+a noon_near build/ml_r3d/rough/rough_pine_batten_old/noon_near.png
+b noon_near build/ml_r3d/rough/rough_pine_batten_few/noon_near.png
+c golden_far build/ml_r3d/rough/rough_pine_batten_new/golden_far.png
+d noon_near build/ml_r3e/common/common_pine_lap_new/noon_near.png
+e golden_far build/ml_r3e/common/common_pine_lap_old/golden_far.png
+f golden_far build/ml_r3e/fine/fine_walnut_tg_old/golden_far.png
+g saloon_near build/ml_r3e/fine/fine_walnut_tg_old/saloon_near.png
+h noon_rail build/ml_r3e/fine/fine_walnut_tg_old/noon_rail.png

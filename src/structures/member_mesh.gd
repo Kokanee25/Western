@@ -3,18 +3,35 @@ class_name MemberMesh
 ## runs along each member's length on every face. With PixelArt.texels_per_meter applied in the
 ## material, texels are the same size on every board, beam and post.
 
+## Each size (to the millimetre) is made once and kept, the least lately asked for dropped past
+## CACHE_LIMIT (#863: every chip, cut and snapped piece is a size of its own, so a long game's cache
+## grew without end, the nightly soak's memory with it). A dropped mesh stays with whatever uses it;
+## the next box of its size is made again (~10 µs from its template).
 static var _cache := {}
+const CACHE_LIMIT := 8192
 
 
 static func box(size: Vector3) -> ArrayMesh:
 	var key := size.snappedf(0.001)
-	if _cache.has(key):
-		return _cache[key]
-	var mesh := _from_template(size)
+	var mesh: ArrayMesh = _cache.get(key)
+	if mesh:
+		_cache.erase(key)  # (to the end: the most lately asked for)
+		_cache[key] = mesh
+		return mesh
+	mesh = _from_template(size)
 	if mesh == null:
 		mesh = _built(size)
 	_cache[key] = mesh
+	if _cache.size() > CACHE_LIMIT:
+		for oldest: Variant in _cache:  # (the first key: the least lately asked for)
+			_cache.erase(oldest)
+			break
 	return mesh
+
+
+## How many sizes it holds (the soak's census, tests).
+static func cached() -> int:
+	return _cache.size()
 
 
 ## Laid out once a kind of box (which axis is longest, and which of the other two is the longer:

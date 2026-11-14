@@ -154,6 +154,85 @@ def slab(name, outline, z0, z1, bevel=0.0, smooth=False):
     return Part(name, smooth).add(verts, faces)
 
 
+def box(name, size, at=(0, 0, 0), smooth=False, bevel=0.0):
+    """A box `size` (x, y, z) centred at `at`; `bevel` rounds its edges by that much (eight corners
+    pulled in: enough for the Bevel node's wear to find them)."""
+    sx, sy, sz = (float(c) * 0.5 for c in size)
+    b = min(bevel, sx, sy, sz)
+    verts, faces = [], []
+    if b <= 0.0:
+        verts = [(x, y, z) for x in (-sx, sx) for y in (-sy, sy) for z in (-sz, sz)]
+        faces = [[0, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]]
+    else:
+        # A rounded box: a 4x4x4 grid of the box's faces, its outer rows pulled in by `b`.
+        cuts = lambda h: (-h, -h + b, h - b, h)
+        grid = {}
+        for i, x in enumerate(cuts(sx)):
+            for j, y in enumerate(cuts(sy)):
+                for k, z in enumerate(cuts(sz)):
+                    if 0 < i < 3 and 0 < j < 3 and 0 < k < 3:
+                        continue
+                    # Each outer point pulled toward its inner neighbour on the axes it's outermost on.
+                    px = x - math.copysign(b * 0.3, x) if i in (0, 3) and (j in (0, 3) or k in (0, 3)) else x
+                    py = y - math.copysign(b * 0.3, y) if j in (0, 3) and (i in (0, 3) or k in (0, 3)) else y
+                    pz = z - math.copysign(b * 0.3, z) if k in (0, 3) and (i in (0, 3) or j in (0, 3)) else z
+                    grid[(i, j, k)] = len(verts)
+                    verts.append((px, py, pz))
+        q = lambda a, b_, c, d: faces.append([grid[a], grid[b_], grid[c], grid[d]])
+        for u in range(3):
+            for v in range(3):
+                q((0, u, v), (0, u, v + 1), (0, u + 1, v + 1), (0, u + 1, v))
+                q((3, u, v), (3, u + 1, v), (3, u + 1, v + 1), (3, u, v + 1))
+                q((u, 0, v), (u + 1, 0, v), (u + 1, 0, v + 1), (u, 0, v + 1))
+                q((u, 3, v), (u, 3, v + 1), (u + 1, 3, v + 1), (u + 1, 3, v))
+                q((u, v, 0), (u, v + 1, 0), (u + 1, v + 1, 0), (u + 1, v, 0))
+                q((u, v, 3), (u + 1, v, 3), (u + 1, v + 1, 3), (u, v + 1, 3))
+    a = np.asarray(at, float)
+    return Part(name, smooth).add([np.asarray(v) + a for v in verts], faces)
+
+
+def lathe(name, profile, sides=16, at=(0, 0, 0), axis="y", smooth=True, caps=(True, True)):
+    """Turned about `axis` through `at`: `profile` [(radius, height along the axis), ...] bottom up
+    (a basin, a pitcher's body, a lamp's font, a bedpost's knob)."""
+    verts, faces = [], []
+    n = len(profile)
+    for r, h in profile:
+        for k in range(sides):
+            t = 2 * math.pi * k / sides
+            verts.append((math.cos(t) * r, h, math.sin(t) * r))
+    for i in range(n - 1):
+        for k in range(sides):
+            a = i * sides + k
+            b_ = i * sides + (k + 1) % sides
+            faces.append([a, a + sides, b_ + sides, b_])
+    if caps[0] and profile[0][0] > 1e-6:
+        verts.append((0.0, profile[0][1], 0.0))
+        c = len(verts) - 1
+        faces += [[c, k, (k + 1) % sides] for k in range(sides)]
+    if caps[1] and profile[-1][0] > 1e-6:
+        verts.append((0.0, profile[-1][1], 0.0))
+        c = len(verts) - 1
+        base = (n - 1) * sides
+        faces += [[c, base + (k + 1) % sides, base + k] for k in range(sides)]
+    rot = {"y": lambda v: v, "x": lambda v: (v[1], -v[0], v[2]), "z": lambda v: (v[0], v[2], -v[1]) if False else (v[0], -v[2], v[1])}[axis]
+    a = np.asarray(at, float)
+    return Part(name, smooth).add([np.asarray(rot(v)) + a for v in verts], faces)
+
+
+def moved(part, angle_deg=0.0, axis=(0, 0, 1), at=(0, 0, 0), name=None):
+    """A copy of `part` turned `angle_deg` about `axis` (through the origin), then moved by `at`."""
+    ax = np.asarray(axis, float)
+    ax /= np.linalg.norm(ax)
+    t = math.radians(angle_deg)
+    c, s_ = math.cos(t), math.sin(t)
+    x, y, z = ax
+    m = np.array([[c + x * x * (1 - c), x * y * (1 - c) - z * s_, x * z * (1 - c) + y * s_],
+                  [y * x * (1 - c) + z * s_, c + y * y * (1 - c), y * z * (1 - c) - x * s_],
+                  [z * x * (1 - c) - y * s_, z * y * (1 - c) + x * s_, c + z * z * (1 - c)]])
+    out = Part(name or part.name, part.smooth)
+    return out.add([m @ np.asarray(v) + np.asarray(at, float) for v in part.verts], part.faces)
+
+
 def straws(name, rng, count, area, y, length=(0.08, 0.2), thick=0.004, lift=0.05):
     """Loose straws: thin flat sticks lying about `area` (x0, z0, x1, z1) at height y."""
     part = Part(name, smooth=False)

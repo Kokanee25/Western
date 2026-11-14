@@ -1,0 +1,142 @@
+{
+  "_doc": "The bar's gold scales (#866; refs experiments/prop_lab/refs/saloon/; no cash register in 1882 Colorado: dust and coin were weighed): a brass balance, a turned pillar, a beam on its knife edge with its pointer, two pans on stirrups, on an oak base with a drawer for the weights (its brass knob). The doctor's balance (#805, glb:scales) out of its glass case: the same parts on a smaller base. Stands on the back bar by the till. 6 physics bodies. ~5 kg. Written by tools/props/saloon.py.",
+  "id": "gold_scales",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        0.3,
+        0.075,
+        0.17
+      ],
+      "at": [
+        0.0,
+        0.0375,
+        -0.02
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "drawer",
+      "kind": "trim",
+      "size": [
+        0.2,
+        0.042,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.0375,
+        0.071
+      ],
+      "look": "lib:furniture_oak/few/front",
+      "dress": [
+        {
+          "look": "pbr:scales",
+          "draw": {
+            "shape": "mesh",
+            "model": "scales",
+            "part": "Knob",
+            "at": [
+              0.0,
+              0.0,
+              -0.06
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "pillar",
+      "kind": "stud",
+      "size": [
+        0.012,
+        0.31,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.23,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "Pillar"
+      }
+    },
+    {
+      "id": "beam",
+      "kind": "cripple",
+      "size": [
+        0.24,
+        0.008,
+        0.006
+      ],
+      "at": [
+        0.0,
+        0.385,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "Beam"
+      }
+    },
+    {
+      "id": "pan_l",
+      "kind": "trim",
+      "size": [
+        0.004,
+        0.28,
+        0.004
+      ],
+      "at": [
+        -0.12,
+        0.245,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "PanL"
+      }
+    },
+    {
+      "id": "pan_r",
+      "kind": "trim",
+      "size": [
+        0.004,
+        0.28,
+        0.004
+      ],
+      "at": [
+        0.12,
+        0.245,
+        -0.02
+      ],
+      "wood": "iron",
+      "look": "pbr:scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "scales",
+        "part": "PanR"
+      }
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

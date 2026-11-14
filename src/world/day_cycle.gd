@@ -242,7 +242,9 @@ func apply_visuals() -> void:
 		for probe in get_tree().get_nodes_in_group(&"interior_ambient"):
 			var night: float = probe.get_meta(&"night_ambient", config.interior_ambient_night)
 			night *= float(probe.get_meta(&"room_light_scale", 1.0))  # RoomLight's room fill (art; 1 off)
-			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, config.interior_ambient_day, daylight)
+			# A building's own day fill (art's, #829: a spec's `light.day_fill`, its rooms lit by their windows)
+			var day_fill: float = probe.get_meta(&"day_ambient", config.interior_ambient_day)
+			(probe as ReflectionProbe).ambient_color_energy = lerpf(night, day_fill, daylight)
 		var sky_mat: ShaderMaterial = env.sky.sky_material as ShaderMaterial if env.sky else null
 		if sky_mat:
 			# Only what's changed visibly (see DayCycleConfig.sky_update_degrees): each send re-lights

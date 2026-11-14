@@ -280,6 +280,17 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		Events.bullet_hit.emit(info)
 		stick.shot(dir * b.mass * sqrt(2.0 * e_before / maxf(b.mass, 1e-4)))
 		return remaining
+	elif collider != null and collider.has_meta(&"rope"):
+		# A hanging rope (#734): the ball cuts what it passes through and goes on.
+		var rope: Rope = collider.get_meta(&"rope")
+		_set_energy(b, maxf(e_before - rope.take_ball(hit.position, dir, b.diameter, e_before), 0.0))
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		info.rope = rope
+		info.penetrated = true
+		info.energy_after = b.energy()
+		b.hits.append(info)
+		Events.bullet_hit.emit(info)
+		return remaining
 	elif collider != null and collider.has_meta(&"oil_lamp"):
 		(collider.get_meta(&"oil_lamp") as OilLamp).smash(dir)
 		b.exclude.append((collider as CollisionObject3D).get_rid())

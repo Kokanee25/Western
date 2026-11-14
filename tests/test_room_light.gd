@@ -2,7 +2,8 @@ extends TestCase
 ## RoomLight (issue #608 part 1): off it touches nothing; on, each lit lamp's bounce lights sit
 ## where its light lands and follow it (moved, put out); the room's fill goes amber and follows its
 ## lamps; a hole broken in a wall becomes an opening; a shot thickens the room's haze; off again
-## puts back everything it changed.
+## puts back everything it changed. A daylight room (#829) has its windows' light run across it and
+## a light off each sunlit patch; a building's own day fill is what DayCycle gives its probe.
 
 
 var was_real := false
@@ -178,6 +179,66 @@ func test_the_door_and_windows_and_a_hole_broken_in_a_wall_let_the_sky_in() -> v
 		check(float(holes[0].area) > 0.3, "about the patch's size (%.2f m2)" % float(holes[0].area))
 		check((holes[0].spot as SpotLight3D).get_parent() == b, "its light in the building")
 	await _tidy(parts)
+
+
+func test_a_daylight_rooms_windows_light_across_it_and_its_sun_patch_lights_the_room() -> void:
+	var clock := DayCycle.new()
+	clock.config = load("res://config/day_cycle.tres")
+	var sun := DirectionalLight3D.new()
+	clock.sun = sun
+	clock.add_child(sun)
+	clock.world_environment = WorldEnvironment.new()
+	clock.world_environment.environment = Environment.new()
+	clock.add_child(clock.world_environment)
+	add_child(clock)
+	clock.set_process(false)
+	clock.set_physics_process(false)
+	clock.set_time(12.0)
+	var b := FalseFrontBuilding.new()
+	b.structure_id = &"day_store"
+	b.furnished = false
+	b.porch = false
+	b.set_meta(&"room_window_gain", 3.0)  # a building with its own light (a spec's `light`)
+	add_child(b)
+	# The probe's own day fill: DayCycle's at full day.
+	var probe := b.get_node(^"InteriorAmbient") as ReflectionProbe
+	probe.set_meta(&"day_ambient", 0.12)
+	clock.apply_visuals()
+	check_near(probe.ambient_color_energy, 0.12, 0.001, "the building's own day fill")
+	# The sun low in front, through the front windows and door (they face -z; in is +z).
+	sun.global_transform = Transform3D(Basis.looking_at(Vector3(0.0, -0.55, 1.0).normalized(), Vector3.UP), Vector3(0, 30, -30))
+	var rl := RoomLight.new()
+	add_child(rl)
+	await physics_frames(2)
+	Settings.room_light = true
+	await _settle(rl)
+	for i in 4:
+		await physics_frames(1)
+		await process_frames(1)
+	var front := rl.openings_of(b).filter(func(o: Dictionary) -> bool: return o.kind == &"window")
+	check(front.size() == (2 if b.front_windows else 0), "the front windows")
+	for o: Dictionary in front:
+		var s := o.spot as SpotLight3D
+		var aim := -s.global_basis.z
+		check(rad_to_deg(aim.angle_to(Vector3(aim.x, 0.0, aim.z))) < 30.0, "a window's light runs across the room, not down the wall (%.0f deg)" % rad_to_deg(aim.angle_to(Vector3(aim.x, 0.0, aim.z))))
+		check(s.spot_range >= b.depth - 0.5, "to the far wall and past it (%.1f m, %.1f deep)" % [s.spot_range, b.depth])
+		check(s.spot_attenuation > 1.0, "falling off across the room")
+		check(s.shadow_enabled, "casting shadows (a partition stops it)")
+	var suns := b.find_children("SunPatch*", "SpotLight3D", false, false).filter(func(n: Node) -> bool: return (n as Node3D).visible)
+	check(suns.size() >= 1, "a light off a sunlit patch (%d)" % suns.size())
+	for n: Node in suns:
+		var s := n as SpotLight3D
+		var at := b.to_local(s.global_position)
+		check(at.z > 0.3 and at.z < b.depth and at.x > 0.0 and at.x < b.width, "inside the room (%s)" % at)
+		check(at.y < b.floor_top + 0.6, "off the floor (%.2f, floor %.2f)" % [at.y, b.floor_top])
+		check((-s.global_basis.z).y > 0.8, "facing up into the room")
+		check(s.light_energy > 0.0, "lit by the sun")
+	# The sun gone: the patches' lights out.
+	sun.visible = false
+	await process_frames(2)
+	check(b.find_children("SunPatch*", "SpotLight3D", false, false).all(func(n: Node) -> bool: return not (n as Node3D).visible),
+			"no sun, no patch light")
+	await _tidy([b, rl, clock])
 
 
 func test_a_shot_inside_thickens_the_rooms_haze_and_it_clears() -> void:

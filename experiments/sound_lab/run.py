@@ -11,6 +11,8 @@ nothing drawn but the view's one frame), the heard WAVs measured by measure.py, 
     --jobs=N (3), --seed=N, --picture (draw every frame: slow, the movie kept as ROOT/<s>/movie.avi),
     --old-sound (the game's sounds as before the lab's changes, GameAudio: the "before" from this build)
     --blast-set=N (dynamite from recording set N, BlastSounds; 0 the synthesised blast; #596)
+    --file=WAV (the recording a music scenario plays: the fiddler, #790)
+    --timeout=S (a game's limit in seconds; 900, 2400 drawn: a long tune from the porch needs more)
 """
 import fnmatch
 import json
@@ -51,7 +53,8 @@ def run_one(job):
     os.makedirs(out_dir, exist_ok=True)
     cmds = os.path.join(out_dir, "cmds.txt")
     with open(cmds, "w") as f:
-        f.write(f"sound {name} seed={seed} out={out_dir}{' picture' if picture else ''}\nquit\n")
+        music = f" file={os.path.abspath(_opt('file'))}" if _opt("file") else ""
+        f.write(f"sound {name} seed={seed} out={out_dir}{' picture' if picture else ''}{music}\nquit\n")
     movie = os.path.join(out_dir, "movie.avi")
     godot = os.environ.get("GODOT", "godot")
     cmd = ["xvfb-run", "-a", "-s", "-screen 0 640x360x24", godot, "--path", ROOT, "--rendering-driver", "vulkan",
@@ -63,7 +66,7 @@ def run_one(job):
     t = time.time()
     with open(os.path.join(out_dir, "godot.log"), "w") as log:
         try:
-            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=2400 if picture else 900, start_new_session=True)  # (a drawn run is ~20 min under lavapipe)
+            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=int(_opt('timeout', 2400 if picture else 900)), start_new_session=True)  # (a drawn run is ~20 min under lavapipe)
         except subprocess.TimeoutExpired:
             pass
     if not picture and os.path.exists(movie):
@@ -89,6 +92,8 @@ def main():
     if want:
         pats = want.split(",")
         todo = [n for n in todo if any(fnmatch.fnmatch(n, p) for p in pats)]
+    if not _opt("file"):
+        todo = [n for n in todo if not n.startswith("music_")]  # a music scenario plays a --file= recording
     os.makedirs(out, exist_ok=True)
     # Godot's import mustn't take the WAVs and PNGs for the project's.
     open(os.path.join(out, ".gdignore"), "w").close()

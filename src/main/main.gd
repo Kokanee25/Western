@@ -47,6 +47,7 @@ func _ready() -> void:
 	add_child(recorder)
 	CrashReports.start(self, recorder)  # the black box, the crash and freeze reports (#624)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	CompanionBrain.maybe_start(self)  # --joe: Joe beside you, the companion (#843)
 	var town := Settings.world == &"town"  # the moments and the labs' keys need the old town
 	if town:
 		Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)

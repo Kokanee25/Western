@@ -1,0 +1,5 @@
+front: render CPU median 2.27 ms here, 1.47 at Sean's (x0.65); 1050 draws
+corner: render CPU median 1.70 ms here, 1.10 at Sean's (x0.65); 753 draws
+yard: render CPU median 4.87 ms here, 3.16 at Sean's (x0.65); 4029 draws
+rear: render CPU median 5.41 ms here, 3.52 at Sean's (x0.65); 4193 draws
+corridor: render CPU median 4.83 ms here, 3.14 at Sean's (x0.65); 4209 draws

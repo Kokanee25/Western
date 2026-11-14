@@ -1,0 +1,5 @@
+a close_right build/win73/views_p5/close_right.png
+b close_muzzle build/win73/views_p5/close_muzzle.png
+c close_hammer_top build/win73/views_p5/close_hammer_top.png
+d fp_action_sunbehind build/win73/views_p5/fp_action_sunbehind.png
+e fp_ready_sunbehind build/win73/views_p5/fp_ready_sunbehind.png

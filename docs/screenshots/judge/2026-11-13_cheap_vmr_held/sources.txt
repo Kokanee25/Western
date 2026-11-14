@@ -1,0 +1,5 @@
+a saa_idle build/vmr/real/day_held/saa_idle.png
+b saa_aim build/vmr/real/day_held/saa_aim.png
+c win73_aim build/vmr/real/day_held/win73_aim.png
+d win73_lever build/vmr/real/day_held/win73_lever.png
+e saa_idle build/vmr/real/lamp_held/saa_idle.png

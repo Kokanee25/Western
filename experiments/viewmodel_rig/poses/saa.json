@@ -1,0 +1,139 @@
+{
+ "about": "The Colt Single Action Army held by the first-person rig (#896). As poses/win73.json: the gun set through saa_rig.gd, hung under the camera, each hand placed in the gun's own space; set by eye. One hand on the gun but for the reload (the gun in the left hand, the right at the gate and the ejector rod).",
+ "gun": "res://experiments/gun_lab/saa/saa_75.glb",
+ "rig": "res://experiments/gun_lab/saa/saa_rig.gd",
+ "rig_json": "res://experiments/gun_lab/saa/saa_75_rig.json",
+ "kick": {
+  "pitch": 9.0,
+  "yaw": 1.0,
+  "roll": 2.0,
+  "back": 0.025,
+  "rise": 0.06,
+  "damping": 0.55
+ },
+ "hands": {
+  "grip_r": {
+   "at": [0.021, -0.01, 0.022],
+   "along": [0.0, 0.53, 0.85],
+   "palm": [-1.0, 0.0, 0.0],
+   "elbow": [0.26, -0.45, 0.02],
+   "fingers": {
+    "middle": 70,
+    "ring": 70,
+    "little": 66,
+    "index": [5, 25, 15]
+   },
+   "spread": {
+    "index": 4
+   },
+   "thumb": {
+    "root": [10, 25, 20],
+    "bend": [15, 10]
+   }
+  }
+ },
+ "poses": {
+  "idle": {
+   "gun": {
+    "hammer": "rest"
+   },
+   "held": {
+    "marker": "GripWeb",
+    "at": [0.1, -0.09, -0.28],
+    "rot": [-10.0, 8.0, -6.0]
+   },
+   "fov": 55,
+   "r": "grip_r"
+  },
+  "aim": {
+   "gun": {
+    "hammer": "full"
+   },
+   "held": {
+    "sights": 0.48
+   },
+   "fov": 62,
+   "r": {
+    "base": "grip_r",
+    "elbow": [0.18, -0.32, -0.2],
+    "fingers": {
+     "middle": 70,
+     "ring": 70,
+     "little": 66,
+     "index": [8, 32, 20]
+    }
+   }
+  },
+  "cock": {
+   "gun": {
+    "hammer": 14.0
+   },
+   "held": {
+    "marker": "GripWeb",
+    "at": [0.08, -0.09, -0.28],
+    "rot": [-4.0, 10.0, -24.0]
+   },
+   "fov": 55,
+   "r": {
+    "base": "grip_r",
+    "fingers": {
+     "middle": 70,
+     "ring": 70,
+     "little": 66,
+     "index": [0, 10, 8]
+    },
+    "thumb": {
+     "root": [0, 55, 10],
+     "bend": [25, 20]
+    }
+   }
+  },
+  "reload": {
+   "gun": {
+    "hammer": "half",
+    "gate": 1.0,
+    "ejector": 0.7,
+    "to_gate": 0,
+    "chamber0": "spent"
+   },
+   "held": {
+    "marker": "GatePoint",
+    "at": [0.02, -0.13, -0.32],
+    "rot": [8.0, 55.0, 35.0]
+   },
+   "fov": 75,
+   "l": {
+    "at": [-0.021, 0.004, 0.026],
+    "along": [0.0, 0.37, 0.93],
+    "palm": [1.0, 0.0, 0.0],
+    "elbow": [-0.18, -0.48, -0.05],
+    "fingers": {
+     "middle": 66,
+     "ring": 68,
+     "little": 64,
+     "index": 50
+    },
+    "thumb": {
+     "root": [25, 20, 25],
+     "bend": [20, 15]
+    }
+   },
+   "r": {
+    "at": [0.03, 0.05, -0.12],
+    "along": [0.35, -0.15, 0.92],
+    "palm": [-0.9, -0.3, 0.2],
+    "elbow": [0.25, -0.45, -0.05],
+    "fingers": {
+     "index": [5, 20, 10],
+     "middle": 60,
+     "ring": 70,
+     "little": 75
+    },
+    "thumb": {
+     "root": [10, 15, 20],
+     "bend": [15, 10]
+    }
+   }
+  }
+ }
+}

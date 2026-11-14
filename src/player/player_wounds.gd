@@ -122,11 +122,19 @@ func _ready() -> void:
 	_grit_rect.visible = false
 	layer.add_child(_grit_rect)
 	layer.move_child(_grit_rect, 0)  # under the wounds' red and the black
+	# Across the middle 80% of the screen at the bottom, wrapped (a long line, the doctor's in No
+	# Justice, ran off both edges, #859's playtest), growing upward from where one line sits.
 	_message = Label.new()
-	_message.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_message.position.y -= 60
+	_message.anchor_left = 0.1
+	_message.anchor_right = 0.9
+	_message.anchor_top = 1.0
+	_message.anchor_bottom = 1.0
+	_message.offset_top = -60.0
+	_message.offset_bottom = -36.0
+	_message.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_message.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_message.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_message.add_theme_color_override(&"font_color", Color(0.95, 0.9, 0.8))
 	_message.add_theme_color_override(&"font_outline_color", Color.BLACK)
 	_message.add_theme_constant_override(&"outline_size", 4)
@@ -171,7 +179,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := inv * pos
 	var d := inv.basis * dir
 	o.y /= squash
@@ -211,7 +219,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedded := false) -> Dictionary:
 	var seg := _segment_at(pos)
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := xf.affine_inverse() * pos
 	o.y /= squash
 	var d := (xf.affine_inverse().basis * dir).normalized()
@@ -238,13 +246,54 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 	return harm
 
 
+## You land from a fall (issue #759; Falls, config/falls.tres): you always land on your feet, so the
+## feet-first rules a falling man's landing has (HumanBody._step_fall): your weight and `speed`
+## (m/s down as you landed), your feet first, the rest up your legs as the falls lab measured, the
+## load into your pelvis and low back, and the whole body's stop on the aorta. Under `min_speed`
+## (about 1.5 m) nothing. Returns what it did.
+func take_fall(speed: float) -> PackedStringArray:
+	var ft := Falls.t()
+	var harm: PackedStringArray = []
+	if speed < ft.min_speed or not physiology.alive:
+		return harm
+	var joules := Falls.hurt_energy(ft.player_mass, speed, 0.0, ft) * ft.feet_soften
+	var blows := {}
+	blows[&"foot_r"] = joules * ft.feet_lead_share * 0.5
+	blows[&"foot_l"] = joules * ft.feet_lead_share * 0.5
+	var weights := 0.0
+	for region: String in ft.player_rest:
+		weights += float(ft.player_rest[region])
+	for region: String in ft.player_rest:
+		var j := joules * (1.0 - ft.feet_lead_share) * float(ft.player_rest[region]) / maxf(weights, 1e-6)
+		if region in ["thigh", "shin", "foot", "upper_arm", "forearm", "hand"]:
+			blows[StringName(region + "_r")] = float(blows.get(StringName(region + "_r"), 0.0)) + j * 0.5
+			blows[StringName(region + "_l")] = float(blows.get(StringName(region + "_l"), 0.0)) + j * 0.5
+		else:
+			blows[StringName(region)] = float(blows.get(StringName(region), 0.0)) + j
+	blows[&"pelvis"] = float(blows.get(&"pelvis", 0.0)) + joules * ft.spine_share
+	for seg: StringName in blows:
+		if float(blows[seg]) >= ft.least_blow:
+			for h in physiology.blow(seg, float(blows[seg]), _rng):
+				if h != "bruised" and not harm.has(h):
+					harm.append(h)
+	harm.append_array(physiology.axial(&"spine", joules * ft.spine_share, _rng))
+	harm.append_array(physiology.axial(&"aorta", joules / maxf(ft.injury_share, 1e-6), _rng))
+	_flash = 1.0
+	player.add_look(Vector2(_rng.randf_range(-3.0, 3.0), _rng.randf_range(-10.0, -4.0)))
+	say("You land hard%s." % (": " + ", ".join(harm) if not harm.is_empty() else ""), 3.0)
+	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": &"foot_r", "hits": [],
+			"position": player.global_position, "direction": Vector3.DOWN, "exit": null, "lodged": false,
+			"kind": &"blow", "harm": harm, "joules": joules, "fall": true})
+	return harm
+
+
 ## Caught by a charge going off at `at` (`held`: it went off in your own right hand). The same
 ## rules as anyone: ears, lungs, head, burns, a hand or more torn off; and you hear nothing but
 ## ringing for a while (for good, muffled, if an eardrum went).
 func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	var bt := Blast.t()
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var kpa := {}
 	var chest := xf * Vector3(0, 1.3 * squash, 0)
 	var head := player.camera.global_position
@@ -517,7 +566,7 @@ func _grit_view(delta: float) -> void:
 ## Which part of you is at a world point (standing, or crouched and squashed down).
 func _segment_at(point: Vector3) -> StringName:
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var p := xf.affine_inverse() * point
 	p.y /= squash
 	var best := &"chest"
@@ -696,13 +745,15 @@ func _tell_gun() -> void:
 					_gun_told = now
 					say(not_now.substr(0, 1).to_upper() + not_now.substr(1) + ".", 2.5)
 				return
-	if why == "" or why == "your hands are pressing on a wound":
-		_gun_why = ""  # (that one you're doing yourself: nothing to tell)
-		return
 	var tried := false
 	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
 		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
 			tried = true
+	# The ones you're doing yourself (your hands on a wound; sat at a table, said only when you try
+	# the gun): nothing to tell.
+	if why == "" or why == "your hands are pressing on a wound" or (why == w.busy_why and not tried):
+		_gun_why = ""
+		return
 	if why != _gun_why or (tried and now - _gun_told > 2.0):
 		_gun_why = why
 		_gun_told = now
@@ -760,8 +811,12 @@ func _physics_step(delta: float) -> void:
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
 		var given_up := _given_up_in_reach()
+		var companion := CompanionBrain.in_view(player)
 		if given_up != null:
 			_arrest(given_up)
+		elif companion != null:
+			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
+			say(companion.told(player), 2.0)
 		elif w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
@@ -780,9 +835,14 @@ func _physics_step(delta: float) -> void:
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
 	for gun in player.weapons:
-		gun.hands_busy = tending > 0.0
-		# The shotgun takes both hands; the revolver only the right.
-		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
+		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
+		var sat := player.seat != null and player.seat.seated()
+		# One you don't carry (No Law: the revolver till the sheriff gives it, Player.lacks).
+		var lacked := not player.carries(gun)
+		gun.hands_busy = tending > 0.0 or sat or lacked
+		gun.busy_why = "you haven't got one" if lacked else ("you're sat at the table" if sat and tending <= 0.0 else "")
+		# The shotgun and the rifle take both hands; the revolver only the right.
+		gun.arm_disabled = not p.can_hold("r") or ((gun is ShotgunViewmodel or gun is Winchester73Viewmodel) and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
 		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - steadiness) * 4.0
 		gun.arm_why = "" if not gun.arm_disabled else p.why_cant_hold("r") if p.why_cant_hold("r") != "" else p.why_cant_hold("l")
@@ -871,8 +931,9 @@ func _limb_top(seg: StringName) -> StringName:
 ## Out cold (or killed): somebody carries you off and patches you up, and you come round hours
 ## later, hurt as you were but bound up, and told what happened (DESIGN.md §3: you wake up at the
 ## doctor's, hurt, poorer, and the town knows): beside the doctor's cot (no doctor himself yet:
-## M5), or the store's floor where there's no doctor's; until there's a purse it costs you nothing
-## but the hours.
+## M5), or the store where there's no doctor's (WorldPlaces.wake_spots: the valley's own, #864);
+## where the world has neither, where you fell. Until there's a purse it costs you nothing but
+## the hours.
 func _come_round() -> void:
 	knocked_out.emit()
 	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
@@ -884,18 +945,11 @@ func _come_round() -> void:
 	out_cold = 0.0
 	if player.has_meta(&"last_hit_by"):
 		player.remove_meta(&"last_hit_by")
-	var marker: Node = null
-	var where := "on the store floor"
-	for spot: Array in [["DoctorInside", "at the doctor's"], ["StoreInside", "on the store floor"]]:
-		var root: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
-		marker = root.find_child(spot[0], true, false)
-		if marker == null:
-			marker = get_tree().root.find_child(spot[0], true, false)
-		if marker != null:
-			where = spot[1]
-			break
-	if marker is Node3D:
-		player.global_position = (marker as Node3D).global_position
+	var where := "where you fell"
+	var spots := WorldPlaces.wake_spots(get_tree())
+	if not spots.is_empty():
+		where = String(spots[0].where)
+		player.global_position = spots[0].at
 		player.velocity = Vector3.ZERO
 	var clock := ""
 	var day := get_tree().get_first_node_in_group(&"day_cycle")
