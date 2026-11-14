@@ -1,0 +1,351 @@
+{
+  "_doc": "A three-leaf folding dressing screen (#903; refs experiments/prop_lab/refs/saloon_stage/): each leaf 20 x 66 in, an old oak frame (two stiles, a foot and a head rail) with brass hinges between, the panels a faded cretonne (a printed cotton of the 1870s-80s, stripes and sprigs of flowers, sun-faded and stained) tacked on. The middle leaf across x at z = 0, the wings folded forward 30 degrees: a shallow bay the performer changes behind, its inside toward +z. The frames from the material library (oak, old); the cloth printed (tools/blender/props/saloon_stage.py, `screen_cloth`) and burns (wood `canvas`: a ball goes through it, a lamp's oil sets it alight); the hinges baked the gun way. It doesn't fold yet. 15 physics bodies. ~11 kg. Saloon B's dressing room (room_6), across its corner by the door; a second in the wing beside the stage for a quick change. Written by tools/props/saloon_stage.py.",
+  "id": "dressing_screen",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "stile_ma",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        -0.2275,
+        0.815,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dress": [
+        {
+          "look": "pbr:dressing_screen",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_screen",
+            "part": "HingesA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stile_mb",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        0.2275,
+        0.815,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dress": [
+        {
+          "look": "pbr:dressing_screen",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_screen",
+            "part": "HingesB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "foot_m",
+      "kind": "furniture_frame",
+      "size": [
+        0.42,
+        0.05,
+        0.024
+      ],
+      "at": [
+        0.0,
+        0.125,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "head_m",
+      "kind": "furniture_frame",
+      "size": [
+        0.49,
+        0.05,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.655,
+        0.0
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "rot": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "panel_m",
+      "kind": "trim",
+      "size": [
+        0.42,
+        1.48,
+        0.006
+      ],
+      "at": [
+        0.0,
+        0.89,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:screen_cloth",
+      "rot": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "dressing_screen",
+        "part": "Panel0"
+      }
+    },
+    {
+      "id": "stile_la",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        -0.6598,
+        0.815,
+        0.2377
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "stile_lb",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        -0.2658,
+        0.815,
+        0.0103
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "foot_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.42,
+        0.05,
+        0.024
+      ],
+      "at": [
+        -0.4628,
+        0.125,
+        0.124
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "head_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.49,
+        0.05,
+        0.03
+      ],
+      "at": [
+        -0.4628,
+        1.655,
+        0.124
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "rot": [
+        0.0,
+        30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "panel_l",
+      "kind": "trim",
+      "size": [
+        0.42,
+        1.48,
+        0.006
+      ],
+      "at": [
+        -0.4628,
+        0.89,
+        0.124
+      ],
+      "wood": "canvas",
+      "look": "pbr:screen_cloth",
+      "rot": [
+        0.0,
+        30.0,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "dressing_screen",
+        "part": "Panel1"
+      }
+    },
+    {
+      "id": "stile_ra",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        0.2658,
+        0.815,
+        0.0103
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        -30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "stile_rb",
+      "kind": "post",
+      "size": [
+        0.035,
+        1.63,
+        0.03
+      ],
+      "at": [
+        0.6598,
+        0.815,
+        0.2377
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        -30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "foot_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.42,
+        0.05,
+        0.024
+      ],
+      "at": [
+        0.4628,
+        0.125,
+        0.124
+      ],
+      "look": "lib:furniture_oak/old",
+      "rot": [
+        0.0,
+        -30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "head_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.49,
+        0.05,
+        0.03
+      ],
+      "at": [
+        0.4628,
+        1.655,
+        0.124
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "rot": [
+        0.0,
+        -30.0,
+        0.0
+      ]
+    },
+    {
+      "id": "panel_r",
+      "kind": "trim",
+      "size": [
+        0.42,
+        1.48,
+        0.006
+      ],
+      "at": [
+        0.4628,
+        0.89,
+        0.124
+      ],
+      "wood": "canvas",
+      "look": "pbr:screen_cloth",
+      "rot": [
+        0.0,
+        -30.0,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "dressing_screen",
+        "part": "Panel2"
+      }
+    }
+  ],
+  "factory": "tools/props/saloon_stage.py"
+}
