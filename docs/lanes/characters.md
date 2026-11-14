@@ -17,6 +17,11 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - Motion: `LibraryMotion` (CMU basics, Uthana gun walk/run; clips carry clavicles, #708). Uthana bills ~$0.50
   a prediction.
 - No working girl for now (#698).
+- MetaHumans (#889): `tools/metahuman_to_game.sh <build>` in the Studio lays one into the git-ignored
+  `assets/people/private/` (model `private/<build>`; never committed, #692's licence) with three lighter
+  levels cut at load (`<build>_lod1..3`, `PeopleBodies.glb_of/simplified/thin_cards`), the grooms' alpha cut,
+  his hair under a hat. Costs: `docs/reviews/2026-11-metahumans-town.md` (~18 with levels, like today's men;
+  ~150 MB textures a distinct man). Not cast yet: the game can't fetch private files on Sean's PC or CI.
 
 ## Open
 - **First-person hands, option 2** (#896, a lab: `experiments/viewmodel_rig/`, `tools/blender/fp_arms.py`): the
@@ -31,6 +36,7 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - The run's planting foot drifts (foot IK).
 
 ## Traps
+- Bench: `tools/characters/metahuman_bench.py` (~4 h, one game at a time); its `pgrep -f` waits match themselves, use `ps`.
 - After a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - `talking_face.py --pin=no` for loose hair or a short head mesh (the edge pin slashes the chin).
 - Judge every change against Sean's pictures and his words.

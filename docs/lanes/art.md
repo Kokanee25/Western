@@ -21,12 +21,15 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
-  **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
-  (#858); saloon B is Fable's (#848: step 1 done, below).
-- **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
-  whitewash inside and rubble outside not in the library (the game's stone stands in; both judges name it first);
-  the parapet flat where the sheet's steps up in the middle; the 10 ft yard wall hides the cell wing from the lane.
-  Sean's picks (the `waiting on Sean` issue). The rooms wait on the prop lab's furniture.
+  **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
+  the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **Next: the general store
+  (#858)**; saloon B is Fable's (#848: step 1 done, below).
+- **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
+  `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
+  failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
+  Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
+  drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
+  The rooms wait on the prop lab's furniture.
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
 - **Saloon B, the corner saloon** (#772): step 1 merged (#848: spec and frame on the corner lot,
