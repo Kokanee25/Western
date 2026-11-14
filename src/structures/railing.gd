@@ -12,7 +12,13 @@ extends RefCounted
 ## `from` and `to` are the line the rail's top follows, less `height`: the floor's edge for a level
 ## rail. A spec may set `height` (0.95), `spacing` (0.15), `baluster` (0.035 square), `rail` (its
 ## width and depth, Vector2(0.08, 0.05)), `overhang` past the end balusters (0.04), `wood`
-## (dark_trim), `span` (SPAN) and `posts` (each baluster's foot, in place of `spacing`).
+## (dark_trim), `span` (SPAN), `posts` (each baluster's foot, in place of `spacing`) and `profile`
+## (the rail's section, Profiles: "handrail" by default; "" a plain box).
+##
+## The rail is drawn run to its profile (#873, Sean 2026-11-12: "nice rounded wood ... rounded top flat
+## bottom"): Profiles.handrail, the period moulded rail with a broad rounded top, a finger groove each
+## side and a flat underside the balusters meet, the grain along it and shaded smooth. Its physics is
+## still its box. A building's library finish keeps the profile (the member's meta `draw`, PropKit.dress_member).
 
 ## The longest span of rail between joints (m): a rail is cut and nailed about this often.
 const SPAN := 1.2
@@ -24,6 +30,7 @@ static func build(s: Structure, id: String, from: Vector3, to: Vector3, spec := 
 	var rail: Vector2 = spec.get("rail", Vector2(0.08, 0.05))
 	var overhang: float = spec.get("overhang", 0.04)
 	var wood: StringName = spec.get("wood", &"dark_trim")
+	var profile := String(spec.get("profile", "handrail"))
 	var out: Array[StructureMember] = []
 	var top_a := from + Vector3.UP * height
 	var top_b := to + Vector3.UP * height
@@ -54,6 +61,12 @@ static func build(s: Structure, id: String, from: Vector3, to: Vector3, spec := 
 		var tail := overhang if i == spans - 1 else 0.0
 		var a := top_a + dir * (length * i / spans - lead)
 		var b := top_a + dir * (length * (i + 1) / spans + tail)
-		out.append(s.add_member("%s/rail/%02d" % [id, i], &"trim", wood, Vector3(a.distance_to(b), rail.y, rail.x),
-				(a + b) * 0.5 - up * rail.y * 0.5, Basis(dir, up, across)))
+		var m := s.add_member("%s/rail/%02d" % [id, i], &"trim", wood, Vector3(a.distance_to(b), rail.y, rail.x),
+				(a + b) * 0.5 - up * rail.y * 0.5, Basis(dir, up, across))
+		if profile != "":
+			var draw := {"shape": "profile", "profile": profile, "along": "x", "up": "y"}
+			PropKit.dress_member(m, draw)
+			# Kept on the member: a library finish laid over it later runs its wood along the same profile.
+			m.set_meta(&"draw", draw)
+		out.append(m)
 	return out

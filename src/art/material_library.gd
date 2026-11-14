@@ -38,6 +38,13 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"paint", "paint_inside", "paint_chalk", "paint_fade", "paint_peel", "paint_crack", "paint_thin_new",
 		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead",
 		"traffic", "furniture"]
+## The eased edges (#873; scan_wood.gdshader's `edge_round`): each class's arris radius new and old, in
+## metres. Planed common boards a couple of millimetres from the plane and handling, round as a
+## thumb's edge after years of weather and hands; rough-sawn boards leave the saw near square, then
+## splinter and wear rounder than any; fine joinery is eased just enough to take a polish and stays
+## crisper. (Period practice: an arris "taken off" with a plane's stroke or two, Nicholson's Mechanic's
+## Companion; wear and weathering rounding exposed edges, USDA Wood Handbook ch. 16.)
+const EDGE_ROUND := {"rough": [0.0012, 0.007], "common": [0.002, 0.006], "fine": [0.0015, 0.0035]}
 ## Colours an entry may set ([r, g, b], sRGB as the shader's source_color).
 const COLOURS := ["tint_new", "tint_mid", "tint_old", "varnish_amber", "paint_color", "paint_under", "paint_dust", "furniture_dust"]
 
@@ -127,6 +134,9 @@ static func apply(m: ShaderMaterial, e: Dictionary, age: float, role: StringName
 			m.set_shader_parameter(d, float(r[d]))
 	if r.has("wear_band"):
 		m.set_shader_parameter("wear_band", Vector2(r["wear_band"][0], r["wear_band"][1]))
+	# The eased edges' radius, new and old (#873): the entry's `edge_round` [new, old] (m), else its class's.
+	var er: Array = r.get("edge_round", EDGE_ROUND.get(String(r.get("wood_class", "common")), EDGE_ROUND["common"]))
+	m.set_shader_parameter("edge_round", Vector2(float(er[0]), float(er[1])))
 	m.set_shader_parameter("age", age)
 	m.set_shader_parameter("big_noise", noise())
 
