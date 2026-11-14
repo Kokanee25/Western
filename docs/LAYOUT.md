@@ -1761,7 +1761,7 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   Muffled, the air; no distance delay). A part stops any time (`stop_s`, the bow lifted), comes in
   only at a phrase's top; a shot within `shot_m` stops all and they start `quiet_s` after the last
   at the top of the phrase they stopped in; a killing within `death_m` ends their night; out of hours
-  they finish the tune. The clock follows the parts (a slow frame); under `--fixed-fps` the parts
+  they finish the tune. The clock follows the parts (a slow frame); with no audio device (Dummy: tests, a movie) the parts
   follow the clock. Built by `ValleyFolk` when the band's lot is the set's (`-- --no-band`: not).
   `PlayChore` (src/people): a folk man with `plays` at his instrument (the pianist in his chair's
   SitChore), his hands by `reach_to` from `Band.bow_at` / `hand_at`; the fiddle and bow drawn from

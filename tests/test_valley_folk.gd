@@ -45,7 +45,9 @@ func _at(h: float) -> void:
 
 ## The night's folk in the world (the saloon yard's; the day folk on the walks, #796, aside).
 func _night_in() -> Array:
-	return _folk().people.keys().filter(func(id: StringName) -> bool: return not _folk()._person(id).has("says"))
+	# (the band's players, `plays`, have their own tests: test_band)
+	return _folk().people.keys().filter(func(id: StringName) -> bool:
+		return not _folk()._person(id).has("says") and not _folk()._person(id).has("plays"))
 
 
 func _man(id: StringName) -> HumanBody:

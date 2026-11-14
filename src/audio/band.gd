@@ -60,10 +60,11 @@ var _replace := 0.0
 var _streams := {}
 var _sync := 0.0
 var rng := RandomNumberGenerator.new()
-## Run with `--fixed-fps` (the tests, the bridge, a recording): the game's clock isn't the wall's,
-## so the parts are kept to the tune's clock; else the tune's clock is kept to the parts (a long
-## frame and the hands would fall behind the sound).
-static var fixed_fps := "--fixed-fps" in OS.get_cmdline_args()
+## Heard through a real audio device: the tune's clock is kept to the parts (a long frame and the
+## hands would fall behind the sound). Without one (the Dummy driver: the tests, headless, a movie's
+## recording, where the game's clock isn't the wall's), the parts are kept to the tune's clock.
+## (`--fixed-fps` can't be asked: the engine takes it off the command line.)
+var follow_clock := true
 ## The parts and the clock this far apart (s) before one is brought to the other.
 const DRIFT := 0.12
 ## The fiddle's bow, worked out once a tune from its strokes: [t0, t1, s0, s1, string angle].
@@ -81,6 +82,7 @@ func _ready() -> void:
 	if data.is_empty():
 		data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
 	rng.seed = int(data.get("seed", 1882))
+	follow_clock = AudioServer.get_driver_name() == "Dummy"
 	for spec: Dictionary in data.get("players", []):
 		var id := StringName(spec.id)
 		var p := AudioStreamPlayer3D.new()
@@ -96,7 +98,9 @@ func _ready() -> void:
 	Events.exploded.connect(_on_blast)
 	Events.person_died.connect(_on_death)
 	_load_tune(0)
-	_place_all()
+	# Where they are now; their buses from the first physics frame (no physics queries outside it).
+	_place_all(false)
+	_replace = 0.0
 
 
 # --- The note data ---------------------------------------------------------------------------
@@ -264,11 +268,11 @@ func centre() -> Vector3:
 	return c / maxf(players.size(), 1.0)
 
 
-func _place_all() -> void:
+func _place_all(buses := true) -> void:
 	for id: StringName in players:
 		var p: AudioStreamPlayer3D = players[id].sound
 		p.global_position = spot_of(id)
-		if p.is_inside_tree():
+		if buses and p.is_inside_tree():
 			GameAudio.replace_loop(p)
 
 
@@ -398,13 +402,13 @@ func _play_step(delta: float) -> void:
 	_fade(delta)
 
 
-## One clock: the hands to the sound, or (fixed fps) the sound to the game.
+## One clock: the hands to the sound, or (no audio device) the sound to the game.
 func _keep_time() -> void:
 	var lead: AudioStreamPlayer3D = null
 	for id: StringName in players:
 		var p: AudioStreamPlayer3D = players[id].sound
 		if p.stream and p.is_inside_tree():
-			if fixed_fps:
+			if follow_clock:
 				var pos := p.get_playback_position() if p.playing else -INF
 				if absf(pos - clock) > DRIFT * 4.0 and clock < p.stream.get_length():
 					p.play(clock)
@@ -415,7 +419,7 @@ func _keep_time() -> void:
 		var pos := lead.get_playback_position() + AudioServer.get_time_since_last_mix()
 		if absf(pos - clock) > DRIFT:
 			clock = pos
-	elif not fixed_fps and players.values().any(func(pl: Dictionary) -> bool: return float(pl.gain) > 0.0):
+	elif not follow_clock and players.values().any(func(pl: Dictionary) -> bool: return float(pl.gain) > 0.0):
 		clock = length()  # the parts have run out ahead of the game (frames too slow to keep up)
 
 

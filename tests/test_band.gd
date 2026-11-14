@@ -126,14 +126,14 @@ func test_a_killing_ends_their_night() -> void:
 
 
 func test_a_part_joins_at_the_top_of_a_phrase() -> void:
-	_band()
+	_band({"hush": {"shot_m": 0.0, "blast_m": 0.0, "death_m": 0.0, "quiet_s": 2.0}})  # nothing else stops them
 	await physics_frames(int(2.0 * 60))
 	var pl: Dictionary = band.players[&"banjo"]
 	pl.gain = 0.0
 	pl.joining = false
 	var next := band.next_phrase(band.clock)
 	await physics_frames(int((next - band.clock - 0.1) * 60))
-	check(float(pl.gain) <= 0.0, "out: not in before the phrase's top")
+	check(float(pl.gain) <= 0.0, "out: not in before the phrase's top (%s)" % [band.log])
 	await physics_frames(12)
 	check(float(pl.gain) > 0.5, "in at the top of the next phrase")
 
