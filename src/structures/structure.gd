@@ -1347,6 +1347,19 @@ func start_analysis(full := false) -> StructuralAnalysis:
 
 
 
+## Its first analysis, from the top, begun now and run on a worker (its records copied here): so
+## the first settle asked of it (a shot through a member) is an update of this one, not every
+## member on that frame. A world without a FireSystem (the valley) settles whole on one frame: the
+## saloon's 7,600 members were a 0.9 s hitch on the gunfight's first broken member (#881).
+func warm_analysis() -> void:
+	if not collapses or not is_inside_tree() or (_analysis_valid and last_analysis != null):
+		return
+	var a := start_analysis(true)
+	a.prepare(a.unprepared())
+	if a.left() > 0:
+		a.run_async()
+
+
 ## Settle soon, once however many times it's asked: in a world with a FireSystem it works
 ## through it a slice of the building a frame (a big collapse was seconds on one frame); else at
 ## the end of this frame.

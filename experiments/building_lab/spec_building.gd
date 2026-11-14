@@ -20,6 +20,7 @@ extends FalseFrontBuilding
 
 const Stair := preload("res://experiments/building_lab/stair.gd")
 const Marks := preload("res://experiments/building_lab/marks.gd")
+const StoneBuilder := preload("res://experiments/building_lab/stone.gd")
 const CELL := 2.0
 const SPEC := "res://experiments/building_lab/saloon.json"
 
@@ -218,6 +219,18 @@ func build() -> void:
 	add_child(_furnish)
 
 	_chimney_openings()
+	if _fr.has("stone_wall"):
+		# A load-bearing stone building (#780, the jail): stone.gd lays it; then what every building has.
+		StoneBuilder.new(self).build()
+		band = 0
+		_lamps()
+		_kit()
+		_use_points()
+		_add_interior_ambient()
+		marks = Marks.place(self, spec)
+		_library_finishes()
+		_stone_finish()
+		return
 	band = 0
 	_foundation()
 	_cellar()
@@ -281,6 +294,7 @@ func build() -> void:
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
 	_library_finishes()
+	_stone_finish()
 
 
 # --- the room's light (#824) -------------------------------------------------------------------------
@@ -1317,8 +1331,8 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float) -> void:
 func _partitions(level: String, b: int) -> void:
 	band = b
 	for w: Dictionary in spec.walls:
-		if not w.get("partition", false) or w.level != level:
-			continue
+		if not w.get("partition", false) or w.level != level or w.get("stone", false):
+			continue  # (a stone partition is stone.gd's, #780)
 		var a := Vector3(w.line[0][0], 0, w.line[0][1])
 		var e := Vector3(w.line[1][0], 0, w.line[1][1])
 		var along := (e - a).normalized()
@@ -1867,6 +1881,11 @@ func _kit_lamps(L: Dictionary) -> void:
 		var into := (wall.out as Vector3) if plus else -(wall.out as Vector3)
 		var level := String(e.get("level", "ground"))
 		var foot := (_lv[level] as float) + float(e.height)
+		if wl.spec.get("stone", false):
+			# A stone wall (#811, the jail): on its face at the lamp's height (its profile; a stone
+			# partition's + side is its line, the - side its thickness in).
+			var band := StoneBuilder.band_at(wl.spec.profile, foot)
+			face_d = band.y if plus else band.x
 		var p: Vector3 = wall.origin + (wall.along as Vector3) * float(e.at) + (wall.out as Vector3) * face_d
 		var kit := StringName(e.get("kit", "reflector_lamp"))
 		var def := PropKit.definition(kit)
@@ -1980,8 +1999,8 @@ func _physics_process(delta: float) -> void:
 		if not is_instance_valid(ramp):
 			continue
 		var standing := false
-		for m: StructureMember in r[1]:
-			if is_instance_valid(m) and not m.broken and not m.consumed:
+		for m: Variant in r[1]:  # (untyped: a member freed since; typed, each look was an error, #863)
+			if is_instance_valid(m) and not (m as StructureMember).broken and not (m as StructureMember).consumed:
 				standing = true
 		if not standing:
 			ramp.queue_free()
@@ -2975,3 +2994,62 @@ func _corner_entrance() -> void:
 		add_member(pre + "/rail", &"trim", trim, Vector3(lw, st, 0.045), mid + Vector3.UP * (foot + 0.01 + lh - st * 0.5), lb)
 		add_member(pre + "/glass", &"glass", &"glass", Vector3(lw - st * 2.0, lh - panel - st, 0.008), mid + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
 	band = 1
+
+
+# --- the stone in the library's stone and lime (#860, #857; StoneFinish) ---------------------------
+
+var stone_material: ShaderMaterial
+
+## Every stone member drawn in the library's stone (spec.materials.stone `want`, once the materials
+## judge has passed it at that age; else the game's `stone` as before): one material for the
+## building, each piece its own mesh with the arrises that show chamfered, dressed stone (lintels,
+## sills, the coping, quoins, steps and flags) flagged for the shader; inside, the plaster or
+## whitewash of the region a face looks into (spec.inside_finish.regions).
+func _stone_finish() -> void:
+	var st: Dictionary = spec.materials.get("stone", {}) if spec.materials.get("stone") is Dictionary else {}
+	if st.is_empty():
+		return
+	var want: Dictionary = st.get("want", {})
+	var e := MaterialLibrary.entry(String(want.get("entry", "")))
+	var age := String(want.get("age", "few"))
+	if e.is_empty() or not ((e.get("approved", []) as Array).has(age) or bool(st.get("trial", false))):
+		return
+	var ms: Array[StructureMember] = []
+	var boxes := []
+	for m: StructureMember in get_members():
+		if m.wood != &"stone" or m.drawn_node() == null:
+			continue
+		ms.append(m)
+		boxes.append(m.transform * AABB(-m.size * 0.5, m.size))
+	if ms.is_empty():
+		return
+	stone_material = StoneFinish.material(e, float(LIB_AGES.get(age, 0.5)), float(LIB_AGES.get(String(st.get("inside_age", "few")), 0.5)))
+	var faces := StoneFinish.exposed(boxes)
+	var sid := String(structure_id) + "/"
+	var all_dressed := bool(st.get("dressed", false))
+	for i in ms.size():
+		var m := ms[i]
+		var id := String(m.member_id).trim_prefix(sid)
+		var dressed := all_dressed or bool(m.get_meta(&"dressed", false)) or id.contains("/lintel") or id.contains("/sill") \
+				or id.begins_with("stair/") or id.contains("/flag_")
+		var rng := hash(m.member_id)
+		var seed := float(rng % 100000) / 100000.0
+		var c := (0.012 + 0.008 * seed) if dressed else (0.02 + 0.025 * seed)
+		if id.contains("/flag_") or id.contains("/fill_") or id.begins_with("pier/"):
+			c = 0.008
+		var mi := m.drawn_node()
+		mi.mesh = StoneFinish.piece_mesh(m.size, faces[i] if m.transform.basis.is_equal_approx(Basis()) else 0, c, seed, dressed)
+		mi.transform = Transform3D()
+		mi.material_override = stone_material
+	refresh_stone_space()
+
+
+## The stone's building space (world -> here, the ground, the rooms, the corners, the drips): again
+## if the building moves.
+func refresh_stone_space() -> void:
+	if stone_material == null:
+		return
+	var gt := global_transform if is_inside_tree() else transform
+	var regions: Array = (spec.get("inside_finish", {}) as Dictionary).get("regions", [])
+	var plane: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [-1000.0, 0.0, 0.0])
+	StoneFinish.set_space(stone_material, gt.affine_inverse(), plane, regions, get_meta(&"stone_corners", []), get_meta(&"stone_drips", []))

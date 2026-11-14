@@ -1,0 +1,42 @@
+have Wood047
+have Wood048
+have Wood086
+have Wood062
+have Wood087
+have Wood061
+have Wood059
+have Wood050
+have Wood014
+have Wood063
+have Wood058
+have Wood051
+have black_walnut_veneer_02
+have Wood081
+have Wood015
+have oak_veneer_01
+have red_oak_veneer
+have Wood009
+have sapele_veneer
+have Wood073
+have Wood079
+have Wood089
+have rough_wood
+have Wood011
+have Wood016
+have Wood076
+fetch ambientcg Rock030
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Rock035
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Rock023
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Plaster001
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg Plaster003
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch ambientcg PaintedPlaster017
+  maps ['albedo', 'normal', 'rough'] metres None
+fetch polyhaven rock_surface
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]
+fetch polyhaven painted_plaster_wall
+  maps ['albedo', 'normal', 'rough'] metres [2.0, 2.0]

@@ -153,6 +153,74 @@ FINISHES = {
                    "metal": 0.0, "wear": 0.0, "band": (0.165, 0.172, 0.200, 0.193)},
     "wool_brown": {"kind": "wool", "color": (0.27, 0.19, 0.12), "stripe": (0.10, 0.07, 0.05), "rough": 0.95,
                    "metal": 0.0, "wear": 0.0, "band": (0.140, 0.148, 0.215, 0.207)},
+    # --- Saloon B, batch S1 (#866) ---
+    # What's in the bar's glasses: whiskey (a deep amber) and lager under its head (pale gold, a
+    # cream foam); drawn inside the see-through glass, glossy.
+    "whiskey": {"kind": "coat", "color": (0.20, 0.075, 0.018), "under": (0.20, 0.075, 0.018), "rust": 0.0,
+                "rough": 0.06, "metal": 0.0, "wear": 0.0},
+    "beer": {"kind": "coat", "color": (0.42, 0.25, 0.05), "under": (0.42, 0.25, 0.05), "rust": 0.0,
+             "rough": 0.06, "metal": 0.0, "wear": 0.0},
+    "foam": {"kind": "coat", "color": (0.86, 0.82, 0.70), "under": (0.86, 0.82, 0.70), "rust": 0.0,
+             "rough": 0.7, "metal": 0.0, "wear": 0.0},
+    # Sheet zinc (a bar's work board, its sinks and drip board: the fixture catalogues' "zinc-lined"):
+    # a dull blue-grey that whitens in blotches where water stands, rubbed brighter on its edges.
+    "zinc": {"kind": "plate", "color": (0.50, 0.52, 0.53), "under": (0.66, 0.67, 0.67), "rust": 0.0,
+             "rough": 0.48, "metal": 0.6, "wear": 0.35, "mottle": 0.7},
+    # Cast iron black-leaded (stove polish, graphite rubbed on hot): near black with a dull sheen,
+    # worn to grey iron on its edges and feet, rust where the mop's been.
+    "cast_iron": {"kind": "coat", "color": (0.055, 0.054, 0.056), "under": (0.30, 0.29, 0.28), "rust": 0.45,
+                  "rough": 0.55, "metal": 0.25, "metal_under": 0.8, "wear": 0.7},
+    # Russia sheet iron (stovepipe): blue-black, mottled, rusting at its seams.
+    "sheet_iron": {"kind": "plate", "color": (0.10, 0.10, 0.115), "under": (0.32, 0.27, 0.22), "rust": 0.6,
+                   "rough": 0.5, "metal": 0.6, "wear": 0.3, "mottle": 0.4},
+    # Sand in the stove's box, ash and grit trodden into it.
+    "sand": {"kind": "coat", "color": (0.60, 0.53, 0.40), "under": (0.42, 0.38, 0.32), "rust": 0.0,
+             "rough": 0.95, "metal": 0.0, "wear": 0.0, "mottle": 0.6},
+    # A hanging lamp's shade: green paint (chrome green) outside, chipped to the tin; white enamel inside.
+    "shade_green": {"kind": "coat", "color": (0.05, 0.13, 0.07), "under": (0.45, 0.44, 0.40), "rust": 0.3,
+                    "rough": 0.6, "metal": 0.0, "metal_under": 0.8, "wear": 0.45},
+    # The shade's inside: white paint gone cream with the lamp's heat and smoke, dull.
+    "enamel_dull": {"kind": "coat", "color": (0.70, 0.66, 0.55), "under": (0.30, 0.28, 0.25), "rust": 0.0,
+                    "rough": 0.6, "metal": 0.0, "wear": 0.2},
+    # Old brass (S1, round 1's critic: the bar's brass all one new gold): darker, tarnished brown in
+    # its hollows and broadly, bright only where hands go.
+    "brass_old": {"kind": "plate", "color": (0.42, 0.31, 0.14), "under": (0.70, 0.55, 0.28), "rust": 0.0,
+                  "rough": 0.42, "metal": 0.8, "wear": 0.6, "tarnish": 0.8, "mottle": 0.5},
+    # A duckboard's pine slats: grey-brown, slopped and trodden dark, rubbed pale on their edges.
+    "slat_wood": {"kind": "coat", "color": (0.26, 0.20, 0.14), "under": (0.46, 0.38, 0.28), "rust": 0.0,
+                  "rough": 0.85, "metal": 0.0, "wear": 0.7, "mottle": 0.6},
+    # Red plush (a piano stool's seat), its nap rubbed bare and brown in the middle.
+    "plush": {"kind": "coat", "color": (0.30, 0.045, 0.05), "under": (0.22, 0.13, 0.08), "rust": 0.0,
+              "rough": 0.95, "metal": 0.0, "wear": 0.8},
+    # Ivory-white (the case-keeper's beads), and the clay chips: white, red and blue.
+    "ivory": {"kind": "coat", "color": (0.84, 0.80, 0.66), "under": (0.70, 0.64, 0.50), "rust": 0.0,
+              "rough": 0.35, "metal": 0.0, "wear": 0.3},
+    "clay_white": {"kind": "coat", "color": (0.80, 0.78, 0.72), "under": (0.62, 0.58, 0.50), "rust": 0.0,
+                   "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    "clay_red": {"kind": "coat", "color": (0.50, 0.08, 0.06), "under": (0.62, 0.40, 0.32), "rust": 0.0,
+                 "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    "clay_blue": {"kind": "coat", "color": (0.10, 0.15, 0.36), "under": (0.45, 0.45, 0.52), "rust": 0.0,
+                  "rough": 0.7, "metal": 0.0, "wear": 0.5},
+    # A card's patterned back (blue), its edges paper.
+    "card_back": {"kind": "coat", "color": (0.36, 0.12, 0.09), "under": (0.74, 0.70, 0.60), "rust": 0.0,
+                  "rough": 0.75, "metal": 0.0, "wear": 0.6, "mottle": 0.5},
+    # A packing case's rough pine.
+    "box_pine": {"kind": "coat", "color": (0.46, 0.34, 0.21), "under": (0.58, 0.46, 0.31), "rust": 0.0,
+                 "rough": 0.88, "metal": 0.0, "wear": 0.5},
+    # Batch S2 (#879). A handsaw's blade: steel gone dull grey with use, freckled and bloomed brown with
+    # rust (a tool kept in a damp shed), bright only along its teeth and where it's wiped.
+    "saw_steel": {"kind": "plate", "color": (0.26, 0.26, 0.27), "under": (0.55, 0.55, 0.56), "rust": 0.8,
+                  "rough": 0.62, "metal": 0.5, "wear": 0.35, "mottle": 0.8},
+    # Apple wood (the saw's handle): warm brown under an old varnish, worn pale and greasy where the hand goes.
+    "apple_wood": {"kind": "coat", "color": (0.20, 0.10, 0.045), "under": (0.38, 0.24, 0.12), "rust": 0.0,
+                   "rough": 0.55, "metal": 0.0, "wear": 0.5, "mottle": 0.4},
+    # A fiddle's oil varnish: red-brown over golden spruce and maple, worn through to the pale wood
+    # where the chin, the hand and the case go, darkened with rosin dust round the bridge.
+    "fiddle_varnish": {"kind": "coat", "color": (0.19, 0.095, 0.04), "under": (0.50, 0.34, 0.15), "rust": 0.0,
+                       "rough": 0.5, "metal": 0.0, "wear": 0.6, "mottle": 0.5},
+    # Gut strings and a bow's white horse hair, greyed with rosin.
+    "gut": {"kind": "coat", "color": (0.74, 0.70, 0.60), "under": (0.60, 0.55, 0.45), "rust": 0.0,
+            "rough": 0.7, "metal": 0.0, "wear": 0.2},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,

@@ -376,6 +376,15 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 		# Through the wall: an outer wall from the siding's face to its inside finish's; a partition both faces.
 		var d0 := -0.1 - 0.025 if not partition else -0.075
 		var d1 := 0.025 + 0.01 if not partition else 0.075
+		var stone: bool = w.get("stone", false)
+		if stone:
+			# A stone wall (#780): from its outer face (its line) through its thickness at a man's height.
+			var t := 0.56
+			for p: Array in w.get("profile", []):
+				if float(p[0]) <= float(lv.ground) + 1.0:
+					t = -float(p[1])
+			d0 = -t + 0.012
+			d1 = -0.012
 		var j := 0
 		for o: Dictionary in w.get("openings", []):
 			if o.type == "void":
@@ -402,13 +411,15 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 			if not partition:
 				var pre := "%s/opening%d/" % [w.id, j]
 				var ok := by_id.has(pre + "king0") and by_id.has(pre + "king1") and by_id.has(pre + "header")
+				if stone:
+					ok = by_id.has(pre + "lintel")  # a stone wall's opening: its lintel (and a window's sill)
 				if o.type == "window" and y0 > float(lv[lvl]) + 0.4:
 					ok = ok and by_id.has(pre + "sill")
 				if ok:
 					framed += 1
 				else:
-					failures.append("%s %s at %.2f: not framed (kings, header%s)" % [w.id, o.type, float(o.at), ", sill" if o.type == "window" else ""])
-				if o.type == "window":
+					failures.append("%s %s at %.2f: not framed (%s%s)" % [w.id, o.type, float(o.at), "lintel" if stone else "kings, header", ", sill" if o.type == "window" else ""])
+				if o.type == "window" and o.get("glass", true):
 					var glazed := false
 					for id: String in by_id:
 						var gm: StructureMember = by_id[id]

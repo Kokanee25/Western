@@ -13,8 +13,15 @@ func test_every_entry_has_its_scans_and_a_code() -> void:
 		codes[e0.get("code", "")] = true
 		var e := MaterialLibrary.resolved(e0)
 		check(SamplePanel.CLASSES.has(StringName(e["wood_class"])), "%s's wood class is a panel class" % e["id"])
-		for slot in (e["scans"] as Dictionary):
-			var dir: String = MaterialLibrary.SCANS + String(e["scans"][slot]["id"]) + "/"
+		# Stone and lime (#860) name their scans by slot (face_scan, plaster_scan); woods by `scans`.
+		var ids: Array = []
+		for slot in (e.get("scans", {}) as Dictionary):
+			ids.append(String(e["scans"][slot]["id"]))
+		for k in ["face_scan", "plaster_scan"]:
+			if e.has(k):
+				ids.append(String(e[k]))
+		for id: String in ids:
+			var dir: String = MaterialLibrary.SCANS + id + "/"
 			check(ResourceLoader.exists(dir + "albedo.jpg"), "%s's scan %s is in the repo" % [e["id"], dir])
 			check(FileAccess.file_exists(dir + "meta.json"), "%s's scan %s has its source and licence" % [e["id"], dir])
 
@@ -89,7 +96,7 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 func test_every_scan_grain_runs_the_way_the_library_says() -> void:
 	for e0 in MaterialLibrary.entries():
 		var e := MaterialLibrary.resolved(e0)
-		for slot in (e["scans"] as Dictionary):
+		for slot in (e.get("scans", {}) as Dictionary):
 			var sc: Dictionary = e["scans"][slot]
 			var path := ProjectSettings.globalize_path(MaterialLibrary.SCANS + String(sc["id"]) + "/albedo.jpg")
 			var img := Image.load_from_file(path)

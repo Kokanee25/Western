@@ -1,0 +1,122 @@
+{
+  "_doc": "A wheel of fortune (#866, #879; refs experiments/prop_lab/refs/saloon/wheel_of_fortune_evans_gambling_wheel.jpg): the gaming room's wall wheel (the period's 'big six' or dice wheel, after the H. C. Evans wheel), 48 in across and open: a painted band of 30 blue panels of dice between gilt lines round a wooden rim, a brass peg standing out of the rim between each panel, 16 spokes from a hub dressed in a gilt eight-pointed star, the wall seen between them; on an iron axle in a stout old oak plank nailed up the wall, a leather flapper on a block at the plank's top that stops in the pegs. Hung (KitProp `hangs`: two nails through its plank into the wall: it falls when its wall board goes); the wheel and the flapper are members on the plank (a ball through the band splinters it; it burns). The plank from the material library (oak, old); the band printed, its rim, pegs, spokes, star and flapper baked the gun way (tools/blender/props/saloon_s1.py). It doesn't turn yet. The wall's face at z = 0, the wheel toward +z, the axle the origin (hang it with its middle at ~1.85 m: its top 2.55 m, the plank's 2.6 m). 3 physics bodies. ~30 kg. Written by tools/props/saloon.py.",
+  "id": "wheel_of_fortune",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "anchor": "wall",
+  "drawn_bounds": true,
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.82,
+        0.004
+      ],
+      [
+        0.0,
+        -0.62,
+        0.004
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "board",
+      "kind": "board",
+      "size": [
+        0.24,
+        1.56,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.1,
+        0.02
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "wheel",
+      "kind": "trim",
+      "size": [
+        1.3,
+        1.3,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.1
+      ],
+      "wood": "weathered_pine",
+      "look": "pbr:wheel_face",
+      "draw": {
+        "shape": "mesh",
+        "model": "wheel_of_fortune",
+        "part": "Face"
+      },
+      "dress": [
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Rim"
+          }
+        },
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Spokes"
+          }
+        },
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Hub"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clapper",
+      "kind": "trim",
+      "size": [
+        0.1,
+        0.16,
+        0.12
+      ],
+      "at": [
+        0.0,
+        0.74,
+        0.1
+      ],
+      "wood": "oak",
+      "look": "pbr:wheel_of_fortune",
+      "draw": {
+        "shape": "mesh",
+        "model": "wheel_of_fortune",
+        "part": "Clapper"
+      },
+      "dress": [
+        {
+          "look": "pbr:wheel_of_fortune",
+          "draw": {
+            "shape": "mesh",
+            "model": "wheel_of_fortune",
+            "part": "Flap"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

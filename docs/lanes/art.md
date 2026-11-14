@@ -20,22 +20,30 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
-  `RECIPE.md`). **Next: the room fixes (#824-826), then the jail (#811)**, then the general store, then saloon B, the corner saloon (#772,
-  `docs/briefs/saloon-design.md` "Sean's answers").
-- **Saloon B, the corner saloon** (#772; step 1 done, #848): its spec and frame stand on the corner lot
-  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, nine tests): 7,560 members, the
-  open well and its 36 in rail, the dance hall on two girder lines, the wrapping balcony over both walks, the cut
-  corner on one iron column, the sawn girder (`sabotage`, `saw_girder`: cut, its panel comes down over the bar;
-  uncut it carries a dancing crowd). **Next: step 2, the finishes, light and judges (its own issue).** Not in
-  step 1: the hip and side cornice, the cellar dug in the valley and its bulkhead (#695), No Law's set (still in
-  the yard: gameplay's to move, the spec's `no_law_table` and bar are there), props (the prop lab).
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change (RECIPE "A
-  two-storey building under trusses").
-- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): why the office reads cheap (flat
-  indoor fill and no lamps, one walnut everywhere, 24 cm boards under a 9 cm paint, slab windows, indoor wear
-  under the floor). **Sean said yes to all five picks (#821, DECIDED).** #824 (light), #825 (floor and furniture
-  woods, merged: the doctor's floor is FL1 with his ways worn; the prop lab re-points his furniture, #819) and
-  #826 done; then the jail (#811, branch `claude/art-building-jail-xrtsvh`) on those parts.
+  `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
+  **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
+  the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **Next: the general store
+  (#858)**; saloon B is Fable's (#848: step 1 done, below).
+- **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
+  `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
+  failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
+  Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
+  drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
+  The rooms wait on the prop lab's furniture.
+- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
+  `RECIPE.md` (#824-#826, #829); the jail built on them.
+- **Saloon B, the corner saloon** (#772): step 1 merged (#848: spec and frame on the corner lot,
+  `experiments/building_lab/saloon_b/` README, `tests/test_building_saloon_b.gd`). **Step 2 (the look) is PR #884,
+  held** on three red people tests in its CI (Earl's chair, No Law's murder, the wound smear; the card game is
+  played beside the saloon): Sean's pick, merge red or hold, is #923. **Step 3 (#886), on branch
+  `claude/art-saloon-b-sign` (built on #884)**: THE SALT CREEK painted ($0.10) on a walnut board cut to it,
+  four lamps on the walks (`lamps.kit` `side: "out"`), the corner at dusk judged good indie (was cheap); the
+  critic: the lamps' light doesn't reach the walk, the sign grey on grey by day and lost at dusk. It merges
+  after #884. The girder test (#922) allows only what the falling floor hits. The valley's collision bodies
+  30,993 of Jolt's 32,768 with main today (step 2 measured 27,908): little headroom.
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; a factory
+  entry goes under `materials` in materials.json; a People texture run rewrites every painted sign's
+  `.import` bare: restore all but the new one.
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.

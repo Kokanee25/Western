@@ -1,0 +1,53 @@
+{
+  "_doc": "The fiddle's bow (#879; refs experiments/prop_lab/refs/saloon/, batch S2): a pernambuco stick 75 cm long, its ebony frog at the origin (where the hand holds it) and a white ribbon of horse hair to its tip at +x, lying on its side on a table or the fiddler's knee. Baked the gun way with the fiddle (tools/blender/props/saloon_s2.py: model `fiddle`, its parts Bow and BowHair). One member (a thin stick: `solid` 0.1). 1 physics body. ~60 g. Written by tools/props/saloon_s2.py.",
+  "id": "fiddle_bow",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "drawn_bounds": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.5,
+  "grips": {
+    "frog": [
+      0.03,
+      0.011,
+      0.0
+    ]
+  },
+  "members": [
+    {
+      "id": "stick",
+      "kind": "post",
+      "size": [
+        0.75,
+        0.032,
+        0.024
+      ],
+      "at": [
+        0.375,
+        0.016,
+        0.0
+      ],
+      "wood": "walnut",
+      "look": "pbr:fiddle",
+      "draw": {
+        "shape": "mesh",
+        "model": "fiddle",
+        "part": "Bow"
+      },
+      "solid": 0.1,
+      "dress": [
+        {
+          "look": "pbr:fiddle",
+          "draw": {
+            "shape": "mesh",
+            "model": "fiddle",
+            "part": "BowHair"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon_s2.py"
+}

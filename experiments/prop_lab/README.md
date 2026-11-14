@@ -58,3 +58,77 @@ godot --headless --fixed-fps 60 -s res://experiments/prop_lab/bench.gd -- --perf
   `deer_fidelity/`): which step loses Rodin's deer between its render and the saloon's wall (the
   grid shader's min-square coarsening, then no mipmaps; not the triangles or the paint's size),
   the stand and in-game sheets, costs, the kit checks.
+
+## Saloon B, batch S1 (#866)
+
+Made and judged on the lab's stand, **not placed** (the valley is near Jolt's body limit, #865; the
+furniture's route into the game is #862). `tools/props/saloon.py` (kit files), `tools/blender/props/
+saloon_s1.py` (models), `saloon/s1_sheet.py` (the stand: `prop_stand`, `prop`, `prop_light` on this lab's
+bridge; noon and night), references `refs/saloon/`. Results `results/2026-11-13_saloon_s1/`.
+
+**Physics bodies**: each kit member is a body while the prop stands (a StaticBody3D), a glass prop
+one (its frozen body). Broken: a kit prop's broken members each a rubble body and, gone over, the
+rest one; a glass prop's shards (each a RigidBody3D, frozen once still, at most 160 in the world,
+oldest freed) and its whole parts one each. The placing session counts the room's total
+(~215 bodies as below; the valley had ~5,100 to spare under Jolt's 32,768 at #865's count).
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `hanging_lamp` | 1 | up to 10 shards + the brass | bar room: two rows of three hung from the dance floor's joists (6); dance hall: 2. With an OilLamp at `light_height` |
+| `hanging_lamp_shaded` | 1 | up to 10 shards + the brass and shade | gaming room: one over each table (2-3) |
+| `shot_glass` / `schooner` / `decanter` | 1 each | 8-12 shards (+ the stopper) | ~40 in all: back bar rows, the bar top, the tables in play (No Law's: a few; Payday: on the bar for the dust). Set fewer as props and more as dress if the count bites |
+| `work_board` | 17 | its members | behind the bar under its top, its back on the bar's back boards: 3 sections along the 34 ft run |
+| `slat_mat` | 3 | its members | behind the bar along the aisle: 5-6 |
+| `box_stove` | 16 | iron doesn't break; its pipe comes down; its coals a small fire | bar room, mid-room, 1: its pipe up to the flue (take off the lengths the ceiling doesn't want) |
+| `faro_table` | 16 | its members | bar room 1, gaming room 1 |
+| `lookout_stool` | 9 | its members | one at each faro table's dealer's elbow (2) |
+| `piano_stool` | 6 | its members | before the upright piano on the back wall, 1 |
+| `wheel_of_fortune` | 3 | its members | gaming room's wall, ~1.9 m to its middle, 1 |
+| `gold_scales` | 6 | its members | the back bar by the till, 1 |
+| `till_drawer` | 2 | its members | the back bar, 1 |
+| `card_deck` | 1 | 1 | each table in play (~5) |
+| `chip_stacks` | 1 | 1 | each table in play (~5) |
+| `bar_arm_rail` | 1 | 1 | on each bar section's top at its front edge (bar space x 0, y 1.095, z 0.455): 4. Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
+
+## Saloon B, batch S2 (#879)
+
+Made and judged on the same stand, **not placed** (as S1: #865's body fix and #862's route first).
+`tools/props/saloon_s2.py` (kit files), `tools/blender/props/saloon_s2.py` (models: the saw, the fiddle
+and bow, the cookstove; the keg is the barrel's staves, the bench and rack library pine); the stand's
+groups `bench`, `saw_fiddle`, `kegs`, `cookstove` in `saloon/s1_sheet.py`; references `refs/saloon/`
+("Batch S2"). Results `results/2026-11-13_saloon_s2/`.
+
+S1's three DIFFERENTs were redone first: the **wheel of fortune** (now the Evans dice wheel: 48 in, open,
+30 panels of dice, 16 spokes, a gilt star hub, brass pegs out of its rim, a leather flapper on an oak
+plank), the **lookout's chair** (seat at 1.1 m, a back and a footrest: 11 bodies, was 9) and the **till**
+and the scales' base (`lib:furniture_oak/old`, not `few/top`: its varnish mirrored the sky). Also: the bar
+glasses are `glass:flint` (a thicker, brighter outline: clear vanished at night), the hanging lamps'
+chimney is `prop:chimney_glass@0.330` (its flame's height; the table lamp's 0.205 left it dark), and the
+bridge's `prop_light` puts the lamp 0.16 under the height as the game does (S1's stand lit the lamps from
+their smoke bells; the game's placing was right).
+
+**Judged** (the blind critic, two rounds; `r1/critic.md`, `r2/critic.md`): r1 1 SAME (the plain hanging
+lamp), 15 CLOSE, 2 DIFFERENT (the fiddle a toy guitar, the keg rack); r2 (S2's and the redone S1 groups) 1
+SAME (the cookstove), 8 CLOSE, 1 DIFFERENT: **the keg rack** (kegs stand on end; a rack lays them on their
+sides in cradles, tap end out). A kit prop is held only by what's under its own bottom (`KitProp._find_footing`
+looks down its own y), so a keg turned on its side goes loose: a lying keg needs its own kit file, its staves
+laid out one by one round a horizontal axis. Left for the next step, with the CLOSE notes still open: the
+wheel's dice don't read (a blank navy ring; brighter, fewer, bigger marks), the fiddle's f-holes and teeth-like
+strings, the saw's teeth and its handle's hole (a knife from a few steps), the bow's stick and hair too far
+apart, the gold scales twice too big, the faro table unplayed (no chips), the kegs near-black with hoops the
+wood's colour, the stove's smooth casting, the till a plain box, glass faint at night. (Round 2's critic read
+round 1's file for its format before it was told to skip it, and says it judged only what it saw.)
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `wall_bench` | 10 | its members | dance hall: 6 round its walls; balcony: 1 (Balcony Ambush); the walk: 1-2. Its back against the wall (-z) |
+| `handsaw` | 1 (LooseProp) | 1 (holed, bent) | Payday Night: carried up the outside stair; before that, by the yard's woodpile or the store room (1) |
+| `fiddle` | 1 | 1 | dance hall: on the platform, on or by the fiddler's chair (1); in his hands while he plays (`grips`, no code yet) |
+| `fiddle_bow` | 1 | 1 | with the fiddle (1) |
+| `beer_keg` | 10 (8 staves, 2 heads) | its members; its beer runs (PropContents) | store room and cellar: ~12 on the racks (most as drawn stand-ins: twelve real are 120 bodies), 1 in the work board's ice box, empties on the yard's pile |
+| `keg_rack` | 10 | its members | store room 1, cellar 1: four kegs a tier (rails' tops at 0.16 and 0.88 m). DIFFERENT: redo with kegs on their sides |
+| `cookstove` | 12 | iron doesn't break; its pipe comes down; its coals a small fire | kitchen: 1, its pipe to the chimney (trim the lengths); the doctor's office: 1 (his kitchen) |
+
+S2 as listed is ~145 bodies (eight benches 80, three real kegs 30, two racks 20, the cookstove 12, the
+saw, fiddle and bow 3); with S1's (~219 now, the lookout's chairs 2 more each) ~365 for both batches. The
+valley had ~5,100 to spare at #865's count.

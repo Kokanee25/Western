@@ -62,6 +62,7 @@ func begin() -> void:
 	if clock() and bool(data.get("clock_runs", true)):
 		clock().set_time_scale(1.0)  # the morning goes on while you're at it (the game holds it at noon)
 	StoryState.clear("sheriff.")
+	StoryState.mark_checkpoint()  # its restart starts from the story as it is now (#864)
 	_place_player()
 	site = _site_point()
 	sheriff = _man(data.sheriff, site, site + _road_dir() * 3.0)
@@ -582,11 +583,12 @@ func _retry_step(delta: float) -> void:
 		_retry_hold = 0.0
 
 
-## Take it all back and start again (the same scene, from dawn).
+## Take it all back and start again (the same scene, from dawn; the story as it was when it began).
 func restart() -> Moment:
 	var at := street
 	var opts_now := opts
 	reset()
+	StoryState.restore(StoryState.checkpoint)
 	return Moment.start_named(&"the_sheriff", at, null, opts_now)
 
 

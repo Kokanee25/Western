@@ -1,0 +1,64 @@
+{
+  "_doc": "A slat mat (#866; refs experiments/prop_lab/refs/saloon/): the duckboard behind the bar that keeps the bartender's feet out of the slops, 6 ft long and 2 ft wide, 20 oak slats on two runners, old and worn (the slats baked: worn pine, slopped and trodden). The slats one member drawn as its slats (a duckboard breaks along a slat as one piece: fine for its few bodies), the runners two. The runners oak from the material library (old), never the floor's fir. The bar's run takes one every 6 ft. 3 physics bodies. ~9 kg. Written by tools/props/saloon.py.",
+  "id": "slat_mat",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "runner_b",
+      "kind": "sill",
+      "size": [
+        1.8,
+        0.03,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.015,
+        -0.215
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "runner_f",
+      "kind": "sill",
+      "size": [
+        1.8,
+        0.03,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.015,
+        0.215
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "slats",
+      "kind": "furniture_top",
+      "size": [
+        1.8,
+        0.022,
+        0.61
+      ],
+      "at": [
+        0.0,
+        0.041,
+        0.0
+      ],
+      "look": "pbr:slat_mat",
+      "draw": {
+        "shape": "mesh",
+        "model": "slat_mat",
+        "part": "Slats"
+      },
+      "solid": 0.778
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

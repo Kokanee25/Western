@@ -203,6 +203,45 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
   158 draws to 195 in the lab's count. A building with many small lights (six-over-six) wants
   them counted against the render budget before it's specced.
 
+## A stone building's look (#811, the jail)
+
+- **Sashes in stone:** a barred window takes `lights` as any other (SashWindow inside the bars, at the
+  stone's face), its reveal lined through the wall's whole thickness (`stone.gd` passes `outer` 0 and
+  `inner` the wall's inside face from its `profile`): the boxed reveal its inside shutters fold into,
+  so you never look into rubble. Two-over-two (4) for the town's 1880s sash, not six-over-six (12 a
+  window, a draw a pane). A slit (`glass: false`) stays open and barred.
+- **Lamps on stone:** `lamps.kit` hangs on a stone wall's face at the lamp's height (`_kit_lamps` reads
+  its `profile`; a stone partition's `+` side is its line, `-` its thickness in). Cages and cells are
+  lit by the corridor's lamp through their straps (its shadows the straps on the floor: the cheap
+  judge's best view of the jail); the test asks a lamp of every room but those and the roof.
+- **Name every floor:** a floor's surfaces pattern names each floor's id (`floor/ground/` and
+  `floor/ground_back/`): one not named falls to `framing` and its boards take the batten. The test
+  checks every board of the floor takes the floor's finish. A flat roof's joists and boards are the
+  rooms' ceiling: name them (`floor/roof_`, `floor/ell_roof`).
+- **Cameras for the judge:** take the sheet's own direction for each interior (the critic marks a
+  view looking the other way DIFFERENT, "mirrored"); stand clear of a lined reveal (0.56 m deep, at
+  arm's length it fills the frame); the roof from its back over the deck to the parapet, not at it;
+  hide the valley's place labels (Label3D) in renders.
+- **Until the library has plaster and rubble,** a stone building's walls are the game's `stone`
+  inside and out: both judges name its blotched blocks first (the critic leaves it out by brief).
+  The spec already names them (`materials.stone` `want` `rubble_stone`, `inside_finish.regions`):
+  `_stone_finish` draws them by StoneFinish the moment the library passes an age (#860).
+- **Procedural rubble by a height field doesn't pass** (#860, two rounds, `docs/screenshots/judge/
+  2026-11-13_stone_r*`): stones drawn as a height field and lit by the screen-space bump
+  (`real_bump`) get a dark line on their low edges and a pale one on their high (the judge's "navy and
+  cream outlines", "cartoon at 5 m"), steep or soft; plaster as noise reads as a flat card. Don't tune
+  it a third time: Sean's pick (#857 follow-up) is the method.
+- **A parapet that steps** (#857 2a): a wall's `parapet_steps` [[s0, s1, top]] raise it over a run
+  (the door's centre, the corner piers); every row from the base coping up is cut at the steps' edges,
+  the base coping under a step an ordinary piece. **Dressed stones proud** (`stone_wall.dress`): sills
+  by `sill.proj`, the coping by `coping.proj` (past a free end too), lintels by `dress.lintel`; the
+  coping's stones `coping_len` long, `coping_jitter` off level.
+- **Merging the building's branch:** `git checkout --ours FILE` on a conflict keeps all of one side's
+  file, not only the conflicted hunk (the jail's stone checks went); resolve with `git merge-file` or
+  by hand.
+- **A lot's walk or spec in valley.json re-hashes the bake:** re-bake (`tools/valley/valley_plan.py
+  --bake`; if the ground didn't change, only `valley_json_sha256` moves).
+
 ## A two-storey building under trusses (saloon B, #848 step 1)
 
 What the corner saloon's frame taught (its record: `saloon_b/README.md`):
@@ -240,3 +279,6 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
   that counted a block a lot or a walk a whole frontage were told so.
 - An alley beside an open yard is no alley: fence the yard (the doctor's side fence).
+- **A change to the valley's static bodies can tip the card-game tests** (they share one valley; Jolt's contact
+  order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
+  `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.

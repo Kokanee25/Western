@@ -43,18 +43,27 @@ const SHERIFF_ARG := "--mission=sheriff"
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
+## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
+## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
+## folk's set (their men are built a frame later: `folk.build_ms`).
+var load_ms := {}
 
 
 func _ready() -> void:
+	add_to_group(&"valley_world")  # WorldPlaces finds the valley's places by it (#864)
+	var u := Time.get_ticks_usec()
 	if layout == null:
 		layout = ValleyLayout.main()
 	_make_ground()
+	u = _took(&"ground", u)
 	if railway_default:
 		railway = ValleyRailway.new()
 		railway.layout = layout
 		add_child(railway)
+		u = _took(&"railway", u)
 	if farmhouse_default:
 		_make_farmhouse()
+		u = _took(&"farmhouse", u)
 	if markers_default:
 		markers = ValleyMarkers.new()
 		markers.layout = layout
@@ -62,12 +71,16 @@ func _ready() -> void:
 		add_child(markers)
 		if farmhouse:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
+		u = _took(&"markers", u)
 		_make_buildings()
+		u = _took(&"buildings", u)
+		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
 			folk.town = markers.town
 			add_child(folk)
+			u = _took(&"folk", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
@@ -129,6 +142,12 @@ func _start_coach_cut() -> void:
 	coach_cut.place_player(get_node_or_null(^"Player") as Node3D)
 
 
+func _took(part: StringName, since: int) -> int:
+	var now := Time.get_ticks_usec()
+	load_ms[part] = (now - since) / 1000.0
+	return now
+
+
 ## Where the player starts: on the crossroads' ground, facing down Main Street (west).
 static func start_transform(l: ValleyLayout) -> Transform3D:
 	return Transform3D(Basis(Vector3.UP, yaw_of(l.main_street_heading())), l.crossroads())
@@ -186,6 +205,17 @@ func _make_buildings() -> void:
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
+## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## member of the building on one frame (#881). A few frames on, its props and fittings are in.
+func _warm_buildings() -> void:
+	for i in 3:
+		await get_tree().physics_frame
+	for b: Variant in buildings.values():
+		if b is Structure and is_instance_valid(b):
+			(b as Structure).warm_analysis()
 
 
 ## A boardwalk down a building's side street (its spec's `lot.side_walk`: saloon B's, under its
@@ -248,3 +278,38 @@ func _make_ground() -> void:
 ## for the dev bridge's goto and look.
 func places() -> Waypoints:
 	return markers.places if markers else Waypoints.new()
+
+
+# --- The valley's own places (WorldPlaces; review A8, #864) --------------------------------------
+
+## Where a man knocked out in the valley is carried, best first (WorldPlaces.wake_spots): beside the
+## cots in the doctor's sick room (its spec's `bedside`), else out on the general store's walk.
+func wake_spots() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var doctor: Node3D = buildings.get("doctor")
+	if doctor != null and is_instance_valid(doctor):
+		var bed := doctor.find_child("bedside", true, false) as Node3D
+		if bed != null:
+			out.append({"at": bed.global_position, "yaw": bed.global_rotation.y, "where": "at the doctor's"})
+	if markers != null and layout.lot("general_store").size() > 0:
+		var lot := layout.lot("general_store")
+		var mid := (float(lot.x1) - float(lot.x0)) * 0.5
+		# A metre out from the store's front: on its walk, facing the street.
+		var at := ValleyFolk.point_of_lot(layout, markers.town, "general_store", mid, -1.0, 0.05)
+		out.append({"at": at, "yaw": PI, "where": "on the general store's walk"})
+	return out
+
+
+## A spot out in Main Street (WorldPlaces.street_spot): `along` m east of `from` (turned back past
+## the town's ends, valley.json's main_street x), `across` m off its middle, on the ground.
+func street_spot(from: Vector3, along: float, across := 0.0) -> Vector3:
+	var ms: Dictionary = layout.town().get("main_street", {})
+	var ends: Array = ms.get("x", [-125.0, 130.0])
+	var lo := float(ends[0]) + 5.0
+	var hi := float(ends[1]) - 5.0
+	var x := from.x + along
+	if x > hi or x < lo:
+		x = from.x - along
+	x = clampf(x, lo, hi)
+	var z := float(ms.get("z", 0.0)) + across
+	return Vector3(x, ValleyFolk.surface_of(markers.town if markers else null, x, z), z)
