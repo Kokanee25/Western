@@ -1560,11 +1560,8 @@ func _street_spot(p: Vector3) -> Vector3:
 	var side := signf(body.global_position.x - p.x)
 	if side == 0.0:
 		side = 1.0
-	var x := p.x + side * 12.0
-	# Main Street between Market Street and Freight Street (config/town.json).
-	if x > 16.0 or x < -34.0:
-		x = p.x - side * 12.0
-	return TownLayout.street_point(clampf(x, -34.0, 16.0), -0.6 + _think.randf_range(-1.0, 1.0))
+	# The loaded world's Main Street (the old town's or the valley's: WorldPlaces, #864).
+	return WorldPlaces.street_spot(get_tree(), p, side * 12.0, _think.randf_range(-1.0, 1.0))
 
 
 ## Face to face in the open, hand by the holster. He goes for his gun when you go for yours, or
@@ -2675,7 +2672,7 @@ func _friend_in_the_way(point: Vector3) -> bool:
 	var hit := World.space(body).intersect_ray(q)
 	if hit.is_empty():
 		return false
-	var who: Variant = (hit.collider as Object).get_meta(&"human_body", null)
+	var who: Variant = (hit.collider as Object).get_meta(&"human_body") if (hit.collider as Object).has_meta(&"human_body") else null
 	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
 	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
@@ -2686,7 +2683,7 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	if ballistics == null:
 		return
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var t_rev := _revolver_tuning()
 	# Along the barrel, where his hand has it: the wander, the lag onto a moving man, the kick of
 	# his last shot, a jolt. No dice (GunHand). Variant A: in a cone round his aim.
 	var dir := hand.barrel() if variant != Variant.A else _cone_shot(ballistics, origin, point, t)
@@ -2787,10 +2784,21 @@ func _judge_range() -> void:
 	_range_err = maxf(1.0 + _range_rng.randfn(0.0, range_judgement), 0.3)
 
 
+## The revolver's numbers, loaded once (a `load()` a shot was a lookup each, and the first a read
+## from disk on the fight's first shot: #881).
+static var _rev_tuning: RevolverTuning
+
+
+static func _revolver_tuning() -> RevolverTuning:
+	if _rev_tuning == null:
+		_rev_tuning = load("res://config/revolver.tres")
+	return _rev_tuning
+
+
 ## He knows his gun: aimed from `origin` at `point`, held over for the drop at the range he judges
 ## it to be (off by `range_judgement`, judged again each shot).
 func _held_over(ballistics: Ballistics, origin: Vector3, point: Vector3) -> Vector3:
-	var t_rev: RevolverTuning = load("res://config/revolver.tres")
+	var t_rev := _revolver_tuning()
 	var judged := origin.distance_to(point) * _range_err
 	var base := (point - origin).normalized()
 	var axis := base.cross(Vector3.UP)

@@ -55,7 +55,10 @@ the history in `docs/status/`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
   of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
-  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
+  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). **Suspended from
+  2026-11-13 evening until Sean says otherwise** (about ten PRs ready at once merged one an hour): merge as
+  soon as your PR's own "Test and build" is green, after merging main in; if main goes red after, the next
+  session finds which merge did it and fixes it first. The
   status logs merge by union (`.gitattributes`), so two sessions' entries both land.
 - **CI builds PRs, not branch pushes** (Sean, #504: Actions minutes): run the tests locally
   before every push. A plain push to your branch builds nothing; opening the PR builds it, and
@@ -205,6 +208,10 @@ demo. The first slice's definition (DESIGN.md §12) is the roadmap's Gate D.
 Context is the budget: three sessions share one weekly limit, and everything this file loads is
 paid on every turn of every session.
 
+- **Claim your issue first** (Sean, 2026-11-13: two sessions started on one issue): before anything else,
+  read your issue's labels. If it has **`in progress`**, stop and tell Sean another session has it (its
+  "Started" comment says which). Otherwise add the `in progress` label and comment "Started: <your session
+  link>, branch <branch>, <time>". Remove the label when you stop (merged, handed over, or waiting on Sean).
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and your lane's file, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
@@ -212,7 +219,7 @@ paid on every turn of every session.
   open). Then, and never later: write the status entry and your lane file's lines, and do no
   more work. **If the work goes on in a new session, hand it over** (Sean, 2026-11-02): end your
   last message with **"Step done: <what>."**, one plain sentence for Sean saying what the next
-  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line the model line below)
+  session will do and why (so he knows what he's starting), and then a **handover prompt** in one fenced block (its first line `#N: <short title>`, the issue it works, so the session's name in Sean's list starts with the number (Sean, 2026-11-13); its second line the model line below)
   that Sean pastes, unedited, into a fresh session. It stands alone (the fresh session has seen
   nothing of this one): the lane and the issue it works (#N, read it and its comments first), the
   branch to start (from `main`), the goal and what done looks like, what this session found and
@@ -349,10 +356,10 @@ python3 tools/bridge.py stop
 keeping it under ~10 KB: where things stand, what's open, the traps. No history in these files: that goes in
 `docs/status/` and the PR. The roadmap (`docs/ROADMAP.md`) decides what each lane does next.
 
-- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (next the jail, #780).
+- `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next its stone as rubble, #860, then the general store).
 - `docs/lanes/gameplay.md`: the slice's missions (next No Law step 4, #796), the valley, weapons, the soak.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
-- `docs/lanes/props.md`: the kit and factory (next the doctor's D2, #805).
+- `docs/lanes/props.md`: the kit and factory (saloon B's S1 and S2 made, not placed; next S3, #892).
 - `docs/lanes/sound.md`: GameAudio, the fiddler (#799), voiced lines (#807).
 
 Latest status entries: `docs/status/2026-11-11_onward.md` (the end of the file). The full Current state as

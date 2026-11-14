@@ -1,0 +1,44 @@
+# Saloon B (1882), batch S1: prop references
+
+Period references for the saloon's props. All from Wikimedia Commons (2026-11-13), downloaded as
+Commons' standard 960 px (or 500 px, for small originals) thumbnails and saved as JPEG at most
+1200 px on the long side. Public domain or CC0 only, as Commons states it (nothing CC BY / CC BY-SA).
+References only: nothing here is a texture or ships in the game. Dates are the object's or
+photograph's as the source gives them; "not given" means the source doesn't say. No PD/CC0 image
+was found for box_stove, lookout_stool or slat_mat (the Black Hawk photo shows a stove at its left
+edge, a round one, not a box stove).
+
+| File | Prop | What it shows | Date | Author | Licence | Source |
+|---|---|---|---|---|---|---|
+| hanging_lamp_barber_shop_toledo_c1895.jpg | hanging_lamp | Barber shop interior, Toledo, Ohio; a kerosene lamp hung from the ceiling on a drop, top centre | 1895 ("approximately 1895" in the title) | not given | Public domain | https://commons.wikimedia.org/wiki/File:Barber_shop,_Toledo,_Ohio_(approximately_1895)_-_DPLA_-_07abaa85c81d1f0bdeea0b5e8e991ab2.jpg |
+| hanging_lamp_shaded_bohner_patent_1872.jpg | hanging_lamp_shaded | George Bohner's patent drawing for a hanging lamp: chimney lamp in a frame under a wide flat shade, with plan of the ring | 30 April 1872 | Department of the Interior, Patent Office (via NARA) | Public domain | https://commons.wikimedia.org/wiki/File:George_Bohner_Hanging_-_Lamp_-_DPLA_-_f0325f95db146f53803491a643879929_(page_1).jpg |
+| shot_glass_whiskey_taster_met.jpg | shot_glass | American pressed-glass whiskey taster (small heavy tumbler), the Met | 1840–60 | not given (the Met) | CC0 | https://commons.wikimedia.org/wiki/File:Whiskey_Taster_MET_153416.jpg |
+| schooner_beer_glass_wainwright_c1890.jpg | schooner | Stemmed clear-glass beer glass lettered "We sell Wainwright's beer", Missouri History Museum | circa 1890 | not given | Public domain | https://commons.wikimedia.org/wiki/File:Glass_tumbler_featuring_Wainwright%27s_Beer_sold_in_Forest_Park.jpg |
+| decanter_pressed_glass_met.jpg | decanter | Fluted pressed-glass decanter with its faceted stopper, the Met | 1850–70 | not given (the Met) | CC0 | https://commons.wikimedia.org/wiki/File:Decanter_MET_DP235366.jpg |
+| work_board_seattle_saloon_back_bar_c1895.jpg | work_board | "Billy the Mugs" saloon, Seattle: bar front with foot rail, back bar with bottles, kegs and a cash register, bartender behind | circa 1895 | not given | Public domain | https://commons.wikimedia.org/wiki/File:Saloon_interior_showing_men_standing_at_the_bar,_Occidental_Ave_and_Washington_St,_ca_1895_(SEATTLE_2953).jpg |
+| faro_table_morenci_saloon_1895.jpg | faro_table | Faro game in a saloon at Morenci, Arizona: layout on the table, chips, dealing box, players and dealer close up | 1895 | unknown American photographer (via Zeno.org) | Public domain | https://commons.wikimedia.org/wiki/File:Amerikanischer_Photograph_um_1895_-_%C2%BBSaloon%C2%AB_in_Morenci-_Arizona_(Zeno_Fotografie).jpg |
+| faro_table_new_jersey_engraving_1889.jpg | faro_table | Engraving of a faro game in New Jersey: long table with chip stacks, dealer and players, a multi-lamp shaded fixture hung over the table | 1889 (per the description) | not given | Public domain | https://commons.wikimedia.org/wiki/File:New_jersey_faro.jpg |
+| piano_stool_revolving_stools_c1860.jpg | piano_stool | Furniture-catalogue plate "Tabourets de piano, nouveaux modèles" (Le Magasin de Meubles): five revolving piano stools, turned and cast-iron legs | circa 1860 | unknown | Public domain | https://commons.wikimedia.org/wiki/File:Tabourets_de_piano.jpg |
+| wheel_of_fortune_evans_gambling_wheel.jpg | wheel_of_fortune | Gambling (dice) wheel by H. C. Evans & Co., Chicago, on a stand, Bayernhof Museum; the source doesn't date the object, so it may be later than 1882 | photo 2013-05-18; object not given | Daderot | CC0 | https://commons.wikimedia.org/wiki/File:Gambling_wheel_by_H._C._Evans_and_Co.,_Chicago_-_Bayernhof_Museum_-_DSC06276.JPG |
+| arm_rail_trinidad_saloon_1880s.jpg | arm_rail | Saloon in Trinidad, Colorado: long carved bar front with brass foot rail and towels hung along it, ornate back bar, chandelier | not given (file title says 1880s) | not given | Public domain | https://commons.wikimedia.org/wiki/File:Trinidad_CO_Saloon_1880s.jpg |
+| bar_towel_toll_gate_saloon_black_hawk_1897.jpg | bar_towel | Toll Gate Saloon, Black Hawk, Colorado: towels hanging from the bar front, foot rail, spittoon, back bar, two shaded hanging lamps, stove at left | from 1897 | not given (via Library of Congress) | Public domain | https://commons.wikimedia.org/wiki/File:1897_Saloon_Blackhawk.jpg |
+| till_and_scales_gold_dust_scale_dawson_1899.jpg | till_and_scales | "Paying with gold dust": a balance scale on the bar and a man weighing out dust, Dawson, Yukon | autumn 1899 | Larss & Duclos Studio | Public domain | https://commons.wikimedia.org/wiki/File:Saloon_interior_showing_a_man_and_others_with_gold_dust_and_scale,_Dawson,_Yukon_Territory,_autumn_1899_(AL%2BCA_2709).jpg |
+| cards_chips_full_house_trompe_loeil_c1895.jpg | cards_chips | Trompe-l'oeil painting (National Gallery of Art): a full house of playing cards, red, white and blue chips, $2 and $5 notes | circa 1895 | American 19th Century | CC0 | https://commons.wikimedia.org/wiki/File:American_19th_Century,_Trompe_l%27Oeil_-_A_Full_House_with_Chips,_$2_and_$5_Bills,_c._1895,_NGA_140346.jpg |
+
+## Batch S2 (2026-11-13)
+
+Same rules as S1: Wikimedia Commons, 960 px (500 px for small originals) thumbnails, public domain or
+CC0 as Commons states it. The Kelley's saloon file is a crop (left part, kegs and wagon) of Commons'
+1920 px thumbnail. Every prop found something PD/CC0, but no period photograph was found for
+wall_bench (the one ref is a 1930s watercolour of a Shaker bench) and no 1870s–80s cookstove image
+(the nearest is a 1904 newspaper engraving). The Webster stove is box-shaped and also suits S1's box_stove.
+
+| File | Prop | What it shows | Date | Author | Licence | Source |
+|---|---|---|---|---|---|---|
+| wall_bench_shaker_porch_bench_index_american_design.jpg | wall_bench | Index of American Design watercolour of a Shaker porch bench: plain board seat on two board-end legs with V-notched feet, a back rail on posts, an L-shaped corner run | painting 1935–42; object not given | Lon Cronk (National Gallery of Art) | CC0 | https://commons.wikimedia.org/wiki/File:Lon_Cronk,_Shaker_Porch_Bench,_1935-1942,_NGA_25620.jpg |
+| handsaw_disston_patent_1875.jpg | handsaw | Henry Disston's patent drawing "Hand-Saws" (No. 158,921): full saw with tapered blade and closed wooden handle, handle and blade-back details | 19 January 1875 | Department of the Interior, Patent Office (via NARA) | Public domain | https://commons.wikimedia.org/wiki/File:H._Disston_Hand-Saws_-_DPLA_-_132f6e498a5e351a5ec4f338d4cb8f32_(page_1).jpg |
+| fiddle_bow_chalfant_violin_and_bow_1889.jpg | fiddle_bow | American trompe-l'oeil painting (the Met): a worn violin with its bow hanging on a board wall by a peg | 1889 | Jefferson David Chalfant | CC0 | https://commons.wikimedia.org/wiki/File:Violin_and_Bow_MET_ap66.169.jpg |
+| beer_keg_kelleys_saloon_round_pond_1894.jpg | beer_keg | Crowd outside Kelley's saloon "The Bijou", Round Pond, Oklahoma Territory: hooped wooden kegs on a beer wagon and one on the ground, men holding beer glasses | January 1894 | Kennett (photographer named in title; via NARA) | Public domain | https://commons.wikimedia.org/wiki/File:Gathered_around_the_kegs_at_Kelley%27s_saloon_%22The_Bijou.%22_Round_Pond,_OkIa._Terr._By_Kennett,_January_1894_-_NARA_-_540092.jpg |
+| beer_keg_racking_room_columbia_brewing_1919.jpg | beer_keg | Racking room, Columbia Brewing Co., Tacoma: wooden kegs with iron hoops and bungs close up on their sides being filled, more stacked behind (after 1910, but kegs of the old kind) | 1919 | Marvin Dement Boland | Public domain | https://commons.wikimedia.org/wiki/File:1919_Columbia_Brewing_Co_Racking_Room_Marvin_D_Boland_Collection_WO585683.jpg |
+| cookstove_charter_oak_tacoma_ad_1904.jpg | cookstove | Newspaper engraving of a "Royal Charter Oak" cast-iron range: four-hole top, ornate oven door, firebox door, high shelf/warming closet with towel bars | 18 May 1904 | unknown (advert for Joseph Kaufman, Tacoma) | Public domain | https://commons.wikimedia.org/wiki/File:Charter_Oak-brand_stove.jpg |
+| cookstove_wood_burner_index_american_design_c1939.jpg | cookstove | Index of American Design watercolour of a cast-iron wood-burner cook stove (maker's name and "York, Pa." on the front): box body with cast panel doors, flue collar, hearth shelf, splayed legs | painting circa 1939; object not given | Walter L. Webster (National Gallery of Art) | CC0 | https://commons.wikimedia.org/wiki/File:Walter_L._Webster,_Wood_Burner_Cook_Stove,_c._1939,_NGA_27039.jpg |

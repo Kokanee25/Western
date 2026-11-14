@@ -54,8 +54,18 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   padlock shot, papers taken or the box shouldered; won up the rimrock trail, Enter again; StoryState `coach.*`.
   8 scripted runs (`fight_runs.py`): won 5, lost 2, one standoff; worst frame ~32 ms at Sean's. Open: the throw
   breaks most of the guards' bones (BodyImpacts inside the coach), so most give up without firing; the playtest
-  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop, the "store floor" wake line. Next: #840.
+  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
+- **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
+  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881,
+  the review's "After the cuts")**: far men ~0.3 of a near man (`PeopleTickTuning.seen_nearer_far`,
+  `aim_needs_sights`), calm men look at calm men every 2nd look (`calm_look_every`, `HumanBody.tick_calm`),
+  fingers posed on change; day with 25 ≈ 3.5 on #865's scale (4.9 on the slower workspace that measured it):
+  **the brief's 24 fit**. The valley's spec buildings warm their first analysis on a worker
+  (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
+  65,536. Train past 400 m `Train.distant`. Open: every scene's else is over (~1 ms untimed engine share, the
+  train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
+  walk casts); the gunfight's people are over (its men at full rate by design).
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
@@ -63,9 +73,21 @@ dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
 
+- **Resets and places** (#864, the review's R3): a reload wipes the story (`GameReset`; No Law plays again after
+  Backspace); a mission's retry starts from the story at its start (`GameReset.retry`, `StoryState.mark_checkpoint`).
+  `WorldPlaces`: knocked out in the valley you wake at its doctor's (`bedside`), else the store's walk; the outlaws'
+  street spot is the loaded world's. Open from R3: no shared "player down" rule (the sheriff and No Law don't watch
+  for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
+
 ## Open problems
-- **The nightly soak is red since Oct 29**: 8,448 orphaned nodes after four hours. Find which objects pile
-  up and free them (`tools/soak.gd`, LAYOUT "The soak").
+- **The card game's chair tests** (#834) fixed: crawling, light rubble is let through and shoved aside
+  (`Player._wade`); a man knocked down mid-rise is let through the pieces in him (`HumanBody._spare_ragdoll`).
+  Two traps left: the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions`
+  on one errors: test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+- **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
+  valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
+  `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
+  goldens and the tour (art's views); the bench is by hand (`perf_bench --world=valley`, below). Rubble growth is by design (DESIGN §8).
 - White patches (#670): not reproduced, waiting on Sean's F12.
 
 ## Traps
@@ -79,5 +101,7 @@ Night floor lab (#745).
   gang off (use the rope range).
 - lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
-- The native plugin builds here (`cargo build --release`, ~3 min).
+- The native plugin builds here (`cargo build --release`, ~3 min; copy the `.so` into `bin/`).
+- The valley bench: the drawn runs take ~6 min each (80 s of shader compiles). Workspaces' cores differ (one
+  read 38% slower at 25): compare against a baseline from the same workspace; the noise is ±0.35.
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.

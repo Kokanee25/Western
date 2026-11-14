@@ -200,10 +200,18 @@ addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread
 changed since the last soak, and by hand): `godot --headless --fixed-fps 60 -s res://tools/soak.gd -- --minutes=240 --out=build/soak`
 runs the street for hours of game time flat out (~3.4x real time here) with the clock at 30x: the
 gang rides in whenever it's gone, one of them picks a fight every 5 minutes, a fire and a stick
-twice every 100 minutes. Fails on any error, memory or nodes still climbing, orphan nodes,
-anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
+twice every 100 minutes. Two soaks a night since #863 (a matrix, `--world=town` and `--world=valley`:
+in the valley No Law's folk and their murder, the player carried round at a gallop, sticks and holes).
+Fails on any error, memory or nodes still climbing, orphan nodes *not held on purpose* still climbing
+(members at rest keep their mesh and shape aside, `StructureMember.rest`, and rubble drawn by its cell
+too, `RubbleRest.held_nodes()`: ~19,000 of a town's orphans are those; `orphans_problem`, tested in
+`test_soak_rules`), rubble with nothing left on it, the members' mesh cache past
+`MemberMesh.CACHE_LIMIT`, anyone stuck a minute on his way somewhere, anything under the ground or off the map, or the frame
 time creeping (the last 5-minute window's median over 3x the first's). `soak.md` is the run's
-summary and an artifact. Each problem is also printed as it's found (`soak problem, <kind>: ...`,
+summary and an artifact; its table has, each window, the held count, the rubble, members at rest and
+the mesh cache, and it ends with the kinds of node that grew most. Rubble growing is by design
+(DESIGN §8: persistent, nothing vanishes); it isn't a fault. A red night opens an issue labelled
+`nightly red` (or comments on the open one). Each problem is also printed as it's found (`soak problem, <kind>: ...`,
 lost bodies with their path, script, rubble members and speed; stuck men with where they are and
 where they're going) and each window prints the process's resident memory, so a run the runner
 kills still leaves its log; past 6 GB resident it stops early and reports. A frozen game prints
@@ -233,8 +241,11 @@ spread (`test_gun_feel`). CI prints every number against its range in the test r
 **The smoke test** (`src/debug/smoke_test.gd`, `SmokeTest`; `-- --smoke-test [--smoke-out=FILE]`
 on any build, a release export included): 30 s of the street (the gang in, a stick on the range, a
 member alight, a shot), every error counted by a Logger, then `[smoke] ok ...` and exit 0, or
-`[smoke] FAILED` with the errors and exit 1. With `--world=valley` it runs in the valley (nobody
-there yet: the people count isn't asked; its line ends `world valley`). Drawn, its clock starts at the first frame on
+`[smoke] FAILED` with the errors and exit 1. With `--world=valley` it runs in the valley (at least one
+person there, the stick 30 m from you on the dirt; its line ends `world valley`), and with
+`--mission=sheriff|sheriff_dies|coach` it fails if the mission never started (a `moment` or the
+`CoachCut`). The nightly (`nightly.yml`, job `smoke`, from source, headless) runs four legs: the valley,
+the sheriff on the road, No Law's sheriff's last day, the coach heist (~1 min each). Drawn, its clock starts at the first frame on
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
@@ -539,6 +550,11 @@ real look RoomLight is on whatever `Settings.room_light` says.
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
+  **The story (#864):** a reload (`reset`, `reload_scene`: Backspace, the look's I/M, the bridge's
+  `world`) is a fresh start and wipes StoryState (`clear_statics` = `clear_world` + `StoryState.wipe`);
+  a mission's retry (`GameReset.retry`: the coach's and the farmhouse's Enter) reloads with the story
+  at the mission's checkpoint (`StoryState.mark_checkpoint()` as each mission begins;
+  `clear_for_retry`). A save's load (after the slice) will be the retry's shape, never a wipe.
 - `GameQuit` (`game_quit.gd`, #435): every way out (the window's close, the smoke test, the soak,
   the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up; if a task of ours runs
   (`in_flight`: shadow merges, analyses, the fire's check, the sound warm-up, smoke steps) the tree
@@ -567,7 +583,9 @@ real look RoomLight is on whatever `Settings.room_light` says.
   to a crouch, jump or run to stand, each only with room over you (`Player.can_stand(height)`):
   `is_crawling` (is_crouching too), `force_crawl` (bridge `crawl [on|off]`), PlayerTuning `crawl_*`
   (0.5 m capsule, eyes 0.36, 0.6 m/s); the visible body put away flat; `height_share()` squashes
-  the wounds' parts (a lying man's hits are still taken as a squashed upright one's).
+  the wounds' parts (a lying man's hits are still taken as a squashed upright one's). Crawling,
+  light loose pieces (rubble up to `wade_max_kg`, a chair's) are let through you and shoved aside
+  (`Player._wade`, `wade_push`; #834): they neither wedge you nor carry you about.
 - A blast on you (`PlayerWounds._feel`, #596 step 2; dials BlastTuning's "On you" group): by the
   pressure at your ear (`blast_share`, a log scale), the world dulled (`muffle_hz`, the ears' low-pass
   on Master), the whine (`ring_level`; raised by what that filter takes off at its pitch,
@@ -602,6 +620,12 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/world
 
+- `WorldPlaces` (`world_places.gd`, #864): where things are in whichever world is loaded. `wake_spots`
+  (knocked out: the valley's doctor's `bedside`, else the general store's walk, ValleyWorld.wake_spots;
+  the old town's `DoctorInside`/`StoreInside`; none: where you fell) and `street_spot` (the outlaws'
+  call-out spot on the loaded Main Street). ValleyWorld is in group `valley_world`; a Moment's
+  `places()` in the valley are the valley's. `ValleyLayout.place` errors on an unknown id (`has_place`
+  to ask). `tests/test_world_places.gd`.
 - `World` (`src/world/world.gd`): the determinism rules (docs/briefs/more-cores.md "The design" F).
   `World.space(node)` is the only way to the physics space; a debug build errors once a site when
   it's asked outside the physics frame (the test runner fails on it: fire a shot or a query from
@@ -1213,7 +1237,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   a leg, an arm, the body; `favour_pace()` slows `walk_to`); Jolt at 20 velocity / 8 position
   steps in project.godot; his skin's culling box (each skin mesh's `custom_aabb`, about his root)
   follows his parts when he's limp or away from his root (`_keep_in_cull_box`, #562: a fixed box
-  hid a body thrown past it); **falls from height** (#759, Sean's table on #762; `Falls`,
+  hid a body thrown past it); getting up among loose pieces (`_spare_rubble`), they're let through
+  him, and knocked down again mid-rise, through the ragdoll too while they're in him (`_spared`,
+  `_spare_ragdoll`, `_unspare`; #834: Earl's chair broke his thigh); **falls from height** (#759, Sean's table on #762; `Falls`,
   `FallTuning` in `config/falls.tres`): any limp man coming down faster than `min_speed` (~1.5 m)
   is watched (`_step_fall`); his landing's energy (his weight and the speed of the height he came
   down from: the ragdoll's damping isn't counted) less what he goes on with is shared out as
@@ -1391,7 +1417,8 @@ Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics,
 `shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
 line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
 word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
-of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
+of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun once Cody's in, earl,
+done; over before he came in, `played` false: nothing written, and ValleyFolk tries again a minute on),
 `nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`. Cody (#796: not the red shirt;
 the role `cody`, the blacksmith's model) shouts his accusation as he's taken in off the street; the stranger's
 warning `warn_after_s` after it.
@@ -2245,6 +2272,14 @@ pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2,
 `lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
 `panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
 room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
+**Stone and lime** (#860, #857 1a): family `stone` (S1 `rubble_stone`) and `plaster` (PL1 `plaster_whitewash`,
+PL2 `rubble_whitewash`) drawn by `src/render/rubble_stone.gdshader` (a procedural rubble height field in the
+building's space, the scans `face_scan`/`plaster_scan` under it; quoins at `corners`, `drips` streaks,
+inside `regions` by floor height and finish). `StoneFinish` (`src/art/stone_finish.gd`) makes the material,
+sets its space and gives each stone member a chamfered mesh (`piece_mesh`, `exposed`); `SpecBuilding._stone_finish`
+uses it only once the spec's `materials.stone.want` is approved (or `"trial": true`, lab only, never committed).
+`--panels=stone|plaster` (SamplePanel's `_stone_wall`). Not yet approved: two judge rounds failed on the
+screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`).
 
 ## src/props/prop_models.gd
 
@@ -2380,6 +2415,16 @@ batch into his rooms on his valley lot and render the views (the doors' leaves s
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 
+**Saloon B's props** (#866): `tools/props/saloon.py` writes batch S1's kit files (the bar's arm rail its own
+kit, `bar_arm_rail`), `tools/blender/props/saloon_s1.py` their models (the faro layout and the wheel's
+face printed by Pillow). A hanging lamp is a GlassProp hung by a hook (`"hangs": {"hook"}`: footed on
+what's over it) that swings (`"swing"`: its model and lights on a `Swing` pivot, a damped pendulum driven
+by its joist's acceleration, `push_swing`; drawn, no body) and whose body is only `"hit"`'s box. A kit
+file's `"stove"` gives a KitProp a `StoveFire` (`src/props/stove_fire.gd`: a glow by the hour; going
+loose lit, its coals as a `FireSystem.small_fire`). A member's `"solid"` is the share of its box that's
+material (hollow iron, a tube; the rest still weighs as char, a fifth). Judged on the lab's stand (`experiments/prop_lab/saloon/s1_sheet.py`,
+the bridge's `stand` and `prop_light`).
+
 ## src/art/saloon_dressing.gd
 
 - `src/art/saloon_dressing.gd` (`SaloonDressing.build()`, called by `SaloonBuilding`): plank walls,
@@ -2459,6 +2504,15 @@ lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp)
 
 ## Characters by image-to-3D (tools/characters)
 
+- **Private people: MetaHumans** (#889): the Character Studio's `tools/metahuman_to_game.sh <build>`
+  lays a MetaHuman into the git-ignored `assets/people/private/` (never committed: the licence, #692);
+  his model is `private/<build>`, his lighter levels `private/<build>_lod1..3` (reports only:
+  `PeopleBodies.glb_of`, `simplified`, `thin_cards` cut them from his GLB at load). His report's
+  `alpha_cut` (the grooms' coverage, `body_skin`'s `alpha_cut`), `wears` (BodyMesh's hat on a whole
+  man) and `under_hat`. `tools/characters/private_people.gd` builds each level as the game does;
+  `tools/characters/metahuman_bench.py` is the valley bench with him as the townsfolk
+  (perf_bench `--folk-model=`, `--folk-far-model=`, `--folk-dress`). Report:
+  `docs/reviews/2026-11-metahumans-town.md`.
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
   in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal
@@ -2682,6 +2736,10 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `godot --headless -s res://tools/people_envelope.gd`, `python3 tools/blender/fetch_makehuman.py`,
   `~/bpyenv/bin/python tools/blender/make_people.py --only=outlaw` (~15 s; byte-for-byte repeatable
   except the face guide render). `CLOTH_PASSES=dir` saves each garment's raw bake passes for tuning.
+- `fp_arms.py` (#896, a lab's): the Studio MetaHuman's hands cut at the wrist by his own weights, the
+  rig trimmed to forearm, hand and the 30 finger bones, the shirt's cuff and coat's sleeve modelled
+  from his forearm's sections, wool twill and linen made in numpy; its glb is private (git-ignored,
+  `experiments/viewmodel_rig/private/`). Used by `experiments/viewmodel_rig/` (README there).
 
 ## addons/saltcreek_native (the native plugin)
 

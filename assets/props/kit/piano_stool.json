@@ -1,0 +1,202 @@
+{
+  "_doc": "The piano's stool (#866; refs experiments/prop_lab/refs/saloon/): a revolving piano stool of the 1870s-80s, a round seat covered in worn red plush on its screw, a turned ebonised column, four splayed legs ending in brass claws holding glass balls; the seat at 52 cm (it turns up or down: not yet). Turned work stays on its own look (the recipe: a library board is a box): ebonised walnut, plush and brass baked the gun way (tools/blender/props/saloon_s1.py). Wood `walnut` for its weight and burning. 6 physics bodies (its members). ~6 kg. Before the bar room's upright piano. Written by tools/props/saloon.py.",
+  "id": "piano_stool",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "seat",
+    "at": [
+      0.0,
+      0.52,
+      0.0
+    ],
+    "share": 0.85,
+    "hold": 0.05,
+    "sway": 0.03
+  },
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.3311,
+        0.04
+      ],
+      "at": [
+        0.0972,
+        0.13,
+        0.0972
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "rot": [
+        -29.1408,
+        0.0,
+        25.9641
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Leg0"
+      },
+      "blow_span": 0.26,
+      "dress": [
+        {
+          "look": "pbr:piano_stool",
+          "draw": {
+            "shape": "mesh",
+            "model": "piano_stool",
+            "part": "Claws"
+          }
+        },
+        {
+          "look": "glass:clear",
+          "draw": {
+            "shape": "mesh",
+            "model": "piano_stool",
+            "part": "Balls"
+          }
+        }
+      ]
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.3311,
+        0.04
+      ],
+      "at": [
+        -0.0972,
+        0.13,
+        0.0972
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "rot": [
+        -29.1408,
+        0.0,
+        -25.9641
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Leg1"
+      },
+      "blow_span": 0.26
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.3311,
+        0.04
+      ],
+      "at": [
+        -0.0972,
+        0.13,
+        -0.0972
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "rot": [
+        29.1408,
+        0.0,
+        -25.9641
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Leg2"
+      },
+      "blow_span": 0.26
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.3311,
+        0.04
+      ],
+      "at": [
+        0.0972,
+        0.13,
+        -0.0972
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "rot": [
+        29.1408,
+        0.0,
+        25.9641
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Leg3"
+      },
+      "blow_span": 0.26
+    },
+    {
+      "id": "column",
+      "kind": "furniture_frame",
+      "size": [
+        0.07,
+        0.23,
+        0.07
+      ],
+      "at": [
+        0.0,
+        0.355,
+        0.0
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Column"
+      }
+    },
+    {
+      "id": "seat",
+      "kind": "furniture_top",
+      "size": [
+        0.34,
+        0.06,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.49,
+        0.0
+      ],
+      "wood": "walnut",
+      "look": "pbr:piano_stool",
+      "draw": {
+        "shape": "mesh",
+        "model": "piano_stool",
+        "part": "Seat"
+      },
+      "dress": [
+        {
+          "look": "pbr:piano_stool",
+          "draw": {
+            "shape": "mesh",
+            "model": "piano_stool",
+            "part": "SeatRim"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon.py"
+}

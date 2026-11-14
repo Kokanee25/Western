@@ -1,0 +1,178 @@
+{
+  "_doc": "A plain wall bench (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the period's hall, depot and porch bench, a single pine seat plank 6 ft long and 13 in deep at 17 in, on four square legs set in 12 cm from its ends, a rail under its front and back edges, a low stretcher at each end, the back legs run on up into a back rail at 86 cm. Saloon B's dance hall has six round its walls (the girls and the men sat out between dances), the balcony one (Balcony Ambush's men need somewhere to be), the walk one or two. Painted pine from the material library (a few years; the seat and back rail old, rubbed bare where sat on and leaned against). Seats three (`seat` is its middle). 10 physics bodies (its members). ~18 kg. Written by tools/props/saloon_s2.py.",
+  "id": "wall_bench",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "seat",
+    "at": [
+      0.0,
+      0.44,
+      0.02
+    ],
+    "share": 0.8,
+    "hold": 0.05,
+    "sway": 0.03
+  },
+  "members": [
+    {
+      "id": "leg_front_l",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.405,
+        0.05
+      ],
+      "at": [
+        -0.795,
+        0.2025,
+        0.13
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.13
+    },
+    {
+      "id": "leg_front_r",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.405,
+        0.05
+      ],
+      "at": [
+        0.795,
+        0.2025,
+        0.13
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.13
+    },
+    {
+      "id": "post_back_l",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.86,
+        0.05
+      ],
+      "at": [
+        -0.795,
+        0.43,
+        -0.13
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.13
+    },
+    {
+      "id": "post_back_r",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.86,
+        0.05
+      ],
+      "at": [
+        0.795,
+        0.43,
+        -0.13
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "blow_span": 0.13
+    },
+    {
+      "id": "seat",
+      "kind": "furniture_top",
+      "size": [
+        1.83,
+        0.035,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.4225,
+        0.01
+      ],
+      "look": "lib:furniture_painted_pine/old/top"
+    },
+    {
+      "id": "rail_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.54,
+        0.08,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.365,
+        0.116
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "rail_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.54,
+        0.08,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.365,
+        -0.116
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "stretcher_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.035,
+        0.035,
+        0.21
+      ],
+      "at": [
+        -0.795,
+        0.13,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "stretcher_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.035,
+        0.035,
+        0.21
+      ],
+      "at": [
+        0.795,
+        0.13,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "back",
+      "kind": "furniture_frame",
+      "size": [
+        1.74,
+        0.13,
+        0.025
+      ],
+      "at": [
+        0.0,
+        0.795,
+        -0.1675
+      ],
+      "look": "lib:furniture_painted_pine/old"
+    }
+  ],
+  "factory": "tools/props/saloon_s2.py"
+}

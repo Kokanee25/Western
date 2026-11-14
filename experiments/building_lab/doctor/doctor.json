@@ -293,7 +293,23 @@
  "inside_finish": {
   "_doc": "#826 (Sean's pick 3 on #821): the inside boards drawn at the width their paint was judged at ('judged': painted_pale_tg's 9 cm beaded boards, three to a 27 cm member, SpecBuilding.strips_mesh; the ceiling's too), and a plain 8 in skirting at the foot of every boarded wall (its top rounded), stopped at the door casings; skirting, casings and the windows' sashes and linings in the trim's finish (surfaces /skirt, /casing, /window_).",
   "boards": "judged",
-  "skirting": 0.2
+  "skirting": 0.2,
+  "regions": [
+   {
+    "rect": [
+     0.1,
+     0.1,
+     8.43,
+     14.53
+    ],
+    "y": [
+     0.95,
+     4.35
+    ],
+    "finish": "plaster_whitewash",
+    "_why": "his ground floor's rooms: the chimneys' breasts"
+   }
+  ]
  },
  "walls": [
   {
@@ -1654,7 +1670,16 @@
   "trim_outside": "painted_green",
   "roof": "weathered_pine",
   "rough": "framing",
-  "chimney": "stone"
+  "chimney": "stone",
+  "stone": {
+   "want": {
+    "entry": "rubble_stone",
+    "age": "few"
+   },
+   "inside_age": "few",
+   "dressed": true,
+   "_why": "#857 pick 1a (the 'metal post', #844): his two chimneys plastered and whitewashed where they pass through his rooms (a chimney breast), dressed stone above the roof"
+  }
  },
  "sources": [
   "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
