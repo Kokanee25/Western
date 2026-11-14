@@ -9,7 +9,7 @@ extends Act
 ## doctor, the acting law, keeps you on as his deputy.
 ##
 ## The men are ValleyFolk's act men (`act: sheriff_dies`: built while the valley loads); the cot
-## and the wife's chair are kit props put in the sick room for the scene (the doctor's own cot, if
+## and the wife's chair are kit props put in the sick room for the scene (the doctor's own cot and chair, if
 ## the props lane has furnished his sick room, is used instead). Lines wait while you're out of
 ## earshot (`hear_m`); the beats are timed by their length (`cps`).
 
@@ -143,14 +143,22 @@ func _make_room() -> void:
 		street.add_child(cot)
 		_made.append(cot)
 	var chair_at := bp.global_position if bp else _local([2.0, 10.5])
-	chair = PropKit.make(&"chair")
-	chair.name = "BedsideChair"
-	var to := cot.global_position - chair_at
-	to.y = 0.0
-	# A chair faces its +z.
-	chair.transform = Transform3D(Basis(Vector3.UP, atan2(to.x, to.z)), Vector3(chair_at.x, chair_at.y - 0.02, chair_at.z))
-	street.add_child(chair)
-	_made.append(chair)
+	# The room's own chair by the bed if it has one (#844: the doctor's dressing puts his bentwood at
+	# the bedside point), as the cot.
+	for s: Node in get_tree().get_nodes_in_group(&"structures"):
+		var kp := s as KitProp
+		if kp and kp != cot and kp.definition.has("seat") and kp.global_position.distance_to(chair_at) < 0.6:
+			chair = kp
+			break
+	if chair == null:
+		chair = PropKit.make(&"chair")
+		chair.name = "BedsideChair"
+		var to := cot.global_position - chair_at
+		to.y = 0.0
+		# A chair faces its +z.
+		chair.transform = Transform3D(Basis(Vector3.UP, atan2(to.x, to.z)), Vector3(chair_at.x, chair_at.y - 0.02, chair_at.z))
+		street.add_child(chair)
+		_made.append(chair)
 
 
 ## The tick's top and the cot's length (its own space): where he lies.

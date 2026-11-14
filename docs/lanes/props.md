@@ -27,8 +27,21 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   size, the faro's chips, the kegs' colour).
 - **Next:** S3 (#892): the lying keg and its rack, the beds and the owner's desk; then the
   placing session once #865's body fix and #862's route land.
-- The doctor's office is furnished (D1-D3 merged); his coat and bookcase wait on Sean's pick (#871). The
-  Studio's branch `claude/studio-doctor-bag` is unmerged: Sean's OK needed.
+- **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
+  (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
+  `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
+  `lib:furniture_oak/few` or `lib:furniture_painted_pine/few` (#825). No D4. Blind critic, two rounds
+  (`experiments/prop_lab/results/2026-11-12_doctor_d3/r2/critic.md`): peg rail SAME; books, hat, bag, pot,
+  blankets CLOSE; **coat and bookcase DIFFERENT** (the coat hangs stiff as on a hanger: code-built cloth
+  doesn't drape; the bookcase is a low open oak shelf where the panel shows a tall dark glazed case on a
+  cupboard base). Those two wait on Sean's pick (#871); don't
+  re-judge the rest. Since #844 they're in his spec's `dressing`, placed in play.
+  The Studio's branch `claude/studio-doctor-bag` (the bag's card, pictures, model, ledger at $64.89 of $66)
+  is unmerged: Sean's OK needed.
+- **In the game since #844:** a building's props are its spec's `dressing` (`{"batches": {"D1": [...]}}`),
+  placed by its build (`SpecBuilding._dressing` -> `PropDressing`); `dress.gd` only reads `building.dressed`.
+  D3 moved there too, the sick room rearranged so no cot blocks a door; the jail's (#811) and the store's the same way.
+  `Checks.people_fit` now checks each door's way in (0.45 m either side) and a use point's `prop`.
 - Parked until after the slice: the Concord-bodied coach (#787; `tools/props/coach.py`, the boxy
   `baron_coach` stays), farmhouse props (#540).
 
@@ -37,6 +50,11 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - Never two renders, or a render and the suite, at once. A same-kind member thinner than 12 mm isn't "on" the
   one under it (CONTACT_EPSILON). The valley has no StaticBatch (glass props draw part by part).
 - A hung cloth needs `hang_over` (a bar slips between points).
+- A use point on furniture (a bed, a table, a chair) names it (`prop`), or the fit check fails it.
+- Glass props cost at rest: the doctor's ~270 dressed props add ~0.3 ms a frame at Sean's (physics carrying ~390
+  resting bodies; their own ticks ~0.06), ~1.7 us a prop here: a whole town dressed so would be ms. Their fixed
+  parts draw through the dressing's `StaticBatch` (Forward+ only; this workspace needs `mesa-vulkan-drivers`
+  or the bridge falls back to OpenGL, where neither batch runs and draws read ~2x).
 - `model_paint` refuses a StandardMaterial3D; Rodin props need mipmapped paints.
 - Every kit member is a physics body standing: put small things on a prop as its `dress`, give hollow
   members `"solid"` (the share that's material) or their weight is the box's.
