@@ -38,10 +38,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
-  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Next: step 3, the
-  roster as data** (the 16 people's days, homes, dials; the street's and buildings' spots). Step 1's perception
-  leaks still wait. Open: BookLights' panes are greybox (art's fronts); a man the player follows into a real
-  interior still goes onto the book at its door; spot-to-spot moves are built but no one has two spots yet.
+  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
+  the roster as data: the 16 in `config/valley_folk.json` (home, ordinary day, `sunday` for the store and smithy,
+  `dials` via `ValleyFolk.dials_of`, data only), the street's `<lot>_walk` spots, a `lot` on a `places` entry (the
+  livery's door). The doctor and preacher have day ids (`doctor`, `churchman`) beside their act men (`doc`,
+  `preacher`: no hours). The new men at night are on the book inside the saloon, not in the yard (No Law's).
+  **Next: step 4, spots** (lean, sit, counter, sweep, carry, talk, drink; Opus). Step 1's perception leaks still
+  wait. Open: BookLights' panes are greybox (art's fronts); the doctor's crossing is 14-15 (the brief's 7-12 waits
+  for the sheriff-dies act to borrow him); two women share the widow's body (store wife, landlady), the townsman
+  is the storekeeper's copy; spot-to-spot moves are built but no one has two spots yet; the men's build at load
+  is ~20 s headless (25 men).
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,

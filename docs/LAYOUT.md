@@ -763,6 +763,19 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
   (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
   `--world=valley` tours it with sticks and digs.
+- **The valley's ground drawn real and its scatter** (#891, art's; `-- --greybox-ground` and `-- --no-scatter`
+  give the old): `ValleyGroundArt` (`src/art/valley_ground_art.gd`) makes the material ValleyGround's
+  blocks and the dug tiles wear (`src/art/valley_ground.gdshader`: six CC0 scans, `config/valley_ground_art.tres`)
+  and answers the ground map (`assets/textures/valley/ground_map_a.res`, `_b.res`, baked from valley.json by
+  `godot --headless -s res://tools/textures/valley_ground_map.gd`; re-bake when valley.json changes:
+  `tests/test_valley_ground_art.gd` fails until it is): `road_at`, `off_road`, `water_at`, `flags_at`,
+  `kept_clear`. `ValleyScatter` (ValleyWorld's `Scatter`; `config/valley_scatter.tres`, a species a dict):
+  cells a species round the camera, a MultiMesh a piece (near, far by visibility range; sage hands over
+  per pixel), seeded by cell; boulders and trunks one StaticBody3D a cell; Prof `scatter`.
+  `make_all_round(at)` builds at once (tools, tests). Meshes: `tools/textures/scatter_meshes.gd` cuts the
+  Poly Haven scans (`assets/props/scans/`, fetched by `scans.yml` from `tools/textures/scans/model_picks.json`)
+  to `<piece>_near.res`/`_far.res`; the trees are `ValleyTrees` (code). Views:
+  `tools/textures/valley_ground_shots.sh OUT [game args] [only]` (`valley_ground_views.txt`).
 - **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
   ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
   own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
@@ -1743,6 +1756,14 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
+  `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
+  only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
+  Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
+  second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
+  funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
+  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
