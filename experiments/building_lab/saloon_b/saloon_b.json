@@ -3391,12 +3391,12 @@
 			]
 		},
 		"backdrop": {
-			"_doc": "15 x 7.5 ft: the room's height (2.59 m over the stage to the trusses' ties) leaves no 9 ft drop. `art`: the painting, once Sean OKs it (#902's waiting-on-Sean issue)",
+			"_doc": "15 x 7.5 ft: the room's height (2.59 m over the stage to the trusses' ties) leaves no 9 ft drop. `art`: Salt Creek as the Baron promises it (tools/textures/materials.json drop_baron; Sean's yes on #960, painted for $0.10, People run 133)",
 			"width": 4.6,
 			"height": 2.3,
 			"lift": 0.08,
 			"wall": 13.335,
-			"art": ""
+			"art": "res://assets/textures/drop_baron.png"
 		}
 	},
 	"dressing": {
