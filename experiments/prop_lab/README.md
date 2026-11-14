@@ -200,6 +200,6 @@ Street's front; the stage x 2.5 to 7.4, z 10.9 to 13.36, 0.76 m high; the wing x
 | `costume_pegs` | 10 | its members; a peg gone drops what hangs on it | dressing room, on the wall across from the mirror, its rail at ~1.7 m: 1 |
 | `travelling_trunk` | 7 | its members (the costumes burn) | dressing room at the foot of the pegs, shut: 1; the wing, open (`open_hinge("lid")`), the night's costumes: 1 |
 | `dressing_screen` | 15 | its members (the cloth burns) | dressing room, across its corner by the door: 1; the wing, for a quick change: 1 (if the wing's 2.4 m allows it beside the steps) |
-| `footlight` | 1 | up to 10 shards + the tin; a lit one's oil burns | the stage's front edge (building z ~10.95, on the stage's boards at y 0.76), the hood (+z of its own space) toward the dance floor, the building's -z (turned 180): 5, ~0.9 m apart, x 3.0 to 6.9, each with its OilLamp at `light_height` |
+| `footlight` | 1 | up to 10 shards + the tin; a lit one's oil burns | the stage's front edge (building z ~10.95, on the stage's boards at y 0.76), the reflector behind the chimney (its -z), open toward the dance floor: its +z toward the building's -z (still turned 180): 5, ~0.9 m apart, x 3.0 to 6.9, each with its OilLamp at `light_height` |
 
 ~65 bodies for the set as listed (the valley had ~5,100 to spare at #865's count, before #902's stage).
